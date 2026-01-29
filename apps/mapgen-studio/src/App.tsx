@@ -141,6 +141,19 @@ function formatErrorForUi(e: unknown): string {
   return json ?? String(e);
 }
 
+function randomU32(): number {
+  try {
+    if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+      const buf = new Uint32Array(1);
+      crypto.getRandomValues(buf);
+      return buf[0] ?? 0;
+    }
+  } catch {
+    // ignore
+  }
+  return (Math.random() * 0xffffffff) >>> 0;
+}
+
 function oddQToAxialR(row: number, colParityBase: number): number {
   const q = colParityBase | 0;
   return row - (q - (q & 1)) / 2;
@@ -1322,6 +1335,14 @@ export function App() {
                   onChange={(e) => setBrowserSeed(Number.parseInt(e.target.value || "0", 10) || 0)}
                   style={{ ...controlBaseStyle, width: 96 }}
                 />
+                <button
+                  onClick={() => setBrowserSeed(randomU32())}
+                  style={{ ...buttonStyle, padding: "6px 10px" }}
+                  title="Reroll seed"
+                  type="button"
+                >
+                  Reroll
+                </button>
               </label>
               <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 <span style={{ fontSize: 12, color: "#9ca3af" }}>W×H</span>
