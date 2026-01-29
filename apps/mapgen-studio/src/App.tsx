@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DeckGL } from "@deck.gl/react";
 import { OrthographicView } from "@deck.gl/core";
 import { PathLayer, ScatterplotLayer, PolygonLayer } from "@deck.gl/layers";
+import type { BrowserRunEvent, BrowserRunRequest } from "./browser-runner/protocol";
 
 type Bounds = [minX: number, minY: number, maxX: number, maxY: number];
 
@@ -16,7 +17,8 @@ type VizLayerEntryV0 =
       stepIndex: number;
       format: VizScalarFormat;
       dims: { width: number; height: number };
-      path: string;
+      path?: string;
+      values?: ArrayBuffer;
       bounds: Bounds;
     }
   | {
@@ -26,8 +28,10 @@ type VizLayerEntryV0 =
       phase?: string;
       stepIndex: number;
       count: number;
-      positionsPath: string;
+      positionsPath?: string;
+      positions?: ArrayBuffer;
       valuesPath?: string;
+      values?: ArrayBuffer;
       valueFormat?: VizScalarFormat;
       bounds: Bounds;
     }
@@ -38,8 +42,10 @@ type VizLayerEntryV0 =
       phase?: string;
       stepIndex: number;
       count: number;
-      segmentsPath: string;
+      segmentsPath?: string;
+      segments?: ArrayBuffer;
       valuesPath?: string;
+      values?: ArrayBuffer;
       valueFormat?: VizScalarFormat;
       bounds: Bounds;
     };
@@ -298,8 +304,22 @@ export function App() {
   const [viewportSize, setViewportSize] = useState({ width: 800, height: 600 });
   const isNarrow = viewportSize.width < 760;
 
-  const [fileMap, setFileMap] = useState<FileMap | null>(null);
-  const [manifest, setManifest] = useState<VizManifestV0 | null>(null);
+  const [mode, setMode] = useState<"browser" | "dump">("browser");
+
+  const [dumpFileMap, setDumpFileMap] = useState<FileMap | null>(null);
+  const [dumpManifest, setDumpManifest] = useState<VizManifestV0 | null>(null);
+
+  const [browserManifest, setBrowserManifest] = useState<VizManifestV0 | null>(null);
+  const browserWorkerRef = useRef<Worker | null>(null);
+  const browserRunTokenRef = useRef<string | null>(null);
+  const [browserRunning, setBrowserRunning] = useState(false);
+  const [browserLastStep, setBrowserLastStep] = useState<{ stepId: string; stepIndex: number } | null>(null);
+  const [browserSeed, setBrowserSeed] = useState(123);
+  const [browserWidth, setBrowserWidth] = useState(106);
+  const [browserHeight, setBrowserHeight] = useState(66);
+
+  const manifest = mode === "dump" ? dumpManifest : browserManifest;
+  const fileMap = mode === "dump" ? dumpFileMap : null;
   const [error, setError] = useState<string | null>(null);
 
   const [selectedStepId, setSelectedStepId] = useState<string | null>(null);
@@ -328,6 +348,14 @@ export function App() {
     if (!manifest) return [];
     return [...manifest.steps].sort((a, b) => a.stepIndex - b.stepIndex);
   }, [manifest]);
+
+  useEffect(() => {
+    if (!manifest) return;
+    if (selectedStepId && manifest.steps.some((s) => s.stepId === selectedStepId)) return;
+    const firstStep = [...manifest.steps].sort((a, b) => a.stepIndex - b.stepIndex)[0]?.stepId ?? null;
+    setSelectedStepId(firstStep);
+    setSelectedLayerKey(null);
+  }, [manifest, selectedStepId]);
 
   const layersForStep = useMemo(() => {
     if (!manifest || !selectedStepId) return [];
@@ -384,6 +412,7 @@ export function App() {
   const openDumpFolder = useCallback(async () => {
     setError(null);
     try {
+      setMode("dump");
       const anyWindow = window as any;
       if (typeof anyWindow.showDirectoryPicker === "function") {
         const dirHandle: any = await anyWindow.showDirectoryPicker();
@@ -409,9 +438,9 @@ export function App() {
           normalized.set(path, file);
           normalized.set(stripRootDirPrefix(path), file);
         }
-        setFileMap(normalized);
+        setDumpFileMap(normalized);
         const m = await loadManifestFromFileMap(normalized);
-        setManifest(m);
+        setDumpManifest(m);
         const firstStep = [...m.steps].sort((a, b) => a.stepIndex - b.stepIndex)[0]?.stepId ?? null;
         setSelectedStepId(firstStep);
         setSelectedLayerKey(null);
@@ -432,14 +461,15 @@ export function App() {
     try {
       const input = directoryInputRef.current;
       if (!input?.files) return;
+      setMode("dump");
       const files: FileMap = new Map();
       for (const file of Array.from(input.files)) {
         const rel = (file as any).webkitRelativePath ? String((file as any).webkitRelativePath) : file.name;
         files.set(stripRootDirPrefix(rel), file);
       }
-      setFileMap(files);
+      setDumpFileMap(files);
       const m = await loadManifestFromFileMap(files);
-      setManifest(m);
+      setDumpManifest(m);
       const firstStep = [...m.steps].sort((a, b) => a.stepIndex - b.stepIndex)[0]?.stepId ?? null;
       setSelectedStepId(firstStep);
       setSelectedLayerKey(null);
@@ -448,6 +478,161 @@ export function App() {
       setError(e instanceof Error ? e.message : String(e));
     }
   }, [setFittedView]);
+
+  const stopBrowserRun = useCallback(() => {
+    const w = browserWorkerRef.current;
+    browserWorkerRef.current = null;
+    browserRunTokenRef.current = null;
+    setBrowserRunning(false);
+    setBrowserLastStep(null);
+    if (w) w.terminate();
+  }, []);
+
+  useEffect(() => {
+    return () => stopBrowserRun();
+  }, [stopBrowserRun]);
+
+  useEffect(() => {
+    if (mode === "dump") stopBrowserRun();
+  }, [mode, stopBrowserRun]);
+
+  const startBrowserRun = useCallback(() => {
+    setError(null);
+    setMode("browser");
+    setBrowserManifest(null);
+    setSelectedStepId(null);
+    setSelectedLayerKey(null);
+    setFittedView([0, 0, 1, 1]);
+    setBrowserLastStep(null);
+
+    stopBrowserRun();
+
+    const runToken =
+      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `run_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    browserRunTokenRef.current = runToken;
+
+    const worker = new Worker(new URL("./browser-runner/foundation.worker.ts", import.meta.url), { type: "module" });
+    browserWorkerRef.current = worker;
+    setBrowserRunning(true);
+
+    worker.onmessage = (ev: MessageEvent<BrowserRunEvent>) => {
+      const msg = ev.data;
+      if (!msg || msg.runToken !== browserRunTokenRef.current) return;
+
+      if (msg.type === "run.started") {
+        setBrowserManifest({
+          version: 0,
+          runId: msg.runId,
+          planFingerprint: msg.planFingerprint,
+          steps: [],
+          layers: [],
+        });
+        return;
+      }
+
+      if (msg.type === "run.progress") {
+        if (msg.kind === "step.start") {
+          setBrowserLastStep({ stepId: msg.stepId, stepIndex: msg.stepIndex });
+          setBrowserManifest((prev) => {
+            if (!prev) return prev;
+            if (prev.steps.some((s) => s.stepId === msg.stepId)) return prev;
+            return {
+              ...prev,
+              steps: [...prev.steps, { stepId: msg.stepId, phase: msg.phase, stepIndex: msg.stepIndex }],
+            };
+          });
+          setSelectedStepId((prev) => prev ?? msg.stepId);
+        }
+        return;
+      }
+
+      if (msg.type === "viz.layer.upsert") {
+        setBrowserManifest((prev) => {
+          if (!prev) return prev;
+
+          const entry: VizLayerEntryV0 =
+            msg.layer.kind === "grid"
+              ? {
+                  kind: "grid",
+                  layerId: msg.layer.layerId,
+                  stepId: msg.layer.stepId,
+                  phase: msg.layer.phase,
+                  stepIndex: msg.layer.stepIndex,
+                  format: msg.layer.format,
+                  dims: msg.layer.dims,
+                  values: msg.payload.kind === "grid" ? msg.payload.values : undefined,
+                  bounds: msg.layer.bounds,
+                }
+              : msg.layer.kind === "points"
+                ? {
+                    kind: "points",
+                    layerId: msg.layer.layerId,
+                    stepId: msg.layer.stepId,
+                    phase: msg.layer.phase,
+                    stepIndex: msg.layer.stepIndex,
+                    count: msg.layer.count,
+                    positions: msg.payload.kind === "points" ? msg.payload.positions : undefined,
+                    values: msg.payload.kind === "points" ? msg.payload.values : undefined,
+                    valueFormat: msg.layer.valueFormat,
+                    bounds: msg.layer.bounds,
+                  }
+                : {
+                    kind: "segments",
+                    layerId: msg.layer.layerId,
+                    stepId: msg.layer.stepId,
+                    phase: msg.layer.phase,
+                    stepIndex: msg.layer.stepIndex,
+                    count: msg.layer.count,
+                    segments: msg.payload.kind === "segments" ? msg.payload.segments : undefined,
+                    values: msg.payload.kind === "segments" ? msg.payload.values : undefined,
+                    valueFormat: msg.layer.valueFormat,
+                    bounds: msg.layer.bounds,
+                  };
+
+          const key = `${entry.stepId}::${entry.layerId}::${entry.kind}`;
+          const layers = [...prev.layers];
+          const idx = layers.findIndex((l) => `${l.stepId}::${l.layerId}::${l.kind}` === key);
+          if (idx >= 0) layers[idx] = entry;
+          else layers.push(entry);
+
+          return { ...prev, layers };
+        });
+
+        setSelectedLayerKey((prev) => prev ?? `${msg.layer.stepId}::${msg.layer.layerId}::${msg.layer.kind}`);
+        setSelectedStepId((prev) => prev ?? msg.layer.stepId);
+        return;
+      }
+
+      if (msg.type === "run.finished") {
+        setBrowserRunning(false);
+        return;
+      }
+
+      if (msg.type === "run.error") {
+        setBrowserRunning(false);
+        setError(msg.message);
+        return;
+      }
+    };
+
+    worker.onerror = (e) => {
+      setBrowserRunning(false);
+      setError(e instanceof ErrorEvent ? e.message : String(e));
+    };
+
+    const req: BrowserRunRequest = {
+      type: "run.start",
+      runToken,
+      seed: browserSeed,
+      dimensions: { width: browserWidth, height: browserHeight },
+      latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
+      config: { foundation: {} },
+    };
+
+    worker.postMessage(req);
+  }, [browserHeight, browserSeed, browserWidth, setFittedView, stopBrowserRun]);
 
   useEffect(() => {
     if (!manifest || !selectedStepId) return;
@@ -470,7 +655,7 @@ export function App() {
   }, [eraInfo]);
 
   const deckLayers = useMemo(() => {
-    if (!manifest || !fileMap || !effectiveLayer) return [];
+    if (!manifest || !effectiveLayer) return [];
 
     const layerId = effectiveLayer.layerId;
     const isTileOddQLayer = effectiveLayer.kind === "grid" || layerId.startsWith("foundation.plateTopology.");
@@ -480,7 +665,13 @@ export function App() {
       (l) => l.kind === "segments" && l.layerId === "foundation.mesh.edges"
     ) as Extract<VizLayerEntryV0, { kind: "segments" }> | undefined;
 
-    const loadScalar = async (path: string, format: VizScalarFormat): Promise<ArrayBufferView> => {
+    const loadScalar = async (
+      path: string | undefined,
+      buffer: ArrayBuffer | undefined,
+      format: VizScalarFormat
+    ): Promise<ArrayBufferView> => {
+      if (buffer) return decodeScalarArray(buffer, format);
+      if (!fileMap || !path) throw new Error(`Missing scalar payload for ${layerId}`);
       const file = fileMap.get(path);
       if (!file) throw new Error(`Missing file: ${path}`);
       const buf = await readFileAsArrayBuffer(file);
@@ -502,10 +693,16 @@ export function App() {
         !effectiveLayer.layerId.startsWith("foundation.plateTopology.");
 
       if (shouldShowMeshEdges && meshEdges) {
-        const segFile = fileMap.get(meshEdges.segmentsPath);
-        if (!segFile) throw new Error(`Missing file: ${meshEdges.segmentsPath}`);
-        const segBuf = await readFileAsArrayBuffer(segFile);
-        const seg = new Float32Array(segBuf);
+        let seg: Float32Array;
+        if (meshEdges.segments) {
+          seg = new Float32Array(meshEdges.segments);
+        } else {
+          if (!fileMap || !meshEdges.segmentsPath) throw new Error("Missing mesh edge payload");
+          const segFile = fileMap.get(meshEdges.segmentsPath);
+          if (!segFile) throw new Error(`Missing file: ${meshEdges.segmentsPath}`);
+          const segBuf = await readFileAsArrayBuffer(segFile);
+          seg = new Float32Array(segBuf);
+        }
 
         const edges: Array<{ path: [[number, number], [number, number]] }> = [];
         const count = (seg.length / 4) | 0;
@@ -531,7 +728,7 @@ export function App() {
       }
 
       if (effectiveLayer.kind === "grid") {
-        const values = await loadScalar(effectiveLayer.path, effectiveLayer.format);
+        const values = await loadScalar(effectiveLayer.path, effectiveLayer.values, effectiveLayer.format);
         const { width, height } = effectiveLayer.dims;
 
         let min = Number.POSITIVE_INFINITY;
@@ -572,15 +769,23 @@ export function App() {
       }
 
       if (effectiveLayer.kind === "points") {
-        const posFile = fileMap.get(effectiveLayer.positionsPath);
-        if (!posFile) throw new Error(`Missing file: ${effectiveLayer.positionsPath}`);
-        const posBuf = await readFileAsArrayBuffer(posFile);
-        const positions = new Float32Array(posBuf);
+        let positions: Float32Array;
+        if (effectiveLayer.positions) {
+          positions = new Float32Array(effectiveLayer.positions);
+        } else {
+          if (!fileMap || !effectiveLayer.positionsPath) throw new Error("Missing points payload");
+          const posFile = fileMap.get(effectiveLayer.positionsPath);
+          if (!posFile) throw new Error(`Missing file: ${effectiveLayer.positionsPath}`);
+          const posBuf = await readFileAsArrayBuffer(posFile);
+          positions = new Float32Array(posBuf);
+        }
 
         const values =
-          effectiveLayer.valuesPath && effectiveLayer.valueFormat
-            ? await loadScalar(effectiveLayer.valuesPath, effectiveLayer.valueFormat)
-            : null;
+          effectiveLayer.values && effectiveLayer.valueFormat
+            ? decodeScalarArray(effectiveLayer.values, effectiveLayer.valueFormat)
+            : effectiveLayer.valuesPath && effectiveLayer.valueFormat
+              ? await loadScalar(effectiveLayer.valuesPath, undefined, effectiveLayer.valueFormat)
+              : null;
 
         let min = Number.POSITIVE_INFINITY;
         let max = Number.NEGATIVE_INFINITY;
@@ -621,15 +826,23 @@ export function App() {
       }
 
       if (effectiveLayer.kind === "segments") {
-        const segFile = fileMap.get(effectiveLayer.segmentsPath);
-        if (!segFile) throw new Error(`Missing file: ${effectiveLayer.segmentsPath}`);
-        const segBuf = await readFileAsArrayBuffer(segFile);
-        const seg = new Float32Array(segBuf);
+        let seg: Float32Array;
+        if (effectiveLayer.segments) {
+          seg = new Float32Array(effectiveLayer.segments);
+        } else {
+          if (!fileMap || !effectiveLayer.segmentsPath) throw new Error("Missing segments payload");
+          const segFile = fileMap.get(effectiveLayer.segmentsPath);
+          if (!segFile) throw new Error(`Missing file: ${effectiveLayer.segmentsPath}`);
+          const segBuf = await readFileAsArrayBuffer(segFile);
+          seg = new Float32Array(segBuf);
+        }
 
         const values =
-          effectiveLayer.valuesPath && effectiveLayer.valueFormat
-            ? await loadScalar(effectiveLayer.valuesPath, effectiveLayer.valueFormat)
-            : null;
+          effectiveLayer.values && effectiveLayer.valueFormat
+            ? decodeScalarArray(effectiveLayer.values, effectiveLayer.valueFormat)
+            : effectiveLayer.valuesPath && effectiveLayer.valueFormat
+              ? await loadScalar(effectiveLayer.valuesPath, undefined, effectiveLayer.valueFormat)
+              : null;
 
         let min = Number.POSITIVE_INFINITY;
         let max = Number.NEGATIVE_INFINITY;
@@ -789,9 +1002,11 @@ export function App() {
       >
         <div style={{ display: "flex", gap: 12, alignItems: isNarrow ? "flex-start" : "center", flexWrap: "wrap" }}>
           <div style={{ fontWeight: 800, fontSize: isNarrow ? 16 : 14 }}>MapGen Studio</div>
-          <div style={{ color: "#9ca3af", fontSize: isNarrow ? 13 : 12 }}>Foundation Viz (V0)</div>
+          <div style={{ color: "#9ca3af", fontSize: isNarrow ? 13 : 12 }}>
+            {mode === "browser" ? "Browser Runner (V0.1 Slice)" : "Dump Viewer (V0)"}
+          </div>
           <div style={{ flex: 1 }} />
-          {!isNarrow ? (
+          {!isNarrow && mode === "dump" ? (
             <div style={{ fontSize: 12, color: "#9ca3af" }}>
               Open a run folder under <span style={{ color: "#e5e7eb" }}>mods/mod-swooper-maps/dist/visualization</span>
             </div>
@@ -799,21 +1014,81 @@ export function App() {
         </div>
 
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-          <button onClick={openDumpFolder} style={buttonStyle}>
-            Open dump folder
-          </button>
+          <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <span style={{ fontSize: 12, color: "#9ca3af" }}>Mode</span>
+            <select
+              value={mode}
+              onChange={(e) => setMode(e.target.value as any)}
+              style={{ ...controlBaseStyle, width: isNarrow ? "100%" : 170 }}
+            >
+              <option value="browser">browser</option>
+              <option value="dump">dump</option>
+            </select>
+          </label>
 
-          <input
-            ref={directoryInputRef}
-            type="file"
-            multiple
-            onChange={onDirectoryFiles}
-            style={{ display: "none" }}
-            {...({ webkitdirectory: "", directory: "" } as any)}
-          />
-          <button onClick={triggerDirectoryPicker} style={buttonStyle}>
-            Upload dump folder
-          </button>
+          {mode === "browser" ? (
+            <>
+              <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <span style={{ fontSize: 12, color: "#9ca3af" }}>Seed</span>
+                <input
+                  value={browserSeed}
+                  onChange={(e) => setBrowserSeed(Number.parseInt(e.target.value || "0", 10) || 0)}
+                  style={{ ...controlBaseStyle, width: 96 }}
+                />
+              </label>
+              <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <span style={{ fontSize: 12, color: "#9ca3af" }}>W×H</span>
+                <input
+                  value={browserWidth}
+                  onChange={(e) => setBrowserWidth(Number.parseInt(e.target.value || "0", 10) || 0)}
+                  style={{ ...controlBaseStyle, width: 70 }}
+                />
+                <input
+                  value={browserHeight}
+                  onChange={(e) => setBrowserHeight(Number.parseInt(e.target.value || "0", 10) || 0)}
+                  style={{ ...controlBaseStyle, width: 70 }}
+                />
+              </label>
+              <button
+                onClick={startBrowserRun}
+                style={{ ...buttonStyle, opacity: browserRunning ? 0.6 : 1 }}
+                disabled={browserRunning}
+              >
+                Run (Browser)
+              </button>
+              <button
+                onClick={stopBrowserRun}
+                style={{ ...buttonStyle, opacity: browserRunning ? 1 : 0.6 }}
+                disabled={!browserRunning}
+              >
+                Cancel
+              </button>
+              {browserLastStep ? (
+                <div style={{ fontSize: 12, color: "#9ca3af" }}>
+                  step: <span style={{ color: "#e5e7eb" }}>{browserLastStep.stepIndex}</span> ·{" "}
+                  {formatLabel(browserLastStep.stepId)}
+                </div>
+              ) : null}
+            </>
+          ) : (
+            <>
+              <button onClick={openDumpFolder} style={buttonStyle}>
+                Open dump folder
+              </button>
+
+              <input
+                ref={directoryInputRef}
+                type="file"
+                multiple
+                onChange={onDirectoryFiles}
+                style={{ display: "none" }}
+                {...({ webkitdirectory: "", directory: "" } as any)}
+              />
+              <button onClick={triggerDirectoryPicker} style={buttonStyle}>
+                Upload dump folder
+              </button>
+            </>
+          )}
 
           <button
             onClick={() => selectedLayer && setFittedView(selectedLayer.bounds)}
@@ -940,7 +1215,9 @@ export function App() {
           />
         ) : (
           <div style={{ padding: 18, color: "#9ca3af" }}>
-            Select a dump folder containing `manifest.json` (e.g. `mods/mod-swooper-maps/dist/visualization/&lt;runId&gt;`).
+            {mode === "browser"
+              ? "Click “Run (Browser)” to execute Foundation in a Web Worker and stream layers directly to deck.gl."
+              : "Select a dump folder containing `manifest.json` (e.g. `mods/mod-swooper-maps/dist/visualization/<runId>`)."}
           </div>
         )}
         <div style={{ position: "absolute", bottom: 10, left: 10, fontSize: 12, color: "#9ca3af", background: "rgba(0,0,0,0.35)", padding: "6px 8px", borderRadius: 8 }}>
@@ -951,7 +1228,7 @@ export function App() {
               viewport: {Math.round(viewportSize.width)}×{Math.round(viewportSize.height)}
             </>
           ) : (
-            <>No dump loaded</>
+            <>{mode === "browser" ? "No run loaded" : "No dump loaded"}</>
           )}
         </div>
 
