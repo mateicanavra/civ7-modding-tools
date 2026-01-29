@@ -4,7 +4,7 @@ import { createMockAdapter } from "@civ7/adapter/mock";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
 
-import foundationRecipe from "@mapgen/foundation-recipe";
+import browserTestRecipe, { BROWSER_TEST_RECIPE_CONFIG } from "@mapgen/browser-test-recipe";
 import { CIV7_BROWSER_TABLES_V0 } from "../civ7-data/civ7-tables.gen";
 import type { BrowserRunEvent, BrowserRunRequest } from "./protocol";
 import { createWorkerTraceSink } from "./worker-trace-sink";
@@ -83,7 +83,7 @@ function createLabelRng(seed: number): (max: number, label: string) => number {
 }
 
 async function runFoundation(request: Extract<BrowserRunRequest, { type: "run.start" }>): Promise<void> {
-  const { runToken, seed, dimensions, latitudeBounds, config } = request;
+  const { runToken, seed, dimensions, latitudeBounds } = request;
 
   const envBase = {
     seed,
@@ -91,7 +91,8 @@ async function runFoundation(request: Extract<BrowserRunRequest, { type: "run.st
     latitudeBounds,
   } as const;
 
-  const plan = foundationRecipe.compile(envBase, config);
+  const config = BROWSER_TEST_RECIPE_CONFIG as any;
+  const plan = browserTestRecipe.compile(envBase, config);
   const runId = deriveRunId(plan);
   const verboseSteps = Object.fromEntries(plan.nodes.map((node: any) => [node.stepId, "verbose"] as const));
 
@@ -125,7 +126,7 @@ async function runFoundation(request: Extract<BrowserRunRequest, { type: "run.st
   // Ensure the worker posts a stable run identity early, even if a failure occurs.
   post({ type: "run.started", runToken, runId, planFingerprint: runId });
 
-  foundationRecipe.run(context as any, env as any, config as any, { traceSink });
+  browserTestRecipe.run(context as any, env as any, config as any, { traceSink });
 }
 
 self.onmessage = (ev: MessageEvent<BrowserRunRequest>) => {

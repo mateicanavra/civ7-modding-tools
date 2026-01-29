@@ -74,7 +74,7 @@ Implementation plan: `docs/projects/mapgen-studio/V0-IMPLEMENTATION-PLAN.md`.
 Goal: shift MapGen Studio from “replay viewer” to “run + inspect” for Foundation, entirely in the browser, with a pure Worker → in-memory → deck.gl loop.
 
 Deliverables:
-- Run Foundation in a Web Worker:
+- Run the `browser-test` recipe (currently Foundation-only) in a Web Worker:
   - deterministic seed + MAPSIZE_HUGE 106×66 by default
   - progress reporting + cancellation
 - Stream intermediate layers as steps run through `VizSink` (primary: `DeckGlSink`).
@@ -85,6 +85,9 @@ Design notes:
 - Browser adapter capability spec: `docs/projects/mapgen-studio/BROWSER-ADAPTER.md`
 - Worker runner design (V0.1): `docs/projects/mapgen-studio/BROWSER-RUNNER-V0.1.md`
 - Current thin slice issue (implementation de-risker): `docs/projects/mapgen-studio/V0.1-SLICE-FOUNDATION-WORKER-DECKGL.md`
+
+Status:
+- [x] V0.1 slice: Web Worker runs `browser-test` (Foundation-only) and streams 1–2 layers directly to deck.gl (no dump required).
 
 ## V0.2 — In-Browser Runner (Full Pipeline)
 

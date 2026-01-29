@@ -2,7 +2,7 @@ import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
 
-import foundationRecipe from "../../recipes/foundation/recipe.js";
+import browserTestRecipe, { BROWSER_TEST_RECIPE_CONFIG } from "../../recipes/browser-test/recipe.js";
 import { createTraceDumpSink, createVizDumper } from "./dump.js";
 import { join } from "node:path";
 
@@ -28,7 +28,7 @@ const envBase = {
   latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
 } as const;
 
-const plan = foundationRecipe.compile(envBase, { foundation: {} });
+const plan = browserTestRecipe.compile(envBase, BROWSER_TEST_RECIPE_CONFIG);
 const verboseSteps = Object.fromEntries(plan.nodes.map((node) => [node.stepId, "verbose"] as const));
 
 const env = {
@@ -52,7 +52,7 @@ const adapter = createMockAdapter({
 const context = createExtendedMapContext({ width, height }, adapter, env);
 context.viz = viz;
 
-foundationRecipe.run(context, env, { foundation: {} }, { traceSink });
+browserTestRecipe.run(context, env, BROWSER_TEST_RECIPE_CONFIG, { traceSink });
 
 const runId = deriveRunId(plan);
 console.log(`[viz] wrote dump under: ${join(outputRoot, runId)}`);

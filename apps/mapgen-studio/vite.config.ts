@@ -44,8 +44,8 @@ export default defineConfig({
   resolve: {
     alias: [
       {
-        find: "@mapgen/foundation-recipe",
-        replacement: resolve(repoRoot, "mods/mod-swooper-maps/src/recipes/foundation/recipe.ts"),
+        find: "@mapgen/browser-test-recipe",
+        replacement: resolve(repoRoot, "mods/mod-swooper-maps/src/recipes/browser-test/recipe.ts"),
       },
       {
         find: /^@mapgen\/domain$/,
