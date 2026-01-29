@@ -6,6 +6,7 @@ export type BrowserRunStartRequest = {
   type: "run.start";
   runToken: string;
   seed: number;
+  mapSizeId: string;
   dimensions: { width: number; height: number };
   latitudeBounds: { topLatitude: number; bottomLatitude: number };
   config: { foundation: Record<string, never> };

@@ -94,6 +94,28 @@ function axialToPixelPointy(q: number, r: number, size: number): [number, number
 
 type TileLayout = "row-offset" | "col-offset";
 
+type Civ7MapSizePreset = {
+  id: "MAPSIZE_TINY" | "MAPSIZE_SMALL" | "MAPSIZE_STANDARD" | "MAPSIZE_LARGE" | "MAPSIZE_HUGE";
+  label: "Tiny" | "Small" | "Standard" | "Large" | "Huge";
+  dimensions: { width: number; height: number };
+};
+
+const CIV7_MAP_SIZES: Civ7MapSizePreset[] = [
+  { id: "MAPSIZE_TINY", label: "Tiny", dimensions: { width: 60, height: 38 } },
+  { id: "MAPSIZE_SMALL", label: "Small", dimensions: { width: 74, height: 46 } },
+  { id: "MAPSIZE_STANDARD", label: "Standard", dimensions: { width: 84, height: 54 } },
+  { id: "MAPSIZE_LARGE", label: "Large", dimensions: { width: 96, height: 60 } },
+  { id: "MAPSIZE_HUGE", label: "Huge", dimensions: { width: 106, height: 66 } },
+];
+
+function getCiv7MapSizePreset(id: Civ7MapSizePreset["id"]): Civ7MapSizePreset {
+  return CIV7_MAP_SIZES.find((m) => m.id === id) ?? CIV7_MAP_SIZES[CIV7_MAP_SIZES.length - 1]!;
+}
+
+function formatMapSizeLabel(p: Civ7MapSizePreset): string {
+  return `${p.label} (${p.dimensions.width}×${p.dimensions.height})`;
+}
+
 function safeStringify(value: unknown): string | null {
   try {
     const seen = new WeakSet<object>();
@@ -570,8 +592,7 @@ export function App() {
   const [browserRunning, setBrowserRunning] = useState(false);
   const [browserLastStep, setBrowserLastStep] = useState<{ stepId: string; stepIndex: number } | null>(null);
   const [browserSeed, setBrowserSeed] = useState(123);
-  const [browserWidth, setBrowserWidth] = useState(106);
-  const [browserHeight, setBrowserHeight] = useState(66);
+  const [browserMapSizeId, setBrowserMapSizeId] = useState<Civ7MapSizePreset["id"]>("MAPSIZE_HUGE");
 
   const manifest = mode === "dump" ? dumpManifest : browserManifest;
   const fileMap = mode === "dump" ? dumpFileMap : null;
@@ -905,18 +926,20 @@ export function App() {
     };
 
     const seedToUse = overrides?.seed ?? browserSeed;
+    const mapSize = getCiv7MapSizePreset(browserMapSizeId);
 
     const req: BrowserRunRequest = {
       type: "run.start",
       runToken,
       seed: seedToUse,
-      dimensions: { width: browserWidth, height: browserHeight },
+      mapSizeId: mapSize.id,
+      dimensions: mapSize.dimensions,
       latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
       config: { foundation: {} },
     };
 
     worker.postMessage(req);
-  }, [browserHeight, browserSeed, browserWidth, mode, setFittedView, stopBrowserRun]);
+  }, [browserMapSizeId, browserSeed, mode, setFittedView, stopBrowserRun]);
 
   useEffect(() => {
     if (!manifest || !selectedStepId) return;
@@ -1351,17 +1374,19 @@ export function App() {
                 </button>
               </label>
               <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <span style={{ fontSize: 12, color: "#9ca3af" }}>W×H</span>
-                <input
-                  value={browserWidth}
-                  onChange={(e) => setBrowserWidth(Number.parseInt(e.target.value || "0", 10) || 0)}
-                  style={{ ...controlBaseStyle, width: 70 }}
-                />
-                <input
-                  value={browserHeight}
-                  onChange={(e) => setBrowserHeight(Number.parseInt(e.target.value || "0", 10) || 0)}
-                  style={{ ...controlBaseStyle, width: 70 }}
-                />
+                <span style={{ fontSize: 12, color: "#9ca3af" }}>Map size</span>
+                <select
+                  value={browserMapSizeId}
+                  onChange={(e) => setBrowserMapSizeId(e.target.value as Civ7MapSizePreset["id"])}
+                  style={{ ...controlBaseStyle, width: 220 }}
+                  disabled={browserRunning}
+                >
+                  {CIV7_MAP_SIZES.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {formatMapSizeLabel(p)}
+                    </option>
+                  ))}
+                </select>
               </label>
               <button
                 onClick={() => startBrowserRun()}
