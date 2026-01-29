@@ -12,6 +12,23 @@ The browser runner should treat Civ7 as a **reference renderer/runtime**, not th
   - **V0.1:** `foundation` recipe end-to-end in-browser
   - **V0.2:** `standard` recipe end-to-end in-browser
 
+## Civ7-derived tables as bundled data packages (no runtime fetching)
+
+The browser runner must be self-contained:
+- no server round-trips for mapgen execution
+- no runtime HTTP fetches for core Civ7 tables required by adapter lookups
+
+The expected flow is:
+1. Source of truth: Civ7 official resources (XML, etc.) in `.civ7/outputs/resources`.
+2. A script extracts/normalizes the minimal data needed for browser execution (map sizes, name→index tables, etc.).
+3. The script emits checked-in artifacts or build-generated artifacts as TS/JSON modules.
+4. The Web Worker imports these modules directly and passes them into the BrowserAdapter.
+
+This keeps:
+- bundling deterministic (no “data injection” from the UI at runtime),
+- behavior consistent across local dev and static deployments,
+- adapter parity anchored to Civ’s source data without importing Civ engine runtime modules.
+
 ## Inventory: adapter calls used today
 
 ### Foundation recipe (`mods/mod-swooper-maps/src/recipes/foundation/recipe.ts`)
@@ -108,6 +125,11 @@ These are “lookup” calls whose outputs must match Civ7 indices/rows to prese
 - `plotEffectIndexByName` (only needed once `map-ecology` runs in-browser)
 - `landmassIdByName` (only needed once placement runs in-browser)
 
+**Packaging guidance:**
+- Prefer one importable “tables module” per Civ domain (or one consolidated module) rather than many tiny JSON fetches.
+- Keep the worker-facing API stable: `{ mapInfoById, terrainIndexByName, ... }`.
+- Version table artifacts explicitly (e.g. include an extracted game build/version string if available) so behavior changes are explainable.
+
 ### (c) Needs Civ7 engine behavior we must approximate (or replace)
 
 These currently wrap Civ7 engine algorithms (TerrainBuilder/AreaBuilder/base-standard scripts). They should be treated as *engine-coupled*, not simple data mutations.
@@ -166,4 +188,3 @@ To run the full standard recipe in-browser, the adapter must:
   - preserve a “best-effort” approximation with explicit UX labeling (“engine parity not guaranteed”).
 
 In practice, V0.2 should treat (c) as the main integration backlog.
-
