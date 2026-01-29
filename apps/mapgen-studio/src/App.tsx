@@ -764,7 +764,7 @@ export function App() {
     if (mode === "dump") stopBrowserRun();
   }, [mode, stopBrowserRun]);
 
-  const startBrowserRun = useCallback(() => {
+  const startBrowserRun = useCallback((overrides?: { seed?: number }) => {
     setError(null);
     const pinnedStepId = mode === "browser" ? selectedStepIdRef.current : null;
     const pinnedLayerKey = mode === "browser" ? selectedLayerKeyRef.current : null;
@@ -904,10 +904,12 @@ export function App() {
       setError(formatErrorForUi(e));
     };
 
+    const seedToUse = overrides?.seed ?? browserSeed;
+
     const req: BrowserRunRequest = {
       type: "run.start",
       runToken,
-      seed: browserSeed,
+      seed: seedToUse,
       dimensions: { width: browserWidth, height: browserHeight },
       latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
       config: { foundation: {} },
@@ -1336,7 +1338,11 @@ export function App() {
                   style={{ ...controlBaseStyle, width: 96 }}
                 />
                 <button
-                  onClick={() => setBrowserSeed(randomU32())}
+                  onClick={() => {
+                    const next = randomU32();
+                    setBrowserSeed(next);
+                    startBrowserRun({ seed: next });
+                  }}
                   style={{ ...buttonStyle, padding: "6px 10px" }}
                   title="Reroll seed"
                   type="button"
@@ -1358,7 +1364,7 @@ export function App() {
                 />
               </label>
               <button
-                onClick={startBrowserRun}
+                onClick={() => startBrowserRun()}
                 style={{ ...buttonStyle, opacity: browserRunning ? 0.6 : 1 }}
                 disabled={browserRunning}
               >
