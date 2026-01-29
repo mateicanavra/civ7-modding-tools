@@ -12,6 +12,7 @@ Related context:
 - Architecture spike: `docs/projects/mapgen-studio/resources/SPIKE-mapgen-studio-arch.md`
 - V0.1 runner spec: `docs/projects/mapgen-studio/BROWSER-RUNNER-V0.1.md`
 - Browser adapter surface: `docs/projects/mapgen-studio/BROWSER-ADAPTER.md`
+- V0.1 slice: config overrides UI→worker: `docs/projects/mapgen-studio/V0.1-SLICE-CONFIG-OVERRIDES-UI-WORKER.md`
 - Roadmap: `docs/projects/mapgen-studio/ROADMAP.md`
 
 ---
@@ -24,6 +25,7 @@ Related context:
 - Top-level modes: `"browser"` (worker runner) vs `"dump"` (replay viewer).
 - UI state: selected step/layer, view state (pan/zoom), toggles (mesh edges, background grid), era index slider.
 - Browser-run lifecycle: start run, cancel run, interpret worker events, keep selection “pinned” across reruns.
+- Config overrides lifecycle: enable/disable overrides, edit via schema-driven form or raw JSON, validate/narrow on run.
 
 ### B) Dump loading (viewer path)
 - Folder selection via `showDirectoryPicker` + fallback directory upload.
@@ -46,9 +48,10 @@ Related context:
 - Error banner + status overlays.
 - Legend content and formatting.
 - Styling via inline styles.
+- Schema-driven config editor (RJSF) + “advanced JSON” textarea for overrides.
 
 This is already ~1.6k LOC and will continue to grow as we add:
-- Config overrides (UI and/or “override nodes”)
+- More config override surfaces (additional recipes, pipeline override nodes)
 - More layer types and richer inspector UI
 - More modes/features (graph view, diffing, export/replay, etc.)
 
@@ -278,6 +281,15 @@ Risk: medium; ensure selection changes trigger rebuild correctly and errors surf
 
 Risk: medium; ensure worker termination semantics unchanged.
 
+### Layer 4.5 — “Extract config overrides subsystem”
+Now that schema-driven config overrides are implemented end-to-end (UI→worker), treat this as a self-contained extraction:
+- Add `studio/config-overrides/*` (model + validation + UI composition).
+- `App.tsx` should only keep **minimal wiring state** (open/closed, enabled, current config value) or delegate fully to a hook.
+
+Risk: medium; keep behavior identical:
+- “form” and “json” tabs remain equivalent sources of truth
+- invalid JSON/schema errors still prevent runs with the same user-facing messaging
+
 ### Layer 5 — “Extract UI components”
 - Add `studio/ui/components/*`.
 - Keep all state in `App.tsx` for now; pass props down.
@@ -307,12 +319,21 @@ Later: unify under a shared protocol library (likely `packages/mapgen-viz`) so:
 - the app uses one “viz model” regardless of source (dump or live run)
 
 ### 7.2 Where config overrides live
-As config overrides UI and “override nodes” land, we should isolate:
-- `ConfigOverridesModel` (typed config state)
-- `ConfigOverridesPanel` (UI)
-- `applyOverridesToRequest(...)` (serialization into worker request)
+Config overrides are now *real* and are part of the browser-runner workflow:
+- The UI edits a typed config shape (currently `BrowserTestRecipeConfig`) via:
+  - schema-driven form (RJSF), and/or
+  - an advanced JSON textarea with validation/narrowing
+- The runner request includes `configOverrides` (typed) and the worker:
+  - deterministically deep-merges base config + overrides
+  - validates with `normalizeStrict` and fails fast with readable errors
 
-This should be a separate subsystem (likely `studio/config/` or a feature slice `features/config-overrides/`).
+We should isolate this into a dedicated subsystem so it doesn’t keep inflating `App.tsx`:
+- `studio/config-overrides/model.ts` — state shape + helpers for “enabled/tab/source-of-truth”
+- `studio/config-overrides/validate.ts` — JSON parse + `normalizeStrict` narrowing + error formatting (shared by UI + runner-start)
+- `studio/config-overrides/ConfigOverridesPanel.tsx` — the UI (RJSF + JSON textarea), no worker imports
+- `studio/config-overrides/toRunRequest.ts` — “extract the overrides payload” for `BrowserRunStartRequest`
+
+Later (once we support multiple recipes): promote to a feature slice (e.g. `features/runner/config-overrides/`) and/or define an explicit “public overrides” schema per recipe.
 
 ### 7.3 Async caching
 The app currently does “async memo” and then sets `resolvedLayers`.
@@ -333,6 +354,7 @@ Behavioral:
   - retains selection correctly across reruns
   - cancels cleanly
   - shows readable errors
+  - applies config overrides correctly (and blocks invalid overrides)
 - Dump mode still:
   - loads a run folder reliably via directory picker
   - renders the same layers as before
@@ -369,4 +391,3 @@ Once config overrides and another viz domain land (i.e., the app has 2–3 real 
 - plus `src/shared/*` for cross-cutting UI and viz utilities
 
 That is the point where router + global store become high-leverage rather than premature.
-

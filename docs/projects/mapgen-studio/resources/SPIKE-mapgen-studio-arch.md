@@ -2,6 +2,12 @@
 
 Using the spike workflow + architecture method: I reviewed the current MapGen Studio `App.tsx` and the existing MapGen Studio + pipeline visualization specs, then cross-checked modern React/TS patterns in official docs.
 
+## Addendum (2026-01-29): new stack changes that affect this proposal
+- Config overrides are now a first-class, schema-driven workflow (UI → worker): `docs/projects/mapgen-studio/V0.1-SLICE-CONFIG-OVERRIDES-UI-WORKER.md`.
+- The browser runner request now includes `configOverrides` (typed) and the worker deep-merges + validates overrides deterministically.
+- This strengthens (not weakens) the core architectural direction: treat “runner + config + protocol” as a feature slice, and keep renderer/viz logic isolated from runner concerns.
+- The refactor sequencing doc has been updated to reflect this: `docs/projects/mapgen-studio/resources/APP-TSX-REFACTOR-PLAN.md`.
+
 ### 1) Objective
 Propose a scalable, modern React + TypeScript architecture for MapGen Studio (a browser-based pipeline runner + visualization tool) that cleanly separates:
 - generation/run orchestration (worker),
@@ -146,4 +152,3 @@ Smallest validation that this architecture is “real” without a reorg:
 If you want to continue from “architecture” into “how do we migrate and what’s the impact”, this becomes a `/dev-spike-feasibility` (because it’s integration + sequencing).
 
 Skills used: `architecture`, `spike-methodology`, `git-worktrees`, `deep-search`, `web-search`.
-
