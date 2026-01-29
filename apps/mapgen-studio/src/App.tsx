@@ -216,60 +216,189 @@ function fitToBounds(bounds: Bounds, viewport: { width: number; height: number }
   return { target: [(minX + maxX) / 2, (minY + maxY) / 2, 0], zoom };
 }
 
-const PLATE_ID_PALETTE: ReadonlyArray<[number, number, number, number]> = [
-  [248, 113, 113, 230], // red-400
-  [239, 68, 68, 230], // red-500
-  [220, 38, 38, 230], // red-600
-  [251, 146, 60, 230], // orange-400
-  [249, 115, 22, 230], // orange-500
-  [234, 88, 12, 230], // orange-600
-  [251, 191, 36, 230], // amber-400
-  [245, 158, 11, 230], // amber-500
-  [217, 119, 6, 230], // amber-600
-  [250, 204, 21, 230], // yellow-400
-  [234, 179, 8, 230], // yellow-500
-  [202, 138, 4, 230], // yellow-600
-  [163, 230, 53, 230], // lime-400
-  [132, 204, 22, 230], // lime-500
-  [101, 163, 13, 230], // lime-600
-  [74, 222, 128, 230], // green-400
-  [34, 197, 94, 230], // green-500
-  [22, 163, 74, 230], // green-600
-  [52, 211, 153, 230], // emerald-400
-  [16, 185, 129, 230], // emerald-500
-  [5, 150, 105, 230], // emerald-600
-  [45, 212, 191, 230], // teal-400
-  [20, 184, 166, 230], // teal-500
-  [13, 148, 136, 230], // teal-600
-  [34, 211, 238, 230], // cyan-400
-  [6, 182, 212, 230], // cyan-500
-  [8, 145, 178, 230], // cyan-600
-  [56, 189, 248, 230], // sky-400
-  [14, 165, 233, 230], // sky-500
-  [2, 132, 199, 230], // sky-600
-  [96, 165, 250, 230], // blue-400
-  [59, 130, 246, 230], // blue-500
-  [37, 99, 235, 230], // blue-600
-  [129, 140, 248, 230], // indigo-400
-  [99, 102, 241, 230], // indigo-500
-  [79, 70, 229, 230], // indigo-600
-  [167, 139, 250, 230], // violet-400
-  [139, 92, 246, 230], // violet-500
-  [124, 58, 237, 230], // violet-600
-  [192, 132, 252, 230], // purple-400
-  [168, 85, 247, 230], // purple-500
-  [147, 51, 234, 230], // purple-600
-  [217, 70, 239, 230], // fuchsia-500
-  [192, 38, 211, 230], // fuchsia-600
-  [244, 114, 182, 230], // pink-400
-  [236, 72, 153, 230], // pink-500
-  [219, 39, 119, 230], // pink-600
-  [251, 113, 133, 230], // rose-400
-  [244, 63, 94, 230], // rose-500
-  [225, 29, 72, 230], // rose-600
-];
+type RgbaColor = [number, number, number, number];
 
-function colorForValue(layerId: string, value: number): [number, number, number, number] {
+function hashStringToSeed(input: string): number {
+  let hash = 2166136261 >>> 0;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function createRng(seed: number): () => number {
+  let t = seed >>> 0;
+  return () => {
+    t += 0x6d2b79f5;
+    let r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function hslToRgb(h: number, s: number, l: number): [number, number, number] {
+  const hh = ((h % 360) + 360) % 360;
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs(((hh / 60) % 2) - 1));
+  const m = l - c / 2;
+
+  let r = 0;
+  let g = 0;
+  let b = 0;
+
+  if (hh < 60) {
+    r = c;
+    g = x;
+  } else if (hh < 120) {
+    r = x;
+    g = c;
+  } else if (hh < 180) {
+    g = c;
+    b = x;
+  } else if (hh < 240) {
+    g = x;
+    b = c;
+  } else if (hh < 300) {
+    r = x;
+    b = c;
+  } else {
+    r = c;
+    b = x;
+  }
+
+  return [
+    Math.round((r + m) * 255),
+    Math.round((g + m) * 255),
+    Math.round((b + m) * 255),
+  ];
+}
+
+function randomColor(rng: () => number): RgbaColor {
+  const hue = rng() * 360;
+  const saturation = 0.62 + rng() * 0.28;
+  const lightness = 0.48 + rng() * 0.18;
+  const [r, g, b] = hslToRgb(hue, saturation, lightness);
+  return [r, g, b, 230];
+}
+
+function srgbToLinear(c: number): number {
+  const v = c / 255;
+  return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+}
+
+function rgbToOklab(rgb: RgbaColor): [number, number, number] {
+  const r = srgbToLinear(rgb[0]);
+  const g = srgbToLinear(rgb[1]);
+  const b = srgbToLinear(rgb[2]);
+
+  const l = 0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b;
+  const m = 0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b;
+  const s = 0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b;
+
+  const l_ = Math.cbrt(l);
+  const m_ = Math.cbrt(m);
+  const s_ = Math.cbrt(s);
+
+  const L = 0.2104542553 * l_ + 0.793617785 * m_ - 0.0040720468 * s_;
+  const A = 1.9779984951 * l_ - 2.428592205 * m_ + 0.4505937099 * s_;
+  const B = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.808675766 * s_;
+
+  return [L, A, B];
+}
+
+function oklabDistance(a: RgbaColor, b: RgbaColor): number {
+  const [l1, a1, b1] = rgbToOklab(a);
+  const [l2, a2, b2] = rgbToOklab(b);
+  const dl = l1 - l2;
+  const da = a1 - a2;
+  const db = b1 - b2;
+  return dl * dl + da * da + db * db;
+}
+
+function isPlateIdLayer(layerId: string): boolean {
+  const lower = layerId.toLowerCase();
+  if (lower.includes("boundarytype")) return false;
+  if (!lower.includes("plate")) return false;
+  if (lower.includes("celltoplate")) return true;
+  if (lower.includes("tileplate")) return true;
+  if (lower.includes("plateid")) return true;
+  if (lower.includes("plateseed")) return true;
+  return lower.includes("plate") && lower.includes("id");
+}
+
+function collectPlateIds(values: ArrayBufferView): number[] {
+  const view = values as unknown as ArrayLike<number>;
+  const ids = new Set<number>();
+  for (let i = 0; i < view.length; i++) {
+    const v = view[i] ?? 0;
+    ids.add((v as number) | 0);
+  }
+  return [...ids].filter((v) => Number.isFinite(v)).sort((a, b) => a - b);
+}
+
+function generateOpposedPalette(count: number, seedKey: string): RgbaColor[] {
+  if (count <= 0) return [];
+  const rng = createRng(hashStringToSeed(seedKey));
+  const poolSize = Math.max(64, count * 12);
+  const candidates: RgbaColor[] = Array.from({ length: poolSize }, () => randomColor(rng));
+  const used = new Array(candidates.length).fill(false);
+  const selected: RgbaColor[] = [];
+
+  const firstIndex = Math.floor(rng() * candidates.length);
+  selected.push(candidates[firstIndex] ?? [148, 163, 184, 220]);
+  used[firstIndex] = true;
+
+  while (selected.length < count) {
+    let bestIndex = -1;
+    let bestScore = -Infinity;
+    const allowReuse = selected.length >= candidates.length;
+
+    for (let i = 0; i < candidates.length; i++) {
+      if (!allowReuse && used[i]) continue;
+      const color = candidates[i]!;
+
+      let minDist = Infinity;
+      for (const chosen of selected) {
+        const d = oklabDistance(color, chosen);
+        if (d < minDist) minDist = d;
+      }
+
+      if (!Number.isFinite(minDist)) minDist = 0;
+      const score = minDist + rng() * 1e-3;
+      if (score > bestScore) {
+        bestScore = score;
+        bestIndex = i;
+      }
+    }
+
+    if (bestIndex < 0) {
+      bestIndex = Math.floor(rng() * candidates.length);
+    }
+
+    const chosen = candidates[bestIndex] ?? [148, 163, 184, 220];
+    selected.push(chosen);
+    if (bestIndex >= 0 && bestIndex < used.length) used[bestIndex] = true;
+  }
+
+  return selected;
+}
+
+function buildPlateColorMap(options: {
+  values: ArrayBufferView;
+  seedKey: string;
+}): Map<number, RgbaColor> {
+  const ids = collectPlateIds(options.values);
+  const palette = generateOpposedPalette(ids.length, options.seedKey);
+  const colorById = new Map<number, RgbaColor>();
+  for (let i = 0; i < ids.length; i++) {
+    colorById.set(ids[i]!, palette[i] ?? [148, 163, 184, 220]);
+  }
+
+  return colorById;
+}
+
+function colorForValue(layerId: string, value: number, plateColorMap?: Map<number, RgbaColor>): RgbaColor {
   if (!Number.isFinite(value)) return [120, 120, 120, 220];
 
   if (layerId.includes("crust") && layerId.toLowerCase().includes("type")) {
@@ -283,16 +412,33 @@ function colorForValue(layerId: string, value: number): [number, number, number,
     return [107, 114, 128, 180];
   }
 
-  if (layerId.includes("plate")) {
-    const index = ((value | 0) >>> 0) % PLATE_ID_PALETTE.length;
-    return PLATE_ID_PALETTE[index] ?? [148, 163, 184, 220];
+  if (isPlateIdLayer(layerId)) {
+    if (plateColorMap) {
+      return plateColorMap.get(value | 0) ?? [148, 163, 184, 220];
+    }
+    const seedKey = `${layerId}:${value}`;
+    const rng = createRng(hashStringToSeed(seedKey));
+    return randomColor(rng);
   }
 
-  // generic 0..1 mapping
+  // generic 0..1 mapping (expanded palette)
   const t = clamp(value, 0, 1);
-  const r = Math.round(255 * t);
-  const b = Math.round(255 * (1 - t));
-  return [r, 80, b, 230];
+  const ramp: RgbaColor[] = [
+    [68, 1, 84, 230],
+    [59, 82, 139, 230],
+    [33, 145, 140, 230],
+    [94, 201, 98, 230],
+    [253, 231, 37, 230],
+  ];
+
+  const idx = t * (ramp.length - 1);
+  const i0 = Math.max(0, Math.min(ramp.length - 1, Math.floor(idx)));
+  const i1 = Math.max(0, Math.min(ramp.length - 1, Math.ceil(idx)));
+  const tt = idx - i0;
+  const a = ramp[i0]!;
+  const b = ramp[i1]!;
+  const lerp = (x: number, y: number) => Math.round(x + (y - x) * tt);
+  return [lerp(a[0], b[0]), lerp(a[1], b[1]), lerp(a[2], b[2]), lerp(a[3], b[3])];
 }
 
 type LegendItem = { label: string; color: [number, number, number, number] };
@@ -327,7 +473,7 @@ function legendForLayer(layer: VizLayerEntryV0 | null, stats: { min?: number; ma
     return {
       title: "Plate IDs",
       items: [
-        { label: `categorical (palette of ${PLATE_ID_PALETTE.length} colors, cycles by ID)`, color: [148, 163, 184, 220] },
+        { label: "categorical (random palette; neighboring plates avoid similar colors)", color: [148, 163, 184, 220] },
       ],
     };
   }
@@ -607,13 +753,14 @@ export function App() {
 
   const startBrowserRun = useCallback(() => {
     setError(null);
-    const retainStep = mode === "browser" && selectedStepIdRef.current;
+    const pinnedStepId = mode === "browser" ? selectedStepIdRef.current : null;
+    const pinnedLayerKey = mode === "browser" ? selectedLayerKeyRef.current : null;
+    const retainStep = Boolean(pinnedStepId);
+    const retainLayer = Boolean(pinnedStepId && pinnedLayerKey && pinnedLayerKey.startsWith(`${pinnedStepId}::`));
     setMode("browser");
     setBrowserManifest(null);
     if (!retainStep) setSelectedStepId(null);
-    // Keep the user pinned to the same step across reruns; clear the layer selection so the
-    // next streamed layer for that step becomes active when it arrives.
-    setSelectedLayerKey(null);
+    if (!retainLayer) setSelectedLayerKey(null);
     if (!retainStep) setFittedView([0, 0, 1, 1]);
     setBrowserLastStep(null);
 
@@ -758,6 +905,7 @@ export function App() {
 
   useEffect(() => {
     if (!manifest || !selectedStepId) return;
+    if (selectedLayerKey && selectedLayerKey.startsWith(`${selectedStepId}::`)) return;
     const first = manifest.layers
       .filter((l) => l.stepId === selectedStepId)
       .sort((a, b) => a.stepIndex - b.stepIndex)[0];
@@ -769,7 +917,7 @@ export function App() {
     } else {
       setFittedView(first.bounds);
     }
-  }, [manifest, selectedStepId, setFittedView, tileLayout]);
+  }, [manifest, selectedLayerKey, selectedStepId, setFittedView, tileLayout]);
 
   useEffect(() => {
     if (!eraInfo) return;
@@ -856,6 +1004,13 @@ export function App() {
         let min = Number.POSITIVE_INFINITY;
         let max = Number.NEGATIVE_INFINITY;
 
+        const plateColorMap = isPlateIdLayer(layerId)
+          ? buildPlateColorMap({
+              values,
+              seedKey: `${manifest?.runId ?? "run"}:${layerId}`,
+            })
+          : undefined;
+
         const tiles: Array<{ polygon: Array<[number, number]>; v: number }> = [];
         const len = width * height;
         for (let i = 0; i < len; i++) {
@@ -879,7 +1034,7 @@ export function App() {
           new PolygonLayer({
             id: `${layerId}::hex`,
             data: tiles,
-            getFillColor: (d) => colorForValue(layerId, d.v),
+            getFillColor: (d) => colorForValue(layerId, d.v, plateColorMap),
             getPolygon: (d) => d.polygon,
             stroked: true,
             getLineColor: [17, 24, 39, 220],
@@ -912,6 +1067,11 @@ export function App() {
         let min = Number.POSITIVE_INFINITY;
         let max = Number.NEGATIVE_INFINITY;
 
+        const plateColorMap =
+          values && isPlateIdLayer(layerId)
+            ? buildPlateColorMap({ values, seedKey: `${manifest?.runId ?? "run"}:${layerId}` })
+            : undefined;
+
         const points: Array<{ x: number; y: number; v: number }> = [];
         const count = (positions.length / 2) | 0;
         for (let i = 0; i < count; i++) {
@@ -939,7 +1099,7 @@ export function App() {
             id: `${layerId}::points`,
             data: points,
             getPosition: (d) => [d.x, d.y],
-            getFillColor: (d) => colorForValue(layerId, d.v),
+            getFillColor: (d) => colorForValue(layerId, d.v, plateColorMap),
             radiusUnits: "common",
             getRadius: 0.95,
             pickable: true,
@@ -968,6 +1128,11 @@ export function App() {
 
         let min = Number.POSITIVE_INFINITY;
         let max = Number.NEGATIVE_INFINITY;
+
+        const plateColorMap =
+          values && isPlateIdLayer(layerId)
+            ? buildPlateColorMap({ values, seedKey: `${manifest?.runId ?? "run"}:${layerId}` })
+            : undefined;
 
         const segments: Array<{ path: [[number, number], [number, number]]; v: number }> = [];
         const count = (seg.length / 4) | 0;
@@ -1003,7 +1168,7 @@ export function App() {
             id: `${layerId}::segments`,
             data: segments,
             getPath: (d) => d.path,
-            getColor: (d) => colorForValue(layerId, d.v),
+            getColor: (d) => colorForValue(layerId, d.v, plateColorMap),
             getWidth: 1.5,
             widthUnits: "pixels",
             pickable: true,
@@ -1281,8 +1446,17 @@ export function App() {
               value={selectedLayerKey ?? ""}
               onChange={(e) => setSelectedLayerKey(e.target.value || null)}
               style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
-              disabled={!layersForStep.length}
+              disabled={!layersForStep.length && !selectedLayerKey}
             >
+              {selectedLayerKey && !layersForStep.some((l) => l.key === selectedLayerKey) ? (
+                <option value={selectedLayerKey}>
+                  {(() => {
+                    const parts = selectedLayerKey.split("::");
+                    const label = parts.length >= 3 ? `${parts[1]} (${parts[2]})` : selectedLayerKey;
+                    return `${label} (pending)`;
+                  })()}
+                </option>
+              ) : null}
               {layersForStep.map((l) => (
                 <option key={l.key} value={l.key}>
                   {l.layer.layerId} ({l.layer.kind})
