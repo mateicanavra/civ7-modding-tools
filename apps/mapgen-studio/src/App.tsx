@@ -94,6 +94,53 @@ function axialToPixelPointy(q: number, r: number, size: number): [number, number
 
 type TileLayout = "row-offset" | "col-offset";
 
+function safeStringify(value: unknown): string | null {
+  try {
+    const seen = new WeakSet<object>();
+    return JSON.stringify(
+      value,
+      (_k, v) => {
+        if (typeof v === "bigint") return `${v}n`;
+        if (typeof v === "function") return `[Function ${v.name || "anonymous"}]`;
+        if (v && typeof v === "object") {
+          if (seen.has(v)) return "[Circular]";
+          seen.add(v);
+        }
+        return v;
+      },
+      2
+    );
+  } catch {
+    return null;
+  }
+}
+
+function formatErrorForUi(e: unknown): string {
+  if (e instanceof Error) {
+    const parts: string[] = [];
+    const header = e.name ? `${e.name}: ${e.message}` : e.message;
+    parts.push(header || "Error");
+    const details = safeStringify(e);
+    if (details && details !== "{}") parts.push(details);
+    if (e.stack) parts.push(e.stack);
+    return parts.join("\n\n");
+  }
+
+  if (e instanceof ErrorEvent) {
+    const parts: string[] = [];
+    parts.push(e.message || "ErrorEvent");
+    if (e.filename) parts.push(`${e.filename}:${e.lineno}:${e.colno}`);
+    if (e.error) parts.push(formatErrorForUi(e.error));
+    return parts.join("\n\n");
+  }
+
+  if (typeof e === "string") return e;
+  if (typeof e === "number" || typeof e === "boolean" || typeof e === "bigint") return String(e);
+
+  const json = safeStringify(e);
+  return json ?? String(e);
+}
+
 function oddQToAxialR(row: number, colParityBase: number): number {
   const q = colParityBase | 0;
   return row - (q - (q & 1)) / 2;
@@ -169,6 +216,59 @@ function fitToBounds(bounds: Bounds, viewport: { width: number; height: number }
   return { target: [(minX + maxX) / 2, (minY + maxY) / 2, 0], zoom };
 }
 
+const PLATE_ID_PALETTE: ReadonlyArray<[number, number, number, number]> = [
+  [248, 113, 113, 230], // red-400
+  [239, 68, 68, 230], // red-500
+  [220, 38, 38, 230], // red-600
+  [251, 146, 60, 230], // orange-400
+  [249, 115, 22, 230], // orange-500
+  [234, 88, 12, 230], // orange-600
+  [251, 191, 36, 230], // amber-400
+  [245, 158, 11, 230], // amber-500
+  [217, 119, 6, 230], // amber-600
+  [250, 204, 21, 230], // yellow-400
+  [234, 179, 8, 230], // yellow-500
+  [202, 138, 4, 230], // yellow-600
+  [163, 230, 53, 230], // lime-400
+  [132, 204, 22, 230], // lime-500
+  [101, 163, 13, 230], // lime-600
+  [74, 222, 128, 230], // green-400
+  [34, 197, 94, 230], // green-500
+  [22, 163, 74, 230], // green-600
+  [52, 211, 153, 230], // emerald-400
+  [16, 185, 129, 230], // emerald-500
+  [5, 150, 105, 230], // emerald-600
+  [45, 212, 191, 230], // teal-400
+  [20, 184, 166, 230], // teal-500
+  [13, 148, 136, 230], // teal-600
+  [34, 211, 238, 230], // cyan-400
+  [6, 182, 212, 230], // cyan-500
+  [8, 145, 178, 230], // cyan-600
+  [56, 189, 248, 230], // sky-400
+  [14, 165, 233, 230], // sky-500
+  [2, 132, 199, 230], // sky-600
+  [96, 165, 250, 230], // blue-400
+  [59, 130, 246, 230], // blue-500
+  [37, 99, 235, 230], // blue-600
+  [129, 140, 248, 230], // indigo-400
+  [99, 102, 241, 230], // indigo-500
+  [79, 70, 229, 230], // indigo-600
+  [167, 139, 250, 230], // violet-400
+  [139, 92, 246, 230], // violet-500
+  [124, 58, 237, 230], // violet-600
+  [192, 132, 252, 230], // purple-400
+  [168, 85, 247, 230], // purple-500
+  [147, 51, 234, 230], // purple-600
+  [217, 70, 239, 230], // fuchsia-500
+  [192, 38, 211, 230], // fuchsia-600
+  [244, 114, 182, 230], // pink-400
+  [236, 72, 153, 230], // pink-500
+  [219, 39, 119, 230], // pink-600
+  [251, 113, 133, 230], // rose-400
+  [244, 63, 94, 230], // rose-500
+  [225, 29, 72, 230], // rose-600
+];
+
 function colorForValue(layerId: string, value: number): [number, number, number, number] {
   if (!Number.isFinite(value)) return [120, 120, 120, 220];
 
@@ -184,12 +284,8 @@ function colorForValue(layerId: string, value: number): [number, number, number,
   }
 
   if (layerId.includes("plate")) {
-    // stable hash color for categorical IDs
-    const v = (value | 0) >>> 0;
-    const r = (v * 97) % 255;
-    const g = (v * 57) % 255;
-    const b = (v * 23) % 255;
-    return [r, g, b, 230];
+    const index = ((value | 0) >>> 0) % PLATE_ID_PALETTE.length;
+    return PLATE_ID_PALETTE[index] ?? [148, 163, 184, 220];
   }
 
   // generic 0..1 mapping
@@ -231,7 +327,7 @@ function legendForLayer(layer: VizLayerEntryV0 | null, stats: { min?: number; ma
     return {
       title: "Plate IDs",
       items: [
-        { label: "categorical (stable hashed color by ID)", color: [148, 163, 184, 220] },
+        { label: `categorical (palette of ${PLATE_ID_PALETTE.length} colors, cycles by ID)`, color: [148, 163, 184, 220] },
       ],
     };
   }
@@ -324,6 +420,16 @@ export function App() {
 
   const [selectedStepId, setSelectedStepId] = useState<string | null>(null);
   const [selectedLayerKey, setSelectedLayerKey] = useState<string | null>(null);
+  const selectedStepIdRef = useRef<string | null>(null);
+  const selectedLayerKeyRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    selectedStepIdRef.current = selectedStepId;
+  }, [selectedStepId]);
+
+  useEffect(() => {
+    selectedLayerKeyRef.current = selectedLayerKey;
+  }, [selectedLayerKey]);
 
   const [viewState, setViewState] = useState<any>({ target: [0, 0, 0], zoom: 0 });
   const [layerStats, setLayerStats] = useState<{ min?: number; max?: number } | null>(null);
@@ -352,10 +458,13 @@ export function App() {
   useEffect(() => {
     if (!manifest) return;
     if (selectedStepId && manifest.steps.some((s) => s.stepId === selectedStepId)) return;
+    // For the in-browser runner, allow re-running the pipeline from step 0 while keeping
+    // the UI pinned to a later step until the worker streams back up to it.
+    if (mode === "browser" && browserRunning && selectedStepId) return;
     const firstStep = [...manifest.steps].sort((a, b) => a.stepIndex - b.stepIndex)[0]?.stepId ?? null;
     setSelectedStepId(firstStep);
     setSelectedLayerKey(null);
-  }, [manifest, selectedStepId]);
+  }, [browserRunning, manifest, mode, selectedStepId]);
 
   const layersForStep = useMemo(() => {
     if (!manifest || !selectedStepId) return [];
@@ -451,7 +560,7 @@ export function App() {
       // Fallback: directory upload (Chromium via webkitdirectory).
       setError("Your browser does not support folder picking. Use a Chromium-based browser, or enable directory picking.");
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(formatErrorForUi(e));
     }
   }, [setFittedView]);
 
@@ -475,7 +584,7 @@ export function App() {
       setSelectedLayerKey(null);
       setFittedView([0, 0, 1, 1]);
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(formatErrorForUi(e));
     }
   }, [setFittedView]);
 
@@ -498,11 +607,14 @@ export function App() {
 
   const startBrowserRun = useCallback(() => {
     setError(null);
+    const retainStep = mode === "browser" && selectedStepIdRef.current;
     setMode("browser");
     setBrowserManifest(null);
-    setSelectedStepId(null);
+    if (!retainStep) setSelectedStepId(null);
+    // Keep the user pinned to the same step across reruns; clear the layer selection so the
+    // next streamed layer for that step becomes active when it arrives.
     setSelectedLayerKey(null);
-    setFittedView([0, 0, 1, 1]);
+    if (!retainStep) setFittedView([0, 0, 1, 1]);
     setBrowserLastStep(null);
 
     stopBrowserRun();
@@ -600,8 +712,13 @@ export function App() {
           return { ...prev, layers };
         });
 
-        setSelectedLayerKey((prev) => prev ?? `${msg.layer.stepId}::${msg.layer.layerId}::${msg.layer.kind}`);
         setSelectedStepId((prev) => prev ?? msg.layer.stepId);
+        setSelectedLayerKey((prev) => {
+          if (prev) return prev;
+          const desiredStep = selectedStepIdRef.current ?? msg.layer.stepId;
+          if (msg.layer.stepId !== desiredStep) return prev;
+          return `${msg.layer.stepId}::${msg.layer.layerId}::${msg.layer.kind}`;
+        });
         return;
       }
 
@@ -612,14 +729,19 @@ export function App() {
 
       if (msg.type === "run.error") {
         setBrowserRunning(false);
-        setError(msg.message);
+        const parts: string[] = [];
+        if (msg.name) parts.push(`${msg.name}: ${msg.message}`);
+        else parts.push(msg.message);
+        if (msg.details) parts.push(msg.details);
+        if (msg.stack) parts.push(msg.stack);
+        setError(parts.filter(Boolean).join("\n\n"));
         return;
       }
     };
 
     worker.onerror = (e) => {
       setBrowserRunning(false);
-      setError(e instanceof ErrorEvent ? e.message : String(e));
+      setError(formatErrorForUi(e));
     };
 
     const req: BrowserRunRequest = {
@@ -632,7 +754,7 @@ export function App() {
     };
 
     worker.postMessage(req);
-  }, [browserHeight, browserSeed, browserWidth, setFittedView, stopBrowserRun]);
+  }, [browserHeight, browserSeed, browserWidth, mode, setFittedView, stopBrowserRun]);
 
   useEffect(() => {
     if (!manifest || !selectedStepId) return;
@@ -898,7 +1020,7 @@ export function App() {
   useEffect(() => {
     const v = deckLayers as any;
     if (typeof v?.then === "function") {
-      v.then(setResolvedLayers).catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)));
+      v.then(setResolvedLayers).catch((e: unknown) => setError(formatErrorForUi(e)));
     } else {
       setResolvedLayers(v);
     }
@@ -1140,8 +1262,11 @@ export function App() {
               value={selectedStepId ?? ""}
               onChange={(e) => setSelectedStepId(e.target.value || null)}
               style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
-              disabled={!steps.length}
+              disabled={!steps.length && !selectedStepId}
             >
+              {selectedStepId && !steps.some((s) => s.stepId === selectedStepId) ? (
+                <option value={selectedStepId}>{formatLabel(selectedStepId)} (pending)</option>
+              ) : null}
               {steps.map((s) => (
                 <option key={s.stepId} value={s.stepId}>
                   {s.stepIndex} · {formatLabel(s.stepId)}
@@ -1200,7 +1325,7 @@ export function App() {
 
       {error ? (
         <div style={{ padding: 12, background: "#2a0b0b", borderBottom: "1px solid #7f1d1d", color: "#fecaca" }}>
-          {error}
+          <pre style={{ margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{error}</pre>
         </div>
       ) : null}
 
