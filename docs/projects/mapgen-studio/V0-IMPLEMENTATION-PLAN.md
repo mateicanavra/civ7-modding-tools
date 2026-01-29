@@ -1,6 +1,10 @@
-# V0 Implementation Plan — Dump + Deck.gl Viewer
+# V0 (Optional) Implementation Plan — Dump Export + Deck.gl Replay Viewer
 
-This plan turns the V0 roadmap into an executable slice: **dump a single layer from one run and render it in MapGen Studio**.
+This plan turns the V0 roadmap milestone into an executable slice: **export a dump artifact from one run and replay it in MapGen Studio**.
+
+Important framing:
+- The **primary** MapGen Studio loop is the pure in-browser pipeline (Web Worker → in-memory → deck.gl).
+- This V0 plan remains valuable for **debug/tests/export/sharing**, but dumps are **not** required for the normal in-browser visualization path.
 
 ## Definitions (must stay consistent with runtime)
 
@@ -21,7 +25,7 @@ The Foundation `projection` step exists to bridge these: it emits `tileToCellInd
 
 ## Goal
 
-Prove the loop:
+Prove the export/replay loop (secondary to the in-browser runner):
 
 1) Run mapgen once
 2) Emit a replayable dump folder (`manifest.json` + `data/*`, optionally `trace.jsonl`)
@@ -36,7 +40,7 @@ Dump outputs (V0) are written under: `mods/mod-swooper-maps/dist/visualization/<
   - tile-space grids (e.g. plateId, boundaryType, crust tiles)
   - mesh-space points (mesh sites, cell-to-plate assignment, crust/tectonics tensors)
   - mesh-space segments where feasible (tectonic segments, neighbor graphs / mesh edges)
-- External replay only: viewer **does not execute** pipeline code.
+- External replay only: viewer **does not execute** pipeline code (replay viewer for exported artifacts).
 - Default validation target is Civ7 **MAPSIZE_HUGE** (grid **106×66**), as defined in `.civ7/outputs/resources/Base/modules/base-standard/data/maps.xml`.
 
 ## Decisions to Lock (Before Coding)
