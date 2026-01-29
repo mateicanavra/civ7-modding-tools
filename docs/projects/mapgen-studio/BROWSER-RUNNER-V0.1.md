@@ -6,7 +6,7 @@ This document proposes the **V0.1 MapGen Studio runner**: run the `browser-test`
 
 ## Goals (V0.1)
 
-- Run the `foundation` recipe end-to-end in a Web Worker with deterministic seed + config.
+- Run the `browser-test` recipe (currently Foundation-only) end-to-end in a Web Worker with deterministic seed + config.
 - Stream intermediate visualization layers as steps run via a first-class `VizSink` interface:
   - primary sink: `DeckGlSink` (Worker → in-memory → deck.gl)
   - optional sink: `DumpSink` (export/debug/tests)
@@ -67,6 +67,29 @@ It should not be required for deck.gl rendering to function.
     - visualization layer payloads via `VizSink`
     - optional debug trace events
 
+## Recipe packaging and configurability (current posture)
+
+### Bundled recipes (today)
+
+In V0.1, recipes are **bundled into the Web Worker** as normal TS/ESM modules. This means:
+- No server round-trips are required to “load” a recipe at runtime.
+- Configuration can still be **provided at runtime** (UI → Worker message) and passed into `recipe.compile(env, config)` / `recipe.run(ctx, env, config, ...)`.
+
+This is the recommended posture for early slices because it keeps the browser runner self-contained and minimizes new infrastructure.
+
+### Runtime-loadable recipes (later; requires new architecture)
+
+If we want “drop in a recipe without rebuilding” (e.g., OPFS import, drag-and-drop, etc.) in a fully browser-based setup, we will need a different mechanism than bundling TS modules, such as:
+- a **serialized recipe IR** + interpreter in the worker, or
+- dynamic module loading (which typically implies an HTTP URL, or more complex bundler/runtime support).
+
+This is explicitly not required for V0.1 slices. Treat it as a later capability once pipeline coverage justifies it.
+
+### Standard recipe as an export target
+
+It is feasible to bundle the full `standard` recipe and still allow runtime config overrides. However:
+- Running the full `standard` recipe in-browser also depends on BrowserAdapter capabilities beyond V0.1 (engine-coupled calls and additional Civ tables), so bundling it does not imply it will execute successfully yet.
+
 ## Worker message protocol (proposal)
 
 ### Requests (main → worker)
@@ -74,9 +97,10 @@ It should not be required for deck.gl rendering to function.
 - `run.start`
   - `recipeId`: `"foundation"`
   - `seed`: number
+  - `mapSizeId`: Civ7 map size id (e.g., `MAPSIZE_HUGE`) and derived `dimensions`
   - `dimensions`: `{ width, height }`
   - `latitudeBounds`: `{ topLatitude, bottomLatitude }`
-  - `config`: recipe config input (V0.1: `{ foundation: {...} }`)
+  - `config`: recipe config input (V0.1: typically `browser-test` with explicit defaults + optional overrides)
   - `trace`: `{ enabled: boolean; steps?: Record<string, "verbose" | "normal"> }`
 - `run.cancel`
   - `runId` (or a client-generated token)
