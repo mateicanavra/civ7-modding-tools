@@ -1,3 +1,5 @@
+import type { BrowserTestRecipeConfig } from "@mapgen/browser-test-recipe";
+
 export type Bounds = [minX: number, minY: number, maxX: number, maxY: number];
 
 export type VizScalarFormat = "u8" | "i8" | "u16" | "i16" | "i32" | "f32";
@@ -9,7 +11,7 @@ export type BrowserRunStartRequest = {
   mapSizeId: string;
   dimensions: { width: number; height: number };
   latitudeBounds: { topLatitude: number; bottomLatitude: number };
-  config: { foundation: Record<string, never> };
+  configOverrides?: BrowserTestRecipeConfig;
 };
 
 export type BrowserRunCancelRequest = {
