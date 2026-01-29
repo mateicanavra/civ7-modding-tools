@@ -14,6 +14,55 @@ function post(event: BrowserRunEvent, transfer?: Transferable[]): void {
   (self as DedicatedWorkerGlobalScope).postMessage(event, transfer ?? []);
 }
 
+function safeStringify(value: unknown): string | null {
+  try {
+    const seen = new WeakSet<object>();
+    return JSON.stringify(
+      value,
+      (_k, v) => {
+        if (typeof v === "bigint") return `${v}n`;
+        if (typeof v === "function") return `[Function ${v.name || "anonymous"}]`;
+        if (v && typeof v === "object") {
+          if (seen.has(v)) return "[Circular]";
+          seen.add(v);
+        }
+        return v;
+      },
+      2
+    );
+  } catch {
+    return null;
+  }
+}
+
+function describeThrown(e: unknown): { name?: string; message: string; details?: string; stack?: string } {
+  if (e instanceof Error) {
+    const details = safeStringify(e);
+    return {
+      name: e.name,
+      message: e.message || e.name || "Error",
+      details: details && details !== "{}" ? details : undefined,
+      stack: e.stack,
+    };
+  }
+
+  if (typeof e === "string") return { message: e };
+  if (typeof e === "number" || typeof e === "boolean" || typeof e === "bigint") return { message: String(e) };
+
+  const maybeMessage = e && typeof e === "object" && "message" in e ? (e as any).message : undefined;
+  const message = typeof maybeMessage === "string" && maybeMessage.trim().length ? maybeMessage : "Non-Error thrown";
+  const details = safeStringify(e);
+  const stack = e && typeof e === "object" && "stack" in e && typeof (e as any).stack === "string" ? (e as any).stack : undefined;
+  const name = e && typeof e === "object" && "name" in e && typeof (e as any).name === "string" ? (e as any).name : undefined;
+
+  return {
+    name,
+    message,
+    details: details ?? String(e),
+    stack,
+  };
+}
+
 function hash32(value: string): number {
   // FNV-1a (32-bit)
   let h = 0x811c9dc5;
@@ -85,11 +134,13 @@ self.onmessage = (ev: MessageEvent<BrowserRunRequest>) => {
 
   if (msg.type === "run.start") {
     runFoundation(msg).catch((e: unknown) => {
-      const err = e instanceof Error ? e : new Error(String(e));
+      const err = describeThrown(e);
       post({
         type: "run.error",
         runToken: msg.runToken,
+        name: err.name,
         message: err.message,
+        details: err.details,
         stack: err.stack,
       });
     });

@@ -50,7 +50,9 @@ export type BrowserRunFinishedEvent = {
 export type BrowserRunErrorEvent = {
   type: "run.error";
   runToken: string;
+  name?: string;
   message: string;
+  details?: string;
   stack?: string;
 };
 
@@ -110,4 +112,3 @@ export type BrowserVizLayerPayload =
       values?: ArrayBuffer;
       valueFormat?: VizScalarFormat;
     };
-
