@@ -193,7 +193,7 @@ Optional but high-leverage:
 - `stageOrder: string[]`: lets UI render predictable stage cards even if schema property ordering changes.
 - `tags`/`capabilities`: e.g. `{ supportsAdapter: "browser-v0" }` to avoid exposing recipes that can’t run in-browser yet.
 - `configPresentationHints`: *only if* they are UI-framework-agnostic (avoid leaking RJSF-specific knobs into shared artifacts).
-- `vizContract`: a small, recipe-scoped contract of “UI-first” layer IDs + optional labels so Studio can prioritize/hide internal/debug layers by default without hard-coding string prefixes in `App.tsx` (see also `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md` for the initial project-level catalog).
+- `vizMetaOverrides` (optional): recipe-scoped presentation hints for viz layers keyed by `layerId` (e.g. label/group/visibility/categories). Prefer emitting `VizLayerMeta` directly with each streamed/dumped layer entry; use overrides only as a fallback/augmentation mechanism when the producing code can’t (or shouldn’t) attach meta at emission time.
 
 ### 3.3 Dynamic import vs static registry (bundle size, Vite)
 

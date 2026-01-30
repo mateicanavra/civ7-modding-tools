@@ -1,5 +1,10 @@
 # agent-viz-deckgl — deck.gl host seam + normalized viz model (scratch)
 
+Update note (2026-01-29):
+- This seam was originally written when the UI used a “contract vs internal/debug” layer catalog + toggle.
+- The current stack has simplified this: viz layers now carry embedded `meta?: VizLayerMeta` (label/group/visibility/categories) and the UI derives picker labels/legend/colors from `meta` (no contract/internal toggle).
+- Treat `VizLayerMeta` as the primary presentation surface; keep string-based heuristics as fallback only.
+
 ## 1) Files reviewed
 
 - `apps/mapgen-studio/src/App.tsx`
@@ -22,8 +27,9 @@
   - active `stepId`
   - active `layerKey` (string)
   - layer list presentation rules:
-    - contract vs internal/debug classification (contract hidden/visible defaults; see `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md`)
-    - selection must remain usable even when internal layers are hidden (keep the selected internal layer in the list)
+    - picker labels and legend titles derive from `layer.meta?.label ?? layer.layerId`
+    - `layer.meta?.visibility === "debug"` is surfaced in labeling (current behavior: suffix `", debug"`)
+    - when `layer.meta?.categories` exists, legend + colors are categorical (meta-driven)
   - `effectiveLayer` indirection for tectonic-history “era” layers (parses `foundation.tectonicHistory.eraN.*`)
 - Owns **rendering of deck.gl layers** from the selected layer:
   - `grid` → `PolygonLayer` (pointy-top hex polygons)
@@ -39,6 +45,7 @@
   - ad-hoc legend rules for `boundaryType`, crust type, plate ids
   - generic palette for scalar-ish values (clamped to 0..1)
   - special “plate palette” generation seeded by `runId:layerId` (categorical; tries to separate colors perceptually)
+  - (newer) meta-driven categorical colors + legend when `layer.meta?.categories` is present
 - Owns **bounds + fit logic**:
   - `fitToBounds` for view state
   - for grid layers: derives world bounds via `boundsForTileGrid(tileLayout, dims, tileSize)`
@@ -102,7 +109,7 @@ This makes the UI behave like a **manifest viewer**, even in streaming mode.
 Today, “registry logic” is scattered and implicit:
 
 - coordinate-space choice is inferred from `kind` + `layerId` string prefixes
-- contract vs internal/debug classification (and human-friendly labels) is inferred from `layerId` prefix/lookup tables (see `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md`)
+- layer labels/visibility/categories come from `layer.meta` when present; remaining heuristics still rely on `layerId` checks
 - legend/palette choice is inferred from `layerId` string contains/endsWith checks
 - overlay choice (mesh edges) is inferred from `layerId` prefixes + `kind`
 - “era slider” behavior is inferred from a specific layerId regex
@@ -117,7 +124,7 @@ A **layer registry** should centralize these decisions so that:
 Concretely: the registry should map a `layerId` (or pattern) to a `VizLayerDefinition`:
 
 - `space`: `tileHexOddR | tileHexOddQ | meshWorld | ...`
-- `scope` / `visibility`: contract vs internal/debug (default filtering) + stable labels for the layer picker
+- `visibility` + label/group: primarily from `VizLayerMeta` (debug/hidden tagging, label/group for picker grouping)
 - `paletteId` / `scale`: `categorical(plateIds) | crustType | boundaryType | continuous(0..1?) | continuous(min/max?)`
 - `legend`: structured legend model derived from scale + (optional) data stats
 - `overlays`: e.g. `meshEdges` as an optional overlay dependency

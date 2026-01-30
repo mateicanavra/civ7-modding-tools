@@ -66,11 +66,12 @@ $APP_SHELL = $SRC/app
   - [ ] JSON editor remains an advanced/fallback path and blocks run when invalid.
   - [ ] Schema wrapper collapsing is presentation-only; **top-level stage container remains visible/collapsible**.
 - [ ] Layer list:
-  - [ ] Contract vs internal/debug layers: internal hidden by default, toggleable.
-  - [ ] If an internal layer is currently selected and internal layers are hidden, selection remains usable (don’t strand the UI).
+  - [ ] Layer labels are derived from `VizLayerMeta` (`layer.meta?.label ?? layer.layerId`).
+  - [ ] `layer.meta?.visibility === "debug"` is surfaced in UI labeling (current behavior: suffix `", debug"`).
+  - [ ] If `layer.meta?.categories` exists, legend and colors are categorical (meta-driven); otherwise fallback heuristic legends/palettes apply.
 
 ### Paper trail (must remain true)
-- Contract layer definitions remain consistent with `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md`.
+- Viz presentation remains sourced from `@swooper/mapgen-core` layer metadata (`VizLayerMeta`) and propagated through the browser protocol (`BrowserVizLayerEntry.meta`).
 - “Many recipes” direction remains consistent with `docs/projects/mapgen-studio/resources/seams/SEAM-RECIPES-ARTIFACTS.md`.
 
 ---
@@ -328,18 +329,19 @@ Notes:
 
 ---
 
-## Slice: RFX-03 — Extract `viz` feature (model + ingest + deck.gl) + layer catalog
+## Slice: RFX-03 — Extract `viz` feature (model + ingest + deck.gl) + meta-driven presentation
 
 **Primary references:**
 - `docs/projects/mapgen-studio/resources/seams/SEAM-VIZ-DECKGL.md`
-- `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md`
+- `packages/mapgen-core/src/core/types.ts` (`VizLayerMeta`, `VizLayerVisibility`)
+- `apps/mapgen-studio/src/browser-runner/protocol.ts` (`BrowserVizLayerEntry.meta`)
 
 ### Objective
-Move viz model/types, layer registry/selection, and deck.gl rendering out of `$APP_TSX` into `$FEATURES/viz/*`, including the **contract vs internal** layer catalog behavior introduced in `agent-CODEX-viz-layer-contract`.
+Move viz model/types, layer registry/selection, and deck.gl rendering out of `$APP_TSX` into `$FEATURES/viz/*`, including the meta-driven labeling/legend/palette behavior introduced by embedding `VizLayerMeta` in layer entries.
 
 ### Dependency rules
 - `features/viz/*` consumes runner outputs only via `VizEvent[]` (IoC), not runner internals.
-- Contract/internal layer catalog must not be hardcoded in `App.tsx` long-term.
+- Meta/legend/palette heuristics must not be hardcoded in `App.tsx` long-term.
 
 ### Proposed modules
 ```yaml
@@ -348,8 +350,8 @@ files:
     notes: Normalized types; layer registry; selection; legend model; VizEvent type
   - path: $FEATURES/viz/ingest.ts
     notes: Reducer applying VizEvent -> viz state
-  - path: $FEATURES/viz/catalog.ts
-    notes: Contract/internal policy + labels; aligns to VIZ-LAYER-CATALOG.md
+  - path: $FEATURES/viz/presentation.ts
+    notes: Layer labeling + visibility tags + categorical legend/palette (meta-first; heuristics as fallback)
   - path: $FEATURES/viz/deckgl/render.ts
     notes: Pure mapping from viz state -> deck.gl layers
   - path: $FEATURES/viz/DeckCanvas.tsx
@@ -378,13 +380,9 @@ export type UseVizStateResult = {
   selectedLayerKey: string | null;
   setSelectedLayerKey(next: string | null): void;
 
-  // Presentation controls
-  showInternalLayers: boolean;
-  setShowInternalLayers(next: boolean): void;
-
   // Data for UI
   steps: Array<{ stepId: string; stepIndex: number }>;
-  selectableLayers: Array<{ key: string; label: string; isInternal: boolean }>;
+  selectableLayers: Array<{ key: string; label: string; visibility: "default" | "debug" | "hidden"; group?: string }>;
   legend: unknown | null;
 
   // Render host props
@@ -396,27 +394,27 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult;
 
 Notes:
 - “Unknown” types above are intentionally internal: they become concrete when the implementation lands, but the *shape* is binding (it’s the wiring contract used to shrink `App.tsx`).
-- The **contract/internal** policy is owned by `features/viz/catalog.ts` and must stay aligned with `VIZ-LAYER-CATALOG.md`.
+- `selectableLayers[].visibility` mirrors `VizLayerMeta.visibility` when present; when absent, it defaults to `"default"`.
 
-### Decision (binding) — where the contract catalog lives
-- **Choice:** `$FEATURES/viz/catalog.ts` owns contract/internal policy for now.
-- **Rationale:** isolates UI behavior from `App.tsx` immediately; later we can optionally source catalog/prefixes from recipe artifacts (`@mapgen/browser-recipes`) without another rewrite.
-- **Risk:** catalog may drift from docs; mitigate by treating `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md` as canonical and updating it when changing catalog code.
+### Decision (binding) — where layer presentation rules live
+- **Choice:** `$FEATURES/viz/presentation.ts` owns label/visibility tags and meta-first categorical legend/palette rules for the layer picker + legend UI.
+- **Rationale:** isolates UI behavior from `App.tsx` immediately while keeping the data contract (`VizLayerMeta`) owned by `@swooper/mapgen-core`.
+- **Risk:** heuristics may drift from product intent; mitigate by preferring `VizLayerMeta` and treating heuristics as compatibility-only.
 
 ### Acceptance criteria
-- [ ] Contract/internal layer filtering behavior remains identical:
-  - [ ] internal layers hidden by default, toggleable
-  - [ ] contract layers prioritized in ordering/labels
-  - [ ] selected internal layer remains selectable even when hidden
+- [ ] Layer picker labels and legend match pre-refactor behavior:
+  - [ ] `layer.meta?.label` drives picker labels and legend titles
+  - [ ] `layer.meta?.visibility === "debug"` is surfaced in labeling (suffix `", debug"`)
+  - [ ] `layer.meta?.categories` drives categorical legend + colors when present
 - [ ] Deck rendering output matches pre-refactor behavior for existing runs/dumps.
 - [ ] `App.tsx` no longer contains deck.gl layer builders, palettes, or hex math.
 
 ### Verification
 - `bun run --cwd apps/mapgen-studio build`
 - Manual smoke (`bun run --cwd apps/mapgen-studio dev`):
-  - Run and confirm at least one contract layer renders.
-  - Toggle internal layers; ensure the list changes but selection remains stable.
-  - If possible, select an internal layer, hide internal layers, ensure it remains selected/usable.
+  - Run and confirm at least one layer renders.
+  - Confirm at least one layer label comes from `meta.label` (not raw layerId).
+  - Confirm a categorical/meta-driven layer shows a categorical legend (if present) and colors match legend.
 
 ---
 

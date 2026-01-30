@@ -50,9 +50,10 @@ Why next:
 Key invariants:
 - Viz should consume runner outputs via runner-agnostic events (IoC) to prevent dependency cycles.
 - Prefer protocol-provided unique layer identity (`layer.key`) to avoid lossy recomputation.
-- Contract vs internal/debug layers are a first-class presentation concern:
-  - contract layers may be the default visible set (see `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md`)
-  - if an internal layer is selected and internal layers are hidden, keep the selection usable (don’t strand the UI)
+- Viz presentation is **meta-first**:
+  - layer picker labels use `layer.meta?.label ?? layer.layerId`
+  - `layer.meta?.visibility === "debug"` is surfaced in labeling (current behavior: suffix `", debug"`)
+  - when `layer.meta?.categories` exists, legend and colors are categorical (meta-driven), otherwise fall back to heuristic legends/palettes
 
 See:
 - `docs/projects/mapgen-studio/resources/seams/SEAM-VIZ-DECKGL.md`

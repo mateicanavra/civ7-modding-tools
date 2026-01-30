@@ -14,7 +14,7 @@ Execution-grade companion (sliceable PR plan with acceptance criteria + verifica
 Update note (2026-01-29):
 - `App.tsx` has expanded substantially (config overrides sidebar polish, schema presentation helpers, CSS, templates).
 - `packages/browser-recipes/` (`@mapgen/browser-recipes`) now exists and is the beginning of the “many recipes” story.
-- Viz layer IDs have started to split into **contract vs internal/debug** surfaces, and the UI now hides internal layers by default (with a toggle). Treat this as a lasting direction, not a one-off UI tweak.
+- Viz layers now carry embedded metadata (`meta?: VizLayerMeta`) for **labeling**, **legend/palette categories**, and **visibility** (default/debug/hidden). The UI derives labels/legend/colors from `meta` rather than maintaining a separate “contract vs internal” catalog.
 - Treat “infinite recipes” as a hard requirement: adding new recipes should be a mechanical registration/artifacts task, not an app re-architecture.
 
 Related context:
@@ -22,7 +22,7 @@ Related context:
 - V0.1 runner spec: `docs/projects/mapgen-studio/BROWSER-RUNNER-V0.1.md`
 - Browser adapter surface: `docs/projects/mapgen-studio/BROWSER-ADAPTER.md`
 - V0.1 slice: config overrides UI→worker: `docs/projects/mapgen-studio/V0.1-SLICE-CONFIG-OVERRIDES-UI-WORKER.md`
-- Viz layer contract catalog: `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md`
+- Viz layer metadata source: `packages/mapgen-core/src/core/types.ts` (`VizLayerMeta`) and `packages/mapgen-core/src/dev/viz-meta.ts` (helpers for defining meta)
 - Roadmap: `docs/projects/mapgen-studio/ROADMAP.md`
 
 ---
@@ -86,8 +86,9 @@ This is already ~2.5k LOC and will continue to grow as we add:
 - **Determinism**: seed/config → deterministic outputs; merge semantics are deterministic and safe.
 - **Retention UX**: reruns retain selected step + layer; seed reroll auto-runs; cancellation semantics unchanged.
 - **Layer-list UX**:
-  - contract layers are prioritized (and may be the default visible set; see `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md`)
-  - if the user has an internal layer selected and later hides internal layers, the selection must remain usable (don’t “strand” the UI in a state where the selected key is impossible to keep/see)
+  - layer picker labels use `layer.meta?.label ?? layer.layerId`
+  - `layer.meta?.visibility === "debug"` is surfaced in UI labeling (current behavior: suffix `", debug"`), but layers are not filtered by visibility yet
+  - when `layer.meta?.categories` exists, legend and colors are categorical (meta-driven), otherwise fall back to heuristic legends (landmask/height/plates/etc.)
 - **Config overrides UX**:
   - schema-driven form is primary
   - JSON editor is a fallback/advanced path
@@ -243,9 +244,9 @@ Target architecture:
 - define a runner-agnostic `VizEvent` ingest model
 - maintain a normalized “layer registry” keyed by a unique `layerKey` (prefer protocol-provided identity; avoid recomputing a lossy key)
 - isolate deck.gl rendering as an adapter layer
-- treat **contract vs internal/debug** layers as a first-class presentation concern:
-  - move “contract layer” definitions/labels out of `App.tsx` into a dedicated module
-  - preserve the current selection/visibility semantics (selected internal layers remain selectable even if “hide internal” is enabled)
+- treat **`VizLayerMeta`** as the first-class presentation surface:
+  - label/group/description/visibility/categories should be taken from `layer.meta` when present
+  - keep fallback heuristics (string-based rules) as a compatibility layer, not the primary source of truth
 
 Target modules:
 - `features/viz/model.ts` (normalized types: run/step/layer/selection/legend, `VizEvent`)
