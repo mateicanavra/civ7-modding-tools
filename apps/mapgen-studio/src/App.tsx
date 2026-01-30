@@ -217,7 +217,7 @@ export function App() {
   );
 
   const main = manifest ? (
-    <DeckCanvas deck={viz.deck} />
+    <DeckCanvas deck={viz.deck} viewportSize={viewportSize} />
   ) : (
     <div style={{ padding: 18, color: "#9ca3af" }}>
       {mode === "browser"
