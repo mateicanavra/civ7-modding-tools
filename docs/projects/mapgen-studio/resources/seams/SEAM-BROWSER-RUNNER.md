@@ -310,7 +310,7 @@ Recommended rules:
    - `protocol.ts` may define types, string literals, and small structural helpers only.
    - No imports from React, deck.gl, or other UI code.
 2. **Worker entry imports only:**
-   - mapgen core/recipes/runtime deps (`@swooper/mapgen-core`, `@mapgen/browser-recipes`, Civ7 tables)
+   - mapgen core/recipes/runtime deps (`@swooper/mapgen-core`, `mod-swooper-maps/recipes/*`, Civ7 tables)
    - worker-local helpers (`worker-trace-sink`, `worker-viz-dumper`)
    - shared protocol types
 3. **UI runner code imports only:**
@@ -347,4 +347,3 @@ Recommended rules:
   - Confirm `worker.onerror` surfaces filename/line when available.
 - **Bundling**
   - Run `bun run --cwd apps/mapgen-studio build` and ensure `check-worker-bundle` passes.
-
