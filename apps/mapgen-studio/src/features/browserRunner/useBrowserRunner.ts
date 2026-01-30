@@ -11,7 +11,7 @@ export type BrowserRunnerInputs = {
   mapSizeId: string;
   dimensions: { width: number; height: number };
   latitudeBounds: { topLatitude: number; bottomLatitude: number };
-  configOverrides?: import("mod-swooper-maps/recipes/browser-test").BrowserTestRecipeConfig;
+  configOverrides?: import("mod-swooper-maps/recipes/standard").StandardRecipeConfig;
 };
 
 export type BrowserRunnerState = {

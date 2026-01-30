@@ -1,4 +1,10 @@
-import { collectCompileOps, createRecipe, type CompiledRecipeConfigOf, type RecipeConfigInputOf } from "@swooper/mapgen-core/authoring";
+import {
+  Type,
+  collectCompileOps,
+  createRecipe,
+  type CompiledRecipeConfigOf,
+  type RecipeConfigInputOf,
+} from "@swooper/mapgen-core/authoring";
 import ecologyDomain from "@mapgen/domain/ecology/ops";
 import foundationDomain from "@mapgen/domain/foundation/ops";
 import hydrologyDomain from "@mapgen/domain/hydrology/ops";
@@ -45,6 +51,26 @@ export const compileOpsById = collectCompileOps(
   ecologyDomain,
   placementDomain
 );
+
+export const STANDARD_RECIPE_CONFIG_SCHEMA = Type.Object(
+  {
+    foundation: Type.Optional(foundation.surfaceSchema),
+    "morphology-pre": Type.Optional(morphologyPre.surfaceSchema),
+    "morphology-mid": Type.Optional(morphologyMid.surfaceSchema),
+    "morphology-post": Type.Optional(morphologyPost.surfaceSchema),
+    "hydrology-climate-baseline": Type.Optional(hydrologyClimateBaseline.surfaceSchema),
+    "hydrology-hydrography": Type.Optional(hydrologyHydrography.surfaceSchema),
+    "hydrology-climate-refine": Type.Optional(hydrologyClimateRefine.surfaceSchema),
+    ecology: Type.Optional(ecology.surfaceSchema),
+    "map-morphology": Type.Optional(mapMorphology.surfaceSchema),
+    "map-hydrology": Type.Optional(mapHydrology.surfaceSchema),
+    "map-ecology": Type.Optional(mapEcology.surfaceSchema),
+    placement: Type.Optional(placement.surfaceSchema),
+  },
+  { additionalProperties: false, default: {} }
+);
+
+export const STANDARD_RECIPE_CONFIG = {} satisfies StandardRecipeConfig;
 
 export default createRecipe({
   id: "standard",

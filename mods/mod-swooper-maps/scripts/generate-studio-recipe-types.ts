@@ -97,17 +97,18 @@ if (standardSchemaRaw) {
     },
   });
 
-  standardDts = [
-    `import type { ExtendedMapContext } from "@swooper/mapgen-core";`,
-    `import type { RecipeModule } from "@swooper/mapgen-core/authoring";`,
-    `import type { TSchema } from "typebox";`,
-    ``,
-    standardConfigTypes.trimEnd(),
-    ``,
-    `export const STANDARD_RECIPE_CONFIG_SCHEMA: TSchema;`,
-    `export const compileOpsById: Readonly<Record<string, unknown>>;`,
-    ``,
-    `declare const recipe: RecipeModule<ExtendedMapContext, Readonly<StandardRecipeConfig>, unknown>;`,
+    standardDts = [
+      `import type { ExtendedMapContext } from "@swooper/mapgen-core";`,
+      `import type { RecipeModule } from "@swooper/mapgen-core/authoring";`,
+      `import type { TSchema } from "typebox";`,
+      ``,
+      standardConfigTypes.trimEnd(),
+      ``,
+      `export const STANDARD_RECIPE_CONFIG: Readonly<StandardRecipeConfig>;`,
+      `export const STANDARD_RECIPE_CONFIG_SCHEMA: TSchema;`,
+      `export const compileOpsById: Readonly<Record<string, unknown>>;`,
+      ``,
+      `declare const recipe: RecipeModule<ExtendedMapContext, Readonly<StandardRecipeConfig>, unknown>;`,
     `export default recipe;`,
     ``,
   ].join("\n");
@@ -117,6 +118,7 @@ if (standardSchemaRaw) {
     `import type { RecipeModule } from "@swooper/mapgen-core/authoring";`,
     ``,
     `export type StandardRecipeConfig = Readonly<Record<string, unknown>>;`,
+    `export const STANDARD_RECIPE_CONFIG: Readonly<StandardRecipeConfig>;`,
     `export const compileOpsById: Readonly<Record<string, unknown>>;`,
     ``,
     `declare const recipe: RecipeModule<ExtendedMapContext, Readonly<StandardRecipeConfig>, unknown>;`,
