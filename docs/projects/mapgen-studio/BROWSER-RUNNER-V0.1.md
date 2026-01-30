@@ -1,6 +1,6 @@
 # V0.1 In-Browser Runner Design (Foundation First, Pure Browser Pipeline)
 
-This document proposes the **V0.1 MapGen Studio runner**: run the Foundation recipe entirely in a Web Worker and stream visualization outputs **directly** into deck.gl as in-memory data.
+This document proposes the **V0.1 MapGen Studio runner**: run the `browser-test` recipe (currently Foundation-only) entirely in a Web Worker and stream visualization outputs **directly** into deck.gl as in-memory data.
 
 “Dumps” (folders containing `manifest.json` + binaries) remain valuable, but are explicitly **optional**: debug, tests, and export/sharing — not the core runtime mechanism for the normal browser loop.
 
@@ -175,7 +175,7 @@ This allows browser runs to be self-contained and consistent across deployments.
 
 ## V0.1 “minimal changes needed” checklist
 
-- Add a worker entry in MapGen Studio that can import and execute the Foundation recipe.
+- Add a worker entry in MapGen Studio that can import and execute the `browser-test` recipe (Foundation-only).
 - Add worker/main protocol types and wiring (including `viz.layer.upsert`).
 - Add a `VizSink` abstraction with at least `DeckGlSink` implemented; keep `DumpSink` optional/behind a flag.
 - Add UI controls: seed, run, cancel, and a basic progress indicator.
