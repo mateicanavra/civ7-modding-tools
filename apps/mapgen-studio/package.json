@@ -12,10 +12,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@civ7/adapter": "workspace:*",
     "@deck.gl/core": "^9.0.43",
     "@deck.gl/layers": "^9.0.43",
     "@deck.gl/react": "^9.0.43",
-    "@civ7/adapter": "workspace:*",
+    "@rjsf/core": "^6.2.5",
+    "@rjsf/utils": "^6.2.5",
+    "@rjsf/validator-ajv8": "^6.2.5",
     "@swooper/mapgen-core": "workspace:*",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"

@@ -2,9 +2,19 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DeckGL } from "@deck.gl/react";
 import { OrthographicView } from "@deck.gl/core";
 import { PathLayer, ScatterplotLayer, PolygonLayer } from "@deck.gl/layers";
+import Form from "@rjsf/core";
+import { customizeValidator } from "@rjsf/validator-ajv8";
+import type { RJSFSchema, UiSchema } from "@rjsf/utils";
+import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
+import {
+  BROWSER_TEST_RECIPE_CONFIG,
+  BROWSER_TEST_RECIPE_CONFIG_SCHEMA,
+  type BrowserTestRecipeConfig,
+} from "@mapgen/browser-test-recipe";
 import type { BrowserRunEvent, BrowserRunRequest } from "./browser-runner/protocol";
 
 type Bounds = [minX: number, minY: number, maxX: number, maxY: number];
+type BrowserConfigFormContext = Record<string, unknown>;
 
 type VizScalarFormat = "u8" | "i8" | "u16" | "i16" | "i32" | "f32";
 
@@ -61,6 +71,33 @@ type VizManifestV0 = {
 type FileMap = Map<string, File>;
 
 type EraLayerInfo = { eraIndex: number; baseLayerId: string };
+
+const browserConfigValidator = customizeValidator<
+  BrowserTestRecipeConfig,
+  RJSFSchema,
+  BrowserConfigFormContext
+>();
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (value == null || typeof value !== "object" || Array.isArray(value)) return false;
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
+}
+
+function assertIsRjsfSchema(schema: unknown): asserts schema is RJSFSchema {
+  if (!isPlainObject(schema)) throw new Error("Invalid config schema: expected object");
+  const type = schema.type;
+  if (type !== "object") throw new Error(`Invalid config schema: expected type "object", got ${String(type)}`);
+}
+
+function toRjsfSchema(schema: unknown): RJSFSchema {
+  assertIsRjsfSchema(schema);
+  return schema;
+}
+
+function formatConfigErrors(errors: ReadonlyArray<{ path: string; message: string }>): string {
+  return errors.map((e) => `${e.path}: ${e.message}`).join("\n");
+}
 
 function stripRootDirPrefix(path: string): string {
   const parts = path.split("/").filter(Boolean);
@@ -593,6 +630,16 @@ export function App() {
   const [browserLastStep, setBrowserLastStep] = useState<{ stepId: string; stepIndex: number } | null>(null);
   const [browserSeed, setBrowserSeed] = useState(123);
   const [browserMapSizeId, setBrowserMapSizeId] = useState<Civ7MapSizePreset["id"]>("MAPSIZE_HUGE");
+  const [browserConfigOpen, setBrowserConfigOpen] = useState(false);
+  const [browserConfigOverridesEnabled, setBrowserConfigOverridesEnabled] = useState(false);
+  const [browserConfigOverrides, setBrowserConfigOverrides] = useState<BrowserTestRecipeConfig>(
+    BROWSER_TEST_RECIPE_CONFIG
+  );
+  const [browserConfigTab, setBrowserConfigTab] = useState<"form" | "json">("form");
+  const [browserConfigJson, setBrowserConfigJson] = useState(() =>
+    JSON.stringify(BROWSER_TEST_RECIPE_CONFIG, null, 2)
+  );
+  const [browserConfigJsonError, setBrowserConfigJsonError] = useState<string | null>(null);
 
   const manifest = mode === "dump" ? dumpManifest : browserManifest;
   const fileMap = mode === "dump" ? dumpFileMap : null;
@@ -634,6 +681,17 @@ export function App() {
     if (!manifest) return [];
     return [...manifest.steps].sort((a, b) => a.stepIndex - b.stepIndex);
   }, [manifest]);
+
+  const browserConfigSchema = useMemo<RJSFSchema>(() => toRjsfSchema(BROWSER_TEST_RECIPE_CONFIG_SCHEMA), []);
+  const browserConfigUiSchema = useMemo<UiSchema<BrowserTestRecipeConfig, RJSFSchema, BrowserConfigFormContext>>(
+    () => ({
+      "ui:options": { label: false },
+      foundation: {
+        "ui:order": ["knobs", "advanced"],
+      },
+    }),
+    []
+  );
 
   useEffect(() => {
     if (!manifest) return;
@@ -785,8 +843,42 @@ export function App() {
     if (mode === "dump") stopBrowserRun();
   }, [mode, stopBrowserRun]);
 
+  const resetBrowserConfigOverrides = useCallback(() => {
+    setBrowserConfigOverrides(BROWSER_TEST_RECIPE_CONFIG);
+    setBrowserConfigJson(JSON.stringify(BROWSER_TEST_RECIPE_CONFIG, null, 2));
+    setBrowserConfigJsonError(null);
+  }, []);
+
+  const applyBrowserConfigJson = useCallback((): boolean => {
+    try {
+      const parsed: unknown = JSON.parse(browserConfigJson);
+      const { value, errors } = normalizeStrict<BrowserTestRecipeConfig>(
+        BROWSER_TEST_RECIPE_CONFIG_SCHEMA,
+        parsed,
+        "/configOverrides"
+      );
+      if (errors.length > 0) {
+        setBrowserConfigJsonError(formatConfigErrors(errors));
+        return false;
+      }
+      setBrowserConfigOverrides(value);
+      setBrowserConfigJsonError(null);
+      return true;
+    } catch (e) {
+      setBrowserConfigJsonError(e instanceof Error ? e.message : "Invalid JSON");
+      return false;
+    }
+  }, [browserConfigJson]);
+
   const startBrowserRun = useCallback((overrides?: { seed?: number }) => {
     setError(null);
+    if (browserConfigOverridesEnabled && browserConfigTab === "json") {
+      const ok = applyBrowserConfigJson();
+      if (!ok) {
+        setError("Config overrides JSON is invalid. Fix it (or disable overrides) and try again.");
+        return;
+      }
+    }
     const pinnedStepId = mode === "browser" ? selectedStepIdRef.current : null;
     const pinnedLayerKey = mode === "browser" ? selectedLayerKeyRef.current : null;
     const retainStep = Boolean(pinnedStepId);
@@ -927,6 +1019,7 @@ export function App() {
 
     const seedToUse = overrides?.seed ?? browserSeed;
     const mapSize = getCiv7MapSizePreset(browserMapSizeId);
+    const configOverrides = browserConfigOverridesEnabled ? browserConfigOverrides : undefined;
 
     const req: BrowserRunRequest = {
       type: "run.start",
@@ -935,11 +1028,21 @@ export function App() {
       mapSizeId: mapSize.id,
       dimensions: mapSize.dimensions,
       latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
-      config: { foundation: {} },
+      configOverrides,
     };
 
     worker.postMessage(req);
-  }, [browserMapSizeId, browserSeed, mode, setFittedView, stopBrowserRun]);
+  }, [
+    applyBrowserConfigJson,
+    browserConfigOverrides,
+    browserConfigOverridesEnabled,
+    browserConfigTab,
+    browserMapSizeId,
+    browserSeed,
+    mode,
+    setFittedView,
+    stopBrowserRun,
+  ]);
 
   useEffect(() => {
     if (!manifest || !selectedStepId) return;
@@ -1471,6 +1574,156 @@ export function App() {
             />
           </label>
         </div>
+
+        {mode === "browser" ? (
+          <div
+            style={{
+              border: "1px solid #1f2937",
+              borderRadius: 12,
+              padding: isNarrow ? "10px 10px" : "10px 12px",
+              background: "#0a1224",
+              display: "flex",
+              flexDirection: "column",
+              gap: 10,
+            }}
+          >
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+              <button
+                onClick={() => setBrowserConfigOpen((v) => !v)}
+                style={{ ...buttonStyle, padding: "6px 10px" }}
+                type="button"
+              >
+                {browserConfigOpen ? "Hide config" : "Show config"}
+              </button>
+
+              <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <input
+                  type="checkbox"
+                  checked={browserConfigOverridesEnabled}
+                  onChange={(e) => setBrowserConfigOverridesEnabled(e.target.checked)}
+                  disabled={browserRunning}
+                />
+                <span style={{ fontSize: 12, color: "#9ca3af" }}>Enable config overrides</span>
+              </label>
+
+              <button
+                onClick={resetBrowserConfigOverrides}
+                style={{ ...buttonStyle, padding: "6px 10px", opacity: browserRunning ? 0.6 : 1 }}
+                disabled={browserRunning}
+                type="button"
+              >
+                Reset to base
+              </button>
+
+              <div style={{ flex: 1 }} />
+
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <button
+                  onClick={() => {
+                    if (browserConfigTab === "form") return;
+                    if (!applyBrowserConfigJson()) return;
+                    setBrowserConfigTab("form");
+                  }}
+                  style={{
+                    ...buttonStyle,
+                    padding: "6px 10px",
+                    opacity: browserConfigTab === "form" ? 1 : 0.75,
+                  }}
+                  type="button"
+                >
+                  Form
+                </button>
+                <button
+                  onClick={() => {
+                    if (browserConfigTab === "json") return;
+                    setBrowserConfigJson(JSON.stringify(browserConfigOverrides, null, 2));
+                    setBrowserConfigJsonError(null);
+                    setBrowserConfigTab("json");
+                  }}
+                  style={{
+                    ...buttonStyle,
+                    padding: "6px 10px",
+                    opacity: browserConfigTab === "json" ? 1 : 0.75,
+                  }}
+                  type="button"
+                >
+                  JSON
+                </button>
+              </div>
+            </div>
+
+            {browserConfigOpen ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={{ fontSize: 12, color: "#9ca3af" }}>
+                  Overrides apply on the next “Run (Browser)”. Base config remains{" "}
+                  <span style={{ color: "#e5e7eb" }}>BROWSER_TEST_RECIPE_CONFIG</span>.
+                </div>
+
+                {browserConfigTab === "form" ? (
+                  <div
+                    style={{
+                      padding: "10px 10px",
+                      borderRadius: 10,
+                      border: "1px solid #111827",
+                      background: "#070c18",
+                    }}
+                  >
+                    <Form<BrowserTestRecipeConfig, RJSFSchema, BrowserConfigFormContext>
+                      schema={browserConfigSchema}
+                      uiSchema={browserConfigUiSchema}
+                      validator={browserConfigValidator}
+                      formData={browserConfigOverrides}
+                      disabled={browserRunning || !browserConfigOverridesEnabled}
+                      onChange={(e) => {
+                        setBrowserConfigOverrides(e.formData ?? BROWSER_TEST_RECIPE_CONFIG);
+                        setBrowserConfigJsonError(null);
+                      }}
+                    >
+                      <div />
+                    </Form>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <textarea
+                      value={browserConfigJson}
+                      onChange={(e) => setBrowserConfigJson(e.target.value)}
+                      spellCheck={false}
+                      style={{
+                        ...controlBaseStyle,
+                        fontFamily:
+                          'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+                        width: "100%",
+                        minHeight: 200,
+                        resize: "vertical",
+                      }}
+                      disabled={browserRunning || !browserConfigOverridesEnabled}
+                    />
+                    {browserConfigJsonError ? (
+                      <div style={{ fontSize: 12, color: "#fca5a5", whiteSpace: "pre-wrap" }}>
+                        {browserConfigJsonError}
+                      </div>
+                    ) : null}
+                    <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                      <button
+                        onClick={() => {
+                          applyBrowserConfigJson();
+                        }}
+                        style={{ ...buttonStyle, padding: "6px 10px" }}
+                        disabled={browserRunning || !browserConfigOverridesEnabled}
+                        type="button"
+                      >
+                        Apply JSON
+                      </button>
+                      <div style={{ fontSize: 12, color: "#9ca3af" }}>
+                        Paste overrides and apply before running.
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
 
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
           <label style={{ display: "flex", gap: 8, alignItems: "center", flex: isNarrow ? "1 1 100%" : "0 0 auto", width: isNarrow ? "100%" : undefined }}>

@@ -1,4 +1,4 @@
-import { collectCompileOps, createRecipe, type CompiledRecipeConfigOf, type RecipeConfigInputOf } from "@swooper/mapgen-core/authoring";
+import { Type, collectCompileOps, createRecipe, type CompiledRecipeConfigOf, type RecipeConfigInputOf } from "@swooper/mapgen-core/authoring";
 import foundationDomain from "@mapgen/domain/foundation/ops";
 
 import foundation from "../standard/stages/foundation/index.js";
@@ -105,6 +105,13 @@ export const BROWSER_TEST_FOUNDATION_STAGE_CONFIG = {
 export const BROWSER_TEST_RECIPE_CONFIG = {
   foundation: BROWSER_TEST_FOUNDATION_STAGE_CONFIG,
 } satisfies BrowserTestRecipeConfig;
+
+export const BROWSER_TEST_RECIPE_CONFIG_SCHEMA = Type.Object(
+  {
+    foundation: Type.Optional(foundation.surfaceSchema),
+  },
+  { additionalProperties: false, default: {} }
+);
 
 export default createRecipe({
   id: "browser-test",
