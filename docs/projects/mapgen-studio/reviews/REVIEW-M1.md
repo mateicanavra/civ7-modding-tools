@@ -89,3 +89,26 @@ Viz extraction is structurally solid, but selection state and layer identity sti
 
 ### Cross-cutting Risks
 - Layer selection can silently point at the wrong dataset, and StrictMode render churn can drop user selections.
+
+## REVIEW agent-DONNY-inside-milestone-rfx-04-dump-viewer
+
+### Quick Take
+Dump viewer extraction is clean, but the directory picker fallback still assumes `entries()` semantics, which can throw in browsers that only provide `values()`.
+
+### High-Leverage Issues
+- `filesFromDirectoryHandle` destructures `[name, entry]` from `entries` even when the fallback is `values()`, but `values()` yields only `FileSystemHandle`. That path will throw a “not iterable” TypeError and prevent dump loading in some browsers. (`apps/mapgen-studio/src/features/dumpViewer/pickers.ts`)
+
+### PR Comment Context
+- PR #807 flagged the `values()` destructure bug; the fallback still uses tuple destructuring.
+
+### Fix Now (Recommended)
+- Handle `values()` separately (use `entry.name`) or guard the fallback so it only consumes the tuple iterator.
+
+### Defer / Follow-up
+- None.
+
+### Needs Discussion
+- None.
+
+### Cross-cutting Risks
+- Dump loading can fail entirely on browsers that expose `values()` but not `entries()`.
