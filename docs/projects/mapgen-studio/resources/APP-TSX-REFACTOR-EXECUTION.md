@@ -402,11 +402,11 @@ Notes:
 - **Risk:** heuristics may drift from product intent; mitigate by preferring `VizLayerMeta` and treating heuristics as compatibility-only.
 
 ### Acceptance criteria
-- [ ] Layer picker labels and legend match pre-refactor behavior:
-  - [ ] `layer.meta?.label` drives picker labels and legend titles
-  - [ ] `layer.meta?.visibility === "debug"` is surfaced in labeling (suffix `", debug"`)
-  - [ ] `layer.meta?.categories` drives categorical legend + colors when present
-- [ ] Deck rendering output matches pre-refactor behavior for existing runs/dumps.
+- [x] Layer picker labels and legend match pre-refactor behavior:
+  - [x] `layer.meta?.label` drives picker labels and legend titles
+  - [x] `layer.meta?.visibility === "debug"` is surfaced in labeling (suffix `", debug"`)
+  - [x] `layer.meta?.categories` drives categorical legend + colors when present
+- [x] Deck rendering output matches pre-refactor behavior for existing runs/dumps.
 - [x] `App.tsx` no longer contains deck.gl layer builders, palettes, or hex math.
 
 ### Verification
