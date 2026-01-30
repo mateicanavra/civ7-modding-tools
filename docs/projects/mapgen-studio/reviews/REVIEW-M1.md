@@ -334,7 +334,7 @@ Tests/docs updates are straightforward; no additional issues found in review.
 
 ### PR #784 — add spike for precipitation
 - PR Comment Context: reviewer flagged uppercase spike filename violating docs naming rules.
-- Status: `docs/projects/mapgen-orographic-precipitation/SPIKE-FEASIBILITY.md` still uses ALL‑CAPS.
+- Status: `docs/projects/mapgen-orographic-precipitation/spike-feasibility.md` renamed to lowercase.
 - Guidance: rename to lowercase (e.g., `spike-feasibility.md`) and update any references.
 
 ### PR #785 — fix(ci): repair railway preview workflow YAML
