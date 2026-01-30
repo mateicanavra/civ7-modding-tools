@@ -124,11 +124,7 @@ function boundsFromPositions(positions: Float32Array): Bounds {
 
 function boundsFromSegments(segments: Float32Array): Bounds {
   // segments is [x0,y0,x1,y1,...] pairs; treat as positions list
-  const positions = new Float32Array((segments.length / 2) | 0);
-  for (let i = 0; i < positions.length; i++) {
-    positions[i] = segments[i]!;
-  }
-  return boundsFromPositions(positions);
+  return boundsFromPositions(segments);
 }
 
 function writeBinary(path: string, view: ArrayBufferView): void {
