@@ -1,9 +1,12 @@
 import type { MapDimensions } from "@civ7/adapter";
+import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
 import RoutingStepContract from "./routing.contract.js";
 
 type ArtifactValidationIssue = Readonly<{ message: string }>;
+
+const GROUP_ROUTING = "Morphology / Routing";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -64,8 +67,44 @@ export default createStep(RoutingStepContract, {
         elevation: topography.elevation,
         landMask: topography.landMask,
       },
-      config.routing
+        config.routing
     );
+
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "morphology.routing.flowDir",
+      dims: { width, height },
+      format: "i32",
+      values: routing.flowDir,
+      meta: defineVizMeta("morphology.routing.flowDir", {
+        label: "Flow Direction",
+        group: GROUP_ROUTING,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "morphology.routing.flowAccum",
+      dims: { width, height },
+      format: "f32",
+      values: routing.flowAccum,
+      meta: defineVizMeta("morphology.routing.flowAccum", {
+        label: "Flow Accumulation",
+        group: GROUP_ROUTING,
+      }),
+    });
+    if (routing.basinId instanceof Int32Array) {
+      context.viz?.dumpGrid(context.trace, {
+        layerId: "morphology.routing.basinId",
+        dims: { width, height },
+        format: "i32",
+        values: routing.basinId,
+        meta: defineVizMeta("morphology.routing.basinId", {
+          label: "Basin Id",
+          group: GROUP_ROUTING,
+          visibility: "debug",
+        }),
+      });
+    }
+
     context.trace.event(() => {
       const size = Math.max(0, (width | 0) * (height | 0));
       const flowDir = routing.flowDir;

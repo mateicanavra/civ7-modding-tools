@@ -1,4 +1,4 @@
-import { computeSampleStep, renderAsciiGrid } from "@swooper/mapgen-core";
+import { computeSampleStep, defineVizMeta, renderAsciiGrid, xyFromIndex } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clamp01 } from "@swooper/mapgen-core/lib/math";
 import VolcanoesStepContract from "./volcanoes.contract.js";
@@ -12,6 +12,8 @@ import type { MorphologyVolcanismKnob } from "@mapgen/domain/morphology/shared/k
 
 type ArtifactValidationIssue = Readonly<{ message: string }>;
 type VolcanoKind = "subductionArc" | "rift" | "hotspot";
+
+const GROUP_VOLCANOES = "Morphology / Volcanoes";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -135,6 +137,37 @@ export default createStep(VolcanoesStepContract, {
         legend: ".=land ~=water V=volcano",
         rows,
       };
+    });
+
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "morphology.volcanoes.volcanoMask",
+      dims: { width, height },
+      format: "u8",
+      values: volcanoMask,
+      meta: defineVizMeta("morphology.volcanoes.volcanoMask", {
+        label: "Volcano Mask",
+        group: GROUP_VOLCANOES,
+      }),
+    });
+
+    const positions = new Float32Array(volcanoes.length * 2);
+    const strengths = new Float32Array(volcanoes.length);
+    for (let i = 0; i < volcanoes.length; i++) {
+      const entry = volcanoes[i]!;
+      const { x, y } = xyFromIndex(entry.tileIndex, width);
+      positions[i * 2] = x;
+      positions[i * 2 + 1] = y;
+      strengths[i] = entry.strength01;
+    }
+    context.viz?.dumpPoints(context.trace, {
+      layerId: "morphology.volcanoes.points",
+      positions,
+      values: strengths,
+      valueFormat: "f32",
+      meta: defineVizMeta("morphology.volcanoes.points", {
+        label: "Volcano Points",
+        group: GROUP_VOLCANOES,
+      }),
     });
 
     deps.artifacts.volcanoes.publish(context, {
