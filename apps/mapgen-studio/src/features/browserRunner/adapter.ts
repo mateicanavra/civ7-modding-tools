@@ -34,6 +34,7 @@ export function toVizEvent(event: BrowserRunEvent): VizEvent {
           dims: event.layer.kind === "grid" ? event.layer.dims : undefined,
           count: event.layer.kind === "grid" ? undefined : event.layer.count,
           meta: event.layer.meta,
+          fileKey: event.layer.fileKey,
         },
         payload: event.payload,
       };

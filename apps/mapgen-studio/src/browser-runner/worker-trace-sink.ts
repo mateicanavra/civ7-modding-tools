@@ -50,6 +50,7 @@ type LayerStreamPayloadV0 =
       kind: "grid" | "points" | "segments";
       layerId: string;
       meta?: VizLayerMeta;
+      fileKey?: string;
     } & (
       | { kind: "grid"; format: "u8" | "i8" | "u16" | "i16" | "i32" | "f32"; dims: { width: number; height: number }; values: ArrayBufferView }
       | {
@@ -119,13 +120,17 @@ export function createWorkerTraceSink(options: {
 
     const payload = data as unknown as LayerStreamPayloadV0;
     const stepIndex = stepIndexById.get(event.stepId) ?? -1;
+    const key = payload.fileKey
+      ? `${event.stepId}::${payload.layerId}::${payload.kind}::${payload.fileKey}`
+      : `${event.stepId}::${payload.layerId}::${payload.kind}`;
     const base = {
       layerId: payload.layerId,
       stepId: event.stepId,
       phase: event.phase,
       stepIndex,
-      key: `${event.stepId}::${payload.layerId}::${payload.kind}`,
+      key,
       meta: payload.meta,
+      fileKey: payload.fileKey,
     } as const;
 
     let layerEvent: BrowserVizLayerUpsertEvent | null = null;

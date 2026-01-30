@@ -17,6 +17,7 @@ export type VizLayerEntryV0 =
       dims: { width: number; height: number };
       path?: string;
       values?: ArrayBuffer;
+      fileKey?: string;
       meta?: VizLayerMeta;
       bounds: Bounds;
       key?: string;
@@ -32,6 +33,7 @@ export type VizLayerEntryV0 =
       positions?: ArrayBuffer;
       valuesPath?: string;
       values?: ArrayBuffer;
+      fileKey?: string;
       valueFormat?: VizScalarFormat;
       meta?: VizLayerMeta;
       bounds: Bounds;
@@ -48,6 +50,7 @@ export type VizLayerEntryV0 =
       segments?: ArrayBuffer;
       valuesPath?: string;
       values?: ArrayBuffer;
+      fileKey?: string;
       valueFormat?: VizScalarFormat;
       meta?: VizLayerMeta;
       bounds: Bounds;
@@ -74,8 +77,30 @@ export type VizAssetResolver = {
 
 export const DEFAULT_VIEW_STATE = { target: [0, 0, 0], zoom: 0 } as const;
 
-export function getLayerKey(layer: { key?: string; stepId: string; layerId: string; kind: string }): string {
-  return layer.key ?? `${layer.stepId}::${layer.layerId}::${layer.kind}`;
+function getLayerDiscriminator(layer: {
+  kind: VizLayerKind;
+  fileKey?: string;
+  path?: string;
+  positionsPath?: string;
+  segmentsPath?: string;
+  valuesPath?: string;
+}): string | null {
+  if (layer.fileKey) return layer.fileKey;
+  if (layer.kind === "grid") return layer.path ?? null;
+  if (layer.kind === "points") return layer.valuesPath ?? layer.positionsPath ?? null;
+  if (layer.kind === "segments") return layer.valuesPath ?? layer.segmentsPath ?? null;
+  return null;
+}
+
+export function getLayerKey(
+  layer: { key?: string; stepId: string; layerId: string; kind: VizLayerKind } & Parameters<
+    typeof getLayerDiscriminator
+  >[0]
+): string {
+  if (layer.key) return layer.key;
+  const base = `${layer.stepId}::${layer.layerId}::${layer.kind}`;
+  const discriminator = getLayerDiscriminator(layer);
+  return discriminator ? `${base}::${discriminator}` : base;
 }
 
 export function parseTectonicHistoryEraLayerId(layerId: string): EraLayerInfo | null {
