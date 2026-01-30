@@ -10,7 +10,7 @@ import {
   BROWSER_TEST_RECIPE_CONFIG,
   BROWSER_TEST_RECIPE_CONFIG_SCHEMA,
   type BrowserTestRecipeConfig,
-} from "@mapgen/browser-test-recipe";
+} from "@mapgen/browser-recipes/browser-test";
 import type { BrowserRunEvent, BrowserRunRequest } from "./browser-runner/protocol";
 
 type Bounds = [minX: number, minY: number, maxX: number, maxY: number];

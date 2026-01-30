@@ -1,4 +1,4 @@
-import type { BrowserTestRecipeConfig } from "@mapgen/browser-test-recipe";
+import type { BrowserTestRecipeConfig } from "@mapgen/browser-recipes/browser-test";
 
 export type Bounds = [minX: number, minY: number, maxX: number, maxY: number];
 
