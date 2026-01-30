@@ -89,13 +89,8 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
   const [resolvedLayers, setResolvedLayers] = useState<Layer[]>([]);
   const [eraIndex, setEraIndex] = useState<number>(0);
 
-  useEffect(() => {
-    selectedStepIdRef.current = selectedStepId;
-  }, [selectedStepId]);
-
-  useEffect(() => {
-    selectedLayerKeyRef.current = selectedLayerKey;
-  }, [selectedLayerKey]);
+  selectedStepIdRef.current = selectedStepId;
+  selectedLayerKeyRef.current = selectedLayerKey;
 
   const ingest = useCallback(
     (event: VizEvent) => {
