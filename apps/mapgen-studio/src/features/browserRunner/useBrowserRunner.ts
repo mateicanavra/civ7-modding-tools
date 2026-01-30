@@ -198,7 +198,7 @@ export function useBrowserRunner(args: UseBrowserRunnerArgs): UseBrowserRunnerRe
         },
       });
     },
-    [enabled, onVizEvent]
+    [onVizEvent]
   );
 
   useEffect(() => {

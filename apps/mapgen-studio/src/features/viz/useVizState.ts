@@ -89,9 +89,6 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
   const [resolvedLayers, setResolvedLayers] = useState<Layer[]>([]);
   const [eraIndex, setEraIndex] = useState<number>(0);
 
-  selectedStepIdRef.current = selectedStepId;
-  selectedLayerKeyRef.current = selectedLayerKey;
-
   const ingest = useCallback(
     (event: VizEvent) => {
       if (!enabled) return;
@@ -130,21 +127,31 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     return [...manifest.steps].sort((a, b) => a.stepIndex - b.stepIndex);
   }, [manifest]);
 
-  useEffect(() => {
-    if (!manifest) return;
-    if (selectedStepId && manifest.steps.some((s) => s.stepId === selectedStepId)) return;
-    if (allowPendingSelection && selectedStepId) return;
-    const firstStep = [...manifest.steps].sort((a, b) => a.stepIndex - b.stepIndex)[0]?.stepId ?? null;
-    setSelectedStepId(firstStep);
-    setSelectedLayerKey(null);
-  }, [allowPendingSelection, manifest, selectedStepId]);
+  const activeSelectedStepId = useMemo(() => {
+    if (!manifest) return null;
+    if (selectedStepId && (allowPendingSelection || manifest.steps.some((s) => s.stepId === selectedStepId))) {
+      return selectedStepId;
+    }
+    return steps[0]?.stepId ?? null;
+  }, [allowPendingSelection, manifest, selectedStepId, steps]);
 
   const layersForStep = useMemo(() => {
-    if (!manifest || !selectedStepId) return [];
+    if (!manifest || !activeSelectedStepId) return [];
     return manifest.layers
-      .filter((l) => l.stepId === selectedStepId)
+      .filter((l) => l.stepId === activeSelectedStepId)
       .map((l) => ({ key: getLayerKey(l), layer: l }));
-  }, [manifest, selectedStepId]);
+  }, [activeSelectedStepId, manifest]);
+
+  const activeSelectedLayerKey = useMemo(() => {
+    if (!layersForStep.length) return selectedLayerKey ?? null;
+    if (selectedLayerKey && (allowPendingSelection || layersForStep.some((l) => l.key === selectedLayerKey))) {
+      return selectedLayerKey;
+    }
+    return layersForStep[0]?.key ?? null;
+  }, [allowPendingSelection, layersForStep, selectedLayerKey]);
+
+  selectedStepIdRef.current = activeSelectedStepId;
+  selectedLayerKeyRef.current = activeSelectedLayerKey;
 
   const selectableLayers = useMemo(
     () =>
@@ -158,26 +165,9 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
   );
 
   const selectedLayer = useMemo(() => {
-    if (!layersForStep.length || !selectedLayerKey) return null;
-    return layersForStep.find((l) => l.key === selectedLayerKey)?.layer ?? null;
-  }, [layersForStep, selectedLayerKey]);
-
-  useEffect(() => {
-    if (!manifest || !selectedStepId) return;
-    if (!layersForStep.length) return;
-    const hasSelected = selectedLayerKey && layersForStep.some((l) => l.key === selectedLayerKey);
-    if (hasSelected) return;
-    if (allowPendingSelection && selectedLayerKey) return;
-    const first = [...layersForStep].sort((a, b) => a.layer.stepIndex - b.layer.stepIndex)[0];
-    if (!first) return;
-    setSelectedLayerKey(first.key);
-    const bounds =
-      first.layer.kind === "grid"
-        ? boundsForTileGrid(tileLayout, first.layer.dims, 1)
-        : first.layer.bounds;
-    const fit = fitToBounds(bounds, viewportSize);
-    setViewState((prev: any) => ({ ...prev, ...fit }));
-  }, [allowPendingSelection, layersForStep, manifest, selectedLayerKey, selectedStepId, tileLayout, viewportSize]);
+    if (!layersForStep.length || !activeSelectedLayerKey) return null;
+    return layersForStep.find((l) => l.key === activeSelectedLayerKey)?.layer ?? null;
+  }, [activeSelectedLayerKey, layersForStep]);
 
   const eraInfo = useMemo(() => {
     if (!selectedLayer) return null;
@@ -185,12 +175,12 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
   }, [selectedLayer]);
 
   const eraMax = useMemo(() => {
-    if (!manifest || !selectedStepId || !eraInfo) return null;
+    if (!manifest || !activeSelectedStepId || !eraInfo) return null;
     let max = -1;
     const prefix = `foundation.tectonicHistory.era`;
     const suffix = `.${eraInfo.baseLayerId}`;
     for (const layer of manifest.layers) {
-      if (layer.stepId !== selectedStepId) continue;
+      if (layer.stepId !== activeSelectedStepId) continue;
       if (!layer.layerId.startsWith(prefix)) continue;
       if (!layer.layerId.endsWith(suffix)) continue;
       const info = parseTectonicHistoryEraLayerId(layer.layerId);
@@ -199,7 +189,7 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
       if (info.eraIndex > max) max = info.eraIndex;
     }
     return max >= 0 ? max : null;
-  }, [manifest, selectedStepId, eraInfo]);
+  }, [manifest, activeSelectedStepId, eraInfo]);
 
   useEffect(() => {
     if (!eraInfo) return;
@@ -207,14 +197,14 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
   }, [eraInfo]);
 
   const effectiveLayer = useMemo(() => {
-    if (!manifest || !selectedStepId || !selectedLayer) return selectedLayer;
+    if (!manifest || !activeSelectedStepId || !selectedLayer) return selectedLayer;
     if (!eraInfo) return selectedLayer;
     const idx = eraMax != null ? Math.max(0, Math.min(eraMax, eraIndex)) : eraIndex;
     const desiredId = `foundation.tectonicHistory.era${idx}.${eraInfo.baseLayerId}`;
     return (
-      manifest.layers.find((l) => l.stepId === selectedStepId && l.layerId === desiredId) ?? selectedLayer
+      manifest.layers.find((l) => l.stepId === activeSelectedStepId && l.layerId === desiredId) ?? selectedLayer
     );
-  }, [manifest, selectedStepId, selectedLayer, eraInfo, eraIndex, eraMax]);
+  }, [manifest, activeSelectedStepId, selectedLayer, eraInfo, eraIndex, eraMax]);
 
   const activeBounds = useMemo(() => {
     if (!effectiveLayer) return null;
@@ -299,9 +289,9 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     ingest,
     clearStream,
     setDumpManifest,
-    selectedStepId,
+    selectedStepId: activeSelectedStepId,
     setSelectedStepId,
-    selectedLayerKey,
+    selectedLayerKey: activeSelectedLayerKey,
     setSelectedLayerKey,
     steps,
     selectableLayers,
