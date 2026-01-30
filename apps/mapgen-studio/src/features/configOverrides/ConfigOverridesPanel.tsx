@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { RJSFSchema, UiSchema } from "@rjsf/utils";
 import { SchemaForm } from "./SchemaForm";
 import { collectTransparentPaths, normalizeSchemaForRjsf, toRjsfSchema } from "./schemaPresentation";
@@ -11,21 +11,11 @@ export type ConfigOverridesPanelProps<TConfig> = {
   controller: UseConfigOverridesResult<TConfig>;
   disabled: boolean;
   schema: unknown;
+  isNarrow: boolean;
 };
 
 export function ConfigOverridesPanel<TConfig>(props: ConfigOverridesPanelProps<TConfig>) {
-  const { open, onClose, controller, disabled, schema } = props;
-  const [isNarrow, setIsNarrow] = useState(false);
-
-  useEffect(() => {
-    const update = () => {
-      if (typeof window === "undefined") return;
-      setIsNarrow(window.innerWidth < 760);
-    };
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
+  const { open, onClose, controller, disabled, schema, isNarrow } = props;
 
   const controlBaseStyle: React.CSSProperties = useMemo(
     () => ({
