@@ -84,10 +84,13 @@ Deliverables:
 Design notes:
 - Browser adapter capability spec: `docs/projects/mapgen-studio/BROWSER-ADAPTER.md`
 - Worker runner design (V0.1): `docs/projects/mapgen-studio/BROWSER-RUNNER-V0.1.md`
-- Current thin slice issue (implementation de-risker): `docs/projects/mapgen-studio/V0.1-SLICE-FOUNDATION-WORKER-DECKGL.md`
+- Thin slice issues (implementation de-riskers):
+  - `docs/projects/mapgen-studio/V0.1-SLICE-FOUNDATION-WORKER-DECKGL.md`
+  - `docs/projects/mapgen-studio/V0.1-SLICE-TILESPACE-HEIGHT-LANDMASK-DECKGL.md`
 
 Status:
 - [x] V0.1 slice: Web Worker runs `browser-test` (Foundation-only) and streams 1–2 layers directly to deck.gl (no dump required).
+- [x] V0.1 slice 2: `browser-test` emits tile-space `height` + `landmask` grid layers to deck.gl.
 
 Notes (for later slices):
 - Recipes are currently bundled into the worker (TS/ESM) and can accept runtime config overrides (UI → worker message → `recipe.compile/run`).
