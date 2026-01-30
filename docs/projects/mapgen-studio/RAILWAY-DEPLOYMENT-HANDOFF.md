@@ -15,10 +15,11 @@ This document is intentionally **deployment-only** (Railway + static hosting). P
 
 **Current state:**
 - Railway service exists, connected to the monorepo
-- But it's configured for the whole repo, not the `apps/mapgen-studio` subdirectory
-- The `mapgen-studio` app now exists with a minimal React + Vite scaffold
+- The `mapgen-studio` app exists with a React + Vite scaffold
+- Bun workspaces are in use (shared packages live in `packages/*` and `mods/*`)
 
 **What we need:**
+- Keep Railway **Root Directory at repo root** so Bun can resolve workspaces
 - Configure Railway to build/deploy ONLY `apps/mapgen-studio`
 - Verify the app is accessible at a public URL
 - No authentication or security needed (it's a dev tool)
@@ -26,7 +27,7 @@ This document is intentionally **deployment-only** (Railway + static hosting). P
 **Important notes from Railway docs:**
 - Nixpacks is deprecated; **Railpack** is the new default builder
 - Railpack has **first-class Vite/SPA support** and uses Caddy to serve static files
-- For monorepos, this is an "isolated monorepo" → set root directory to subdirectory
+- For Bun workspaces, use a **shared monorepo** setup (root directory at repo root)
 
 ---
 
@@ -110,9 +111,18 @@ Create `railway.json` at the **repo root** (auto-detected by Railway):
     "builder": "RAILPACK",
     "watchPatterns": [
       "apps/mapgen-studio/**",
-      "railway.json"
+      "packages/**",
+      "mods/**",
+      "railway.json",
+      "bun.lock",
+      "bunfig.toml",
+      "package.json",
+      "turbo.json",
+      "tsconfig.base.json",
+      "tsconfig.json",
+      "tsconfig.plugins.json"
     ],
-    "buildCommand": "bun install --frozen-lockfile && bun run --cwd apps/mapgen-studio build"
+    "buildCommand": "bun run --cwd apps/mapgen-studio build"
   },
   "deploy": {
     "startCommand": "cd apps/mapgen-studio && caddy run --config Caddyfile --adapter caddyfile",
@@ -121,11 +131,13 @@ Create `railway.json` at the **repo root** (auto-detected by Railway):
 }
 ```
 
-This keeps the service’s **Root Directory** at the repo root (so it can see the workspace lockfile), but builds/serves only `apps/mapgen-studio`.
+This keeps the service’s **Root Directory** at the repo root (so it can see workspace packages), but builds/serves only `apps/mapgen-studio`.
+
+**Note:** Railpack handles the install step automatically; you only need a custom build + start command.
 
 ### Optional alternative (dashboard-only)
 
-If you set Railway **Root Directory** to `apps/mapgen-studio`, Railpack should be able to auto-detect Vite and serve via its built-in SPA support (and you may be able to remove `railway.json`). Config-as-code cannot set Root Directory; it must be set in the service settings.
+If you set Railway **Root Directory** to `apps/mapgen-studio`, Bun workspaces will not resolve (shared packages live outside this directory). Config-as-code cannot set Root Directory; it must be set in the service settings.
 
 ---
 
@@ -180,7 +192,7 @@ The Caddyfile's `try_files` directive should handle this. If not:
 ### Wrong directory being built
 If you follow the recommended shared-monorepo setup, **Root Directory stays at repo root**. Instead verify:
 1. **Build Command** scopes to `apps/mapgen-studio`
-2. **Watch Paths** is `/apps/mapgen-studio/**`
+2. **Watch Paths** includes `/apps/mapgen-studio/**` plus workspace roots (`/packages/**`, `/mods/**`) and root configs
 3. **Start Command** runs Caddy from `apps/mapgen-studio`
 
 ### Old version showing after deploy
