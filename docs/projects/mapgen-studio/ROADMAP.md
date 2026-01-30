@@ -43,6 +43,10 @@ Implementation plan: `docs/projects/mapgen-studio/V0-IMPLEMENTATION-PLAN.md`.
   - Step picker (plate formation process is step-by-step)
   - Legend/palette mapping for the layer
   - Fit-to-viewport / pan / zoom
+  - Spatial reference background appropriate to the current view:
+    - tile views: hex grid is visible (tile outlines)
+    - mesh views: mesh edges + light dot grid so data does not “float” in empty space
+    - (later) voronoi cell outlines when we can dump/derive polygons
 
 **3) Operator workflow**
 - A single command/workflow to produce a dump for a seed and open the viewer pointing at it.
@@ -62,29 +66,43 @@ Implementation plan: `docs/projects/mapgen-studio/V0-IMPLEMENTATION-PLAN.md`.
 - Full step scrubbing, diffing runs, or deep layer taxonomy coverage.
 - Complex geometry layers (rivers/paths/polygons/meshes) beyond the one proven slice.
 
-## V0.1 — More Layers + Step Playback
+## V0.1 — In-Browser Runner (Foundation First)
 
-Goal: make the viewer meaningfully useful for debugging.
+Goal: shift MapGen Studio from “replay viewer” to “run + inspect” for Foundation, entirely in the browser.
 
-- Add a small set of “core” layers across domains (Foundation → Placement).
-- Add step/era controls:
-  - Render “latest at step” for each layer, or allow step snapshots.
-- Add basic diagnostics:
-  - min/max histogram, value probe on hover, and palette controls.
+Deliverables:
+- Run Foundation in a Web Worker:
+  - deterministic seed + MAPSIZE_HUGE 106×66 by default
+  - progress reporting + cancellation
+- Stream intermediate layers as steps run (no “dump folder” required for the main loop).
+- Optional export paths (defer choice until we need it):
+  - download a dump zip, or
+  - write to browser storage (OPFS/IndexedDB), or
+  - keep in-memory only.
 
-## V0.2 — Geometry Support
+## V0.2 — In-Browser Runner (Full Pipeline)
 
-Goal: make non-grid artifacts first-class.
+Goal: run the full pipeline in-browser and keep the visualization surface coherent across phases.
 
-- Add vector/path and point layers (rivers, faults, hotspots).
-- Add polygon/mesh layers (plates, landmasses) where feasible.
-- Add consistent coordinate mapping between dumps and viewer bounds.
+Deliverables:
+- Run stages beyond Foundation in the worker (Morphology → Placement).
+- Define a stable in-browser “data products” interface between worker and viewer (typed layer messages).
+- Restore/extend visual reference layers per domain (tile vs mesh vs other spaces).
 
-## V1 — Comparison + Sharing
+## Later (after the runner focus)
 
-Goal: move from “viewer” to “debugging platform”.
+We are deferring the following (but keeping them in scope long-term):
 
-- Compare two runs (seed/config diffs) with layer selection.
-- Save/share view state (deep links, presets).
-- Integrate with CLI/CI:
-  - attach dumps to artifacts for regression inspection.
+### Replay/Exports + Sharing
+- Reintroduce “dump + replay” as an export mechanism from the in-browser runner (and/or from CLI runs).
+- Shareable view state (deep links, presets).
+- CI artifact integration (attach dumps to runs for regression inspection).
+
+### Rich inspection
+- Better legend/palette registry + hover inspection/value probe.
+- Search and filters.
+- Run comparison/diff tooling.
+
+### Geometry deepening
+- Vector/path and point layers beyond Foundation (rivers, faults, hotspots).
+- Voronoi polygons / plate polygons where feasible (requires polygon geometry).
