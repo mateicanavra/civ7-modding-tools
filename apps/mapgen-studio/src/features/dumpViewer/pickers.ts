@@ -10,9 +10,24 @@ export async function filesFromDirectoryHandle(handle: FileSystemDirectoryHandle
   const files = new Map<string, File>();
 
   const walk = async (dirHandle: FileSystemDirectoryHandle, prefix: string) => {
-    const entries = (dirHandle as any).entries?.() ?? (dirHandle as any).values?.();
-    if (!entries) return;
-    for await (const [name, entry] of entries) {
+    const entryIterator = (dirHandle as any).entries?.();
+    if (entryIterator) {
+      for await (const [name, entry] of entryIterator) {
+        const path = prefix ? `${prefix}/${name}` : name;
+        if (entry.kind === "directory") {
+          await walk(entry, path);
+        } else if (entry.kind === "file") {
+          const file = await entry.getFile();
+          files.set(path, file);
+        }
+      }
+      return;
+    }
+
+    const valueIterator = (dirHandle as any).values?.();
+    if (!valueIterator) return;
+    for await (const entry of valueIterator) {
+      const name = entry.name ?? "";
       const path = prefix ? `${prefix}/${name}` : name;
       if (entry.kind === "directory") {
         await walk(entry, path);
