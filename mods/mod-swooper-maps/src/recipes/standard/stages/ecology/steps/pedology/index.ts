@@ -1,7 +1,10 @@
+import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { ecologyArtifacts } from "../../artifacts.js";
 import { validatePedologyArtifact } from "../../artifact-validation.js";
 import PedologyStepContract from "./contract.js";
+
+const GROUP_PEDOLOGY = "Ecology / Pedology";
 
 export default createStep(PedologyStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.pedology], {
@@ -25,6 +28,27 @@ export default createStep(PedologyStepContract, {
       },
       config.classify
     );
+
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "ecology.pedology.soilType",
+      dims: { width, height },
+      format: "u8",
+      values: result.soilType,
+      meta: defineVizMeta("ecology.pedology.soilType", {
+        label: "Soil Type",
+        group: GROUP_PEDOLOGY,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "ecology.pedology.fertility",
+      dims: { width, height },
+      format: "f32",
+      values: result.fertility,
+      meta: defineVizMeta("ecology.pedology.fertility", {
+        label: "Fertility",
+        group: GROUP_PEDOLOGY,
+      }),
+    });
 
     deps.artifacts.pedology.publish(context, {
       width,

@@ -86,7 +86,7 @@ related_to: []
 - [x] **PV-00 Docs/Plan**: finalize issue doc plans + add `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md`.
 - [x] **PV-01 Morphology viz**: emit morphology-pre/mid/post layers (topography, routing, substrate, coastline metrics, landmasses, volcanoes) + map-morphology projections.
 - [x] **PV-02 Hydrology viz**: emit climate baseline/refine + hydrography layers; add map-hydrology projection overlays (pipeline-owned).
-- [ ] **PV-03 Ecology viz**: emit pedology, resource basins, biome classification, feature intents; add map-ecology projection overlays; add tile-point handling if needed.
+- [x] **PV-03 Ecology viz**: emit pedology, resource basins, biome classification, feature intents; prefer artifact-driven viz over map-ecology engine projections.
 - [ ] **PV-04 Gameplay viz**: emit placement/gameplay layers (landmassRegionSlotByTile + start positions); label “Gameplay” in viz UI.
 - [ ] **PV-05 React & UX cleanup**: apply `you-might-not-need-an-effect` + `escape-hatches` fixes with minimal behavior change.
 - [ ] **PV-06 Tests & docs sync**: add real-path viz layer tests; ensure layer catalog matches implementation.
@@ -105,6 +105,13 @@ related_to: []
 - `timeout 5 bun run --cwd apps/mapgen-studio dev` (Vite started; manual browser smoke still required)
 
 **PV-02 Hydrology**
+- `bun run --cwd apps/mapgen-studio build` (worker bundle check passed; Vite emitted `spawn` warning from loaders.gl)
+- `bun run lint`
+- `bun run test`
+- `bun run deploy` (missing script in repo)
+- `timeout 5 bun run --cwd apps/mapgen-studio dev` (Vite started; manual browser smoke still required)
+
+**PV-03 Ecology**
 - `bun run --cwd apps/mapgen-studio build` (worker bundle check passed; Vite emitted `spawn` warning from loaders.gl)
 - `bun run lint`
 - `bun run test`
@@ -312,3 +319,31 @@ related_to: []
 - **Choice:** Keep `placement.*` IDs and label/group as “Gameplay” in viz presentation/meta.
 - **Rationale:** Avoids contract churn while still presenting the desired UX label.
 - **Risk:** Low; relies on UI/meta path to show “Gameplay” consistently.
+
+### Emit biomeIndex after refine step
+- **Context:** `biome-edge-refine` mutates `biomeIndex` in place after `biomes` publishes the artifact.
+- **Options:** Dump `biomeIndex` in `biomes` (pre-refine) or after `biome-edge-refine` (post-refine).
+- **Choice:** Dump `ecology.biome.biomeIndex` after `biome-edge-refine`.
+- **Rationale:** Ensures the visualized biome index matches the final, refined field used downstream.
+- **Risk:** Low; only affects viz timing for one layer.
+
+### Feature intents layer uses FEATURE_PLACEMENT_KEYS categories
+- **Context:** Feature intent placements are point lists with string feature ids; viz expects numeric values.
+- **Options:** Separate layers per category; single layer with numeric mapping; omit values and show generic points.
+- **Choice:** Single `ecology.featureIntents.featureType` layer with `u16` values mapped from `FEATURE_PLACEMENT_KEYS` (plus sorted unknowns).
+- **Rationale:** Keeps layer contract stable while preserving feature-type distinction and deterministic ordering.
+- **Risk:** Low; unknown feature ids will appear with extra categories but still deterministic.
+
+### Resource basin ids projected from basin lists
+- **Context:** Resource basins are stored as lists of plot indices + intensities (no grid field).
+- **Options:** Emit no viz; emit intensity points only; derive a per-tile basin id grid.
+- **Choice:** Derive `ecology.resourceBasins.resourceBasinId` by projecting basin plot indices into a grid.
+- **Rationale:** Enables simple basin visualization without introducing new artifacts or engine dependencies.
+- **Risk:** Low; overlapping basins will overwrite ids, but basin lists are expected to be disjoint.
+
+### Prefer artifact-driven ecology viz over map-ecology engine projections
+- **Context:** Map-ecology steps apply engine biomes/features but mock adapter implementations are no-ops.
+- **Options:** Emit projection overlays from map-ecology steps; rely on ecology artifacts for viz.
+- **Choice:** Use ecology artifacts (biome classification + feature intents) as viz sources; skip engine projection layers.
+- **Rationale:** Preserves determinism and avoids adapter-dependent outputs in browser runs.
+- **Risk:** Low; map-ecology engine fields remain unvisualized for now.

@@ -90,8 +90,8 @@ This catalog documents the visualization layers that MapGen Studio surfaces from
 - `ecology.biome.treeLine01`
 - `ecology.pedology.soilType`
 - `ecology.pedology.fertility`
-- `ecology.resourceBasins.resourceBasinId`
-- `ecology.featureIntents.featureType`
+- `ecology.resourceBasins.resourceBasinId` (derived grid; 1..N basin ids)
+- `ecology.featureIntents.featureType` (points; values map to FEATURE_PLACEMENT_KEYS)
 
 ## Gameplay (Placement)
 - `gameplay.landmassRegionSlotByTile`
