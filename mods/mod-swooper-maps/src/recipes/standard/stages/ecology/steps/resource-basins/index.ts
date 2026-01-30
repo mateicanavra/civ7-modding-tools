@@ -1,7 +1,10 @@
+import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { ecologyArtifacts } from "../../artifacts.js";
 import { validateResourceBasinsArtifact } from "../../artifact-validation.js";
 import ResourceBasinsStepContract from "./contract.js";
+
+const GROUP_RESOURCE_BASINS = "Ecology / Resource Basins";
 
 export default createStep(ResourceBasinsStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.resourceBasins], {
@@ -29,6 +32,28 @@ export default createStep(ResourceBasinsStepContract, {
     );
 
     const balanced = ops.score(planned, config.score);
+
+    const basinIdByTile = new Uint16Array(width * height);
+    for (let basinIndex = 0; basinIndex < balanced.basins.length; basinIndex++) {
+      const basin = balanced.basins[basinIndex];
+      if (!basin) continue;
+      const id = basinIndex + 1;
+      for (let i = 0; i < basin.plots.length; i++) {
+        const plotIndex = basin.plots[i] ?? -1;
+        if (plotIndex < 0 || plotIndex >= basinIdByTile.length) continue;
+        basinIdByTile[plotIndex] = id;
+      }
+    }
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "ecology.resourceBasins.resourceBasinId",
+      dims: { width, height },
+      format: "u16",
+      values: basinIdByTile,
+      meta: defineVizMeta("ecology.resourceBasins.resourceBasinId", {
+        label: "Resource Basin Id",
+        group: GROUP_RESOURCE_BASINS,
+      }),
+    });
 
     deps.artifacts.resourceBasins.publish(context, balanced);
   },

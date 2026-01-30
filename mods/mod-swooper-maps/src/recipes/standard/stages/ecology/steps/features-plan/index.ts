@@ -1,10 +1,64 @@
+import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import ecologyOps from "@mapgen/domain/ecology/ops";
+import { FEATURE_PLACEMENT_KEYS } from "@mapgen/domain/ecology";
 import { ecologyArtifacts } from "../../artifacts.js";
 import { validateFeatureIntentsArtifact } from "../../artifact-validation.js";
 import FeaturesPlanStepContract from "./contract.js";
 import { computeRiverAdjacencyMaskFromRiverClass } from "../../../hydrology-hydrography/river-adjacency.js";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
+
+const GROUP_FEATURE_INTENTS = "Ecology / Feature Intents";
+
+function labelFeatureKey(key: string): string {
+  const trimmed = key.replace(/^FEATURE_/, "");
+  return trimmed
+    .toLowerCase()
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function hslToRgb(h: number, s: number, l: number): [number, number, number] {
+  const hue = ((h % 360) + 360) % 360;
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs(((hue / 60) % 2) - 1));
+  const m = l - c / 2;
+  let r = 0;
+  let g = 0;
+  let b = 0;
+
+  if (hue < 60) {
+    r = c;
+    g = x;
+  } else if (hue < 120) {
+    r = x;
+    g = c;
+  } else if (hue < 180) {
+    g = c;
+    b = x;
+  } else if (hue < 240) {
+    g = x;
+    b = c;
+  } else if (hue < 300) {
+    r = x;
+    b = c;
+  } else {
+    r = c;
+    b = x;
+  }
+
+  return [
+    Math.round((r + m) * 255),
+    Math.round((g + m) * 255),
+    Math.round((b + m) * 255),
+  ];
+}
+
+function featureColor(index: number, count: number): [number, number, number, number] {
+  const hue = (index / Math.max(1, count)) * 360;
+  const [r, g, b] = hslToRgb(hue, 0.6, 0.5);
+  return [r, g, b, 220];
+}
 
 export default createStep(FeaturesPlanStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.featureIntents], {
@@ -154,11 +208,61 @@ export default createStep(FeaturesPlanStepContract, {
       config.ice
     );
 
-    deps.artifacts.featureIntents.publish(context, {
+    const featureIntents = {
       vegetation: vegetationPlacements,
       wetlands: [...wetlandsPlan.placements, ...wetPlacements],
       reefs: reefsPlan.placements,
       ice: icePlan.placements,
-    });
+    };
+
+    const allPlacements = [
+      ...featureIntents.vegetation,
+      ...featureIntents.wetlands,
+      ...featureIntents.reefs,
+      ...featureIntents.ice,
+    ];
+    if (allPlacements.length > 0) {
+      const knownKeys = new Set(FEATURE_PLACEMENT_KEYS);
+      const unknownKeys = new Set<string>();
+      for (const placement of allPlacements) {
+        if (!knownKeys.has(placement.feature as (typeof FEATURE_PLACEMENT_KEYS)[number])) {
+          unknownKeys.add(placement.feature);
+        }
+      }
+
+      const extraKeys = Array.from(unknownKeys).sort();
+      const categoryKeys = [...FEATURE_PLACEMENT_KEYS, ...extraKeys];
+      const valueByKey = new Map<string, number>();
+      for (let i = 0; i < categoryKeys.length; i++) {
+        valueByKey.set(categoryKeys[i]!, i + 1);
+      }
+
+      const positions = new Float32Array(allPlacements.length * 2);
+      const values = new Uint16Array(allPlacements.length);
+      for (let i = 0; i < allPlacements.length; i++) {
+        const placement = allPlacements[i]!;
+        positions[i * 2] = placement.x;
+        positions[i * 2 + 1] = placement.y;
+        values[i] = valueByKey.get(placement.feature) ?? 0;
+      }
+
+      context.viz?.dumpPoints(context.trace, {
+        layerId: "ecology.featureIntents.featureType",
+        positions,
+        values,
+        valueFormat: "u16",
+        meta: defineVizMeta("ecology.featureIntents.featureType", {
+          label: "Feature Intents",
+          group: GROUP_FEATURE_INTENTS,
+          categories: categoryKeys.map((key, index) => ({
+            value: index + 1,
+            label: labelFeatureKey(key),
+            color: featureColor(index, categoryKeys.length),
+          })),
+        }),
+      });
+    }
+
+    deps.artifacts.featureIntents.publish(context, featureIntents);
   },
 });

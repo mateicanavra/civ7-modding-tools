@@ -1,9 +1,12 @@
+import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clamp01 } from "@swooper/mapgen-core/lib/math";
 import BiomesStepContract from "./contract.js";
 import { buildLatitudeField } from "./helpers/inputs.js";
 import { ecologyArtifacts } from "../../artifacts.js";
 import { validateBiomeClassificationArtifact } from "../../artifact-validation.js";
+
+const GROUP_BIOMES = "Ecology / Biomes";
 
 export default createStep(BiomesStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.biomeClassification], {
@@ -40,6 +43,97 @@ export default createStep(BiomesStepContract, {
     for (let i = 0; i < size; i++) {
       treeLine01[i] = clamp01(1 - (cryosphere.permafrost01?.[i] ?? 0));
     }
+
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "ecology.biome.vegetationDensity",
+      dims: { width, height },
+      format: "f32",
+      values: result.vegetationDensity,
+      meta: defineVizMeta("ecology.biome.vegetationDensity", {
+        label: "Vegetation Density",
+        group: GROUP_BIOMES,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "ecology.biome.effectiveMoisture",
+      dims: { width, height },
+      format: "f32",
+      values: result.effectiveMoisture,
+      meta: defineVizMeta("ecology.biome.effectiveMoisture", {
+        label: "Effective Moisture",
+        group: GROUP_BIOMES,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "ecology.biome.surfaceTemperature",
+      dims: { width, height },
+      format: "f32",
+      values: result.surfaceTemperature,
+      meta: defineVizMeta("ecology.biome.surfaceTemperature", {
+        label: "Surface Temperature",
+        group: GROUP_BIOMES,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "ecology.biome.aridityIndex",
+      dims: { width, height },
+      format: "f32",
+      values: result.aridityIndex,
+      meta: defineVizMeta("ecology.biome.aridityIndex", {
+        label: "Aridity Index",
+        group: GROUP_BIOMES,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "ecology.biome.freezeIndex",
+      dims: { width, height },
+      format: "f32",
+      values: result.freezeIndex,
+      meta: defineVizMeta("ecology.biome.freezeIndex", {
+        label: "Freeze Index",
+        group: GROUP_BIOMES,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "ecology.biome.groundIce01",
+      dims: { width, height },
+      format: "f32",
+      values: cryosphere.groundIce01,
+      meta: defineVizMeta("ecology.biome.groundIce01", {
+        label: "Ground Ice 01",
+        group: GROUP_BIOMES,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "ecology.biome.permafrost01",
+      dims: { width, height },
+      format: "f32",
+      values: cryosphere.permafrost01,
+      meta: defineVizMeta("ecology.biome.permafrost01", {
+        label: "Permafrost 01",
+        group: GROUP_BIOMES,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "ecology.biome.meltPotential01",
+      dims: { width, height },
+      format: "f32",
+      values: cryosphere.meltPotential01,
+      meta: defineVizMeta("ecology.biome.meltPotential01", {
+        label: "Melt Potential 01",
+        group: GROUP_BIOMES,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "ecology.biome.treeLine01",
+      dims: { width, height },
+      format: "f32",
+      values: treeLine01,
+      meta: defineVizMeta("ecology.biome.treeLine01", {
+        label: "Tree Line 01",
+        group: GROUP_BIOMES,
+      }),
+    });
 
     deps.artifacts.biomeClassification.publish(context, {
       width,
