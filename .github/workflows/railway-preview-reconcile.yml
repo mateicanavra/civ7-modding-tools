@@ -325,10 +325,17 @@ jobs:
             set -e
 
             if [ "$edit_code" -eq 0 ]; then
-              current="$(
-                railway environment "${env_name}" config --json \
-                  | python3 -c 'import json,sys; d=json.load(sys.stdin); svc=d["services"][sys.argv[1]]; print((svc.get("source") or {}).get("branch",""))' "${RAILWAY_SERVICE_ID}"
-              )"
+              for attempt in 1 2 3 4 5; do
+                current="$(
+                  railway environment "${env_name}" config --json \
+                    | python3 -c 'import json,sys; d=json.load(sys.stdin); svc=d["services"][sys.argv[1]]; print((svc.get("source") or {}).get("branch",""))' "${RAILWAY_SERVICE_ID}"
+                )"
+                if [ "$current" = "$expected_branch" ]; then
+                  break
+                fi
+                echo "retry ${attempt}/5: waiting for ${env_name} branch update to propagate..."
+                sleep 2
+              done
               if [ "$current" = "$expected_branch" ]; then
                 echo "- $env_name: updated in-place ($current)" >> "$GITHUB_STEP_SUMMARY"
                 continue
