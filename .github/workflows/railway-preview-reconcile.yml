@@ -33,6 +33,7 @@ env:
   RAILWAY_PROJECT_ID: e4fe5b19-db1f-47ba-9a57-35825b3e69b3
   RAILWAY_BASE_ENVIRONMENT_ID: 7b924069-d645-4c37-b5cb-0382869f6829
   RAILWAY_SERVICE_NAME: mapgen-studio
+  RAILWAY_SERVICE_ID: caf240a7-f8a1-4622-8ab2-1cad92651780
 
   PREVIEW_LABEL: railway-preview
   NO_PREVIEW_LABEL: no-railway-preview
@@ -223,7 +224,7 @@ jobs:
             json.dump({str(k): str(v) for k, v in (m or {}).items()}, f)
           PY
 
-          # For each pr-### env that corresponds to an eligible PR, ensure source.branch matches the PR head ref.
+          # For each pr-### env that corresponds to an eligible PR, ensure the deployment trigger branch matches the PR head ref.
           python3 - <<'PY' > pr_env_branch_actions.tsv
           import json, re
 
@@ -233,6 +234,7 @@ jobs:
           rows = []
           for env in pr_envs:
             name = (env.get("name") or "").strip()
+            env_id = (env.get("id") or "").strip()
             m = re.fullmatch(r"pr-(\d+)", name)
             if not m:
               continue
@@ -240,10 +242,12 @@ jobs:
             head_ref = head_ref_by_number.get(pr_number)
             if not head_ref:
               continue
-            rows.append((name, head_ref))
+            if not env_id:
+              continue
+            rows.append((name, env_id, head_ref))
 
-          for name, head_ref in sorted(rows):
-            print(f"{name}\t{head_ref}")
+          for name, env_id, head_ref in sorted(rows):
+            print(f\"{name}\\t{env_id}\\t{head_ref}\")
           PY
 
           if [ ! -s pr_env_branch_actions.tsv ]; then
@@ -252,98 +256,65 @@ jobs:
           fi
 
           echo "Enforcing preview environment branches..." >> "$GITHUB_STEP_SUMMARY"
-
-          while IFS=$'\t' read -r env_name expected_branch; do
-            if [ -z "${env_name:-}" ] || [ -z "${expected_branch:-}" ]; then
+          # Enforce per-PR by updating the Railway deployment trigger for that environment.
+          while IFS=$'\t' read -r env_name env_id expected_branch; do
+            if [ -z "${env_name:-}" ] || [ -z "${env_id:-}" ] || [ -z "${expected_branch:-}" ]; then
               continue
             fi
-
-            set +e
-            cfg="$(railway environment "$env_name" config --json 2>&1)"
-            code=$?
-            set -e
-            if [ "$code" -ne 0 ]; then
-              echo "::error::Failed to read Railway config for '$env_name': $cfg"
-              if echo "$cfg" | grep -q "Unauthorized"; then
-                echo "::error::Railway rejected this token for environment config access. Update RAILWAY_API_TOKEN."
-              fi
-              exit 1
-            fi
-
-            export CFG="$cfg"
-            current_branch="$(
+            ENV_ID="$env_id" EXPECTED_BRANCH="$expected_branch" RAILWAY_API_TOKEN="${RAILWAY_API_TOKEN}" RAILWAY_PROJECT_ID="${RAILWAY_PROJECT_ID}" RAILWAY_SERVICE_ID="${RAILWAY_SERVICE_ID}" \
               python3 - <<'PY'
-          import json, os, sys
-          raw = os.environ["CFG"]
-          try:
-            d = json.loads(raw)
-          except Exception:
-            sys.exit(1)
-          services = d.get("services") or {}
-          for _sid, svc in services.items():
-            src = (svc or {}).get("source") or {}
-            b = src.get("branch")
-            if b:
-              print(b)
-              sys.exit(0)
-          sys.exit(1)
+          import json, os, urllib.request
+
+          token = os.environ["RAILWAY_API_TOKEN"]
+          endpoint = "https://backboard.railway.com/graphql/v2"
+
+          project_id = os.environ["RAILWAY_PROJECT_ID"]
+          environment_id = os.environ["ENV_ID"]
+          service_id = os.environ["RAILWAY_SERVICE_ID"]
+          expected_branch = os.environ["EXPECTED_BRANCH"]
+
+          def gql(query: str, variables: dict):
+            req = urllib.request.Request(
+              endpoint,
+              data=json.dumps({"query": query, "variables": variables}).encode("utf-8"),
+              headers={
+                "authorization": f"Bearer {token}",
+                "content-type": "application/json",
+              },
+              method="POST",
+            )
+            with urllib.request.urlopen(req) as resp:
+              payload = json.loads(resp.read().decode("utf-8"))
+            if payload.get("errors"):
+              raise RuntimeError(json.dumps(payload["errors"]))
+            return payload["data"]
+
+          query = \"\"\"\nquery ($projectId: String!, $environmentId: String!, $serviceId: String!) {\n  deploymentTriggers(projectId: $projectId, environmentId: $environmentId, serviceId: $serviceId, first: 50) {\n    edges {\n      node {\n        id\n        branch\n        repository\n        provider\n        checkSuites\n        baseEnvironmentOverrideId\n      }\n    }\n  }\n}\n\"\"\"\n
+          data = gql(query, {"projectId": project_id, "environmentId": environment_id, "serviceId": service_id})
+          edges = (((data.get("deploymentTriggers") or {}).get("edges")) or [])
+          node = (edges[0].get("node") if edges else None) or None
+          if not node:
+            raise RuntimeError("No deployment trigger found for this env/service.")
+
+          current = node.get("branch")
+          if current == expected_branch:
+            print(f"ok: {current}")
+            raise SystemExit(0)
+
+          mutation = \"\"\"\nmutation ($id: String!, $input: DeploymentTriggerUpdateInput!) {\n  deploymentTriggerUpdate(id: $id, input: $input) {\n    id\n    branch\n  }\n}\n\"\"\"\n
+          input_obj = {"branch": expected_branch}
+          for k in ("repository", "provider", "checkSuites", "baseEnvironmentOverrideId"):
+            v = node.get(k)
+            if v is not None:
+              input_obj[k] = v
+
+          out = gql(mutation, {"id": node["id"], "input": input_obj})
+          updated = (out.get("deploymentTriggerUpdate") or {}).get("branch")
+          if updated != expected_branch:
+            raise RuntimeError(f"Branch update failed: expected {expected_branch} got {updated}")
+          print(f"updated: {current} -> {updated}")
           PY
-            )" || current_branch=""
-
-            if [ "$current_branch" = "$expected_branch" ]; then
-              echo "- $env_name: ok ($current_branch)" >> "$GITHUB_STEP_SUMMARY"
-              continue
-            fi
-
-            echo "- $env_name: updating branch '$current_branch' -> '$expected_branch'" >> "$GITHUB_STEP_SUMMARY"
-            set +e
-            out="$(railway environment edit -e "$env_name" --service-config "${{ env.RAILWAY_SERVICE_NAME }}" source.branch "$expected_branch" -m "ci: enforce preview branch = $expected_branch" --json 2>&1)"
-            edit_code=$?
-            set -e
-            echo "$out"
-            if [ "$edit_code" -ne 0 ]; then
-              if echo "$out" | grep -q "Unauthorized"; then
-                echo "::error::Railway rejected this token for environment edits. Update RAILWAY_API_TOKEN to a token that can edit environments."
-                exit 1
-              fi
-              echo "::error::Failed to update branch for $env_name (exit $edit_code)."
-              exit 1
-            fi
-
-            # Verify update applied.
-            set +e
-            cfg2="$(railway environment "$env_name" config --json 2>&1)"
-            code2=$?
-            set -e
-            if [ "$code2" -ne 0 ]; then
-              echo "::warning::Could not re-read config for '$env_name' after edit."
-              continue
-            fi
-
-            export CFG2="$cfg2"
-            new_branch="$(
-              python3 - <<'PY'
-          import json, os, sys
-          raw = os.environ["CFG2"]
-          try:
-            d = json.loads(raw)
-          except Exception:
-            sys.exit(1)
-          services = d.get("services") or {}
-          for _sid, svc in services.items():
-            src = (svc or {}).get("source") or {}
-            b = src.get("branch")
-            if b:
-              print(b)
-              sys.exit(0)
-          sys.exit(1)
-          PY
-            )" || new_branch=""
-
-            if [ "$new_branch" != "$expected_branch" ]; then
-              echo "::error::Branch mismatch after update for $env_name: expected '$expected_branch' got '$new_branch'."
-              exit 1
-            fi
+            echo "- $env_name: enforced $expected_branch" >> "$GITHUB_STEP_SUMMARY"
           done < pr_env_branch_actions.tsv
 
       - name: Delete stale preview environments

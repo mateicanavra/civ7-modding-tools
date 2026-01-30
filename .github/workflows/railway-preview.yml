@@ -27,6 +27,7 @@ env:
   # Base environment to copy from (preview seed env)
   RAILWAY_BASE_ENVIRONMENT_ID: 7b924069-d645-4c37-b5cb-0382869f6829
   RAILWAY_SERVICE_NAME: mapgen-studio
+  RAILWAY_SERVICE_ID: caf240a7-f8a1-4622-8ab2-1cad92651780
 
   # Workflow policy:
   # - default: provision preview only for the top-of-stack PR (Graphite stacks)
@@ -176,49 +177,6 @@ jobs:
             --copy "${{ env.RAILWAY_BASE_ENVIRONMENT_ID }}" \
             --json >/dev/null || true
 
-      - name: Point preview to PR branch
-        if: steps.finalize.outputs.should_preview == 'true'
-        env:
-          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
-        run: |
-          railway environment edit \
-            -e "${{ steps.decide.outputs.env_name }}" \
-            --service-config "${{ env.RAILWAY_SERVICE_NAME }}" source.branch "${{ github.head_ref }}" \
-            -m "ci: set preview branch to ${{ github.head_ref }}" \
-            --json >/dev/null
-
-      - name: Verify preview environment is pinned to PR head
-        if: steps.finalize.outputs.should_preview == 'true'
-        env:
-          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
-          ENV_NAME: ${{ steps.decide.outputs.env_name }}
-          EXPECTED_BRANCH: ${{ github.head_ref }}
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          cfg="$(railway environment "$ENV_NAME" config --json)"
-          export CFG="$cfg"
-          current_branch="$(
-            python3 - <<'PY'
-          import json, os, sys
-          d = json.loads(os.environ["CFG"])
-          services = d.get("services") or {}
-          for _sid, svc in services.items():
-            src = (svc or {}).get("source") or {}
-            b = src.get("branch")
-            if b:
-              print(b)
-              sys.exit(0)
-          sys.exit(1)
-          PY
-          )"
-
-          if [ "$current_branch" != "$EXPECTED_BRANCH" ]; then
-            echo "::error::Preview env '$ENV_NAME' is pinned to '$current_branch' (expected '$EXPECTED_BRANCH')."
-            exit 1
-          fi
-
       - name: Select preview environment (for redeploy/domain)
         id: envselect
         if: steps.finalize.outputs.should_preview == 'true'
@@ -284,6 +242,70 @@ jobs:
           cfg["projects"][project_path]["environment"] = os.environ["ENV_ID"]
           cfg["projects"][project_path]["environmentName"] = os.environ["ENV_NAME"]
           path.write_text(json.dumps(cfg))
+          PY
+
+      - name: Enforce preview branch (GraphQL)
+        if: steps.finalize.outputs.should_preview == 'true' && steps.envselect.outputs.ok == 'true'
+        env:
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+          ENVIRONMENT_ID: ${{ steps.envselect.outputs.env_id }}
+          EXPECTED_BRANCH: ${{ github.head_ref }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, sys, urllib.request
+
+          token = os.environ["RAILWAY_API_TOKEN"]
+          endpoint = "https://backboard.railway.com/graphql/v2"
+
+          project_id = os.environ["RAILWAY_PROJECT_ID"]
+          environment_id = os.environ["ENVIRONMENT_ID"]
+          service_id = os.environ["RAILWAY_SERVICE_ID"]
+          expected_branch = os.environ["EXPECTED_BRANCH"]
+
+          def gql(query: str, variables: dict):
+            req = urllib.request.Request(
+              endpoint,
+              data=json.dumps({"query": query, "variables": variables}).encode("utf-8"),
+              headers={
+                "authorization": f"Bearer {token}",
+                "content-type": "application/json",
+              },
+              method="POST",
+            )
+            with urllib.request.urlopen(req) as resp:
+              payload = json.loads(resp.read().decode("utf-8"))
+            if payload.get("errors"):
+              raise RuntimeError(json.dumps(payload["errors"]))
+            return payload["data"]
+
+          query = \"\"\"\nquery ($projectId: String!, $environmentId: String!, $serviceId: String!) {\n  deploymentTriggers(projectId: $projectId, environmentId: $environmentId, serviceId: $serviceId, first: 50) {\n    edges {\n      node {\n        id\n        branch\n        repository\n        provider\n        checkSuites\n        baseEnvironmentOverrideId\n      }\n    }\n  }\n}\n\"\"\"\n
+          data = gql(query, {"projectId": project_id, "environmentId": environment_id, "serviceId": service_id})
+          edges = (((data.get("deploymentTriggers") or {}).get("edges")) or [])
+          node = (edges[0].get("node") if edges else None) or None
+
+          if not node:
+            raise RuntimeError("No deployment trigger found for this env/service.")
+
+          current = node.get("branch")
+          if current == expected_branch:
+            print(f"ok: branch already {current}")
+            sys.exit(0)
+
+          mutation = \"\"\"\nmutation ($id: String!, $input: DeploymentTriggerUpdateInput!) {\n  deploymentTriggerUpdate(id: $id, input: $input) {\n    id\n    branch\n  }\n}\n\"\"\"\n
+          input_obj = {"branch": expected_branch}
+          # Keep other fields stable when present (the API accepts partial input, but this is safer).
+          for k in ("repository", "provider", "checkSuites", "baseEnvironmentOverrideId"):
+            v = node.get(k)
+            if v is not None:
+              input_obj[k] = v
+
+          out = gql(mutation, {"id": node["id"], "input": input_obj})
+          updated = (out.get("deploymentTriggerUpdate") or {}).get("branch")
+          if updated != expected_branch:
+            raise RuntimeError(f"Branch update failed: expected {expected_branch} got {updated}")
+          print(f"updated: {current} -> {updated}")
           PY
 
       - name: Checkout PR branch

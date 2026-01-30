@@ -100,20 +100,23 @@ This repo includes a GitHub Actions workflow that does this automatically:
 3. Ensure a Railway environment named `preview-base` exists (the workflow copies it to create `pr-<number>` envs).
 4. (Recommended) Ensure Railway built-in PR environments are disabled to avoid duplicate previews.
 
-### Recommended: `railway.json` at repo root (config-as-code)
+### Recommended: `apps/mapgen-studio/railway.json` (config-as-code)
 
-Create `railway.json` at the **repo root** (auto-detected by Railway):
+We keep config-as-code **alongside the app** at `apps/mapgen-studio/railway.json`.
+
+In Railway service settings, set **Config as Code File** to the absolute path:
+`/apps/mapgen-studio/railway.json`.
 
 ```json
 {
-  "$schema": "https://railway.app/railway.schema.json",
+  "$schema": "https://railway.com/railway.schema.json",
   "build": {
     "builder": "RAILPACK",
     "watchPatterns": [
       "apps/mapgen-studio/**",
       "packages/**",
       "mods/**",
-      "railway.json",
+      "apps/mapgen-studio/railway.json",
       "bun.lock",
       "bunfig.toml",
       "package.json",
@@ -134,6 +137,10 @@ Create `railway.json` at the **repo root** (auto-detected by Railway):
 This keeps the service’s **Root Directory** at the repo root (so it can see workspace packages), but builds/serves only `apps/mapgen-studio`.
 
 **Note:** Railpack handles the install step automatically; you only need a custom build + start command.
+
+**Important:** For monorepo + repo-root services, set the Railpack config variable:
+`RAILPACK_SPA_OUTPUT_DIR=apps/mapgen-studio/dist`
+so Railpack includes Caddy in the runtime image and serves the correct dist directory.
 
 ### Optional alternative (dashboard-only)
 
