@@ -246,9 +246,9 @@ jobs:
               continue
             rows.append((name, env_id, head_ref))
 
-          for name, env_id, head_ref in sorted(rows):
-            print(f\"{name}\\t{env_id}\\t{head_ref}\")
-          PY
+	          for name, env_id, head_ref in sorted(rows):
+	            print(f"{name}\t{env_id}\t{head_ref}")
+	          PY
 
           if [ ! -s pr_env_branch_actions.tsv ]; then
             echo "- No eligible preview envs to enforce." >> "$GITHUB_STEP_SUMMARY"
@@ -289,7 +289,22 @@ jobs:
               raise RuntimeError(json.dumps(payload["errors"]))
             return payload["data"]
 
-          query = \"\"\"\nquery ($projectId: String!, $environmentId: String!, $serviceId: String!) {\n  deploymentTriggers(projectId: $projectId, environmentId: $environmentId, serviceId: $serviceId, first: 50) {\n    edges {\n      node {\n        id\n        branch\n        repository\n        provider\n        checkSuites\n        baseEnvironmentOverrideId\n      }\n    }\n  }\n}\n\"\"\"\n
+	          query = """
+query ($projectId: String!, $environmentId: String!, $serviceId: String!) {
+  deploymentTriggers(projectId: $projectId, environmentId: $environmentId, serviceId: $serviceId, first: 50) {
+    edges {
+      node {
+        id
+        branch
+        repository
+        provider
+        checkSuites
+        baseEnvironmentOverrideId
+      }
+    }
+  }
+}
+"""
           data = gql(query, {"projectId": project_id, "environmentId": environment_id, "serviceId": service_id})
           edges = (((data.get("deploymentTriggers") or {}).get("edges")) or [])
           node = (edges[0].get("node") if edges else None) or None
@@ -301,7 +316,14 @@ jobs:
             print(f"ok: {current}")
             raise SystemExit(0)
 
-          mutation = \"\"\"\nmutation ($id: String!, $input: DeploymentTriggerUpdateInput!) {\n  deploymentTriggerUpdate(id: $id, input: $input) {\n    id\n    branch\n  }\n}\n\"\"\"\n
+	          mutation = """
+mutation ($id: String!, $input: DeploymentTriggerUpdateInput!) {
+  deploymentTriggerUpdate(id: $id, input: $input) {
+    id
+    branch
+  }
+}
+"""
           input_obj = {"branch": expected_branch}
           for k in ("repository", "provider", "checkSuites", "baseEnvironmentOverrideId"):
             v = node.get(k)
