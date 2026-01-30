@@ -15,7 +15,7 @@
       "tsconfig.json",
       "tsconfig.plugins.json"
     ],
-    "buildCommand": "bun run --cwd apps/mapgen-studio build"
+    "buildCommand": "bun run build --filter=mapgen-studio"
   },
   "deploy": {
     "startCommand": "cd apps/mapgen-studio && caddy run --config Caddyfile --adapter caddyfile",
