@@ -74,6 +74,7 @@ export type BrowserVizLayerEntry =
       phase?: string;
       stepIndex: number;
       format: VizScalarFormat;
+      /** Row-major tile grid (index = y * width + x). */
       dims: { width: number; height: number };
       bounds: Bounds;
       key: string;
