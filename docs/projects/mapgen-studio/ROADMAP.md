@@ -89,6 +89,10 @@ Design notes:
 Status:
 - [x] V0.1 slice: Web Worker runs `browser-test` (Foundation-only) and streams 1–2 layers directly to deck.gl (no dump required).
 
+Notes (for later slices):
+- Recipes are currently bundled into the worker (TS/ESM) and can accept runtime config overrides (UI → worker message → `recipe.compile/run`).
+- “Runtime-loadable” recipes (drop-in without rebuilding) require a separate architecture (serialized recipe IR/interpreter or equivalent); not needed for V0.1.
+
 ## V0.2 — In-Browser Runner (Full Pipeline)
 
 Goal: run the full pipeline in-browser and keep the visualization surface coherent across phases.
