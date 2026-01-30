@@ -83,7 +83,7 @@ function createLabelRng(seed: number): (max: number, label: string) => number {
 }
 
 async function runFoundation(request: Extract<BrowserRunRequest, { type: "run.start" }>): Promise<void> {
-  const { runToken, seed, dimensions, latitudeBounds } = request;
+  const { runToken, seed, mapSizeId, dimensions, latitudeBounds } = request;
 
   const envBase = {
     seed,
@@ -107,7 +107,7 @@ async function runFoundation(request: Extract<BrowserRunRequest, { type: "run.st
   const adapter = createMockAdapter({
     width: dimensions.width,
     height: dimensions.height,
-    mapSizeId: "MAPSIZE_HUGE",
+    mapSizeId,
     mapInfo: {
       GridWidth: dimensions.width,
       GridHeight: dimensions.height,
