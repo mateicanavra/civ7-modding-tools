@@ -221,7 +221,7 @@ jobs:
             --environment "$ENV_NAME" \
             --service-config "${{ env.RAILWAY_SERVICE_ID }}" "source.branch" "$EXPECTED_BRANCH" \
             --message "ci: pin ${ENV_NAME} to ${EXPECTED_BRANCH}" \
-            --json >/dev/null
+            --json
 
           current="$(
             railway environment "${ENV_NAME}" config --json \

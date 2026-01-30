@@ -265,7 +265,7 @@ jobs:
               --environment "$env_name" \
               --service-config "${RAILWAY_SERVICE_ID}" "source.branch" "$expected_branch" \
               --message "ci: pin ${env_name} to ${expected_branch}" \
-              --json >/dev/null
+              --json
             echo "- $env_name: enforced source.branch=$expected_branch" >> "$GITHUB_STEP_SUMMARY"
           done < pr_env_branch_actions.tsv
 
