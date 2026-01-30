@@ -216,15 +216,7 @@ export function App() {
     />
   );
 
-  const main = manifest ? (
-    <DeckCanvas deck={viz.deck} viewportSize={viewportSize} />
-  ) : (
-    <div style={{ padding: 18, color: "#9ca3af" }}>
-      {mode === "browser"
-        ? "Click “Run (Browser)” to execute Foundation in a Web Worker and stream layers directly to deck.gl."
-        : "Select a dump folder containing `manifest.json` (e.g. `mods/mod-swooper-maps/dist/visualization/<runId>`)."}
-    </div>
-  );
+  const main = <DeckCanvas deck={viz.deck} viewportSize={viewportSize} />;
 
   const overlays = [
     mode === "browser" ? (
@@ -235,6 +227,25 @@ export function App() {
         disabled={browserRunning}
         schema={STANDARD_RECIPE_CONFIG_SCHEMA}
       />
+    ) : null,
+    !manifest ? (
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 24,
+          textAlign: "center",
+          color: "#9ca3af",
+          pointerEvents: "none",
+        }}
+      >
+        {mode === "browser"
+          ? "Click “Run (Browser)” to execute Foundation in a Web Worker and stream layers directly to deck.gl."
+          : "Select a dump folder containing `manifest.json` (e.g. `mods/mod-swooper-maps/dist/visualization/<runId>`)."}
+      </div>
     ) : null,
     <div
       style={{
