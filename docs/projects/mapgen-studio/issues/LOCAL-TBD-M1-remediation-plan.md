@@ -16,20 +16,20 @@ related_to: []
 
 <!-- SECTION SCOPE [SYNC] -->
 ## TL;DR
-- Consolidate and track all M1 refactor regressions and PR-comment follow-ups, with each fix delivered as its own stacked PR.
+- Consolidate and execute all M1 refactor regression fixes as a clean stack of small PRs, one fix per branch.
 
 ## Deliverables
-- One remediation branch/PR per fix listed in the inventory below.
-- Updated docs/tests as needed to keep behavior and documentation aligned.
-- Review doc (`docs/projects/mapgen-studio/reviews/REVIEW-M1.md`) remains the canonical source for root-cause context.
+- One fix branch/PR per item in the remediation inventory.
+- Updated docs/tests when a fix changes behavior or public surfaces.
+- Review doc (`docs/projects/mapgen-studio/reviews/REVIEW-M1.md`) remains the source of truth for root-cause context.
 
 ## Acceptance Criteria
-- Each fix from the M1 review sweep is implemented or explicitly deferred with rationale.
-- Fix branches are stacked cleanly on top of the current stack (no mid-stack history edits).
-- No regressions in Mapgen Studio UX invariants noted in the M1 review doc.
+- Every item in the remediation inventory is either fixed or explicitly deferred with rationale.
+- Fix branches are stacked on top of the current stack tip (no mid-stack history edits).
+- Mapgen Studio UX invariants from the RFX execution plan remain intact.
 
 ## Testing / Verification
-- Mapgen Studio smoke: `bun run --cwd apps/mapgen-studio dev` (verify config overrides, viz selection, dump loading).
+- Mapgen Studio smoke: `bun run --cwd apps/mapgen-studio dev` (config overrides, viz selection, dump loading).
 - Mapgen Studio build: `bun run --cwd apps/mapgen-studio build`.
 - Targeted tests when applicable: `bun run --cwd mods/mod-swooper-maps test`.
 
@@ -42,7 +42,7 @@ related_to: []
 <!-- SECTION IMPLEMENTATION [NOSYNC] -->
 ## Implementation Details (Local Only)
 
-### Fix Inventory (one branch per item)
+### Remediation Inventory (one branch per item)
 1) Config overrides array template renders raw items → render `item.children`.
 2) Config overrides JSON overrides apply one run late → return parsed overrides and use them in `startBrowserRun`.
 3) Config overrides breakpoint API mismatch → align code or execution decision.
