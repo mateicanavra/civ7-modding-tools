@@ -13,12 +13,16 @@ on:
       - closed
 
 permissions:
+  actions: write
   contents: read
   issues: write
   pull-requests: write
 
 concurrency:
-  group: railway-preview-pr-${{ github.event.pull_request.number }}
+  # IMPORTANT:
+  # Older PR branches may still have a legacy `pull_request`-triggered workflow for this same file path.
+  # Do not share a concurrency group with legacy runs, or they can cancel this authoritative PR-target run.
+  group: railway-preview-pr-target-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 env:
@@ -42,6 +46,42 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.head.repo.full_name == github.repository
     steps:
+      - name: Cancel legacy pull_request runs (branch drift guard)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const { owner, repo } = context.repo;
+
+            const { data } = await github.rest.actions.listWorkflowRuns({
+              owner,
+              repo,
+              workflow_id: 'railway-preview.yml',
+              event: 'pull_request',
+              per_page: 100,
+            });
+
+            const candidates = (data.workflow_runs || []).filter((run) => {
+              const hasPr = (run.pull_requests || []).some((pr) => pr.number === prNumber);
+              const cancellable = run.status === 'queued' || run.status === 'in_progress';
+              return hasPr && cancellable;
+            });
+
+            if (candidates.length === 0) {
+              core.info('No legacy pull_request runs to cancel.');
+              return;
+            }
+
+            core.info(`Canceling ${candidates.length} legacy pull_request run(s) for PR #${prNumber}...`);
+            for (const run of candidates) {
+              try {
+                await github.rest.actions.cancelWorkflowRun({ owner, repo, run_id: run.id });
+                core.info(`Canceled legacy run ${run.id} (${run.html_url})`);
+              } catch (e) {
+                core.warning(`Failed to cancel legacy run ${run.id}: ${e?.message || e}`);
+              }
+            }
+
       - name: Decide whether to provision preview
         id: decide
         uses: actions/github-script@v7
