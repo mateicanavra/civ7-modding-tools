@@ -318,9 +318,11 @@ jobs:
             echo "- $env_name: fix '$current' -> '$expected_branch'" >> "$GITHUB_STEP_SUMMARY"
 
             set +e
-            railway environment edit -e "${env_name}" \
-              --service-config "${RAILWAY_SERVICE_ID}" "source.branch" "${expected_branch}" \
-              --json >/dev/null 2>&1
+            edit_output="$(
+              railway environment edit -e "${env_id}" \
+                --service-config "${RAILWAY_SERVICE_ID}" "source.branch" "${expected_branch}" \
+                --json 2>&1 >/dev/null
+            )"
             edit_code=$?
             set -e
 
@@ -340,6 +342,8 @@ jobs:
                 echo "- $env_name: updated in-place ($current)" >> "$GITHUB_STEP_SUMMARY"
                 continue
               fi
+            else
+              echo "$edit_output"
             fi
 
             echo "- $env_name: reset '$current' -> '$expected_branch' (fallback)" >> "$GITHUB_STEP_SUMMARY"
