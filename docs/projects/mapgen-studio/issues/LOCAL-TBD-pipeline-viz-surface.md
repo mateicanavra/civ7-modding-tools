@@ -89,7 +89,7 @@ related_to: []
 - [x] **PV-03 Ecology viz**: emit pedology, resource basins, biome classification, feature intents; prefer artifact-driven viz over map-ecology engine projections.
 - [x] **PV-04 Gameplay viz**: emit placement/gameplay layers (region slots, start sectors, start positions); label “Gameplay” in viz UI.
 - [x] **PV-05 React & UX cleanup**: apply `you-might-not-need-an-effect` + `escape-hatches` fixes with minimal behavior change.
-- [ ] **PV-06 Tests & docs sync**: add real-path viz layer tests; ensure layer catalog matches implementation.
+- [x] **PV-06 Tests & docs sync**: add real-path viz layer tests; ensure layer catalog matches implementation.
 
 ### Cleanup & Polish Plan
 - Add inline code comments for non-1:1 mocks (optionally a small UI hover note where helpful).
@@ -129,6 +129,15 @@ related_to: []
 - `bun run --cwd apps/mapgen-studio build` (worker bundle check passed; Vite emitted `spawn` warning from loaders.gl)
 - `bun run lint`
 - `bun run test`
+- `bun run deploy` (missing script in repo)
+- `timeout 5 bun run --cwd apps/mapgen-studio dev` (Vite started; manual browser smoke still required)
+
+**PV-06 Tests/Docs**
+- Added real-path viz emission test via standard recipe run (captures emitted layer IDs).
+- Shared standard recipe test config moved to `mods/mod-swooper-maps/test/support/standard-config.ts`.
+- `bun run --cwd apps/mapgen-studio build` (worker bundle check passed; Vite emitted `spawn` warning from loaders.gl)
+- `bun run lint`
+- `bun run test` (includes new `viz-emissions` test)
 - `bun run deploy` (missing script in repo)
 - `timeout 5 bun run --cwd apps/mapgen-studio dev` (Vite started; manual browser smoke still required)
 
