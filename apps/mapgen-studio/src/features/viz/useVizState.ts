@@ -150,8 +150,13 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     return layersForStep[0]?.key ?? null;
   }, [allowPendingSelection, layersForStep, selectedLayerKey]);
 
-  selectedStepIdRef.current = activeSelectedStepId;
-  selectedLayerKeyRef.current = activeSelectedLayerKey;
+  useEffect(() => {
+    selectedStepIdRef.current = activeSelectedStepId;
+  }, [activeSelectedStepId]);
+
+  useEffect(() => {
+    selectedLayerKeyRef.current = activeSelectedLayerKey;
+  }, [activeSelectedLayerKey]);
 
   const selectableLayers = useMemo(
     () =>
