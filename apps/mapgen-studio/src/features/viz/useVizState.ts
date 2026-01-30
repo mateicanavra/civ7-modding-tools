@@ -2,12 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Layer } from "@deck.gl/core";
 import type { VizEvent } from "../../shared/vizEvents";
 import { ingestVizEvent } from "./ingest";
-import {
-  buildBackgroundGridLayer,
-  boundsForTileGrid,
-  fitToBounds,
-  renderDeckLayers,
-} from "./deckgl/render";
+import { boundsForTileGrid, renderDeckLayers } from "./deckgl/render";
 import {
   formatLayerLabel,
   formatStepLabel,
@@ -15,7 +10,6 @@ import {
   resolveLayerVisibility,
 } from "./presentation";
 import {
-  DEFAULT_VIEW_STATE,
   getLayerKey,
   normalizeManifest,
   parseTectonicHistoryEraLayerId,
@@ -32,8 +26,6 @@ export type UseVizStateArgs = {
   assetResolver?: VizAssetResolver | null;
   tileLayout?: TileLayout;
   showMeshEdges?: boolean;
-  showBackgroundGrid?: boolean;
-  viewportSize?: { width: number; height: number };
   allowPendingSelection?: boolean;
   onError?(error: unknown): void;
 };
@@ -52,13 +44,11 @@ export type UseVizStateResult = {
   selectableLayers: Array<{ key: string; label: string; visibility: "default" | "debug" | "hidden"; group?: string }>;
   legend: ReturnType<typeof legendForLayer> | null;
 
-  deck: { layers: Layer[]; viewState: any; onViewStateChange(next: any): void };
+  deck: { layers: Layer[] };
 
   effectiveLayer: VizLayerEntryV0 | null;
   era: { active: boolean; value: number; max: number | null; setValue(next: number): void };
   activeBounds: Bounds | null;
-  fitToActive(): void;
-  resetView(): void;
   manifest: VizManifestV0 | null;
 };
 
@@ -69,8 +59,6 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     assetResolver,
     tileLayout = "row-offset",
     showMeshEdges = true,
-    showBackgroundGrid = true,
-    viewportSize = { width: 800, height: 600 },
     allowPendingSelection = false,
     onError,
   } = args;
@@ -84,7 +72,6 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
   const selectedStepIdRef = useRef<string | null>(null);
   const selectedLayerKeyRef = useRef<string | null>(null);
 
-  const [viewState, setViewState] = useState<any>({ ...DEFAULT_VIEW_STATE });
   const [layerStats, setLayerStats] = useState<{ min?: number; max?: number } | null>(null);
   const [resolvedLayers, setResolvedLayers] = useState<Layer[]>([]);
   const [eraIndex, setEraIndex] = useState<number>(0);
@@ -226,22 +213,6 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
       : effectiveLayer.bounds;
   }, [effectiveLayer, tileLayout]);
 
-  const fitToActive = useCallback(() => {
-    if (!activeBounds) return;
-    const fit = fitToBounds(activeBounds, viewportSize);
-    setViewState((prev: any) => ({ ...prev, ...fit }));
-  }, [activeBounds, viewportSize]);
-
-  const resetView = useCallback(() => {
-    const fit = fitToBounds([0, 0, 1, 1], viewportSize);
-    setViewState((prev: any) => ({ ...prev, ...fit }));
-  }, [viewportSize]);
-
-  useEffect(() => {
-    if (!effectiveLayer) return;
-    fitToActive();
-  }, [effectiveLayer, fitToActive]);
-
   useEffect(() => {
     let alive = true;
     if (!manifest || !effectiveLayer) {
@@ -270,22 +241,6 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     };
   }, [assetResolver, effectiveLayer, manifest, onError, showMeshEdges, tileLayout]);
 
-  const backgroundGridLayer = useMemo(
-    () =>
-      buildBackgroundGridLayer({
-        enabled: showBackgroundGrid,
-        layer: effectiveLayer,
-        viewState,
-        viewportSize,
-      }),
-    [effectiveLayer, showBackgroundGrid, viewState, viewportSize]
-  );
-
-  const deckLayers = useMemo<Layer[]>(
-    () => [...(backgroundGridLayer ? [backgroundGridLayer] : []), ...resolvedLayers],
-    [backgroundGridLayer, resolvedLayers]
-  );
-
   const legend = useMemo(() => {
     if (!effectiveLayer) return null;
     return legendForLayer(effectiveLayer, layerStats, {
@@ -310,9 +265,7 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     selectableLayers,
     legend,
     deck: {
-      layers: deckLayers,
-      viewState,
-      onViewStateChange: (next) => setViewState(next),
+      layers: resolvedLayers,
     },
     effectiveLayer,
     era: {
@@ -322,8 +275,6 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
       setValue: setEraIndex,
     },
     activeBounds,
-    fitToActive,
-    resetView,
     manifest,
   };
 }
