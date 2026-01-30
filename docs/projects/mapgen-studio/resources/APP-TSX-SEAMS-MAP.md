@@ -48,6 +48,9 @@ Why next:
 Key invariants:
 - Viz should consume runner outputs via runner-agnostic events (IoC) to prevent dependency cycles.
 - Prefer protocol-provided unique layer identity (`layer.key`) to avoid lossy recomputation.
+- Contract vs internal/debug layers are a first-class presentation concern:
+  - contract layers may be the default visible set (see `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md`)
+  - if an internal layer is selected and internal layers are hidden, keep the selection usable (don’t strand the UI)
 
 See:
 - `docs/projects/mapgen-studio/resources/seams/SEAM-VIZ-DECKGL.md`
@@ -87,4 +90,3 @@ Key direction:
 
 See:
 - `docs/projects/mapgen-studio/resources/seams/SEAM-RECIPES-ARTIFACTS.md`
-

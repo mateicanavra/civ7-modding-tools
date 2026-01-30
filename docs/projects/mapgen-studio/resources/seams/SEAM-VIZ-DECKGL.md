@@ -21,6 +21,9 @@
 - Owns **selection + derived state**:
   - active `stepId`
   - active `layerKey` (string)
+  - layer list presentation rules:
+    - contract vs internal/debug classification (contract hidden/visible defaults; see `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md`)
+    - selection must remain usable even when internal layers are hidden (keep the selected internal layer in the list)
   - `effectiveLayer` indirection for tectonic-history “era” layers (parses `foundation.tectonicHistory.eraN.*`)
 - Owns **rendering of deck.gl layers** from the selected layer:
   - `grid` → `PolygonLayer` (pointy-top hex polygons)
@@ -99,6 +102,7 @@ This makes the UI behave like a **manifest viewer**, even in streaming mode.
 Today, “registry logic” is scattered and implicit:
 
 - coordinate-space choice is inferred from `kind` + `layerId` string prefixes
+- contract vs internal/debug classification (and human-friendly labels) is inferred from `layerId` prefix/lookup tables (see `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md`)
 - legend/palette choice is inferred from `layerId` string contains/endsWith checks
 - overlay choice (mesh edges) is inferred from `layerId` prefixes + `kind`
 - “era slider” behavior is inferred from a specific layerId regex
@@ -113,6 +117,7 @@ A **layer registry** should centralize these decisions so that:
 Concretely: the registry should map a `layerId` (or pattern) to a `VizLayerDefinition`:
 
 - `space`: `tileHexOddR | tileHexOddQ | meshWorld | ...`
+- `scope` / `visibility`: contract vs internal/debug (default filtering) + stable labels for the layer picker
 - `paletteId` / `scale`: `categorical(plateIds) | crustType | boundaryType | continuous(0..1?) | continuous(min/max?)`
 - `legend`: structured legend model derived from scale + (optional) data stats
 - `overlays`: e.g. `meshEdges` as an optional overlay dependency
@@ -294,4 +299,3 @@ This keeps “viz” reusable for:
 - **Selection retention:** re-run while pinned to a later step keeps selection “desired” until the layer appears, without flicker to earlier layers.
 - **Overlay correctness:** mesh-edge overlay aligns with mesh-space layers only; background grid overlay remains stable under zoom/pan.
 - **Failure handling:** `run.error` does not corrupt the previous run’s viz state unless explicitly reset.
-

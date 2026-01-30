@@ -146,6 +146,14 @@ export type RecipeConfigArtifacts = {
   configSchema: TSchema;
   defaultConfig: Readonly<unknown>;
   stageOrder?: readonly string[]; // optional, but helps UI rendering deterministically
+
+  // Viz artifacts (optional, but likely needed as “infinite recipes” grows).
+  // Keep this small and UI-framework-agnostic: IDs + labels, not rendering rules.
+  vizContract?: Readonly<{
+    contractLayerIds?: readonly string[];
+    contractLayerPrefixes?: readonly string[];
+    layerLabels?: Readonly<Record<string, string>>;
+  }>;
 };
 
 export type RecipeCatalogEntry = Readonly<{
@@ -185,6 +193,7 @@ Optional but high-leverage:
 - `stageOrder: string[]`: lets UI render predictable stage cards even if schema property ordering changes.
 - `tags`/`capabilities`: e.g. `{ supportsAdapter: "browser-v0" }` to avoid exposing recipes that can’t run in-browser yet.
 - `configPresentationHints`: *only if* they are UI-framework-agnostic (avoid leaking RJSF-specific knobs into shared artifacts).
+- `vizContract`: a small, recipe-scoped contract of “UI-first” layer IDs + optional labels so Studio can prioritize/hide internal/debug layers by default without hard-coding string prefixes in `App.tsx` (see also `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md` for the initial project-level catalog).
 
 ### 3.3 Dynamic import vs static registry (bundle size, Vite)
 

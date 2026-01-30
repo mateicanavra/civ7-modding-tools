@@ -11,6 +11,7 @@ It is intentionally written to be **updated** as more upstack work lands (especi
 Update note (2026-01-29):
 - `App.tsx` has expanded substantially (config overrides sidebar polish, schema presentation helpers, CSS, templates).
 - `packages/browser-recipes/` (`@mapgen/browser-recipes`) now exists and is the beginning of the “many recipes” story.
+- Viz layer IDs have started to split into **contract vs internal/debug** surfaces, and the UI now hides internal layers by default (with a toggle). Treat this as a lasting direction, not a one-off UI tweak.
 - Treat “infinite recipes” as a hard requirement: adding new recipes should be a mechanical registration/artifacts task, not an app re-architecture.
 
 Related context:
@@ -18,6 +19,7 @@ Related context:
 - V0.1 runner spec: `docs/projects/mapgen-studio/BROWSER-RUNNER-V0.1.md`
 - Browser adapter surface: `docs/projects/mapgen-studio/BROWSER-ADAPTER.md`
 - V0.1 slice: config overrides UI→worker: `docs/projects/mapgen-studio/V0.1-SLICE-CONFIG-OVERRIDES-UI-WORKER.md`
+- Viz layer contract catalog: `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md`
 - Roadmap: `docs/projects/mapgen-studio/ROADMAP.md`
 
 ---
@@ -80,6 +82,9 @@ This is already ~2.5k LOC and will continue to grow as we add:
 - **Bundling guardrails**: worker bundle stays browser-safe (keep `check:worker-bundle` green).
 - **Determinism**: seed/config → deterministic outputs; merge semantics are deterministic and safe.
 - **Retention UX**: reruns retain selected step + layer; seed reroll auto-runs; cancellation semantics unchanged.
+- **Layer-list UX**:
+  - contract layers are prioritized (and may be the default visible set; see `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md`)
+  - if the user has an internal layer selected and later hides internal layers, the selection must remain usable (don’t “strand” the UI in a state where the selected key is impossible to keep/see)
 - **Config overrides UX**:
   - schema-driven form is primary
   - JSON editor is a fallback/advanced path
@@ -235,6 +240,9 @@ Target architecture:
 - define a runner-agnostic `VizEvent` ingest model
 - maintain a normalized “layer registry” keyed by a unique `layerKey` (prefer protocol-provided identity; avoid recomputing a lossy key)
 - isolate deck.gl rendering as an adapter layer
+- treat **contract vs internal/debug** layers as a first-class presentation concern:
+  - move “contract layer” definitions/labels out of `App.tsx` into a dedicated module
+  - preserve the current selection/visibility semantics (selected internal layers remain selectable even if “hide internal” is enabled)
 
 Target modules:
 - `features/viz/model.ts` (normalized types: run/step/layer/selection/legend, `VizEvent`)
