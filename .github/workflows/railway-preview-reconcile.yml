@@ -247,7 +247,7 @@ jobs:
             rows.append((name, env_id, head_ref))
 
           for name, env_id, head_ref in sorted(rows):
-            print(f\"{name}\\t{env_id}\\t{head_ref}\")
+            print(f"{name}\t{env_id}\t{head_ref}")
           PY
 
           if [ ! -s pr_env_branch_actions.tsv ]; then
@@ -256,65 +256,35 @@ jobs:
           fi
 
           echo "Enforcing preview environment branches..." >> "$GITHUB_STEP_SUMMARY"
-          # Enforce per-PR by updating the Railway deployment trigger for that environment.
+          # Enforce per-PR by recreating the environment when it drifts.
           while IFS=$'\t' read -r env_name env_id expected_branch; do
             if [ -z "${env_name:-}" ] || [ -z "${env_id:-}" ] || [ -z "${expected_branch:-}" ]; then
               continue
             fi
-            ENV_ID="$env_id" EXPECTED_BRANCH="$expected_branch" RAILWAY_API_TOKEN="${RAILWAY_API_TOKEN}" RAILWAY_PROJECT_ID="${RAILWAY_PROJECT_ID}" RAILWAY_SERVICE_ID="${RAILWAY_SERVICE_ID}" \
-              python3 - <<'PY'
-          import json, os, urllib.request
+            current="$(
+              railway environment "${env_name}" config --json \
+                | python3 -c 'import json,sys; d=json.load(sys.stdin); svc=d["services"][sys.argv[1]]; print((svc.get("source") or {}).get("branch",""))' "${RAILWAY_SERVICE_ID}"
+            )"
 
-          token = os.environ["RAILWAY_API_TOKEN"]
-          endpoint = "https://backboard.railway.com/graphql/v2"
+            if [ "$current" = "$expected_branch" ]; then
+              echo "- $env_name: ok ($current)" >> "$GITHUB_STEP_SUMMARY"
+              continue
+            fi
 
-          project_id = os.environ["RAILWAY_PROJECT_ID"]
-          environment_id = os.environ["ENV_ID"]
-          service_id = os.environ["RAILWAY_SERVICE_ID"]
-          expected_branch = os.environ["EXPECTED_BRANCH"]
+            echo "- $env_name: reset '$current' -> '$expected_branch'" >> "$GITHUB_STEP_SUMMARY"
+            railway environment delete "${env_name}" -y --json
 
-          def gql(query: str, variables: dict):
-            req = urllib.request.Request(
-              endpoint,
-              data=json.dumps({"query": query, "variables": variables}).encode("utf-8"),
-              headers={
-                "authorization": f"Bearer {token}",
-                "content-type": "application/json",
-              },
-              method="POST",
-            )
-            with urllib.request.urlopen(req) as resp:
-              payload = json.loads(resp.read().decode("utf-8"))
-            if payload.get("errors"):
-              raise RuntimeError(json.dumps(payload["errors"]))
-            return payload["data"]
-
-          query = \"\"\"\nquery ($projectId: String!, $environmentId: String!, $serviceId: String!) {\n  deploymentTriggers(projectId: $projectId, environmentId: $environmentId, serviceId: $serviceId, first: 50) {\n    edges {\n      node {\n        id\n        branch\n        repository\n        provider\n        checkSuites\n        baseEnvironmentOverrideId\n      }\n    }\n  }\n}\n\"\"\"\n
-          data = gql(query, {"projectId": project_id, "environmentId": environment_id, "serviceId": service_id})
-          edges = (((data.get("deploymentTriggers") or {}).get("edges")) or [])
-          node = (edges[0].get("node") if edges else None) or None
-          if not node:
-            raise RuntimeError("No deployment trigger found for this env/service.")
-
-          current = node.get("branch")
-          if current == expected_branch:
-            print(f"ok: {current}")
-            raise SystemExit(0)
-
-          mutation = \"\"\"\nmutation ($id: String!, $input: DeploymentTriggerUpdateInput!) {\n  deploymentTriggerUpdate(id: $id, input: $input) {\n    id\n    branch\n  }\n}\n\"\"\"\n
-          input_obj = {"branch": expected_branch}
-          for k in ("repository", "provider", "checkSuites", "baseEnvironmentOverrideId"):
-            v = node.get(k)
-            if v is not None:
-              input_obj[k] = v
-
-          out = gql(mutation, {"id": node["id"], "input": input_obj})
-          updated = (out.get("deploymentTriggerUpdate") or {}).get("branch")
-          if updated != expected_branch:
-            raise RuntimeError(f"Branch update failed: expected {expected_branch} got {updated}")
-          print(f"updated: {current} -> {updated}")
-          PY
-            echo "- $env_name: enforced $expected_branch" >> "$GITHUB_STEP_SUMMARY"
+            # Deletion can take a moment to propagate; retry environment creation a few times.
+            for attempt in 1 2 3 4 5; do
+              if railway environment new "${env_name}" \
+                --copy "${RAILWAY_BASE_ENVIRONMENT_ID}" \
+                --service-config "${RAILWAY_SERVICE_ID}" "source.branch" "${expected_branch}" \
+                --json >/dev/null; then
+                break
+              fi
+              echo "retry ${attempt}/5: waiting for ${env_name} delete to finalize..."
+              sleep 2
+            done
           done < pr_env_branch_actions.tsv
 
           echo "Guarding preview environment branches..." >> "$GITHUB_STEP_SUMMARY"
