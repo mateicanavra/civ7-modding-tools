@@ -2063,6 +2063,291 @@ export function App() {
     []
   );
 
+  const toolbarColumnsStyle = useCallback((columns: number): React.CSSProperties => {
+    const clamped = Math.max(2, Math.min(5, columns));
+    return {
+      columnCount: clamped,
+      columnGap: 12,
+      columnFill: "balance",
+      width: "100%",
+    };
+  }, []);
+
+  const toolbarItemStyle: React.CSSProperties = useMemo(
+    () => ({
+      breakInside: "avoid",
+      display: "inline-block",
+      width: "100%",
+      marginBottom: 10,
+    }),
+    []
+  );
+
+  const moduleColumnCount = useCallback((itemCount: number) => Math.max(2, Math.min(5, Math.ceil(itemCount / 3))), []);
+
+  const runModuleItems = useMemo(() => {
+    if (mode === "browser") {
+      return [
+        <label key="mode" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <span style={{ fontSize: 12, color: "#9ca3af" }}>Mode</span>
+          <select
+            value={mode}
+            onChange={(e) => setMode(e.target.value as any)}
+            style={{ ...controlBaseStyle, width: isNarrow ? "100%" : 170 }}
+          >
+            <option value="browser">browser</option>
+            <option value="dump">dump</option>
+          </select>
+        </label>,
+        <div key="seed-map" style={toolbarRowStyle}>
+          <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <span style={{ fontSize: 12, color: "#9ca3af" }}>Seed</span>
+            <input
+              value={browserSeed}
+              onChange={(e) => setBrowserSeed(Number.parseInt(e.target.value || "0", 10) || 0)}
+              style={{ ...controlBaseStyle, width: 96 }}
+            />
+            <button
+              onClick={() => {
+                const next = randomU32();
+                setBrowserSeed(next);
+                startBrowserRun({ seed: next });
+              }}
+              style={{ ...buttonStyle, padding: "6px 10px" }}
+              title="Reroll seed"
+              type="button"
+            >
+              Reroll
+            </button>
+          </label>
+          <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <span style={{ fontSize: 12, color: "#9ca3af" }}>Map size</span>
+            <select
+              value={browserMapSizeId}
+              onChange={(e) => setBrowserMapSizeId(e.target.value as Civ7MapSizePreset["id"])}
+              style={{ ...controlBaseStyle, width: 220 }}
+              disabled={browserRunning}
+            >
+              {CIV7_MAP_SIZES.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {formatMapSizeLabel(p)}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>,
+        <div key="run-buttons" style={toolbarRowStyle}>
+          <button
+            onClick={() => startBrowserRun()}
+            style={{
+              ...buttonStyle,
+              opacity: browserRunning ? 0.6 : 1,
+              background: "#2563eb",
+              borderColor: "#1d4ed8",
+            }}
+            disabled={browserRunning}
+          >
+            Run (Browser)
+          </button>
+          <button
+            onClick={() => setBrowserConfigOpen((v) => !v)}
+            style={{ ...buttonStyle, padding: "6px 10px", opacity: browserConfigOverridesEnabled ? 1 : 0.85 }}
+            title="Toggle config overrides panel"
+            type="button"
+          >
+            Overrides
+          </button>
+          <button
+            onClick={stopBrowserRun}
+            style={{ ...buttonStyle, opacity: browserRunning ? 1 : 0.6 }}
+            disabled={!browserRunning}
+          >
+            Cancel
+          </button>
+        </div>,
+        browserLastStep ? (
+          <div key="last-step" style={{ fontSize: 12, color: "#9ca3af" }}>
+            step: <span style={{ color: "#e5e7eb" }}>{browserLastStep.stepIndex}</span> ·{" "}
+            {formatLabel(browserLastStep.stepId)}
+          </div>
+        ) : null,
+      ].filter(Boolean);
+    }
+
+    return [
+      <label key="mode" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <span style={{ fontSize: 12, color: "#9ca3af" }}>Mode</span>
+        <select
+          value={mode}
+          onChange={(e) => setMode(e.target.value as any)}
+          style={{ ...controlBaseStyle, width: isNarrow ? "100%" : 170 }}
+        >
+          <option value="browser">browser</option>
+          <option value="dump">dump</option>
+        </select>
+      </label>,
+      <div key="dump-buttons" style={toolbarRowStyle}>
+        <button onClick={openDumpFolder} style={buttonStyle}>
+          Open dump folder
+        </button>
+
+        <input
+          ref={directoryInputRef}
+          type="file"
+          multiple
+          onChange={onDirectoryFiles}
+          style={{ display: "none" }}
+          {...({ webkitdirectory: "", directory: "" } as any)}
+        />
+        <button onClick={triggerDirectoryPicker} style={buttonStyle}>
+          Upload dump folder
+        </button>
+      </div>,
+    ];
+  }, [
+    browserConfigOverridesEnabled,
+    browserLastStep,
+    browserMapSizeId,
+    browserRunning,
+    browserSeed,
+    buttonStyle,
+    controlBaseStyle,
+    directoryInputRef,
+    formatLabel,
+    isNarrow,
+    mode,
+    onDirectoryFiles,
+    openDumpFolder,
+    setMode,
+    setBrowserMapSizeId,
+    setBrowserSeed,
+    setBrowserConfigOpen,
+    startBrowserRun,
+    stopBrowserRun,
+    triggerDirectoryPicker,
+    toolbarRowStyle,
+  ]);
+
+  const viewModuleItems = useMemo(
+    () => [
+      <div key="fit-toggles" style={toolbarRowStyle}>
+        <button
+          onClick={() => selectedLayer && setFittedView(selectedLayer.bounds)}
+          style={{ ...buttonStyle, opacity: selectedLayer ? 1 : 0.55 }}
+          disabled={!selectedLayer}
+        >
+          Fit
+        </button>
+
+        <label style={{ display: "flex", gap: 10, alignItems: "center", padding: "2px 2px" }}>
+          <span style={{ fontSize: 12, color: "#9ca3af" }}>Mesh edges</span>
+          <input type="checkbox" checked={showMeshEdges} onChange={(e) => setShowMeshEdges(e.target.checked)} />
+        </label>
+
+        <label style={{ display: "flex", gap: 10, alignItems: "center", padding: "2px 2px" }}>
+          <span style={{ fontSize: 12, color: "#9ca3af" }}>Background grid</span>
+          <input type="checkbox" checked={showBackgroundGrid} onChange={(e) => setShowBackgroundGrid(e.target.checked)} />
+        </label>
+      </div>,
+      <label key="hex-layout" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <span style={{ fontSize: 12, color: "#9ca3af", minWidth: 76 }}>Hex layout</span>
+        <select
+          value={tileLayout}
+          onChange={(e) => setTileLayout(e.target.value as TileLayout)}
+          style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
+        >
+          <option value="row-offset">row-offset (Civ-like)</option>
+          <option value="col-offset">col-offset</option>
+        </select>
+      </label>,
+    ],
+    [buttonStyle, controlBaseStyle, selectedLayer, setFittedView, setShowMeshEdges, setShowBackgroundGrid, showMeshEdges, showBackgroundGrid, tileLayout, toolbarRowStyle]
+  );
+
+  const inspectModuleItems = useMemo(
+    () =>
+      [
+        <label key="step" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <span style={{ fontSize: 12, color: "#9ca3af", minWidth: 56 }}>Step</span>
+          <select
+            value={selectedStepId ?? ""}
+            onChange={(e) => setSelectedStepId(e.target.value || null)}
+            style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
+            disabled={!steps.length && !selectedStepId}
+          >
+            {selectedStepId && !steps.some((s) => s.stepId === selectedStepId) ? (
+              <option value={selectedStepId}>{formatLabel(selectedStepId)} (pending)</option>
+            ) : null}
+            {steps.map((s) => (
+              <option key={s.stepId} value={s.stepId}>
+                {s.stepIndex} · {formatLabel(s.stepId)}
+              </option>
+            ))}
+          </select>
+        </label>,
+        <label key="layer" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <span style={{ fontSize: 12, color: "#9ca3af", minWidth: 56 }}>Layer</span>
+          <select
+            value={selectedLayerKey ?? ""}
+            onChange={(e) => setSelectedLayerKey(e.target.value || null)}
+            style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
+            disabled={!layersForStep.length && !selectedLayerKey}
+          >
+            {selectedLayerKey && !layersForStep.some((l) => l.key === selectedLayerKey) ? (
+              <option value={selectedLayerKey}>
+                {(() => {
+                  const parts = selectedLayerKey.split("::");
+                  const label = parts.length >= 3 ? `${parts[1]} (${parts[2]})` : selectedLayerKey;
+                  return `${label} (pending)`;
+                })()}
+              </option>
+            ) : null}
+            {layersForStepGrouped.map((group) => (
+              <optgroup key={group.group} label={group.group}>
+                {group.layers.map((l) => (
+                  <option key={l.key} value={l.key}>
+                    {formatLayerLabel(l.layer)}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </label>,
+        eraInfo && eraMax != null ? (
+          <label key="era" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <span style={{ fontSize: 12, color: "#9ca3af", minWidth: 56 }}>Era</span>
+            <input
+              type="range"
+              min={0}
+              max={eraMax}
+              step={1}
+              value={clamp(eraIndex, 0, eraMax)}
+              onChange={(e) => setEraIndex(Number.parseInt(e.target.value, 10))}
+              style={{ flex: 1, width: "100%" }}
+            />
+            <span style={{ fontSize: 12, color: "#e5e7eb", minWidth: 26, textAlign: "right" }}>
+              {clamp(eraIndex, 0, eraMax)}
+            </span>
+          </label>
+        ) : null,
+      ].filter(Boolean),
+    [
+      controlBaseStyle,
+      eraInfo,
+      eraIndex,
+      eraMax,
+      formatLabel,
+      layersForStep,
+      layersForStepGrouped,
+      selectedLayerKey,
+      selectedStepId,
+      setEraIndex,
+      setSelectedLayerKey,
+      setSelectedStepId,
+      steps,
+    ]
+  );
+
   const backgroundGridLayer = useMemo(() => {
     if (!showBackgroundGrid) return null;
     if (!effectiveLayer) return null;
@@ -2140,244 +2425,36 @@ export function App() {
           }}
         >
           <div style={toolbarSectionStyle}>
-            <div style={toolbarSectionTitleStyle}>Run</div>
-            <div style={toolbarRowStyle}>
-              <label style={{ display: "flex", gap: 8, alignItems: "center", flex: isNarrow ? "1 1 100%" : "0 0 auto" }}>
-                <span style={{ fontSize: 12, color: "#9ca3af" }}>Mode</span>
-                <select
-                  value={mode}
-                  onChange={(e) => setMode(e.target.value as any)}
-                  style={{ ...controlBaseStyle, width: isNarrow ? "100%" : 170 }}
-                >
-                  <option value="browser">browser</option>
-                  <option value="dump">dump</option>
-                </select>
-              </label>
+            <div style={toolbarSectionTitleStyle}>Inspect</div>
+            <div style={toolbarColumnsStyle(moduleColumnCount(inspectModuleItems.length))}>
+              {inspectModuleItems.map((item, idx) => (
+                <div key={`inspect-${idx}`} style={toolbarItemStyle}>
+                  {item}
+                </div>
+              ))}
             </div>
-
-            {mode === "browser" ? (
-              <>
-                <div style={toolbarRowStyle}>
-                  <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    <span style={{ fontSize: 12, color: "#9ca3af" }}>Seed</span>
-                    <input
-                      value={browserSeed}
-                      onChange={(e) => setBrowserSeed(Number.parseInt(e.target.value || "0", 10) || 0)}
-                      style={{ ...controlBaseStyle, width: 96 }}
-                    />
-                    <button
-                      onClick={() => {
-                        const next = randomU32();
-                        setBrowserSeed(next);
-                        startBrowserRun({ seed: next });
-                      }}
-                      style={{ ...buttonStyle, padding: "6px 10px" }}
-                      title="Reroll seed"
-                      type="button"
-                    >
-                      Reroll
-                    </button>
-                  </label>
-                  <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    <span style={{ fontSize: 12, color: "#9ca3af" }}>Map size</span>
-                    <select
-                      value={browserMapSizeId}
-                      onChange={(e) => setBrowserMapSizeId(e.target.value as Civ7MapSizePreset["id"])}
-                      style={{ ...controlBaseStyle, width: 220 }}
-                      disabled={browserRunning}
-                    >
-                      {CIV7_MAP_SIZES.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {formatMapSizeLabel(p)}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </div>
-                <div style={toolbarRowStyle}>
-                  <button
-                    onClick={() => startBrowserRun()}
-                    style={{
-                      ...buttonStyle,
-                      opacity: browserRunning ? 0.6 : 1,
-                      background: "#2563eb",
-                      borderColor: "#1d4ed8",
-                    }}
-                    disabled={browserRunning}
-                  >
-                    Run (Browser)
-                  </button>
-                  <button
-                    onClick={() => setBrowserConfigOpen((v) => !v)}
-                    style={{ ...buttonStyle, padding: "6px 10px", opacity: browserConfigOverridesEnabled ? 1 : 0.85 }}
-                    title="Toggle config overrides panel"
-                    type="button"
-                  >
-                    Overrides
-                  </button>
-                  <button
-                    onClick={stopBrowserRun}
-                    style={{ ...buttonStyle, opacity: browserRunning ? 1 : 0.6 }}
-                    disabled={!browserRunning}
-                  >
-                    Cancel
-                  </button>
-                </div>
-                {browserLastStep ? (
-                  <div style={{ fontSize: 12, color: "#9ca3af" }}>
-                    step: <span style={{ color: "#e5e7eb" }}>{browserLastStep.stepIndex}</span> ·{" "}
-                    {formatLabel(browserLastStep.stepId)}
-                  </div>
-                ) : null}
-              </>
-            ) : (
-              <div style={toolbarRowStyle}>
-                <button onClick={openDumpFolder} style={buttonStyle}>
-                  Open dump folder
-                </button>
-
-                <input
-                  ref={directoryInputRef}
-                  type="file"
-                  multiple
-                  onChange={onDirectoryFiles}
-                  style={{ display: "none" }}
-                  {...({ webkitdirectory: "", directory: "" } as any)}
-                />
-                <button onClick={triggerDirectoryPicker} style={buttonStyle}>
-                  Upload dump folder
-                </button>
-              </div>
-            )}
           </div>
 
           <div style={toolbarSectionStyle}>
             <div style={toolbarSectionTitleStyle}>View</div>
-            <div style={toolbarRowStyle}>
-              <button
-                onClick={() => selectedLayer && setFittedView(selectedLayer.bounds)}
-                style={{ ...buttonStyle, opacity: selectedLayer ? 1 : 0.55 }}
-                disabled={!selectedLayer}
-              >
-                Fit
-              </button>
-
-              <label
-                style={{
-                  display: "flex",
-                  gap: 10,
-                  alignItems: "center",
-                  padding: "2px 2px",
-                }}
-              >
-                <span style={{ fontSize: 12, color: "#9ca3af" }}>Mesh edges</span>
-                <input type="checkbox" checked={showMeshEdges} onChange={(e) => setShowMeshEdges(e.target.checked)} />
-              </label>
-
-              <label
-                style={{
-                  display: "flex",
-                  gap: 10,
-                  alignItems: "center",
-                  padding: "2px 2px",
-                }}
-              >
-                <span style={{ fontSize: 12, color: "#9ca3af" }}>Background grid</span>
-                <input
-                  type="checkbox"
-                  checked={showBackgroundGrid}
-                  onChange={(e) => setShowBackgroundGrid(e.target.checked)}
-                />
-              </label>
-            </div>
-            <div style={toolbarRowStyle}>
-              <label style={{ display: "flex", gap: 8, alignItems: "center", flex: 1 }}>
-                <span style={{ fontSize: 12, color: "#9ca3af", minWidth: 76 }}>Hex layout</span>
-                <select
-                  value={tileLayout}
-                  onChange={(e) => setTileLayout(e.target.value as TileLayout)}
-                  style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
-                >
-                  <option value="row-offset">row-offset (Civ-like)</option>
-                  <option value="col-offset">col-offset</option>
-                </select>
-              </label>
+            <div style={toolbarColumnsStyle(moduleColumnCount(viewModuleItems.length))}>
+              {viewModuleItems.map((item, idx) => (
+                <div key={`view-${idx}`} style={toolbarItemStyle}>
+                  {item}
+                </div>
+              ))}
             </div>
           </div>
 
           <div style={toolbarSectionStyle}>
-            <div style={toolbarSectionTitleStyle}>Inspect</div>
-            <div style={toolbarRowStyle}>
-              <label style={{ display: "flex", gap: 8, alignItems: "center", flex: 1 }}>
-                <span style={{ fontSize: 12, color: "#9ca3af", minWidth: 56 }}>Step</span>
-                <select
-                  value={selectedStepId ?? ""}
-                  onChange={(e) => setSelectedStepId(e.target.value || null)}
-                  style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
-                  disabled={!steps.length && !selectedStepId}
-                >
-                  {selectedStepId && !steps.some((s) => s.stepId === selectedStepId) ? (
-                    <option value={selectedStepId}>{formatLabel(selectedStepId)} (pending)</option>
-                  ) : null}
-                  {steps.map((s) => (
-                    <option key={s.stepId} value={s.stepId}>
-                      {s.stepIndex} · {formatLabel(s.stepId)}
-                    </option>
-                  ))}
-                </select>
-              </label>
+            <div style={toolbarSectionTitleStyle}>Run</div>
+            <div style={toolbarColumnsStyle(moduleColumnCount(runModuleItems.length))}>
+              {runModuleItems.map((item, idx) => (
+                <div key={`run-${idx}`} style={toolbarItemStyle}>
+                  {item}
+                </div>
+              ))}
             </div>
-
-            <div style={toolbarRowStyle}>
-              <label style={{ display: "flex", gap: 8, alignItems: "center", flex: 1 }}>
-                <span style={{ fontSize: 12, color: "#9ca3af", minWidth: 56 }}>Layer</span>
-                <select
-                  value={selectedLayerKey ?? ""}
-                  onChange={(e) => setSelectedLayerKey(e.target.value || null)}
-                  style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
-                  disabled={!layersForStep.length && !selectedLayerKey}
-                >
-                  {selectedLayerKey && !layersForStep.some((l) => l.key === selectedLayerKey) ? (
-                    <option value={selectedLayerKey}>
-                      {(() => {
-                        const parts = selectedLayerKey.split("::");
-                        const label = parts.length >= 3 ? `${parts[1]} (${parts[2]})` : selectedLayerKey;
-                        return `${label} (pending)`;
-                      })()}
-                    </option>
-                  ) : null}
-                  {layersForStepGrouped.map((group) => (
-                    <optgroup key={group.group} label={group.group}>
-                      {group.layers.map((l) => (
-                        <option key={l.key} value={l.key}>
-                          {formatLayerLabel(l.layer)}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
-              </label>
-            </div>
-
-            {eraInfo && eraMax != null ? (
-              <div style={toolbarRowStyle}>
-                <label style={{ display: "flex", gap: 8, alignItems: "center", flex: 1 }}>
-                  <span style={{ fontSize: 12, color: "#9ca3af", minWidth: 56 }}>Era</span>
-                  <input
-                    type="range"
-                    min={0}
-                    max={eraMax}
-                    step={1}
-                    value={clamp(eraIndex, 0, eraMax)}
-                    onChange={(e) => setEraIndex(Number.parseInt(e.target.value, 10))}
-                    style={{ flex: 1, width: "100%" }}
-                  />
-                  <span style={{ fontSize: 12, color: "#e5e7eb", minWidth: 26, textAlign: "right" }}>
-                    {clamp(eraIndex, 0, eraMax)}
-                  </span>
-                </label>
-              </div>
-            ) : null}
           </div>
         </div>
       </div>
