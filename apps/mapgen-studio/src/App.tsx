@@ -4,7 +4,7 @@ import { OrthographicView } from "@deck.gl/core";
 import { PathLayer, ScatterplotLayer, PolygonLayer } from "@deck.gl/layers";
 import Form from "@rjsf/core";
 import { customizeValidator } from "@rjsf/validator-ajv8";
-import type { RJSFSchema, UiSchema } from "@rjsf/utils";
+import type { ArrayFieldTemplateProps, FieldTemplateProps, ObjectFieldTemplateProps, RJSFSchema, UiSchema } from "@rjsf/utils";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import {
   BROWSER_TEST_RECIPE_CONFIG,
@@ -14,7 +14,9 @@ import {
 import type { BrowserRunEvent, BrowserRunRequest } from "./browser-runner/protocol";
 
 type Bounds = [minX: number, minY: number, maxX: number, maxY: number];
-type BrowserConfigFormContext = Record<string, unknown>;
+type BrowserConfigFormContext = {
+  transparentPaths: ReadonlySet<string>;
+};
 
 type VizScalarFormat = "u8" | "i8" | "u16" | "i16" | "i32" | "f32";
 
@@ -72,11 +74,440 @@ type FileMap = Map<string, File>;
 
 type EraLayerInfo = { eraIndex: number; baseLayerId: string };
 
+const browserConfigFormCss = `
+.browserConfigForm {
+  color: #e5e7eb;
+}
+.browserConfigForm * {
+  box-sizing: border-box;
+}
+
+.browserConfigForm .bc-depth2Group + .bc-depth2Group {
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
+  margin-top: 14px;
+  padding-top: 14px;
+}
+
+.browserConfigForm .bc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 0 12px 0;
+}
+.browserConfigForm .bc-label {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  color: #e5e7eb;
+}
+.browserConfigForm .bc-required {
+  color: #fca5a5;
+  font-weight: 700;
+}
+.browserConfigForm .bc-desc {
+  font-size: 12px;
+  line-height: 1.35;
+  color: #9ca3af;
+}
+.browserConfigForm .bc-errors,
+.browserConfigForm .error-detail,
+.browserConfigForm .errors {
+  font-size: 12px;
+  line-height: 1.35;
+  color: #fca5a5;
+}
+.browserConfigForm .bc-errors ul,
+.browserConfigForm .errors ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
+.browserConfigForm input,
+.browserConfigForm select,
+.browserConfigForm textarea {
+  width: 100%;
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: rgba(17, 24, 39, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  color: #e5e7eb;
+  font-size: 13px;
+}
+.browserConfigForm input[type=\"checkbox\"] {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border-radius: 4px;
+}
+.browserConfigForm input:focus,
+.browserConfigForm select:focus,
+.browserConfigForm textarea:focus {
+  outline: none;
+  border-color: rgba(96, 165, 250, 0.75);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.22);
+}
+.browserConfigForm input:disabled,
+.browserConfigForm select:disabled,
+.browserConfigForm textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.browserConfigForm .bc-section {
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 12px;
+  background: rgba(2, 6, 23, 0.4);
+  padding: 10px 10px;
+  margin: 0 0 10px 0;
+}
+.browserConfigForm .bc-stageTitle {
+  font-size: 16px;
+  font-weight: 750;
+  letter-spacing: 0.01em;
+  color: #e5e7eb;
+}
+.browserConfigForm .bc-stageDivider {
+  height: 1px;
+  background: rgba(148, 163, 184, 0.14);
+  margin: 8px 0 12px;
+}
+.browserConfigForm .bc-section summary {
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.browserConfigForm .bc-section summary::after {
+  content: "▸";
+  color: rgba(148, 163, 184, 0.85);
+  font-size: 12px;
+  transform: rotate(0deg);
+  transition: transform 120ms ease;
+}
+.browserConfigForm details[open].bc-section summary::after {
+  transform: rotate(90deg);
+}
+.browserConfigForm details.bc-subsection summary::after {
+  content: "▸";
+  color: rgba(148, 163, 184, 0.85);
+  font-size: 12px;
+  transform: rotate(0deg);
+  transition: transform 120ms ease;
+}
+.browserConfigForm details[open].bc-subsection summary::after {
+  transform: rotate(90deg);
+}
+.browserConfigForm .bc-section summary::-webkit-details-marker {
+  display: none;
+}
+.browserConfigForm .bc-sectionTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #e5e7eb;
+}
+.browserConfigForm .bc-sectionTitle.bc-depth2 {
+  font-size: 14px;
+}
+.browserConfigForm .bc-sectionTitle.bc-depth3 {
+  font-size: 13px;
+  color: rgba(229, 231, 235, 0.92);
+}
+.browserConfigForm .bc-sectionMeta {
+  font-size: 11px;
+  color: #9ca3af;
+}
+.browserConfigForm .bc-subsection {
+  margin: 0 0 12px 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.browserConfigForm .bc-subsectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 6px 0;
+}
+.browserConfigForm .bc-subsectionTitle {
+  font-size: 13px;
+  font-weight: 750;
+  color: #e5e7eb;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+.browserConfigForm .bc-arrayItem {
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.38);
+  padding: 10px;
+  margin: 0 0 10px 0;
+}
+.browserConfigForm .bc-actionsRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.browserConfigForm button {
+  appearance: none;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(17, 24, 39, 0.85);
+  color: #e5e7eb;
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.browserConfigForm button:hover {
+  border-color: rgba(148, 163, 184, 0.45);
+  background: rgba(31, 41, 55, 0.85);
+}
+.browserConfigForm button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+`;
+
 const browserConfigValidator = customizeValidator<
   BrowserTestRecipeConfig,
   RJSFSchema,
   BrowserConfigFormContext
 >();
+
+function humanizeSchemaLabel(label: string): string {
+  const s = label
+    .replace(/[_-]+/g, " ")
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .trim();
+  return s.replace(/\b\w/g, (m) => m.toUpperCase());
+}
+
+function BrowserConfigFieldTemplate(
+  props: FieldTemplateProps<BrowserTestRecipeConfig, RJSFSchema, BrowserConfigFormContext>
+){
+  const { id, label, required, description, errors, help, children, hidden, classNames, displayLabel } = props;
+  if (hidden) return <div style={{ display: "none" }} />;
+  const prettyLabel = label ? humanizeSchemaLabel(label) : "";
+  const schemaType = props.schema?.type;
+  const suppressDescription = schemaType === "object" || schemaType === "array";
+
+  return (
+    <div className={["bc-field", classNames].filter(Boolean).join(" ")}>
+      {displayLabel && label ? (
+        <label className="bc-label" htmlFor={id}>
+          {prettyLabel}
+          {required ? <span className="bc-required">*</span> : null}
+        </label>
+      ) : null}
+      {description && !suppressDescription ? <div className="bc-desc">{description}</div> : null}
+      <div>{children}</div>
+      {errors ? <div className="bc-errors">{errors}</div> : null}
+      {help ? <div className="bc-desc">{help}</div> : null}
+    </div>
+  );
+}
+
+type BrowserConfigSchemaDef = RJSFSchema | boolean;
+
+function schemaIsGroup(schema: BrowserConfigSchemaDef | undefined): boolean {
+  if (!schema || typeof schema === "boolean") return false;
+  if (schema.type === "object" || schema.type === "array") return true;
+  return false;
+}
+
+function schemaHasNestedGroups(schema: BrowserConfigSchemaDef | undefined): boolean {
+  if (!schema || typeof schema === "boolean") return false;
+  if (schema.type !== "object") return false;
+  const props = schema.properties;
+  if (!props) return false;
+  return Object.values(props).some((child) => schemaIsGroup(child));
+}
+
+function pathToPointer(path: Array<string | number>): string {
+  if (!path.length) return "";
+  const parts = path.map((p) => String(p).replace(/~/g, "~0").replace(/\//g, "~1"));
+  return `/${parts.join("/")}`;
+}
+
+function countTransparentPrefixes(transparentPaths: ReadonlySet<string> | undefined, path: Array<string | number>): number {
+  if (!transparentPaths || transparentPaths.size === 0) return 0;
+  let count = 0;
+  for (let i = 1; i <= path.length; i++) {
+    const prefix = pathToPointer(path.slice(0, i));
+    if (transparentPaths.has(prefix)) count++;
+  }
+  return count;
+}
+
+function collectTransparentPaths(schema: RJSFSchema): ReadonlySet<string> {
+  const out = new Set<string>();
+
+  const visit = (node: BrowserConfigSchemaDef | undefined, path: Array<string | number>): void => {
+    if (!node || typeof node === "boolean") return;
+
+    const nodeAnyOf = node.anyOf;
+    if (Array.isArray(nodeAnyOf)) {
+      for (const opt of nodeAnyOf) visit(opt as BrowserConfigSchemaDef, path);
+    }
+    const nodeOneOf = node.oneOf;
+    if (Array.isArray(nodeOneOf)) {
+      for (const opt of nodeOneOf) visit(opt as BrowserConfigSchemaDef, path);
+    }
+    const nodeAllOf = node.allOf;
+    if (Array.isArray(nodeAllOf)) {
+      for (const opt of nodeAllOf) visit(opt as BrowserConfigSchemaDef, path);
+    }
+
+    if (node.type === "array") {
+      const items = node.items;
+      if (Array.isArray(items)) {
+        for (const opt of items) visit(opt as BrowserConfigSchemaDef, path);
+      } else {
+        visit(items as BrowserConfigSchemaDef, path);
+      }
+      return;
+    }
+
+    if (node.type !== "object") return;
+    const props = node.properties;
+    if (!props) return;
+
+    const propKeys = Object.keys(props);
+    if (propKeys.length === 1 && node.description == null) {
+      const onlyKey = propKeys[0]!;
+      const child = (props as Record<string, BrowserConfigSchemaDef>)[onlyKey];
+      if (schemaIsGroup(child) && typeof child !== "boolean" && child.description == null) {
+        // Collapse a single-child wrapper by hiding the only child object header. This keeps
+        // the parent title (e.g. “Mesh”) while removing redundant middle layers (e.g. “Compute Mesh”).
+        out.add(pathToPointer([...path, onlyKey]));
+      }
+    }
+
+    for (const key of propKeys) {
+      visit((props as Record<string, BrowserConfigSchemaDef>)[key], [...path, key]);
+    }
+  };
+
+  visit(schema, []);
+  return out;
+}
+
+function BrowserConfigObjectFieldTemplate(
+  props: ObjectFieldTemplateProps<BrowserTestRecipeConfig, RJSFSchema, BrowserConfigFormContext>
+){
+  const { title, description, properties, fieldPathId } = props;
+  const path = fieldPathId.path ?? [];
+  const transparentPaths = props.registry.formContext.transparentPaths;
+  const transparentPrefixCount = countTransparentPrefixes(transparentPaths, path);
+  const depth = path.length;
+  const effectiveDepth = Math.max(0, depth - transparentPrefixCount);
+  const leaf = path.at(-1);
+  const leafKey = typeof leaf === "string" ? leaf : "";
+  const isRoot = depth === 0;
+  const isTransparent = transparentPaths.has(pathToPointer(path));
+
+  if (isRoot) {
+    return <div>{properties.filter((p) => !p.hidden).map((p) => p.content)}</div>;
+  }
+
+  if (isTransparent) {
+    return <div>{properties.filter((p) => !p.hidden).map((p) => p.content)}</div>;
+  }
+
+  const prettyTitle = title ? humanizeSchemaLabel(title) : leafKey ? humanizeSchemaLabel(leafKey) : "Section";
+  const titleLower = prettyTitle.toLowerCase();
+  const isKnobs = leafKey === "knobs" || titleLower === "knobs";
+  const isStage = depth === 1;
+  const isTopGroup = depth === 2;
+  const defaultOpen = isKnobs || isStage || (leafKey !== "advanced" && depth <= 2);
+  const hasNestedGroups = schemaHasNestedGroups(props.schema);
+  const useDetails = !isStage && hasNestedGroups; // only parents collapse; leaf groups render without toggles.
+  const indentPx = Math.max(0, (effectiveDepth - 2) * 14);
+  const groupClass = isTopGroup ? "bc-depth2Group" : undefined;
+
+  const content = (
+    <div style={{ marginTop: useDetails ? 10 : 0 }}>
+      {description ? (
+        <div className="bc-desc" style={{ marginBottom: 10 }}>
+          {description}
+        </div>
+      ) : null}
+      {properties.filter((p) => !p.hidden).map((p) => p.content)}
+    </div>
+  );
+
+  // Stage card (e.g. “Foundation”) is the first visible container.
+  if (isStage) {
+    return (
+      <div className="bc-section">
+        <div className="bc-actionsRow" style={{ marginBottom: 10 }}>
+          <div className="bc-stageTitle">{prettyTitle}</div>
+          <div style={{ flex: 1 }} />
+        </div>
+        <div className="bc-stageDivider" />
+        {content}
+      </div>
+    );
+  }
+
+  // Nested groups render flat (no extra card), using header hierarchy + padding.
+  const headingClass = ["bc-sectionTitle", isTopGroup ? "bc-depth2" : "bc-depth3"].join(" ");
+  const wrapperClass = ["bc-subsection", groupClass].filter(Boolean).join(" ");
+  if (!useDetails) {
+    return (
+      <div className={wrapperClass} style={{ paddingLeft: indentPx }}>
+        <div className="bc-subsectionHeader">
+          <div className={headingClass}>{prettyTitle}</div>
+        </div>
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <details className={wrapperClass} open={defaultOpen} style={{ paddingLeft: indentPx }}>
+      <summary className="bc-subsectionHeader" style={{ cursor: "pointer", listStyle: "none" }}>
+        <div className={headingClass}>{prettyTitle}</div>
+      </summary>
+      {content}
+    </details>
+  );
+}
+
+function BrowserConfigArrayFieldTemplate(
+  props: ArrayFieldTemplateProps<BrowserTestRecipeConfig, RJSFSchema, BrowserConfigFormContext>
+){
+  const { title, items, canAdd, onAddClick, disabled, readonly } = props;
+  const prettyTitle = title ? humanizeSchemaLabel(title) : "Items";
+  const allowMutations = !disabled && !readonly;
+
+  return (
+    <div className="bc-section">
+      <div className="bc-actionsRow" style={{ marginBottom: 10 }}>
+        <div className="bc-sectionTitle">{prettyTitle}</div>
+        <div style={{ flex: 1 }} />
+        {canAdd && allowMutations ? (
+          <button type="button" onClick={onAddClick}>
+            Add
+          </button>
+        ) : null}
+      </div>
+      {items.map((item, index) => (
+        <div key={item.key ?? index} className="bc-arrayItem">
+          {item}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   if (value == null || typeof value !== "object" || Array.isArray(value)) return false;
@@ -88,6 +519,140 @@ function assertIsRjsfSchema(schema: unknown): asserts schema is RJSFSchema {
   if (!isPlainObject(schema)) throw new Error("Invalid config schema: expected object");
   const type = schema.type;
   if (type !== "object") throw new Error(`Invalid config schema: expected type "object", got ${String(type)}`);
+}
+
+function normalizeScalarAnyOfEnumLike(schema: Record<string, unknown>): Record<string, unknown> | null {
+  const anyOf = schema.anyOf;
+  if (!Array.isArray(anyOf) || anyOf.length === 0) return null;
+
+  const constValues: unknown[] = [];
+  let detectedType: string | null = null;
+
+  for (const option of anyOf) {
+    if (!isPlainObject(option)) return null;
+    if (!("const" in option)) return null;
+    constValues.push((option as Record<string, unknown>).const);
+
+    const optionType = (option as Record<string, unknown>).type;
+    if (typeof optionType === "string") {
+      if (detectedType == null) detectedType = optionType;
+      if (detectedType !== optionType) return null;
+    }
+  }
+
+  const unique = [...new Set(constValues.map((v) => JSON.stringify(v)))].map((s) => JSON.parse(s) as unknown);
+  if (unique.length !== constValues.length) return null;
+
+  const inferred = detectedType
+    ? detectedType
+    : unique.every((v) => typeof v === "string")
+      ? "string"
+      : unique.every((v) => typeof v === "number" && Number.isFinite(v))
+        ? "number"
+        : unique.every((v) => typeof v === "boolean")
+          ? "boolean"
+          : null;
+  if (!inferred) return null;
+
+  const normalized: Record<string, unknown> = { ...schema, type: inferred, enum: unique };
+  delete normalized.anyOf;
+  return normalized;
+}
+
+function normalizeScalarOneOfEnumLike(schema: Record<string, unknown>): Record<string, unknown> | null {
+  const oneOf = schema.oneOf;
+  if (!Array.isArray(oneOf) || oneOf.length === 0) return null;
+
+  const constValues: unknown[] = [];
+  let detectedType: string | null = null;
+
+  for (const option of oneOf) {
+    if (!isPlainObject(option)) return null;
+    if (!("const" in option)) return null;
+    constValues.push((option as Record<string, unknown>).const);
+
+    const optionType = (option as Record<string, unknown>).type;
+    if (typeof optionType === "string") {
+      if (detectedType == null) detectedType = optionType;
+      if (detectedType !== optionType) return null;
+    }
+  }
+
+  const unique = [...new Set(constValues.map((v) => JSON.stringify(v)))].map((s) => JSON.parse(s) as unknown);
+  if (unique.length !== constValues.length) return null;
+
+  const inferred = detectedType
+    ? detectedType
+    : unique.every((v) => typeof v === "string")
+      ? "string"
+      : unique.every((v) => typeof v === "number" && Number.isFinite(v))
+        ? "number"
+        : unique.every((v) => typeof v === "boolean")
+          ? "boolean"
+          : null;
+  if (!inferred) return null;
+
+  const normalized: Record<string, unknown> = { ...schema, type: inferred, enum: unique };
+  delete normalized.oneOf;
+  return normalized;
+}
+
+function normalizeScalarConstEnumLike(schema: Record<string, unknown>): Record<string, unknown> | null {
+  if (!("const" in schema)) return null;
+  const value = schema.const;
+  const t = schema.type;
+  const inferred =
+    typeof t === "string"
+      ? t
+      : typeof value === "string"
+        ? "string"
+        : typeof value === "number" && Number.isFinite(value)
+          ? "number"
+          : typeof value === "boolean"
+            ? "boolean"
+            : null;
+  if (!inferred) return null;
+  const normalized: Record<string, unknown> = { ...schema, type: inferred, enum: [value], default: schema.default ?? value };
+  // Keep the value visible but prevent confusing free-text editing.
+  normalized.readOnly = true;
+  delete normalized.const;
+  return normalized;
+}
+
+function normalizeSingleVariantUnion(schema: Record<string, unknown>): Record<string, unknown> | null {
+  const anyOf = schema.anyOf;
+  if (Array.isArray(anyOf) && anyOf.length === 1 && isPlainObject(anyOf[0])) {
+    const base: Record<string, unknown> = { ...schema };
+    delete base.anyOf;
+    const option = anyOf[0] as Record<string, unknown>;
+    // Preserve top-level titles/descriptions while removing the pointless “Option 1” selector.
+    return { ...option, ...base };
+  }
+  const oneOf = schema.oneOf;
+  if (Array.isArray(oneOf) && oneOf.length === 1 && isPlainObject(oneOf[0])) {
+    const base: Record<string, unknown> = { ...schema };
+    delete base.oneOf;
+    const option = oneOf[0] as Record<string, unknown>;
+    return { ...option, ...base };
+  }
+  return null;
+}
+
+function normalizeSchemaForRjsf(schema: unknown): unknown {
+  if (Array.isArray(schema)) return schema.map(normalizeSchemaForRjsf);
+  if (!isPlainObject(schema)) return schema;
+
+  const normalizedAnyOf = normalizeScalarAnyOfEnumLike(schema);
+  const normalizedOneOf = normalizedAnyOf ? null : normalizeScalarOneOfEnumLike(schema);
+  const normalizedConst = normalizedAnyOf || normalizedOneOf ? null : normalizeScalarConstEnumLike(schema);
+  const normalizedSingle = normalizedAnyOf || normalizedOneOf || normalizedConst ? null : normalizeSingleVariantUnion(schema);
+  const base = normalizedAnyOf ?? normalizedOneOf ?? normalizedConst ?? normalizedSingle ?? schema;
+
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(base)) {
+    out[k] = normalizeSchemaForRjsf(v);
+  }
+  return out;
 }
 
 function toRjsfSchema(schema: unknown): RJSFSchema {
@@ -682,7 +1247,11 @@ export function App() {
     return [...manifest.steps].sort((a, b) => a.stepIndex - b.stepIndex);
   }, [manifest]);
 
-  const browserConfigSchema = useMemo<RJSFSchema>(() => toRjsfSchema(BROWSER_TEST_RECIPE_CONFIG_SCHEMA), []);
+  const { browserConfigSchema, browserConfigFormContext } = useMemo(() => {
+    const schema = toRjsfSchema(normalizeSchemaForRjsf(BROWSER_TEST_RECIPE_CONFIG_SCHEMA));
+    const transparentPaths = collectTransparentPaths(schema);
+    return { browserConfigSchema: schema, browserConfigFormContext: { transparentPaths } satisfies BrowserConfigFormContext };
+  }, []);
   const browserConfigUiSchema = useMemo<UiSchema<BrowserTestRecipeConfig, RJSFSchema, BrowserConfigFormContext>>(
     () => ({
       "ui:options": { label: false },
@@ -1499,6 +2068,14 @@ export function App() {
                 Run (Browser)
               </button>
               <button
+                onClick={() => setBrowserConfigOpen((v) => !v)}
+                style={{ ...buttonStyle, padding: "6px 10px", opacity: browserConfigOverridesEnabled ? 1 : 0.85 }}
+                title="Toggle config overrides panel"
+                type="button"
+              >
+                Config
+              </button>
+              <button
                 onClick={stopBrowserRun}
                 style={{ ...buttonStyle, opacity: browserRunning ? 1 : 0.6 }}
                 disabled={!browserRunning}
@@ -1574,156 +2151,6 @@ export function App() {
             />
           </label>
         </div>
-
-        {mode === "browser" ? (
-          <div
-            style={{
-              border: "1px solid #1f2937",
-              borderRadius: 12,
-              padding: isNarrow ? "10px 10px" : "10px 12px",
-              background: "#0a1224",
-              display: "flex",
-              flexDirection: "column",
-              gap: 10,
-            }}
-          >
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-              <button
-                onClick={() => setBrowserConfigOpen((v) => !v)}
-                style={{ ...buttonStyle, padding: "6px 10px" }}
-                type="button"
-              >
-                {browserConfigOpen ? "Hide config" : "Show config"}
-              </button>
-
-              <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <input
-                  type="checkbox"
-                  checked={browserConfigOverridesEnabled}
-                  onChange={(e) => setBrowserConfigOverridesEnabled(e.target.checked)}
-                  disabled={browserRunning}
-                />
-                <span style={{ fontSize: 12, color: "#9ca3af" }}>Enable config overrides</span>
-              </label>
-
-              <button
-                onClick={resetBrowserConfigOverrides}
-                style={{ ...buttonStyle, padding: "6px 10px", opacity: browserRunning ? 0.6 : 1 }}
-                disabled={browserRunning}
-                type="button"
-              >
-                Reset to base
-              </button>
-
-              <div style={{ flex: 1 }} />
-
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <button
-                  onClick={() => {
-                    if (browserConfigTab === "form") return;
-                    if (!applyBrowserConfigJson()) return;
-                    setBrowserConfigTab("form");
-                  }}
-                  style={{
-                    ...buttonStyle,
-                    padding: "6px 10px",
-                    opacity: browserConfigTab === "form" ? 1 : 0.75,
-                  }}
-                  type="button"
-                >
-                  Form
-                </button>
-                <button
-                  onClick={() => {
-                    if (browserConfigTab === "json") return;
-                    setBrowserConfigJson(JSON.stringify(browserConfigOverrides, null, 2));
-                    setBrowserConfigJsonError(null);
-                    setBrowserConfigTab("json");
-                  }}
-                  style={{
-                    ...buttonStyle,
-                    padding: "6px 10px",
-                    opacity: browserConfigTab === "json" ? 1 : 0.75,
-                  }}
-                  type="button"
-                >
-                  JSON
-                </button>
-              </div>
-            </div>
-
-            {browserConfigOpen ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <div style={{ fontSize: 12, color: "#9ca3af" }}>
-                  Overrides apply on the next “Run (Browser)”. Base config remains{" "}
-                  <span style={{ color: "#e5e7eb" }}>BROWSER_TEST_RECIPE_CONFIG</span>.
-                </div>
-
-                {browserConfigTab === "form" ? (
-                  <div
-                    style={{
-                      padding: "10px 10px",
-                      borderRadius: 10,
-                      border: "1px solid #111827",
-                      background: "#070c18",
-                    }}
-                  >
-                    <Form<BrowserTestRecipeConfig, RJSFSchema, BrowserConfigFormContext>
-                      schema={browserConfigSchema}
-                      uiSchema={browserConfigUiSchema}
-                      validator={browserConfigValidator}
-                      formData={browserConfigOverrides}
-                      disabled={browserRunning || !browserConfigOverridesEnabled}
-                      onChange={(e) => {
-                        setBrowserConfigOverrides(e.formData ?? BROWSER_TEST_RECIPE_CONFIG);
-                        setBrowserConfigJsonError(null);
-                      }}
-                    >
-                      <div />
-                    </Form>
-                  </div>
-                ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    <textarea
-                      value={browserConfigJson}
-                      onChange={(e) => setBrowserConfigJson(e.target.value)}
-                      spellCheck={false}
-                      style={{
-                        ...controlBaseStyle,
-                        fontFamily:
-                          'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-                        width: "100%",
-                        minHeight: 200,
-                        resize: "vertical",
-                      }}
-                      disabled={browserRunning || !browserConfigOverridesEnabled}
-                    />
-                    {browserConfigJsonError ? (
-                      <div style={{ fontSize: 12, color: "#fca5a5", whiteSpace: "pre-wrap" }}>
-                        {browserConfigJsonError}
-                      </div>
-                    ) : null}
-                    <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                      <button
-                        onClick={() => {
-                          applyBrowserConfigJson();
-                        }}
-                        style={{ ...buttonStyle, padding: "6px 10px" }}
-                        disabled={browserRunning || !browserConfigOverridesEnabled}
-                        type="button"
-                      >
-                        Apply JSON
-                      </button>
-                      <div style={{ fontSize: 12, color: "#9ca3af" }}>
-                        Paste overrides and apply before running.
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : null}
-          </div>
-        ) : null}
 
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
           <label style={{ display: "flex", gap: 8, alignItems: "center", flex: isNarrow ? "1 1 100%" : "0 0 auto", width: isNarrow ? "100%" : undefined }}>
@@ -1809,6 +2236,196 @@ export function App() {
       ) : null}
 
       <div ref={containerRef} style={{ flex: 1, position: "relative" }}>
+        {mode === "browser" && browserConfigOpen ? (
+          <div
+            style={{
+	              position: "absolute",
+	              top: 12,
+	              left: 12,
+	              bottom: 12,
+	              width: isNarrow ? "calc(100% - 24px)" : 315,
+	              maxWidth: 390,
+	              zIndex: 30,
+	              borderRadius: 14,
+	              border: "1px solid rgba(148, 163, 184, 0.18)",
+	              background: "rgba(10, 18, 36, 0.92)",
+              boxShadow: "0 24px 60px rgba(0,0,0,0.55)",
+              backdropFilter: "blur(6px)",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "12px 12px",
+                borderBottom: "1px solid rgba(148, 163, 184, 0.12)",
+              }}
+            >
+              <div style={{ fontSize: 13, color: "#e5e7eb", fontWeight: 600, letterSpacing: 0.2 }}>
+                Config overrides
+              </div>
+              <div style={{ flex: 1 }} />
+              <button
+                onClick={() => setBrowserConfigOpen(false)}
+                style={{ ...buttonStyle, padding: "6px 10px" }}
+                type="button"
+              >
+                Close
+              </button>
+            </div>
+
+	            <div
+	              style={{
+	                padding: 12,
+	                display: "flex",
+	                flexDirection: "column",
+	                gap: 10,
+	                flex: 1,
+	                minHeight: 0,
+	                overflow: "hidden",
+	              }}
+	            >
+              <div style={{ fontSize: 12, color: "#9ca3af", lineHeight: 1.35 }}>
+                Overrides apply on the next “Run (Browser)”. Base config remains{" "}
+                <span style={{ color: "#e5e7eb" }}>BROWSER_TEST_RECIPE_CONFIG</span>.
+              </div>
+
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+                <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <input
+                    type="checkbox"
+                    checked={browserConfigOverridesEnabled}
+                    onChange={(e) => setBrowserConfigOverridesEnabled(e.target.checked)}
+                    disabled={browserRunning}
+                  />
+                  <span style={{ fontSize: 12, color: "#e5e7eb" }}>Enable overrides</span>
+                </label>
+
+                <button
+                  onClick={resetBrowserConfigOverrides}
+                  style={{ ...buttonStyle, padding: "6px 10px", opacity: browserRunning ? 0.6 : 1 }}
+                  disabled={browserRunning}
+                  type="button"
+                >
+                  Reset to base
+                </button>
+
+                <div style={{ flex: 1 }} />
+
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <button
+                    onClick={() => {
+                      if (browserConfigTab === "form") return;
+                      if (!applyBrowserConfigJson()) return;
+                      setBrowserConfigTab("form");
+                    }}
+                    style={{
+                      ...buttonStyle,
+                      padding: "6px 10px",
+                      opacity: browserConfigTab === "form" ? 1 : 0.75,
+                    }}
+                    type="button"
+                  >
+                    Form
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (browserConfigTab === "json") return;
+                      setBrowserConfigJson(JSON.stringify(browserConfigOverrides, null, 2));
+                      setBrowserConfigJsonError(null);
+                      setBrowserConfigTab("json");
+                    }}
+                    style={{
+                      ...buttonStyle,
+                      padding: "6px 10px",
+                      opacity: browserConfigTab === "json" ? 1 : 0.75,
+                    }}
+                    type="button"
+                  >
+                    JSON
+                  </button>
+                </div>
+              </div>
+
+	              <div style={{ flex: 1, minHeight: 0, overflow: "auto", paddingRight: 2 }}>
+	                {browserConfigTab === "form" ? (
+	                  <div
+	                    style={{
+	                      padding: 0,
+	                      borderRadius: 0,
+	                      border: "none",
+	                      background: "transparent",
+	                    }}
+	                    className="browserConfigForm"
+	                  >
+	                    <style>{browserConfigFormCss}</style>
+		                    <Form<BrowserTestRecipeConfig, RJSFSchema, BrowserConfigFormContext>
+		                      schema={browserConfigSchema}
+		                      uiSchema={browserConfigUiSchema}
+		                      validator={browserConfigValidator}
+		                      formContext={browserConfigFormContext}
+		                      formData={browserConfigOverrides}
+		                      templates={{
+		                        FieldTemplate: BrowserConfigFieldTemplate,
+		                        ObjectFieldTemplate: BrowserConfigObjectFieldTemplate,
+	                        ArrayFieldTemplate: BrowserConfigArrayFieldTemplate,
+	                      }}
+	                      showErrorList={false}
+	                      disabled={browserRunning || !browserConfigOverridesEnabled}
+	                      onChange={(e) => {
+	                        setBrowserConfigOverrides(e.formData ?? BROWSER_TEST_RECIPE_CONFIG);
+	                        setBrowserConfigJsonError(null);
+	                      }}
+	                    >
+	                      <div />
+	                    </Form>
+	                  </div>
+	                ) : (
+	                  <div style={{ display: "flex", flexDirection: "column", gap: 8, height: "100%" }}>
+	                    <textarea
+	                      value={browserConfigJson}
+	                      onChange={(e) => setBrowserConfigJson(e.target.value)}
+	                      spellCheck={false}
+	                      style={{
+	                        ...controlBaseStyle,
+	                        fontFamily:
+	                          'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+	                        width: "100%",
+	                        flex: 1,
+	                        minHeight: 0,
+	                        height: "100%",
+	                        resize: "none",
+	                      }}
+	                      disabled={browserRunning || !browserConfigOverridesEnabled}
+	                    />
+	                    {browserConfigJsonError ? (
+	                      <div style={{ fontSize: 12, color: "#fca5a5", whiteSpace: "pre-wrap" }}>
+	                        {browserConfigJsonError}
+	                      </div>
+	                    ) : null}
+	                    <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+	                      <button
+	                        onClick={() => {
+	                          applyBrowserConfigJson();
+	                        }}
+	                        style={{ ...buttonStyle, padding: "6px 10px" }}
+	                        disabled={browserRunning || !browserConfigOverridesEnabled}
+	                        type="button"
+	                      >
+	                        Apply JSON
+	                      </button>
+	                      <div style={{ fontSize: 12, color: "#9ca3af" }}>Paste overrides and apply before running.</div>
+	                    </div>
+	                  </div>
+	                )}
+	              </div>
+	            </div>
+          </div>
+        ) : null}
         {manifest ? (
           <DeckGL
             views={new OrthographicView({ id: "ortho" })}
@@ -1824,7 +2441,18 @@ export function App() {
               : "Select a dump folder containing `manifest.json` (e.g. `mods/mod-swooper-maps/dist/visualization/<runId>`)."}
           </div>
         )}
-        <div style={{ position: "absolute", bottom: 10, left: 10, fontSize: 12, color: "#9ca3af", background: "rgba(0,0,0,0.35)", padding: "6px 8px", borderRadius: 8 }}>
+        <div
+          style={{
+            position: "absolute",
+            bottom: 10,
+            right: 10,
+            fontSize: 12,
+            color: "#9ca3af",
+            background: "rgba(0,0,0,0.35)",
+            padding: "6px 8px",
+            borderRadius: 8,
+          }}
+        >
           {manifest ? (
             <>
               runId: <span style={{ color: "#e5e7eb" }}>{manifest.runId.slice(0, 12)}…</span>
@@ -1841,7 +2469,7 @@ export function App() {
             style={{
               position: "absolute",
               top: 10,
-              left: 10,
+              right: 10,
               fontSize: 12,
               color: "#e5e7eb",
               background: "rgba(0,0,0,0.55)",
