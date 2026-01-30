@@ -74,6 +74,27 @@ type FileMap = Map<string, File>;
 
 type EraLayerInfo = { eraIndex: number; baseLayerId: string };
 
+const CONTRACT_LAYER_PREFIXES = ["foundation.tile."];
+
+function isContractLayer(layerId: string): boolean {
+  return CONTRACT_LAYER_PREFIXES.some((prefix) => layerId.startsWith(prefix));
+}
+
+function layerScopeLabel(layerId: string): "contract" | "internal" {
+  return isContractLayer(layerId) ? "contract" : "internal";
+}
+
+const CONTRACT_LAYER_LABELS: Record<string, string> = {
+  "foundation.tile.height": "Tile Height",
+  "foundation.tile.landmask": "Tile Landmask",
+};
+
+function formatLayerLabel(layer: VizLayerEntryV0): string {
+  const base = CONTRACT_LAYER_LABELS[layer.layerId] ?? layer.layerId;
+  const scope = layerScopeLabel(layer.layerId);
+  return `${base} (${layer.kind}, ${scope})`;
+}
+
 const browserConfigFormCss = `
 .browserConfigForm {
   color: #e5e7eb;
@@ -1254,6 +1275,7 @@ export function App() {
   const [tileLayout, setTileLayout] = useState<TileLayout>("row-offset");
   const [showMeshEdges, setShowMeshEdges] = useState(true);
   const [showBackgroundGrid, setShowBackgroundGrid] = useState(true);
+  const [showInternalLayers, setShowInternalLayers] = useState(false);
   const [eraIndex, setEraIndex] = useState<number>(0);
 
   useEffect(() => {
@@ -1303,8 +1325,26 @@ export function App() {
     if (!manifest || !selectedStepId) return [];
     return manifest.layers
       .filter((l) => l.stepId === selectedStepId)
-      .map((l) => ({ key: `${l.stepId}::${l.layerId}::${l.kind}`, layer: l }));
+      .map((l) => ({ key: `${l.stepId}::${l.layerId}::${l.kind}`, layer: l }))
+      .sort((a, b) => {
+        const aScope = layerScopeLabel(a.layer.layerId);
+        const bScope = layerScopeLabel(b.layer.layerId);
+        if (aScope !== bScope) return aScope === "contract" ? -1 : 1;
+        return a.layer.layerId.localeCompare(b.layer.layerId);
+      });
   }, [manifest, selectedStepId]);
+
+  const visibleLayersForStep = useMemo(() => {
+    if (showInternalLayers) return layersForStep;
+    return layersForStep.filter((l) => isContractLayer(l.layer.layerId));
+  }, [layersForStep, showInternalLayers]);
+
+  const selectableLayers = useMemo(() => {
+    if (!selectedLayerKey) return visibleLayersForStep;
+    if (visibleLayersForStep.some((l) => l.key === selectedLayerKey)) return visibleLayersForStep;
+    const hidden = layersForStep.find((l) => l.key === selectedLayerKey);
+    return hidden ? [hidden, ...visibleLayersForStep] : visibleLayersForStep;
+  }, [layersForStep, selectedLayerKey, visibleLayersForStep]);
 
   const selectedLayer = useMemo(() => {
     if (!layersForStep.length || !selectedLayerKey) return null;
@@ -2204,7 +2244,7 @@ export function App() {
               value={selectedLayerKey ?? ""}
               onChange={(e) => setSelectedLayerKey(e.target.value || null)}
               style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
-              disabled={!layersForStep.length && !selectedLayerKey}
+              disabled={!selectableLayers.length && !selectedLayerKey}
             >
               {selectedLayerKey && !layersForStep.some((l) => l.key === selectedLayerKey) ? (
                 <option value={selectedLayerKey}>
@@ -2215,12 +2255,21 @@ export function App() {
                   })()}
                 </option>
               ) : null}
-              {layersForStep.map((l) => (
+              {selectableLayers.map((l) => (
                 <option key={l.key} value={l.key}>
-                  {l.layer.layerId} ({l.layer.kind})
+                  {formatLayerLabel(l.layer)}
                 </option>
               ))}
             </select>
+          </label>
+
+          <label style={{ display: "flex", gap: 8, alignItems: "center", flex: isNarrow ? "1 1 100%" : "0 0 auto", width: isNarrow ? "100%" : undefined }}>
+            <span style={{ fontSize: 12, color: "#9ca3af", minWidth: isNarrow ? 76 : undefined }}>Internal layers</span>
+            <input
+              type="checkbox"
+              checked={showInternalLayers}
+              onChange={(e) => setShowInternalLayers(e.target.checked)}
+            />
           </label>
 
           <label style={{ display: "flex", gap: 8, alignItems: "center", flex: isNarrow ? "1 1 100%" : "0 0 auto", width: isNarrow ? "100%" : undefined }}>
