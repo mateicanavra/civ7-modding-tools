@@ -181,6 +181,22 @@ export default createStep(ProjectionStepContract, {
       format: "f32",
       values: platesResult.crustTiles.baseElevation,
     });
+    const landmask = new Uint8Array(platesResult.crustTiles.type.length);
+    for (let i = 0; i < landmask.length; i++) {
+      landmask[i] = platesResult.crustTiles.type[i] === 1 ? 1 : 0;
+    }
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "foundation.tile.height",
+      dims: { width, height },
+      format: "f32",
+      values: platesResult.crustTiles.baseElevation,
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "foundation.tile.landmask",
+      dims: { width, height },
+      format: "u8",
+      values: landmask,
+    });
     context.viz?.dumpGrid(context.trace, {
       layerId: "foundation.crustTiles.strength",
       dims: { width, height },
