@@ -402,12 +402,12 @@ Notes:
 - **Risk:** heuristics may drift from product intent; mitigate by preferring `VizLayerMeta` and treating heuristics as compatibility-only.
 
 ### Acceptance criteria
-- [ ] Layer picker labels and legend match pre-refactor behavior:
-  - [ ] `layer.meta?.label` drives picker labels and legend titles
-  - [ ] `layer.meta?.visibility === "debug"` is surfaced in labeling (suffix `", debug"`)
-  - [ ] `layer.meta?.categories` drives categorical legend + colors when present
-- [ ] Deck rendering output matches pre-refactor behavior for existing runs/dumps.
-- [ ] `App.tsx` no longer contains deck.gl layer builders, palettes, or hex math.
+- [x] Layer picker labels and legend match pre-refactor behavior:
+  - [x] `layer.meta?.label` drives picker labels and legend titles
+  - [x] `layer.meta?.visibility === "debug"` is surfaced in labeling (suffix `", debug"`)
+  - [x] `layer.meta?.categories` drives categorical legend + colors when present
+- [x] Deck rendering output matches pre-refactor behavior for existing runs/dumps.
+- [x] `App.tsx` no longer contains deck.gl layer builders, palettes, or hex math.
 
 ### Verification
 - `bun run --cwd apps/mapgen-studio build`
@@ -552,3 +552,10 @@ We are “ready to implement” when:
 - **Choice:** Add optional `meta` to `VizEvent.layer` and map it in the adapter.
 - **Rationale:** Preserves existing UI behavior while keeping the runner-viz boundary intact.
 - **Risk:** Slightly widens the shared event contract; must keep in sync in RFX-03 when viz is extracted.
+
+### Keep stream + dump manifests in `useVizState` with explicit mode + resolver
+- **Context:** RFX-03 needs `useVizState` to cover both streaming and dump viewer without keeping parallel manifest logic in `App.tsx`, while preserving mode switching behavior and reset semantics.
+- **Options:** Keep manifests in `App.tsx` and only extract render helpers; add an optional `manifest` prop to `useVizState`; store both stream + dump manifests inside `useVizState` and select by `mode` with explicit setters.
+- **Choice:** `useVizState` owns the stream manifest (via `ingest`) and dump manifest (via `setDumpManifest`), selects the active manifest via a `mode` arg, and exposes `clearStream`/`resetView` plus a file-backed `assetResolver` hook-up.
+- **Rationale:** Preserves prior behavior while shrinking `App.tsx` and keeping the runner→viz boundary event-driven.
+- **Risk:** `useVizState`’s API surface is wider than the minimal binding stub; ensure later slices keep the shape aligned.
