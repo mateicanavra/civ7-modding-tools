@@ -187,6 +187,38 @@ jobs:
             -m "ci: set preview branch to ${{ github.head_ref }}" \
             --json >/dev/null
 
+      - name: Verify preview environment is pinned to PR head
+        if: steps.finalize.outputs.should_preview == 'true'
+        env:
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+          ENV_NAME: ${{ steps.decide.outputs.env_name }}
+          EXPECTED_BRANCH: ${{ github.head_ref }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cfg="$(railway environment "$ENV_NAME" config --json)"
+          export CFG="$cfg"
+          current_branch="$(
+            python3 - <<'PY'
+          import json, os, sys
+          d = json.loads(os.environ["CFG"])
+          services = d.get("services") or {}
+          for _sid, svc in services.items():
+            src = (svc or {}).get("source") or {}
+            b = src.get("branch")
+            if b:
+              print(b)
+              sys.exit(0)
+          sys.exit(1)
+          PY
+          )"
+
+          if [ "$current_branch" != "$EXPECTED_BRANCH" ]; then
+            echo "::error::Preview env '$ENV_NAME' is pinned to '$current_branch' (expected '$EXPECTED_BRANCH')."
+            exit 1
+          fi
+
       - name: Select preview environment (for redeploy/domain)
         id: envselect
         if: steps.finalize.outputs.should_preview == 'true'

@@ -129,6 +129,7 @@ jobs:
             const baseRefs = new Set(openPRs.map((pr) => pr.base?.ref).filter(Boolean));
 
             const eligible = [];
+            const headRefByNumber = {};
             for (const pr of openPRs) {
               const labels = (pr.labels || []).map((l) => l.name);
               const force = labels.includes(previewLabel);
@@ -137,11 +138,15 @@ jobs:
               const isTopOfStack = !baseRefs.has(pr.head?.ref);
 
               const shouldPreview = !isFork && !suppress && (force || (isTopOfStack && !pr.draft));
-              if (shouldPreview) eligible.push(pr.number);
+              if (shouldPreview) {
+                eligible.push(pr.number);
+                if (pr.head?.ref) headRefByNumber[String(pr.number)] = pr.head.ref;
+              }
             }
 
             core.setOutput('eligible_numbers_json', JSON.stringify(eligible));
             core.setOutput('eligible_count', String(eligible.length));
+            core.setOutput('eligible_head_ref_by_number_json', JSON.stringify(headRefByNumber));
 
       - name: Collect existing Railway preview environments
         id: envs
@@ -198,6 +203,148 @@ jobs:
           PY
           )"
           echo "count=$count" >> "$GITHUB_OUTPUT"
+
+      - name: Enforce preview environments build PR head
+        if: steps.auth.outputs.ok == 'true'
+        env:
+          ELIGIBLE_HEAD_REF_BY_NUMBER_JSON: ${{ steps.eligible.outputs.eligible_head_ref_by_number_json }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python3 - <<'PY' > eligible_pr_head_ref.json
+          import json, os
+          raw = os.environ.get("ELIGIBLE_HEAD_REF_BY_NUMBER_JSON") or "{}"
+          try:
+            m = json.loads(raw)
+          except Exception:
+            m = {}
+          with open("eligible_pr_head_ref.json", "w") as f:
+            json.dump({str(k): str(v) for k, v in (m or {}).items()}, f)
+          PY
+
+          # For each pr-### env that corresponds to an eligible PR, ensure source.branch matches the PR head ref.
+          python3 - <<'PY' > pr_env_branch_actions.tsv
+          import json, re
+
+          head_ref_by_number = json.load(open("eligible_pr_head_ref.json"))
+          pr_envs = json.load(open("pr_envs.json"))
+
+          rows = []
+          for env in pr_envs:
+            name = (env.get("name") or "").strip()
+            m = re.fullmatch(r"pr-(\d+)", name)
+            if not m:
+              continue
+            pr_number = m.group(1)
+            head_ref = head_ref_by_number.get(pr_number)
+            if not head_ref:
+              continue
+            rows.append((name, head_ref))
+
+          for name, head_ref in sorted(rows):
+            print(f"{name}\t{head_ref}")
+          PY
+
+          if [ ! -s pr_env_branch_actions.tsv ]; then
+            echo "- No eligible preview envs to enforce." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          echo "Enforcing preview environment branches..." >> "$GITHUB_STEP_SUMMARY"
+
+          while IFS=$'\t' read -r env_name expected_branch; do
+            if [ -z "${env_name:-}" ] || [ -z "${expected_branch:-}" ]; then
+              continue
+            fi
+
+            set +e
+            cfg="$(railway environment "$env_name" config --json 2>&1)"
+            code=$?
+            set -e
+            if [ "$code" -ne 0 ]; then
+              echo "::error::Failed to read Railway config for '$env_name': $cfg"
+              if echo "$cfg" | grep -q "Unauthorized"; then
+                echo "::error::Railway rejected this token for environment config access. Update RAILWAY_API_TOKEN."
+              fi
+              exit 1
+            fi
+
+            export CFG="$cfg"
+            current_branch="$(
+              python3 - <<'PY'
+          import json, os, sys
+          raw = os.environ["CFG"]
+          try:
+            d = json.loads(raw)
+          except Exception:
+            sys.exit(1)
+          services = d.get("services") or {}
+          for _sid, svc in services.items():
+            src = (svc or {}).get("source") or {}
+            b = src.get("branch")
+            if b:
+              print(b)
+              sys.exit(0)
+          sys.exit(1)
+          PY
+            )" || current_branch=""
+
+            if [ "$current_branch" = "$expected_branch" ]; then
+              echo "- $env_name: ok ($current_branch)" >> "$GITHUB_STEP_SUMMARY"
+              continue
+            fi
+
+            echo "- $env_name: updating branch '$current_branch' -> '$expected_branch'" >> "$GITHUB_STEP_SUMMARY"
+            set +e
+            out="$(railway environment edit -e "$env_name" --service-config "${{ env.RAILWAY_SERVICE_NAME }}" source.branch "$expected_branch" -m "ci: enforce preview branch = $expected_branch" --json 2>&1)"
+            edit_code=$?
+            set -e
+            echo "$out"
+            if [ "$edit_code" -ne 0 ]; then
+              if echo "$out" | grep -q "Unauthorized"; then
+                echo "::error::Railway rejected this token for environment edits. Update RAILWAY_API_TOKEN to a token that can edit environments."
+                exit 1
+              fi
+              echo "::error::Failed to update branch for $env_name (exit $edit_code)."
+              exit 1
+            fi
+
+            # Verify update applied.
+            set +e
+            cfg2="$(railway environment "$env_name" config --json 2>&1)"
+            code2=$?
+            set -e
+            if [ "$code2" -ne 0 ]; then
+              echo "::warning::Could not re-read config for '$env_name' after edit."
+              continue
+            fi
+
+            export CFG2="$cfg2"
+            new_branch="$(
+              python3 - <<'PY'
+          import json, os, sys
+          raw = os.environ["CFG2"]
+          try:
+            d = json.loads(raw)
+          except Exception:
+            sys.exit(1)
+          services = d.get("services") or {}
+          for _sid, svc in services.items():
+            src = (svc or {}).get("source") or {}
+            b = src.get("branch")
+            if b:
+              print(b)
+              sys.exit(0)
+          sys.exit(1)
+          PY
+            )" || new_branch=""
+
+            if [ "$new_branch" != "$expected_branch" ]; then
+              echo "::error::Branch mismatch after update for $env_name: expected '$expected_branch' got '$new_branch'."
+              exit 1
+            fi
+          done < pr_env_branch_actions.tsv
 
       - name: Delete stale preview environments
         if: steps.auth.outputs.ok == 'true'

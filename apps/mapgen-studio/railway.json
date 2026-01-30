@@ -21,7 +21,7 @@
   "deploy": {
     "runtime": "V2",
     "numReplicas": 1,
-    "startCommand": "bun run start --filter=mapgen-studio",
+    "startCommand": "bun run --cwd apps/mapgen-studio start",
     "limitOverride": {
       "containers": {
         "cpu": 2,
