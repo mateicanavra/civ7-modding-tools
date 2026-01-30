@@ -173,9 +173,28 @@ jobs:
         env:
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
         run: |
-          railway environment new "${{ steps.decide.outputs.env_name }}" \
+          set -euo pipefail
+
+          ENV_NAME="${{ steps.decide.outputs.env_name }}"
+          EXPECTED_BRANCH="${{ github.head_ref }}"
+
+          railway environment new "${ENV_NAME}" \
             --copy "${{ env.RAILWAY_BASE_ENVIRONMENT_ID }}" \
             --json >/dev/null || true
+
+          current="$(
+            railway environment "${ENV_NAME}" config --json \
+              | python3 -c 'import json,sys; d=json.load(sys.stdin); svc=d["services"][sys.argv[1]]; print((svc.get("source") or {}).get("branch",""))' "${{ env.RAILWAY_SERVICE_ID }}"
+          )"
+
+          if [ "$current" != "$EXPECTED_BRANCH" ]; then
+            echo "Resetting ${ENV_NAME}: branch '$current' -> '$EXPECTED_BRANCH'"
+            railway environment delete "${ENV_NAME}" -y --json >/dev/null || true
+            railway environment new "${ENV_NAME}" \
+              --copy "${{ env.RAILWAY_BASE_ENVIRONMENT_ID }}" \
+              --service-config "${{ env.RAILWAY_SERVICE_ID }}" "source.branch" "${EXPECTED_BRANCH}" \
+              --json >/dev/null
+          fi
 
       - name: Select preview environment (for redeploy/domain)
         id: envselect
@@ -207,22 +226,15 @@ jobs:
           path.write_text(json.dumps(cfg))
           PY
 
-      - name: Enforce preview branch
+      - name: Guard preview branch
         if: steps.finalize.outputs.should_preview == 'true' && steps.envselect.outputs.ok == 'true'
         env:
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
-          ENVIRONMENT_ID: ${{ steps.envselect.outputs.env_id }}
           ENV_NAME: ${{ steps.decide.outputs.env_name }}
           EXPECTED_BRANCH: ${{ github.head_ref }}
         shell: bash
         run: |
           set -euo pipefail
-          railway environment edit \
-            --environment "$ENV_NAME" \
-            --service-config "${{ env.RAILWAY_SERVICE_NAME }}" "source.branch" "$EXPECTED_BRANCH" \
-            --message "ci: pin ${ENV_NAME} to ${EXPECTED_BRANCH}" \
-            --json
-
           current="$(
             railway environment "${ENV_NAME}" config --json \
               | python3 -c 'import json,sys; d=json.load(sys.stdin); svc=d["services"][sys.argv[1]]; print((svc.get("source") or {}).get("branch",""))' "${{ env.RAILWAY_SERVICE_ID }}"

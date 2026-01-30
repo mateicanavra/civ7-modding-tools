@@ -256,17 +256,27 @@ jobs:
           fi
 
           echo "Enforcing preview environment branches..." >> "$GITHUB_STEP_SUMMARY"
-          # Enforce per-PR by updating the Railway deployment trigger for that environment.
+          # Enforce per-PR by recreating the environment when it drifts.
           while IFS=$'\t' read -r env_name env_id expected_branch; do
             if [ -z "${env_name:-}" ] || [ -z "${env_id:-}" ] || [ -z "${expected_branch:-}" ]; then
               continue
             fi
-            railway environment edit \
-              --environment "$env_name" \
-              --service-config "${RAILWAY_SERVICE_NAME}" "source.branch" "$expected_branch" \
-              --message "ci: pin ${env_name} to ${expected_branch}" \
-              --json
-            echo "- $env_name: enforced source.branch=$expected_branch" >> "$GITHUB_STEP_SUMMARY"
+            current="$(
+              railway environment "${env_name}" config --json \
+                | python3 -c 'import json,sys; d=json.load(sys.stdin); svc=d["services"][sys.argv[1]]; print((svc.get("source") or {}).get("branch",""))' "${RAILWAY_SERVICE_ID}"
+            )"
+
+            if [ "$current" = "$expected_branch" ]; then
+              echo "- $env_name: ok ($current)" >> "$GITHUB_STEP_SUMMARY"
+              continue
+            fi
+
+            echo "- $env_name: reset '$current' -> '$expected_branch'" >> "$GITHUB_STEP_SUMMARY"
+            railway environment delete "${env_name}" -y --json >/dev/null || true
+            railway environment new "${env_name}" \
+              --copy "${RAILWAY_BASE_ENVIRONMENT_ID}" \
+              --service-config "${RAILWAY_SERVICE_ID}" "source.branch" "${expected_branch}" \
+              --json >/dev/null
           done < pr_env_branch_actions.tsv
 
           echo "Guarding preview environment branches..." >> "$GITHUB_STEP_SUMMARY"
