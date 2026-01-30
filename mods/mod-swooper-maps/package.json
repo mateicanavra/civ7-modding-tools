@@ -4,8 +4,16 @@
   "private": true,
   "description": "Swooper Maps mod for Civilization VII",
   "type": "module",
+  "exports": {
+    "./recipes/browser-test": {
+      "types": "./dist/recipes/browser-test.d.ts",
+      "import": "./dist/recipes/browser-test.js"
+    }
+  },
   "scripts": {
     "build": "tsup",
+    "build:studio-recipes": "tsup --config tsup.studio-recipes.config.ts && bun run gen:studio-recipes-types",
+    "gen:studio-recipes-types": "bun ./scripts/generate-studio-recipe-types.ts",
     "lint": "eslint .",
     "precheck": "bun run --cwd ../../packages/mapgen-core build",
     "check": "tsc --noEmit",
@@ -22,6 +30,7 @@
   "devDependencies": {
     "@civ7/types": "workspace:*",
     "esbuild": "^0.27.2",
+    "json-schema-to-typescript": "^15.0.4",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
   }
