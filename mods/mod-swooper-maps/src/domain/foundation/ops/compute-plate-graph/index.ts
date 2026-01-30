@@ -1,4 +1,4 @@
-import { createOp } from "@swooper/mapgen-core/authoring";
+import { createOp, type Static } from "@swooper/mapgen-core/authoring";
 import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
@@ -8,6 +8,9 @@ import ComputePlateGraphContract from "./contract.js";
 import type { FoundationPlate } from "./contract.js";
 
 type MinHeapItem = Readonly<{ cost: number; plateId: number; cellId: number; seq: number }>;
+
+type PlateGraphConfig = Static<(typeof ComputePlateGraphContract)["strategies"]["default"]>;
+type PolarCapsConfig = NonNullable<PlateGraphConfig["polarCaps"]>;
 
 class MinHeap {
   private readonly items: MinHeapItem[] = [];
@@ -311,7 +314,7 @@ function filterByMinComponentSize(params: {
 const computePlateGraph = createOp(ComputePlateGraphContract, {
   strategies: {
     default: {
-      normalize: (config, ctx) => {
+      normalize: (config: PlateGraphConfig, ctx) => {
         const { width, height } = requireEnvDimensions(ctx, "foundation/compute-plate-graph.normalize");
         const area = Math.max(1, width * height);
 
@@ -326,7 +329,7 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
           plateCount: scaledPlateCount,
         };
       },
-      run: (input, config) => {
+      run: (input, config: PlateGraphConfig) => {
         const mesh = requireMesh(input.mesh, "foundation/compute-plate-graph");
         const crust = requireCrust(input.crust, mesh.cellCount | 0, "foundation/compute-plate-graph");
 
@@ -341,7 +344,7 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
         }
 
         const majorCount = Math.max(1, Math.floor(platesCount * 0.6));
-        const polarPolicy = config.polarCaps ?? {};
+        const polarPolicy: Partial<PolarCapsConfig> = config.polarCaps ?? {};
         const capFraction = clamp01(polarPolicy.capFraction ?? 0.1);
         const microBandFraction = clamp01(polarPolicy.microplateBandFraction ?? 0.2);
         const requestedMicroPerPole = Math.max(0, polarPolicy.microplatesPerPole ?? 0);
