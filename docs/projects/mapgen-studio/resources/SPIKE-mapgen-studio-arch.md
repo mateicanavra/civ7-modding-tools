@@ -9,6 +9,7 @@ Using the spike workflow + architecture method: I reviewed the current MapGen St
 - Config overrides now includes deliberate “presentation-only flattening” (wrapper collapsing) and bespoke form styling/templates; this should be extracted as a cohesive feature, not diffused across the app.
 - This strengthens (not weakens) the core architectural direction: treat “runner + config + protocol” as a feature slice, and keep renderer/viz logic isolated from runner concerns.
 - The refactor sequencing doc has been updated to reflect this: `docs/projects/mapgen-studio/resources/APP-TSX-REFACTOR-PLAN.md`.
+- Seam writeups used to harden the refactor plan: `docs/projects/mapgen-studio/resources/APP-TSX-SEAMS-MAP.md`.
 
 ### 1) Objective
 Propose a scalable, modern React + TypeScript architecture for MapGen Studio (a browser-based pipeline runner + visualization tool) that cleanly separates:

@@ -121,7 +121,7 @@ This refactor is designed so that the near-term modules can later be **moved who
 
 ## 4) Proposed file/directory layout (near-term extraction)
 
-### Recommendation (updated): split into `features/*` now
+### Recommendation (updated): feature-based modules now
 We now have enough real surface area (browser runner, dump viewer, config overrides, viz host) that a **feature-based** layout is the least risky long-term move and reduces cross-branch conflicts. This does **not** force routing or a global store; it just gives us stable seams.
 
 Proposed near-term layout (inside the app):
@@ -131,18 +131,20 @@ apps/mapgen-studio/src/
   App.tsx                     # shrinks to composition/wiring
   main.tsx
 
-  app/                        # app shell composition (no domain logic)
+  app/                        # layout + global surfaces (no domain logic)
     AppShell.tsx
+    Layout.tsx
     ErrorBanner.tsx
 
   features/
-    browser-runner/           # worker client + run orchestration
-    config-overrides/         # schema-driven form + JSON editor + presentation rules
-    viz/                      # deck.gl canvas + layer model + builders
-    dump-viewer/              # folder picker + manifest decode (optional mode)
+    appShell/                 # (optional) header/control bar pieces
+    browserRunner/            # worker client + run orchestration + retention rules
+    configOverrides/          # schema-driven form + JSON editor + presentation rules
+    dumpViewer/               # folder picker + manifest decode + dump reader
+    viz/                      # viz model + layer registry + deck.gl renderer
 
   shared/                     # small cross-feature helpers only
-    format.ts
+    errors.ts
     hooks.ts
     types.ts
 
@@ -156,228 +158,119 @@ apps/mapgen-studio/src/
 Dependency rules (keep the graph acyclic):
 - `app/*` composes `features/*` and may depend on `shared/*`.
 - `features/*` may depend on `shared/*`.
-- `features/viz/*` consumes “runner events” via a narrow adapter boundary; avoid importing runner internals.
+- `features/viz/*` consumes runner outputs via a narrow, runner-agnostic event model; avoid importing runner internals.
 - `browser-runner/*` (worker + protocol) must not import from React/app/features.
+- If code needs to run on both UI and worker sides, keep it in a **pure TS** module (no DOM, no React) and ensure the worker bundle check still passes.
 
 `packages/browser-recipes/` is a critical input to this structure:
-- The app should treat “recipes” as data/artifacts (`recipeId`, `defaultConfig`, `configSchema`, optional presentation hints).
-- The config overrides feature should be recipe-agnostic so adding recipes is a mechanical registration step.
-
-Create a “subsystem” structure inside `apps/mapgen-studio/src/` without committing to the final feature-slice layout yet:
-
-```text
-apps/mapgen-studio/src/
-  App.tsx
-  main.tsx
-  browser-runner/              # worker entry + protocol (already exists)
-    foundation.worker.ts
-    protocol.ts
-    worker-trace-sink.ts
-    worker-viz-dumper.ts
-
-  studio/                      # NEW: all app-facing logic extracted from App.tsx
-    model/
-      viz-v0.ts                # VizManifestV0, VizLayerEntryV0, formats, Bounds, keys
-      tectonic-era.ts          # parse+resolve era layer IDs
-
-    dump/
-      file-map.ts              # FileMap, path normalization helpers
-      load-dump.ts             # folder picker + webkitdirectory flow
-
-    viz/
-      hex-coords.ts            # odd-r/odd-q transforms, polygon, bounds
-      fit.ts                   # fitToBounds, niceStep
-      scalar.ts                # decodeScalarArray, min/max scan helpers
-      palette.ts               # value->color mapping, plate palette generation
-      legend.ts                # legendForLayer (pure)
-      deckgl/
-        build-layers.ts        # convert VizLayerEntryV0 -> deck.gl layer objects
-        background-grid.ts     # background reference points layer builder
-
-    runner/
-      useBrowserRun.ts         # start/cancel run; receives BrowserRunEvent
-      useRunSelection.ts       # selection pinning behavior on rerun
-
-    ui/
-      components/
-        HeaderBar.tsx
-        ErrorBanner.tsx
-        ControlRow.tsx
-        StepLayerControls.tsx
-        LegendPanel.tsx
-        StatusOverlay.tsx
-      styles/
-        inline.ts              # temporary inline style objects (centralized)
-      types.ts                 # view models for UI components (props types)
-```
-
-Notes:
-- `studio/` is a **holding area**. Later, it can be split into `features/` + shared libraries.
-- `browser-runner/` stays as-is for now; the refactor extracts the **app-side orchestration** into `studio/runner/`.
-- This keeps worker bundling unaffected (the worker is its own entry and imports only what it needs).
+- Treat “recipes” as **artifacts** (`recipeId`, `configSchema`, `defaultConfig`, metadata), not as a “special case” hard-coded into the app.
+- The config overrides feature must be recipe-agnostic so “add a recipe” is a mechanical registration/artifacts task, not an app re-architecture.
 
 ---
 
-## 5) Extraction map: what moves where (from `App.tsx`)
+## 5) Seam inventory (what we’re extracting) + reference docs
 
-### 5.1 Types and model glue
-Move these out first because they’re broadly reused:
-- `Bounds`, `VizScalarFormat`, `VizManifestV0`, `VizLayerEntryV0`
-- `TileLayout`, `EraLayerInfo`, `Civ7MapSizePreset` and `CIV7_MAP_SIZES` helpers
-- “layer key” convention: `${stepId}::${layerId}::${kind}`
+The seam investigations are captured verbatim (from sub-agents) here:
+- `docs/projects/mapgen-studio/resources/seams/SEAM-APP-SHELL.md`
+- `docs/projects/mapgen-studio/resources/seams/SEAM-BROWSER-RUNNER.md`
+- `docs/projects/mapgen-studio/resources/seams/SEAM-CONFIG-OVERRIDES.md`
+- `docs/projects/mapgen-studio/resources/seams/SEAM-DUMP-VIEWER.md`
+- `docs/projects/mapgen-studio/resources/seams/SEAM-RECIPES-ARTIFACTS.md`
+- `docs/projects/mapgen-studio/resources/seams/SEAM-VIZ-DECKGL.md`
 
-Suggested exports:
-- `studio/model/viz-v0.ts`
-  - `type Bounds`, `type VizScalarFormat`
-  - `type VizLayerEntryV0`, `type VizManifestV0`
-  - `type TileLayout`
-  - `type Civ7MapSizePreset`, `CIV7_MAP_SIZES`, `getCiv7MapSizePreset`, `formatMapSizeLabel`
-  - `layerKey(...)`, `parseLayerKey(...)` (optional)
-
-### 5.2 Dump loader (viewer mode)
-Move:
-- `stripRootDirPrefix`
-- directory picker logic + fallback upload logic
-- `FileMap` normalization
-- `loadManifestFromFileMap`, `readFileAsText`, `readFileAsArrayBuffer`
-
-Suggested:
-- `studio/dump/file-map.ts`
-  - `type FileMap`, `stripRootDirPrefix`, `normalizeDumpFileMap(...)`
-- `studio/dump/load-dump.ts`
-  - `openDumpFolder(...)` (returns `{ manifest, fileMap }`)
-  - `loadDumpFromDirectoryUpload(files)` (returns `{ manifest, fileMap }`)
-  - `readFileAsText`, `readFileAsArrayBuffer`
-
-**Design note:** keep this API promise-based and UI-agnostic; don’t set React state in these helpers.
-
-### 5.3 Browser run (worker-runner mode)
-Move:
-- `browserWorkerRef`, `browserRunTokenRef`, start/stop logic, event wiring
-- “pinned selection” logic that retains selection across rerun until streamed layers arrive
-
-Suggested:
-- `studio/runner/useBrowserRun.ts`
-  - `useBrowserRun({ onManifestInit, onStepProgress, onLayerUpsert, onError, onFinished })`
-  - returns `{ start, cancel, running, lastStep, manifest }`
-  - encapsulates worker lifecycle and `runToken` filtering
-- `studio/runner/useRunSelection.ts`
-  - encapsulates the “keep selection if step exists / if rerunning keep pinned” rules
-
-**Important:** keep the worker protocol types (`BrowserRunEvent`, `BrowserRunRequest`) sourced from `src/browser-runner/protocol.ts` (or later from a package).
-
-### 5.4 Visualization math (pure utilities)
-Move:
-- clamp, niceStep
-- hex coordinate conversions and bounds computation
-- `fitToBounds`
-
-Suggested:
-- `studio/viz/fit.ts`: `clamp`, `niceStep`, `fitToBounds`
-- `studio/viz/hex-coords.ts`: odd-r/odd-q conversions, `hexPolygonPointy`, `boundsForTileGrid`, etc.
-
-### 5.5 Color/palette and legends (pure, deterministic)
-Move:
-- hash/rng, HSL→RGB, OKLab distance
-- plate palette generation
-- `colorForValue`, `legendForLayer`
-
-Suggested:
-- `studio/viz/palette.ts`: `colorForValue`, `buildPlateColorMap`, plate palette helpers
-- `studio/viz/legend.ts`: `legendForLayer`
-
-### 5.6 deck.gl layer builders (rendering adapters)
-Move the “convert a `VizLayerEntryV0` into deck.gl layers” code out of `App.tsx`.
-
-Suggested:
-- `studio/viz/deckgl/build-layers.ts`
-  - `buildVizLayers({ manifest, fileMap, effectiveLayer, tileLayout, overlays, onStats, onError }): Promise<Layer[]> | Layer[]`
-  - returns “base layers” (main data) plus optional overlays (mesh edges).
-- `studio/viz/deckgl/background-grid.ts`
-  - `buildBackgroundGridLayer({ viewState, viewportSize, effectiveLayer, show }): ScatterplotLayer | null`
-
-**Design note:** treat deck.gl as an adapter layer. Everything “domain semantic” (layer selection, palette semantics) should be outside of deckgl-specific code.
-
-### 5.7 UI components (presentation)
-Move these blocks into leaf components:
-- header row, mode picker, seed+map size controls, run/cancel status
-- step picker, layer picker, toggles, era slider
-- legend panel, status overlay, error banner
-
-Suggested component split (each should be mostly presentational + callbacks):
-- `HeaderBar`
-- `RunControls`
-- `StepLayerControls`
-- `LegendPanel`
-- `StatusOverlay`
-- `ErrorBanner`
-
-**Styling posture:** centralize the existing inline styles into a single module `studio/ui/styles/inline.ts` so Tailwind/shadcn later becomes a mechanical replacement.
+This plan references them for detailed “don’t break” constraints and proposed module APIs.
 
 ---
 
 ## 6) Migration plan (how to execute the refactor safely)
 
-This should be done as a **stack of small PRs** (Graphite-friendly), each with a tight diff:
+This should be done as a **stack of small PRs** (Graphite-friendly), each with a tight diff.
 
-### Updated sequencing recommendation (post config sidebar work)
+### 6.1 Recommended sequencing (updated with latest `App.tsx`)
 Given the latest `App.tsx` changes, config overrides is now the single biggest, most cohesive subsystem, and it also has the strongest invariants. That makes it the best “first extraction” to reduce `App.tsx` size quickly while minimizing coupling risk.
 
 Recommended order (conceptual):
 1) Extract **config overrides** (CSS + templates + schema presentation + validate/narrow + JSON editor) as a unit.
-2) Extract **browser runner** hook/client (worker lifecycle + request building + error normalization).
-3) Extract **viz** host/builders (deck.gl canvas, layer registry/selection, legend derivation).
-4) Extract **dump viewer** (folder picker + manifest decode) as its own mode.
+2) Extract **browser runner** hook/client (worker lifecycle + request building + retention semantics + error normalization).
+3) Extract **viz** state + deck.gl renderer (layer registry/selection, legend derivation, rendering adapters).
+4) Extract **dump viewer** (folder picker + manifest decode + dump reader) as its own mode.
 5) Extract **app shell** (layout/markup) last, once the logic is out.
 
-The layers below are still valid; treat them as a “mechanical move” checklist, but prefer starting with the config overrides slice even if it means doing “Layer 4.5” earlier than “Layer 2/3”.
+### 6.2 What each extraction should look like (target module boundaries)
 
-### Layer 1 — “Extract pure utilities + types”
-- Add `studio/model/*` and `studio/viz/*` modules.
-- Move pure functions/types, keep exports stable.
-- Minimal edits to `App.tsx` (imports replaced, logic unchanged).
+#### A) `features/configOverrides/*`
+Primary reference: `docs/projects/mapgen-studio/resources/seams/SEAM-CONFIG-OVERRIDES.md`.
 
-Risk: low.
+High-level split:
+- `features/configOverrides/shared/*` (worker-safe, pure TS)
+  - schema normalization helpers used by the form and/or worker (if needed)
+  - JSON parse + strict validate/narrow wrappers (`normalizeStrict`)
+- `features/configOverrides/ui/*` (React + RJSF + CSS blob)
+  - panel + tab switch + templates + CSS (move as a unit)
+- `features/configOverrides/useConfigOverrides.ts` (feature state machine)
 
-### Layer 2 — “Extract dump loader”
-- Add `studio/dump/*`.
-- `App.tsx` keeps mode/state, but calls `openDumpFolder()` / `loadDumpFromDirectoryUpload()`.
+Do **not** change behavior:
+- UI currently starts from a full base config object, while the worker treats `configOverrides` as a patch merged into `defaultConfig` (arrays replace, objects deep-merge). Preserve this behavior in the refactor; any shift to “pure patch editing” should be an explicit later decision.
+- schema wrapper collapsing is presentation-only (stage container preserved)
+- JSON tab blocks running when invalid; form tab may rely on worker validation
+- worker remains the authority for merge semantics and final strict validation
 
-Risk: low; verify dump mode still works.
+#### B) `features/browserRunner/*`
+Primary reference: `docs/projects/mapgen-studio/resources/seams/SEAM-BROWSER-RUNNER.md`.
 
-### Layer 3 — “Extract deck.gl builders”
-- Add `studio/viz/deckgl/*`.
-- `App.tsx` uses `useMemo` + a small `useEffect` to resolve async layers (or introduce a tiny `useAsyncMemo` helper).
+Key design constraints to preserve:
+- cancel semantics are currently “hard terminate” (`worker.terminate()`); `run.cancel` exists in the protocol but is not handled by the worker today
+- rerun retention uses pinned selection refs with an explicit “pending” UX while streaming
 
-Risk: medium; ensure selection changes trigger rebuild correctly and errors surface.
+Target modules:
+- `features/browserRunner/workerClient.ts` (non-React wrapper around worker + run token filtering)
+- `features/browserRunner/useBrowserRunner.ts` (React hook exposing state + start/cancel)
+- `features/browserRunner/retention.ts` (pinning rules; isolate the subtle semantics so they’re testable)
+- `features/browserRunner/adapter.ts` (maps `BrowserRunEvent` → runner-agnostic `VizEvent` for viz ingestion)
 
-### Layer 4 — “Extract browser runner hook”
-- Add `studio/runner/useBrowserRun.ts`.
-- `App.tsx` becomes an orchestrator: call `start()` / `cancel()`, receive manifest updates via callbacks.
+#### C) `features/viz/*`
+Primary reference: `docs/projects/mapgen-studio/resources/seams/SEAM-VIZ-DECKGL.md`.
 
-Risk: medium; ensure worker termination semantics unchanged.
+Target architecture:
+- define a runner-agnostic `VizEvent` ingest model
+- maintain a normalized “layer registry” keyed by a unique `layerKey` (prefer protocol-provided identity; avoid recomputing a lossy key)
+- isolate deck.gl rendering as an adapter layer
 
-### Layer 4.5 — “Extract config overrides subsystem”
-Now that schema-driven config overrides are implemented end-to-end (UI→worker), treat this as a self-contained extraction:
-- Add `studio/config-overrides/*` (model + validation + UI composition).
-- `App.tsx` should only keep **minimal wiring state** (open/closed, enabled, current config value) or delegate fully to a hook.
+Target modules:
+- `features/viz/model.ts` (normalized types: run/step/layer/selection/legend, `VizEvent`)
+- `features/viz/ingest.ts` (reducer that applies `VizEvent`s; indexes by `layerKey`)
+- `features/viz/registry.ts` (layer semantics, coordinate space, palette/legend rules)
+- `features/viz/deckgl/render.ts` (pure mapping from state+registry+resolver → deck.gl layers)
+- `features/viz/useVizState.ts` (ties ingest + selection + view fitting together)
 
-Risk: medium; keep behavior identical:
-- “form” and “json” tabs remain equivalent sources of truth
-- invalid JSON/schema errors still prevent runs with the same user-facing messaging
+Keep an eye on drift:
+- today `App.tsx` duplicates viz types that also exist in worker/protocol; the refactor should consolidate this to a single source of truth on the UI side.
 
-### Layer 5 — “Extract UI components”
-- Add `studio/ui/components/*`.
-- Keep all state in `App.tsx` for now; pass props down.
+#### D) `features/dumpViewer/*`
+Primary reference: `docs/projects/mapgen-studio/resources/seams/SEAM-DUMP-VIEWER.md`.
 
-Risk: medium (UI wiring). Keep it mechanical.
+Target:
+- separate “dump IO” (pick folder / build index / parse manifest / read payload by path) from viz rendering
+- explicitly preserve “strip one leading segment” aliasing behavior (and decide how to surface collisions)
 
-### Layer 6 (optional, later) — “Introduce a store + router”
-Only after we’ve landed the internal modularization and we have clarity on modes:
-- Add router (TanStack Router or React Router).
-- Add store (Zustand) for cross-mode state (runs, selection, viewport).
+Target modules:
+- `features/dumpViewer/pickers.ts` (directory picker + webkitdirectory ingestion)
+- `features/dumpViewer/fileIndex.ts` (alias policy and collision detection)
+- `features/dumpViewer/manifest.ts` (parse + minimal validation)
+- `features/dumpViewer/reader.ts` (`DumpReader` interface for payload reads)
+- `features/dumpViewer/useDumpLoader.ts` (React state machine)
 
-Risk: higher; do intentionally.
+#### E) `app/*` + `features/appShell/*`
+Primary reference: `docs/projects/mapgen-studio/resources/seams/SEAM-APP-SHELL.md`.
+
+Goal:
+- stop mixing shell concerns (layout/overlays/global errors) with runner/viz/config logic
+- make overlay placement a “shell provides slots; features provide bodies” policy
+
+Target modules:
+- `app/Layout.tsx` (overlay slots + z-index policy)
+- `app/ErrorBanner.tsx` (render-only)
+- `app/AppShell.tsx` (hosts mode selection until we introduce a router)
 
 ---
 
@@ -417,17 +310,20 @@ This turns “add a recipe” into a mechanical change:
 - no changes needed to the config overrides UI internals
 
 Isolation plan (where the code should live after refactor):
-- `features/config-overrides/model.ts` — state shape (enabled, tab, overrides source-of-truth) that supports multiple recipes
-- `features/config-overrides/schema-presentation.ts` — wrapper collapsing + “transparent paths” logic (presentation-only)
-- `features/config-overrides/form-templates.tsx` — RJSF templates (Object/Field/Array)
-- `features/config-overrides/form-styles.ts` — current CSS blob (keep intact initially)
-- `features/config-overrides/validate.ts` — parse JSON + validate/narrow + format errors (shared by UI + runner-start)
+- `features/configOverrides/model.ts` — state shape (enabled, tab, overrides source-of-truth) that supports multiple recipes
+- `features/configOverrides/schemaPresentation.ts` — wrapper collapsing + “transparent paths” logic (presentation-only)
+- `features/configOverrides/rjsfTemplates.tsx` — RJSF templates (Object/Field/Array)
+- `features/configOverrides/formStyles.ts` — current CSS blob (keep intact initially)
+- `features/configOverrides/validate.ts` — parse JSON + validate/narrow + format errors (shared by UI + runner-start)
 
 ### 7.2.1 Protocol shape for “many recipes”
 Today the browser runner protocol is effectively specialized around a single recipe/config type.
 To scale to many recipes, we should expect to evolve the request envelope to include:
 - `recipeId: RecipeId`
 - `configOverrides?: unknown` (validated/narrowed against the recipe’s schema on both sides)
+
+Recommended reference for the “infinite recipes” registry shape (lazy loaders, artifacts interface, protocol-agnostic boundary):
+- `docs/projects/mapgen-studio/resources/seams/SEAM-RECIPES-ARTIFACTS.md`
 
 The app can still remain type-safe locally by narrowing `unknown` using the selected recipe’s artifacts; the protocol boundary should remain stable and not require UI/worker to share a giant union of every recipe config type.
 
@@ -481,10 +377,9 @@ If we add any new helper modules:
 
 ## 10) Suggested follow-up: “graduation” path after internal refactor
 
-Once config overrides and another viz domain land (i.e., the app has 2–3 real “modes”), we should graduate from `studio/` holding area into:
-- `src/features/browser-runner/*`
-- `src/features/dump-viewer/*`
-- `src/features/pipeline-graph/*` (when ready)
-- plus `src/shared/*` for cross-cutting UI and viz utilities
+Once config overrides and another viz domain land (i.e., the app has 2–3 real “modes”), we should graduate from “mode state in `AppShell`” into:
+- a router (likely TanStack Router), with explicit pages: `/browser`, `/dump`, etc.
+- a small store (likely Zustand) only where cross-mode coordination is painful
+- eventual extraction of long-lived libraries (e.g. `packages/mapgen-viz`, `packages/mapgen-browser-runner`) once the seams are stable
 
 That is the point where router + global store become high-leverage rather than premature.
