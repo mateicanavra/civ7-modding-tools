@@ -1,6 +1,7 @@
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 
 import { morphologyArtifacts } from "../../morphology-pre/artifacts.js";
+import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
 
 /**
  * Lake projection step (engine-facing).
@@ -37,7 +38,7 @@ const LakesStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [morphologyArtifacts.topography],
+    requires: [morphologyArtifacts.topography, hydrologyHydrographyArtifacts.hydrography],
   },
   schema: LakesStepConfigSchema,
 });

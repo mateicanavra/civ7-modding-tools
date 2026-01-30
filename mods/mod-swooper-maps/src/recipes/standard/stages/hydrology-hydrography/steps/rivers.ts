@@ -1,4 +1,5 @@
 import type { MapDimensions } from "@civ7/adapter";
+import { defineVizMeta } from "@swooper/mapgen-core";
 import { selectFlowReceiver } from "@swooper/mapgen-core/lib/grid";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { hydrologyHydrographyArtifacts } from "../artifacts.js";
@@ -10,6 +11,8 @@ import {
 import type { HydrologyRiverDensityKnob } from "@mapgen/domain/hydrology/shared/knobs.js";
 
 type ArtifactValidationIssue = Readonly<{ message: string }>;
+
+const GROUP_HYDROGRAPHY = "Hydrology / Hydrography";
 
 function expectedSize(dimensions: MapDimensions): number {
   return Math.max(0, (dimensions.width | 0) * (dimensions.height | 0));
@@ -161,6 +164,57 @@ export default createStep(RiversStepContract, {
       riverClass: projected.riverClass,
       sinkMask: discharge.sinkMask,
       outletMask: discharge.outletMask,
+    });
+
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.hydrography.runoff",
+      dims: { width, height },
+      format: "f32",
+      values: discharge.runoff,
+      meta: defineVizMeta("hydrology.hydrography.runoff", {
+        label: "Runoff",
+        group: GROUP_HYDROGRAPHY,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.hydrography.discharge",
+      dims: { width, height },
+      format: "f32",
+      values: discharge.discharge,
+      meta: defineVizMeta("hydrology.hydrography.discharge", {
+        label: "Discharge",
+        group: GROUP_HYDROGRAPHY,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.hydrography.riverClass",
+      dims: { width, height },
+      format: "u8",
+      values: projected.riverClass,
+      meta: defineVizMeta("hydrology.hydrography.riverClass", {
+        label: "River Class",
+        group: GROUP_HYDROGRAPHY,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.hydrography.sinkMask",
+      dims: { width, height },
+      format: "u8",
+      values: discharge.sinkMask,
+      meta: defineVizMeta("hydrology.hydrography.sinkMask", {
+        label: "Sink Mask",
+        group: GROUP_HYDROGRAPHY,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.hydrography.outletMask",
+      dims: { width, height },
+      format: "u8",
+      values: discharge.outletMask,
+      meta: defineVizMeta("hydrology.hydrography.outletMask", {
+        label: "Outlet Mask",
+        group: GROUP_HYDROGRAPHY,
+      }),
     });
   },
 });

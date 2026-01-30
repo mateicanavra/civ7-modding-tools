@@ -1,4 +1,4 @@
-import { ctxRandom, ctxRandomLabel, writeClimateField } from "@swooper/mapgen-core";
+import { ctxRandom, ctxRandomLabel, defineVizMeta, writeClimateField } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import ClimateRefineStepContract from "./climateRefine.contract.js";
 import { hydrologyClimateRefineArtifacts } from "../artifacts.js";
@@ -14,6 +14,11 @@ import type {
 } from "@mapgen/domain/hydrology/shared/knobs.js";
 
 type ArtifactValidationIssue = Readonly<{ message: string }>;
+
+const GROUP_CLIMATE = "Hydrology / Climate";
+const GROUP_INDICES = "Hydrology / Climate Indices";
+const GROUP_CRYOSPHERE = "Hydrology / Cryosphere";
+const GROUP_DIAGNOSTICS = "Hydrology / Diagnostics";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -290,6 +295,160 @@ export default createStep(ClimateRefineStepContract, {
       },
       config.computeClimateDiagnostics
     );
+
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.climate.rainfall",
+      dims: { width, height },
+      format: "u8",
+      values: refined.rainfall,
+      meta: defineVizMeta("hydrology.climate.rainfall", {
+        label: "Rainfall",
+        group: GROUP_CLIMATE,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.climate.humidity",
+      dims: { width, height },
+      format: "u8",
+      values: refined.humidity,
+      meta: defineVizMeta("hydrology.climate.humidity", {
+        label: "Humidity",
+        group: GROUP_CLIMATE,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.climate.indices.surfaceTemperatureC",
+      dims: { width, height },
+      format: "f32",
+      values: albedoFeedback.surfaceTemperatureC,
+      meta: defineVizMeta("hydrology.climate.indices.surfaceTemperatureC", {
+        label: "Surface Temperature (C)",
+        group: GROUP_INDICES,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.climate.indices.pet",
+      dims: { width, height },
+      format: "f32",
+      values: waterBudget.pet,
+      meta: defineVizMeta("hydrology.climate.indices.pet", {
+        label: "Potential Evapotranspiration",
+        group: GROUP_INDICES,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.climate.indices.aridityIndex",
+      dims: { width, height },
+      format: "f32",
+      values: waterBudget.aridityIndex,
+      meta: defineVizMeta("hydrology.climate.indices.aridityIndex", {
+        label: "Aridity Index",
+        group: GROUP_INDICES,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.climate.indices.freezeIndex",
+      dims: { width, height },
+      format: "f32",
+      values: cryosphere.freezeIndex,
+      meta: defineVizMeta("hydrology.climate.indices.freezeIndex", {
+        label: "Freeze Index",
+        group: GROUP_INDICES,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.cryosphere.snowCover",
+      dims: { width, height },
+      format: "u8",
+      values: cryosphere.snowCover,
+      meta: defineVizMeta("hydrology.cryosphere.snowCover", {
+        label: "Snow Cover",
+        group: GROUP_CRYOSPHERE,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.cryosphere.seaIceCover",
+      dims: { width, height },
+      format: "u8",
+      values: cryosphere.seaIceCover,
+      meta: defineVizMeta("hydrology.cryosphere.seaIceCover", {
+        label: "Sea Ice Cover",
+        group: GROUP_CRYOSPHERE,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.cryosphere.albedo",
+      dims: { width, height },
+      format: "u8",
+      values: cryosphere.albedo,
+      meta: defineVizMeta("hydrology.cryosphere.albedo", {
+        label: "Albedo",
+        group: GROUP_CRYOSPHERE,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.cryosphere.groundIce01",
+      dims: { width, height },
+      format: "f32",
+      values: cryosphere.groundIce01,
+      meta: defineVizMeta("hydrology.cryosphere.groundIce01", {
+        label: "Ground Ice (0-1)",
+        group: GROUP_CRYOSPHERE,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.cryosphere.permafrost01",
+      dims: { width, height },
+      format: "f32",
+      values: cryosphere.permafrost01,
+      meta: defineVizMeta("hydrology.cryosphere.permafrost01", {
+        label: "Permafrost (0-1)",
+        group: GROUP_CRYOSPHERE,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.cryosphere.meltPotential01",
+      dims: { width, height },
+      format: "f32",
+      values: cryosphere.meltPotential01,
+      meta: defineVizMeta("hydrology.cryosphere.meltPotential01", {
+        label: "Melt Potential (0-1)",
+        group: GROUP_CRYOSPHERE,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.climate.diagnostics.rainShadowIndex",
+      dims: { width, height },
+      format: "f32",
+      values: diagnostics.rainShadowIndex,
+      meta: defineVizMeta("hydrology.climate.diagnostics.rainShadowIndex", {
+        label: "Rain Shadow Index",
+        group: GROUP_DIAGNOSTICS,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.climate.diagnostics.continentalityIndex",
+      dims: { width, height },
+      format: "f32",
+      values: diagnostics.continentalityIndex,
+      meta: defineVizMeta("hydrology.climate.diagnostics.continentalityIndex", {
+        label: "Continentality Index",
+        group: GROUP_DIAGNOSTICS,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.climate.diagnostics.convergenceIndex",
+      dims: { width, height },
+      format: "f32",
+      values: diagnostics.convergenceIndex,
+      meta: defineVizMeta("hydrology.climate.diagnostics.convergenceIndex", {
+        label: "Convergence Index",
+        group: GROUP_DIAGNOSTICS,
+        visibility: "debug",
+      }),
+    });
 
     for (let y = 0; y < height; y++) {
       const rowOffset = y * width;

@@ -2,6 +2,7 @@ import {
   HILL_TERRAIN,
   MOUNTAIN_TERRAIN,
   NAVIGABLE_RIVER_TERRAIN,
+  defineVizMeta,
   syncHeightfield,
 } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
@@ -10,6 +11,8 @@ import {
   HYDROLOGY_RIVER_DENSITY_LENGTH_BOUNDS,
 } from "@mapgen/domain/hydrology/shared/knob-multipliers.js";
 import type { HydrologyRiverDensityKnob } from "@mapgen/domain/hydrology/shared/knobs.js";
+
+const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Projection)";
 
 function clampInt(value: number, min: number, max: number): number {
   const int = Math.trunc(value);
@@ -39,8 +42,30 @@ export default createStep(PlotRiversStepContract, {
     };
   },
   run: (context, config, _ops, deps) => {
-    void deps.artifacts.hydrography.read(context);
+    const hydrography = deps.artifacts.hydrography.read(context);
     const { width, height } = context.dimensions;
+
+    // Projection-only visualization; engine rivers may differ from hydrology truth (mock adapter is best-effort).
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "map.hydrology.rivers.riverClass",
+      dims: { width, height },
+      format: "u8",
+      values: hydrography.riverClass,
+      meta: defineVizMeta("map.hydrology.rivers.riverClass", {
+        label: "River Class (Projected)",
+        group: GROUP_MAP_HYDROLOGY,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "map.hydrology.rivers.discharge",
+      dims: { width, height },
+      format: "f32",
+      values: hydrography.discharge,
+      meta: defineVizMeta("map.hydrology.rivers.discharge", {
+        label: "River Discharge (Projected)",
+        group: GROUP_MAP_HYDROLOGY,
+      }),
+    });
 
     const logStats = (label: string) => {
       if (!context.trace.isVerbose) return;
