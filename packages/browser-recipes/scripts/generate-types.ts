@@ -41,12 +41,12 @@ const configTypes = await compile(schemaJson, "BrowserTestRecipeConfig", {
 });
 
 const recipeTypeExports = [
-  `export type {`,
-  `  BrowserTestFoundationStageAdvancedConfig,`,
-  `  BrowserTestFoundationStageConfig,`,
-  `  BrowserTestFoundationStageKnobsConfig,`,
-  `  BrowserTestRecipeCompiledConfig,`,
-  `} from "../../../mods/mod-swooper-maps/src/recipes/browser-test/recipe";`,
+  `export type BrowserTestFoundationStageConfig = NonNullable<BrowserTestRecipeConfig["foundation"]>;`,
+  `export type BrowserTestFoundationStageKnobsConfig = NonNullable<BrowserTestFoundationStageConfig["knobs"]>;`,
+  `export type BrowserTestFoundationStageAdvancedConfig = NonNullable<BrowserTestFoundationStageConfig["advanced"]>;`,
+  `export type BrowserTestRecipeCompiledConfig = Readonly<{`,
+  `  foundation?: BrowserTestFoundationStageAdvancedConfig;`,
+  `}>;`,
   ``,
 ];
 
