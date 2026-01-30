@@ -90,7 +90,7 @@ This is already ~2.5k LOC and will continue to grow as we add:
 ### What we should not do in this refactor
 - Introduce Tailwind/shadcn/ui in the same change (plan for it; don’t couple it).
 - Re-architecture into a full feature-sliced app + router + global store (that’s a larger step).
-- Extract a new monorepo package (`packages/mapgen-viz`, etc.) as part of the first refactor. (We should plan for it, but the first move should be internal extraction.)
+- Extract additional new monorepo packages (`packages/mapgen-viz`, etc.) as part of the first refactor. (We should plan for it, but the first move should be internal extraction; `packages/browser-recipes/` is already an input and stays.)
 
 ---
 
