@@ -24,6 +24,20 @@ type ApplyPlacementArgs = {
 };
 
 const GROUP_GAMEPLAY = "Gameplay / Placement";
+const START_POSITION_COLORS: Array<[number, number, number, number]> = [
+  [59, 130, 246, 230],
+  [239, 68, 68, 230],
+  [34, 197, 94, 230],
+  [245, 158, 11, 230],
+  [168, 85, 247, 230],
+  [14, 116, 144, 230],
+  [249, 115, 22, 230],
+  [99, 102, 241, 230],
+];
+
+function colorForStartPosition(index: number): [number, number, number, number] {
+  return START_POSITION_COLORS[index % START_POSITION_COLORS.length] ?? [148, 163, 184, 220];
+}
 
 export function applyPlacementPlan({
   context,
@@ -383,6 +397,7 @@ function emitStartPositionsViz(
   const categories = Array.from({ length: startPositions.length }, (_, index) => ({
     value: index + 1,
     label: `Player ${index + 1}`,
+    color: colorForStartPosition(index),
   }));
 
   context.viz?.dumpPoints(context.trace, {

@@ -87,9 +87,9 @@ export default createStep(PlotLandmassRegionsStepContract, {
         label: "Landmass Region Slot",
         group: GROUP_GAMEPLAY,
         categories: [
-          { value: 0, label: "None" },
-          { value: 1, label: "West" },
-          { value: 2, label: "East" },
+          { value: 0, label: "None", color: [148, 163, 184, 210] },
+          { value: 1, label: "West", color: [59, 130, 246, 230] },
+          { value: 2, label: "East", color: [239, 68, 68, 230] },
         ],
       }),
     });
