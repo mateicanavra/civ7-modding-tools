@@ -1,42 +1,23 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   BROWSER_TEST_RECIPE_CONFIG,
   BROWSER_TEST_RECIPE_CONFIG_SCHEMA,
   type BrowserTestRecipeConfig,
 } from "@mapgen/browser-recipes/browser-test";
+import { AppHeader } from "./app/AppHeader";
+import { AppShell, type AppMode } from "./app/AppShell";
 import { useDumpLoader } from "./features/dumpViewer/useDumpLoader";
 import { ConfigOverridesPanel } from "./features/configOverrides/ConfigOverridesPanel";
 import { useConfigOverrides } from "./features/configOverrides/useConfigOverrides";
 import { useBrowserRunner } from "./features/browserRunner/useBrowserRunner";
 import { capturePinnedSelection } from "./features/browserRunner/retention";
+import { getCiv7MapSizePreset, type Civ7MapSizePreset } from "./features/browserRunner/mapSizes";
 import { DeckCanvas } from "./features/viz/DeckCanvas";
 import { useVizState } from "./features/viz/useVizState";
 import { formatStepLabel } from "./features/viz/presentation";
 import type { TileLayout } from "./features/viz/model";
 import { formatErrorForUi } from "./shared/errorFormat";
 import type { VizEvent } from "./shared/vizEvents";
-
-type Civ7MapSizePreset = {
-  id: "MAPSIZE_TINY" | "MAPSIZE_SMALL" | "MAPSIZE_STANDARD" | "MAPSIZE_LARGE" | "MAPSIZE_HUGE";
-  label: "Tiny" | "Small" | "Standard" | "Large" | "Huge";
-  dimensions: { width: number; height: number };
-};
-
-const CIV7_MAP_SIZES: Civ7MapSizePreset[] = [
-  { id: "MAPSIZE_TINY", label: "Tiny", dimensions: { width: 60, height: 38 } },
-  { id: "MAPSIZE_SMALL", label: "Small", dimensions: { width: 74, height: 46 } },
-  { id: "MAPSIZE_STANDARD", label: "Standard", dimensions: { width: 84, height: 54 } },
-  { id: "MAPSIZE_LARGE", label: "Large", dimensions: { width: 96, height: 60 } },
-  { id: "MAPSIZE_HUGE", label: "Huge", dimensions: { width: 106, height: 66 } },
-];
-
-function getCiv7MapSizePreset(id: Civ7MapSizePreset["id"]): Civ7MapSizePreset {
-  return CIV7_MAP_SIZES.find((m) => m.id === id) ?? CIV7_MAP_SIZES[CIV7_MAP_SIZES.length - 1]!;
-}
-
-function formatMapSizeLabel(p: Civ7MapSizePreset): string {
-  return `${p.label} (${p.dimensions.width}×${p.dimensions.height})`;
-}
 
 function randomU32(): number {
   try {
@@ -56,7 +37,7 @@ export function App() {
   const [viewportSize, setViewportSize] = useState({ width: 800, height: 600 });
   const isNarrow = viewportSize.width < 760;
 
-  const [mode, setMode] = useState<"browser" | "dump">("browser");
+  const [mode, setMode] = useState<AppMode>("browser");
 
   const dumpLoader = useDumpLoader();
   const dumpAssetResolver = dumpLoader.state.status === "loaded" ? dumpLoader.state.reader : null;
@@ -72,11 +53,9 @@ export function App() {
     schema: BROWSER_TEST_RECIPE_CONFIG_SCHEMA,
   });
 
-  const [error, setError] = useState<string | null>(null);
+  const [localError, setLocalError] = useState<string | null>(null);
 
   const vizIngestRef = useRef<(event: VizEvent) => void>(() => {});
-  const selectedStepIdRef = useRef<string | null>(null);
-  const selectedLayerKeyRef = useRef<string | null>(null);
 
   const handleVizEvent = useCallback((event: VizEvent) => {
     vizIngestRef.current?.(event);
@@ -99,30 +78,18 @@ export function App() {
     showBackgroundGrid,
     viewportSize,
     allowPendingSelection: mode === "browser" && browserRunning,
-    onError: (e) => setError(formatErrorForUi(e)),
+    onError: (e) => setLocalError(formatErrorForUi(e)),
   });
 
   const manifest = viz.manifest;
   const effectiveLayer = viz.effectiveLayer;
   const legend = viz.legend;
+  const error =
+    localError ??
+    (mode === "browser" ? browserRunner.state.error : null) ??
+    (dumpLoader.state.status === "error" ? dumpLoader.state.message : null);
 
-  useEffect(() => {
-    vizIngestRef.current = viz.ingest;
-  }, [viz.ingest]);
-
-  useEffect(() => {
-    selectedStepIdRef.current = viz.selectedStepId;
-  }, [viz.selectedStepId]);
-
-  useEffect(() => {
-    selectedLayerKeyRef.current = viz.selectedLayerKey;
-  }, [viz.selectedLayerKey]);
-
-  useEffect(() => {
-    if (mode !== "browser") return;
-    if (!browserRunner.state.error) return;
-    setError(browserRunner.state.error);
-  }, [browserRunner.state.error, mode, setError]);
+  vizIngestRef.current = viz.ingest;
 
   useEffect(() => {
     if (dumpLoader.state.status !== "loaded") return;
@@ -133,11 +100,6 @@ export function App() {
     viz.setSelectedLayerKey(null);
     viz.resetView();
   }, [dumpLoader.state, viz]);
-
-  useEffect(() => {
-    if (dumpLoader.state.status !== "error") return;
-    setError(dumpLoader.state.message);
-  }, [dumpLoader.state, setError]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -151,52 +113,34 @@ export function App() {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  const layersForStepGrouped = useMemo(() => {
-    if (!viz.selectableLayers.length) return [];
-    const order: string[] = [];
-    const groups = new Map<string, typeof viz.selectableLayers>();
-    for (const entry of viz.selectableLayers) {
-      const groupLabel = entry.group ?? "Other";
-      if (!groups.has(groupLabel)) {
-        groups.set(groupLabel, []);
-        order.push(groupLabel);
-      }
-      groups.get(groupLabel)!.push(entry);
-    }
-    return order.map((group) => ({
-      group,
-      layers: groups.get(group) ?? [],
-    }));
-  }, [viz.selectableLayers]);
-
   const openDumpFolder = useCallback(async () => {
-    setError(null);
+    setLocalError(null);
     setMode("dump");
     await dumpLoader.actions.openViaDirectoryPicker();
   }, [dumpLoader.actions, setMode]);
 
-  const directoryInputRef = useRef<HTMLInputElement | null>(null);
-  const onDirectoryFiles = useCallback(async () => {
-    setError(null);
-    const input = directoryInputRef.current;
-    if (!input?.files) return;
-    setMode("dump");
-    await dumpLoader.actions.loadFromFileList(input.files);
-  }, [dumpLoader.actions, setMode]);
+  const onUploadDumpFolder = useCallback(
+    async (files: FileList) => {
+      setLocalError(null);
+      setMode("dump");
+      await dumpLoader.actions.loadFromFileList(files);
+    },
+    [dumpLoader.actions, setMode]
+  );
 
   const startBrowserRun = useCallback((overrides?: { seed?: number }) => {
-    setError(null);
+    setLocalError(null);
     if (browserConfigOverrides.enabled && browserConfigOverrides.tab === "json") {
       const { ok } = browserConfigOverrides.applyJson();
       if (!ok) {
-        setError("Config overrides JSON is invalid. Fix it (or disable overrides) and try again.");
+        setLocalError("Config overrides JSON is invalid. Fix it (or disable overrides) and try again.");
         return;
       }
     }
     const pinned = capturePinnedSelection({
       mode,
-      selectedStepId: selectedStepIdRef.current,
-      selectedLayerKey: selectedLayerKeyRef.current,
+      selectedStepId: viz.selectedStepId,
+      selectedLayerKey: viz.selectedLayerKey,
     });
     setMode("browser");
     viz.clearStream();
@@ -225,441 +169,150 @@ export function App() {
     viz,
   ]);
 
-  const triggerDirectoryPicker = useCallback(() => {
-    directoryInputRef.current?.click();
-  }, []);
 
-  const controlBaseStyle: React.CSSProperties = useMemo(
-    () => ({
-      background: "#111827",
-      color: "#e5e7eb",
-      border: "1px solid #374151",
-      borderRadius: 8,
-      padding: isNarrow ? "10px 10px" : "6px 8px",
-      minWidth: 0,
-      fontSize: isNarrow ? 14 : 13,
-    }),
-    [isNarrow]
+
+  const header = (
+    <AppHeader
+      isNarrow={isNarrow}
+      mode={mode}
+      onModeChange={setMode}
+      browserSeed={browserSeed}
+      onBrowserSeedChange={setBrowserSeed}
+      onRerollSeed={() => {
+        const next = randomU32();
+        setBrowserSeed(next);
+        startBrowserRun({ seed: next });
+      }}
+      browserMapSizeId={browserMapSizeId}
+      onBrowserMapSizeChange={setBrowserMapSizeId}
+      browserRunning={browserRunning}
+      browserLastStep={browserLastStep}
+      onStartBrowserRun={() => startBrowserRun()}
+      onToggleOverrides={() => setBrowserConfigOpen((v) => !v)}
+      overridesEnabled={browserConfigOverrides.enabled}
+      onCancelBrowserRun={browserRunner.actions.cancel}
+      onOpenDumpFolder={openDumpFolder}
+      onUploadDumpFolder={onUploadDumpFolder}
+      onFit={viz.fitToActive}
+      canFit={Boolean(viz.activeBounds)}
+      showMeshEdges={showMeshEdges}
+      onShowMeshEdgesChange={setShowMeshEdges}
+      showBackgroundGrid={showBackgroundGrid}
+      onShowBackgroundGridChange={setShowBackgroundGrid}
+      tileLayout={tileLayout}
+      onTileLayoutChange={setTileLayout}
+      selectedStepId={viz.selectedStepId}
+      steps={viz.steps}
+      onSelectedStepChange={viz.setSelectedStepId}
+      selectedLayerKey={viz.selectedLayerKey}
+      selectableLayers={viz.selectableLayers}
+      onSelectedLayerChange={viz.setSelectedLayerKey}
+      eraActive={viz.era.active}
+      eraValue={viz.era.value}
+      eraMax={viz.era.max}
+      onEraChange={viz.era.setValue}
+    />
   );
 
-  const buttonStyle: React.CSSProperties = useMemo(
-    () => ({
-      ...controlBaseStyle,
-      padding: isNarrow ? "10px 12px" : "6px 10px",
-      cursor: "pointer",
-      fontWeight: 600,
-      width: isNarrow ? "100%" : undefined,
-      textAlign: "center",
-    }),
-    [controlBaseStyle, isNarrow]
+  const main = manifest ? (
+    <DeckCanvas deck={viz.deck} />
+  ) : (
+    <div style={{ padding: 18, color: "#9ca3af" }}>
+      {mode === "browser"
+        ? "Click “Run (Browser)” to execute Foundation in a Web Worker and stream layers directly to deck.gl."
+        : "Select a dump folder containing `manifest.json` (e.g. `mods/mod-swooper-maps/dist/visualization/<runId>`)."}
+    </div>
   );
 
-  const toolbarSectionStyle: React.CSSProperties = useMemo(
-    () => ({
-      border: "1px solid #1f2937",
-      background: "rgba(15, 23, 42, 0.6)",
-      borderRadius: 12,
-      padding: isNarrow ? "10px" : "10px 12px",
-      display: "flex",
-      flexDirection: "column",
-      gap: 10,
-    }),
-    [isNarrow]
-  );
-
-  const toolbarSectionTitleStyle: React.CSSProperties = useMemo(
-    () => ({
-      fontSize: 12,
-      fontWeight: 700,
-      letterSpacing: "0.02em",
-      color: "#cbd5f5",
-      textTransform: "uppercase",
-    }),
-    []
-  );
-
-  const toolbarRowStyle: React.CSSProperties = useMemo(
-    () => ({
-      display: "flex",
-      gap: 10,
-      alignItems: "center",
-      flexWrap: "wrap",
-    }),
-    []
-  );
-
-
-  return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#0b1020", color: "#e5e7eb" }}>
+  const overlays = [
+    mode === "browser" ? (
+      <ConfigOverridesPanel
+        open={browserConfigOpen}
+        onClose={() => setBrowserConfigOpen(false)}
+        controller={browserConfigOverrides}
+        disabled={browserRunning}
+        schema={BROWSER_TEST_RECIPE_CONFIG_SCHEMA}
+      />
+    ) : null,
+    <div
+      style={{
+        position: "absolute",
+        bottom: 10,
+        right: 10,
+        fontSize: 12,
+        color: "#9ca3af",
+        background: "rgba(0,0,0,0.35)",
+        padding: "6px 8px",
+        borderRadius: 8,
+      }}
+    >
+      {manifest ? (
+        <>
+          runId: <span style={{ color: "#e5e7eb" }}>{manifest.runId.slice(0, 12)}…</span>
+          {" · "}
+          viewport: {Math.round(viewportSize.width)}×{Math.round(viewportSize.height)}
+        </>
+      ) : (
+        <>{mode === "browser" ? "No run loaded" : "No dump loaded"}</>
+      )}
+    </div>,
+    manifest && effectiveLayer && legend ? (
       <div
         style={{
-          padding: isNarrow ? "10px 12px" : "12px 14px",
-          borderBottom: "1px solid #1f2937",
-          display: "flex",
-          flexDirection: "column",
-          gap: isNarrow ? 10 : 12,
+          position: "absolute",
+          top: 10,
+          right: 10,
+          fontSize: 12,
+          color: "#e5e7eb",
+          background: "rgba(0,0,0,0.55)",
+          border: "1px solid rgba(255,255,255,0.10)",
+          padding: "10px 10px",
+          borderRadius: 10,
+          maxWidth: isNarrow ? "calc(100% - 20px)" : 360,
+          maxHeight: isNarrow ? "40vh" : "70vh",
+          overflowY: "auto",
         }}
       >
-        <div style={{ display: "flex", gap: 12, alignItems: isNarrow ? "flex-start" : "center", flexWrap: "wrap" }}>
-          <div style={{ fontWeight: 800, fontSize: isNarrow ? 16 : 14 }}>MapGen Studio</div>
-          <div style={{ color: "#9ca3af", fontSize: isNarrow ? 13 : 12 }}>
-            {mode === "browser" ? "Browser Runner (V0.1 Slice)" : "Dump Viewer (V0)"}
+        <div style={{ fontWeight: 700, marginBottom: 6 }}>{legend.title}</div>
+        <div style={{ color: "#9ca3af", marginBottom: 8 }}>
+          <div>step: {legend.context?.stepLabel ?? formatStepLabel(effectiveLayer.stepId)}</div>
+          <div>
+            layer: {legend.context?.layerId ?? effectiveLayer.layerId} ({legend.context?.kind ?? effectiveLayer.kind})
           </div>
-          <div style={{ flex: 1 }} />
-          {!isNarrow && mode === "dump" ? (
-            <div style={{ fontSize: 12, color: "#9ca3af" }}>
-              Open a run folder under <span style={{ color: "#e5e7eb" }}>mods/mod-swooper-maps/dist/visualization</span>
-            </div>
-          ) : null}
+          {legend.context?.eraIndex != null ? <div>era: {legend.context.eraIndex}</div> : null}
+          {legend.context?.tileLayout ? <div>tile layout: {legend.context.tileLayout}</div> : null}
         </div>
-
-        <div
-          style={{
-            display: "grid",
-            gap: 12,
-            gridTemplateColumns: isNarrow ? "1fr" : "repeat(auto-fit, minmax(280px, 1fr))",
-          }}
-        >
-          <div style={toolbarSectionStyle}>
-            <div style={toolbarSectionTitleStyle}>Run</div>
-            <div style={toolbarRowStyle}>
-              <label style={{ display: "flex", gap: 8, alignItems: "center", flex: isNarrow ? "1 1 100%" : "0 0 auto" }}>
-                <span style={{ fontSize: 12, color: "#9ca3af" }}>Mode</span>
-                <select
-                  value={mode}
-                  onChange={(e) => setMode(e.target.value as any)}
-                  style={{ ...controlBaseStyle, width: isNarrow ? "100%" : 170 }}
-                >
-                  <option value="browser">browser</option>
-                  <option value="dump">dump</option>
-                </select>
-              </label>
-            </div>
-
-            {mode === "browser" ? (
-              <>
-                <div style={toolbarRowStyle}>
-                  <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    <span style={{ fontSize: 12, color: "#9ca3af" }}>Seed</span>
-                    <input
-                      value={browserSeed}
-                      onChange={(e) => setBrowserSeed(Number.parseInt(e.target.value || "0", 10) || 0)}
-                      style={{ ...controlBaseStyle, width: 96 }}
-                    />
-                    <button
-                      onClick={() => {
-                        const next = randomU32();
-                        setBrowserSeed(next);
-                        startBrowserRun({ seed: next });
-                      }}
-                      style={{ ...buttonStyle, padding: "6px 10px" }}
-                      title="Reroll seed"
-                      type="button"
-                    >
-                      Reroll
-                    </button>
-                  </label>
-                  <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    <span style={{ fontSize: 12, color: "#9ca3af" }}>Map size</span>
-                    <select
-                      value={browserMapSizeId}
-                      onChange={(e) => setBrowserMapSizeId(e.target.value as Civ7MapSizePreset["id"])}
-                      style={{ ...controlBaseStyle, width: 220 }}
-                      disabled={browserRunning}
-                    >
-                      {CIV7_MAP_SIZES.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {formatMapSizeLabel(p)}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </div>
-                <div style={toolbarRowStyle}>
-                  <button
-                    onClick={() => startBrowserRun()}
-                    style={{
-                      ...buttonStyle,
-                      opacity: browserRunning ? 0.6 : 1,
-                      background: "#2563eb",
-                      borderColor: "#1d4ed8",
-                    }}
-                    disabled={browserRunning}
-                  >
-                    Run (Browser)
-                  </button>
-                  <button
-                    onClick={() => setBrowserConfigOpen((v) => !v)}
-                    style={{ ...buttonStyle, padding: "6px 10px", opacity: browserConfigOverrides.enabled ? 1 : 0.85 }}
-                    title="Toggle config overrides panel"
-                    type="button"
-                  >
-                    Overrides
-                  </button>
-                  <button
-                    onClick={browserRunner.actions.cancel}
-                    style={{ ...buttonStyle, opacity: browserRunning ? 1 : 0.6 }}
-                    disabled={!browserRunning}
-                  >
-                    Cancel
-                  </button>
-                </div>
-                {browserLastStep ? (
-                  <div style={{ fontSize: 12, color: "#9ca3af" }}>
-                    step: <span style={{ color: "#e5e7eb" }}>{browserLastStep.stepIndex}</span> ·{" "}
-                    {formatStepLabel(browserLastStep.stepId)}
-                  </div>
-                ) : null}
-              </>
-            ) : (
-              <div style={toolbarRowStyle}>
-                <button onClick={openDumpFolder} style={buttonStyle}>
-                  Open dump folder
-                </button>
-
-                <input
-                  ref={directoryInputRef}
-                  type="file"
-                  multiple
-                  onChange={onDirectoryFiles}
-                  style={{ display: "none" }}
-                  {...({ webkitdirectory: "", directory: "" } as any)}
-                />
-                <button onClick={triggerDirectoryPicker} style={buttonStyle}>
-                  Upload dump folder
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div style={toolbarSectionStyle}>
-            <div style={toolbarSectionTitleStyle}>View</div>
-            <div style={toolbarRowStyle}>
-              <button
-                onClick={viz.fitToActive}
-                style={{ ...buttonStyle, opacity: viz.activeBounds ? 1 : 0.55 }}
-                disabled={!viz.activeBounds}
-              >
-                Fit
-              </button>
-
-              <label
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {legend.items.map((item) => (
+            <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span
                 style={{
-                  display: "flex",
-                  gap: 10,
-                  alignItems: "center",
-                  padding: "2px 2px",
+                  width: 14,
+                  height: 14,
+                  borderRadius: 4,
+                  background: `rgba(${item.color[0]},${item.color[1]},${item.color[2]},${item.color[3] / 255})`,
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  display: "inline-block",
                 }}
-              >
-                <span style={{ fontSize: 12, color: "#9ca3af" }}>Mesh edges</span>
-                <input type="checkbox" checked={showMeshEdges} onChange={(e) => setShowMeshEdges(e.target.checked)} />
-              </label>
-
-              <label
-                style={{
-                  display: "flex",
-                  gap: 10,
-                  alignItems: "center",
-                  padding: "2px 2px",
-                }}
-              >
-                <span style={{ fontSize: 12, color: "#9ca3af" }}>Background grid</span>
-                <input
-                  type="checkbox"
-                  checked={showBackgroundGrid}
-                  onChange={(e) => setShowBackgroundGrid(e.target.checked)}
-                />
-              </label>
+              />
+              <span style={{ color: "#e5e7eb" }}>{item.label}</span>
             </div>
-            <div style={toolbarRowStyle}>
-              <label style={{ display: "flex", gap: 8, alignItems: "center", flex: 1 }}>
-                <span style={{ fontSize: 12, color: "#9ca3af", minWidth: 76 }}>Hex layout</span>
-                <select
-                  value={tileLayout}
-                  onChange={(e) => setTileLayout(e.target.value as TileLayout)}
-                  style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
-                >
-                  <option value="row-offset">row-offset (Civ-like)</option>
-                  <option value="col-offset">col-offset</option>
-                </select>
-              </label>
-            </div>
-          </div>
-
-          <div style={toolbarSectionStyle}>
-            <div style={toolbarSectionTitleStyle}>Inspect</div>
-            <div style={toolbarRowStyle}>
-              <label style={{ display: "flex", gap: 8, alignItems: "center", flex: 1 }}>
-                <span style={{ fontSize: 12, color: "#9ca3af", minWidth: 56 }}>Step</span>
-                <select
-                  value={viz.selectedStepId ?? ""}
-                  onChange={(e) => viz.setSelectedStepId(e.target.value || null)}
-                  style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
-                  disabled={!viz.steps.length && !viz.selectedStepId}
-                >
-                  {viz.selectedStepId && !viz.steps.some((s) => s.stepId === viz.selectedStepId) ? (
-                    <option value={viz.selectedStepId}>
-                      {formatStepLabel(viz.selectedStepId)} (pending)
-                    </option>
-                  ) : null}
-                  {viz.steps.map((s) => (
-                    <option key={s.stepId} value={s.stepId}>
-                      {s.stepIndex} · {formatStepLabel(s.stepId)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-
-            <div style={toolbarRowStyle}>
-              <label style={{ display: "flex", gap: 8, alignItems: "center", flex: 1 }}>
-                <span style={{ fontSize: 12, color: "#9ca3af", minWidth: 56 }}>Layer</span>
-                <select
-                  value={viz.selectedLayerKey ?? ""}
-                  onChange={(e) => viz.setSelectedLayerKey(e.target.value || null)}
-                  style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
-                  disabled={!viz.selectableLayers.length && !viz.selectedLayerKey}
-                >
-                  {viz.selectedLayerKey && !viz.selectableLayers.some((l) => l.key === viz.selectedLayerKey) ? (
-                    <option value={viz.selectedLayerKey}>
-                      {(() => {
-                        const parts = viz.selectedLayerKey?.split("::") ?? [];
-                        const label = parts.length >= 3 ? `${parts[1]} (${parts[2]})` : viz.selectedLayerKey;
-                        return `${label} (pending)`;
-                      })()}
-                    </option>
-                  ) : null}
-                  {layersForStepGrouped.map((group) => (
-                    <optgroup key={group.group} label={group.group}>
-                      {group.layers.map((l) => (
-                        <option key={l.key} value={l.key}>
-                          {l.label}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
-              </label>
-            </div>
-
-            {viz.era.active ? (
-              <div style={toolbarRowStyle}>
-                <label style={{ display: "flex", gap: 8, alignItems: "center", flex: 1 }}>
-                  <span style={{ fontSize: 12, color: "#9ca3af", minWidth: 56 }}>Era</span>
-                  <input
-                    type="range"
-                    min={0}
-                    max={viz.era.max ?? 0}
-                    step={1}
-                    value={Math.max(0, Math.min(viz.era.max ?? 0, viz.era.value))}
-                    onChange={(e) => viz.era.setValue(Number.parseInt(e.target.value, 10))}
-                    style={{ flex: 1, width: "100%" }}
-                  />
-                  <span style={{ fontSize: 12, color: "#e5e7eb", minWidth: 26, textAlign: "right" }}>
-                    {Math.max(0, Math.min(viz.era.max ?? 0, viz.era.value))}
-                  </span>
-                </label>
-              </div>
-            ) : null}
-          </div>
+          ))}
         </div>
+        {legend.note ? <div style={{ marginTop: 8, color: "#9ca3af" }}>{legend.note}</div> : null}
       </div>
+    ) : null,
+  ].filter(Boolean) as ReactNode[];
 
-      {error ? (
-        <div style={{ padding: 12, background: "#2a0b0b", borderBottom: "1px solid #7f1d1d", color: "#fecaca" }}>
-          <pre style={{ margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{error}</pre>
-        </div>
-      ) : null}
-
-      <div ref={containerRef} style={{ flex: 1, position: "relative" }}>
-        {mode === "browser" ? (
-          <ConfigOverridesPanel
-            open={browserConfigOpen}
-            onClose={() => setBrowserConfigOpen(false)}
-            controller={browserConfigOverrides}
-            disabled={browserRunning}
-            schema={BROWSER_TEST_RECIPE_CONFIG_SCHEMA}
-          />
-        ) : null}
-        {manifest ? (
-          <DeckCanvas deck={viz.deck} />
-        ) : (
-          <div style={{ padding: 18, color: "#9ca3af" }}>
-            {mode === "browser"
-              ? "Click “Run (Browser)” to execute Foundation in a Web Worker and stream layers directly to deck.gl."
-              : "Select a dump folder containing `manifest.json` (e.g. `mods/mod-swooper-maps/dist/visualization/<runId>`)."}
-          </div>
-        )}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 10,
-            right: 10,
-            fontSize: 12,
-            color: "#9ca3af",
-            background: "rgba(0,0,0,0.35)",
-            padding: "6px 8px",
-            borderRadius: 8,
-          }}
-        >
-          {manifest ? (
-            <>
-              runId: <span style={{ color: "#e5e7eb" }}>{manifest.runId.slice(0, 12)}…</span>
-              {" · "}
-              viewport: {Math.round(viewportSize.width)}×{Math.round(viewportSize.height)}
-            </>
-          ) : (
-            <>{mode === "browser" ? "No run loaded" : "No dump loaded"}</>
-          )}
-        </div>
-
-        {manifest && effectiveLayer && legend ? (
-          <div
-            style={{
-              position: "absolute",
-              top: 10,
-              right: 10,
-              fontSize: 12,
-              color: "#e5e7eb",
-              background: "rgba(0,0,0,0.55)",
-              border: "1px solid rgba(255,255,255,0.10)",
-              padding: "10px 10px",
-              borderRadius: 10,
-              maxWidth: isNarrow ? "calc(100% - 20px)" : 360,
-              maxHeight: isNarrow ? "40vh" : "70vh",
-              overflowY: "auto",
-            }}
-          >
-            <div style={{ fontWeight: 700, marginBottom: 6 }}>{legend.title}</div>
-            <div style={{ color: "#9ca3af", marginBottom: 8 }}>
-              <div>step: {legend.context?.stepLabel ?? formatStepLabel(effectiveLayer.stepId)}</div>
-              <div>
-                layer: {legend.context?.layerId ?? effectiveLayer.layerId} ({legend.context?.kind ?? effectiveLayer.kind})
-              </div>
-              {legend.context?.eraIndex != null ? <div>era: {legend.context.eraIndex}</div> : null}
-              {legend.context?.tileLayout ? <div>tile layout: {legend.context.tileLayout}</div> : null}
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              {legend.items.map((item) => (
-                <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span
-                    style={{
-                      width: 14,
-                      height: 14,
-                      borderRadius: 4,
-                      background: `rgba(${item.color[0]},${item.color[1]},${item.color[2]},${item.color[3] / 255})`,
-                      border: "1px solid rgba(255,255,255,0.15)",
-                      display: "inline-block",
-                    }}
-                  />
-                  <span style={{ color: "#e5e7eb" }}>{item.label}</span>
-                </div>
-              ))}
-            </div>
-            {legend.note ? <div style={{ marginTop: 8, color: "#9ca3af" }}>{legend.note}</div> : null}
-          </div>
-        ) : null}
-      </div>
-    </div>
+  return (
+    <AppShell
+      ref={containerRef}
+      mode={mode}
+      onModeChange={setMode}
+      header={header}
+      main={main}
+      overlays={overlays}
+      error={error}
+    />
   );
 }

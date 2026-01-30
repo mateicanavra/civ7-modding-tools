@@ -518,9 +518,9 @@ export function AppShell(props: AppShellProps): JSX.Element;
 ```
 
 ### Acceptance criteria
-- [ ] `App.tsx` is primarily composition/wiring and is < ~450 LOC.
-- [ ] App layout behaves the same (panels/overlays/error placement).
-- [ ] No domain logic moved into `$APP_SHELL/*`.
+- [x] `App.tsx` is primarily composition/wiring and is < ~450 LOC.
+- [x] App layout behaves the same (panels/overlays/error placement).
+- [x] No domain logic moved into `$APP_SHELL/*`.
 
 ### Verification
 - `bun run --cwd apps/mapgen-studio build`
@@ -566,3 +566,17 @@ We are “ready to implement” when:
 - **Choice:** Move `formatErrorForUi` into `apps/mapgen-studio/src/shared/errorFormat.ts` and reuse it in `useDumpLoader` + `App.tsx`.
 - **Rationale:** Preserves existing error formatting while keeping the dump loader API aligned with the execution plan.
 - **Risk:** Shared helper becomes a common dependency; keep it browser-safe and free of Node-only imports.
+
+### Factor header UI into `app/AppHeader` to keep `App.tsx` minimal
+- **Context:** RFX-05 targets `App.tsx` < ~450 LOC, but the toolbar/header UI is large and mostly presentational.
+- **Options:** Keep header UI inline in `App.tsx`; move header UI into `$APP_SHELL/*` with domain imports; extract a presentational `AppHeader` that only consumes props.
+- **Choice:** Add `apps/mapgen-studio/src/app/AppHeader.tsx` as a presentational component that receives all domain data via props.
+- **Rationale:** Shrinks `App.tsx` to composition while keeping runner/viz logic in `App.tsx`.
+- **Risk:** `app/` now renders domain-flavored UI; keep it prop-driven (no feature imports beyond format helpers).
+
+### Derive global error banner from source errors instead of syncing via effects
+- **Context:** `App.tsx` previously mirrored runner/dump errors into local state via `useEffect`, which could leave stale banners.
+- **Options:** Keep `useEffect` mirroring; derive error string from source errors + local errors; split per-feature banners.
+- **Choice:** Use a derived `error` (`localError ?? runnerError ?? dumpError`) and keep local errors for UI-originated messages.
+- **Rationale:** Eliminates unnecessary effects and keeps banner state in sync with source errors.
+- **Risk:** Banner now clears automatically when source errors clear; verify this doesn’t hide needed diagnostics.
