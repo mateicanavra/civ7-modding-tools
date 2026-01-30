@@ -15,14 +15,14 @@ const patchLumaCanvasContext = (() => {
       device?: { limits?: { maxTextureDimension2D?: number } };
     };
 
-    const original = proto.getMaxDrawingBufferSize?.bind(proto);
+    const original = proto.getMaxDrawingBufferSize;
     if (!original) return;
 
     proto.getMaxDrawingBufferSize = function getMaxDrawingBufferSizeGuarded() {
       const device = (this as typeof proto).device;
       const maxTextureDimension = device?.limits?.maxTextureDimension2D;
       if (typeof maxTextureDimension === "number" && Number.isFinite(maxTextureDimension)) {
-        return [maxTextureDimension, maxTextureDimension];
+        return original.call(this);
       }
 
       const canvas = (this as typeof proto).canvas;
