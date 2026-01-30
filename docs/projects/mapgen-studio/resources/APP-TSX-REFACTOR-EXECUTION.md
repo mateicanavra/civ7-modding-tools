@@ -131,6 +131,57 @@ files:
     notes: Feature state machine (enabled, activeTab, overrides source-of-truth)
 ```
 
+### Public API (binding; no redesign in this slice)
+
+Hook:
+```ts
+export type ConfigOverridesTab = "form" | "json";
+
+export type UseConfigOverridesArgs<TConfig> = {
+  baseConfig: TConfig;
+  schema: unknown;
+  disabled?: boolean;
+  basePathForErrors?: string; // default "/configOverrides"
+};
+
+export type UseConfigOverridesResult<TConfig> = {
+  enabled: boolean;
+  setEnabled(next: boolean): void;
+
+  tab: ConfigOverridesTab;
+  setTab(next: ConfigOverridesTab): void;
+
+  value: TConfig;
+  setValue(next: TConfig): void;
+
+  jsonText: string;
+  setJsonText(next: string): void;
+  jsonError: string | null;
+
+  reset(): void;
+  applyJson(): { ok: boolean };
+
+  configOverridesForRun: TConfig | undefined; // enabled ? value : undefined
+};
+
+export function useConfigOverrides<TConfig>(
+  args: UseConfigOverridesArgs<TConfig>,
+): UseConfigOverridesResult<TConfig>;
+```
+
+UI component:
+```ts
+export type ConfigOverridesPanelProps<TConfig> = {
+  open: boolean;
+  onClose(): void;
+  controller: UseConfigOverridesResult<TConfig>;
+  disabled: boolean;
+  schema: unknown; // normalized for RJSF inside the component
+};
+
+export function ConfigOverridesPanel<TConfig>(props: ConfigOverridesPanelProps<TConfig>): JSX.Element;
+```
+
 ### Acceptance criteria (verifiable)
 - [ ] The overrides UI appears and behaves the same (form + JSON).
 - [ ] Wrapper collapsing remains presentation-only; stage container remains visible/collapsible.
@@ -167,6 +218,8 @@ Move worker lifecycle + request building + run token filtering + retention seman
 ### Proposed modules
 ```yaml
 files:
+  - path: $SHARED/vizEvents.ts
+    notes: Runner-agnostic VizEvent type used to bridge runner -> viz without cycles
   - path: $FEATURES/browserRunner/workerClient.ts
     notes: Typed postMessage wrapper; runId correlation; terminate+recreate policy
   - path: $FEATURES/browserRunner/retention.ts
@@ -176,6 +229,88 @@ files:
   - path: $FEATURES/browserRunner/useBrowserRunner.ts
     notes: Hook API consumed by App.tsx (start/cancel + state + events)
 ```
+
+### Public API (binding; keep semantics identical)
+
+Runner hook:
+```ts
+// Stored in: $SHARED/vizEvents.ts
+export type VizEvent =
+  | { type: "run.started"; runId: string; planFingerprint: string }
+  | {
+      type: "run.progress";
+      kind: "step.start" | "step.finish";
+      stepId: string;
+      phase?: string;
+      stepIndex: number;
+      durationMs?: number;
+    }
+  | {
+      type: "viz.layer.upsert";
+      layer: {
+        key: string; // unique identity; use protocol-provided layer.key (do not recompute)
+        kind: "grid" | "points" | "segments";
+        layerId: string;
+        stepId: string;
+        phase?: string;
+        stepIndex: number;
+        bounds: [minX: number, minY: number, maxX: number, maxY: number];
+        format?: "u8" | "i8" | "u16" | "i16" | "i32" | "f32";
+        valueFormat?: "u8" | "i8" | "u16" | "i16" | "i32" | "f32";
+        dims?: { width: number; height: number };
+        count?: number;
+      };
+      payload:
+        | { kind: "grid"; values: ArrayBuffer; valuesByteLength: number; format: "u8" | "i8" | "u16" | "i16" | "i32" | "f32" }
+        | { kind: "points"; positions: ArrayBuffer; values?: ArrayBuffer; valueFormat?: "u8" | "i8" | "u16" | "i16" | "i32" | "f32" }
+        | { kind: "segments"; segments: ArrayBuffer; values?: ArrayBuffer; valueFormat?: "u8" | "i8" | "u16" | "i16" | "i32" | "f32" };
+    }
+  | { type: "run.finished" }
+  | { type: "run.error"; name?: string; message: string; details?: string; stack?: string };
+
+export type BrowserRunnerStatus = "idle" | "running" | "finished" | "error";
+
+export type BrowserRunnerInputs = {
+  seed: number;
+  mapSizeId: string;
+  dimensions: { width: number; height: number };
+  latitudeBounds: { topLatitude: number; bottomLatitude: number };
+  configOverrides?: import("@mapgen/browser-recipes/browser-test").BrowserTestRecipeConfig;
+};
+
+export type BrowserRunnerState = {
+  status: BrowserRunnerStatus;
+  running: boolean;
+  lastStep: { stepId: string; stepIndex: number } | null;
+  error: string | null;
+};
+
+export type BrowserRunnerActions = {
+  start(inputs: BrowserRunnerInputs): void;
+  cancel(): void; // terminates worker
+  clearError(): void;
+};
+
+export type UseBrowserRunnerArgs = {
+  enabled: boolean; // false when mode != "browser"
+  onVizEvent(event: VizEvent): void;
+};
+
+export type UseBrowserRunnerResult = {
+  state: BrowserRunnerState;
+  actions: BrowserRunnerActions;
+};
+
+export function useBrowserRunner(args: UseBrowserRunnerArgs): UseBrowserRunnerResult;
+```
+
+Notes:
+- `useBrowserRunner` owns worker lifecycle and protocol message handling.
+- Selection pinning stays outside the runner hook (in `retention.ts`) and is consumed by `App.tsx` and/or `features/viz` (no hidden implicit rules).
+-
+- Future (explicitly out-of-scope for this refactor): expand the request/protocol to be recipe-agnostic
+  (`recipeId: string`, `configOverrides?: unknown`) as described in
+  `docs/projects/mapgen-studio/resources/seams/SEAM-RECIPES-ARTIFACTS.md`.
 
 ### Acceptance criteria
 - [ ] Cancel semantics remain `worker.terminate()` (no soft cancel introduced).
@@ -222,6 +357,46 @@ files:
   - path: $FEATURES/viz/useVizState.ts
     notes: Selection + view fitting + derived memoization boundaries
 ```
+
+### Public API (binding; runner-agnostic ingestion)
+
+```ts
+import type { VizEvent } from "../../shared/vizEvents";
+
+export type UseVizStateArgs = {
+  enabled: boolean; // false when no manifest loaded and no stream active
+};
+
+export type VizState = unknown; // internal; exposed through selectors below
+
+export type UseVizStateResult = {
+  ingest(event: VizEvent): void;
+
+  // Selection
+  selectedStepId: string | null;
+  setSelectedStepId(next: string | null): void;
+  selectedLayerKey: string | null;
+  setSelectedLayerKey(next: string | null): void;
+
+  // Presentation controls
+  showInternalLayers: boolean;
+  setShowInternalLayers(next: boolean): void;
+
+  // Data for UI
+  steps: Array<{ stepId: string; stepIndex: number }>;
+  selectableLayers: Array<{ key: string; label: string; isInternal: boolean }>;
+  legend: unknown | null;
+
+  // Render host props
+  deck: { layers: unknown[]; viewState: unknown; onViewStateChange(next: unknown): void };
+};
+
+export function useVizState(args: UseVizStateArgs): UseVizStateResult;
+```
+
+Notes:
+- “Unknown” types above are intentionally internal: they become concrete when the implementation lands, but the *shape* is binding (it’s the wiring contract used to shrink `App.tsx`).
+- The **contract/internal** policy is owned by `features/viz/catalog.ts` and must stay aligned with `VIZ-LAYER-CATALOG.md`.
 
 ### Decision (binding) — where the contract catalog lives
 - **Choice:** `$FEATURES/viz/catalog.ts` owns contract/internal policy for now.
@@ -271,6 +446,27 @@ files:
     notes: React state machine (idle/loading/loaded/error)
 ```
 
+### Public API (binding)
+
+```ts
+export type DumpLoadState =
+  | { status: "idle" }
+  | { status: "loading"; source: "directoryPicker" | "fileInput" }
+  | { status: "loaded"; manifest: unknown; reader: unknown; warnings: string[] }
+  | { status: "error"; message: string };
+
+export type UseDumpLoaderResult = {
+  state: DumpLoadState;
+  actions: {
+    openViaDirectoryPicker(): Promise<void>;
+    loadFromFileList(files: FileList): Promise<void>;
+    reset(): void;
+  };
+};
+
+export function useDumpLoader(): UseDumpLoaderResult;
+```
+
 ### Acceptance criteria
 - [ ] Both directory picker and upload fallback still work.
 - [ ] The “strip one leading segment” aliasing behavior is preserved.
@@ -304,6 +500,23 @@ files:
     notes: Render-only error surface (no domain logic)
   - path: $APP_SHELL/AppShell.tsx
     notes: Mode selection UI until routing exists
+```
+
+### Public API (binding)
+
+```ts
+export type AppMode = "browser" | "dump";
+
+export type AppShellProps = {
+  mode: AppMode;
+  onModeChange(next: AppMode): void;
+  header: JSX.Element;
+  main: JSX.Element;
+  overlays: JSX.Element[];
+  error: string | null;
+};
+
+export function AppShell(props: AppShellProps): JSX.Element;
 ```
 
 ### Acceptance criteria
