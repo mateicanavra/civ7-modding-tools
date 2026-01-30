@@ -1,4 +1,4 @@
-import { computeSampleStep, ctxRandom, ctxRandomLabel, renderAsciiGrid } from "@swooper/mapgen-core";
+import { computeSampleStep, ctxRandom, ctxRandomLabel, defineVizMeta, renderAsciiGrid } from "@swooper/mapgen-core";
 import type { MapDimensions } from "@civ7/adapter";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import LandmassPlatesStepContract from "./landmassPlates.contract.js";
@@ -6,6 +6,9 @@ import { MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA } from "@mapgen/domain/
 import type { MorphologySeaLevelKnob } from "@mapgen/domain/morphology/shared/knobs.js";
 
 type ArtifactValidationIssue = Readonly<{ message: string }>;
+
+const GROUP_TOPOGRAPHY = "Morphology / Topography";
+const GROUP_SUBSTRATE = "Morphology / Substrate";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -267,6 +270,57 @@ export default createStep(LandmassPlatesStepContract, {
         legend: ".=land ~=water",
         rows,
       };
+    });
+
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "morphology.topography.elevation",
+      dims: { width, height },
+      format: "i16",
+      values: topography.elevation,
+      meta: defineVizMeta("morphology.topography.elevation", {
+        label: "Elevation (m)",
+        group: GROUP_TOPOGRAPHY,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "morphology.topography.landMask",
+      dims: { width, height },
+      format: "u8",
+      values: topography.landMask,
+      meta: defineVizMeta("morphology.topography.landMask", {
+        label: "Land Mask",
+        group: GROUP_TOPOGRAPHY,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "morphology.topography.bathymetry",
+      dims: { width, height },
+      format: "i16",
+      values: topography.bathymetry,
+      meta: defineVizMeta("morphology.topography.bathymetry", {
+        label: "Bathymetry (m)",
+        group: GROUP_TOPOGRAPHY,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "morphology.substrate.erodibilityK",
+      dims: { width, height },
+      format: "f32",
+      values: substrate.erodibilityK,
+      meta: defineVizMeta("morphology.substrate.erodibilityK", {
+        label: "Erodibility K",
+        group: GROUP_SUBSTRATE,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "morphology.substrate.sedimentDepth",
+      dims: { width, height },
+      format: "f32",
+      values: substrate.sedimentDepth,
+      meta: defineVizMeta("morphology.substrate.sedimentDepth", {
+        label: "Sediment Depth",
+        group: GROUP_SUBSTRATE,
+      }),
     });
 
     deps.artifacts.topography.publish(context, topography);
