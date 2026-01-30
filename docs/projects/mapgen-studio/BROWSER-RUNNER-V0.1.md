@@ -39,6 +39,7 @@ Note: some existing instrumentation APIs use “dump” naming (e.g. `context.vi
 Design constraints:
 - Payloads should use transferables (e.g., `ArrayBuffer`) when large.
 - Layer descriptors must have stable identifiers (`layerId`, `stepId`, etc.) so the UI can select/scrub/compare deterministically.
+- Layer descriptors may include optional visualization metadata (`label`, `group`, `visibility`, `categories`) to improve UI readability without changing underlying data.
 - The protocol must be versioned.
 
 ### `DumpSink` (optional path)

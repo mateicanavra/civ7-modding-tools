@@ -1,5 +1,5 @@
 import type { TraceEvent, TraceSink, TraceScope } from "@swooper/mapgen-core";
-import type { VizDumper, VizLayerKind, VizScalarFormat } from "@swooper/mapgen-core";
+import type { VizDumper, VizLayerKind, VizLayerMeta, VizScalarFormat } from "@swooper/mapgen-core";
 import { mkdirSync, writeFileSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -24,6 +24,7 @@ export type VizLayerEntryV0 =
       dims: { width: number; height: number };
       path: string;
       bounds: Bounds;
+      meta?: VizLayerMeta;
     }
   | {
       kind: "points";
@@ -36,6 +37,7 @@ export type VizLayerEntryV0 =
       valuesPath?: string;
       valueFormat?: VizScalarFormat;
       bounds: Bounds;
+      meta?: VizLayerMeta;
     }
   | {
       kind: "segments";
@@ -48,6 +50,7 @@ export type VizLayerEntryV0 =
       valuesPath?: string;
       valueFormat?: VizScalarFormat;
       bounds: Bounds;
+      meta?: VizLayerMeta;
     };
 
 type LayerDumpPayloadV0 =
@@ -56,6 +59,7 @@ type LayerDumpPayloadV0 =
       kind: VizLayerKind;
       layerId: string;
       bounds: Bounds;
+      meta?: VizLayerMeta;
     } & (
       | { kind: "grid"; format: VizScalarFormat; dims: { width: number; height: number }; path: string }
       | {
@@ -189,6 +193,7 @@ export function createTraceDumpSink(options: { outputRoot: string }): TraceSink 
         phase: event.phase,
         stepIndex,
         bounds: payload.bounds,
+        meta: payload.meta,
       } as const;
 
       let entry: VizLayerEntryV0 | null = null;
@@ -262,6 +267,7 @@ export function createVizDumper(options: { outputRoot: string }): VizDumper {
         dims: layer.dims,
         path: relPath,
         bounds,
+        meta: layer.meta,
       }));
     } catch {
       // diagnostics must not break generation
@@ -297,6 +303,7 @@ export function createVizDumper(options: { outputRoot: string }): VizDumper {
         valuesPath: valRel,
         valueFormat: layer.valueFormat,
         bounds,
+        meta: layer.meta,
       }));
     } catch {
       // diagnostics must not break generation
@@ -332,6 +339,7 @@ export function createVizDumper(options: { outputRoot: string }): VizDumper {
         valuesPath: valRel,
         valueFormat: layer.valueFormat,
         bounds,
+        meta: layer.meta,
       }));
     } catch {
       // diagnostics must not break generation
@@ -340,4 +348,3 @@ export function createVizDumper(options: { outputRoot: string }): VizDumper {
 
   return { outputRoot, dumpGrid, dumpPoints, dumpSegments };
 }
-

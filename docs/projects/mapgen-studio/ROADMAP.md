@@ -8,7 +8,7 @@ This roadmap describes the incremental path to a practical, external visualizati
 - **DeckGlSink**: the primary VizSink implementation for MapGen Studio: Worker → in-memory data → deck.gl (no dump required for normal use).
 - **Dump**: an *optional* export/replay artifact containing at minimum `manifest.json` and referenced payload files under `data/`. Dumps are valuable for tests, debugging, CI artifacts, and sharing — but are not required for in-browser visualization to function.
 - **Layer**: a single visualizable artifact (grid/mesh/vector/points/polygons) described by the in-browser `VizSink` protocol and, when exported, by the dump manifest.
-- **`layerId`**: stable identifier for a layer (recommended form: `<domain>.<name>`), used for UI selection and comparisons. Contract vs internal layer IDs are tracked in `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md`.
+- **`layerId`**: stable identifier for a layer (recommended form: `<domain>.<name>`), used for UI selection and comparisons. Layer descriptors may include optional visualization metadata (`label`, `group`, `visibility`, `categories`) to improve UI rendering.
 - **`runId` / `planFingerprint`**: identifiers for a particular execution; exact semantics must match the mapgen trace/plan implementation.
 - **`outputsRoot`**: where dump folders are written *when dumps are enabled*. Dumps should not be required for the normal in-browser loop.
 

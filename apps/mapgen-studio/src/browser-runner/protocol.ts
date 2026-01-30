@@ -1,4 +1,5 @@
 import type { BrowserTestRecipeConfig } from "@mapgen/browser-recipes/browser-test";
+import type { VizLayerMeta } from "@swooper/mapgen-core";
 
 export type Bounds = [minX: number, minY: number, maxX: number, maxY: number];
 
@@ -77,6 +78,7 @@ export type BrowserVizLayerEntry =
       /** Row-major tile grid (index = y * width + x). */
       dims: { width: number; height: number };
       bounds: Bounds;
+      meta?: VizLayerMeta;
       key: string;
     }
   | {
@@ -88,6 +90,7 @@ export type BrowserVizLayerEntry =
       count: number;
       valueFormat?: VizScalarFormat;
       bounds: Bounds;
+      meta?: VizLayerMeta;
       key: string;
     }
   | {
@@ -99,6 +102,7 @@ export type BrowserVizLayerEntry =
       count: number;
       valueFormat?: VizScalarFormat;
       bounds: Bounds;
+      meta?: VizLayerMeta;
       key: string;
     };
 

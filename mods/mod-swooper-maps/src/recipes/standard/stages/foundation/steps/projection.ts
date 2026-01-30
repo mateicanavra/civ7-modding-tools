@@ -1,4 +1,4 @@
-import { computeSampleStep, renderAsciiGrid } from "@swooper/mapgen-core";
+import { computeSampleStep, defineVizMeta, renderAsciiGrid } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { foundationArtifacts } from "../artifacts.js";
 import ProjectionStepContract from "./projection.contract.js";
@@ -162,6 +162,13 @@ export default createStep(ProjectionStepContract, {
       dims: { width, height },
       format: "u8",
       values: platesResult.crustTiles.type,
+      meta: defineVizMeta("foundation.crustTiles.type", {
+        label: "Crust Type",
+        categories: [
+          { value: 0, label: "Oceanic", color: [37, 99, 235, 230] },
+          { value: 1, label: "Continental", color: [34, 197, 94, 230] },
+        ],
+      }),
     });
     context.viz?.dumpGrid(context.trace, {
       layerId: "foundation.crustTiles.age",
@@ -180,22 +187,9 @@ export default createStep(ProjectionStepContract, {
       dims: { width, height },
       format: "f32",
       values: platesResult.crustTiles.baseElevation,
-    });
-    const landmask = new Uint8Array(platesResult.crustTiles.type.length);
-    for (let i = 0; i < landmask.length; i++) {
-      landmask[i] = platesResult.crustTiles.type[i] === 1 ? 1 : 0;
-    }
-    context.viz?.dumpGrid(context.trace, {
-      layerId: "foundation.tile.height",
-      dims: { width, height },
-      format: "f32",
-      values: platesResult.crustTiles.baseElevation,
-    });
-    context.viz?.dumpGrid(context.trace, {
-      layerId: "foundation.tile.landmask",
-      dims: { width, height },
-      format: "u8",
-      values: landmask,
+      meta: defineVizMeta("foundation.crustTiles.baseElevation", {
+        label: "Crust Base Elevation",
+      }),
     });
     context.viz?.dumpGrid(context.trace, {
       layerId: "foundation.crustTiles.strength",

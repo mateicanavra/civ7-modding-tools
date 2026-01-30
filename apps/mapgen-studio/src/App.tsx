@@ -6,6 +6,7 @@ import Form from "@rjsf/core";
 import { customizeValidator } from "@rjsf/validator-ajv8";
 import type { ArrayFieldTemplateProps, FieldTemplateProps, ObjectFieldTemplateProps, RJSFSchema, UiSchema } from "@rjsf/utils";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
+import type { VizLayerMeta } from "@swooper/mapgen-core";
 import {
   BROWSER_TEST_RECIPE_CONFIG,
   BROWSER_TEST_RECIPE_CONFIG_SCHEMA,
@@ -31,6 +32,7 @@ type VizLayerEntryV0 =
       dims: { width: number; height: number };
       path?: string;
       values?: ArrayBuffer;
+      meta?: VizLayerMeta;
       bounds: Bounds;
     }
   | {
@@ -45,6 +47,7 @@ type VizLayerEntryV0 =
       valuesPath?: string;
       values?: ArrayBuffer;
       valueFormat?: VizScalarFormat;
+      meta?: VizLayerMeta;
       bounds: Bounds;
     }
   | {
@@ -59,6 +62,7 @@ type VizLayerEntryV0 =
       valuesPath?: string;
       values?: ArrayBuffer;
       valueFormat?: VizScalarFormat;
+      meta?: VizLayerMeta;
       bounds: Bounds;
     };
 
@@ -73,27 +77,6 @@ type VizManifestV0 = {
 type FileMap = Map<string, File>;
 
 type EraLayerInfo = { eraIndex: number; baseLayerId: string };
-
-const CONTRACT_LAYER_PREFIXES = ["foundation.tile."];
-
-function isContractLayer(layerId: string): boolean {
-  return CONTRACT_LAYER_PREFIXES.some((prefix) => layerId.startsWith(prefix));
-}
-
-function layerScopeLabel(layerId: string): "contract" | "internal" {
-  return isContractLayer(layerId) ? "contract" : "internal";
-}
-
-const CONTRACT_LAYER_LABELS: Record<string, string> = {
-  "foundation.tile.height": "Tile Height",
-  "foundation.tile.landmask": "Tile Landmask",
-};
-
-function formatLayerLabel(layer: VizLayerEntryV0): string {
-  const base = CONTRACT_LAYER_LABELS[layer.layerId] ?? layer.layerId;
-  const scope = layerScopeLabel(layer.layerId);
-  return `${base} (${layer.kind}, ${scope})`;
-}
 
 const browserConfigFormCss = `
 .browserConfigForm {
@@ -1049,8 +1032,34 @@ function buildPlateColorMap(options: {
   return colorById;
 }
 
-function colorForValue(layerId: string, value: number, plateColorMap?: Map<number, RgbaColor>): RgbaColor {
+function resolveCategoryColor(meta: VizLayerMeta | undefined, value: number): RgbaColor | null {
+  if (!meta?.categories?.length) return null;
+  for (const entry of meta.categories) {
+    if (typeof entry.value === "number") {
+      if (Number(entry.value) === value) return entry.color;
+      continue;
+    }
+    if (String(entry.value) === String(value)) return entry.color;
+  }
+  return null;
+}
+
+function formatLayerLabel(layer: VizLayerEntryV0): string {
+  const base = layer.meta?.label ?? layer.layerId;
+  const visibility = layer.meta?.visibility === "debug" ? ", debug" : "";
+  return `${base} (${layer.kind}${visibility})`;
+}
+
+function colorForValue(
+  layerId: string,
+  value: number,
+  plateColorMap?: Map<number, RgbaColor>,
+  meta?: VizLayerMeta
+): RgbaColor {
   if (!Number.isFinite(value)) return [120, 120, 120, 220];
+
+  const categoryColor = resolveCategoryColor(meta, value);
+  if (categoryColor) return categoryColor;
 
   if (layerId.toLowerCase().includes("landmask")) {
     return value > 0 ? [34, 197, 94, 230] : [37, 99, 235, 230];
@@ -1101,10 +1110,21 @@ type LegendItem = { label: string; color: [number, number, number, number] };
 function legendForLayer(layer: VizLayerEntryV0 | null, stats: { min?: number; max?: number } | null): { title: string; items: LegendItem[]; note?: string } | null {
   if (!layer) return null;
   const id = layer.layerId;
+  const label = layer.meta?.label ?? id;
+
+  if (layer.meta?.categories?.length) {
+    return {
+      title: label,
+      items: layer.meta.categories.map((entry) => ({
+        label: entry.label,
+        color: entry.color,
+      })),
+    };
+  }
 
   if (id.toLowerCase().includes("landmask")) {
     return {
-      title: "Landmask",
+      title: label,
       items: [
         { label: "0 = water", color: [37, 99, 235, 230] },
         { label: "1 = land", color: [34, 197, 94, 230] },
@@ -1114,7 +1134,7 @@ function legendForLayer(layer: VizLayerEntryV0 | null, stats: { min?: number; ma
 
   if (id.endsWith("tileBoundaryType") || id.endsWith("boundaryType") || id.includes("boundaryType")) {
     return {
-      title: "Boundary Type",
+      title: label,
       items: [
         { label: "0 = none/unknown", color: [107, 114, 128, 180] },
         { label: "1 = convergent", color: [239, 68, 68, 240] },
@@ -1126,7 +1146,7 @@ function legendForLayer(layer: VizLayerEntryV0 | null, stats: { min?: number; ma
 
   if (id.includes("crusttiles") || id.includes("crust") && id.toLowerCase().includes("type")) {
     return {
-      title: "Crust Type",
+      title: label,
       items: [
         { label: "0 = oceanic", color: [37, 99, 235, 230] },
         { label: "1 = continental", color: [34, 197, 94, 230] },
@@ -1139,7 +1159,7 @@ function legendForLayer(layer: VizLayerEntryV0 | null, stats: { min?: number; ma
       const min = stats.min ?? 0;
       const max = stats.max ?? 1;
       return {
-        title: "Tile Height",
+        title: label,
         items: [
           { label: `min = ${min.toFixed(3)}`, color: colorForValue(id, 0) },
           { label: `max = ${max.toFixed(3)}`, color: colorForValue(id, 1) },
@@ -1148,14 +1168,14 @@ function legendForLayer(layer: VizLayerEntryV0 | null, stats: { min?: number; ma
       };
     }
     return {
-      title: "Tile Height",
+      title: label,
       items: [{ label: "continuous scalar", color: colorForValue(id, 0.5) }],
     };
   }
 
   if (id.includes("plate") && (id.toLowerCase().includes("id") || id.toLowerCase().includes("plate"))) {
     return {
-      title: "Plate IDs",
+      title: label,
       items: [
         { label: "categorical (random palette; neighboring plates avoid similar colors)", color: [148, 163, 184, 220] },
       ],
@@ -1166,7 +1186,7 @@ function legendForLayer(layer: VizLayerEntryV0 | null, stats: { min?: number; ma
     const min = stats.min ?? 0;
     const max = stats.max ?? 1;
     return {
-      title: "Scalar",
+      title: label,
       items: [
         { label: `min = ${min.toFixed(3)}`, color: colorForValue(id, 0) },
         { label: `max = ${max.toFixed(3)}`, color: colorForValue(id, 1) },
@@ -1275,7 +1295,6 @@ export function App() {
   const [tileLayout, setTileLayout] = useState<TileLayout>("row-offset");
   const [showMeshEdges, setShowMeshEdges] = useState(true);
   const [showBackgroundGrid, setShowBackgroundGrid] = useState(true);
-  const [showInternalLayers, setShowInternalLayers] = useState(false);
   const [eraIndex, setEraIndex] = useState<number>(0);
 
   useEffect(() => {
@@ -1325,26 +1344,8 @@ export function App() {
     if (!manifest || !selectedStepId) return [];
     return manifest.layers
       .filter((l) => l.stepId === selectedStepId)
-      .map((l) => ({ key: `${l.stepId}::${l.layerId}::${l.kind}`, layer: l }))
-      .sort((a, b) => {
-        const aScope = layerScopeLabel(a.layer.layerId);
-        const bScope = layerScopeLabel(b.layer.layerId);
-        if (aScope !== bScope) return aScope === "contract" ? -1 : 1;
-        return a.layer.layerId.localeCompare(b.layer.layerId);
-      });
+      .map((l) => ({ key: `${l.stepId}::${l.layerId}::${l.kind}`, layer: l }));
   }, [manifest, selectedStepId]);
-
-  const visibleLayersForStep = useMemo(() => {
-    if (showInternalLayers) return layersForStep;
-    return layersForStep.filter((l) => isContractLayer(l.layer.layerId));
-  }, [layersForStep, showInternalLayers]);
-
-  const selectableLayers = useMemo(() => {
-    if (!selectedLayerKey) return visibleLayersForStep;
-    if (visibleLayersForStep.some((l) => l.key === selectedLayerKey)) return visibleLayersForStep;
-    const hidden = layersForStep.find((l) => l.key === selectedLayerKey);
-    return hidden ? [hidden, ...visibleLayersForStep] : visibleLayersForStep;
-  }, [layersForStep, selectedLayerKey, visibleLayersForStep]);
 
   const selectedLayer = useMemo(() => {
     if (!layersForStep.length || !selectedLayerKey) return null;
@@ -1584,6 +1585,7 @@ export function App() {
                   dims: msg.layer.dims,
                   values: msg.payload.kind === "grid" ? msg.payload.values : undefined,
                   bounds: msg.layer.bounds,
+                  meta: msg.layer.meta,
                 }
               : msg.layer.kind === "points"
                 ? {
@@ -1597,6 +1599,7 @@ export function App() {
                     values: msg.payload.kind === "points" ? msg.payload.values : undefined,
                     valueFormat: msg.layer.valueFormat,
                     bounds: msg.layer.bounds,
+                    meta: msg.layer.meta,
                   }
                 : {
                     kind: "segments",
@@ -1609,6 +1612,7 @@ export function App() {
                     values: msg.payload.kind === "segments" ? msg.payload.values : undefined,
                     valueFormat: msg.layer.valueFormat,
                     bounds: msg.layer.bounds,
+                    meta: msg.layer.meta,
                   };
 
           const key = `${entry.stepId}::${entry.layerId}::${entry.kind}`;
@@ -1810,7 +1814,7 @@ export function App() {
           new PolygonLayer({
             id: `${layerId}::hex`,
             data: tiles,
-            getFillColor: (d) => colorForValue(layerId, d.v, plateColorMap),
+            getFillColor: (d) => colorForValue(layerId, d.v, plateColorMap, effectiveLayer.meta),
             getPolygon: (d) => d.polygon,
             stroked: true,
             getLineColor: [17, 24, 39, 220],
@@ -1875,7 +1879,7 @@ export function App() {
             id: `${layerId}::points`,
             data: points,
             getPosition: (d) => [d.x, d.y],
-            getFillColor: (d) => colorForValue(layerId, d.v, plateColorMap),
+            getFillColor: (d) => colorForValue(layerId, d.v, plateColorMap, effectiveLayer.meta),
             radiusUnits: "common",
             getRadius: 0.95,
             pickable: true,
@@ -1944,7 +1948,7 @@ export function App() {
             id: `${layerId}::segments`,
             data: segments,
             getPath: (d) => d.path,
-            getColor: (d) => colorForValue(layerId, d.v, plateColorMap),
+            getColor: (d) => colorForValue(layerId, d.v, plateColorMap, effectiveLayer.meta),
             getWidth: 1.5,
             widthUnits: "pixels",
             pickable: true,
@@ -2244,7 +2248,7 @@ export function App() {
               value={selectedLayerKey ?? ""}
               onChange={(e) => setSelectedLayerKey(e.target.value || null)}
               style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
-              disabled={!selectableLayers.length && !selectedLayerKey}
+              disabled={!layersForStep.length && !selectedLayerKey}
             >
               {selectedLayerKey && !layersForStep.some((l) => l.key === selectedLayerKey) ? (
                 <option value={selectedLayerKey}>
@@ -2255,21 +2259,12 @@ export function App() {
                   })()}
                 </option>
               ) : null}
-              {selectableLayers.map((l) => (
+              {layersForStep.map((l) => (
                 <option key={l.key} value={l.key}>
                   {formatLayerLabel(l.layer)}
                 </option>
               ))}
             </select>
-          </label>
-
-          <label style={{ display: "flex", gap: 8, alignItems: "center", flex: isNarrow ? "1 1 100%" : "0 0 auto", width: isNarrow ? "100%" : undefined }}>
-            <span style={{ fontSize: 12, color: "#9ca3af", minWidth: isNarrow ? 76 : undefined }}>Internal layers</span>
-            <input
-              type="checkbox"
-              checked={showInternalLayers}
-              onChange={(e) => setShowInternalLayers(e.target.checked)}
-            />
           </label>
 
           <label style={{ display: "flex", gap: 8, alignItems: "center", flex: isNarrow ? "1 1 100%" : "0 0 auto", width: isNarrow ? "100%" : undefined }}>
