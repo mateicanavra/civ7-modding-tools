@@ -4,16 +4,6 @@ on:
   schedule:
     # Hourly, slightly offset to avoid contention with other scheduled jobs.
     - cron: "17 * * * *"
-  pull_request_target:
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - labeled
-      - unlabeled
-      - ready_for_review
-      - converted_to_draft
-      - closed
   workflow_dispatch:
     inputs:
       dry_run:
@@ -26,7 +16,7 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: railway-preview-reconcile
+  group: railway-preview-reconcile-${{ github.event_name }}
   cancel-in-progress: true
 
 env:
@@ -42,7 +32,6 @@ jobs:
   reconcile:
     name: Reconcile preview environments
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.repository
     env:
       RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
     steps:
@@ -257,7 +246,9 @@ jobs:
           fi
 
           echo "Enforcing preview environment branches..." >> "$GITHUB_STEP_SUMMARY"
-          # Enforce per-PR by recreating the environment when it drifts.
+          # Enforce per-PR by pinning the deployment trigger branch to the PR head ref.
+          # Prefer in-place edits (Railway env delete/recreate is eventually consistent and can flake).
+          failures=0
           while IFS=$'\t' read -r env_name env_id expected_branch; do
             if [ -z "${env_name:-}" ] || [ -z "${env_id:-}" ] || [ -z "${expected_branch:-}" ]; then
               continue
@@ -272,32 +263,48 @@ jobs:
               continue
             fi
 
-            echo "- $env_name: reset '$current' -> '$expected_branch'" >> "$GITHUB_STEP_SUMMARY"
-            railway environment delete "${env_name}" -y --json
+            echo "- $env_name: pin '$current' -> '$expected_branch'" >> "$GITHUB_STEP_SUMMARY"
 
-            # Deletion can take a moment to propagate; retry environment creation a few times.
-            for attempt in 1 2 3 4 5; do
-              if railway environment new "${env_name}" \
-                --copy "${RAILWAY_BASE_ENVIRONMENT_ID}" \
+            set +e
+            edit_out="$(
+              railway environment edit -e "${env_name}" \
                 --service-config "${RAILWAY_SERVICE_ID}" "source.branch" "${expected_branch}" \
-                --json >/dev/null; then
+                --json 2>&1
+            )"
+            edit_code=$?
+            set -e
+            if [ "$edit_code" -ne 0 ]; then
+              echo "::warning::Failed to edit ${env_name} branch in-place (exit $edit_code). Falling back to delete/recreate."
+              echo "$edit_out"
+
+              railway environment delete "${env_name}" -y --json || true
+
+              # Deletion can take a moment to propagate; retry creation a few times with backoff.
+              for attempt in 1 2 3 4 5 6 7 8 9 10; do
+                if railway environment new "${env_name}" \
+                  --copy "${RAILWAY_BASE_ENVIRONMENT_ID}" \
+                  --service-config "${RAILWAY_SERVICE_ID}" "source.branch" "${expected_branch}" \
+                  --json >/dev/null; then
+                  break
+                fi
+                echo "retry ${attempt}/10: waiting for ${env_name} reset to finalize..."
+                sleep 6
+              done
+            fi
+
+            configured=""
+            for attempt in 1 2 3 4 5 6 7 8 9 10; do
+              configured="$(
+                railway environment "${env_name}" config --json \
+                  | python3 -c 'import json,sys; d=json.load(sys.stdin); svc=d["services"][sys.argv[1]]; print((svc.get("source") or {}).get("branch",""))' "${RAILWAY_SERVICE_ID}"
+              )"
+              if [ "$configured" = "$expected_branch" ]; then
                 break
               fi
-              echo "retry ${attempt}/5: waiting for ${env_name} delete to finalize..."
-              sleep 2
+              echo "retry ${attempt}/10: waiting for ${env_name} branch pin to apply..."
+              sleep 3
             done
-          done < pr_env_branch_actions.tsv
 
-          echo "Guarding preview environment branches..." >> "$GITHUB_STEP_SUMMARY"
-          failures=0
-          while IFS=$'\t' read -r env_name env_id expected_branch; do
-            if [ -z "${env_name:-}" ] || [ -z "${expected_branch:-}" ]; then
-              continue
-            fi
-            configured="$(
-              railway environment "${env_name}" config --json \
-                | python3 -c 'import json,sys; d=json.load(sys.stdin); svc=d["services"][sys.argv[1]]; print((svc.get("source") or {}).get("branch",""))' "${RAILWAY_SERVICE_ID}"
-            )"
             if [ "$configured" != "$expected_branch" ]; then
               echo "::error::${env_name} pinned to '$configured' (expected '$expected_branch')"
               echo "- ${env_name}: configured '$configured' (expected '$expected_branch')" >> "$GITHUB_STEP_SUMMARY"

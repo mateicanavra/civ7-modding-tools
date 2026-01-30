@@ -18,7 +18,7 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: railway-preview-pr-${{ github.event.pull_request.number }}
+  group: railway-preview-${{ github.event_name }}-pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 env:
@@ -188,19 +188,27 @@ jobs:
           )"
 
           if [ "$current" != "$EXPECTED_BRANCH" ]; then
-            echo "Resetting ${ENV_NAME}: branch '$current' -> '$EXPECTED_BRANCH'"
-            railway environment delete "${ENV_NAME}" -y --json
+            echo "Pinning ${ENV_NAME}: branch '$current' -> '$EXPECTED_BRANCH'"
+            railway environment edit -e "${ENV_NAME}" \
+              --service-config "${{ env.RAILWAY_SERVICE_ID }}" "source.branch" "${EXPECTED_BRANCH}" \
+              --json >/dev/null
 
-            for attempt in 1 2 3 4 5; do
-              if railway environment new "${ENV_NAME}" \
-                --copy "${{ env.RAILWAY_BASE_ENVIRONMENT_ID }}" \
-                --service-config "${{ env.RAILWAY_SERVICE_ID }}" "source.branch" "${EXPECTED_BRANCH}" \
-                --json >/dev/null; then
+            for attempt in 1 2 3 4 5 6; do
+              configured="$(
+                railway environment "${ENV_NAME}" config --json \
+                  | python3 -c 'import json,sys; d=json.load(sys.stdin); svc=d["services"][sys.argv[1]]; print((svc.get("source") or {}).get("branch",""))' "${{ env.RAILWAY_SERVICE_ID }}"
+              )"
+              if [ "$configured" = "$EXPECTED_BRANCH" ]; then
                 break
               fi
-              echo "retry ${attempt}/5: waiting for ${ENV_NAME} delete to finalize..."
+              echo "retry ${attempt}/6: waiting for ${ENV_NAME} branch pin to apply..."
               sleep 2
             done
+
+            if [ "${configured:-}" != "$EXPECTED_BRANCH" ]; then
+              echo "::error::Failed to pin ${ENV_NAME} to '$EXPECTED_BRANCH' (still '$configured')."
+              exit 1
+            fi
           fi
 
       - name: Select preview environment (for redeploy/domain)
