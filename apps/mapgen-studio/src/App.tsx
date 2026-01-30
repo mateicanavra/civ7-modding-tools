@@ -4,6 +4,7 @@ import {
   BROWSER_TEST_RECIPE_CONFIG_SCHEMA,
   type BrowserTestRecipeConfig,
 } from "@mapgen/browser-recipes/browser-test";
+import { useDumpLoader } from "./features/dumpViewer/useDumpLoader";
 import { ConfigOverridesPanel } from "./features/configOverrides/ConfigOverridesPanel";
 import { useConfigOverrides } from "./features/configOverrides/useConfigOverrides";
 import { useBrowserRunner } from "./features/browserRunner/useBrowserRunner";
@@ -11,16 +12,9 @@ import { capturePinnedSelection } from "./features/browserRunner/retention";
 import { DeckCanvas } from "./features/viz/DeckCanvas";
 import { useVizState } from "./features/viz/useVizState";
 import { formatStepLabel } from "./features/viz/presentation";
-import type { TileLayout, VizManifestV0 } from "./features/viz/model";
+import type { TileLayout } from "./features/viz/model";
+import { formatErrorForUi } from "./shared/errorFormat";
 import type { VizEvent } from "./shared/vizEvents";
-
-type FileMap = Map<string, File>;
-
-function stripRootDirPrefix(path: string): string {
-  const parts = path.split("/").filter(Boolean);
-  if (parts.length <= 1) return path;
-  return parts.slice(1).join("/");
-}
 
 type Civ7MapSizePreset = {
   id: "MAPSIZE_TINY" | "MAPSIZE_SMALL" | "MAPSIZE_STANDARD" | "MAPSIZE_LARGE" | "MAPSIZE_HUGE";
@@ -44,53 +38,6 @@ function formatMapSizeLabel(p: Civ7MapSizePreset): string {
   return `${p.label} (${p.dimensions.width}×${p.dimensions.height})`;
 }
 
-function safeStringify(value: unknown): string | null {
-  try {
-    const seen = new WeakSet<object>();
-    return JSON.stringify(
-      value,
-      (_k, v) => {
-        if (typeof v === "bigint") return `${v}n`;
-        if (typeof v === "function") return `[Function ${v.name || "anonymous"}]`;
-        if (v && typeof v === "object") {
-          if (seen.has(v)) return "[Circular]";
-          seen.add(v);
-        }
-        return v;
-      },
-      2
-    );
-  } catch {
-    return null;
-  }
-}
-
-function formatErrorForUi(e: unknown): string {
-  if (e instanceof Error) {
-    const parts: string[] = [];
-    const header = e.name ? `${e.name}: ${e.message}` : e.message;
-    parts.push(header || "Error");
-    const details = safeStringify(e);
-    if (details && details !== "{}") parts.push(details);
-    if (e.stack) parts.push(e.stack);
-    return parts.join("\n\n");
-  }
-
-  if (e instanceof ErrorEvent) {
-    const parts: string[] = [];
-    parts.push(e.message || "ErrorEvent");
-    if (e.filename) parts.push(`${e.filename}:${e.lineno}:${e.colno}`);
-    if (e.error) parts.push(formatErrorForUi(e.error));
-    return parts.join("\n\n");
-  }
-
-  if (typeof e === "string") return e;
-  if (typeof e === "number" || typeof e === "boolean" || typeof e === "bigint") return String(e);
-
-  const json = safeStringify(e);
-  return json ?? String(e);
-}
-
 function randomU32(): number {
   try {
     if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
@@ -104,19 +51,6 @@ function randomU32(): number {
   return (Math.random() * 0xffffffff) >>> 0;
 }
 
-async function readFileAsText(file: File): Promise<string> {
-  return await file.text();
-}
-
-async function loadManifestFromFileMap(fileMap: FileMap): Promise<VizManifestV0> {
-  const manifestFile = fileMap.get("manifest.json");
-  if (!manifestFile) {
-    throw new Error("manifest.json not found. Select the run folder that contains manifest.json.");
-  }
-  const text = await readFileAsText(manifestFile);
-  return JSON.parse(text) as VizManifestV0;
-}
-
 export function App() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [viewportSize, setViewportSize] = useState({ width: 800, height: 600 });
@@ -124,17 +58,8 @@ export function App() {
 
   const [mode, setMode] = useState<"browser" | "dump">("browser");
 
-  const [dumpFileMap, setDumpFileMap] = useState<FileMap | null>(null);
-  const dumpAssetResolver = useMemo(() => {
-    if (!dumpFileMap) return null;
-    return {
-      readArrayBuffer: async (path: string) => {
-        const file = dumpFileMap.get(path);
-        if (!file) throw new Error(`Missing file: ${path}`);
-        return await file.arrayBuffer();
-      },
-    };
-  }, [dumpFileMap]);
+  const dumpLoader = useDumpLoader();
+  const dumpAssetResolver = dumpLoader.state.status === "loaded" ? dumpLoader.state.reader : null;
 
   const [browserSeed, setBrowserSeed] = useState(123);
   const [browserMapSizeId, setBrowserMapSizeId] = useState<Civ7MapSizePreset["id"]>("MAPSIZE_HUGE");
@@ -200,6 +125,21 @@ export function App() {
   }, [browserRunner.state.error, mode, setError]);
 
   useEffect(() => {
+    if (dumpLoader.state.status !== "loaded") return;
+    const m = dumpLoader.state.manifest;
+    viz.setDumpManifest(m);
+    const firstStep = [...m.steps].sort((a, b) => a.stepIndex - b.stepIndex)[0]?.stepId ?? null;
+    viz.setSelectedStepId(firstStep);
+    viz.setSelectedLayerKey(null);
+    viz.resetView();
+  }, [dumpLoader.state, viz]);
+
+  useEffect(() => {
+    if (dumpLoader.state.status !== "error") return;
+    setError(dumpLoader.state.message);
+  }, [dumpLoader.state, setError]);
+
+  useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const update = () => {
@@ -231,73 +171,18 @@ export function App() {
 
   const openDumpFolder = useCallback(async () => {
     setError(null);
-    try {
-      setMode("dump");
-      const anyWindow = window as any;
-      if (typeof anyWindow.showDirectoryPicker === "function") {
-        const dirHandle: any = await anyWindow.showDirectoryPicker();
-        const files: FileMap = new Map();
-
-        const walk = async (handle: any, prefix: string) => {
-          for await (const [name, entry] of handle.entries()) {
-            const path = prefix ? `${prefix}/${name}` : name;
-            if (entry.kind === "directory") {
-              await walk(entry, path);
-            } else if (entry.kind === "file") {
-              const file = await entry.getFile();
-              files.set(path, file);
-            }
-          }
-        };
-
-        await walk(dirHandle, "");
-        // If the selected folder is the run folder, manifest.json should be at root.
-        // If it was selected with an extra parent dir, allow stripping one leading component.
-        const normalized: FileMap = new Map();
-        for (const [path, file] of files.entries()) {
-          normalized.set(path, file);
-          normalized.set(stripRootDirPrefix(path), file);
-        }
-        setDumpFileMap(normalized);
-        const m = await loadManifestFromFileMap(normalized);
-        viz.setDumpManifest(m);
-        const firstStep = [...m.steps].sort((a, b) => a.stepIndex - b.stepIndex)[0]?.stepId ?? null;
-        viz.setSelectedStepId(firstStep);
-        viz.setSelectedLayerKey(null);
-        viz.resetView();
-        return;
-      }
-
-      // Fallback: directory upload (Chromium via webkitdirectory).
-      setError("Your browser does not support folder picking. Use a Chromium-based browser, or enable directory picking.");
-    } catch (e) {
-      setError(formatErrorForUi(e));
-    }
-  }, [viz]);
+    setMode("dump");
+    await dumpLoader.actions.openViaDirectoryPicker();
+  }, [dumpLoader.actions, setMode]);
 
   const directoryInputRef = useRef<HTMLInputElement | null>(null);
   const onDirectoryFiles = useCallback(async () => {
     setError(null);
-    try {
-      const input = directoryInputRef.current;
-      if (!input?.files) return;
-      setMode("dump");
-      const files: FileMap = new Map();
-      for (const file of Array.from(input.files)) {
-        const rel = (file as any).webkitRelativePath ? String((file as any).webkitRelativePath) : file.name;
-        files.set(stripRootDirPrefix(rel), file);
-      }
-      setDumpFileMap(files);
-      const m = await loadManifestFromFileMap(files);
-      viz.setDumpManifest(m);
-      const firstStep = [...m.steps].sort((a, b) => a.stepIndex - b.stepIndex)[0]?.stepId ?? null;
-      viz.setSelectedStepId(firstStep);
-      viz.setSelectedLayerKey(null);
-      viz.resetView();
-    } catch (e) {
-      setError(formatErrorForUi(e));
-    }
-  }, [viz]);
+    const input = directoryInputRef.current;
+    if (!input?.files) return;
+    setMode("dump");
+    await dumpLoader.actions.loadFromFileList(input.files);
+  }, [dumpLoader.actions, setMode]);
 
   const startBrowserRun = useCallback((overrides?: { seed?: number }) => {
     setError(null);
