@@ -218,7 +218,7 @@ jobs:
         run: |
           set -euo pipefail
           railway environment edit \
-            --environment "$ENVIRONMENT_ID" \
+            --environment "$ENV_NAME" \
             --service-config "${{ env.RAILWAY_SERVICE_NAME }}" "source.branch" "$EXPECTED_BRANCH" \
             --message "ci: pin ${ENV_NAME} to ${EXPECTED_BRANCH}" \
             --json >/dev/null

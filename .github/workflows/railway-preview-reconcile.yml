@@ -262,7 +262,7 @@ jobs:
               continue
             fi
             railway environment edit \
-              --environment "$env_id" \
+              --environment "$env_name" \
               --service-config "${RAILWAY_SERVICE_NAME}" "source.branch" "$expected_branch" \
               --message "ci: pin ${env_name} to ${expected_branch}" \
               --json >/dev/null
