@@ -79,5 +79,8 @@ export {
   type FoundationPlates,
 } from "@mapgen/dev/summaries.js";
 
+// Visualization metadata helpers
+export { defineVizMeta } from "@mapgen/dev/viz-meta.js";
+
 /** Module version */
 export const DEV_MODULE_VERSION = "1.0.0";

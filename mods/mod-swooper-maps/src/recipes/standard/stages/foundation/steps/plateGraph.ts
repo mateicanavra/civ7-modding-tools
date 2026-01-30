@@ -1,4 +1,4 @@
-import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
+import { ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { foundationArtifacts } from "../artifacts.js";
 import PlateGraphStepContract from "./plateGraph.contract.js";
@@ -6,6 +6,8 @@ import { validatePlateGraphArtifact, wrapFoundationValidateNoDims } from "./vali
 import { FOUNDATION_PLATE_COUNT_MULTIPLIER } from "@mapgen/domain/foundation/shared/knob-multipliers.js";
 import type { FoundationPlateCountKnob } from "@mapgen/domain/foundation/shared/knobs.js";
 import { interleaveXY, pointsFromPlateSeeds } from "./viz.js";
+
+const GROUP_PLATE_GRAPH = "Foundation / Plate Graph";
 
 function clampInt(value: number, bounds: { min: number; max?: number }): number {
   const rounded = Math.round(value);
@@ -62,6 +64,10 @@ export default createStep(PlateGraphStepContract, {
       positions,
       values: plateGraphResult.plateGraph.cellToPlate,
       valueFormat: "i16",
+      meta: defineVizMeta("foundation.plateGraph.cellToPlate", {
+        label: "Cell Plate Id",
+        group: GROUP_PLATE_GRAPH,
+      }),
     });
 
     const seeds = pointsFromPlateSeeds(plateGraphResult.plateGraph.plates);
@@ -70,6 +76,10 @@ export default createStep(PlateGraphStepContract, {
       positions: seeds.positions,
       values: seeds.ids,
       valueFormat: "i16",
+      meta: defineVizMeta("foundation.plateGraph.plateSeeds", {
+        label: "Plate Seeds",
+        group: GROUP_PLATE_GRAPH,
+      }),
     });
   },
 });

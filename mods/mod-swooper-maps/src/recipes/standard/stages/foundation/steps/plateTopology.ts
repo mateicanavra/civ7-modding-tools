@@ -1,3 +1,4 @@
+import { defineVizMeta } from "@swooper/mapgen-core";
 import { buildPlateTopology } from "@swooper/mapgen-core/lib/plates";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
@@ -5,6 +6,8 @@ import { foundationArtifacts } from "../artifacts.js";
 import PlateTopologyStepContract from "./plateTopology.contract.js";
 import { validatePlateTopologyArtifact, wrapFoundationValidateNoDims } from "./validation.js";
 import { pointsFromTileCentroids, segmentsFromTileTopologyNeighbors } from "./viz.js";
+
+const GROUP_PLATE_TOPOLOGY = "Foundation / Plate Topology";
 
 function validateTopologySymmetry(plates: ReadonlyArray<{ id: number; neighbors: number[] }>): void {
   const neighborSets = new Map<number, Set<number>>();
@@ -58,11 +61,19 @@ export default createStep(PlateTopologyStepContract, {
       values: centroidPoints.areas,
       valueFormat: "i32",
       fileKey: "areas",
+      meta: defineVizMeta("foundation.plateTopology.centroids", {
+        label: "Plate Centroids (Area)",
+        group: GROUP_PLATE_TOPOLOGY,
+      }),
     });
 
     context.viz?.dumpSegments(context.trace, {
       layerId: "foundation.plateTopology.neighbors",
       segments: segmentsFromTileTopologyNeighbors(topologyPlates),
+      meta: defineVizMeta("foundation.plateTopology.neighbors", {
+        label: "Plate Neighbor Edges",
+        group: GROUP_PLATE_TOPOLOGY,
+      }),
     });
   },
 });

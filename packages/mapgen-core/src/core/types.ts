@@ -162,6 +162,22 @@ export type VizLayerKind = "grid" | "points" | "segments";
 
 export type VizScalarFormat = "u8" | "i8" | "u16" | "i16" | "i32" | "f32";
 
+export type VizLayerVisibility = "default" | "debug" | "hidden";
+
+export type VizLayerCategory = {
+  value: number | string;
+  label: string;
+  color: [number, number, number, number];
+};
+
+export type VizLayerMeta = {
+  label?: string;
+  group?: string;
+  description?: string;
+  visibility?: VizLayerVisibility;
+  categories?: VizLayerCategory[];
+};
+
 export interface VizDumper {
   /**
    * Base directory for run dumps. The concrete run directory is typically
@@ -179,6 +195,7 @@ export interface VizDumper {
       dims: { width: number; height: number };
       format: VizScalarFormat;
       values: ArrayBufferView;
+      meta?: VizLayerMeta;
       /**
        * Optional stable suffix to keep filenames unique within a run.
        * Does not affect `layerId` (which should remain stable).
@@ -194,6 +211,7 @@ export interface VizDumper {
       positions: Float32Array; // [x0,y0,x1,y1,...]
       values?: ArrayBufferView;
       valueFormat?: VizScalarFormat;
+      meta?: VizLayerMeta;
       fileKey?: string;
     }
   ) => void;
@@ -205,6 +223,7 @@ export interface VizDumper {
       segments: Float32Array; // [x0,y0,x1,y1,...] pairs per segment
       values?: ArrayBufferView;
       valueFormat?: VizScalarFormat;
+      meta?: VizLayerMeta;
       fileKey?: string;
     }
   ) => void;

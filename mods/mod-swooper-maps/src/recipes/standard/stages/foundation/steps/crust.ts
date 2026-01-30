@@ -1,9 +1,11 @@
-import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
+import { ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { foundationArtifacts } from "../artifacts.js";
 import CrustStepContract from "./crust.contract.js";
 import { validateCrustArtifact, wrapFoundationValidateNoDims } from "./validation.js";
 import { interleaveXY } from "./viz.js";
+
+const GROUP_CRUST = "Foundation / Crust";
 
 export default createStep(CrustStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.crust], {
@@ -32,18 +34,30 @@ export default createStep(CrustStepContract, {
       positions,
       values: crustResult.crust.type,
       valueFormat: "u8",
+      meta: defineVizMeta("foundation.crust.cellType", {
+        label: "Crust Cell Type",
+        group: GROUP_CRUST,
+      }),
     });
     context.viz?.dumpPoints(context.trace, {
       layerId: "foundation.crust.cellAge",
       positions,
       values: crustResult.crust.age,
       valueFormat: "u8",
+      meta: defineVizMeta("foundation.crust.cellAge", {
+        label: "Crust Cell Age",
+        group: GROUP_CRUST,
+      }),
     });
     context.viz?.dumpPoints(context.trace, {
       layerId: "foundation.crust.cellBaseElevation",
       positions,
       values: crustResult.crust.baseElevation,
       valueFormat: "f32",
+      meta: defineVizMeta("foundation.crust.cellBaseElevation", {
+        label: "Crust Cell Base Elevation",
+        group: GROUP_CRUST,
+      }),
     });
   },
 });

@@ -6,6 +6,7 @@ import Form from "@rjsf/core";
 import { customizeValidator } from "@rjsf/validator-ajv8";
 import type { ArrayFieldTemplateProps, FieldTemplateProps, ObjectFieldTemplateProps, RJSFSchema, UiSchema } from "@rjsf/utils";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
+import type { VizLayerMeta } from "@swooper/mapgen-core";
 import {
   BROWSER_TEST_RECIPE_CONFIG,
   BROWSER_TEST_RECIPE_CONFIG_SCHEMA,
@@ -31,6 +32,7 @@ type VizLayerEntryV0 =
       dims: { width: number; height: number };
       path?: string;
       values?: ArrayBuffer;
+      meta?: VizLayerMeta;
       bounds: Bounds;
     }
   | {
@@ -45,6 +47,7 @@ type VizLayerEntryV0 =
       valuesPath?: string;
       values?: ArrayBuffer;
       valueFormat?: VizScalarFormat;
+      meta?: VizLayerMeta;
       bounds: Bounds;
     }
   | {
@@ -59,6 +62,7 @@ type VizLayerEntryV0 =
       valuesPath?: string;
       values?: ArrayBuffer;
       valueFormat?: VizScalarFormat;
+      meta?: VizLayerMeta;
       bounds: Bounds;
     };
 
@@ -1028,8 +1032,34 @@ function buildPlateColorMap(options: {
   return colorById;
 }
 
-function colorForValue(layerId: string, value: number, plateColorMap?: Map<number, RgbaColor>): RgbaColor {
+function resolveCategoryColor(meta: VizLayerMeta | undefined, value: number): RgbaColor | null {
+  if (!meta?.categories?.length) return null;
+  for (const entry of meta.categories) {
+    if (typeof entry.value === "number") {
+      if (Number(entry.value) === value) return entry.color;
+      continue;
+    }
+    if (String(entry.value) === String(value)) return entry.color;
+  }
+  return null;
+}
+
+function formatLayerLabel(layer: VizLayerEntryV0): string {
+  const base = layer.meta?.label ?? layer.layerId;
+  const visibility = layer.meta?.visibility === "debug" ? ", debug" : "";
+  return `${base} (${layer.kind}${visibility})`;
+}
+
+function colorForValue(
+  layerId: string,
+  value: number,
+  plateColorMap?: Map<number, RgbaColor>,
+  meta?: VizLayerMeta
+): RgbaColor {
   if (!Number.isFinite(value)) return [120, 120, 120, 220];
+
+  const categoryColor = resolveCategoryColor(meta, value);
+  if (categoryColor) return categoryColor;
 
   if (layerId.toLowerCase().includes("landmask")) {
     return value > 0 ? [34, 197, 94, 230] : [37, 99, 235, 230];
@@ -1080,10 +1110,21 @@ type LegendItem = { label: string; color: [number, number, number, number] };
 function legendForLayer(layer: VizLayerEntryV0 | null, stats: { min?: number; max?: number } | null): { title: string; items: LegendItem[]; note?: string } | null {
   if (!layer) return null;
   const id = layer.layerId;
+  const label = layer.meta?.label ?? id;
+
+  if (layer.meta?.categories?.length) {
+    return {
+      title: label,
+      items: layer.meta.categories.map((entry) => ({
+        label: entry.label,
+        color: entry.color,
+      })),
+    };
+  }
 
   if (id.toLowerCase().includes("landmask")) {
     return {
-      title: "Landmask",
+      title: label,
       items: [
         { label: "0 = water", color: [37, 99, 235, 230] },
         { label: "1 = land", color: [34, 197, 94, 230] },
@@ -1093,7 +1134,7 @@ function legendForLayer(layer: VizLayerEntryV0 | null, stats: { min?: number; ma
 
   if (id.endsWith("tileBoundaryType") || id.endsWith("boundaryType") || id.includes("boundaryType")) {
     return {
-      title: "Boundary Type",
+      title: label,
       items: [
         { label: "0 = none/unknown", color: [107, 114, 128, 180] },
         { label: "1 = convergent", color: [239, 68, 68, 240] },
@@ -1105,7 +1146,7 @@ function legendForLayer(layer: VizLayerEntryV0 | null, stats: { min?: number; ma
 
   if (id.includes("crusttiles") || id.includes("crust") && id.toLowerCase().includes("type")) {
     return {
-      title: "Crust Type",
+      title: label,
       items: [
         { label: "0 = oceanic", color: [37, 99, 235, 230] },
         { label: "1 = continental", color: [34, 197, 94, 230] },
@@ -1118,7 +1159,7 @@ function legendForLayer(layer: VizLayerEntryV0 | null, stats: { min?: number; ma
       const min = stats.min ?? 0;
       const max = stats.max ?? 1;
       return {
-        title: "Tile Height",
+        title: label,
         items: [
           { label: `min = ${min.toFixed(3)}`, color: colorForValue(id, 0) },
           { label: `max = ${max.toFixed(3)}`, color: colorForValue(id, 1) },
@@ -1127,14 +1168,14 @@ function legendForLayer(layer: VizLayerEntryV0 | null, stats: { min?: number; ma
       };
     }
     return {
-      title: "Tile Height",
+      title: label,
       items: [{ label: "continuous scalar", color: colorForValue(id, 0.5) }],
     };
   }
 
   if (id.includes("plate") && (id.toLowerCase().includes("id") || id.toLowerCase().includes("plate"))) {
     return {
-      title: "Plate IDs",
+      title: label,
       items: [
         { label: "categorical (random palette; neighboring plates avoid similar colors)", color: [148, 163, 184, 220] },
       ],
@@ -1145,7 +1186,7 @@ function legendForLayer(layer: VizLayerEntryV0 | null, stats: { min?: number; ma
     const min = stats.min ?? 0;
     const max = stats.max ?? 1;
     return {
-      title: "Scalar",
+      title: label,
       items: [
         { label: `min = ${min.toFixed(3)}`, color: colorForValue(id, 0) },
         { label: `max = ${max.toFixed(3)}`, color: colorForValue(id, 1) },
@@ -1305,6 +1346,24 @@ export function App() {
       .filter((l) => l.stepId === selectedStepId)
       .map((l) => ({ key: `${l.stepId}::${l.layerId}::${l.kind}`, layer: l }));
   }, [manifest, selectedStepId]);
+
+  const layersForStepGrouped = useMemo(() => {
+    if (!layersForStep.length) return [];
+    const order: string[] = [];
+    const groups = new Map<string, typeof layersForStep>();
+    for (const entry of layersForStep) {
+      const groupLabel = entry.layer.meta?.group ?? "Other";
+      if (!groups.has(groupLabel)) {
+        groups.set(groupLabel, []);
+        order.push(groupLabel);
+      }
+      groups.get(groupLabel)!.push(entry);
+    }
+    return order.map((group) => ({
+      group,
+      layers: groups.get(group) ?? [],
+    }));
+  }, [layersForStep]);
 
   const selectedLayer = useMemo(() => {
     if (!layersForStep.length || !selectedLayerKey) return null;
@@ -1544,6 +1603,7 @@ export function App() {
                   dims: msg.layer.dims,
                   values: msg.payload.kind === "grid" ? msg.payload.values : undefined,
                   bounds: msg.layer.bounds,
+                  meta: msg.layer.meta,
                 }
               : msg.layer.kind === "points"
                 ? {
@@ -1557,6 +1617,7 @@ export function App() {
                     values: msg.payload.kind === "points" ? msg.payload.values : undefined,
                     valueFormat: msg.layer.valueFormat,
                     bounds: msg.layer.bounds,
+                    meta: msg.layer.meta,
                   }
                 : {
                     kind: "segments",
@@ -1569,6 +1630,7 @@ export function App() {
                     values: msg.payload.kind === "segments" ? msg.payload.values : undefined,
                     valueFormat: msg.layer.valueFormat,
                     bounds: msg.layer.bounds,
+                    meta: msg.layer.meta,
                   };
 
           const key = `${entry.stepId}::${entry.layerId}::${entry.kind}`;
@@ -1770,7 +1832,7 @@ export function App() {
           new PolygonLayer({
             id: `${layerId}::hex`,
             data: tiles,
-            getFillColor: (d) => colorForValue(layerId, d.v, plateColorMap),
+            getFillColor: (d) => colorForValue(layerId, d.v, plateColorMap, effectiveLayer.meta),
             getPolygon: (d) => d.polygon,
             stroked: true,
             getLineColor: [17, 24, 39, 220],
@@ -1835,7 +1897,7 @@ export function App() {
             id: `${layerId}::points`,
             data: points,
             getPosition: (d) => [d.x, d.y],
-            getFillColor: (d) => colorForValue(layerId, d.v, plateColorMap),
+            getFillColor: (d) => colorForValue(layerId, d.v, plateColorMap, effectiveLayer.meta),
             radiusUnits: "common",
             getRadius: 0.95,
             pickable: true,
@@ -1904,7 +1966,7 @@ export function App() {
             id: `${layerId}::segments`,
             data: segments,
             getPath: (d) => d.path,
-            getColor: (d) => colorForValue(layerId, d.v, plateColorMap),
+            getColor: (d) => colorForValue(layerId, d.v, plateColorMap, effectiveLayer.meta),
             getWidth: 1.5,
             widthUnits: "pixels",
             pickable: true,
@@ -1965,6 +2027,325 @@ export function App() {
       textAlign: "center",
     }),
     [controlBaseStyle, isNarrow]
+  );
+
+  const toolbarSectionStyle: React.CSSProperties = useMemo(
+    () => ({
+      border: "1px solid #1f2937",
+      background: "rgba(15, 23, 42, 0.6)",
+      borderRadius: 12,
+      padding: isNarrow ? "10px" : "10px 12px",
+      display: "flex",
+      flexDirection: "column",
+      gap: 10,
+    }),
+    [isNarrow]
+  );
+
+  const toolbarSectionTitleStyle: React.CSSProperties = useMemo(
+    () => ({
+      fontSize: 12,
+      fontWeight: 700,
+      letterSpacing: "0.02em",
+      color: "#cbd5f5",
+      textTransform: "uppercase",
+    }),
+    []
+  );
+
+  const toolbarRowStyle: React.CSSProperties = useMemo(
+    () => ({
+      display: "flex",
+      gap: 10,
+      alignItems: "center",
+      flexWrap: "wrap",
+    }),
+    []
+  );
+
+  const toolbarColumnsStyle = useCallback((columns: number): React.CSSProperties => {
+    const clamped = Math.max(2, Math.min(5, columns));
+    return {
+      columnCount: clamped,
+      columnGap: 12,
+      columnFill: "balance",
+      width: "100%",
+    };
+  }, []);
+
+  const toolbarItemStyle: React.CSSProperties = useMemo(
+    () => ({
+      breakInside: "avoid",
+      display: "inline-block",
+      width: "100%",
+      marginBottom: 10,
+    }),
+    []
+  );
+
+  const moduleColumnCount = useCallback((itemCount: number) => Math.max(2, Math.min(5, Math.ceil(itemCount / 3))), []);
+
+  const runModuleItems = useMemo(() => {
+    if (mode === "browser") {
+      return [
+        <label key="mode" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <span style={{ fontSize: 12, color: "#9ca3af" }}>Mode</span>
+          <select
+            value={mode}
+            onChange={(e) => setMode(e.target.value as any)}
+            style={{ ...controlBaseStyle, width: isNarrow ? "100%" : 170 }}
+          >
+            <option value="browser">browser</option>
+            <option value="dump">dump</option>
+          </select>
+        </label>,
+        <div key="seed-map" style={toolbarRowStyle}>
+          <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <span style={{ fontSize: 12, color: "#9ca3af" }}>Seed</span>
+            <input
+              value={browserSeed}
+              onChange={(e) => setBrowserSeed(Number.parseInt(e.target.value || "0", 10) || 0)}
+              style={{ ...controlBaseStyle, width: 96 }}
+            />
+            <button
+              onClick={() => {
+                const next = randomU32();
+                setBrowserSeed(next);
+                startBrowserRun({ seed: next });
+              }}
+              style={{ ...buttonStyle, padding: "6px 10px" }}
+              title="Reroll seed"
+              type="button"
+            >
+              Reroll
+            </button>
+          </label>
+          <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <span style={{ fontSize: 12, color: "#9ca3af" }}>Map size</span>
+            <select
+              value={browserMapSizeId}
+              onChange={(e) => setBrowserMapSizeId(e.target.value as Civ7MapSizePreset["id"])}
+              style={{ ...controlBaseStyle, width: 220 }}
+              disabled={browserRunning}
+            >
+              {CIV7_MAP_SIZES.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {formatMapSizeLabel(p)}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>,
+        <div key="run-buttons" style={toolbarRowStyle}>
+          <button
+            onClick={() => startBrowserRun()}
+            style={{
+              ...buttonStyle,
+              opacity: browserRunning ? 0.6 : 1,
+              background: "#2563eb",
+              borderColor: "#1d4ed8",
+            }}
+            disabled={browserRunning}
+          >
+            Run (Browser)
+          </button>
+          <button
+            onClick={() => setBrowserConfigOpen((v) => !v)}
+            style={{ ...buttonStyle, padding: "6px 10px", opacity: browserConfigOverridesEnabled ? 1 : 0.85 }}
+            title="Toggle config overrides panel"
+            type="button"
+          >
+            Overrides
+          </button>
+          <button
+            onClick={stopBrowserRun}
+            style={{ ...buttonStyle, opacity: browserRunning ? 1 : 0.6 }}
+            disabled={!browserRunning}
+          >
+            Cancel
+          </button>
+        </div>,
+        browserLastStep ? (
+          <div key="last-step" style={{ fontSize: 12, color: "#9ca3af" }}>
+            step: <span style={{ color: "#e5e7eb" }}>{browserLastStep.stepIndex}</span> ·{" "}
+            {formatLabel(browserLastStep.stepId)}
+          </div>
+        ) : null,
+      ].filter(Boolean);
+    }
+
+    return [
+      <label key="mode" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <span style={{ fontSize: 12, color: "#9ca3af" }}>Mode</span>
+        <select
+          value={mode}
+          onChange={(e) => setMode(e.target.value as any)}
+          style={{ ...controlBaseStyle, width: isNarrow ? "100%" : 170 }}
+        >
+          <option value="browser">browser</option>
+          <option value="dump">dump</option>
+        </select>
+      </label>,
+      <div key="dump-buttons" style={toolbarRowStyle}>
+        <button onClick={openDumpFolder} style={buttonStyle}>
+          Open dump folder
+        </button>
+
+        <input
+          ref={directoryInputRef}
+          type="file"
+          multiple
+          onChange={onDirectoryFiles}
+          style={{ display: "none" }}
+          {...({ webkitdirectory: "", directory: "" } as any)}
+        />
+        <button onClick={triggerDirectoryPicker} style={buttonStyle}>
+          Upload dump folder
+        </button>
+      </div>,
+    ];
+  }, [
+    browserConfigOverridesEnabled,
+    browserLastStep,
+    browserMapSizeId,
+    browserRunning,
+    browserSeed,
+    buttonStyle,
+    controlBaseStyle,
+    directoryInputRef,
+    formatLabel,
+    isNarrow,
+    mode,
+    onDirectoryFiles,
+    openDumpFolder,
+    setMode,
+    setBrowserMapSizeId,
+    setBrowserSeed,
+    setBrowserConfigOpen,
+    startBrowserRun,
+    stopBrowserRun,
+    triggerDirectoryPicker,
+    toolbarRowStyle,
+  ]);
+
+  const viewModuleItems = useMemo(
+    () => [
+      <div key="fit-toggles" style={toolbarRowStyle}>
+        <button
+          onClick={() => selectedLayer && setFittedView(selectedLayer.bounds)}
+          style={{ ...buttonStyle, opacity: selectedLayer ? 1 : 0.55 }}
+          disabled={!selectedLayer}
+        >
+          Fit
+        </button>
+
+        <label style={{ display: "flex", gap: 10, alignItems: "center", padding: "2px 2px" }}>
+          <span style={{ fontSize: 12, color: "#9ca3af" }}>Mesh edges</span>
+          <input type="checkbox" checked={showMeshEdges} onChange={(e) => setShowMeshEdges(e.target.checked)} />
+        </label>
+
+        <label style={{ display: "flex", gap: 10, alignItems: "center", padding: "2px 2px" }}>
+          <span style={{ fontSize: 12, color: "#9ca3af" }}>Background grid</span>
+          <input type="checkbox" checked={showBackgroundGrid} onChange={(e) => setShowBackgroundGrid(e.target.checked)} />
+        </label>
+      </div>,
+      <label key="hex-layout" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <span style={{ fontSize: 12, color: "#9ca3af", minWidth: 76 }}>Hex layout</span>
+        <select
+          value={tileLayout}
+          onChange={(e) => setTileLayout(e.target.value as TileLayout)}
+          style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
+        >
+          <option value="row-offset">row-offset (Civ-like)</option>
+          <option value="col-offset">col-offset</option>
+        </select>
+      </label>,
+    ],
+    [buttonStyle, controlBaseStyle, selectedLayer, setFittedView, setShowMeshEdges, setShowBackgroundGrid, showMeshEdges, showBackgroundGrid, tileLayout, toolbarRowStyle]
+  );
+
+  const inspectModuleItems = useMemo(
+    () =>
+      [
+        <label key="step" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <span style={{ fontSize: 12, color: "#9ca3af", minWidth: 56 }}>Step</span>
+          <select
+            value={selectedStepId ?? ""}
+            onChange={(e) => setSelectedStepId(e.target.value || null)}
+            style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
+            disabled={!steps.length && !selectedStepId}
+          >
+            {selectedStepId && !steps.some((s) => s.stepId === selectedStepId) ? (
+              <option value={selectedStepId}>{formatLabel(selectedStepId)} (pending)</option>
+            ) : null}
+            {steps.map((s) => (
+              <option key={s.stepId} value={s.stepId}>
+                {s.stepIndex} · {formatLabel(s.stepId)}
+              </option>
+            ))}
+          </select>
+        </label>,
+        <label key="layer" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <span style={{ fontSize: 12, color: "#9ca3af", minWidth: 56 }}>Layer</span>
+          <select
+            value={selectedLayerKey ?? ""}
+            onChange={(e) => setSelectedLayerKey(e.target.value || null)}
+            style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
+            disabled={!layersForStep.length && !selectedLayerKey}
+          >
+            {selectedLayerKey && !layersForStep.some((l) => l.key === selectedLayerKey) ? (
+              <option value={selectedLayerKey}>
+                {(() => {
+                  const parts = selectedLayerKey.split("::");
+                  const label = parts.length >= 3 ? `${parts[1]} (${parts[2]})` : selectedLayerKey;
+                  return `${label} (pending)`;
+                })()}
+              </option>
+            ) : null}
+            {layersForStepGrouped.map((group) => (
+              <optgroup key={group.group} label={group.group}>
+                {group.layers.map((l) => (
+                  <option key={l.key} value={l.key}>
+                    {formatLayerLabel(l.layer)}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </label>,
+        eraInfo && eraMax != null ? (
+          <label key="era" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <span style={{ fontSize: 12, color: "#9ca3af", minWidth: 56 }}>Era</span>
+            <input
+              type="range"
+              min={0}
+              max={eraMax}
+              step={1}
+              value={clamp(eraIndex, 0, eraMax)}
+              onChange={(e) => setEraIndex(Number.parseInt(e.target.value, 10))}
+              style={{ flex: 1, width: "100%" }}
+            />
+            <span style={{ fontSize: 12, color: "#e5e7eb", minWidth: 26, textAlign: "right" }}>
+              {clamp(eraIndex, 0, eraMax)}
+            </span>
+          </label>
+        ) : null,
+      ].filter(Boolean),
+    [
+      controlBaseStyle,
+      eraInfo,
+      eraIndex,
+      eraMax,
+      formatLabel,
+      layersForStep,
+      layersForStepGrouped,
+      selectedLayerKey,
+      selectedStepId,
+      setEraIndex,
+      setSelectedLayerKey,
+      setSelectedStepId,
+      steps,
+    ]
   );
 
   const backgroundGridLayer = useMemo(() => {
@@ -2036,222 +2417,45 @@ export function App() {
           ) : null}
         </div>
 
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-          <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <span style={{ fontSize: 12, color: "#9ca3af" }}>Mode</span>
-            <select
-              value={mode}
-              onChange={(e) => setMode(e.target.value as any)}
-              style={{ ...controlBaseStyle, width: isNarrow ? "100%" : 170 }}
-            >
-              <option value="browser">browser</option>
-              <option value="dump">dump</option>
-            </select>
-          </label>
-
-          {mode === "browser" ? (
-            <>
-              <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <span style={{ fontSize: 12, color: "#9ca3af" }}>Seed</span>
-                <input
-                  value={browserSeed}
-                  onChange={(e) => setBrowserSeed(Number.parseInt(e.target.value || "0", 10) || 0)}
-                  style={{ ...controlBaseStyle, width: 96 }}
-                />
-                <button
-                  onClick={() => {
-                    const next = randomU32();
-                    setBrowserSeed(next);
-                    startBrowserRun({ seed: next });
-                  }}
-                  style={{ ...buttonStyle, padding: "6px 10px" }}
-                  title="Reroll seed"
-                  type="button"
-                >
-                  Reroll
-                </button>
-              </label>
-              <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <span style={{ fontSize: 12, color: "#9ca3af" }}>Map size</span>
-                <select
-                  value={browserMapSizeId}
-                  onChange={(e) => setBrowserMapSizeId(e.target.value as Civ7MapSizePreset["id"])}
-                  style={{ ...controlBaseStyle, width: 220 }}
-                  disabled={browserRunning}
-                >
-                  {CIV7_MAP_SIZES.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {formatMapSizeLabel(p)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <button
-                onClick={() => startBrowserRun()}
-                style={{ ...buttonStyle, opacity: browserRunning ? 0.6 : 1 }}
-                disabled={browserRunning}
-              >
-                Run (Browser)
-              </button>
-              <button
-                onClick={() => setBrowserConfigOpen((v) => !v)}
-                style={{ ...buttonStyle, padding: "6px 10px", opacity: browserConfigOverridesEnabled ? 1 : 0.85 }}
-                title="Toggle config overrides panel"
-                type="button"
-              >
-                Config
-              </button>
-              <button
-                onClick={stopBrowserRun}
-                style={{ ...buttonStyle, opacity: browserRunning ? 1 : 0.6 }}
-                disabled={!browserRunning}
-              >
-                Cancel
-              </button>
-              {browserLastStep ? (
-                <div style={{ fontSize: 12, color: "#9ca3af" }}>
-                  step: <span style={{ color: "#e5e7eb" }}>{browserLastStep.stepIndex}</span> ·{" "}
-                  {formatLabel(browserLastStep.stepId)}
+        <div
+          style={{
+            display: "grid",
+            gap: 12,
+            gridTemplateColumns: isNarrow ? "1fr" : "repeat(auto-fit, minmax(280px, 1fr))",
+          }}
+        >
+          <div style={toolbarSectionStyle}>
+            <div style={toolbarSectionTitleStyle}>Inspect</div>
+            <div style={toolbarColumnsStyle(moduleColumnCount(inspectModuleItems.length))}>
+              {inspectModuleItems.map((item, idx) => (
+                <div key={`inspect-${idx}`} style={toolbarItemStyle}>
+                  {item}
                 </div>
-              ) : null}
-            </>
-          ) : (
-            <>
-              <button onClick={openDumpFolder} style={buttonStyle}>
-                Open dump folder
-              </button>
-
-              <input
-                ref={directoryInputRef}
-                type="file"
-                multiple
-                onChange={onDirectoryFiles}
-                style={{ display: "none" }}
-                {...({ webkitdirectory: "", directory: "" } as any)}
-              />
-              <button onClick={triggerDirectoryPicker} style={buttonStyle}>
-                Upload dump folder
-              </button>
-            </>
-          )}
-
-          <button
-            onClick={() => selectedLayer && setFittedView(selectedLayer.bounds)}
-            style={{ ...buttonStyle, opacity: selectedLayer ? 1 : 0.55 }}
-            disabled={!selectedLayer}
-          >
-            Fit
-          </button>
-
-          <label
-            style={{
-              display: "flex",
-              gap: 10,
-              alignItems: "center",
-              flex: isNarrow ? "1 1 100%" : "0 0 auto",
-              width: isNarrow ? "100%" : undefined,
-              justifyContent: isNarrow ? "space-between" : "flex-start",
-              padding: isNarrow ? "2px 2px" : 0,
-            }}
-          >
-            <span style={{ fontSize: 12, color: "#9ca3af" }}>Show mesh edges</span>
-            <input type="checkbox" checked={showMeshEdges} onChange={(e) => setShowMeshEdges(e.target.checked)} />
-          </label>
-
-          <label
-            style={{
-              display: "flex",
-              gap: 10,
-              alignItems: "center",
-              flex: isNarrow ? "1 1 100%" : "0 0 auto",
-              width: isNarrow ? "100%" : undefined,
-              justifyContent: isNarrow ? "space-between" : "flex-start",
-              padding: isNarrow ? "2px 2px" : 0,
-            }}
-          >
-            <span style={{ fontSize: 12, color: "#9ca3af" }}>Background grid</span>
-            <input
-              type="checkbox"
-              checked={showBackgroundGrid}
-              onChange={(e) => setShowBackgroundGrid(e.target.checked)}
-            />
-          </label>
-        </div>
-
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-          <label style={{ display: "flex", gap: 8, alignItems: "center", flex: isNarrow ? "1 1 100%" : "0 0 auto", width: isNarrow ? "100%" : undefined }}>
-            <span style={{ fontSize: 12, color: "#9ca3af", minWidth: isNarrow ? 56 : undefined }}>Step</span>
-            <select
-              value={selectedStepId ?? ""}
-              onChange={(e) => setSelectedStepId(e.target.value || null)}
-              style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
-              disabled={!steps.length && !selectedStepId}
-            >
-              {selectedStepId && !steps.some((s) => s.stepId === selectedStepId) ? (
-                <option value={selectedStepId}>{formatLabel(selectedStepId)} (pending)</option>
-              ) : null}
-              {steps.map((s) => (
-                <option key={s.stepId} value={s.stepId}>
-                  {s.stepIndex} · {formatLabel(s.stepId)}
-                </option>
               ))}
-            </select>
-          </label>
+            </div>
+          </div>
 
-          <label style={{ display: "flex", gap: 8, alignItems: "center", flex: isNarrow ? "1 1 100%" : "1 1 420px", width: isNarrow ? "100%" : undefined }}>
-            <span style={{ fontSize: 12, color: "#9ca3af", minWidth: isNarrow ? 56 : undefined }}>Layer</span>
-            <select
-              value={selectedLayerKey ?? ""}
-              onChange={(e) => setSelectedLayerKey(e.target.value || null)}
-              style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
-              disabled={!layersForStep.length && !selectedLayerKey}
-            >
-              {selectedLayerKey && !layersForStep.some((l) => l.key === selectedLayerKey) ? (
-                <option value={selectedLayerKey}>
-                  {(() => {
-                    const parts = selectedLayerKey.split("::");
-                    const label = parts.length >= 3 ? `${parts[1]} (${parts[2]})` : selectedLayerKey;
-                    return `${label} (pending)`;
-                  })()}
-                </option>
-              ) : null}
-              {layersForStep.map((l) => (
-                <option key={l.key} value={l.key}>
-                  {l.layer.layerId} ({l.layer.kind})
-                </option>
+          <div style={toolbarSectionStyle}>
+            <div style={toolbarSectionTitleStyle}>View</div>
+            <div style={toolbarColumnsStyle(moduleColumnCount(viewModuleItems.length))}>
+              {viewModuleItems.map((item, idx) => (
+                <div key={`view-${idx}`} style={toolbarItemStyle}>
+                  {item}
+                </div>
               ))}
-            </select>
-          </label>
+            </div>
+          </div>
 
-          <label style={{ display: "flex", gap: 8, alignItems: "center", flex: isNarrow ? "1 1 100%" : "0 0 auto", width: isNarrow ? "100%" : undefined }}>
-            <span style={{ fontSize: 12, color: "#9ca3af", minWidth: isNarrow ? 76 : undefined }}>Hex layout</span>
-            <select
-              value={tileLayout}
-              onChange={(e) => setTileLayout(e.target.value as TileLayout)}
-              style={{ ...controlBaseStyle, flex: 1, width: isNarrow ? "100%" : 220 }}
-            >
-              <option value="row-offset">row-offset (Civ-like)</option>
-              <option value="col-offset">col-offset</option>
-            </select>
-          </label>
-
-          {eraInfo && eraMax != null ? (
-            <label style={{ display: "flex", gap: 8, alignItems: "center", flex: isNarrow ? "1 1 100%" : "1 1 420px", width: isNarrow ? "100%" : undefined }}>
-              <span style={{ fontSize: 12, color: "#9ca3af", minWidth: isNarrow ? 76 : undefined }}>Era</span>
-              <input
-                type="range"
-                min={0}
-                max={eraMax}
-                step={1}
-                value={clamp(eraIndex, 0, eraMax)}
-                onChange={(e) => setEraIndex(Number.parseInt(e.target.value, 10))}
-                style={{ flex: 1, width: "100%" }}
-              />
-              <span style={{ fontSize: 12, color: "#e5e7eb", minWidth: 26, textAlign: "right" }}>
-                {clamp(eraIndex, 0, eraMax)}
-              </span>
-            </label>
-          ) : null}
+          <div style={toolbarSectionStyle}>
+            <div style={toolbarSectionTitleStyle}>Run</div>
+            <div style={toolbarColumnsStyle(moduleColumnCount(runModuleItems.length))}>
+              {runModuleItems.map((item, idx) => (
+                <div key={`run-${idx}`} style={toolbarItemStyle}>
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

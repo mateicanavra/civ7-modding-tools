@@ -1,4 +1,4 @@
-import type { TraceEvent, TraceSink } from "@swooper/mapgen-core";
+import type { TraceEvent, TraceSink, VizLayerMeta } from "@swooper/mapgen-core";
 import type { BrowserRunEvent, BrowserVizLayerPayload, BrowserVizLayerUpsertEvent } from "./protocol";
 
 type Post = (event: BrowserRunEvent, transfer?: Transferable[]) => void;
@@ -53,6 +53,7 @@ type LayerStreamPayloadV0 =
       type: "layer.stream";
       kind: "grid" | "points" | "segments";
       layerId: string;
+      meta?: VizLayerMeta;
     } & (
       | { kind: "grid"; format: "u8" | "i8" | "u16" | "i16" | "i32" | "f32"; dims: { width: number; height: number }; values: ArrayBufferView }
       | {
@@ -128,6 +129,7 @@ export function createWorkerTraceSink(options: {
       phase: event.phase,
       stepIndex,
       key: `${event.stepId}::${payload.layerId}::${payload.kind}`,
+      meta: payload.meta,
     } as const;
 
     let layerEvent: BrowserVizLayerUpsertEvent | null = null;
@@ -150,6 +152,7 @@ export function createWorkerTraceSink(options: {
           format: payload.format,
           dims: payload.dims,
           bounds: [0, 0, payload.dims.width, payload.dims.height],
+          meta: payload.meta,
         },
         payload: gridPayload,
       };
@@ -167,6 +170,7 @@ export function createWorkerTraceSink(options: {
           count: (payload.positions.length / 2) | 0,
           valueFormat: payload.valueFormat,
           bounds: pointsBounds,
+          meta: payload.meta,
         },
         payload: {
           kind: "points",
@@ -189,6 +193,7 @@ export function createWorkerTraceSink(options: {
           count: (payload.segments.length / 4) | 0,
           valueFormat: payload.valueFormat,
           bounds,
+          meta: payload.meta,
         },
         payload: {
           kind: "segments",

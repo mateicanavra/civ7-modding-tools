@@ -45,6 +45,7 @@ export function createWorkerVizDumper(): VizDumper {
       dims: layer.dims,
       bounds: [0, 0, layer.dims.width, layer.dims.height],
       values: layer.values,
+      meta: layer.meta,
     }));
   };
 
@@ -59,6 +60,7 @@ export function createWorkerVizDumper(): VizDumper {
       positions: layer.positions,
       values: layer.values,
       valueFormat: layer.valueFormat,
+      meta: layer.meta,
     }));
   };
 
@@ -73,6 +75,7 @@ export function createWorkerVizDumper(): VizDumper {
       segments: layer.segments,
       values: layer.values,
       valueFormat: layer.valueFormat,
+      meta: layer.meta,
     }));
   };
 
