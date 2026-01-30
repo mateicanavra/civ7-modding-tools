@@ -9,7 +9,7 @@ import browserTestRecipe, {
   BROWSER_TEST_RECIPE_CONFIG,
   BROWSER_TEST_RECIPE_CONFIG_SCHEMA,
   type BrowserTestRecipeConfig,
-} from "@mapgen/browser-test-recipe";
+} from "@mapgen/browser-recipes/browser-test";
 import { CIV7_BROWSER_TABLES_V0 } from "../civ7-data/civ7-tables.gen";
 import type { BrowserRunEvent, BrowserRunRequest } from "./protocol";
 import { createWorkerTraceSink } from "./worker-trace-sink";
