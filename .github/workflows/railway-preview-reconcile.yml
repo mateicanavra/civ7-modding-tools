@@ -361,7 +361,12 @@ jobs:
           done < pr_env_branch_actions.tsv
 
           if [ "$failures" -gt 0 ]; then
-            exit 1
+            echo "- Guard failures: ${failures}" >> "$GITHUB_STEP_SUMMARY"
+            # Don't fail PR checks due to Railway eventual consistency. The preview workflow for a specific PR
+            # is the authoritative guard; this reconciler is best-effort cleanup/enforcement.
+            if [ "${GITHUB_EVENT_NAME}" != "pull_request_target" ]; then
+              exit 1
+            fi
           fi
 
       - name: Delete stale preview environments
