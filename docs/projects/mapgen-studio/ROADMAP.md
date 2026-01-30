@@ -4,21 +4,24 @@ This roadmap describes the incremental path to a practical, external visualizati
 
 ## Definitions (shared terminology)
 
-- **Dump**: a replayable folder containing at minimum `manifest.json` and referenced payload files under `data/`.
-- **Layer**: a single visualizable artifact (grid/mesh/vector/points/polygons) described in the manifest.
+- **VizSink**: the contract between mapgen execution and visualization. It is sink-driven (stream to UI, export to dump, ignore), not file-path driven.
+- **DeckGlSink**: the primary VizSink implementation for MapGen Studio: Worker → in-memory data → deck.gl (no dump required for normal use).
+- **Dump**: an *optional* export/replay artifact containing at minimum `manifest.json` and referenced payload files under `data/`. Dumps are valuable for tests, debugging, CI artifacts, and sharing — but are not required for in-browser visualization to function.
+- **Layer**: a single visualizable artifact (grid/mesh/vector/points/polygons) described by the in-browser `VizSink` protocol and, when exported, by the dump manifest.
 - **`layerId`**: stable identifier for a layer (recommended form: `<domain>.<name>`), used for UI selection and comparisons.
 - **`runId` / `planFingerprint`**: identifiers for a particular execution; exact semantics must match the mapgen trace/plan implementation.
-- **`outputsRoot`**: where dump folders are written. For V0 we keep dumps local to the map mod’s `dist/` output (see V0 plan).
+- **`outputsRoot`**: where dump folders are written *when dumps are enabled*. Dumps should not be required for the normal in-browser loop.
 
 ## North Star
 
-MapGen Studio becomes the place to **inspect mapgen runs** via:
-- **Replayable dumps** emitted during a run (no “debug mode” required).
-- A **fast, rich viewer** (deck.gl) that can scrub steps, toggle layers, and compare runs.
+MapGen Studio becomes the place to **run and inspect mapgen** via:
+- a **fully in-browser pipeline** (Web Worker; no server round-trips),
+- a **fast, rich viewer** (deck.gl) that renders from **in-memory data** streamed from the worker,
+- optional export paths (dumps) for debugging, regression inspection, and sharing.
 
 ## V0 — Dump + deck.gl Viewer (Vertical Slice)
 
-Goal: prove the end-to-end loop: **run once → dump artifacts → view later**.
+Goal: prove an export/replay workflow: **run once → produce dump artifact → view later**.
 
 Implementation plan: `docs/projects/mapgen-studio/V0-IMPLEMENTATION-PLAN.md`.
 
@@ -68,21 +71,20 @@ Implementation plan: `docs/projects/mapgen-studio/V0-IMPLEMENTATION-PLAN.md`.
 
 ## V0.1 — In-Browser Runner (Foundation First)
 
-Goal: shift MapGen Studio from “replay viewer” to “run + inspect” for Foundation, entirely in the browser.
+Goal: shift MapGen Studio from “replay viewer” to “run + inspect” for Foundation, entirely in the browser, with a pure Worker → in-memory → deck.gl loop.
 
 Deliverables:
 - Run Foundation in a Web Worker:
   - deterministic seed + MAPSIZE_HUGE 106×66 by default
   - progress reporting + cancellation
-- Stream intermediate layers as steps run (no “dump folder” required for the main loop).
-- Optional export paths (defer choice until we need it):
-  - download a dump zip, or
-  - write to browser storage (OPFS/IndexedDB), or
-  - keep in-memory only.
+- Stream intermediate layers as steps run through `VizSink` (primary: `DeckGlSink`).
+- Civ7-derived tables are bundled into the worker (generated offline from official resources).
+- Optional export path (secondary): enable a `DumpSink` to produce a dump for tests/debug/sharing.
 
 Design notes:
 - Browser adapter capability spec: `docs/projects/mapgen-studio/BROWSER-ADAPTER.md`
 - Worker runner design (V0.1): `docs/projects/mapgen-studio/BROWSER-RUNNER-V0.1.md`
+- Current thin slice issue (implementation de-risker): `docs/projects/mapgen-studio/V0.1-SLICE-FOUNDATION-WORKER-DECKGL.md`
 
 ## V0.2 — In-Browser Runner (Full Pipeline)
 
@@ -90,7 +92,7 @@ Goal: run the full pipeline in-browser and keep the visualization surface cohere
 
 Deliverables:
 - Run stages beyond Foundation in the worker (Morphology → Placement).
-- Define a stable in-browser “data products” interface between worker and viewer (typed layer messages).
+- Define a stable in-browser “data products” interface between worker and viewer (`VizSink` + typed layer messages).
 - Restore/extend visual reference layers per domain (tile vs mesh vs other spaces).
 
 ## Later (after the runner focus)
@@ -98,7 +100,7 @@ Deliverables:
 We are deferring the following (but keeping them in scope long-term):
 
 ### Replay/Exports + Sharing
-- Reintroduce “dump + replay” as an export mechanism from the in-browser runner (and/or from CLI runs).
+- Keep “dump + replay” as an export mechanism from the in-browser runner (and/or from CLI runs).
 - Shareable view state (deep links, presets).
 - CI artifact integration (attach dumps to runs for regression inspection).
 
