@@ -300,7 +300,10 @@ jobs:
           fi
 
           echo "Enforcing preview environment branches..." >> "$GITHUB_STEP_SUMMARY"
-          # Enforce per-PR by preferring an in-place update (avoid delete→recreate races) and falling back to reset if needed.
+          # Enforce per-PR by recreating the environment when it drifts.
+          #
+          # Note: Railway does not reliably apply `source.branch` edits in-place for existing environments.
+          # The robust approach is delete→recreate with enough retries for eventual consistency.
           while IFS=$'\t' read -r env_name env_id expected_branch; do
             if [ -z "${env_name:-}" ] || [ -z "${env_id:-}" ] || [ -z "${expected_branch:-}" ]; then
               continue
@@ -315,42 +318,11 @@ jobs:
               continue
             fi
 
-            echo "- $env_name: fix '$current' -> '$expected_branch'" >> "$GITHUB_STEP_SUMMARY"
-
-            set +e
-            edit_output="$(
-              railway environment edit -e "${env_id}" \
-                --service-config "${RAILWAY_SERVICE_ID}" "source.branch" "${expected_branch}" \
-                --json 2>&1
-            )"
-            edit_code=$?
-            set -e
-
-            if [ "$edit_code" -eq 0 ]; then
-              for attempt in 1 2 3 4 5; do
-                current="$(
-                  railway environment "${env_name}" config --json \
-                    | python3 -c 'import json,sys; d=json.load(sys.stdin); svc=d["services"][sys.argv[1]]; print((svc.get("source") or {}).get("branch",""))' "${RAILWAY_SERVICE_ID}"
-                )"
-                if [ "$current" = "$expected_branch" ]; then
-                  break
-                fi
-                echo "retry ${attempt}/5: waiting for ${env_name} branch update to propagate..."
-                sleep 2
-              done
-              if [ "$current" = "$expected_branch" ]; then
-                echo "- $env_name: updated in-place ($current)" >> "$GITHUB_STEP_SUMMARY"
-                continue
-              fi
-            else
-              echo "$edit_output"
-            fi
-
-            echo "- $env_name: reset '$current' -> '$expected_branch' (fallback)" >> "$GITHUB_STEP_SUMMARY"
+            echo "- $env_name: reset '$current' -> '$expected_branch'" >> "$GITHUB_STEP_SUMMARY"
             railway environment delete "${env_name}" -y --json
 
-            # Deletion can take a moment to propagate; retry environment creation a few times.
-            for attempt in 1 2 3 4 5; do
+            # Deletion is eventually consistent; retry environment creation until it succeeds.
+            for attempt in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30; do
               set +e
               output="$(
                 railway environment new "${env_name}" \
@@ -365,7 +337,7 @@ jobs:
                 break
               fi
               echo "$output"
-              echo "retry ${attempt}/5: waiting for ${env_name} delete to finalize..."
+              echo "retry ${attempt}/30: waiting for ${env_name} delete to finalize..."
               sleep 2
             done
           done < pr_env_branch_actions.tsv

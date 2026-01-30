@@ -228,38 +228,11 @@ jobs:
           )"
 
           if [ "$current" != "$EXPECTED_BRANCH" ]; then
-            echo "Fixing ${ENV_NAME}: branch '$current' -> '$EXPECTED_BRANCH'"
-
-            # Prefer an in-place update to avoid the Railway environment delete→recreate race (eventual consistency).
-            set +e
-            railway environment edit -e "${ENV_NAME}" \
-              --service-config "${{ env.RAILWAY_SERVICE_ID }}" "source.branch" "${EXPECTED_BRANCH}" \
-              --json >/dev/null 2>&1
-            edit_code=$?
-            set -e
-
-            if [ "$edit_code" -eq 0 ]; then
-              for attempt in 1 2 3 4 5; do
-                current="$(
-                  railway environment "${ENV_NAME}" config --json \
-                    | python3 -c 'import json,sys; d=json.load(sys.stdin); svc=d["services"][sys.argv[1]]; print((svc.get("source") or {}).get("branch",""))' "${{ env.RAILWAY_SERVICE_ID }}"
-                )"
-                if [ "$current" = "$EXPECTED_BRANCH" ]; then
-                  break
-                fi
-                echo "retry ${attempt}/5: waiting for ${ENV_NAME} branch update to propagate..."
-                sleep 2
-              done
-            fi
-
-            if [ "$current" = "$EXPECTED_BRANCH" ]; then
-              exit 0
-            fi
-
             echo "Resetting ${ENV_NAME}: branch '$current' -> '$EXPECTED_BRANCH'"
             railway environment delete "${ENV_NAME}" -y --json
 
-            for attempt in 1 2 3 4 5; do
+            # Deletion is eventually consistent; retry until Railway accepts a recreate.
+            for attempt in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30; do
               set +e
               output="$(
                 railway environment new "${ENV_NAME}" \
@@ -274,7 +247,7 @@ jobs:
                 break
               fi
               echo "$output"
-              echo "retry ${attempt}/5: waiting for ${ENV_NAME} delete to finalize..."
+              echo "retry ${attempt}/30: waiting for ${ENV_NAME} delete to finalize..."
               sleep 2
             done
           fi
