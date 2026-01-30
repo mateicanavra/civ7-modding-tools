@@ -11,7 +11,8 @@
     "check:worker-bundle": "node scripts/check-worker-bundle.mjs",
     "prebuild": "bun run --filter @swooper/mapgen-core build && bun run --filter @mapgen/browser-recipes build",
     "build": "tsc && vite build && bun run check:worker-bundle",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "bunx caddy run --config Caddyfile --adapter caddyfile"
   },
   "dependencies": {
     "@civ7/adapter": "workspace:*",
