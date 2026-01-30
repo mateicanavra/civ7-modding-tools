@@ -94,6 +94,6 @@ This catalog documents the visualization layers that MapGen Studio surfaces from
 - `ecology.featureIntents.featureType` (points; values map to FEATURE_PLACEMENT_KEYS)
 
 ## Gameplay (Placement)
-- `gameplay.landmassRegionSlotByTile`
-- `gameplay.startPositions` (points)
-- `gameplay.startSlotByTile` (grid)
+- `placement.landmassRegions.regionSlot` (grid; 0=none, 1=west, 2=east)
+- `placement.starts.sectorId` (grid; derived start-sector ids, 0=inactive)
+- `placement.starts.startPosition` (points; player index)

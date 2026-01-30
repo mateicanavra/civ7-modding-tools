@@ -1,8 +1,11 @@
+import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { mapArtifacts } from "../../../../map-artifacts.js";
 import PlotLandmassRegionsStepContract from "./contract.js";
 
 type RegionSlot = 0 | 1 | 2;
+
+const GROUP_GAMEPLAY = "Gameplay / Placement";
 
 function computeWrappedIntervalCenter(west: number, east: number, width: number): number {
   if (width <= 0) return 0;
@@ -73,6 +76,22 @@ export default createStep(PlotLandmassRegionsStepContract, {
       landMask: topography.landMask as Uint8Array,
       landmassIdByTile: landmasses.landmassIdByTile as Int32Array,
       landmasses: landmasses.landmasses,
+    });
+
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "placement.landmassRegions.regionSlot",
+      dims: { width, height },
+      format: "u8",
+      values: slotByTile,
+      meta: defineVizMeta("placement.landmassRegions.regionSlot", {
+        label: "Landmass Region Slot",
+        group: GROUP_GAMEPLAY,
+        categories: [
+          { value: 0, label: "None" },
+          { value: 1, label: "West" },
+          { value: 2, label: "East" },
+        ],
+      }),
     });
 
     const westRegionId = context.adapter.getLandmassId("WEST");
