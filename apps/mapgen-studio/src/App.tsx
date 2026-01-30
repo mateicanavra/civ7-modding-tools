@@ -131,12 +131,14 @@ export function App() {
 
   const startBrowserRun = useCallback((overrides?: { seed?: number }) => {
     setLocalError(null);
+    let configOverrides = browserConfigOverrides.configOverridesForRun;
     if (browserConfigOverrides.enabled && browserConfigOverrides.tab === "json") {
-      const { ok } = browserConfigOverrides.applyJson();
+      const { ok, value } = browserConfigOverrides.applyJson();
       if (!ok) {
         setLocalError("Config overrides JSON is invalid. Fix it (or disable overrides) and try again.");
         return;
       }
+      configOverrides = value;
     }
     const pinned = capturePinnedSelection({
       mode,
@@ -153,7 +155,6 @@ export function App() {
 
     const seedToUse = overrides?.seed ?? browserSeed;
     const mapSize = getCiv7MapSizePreset(browserMapSizeId);
-    const configOverrides = browserConfigOverrides.configOverridesForRun;
     browserRunner.actions.start({
       seed: seedToUse,
       mapSizeId: mapSize.id,
