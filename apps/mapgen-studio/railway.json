@@ -21,6 +21,7 @@
   "deploy": {
     "runtime": "V2",
     "numReplicas": 1,
+    "startCommand": "cd apps/mapgen-studio && caddy run --config Caddyfile --adapter caddyfile",
     "limitOverride": {
       "containers": {
         "cpu": 2,
