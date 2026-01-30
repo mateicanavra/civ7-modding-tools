@@ -1031,6 +1031,10 @@ function buildPlateColorMap(options: {
 function colorForValue(layerId: string, value: number, plateColorMap?: Map<number, RgbaColor>): RgbaColor {
   if (!Number.isFinite(value)) return [120, 120, 120, 220];
 
+  if (layerId.toLowerCase().includes("landmask")) {
+    return value > 0 ? [34, 197, 94, 230] : [37, 99, 235, 230];
+  }
+
   if (layerId.includes("crust") && layerId.toLowerCase().includes("type")) {
     return value === 1 ? [34, 197, 94, 230] : [37, 99, 235, 230];
   }
@@ -1077,6 +1081,16 @@ function legendForLayer(layer: VizLayerEntryV0 | null, stats: { min?: number; ma
   if (!layer) return null;
   const id = layer.layerId;
 
+  if (id.toLowerCase().includes("landmask")) {
+    return {
+      title: "Landmask",
+      items: [
+        { label: "0 = water", color: [37, 99, 235, 230] },
+        { label: "1 = land", color: [34, 197, 94, 230] },
+      ],
+    };
+  }
+
   if (id.endsWith("tileBoundaryType") || id.endsWith("boundaryType") || id.includes("boundaryType")) {
     return {
       title: "Boundary Type",
@@ -1096,6 +1110,25 @@ function legendForLayer(layer: VizLayerEntryV0 | null, stats: { min?: number; ma
         { label: "0 = oceanic", color: [37, 99, 235, 230] },
         { label: "1 = continental", color: [34, 197, 94, 230] },
       ],
+    };
+  }
+
+  if (id.toLowerCase().includes("tile.height") || id.toLowerCase().includes("tileheight")) {
+    if (stats && Number.isFinite(stats.min) && Number.isFinite(stats.max)) {
+      const min = stats.min ?? 0;
+      const max = stats.max ?? 1;
+      return {
+        title: "Tile Height",
+        items: [
+          { label: `min = ${min.toFixed(3)}`, color: colorForValue(id, 0) },
+          { label: `max = ${max.toFixed(3)}`, color: colorForValue(id, 1) },
+        ],
+        note: "Values are mapped with a simple palette in V0.",
+      };
+    }
+    return {
+      title: "Tile Height",
+      items: [{ label: "continuous scalar", color: colorForValue(id, 0.5) }],
     };
   }
 
