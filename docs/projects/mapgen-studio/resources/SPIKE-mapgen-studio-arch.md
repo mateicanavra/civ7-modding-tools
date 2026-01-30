@@ -5,6 +5,8 @@ Using the spike workflow + architecture method: I reviewed the current MapGen St
 ## Addendum (2026-01-29): new stack changes that affect this proposal
 - Config overrides are now a first-class, schema-driven workflow (UI → worker): `docs/projects/mapgen-studio/V0.1-SLICE-CONFIG-OVERRIDES-UI-WORKER.md`.
 - The browser runner request now includes `configOverrides` (typed) and the worker deep-merges + validates overrides deterministically.
+- `packages/browser-recipes/` (`@mapgen/browser-recipes`) now exists and is the start of a recipe artifacts layer that should scale to many recipes.
+- Config overrides now includes deliberate “presentation-only flattening” (wrapper collapsing) and bespoke form styling/templates; this should be extracted as a cohesive feature, not diffused across the app.
 - This strengthens (not weakens) the core architectural direction: treat “runner + config + protocol” as a feature slice, and keep renderer/viz logic isolated from runner concerns.
 - The refactor sequencing doc has been updated to reflect this: `docs/projects/mapgen-studio/resources/APP-TSX-REFACTOR-PLAN.md`.
 
@@ -19,13 +21,20 @@ Propose a scalable, modern React + TypeScript architecture for MapGen Studio (a 
 ### 2) Assumptions and Unknowns
 - Assumption: MapGen Studio will grow into multiple “modes” (dump replay viewer, in-browser runner, pipeline graph/plan viewer, later editor).
 - Assumption: The “gen core SDK” you refer to is primarily `@swooper/mapgen-core` + `@civ7/adapter` and recipes/config from the mod/authoring side.
-- Unknown (important): whether MapGen Studio should depend on `mods/mod-swooper-maps` sources directly (recipes, tags), or whether we want a browser-safe “recipes SDK” package that the app/worker imports instead.
+- Update: we now have `packages/browser-recipes/` (`@mapgen/browser-recipes`) as an artifacts layer for browser-approved recipes/config schemas.
+- Remaining unknown (still important): how far we want to push that boundary (e.g. “recipes as curated artifacts” vs “app imports mod sources directly”), especially as the number of recipes grows.
 
 ### 3) What We Learned (Current State + Specs)
 **Current `App.tsx` reality**
-- `apps/mapgen-studio/src/App.tsx:10` defines `VizLayerEntryV0` / `VizManifestV0` locally and implements: dump loading (folder picker), manifest parsing, binary decoding, coordinate transforms, deck.gl layer construction, legend/color logic, and all UI in one file. `apps/mapgen-studio/src/App.tsx:296`
-- It’s a V0 “dump replay viewer”: open a folder containing `manifest.json` and `data/*` and render via deck.gl. `apps/mapgen-studio/src/App.tsx:384`, `apps/mapgen-studio/src/App.tsx:934`
-- The manifest types are duplicated from the Node dump producer in `mods/mod-swooper-maps/src/dev/viz/dump.ts:8`. (That file also defines the dump sink and viz dumper.)
+- `apps/mapgen-studio/src/App.tsx` is now a large “vertical slice” (~2.5k LOC) that mixes:
+  - app shell/layout
+  - browser-runner orchestration (worker lifecycle + protocol client)
+  - in-memory viz host (deck.gl) + layer selection/retention
+  - dump replay viewer (folder picker + manifest decode)
+  - schema-driven config overrides editor (RJSF templates + CSS + presentation-only schema flattening) + JSON fallback editor
+- The viz model/protocol still has duplication pressure:
+  - dump manifest types are local in the app, while the dump producer exists in `mods/mod-swooper-maps/src/dev/viz/dump.ts`.
+  - worker streaming protocol types live in `apps/mapgen-studio/src/browser-runner/protocol.ts`.
 
 **Where “Viz” currently lives in the pipeline**
 - The pipeline-side contract today is `VizDumper` in `@swooper/mapgen-core` (`packages/mapgen-core/src/core/types.ts:165`). It’s dump-oriented, but conceptually already the “viz sink hook point”.
@@ -57,9 +66,10 @@ This is a **hybrid**: *feature-based app organization* + *domain packages for sh
    Purpose: the bundled Civ7-derived lookup tables that the worker imports (terrain/biome/feature indices, map sizes) as described in `docs/projects/mapgen-studio/BROWSER-ADAPTER.md:15`.
    - Key property: worker imports modules; no runtime fetching; consistent with V0.1 spec.
 
-4) **(Optional, but likely) `packages/mapgen-recipes` (browser-safe recipe entrypoints)**
-   If we decide the app/worker should *not* import from `mods/`, package the browser-approved recipes/config schemas here.
-   - Today, Foundation recipe entrypoint is in the mod: `mods/mod-swooper-maps/src/recipes/foundation/recipe.ts:1`.
+4) **Recipe artifacts layer (now exists): `packages/browser-recipes`**
+   We now have `packages/browser-recipes/` (`@mapgen/browser-recipes`) as a browser-approved recipes/config artifacts layer.
+   - Near-term: it can re-export curated recipes/config schemas for the worker + UI to consume.
+   - Long-term: it should evolve into a registry of many recipes (plus generated types/schemas) so “add a recipe” doesn’t require app-level architecture changes.
 
 #### B) React app layout (apps/mapgen-studio)
 Adopt a **feature-sliced** layout so new modes don’t re-balkanize “components vs hooks vs state” folders:

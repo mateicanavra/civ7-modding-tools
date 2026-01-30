@@ -8,6 +8,11 @@ This document is a **comprehensive plan** to refactor `apps/mapgen-studio/src/Ap
 
 It is intentionally written to be **updated** as more upstack work lands (especially around config overrides / nodes).
 
+Update note (2026-01-29):
+- `App.tsx` has expanded substantially (config overrides sidebar polish, schema presentation helpers, CSS, templates).
+- `packages/browser-recipes/` (`@mapgen/browser-recipes`) now exists and is the beginning of the “many recipes” story.
+- Treat “infinite recipes” as a hard requirement: adding new recipes should be a mechanical registration/artifacts task, not an app re-architecture.
+
 Related context:
 - Architecture spike: `docs/projects/mapgen-studio/resources/SPIKE-mapgen-studio-arch.md`
 - V0.1 runner spec: `docs/projects/mapgen-studio/BROWSER-RUNNER-V0.1.md`
@@ -49,8 +54,12 @@ Related context:
 - Legend content and formatting.
 - Styling via inline styles.
 - Schema-driven config editor (RJSF) + “advanced JSON” textarea for overrides.
+- Config overrides presentation layer (must remain presentation-only):
+  - CSS blob for form typography + separators + stage cards.
+  - RJSF templates (`FieldTemplate`, `ObjectFieldTemplate`, `ArrayFieldTemplate`).
+  - Schema normalization/wrapper collapsing (collapse redundant single-child wrappers, but preserve the top-level stage container).
 
-This is already ~1.6k LOC and will continue to grow as we add:
+This is already ~2.5k LOC and will continue to grow as we add:
 - More config override surfaces (additional recipes, pipeline override nodes)
 - More layer types and richer inspector UI
 - More modes/features (graph view, diffing, export/replay, etc.)
@@ -64,6 +73,19 @@ This is already ~1.6k LOC and will continue to grow as we add:
 - **Low-risk**: prefer “move code” and “rename for clarity” over logic changes.
 - **Keep optionality**: avoid picking a router/state library in the refactor unless we explicitly decide to.
 - **Stay aligned with specs**: the direction is “browser runner first-class; dumps are optional/export/debug”.
+
+### Invariants we must preserve (non-negotiable)
+- **Browser-first**: pipeline runs in a Web Worker; no server round-trips for normal operation.
+- **In-memory viz**: runtime path is worker → streamed payloads → deck.gl; dumps are optional.
+- **Bundling guardrails**: worker bundle stays browser-safe (keep `check:worker-bundle` green).
+- **Determinism**: seed/config → deterministic outputs; merge semantics are deterministic and safe.
+- **Retention UX**: reruns retain selected step + layer; seed reroll auto-runs; cancellation semantics unchanged.
+- **Config overrides UX**:
+  - schema-driven form is primary
+  - JSON editor is a fallback/advanced path
+  - schema wrapper collapsing is presentation-only and must not change config shape
+  - the top-level stage container remains visible and is not collapsed away
+- **No import cycles**: keep the layering acyclic; runner/protocol and viz/ui concerns must not tangle.
 
 ### What we should not do in this refactor
 - Introduce Tailwind/shadcn/ui in the same change (plan for it; don’t couple it).
@@ -98,6 +120,48 @@ This refactor is designed so that the near-term modules can later be **moved who
 ---
 
 ## 4) Proposed file/directory layout (near-term extraction)
+
+### Recommendation (updated): split into `features/*` now
+We now have enough real surface area (browser runner, dump viewer, config overrides, viz host) that a **feature-based** layout is the least risky long-term move and reduces cross-branch conflicts. This does **not** force routing or a global store; it just gives us stable seams.
+
+Proposed near-term layout (inside the app):
+
+```text
+apps/mapgen-studio/src/
+  App.tsx                     # shrinks to composition/wiring
+  main.tsx
+
+  app/                        # app shell composition (no domain logic)
+    AppShell.tsx
+    ErrorBanner.tsx
+
+  features/
+    browser-runner/           # worker client + run orchestration
+    config-overrides/         # schema-driven form + JSON editor + presentation rules
+    viz/                      # deck.gl canvas + layer model + builders
+    dump-viewer/              # folder picker + manifest decode (optional mode)
+
+  shared/                     # small cross-feature helpers only
+    format.ts
+    hooks.ts
+    types.ts
+
+  browser-runner/             # worker entry + protocol (already exists)
+    foundation.worker.ts
+    protocol.ts
+    worker-trace-sink.ts
+    worker-viz-dumper.ts
+```
+
+Dependency rules (keep the graph acyclic):
+- `app/*` composes `features/*` and may depend on `shared/*`.
+- `features/*` may depend on `shared/*`.
+- `features/viz/*` consumes “runner events” via a narrow adapter boundary; avoid importing runner internals.
+- `browser-runner/*` (worker + protocol) must not import from React/app/features.
+
+`packages/browser-recipes/` is a critical input to this structure:
+- The app should treat “recipes” as data/artifacts (`recipeId`, `defaultConfig`, `configSchema`, optional presentation hints).
+- The config overrides feature should be recipe-agnostic so adding recipes is a mechanical registration step.
 
 Create a “subsystem” structure inside `apps/mapgen-studio/src/` without committing to the final feature-slice layout yet:
 
@@ -256,6 +320,18 @@ Suggested component split (each should be mostly presentational + callbacks):
 
 This should be done as a **stack of small PRs** (Graphite-friendly), each with a tight diff:
 
+### Updated sequencing recommendation (post config sidebar work)
+Given the latest `App.tsx` changes, config overrides is now the single biggest, most cohesive subsystem, and it also has the strongest invariants. That makes it the best “first extraction” to reduce `App.tsx` size quickly while minimizing coupling risk.
+
+Recommended order (conceptual):
+1) Extract **config overrides** (CSS + templates + schema presentation + validate/narrow + JSON editor) as a unit.
+2) Extract **browser runner** hook/client (worker lifecycle + request building + error normalization).
+3) Extract **viz** host/builders (deck.gl canvas, layer registry/selection, legend derivation).
+4) Extract **dump viewer** (folder picker + manifest decode) as its own mode.
+5) Extract **app shell** (layout/markup) last, once the logic is out.
+
+The layers below are still valid; treat them as a “mechanical move” checklist, but prefer starting with the config overrides slice even if it means doing “Layer 4.5” earlier than “Layer 2/3”.
+
 ### Layer 1 — “Extract pure utilities + types”
 - Add `studio/model/*` and `studio/viz/*` modules.
 - Move pure functions/types, keep exports stable.
@@ -319,21 +395,41 @@ Later: unify under a shared protocol library (likely `packages/mapgen-viz`) so:
 - the app uses one “viz model” regardless of source (dump or live run)
 
 ### 7.2 Where config overrides live
-Config overrides are now *real* and are part of the browser-runner workflow:
-- The UI edits a typed config shape (currently `BrowserTestRecipeConfig`) via:
-  - schema-driven form (RJSF), and/or
-  - an advanced JSON textarea with validation/narrowing
-- The runner request includes `configOverrides` (typed) and the worker:
-  - deterministically deep-merges base config + overrides
-  - validates with `normalizeStrict` and fails fast with readable errors
+Config overrides must scale to “many recipes” without the app architecture changing every time.
 
-We should isolate this into a dedicated subsystem so it doesn’t keep inflating `App.tsx`:
-- `studio/config-overrides/model.ts` — state shape + helpers for “enabled/tab/source-of-truth”
-- `studio/config-overrides/validate.ts` — JSON parse + `normalizeStrict` narrowing + error formatting (shared by UI + runner-start)
-- `studio/config-overrides/ConfigOverridesPanel.tsx` — the UI (RJSF + JSON textarea), no worker imports
-- `studio/config-overrides/toRunRequest.ts` — “extract the overrides payload” for `BrowserRunStartRequest`
+What exists today (and should be preserved):
+- A schema-driven form (RJSF) is the primary editor; JSON textarea is the fallback.
+- Schema “flattening” is presentation-only (collapse redundant wrappers, preserve the stage container).
+- The runner request includes `configOverrides`; the worker deep-merges deterministically and validates via `normalizeStrict`.
 
-Later (once we support multiple recipes): promote to a feature slice (e.g. `features/runner/config-overrides/`) and/or define an explicit “public overrides” schema per recipe.
+What we should refactor toward (to satisfy “infinite recipes”):
+- Make config overrides **recipe-agnostic**.
+- Introduce a `RecipeId` and a recipe artifacts interface consumed by both UI + worker:
+  - `id`, `title`
+  - `defaultConfig`
+  - `configSchema`
+  - optional `presentationHints` (if needed to tune the schema flattening without changing config shape)
+- The config overrides feature should operate on `(recipeId, baseConfig, schema, overrides)` as `unknown` at the boundary, and only narrow/validate using the recipe’s schema.
+
+This turns “add a recipe” into a mechanical change:
+- add a new recipe artifacts module (likely in `@mapgen/browser-recipes`)
+- register it in a shared registry the app/worker can import
+- no changes needed to the config overrides UI internals
+
+Isolation plan (where the code should live after refactor):
+- `features/config-overrides/model.ts` — state shape (enabled, tab, overrides source-of-truth) that supports multiple recipes
+- `features/config-overrides/schema-presentation.ts` — wrapper collapsing + “transparent paths” logic (presentation-only)
+- `features/config-overrides/form-templates.tsx` — RJSF templates (Object/Field/Array)
+- `features/config-overrides/form-styles.ts` — current CSS blob (keep intact initially)
+- `features/config-overrides/validate.ts` — parse JSON + validate/narrow + format errors (shared by UI + runner-start)
+
+### 7.2.1 Protocol shape for “many recipes”
+Today the browser runner protocol is effectively specialized around a single recipe/config type.
+To scale to many recipes, we should expect to evolve the request envelope to include:
+- `recipeId: RecipeId`
+- `configOverrides?: unknown` (validated/narrowed against the recipe’s schema on both sides)
+
+The app can still remain type-safe locally by narrowing `unknown` using the selected recipe’s artifacts; the protocol boundary should remain stable and not require UI/worker to share a giant union of every recipe config type.
 
 ### 7.3 Async caching
 The app currently does “async memo” and then sets `resolvedLayers`.
@@ -355,6 +451,7 @@ Behavioral:
   - cancels cleanly
   - shows readable errors
   - applies config overrides correctly (and blocks invalid overrides)
+  - preserves the config overrides presentation-only flattening behavior (stage container visible; redundant wrappers collapsed)
 - Dump mode still:
   - loads a run folder reliably via directory picker
   - renders the same layers as before
