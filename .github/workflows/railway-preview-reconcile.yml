@@ -317,6 +317,27 @@ jobs:
             echo "- $env_name: enforced $expected_branch" >> "$GITHUB_STEP_SUMMARY"
           done < pr_env_branch_actions.tsv
 
+          echo "Guarding preview environment branches..." >> "$GITHUB_STEP_SUMMARY"
+          failures=0
+          while IFS=$'\t' read -r env_name env_id expected_branch; do
+            if [ -z "${env_name:-}" ] || [ -z "${expected_branch:-}" ]; then
+              continue
+            fi
+            configured="$(
+              railway environment "${env_name}" config --json \
+                | python3 -c 'import json,sys; d=json.load(sys.stdin); svc=d["services"][sys.argv[1]]; print((svc.get("source") or {}).get("branch",""))' "${RAILWAY_SERVICE_ID}"
+            )"
+            if [ "$configured" != "$expected_branch" ]; then
+              echo "::error::${env_name} pinned to '$configured' (expected '$expected_branch')"
+              echo "- ${env_name}: configured '$configured' (expected '$expected_branch')" >> "$GITHUB_STEP_SUMMARY"
+              failures=$((failures+1))
+            fi
+          done < pr_env_branch_actions.tsv
+
+          if [ "$failures" -gt 0 ]; then
+            exit 1
+          fi
+
       - name: Delete stale preview environments
         if: steps.auth.outputs.ok == 'true'
         env:

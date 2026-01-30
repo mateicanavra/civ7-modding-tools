@@ -185,51 +185,13 @@ jobs:
           ENV_NAME: ${{ steps.decide.outputs.env_name }}
         shell: bash
         run: |
-          set +e
-          STATUS_JSON="$(railway status --json 2>&1)"
-          status_code=$?
-          set -e
+          set -euo pipefail
 
-          if [ "$status_code" -ne 0 ] || [ -z "$STATUS_JSON" ]; then
-            echo "ok=false" >> "$GITHUB_OUTPUT"
-            echo "env_id=" >> "$GITHUB_OUTPUT"
-            echo "railway status failed or returned empty output; skipping preview env selection."
-            exit 0
-          fi
-
-          export STATUS_JSON
           ENV_ID="$(
-            python3 - <<'PY' || exit 1
-          import json, os, sys
+            railway environment "${ENV_NAME}" --json \
+              | python3 -c 'import json,sys; print(json.load(sys.stdin)["environment"]["id"])'
+          )"
 
-          raw = os.environ.get("STATUS_JSON", "")
-          # tolerate non-json prefix/suffix from railway on failure
-          start = raw.find("{")
-          if start == -1:
-            sys.exit(1)
-
-          d = json.loads(raw[start:])
-          env = os.environ["ENV_NAME"]
-          edges = (d.get("environments") or {}).get("edges") or []
-
-          for e in edges:
-            node = (e or {}).get("node") or {}
-            if node.get("name") == env and not node.get("deletedAt"):
-              print(node.get("id") or "")
-              sys.exit(0)
-
-          sys.exit(1)
-          PY
-          )" || true
-
-          if [ -z "$ENV_ID" ]; then
-            echo "ok=false" >> "$GITHUB_OUTPUT"
-            echo "env_id=" >> "$GITHUB_OUTPUT"
-            echo "Could not resolve ENV_ID; skipping preview env selection."
-            exit 0
-          fi
-
-          export ENV_ID
           echo "ok=true" >> "$GITHUB_OUTPUT"
           echo "env_id=$ENV_ID" >> "$GITHUB_OUTPUT"
 
@@ -249,6 +211,7 @@ jobs:
         env:
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
           ENVIRONMENT_ID: ${{ steps.envselect.outputs.env_id }}
+          ENV_NAME: ${{ steps.decide.outputs.env_name }}
           EXPECTED_BRANCH: ${{ github.head_ref }}
         shell: bash
         run: |
@@ -307,6 +270,15 @@ jobs:
             raise RuntimeError(f"Branch update failed: expected {expected_branch} got {updated}")
           print(f"updated: {current} -> {updated}")
           PY
+
+          current="$(
+            railway environment "${ENV_NAME}" config --json \
+              | python3 -c 'import json,sys; d=json.load(sys.stdin); svc=d["services"][sys.argv[1]]; print((svc.get("source") or {}).get("branch",""))' "${{ env.RAILWAY_SERVICE_ID }}"
+          )"
+          if [ "$current" != "${EXPECTED_BRANCH}" ]; then
+            echo "::error::Preview env ${ENV_NAME} is pinned to '$current' (expected '$EXPECTED_BRANCH')."
+            exit 1
+          fi
 
       - name: Checkout PR branch
         if: steps.finalize.outputs.should_preview == 'true' && steps.envselect.outputs.ok == 'true'
