@@ -1,5 +1,5 @@
 import type { MapDimensions } from "@civ7/adapter";
-import { computeSampleStep, renderAsciiGrid } from "@swooper/mapgen-core";
+import { computeSampleStep, defineVizMeta, renderAsciiGrid } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import RuggedCoastsStepContract from "./ruggedCoasts.contract.js";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
@@ -8,6 +8,8 @@ import { MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER } from "@mapgen/domain/morpholog
 import type { MorphologyCoastRuggednessKnob } from "@mapgen/domain/morphology/shared/knobs.js";
 
 type ArtifactValidationIssue = Readonly<{ message: string }>;
+
+const GROUP_COASTLINES = "Morphology / Coastlines";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -229,6 +231,37 @@ export default createStep(RuggedCoastsStepContract, {
       coastal[i] = result.coastalLand[i] === 1 || result.coastalWater[i] === 1 ? 1 : 0;
     }
     const distanceToCoast = computeDistanceToCoast(width, height, coastal);
+
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "morphology.coastlineMetrics.coastalLand",
+      dims: { width, height },
+      format: "u8",
+      values: result.coastalLand,
+      meta: defineVizMeta("morphology.coastlineMetrics.coastalLand", {
+        label: "Coastal Land",
+        group: GROUP_COASTLINES,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "morphology.coastlineMetrics.coastalWater",
+      dims: { width, height },
+      format: "u8",
+      values: result.coastalWater,
+      meta: defineVizMeta("morphology.coastlineMetrics.coastalWater", {
+        label: "Coastal Water",
+        group: GROUP_COASTLINES,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "morphology.coastlineMetrics.distanceToCoast",
+      dims: { width, height },
+      format: "u16",
+      values: distanceToCoast,
+      meta: defineVizMeta("morphology.coastlineMetrics.distanceToCoast", {
+        label: "Distance To Coast",
+        group: GROUP_COASTLINES,
+      }),
+    });
 
     deps.artifacts.coastlineMetrics.publish(context, {
       coastalLand: result.coastalLand,

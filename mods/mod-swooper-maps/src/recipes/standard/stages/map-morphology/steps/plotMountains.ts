@@ -2,6 +2,7 @@ import {
   HILL_TERRAIN,
   MOUNTAIN_TERRAIN,
   computeSampleStep,
+  defineVizMeta,
   logMountainSummary,
   logReliefAscii,
   renderAsciiGrid,
@@ -17,6 +18,8 @@ import {
   MORPHOLOGY_OROGENY_TECTONIC_INTENSITY_MULTIPLIER,
 } from "@mapgen/domain/morphology/shared/knob-multipliers.js";
 import type { MorphologyOrogenyKnob } from "@mapgen/domain/morphology/shared/knobs.js";
+
+const GROUP_MAP_PROJECTION = "Morphology / Map Projection";
 
 function buildFractalArray(
   width: number,
@@ -100,6 +103,55 @@ export default createStep(PlotMountainsStepContract, {
       },
       config.mountains
     );
+
+    if (plan.mountainMask instanceof Uint8Array) {
+      context.viz?.dumpGrid(context.trace, {
+        layerId: "map.morphology.mountains.mountainMask",
+        dims: { width, height },
+        format: "u8",
+        values: plan.mountainMask,
+        meta: defineVizMeta("map.morphology.mountains.mountainMask", {
+          label: "Mountain Mask (Projection)",
+          group: GROUP_MAP_PROJECTION,
+        }),
+      });
+    }
+    if (plan.hillMask instanceof Uint8Array) {
+      context.viz?.dumpGrid(context.trace, {
+        layerId: "map.morphology.mountains.hillMask",
+        dims: { width, height },
+        format: "u8",
+        values: plan.hillMask,
+        meta: defineVizMeta("map.morphology.mountains.hillMask", {
+          label: "Hill Mask (Projection)",
+          group: GROUP_MAP_PROJECTION,
+        }),
+      });
+    }
+    if (plan.orogenyPotential01 instanceof Uint8Array) {
+      context.viz?.dumpGrid(context.trace, {
+        layerId: "map.morphology.mountains.orogenyPotential01",
+        dims: { width, height },
+        format: "u8",
+        values: plan.orogenyPotential01,
+        meta: defineVizMeta("map.morphology.mountains.orogenyPotential01", {
+          label: "Orogeny Potential (Projection)",
+          group: GROUP_MAP_PROJECTION,
+        }),
+      });
+    }
+    if (plan.fracture01 instanceof Uint8Array) {
+      context.viz?.dumpGrid(context.trace, {
+        layerId: "map.morphology.mountains.fracture01",
+        dims: { width, height },
+        format: "u8",
+        values: plan.fracture01,
+        meta: defineVizMeta("map.morphology.mountains.fracture01", {
+          label: "Fracture (Projection)",
+          group: GROUP_MAP_PROJECTION,
+        }),
+      });
+    }
 
     context.trace.event(() => {
       const size = Math.max(0, (width | 0) * (height | 0));

@@ -83,18 +83,26 @@ related_to: []
 3) **Cleanup/Polish Plan**: update docs + JSDoc/comments + React refinements + verification.
 
 ### Implementation Plan (Branch Map)
-- **PV-00 Docs/Plan**: finalize issue doc plans + add `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md`.
-- **PV-01 Morphology viz**: emit morphology-pre/mid/post layers (topography, routing, substrate, coastline metrics, landmasses, volcanoes, islands).
-- **PV-02 Hydrology viz**: emit climate baseline/refine + hydrography layers; add map-hydrology projection overlays (pipeline-owned).
-- **PV-03 Ecology viz**: emit pedology, resource basins, biome classification, feature intents; add map-ecology projection overlays; add tile-point handling if needed.
-- **PV-04 Gameplay viz**: emit placement/gameplay layers (landmassRegionSlotByTile + start positions); label “Gameplay” in viz UI.
-- **PV-05 React & UX cleanup**: apply `you-might-not-need-an-effect` + `escape-hatches` fixes with minimal behavior change.
-- **PV-06 Tests & docs sync**: add real-path viz layer tests; ensure layer catalog matches implementation.
+- [x] **PV-00 Docs/Plan**: finalize issue doc plans + add `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md`.
+- [x] **PV-01 Morphology viz**: emit morphology-pre/mid/post layers (topography, routing, substrate, coastline metrics, landmasses, volcanoes) + map-morphology projections.
+- [ ] **PV-02 Hydrology viz**: emit climate baseline/refine + hydrography layers; add map-hydrology projection overlays (pipeline-owned).
+- [ ] **PV-03 Ecology viz**: emit pedology, resource basins, biome classification, feature intents; add map-ecology projection overlays; add tile-point handling if needed.
+- [ ] **PV-04 Gameplay viz**: emit placement/gameplay layers (landmassRegionSlotByTile + start positions); label “Gameplay” in viz UI.
+- [ ] **PV-05 React & UX cleanup**: apply `you-might-not-need-an-effect` + `escape-hatches` fixes with minimal behavior change.
+- [ ] **PV-06 Tests & docs sync**: add real-path viz layer tests; ensure layer catalog matches implementation.
 
 ### Cleanup & Polish Plan
 - Add inline code comments for non-1:1 mocks (optionally a small UI hover note where helpful).
 - Update VIZ layer catalog doc to match actual layer IDs, groups, visibility, and mock notes.
 - Run required verification + manual smoke; record results in this issue doc.
+
+### Verification Log
+- `bun run --cwd packages/mapgen-core build` (required for downstream builds).
+- `bun run --cwd apps/mapgen-studio build` (worker bundle check passed; Vite emitted a `spawn` warning from loaders.gl).
+- `bun run lint`
+- `bun run test`
+- `bun run deploy` (missing script in repo; no-op)
+- `timeout 5 bun run --cwd apps/mapgen-studio dev` (Vite started; manual browser smoke still required)
 
 ### Research Findings
 - Existing viz layers only in `foundation` steps; all other stages currently emit no viz.

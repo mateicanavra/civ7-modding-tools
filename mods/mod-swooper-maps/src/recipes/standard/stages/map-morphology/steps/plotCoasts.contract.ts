@@ -9,7 +9,7 @@ const PlotCoastsStepContract = defineStep({
   requires: [],
   provides: [M10_EFFECT_TAGS.map.coastsPlotted],
   artifacts: {
-    requires: [morphologyArtifacts.topography],
+    requires: [morphologyArtifacts.topography, morphologyArtifacts.coastlineMetrics],
     provides: [],
   },
   schema: Type.Object({}),

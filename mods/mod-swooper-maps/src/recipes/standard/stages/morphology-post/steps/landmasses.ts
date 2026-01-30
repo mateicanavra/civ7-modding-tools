@@ -1,8 +1,11 @@
+import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
 import LandmassesStepContract from "./landmasses.contract.js";
 
 type ArtifactValidationIssue = Readonly<{ message: string }>;
+
+const GROUP_LANDMASSES = "Morphology / Landmasses";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -61,8 +64,20 @@ export default createStep(LandmassesStepContract, {
         height,
         landMask: topography.landMask,
       },
-      config.landmasses
+        config.landmasses
     );
+
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "morphology.landmasses.landmassIdByTile",
+      dims: { width, height },
+      format: "i32",
+      values: snapshot.landmassIdByTile,
+      meta: defineVizMeta("morphology.landmasses.landmassIdByTile", {
+        label: "Landmass Id",
+        group: GROUP_LANDMASSES,
+      }),
+    });
+
     deps.artifacts.landmasses.publish(context, snapshot);
   },
 });
