@@ -80,6 +80,10 @@ Deliverables:
   - write to browser storage (OPFS/IndexedDB), or
   - keep in-memory only.
 
+Design notes:
+- Browser adapter capability spec: `docs/projects/mapgen-studio/BROWSER-ADAPTER.md`
+- Worker runner design (V0.1): `docs/projects/mapgen-studio/BROWSER-RUNNER-V0.1.md`
+
 ## V0.2 — In-Browser Runner (Full Pipeline)
 
 Goal: run the full pipeline in-browser and keep the visualization surface coherent across phases.
