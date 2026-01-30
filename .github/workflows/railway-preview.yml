@@ -191,6 +191,7 @@ jobs:
             railway environment "${ENV_NAME}" --json \
               | python3 -c 'import json,sys; print(json.load(sys.stdin)["environment"]["id"])'
           )"
+          export ENV_ID
 
           echo "ok=true" >> "$GITHUB_OUTPUT"
           echo "env_id=$ENV_ID" >> "$GITHUB_OUTPUT"
