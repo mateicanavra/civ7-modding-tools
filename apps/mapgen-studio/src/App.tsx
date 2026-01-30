@@ -3,7 +3,7 @@ import {
   BROWSER_TEST_RECIPE_CONFIG,
   BROWSER_TEST_RECIPE_CONFIG_SCHEMA,
   type BrowserTestRecipeConfig,
-} from "@mapgen/browser-recipes/browser-test";
+} from "mod-swooper-maps/recipes/browser-test";
 import { AppHeader } from "./app/AppHeader";
 import { AppShell, type AppMode } from "./app/AppShell";
 import { useDumpLoader } from "./features/dumpViewer/useDumpLoader";
