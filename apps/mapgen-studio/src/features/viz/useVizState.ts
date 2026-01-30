@@ -135,6 +135,14 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     return steps[0]?.stepId ?? null;
   }, [allowPendingSelection, manifest, selectedStepId, steps]);
 
+  useEffect(() => {
+    if (!manifest || allowPendingSelection) return;
+    if (!selectedStepId) return;
+    if (manifest.steps.some((s) => s.stepId === selectedStepId)) return;
+    setSelectedStepId(activeSelectedStepId);
+    setSelectedLayerKey(null);
+  }, [activeSelectedStepId, allowPendingSelection, manifest, selectedStepId]);
+
   const layersForStep = useMemo(() => {
     if (!manifest || !activeSelectedStepId) return [];
     return manifest.layers
