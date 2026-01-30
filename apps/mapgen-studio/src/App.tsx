@@ -87,6 +87,11 @@ const browserConfigFormCss = `
   margin-top: 14px;
   padding-top: 14px;
 }
+.browserConfigForm .bc-subsection:not(.bc-depth2Group) + .bc-subsection:not(.bc-depth2Group) {
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+  margin-top: 12px;
+  padding-top: 12px;
+}
 
 .browserConfigForm .bc-field {
   display: flex;
@@ -337,16 +342,6 @@ function pathToPointer(path: Array<string | number>): string {
   return `/${parts.join("/")}`;
 }
 
-function countTransparentPrefixes(transparentPaths: ReadonlySet<string> | undefined, path: Array<string | number>): number {
-  if (!transparentPaths || transparentPaths.size === 0) return 0;
-  let count = 0;
-  for (let i = 1; i <= path.length; i++) {
-    const prefix = pathToPointer(path.slice(0, i));
-    if (transparentPaths.has(prefix)) count++;
-  }
-  return count;
-}
-
 function collectTransparentPaths(schema: RJSFSchema): ReadonlySet<string> {
   const out = new Set<string>();
 
@@ -381,7 +376,9 @@ function collectTransparentPaths(schema: RJSFSchema): ReadonlySet<string> {
     if (!props) return;
 
     const propKeys = Object.keys(props);
-    if (propKeys.length === 1 && node.description == null) {
+    // Never collapse the very top-level wrapper: we want the stage container (e.g. “Foundation”)
+    // to remain visible even when there's only one stage in the schema.
+    if (path.length > 0 && propKeys.length === 1 && node.description == null) {
       const onlyKey = propKeys[0]!;
       const child = (props as Record<string, BrowserConfigSchemaDef>)[onlyKey];
       if (schemaIsGroup(child) && typeof child !== "boolean" && child.description == null) {
@@ -406,9 +403,7 @@ function BrowserConfigObjectFieldTemplate(
   const { title, description, properties, fieldPathId } = props;
   const path = fieldPathId.path ?? [];
   const transparentPaths = props.registry.formContext.transparentPaths;
-  const transparentPrefixCount = countTransparentPrefixes(transparentPaths, path);
   const depth = path.length;
-  const effectiveDepth = Math.max(0, depth - transparentPrefixCount);
   const leaf = path.at(-1);
   const leafKey = typeof leaf === "string" ? leaf : "";
   const isRoot = depth === 0;
@@ -430,7 +425,6 @@ function BrowserConfigObjectFieldTemplate(
   const defaultOpen = isKnobs || isStage || (leafKey !== "advanced" && depth <= 2);
   const hasNestedGroups = schemaHasNestedGroups(props.schema);
   const useDetails = !isStage && hasNestedGroups; // only parents collapse; leaf groups render without toggles.
-  const indentPx = Math.max(0, (effectiveDepth - 2) * 14);
   const groupClass = isTopGroup ? "bc-depth2Group" : undefined;
 
   const content = (
@@ -447,14 +441,13 @@ function BrowserConfigObjectFieldTemplate(
   // Stage card (e.g. “Foundation”) is the first visible container.
   if (isStage) {
     return (
-      <div className="bc-section">
-        <div className="bc-actionsRow" style={{ marginBottom: 10 }}>
+      <details className="bc-section" open>
+        <summary>
           <div className="bc-stageTitle">{prettyTitle}</div>
-          <div style={{ flex: 1 }} />
-        </div>
+        </summary>
         <div className="bc-stageDivider" />
         {content}
-      </div>
+      </details>
     );
   }
 
@@ -463,7 +456,7 @@ function BrowserConfigObjectFieldTemplate(
   const wrapperClass = ["bc-subsection", groupClass].filter(Boolean).join(" ");
   if (!useDetails) {
     return (
-      <div className={wrapperClass} style={{ paddingLeft: indentPx }}>
+      <div className={wrapperClass}>
         <div className="bc-subsectionHeader">
           <div className={headingClass}>{prettyTitle}</div>
         </div>
@@ -473,7 +466,7 @@ function BrowserConfigObjectFieldTemplate(
   }
 
   return (
-    <details className={wrapperClass} open={defaultOpen} style={{ paddingLeft: indentPx }}>
+    <details className={wrapperClass} open={defaultOpen}>
       <summary className="bc-subsectionHeader" style={{ cursor: "pointer", listStyle: "none" }}>
         <div className={headingClass}>{prettyTitle}</div>
       </summary>
@@ -2243,8 +2236,8 @@ export function App() {
 	              top: 12,
 	              left: 12,
 	              bottom: 12,
-	              width: isNarrow ? "calc(100% - 24px)" : 315,
-	              maxWidth: 390,
+	              width: isNarrow ? "calc(100% - 24px)" : 362,
+	              maxWidth: 450,
 	              zIndex: 30,
 	              borderRadius: 14,
 	              border: "1px solid rgba(148, 163, 184, 0.18)",
