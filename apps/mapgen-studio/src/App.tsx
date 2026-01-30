@@ -8,9 +8,11 @@ import {
   BROWSER_TEST_RECIPE_CONFIG_SCHEMA,
   type BrowserTestRecipeConfig,
 } from "@mapgen/browser-recipes/browser-test";
-import type { BrowserRunEvent, BrowserRunRequest } from "./browser-runner/protocol";
 import { ConfigOverridesPanel } from "./features/configOverrides/ConfigOverridesPanel";
 import { useConfigOverrides } from "./features/configOverrides/useConfigOverrides";
+import { useBrowserRunner } from "./features/browserRunner/useBrowserRunner";
+import { capturePinnedSelection } from "./features/browserRunner/retention";
+import type { VizEvent } from "./shared/vizEvents";
 
 type Bounds = [minX: number, minY: number, maxX: number, maxY: number];
 type VizScalarFormat = "u8" | "i8" | "u16" | "i16" | "i32" | "f32";
@@ -28,6 +30,7 @@ type VizLayerEntryV0 =
       values?: ArrayBuffer;
       meta?: VizLayerMeta;
       bounds: Bounds;
+      key?: string;
     }
   | {
       kind: "points";
@@ -43,6 +46,7 @@ type VizLayerEntryV0 =
       valueFormat?: VizScalarFormat;
       meta?: VizLayerMeta;
       bounds: Bounds;
+      key?: string;
     }
   | {
       kind: "segments";
@@ -58,6 +62,7 @@ type VizLayerEntryV0 =
       valueFormat?: VizScalarFormat;
       meta?: VizLayerMeta;
       bounds: Bounds;
+      key?: string;
     };
 
 type VizManifestV0 = {
@@ -80,6 +85,10 @@ function stripRootDirPrefix(path: string): string {
 
 function formatLabel(stepId: string): string {
   return stepId.split(".").slice(-1)[0] ?? stepId;
+}
+
+function getLayerKey(layer: VizLayerEntryV0): string {
+  return layer.key ?? `${layer.stepId}::${layer.layerId}::${layer.kind}`;
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -667,10 +676,6 @@ export function App() {
   const [dumpManifest, setDumpManifest] = useState<VizManifestV0 | null>(null);
 
   const [browserManifest, setBrowserManifest] = useState<VizManifestV0 | null>(null);
-  const browserWorkerRef = useRef<Worker | null>(null);
-  const browserRunTokenRef = useRef<string | null>(null);
-  const [browserRunning, setBrowserRunning] = useState(false);
-  const [browserLastStep, setBrowserLastStep] = useState<{ stepId: string; stepIndex: number } | null>(null);
   const [browserSeed, setBrowserSeed] = useState(123);
   const [browserMapSizeId, setBrowserMapSizeId] = useState<Civ7MapSizePreset["id"]>("MAPSIZE_HUGE");
   const [browserConfigOpen, setBrowserConfigOpen] = useState(false);
@@ -695,6 +700,119 @@ export function App() {
   useEffect(() => {
     selectedLayerKeyRef.current = selectedLayerKey;
   }, [selectedLayerKey]);
+
+  const handleVizEvent = useCallback(
+    (event: VizEvent) => {
+      if (event.type === "run.started") {
+        setBrowserManifest({
+          version: 0,
+          runId: event.runId,
+          planFingerprint: event.planFingerprint,
+          steps: [],
+          layers: [],
+        });
+        return;
+      }
+
+      if (event.type === "run.progress") {
+        if (event.kind === "step.start") {
+          setBrowserManifest((prev) => {
+            if (!prev) return prev;
+            if (prev.steps.some((s) => s.stepId === event.stepId)) return prev;
+            return {
+              ...prev,
+              steps: [...prev.steps, { stepId: event.stepId, phase: event.phase, stepIndex: event.stepIndex }],
+            };
+          });
+          setSelectedStepId((prev) => prev ?? event.stepId);
+        }
+        return;
+      }
+
+      if (event.type === "viz.layer.upsert") {
+        const key = event.layer.key;
+        setBrowserManifest((prev) => {
+          if (!prev) return prev;
+
+          const entry: VizLayerEntryV0 =
+            event.layer.kind === "grid"
+              ? {
+                  kind: "grid",
+                  layerId: event.layer.layerId,
+                  stepId: event.layer.stepId,
+                  phase: event.layer.phase,
+                  stepIndex: event.layer.stepIndex,
+                  format: event.layer.format ?? "u8",
+                  dims: event.layer.dims ?? { width: 1, height: 1 },
+                  values: event.payload.kind === "grid" ? event.payload.values : undefined,
+                  bounds: event.layer.bounds,
+                  meta: event.layer.meta,
+                  key,
+                }
+              : event.layer.kind === "points"
+                ? {
+                    kind: "points",
+                    layerId: event.layer.layerId,
+                    stepId: event.layer.stepId,
+                    phase: event.layer.phase,
+                    stepIndex: event.layer.stepIndex,
+                    count: event.layer.count ?? 0,
+                    positions: event.payload.kind === "points" ? event.payload.positions : undefined,
+                    values: event.payload.kind === "points" ? event.payload.values : undefined,
+                    valueFormat: event.layer.valueFormat,
+                    bounds: event.layer.bounds,
+                    meta: event.layer.meta,
+                    key,
+                  }
+                : {
+                    kind: "segments",
+                    layerId: event.layer.layerId,
+                    stepId: event.layer.stepId,
+                    phase: event.layer.phase,
+                    stepIndex: event.layer.stepIndex,
+                    count: event.layer.count ?? 0,
+                    segments: event.payload.kind === "segments" ? event.payload.segments : undefined,
+                    values: event.payload.kind === "segments" ? event.payload.values : undefined,
+                    valueFormat: event.layer.valueFormat,
+                    bounds: event.layer.bounds,
+                    meta: event.layer.meta,
+                    key,
+                  };
+
+          const layers = [...prev.layers];
+          const idx = layers.findIndex((l) => getLayerKey(l) === key);
+          if (idx >= 0) layers[idx] = entry;
+          else layers.push(entry);
+
+          return { ...prev, layers };
+        });
+
+        setSelectedStepId((prev) => prev ?? event.layer.stepId);
+        setSelectedLayerKey((prev) => {
+          if (prev) return prev;
+          const desiredStep = selectedStepIdRef.current ?? event.layer.stepId;
+          if (event.layer.stepId !== desiredStep) return prev;
+          return key;
+        });
+        return;
+      }
+    },
+    [setBrowserManifest, setSelectedStepId, setSelectedLayerKey]
+  );
+
+  const browserRunner = useBrowserRunner({
+    enabled: mode === "browser",
+    onVizEvent: handleVizEvent,
+  });
+
+  const browserRunning = browserRunner.state.running;
+  const browserLastStep = browserRunner.state.lastStep;
+
+  useEffect(() => {
+    if (mode !== "browser") return;
+    if (!browserRunner.state.error) return;
+    setError(browserRunner.state.error);
+  }, [browserRunner.state.error, mode, setError]);
 
   const [viewState, setViewState] = useState<any>({ target: [0, 0, 0], zoom: 0 });
   const [layerStats, setLayerStats] = useState<{ min?: number; max?: number } | null>(null);
@@ -736,7 +854,7 @@ export function App() {
     if (!manifest || !selectedStepId) return [];
     return manifest.layers
       .filter((l) => l.stepId === selectedStepId)
-      .map((l) => ({ key: `${l.stepId}::${l.layerId}::${l.kind}`, layer: l }));
+      .map((l) => ({ key: getLayerKey(l), layer: l }));
   }, [manifest, selectedStepId]);
 
   const layersForStepGrouped = useMemo(() => {
@@ -872,23 +990,6 @@ export function App() {
     }
   }, [setFittedView]);
 
-  const stopBrowserRun = useCallback(() => {
-    const w = browserWorkerRef.current;
-    browserWorkerRef.current = null;
-    browserRunTokenRef.current = null;
-    setBrowserRunning(false);
-    setBrowserLastStep(null);
-    if (w) w.terminate();
-  }, []);
-
-  useEffect(() => {
-    return () => stopBrowserRun();
-  }, [stopBrowserRun]);
-
-  useEffect(() => {
-    if (mode === "dump") stopBrowserRun();
-  }, [mode, stopBrowserRun]);
-
   const startBrowserRun = useCallback((overrides?: { seed?: number }) => {
     setError(null);
     if (browserConfigOverrides.enabled && browserConfigOverrides.tab === "json") {
@@ -898,169 +999,36 @@ export function App() {
         return;
       }
     }
-    const pinnedStepId = mode === "browser" ? selectedStepIdRef.current : null;
-    const pinnedLayerKey = mode === "browser" ? selectedLayerKeyRef.current : null;
-    const retainStep = Boolean(pinnedStepId);
-    const retainLayer = Boolean(pinnedStepId && pinnedLayerKey && pinnedLayerKey.startsWith(`${pinnedStepId}::`));
+    const pinned = capturePinnedSelection({
+      mode,
+      selectedStepId: selectedStepIdRef.current,
+      selectedLayerKey: selectedLayerKeyRef.current,
+    });
     setMode("browser");
     setBrowserManifest(null);
-    if (!retainStep) setSelectedStepId(null);
-    if (!retainLayer) setSelectedLayerKey(null);
-    if (!retainStep) setFittedView([0, 0, 1, 1]);
-    setBrowserLastStep(null);
+    if (!pinned.retainStep) setSelectedStepId(null);
+    if (!pinned.retainLayer) setSelectedLayerKey(null);
+    if (!pinned.retainStep) setFittedView([0, 0, 1, 1]);
 
-    stopBrowserRun();
-
-    const runToken =
-      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-        ? crypto.randomUUID()
-        : `run_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-    browserRunTokenRef.current = runToken;
-
-    const worker = new Worker(new URL("./browser-runner/foundation.worker.ts", import.meta.url), { type: "module" });
-    browserWorkerRef.current = worker;
-    setBrowserRunning(true);
-
-    worker.onmessage = (ev: MessageEvent<BrowserRunEvent>) => {
-      const msg = ev.data;
-      if (!msg || msg.runToken !== browserRunTokenRef.current) return;
-
-      if (msg.type === "run.started") {
-        setBrowserManifest({
-          version: 0,
-          runId: msg.runId,
-          planFingerprint: msg.planFingerprint,
-          steps: [],
-          layers: [],
-        });
-        return;
-      }
-
-      if (msg.type === "run.progress") {
-        if (msg.kind === "step.start") {
-          setBrowserLastStep({ stepId: msg.stepId, stepIndex: msg.stepIndex });
-          setBrowserManifest((prev) => {
-            if (!prev) return prev;
-            if (prev.steps.some((s) => s.stepId === msg.stepId)) return prev;
-            return {
-              ...prev,
-              steps: [...prev.steps, { stepId: msg.stepId, phase: msg.phase, stepIndex: msg.stepIndex }],
-            };
-          });
-          setSelectedStepId((prev) => prev ?? msg.stepId);
-        }
-        return;
-      }
-
-      if (msg.type === "viz.layer.upsert") {
-        setBrowserManifest((prev) => {
-          if (!prev) return prev;
-
-          const entry: VizLayerEntryV0 =
-            msg.layer.kind === "grid"
-              ? {
-                  kind: "grid",
-                  layerId: msg.layer.layerId,
-                  stepId: msg.layer.stepId,
-                  phase: msg.layer.phase,
-                  stepIndex: msg.layer.stepIndex,
-                  format: msg.layer.format,
-                  dims: msg.layer.dims,
-                  values: msg.payload.kind === "grid" ? msg.payload.values : undefined,
-                  bounds: msg.layer.bounds,
-                  meta: msg.layer.meta,
-                }
-              : msg.layer.kind === "points"
-                ? {
-                    kind: "points",
-                    layerId: msg.layer.layerId,
-                    stepId: msg.layer.stepId,
-                    phase: msg.layer.phase,
-                    stepIndex: msg.layer.stepIndex,
-                    count: msg.layer.count,
-                    positions: msg.payload.kind === "points" ? msg.payload.positions : undefined,
-                    values: msg.payload.kind === "points" ? msg.payload.values : undefined,
-                    valueFormat: msg.layer.valueFormat,
-                    bounds: msg.layer.bounds,
-                    meta: msg.layer.meta,
-                  }
-                : {
-                    kind: "segments",
-                    layerId: msg.layer.layerId,
-                    stepId: msg.layer.stepId,
-                    phase: msg.layer.phase,
-                    stepIndex: msg.layer.stepIndex,
-                    count: msg.layer.count,
-                    segments: msg.payload.kind === "segments" ? msg.payload.segments : undefined,
-                    values: msg.payload.kind === "segments" ? msg.payload.values : undefined,
-                    valueFormat: msg.layer.valueFormat,
-                    bounds: msg.layer.bounds,
-                    meta: msg.layer.meta,
-                  };
-
-          const key = `${entry.stepId}::${entry.layerId}::${entry.kind}`;
-          const layers = [...prev.layers];
-          const idx = layers.findIndex((l) => `${l.stepId}::${l.layerId}::${l.kind}` === key);
-          if (idx >= 0) layers[idx] = entry;
-          else layers.push(entry);
-
-          return { ...prev, layers };
-        });
-
-        setSelectedStepId((prev) => prev ?? msg.layer.stepId);
-        setSelectedLayerKey((prev) => {
-          if (prev) return prev;
-          const desiredStep = selectedStepIdRef.current ?? msg.layer.stepId;
-          if (msg.layer.stepId !== desiredStep) return prev;
-          return `${msg.layer.stepId}::${msg.layer.layerId}::${msg.layer.kind}`;
-        });
-        return;
-      }
-
-      if (msg.type === "run.finished") {
-        setBrowserRunning(false);
-        return;
-      }
-
-      if (msg.type === "run.error") {
-        setBrowserRunning(false);
-        const parts: string[] = [];
-        if (msg.name) parts.push(`${msg.name}: ${msg.message}`);
-        else parts.push(msg.message);
-        if (msg.details) parts.push(msg.details);
-        if (msg.stack) parts.push(msg.stack);
-        setError(parts.filter(Boolean).join("\n\n"));
-        return;
-      }
-    };
-
-    worker.onerror = (e) => {
-      setBrowserRunning(false);
-      setError(formatErrorForUi(e));
-    };
+    browserRunner.actions.clearError();
 
     const seedToUse = overrides?.seed ?? browserSeed;
     const mapSize = getCiv7MapSizePreset(browserMapSizeId);
     const configOverrides = browserConfigOverrides.configOverridesForRun;
-
-    const req: BrowserRunRequest = {
-      type: "run.start",
-      runToken,
+    browserRunner.actions.start({
       seed: seedToUse,
       mapSizeId: mapSize.id,
       dimensions: mapSize.dimensions,
       latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
       configOverrides,
-    };
-
-    worker.postMessage(req);
+    });
   }, [
     browserConfigOverrides,
+    browserRunner.actions,
     browserMapSizeId,
     browserSeed,
     mode,
     setFittedView,
-    stopBrowserRun,
   ]);
 
   useEffect(() => {
@@ -1070,7 +1038,7 @@ export function App() {
       .filter((l) => l.stepId === selectedStepId)
       .sort((a, b) => a.stepIndex - b.stepIndex)[0];
     if (!first) return;
-    const key = `${first.stepId}::${first.layerId}::${first.kind}`;
+    const key = getLayerKey(first);
     setSelectedLayerKey(key);
     if (first.kind === "grid") {
       setFittedView(boundsForTileGrid(tileLayout, first.dims, 1));

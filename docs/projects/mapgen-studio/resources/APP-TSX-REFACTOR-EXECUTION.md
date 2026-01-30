@@ -318,7 +318,7 @@ Notes:
 - [ ] Rerun retains selected step and selected layer.
 - [ ] Seed reroll auto-runs and retains selection.
 - [ ] Runner still streams events progressively and UI remains responsive.
-- [ ] No new imports into `$WORKER`.
+- [x] No new imports into `$WORKER`.
 
 ### Verification
 - `bun run --cwd apps/mapgen-studio build`
@@ -545,3 +545,10 @@ We are “ready to implement” when:
 - **Choice:** Compute via `window.innerWidth < 760` inside `ConfigOverridesPanel`.
 - **Rationale:** Keeps the public API aligned with the execution plan while preserving the existing breakpoint.
 - **Risk:** If the app container becomes narrower than the window, the panel width could diverge slightly from prior behavior.
+
+### Include `meta` in `VizEvent` layer payload
+- **Context:** RFX-02 moves runner events to `VizEvent`, but the layer metadata (`VizLayerMeta`) is required for labels/groups and must continue to flow to the UI.
+- **Options:** Drop `meta` in `VizEvent` and rehydrate later; add `meta` to `VizEvent.layer` now; keep `BrowserRunEvent` in App (violates runner-agnostic boundary).
+- **Choice:** Add optional `meta` to `VizEvent.layer` and map it in the adapter.
+- **Rationale:** Preserves existing UI behavior while keeping the runner-viz boundary intact.
+- **Risk:** Slightly widens the shared event contract; must keep in sync in RFX-03 when viz is extracted.
