@@ -18,7 +18,10 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: railway-preview-pr-${{ github.event.pull_request.number }}
+  # NOTE: Use a distinct group from any legacy `pull_request` workflow copies
+  # that might still exist on older PR branches, so they can't cancel this
+  # authoritative `pull_request_target` run.
+  group: railway-preview-pr-target-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 env:
@@ -178,9 +181,20 @@ jobs:
           ENV_NAME="${{ steps.decide.outputs.env_name }}"
           EXPECTED_BRANCH="${{ github.head_ref }}"
 
-          railway environment new "${ENV_NAME}" \
-            --copy "${{ env.RAILWAY_BASE_ENVIRONMENT_ID }}" \
-            --json >/dev/null || true
+          if ! railway environment "${ENV_NAME}" --json >/dev/null 2>&1; then
+            echo "Creating preview environment ${ENV_NAME} (branch: ${EXPECTED_BRANCH})"
+            for attempt in 1 2 3 4; do
+              if railway environment new "${ENV_NAME}" \
+                --copy "${{ env.RAILWAY_BASE_ENVIRONMENT_ID }}" \
+                --service-config "${{ env.RAILWAY_SERVICE_ID }}" "source.branch" "${EXPECTED_BRANCH}" \
+                --json >/dev/null; then
+                break
+              fi
+              # Railway rate-limits env creation (per-user). Use a conservative backoff.
+              echo "retry ${attempt}/4: waiting to retry environment create..."
+              sleep 31
+            done
+          fi
 
           current="$(
             railway environment "${ENV_NAME}" config --json \
@@ -188,18 +202,31 @@ jobs:
           )"
 
           if [ "$current" != "$EXPECTED_BRANCH" ]; then
-            echo "Resetting ${ENV_NAME}: branch '$current' -> '$EXPECTED_BRANCH'"
-            railway environment delete "${ENV_NAME}" -y --json
+            echo "Updating ${ENV_NAME}: branch '$current' -> '$EXPECTED_BRANCH'"
+            railway environment edit -e "${ENV_NAME}" \
+              --service-config "${{ env.RAILWAY_SERVICE_ID }}" "source.branch" "${EXPECTED_BRANCH}" \
+              --message "ci: pin preview branch (${EXPECTED_BRANCH})" \
+              --json >/dev/null
 
-            for attempt in 1 2 3 4 5; do
+            current="$(
+              railway environment "${ENV_NAME}" config --json \
+                | python3 -c 'import json,sys; d=json.load(sys.stdin); svc=d["services"][sys.argv[1]]; print((svc.get("source") or {}).get("branch",""))' "${{ env.RAILWAY_SERVICE_ID }}"
+            )"
+          fi
+
+          if [ "$current" != "$EXPECTED_BRANCH" ]; then
+            echo "Resetting ${ENV_NAME}: branch '$current' -> '$EXPECTED_BRANCH'"
+            railway environment delete "${ENV_NAME}" -y --json || true
+
+            for attempt in 1 2 3 4; do
               if railway environment new "${ENV_NAME}" \
                 --copy "${{ env.RAILWAY_BASE_ENVIRONMENT_ID }}" \
                 --service-config "${{ env.RAILWAY_SERVICE_ID }}" "source.branch" "${EXPECTED_BRANCH}" \
                 --json >/dev/null; then
                 break
               fi
-              echo "retry ${attempt}/5: waiting for ${ENV_NAME} delete to finalize..."
-              sleep 2
+              echo "retry ${attempt}/4: waiting for ${ENV_NAME} delete to finalize..."
+              sleep 31
             done
           fi
 
