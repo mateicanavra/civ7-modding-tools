@@ -112,3 +112,26 @@ Dump viewer extraction is clean, but the directory picker fallback still assumes
 
 ### Cross-cutting Risks
 - Dump loading can fail entirely on browsers that expose `values()` but not `entries()`.
+
+## REVIEW agent-DONNY-LOCAL-TBD-pv-05-react-best-practices
+
+### Quick Take
+The effect cleanup is good, but `selectedStepId` can become stale when the active step falls back, leading to confusing step selection across runs.
+
+### High-Leverage Issues
+- When `selectedStepId` no longer exists in the manifest, the memo falls back to `steps[0]` without syncing state. If a later run re-enables pending selection, the UI can snap back to the stale step and ingest won’t correct it. (`apps/mapgen-studio/src/features/viz/useVizState.ts`)
+
+### PR Comment Context
+- PR #814 flagged the stale `selectedStepId` fallback; the state is still not synchronized when the fallback is used.
+
+### Fix Now (Recommended)
+- When the fallback is used, clear or sync `selectedStepId` so future runs don’t resurrect a stale step id.
+
+### Defer / Follow-up
+- None.
+
+### Needs Discussion
+- Decide if fallback should aggressively reset selection or only when `allowPendingSelection` toggles.
+
+### Cross-cutting Risks
+- Users can see the UI show one step while the internal selection snaps back to a stale id on the next run.
