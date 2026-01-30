@@ -467,7 +467,7 @@ export function useDumpLoader(): UseDumpLoaderResult;
 
 ### Acceptance criteria
 - [ ] Both directory picker and upload fallback still work.
-- [ ] The “strip one leading segment” aliasing behavior is preserved.
+- [x] The “strip one leading segment” aliasing behavior is preserved.
 - [ ] Dump mode can load and render the same as pre-refactor.
 
 ### Verification
@@ -559,3 +559,10 @@ We are “ready to implement” when:
 - **Choice:** `useVizState` owns the stream manifest (via `ingest`) and dump manifest (via `setDumpManifest`), selects the active manifest via a `mode` arg, and exposes `clearStream`/`resetView` plus a file-backed `assetResolver` hook-up.
 - **Rationale:** Preserves prior behavior while shrinking `App.tsx` and keeping the runner→viz boundary event-driven.
 - **Risk:** `useVizState`’s API surface is wider than the minimal binding stub; ensure later slices keep the shape aligned.
+
+### Share error formatting between App and dump loader
+- **Context:** RFX-04 introduces `useDumpLoader`, which must emit the same readable error strings as `App.tsx` used for dump failures.
+- **Options:** Duplicate formatting logic inside `useDumpLoader`; keep formatting in `App.tsx` and change the hook to return `unknown`; move the formatter to a shared helper and reuse it.
+- **Choice:** Move `formatErrorForUi` into `apps/mapgen-studio/src/shared/errorFormat.ts` and reuse it in `useDumpLoader` + `App.tsx`.
+- **Rationale:** Preserves existing error formatting while keeping the dump loader API aligned with the execution plan.
+- **Risk:** Shared helper becomes a common dependency; keep it browser-safe and free of Node-only imports.
