@@ -300,7 +300,7 @@ jobs:
           fi
 
           echo "Enforcing preview environment branches..." >> "$GITHUB_STEP_SUMMARY"
-          # Enforce per-PR by recreating the environment when it drifts.
+          # Enforce per-PR by preferring an in-place update (avoid delete→recreate races) and falling back to reset if needed.
           while IFS=$'\t' read -r env_name env_id expected_branch; do
             if [ -z "${env_name:-}" ] || [ -z "${env_id:-}" ] || [ -z "${expected_branch:-}" ]; then
               continue
@@ -315,17 +315,45 @@ jobs:
               continue
             fi
 
-            echo "- $env_name: reset '$current' -> '$expected_branch'" >> "$GITHUB_STEP_SUMMARY"
+            echo "- $env_name: fix '$current' -> '$expected_branch'" >> "$GITHUB_STEP_SUMMARY"
+
+            set +e
+            railway environment edit -e "${env_name}" \
+              --service-config "${RAILWAY_SERVICE_ID}" "source.branch" "${expected_branch}" \
+              --json >/dev/null 2>&1
+            edit_code=$?
+            set -e
+
+            if [ "$edit_code" -eq 0 ]; then
+              current="$(
+                railway environment "${env_name}" config --json \
+                  | python3 -c 'import json,sys; d=json.load(sys.stdin); svc=d["services"][sys.argv[1]]; print((svc.get("source") or {}).get("branch",""))' "${RAILWAY_SERVICE_ID}"
+              )"
+              if [ "$current" = "$expected_branch" ]; then
+                echo "- $env_name: updated in-place ($current)" >> "$GITHUB_STEP_SUMMARY"
+                continue
+              fi
+            fi
+
+            echo "- $env_name: reset '$current' -> '$expected_branch' (fallback)" >> "$GITHUB_STEP_SUMMARY"
             railway environment delete "${env_name}" -y --json
 
             # Deletion can take a moment to propagate; retry environment creation a few times.
             for attempt in 1 2 3 4 5; do
-              if railway environment new "${env_name}" \
-                --copy "${RAILWAY_BASE_ENVIRONMENT_ID}" \
-                --service-config "${RAILWAY_SERVICE_ID}" "source.branch" "${expected_branch}" \
-                --json >/dev/null; then
+              set +e
+              output="$(
+                railway environment new "${env_name}" \
+                  --copy "${RAILWAY_BASE_ENVIRONMENT_ID}" \
+                  --service-config "${RAILWAY_SERVICE_ID}" "source.branch" "${expected_branch}" \
+                  --json 2>&1 >/dev/null
+              )"
+              code=$?
+              set -e
+
+              if [ "$code" -eq 0 ]; then
                 break
               fi
+              echo "$output"
               echo "retry ${attempt}/5: waiting for ${env_name} delete to finalize..."
               sleep 2
             done
