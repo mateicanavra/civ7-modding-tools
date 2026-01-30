@@ -188,8 +188,8 @@ export function ConfigOverridesPanel<TConfig>(props: ConfigOverridesPanelProps<T
 - [ ] Wrapper collapsing remains presentation-only; stage container remains visible/collapsible.
 - [ ] JSON editor blocks run when invalid (same as today).
 - [ ] Running with overrides produces the same worker behavior (worker remains merge/validate authority).
-- [ ] No new worker bundle deps introduced.
-- [ ] `$APP_TSX` no longer contains RJSF templates and the large overrides CSS blob.
+- [x] No new worker bundle deps introduced.
+- [x] `$APP_TSX` no longer contains RJSF templates and the large overrides CSS blob.
 
 ### Verification (commands + manual)
 - `bun run --cwd apps/mapgen-studio build`
@@ -536,3 +536,12 @@ We are “ready to implement” when:
 - [ ] This execution doc is accepted as the source of truth for slice scope/AC/verification.
 - [ ] No open questions remain that would force rework across multiple slices.
 - [ ] We agree to keep the refactor **move-only** unless a behavior bug is discovered (fixes allowed but must be isolated).
+
+## Implementation Decisions
+
+### Compute config panel narrow breakpoint inside feature
+- **Context:** `ConfigOverridesPanel` moved out of `App.tsx` per RFX-01 API, which does not accept layout props like `isNarrow`.
+- **Options:** Pass `isNarrow` from `App.tsx`; compute container width with a ref; compute from `window.innerWidth`.
+- **Choice:** Compute via `window.innerWidth < 760` inside `ConfigOverridesPanel`.
+- **Rationale:** Keeps the public API aligned with the execution plan while preserving the existing breakpoint.
+- **Risk:** If the app container becomes narrower than the window, the panel width could diverge slightly from prior behavior.
