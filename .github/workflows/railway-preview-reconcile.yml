@@ -263,7 +263,7 @@ jobs:
             fi
             railway environment edit \
               --environment "$env_name" \
-              --service-config "${RAILWAY_SERVICE_NAME}" "source.branch" "$expected_branch" \
+              --service-config "${RAILWAY_SERVICE_ID}" "source.branch" "$expected_branch" \
               --message "ci: pin ${env_name} to ${expected_branch}" \
               --json >/dev/null
             echo "- $env_name: enforced source.branch=$expected_branch" >> "$GITHUB_STEP_SUMMARY"
