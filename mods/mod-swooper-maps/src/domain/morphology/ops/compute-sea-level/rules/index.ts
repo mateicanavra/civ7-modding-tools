@@ -77,6 +77,22 @@ export function resolveSeaLevel(params: {
     const idx = Math.min(values.length - 1, Math.max(0, Math.floor((clamped / 100) * values.length)));
     return values[idx] ?? 0;
   };
+  const resolveDistinctCandidate = (
+    startPct: number,
+    direction: -1 | 1,
+    currentSeaLevel: number
+  ): { pct: number; seaLevel: number } | null => {
+    let pct = clampPct(startPct + direction * targetPctStep);
+    if (pct === startPct) return null;
+    let seaLevel = resolveSeaLevelAtPct(pct);
+    while (seaLevel === currentSeaLevel) {
+      const nextPct = clampPct(pct + direction * targetPctStep);
+      if (nextPct === pct) return null;
+      pct = nextPct;
+      seaLevel = resolveSeaLevelAtPct(pct);
+    }
+    return { pct, seaLevel };
+  };
 
   const evaluate = (candidateSeaLevel: number): { error: number; seaLevel: number } => {
     let landCount = 0;
@@ -109,24 +125,23 @@ export function resolveSeaLevel(params: {
   for (let iter = 0; iter <= MAX_ITERATIONS; iter++) {
     if (current.error <= 0) break;
 
-    const downPct = clampPct(targetPct - targetPctStep);
-    const upPct = clampPct(targetPct + targetPctStep);
+    const downCandidate = resolveDistinctCandidate(targetPct, -1, seaLevel);
+    const upCandidate = resolveDistinctCandidate(targetPct, 1, seaLevel);
 
-    const downSea = resolveSeaLevelAtPct(downPct);
-    const upSea = resolveSeaLevelAtPct(upPct);
+    if (!downCandidate && !upCandidate) break;
 
-    const down = evaluate(downSea);
-    const up = evaluate(upSea);
+    const down = downCandidate ? evaluate(downCandidate.seaLevel) : null;
+    const up = upCandidate ? evaluate(upCandidate.seaLevel) : null;
 
     // Pick the direction that best reduces constraint error; stop if we can't improve.
     let nextPct = targetPct;
     let next = current;
-    if (down.error < next.error || up.error < next.error) {
-      if (up.error <= down.error) {
-        nextPct = upPct;
+    if ((down && down.error < next.error) || (up && up.error < next.error)) {
+      if (up && (!down || up.error <= down.error)) {
+        nextPct = upCandidate!.pct;
         next = up;
-      } else {
-        nextPct = downPct;
+      } else if (down) {
+        nextPct = downCandidate!.pct;
         next = down;
       }
     } else {
