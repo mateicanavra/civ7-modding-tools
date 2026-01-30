@@ -272,11 +272,19 @@ jobs:
             fi
 
             echo "- $env_name: reset '$current' -> '$expected_branch'" >> "$GITHUB_STEP_SUMMARY"
-            railway environment delete "${env_name}" -y --json >/dev/null || true
-            railway environment new "${env_name}" \
-              --copy "${RAILWAY_BASE_ENVIRONMENT_ID}" \
-              --service-config "${RAILWAY_SERVICE_ID}" "source.branch" "${expected_branch}" \
-              --json >/dev/null
+            railway environment delete "${env_name}" -y --json
+
+            # Deletion can take a moment to propagate; retry environment creation a few times.
+            for attempt in 1 2 3 4 5; do
+              if railway environment new "${env_name}" \
+                --copy "${RAILWAY_BASE_ENVIRONMENT_ID}" \
+                --service-config "${RAILWAY_SERVICE_ID}" "source.branch" "${expected_branch}" \
+                --json >/dev/null; then
+                break
+              fi
+              echo "retry ${attempt}/5: waiting for ${env_name} delete to finalize..."
+              sleep 2
+            done
           done < pr_env_branch_actions.tsv
 
           echo "Guarding preview environment branches..." >> "$GITHUB_STEP_SUMMARY"
