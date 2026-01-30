@@ -4,16 +4,6 @@ on:
   schedule:
     # Hourly, slightly offset to avoid contention with other scheduled jobs.
     - cron: "17 * * * *"
-  pull_request_target:
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - labeled
-      - unlabeled
-      - ready_for_review
-      - converted_to_draft
-      - closed
   workflow_dispatch:
     inputs:
       dry_run:
@@ -42,7 +32,9 @@ jobs:
   reconcile:
     name: Reconcile preview environments
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.repository
+    # This job is intentionally not PR-triggered: the authoritative label-triggered
+    # provisioning runs in `railway-preview.yml`. Keeping reconcile scheduled-only
+    # avoids PR-check flakiness due to Railway eventual consistency/rate limits.
     env:
       RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
     steps:
