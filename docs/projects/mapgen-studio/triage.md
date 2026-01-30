@@ -5,3 +5,4 @@
 - Segment-layer bounds ignore half the coordinates, so fit/viewport can clip segments in both live runs and dumps (see REVIEW-M1 RFX-02).
 - Viz layer keys collide when `fileKey`/`valuesPath` differ, making some layers unselectable (see REVIEW-M1 RFX-03).
 - Viz selection refs mutate during render; StrictMode can desync selection state (see REVIEW-M1 RFX-03).
+- Dump folder picker can throw on browsers that only support `values()` (see REVIEW-M1 RFX-04).
