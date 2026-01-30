@@ -40,6 +40,16 @@ const configTypes = await compile(schemaJson, "BrowserTestRecipeConfig", {
   },
 });
 
+const recipeTypeExports = [
+  `export type {`,
+  `  BrowserTestFoundationStageAdvancedConfig,`,
+  `  BrowserTestFoundationStageConfig,`,
+  `  BrowserTestFoundationStageKnobsConfig,`,
+  `  BrowserTestRecipeCompiledConfig,`,
+  `} from "../../../mods/mod-swooper-maps/src/recipes/browser-test/recipe";`,
+  ``,
+];
+
 const browserTestDts = [
   `import type { ExtendedMapContext } from "@swooper/mapgen-core";`,
   `import type { RecipeModule } from "@swooper/mapgen-core/authoring";`,
@@ -47,6 +57,7 @@ const browserTestDts = [
   ``,
   configTypes.trimEnd(),
   ``,
+  ...recipeTypeExports,
   `export const BROWSER_TEST_RECIPE_CONFIG: Readonly<BrowserTestRecipeConfig>;`,
   `export const BROWSER_TEST_RECIPE_CONFIG_SCHEMA: TSchema;`,
   `export const compileOpsById: Readonly<Record<string, unknown>>;`,
@@ -65,4 +76,3 @@ const indexDts = [
 ].join("\n");
 
 await writeFile(resolve(pkgRoot, "dist", "index.d.ts"), indexDts);
-
