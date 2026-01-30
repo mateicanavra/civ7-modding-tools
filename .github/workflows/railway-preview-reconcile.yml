@@ -321,7 +321,7 @@ jobs:
             edit_output="$(
               railway environment edit -e "${env_id}" \
                 --service-config "${RAILWAY_SERVICE_ID}" "source.branch" "${expected_branch}" \
-                --json 2>&1 >/dev/null
+                --json 2>&1
             )"
             edit_code=$?
             set -e
