@@ -8,6 +8,9 @@ This document is a **comprehensive plan** to refactor `apps/mapgen-studio/src/Ap
 
 It is intentionally written to be **updated** as more upstack work lands (especially around config overrides / nodes).
 
+Execution-grade companion (sliceable PR plan with acceptance criteria + verification):
+- `docs/projects/mapgen-studio/resources/APP-TSX-REFACTOR-EXECUTION.md`
+
 Update note (2026-01-29):
 - `App.tsx` has expanded substantially (config overrides sidebar polish, schema presentation helpers, CSS, templates).
 - `packages/browser-recipes/` (`@mapgen/browser-recipes`) now exists and is the beginning of the “many recipes” story.

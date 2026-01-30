@@ -4,6 +4,8 @@ This is a navigation doc that breaks the current `apps/mapgen-studio/src/App.tsx
 
 Primary refactor plan:
 - `docs/projects/mapgen-studio/resources/APP-TSX-REFACTOR-PLAN.md`
+Executable slice plan:
+- `docs/projects/mapgen-studio/resources/APP-TSX-REFACTOR-EXECUTION.md`
 
 Seam writeups (verbatim sub-agent outputs):
 - `docs/projects/mapgen-studio/resources/seams/SEAM-APP-SHELL.md`
