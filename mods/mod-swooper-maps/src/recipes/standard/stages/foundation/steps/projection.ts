@@ -14,6 +14,10 @@ import {
 } from "@mapgen/domain/foundation/shared/knob-multipliers.js";
 import type { FoundationPlateActivityKnob } from "@mapgen/domain/foundation/shared/knobs.js";
 
+const GROUP_PLATES = "Foundation / Plates";
+const GROUP_CRUST_TILES = "Foundation / Crust Tiles";
+const GROUP_TILE_MAP = "Foundation / Tile Mapping";
+
 function clampInt(value: number, bounds: { min: number; max?: number }): number {
   const rounded = Math.round(value);
   const max = bounds.max ?? Number.POSITIVE_INFINITY;
@@ -96,66 +100,110 @@ export default createStep(ProjectionStepContract, {
       dims: { width, height },
       format: "i16",
       values: platesResult.plates.id,
+      meta: defineVizMeta("foundation.plates.tilePlateId", {
+        label: "Plate Id",
+        group: GROUP_PLATES,
+      }),
     });
     context.viz?.dumpGrid(context.trace, {
       layerId: "foundation.plates.tileBoundaryType",
       dims: { width, height },
       format: "u8",
       values: platesResult.plates.boundaryType,
+      meta: defineVizMeta("foundation.plates.tileBoundaryType", {
+        label: "Plate Boundary Type",
+        group: GROUP_PLATES,
+      }),
     });
     context.viz?.dumpGrid(context.trace, {
       layerId: "foundation.plates.tileBoundaryCloseness",
       dims: { width, height },
       format: "u8",
       values: platesResult.plates.boundaryCloseness,
+      meta: defineVizMeta("foundation.plates.tileBoundaryCloseness", {
+        label: "Plate Boundary Closeness",
+        group: GROUP_PLATES,
+      }),
     });
     context.viz?.dumpGrid(context.trace, {
       layerId: "foundation.plates.tileTectonicStress",
       dims: { width, height },
       format: "u8",
       values: platesResult.plates.tectonicStress,
+      meta: defineVizMeta("foundation.plates.tileTectonicStress", {
+        label: "Plate Tectonic Stress",
+        group: GROUP_PLATES,
+      }),
     });
     context.viz?.dumpGrid(context.trace, {
       layerId: "foundation.plates.tileUpliftPotential",
       dims: { width, height },
       format: "u8",
       values: platesResult.plates.upliftPotential,
+      meta: defineVizMeta("foundation.plates.tileUpliftPotential", {
+        label: "Plate Uplift Potential",
+        group: GROUP_PLATES,
+      }),
     });
     context.viz?.dumpGrid(context.trace, {
       layerId: "foundation.plates.tileRiftPotential",
       dims: { width, height },
       format: "u8",
       values: platesResult.plates.riftPotential,
+      meta: defineVizMeta("foundation.plates.tileRiftPotential", {
+        label: "Plate Rift Potential",
+        group: GROUP_PLATES,
+      }),
     });
     context.viz?.dumpGrid(context.trace, {
       layerId: "foundation.plates.tileShieldStability",
       dims: { width, height },
       format: "u8",
       values: platesResult.plates.shieldStability,
+      meta: defineVizMeta("foundation.plates.tileShieldStability", {
+        label: "Plate Shield Stability",
+        group: GROUP_PLATES,
+      }),
     });
     context.viz?.dumpGrid(context.trace, {
       layerId: "foundation.plates.tileVolcanism",
       dims: { width, height },
       format: "u8",
       values: platesResult.plates.volcanism,
+      meta: defineVizMeta("foundation.plates.tileVolcanism", {
+        label: "Plate Volcanism",
+        group: GROUP_PLATES,
+      }),
     });
     context.viz?.dumpGrid(context.trace, {
       layerId: "foundation.plates.tileMovementU",
       dims: { width, height },
       format: "i8",
       values: platesResult.plates.movementU,
+      meta: defineVizMeta("foundation.plates.tileMovementU", {
+        label: "Plate Movement U",
+        group: GROUP_PLATES,
+      }),
     });
     context.viz?.dumpGrid(context.trace, {
       layerId: "foundation.plates.tileMovementV",
       dims: { width, height },
       format: "i8",
       values: platesResult.plates.movementV,
+      meta: defineVizMeta("foundation.plates.tileMovementV", {
+        label: "Plate Movement V",
+        group: GROUP_PLATES,
+      }),
     });
     context.viz?.dumpGrid(context.trace, {
       layerId: "foundation.plates.tileRotation",
       dims: { width, height },
       format: "i8",
       values: platesResult.plates.rotation,
+      meta: defineVizMeta("foundation.plates.tileRotation", {
+        label: "Plate Rotation",
+        group: GROUP_PLATES,
+      }),
     });
     context.viz?.dumpGrid(context.trace, {
       layerId: "foundation.crustTiles.type",
@@ -164,6 +212,7 @@ export default createStep(ProjectionStepContract, {
       values: platesResult.crustTiles.type,
       meta: defineVizMeta("foundation.crustTiles.type", {
         label: "Crust Type",
+        group: GROUP_CRUST_TILES,
         categories: [
           { value: 0, label: "Oceanic", color: [37, 99, 235, 230] },
           { value: 1, label: "Continental", color: [34, 197, 94, 230] },
@@ -175,12 +224,20 @@ export default createStep(ProjectionStepContract, {
       dims: { width, height },
       format: "u8",
       values: platesResult.crustTiles.age,
+      meta: defineVizMeta("foundation.crustTiles.age", {
+        label: "Crust Age",
+        group: GROUP_CRUST_TILES,
+      }),
     });
     context.viz?.dumpGrid(context.trace, {
       layerId: "foundation.crustTiles.buoyancy",
       dims: { width, height },
       format: "f32",
       values: platesResult.crustTiles.buoyancy,
+      meta: defineVizMeta("foundation.crustTiles.buoyancy", {
+        label: "Crust Buoyancy",
+        group: GROUP_CRUST_TILES,
+      }),
     });
     context.viz?.dumpGrid(context.trace, {
       layerId: "foundation.crustTiles.baseElevation",
@@ -189,6 +246,7 @@ export default createStep(ProjectionStepContract, {
       values: platesResult.crustTiles.baseElevation,
       meta: defineVizMeta("foundation.crustTiles.baseElevation", {
         label: "Crust Base Elevation",
+        group: GROUP_CRUST_TILES,
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -196,12 +254,20 @@ export default createStep(ProjectionStepContract, {
       dims: { width, height },
       format: "f32",
       values: platesResult.crustTiles.strength,
+      meta: defineVizMeta("foundation.crustTiles.strength", {
+        label: "Crust Strength",
+        group: GROUP_CRUST_TILES,
+      }),
     });
     context.viz?.dumpGrid(context.trace, {
       layerId: "foundation.tileToCellIndex",
       dims: { width, height },
       format: "i32",
       values: platesResult.tileToCellIndex,
+      meta: defineVizMeta("foundation.tileToCellIndex", {
+        label: "Tile To Cell Index",
+        group: GROUP_TILE_MAP,
+      }),
     });
 
     context.trace.event(() => {

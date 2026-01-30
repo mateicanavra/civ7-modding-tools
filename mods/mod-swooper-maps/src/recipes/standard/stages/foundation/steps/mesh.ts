@@ -1,4 +1,4 @@
-import { ctxRandom, ctxRandomLabel } from "@swooper/mapgen-core";
+import { ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { foundationArtifacts } from "../artifacts.js";
 import MeshStepContract from "./mesh.contract.js";
@@ -6,6 +6,8 @@ import { validateMeshArtifact, wrapFoundationValidateNoDims } from "./validation
 import { FOUNDATION_PLATE_COUNT_MULTIPLIER } from "@mapgen/domain/foundation/shared/knob-multipliers.js";
 import type { FoundationPlateCountKnob } from "@mapgen/domain/foundation/shared/knobs.js";
 import { interleaveXY, segmentsFromMeshNeighbors } from "./viz.js";
+
+const GROUP_MESH = "Foundation / Mesh";
 
 function clampInt(value: number, bounds: { min: number; max?: number }): number {
   const rounded = Math.round(value);
@@ -61,6 +63,10 @@ export default createStep(MeshStepContract, {
       values: meshResult.mesh.areas,
       valueFormat: "f32",
       fileKey: "areas",
+      meta: defineVizMeta("foundation.mesh.sites", {
+        label: "Mesh Sites (Area)",
+        group: GROUP_MESH,
+      }),
     });
 
     context.viz?.dumpSegments(context.trace, {
@@ -71,6 +77,10 @@ export default createStep(MeshStepContract, {
         meshResult.mesh.siteX,
         meshResult.mesh.siteY
       ),
+      meta: defineVizMeta("foundation.mesh.edges", {
+        label: "Mesh Neighbor Edges",
+        group: GROUP_MESH,
+      }),
     });
   },
 });
