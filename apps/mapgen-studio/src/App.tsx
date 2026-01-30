@@ -41,6 +41,7 @@ export function App() {
 
   const dumpLoader = useDumpLoader();
   const dumpAssetResolver = dumpLoader.state.status === "loaded" ? dumpLoader.state.reader : null;
+  const dumpManifest = dumpLoader.state.status === "loaded" ? dumpLoader.state.manifest : null;
 
   const [browserSeed, setBrowserSeed] = useState(123);
   const [browserMapSizeId, setBrowserMapSizeId] = useState<Civ7MapSizePreset["id"]>("MAPSIZE_HUGE");
@@ -84,6 +85,7 @@ export function App() {
   const manifest = viz.manifest;
   const effectiveLayer = viz.effectiveLayer;
   const legend = viz.legend;
+  const { setDumpManifest, setSelectedStepId, setSelectedLayerKey, resetView } = viz;
   const error =
     localError ??
     (mode === "browser" ? browserRunner.state.error : null) ??
@@ -92,14 +94,13 @@ export function App() {
   vizIngestRef.current = viz.ingest;
 
   useEffect(() => {
-    if (dumpLoader.state.status !== "loaded") return;
-    const m = dumpLoader.state.manifest;
-    viz.setDumpManifest(m);
-    const firstStep = [...m.steps].sort((a, b) => a.stepIndex - b.stepIndex)[0]?.stepId ?? null;
-    viz.setSelectedStepId(firstStep);
-    viz.setSelectedLayerKey(null);
-    viz.resetView();
-  }, [dumpLoader.state, viz]);
+    if (!dumpManifest) return;
+    setDumpManifest(dumpManifest);
+    const firstStep = [...dumpManifest.steps].sort((a, b) => a.stepIndex - b.stepIndex)[0]?.stepId ?? null;
+    setSelectedStepId(firstStep);
+    setSelectedLayerKey(null);
+    resetView();
+  }, [dumpManifest, resetView, setDumpManifest, setSelectedLayerKey, setSelectedStepId]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -232,6 +233,7 @@ export function App() {
         controller={browserConfigOverrides}
         disabled={browserRunning}
         schema={BROWSER_TEST_RECIPE_CONFIG_SCHEMA}
+        isNarrow={isNarrow}
       />
     ) : null,
     <div
