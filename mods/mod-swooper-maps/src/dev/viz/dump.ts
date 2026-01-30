@@ -24,6 +24,7 @@ export type VizLayerEntryV0 =
       dims: { width: number; height: number };
       path: string;
       bounds: Bounds;
+      fileKey?: string;
       meta?: VizLayerMeta;
     }
   | {
@@ -37,6 +38,7 @@ export type VizLayerEntryV0 =
       valuesPath?: string;
       valueFormat?: VizScalarFormat;
       bounds: Bounds;
+      fileKey?: string;
       meta?: VizLayerMeta;
     }
   | {
@@ -50,6 +52,7 @@ export type VizLayerEntryV0 =
       valuesPath?: string;
       valueFormat?: VizScalarFormat;
       bounds: Bounds;
+      fileKey?: string;
       meta?: VizLayerMeta;
     };
 
@@ -60,6 +63,7 @@ type LayerDumpPayloadV0 =
       layerId: string;
       bounds: Bounds;
       meta?: VizLayerMeta;
+      fileKey?: string;
     } & (
       | { kind: "grid"; format: VizScalarFormat; dims: { width: number; height: number }; path: string }
       | {
@@ -194,6 +198,7 @@ export function createTraceDumpSink(options: { outputRoot: string }): TraceSink 
         stepIndex,
         bounds: payload.bounds,
         meta: payload.meta,
+        fileKey: payload.fileKey,
       } as const;
 
       let entry: VizLayerEntryV0 | null = null;
@@ -267,6 +272,7 @@ export function createVizDumper(options: { outputRoot: string }): VizDumper {
         dims: layer.dims,
         path: relPath,
         bounds,
+        fileKey: layer.fileKey,
         meta: layer.meta,
       }));
     } catch {
@@ -303,6 +309,7 @@ export function createVizDumper(options: { outputRoot: string }): VizDumper {
         valuesPath: valRel,
         valueFormat: layer.valueFormat,
         bounds,
+        fileKey: layer.fileKey,
         meta: layer.meta,
       }));
     } catch {
@@ -339,6 +346,7 @@ export function createVizDumper(options: { outputRoot: string }): VizDumper {
         valuesPath: valRel,
         valueFormat: layer.valueFormat,
         bounds,
+        fileKey: layer.fileKey,
         meta: layer.meta,
       }));
     } catch {

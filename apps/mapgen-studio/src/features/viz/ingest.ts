@@ -25,6 +25,7 @@ export function ingestVizEvent(prev: VizManifestV0 | null, event: VizEvent): Viz
 
   if (event.type === "viz.layer.upsert") {
     const key = event.layer.key;
+    const fileKey = event.layer.fileKey;
     const entry: VizLayerEntryV0 =
       event.layer.kind === "grid"
         ? {
@@ -36,6 +37,7 @@ export function ingestVizEvent(prev: VizManifestV0 | null, event: VizEvent): Viz
             format: event.layer.format ?? "u8",
             dims: event.layer.dims ?? { width: 1, height: 1 },
             values: event.payload.kind === "grid" ? event.payload.values : undefined,
+            fileKey,
             bounds: event.layer.bounds,
             meta: event.layer.meta,
             key,
@@ -50,6 +52,7 @@ export function ingestVizEvent(prev: VizManifestV0 | null, event: VizEvent): Viz
               count: event.layer.count ?? 0,
               positions: event.payload.kind === "points" ? event.payload.positions : undefined,
               values: event.payload.kind === "points" ? event.payload.values : undefined,
+              fileKey,
               valueFormat: event.layer.valueFormat,
               bounds: event.layer.bounds,
               meta: event.layer.meta,
@@ -64,6 +67,7 @@ export function ingestVizEvent(prev: VizManifestV0 | null, event: VizEvent): Viz
               count: event.layer.count ?? 0,
               segments: event.payload.kind === "segments" ? event.payload.segments : undefined,
               values: event.payload.kind === "segments" ? event.payload.values : undefined,
+              fileKey,
               valueFormat: event.layer.valueFormat,
               bounds: event.layer.bounds,
               meta: event.layer.meta,
