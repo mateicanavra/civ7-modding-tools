@@ -63,3 +63,29 @@ Browser runner extraction is clean, but segment bounds are still computed from o
 
 ### Cross-cutting Risks
 - Segment layers (tectonics, rifts, etc.) can render clipped or incorrectly framed in the UI.
+
+## REVIEW agent-DONNY-inside-milestone-rfx-03-viz
+
+### Quick Take
+Viz extraction is structurally solid, but selection state and layer identity still have edge cases that can hide layers or desync under React 18 rendering.
+
+### High-Leverage Issues
+- Layer keys are derived only from `stepId`, `layerId`, and `kind`, so multiple entries that differ only by `fileKey`/`valuesPath` collide and become unselectable. (`apps/mapgen-studio/src/features/viz/model.ts`, `apps/mapgen-studio/src/features/viz/useVizState.ts`)
+- `selectedStepIdRef`/`selectedLayerKeyRef` are mutated during render. Under React 18 StrictMode, discarded renders can leave refs out of sync with the committed UI, so ingest may skip or pin the wrong layer. (`apps/mapgen-studio/src/features/viz/useVizState.ts`)
+
+### PR Comment Context
+- PR #787 flagged the layer-key collision risk; the key function still ignores file-specific identifiers.
+- PR #808 flagged render-time ref mutation; refs are still assigned outside an effect.
+
+### Fix Now (Recommended)
+- Include a stable file discriminator (e.g., `valuesPath` or `fileKey`) in `getLayerKey` and in the select label so each dump entry is addressable.
+- Move ref updates to `useEffect`/`useLayoutEffect` so refs only track committed renders.
+
+### Defer / Follow-up
+- None.
+
+### Needs Discussion
+- Decide which discriminator is the canonical key (`valuesPath` vs `fileKey`) and ensure it is present on both stream and dump manifests.
+
+### Cross-cutting Risks
+- Layer selection can silently point at the wrong dataset, and StrictMode render churn can drop user selections.
