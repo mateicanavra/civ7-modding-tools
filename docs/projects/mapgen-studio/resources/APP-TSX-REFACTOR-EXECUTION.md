@@ -49,7 +49,7 @@ $APP_SHELL = $SRC/app
 ## Quality gates (non-negotiable)
 
 ### Build / bundling
-- [ ] `bun run --cwd $APP build` stays green (includes `check:worker-bundle`).
+- [ ] `bun run --cwd apps/mapgen-studio build` stays green (includes `check:worker-bundle`).
 - [ ] Worker bundle remains browser-safe (no Node-only deps pulled into `$WORKER`).
 - [ ] No import cycles introduced (layering remains acyclic; see per-slice dependency rules).
 
@@ -140,8 +140,8 @@ files:
 - [ ] `$APP_TSX` no longer contains RJSF templates and the large overrides CSS blob.
 
 ### Verification (commands + manual)
-- `bun run --cwd $APP build`
-- Manual smoke (`bun run --cwd $APP dev`):
+- `bun run --cwd apps/mapgen-studio build`
+- Manual smoke (`bun run --cwd apps/mapgen-studio dev`):
   - Toggle overrides on/off; run still works.
   - Edit a nested value in the schema form; rerun; observe changes applied.
   - Switch to JSON tab; introduce invalid JSON; ensure run is blocked with a readable error.
@@ -185,8 +185,8 @@ files:
 - [ ] No new imports into `$WORKER`.
 
 ### Verification
-- `bun run --cwd $APP build`
-- Manual smoke (`bun run --cwd $APP dev`):
+- `bun run --cwd apps/mapgen-studio build`
+- Manual smoke (`bun run --cwd apps/mapgen-studio dev`):
   - Run; select a non-default step and layer; rerun; ensure selection is retained.
   - Reroll seed; ensure it auto-runs and keeps retention behavior.
   - Cancel mid-run; ensure worker terminates and subsequent run still works.
@@ -237,8 +237,8 @@ files:
 - [ ] `App.tsx` no longer contains deck.gl layer builders, palettes, or hex math.
 
 ### Verification
-- `bun run --cwd $APP build`
-- Manual smoke (`bun run --cwd $APP dev`):
+- `bun run --cwd apps/mapgen-studio build`
+- Manual smoke (`bun run --cwd apps/mapgen-studio dev`):
   - Run and confirm at least one contract layer renders.
   - Toggle internal layers; ensure the list changes but selection remains stable.
   - If possible, select an internal layer, hide internal layers, ensure it remains selected/usable.
@@ -277,8 +277,8 @@ files:
 - [ ] Dump mode can load and render the same as pre-refactor.
 
 ### Verification
-- `bun run --cwd $APP build`
-- Manual smoke (`bun run --cwd $APP dev`):
+- `bun run --cwd apps/mapgen-studio build`
+- Manual smoke (`bun run --cwd apps/mapgen-studio dev`):
   - Load a known dump folder; confirm layers appear.
   - If using upload fallback, confirm it can still find `manifest.json`.
 
@@ -312,8 +312,8 @@ files:
 - [ ] No domain logic moved into `$APP_SHELL/*`.
 
 ### Verification
-- `bun run --cwd $APP build`
-- Manual smoke (`bun run --cwd $APP dev`):
+- `bun run --cwd apps/mapgen-studio build`
+- Manual smoke (`bun run --cwd apps/mapgen-studio dev`):
   - Verify both modes still reachable and functional.
   - Verify errors remain readable and don’t render raw objects.
 
@@ -325,4 +325,3 @@ We are “ready to implement” when:
 - [ ] This execution doc is accepted as the source of truth for slice scope/AC/verification.
 - [ ] No open questions remain that would force rework across multiple slices.
 - [ ] We agree to keep the refactor **move-only** unless a behavior bug is discovered (fixes allowed but must be isolated).
-
