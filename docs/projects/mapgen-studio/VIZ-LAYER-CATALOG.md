@@ -69,7 +69,13 @@ This catalog documents the visualization layers that MapGen Studio surfaces from
 - `hydrology.hydrography.riverClass`
 - `hydrology.hydrography.sinkMask`
 - `hydrology.hydrography.outletMask`
-- `hydrology.hydrography.basinId` (debug)
+- `hydrology.hydrography.basinId` (debug, optional; not emitted in current pipeline)
+
+**Map‑hydrology projections (pipeline‑owned mocks)**
+- `map.hydrology.rivers.riverClass`
+- `map.hydrology.rivers.discharge`
+- `map.hydrology.lakes.sinkMask`
+- `map.hydrology.lakes.outletMask`
 
 ## Ecology
 - `ecology.biome.biomeIndex`
@@ -91,4 +97,3 @@ This catalog documents the visualization layers that MapGen Studio surfaces from
 - `gameplay.landmassRegionSlotByTile`
 - `gameplay.startPositions` (points)
 - `gameplay.startSlotByTile` (grid)
-

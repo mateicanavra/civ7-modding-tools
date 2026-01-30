@@ -1,4 +1,4 @@
-import { ctxRandom, ctxRandomLabel, writeClimateField } from "@swooper/mapgen-core";
+import { ctxRandom, ctxRandomLabel, defineVizMeta, writeClimateField } from "@swooper/mapgen-core";
 import type { MapDimensions } from "@civ7/adapter";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { hydrologyClimateBaselineArtifacts } from "../artifacts.js";
@@ -30,6 +30,10 @@ import type {
 
 type ArtifactValidationIssue = Readonly<{ message: string }>;
 type TypedArrayConstructor = { new (...args: unknown[]): { length: number } };
+
+const GROUP_SEASONALITY = "Hydrology / Seasonality";
+const GROUP_WIND = "Hydrology / Wind";
+const GROUP_CURRENT = "Hydrology / Currents";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -510,6 +514,71 @@ export default createStep(ClimateBaselineStepContract, {
       meanCurrentU[i] = clampI8(Math.round(currentUSum / seasonCount));
       meanCurrentV[i] = clampI8(Math.round(currentVSum / seasonCount));
     }
+
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.climate.seasonality.rainfallAmplitude",
+      dims: { width, height },
+      format: "u8",
+      values: rainfallAmplitude,
+      meta: defineVizMeta("hydrology.climate.seasonality.rainfallAmplitude", {
+        label: "Rainfall Amplitude",
+        group: GROUP_SEASONALITY,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.climate.seasonality.humidityAmplitude",
+      dims: { width, height },
+      format: "u8",
+      values: humidityAmplitude,
+      meta: defineVizMeta("hydrology.climate.seasonality.humidityAmplitude", {
+        label: "Humidity Amplitude",
+        group: GROUP_SEASONALITY,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.wind.windU",
+      dims: { width, height },
+      format: "i8",
+      values: meanWindU,
+      meta: defineVizMeta("hydrology.wind.windU", {
+        label: "Wind U",
+        group: GROUP_WIND,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.wind.windV",
+      dims: { width, height },
+      format: "i8",
+      values: meanWindV,
+      meta: defineVizMeta("hydrology.wind.windV", {
+        label: "Wind V",
+        group: GROUP_WIND,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.current.currentU",
+      dims: { width, height },
+      format: "i8",
+      values: meanCurrentU,
+      meta: defineVizMeta("hydrology.current.currentU", {
+        label: "Current U",
+        group: GROUP_CURRENT,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.current.currentV",
+      dims: { width, height },
+      format: "i8",
+      values: meanCurrentV,
+      meta: defineVizMeta("hydrology.current.currentV", {
+        label: "Current V",
+        group: GROUP_CURRENT,
+        visibility: "debug",
+      }),
+    });
 
     for (let y = 0; y < height; y++) {
       const rowOffset = y * width;

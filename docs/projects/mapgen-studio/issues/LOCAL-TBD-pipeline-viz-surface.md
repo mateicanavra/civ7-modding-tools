@@ -85,7 +85,7 @@ related_to: []
 ### Implementation Plan (Branch Map)
 - [x] **PV-00 Docs/Plan**: finalize issue doc plans + add `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md`.
 - [x] **PV-01 Morphology viz**: emit morphology-pre/mid/post layers (topography, routing, substrate, coastline metrics, landmasses, volcanoes) + map-morphology projections.
-- [ ] **PV-02 Hydrology viz**: emit climate baseline/refine + hydrography layers; add map-hydrology projection overlays (pipeline-owned).
+- [x] **PV-02 Hydrology viz**: emit climate baseline/refine + hydrography layers; add map-hydrology projection overlays (pipeline-owned).
 - [ ] **PV-03 Ecology viz**: emit pedology, resource basins, biome classification, feature intents; add map-ecology projection overlays; add tile-point handling if needed.
 - [ ] **PV-04 Gameplay viz**: emit placement/gameplay layers (landmassRegionSlotByTile + start positions); label “Gameplay” in viz UI.
 - [ ] **PV-05 React & UX cleanup**: apply `you-might-not-need-an-effect` + `escape-hatches` fixes with minimal behavior change.
@@ -102,6 +102,13 @@ related_to: []
 - `bun run lint`
 - `bun run test`
 - `bun run deploy` (missing script in repo; no-op)
+- `timeout 5 bun run --cwd apps/mapgen-studio dev` (Vite started; manual browser smoke still required)
+
+**PV-02 Hydrology**
+- `bun run --cwd apps/mapgen-studio build` (worker bundle check passed; Vite emitted `spawn` warning from loaders.gl)
+- `bun run lint`
+- `bun run test`
+- `bun run deploy` (missing script in repo)
 - `timeout 5 bun run --cwd apps/mapgen-studio dev` (Vite started; manual browser smoke still required)
 
 ### Research Findings
