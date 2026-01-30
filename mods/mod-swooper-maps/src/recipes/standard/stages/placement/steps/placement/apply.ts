@@ -1,5 +1,5 @@
 import type { ExtendedMapContext, TraceScope } from "@swooper/mapgen-core";
-import { HILL_TERRAIN, MOUNTAIN_TERRAIN, getTerrainSymbol } from "@swooper/mapgen-core";
+import { HILL_TERRAIN, MOUNTAIN_TERRAIN, defineVizMeta, getTerrainSymbol } from "@swooper/mapgen-core";
 import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import placement from "@mapgen/domain/placement";
@@ -22,6 +22,8 @@ type ApplyPlacementArgs = {
   landmassRegionSlotByTile: DeepReadonly<LandmassRegionSlotByTile>;
   publishOutputs: (outputs: PlacementOutputsV1) => DeepReadonly<PlacementOutputsV1>;
 };
+
+const GROUP_GAMEPLAY = "Gameplay / Placement";
 
 export function applyPlacementPlan({
   context,
@@ -125,6 +127,9 @@ export function applyPlacementPlan({
 
     startPositions.push(...positions);
     emit({ type: "placement.starts.assigned", successCount, totalPlayers });
+
+    emitStartSectorViz(context, slotByTile as Uint8Array, starts);
+    emitStartPositionsViz(context, startPositions);
   } catch (err) {
     emit({
       type: "placement.starts.error",
@@ -270,6 +275,127 @@ function assignStartPositions({
   }
 
   return { positions, assigned };
+}
+
+function emitStartSectorViz(
+  context: ExtendedMapContext,
+  slotByTile: Uint8Array,
+  starts: DeepReadonly<PlanStartsOutput>
+): void {
+  const { width, height } = context.dimensions;
+  const rows = Math.max(0, starts.startSectorRows | 0);
+  const cols = Math.max(0, starts.startSectorCols | 0);
+  if (rows <= 0 || cols <= 0) return;
+  const sectors = Array.isArray(starts.startSectors) ? starts.startSectors : [];
+
+  const grid = buildStartSectorGrid({
+    width,
+    height,
+    slotByTile,
+    rows,
+    cols,
+    sectors,
+  });
+  if (!grid) return;
+
+  context.viz?.dumpGrid(context.trace, {
+    layerId: "placement.starts.sectorId",
+    dims: { width, height },
+    format: "u16",
+    values: grid,
+    meta: defineVizMeta("placement.starts.sectorId", {
+      label: "Start Sectors",
+      group: GROUP_GAMEPLAY,
+      description:
+        "Derived start-sector grid for placement planning (0 = inactive). Values are sector ids.",
+    }),
+  });
+}
+
+function buildStartSectorGrid(input: {
+  width: number;
+  height: number;
+  slotByTile: Uint8Array;
+  rows: number;
+  cols: number;
+  sectors: unknown[];
+}): Uint16Array | null {
+  const { width, height, slotByTile, rows, cols, sectors } = input;
+  const size = Math.max(0, (width | 0) * (height | 0));
+  if (slotByTile.length !== size) return null;
+
+  const sectorsPerRegion = rows * cols;
+  const usesSingleRegion = sectors.length === sectorsPerRegion;
+  const usesDualRegion = sectors.length === sectorsPerRegion * 2;
+
+  const cellWidth = width / cols;
+  const cellHeight = height / rows;
+  const maxCol = Math.max(1, cols);
+  const maxRow = Math.max(1, rows);
+
+  const out = new Uint16Array(size);
+  for (let i = 0; i < size; i++) {
+    const y = (i / width) | 0;
+    const x = i - y * width;
+    const col = Math.min(maxCol - 1, Math.max(0, Math.floor(x / cellWidth)));
+    const row = Math.min(maxRow - 1, Math.max(0, Math.floor(y / cellHeight)));
+    const baseIndex = row * cols + col;
+
+    let sectorIndex = baseIndex;
+    if (usesDualRegion) {
+      const slot = slotByTile[i] ?? 0;
+      if (slot === 2) sectorIndex = baseIndex + sectorsPerRegion;
+      if (slot !== 1 && slot !== 2) {
+        out[i] = 0;
+        continue;
+      }
+    }
+
+    const isActive = usesSingleRegion || usesDualRegion ? Boolean(sectors[sectorIndex]) : true;
+    out[i] = isActive ? baseIndex + 1 : 0;
+  }
+
+  return out;
+}
+
+function emitStartPositionsViz(
+  context: ExtendedMapContext,
+  startPositions: number[]
+): void {
+  if (!startPositions.length) return;
+  const { width } = context.dimensions;
+  const valid = startPositions
+    .map((plotIndex, playerIndex) => ({ plotIndex, playerIndex }))
+    .filter((entry) => Number.isFinite(entry.plotIndex) && entry.plotIndex >= 0);
+  if (!valid.length) return;
+
+  const positions = new Float32Array(valid.length * 2);
+  const values = new Uint16Array(valid.length);
+  for (let i = 0; i < valid.length; i++) {
+    const { plotIndex, playerIndex } = valid[i]!;
+    const y = (plotIndex / width) | 0;
+    const x = plotIndex - y * width;
+    positions[i * 2] = x;
+    positions[i * 2 + 1] = y;
+    values[i] = playerIndex + 1;
+  }
+
+  const categories = Array.from({ length: startPositions.length }, (_, index) => ({
+    value: index + 1,
+    label: `Player ${index + 1}`,
+  }));
+
+  context.viz?.dumpPoints(context.trace, {
+    layerId: "placement.starts.startPosition",
+    positions,
+    values,
+    valueFormat: "u16",
+    meta: defineVizMeta("placement.starts.startPosition", {
+      label: "Start Positions",
+      group: GROUP_GAMEPLAY,
+      categories,
+    }),
+  });
 }
 
 function collectCandidates(
