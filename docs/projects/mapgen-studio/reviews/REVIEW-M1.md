@@ -112,3 +112,308 @@ Dump viewer extraction is clean, but the directory picker fallback still assumes
 
 ### Cross-cutting Risks
 - Dump loading can fail entirely on browsers that expose `values()` but not `entries()`.
+
+## REVIEW agent-DONNY-LOCAL-TBD-pv-05-react-best-practices
+
+### Quick Take
+The effect cleanup is good, but `selectedStepId` can become stale when the active step falls back, leading to confusing step selection across runs.
+
+### High-Leverage Issues
+- When `selectedStepId` no longer exists in the manifest, the memo falls back to `steps[0]` without syncing state. If a later run re-enables pending selection, the UI can snap back to the stale step and ingest won’t correct it. (`apps/mapgen-studio/src/features/viz/useVizState.ts`)
+
+### PR Comment Context
+- PR #814 flagged the stale `selectedStepId` fallback; the state is still not synchronized when the fallback is used.
+
+### Fix Now (Recommended)
+- When the fallback is used, clear or sync `selectedStepId` so future runs don’t resurrect a stale step id.
+
+### Defer / Follow-up
+- None.
+
+### Needs Discussion
+- Decide if fallback should aggressively reset selection or only when `allowPendingSelection` toggles.
+
+### Cross-cutting Risks
+- Users can see the UI show one step while the internal selection snaps back to a stale id on the next run.
+
+## REVIEW agent-DONNY-inside-milestone-rfx-05-app-shell
+
+### Quick Take
+App shell extraction aligns with the plan; no additional issues found beyond those already captured in prior RFX reviews.
+
+### High-Leverage Issues
+- None.
+
+### PR Comment Context
+- No reviewer comments beyond bots.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- None.
+
+### Needs Discussion
+- None.
+
+### Cross-cutting Risks
+- None.
+
+## REVIEW agent-DONNY-LOCAL-TBD-pipeline-viz-surface
+
+### Quick Take
+Docs-only change (pipeline viz plan + catalog); no code issues.
+
+### High-Leverage Issues
+- None.
+
+### PR Comment Context
+- No reviewer comments beyond bots.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- None.
+
+### Needs Discussion
+- None.
+
+### Cross-cutting Risks
+- None.
+
+## REVIEW agent-DONNY-LOCAL-TBD-pv-01-morphology-viz
+
+### Quick Take
+Morphology layer emission work looks consistent with the pipeline viz plan; no issues found in review.
+
+### High-Leverage Issues
+- None.
+
+### PR Comment Context
+- No reviewer comments beyond bots.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- None.
+
+### Needs Discussion
+- None.
+
+### Cross-cutting Risks
+- None.
+
+## REVIEW agent-DONNY-LOCAL-TBD-pv-02-hydrology-viz
+
+### Quick Take
+Hydrology layer emission appears consistent with the plan; no issues found in review.
+
+### High-Leverage Issues
+- None.
+
+### PR Comment Context
+- No reviewer comments beyond bots.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- None.
+
+### Needs Discussion
+- None.
+
+### Cross-cutting Risks
+- None.
+
+## REVIEW agent-DONNY-LOCAL-TBD-pv-03-ecology-viz
+
+### Quick Take
+Ecology layer emission appears consistent with the plan; no issues found in review.
+
+### High-Leverage Issues
+- None.
+
+### PR Comment Context
+- No reviewer comments beyond bots.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- None.
+
+### Needs Discussion
+- None.
+
+### Cross-cutting Risks
+- None.
+
+## REVIEW agent-DONNY-LOCAL-TBD-pv-04-gameplay-viz
+
+### Quick Take
+Gameplay placement layer emission appears consistent with the plan; no issues found in review.
+
+### High-Leverage Issues
+- None.
+
+### PR Comment Context
+- No reviewer comments beyond bots.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- None.
+
+### Needs Discussion
+- None.
+
+### Cross-cutting Risks
+- None.
+
+## REVIEW agent-DONNY-LOCAL-TBD-pv-06-tests-docs
+
+### Quick Take
+Tests/docs updates are straightforward; no additional issues found in review.
+
+### High-Leverage Issues
+- None.
+
+### PR Comment Context
+- No reviewer comments beyond bots.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- None.
+
+### Needs Discussion
+- None.
+
+### Cross-cutting Risks
+- None.
+
+## REVIEW merged PR comment sweep (#776–#803)
+
+### PR #776 — archive completed issues
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.
+
+### PR #777 — more docs cleanup
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.
+
+### PR #778 — archive projects
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.
+
+### PR #779 — fix(mapgen): prevent sea level collapse under continentalFraction
+- PR Comment Context: reviewer flagged early termination when sea-level search plateaus.
+- Status: still present in `mods/mod-swooper-maps/src/domain/morphology/ops/compute-sea-level/rules/index.ts` (breaks if error doesn’t improve even when a farther step would change sea level).
+- Guidance: continue stepping past equal-error plateaus or widen the search window until a new sea level is found.
+
+### PR #780 — tune(swooper-earthlike): adjust plate graph scaling
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.
+
+### PR #781 — fix(mountains): use cumulative uplift for ridge planning
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.
+
+### PR #782 — tune(earthlike): reduce mountain peak density
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.
+
+### PR #783 — tune(earthlike): widen mountain chains + add peaks
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.
+
+### PR #784 — add spike for precipitation
+- PR Comment Context: reviewer flagged uppercase spike filename violating docs naming rules.
+- Status: `docs/projects/mapgen-orographic-precipitation/SPIKE-FEASIBILITY.md` still uses ALL‑CAPS.
+- Guidance: rename to lowercase (e.g., `spike-feasibility.md`) and update any references.
+
+### PR #785 — fix(ci): repair railway preview workflow YAML
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.
+
+### PR #786 — ci: reconcile stale Railway preview environments
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.
+
+### PR #787 — feat(viz): foundation plate formation dumps + MapGen Studio viewer (v0)
+- PR Comment Context: reviewer flagged layer key collisions and segment bounds truncation.
+- Status: layer key collisions persist (see RFX-03 review), and `boundsFromSegments` still drops half the coordinates in `mods/mod-swooper-maps/src/dev/viz/dump.ts`.
+- Guidance: include a file discriminator in layer keys, and compute segment bounds from the full buffer.
+
+### PR #788 — docs(roadmap): prioritize in-browser runner; defer replay extras
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.
+
+### PR #789 — docs(mapgen-studio): browser adapter + v0.1 runner design
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.
+
+### PR #790 — docs(mapgen-studio): make in-browser runner dump-optional
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.
+
+### PR #791 — feat(mapgen-studio): foundation worker→deck.gl stream (v0.1 slice)
+- PR Comment Context: reviewer flagged segment bounds truncation in worker sink.
+- Status: still present in `apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts` (and `worker-viz-dumper.ts`).
+- Guidance: compute bounds from the full segments array (see RFX-02 review).
+
+### PR #792 — chore(mod-swooper-maps): explicit foundation stage config template
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.
+
+### PR #793 — feat(mapgen-studio): select Civ7 map size for browser runs
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.
+
+### PR #794 — docs(mapgen-studio): clarify bundled recipes and config overrides
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.
+
+### PR #795 — mapgen-studio: schema-driven config overrides UI→worker
+- PR Comment Context: reviewer flagged stale JSON overrides on run.
+- Status: still present (see RFX-01 review; `applyJson` updates state but `startBrowserRun` uses the previous value).
+- Guidance: return parsed overrides from `applyJson` and feed them directly into the run call.
+
+### PR #796 — docs(spike): mapgen-studio architecture proposal
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.
+
+### PR #797 — feat(mapgen-studio): add browser recipe artifacts package
+- PR Comment Context: reviewer flagged missing type exports in generated `browser-test.d.ts`.
+- Status: generator still only emits `BrowserTestRecipeConfig`; re-exported types are missing.
+- Guidance: add the missing type exports to `packages/browser-recipes/scripts/generate-types.ts` or stop re-exporting them.
+
+### PR #798 — feat(mapgen-studio): move config into sidebar
+- PR Comment Context: reviewer flagged array field template rendering raw items.
+- Status: still present in `apps/mapgen-studio/src/features/configOverrides/rjsfTemplates.tsx` (see RFX-01 review).
+- Guidance: render `item.children` instead of `{item}`.
+
+### PR #799 — docs(mapgen-studio): propose V0.1 slice 2 tile-space grid layers
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.
+
+### PR #800 — feat(mapgen-studio): stream tile height/landmask grids
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.
+
+### PR #801 — feat(mapgen-studio): add landmask/height legend colors
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.
+
+### PR #802 — docs(mapgen-studio): mark tile-grid slice complete
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.
+
+### PR #803 — Add contract vs internal viz layer catalog and UI filter
+- PR Comment Context: no reviewer comments beyond bots.
+- Notes: no action from comments.

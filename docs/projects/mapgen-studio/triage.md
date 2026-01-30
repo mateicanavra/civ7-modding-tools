@@ -6,3 +6,4 @@
 - Viz layer keys collide when `fileKey`/`valuesPath` differ, making some layers unselectable (see REVIEW-M1 RFX-03).
 - Viz selection refs mutate during render; StrictMode can desync selection state (see REVIEW-M1 RFX-03).
 - Dump folder picker can throw on browsers that only support `values()` (see REVIEW-M1 RFX-04).
+- `selectedStepId` can drift stale when manifest changes, causing step selection to snap back on later runs (see REVIEW-M1 PV-05).
