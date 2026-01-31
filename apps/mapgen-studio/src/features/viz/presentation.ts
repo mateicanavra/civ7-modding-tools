@@ -90,6 +90,25 @@ function randomColor(rng: () => number): RgbaColor {
   return [r, g, b, 230];
 }
 
+function hexToRgb(hex: string): [number, number, number] {
+  const normalized = hex.trim().replace(/^#/, "");
+  if (normalized.length === 3) {
+    const r = Number.parseInt(normalized[0] + normalized[0], 16);
+    const g = Number.parseInt(normalized[1] + normalized[1], 16);
+    const b = Number.parseInt(normalized[2] + normalized[2], 16);
+    return [r, g, b];
+  }
+  const r = Number.parseInt(normalized.slice(0, 2), 16);
+  const g = Number.parseInt(normalized.slice(2, 4), 16);
+  const b = Number.parseInt(normalized.slice(4, 6), 16);
+  return [r, g, b];
+}
+
+function hexToRgba(hex: string, alpha = 230): RgbaColor {
+  const [r, g, b] = hexToRgb(hex);
+  return [r, g, b, alpha];
+}
+
 function srgbToLinear(c: number): number {
   const v = c / 255;
   return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
@@ -124,18 +143,56 @@ function oklabDistance(a: RgbaColor, b: RgbaColor): number {
   return dl * dl + da * da + db * db;
 }
 
-export function isPlateIdLayer(layerId: string): boolean {
-  const lower = layerId.toLowerCase();
-  if (lower.includes("boundarytype")) return false;
-  if (!lower.includes("plate")) return false;
-  if (lower.includes("celltoplate")) return true;
-  if (lower.includes("tileplate")) return true;
-  if (lower.includes("plateid")) return true;
-  if (lower.includes("plateseed")) return true;
-  return lower.includes("plate") && lower.includes("id");
-}
+// Tailwind v3 default palette (300-700 shades) from the official docs:
+// https://v3.tailwindcss.com/docs/customizing-colors#default-color-palette
+const TAILWIND_COLOR_POOL: RgbaColor[] = [
+  // Slate
+  "#cbd5e1", "#94a3b8", "#64748b", "#475569", "#334155",
+  // Gray
+  "#d1d5db", "#9ca3af", "#6b7280", "#4b5563", "#374151",
+  // Zinc
+  "#d4d4d8", "#a1a1aa", "#71717a", "#52525b", "#3f3f46",
+  // Neutral
+  "#d4d4d4", "#a3a3a3", "#737373", "#525252", "#404040",
+  // Stone
+  "#d6d3d1", "#a8a29e", "#78716c", "#57534e", "#44403c",
+  // Red
+  "#fca5a5", "#f87171", "#ef4444", "#dc2626", "#b91c1c",
+  // Orange
+  "#fdba74", "#fb923c", "#f97316", "#ea580c", "#c2410c",
+  // Amber
+  "#fcd34d", "#fbbf24", "#f59e0b", "#d97706", "#b45309",
+  // Yellow
+  "#fde047", "#facc15", "#eab308", "#ca8a04", "#a16207",
+  // Lime
+  "#bef264", "#a3e635", "#84cc16", "#65a30d", "#4d7c0f",
+  // Green
+  "#86efac", "#4ade80", "#22c55e", "#16a34a", "#15803d",
+  // Emerald
+  "#6ee7b7", "#34d399", "#10b981", "#059669", "#047857",
+  // Teal
+  "#5eead4", "#2dd4bf", "#14b8a6", "#0d9488", "#0f766e",
+  // Cyan
+  "#67e8f9", "#22d3ee", "#06b6d4", "#0891b2", "#0e7490",
+  // Sky
+  "#7dd3fc", "#38bdf8", "#0ea5e9", "#0284c7", "#0369a1",
+  // Blue
+  "#93c5fd", "#60a5fa", "#3b82f6", "#2563eb", "#1d4ed8",
+  // Indigo
+  "#a5b4fc", "#818cf8", "#6366f1", "#4f46e5", "#4338ca",
+  // Violet
+  "#c4b5fd", "#a78bfa", "#8b5cf6", "#7c3aed", "#6d28d9",
+  // Purple
+  "#d8b4fe", "#c084fc", "#a855f7", "#9333ea", "#7e22ce",
+  // Fuchsia
+  "#f0abfc", "#e879f9", "#d946ef", "#c026d3", "#a21caf",
+  // Pink
+  "#f9a8d4", "#f472b6", "#ec4899", "#db2777", "#be185d",
+  // Rose
+  "#fda4af", "#fb7185", "#f43f5e", "#e11d48", "#be123c",
+].map((hex) => hexToRgba(hex));
 
-function collectPlateIds(values: ArrayBufferView): number[] {
+function collectCategoryIds(values: ArrayBufferView): number[] {
   const view = values as unknown as ArrayLike<number>;
   const ids = new Set<number>();
   for (let i = 0; i < view.length; i++) {
@@ -148,8 +205,7 @@ function collectPlateIds(values: ArrayBufferView): number[] {
 function generateOpposedPalette(count: number, seedKey: string): RgbaColor[] {
   if (count <= 0) return [];
   const rng = createRng(hashStringToSeed(seedKey));
-  const poolSize = Math.max(64, count * 12);
-  const candidates: RgbaColor[] = Array.from({ length: poolSize }, () => randomColor(rng));
+  const candidates = TAILWIND_COLOR_POOL.length ? TAILWIND_COLOR_POOL : [randomColor(rng)];
   const used = new Array(candidates.length).fill(false);
   const selected: RgbaColor[] = [];
 
@@ -192,8 +248,8 @@ function generateOpposedPalette(count: number, seedKey: string): RgbaColor[] {
   return selected;
 }
 
-export function buildPlateColorMap(options: { values: ArrayBufferView; seedKey: string }): Map<number, RgbaColor> {
-  const ids = collectPlateIds(options.values);
+export function buildCategoricalColorMap(options: { values: ArrayBufferView; seedKey: string }): Map<number, RgbaColor> {
+  const ids = collectCategoryIds(options.values);
   const palette = generateOpposedPalette(ids.length, options.seedKey);
   const colorById = new Map<number, RgbaColor>();
   for (let i = 0; i < ids.length; i++) {
@@ -235,9 +291,9 @@ function writeRgba(out: ColorOut, offset: number, color: RgbaColor): void {
 }
 
 function resolveColorForValue(
-  layerId: string,
+  seedKey: string,
   value: number,
-  plateColorMap: Map<number, RgbaColor> | undefined,
+  categoricalColorMap: Map<number, RgbaColor> | undefined,
   meta: VizLayerEntryV0["meta"] | undefined,
   out: ColorOut,
   offset: number
@@ -253,40 +309,14 @@ function resolveColorForValue(
     return;
   }
 
-  if (layerId.toLowerCase().includes("landmask")) {
-    writeRgba(out, offset, value > 0 ? [34, 197, 94, 230] : [37, 99, 235, 230]);
+  const paletteMode = meta?.palette ?? "auto";
+  if (categoricalColorMap) {
+    writeRgba(out, offset, categoricalColorMap.get(value | 0) ?? [148, 163, 184, 220]);
     return;
   }
-
-  if (layerId.includes("crust") && layerId.toLowerCase().includes("type")) {
-    writeRgba(out, offset, value === 1 ? [34, 197, 94, 230] : [37, 99, 235, 230]);
-    return;
-  }
-
-  if (layerId.includes("boundaryType")) {
-    if (value === 1) {
-      writeRgba(out, offset, [239, 68, 68, 240]);
-      return;
-    }
-    if (value === 2) {
-      writeRgba(out, offset, [59, 130, 246, 240]);
-      return;
-    }
-    if (value === 3) {
-      writeRgba(out, offset, [245, 158, 11, 240]);
-      return;
-    }
-    writeRgba(out, offset, [107, 114, 128, 180]);
-    return;
-  }
-
-  if (isPlateIdLayer(layerId)) {
-    if (plateColorMap) {
-      writeRgba(out, offset, plateColorMap.get(value | 0) ?? [148, 163, 184, 220]);
-      return;
-    }
-    const seedKey = `${layerId}:${value}`;
-    const rng = createRng(hashStringToSeed(seedKey));
+  if (paletteMode === "categorical") {
+    const localSeed = `${seedKey}:${value}`;
+    const rng = createRng(hashStringToSeed(localSeed));
     writeRgba(out, offset, randomColor(rng));
     return;
   }
@@ -327,25 +357,25 @@ function formatLayerVariant(layer: VizLayerEntryV0): string | null {
 }
 
 export function colorForValue(
-  layerId: string,
+  seedKey: string,
   value: number,
-  plateColorMap?: Map<number, RgbaColor>,
+  categoricalColorMap?: Map<number, RgbaColor>,
   meta?: VizLayerEntryV0["meta"]
 ): RgbaColor {
   const out: RgbaColor = [0, 0, 0, 255];
-  resolveColorForValue(layerId, value, plateColorMap, meta, out, 0);
+  resolveColorForValue(seedKey, value, categoricalColorMap, meta, out, 0);
   return out;
 }
 
 export function writeColorForValue(
   out: Uint8ClampedArray,
   offset: number,
-  layerId: string,
+  seedKey: string,
   value: number,
-  plateColorMap?: Map<number, RgbaColor>,
+  categoricalColorMap?: Map<number, RgbaColor>,
   meta?: VizLayerEntryV0["meta"]
 ): void {
-  resolveColorForValue(layerId, value, plateColorMap, meta, out, offset);
+  resolveColorForValue(seedKey, value, categoricalColorMap, meta, out, offset);
 }
 
 export function legendForLayer(
@@ -356,6 +386,7 @@ export function legendForLayer(
   if (!layer) return null;
   const id = layer.layerId;
   const label = layer.meta?.label ?? id;
+  const paletteMode = layer.meta?.palette ?? "auto";
 
   if (layer.meta?.categories?.length) {
     return {
@@ -368,67 +399,11 @@ export function legendForLayer(
     };
   }
 
-  if (id.toLowerCase().includes("landmask")) {
+  if (paletteMode === "categorical") {
     return {
       title: label,
       items: [
-        { label: "0 = water", color: [37, 99, 235, 230] },
-        { label: "1 = land", color: [34, 197, 94, 230] },
-      ],
-      context,
-    };
-  }
-
-  if (id.endsWith("tileBoundaryType") || id.endsWith("boundaryType") || id.includes("boundaryType")) {
-    return {
-      title: label,
-      items: [
-        { label: "0 = none/unknown", color: [107, 114, 128, 180] },
-        { label: "1 = convergent", color: [239, 68, 68, 240] },
-        { label: "2 = divergent", color: [59, 130, 246, 240] },
-        { label: "3 = transform", color: [245, 158, 11, 240] },
-      ],
-      context,
-    };
-  }
-
-  if (id.includes("crusttiles") || (id.includes("crust") && id.toLowerCase().includes("type"))) {
-    return {
-      title: label,
-      items: [
-        { label: "0 = oceanic", color: [37, 99, 235, 230] },
-        { label: "1 = continental", color: [34, 197, 94, 230] },
-      ],
-      context,
-    };
-  }
-
-  if (id.toLowerCase().includes("tile.height") || id.toLowerCase().includes("tileheight")) {
-    if (stats && Number.isFinite(stats.min) && Number.isFinite(stats.max)) {
-      const min = stats.min ?? 0;
-      const max = stats.max ?? 1;
-      return {
-        title: label,
-        items: [
-          { label: `min = ${min.toFixed(3)}`, color: colorForValue(id, 0) },
-          { label: `max = ${max.toFixed(3)}`, color: colorForValue(id, 1) },
-        ],
-        note: "Values are mapped with a simple palette in V0.",
-        context,
-      };
-    }
-    return {
-      title: label,
-      items: [{ label: "continuous scalar", color: colorForValue(id, 0.5) }],
-      context,
-    };
-  }
-
-  if (id.includes("plate") && (id.toLowerCase().includes("id") || id.toLowerCase().includes("plate"))) {
-    return {
-      title: label,
-      items: [
-        { label: "categorical (random palette; neighboring plates avoid similar colors)", color: [148, 163, 184, 220] },
+        { label: "categorical palette (auto)", color: [148, 163, 184, 220] },
       ],
       context,
     };
@@ -440,8 +415,8 @@ export function legendForLayer(
     return {
       title: label,
       items: [
-        { label: `min = ${min.toFixed(3)}`, color: colorForValue(id, 0) },
-        { label: `max = ${max.toFixed(3)}`, color: colorForValue(id, 1) },
+        { label: `min = ${min.toFixed(3)}`, color: colorForValue(id, 0, undefined, layer.meta) },
+        { label: `max = ${max.toFixed(3)}`, color: colorForValue(id, 1, undefined, layer.meta) },
       ],
       note: "Values are mapped with a simple palette in V0.",
       context,

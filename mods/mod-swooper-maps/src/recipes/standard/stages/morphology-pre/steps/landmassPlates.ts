@@ -290,6 +290,10 @@ export default createStep(LandmassPlatesStepContract, {
       meta: defineVizMeta("morphology.topography.landMask", {
         label: "Land Mask",
         group: GROUP_TOPOGRAPHY,
+        categories: [
+          { value: 0, label: "Water", color: [37, 99, 235, 230] },
+          { value: 1, label: "Land", color: [34, 197, 94, 230] },
+        ],
       }),
     });
     context.viz?.dumpGrid(context.trace, {
