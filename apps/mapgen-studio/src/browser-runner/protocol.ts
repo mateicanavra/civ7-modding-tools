@@ -1,4 +1,4 @@
-import type { BrowserTestRecipeConfig } from "mod-swooper-maps/recipes/browser-test";
+import type { StandardRecipeConfig } from "mod-swooper-maps/recipes/standard";
 import type { VizLayerMeta } from "@swooper/mapgen-core";
 
 export type Bounds = [minX: number, minY: number, maxX: number, maxY: number];
@@ -12,7 +12,7 @@ export type BrowserRunStartRequest = {
   mapSizeId: string;
   dimensions: { width: number; height: number };
   latitudeBounds: { topLatitude: number; bottomLatitude: number };
-  configOverrides?: BrowserTestRecipeConfig;
+  configOverrides?: StandardRecipeConfig;
 };
 
 export type BrowserRunCancelRequest = {

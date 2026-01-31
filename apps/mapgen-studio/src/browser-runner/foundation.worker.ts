@@ -5,12 +5,11 @@ import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
 
-import standardRecipe from "mod-swooper-maps/recipes/standard";
-import {
-  BROWSER_TEST_RECIPE_CONFIG,
-  BROWSER_TEST_RECIPE_CONFIG_SCHEMA,
-  type BrowserTestRecipeConfig,
-} from "mod-swooper-maps/recipes/browser-test";
+import standardRecipe, {
+  STANDARD_RECIPE_CONFIG,
+  STANDARD_RECIPE_CONFIG_SCHEMA,
+  type StandardRecipeConfig,
+} from "mod-swooper-maps/recipes/standard";
 import { CIV7_BROWSER_TABLES_V0 } from "../civ7-data/civ7-tables.gen";
 import type { BrowserRunEvent, BrowserRunRequest } from "./protocol";
 import { createWorkerTraceSink } from "./worker-trace-sink";
@@ -128,9 +127,9 @@ async function runFoundation(request: Extract<BrowserRunRequest, { type: "run.st
     latitudeBounds,
   };
 
-  const mergedRaw = mergeDeterministic(BROWSER_TEST_RECIPE_CONFIG, configOverrides);
-  const { value: config, errors: configErrors } = normalizeStrict<BrowserTestRecipeConfig>(
-    BROWSER_TEST_RECIPE_CONFIG_SCHEMA,
+  const mergedRaw = mergeDeterministic(STANDARD_RECIPE_CONFIG, configOverrides);
+  const { value: config, errors: configErrors } = normalizeStrict<StandardRecipeConfig>(
+    STANDARD_RECIPE_CONFIG_SCHEMA,
     mergedRaw,
     "/config"
   );

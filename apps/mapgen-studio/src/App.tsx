@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import {
-  BROWSER_TEST_RECIPE_CONFIG,
-  BROWSER_TEST_RECIPE_CONFIG_SCHEMA,
-  type BrowserTestRecipeConfig,
-} from "mod-swooper-maps/recipes/browser-test";
+  STANDARD_RECIPE_CONFIG,
+  STANDARD_RECIPE_CONFIG_SCHEMA,
+  type StandardRecipeConfig,
+} from "mod-swooper-maps/recipes/standard";
 import { AppHeader } from "./app/AppHeader";
 import { AppShell, type AppMode } from "./app/AppShell";
 import { useDumpLoader } from "./features/dumpViewer/useDumpLoader";
@@ -49,9 +49,9 @@ export function App() {
   const [tileLayout, setTileLayout] = useState<TileLayout>("row-offset");
   const [showMeshEdges, setShowMeshEdges] = useState(true);
   const [showBackgroundGrid, setShowBackgroundGrid] = useState(true);
-  const browserConfigOverrides = useConfigOverrides<BrowserTestRecipeConfig>({
-    baseConfig: BROWSER_TEST_RECIPE_CONFIG,
-    schema: BROWSER_TEST_RECIPE_CONFIG_SCHEMA,
+  const browserConfigOverrides = useConfigOverrides<StandardRecipeConfig>({
+    baseConfig: STANDARD_RECIPE_CONFIG,
+    schema: STANDARD_RECIPE_CONFIG_SCHEMA,
   });
 
   const [localError, setLocalError] = useState<string | null>(null);
@@ -233,7 +233,7 @@ export function App() {
         onClose={() => setBrowserConfigOpen(false)}
         controller={browserConfigOverrides}
         disabled={browserRunning}
-        schema={BROWSER_TEST_RECIPE_CONFIG_SCHEMA}
+        schema={STANDARD_RECIPE_CONFIG_SCHEMA}
       />
     ) : null,
     <div
