@@ -103,6 +103,7 @@ export default createStep(ProjectionStepContract, {
       meta: defineVizMeta("foundation.plates.tilePlateId", {
         label: "Plate Id",
         group: GROUP_PLATES,
+        palette: "categorical",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -113,6 +114,12 @@ export default createStep(ProjectionStepContract, {
       meta: defineVizMeta("foundation.plates.tileBoundaryType", {
         label: "Plate Boundary Type",
         group: GROUP_PLATES,
+        categories: [
+          { value: 0, label: "None/Unknown", color: [107, 114, 128, 180] },
+          { value: 1, label: "Convergent", color: [239, 68, 68, 240] },
+          { value: 2, label: "Divergent", color: [59, 130, 246, 240] },
+          { value: 3, label: "Transform", color: [245, 158, 11, 240] },
+        ],
       }),
     });
     context.viz?.dumpGrid(context.trace, {

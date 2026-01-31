@@ -1,6 +1,6 @@
 import type { Layer } from "@deck.gl/core";
 import { LineLayer, ScatterplotLayer, PolygonLayer } from "@deck.gl/layers";
-import { buildPlateColorMap, colorForValue, isPlateIdLayer, writeColorForValue } from "../presentation";
+import { buildCategoricalColorMap, colorForValue, writeColorForValue } from "../presentation";
 import type { Bounds, TileLayout, VizAssetResolver, VizLayerEntryV0, VizManifestV0 } from "../model";
 
 type ScalarStats = { min?: number; max?: number };
@@ -168,7 +168,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
   const tick = createYieldTicker(signal);
 
   const layerId = layer.layerId;
-  const isTileOddQLayer = layer.kind === "grid" || layerId.startsWith("foundation.plateTopology.");
+  const isTileOddQLayer = layer.kind === "grid" || layer.meta?.space === "tile";
   const tileSize = 1;
 
   const meshEdges = manifest.layers.find(
@@ -192,9 +192,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
   const shouldShowMeshEdges =
     Boolean(showMeshEdges) &&
     Boolean(meshEdges) &&
-    (layer.kind === "points" || layer.kind === "segments") &&
-    layer.layerId.startsWith("foundation.") &&
-    !layer.layerId.startsWith("foundation.plateTopology.");
+    (layer.kind === "points" || layer.kind === "segments");
 
   if (shouldShowMeshEdges && meshEdges) {
     let seg: Float32Array;
@@ -247,12 +245,13 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
     let min = Number.POSITIVE_INFINITY;
     let max = Number.NEGATIVE_INFINITY;
 
-    const plateColorMap = isPlateIdLayer(layerId)
-      ? buildPlateColorMap({
-          values,
-          seedKey: `${manifest?.runId ?? "run"}:${layerId}`,
-        })
-      : undefined;
+    const categoricalColorMap =
+      layer.meta?.palette === "categorical" && !layer.meta?.categories?.length
+        ? buildCategoricalColorMap({
+            values,
+            seedKey: `${manifest?.runId ?? "run"}:${layerId}`,
+          })
+        : undefined;
 
     const tiles: Array<{ polygon: Array<[number, number]>; v: number }> = [];
     const len = width * height;
@@ -279,7 +278,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
         new PolygonLayer({
           id: `${layerId}::hex`,
           data: tiles,
-          getFillColor: (d) => colorForValue(layerId, d.v, plateColorMap, layer.meta),
+          getFillColor: (d) => colorForValue(layerId, d.v, categoricalColorMap, layer.meta),
           getPolygon: (d) => d.polygon,
           stroked: true,
           getLineColor: [17, 24, 39, 220],
@@ -313,9 +312,9 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
     let min = Number.POSITIVE_INFINITY;
     let max = Number.NEGATIVE_INFINITY;
 
-    const plateColorMap =
-      values && isPlateIdLayer(layerId)
-        ? buildPlateColorMap({ values, seedKey: `${manifest?.runId ?? "run"}:${layerId}` })
+    const categoricalColorMap =
+      values && layer.meta?.palette === "categorical" && !layer.meta?.categories?.length
+        ? buildCategoricalColorMap({ values, seedKey: `${manifest?.runId ?? "run"}:${layerId}` })
         : undefined;
 
     const count = (positions.length / 2) | 0;
@@ -344,7 +343,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
         positionsOut[base] = x;
         positionsOut[base + 1] = y;
       }
-      writeColorForValue(colors, i * 4, layerId, v, plateColorMap, layer.meta);
+      writeColorForValue(colors, i * 4, layerId, v, categoricalColorMap, layer.meta);
     }
 
     const stats = Number.isFinite(min) && Number.isFinite(max) ? { min, max } : null;
@@ -391,9 +390,9 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
     let min = Number.POSITIVE_INFINITY;
     let max = Number.NEGATIVE_INFINITY;
 
-    const plateColorMap =
-      values && isPlateIdLayer(layerId)
-        ? buildPlateColorMap({ values, seedKey: `${manifest?.runId ?? "run"}:${layerId}` })
+    const categoricalColorMap =
+      values && layer.meta?.palette === "categorical" && !layer.meta?.categories?.length
+        ? buildCategoricalColorMap({ values, seedKey: `${manifest?.runId ?? "run"}:${layerId}` })
         : undefined;
 
     const count = (seg.length / 4) | 0;
@@ -431,7 +430,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
       sourcePositions[base + 1] = y0;
       targetPositions[base] = x1;
       targetPositions[base + 1] = y1;
-      writeColorForValue(colors, i * 4, layerId, v, plateColorMap, layer.meta);
+      writeColorForValue(colors, i * 4, layerId, v, categoricalColorMap, layer.meta);
     }
 
     const stats = Number.isFinite(min) && Number.isFinite(max) ? { min, max } : null;
@@ -471,7 +470,7 @@ export function buildBackgroundGridLayer(args: {
   if (!enabled) return null;
   if (!layer) return null;
   if (!(layer.kind === "points" || layer.kind === "segments")) return null;
-  if (layer.layerId.startsWith("foundation.plateTopology.")) return null;
+  if (layer.meta?.showGrid === false) return null;
 
   const zoom = typeof viewState?.zoom === "number" ? viewState.zoom : 0;
   const scale = Math.pow(2, zoom);
