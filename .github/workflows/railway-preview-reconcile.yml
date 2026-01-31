@@ -8,7 +8,6 @@ on:
     types:
       - opened
       - reopened
-      - synchronize
       - labeled
       - unlabeled
       - ready_for_review
@@ -27,7 +26,9 @@ permissions:
 
 concurrency:
   group: railway-preview-reconcile
-  cancel-in-progress: true
+  # Never cancel in-progress runs: cancellations show up as failing PR checks.
+  # We instead serialize reconciler runs and let them queue.
+  cancel-in-progress: false
 
 env:
   RAILWAY_PROJECT_ID: e4fe5b19-db1f-47ba-9a57-35825b3e69b3
