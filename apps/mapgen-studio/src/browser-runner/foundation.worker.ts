@@ -118,8 +118,16 @@ function createLabelRng(seed: number): (max: number, label: string) => number {
   };
 }
 
-async function runFoundation(request: Extract<BrowserRunRequest, { type: "run.start" }>): Promise<void> {
-  const { runToken, seed, mapSizeId, dimensions, latitudeBounds, configOverrides } = request;
+function isAbortError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  return (error as { name?: unknown }).name === "AbortError";
+}
+
+async function runFoundation(
+  request: Extract<BrowserRunRequest, { type: "run.start" }>,
+  abortSignal: { readonly aborted: boolean }
+): Promise<void> {
+  const { runToken, generation, seed, mapSizeId, dimensions, latitudeBounds, configOverrides } = request;
 
   const envBase = {
     seed,
@@ -168,29 +176,72 @@ async function runFoundation(request: Extract<BrowserRunRequest, { type: "run.st
   const context = createExtendedMapContext(dimensions, adapter, env);
   context.viz = createWorkerVizDumper();
 
-  const traceSink = createWorkerTraceSink({ runToken, post });
+  const traceSink = createWorkerTraceSink({ runToken, generation, post, abortSignal });
 
   // Ensure the worker posts a stable run identity early, even if a failure occurs.
-  post({ type: "run.started", runToken, runId, planFingerprint: runId });
+  post({ type: "run.started", runToken, generation, runId, planFingerprint: runId });
 
-  standardRecipe.run(context, env, config, { traceSink });
+  await standardRecipe.runAsync(context, env, config, {
+    traceSink,
+    abortSignal,
+    // Yield between steps so cooperative cancellation (via postMessage) can be observed.
+    yieldToEventLoop: true,
+  });
 }
+
+type ActiveRun = {
+  runToken: string;
+  generation: number;
+  abortController: AbortController;
+};
+
+let active: ActiveRun | null = null;
 
 self.onmessage = (ev: MessageEvent<BrowserRunRequest>) => {
   const msg = ev.data;
   if (!msg || typeof msg !== "object") return;
 
+  if (msg.type === "run.cancel") {
+    if (active && active.runToken === msg.runToken && active.generation === msg.generation) {
+      active.abortController.abort();
+    }
+    return;
+  }
+
   if (msg.type === "run.start") {
-    runFoundation(msg).catch((e: unknown) => {
-      const err = describeThrown(e);
-      post({
-        type: "run.error",
-        runToken: msg.runToken,
-        name: err.name,
-        message: err.message,
-        details: err.details,
-        stack: err.stack,
-      });
-    });
+    // Cancel any active run before starting a new one.
+    if (active) active.abortController.abort();
+
+    const abortController = new AbortController();
+    active = { runToken: msg.runToken, generation: msg.generation, abortController };
+
+    runFoundation(msg, abortController.signal).then(
+      () => {
+        // If we were canceled, `worker-trace-sink` suppresses run.finished; emit run.canceled explicitly.
+        if (abortController.signal.aborted) {
+          post({ type: "run.canceled", runToken: msg.runToken, generation: msg.generation });
+        }
+        if (active?.runToken === msg.runToken && active.generation === msg.generation) active = null;
+      },
+      (e: unknown) => {
+        if (abortController.signal.aborted || isAbortError(e)) {
+          post({ type: "run.canceled", runToken: msg.runToken, generation: msg.generation });
+          if (active?.runToken === msg.runToken && active.generation === msg.generation) active = null;
+          return;
+        }
+
+        const err = describeThrown(e);
+        post({
+          type: "run.error",
+          runToken: msg.runToken,
+          generation: msg.generation,
+          name: err.name,
+          message: err.message,
+          details: err.details,
+          stack: err.stack,
+        });
+        if (active?.runToken === msg.runToken && active.generation === msg.generation) active = null;
+      }
+    );
   }
 };

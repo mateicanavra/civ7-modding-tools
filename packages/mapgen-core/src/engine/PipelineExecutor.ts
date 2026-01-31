@@ -1,5 +1,6 @@
 import {
   MissingDependencyError,
+  PipelineAbortError,
   StepExecutionError,
   UnsatisfiedProvidesError,
 } from "@mapgen/engine/errors.js";
@@ -22,6 +23,21 @@ export interface PipelineExecutorOptions {
 
 export interface PipelineExecutionOptions {
   trace?: TraceSession | null;
+  /**
+   * Optional cancellation signal for async execution. If aborted, the executor
+   * will throw a PipelineAbortError between steps.
+   */
+  abortSignal?: { readonly aborted: boolean } | null;
+  /**
+   * When true, the async executor will yield to the event loop between steps.
+   * This enables cooperative cancellation in runtimes where abort requests arrive
+   * via message events (e.g., Web Workers).
+   */
+  yieldToEventLoop?: boolean;
+  /**
+   * Override the yield behavior when `yieldToEventLoop` is enabled.
+   */
+  yieldFn?: (() => Promise<void>) | null;
 }
 
 function nowMs(): number {
@@ -217,10 +233,16 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
 
     const total = nodes.length;
 
+    const abortSignal = options.abortSignal ?? null;
+    const yieldFn: (() => Promise<void>) | null =
+      options.yieldFn ?? (options.yieldToEventLoop ? () => new Promise((r) => setTimeout(r, 0)) : null);
+
     trace.emitRunStart();
 
     try {
       for (let index = 0; index < total; index++) {
+        if (abortSignal?.aborted) throw new PipelineAbortError();
+
         const node = nodes[index];
         const step = node.step;
         validateDependencyTags(step.requires, tagRegistry);
@@ -289,6 +311,11 @@ export class PipelineExecutor<TContext extends EngineContext, TConfig = unknown>
           break;
         } finally {
           context.trace = previousTrace;
+        }
+
+        // If enabled, yield between steps to allow cancellation/messages to be processed.
+        if (yieldFn && index + 1 < total) {
+          await yieldFn();
         }
       }
 

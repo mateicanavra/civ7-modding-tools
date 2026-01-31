@@ -1,4 +1,3 @@
-import type { StandardRecipeConfig } from "mod-swooper-maps/recipes/standard";
 import type { VizLayerMeta } from "@swooper/mapgen-core";
 
 export type Bounds = [minX: number, minY: number, maxX: number, maxY: number];
@@ -8,16 +7,22 @@ export type VizScalarFormat = "u8" | "i8" | "u16" | "i16" | "i32" | "f32";
 export type BrowserRunStartRequest = {
   type: "run.start";
   runToken: string;
+  generation: number;
   seed: number;
   mapSizeId: string;
   dimensions: { width: number; height: number };
   latitudeBounds: { topLatitude: number; bottomLatitude: number };
-  configOverrides?: StandardRecipeConfig;
+  /**
+   * Recipe-specific override payload. Treated as unknown at the protocol boundary
+   * to keep the runner engine decoupled from any given recipe runtime.
+   */
+  configOverrides?: unknown;
 };
 
 export type BrowserRunCancelRequest = {
   type: "run.cancel";
   runToken: string;
+  generation: number;
 };
 
 export type BrowserRunRequest = BrowserRunStartRequest | BrowserRunCancelRequest;
@@ -25,6 +30,7 @@ export type BrowserRunRequest = BrowserRunStartRequest | BrowserRunCancelRequest
 export type BrowserRunStartedEvent = {
   type: "run.started";
   runToken: string;
+  generation: number;
   runId: string;
   planFingerprint: string;
 };
@@ -32,6 +38,7 @@ export type BrowserRunStartedEvent = {
 export type BrowserRunProgressEvent = {
   type: "run.progress";
   runToken: string;
+  generation: number;
   kind: "step.start" | "step.finish";
   stepId: string;
   phase?: string;
@@ -42,6 +49,7 @@ export type BrowserRunProgressEvent = {
 export type BrowserVizLayerUpsertEvent = {
   type: "viz.layer.upsert";
   runToken: string;
+  generation: number;
   layer: BrowserVizLayerEntry;
   payload: BrowserVizLayerPayload;
 };
@@ -49,11 +57,19 @@ export type BrowserVizLayerUpsertEvent = {
 export type BrowserRunFinishedEvent = {
   type: "run.finished";
   runToken: string;
+  generation: number;
+};
+
+export type BrowserRunCanceledEvent = {
+  type: "run.canceled";
+  runToken: string;
+  generation: number;
 };
 
 export type BrowserRunErrorEvent = {
   type: "run.error";
   runToken: string;
+  generation: number;
   name?: string;
   message: string;
   details?: string;
@@ -65,6 +81,7 @@ export type BrowserRunEvent =
   | BrowserRunProgressEvent
   | BrowserVizLayerUpsertEvent
   | BrowserRunFinishedEvent
+  | BrowserRunCanceledEvent
   | BrowserRunErrorEvent;
 
 export type BrowserVizLayerEntry =
