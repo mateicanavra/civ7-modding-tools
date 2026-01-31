@@ -12,7 +12,7 @@ import { useConfigOverrides } from "./features/configOverrides/useConfigOverride
 import { useBrowserRunner } from "./features/browserRunner/useBrowserRunner";
 import { capturePinnedSelection } from "./features/browserRunner/retention";
 import { getCiv7MapSizePreset, type Civ7MapSizePreset } from "./features/browserRunner/mapSizes";
-import { DeckCanvas } from "./features/viz/DeckCanvas";
+import { DeckCanvas, type DeckCanvasApi } from "./features/viz/DeckCanvas";
 import { useVizState } from "./features/viz/useVizState";
 import { formatStepLabel } from "./features/viz/presentation";
 import type { TileLayout } from "./features/viz/model";
@@ -36,6 +36,7 @@ export function App() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [viewportSize, setViewportSize] = useState({ width: 800, height: 600 });
   const isNarrow = viewportSize.width < 760;
+  const deckApiRef = useRef<DeckCanvasApi | null>(null);
 
   const [mode, setMode] = useState<AppMode>("browser");
 
@@ -76,8 +77,6 @@ export function App() {
     assetResolver: mode === "dump" ? dumpAssetResolver : null,
     tileLayout,
     showMeshEdges,
-    showBackgroundGrid,
-    viewportSize,
     allowPendingSelection: mode === "browser" && browserRunning,
     onError: (e) => setLocalError(formatErrorForUi(e)),
   });
@@ -85,7 +84,7 @@ export function App() {
   const manifest = viz.manifest;
   const effectiveLayer = viz.effectiveLayer;
   const legend = viz.legend;
-  const { setDumpManifest, setSelectedStepId, setSelectedLayerKey, resetView } = viz;
+  const { setDumpManifest, setSelectedStepId, setSelectedLayerKey } = viz;
   const error =
     localError ??
     (mode === "browser" ? browserRunner.state.error : null) ??
@@ -99,8 +98,8 @@ export function App() {
     const firstStep = [...dumpManifest.steps].sort((a, b) => a.stepIndex - b.stepIndex)[0]?.stepId ?? null;
     setSelectedStepId(firstStep);
     setSelectedLayerKey(null);
-    resetView();
-  }, [dumpManifest, resetView, setDumpManifest, setSelectedLayerKey, setSelectedStepId]);
+    deckApiRef.current?.resetView();
+  }, [dumpManifest, setDumpManifest, setSelectedLayerKey, setSelectedStepId]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -149,7 +148,7 @@ export function App() {
     viz.clearStream();
     if (!pinned.retainStep) viz.setSelectedStepId(null);
     if (!pinned.retainLayer) viz.setSelectedLayerKey(null);
-    if (!pinned.retainStep) viz.resetView();
+    if (!pinned.retainStep) deckApiRef.current?.resetView();
 
     browserRunner.actions.clearError();
 
@@ -195,7 +194,10 @@ export function App() {
       onCancelBrowserRun={browserRunner.actions.cancel}
       onOpenDumpFolder={openDumpFolder}
       onUploadDumpFolder={onUploadDumpFolder}
-      onFit={viz.fitToActive}
+      onFit={() => {
+        if (!viz.activeBounds) return;
+        deckApiRef.current?.fitToBounds(viz.activeBounds);
+      }}
       canFit={Boolean(viz.activeBounds)}
       showMeshEdges={showMeshEdges}
       onShowMeshEdgesChange={setShowMeshEdges}
@@ -217,7 +219,14 @@ export function App() {
   );
 
   const main = manifest ? (
-    <DeckCanvas deck={viz.deck} />
+    <DeckCanvas
+      apiRef={deckApiRef}
+      layers={viz.deck.layers}
+      effectiveLayer={viz.effectiveLayer}
+      viewportSize={viewportSize}
+      showBackgroundGrid={showBackgroundGrid}
+      activeBounds={viz.activeBounds}
+    />
   ) : (
     <div style={{ padding: 18, color: "#9ca3af" }}>
       {mode === "browser"
