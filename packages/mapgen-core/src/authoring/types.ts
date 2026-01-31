@@ -319,6 +319,19 @@ export type RecipeModule<
       log?: (message: string) => void;
     }
   ) => void;
+  runAsync: (
+    context: TContext,
+    env: Env,
+    config?: TConfigInput,
+    options?: {
+      trace?: TraceSession | null;
+      traceSink?: TraceSink | null;
+      log?: (message: string) => void;
+      abortSignal?: { readonly aborted: boolean } | null;
+      yieldToEventLoop?: boolean;
+      yieldFn?: (() => Promise<void>) | null;
+    }
+  ) => Promise<void>;
 };
 
 

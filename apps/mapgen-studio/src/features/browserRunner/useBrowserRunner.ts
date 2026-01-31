@@ -116,7 +116,9 @@ function randomRunToken(): string {
 
 export function useBrowserRunner(args: UseBrowserRunnerArgs): UseBrowserRunnerResult {
   const { enabled, onVizEvent } = args;
-  const runTokenRef = useRef<string | null>(null);
+  const runTokenRef = useRef<string>(randomRunToken());
+  const generationRef = useRef<number>(0);
+  const activeGenerationRef = useRef<number | null>(null);
   const clientRef = useRef(createWorkerClient());
   const [state, setState] = useState<BrowserRunnerState>({
     status: "idle",
@@ -134,8 +136,16 @@ export function useBrowserRunner(args: UseBrowserRunnerArgs): UseBrowserRunnerRe
   }, []);
 
   const cancel = useCallback(() => {
-    runTokenRef.current = null;
-    clientRef.current.terminate();
+    const runToken = runTokenRef.current;
+    const generation = activeGenerationRef.current;
+    if (generation != null) {
+      const request: BrowserRunRequest = { type: "run.cancel", runToken, generation };
+      clientRef.current.start(request, {
+        onEvent: () => {},
+        onError: () => {},
+      });
+    }
+    activeGenerationRef.current = null;
     setState((prev) => ({
       ...prev,
       running: false,
@@ -146,11 +156,10 @@ export function useBrowserRunner(args: UseBrowserRunnerArgs): UseBrowserRunnerRe
 
   const start = useCallback(
     (inputs: BrowserRunnerInputs) => {
-      runTokenRef.current = null;
-      clientRef.current.terminate();
-
-      const runToken = randomRunToken();
-      runTokenRef.current = runToken;
+      const runToken = runTokenRef.current;
+      const generation = (generationRef.current + 1) | 0;
+      generationRef.current = generation;
+      activeGenerationRef.current = generation;
       setState((prev) => ({
         ...prev,
         status: "running",
@@ -162,6 +171,7 @@ export function useBrowserRunner(args: UseBrowserRunnerArgs): UseBrowserRunnerRe
       const request: BrowserRunRequest = {
         type: "run.start",
         runToken,
+        generation,
         seed: inputs.seed,
         mapSizeId: inputs.mapSizeId,
         dimensions: inputs.dimensions,
@@ -171,7 +181,8 @@ export function useBrowserRunner(args: UseBrowserRunnerArgs): UseBrowserRunnerRe
 
       clientRef.current.start(request, {
         onEvent: (event) => {
-          if (event.runToken !== runTokenRef.current) return;
+          if (event.runToken !== runToken) return;
+          if (event.generation !== generationRef.current) return;
 
           onVizEvent(toVizEvent(event));
 
@@ -184,6 +195,7 @@ export function useBrowserRunner(args: UseBrowserRunnerArgs): UseBrowserRunnerRe
           }
 
           if (event.type === "run.finished") {
+            activeGenerationRef.current = null;
             setState((prev) => ({
               ...prev,
               status: "finished",
@@ -192,7 +204,19 @@ export function useBrowserRunner(args: UseBrowserRunnerArgs): UseBrowserRunnerRe
             return;
           }
 
+          if (event.type === "run.canceled") {
+            activeGenerationRef.current = null;
+            setState((prev) => ({
+              ...prev,
+              status: "idle",
+              running: false,
+              lastStep: null,
+            }));
+            return;
+          }
+
           if (event.type === "run.error") {
+            activeGenerationRef.current = null;
             setState((prev) => ({
               ...prev,
               status: "error",
@@ -203,8 +227,9 @@ export function useBrowserRunner(args: UseBrowserRunnerArgs): UseBrowserRunnerRe
           }
         },
         onError: (error) => {
-          if (!runTokenRef.current) return;
+          if (activeGenerationRef.current == null) return;
           console.error("BrowserRunner worker error", error);
+          activeGenerationRef.current = null;
           setState((prev) => ({
             ...prev,
             status: "error",
@@ -222,7 +247,10 @@ export function useBrowserRunner(args: UseBrowserRunnerArgs): UseBrowserRunnerRe
   }, [enabled, cancel]);
 
   useEffect(() => {
-    return () => cancel();
+    return () => {
+      cancel();
+      clientRef.current.terminate();
+    };
   }, [cancel]);
 
   return {

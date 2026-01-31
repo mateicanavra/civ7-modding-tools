@@ -70,13 +70,19 @@ type LayerStreamPayloadV0 =
 export function createWorkerTraceSink(options: {
   runToken: string;
   post: Post;
+  generation: number;
+  abortSignal?: { readonly aborted: boolean } | null;
 }): TraceSink {
-  const { runToken, post } = options;
+  const { runToken, post, generation, abortSignal } = options;
 
   const stepIndexById = new Map<string, number>();
   let nextStepIndex = 0;
 
   const emit = (event: TraceEvent): void => {
+    // If a run is canceled, we stop emitting user-facing events. The worker
+    // will explicitly emit `run.canceled` once the execution unwinds.
+    if (abortSignal?.aborted) return;
+
     if (event.kind === "step.start" && event.stepId) {
       let stepIndex = stepIndexById.get(event.stepId);
       if (stepIndex === undefined) {
@@ -86,6 +92,7 @@ export function createWorkerTraceSink(options: {
       post({
         type: "run.progress",
         runToken,
+        generation,
         kind: "step.start",
         stepId: event.stepId,
         phase: event.phase,
@@ -99,6 +106,7 @@ export function createWorkerTraceSink(options: {
       post({
         type: "run.progress",
         runToken,
+        generation,
         kind: "step.finish",
         stepId: event.stepId,
         phase: event.phase,
@@ -109,7 +117,7 @@ export function createWorkerTraceSink(options: {
     }
 
     if (event.kind === "run.finish") {
-      post({ type: "run.finished", runToken });
+      post({ type: "run.finished", runToken, generation });
       return;
     }
 
@@ -147,6 +155,7 @@ export function createWorkerTraceSink(options: {
       layerEvent = {
         type: "viz.layer.upsert",
         runToken,
+        generation,
         layer: {
           ...base,
           kind: "grid",
@@ -165,6 +174,7 @@ export function createWorkerTraceSink(options: {
       layerEvent = {
         type: "viz.layer.upsert",
         runToken,
+        generation,
         layer: {
           ...base,
           kind: "points",
@@ -188,6 +198,7 @@ export function createWorkerTraceSink(options: {
       layerEvent = {
         type: "viz.layer.upsert",
         runToken,
+        generation,
         layer: {
           ...base,
           kind: "segments",

@@ -403,5 +403,39 @@ export function createRecipe<
     executor.executePlan(context, plan, { trace: traceSession ?? null });
   }
 
-  return { id: input.id, recipe, instantiate, compileConfig, runRequest, compile, run };
+  async function runAsync(
+    context: TContext,
+    env: Env,
+    config?: RecipeConfigInputOf<TStages>,
+    options: {
+      trace?: TraceSession | null;
+      traceSink?: TraceSink | null;
+      log?: (message: string) => void;
+      abortSignal?: { readonly aborted: boolean } | null;
+      yieldToEventLoop?: boolean;
+      yieldFn?: (() => Promise<void>) | null;
+    } = {}
+  ): Promise<void> {
+    const plan = compile(env, config);
+    context.env = plan.env;
+    const traceSession =
+      options.trace !== undefined
+        ? options.trace
+        : createTraceSessionFromPlan(
+            plan,
+            options.traceSink !== undefined ? options.traceSink : createConsoleTraceSink()
+          );
+    const executor = new PipelineExecutor(registry, {
+      log: options.log,
+      logPrefix: `[recipe:${input.id}]`,
+    });
+    await executor.executePlanAsync(context, plan, {
+      trace: traceSession ?? null,
+      abortSignal: options.abortSignal ?? null,
+      yieldToEventLoop: options.yieldToEventLoop,
+      yieldFn: options.yieldFn ?? null,
+    });
+  }
+
+  return { id: input.id, recipe, instantiate, compileConfig, runRequest, compile, run, runAsync };
 }
