@@ -31,4 +31,5 @@ export type VizEvent =
         | { kind: "segments"; segments: ArrayBuffer; values?: ArrayBuffer; valueFormat?: "u8" | "i8" | "u16" | "i16" | "i32" | "f32" };
     }
   | { type: "run.finished" }
+  | { type: "run.canceled" }
   | { type: "run.error"; name?: string; message: string; details?: string; stack?: string };
