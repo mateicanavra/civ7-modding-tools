@@ -23,6 +23,7 @@ export type VizEvent =
         dims?: { width: number; height: number };
         count?: number;
         meta?: import("@swooper/mapgen-core").VizLayerMeta;
+        fileKey?: string;
       };
       payload:
         | { kind: "grid"; values: ArrayBuffer; valuesByteLength: number; format: "u8" | "i8" | "u16" | "i16" | "i32" | "f32" }

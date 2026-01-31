@@ -218,7 +218,22 @@ function resolveCategoryColor(meta: VizLayerEntryV0["meta"], value: number): Rgb
 export function formatLayerLabel(layer: VizLayerEntryV0): string {
   const base = layer.meta?.label ?? layer.layerId;
   const visibility = layer.meta?.visibility === "debug" ? ", debug" : "";
-  return `${base} (${layer.kind}${visibility})`;
+  const variant = formatLayerVariant(layer);
+  const suffix = variant ? ` · ${variant}` : "";
+  return `${base}${suffix} (${layer.kind}${visibility})`;
+}
+
+function formatLayerVariant(layer: VizLayerEntryV0): string | null {
+  if (layer.fileKey) return layer.fileKey;
+  const path =
+    layer.kind === "grid"
+      ? layer.path
+      : layer.kind === "points"
+        ? layer.valuesPath ?? layer.positionsPath
+        : layer.valuesPath ?? layer.segmentsPath;
+  if (!path) return null;
+  const parts = path.split("/");
+  return parts[parts.length - 1] ?? path;
 }
 
 export function colorForValue(

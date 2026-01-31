@@ -79,6 +79,7 @@ export type BrowserVizLayerEntry =
       dims: { width: number; height: number };
       bounds: Bounds;
       meta?: VizLayerMeta;
+      fileKey?: string;
       key: string;
     }
   | {
@@ -91,6 +92,7 @@ export type BrowserVizLayerEntry =
       valueFormat?: VizScalarFormat;
       bounds: Bounds;
       meta?: VizLayerMeta;
+      fileKey?: string;
       key: string;
     }
   | {
@@ -103,6 +105,7 @@ export type BrowserVizLayerEntry =
       valueFormat?: VizScalarFormat;
       bounds: Bounds;
       meta?: VizLayerMeta;
+      fileKey?: string;
       key: string;
     };
 
