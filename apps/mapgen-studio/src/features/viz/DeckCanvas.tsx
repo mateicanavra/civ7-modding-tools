@@ -2,7 +2,7 @@ import { Deck, OrthographicView, type OrthographicViewState } from '@deck.gl/cor
 import type { Layer } from '@deck.gl/core';
 import { ScatterplotLayer } from '@deck.gl/layers';
 import type { MutableRefObject } from 'react';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { DEFAULT_VIEW_STATE, type Bounds, type VizLayerEntryV0 } from './model';
 
 function niceStep(target: number): number {
@@ -36,6 +36,7 @@ export function DeckCanvas(props: DeckCanvasProps) {
   // (The @deck.gl/react wrapper can schedule React updates during camera changes.)
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const deckRef = useRef<Deck<any> | null>(null);
+  const [deckEpoch, bumpDeckEpoch] = useReducer((x: number) => x + 1, 0);
 
   const views = useMemo(() => new OrthographicView({ id: 'ortho' }), []);
 
@@ -142,8 +143,9 @@ export function DeckCanvas(props: DeckCanvasProps) {
   // Preserve existing behavior: auto-fit when the effective layer bounds changes.
   useEffect(() => {
     if (!activeBounds) return;
+    if (!deckRef.current) return;
     fitToBounds(activeBounds);
-  }, [activeBounds, fitToBounds]);
+  }, [activeBounds, deckEpoch, fitToBounds]);
 
   // Create + destroy the Deck instance.
   useEffect(() => {
@@ -166,6 +168,7 @@ export function DeckCanvas(props: DeckCanvasProps) {
     });
 
     deckRef.current = deck;
+    bumpDeckEpoch();
 
     return () => {
       deck.finalize();
