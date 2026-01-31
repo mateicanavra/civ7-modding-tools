@@ -53,7 +53,10 @@ export default [
   },
   // Worker-side runtime imports are allowed (they stay out of the main bundle).
   {
-    files: ["apps/mapgen-studio/src/browser-runner/foundation.worker.ts"],
+    files: [
+      "apps/mapgen-studio/src/browser-runner/pipeline.worker.ts",
+      "apps/mapgen-studio/src/browser-runner/recipeRuntime.ts"
+    ],
     rules: {
       "no-restricted-imports": "off"
     }

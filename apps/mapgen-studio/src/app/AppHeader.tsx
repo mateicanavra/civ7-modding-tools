@@ -35,8 +35,8 @@ export type AppHeaderProps = {
 
   onFit(): void;
   canFit: boolean;
-  showMeshEdges: boolean;
-  onShowMeshEdgesChange(next: boolean): void;
+  showEdgeOverlay: boolean;
+  onShowEdgeOverlayChange(next: boolean): void;
   showBackgroundGrid: boolean;
   onShowBackgroundGridChange(next: boolean): void;
   tileLayout: TileLayout;
@@ -73,8 +73,8 @@ export function AppHeader(props: AppHeaderProps) {
     onUploadDumpFolder,
     onFit,
     canFit,
-    showMeshEdges,
-    onShowMeshEdgesChange,
+    showEdgeOverlay,
+    onShowEdgeOverlayChange,
     showBackgroundGrid,
     onShowBackgroundGridChange,
     tileLayout,
@@ -345,8 +345,8 @@ export function AppHeader(props: AppHeaderProps) {
               <span style={{ fontSize: 12, color: "#9ca3af" }}>Overlay edges</span>
               <input
                 type="checkbox"
-                checked={showMeshEdges}
-                onChange={(e) => onShowMeshEdgesChange(e.target.checked)}
+                checked={showEdgeOverlay}
+                onChange={(e) => onShowEdgeOverlayChange(e.target.checked)}
                 title="Show an edge overlay if the current run provides one"
               />
             </label>

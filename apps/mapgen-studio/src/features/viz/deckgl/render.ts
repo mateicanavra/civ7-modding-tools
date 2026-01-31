@@ -19,7 +19,7 @@ export type RenderDeckLayersArgs = {
   manifest: VizManifestV0 | null;
   layer: VizLayerEntryV0 | null;
   tileLayout: TileLayout;
-  showMeshEdges: boolean;
+  showEdgeOverlay: boolean;
   assetResolver?: VizAssetResolver | null;
   signal?: AbortSignal;
 };
@@ -212,7 +212,7 @@ function decodeScalarArray(buffer: ArrayBuffer, format: string): ArrayBufferView
 }
 
 export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<RenderDeckLayersResult> {
-  const { manifest, layer, tileLayout, showMeshEdges, assetResolver, signal } = options;
+  const { manifest, layer, tileLayout, showEdgeOverlay, assetResolver, signal } = options;
   if (!manifest || !layer) return { layers: [], stats: null };
   if (signal?.aborted) throw createAbortError();
   const tick = createYieldTicker(signal);
@@ -221,8 +221,8 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
   const isTileOddQLayer = layer.kind === "grid" || layer.meta?.space === "tile";
   const tileSize = 1;
 
-  const meshEdges = manifest.layers.find(
-    (l) => l.kind === "segments" && l.meta?.role === "meshEdges"
+  const edgeOverlaySegments = manifest.layers.find(
+    (l) => l.kind === "segments" && l.meta?.role === "edgeOverlay"
   ) as Extract<VizLayerEntryV0, { kind: "segments" }> | undefined;
 
   const loadScalar = async (
@@ -239,18 +239,18 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
   };
 
   const baseLayers: Layer[] = [];
-  const shouldShowMeshEdges =
-    Boolean(showMeshEdges) &&
-    Boolean(meshEdges) &&
+  const shouldShowEdgeOverlay =
+    Boolean(showEdgeOverlay) &&
+    Boolean(edgeOverlaySegments) &&
     (layer.kind === "points" || layer.kind === "segments");
 
-  if (shouldShowMeshEdges && meshEdges) {
+  if (shouldShowEdgeOverlay && edgeOverlaySegments) {
     let seg: Float32Array;
-    if (meshEdges.segments) {
-      seg = new Float32Array(meshEdges.segments);
+    if (edgeOverlaySegments.segments) {
+      seg = new Float32Array(edgeOverlaySegments.segments);
     } else {
-      if (!assetResolver || !meshEdges.segmentsPath) throw new Error("Missing mesh edge payload");
-      const segBuf = await assetResolver.readArrayBuffer(meshEdges.segmentsPath);
+      if (!assetResolver || !edgeOverlaySegments.segmentsPath) throw new Error("Missing edge overlay payload");
+      const segBuf = await assetResolver.readArrayBuffer(edgeOverlaySegments.segmentsPath);
       seg = new Float32Array(segBuf);
     }
 
@@ -272,7 +272,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
 
     baseLayers.push(
       new LineLayer({
-        id: `${meshEdges.layerId}::base`,
+        id: `${edgeOverlaySegments.layerId}::base`,
         data: {
           length: count,
           attributes: {

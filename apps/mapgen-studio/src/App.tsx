@@ -50,7 +50,7 @@ export function App() {
   const [browserMapSizeId, setBrowserMapSizeId] = useState<Civ7MapSizePreset["id"]>("MAPSIZE_HUGE");
   const [browserConfigOpen, setBrowserConfigOpen] = useState(false);
   const [tileLayout, setTileLayout] = useState<TileLayout>("row-offset");
-  const [showMeshEdges, setShowMeshEdges] = useState(true);
+  const [showEdgeOverlay, setShowEdgeOverlay] = useState(true);
   const [showBackgroundGrid, setShowBackgroundGrid] = useState(true);
   const recipeArtifacts = getRecipeArtifacts(browserRecipeId);
   const browserConfigOverrides = useConfigOverrides<Record<string, unknown>>({
@@ -79,7 +79,7 @@ export function App() {
     mode,
     assetResolver: mode === "dump" ? dumpAssetResolver : null,
     tileLayout,
-    showMeshEdges,
+    showEdgeOverlay,
     allowPendingSelection: mode === "browser" && browserRunning,
     onError: (e) => setLocalError(formatErrorForUi(e)),
   });
@@ -216,8 +216,8 @@ export function App() {
         deckApiRef.current?.fitToBounds(viz.activeBounds);
       }}
       canFit={Boolean(viz.activeBounds)}
-      showMeshEdges={showMeshEdges}
-      onShowMeshEdgesChange={setShowMeshEdges}
+      showEdgeOverlay={showEdgeOverlay}
+      onShowEdgeOverlayChange={setShowEdgeOverlay}
       showBackgroundGrid={showBackgroundGrid}
       onShowBackgroundGridChange={setShowBackgroundGrid}
       tileLayout={tileLayout}
