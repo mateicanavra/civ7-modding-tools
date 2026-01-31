@@ -24,6 +24,7 @@ const __dirname = dirname(__filename);
 const pkgRoot = resolve(__dirname, "..");
 
 const distBrowserTest = resolve(pkgRoot, "dist", "recipes", "browser-test.js");
+const distStandard = resolve(pkgRoot, "dist", "recipes", "standard.js");
 
 const mod = (await import(pathToFileURL(distBrowserTest).href)) as unknown as {
   BROWSER_TEST_FOUNDATION_STAGE_CONFIG: unknown;
@@ -76,3 +77,52 @@ const browserTestDts = [
 
 await writeFile(resolve(pkgRoot, "dist", "recipes", "browser-test.d.ts"), browserTestDts);
 
+const standardMod = (await import(pathToFileURL(distStandard).href)) as Record<string, unknown>;
+const standardSchemaRaw = standardMod.STANDARD_RECIPE_CONFIG_SCHEMA;
+
+let standardDts = "";
+
+if (standardSchemaRaw) {
+  const standardSchemaJson = stableJson(standardSchemaRaw);
+  await writeFile(
+    resolve(pkgRoot, "dist", "recipes", "standard.schema.json"),
+    JSON.stringify(standardSchemaJson, null, 2)
+  );
+
+  const standardConfigTypes = await compile(standardSchemaJson, "StandardRecipeConfig", {
+    bannerComment: "",
+    style: {
+      singleQuote: false,
+      semi: true,
+    },
+  });
+
+  standardDts = [
+    `import type { ExtendedMapContext } from "@swooper/mapgen-core";`,
+    `import type { RecipeModule } from "@swooper/mapgen-core/authoring";`,
+    `import type { TSchema } from "typebox";`,
+    ``,
+    standardConfigTypes.trimEnd(),
+    ``,
+    `export const STANDARD_RECIPE_CONFIG_SCHEMA: TSchema;`,
+    `export const compileOpsById: Readonly<Record<string, unknown>>;`,
+    ``,
+    `declare const recipe: RecipeModule<ExtendedMapContext, Readonly<StandardRecipeConfig>, unknown>;`,
+    `export default recipe;`,
+    ``,
+  ].join("\n");
+} else {
+  standardDts = [
+    `import type { ExtendedMapContext } from "@swooper/mapgen-core";`,
+    `import type { RecipeModule } from "@swooper/mapgen-core/authoring";`,
+    ``,
+    `export type StandardRecipeConfig = Readonly<Record<string, unknown>>;`,
+    `export const compileOpsById: Readonly<Record<string, unknown>>;`,
+    ``,
+    `declare const recipe: RecipeModule<ExtendedMapContext, Readonly<StandardRecipeConfig>, unknown>;`,
+    `export default recipe;`,
+    ``,
+  ].join("\n");
+}
+
+await writeFile(resolve(pkgRoot, "dist", "recipes", "standard.d.ts"), standardDts);

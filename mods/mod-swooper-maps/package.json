@@ -8,6 +8,10 @@
     "./recipes/browser-test": {
       "types": "./dist/recipes/browser-test.d.ts",
       "import": "./dist/recipes/browser-test.js"
+    },
+    "./recipes/standard": {
+      "types": "./dist/recipes/standard.d.ts",
+      "import": "./dist/recipes/standard.js"
     }
   },
   "scripts": {

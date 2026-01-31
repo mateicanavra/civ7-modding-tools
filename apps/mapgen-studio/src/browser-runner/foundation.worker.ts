@@ -5,7 +5,8 @@ import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
 
-import browserTestRecipe, {
+import standardRecipe from "mod-swooper-maps/recipes/standard";
+import {
   BROWSER_TEST_RECIPE_CONFIG,
   BROWSER_TEST_RECIPE_CONFIG_SCHEMA,
   type BrowserTestRecipeConfig,
@@ -137,7 +138,7 @@ async function runFoundation(request: Extract<BrowserRunRequest, { type: "run.st
     throw new Error(`Invalid config overrides:\n${formatConfigErrors(configErrors)}`);
   }
 
-  const plan = browserTestRecipe.compile(envBase, config);
+  const plan = standardRecipe.compile(envBase, config);
   const runId = deriveRunId(plan);
   const verboseSteps: Record<string, "verbose"> = Object.fromEntries(
     plan.nodes.map((node) => [node.stepId, "verbose"] as const)
@@ -173,7 +174,7 @@ async function runFoundation(request: Extract<BrowserRunRequest, { type: "run.st
   // Ensure the worker posts a stable run identity early, even if a failure occurs.
   post({ type: "run.started", runToken, runId, planFingerprint: runId });
 
-  browserTestRecipe.run(context, env, config, { traceSink });
+  standardRecipe.run(context, env, config, { traceSink });
 }
 
 self.onmessage = (ev: MessageEvent<BrowserRunRequest>) => {
