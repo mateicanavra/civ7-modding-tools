@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AppHeader } from "./app/AppHeader";
 import { AppShell, type AppMode } from "./app/AppShell";
 import { useDumpLoader } from "./features/dumpViewer/useDumpLoader";
@@ -12,6 +12,7 @@ import { DeckCanvas, type DeckCanvasApi } from "./features/viz/DeckCanvas";
 import { useVizState } from "./features/viz/useVizState";
 import { formatStepLabel } from "./features/viz/presentation";
 import type { TileLayout } from "./features/viz/model";
+import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import {
   DEFAULT_STUDIO_RECIPE_ID,
   getRecipeArtifacts,
@@ -54,8 +55,23 @@ export function App() {
   const [showEdgeOverlay, setShowEdgeOverlay] = useState(true);
   const [showBackgroundGrid, setShowBackgroundGrid] = useState(true);
   const recipeArtifacts = getRecipeArtifacts(browserRecipeId);
+  const browserConfigOverridesBaseConfig = useMemo(() => {
+    // Recipes may export a sparse default config (e.g. `{}`) while their schema provides defaults.
+    // Normalize once so "enable overrides" doesn't promote schema defaults into "overrides" payloads.
+    const { value, errors } = normalizeStrict<Record<string, unknown>>(
+      recipeArtifacts.configSchema as any,
+      recipeArtifacts.defaultConfig as any,
+      "/defaultConfig"
+    );
+    if (errors.length > 0) {
+      console.error("[mapgen-studio] invalid recipe default config", errors);
+      return recipeArtifacts.defaultConfig as Record<string, unknown>;
+    }
+    return value as Record<string, unknown>;
+  }, [recipeArtifacts.configSchema, recipeArtifacts.defaultConfig]);
+
   const browserConfigOverrides = useConfigOverrides<Record<string, unknown>>({
-    baseConfig: recipeArtifacts.defaultConfig as Record<string, unknown>,
+    baseConfig: browserConfigOverridesBaseConfig,
     schema: recipeArtifacts.configSchema,
   });
 
@@ -150,7 +166,7 @@ export function App() {
         setLocalError("Config overrides JSON is invalid. Fix it (or disable overrides) and try again.");
         return;
       }
-      configOverrides = buildOverridesPatch(recipeArtifacts.defaultConfig, value);
+      configOverrides = buildOverridesPatch(browserConfigOverridesBaseConfig, value);
     } else if (browserConfigOverrides.enabled) {
       // Precomputed in the overrides controller so rerolls don't pay deep-diff costs.
       configOverrides = browserConfigOverrides.patchForRun;
