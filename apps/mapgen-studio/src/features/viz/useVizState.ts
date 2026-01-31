@@ -20,6 +20,11 @@ import {
   type VizManifestV0,
 } from "./model";
 
+function isAbortError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  return (error as any).name === "AbortError";
+}
+
 export type UseVizStateArgs = {
   enabled: boolean;
   mode: "browser" | "dump";
@@ -75,6 +80,7 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
   const [layerStats, setLayerStats] = useState<{ min?: number; max?: number } | null>(null);
   const [resolvedLayers, setResolvedLayers] = useState<Layer[]>([]);
   const [eraIndex, setEraIndex] = useState<number>(0);
+  const renderAbortRef = useRef<AbortController | null>(null);
 
   const ingest = useCallback(
     (event: VizEvent) => {
@@ -214,7 +220,12 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
   }, [effectiveLayer, tileLayout]);
 
   useEffect(() => {
-    let alive = true;
+    // Cancel any in-flight render work. This prevents backlogs when the user
+    // flips steps/layers quickly and avoids "UI freeze" from queued heavy work.
+    renderAbortRef.current?.abort();
+    const controller = new AbortController();
+    renderAbortRef.current = controller;
+
     if (!manifest || !effectiveLayer) {
       setResolvedLayers((prev) => (prev.length ? [] : prev));
       setLayerStats((prev) => (prev ? null : prev));
@@ -226,18 +237,21 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
       tileLayout,
       showMeshEdges,
       assetResolver,
+      signal: controller.signal,
     })
       .then((result) => {
-        if (!alive) return;
+        if (controller.signal.aborted) return;
         setResolvedLayers(result.layers);
         setLayerStats(result.stats);
       })
       .catch((error: unknown) => {
-        if (!alive) return;
+        if (controller.signal.aborted) return;
+        if (isAbortError(error)) return;
         onError?.(error);
       });
     return () => {
-      alive = false;
+      controller.abort();
+      if (renderAbortRef.current === controller) renderAbortRef.current = null;
     };
   }, [assetResolver, effectiveLayer, manifest, onError, showMeshEdges, tileLayout]);
 
