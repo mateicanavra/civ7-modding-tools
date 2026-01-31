@@ -34,6 +34,16 @@ export function createVizStore(): VizStore {
   let selectedStepId: string | null = null;
   let selectedLayerKey: string | null = null;
 
+  // `useSyncExternalStore` requires `getSnapshot()` to return a stable reference
+  // when nothing changed; returning a fresh object on every call can cause
+  // infinite render loops.
+  let snapshot: VizStoreSnapshot = Object.freeze({
+    streamManifest,
+    dumpManifest,
+    selectedStepId,
+    selectedLayerKey,
+  });
+
   let pendingStreamManifest: VizManifestV0 | null | undefined = undefined;
   let pendingSelectedStepId: string | null | undefined = undefined;
   let pendingSelectedLayerKey: string | null | undefined = undefined;
@@ -41,6 +51,15 @@ export function createVizStore(): VizStore {
 
   const notify = () => {
     for (const l of listeners) l();
+  };
+
+  const updateSnapshot = () => {
+    snapshot = Object.freeze({
+      streamManifest,
+      dumpManifest,
+      selectedStepId,
+      selectedLayerKey,
+    });
   };
 
   const commit = () => {
@@ -65,7 +84,10 @@ export function createVizStore(): VizStore {
     }
     pendingSelectedLayerKey = undefined;
 
-    if (changed) notify();
+    if (changed) {
+      updateSnapshot();
+      notify();
+    }
   };
 
   const requestCommit = () => {
@@ -111,34 +133,33 @@ export function createVizStore(): VizStore {
       return () => listeners.delete(onStoreChange);
     },
     getSnapshot() {
-      return {
-        streamManifest,
-        dumpManifest,
-        selectedStepId,
-        selectedLayerKey,
-      };
+      return snapshot;
     },
     ingest,
     clearStream() {
       if (!streamManifest && pendingStreamManifest === undefined) return;
       streamManifest = null;
       pendingStreamManifest = undefined;
+      updateSnapshot();
       notify();
     },
     setDumpManifest(next) {
       if (dumpManifest === next) return;
       dumpManifest = next;
+      updateSnapshot();
       notify();
     },
     setSelectedStepId(next) {
       if (selectedStepId === next) return;
       selectedStepId = next;
       // selection is user-driven: apply immediately (no RAF gating)
+      updateSnapshot();
       notify();
     },
     setSelectedLayerKey(next) {
       if (selectedLayerKey === next) return;
       selectedLayerKey = next;
+      updateSnapshot();
       notify();
     },
   };
