@@ -99,3 +99,16 @@ export class StepExecutionError extends Error {
     this.cause = cause;
   }
 }
+
+/**
+ * Thrown when a pipeline run is cancelled via an AbortSignal-like mechanism.
+ *
+ * We intentionally use the conventional `AbortError` name so callers can treat this
+ * similarly to DOM AbortController cancellation (in browser runtimes).
+ */
+export class PipelineAbortError extends Error {
+  constructor(message: string = "Pipeline aborted") {
+    super(message);
+    this.name = "AbortError";
+  }
+}

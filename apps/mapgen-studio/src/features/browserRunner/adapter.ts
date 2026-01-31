@@ -40,6 +40,8 @@ export function toVizEvent(event: BrowserRunEvent): VizEvent {
       };
     case "run.finished":
       return { type: "run.finished" };
+    case "run.canceled":
+      return { type: "run.canceled" };
     case "run.error":
       return {
         type: "run.error",
