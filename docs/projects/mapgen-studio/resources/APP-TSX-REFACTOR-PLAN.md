@@ -13,7 +13,7 @@ Execution-grade companion (sliceable PR plan with acceptance criteria + verifica
 
 Update note (2026-01-29):
 - `App.tsx` has expanded substantially (config overrides sidebar polish, schema presentation helpers, CSS, templates).
-- `packages/browser-recipes/` (`@mapgen/browser-recipes`) now exists and is the beginning of the “many recipes” story.
+- Recipe artifacts for Studio are now built from `mods/mod-swooper-maps` and imported via `mod-swooper-maps/recipes/*`.
 - Viz layers now carry embedded metadata (`meta?: VizLayerMeta`) for **labeling**, **legend/palette categories**, and **visibility** (default/debug/hidden). The UI derives labels/legend/colors from `meta` rather than maintaining a separate “contract vs internal” catalog.
 - Treat “infinite recipes” as a hard requirement: adding new recipes should be a mechanical registration/artifacts task, not an app re-architecture.
 
@@ -99,7 +99,7 @@ This is already ~2.5k LOC and will continue to grow as we add:
 ### What we should not do in this refactor
 - Introduce Tailwind/shadcn/ui in the same change (plan for it; don’t couple it).
 - Re-architecture into a full feature-sliced app + router + global store (that’s a larger step).
-- Extract additional new monorepo packages (`packages/mapgen-viz`, etc.) as part of the first refactor. (We should plan for it, but the first move should be internal extraction; `packages/browser-recipes/` is already an input and stays.)
+- Extract additional new monorepo packages (`packages/mapgen-viz`, etc.) as part of the first refactor. (We should plan for it, but the first move should be internal extraction; recipe artifacts already exist via `mod-swooper-maps/recipes/*`.)
 
 ---
 
@@ -171,7 +171,7 @@ Dependency rules (keep the graph acyclic):
 - `browser-runner/*` (worker + protocol) must not import from React/app/features.
 - If code needs to run on both UI and worker sides, keep it in a **pure TS** module (no DOM, no React) and ensure the worker bundle check still passes.
 
-`packages/browser-recipes/` is a critical input to this structure:
+`mod-swooper-maps/recipes/*` is a critical input to this structure:
 - Treat “recipes” as **artifacts** (`recipeId`, `configSchema`, `defaultConfig`, metadata), not as a “special case” hard-coded into the app.
 - The config overrides feature must be recipe-agnostic so “add a recipe” is a mechanical registration/artifacts task, not an app re-architecture.
 
@@ -317,7 +317,7 @@ What we should refactor toward (to satisfy “infinite recipes”):
 - The config overrides feature should operate on `(recipeId, baseConfig, schema, overrides)` as `unknown` at the boundary, and only narrow/validate using the recipe’s schema.
 
 This turns “add a recipe” into a mechanical change:
-- add a new recipe artifacts module (likely in `@mapgen/browser-recipes`)
+- add a new recipe artifacts module (today: under `mods/mod-swooper-maps/src/recipes/*`, exported via `mod-swooper-maps/recipes/*`)
 - register it in a shared registry the app/worker can import
 - no changes needed to the config overrides UI internals
 

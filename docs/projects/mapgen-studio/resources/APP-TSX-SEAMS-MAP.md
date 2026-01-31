@@ -88,7 +88,7 @@ This is not an `App.tsx` “chunk”, but it constrains the refactor so we don�
 
 Key direction:
 - Protocol should remain recipe-agnostic: `{ recipeId: string, configOverrides?: unknown }`.
-- UI + worker should both resolve recipe artifacts from a small curated registry in `@mapgen/browser-recipes` (prefer lazy loaders per recipe).
+- UI + worker should both resolve recipe artifacts from a small curated registry (today: `mod-swooper-maps/recipes/*`; future: a dedicated artifacts package / catalog if needed).
 - Strong typing belongs locally (derived from the selected recipe’s schema), not as a giant cross-repo union in protocol types.
 
 See:

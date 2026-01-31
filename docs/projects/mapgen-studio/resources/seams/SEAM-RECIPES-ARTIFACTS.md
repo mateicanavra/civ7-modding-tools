@@ -2,6 +2,8 @@
 
 Mission scope: investigate how `packages/browser-recipes/` and `@mapgen/browser-recipes/*` are structured today, how Studio uses them, and propose a scalable “infinite recipes” strategy that avoids UI/worker protocol unions exploding (docs only; no implementation).
 
+Update (2026-01-30): `@mapgen/browser-recipes` was deleted. Studio now imports the built recipe artifacts directly from `mod-swooper-maps/recipes/*`, which are produced by `mods/mod-swooper-maps/tsup.studio-recipes.config.ts` via `bun run --filter mod-swooper-maps build:studio-recipes`.
+
 ---
 
 ## 1) Files reviewed
