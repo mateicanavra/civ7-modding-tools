@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { Layer } from "@deck.gl/core";
 import type { VizEvent } from "../../shared/vizEvents";
-import { ingestVizEvent } from "./ingest";
 import { boundsForTileGrid, renderDeckLayers } from "./deckgl/render";
 import {
   formatLayerLabel,
@@ -19,6 +18,7 @@ import {
   type VizLayerEntryV0,
   type VizManifestV0,
 } from "./model";
+import { getVizStore } from "./vizStore";
 
 function isAbortError(error: unknown): boolean {
   if (!error || typeof error !== "object") return false;
@@ -68,18 +68,19 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     onError,
   } = args;
 
-  const [streamManifest, setStreamManifest] = useState<VizManifestV0 | null>(null);
-  const [dumpManifest, setDumpManifestState] = useState<VizManifestV0 | null>(null);
-  const manifest = mode === "dump" ? dumpManifest : streamManifest;
+  const store = getVizStore();
+  const snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
+  const manifest = mode === "dump" ? snapshot.dumpManifest : snapshot.streamManifest;
 
-  const [selectedStepId, setSelectedStepId] = useState<string | null>(null);
-  const [selectedLayerKey, setSelectedLayerKey] = useState<string | null>(null);
-  const selectedStepIdRef = useRef<string | null>(null);
-  const selectedLayerKeyRef = useRef<string | null>(null);
+  const selectedStepId = snapshot.selectedStepId;
+  const selectedLayerKey = snapshot.selectedLayerKey;
+  const setSelectedStepId = store.setSelectedStepId;
+  const setSelectedLayerKey = store.setSelectedLayerKey;
 
   const [layerStats, setLayerStats] = useState<{ min?: number; max?: number } | null>(null);
   const [resolvedLayers, setResolvedLayers] = useState<Layer[]>([]);
-  const [eraIndex, setEraIndex] = useState<number>(0);
+  const eraIndex = snapshot.eraIndex;
+  const setEraIndex = store.setEraIndex;
   const renderAbortRef = useRef<AbortController | null>(null);
   const onErrorRef = useRef<UseVizStateArgs["onError"]>(onError);
 
@@ -90,35 +91,20 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
   const ingest = useCallback(
     (event: VizEvent) => {
       if (!enabled) return;
-      setStreamManifest((prev) => ingestVizEvent(prev, event));
-
-      if (event.type === "run.progress" && event.kind === "step.start") {
-        setSelectedStepId((prev) => prev ?? event.stepId);
-        return;
-      }
-
-      if (event.type === "viz.layer.upsert") {
-        setSelectedStepId((prev) => prev ?? event.layer.stepId);
-        setSelectedLayerKey((prev) => {
-          if (prev) return prev;
-          const desiredStep = selectedStepIdRef.current ?? event.layer.stepId;
-          if (event.layer.stepId !== desiredStep) return prev;
-          return event.layer.key;
-        });
-      }
+      store.ingest(event);
     },
-    [enabled]
+    [enabled, store]
   );
 
   const clearStream = useCallback(() => {
-    setStreamManifest(null);
+    store.clearStream();
     setLayerStats(null);
     setResolvedLayers([]);
-  }, []);
+  }, [store]);
 
   const setDumpManifest = useCallback((next: VizManifestV0 | null) => {
-    setDumpManifestState(normalizeManifest(next));
-  }, []);
+    store.setDumpManifest(normalizeManifest(next));
+  }, [store]);
 
   const steps = useMemo(() => {
     if (!manifest) return [];
@@ -139,7 +125,14 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     if (manifest.steps.some((s) => s.stepId === selectedStepId)) return;
     setSelectedStepId(activeSelectedStepId);
     setSelectedLayerKey(null);
-  }, [activeSelectedStepId, allowPendingSelection, manifest, selectedStepId]);
+  }, [
+    activeSelectedStepId,
+    allowPendingSelection,
+    manifest,
+    selectedStepId,
+    setSelectedLayerKey,
+    setSelectedStepId,
+  ]);
 
   const layersForStep = useMemo(() => {
     if (!manifest || !activeSelectedStepId) return [];
@@ -155,14 +148,6 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     }
     return layersForStep[0]?.key ?? null;
   }, [allowPendingSelection, layersForStep, selectedLayerKey]);
-
-  useEffect(() => {
-    selectedStepIdRef.current = activeSelectedStepId;
-  }, [activeSelectedStepId]);
-
-  useEffect(() => {
-    selectedLayerKeyRef.current = activeSelectedLayerKey;
-  }, [activeSelectedLayerKey]);
 
   const selectableLayers = useMemo(
     () =>
@@ -205,7 +190,7 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
   useEffect(() => {
     if (!eraInfo) return;
     setEraIndex(eraInfo.eraIndex);
-  }, [eraInfo]);
+  }, [eraInfo, setEraIndex]);
 
   const effectiveLayer = useMemo(() => {
     if (!manifest || !activeSelectedStepId || !selectedLayer) return selectedLayer;
