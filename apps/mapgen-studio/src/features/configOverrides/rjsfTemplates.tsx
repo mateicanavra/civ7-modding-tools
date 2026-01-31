@@ -144,7 +144,7 @@ export function BrowserConfigArrayFieldTemplate(
       </div>
       {items.map((item, index) => (
         <div key={item.key ?? index} className="bc-arrayItem">
-          {item}
+          {item.children}
         </div>
       ))}
     </div>
