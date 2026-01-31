@@ -222,7 +222,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
   const tileSize = 1;
 
   const meshEdges = manifest.layers.find(
-    (l) => l.kind === "segments" && l.layerId === "foundation.mesh.edges"
+    (l) => l.kind === "segments" && l.meta?.role === "meshEdges"
   ) as Extract<VizLayerEntryV0, { kind: "segments" }> | undefined;
 
   const loadScalar = async (
@@ -272,7 +272,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
 
     baseLayers.push(
       new LineLayer({
-        id: "foundation.mesh.edges::base",
+        id: `${meshEdges.layerId}::base`,
         data: {
           length: count,
           attributes: {

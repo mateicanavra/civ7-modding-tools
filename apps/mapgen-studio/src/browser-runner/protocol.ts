@@ -8,6 +8,11 @@ export type BrowserRunStartRequest = {
   type: "run.start";
   runToken: string;
   generation: number;
+  /**
+   * A studio-level recipe identifier (typically `${namespace}/${recipeId}`) used
+   * to select a bundled recipe runtime in the worker.
+   */
+  recipeId: string;
   seed: number;
   mapSizeId: string;
   dimensions: { width: number; height: number };

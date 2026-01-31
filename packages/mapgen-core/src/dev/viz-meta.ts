@@ -29,6 +29,7 @@ export function defineVizMeta(layerId: string, meta: Partial<VizLayerMeta> = {})
     group: meta.group ?? defaultGroup(layerId),
     visibility: meta.visibility ?? "default",
     description: meta.description,
+    role: meta.role,
     categories: meta.categories,
     palette: meta.palette,
     space: meta.space,

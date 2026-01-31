@@ -69,8 +69,6 @@ export type VizLayerVisibility = "default" | "debug" | "hidden";
 
 export type TileLayout = "row-offset" | "col-offset";
 
-export type EraLayerInfo = { eraIndex: number; baseLayerId: string };
-
 export type VizAssetResolver = {
   readArrayBuffer(path: string): Promise<ArrayBuffer>;
 };
@@ -101,15 +99,6 @@ export function getLayerKey(
   const base = `${layer.stepId}::${layer.layerId}::${layer.kind}`;
   const discriminator = getLayerDiscriminator(layer);
   return discriminator ? `${base}::${discriminator}` : base;
-}
-
-export function parseTectonicHistoryEraLayerId(layerId: string): EraLayerInfo | null {
-  const m = /^foundation\.tectonicHistory\.era(\d+)\.(.+)$/.exec(layerId);
-  if (!m) return null;
-  const eraIndex = Number.parseInt(m[1] ?? "", 10);
-  const baseLayerId = String(m[2] ?? "");
-  if (!Number.isFinite(eraIndex) || eraIndex < 0 || !baseLayerId) return null;
-  return { eraIndex, baseLayerId };
 }
 
 export function normalizeManifest(manifest: VizManifestV0 | null): VizManifestV0 | null {
