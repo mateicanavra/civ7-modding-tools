@@ -1,9 +1,9 @@
-import { OrthographicView } from '@deck.gl/core';
+import { OrthographicView, type OrthographicViewState } from '@deck.gl/core';
 import type { Layer } from '@deck.gl/core';
 import { ScatterplotLayer } from '@deck.gl/layers';
-import { DeckGL } from '@deck.gl/react';
+import { DeckGL, type DeckGLRef } from '@deck.gl/react';
 import type { MutableRefObject } from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULT_VIEW_STATE, type Bounds, type VizLayerEntryV0 } from './model';
 
 function niceStep(target: number): number {
@@ -34,12 +34,13 @@ export function DeckCanvas(props: DeckCanvasProps) {
   const { layers, effectiveLayer, viewportSize, showBackgroundGrid = true, activeBounds, apiRef } = props;
   const views = useMemo(() => new OrthographicView({ id: 'ortho' }), []);
 
-  const [viewState, setViewState] = useState<any>(() => ({ ...DEFAULT_VIEW_STATE }));
-
-  const onViewStateChange = useCallback(({ viewState }: { viewState: any }) => {
-    // Keep view state local to the canvas so pointer interactions don't re-render the whole app.
-    setViewState(viewState);
-  }, []);
+  // Keep the camera unmanaged by React during pointer interactions.
+  // Using `initialViewState` lets deck.gl update camera state internally without a React render per frame.
+  const [initialViewState, setInitialViewState] = useState<OrthographicViewState>(() => ({
+    target: [...DEFAULT_VIEW_STATE.target],
+    zoom: DEFAULT_VIEW_STATE.zoom,
+  }));
+  const deckRef = useRef<DeckGLRef<any> | null>(null);
 
   const fitToBounds = useCallback(
     (bounds: Bounds) => {
@@ -52,7 +53,7 @@ export function DeckCanvas(props: DeckCanvasProps) {
       const scale = Math.min(scaleX, scaleY);
       const zoom = Math.log2(scale);
       const target: [number, number, number] = [(minX + maxX) / 2, (minY + maxY) / 2, 0];
-      setViewState((prev: any) => ({ ...prev, target, zoom }));
+      setInitialViewState({ target, zoom });
     },
     [viewportSize.height, viewportSize.width]
   );
@@ -83,29 +84,28 @@ export function DeckCanvas(props: DeckCanvasProps) {
     return true;
   }, [effectiveLayer, showBackgroundGrid]);
 
-  // Compute lightweight grid params each render; only rebuild the points array when params actually change.
   const gridParams = useMemo(() => {
     if (!gridEnabled) return null;
-    const zoom = typeof viewState?.zoom === 'number' ? viewState.zoom : 0;
-    const scale = Math.pow(2, zoom);
-    const worldWidth = viewportSize.width / Math.max(1e-6, scale);
-    const worldHeight = viewportSize.height / Math.max(1e-6, scale);
+    if (!activeBounds) return null;
 
-    const tx = Array.isArray(viewState?.target) ? Number(viewState.target[0]) : 0;
-    const ty = Array.isArray(viewState?.target) ? Number(viewState.target[1]) : 0;
-    const minX = tx - worldWidth / 2;
-    const maxX = tx + worldWidth / 2;
-    const minY = ty - worldHeight / 2;
-    const maxY = ty + worldHeight / 2;
+    // Make the grid world-anchored and independent of camera state. This avoids rebuilding grid data
+    // on every pointer move when panning/zooming, which can lock up the main thread.
+    const [minX, minY, maxX, maxY] = activeBounds;
+    const width = Math.max(1e-6, maxX - minX);
+    const height = Math.max(1e-6, maxY - minY);
 
-    const step = niceStep(worldWidth / 26);
+    const maxPoints = 1800;
+    const minStepForBudget = Math.sqrt((width * height) / maxPoints);
+    const baseStep = niceStep(width / 26);
+    const step = niceStep(Math.max(baseStep, minStepForBudget));
+
     const x0 = Math.floor(minX / step) * step;
     const y0 = Math.floor(minY / step) * step;
     const x1 = Math.ceil(maxX / step) * step;
     const y1 = Math.ceil(maxY / step) * step;
 
     return { step, x0, y0, x1, y1 };
-  }, [gridEnabled, viewportSize.height, viewportSize.width, viewState?.target, viewState?.zoom]);
+  }, [activeBounds, gridEnabled]);
 
   const gridLayer = useMemo(() => {
     if (!gridParams) return null;
@@ -134,10 +134,10 @@ export function DeckCanvas(props: DeckCanvasProps) {
 
   return (
     <DeckGL
+      ref={deckRef as any}
       views={views}
       controller={true}
-      viewState={viewState}
-      onViewStateChange={onViewStateChange}
+      initialViewState={initialViewState}
       layers={deckLayers}
     />
   );
