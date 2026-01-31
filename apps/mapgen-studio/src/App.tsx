@@ -4,6 +4,7 @@ import { AppShell, type AppMode } from "./app/AppShell";
 import { useDumpLoader } from "./features/dumpViewer/useDumpLoader";
 import { ConfigOverridesPanel } from "./features/configOverrides/ConfigOverridesPanel";
 import { useConfigOverrides } from "./features/configOverrides/useConfigOverrides";
+import { buildOverridesPatch } from "./features/configOverrides/overridesPatch";
 import { useBrowserRunner } from "./features/browserRunner/useBrowserRunner";
 import { capturePinnedSelection } from "./features/browserRunner/retention";
 import { getCiv7MapSizePreset, type Civ7MapSizePreset } from "./features/browserRunner/mapSizes";
@@ -142,14 +143,26 @@ export function App() {
 
   const startBrowserRun = useCallback((overrides?: { seed?: number }) => {
     setLocalError(null);
-    let configOverrides = browserConfigOverrides.configOverridesForRun;
+    let configOverrides: unknown = undefined;
     if (browserConfigOverrides.enabled && browserConfigOverrides.tab === "json") {
       const { ok, value } = browserConfigOverrides.applyJson();
       if (!ok) {
         setLocalError("Config overrides JSON is invalid. Fix it (or disable overrides) and try again.");
         return;
       }
-      configOverrides = value;
+      configOverrides = buildOverridesPatch(recipeArtifacts.defaultConfig, value);
+    } else if (browserConfigOverrides.enabled) {
+      configOverrides = buildOverridesPatch(recipeArtifacts.defaultConfig, browserConfigOverrides.value);
+    }
+
+    // Avoid posting empty overrides payloads (structured clone is still work).
+    if (
+      configOverrides &&
+      typeof configOverrides === "object" &&
+      !Array.isArray(configOverrides) &&
+      Object.keys(configOverrides as Record<string, unknown>).length === 0
+    ) {
+      configOverrides = undefined;
     }
     const pinned = capturePinnedSelection({
       mode,
