@@ -1,6 +1,6 @@
 import type { Layer } from "@deck.gl/core";
-import { PathLayer, ScatterplotLayer, PolygonLayer } from "@deck.gl/layers";
-import { buildPlateColorMap, colorForValue, isPlateIdLayer } from "../presentation";
+import { LineLayer, ScatterplotLayer, PolygonLayer } from "@deck.gl/layers";
+import { buildPlateColorMap, colorForValue, isPlateIdLayer, writeColorForValue } from "../presentation";
 import type { Bounds, TileLayout, VizAssetResolver, VizLayerEntryV0, VizManifestV0 } from "../model";
 
 type ScalarStats = { min?: number; max?: number };
@@ -19,9 +19,11 @@ export type RenderDeckLayersResult = {
   stats: ScalarStats | null;
 };
 
+type DomExceptionCtor = new (message?: string, name?: string) => Error;
+
 function createAbortError(): Error {
-  const Ctor = (globalThis as any).DOMException as undefined | ((message?: string, name?: string) => Error);
-  if (typeof Ctor === "function") return new Ctor("Aborted", "AbortError");
+  const Ctor = (globalThis as any).DOMException as DomExceptionCtor | undefined;
+  if (Ctor) return new Ctor("Aborted", "AbortError");
 
   const err = new Error("Aborted");
   (err as any).name = "AbortError";
@@ -204,22 +206,32 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
       seg = new Float32Array(segBuf);
     }
 
-    const edges: Array<{ path: [[number, number], [number, number]] }> = [];
     const count = (seg.length / 4) | 0;
+    const sourcePositions = new Float32Array(count * 2);
+    const targetPositions = new Float32Array(count * 2);
     for (let i = 0; i < count; i++) {
       await tick(i);
       const x0 = seg[i * 4] ?? 0;
       const y0 = seg[i * 4 + 1] ?? 0;
       const x1 = seg[i * 4 + 2] ?? 0;
       const y1 = seg[i * 4 + 3] ?? 0;
-      edges.push({ path: [[x0, y0], [x1, y1]] });
+      const base = i * 2;
+      sourcePositions[base] = x0;
+      sourcePositions[base + 1] = y0;
+      targetPositions[base] = x1;
+      targetPositions[base + 1] = y1;
     }
 
     baseLayers.push(
-      new PathLayer({
+      new LineLayer({
         id: "foundation.mesh.edges::base",
-        data: edges,
-        getPath: (d) => d.path,
+        data: {
+          length: count,
+          attributes: {
+            getSourcePosition: { value: sourcePositions, size: 2 },
+            getTargetPosition: { value: targetPositions, size: 2 },
+          },
+        },
         getColor: [148, 163, 184, 140],
         getWidth: 1,
         widthUnits: "pixels",
@@ -273,7 +285,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
           getLineColor: [17, 24, 39, 220],
           getLineWidth: 1,
           lineWidthUnits: "pixels",
-          pickable: true,
+          pickable: false,
         }),
       ],
       stats,
@@ -306,8 +318,9 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
         ? buildPlateColorMap({ values, seedKey: `${manifest?.runId ?? "run"}:${layerId}` })
         : undefined;
 
-    const points: Array<{ x: number; y: number; v: number }> = [];
     const count = (positions.length / 2) | 0;
+    const positionsOut = isTileOddQLayer ? new Float32Array(count * 2) : positions;
+    const colors = new Uint8ClampedArray(count * 4);
     for (let i = 0; i < count; i++) {
       await tick(i);
       const rawX = positions[i * 2] ?? 0;
@@ -318,12 +331,20 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
         if (v > max) max = v;
       }
 
-      const [x, y] = isTileOddQLayer
-        ? tileLayout === "col-offset"
-          ? oddQPointFromTileXY(rawX, rawY, tileSize)
-          : oddRPointFromTileXY(rawX, rawY, tileSize)
-        : [rawX, rawY];
-      points.push({ x, y, v });
+      let x = rawX;
+      let y = rawY;
+      if (isTileOddQLayer) {
+        [x, y] =
+          tileLayout === "col-offset"
+            ? oddQPointFromTileXY(rawX, rawY, tileSize)
+            : oddRPointFromTileXY(rawX, rawY, tileSize);
+      }
+      if (positionsOut !== positions) {
+        const base = i * 2;
+        positionsOut[base] = x;
+        positionsOut[base + 1] = y;
+      }
+      writeColorForValue(colors, i * 4, layerId, v, plateColorMap, layer.meta);
     }
 
     const stats = Number.isFinite(min) && Number.isFinite(max) ? { min, max } : null;
@@ -333,12 +354,16 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
         ...baseLayers,
         new ScatterplotLayer({
           id: `${layerId}::points`,
-          data: points,
-          getPosition: (d) => [d.x, d.y],
-          getFillColor: (d) => colorForValue(layerId, d.v, plateColorMap, layer.meta),
+          data: {
+            length: count,
+            attributes: {
+              getPosition: { value: positionsOut, size: 2 },
+              getFillColor: { value: colors, size: 4 },
+            },
+          },
           radiusUnits: "common",
           getRadius: 0.95,
-          pickable: true,
+          pickable: false,
         }),
       ],
       stats,
@@ -371,8 +396,10 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
         ? buildPlateColorMap({ values, seedKey: `${manifest?.runId ?? "run"}:${layerId}` })
         : undefined;
 
-    const segments: Array<{ path: [[number, number], [number, number]]; v: number }> = [];
     const count = (seg.length / 4) | 0;
+    const sourcePositions = new Float32Array(count * 2);
+    const targetPositions = new Float32Array(count * 2);
+    const colors = new Uint8ClampedArray(count * 4);
     for (let i = 0; i < count; i++) {
       await tick(i);
       const rx0 = seg[i * 4] ?? 0;
@@ -385,17 +412,26 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
         if (v > max) max = v;
       }
 
-      const [x0, y0] = isTileOddQLayer
-        ? tileLayout === "col-offset"
-          ? oddQPointFromTileXY(rx0, ry0, tileSize)
-          : oddRPointFromTileXY(rx0, ry0, tileSize)
-        : [rx0, ry0];
-      const [x1, y1] = isTileOddQLayer
-        ? tileLayout === "col-offset"
-          ? oddQPointFromTileXY(rx1, ry1, tileSize)
-          : oddRPointFromTileXY(rx1, ry1, tileSize)
-        : [rx1, ry1];
-      segments.push({ path: [[x0, y0], [x1, y1]], v });
+      let x0 = rx0;
+      let y0 = ry0;
+      let x1 = rx1;
+      let y1 = ry1;
+      if (isTileOddQLayer) {
+        [x0, y0] =
+          tileLayout === "col-offset"
+            ? oddQPointFromTileXY(rx0, ry0, tileSize)
+            : oddRPointFromTileXY(rx0, ry0, tileSize);
+        [x1, y1] =
+          tileLayout === "col-offset"
+            ? oddQPointFromTileXY(rx1, ry1, tileSize)
+            : oddRPointFromTileXY(rx1, ry1, tileSize);
+      }
+      const base = i * 2;
+      sourcePositions[base] = x0;
+      sourcePositions[base + 1] = y0;
+      targetPositions[base] = x1;
+      targetPositions[base + 1] = y1;
+      writeColorForValue(colors, i * 4, layerId, v, plateColorMap, layer.meta);
     }
 
     const stats = Number.isFinite(min) && Number.isFinite(max) ? { min, max } : null;
@@ -403,14 +439,19 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
     return {
       layers: [
         ...baseLayers,
-        new PathLayer({
+        new LineLayer({
           id: `${layerId}::segments`,
-          data: segments,
-          getPath: (d) => d.path,
-          getColor: (d) => colorForValue(layerId, d.v, plateColorMap, layer.meta),
+          data: {
+            length: count,
+            attributes: {
+              getSourcePosition: { value: sourcePositions, size: 2 },
+              getTargetPosition: { value: targetPositions, size: 2 },
+              getColor: { value: colors, size: 4 },
+            },
+          },
           getWidth: 1.5,
           widthUnits: "pixels",
-          pickable: true,
+          pickable: false,
         }),
       ],
       stats,

@@ -215,6 +215,96 @@ function resolveCategoryColor(meta: VizLayerEntryV0["meta"], value: number): Rgb
   return null;
 }
 
+const VALUE_RAMP: ReadonlyArray<RgbaColor> = [
+  [68, 1, 84, 230],
+  [59, 82, 139, 230],
+  [33, 145, 140, 230],
+  [94, 201, 98, 230],
+  [253, 231, 37, 230],
+];
+
+const UNKNOWN_COLOR: RgbaColor = [120, 120, 120, 220];
+
+type ColorOut = { [index: number]: number };
+
+function writeRgba(out: ColorOut, offset: number, color: RgbaColor): void {
+  out[offset] = color[0];
+  out[offset + 1] = color[1];
+  out[offset + 2] = color[2];
+  out[offset + 3] = color[3];
+}
+
+function resolveColorForValue(
+  layerId: string,
+  value: number,
+  plateColorMap: Map<number, RgbaColor> | undefined,
+  meta: VizLayerEntryV0["meta"] | undefined,
+  out: ColorOut,
+  offset: number
+): void {
+  if (!Number.isFinite(value)) {
+    writeRgba(out, offset, UNKNOWN_COLOR);
+    return;
+  }
+
+  const categoryColor = resolveCategoryColor(meta, value);
+  if (categoryColor) {
+    writeRgba(out, offset, categoryColor);
+    return;
+  }
+
+  if (layerId.toLowerCase().includes("landmask")) {
+    writeRgba(out, offset, value > 0 ? [34, 197, 94, 230] : [37, 99, 235, 230]);
+    return;
+  }
+
+  if (layerId.includes("crust") && layerId.toLowerCase().includes("type")) {
+    writeRgba(out, offset, value === 1 ? [34, 197, 94, 230] : [37, 99, 235, 230]);
+    return;
+  }
+
+  if (layerId.includes("boundaryType")) {
+    if (value === 1) {
+      writeRgba(out, offset, [239, 68, 68, 240]);
+      return;
+    }
+    if (value === 2) {
+      writeRgba(out, offset, [59, 130, 246, 240]);
+      return;
+    }
+    if (value === 3) {
+      writeRgba(out, offset, [245, 158, 11, 240]);
+      return;
+    }
+    writeRgba(out, offset, [107, 114, 128, 180]);
+    return;
+  }
+
+  if (isPlateIdLayer(layerId)) {
+    if (plateColorMap) {
+      writeRgba(out, offset, plateColorMap.get(value | 0) ?? [148, 163, 184, 220]);
+      return;
+    }
+    const seedKey = `${layerId}:${value}`;
+    const rng = createRng(hashStringToSeed(seedKey));
+    writeRgba(out, offset, randomColor(rng));
+    return;
+  }
+
+  const t = Math.max(0, Math.min(1, value));
+  const idx = t * (VALUE_RAMP.length - 1);
+  const i0 = Math.max(0, Math.min(VALUE_RAMP.length - 1, Math.floor(idx)));
+  const i1 = Math.max(0, Math.min(VALUE_RAMP.length - 1, Math.ceil(idx)));
+  const tt = idx - i0;
+  const a = VALUE_RAMP[i0] ?? UNKNOWN_COLOR;
+  const b = VALUE_RAMP[i1] ?? UNKNOWN_COLOR;
+  const lerp = (x: number, y: number) => Math.round(x + (y - x) * tt);
+  out[offset] = lerp(a[0], b[0]);
+  out[offset + 1] = lerp(a[1], b[1]);
+  out[offset + 2] = lerp(a[2], b[2]);
+  out[offset + 3] = lerp(a[3], b[3]);
+}
+
 export function formatLayerLabel(layer: VizLayerEntryV0): string {
   const base = layer.meta?.label ?? layer.layerId;
   const visibility = layer.meta?.visibility === "debug" ? ", debug" : "";
@@ -242,52 +332,20 @@ export function colorForValue(
   plateColorMap?: Map<number, RgbaColor>,
   meta?: VizLayerEntryV0["meta"]
 ): RgbaColor {
-  if (!Number.isFinite(value)) return [120, 120, 120, 220];
+  const out: RgbaColor = [0, 0, 0, 255];
+  resolveColorForValue(layerId, value, plateColorMap, meta, out, 0);
+  return out;
+}
 
-  const categoryColor = resolveCategoryColor(meta, value);
-  if (categoryColor) return categoryColor;
-
-  if (layerId.toLowerCase().includes("landmask")) {
-    return value > 0 ? [34, 197, 94, 230] : [37, 99, 235, 230];
-  }
-
-  if (layerId.includes("crust") && layerId.toLowerCase().includes("type")) {
-    return value === 1 ? [34, 197, 94, 230] : [37, 99, 235, 230];
-  }
-
-  if (layerId.includes("boundaryType")) {
-    if (value === 1) return [239, 68, 68, 240];
-    if (value === 2) return [59, 130, 246, 240];
-    if (value === 3) return [245, 158, 11, 240];
-    return [107, 114, 128, 180];
-  }
-
-  if (isPlateIdLayer(layerId)) {
-    if (plateColorMap) {
-      return plateColorMap.get(value | 0) ?? [148, 163, 184, 220];
-    }
-    const seedKey = `${layerId}:${value}`;
-    const rng = createRng(hashStringToSeed(seedKey));
-    return randomColor(rng);
-  }
-
-  const t = Math.max(0, Math.min(1, value));
-  const ramp: RgbaColor[] = [
-    [68, 1, 84, 230],
-    [59, 82, 139, 230],
-    [33, 145, 140, 230],
-    [94, 201, 98, 230],
-    [253, 231, 37, 230],
-  ];
-
-  const idx = t * (ramp.length - 1);
-  const i0 = Math.max(0, Math.min(ramp.length - 1, Math.floor(idx)));
-  const i1 = Math.max(0, Math.min(ramp.length - 1, Math.ceil(idx)));
-  const tt = idx - i0;
-  const a = ramp[i0]!;
-  const b = ramp[i1]!;
-  const lerp = (x: number, y: number) => Math.round(x + (y - x) * tt);
-  return [lerp(a[0], b[0]), lerp(a[1], b[1]), lerp(a[2], b[2]), lerp(a[3], b[3])];
+export function writeColorForValue(
+  out: Uint8ClampedArray,
+  offset: number,
+  layerId: string,
+  value: number,
+  plateColorMap?: Map<number, RgbaColor>,
+  meta?: VizLayerEntryV0["meta"]
+): void {
+  resolveColorForValue(layerId, value, plateColorMap, meta, out, offset);
 }
 
 export function legendForLayer(
