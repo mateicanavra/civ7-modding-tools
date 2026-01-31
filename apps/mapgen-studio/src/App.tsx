@@ -234,7 +234,6 @@ export function App() {
         controller={browserConfigOverrides}
         disabled={browserRunning}
         schema={BROWSER_TEST_RECIPE_CONFIG_SCHEMA}
-        isNarrow={isNarrow}
       />
     ) : null,
     <div
