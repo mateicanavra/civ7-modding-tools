@@ -51,7 +51,7 @@ related_to: []
 6) Viz selection refs mutate during render → move to effect.
 7) Dump picker `values()` fallback destructures tuples → handle values iterator explicitly.
 8) `selectedStepId` stale fallback → sync/clear when manifest changes.
-9) browser-recipes d.ts missing type exports → add exports in generator.
+9) studio recipe artifacts types → generate via `mods/mod-swooper-maps/scripts/generate-studio-recipe-types.ts`.
 10) Sea level search stops on plateau → continue stepping until sea level changes.
 11) Spike doc naming mismatch → rename to lowercase and update references.
 12) Swooper dump bounds for segments use half buffer → compute from full segments array.

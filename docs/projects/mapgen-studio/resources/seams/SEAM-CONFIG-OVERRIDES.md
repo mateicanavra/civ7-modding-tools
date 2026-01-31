@@ -7,7 +7,7 @@ Mission scope: investigate ONLY the “Config Overrides” subsystem currently e
 - `apps/mapgen-studio/src/App.tsx`
 - `apps/mapgen-studio/src/browser-runner/protocol.ts`
 - `apps/mapgen-studio/src/browser-runner/foundation.worker.ts`
-- `packages/browser-recipes/src/browser-test.ts`
+- `mods/mod-swooper-maps/recipes/browser-test` (build output, consumed by Studio)
 - `mods/mod-swooper-maps/src/recipes/browser-test/recipe.ts`
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
 - `packages/mapgen-core/src/compiler/normalize.ts`
@@ -193,4 +193,3 @@ Component (pure UI; no runner knowledge):
   - Paste invalid JSON → see error + run blocked in JSON tab.
   - Paste unknown keys → see strict “Unknown key” style errors (from `normalizeStrict`).
   - Run with a minimal partial override (e.g. only `foundation.knobs`) and confirm worker run succeeds (merge semantics intact).
-
