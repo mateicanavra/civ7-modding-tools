@@ -152,7 +152,8 @@ export function App() {
       }
       configOverrides = buildOverridesPatch(recipeArtifacts.defaultConfig, value);
     } else if (browserConfigOverrides.enabled) {
-      configOverrides = buildOverridesPatch(recipeArtifacts.defaultConfig, browserConfigOverrides.value);
+      // Precomputed in the overrides controller so rerolls don't pay deep-diff costs.
+      configOverrides = browserConfigOverrides.patchForRun;
     }
 
     // Avoid posting empty overrides payloads (structured clone is still work).
