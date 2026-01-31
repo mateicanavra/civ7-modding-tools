@@ -29,7 +29,7 @@ export type UseVizStateArgs = {
   mode: "browser" | "dump";
   assetResolver?: VizAssetResolver | null;
   tileLayout?: TileLayout;
-  showMeshEdges?: boolean;
+  showEdgeOverlay?: boolean;
   allowPendingSelection?: boolean;
   onError?(error: unknown): void;
 };
@@ -61,7 +61,7 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     mode,
     assetResolver,
     tileLayout = "row-offset",
-    showMeshEdges = true,
+    showEdgeOverlay = true,
     allowPendingSelection = false,
     onError,
   } = args;
@@ -186,7 +186,7 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
       manifest,
       layer: effectiveLayer,
       tileLayout,
-      showMeshEdges,
+      showEdgeOverlay,
       assetResolver,
       signal: controller.signal,
     })
@@ -204,7 +204,7 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
       controller.abort();
       if (renderAbortRef.current === controller) renderAbortRef.current = null;
     };
-  }, [assetResolver, effectiveLayer, manifest, showMeshEdges, tileLayout]);
+  }, [assetResolver, effectiveLayer, manifest, showEdgeOverlay, tileLayout]);
 
   const legend = useMemo(() => {
     if (!effectiveLayer) return null;

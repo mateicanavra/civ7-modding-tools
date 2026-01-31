@@ -81,7 +81,7 @@ export default createStep(MeshStepContract, {
         label: "Mesh Neighbor Edges",
         group: GROUP_MESH,
         visibility: "debug",
-        role: "meshEdges",
+        role: "edgeOverlay",
       }),
     });
   },

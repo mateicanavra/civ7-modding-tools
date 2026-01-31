@@ -181,7 +181,7 @@ export type VizLayerMeta = {
   visibility?: VizLayerVisibility;
   /**
    * Optional semantic hint for Studio overlays/tooling. This is intended to be a
-   * small, stable vocabulary (e.g. "meshEdges") rather than a recipe-step name.
+   * small, stable vocabulary (e.g. "edgeOverlay") rather than a recipe-step name.
    */
   role?: string;
   categories?: VizLayerCategory[];
