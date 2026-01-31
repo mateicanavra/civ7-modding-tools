@@ -91,7 +91,7 @@ bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-EZRA-
 
 Then inspect:
 - `apps/mapgen-studio/dist/assets/index-*.js` size
-- `apps/mapgen-studio/dist/assets/foundation.worker-*.js` size
+- `apps/mapgen-studio/dist/assets/pipeline.worker-*.js` size
 
 If we need deeper visibility:
 - add a Vite “analyze” mode using a bundle visualizer plugin (temporary, dev-only)
@@ -106,4 +106,3 @@ By the end of baseline capture, we should be able to answer:
 - Does worker event rate drive React commits? (and how much)
 - How large are the biggest payloads, and are they copied more than once?
 - How much duplicated code is in main vs worker bundles today?
-
