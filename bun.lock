@@ -37,11 +37,11 @@
         "@deck.gl/core": "^9.0.43",
         "@deck.gl/layers": "^9.0.43",
         "@deck.gl/react": "^9.0.43",
-        "@mapgen/browser-recipes": "workspace:*",
         "@rjsf/core": "^6.2.5",
         "@rjsf/utils": "^6.2.5",
         "@rjsf/validator-ajv8": "^6.2.5",
         "@swooper/mapgen-core": "workspace:*",
+        "mod-swooper-maps": "workspace:*",
         "react": "^19.2.4",
         "react-dom": "^19.2.4",
       },
@@ -93,18 +93,6 @@
       "devDependencies": {
         "@civ7/types": "workspace:*",
         "esbuild": "^0.27.2",
-        "tsup": "^8.5.1",
-        "typescript": "^5.9.3",
-      },
-    },
-    "packages/browser-recipes": {
-      "name": "@mapgen/browser-recipes",
-      "version": "0.1.0",
-      "dependencies": {
-        "@civ7/adapter": "workspace:*",
-        "@swooper/mapgen-core": "workspace:*",
-      },
-      "devDependencies": {
         "json-schema-to-typescript": "^15.0.4",
         "tsup": "^8.5.1",
         "typescript": "^5.9.3",
@@ -628,8 +616,6 @@
     "@luma.gl/webgl": ["@luma.gl/webgl@9.2.6", "", { "dependencies": { "@luma.gl/constants": "9.2.6", "@math.gl/types": "^4.1.0", "@probe.gl/env": "^4.0.8" }, "peerDependencies": { "@luma.gl/core": "~9.2.0" } }, "sha512-NGBTdxJMk7j8Ygr1zuTyAvr1Tw+EpupMIQo7RelFjEsZXg6pujFqiDMM+rgxex8voCeuhWBJc7Rs+MoSqd46UQ=="],
 
     "@mapbox/tiny-sdf": ["@mapbox/tiny-sdf@2.0.7", "", {}, "sha512-25gQLQMcpivjOSA40g3gO6qgiFPDpWRoMfd+G/GoppPIeP6JDaMMkMrEJnMZhKyyS6iKwVt5YKu02vCUyJM3Ug=="],
-
-    "@mapgen/browser-recipes": ["@mapgen/browser-recipes@workspace:packages/browser-recipes"],
 
     "@mateicanavra/civ7-cli": ["@mateicanavra/civ7-cli@workspace:packages/cli"],
 

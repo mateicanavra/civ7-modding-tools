@@ -22,15 +22,21 @@ function stableJson(value: unknown): JsonObject {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const pkgRoot = resolve(__dirname, "..");
-const distBrowserTest = resolve(pkgRoot, "dist", "browser-test.js");
+
+const distBrowserTest = resolve(pkgRoot, "dist", "recipes", "browser-test.js");
 
 const mod = (await import(pathToFileURL(distBrowserTest).href)) as unknown as {
+  BROWSER_TEST_FOUNDATION_STAGE_CONFIG: unknown;
+  BROWSER_TEST_RECIPE_CONFIG: unknown;
   BROWSER_TEST_RECIPE_CONFIG_SCHEMA: unknown;
 };
 
 const schemaJson = stableJson(mod.BROWSER_TEST_RECIPE_CONFIG_SCHEMA);
 
-await writeFile(resolve(pkgRoot, "dist", "browser-test.schema.json"), JSON.stringify(schemaJson, null, 2));
+await writeFile(
+  resolve(pkgRoot, "dist", "recipes", "browser-test.schema.json"),
+  JSON.stringify(schemaJson, null, 2)
+);
 
 const configTypes = await compile(schemaJson, "BrowserTestRecipeConfig", {
   bannerComment: "",
@@ -58,6 +64,7 @@ const browserTestDts = [
   configTypes.trimEnd(),
   ``,
   ...recipeTypeExports,
+  `export const BROWSER_TEST_FOUNDATION_STAGE_CONFIG: Readonly<BrowserTestFoundationStageConfig>;`,
   `export const BROWSER_TEST_RECIPE_CONFIG: Readonly<BrowserTestRecipeConfig>;`,
   `export const BROWSER_TEST_RECIPE_CONFIG_SCHEMA: TSchema;`,
   `export const compileOpsById: Readonly<Record<string, unknown>>;`,
@@ -67,12 +74,5 @@ const browserTestDts = [
   ``,
 ].join("\n");
 
-await writeFile(resolve(pkgRoot, "dist", "browser-test.d.ts"), browserTestDts);
+await writeFile(resolve(pkgRoot, "dist", "recipes", "browser-test.d.ts"), browserTestDts);
 
-const indexDts = [
-  `export { default as browserTestRecipe } from "./browser-test.js";`,
-  `export * from "./browser-test.js";`,
-  ``,
-].join("\n");
-
-await writeFile(resolve(pkgRoot, "dist", "index.d.ts"), indexDts);

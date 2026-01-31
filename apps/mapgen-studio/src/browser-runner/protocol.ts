@@ -1,4 +1,4 @@
-import type { BrowserTestRecipeConfig } from "@mapgen/browser-recipes/browser-test";
+import type { BrowserTestRecipeConfig } from "mod-swooper-maps/recipes/browser-test";
 import type { VizLayerMeta } from "@swooper/mapgen-core";
 
 export type Bounds = [minX: number, minY: number, maxX: number, maxY: number];

@@ -6,8 +6,7 @@ import type { Plugin } from "esbuild";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const repoRoot = resolvePath(__dirname, "..", "..");
-const domainRoot = resolvePath(repoRoot, "mods/mod-swooper-maps/src/domain");
+const domainRoot = resolvePath(__dirname, "src/domain");
 
 function resolveWithJsToTsFallback(absPath: string): string | null {
   if (existsSync(absPath)) return absPath;
@@ -108,7 +107,10 @@ function mapgenDomainAlias(): Plugin {
 }
 
 export default defineConfig({
-  entry: ["src/index.ts", "src/browser-test.ts"],
+  entry: {
+    "recipes/browser-test": "src/recipes/browser-test/recipe.ts",
+  },
+  outDir: "dist",
   format: ["esm"],
   target: "esnext",
   dts: false,
