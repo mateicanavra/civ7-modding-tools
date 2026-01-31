@@ -1,9 +1,8 @@
-import { OrthographicView, type OrthographicViewState } from '@deck.gl/core';
+import { Deck, OrthographicView, type OrthographicViewState } from '@deck.gl/core';
 import type { Layer } from '@deck.gl/core';
 import { ScatterplotLayer } from '@deck.gl/layers';
-import { DeckGL, type DeckGLRef } from '@deck.gl/react';
 import type { MutableRefObject } from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { DEFAULT_VIEW_STATE, type Bounds, type VizLayerEntryV0 } from './model';
 
 function niceStep(target: number): number {
@@ -32,49 +31,13 @@ export type DeckCanvasProps = {
 
 export function DeckCanvas(props: DeckCanvasProps) {
   const { layers, effectiveLayer, viewportSize, showBackgroundGrid = true, activeBounds, apiRef } = props;
+
+  // Using the core Deck instance avoids React-driven rerenders on every pointer interaction.
+  // (The @deck.gl/react wrapper can schedule React updates during camera changes.)
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const deckRef = useRef<Deck<any> | null>(null);
+
   const views = useMemo(() => new OrthographicView({ id: 'ortho' }), []);
-
-  // Keep the camera unmanaged by React during pointer interactions.
-  // Using `initialViewState` lets deck.gl update camera state internally without a React render per frame.
-  const [initialViewState, setInitialViewState] = useState<OrthographicViewState>(() => ({
-    target: [...DEFAULT_VIEW_STATE.target],
-    zoom: DEFAULT_VIEW_STATE.zoom,
-  }));
-  const deckRef = useRef<DeckGLRef<any> | null>(null);
-
-  const fitToBounds = useCallback(
-    (bounds: Bounds) => {
-      const [minX, minY, maxX, maxY] = bounds;
-      const width = Math.max(1e-6, maxX - minX);
-      const height = Math.max(1e-6, maxY - minY);
-      const padding = 0.92;
-      const scaleX = (viewportSize.width * padding) / width;
-      const scaleY = (viewportSize.height * padding) / height;
-      const scale = Math.min(scaleX, scaleY);
-      const zoom = Math.log2(scale);
-      const target: [number, number, number] = [(minX + maxX) / 2, (minY + maxY) / 2, 0];
-      setInitialViewState({ target, zoom });
-    },
-    [viewportSize.height, viewportSize.width]
-  );
-
-  const resetView = useCallback(() => {
-    fitToBounds([0, 0, 1, 1]);
-  }, [fitToBounds]);
-
-  useEffect(() => {
-    if (!apiRef) return;
-    apiRef.current = { fitToBounds, resetView };
-    return () => {
-      apiRef.current = null;
-    };
-  }, [apiRef, fitToBounds, resetView]);
-
-  // Preserve existing behavior: auto-fit when the effective layer bounds changes.
-  useEffect(() => {
-    if (!activeBounds) return;
-    fitToBounds(activeBounds);
-  }, [activeBounds, fitToBounds]);
 
   const gridEnabled = useMemo(() => {
     if (!showBackgroundGrid) return false;
@@ -88,8 +51,7 @@ export function DeckCanvas(props: DeckCanvasProps) {
     if (!gridEnabled) return null;
     if (!activeBounds) return null;
 
-    // Make the grid world-anchored and independent of camera state. This avoids rebuilding grid data
-    // on every pointer move when panning/zooming, which can lock up the main thread.
+    // Make the grid world-anchored and independent of camera state.
     const [minX, minY, maxX, maxY] = activeBounds;
     const width = Math.max(1e-6, maxX - minX);
     const height = Math.max(1e-6, maxY - minY);
@@ -119,6 +81,7 @@ export function DeckCanvas(props: DeckCanvasProps) {
       }
       if (points.length >= maxPoints) break;
     }
+
     return new ScatterplotLayer({
       id: 'bg.mesh.grid',
       data: points,
@@ -132,13 +95,89 @@ export function DeckCanvas(props: DeckCanvasProps) {
 
   const deckLayers = useMemo<Layer[]>(() => [...(gridLayer ? [gridLayer] : []), ...layers], [gridLayer, layers]);
 
-  return (
-    <DeckGL
-      ref={deckRef as any}
-      views={views}
-      controller={true}
-      initialViewState={initialViewState}
-      layers={deckLayers}
-    />
+  const applyViewState = useCallback(
+    (next: OrthographicViewState) => {
+      const deck = deckRef.current as any;
+      if (!deck) return;
+
+      // deck.gl stores internal viewState when initialViewState is provided and no external viewState prop is used.
+      // We update the internal mapping to allow programmatic "fit" without controlling camera during interactions.
+      const viewId = 'ortho';
+      deck.viewState = { ...(deck.viewState || {}), [viewId]: next };
+      deck.viewManager?.setProps({ viewState: deck.viewState });
+      deck.setProps({});
+      deck.redraw(true);
+    },
+    []
   );
+
+  const fitToBounds = useCallback(
+    (bounds: Bounds) => {
+      const [minX, minY, maxX, maxY] = bounds;
+      const width = Math.max(1e-6, maxX - minX);
+      const height = Math.max(1e-6, maxY - minY);
+      const padding = 0.92;
+      const scaleX = (viewportSize.width * padding) / width;
+      const scaleY = (viewportSize.height * padding) / height;
+      const scale = Math.min(scaleX, scaleY);
+      const zoom = Math.log2(scale);
+      const target: [number, number, number] = [(minX + maxX) / 2, (minY + maxY) / 2, 0];
+      applyViewState({ target, zoom });
+    },
+    [applyViewState, viewportSize.height, viewportSize.width]
+  );
+
+  const resetView = useCallback(() => {
+    fitToBounds([0, 0, 1, 1]);
+  }, [fitToBounds]);
+
+  useEffect(() => {
+    if (!apiRef) return;
+    apiRef.current = { fitToBounds, resetView };
+    return () => {
+      apiRef.current = null;
+    };
+  }, [apiRef, fitToBounds, resetView]);
+
+  // Preserve existing behavior: auto-fit when the effective layer bounds changes.
+  useEffect(() => {
+    if (!activeBounds) return;
+    fitToBounds(activeBounds);
+  }, [activeBounds, fitToBounds]);
+
+  // Create + destroy the Deck instance.
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // Cap device pixel ratio to avoid pathological buffer sizes on high-DPI displays.
+    const useDevicePixels = Math.min(globalThis.devicePixelRatio ?? 1, 2);
+
+    const deck = new Deck({
+      canvas,
+      views,
+      controller: true,
+      initialViewState: {
+        target: [...DEFAULT_VIEW_STATE.target],
+        zoom: DEFAULT_VIEW_STATE.zoom,
+      },
+      layers: deckLayers,
+      useDevicePixels,
+    });
+
+    deckRef.current = deck;
+
+    return () => {
+      deck.finalize();
+      deckRef.current = null;
+    };
+    // deckLayers intentionally excluded: we update via setProps below.
+  }, [views]);
+
+  // Keep layers in sync without remounting the Deck instance.
+  useEffect(() => {
+    deckRef.current?.setProps({ layers: deckLayers });
+  }, [deckLayers]);
+
+  return <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />;
 }
