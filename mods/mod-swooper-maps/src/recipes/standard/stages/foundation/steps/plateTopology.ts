@@ -64,6 +64,8 @@ export default createStep(PlateTopologyStepContract, {
       meta: defineVizMeta("foundation.plateTopology.centroids", {
         label: "Plate Centroids (Area)",
         group: GROUP_PLATE_TOPOLOGY,
+        space: "tile",
+        showGrid: false,
       }),
     });
 
@@ -73,6 +75,8 @@ export default createStep(PlateTopologyStepContract, {
       meta: defineVizMeta("foundation.plateTopology.neighbors", {
         label: "Plate Neighbor Edges",
         group: GROUP_PLATE_TOPOLOGY,
+        space: "tile",
+        showGrid: false,
       }),
     });
   },

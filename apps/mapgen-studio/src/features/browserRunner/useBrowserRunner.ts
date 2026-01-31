@@ -78,11 +78,26 @@ function formatErrorForUi(e: unknown): string {
     return parts.join("\n\n");
   }
 
-  if (e instanceof ErrorEvent) {
+  const maybeErrorEvent = e as {
+    message?: unknown;
+    filename?: unknown;
+    lineno?: unknown;
+    colno?: unknown;
+    error?: unknown;
+  };
+  if (e instanceof ErrorEvent || (maybeErrorEvent && typeof maybeErrorEvent.message === "string")) {
     const parts: string[] = [];
-    parts.push(e.message || "ErrorEvent");
-    if ((e as ErrorEvent).filename) parts.push(`${(e as ErrorEvent).filename}:${(e as ErrorEvent).lineno}:${(e as ErrorEvent).colno}`);
-    if ((e as ErrorEvent).error) parts.push(formatErrorForUi((e as ErrorEvent).error));
+    const message = typeof maybeErrorEvent.message === "string" && maybeErrorEvent.message.trim().length > 0
+      ? maybeErrorEvent.message
+      : "Worker error";
+    parts.push(message);
+    const filename = typeof maybeErrorEvent.filename === "string" ? maybeErrorEvent.filename : null;
+    const lineno = typeof maybeErrorEvent.lineno === "number" ? maybeErrorEvent.lineno : null;
+    const colno = typeof maybeErrorEvent.colno === "number" ? maybeErrorEvent.colno : null;
+    if (filename) {
+      parts.push(`${filename}:${lineno ?? "?"}:${colno ?? "?"}`);
+    }
+    if (maybeErrorEvent.error) parts.push(formatErrorForUi(maybeErrorEvent.error));
     return parts.join("\n\n");
   }
 
@@ -189,6 +204,7 @@ export function useBrowserRunner(args: UseBrowserRunnerArgs): UseBrowserRunnerRe
         },
         onError: (error) => {
           if (!runTokenRef.current) return;
+          console.error("BrowserRunner worker error", error);
           setState((prev) => ({
             ...prev,
             status: "error",

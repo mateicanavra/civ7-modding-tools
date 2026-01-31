@@ -164,6 +164,10 @@ export type VizScalarFormat = "u8" | "i8" | "u16" | "i16" | "i32" | "f32";
 
 export type VizLayerVisibility = "default" | "debug" | "hidden";
 
+export type VizPaletteMode = "auto" | "categorical" | "continuous";
+
+export type VizCoordinateSpace = "world" | "tile";
+
 export type VizLayerCategory = {
   value: number | string;
   label: string;
@@ -176,6 +180,9 @@ export type VizLayerMeta = {
   description?: string;
   visibility?: VizLayerVisibility;
   categories?: VizLayerCategory[];
+  palette?: VizPaletteMode;
+  space?: VizCoordinateSpace;
+  showGrid?: boolean;
 };
 
 export interface VizDumper {

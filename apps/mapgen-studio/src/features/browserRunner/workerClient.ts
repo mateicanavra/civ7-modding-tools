@@ -2,7 +2,7 @@ import type { BrowserRunEvent, BrowserRunRequest } from "../../browser-runner/pr
 
 export type WorkerClientHandlers = {
   onEvent(event: BrowserRunEvent): void;
-  onError(error: ErrorEvent): void;
+  onError(error: unknown): void;
 };
 
 export type WorkerClient = {
@@ -28,7 +28,12 @@ export function createWorkerClient(): WorkerClient {
       handlers.onEvent(ev.data);
     };
     worker.onerror = handlers.onError;
-    worker.postMessage(request);
+    worker.onmessageerror = handlers.onError as (ev: MessageEvent) => void;
+    try {
+      worker.postMessage(request);
+    } catch (err) {
+      handlers.onError(err);
+    }
   };
 
   return { start, terminate };

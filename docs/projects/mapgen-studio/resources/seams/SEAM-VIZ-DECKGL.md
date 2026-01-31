@@ -108,11 +108,11 @@ This makes the UI behave like a **manifest viewer**, even in streaming mode.
 
 Today, “registry logic” is scattered and implicit:
 
-- coordinate-space choice is inferred from `kind` + `layerId` string prefixes
-- layer labels/visibility/categories come from `layer.meta` when present; remaining heuristics still rely on `layerId` checks
-- legend/palette choice is inferred from `layerId` string contains/endsWith checks
-- overlay choice (mesh edges) is inferred from `layerId` prefixes + `kind`
-- “era slider” behavior is inferred from a specific layerId regex
+- coordinate-space choice is taken from `layer.meta.space` (tile/world) for points/segments; grids stay in tile space
+- layer labels/visibility/categories come directly from `layer.meta`
+- legend/palette choice uses `layer.meta.palette` + `layer.meta.categories` (no `layerId` heuristics)
+- overlay choice (mesh edges) is a UI toggle gated by presence of the mesh-edges layer
+- “era slider” behavior is still inferred from a specific layerId regex
 
 A **layer registry** should centralize these decisions so that:
 
