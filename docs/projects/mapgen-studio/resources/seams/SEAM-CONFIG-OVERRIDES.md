@@ -6,7 +6,7 @@ Mission scope: investigate ONLY the “Config Overrides” subsystem currently e
 
 - `apps/mapgen-studio/src/App.tsx`
 - `apps/mapgen-studio/src/browser-runner/protocol.ts`
-- `apps/mapgen-studio/src/browser-runner/foundation.worker.ts`
+- `apps/mapgen-studio/src/browser-runner/pipeline.worker.ts`
 - `mods/mod-swooper-maps/recipes/browser-test` (build output, consumed by Studio)
 - `mods/mod-swooper-maps/src/recipes/browser-test/recipe.ts`
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`

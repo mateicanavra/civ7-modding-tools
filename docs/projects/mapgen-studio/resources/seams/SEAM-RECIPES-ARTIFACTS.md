@@ -28,7 +28,7 @@ Update (2026-01-30): `@mapgen/browser-recipes` was deleted. Studio now imports t
 ### Studio usage + protocol seam
 - `apps/mapgen-studio/src/App.tsx`
 - `apps/mapgen-studio/src/browser-runner/protocol.ts`
-- `apps/mapgen-studio/src/browser-runner/foundation.worker.ts`
+- `apps/mapgen-studio/src/browser-runner/pipeline.worker.ts`
 - `apps/mapgen-studio/package.json`
 - `apps/mapgen-studio/vite.config.ts`
 - `apps/mapgen-studio/scripts/check-worker-bundle.mjs`
@@ -110,7 +110,7 @@ Update (2026-01-30): `@mapgen/browser-recipes` was deleted. Studio now imports t
   - `BrowserRunStartRequest.configOverrides?: BrowserTestRecipeConfig`
 - This is the “union explosion” seam: adding recipe N implies adding recipe-specific config typing to the protocol surface (and then to every UI/worker consumer).
 
-**Worker (`apps/mapgen-studio/src/browser-runner/foundation.worker.ts`)**
+**Worker (`apps/mapgen-studio/src/browser-runner/pipeline.worker.ts`)**
 - Imports from `@mapgen/browser-recipes/browser-test`:
   - the default recipe module (`browserTestRecipe`) to `compile`/`run`
   - default config + schema to merge + validate overrides

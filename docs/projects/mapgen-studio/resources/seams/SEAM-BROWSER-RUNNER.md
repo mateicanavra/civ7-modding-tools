@@ -6,7 +6,7 @@ Scope: document the current browser runner orchestration in `apps/mapgen-studio/
 
 - `apps/mapgen-studio/src/App.tsx`
 - `apps/mapgen-studio/src/browser-runner/protocol.ts`
-- `apps/mapgen-studio/src/browser-runner/foundation.worker.ts`
+- `apps/mapgen-studio/src/browser-runner/pipeline.worker.ts`
 - `apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts`
 - `apps/mapgen-studio/src/browser-runner/worker-viz-dumper.ts`
 - `apps/mapgen-studio/vite.config.ts`
@@ -42,7 +42,7 @@ Non-runner but coupled via “selection retention”:
 
 - Step selection: `selectedStepId: string|null` + `selectedStepIdRef`
 - Layer selection: `selectedLayerKey: string|null` + `selectedLayerKeyRef`
-- View fitting and other viz toggles (`viewState`, `tileLayout`, `showMeshEdges`, `eraIndex`, etc.)
+- View fitting and other viz toggles (`viewState`, `tileLayout`, `showEdgeOverlay`, etc.)
 
 ### Side effects / orchestration performed by `App`
 
@@ -54,7 +54,7 @@ Non-runner but coupled via “selection retention”:
   - Computes “pinned selection” from refs and applies retention rules (see §3).
   - Clears or retains selection + view based on retention.
   - Generates `runToken` and stores it in `browserRunTokenRef`.
-  - Creates `new Worker(new URL("./browser-runner/foundation.worker.ts", import.meta.url), { type: "module" })`.
+  - Creates `new Worker(new URL("./browser-runner/pipeline.worker.ts", import.meta.url), { type: "module" })`.
   - Installs `worker.onmessage` handler for `BrowserRunEvent` and `worker.onerror`.
   - Builds `BrowserRunRequest` (`type: "run.start"`) and posts it.
 - Receives events and mutates UI state
@@ -149,7 +149,7 @@ Current “Cancel” behavior is **hard termination**, not a protocol cancel:
   - Leaves `browserManifest` intact (partial run data remains visible)
 - Protocol (`protocol.ts`):
   - Defines `BrowserRunCancelRequest` (`type: "run.cancel"`), but…
-- Worker (`foundation.worker.ts`):
+- Worker (`pipeline.worker.ts`):
   - Does **not** handle `run.cancel` at all (only `run.start` is implemented).
 
 So: “cancel” today means “kill the worker and ignore anything it might have posted”, not “gracefully stop a run and emit `run.finished`”.
@@ -201,7 +201,7 @@ Auto-selection for the first layer relies on:
 
 Examples in `App.tsx`:
 
-- Mesh overlay assumes existence of a segments layer with `layerId === "foundation.mesh.edges"`.
+- Edge overlay assumes the run provides a segments layer with `meta.role === "edgeOverlay"`.
 - “Odd-q” grid interpretation is applied when:
   - `effectiveLayer.kind === "grid"` **or**
   - `layerId.startsWith("foundation.plateTopology.")`
@@ -233,7 +233,7 @@ Suggested structure under MapGen Studio:
   - `workerClient.ts` — non-React worker wrapper (“start, cancel, onEvent”)
   - `protocol.ts` — shared message protocol (or re-export from existing location)
 - Keep worker-only code in place (or move as a unit):
-  - `apps/mapgen-studio/src/browser-runner/foundation.worker.ts`
+  - `apps/mapgen-studio/src/browser-runner/pipeline.worker.ts`
   - `apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts`
   - `apps/mapgen-studio/src/browser-runner/worker-viz-dumper.ts`
 
