@@ -11,12 +11,38 @@ export type RenderDeckLayersArgs = {
   tileLayout: TileLayout;
   showMeshEdges: boolean;
   assetResolver?: VizAssetResolver | null;
+  signal?: AbortSignal;
 };
 
 export type RenderDeckLayersResult = {
   layers: Layer[];
   stats: ScalarStats | null;
 };
+
+function createAbortError(): Error {
+  const Ctor = (globalThis as any).DOMException as undefined | ((message?: string, name?: string) => Error);
+  if (typeof Ctor === "function") return new Ctor("Aborted", "AbortError");
+
+  const err = new Error("Aborted");
+  (err as any).name = "AbortError";
+  return err;
+}
+
+function createYieldTicker(signal?: AbortSignal): (i: number) => Promise<void> {
+  const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
+  let lastYield = now();
+  const YIELD_AFTER_MS = 12;
+  const CHECK_EVERY = 1 << 14; // 16384
+
+  return async (i: number) => {
+    if (signal?.aborted) throw createAbortError();
+    if ((i & (CHECK_EVERY - 1)) !== 0) return;
+    const t = now();
+    if (t - lastYield < YIELD_AFTER_MS) return;
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    lastYield = now();
+  };
+}
 
 function niceStep(target: number): number {
   const t = Math.max(1e-9, target);
@@ -134,8 +160,10 @@ function decodeScalarArray(buffer: ArrayBuffer, format: string): ArrayBufferView
 }
 
 export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<RenderDeckLayersResult> {
-  const { manifest, layer, tileLayout, showMeshEdges, assetResolver } = options;
+  const { manifest, layer, tileLayout, showMeshEdges, assetResolver, signal } = options;
   if (!manifest || !layer) return { layers: [], stats: null };
+  if (signal?.aborted) throw createAbortError();
+  const tick = createYieldTicker(signal);
 
   const layerId = layer.layerId;
   const isTileOddQLayer = layer.kind === "grid" || layerId.startsWith("foundation.plateTopology.");
@@ -150,9 +178,11 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
     buffer: ArrayBuffer | undefined,
     format: string
   ): Promise<ArrayBufferView> => {
+    if (signal?.aborted) throw createAbortError();
     if (buffer) return decodeScalarArray(buffer, format);
     if (!assetResolver || !path) throw new Error(`Missing scalar payload for ${layerId}`);
     const buf = await assetResolver.readArrayBuffer(path);
+    if (signal?.aborted) throw createAbortError();
     return decodeScalarArray(buf, format);
   };
 
@@ -177,6 +207,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
     const edges: Array<{ path: [[number, number], [number, number]] }> = [];
     const count = (seg.length / 4) | 0;
     for (let i = 0; i < count; i++) {
+      await tick(i);
       const x0 = seg[i * 4] ?? 0;
       const y0 = seg[i * 4 + 1] ?? 0;
       const x1 = seg[i * 4 + 2] ?? 0;
@@ -214,6 +245,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
     const tiles: Array<{ polygon: Array<[number, number]>; v: number }> = [];
     const len = width * height;
     for (let i = 0; i < len; i++) {
+      await tick(i);
       const x = i % width;
       const y = (i / width) | 0;
       const v = (values as any)[i] ?? 0;
@@ -255,6 +287,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
     } else {
       if (!assetResolver || !layer.positionsPath) throw new Error("Missing points payload");
       const posBuf = await assetResolver.readArrayBuffer(layer.positionsPath);
+      if (signal?.aborted) throw createAbortError();
       positions = new Float32Array(posBuf);
     }
 
@@ -276,6 +309,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
     const points: Array<{ x: number; y: number; v: number }> = [];
     const count = (positions.length / 2) | 0;
     for (let i = 0; i < count; i++) {
+      await tick(i);
       const rawX = positions[i * 2] ?? 0;
       const rawY = positions[i * 2 + 1] ?? 0;
       const v = values ? Number((values as any)[i] ?? 0) : 0;
@@ -318,6 +352,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
     } else {
       if (!assetResolver || !layer.segmentsPath) throw new Error("Missing segments payload");
       const segBuf = await assetResolver.readArrayBuffer(layer.segmentsPath);
+      if (signal?.aborted) throw createAbortError();
       seg = new Float32Array(segBuf);
     }
 
@@ -339,6 +374,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
     const segments: Array<{ path: [[number, number], [number, number]]; v: number }> = [];
     const count = (seg.length / 4) | 0;
     for (let i = 0; i < count; i++) {
+      await tick(i);
       const rx0 = seg[i * 4] ?? 0;
       const ry0 = seg[i * 4 + 1] ?? 0;
       const rx1 = seg[i * 4 + 2] ?? 0;
