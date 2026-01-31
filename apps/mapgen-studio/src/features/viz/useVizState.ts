@@ -245,8 +245,8 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
   useEffect(() => {
     let alive = true;
     if (!manifest || !effectiveLayer) {
-      setResolvedLayers([]);
-      setLayerStats(null);
+      setResolvedLayers((prev) => (prev.length ? [] : prev));
+      setLayerStats((prev) => (prev ? null : prev));
       return;
     }
     renderDeckLayers({
