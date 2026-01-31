@@ -67,6 +67,7 @@ export default createStep(PlateGraphStepContract, {
       meta: defineVizMeta("foundation.plateGraph.cellToPlate", {
         label: "Cell Plate Id",
         group: GROUP_PLATE_GRAPH,
+        palette: "categorical",
       }),
     });
 
@@ -79,6 +80,7 @@ export default createStep(PlateGraphStepContract, {
       meta: defineVizMeta("foundation.plateGraph.plateSeeds", {
         label: "Plate Seeds",
         group: GROUP_PLATE_GRAPH,
+        palette: "categorical",
       }),
     });
   },
