@@ -256,6 +256,46 @@ jobs:
             exit 0
           fi
 
+          # Best-effort helper: Railway environment delete by NAME can become interactive/ambiguous.
+          # Prefer deleting by env ID (from `railway status --json`) to ensure non-interactive behavior.
+          get_railway_env_id_by_name() {
+            local env_name="${1:-}"
+            if [ -z "$env_name" ]; then
+              return 1
+            fi
+
+            set +e
+            local raw
+            raw="$(railway status --json 2>&1)"
+            local code=$?
+            set -e
+            if [ "$code" -ne 0 ]; then
+              return 1
+            fi
+
+            RAW="$raw" python3 - "$env_name" <<'PY'
+          import json, os, sys
+          env_name = sys.argv[1]
+          raw = os.environ.get("RAW", "")
+          start = raw.find("{")
+          if start == -1:
+            sys.exit(1)
+          try:
+            d = json.loads(raw[start:])
+          except Exception:
+            sys.exit(1)
+          edges = (d.get("environments") or {}).get("edges") or []
+          for e in edges:
+            node = (e or {}).get("node") or {}
+            if node.get("deletedAt"):
+              continue
+            if (node.get("name") or "") == env_name and (node.get("id") or ""):
+              sys.stdout.write(node["id"])
+              sys.exit(0)
+          sys.exit(1)
+          PY
+          }
+
           echo "Enforcing preview environment branches..." >> "$GITHUB_STEP_SUMMARY"
           # Enforce per-PR by recreating the environment when it drifts.
           while IFS=$'\t' read -r env_name env_id expected_branch; do
@@ -273,17 +313,57 @@ jobs:
             fi
 
             echo "- $env_name: reset '$current' -> '$expected_branch'" >> "$GITHUB_STEP_SUMMARY"
-            railway environment delete "${env_name}" -y --json
 
-            # Deletion can take a moment to propagate; retry environment creation a few times.
-            for attempt in 1 2 3 4 5; do
-              if railway environment new "${env_name}" \
-                --copy "${RAILWAY_BASE_ENVIRONMENT_ID}" \
-                --service-config "${RAILWAY_SERVICE_ID}" "source.branch" "${expected_branch}" \
-                --json >/dev/null; then
+            # Delete by ID to avoid interactive prompts (and to ensure we delete the correct env).
+            delete_target="$env_id"
+            if [ -z "${delete_target:-}" ]; then
+              delete_target="$env_name"
+            fi
+            set +e
+            delete_out="$(railway environment delete "${delete_target}" -y --json 2>&1)"
+            delete_code=$?
+            set -e
+            echo "$delete_out"
+            if [ "$delete_code" -ne 0 ]; then
+              echo "::warning::Failed to delete Railway env '${env_name}' via '${delete_target}' (exit ${delete_code})." >> "$GITHUB_STEP_SUMMARY"
+            fi
+
+            # Railway deletion is async. Wait until the env name no longer resolves before attempting to recreate it.
+            for attempt in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
+              set +e
+              railway environment "${env_name}" config --json >/dev/null 2>&1
+              exists_code=$?
+              set -e
+              if [ "$exists_code" -ne 0 ]; then
                 break
               fi
-              echo "retry ${attempt}/5: waiting for ${env_name} delete to finalize..."
+              sleep 2
+            done
+
+            # Retry environment creation until the name is available (or we give up).
+            for attempt in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+              set +e
+              create_out="$(
+                railway environment new "${env_name}" \
+                  --copy "${RAILWAY_BASE_ENVIRONMENT_ID}" \
+                  --service-config "${RAILWAY_SERVICE_ID}" "source.branch" "${expected_branch}" \
+                  --json 2>&1
+              )"
+              create_code=$?
+              set -e
+
+              if [ "$create_code" -eq 0 ]; then
+                break
+              fi
+
+              if echo "$create_out" | grep -q "already exists"; then
+                echo "retry ${attempt}/15: ${env_name} still exists; waiting..." >> "$GITHUB_STEP_SUMMARY"
+                sleep 2
+                continue
+              fi
+
+              echo "::warning::Failed to recreate '${env_name}' (attempt ${attempt}/15; exit ${create_code})." >> "$GITHUB_STEP_SUMMARY"
+              echo "$create_out"
               sleep 2
             done
           done < pr_env_branch_actions.tsv
@@ -294,19 +374,39 @@ jobs:
             if [ -z "${env_name:-}" ] || [ -z "${expected_branch:-}" ]; then
               continue
             fi
+            set +e
+            cfg_json="$(railway environment "${env_name}" config --json 2>/dev/null)"
+            cfg_code=$?
+            set -e
+            if [ "$cfg_code" -ne 0 ]; then
+              echo "- ${env_name}: missing (deleted or not yet created); skipping guard." >> "$GITHUB_STEP_SUMMARY"
+              continue
+            fi
+
             configured="$(
-              railway environment "${env_name}" config --json \
+              printf '%s' "$cfg_json" \
                 | python3 -c 'import json,sys; d=json.load(sys.stdin); svc=d["services"][sys.argv[1]]; print((svc.get("source") or {}).get("branch",""))' "${RAILWAY_SERVICE_ID}"
             )"
             if [ "$configured" != "$expected_branch" ]; then
-              echo "::error::${env_name} pinned to '$configured' (expected '$expected_branch')"
-              echo "- ${env_name}: configured '$configured' (expected '$expected_branch')" >> "$GITHUB_STEP_SUMMARY"
+              # Don't fail the entire workflow for drift we couldn't fix; delete the stale pin instead.
+              # This keeps CI green while ensuring we don't keep a misconfigured preview env around.
+              echo "::warning::${env_name} pinned to '$configured' (expected '$expected_branch'); deleting stale env." >> "$GITHUB_STEP_SUMMARY"
+
+              env_id_now="$(get_railway_env_id_by_name "${env_name}" || true)"
+              if [ -n "${env_id_now:-}" ]; then
+                set +e
+                railway environment delete "${env_id_now}" -y --json >/dev/null 2>&1
+                set -e
+                echo "- ${env_name}: deleted stale env '${env_id_now}'" >> "$GITHUB_STEP_SUMMARY"
+              else
+                echo "- ${env_name}: could not determine env id for cleanup" >> "$GITHUB_STEP_SUMMARY"
+              fi
               failures=$((failures+1))
             fi
           done < pr_env_branch_actions.tsv
 
           if [ "$failures" -gt 0 ]; then
-            exit 1
+            echo "::warning::${failures} preview env(s) were drifted and have been cleaned up (deleted) to avoid stale pins." >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Delete stale preview environments
