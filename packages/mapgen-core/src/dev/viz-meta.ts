@@ -30,5 +30,8 @@ export function defineVizMeta(layerId: string, meta: Partial<VizLayerMeta> = {})
     visibility: meta.visibility ?? "default",
     description: meta.description,
     categories: meta.categories,
+    palette: meta.palette,
+    space: meta.space,
+    showGrid: meta.showGrid,
   };
 }

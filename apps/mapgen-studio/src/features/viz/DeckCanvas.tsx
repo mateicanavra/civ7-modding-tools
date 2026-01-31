@@ -43,7 +43,7 @@ export function DeckCanvas(props: DeckCanvasProps) {
     if (!showBackgroundGrid) return false;
     if (!effectiveLayer) return false;
     if (!(effectiveLayer.kind === 'points' || effectiveLayer.kind === 'segments')) return false;
-    if (effectiveLayer.layerId.startsWith('foundation.plateTopology.')) return false;
+    if (effectiveLayer.meta?.showGrid === false) return false;
     return true;
   }, [effectiveLayer, showBackgroundGrid]);
 
