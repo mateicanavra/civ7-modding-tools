@@ -109,8 +109,17 @@ export function App() {
       setViewportSize({ width: Math.max(1, rect.width), height: Math.max(1, rect.height) });
     };
     update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
+
+    // Prefer ResizeObserver so we track actual container size (sidebars, panels, etc.),
+    // not just the global window size.
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", update);
+      return () => window.removeEventListener("resize", update);
+    }
+
+    const ro = new ResizeObserver(() => update());
+    ro.observe(el);
+    return () => ro.disconnect();
   }, []);
 
   const openDumpFolder = useCallback(async () => {
