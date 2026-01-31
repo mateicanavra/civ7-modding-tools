@@ -7,7 +7,6 @@ export type VizStoreSnapshot = Readonly<{
   dumpManifest: VizManifestV0 | null;
   selectedStepId: string | null;
   selectedLayerKey: string | null;
-  eraIndex: number;
 }>;
 
 export type VizStore = {
@@ -20,7 +19,6 @@ export type VizStore = {
 
   setSelectedStepId(next: string | null): void;
   setSelectedLayerKey(next: string | null): void;
-  setEraIndex(next: number): void;
 };
 
 function scheduleFrame(cb: () => void): number {
@@ -35,7 +33,6 @@ export function createVizStore(): VizStore {
   let dumpManifest: VizManifestV0 | null = null;
   let selectedStepId: string | null = null;
   let selectedLayerKey: string | null = null;
-  let eraIndex = 0;
 
   let pendingStreamManifest: VizManifestV0 | null | undefined = undefined;
   let pendingSelectedStepId: string | null | undefined = undefined;
@@ -119,7 +116,6 @@ export function createVizStore(): VizStore {
         dumpManifest,
         selectedStepId,
         selectedLayerKey,
-        eraIndex,
       };
     },
     ingest,
@@ -145,12 +141,6 @@ export function createVizStore(): VizStore {
       selectedLayerKey = next;
       notify();
     },
-    setEraIndex(next) {
-      const clamped = Math.max(0, next | 0);
-      if (eraIndex === clamped) return;
-      eraIndex = clamped;
-      notify();
-    },
   };
 }
 
@@ -159,4 +149,3 @@ export function getVizStore(): VizStore {
   if (!singleton) singleton = createVizStore();
   return singleton;
 }
-

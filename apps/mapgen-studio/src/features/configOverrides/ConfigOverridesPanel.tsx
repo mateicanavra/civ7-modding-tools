@@ -63,9 +63,6 @@ export function ConfigOverridesPanel<TConfig>(props: ConfigOverridesPanelProps<T
   const uiSchema = useMemo<UiSchema<TConfig, RJSFSchema, BrowserConfigFormContext>>(
     () => ({
       "ui:options": { label: false },
-      foundation: {
-        "ui:order": ["knobs", "advanced"],
-      },
     }),
     []
   );
@@ -123,7 +120,7 @@ export function ConfigOverridesPanel<TConfig>(props: ConfigOverridesPanelProps<T
       >
         <div style={{ fontSize: 12, color: "#9ca3af", lineHeight: 1.35 }}>
           Overrides apply on the next “Run (Browser)”. Base config remains{" "}
-          <span style={{ color: "#e5e7eb" }}>STANDARD_RECIPE_CONFIG</span>.
+          <span style={{ color: "#e5e7eb" }}>the recipe default config</span>.
         </div>
 
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>

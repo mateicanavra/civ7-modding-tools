@@ -11,7 +11,6 @@ import {
 import {
   getLayerKey,
   normalizeManifest,
-  parseTectonicHistoryEraLayerId,
   type Bounds,
   type TileLayout,
   type VizAssetResolver,
@@ -52,7 +51,6 @@ export type UseVizStateResult = {
   deck: { layers: Layer[] };
 
   effectiveLayer: VizLayerEntryV0 | null;
-  era: { active: boolean; value: number; max: number | null; setValue(next: number): void };
   activeBounds: Bounds | null;
   manifest: VizManifestV0 | null;
 };
@@ -79,8 +77,6 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
 
   const [layerStats, setLayerStats] = useState<{ min?: number; max?: number } | null>(null);
   const [resolvedLayers, setResolvedLayers] = useState<Layer[]>([]);
-  const eraIndex = snapshot.eraIndex;
-  const setEraIndex = store.setEraIndex;
   const renderAbortRef = useRef<AbortController | null>(null);
   const onErrorRef = useRef<UseVizStateArgs["onError"]>(onError);
 
@@ -165,42 +161,7 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     return layersForStep.find((l) => l.key === activeSelectedLayerKey)?.layer ?? null;
   }, [activeSelectedLayerKey, layersForStep]);
 
-  const eraInfo = useMemo(() => {
-    if (!selectedLayer) return null;
-    return parseTectonicHistoryEraLayerId(selectedLayer.layerId);
-  }, [selectedLayer]);
-
-  const eraMax = useMemo(() => {
-    if (!manifest || !activeSelectedStepId || !eraInfo) return null;
-    let max = -1;
-    const prefix = `foundation.tectonicHistory.era`;
-    const suffix = `.${eraInfo.baseLayerId}`;
-    for (const layer of manifest.layers) {
-      if (layer.stepId !== activeSelectedStepId) continue;
-      if (!layer.layerId.startsWith(prefix)) continue;
-      if (!layer.layerId.endsWith(suffix)) continue;
-      const info = parseTectonicHistoryEraLayerId(layer.layerId);
-      if (!info) continue;
-      if (info.baseLayerId !== eraInfo.baseLayerId) continue;
-      if (info.eraIndex > max) max = info.eraIndex;
-    }
-    return max >= 0 ? max : null;
-  }, [manifest, activeSelectedStepId, eraInfo]);
-
-  useEffect(() => {
-    if (!eraInfo) return;
-    setEraIndex(eraInfo.eraIndex);
-  }, [eraInfo, setEraIndex]);
-
-  const effectiveLayer = useMemo(() => {
-    if (!manifest || !activeSelectedStepId || !selectedLayer) return selectedLayer;
-    if (!eraInfo) return selectedLayer;
-    const idx = eraMax != null ? Math.max(0, Math.min(eraMax, eraIndex)) : eraIndex;
-    const desiredId = `foundation.tectonicHistory.era${idx}.${eraInfo.baseLayerId}`;
-    return (
-      manifest.layers.find((l) => l.stepId === activeSelectedStepId && l.layerId === desiredId) ?? selectedLayer
-    );
-  }, [manifest, activeSelectedStepId, selectedLayer, eraInfo, eraIndex, eraMax]);
+  const effectiveLayer = selectedLayer;
 
   const activeBounds = useMemo(() => {
     if (!effectiveLayer) return null;
@@ -252,10 +213,9 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
       stepLabel: formatStepLabel(effectiveLayer.stepId),
       layerId: effectiveLayer.layerId,
       kind: effectiveLayer.kind,
-      eraIndex: eraInfo && eraMax != null ? Math.max(0, Math.min(eraMax, eraIndex)) : undefined,
       tileLayout: effectiveLayer.kind === "grid" ? tileLayout : undefined,
     });
-  }, [effectiveLayer, eraInfo, eraIndex, eraMax, layerStats, tileLayout]);
+  }, [effectiveLayer, layerStats, tileLayout]);
 
   return {
     ingest,
@@ -272,12 +232,6 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
       layers: resolvedLayers,
     },
     effectiveLayer,
-    era: {
-      active: Boolean(eraInfo && eraMax != null),
-      value: eraIndex,
-      max: eraMax,
-      setValue: setEraIndex,
-    },
     activeBounds,
     manifest,
   };

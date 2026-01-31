@@ -5,13 +5,9 @@ import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
 
-import standardRecipe, {
-  STANDARD_RECIPE_CONFIG,
-  STANDARD_RECIPE_CONFIG_SCHEMA,
-  type StandardRecipeConfig,
-} from "mod-swooper-maps/recipes/standard";
 import { CIV7_BROWSER_TABLES_V0 } from "../civ7-data/civ7-tables.gen";
 import type { BrowserRunEvent, BrowserRunRequest } from "./protocol";
+import { getRuntimeRecipe } from "./recipeRuntime";
 import { createWorkerTraceSink } from "./worker-trace-sink";
 import { createWorkerVizDumper } from "./worker-viz-dumper";
 
@@ -123,11 +119,12 @@ function isAbortError(error: unknown): boolean {
   return (error as { name?: unknown }).name === "AbortError";
 }
 
-async function runFoundation(
+async function runRecipe(
   request: Extract<BrowserRunRequest, { type: "run.start" }>,
   abortSignal: { readonly aborted: boolean }
 ): Promise<void> {
-  const { runToken, generation, seed, mapSizeId, dimensions, latitudeBounds, configOverrides } = request;
+  const { runToken, generation, recipeId, seed, mapSizeId, dimensions, latitudeBounds, configOverrides } = request;
+  const recipeEntry = getRuntimeRecipe(recipeId);
 
   const envBase = {
     seed,
@@ -135,20 +132,16 @@ async function runFoundation(
     latitudeBounds,
   };
 
-  const mergedRaw = mergeDeterministic(STANDARD_RECIPE_CONFIG, configOverrides);
-  const { value: config, errors: configErrors } = normalizeStrict<StandardRecipeConfig>(
-    STANDARD_RECIPE_CONFIG_SCHEMA,
-    mergedRaw,
-    "/config"
-  );
+  const mergedRaw = mergeDeterministic(recipeEntry.defaultConfig, configOverrides);
+  const { value: config, errors: configErrors } = normalizeStrict<any>(recipeEntry.configSchema as any, mergedRaw, "/config");
   if (configErrors.length > 0) {
     throw new Error(`Invalid config overrides:\n${formatConfigErrors(configErrors)}`);
   }
 
-  const plan = standardRecipe.compile(envBase, config);
+  const plan: any = recipeEntry.recipe.compile(envBase, config);
   const runId = deriveRunId(plan);
   const verboseSteps: Record<string, "verbose"> = Object.fromEntries(
-    plan.nodes.map((node) => [node.stepId, "verbose"] as const)
+    plan.nodes.map((node: any) => [node.stepId, "verbose"] as const)
   );
 
   const env = {
@@ -181,7 +174,7 @@ async function runFoundation(
   // Ensure the worker posts a stable run identity early, even if a failure occurs.
   post({ type: "run.started", runToken, generation, runId, planFingerprint: runId });
 
-  await standardRecipe.runAsync(context, env, config, {
+  await recipeEntry.recipe.runAsync(context, env, config, {
     traceSink,
     abortSignal,
     // Yield between steps so cooperative cancellation (via postMessage) can be observed.
@@ -215,7 +208,7 @@ self.onmessage = (ev: MessageEvent<BrowserRunRequest>) => {
     const abortController = new AbortController();
     active = { runToken: msg.runToken, generation: msg.generation, abortController };
 
-    runFoundation(msg, abortController.signal).then(
+    runRecipe(msg, abortController.signal).then(
       () => {
         // If we were canceled, `worker-trace-sink` suppresses run.finished; emit run.canceled explicitly.
         if (abortController.signal.aborted) {

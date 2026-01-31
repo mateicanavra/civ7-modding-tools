@@ -87,7 +87,7 @@ export function BrowserConfigObjectFieldTemplate(
     </div>
   );
 
-  // Stage card (e.g. “Foundation”) is the first visible container.
+  // Stage card is the first visible container.
   if (isStage) {
     return (
       <details className="bc-section" open>

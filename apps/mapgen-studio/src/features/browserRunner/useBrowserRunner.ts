@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { StandardRecipeConfig } from "mod-swooper-maps/recipes/standard-artifacts";
 import type { BrowserRunErrorEvent, BrowserRunRequest } from "../../browser-runner/protocol";
 import type { VizEvent } from "../../shared/vizEvents";
 import { toVizEvent } from "./adapter";
@@ -8,11 +7,12 @@ import { createWorkerClient } from "./workerClient";
 export type BrowserRunnerStatus = "idle" | "running" | "finished" | "error";
 
 export type BrowserRunnerInputs = {
+  recipeId: string;
   seed: number;
   mapSizeId: string;
   dimensions: { width: number; height: number };
   latitudeBounds: { topLatitude: number; bottomLatitude: number };
-  configOverrides?: StandardRecipeConfig;
+  configOverrides?: unknown;
 };
 
 export type BrowserRunnerState = {
@@ -173,6 +173,7 @@ export function useBrowserRunner(args: UseBrowserRunnerArgs): UseBrowserRunnerRe
         type: "run.start",
         runToken,
         generation,
+        recipeId: inputs.recipeId,
         seed: inputs.seed,
         mapSizeId: inputs.mapSizeId,
         dimensions: inputs.dimensions,
