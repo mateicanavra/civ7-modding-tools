@@ -5,6 +5,16 @@ import type { Bounds, TileLayout, VizAssetResolver, VizLayerEntryV0, VizManifest
 
 type ScalarStats = { min?: number; max?: number };
 
+type HexGridGeometry = {
+  indices: Uint32Array;
+  polygons: Array<Array<[number, number]>>;
+};
+
+// Grid geometry is stable for a given (layout, dims, tileSize). Cache it so rerolls
+// don't rebuild polygons and reallocate per-tile objects.
+const hexGridGeometryCache = new Map<string, HexGridGeometry>();
+const MAX_HEX_GRID_GEOMETRY_CACHE_ENTRIES = 4;
+
 export type RenderDeckLayersArgs = {
   manifest: VizManifestV0 | null;
   layer: VizLayerEntryV0 | null;
@@ -99,6 +109,46 @@ function hexPolygonPointy(center: [number, number], size: number): Array<[number
     out.push([cx + size * Math.cos(angle), cy + size * Math.sin(angle)]);
   }
   return out;
+}
+
+function hexGridGeometryKey(args: { tileLayout: TileLayout; width: number; height: number; tileSize: number }): string {
+  return `${args.tileLayout}:${args.width}x${args.height}:s${args.tileSize}`;
+}
+
+async function getOrBuildHexGridGeometry(args: {
+  tileLayout: TileLayout;
+  width: number;
+  height: number;
+  tileSize: number;
+  tick: (i: number) => Promise<void>;
+}): Promise<HexGridGeometry> {
+  const key = hexGridGeometryKey(args);
+  const cached = hexGridGeometryCache.get(key);
+  if (cached) return cached;
+
+  const { tileLayout, width, height, tileSize, tick } = args;
+  const len = (width * height) | 0;
+  const indices = new Uint32Array(len);
+  const polygons = new Array<Array<[number, number]>>(len);
+
+  for (let i = 0; i < len; i++) {
+    await tick(i);
+    indices[i] = i;
+    const x = i % width;
+    const y = (i / width) | 0;
+    const center = tileLayout === "col-offset" ? oddQTileCenter(x, y, tileSize) : oddRTileCenter(x, y, tileSize);
+    polygons[i] = hexPolygonPointy(center, tileSize);
+  }
+
+  const geom: HexGridGeometry = { indices, polygons };
+  hexGridGeometryCache.set(key, geom);
+
+  if (hexGridGeometryCache.size > MAX_HEX_GRID_GEOMETRY_CACHE_ENTRIES) {
+    const firstKey = hexGridGeometryCache.keys().next().value as string | undefined;
+    if (firstKey) hexGridGeometryCache.delete(firstKey);
+  }
+
+  return geom;
 }
 
 export function boundsForTileGrid(layout: TileLayout, dims: { width: number; height: number }, size: number): Bounds {
@@ -253,23 +303,18 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
           })
         : undefined;
 
-    const tiles: Array<{ polygon: Array<[number, number]>; v: number }> = [];
     const len = width * height;
     for (let i = 0; i < len; i++) {
       await tick(i);
-      const x = i % width;
-      const y = (i / width) | 0;
       const v = (values as any)[i] ?? 0;
       const vv = Number(v);
       if (Number.isFinite(vv)) {
         if (vv < min) min = vv;
         if (vv > max) max = vv;
       }
-
-      const center = tileLayout === "col-offset" ? oddQTileCenter(x, y, tileSize) : oddRTileCenter(x, y, tileSize);
-      tiles.push({ polygon: hexPolygonPointy(center, tileSize), v: vv });
     }
 
+    const geometry = await getOrBuildHexGridGeometry({ tileLayout, width, height, tileSize, tick });
     const stats = Number.isFinite(min) && Number.isFinite(max) ? { min, max } : null;
 
     return {
@@ -277,9 +322,13 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
         ...baseLayers,
         new PolygonLayer({
           id: `${layerId}::hex`,
-          data: tiles,
-          getFillColor: (d) => colorForValue(layerId, d.v, categoricalColorMap, layer.meta),
-          getPolygon: (d) => d.polygon,
+          data: geometry.indices,
+          getFillColor: (i) => {
+            const idx = Number(i);
+            const vv = Number((values as any)[idx] ?? 0);
+            return colorForValue(layerId, vv, categoricalColorMap, layer.meta);
+          },
+          getPolygon: (i) => geometry.polygons[Number(i)] ?? [],
           stroked: true,
           getLineColor: [17, 24, 39, 220],
           getLineWidth: 1,
