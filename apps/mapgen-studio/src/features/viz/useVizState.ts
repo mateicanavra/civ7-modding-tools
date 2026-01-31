@@ -81,6 +81,11 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
   const [resolvedLayers, setResolvedLayers] = useState<Layer[]>([]);
   const [eraIndex, setEraIndex] = useState<number>(0);
   const renderAbortRef = useRef<AbortController | null>(null);
+  const onErrorRef = useRef<UseVizStateArgs["onError"]>(onError);
+
+  useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
 
   const ingest = useCallback(
     (event: VizEvent) => {
@@ -247,13 +252,13 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
         if (isAbortError(error)) return;
-        onError?.(error);
+        onErrorRef.current?.(error);
       });
     return () => {
       controller.abort();
       if (renderAbortRef.current === controller) renderAbortRef.current = null;
     };
-  }, [assetResolver, effectiveLayer, manifest, onError, showMeshEdges, tileLayout]);
+  }, [assetResolver, effectiveLayer, manifest, showMeshEdges, tileLayout]);
 
   const legend = useMemo(() => {
     if (!effectiveLayer) return null;
