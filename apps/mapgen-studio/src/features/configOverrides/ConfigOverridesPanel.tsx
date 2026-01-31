@@ -122,6 +122,12 @@ function ConfigOverridesPanelImpl<TConfig>(props: ConfigOverridesPanelProps<TCon
           Overrides apply on the next “Run (Browser)”. Base config remains{" "}
           <span style={{ color: "#e5e7eb" }}>the recipe default config</span>.
         </div>
+        {!controller.enabled ? (
+          <div style={{ fontSize: 12, color: "#fbbf24", lineHeight: 1.35 }}>
+            Overrides are currently <span style={{ color: "#fde68a", fontWeight: 700 }}>disabled</span>. You can still
+            edit values here, but they won’t affect runs until you enable overrides.
+          </div>
+        ) : null}
 
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
           <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -178,7 +184,9 @@ function ConfigOverridesPanelImpl<TConfig>(props: ConfigOverridesPanelProps<TCon
               uiSchema={uiSchema}
               formContext={formContext}
               value={controller.value}
-              disabled={disabled || !controller.enabled}
+              // Toggling disabled on a huge RJSF subtree is very expensive. "Enable overrides"
+              // controls whether values apply to the next run, not whether the form is editable.
+              disabled={disabled}
               onChange={controller.setValue}
             />
           ) : (
@@ -197,7 +205,7 @@ function ConfigOverridesPanelImpl<TConfig>(props: ConfigOverridesPanelProps<TCon
                   height: "100%",
                   resize: "none",
                 }}
-                disabled={disabled || !controller.enabled}
+                disabled={disabled}
               />
               {controller.jsonError ? (
                 <div style={{ fontSize: 12, color: "#fca5a5", whiteSpace: "pre-wrap" }}>
@@ -210,7 +218,7 @@ function ConfigOverridesPanelImpl<TConfig>(props: ConfigOverridesPanelProps<TCon
                     controller.applyJson();
                   }}
                   style={{ ...buttonStyle, padding: "6px 10px" }}
-                  disabled={disabled || !controller.enabled}
+                  disabled={disabled}
                   type="button"
                 >
                   Apply JSON
