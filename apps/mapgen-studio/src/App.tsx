@@ -3,7 +3,7 @@ import {
   STANDARD_RECIPE_CONFIG,
   STANDARD_RECIPE_CONFIG_SCHEMA,
   type StandardRecipeConfig,
-} from "mod-swooper-maps/recipes/standard";
+} from "mod-swooper-maps/recipes/standard-artifacts";
 import { AppHeader } from "./app/AppHeader";
 import { AppShell, type AppMode } from "./app/AppShell";
 import { useDumpLoader } from "./features/dumpViewer/useDumpLoader";

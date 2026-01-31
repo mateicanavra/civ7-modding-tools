@@ -9,9 +9,17 @@
       "types": "./dist/recipes/browser-test.d.ts",
       "import": "./dist/recipes/browser-test.js"
     },
+    "./recipes/browser-test-artifacts": {
+      "types": "./dist/recipes/browser-test-artifacts.d.ts",
+      "import": "./dist/recipes/browser-test-artifacts.js"
+    },
     "./recipes/standard": {
       "types": "./dist/recipes/standard.d.ts",
       "import": "./dist/recipes/standard.js"
+    },
+    "./recipes/standard-artifacts": {
+      "types": "./dist/recipes/standard-artifacts.d.ts",
+      "import": "./dist/recipes/standard-artifacts.js"
     }
   },
   "scripts": {

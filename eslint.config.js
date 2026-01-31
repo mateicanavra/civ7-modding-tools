@@ -14,7 +14,7 @@ export default [
     ]
   },
   {
-    files: ["**/*.ts"],
+    files: ["**/*.{ts,tsx}"],
     languageOptions: {
       parser: tsParser,
       parserOptions: { ecmaVersion: "latest", sourceType: "module" },
@@ -22,6 +22,41 @@ export default [
     },
     plugins: { "@typescript-eslint": tseslint },
     rules: {}
+  },
+  // MapGen Studio is a browser app; keep recipe runtime worker-only.
+  {
+    files: ["apps/mapgen-studio/src/**/*.{ts,tsx}"],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: { ecmaVersion: "latest", sourceType: "module" },
+      globals: globals.browser
+    },
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "mod-swooper-maps/recipes/standard",
+              message:
+                "MapGen Studio UI must import recipe artifacts (schema/defaults/meta), not runtime recipe modules. Use mod-swooper-maps/recipes/standard-artifacts."
+            },
+            {
+              name: "mod-swooper-maps/recipes/browser-test",
+              message:
+                "MapGen Studio UI must import recipe artifacts (schema/defaults/meta), not runtime recipe modules. Use mod-swooper-maps/recipes/browser-test-artifacts."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  // Worker-side runtime imports are allowed (they stay out of the main bundle).
+  {
+    files: ["apps/mapgen-studio/src/browser-runner/foundation.worker.ts"],
+    rules: {
+      "no-restricted-imports": "off"
+    }
   },
   {
     files: ["mods/**/src/**/*.ts"],

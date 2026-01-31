@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { StandardRecipeConfig } from "mod-swooper-maps/recipes/standard-artifacts";
 import type { BrowserRunErrorEvent, BrowserRunRequest } from "../../browser-runner/protocol";
 import type { VizEvent } from "../../shared/vizEvents";
 import { toVizEvent } from "./adapter";
@@ -11,7 +12,7 @@ export type BrowserRunnerInputs = {
   mapSizeId: string;
   dimensions: { width: number; height: number };
   latitudeBounds: { topLatitude: number; bottomLatitude: number };
-  configOverrides?: import("mod-swooper-maps/recipes/standard").StandardRecipeConfig;
+  configOverrides?: StandardRecipeConfig;
 };
 
 export type BrowserRunnerState = {
