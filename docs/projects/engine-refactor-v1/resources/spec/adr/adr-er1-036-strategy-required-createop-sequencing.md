@@ -14,10 +14,10 @@ sources:
   - "SPEC-step-domain-operation-modules"
   - "ADR-ER1-031"
   - "ADR-ER1-035"
-  - "docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/WORKFLOW.md"
-  - "docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/references/op-and-config-design.md"
-  - "docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/references/verification-and-guardrails.md"
-  - "scripts/lint/lint-domain-refactor-guardrails.sh"
+  - "WORKFLOW-domain-refactor"
+  - "REF-domain-refactor-op-and-config-design"
+  - "REF-domain-refactor-verification-and-guardrails"
+  - "lint-domain-refactor-guardrails"
 ---
 
 # ADR-ER1-036: Sequence strategy-required `createOp` cutover before remaining domain refactors
@@ -32,7 +32,7 @@ Separately, there is a proposed authoring-sdk simplification:
 - **Plan-truth operation config is always a uniform envelope**: `{ strategy: "<id>", config: <innerConfig> }`, including for single-strategy operations.
 - No shorthand encodings (no omitted `strategy`, no `{ config: ... }` shorthand).
 
-This touches the authoring SDK (`packages/mapgen-core/src/authoring/op/*`), as well as call sites across ops, steps, presets, and tests.
+This touches the authoring SDK (the `authoring op` modules exposed by `@swooper/mapgen-core/authoring`), as well as call sites across ops, steps, presets, and tests.
 
 This ADR answers **when** we should land the cutover relative to the remaining domain-refactor wave.
 
@@ -81,11 +81,11 @@ U13–U15 reduce incidental complexity around adapters and config normalization,
 ## Implications for SPEC and workflow docs
 
 If we accept this ADR:
-- `docs/projects/engine-refactor-v1/resources/spec/SPEC-step-domain-operation-modules.md` must reflect the uniform envelope shape as the canonical op-config encoding and align with the strategy semantics.
-- `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/**` must:
+- `SPEC-step-domain-operation-modules` must reflect the uniform envelope shape as the canonical op-config encoding and align with the strategy semantics.
+- `WORKFLOW-domain-refactor` must:
   - treat the authoring model as a prerequisite “foundation slice”,
   - reference the uniform config envelope when discussing step schemas and plan-truth config,
-  - and keep guardrails as the canonical gate (`scripts/lint/lint-domain-refactor-guardrails.sh`).
+  - and keep guardrails as the canonical gate (`lint-domain-refactor-guardrails`).
 
 This ADR is also adjacent to `ADR-ER1-031` (strategy config encoding). If the projected outcome below becomes canonical, `ADR-ER1-031` should be amended or superseded to remove the “single-strategy omission” special case.
 
@@ -95,7 +95,7 @@ This ADR is also adjacent to `ADR-ER1-031` (strategy config encoding). If the pr
    - Hard-delete old `createOp` forms (preferred for clarity and guardrails), vs temporary backwards compatibility (higher complexity; reintroduces ambiguity).
 
 2) **Guardrail enforcement scope**
-   - Which checks become hard gates in `scripts/lint/lint-domain-refactor-guardrails.sh` for this cutover (e.g., forbid legacy `createOp` call shapes, forbid configs that omit `strategy`, forbid non-literal strategy ids).
+   - Which checks become hard gates in `lint-domain-refactor-guardrails` for this cutover (e.g., forbid legacy `createOp` call shapes, forbid configs that omit `strategy`, forbid non-literal strategy ids).
 
 ## Projected outcome if accepted (draft canonical shape)
 
