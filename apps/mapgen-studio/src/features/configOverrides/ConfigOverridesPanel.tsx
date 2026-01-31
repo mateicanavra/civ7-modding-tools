@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import type { RJSFSchema, UiSchema } from "@rjsf/utils";
 import { SchemaForm } from "./SchemaForm";
 import { collectTransparentPaths, normalizeSchemaForRjsf, toRjsfSchema } from "./schemaPresentation";
@@ -13,7 +13,7 @@ export type ConfigOverridesPanelProps<TConfig> = {
   schema: unknown;
 };
 
-export function ConfigOverridesPanel<TConfig>(props: ConfigOverridesPanelProps<TConfig>) {
+function ConfigOverridesPanelImpl<TConfig>(props: ConfigOverridesPanelProps<TConfig>) {
   const { open, onClose, controller, disabled, schema } = props;
   const [isNarrow, setIsNarrow] = useState(() =>
     typeof window === "undefined" ? false : window.innerWidth < 760
@@ -224,3 +224,7 @@ export function ConfigOverridesPanel<TConfig>(props: ConfigOverridesPanelProps<T
     </div>
   );
 }
+
+// This panel can contain a very large RJSF form. Memoize it so high-frequency
+// viz streaming updates don't re-render the entire overrides UI.
+export const ConfigOverridesPanel = memo(ConfigOverridesPanelImpl) as typeof ConfigOverridesPanelImpl;

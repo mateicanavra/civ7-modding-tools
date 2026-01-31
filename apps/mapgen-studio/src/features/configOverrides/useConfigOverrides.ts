@@ -85,18 +85,37 @@ export function useConfigOverrides<TConfig>(
 
   const configOverridesForRun = useMemo(() => (enabled ? value : undefined), [enabled, value]);
 
-  return {
-    enabled,
-    setEnabled,
-    tab,
-    setTab,
-    value,
-    setValue,
-    jsonText,
-    setJsonText,
-    jsonError,
-    reset,
-    applyJson,
-    configOverridesForRun,
-  };
+  // Keep the controller reference stable across unrelated parent re-renders.
+  // This is critical because the overrides UI (RJSF) can be very expensive to
+  // re-render when a recipe schema is large.
+  return useMemo(
+    () => ({
+      enabled,
+      setEnabled,
+      tab,
+      setTab,
+      value,
+      setValue,
+      jsonText,
+      setJsonText,
+      jsonError,
+      reset,
+      applyJson,
+      configOverridesForRun,
+    }),
+    [
+      enabled,
+      setEnabled,
+      tab,
+      setTab,
+      value,
+      setValue,
+      jsonText,
+      setJsonText,
+      jsonError,
+      reset,
+      applyJson,
+      configOverridesForRun,
+    ]
+  );
 }
