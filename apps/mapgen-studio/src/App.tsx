@@ -284,7 +284,9 @@ export function App() {
         open={browserConfigOpen}
         onClose={() => setBrowserConfigOpen(false)}
         controller={browserConfigOverrides}
-        disabled={browserRunning}
+        // Disabling a large RJSF form during runs is extremely expensive (thousands of DOM nodes).
+        // We snapshot overrides at run-start, so edits during a run simply apply on the next run.
+        disabled={false}
         schema={recipeArtifacts.configSchema}
       />
     ) : null,
