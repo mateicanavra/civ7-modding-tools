@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { buildOverridesPatch } from "./overridesPatch";
 import { validateConfigOverridesJson } from "./validate";
 
@@ -44,6 +44,16 @@ export function useConfigOverrides<TConfig>(
   const [value, setValueState] = useState<TConfig>(baseConfig);
   const [jsonText, setJsonText] = useState(() => JSON.stringify(baseConfig, null, 2));
   const [jsonError, setJsonError] = useState<string | null>(null);
+
+  // If the base config changes (typically because the user switched recipes),
+  // reset overrides and disable the feature to avoid applying stale patches.
+  useEffect(() => {
+    setEnabled(false);
+    setTabState("form");
+    setValueState(baseConfig);
+    setJsonText(JSON.stringify(baseConfig, null, 2));
+    setJsonError(null);
+  }, [baseConfig]);
 
   const reset = useCallback(() => {
     setValueState(baseConfig);
