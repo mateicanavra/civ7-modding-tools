@@ -7,11 +7,16 @@ import {
 } from "../features/browserRunner/mapSizes";
 import { formatStepLabel } from "../features/viz/presentation";
 import type { TileLayout } from "../features/viz/model";
+import type { RecipeOption, StudioRecipeId } from "../recipes/catalog";
 
 export type AppHeaderProps = {
   isNarrow: boolean;
   mode: AppMode;
   onModeChange(next: AppMode): void;
+
+  browserRecipeId: StudioRecipeId;
+  recipeOptions: readonly RecipeOption[];
+  onBrowserRecipeChange(next: StudioRecipeId): void;
 
   browserSeed: number;
   onBrowserSeedChange(next: number): void;
@@ -30,8 +35,8 @@ export type AppHeaderProps = {
 
   onFit(): void;
   canFit: boolean;
-  showMeshEdges: boolean;
-  onShowMeshEdgesChange(next: boolean): void;
+  showEdgeOverlay: boolean;
+  onShowEdgeOverlayChange(next: boolean): void;
   showBackgroundGrid: boolean;
   onShowBackgroundGridChange(next: boolean): void;
   tileLayout: TileLayout;
@@ -43,11 +48,6 @@ export type AppHeaderProps = {
   selectedLayerKey: string | null;
   selectableLayers: Array<{ key: string; label: string; group?: string }>;
   onSelectedLayerChange(next: string | null): void;
-
-  eraActive: boolean;
-  eraValue: number;
-  eraMax: number | null;
-  onEraChange(next: number): void;
 };
 
 export function AppHeader(props: AppHeaderProps) {
@@ -55,6 +55,9 @@ export function AppHeader(props: AppHeaderProps) {
     isNarrow,
     mode,
     onModeChange,
+    browserRecipeId,
+    recipeOptions,
+    onBrowserRecipeChange,
     browserSeed,
     onBrowserSeedChange,
     onRerollSeed,
@@ -70,8 +73,8 @@ export function AppHeader(props: AppHeaderProps) {
     onUploadDumpFolder,
     onFit,
     canFit,
-    showMeshEdges,
-    onShowMeshEdgesChange,
+    showEdgeOverlay,
+    onShowEdgeOverlayChange,
     showBackgroundGrid,
     onShowBackgroundGridChange,
     tileLayout,
@@ -82,10 +85,6 @@ export function AppHeader(props: AppHeaderProps) {
     selectedLayerKey,
     selectableLayers,
     onSelectedLayerChange,
-    eraActive,
-    eraValue,
-    eraMax,
-    onEraChange,
   } = props;
 
   const controlBaseStyle: React.CSSProperties = useMemo(
@@ -218,6 +217,21 @@ export function AppHeader(props: AppHeaderProps) {
             <>
               <div style={toolbarRowStyle}>
                 <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <span style={{ fontSize: 12, color: "#9ca3af" }}>Recipe</span>
+                  <select
+                    value={browserRecipeId}
+                    onChange={(e) => onBrowserRecipeChange(e.target.value as StudioRecipeId)}
+                    style={{ ...controlBaseStyle, width: 220 }}
+                    disabled={browserRunning}
+                  >
+                    {recipeOptions.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {r.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
                   <span style={{ fontSize: 12, color: "#9ca3af" }}>Seed</span>
                   <input
                     value={browserSeed}
@@ -328,8 +342,13 @@ export function AppHeader(props: AppHeaderProps) {
                 padding: "2px 2px",
               }}
             >
-              <span style={{ fontSize: 12, color: "#9ca3af" }}>Mesh edges</span>
-              <input type="checkbox" checked={showMeshEdges} onChange={(e) => onShowMeshEdgesChange(e.target.checked)} />
+              <span style={{ fontSize: 12, color: "#9ca3af" }}>Overlay edges</span>
+              <input
+                type="checkbox"
+                checked={showEdgeOverlay}
+                onChange={(e) => onShowEdgeOverlayChange(e.target.checked)}
+                title="Show an edge overlay if the current run provides one"
+              />
             </label>
 
             <label
@@ -417,25 +436,6 @@ export function AppHeader(props: AppHeaderProps) {
             </label>
           </div>
 
-          {eraActive ? (
-            <div style={toolbarRowStyle}>
-              <label style={{ display: "flex", gap: 8, alignItems: "center", flex: 1 }}>
-                <span style={{ fontSize: 12, color: "#9ca3af", minWidth: 56 }}>Era</span>
-                <input
-                  type="range"
-                  min={0}
-                  max={eraMax ?? 0}
-                  step={1}
-                  value={Math.max(0, Math.min(eraMax ?? 0, eraValue))}
-                  onChange={(e) => onEraChange(Number.parseInt(e.target.value, 10))}
-                  style={{ flex: 1, width: "100%" }}
-                />
-                <span style={{ fontSize: 12, color: "#e5e7eb", minWidth: 26, textAlign: "right" }}>
-                  {Math.max(0, Math.min(eraMax ?? 0, eraValue))}
-                </span>
-              </label>
-            </div>
-          ) : null}
         </div>
       </div>
     </div>

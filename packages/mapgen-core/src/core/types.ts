@@ -179,6 +179,11 @@ export type VizLayerMeta = {
   group?: string;
   description?: string;
   visibility?: VizLayerVisibility;
+  /**
+   * Optional semantic hint for Studio overlays/tooling. This is intended to be a
+   * small, stable vocabulary (e.g. "edgeOverlay") rather than a recipe-step name.
+   */
+  role?: string;
   categories?: VizLayerCategory[];
   palette?: VizPaletteMode;
   space?: VizCoordinateSpace;

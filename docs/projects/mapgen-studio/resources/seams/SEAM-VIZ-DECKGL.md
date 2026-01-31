@@ -9,7 +9,7 @@ Update note (2026-01-29):
 
 - `apps/mapgen-studio/src/App.tsx`
 - `apps/mapgen-studio/src/browser-runner/protocol.ts`
-- `apps/mapgen-studio/src/browser-runner/foundation.worker.ts`
+- `apps/mapgen-studio/src/browser-runner/pipeline.worker.ts`
 - `apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts`
 - `apps/mapgen-studio/src/browser-runner/worker-viz-dumper.ts`
 - (context) `packages/mapgen-core/src/core/types.ts` (`VizDumper` contract, `fileKey` semantics)
@@ -36,7 +36,7 @@ Update note (2026-01-29):
   - `points` → `ScatterplotLayer`
   - `segments` → `PathLayer`
   - optional overlays:
-    - “mesh edges” overlay: `foundation.mesh.edges` rendered as a non-pickable `PathLayer`
+    - “edge overlay”: a segments layer with `meta.role === "edgeOverlay"` rendered as a non-pickable overlay
     - background dot grid overlay (a `ScatterplotLayer`) computed from viewState/viewport
 - Owns **coordinate transforms** (tile hex layouts):
   - “row-offset” (odd-r) vs “col-offset” (odd-q) handling
@@ -83,7 +83,7 @@ In `App.tsx` the “deck layers” computation is effectively:
 
 **Where they originate:**
 
-- `foundation.worker.ts` injects `context.viz = createWorkerVizDumper()` (which emits trace events of shape `{ type: "layer.stream", ... }`).
+- `pipeline.worker.ts` injects `context.viz = createWorkerVizDumper()` (which emits trace events of shape `{ type: "layer.stream", ... }`).
 - `worker-trace-sink.ts` maps trace events to the browser protocol, cloning typed arrays into `ArrayBuffer`s and transferring them to the main thread (`postMessage(..., transfer)`).
 
 ### What normalization happens in UI today
@@ -111,7 +111,7 @@ Today, “registry logic” is scattered and implicit:
 - coordinate-space choice is taken from `layer.meta.space` (tile/world) for points/segments; grids stay in tile space
 - layer labels/visibility/categories come directly from `layer.meta`
 - legend/palette choice uses `layer.meta.palette` + `layer.meta.categories` (no `layerId` heuristics)
-- overlay choice (mesh edges) is a UI toggle gated by presence of the mesh-edges layer
+- overlay choice (edge overlay) is a UI toggle gated by presence of an `edgeOverlay`-role segments layer
 - “era slider” behavior is still inferred from a specific layerId regex
 
 A **layer registry** should centralize these decisions so that:

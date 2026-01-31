@@ -1,6 +1,7 @@
 import Form from "@rjsf/core";
 import { customizeValidator } from "@rjsf/validator-ajv8";
 import type { RJSFSchema, UiSchema } from "@rjsf/utils";
+import { useMemo } from "react";
 import { browserConfigFormCss } from "./formStyles";
 import {
   BrowserConfigArrayFieldTemplate,
@@ -20,7 +21,10 @@ export type SchemaFormProps<TConfig> = {
 
 export function SchemaForm<TConfig>(props: SchemaFormProps<TConfig>) {
   const { schema, uiSchema, formContext, value, onChange, disabled } = props;
-  const validator = customizeValidator<TConfig, RJSFSchema, BrowserConfigFormContext>();
+  const validator = useMemo(
+    () => customizeValidator<TConfig, RJSFSchema, BrowserConfigFormContext>(),
+    []
+  );
 
   return (
     <div

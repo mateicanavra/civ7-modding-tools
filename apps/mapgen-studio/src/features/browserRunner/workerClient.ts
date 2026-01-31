@@ -22,7 +22,7 @@ export function createWorkerClient(): WorkerClient {
 
   const start = (request: BrowserRunRequest, handlers: WorkerClientHandlers) => {
     if (!worker) {
-      worker = new Worker(new URL("../../browser-runner/foundation.worker.ts", import.meta.url), { type: "module" });
+      worker = new Worker(new URL("../../browser-runner/pipeline.worker.ts", import.meta.url), { type: "module" });
     }
     worker.onmessage = (ev: MessageEvent<BrowserRunEvent>) => {
       if (!ev.data) return;

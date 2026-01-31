@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import type { RJSFSchema, UiSchema } from "@rjsf/utils";
 import { SchemaForm } from "./SchemaForm";
 import { collectTransparentPaths, normalizeSchemaForRjsf, toRjsfSchema } from "./schemaPresentation";
@@ -13,7 +13,7 @@ export type ConfigOverridesPanelProps<TConfig> = {
   schema: unknown;
 };
 
-export function ConfigOverridesPanel<TConfig>(props: ConfigOverridesPanelProps<TConfig>) {
+function ConfigOverridesPanelImpl<TConfig>(props: ConfigOverridesPanelProps<TConfig>) {
   const { open, onClose, controller, disabled, schema } = props;
   const [isNarrow, setIsNarrow] = useState(() =>
     typeof window === "undefined" ? false : window.innerWidth < 760
@@ -63,9 +63,6 @@ export function ConfigOverridesPanel<TConfig>(props: ConfigOverridesPanelProps<T
   const uiSchema = useMemo<UiSchema<TConfig, RJSFSchema, BrowserConfigFormContext>>(
     () => ({
       "ui:options": { label: false },
-      foundation: {
-        "ui:order": ["knobs", "advanced"],
-      },
     }),
     []
   );
@@ -123,8 +120,14 @@ export function ConfigOverridesPanel<TConfig>(props: ConfigOverridesPanelProps<T
       >
         <div style={{ fontSize: 12, color: "#9ca3af", lineHeight: 1.35 }}>
           Overrides apply on the next “Run (Browser)”. Base config remains{" "}
-          <span style={{ color: "#e5e7eb" }}>STANDARD_RECIPE_CONFIG</span>.
+          <span style={{ color: "#e5e7eb" }}>the recipe default config</span>.
         </div>
+        {!controller.enabled ? (
+          <div style={{ fontSize: 12, color: "#fbbf24", lineHeight: 1.35 }}>
+            Overrides are currently <span style={{ color: "#fde68a", fontWeight: 700 }}>disabled</span>. You can still
+            edit values here, but they won’t affect runs until you enable overrides.
+          </div>
+        ) : null}
 
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
           <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -181,7 +184,9 @@ export function ConfigOverridesPanel<TConfig>(props: ConfigOverridesPanelProps<T
               uiSchema={uiSchema}
               formContext={formContext}
               value={controller.value}
-              disabled={disabled || !controller.enabled}
+              // Toggling disabled on a huge RJSF subtree is very expensive. "Enable overrides"
+              // controls whether values apply to the next run, not whether the form is editable.
+              disabled={disabled}
               onChange={controller.setValue}
             />
           ) : (
@@ -200,7 +205,7 @@ export function ConfigOverridesPanel<TConfig>(props: ConfigOverridesPanelProps<T
                   height: "100%",
                   resize: "none",
                 }}
-                disabled={disabled || !controller.enabled}
+                disabled={disabled}
               />
               {controller.jsonError ? (
                 <div style={{ fontSize: 12, color: "#fca5a5", whiteSpace: "pre-wrap" }}>
@@ -213,7 +218,7 @@ export function ConfigOverridesPanel<TConfig>(props: ConfigOverridesPanelProps<T
                     controller.applyJson();
                   }}
                   style={{ ...buttonStyle, padding: "6px 10px" }}
-                  disabled={disabled || !controller.enabled}
+                  disabled={disabled}
                   type="button"
                 >
                   Apply JSON
@@ -227,3 +232,7 @@ export function ConfigOverridesPanel<TConfig>(props: ConfigOverridesPanelProps<T
     </div>
   );
 }
+
+// This panel can contain a very large RJSF form. Memoize it so high-frequency
+// viz streaming updates don't re-render the entire overrides UI.
+export const ConfigOverridesPanel = memo(ConfigOverridesPanelImpl) as typeof ConfigOverridesPanelImpl;
