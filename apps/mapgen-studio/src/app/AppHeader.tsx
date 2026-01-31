@@ -342,8 +342,13 @@ export function AppHeader(props: AppHeaderProps) {
                 padding: "2px 2px",
               }}
             >
-              <span style={{ fontSize: 12, color: "#9ca3af" }}>Mesh edges</span>
-              <input type="checkbox" checked={showMeshEdges} onChange={(e) => onShowMeshEdgesChange(e.target.checked)} />
+              <span style={{ fontSize: 12, color: "#9ca3af" }}>Overlay edges</span>
+              <input
+                type="checkbox"
+                checked={showMeshEdges}
+                onChange={(e) => onShowMeshEdgesChange(e.target.checked)}
+                title="Show an edge overlay if the current run provides one"
+              />
             </label>
 
             <label
