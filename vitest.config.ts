@@ -42,6 +42,11 @@ export default defineConfig({
       },
       {
         extends: true,
+        root: r('apps/mapgen-studio'),
+        test: { name: 'mapgen-studio' }
+      },
+      {
+        extends: true,
         root: r('packages/plugins/plugin-files'),
         test: { name: 'plugin-files' }
       },
