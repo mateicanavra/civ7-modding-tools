@@ -25,7 +25,7 @@ export type UseConfigOverridesResult<TConfig> = {
   jsonError: string | null;
 
   reset(): void;
-  applyJson(): { ok: boolean };
+  applyJson(): { ok: boolean; value?: TConfig };
 
   configOverridesForRun: TConfig | undefined;
 };
@@ -46,7 +46,7 @@ export function useConfigOverrides<TConfig>(
     setJsonError(null);
   }, [baseConfig]);
 
-  const applyJson = useCallback((): { ok: boolean } => {
+  const applyJson = useCallback((): { ok: boolean; value?: TConfig } => {
     const result = validateConfigOverridesJson<TConfig>(schema, jsonText, basePathForErrors);
     if (!result.ok) {
       setJsonError(result.error);
@@ -54,7 +54,7 @@ export function useConfigOverrides<TConfig>(
     }
     setValueState(result.value);
     setJsonError(null);
-    return { ok: true };
+    return { ok: true, value: result.value };
   }, [schema, jsonText, basePathForErrors]);
 
   const setValue = useCallback((next: TConfig) => {
