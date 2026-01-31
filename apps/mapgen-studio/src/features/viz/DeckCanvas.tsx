@@ -1,6 +1,7 @@
-import { OrthographicView } from "@deck.gl/core";
-import { DeckGL } from "@deck.gl/react";
-import type { Layer } from "@deck.gl/core";
+import { OrthographicView } from '@deck.gl/core';
+import type { Layer } from '@deck.gl/core';
+import { DeckGL } from '@deck.gl/react';
+import { useCallback, useMemo } from 'react';
 
 export type DeckCanvasProps = {
   deck: {
@@ -12,12 +13,17 @@ export type DeckCanvasProps = {
 
 export function DeckCanvas(props: DeckCanvasProps) {
   const { deck } = props;
+  const views = useMemo(() => new OrthographicView({ id: 'ortho' }), []);
+  const onViewStateChange = useCallback(
+    ({ viewState }: { viewState: any }) => deck.onViewStateChange(viewState),
+    [deck]
+  );
   return (
     <DeckGL
-      views={new OrthographicView({ id: "ortho" })}
+      views={views}
       controller={true}
       viewState={deck.viewState}
-      onViewStateChange={({ viewState }) => deck.onViewStateChange(viewState)}
+      onViewStateChange={onViewStateChange}
       layers={deck.layers}
     />
   );
