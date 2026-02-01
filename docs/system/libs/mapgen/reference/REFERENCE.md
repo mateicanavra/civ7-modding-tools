@@ -35,4 +35,4 @@ Core contract references (implemented in Slice 02):
 Additional reference pages are added in later slices:
 - Standard recipe: `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`
 - Domains: `docs/system/libs/mapgen/reference/domains/DOMAINS.md`
-- Studio integration seam: Slice 09
+- Studio integration seam: `docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`
