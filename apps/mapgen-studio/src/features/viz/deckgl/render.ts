@@ -5,7 +5,7 @@ import {
   writeColorForScalarValue,
 } from "../presentation";
 import type { Bounds, VizAssetResolver, VizLayerEntryV1, VizManifestV1 } from "../model";
-import type { VizBinaryRef, VizScalarField, VizScalarFormat, VizScalarStats, VizSpaceId } from "@swooper/mapgen-viz";
+import type { VizBinaryRef, VizScalarFormat, VizScalarStats, VizSpaceId } from "@swooper/mapgen-viz";
 
 type HexGridGeometry = {
   indices: Uint32Array;
