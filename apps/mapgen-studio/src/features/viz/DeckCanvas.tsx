@@ -1,6 +1,6 @@
 import { Deck, OrthographicView, type OrthographicViewState } from '@deck.gl/core';
 import type { Layer } from '@deck.gl/core';
-import { ScatterplotLayer } from '@deck.gl/layers';
+import { LineLayer } from '@deck.gl/layers';
 import type { MutableRefObject } from 'react';
 import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { DEFAULT_VIEW_STATE, type Bounds, type VizLayerEntryV0 } from './model';
@@ -25,12 +25,13 @@ export type DeckCanvasProps = {
   effectiveLayer: VizLayerEntryV0 | null;
   viewportSize: { width: number; height: number };
   showBackgroundGrid?: boolean;
+  lightMode?: boolean;
   activeBounds: Bounds | null;
   apiRef?: MutableRefObject<DeckCanvasApi | null>;
 };
 
 export function DeckCanvas(props: DeckCanvasProps) {
-  const { layers, effectiveLayer, viewportSize, showBackgroundGrid = true, activeBounds, apiRef } = props;
+  const { layers, effectiveLayer, viewportSize, showBackgroundGrid = true, lightMode = false, activeBounds, apiRef } = props;
 
   // Using the core Deck instance avoids React-driven rerenders on every pointer interaction.
   // (The @deck.gl/react wrapper can schedule React updates during camera changes.)
@@ -57,8 +58,8 @@ export function DeckCanvas(props: DeckCanvasProps) {
     const width = Math.max(1e-6, maxX - minX);
     const height = Math.max(1e-6, maxY - minY);
 
-    const maxPoints = 1800;
-    const minStepForBudget = Math.sqrt((width * height) / maxPoints);
+    const maxLines = 120;
+    const minStepForBudget = Math.max(width / maxLines, height / maxLines);
     const baseStep = niceStep(width / 26);
     const step = niceStep(Math.max(baseStep, minStepForBudget));
 
@@ -73,26 +74,33 @@ export function DeckCanvas(props: DeckCanvasProps) {
   const gridLayer = useMemo(() => {
     if (!gridParams) return null;
     const { step, x0, y0, x1, y1 } = gridParams;
-    const points: Array<{ x: number; y: number }> = [];
-    const maxPoints = 1800;
-    for (let y = y0; y <= y1; y += step) {
-      for (let x = x0; x <= x1; x += step) {
-        points.push({ x, y });
-        if (points.length >= maxPoints) break;
+    const segments: Array<{ source: [number, number]; target: [number, number] }> = [];
+    const maxSegments = 600;
+
+    for (let x = x0; x <= x1; x += step) {
+      segments.push({ source: [x, y0], target: [x, y1] });
+      if (segments.length >= maxSegments) break;
+    }
+    if (segments.length < maxSegments) {
+      for (let y = y0; y <= y1; y += step) {
+        segments.push({ source: [x0, y], target: [x1, y] });
+        if (segments.length >= maxSegments) break;
       }
-      if (points.length >= maxPoints) break;
     }
 
-    return new ScatterplotLayer({
+    const gridColor: [number, number, number, number] = lightMode ? [0, 0, 0, 16] : [255, 255, 255, 12];
+
+    return new LineLayer({
       id: 'bg.mesh.grid',
-      data: points,
-      getPosition: (d: any) => [d.x, d.y],
-      getFillColor: [148, 163, 184, 55],
-      radiusUnits: 'pixels',
-      getRadius: 1.2,
+      data: segments,
+      getSourcePosition: (d: any) => d.source,
+      getTargetPosition: (d: any) => d.target,
+      getColor: gridColor,
+      getWidth: 1,
+      widthUnits: 'pixels',
       pickable: false,
     });
-  }, [gridParams]);
+  }, [gridParams, lightMode]);
 
   const deckLayers = useMemo<Layer[]>(() => [...(gridLayer ? [gridLayer] : []), ...layers], [gridLayer, layers]);
 

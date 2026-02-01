@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 // ============================================================================
 // CONFIG FORM
 // ============================================================================
@@ -41,6 +41,17 @@ currentValue: string)
   }
   return [...options];
 }
+
+function buildKeySignature(value: unknown, depth: number): string {
+  if (depth <= 0) return '';
+  if (value == null) return 'null';
+  if (Array.isArray(value)) return '[]';
+  if (typeof value !== 'object') return typeof value;
+  const obj = value as Record<string, unknown>;
+  const keys = Object.keys(obj).sort();
+  if (depth === 1) return `{${keys.join(',')}}`;
+  return `{${keys.join(',')}}(${keys.map((k) => `${k}:${buildKeySignature(obj[k], depth - 1)}`).join('|')})`;
+}
 // ============================================================================
 // Main Component
 // ============================================================================
@@ -57,9 +68,16 @@ export const ConfigForm: React.FC<ConfigFormProps> = ({
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>>(
     {});
+
+  const lastAutoExpandSignatureRef = useRef<string>('');
+
   // Auto-expand sections when in focus mode (single step)
   useEffect(() => {
     if (autoExpandDepth > 0) {
+      const signature = `${autoExpandDepth}:${buildKeySignature(config, 4)}`;
+      if (signature === lastAutoExpandSignatureRef.current) return;
+      lastAutoExpandSignatureRef.current = signature;
+
       const stages = Object.keys(config);
       const newExpandedStages: Record<string, boolean> = {};
       const newExpandedSections: Record<string, boolean> = {};
@@ -97,8 +115,20 @@ export const ConfigForm: React.FC<ConfigFormProps> = ({
           }
         });
       });
-      setExpandedStages(newExpandedStages);
-      setExpandedSections(newExpandedSections);
+      setExpandedStages((prev) => {
+        const next = { ...prev };
+        for (const key of Object.keys(newExpandedStages)) {
+          if (next[key] === undefined) next[key] = true;
+        }
+        return next;
+      });
+      setExpandedSections((prev) => {
+        const next = { ...prev };
+        for (const key of Object.keys(newExpandedSections)) {
+          if (next[key] === undefined) next[key] = true;
+        }
+        return next;
+      });
     }
   }, [config, autoExpandDepth]);
   // ==========================================================================
@@ -274,9 +304,9 @@ export const ConfigForm: React.FC<ConfigFormProps> = ({
   const renderStepGroup = (
   groupName: string,
   steps: Record<string, StepConfig>,
-  stageName: string)
+  basePath: string[])
   : React.ReactNode => {
-    const sectionKey = `${stageName}.${groupName}`;
+    const sectionKey = [...basePath, groupName].join('.');
     const isExpanded = expandedSections[sectionKey] ?? false;
     return (
       <div key={groupName}>
@@ -302,11 +332,7 @@ export const ConfigForm: React.FC<ConfigFormProps> = ({
         {isExpanded &&
         <div className="flex flex-col gap-1 pt-1 pb-1.5">
             {Object.entries(steps).map(([stepName, stepConfig]) =>
-          renderStepConfig(stepName, stepConfig, [
-          stageName,
-          'advanced',
-          groupName]
-          )
+          renderStepConfig(stepName, stepConfig, [...basePath, groupName])
           )}
           </div>
         }
@@ -369,7 +395,7 @@ export const ConfigForm: React.FC<ConfigFormProps> = ({
           )
           )
           : advancedEntries.map(([groupName, steps]) =>
-          renderStepGroup(groupName, steps as Record<string, StepConfig>, stageName)
+          renderStepGroup(groupName, steps as Record<string, StepConfig>, [stageName, 'advanced'])
           )}
           </div>
         }
@@ -423,7 +449,7 @@ export const ConfigForm: React.FC<ConfigFormProps> = ({
                 return renderStepGroup(
                   groupName,
                   group as Record<string, StepConfig>,
-                  stageName
+                  [stageName]
                 );
               }
               return null;

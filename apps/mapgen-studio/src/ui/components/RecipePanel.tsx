@@ -10,7 +10,6 @@ import {
   Eraser,
   Braces,
   BookOpen,
-  Layers,
   Focus,
   Settings,
   Save,
@@ -27,7 +26,8 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   Button,
-  Select } from
+  Select,
+  Switch } from
 './ui';
 import type {
   PipelineConfig,
@@ -101,6 +101,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   // ==========================================================================
   // Local State
   // ==========================================================================
+  const [recipeCollapsed, setRecipeCollapsed] = useState(false);
   const [configCollapsed, setConfigCollapsed] = useState(false);
   const [localOverridesDisabled, setLocalOverridesDisabled] = useState(false);
   const [showJson, setShowJson] = useState(false);
@@ -156,13 +157,6 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   const hoverBg = lightMode ? 'hover:bg-gray-50' : 'hover:bg-[#1a1a1f]';
   const iconBtn = `h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 ${lightMode ? 'text-[#6b7280] hover:text-[#1f2937] hover:bg-gray-100' : 'text-[#8a8a96] hover:text-[#e8e8ed] hover:bg-[#1a1a1f]'}`;
   const iconBtnActive = `h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 ${lightMode ? 'text-[#1f2937] bg-gray-200' : 'text-[#e8e8ed] bg-[#222228]'}`;
-  const toggleContainer = lightMode ? 'bg-gray-100' : 'bg-[#0f0f12]';
-  const toggleActive = lightMode ?
-  'bg-white text-[#1f2937] shadow-sm' :
-  'bg-[#222228] text-[#e8e8ed]';
-  const toggleInactive = lightMode ?
-  'text-[#9ca3af] hover:text-[#6b7280]' :
-  'text-[#5a5a66] hover:text-[#8a8a96]';
   // ==========================================================================
   // Render
   // ==========================================================================
@@ -173,7 +167,11 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
 
         {/* Header */}
         <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
-          <div className="flex items-center justify-between px-3 py-2.5">
+          <button
+            type="button"
+            onClick={() => setRecipeCollapsed(!recipeCollapsed)}
+            className={`w-full flex items-center justify-between px-3 py-2.5 transition-colors ${hoverBg}`}>
+
             <div className="flex items-center gap-2 min-w-0">
               <BookOpen className={`w-4 h-4 shrink-0 ${textSecondary}`} />
               <span className={`text-[13px] font-semibold ${textPrimary}`}>
@@ -185,10 +183,11 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                 Modified
               </span>
             }
-          </div>
+          </button>
         </div>
 
         {/* Recipe & Preset Selection */}
+        {!recipeCollapsed &&
         <div
           className={`flex-shrink-0 px-3 py-3 space-y-2 border-b ${borderSubtle}`}>
 
@@ -228,12 +227,21 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
 
           </div>
         </div>
+        }
 
         {/* Config Section Header */}
         <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
-          <button
+          <div
+            role="button"
+            tabIndex={0}
             onClick={() => setConfigCollapsed(!configCollapsed)}
-            className={`w-full flex items-center justify-between px-3 py-2.5 transition-colors ${hoverBg}`}>
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setConfigCollapsed(!configCollapsed);
+              }
+            }}
+            className={`w-full flex items-center justify-between px-3 py-2.5 transition-colors cursor-pointer ${hoverBg}`}>
 
             <div className="flex items-center gap-2 min-w-0">
               <Settings className={`w-4 h-4 shrink-0 ${textSecondary}`} />
@@ -241,19 +249,39 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                 Config
               </span>
             </div>
-            <div
-              onClick={(e) => {
-                e.stopPropagation();
-                setOverridesDisabled(!overridesDisabled);
-              }}
-              title={
-              overridesDisabled ? 'Enable overrides' : 'Disable overrides'
-              }
-              className={`h-5 px-1.5 rounded text-[9px] font-medium uppercase tracking-wider transition-colors shrink-0 flex items-center ${overridesDisabled ? 'bg-orange-100 text-orange-600' : `${textMuted} hover:bg-gray-100`}`}>
+            <div className="flex items-center gap-2 shrink-0">
+              <div
+                className="flex items-center gap-2"
+                onClick={(e) => e.stopPropagation()}>
 
-              {overridesDisabled ? 'Off' : 'On'}
+                <span
+                  className={`text-[9px] font-medium uppercase tracking-wider ${overridesDisabled ? 'text-orange-500' : textMuted}`}>
+
+                  On
+                </span>
+                <Switch
+                  checked={!overridesDisabled}
+                  onCheckedChange={(checked) => setOverridesDisabled(!checked)}
+                  lightMode={lightMode}
+                  title={overridesDisabled ? 'Enable overrides' : 'Disable overrides'} />
+
+              </div>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowAllSteps(!showAllSteps);
+                }}
+                title={
+                showAllSteps ? 'Focus current step' : 'Show all steps'
+                }
+                className={!showAllSteps ? iconBtnActive : iconBtn}>
+
+                <Focus className="w-3.5 h-3.5" />
+              </button>
             </div>
-          </button>
+          </div>
         </div>
 
         {/* Config Content */}
@@ -262,25 +290,6 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             {/* Config Actions */}
             <div
             className={`px-3 py-2 flex items-center gap-2 ${overridesDisabled ? 'opacity-40 pointer-events-none select-none' : ''}`}>
-
-              <div
-              className={`flex items-center rounded p-0.5 shrink-0 ${toggleContainer}`}>
-
-                <button
-                onClick={() => setShowAllSteps(false)}
-                title="Show current step only (expanded)"
-                className={`h-6 w-6 flex items-center justify-center rounded transition-colors ${!showAllSteps ? toggleActive : toggleInactive}`}>
-
-                  <Focus className="w-3.5 h-3.5" />
-                </button>
-                <button
-                onClick={() => setShowAllSteps(true)}
-                title="Show all steps"
-                className={`h-6 w-6 flex items-center justify-center rounded transition-colors ${showAllSteps ? toggleActive : toggleInactive}`}>
-
-                  <Layers className="w-3.5 h-3.5" />
-                </button>
-              </div>
 
               <div className="flex-1" />
 
