@@ -62,6 +62,12 @@ Current implementation:
 - Stage surface schema validation + defaults: `packages/mapgen-core/src/compiler/recipe-compile.ts` (`normalizeStrict(stage.surfaceSchema, ...)`)
 - Step schema validation + defaults + normalize passes:
   - `packages/mapgen-core/src/compiler/recipe-compile.ts` (`prefillOpDefaults`, `normalizeStrict`, `step.normalize`, `normalizeOpsTopLevel`)
+- Stage authoring guarantees a stable “knobs + public/internal surface” split:
+  - `packages/mapgen-core/src/authoring/stage.ts` (`createStage`)
+  - Stage `public` config requires a stage-level `compile(...)` mapping into per-step configs.
+- Schema posture is strict-by-default:
+  - `additionalProperties` is forced to `false` by `applySchemaConventions(...)`: `packages/mapgen-core/src/authoring/schema.ts`.
+  - Unknown keys are reported explicitly by `normalizeStrict(...)`: `packages/mapgen-core/src/compiler/normalize.ts`.
 - “Knobs apply last” contract is used in standard recipe stages:
   - Example: Foundation stage `compile` uses only `config.advanced ?? {}` but accepts `knobsSchema`:
     - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
@@ -79,6 +85,18 @@ Current implementation:
   - `packages/mapgen-core/src/authoring/recipe.ts` (`inferTagKind`, `collectTagDefinitions`, `TagRegistry.registerTags(...)`)
 - Artifacts are defined (with schemas) and published under `artifact:*` IDs (mod-owned):
   - Example: `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts`
+- Artifact contract posture is strict and “write-once”:
+  - `defineArtifact` enforces `artifact:` prefix and camelCase names: `packages/mapgen-core/src/authoring/artifact/contract.ts`
+  - `implementArtifacts(...).publish(...)` is write-once; publishes store references (no deep freeze/snapshot) and rely on conventions:
+    - treat published artifacts as immutable after publish
+    - buffer artifacts are a temporary exception (publish once, then mutate buffers): `packages/mapgen-core/src/authoring/artifact/runtime.ts`
+- Artifact declarations have a “single source of truth”:
+  - Steps must declare artifact dependencies via `artifacts.requires/provides` and must not mix `artifact:*` directly in `requires/provides`:
+    - `packages/mapgen-core/src/authoring/step/contract.ts` (`defineStep`)
+- Runtime gating is fail-fast:
+  - Unknown dependency tags are hard errors when steps are registered (`StepRegistry.register`) and also validated at execution time:
+    - `packages/mapgen-core/src/engine/StepRegistry.ts`
+    - `packages/mapgen-core/src/engine/tags.ts`
 - Conceptual clarification (buffers vs artifacts vs fields) is documented:
   - `docs/system/libs/mapgen/architecture.md` (“Pipeline state kinds”)
 
@@ -111,6 +129,14 @@ Working set docs that already match the target mental model well:
 - `docs/system/libs/mapgen/architecture.md`
 - `docs/system/libs/mapgen/hydrology-api.md`
 - `docs/system/libs/mapgen/realism-knobs-and-presets.md`
+
+Import policy (DX-critical; must be explicit in canonical docs/examples):
+- Prefer published entrypoints:
+  - SDK: `@swooper/mapgen-core` and its subpath exports (`@swooper/mapgen-core/authoring`, `@swooper/mapgen-core/engine`, `@swooper/mapgen-core/trace`).
+- Treat `@mapgen/*` as **internal-only**:
+  - In `packages/mapgen-core`, `@mapgen/*` is a TS path alias for the package’s own `src/*` (`packages/mapgen-core/tsconfig.paths.json`).
+  - In `mods/mod-swooper-maps`, `@mapgen/domain/*` is a TS path alias for the mod’s own `src/domain/*` (`mods/mod-swooper-maps/tsconfig.json`).
+  - Do not use `@mapgen/*` in docs intended for external readers unless you also explain *which workspace/package defines that alias*.
 
 Docs that need explicit reconciliation (high risk of drift):
 - `docs/projects/mapgen-studio/resources/seams/SEAM-RECIPES-ARTIFACTS.md` (references deleted `packages/browser-recipes`)

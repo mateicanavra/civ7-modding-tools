@@ -104,11 +104,11 @@
 - 🟡 `docs/projects/mapgen-studio/VIZ-SDK-V1.md` — salvageable, but must match current `packages/mapgen-viz` and Studio.
 - 🟡 `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md` — salvageable intent; verify against actual produced layers.
 - ✅ `docs/projects/mapgen-studio/BROWSER-ADAPTER.md` — browser adapter capability spec; aligns with current worker posture (`createMockAdapter`) and standard recipe “engine-coupled” boundaries.
-- 🟡 `docs/projects/mapgen-studio/BROWSER-RUNNER-V0.1.md` — reconcile with current worker/protocol and recipe artifacts.
+- 🟡 `docs/projects/mapgen-studio/BROWSER-RUNNER-V0.1.md` — valuable design intent, but does not match current implemented protocol/cancel semantics; treat as proposal unless rewritten as “how it works today”.
 - 🟡 `docs/projects/mapgen-studio/resources/seams/SEAM-RECIPES-ARTIFACTS.md` — contains useful patterns, but references deleted `packages/browser-recipes`.
 - 🟡 `docs/projects/mapgen-studio/resources/seams/SEAM-CONFIG-OVERRIDES.md`
 - 🟡 `docs/projects/mapgen-studio/resources/seams/SEAM-VIZ-DECKGL.md`
-- 🟡 `docs/projects/mapgen-studio/resources/seams/SEAM-BROWSER-RUNNER.md`
+- 🟡 `docs/projects/mapgen-studio/resources/seams/SEAM-BROWSER-RUNNER.md` — some assertions about cancel/worker behavior are now outdated; treat as “agent notes” unless rewritten.
 - 🟡 `docs/projects/mapgen-studio/resources/seams/SEAM-DUMP-VIEWER.md`
 - 🟡 `docs/projects/mapgen-studio/resources/seams/SEAM-APP-SHELL.md`
 - 🟡 `docs/projects/mapgen-studio/resources/SPIKE-mapgen-studio-arch.md` — exploration/history.

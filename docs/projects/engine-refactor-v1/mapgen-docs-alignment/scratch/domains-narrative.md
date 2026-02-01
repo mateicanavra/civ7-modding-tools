@@ -29,5 +29,28 @@
 - Standard recipe reference point: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
 
 ## Notes
-- **Observed gap:** the *standard recipe* does **not** currently include `narrativeDomain` in `collectCompileOps(...)`, and there are no `artifact:narrative.*` contracts in `mods/mod-swooper-maps/src/recipes/standard/stages/**` (at least by direct `defineArtifact({ id: "artifact:narrative..." })` scan).
-- Hypothesis: narrative is either (a) currently unused by the standard recipe, (b) integrated indirectly (not via the op system), or (c) planned/target-doc-only (needs doc alignment either way).
+- **Observed gap (confirmed in code):**
+  - The standard recipe does **not** import or register narrative ops:
+    - `mods/mod-swooper-maps/src/recipes/standard/recipe.ts` `collectCompileOps(...)` includes `foundation/morphology/hydrology/ecology/placement` only.
+  - There is no narrative stage under `mods/mod-swooper-maps/src/recipes/standard/stages/**`:
+    - `find .../stages -iname '*narrative*'` returns no results.
+  - There are no `artifact:narrative.*` artifact contracts in the standard recipe stages:
+    - `rg -n "artifact:narrative" mods/mod-swooper-maps/src/recipes/standard/stages` returns no results.
+- There is a “storyEnabled” runtime flag in standard runtime state:
+  - `mods/mod-swooper-maps/src/recipes/standard/runtime.ts`
+  - This looks like a future integration seam (or a legacy compat seam), but it is not currently backed by a narrative pipeline stage.
+
+## What docs should say today (to avoid misleading readers)
+
+- Treat Narrative as **target-canonical but currently not wired into the standard recipe pipeline**.
+- In canonical docs:
+  - Keep the target model (`docs/system/libs/mapgen/narrative.md` + ADR-ER1-008/025) as authority for “what Narrative is”.
+  - Add an explicit “current integration status” section that says: “not in standard recipe yet” and points to the intended insertion point (to be decided).
+
+## Doc/spec sources (authority)
+
+- Narrative conceptual doc: `docs/system/libs/mapgen/narrative.md`
+- Narrative/playability contract (locked): ADR-ER1-008:
+  - `docs/projects/engine-refactor-v1/resources/spec/adr/adr-er1-008-narrative-playability-contract-is-story-entry-artifacts-by-motif-views-derived-no-storytags-no-narrative-globals.md`
+- Overlays are non-canonical derived debug views: ADR-ER1-025:
+  - `docs/projects/engine-refactor-v1/resources/spec/adr/adr-er1-025-ctx-overlays-remains-a-non-canonical-derived-debug-view-story-entry-artifacts-are-canonical.md`
