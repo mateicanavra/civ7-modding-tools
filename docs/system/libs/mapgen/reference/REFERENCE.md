@@ -18,20 +18,20 @@ Reference pages define contracts precisely (APIs, schemas, invariants, and key v
 
 ## Contract references
 
-Planned canonical references (built in later slices):
+Core contract references (implemented in Slice 02):
 
-- Glossary (terms + ID prefixes)
-- Run boundary (target `RunSettings`, current mapping to `Env`)
-- Recipe schema (RecipeV2)
-- Stage/step authoring contract
-- Config compilation vs plan compilation
-- Tags and registries
-- Artifacts (and mutation posture)
-- Ops module contract
-- Observability (run IDs, tracing, reproducibility)
-- Visualization (deck.gl posture + routing)
-- Adapter capabilities
-- Studio integration seam
-- Standard recipe contract
-- Domain contracts (Foundation/Morphology/Hydrology/Ecology/Placement/Narrative)
+- Glossary: `docs/system/libs/mapgen/reference/GLOSSARY.md`
+- Run settings (target) / env (current): `docs/system/libs/mapgen/reference/RUN-SETTINGS.md`
+- Recipe schema (RecipeV2): `docs/system/libs/mapgen/reference/RECIPE-SCHEMA.md`
+- Stage and step authoring: `docs/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md`
+- Config compilation: `docs/system/libs/mapgen/reference/CONFIG-COMPILATION.md`
+- Plan compilation: `docs/system/libs/mapgen/reference/PLAN-COMPILATION.md`
+- Tags and registries: `docs/system/libs/mapgen/reference/TAGS.md`
+- Artifacts: `docs/system/libs/mapgen/reference/ARTIFACTS.md`
+- Ops module contract: `docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`
+- Observability: `docs/system/libs/mapgen/reference/OBSERVABILITY.md`
 
+Additional reference pages are added in later slices:
+- Visualization (routing + migration): Slice 03B
+- Standard recipe and domains: Slice 03–04
+- Studio integration seam: Slice 09
