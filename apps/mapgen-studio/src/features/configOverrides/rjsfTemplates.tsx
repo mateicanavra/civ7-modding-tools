@@ -142,11 +142,16 @@ export function BrowserConfigArrayFieldTemplate(
           </button>
         ) : null}
       </div>
-      {items.map((item, index) => (
-        <div key={item.key ?? index} className="bc-arrayItem">
-          {item}
-        </div>
-      ))}
+      {items.map((item, index) => {
+        // RJSF v6 types this as ReactElement[], but some templates/versions
+        // pass an "item" object that wraps the actual element in `.children`.
+        const content = (item as any)?.children ?? (item as any)?.props?.children ?? item;
+        return (
+          <div key={item.key ?? index} className="bc-arrayItem">
+            {content}
+          </div>
+        );
+      })}
     </div>
   );
 }
