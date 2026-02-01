@@ -19,13 +19,16 @@ Explanation pages should link down to reference/policies — not the other way a
 
 ## Explanation topics
 
+Canonical explanation pages:
+
+- System architecture + ownership boundaries: `docs/system/libs/mapgen/explanation/ARCHITECTURE.md`
+- Pipeline model (mental model): `docs/system/libs/mapgen/explanation/PIPELINE-MODEL.md`
+- Truth vs projection (rationale): `docs/system/libs/mapgen/explanation/TRUTH-VS-PROJECTION.md`
+- Pipeline compilation (why split compile phases): `docs/system/libs/mapgen/explanation/PIPELINE-COMPILATION.md`
+- Domain modeling + boundaries: `docs/system/libs/mapgen/explanation/DOMAIN-MODELING.md`
+- Determinism + reproducibility: `docs/system/libs/mapgen/explanation/DETERMINISM.md`
+
 Planned canonical explanation pages (built in later slices):
-
-- System architecture + ownership boundaries
-- Pipeline model (truth vs projection)
-- Why config compilation is separate from plan compilation
-- Determinism + reproducibility
-- Mutation model (artifacts vs fields/buffers)
-- Narrative status (target contract + current wiring status)
-- Studio as a reference consumer (not architecture authority)
-
+- Mutation model (artifacts vs fields/buffers) — if needed beyond policy/reference
+- Narrative status (target contract + current wiring status) — if this warrants its own page
+- Studio as a reference consumer (not architecture authority) — may be folded into Studio docs
