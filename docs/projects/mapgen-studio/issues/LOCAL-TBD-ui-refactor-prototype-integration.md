@@ -325,7 +325,7 @@ This is the “pivot”: the prototype packet becomes the real Studio UI (layout
 
 **Verification**
 ```bash
-bun run --cwd apps/mapgen-studio build
+bunx turbo run build --filter=mapgen-studio
 bun run lint
 bun run check-types
 bun run test
@@ -341,7 +341,7 @@ This is cleanup-only (no behavior changes): treat the hoisted UI as the app, del
 
 **Verification**
 ```bash
-bun run --cwd apps/mapgen-studio build
+bunx turbo run build --filter=mapgen-studio
 bun run check-types
 ```
 
@@ -362,7 +362,7 @@ These are incremental UX improvements on top of the hoisted UI. Each item should
 
 **Verification**
 ```bash
-bun run --cwd apps/mapgen-studio build
+bunx turbo run build --filter=mapgen-studio
 bun run lint
 bun run check-types
 bun run test
@@ -376,7 +376,7 @@ bun run test
 
 **Verification**
 ```bash
-bun run --cwd apps/mapgen-studio build
+bunx turbo run build --filter=mapgen-studio
 bun run lint
 bun run check-types
 bun run test
@@ -393,7 +393,7 @@ bun run test
 
 **Verification**
 ```bash
-bun run --cwd apps/mapgen-studio build
+bunx turbo run build --filter=mapgen-studio
 bun run lint
 bun run check-types
 bun run test
@@ -407,7 +407,7 @@ bun run test
 
 **Verification**
 ```bash
-bun run --cwd apps/mapgen-studio build
+bunx turbo run build --filter=mapgen-studio
 bun run lint
 bun run check-types
 bun run test
@@ -423,7 +423,7 @@ bun run test
 
 **Verification**
 ```bash
-bun run --cwd apps/mapgen-studio build
+bunx turbo run build --filter=mapgen-studio
 bun run lint
 bun run check-types
 bun run test
@@ -438,7 +438,7 @@ bun run test
 
 **Verification**
 ```bash
-bun run --cwd apps/mapgen-studio build
+bunx turbo run build --filter=mapgen-studio
 bun run lint
 bun run check-types
 bun run test
@@ -451,7 +451,7 @@ bun run test
 
 **Verification**
 ```bash
-bun run --cwd apps/mapgen-studio build
+bunx turbo run build --filter=mapgen-studio
 bun run lint
 bun run check-types
 bun run test

@@ -86,7 +86,7 @@ Source: https://bun.com/docs/runtime/env
   - `bun run test:ci`
   - `bun run lint`
   - `bun run build`
-  - `bun run --cwd apps/mapgen-studio build`
+  - `bunx turbo run build --filter=mapgen-studio`
 
 ### Phase 1 — Toolchain pins (Bun + Node)
 
@@ -128,7 +128,7 @@ Source: https://bun.com/docs/runtime/env
 - Ensure Bun does not auto-load `.env` files for this repo (use `env = false` in `bunfig.toml`).
 - Validate:
   - `bun run test:ci` (Vitest 4)
-  - `bun run --cwd apps/mapgen-studio dev` smoke (manual) and `build`
+  - `bun run dev:mapgen-studio` smoke (manual) and `bunx turbo run build --filter=mapgen-studio`
 
 **Decision:** Disable Bun `.env` auto-loading globally for this repo.
 
@@ -153,7 +153,7 @@ Do not begin until Phases 1–4 are green (otherwise docs drift is guaranteed).
   - `bun run build`
   - `bun run lint`
 - App sanity:
-  - `bun run --cwd apps/mapgen-studio build`
-  - manual `bun run --cwd apps/mapgen-studio dev` and confirm it loads
+  - `bunx turbo run build --filter=mapgen-studio`
+  - manual `bun run dev:mapgen-studio` and confirm it loads
 - CI:
   - CI green on `main` with upgraded Bun + Node + lockfile

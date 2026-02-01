@@ -42,7 +42,7 @@ Constraints:
 ## Non-negotiables (“don’t break these”)
 
 ### Build / bundling
-- `bun run --cwd apps/mapgen-studio build` stays green after every slice (includes worker bundle checks).
+- `bunx turbo run build --filter=mapgen-studio` stays green after every slice (includes worker bundle checks).
 - Worker-side code (`apps/mapgen-studio/src/browser-runner/*`) must remain browser-safe (no Node-only imports).
 - No import cycles across `src/app`, `src/features`, `src/shared`, `src/browser-runner`.
 
@@ -77,13 +77,13 @@ For each slice in `APP-TSX-REFACTOR-EXECUTION.md`:
 Suggested commands (adapt to your workflow):
 - `gt ls`
 - `gt create -am "refactor(mapgen-studio): RFX-01 config overrides extraction" rfx-01-config-overrides`
-- `bun run --cwd apps/mapgen-studio build`
-- `bun run --cwd apps/mapgen-studio dev` (manual smoke per slice checklist)
+- `bunx turbo run build --filter=mapgen-studio`
+- `bun run dev:mapgen-studio` (manual smoke per slice checklist)
 
 ### Definition of done
 - `App.tsx` shrinks to composition/orchestration (target ~250–450 LOC).
 - Seams extracted to the target feature layout (`src/features/*`, `src/app/*`, `src/shared/*`) as defined by the execution doc.
-- Every slice meets its acceptance criteria and passes `bun run --cwd apps/mapgen-studio build`.
+- Every slice meets its acceptance criteria and passes `bunx turbo run build --filter=mapgen-studio`.
 
 ---
 
@@ -92,4 +92,3 @@ Suggested commands (adapt to your workflow):
 - Do not “fix” recipe typing in protocol as part of this refactor (direction exists, but it is out of scope unless explicitly required by moves).
 - Do not introduce a router/global store unless the execution doc says to.
 - Keep refactor “move-only” unless you find a real behavior bug; if you do, isolate the fix into the smallest possible commit and call it out in the PR description.
-

@@ -164,7 +164,7 @@ Acceptance:
 
 V0 local entrypoint (current intent):
 - Produce foundation dump: `bun run --cwd mods/mod-swooper-maps viz:foundation`
-- Open MapGen Studio: `bun run --cwd apps/mapgen-studio dev` then “Open dump folder” and select `mods/mod-swooper-maps/dist/visualization/<runId>`
+- Open MapGen Studio: `bun run dev:mapgen-studio` then “Open dump folder” and select `mods/mod-swooper-maps/dist/visualization/<runId>`
 
 ## Acceptance Criteria (V0)
 
@@ -179,8 +179,8 @@ Producer:
 - If adding a dedicated dump test, keep it small and deterministic (tiny grid dims, fixed seed).
 
 Viewer:
-- Dev run: `bun run --cwd apps/mapgen-studio dev`
-- Build check: `bun run --cwd apps/mapgen-studio build`
+- Dev run: `bun run dev:mapgen-studio`
+- Build check: `bunx turbo run build --filter=mapgen-studio`
 
 ## Out of Scope / Defer
 

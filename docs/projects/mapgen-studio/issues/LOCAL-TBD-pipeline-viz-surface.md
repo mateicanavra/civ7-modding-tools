@@ -32,7 +32,7 @@ related_to: []
 - React best practices applied to avoid unnecessary effects and derived state pitfalls.
 
 ## Testing / Verification
-- `bun run --cwd apps/mapgen-studio build`
+- `bunx turbo run build --filter=mapgen-studio`
 - `bun run lint`
 - `bun run test`
 - `bun run deploy` (or documented deploy alternative if missing)
@@ -98,48 +98,48 @@ related_to: []
 
 ### Verification Log
 - `bun run --cwd packages/mapgen-core build` (required for downstream builds).
-- `bun run --cwd apps/mapgen-studio build` (worker bundle check passed; Vite emitted a `spawn` warning from loaders.gl).
+- `bunx turbo run build --filter=mapgen-studio` (worker bundle check passed; Vite emitted a `spawn` warning from loaders.gl).
 - `bun run lint`
 - `bun run test`
 - `bun run deploy` (missing script in repo; no-op)
-- `timeout 5 bun run --cwd apps/mapgen-studio dev` (Vite started; manual browser smoke still required)
+- `timeout 15 bun run dev:mapgen-studio` (Vite started; manual browser smoke still required)
 
 **PV-02 Hydrology**
-- `bun run --cwd apps/mapgen-studio build` (worker bundle check passed; Vite emitted `spawn` warning from loaders.gl)
+- `bunx turbo run build --filter=mapgen-studio` (worker bundle check passed; Vite emitted `spawn` warning from loaders.gl)
 - `bun run lint`
 - `bun run test`
 - `bun run deploy` (missing script in repo)
-- `timeout 5 bun run --cwd apps/mapgen-studio dev` (Vite started; manual browser smoke still required)
+- `timeout 15 bun run dev:mapgen-studio` (Vite started; manual browser smoke still required)
 
 **PV-03 Ecology**
-- `bun run --cwd apps/mapgen-studio build` (worker bundle check passed; Vite emitted `spawn` warning from loaders.gl)
+- `bunx turbo run build --filter=mapgen-studio` (worker bundle check passed; Vite emitted `spawn` warning from loaders.gl)
 - `bun run lint`
 - `bun run test`
 - `bun run deploy` (missing script in repo)
-- `timeout 5 bun run --cwd apps/mapgen-studio dev` (Vite started; manual browser smoke still required)
+- `timeout 15 bun run dev:mapgen-studio` (Vite started; manual browser smoke still required)
 
 **PV-04 Gameplay**
-- `bun run --cwd apps/mapgen-studio build` (worker bundle check passed; Vite emitted `spawn` warning from loaders.gl)
+- `bunx turbo run build --filter=mapgen-studio` (worker bundle check passed; Vite emitted `spawn` warning from loaders.gl)
 - `bun run lint`
 - `bun run test`
 - `bun run deploy` (missing script in repo)
-- `timeout 5 bun run --cwd apps/mapgen-studio dev` (Vite started; manual browser smoke still required)
+- `timeout 15 bun run dev:mapgen-studio` (Vite started; manual browser smoke still required)
 
 **PV-05 React/UX**
-- `bun run --cwd apps/mapgen-studio build` (worker bundle check passed; Vite emitted `spawn` warning from loaders.gl)
+- `bunx turbo run build --filter=mapgen-studio` (worker bundle check passed; Vite emitted `spawn` warning from loaders.gl)
 - `bun run lint`
 - `bun run test`
 - `bun run deploy` (missing script in repo)
-- `timeout 5 bun run --cwd apps/mapgen-studio dev` (Vite started; manual browser smoke still required)
+- `timeout 15 bun run dev:mapgen-studio` (Vite started; manual browser smoke still required)
 
 **PV-06 Tests/Docs**
 - Added real-path viz emission test via standard recipe run (captures emitted layer IDs).
 - Shared standard recipe test config moved to `mods/mod-swooper-maps/test/support/standard-config.ts`.
-- `bun run --cwd apps/mapgen-studio build` (worker bundle check passed; Vite emitted `spawn` warning from loaders.gl)
+- `bunx turbo run build --filter=mapgen-studio` (worker bundle check passed; Vite emitted `spawn` warning from loaders.gl)
 - `bun run lint`
 - `bun run test` (includes new `viz-emissions` test)
 - `bun run deploy` (missing script in repo)
-- `timeout 5 bun run --cwd apps/mapgen-studio dev` (Vite started; manual browser smoke still required)
+- `timeout 15 bun run dev:mapgen-studio` (Vite started; manual browser smoke still required)
 
 ### Research Findings
 - Existing viz layers only in `foundation` steps; all other stages currently emit no viz.

@@ -346,4 +346,4 @@ Recommended rules:
   - Force a config override error and confirm the UI formats `{name,message,details,stack}` as today.
   - Confirm `worker.onerror` surfaces filename/line when available.
 - **Bundling**
-  - Run `bun run --cwd apps/mapgen-studio build` and ensure `check-worker-bundle` passes.
+  - Run `bunx turbo run build --filter=mapgen-studio` and ensure `check-worker-bundle` passes.

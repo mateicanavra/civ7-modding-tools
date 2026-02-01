@@ -125,7 +125,7 @@ In Railway service settings, set **Config as Code File** to the absolute path:
       "tsconfig.json",
       "tsconfig.plugins.json"
     ],
-    "buildCommand": "bun run build --filter=mapgen-studio"
+    "buildCommand": "bunx turbo run build --filter=mapgen-studio"
   },
   "deploy": {
     "startCommand": "cd apps/mapgen-studio && caddy run --config Caddyfile --adapter caddyfile",
@@ -153,13 +153,13 @@ If you set Railway **Root Directory** to `apps/mapgen-studio`, Bun workspaces wi
 1. **Local test first:**
    ```bash
    bun install
-   bun run --cwd apps/mapgen-studio dev
+   bun run dev:mapgen-studio
    # Open http://localhost:5173 - should see "MapGen Studio" page
    ```
 
 2. **Build test:**
    ```bash
-   bun run build --filter=mapgen-studio
+   bunx turbo run build --filter=mapgen-studio
    # Should create apps/mapgen-studio/dist/ with index.html and assets
    ```
 
@@ -184,7 +184,7 @@ A page showing:
 ## Troubleshooting
 
 ### Build fails with "tsc not found"
-The `typescript` is a devDependency. Make sure `bun install` runs before `bun run build --filter=mapgen-studio`.
+The `typescript` is a devDependency. Make sure `bun install` runs before `bunx turbo run build --filter=mapgen-studio`.
 
 ### 502 Bad Gateway
 Railpack might not be detecting the Caddyfile. Try:
@@ -232,10 +232,10 @@ EOF
 bun install
 
 # 3. Test locally
-bun run --cwd apps/mapgen-studio dev
+bun run dev:mapgen-studio
 
 # 4. Test build
-bun run build --filter=mapgen-studio
+bunx turbo run build --filter=mapgen-studio
 
 # 5. If using Railway CLI:
 railway login --browserless
