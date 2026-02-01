@@ -19,7 +19,8 @@ related_to: []
 - Studio’s runtime/viz is already **step-contract-level** (step ids are full ids like `mod-swooper-maps.standard.foundation.mesh`).
 - “Layers as data types” vs “projections as render modes” is a real mismatch with Studio today: the current viz stream treats **(layerId × kind × fileKey)** as the selectable unit.
 - Prototype “World Settings” includes `playerCount` + `resources` strategy, while Studio today derives player counts from Civ7 `MapInfo` (via map size id) and always calls `adapter.generateResources(...)` with no mode.
-- Integration should be staged as: (1) introduce a shared “pipeline address” model (recipe/stage/step), (2) add a “dataType + renderMode” view model over existing viz layers, (3) drop in the prototype UI, (4) wire it to the real runner/viz/config, then delete legacy UI.
+- Stage/step ↔ config focus must be derived from the **authored recipe/stage source** (e.g. `createStage({ public, compile })` mappings), not from heuristics.
+- Integration should be staged as: (1) generate “recipe UI meta” from recipe source into `*-artifacts`, (2) introduce a shared “pipeline address” model (recipe/stage/step), (3) add a “dataType + renderMode” view model over existing viz layers, (4) drop in the prototype UI, (5) wire it to the real runner/viz/config, then delete legacy UI.
 
 ## Prototype packet location
 - `apps/mapgen-studio/src/DELETE-WHEN-DONE/mapgen-studio-prototype-magic-patterns`
@@ -99,31 +100,52 @@ We cannot rely on naïve heuristics like `config[stageId].advanced[stepId]` beca
 
 The meta is derived from the authored recipe/stage definitions at build time (safe for Studio; does not touch pipeline runtime behavior).
 
+### Concrete derivation algorithm (build-time; no pipeline changes)
+We can (and should) derive mapping from the same authoring surfaces the pipeline uses:
+- `createStage(...)` attaches `surfaceSchema` and wraps `compile(...)` via `toInternal(...)` (see `packages/mapgen-core/src/authoring/stage.ts`).
+- Stages without `public` already expose step ids directly in their surface config keys (internal-as-public surface).
+- Stages with `public + compile` may rename keys (camelCase → kebab-case, grouping under `advanced`, etc.).
+
+For each stage contract:
+1) Collect `stageId` and ordered `stepContractIds` from `stage.steps[].contract.id`.
+2) Derive `stepId → authoredConfigPathWithinStage`:
+   - **Case A (no `public`)**: surface keys are step ids → `pathWithinStage = [stepId]`.
+   - **Case B (`public` has `advanced.{<stepId>: ...}`)**: detect `advanced` with properties matching step ids → `pathWithinStage = ["advanced", stepId]`.
+   - **Case C (`public` uses non-step-id keys and `compile` maps them)**: invert the mapping by calling `stage.toInternal({ env: {}, stageConfig: { knobs: {}, ...sentinels } })` where each authored public key gets a unique sentinel value; then map each `rawSteps[stepId]` back to the authored key whose sentinel was forwarded.
+
+If none of the cases can produce a one-to-one mapping for all `stepContractIds`, the generator should fail with a clear error and require an explicit per-stage override map in the recipe module (this keeps behavior correct and avoids “helpful” heuristics).
+
 ## Integration plan (high-level, Graphite branch map)
 1) **UI-00 (docs):** lock down definitions + open questions
    - Add/update this issue doc; link to prototype packet; record mapping assumptions.
-2) **UI-01 (model):** introduce shared “pipeline address” parsing
+2) **UI-01 (artifacts meta):** generate “Studio recipe UI meta”
+   - Extend `mods/mod-swooper-maps/scripts/generate-studio-recipe-types.ts` to emit `*-artifacts` exports that include:
+     - stage order (from `recipe.stages`)
+     - steps per stage (from `stage.steps`)
+     - per-step `configFocusPath` (from the derivation algorithm above)
+   - Update `apps/mapgen-studio/src/recipes/catalog.ts` `RecipeArtifacts` to include this meta.
+3) **UI-02 (model):** introduce shared “pipeline address” parsing
    - Add a small utility to parse full step ids into `{ recipeKey, stageId, stepContractId }`.
    - Expose stage+step groupings in the viz selectors (no UI overhaul yet).
-3) **UI-02 (view model):** introduce `dataType` + `renderMode` selector model over current `VizManifestV0`
+4) **UI-03 (view model):** introduce `dataType` + `renderMode` selector model over current `VizManifestV0`
    - Derive:
      - available stages
      - available steps (grouped)
      - available data types (grouped by `layerId`)
      - available render modes (derived from underlying entries)
    - Keep `VizManifestV0` as-is initially; this is a pure adapter layer.
-4) **UI-03 (UI shell):** land the prototype layout (header/left/right/footer) behind a feature flag or parallel route
+5) **UI-04 (UI shell):** land the prototype layout (header/left/right/footer) behind a feature flag or parallel route
    - Keep it fully controlled; wire to existing store/hook state.
    - Swap `DeckCanvas` in as the visualization background.
-5) **UI-04 (wiring):** connect real data + run controls
+6) **UI-05 (wiring):** connect real data + run controls
    - Recipe selection + seed + map size → existing browser runner inputs.
    - Pipeline config editing → existing `recipeArtifacts.configSchema` + default config + overrides patching.
    - Stage selector → derived from recipe schema/compiled config keys.
    - “Step” selector → resolved per decision (A/B/C).
    - Data type + render mode → derived from viz manifest adapter.
-6) **UI-05 (delete legacy):** remove old `AppHeader`-driven UI and any obsolete state
+7) **UI-06 (delete legacy):** remove old `AppHeader`-driven UI and any obsolete state
    - Keep dumps replay working.
-7) **UI-06 (polish + docs):** update docs + tests
+8) **UI-07 (polish + docs):** update docs + tests
    - Update `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md` only if IDs/groups change.
    - Add a minimal unit test for stepId parsing + dataType/renderMode derivation (vitest).
 
