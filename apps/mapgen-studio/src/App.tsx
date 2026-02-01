@@ -638,7 +638,8 @@ function AppContent(props: AppContentProps) {
       const isMod = event.metaKey || event.ctrlKey;
 
       // Allow modifier-based app shortcuts even while typing; ignore bare keys in inputs.
-      if (isEditableTarget(event.target) && !isMod) return;
+      // Note: we also allow Opt/Alt-based shortcuts in inputs (for layer navigation) by request.
+      if (isEditableTarget(event.target) && !isMod && !event.altKey) return;
 
       // Run / re-roll
       if (isMod && event.key === "Enter") {
