@@ -20,16 +20,24 @@ import { initializeTerrainConstants } from "@mapgen/core/terrain-constants.js";
 import type { TraceScope } from "@mapgen/trace/index.js";
 import { createNoopTraceScope } from "@mapgen/trace/index.js";
 import type {
-  VizLayerKind,
-  VizLayerVisibility,
-  VizPaletteMode,
+  VizDataTypeKey,
+  VizDims,
+  VizLayerMeta,
   VizScalarFormat,
   VizSpaceId,
+  VizScalarStats,
+  VizVariantKey,
   VizValueSpec,
 } from "@swooper/mapgen-viz";
 
 export type {
+  Bounds,
+  VizBinaryRef,
+  VizDataTypeKey,
+  VizDims,
   VizLayerKind,
+  VizLayerKey,
+  VizLayerMeta,
   VizLayerVisibility,
   VizPaletteMode,
   VizScalarFormat,
@@ -40,6 +48,11 @@ export type {
   VizNoDataSpec,
   VizValueDomain,
   VizValueTransform,
+  VizVariantKey,
+  VizLayerCategory,
+  VizLayerEmissionV1,
+  VizLayerEntryV1,
+  VizManifestV1,
 } from "@swooper/mapgen-viz";
 
 // ============================================================================
@@ -180,44 +193,6 @@ export interface GenerationMetrics {
   warnings: string[];
 }
 
-export type VizCoordinateSpace = "world" | "tile";
-
-export type VizLayerCategory = {
-  value: number | string;
-  label: string;
-  color: [number, number, number, number];
-};
-
-export type VizLayerMeta = {
-  label?: string;
-  group?: string;
-  description?: string;
-  visibility?: VizLayerVisibility;
-  /**
-   * Optional semantic hint for Studio overlays/tooling. This is intended to be a
-   * small, stable vocabulary (e.g. "edgeOverlay") rather than a recipe-step name.
-   */
-  role?: string;
-  categories?: VizLayerCategory[];
-  palette?: VizPaletteMode;
-  /**
-   * Stable coordinate space identifier used by visualization tooling.
-   *
-   * Prefer this over `space` for v1+, but keep `space` for legacy compatibility.
-   */
-  spaceId?: VizSpaceId;
-  /**
-   * Legacy coordinate hint (v0). Prefer `spaceId`.
-   */
-  space?: VizCoordinateSpace;
-  /**
-   * Optional value semantics for continuous/categorical rendering.
-   * When omitted, viewer registries may supply defaults based on `layerId`.
-   */
-  valueSpec?: VizValueSpec;
-  showGrid?: boolean;
-};
-
 export interface VizDumper {
   /**
    * Base directory for run dumps. The concrete run directory is typically
@@ -228,45 +203,51 @@ export interface VizDumper {
    */
   outputRoot: string;
 
-  dumpGrid: (
-    trace: TraceScope,
-    layer: {
-      layerId: string;
-      dims: { width: number; height: number };
-      format: VizScalarFormat;
-      values: ArrayBufferView;
-      meta?: VizLayerMeta;
-      /**
-       * Optional stable suffix to keep filenames unique within a run.
-       * Does not affect `layerId` (which should remain stable).
-       */
-      fileKey?: string;
-    }
-  ) => void;
+  dumpGrid: (trace: TraceScope, layer: {
+    dataTypeKey: VizDataTypeKey;
+    variantKey?: VizVariantKey;
+    spaceId: VizSpaceId;
+    dims: VizDims;
+    format: VizScalarFormat;
+    values: ArrayBufferView;
+    stats?: VizScalarStats;
+    valueSpec?: VizValueSpec;
+    meta?: VizLayerMeta;
+  }) => void;
 
-  dumpPoints: (
-    trace: TraceScope,
-    layer: {
-      layerId: string;
-      positions: Float32Array; // [x0,y0,x1,y1,...]
-      values?: ArrayBufferView;
-      valueFormat?: VizScalarFormat;
-      meta?: VizLayerMeta;
-      fileKey?: string;
-    }
-  ) => void;
+  dumpPoints: (trace: TraceScope, layer: {
+    dataTypeKey: VizDataTypeKey;
+    variantKey?: VizVariantKey;
+    spaceId: VizSpaceId;
+    positions: Float32Array; // [x0,y0,x1,y1,...]
+    values?: ArrayBufferView;
+    valueFormat?: VizScalarFormat;
+    valueStats?: VizScalarStats;
+    valueSpec?: VizValueSpec;
+    meta?: VizLayerMeta;
+  }) => void;
 
-  dumpSegments: (
-    trace: TraceScope,
-    layer: {
-      layerId: string;
-      segments: Float32Array; // [x0,y0,x1,y1,...] pairs per segment
-      values?: ArrayBufferView;
-      valueFormat?: VizScalarFormat;
-      meta?: VizLayerMeta;
-      fileKey?: string;
-    }
-  ) => void;
+  dumpSegments: (trace: TraceScope, layer: {
+    dataTypeKey: VizDataTypeKey;
+    variantKey?: VizVariantKey;
+    spaceId: VizSpaceId;
+    segments: Float32Array; // [x0,y0,x1,y1,...] pairs per segment
+    values?: ArrayBufferView;
+    valueFormat?: VizScalarFormat;
+    valueStats?: VizScalarStats;
+    valueSpec?: VizValueSpec;
+    meta?: VizLayerMeta;
+  }) => void;
+
+  dumpGridFields: (trace: TraceScope, layer: {
+    dataTypeKey: VizDataTypeKey;
+    variantKey?: VizVariantKey;
+    spaceId: VizSpaceId;
+    dims: VizDims;
+    fields: Record<string, { format: VizScalarFormat; values: ArrayBufferView; stats?: VizScalarStats; valueSpec?: VizValueSpec }>;
+    vector?: { u: string; v: string; magnitude?: string };
+    meta?: VizLayerMeta;
+  }) => void;
 }
 
 // ============================================================================

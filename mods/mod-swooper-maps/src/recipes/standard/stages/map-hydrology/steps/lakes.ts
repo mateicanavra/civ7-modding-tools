@@ -6,6 +6,7 @@ import { HYDROLOGY_LAKEINESS_TILES_PER_LAKE_MULTIPLIER } from "@mapgen/domain/hy
 import type { HydrologyLakeinessKnob } from "@mapgen/domain/hydrology/shared/knobs.js";
 
 const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Projection)";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(LakesStepContract, {
   normalize: (config, ctx) => {
@@ -27,7 +28,8 @@ export default createStep(LakesStepContract, {
 
     // Projection-only visualization; engine lakes may differ from hydrology sink/outlet masks.
     context.viz?.dumpGrid(context.trace, {
-      layerId: "map.hydrology.lakes.sinkMask",
+      dataTypeKey: "map.hydrology.lakes.sinkMask",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: hydrography.sinkMask,
@@ -38,7 +40,8 @@ export default createStep(LakesStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "map.hydrology.lakes.outletMask",
+      dataTypeKey: "map.hydrology.lakes.outletMask",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: hydrography.outletMask,

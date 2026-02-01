@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import type { VizManifestV0 } from "../viz/model";
+import type { VizManifestV1 } from "../viz/model";
 import { formatErrorForUi } from "../../shared/errorFormat";
 import { buildDumpFileIndexFromDirectoryFiles, buildDumpFileIndexFromFileList } from "./fileIndex";
 import { loadDumpManifest } from "./manifest";
@@ -9,7 +9,7 @@ import { createDumpReader, type DumpReader } from "./reader";
 export type DumpLoadState =
   | { status: "idle" }
   | { status: "loading"; source: "directoryPicker" | "fileInput" }
-  | { status: "loaded"; manifest: VizManifestV0; reader: DumpReader; warnings: string[] }
+  | { status: "loaded"; manifest: VizManifestV1; reader: DumpReader; warnings: string[] }
   | { status: "error"; message: string };
 
 export type UseDumpLoaderResult = {

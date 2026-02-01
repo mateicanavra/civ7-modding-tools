@@ -21,22 +21,7 @@ export function toVizEvent(event: BrowserRunEvent): VizEvent {
     case "viz.layer.upsert":
       return {
         type: "viz.layer.upsert",
-        layer: {
-          key: event.layer.key,
-          kind: event.layer.kind,
-          layerId: event.layer.layerId,
-          stepId: event.layer.stepId,
-          phase: event.layer.phase,
-          stepIndex: event.layer.stepIndex,
-          bounds: event.layer.bounds,
-          format: event.layer.kind === "grid" ? event.layer.format : undefined,
-          valueFormat: event.layer.kind === "grid" ? undefined : event.layer.valueFormat,
-          dims: event.layer.kind === "grid" ? event.layer.dims : undefined,
-          count: event.layer.kind === "grid" ? undefined : event.layer.count,
-          meta: event.layer.meta,
-          fileKey: event.layer.fileKey,
-        },
-        payload: event.payload,
+        layer: event.layer,
       };
     case "run.finished":
       return { type: "run.finished" };

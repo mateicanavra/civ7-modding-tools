@@ -45,14 +45,14 @@ export default createStep(PlotEffectsStepContract, {
       }
 
       context.viz?.dumpPoints(context.trace, {
-        layerId: "map.ecology.plotEffects.plotEffect",
+        dataTypeKey: "map.ecology.plotEffects.plotEffect",
+        spaceId: "tile.hexOddR",
         positions,
         values,
         valueFormat: "u16",
         meta: defineVizMeta("map.ecology.plotEffects.plotEffect", {
           label: "Plot Effects (Projected)",
           group: GROUP_MAP_ECOLOGY,
-          space: "tile",
           palette: "categorical",
         }),
       });

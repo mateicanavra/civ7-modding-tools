@@ -7,6 +7,7 @@ import { ecologyArtifacts } from "../../artifacts.js";
 import { validateBiomeClassificationArtifact } from "../../artifact-validation.js";
 
 const GROUP_BIOMES = "Ecology / Biomes";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(BiomesStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.biomeClassification], {
@@ -45,7 +46,8 @@ export default createStep(BiomesStepContract, {
     }
 
     context.viz?.dumpGrid(context.trace, {
-      layerId: "ecology.biome.vegetationDensity",
+      dataTypeKey: "ecology.biome.vegetationDensity",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: result.vegetationDensity,
@@ -55,7 +57,8 @@ export default createStep(BiomesStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "ecology.biome.effectiveMoisture",
+      dataTypeKey: "ecology.biome.effectiveMoisture",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: result.effectiveMoisture,
@@ -65,7 +68,8 @@ export default createStep(BiomesStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "ecology.biome.surfaceTemperature",
+      dataTypeKey: "ecology.biome.surfaceTemperature",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: result.surfaceTemperature,
@@ -75,7 +79,8 @@ export default createStep(BiomesStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "ecology.biome.aridityIndex",
+      dataTypeKey: "ecology.biome.aridityIndex",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: result.aridityIndex,
@@ -85,7 +90,8 @@ export default createStep(BiomesStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "ecology.biome.freezeIndex",
+      dataTypeKey: "ecology.biome.freezeIndex",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: result.freezeIndex,
@@ -95,7 +101,8 @@ export default createStep(BiomesStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "ecology.biome.groundIce01",
+      dataTypeKey: "ecology.biome.groundIce01",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: cryosphere.groundIce01,
@@ -105,7 +112,8 @@ export default createStep(BiomesStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "ecology.biome.permafrost01",
+      dataTypeKey: "ecology.biome.permafrost01",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: cryosphere.permafrost01,
@@ -115,7 +123,8 @@ export default createStep(BiomesStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "ecology.biome.meltPotential01",
+      dataTypeKey: "ecology.biome.meltPotential01",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: cryosphere.meltPotential01,
@@ -125,7 +134,8 @@ export default createStep(BiomesStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "ecology.biome.treeLine01",
+      dataTypeKey: "ecology.biome.treeLine01",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: treeLine01,

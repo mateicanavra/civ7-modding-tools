@@ -1,10 +1,10 @@
 import type { VizEvent } from "../../shared/vizEvents";
-import { getLayerKey, type VizLayerEntryV0, type VizManifestV0 } from "./model";
+import type { VizManifestV1 } from "./model";
 
-export function ingestVizEvent(prev: VizManifestV0 | null, event: VizEvent): VizManifestV0 | null {
+export function ingestVizEvent(prev: VizManifestV1 | null, event: VizEvent): VizManifestV1 | null {
   if (event.type === "run.started") {
     return {
-      version: 0,
+      version: 1,
       runId: event.runId,
       planFingerprint: event.planFingerprint,
       steps: [],
@@ -24,60 +24,10 @@ export function ingestVizEvent(prev: VizManifestV0 | null, event: VizEvent): Viz
   }
 
   if (event.type === "viz.layer.upsert") {
-    const key = event.layer.key;
-    const fileKey = event.layer.fileKey;
-    const entry: VizLayerEntryV0 =
-      event.layer.kind === "grid"
-        ? {
-            kind: "grid",
-            layerId: event.layer.layerId,
-            stepId: event.layer.stepId,
-            phase: event.layer.phase,
-            stepIndex: event.layer.stepIndex,
-            format: event.layer.format ?? "u8",
-            dims: event.layer.dims ?? { width: 1, height: 1 },
-            values: event.payload.kind === "grid" ? event.payload.values : undefined,
-            fileKey,
-            bounds: event.layer.bounds,
-            meta: event.layer.meta,
-            key,
-          }
-        : event.layer.kind === "points"
-          ? {
-              kind: "points",
-              layerId: event.layer.layerId,
-              stepId: event.layer.stepId,
-              phase: event.layer.phase,
-              stepIndex: event.layer.stepIndex,
-              count: event.layer.count ?? 0,
-              positions: event.payload.kind === "points" ? event.payload.positions : undefined,
-              values: event.payload.kind === "points" ? event.payload.values : undefined,
-              fileKey,
-              valueFormat: event.layer.valueFormat,
-              bounds: event.layer.bounds,
-              meta: event.layer.meta,
-              key,
-            }
-          : {
-              kind: "segments",
-              layerId: event.layer.layerId,
-              stepId: event.layer.stepId,
-              phase: event.layer.phase,
-              stepIndex: event.layer.stepIndex,
-              count: event.layer.count ?? 0,
-              segments: event.payload.kind === "segments" ? event.payload.segments : undefined,
-              values: event.payload.kind === "segments" ? event.payload.values : undefined,
-              fileKey,
-              valueFormat: event.layer.valueFormat,
-              bounds: event.layer.bounds,
-              meta: event.layer.meta,
-              key,
-            };
-
     const layers = [...prev.layers];
-    const idx = layers.findIndex((l) => getLayerKey(l) === key);
-    if (idx >= 0) layers[idx] = entry;
-    else layers.push(entry);
+    const idx = layers.findIndex((l) => l.layerKey === event.layer.layerKey);
+    if (idx >= 0) layers[idx] = event.layer;
+    else layers.push(event.layer);
 
     return { ...prev, layers };
   }

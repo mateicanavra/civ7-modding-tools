@@ -8,7 +8,7 @@ import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js
 import { standardConfig } from "../support/standard-config.js";
 
 describe("standard pipeline viz emissions", () => {
-  it("emits expected layer ids across stages", () => {
+  it("emits expected dataTypeKeys across stages", () => {
     const width = 32;
     const height = 20;
     const seed = 1337;
@@ -39,13 +39,16 @@ describe("standard pipeline viz emissions", () => {
     const viz: VizDumper = {
       outputRoot: "<test>",
       dumpGrid: (_trace, layer) => {
-        seenLayers.add(layer.layerId);
+        seenLayers.add(layer.dataTypeKey);
       },
       dumpPoints: (_trace, layer) => {
-        seenLayers.add(layer.layerId);
+        seenLayers.add(layer.dataTypeKey);
       },
       dumpSegments: (_trace, layer) => {
-        seenLayers.add(layer.layerId);
+        seenLayers.add(layer.dataTypeKey);
+      },
+      dumpGridFields: (_trace, layer) => {
+        seenLayers.add(layer.dataTypeKey);
       },
     };
 
@@ -67,7 +70,7 @@ describe("standard pipeline viz emissions", () => {
       "placement.landmassRegions.regionSlot",
       "placement.starts.startPosition",
     ];
-    const missing = expected.filter((layerId) => !seenLayers.has(layerId));
+    const missing = expected.filter((dataTypeKey) => !seenLayers.has(dataTypeKey));
     expect(missing).toEqual([]);
   });
 });

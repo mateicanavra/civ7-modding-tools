@@ -1,8 +1,4 @@
-import type { VizLayerMeta } from "@swooper/mapgen-core";
-
-export type Bounds = [minX: number, minY: number, maxX: number, maxY: number];
-
-export type VizScalarFormat = "u8" | "i8" | "u16" | "i16" | "i32" | "f32";
+import type { VizLayerEntryV1 } from "@swooper/mapgen-viz";
 
 export type BrowserRunStartRequest = {
   type: "run.start";
@@ -61,8 +57,7 @@ export type BrowserVizLayerUpsertEvent = {
   type: "viz.layer.upsert";
   runToken: string;
   generation: number;
-  layer: BrowserVizLayerEntry;
-  payload: BrowserVizLayerPayload;
+  layer: VizLayerEntryV1;
 };
 
 export type BrowserRunFinishedEvent = {
@@ -94,60 +89,3 @@ export type BrowserRunEvent =
   | BrowserRunFinishedEvent
   | BrowserRunCanceledEvent
   | BrowserRunErrorEvent;
-
-export type BrowserVizLayerEntry =
-  | {
-      kind: "grid";
-      layerId: string;
-      stepId: string;
-      phase?: string;
-      stepIndex: number;
-      format: VizScalarFormat;
-      /** Row-major tile grid (index = y * width + x). */
-      dims: { width: number; height: number };
-      bounds: Bounds;
-      meta?: VizLayerMeta;
-      fileKey?: string;
-      key: string;
-    }
-  | {
-      kind: "points";
-      layerId: string;
-      stepId: string;
-      phase?: string;
-      stepIndex: number;
-      count: number;
-      valueFormat?: VizScalarFormat;
-      bounds: Bounds;
-      meta?: VizLayerMeta;
-      fileKey?: string;
-      key: string;
-    }
-  | {
-      kind: "segments";
-      layerId: string;
-      stepId: string;
-      phase?: string;
-      stepIndex: number;
-      count: number;
-      valueFormat?: VizScalarFormat;
-      bounds: Bounds;
-      meta?: VizLayerMeta;
-      fileKey?: string;
-      key: string;
-    };
-
-export type BrowserVizLayerPayload =
-  | { kind: "grid"; values: ArrayBuffer; valuesByteLength: number; format: VizScalarFormat }
-  | {
-      kind: "points";
-      positions: ArrayBuffer;
-      values?: ArrayBuffer;
-      valueFormat?: VizScalarFormat;
-    }
-  | {
-      kind: "segments";
-      segments: ArrayBuffer;
-      values?: ArrayBuffer;
-      valueFormat?: VizScalarFormat;
-    };

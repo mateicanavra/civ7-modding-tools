@@ -313,7 +313,8 @@ function emitStartSectorViz(
   if (!grid) return;
 
   context.viz?.dumpGrid(context.trace, {
-    layerId: "placement.starts.sectorId",
+    dataTypeKey: "placement.starts.sectorId",
+    spaceId: "tile.hexOddR",
     dims: { width, height },
     format: "u16",
     values: grid,
@@ -323,7 +324,6 @@ function emitStartSectorViz(
       description:
         "Derived start-sector grid for placement planning (0 = inactive). Values are sector ids.",
       palette: "categorical",
-      space: "tile",
       categories: [{ value: 0, label: "Inactive", color: [148, 163, 184, 0] }],
     }),
   });
@@ -404,7 +404,8 @@ function emitStartPositionsViz(
   }));
 
   context.viz?.dumpPoints(context.trace, {
-    layerId: "placement.starts.startPosition",
+    dataTypeKey: "placement.starts.startPosition",
+    spaceId: "tile.hexOddR",
     positions,
     values,
     valueFormat: "u16",
@@ -413,7 +414,6 @@ function emitStartPositionsViz(
       group: GROUP_GAMEPLAY,
       categories,
       palette: "categorical",
-      space: "tile",
     }),
   });
 }

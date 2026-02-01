@@ -79,7 +79,8 @@ export default createStep(PlotLandmassRegionsStepContract, {
     });
 
     context.viz?.dumpGrid(context.trace, {
-      layerId: "placement.landmassRegions.regionSlot",
+      dataTypeKey: "placement.landmassRegions.regionSlot",
+      spaceId: "tile.hexOddR",
       dims: { width, height },
       format: "u8",
       values: slotByTile,
@@ -87,7 +88,6 @@ export default createStep(PlotLandmassRegionsStepContract, {
         label: "Landmass Region Slot",
         group: GROUP_GAMEPLAY,
         palette: "categorical",
-        space: "tile",
         categories: [
           { value: 0, label: "None", color: [148, 163, 184, 210] },
           { value: 1, label: "West", color: [59, 130, 246, 230] },

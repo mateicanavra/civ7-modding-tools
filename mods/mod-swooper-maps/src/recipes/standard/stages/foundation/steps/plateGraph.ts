@@ -60,7 +60,8 @@ export default createStep(PlateGraphStepContract, {
 
     const positions = interleaveXY(mesh.siteX, mesh.siteY);
     context.viz?.dumpPoints(context.trace, {
-      layerId: "foundation.plateGraph.cellToPlate",
+      dataTypeKey: "foundation.plateGraph.cellToPlate",
+      spaceId: "world.xy",
       positions,
       values: plateGraphResult.plateGraph.cellToPlate,
       valueFormat: "i16",
@@ -73,7 +74,8 @@ export default createStep(PlateGraphStepContract, {
 
     const seeds = pointsFromPlateSeeds(plateGraphResult.plateGraph.plates);
     context.viz?.dumpPoints(context.trace, {
-      layerId: "foundation.plateGraph.plateSeeds",
+      dataTypeKey: "foundation.plateGraph.plateSeeds",
+      spaceId: "world.xy",
       positions: seeds.positions,
       values: seeds.ids,
       valueFormat: "i16",

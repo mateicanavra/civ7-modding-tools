@@ -30,7 +30,8 @@ export default createStep(CrustStepContract, {
 
     const positions = interleaveXY(mesh.siteX, mesh.siteY);
     context.viz?.dumpPoints(context.trace, {
-      layerId: "foundation.crust.cellType",
+      dataTypeKey: "foundation.crust.cellType",
+      spaceId: "world.xy",
       positions,
       values: crustResult.crust.type,
       valueFormat: "u8",
@@ -40,7 +41,8 @@ export default createStep(CrustStepContract, {
       }),
     });
     context.viz?.dumpPoints(context.trace, {
-      layerId: "foundation.crust.cellAge",
+      dataTypeKey: "foundation.crust.cellAge",
+      spaceId: "world.xy",
       positions,
       values: crustResult.crust.age,
       valueFormat: "u8",
@@ -50,7 +52,8 @@ export default createStep(CrustStepContract, {
       }),
     });
     context.viz?.dumpPoints(context.trace, {
-      layerId: "foundation.crust.cellBaseElevation",
+      dataTypeKey: "foundation.crust.cellBaseElevation",
+      spaceId: "world.xy",
       positions,
       values: crustResult.crust.baseElevation,
       valueFormat: "f32",

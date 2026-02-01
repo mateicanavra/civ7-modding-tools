@@ -6,6 +6,7 @@ import { clampToByte } from "./plot-biomes/helpers/apply.js";
 import { resolveEngineBiomeIds } from "./plot-biomes/helpers/engine-bindings.js";
 
 const GROUP_MAP_ECOLOGY = "Map / Ecology (Projection)";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(PlotBiomesStepContract, {
   run: (context, config, _ops, deps) => {
@@ -45,7 +46,8 @@ export default createStep(PlotBiomesStepContract, {
 
     // Projection-only visualization; engine biomes may differ from ecology truth (mock adapter is best-effort).
     context.viz?.dumpGrid(context.trace, {
-      layerId: "map.ecology.biomeId",
+      dataTypeKey: "map.ecology.biomeId",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: biomeField,
@@ -56,7 +58,8 @@ export default createStep(PlotBiomesStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "map.ecology.temperature",
+      dataTypeKey: "map.ecology.temperature",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: temperatureField,

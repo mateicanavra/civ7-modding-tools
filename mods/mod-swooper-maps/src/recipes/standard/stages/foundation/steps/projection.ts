@@ -17,6 +17,7 @@ import type { FoundationPlateActivityKnob } from "@mapgen/domain/foundation/shar
 const GROUP_PLATES = "Foundation / Plates";
 const GROUP_CRUST_TILES = "Foundation / Crust Tiles";
 const GROUP_TILE_MAP = "Foundation / Tile Mapping";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function clampInt(value: number, bounds: { min: number; max?: number }): number {
   const rounded = Math.round(value);
@@ -96,7 +97,8 @@ export default createStep(ProjectionStepContract, {
     deps.artifacts.foundationCrustTiles.publish(context, platesResult.crustTiles);
 
     context.viz?.dumpGrid(context.trace, {
-      layerId: "foundation.plates.tilePlateId",
+      dataTypeKey: "foundation.plates.tilePlateId",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "i16",
       values: platesResult.plates.id,
@@ -107,7 +109,8 @@ export default createStep(ProjectionStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "foundation.plates.tileBoundaryType",
+      dataTypeKey: "foundation.plates.tileBoundaryType",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: platesResult.plates.boundaryType,
@@ -123,7 +126,8 @@ export default createStep(ProjectionStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "foundation.plates.tileBoundaryCloseness",
+      dataTypeKey: "foundation.plates.tileBoundaryCloseness",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: platesResult.plates.boundaryCloseness,
@@ -133,7 +137,8 @@ export default createStep(ProjectionStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "foundation.plates.tileTectonicStress",
+      dataTypeKey: "foundation.plates.tileTectonicStress",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: platesResult.plates.tectonicStress,
@@ -143,7 +148,8 @@ export default createStep(ProjectionStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "foundation.plates.tileUpliftPotential",
+      dataTypeKey: "foundation.plates.tileUpliftPotential",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: platesResult.plates.upliftPotential,
@@ -153,7 +159,8 @@ export default createStep(ProjectionStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "foundation.plates.tileRiftPotential",
+      dataTypeKey: "foundation.plates.tileRiftPotential",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: platesResult.plates.riftPotential,
@@ -163,7 +170,8 @@ export default createStep(ProjectionStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "foundation.plates.tileShieldStability",
+      dataTypeKey: "foundation.plates.tileShieldStability",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: platesResult.plates.shieldStability,
@@ -173,7 +181,8 @@ export default createStep(ProjectionStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "foundation.plates.tileVolcanism",
+      dataTypeKey: "foundation.plates.tileVolcanism",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: platesResult.plates.volcanism,
@@ -183,7 +192,8 @@ export default createStep(ProjectionStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "foundation.plates.tileMovementU",
+      dataTypeKey: "foundation.plates.tileMovementU",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "i8",
       values: platesResult.plates.movementU,
@@ -193,7 +203,8 @@ export default createStep(ProjectionStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "foundation.plates.tileMovementV",
+      dataTypeKey: "foundation.plates.tileMovementV",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "i8",
       values: platesResult.plates.movementV,
@@ -202,8 +213,34 @@ export default createStep(ProjectionStepContract, {
         group: GROUP_PLATES,
       }),
     });
+    {
+      const mag = new Float32Array(width * height);
+      for (let i = 0; i < mag.length; i++) {
+        const u = Number(platesResult.plates.movementU[i] ?? 0);
+        const v = Number(platesResult.plates.movementV[i] ?? 0);
+        mag[i] = Math.hypot(u, v);
+      }
+      context.viz?.dumpGridFields(context.trace, {
+        dataTypeKey: "foundation.plates.tileMovement",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        fields: {
+          u: { format: "i8", values: platesResult.plates.movementU },
+          v: { format: "i8", values: platesResult.plates.movementV },
+          magnitude: { format: "f32", values: mag },
+        },
+        vector: { u: "u", v: "v", magnitude: "magnitude" },
+        meta: defineVizMeta("foundation.plates.tileMovement", {
+          label: "Plate Movement (Vector)",
+          group: GROUP_PLATES,
+          role: "vector",
+          palette: "continuous",
+        }),
+      });
+    }
     context.viz?.dumpGrid(context.trace, {
-      layerId: "foundation.plates.tileRotation",
+      dataTypeKey: "foundation.plates.tileRotation",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "i8",
       values: platesResult.plates.rotation,
@@ -213,7 +250,8 @@ export default createStep(ProjectionStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "foundation.crustTiles.type",
+      dataTypeKey: "foundation.crustTiles.type",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: platesResult.crustTiles.type,
@@ -227,7 +265,8 @@ export default createStep(ProjectionStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "foundation.crustTiles.age",
+      dataTypeKey: "foundation.crustTiles.age",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: platesResult.crustTiles.age,
@@ -237,7 +276,8 @@ export default createStep(ProjectionStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "foundation.crustTiles.buoyancy",
+      dataTypeKey: "foundation.crustTiles.buoyancy",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: platesResult.crustTiles.buoyancy,
@@ -247,7 +287,8 @@ export default createStep(ProjectionStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "foundation.crustTiles.baseElevation",
+      dataTypeKey: "foundation.crustTiles.baseElevation",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: platesResult.crustTiles.baseElevation,
@@ -257,7 +298,8 @@ export default createStep(ProjectionStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "foundation.crustTiles.strength",
+      dataTypeKey: "foundation.crustTiles.strength",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: platesResult.crustTiles.strength,
@@ -267,7 +309,8 @@ export default createStep(ProjectionStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "foundation.tileToCellIndex",
+      dataTypeKey: "foundation.tileToCellIndex",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "i32",
       values: platesResult.tileToCellIndex,

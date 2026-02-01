@@ -9,6 +9,7 @@ type ArtifactValidationIssue = Readonly<{ message: string }>;
 
 const GROUP_TOPOGRAPHY = "Morphology / Topography";
 const GROUP_SUBSTRATE = "Morphology / Substrate";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -273,7 +274,8 @@ export default createStep(LandmassPlatesStepContract, {
     });
 
     context.viz?.dumpGrid(context.trace, {
-      layerId: "morphology.topography.elevation",
+      dataTypeKey: "morphology.topography.elevation",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "i16",
       values: topography.elevation,
@@ -283,7 +285,8 @@ export default createStep(LandmassPlatesStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "morphology.topography.landMask",
+      dataTypeKey: "morphology.topography.landMask",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: topography.landMask,
@@ -297,7 +300,8 @@ export default createStep(LandmassPlatesStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "morphology.topography.bathymetry",
+      dataTypeKey: "morphology.topography.bathymetry",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "i16",
       values: topography.bathymetry,
@@ -307,7 +311,8 @@ export default createStep(LandmassPlatesStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "morphology.substrate.erodibilityK",
+      dataTypeKey: "morphology.substrate.erodibilityK",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: substrate.erodibilityK,
@@ -317,7 +322,8 @@ export default createStep(LandmassPlatesStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "morphology.substrate.sedimentDepth",
+      dataTypeKey: "morphology.substrate.sedimentDepth",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: substrate.sedimentDepth,

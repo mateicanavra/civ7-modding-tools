@@ -5,6 +5,7 @@ import type { BiomeClassificationArtifact } from "../../artifacts.js";
 import BiomeEdgeRefineStepContract from "./contract.js";
 
 const GROUP_BIOMES = "Ecology / Biomes";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 const BIOME_COLORS: Array<[number, number, number, number]> = [
   [240, 248, 255, 230],
   [196, 204, 214, 230],
@@ -44,7 +45,8 @@ export default createStep(BiomeEdgeRefineStepContract, {
     mutable.biomeIndex.set(refined.biomeIndex);
 
     context.viz?.dumpGrid(context.trace, {
-      layerId: "ecology.biome.biomeIndex",
+      dataTypeKey: "ecology.biome.biomeIndex",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: mutable.biomeIndex,

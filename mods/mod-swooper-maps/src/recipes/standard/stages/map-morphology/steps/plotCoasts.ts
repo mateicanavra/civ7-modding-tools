@@ -4,6 +4,7 @@ import PlotCoastsStepContract from "./plotCoasts.contract.js";
 import { assertNoWaterDrift } from "./assertions.js";
 
 const GROUP_MAP_PROJECTION = "Morphology / Map Projection";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(PlotCoastsStepContract, {
   run: (context, _config, _ops, deps) => {
@@ -23,7 +24,8 @@ export default createStep(PlotCoastsStepContract, {
 
     // NOTE: Projection layers use morphology coastline metrics pre-expandCoasts (not 1:1 with engine terrain).
     context.viz?.dumpGrid(context.trace, {
-      layerId: "map.morphology.coasts.coastalLand",
+      dataTypeKey: "map.morphology.coasts.coastalLand",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: coastlineMetrics.coastalLand,
@@ -33,7 +35,8 @@ export default createStep(PlotCoastsStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "map.morphology.coasts.coastalWater",
+      dataTypeKey: "map.morphology.coasts.coastalWater",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: coastlineMetrics.coastalWater,

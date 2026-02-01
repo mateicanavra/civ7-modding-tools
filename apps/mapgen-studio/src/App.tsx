@@ -16,10 +16,12 @@ import type {
   GenerationStatus,
   KnobOptionsMap,
   PipelineConfig,
+  ProjectionOption,
   RecipeSettings,
   RenderModeOption,
   StageOption,
   StepOption,
+  VariantOption,
   WorldSettings,
 } from "./ui/types";
 
@@ -29,7 +31,6 @@ import { capturePinnedSelection } from "./features/browserRunner/retention";
 import { getCiv7MapSizePreset } from "./features/browserRunner/mapSizes";
 import { DeckCanvas, type DeckCanvasApi } from "./features/viz/DeckCanvas";
 import { useVizState } from "./features/viz/useVizState";
-import type { TileLayout } from "./features/viz/model";
 import { formatErrorForUi } from "./shared/errorFormat";
 import type { VizEvent } from "./shared/vizEvents";
 
@@ -201,13 +202,22 @@ function AppContent(props: AppContentProps) {
     enabled: worldSettings.mode === "browser" || worldSettings.mode === "dump",
     mode: worldSettings.mode,
     assetResolver: worldSettings.mode === "dump" ? dumpAssetResolver : null,
-    tileLayout: "row-offset" satisfies TileLayout,
     showEdgeOverlay: showEdges,
     allowPendingSelection: worldSettings.mode === "browser" && browserRunning,
     onError: (e) => setLocalError(formatErrorForUi(e)),
   });
   vizIngestRef.current = viz.ingest;
   const hasEverSeenVizManifestRef = useRef(false);
+  const lastAutoFitSpaceRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const spaceId = viz.effectiveLayer?.spaceId ?? null;
+    if (!spaceId) return;
+    if (!viz.activeBounds) return;
+    if (lastAutoFitSpaceRef.current === spaceId) return;
+    lastAutoFitSpaceRef.current = spaceId;
+    deckApiRef.current?.fitToBounds(viz.activeBounds);
+  }, [viz.activeBounds, viz.effectiveLayer?.spaceId]);
 
   useEffect(() => {
     if (!dumpManifest) return;
@@ -461,43 +471,73 @@ function AppContent(props: AppContentProps) {
   const dataTypeModel = viz.dataTypeModel;
   const dataTypeOptions: DataTypeOption[] = useMemo(() => {
     if (!dataTypeModel) return [];
-    return dataTypeModel.dataTypes.map((dt) => ({ value: dt.dataTypeId, label: dt.dataTypeId }));
+    return dataTypeModel.dataTypes.map((dt) => ({ value: dt.dataTypeId, label: dt.label }));
   }, [dataTypeModel]);
 
   const selection = useMemo(() => {
     if (!dataTypeModel) return null;
     for (const dt of dataTypeModel.dataTypes) {
-      for (const rm of dt.renderModes) {
-        for (const variant of rm.variants) {
-          if (variant.layerKey === viz.selectedLayerKey) {
-            return { dataTypeId: dt.dataTypeId, renderModeId: rm.renderModeId };
+      for (const proj of dt.projections) {
+        for (const rm of proj.renderModes) {
+          for (const variant of rm.variants) {
+            if (variant.layerKey === viz.selectedLayerKey) {
+              return {
+                dataTypeId: dt.dataTypeId,
+                projectionId: proj.projectionId,
+                renderModeId: rm.renderModeId,
+                variantId: variant.variantId,
+              };
+            }
           }
         }
       }
     }
     const firstDt = dataTypeModel.dataTypes[0];
-    const firstRm = firstDt?.renderModes[0];
-    if (!firstDt || !firstRm) return null;
-    return { dataTypeId: firstDt.dataTypeId, renderModeId: firstRm.renderModeId };
+    const firstProj = firstDt?.projections[0];
+    const firstRm = firstProj?.renderModes[0];
+    const firstVariant = firstRm?.variants[0];
+    if (!firstDt || !firstProj || !firstRm || !firstVariant) return null;
+    return {
+      dataTypeId: firstDt.dataTypeId,
+      projectionId: firstProj.projectionId,
+      renderModeId: firstRm.renderModeId,
+      variantId: firstVariant.variantId,
+    };
   }, [dataTypeModel, viz.selectedLayerKey]);
+
+  const projectionOptions: ProjectionOption[] = useMemo(() => {
+    if (!dataTypeModel || !selection) return [];
+    const dt = dataTypeModel.dataTypes.find((x) => x.dataTypeId === selection.dataTypeId);
+    return dt?.projections.map((p) => ({ value: p.projectionId, label: p.label })) ?? [];
+  }, [dataTypeModel, selection]);
 
   const renderModeOptions: RenderModeOption[] = useMemo(() => {
     if (!dataTypeModel || !selection) return [];
     const dt = dataTypeModel.dataTypes.find((x) => x.dataTypeId === selection.dataTypeId);
+    const proj = dt?.projections.find((p) => p.projectionId === selection.projectionId) ?? dt?.projections[0];
     return (
-      dt?.renderModes.map((rm) => ({
+      proj?.renderModes.map((rm) => ({
         value: rm.renderModeId,
-        label: rm.renderModeId,
+        label: rm.label,
       })) ?? []
     );
   }, [dataTypeModel, selection]);
 
+  const variantOptions: VariantOption[] = useMemo(() => {
+    if (!dataTypeModel || !selection) return [];
+    const dt = dataTypeModel.dataTypes.find((x) => x.dataTypeId === selection.dataTypeId);
+    const proj = dt?.projections.find((p) => p.projectionId === selection.projectionId) ?? dt?.projections[0];
+    const rm = proj?.renderModes.find((x) => x.renderModeId === selection.renderModeId) ?? proj?.renderModes[0];
+    return rm?.variants.map((v) => ({ value: v.variantId, label: v.label })) ?? [];
+  }, [dataTypeModel, selection]);
+
   const selectLayerFor = useCallback(
-    (dataTypeId: string, renderModeId: string) => {
+    (dataTypeId: string, projectionId: string, renderModeId: string, variantId?: string) => {
       if (!dataTypeModel) return;
       const dt = dataTypeModel.dataTypes.find((x) => x.dataTypeId === dataTypeId);
-      const rm = dt?.renderModes.find((x) => x.renderModeId === renderModeId) ?? dt?.renderModes[0];
-      const variant = rm?.variants[0];
+      const proj = dt?.projections.find((p) => p.projectionId === projectionId) ?? dt?.projections[0];
+      const rm = proj?.renderModes.find((x) => x.renderModeId === renderModeId) ?? proj?.renderModes[0];
+      const variant = variantId ? rm?.variants.find((v) => v.variantId === variantId) ?? rm?.variants[0] : rm?.variants[0];
       viz.setSelectedLayerKey(variant?.layerKey ?? null);
     },
     [dataTypeModel, viz]
@@ -529,17 +569,42 @@ function AppContent(props: AppContentProps) {
     (next: string) => {
       if (!dataTypeModel) return;
       const dt = dataTypeModel.dataTypes.find((x) => x.dataTypeId === next);
-      const rm = dt?.renderModes[0];
-      if (!rm) return;
-      selectLayerFor(next, rm.renderModeId);
+      const proj = dt?.projections[0];
+      const rm = proj?.renderModes[0];
+      const variant = rm?.variants[0];
+      if (!proj || !rm || !variant) return;
+      selectLayerFor(next, proj.projectionId, rm.renderModeId, variant.variantId);
     },
     [dataTypeModel, selectLayerFor]
+  );
+
+  const handleProjectionChange = useCallback(
+    (next: string) => {
+      if (!selection) return;
+      const dataTypeId = selection.dataTypeId;
+      if (!dataTypeModel) return;
+      const dt = dataTypeModel.dataTypes.find((x) => x.dataTypeId === dataTypeId);
+      const proj = dt?.projections.find((p) => p.projectionId === next) ?? dt?.projections[0];
+      const rm = proj?.renderModes[0];
+      const variant = rm?.variants[0];
+      if (!proj || !rm || !variant) return;
+      selectLayerFor(dataTypeId, proj.projectionId, rm.renderModeId, variant.variantId);
+    },
+    [dataTypeModel, selectLayerFor, selection]
   );
 
   const handleRenderModeChange = useCallback(
     (next: string) => {
       if (!selection) return;
-      selectLayerFor(selection.dataTypeId, next);
+      selectLayerFor(selection.dataTypeId, selection.projectionId, next);
+    },
+    [selectLayerFor, selection]
+  );
+
+  const handleVariantChange = useCallback(
+    (next: string) => {
+      if (!selection) return;
+      selectLayerFor(selection.dataTypeId, selection.projectionId, selection.renderModeId, next);
     },
     [selectLayerFor, selection]
   );
@@ -822,9 +887,15 @@ function AppContent(props: AppContentProps) {
       dataTypeOptions={dataTypeOptions}
       selectedDataType={selection?.dataTypeId ?? ""}
       onSelectedDataTypeChange={handleDataTypeChange}
+      projectionOptions={projectionOptions}
+      selectedProjection={selection?.projectionId ?? ""}
+      onSelectedProjectionChange={handleProjectionChange}
       renderModeOptions={renderModeOptions}
       selectedRenderMode={selection?.renderModeId ?? ""}
       onSelectedRenderModeChange={handleRenderModeChange}
+      variantOptions={variantOptions}
+      selectedVariant={selection?.variantId ?? ""}
+      onSelectedVariantChange={handleVariantChange}
       theme={theme}
       lightMode={isLightMode}
       showEdges={showEdges}

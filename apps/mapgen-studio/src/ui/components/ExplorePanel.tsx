@@ -23,6 +23,8 @@ import type {
   StageOption,
   StepOption,
   DataTypeOption,
+  ProjectionOption,
+  VariantOption,
   RenderModeOption } from
 '../types';
 // ============================================================================
@@ -47,12 +49,24 @@ export interface ExplorePanelProps {
   selectedDataType: string;
   /** Callback when data type selection changes */
   onSelectedDataTypeChange: (dataType: string) => void;
+  /** Available projections (spaceId) for selected data type */
+  projectionOptions: ProjectionOption[];
+  /** Currently selected projection */
+  selectedProjection: string;
+  /** Callback when projection selection changes */
+  onSelectedProjectionChange: (projection: string) => void;
   /** Available render modes (formerly "projections") */
   renderModeOptions: RenderModeOption[];
   /** Currently selected render mode */
   selectedRenderMode: string;
   /** Callback when render mode selection changes */
   onSelectedRenderModeChange: (renderMode: string) => void;
+  /** Available variants for selected render mode */
+  variantOptions: VariantOption[];
+  /** Currently selected variant */
+  selectedVariant: string;
+  /** Callback when variant selection changes */
+  onSelectedVariantChange: (variant: string) => void;
   /** Theme object (kept for API compatibility) */
   theme: Theme;
   /** Light mode flag for styling */
@@ -89,9 +103,15 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   dataTypeOptions,
   selectedDataType,
   onSelectedDataTypeChange,
+  projectionOptions,
+  selectedProjection,
+  onSelectedProjectionChange,
   renderModeOptions,
   selectedRenderMode,
   onSelectedRenderModeChange,
+  variantOptions,
+  selectedVariant,
+  onSelectedVariantChange,
   lightMode,
   showEdges,
   onShowEdgesChange,
@@ -190,6 +210,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   `;
   // Render mode icons map
   const getRenderModeIcon = (value: string) => {
+    const kind = value.split(":")[0] ?? value;
     switch (value) {
       case 'hexagonal':
       case 'grid':
@@ -202,6 +223,9 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
       case 'heatmap':
         return <Flame className="w-3.5 h-3.5" />;
       default:
+        if (kind === "points") return <CircleDot className="w-3.5 h-3.5" />;
+        if (kind === "segments") return <GitBranch className="w-3.5 h-3.5" />;
+        if (kind === "gridFields") return <Activity className="w-3.5 h-3.5" />;
         return <Hexagon className="w-3.5 h-3.5" />;
     }
   };
@@ -345,39 +369,65 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
       ) : null}
 
       {/* 4. VIEW TOOLBAR */}
-      <div className="flex-shrink-0 p-2 flex items-center justify-between gap-2">
-        {/* Left: Fit & Edges */}
-        <div className="flex items-center gap-1">
-          <button onClick={onFitView} title="Fit to view" className={iconBtn}>
-            <Maximize className="w-3.5 h-3.5" />
-          </button>
-          <button
-            onClick={() => onShowEdgesChange(!showEdges)}
-            title={showEdges ? 'Hide edges' : 'Show edges'}
-            className={showEdges ? iconBtnActive : iconBtn}>
+      <div className="flex-shrink-0 p-2 flex flex-col gap-2">
+        <div className="flex items-center justify-between gap-2">
+          {/* Left: Fit & Edges */}
+          <div className="flex items-center gap-1">
+            <button onClick={onFitView} title="Fit to view" className={iconBtn}>
+              <Maximize className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => onShowEdgesChange(!showEdges)}
+              title={showEdges ? 'Hide edges' : 'Show edges'}
+              className={showEdges ? iconBtnActive : iconBtn}>
 
-            <GitBranch className="w-3.5 h-3.5" />
-          </button>
+              <GitBranch className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Right: Render Modes */}
+          <div className="flex items-center gap-1">
+            {renderModeOptions.map((option) =>
+            <button
+              key={option.value}
+              onClick={() => onSelectedRenderModeChange(option.value)}
+              title={option.label}
+              className={
+              selectedRenderMode === option.value ? iconBtnActive : iconBtn
+              }>
+
+                {getRenderModeIcon(option.value)}
+              </button>
+            )}
+          </div>
         </div>
 
-        <div
-          className={`w-px h-4 ${lightMode ? 'bg-gray-200' : 'bg-[#2a2a32]'}`} />
+        <div className="grid grid-cols-2 gap-2">
+          <label className="flex flex-col gap-1">
+            <span className={`text-[10px] uppercase tracking-wider ${textMuted}`}>Projection</span>
+            <select
+              value={selectedProjection}
+              onChange={(e) => onSelectedProjectionChange(e.target.value)}
+              disabled={projectionOptions.length === 0}
+              className={`h-8 rounded px-2 text-[11px] ${lightMode ? 'bg-white border border-gray-200 text-[#1f2937]' : 'bg-[#111116] border border-[#2a2a32] text-[#e8e8ed]'}`}>
+              {projectionOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </label>
 
-
-        {/* Right: Render Modes (formerly Projections) */}
-        <div className="flex items-center gap-1">
-          {renderModeOptions.map((option) =>
-          <button
-            key={option.value}
-            onClick={() => onSelectedRenderModeChange(option.value)}
-            title={option.label}
-            className={
-            selectedRenderMode === option.value ? iconBtnActive : iconBtn
-            }>
-
-              {getRenderModeIcon(option.value)}
-            </button>
-          )}
+          <label className="flex flex-col gap-1">
+            <span className={`text-[10px] uppercase tracking-wider ${textMuted}`}>Variant</span>
+            <select
+              value={selectedVariant}
+              onChange={(e) => onSelectedVariantChange(e.target.value)}
+              disabled={variantOptions.length === 0}
+              className={`h-8 rounded px-2 text-[11px] ${lightMode ? 'bg-white border border-gray-200 text-[#1f2937]' : 'bg-[#111116] border border-[#2a2a32] text-[#e8e8ed]'}`}>
+              {variantOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </label>
         </div>
       </div>
     </div>);

@@ -5,6 +5,7 @@ import { validateResourceBasinsArtifact } from "../../artifact-validation.js";
 import ResourceBasinsStepContract from "./contract.js";
 
 const GROUP_RESOURCE_BASINS = "Ecology / Resource Basins";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(ResourceBasinsStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.resourceBasins], {
@@ -45,7 +46,8 @@ export default createStep(ResourceBasinsStepContract, {
       }
     }
     context.viz?.dumpGrid(context.trace, {
-      layerId: "ecology.resourceBasins.resourceBasinId",
+      dataTypeKey: "ecology.resourceBasins.resourceBasinId",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u16",
       values: basinIdByTile,

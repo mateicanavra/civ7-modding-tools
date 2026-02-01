@@ -6,6 +6,7 @@ import { MORPHOLOGY_EROSION_RATE_MULTIPLIER } from "@mapgen/domain/morphology/sh
 import type { MorphologyErosionKnob } from "@mapgen/domain/morphology/shared/knobs.js";
 
 const GROUP_GEOMORPHOLOGY = "Morphology / Geomorphology";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function clampInt16(value: number): number {
   if (value > 32767) return 32767;
@@ -116,7 +117,8 @@ export default createStep(GeomorphologyStepContract, {
     }
 
     context.viz?.dumpGrid(context.trace, {
-      layerId: "morphology.geomorphology.elevationDelta",
+      dataTypeKey: "morphology.geomorphology.elevationDelta",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: deltas.elevationDelta,
@@ -126,7 +128,8 @@ export default createStep(GeomorphologyStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "morphology.geomorphology.sedimentDelta",
+      dataTypeKey: "morphology.geomorphology.sedimentDelta",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: deltas.sedimentDelta,
@@ -137,7 +140,8 @@ export default createStep(GeomorphologyStepContract, {
     });
 
     context.viz?.dumpGrid(context.trace, {
-      layerId: "morphology.topography.elevation",
+      dataTypeKey: "morphology.topography.elevation",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "i16",
       values: heightfield.elevation,
@@ -147,7 +151,8 @@ export default createStep(GeomorphologyStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "morphology.topography.landMask",
+      dataTypeKey: "morphology.topography.landMask",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: heightfield.landMask,
@@ -157,7 +162,8 @@ export default createStep(GeomorphologyStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "morphology.topography.bathymetry",
+      dataTypeKey: "morphology.topography.bathymetry",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "i16",
       values: bathymetry,

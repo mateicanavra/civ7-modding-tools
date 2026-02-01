@@ -4,6 +4,7 @@ import BuildElevationStepContract from "./buildElevation.contract.js";
 import { assertNoWaterDrift } from "./assertions.js";
 
 const GROUP_MAP_PROJECTION = "Morphology / Map Projection";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(BuildElevationStepContract, {
   run: (context, _config, _ops, deps) => {
@@ -22,7 +23,8 @@ export default createStep(BuildElevationStepContract, {
 
     const heightfield = context.buffers.heightfield;
     context.viz?.dumpGrid(context.trace, {
-      layerId: "map.morphology.elevation.elevation",
+      dataTypeKey: "map.morphology.elevation.elevation",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "i16",
       values: heightfield.elevation,
@@ -32,7 +34,8 @@ export default createStep(BuildElevationStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "map.morphology.elevation.landMask",
+      dataTypeKey: "map.morphology.elevation.landMask",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: heightfield.landMask,

@@ -1,86 +1,16 @@
-import type { TraceEvent, TraceSink, TraceScope } from "@swooper/mapgen-core";
-import type { VizDumper, VizLayerKind, VizLayerMeta, VizScalarFormat } from "@swooper/mapgen-core";
+import type { TraceEvent, TraceSink, TraceScope, VizDumper } from "@swooper/mapgen-core";
+import { computeVizScalarStats, createVizLayerKey } from "@swooper/mapgen-viz";
+import type {
+  Bounds,
+  VizBinaryRef,
+  VizGridFieldsLayerEmissionV1,
+  VizLayerEmissionV1,
+  VizLayerEntryV1,
+  VizManifestV1,
+  VizScalarField,
+} from "@swooper/mapgen-viz";
 import { mkdirSync, writeFileSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
-
-type Bounds = [minX: number, minY: number, maxX: number, maxY: number];
-
-export type VizManifestV0 = {
-  version: 0;
-  runId: string;
-  planFingerprint: string;
-  steps: Array<{ stepId: string; phase?: string; stepIndex: number }>;
-  layers: VizLayerEntryV0[];
-};
-
-export type VizLayerEntryV0 =
-  | {
-      kind: "grid";
-      layerId: string;
-      stepId: string;
-      phase?: string;
-      stepIndex: number;
-      format: VizScalarFormat;
-      dims: { width: number; height: number };
-      path: string;
-      bounds: Bounds;
-      fileKey?: string;
-      meta?: VizLayerMeta;
-    }
-  | {
-      kind: "points";
-      layerId: string;
-      stepId: string;
-      phase?: string;
-      stepIndex: number;
-      count: number;
-      positionsPath: string;
-      valuesPath?: string;
-      valueFormat?: VizScalarFormat;
-      bounds: Bounds;
-      fileKey?: string;
-      meta?: VizLayerMeta;
-    }
-  | {
-      kind: "segments";
-      layerId: string;
-      stepId: string;
-      phase?: string;
-      stepIndex: number;
-      count: number;
-      segmentsPath: string;
-      valuesPath?: string;
-      valueFormat?: VizScalarFormat;
-      bounds: Bounds;
-      fileKey?: string;
-      meta?: VizLayerMeta;
-    };
-
-type LayerDumpPayloadV0 =
-  | ({
-      type: "layer.dump";
-      kind: VizLayerKind;
-      layerId: string;
-      bounds: Bounds;
-      meta?: VizLayerMeta;
-      fileKey?: string;
-    } & (
-      | { kind: "grid"; format: VizScalarFormat; dims: { width: number; height: number }; path: string }
-      | {
-          kind: "points";
-          count: number;
-          positionsPath: string;
-          valuesPath?: string;
-          valueFormat?: VizScalarFormat;
-        }
-      | {
-          kind: "segments";
-          count: number;
-          segmentsPath: string;
-          valuesPath?: string;
-          valueFormat?: VizScalarFormat;
-        }
-    ));
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   if (value == null || typeof value !== "object" || Array.isArray(value)) return false;
@@ -146,7 +76,7 @@ export function createTraceDumpSink(options: { outputRoot: string }): TraceSink 
   const stepIndexById = new Map<string, number>();
   let nextStepIndex = 0;
 
-  const manifestByRun = new Map<string, VizManifestV0>();
+  const manifestByRun = new Map<string, VizManifestV1>();
 
   const emit = (event: TraceEvent): void => {
     try {
@@ -159,7 +89,7 @@ export function createTraceDumpSink(options: { outputRoot: string }): TraceSink 
       let manifest = manifestByRun.get(event.runId);
       if (!manifest) {
         manifest = {
-          version: 0,
+          version: 1,
           runId: event.runId,
           planFingerprint: event.planFingerprint,
           steps: [],
@@ -181,54 +111,11 @@ export function createTraceDumpSink(options: { outputRoot: string }): TraceSink 
       if (event.kind !== "step.event" || !event.stepId) return;
       const data = event.data;
       if (!isPlainObject(data)) return;
-      if (data.type !== "layer.dump") return;
-
-      const payload = data as unknown as LayerDumpPayloadV0;
+      if (data.type !== "viz.layer.dump.v1") return;
+      const payload = data as unknown as { type: "viz.layer.dump.v1"; layer: VizLayerEmissionV1 };
       const stepIndex = stepIndexById.get(event.stepId) ?? -1;
-
-      const base = {
-        kind: payload.kind,
-        layerId: payload.layerId,
-        stepId: event.stepId,
-        phase: event.phase,
-        stepIndex,
-        bounds: payload.bounds,
-        meta: payload.meta,
-        fileKey: payload.fileKey,
-      } as const;
-
-      let entry: VizLayerEntryV0 | null = null;
-
-      if (payload.kind === "grid") {
-        entry = {
-          ...base,
-          kind: "grid",
-          format: payload.format,
-          dims: payload.dims,
-          path: payload.path,
-        };
-      } else if (payload.kind === "points") {
-        entry = {
-          ...base,
-          kind: "points",
-          count: payload.count,
-          positionsPath: payload.positionsPath,
-          valuesPath: payload.valuesPath,
-          valueFormat: payload.valueFormat,
-        };
-      } else if (payload.kind === "segments") {
-        entry = {
-          ...base,
-          kind: "segments",
-          count: payload.count,
-          segmentsPath: payload.segmentsPath,
-          valuesPath: payload.valuesPath,
-          valueFormat: payload.valueFormat,
-        };
-      }
-
-      if (!entry) return;
-      manifest.layers.push(entry);
+      const layer: VizLayerEntryV1 = { ...payload.layer, stepId: event.stepId, phase: event.phase, stepIndex };
+      manifest.layers.push(layer);
       writeFileSync(join(runDir, "manifest.json"), JSON.stringify(manifest, null, 2));
     } catch {
       // tracing/diagnostics must never alter execution flow
@@ -236,6 +123,25 @@ export function createTraceDumpSink(options: { outputRoot: string }): TraceSink 
   };
 
   return { emit };
+}
+
+function pathRef(path: string): VizBinaryRef {
+  return { kind: "path", path };
+}
+
+function scalarField(args: {
+  format: VizScalarField["format"];
+  values: ArrayBufferView;
+  path: string;
+  stats?: VizScalarField["stats"];
+  valueSpec?: VizScalarField["valueSpec"];
+}): VizScalarField {
+  return {
+    format: args.format,
+    stats: args.stats ?? computeVizScalarStats({ format: args.format, values: args.values }) ?? undefined,
+    valueSpec: args.valueSpec,
+    data: pathRef(args.path),
+  };
 }
 
 export function createVizDumper(options: { outputRoot: string }): VizDumper {
@@ -250,26 +156,37 @@ export function createVizDumper(options: { outputRoot: string }): VizDumper {
       const dataDir = resolveDataDir(outputRoot, trace.runId);
       ensureDir(dataDir);
 
-      const key = layer.fileKey ? `__${slugify(layer.fileKey)}` : "";
-      const fileBase = `${slugify(layer.layerId)}${key}`;
+      const key = layer.variantKey ? `__${slugify(layer.variantKey)}` : "";
+      const fileBase = `${slugify(layer.dataTypeKey)}${key}`;
       const relPath = `data/${fileBase}.bin`;
-      const absPath = join(runDir, relPath);
+      writeBinary(join(runDir, relPath), layer.values);
 
-      writeBinary(absPath, layer.values);
-
-      const { width, height } = layer.dims;
-      const bounds: Bounds = [0, 0, width, height];
-
-      trace.event(() => ({
-        type: "layer.dump",
-        kind: "grid",
-        layerId: layer.layerId,
-        format: layer.format,
-        dims: layer.dims,
-        path: relPath,
-        bounds,
-        fileKey: layer.fileKey,
-        meta: layer.meta,
+      trace.event((): { type: "viz.layer.dump.v1"; layer: VizLayerEmissionV1 } => ({
+        type: "viz.layer.dump.v1",
+        layer: {
+          kind: "grid",
+          layerKey: createVizLayerKey({
+            stepId: trace.stepId,
+            dataTypeKey: layer.dataTypeKey,
+            kind: "grid",
+            variantKey: layer.variantKey,
+          }),
+          dataTypeKey: layer.dataTypeKey,
+          variantKey: layer.variantKey,
+          stepId: trace.stepId,
+          phase: trace.phase,
+          spaceId: layer.spaceId,
+          bounds: [0, 0, layer.dims.width, layer.dims.height],
+          meta: layer.meta,
+          dims: layer.dims,
+          field: scalarField({
+            format: layer.format,
+            values: layer.values,
+            path: relPath,
+            stats: layer.stats,
+            valueSpec: layer.valueSpec,
+          }),
+        },
       }));
     } catch {
       // diagnostics must not break generation
@@ -285,10 +202,10 @@ export function createVizDumper(options: { outputRoot: string }): VizDumper {
       const dataDir = resolveDataDir(outputRoot, trace.runId);
       ensureDir(dataDir);
 
-      const key = layer.fileKey ? `__${slugify(layer.fileKey)}` : "";
-      const fileBase = `${slugify(layer.layerId)}${key}`;
+      const key = layer.variantKey ? `__${slugify(layer.variantKey)}` : "";
+      const fileBase = `${slugify(layer.dataTypeKey)}${key}`;
       const posRel = `data/${fileBase}__pos.bin`;
-      const valRel = layer.values ? `data/${fileBase}__val.bin` : undefined;
+      const valRel = layer.values && layer.valueFormat ? `data/${fileBase}__val.bin` : undefined;
 
       writeBinary(join(runDir, posRel), layer.positions);
       if (layer.values && valRel) {
@@ -296,17 +213,36 @@ export function createVizDumper(options: { outputRoot: string }): VizDumper {
       }
 
       const bounds = boundsFromPositions(layer.positions);
-      trace.event(() => ({
-        type: "layer.dump",
-        kind: "points",
-        layerId: layer.layerId,
-        count: (layer.positions.length / 2) | 0,
-        positionsPath: posRel,
-        valuesPath: valRel,
-        valueFormat: layer.valueFormat,
-        bounds,
-        fileKey: layer.fileKey,
-        meta: layer.meta,
+      trace.event((): { type: "viz.layer.dump.v1"; layer: VizLayerEmissionV1 } => ({
+        type: "viz.layer.dump.v1",
+        layer: {
+          kind: "points",
+          layerKey: createVizLayerKey({
+            stepId: trace.stepId,
+            dataTypeKey: layer.dataTypeKey,
+            kind: "points",
+            variantKey: layer.variantKey,
+          }),
+          dataTypeKey: layer.dataTypeKey,
+          variantKey: layer.variantKey,
+          stepId: trace.stepId,
+          phase: trace.phase,
+          spaceId: layer.spaceId,
+          bounds,
+          meta: layer.meta,
+          count: (layer.positions.length / 2) | 0,
+          positions: pathRef(posRel),
+          values:
+            layer.values && layer.valueFormat && valRel
+              ? scalarField({
+                  format: layer.valueFormat,
+                  values: layer.values,
+                  path: valRel,
+                  stats: layer.valueStats,
+                  valueSpec: layer.valueSpec,
+                })
+              : undefined,
+        },
       }));
     } catch {
       // diagnostics must not break generation
@@ -322,10 +258,10 @@ export function createVizDumper(options: { outputRoot: string }): VizDumper {
       const dataDir = resolveDataDir(outputRoot, trace.runId);
       ensureDir(dataDir);
 
-      const key = layer.fileKey ? `__${slugify(layer.fileKey)}` : "";
-      const fileBase = `${slugify(layer.layerId)}${key}`;
+      const key = layer.variantKey ? `__${slugify(layer.variantKey)}` : "";
+      const fileBase = `${slugify(layer.dataTypeKey)}${key}`;
       const segRel = `data/${fileBase}__seg.bin`;
-      const valRel = layer.values ? `data/${fileBase}__val.bin` : undefined;
+      const valRel = layer.values && layer.valueFormat ? `data/${fileBase}__val.bin` : undefined;
 
       writeBinary(join(runDir, segRel), layer.segments);
       if (layer.values && valRel) {
@@ -333,22 +269,95 @@ export function createVizDumper(options: { outputRoot: string }): VizDumper {
       }
 
       const bounds = boundsFromSegments(layer.segments);
-      trace.event(() => ({
-        type: "layer.dump",
-        kind: "segments",
-        layerId: layer.layerId,
-        count: (layer.segments.length / 4) | 0,
-        segmentsPath: segRel,
-        valuesPath: valRel,
-        valueFormat: layer.valueFormat,
-        bounds,
-        fileKey: layer.fileKey,
-        meta: layer.meta,
+      trace.event((): { type: "viz.layer.dump.v1"; layer: VizLayerEmissionV1 } => ({
+        type: "viz.layer.dump.v1",
+        layer: {
+          kind: "segments",
+          layerKey: createVizLayerKey({
+            stepId: trace.stepId,
+            dataTypeKey: layer.dataTypeKey,
+            kind: "segments",
+            variantKey: layer.variantKey,
+          }),
+          dataTypeKey: layer.dataTypeKey,
+          variantKey: layer.variantKey,
+          stepId: trace.stepId,
+          phase: trace.phase,
+          spaceId: layer.spaceId,
+          bounds,
+          meta: layer.meta,
+          count: (layer.segments.length / 4) | 0,
+          segments: pathRef(segRel),
+          values:
+            layer.values && layer.valueFormat && valRel
+              ? scalarField({
+                  format: layer.valueFormat,
+                  values: layer.values,
+                  path: valRel,
+                  stats: layer.valueStats,
+                  valueSpec: layer.valueSpec,
+                })
+              : undefined,
+        },
       }));
     } catch {
       // diagnostics must not break generation
     }
   };
 
-  return { outputRoot, dumpGrid, dumpPoints, dumpSegments };
+  const dumpGridFields: VizDumper["dumpGridFields"] = (trace, layer) => {
+    if (!trace.isVerbose) return;
+    if (!trace.runId) return;
+
+    try {
+      const runDir = resolveRunDir(outputRoot, trace.runId);
+      const dataDir = resolveDataDir(outputRoot, trace.runId);
+      ensureDir(dataDir);
+
+      const key = layer.variantKey ? `__${slugify(layer.variantKey)}` : "";
+      const fileBase = `${slugify(layer.dataTypeKey)}${key}`;
+
+      const fields: Record<string, VizScalarField> = {};
+      for (const [fieldKey, field] of Object.entries(layer.fields)) {
+        const relPath = `data/${fileBase}__${slugify(fieldKey)}.bin`;
+        writeBinary(join(runDir, relPath), field.values);
+        fields[fieldKey] = scalarField({
+          format: field.format,
+          values: field.values,
+          path: relPath,
+          stats: field.stats,
+          valueSpec: field.valueSpec,
+        });
+      }
+
+      const emitted: VizGridFieldsLayerEmissionV1 = {
+        kind: "gridFields",
+        layerKey: createVizLayerKey({
+          stepId: trace.stepId,
+          dataTypeKey: layer.dataTypeKey,
+          kind: "gridFields",
+          variantKey: layer.variantKey,
+        }),
+        dataTypeKey: layer.dataTypeKey,
+        variantKey: layer.variantKey,
+        stepId: trace.stepId,
+        phase: trace.phase,
+        spaceId: layer.spaceId,
+        bounds: [0, 0, layer.dims.width, layer.dims.height],
+        meta: layer.meta,
+        dims: layer.dims,
+        fields,
+        vector: layer.vector,
+      };
+
+      trace.event((): { type: "viz.layer.dump.v1"; layer: VizLayerEmissionV1 } => ({
+        type: "viz.layer.dump.v1",
+        layer: emitted,
+      }));
+    } catch {
+      // diagnostics must not break generation
+    }
+  };
+
+  return { outputRoot, dumpGrid, dumpPoints, dumpSegments, dumpGridFields };
 }

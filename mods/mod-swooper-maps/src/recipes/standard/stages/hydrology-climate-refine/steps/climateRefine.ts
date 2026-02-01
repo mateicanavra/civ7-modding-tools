@@ -19,6 +19,7 @@ const GROUP_CLIMATE = "Hydrology / Climate";
 const GROUP_INDICES = "Hydrology / Climate Indices";
 const GROUP_CRYOSPHERE = "Hydrology / Cryosphere";
 const GROUP_DIAGNOSTICS = "Hydrology / Diagnostics";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -297,7 +298,8 @@ export default createStep(ClimateRefineStepContract, {
     );
 
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.climate.rainfall",
+      dataTypeKey: "hydrology.climate.rainfall",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: refined.rainfall,
@@ -307,7 +309,8 @@ export default createStep(ClimateRefineStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.climate.humidity",
+      dataTypeKey: "hydrology.climate.humidity",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: refined.humidity,
@@ -317,7 +320,8 @@ export default createStep(ClimateRefineStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.climate.indices.surfaceTemperatureC",
+      dataTypeKey: "hydrology.climate.indices.surfaceTemperatureC",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: albedoFeedback.surfaceTemperatureC,
@@ -327,7 +331,8 @@ export default createStep(ClimateRefineStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.climate.indices.pet",
+      dataTypeKey: "hydrology.climate.indices.pet",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: waterBudget.pet,
@@ -337,7 +342,8 @@ export default createStep(ClimateRefineStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.climate.indices.aridityIndex",
+      dataTypeKey: "hydrology.climate.indices.aridityIndex",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: waterBudget.aridityIndex,
@@ -347,7 +353,8 @@ export default createStep(ClimateRefineStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.climate.indices.freezeIndex",
+      dataTypeKey: "hydrology.climate.indices.freezeIndex",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: cryosphere.freezeIndex,
@@ -357,7 +364,8 @@ export default createStep(ClimateRefineStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.cryosphere.snowCover",
+      dataTypeKey: "hydrology.cryosphere.snowCover",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: cryosphere.snowCover,
@@ -367,7 +375,8 @@ export default createStep(ClimateRefineStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.cryosphere.seaIceCover",
+      dataTypeKey: "hydrology.cryosphere.seaIceCover",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: cryosphere.seaIceCover,
@@ -377,7 +386,8 @@ export default createStep(ClimateRefineStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.cryosphere.albedo",
+      dataTypeKey: "hydrology.cryosphere.albedo",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: cryosphere.albedo,
@@ -387,7 +397,8 @@ export default createStep(ClimateRefineStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.cryosphere.groundIce01",
+      dataTypeKey: "hydrology.cryosphere.groundIce01",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: cryosphere.groundIce01,
@@ -397,7 +408,8 @@ export default createStep(ClimateRefineStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.cryosphere.permafrost01",
+      dataTypeKey: "hydrology.cryosphere.permafrost01",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: cryosphere.permafrost01,
@@ -407,7 +419,8 @@ export default createStep(ClimateRefineStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.cryosphere.meltPotential01",
+      dataTypeKey: "hydrology.cryosphere.meltPotential01",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: cryosphere.meltPotential01,
@@ -417,7 +430,8 @@ export default createStep(ClimateRefineStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.climate.diagnostics.rainShadowIndex",
+      dataTypeKey: "hydrology.climate.diagnostics.rainShadowIndex",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: diagnostics.rainShadowIndex,
@@ -428,7 +442,8 @@ export default createStep(ClimateRefineStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.climate.diagnostics.continentalityIndex",
+      dataTypeKey: "hydrology.climate.diagnostics.continentalityIndex",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: diagnostics.continentalityIndex,
@@ -439,7 +454,8 @@ export default createStep(ClimateRefineStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.climate.diagnostics.convergenceIndex",
+      dataTypeKey: "hydrology.climate.diagnostics.convergenceIndex",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: diagnostics.convergenceIndex,

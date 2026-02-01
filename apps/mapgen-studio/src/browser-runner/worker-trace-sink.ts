@@ -1,9 +1,8 @@
-import type { TraceEvent, TraceSink, VizLayerMeta } from "@swooper/mapgen-core";
-import type { BrowserRunEvent, BrowserVizLayerPayload, BrowserVizLayerUpsertEvent } from "./protocol";
+import type { TraceEvent, TraceSink } from "@swooper/mapgen-core";
+import type { VizBinaryRef, VizLayerEmissionV1, VizLayerEntryV1 } from "@swooper/mapgen-viz";
+import type { BrowserRunEvent } from "./protocol";
 
 type Post = (event: BrowserRunEvent, transfer?: Transferable[]) => void;
-
-type Bounds = [minX: number, minY: number, maxX: number, maxY: number];
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   if (value == null || typeof value !== "object" || Array.isArray(value)) return false;
@@ -11,61 +10,27 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return proto === Object.prototype || proto === null;
 }
 
-function boundsFromPositions(positions: Float32Array): Bounds {
-  let minX = Number.POSITIVE_INFINITY;
-  let minY = Number.POSITIVE_INFINITY;
-  let maxX = Number.NEGATIVE_INFINITY;
-  let maxY = Number.NEGATIVE_INFINITY;
 
-  for (let i = 0; i + 1 < positions.length; i += 2) {
-    const x = positions[i]!;
-    const y = positions[i + 1]!;
-    if (x < minX) minX = x;
-    if (y < minY) minY = y;
-    if (x > maxX) maxX = x;
-    if (y > maxY) maxY = y;
+function collectTransferablesFromBinaryRef(ref: VizBinaryRef, into: Transferable[]): void {
+  if (ref.kind !== "inline") return;
+  into.push(ref.buffer);
+}
+
+function collectTransferables(layer: VizLayerEntryV1): Transferable[] {
+  const transfer: Transferable[] = [];
+  if (layer.kind === "grid") {
+    collectTransferablesFromBinaryRef(layer.field.data, transfer);
+  } else if (layer.kind === "points") {
+    collectTransferablesFromBinaryRef(layer.positions, transfer);
+    if (layer.values) collectTransferablesFromBinaryRef(layer.values.data, transfer);
+  } else if (layer.kind === "segments") {
+    collectTransferablesFromBinaryRef(layer.segments, transfer);
+    if (layer.values) collectTransferablesFromBinaryRef(layer.values.data, transfer);
+  } else if (layer.kind === "gridFields") {
+    for (const field of Object.values(layer.fields)) collectTransferablesFromBinaryRef(field.data, transfer);
   }
-
-  if (!Number.isFinite(minX) || !Number.isFinite(minY) || !Number.isFinite(maxX) || !Number.isFinite(maxY)) {
-    return [0, 0, 1, 1];
-  }
-
-  return [minX, minY, maxX, maxY];
+  return transfer;
 }
-
-function boundsFromSegments(segments: Float32Array): Bounds {
-  // segments is [x0,y0,x1,y1,...] - treat as positions list
-  return boundsFromPositions(segments);
-}
-
-function cloneArrayBuffer(view: ArrayBufferView): ArrayBuffer {
-  const u8 = new Uint8Array(view.byteLength);
-  u8.set(new Uint8Array(view.buffer, view.byteOffset, view.byteLength));
-  return u8.buffer;
-}
-
-type LayerStreamPayloadV0 =
-  | ({
-      type: "layer.stream";
-      kind: "grid" | "points" | "segments";
-      layerId: string;
-      meta?: VizLayerMeta;
-      fileKey?: string;
-    } & (
-      | { kind: "grid"; format: "u8" | "i8" | "u16" | "i16" | "i32" | "f32"; dims: { width: number; height: number }; values: ArrayBufferView }
-      | {
-          kind: "points";
-          positions: Float32Array;
-          values?: ArrayBufferView;
-          valueFormat?: "u8" | "i8" | "u16" | "i16" | "i32" | "f32";
-        }
-      | {
-          kind: "segments";
-          segments: Float32Array;
-          values?: ArrayBufferView;
-          valueFormat?: "u8" | "i8" | "u16" | "i16" | "i32" | "f32";
-        }
-    ));
 
 export function createWorkerTraceSink(options: {
   runToken: string;
@@ -124,100 +89,12 @@ export function createWorkerTraceSink(options: {
     if (event.kind !== "step.event" || !event.stepId) return;
     const data = event.data;
     if (!isPlainObject(data)) return;
-    if (data.type !== "layer.stream") return;
+    if (data.type !== "viz.layer.emit.v1") return;
 
-    const payload = data as unknown as LayerStreamPayloadV0;
+    const payload = data as unknown as { type: "viz.layer.emit.v1"; layer: VizLayerEmissionV1 };
     const stepIndex = stepIndexById.get(event.stepId) ?? -1;
-    const key = payload.fileKey
-      ? `${event.stepId}::${payload.layerId}::${payload.kind}::${payload.fileKey}`
-      : `${event.stepId}::${payload.layerId}::${payload.kind}`;
-    const base = {
-      layerId: payload.layerId,
-      stepId: event.stepId,
-      phase: event.phase,
-      stepIndex,
-      key,
-      meta: payload.meta,
-      fileKey: payload.fileKey,
-    } as const;
-
-    let layerEvent: BrowserVizLayerUpsertEvent | null = null;
-    let transfer: Transferable[] = [];
-
-    if (payload.kind === "grid") {
-      const values = cloneArrayBuffer(payload.values);
-      const gridPayload: BrowserVizLayerPayload = {
-        kind: "grid",
-        values,
-        valuesByteLength: values.byteLength,
-        format: payload.format,
-      };
-      layerEvent = {
-        type: "viz.layer.upsert",
-        runToken,
-        generation,
-        layer: {
-          ...base,
-          kind: "grid",
-          format: payload.format,
-          dims: payload.dims,
-          bounds: [0, 0, payload.dims.width, payload.dims.height],
-          meta: payload.meta,
-        },
-        payload: gridPayload,
-      };
-      transfer = [values];
-    } else if (payload.kind === "points") {
-      const positions = cloneArrayBuffer(payload.positions);
-      const values = payload.values ? cloneArrayBuffer(payload.values) : undefined;
-      const pointsBounds = boundsFromPositions(payload.positions);
-      layerEvent = {
-        type: "viz.layer.upsert",
-        runToken,
-        generation,
-        layer: {
-          ...base,
-          kind: "points",
-          count: (payload.positions.length / 2) | 0,
-          valueFormat: payload.valueFormat,
-          bounds: pointsBounds,
-          meta: payload.meta,
-        },
-        payload: {
-          kind: "points",
-          positions,
-          values,
-          valueFormat: payload.valueFormat,
-        },
-      };
-      transfer = values ? [positions, values] : [positions];
-    } else if (payload.kind === "segments") {
-      const segments = cloneArrayBuffer(payload.segments);
-      const values = payload.values ? cloneArrayBuffer(payload.values) : undefined;
-      const bounds = boundsFromSegments(payload.segments);
-      layerEvent = {
-        type: "viz.layer.upsert",
-        runToken,
-        generation,
-        layer: {
-          ...base,
-          kind: "segments",
-          count: (payload.segments.length / 4) | 0,
-          valueFormat: payload.valueFormat,
-          bounds,
-          meta: payload.meta,
-        },
-        payload: {
-          kind: "segments",
-          segments,
-          values,
-          valueFormat: payload.valueFormat,
-        },
-      };
-      transfer = values ? [segments, values] : [segments];
-    }
-
-    if (layerEvent) post(layerEvent, transfer);
+    const layer: VizLayerEntryV1 = { ...payload.layer, stepIndex };
+    post({ type: "viz.layer.upsert", runToken, generation, layer }, collectTransferables(layer));
   };
 
   return { emit };

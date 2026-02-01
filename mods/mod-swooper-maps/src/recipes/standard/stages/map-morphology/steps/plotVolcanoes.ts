@@ -5,6 +5,7 @@ import PlotVolcanoesStepContract from "./plotVolcanoes.contract.js";
 import { assertNoWaterDrift } from "./assertions.js";
 
 const GROUP_MAP_PROJECTION = "Morphology / Map Projection";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(PlotVolcanoesStepContract, {
   run: (context, _config, _ops, deps) => {
@@ -22,14 +23,14 @@ export default createStep(PlotVolcanoesStepContract, {
       strengths[i] = entry.strength01;
     }
     context.viz?.dumpPoints(context.trace, {
-      layerId: "map.morphology.volcanoes.points",
+      dataTypeKey: "map.morphology.volcanoes.points",
+      spaceId: TILE_SPACE_ID,
       positions,
       values: strengths,
       valueFormat: "f32",
       meta: defineVizMeta("map.morphology.volcanoes.points", {
         label: "Volcano Points (Projection)",
         group: GROUP_MAP_PROJECTION,
-        space: "tile",
       }),
     });
 

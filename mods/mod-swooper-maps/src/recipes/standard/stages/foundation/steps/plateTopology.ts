@@ -56,20 +56,21 @@ export default createStep(PlateTopologyStepContract, {
 
     const centroidPoints = pointsFromTileCentroids(topologyPlates);
     context.viz?.dumpPoints(context.trace, {
-      layerId: "foundation.plateTopology.centroidArea",
+      dataTypeKey: "foundation.plateTopology.centroidArea",
+      spaceId: "tile.hexOddR",
       positions: centroidPoints.positions,
       values: centroidPoints.areas,
       valueFormat: "i32",
       meta: defineVizMeta("foundation.plateTopology.centroidArea", {
         label: "Plate Centroid Area",
         group: GROUP_PLATE_TOPOLOGY,
-        space: "tile",
         showGrid: false,
       }),
     });
 
     context.viz?.dumpPoints(context.trace, {
-      layerId: "foundation.plateTopology.centroidPlateId",
+      dataTypeKey: "foundation.plateTopology.centroidPlateId",
+      spaceId: "tile.hexOddR",
       positions: centroidPoints.positions,
       values: centroidPoints.ids,
       valueFormat: "i16",
@@ -77,18 +78,17 @@ export default createStep(PlateTopologyStepContract, {
         label: "Plate Centroid PlateId",
         group: GROUP_PLATE_TOPOLOGY,
         palette: "categorical",
-        space: "tile",
         showGrid: false,
       }),
     });
 
     context.viz?.dumpSegments(context.trace, {
-      layerId: "foundation.plateTopology.neighbors",
+      dataTypeKey: "foundation.plateTopology.neighbors",
+      spaceId: "tile.hexOddR",
       segments: segmentsFromTileTopologyNeighbors(topologyPlates),
       meta: defineVizMeta("foundation.plateTopology.neighbors", {
         label: "Plate Neighbor Edges",
         group: GROUP_PLATE_TOPOLOGY,
-        space: "tile",
         showGrid: false,
       }),
     });

@@ -1,4 +1,16 @@
-import type { VizLayerEntryV0, VizLayerVisibility, VizLayerKind } from "./model";
+import type {
+  VizLayerEntryV1,
+  VizLayerKind,
+  VizLayerMeta,
+  VizLayerVisibility,
+  VizNoDataSpec,
+  VizScalarField,
+  VizScalarStats,
+  VizScaleType,
+  VizValueDomain,
+  VizValueSpec,
+  VizValueTransform,
+} from "@swooper/mapgen-viz";
 
 export type RgbaColor = [number, number, number, number];
 
@@ -11,9 +23,11 @@ export type VizLegendModel = {
   context?: {
     stepId: string;
     stepLabel: string;
-    layerId: string;
+    layerKey: string;
+    dataTypeKey: string;
     kind: VizLayerKind;
-    eraIndex?: number;
+    spaceId: string;
+    variantKey?: string;
     tileLayout?: string;
   };
 };
@@ -22,7 +36,7 @@ export function formatStepLabel(stepId: string): string {
   return stepId.split(".").slice(-1)[0] ?? stepId;
 }
 
-export function resolveLayerVisibility(layer: VizLayerEntryV0): VizLayerVisibility {
+export function resolveLayerVisibility(layer: VizLayerEntryV1): VizLayerVisibility {
   const visibility = layer.meta?.visibility;
   if (visibility === "debug") return "debug";
   if (visibility === "hidden") return "hidden";
@@ -75,11 +89,7 @@ function hslToRgb(h: number, s: number, l: number): [number, number, number] {
   }
 
   const m = l - c / 2;
-  return [
-    Math.round((r + m) * 255),
-    Math.round((g + m) * 255),
-    Math.round((b + m) * 255),
-  ];
+  return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
 }
 
 function randomColor(rng: () => number): RgbaColor {
@@ -147,49 +157,137 @@ function oklabDistance(a: RgbaColor, b: RgbaColor): number {
 // https://v3.tailwindcss.com/docs/customizing-colors#default-color-palette
 const TAILWIND_COLOR_POOL: RgbaColor[] = [
   // Slate
-  "#cbd5e1", "#94a3b8", "#64748b", "#475569", "#334155",
+  "#cbd5e1",
+  "#94a3b8",
+  "#64748b",
+  "#475569",
+  "#334155",
   // Gray
-  "#d1d5db", "#9ca3af", "#6b7280", "#4b5563", "#374151",
+  "#d1d5db",
+  "#9ca3af",
+  "#6b7280",
+  "#4b5563",
+  "#374151",
   // Zinc
-  "#d4d4d8", "#a1a1aa", "#71717a", "#52525b", "#3f3f46",
+  "#d4d4d8",
+  "#a1a1aa",
+  "#71717a",
+  "#52525b",
+  "#3f3f46",
   // Neutral
-  "#d4d4d4", "#a3a3a3", "#737373", "#525252", "#404040",
+  "#d4d4d4",
+  "#a3a3a3",
+  "#737373",
+  "#525252",
+  "#404040",
   // Stone
-  "#d6d3d1", "#a8a29e", "#78716c", "#57534e", "#44403c",
+  "#d6d3d1",
+  "#a8a29e",
+  "#78716c",
+  "#57534e",
+  "#44403c",
   // Red
-  "#fca5a5", "#f87171", "#ef4444", "#dc2626", "#b91c1c",
+  "#fca5a5",
+  "#f87171",
+  "#ef4444",
+  "#dc2626",
+  "#b91c1c",
   // Orange
-  "#fdba74", "#fb923c", "#f97316", "#ea580c", "#c2410c",
+  "#fdba74",
+  "#fb923c",
+  "#f97316",
+  "#ea580c",
+  "#c2410c",
   // Amber
-  "#fcd34d", "#fbbf24", "#f59e0b", "#d97706", "#b45309",
+  "#fcd34d",
+  "#fbbf24",
+  "#f59e0b",
+  "#d97706",
+  "#b45309",
   // Yellow
-  "#fde047", "#facc15", "#eab308", "#ca8a04", "#a16207",
+  "#fde047",
+  "#facc15",
+  "#eab308",
+  "#ca8a04",
+  "#a16207",
   // Lime
-  "#bef264", "#a3e635", "#84cc16", "#65a30d", "#4d7c0f",
+  "#bef264",
+  "#a3e635",
+  "#84cc16",
+  "#65a30d",
+  "#4d7c0f",
   // Green
-  "#86efac", "#4ade80", "#22c55e", "#16a34a", "#15803d",
+  "#86efac",
+  "#4ade80",
+  "#22c55e",
+  "#16a34a",
+  "#15803d",
   // Emerald
-  "#6ee7b7", "#34d399", "#10b981", "#059669", "#047857",
+  "#6ee7b7",
+  "#34d399",
+  "#10b981",
+  "#059669",
+  "#047857",
   // Teal
-  "#5eead4", "#2dd4bf", "#14b8a6", "#0d9488", "#0f766e",
+  "#5eead4",
+  "#2dd4bf",
+  "#14b8a6",
+  "#0d9488",
+  "#0f766e",
   // Cyan
-  "#67e8f9", "#22d3ee", "#06b6d4", "#0891b2", "#0e7490",
+  "#67e8f9",
+  "#22d3ee",
+  "#06b6d4",
+  "#0891b2",
+  "#0e7490",
   // Sky
-  "#7dd3fc", "#38bdf8", "#0ea5e9", "#0284c7", "#0369a1",
+  "#7dd3fc",
+  "#38bdf8",
+  "#0ea5e9",
+  "#0284c7",
+  "#0369a1",
   // Blue
-  "#93c5fd", "#60a5fa", "#3b82f6", "#2563eb", "#1d4ed8",
+  "#93c5fd",
+  "#60a5fa",
+  "#3b82f6",
+  "#2563eb",
+  "#1d4ed8",
   // Indigo
-  "#a5b4fc", "#818cf8", "#6366f1", "#4f46e5", "#4338ca",
+  "#a5b4fc",
+  "#818cf8",
+  "#6366f1",
+  "#4f46e5",
+  "#4338ca",
   // Violet
-  "#c4b5fd", "#a78bfa", "#8b5cf6", "#7c3aed", "#6d28d9",
+  "#c4b5fd",
+  "#a78bfa",
+  "#8b5cf6",
+  "#7c3aed",
+  "#6d28d9",
   // Purple
-  "#d8b4fe", "#c084fc", "#a855f7", "#9333ea", "#7e22ce",
+  "#d8b4fe",
+  "#c084fc",
+  "#a855f7",
+  "#9333ea",
+  "#7e22ce",
   // Fuchsia
-  "#f0abfc", "#e879f9", "#d946ef", "#c026d3", "#a21caf",
+  "#f0abfc",
+  "#e879f9",
+  "#d946ef",
+  "#c026d3",
+  "#a21caf",
   // Pink
-  "#f9a8d4", "#f472b6", "#ec4899", "#db2777", "#be185d",
+  "#f9a8d4",
+  "#f472b6",
+  "#ec4899",
+  "#db2777",
+  "#be185d",
   // Rose
-  "#fda4af", "#fb7185", "#f43f5e", "#e11d48", "#be123c",
+  "#fda4af",
+  "#fb7185",
+  "#f43f5e",
+  "#e11d48",
+  "#be123c",
 ].map((hex) => hexToRgba(hex));
 
 function collectCategoryIds(values: ArrayBufferView): number[] {
@@ -255,11 +353,10 @@ export function buildCategoricalColorMap(options: { values: ArrayBufferView; see
   for (let i = 0; i < ids.length; i++) {
     colorById.set(ids[i]!, palette[i] ?? [148, 163, 184, 220]);
   }
-
   return colorById;
 }
 
-function resolveCategoryColor(meta: VizLayerEntryV0["meta"], value: number): RgbaColor | null {
+function resolveCategoryColor(meta: VizLayerMeta | undefined, value: number): RgbaColor | null {
   if (!meta?.categories?.length) return null;
   for (const entry of meta.categories) {
     if (typeof entry.value === "number") {
@@ -290,38 +387,166 @@ function writeRgba(out: ColorOut, offset: number, color: RgbaColor): void {
   out[offset + 3] = color[3];
 }
 
-function resolveColorForValue(
-  seedKey: string,
-  value: number,
-  categoricalColorMap: Map<number, RgbaColor> | undefined,
-  meta: VizLayerEntryV0["meta"] | undefined,
-  out: ColorOut,
-  offset: number
-): void {
-  if (!Number.isFinite(value)) {
-    writeRgba(out, offset, UNKNOWN_COLOR);
+function isNoData(value: number, noData: VizNoDataSpec | undefined): boolean {
+  if (!noData || noData.kind === "none") return false;
+  if (noData.kind === "nan") return Number.isNaN(value);
+  return value === noData.value;
+}
+
+type Domain = { min: number; max: number };
+
+function resolveDomain(domain: VizValueDomain | undefined, stats: VizScalarStats | null): Domain | null {
+  if (!domain) return null;
+  if (domain.kind === "unit") return { min: 0, max: 1 };
+  if (domain.kind === "explicit") return { min: domain.min, max: domain.max };
+  if (domain.kind === "fromStats") {
+    if (!stats) return null;
+    if (!Number.isFinite(stats.min) || !Number.isFinite(stats.max)) return null;
+    return { min: stats.min, max: stats.max };
+  }
+  return null;
+}
+
+function applyTransform(value: number, transform: VizValueTransform | undefined, stats: VizScalarStats | null): number {
+  if (!transform || transform.kind === "identity") return value;
+  if (transform.kind === "clamp") return Math.max(transform.min, Math.min(transform.max, value));
+  if (transform.kind === "affine") return value * transform.scale + transform.offset;
+  if (transform.kind === "piecewise") {
+    const pts = transform.points;
+    if (!pts.length) return value;
+    const sorted = [...pts].sort((a, b) => a.x - b.x);
+    if (value <= sorted[0]!.x) return sorted[0]!.y;
+    if (value >= sorted[sorted.length - 1]!.x) return sorted[sorted.length - 1]!.y;
+    for (let i = 0; i + 1 < sorted.length; i++) {
+      const a = sorted[i]!;
+      const b = sorted[i + 1]!;
+      if (value < a.x || value > b.x) continue;
+      const t = (value - a.x) / Math.max(1e-12, b.x - a.x);
+      return a.y + (b.y - a.y) * t;
+    }
+    return value;
+  }
+  if (transform.kind === "normalize") {
+    const dom = resolveDomain(transform.domain, stats);
+    if (!dom) return value;
+    const span = dom.max - dom.min;
+    if (!Number.isFinite(span) || Math.abs(span) < 1e-12) return 0;
+    return (value - dom.min) / span;
+  }
+  return value;
+}
+
+function mapToUnitWithScale(value: number, domain: Domain, scale: VizScaleType): number {
+  const min = domain.min;
+  const max = domain.max;
+  const span = max - min;
+  if (!Number.isFinite(span) || Math.abs(span) < 1e-12) return 0;
+
+  if (scale === "linear" || scale === "categorical" || scale === "quantile") {
+    return (value - min) / span;
+  }
+
+  if (scale === "log") {
+    if (!(min > 0) || !(max > 0) || !(value > 0)) return (value - min) / span;
+    const a = Math.log(min);
+    const b = Math.log(max);
+    const denom = b - a;
+    if (!Number.isFinite(denom) || Math.abs(denom) < 1e-12) return 0;
+    return (Math.log(value) - a) / denom;
+  }
+
+  if (scale === "symlog") {
+    const c = 1;
+    const sym = (x: number) => Math.sign(x) * Math.log1p(Math.abs(x) / c);
+    const a = sym(min);
+    const b = sym(max);
+    const denom = b - a;
+    if (!Number.isFinite(denom) || Math.abs(denom) < 1e-12) return 0;
+    return (sym(value) - a) / denom;
+  }
+
+  return (value - min) / span;
+}
+
+function resolveUnitValue(args: {
+  raw: number;
+  meta?: VizLayerMeta;
+  field?: VizScalarField | null;
+  stats?: VizScalarStats | null;
+}): number {
+  const raw = args.raw;
+  if (!Number.isFinite(raw)) return Number.NaN;
+
+  const meta = args.meta;
+  const field = args.field ?? null;
+  const paletteMode = meta?.palette ?? "auto";
+  if (paletteMode === "categorical") return raw;
+  if (meta?.categories?.length) return raw;
+
+  const valueSpec: VizValueSpec | undefined = field?.valueSpec;
+  const stats = args.stats ?? field?.stats ?? null;
+  const noData = valueSpec?.noData;
+  if (isNoData(raw, noData)) return Number.NaN;
+
+  const transformed = applyTransform(raw, valueSpec?.transform, stats);
+
+  // If the transform already normalized, treat it as a unit value.
+  if (valueSpec?.transform?.kind === "normalize") {
+    return Math.max(0, Math.min(1, transformed));
+  }
+
+  // Otherwise, normalize based on the field's declared domain (or inferred stats).
+  const dom = resolveDomain(valueSpec?.domain ?? (stats ? { kind: "fromStats" } : undefined), stats);
+  if (!dom) return transformed;
+
+  const unit = mapToUnitWithScale(transformed, dom, valueSpec?.scale ?? "linear");
+  return Math.max(0, Math.min(1, unit));
+}
+
+function resolveColorForValue(args: {
+  seedKey: string;
+  rawValue: number;
+  categoricalColorMap: Map<number, RgbaColor> | undefined;
+  meta: VizLayerMeta | undefined;
+  field: VizScalarField | null;
+  stats: VizScalarStats | null;
+  out: ColorOut;
+  offset: number;
+}): void {
+  const rawValue = args.rawValue;
+  const meta = args.meta;
+
+  if (!Number.isFinite(rawValue)) {
+    writeRgba(args.out, args.offset, UNKNOWN_COLOR);
     return;
   }
 
-  const categoryColor = resolveCategoryColor(meta, value);
+  const categoryColor = resolveCategoryColor(meta, rawValue);
   if (categoryColor) {
-    writeRgba(out, offset, categoryColor);
+    writeRgba(args.out, args.offset, categoryColor);
     return;
   }
 
   const paletteMode = meta?.palette ?? "auto";
-  if (categoricalColorMap) {
-    writeRgba(out, offset, categoricalColorMap.get(value | 0) ?? [148, 163, 184, 220]);
-    return;
-  }
-  if (paletteMode === "categorical") {
-    const localSeed = `${seedKey}:${value}`;
-    const rng = createRng(hashStringToSeed(localSeed));
-    writeRgba(out, offset, randomColor(rng));
+  if (args.categoricalColorMap) {
+    writeRgba(args.out, args.offset, args.categoricalColorMap.get(rawValue | 0) ?? [148, 163, 184, 220]);
     return;
   }
 
-  const t = Math.max(0, Math.min(1, value));
+  if (paletteMode === "categorical") {
+    const localSeed = `${args.seedKey}:${rawValue}`;
+    const rng = createRng(hashStringToSeed(localSeed));
+    writeRgba(args.out, args.offset, randomColor(rng));
+    return;
+  }
+
+  const unit = resolveUnitValue({ raw: rawValue, meta, field: args.field, stats: args.stats });
+  if (!Number.isFinite(unit)) {
+    writeRgba(args.out, args.offset, UNKNOWN_COLOR);
+    return;
+  }
+
+  const t = Math.max(0, Math.min(1, unit));
   const idx = t * (VALUE_RAMP.length - 1);
   const i0 = Math.max(0, Math.min(VALUE_RAMP.length - 1, Math.floor(idx)));
   const i1 = Math.max(0, Math.min(VALUE_RAMP.length - 1, Math.ceil(idx)));
@@ -329,82 +554,66 @@ function resolveColorForValue(
   const a = VALUE_RAMP[i0] ?? UNKNOWN_COLOR;
   const b = VALUE_RAMP[i1] ?? UNKNOWN_COLOR;
   const lerp = (x: number, y: number) => Math.round(x + (y - x) * tt);
-  out[offset] = lerp(a[0], b[0]);
-  out[offset + 1] = lerp(a[1], b[1]);
-  out[offset + 2] = lerp(a[2], b[2]);
-  out[offset + 3] = lerp(a[3], b[3]);
+  args.out[args.offset] = lerp(a[0], b[0]);
+  args.out[args.offset + 1] = lerp(a[1], b[1]);
+  args.out[args.offset + 2] = lerp(a[2], b[2]);
+  args.out[args.offset + 3] = lerp(a[3], b[3]);
 }
 
-export function formatLayerLabel(layer: VizLayerEntryV0): string {
-  const base = layer.meta?.label ?? layer.layerId;
+export function formatLayerLabel(layer: VizLayerEntryV1): string {
+  const base = layer.meta?.label ?? layer.dataTypeKey;
   const visibility = layer.meta?.visibility === "debug" ? ", debug" : "";
-  const variant = formatLayerVariant(layer);
-  const suffix = variant ? ` · ${variant}` : "";
-  return `${base}${suffix} (${layer.kind}${visibility})`;
+  const role = layer.meta?.role ? `:${layer.meta.role}` : "";
+  const variant = layer.variantKey ? ` · ${layer.variantKey}` : "";
+  return `${base}${variant} (${layer.kind}${role}@${layer.spaceId}${visibility})`;
 }
 
-function formatLayerVariant(layer: VizLayerEntryV0): string | null {
-  if (layer.fileKey) return layer.fileKey;
-  const path =
-    layer.kind === "grid"
-      ? layer.path
-      : layer.kind === "points"
-        ? layer.valuesPath ?? layer.positionsPath
-        : layer.valuesPath ?? layer.segmentsPath;
-  if (!path) return null;
-  const parts = path.split("/");
-  return parts[parts.length - 1] ?? path;
-}
-
-export function colorForValue(
-  seedKey: string,
-  value: number,
-  categoricalColorMap?: Map<number, RgbaColor>,
-  meta?: VizLayerEntryV0["meta"]
-): RgbaColor {
-  const out: RgbaColor = [0, 0, 0, 255];
-  resolveColorForValue(seedKey, value, categoricalColorMap, meta, out, 0);
-  return out;
-}
-
-export function writeColorForValue(
+export function writeColorForScalarValue(
   out: Uint8ClampedArray,
   offset: number,
-  seedKey: string,
-  value: number,
-  categoricalColorMap?: Map<number, RgbaColor>,
-  meta?: VizLayerEntryV0["meta"]
+  args: {
+    seedKey: string;
+    rawValue: number;
+    categoricalColorMap?: Map<number, RgbaColor>;
+    meta?: VizLayerMeta;
+    field?: VizScalarField | null;
+    stats?: VizScalarStats | null;
+  }
 ): void {
-  resolveColorForValue(seedKey, value, categoricalColorMap, meta, out, offset);
+  resolveColorForValue({
+    seedKey: args.seedKey,
+    rawValue: args.rawValue,
+    categoricalColorMap: args.categoricalColorMap,
+    meta: args.meta,
+    field: args.field ?? null,
+    stats: args.stats ?? null,
+    out,
+    offset,
+  });
 }
 
 export function legendForLayer(
-  layer: VizLayerEntryV0 | null,
-  stats: { min?: number; max?: number } | null,
+  layer: VizLayerEntryV1 | null,
+  stats: VizScalarStats | null,
   context?: VizLegendModel["context"]
 ): VizLegendModel | null {
   if (!layer) return null;
-  const id = layer.layerId;
-  const label = layer.meta?.label ?? id;
-  const paletteMode = layer.meta?.palette ?? "auto";
+
+  const title = layer.meta?.label ?? layer.dataTypeKey;
+  const palette = layer.meta?.palette ?? "auto";
 
   if (layer.meta?.categories?.length) {
     return {
-      title: label,
-      items: layer.meta.categories.map((entry) => ({
-        label: entry.label,
-        color: entry.color,
-      })),
+      title,
+      items: layer.meta.categories.map((entry) => ({ label: entry.label, color: entry.color })),
       context,
     };
   }
 
-  if (paletteMode === "categorical") {
+  if (palette === "categorical") {
     return {
-      title: label,
-      items: [
-        { label: "categorical palette (auto)", color: [148, 163, 184, 220] },
-      ],
+      title,
+      items: [{ label: "categorical palette (auto)", color: [148, 163, 184, 220] }],
       context,
     };
   }
@@ -412,20 +621,22 @@ export function legendForLayer(
   if (stats && Number.isFinite(stats.min) && Number.isFinite(stats.max)) {
     const min = stats.min ?? 0;
     const max = stats.max ?? 1;
+    const unitSpec = (layer.kind === "grid" ? layer.field.valueSpec : layer.kind === "gridFields" ? null : layer.values?.valueSpec) ?? undefined;
+    const units = unitSpec?.units ? ` ${unitSpec.units}` : "";
     return {
-      title: label,
+      title,
       items: [
-        { label: `min = ${min.toFixed(3)}`, color: colorForValue(id, 0, undefined, layer.meta) },
-        { label: `max = ${max.toFixed(3)}`, color: colorForValue(id, 1, undefined, layer.meta) },
+        { label: `min = ${min.toFixed(3)}${units}`, color: VALUE_RAMP[0] ?? UNKNOWN_COLOR },
+        { label: `max = ${max.toFixed(3)}${units}`, color: VALUE_RAMP[VALUE_RAMP.length - 1] ?? UNKNOWN_COLOR },
       ],
-      note: "Values are mapped with a simple palette in V0.",
       context,
     };
   }
 
   return {
-    title: "Legend",
+    title,
     items: [{ label: "no legend available for this layer yet", color: [148, 163, 184, 220] }],
     context,
   };
 }
+

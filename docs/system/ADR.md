@@ -88,18 +88,24 @@ Each decision follows this structure:
 - Import directions become enforceable (lint + bundle policy checks).
 - Recipes become “cataloged” by artifacts; runtime is loaded only in the compute environment.
 
-## ADR-005: Visualization SDK v1 separates data type, representation, and projection (registry-driven)
+## ADR-005: Visualization SDK v1 (v1-only) standardizes layer identity, spaces, and value semantics
 
-**Status:** Proposed
+**Status:** Accepted
 **Date:** 2026-02-01
-**Context:** The visualization surface needs to be meaningful and varied (multiple projections per logical layer) and correct for continuous fields (proper value domains, stats-driven normalization). The current model couples “data type” to `layerId` and “render mode” to `kind[:role]`, which blocks multi-projection unless the pipeline duplicates outputs. Continuous fields are also visually broken when raw values are treated as already normalized.
-**Decision:** Adopt a v1 visualization model that separates:
-- `dataTypeId` (stable semantic identity),
-- representation/encoding (grid/points/segments payloads, variants),
-- viewer-defined `projectionId` (multiple projections per representation/data type), driven by a centralized registry.
-Value semantics (domains, no-data, transforms) and stats (min/max at minimum) become explicit inputs to rendering instead of implicit clamps.
+**Context:** The visualization surface needs to be meaningful and varied (multiple “projections”/spaces per logical layer) and correct for continuous fields (proper value domains, stats-driven normalization). The previous model coupled “data type” to `layerId` and collapsed distinct coordinate spaces/variants. Continuous fields were also visually broken when raw values were treated as already normalized.
+**Decision:**
+- Adopt a **v1-only** visualization contract implemented as a shared package: `@swooper/mapgen-viz` (`packages/mapgen-viz/src/index.ts`).
+- Standardize a v1 manifest (`VizManifestV1`) with `version: 1` and a canonical layer entry (`VizLayerEntryV1`).
+- Define stable identity via:
+  - `layerKey` (opaque, stable; used for streaming upserts and dump replay identity)
+  - `dataTypeKey` (stable semantic identity)
+  - `spaceId` (explicit coordinate space; primary UI “Projection” selector)
+  - `variantKey?` (explicit variants within a data type)
+- Make value semantics explicit and correct by default:
+  - `VizScalarField.stats` (min/max at minimum)
+  - `VizScalarField.valueSpec` (domain/noData/transform/scale/units)
+- Add `gridFields` as a first-class layer kind to support multi-field grids and vector field rendering.
 **Consequences:**
-- Viewer can provide multiple projections per data type without requiring pipeline duplication, and can standardize palettes/legends via a registry.
-- Continuous fields become correct by default via stats-driven normalization, improving interpretability immediately.
-- Protocol/manifest likely requires a version bump and an explicit back-compat adapter (v0 → v1) to avoid breaking existing dumps.
-- Pipeline emitters can shrink toward canonical data products; “projection variety” moves to the viewer by default.
+- MapGen Studio and dump replay accept **only** `manifest.json` with `version: 1` (no compatibility shims/adapters for older dumps).
+- Studio can safely present multiple spaces/representations/variants for a single `dataTypeKey` without collisions by grouping on `dataTypeKey → spaceId → kind[:meta.role] → variantKey`.
+- Producers should keep `layerKey` stable and treat `dataTypeKey`/`spaceId` as intentional, user-facing structure (not incidental implementation details).

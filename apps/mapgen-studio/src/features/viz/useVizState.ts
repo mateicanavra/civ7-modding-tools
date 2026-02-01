@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import type { Layer } from "@deck.gl/core";
 import type { VizEvent } from "../../shared/vizEvents";
 import { parsePipelineAddress, type PipelineAddress } from "../../shared/pipelineAddress";
-import { boundsForTileGrid, renderDeckLayers } from "./deckgl/render";
+import { boundsForLayerInRenderSpace, renderDeckLayers } from "./deckgl/render";
 import { buildStepDataTypeModel, type StepDataTypeModel } from "./dataTypeModel";
 import {
   formatLayerLabel,
@@ -11,15 +11,13 @@ import {
   resolveLayerVisibility,
 } from "./presentation";
 import {
-  getLayerKey,
-  normalizeManifest,
   type Bounds,
-  type TileLayout,
   type VizAssetResolver,
-  type VizLayerEntryV0,
-  type VizManifestV0,
+  type VizLayerEntryV1,
+  type VizManifestV1,
 } from "./model";
 import { getVizStore } from "./vizStore";
+import type { VizScalarStats } from "@swooper/mapgen-viz";
 
 function isAbortError(error: unknown): boolean {
   if (!error || typeof error !== "object") return false;
@@ -30,7 +28,6 @@ export type UseVizStateArgs = {
   enabled: boolean;
   mode: "browser" | "dump";
   assetResolver?: VizAssetResolver | null;
-  tileLayout?: TileLayout;
   showEdgeOverlay?: boolean;
   allowPendingSelection?: boolean;
   onError?(error: unknown): void;
@@ -39,7 +36,7 @@ export type UseVizStateArgs = {
 export type UseVizStateResult = {
   ingest(event: VizEvent): void;
   clearStream(): void;
-  setDumpManifest(manifest: VizManifestV0 | null): void;
+  setDumpManifest(manifest: VizManifestV1 | null): void;
 
   selectedStepId: string | null;
   setSelectedStepId(next: string | null): void;
@@ -58,9 +55,9 @@ export type UseVizStateResult = {
 
   deck: { layers: Layer[] };
 
-  effectiveLayer: VizLayerEntryV0 | null;
+  effectiveLayer: VizLayerEntryV1 | null;
   activeBounds: Bounds | null;
-  manifest: VizManifestV0 | null;
+  manifest: VizManifestV1 | null;
 };
 
 export function useVizState(args: UseVizStateArgs): UseVizStateResult {
@@ -68,7 +65,6 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     enabled,
     mode,
     assetResolver,
-    tileLayout = "row-offset",
     showEdgeOverlay = true,
     allowPendingSelection = false,
     onError,
@@ -83,7 +79,7 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
   const setSelectedStepId = store.setSelectedStepId;
   const setSelectedLayerKey = store.setSelectedLayerKey;
 
-  const [layerStats, setLayerStats] = useState<{ min?: number; max?: number } | null>(null);
+  const [layerStats, setLayerStats] = useState<VizScalarStats | null>(null);
   const [resolvedLayers, setResolvedLayers] = useState<Layer[]>([]);
   const renderAbortRef = useRef<AbortController | null>(null);
   const onErrorRef = useRef<UseVizStateArgs["onError"]>(onError);
@@ -106,8 +102,8 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     setResolvedLayers([]);
   }, [store]);
 
-  const setDumpManifest = useCallback((next: VizManifestV0 | null) => {
-    store.setDumpManifest(normalizeManifest(next));
+  const setDumpManifest = useCallback((next: VizManifestV1 | null) => {
+    store.setDumpManifest(next);
   }, [store]);
 
   const steps = useMemo(() => {
@@ -166,7 +162,7 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     if (!manifest || !activeSelectedStepId) return [];
     return manifest.layers
       .filter((l) => l.stepId === activeSelectedStepId)
-      .map((l) => ({ key: getLayerKey(l), layer: l }));
+      .map((l) => ({ key: l.layerKey, layer: l }));
   }, [activeSelectedStepId, manifest]);
 
   const activeSelectedLayerKey = useMemo(() => {
@@ -197,10 +193,8 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
 
   const activeBounds = useMemo(() => {
     if (!effectiveLayer) return null;
-    return effectiveLayer.kind === "grid"
-      ? boundsForTileGrid(tileLayout, effectiveLayer.dims, 1)
-      : effectiveLayer.bounds;
-  }, [effectiveLayer, tileLayout]);
+    return boundsForLayerInRenderSpace(effectiveLayer, 1);
+  }, [effectiveLayer]);
 
   useEffect(() => {
     // Cancel any in-flight render work. This prevents backlogs when the user
@@ -217,7 +211,6 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     renderDeckLayers({
       manifest,
       layer: effectiveLayer,
-      tileLayout,
       showEdgeOverlay,
       assetResolver,
       signal: controller.signal,
@@ -236,18 +229,20 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
       controller.abort();
       if (renderAbortRef.current === controller) renderAbortRef.current = null;
     };
-  }, [assetResolver, effectiveLayer, manifest, showEdgeOverlay, tileLayout]);
+  }, [assetResolver, effectiveLayer, manifest, showEdgeOverlay]);
 
   const legend = useMemo(() => {
     if (!effectiveLayer) return null;
     return legendForLayer(effectiveLayer, layerStats, {
       stepId: effectiveLayer.stepId,
       stepLabel: formatStepLabel(effectiveLayer.stepId),
-      layerId: effectiveLayer.layerId,
+      layerKey: effectiveLayer.layerKey,
+      dataTypeKey: effectiveLayer.dataTypeKey,
       kind: effectiveLayer.kind,
-      tileLayout: effectiveLayer.kind === "grid" ? tileLayout : undefined,
+      spaceId: effectiveLayer.spaceId,
+      variantKey: effectiveLayer.variantKey,
     });
-  }, [effectiveLayer, layerStats, tileLayout]);
+  }, [effectiveLayer, layerStats]);
 
   return {
     ingest,

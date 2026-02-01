@@ -10,6 +10,7 @@ import type { MorphologyCoastRuggednessKnob } from "@mapgen/domain/morphology/sh
 type ArtifactValidationIssue = Readonly<{ message: string }>;
 
 const GROUP_COASTLINES = "Morphology / Coastlines";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -233,7 +234,8 @@ export default createStep(RuggedCoastsStepContract, {
     const distanceToCoast = computeDistanceToCoast(width, height, coastal);
 
     context.viz?.dumpGrid(context.trace, {
-      layerId: "morphology.coastlineMetrics.coastalLand",
+      dataTypeKey: "morphology.coastlineMetrics.coastalLand",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: result.coastalLand,
@@ -243,7 +245,8 @@ export default createStep(RuggedCoastsStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "morphology.coastlineMetrics.coastalWater",
+      dataTypeKey: "morphology.coastlineMetrics.coastalWater",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: result.coastalWater,
@@ -253,7 +256,8 @@ export default createStep(RuggedCoastsStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "morphology.coastlineMetrics.distanceToCoast",
+      dataTypeKey: "morphology.coastlineMetrics.distanceToCoast",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u16",
       values: distanceToCoast,
