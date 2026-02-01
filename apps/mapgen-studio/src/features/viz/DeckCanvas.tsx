@@ -179,5 +179,11 @@ export function DeckCanvas(props: DeckCanvasProps) {
     deckRef.current?.setProps({ layers: deckLayers });
   }, [deckLayers]);
 
+  // Keep Deck's internal canvas size in sync with the measured container size.
+  // This avoids relying on implicit resize behavior and prevents blurry/incorrect scaling after layout changes.
+  useEffect(() => {
+    deckRef.current?.setProps({ width: viewportSize.width, height: viewportSize.height });
+  }, [viewportSize.height, viewportSize.width]);
+
   return <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />;
 }
