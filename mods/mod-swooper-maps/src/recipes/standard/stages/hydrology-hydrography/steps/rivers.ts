@@ -194,6 +194,7 @@ export default createStep(RiversStepContract, {
       meta: defineVizMeta("hydrology.hydrography.riverClass", {
         label: "River Class",
         group: GROUP_HYDROGRAPHY,
+        palette: "categorical",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -204,6 +205,7 @@ export default createStep(RiversStepContract, {
       meta: defineVizMeta("hydrology.hydrography.sinkMask", {
         label: "Sink Mask",
         group: GROUP_HYDROGRAPHY,
+        palette: "categorical",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -214,6 +216,7 @@ export default createStep(RiversStepContract, {
       meta: defineVizMeta("hydrology.hydrography.outletMask", {
         label: "Outlet Mask",
         group: GROUP_HYDROGRAPHY,
+        palette: "categorical",
       }),
     });
   },

@@ -32,6 +32,7 @@ type ArtifactValidationIssue = Readonly<{ message: string }>;
 type TypedArrayConstructor = { new (...args: unknown[]): { length: number } };
 
 const GROUP_SEASONALITY = "Hydrology / Seasonality";
+const GROUP_CLIMATE = "Hydrology / Climate";
 const GROUP_WIND = "Hydrology / Wind";
 const GROUP_CURRENT = "Hydrology / Currents";
 
@@ -515,6 +516,26 @@ export default createStep(ClimateBaselineStepContract, {
       meanCurrentV[i] = clampI8(Math.round(currentVSum / seasonCount));
     }
 
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.climate.rainfall",
+      dims: { width, height },
+      format: "u8",
+      values: meanRainfall,
+      meta: defineVizMeta("hydrology.climate.rainfall", {
+        label: "Rainfall (Baseline)",
+        group: GROUP_CLIMATE,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "hydrology.climate.humidity",
+      dims: { width, height },
+      format: "u8",
+      values: meanHumidity,
+      meta: defineVizMeta("hydrology.climate.humidity", {
+        label: "Humidity (Baseline)",
+        group: GROUP_CLIMATE,
+      }),
+    });
     context.viz?.dumpGrid(context.trace, {
       layerId: "hydrology.climate.seasonality.rainfallAmplitude",
       dims: { width, height },

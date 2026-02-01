@@ -34,6 +34,7 @@ export default createStep(LakesStepContract, {
       meta: defineVizMeta("map.hydrology.lakes.sinkMask", {
         label: "Lake Sinks (Projected)",
         group: GROUP_MAP_HYDROLOGY,
+        palette: "categorical",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -44,6 +45,7 @@ export default createStep(LakesStepContract, {
       meta: defineVizMeta("map.hydrology.lakes.outletMask", {
         label: "Lake Outlets (Projected)",
         group: GROUP_MAP_HYDROLOGY,
+        palette: "categorical",
       }),
     });
 
