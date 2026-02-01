@@ -2,11 +2,16 @@
   <item id="tldr" title="TL;DR"/>
   <item id="scope" title="Scope + non-goals"/>
   <item id="inputs" title="Inputs + ground truth"/>
+  <item id="path-roots" title="Path roots (variables)"/>
+  <item id="known-current" title="Known current-canonical surfaces (viz is current)"/>
   <item id="strategy" title="Implementation strategy"/>
   <item id="team" title="Agent team model (roles + guardrails)"/>
+  <item id="roster" title="Recommended agent roster + ownership"/>
   <item id="workflow" title="Workflow + coordination protocol"/>
   <item id="slices" title="Slices (full build-out plan)"/>
   <item id="qa" title="QA + correctness checks"/>
+  <item id="risks" title="Risk register + mitigations"/>
+  <item id="open-questions" title="Open questions (do not guess)"/>
   <item id="hardening" title="Hardening pass (do we need it?)"/>
   <item id="appendix-agent-prompts" title="Appendix: agent prompts"/>
   <item id="appendix-checklists" title="Appendix: checklists"/>
@@ -61,6 +66,33 @@ Build the **future evergreen, canonical** MapGen doc set under `docs/system/libs
 - Pipeline model: `docs/projects/engine-refactor-v1/mapgen-docs-alignment/scratch/pipeline.md`
 - Studio seams: `docs/projects/engine-refactor-v1/mapgen-docs-alignment/scratch/studio.md`
 - Domain contracts: `docs/projects/engine-refactor-v1/mapgen-docs-alignment/scratch/domains-*.md`
+
+## Path roots (variables)
+
+Use these path roots in the future evergreen docs (to keep anchors readable and stable):
+
+```text
+$MAPGEN_DOCS = docs/system/libs/mapgen
+$MAPGEN_SPIKE = docs/projects/engine-refactor-v1/mapgen-docs-alignment
+$MAPGEN_SCRATCH = $MAPGEN_SPIKE/scratch
+
+$MAPGEN_LIB = packages/mapgen-core
+$MAPGEN_STUDIO = packages/mapgen-studio
+$MAPGEN_VIZ = packages/mapgen-viz
+```
+
+## Known current-canonical surfaces (viz is current)
+
+### Visualization pipeline (deck.gl) is now current + canonical
+
+This plan treats MapGen visualization as **present-day, current architecture**, not “future ambition”.
+
+Current canonical doc (until migrated into the new spine location):
+- `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
+
+Hard rule for build-out:
+- Any “trace/viz” or Studio visualization guidance must reflect this current deck.gl posture.
+- Do not write a second competing “viz architecture” doc; instead, route into the canonical one and migrate it into the spine in a dedicated slice.
 
 ## Implementation strategy
 
@@ -124,7 +156,28 @@ Proposed model:
 6) **Sidebar is auto-generated**
 - Never edit `docs/_sidebar.md`.
 
+## Recommended agent roster + ownership
+
+This roster is designed to minimize merge conflicts and maximize coherence.
+
+**Integrator (single owner)**
+- Owns: terminology, policy language, drift posture, routing correctness, and final QA.
+
+**Peer agents (bounded file ownership per slice)**
+- Agent `SDK+RunBoundary`: `reference/{SDK-OVERVIEW,RUN-BOUNDARY,ARTIFACT-KINDS,STEP-AND-OP-CONTRACTS}.md`
+- Agent `Pipeline+Recipe`: `reference/{PIPELINE,STANDARD-RECIPE,STAGES}.md`
+- Agent `Domains`: `reference/domains/*.md` (split by domain when needed)
+- Agent `Studio+Viz`: viz migration slice + `how-to/*viz*` + `reference/STUDIO-INTEGRATION.md`
+- Agent `Authoring`: `reference/recipe-schema.md` + authoring/tutorials/how-tos for knobs/presets
+
 ## Workflow + coordination protocol
+
+### Semantic preservation (hardening posture)
+
+This plan is hardened for execution. It must:
+- **not change the objective** (fill out the canonical MapGen docs spine),
+- **not quietly decide unresolved contracts** (flag as open questions),
+- and **make implicit work explicit** (acceptance, verification, ownership, ordering).
 
 ### Branching + slicing (Graphite)
 
@@ -132,6 +185,14 @@ Proposed model:
 - Agents can work in parallel, but we avoid merge conflicts by:
   - assigning disjoint file ownership per slice, and
   - having the integrator land changes into the slice branch after review.
+
+**Branch naming convention**
+- `docs-mapgen-spine-<slice>-<slug>`
+
+**Per-slice workflow**
+- Integrator creates the slice branch (stacked) and adds empty routing stubs if needed.
+- Peer agents implement within their assigned subtree and deliver a patchset for review.
+- Integrator merges into the slice branch, runs the QA checklist, and restacks as needed.
 
 ### File ownership
 
@@ -153,6 +214,57 @@ A page is “done” for the slice when it has:
 This section enumerates **all slices**, not just “slice 1”.
 Each slice is intended to be a reviewable layer with clear acceptance criteria.
 
+```yaml
+steps:
+  - slice: "00"
+    mode: sequential
+    description: Scaffold + routing stubs (no claims).
+  - slice: "01"
+    mode: sequential
+    after: ["00"]
+    description: Policy rails (imports, tags, compilation split, mutability).
+  - slice: "02"
+    mode: sequential
+    after: ["01"]
+    description: Core SDK reference surfaces + run boundary.
+  - slice: "03"
+    mode: sequential
+    after: ["02"]
+    description: Pipeline + standard recipe reference (two compilation layers; truth vs projection).
+  - slice: "03B"
+    mode: sequential
+    after: ["03"]
+    description: Viz (deck.gl) canonical routing + migration; prevent forking.
+  - slice: "04"
+    mode: parallel
+    after: ["03"]
+    description: Domain reference contracts (split across agents by domain).
+  - slice: "05"
+    mode: parallel
+    after: ["04"]
+    description: Dev how-tos (add step/op/artifact/tag, debug).
+  - slice: "06"
+    mode: sequential
+    after: ["05"]
+    description: Dev tutorials (run end-to-end, inspect artifacts/projections).
+  - slice: "07"
+    mode: sequential
+    after: ["01", "03"]
+    description: Authoring/tuning tutorial + how-tos (knobs/presets).
+  - slice: "08"
+    mode: sequential
+    after: ["03"]
+    description: Explanation/rationale (engine-refactor-v1 posture).
+  - slice: "09"
+    mode: sequential
+    after: ["03B"]
+    description: Studio seam docs aligned to current pipeline + viz posture.
+  - slice: "10"
+    mode: sequential
+    after: ["00", "01", "02", "03", "03B", "04", "05", "06", "07", "08", "09"]
+    description: Legacy routing + archival pass (no ambiguity left).
+```
+
 ### Slice 00 — Create the evergreen scaffold (routing skeleton)
 
 **Goal:** Create the canonical directories + stub pages, with correct routing and minimal content.
@@ -169,6 +281,10 @@ Each slice is intended to be a reviewable layer with clear acceptance criteria.
 - You can reach any leaf page from the gateway in ≤ 3 clicks.
 - Every stub page follows the page contract.
 
+**Verification (docs correctness)**
+- `rg -n "MAPGEN\\.md" docs/system/libs/mapgen` (ensure gateway exists and links are consistent)
+- Manual: open `docs/system/libs/mapgen/MAPGEN.md` and click through to each subtree index (no dead links)
+
 ### Slice 01 — Policy rails (the guardrail bundle)
 
 **Goal:** Publish the “rails” that prevent parallel architectures from reappearing.
@@ -184,6 +300,9 @@ Each slice is intended to be a reviewable layer with clear acceptance criteria.
 - Every policy has explicit “Allowed / Disallowed” and “Why” sections.
 - Policies point to code/spec anchors and to the drift ledger when needed.
 
+**Verification**
+- Manual: every policy page contains a “Ground truth anchors” section and at least one concrete anchor.
+
 ### Slice 02 — Reference: SDK surface + run boundary
 
 **Goal:** Make the SDK contract discoverable and unambiguous.
@@ -198,6 +317,10 @@ Each slice is intended to be a reviewable layer with clear acceptance criteria.
 - Reference pages are contract-first (no tutorial prose).
 - Every exported concept has at least one anchor (symbol or schema ID).
 
+**Verification**
+- `rg -n "Ground truth anchors" docs/system/libs/mapgen/reference` (expect anchors everywhere)
+- Manual: “Run boundary” page explicitly calls out `RunSettings` ↔ `Env` drift with a pointer to the drift ledger.
+
 ### Slice 03 — Reference: pipeline + standard recipe contract
 
 **Goal:** Document “the one real pipeline” (target) and how the standard recipe maps today.
@@ -210,6 +333,27 @@ Each slice is intended to be a reviewable layer with clear acceptance criteria.
 **Acceptance:**
 - Explicitly teaches the two compilation layers (config vs plan).
 - Explicitly teaches truth vs projection and artifact publication rules.
+
+**Verification**
+- Manual: “Standard recipe” page includes stage order and a “current wiring” caveat where needed (Narrative).
+
+### Slice 03B — Visualization (deck.gl pipeline) migration + canonical routing
+
+**Goal:** Treat visualization as first-class, current canon; route the spine to the deck.gl posture and remove ambiguity.
+
+**Deliverables:**
+- Migrate/reshape existing canon into the spine (choose one):
+  - move `docs/system/libs/mapgen/pipeline-visualization-deckgl.md` → `docs/system/libs/mapgen/how-to/visualize-pipeline-deckgl.md`, or
+  - keep file but add a canonical routing pointer from `how-to/debug-with-trace-and-viz.md` and the gateway.
+- Add a small reference page describing the “viz contract” surface:
+  - `docs/system/libs/mapgen/reference/visualization.md`
+
+**Acceptance:**
+- There is exactly one canonical deck.gl visualization doc; all “viz” links route to it.
+- The gateway and debugging how-to both reference the same viz posture.
+
+**Verification**
+- `rg -n "pipeline-visualization-deckgl" docs/system/libs/mapgen` (ensure routing exists and is not duplicated)
 
 ### Slice 04 — Reference: domains (per-domain contracts)
 
@@ -227,6 +371,10 @@ Each slice is intended to be a reviewable layer with clear acceptance criteria.
 - Each domain page has a machine-scannable “Inputs/Outputs” section.
 - Each domain page states ownership boundaries and invariants.
 
+**Verification**
+- Manual: each domain page has an explicit “Provides / Requires” summary.
+- Manual: Narrative page explicitly states “current wiring status” (wired vs not wired) and does not imply activation.
+
 ### Slice 05 — How-to: SDK extension tasks (developer)
 
 **Goal:** The “I’m implementing MapGen” workflow is easy and safe.
@@ -241,6 +389,9 @@ Each slice is intended to be a reviewable layer with clear acceptance criteria.
 - Every how-to has a working checklist and points to reference contracts.
 - No how-to introduces a new concept without linking to reference.
 
+**Verification**
+- Manual: every how-to ends with a “Verification” section with commands or observable outcomes.
+
 ### Slice 06 — Tutorial: run end-to-end (developer)
 
 **Goal:** A new engineer can run MapGen end-to-end with a clear mental model.
@@ -252,6 +403,9 @@ Each slice is intended to be a reviewable layer with clear acceptance criteria.
 **Acceptance:**
 - Tutorial uses stable entrypoints and avoids internal imports.
 - Tutorial explicitly calls out where drift exists.
+
+**Verification**
+- Manual: tutorials reference the canonical viz posture (deck.gl) when they mention visualization.
 
 ### Slice 07 — How-to + Tutorial: authoring & tuning (author)
 
@@ -265,6 +419,9 @@ Each slice is intended to be a reviewable layer with clear acceptance criteria.
 **Acceptance:**
 - Authoring docs only reference SDK internals when absolutely necessary.
 - Tuning docs are parameter/semantics-driven, not implementation-driven.
+
+**Verification**
+- Manual: tuning docs never instruct authors to import internal modules.
 
 ### Slice 08 — Explanation: architecture + rationale (engine-refactor-v1)
 
@@ -289,6 +446,9 @@ Each slice is intended to be a reviewable layer with clear acceptance criteria.
 **Acceptance:**
 - Seam docs reference the current best end-to-end example path(s).
 - No outdated UI/legacy workflow is presented as canonical.
+
+**Verification**
+- Manual: Studio docs refer to current pipeline/viz posture; if a legacy UI is mentioned, it is explicitly labeled legacy.
 
 ### Slice 10 — Legacy page routing + archival pass
 
@@ -317,6 +477,32 @@ Each slice is intended to be a reviewable layer with clear acceptance criteria.
 
 For pages that claim runnable flows, run the referenced commands once (or mark as “unverified” if not runnable in the current environment).
 
+### Repo-wide sanity (optional)
+
+- `bun run lint` (ensure docs changes don’t break lint rules, if configured)
+
+## Risk register + mitigations
+
+1) **Risk: parallel architectures reappear via tutorials**
+- Mitigation: tutorials/how-tos are gated behind policies + core reference slices; integrator enforces link discipline and import policy.
+
+2) **Risk: “viz” forks into two competing docs**
+- Mitigation: explicit viz migration slice (03B) and a hard “one canonical viz doc” rule.
+
+3) **Risk: agents guess contracts**
+- Mitigation: anchors are mandatory; unresolved items become “open questions” rather than prose guesses.
+
+4) **Risk: docs drift out of sync with code**
+- Mitigation: every reference page includes “ground truth anchors”; drift callouts link to the drift ledger; hardening pass tightens wording.
+
+## Open questions (do not guess)
+
+These are the known ambiguity points that must be escalated before we publish tutorial guidance.
+
+- Is the long-term target naming `RunSettings` (spec) vs `Env` (code) going to converge via code change, or remain a docs-only mapping for a while?
+- Is the artifact kind vocabulary going to converge to `buffer:*` or `field:*`, and what is the canonical “buffer-handle exception” wording?
+- For Narrative: what is the explicit “not wired yet” contract we want exposed to users (status, roadmap pointer, gating rules)?
+
 ## Hardening pass (do we need it?)
 
 Yes — we should plan one explicit hardening pass after Slice 02–04 land (policies + core reference).
@@ -340,6 +526,7 @@ Use this verbatim when spinning up a peer agent for build-out:
 - You are a peer agent writing canonical MapGen documentation under `docs/system/libs/mapgen/**`.
 - You must follow the doc spine and page contract in `docs/projects/engine-refactor-v1/mapgen-docs-alignment/DOC-SPINE-PROPOSAL.md`.
 - You must treat `docs/projects/engine-refactor-v1/mapgen-docs-alignment/SPIKE.md` as the authoritative alignment report, especially drift posture and policies.
+- Visualization is **current canon**: follow the deck.gl posture described in `docs/system/libs/mapgen/pipeline-visualization-deckgl.md` (or its migrated equivalent in the spine).
 - Every page you write must start with a mini XML `<toc>` and include “ground truth anchors” (code/spec filepaths + symbols/IDs).
 - Be target-architecture-first (engine-refactor-v1); if current code drifts, add a short “Current mapping” block and point to the drift ledger.
 - Do not edit `docs/_sidebar.md`.
@@ -374,4 +561,3 @@ Fill in bracketed fields:
 - “Ground truth anchors” section
 - “Target posture” (and optional “Current mapping”)
 - Links: gateway + related reference/policy pages
-

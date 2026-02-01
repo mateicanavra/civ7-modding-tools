@@ -147,6 +147,7 @@ docs/system/libs/mapgen/
     add-a-new-knob.md
     add-a-new-preset.md
     debug-with-trace-and-viz.md
+    visualize-pipeline-deckgl.md     # Current canon (deck.gl); route here, don’t fork
 
   reference/
     index.md
@@ -160,6 +161,7 @@ docs/system/libs/mapgen/
     artifacts.md                     # Artifact contracts, publish/read, mutability posture
     ops-module-contract.md           # Op contract + strategy encoding + type export rules
     observability.md                 # runId/fingerprint/tracing contract
+    visualization.md                 # Viz contract + deck.gl posture pointers
     adapter.md                       # Engine-coupled adapter capability reference
     standard-recipe.md               # Standard recipe: stage order, provides/requires summary
 
@@ -189,6 +191,7 @@ Notes:
 - `MAPGEN.md` is the only required new canonical top-level page; the rest can be added incrementally.
 - A separate `policies/` subtree is intentional: it’s where drift is prevented, not where it’s explained away.
 - The `llms/` subtree is optional but recommended; it is the repo-native analogue of `llms.txt` (curated pointers, not prose).
+- Visualization is current canon: docs must route to the deck.gl posture (do not create parallel viz docs).
 
 ## Page contract (AI-friendly + human-friendly)
 
@@ -241,6 +244,8 @@ Existing strong docs that become explanation/reference inputs:
   - Maps to: `reference/ops-module-contract.md` (pattern exemplar) and domain-linked reference
 - `docs/system/libs/mapgen/realism-knobs-and-presets.md`
   - Maps to: `tutorials/tune-a-preset-and-knobs.md` + `reference/config-compilation.md`
+- `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
+  - Maps to: `how-to/visualize-pipeline-deckgl.md` + `reference/visualization.md` (current canon; do not fork)
 - `docs/projects/engine-refactor-v1/resources/spec/**`
   - Maps to: primary authority for `reference/*`, `policies/*`, and `explanation/*`
 
@@ -285,6 +290,7 @@ For the full execution plan (agent team setup + guardrails + slice-by-slice deli
   - `reference/tags.md`
   - `reference/config-compilation.md`
   - `policies/imports.md`
+  - `how-to/visualize-pipeline-deckgl.md` (route into current deck.gl canon; do not fork)
   - `explanation/narrative-status.md`
 
 ### Phase 2 — Tutorials + How-to
