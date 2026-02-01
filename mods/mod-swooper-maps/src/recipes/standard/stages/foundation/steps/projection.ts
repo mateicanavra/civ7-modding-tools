@@ -134,6 +134,7 @@ export default createStep(ProjectionStepContract, {
       meta: defineVizMeta("foundation.plates.tileBoundaryCloseness", {
         label: "Plate Boundary Closeness",
         group: GROUP_PLATES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -145,6 +146,7 @@ export default createStep(ProjectionStepContract, {
       meta: defineVizMeta("foundation.plates.tileTectonicStress", {
         label: "Plate Tectonic Stress",
         group: GROUP_PLATES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -156,6 +158,7 @@ export default createStep(ProjectionStepContract, {
       meta: defineVizMeta("foundation.plates.tileUpliftPotential", {
         label: "Plate Uplift Potential",
         group: GROUP_PLATES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -167,6 +170,7 @@ export default createStep(ProjectionStepContract, {
       meta: defineVizMeta("foundation.plates.tileRiftPotential", {
         label: "Plate Rift Potential",
         group: GROUP_PLATES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -178,6 +182,7 @@ export default createStep(ProjectionStepContract, {
       meta: defineVizMeta("foundation.plates.tileShieldStability", {
         label: "Plate Shield Stability",
         group: GROUP_PLATES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -189,6 +194,7 @@ export default createStep(ProjectionStepContract, {
       meta: defineVizMeta("foundation.plates.tileVolcanism", {
         label: "Plate Volcanism",
         group: GROUP_PLATES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -200,6 +206,7 @@ export default createStep(ProjectionStepContract, {
       meta: defineVizMeta("foundation.plates.tileMovementU", {
         label: "Plate Movement U",
         group: GROUP_PLATES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -211,6 +218,7 @@ export default createStep(ProjectionStepContract, {
       meta: defineVizMeta("foundation.plates.tileMovementV", {
         label: "Plate Movement V",
         group: GROUP_PLATES,
+        visibility: "debug",
       }),
     });
     {
@@ -247,6 +255,7 @@ export default createStep(ProjectionStepContract, {
       meta: defineVizMeta("foundation.plates.tileRotation", {
         label: "Plate Rotation",
         group: GROUP_PLATES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -273,6 +282,7 @@ export default createStep(ProjectionStepContract, {
       meta: defineVizMeta("foundation.crustTiles.age", {
         label: "Crust Age",
         group: GROUP_CRUST_TILES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -284,6 +294,7 @@ export default createStep(ProjectionStepContract, {
       meta: defineVizMeta("foundation.crustTiles.buoyancy", {
         label: "Crust Buoyancy",
         group: GROUP_CRUST_TILES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -295,6 +306,7 @@ export default createStep(ProjectionStepContract, {
       meta: defineVizMeta("foundation.crustTiles.baseElevation", {
         label: "Crust Base Elevation",
         group: GROUP_CRUST_TILES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -306,6 +318,7 @@ export default createStep(ProjectionStepContract, {
       meta: defineVizMeta("foundation.crustTiles.strength", {
         label: "Crust Strength",
         group: GROUP_CRUST_TILES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -317,6 +330,7 @@ export default createStep(ProjectionStepContract, {
       meta: defineVizMeta("foundation.tileToCellIndex", {
         label: "Tile To Cell Index",
         group: GROUP_TILE_MAP,
+        visibility: "debug",
       }),
     });
 
