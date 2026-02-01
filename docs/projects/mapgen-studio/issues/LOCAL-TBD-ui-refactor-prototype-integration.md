@@ -291,8 +291,8 @@ bun run check
 Remove the legacy UI once the prototype shell is fully wired.
 
 **Acceptance criteria**
-- [ ] Legacy UI components/state are removed.
-- [ ] Dumps replay mode continues to function.
+- [x] Legacy UI components/state are removed.
+- [x] Dumps replay mode continues to function.
 
 **Verification**
 ```bash
