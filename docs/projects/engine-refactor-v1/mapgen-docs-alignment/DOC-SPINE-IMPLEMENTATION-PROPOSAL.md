@@ -3,16 +3,19 @@
   <item id="scope" title="Scope + non-goals"/>
   <item id="inputs" title="Inputs + ground truth"/>
   <item id="path-roots" title="Path roots (variables)"/>
+  <item id="naming" title="Naming + placement constraints (DOCS.md)"/>
   <item id="known-current" title="Known current-canonical surfaces (viz is current)"/>
   <item id="strategy" title="Implementation strategy"/>
   <item id="team" title="Agent team model (roles + guardrails)"/>
   <item id="roster" title="Recommended agent roster + ownership"/>
   <item id="workflow" title="Workflow + coordination protocol"/>
   <item id="slices" title="Slices (full build-out plan)"/>
+  <item id="prework" title="Prework prompts (before publishing tutorials)"/>
   <item id="qa" title="QA + correctness checks"/>
   <item id="risks" title="Risk register + mitigations"/>
   <item id="open-questions" title="Open questions (do not guess)"/>
   <item id="hardening" title="Hardening pass (do we need it?)"/>
+  <item id="coherence" title="Coherence review notes"/>
   <item id="appendix-agent-prompts" title="Appendix: agent prompts"/>
   <item id="appendix-checklists" title="Appendix: checklists"/>
 </toc>
@@ -80,6 +83,20 @@ $MAPGEN_LIB = packages/mapgen-core
 $MAPGEN_STUDIO = packages/mapgen-studio
 $MAPGEN_VIZ = packages/mapgen-viz
 ```
+
+## Naming + placement constraints (DOCS.md)
+
+Hard rules (aligning with `docs/DOCS.md`):
+
+1) **Evergreen canon lives in `docs/system/**`**
+- The output of this execution plan is the canonical doc set under `$MAPGEN_DOCS/**`.
+
+2) **Canonical pages are ALL‑CAPS at their directory scope**
+- Canonical gateway pages and contract references should use ALL‑CAPS filenames (e.g., `MAPGEN.md`, `REFERENCE.md`, `RUN-SETTINGS.md`).
+- Tutorials/how-tos are generally *supporting* docs and may remain lowercase.
+
+3) **Project docs remain in `docs/projects/**`**
+- This implementation plan is a project artifact and stays in `$MAPGEN_SPIKE/**`.
 
 ## Known current-canonical surfaces (viz is current)
 
@@ -269,6 +286,14 @@ steps:
 
 **Goal:** Create the canonical directories + stub pages, with correct routing and minimal content.
 
+**In scope:**
+- Create the directory scaffold and canonical gateway files (stubs are fine).
+- Routing only; no deep content.
+
+**Out of scope:**
+- Moving/renaming existing MapGen docs (handled later in Slice 10).
+- Any MapGen runtime changes.
+
 **Deliverables (new):**
 - `docs/system/libs/mapgen/MAPGEN.md` (gateway)
 - `docs/system/libs/mapgen/policies/`
@@ -276,6 +301,12 @@ steps:
 - `docs/system/libs/mapgen/how-to/`
 - `docs/system/libs/mapgen/tutorials/`
 - `docs/system/libs/mapgen/explanation/`
+- `docs/system/libs/mapgen/policies/POLICIES.md` (subtree gateway)
+- `docs/system/libs/mapgen/reference/REFERENCE.md` (subtree gateway)
+- `docs/system/libs/mapgen/how-to/HOW-TO.md` (subtree gateway)
+- `docs/system/libs/mapgen/tutorials/TUTORIALS.md` (subtree gateway)
+- `docs/system/libs/mapgen/explanation/EXPLANATION.md` (subtree gateway)
+- `docs/system/libs/mapgen/llms/LLMS.md` (optional subtree gateway)
 
 **Acceptance:**
 - You can reach any leaf page from the gateway in ≤ 3 clicks.
@@ -289,12 +320,21 @@ steps:
 
 **Goal:** Publish the “rails” that prevent parallel architectures from reappearing.
 
+**In scope:**
+- Write canonical policy pages with hard “allowed/disallowed” rules and anchors.
+
+**Out of scope:**
+- Tutorials/how-tos (policy should be link targets, not embedded inside walkthroughs).
+- Runtime refactors to conform to policy (docs are drift-aware).
+
 **Deliverables (examples):**
 - `docs/system/libs/mapgen/policies/IMPORTS.md`
-- `docs/system/libs/mapgen/policies/ARTIFACTS-AND-TAGS.md`
-- `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
+- `docs/system/libs/mapgen/policies/SCHEMAS-AND-VALIDATION.md`
+- `docs/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md`
+- `docs/system/libs/mapgen/policies/ARTIFACT-MUTATION.md`
 - `docs/system/libs/mapgen/policies/CONFIG-VS-PLAN-COMPILATION.md`
-- `docs/system/libs/mapgen/policies/MUTABILITY-AND-OWNERSHIP.md`
+- `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
+- `docs/system/libs/mapgen/policies/MODULE-SHAPE.md`
 
 **Acceptance:**
 - Every policy has explicit “Allowed / Disallowed” and “Why” sections.
@@ -307,11 +347,22 @@ steps:
 
 **Goal:** Make the SDK contract discoverable and unambiguous.
 
+**In scope:**
+- Contract-first reference pages for the core SDK surfaces and boundaries.
+
+**Out of scope:**
+- End-to-end tutorials (they come later and must point to this reference).
+- Inventing APIs not present in spec/code (flag as open questions instead).
+
 **Deliverables (examples):**
+- `docs/system/libs/mapgen/reference/GLOSSARY.md`
 - `docs/system/libs/mapgen/reference/SDK-OVERVIEW.md`
-- `docs/system/libs/mapgen/reference/RUN-BOUNDARY.md` (RunSettings vs Env drift called out)
-- `docs/system/libs/mapgen/reference/ARTIFACT-KINDS.md` (field vs buffer drift called out)
-- `docs/system/libs/mapgen/reference/STEP-AND-OP-CONTRACTS.md`
+- `docs/system/libs/mapgen/reference/RUN-SETTINGS.md` (RunSettings vs Env drift called out)
+- `docs/system/libs/mapgen/reference/TAGS.md`
+- `docs/system/libs/mapgen/reference/ARTIFACTS.md` (field vs buffer drift called out)
+- `docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`
+- `docs/system/libs/mapgen/reference/OBSERVABILITY.md`
+- `docs/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md`
 
 **Acceptance:**
 - Reference pages are contract-first (no tutorial prose).
@@ -319,13 +370,23 @@ steps:
 
 **Verification**
 - `rg -n "Ground truth anchors" docs/system/libs/mapgen/reference` (expect anchors everywhere)
-- Manual: “Run boundary” page explicitly calls out `RunSettings` ↔ `Env` drift with a pointer to the drift ledger.
+- Manual: “Run settings” page explicitly calls out `RunSettings` ↔ `Env` drift with a pointer to the drift ledger.
 
 ### Slice 03 — Reference: pipeline + standard recipe contract
 
 **Goal:** Document “the one real pipeline” (target) and how the standard recipe maps today.
 
+**In scope:**
+- Pipeline and recipe contracts, including compilation layers and gating rules.
+
+**Out of scope:**
+- Implementing missing target features (e.g., wiring Narrative).
+- Large refactors of the standard recipe; this slice documents reality + target posture.
+
 **Deliverables (examples):**
+- `docs/system/libs/mapgen/reference/RECIPE-SCHEMA.md`
+- `docs/system/libs/mapgen/reference/CONFIG-COMPILATION.md`
+- `docs/system/libs/mapgen/reference/PLAN-COMPILATION.md`
 - `docs/system/libs/mapgen/reference/PIPELINE.md`
 - `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`
 - `docs/system/libs/mapgen/reference/STAGES.md` (truth/projection; responsibility split)
@@ -341,12 +402,20 @@ steps:
 
 **Goal:** Treat visualization as first-class, current canon; route the spine to the deck.gl posture and remove ambiguity.
 
+**In scope:**
+- Routing and migration of the canonical deck.gl viz doc into the spine posture.
+- A small `VISUALIZATION.md` reference page that explains the viz contract surface and points to the canonical how-to.
+
+**Out of scope:**
+- Changing the viz implementation or Studio UI behavior.
+- Writing multiple viz docs that compete (explicitly forbidden).
+
 **Deliverables:**
 - Migrate/reshape existing canon into the spine (choose one):
   - move `docs/system/libs/mapgen/pipeline-visualization-deckgl.md` → `docs/system/libs/mapgen/how-to/visualize-pipeline-deckgl.md`, or
   - keep file but add a canonical routing pointer from `how-to/debug-with-trace-and-viz.md` and the gateway.
 - Add a small reference page describing the “viz contract” surface:
-  - `docs/system/libs/mapgen/reference/visualization.md`
+  - `docs/system/libs/mapgen/reference/VISUALIZATION.md`
 
 **Acceptance:**
 - There is exactly one canonical deck.gl visualization doc; all “viz” links route to it.
@@ -359,7 +428,15 @@ steps:
 
 **Goal:** Publish per-domain “what this stage owns” and the artifacts it produces/consumes.
 
+**In scope:**
+- Domain contract reference pages: boundaries, invariants, provides/requires, and artifact semantics.
+
+**Out of scope:**
+- Deep algorithm explanations (belongs in explanation docs only when necessary).
+- Rewriting runtime code to match the target (docs remain drift-aware).
+
 **Deliverables (examples):**
+- `docs/system/libs/mapgen/reference/domains/DOMAINS.md` (domain contract index)
 - `docs/system/libs/mapgen/reference/domains/FOUNDATION.md`
 - `docs/system/libs/mapgen/reference/domains/MORPHOLOGY.md`
 - `docs/system/libs/mapgen/reference/domains/HYDROLOGY.md`
@@ -379,11 +456,18 @@ steps:
 
 **Goal:** The “I’m implementing MapGen” workflow is easy and safe.
 
+**In scope:**
+- Checklist-driven how-to pages that route into reference/policies.
+
+**Out of scope:**
+- Introducing new APIs or new conventions (raise as open questions instead).
+
 **Deliverables (examples):**
 - `docs/system/libs/mapgen/how-to/add-a-step.md`
 - `docs/system/libs/mapgen/how-to/add-an-op.md`
-- `docs/system/libs/mapgen/how-to/add-a-new-artifact-tag.md`
-- `docs/system/libs/mapgen/how-to/debug-a-run.md`
+- `docs/system/libs/mapgen/how-to/add-a-new-artifact.md`
+- `docs/system/libs/mapgen/how-to/add-a-new-tag.md`
+- `docs/system/libs/mapgen/how-to/debug-with-trace-and-viz.md`
 
 **Acceptance:**
 - Every how-to has a working checklist and points to reference contracts.
@@ -396,8 +480,14 @@ steps:
 
 **Goal:** A new engineer can run MapGen end-to-end with a clear mental model.
 
+**In scope:**
+- Two core tutorials that exercise the real consumer posture and artifact inspection flow.
+
+**Out of scope:**
+- Teaching detailed API contracts inside tutorials (they must link to reference instead).
+
 **Deliverables (examples):**
-- `docs/system/libs/mapgen/tutorials/run-a-standard-recipe.md`
+- `docs/system/libs/mapgen/tutorials/run-standard-recipe-in-studio.md`
 - `docs/system/libs/mapgen/tutorials/inspect-artifacts-and-projections.md`
 
 **Acceptance:**
@@ -411,10 +501,19 @@ steps:
 
 **Goal:** An author can tune maps without needing SDK internals.
 
+**In scope:**
+- Author-focused tuning pages that reference stable knobs/presets/recipes surfaces.
+
+**Out of scope:**
+- Forcing authors to import SDK internals or edit runtime steps.
+
 **Deliverables (examples):**
 - `docs/system/libs/mapgen/how-to/tune-realism-knobs.md`
-- `docs/system/libs/mapgen/reference/CONFIG-SCHEMA.md` (or equivalent)
-- `docs/system/libs/mapgen/tutorials/tune-a-preset-and-compare-results.md`
+- `docs/system/libs/mapgen/tutorials/tune-a-preset-and-knobs.md`
+
+**Prerequisites (must exist and be correct first):**
+- `docs/system/libs/mapgen/reference/RECIPE-SCHEMA.md`
+- `docs/system/libs/mapgen/reference/CONFIG-COMPILATION.md`
 
 **Acceptance:**
 - Authoring docs only reference SDK internals when absolutely necessary.
@@ -427,10 +526,22 @@ steps:
 
 **Goal:** Capture “why this architecture exists” without contaminating reference/how-to.
 
+**In scope:**
+- Architecture/rationale pages that explain the mental model and the why.
+
+**Out of scope:**
+- Reference contracts (keep the separation strict).
+
 **Deliverables (examples):**
 - `docs/system/libs/mapgen/explanation/ARCHITECTURE.md`
+- `docs/system/libs/mapgen/explanation/PIPELINE-MODEL.md`
 - `docs/system/libs/mapgen/explanation/TRUTH-VS-PROJECTION.md` (rationale complementing policy)
 - `docs/system/libs/mapgen/explanation/PIPELINE-COMPILATION.md`
+- `docs/system/libs/mapgen/explanation/DOMAIN-MODELING.md`
+- `docs/system/libs/mapgen/explanation/DETERMINISM.md`
+- `docs/system/libs/mapgen/explanation/MUTATION-MODEL.md`
+- `docs/system/libs/mapgen/explanation/NARRATIVE-STATUS.md`
+- `docs/system/libs/mapgen/explanation/STUDIO-AS-CONSUMER.md`
 
 **Acceptance:**
 - Explanation pages link down to reference/policies, not the other way around.
@@ -439,9 +550,16 @@ steps:
 
 **Goal:** Studio is documented as the canonical consumer without drifting.
 
+**In scope:**
+- Seam docs that describe Studio’s current worker/pipeline/viz posture as the reference consumer.
+
+**Out of scope:**
+- Proposing a new Studio architecture or UI behavior.
+
 **Deliverables (examples):**
 - `docs/system/libs/mapgen/how-to/integrate-mapgen-studio-worker.md`
 - `docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`
+- `docs/system/libs/mapgen/reference/ADAPTER.md`
 
 **Acceptance:**
 - Seam docs reference the current best end-to-end example path(s).
@@ -454,6 +572,12 @@ steps:
 
 **Goal:** Remove ambiguity by clearly marking superseded pages and routing to canon.
 
+**In scope:**
+- Mark old pages as superseded or archive them, and update routing to point to new canon.
+
+**Out of scope:**
+- Major content rewrites of legacy pages (the goal is unambiguous routing and labeling).
+
 **Deliverables:**
 - Add “This page is superseded; go here instead” headers to old pages, or move them to `_archive` as appropriate.
 - Update gateway routing to prefer new canon.
@@ -461,6 +585,38 @@ steps:
 **Acceptance:**
 - No legacy page is reachable without a “superseded” label or redirect.
 - Canon pages do not link into legacy pages except via explicit “history” pointers.
+
+## Prework prompts (before publishing tutorials)
+
+These prompts are designed to prevent “helpful guessing” and to keep canon accurate.
+If an item can’t be resolved quickly, treat it as an explicit open question and keep the affected pages in `status: mixed` until resolved.
+
+### Prompt 1 — Confirm the viz canonical posture + migration choice (03B)
+
+- Confirm whether we will:
+  - move `docs/system/libs/mapgen/pipeline-visualization-deckgl.md` into the new spine path, or
+  - keep it in place and route to it from the spine.
+- Hard requirement: there must remain **exactly one** canonical deck.gl visualization doc.
+
+### Prompt 2 — Resolve naming drift mapping (RunSettings ↔ Env)
+
+- Locate the canonical spec references for `RunSettings` and list:
+  - required/optional fields,
+  - defaulting/validation responsibility,
+  - and how “current Env” maps today.
+- Decide whether we will:
+  - keep a docs-only mapping for a while, or
+  - prioritize code renaming/unification.
+
+### Prompt 3 — Resolve artifact kind vocabulary (buffer:* ↔ field:*)
+
+- Confirm the current runtime vocabulary used for artifact kinds.
+- Decide canonical wording and examples for the “buffer-handle exception” posture.
+
+### Prompt 4 — Narrative status contract wording
+
+- Confirm current wiring status in the standard recipe (wired vs not wired).
+- Decide the canonical user-facing “not wired yet” wording (including where roadmap pointers live).
 
 ## QA + correctness checks
 
@@ -516,6 +672,28 @@ Hardening pass outcomes:
 - replace soft language with enforceable invariants,
 - ensure every anchor resolves cleanly,
 - ensure drift callouts are complete (RunSettings/Env, artifact kinds, and any other ledger items).
+
+## Coherence review notes
+
+### Existing docs vs new canon (expected duplication during build-out)
+
+Today, `$MAPGEN_DOCS/` already contains several lowercase docs (e.g., `architecture.md`, domain pages, and `pipeline-visualization-deckgl.md`).
+This execution plan intentionally introduces a new canonical spine that uses ALL‑CAPS for canonical contracts.
+
+Coherence rule:
+- During the transition, it is acceptable for “old” and “new” pages to coexist, but **routing must become unambiguous**:
+  - gateway pages route to the new canon,
+  - old pages are marked “superseded” (or moved to `_archive`) in Slice 10,
+  - and we avoid creating two competing “canonical” pages for the same concept.
+
+### Visualization (deck.gl) is the special case
+
+Unlike other areas, viz is already “done and current”.
+So we must not:
+- treat viz as speculative,
+- or publish a second viz doc that competes with the existing canonical deck.gl page.
+
+Instead, we explicitly migrate/route viz in Slice 03B and then treat it as the single canonical source.
 
 ## Appendix: agent prompts
 

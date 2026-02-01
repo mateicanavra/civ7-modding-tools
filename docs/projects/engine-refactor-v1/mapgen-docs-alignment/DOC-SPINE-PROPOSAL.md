@@ -126,19 +126,24 @@ We should support three “entrypoint maps” (each is mostly link routing, not 
 This is a proposal for the *future canonical location* under `docs/system/libs/mapgen/**` (evergreen).
 It deliberately separates “doc type” (Diátaxis) from “topic”.
 
+Naming posture:
+- Canonical gateways and reference/policy contracts are ALL‑CAPS (per `docs/DOCS.md`).
+- Tutorials/how-tos are supporting docs and may be lowercase.
+
 ```text
 docs/system/libs/mapgen/
   MAPGEN.md                         # Gateway: entrypoints + routing (canonical)
 
   tutorials/
-    index.md
+    TUTORIALS.md                     # Canonical subtree gateway
     run-standard-recipe-in-studio.md
     tune-a-preset-and-knobs.md
     implement-a-new-step-end-to-end.md
 
   how-to/
-    index.md
+    HOW-TO.md                        # Canonical subtree gateway
     run-a-recipe-headless.md
+    integrate-mapgen-studio-worker.md
     add-a-new-stage.md
     add-a-new-step.md
     add-a-new-op-contract.md
@@ -150,41 +155,54 @@ docs/system/libs/mapgen/
     visualize-pipeline-deckgl.md     # Current canon (deck.gl); route here, don’t fork
 
   reference/
-    index.md
-    glossary.md                      # Canonical terms + ID prefixes
-    run-settings.md                  # Target: RunSettings; maps to current Env
-    recipe-schema.md                 # RecipeV2 schema + invariants
-    stage-and-step-authoring.md      # Authoring API contracts
-    config-compilation.md            # Schemas/defaults/normalize contract
-    plan-compilation.md              # ExecutionPlan nodes, gating rules
-    tags.md                          # TagRegistry, kinds, satisfaction model
-    artifacts.md                     # Artifact contracts, publish/read, mutability posture
-    ops-module-contract.md           # Op contract + strategy encoding + type export rules
-    observability.md                 # runId/fingerprint/tracing contract
-    visualization.md                 # Viz contract + deck.gl posture pointers
-    adapter.md                       # Engine-coupled adapter capability reference
-    standard-recipe.md               # Standard recipe: stage order, provides/requires summary
+    REFERENCE.md                     # Canonical subtree gateway
+    GLOSSARY.md                      # Canonical terms + ID prefixes
+    RUN-SETTINGS.md                  # Target: RunSettings; maps to current Env
+    RECIPE-SCHEMA.md                 # RecipeV2 schema + invariants
+    STAGE-AND-STEP-AUTHORING.md      # Authoring API contracts
+    CONFIG-COMPILATION.md            # Schemas/defaults/normalize contract
+    PLAN-COMPILATION.md              # ExecutionPlan nodes, gating rules
+    TAGS.md                          # TagRegistry, kinds, satisfaction model
+    ARTIFACTS.md                     # Artifact contracts, publish/read, mutability posture
+    OPS-MODULE-CONTRACT.md           # Op contract + strategy encoding + type export rules
+    OBSERVABILITY.md                 # runId/fingerprint/tracing contract
+    VISUALIZATION.md                 # Viz contract + deck.gl posture pointers
+    ADAPTER.md                       # Engine-coupled adapter capability reference
+    STUDIO-INTEGRATION.md            # Studio worker protocol + integration seams
+    STANDARD-RECIPE.md               # Standard recipe: stage order, provides/requires summary
+    domains/
+      DOMAINS.md                     # Canonical domain contract index
+      FOUNDATION.md
+      MORPHOLOGY.md
+      HYDROLOGY.md
+      ECOLOGY.md
+      PLACEMENT.md
+      NARRATIVE.md
 
   explanation/
-    index.md
-    architecture.md                  # System map + ownership boundaries
-    pipeline-model.md                # Truth vs projection; domains in the pipeline
-    domain-modeling.md               # Ops/rules/strategies; boundaries
-    determinism.md                   # Determinism + seeds + reproducibility
-    mutation-model.md                # Artifacts vs fields/buffers; safe mutation patterns
-    narrative-status.md              # Target narrative contract + current integration status
-    studio-as-consumer.md            # Studio is reference consumer, not architecture authority
+    EXPLANATION.md                   # Canonical subtree gateway
+    ARCHITECTURE.md                  # System map + ownership boundaries
+    PIPELINE-MODEL.md                # Truth vs projection; domains in the pipeline
+    PIPELINE-COMPILATION.md          # Config vs plan compilation; why the split exists
+    TRUTH-VS-PROJECTION.md            # Rationale complementing policy
+    DOMAIN-MODELING.md               # Ops/rules/strategies; boundaries
+    DETERMINISM.md                   # Determinism + seeds + reproducibility
+    MUTATION-MODEL.md                # Artifacts vs fields/buffers; safe mutation patterns
+    NARRATIVE-STATUS.md              # Target narrative contract + current integration status
+    STUDIO-AS-CONSUMER.md            # Studio is reference consumer, not architecture authority
 
   policies/
-    index.md
-    imports.md                       # published entrypoints; forbid @mapgen/* in canon
-    schemas-and-validation.md         # strict schemas; compiler-owned defaults
-    dependency-ids-and-registries.md  # registered-only; fail-fast; collisions
-    artifact-mutation.md              # write-once + buffer-handle exception rules
-    module-shape.md                  # file layout and “no types export from rules”
+    POLICIES.md                      # Canonical subtree gateway
+    IMPORTS.md                       # published entrypoints; forbid @mapgen/* in canon
+    SCHEMAS-AND-VALIDATION.md        # strict schemas; compiler-owned defaults
+    DEPENDENCY-IDS-AND-REGISTRIES.md # registered-only; fail-fast; collisions
+    ARTIFACT-MUTATION.md             # write-once + buffer-handle exception rules
+    CONFIG-VS-PLAN-COMPILATION.md    # compiler vs runtime responsibilities
+    TRUTH-VS-PROJECTION.md           # what is canonical vs derived (policy posture)
+    MODULE-SHAPE.md                  # file layout and “no types export from rules”
 
   llms/
-    index.md                         # curated, machine-first spine pointer (optional)
+    LLMS.md                          # curated, machine-first spine pointer (optional)
 ```
 
 Notes:
@@ -239,20 +257,20 @@ This proposal is not asking to move files right now; it’s a content map for th
 Existing strong docs that become explanation/reference inputs:
 
 - `docs/system/libs/mapgen/architecture.md`
-  - Maps to: `explanation/architecture.md` and `explanation/pipeline-model.md`
+  - Maps to: `explanation/ARCHITECTURE.md` and `explanation/PIPELINE-MODEL.md`
 - `docs/system/libs/mapgen/hydrology-api.md`
-  - Maps to: `reference/ops-module-contract.md` (pattern exemplar) and domain-linked reference
+  - Maps to: `reference/OPS-MODULE-CONTRACT.md` (pattern exemplar) and domain-linked reference
 - `docs/system/libs/mapgen/realism-knobs-and-presets.md`
-  - Maps to: `tutorials/tune-a-preset-and-knobs.md` + `reference/config-compilation.md`
+  - Maps to: `tutorials/tune-a-preset-and-knobs.md` + `reference/CONFIG-COMPILATION.md`
 - `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
-  - Maps to: `how-to/visualize-pipeline-deckgl.md` + `reference/visualization.md` (current canon; do not fork)
+  - Maps to: `how-to/visualize-pipeline-deckgl.md` + `reference/VISUALIZATION.md` (current canon; do not fork)
 - `docs/projects/engine-refactor-v1/resources/spec/**`
   - Maps to: primary authority for `reference/*`, `policies/*`, and `explanation/*`
 
 Existing docs that become “studio-as-consumer” explanation inputs:
 
 - `docs/projects/mapgen-studio/BROWSER-ADAPTER.md`
-  - Maps to: `reference/adapter.md`
+  - Maps to: `reference/ADAPTER.md`
 
 ## Target-first posture (and how to handle drift)
 
@@ -286,12 +304,12 @@ For the full execution plan (agent team setup + guardrails + slice-by-slice deli
 ### Phase 1 — Stop-the-bleeding references
 
 - Create minimal reference pages that eliminate the biggest sources of confusion:
-  - `reference/run-settings.md`
-  - `reference/tags.md`
-  - `reference/config-compilation.md`
-  - `policies/imports.md`
+  - `reference/RUN-SETTINGS.md`
+  - `reference/TAGS.md`
+  - `reference/CONFIG-COMPILATION.md`
+  - `policies/IMPORTS.md`
   - `how-to/visualize-pipeline-deckgl.md` (route into current deck.gl canon; do not fork)
-  - `explanation/narrative-status.md`
+  - `explanation/NARRATIVE-STATUS.md`
 
 ### Phase 2 — Tutorials + How-to
 
