@@ -20,6 +20,7 @@ related_to: []
 - “Layers as data types” vs “projections as render modes” is a real mismatch with Studio today: the current viz stream treats **(layerId × kind × fileKey)** as the selectable unit.
 - Prototype “World Settings” includes `playerCount` + `resources` strategy, while Studio today derives player counts from Civ7 `MapInfo` (via map size id) and always calls `adapter.generateResources(...)` with no mode.
 - Stage/step ↔ config focus must be derived from the **authored recipe/stage source** (e.g. `createStage({ public, compile })` mappings), not from heuristics.
+- The “prototype” UI packet has been hoisted as the **actual Studio UI** (tailwind tokens + components are now part of `apps/mapgen-studio/src`).
 - Integration should be staged as: (1) generate “recipe UI meta” from recipe source into `*-artifacts`, (2) introduce a shared “pipeline address” model (recipe/stage/step), (3) add a “dataType + renderMode” view model over existing viz layers, (4) drop in the prototype UI, (5) wire it to the real runner/viz/config, then delete legacy UI.
 
 ## Objective (what “done” means for this doc)
@@ -45,6 +46,9 @@ vars:
 
 ## Prototype packet location
 - `apps/mapgen-studio/src/DELETE-WHEN-DONE/mapgen-studio-prototype-magic-patterns`
+
+## Current UI implementation location (hoisted)
+- `apps/mapgen-studio/src/prototype-ui` (TODO: rename to remove “prototype” framing once the refactor settles)
 
 ## Guardrails (non-negotiable)
 **Pipeline semantics**
@@ -170,6 +174,8 @@ deps:
   UI-05: [UI-01, UI-02, UI-03, UI-04]
   UI-06: [UI-05]
   UI-07: [UI-06]
+  UI-08: [UI-07]
+  UI-09: [UI-08]
 ```
 
 ### UI-00 (docs): definitions + constraints are locked
@@ -307,6 +313,36 @@ bun run check
 **Verification**
 ```bash
 bun run check
+```
+
+### UI-08 (prototype parity): hoist prototype UI as the Studio app shell
+This is the “pivot”: the prototype packet becomes the real Studio UI (layout + styling), wired to Studio runner/viz/config.
+
+**Acceptance criteria**
+- [x] Studio renders the hoisted UI shell and the app visually matches the prototype layout.
+- [x] Tailwind/PostCSS config exists for `apps/mapgen-studio` and the new UI styles are sourced from `apps/mapgen-studio/src/index.css`.
+- [x] Core flows work end-to-end: browser run, dump load, stage/step selection, dataType/renderMode selection, and Deck canvas rendering.
+
+**Verification**
+```bash
+bun run --cwd apps/mapgen-studio build
+bun run lint
+bun run check-types
+bun run test
+```
+
+### UI-09 (cleanup): remove “prototype” framing + delete obsolete UI code
+This is cleanup-only (no behavior changes): treat the hoisted UI as the app, delete legacy remnants, and remove the `DELETE-WHEN-DONE` packet once it’s no longer needed.
+
+**Acceptance criteria**
+- [ ] Rename `apps/mapgen-studio/src/prototype-ui` → `apps/mapgen-studio/src/ui` (or equivalent) and update imports.
+- [ ] Delete `apps/mapgen-studio/src/DELETE-WHEN-DONE/mapgen-studio-prototype-magic-patterns` after confirming parity is stable.
+- [ ] Remove any dead legacy UI modules still present under `apps/mapgen-studio/src` (e.g. `apps/mapgen-studio/src/app/*`) if unused.
+
+**Verification**
+```bash
+bun run --cwd apps/mapgen-studio build
+bun run check-types
 ```
 
 ## Milestone-level open questions (must stay explicit)
