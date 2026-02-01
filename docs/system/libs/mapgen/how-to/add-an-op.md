@@ -65,7 +65,7 @@ This how-to is **domain-level** (ops live inside a domain). It routes to:
 
 - Op contract API: `packages/mapgen-core/src/authoring/op/contract.ts`
 - Op implementation wrapper: `packages/mapgen-core/src/authoring/op/create.ts`
-- Domain registry authoring: `packages/mapgen-core/src/authoring/domain/create.ts`
+- Domain registry authoring: `packages/mapgen-core/src/authoring/domain.ts`
 - Example op contract: `mods/mod-swooper-maps/src/domain/morphology/ops/compute-base-topography/contract.ts`
 - Example op implementation: `mods/mod-swooper-maps/src/domain/morphology/ops/compute-base-topography/index.ts`
 - Domain implementations wiring: `mods/mod-swooper-maps/src/domain/morphology/ops/index.ts`
