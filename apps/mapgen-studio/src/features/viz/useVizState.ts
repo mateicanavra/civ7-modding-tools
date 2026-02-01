@@ -3,6 +3,7 @@ import type { Layer } from "@deck.gl/core";
 import type { VizEvent } from "../../shared/vizEvents";
 import { parsePipelineAddress, type PipelineAddress } from "../../shared/pipelineAddress";
 import { boundsForTileGrid, renderDeckLayers } from "./deckgl/render";
+import { buildStepDataTypeModel, type StepDataTypeModel } from "./dataTypeModel";
 import {
   formatLayerLabel,
   formatStepLabel,
@@ -51,6 +52,7 @@ export type UseVizStateResult = {
     stageId: string;
     steps: Array<{ stepId: string; stepIndex: number; address: PipelineAddress | null }>;
   }>;
+  dataTypeModel: StepDataTypeModel | null;
   selectableLayers: Array<{ key: string; label: string; visibility: "default" | "debug" | "hidden"; group?: string }>;
   legend: ReturnType<typeof legendForLayer> | null;
 
@@ -139,6 +141,11 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     }
     return steps[0]?.stepId ?? null;
   }, [allowPendingSelection, manifest, selectedStepId, steps]);
+
+  const dataTypeModel = useMemo(() => {
+    if (!manifest || !activeSelectedStepId) return null;
+    return buildStepDataTypeModel(manifest, activeSelectedStepId);
+  }, [activeSelectedStepId, manifest]);
 
   useEffect(() => {
     if (!manifest || allowPendingSelection) return;
@@ -253,6 +260,7 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     steps,
     pipelineSteps,
     pipelineStages,
+    dataTypeModel,
     selectableLayers,
     legend,
     deck: {
