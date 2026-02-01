@@ -1,9 +1,11 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
 import type { FeatureKey } from "@mapgen/domain/ecology";
-import { syncHeightfield } from "@swooper/mapgen-core";
+import { defineVizMeta, syncHeightfield } from "@swooper/mapgen-core";
 import FeaturesApplyStepContract from "./contract.js";
 import { applyFeaturePlacements, reifyFeatureField } from "../features/apply.js";
 import { resolveFeatureKeyLookups } from "../features/feature-keys.js";
+
+const GROUP_MAP_ECOLOGY = "Map / Ecology (Projection)";
 
 export default createStep(FeaturesApplyStepContract, {
   run: (context, config, ops, deps) => {
@@ -32,6 +34,17 @@ export default createStep(FeaturesApplyStepContract, {
     const applied = applyFeaturePlacements(context, filteredPlacements, lookups);
     if (applied > 0) {
       reifyFeatureField(context);
+      context.viz?.dumpGrid(context.trace, {
+        layerId: "map.ecology.featureType",
+        dims: { width: context.dimensions.width, height: context.dimensions.height },
+        format: "i16",
+        values: context.fields.featureType,
+        meta: defineVizMeta("map.ecology.featureType", {
+          label: "Feature Type (Projected)",
+          group: GROUP_MAP_ECOLOGY,
+          palette: "categorical",
+        }),
+      });
       context.adapter.validateAndFixTerrain();
       syncHeightfield(context);
       context.adapter.recalculateAreas();

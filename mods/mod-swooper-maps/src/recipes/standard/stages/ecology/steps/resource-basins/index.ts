@@ -52,6 +52,7 @@ export default createStep(ResourceBasinsStepContract, {
       meta: defineVizMeta("ecology.resourceBasins.resourceBasinId", {
         label: "Resource Basin Id",
         group: GROUP_RESOURCE_BASINS,
+        palette: "categorical",
       }),
     });
 

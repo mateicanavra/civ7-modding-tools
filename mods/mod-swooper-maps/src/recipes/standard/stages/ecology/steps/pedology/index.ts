@@ -37,6 +37,7 @@ export default createStep(PedologyStepContract, {
       meta: defineVizMeta("ecology.pedology.soilType", {
         label: "Soil Type",
         group: GROUP_PEDOLOGY,
+        palette: "categorical",
       }),
     });
     context.viz?.dumpGrid(context.trace, {

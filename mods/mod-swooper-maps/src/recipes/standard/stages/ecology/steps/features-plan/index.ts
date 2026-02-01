@@ -254,6 +254,7 @@ export default createStep(FeaturesPlanStepContract, {
         meta: defineVizMeta("ecology.featureIntents.featureType", {
           label: "Feature Intents",
           group: GROUP_FEATURE_INTENTS,
+          space: "tile",
           categories: categoryKeys.map((key, index) => ({
             value: index + 1,
             label: labelFeatureKey(key),
