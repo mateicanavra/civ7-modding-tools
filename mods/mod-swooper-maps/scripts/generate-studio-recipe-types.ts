@@ -5,10 +5,16 @@ import { compile } from "json-schema-to-typescript";
 
 type JsonObject = Record<string, unknown>;
 
+const SENTINEL_KEY = "__studioUiMetaSentinelPath";
+
 function assertPlainObject(value: unknown, label: string): asserts value is JsonObject {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throw new Error(`${label} must be a JSON object`);
   }
+}
+
+function isPlainObject(value: unknown): value is JsonObject {
+  return !!value && typeof value === "object" && !Array.isArray(value);
 }
 
 function stableJson(value: unknown): JsonObject {
@@ -17,6 +23,179 @@ function stableJson(value: unknown): JsonObject {
   const parsed = JSON.parse(text) as unknown;
   assertPlainObject(parsed, "schema");
   return parsed;
+}
+
+function makeSentinel(path: readonly string[]): Record<string, unknown> {
+  return { [SENTINEL_KEY]: Array.from(path) };
+}
+
+function findSentinelPaths(value: unknown): readonly (readonly string[])[] {
+  const found: string[][] = [];
+  const seen = new Set<unknown>();
+
+  function walk(node: unknown, depth: number): void {
+    if (!node || typeof node !== "object") return;
+    if (seen.has(node)) return;
+    seen.add(node);
+
+    if (isPlainObject(node)) {
+      const maybe = node[SENTINEL_KEY];
+      if (Array.isArray(maybe) && maybe.every((v) => typeof v === "string")) {
+        found.push(maybe.slice());
+      }
+      if (depth <= 0) return;
+      for (const v of Object.values(node)) walk(v, depth - 1);
+      return;
+    }
+
+    if (Array.isArray(node)) {
+      if (depth <= 0) return;
+      for (const v of node) walk(v, depth - 1);
+    }
+  }
+
+  walk(value, 6);
+  return found;
+}
+
+function assertSingleSentinelPath(input: { label: string; value: unknown }): readonly string[] {
+  const found = findSentinelPaths(input.value);
+  if (found.length === 1) return found[0] ?? [];
+  if (found.length === 0) throw new Error(`${input.label} did not forward any sentinel value`);
+  throw new Error(`${input.label} forwarded multiple sentinel values (ambiguous mapping)`);
+}
+
+type StageLike = Readonly<{
+  id: string;
+  steps: readonly Readonly<{ contract: Readonly<{ id: string }> }>[];
+  public?: unknown;
+  toInternal: (args: { env: unknown; stageConfig: unknown }) => { rawSteps: Record<string, unknown> };
+}>;
+
+type StudioRecipeUiMeta = Readonly<{
+  namespace: string;
+  recipeId: string;
+  stages: readonly Readonly<{
+    stageId: string;
+    steps: readonly Readonly<{
+      stepId: string;
+      fullStepId: string;
+      configFocusPathWithinStage: readonly string[];
+    }>[];
+  }>[];
+}>;
+
+function typeboxObjectProperties(schema: unknown): Record<string, unknown> {
+  if (!schema || typeof schema !== "object") return {};
+  const props = (schema as any).properties as Record<string, unknown> | undefined;
+  return props ?? {};
+}
+
+function deriveStageStepConfigFocusMap(args: {
+  namespace: string;
+  recipeId: string;
+  stage: StageLike;
+}): Readonly<Record<string, readonly string[]>> {
+  const { stage } = args;
+  const stepIds = stage.steps.map((s) => s.contract.id);
+
+  if (!stage.public) {
+    return Object.fromEntries(stepIds.map((stepId) => [stepId, [stepId]])) as Record<
+      string,
+      readonly string[]
+    >;
+  }
+
+  const publicKeys = Object.keys(typeboxObjectProperties(stage.public));
+
+  if (publicKeys.includes("advanced")) {
+    const advanced: Record<string, unknown> = Object.fromEntries(
+      stepIds.map((stepId) => [stepId, makeSentinel(["advanced", stepId])])
+    );
+    const { rawSteps } = stage.toInternal({
+      env: {},
+      stageConfig: { knobs: {}, advanced },
+    });
+
+    const mapping: Record<string, readonly string[]> = {};
+    for (const stepId of stepIds) {
+      if (!(stepId in rawSteps)) {
+        throw new Error(
+          `[recipe:${args.namespace}.${args.recipeId}] stage("${stage.id}") missing rawSteps["${stepId}"] when probing advanced mapping`
+        );
+      }
+      const path = assertSingleSentinelPath({
+        label: `[recipe:${args.namespace}.${args.recipeId}] stage("${stage.id}") step("${stepId}")`,
+        value: rawSteps[stepId],
+      });
+      if (path.join(".") !== ["advanced", stepId].join(".")) {
+        throw new Error(
+          `[recipe:${args.namespace}.${args.recipeId}] stage("${stage.id}") advanced mapping produced unexpected focus path for step("${stepId}"): ${JSON.stringify(
+            path
+          )}`
+        );
+      }
+      mapping[stepId] = path;
+    }
+    return mapping;
+  }
+
+  const stageConfig: Record<string, unknown> = { knobs: {} };
+  for (const key of publicKeys) stageConfig[key] = makeSentinel([key]);
+
+  const { rawSteps } = stage.toInternal({ env: {}, stageConfig });
+
+  const mapping: Record<string, readonly string[]> = {};
+  for (const stepId of stepIds) {
+    if (!(stepId in rawSteps)) {
+      throw new Error(
+        `[recipe:${args.namespace}.${args.recipeId}] stage("${stage.id}") missing rawSteps["${stepId}"] when probing public-key mapping`
+      );
+    }
+    mapping[stepId] = assertSingleSentinelPath({
+      label: `[recipe:${args.namespace}.${args.recipeId}] stage("${stage.id}") step("${stepId}")`,
+      value: rawSteps[stepId],
+    });
+  }
+
+  return mapping;
+}
+
+function deriveStudioRecipeUiMeta(args: {
+  namespace: string;
+  recipeId: string;
+  stages: readonly StageLike[];
+}): StudioRecipeUiMeta {
+  const { namespace, recipeId } = args;
+
+  if (!Array.isArray(args.stages)) {
+    throw new Error(`[recipe:${namespace}.${recipeId}] expected "stages" to be an array`);
+  }
+
+  return {
+    namespace,
+    recipeId,
+    stages: args.stages.map((stage) => {
+      const stepFocus = deriveStageStepConfigFocusMap({ namespace, recipeId, stage });
+      return {
+        stageId: stage.id,
+        steps: stage.steps.map((s) => {
+          const stepId = s.contract.id;
+          const configFocusPathWithinStage = stepFocus[stepId];
+          if (!configFocusPathWithinStage) {
+            throw new Error(
+              `[recipe:${namespace}.${recipeId}] stage("${stage.id}") missing config focus path for step("${stepId}")`
+            );
+          }
+          return {
+            stepId,
+            fullStepId: `${namespace}.${recipeId}.${stage.id}.${stepId}`,
+            configFocusPathWithinStage,
+          };
+        }),
+      };
+    }),
+  };
 }
 
 async function writeArtifactsModule(args: {
@@ -28,8 +207,19 @@ async function writeArtifactsModule(args: {
   configConstName: string; // e.g. "STANDARD_RECIPE_CONFIG"
   schemaConstName: string; // e.g. "STANDARD_RECIPE_CONFIG_SCHEMA"
   configValue: unknown;
+  uiMetaValue: StudioRecipeUiMeta;
 }): Promise<void> {
-  const { pkgRoot, outBase, schemaJson, typeName, configTypes, configConstName, schemaConstName, configValue } = args;
+  const {
+    pkgRoot,
+    outBase,
+    schemaJson,
+    typeName,
+    configTypes,
+    configConstName,
+    schemaConstName,
+    configValue,
+    uiMetaValue,
+  } = args;
 
   const jsLines = [
     `// This file is generated by scripts/generate-studio-recipe-types.ts`,
@@ -37,6 +227,7 @@ async function writeArtifactsModule(args: {
     ``,
     `export const ${configConstName} = ${JSON.stringify(configValue, null, 2)};`,
     `export const ${schemaConstName} = ${JSON.stringify(schemaJson, null, 2)};`,
+    `export const studioRecipeUiMeta = ${JSON.stringify(uiMetaValue, null, 2)};`,
     ``,
   ];
 
@@ -48,8 +239,22 @@ async function writeArtifactsModule(args: {
     ``,
     configTypes.trimEnd(),
     ``,
+    `export type StudioRecipeUiMeta = Readonly<{`,
+    `  namespace: string;`,
+    `  recipeId: string;`,
+    `  stages: ReadonlyArray<Readonly<{`,
+    `    stageId: string;`,
+    `    steps: ReadonlyArray<Readonly<{`,
+    `      stepId: string;`,
+    `      fullStepId: string;`,
+    `      configFocusPathWithinStage: ReadonlyArray<string>;`,
+    `    }>>;`,
+    `  }>>;`,
+    `}>;`,
+    ``,
     `export const ${configConstName}: Readonly<${typeName}>;`,
     `export const ${schemaConstName}: TSchema;`,
+    `export const studioRecipeUiMeta: Readonly<StudioRecipeUiMeta>;`,
     ``,
   ];
 
@@ -70,9 +275,20 @@ const mod = (await import(pathToFileURL(distBrowserTest).href)) as unknown as {
   BROWSER_TEST_FOUNDATION_STAGE_CONFIG: unknown;
   BROWSER_TEST_RECIPE_CONFIG: unknown;
   BROWSER_TEST_RECIPE_CONFIG_SCHEMA: unknown;
+  BROWSER_TEST_STAGES: readonly StageLike[];
 };
 
 const schemaJson = stableJson(mod.BROWSER_TEST_RECIPE_CONFIG_SCHEMA);
+
+if (!Array.isArray(mod.BROWSER_TEST_STAGES)) {
+  throw new Error(`[recipe:mod-swooper-maps.browser-test] missing export BROWSER_TEST_STAGES`);
+}
+
+const browserTestUiMeta = deriveStudioRecipeUiMeta({
+  namespace: "mod-swooper-maps",
+  recipeId: "browser-test",
+  stages: mod.BROWSER_TEST_STAGES,
+});
 
 await writeFile(
   resolve(pkgRoot, "dist", "recipes", "browser-test.schema.json"),
@@ -126,6 +342,7 @@ await writeArtifactsModule({
   configConstName: "BROWSER_TEST_RECIPE_CONFIG",
   schemaConstName: "BROWSER_TEST_RECIPE_CONFIG_SCHEMA",
   configValue: mod.BROWSER_TEST_RECIPE_CONFIG ?? {},
+  uiMetaValue: browserTestUiMeta,
 });
 
 const standardMod = (await import(pathToFileURL(distStandard).href)) as Record<string, unknown>;
@@ -134,6 +351,17 @@ const standardSchemaRaw = standardMod.STANDARD_RECIPE_CONFIG_SCHEMA;
 let standardDts = "";
 
 if (standardSchemaRaw) {
+  const standardStages = (standardMod as any).STANDARD_STAGES as unknown;
+  if (!Array.isArray(standardStages)) {
+    throw new Error(`[recipe:mod-swooper-maps.standard] missing export STANDARD_STAGES`);
+  }
+
+  const standardUiMeta = deriveStudioRecipeUiMeta({
+    namespace: "mod-swooper-maps",
+    recipeId: "standard",
+    stages: standardStages as readonly StageLike[],
+  });
+
   const standardSchemaJson = stableJson(standardSchemaRaw);
   await writeFile(
     resolve(pkgRoot, "dist", "recipes", "standard.schema.json"),
@@ -173,6 +401,7 @@ if (standardSchemaRaw) {
     configConstName: "STANDARD_RECIPE_CONFIG",
     schemaConstName: "STANDARD_RECIPE_CONFIG_SCHEMA",
     configValue: standardMod.STANDARD_RECIPE_CONFIG ?? {},
+    uiMetaValue: standardUiMeta,
   });
 } else {
   standardDts = [

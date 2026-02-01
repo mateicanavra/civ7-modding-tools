@@ -186,12 +186,12 @@ bun run check
 Generate **UI-facing meta** alongside schema/defaults in `*-artifacts` (so Studio can import it without pulling in runtime recipe modules).
 
 **Acceptance criteria**
-- [ ] Each Studio recipe artifacts module exports `studioRecipeUiMeta` (exact name TBD) that includes:
+- [x] Each Studio recipe artifacts module exports `studioRecipeUiMeta` that includes:
   - stage order (from `recipe.stages`)
   - steps per stage (from `stage.steps`)
   - per-step `configFocusPathWithinStage` derived from the concrete algorithm above
-- [ ] Studio’s `RecipeArtifacts` type includes the meta and catalog wires it for each recipe.
-- [ ] Generator fails loudly if it cannot derive a total mapping for a stage (no silent fallbacks).
+- [x] Studio’s `RecipeArtifacts` type includes the meta and catalog wires it for each recipe.
+- [x] Generator fails loudly if it cannot derive a total mapping for a stage (no silent fallbacks).
 
 **In scope**
 - Generator changes in `SWOOPER_SCRIPTS` and wiring into `STUDIO` catalog/types.
