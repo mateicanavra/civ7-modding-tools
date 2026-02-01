@@ -76,6 +76,7 @@ export default createStep(BiomesStepContract, {
       meta: defineVizMeta("ecology.biome.surfaceTemperature", {
         label: "Surface Temperature",
         group: GROUP_BIOMES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -87,6 +88,7 @@ export default createStep(BiomesStepContract, {
       meta: defineVizMeta("ecology.biome.aridityIndex", {
         label: "Aridity Index",
         group: GROUP_BIOMES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -98,6 +100,7 @@ export default createStep(BiomesStepContract, {
       meta: defineVizMeta("ecology.biome.freezeIndex", {
         label: "Freeze Index",
         group: GROUP_BIOMES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -109,6 +112,7 @@ export default createStep(BiomesStepContract, {
       meta: defineVizMeta("ecology.biome.groundIce01", {
         label: "Ground Ice 01",
         group: GROUP_BIOMES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -120,6 +124,7 @@ export default createStep(BiomesStepContract, {
       meta: defineVizMeta("ecology.biome.permafrost01", {
         label: "Permafrost 01",
         group: GROUP_BIOMES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -131,6 +136,7 @@ export default createStep(BiomesStepContract, {
       meta: defineVizMeta("ecology.biome.meltPotential01", {
         label: "Melt Potential 01",
         group: GROUP_BIOMES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -142,6 +148,7 @@ export default createStep(BiomesStepContract, {
       meta: defineVizMeta("ecology.biome.treeLine01", {
         label: "Tree Line 01",
         group: GROUP_BIOMES,
+        visibility: "debug",
       }),
     });
 
