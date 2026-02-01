@@ -28,6 +28,35 @@ $PIPELINE = $MOD/src/recipes/standard/stages
 
 ---
 
+## Scope boundaries (global)
+
+This plan intentionally applies the “hardening” discipline (unambiguous, sliceable, verifiable).
+
+### In scope
+- **Vocabulary + UX contract** for viz selection in Studio:
+  - Space (`spaceId`)
+  - Render (`kind[:role]`)
+  - Variant (`variantKey`)
+- Decluttering layer emissions at the **source** (pipeline):
+  - reduce default noise aggressively via `meta.visibility`
+  - migrate “dataTypeKey explosions” into `variantKey`
+- Domain-by-domain greenfield redesign of what we emit:
+  - Foundation, Morphology, Hydrology, Ecology, Placement
+- Testing + verification additions that prevent regressions in:
+  - default readability
+  - semantic consistency
+
+### Out of scope (explicit)
+- Changing mapgen algorithms for “prettier” pictures (this is viz semantics + presentation of existing truth).
+- Introducing new coordinate spaces beyond what’s already supported (unless a domain redesign proves a hard need and we explicitly add it as a separate slice).
+- Adding “style variants” (variants are semantic slices only).
+
+### Non-goals
+- Maximizing the number of layers.
+- Encoding every intermediate internal array as a default visualization.
+
+---
+
 ## 0) Problem statement (why this plan exists)
 
 ### Symptoms (current state)
@@ -85,6 +114,31 @@ These are the only concepts the system should use end-to-end.
 - `debug`: valuable, but off-by-default.
 - `hidden`: not shown unless explicitly requested (rare).
 - **Rule:** every step should have a small `default` set; depth lives in `debug`.
+
+---
+
+## 1.6 Standard taxonomy (binding defaults)
+
+To keep parallel domain work coherent, we standardize a small set of values.
+
+### Recommended `variantKey` dimensions
+- `season:<n>` — periodic climate slices (wind/current) where meaningful
+- `era:<n>` — historical snapshots when the story is temporal
+- `snapshot:latest` — an explicit “current truth” snapshot when multiple exist
+
+### Recommended `meta.role` values (by kind)
+- `grid`:
+  - `membership` (categorical region membership / labels)
+  - `mask` (binary presence)
+- `points`:
+  - `centroids` (sampled field / diagnostic centroids)
+- `segments`:
+  - `edges` (boundaries, graph edges, ridgelines/paths)
+- `gridFields`:
+  - `magnitude` (scalar magnitude grid)
+  - `arrows` (vector arrow overlay derived from U/V)
+
+These are defaults, not a prison, but additions should be rare and justified in the domain docs.
 
 ---
 
@@ -167,6 +221,26 @@ Examples:
 
 ---
 
+## 3.4 Quality gates (non-negotiable)
+
+### Contract invariants
+- Studio remains v1-only (no legacy paths).
+- `layerKey` stays the canonical identity; UI never recomputes it.
+- `variantKey` is treated as opaque; only conservative formatting is allowed.
+
+### UX invariants
+- No duplicate control surfaces for the same axis:
+  - Space is one control surface.
+  - Render is one control surface.
+  - Variant appears only when it matters.
+- Default view is readable for the noisiest steps (tectonics is the bar).
+
+### Emissions invariants
+- Every step has a small `default` set (target: 3–7).
+- Everything else is explicitly `debug` (or deleted).
+
+---
+
 ## 4) Execution plan (sliceable, parallelizable, verifiable)
 
 ### Phase A — Declutter + semantics remediation (integrator-owned)
@@ -239,6 +313,53 @@ Goal: keep parallel work composable and prevent “it works on my domain branch�
 
 ---
 
+## 4.1 Sequencing (Graphite stack shape)
+
+Each slice below is intended to be **one PR/branch** stacked via Graphite.
+
+```yaml
+slices:
+  - id: VIZ-DCL-01
+    after: []
+    owner: integrator
+    description: UI semantics cleanup (Space/Render/Variant) + debug toggle + group-first navigation
+  - id: VIZ-DCL-02
+    after: [VIZ-DCL-01]
+    owner: integrator
+    description: Producer declutter starting with tectonics (variantKey migration + default/debug split) + tests
+  - id: VIZ-GF-FOUNDATION
+    after: [VIZ-DCL-02]
+    owner: agent-F
+    description: Foundation domain greenfield spec + implementation
+  - id: VIZ-GF-MORPHOLOGY
+    after: [VIZ-DCL-02]
+    owner: agent-M
+    description: Morphology domain greenfield spec + implementation
+  - id: VIZ-GF-HYDROLOGY
+    after: [VIZ-DCL-02]
+    owner: agent-H
+    description: Hydrology domain greenfield spec + implementation
+  - id: VIZ-GF-ECOLOGY
+    after: [VIZ-DCL-02]
+    owner: agent-E
+    description: Ecology domain greenfield spec + implementation
+  - id: VIZ-GF-PLACEMENT
+    after: [VIZ-DCL-02]
+    owner: agent-P
+    description: Placement domain greenfield spec + implementation
+  - id: VIZ-INTEGRATE-01
+    after:
+      - VIZ-GF-FOUNDATION
+      - VIZ-GF-MORPHOLOGY
+      - VIZ-GF-HYDROLOGY
+      - VIZ-GF-ECOLOGY
+      - VIZ-GF-PLACEMENT
+    owner: integrator
+    description: Integration hardening + doc sync + smoke matrix
+```
+
+---
+
 ## 5) Orchestrator workflow (Graphite + worktrees)
 
 ### 5.1 Parallel worktree rules (copy/paste)
@@ -294,3 +415,13 @@ Goal: keep parallel work composable and prevent “it works on my domain branch�
 - **Risk:** Default layer set creeps back into noise.
   - **Mitigation:** enforce `meta.visibility` + add “default layer count” smoke tests for historically noisy steps.
 
+---
+
+## Definition of done (this plan)
+
+- Phase A is merged: UI vocabulary is correct, controls are non-duplicative, defaults are readable.
+- Every domain has:
+  - a greenfield spec doc in `docs/projects/mapgen-studio/viz-greenfield/`
+  - an implementation that matches the doc
+  - tests updated such that default-noise regressions are hard to reintroduce accidentally
+- Studio manual smoke passes for a representative step in each domain (plus tectonics).
