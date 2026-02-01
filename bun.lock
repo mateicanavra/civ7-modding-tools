@@ -96,6 +96,7 @@
       "dependencies": {
         "@civ7/adapter": "workspace:*",
         "@swooper/mapgen-core": "workspace:*",
+        "@swooper/mapgen-viz": "workspace:*",
         "typebox": "^1.0.80",
       },
       "devDependencies": {
