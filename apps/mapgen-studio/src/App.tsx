@@ -487,13 +487,25 @@ function AppContent(props: AppContentProps) {
             `,
         }}
       />
+      {showGrid ? (
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: `
+              linear-gradient(${isLightMode ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.02)"} 1px, transparent 1px),
+              linear-gradient(90deg, ${isLightMode ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.02)"} 1px, transparent 1px)
+            `,
+            backgroundSize: "56px 56px",
+          }}
+        />
+      ) : null}
       {viz.manifest ? (
         <DeckCanvas
           apiRef={deckApiRef}
           layers={viz.deck.layers}
           effectiveLayer={viz.effectiveLayer}
           viewportSize={viewportSize}
-          showBackgroundGrid={showGrid}
+          showBackgroundGrid={false}
           lightMode={isLightMode}
           activeBounds={viz.activeBounds}
         />
