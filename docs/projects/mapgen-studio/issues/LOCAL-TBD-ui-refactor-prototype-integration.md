@@ -345,6 +345,29 @@ bun run --cwd apps/mapgen-studio build
 bun run check-types
 ```
 
+---
+
+## Post-parity polish slices (UI-10+)
+
+These are incremental UX improvements on top of the hoisted UI. Each item should remain a small, reviewable Graphite slice with explicit verification.
+
+### UI-15 (auto-run): toggle auto-run on config changes
+
+**Acceptance criteria**
+- [x] Studio exposes a pressed-state icon toggle for “Auto-run”.
+- [x] When enabled, any `pipelineConfig` change triggers an automatic run using the **current seed** (no reroll).
+- [x] Auto-run is **browser-only** and does not fire in dump mode.
+- [x] Auto-run is debounced to avoid a run per keystroke, and if a run is already in-flight it queues one rerun for after completion.
+- [x] Auto-run does not fire when overrides are disabled.
+
+**Verification**
+```bash
+bun run --cwd apps/mapgen-studio build
+bun run lint
+bun run check-types
+bun run test
+```
+
 ## Milestone-level open questions (must stay explicit)
 1) Render mode vocabulary: what is the minimal stable “projection/renderMode” set that works across future recipes without being too physics-specific?
    - Option A: `renderMode := kind` (start here; simplest).

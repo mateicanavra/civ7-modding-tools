@@ -142,6 +142,9 @@ function AppContent(props: AppContentProps) {
   const [recipeSectionCollapsed, setRecipeSectionCollapsed] = useState(false);
   const [configSectionCollapsed, setConfigSectionCollapsed] = useState(false);
   const [stageListExpanded, setStageListExpanded] = useState(true);
+  const [autoRunEnabled, setAutoRunEnabled] = useState(false);
+  const autoRunTimerRef = useRef<number | null>(null);
+  const autoRunPendingRef = useRef(false);
 
   const [worldSettings, setWorldSettings] = useState<WorldSettings>({
     mode: "browser",
@@ -372,6 +375,61 @@ function AppContent(props: AppContentProps) {
     },
     [browserRunner.actions, overridesDisabled, pipelineConfig, recipeSettings, worldSettings, viz]
   );
+
+  useEffect(() => {
+    if (!autoRunEnabled) {
+      autoRunPendingRef.current = false;
+      if (autoRunTimerRef.current) {
+        window.clearTimeout(autoRunTimerRef.current);
+        autoRunTimerRef.current = null;
+      }
+    }
+  }, [autoRunEnabled]);
+
+  useEffect(() => {
+    if (!autoRunEnabled) return;
+    if (worldSettings.mode !== "browser") return;
+    if (overridesDisabled) return;
+
+    if (browserRunning) {
+      autoRunPendingRef.current = true;
+      return;
+    }
+
+    if (lastRunSnapshot && configsEqual(lastRunSnapshot.pipelineConfig, pipelineConfig)) return;
+
+    if (autoRunTimerRef.current) window.clearTimeout(autoRunTimerRef.current);
+    autoRunTimerRef.current = window.setTimeout(() => {
+      autoRunTimerRef.current = null;
+      startBrowserRun();
+    }, 300);
+
+    return () => {
+      if (!autoRunTimerRef.current) return;
+      window.clearTimeout(autoRunTimerRef.current);
+      autoRunTimerRef.current = null;
+    };
+  }, [
+    autoRunEnabled,
+    browserRunning,
+    lastRunSnapshot,
+    overridesDisabled,
+    pipelineConfig,
+    startBrowserRun,
+    worldSettings.mode,
+  ]);
+
+  useEffect(() => {
+    if (!autoRunEnabled) return;
+    if (worldSettings.mode !== "browser") return;
+    if (overridesDisabled) return;
+    if (browserRunning) return;
+    if (!autoRunPendingRef.current) return;
+
+    autoRunPendingRef.current = false;
+    if (lastRunSnapshot && configsEqual(lastRunSnapshot.pipelineConfig, pipelineConfig)) return;
+    startBrowserRun();
+  }, [autoRunEnabled, browserRunning, lastRunSnapshot, overridesDisabled, pipelineConfig, startBrowserRun, worldSettings.mode]);
 
   const reroll = useCallback(() => {
     const next = String(randomU32());
@@ -780,6 +838,8 @@ function AppContent(props: AppContentProps) {
       isDirty={isDirty}
       lightMode={isLightMode}
       onToast={(message) => toast(message, { variant: "success" })}
+      autoRunEnabled={autoRunEnabled}
+      onAutoRunEnabledChange={setAutoRunEnabled}
     />
   );
 
