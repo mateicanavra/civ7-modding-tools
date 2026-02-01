@@ -260,9 +260,9 @@ bun run check
 Bring the prototype layout into the real Studio app as a controlled UI shell (no fake data), in parallel with the existing UI until wiring is complete.
 
 **Acceptance criteria**
-- [ ] Prototype layout renders in Studio and uses controlled props/state.
-- [ ] Deck canvas remains the visualization surface.
-- [ ] Existing UI remains functional until UI-06.
+- [x] Prototype layout renders in Studio and uses controlled props/state.
+- [x] Deck canvas remains the visualization surface.
+- [x] Existing UI remains functional until UI-06.
 
 **Verification**
 ```bash

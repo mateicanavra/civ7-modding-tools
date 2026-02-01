@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AppHeader } from "./app/AppHeader";
 import { AppShell, type AppMode } from "./app/AppShell";
+import { PrototypeShell } from "./app/prototype/PrototypeShell";
 import { useDumpLoader } from "./features/dumpViewer/useDumpLoader";
 import { ConfigOverridesPanel } from "./features/configOverrides/ConfigOverridesPanel";
 import { useConfigOverrides } from "./features/configOverrides/useConfigOverrides";
@@ -42,6 +43,7 @@ export function App() {
   const deckApiRef = useRef<DeckCanvasApi | null>(null);
 
   const [mode, setMode] = useState<AppMode>("browser");
+  const [uiLayout, setUiLayout] = useState<"legacy" | "prototype">("legacy");
 
   const dumpLoader = useDumpLoader();
   const dumpAssetResolver = dumpLoader.state.status === "loaded" ? dumpLoader.state.reader : null;
@@ -221,6 +223,8 @@ export function App() {
       isNarrow={isNarrow}
       mode={mode}
       onModeChange={setMode}
+      uiLayout={uiLayout}
+      onUiLayoutChange={setUiLayout}
       browserRecipeId={browserRecipeId}
       recipeOptions={STUDIO_RECIPE_OPTIONS}
       onBrowserRecipeChange={setBrowserRecipeId}
@@ -261,7 +265,7 @@ export function App() {
     />
   );
 
-  const main = manifest ? (
+  const canvas = manifest ? (
     <DeckCanvas
       apiRef={deckApiRef}
       layers={viz.deck.layers}
@@ -277,6 +281,97 @@ export function App() {
         : "Select a dump folder containing `manifest.json` (e.g. `<mod>/dist/visualization/<runId>`)."}
     </div>
   );
+
+  const main =
+    uiLayout === "prototype" ? (
+      <PrototypeShell
+        isNarrow={isNarrow}
+        leftPanel={
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ fontSize: 12, color: "#9ca3af", lineHeight: 1.35 }}>
+              UI-04 shell: layout only. Wiring happens in UI-05.
+            </div>
+            <div style={{ fontSize: 12, color: "#e5e7eb" }}>
+              recipe: <span style={{ color: "#93c5fd" }}>{browserRecipeId}</span>
+            </div>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+              <button
+                type="button"
+                onClick={() => setBrowserConfigOpen(true)}
+                style={{
+                  background: "#111827",
+                  color: "#e5e7eb",
+                  border: "1px solid #374151",
+                  borderRadius: 10,
+                  padding: "8px 10px",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Config overrides…
+              </button>
+              <div style={{ fontSize: 12, color: "#9ca3af" }}>
+                overrides:{" "}
+                <span style={{ color: browserConfigOverrides.enabled ? "#86efac" : "#fca5a5" }}>
+                  {browserConfigOverrides.enabled ? "enabled" : "disabled"}
+                </span>
+              </div>
+            </div>
+            <div style={{ marginTop: 6, fontSize: 12, color: "#9ca3af", lineHeight: 1.35 }}>
+              Selected step drives available data types + render modes.
+            </div>
+          </div>
+        }
+        rightPanel={
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ fontSize: 12, color: "#9ca3af" }}>
+              stage groups: <span style={{ color: "#e5e7eb" }}>{viz.pipelineStages.length}</span>
+            </div>
+            <div style={{ fontSize: 12, color: "#9ca3af" }}>
+              selected step:{" "}
+              <span style={{ color: "#e5e7eb" }}>
+                {viz.selectedStepId ? formatStepLabel(viz.selectedStepId) : "—"}
+              </span>
+            </div>
+            <div style={{ fontSize: 12, color: "#9ca3af" }}>
+              data types:{" "}
+              <span style={{ color: "#e5e7eb" }}>{viz.dataTypeModel?.dataTypes.length ?? 0}</span>
+            </div>
+          </div>
+        }
+        footer={
+          <div
+            style={{
+              display: "flex",
+              gap: 10,
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "10px 12px",
+              borderRadius: 14,
+              border: "1px solid rgba(148, 163, 184, 0.18)",
+              background: "rgba(10, 18, 36, 0.92)",
+              boxShadow: "0 24px 60px rgba(0,0,0,0.55)",
+              backdropFilter: "blur(6px)",
+            }}
+          >
+            <div style={{ fontSize: 12, color: "#9ca3af" }}>
+              status:{" "}
+              <span style={{ color: browserRunning ? "#fbbf24" : manifest ? "#86efac" : "#9ca3af" }}>
+                {browserRunning ? "running" : manifest ? "ready" : "idle"}
+              </span>
+            </div>
+            <div style={{ fontSize: 12, color: "#9ca3af" }}>
+              runId:{" "}
+              <span style={{ color: "#e5e7eb" }}>{manifest ? `${manifest.runId.slice(0, 12)}…` : "—"}</span>
+            </div>
+          </div>
+        }
+      >
+        {canvas}
+      </PrototypeShell>
+    ) : (
+      canvas
+    );
 
   const overlays = [
     mode === "browser" ? (
