@@ -8,7 +8,6 @@ on:
     types:
       - opened
       - reopened
-      - synchronize
       - labeled
       - unlabeled
       - ready_for_review
@@ -27,7 +26,9 @@ permissions:
 
 concurrency:
   group: railway-preview-reconcile
-  cancel-in-progress: true
+  # Never cancel in-progress runs: cancellations show up as failing PR checks.
+  # We instead serialize reconciler runs and let them queue.
+  cancel-in-progress: false
 
 env:
   RAILWAY_PROJECT_ID: e4fe5b19-db1f-47ba-9a57-35825b3e69b3
@@ -257,13 +258,25 @@ jobs:
           fi
 
           echo "Enforcing preview environment branches..." >> "$GITHUB_STEP_SUMMARY"
-          # Enforce per-PR by recreating the environment when it drifts.
+          # Drift remediation: delete the stale pin and let the preview deploy workflow recreate/pin it.
+          # This avoids flakiness from "delete + recreate" in the same run (Railway deletion is async).
+          cleaned=0
+          errors=0
           while IFS=$'\t' read -r env_name env_id expected_branch; do
             if [ -z "${env_name:-}" ] || [ -z "${env_id:-}" ] || [ -z "${expected_branch:-}" ]; then
               continue
             fi
+            set +e
+            cfg_json="$(railway environment "${env_name}" config --json 2>/dev/null)"
+            cfg_code=$?
+            set -e
+            if [ "$cfg_code" -ne 0 ]; then
+              echo "- ${env_name}: missing (deleted or not yet created); skipping." >> "$GITHUB_STEP_SUMMARY"
+              continue
+            fi
+
             current="$(
-              railway environment "${env_name}" config --json \
+              printf '%s' "$cfg_json" \
                 | python3 -c 'import json,sys; d=json.load(sys.stdin); svc=d["services"][sys.argv[1]]; print((svc.get("source") or {}).get("branch",""))' "${RAILWAY_SERVICE_ID}"
             )"
 
@@ -272,41 +285,25 @@ jobs:
               continue
             fi
 
-            echo "- $env_name: reset '$current' -> '$expected_branch'" >> "$GITHUB_STEP_SUMMARY"
-            railway environment delete "${env_name}" -y --json
-
-            # Deletion can take a moment to propagate; retry environment creation a few times.
-            for attempt in 1 2 3 4 5; do
-              if railway environment new "${env_name}" \
-                --copy "${RAILWAY_BASE_ENVIRONMENT_ID}" \
-                --service-config "${RAILWAY_SERVICE_ID}" "source.branch" "${expected_branch}" \
-                --json >/dev/null; then
-                break
-              fi
-              echo "retry ${attempt}/5: waiting for ${env_name} delete to finalize..."
-              sleep 2
-            done
-          done < pr_env_branch_actions.tsv
-
-          echo "Guarding preview environment branches..." >> "$GITHUB_STEP_SUMMARY"
-          failures=0
-          while IFS=$'\t' read -r env_name env_id expected_branch; do
-            if [ -z "${env_name:-}" ] || [ -z "${expected_branch:-}" ]; then
+            echo "- $env_name: drift '$current' -> '$expected_branch' (deleting stale env)" >> "$GITHUB_STEP_SUMMARY"
+            set +e
+            delete_out="$(railway environment delete "${env_id}" -y --json 2>&1)"
+            delete_code=$?
+            set -e
+            echo "$delete_out"
+            if [ "$delete_code" -ne 0 ]; then
+              errors=$((errors+1))
+              echo "::warning::Failed to delete Railway env '${env_name}' via id '${env_id}' (exit ${delete_code})." >> "$GITHUB_STEP_SUMMARY"
               continue
             fi
-            configured="$(
-              railway environment "${env_name}" config --json \
-                | python3 -c 'import json,sys; d=json.load(sys.stdin); svc=d["services"][sys.argv[1]]; print((svc.get("source") or {}).get("branch",""))' "${RAILWAY_SERVICE_ID}"
-            )"
-            if [ "$configured" != "$expected_branch" ]; then
-              echo "::error::${env_name} pinned to '$configured' (expected '$expected_branch')"
-              echo "- ${env_name}: configured '$configured' (expected '$expected_branch')" >> "$GITHUB_STEP_SUMMARY"
-              failures=$((failures+1))
-            fi
+            cleaned=$((cleaned+1))
           done < pr_env_branch_actions.tsv
 
-          if [ "$failures" -gt 0 ]; then
-            exit 1
+          if [ "$cleaned" -gt 0 ]; then
+            echo "::warning::Deleted ${cleaned} drifted preview env(s) to clear stale pins; they will be recreated by the preview deploy workflow." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "$errors" -gt 0 ]; then
+            echo "::warning::${errors} drifted preview env(s) could not be deleted; leaving them for a future run." >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Delete stale preview environments
