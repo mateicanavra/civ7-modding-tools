@@ -15,8 +15,7 @@
       "tsconfig.base.json",
       "tsconfig.json",
       "tsconfig.plugins.json"
-    ],
-    "buildEnvironment": "V3"
+    ]
   },
   "deploy": {
     "runtime": "V2",
@@ -29,7 +28,6 @@
       }
     },
     "sleepApplication": true,
-    "useLegacyStacker": false,
     "multiRegionConfig": {
       "us-east4-eqdc4a": {
         "numReplicas": 1
