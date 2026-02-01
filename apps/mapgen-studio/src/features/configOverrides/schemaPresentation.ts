@@ -199,7 +199,7 @@ export function collectTransparentPaths(schema: RJSFSchema): ReadonlySet<string>
     if (!props) return;
 
     const propKeys = Object.keys(props);
-    // Never collapse the very top-level wrapper: we want the stage container (e.g. “Foundation”)
+    // Never collapse the very top-level wrapper: we want the stage container visible.
     // to remain visible even when there's only one stage in the schema.
     if (path.length > 0 && propKeys.length === 1 && node.description == null) {
       const onlyKey = propKeys[0]!;

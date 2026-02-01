@@ -7,7 +7,7 @@ Mission scope: identify “app shell” (layout/composition) responsibilities cu
 - `apps/mapgen-studio/src/main.tsx`
 - `apps/mapgen-studio/src/App.tsx`
 - `apps/mapgen-studio/src/browser-runner/protocol.ts`
-- `apps/mapgen-studio/src/browser-runner/foundation.worker.ts`
+- `apps/mapgen-studio/src/browser-runner/pipeline.worker.ts`
 - `apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts`
 - `apps/mapgen-studio/src/browser-runner/worker-viz-dumper.ts`
 - `apps/mapgen-studio/src/civ7-data/civ7-tables.gen.ts` (skim; data source for worker adapter)
@@ -51,7 +51,7 @@ These are the couplings that make `App.tsx` hard to shrink without first introdu
 ### B. Viz renderer couplings (deck.gl + layer semantics)
 
 - **Viz layer interpretation depends on layer ID conventions**:
-  - Special-cases `foundation.mesh.edges`, `foundation.plateTopology.*`, and `foundation.tectonicHistory.era{n}.*` (era slider).
+  - Special-cases are intentionally avoided; overlays/tooling should be driven by generic metadata (e.g. `meta.role === "edgeOverlay"`).
   - Legend/color mapping uses string heuristics (e.g., `boundaryType`, “crust type”, “plate id”), not an explicit metadata contract.
 - **View fitting depends on feature-specific bounds math**:
   - `setFittedView` and `boundsForTileGrid` are invoked from selection logic and layer changes (shell-level user interactions trigger feature-level fit behavior).
@@ -179,4 +179,3 @@ Suggested checklist after any extraction (no new behavior):
 - Shared:
   - Error surfaces: worker errors, manifest parse errors, async decode errors all show somewhere obvious
   - Overlays: legend and status remain visible and correctly positioned over the viz canvas
-

@@ -99,9 +99,9 @@ To keep typed-array contracts and invariants consistent across domains and steps
 - runtime validators (type + length checks), and
 - schema helpers (TypeBox `Type.Unsafe` wrappers for Static typing + documentation metadata).
 
-**Canonical location (exported via `@swooper/mapgen-core/authoring`):**
-- Validators: `packages/mapgen-core/src/authoring/typed-arrays.ts`
-- Schema helpers: `packages/mapgen-core/src/authoring/typed-array-schemas.ts`
+**Canonical modules (exported via `@swooper/mapgen-core/authoring`):**
+- Validators: `typed-arrays` (runtime validators for type/length invariants)
+- Schema helpers: `typed-array-schemas` (TypeBox helpers + Static typing)
 
 **Validator API sketch (runtime + tests):**
 

@@ -80,6 +80,8 @@ export default createStep(MeshStepContract, {
       meta: defineVizMeta("foundation.mesh.edges", {
         label: "Mesh Neighbor Edges",
         group: GROUP_MESH,
+        visibility: "debug",
+        role: "edgeOverlay",
       }),
     });
   },

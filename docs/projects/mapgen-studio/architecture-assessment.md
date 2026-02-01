@@ -48,7 +48,7 @@ React (main thread)
   App.tsx
     -> Runner hook/controller
          -> WorkerClient (postMessage)
-              -> foundation.worker.ts (compile/run recipe)
+              -> pipeline.worker.ts (compile/run recipe)
                    -> trace + viz sink
                         -> postMessage(viz.layer.upsert, Transferables)
          <- Worker events
@@ -61,7 +61,9 @@ Concrete entrypoints (today):
 - UI orchestrator: `apps/mapgen-studio/src/App.tsx`
 - Worker client: `apps/mapgen-studio/src/features/browserRunner/workerClient.ts`
 - Worker protocol: `apps/mapgen-studio/src/browser-runner/protocol.ts`
-- Worker implementation: `apps/mapgen-studio/src/browser-runner/foundation.worker.ts`
+- Worker implementation: `apps/mapgen-studio/src/browser-runner/pipeline.worker.ts`
+- Bundled recipe catalog (UI-safe artifacts): `apps/mapgen-studio/src/recipes/catalog.ts`
+- Bundled recipe runtime selector (worker-only): `apps/mapgen-studio/src/browser-runner/recipeRuntime.ts`
 - Main-thread ingest + render build: `apps/mapgen-studio/src/features/viz/useVizState.ts`, `apps/mapgen-studio/src/features/viz/deckgl/render.ts`
 - Deck host: `apps/mapgen-studio/src/features/viz/DeckCanvas.tsx`
 
@@ -165,21 +167,20 @@ Direction:
 
 ### 5) Package boundaries are leaky (recipe runtime pulled into UI bundle)
 
-Symptoms:
-- UI imports `STANDARD_RECIPE_CONFIG` / `STANDARD_RECIPE_CONFIG_SCHEMA` from the runtime recipe module `mod-swooper-maps/recipes/standard`.
-- This causes recipe runtime code to be bundled into both:
-  - the main browser bundle, and
-  - the worker bundle.
+Previously:
+- Studio UI imported recipe runtime directly, which risked pulling heavy runtime code into the main bundle.
+  (This was both a modularity smell and a bundle-size/perf risk.)
 
 Why this matters:
 - Bundle size (especially main thread) matters for fast iteration and for stable performance on mid-tier devices.
 - The UI should depend on stable “recipe artifacts” (schema/defaults/metadata), not on runtime recipe code.
 
-Direction:
+Current direction (implemented):
 - Split “recipe artifacts for UI” from “recipe runtime for worker”:
-  - UI imports JSON schema + defaults artifacts (lightweight, stable).
-  - Worker imports recipe runtime module (heavy, compute-only).
-  - Add lint rules to prevent accidental UI imports of runtime recipe modules.
+  - UI imports JSON schema + defaults via `apps/mapgen-studio/src/recipes/catalog.ts` (artifacts-only).
+  - Worker imports runtime modules via `apps/mapgen-studio/src/browser-runner/recipeRuntime.ts`.
+  - Runner protocol includes `recipeId` so the worker can remain recipe-agnostic at the protocol boundary.
+  - Lint rules prevent accidental UI imports of runtime recipe modules.
 
 ### 6) Specific correctness bugs are symptoms of the same architectural pressures
 
@@ -257,7 +258,7 @@ Suggested constraints:
 - Worker should avoid broad barrel imports (prefer narrow subpath exports).
 
 Enforcement options:
-- ESLint rules: forbid `mod-swooper-maps/recipes/standard` outside worker-only directories.
+- ESLint rules: forbid runtime recipe imports (e.g. `mod-swooper-maps/recipes/*`) outside worker-only files.
 - Bundle policy check: explicitly scan main bundle and worker bundle separately (and name the check accordingly).
 
 ## Refactor slices (phased, stack-friendly)

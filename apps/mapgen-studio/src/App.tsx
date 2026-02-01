@@ -1,14 +1,10 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import {
-  STANDARD_RECIPE_CONFIG,
-  STANDARD_RECIPE_CONFIG_SCHEMA,
-  type StandardRecipeConfig,
-} from "mod-swooper-maps/recipes/standard-artifacts";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AppHeader } from "./app/AppHeader";
 import { AppShell, type AppMode } from "./app/AppShell";
 import { useDumpLoader } from "./features/dumpViewer/useDumpLoader";
 import { ConfigOverridesPanel } from "./features/configOverrides/ConfigOverridesPanel";
 import { useConfigOverrides } from "./features/configOverrides/useConfigOverrides";
+import { buildOverridesPatch } from "./features/configOverrides/overridesPatch";
 import { useBrowserRunner } from "./features/browserRunner/useBrowserRunner";
 import { capturePinnedSelection } from "./features/browserRunner/retention";
 import { getCiv7MapSizePreset, type Civ7MapSizePreset } from "./features/browserRunner/mapSizes";
@@ -16,6 +12,13 @@ import { DeckCanvas, type DeckCanvasApi } from "./features/viz/DeckCanvas";
 import { useVizState } from "./features/viz/useVizState";
 import { formatStepLabel } from "./features/viz/presentation";
 import type { TileLayout } from "./features/viz/model";
+import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
+import {
+  DEFAULT_STUDIO_RECIPE_ID,
+  getRecipeArtifacts,
+  STUDIO_RECIPE_OPTIONS,
+  type StudioRecipeId,
+} from "./recipes/catalog";
 import { formatErrorForUi } from "./shared/errorFormat";
 import type { VizEvent } from "./shared/vizEvents";
 
@@ -45,14 +48,31 @@ export function App() {
   const dumpManifest = dumpLoader.state.status === "loaded" ? dumpLoader.state.manifest : null;
 
   const [browserSeed, setBrowserSeed] = useState(123);
+  const [browserRecipeId, setBrowserRecipeId] = useState<StudioRecipeId>(DEFAULT_STUDIO_RECIPE_ID);
   const [browserMapSizeId, setBrowserMapSizeId] = useState<Civ7MapSizePreset["id"]>("MAPSIZE_HUGE");
   const [browserConfigOpen, setBrowserConfigOpen] = useState(false);
   const [tileLayout, setTileLayout] = useState<TileLayout>("row-offset");
-  const [showMeshEdges, setShowMeshEdges] = useState(true);
+  const [showEdgeOverlay, setShowEdgeOverlay] = useState(true);
   const [showBackgroundGrid, setShowBackgroundGrid] = useState(true);
-  const browserConfigOverrides = useConfigOverrides<StandardRecipeConfig>({
-    baseConfig: STANDARD_RECIPE_CONFIG,
-    schema: STANDARD_RECIPE_CONFIG_SCHEMA,
+  const recipeArtifacts = getRecipeArtifacts(browserRecipeId);
+  const browserConfigOverridesBaseConfig = useMemo(() => {
+    // Recipes may export a sparse default config (e.g. `{}`) while their schema provides defaults.
+    // Normalize once so "enable overrides" doesn't promote schema defaults into "overrides" payloads.
+    const { value, errors } = normalizeStrict<Record<string, unknown>>(
+      recipeArtifacts.configSchema as any,
+      recipeArtifacts.defaultConfig as any,
+      "/defaultConfig"
+    );
+    if (errors.length > 0) {
+      console.error("[mapgen-studio] invalid recipe default config", errors);
+      return recipeArtifacts.defaultConfig as Record<string, unknown>;
+    }
+    return value as Record<string, unknown>;
+  }, [recipeArtifacts.configSchema, recipeArtifacts.defaultConfig]);
+
+  const browserConfigOverrides = useConfigOverrides<Record<string, unknown>>({
+    baseConfig: browserConfigOverridesBaseConfig,
+    schema: recipeArtifacts.configSchema,
   });
 
   const [localError, setLocalError] = useState<string | null>(null);
@@ -76,7 +96,7 @@ export function App() {
     mode,
     assetResolver: mode === "dump" ? dumpAssetResolver : null,
     tileLayout,
-    showMeshEdges,
+    showEdgeOverlay,
     allowPendingSelection: mode === "browser" && browserRunning,
     onError: (e) => setLocalError(formatErrorForUi(e)),
   });
@@ -139,14 +159,27 @@ export function App() {
 
   const startBrowserRun = useCallback((overrides?: { seed?: number }) => {
     setLocalError(null);
-    let configOverrides = browserConfigOverrides.configOverridesForRun;
+    let configOverrides: unknown = undefined;
     if (browserConfigOverrides.enabled && browserConfigOverrides.tab === "json") {
       const { ok, value } = browserConfigOverrides.applyJson();
       if (!ok) {
         setLocalError("Config overrides JSON is invalid. Fix it (or disable overrides) and try again.");
         return;
       }
-      configOverrides = value;
+      configOverrides = buildOverridesPatch(browserConfigOverridesBaseConfig, value);
+    } else if (browserConfigOverrides.enabled) {
+      // Precomputed in the overrides controller so rerolls don't pay deep-diff costs.
+      configOverrides = browserConfigOverrides.patchForRun;
+    }
+
+    // Avoid posting empty overrides payloads (structured clone is still work).
+    if (
+      configOverrides &&
+      typeof configOverrides === "object" &&
+      !Array.isArray(configOverrides) &&
+      Object.keys(configOverrides as Record<string, unknown>).length === 0
+    ) {
+      configOverrides = undefined;
     }
     const pinned = capturePinnedSelection({
       mode,
@@ -164,6 +197,7 @@ export function App() {
     const seedToUse = overrides?.seed ?? browserSeed;
     const mapSize = getCiv7MapSizePreset(browserMapSizeId);
     browserRunner.actions.start({
+      recipeId: browserRecipeId,
       seed: seedToUse,
       mapSizeId: mapSize.id,
       dimensions: mapSize.dimensions,
@@ -174,6 +208,7 @@ export function App() {
     browserConfigOverrides,
     browserRunner.actions,
     browserMapSizeId,
+    browserRecipeId,
     browserSeed,
     mode,
     viz,
@@ -186,6 +221,9 @@ export function App() {
       isNarrow={isNarrow}
       mode={mode}
       onModeChange={setMode}
+      browserRecipeId={browserRecipeId}
+      recipeOptions={STUDIO_RECIPE_OPTIONS}
+      onBrowserRecipeChange={setBrowserRecipeId}
       browserSeed={browserSeed}
       onBrowserSeedChange={setBrowserSeed}
       onRerollSeed={() => {
@@ -208,8 +246,8 @@ export function App() {
         deckApiRef.current?.fitToBounds(viz.activeBounds);
       }}
       canFit={Boolean(viz.activeBounds)}
-      showMeshEdges={showMeshEdges}
-      onShowMeshEdgesChange={setShowMeshEdges}
+      showEdgeOverlay={showEdgeOverlay}
+      onShowEdgeOverlayChange={setShowEdgeOverlay}
       showBackgroundGrid={showBackgroundGrid}
       onShowBackgroundGridChange={setShowBackgroundGrid}
       tileLayout={tileLayout}
@@ -220,10 +258,6 @@ export function App() {
       selectedLayerKey={viz.selectedLayerKey}
       selectableLayers={viz.selectableLayers}
       onSelectedLayerChange={viz.setSelectedLayerKey}
-      eraActive={viz.era.active}
-      eraValue={viz.era.value}
-      eraMax={viz.era.max}
-      onEraChange={viz.era.setValue}
     />
   );
 
@@ -239,8 +273,8 @@ export function App() {
   ) : (
     <div style={{ padding: 18, color: "#9ca3af" }}>
       {mode === "browser"
-        ? "Click “Run (Browser)” to execute Foundation in a Web Worker and stream layers directly to deck.gl."
-        : "Select a dump folder containing `manifest.json` (e.g. `mods/mod-swooper-maps/dist/visualization/<runId>`)."}
+        ? "Click “Run (Browser)” to execute the selected recipe in a Web Worker and stream layers directly to deck.gl."
+        : "Select a dump folder containing `manifest.json` (e.g. `<mod>/dist/visualization/<runId>`)."}
     </div>
   );
 
@@ -250,8 +284,10 @@ export function App() {
         open={browserConfigOpen}
         onClose={() => setBrowserConfigOpen(false)}
         controller={browserConfigOverrides}
-        disabled={browserRunning}
-        schema={STANDARD_RECIPE_CONFIG_SCHEMA}
+        // Disabling a large RJSF form during runs is extremely expensive (thousands of DOM nodes).
+        // We snapshot overrides at run-start, so edits during a run simply apply on the next run.
+        disabled={false}
+        schema={recipeArtifacts.configSchema}
       />
     ) : null,
     <div
@@ -299,7 +335,6 @@ export function App() {
           <div>
             layer: {legend.context?.layerId ?? effectiveLayer.layerId} ({legend.context?.kind ?? effectiveLayer.kind})
           </div>
-          {legend.context?.eraIndex != null ? <div>era: {legend.context.eraIndex}</div> : null}
           {legend.context?.tileLayout ? <div>tile layout: {legend.context.tileLayout}</div> : null}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>

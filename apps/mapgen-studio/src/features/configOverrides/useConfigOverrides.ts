@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { buildOverridesPatch } from "./overridesPatch";
 import { validateConfigOverridesJson } from "./validate";
 
 export type ConfigOverridesTab = "form" | "json";
@@ -27,7 +28,11 @@ export type UseConfigOverridesResult<TConfig> = {
   reset(): void;
   applyJson(): { ok: boolean; value?: TConfig };
 
-  configOverridesForRun: TConfig | undefined;
+  /**
+   * Sparse overrides object to be merged onto the recipe default config by the runner.
+   * Kept stable across "reroll" clicks to avoid paying deep-diff/clone costs on every run.
+   */
+  patchForRun: unknown | undefined;
 };
 
 export function useConfigOverrides<TConfig>(
@@ -83,20 +88,54 @@ export function useConfigOverrides<TConfig>(
     [tab, schema, jsonText, basePathForErrors, value]
   );
 
-  const configOverridesForRun = useMemo(() => (enabled ? value : undefined), [enabled, value]);
+  const patchForRun = useMemo((): unknown | undefined => {
+    if (!enabled) return undefined;
+    // Fast-path: when we haven't changed anything yet, keep payload empty.
+    if (Object.is(value, baseConfig)) return undefined;
 
-  return {
-    enabled,
-    setEnabled,
-    tab,
-    setTab,
-    value,
-    setValue,
-    jsonText,
-    setJsonText,
-    jsonError,
-    reset,
-    applyJson,
-    configOverridesForRun,
-  };
+    const patch = buildOverridesPatch(baseConfig, value);
+    if (
+      patch &&
+      typeof patch === "object" &&
+      !Array.isArray(patch) &&
+      Object.keys(patch as Record<string, unknown>).length === 0
+    ) {
+      return undefined;
+    }
+    return patch;
+  }, [enabled, baseConfig, value]);
+
+  // Keep the controller reference stable across unrelated parent re-renders.
+  // This is critical because the overrides UI (RJSF) can be very expensive to
+  // re-render when a recipe schema is large.
+  return useMemo(
+    () => ({
+      enabled,
+      setEnabled,
+      tab,
+      setTab,
+      value,
+      setValue,
+      jsonText,
+      setJsonText,
+      jsonError,
+      reset,
+      applyJson,
+      patchForRun,
+    }),
+    [
+      enabled,
+      setEnabled,
+      tab,
+      setTab,
+      value,
+      setValue,
+      jsonText,
+      setJsonText,
+      jsonError,
+      reset,
+      applyJson,
+      patchForRun,
+    ]
+  );
 }

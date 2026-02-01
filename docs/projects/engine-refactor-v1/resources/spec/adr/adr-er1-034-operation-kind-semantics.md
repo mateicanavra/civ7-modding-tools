@@ -16,7 +16,7 @@ sources:
 
 # ADR-ER1-034: Operation kind semantics (`plan` vs `compute` vs `score` vs `select`)
 
-This ADR is the canonical home for DD-001 from `docs/projects/engine-refactor-v1/resources/spec/SPEC-step-domain-operation-modules.md`.
+This ADR is the canonical home for DD-001 from `SPEC-step-domain-operation-modules`.
 
 ## Context (verbatim from spike)
 

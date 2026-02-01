@@ -33,7 +33,7 @@ Related context:
 
 ### A) App/state orchestration
 - Top-level modes: `"browser"` (worker runner) vs `"dump"` (replay viewer).
-- UI state: selected step/layer, view state (pan/zoom), toggles (mesh edges, background grid), era index slider.
+- UI state: selected step/layer, view state (pan/zoom), toggles (edge overlay, background grid).
 - Browser-run lifecycle: start run, cancel run, interpret worker events, keep selection “pinned” across reruns.
 - Config overrides lifecycle: enable/disable overrides, edit via schema-driven form or raw JSON, validate/narrow on run.
 
@@ -158,7 +158,7 @@ apps/mapgen-studio/src/
     types.ts
 
   browser-runner/             # worker entry + protocol (already exists)
-    foundation.worker.ts
+    pipeline.worker.ts
     protocol.ts
     worker-trace-sink.ts
     worker-viz-dumper.ts
