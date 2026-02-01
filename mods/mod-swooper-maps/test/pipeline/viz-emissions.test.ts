@@ -56,8 +56,16 @@ describe("standard pipeline viz emissions", () => {
     initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
     standardRecipe.run(context, env, standardConfig, { log: () => {} });
 
+    // Regression guard: never encode temporal slices into `dataTypeKey`.
+    // Those should be `variantKey` instead (e.g. `era:<n>`), so the UI can
+    // declutter by default while preserving depth behind a debug toggle.
+    const explodedHistoryKeys = [...seenLayers].filter((key) => /^foundation\.tectonicHistory\.era\d+\./.test(key));
+    expect(explodedHistoryKeys).toEqual([]);
+
     const expected = [
       "foundation.plates.tilePlateId",
+      "foundation.tectonics.boundaryType",
+      "foundation.tectonicHistory.boundaryType",
       "morphology.topography.elevation",
       "morphology.routing.flowAccum",
       "map.morphology.mountains.mountainMask",

@@ -14,6 +14,13 @@ const GROUP_TECTONICS = "Foundation / Tectonics";
 const GROUP_TECTONIC_HISTORY = "Foundation / Tectonic History";
 const WORLD_SPACE_ID = "world.xy" as const;
 
+const BOUNDARY_TYPE_CATEGORIES = [
+  { value: 0, label: "None/Unknown", color: [107, 114, 128, 180] as const },
+  { value: 1, label: "Convergent", color: [239, 68, 68, 240] as const },
+  { value: 2, label: "Divergent", color: [59, 130, 246, 240] as const },
+  { value: 3, label: "Transform", color: [245, 158, 11, 240] as const },
+];
+
 export default createStep(TectonicsStepContract, {
   artifacts: implementArtifacts(
     [foundationArtifacts.tectonicSegments, foundationArtifacts.tectonicHistory, foundationArtifacts.tectonics],
@@ -66,12 +73,7 @@ export default createStep(TectonicsStepContract, {
       meta: defineVizMeta("foundation.tectonics.boundaryType", {
         label: "Boundary Type",
         group: GROUP_TECTONICS,
-        categories: [
-          { value: 0, label: "None/Unknown", color: [107, 114, 128, 180] },
-          { value: 1, label: "Convergent", color: [239, 68, 68, 240] },
-          { value: 2, label: "Divergent", color: [59, 130, 246, 240] },
-          { value: 3, label: "Transform", color: [245, 158, 11, 240] },
-        ],
+        categories: BOUNDARY_TYPE_CATEGORIES,
       }),
     });
     context.viz?.dumpPoints(context.trace, {
@@ -94,6 +96,7 @@ export default createStep(TectonicsStepContract, {
       meta: defineVizMeta("foundation.tectonics.riftPotential", {
         label: "Rift Potential",
         group: GROUP_TECTONICS,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpPoints(context.trace, {
@@ -105,6 +108,7 @@ export default createStep(TectonicsStepContract, {
       meta: defineVizMeta("foundation.tectonics.shearStress", {
         label: "Shear Stress",
         group: GROUP_TECTONICS,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpPoints(context.trace, {
@@ -116,6 +120,7 @@ export default createStep(TectonicsStepContract, {
       meta: defineVizMeta("foundation.tectonics.volcanism", {
         label: "Volcanism",
         group: GROUP_TECTONICS,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpPoints(context.trace, {
@@ -127,6 +132,7 @@ export default createStep(TectonicsStepContract, {
       meta: defineVizMeta("foundation.tectonics.fracture", {
         label: "Fracture",
         group: GROUP_TECTONICS,
+        visibility: "debug",
       }),
     });
 
@@ -161,6 +167,7 @@ export default createStep(TectonicsStepContract, {
       meta: defineVizMeta("foundation.tectonics.segmentCompression", {
         label: "Tectonic Segment Compression",
         group: GROUP_TECTONICS,
+        visibility: "debug",
       }),
     });
 
@@ -178,6 +185,7 @@ export default createStep(TectonicsStepContract, {
       meta: defineVizMeta("foundation.tectonics.segmentExtension", {
         label: "Tectonic Segment Extension",
         group: GROUP_TECTONICS,
+        visibility: "debug",
       }),
     });
 
@@ -195,6 +203,7 @@ export default createStep(TectonicsStepContract, {
       meta: defineVizMeta("foundation.tectonics.segmentShear", {
         label: "Tectonic Segment Shear",
         group: GROUP_TECTONICS,
+        visibility: "debug",
       }),
     });
 
@@ -212,6 +221,7 @@ export default createStep(TectonicsStepContract, {
       meta: defineVizMeta("foundation.tectonics.segmentVolcanism", {
         label: "Tectonic Segment Volcanism",
         group: GROUP_TECTONICS,
+        visibility: "debug",
       }),
     });
 
@@ -224,6 +234,7 @@ export default createStep(TectonicsStepContract, {
       meta: defineVizMeta("foundation.tectonicHistory.upliftTotal", {
         label: "Uplift Total",
         group: GROUP_TECTONIC_HISTORY,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpPoints(context.trace, {
@@ -235,6 +246,7 @@ export default createStep(TectonicsStepContract, {
       meta: defineVizMeta("foundation.tectonicHistory.fractureTotal", {
         label: "Fracture Total",
         group: GROUP_TECTONIC_HISTORY,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpPoints(context.trace, {
@@ -246,6 +258,7 @@ export default createStep(TectonicsStepContract, {
       meta: defineVizMeta("foundation.tectonicHistory.volcanismTotal", {
         label: "Volcanism Total",
         group: GROUP_TECTONIC_HISTORY,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpPoints(context.trace, {
@@ -257,6 +270,7 @@ export default createStep(TectonicsStepContract, {
       meta: defineVizMeta("foundation.tectonicHistory.upliftRecentFraction", {
         label: "Recent Uplift Fraction",
         group: GROUP_TECTONIC_HISTORY,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpPoints(context.trace, {
@@ -268,6 +282,7 @@ export default createStep(TectonicsStepContract, {
       meta: defineVizMeta("foundation.tectonicHistory.lastActiveEra", {
         label: "Last Active Era",
         group: GROUP_TECTONIC_HISTORY,
+        visibility: "debug",
       }),
     });
 
@@ -275,80 +290,85 @@ export default createStep(TectonicsStepContract, {
     for (let eraIndex = 0; eraIndex < eras.length; eraIndex++) {
       const era = eras[eraIndex];
       if (!era) continue;
-      const prefix = `foundation.tectonicHistory.era${eraIndex}`;
-      const eraLabel = `Era ${eraIndex + 1}`;
-      const eraGroup = `${GROUP_TECTONIC_HISTORY} / ${eraLabel}`;
+      const variantKey = `era:${eraIndex + 1}`;
 
       context.viz?.dumpPoints(context.trace, {
-        dataTypeKey: `${prefix}.boundaryType`,
+        dataTypeKey: "foundation.tectonicHistory.boundaryType",
+        variantKey,
         spaceId: WORLD_SPACE_ID,
         positions,
         values: era.boundaryType,
         valueFormat: "u8",
-        meta: defineVizMeta(`${prefix}.boundaryType`, {
-          label: `${eraLabel} Boundary Type`,
-          group: eraGroup,
-          categories: [
-            { value: 0, label: "None/Unknown", color: [107, 114, 128, 180] },
-            { value: 1, label: "Convergent", color: [239, 68, 68, 240] },
-            { value: 2, label: "Divergent", color: [59, 130, 246, 240] },
-            { value: 3, label: "Transform", color: [245, 158, 11, 240] },
-          ],
+        meta: defineVizMeta("foundation.tectonicHistory.boundaryType", {
+          label: "Boundary Type (History)",
+          group: GROUP_TECTONIC_HISTORY,
+          visibility: "debug",
+          categories: BOUNDARY_TYPE_CATEGORIES,
         }),
       });
       context.viz?.dumpPoints(context.trace, {
-        dataTypeKey: `${prefix}.upliftPotential`,
+        dataTypeKey: "foundation.tectonicHistory.upliftPotential",
+        variantKey,
         spaceId: WORLD_SPACE_ID,
         positions,
         values: era.upliftPotential,
         valueFormat: "u8",
-        meta: defineVizMeta(`${prefix}.upliftPotential`, {
-          label: `${eraLabel} Uplift Potential`,
-          group: eraGroup,
+        meta: defineVizMeta("foundation.tectonicHistory.upliftPotential", {
+          label: "Uplift Potential (History)",
+          group: GROUP_TECTONIC_HISTORY,
+          visibility: "debug",
         }),
       });
       context.viz?.dumpPoints(context.trace, {
-        dataTypeKey: `${prefix}.riftPotential`,
+        dataTypeKey: "foundation.tectonicHistory.riftPotential",
+        variantKey,
         spaceId: WORLD_SPACE_ID,
         positions,
         values: era.riftPotential,
         valueFormat: "u8",
-        meta: defineVizMeta(`${prefix}.riftPotential`, {
-          label: `${eraLabel} Rift Potential`,
-          group: eraGroup,
+        meta: defineVizMeta("foundation.tectonicHistory.riftPotential", {
+          label: "Rift Potential (History)",
+          group: GROUP_TECTONIC_HISTORY,
+          visibility: "debug",
         }),
       });
       context.viz?.dumpPoints(context.trace, {
-        dataTypeKey: `${prefix}.shearStress`,
+        dataTypeKey: "foundation.tectonicHistory.shearStress",
+        variantKey,
         spaceId: WORLD_SPACE_ID,
         positions,
         values: era.shearStress,
         valueFormat: "u8",
-        meta: defineVizMeta(`${prefix}.shearStress`, {
-          label: `${eraLabel} Shear Stress`,
-          group: eraGroup,
+        meta: defineVizMeta("foundation.tectonicHistory.shearStress", {
+          label: "Shear Stress (History)",
+          group: GROUP_TECTONIC_HISTORY,
+          visibility: "debug",
         }),
       });
       context.viz?.dumpPoints(context.trace, {
-        dataTypeKey: `${prefix}.volcanism`,
+        dataTypeKey: "foundation.tectonicHistory.volcanism",
+        variantKey,
         spaceId: WORLD_SPACE_ID,
         positions,
         values: era.volcanism,
         valueFormat: "u8",
-        meta: defineVizMeta(`${prefix}.volcanism`, {
-          label: `${eraLabel} Volcanism`,
-          group: eraGroup,
+        meta: defineVizMeta("foundation.tectonicHistory.volcanism", {
+          label: "Volcanism (History)",
+          group: GROUP_TECTONIC_HISTORY,
+          visibility: "debug",
         }),
       });
       context.viz?.dumpPoints(context.trace, {
-        dataTypeKey: `${prefix}.fracture`,
+        dataTypeKey: "foundation.tectonicHistory.fracture",
+        variantKey,
         spaceId: WORLD_SPACE_ID,
         positions,
         values: era.fracture,
         valueFormat: "u8",
-        meta: defineVizMeta(`${prefix}.fracture`, {
-          label: `${eraLabel} Fracture`,
-          group: eraGroup,
+        meta: defineVizMeta("foundation.tectonicHistory.fracture", {
+          label: "Fracture (History)",
+          group: GROUP_TECTONIC_HISTORY,
+          visibility: "debug",
         }),
       });
     }
