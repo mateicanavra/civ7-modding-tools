@@ -17,6 +17,7 @@ related_to: []
 ## TL;DR
 - The prototype’s mental model aligns with MapGen Core’s authored **recipe → stage → step-contract** structure, but its “step” selector is currently **op-level** (e.g. `computeMesh`) while Studio’s runtime/viz is **step-contract-level** (e.g. `foundation.mesh`).
 - “Layers as data types” vs “projections as render modes” is a real mismatch with Studio today: the current viz stream treats **(layerId × kind × fileKey)** as the selectable unit.
+- Prototype “World Settings” includes `playerCount` + `resources` strategy, while Studio today derives player counts from Civ7 `MapInfo` (via map size id) and always calls `adapter.generateResources(...)` with no mode.
 - Integration should be staged as: (1) introduce a shared “pipeline address” model (recipe/stage/step), (2) add a “dataType + renderMode” view model over existing viz layers, (3) drop in the prototype UI, (4) wire it to the real runner/viz/config, then delete legacy UI.
 
 ## Prototype packet location
@@ -77,6 +78,21 @@ Today, “layers” in Studio already mix:
 
 This gets us to the intended mental model immediately, and later we can promote a real “projection id” into metadata if needed.
 
+### 3) Prototype “World Settings” vs Studio runner inputs
+Prototype’s `WorldSettings` includes:
+- `mapSize` (maps to Studio’s `browserMapSizeId`)
+- `mode` (`browser`/`dump`), already supported by Studio’s top-level mode
+- `playerCount`
+- `resources` (`balanced`/`strategic`)
+
+Studio today:
+- derives player counts from Civ7 `MapInfo` for the selected map size id (`PlayersLandmass1/2`, etc.)
+- always calls `adapter.generateResources(width, height)` during placement (no strategy/mode)
+
+**Open question:** do we want `playerCount` + `resources` to be:
+- **derived-only UI** (read-only display sourced from `MapInfo` / recipe defaults), or
+- **true runner inputs** that override runtime initialization / placement behavior?
+
 ## Integration plan (high-level, Graphite branch map)
 1) **UI-00 (docs):** lock down definitions + open questions
    - Add/update this issue doc; link to prototype packet; record mapping assumptions.
@@ -126,4 +142,3 @@ If we want the prototype packet to be “drop-in” for Studio wiring, ask the p
   - keep `value` as op name (`computeMesh`) if we choose option B.
 - Stop filtering `dataTypeOptions` via `dt.value === category`; instead accept `dataTypeOptions` already filtered/ordered by the host app.
 - Make `renderModeOptions` support an extra `isAvailable`/`disabled` bit per mode so the host can show the stable vocabulary even when a mode isn’t possible for the selected data type.
-
