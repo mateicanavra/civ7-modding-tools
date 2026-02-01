@@ -14,8 +14,10 @@ Define the canonical visualization contract and route readers to the single cano
 ## Contract (what must stay stable)
 
 - Visualization is **external** to the pipeline runtime (pipeline does not depend on deck.gl).
-- Runs emit replayable dumps (manifest + binary payloads) keyed by stable ids (run id, plan fingerprint, layer keys).
-- MapGen Studio consumes the dump folder and renders it via deck.gl.
+- Runs may emit streaming layer events and/or replayable dumps (manifest + binary payloads), keyed by stable ids (run id, plan fingerprint, layer keys).
+- MapGen Studio renders visualization via deck.gl:
+  - live runs consume streamed layer upserts (`viz.layer.upsert`),
+  - dump viewer workflows consume dump folders (when produced).
 
 Hard rule:
 - There must be **exactly one** canonical deck.gl visualization doc. Do not fork competing viz architecture pages.
@@ -29,4 +31,3 @@ Hard rule:
 - Canonical deck.gl viz doc: `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
 - Viz manifest contract types: `packages/mapgen-viz/src/index.ts`
 - Viz dump sink (mod-owned): `mods/mod-swooper-maps/src/dev/viz/dump.ts`
-
