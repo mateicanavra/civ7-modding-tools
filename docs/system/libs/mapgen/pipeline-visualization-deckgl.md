@@ -1,8 +1,22 @@
+<toc>
+  <item id="definitions" title="Definitions"/>
+  <item id="spaces" title="Coordinate spaces"/>
+  <item id="purpose" title="Purpose"/>
+  <item id="trace" title="Trace posture"/>
+  <item id="architecture" title="System architecture"/>
+  <item id="primitives" title="Dump primitives"/>
+  <item id="taxonomy" title="Layer taxonomy"/>
+  <item id="viewer" title="Deck.gl viewer design"/>
+  <item id="changes" title="Pipeline changes"/>
+  <item id="verification" title="Verification"/>
+  <item id="questions" title="Open questions"/>
+</toc>
+
 # Pipeline Visualization (deck.gl)
 
 > **System:** Mapgen diagnostics and external visualization.
-> **Scope:** Capture per-step artifacts/buffers as replayable dumps and render them in MapGen Studio’s deck.gl viewer.
-> **Status:** Implemented (Viz SDK v1).
+> **Scope:** Capture per-step artifacts/buffers as post-run dumps and render them in a deck.gl viewer.
+> **Status:** Canonical (current; implementation + conventions)
 
 ## Definitions
 

@@ -25,5 +25,5 @@ Planned canonical how-tos (built in later slices):
 - Add a stage / step / op contract
 - Add an artifact / tag
 - Add a knob / preset
+- Visualize pipeline (deck.gl): `docs/system/libs/mapgen/how-to/visualize-pipeline-deckgl.md`
 - Debug with trace and visualization (deck.gl)
-

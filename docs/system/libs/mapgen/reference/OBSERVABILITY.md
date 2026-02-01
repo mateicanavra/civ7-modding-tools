@@ -25,11 +25,12 @@ Define how MapGen runs can be inspected and debugged deterministically:
 
 Visualization is current canon and must reflect the deck.gl posture.
 
-This reference page is a contract pointer; detailed viz docs are routed via Slice 03B.
+See:
+- Contract routing: `docs/system/libs/mapgen/reference/VISUALIZATION.md`
+- Canonical implementation: `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
 
 ## Ground truth anchors
 
 - Trace config is part of Env: `packages/mapgen-core/src/core/env.ts`
 - Trace/viz types exist in core types: `packages/mapgen-core/src/core/types.ts`
 - Canonical viz doc (current): `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
-
