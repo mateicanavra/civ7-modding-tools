@@ -268,6 +268,9 @@ Concretely:
 
 This is a suggested phased build sequence using agents without losing coherence.
 
+For the full execution plan (agent team setup + guardrails + slice-by-slice delivery), see:
+`docs/projects/engine-refactor-v1/mapgen-docs-alignment/DOC-SPINE-IMPLEMENTATION-PROPOSAL.md`.
+
 ### Phase 0 — Scaffold (routing only)
 
 - Create `docs/system/libs/mapgen/MAPGEN.md` as the gateway with:
@@ -297,4 +300,3 @@ This is a suggested phased build sequence using agents without losing coherence.
 
 - Expand explanation pages and ensure domain docs are correctly routed, not duplicated.
 - Add/verify “truth vs projection” and mutation model explanation pages.
-
