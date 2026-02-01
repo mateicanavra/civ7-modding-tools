@@ -1,9 +1,9 @@
 import type { VizLayerEntryV1, VizLayerVisibility, VizSpaceId } from "@swooper/mapgen-viz";
 
 export type DataTypeId = string;
-export type ProjectionId = VizSpaceId;
 export type RenderModeId = string;
 export type LayerVariantId = string;
+export type SpaceId = VizSpaceId;
 
 export type LayerVariant = Readonly<{
   variantId: LayerVariantId;
@@ -18,8 +18,8 @@ export type RenderModeModel = Readonly<{
   variants: readonly LayerVariant[];
 }>;
 
-export type ProjectionModel = Readonly<{
-  projectionId: ProjectionId;
+export type SpaceModel = Readonly<{
+  spaceId: SpaceId;
   label: string;
   renderModes: readonly RenderModeModel[];
 }>;
@@ -27,8 +27,9 @@ export type ProjectionModel = Readonly<{
 export type DataTypeModel = Readonly<{
   dataTypeId: DataTypeId;
   label: string;
+  group?: string;
   visibility: VizLayerVisibility;
-  projections: readonly ProjectionModel[];
+  spaces: readonly SpaceModel[];
 }>;
 
 export type StepDataTypeModel = Readonly<{
@@ -74,7 +75,7 @@ function reduceVisibility(current: VizLayerVisibility, next: VizLayerVisibility)
   return "hidden";
 }
 
-function formatProjectionLabel(spaceId: VizSpaceId): string {
+function formatSpaceLabel(spaceId: VizSpaceId): string {
   switch (spaceId) {
     case "tile.hexOddR":
       return "Tiles · Hex (Odd-R)";
@@ -89,21 +90,41 @@ function formatProjectionLabel(spaceId: VizSpaceId): string {
   }
 }
 
+function formatVariantLabel(variantKey: string | null): string {
+  if (!variantKey) return "default";
+  const idx = variantKey.indexOf(":");
+  if (idx < 0) return variantKey;
+  const dim = variantKey.slice(0, idx).trim();
+  const value = variantKey.slice(idx + 1).trim();
+  if (!dim || !value) return variantKey;
+  return `${dim} · ${value}`;
+}
+
 export function buildStepDataTypeModel(
   manifest: { layers: readonly VizLayerEntryV1[] },
-  stepId: string
+  stepId: string,
+  opts?: { includeDebug?: boolean }
 ): StepDataTypeModel {
-  const layers = manifest.layers.filter((l) => l.stepId === stepId);
+  const includeDebug = opts?.includeDebug ?? false;
+  const layers = manifest.layers
+    .filter((l) => l.stepId === stepId)
+    .filter((l) => {
+      const vis = resolveLayerVisibility(l);
+      if (vis === "hidden") return false;
+      if (vis === "debug") return includeDebug;
+      return true;
+    });
 
   const dataTypeOrder: string[] = [];
   const dataTypes = new Map<
     DataTypeId,
     {
       label: string;
+      group?: string;
       visibility: VizLayerVisibility;
-      projectionOrder: ProjectionId[];
-      projections: Map<
-        ProjectionId,
+      spaceOrder: SpaceId[];
+      spaces: Map<
+        SpaceId,
         {
           renderModeOrder: RenderModeId[];
           renderModes: Map<RenderModeId, { variants: LayerVariant[] }>;
@@ -118,31 +139,33 @@ export function buildStepDataTypeModel(
       dataTypeOrder.push(dataTypeId);
       dataTypes.set(dataTypeId, {
         label: layer.meta?.label ?? layer.dataTypeKey,
+        group: layer.meta?.group,
         visibility: resolveLayerVisibility(layer),
-        projectionOrder: [],
-        projections: new Map(),
+        spaceOrder: [],
+        spaces: new Map(),
       });
     }
 
     const entry = dataTypes.get(dataTypeId)!;
     entry.visibility = reduceVisibility(entry.visibility, resolveLayerVisibility(layer));
+    if (!entry.group && layer.meta?.group) entry.group = layer.meta.group;
 
-    const projectionId: ProjectionId = layer.spaceId;
-    if (!entry.projections.has(projectionId)) {
-      entry.projectionOrder.push(projectionId);
-      entry.projections.set(projectionId, { renderModeOrder: [], renderModes: new Map() });
+    const spaceId: SpaceId = layer.spaceId;
+    if (!entry.spaces.has(spaceId)) {
+      entry.spaceOrder.push(spaceId);
+      entry.spaces.set(spaceId, { renderModeOrder: [], renderModes: new Map() });
     }
 
-    const projection = entry.projections.get(projectionId)!;
+    const space = entry.spaces.get(spaceId)!;
     const renderModeId = computeRenderModeId(layer);
-    if (!projection.renderModes.has(renderModeId)) {
-      projection.renderModeOrder.push(renderModeId);
-      projection.renderModes.set(renderModeId, { variants: [] });
+    if (!space.renderModes.has(renderModeId)) {
+      space.renderModeOrder.push(renderModeId);
+      space.renderModes.set(renderModeId, { variants: [] });
     }
 
-    const variants = projection.renderModes.get(renderModeId)!.variants;
+    const variants = space.renderModes.get(renderModeId)!.variants;
     const variantId = inferLayerVariantId(layer) ?? layer.layerKey;
-    const variantLabel = inferLayerVariantId(layer) ?? "default";
+    const variantLabel = formatVariantLabel(inferLayerVariantId(layer));
     variants.push({
       variantId,
       label: variantLabel,
@@ -158,16 +181,17 @@ export function buildStepDataTypeModel(
       return {
         dataTypeId,
         label: dt.label,
+        group: dt.group,
         visibility: dt.visibility,
-        projections: dt.projectionOrder.map((projectionId) => {
-          const p = dt.projections.get(projectionId)!;
+        spaces: dt.spaceOrder.map((spaceId) => {
+          const s = dt.spaces.get(spaceId)!;
           return {
-            projectionId,
-            label: formatProjectionLabel(projectionId),
-            renderModes: p.renderModeOrder.map((renderModeId) => ({
+            spaceId,
+            label: formatSpaceLabel(spaceId),
+            renderModes: s.renderModeOrder.map((renderModeId) => ({
               renderModeId,
               label: formatRenderModeLabel(renderModeId),
-              variants: p.renderModes.get(renderModeId)!.variants,
+              variants: s.renderModes.get(renderModeId)!.variants,
             })),
           };
         }),

@@ -16,14 +16,14 @@ import {
   Hexagon,
   CircleDot,
   Activity,
+  Bug,
   Flame } from
 'lucide-react';
 import type {
-  Theme,
   StageOption,
   StepOption,
   DataTypeOption,
-  ProjectionOption,
+  SpaceOption,
   VariantOption,
   RenderModeOption } from
 '../types';
@@ -49,12 +49,12 @@ export interface ExplorePanelProps {
   selectedDataType: string;
   /** Callback when data type selection changes */
   onSelectedDataTypeChange: (dataType: string) => void;
-  /** Available projections (spaceId) for selected data type */
-  projectionOptions: ProjectionOption[];
-  /** Currently selected projection */
-  selectedProjection: string;
-  /** Callback when projection selection changes */
-  onSelectedProjectionChange: (projection: string) => void;
+  /** Available spaces (spaceId) for selected data type */
+  spaceOptions: SpaceOption[];
+  /** Currently selected space */
+  selectedSpace: string;
+  /** Callback when space selection changes */
+  onSelectedSpaceChange: (space: string) => void;
   /** Available render modes (formerly "projections") */
   renderModeOptions: RenderModeOption[];
   /** Currently selected render mode */
@@ -67,14 +67,16 @@ export interface ExplorePanelProps {
   selectedVariant: string;
   /** Callback when variant selection changes */
   onSelectedVariantChange: (variant: string) => void;
-  /** Theme object (kept for API compatibility) */
-  theme: Theme;
   /** Light mode flag for styling */
   lightMode: boolean;
   /** Whether to show edge visualization */
   showEdges: boolean;
   /** Callback when edge visibility changes */
   onShowEdgesChange: (show: boolean) => void;
+  /** Whether debug layers/variants are visible */
+  showDebugLayers: boolean;
+  /** Callback when debug visibility changes */
+  onShowDebugLayersChange: (show: boolean) => void;
   /** Callback when fit view is requested */
   onFitView: () => void;
   /** Whether the stage section is expanded (optional controlled mode) */
@@ -103,9 +105,9 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   dataTypeOptions,
   selectedDataType,
   onSelectedDataTypeChange,
-  projectionOptions,
-  selectedProjection,
-  onSelectedProjectionChange,
+  spaceOptions,
+  selectedSpace,
+  onSelectedSpaceChange,
   renderModeOptions,
   selectedRenderMode,
   onSelectedRenderModeChange,
@@ -115,6 +117,8 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   lightMode,
   showEdges,
   onShowEdgesChange,
+  showDebugLayers,
+  onShowDebugLayersChange,
   onFitView,
   stageExpanded: stageExpandedProp,
   onStageExpandedChange,
@@ -227,6 +231,20 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
         if (kind === "segments") return <GitBranch className="w-3.5 h-3.5" />;
         if (kind === "gridFields") return <Activity className="w-3.5 h-3.5" />;
         return <Hexagon className="w-3.5 h-3.5" />;
+    }
+  };
+
+  const getSpaceIcon = (value: string) => {
+    switch (value) {
+      case "tile.hexOddR":
+      case "tile.hexOddQ":
+        return <Hexagon className="w-3.5 h-3.5" />;
+      case "mesh.world":
+        return <SquareStack className="w-3.5 h-3.5" />;
+      case "world.xy":
+        return <Layers className="w-3.5 h-3.5" />;
+      default:
+        return <Layers className="w-3.5 h-3.5" />;
     }
   };
   // ==========================================================================
@@ -353,18 +371,30 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
       </div>
       {isLayersExpanded ? (
         <div className={`flex-shrink-0 pb-2 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}>
-          {dataTypeOptions.map((dataType, index) => (
-            <button
-              key={dataType.value}
-              onClick={() => handleSelectLayer(dataType.value)}
-              className={`${stepItemBase} ${dataType.value === selectedDataType ? stepItemActive : stepItemInactive}`}>
+          {(() => {
+            let lastGroup: string | undefined = undefined;
+            return dataTypeOptions.map((dataType, index) => {
+              const group = dataType.group ?? undefined;
+              const showGroupHeader = group !== lastGroup;
+              lastGroup = group;
+              return (
+                <React.Fragment key={dataType.value}>
+                  {showGroupHeader && group ? (
+                    <div className={`px-3 pt-2 pb-1 text-[10px] uppercase tracking-wider ${textMuted}`}>{group}</div>
+                  ) : null}
+                  <button
+                    onClick={() => handleSelectLayer(dataType.value)}
+                    className={`${stepItemBase} ${dataType.value === selectedDataType ? stepItemActive : stepItemInactive}`}>
 
-              <span className={stepBadge(dataType.value === selectedDataType)}>
-                {index + 1}
-              </span>
-              <span className="truncate">{dataType.label}</span>
-            </button>
-          ))}
+                    <span className={stepBadge(dataType.value === selectedDataType)}>
+                      {index + 1}
+                    </span>
+                    <span className="truncate">{dataType.label}</span>
+                  </button>
+                </React.Fragment>
+              );
+            });
+          })()}
         </div>
       ) : null}
 
@@ -402,33 +432,42 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          <label className="flex flex-col gap-1">
-            <span className={`text-[10px] uppercase tracking-wider ${textMuted}`}>Projection</span>
-            <select
-              value={selectedProjection}
-              onChange={(e) => onSelectedProjectionChange(e.target.value)}
-              disabled={projectionOptions.length === 0}
-              className={`h-8 rounded px-2 text-[11px] ${lightMode ? 'bg-white border border-gray-200 text-[#1f2937]' : 'bg-[#111116] border border-[#2a2a32] text-[#e8e8ed]'}`}>
-              {projectionOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-          </label>
+        <div className="flex items-center justify-between gap-2">
+          {/* Left: Spaces */}
+          <div className="flex items-center gap-1">
+            {spaceOptions.map((option) =>
+            <button
+              key={option.value}
+              onClick={() => onSelectedSpaceChange(option.value)}
+              title={option.label}
+              className={selectedSpace === option.value ? iconBtnActive : iconBtn}>
+                {getSpaceIcon(option.value)}
+              </button>
+            )}
+          </div>
 
+          {/* Right: Debug toggle */}
+          <button
+            onClick={() => onShowDebugLayersChange(!showDebugLayers)}
+            title={showDebugLayers ? "Hide debug layers" : "Show debug layers"}
+            className={showDebugLayers ? iconBtnActive : iconBtn}>
+            <Bug className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {variantOptions.length > 1 ? (
           <label className="flex flex-col gap-1">
             <span className={`text-[10px] uppercase tracking-wider ${textMuted}`}>Variant</span>
             <select
               value={selectedVariant}
               onChange={(e) => onSelectedVariantChange(e.target.value)}
-              disabled={variantOptions.length === 0}
               className={`h-8 rounded px-2 text-[11px] ${lightMode ? 'bg-white border border-gray-200 text-[#1f2937]' : 'bg-[#111116] border border-[#2a2a32] text-[#e8e8ed]'}`}>
               {variantOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
           </label>
-        </div>
+        ) : null}
       </div>
     </div>);
 
