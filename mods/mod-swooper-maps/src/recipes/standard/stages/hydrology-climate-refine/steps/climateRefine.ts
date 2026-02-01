@@ -317,6 +317,7 @@ export default createStep(ClimateRefineStepContract, {
       meta: defineVizMeta("hydrology.climate.humidity", {
         label: "Humidity",
         group: GROUP_CLIMATE,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -339,6 +340,7 @@ export default createStep(ClimateRefineStepContract, {
       meta: defineVizMeta("hydrology.climate.indices.pet", {
         label: "Potential Evapotranspiration",
         group: GROUP_INDICES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -350,6 +352,7 @@ export default createStep(ClimateRefineStepContract, {
       meta: defineVizMeta("hydrology.climate.indices.aridityIndex", {
         label: "Aridity Index",
         group: GROUP_INDICES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -361,6 +364,7 @@ export default createStep(ClimateRefineStepContract, {
       meta: defineVizMeta("hydrology.climate.indices.freezeIndex", {
         label: "Freeze Index",
         group: GROUP_INDICES,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -394,6 +398,7 @@ export default createStep(ClimateRefineStepContract, {
       meta: defineVizMeta("hydrology.cryosphere.albedo", {
         label: "Albedo",
         group: GROUP_CRYOSPHERE,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -405,6 +410,7 @@ export default createStep(ClimateRefineStepContract, {
       meta: defineVizMeta("hydrology.cryosphere.groundIce01", {
         label: "Ground Ice (0-1)",
         group: GROUP_CRYOSPHERE,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -416,6 +422,7 @@ export default createStep(ClimateRefineStepContract, {
       meta: defineVizMeta("hydrology.cryosphere.permafrost01", {
         label: "Permafrost (0-1)",
         group: GROUP_CRYOSPHERE,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -427,6 +434,7 @@ export default createStep(ClimateRefineStepContract, {
       meta: defineVizMeta("hydrology.cryosphere.meltPotential01", {
         label: "Melt Potential (0-1)",
         group: GROUP_CRYOSPHERE,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {

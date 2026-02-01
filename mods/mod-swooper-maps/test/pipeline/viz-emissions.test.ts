@@ -142,5 +142,8 @@ describe("standard pipeline viz emissions", () => {
 
     const baseElevationMeta = metaByKey.get("foundation.crustTiles.baseElevation") as any;
     expect(baseElevationMeta?.visibility).toBe("debug");
+
+    const albedoMeta = metaByKey.get("hydrology.cryosphere.albedo") as any;
+    expect(albedoMeta?.visibility).toBe("debug");
   });
 });
