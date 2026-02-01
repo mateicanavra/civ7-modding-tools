@@ -149,10 +149,16 @@ describe("standard pipeline viz emissions", () => {
     const permafrostMeta = metaByKey.get("ecology.biome.permafrost01") as any;
     expect(permafrostMeta?.visibility).toBe("debug");
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     const rainfallAmpMeta = metaByKey.get("hydrology.climate.seasonality.rainfallAmplitude") as any;
     expect(rainfallAmpMeta?.visibility).toBe("debug");
 =======
 >>>>>>> 5d976911b (chore(viz): declutter ecology biomes diagnostics)
+=======
+
+    const rainfallAmpMeta = metaByKey.get("hydrology.climate.seasonality.rainfallAmplitude") as any;
+    expect(rainfallAmpMeta?.visibility).toBe("debug");
+>>>>>>> 110709ac6 (chore(viz): declutter climate baseline layers)
   });
 });
