@@ -5,16 +5,90 @@ import { collectTransparentPaths, normalizeSchemaForRjsf, toRjsfSchema } from ".
 import type { BrowserConfigFormContext } from "./rjsfTemplates";
 import type { UseConfigOverridesResult } from "./useConfigOverrides";
 
+function isNumericPathSegment(segment: string): boolean {
+  return /^[0-9]+$/.test(segment);
+}
+
+function getAtPath(root: unknown, path: readonly string[]): unknown {
+  let current: unknown = root;
+  for (const segment of path) {
+    if (!current || typeof current !== "object") return undefined;
+    const record = current as Record<string, unknown>;
+    current = record[segment];
+  }
+  return current;
+}
+
+function setAtPath(root: unknown, path: readonly string[], value: unknown): unknown {
+  if (path.length === 0) return value;
+  const [head, ...rest] = path;
+  const container: unknown =
+    root && typeof root === "object"
+      ? Array.isArray(root)
+        ? [...root]
+        : { ...(root as Record<string, unknown>) }
+      : isNumericPathSegment(head)
+        ? []
+        : {};
+
+  if (Array.isArray(container) && isNumericPathSegment(head)) {
+    const idx = Number(head);
+    (container as unknown[])[idx] = setAtPath((container as unknown[])[idx], rest, value);
+    return container;
+  }
+
+  (container as Record<string, unknown>)[head] = setAtPath(
+    (container as Record<string, unknown>)[head],
+    rest,
+    value
+  );
+  return container;
+}
+
+function tryGetSchemaAtPath(schema: unknown, path: readonly string[]): unknown | null {
+  let current: unknown = schema;
+  for (const segment of path) {
+    if (!current || typeof current !== "object") return null;
+    const node = current as Record<string, unknown>;
+    const properties = node.properties;
+    if (properties && typeof properties === "object" && segment in (properties as Record<string, unknown>)) {
+      current = (properties as Record<string, unknown>)[segment];
+      continue;
+    }
+
+    // Best-effort: if we hit a union, pick the first branch that contains the property.
+    const anyOf = node.anyOf;
+    const oneOf = node.oneOf;
+    const variants = (Array.isArray(anyOf) ? anyOf : Array.isArray(oneOf) ? oneOf : null) as unknown[] | null;
+    if (variants) {
+      const match = variants.find((variant) => {
+        if (!variant || typeof variant !== "object") return false;
+        const vProps = (variant as Record<string, unknown>).properties;
+        return Boolean(vProps && typeof vProps === "object" && segment in (vProps as Record<string, unknown>));
+      });
+      if (match) {
+        const vProps = (match as Record<string, unknown>).properties as Record<string, unknown>;
+        current = vProps[segment];
+        continue;
+      }
+    }
+
+    return null;
+  }
+  return current;
+}
+
 export type ConfigOverridesPanelProps<TConfig> = {
   open: boolean;
   onClose(): void;
   controller: UseConfigOverridesResult<TConfig>;
   disabled: boolean;
   schema: unknown;
+  focusPath?: readonly string[] | null;
 };
 
 function ConfigOverridesPanelImpl<TConfig>(props: ConfigOverridesPanelProps<TConfig>) {
-  const { open, onClose, controller, disabled, schema } = props;
+  const { open, onClose, controller, disabled, schema, focusPath } = props;
   const [isNarrow, setIsNarrow] = useState(() =>
     typeof window === "undefined" ? false : window.innerWidth < 760
   );
@@ -59,6 +133,19 @@ function ConfigOverridesPanelImpl<TConfig>(props: ConfigOverridesPanelProps<TCon
     const transparentPaths = collectTransparentPaths(normalized);
     return { rjsfSchema: normalized, formContext: { transparentPaths } satisfies BrowserConfigFormContext };
   }, [schema]);
+
+  const focused = useMemo(() => {
+    const focus = focusPath && focusPath.length > 0 ? [...focusPath] : null;
+    if (!focus) return null;
+    const focusedSchema = tryGetSchemaAtPath(rjsfSchema, focus);
+    if (!focusedSchema) return null;
+    return {
+      path: focus,
+      schema: focusedSchema,
+      formContext: { transparentPaths: collectTransparentPaths(focusedSchema as any) } satisfies BrowserConfigFormContext,
+      value: getAtPath(controller.value, focus),
+    } as const;
+  }, [controller.value, focusPath, rjsfSchema]);
 
   const uiSchema = useMemo<UiSchema<TConfig, RJSFSchema, BrowserConfigFormContext>>(
     () => ({
@@ -122,6 +209,11 @@ function ConfigOverridesPanelImpl<TConfig>(props: ConfigOverridesPanelProps<TCon
           Overrides apply on the next “Run (Browser)”. Base config remains{" "}
           <span style={{ color: "#e5e7eb" }}>the recipe default config</span>.
         </div>
+        {focused ? (
+          <div style={{ fontSize: 12, color: "#9ca3af", lineHeight: 1.35 }}>
+            Focus: <span style={{ color: "#e5e7eb" }}>{focused.path.join(".")}</span>
+          </div>
+        ) : null}
         {!controller.enabled ? (
           <div style={{ fontSize: 12, color: "#fbbf24", lineHeight: 1.35 }}>
             Overrides are currently <span style={{ color: "#fde68a", fontWeight: 700 }}>disabled</span>. You can still
@@ -180,14 +272,20 @@ function ConfigOverridesPanelImpl<TConfig>(props: ConfigOverridesPanelProps<TCon
         <div style={{ flex: 1, minHeight: 0, overflow: "auto", paddingRight: 2 }}>
           {controller.tab === "form" ? (
             <SchemaForm
-              schema={rjsfSchema}
+              schema={focused?.schema ?? rjsfSchema}
               uiSchema={uiSchema}
-              formContext={formContext}
-              value={controller.value}
+              formContext={focused?.formContext ?? formContext}
+              value={(focused?.value ?? controller.value) as any}
               // Toggling disabled on a huge RJSF subtree is very expensive. "Enable overrides"
               // controls whether values apply to the next run, not whether the form is editable.
               disabled={disabled}
-              onChange={controller.setValue}
+              onChange={(next) => {
+                if (!focused) {
+                  controller.setValue(next as TConfig);
+                  return;
+                }
+                controller.setValue(setAtPath(controller.value, focused.path, next) as TConfig);
+              }}
             />
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 8, height: "100%" }}>

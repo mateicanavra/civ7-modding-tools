@@ -30,9 +30,9 @@ This document is the last prep pass before implementation of the UI refactor. �
 - Any remaining uncertainty is surfaced as explicit prework prompts or open questions (not silently decided).
 
 ## Readiness checklist (before saying “go implement”)
-- [ ] Guardrails are accepted (no pipeline changes; browser-only world inputs).
-- [ ] UI-01 meta strategy is accepted (derive mapping from recipe source; no Studio heuristics).
-- [ ] Open questions are understood as “non-blocking unless they become blocking” (we start with Option A and escalate only if forced).
+- [x] Guardrails are accepted (no pipeline changes; browser-only world inputs).
+- [x] UI-01 meta strategy is accepted (derive mapping from recipe source; no Studio heuristics).
+- [x] Open questions are understood as “non-blocking unless they become blocking” (we start with Option A and escalate only if forced).
 
 ## Path variables (paper trail)
 ```yaml
@@ -278,9 +278,9 @@ Wire the controlled prototype shell to real Studio state:
 - data type + render mode via the adapter from UI-03
 
 **Acceptance criteria**
-- [ ] Selecting stage/step updates available data types and render modes (driven by the selected step’s outputs in the viz stream).
-- [ ] Config editor focuses the correct authored config location for the selected stage/step.
-- [ ] Browser-only world settings inputs do not leak into engine-run code paths.
+- [x] Selecting stage/step updates available data types and render modes (driven by the selected step’s outputs in the viz stream).
+- [x] Config editor focuses the correct authored config location for the selected stage/step.
+- [x] Browser-only world settings inputs do not leak into engine-run code paths.
 
 **Verification**
 ```bash
@@ -327,6 +327,11 @@ bun run check
 - **Options:** (1) `renderModeId := kind`, (2) `renderModeId := kind + fileKey`, (3) introduce explicit projection id in metadata/protocol.
 - **Choice:** start with (1), treat `fileKey` as an internal variant; revisit if UI needs explicit toggles.
 - **Risk:** hiding `fileKey` may strand access to useful variants; exposing it may explode the selector cardinality.
+
+### Browser-only world settings
+- **Choice:** Studio `playerCount` sets `MapInfo.PlayersLandmass1/2` (same value) for browser runs only.
+- **Choice:** Studio `resourcesMode` is carried as `MapInfo.StudioResourcesMode` in browser runs only (currently informational; not consumed by the pipeline).
+- **Risk:** these fields must never become overridable for engine-run contexts.
 
 ## Delegation (prototype agent handoff prompt)
 If we want the prototype packet to be “drop-in” for Studio wiring, ask the prototyping agent to:

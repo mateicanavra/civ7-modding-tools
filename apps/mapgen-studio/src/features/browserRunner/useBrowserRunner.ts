@@ -13,6 +13,8 @@ export type BrowserRunnerInputs = {
   mapSizeId: string;
   dimensions: { width: number; height: number };
   latitudeBounds: { topLatitude: number; bottomLatitude: number };
+  playerCount?: number;
+  resourcesMode?: "balanced" | "strategic";
   configOverrides?: unknown;
 };
 
@@ -117,6 +119,8 @@ export function useBrowserRunner(args: UseBrowserRunnerArgs): UseBrowserRunnerRe
         mapSizeId: inputs.mapSizeId,
         dimensions: inputs.dimensions,
         latitudeBounds: inputs.latitudeBounds,
+        playerCount: inputs.playerCount,
+        resourcesMode: inputs.resourcesMode,
         configOverrides: inputs.configOverrides,
       };
 

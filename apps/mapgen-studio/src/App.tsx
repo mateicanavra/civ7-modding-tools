@@ -14,6 +14,7 @@ import { useVizState } from "./features/viz/useVizState";
 import { formatStepLabel } from "./features/viz/presentation";
 import type { TileLayout } from "./features/viz/model";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
+import { parsePipelineAddress } from "./shared/pipelineAddress";
 import {
   DEFAULT_STUDIO_RECIPE_ID,
   getRecipeArtifacts,
@@ -52,6 +53,8 @@ export function App() {
   const [browserSeed, setBrowserSeed] = useState(123);
   const [browserRecipeId, setBrowserRecipeId] = useState<StudioRecipeId>(DEFAULT_STUDIO_RECIPE_ID);
   const [browserMapSizeId, setBrowserMapSizeId] = useState<Civ7MapSizePreset["id"]>("MAPSIZE_HUGE");
+  const [browserPlayerCount, setBrowserPlayerCount] = useState(4);
+  const [browserResourcesMode, setBrowserResourcesMode] = useState<"balanced" | "strategic">("balanced");
   const [browserConfigOpen, setBrowserConfigOpen] = useState(false);
   const [tileLayout, setTileLayout] = useState<TileLayout>("row-offset");
   const [showEdgeOverlay, setShowEdgeOverlay] = useState(true);
@@ -122,6 +125,71 @@ export function App() {
     setSelectedLayerKey(null);
     deckApiRef.current?.resetView();
   }, [dumpManifest, setDumpManifest, setSelectedLayerKey, setSelectedStepId]);
+
+  const prototypeStages = useMemo(() => {
+    if (mode === "browser") {
+      return recipeArtifacts.uiMeta.stages.map((stage) => ({
+        stageId: stage.stageId,
+        label: stage.stageId,
+        steps: stage.steps.map((step) => ({
+          stepId: step.stepId,
+          label: step.stepId,
+          fullStepId: step.fullStepId,
+          configFocusPathWithinStage: [...step.configFocusPathWithinStage],
+        })),
+      }));
+    }
+
+    return viz.pipelineStages.map((stage) => ({
+      stageId: stage.stageId,
+      label: stage.stageId,
+      steps: stage.steps.map((step) => ({
+        stepId: step.address?.stepId ?? step.stepId,
+        label: step.address?.stepId ?? step.stepId,
+        fullStepId: step.stepId,
+        configFocusPathWithinStage: [] as string[],
+      })),
+    }));
+  }, [mode, recipeArtifacts.uiMeta.stages, viz.pipelineStages]);
+
+  const prototypeSelectedStepId = useMemo(() => {
+    const selected = viz.selectedStepId;
+    if (selected && prototypeStages.some((s) => s.steps.some((st) => st.fullStepId === selected))) return selected;
+    return prototypeStages[0]?.steps[0]?.fullStepId ?? null;
+  }, [prototypeStages, viz.selectedStepId]);
+
+  const prototypeSelectedStageId = useMemo(() => {
+    const addr = prototypeSelectedStepId ? parsePipelineAddress(prototypeSelectedStepId) : null;
+    const fromStep = addr?.stageId;
+    if (fromStep && prototypeStages.some((s) => s.stageId === fromStep)) return fromStep;
+    return prototypeStages[0]?.stageId ?? null;
+  }, [prototypeSelectedStepId, prototypeStages]);
+
+  const prototypeSelectedStage = useMemo(
+    () => (prototypeSelectedStageId ? prototypeStages.find((s) => s.stageId === prototypeSelectedStageId) ?? null : null),
+    [prototypeSelectedStageId, prototypeStages]
+  );
+
+  const prototypeSelectedStep = useMemo(() => {
+    if (!prototypeSelectedStepId) return null;
+    return prototypeStages.flatMap((s) => s.steps).find((st) => st.fullStepId === prototypeSelectedStepId) ?? null;
+  }, [prototypeSelectedStepId, prototypeStages]);
+
+  const configFocusPath = useMemo(() => {
+    if (mode !== "browser") return null;
+    if (!prototypeSelectedStageId || !prototypeSelectedStep) return null;
+    return [prototypeSelectedStageId, ...prototypeSelectedStep.configFocusPathWithinStage];
+  }, [mode, prototypeSelectedStageId, prototypeSelectedStep]);
+
+  useEffect(() => {
+    if (uiLayout !== "prototype") return;
+    if (mode !== "browser" && mode !== "dump") return;
+    if (!prototypeSelectedStepId) return;
+    if (viz.selectedStepId === prototypeSelectedStepId) return;
+    viz.setSelectedStepId(prototypeSelectedStepId);
+    viz.setSelectedLayerKey(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, prototypeSelectedStepId, uiLayout]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -204,6 +272,8 @@ export function App() {
       mapSizeId: mapSize.id,
       dimensions: mapSize.dimensions,
       latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
+      playerCount: browserPlayerCount,
+      resourcesMode: browserResourcesMode,
       configOverrides,
     });
   }, [
@@ -212,6 +282,8 @@ export function App() {
     browserMapSizeId,
     browserRecipeId,
     browserSeed,
+    browserPlayerCount,
+    browserResourcesMode,
     mode,
     viz,
   ]);
@@ -284,91 +356,262 @@ export function App() {
 
   const main =
     uiLayout === "prototype" ? (
-      <PrototypeShell
-        isNarrow={isNarrow}
-        leftPanel={
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <div style={{ fontSize: 12, color: "#9ca3af", lineHeight: 1.35 }}>
-              UI-04 shell: layout only. Wiring happens in UI-05.
-            </div>
-            <div style={{ fontSize: 12, color: "#e5e7eb" }}>
-              recipe: <span style={{ color: "#93c5fd" }}>{browserRecipeId}</span>
-            </div>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-              <button
-                type="button"
-                onClick={() => setBrowserConfigOpen(true)}
+      (() => {
+        const controlBase: React.CSSProperties = {
+          background: "#111827",
+          color: "#e5e7eb",
+          border: "1px solid #374151",
+          borderRadius: 10,
+          padding: "8px 10px",
+          fontWeight: 600,
+          width: "100%",
+        };
+
+        const selectStyle: React.CSSProperties = {
+          ...controlBase,
+          appearance: "none",
+        };
+
+        const helpStyle: React.CSSProperties = { fontSize: 12, color: "#9ca3af", lineHeight: 1.35 };
+
+        const dataTypeModel = viz.dataTypeModel;
+
+        const layerSelection = (() => {
+          if (!dataTypeModel) return null;
+          for (const dt of dataTypeModel.dataTypes) {
+            for (const rm of dt.renderModes) {
+              for (const variant of rm.variants) {
+                if (variant.layerKey === viz.selectedLayerKey) {
+                  return { dataTypeId: dt.dataTypeId, renderModeId: rm.renderModeId, variantId: variant.variantId };
+                }
+              }
+            }
+          }
+          const firstDt = dataTypeModel.dataTypes[0];
+          const firstRm = firstDt?.renderModes[0];
+          const firstVariant = firstRm?.variants[0];
+          if (!firstDt || !firstRm || !firstVariant) return null;
+          return { dataTypeId: firstDt.dataTypeId, renderModeId: firstRm.renderModeId, variantId: firstVariant.variantId };
+        })();
+
+        const selectedDataType =
+          dataTypeModel?.dataTypes.find((dt) => dt.dataTypeId === layerSelection?.dataTypeId) ??
+          dataTypeModel?.dataTypes[0] ??
+          null;
+        const selectedRenderMode =
+          selectedDataType?.renderModes.find((rm) => rm.renderModeId === layerSelection?.renderModeId) ??
+          selectedDataType?.renderModes[0] ??
+          null;
+        const selectedVariant =
+          selectedRenderMode?.variants.find((v) => v.variantId === layerSelection?.variantId) ??
+          selectedRenderMode?.variants[0] ??
+          null;
+
+        return (
+          <PrototypeShell
+            isNarrow={isNarrow}
+            leftPanel={
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={{ fontSize: 12, color: "#e5e7eb" }}>
+                  recipe: <span style={{ color: "#93c5fd" }}>{browserRecipeId}</span>
+                </div>
+
+                {mode === "browser" ? (
+                  <>
+                    <div style={{ fontSize: 12, color: "#e5e7eb", fontWeight: 700, letterSpacing: 0.2 }}>
+                      World settings
+                    </div>
+                    <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <span style={helpStyle}>player count</span>
+                      <input
+                        type="number"
+                        min={1}
+                        max={32}
+                        value={browserPlayerCount}
+                        onChange={(e) => setBrowserPlayerCount(Math.max(1, Math.min(32, Number(e.target.value) || 1)))}
+                        style={controlBase}
+                      />
+                    </label>
+                    <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <span style={helpStyle}>resources</span>
+                      <select
+                        value={browserResourcesMode}
+                        onChange={(e) => setBrowserResourcesMode(e.target.value as "balanced" | "strategic")}
+                        style={selectStyle}
+                      >
+                        <option value="balanced">Balanced</option>
+                        <option value="strategic">Strategic</option>
+                      </select>
+                    </label>
+
+                    <div style={helpStyle}>
+                      Config focus:{" "}
+                      <span style={{ color: "#e5e7eb" }}>{configFocusPath ? configFocusPath.join(".") : "—"}</span>
+                    </div>
+                    <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+                      <button
+                        type="button"
+                        onClick={() => setBrowserConfigOpen(true)}
+                        style={{ ...controlBase, cursor: "pointer", fontWeight: 700, width: "auto" }}
+                      >
+                        Config overrides…
+                      </button>
+                      <div style={{ fontSize: 12, color: "#9ca3af" }}>
+                        overrides:{" "}
+                        <span style={{ color: browserConfigOverrides.enabled ? "#86efac" : "#fca5a5" }}>
+                          {browserConfigOverrides.enabled ? "enabled" : "disabled"}
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div style={helpStyle}>Config overrides are available only in browser runs.</div>
+                )}
+
+                <div style={{ marginTop: 6, ...helpStyle }}>
+                  Selected step drives available data types + render modes (from the viz stream).
+                </div>
+              </div>
+            }
+            rightPanel={
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={helpStyle}>
+                  stage: <span style={{ color: "#e5e7eb" }}>{prototypeSelectedStageId ?? "—"}</span>
+                </div>
+                <select
+                  value={prototypeSelectedStageId ?? ""}
+                  style={selectStyle}
+                  onChange={(e) => {
+                    const nextStageId = e.target.value;
+                    const stage = prototypeStages.find((s) => s.stageId === nextStageId);
+                    const nextStepId = stage?.steps[0]?.fullStepId ?? null;
+                    viz.setSelectedStepId(nextStepId);
+                    viz.setSelectedLayerKey(null);
+                  }}
+                  disabled={prototypeStages.length === 0}
+                >
+                  {prototypeStages.map((s) => (
+                    <option key={s.stageId} value={s.stageId}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+
+                <div style={{ ...helpStyle, marginTop: 6 }}>
+                  step:{" "}
+                  <span style={{ color: "#e5e7eb" }}>
+                    {prototypeSelectedStepId ? formatStepLabel(prototypeSelectedStepId) : "—"}
+                  </span>
+                </div>
+                <select
+                  value={prototypeSelectedStepId ?? ""}
+                  style={selectStyle}
+                  onChange={(e) => {
+                    viz.setSelectedStepId(e.target.value || null);
+                    viz.setSelectedLayerKey(null);
+                  }}
+                  disabled={!prototypeSelectedStage || prototypeSelectedStage.steps.length === 0}
+                >
+                  {(prototypeSelectedStage?.steps ?? []).map((st) => (
+                    <option key={st.fullStepId} value={st.fullStepId}>
+                      {st.label}
+                    </option>
+                  ))}
+                </select>
+
+                <div style={{ ...helpStyle, marginTop: 10 }}>
+                  data type: <span style={{ color: "#e5e7eb" }}>{dataTypeModel ? dataTypeModel.dataTypes.length : "—"}</span>
+                </div>
+                <select
+                  value={selectedDataType?.dataTypeId ?? ""}
+                  style={selectStyle}
+                  disabled={!dataTypeModel || dataTypeModel.dataTypes.length === 0}
+                  onChange={(e) => {
+                    if (!dataTypeModel) return;
+                    const dt = dataTypeModel.dataTypes.find((x) => x.dataTypeId === e.target.value);
+                    const rm = dt?.renderModes[0];
+                    const variant = rm?.variants[0];
+                    viz.setSelectedLayerKey(variant?.layerKey ?? null);
+                  }}
+                >
+                  {(dataTypeModel?.dataTypes ?? []).map((dt) => (
+                    <option key={dt.dataTypeId} value={dt.dataTypeId}>
+                      {dt.label}
+                    </option>
+                  ))}
+                </select>
+
+                <div style={{ ...helpStyle, marginTop: 10 }}>render mode</div>
+                <select
+                  value={selectedRenderMode?.renderModeId ?? ""}
+                  style={selectStyle}
+                  disabled={!selectedDataType || selectedDataType.renderModes.length === 0}
+                  onChange={(e) => {
+                    if (!selectedDataType) return;
+                    const rm = selectedDataType.renderModes.find((x) => x.renderModeId === e.target.value);
+                    const variant = rm?.variants[0];
+                    viz.setSelectedLayerKey(variant?.layerKey ?? null);
+                  }}
+                >
+                  {(selectedDataType?.renderModes ?? []).map((rm) => (
+                    <option key={rm.renderModeId} value={rm.renderModeId}>
+                      {rm.label}
+                    </option>
+                  ))}
+                </select>
+
+                {selectedRenderMode && selectedRenderMode.variants.length > 1 ? (
+                  <>
+                    <div style={{ ...helpStyle, marginTop: 10 }}>variant</div>
+                    <select
+                      value={selectedVariant?.variantId ?? ""}
+                      style={selectStyle}
+                      onChange={(e) => {
+                        const v = selectedRenderMode.variants.find((x) => x.variantId === e.target.value);
+                        viz.setSelectedLayerKey(v?.layerKey ?? null);
+                      }}
+                    >
+                      {selectedRenderMode.variants.map((v) => (
+                        <option key={v.variantId} value={v.variantId}>
+                          {v.label}
+                        </option>
+                      ))}
+                    </select>
+                  </>
+                ) : null}
+              </div>
+            }
+            footer={
+              <div
                 style={{
-                  background: "#111827",
-                  color: "#e5e7eb",
-                  border: "1px solid #374151",
-                  borderRadius: 10,
-                  padding: "8px 10px",
-                  fontWeight: 700,
-                  cursor: "pointer",
+                  display: "flex",
+                  gap: 10,
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "10px 12px",
+                  borderRadius: 14,
+                  border: "1px solid rgba(148, 163, 184, 0.18)",
+                  background: "rgba(10, 18, 36, 0.92)",
+                  boxShadow: "0 24px 60px rgba(0,0,0,0.55)",
+                  backdropFilter: "blur(6px)",
                 }}
               >
-                Config overrides…
-              </button>
-              <div style={{ fontSize: 12, color: "#9ca3af" }}>
-                overrides:{" "}
-                <span style={{ color: browserConfigOverrides.enabled ? "#86efac" : "#fca5a5" }}>
-                  {browserConfigOverrides.enabled ? "enabled" : "disabled"}
-                </span>
+                <div style={{ fontSize: 12, color: "#9ca3af" }}>
+                  status:{" "}
+                  <span style={{ color: browserRunning ? "#fbbf24" : manifest ? "#86efac" : "#9ca3af" }}>
+                    {browserRunning ? "running" : manifest ? "ready" : "idle"}
+                  </span>
+                </div>
+                <div style={{ fontSize: 12, color: "#9ca3af" }}>
+                  runId: <span style={{ color: "#e5e7eb" }}>{manifest ? `${manifest.runId.slice(0, 12)}…` : "—"}</span>
+                </div>
               </div>
-            </div>
-            <div style={{ marginTop: 6, fontSize: 12, color: "#9ca3af", lineHeight: 1.35 }}>
-              Selected step drives available data types + render modes.
-            </div>
-          </div>
-        }
-        rightPanel={
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <div style={{ fontSize: 12, color: "#9ca3af" }}>
-              stage groups: <span style={{ color: "#e5e7eb" }}>{viz.pipelineStages.length}</span>
-            </div>
-            <div style={{ fontSize: 12, color: "#9ca3af" }}>
-              selected step:{" "}
-              <span style={{ color: "#e5e7eb" }}>
-                {viz.selectedStepId ? formatStepLabel(viz.selectedStepId) : "—"}
-              </span>
-            </div>
-            <div style={{ fontSize: 12, color: "#9ca3af" }}>
-              data types:{" "}
-              <span style={{ color: "#e5e7eb" }}>{viz.dataTypeModel?.dataTypes.length ?? 0}</span>
-            </div>
-          </div>
-        }
-        footer={
-          <div
-            style={{
-              display: "flex",
-              gap: 10,
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "10px 12px",
-              borderRadius: 14,
-              border: "1px solid rgba(148, 163, 184, 0.18)",
-              background: "rgba(10, 18, 36, 0.92)",
-              boxShadow: "0 24px 60px rgba(0,0,0,0.55)",
-              backdropFilter: "blur(6px)",
-            }}
+            }
           >
-            <div style={{ fontSize: 12, color: "#9ca3af" }}>
-              status:{" "}
-              <span style={{ color: browserRunning ? "#fbbf24" : manifest ? "#86efac" : "#9ca3af" }}>
-                {browserRunning ? "running" : manifest ? "ready" : "idle"}
-              </span>
-            </div>
-            <div style={{ fontSize: 12, color: "#9ca3af" }}>
-              runId:{" "}
-              <span style={{ color: "#e5e7eb" }}>{manifest ? `${manifest.runId.slice(0, 12)}…` : "—"}</span>
-            </div>
-          </div>
-        }
-      >
-        {canvas}
-      </PrototypeShell>
+            {canvas}
+          </PrototypeShell>
+        );
+      })()
     ) : (
       canvas
     );
@@ -383,6 +626,7 @@ export function App() {
         // We snapshot overrides at run-start, so edits during a run simply apply on the next run.
         disabled={false}
         schema={recipeArtifacts.configSchema}
+        focusPath={uiLayout === "prototype" ? configFocusPath : null}
       />
     ) : null,
     <div
