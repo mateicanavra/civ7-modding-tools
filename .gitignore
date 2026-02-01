@@ -74,3 +74,4 @@ apps/docs/public/civ7-official/resources/
 # Local worktrees and scratchpads
 .worktrees/
 **/*.scratch.md
+.scratch/
