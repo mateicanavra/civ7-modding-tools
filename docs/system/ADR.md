@@ -87,3 +87,19 @@ Each decision follows this structure:
 - Main bundle size and parse time drop; worker bundle remains the compute-heavy boundary.
 - Import directions become enforceable (lint + bundle policy checks).
 - Recipes become “cataloged” by artifacts; runtime is loaded only in the compute environment.
+
+## ADR-005: Visualization SDK v1 separates data type, representation, and projection (registry-driven)
+
+**Status:** Proposed
+**Date:** 2026-02-01
+**Context:** The visualization surface needs to be meaningful and varied (multiple projections per logical layer) and correct for continuous fields (proper value domains, stats-driven normalization). The current model couples “data type” to `layerId` and “render mode” to `kind[:role]`, which blocks multi-projection unless the pipeline duplicates outputs. Continuous fields are also visually broken when raw values are treated as already normalized.
+**Decision:** Adopt a v1 visualization model that separates:
+- `dataTypeId` (stable semantic identity),
+- representation/encoding (grid/points/segments payloads, variants),
+- viewer-defined `projectionId` (multiple projections per representation/data type), driven by a centralized registry.
+Value semantics (domains, no-data, transforms) and stats (min/max at minimum) become explicit inputs to rendering instead of implicit clamps.
+**Consequences:**
+- Viewer can provide multiple projections per data type without requiring pipeline duplication, and can standardize palettes/legends via a registry.
+- Continuous fields become correct by default via stats-driven normalization, improving interpretability immediately.
+- Protocol/manifest likely requires a version bump and an explicit back-compat adapter (v0 → v1) to avoid breaking existing dumps.
+- Pipeline emitters can shrink toward canonical data products; “projection variety” moves to the viewer by default.

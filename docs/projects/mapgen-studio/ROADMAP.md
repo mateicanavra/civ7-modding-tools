@@ -100,6 +100,9 @@ Notes (for later slices):
 
 Goal: run the full pipeline in-browser and keep the visualization surface coherent across phases.
 
+Design proposal:
+- `docs/projects/mapgen-studio/VIZ-SDK-V1.md` (robust metadata + multi-projection model)
+
 Deliverables:
 - Run stages beyond Foundation in the worker (Morphology → Placement).
 - Define a stable in-browser “data products” interface between worker and viewer (`VizSink` + typed layer messages).
