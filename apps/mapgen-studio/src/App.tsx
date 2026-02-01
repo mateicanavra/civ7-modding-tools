@@ -141,7 +141,9 @@ function AppContent(props: AppContentProps) {
   const [showEdges, setShowEdges] = useState(true);
   const [recipeSectionCollapsed, setRecipeSectionCollapsed] = useState(false);
   const [configSectionCollapsed, setConfigSectionCollapsed] = useState(false);
-  const [stageListExpanded, setStageListExpanded] = useState(true);
+  const [exploreStageExpanded, setExploreStageExpanded] = useState(true);
+  const [exploreStepExpanded, setExploreStepExpanded] = useState(true);
+  const [exploreLayersExpanded, setExploreLayersExpanded] = useState(true);
   const [autoRunEnabled, setAutoRunEnabled] = useState(false);
   const autoRunTimerRef = useRef<number | null>(null);
   const autoRunPendingRef = useRef(false);
@@ -584,7 +586,13 @@ function AppContent(props: AppContentProps) {
     handleDataTypeChange,
     run: triggerRun,
     reroll,
-    toggleRightPanel: () => setStageListExpanded((prev) => !prev),
+    toggleRightPanel: () => {
+      const rightCollapsed = !exploreStageExpanded && !exploreStepExpanded && !exploreLayersExpanded;
+      const next = rightCollapsed;
+      setExploreStageExpanded(next);
+      setExploreStepExpanded(next);
+      setExploreLayersExpanded(next);
+    },
     toggleLeftPanel: () => {
       const leftCollapsed = recipeSectionCollapsed && configSectionCollapsed;
       const next = !leftCollapsed;
@@ -823,8 +831,12 @@ function AppContent(props: AppContentProps) {
         if (!viz.activeBounds) return;
         deckApiRef.current?.fitToBounds(viz.activeBounds);
       }}
-      stageExpanded={stageListExpanded}
-      onStageExpandedChange={setStageListExpanded}
+      stageExpanded={exploreStageExpanded}
+      onStageExpandedChange={setExploreStageExpanded}
+      stepExpanded={exploreStepExpanded}
+      onStepExpandedChange={setExploreStepExpanded}
+      layersExpanded={exploreLayersExpanded}
+      onLayersExpandedChange={setExploreLayersExpanded}
     />
   );
 
