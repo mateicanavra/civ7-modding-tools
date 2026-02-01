@@ -76,10 +76,12 @@ The standard recipe collects compile-time domain ops into a single registry:
 
 This registry is used during config compilation to bind op contracts to implementations by op id.
 
+Domain contract references:
+- `docs/system/libs/mapgen/reference/domains/DOMAINS.md`
+
 ## Ground truth anchors
 
 - Standard recipe composition: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
 - Example stage schema/knobs posture: `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
 - Stage authoring contract: `packages/mapgen-core/src/authoring/stage.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
-
