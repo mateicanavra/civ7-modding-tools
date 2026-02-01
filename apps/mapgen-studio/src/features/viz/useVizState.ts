@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { Layer } from "@deck.gl/core";
 import type { VizEvent } from "../../shared/vizEvents";
+import { parsePipelineAddress, type PipelineAddress } from "../../shared/pipelineAddress";
 import { boundsForTileGrid, renderDeckLayers } from "./deckgl/render";
 import {
   formatLayerLabel,
@@ -45,6 +46,11 @@ export type UseVizStateResult = {
   setSelectedLayerKey(next: string | null): void;
 
   steps: Array<{ stepId: string; stepIndex: number }>;
+  pipelineSteps: Array<{ stepId: string; stepIndex: number; address: PipelineAddress | null }>;
+  pipelineStages: Array<{
+    stageId: string;
+    steps: Array<{ stepId: string; stepIndex: number; address: PipelineAddress | null }>;
+  }>;
   selectableLayers: Array<{ key: string; label: string; visibility: "default" | "debug" | "hidden"; group?: string }>;
   legend: ReturnType<typeof legendForLayer> | null;
 
@@ -106,6 +112,25 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     if (!manifest) return [];
     return [...manifest.steps].sort((a, b) => a.stepIndex - b.stepIndex);
   }, [manifest]);
+
+  const pipelineSteps = useMemo(
+    () => steps.map((s) => ({ ...s, address: parsePipelineAddress(s.stepId) })),
+    [steps]
+  );
+
+  const pipelineStages = useMemo(() => {
+    const order: string[] = [];
+    const byStage = new Map<string, UseVizStateResult["pipelineSteps"]>();
+    for (const step of pipelineSteps) {
+      const stageId = step.address?.stageId ?? "unknown";
+      if (!byStage.has(stageId)) {
+        byStage.set(stageId, []);
+        order.push(stageId);
+      }
+      byStage.get(stageId)!.push(step);
+    }
+    return order.map((stageId) => ({ stageId, steps: byStage.get(stageId) ?? [] }));
+  }, [pipelineSteps]);
 
   const activeSelectedStepId = useMemo(() => {
     if (!manifest) return null;
@@ -226,6 +251,8 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     selectedLayerKey: activeSelectedLayerKey,
     setSelectedLayerKey,
     steps,
+    pipelineSteps,
+    pipelineStages,
     selectableLayers,
     legend,
     deck: {

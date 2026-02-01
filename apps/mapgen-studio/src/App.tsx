@@ -253,7 +253,7 @@ export function App() {
       tileLayout={tileLayout}
       onTileLayoutChange={setTileLayout}
       selectedStepId={viz.selectedStepId}
-      steps={viz.steps}
+      pipelineStages={viz.pipelineStages}
       onSelectedStepChange={viz.setSelectedStepId}
       selectedLayerKey={viz.selectedLayerKey}
       selectableLayers={viz.selectableLayers}
