@@ -322,6 +322,9 @@ function emitStartSectorViz(
       group: GROUP_GAMEPLAY,
       description:
         "Derived start-sector grid for placement planning (0 = inactive). Values are sector ids.",
+      palette: "categorical",
+      space: "tile",
+      categories: [{ value: 0, label: "Inactive", color: [148, 163, 184, 0] }],
     }),
   });
 }
@@ -409,6 +412,8 @@ function emitStartPositionsViz(
       label: "Start Positions",
       group: GROUP_GAMEPLAY,
       categories,
+      palette: "categorical",
+      space: "tile",
     }),
   });
 }
