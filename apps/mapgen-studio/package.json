@@ -5,11 +5,9 @@
   "private": true,
   "packageManager": "bun@1.3.7",
   "scripts": {
-    "predev": "bun run --filter @swooper/mapgen-core build && bun run --filter mod-swooper-maps build:studio-recipes",
     "dev": "vite",
     "gen:civ7-tables": "bun ../../scripts/mapgen-studio/generate-civ7-browser-tables.ts",
     "check:worker-bundle": "node scripts/check-worker-bundle.mjs",
-    "prebuild": "bun run --filter @swooper/mapgen-core build && bun run --filter mod-swooper-maps build:studio-recipes",
     "build": "tsc && vite build && bun run check:worker-bundle",
     "preview": "vite preview"
   },
