@@ -15,7 +15,8 @@ related_to: []
 ---
 
 ## TL;DR
-- The prototype’s mental model aligns with MapGen Core’s authored **recipe → stage → step-contract** structure, but its “step” selector is currently **op-level** (e.g. `computeMesh`) while Studio’s runtime/viz is **step-contract-level** (e.g. `foundation.mesh`).
+- **No pipeline architecture changes**: stages remain stages, steps remain steps, and ops remain internal details (not first-class in the UI).
+- Studio’s runtime/viz is already **step-contract-level** (step ids are full ids like `mod-swooper-maps.standard.foundation.mesh`).
 - “Layers as data types” vs “projections as render modes” is a real mismatch with Studio today: the current viz stream treats **(layerId × kind × fileKey)** as the selectable unit.
 - Prototype “World Settings” includes `playerCount` + `resources` strategy, while Studio today derives player counts from Civ7 `MapInfo` (via map size id) and always calls `adapter.generateResources(...)` with no mode.
 - Integration should be staged as: (1) introduce a shared “pipeline address” model (recipe/stage/step), (2) add a “dataType + renderMode” view model over existing viz layers, (3) drop in the prototype UI, (4) wire it to the real runner/viz/config, then delete legacy UI.
@@ -50,19 +51,9 @@ related_to: []
 
 ## Key mismatches to resolve
 ### 1) What is a “step” in the new UI?
-Prototype “step” values are op-level names (e.g. `computeMesh`, `computeTectonicHistory`) derived from `stage.advanced.<category>.<opName>`.
+Steps in the refactor are **step-contracts** (not ops). Ops remain internal implementation detail; the UI should not surface them as first-class entities.
 
-Studio runtime/viz “stepId” is step-contract-level (e.g. `mod-swooper-maps.standard.foundation.mesh`), and layer emissions attach to that stepId.
-
-**Options**
-- **A) UI “step” = step-contract** (mesh/crust/tectonics/…): simplest wiring; differs from prototype naming.
-- **B) UI “step” = op name (prototype)**, but selection maps to an owning step-contract:
-  - display: `computeMesh`
-  - internal: `{ stageId, category(stepContractId)=mesh, opId=computeMesh }`
-  - data types/render modes are derived from the owning step-contract’s viz emissions (or from op-tagged emissions if we later tag them).
-- **C) Split step-contracts so runtime steps become op-level** (largest/riskiest; not “mostly mechanical”).
-
-**Provisional recommendation:** start with **B** (preserve prototype UX) without changing runtime execution; treat `category` as the real step-contract id and `step` as the selected op within that contract (used for config focus + future highlighting).
+**Implication for the prototype packet:** treat any “op-like step names” (e.g. `computeMesh`) as a prototype artifact; the integrated UI should instead offer real **step ids** (e.g. `mesh`, `crust`, `resource-basins`, etc.) and keep “op names” as optional labels/description text only when it helps a human connect a config field to an underlying op.
 
 ### 2) “Layers are data types” vs current viz layer entries
 Today, “layers” in Studio already mix:
@@ -70,11 +61,12 @@ Today, “layers” in Studio already mix:
 - pipeline-owned projections/mocks (e.g. `map.*` IDs)
 - render representation (grid/points/segments) baked into selection
 
-**Needed view-model layer:** `DataType` groups one or more underlying viz entries (“projections/render modes”) that share the same data identity.
+**Needed view-model layer:** `DataType` groups one or more underlying viz entries (“projections/render modes”) that share the same artifact identity.
 
 **Provisional grouping rule (UI-only, no pipeline changes):**
 - `dataTypeId := layerId` (stable, documented in `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md`)
-- `renderModeId := kind` (+ maybe `fileKey` when it meaningfully changes the visualization; otherwise treat `fileKey` as an internal variant)
+- `renderModeId := kind` plus a small stable suffix derived from meta when it meaningfully changes interpretation (e.g. `grid/categorical` vs `grid/continuous`, `segments/edgeOverlay` via `meta.role`)
+- treat `fileKey` as a variant selector only when it meaningfully changes the semantic view (avoid exploding the selector cardinality by default)
 
 This gets us to the intended mental model immediately, and later we can promote a real “projection id” into metadata if needed.
 
@@ -89,9 +81,23 @@ Studio today:
 - derives player counts from Civ7 `MapInfo` for the selected map size id (`PlayersLandmass1/2`, etc.)
 - always calls `adapter.generateResources(width, height)` during placement (no strategy/mode)
 
-**Open question:** do we want `playerCount` + `resources` to be:
-- **derived-only UI** (read-only display sourced from `MapInfo` / recipe defaults), or
-- **true runner inputs** that override runtime initialization / placement behavior?
+**Decision (browser runner only):** `playerCount` + `resources` are **UI inputs** when running outside the Civ engine (MapGen Studio / mock adapter). They must not become “author config” and must not be required/overridable when running inside the real Civ engine.
+
+Implementation direction:
+- Browser runner: pass these values as **mock adapter/mapInfo inputs** so steps that query `MapInfo` see them.
+- Engine runner: values come from the game UI + engine `MapInfo`; do not allow overrides.
+
+## Mapping rules (recipe/stage/step ↔ config)
+Goal: make “stage/step selection” first-class in the view while keeping “config” first-class for pre-generation, **without changing the pipeline**.
+
+We cannot rely on naïve heuristics like `config[stageId].advanced[stepId]` because stages may compile authored config keys into different step ids (example: ecology stage compiles `resourceBasins` → step id `resource-basins`).
+
+**Plan:** export “Studio recipe UI meta” alongside schema/defaults in `mod-swooper-maps/recipes/*-artifacts` (generated). That meta provides:
+- stage order
+- step ids per stage (step-contract ids)
+- step → authored-config path mapping (where the config editor should focus)
+
+The meta is derived from the authored recipe/stage definitions at build time (safe for Studio; does not touch pipeline runtime behavior).
 
 ## Integration plan (high-level, Graphite branch map)
 1) **UI-00 (docs):** lock down definitions + open questions
@@ -122,11 +128,9 @@ Studio today:
    - Add a minimal unit test for stepId parsing + dataType/renderMode derivation (vitest).
 
 ## Implementation Decisions
-### Decide UI “step” semantics before wiring
-- **Context:** Prototype step selector is op-level; Studio runtime is step-contract-level.
-- **Options:** A/B/C (above).
-- **Choice:** pending (need confirmation).
-- **Risk:** picking the wrong level causes either major runtime refactors (if we later want C) or user-visible mismatch (if we choose A).
+### UI step semantics
+- **Choice:** steps are step-contracts (ops are not first-class in the UI).
+- **Risk:** prototype packet needs small rewiring to match this mental model (acceptable; prototype is an intent signal, not a pipeline contract).
 
 ### Decide initial `renderModeId` vocabulary
 - **Context:** Prototype has `renderMode` as a small stable set; Studio has `kind` + `fileKey`.
@@ -137,8 +141,9 @@ Studio today:
 ## Delegation (prototype agent handoff prompt)
 If we want the prototype packet to be “drop-in” for Studio wiring, ask the prototyping agent to:
 - Rename `RecipePanelProps.selectedStep` → `selectedStage` (the current usage already passes `view.selectedStage`).
-- Change `StepOption` to carry both the user-facing `value` and an explicit owner id:
-  - `owner: { stageId: string; stepContractId: string }`
-  - keep `value` as op name (`computeMesh`) if we choose option B.
+- Update `StepOption` to represent **step contracts** (not ops):
+  - `value: string` is the step-contract id (e.g. `resource-basins`)
+  - `label: string` can be a human label (e.g. `Resource basins`)
+  - `category: string` can be the stage id (or a UI grouping label), not an op/category
 - Stop filtering `dataTypeOptions` via `dt.value === category`; instead accept `dataTypeOptions` already filtered/ordered by the host app.
 - Make `renderModeOptions` support an extra `isAvailable`/`disabled` bit per mode so the host can show the stable vocabulary even when a mode isn’t possible for the selected data type.
