@@ -75,6 +75,14 @@ export interface RecipePanelProps {
   overridesDisabled?: boolean;
   /** Callback when overrides disabled changes (optional controlled mode) */
   onOverridesDisabledChange?: (disabled: boolean) => void;
+  /** Whether the recipe section is collapsed (optional controlled mode) */
+  recipeCollapsed?: boolean;
+  /** Callback when recipe collapsed changes (optional controlled mode) */
+  onRecipeCollapsedChange?: (collapsed: boolean) => void;
+  /** Whether the config section is collapsed (optional controlled mode) */
+  configCollapsed?: boolean;
+  /** Callback when config collapsed changes (optional controlled mode) */
+  onConfigCollapsedChange?: (collapsed: boolean) => void;
 }
 // ============================================================================
 // Main Component
@@ -96,13 +104,17 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   isRunning,
   isDirty,
   overridesDisabled: overridesDisabledProp,
-  onOverridesDisabledChange
+  onOverridesDisabledChange,
+  recipeCollapsed: recipeCollapsedProp,
+  onRecipeCollapsedChange,
+  configCollapsed: configCollapsedProp,
+  onConfigCollapsedChange
 }) => {
   // ==========================================================================
   // Local State
   // ==========================================================================
-  const [recipeCollapsed, setRecipeCollapsed] = useState(false);
-  const [configCollapsed, setConfigCollapsed] = useState(false);
+  const [localRecipeCollapsed, setLocalRecipeCollapsed] = useState(false);
+  const [localConfigCollapsed, setLocalConfigCollapsed] = useState(false);
   const [localOverridesDisabled, setLocalOverridesDisabled] = useState(false);
   const [showJson, setShowJson] = useState(false);
   const [showAllSteps, setShowAllSteps] = useState(false);
@@ -113,6 +125,16 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   const setOverridesDisabled = (next: boolean) => {
     onOverridesDisabledChange?.(next);
     if (overridesDisabledProp === undefined) setLocalOverridesDisabled(next);
+  };
+  const recipeCollapsed = recipeCollapsedProp ?? localRecipeCollapsed;
+  const setRecipeCollapsed = (next: boolean) => {
+    onRecipeCollapsedChange?.(next);
+    if (recipeCollapsedProp === undefined) setLocalRecipeCollapsed(next);
+  };
+  const configCollapsed = configCollapsedProp ?? localConfigCollapsed;
+  const setConfigCollapsed = (next: boolean) => {
+    onConfigCollapsedChange?.(next);
+    if (configCollapsedProp === undefined) setLocalConfigCollapsed(next);
   };
   // ==========================================================================
   // Derived State

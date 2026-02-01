@@ -158,7 +158,13 @@ export function DeckCanvas(props: DeckCanvasProps) {
     const deck = new Deck({
       canvas,
       views,
-      controller: true,
+      controller: {
+        keyboard: {
+          // Make arrow-key motion feel less "stuck" while keeping the eased camera transition.
+          // Default for Orthographic/Orbit state is ~50px; we want ~3x.
+          moveSpeed: 150,
+        },
+      },
       initialViewState: {
         target: [...DEFAULT_VIEW_STATE.target],
         zoom: DEFAULT_VIEW_STATE.zoom,

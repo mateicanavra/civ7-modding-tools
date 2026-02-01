@@ -139,6 +139,9 @@ function AppContent(props: AppContentProps) {
 
   const [showGrid, setShowGrid] = useState(true);
   const [showEdges, setShowEdges] = useState(true);
+  const [recipeSectionCollapsed, setRecipeSectionCollapsed] = useState(false);
+  const [configSectionCollapsed, setConfigSectionCollapsed] = useState(false);
+  const [stageListExpanded, setStageListExpanded] = useState(true);
 
   const [worldSettings, setWorldSettings] = useState<WorldSettings>({
     mode: "browser",
@@ -376,6 +379,14 @@ function AppContent(props: AppContentProps) {
     startBrowserRun({ seed: next });
   }, [startBrowserRun]);
 
+  const triggerRun = useCallback(() => {
+    if (worldSettings.mode === "dump") {
+      void openDumpFolder();
+      return;
+    }
+    startBrowserRun();
+  }, [openDumpFolder, startBrowserRun, worldSettings.mode]);
+
   const status: GenerationStatus = browserRunning ? "running" : error ? "error" : "ready";
 
   const isDirty = useMemo(() => {
@@ -473,6 +484,161 @@ function AppContent(props: AppContentProps) {
     [selectLayerFor, selection]
   );
 
+  const shortcutsRef = useRef<{
+    stages: StageOption[];
+    steps: StepOption[];
+    dataTypeOptions: DataTypeOption[];
+    selectedStageId: string;
+    selectedStepId: string;
+    selectedDataTypeId: string | null;
+    handleStageChange(stageId: string): void;
+    setSelectedStepId(stepId: string): void;
+    handleDataTypeChange(dataTypeId: string): void;
+    run(): void;
+    reroll(): void;
+    toggleRightPanel(): void;
+    toggleLeftPanel(): void;
+  }>({
+    stages: [],
+    steps: [],
+    dataTypeOptions: [],
+    selectedStageId: "",
+    selectedStepId: "",
+    selectedDataTypeId: null,
+    handleStageChange: () => {},
+    setSelectedStepId: () => {},
+    handleDataTypeChange: () => {},
+    run: () => {},
+    reroll: () => {},
+    toggleRightPanel: () => {},
+    toggleLeftPanel: () => {},
+  });
+
+  shortcutsRef.current = {
+    stages,
+    steps,
+    dataTypeOptions,
+    selectedStageId,
+    selectedStepId,
+    selectedDataTypeId: selection?.dataTypeId ?? null,
+    handleStageChange,
+    setSelectedStepId,
+    handleDataTypeChange,
+    run: triggerRun,
+    reroll,
+    toggleRightPanel: () => setStageListExpanded((prev) => !prev),
+    toggleLeftPanel: () => {
+      const leftCollapsed = recipeSectionCollapsed && configSectionCollapsed;
+      const next = !leftCollapsed;
+      setRecipeSectionCollapsed(next);
+      setConfigSectionCollapsed(next);
+    },
+  };
+
+  useEffect(() => {
+    const isEditableTarget = (target: EventTarget | null) => {
+      const el = target as HTMLElement | null;
+      if (!el) return false;
+      if (el.isContentEditable) return true;
+      const tag = el.tagName?.toLowerCase();
+      if (tag === "input" || tag === "textarea" || tag === "select") return true;
+      return Boolean(
+        el.closest?.(
+          [
+            "input",
+            "textarea",
+            "select",
+            '[contenteditable="true"]',
+            '[role="textbox"]',
+            '[role="combobox"]',
+            '[role="listbox"]',
+            '[role="option"]',
+            '[role="menu"]',
+            '[role="menuitem"]',
+            '[role="dialog"]',
+            '[role="alertdialog"]',
+          ].join(", ")
+        )
+      );
+    };
+
+    const clampIndex = (index: number, max: number) => Math.max(0, Math.min(max, index));
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return;
+      if (isEditableTarget(event.target)) return;
+
+      const ctx = shortcutsRef.current;
+      const isMod = event.metaKey || event.ctrlKey;
+
+      // Run / re-roll
+      if (isMod && event.key === "Enter") {
+        event.preventDefault();
+        if (event.repeat) return;
+        if (event.shiftKey) ctx.reroll();
+        else ctx.run();
+        return;
+      }
+
+      // Collapse panels
+      if (isMod && (event.key === "b" || event.key === "B")) {
+        event.preventDefault();
+        if (event.repeat) return;
+        ctx.toggleLeftPanel();
+        return;
+      }
+      if (isMod && (event.key === "i" || event.key === "I")) {
+        event.preventDefault();
+        if (event.repeat) return;
+        ctx.toggleRightPanel();
+        return;
+      }
+
+      // Stage/step navigation
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        if (!isMod) return;
+        const dir = event.key === "ArrowLeft" ? -1 : 1;
+
+        if (event.shiftKey) {
+          if (!ctx.stages.length) return;
+          event.preventDefault();
+          const idx = ctx.stages.findIndex((s) => s.value === ctx.selectedStageId);
+          const nextIdx = clampIndex(idx + dir, ctx.stages.length - 1);
+          const nextStage = ctx.stages[nextIdx]?.value ?? null;
+          if (!nextStage || nextStage === ctx.selectedStageId) return;
+          ctx.handleStageChange(nextStage);
+          return;
+        }
+
+        if (!ctx.steps.length) return;
+        event.preventDefault();
+        const idx = ctx.steps.findIndex((s) => s.value === ctx.selectedStepId);
+        const nextIdx = clampIndex(idx + dir, ctx.steps.length - 1);
+        const nextStep = ctx.steps[nextIdx]?.value ?? null;
+        if (!nextStep || nextStep === ctx.selectedStepId) return;
+        ctx.setSelectedStepId(nextStep);
+        return;
+      }
+
+      // Layer navigation
+      if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+        if (!isMod) return;
+        if (!ctx.dataTypeOptions.length) return;
+        event.preventDefault();
+        const dir = event.key === "ArrowUp" ? -1 : 1;
+        const selected = ctx.selectedDataTypeId ?? ctx.dataTypeOptions[0]?.value ?? "";
+        const idx = ctx.dataTypeOptions.findIndex((dt) => dt.value === selected);
+        const nextIdx = clampIndex(idx + dir, ctx.dataTypeOptions.length - 1);
+        const next = ctx.dataTypeOptions[nextIdx]?.value ?? null;
+        if (!next || next === selected) return;
+        ctx.handleDataTypeChange(next);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   const panelTop = LAYOUT.SPACING + LAYOUT.HEADER_HEIGHT + LAYOUT.SPACING;
 
   const canvas = (
@@ -561,18 +727,16 @@ function AppContent(props: AppContentProps) {
         setRecipeSettings(next);
         if (next.recipe !== recipeSettings.recipe) toast(`Recipe: ${next.recipe}`, { variant: "info" });
       }}
-      onRun={() => {
-        if (worldSettings.mode === "dump") {
-          void openDumpFolder();
-          return;
-        }
-        startBrowserRun();
-      }}
+      onRun={triggerRun}
       onSave={() => toast("Preset saving is not implemented in Studio yet", { variant: "info" })}
       isRunning={browserRunning}
       isDirty={isDirty}
       overridesDisabled={overridesDisabled}
       onOverridesDisabledChange={setOverridesDisabled}
+      recipeCollapsed={recipeSectionCollapsed}
+      onRecipeCollapsedChange={setRecipeSectionCollapsed}
+      configCollapsed={configSectionCollapsed}
+      onConfigCollapsedChange={setConfigSectionCollapsed}
     />
   );
 
@@ -598,6 +762,8 @@ function AppContent(props: AppContentProps) {
         if (!viz.activeBounds) return;
         deckApiRef.current?.fitToBounds(viz.activeBounds);
       }}
+      stageExpanded={stageListExpanded}
+      onStageExpandedChange={setStageListExpanded}
     />
   );
 
@@ -608,13 +774,7 @@ function AppContent(props: AppContentProps) {
       lastGlobalSettings={lastGlobalSettings}
       currentSettings={recipeSettings}
       onSettingsChange={setRecipeSettings}
-      onRun={() => {
-        if (worldSettings.mode === "dump") {
-          void openDumpFolder();
-          return;
-        }
-        startBrowserRun();
-      }}
+      onRun={triggerRun}
       onReroll={reroll}
       isRunning={browserRunning}
       isDirty={isDirty}
