@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 
-import { AppHeader } from "./prototype-ui/components/AppHeader";
-import { AppFooter } from "./prototype-ui/components/AppFooter";
-import { ExplorePanel } from "./prototype-ui/components/ExplorePanel";
-import { RecipePanel } from "./prototype-ui/components/RecipePanel";
-import { ToastProvider, useToast } from "./prototype-ui/components/ui";
-import { createTheme, useThemePreference } from "./prototype-ui/hooks";
-import { applyConfigPatch, configsEqual, recipeSettingsEqual, worldSettingsEqual } from "./prototype-ui/utils/config";
-import { formatStageName } from "./prototype-ui/utils/formatting";
-import { LAYOUT } from "./prototype-ui/constants/layout";
+import { AppHeader } from "./ui/components/AppHeader";
+import { AppFooter } from "./ui/components/AppFooter";
+import { ExplorePanel } from "./ui/components/ExplorePanel";
+import { RecipePanel } from "./ui/components/RecipePanel";
+import { ToastProvider, useToast } from "./ui/components/ui";
+import { createTheme, useThemePreference } from "./ui/hooks";
+import { applyConfigPatch, configsEqual, recipeSettingsEqual, worldSettingsEqual } from "./ui/utils/config";
+import { formatStageName } from "./ui/utils/formatting";
+import { LAYOUT } from "./ui/constants/layout";
 import type {
   ConfigPatch,
   DataTypeOption,
@@ -21,7 +21,7 @@ import type {
   StageOption,
   StepOption,
   WorldSettings,
-} from "./prototype-ui/types";
+} from "./ui/types";
 
 import { useDumpLoader } from "./features/dumpViewer/useDumpLoader";
 import { useBrowserRunner } from "./features/browserRunner/useBrowserRunner";
