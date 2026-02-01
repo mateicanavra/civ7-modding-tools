@@ -101,6 +101,7 @@ export default createStep(RoutingStepContract, {
           label: "Basin Id",
           group: GROUP_ROUTING,
           visibility: "debug",
+          palette: "categorical",
         }),
       });
     }

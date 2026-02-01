@@ -1,7 +1,9 @@
-import { logElevationSummary, logLandmassAscii, syncHeightfield } from "@swooper/mapgen-core";
+import { defineVizMeta, logElevationSummary, logLandmassAscii, syncHeightfield } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import BuildElevationStepContract from "./buildElevation.contract.js";
 import { assertNoWaterDrift } from "./assertions.js";
+
+const GROUP_MAP_PROJECTION = "Morphology / Map Projection";
 
 export default createStep(BuildElevationStepContract, {
   run: (context, _config, _ops, deps) => {
@@ -17,6 +19,29 @@ export default createStep(BuildElevationStepContract, {
     context.adapter.buildElevation();
     context.adapter.recalculateAreas();
     syncHeightfield(context);
+
+    const heightfield = context.buffers.heightfield;
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "map.morphology.elevation.elevation",
+      dims: { width, height },
+      format: "i16",
+      values: heightfield.elevation,
+      meta: defineVizMeta("map.morphology.elevation.elevation", {
+        label: "Elevation (Engine)",
+        group: GROUP_MAP_PROJECTION,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "map.morphology.elevation.landMask",
+      dims: { width, height },
+      format: "u8",
+      values: heightfield.landMask,
+      meta: defineVizMeta("map.morphology.elevation.landMask", {
+        label: "Land Mask (Engine)",
+        group: GROUP_MAP_PROJECTION,
+        palette: "categorical",
+      }),
+    });
 
     logElevationSummary(context.trace, context.adapter, width, height, "map-morphology/build-elevation");
     logLandmassAscii(context.trace, context.adapter, width, height);

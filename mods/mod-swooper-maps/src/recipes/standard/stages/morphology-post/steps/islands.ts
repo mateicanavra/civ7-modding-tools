@@ -1,7 +1,9 @@
-import { computeSampleStep, renderAsciiGrid } from "@swooper/mapgen-core";
+import { computeSampleStep, defineVizMeta, renderAsciiGrid } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import IslandsStepContract from "./islands.contract.js";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
+
+const GROUP_ISLANDS = "Morphology / Islands";
 
 function clampInt16(value: number): number {
   if (value > 32767) return 32767;
@@ -50,6 +52,26 @@ export default createStep(IslandsStepContract, {
       }
     }
 
+    const size = Math.max(0, (width | 0) * (height | 0));
+    const editMask = new Uint8Array(size);
+    for (const edit of plan.edits) {
+      const index = edit.index | 0;
+      if (index < 0 || index >= size) continue;
+      editMask[index] = 1;
+    }
+
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "morphology.islands.editMask",
+      dims: { width, height },
+      format: "u8",
+      values: editMask,
+      meta: defineVizMeta("morphology.islands.editMask", {
+        label: "Island Edits",
+        group: GROUP_ISLANDS,
+        palette: "categorical",
+      }),
+    });
+
     context.trace.event(() => {
       let peaks = 0;
       let inBoundsPeaks = 0;
@@ -70,14 +92,6 @@ export default createStep(IslandsStepContract, {
       };
     });
     context.trace.event(() => {
-      const size = Math.max(0, (width | 0) * (height | 0));
-      const editMask = new Uint8Array(size);
-      for (const edit of plan.edits) {
-        const index = edit.index | 0;
-        if (index < 0 || index >= size) continue;
-        editMask[index] = 1;
-      }
-
       const sampleStep = computeSampleStep(width, height);
       const rows = renderAsciiGrid({
         width,

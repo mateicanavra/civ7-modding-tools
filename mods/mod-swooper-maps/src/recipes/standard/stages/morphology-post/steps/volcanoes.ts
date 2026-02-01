@@ -167,6 +167,7 @@ export default createStep(VolcanoesStepContract, {
       meta: defineVizMeta("morphology.volcanoes.points", {
         label: "Volcano Points",
         group: GROUP_VOLCANOES,
+        space: "tile",
       }),
     });
 
