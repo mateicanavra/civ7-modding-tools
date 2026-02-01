@@ -17,7 +17,6 @@
 # MapGen docs + examples alignment spike
 
 ## Objective
-
 Reconcile our current MapGen docs + examples with the intended “DX-first” architecture:
 - MapGen core SDK
 - MapGen pipeline / recipe model
