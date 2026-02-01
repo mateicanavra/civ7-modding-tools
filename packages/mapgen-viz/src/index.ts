@@ -204,10 +204,13 @@ export type VizManifestV1 = {
 export function createVizLayerKey(args: {
   stepId: VizStepId;
   dataTypeKey: VizDataTypeKey;
+  spaceId: VizSpaceId;
   kind: VizLayerKind;
+  role?: string;
   variantKey?: VizVariantKey;
 }): VizLayerKey {
-  const base = `${args.stepId}::${args.dataTypeKey}::${args.kind}`;
+  const render = args.role ? `${args.kind}:${args.role}` : args.kind;
+  const base = `${args.stepId}::${args.dataTypeKey}::${args.spaceId}::${render}`;
   return args.variantKey ? `${base}::${args.variantKey}` : base;
 }
 
