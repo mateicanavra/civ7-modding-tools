@@ -9,30 +9,29 @@ function titleCase(input: string): string {
     .replace(/(^|\s)(\w)/g, (m) => m.toUpperCase());
 }
 
-function defaultLabel(layerId: string): string {
-  const parts = layerId.split(".");
-  const last = parts[parts.length - 1] ?? layerId;
+function defaultLabel(dataTypeKey: string): string {
+  const parts = dataTypeKey.split(".");
+  const last = parts[parts.length - 1] ?? dataTypeKey;
   return titleCase(last);
 }
 
-function defaultGroup(layerId: string): string | undefined {
-  const parts = layerId.split(".");
+function defaultGroup(dataTypeKey: string): string | undefined {
+  const parts = dataTypeKey.split(".");
   if (parts.length < 2) return undefined;
   const [domain, group] = parts;
   if (!domain || !group) return undefined;
   return `${titleCase(domain)} / ${titleCase(group)}`;
 }
 
-export function defineVizMeta(layerId: string, meta: Partial<VizLayerMeta> = {}): VizLayerMeta {
+export function defineVizMeta(dataTypeKey: string, meta: Partial<VizLayerMeta> = {}): VizLayerMeta {
   return {
-    label: meta.label ?? defaultLabel(layerId),
-    group: meta.group ?? defaultGroup(layerId),
+    label: meta.label ?? defaultLabel(dataTypeKey),
+    group: meta.group ?? defaultGroup(dataTypeKey),
     visibility: meta.visibility ?? "default",
     description: meta.description,
     role: meta.role,
     categories: meta.categories,
     palette: meta.palette,
-    space: meta.space,
     showGrid: meta.showGrid,
   };
 }

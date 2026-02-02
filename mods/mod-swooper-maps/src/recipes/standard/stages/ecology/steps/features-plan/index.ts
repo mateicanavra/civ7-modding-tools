@@ -247,14 +247,14 @@ export default createStep(FeaturesPlanStepContract, {
       }
 
       context.viz?.dumpPoints(context.trace, {
-        layerId: "ecology.featureIntents.featureType",
+        dataTypeKey: "ecology.featureIntents.featureType",
+        spaceId: "tile.hexOddR",
         positions,
         values,
         valueFormat: "u16",
         meta: defineVizMeta("ecology.featureIntents.featureType", {
           label: "Feature Intents",
           group: GROUP_FEATURE_INTENTS,
-          space: "tile",
           categories: categoryKeys.map((key, index) => ({
             value: index + 1,
             label: labelFeatureKey(key),

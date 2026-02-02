@@ -1,53 +1,61 @@
 import { describe, expect, it } from "vitest";
-import type { VizLayerEntryV0 } from "../../src/features/viz/model";
+import type { VizLayerEntryV1 } from "../../src/features/viz/model";
 import { buildStepDataTypeModel } from "../../src/features/viz/dataTypeModel";
 
 describe("buildStepDataTypeModel", () => {
-  it("groups layers by data type (layerId) and render mode (kind + role)", () => {
+  it("groups layers by data type (dataTypeKey) and render mode (kind + role)", () => {
     const stepId = "mod-swooper-maps.standard.ecology.assign-biomes";
 
-    const layers: VizLayerEntryV0[] = [
+    const layers: VizLayerEntryV1[] = [
       {
         kind: "grid",
-        layerId: "heightfield",
+        layerKey: `${stepId}::heightfield::grid::f32`,
+        dataTypeKey: "heightfield",
+        variantKey: "f32",
         stepId,
         stepIndex: 0,
-        format: "f32",
+        spaceId: "tile.hexOddR",
         dims: { width: 4, height: 3 },
-        path: "height/f32",
+        field: { format: "f32", data: { kind: "path", path: "height/f32" } },
         bounds: [0, 0, 4, 3],
         meta: { label: "Elevation" } as any,
       },
       {
         kind: "grid",
-        layerId: "heightfield",
+        layerKey: `${stepId}::heightfield::grid::u8`,
+        dataTypeKey: "heightfield",
+        variantKey: "u8",
         stepId,
         stepIndex: 0,
-        format: "u8",
+        spaceId: "tile.hexOddR",
         dims: { width: 4, height: 3 },
-        path: "height/u8",
+        field: { format: "u8", data: { kind: "path", path: "height/u8" } },
         bounds: [0, 0, 4, 3],
         meta: { visibility: "debug" } as any,
       },
       {
         kind: "points",
-        layerId: "hotspots",
+        layerKey: `${stepId}::hotspots::points::gradient`,
+        dataTypeKey: "hotspots",
         stepId,
         stepIndex: 0,
+        spaceId: "world.xy",
         count: 2,
-        positionsPath: "hotspots/positions",
-        valuesPath: "hotspots/gradient",
+        positions: { kind: "path", path: "hotspots/positions" },
+        values: { format: "f32", data: { kind: "path", path: "hotspots/gradient" } },
         bounds: [0, 0, 4, 3],
         meta: { role: "gradient", label: "Hotspots" } as any,
       },
       {
         kind: "points",
-        layerId: "hotspots",
+        layerKey: `${stepId}::hotspots::points::clamped`,
+        dataTypeKey: "hotspots",
         stepId,
         stepIndex: 0,
+        spaceId: "world.xy",
         count: 2,
-        positionsPath: "hotspots/positions",
-        valuesPath: "hotspots/clamped",
+        positions: { kind: "path", path: "hotspots/positions" },
+        values: { format: "f32", data: { kind: "path", path: "hotspots/clamped" } },
         bounds: [0, 0, 4, 3],
         meta: { role: "clamped" } as any,
       },
@@ -60,11 +68,12 @@ describe("buildStepDataTypeModel", () => {
     const heightfield = model.dataTypes.find((dt) => dt.dataTypeId === "heightfield")!;
     expect(heightfield.label).toBe("Elevation");
     expect(heightfield.visibility).toBe("default");
-    expect(heightfield.renderModes.map((rm) => rm.renderModeId)).toEqual(["grid"]);
-    expect(heightfield.renderModes[0]?.variants.map((v) => v.variantId)).toEqual(["f32", "u8"]);
+    expect(heightfield.projections.map((p) => p.projectionId)).toEqual(["tile.hexOddR"]);
+    expect(heightfield.projections[0]?.renderModes.map((rm) => rm.renderModeId)).toEqual(["grid"]);
+    expect(heightfield.projections[0]?.renderModes[0]?.variants.map((v) => v.variantId)).toEqual(["f32", "u8"]);
 
     const hotspots = model.dataTypes.find((dt) => dt.dataTypeId === "hotspots")!;
-    expect(hotspots.renderModes.map((rm) => rm.renderModeId)).toEqual(["points:gradient", "points:clamped"]);
+    expect(hotspots.projections.map((p) => p.projectionId)).toEqual(["world.xy"]);
+    expect(hotspots.projections[0]?.renderModes.map((rm) => rm.renderModeId)).toEqual(["points:gradient", "points:clamped"]);
   });
 });
-

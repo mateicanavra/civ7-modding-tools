@@ -20,6 +20,7 @@ import {
 import type { MorphologyOrogenyKnob } from "@mapgen/domain/morphology/shared/knobs.js";
 
 const GROUP_MAP_PROJECTION = "Morphology / Map Projection";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function buildFractalArray(
   width: number,
@@ -106,7 +107,8 @@ export default createStep(PlotMountainsStepContract, {
 
     if (plan.mountainMask instanceof Uint8Array) {
       context.viz?.dumpGrid(context.trace, {
-        layerId: "map.morphology.mountains.mountainMask",
+        dataTypeKey: "map.morphology.mountains.mountainMask",
+        spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
         values: plan.mountainMask,
@@ -118,7 +120,8 @@ export default createStep(PlotMountainsStepContract, {
     }
     if (plan.hillMask instanceof Uint8Array) {
       context.viz?.dumpGrid(context.trace, {
-        layerId: "map.morphology.mountains.hillMask",
+        dataTypeKey: "map.morphology.mountains.hillMask",
+        spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
         values: plan.hillMask,
@@ -130,7 +133,8 @@ export default createStep(PlotMountainsStepContract, {
     }
     if (plan.orogenyPotential01 instanceof Uint8Array) {
       context.viz?.dumpGrid(context.trace, {
-        layerId: "map.morphology.mountains.orogenyPotential01",
+        dataTypeKey: "map.morphology.mountains.orogenyPotential01",
+        spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
         values: plan.orogenyPotential01,
@@ -142,7 +146,8 @@ export default createStep(PlotMountainsStepContract, {
     }
     if (plan.fracture01 instanceof Uint8Array) {
       context.viz?.dumpGrid(context.trace, {
-        layerId: "map.morphology.mountains.fracture01",
+        dataTypeKey: "map.morphology.mountains.fracture01",
+        spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
         values: plan.fracture01,

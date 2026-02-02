@@ -3,7 +3,7 @@ import type { Layer } from '@deck.gl/core';
 import { LineLayer } from '@deck.gl/layers';
 import type { MutableRefObject } from 'react';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { DEFAULT_VIEW_STATE, type Bounds, type VizLayerEntryV0 } from './model';
+import { DEFAULT_VIEW_STATE, type Bounds, type VizLayerEntryV1 } from './model';
 
 function niceStep(target: number): number {
   const t = Math.max(1e-9, target);
@@ -22,7 +22,7 @@ export type DeckCanvasApi = {
 
 export type DeckCanvasProps = {
   layers: Layer[];
-  effectiveLayer: VizLayerEntryV0 | null;
+  effectiveLayer: VizLayerEntryV1 | null;
   viewportSize: { width: number; height: number };
   showBackgroundGrid?: boolean;
   lightMode?: boolean;

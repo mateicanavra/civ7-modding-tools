@@ -6,6 +6,7 @@ import { applyFeaturePlacements, reifyFeatureField } from "../features/apply.js"
 import { resolveFeatureKeyLookups } from "../features/feature-keys.js";
 
 const GROUP_MAP_ECOLOGY = "Map / Ecology (Projection)";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(FeaturesApplyStepContract, {
   run: (context, config, ops, deps) => {
@@ -35,7 +36,8 @@ export default createStep(FeaturesApplyStepContract, {
     if (applied > 0) {
       reifyFeatureField(context);
       context.viz?.dumpGrid(context.trace, {
-        layerId: "map.ecology.featureType",
+        dataTypeKey: "map.ecology.featureType",
+        spaceId: TILE_SPACE_ID,
         dims: { width: context.dimensions.width, height: context.dimensions.height },
         format: "i16",
         values: context.fields.featureType,

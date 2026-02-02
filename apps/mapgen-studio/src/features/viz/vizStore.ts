@@ -1,10 +1,10 @@
 import { ingestVizEvent } from "./ingest";
 import type { VizEvent } from "../../shared/vizEvents";
-import type { VizManifestV0 } from "./model";
+import type { VizManifestV1 } from "./model";
 
 export type VizStoreSnapshot = Readonly<{
-  streamManifest: VizManifestV0 | null;
-  dumpManifest: VizManifestV0 | null;
+  streamManifest: VizManifestV1 | null;
+  dumpManifest: VizManifestV1 | null;
   selectedStepId: string | null;
   selectedLayerKey: string | null;
 }>;
@@ -15,7 +15,7 @@ export type VizStore = {
 
   ingest(event: VizEvent): void;
   clearStream(): void;
-  setDumpManifest(next: VizManifestV0 | null): void;
+  setDumpManifest(next: VizManifestV1 | null): void;
 
   setSelectedStepId(next: string | null): void;
   setSelectedLayerKey(next: string | null): void;
@@ -29,8 +29,8 @@ function scheduleFrame(cb: () => void): number {
 export function createVizStore(): VizStore {
   const listeners = new Set<() => void>();
 
-  let streamManifest: VizManifestV0 | null = null;
-  let dumpManifest: VizManifestV0 | null = null;
+  let streamManifest: VizManifestV1 | null = null;
+  let dumpManifest: VizManifestV1 | null = null;
   let selectedStepId: string | null = null;
   let selectedLayerKey: string | null = null;
 
@@ -44,7 +44,7 @@ export function createVizStore(): VizStore {
     selectedLayerKey,
   });
 
-  let pendingStreamManifest: VizManifestV0 | null | undefined = undefined;
+  let pendingStreamManifest: VizManifestV1 | null | undefined = undefined;
   let pendingSelectedStepId: string | null | undefined = undefined;
   let pendingSelectedLayerKey: string | null | undefined = undefined;
   let rafId: number | null = null;
@@ -95,7 +95,7 @@ export function createVizStore(): VizStore {
     rafId = scheduleFrame(commit);
   };
 
-  const getOrInitPendingManifest = (): VizManifestV0 | null => {
+  const getOrInitPendingManifest = (): VizManifestV1 | null => {
     if (pendingStreamManifest !== undefined) return pendingStreamManifest;
     pendingStreamManifest = streamManifest;
     return pendingStreamManifest;
@@ -120,7 +120,7 @@ export function createVizStore(): VizStore {
 
       const currentLayer = pendingSelectedLayerKey !== undefined ? pendingSelectedLayerKey : selectedLayerKey;
       if (!currentLayer && event.layer.stepId === desiredStep) {
-        pendingSelectedLayerKey = event.layer.key;
+        pendingSelectedLayerKey = event.layer.layerKey;
       }
     }
 

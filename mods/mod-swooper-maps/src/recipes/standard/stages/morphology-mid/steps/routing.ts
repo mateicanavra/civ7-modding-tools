@@ -7,6 +7,7 @@ import RoutingStepContract from "./routing.contract.js";
 type ArtifactValidationIssue = Readonly<{ message: string }>;
 
 const GROUP_ROUTING = "Morphology / Routing";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -51,6 +52,11 @@ function validateRoutingBuffer(value: unknown, dimensions: MapDimensions): Artif
   return errors;
 }
 
+function clampI8(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  return Math.max(-127, Math.min(127, Math.round(value)));
+}
+
 export default createStep(RoutingStepContract, {
   artifacts: implementArtifacts(RoutingStepContract.artifacts!.provides!, {
     routing: {
@@ -71,7 +77,8 @@ export default createStep(RoutingStepContract, {
     );
 
     context.viz?.dumpGrid(context.trace, {
-      layerId: "morphology.routing.flowDir",
+      dataTypeKey: "morphology.routing.flowDir",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "i32",
       values: routing.flowDir,
@@ -82,7 +89,8 @@ export default createStep(RoutingStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "morphology.routing.flowAccum",
+      dataTypeKey: "morphology.routing.flowAccum",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: routing.flowAccum,
@@ -91,9 +99,49 @@ export default createStep(RoutingStepContract, {
         group: GROUP_ROUTING,
       }),
     });
+    {
+      const size = Math.max(0, width * height);
+      const u = new Int8Array(size);
+      const v = new Int8Array(size);
+      const magnitude = new Float32Array(size);
+      for (let i = 0; i < size; i++) {
+        const receiver = routing.flowDir[i] ?? -1;
+        const x = i % width;
+        const y = (i / width) | 0;
+        if (receiver >= 0) {
+          const rx = receiver % width;
+          const ry = (receiver / width) | 0;
+          u[i] = clampI8(rx - x);
+          v[i] = clampI8(ry - y);
+        } else {
+          u[i] = 0;
+          v[i] = 0;
+        }
+        magnitude[i] = routing.flowAccum[i] ?? 0;
+      }
+
+      context.viz?.dumpGridFields(context.trace, {
+        dataTypeKey: "morphology.routing.flow",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        fields: {
+          u: { format: "i8", values: u },
+          v: { format: "i8", values: v },
+          magnitude: { format: "f32", values: magnitude },
+        },
+        vector: { u: "u", v: "v", magnitude: "magnitude" },
+        meta: defineVizMeta("morphology.routing.flow", {
+          label: "Flow (Vector)",
+          group: GROUP_ROUTING,
+          role: "vector",
+          palette: "continuous",
+        }),
+      });
+    }
     if (routing.basinId instanceof Int32Array) {
       context.viz?.dumpGrid(context.trace, {
-        layerId: "morphology.routing.basinId",
+        dataTypeKey: "morphology.routing.basinId",
+        spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "i32",
         values: routing.basinId,

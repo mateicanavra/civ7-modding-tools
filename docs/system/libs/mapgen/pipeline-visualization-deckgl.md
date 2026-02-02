@@ -1,16 +1,17 @@
-# Pipeline Visualization (Deck.gl) Proposal
+# Pipeline Visualization (deck.gl)
 
 > **System:** Mapgen diagnostics and external visualization.
-> **Scope:** Capture per-step artifacts/buffers as post-run dumps and render them in a deck.gl viewer.
-> **Status:** Proposed (design outline).
+> **Scope:** Capture per-step artifacts/buffers as replayable dumps and render them in MapGen Studio’s deck.gl viewer.
+> **Status:** Implemented (Viz SDK v1).
 
 ## Definitions
 
-- **Dump folder**: replayable output containing `manifest.json` and payloads under `data/`.
-- **`outputsRoot`**: where dump folders are written. For V0 we keep dumps local to the map mod’s `dist/` output (see `docs/projects/mapgen-studio/V0-IMPLEMENTATION-PLAN.md`).
-  - **Shortcut (explicit):** writing debug dumps under `dist/` is convenient for local iteration but may be overwritten by rebuilds.
-- **`layerId`**: stable identifier for a layer (recommended form: `<domain>.<name>`).
+- **Dump folder**: replayable output containing `manifest.json` plus payloads under `data/`.
+- **`outputsRoot`**: where dump folders are written (implementation chooses the root; the contract only assumes a per-run folder containing `manifest.json`).
 - **`runId` / `planFingerprint`**: run identifiers; must match the trace/plan implementation.
+- **`dataTypeKey`**: stable semantic identity for a data product (e.g. `"hydrology.wind.wind"`).
+- **`layerKey`**: canonical, opaque identity for a layer within a run (used for streaming upserts and dump replay identity).
+- **`spaceId`**: explicit coordinate space (“projection” selector in the Studio UI).
 
 ## Coordinate Spaces (critical for “why does it look rotated?”)
 
@@ -19,7 +20,7 @@ Mapgen produces data in multiple coordinate systems. The viewer must not “gues
 ### Tile space (game map grid)
 
 - Discrete tiles: `(x, y)` where `0 ≤ x < width`, `0 ≤ y < height`.
-- For Civ7, tiles are hexes; in V0 MapGen Studio renders tile grids as **pointy-top, row-offset** hexes (“Civ-like wide map”).
+- For Civ7, tiles are hexes; MapGen Studio renders tile grids as **pointy-top, row-offset** hexes (“Civ-like wide map”).
 - Typical tile-space tensors: `foundation.plates.tile*`, `foundation.crustTiles.*`.
 
 ### Mesh space (foundation “plates mesh”)
@@ -68,7 +69,7 @@ We can keep the existing trace system as the **primary event spine** and add **l
 
 If the runtime’s trace implementation gates `step.event` behind “verbose”, then layer dumps emitted via `trace.event(...)` will also be gated. The dump sink design must either:
 - reference the runtime behavior explicitly (e.g. `packages/mapgen-core/src/trace/index.ts`), and
-- document that V0 requires verbose tracing for the instrumented steps, or
+- document that dumps require verbose tracing for the instrumented steps, or
 - provide an additional non-verbose dump path (still without impacting pipeline correctness).
 
 ---
@@ -90,71 +91,34 @@ Pipeline run
 
 ---
 
-## Proposed Dump Primitives
+## Dump primitives (implemented)
 
-### 1) Trace Sink: `TraceSinkDump`
+### 1) Trace sink (writes `trace.jsonl` + `manifest.json` + `data/`)
 
-A drop-in sink that writes events and data to disk:
+The dump sink is implemented in the MapGen mod:
+- `mods/mod-swooper-maps/src/dev/viz/dump.ts`
 
+It consumes trace events and writes a per-run folder with:
 ```
-<outputsRoot>/visualization/<runId>/
+<outputsRoot>/<runId>/
   trace.jsonl
   manifest.json
   data/
-    layer-<slug>.bin
-    layer-<slug>.json
+    *.bin
 ```
 
-- `trace.jsonl`: every `TraceEvent` as JSON per line.
-- `manifest.json`: index of layers (for fast viewer loading).
-- `data/`: raw typed arrays, encoded as binary + sidecar metadata.
+### 2) Manifest contract: `VizManifestV1`
 
-### Manifest contract (minimum)
+The manifest schema is `VizManifestV1` from `@swooper/mapgen-viz` (`packages/mapgen-viz/src/index.ts`).
+MapGen Studio only accepts `manifest.json` with `version: 1` (no compatibility adapters).
 
-At minimum, the viewer should be able to rely on:
-- `runId`, `planFingerprint`
-- `layers[]` entries with `layerId`, `kind`, `format`, `dims`, `path`, and `stepId`
+### 3) Layer dump event convention: `viz.layer.dump.v1`
 
-### 2) Layer Manifest Schema
+Layer dumps are emitted via `trace.event(...)` with a v1 payload:
+- `type: "viz.layer.dump.v1"`
+- `layer: VizLayerEmissionV1`
 
-```json
-{
-  "runId": "<hash>",
-  "planFingerprint": "<hash>",
-  "layers": [
-    {
-      "layerId": "foundation.crust.type",
-      "stepId": "foundation/compute-crust",
-      "era": 0,
-      "kind": "grid",
-      "format": "uint8",
-      "dims": [width, height],
-      "path": "data/layer-foundation-crust-type.bin",
-      "palette": "crustType",
-      "domain": "foundation",
-      "tags": ["artifact", "crust"]
-    }
-  ]
-}
-```
-
-### 3) Layer Dump Event Convention
-
-Layer dumps can be emitted via `trace.event` with a stable payload shape:
-
-```ts
-trace.event(() => ({
-  type: "layer.dump",
-  layerId: "foundation.crust.type",
-  path: "data/layer-foundation-crust-type.bin",
-  dims: [width, height],
-  format: "uint8",
-  palette: "crustType",
-  tags: ["artifact", "crust"],
-}));
-```
-
-The sink can normalize these into `manifest.json` while keeping the raw event stream intact.
+See the producer implementation in `mods/mod-swooper-maps/src/dev/viz/dump.ts`.
 
 ---
 
@@ -190,21 +154,18 @@ A standalone web app (or an extension of MapGen Studio) that can load a dump fol
 
 | Layer kind | deck.gl layer | Notes |
 |---|---|---|
-| Grid | `PolygonLayer` (hexes) or `BitmapLayer` | V0 uses hex polygons to match Civ; a texture-based approach can come later for speed. |
+| Grid | `PolygonLayer` (hexes) or `BitmapLayer` | Current implementation uses hex polygons to match Civ; a texture-based approach can come later for speed. |
 | Mesh | `ScatterplotLayer` + `PathLayer` | Sites as points, neighbors as segments (Delaunay adjacency). Voronoi polygons require additional geometry dumps. |
 | Vector | `PathLayer` | Rivers, rifts, corridors. |
 | Point | `ScatterplotLayer` | Seeds, hotspots, volcanoes. |
 | Polygon | `PolygonLayer` | Plate/continent extents. |
 
-### Layer Loading Path (Pseudo)
+### Layer Loading Path
 
-```ts
-const manifest = await fetch("manifest.json").then((r) => r.json());
-const layer = manifest.layers.find((l) => l.layerId === activeLayerId);
-const data = await fetch(layer.path).then((r) => r.arrayBuffer());
-const texture = toTexture(data, layer.format, layer.dims, palette);
-return new BitmapLayer({ id: layer.layerId, image: texture, bounds });
-```
+The authoritative implementation is MapGen Studio’s v1 loader + renderer:
+- dump manifest validation: `apps/mapgen-studio/src/features/dumpViewer/manifest.ts`
+- binary reference resolution: `apps/mapgen-studio/src/features/viz/model.ts`
+- deck.gl rendering: `apps/mapgen-studio/src/features/viz/deckgl/render.ts`
 
 ---
 

@@ -35,6 +35,7 @@ const GROUP_SEASONALITY = "Hydrology / Seasonality";
 const GROUP_CLIMATE = "Hydrology / Climate";
 const GROUP_WIND = "Hydrology / Wind";
 const GROUP_CURRENT = "Hydrology / Currents";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -517,7 +518,8 @@ export default createStep(ClimateBaselineStepContract, {
     }
 
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.climate.rainfall",
+      dataTypeKey: "hydrology.climate.rainfall",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: meanRainfall,
@@ -527,7 +529,8 @@ export default createStep(ClimateBaselineStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.climate.humidity",
+      dataTypeKey: "hydrology.climate.humidity",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: meanHumidity,
@@ -537,7 +540,8 @@ export default createStep(ClimateBaselineStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.climate.seasonality.rainfallAmplitude",
+      dataTypeKey: "hydrology.climate.seasonality.rainfallAmplitude",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: rainfallAmplitude,
@@ -547,7 +551,8 @@ export default createStep(ClimateBaselineStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.climate.seasonality.humidityAmplitude",
+      dataTypeKey: "hydrology.climate.seasonality.humidityAmplitude",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: humidityAmplitude,
@@ -556,8 +561,40 @@ export default createStep(ClimateBaselineStepContract, {
         group: GROUP_SEASONALITY,
       }),
     });
+    for (let s = 0; s < seasonCount; s++) {
+      const rain = seasonalRainfall[s];
+      const humid = seasonalHumidity[s];
+      if (!rain || !humid) continue;
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "hydrology.climate.rainfall",
+        variantKey: `season:${s}`,
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: rain,
+        meta: defineVizMeta("hydrology.climate.rainfall", {
+          label: `Rainfall (Season ${s + 1})`,
+          group: GROUP_SEASONALITY,
+          visibility: "debug",
+        }),
+      });
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "hydrology.climate.humidity",
+        variantKey: `season:${s}`,
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: humid,
+        meta: defineVizMeta("hydrology.climate.humidity", {
+          label: `Humidity (Season ${s + 1})`,
+          group: GROUP_SEASONALITY,
+          visibility: "debug",
+        }),
+      });
+    }
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.wind.windU",
+      dataTypeKey: "hydrology.wind.windU",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "i8",
       values: meanWindU,
@@ -568,7 +605,8 @@ export default createStep(ClimateBaselineStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.wind.windV",
+      dataTypeKey: "hydrology.wind.windV",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "i8",
       values: meanWindV,
@@ -579,7 +617,8 @@ export default createStep(ClimateBaselineStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.current.currentU",
+      dataTypeKey: "hydrology.current.currentU",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "i8",
       values: meanCurrentU,
@@ -590,7 +629,8 @@ export default createStep(ClimateBaselineStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.current.currentV",
+      dataTypeKey: "hydrology.current.currentV",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "i8",
       values: meanCurrentV,
@@ -600,6 +640,109 @@ export default createStep(ClimateBaselineStepContract, {
         visibility: "debug",
       }),
     });
+    {
+      const windMag = new Float32Array(width * height);
+      const currentMag = new Float32Array(width * height);
+      for (let i = 0; i < windMag.length; i++) {
+        const wu = Number(meanWindU[i] ?? 0);
+        const wv = Number(meanWindV[i] ?? 0);
+        const cu = Number(meanCurrentU[i] ?? 0);
+        const cv = Number(meanCurrentV[i] ?? 0);
+        windMag[i] = Math.hypot(wu, wv);
+        currentMag[i] = Math.hypot(cu, cv);
+      }
+
+      context.viz?.dumpGridFields(context.trace, {
+        dataTypeKey: "hydrology.wind.wind",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        fields: {
+          u: { format: "i8", values: meanWindU },
+          v: { format: "i8", values: meanWindV },
+          magnitude: { format: "f32", values: windMag },
+        },
+        vector: { u: "u", v: "v", magnitude: "magnitude" },
+        meta: defineVizMeta("hydrology.wind.wind", {
+          label: "Wind (Vector)",
+          group: GROUP_WIND,
+          role: "vector",
+          palette: "continuous",
+        }),
+      });
+
+      context.viz?.dumpGridFields(context.trace, {
+        dataTypeKey: "hydrology.current.current",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        fields: {
+          u: { format: "i8", values: meanCurrentU },
+          v: { format: "i8", values: meanCurrentV },
+          magnitude: { format: "f32", values: currentMag },
+        },
+        vector: { u: "u", v: "v", magnitude: "magnitude" },
+        meta: defineVizMeta("hydrology.current.current", {
+          label: "Current (Vector)",
+          group: GROUP_CURRENT,
+          role: "vector",
+          palette: "continuous",
+        }),
+      });
+
+      for (let s = 0; s < seasonCount; s++) {
+        const su = seasonalWindU[s];
+        const sv = seasonalWindV[s];
+        const cu = seasonalCurrentU[s];
+        const cv = seasonalCurrentV[s];
+        if (!su || !sv || !cu || !cv) continue;
+
+        const windSeasonMag = new Float32Array(width * height);
+        const currentSeasonMag = new Float32Array(width * height);
+        for (let i = 0; i < windSeasonMag.length; i++) {
+          windSeasonMag[i] = Math.hypot(Number(su[i] ?? 0), Number(sv[i] ?? 0));
+          currentSeasonMag[i] = Math.hypot(Number(cu[i] ?? 0), Number(cv[i] ?? 0));
+        }
+
+        context.viz?.dumpGridFields(context.trace, {
+          dataTypeKey: "hydrology.wind.wind",
+          variantKey: `season:${s}`,
+          spaceId: TILE_SPACE_ID,
+          dims: { width, height },
+          fields: {
+            u: { format: "i8", values: su },
+            v: { format: "i8", values: sv },
+            magnitude: { format: "f32", values: windSeasonMag },
+          },
+          vector: { u: "u", v: "v", magnitude: "magnitude" },
+          meta: defineVizMeta("hydrology.wind.wind", {
+            label: `Wind (Season ${s + 1})`,
+            group: GROUP_WIND,
+            role: "vector",
+            palette: "continuous",
+            visibility: "debug",
+          }),
+        });
+
+        context.viz?.dumpGridFields(context.trace, {
+          dataTypeKey: "hydrology.current.current",
+          variantKey: `season:${s}`,
+          spaceId: TILE_SPACE_ID,
+          dims: { width, height },
+          fields: {
+            u: { format: "i8", values: cu },
+            v: { format: "i8", values: cv },
+            magnitude: { format: "f32", values: currentSeasonMag },
+          },
+          vector: { u: "u", v: "v", magnitude: "magnitude" },
+          meta: defineVizMeta("hydrology.current.current", {
+            label: `Current (Season ${s + 1})`,
+            group: GROUP_CURRENT,
+            role: "vector",
+            palette: "continuous",
+            visibility: "debug",
+          }),
+        });
+      }
+    }
 
     for (let y = 0; y < height; y++) {
       const rowOffset = y * width;

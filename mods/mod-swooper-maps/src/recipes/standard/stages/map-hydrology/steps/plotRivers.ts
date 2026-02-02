@@ -13,6 +13,7 @@ import {
 import type { HydrologyRiverDensityKnob } from "@mapgen/domain/hydrology/shared/knobs.js";
 
 const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Projection)";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function clampInt(value: number, min: number, max: number): number {
   const int = Math.trunc(value);
@@ -47,7 +48,8 @@ export default createStep(PlotRiversStepContract, {
 
     // Projection-only visualization; engine rivers may differ from hydrology truth (mock adapter is best-effort).
     context.viz?.dumpGrid(context.trace, {
-      layerId: "map.hydrology.rivers.riverClass",
+      dataTypeKey: "map.hydrology.rivers.riverClass",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: hydrography.riverClass,
@@ -58,7 +60,8 @@ export default createStep(PlotRiversStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "map.hydrology.rivers.discharge",
+      dataTypeKey: "map.hydrology.rivers.discharge",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: hydrography.discharge,

@@ -68,11 +68,23 @@ export interface DataTypeOption {
   label: string;
 }
 
+/** Projection option - which coordinate space a data type is shown in */
+export interface ProjectionOption {
+  value: string;
+  label: string;
+}
+
 /** Render mode option (formerly "projection") - how data is rendered/transformed */
 export interface RenderModeOption {
   value: string;
   label: string;
   icon?: string;
+}
+
+/** Variant option - specific variant of a render mode */
+export interface VariantOption {
+  value: string;
+  label: string;
 }
 
 /** Knob options mapping - knob name to available values */

@@ -58,7 +58,8 @@ export default createStep(MeshStepContract, {
     deps.artifacts.foundationMesh.publish(context, meshResult.mesh);
 
     context.viz?.dumpPoints(context.trace, {
-      layerId: "foundation.mesh.sites",
+      dataTypeKey: "foundation.mesh.sites",
+      spaceId: "world.xy",
       positions: interleaveXY(meshResult.mesh.siteX, meshResult.mesh.siteY),
       values: meshResult.mesh.areas,
       valueFormat: "f32",
@@ -69,7 +70,8 @@ export default createStep(MeshStepContract, {
     });
 
     context.viz?.dumpSegments(context.trace, {
-      layerId: "foundation.mesh.edges",
+      dataTypeKey: "foundation.mesh.edges",
+      spaceId: "world.xy",
       segments: segmentsFromMeshNeighbors(
         meshResult.mesh.neighborsOffsets,
         meshResult.mesh.neighbors,

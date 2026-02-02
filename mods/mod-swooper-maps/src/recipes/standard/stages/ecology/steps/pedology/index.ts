@@ -5,6 +5,7 @@ import { validatePedologyArtifact } from "../../artifact-validation.js";
 import PedologyStepContract from "./contract.js";
 
 const GROUP_PEDOLOGY = "Ecology / Pedology";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(PedologyStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.pedology], {
@@ -30,7 +31,8 @@ export default createStep(PedologyStepContract, {
     );
 
     context.viz?.dumpGrid(context.trace, {
-      layerId: "ecology.pedology.soilType",
+      dataTypeKey: "ecology.pedology.soilType",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: result.soilType,
@@ -41,7 +43,8 @@ export default createStep(PedologyStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "ecology.pedology.fertility",
+      dataTypeKey: "ecology.pedology.fertility",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: result.fertility,

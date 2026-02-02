@@ -32,6 +32,8 @@ export interface TraceStepMeta {
 export interface TraceScope {
   runId: string;
   planFingerprint: string;
+  stepId: string;
+  phase?: string;
   level: TraceLevel;
   isEnabled: boolean;
   isVerbose: boolean;
@@ -54,6 +56,8 @@ export interface TraceSession {
 const NOOP_SCOPE: TraceScope = Object.freeze({
   runId: "",
   planFingerprint: "",
+  stepId: "",
+  phase: undefined,
   level: "off",
   isEnabled: false,
   isVerbose: false,
@@ -176,7 +180,7 @@ export function createTraceSession(options: TraceSessionOptions): TraceSession {
       emit({ kind: "step.event", ...meta, data: payload });
     };
 
-    return { runId, planFingerprint, level, isEnabled, isVerbose, event };
+    return { runId, planFingerprint, stepId: meta.stepId, phase: meta.phase, level, isEnabled, isVerbose, event };
   };
 
   return {

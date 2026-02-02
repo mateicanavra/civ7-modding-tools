@@ -12,6 +12,7 @@ import { interleaveXY, segmentsFromCellPairs } from "./viz.js";
 
 const GROUP_TECTONICS = "Foundation / Tectonics";
 const GROUP_TECTONIC_HISTORY = "Foundation / Tectonic History";
+const WORLD_SPACE_ID = "world.xy" as const;
 
 export default createStep(TectonicsStepContract, {
   artifacts: implementArtifacts(
@@ -57,7 +58,8 @@ export default createStep(TectonicsStepContract, {
 
     const positions = interleaveXY(mesh.siteX, mesh.siteY);
     context.viz?.dumpPoints(context.trace, {
-      layerId: "foundation.tectonics.boundaryType",
+      dataTypeKey: "foundation.tectonics.boundaryType",
+      spaceId: WORLD_SPACE_ID,
       positions,
       values: historyResult.tectonics.boundaryType,
       valueFormat: "u8",
@@ -73,7 +75,8 @@ export default createStep(TectonicsStepContract, {
       }),
     });
     context.viz?.dumpPoints(context.trace, {
-      layerId: "foundation.tectonics.upliftPotential",
+      dataTypeKey: "foundation.tectonics.upliftPotential",
+      spaceId: WORLD_SPACE_ID,
       positions,
       values: historyResult.tectonics.upliftPotential,
       valueFormat: "u8",
@@ -83,7 +86,8 @@ export default createStep(TectonicsStepContract, {
       }),
     });
     context.viz?.dumpPoints(context.trace, {
-      layerId: "foundation.tectonics.riftPotential",
+      dataTypeKey: "foundation.tectonics.riftPotential",
+      spaceId: WORLD_SPACE_ID,
       positions,
       values: historyResult.tectonics.riftPotential,
       valueFormat: "u8",
@@ -93,7 +97,8 @@ export default createStep(TectonicsStepContract, {
       }),
     });
     context.viz?.dumpPoints(context.trace, {
-      layerId: "foundation.tectonics.shearStress",
+      dataTypeKey: "foundation.tectonics.shearStress",
+      spaceId: WORLD_SPACE_ID,
       positions,
       values: historyResult.tectonics.shearStress,
       valueFormat: "u8",
@@ -103,7 +108,8 @@ export default createStep(TectonicsStepContract, {
       }),
     });
     context.viz?.dumpPoints(context.trace, {
-      layerId: "foundation.tectonics.volcanism",
+      dataTypeKey: "foundation.tectonics.volcanism",
+      spaceId: WORLD_SPACE_ID,
       positions,
       values: historyResult.tectonics.volcanism,
       valueFormat: "u8",
@@ -113,7 +119,8 @@ export default createStep(TectonicsStepContract, {
       }),
     });
     context.viz?.dumpPoints(context.trace, {
-      layerId: "foundation.tectonics.fracture",
+      dataTypeKey: "foundation.tectonics.fracture",
+      spaceId: WORLD_SPACE_ID,
       positions,
       values: historyResult.tectonics.fracture,
       valueFormat: "u8",
@@ -124,7 +131,8 @@ export default createStep(TectonicsStepContract, {
     });
 
     context.viz?.dumpSegments(context.trace, {
-      layerId: "foundation.tectonics.segmentRegime",
+      dataTypeKey: "foundation.tectonics.segmentRegime",
+      spaceId: WORLD_SPACE_ID,
       segments: segmentsFromCellPairs(
         segmentsResult.segments.aCell,
         segmentsResult.segments.bCell,
@@ -140,7 +148,8 @@ export default createStep(TectonicsStepContract, {
     });
 
     context.viz?.dumpSegments(context.trace, {
-      layerId: "foundation.tectonics.segmentCompression",
+      dataTypeKey: "foundation.tectonics.segmentCompression",
+      spaceId: WORLD_SPACE_ID,
       segments: segmentsFromCellPairs(
         segmentsResult.segments.aCell,
         segmentsResult.segments.bCell,
@@ -156,7 +165,8 @@ export default createStep(TectonicsStepContract, {
     });
 
     context.viz?.dumpSegments(context.trace, {
-      layerId: "foundation.tectonics.segmentExtension",
+      dataTypeKey: "foundation.tectonics.segmentExtension",
+      spaceId: WORLD_SPACE_ID,
       segments: segmentsFromCellPairs(
         segmentsResult.segments.aCell,
         segmentsResult.segments.bCell,
@@ -172,7 +182,8 @@ export default createStep(TectonicsStepContract, {
     });
 
     context.viz?.dumpSegments(context.trace, {
-      layerId: "foundation.tectonics.segmentShear",
+      dataTypeKey: "foundation.tectonics.segmentShear",
+      spaceId: WORLD_SPACE_ID,
       segments: segmentsFromCellPairs(
         segmentsResult.segments.aCell,
         segmentsResult.segments.bCell,
@@ -188,7 +199,8 @@ export default createStep(TectonicsStepContract, {
     });
 
     context.viz?.dumpSegments(context.trace, {
-      layerId: "foundation.tectonics.segmentVolcanism",
+      dataTypeKey: "foundation.tectonics.segmentVolcanism",
+      spaceId: WORLD_SPACE_ID,
       segments: segmentsFromCellPairs(
         segmentsResult.segments.aCell,
         segmentsResult.segments.bCell,
@@ -204,7 +216,8 @@ export default createStep(TectonicsStepContract, {
     });
 
     context.viz?.dumpPoints(context.trace, {
-      layerId: "foundation.tectonicHistory.upliftTotal",
+      dataTypeKey: "foundation.tectonicHistory.upliftTotal",
+      spaceId: WORLD_SPACE_ID,
       positions,
       values: historyResult.tectonicHistory.upliftTotal,
       valueFormat: "u8",
@@ -214,7 +227,8 @@ export default createStep(TectonicsStepContract, {
       }),
     });
     context.viz?.dumpPoints(context.trace, {
-      layerId: "foundation.tectonicHistory.fractureTotal",
+      dataTypeKey: "foundation.tectonicHistory.fractureTotal",
+      spaceId: WORLD_SPACE_ID,
       positions,
       values: historyResult.tectonicHistory.fractureTotal,
       valueFormat: "u8",
@@ -224,7 +238,8 @@ export default createStep(TectonicsStepContract, {
       }),
     });
     context.viz?.dumpPoints(context.trace, {
-      layerId: "foundation.tectonicHistory.volcanismTotal",
+      dataTypeKey: "foundation.tectonicHistory.volcanismTotal",
+      spaceId: WORLD_SPACE_ID,
       positions,
       values: historyResult.tectonicHistory.volcanismTotal,
       valueFormat: "u8",
@@ -234,7 +249,8 @@ export default createStep(TectonicsStepContract, {
       }),
     });
     context.viz?.dumpPoints(context.trace, {
-      layerId: "foundation.tectonicHistory.upliftRecentFraction",
+      dataTypeKey: "foundation.tectonicHistory.upliftRecentFraction",
+      spaceId: WORLD_SPACE_ID,
       positions,
       values: historyResult.tectonicHistory.upliftRecentFraction,
       valueFormat: "u8",
@@ -244,7 +260,8 @@ export default createStep(TectonicsStepContract, {
       }),
     });
     context.viz?.dumpPoints(context.trace, {
-      layerId: "foundation.tectonicHistory.lastActiveEra",
+      dataTypeKey: "foundation.tectonicHistory.lastActiveEra",
+      spaceId: WORLD_SPACE_ID,
       positions,
       values: historyResult.tectonicHistory.lastActiveEra,
       valueFormat: "u8",
@@ -263,7 +280,8 @@ export default createStep(TectonicsStepContract, {
       const eraGroup = `${GROUP_TECTONIC_HISTORY} / ${eraLabel}`;
 
       context.viz?.dumpPoints(context.trace, {
-        layerId: `${prefix}.boundaryType`,
+        dataTypeKey: `${prefix}.boundaryType`,
+        spaceId: WORLD_SPACE_ID,
         positions,
         values: era.boundaryType,
         valueFormat: "u8",
@@ -279,7 +297,8 @@ export default createStep(TectonicsStepContract, {
         }),
       });
       context.viz?.dumpPoints(context.trace, {
-        layerId: `${prefix}.upliftPotential`,
+        dataTypeKey: `${prefix}.upliftPotential`,
+        spaceId: WORLD_SPACE_ID,
         positions,
         values: era.upliftPotential,
         valueFormat: "u8",
@@ -289,7 +308,8 @@ export default createStep(TectonicsStepContract, {
         }),
       });
       context.viz?.dumpPoints(context.trace, {
-        layerId: `${prefix}.riftPotential`,
+        dataTypeKey: `${prefix}.riftPotential`,
+        spaceId: WORLD_SPACE_ID,
         positions,
         values: era.riftPotential,
         valueFormat: "u8",
@@ -299,7 +319,8 @@ export default createStep(TectonicsStepContract, {
         }),
       });
       context.viz?.dumpPoints(context.trace, {
-        layerId: `${prefix}.shearStress`,
+        dataTypeKey: `${prefix}.shearStress`,
+        spaceId: WORLD_SPACE_ID,
         positions,
         values: era.shearStress,
         valueFormat: "u8",
@@ -309,7 +330,8 @@ export default createStep(TectonicsStepContract, {
         }),
       });
       context.viz?.dumpPoints(context.trace, {
-        layerId: `${prefix}.volcanism`,
+        dataTypeKey: `${prefix}.volcanism`,
+        spaceId: WORLD_SPACE_ID,
         positions,
         values: era.volcanism,
         valueFormat: "u8",
@@ -319,7 +341,8 @@ export default createStep(TectonicsStepContract, {
         }),
       });
       context.viz?.dumpPoints(context.trace, {
-        layerId: `${prefix}.fracture`,
+        dataTypeKey: `${prefix}.fracture`,
+        spaceId: WORLD_SPACE_ID,
         positions,
         values: era.fracture,
         valueFormat: "u8",

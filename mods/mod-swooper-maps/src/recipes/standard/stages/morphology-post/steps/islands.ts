@@ -4,6 +4,7 @@ import IslandsStepContract from "./islands.contract.js";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 
 const GROUP_ISLANDS = "Morphology / Islands";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function clampInt16(value: number): number {
   if (value > 32767) return 32767;
@@ -61,7 +62,8 @@ export default createStep(IslandsStepContract, {
     }
 
     context.viz?.dumpGrid(context.trace, {
-      layerId: "morphology.islands.editMask",
+      dataTypeKey: "morphology.islands.editMask",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: editMask,

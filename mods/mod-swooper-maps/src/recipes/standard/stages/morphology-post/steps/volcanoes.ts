@@ -14,6 +14,7 @@ type ArtifactValidationIssue = Readonly<{ message: string }>;
 type VolcanoKind = "subductionArc" | "rift" | "hotspot";
 
 const GROUP_VOLCANOES = "Morphology / Volcanoes";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -140,7 +141,8 @@ export default createStep(VolcanoesStepContract, {
     });
 
     context.viz?.dumpGrid(context.trace, {
-      layerId: "morphology.volcanoes.volcanoMask",
+      dataTypeKey: "morphology.volcanoes.volcanoMask",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: volcanoMask,
@@ -160,14 +162,14 @@ export default createStep(VolcanoesStepContract, {
       strengths[i] = entry.strength01;
     }
     context.viz?.dumpPoints(context.trace, {
-      layerId: "morphology.volcanoes.points",
+      dataTypeKey: "morphology.volcanoes.points",
+      spaceId: TILE_SPACE_ID,
       positions,
       values: strengths,
       valueFormat: "f32",
       meta: defineVizMeta("morphology.volcanoes.points", {
         label: "Volcano Points",
         group: GROUP_VOLCANOES,
-        space: "tile",
       }),
     });
 

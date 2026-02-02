@@ -4,6 +4,7 @@ import PlotContinentsStepContract from "./plotContinents.contract.js";
 import { assertNoWaterDrift } from "./assertions.js";
 
 const GROUP_MAP_PROJECTION = "Morphology / Map Projection";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(PlotContinentsStepContract, {
   run: (context, _config, _ops, deps) => {
@@ -17,7 +18,8 @@ export default createStep(PlotContinentsStepContract, {
     syncHeightfield(context);
     const heightfield = context.buffers.heightfield;
     context.viz?.dumpGrid(context.trace, {
-      layerId: "map.morphology.continents.landMask",
+      dataTypeKey: "map.morphology.continents.landMask",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: heightfield.landMask,

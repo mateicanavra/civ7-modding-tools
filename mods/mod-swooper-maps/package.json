@@ -27,9 +27,7 @@
     "build:studio-recipes": "tsup --config tsup.studio-recipes.config.ts && bun run gen:studio-recipes-types",
     "gen:studio-recipes-types": "bun ./scripts/generate-studio-recipe-types.ts",
     "lint": "eslint .",
-    "precheck": "bun run --cwd ../../packages/mapgen-core build",
     "check": "tsc --noEmit",
-    "pretest": "bun run --cwd ../../packages/mapgen-core build",
     "test": "bun test",
     "viz:foundation": "bun ./src/dev/viz/foundation-run.ts",
     "deploy": "bun run build && bun run --filter @mateicanavra/civ7-cli dev -- mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps"

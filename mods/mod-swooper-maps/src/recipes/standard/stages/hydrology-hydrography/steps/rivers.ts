@@ -13,6 +13,7 @@ import type { HydrologyRiverDensityKnob } from "@mapgen/domain/hydrology/shared/
 type ArtifactValidationIssue = Readonly<{ message: string }>;
 
 const GROUP_HYDROGRAPHY = "Hydrology / Hydrography";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function expectedSize(dimensions: MapDimensions): number {
   return Math.max(0, (dimensions.width | 0) * (dimensions.height | 0));
@@ -167,7 +168,8 @@ export default createStep(RiversStepContract, {
     });
 
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.hydrography.runoff",
+      dataTypeKey: "hydrology.hydrography.runoff",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: discharge.runoff,
@@ -177,7 +179,8 @@ export default createStep(RiversStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.hydrography.discharge",
+      dataTypeKey: "hydrology.hydrography.discharge",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: discharge.discharge,
@@ -187,7 +190,8 @@ export default createStep(RiversStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.hydrography.riverClass",
+      dataTypeKey: "hydrology.hydrography.riverClass",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: projected.riverClass,
@@ -198,7 +202,8 @@ export default createStep(RiversStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.hydrography.sinkMask",
+      dataTypeKey: "hydrology.hydrography.sinkMask",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: discharge.sinkMask,
@@ -209,7 +214,8 @@ export default createStep(RiversStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      layerId: "hydrology.hydrography.outletMask",
+      dataTypeKey: "hydrology.hydrography.outletMask",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: discharge.outletMask,

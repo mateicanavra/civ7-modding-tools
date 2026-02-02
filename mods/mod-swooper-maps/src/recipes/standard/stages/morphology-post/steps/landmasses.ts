@@ -6,6 +6,7 @@ import LandmassesStepContract from "./landmasses.contract.js";
 type ArtifactValidationIssue = Readonly<{ message: string }>;
 
 const GROUP_LANDMASSES = "Morphology / Landmasses";
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -68,7 +69,8 @@ export default createStep(LandmassesStepContract, {
     );
 
     context.viz?.dumpGrid(context.trace, {
-      layerId: "morphology.landmasses.landmassIdByTile",
+      dataTypeKey: "morphology.landmasses.landmassIdByTile",
+      spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "i32",
       values: snapshot.landmassIdByTile,
