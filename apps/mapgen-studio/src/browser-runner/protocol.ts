@@ -18,6 +18,12 @@ export type BrowserRunStartRequest = {
   dimensions: { width: number; height: number };
   latitudeBounds: { topLatitude: number; bottomLatitude: number };
   /**
+   * Studio-only "world settings" used when running outside the Civ7 engine.
+   * These are translated into mock MapInfo values inside the worker.
+   */
+  playerCount?: number;
+  resourcesMode?: "balanced" | "strategic";
+  /**
    * Recipe-specific override payload. Treated as unknown at the protocol boundary
    * to keep the runner engine decoupled from any given recipe runtime.
    */

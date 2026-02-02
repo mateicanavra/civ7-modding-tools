@@ -159,6 +159,9 @@ async function runRecipe(
     mapInfo: {
       GridWidth: dimensions.width,
       GridHeight: dimensions.height,
+      PlayersLandmass1: request.playerCount ?? 4,
+      PlayersLandmass2: request.playerCount ?? 4,
+      StudioResourcesMode: request.resourcesMode ?? "balanced",
     },
     rng: createLabelRng(seed),
     terrainTypeIndices: { ...CIV7_BROWSER_TABLES_V0.terrainTypeIndices },
