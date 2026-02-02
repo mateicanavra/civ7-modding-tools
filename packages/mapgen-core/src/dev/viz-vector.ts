@@ -47,6 +47,12 @@ export type VectorFieldVariantsOptions = Readonly<{
     /** Whether to hide arrows behind debug; defaults to false. */
     debugOnly?: boolean;
   };
+  points?: {
+    /** Sample step in tile space; defaults to `computeSampleStep(width,height)`. */
+    sampleStep?: number;
+    /** Whether to hide points behind debug; defaults to false. */
+    debugOnly?: boolean;
+  };
 }>;
 
 /**
@@ -192,4 +198,57 @@ export function dumpVectorFieldVariants(
       description: `Arrow segments sampled every ${step} tiles; max vector magnitude normalized to ~${maxArrowLenTiles.toFixed(2)} tiles.`,
     }),
   });
+
+  const points = options.points;
+  const pointsVis = points?.debugOnly ? "debug" : visibility;
+  if (pointsVis === "hidden") return;
+
+  // Only emit sampled points for tile spaces; for other spaces, there is no
+  // guarantee that (x,y) indices map to a stable coordinate system.
+  if (typeof spaceId === "string" && spaceId.startsWith("tile.")) {
+    const stepP = computeSampleStep(width, height, points?.sampleStep);
+
+    let countP = 0;
+    for (let y = 0; y < height; y += stepP) {
+      const rowOffset = y * width;
+      for (let x = 0; x < width; x += stepP) {
+        const i = rowOffset + x;
+        if (i < 0 || i >= n) continue;
+        countP += 1;
+      }
+    }
+
+    const positions = new Float32Array(countP * 2);
+    const valuesP = new Float32Array(countP);
+    let k = 0;
+    for (let y = 0; y < height; y += stepP) {
+      const rowOffset = y * width;
+      for (let x = 0; x < width; x += stepP) {
+        const i = rowOffset + x;
+        if (i < 0 || i >= n) continue;
+        const base = k * 2;
+        positions[base] = x;
+        positions[base + 1] = y;
+        valuesP[k] = Number((magValues as any)[i] ?? 0);
+        k += 1;
+      }
+    }
+
+    viz.dumpPoints(trace, {
+      dataTypeKey,
+      variantKey,
+      spaceId,
+      positions,
+      values: valuesP,
+      valueFormat: "f32",
+      meta: defineVizMeta(dataTypeKey, {
+        label: options.label,
+        group: options.group,
+        role: "centroids",
+        palette,
+        visibility: pointsVis,
+        description: `Sampled every ${stepP} tiles from the vector magnitude for an alternate point-based view.`,
+      }),
+    });
+  }
 }
