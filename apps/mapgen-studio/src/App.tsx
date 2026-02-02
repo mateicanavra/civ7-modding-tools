@@ -199,6 +199,7 @@ function AppContent(props: AppContentProps) {
     onError: (e) => setLocalError(formatErrorForUi(e)),
   });
   vizIngestRef.current = viz.ingest;
+  const hasEverSeenVizManifestRef = useRef(false);
 
   useEffect(() => {
     if (!dumpManifest) return;
@@ -207,9 +208,16 @@ function AppContent(props: AppContentProps) {
     setSelectedStageId(viz.pipelineStages[0]?.stageId ?? "");
     setSelectedStepId(firstStep ?? "");
     viz.setSelectedLayerKey(null);
-    deckApiRef.current?.resetView();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dumpManifest]);
+
+  useEffect(() => {
+    if (!viz.manifest) return;
+    if (hasEverSeenVizManifestRef.current) return;
+    if (!viz.activeBounds) return;
+    deckApiRef.current?.fitToBounds(viz.activeBounds);
+    hasEverSeenVizManifestRef.current = true;
+  }, [viz.activeBounds, viz.manifest]);
 
   const error =
     localError ??
@@ -499,17 +507,15 @@ function AppContent(props: AppContentProps) {
           }}
         />
       ) : null}
-      {viz.manifest ? (
-        <DeckCanvas
-          apiRef={deckApiRef}
-          layers={viz.deck.layers}
-          effectiveLayer={viz.effectiveLayer}
-          viewportSize={viewportSize}
-          showBackgroundGrid={false}
-          lightMode={isLightMode}
-          activeBounds={viz.activeBounds}
-        />
-      ) : null}
+      <DeckCanvas
+        apiRef={deckApiRef}
+        layers={viz.deck.layers}
+        effectiveLayer={viz.effectiveLayer}
+        viewportSize={viewportSize}
+        showBackgroundGrid={false}
+        lightMode={isLightMode}
+        activeBounds={viz.activeBounds}
+      />
       {!viz.manifest ? (
         <div className="absolute inset-0 flex items-center justify-center text-[12px] text-[#7a7a8c]">
           {worldSettings.mode === "browser" ? "Click Run to generate a map" : "Open a dump folder to replay a run"}
