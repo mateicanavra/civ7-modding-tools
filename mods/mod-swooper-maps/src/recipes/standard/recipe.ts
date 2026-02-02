@@ -41,6 +41,8 @@ const stages = [
   placement,
 ] as const;
 
+export const STANDARD_STAGES = stages;
+
 export type StandardRecipeConfig = RecipeConfigInputOf<typeof stages>;
 export type StandardRecipeCompiledConfig = CompiledRecipeConfigOf<typeof stages>;
 

@@ -7,6 +7,8 @@ import { STANDARD_TAG_DEFINITIONS } from "../standard/tags.js";
 const NAMESPACE = "mod-swooper-maps";
 const stages = [foundation] as const;
 
+export const BROWSER_TEST_STAGES = stages;
+
 export type BrowserTestRecipeConfig = RecipeConfigInputOf<typeof stages>;
 export type BrowserTestRecipeCompiledConfig = CompiledRecipeConfigOf<typeof stages>;
 export type BrowserTestFoundationStageConfig = NonNullable<BrowserTestRecipeConfig["foundation"]>;

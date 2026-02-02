@@ -1,5 +1,22 @@
 export type StudioRecipeId = string;
 
+export type StudioRecipeUiMeta = Readonly<{
+  namespace: string;
+  recipeId: string;
+  stages: ReadonlyArray<
+    Readonly<{
+      stageId: string;
+      steps: ReadonlyArray<
+        Readonly<{
+          stepId: string;
+          fullStepId: string;
+          configFocusPathWithinStage: ReadonlyArray<string>;
+        }>
+      >;
+    }>
+  >;
+}>;
+
 export type RecipeArtifacts = {
   id: StudioRecipeId;
   label: string;
@@ -15,6 +32,13 @@ export type RecipeArtifacts = {
    * Treated as unknown by Studio so each recipe controls its config shape.
    */
   defaultConfig: unknown;
+  /**
+   * UI-facing meta derived from the authored recipe/stage source at build time.
+   *
+   * - stages/steps are for view/navigation (no pipeline semantics changes)
+   * - config focus paths are for pre-generation editing focus
+   */
+  uiMeta: StudioRecipeUiMeta;
 };
 
 export type RecipeOption = { id: StudioRecipeId; label: string };
@@ -28,10 +52,12 @@ function makeRecipeId(namespace: string, recipeId: string): StudioRecipeId {
 import {
   STANDARD_RECIPE_CONFIG as swooperStandardDefaultConfig,
   STANDARD_RECIPE_CONFIG_SCHEMA as swooperStandardConfigSchema,
+  studioRecipeUiMeta as swooperStandardUiMeta,
 } from "mod-swooper-maps/recipes/standard-artifacts";
 import {
   BROWSER_TEST_RECIPE_CONFIG as swooperBrowserTestDefaultConfig,
   BROWSER_TEST_RECIPE_CONFIG_SCHEMA as swooperBrowserTestConfigSchema,
+  studioRecipeUiMeta as swooperBrowserTestUiMeta,
 } from "mod-swooper-maps/recipes/browser-test-artifacts";
 
 export const STUDIO_RECIPE_ARTIFACTS: readonly RecipeArtifacts[] = [
@@ -40,12 +66,14 @@ export const STUDIO_RECIPE_ARTIFACTS: readonly RecipeArtifacts[] = [
     label: "Swooper Maps / Standard",
     configSchema: swooperStandardConfigSchema,
     defaultConfig: swooperStandardDefaultConfig,
+    uiMeta: swooperStandardUiMeta,
   },
   {
     id: makeRecipeId("mod-swooper-maps", "browser-test"),
     label: "Swooper Maps / Browser Test",
     configSchema: swooperBrowserTestConfigSchema,
     defaultConfig: swooperBrowserTestDefaultConfig,
+    uiMeta: swooperBrowserTestUiMeta,
   },
 ] as const;
 
@@ -61,4 +89,3 @@ export function getRecipeArtifacts(recipeId: StudioRecipeId): RecipeArtifacts {
   if (!recipe) throw new Error(`Unknown recipeId: ${recipeId}`);
   return recipe;
 }
-
