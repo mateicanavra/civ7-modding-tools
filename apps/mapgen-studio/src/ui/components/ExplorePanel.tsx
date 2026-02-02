@@ -9,8 +9,6 @@ import React, { useEffect, useState } from 'react';
 import {
   Compass,
   GitBranch,
-  ChevronLeft,
-  ChevronRight,
   ChevronDown,
   Maximize,
   Layers,
@@ -65,6 +63,10 @@ export interface ExplorePanelProps {
   onShowEdgesChange: (show: boolean) => void;
   /** Callback when fit view is requested */
   onFitView: () => void;
+  /** Whether the stage list is expanded (optional controlled mode) */
+  stageExpanded?: boolean;
+  /** Callback when stageExpanded changes (optional controlled mode) */
+  onStageExpandedChange?: (expanded: boolean) => void;
 }
 // ============================================================================
 // Component
@@ -85,9 +87,16 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   lightMode,
   showEdges,
   onShowEdgesChange,
-  onFitView
+  onFitView,
+  stageExpanded: stageExpandedProp,
+  onStageExpandedChange
 }) => {
-  const [isStageExpanded, setIsStageExpanded] = useState(true);
+  const [localStageExpanded, setLocalStageExpanded] = useState(true);
+  const isStageExpanded = stageExpandedProp ?? localStageExpanded;
+  const setIsStageExpanded = (next: boolean) => {
+    onStageExpandedChange?.(next);
+    if (stageExpandedProp === undefined) setLocalStageExpanded(next);
+  };
   const currentStageIndex = stages.findIndex((s) => s.value === selectedStage);
   const currentStage = stages[currentStageIndex];
   // Auto-select data type when only one is available
@@ -102,18 +111,6 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   // ==========================================================================
   // Handlers
   // ==========================================================================
-  const handlePrevStage = () => {
-    if (currentStageIndex > 0) {
-      onSelectedStageChange(stages[currentStageIndex - 1].value);
-      setIsStageExpanded(false);
-    }
-  };
-  const handleNextStage = () => {
-    if (currentStageIndex < stages.length - 1) {
-      onSelectedStageChange(stages[currentStageIndex + 1].value);
-      setIsStageExpanded(false);
-    }
-  };
   const handleSelectStage = (stageValue: string) => {
     onSelectedStageChange(stageValue);
     setIsStageExpanded(false);
@@ -144,9 +141,6 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   const stepItemInactive = lightMode ?
   'border-transparent text-[#6b7280] hover:bg-gray-50 hover:text-[#1f2937]' :
   'border-transparent text-[#8a8a96] hover:bg-[#1a1a1f] hover:text-[#e8e8ed]';
-  const navBtn = lightMode ?
-  'p-1 rounded text-[#6b7280] hover:bg-gray-100 hover:text-[#1f2937] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent shrink-0' :
-  'p-1 rounded text-[#8a8a96] hover:bg-[#1a1a1f] hover:text-[#e8e8ed] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent shrink-0';
   const iconBtn = `h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 ${lightMode ? 'text-[#6b7280] hover:text-[#1f2937] hover:bg-gray-100' : 'text-[#8a8a96] hover:text-[#e8e8ed] hover:bg-[#1a1a1f]'}`;
   const iconBtnActive = `h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 ${lightMode ? 'text-[#1f2937] bg-gray-200' : 'text-[#e8e8ed] bg-[#222228]'}`;
   const stageBadge = (isActive: boolean) => `
@@ -198,15 +192,6 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
 
         <div className="flex items-center gap-1 px-2 py-2 overflow-hidden">
             <button
-            onClick={handlePrevStage}
-            disabled={currentStageIndex <= 0}
-            className={navBtn}
-            title="Previous stage">
-
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-
-            <button
             onClick={() => setIsStageExpanded(true)}
             className={`flex-1 min-w-0 flex items-center justify-between gap-2 px-2 py-1 rounded transition-colors overflow-hidden ${hoverBg}`}
             title="Click to show all stages">
@@ -222,15 +207,6 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
                 </span>
               </div>
               <ChevronDown className={`w-3.5 h-3.5 shrink-0 ${textMuted}`} />
-            </button>
-
-            <button
-            onClick={handleNextStage}
-            disabled={currentStageIndex >= stages.length - 1}
-            className={navBtn}
-            title="Next stage">
-
-              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         }
