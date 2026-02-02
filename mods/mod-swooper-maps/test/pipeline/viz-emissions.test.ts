@@ -179,6 +179,12 @@ describe("standard pipeline viz emissions", () => {
     expect(fertilityMetas?.some((m) => m?.visibility === "default")).toBe(true);
     expect(fertilityMetas?.some((m) => m?.visibility === "default" && m?.role === "centroids")).toBe(true);
 
+    const sectorMetas = metasByKey.get("placement.starts.sectorId") as any[] | undefined;
+    expect(sectorMetas?.some((m) => m?.visibility === "debug")).toBe(true);
+
+    const startMetas = metasByKey.get("placement.starts.startPosition") as any[] | undefined;
+    expect(startMetas?.some((m) => m?.visibility === "default" && m?.role === "membership")).toBe(true);
+
     const rainfallAmpMetas = metasByKey.get("hydrology.climate.seasonality.rainfallAmplitude") as any[] | undefined;
     expect(rainfallAmpMetas?.some((m) => m?.visibility === "default")).toBe(true);
 
