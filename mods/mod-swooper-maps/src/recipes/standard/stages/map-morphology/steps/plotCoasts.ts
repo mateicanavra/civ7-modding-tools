@@ -3,7 +3,7 @@ import { createStep } from "@swooper/mapgen-core/authoring";
 import PlotCoastsStepContract from "./plotCoasts.contract.js";
 import { assertNoWaterDrift } from "./assertions.js";
 
-const GROUP_MAP_PROJECTION = "Morphology / Map Projection";
+const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(PlotCoastsStepContract, {
@@ -22,7 +22,7 @@ export default createStep(PlotCoastsStepContract, {
 
     context.adapter.expandCoasts(width, height);
 
-    // NOTE: Projection layers use morphology coastline metrics pre-expandCoasts (not 1:1 with engine terrain).
+    // NOTE: Map-stage layers use morphology coastline metrics pre-expandCoasts (not 1:1 with engine terrain).
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "map.morphology.coasts.coastalLand",
       spaceId: TILE_SPACE_ID,
@@ -30,8 +30,8 @@ export default createStep(PlotCoastsStepContract, {
       format: "u8",
       values: coastlineMetrics.coastalLand,
       meta: defineVizMeta("map.morphology.coasts.coastalLand", {
-        label: "Coastal Land (Projection)",
-        group: GROUP_MAP_PROJECTION,
+        label: "Coastal Land (Coastline Metrics)",
+        group: GROUP_MAP_MORPHOLOGY,
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -41,8 +41,8 @@ export default createStep(PlotCoastsStepContract, {
       format: "u8",
       values: coastlineMetrics.coastalWater,
       meta: defineVizMeta("map.morphology.coasts.coastalWater", {
-        label: "Coastal Water (Projection)",
-        group: GROUP_MAP_PROJECTION,
+        label: "Coastal Water (Coastline Metrics)",
+        group: GROUP_MAP_MORPHOLOGY,
       }),
     });
 

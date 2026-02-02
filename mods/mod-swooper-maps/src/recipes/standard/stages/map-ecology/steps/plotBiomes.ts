@@ -44,7 +44,7 @@ export default createStep(PlotBiomesStepContract, {
       }
     }
 
-    // Projection-only visualization; engine biomes may differ from ecology truth (mock adapter is best-effort).
+    // Map-stage visualization: engine biomes are best-effort bindings of ecology truth (not 1:1).
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "map.ecology.biomeId",
       spaceId: TILE_SPACE_ID,

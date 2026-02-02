@@ -5,7 +5,7 @@ import LakesStepContract from "./lakes.contract.js";
 import { HYDROLOGY_LAKEINESS_TILES_PER_LAKE_MULTIPLIER } from "@mapgen/domain/hydrology/shared/knob-multipliers.js";
 import type { HydrologyLakeinessKnob } from "@mapgen/domain/hydrology/shared/knobs.js";
 
-const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Projection)";
+const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(LakesStepContract, {
@@ -26,7 +26,7 @@ export default createStep(LakesStepContract, {
     const baseTilesPerLake = Math.max(10, (runtime.mapInfo.LakeGenerationFrequency ?? 5) * 2);
     const tilesPerLake = Math.max(10, Math.round(baseTilesPerLake * config.tilesPerLakeMultiplier));
 
-    // Projection-only visualization; engine lakes may differ from hydrology sink/outlet masks.
+    // Map-stage visualization: hydrology sink/outlet masks are inputs to engine lake generation (not 1:1 with engine results).
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "map.hydrology.lakes.sinkMask",
       spaceId: TILE_SPACE_ID,
@@ -34,7 +34,7 @@ export default createStep(LakesStepContract, {
       format: "u8",
       values: hydrography.sinkMask,
       meta: defineVizMeta("map.hydrology.lakes.sinkMask", {
-        label: "Lake Sinks (Projected)",
+        label: "Lake Sinks (Hydrology)",
         group: GROUP_MAP_HYDROLOGY,
         palette: "categorical",
       }),
@@ -46,7 +46,7 @@ export default createStep(LakesStepContract, {
       format: "u8",
       values: hydrography.outletMask,
       meta: defineVizMeta("map.hydrology.lakes.outletMask", {
-        label: "Lake Outlets (Projected)",
+        label: "Lake Outlets (Hydrology)",
         group: GROUP_MAP_HYDROLOGY,
         palette: "categorical",
         visibility: "debug",

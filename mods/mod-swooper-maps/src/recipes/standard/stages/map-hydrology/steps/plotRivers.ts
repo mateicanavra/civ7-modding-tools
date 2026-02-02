@@ -12,7 +12,7 @@ import {
 } from "@mapgen/domain/hydrology/shared/knob-multipliers.js";
 import type { HydrologyRiverDensityKnob } from "@mapgen/domain/hydrology/shared/knobs.js";
 
-const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Projection)";
+const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function clampInt(value: number, min: number, max: number): number {
@@ -46,7 +46,7 @@ export default createStep(PlotRiversStepContract, {
     const hydrography = deps.artifacts.hydrography.read(context);
     const { width, height } = context.dimensions;
 
-    // Projection-only visualization; engine rivers may differ from hydrology truth (mock adapter is best-effort).
+    // Map-stage visualization: hydrology river fields are inputs to engine river modeling (not 1:1 with engine results).
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "map.hydrology.rivers.riverClass",
       spaceId: TILE_SPACE_ID,
@@ -54,7 +54,7 @@ export default createStep(PlotRiversStepContract, {
       format: "u8",
       values: hydrography.riverClass,
       meta: defineVizMeta("map.hydrology.rivers.riverClass", {
-        label: "River Class (Projected)",
+        label: "River Class (Hydrology)",
         group: GROUP_MAP_HYDROLOGY,
         palette: "categorical",
       }),
@@ -66,7 +66,7 @@ export default createStep(PlotRiversStepContract, {
       format: "f32",
       values: hydrography.discharge,
       meta: defineVizMeta("map.hydrology.rivers.discharge", {
-        label: "River Discharge (Projected)",
+        label: "River Discharge (Hydrology)",
         group: GROUP_MAP_HYDROLOGY,
         visibility: "debug",
       }),

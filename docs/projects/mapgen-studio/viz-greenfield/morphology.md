@@ -91,7 +91,7 @@ The groups below correspond to `layer.meta.group` as emitted by the pipeline.
 **Debug**
 - `morphology.geomorphology.deltaMask`, `morphology.geomorphology.bathymetry` and other comparison grids.
 
-### Morphology / Map Projection (map-stage consumer views)
+### Map / Morphology (Engine) (map-stage consumer views)
 
 These are “map-stage” emissions that project morphology outputs into engine-facing constraints.
 
@@ -119,4 +119,3 @@ This spec is intended to match the standard recipe emissions under:
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/**`
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-post/**`
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/**`
-

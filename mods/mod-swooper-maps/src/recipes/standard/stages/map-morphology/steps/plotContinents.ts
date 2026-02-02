@@ -3,7 +3,7 @@ import { createStep } from "@swooper/mapgen-core/authoring";
 import PlotContinentsStepContract from "./plotContinents.contract.js";
 import { assertNoWaterDrift } from "./assertions.js";
 
-const GROUP_MAP_PROJECTION = "Morphology / Map Projection";
+const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(PlotContinentsStepContract, {
@@ -25,7 +25,7 @@ export default createStep(PlotContinentsStepContract, {
       values: physics.landMask,
       meta: defineVizMeta("map.morphology.continents.landMask", {
         label: "Land Mask (Physics Truth)",
-        group: GROUP_MAP_PROJECTION,
+        group: GROUP_MAP_MORPHOLOGY,
         palette: "categorical",
         role: "physics",
       }),
@@ -36,14 +36,14 @@ export default createStep(PlotContinentsStepContract, {
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
-        values: engine.landMask,
-        meta: defineVizMeta("map.morphology.continents.landMask", {
-          label: "Land Mask (Engine After Stamp Continents)",
-          group: GROUP_MAP_PROJECTION,
-          palette: "categorical",
-          role: "engine",
-        }),
-      });
+      values: engine.landMask,
+      meta: defineVizMeta("map.morphology.continents.landMask", {
+        label: "Land Mask (Engine After Stamp Continents)",
+        group: GROUP_MAP_MORPHOLOGY,
+        palette: "categorical",
+        role: "engine",
+      }),
+    });
     }
 
     logLandmassAscii(context.trace, context.adapter, width, height);

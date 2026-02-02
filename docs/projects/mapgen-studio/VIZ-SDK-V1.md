@@ -186,10 +186,10 @@ Inline binary payloads are transferred using Transferables when possible:
 Use `defineVizMeta` to standardize labels/groups/visibility without re-authoring boilerplate:
 - `packages/mapgen-core/src/dev/viz-meta.ts`
 
-### 8.2 When you want “multiple projections”
+### 8.2 When you want multiple “spaces” / representations
 
-In Studio, “multiple projections” are expressed as **multiple layers that share a `dataTypeKey` but differ by**:
-- `spaceId` (primary “Projection” selector),
+In Studio, multiple representations are expressed as **multiple layers that share a `dataTypeKey` but differ by**:
+- `spaceId` (primary “Space” selector),
 - and/or `kind` / `meta.role`,
 - and/or `variantKey`.
 
