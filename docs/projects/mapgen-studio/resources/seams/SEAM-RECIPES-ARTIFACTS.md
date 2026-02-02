@@ -2,7 +2,7 @@
 
 Mission scope: investigate how `packages/browser-recipes/` and `@mapgen/browser-recipes/*` are structured today, how Studio uses them, and propose a scalable “infinite recipes” strategy that avoids UI/worker protocol unions exploding (docs only; no implementation).
 
-Update (2026-01-30): `@mapgen/browser-recipes` was deleted. Studio now imports the built recipe artifacts directly from `mod-swooper-maps/recipes/*`, which are produced by `mods/mod-swooper-maps/tsup.studio-recipes.config.ts` via `bun run --filter mod-swooper-maps build:studio-recipes`.
+Update (2026-01-30): `@mapgen/browser-recipes` was deleted. Studio now imports the built recipe artifacts directly from `mod-swooper-maps/recipes/*`, which are produced by `mods/mod-swooper-maps/tsup.studio-recipes.config.ts` via `bunx turbo run build:studio-recipes --filter=mod-swooper-maps`.
 
 ---
 
@@ -86,7 +86,8 @@ Update (2026-01-30): `@mapgen/browser-recipes` was deleted. Studio now imports t
   - `src/browser-test.ts` re-exports from the mod recipe module: `mods/mod-swooper-maps/src/recipes/browser-test/recipe`.
 
 **Build notes (why this package exists at all)**
-- `apps/mapgen-studio` runs `bun run --cwd ../../packages/browser-recipes build` in `predev`/`prebuild`, meaning Studio expects to import built artifacts.
+- Studio should be run/built from the repo root via Turbo, so recipe artifacts exist before Vite/TypeScript try to import them.
+  - `mapgen-studio#dev`/`mapgen-studio#build` depend on `mod-swooper-maps#build:studio-recipes` to ensure `mods/mod-swooper-maps/dist/recipes/*` is generated.
 - `packages/browser-recipes/scripts/generate-types.ts`:
   - imports the built `dist/browser-test.js`,
   - serializes the schema to `dist/browser-test.schema.json`,
@@ -303,6 +304,6 @@ Practical rule of thumb:
   - `await entry.load()`,
   - validates `defaultConfig` against `configSchema` using `normalizeStrict` and asserts zero errors.
 - Keep `apps/mapgen-studio` build check as the ultimate gate:
-  - `bun run --cwd apps/mapgen-studio build` (includes `check:worker-bundle`).
+  - `bunx turbo run build --filter=mapgen-studio` (includes `check:worker-bundle`).
 - Enforce a “no eager import” rule in code review:
   - UI should import `@mapgen/browser-recipes/catalog` (metadata + loaders), not `@mapgen/browser-recipes` root barrel.

@@ -184,9 +184,9 @@ Component (pure UI; no runner knowledge):
 ### How to validate (build + smoke)
 
 - Build + worker bundle verification:
-  - `bun run --cwd apps/mapgen-studio build`
-  - `bun run --cwd apps/mapgen-studio check:worker-bundle`
-- Manual smoke (in `bun run --cwd apps/mapgen-studio dev`):
+  - `bunx turbo run build --filter=mapgen-studio`
+  - `bun run --filter mapgen-studio check:worker-bundle`
+- Manual smoke (in `bun run dev:mapgen-studio`):
   - Open “Config” panel → enable overrides → confirm form renders with styled stage card (“Foundation”).
   - Confirm stage card remains present and collapsible; nested groups collapse only when appropriate.
   - Switch Form → JSON and back; JSON→Form requires “Apply” / validation and preserves edits.

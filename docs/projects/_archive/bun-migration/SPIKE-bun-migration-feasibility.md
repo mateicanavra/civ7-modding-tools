@@ -76,7 +76,7 @@ This section verifies whether the **current** toolchain shape is supported by up
 
 **Local sanity check (this stack):**
 - `bun install --frozen-lockfile` from repo root is clean (no lock changes).
-- `bun run --cwd apps/mapgen-studio build` succeeds (Vite build under Bun runner).
+- `bunx turbo run build --filter=mapgen-studio` succeeds (Vite build under Bun runner).
 
 ### Implications / Adjustments (if we want Bun to stay “everything”)
 
@@ -134,7 +134,7 @@ Goal: after merging the Bun stack, ensure there is **no contributor-facing “pn
   - Ensure docs don’t reference deleted artifacts (`pnpm-lock.yaml`, `pnpm-workspace.yaml`).
 - Gate:
   - Fresh-clone path: `bun install --frozen-lockfile` then `bun run test:ci` from repo root.
-  - Optional: `bun run --cwd apps/mapgen-studio build` (ensures Vite path works under Bun).
+  - Optional: `bunx turbo run build --filter=mapgen-studio` (ensures Vite path works under Bun).
 
 ## Why “conflicts” matter (and what we’re choosing)
 

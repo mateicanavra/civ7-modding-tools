@@ -49,7 +49,7 @@ $APP_SHELL = $SRC/app
 ## Quality gates (non-negotiable)
 
 ### Build / bundling
-- [ ] `bun run --cwd apps/mapgen-studio build` stays green (includes `check:worker-bundle`).
+- [ ] `bunx turbo run build --filter=mapgen-studio` stays green (includes `check:worker-bundle`).
 - [ ] Worker bundle remains browser-safe (no Node-only deps pulled into `$WORKER`).
 - [ ] No import cycles introduced (layering remains acyclic; see per-slice dependency rules).
 
@@ -192,8 +192,8 @@ export function ConfigOverridesPanel<TConfig>(props: ConfigOverridesPanelProps<T
 - [x] `$APP_TSX` no longer contains RJSF templates and the large overrides CSS blob.
 
 ### Verification (commands + manual)
-- `bun run --cwd apps/mapgen-studio build`
-- Manual smoke (`bun run --cwd apps/mapgen-studio dev`):
+- `bunx turbo run build --filter=mapgen-studio`
+- Manual smoke (`bun run dev:mapgen-studio`):
   - Toggle overrides on/off; run still works.
   - Edit a nested value in the schema form; rerun; observe changes applied.
   - Switch to JSON tab; introduce invalid JSON; ensure run is blocked with a readable error.
@@ -321,8 +321,8 @@ Notes:
 - [x] No new imports into `$WORKER`.
 
 ### Verification
-- `bun run --cwd apps/mapgen-studio build`
-- Manual smoke (`bun run --cwd apps/mapgen-studio dev`):
+- `bunx turbo run build --filter=mapgen-studio`
+- Manual smoke (`bun run dev:mapgen-studio`):
   - Run; select a non-default step and layer; rerun; ensure selection is retained.
   - Reroll seed; ensure it auto-runs and keeps retention behavior.
   - Cancel mid-run; ensure worker terminates and subsequent run still works.
@@ -410,8 +410,8 @@ Notes:
 - [x] `App.tsx` no longer contains deck.gl layer builders, palettes, or hex math.
 
 ### Verification
-- `bun run --cwd apps/mapgen-studio build`
-- Manual smoke (`bun run --cwd apps/mapgen-studio dev`):
+- `bunx turbo run build --filter=mapgen-studio`
+- Manual smoke (`bun run dev:mapgen-studio`):
   - Run and confirm at least one layer renders.
   - Confirm at least one layer label comes from `meta.label` (not raw layerId).
   - Confirm a categorical/meta-driven layer shows a categorical legend (if present) and colors match legend.
@@ -471,8 +471,8 @@ export function useDumpLoader(): UseDumpLoaderResult;
 - [ ] Dump mode can load and render the same as pre-refactor.
 
 ### Verification
-- `bun run --cwd apps/mapgen-studio build`
-- Manual smoke (`bun run --cwd apps/mapgen-studio dev`):
+- `bunx turbo run build --filter=mapgen-studio`
+- Manual smoke (`bun run dev:mapgen-studio`):
   - Load a known dump folder; confirm layers appear.
   - If using upload fallback, confirm it can still find `manifest.json`.
 
@@ -523,8 +523,8 @@ export function AppShell(props: AppShellProps): JSX.Element;
 - [x] No domain logic moved into `$APP_SHELL/*`.
 
 ### Verification
-- `bun run --cwd apps/mapgen-studio build`
-- Manual smoke (`bun run --cwd apps/mapgen-studio dev`):
+- `bunx turbo run build --filter=mapgen-studio`
+- Manual smoke (`bun run dev:mapgen-studio`):
   - Verify both modes still reachable and functional.
   - Verify errors remain readable and don’t render raw objects.
 

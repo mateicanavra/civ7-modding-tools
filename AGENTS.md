@@ -47,7 +47,8 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
 ## Tooling Defaults
 
 - Use `bun` workspace scripts for build, type‑checks, lint, and tests unless a closer `AGENTS.md` says otherwise.
-- Prefer package scripts (`bun run --cwd <path> <script>`) over ad‑hoc commands.
+- Prefer root `turbo`-orchestrated scripts (via `turbo run ...` / root `package.json` scripts) for cross-workspace workflows (apps, multi-package builds).
+- Use package scripts (`bun run --cwd <path> <script>`) for package-local tasks.
 
 ## Civ7 Resources
 

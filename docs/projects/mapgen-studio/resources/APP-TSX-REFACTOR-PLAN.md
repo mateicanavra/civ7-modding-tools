@@ -373,9 +373,9 @@ Maintainability:
 ## 9) Validation checklist (per refactor layer)
 
 Run (from repo root):
-- `bun run --cwd apps/mapgen-studio build`
+- `bunx turbo run build --filter=mapgen-studio`
   - ensures TS + Vite build + worker bundling check still pass
-- `bun run --cwd apps/mapgen-studio dev`
+- `bun run dev:mapgen-studio`
   - manual smoke:
     - start browser run and observe 1–2 layers stream
     - reroll seed; confirm selection behavior

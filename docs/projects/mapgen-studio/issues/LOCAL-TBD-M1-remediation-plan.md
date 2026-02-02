@@ -29,8 +29,8 @@ related_to: []
 - Mapgen Studio UX invariants from the RFX execution plan remain intact.
 
 ## Testing / Verification
-- Mapgen Studio smoke: `bun run --cwd apps/mapgen-studio dev` (config overrides, viz selection, dump loading).
-- Mapgen Studio build: `bun run --cwd apps/mapgen-studio build`.
+- Mapgen Studio smoke: `bun run dev:mapgen-studio` (config overrides, viz selection, dump loading).
+- Mapgen Studio build: `bunx turbo run build --filter=mapgen-studio`.
 - Targeted tests when applicable: `bun run --cwd mods/mod-swooper-maps test`.
 
 ## Dependencies / Notes
