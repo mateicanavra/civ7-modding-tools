@@ -60,7 +60,9 @@ The worker treats the protocol boundary as untrusted/unknown input and:
 The worker composes an `envBase` from run inputs (seed/dimensions/latitudes) and then:
 
 - compiles a plan using the runtime recipe (`recipe.compile(envBase, config)`),
-- derives a stable `runId` from the plan (`deriveRunId(plan)`),
+- derives stable run identity from the plan:
+  - `runId` via `deriveRunId(plan)`
+  - `planFingerprint` via `computePlanFingerprint(plan)` (current code uses the same value as `runId`)
 - forces all steps to trace `verbose` for Studio’s execution posture,
 - constructs an adapter (mock civ7 adapter in browser),
 - constructs an extended map context,

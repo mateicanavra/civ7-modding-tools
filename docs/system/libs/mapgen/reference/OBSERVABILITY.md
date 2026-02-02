@@ -17,8 +17,8 @@ Define how MapGen runs can be inspected and debugged deterministically:
 
 ## Contract (trace + reproducibility)
 
-- Run reproducibility is rooted in the run settings/env (seed + dimensions, etc.).
-- Trace configuration can be provided via env.
+- Run reproducibility is rooted in the run settings (`RunSettings`, `Env` today): seed + dimensions, etc.
+- Trace configuration is carried inside run settings (`Env.trace` today).
 - Trace plumbing should not change pipeline semantics (only observability).
 
 ## Visualization hooks
@@ -31,6 +31,6 @@ See:
 
 ## Ground truth anchors
 
-- Trace config is part of Env: `packages/mapgen-core/src/core/env.ts`
+- Env schema (includes trace config): `packages/mapgen-core/src/core/env.ts`
 - Trace/viz types exist in core types: `packages/mapgen-core/src/core/types.ts`
 - Canonical viz doc (current): `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
