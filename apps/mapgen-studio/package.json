@@ -22,14 +22,21 @@
     "@rjsf/utils": "^6.2.5",
     "@rjsf/validator-ajv8": "^6.2.5",
     "@swooper/mapgen-core": "workspace:*",
+    "class-variance-authority": "latest",
+    "clsx": "latest",
+    "lucide-react": "0.522.0",
     "mod-swooper-maps": "workspace:*",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "tailwind-merge": "latest"
   },
   "devDependencies": {
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.2",
+    "autoprefixer": "latest",
+    "postcss": "latest",
+    "tailwindcss": "3.4.17",
     "typescript": "^5.9.3",
     "vite": "^7.3.1"
   }

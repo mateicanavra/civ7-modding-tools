@@ -1,6 +1,8 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { App } from './App';
+import "./index.css";
+
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { App } from "./App";
 
 // deck.gl/luma currently has a known issue under React StrictMode in dev
 // (double-mount can break device/canvas initialization and crash on resize).
@@ -13,4 +15,4 @@ const app = import.meta.env.DEV ? (
   </StrictMode>
 );
 
-createRoot(document.getElementById('root')!).render(app);
+createRoot(document.getElementById("root")!).render(app);
