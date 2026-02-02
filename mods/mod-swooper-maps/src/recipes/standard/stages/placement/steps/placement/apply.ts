@@ -324,6 +324,7 @@ function emitStartSectorViz(
       description:
         "Derived start-sector grid for placement planning (0 = inactive). Values are sector ids.",
       palette: "categorical",
+      visibility: "debug",
       categories: [{ value: 0, label: "Inactive", color: [148, 163, 184, 0] }],
     }),
   });
@@ -380,11 +381,19 @@ function emitStartPositionsViz(
   startPositions: number[]
 ): void {
   if (!startPositions.length) return;
-  const { width } = context.dimensions;
+  const { width, height } = context.dimensions;
   const valid = startPositions
     .map((plotIndex, playerIndex) => ({ plotIndex, playerIndex }))
     .filter((entry) => Number.isFinite(entry.plotIndex) && entry.plotIndex >= 0);
   if (!valid.length) return;
+
+  const size = Math.max(0, (width | 0) * (height | 0));
+  const grid = new Uint16Array(size);
+  for (let i = 0; i < valid.length; i++) {
+    const plotIndex = valid[i]!.plotIndex;
+    if (plotIndex < 0 || plotIndex >= grid.length) continue;
+    grid[plotIndex] = (valid[i]!.playerIndex ?? 0) + 1;
+  }
 
   const positions = new Float32Array(valid.length * 2);
   const values = new Uint16Array(valid.length);
@@ -402,6 +411,25 @@ function emitStartPositionsViz(
     label: `Player ${index + 1}`,
     color: colorForStartPosition(index),
   }));
+  const gridCategories = [
+    { value: 0, label: "None", color: [148, 163, 184, 0] as [number, number, number, number] },
+    ...categories,
+  ];
+
+  context.viz?.dumpGrid(context.trace, {
+    dataTypeKey: "placement.starts.startPosition",
+    spaceId: "tile.hexOddR",
+    dims: { width, height },
+    format: "u16",
+    values: grid,
+    meta: defineVizMeta("placement.starts.startPosition", {
+      label: "Start Positions",
+      group: GROUP_GAMEPLAY,
+      role: "membership",
+      categories: gridCategories,
+      palette: "categorical",
+    }),
+  });
 
   context.viz?.dumpPoints(context.trace, {
     dataTypeKey: "placement.starts.startPosition",
