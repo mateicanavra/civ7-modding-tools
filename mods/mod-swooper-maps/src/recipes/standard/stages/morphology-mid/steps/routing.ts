@@ -131,6 +131,7 @@ export default createStep(RoutingStepContract, {
         group: GROUP_ROUTING,
         palette: "continuous",
         arrows: { maxArrowLenTiles: 1.25 },
+        points: {},
       });
     }
     if (routing.basinId instanceof Int32Array) {

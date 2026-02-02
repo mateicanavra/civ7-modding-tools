@@ -652,6 +652,7 @@ export default createStep(ClimateBaselineStepContract, {
       group: GROUP_WIND,
       palette: "continuous",
       arrows: { maxArrowLenTiles: 1.25 },
+      points: {},
     });
 
     dumpVectorFieldVariants(context.trace, context.viz, {
@@ -664,6 +665,7 @@ export default createStep(ClimateBaselineStepContract, {
       group: GROUP_CURRENT,
       palette: "continuous",
       arrows: { maxArrowLenTiles: 1.25 },
+      points: {},
     });
 
     for (let s = 0; s < seasonCount; s++) {
@@ -685,6 +687,7 @@ export default createStep(ClimateBaselineStepContract, {
         palette: "continuous",
         visibility: "debug",
         arrows: { maxArrowLenTiles: 1.25 },
+        points: {},
       });
 
       dumpVectorFieldVariants(context.trace, context.viz, {
@@ -699,6 +702,7 @@ export default createStep(ClimateBaselineStepContract, {
         palette: "continuous",
         visibility: "debug",
         arrows: { maxArrowLenTiles: 1.25 },
+        points: {},
       });
     }
 
