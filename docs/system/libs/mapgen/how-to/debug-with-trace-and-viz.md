@@ -49,7 +49,7 @@ Steps emit layers by calling `context.viz?.dumpGrid(context.trace, { ... })` (an
 
 ### 4) Run the recipe and locate the run output
 
-The run id is derived from the plan fingerprint and should deterministically map to a dump folder.
+The `runId` is derived from the plan fingerprint (current implementation uses the same value) and deterministically maps to a dump folder.
 
 ## Verification
 

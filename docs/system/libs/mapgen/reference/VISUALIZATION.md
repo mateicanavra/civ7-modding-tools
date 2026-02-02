@@ -14,7 +14,7 @@ Define the canonical visualization contract and route readers to the single cano
 ## Contract (what must stay stable)
 
 - Visualization is **external** to the pipeline runtime (pipeline does not depend on deck.gl).
-- Runs may emit streaming layer events and/or replayable dumps (manifest + binary payloads), keyed by stable ids (run id, plan fingerprint, layer keys).
+- Runs may emit streaming layer events and/or replayable dumps (manifest + binary payloads), keyed by stable ids (`runId` (currently == `planFingerprint`), and layer keys).
 - MapGen Studio renders visualization via deck.gl:
   - live runs consume streamed layer upserts (`viz.layer.upsert`),
   - dump viewer workflows consume dump folders (when produced).

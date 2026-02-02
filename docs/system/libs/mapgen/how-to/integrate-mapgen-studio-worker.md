@@ -41,7 +41,7 @@ Studio’s working shape (today) is:
 3) Worker:
    - merges + validates overrides against schema,
    - compiles plan,
-   - derives `runId`,
+   - derives `runId` (and `planFingerprint`; current implementation uses the same value),
    - runs the recipe with trace + viz enabled,
    - posts progress and viz upsert events.
 4) UI renders:

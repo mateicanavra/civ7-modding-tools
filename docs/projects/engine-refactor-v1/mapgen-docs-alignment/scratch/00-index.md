@@ -21,3 +21,4 @@ Use these scratch pads as disposable working memory. Keep notes small and focuse
 - MapGen Studio (consumer + examples): `studio.md`
 - Domains: `domains-*.md`
 - Hardening (claims + anchors): `hardening-claims-audit.md`
+- Hardening (terminology + coherence): `hardening-terminology.md`

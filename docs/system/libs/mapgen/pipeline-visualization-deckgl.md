@@ -22,7 +22,8 @@
 
 - **Dump folder**: replayable output containing `manifest.json` plus payloads under `data/`.
 - **`outputsRoot`**: where dump folders are written (implementation chooses the root; the contract only assumes a per-run folder containing `manifest.json`).
-- **`runId` / `planFingerprint`**: run identifiers; must match the trace/plan implementation.
+- **`runId`**: run identity used by trace/dumps. Current implementation: `runId === planFingerprint`.
+- **`planFingerprint`**: plan identity (hash of plan inputs); see `packages/mapgen-core/src/engine/observability.ts`.
 - **`dataTypeKey`**: stable semantic identity for a data product (e.g. `"hydrology.wind.wind"`).
 - **`layerKey`**: canonical, opaque identity for a layer within a run (used for streaming upserts and dump replay identity).
 - **`spaceId`**: explicit coordinate space (“projection” selector in the Studio UI).
@@ -92,7 +93,7 @@ If the runtime’s trace implementation gates `step.event` behind “verbose”,
 
 ```
 Pipeline run
-  → trace session (runId + planFingerprint)
+  → trace session (runId + planFingerprint; currently the same value)
   → step.event payloads (metadata only)
   → dump sink writes:
        - trace.jsonl   (events)
