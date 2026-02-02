@@ -22,8 +22,42 @@ related_to: []
 - Stage/step ↔ config focus must be derived from the **authored recipe/stage source** (e.g. `createStage({ public, compile })` mappings), not from heuristics.
 - Integration should be staged as: (1) generate “recipe UI meta” from recipe source into `*-artifacts`, (2) introduce a shared “pipeline address” model (recipe/stage/step), (3) add a “dataType + renderMode” view model over existing viz layers, (4) drop in the prototype UI, (5) wire it to the real runner/viz/config, then delete legacy UI.
 
+## Objective (what “done” means for this doc)
+This document is the last prep pass before implementation of the UI refactor. “Done” for this doc means:
+- The intended UI mental model is explicit and unambiguous.
+- The scope boundaries are explicit (especially around “no pipeline changes”).
+- The sequencing/DAG is clear and each slice has a verifiable “done” state.
+- Any remaining uncertainty is surfaced as explicit prework prompts or open questions (not silently decided).
+
+## Readiness checklist (before saying “go implement”)
+- [ ] Guardrails are accepted (no pipeline changes; browser-only world inputs).
+- [ ] UI-01 meta strategy is accepted (derive mapping from recipe source; no Studio heuristics).
+- [ ] Open questions are understood as “non-blocking unless they become blocking” (we start with Option A and escalate only if forced).
+
+## Path variables (paper trail)
+```yaml
+vars:
+  STUDIO: apps/mapgen-studio/src
+  SWOOPER: mods/mod-swooper-maps/src
+  SWOOPER_SCRIPTS: mods/mod-swooper-maps/scripts
+  CORE: packages/mapgen-core/src
+```
+
 ## Prototype packet location
 - `apps/mapgen-studio/src/DELETE-WHEN-DONE/mapgen-studio-prototype-magic-patterns`
+
+## Guardrails (non-negotiable)
+**Pipeline semantics**
+- Stages are stages, steps are steps, ops are ops.
+- We can improve how Studio *maps and presents* these concepts, but we must not change pipeline internals/contracts as part of this refactor.
+
+**Runtime boundaries**
+- Map settings as UI inputs (e.g. `playerCount`, `resources`) are allowed only for Studio/browser runs (mock adapter / mock MapInfo).
+- These must never become overridable inputs in engine-run contexts (engine MapInfo comes from the game UI).
+
+**Import boundary**
+- Studio UI must import recipe `*-artifacts` modules (schema/defaults/meta) and not runtime recipe modules (enforced by ESLint).
+  - `eslint.config.js`
 
 ## Current Studio (today) — relevant contracts
 **Runner + viz stream**
@@ -49,6 +83,13 @@ related_to: []
   - `dataType` (formerly layer): “what data is visualized”
   - `renderMode` (formerly projection): “how data is transformed/rendered”
 - Prototype config model mirrors current recipe public schemas: `stage.knobs` + `stage.advanced.<category>.<opName>` (example: `foundation.advanced.mesh.computeMesh`).
+
+## Definitions (terms used consistently)
+- **Recipe**: an authored pipeline definition (`createRecipe(...)`) with an ordered list of stages.
+- **Stage**: an authored grouping of steps (`createStage({ id, steps, knobsSchema, public?, compile? })`).
+- **Step (UI step)**: a **step contract** (`step.contract.id`) that appears as part of the pipeline and trace/viz stream. Not an op name.
+- **Operation (op)**: a runtime function call within a step (internal detail). Ops may influence config naming but are not first-class in Studio’s UI.
+- **Config focus path**: the *authored* location in recipe config that “corresponds to” a given stage/step for UI editing focus.
 
 ## Key mismatches to resolve
 ### 1) What is a “step” in the new UI?
@@ -115,39 +156,166 @@ For each stage contract:
 
 If none of the cases can produce a one-to-one mapping for all `stepContractIds`, the generator should fail with a clear error and require an explicit per-stage override map in the recipe module (this keeps behavior correct and avoids “helpful” heuristics).
 
-## Integration plan (high-level, Graphite branch map)
-1) **UI-00 (docs):** lock down definitions + open questions
-   - Add/update this issue doc; link to prototype packet; record mapping assumptions.
-2) **UI-01 (artifacts meta):** generate “Studio recipe UI meta”
-   - Extend `mods/mod-swooper-maps/scripts/generate-studio-recipe-types.ts` to emit `*-artifacts` exports that include:
-     - stage order (from `recipe.stages`)
-     - steps per stage (from `stage.steps`)
-     - per-step `configFocusPath` (from the derivation algorithm above)
-   - Update `apps/mapgen-studio/src/recipes/catalog.ts` `RecipeArtifacts` to include this meta.
-3) **UI-02 (model):** introduce shared “pipeline address” parsing
-   - Add a small utility to parse full step ids into `{ recipeKey, stageId, stepContractId }`.
-   - Expose stage+step groupings in the viz selectors (no UI overhaul yet).
-4) **UI-03 (view model):** introduce `dataType` + `renderMode` selector model over current `VizManifestV0`
-   - Derive:
-     - available stages
-     - available steps (grouped)
-     - available data types (grouped by `layerId`)
-     - available render modes (derived from underlying entries)
-   - Keep `VizManifestV0` as-is initially; this is a pure adapter layer.
-5) **UI-04 (UI shell):** land the prototype layout (header/left/right/footer) behind a feature flag or parallel route
-   - Keep it fully controlled; wire to existing store/hook state.
-   - Swap `DeckCanvas` in as the visualization background.
-6) **UI-05 (wiring):** connect real data + run controls
-   - Recipe selection + seed + map size → existing browser runner inputs.
-   - Pipeline config editing → existing `recipeArtifacts.configSchema` + default config + overrides patching.
-   - Stage selector → derived from recipe schema/compiled config keys.
-   - “Step” selector → resolved per decision (A/B/C).
-   - Data type + render mode → derived from viz manifest adapter.
-7) **UI-06 (delete legacy):** remove old `AppHeader`-driven UI and any obsolete state
-   - Keep dumps replay working.
-8) **UI-07 (polish + docs):** update docs + tests
-   - Update `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md` only if IDs/groups change.
-   - Add a minimal unit test for stepId parsing + dataType/renderMode derivation (vitest).
+## Integration plan (implementation-ready work breakdown)
+This section is “the contract”: each slice should be completable independently, should keep the codebase working, and should have clear verification.
+
+**Sequencing / dependency graph**
+```yaml
+deps:
+  UI-00: []
+  UI-01: [UI-00]
+  UI-02: [UI-01]
+  UI-03: [UI-02]
+  UI-04: [UI-03]
+  UI-05: [UI-01, UI-02, UI-03, UI-04]
+  UI-06: [UI-05]
+  UI-07: [UI-06]
+```
+
+### UI-00 (docs): definitions + constraints are locked
+**Acceptance criteria**
+- [ ] This doc contains explicit definitions/guardrails, the mapping algorithm, and the work breakdown below.
+- [ ] Open questions/prework prompts are explicit; no ambiguous “A/B/C” placeholders remain.
+
+**Verification**
+```bash
+bun run check
+```
+
+### UI-01 (artifacts meta): generate “Studio recipe UI meta”
+Generate **UI-facing meta** alongside schema/defaults in `*-artifacts` (so Studio can import it without pulling in runtime recipe modules).
+
+**Acceptance criteria**
+- [ ] Each Studio recipe artifacts module exports `studioRecipeUiMeta` (exact name TBD) that includes:
+  - stage order (from `recipe.stages`)
+  - steps per stage (from `stage.steps`)
+  - per-step `configFocusPathWithinStage` derived from the concrete algorithm above
+- [ ] Studio’s `RecipeArtifacts` type includes the meta and catalog wires it for each recipe.
+- [ ] Generator fails loudly if it cannot derive a total mapping for a stage (no silent fallbacks).
+
+**In scope**
+- Generator changes in `SWOOPER_SCRIPTS` and wiring into `STUDIO` catalog/types.
+- Minimal shape that unblocks UI selectors and config focus (no “nice to have” fields yet).
+
+**Out of scope**
+- Any changes to pipeline runtime behavior.
+- Any changes to trace/viz event format.
+
+**Implementation guidance**
+```yaml
+files:
+  - path: mods/mod-swooper-maps/scripts/generate-studio-recipe-types.ts
+    notes: Emit a meta export into each `*-artifacts` module, plus matching `.d.ts` typing.
+  - path: mods/mod-swooper-maps/src/recipes/standard/recipe.ts
+    notes: This is the authoritative stage ordering source (do not duplicate order elsewhere).
+  - path: packages/mapgen-core/src/authoring/stage.ts
+    notes: Use `stage.steps`, `stage.public?`, and `stage.toInternal(...)` to derive mapping; no heuristics.
+  - path: apps/mapgen-studio/src/recipes/catalog.ts
+    notes: Extend `RecipeArtifacts` and wire meta into the Studio recipe catalog.
+```
+
+**Verification**
+```bash
+bun run check
+```
+
+**Prework prompts (only if needed during implementation)**
+- Confirm stage mapping coverage: enumerate all stages in `mod-swooper-maps` recipes and ensure they are handled by Case A/B/C; if any fail, add an explicit override map *in the recipe module* (not in Studio).
+
+### UI-02 (model): introduce shared “pipeline address” parsing
+Add a Studio-side utility to reliably parse step ids into `{ recipeKey, stageId, stepId }` so selectors can group by stage/step.
+
+**Acceptance criteria**
+- [ ] Studio has a helper that parses *full* step ids (e.g. `mod-swooper-maps.standard.foundation.mesh`) into a structured address.
+- [ ] UI state/model uses `stageId` derived from parsing (not string slicing the last segment).
+
+**Implementation guidance**
+```yaml
+files:
+  - path: apps/mapgen-studio/src/features/viz/presentation.ts
+    notes: Keep `formatStepLabel` for labels only; use structured parsing for grouping and identity.
+  - path: apps/mapgen-studio/src/features/viz/model.ts
+    notes: Keep manifest shape; add adapters/utilities around it.
+```
+
+**Verification**
+```bash
+bun run check
+```
+
+### UI-03 (view model): `dataType` + `renderMode` over existing viz manifest
+Introduce a pure adapter layer that projects the current `VizManifestV0` into the prototype’s `dataType` + `renderMode` model without changing the viz protocol.
+
+**Acceptance criteria**
+- [ ] “Data type” groups are stable and primarily keyed by `layerId` (with documented exceptions only).
+- [ ] Render mode is a small vocabulary derived from `kind` plus a stable suffix when semantics require it (e.g. `meta.role`).
+- [ ] `fileKey` does not explode the primary selector by default; it can be surfaced as a secondary variant only when needed.
+
+**Verification**
+```bash
+bun run check
+```
+
+### UI-04 (UI shell): land the prototype layout (controlled)
+Bring the prototype layout into the real Studio app as a controlled UI shell (no fake data), in parallel with the existing UI until wiring is complete.
+
+**Acceptance criteria**
+- [ ] Prototype layout renders in Studio and uses controlled props/state.
+- [ ] Deck canvas remains the visualization surface.
+- [ ] Existing UI remains functional until UI-06.
+
+**Verification**
+```bash
+bun run check
+```
+
+### UI-05 (wiring): connect runner/viz/config to the prototype UI
+Wire the controlled prototype shell to real Studio state:
+- recipe selection
+- seed + mode + map size
+- stage/step selectors derived from `studioRecipeUiMeta`
+- config editing focus via `configFocusPathWithinStage`
+- data type + render mode via the adapter from UI-03
+
+**Acceptance criteria**
+- [ ] Selecting stage/step updates available data types and render modes (driven by the selected step’s outputs in the viz stream).
+- [ ] Config editor focuses the correct authored config location for the selected stage/step.
+- [ ] Browser-only world settings inputs do not leak into engine-run code paths.
+
+**Verification**
+```bash
+bun run check
+```
+
+### UI-06 (delete legacy): remove old UI and obsolete state
+Remove the legacy UI once the prototype shell is fully wired.
+
+**Acceptance criteria**
+- [ ] Legacy UI components/state are removed.
+- [ ] Dumps replay mode continues to function.
+
+**Verification**
+```bash
+bun run check
+```
+
+### UI-07 (polish + docs): tests + documentation updates
+**Acceptance criteria**
+- [ ] Add minimal unit tests for parsing + grouping logic (where the codebase’s existing test setup supports it).
+- [ ] Update `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md` only if selector identities/groups changed.
+
+**Verification**
+```bash
+bun run check
+```
+
+## Milestone-level open questions (must stay explicit)
+1) Render mode vocabulary: what is the minimal stable “projection/renderMode” set that works across future recipes without being too physics-specific?
+   - Option A: `renderMode := kind` (start here; simplest).
+   - Option B: `renderMode := kind + role` for a short allowlist of `meta.role` semantics.
+   - Option C: promote an explicit projection id in viz meta/protocol (NOT in scope for this refactor unless forced).
+2) `fileKey` surfacing: when should `fileKey` be a first-class toggle vs a hidden variant?
+   - Guideline: only surface if it changes semantic meaning (not just “same data, different encoding”).
 
 ## Implementation Decisions
 ### UI step semantics
