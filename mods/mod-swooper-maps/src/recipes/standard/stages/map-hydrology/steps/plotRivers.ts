@@ -3,7 +3,7 @@ import {
   MOUNTAIN_TERRAIN,
   NAVIGABLE_RIVER_TERRAIN,
   defineVizMeta,
-  syncHeightfield,
+  snapshotEngineHeightfield,
 } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import PlotRiversStepContract from "./plotRivers.contract.js";
@@ -112,7 +112,36 @@ export default createStep(PlotRiversStepContract, {
     logStats("POST-MODELRIVERS");
     context.adapter.validateAndFixTerrain();
     logStats("POST-VALIDATE");
-    syncHeightfield(context);
+    const physics = context.buffers.heightfield;
+    const engine = snapshotEngineHeightfield(context);
+    if (engine) {
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "debug.heightfield.landMask",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: physics.landMask,
+        meta: defineVizMeta("debug.heightfield.landMask", {
+          label: "Land Mask (Physics Truth)",
+          group: GROUP_MAP_HYDROLOGY,
+          palette: "categorical",
+          role: "physics",
+        }),
+      });
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "debug.heightfield.landMask",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: engine.landMask,
+        meta: defineVizMeta("debug.heightfield.landMask", {
+          label: "Land Mask (Engine After Rivers)",
+          group: GROUP_MAP_HYDROLOGY,
+          palette: "categorical",
+          role: "engine",
+        }),
+      });
+    }
     context.adapter.defineNamedRivers();
   },
 });

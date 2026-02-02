@@ -1,4 +1,4 @@
-import { defineVizMeta, logElevationSummary, logLandmassAscii, syncHeightfield } from "@swooper/mapgen-core";
+import { defineVizMeta, logElevationSummary, logLandmassAscii, snapshotEngineHeightfield } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import BuildElevationStepContract from "./buildElevation.contract.js";
 import { assertNoWaterDrift } from "./assertions.js";
@@ -19,18 +19,19 @@ export default createStep(BuildElevationStepContract, {
     context.adapter.recalculateAreas();
     context.adapter.buildElevation();
     context.adapter.recalculateAreas();
-    syncHeightfield(context);
 
-    const heightfield = context.buffers.heightfield;
+    const physics = context.buffers.heightfield;
+    const engine = snapshotEngineHeightfield(context);
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "map.morphology.elevation.elevation",
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "i16",
-      values: heightfield.elevation,
+      values: physics.elevation,
       meta: defineVizMeta("map.morphology.elevation.elevation", {
-        label: "Elevation (Engine)",
+        label: "Elevation (Physics Truth)",
         group: GROUP_MAP_PROJECTION,
+        role: "physics",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -38,13 +39,41 @@ export default createStep(BuildElevationStepContract, {
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
-      values: heightfield.landMask,
+      values: physics.landMask,
       meta: defineVizMeta("map.morphology.elevation.landMask", {
-        label: "Land Mask (Engine)",
+        label: "Land Mask (Physics Truth)",
         group: GROUP_MAP_PROJECTION,
         palette: "categorical",
+        role: "physics",
       }),
     });
+    if (engine) {
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "map.morphology.elevation.elevation",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "i16",
+        values: engine.elevation,
+        meta: defineVizMeta("map.morphology.elevation.elevation", {
+          label: "Elevation (Engine)",
+          group: GROUP_MAP_PROJECTION,
+          role: "engine",
+        }),
+      });
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "map.morphology.elevation.landMask",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: engine.landMask,
+        meta: defineVizMeta("map.morphology.elevation.landMask", {
+          label: "Land Mask (Engine)",
+          group: GROUP_MAP_PROJECTION,
+          palette: "categorical",
+          role: "engine",
+        }),
+      });
+    }
 
     logElevationSummary(context.trace, context.adapter, width, height, "map-morphology/build-elevation");
     logLandmassAscii(context.trace, context.adapter, width, height);
