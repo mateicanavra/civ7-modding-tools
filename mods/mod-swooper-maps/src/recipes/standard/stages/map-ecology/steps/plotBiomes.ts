@@ -1,9 +1,11 @@
-import { logBiomeSummary } from "@swooper/mapgen-core";
+import { defineVizMeta, logBiomeSummary } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import * as ecology from "@mapgen/domain/ecology";
 import PlotBiomesStepContract from "./plotBiomes.contract.js";
 import { clampToByte } from "./plot-biomes/helpers/apply.js";
 import { resolveEngineBiomeIds } from "./plot-biomes/helpers/engine-bindings.js";
+
+const GROUP_MAP_ECOLOGY = "Map / Ecology (Projection)";
 
 export default createStep(PlotBiomesStepContract, {
   run: (context, config, _ops, deps) => {
@@ -40,6 +42,29 @@ export default createStep(PlotBiomesStepContract, {
         temperatureField[idx] = clampToByte(classification.surfaceTemperature[idx]! + 50);
       }
     }
+
+    // Projection-only visualization; engine biomes may differ from ecology truth (mock adapter is best-effort).
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "map.ecology.biomeId",
+      dims: { width, height },
+      format: "u8",
+      values: biomeField,
+      meta: defineVizMeta("map.ecology.biomeId", {
+        label: "Biome Id (Projected)",
+        group: GROUP_MAP_ECOLOGY,
+        palette: "categorical",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "map.ecology.temperature",
+      dims: { width, height },
+      format: "u8",
+      values: temperatureField,
+      meta: defineVizMeta("map.ecology.temperature", {
+        label: "Temperature (Projected)",
+        group: GROUP_MAP_ECOLOGY,
+      }),
+    });
 
     logBiomeSummary(context.trace, context.adapter, width, height);
   },
