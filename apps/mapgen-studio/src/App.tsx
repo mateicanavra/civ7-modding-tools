@@ -339,7 +339,6 @@ function AppContent(props: AppContentProps) {
       viz.clearStream();
       if (!pinned.retainStep) viz.setSelectedStepId(null);
       if (!pinned.retainLayer) viz.setSelectedLayerKey(null);
-      if (!pinned.retainStep) deckApiRef.current?.resetView();
 
       browserRunner.actions.clearError();
 
@@ -471,6 +470,23 @@ function AppContent(props: AppContentProps) {
   const canvas = (
     <div className="absolute inset-0">
       <div className={`absolute inset-0 ${isLightMode ? "bg-[#f5f5f7]" : "bg-[#0a0a12]"}`} />
+      {/* Theme-tinted backdrop (kept outside deck.gl so it remains stable and cheap) */}
+      <div
+        className="absolute inset-0 opacity-30 pointer-events-none"
+        style={{
+          backgroundImage: isLightMode
+            ? `
+              radial-gradient(circle at 30% 40%, #cbd5e0 0%, transparent 55%),
+              radial-gradient(circle at 70% 60%, #cbd5e0 0%, transparent 45%),
+              radial-gradient(circle at 50% 80%, #cbd5e0 0%, transparent 35%)
+            `
+            : `
+              radial-gradient(circle at 30% 40%, #2d3748 0%, transparent 55%),
+              radial-gradient(circle at 70% 60%, #2d3748 0%, transparent 45%),
+              radial-gradient(circle at 50% 80%, #2d3748 0%, transparent 35%)
+            `,
+        }}
+      />
       {viz.manifest ? (
         <DeckCanvas
           apiRef={deckApiRef}
@@ -478,6 +494,7 @@ function AppContent(props: AppContentProps) {
           effectiveLayer={viz.effectiveLayer}
           viewportSize={viewportSize}
           showBackgroundGrid={showGrid}
+          lightMode={isLightMode}
           activeBounds={viz.activeBounds}
         />
       ) : null}

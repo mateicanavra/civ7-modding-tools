@@ -292,16 +292,16 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
         </div>
       </div>
 
-      {/* 3. DATA TYPES SECTION (formerly Layers) */}
+      {/* 3. LAYERS SECTION */}
       <div className={`flex-shrink-0 border-b ${borderSubtle} flex flex-col`}>
-        {/* Data Types Header */}
+        {/* Layers Header */}
         <div className={`px-3 py-2 flex items-center justify-between`}>
           <div className="flex items-center gap-2">
             <SquareStack className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />
             <span
               className={`text-[11px] font-semibold ${textSecondary} uppercase tracking-wider`}>
 
-              Data Type
+              Layers
             </span>
           </div>
           <span className={`text-[10px] ${textMuted}`}>
@@ -309,8 +309,8 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
           </span>
         </div>
 
-        {/* Data Types List */}
-        <div className="pb-2">
+        {/* Layers List */}
+        <div className="pb-2 max-h-[200px] overflow-y-auto custom-scrollbar">
           {dataTypeOptions.map((dataType, index) =>
           <button
             key={dataType.value}
