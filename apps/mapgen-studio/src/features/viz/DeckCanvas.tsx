@@ -162,8 +162,7 @@ export function DeckCanvas(props: DeckCanvasProps) {
         keyboard: {
           // Make arrow-key motion feel less "stuck" while keeping the eased camera transition.
           // Default for Orthographic/Orbit state is ~50px; we want ~3x.
-          // Negative value flips direction to match "arrow moves view" expectations.
-          moveSpeed: -150,
+          moveSpeed: 150,
         },
       },
       initialViewState: {

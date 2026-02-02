@@ -371,8 +371,8 @@ bun run test
 ### UI-16 (shortcuts): allow modifier shortcuts in inputs
 
 **Acceptance criteria**
-- [ ] All modifier-based Studio shortcuts (Cmd/Ctrl + …) work even when focus is inside an input.
-- [ ] Bare keys are still not intercepted while typing (to avoid breaking text entry).
+- [x] All modifier-based Studio shortcuts (Cmd/Ctrl + …) work even when focus is inside an input.
+- [x] Bare keys are still not intercepted while typing (to avoid breaking text entry).
 
 **Verification**
 ```bash
@@ -390,6 +390,20 @@ bun run test
 - [x] Stage list is scrollable with a max height; selecting a stage collapses the Stage section.
 - [x] Step list is scrollable with a max height; selecting a step collapses the Step section.
 - [x] Layer list is scrollable with a max height; selecting a layer collapses the Layers section.
+
+**Verification**
+```bash
+bun run --cwd apps/mapgen-studio build
+bun run lint
+bun run check-types
+bun run test
+```
+
+### UI-18 (deck.gl): fix arrow-key pan direction
+
+**Acceptance criteria**
+- [x] Arrow keys move the deck view in the expected directions.
+- [x] Arrow-key pan distance remains ~3x the default while preserving eased motion.
 
 **Verification**
 ```bash
