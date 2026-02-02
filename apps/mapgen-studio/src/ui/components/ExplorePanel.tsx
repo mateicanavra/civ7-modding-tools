@@ -391,7 +391,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
           <div className="flex items-center gap-2 min-w-0 overflow-hidden">
             <SquareStack className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />
             <span className={`text-[11px] font-semibold ${textSecondary} uppercase tracking-wider`}>
-              Layers
+              Data
             </span>
             {!isLayersExpanded ? (
               <span className={`text-[11px] font-mono ${textPrimary} truncate`}>
