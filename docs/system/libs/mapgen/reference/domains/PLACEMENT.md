@@ -13,12 +13,15 @@
 
 ## Purpose
 
-Placement is the pipeline boundary where “map content” becomes “gameplay outcomes”:
+Placement is legacy naming for the **Gameplay** domain’s “placement phase”: the pipeline boundary where “map content” becomes “gameplay outcomes”:
 - assign starts,
 - place wonders/resources/discoveries,
 - and publish placement outputs for verification and debugging.
 
 Placement is intentionally **projection/engine-facing**: it depends on prior projection steps (engine rivers/features) and uses engine adapters to apply gameplay outcomes.
+
+Target posture: Gameplay absorbs Placement. See:
+- `docs/system/libs/mapgen/reference/domains/GAMEPLAY.md`
 
 ## Stages (standard recipe)
 
@@ -67,6 +70,7 @@ Placement stage config is currently minimal:
 
 ## Ground truth anchors
 
+- Target absorption posture (Gameplay owns Placement): `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/gameplay/APPENDIX-SCOPE-AND-ABSORPTION.md`
 - Stage definition: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/index.ts`
 - Step contracts:
   - `mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/derive-placement-inputs/contract.ts`
@@ -79,4 +83,3 @@ Placement stage config is currently minimal:
 ## Open questions
 
 - Which placement outputs should be considered part of a stable contract surface vs ad-hoc debugging counters?
-
