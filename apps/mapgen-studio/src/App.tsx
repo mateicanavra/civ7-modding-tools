@@ -136,6 +136,7 @@ function AppContent(props: AppContentProps) {
 
   const deckApiRef = useRef<DeckCanvasApi | null>(null);
   const [deckApiReadyTick, setDeckApiReadyTick] = useState(0);
+  const handleDeckApiReady = useCallback(() => setDeckApiReadyTick((prev) => prev + 1), []);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [viewportSize, setViewportSize] = useState({ width: 800, height: 600 });
 
@@ -878,7 +879,7 @@ function AppContent(props: AppContentProps) {
       ) : null}
       <DeckCanvas
         apiRef={deckApiRef}
-        onApiReady={() => setDeckApiReadyTick((prev) => prev + 1)}
+        onApiReady={handleDeckApiReady}
         layers={viz.deck.layers}
         effectiveLayer={viz.effectiveLayer}
         viewportSize={viewportSize}
