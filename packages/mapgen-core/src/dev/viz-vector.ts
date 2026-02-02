@@ -140,73 +140,76 @@ export function dumpVectorFieldVariants(
   });
 
   const arrows = options.arrows;
-  const arrowVis = arrows?.debugOnly ? "debug" : visibility;
-  if (arrowVis === "hidden") return;
+  if (arrows) {
+    const arrowVis = arrows.debugOnly ? "debug" : visibility;
+    if (arrowVis !== "hidden") {
+      const step = computeSampleStep(width, height, arrows.sampleStep);
+      const maxArrowLenTiles = arrows.maxArrowLenTiles ?? 1.25;
+      const scale = maxUvMag > 0 ? maxArrowLenTiles / maxUvMag : 0;
 
-  const step = computeSampleStep(width, height, arrows?.sampleStep);
-  const maxArrowLenTiles = arrows?.maxArrowLenTiles ?? 1.25;
-  const scale = maxUvMag > 0 ? maxArrowLenTiles / maxUvMag : 0;
+      let count = 0;
+      for (let y = 0; y < height; y += step) {
+        const rowOffset = y * width;
+        for (let x = 0; x < width; x += step) {
+          const i = rowOffset + x;
+          if (i < 0 || i >= n) continue;
+          const ux = readNumber(u.values, i);
+          const vy = readNumber(v.values, i);
+          if (ux === 0 && vy === 0) continue;
+          count += 1;
+        }
+      }
 
-  let count = 0;
-  for (let y = 0; y < height; y += step) {
-    const rowOffset = y * width;
-    for (let x = 0; x < width; x += step) {
-      const i = rowOffset + x;
-      if (i < 0 || i >= n) continue;
-      const ux = readNumber(u.values, i);
-      const vy = readNumber(v.values, i);
-      if (ux === 0 && vy === 0) continue;
-      count += 1;
+      const segments = new Float32Array(count * 4);
+      const values = new Float32Array(count);
+      let j = 0;
+      for (let y = 0; y < height; y += step) {
+        const rowOffset = y * width;
+        for (let x = 0; x < width; x += step) {
+          const i = rowOffset + x;
+          if (i < 0 || i >= n) continue;
+          const ux = readNumber(u.values, i);
+          const vy = readNumber(v.values, i);
+          if (ux === 0 && vy === 0) continue;
+
+          const base = j * 4;
+          segments[base] = x;
+          segments[base + 1] = y;
+          segments[base + 2] = x + ux * scale;
+          segments[base + 3] = y + vy * scale;
+          values[j] = Number((magValues as any)[i] ?? 0);
+          j += 1;
+        }
+      }
+
+      viz.dumpSegments(trace, {
+        dataTypeKey,
+        variantKey,
+        spaceId,
+        segments,
+        values,
+        valueFormat: "f32",
+        meta: defineVizMeta(dataTypeKey, {
+          label: options.label,
+          group: options.group,
+          role: "arrows",
+          palette,
+          visibility: arrowVis,
+          description: `Arrow segments sampled every ${step} tiles; max vector magnitude normalized to ~${maxArrowLenTiles.toFixed(2)} tiles.`,
+        }),
+      });
     }
   }
-
-  const segments = new Float32Array(count * 4);
-  const values = new Float32Array(count);
-  let j = 0;
-  for (let y = 0; y < height; y += step) {
-    const rowOffset = y * width;
-    for (let x = 0; x < width; x += step) {
-      const i = rowOffset + x;
-      if (i < 0 || i >= n) continue;
-      const ux = readNumber(u.values, i);
-      const vy = readNumber(v.values, i);
-      if (ux === 0 && vy === 0) continue;
-
-      const base = j * 4;
-      segments[base] = x;
-      segments[base + 1] = y;
-      segments[base + 2] = x + ux * scale;
-      segments[base + 3] = y + vy * scale;
-      values[j] = Number((magValues as any)[i] ?? 0);
-      j += 1;
-    }
-  }
-
-  viz.dumpSegments(trace, {
-    dataTypeKey,
-    variantKey,
-    spaceId,
-    segments,
-    values,
-    valueFormat: "f32",
-    meta: defineVizMeta(dataTypeKey, {
-      label: options.label,
-      group: options.group,
-      role: "arrows",
-      palette,
-      visibility: arrowVis,
-      description: `Arrow segments sampled every ${step} tiles; max vector magnitude normalized to ~${maxArrowLenTiles.toFixed(2)} tiles.`,
-    }),
-  });
 
   const points = options.points;
-  const pointsVis = points?.debugOnly ? "debug" : visibility;
+  if (!points) return;
+  const pointsVis = points.debugOnly ? "debug" : visibility;
   if (pointsVis === "hidden") return;
 
   // Only emit sampled points for tile spaces; for other spaces, there is no
   // guarantee that (x,y) indices map to a stable coordinate system.
   if (typeof spaceId === "string" && spaceId.startsWith("tile.")) {
-    const stepP = computeSampleStep(width, height, points?.sampleStep);
+    const stepP = computeSampleStep(width, height, points.sampleStep);
 
     let countP = 0;
     for (let y = 0; y < height; y += stepP) {

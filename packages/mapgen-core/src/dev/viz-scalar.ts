@@ -87,6 +87,7 @@ export function dumpScalarFieldVariants(
   });
 
   const points = options.points;
+  if (!points) return;
   const pointsVis = points?.debugOnly ? "debug" : visibility;
   if (pointsVis === "hidden") return;
 
@@ -140,4 +141,3 @@ export function dumpScalarFieldVariants(
     }),
   });
 }
-
