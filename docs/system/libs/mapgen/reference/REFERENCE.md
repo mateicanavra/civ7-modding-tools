@@ -32,6 +32,7 @@ Core contract references (implemented in Slice 02):
 - Observability: `docs/system/libs/mapgen/reference/OBSERVABILITY.md`
 
 Additional reference pages are added in later slices:
+- Standard recipe: `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`
 - Visualization (routing + migration): Slice 03B
-- Standard recipe and domains: Slice 03–04
+- Domains: Slice 04
 - Studio integration seam: Slice 09
