@@ -444,6 +444,19 @@ bun run check-types
 bun run test
 ```
 
+### UI-21 (shortcuts): allow Opt/Alt layer navigation in inputs
+
+**Acceptance criteria**
+- [x] Opt/Alt+Up/Down layer navigation works even when focus is inside an input.
+
+**Verification**
+```bash
+bun run --cwd apps/mapgen-studio build
+bun run lint
+bun run check-types
+bun run test
+```
+
 ## Milestone-level open questions (must stay explicit)
 1) Render mode vocabulary: what is the minimal stable “projection/renderMode” set that works across future recipes without being too physics-specific?
    - Option A: `renderMode := kind` (start here; simplest).
