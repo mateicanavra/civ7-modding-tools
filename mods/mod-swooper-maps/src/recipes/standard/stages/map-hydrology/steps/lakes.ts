@@ -49,6 +49,7 @@ export default createStep(LakesStepContract, {
         label: "Lake Outlets (Projected)",
         group: GROUP_MAP_HYDROLOGY,
         palette: "categorical",
+        visibility: "debug",
       }),
     });
 
@@ -67,6 +68,7 @@ export default createStep(LakesStepContract, {
           group: GROUP_MAP_HYDROLOGY,
           palette: "categorical",
           role: "physics",
+          visibility: "debug",
         }),
       });
       context.viz?.dumpGrid(context.trace, {
@@ -80,6 +82,7 @@ export default createStep(LakesStepContract, {
           group: GROUP_MAP_HYDROLOGY,
           palette: "categorical",
           role: "engine",
+          visibility: "debug",
         }),
       });
     }
