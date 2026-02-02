@@ -368,6 +368,20 @@ bun run check-types
 bun run test
 ```
 
+### UI-16 (shortcuts): allow modifier shortcuts in inputs
+
+**Acceptance criteria**
+- [ ] All modifier-based Studio shortcuts (Cmd/Ctrl + …) work even when focus is inside an input.
+- [ ] Bare keys are still not intercepted while typing (to avoid breaking text entry).
+
+**Verification**
+```bash
+bun run --cwd apps/mapgen-studio build
+bun run lint
+bun run check-types
+bun run test
+```
+
 ## Milestone-level open questions (must stay explicit)
 1) Render mode vocabulary: what is the minimal stable “projection/renderMode” set that works across future recipes without being too physics-specific?
    - Option A: `renderMode := kind` (start here; simplest).

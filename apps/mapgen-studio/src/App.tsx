@@ -624,10 +624,13 @@ function AppContent(props: AppContentProps) {
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.defaultPrevented) return;
-      if (isEditableTarget(event.target)) return;
+      if (event.isComposing) return;
 
       const ctx = shortcutsRef.current;
       const isMod = event.metaKey || event.ctrlKey;
+
+      // Allow modifier-based app shortcuts even while typing; ignore bare keys in inputs.
+      if (isEditableTarget(event.target) && !isMod) return;
 
       // Run / re-roll
       if (isMod && event.key === "Enter") {
