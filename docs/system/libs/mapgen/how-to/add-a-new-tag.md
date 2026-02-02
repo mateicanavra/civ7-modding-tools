@@ -38,6 +38,18 @@ Routes to:
 - Add the id to the appropriate constant set (field/effect/artifact grouping).
 - Prefer namespaced structures for discoverability.
 
+Representative example (tag id constants; excerpt; see full file in anchors):
+
+```ts
+export const M10_EFFECT_TAGS = {
+  map: {
+    elevationBuilt: "effect:map.elevationBuilt",
+    mountainsPlotted: "effect:map.mountainsPlotted",
+    volcanoesPlotted: "effect:map.volcanoesPlotted",
+  },
+} as const;
+```
+
 ### 3) Register the tag definition
 
 - Add a `DependencyTagDefinition` entry:
@@ -46,6 +58,28 @@ Routes to:
   - optional `owner` (recommended for effects)
   - optional `satisfies(context, state?)` predicate for runtime validation
 - Ensure the registry function registers the full set of definitions.
+
+Representative example (registration + owner attribution; excerpt; see full file in anchors):
+
+```ts
+const EFFECT_OWNERS: Record<string, TagOwner> = {
+  [M10_EFFECT_TAGS.map.elevationBuilt]: { pkg: "mod-swooper-maps", phase: "gameplay", stepId: "build-elevation" },
+  [M10_EFFECT_TAGS.map.mountainsPlotted]: { pkg: "mod-swooper-maps", phase: "gameplay", stepId: "plot-mountains" },
+};
+
+export const STANDARD_TAG_DEFINITIONS = [
+  ...Object.values(M10_EFFECT_TAGS.map).map((id) => {
+    const definition: DependencyTagDefinition<ExtendedMapContext> = { id, kind: "effect" };
+    const owner = EFFECT_OWNERS[id];
+    if (owner) definition.owner = owner;
+    return definition;
+  }),
+] as const;
+
+export function registerStandardTags(registry: { registerTags: (defs: readonly DependencyTagDefinition[]) => void }) {
+  registry.registerTags(STANDARD_TAG_DEFINITIONS);
+}
+```
 
 ### 4) Use the tag in step contracts
 
