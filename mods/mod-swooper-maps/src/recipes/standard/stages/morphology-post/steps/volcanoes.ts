@@ -1,6 +1,6 @@
 import { computeSampleStep, defineVizMeta, renderAsciiGrid, xyFromIndex } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { clamp01 } from "@swooper/mapgen-core/lib/math";
+import { clamp01, clampFinite } from "@swooper/mapgen-core/lib/math";
 import VolcanoesStepContract from "./volcanoes.contract.js";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 import {
@@ -45,12 +45,6 @@ function validateVolcanoes(value: unknown): ArtifactValidationIssue[] {
   return [];
 }
 
-function clampNumber(value: number, bounds: { min: number; max?: number }): number {
-  if (!Number.isFinite(value)) return bounds.min;
-  const max = bounds.max ?? Number.POSITIVE_INFINITY;
-  return Math.max(bounds.min, Math.min(max, value));
-}
-
 export default createStep(VolcanoesStepContract, {
   artifacts: implementArtifacts(VolcanoesStepContract.artifacts!.provides!, {
     volcanoes: {
@@ -70,11 +64,9 @@ export default createStep(VolcanoesStepContract, {
             ...config.volcanoes,
             config: {
               ...config.volcanoes.config,
-              baseDensity: clampNumber(config.volcanoes.config.baseDensity * densityMultiplier, { min: 0 }),
-              hotspotWeight: clampNumber(config.volcanoes.config.hotspotWeight * hotspotMultiplier, { min: 0 }),
-              convergentMultiplier: clampNumber(config.volcanoes.config.convergentMultiplier * convergentMultiplier, {
-                min: 0,
-              }),
+              baseDensity: clampFinite(config.volcanoes.config.baseDensity * densityMultiplier, 0),
+              hotspotWeight: clampFinite(config.volcanoes.config.hotspotWeight * hotspotMultiplier, 0),
+              convergentMultiplier: clampFinite(config.volcanoes.config.convergentMultiplier * convergentMultiplier, 0),
             },
           }
         : config.volcanoes;

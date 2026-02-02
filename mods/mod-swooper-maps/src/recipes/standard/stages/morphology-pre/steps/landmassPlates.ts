@@ -1,6 +1,7 @@
 import { computeSampleStep, ctxRandom, ctxRandomLabel, defineVizMeta, renderAsciiGrid } from "@swooper/mapgen-core";
 import type { MapDimensions } from "@civ7/adapter";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
 import LandmassPlatesStepContract from "./landmassPlates.contract.js";
 import { MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA } from "@mapgen/domain/morphology/shared/knob-multipliers.js";
 import type { MorphologySeaLevelKnob } from "@mapgen/domain/morphology/shared/knobs.js";
@@ -103,22 +104,6 @@ function applyBaseTerrainBuffers(
   return { landCount, waterCount, minElevation, maxElevation };
 }
 
-function roundHalfAwayFromZero(value: number): number {
-  return value >= 0 ? Math.floor(value + 0.5) : Math.ceil(value - 0.5);
-}
-
-function clampInt16(value: number): number {
-  if (value > 32767) return 32767;
-  if (value < -32768) return -32768;
-  return value;
-}
-
-function clampNumber(value: number, bounds: { min: number; max?: number }): number {
-  if (!Number.isFinite(value)) return bounds.min;
-  const max = bounds.max ?? Number.POSITIVE_INFINITY;
-  return Math.max(bounds.min, Math.min(max, value));
-}
-
 export default createStep(LandmassPlatesStepContract, {
   artifacts: implementArtifacts(LandmassPlatesStepContract.artifacts!.provides!, {
     topography: {
@@ -138,10 +123,7 @@ export default createStep(LandmassPlatesStepContract, {
             ...config.seaLevel,
             config: {
               ...config.seaLevel.config,
-              targetWaterPercent: clampNumber((config.seaLevel.config.targetWaterPercent ?? 0) + delta, {
-                min: 0,
-                max: 100,
-              }),
+              targetWaterPercent: clampFinite((config.seaLevel.config.targetWaterPercent ?? 0) + delta, 0, 100),
             },
           }
         : config.seaLevel;

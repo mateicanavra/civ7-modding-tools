@@ -1,16 +1,11 @@
 import { computeSampleStep, defineVizMeta, renderAsciiGrid } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { clampInt16 } from "@swooper/mapgen-core/lib/math";
 import IslandsStepContract from "./islands.contract.js";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 
 const GROUP_ISLANDS = "Morphology / Islands";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
-
-function clampInt16(value: number): number {
-  if (value > 32767) return 32767;
-  if (value < -32768) return -32768;
-  return value;
-}
 
 export default createStep(IslandsStepContract, {
   run: (context, config, ops, deps) => {

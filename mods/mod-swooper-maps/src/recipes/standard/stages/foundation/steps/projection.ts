@@ -13,6 +13,7 @@ import {
   FOUNDATION_PLATE_ACTIVITY_KINEMATICS_MULTIPLIER,
 } from "@mapgen/domain/foundation/shared/knob-multipliers.js";
 import type { FoundationPlateActivityKnob } from "@mapgen/domain/foundation/shared/knobs.js";
+import { clampFinite } from "@swooper/mapgen-core/lib/math";
 
 const GROUP_PLATES = "Foundation / Plates";
 const GROUP_CRUST_TILES = "Foundation / Crust Tiles";
@@ -23,12 +24,6 @@ function clampInt(value: number, bounds: { min: number; max?: number }): number 
   const rounded = Math.round(value);
   const max = bounds.max ?? Number.POSITIVE_INFINITY;
   return Math.max(bounds.min, Math.min(max, rounded));
-}
-
-function clampNumber(value: number, bounds: { min: number; max?: number }): number {
-  if (!Number.isFinite(value)) return bounds.min;
-  const max = bounds.max ?? Number.POSITIVE_INFINITY;
-  return Math.max(bounds.min, Math.min(max, value));
 }
 
 export default createStep(ProjectionStepContract, {
@@ -59,14 +54,8 @@ export default createStep(ProjectionStepContract, {
                 (config.computePlates.config.boundaryInfluenceDistance ?? 0) + boundaryDelta,
                 { min: 1, max: 32 }
               ),
-              movementScale: clampNumber((config.computePlates.config.movementScale ?? 0) * kinematicsMultiplier, {
-                min: 1,
-                max: 200,
-              }),
-              rotationScale: clampNumber((config.computePlates.config.rotationScale ?? 0) * kinematicsMultiplier, {
-                min: 1,
-                max: 200,
-              }),
+              movementScale: clampFinite((config.computePlates.config.movementScale ?? 0) * kinematicsMultiplier, 1, 200),
+              rotationScale: clampFinite((config.computePlates.config.rotationScale ?? 0) * kinematicsMultiplier, 1, 200),
             },
           }
         : config.computePlates;

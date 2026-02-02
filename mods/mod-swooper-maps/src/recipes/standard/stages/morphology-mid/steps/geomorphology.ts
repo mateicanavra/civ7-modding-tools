@@ -1,5 +1,6 @@
-import { computeSampleStep, defineVizMeta, renderAsciiGrid } from "@swooper/mapgen-core";
+import { BYTE_SHADE_RAMP, computeSampleStep, defineVizMeta, renderAsciiGrid, shadeByte } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
 
 import GeomorphologyStepContract from "./geomorphology.contract.js";
 import { MORPHOLOGY_EROSION_RATE_MULTIPLIER } from "@mapgen/domain/morphology/shared/knob-multipliers.js";
@@ -7,30 +8,6 @@ import type { MorphologyErosionKnob } from "@mapgen/domain/morphology/shared/kno
 
 const GROUP_GEOMORPHOLOGY = "Morphology / Geomorphology";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
-
-function clampInt16(value: number): number {
-  if (value > 32767) return 32767;
-  if (value < -32768) return -32768;
-  return value;
-}
-
-function roundHalfAwayFromZero(value: number): number {
-  return value >= 0 ? Math.floor(value + 0.5) : Math.ceil(value - 0.5);
-}
-
-function clampNumber(value: number, bounds: { min: number; max?: number }): number {
-  if (!Number.isFinite(value)) return bounds.min;
-  const max = bounds.max ?? Number.POSITIVE_INFINITY;
-  return Math.max(bounds.min, Math.min(max, value));
-}
-
-const SHADE_RAMP = " .:-=+*#%@";
-
-function shadeByte(value: number): string {
-  const v = Math.max(0, Math.min(255, value | 0));
-  const idx = Math.max(0, Math.min(SHADE_RAMP.length - 1, Math.floor((v / 255) * (SHADE_RAMP.length - 1))));
-  return SHADE_RAMP[idx] ?? "?";
-}
 
 export default createStep(GeomorphologyStepContract, {
   normalize: (config, ctx) => {
@@ -47,15 +24,15 @@ export default createStep(GeomorphologyStepContract, {
                 ...config.geomorphology.config.geomorphology,
                 fluvial: {
                   ...config.geomorphology.config.geomorphology.fluvial,
-                  rate: clampNumber(config.geomorphology.config.geomorphology.fluvial.rate * multiplier, { min: 0 }),
+                  rate: clampFinite(config.geomorphology.config.geomorphology.fluvial.rate * multiplier, 0),
                 },
                 diffusion: {
                   ...config.geomorphology.config.geomorphology.diffusion,
-                  rate: clampNumber(config.geomorphology.config.geomorphology.diffusion.rate * multiplier, { min: 0 }),
+                  rate: clampFinite(config.geomorphology.config.geomorphology.diffusion.rate * multiplier, 0),
                 },
                 deposition: {
                   ...config.geomorphology.config.geomorphology.deposition,
-                  rate: clampNumber(config.geomorphology.config.geomorphology.deposition.rate * multiplier, { min: 0 }),
+                  rate: clampFinite(config.geomorphology.config.geomorphology.deposition.rate * multiplier, 0),
                 },
               },
             },
@@ -250,7 +227,7 @@ export default createStep(GeomorphologyStepContract, {
         return {
           kind: "morphology.geomorphology.ascii.netErosionAndDeposit",
           sampleStep,
-          legend: `${SHADE_RAMP} (low→high) ~=water`,
+          legend: `${BYTE_SHADE_RAMP} (low→high) ~=water`,
           erosionRows,
           depositRows,
         };
