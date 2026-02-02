@@ -807,26 +807,26 @@ function AppContent(props: AppContentProps) {
 
         if (!isMod) return;
 
-        // Cmd+Shift+Up/Down => stage
+        // Cmd+Shift+Up/Down => step
         if (event.shiftKey) {
-          if (!ctx.stages.length) return;
+          if (!ctx.steps.length) return;
           event.preventDefault();
-          const idx = ctx.stages.findIndex((s) => s.value === ctx.selectedStageId);
-          const nextIdx = clampIndex(idx + dir, ctx.stages.length - 1);
-          const nextStage = ctx.stages[nextIdx]?.value ?? null;
-          if (!nextStage || nextStage === ctx.selectedStageId) return;
-          ctx.handleStageChange(nextStage);
+          const idx = ctx.steps.findIndex((s) => s.value === ctx.selectedStepId);
+          const nextIdx = clampIndex(idx + dir, ctx.steps.length - 1);
+          const nextStep = ctx.steps[nextIdx]?.value ?? null;
+          if (!nextStep || nextStep === ctx.selectedStepId) return;
+          ctx.setSelectedStepId(nextStep);
           return;
         }
 
-        // Cmd+Up/Down => step
-        if (!ctx.steps.length) return;
+        // Cmd+Up/Down => stage
+        if (!ctx.stages.length) return;
         event.preventDefault();
-        const idx = ctx.steps.findIndex((s) => s.value === ctx.selectedStepId);
-        const nextIdx = clampIndex(idx + dir, ctx.steps.length - 1);
-        const nextStep = ctx.steps[nextIdx]?.value ?? null;
-        if (!nextStep || nextStep === ctx.selectedStepId) return;
-        ctx.setSelectedStepId(nextStep);
+        const idx = ctx.stages.findIndex((s) => s.value === ctx.selectedStageId);
+        const nextIdx = clampIndex(idx + dir, ctx.stages.length - 1);
+        const nextStage = ctx.stages[nextIdx]?.value ?? null;
+        if (!nextStage || nextStage === ctx.selectedStageId) return;
+        ctx.handleStageChange(nextStage);
       }
     };
 

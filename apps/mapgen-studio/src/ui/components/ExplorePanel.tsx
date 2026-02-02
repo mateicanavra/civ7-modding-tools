@@ -175,15 +175,12 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   // ==========================================================================
   const handleSelectStage = (stageValue: string) => {
     onSelectedStageChange(stageValue);
-    setIsStageExpanded(false);
   };
   const handleSelectStep = (stepValue: string) => {
     onSelectedStepChange(stepValue);
-    setIsStepExpanded(false);
   };
   const handleSelectLayer = (layerValue: string) => {
     onSelectedDataTypeChange(layerValue);
-    setIsLayersExpanded(false);
   };
   // ==========================================================================
   // Styles
