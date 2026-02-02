@@ -47,6 +47,9 @@ export {
   type EngineHeightfieldSnapshot,
 } from "@mapgen/dev/engine-heightfield.js";
 
+// General-purpose visualization helpers
+export { BYTE_SHADE_RAMP, shadeByte } from "@mapgen/dev/shading.js";
+
 // ASCII visualization
 export {
   ASCII_CHARS,

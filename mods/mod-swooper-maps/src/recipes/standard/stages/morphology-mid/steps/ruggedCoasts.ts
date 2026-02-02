@@ -4,6 +4,7 @@ import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import RuggedCoastsStepContract from "./ruggedCoasts.contract.js";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
+import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
 import { MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER } from "@mapgen/domain/morphology/shared/knob-multipliers.js";
 import type { MorphologyCoastRuggednessKnob } from "@mapgen/domain/morphology/shared/knobs.js";
 
@@ -51,22 +52,6 @@ function validateCoastlineMetrics(value: unknown, dimensions: MapDimensions): Ar
   validateTypedArray(errors, "coastlineMetrics.coastalWater", candidate.coastalWater, Uint8Array, size);
   validateTypedArray(errors, "coastlineMetrics.distanceToCoast", candidate.distanceToCoast, Uint16Array, size);
   return errors;
-}
-
-function roundHalfAwayFromZero(value: number): number {
-  return value >= 0 ? Math.floor(value + 0.5) : Math.ceil(value - 0.5);
-}
-
-function clampInt16(value: number): number {
-  if (value > 32767) return 32767;
-  if (value < -32768) return -32768;
-  return value;
-}
-
-function clampNumber(value: number, bounds: { min: number; max?: number }): number {
-  if (!Number.isFinite(value)) return bounds.min;
-  const max = bounds.max ?? Number.POSITIVE_INFINITY;
-  return Math.max(bounds.min, Math.min(max, value));
 }
 
 function computeDistanceToCoast(width: number, height: number, coastal: Uint8Array): Uint16Array {
@@ -122,14 +107,9 @@ export default createStep(RuggedCoastsStepContract, {
                 ...config.coastlines.config.coast,
                 plateBias: {
                   ...config.coastlines.config.coast.plateBias,
-                  bayWeight: clampNumber(config.coastlines.config.coast.plateBias.bayWeight * multiplier, { min: 0 }),
-                  bayNoiseBonus: clampNumber(
-                    config.coastlines.config.coast.plateBias.bayNoiseBonus * multiplier,
-                    { min: 0 }
-                  ),
-                  fjordWeight: clampNumber(config.coastlines.config.coast.plateBias.fjordWeight * multiplier, {
-                    min: 0,
-                  }),
+                  bayWeight: clampFinite(config.coastlines.config.coast.plateBias.bayWeight * multiplier, 0),
+                  bayNoiseBonus: clampFinite(config.coastlines.config.coast.plateBias.bayNoiseBonus * multiplier, 0),
+                  fjordWeight: clampFinite(config.coastlines.config.coast.plateBias.fjordWeight * multiplier, 0),
                 },
               },
             },

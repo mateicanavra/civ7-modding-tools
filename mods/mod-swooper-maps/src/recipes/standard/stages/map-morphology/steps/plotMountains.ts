@@ -1,13 +1,16 @@
 import {
   HILL_TERRAIN,
   MOUNTAIN_TERRAIN,
+  BYTE_SHADE_RAMP,
   computeSampleStep,
   defineVizMeta,
   logMountainSummary,
   logReliefAscii,
+  shadeByte,
   renderAsciiGrid,
 } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { clampFinite } from "@swooper/mapgen-core/lib/math";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 import PlotMountainsStepContract from "./plotMountains.contract.js";
@@ -42,20 +45,6 @@ function buildFractalArray(
   return fractal;
 }
 
-function clampNumber(value: number, bounds: { min: number; max?: number }): number {
-  if (!Number.isFinite(value)) return bounds.min;
-  const max = bounds.max ?? Number.POSITIVE_INFINITY;
-  return Math.max(bounds.min, Math.min(max, value));
-}
-
-const SHADE_RAMP = " .:-=+*#%@";
-
-function shadeByte(value: number): string {
-  const v = Math.max(0, Math.min(255, value | 0));
-  const idx = Math.max(0, Math.min(SHADE_RAMP.length - 1, Math.floor((v / 255) * (SHADE_RAMP.length - 1))));
-  return SHADE_RAMP[idx] ?? "?";
-}
-
 export default createStep(PlotMountainsStepContract, {
   normalize: (config, ctx) => {
     const { orogeny } = ctx.knobs as Readonly<{ orogeny?: MorphologyOrogenyKnob }>;
@@ -69,11 +58,9 @@ export default createStep(PlotMountainsStepContract, {
             ...config.mountains,
             config: {
               ...config.mountains.config,
-              tectonicIntensity: clampNumber(config.mountains.config.tectonicIntensity * multiplier, { min: 0 }),
-              mountainThreshold: clampNumber(config.mountains.config.mountainThreshold + mountainThresholdDelta, {
-                min: 0,
-              }),
-              hillThreshold: clampNumber(config.mountains.config.hillThreshold + hillThresholdDelta, { min: 0 }),
+              tectonicIntensity: clampFinite(config.mountains.config.tectonicIntensity * multiplier, 0),
+              mountainThreshold: clampFinite(config.mountains.config.mountainThreshold + mountainThresholdDelta, 0),
+              hillThreshold: clampFinite(config.mountains.config.hillThreshold + hillThresholdDelta, 0),
             },
           }
         : config.mountains;
@@ -211,7 +198,7 @@ export default createStep(PlotMountainsStepContract, {
       return {
         kind: "morphology.mountains.ascii.orogenyPotential01",
         sampleStep,
-        legend: `${SHADE_RAMP} (low→high)`,
+        legend: `${BYTE_SHADE_RAMP} (low→high)`,
         rows,
       };
     });
@@ -229,7 +216,7 @@ export default createStep(PlotMountainsStepContract, {
       return {
         kind: "morphology.mountains.ascii.fracture01",
         sampleStep,
-        legend: `${SHADE_RAMP} (low→high)`,
+        legend: `${BYTE_SHADE_RAMP} (low→high)`,
         rows,
       };
     });

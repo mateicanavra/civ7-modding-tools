@@ -17,3 +17,12 @@ export function clampPct(value: number, min: number, max: number, fallback: numb
   return clamp(value, min, max);
 }
 
+export function clampFinite(
+  value: number,
+  min: number,
+  max: number = Number.POSITIVE_INFINITY,
+  fallback: number = min
+): number {
+  if (!Number.isFinite(value)) return fallback;
+  return clamp(value, min, max);
+}
