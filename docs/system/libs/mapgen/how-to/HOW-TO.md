@@ -2,6 +2,7 @@
   <item id="purpose" title="Purpose"/>
   <item id="audience" title="Audience"/>
   <item id="tasks" title="Task list"/>
+  <item id="anchors" title="Ground truth anchors"/>
 </toc>
 
 # MapGen how-to guides
@@ -31,3 +32,9 @@ Canonical how-tos:
 
 Potential future how-tos:
 - Run a recipe headless
+
+## Ground truth anchors
+
+- Gateway: `docs/system/libs/mapgen/MAPGEN.md`
+- How-to index (this file): `docs/system/libs/mapgen/how-to/HOW-TO.md`
+- Policies (normative): `docs/system/libs/mapgen/policies/POLICIES.md`

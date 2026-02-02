@@ -7,6 +7,7 @@
   <section title="Knobs & Normalization" />
   <section title="Current Mapping (Standard Recipe)" />
   <section title="Open Questions" />
+  <section title="Ground truth anchors" />
 </toc>
 
 # Foundation
@@ -320,3 +321,9 @@ Marking these explicitly avoids “silent drift” in canonical docs.
 2. Is `artifact:foundation.plates` intended to remain a **Foundation-owned** projection, or should it be moved to an adapter/projection layer outside the Foundation domain?
 3. Is the effective invariant “tectonic history uses exactly 3 eras” a deliberate contract, or should validation be relaxed to match `FoundationTectonicHistorySchema` (`eraCount <= 8`)?
 4. Which downstream domain(s) should consume `artifact:foundation.tectonicHistory` (if any), and what is the minimal cross-domain contract for “age of orogeny” vs “recent activity”?
+
+## Ground truth anchors
+
+- Domain id + ops bundle: `mods/mod-swooper-maps/src/domain/foundation/index.ts`
+- Standard recipe Foundation stage: `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
+- Core artifact tag constants: `packages/mapgen-core/src/core/types.ts`

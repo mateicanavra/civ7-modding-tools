@@ -172,6 +172,7 @@ Hardening rule:
 Before submitting the hardening stack:
 
 - `git status` is clean.
+- `bun run lint:mapgen-docs` passes (canonical MapGen docs QA: toc + anchors + anchor-path existence).
 - Automated scan: no missing anchored paths in non-archive MapGen docs.
 - Manual spot-check:
   - `MAPGEN.md` routing is correct.
@@ -186,3 +187,16 @@ After merge, add a lightweight “docs QA” step to the standard workflow (manu
 - terminology drift gets flagged early,
 - and the canonical spine stays the single path.
 
+### Canonical command
+
+Run:
+
+```bash
+bun run lint:mapgen-docs
+```
+
+This executes `scripts/lint/lint-mapgen-docs.py`, which:
+- scans `docs/system/libs/mapgen/**` (excluding `_archive/`, `research/`, and `adrs/` by default),
+- requires mini XML `<toc>` and a `## Ground truth anchors` section for canonical docs (routers are exempt from anchors),
+- validates that backticked repo-relative anchor paths point to real files,
+- and flags `@mapgen/*` mentions (workspace-only alias) so docs prefer published entrypoints.

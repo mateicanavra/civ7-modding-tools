@@ -2,6 +2,7 @@
   <item id="purpose" title="Purpose"/>
   <item id="audience" title="Audience"/>
   <item id="policies" title="Policy bundle"/>
+  <item id="anchors" title="Ground truth anchors"/>
 </toc>
 
 # MapGen policies
@@ -29,3 +30,8 @@ Canonical policies:
 - Config vs plan compilation: `docs/system/libs/mapgen/policies/CONFIG-VS-PLAN-COMPILATION.md`
 - Truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
 - Module shape: `docs/system/libs/mapgen/policies/MODULE-SHAPE.md`
+
+## Ground truth anchors
+
+- Gateway: `docs/system/libs/mapgen/MAPGEN.md`
+- Policy index (this file): `docs/system/libs/mapgen/policies/POLICIES.md`

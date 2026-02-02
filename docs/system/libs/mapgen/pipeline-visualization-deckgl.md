@@ -10,6 +10,7 @@
   <item id="changes" title="Future enhancements"/>
   <item id="verification" title="Verification"/>
   <item id="questions" title="Open questions"/>
+  <item id="anchors" title="Ground truth anchors"/>
 </toc>
 
 # Pipeline Visualization (deck.gl)
@@ -21,12 +22,12 @@
 ## Definitions
 
 - **Dump folder**: replayable output containing `manifest.json` plus payloads under `data/`.
-- **`outputsRoot`**: where dump folders are written (implementation chooses the root; the contract only assumes a per-run folder containing `manifest.json`).
-- **`runId`**: run identity used by trace/dumps. Current implementation: `runId === planFingerprint`.
-- **`planFingerprint`**: plan identity (hash of plan inputs); see `packages/mapgen-core/src/engine/observability.ts`.
-- **`dataTypeKey`**: stable semantic identity for a data product (e.g. `"hydrology.wind.wind"`).
-- **`layerKey`**: canonical, opaque identity for a layer within a run (used for streaming upserts and dump replay identity).
-- **`spaceId`**: explicit coordinate space (“projection” selector in the Studio UI).
+- `outputsRoot`: where dump folders are written (implementation chooses the root; the contract only assumes a per-run folder containing `manifest.json`).
+- `runId`: run identity used by trace/dumps. Current implementation: `runId === planFingerprint` (see `docs/system/libs/mapgen/reference/GLOSSARY.md`).
+- `planFingerprint`: plan identity (hash of plan inputs); see `docs/system/libs/mapgen/reference/GLOSSARY.md` and `packages/mapgen-core/src/engine/observability.ts`.
+- `dataTypeKey`: stable semantic identity for a data product (e.g. `"hydrology.wind.wind"`).
+- `layerKey`: canonical, opaque identity for a layer within a run (used for streaming upserts and dump replay identity).
+- `spaceId`: explicit coordinate space (“projection” selector in the Studio UI).
 
 ## Coordinate Spaces (critical for “why does it look rotated?”)
 
@@ -257,3 +258,15 @@ Replay (dump viewer):
 - **Event envelope convergence:** unify `viz.layer.emit.v1` and `viz.layer.dump.v1` naming (or make sinks accept both).
 - **Binary format:** raw typed arrays + sidecar JSON vs Arrow/Parquet.
 - **File size controls:** snapshot every step vs key steps only.
+
+## Ground truth anchors
+
+- Run identity (runId == planFingerprint): `packages/mapgen-core/src/engine/observability.ts`
+- Trace verbosity gate: `packages/mapgen-core/src/trace/index.ts`
+- Studio viz dumper: `apps/mapgen-studio/src/browser-runner/worker-viz-dumper.ts`
+- Studio viz forwarding sink: `apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts`
+- Studio worker protocol: `apps/mapgen-studio/src/browser-runner/protocol.ts`
+- Dump viewer manifest validation: `apps/mapgen-studio/src/features/dumpViewer/manifest.ts`
+- Deck.gl renderer: `apps/mapgen-studio/src/features/viz/deckgl/render.ts`
+- Node/dev dump harness: `mods/mod-swooper-maps/src/dev/viz/dump.ts`
+- Viz contract routing: `docs/system/libs/mapgen/reference/VISUALIZATION.md`
