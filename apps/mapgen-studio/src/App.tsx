@@ -828,6 +828,15 @@ function AppContent(props: AppContentProps) {
 
   const panelTop = LAYOUT.SPACING + LAYOUT.HEADER_HEIGHT + LAYOUT.SPACING;
 
+  const backgroundGridEnabled = useMemo(() => {
+    if (!showGrid) return false;
+    const layer = viz.effectiveLayer;
+    if (!layer) return false;
+    if (!(layer.kind === "points" || layer.kind === "segments")) return false;
+    if (layer.meta?.showGrid === false) return false;
+    return true;
+  }, [showGrid, viz.effectiveLayer]);
+
   const canvas = (
     <div className="absolute inset-0">
       <div className={`absolute inset-0 ${isLightMode ? "bg-[#f5f5f7]" : "bg-[#0a0a12]"}`} />
@@ -848,7 +857,7 @@ function AppContent(props: AppContentProps) {
             `,
         }}
       />
-      {showGrid ? (
+      {backgroundGridEnabled ? (
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
