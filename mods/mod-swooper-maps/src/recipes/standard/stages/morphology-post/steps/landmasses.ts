@@ -75,6 +75,7 @@ export default createStep(LandmassesStepContract, {
       meta: defineVizMeta("morphology.landmasses.landmassIdByTile", {
         label: "Landmass Id",
         group: GROUP_LANDMASSES,
+        palette: "categorical",
       }),
     });
 

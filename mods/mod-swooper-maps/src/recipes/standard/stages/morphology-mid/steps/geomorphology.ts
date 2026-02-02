@@ -1,9 +1,11 @@
-import { computeSampleStep, renderAsciiGrid } from "@swooper/mapgen-core";
+import { computeSampleStep, defineVizMeta, renderAsciiGrid } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 
 import GeomorphologyStepContract from "./geomorphology.contract.js";
 import { MORPHOLOGY_EROSION_RATE_MULTIPLIER } from "@mapgen/domain/morphology/shared/knob-multipliers.js";
 import type { MorphologyErosionKnob } from "@mapgen/domain/morphology/shared/knobs.js";
+
+const GROUP_GEOMORPHOLOGY = "Morphology / Geomorphology";
 
 function clampInt16(value: number): number {
   if (value > 32767) return 32767;
@@ -112,6 +114,58 @@ export default createStep(GeomorphologyStepContract, {
         bathymetry[i] = clampInt16(roundHalfAwayFromZero(delta));
       }
     }
+
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "morphology.geomorphology.elevationDelta",
+      dims: { width, height },
+      format: "f32",
+      values: deltas.elevationDelta,
+      meta: defineVizMeta("morphology.geomorphology.elevationDelta", {
+        label: "Elevation Delta",
+        group: GROUP_GEOMORPHOLOGY,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "morphology.geomorphology.sedimentDelta",
+      dims: { width, height },
+      format: "f32",
+      values: deltas.sedimentDelta,
+      meta: defineVizMeta("morphology.geomorphology.sedimentDelta", {
+        label: "Sediment Delta",
+        group: GROUP_GEOMORPHOLOGY,
+      }),
+    });
+
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "morphology.topography.elevation",
+      dims: { width, height },
+      format: "i16",
+      values: heightfield.elevation,
+      meta: defineVizMeta("morphology.topography.elevation", {
+        label: "Elevation (After Geomorphology)",
+        group: GROUP_GEOMORPHOLOGY,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "morphology.topography.landMask",
+      dims: { width, height },
+      format: "u8",
+      values: heightfield.landMask,
+      meta: defineVizMeta("morphology.topography.landMask", {
+        label: "Land Mask (After Geomorphology)",
+        group: GROUP_GEOMORPHOLOGY,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      layerId: "morphology.topography.bathymetry",
+      dims: { width, height },
+      format: "i16",
+      values: bathymetry,
+      meta: defineVizMeta("morphology.topography.bathymetry", {
+        label: "Bathymetry (After Geomorphology)",
+        group: GROUP_GEOMORPHOLOGY,
+      }),
+    });
 
     context.trace.event(() => {
       const size = Math.max(0, (width | 0) * (height | 0));

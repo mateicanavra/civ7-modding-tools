@@ -29,6 +29,7 @@ export default createStep(PlotVolcanoesStepContract, {
       meta: defineVizMeta("map.morphology.volcanoes.points", {
         label: "Volcano Points (Projection)",
         group: GROUP_MAP_PROJECTION,
+        space: "tile",
       }),
     });
 
