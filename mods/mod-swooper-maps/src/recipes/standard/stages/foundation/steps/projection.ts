@@ -219,8 +219,9 @@ export default createStep(ProjectionStepContract, {
       label: "Plate Movement",
       group: GROUP_PLATES,
       palette: "continuous",
-      arrows: { maxArrowLenTiles: 1.25 },
-      points: {},
+      magnitude: { debugOnly: true },
+      arrows: { maxArrowLenTiles: 1.25, debugOnly: true },
+      points: { debugOnly: true },
     });
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "foundation.plates.tileRotation",

@@ -134,8 +134,9 @@ describe("standard pipeline viz emissions", () => {
 
     const movementMetas = metasByKey.get("foundation.plates.tileMovement") as any[] | undefined;
     expect(movementMetas?.some((m) => m?.visibility === "default" && m?.role === "vector")).toBe(true);
-    expect(movementMetas?.some((m) => m?.visibility === "default" && m?.role === "magnitude")).toBe(true);
-    expect(movementMetas?.some((m) => m?.visibility === "default" && m?.role === "arrows")).toBe(true);
+    expect(movementMetas?.some((m) => m?.visibility === "debug" && m?.role === "magnitude")).toBe(true);
+    expect(movementMetas?.some((m) => m?.visibility === "debug" && m?.role === "arrows")).toBe(true);
+    expect(movementMetas?.some((m) => m?.visibility === "debug" && m?.role === "centroids")).toBe(true);
 
     const closenessMetas = metasByKey.get("foundation.plates.tileBoundaryCloseness") as any[] | undefined;
     expect(closenessMetas?.some((m) => m?.visibility === "debug")).toBe(true);
