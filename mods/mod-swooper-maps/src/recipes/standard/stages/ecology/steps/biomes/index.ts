@@ -1,4 +1,4 @@
-import { defineVizMeta } from "@swooper/mapgen-core";
+import { defineVizMeta, dumpScalarFieldVariants } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clamp01 } from "@swooper/mapgen-core/lib/math";
 import BiomesStepContract from "./contract.js";
@@ -45,27 +45,23 @@ export default createStep(BiomesStepContract, {
       treeLine01[i] = clamp01(1 - (cryosphere.permafrost01?.[i] ?? 0));
     }
 
-    context.viz?.dumpGrid(context.trace, {
+    dumpScalarFieldVariants(context.trace, context.viz, {
       dataTypeKey: "ecology.biome.vegetationDensity",
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
-      format: "f32",
-      values: result.vegetationDensity,
-      meta: defineVizMeta("ecology.biome.vegetationDensity", {
-        label: "Vegetation Density",
-        group: GROUP_BIOMES,
-      }),
+      field: { format: "f32", values: result.vegetationDensity },
+      label: "Vegetation Density",
+      group: GROUP_BIOMES,
+      points: {},
     });
-    context.viz?.dumpGrid(context.trace, {
+    dumpScalarFieldVariants(context.trace, context.viz, {
       dataTypeKey: "ecology.biome.effectiveMoisture",
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
-      format: "f32",
-      values: result.effectiveMoisture,
-      meta: defineVizMeta("ecology.biome.effectiveMoisture", {
-        label: "Effective Moisture",
-        group: GROUP_BIOMES,
-      }),
+      field: { format: "f32", values: result.effectiveMoisture },
+      label: "Effective Moisture",
+      group: GROUP_BIOMES,
+      points: {},
     });
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "ecology.biome.surfaceTemperature",

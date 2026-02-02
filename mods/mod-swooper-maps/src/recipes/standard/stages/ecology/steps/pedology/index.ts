@@ -1,4 +1,4 @@
-import { defineVizMeta } from "@swooper/mapgen-core";
+import { defineVizMeta, dumpScalarFieldVariants } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { ecologyArtifacts } from "../../artifacts.js";
 import { validatePedologyArtifact } from "../../artifact-validation.js";
@@ -42,16 +42,14 @@ export default createStep(PedologyStepContract, {
         palette: "categorical",
       }),
     });
-    context.viz?.dumpGrid(context.trace, {
+    dumpScalarFieldVariants(context.trace, context.viz, {
       dataTypeKey: "ecology.pedology.fertility",
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
-      format: "f32",
-      values: result.fertility,
-      meta: defineVizMeta("ecology.pedology.fertility", {
-        label: "Fertility",
-        group: GROUP_PEDOLOGY,
-      }),
+      field: { format: "f32", values: result.fertility },
+      label: "Fertility",
+      group: GROUP_PEDOLOGY,
+      points: {},
     });
 
     deps.artifacts.pedology.publish(context, {
