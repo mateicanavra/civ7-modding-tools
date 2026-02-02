@@ -483,8 +483,9 @@ type VizGridFieldsLayer = {
 ```
 
 Then define standard patterns:
-- `hydrology.wind` as `{ u: ..., v: ... }`
-- `hydrology.current` as `{ u: ..., v: ... }`
+- Proposed v1 `dataTypeId`s (not current v0 layer IDs):
+  - `hydrology.wind` as `{ u: ..., v: ... }`
+  - `hydrology.current` as `{ u: ..., v: ... }`
 
 Viewer projections:
 - `gridFields.vectorArrows` (downsample + render arrows)
@@ -496,3 +497,236 @@ The maximal version still avoids “dump every projection”. Instead:
 - pipeline emits the canonical base field(s) once,
 - viewer offers multiple projections (contours/hillshade/arrows/classify/etc),
 - pipeline only emits extra layers for *true* derived products we don’t want computed client-side (or that require engine adapters).
+
+---
+
+## 11) Worked examples (end-to-end, grounded in existing layer IDs)
+
+These are intentionally based on layer IDs that exist today in the pipeline (see `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md` and the `viz-01..05` stack). When something is “v1 proposed”, it is explicitly called out.
+
+### 11.1 Continuous scalar field: `morphology.topography.elevation` (existing)
+
+**Producer (today):**
+- The Morphology pipeline emits this as a grid of `i16` via `context.viz?.dumpGrid(...)`.
+- One concrete emission site: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-pre/steps/landmassPlates.ts` (`layerId: "morphology.topography.elevation"`, `format: "i16"`).
+- The producer already provides meaningful author intent via `meta` (`label: "Elevation (m)"`, `group`, etc.).
+
+**Dump/stream (today):**
+- Dump sink records a layer descriptor with `layerId` + `kind: "grid"` + `format: "i16"` + `dims` and a `data/*` payload reference.
+- Streaming mode carries equivalent descriptors and buffers in-memory.
+
+**Viewer (today):**
+- Studio groups by `layerId`, but continuous rendering treats raw values as if they’re already normalized (effectively clamping raw values to `[0,1]`).
+
+**v1 (proposed): value semantics + multi-projection**
+- Treat `morphology.topography.elevation` as a continuous scalar with units “m” and a domain derived from stats (min/max) per run.
+- Provide multiple viewer-defined projections over the same representation:
+  - `grid.hexFill` (baseline)
+  - `grid.hillshade` (derived; meaningfully varied without pipeline duplication)
+  - `grid.contours` (derived; debug/validation)
+  - `grid.slope` (derived; debug/validation)
+
+**Why this is “maximal”:**
+- It produces the variety you expect *without* bloating the pipeline surface area into “dump every projection as a separate layer”.
+
+### 11.2 Vector field components: `hydrology.wind.windU` + `hydrology.wind.windV` (existing)
+
+**Producer (today):**
+- Hydrology already emits the U/V components as separate grid layers (`format: "i8"`):
+  - `hydrology.wind.windU`
+  - `hydrology.wind.windV`
+  - plus `hydrology.current.currentU/currentV`
+- One concrete emission site: `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/steps/climateBaseline.ts`.
+
+**What’s missing (today):**
+- The viewer lacks a concept of “this is one vector field”, so U/V show up as two unrelated scalar layers.
+
+**v1 option A (proposed, preferred long-term): multi-field representation**
+- Introduce a representation that can carry multiple named fields (`{ u, v }`) under one `dataTypeId`.
+- This removes the need for UI composites and makes the “vector field” unit explicit and stable.
+- The viewer can then offer true vector projections:
+  - `gridFields.vectorArrows` (downsample + arrows)
+  - `gridFields.streamlines` (optional; expensive)
+
+**v1 option B (proposed, compatible short-term): registry-defined composite data type**
+- Without changing the pipeline, allow the registry to define a composite data type that consumes multiple existing layers.
+- Example composite: `hydrology.wind` consuming `hydrology.wind.windU` + `hydrology.wind.windV`.
+- The UI presents one “Wind (vector)” entry with multiple projections, backed by two emitted grids.
+
+**Why this is “maximal”:**
+- It makes vector fields a first-class visualization surface (arrows/streamlines), which is a core part of making the pipeline “roar”.
+
+### 11.3 Overlay role: `foundation.mesh.edges` as `edgeOverlay` (existing)
+
+**Producer (today):**
+- Foundation emits mesh geometry as:
+  - `foundation.mesh.sites` (points)
+  - `foundation.mesh.edges` (segments) with `meta.role: "edgeOverlay"` and debug visibility
+- One concrete emission site: `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/mesh.ts`.
+
+**Viewer (today):**
+- Studio already treats `meta.role === "edgeOverlay"` as a non-pickable toggleable overlay.
+
+**v1 guidance (proposed):**
+- Keep `role` as a *small stable vocabulary for tooling/overlays*.
+- Prevent `role` from becoming a parallel “projection system”; projections remain registry-defined and composable.
+
+---
+
+## 12) Open questions (architectural, with recommendations)
+
+This section is intentionally *not* a list of implementation todos. These are the few decisions that materially affect architecture, long-term health, and developer experience.
+
+### 12.1 Where should the v1 “Viz SDK contract” live (package boundaries)?
+
+**Question:** Do we keep the v1 contract in `packages/mapgen-core`, or extract a dedicated “mini SDK” package?
+
+**Is this at the right level to answer here?** Yes.
+
+**Why it matters:**
+- If the contract is scattered (core types + studio-specific types + dump types), we will keep re-breaking identity/space/value semantics every time we add layers.
+- The contract is shared by multiple producers (CLI runs, worker runs, dump sink) and multiple consumers (Studio ingest, dump viewer, tests).
+
+**Recommendation (maximal, DX-first):**
+- Create a small package (e.g. `packages/mapgen-viz`) that owns the v1 contract:
+  - types: `VizLayerDescriptorV1`, `VizValueSpec`, `VizScalarStats`, `VizSpaceId`, `VizProjectionId`
+  - minimal helpers: “value spec defaults”, “stats helpers”
+- Update `packages/mapgen-core` to depend on this package for the viz contract types used by `VizDumper` and `VizLayerMeta`-adjacent helpers.
+- Keep deck.gl specifics *out* of the shared package:
+  - MapGen Studio owns the projection registry implementation and deck.gl mapping, but consumes the shared contract types.
+
+This yields the tight “mini SDK” you asked for: one shared source of truth, strongly typed, not viewer-specific.
+
+### 12.2 Do we allow *composite* (multi-layer) data types in the viewer model?
+
+**Question:** Should the viewer’s notion of “data type” be allowed to consume multiple layer descriptors (composite data types), or must every data type map 1:1 to one emitted representation?
+
+**Is this at the right level to answer here?** Yes.
+
+**Why it matters:**
+- Vector fields are naturally multi-buffer (U/V), and treating them as two unrelated scalar layers is exactly the failure mode we want to escape.
+- Composites also unlock higher-level views like “wind vector field” without forcing immediate pipeline changes.
+
+**Recommendation (maximal):**
+- Yes: allow composite data types, but treat them as **viewer registry constructs**, not pipeline primitives.
+- The registry should be able to define a composite by matching a small set of required component layers (e.g. `windU` + `windV`) and then exposing projections over the composite.
+- Long-term, we should still move canonical composites into the pipeline as multi-field representations for stability and perf (but composites let us ship meaning quickly).
+
+### 12.3 Should `spaceId` be explicit, inferred, or both?
+
+**Question:** Do we require emitted layers to declare a coordinate space, or can the viewer infer via registry rules?
+
+**Is this at the right level to answer here?** Yes.
+
+**Why it matters:**
+- Coordinate-space bugs are silent and expensive: they look like “the viz is wrong” even when the data is right.
+- For DX, we want authors to not think about spaces unless it matters, but we also want correctness.
+
+**Recommendation (maximal, inference-friendly but safe):**
+- Support both, with a clear priority order:
+  1) explicit `spaceId` on the layer descriptor (highest authority),
+  2) registry-derived `spaceId` from `dataTypeId` patterns (back-compat + reasonable defaults),
+  3) last-resort defaults (documented, and ideally only for legacy).
+- For *new* layers (v1+), require either:
+  - explicit `spaceId`, or
+  - a registry rule that covers the `dataTypeId`.
+
+This avoids forcing authors to redundantly annotate every layer, while still preventing “unknown space” drift.
+
+### 12.4 Where should value-domain semantics live: on the layer, in the registry, or both?
+
+**Question:** Should `ValueSpec` be emitted with the layer descriptor, or be provided by the registry (or both)?
+
+**Is this at the right level to answer here?** Yes.
+
+**Why it matters:**
+- `ValueSpec` is *semantic intent* (units, scale, no-data), which is stable and should not depend on viewer implementation details.
+- But we also want low author burden: don’t require redundant annotation when types and IDs already imply intent.
+
+**Recommendation (maximal, type-inferred where safe):**
+- Allow both, with a simple rule:
+  - Producers may emit `valueSpec` when they know it (best for correctness and portability).
+  - The viewer registry supplies defaults when omitted (best for back-compat and DX).
+- Provide producer-side helpers so authors almost never hand-write `valueSpec`:
+  - e.g. `defineContinuousScalarGridMeta({ units: \"m\" })` / `defineCategoricalGridMeta({ categories })`
+
+### 12.5 Are stats required for continuous rendering?
+
+**Question:** Do we require `stats.min/max` for continuous fields, or allow the viewer to compute them lazily?
+
+**Is this at the right level to answer here?** Yes.
+
+**Why it matters:**
+- Correct continuous rendering depends on domains. Without stats, the viewer either lies (clamps) or pays scanning cost.
+- For streaming runs, scanning in the main thread is a non-starter for large payloads.
+
+**Recommendation (maximal, performance-safe):**
+- Make stats “strongly expected” for continuous fields:
+  - Required for streaming continuous layers (worker supplies stats with the payload).
+  - Optional but recommended for dump manifests (viewer can compute on first load as a back-compat fallback).
+- Treat “viewer computed stats” as legacy support, not the steady state.
+
+### 12.6 Who owns projections and defaults: pipeline or viewer?
+
+**Question:** Should the pipeline ever control projections (e.g. “default projection is hillshade”), or is that purely viewer-owned?
+
+**Is this at the right level to answer here?** Yes.
+
+**Why it matters:**
+- We want multiple projections per data type, and we want to avoid pipeline bloat.
+- We also want stable defaults so a new layer is immediately meaningful without UI fiddling.
+
+**Recommendation (maximal, clean separation):**
+- Projections are viewer-owned (registry-driven).
+- The pipeline may optionally provide *hints* (e.g. suggested palette/units) via `meta`/`valueSpec`, but should not dictate projection availability.
+- The viewer registry is the single place that decides:
+  - default projection per data type (or composite),
+  - additional available projections,
+  - projection parameter defaults.
+
+### 12.7 How hard do we version: v1 manifest/protocol cutover vs perpetual v0?
+
+**Question:** Do we version-bump the viz manifest/protocol and ship an adapter, or keep v0 forever and “extend in place”?
+
+**Is this at the right level to answer here?** Yes.
+
+**Recommendation (maximal, long-term health):**
+- Version-bump to v1 for the contract we actually want (identity split, value semantics, stats, explicit space).
+- Keep a v0→v1 adapter in the viewer (and optionally in tooling) so old dumps continue to load.
+- Avoid “extend v0 forever”: it will keep identity/space/value semantics ambiguous and force heuristics into core code paths.
+
+### 12.8 What is the canonical layer identity: `layerKey` vs `(stepId, layerId, kind)`?
+
+**Question:** In v1, do we require `layerKey` as the single source of identity everywhere, or continue deriving identity from `(stepId, layerId, kind)`?
+
+**Is this at the right level to answer here?** Yes.
+
+**Why it matters:**
+- We already have the concept of variants (`fileKey`), and the moment producers emit multiple variants, derived keys will collide and silently drop data.
+- Stable identity is foundational for store correctness, selection retention, and diffing.
+
+**Recommendation (maximal, correctness-first):**
+- Require `layerKey` as the canonical identity for v1 across:
+  - streaming events,
+  - dump manifests,
+  - Studio ingest/store.
+- Make `layerKey` opaque and producer-owned (the viewer does not “recompute” it).
+- Provide producer-side helpers so authors never hand-construct keys:
+  - keys should be deterministically derived from stable inputs (step + data type + representation + optional variant), but generated centrally to avoid drift.
+
+### 12.9 How do we maximize DX without forcing fragile explicitness?
+
+**Question:** Where should we draw the line between “explicit metadata” and “safe inference”, so the system remains ergonomic but correct?
+
+**Is this at the right level to answer here?** Yes.
+
+**Recommendation (maximal, TypeScript-first):**
+- Prefer *typed constructors/helpers* that encode intent, and let defaults be inferred from the shape:
+  - If `categories` are provided → categorical (no need to separately declare palette).
+  - If `ValueSpec` is omitted but registry declares the data type continuous → continuous defaults apply (domain from stats).
+  - If stats are present and `domain` is `fromStats` → normalization is automatic.
+- Avoid inference from ad-hoc string heuristics in random places:
+  - If we do infer from `dataTypeId`, it should be via a centralized registry rule (so it’s auditable and testable).
+- Invest in a small set of producer-facing helpers that keep author burden near-zero:
+  - `viz.grid.scalar(...)`, `viz.grid.categorical(...)`, `viz.grid.vectorField(...)`, `viz.points.scalar(...)`, etc.
+  - These should set the minimal metadata needed for correctness (space/valueSpec/stats) while keeping call sites terse.
