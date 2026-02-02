@@ -62,6 +62,7 @@ export default createStep(FeaturesApplyStepContract, {
             group: GROUP_MAP_ECOLOGY,
             palette: "categorical",
             role: "physics",
+            visibility: "debug",
           }),
         });
         context.viz?.dumpGrid(context.trace, {
@@ -75,6 +76,7 @@ export default createStep(FeaturesApplyStepContract, {
             group: GROUP_MAP_ECOLOGY,
             palette: "categorical",
             role: "engine",
+            visibility: "debug",
           }),
         });
         context.viz?.dumpGrid(context.trace, {
@@ -88,6 +90,7 @@ export default createStep(FeaturesApplyStepContract, {
             group: GROUP_MAP_ECOLOGY,
             palette: "categorical",
             role: "physics",
+            visibility: "debug",
           }),
         });
         context.viz?.dumpGrid(context.trace, {
@@ -101,6 +104,7 @@ export default createStep(FeaturesApplyStepContract, {
             group: GROUP_MAP_ECOLOGY,
             palette: "categorical",
             role: "engine",
+            visibility: "debug",
           }),
         });
       }
