@@ -32,6 +32,7 @@ export default createStep(BuildElevationStepContract, {
         label: "Elevation (Physics Truth)",
         group: GROUP_MAP_PROJECTION,
         role: "physics",
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -45,6 +46,7 @@ export default createStep(BuildElevationStepContract, {
         group: GROUP_MAP_PROJECTION,
         palette: "categorical",
         role: "physics",
+        visibility: "debug",
       }),
     });
     if (engine) {
@@ -71,6 +73,7 @@ export default createStep(BuildElevationStepContract, {
           group: GROUP_MAP_PROJECTION,
           palette: "categorical",
           role: "engine",
+          visibility: "debug",
         }),
       });
     }
