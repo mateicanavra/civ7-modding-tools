@@ -308,6 +308,7 @@ export default createStep(LandmassPlatesStepContract, {
       meta: defineVizMeta("morphology.topography.bathymetry", {
         label: "Bathymetry (m)",
         group: GROUP_TOPOGRAPHY,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -319,6 +320,7 @@ export default createStep(LandmassPlatesStepContract, {
       meta: defineVizMeta("morphology.substrate.erodibilityK", {
         label: "Erodibility K",
         group: GROUP_SUBSTRATE,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -330,6 +332,7 @@ export default createStep(LandmassPlatesStepContract, {
       meta: defineVizMeta("morphology.substrate.sedimentDepth", {
         label: "Sediment Depth",
         group: GROUP_SUBSTRATE,
+        visibility: "debug",
       }),
     });
 
