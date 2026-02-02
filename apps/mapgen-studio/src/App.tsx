@@ -758,10 +758,9 @@ function AppContent(props: AppContentProps) {
       const isMod = event.metaKey || event.ctrlKey;
       const isEditable = isEditableTarget(event.target);
 
-      // While typing in inputs/textareas/etc, ignore bare keys (so typing doesn't trigger app shortcuts),
-      // and never steal arrow navigation (so native Cmd/Ctrl/Alt+Arrow movement/selection keeps working).
+      // While typing in inputs/textareas/etc, ignore bare keys (so typing doesn't trigger app shortcuts).
+      // Allow modifier+Arrow so Cmd/Opt shortcuts still work when focus is in a field.
       if (isEditable) {
-        if (event.key.startsWith("Arrow")) return;
         if (!isMod && !event.altKey) return;
       }
 
