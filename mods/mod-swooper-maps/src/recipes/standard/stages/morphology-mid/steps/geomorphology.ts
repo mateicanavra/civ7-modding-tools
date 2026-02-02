@@ -102,6 +102,7 @@ export default createStep(GeomorphologyStepContract, {
       meta: defineVizMeta("morphology.geomorphology.elevationDelta", {
         label: "Elevation Delta",
         group: GROUP_GEOMORPHOLOGY,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -113,6 +114,7 @@ export default createStep(GeomorphologyStepContract, {
       meta: defineVizMeta("morphology.geomorphology.sedimentDelta", {
         label: "Sediment Delta",
         group: GROUP_GEOMORPHOLOGY,
+        visibility: "debug",
       }),
     });
 
@@ -147,6 +149,7 @@ export default createStep(GeomorphologyStepContract, {
       meta: defineVizMeta("morphology.topography.bathymetry", {
         label: "Bathymetry (After Geomorphology)",
         group: GROUP_GEOMORPHOLOGY,
+        visibility: "debug",
       }),
     });
 
