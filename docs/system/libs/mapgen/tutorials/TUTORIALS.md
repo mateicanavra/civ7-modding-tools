@@ -17,9 +17,11 @@ Tutorials are learning-oriented, end-to-end walkthroughs.
 
 ## Tutorial list
 
-Planned canonical tutorials (fill-in stubs are added in later slices):
+Canonical tutorials:
 
-- Run the standard recipe in Studio
+- Run the standard recipe in Studio: `docs/system/libs/mapgen/tutorials/run-standard-recipe-in-studio.md`
+- Inspect artifacts and projections: `docs/system/libs/mapgen/tutorials/inspect-artifacts-and-projections.md`
+
+Planned canonical tutorials (built in later slices):
 - Tune a preset and knobs
 - Implement a new step end-to-end
-
