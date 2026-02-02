@@ -305,6 +305,7 @@ export default createStep(ClimateRefineStepContract, {
       label: "Rainfall",
       group: GROUP_CLIMATE,
       palette: "continuous",
+      points: {},
     });
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "hydrology.climate.humidity",
@@ -326,6 +327,7 @@ export default createStep(ClimateRefineStepContract, {
       label: "Surface Temperature (C)",
       group: GROUP_INDICES,
       palette: "continuous",
+      points: {},
     });
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "hydrology.climate.indices.pet",

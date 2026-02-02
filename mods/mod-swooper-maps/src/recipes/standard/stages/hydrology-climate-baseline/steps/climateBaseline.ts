@@ -532,6 +532,7 @@ export default createStep(ClimateBaselineStepContract, {
       label: "Rainfall (Baseline)",
       group: GROUP_CLIMATE,
       palette: "continuous",
+      points: {},
     });
     dumpScalarFieldVariants(context.trace, context.viz, {
       dataTypeKey: "hydrology.climate.humidity",

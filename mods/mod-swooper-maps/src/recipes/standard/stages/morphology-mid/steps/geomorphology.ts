@@ -126,6 +126,7 @@ export default createStep(GeomorphologyStepContract, {
       label: "Elevation (After Geomorphology)",
       group: GROUP_GEOMORPHOLOGY,
       palette: "continuous",
+      points: {},
     });
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "morphology.topography.landMask",
