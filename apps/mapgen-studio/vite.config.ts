@@ -11,6 +11,9 @@ export default defineConfig({
     // browser shim so builds stay clean (and failures are explicit if it ever runs).
     alias: {
       child_process: fileURLToPath(new URL("./src/shims/child_process.ts", import.meta.url)),
+      // Ensure Vite can always resolve the Viz contract helpers in dev, regardless of
+      // workspace linking or package.json export nuances.
+      "@swooper/mapgen-viz": fileURLToPath(new URL("../../packages/mapgen-viz/src/index.ts", import.meta.url)),
     },
   },
   build: {
