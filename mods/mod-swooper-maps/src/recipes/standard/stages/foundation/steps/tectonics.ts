@@ -64,6 +64,25 @@ export default createStep(TectonicsStepContract, {
     deps.artifacts.foundationTectonics.publish(context, historyResult.tectonics);
 
     const positions = interleaveXY(mesh.siteX, mesh.siteY);
+    context.viz?.dumpSegments(context.trace, {
+      dataTypeKey: "foundation.tectonics.boundaryType",
+      variantKey: "snapshot:latest",
+      spaceId: WORLD_SPACE_ID,
+      segments: segmentsFromCellPairs(
+        segmentsResult.segments.aCell,
+        segmentsResult.segments.bCell,
+        mesh.siteX,
+        mesh.siteY
+      ),
+      values: segmentsResult.segments.regime,
+      valueFormat: "u8",
+      meta: defineVizMeta("foundation.tectonics.boundaryType", {
+        label: "Boundary Type",
+        group: GROUP_TECTONICS,
+        role: "edges",
+        categories: BOUNDARY_TYPE_CATEGORIES,
+      }),
+    });
     context.viz?.dumpPoints(context.trace, {
       dataTypeKey: "foundation.tectonics.boundaryType",
       variantKey: "snapshot:latest",
@@ -74,6 +93,7 @@ export default createStep(TectonicsStepContract, {
       meta: defineVizMeta("foundation.tectonics.boundaryType", {
         label: "Boundary Type",
         group: GROUP_TECTONICS,
+        visibility: "debug",
         categories: BOUNDARY_TYPE_CATEGORIES,
       }),
     });
@@ -125,7 +145,6 @@ export default createStep(TectonicsStepContract, {
       meta: defineVizMeta("foundation.tectonics.volcanism", {
         label: "Volcanism",
         group: GROUP_TECTONICS,
-        visibility: "debug",
       }),
     });
     context.viz?.dumpPoints(context.trace, {
@@ -137,24 +156,6 @@ export default createStep(TectonicsStepContract, {
       valueFormat: "u8",
       meta: defineVizMeta("foundation.tectonics.fracture", {
         label: "Fracture",
-        group: GROUP_TECTONICS,
-        visibility: "debug",
-      }),
-    });
-
-    context.viz?.dumpSegments(context.trace, {
-      dataTypeKey: "foundation.tectonics.segmentRegime",
-      spaceId: WORLD_SPACE_ID,
-      segments: segmentsFromCellPairs(
-        segmentsResult.segments.aCell,
-        segmentsResult.segments.bCell,
-        mesh.siteX,
-        mesh.siteY
-      ),
-      values: segmentsResult.segments.regime,
-      valueFormat: "u8",
-      meta: defineVizMeta("foundation.tectonics.segmentRegime", {
-        label: "Tectonic Segment Regime",
         group: GROUP_TECTONICS,
         visibility: "debug",
       }),
@@ -288,8 +289,7 @@ export default createStep(TectonicsStepContract, {
       valueFormat: "u8",
       meta: defineVizMeta("foundation.tectonicHistory.lastActiveEra", {
         label: "Last Active Era",
-        group: GROUP_TECTONIC_HISTORY,
-        visibility: "debug",
+        group: GROUP_TECTONICS,
       }),
     });
 
@@ -322,58 +322,6 @@ export default createStep(TectonicsStepContract, {
         valueFormat: "u8",
         meta: defineVizMeta("foundation.tectonics.upliftPotential", {
           label: "Uplift Potential",
-          group: GROUP_TECTONICS,
-          visibility: "debug",
-        }),
-      });
-      context.viz?.dumpPoints(context.trace, {
-        dataTypeKey: "foundation.tectonics.riftPotential",
-        variantKey,
-        spaceId: WORLD_SPACE_ID,
-        positions,
-        values: era.riftPotential,
-        valueFormat: "u8",
-        meta: defineVizMeta("foundation.tectonics.riftPotential", {
-          label: "Rift Potential",
-          group: GROUP_TECTONICS,
-          visibility: "debug",
-        }),
-      });
-      context.viz?.dumpPoints(context.trace, {
-        dataTypeKey: "foundation.tectonics.shearStress",
-        variantKey,
-        spaceId: WORLD_SPACE_ID,
-        positions,
-        values: era.shearStress,
-        valueFormat: "u8",
-        meta: defineVizMeta("foundation.tectonics.shearStress", {
-          label: "Shear Stress",
-          group: GROUP_TECTONICS,
-          visibility: "debug",
-        }),
-      });
-      context.viz?.dumpPoints(context.trace, {
-        dataTypeKey: "foundation.tectonics.volcanism",
-        variantKey,
-        spaceId: WORLD_SPACE_ID,
-        positions,
-        values: era.volcanism,
-        valueFormat: "u8",
-        meta: defineVizMeta("foundation.tectonics.volcanism", {
-          label: "Volcanism",
-          group: GROUP_TECTONICS,
-          visibility: "debug",
-        }),
-      });
-      context.viz?.dumpPoints(context.trace, {
-        dataTypeKey: "foundation.tectonics.fracture",
-        variantKey,
-        spaceId: WORLD_SPACE_ID,
-        positions,
-        values: era.fracture,
-        valueFormat: "u8",
-        meta: defineVizMeta("foundation.tectonics.fracture", {
-          label: "Fracture",
           group: GROUP_TECTONICS,
           visibility: "debug",
         }),
