@@ -72,7 +72,9 @@ describe("standard pipeline viz emissions", () => {
       "hydrology.hydrography.discharge",
       "map.hydrology.rivers.riverClass",
       "ecology.pedology.soilType",
+      "ecology.pedology.fertility",
       "ecology.biome.biomeIndex",
+      "ecology.biome.vegetationDensity",
       "ecology.featureIntents.featureType",
       "placement.landmassRegions.regionSlot",
       "placement.starts.startPosition",
@@ -168,6 +170,14 @@ describe("standard pipeline viz emissions", () => {
 
     const permafrostMetas = metasByKey.get("ecology.biome.permafrost01") as any[] | undefined;
     expect(permafrostMetas?.some((m) => m?.visibility === "debug")).toBe(true);
+
+    const vegetationMetas = metasByKey.get("ecology.biome.vegetationDensity") as any[] | undefined;
+    expect(vegetationMetas?.some((m) => m?.visibility === "default")).toBe(true);
+    expect(vegetationMetas?.some((m) => m?.visibility === "default" && m?.role === "centroids")).toBe(true);
+
+    const fertilityMetas = metasByKey.get("ecology.pedology.fertility") as any[] | undefined;
+    expect(fertilityMetas?.some((m) => m?.visibility === "default")).toBe(true);
+    expect(fertilityMetas?.some((m) => m?.visibility === "default" && m?.role === "centroids")).toBe(true);
 
     const rainfallAmpMetas = metasByKey.get("hydrology.climate.seasonality.rainfallAmplitude") as any[] | undefined;
     expect(rainfallAmpMetas?.some((m) => m?.visibility === "default")).toBe(true);

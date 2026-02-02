@@ -5,7 +5,7 @@ import PlotBiomesStepContract from "./plotBiomes.contract.js";
 import { clampToByte } from "./plot-biomes/helpers/apply.js";
 import { resolveEngineBiomeIds } from "./plot-biomes/helpers/engine-bindings.js";
 
-const GROUP_MAP_ECOLOGY = "Map / Ecology (Projection)";
+const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(PlotBiomesStepContract, {
@@ -52,7 +52,7 @@ export default createStep(PlotBiomesStepContract, {
       format: "u8",
       values: biomeField,
       meta: defineVizMeta("map.ecology.biomeId", {
-        label: "Biome Id (Projected)",
+        label: "Biome Id (Engine)",
         group: GROUP_MAP_ECOLOGY,
         palette: "categorical",
       }),
@@ -64,7 +64,7 @@ export default createStep(PlotBiomesStepContract, {
       format: "u8",
       values: temperatureField,
       meta: defineVizMeta("map.ecology.temperature", {
-        label: "Temperature (Projected)",
+        label: "Temperature (Engine)",
         group: GROUP_MAP_ECOLOGY,
       }),
     });

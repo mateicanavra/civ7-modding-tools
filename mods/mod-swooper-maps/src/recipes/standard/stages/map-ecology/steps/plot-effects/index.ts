@@ -5,7 +5,7 @@ import { applyPlotEffectPlacements } from "./apply.js";
 import { logSnowEligibilitySummary } from "./diagnostics.js";
 import PlotEffectsStepContract from "./contract.js";
 
-const GROUP_MAP_ECOLOGY = "Map / Ecology (Projection)";
+const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
 
 export default createStep(PlotEffectsStepContract, {
   run: (context, config, ops, deps) => {
@@ -51,7 +51,7 @@ export default createStep(PlotEffectsStepContract, {
         values,
         valueFormat: "u16",
         meta: defineVizMeta("map.ecology.plotEffects.plotEffect", {
-          label: "Plot Effects (Projected)",
+          label: "Plot Effects (Engine)",
           group: GROUP_MAP_ECOLOGY,
           palette: "categorical",
         }),
