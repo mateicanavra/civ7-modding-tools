@@ -122,7 +122,7 @@ function isAbortError(error: unknown): boolean {
 async function runRecipe(
   request: Extract<BrowserRunRequest, { type: "run.start" }>,
   abortSignal: { readonly aborted: boolean }
-): Promise<void> {
+): Promise<{ didEmitFinished: boolean }> {
   const { runToken, generation, recipeId, seed, mapSizeId, dimensions, latitudeBounds, configOverrides } = request;
   const recipeEntry = getRuntimeRecipe(recipeId);
 
@@ -172,7 +172,12 @@ async function runRecipe(
   const context = createExtendedMapContext(dimensions, adapter, env);
   context.viz = createWorkerVizDumper();
 
-  const traceSink = createWorkerTraceSink({ runToken, generation, post, abortSignal });
+  let didEmitFinished = false;
+  const postFromTrace = (event: BrowserRunEvent, transfer?: Transferable[]): void => {
+    if (event.type === "run.finished") didEmitFinished = true;
+    post(event, transfer);
+  };
+  const traceSink = createWorkerTraceSink({ runToken, generation, post: postFromTrace, abortSignal });
 
   // Ensure the worker posts a stable run identity early, even if a failure occurs.
   post({ type: "run.started", runToken, generation, runId, planFingerprint: runId });
@@ -183,6 +188,8 @@ async function runRecipe(
     // Yield between steps so cooperative cancellation (via postMessage) can be observed.
     yieldToEventLoop: true,
   });
+
+  return { didEmitFinished };
 }
 
 type ActiveRun = {
@@ -212,10 +219,13 @@ self.onmessage = (ev: MessageEvent<BrowserRunRequest>) => {
     active = { runToken: msg.runToken, generation: msg.generation, abortController };
 
     runRecipe(msg, abortController.signal).then(
-      () => {
-        // If we were canceled, `worker-trace-sink` suppresses run.finished; emit run.canceled explicitly.
+      ({ didEmitFinished }) => {
+        // If we were canceled, `worker-trace-sink` suppresses user-facing events; emit run.canceled explicitly.
         if (abortController.signal.aborted) {
           post({ type: "run.canceled", runToken: msg.runToken, generation: msg.generation });
+        } else if (!didEmitFinished) {
+          // Some pipelines may not emit a trace `run.finish` event. Ensure the UI always receives run completion.
+          post({ type: "run.finished", runToken: msg.runToken, generation: msg.generation });
         }
         if (active?.runToken === msg.runToken && active.generation === msg.generation) active = null;
       },
