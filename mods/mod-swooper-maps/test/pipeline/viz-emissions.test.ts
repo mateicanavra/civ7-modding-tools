@@ -135,13 +135,13 @@ describe("standard pipeline viz emissions", () => {
     const movementMetas = metasByKey.get("foundation.plates.tileMovement") as any[] | undefined;
     expect(movementMetas?.some((m) => m?.visibility === "default" && m?.role === "vector")).toBe(true);
     expect(movementMetas?.some((m) => m?.visibility === "debug" && m?.role === "magnitude")).toBe(true);
-    expect(movementMetas?.some((m) => m?.visibility === "debug" && m?.role === "arrows")).toBe(true);
+    expect(movementMetas?.some((m) => m?.visibility === "default" && m?.role === "arrows")).toBe(true);
     expect(movementMetas?.some((m) => m?.visibility === "debug" && m?.role === "centroids")).toBe(true);
 
     const flowMetas = metasByKey.get("morphology.routing.flow") as any[] | undefined;
     expect(flowMetas?.some((m) => m?.visibility === "default" && m?.role === "vector")).toBe(true);
     expect(flowMetas?.some((m) => m?.visibility === "debug" && m?.role === "magnitude")).toBe(true);
-    expect(flowMetas?.some((m) => m?.visibility === "debug" && m?.role === "arrows")).toBe(true);
+    expect(flowMetas?.some((m) => m?.visibility === "default" && m?.role === "arrows")).toBe(true);
     expect(flowMetas?.some((m) => m?.visibility === "debug" && m?.role === "centroids")).toBe(true);
 
     const closenessMetas = metasByKey.get("foundation.plates.tileBoundaryCloseness") as any[] | undefined;
@@ -165,26 +165,26 @@ describe("standard pipeline viz emissions", () => {
     const rainfallMetas = metasByKey.get("hydrology.climate.rainfall") as any[] | undefined;
     expect(rainfallMetas?.some((m) => m?.visibility === "default")).toBe(true);
     expect(
-      rainfallMetas?.some((m) => m?.role === "centroids" && m?.label === "Rainfall (Baseline)" && m?.visibility === "debug")
+      rainfallMetas?.some((m) => m?.role === "centroids" && m?.label === "Rainfall (Baseline)" && m?.visibility === "default")
     ).toBe(true);
-    expect(rainfallMetas?.some((m) => m?.role === "centroids" && m?.label === "Rainfall" && m?.visibility === "debug")).toBe(true);
+    expect(rainfallMetas?.some((m) => m?.role === "centroids" && m?.label === "Rainfall" && m?.visibility === "default")).toBe(true);
 
     const temperatureMetas = metasByKey.get("hydrology.climate.indices.surfaceTemperatureC") as any[] | undefined;
     expect(temperatureMetas?.some((m) => m?.visibility === "default")).toBe(true);
     expect(
-      temperatureMetas?.some((m) => m?.role === "centroids" && m?.label === "Surface Temperature (C)" && m?.visibility === "debug")
+      temperatureMetas?.some((m) => m?.role === "centroids" && m?.label === "Surface Temperature (C)" && m?.visibility === "default")
     ).toBe(true);
 
     const windMetas = metasByKey.get("hydrology.wind.wind") as any[] | undefined;
     expect(windMetas?.some((m) => m?.visibility === "default" && m?.role === "vector")).toBe(true);
     expect(windMetas?.some((m) => m?.visibility === "debug" && m?.role === "magnitude")).toBe(true);
-    expect(windMetas?.some((m) => m?.visibility === "debug" && m?.role === "arrows")).toBe(true);
+    expect(windMetas?.some((m) => m?.visibility === "default" && m?.role === "arrows")).toBe(true);
     expect(windMetas?.some((m) => m?.visibility === "debug" && m?.role === "centroids")).toBe(true);
 
     const currentMetas = metasByKey.get("hydrology.current.current") as any[] | undefined;
     expect(currentMetas?.some((m) => m?.visibility === "default" && m?.role === "vector")).toBe(true);
     expect(currentMetas?.some((m) => m?.visibility === "debug" && m?.role === "magnitude")).toBe(true);
-    expect(currentMetas?.some((m) => m?.visibility === "debug" && m?.role === "arrows")).toBe(true);
+    expect(currentMetas?.some((m) => m?.visibility === "default" && m?.role === "arrows")).toBe(true);
     expect(currentMetas?.some((m) => m?.visibility === "debug" && m?.role === "centroids")).toBe(true);
   });
 });

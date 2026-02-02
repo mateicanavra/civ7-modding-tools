@@ -220,7 +220,7 @@ export default createStep(ProjectionStepContract, {
       group: GROUP_PLATES,
       palette: "continuous",
       magnitude: { debugOnly: true },
-      arrows: { maxArrowLenTiles: 1.25, debugOnly: true },
+      arrows: { maxArrowLenTiles: 1.25 },
       points: { debugOnly: true },
     });
     context.viz?.dumpGrid(context.trace, {
