@@ -30,6 +30,13 @@ Add rows here in the same format as the ledger table:
 - `recommendedEdit`
 - `notes`
 
+### Rows (draft)
+
+| claimId | docPath | quotedClaim | claimType | state | anchors | recommendedEdit | notes |
+|---|---|---|---|---|---|---|---|
+| C-IMP-001 | `docs/system/libs/mapgen/policies/IMPORTS.md` | “Do not use `@mapgen/*` in canonical docs or examples.” | policy | TARGET-CORRECT | `docs/projects/engine-refactor-v1/resources/spec/SPEC-packaging-and-file-structure.md`, `packages/mapgen-core/package.json` | None (keep). | This guardrail directly supports copy/paste DX. |
+| C-GLO-001 | `docs/system/libs/mapgen/reference/GLOSSARY.md` | “Target **RunSettings** vs current code **Env**.” | naming | TARGET-DRIFT | `docs/projects/engine-refactor-v1/resources/spec/recipe-compile/architecture/04-type-surfaces.md` | Replace with “Legacy specs: RunSettings → Canonical: Env”. | Mirrors A-GLO-001; keep one authoritative ledger row. |
+
 ## Preferred anchors
 
 Target authority (what should be):
