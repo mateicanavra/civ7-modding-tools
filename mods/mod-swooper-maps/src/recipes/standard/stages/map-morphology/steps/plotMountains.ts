@@ -115,6 +115,7 @@ export default createStep(PlotMountainsStepContract, {
         meta: defineVizMeta("map.morphology.mountains.hillMask", {
           label: "Hill Mask (Projection)",
           group: GROUP_MAP_PROJECTION,
+          visibility: "debug",
         }),
       });
     }
@@ -128,6 +129,7 @@ export default createStep(PlotMountainsStepContract, {
         meta: defineVizMeta("map.morphology.mountains.orogenyPotential01", {
           label: "Orogeny Potential (Projection)",
           group: GROUP_MAP_PROJECTION,
+          visibility: "debug",
         }),
       });
     }
@@ -141,6 +143,7 @@ export default createStep(PlotMountainsStepContract, {
         meta: defineVizMeta("map.morphology.mountains.fracture01", {
           label: "Fracture (Projection)",
           group: GROUP_MAP_PROJECTION,
+          visibility: "debug",
         }),
       });
     }
