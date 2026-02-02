@@ -82,6 +82,7 @@
   "dependencies": {
     "@civ7/adapter": "workspace:*",
     "@civ7/types": "workspace:*",
+    "@swooper/mapgen-viz": "workspace:*",
     "d3-delaunay": "^6.0.4",
     "typebox": "^1.0.80"
   },

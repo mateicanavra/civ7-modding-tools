@@ -19,6 +19,28 @@ import type { Env } from "@mapgen/core/env.js";
 import { initializeTerrainConstants } from "@mapgen/core/terrain-constants.js";
 import type { TraceScope } from "@mapgen/trace/index.js";
 import { createNoopTraceScope } from "@mapgen/trace/index.js";
+import type {
+  VizLayerKind,
+  VizLayerVisibility,
+  VizPaletteMode,
+  VizScalarFormat,
+  VizSpaceId,
+  VizValueSpec,
+} from "@swooper/mapgen-viz";
+
+export type {
+  VizLayerKind,
+  VizLayerVisibility,
+  VizPaletteMode,
+  VizScalarFormat,
+  VizSpaceId,
+  VizValueSpec,
+  VizScalarStats,
+  VizScaleType,
+  VizNoDataSpec,
+  VizValueDomain,
+  VizValueTransform,
+} from "@swooper/mapgen-viz";
 
 // ============================================================================
 // Field Buffer Types
@@ -158,14 +180,6 @@ export interface GenerationMetrics {
   warnings: string[];
 }
 
-export type VizLayerKind = "grid" | "points" | "segments";
-
-export type VizScalarFormat = "u8" | "i8" | "u16" | "i16" | "i32" | "f32";
-
-export type VizLayerVisibility = "default" | "debug" | "hidden";
-
-export type VizPaletteMode = "auto" | "categorical" | "continuous";
-
 export type VizCoordinateSpace = "world" | "tile";
 
 export type VizLayerCategory = {
@@ -186,7 +200,21 @@ export type VizLayerMeta = {
   role?: string;
   categories?: VizLayerCategory[];
   palette?: VizPaletteMode;
+  /**
+   * Stable coordinate space identifier used by visualization tooling.
+   *
+   * Prefer this over `space` for v1+, but keep `space` for legacy compatibility.
+   */
+  spaceId?: VizSpaceId;
+  /**
+   * Legacy coordinate hint (v0). Prefer `spaceId`.
+   */
   space?: VizCoordinateSpace;
+  /**
+   * Optional value semantics for continuous/categorical rendering.
+   * When omitted, viewer registries may supply defaults based on `layerId`.
+   */
+  valueSpec?: VizValueSpec;
   showGrid?: boolean;
 };
 
