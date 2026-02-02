@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, Dices, Play } from 'lucide-react';
+import { Bolt, Clock, Dices, Play } from 'lucide-react';
 import { Button, Input } from './ui';
 import { MAP_SIZE_SHORT, LAYOUT } from '../constants';
 import { formatResourceMode } from '../utils';
@@ -27,6 +27,10 @@ export interface AppFooterProps {
   lightMode: boolean;
   /** Toast function for notifications */
   onToast?: (message: string) => void;
+  /** When enabled, config changes auto-run the current seed */
+  autoRunEnabled: boolean;
+  /** Toggle auto-run mode */
+  onAutoRunEnabledChange: (enabled: boolean) => void;
 }
 export const FOOTER_HEIGHT = LAYOUT.FOOTER_HEIGHT;
 export const AppFooter: React.FC<AppFooterProps> = ({
@@ -40,7 +44,9 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   isRunning,
   isDirty,
   lightMode,
-  onToast
+  onToast,
+  autoRunEnabled,
+  onAutoRunEnabledChange
 }) => {
   const panelBg = lightMode ? 'bg-white/95' : 'bg-[#141418]/95';
   const panelBorder = lightMode ? 'border-gray-200' : 'border-[#2a2a32]';
@@ -164,6 +170,20 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           title="Re-roll: New seed and run">
 
           <Dices className="w-3.5 h-3.5" />
+        </Button>
+
+        {/* Auto-run toggle */}
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => onAutoRunEnabledChange(!autoRunEnabled)}
+          disabled={isRunning}
+          aria-pressed={autoRunEnabled}
+          aria-label="Toggle auto-run: run current seed on config changes"
+          title="Auto-run: run current seed on config changes"
+          className={autoRunEnabled ? "ring-2 ring-orange-400/50 border-orange-400 text-orange-500" : undefined}>
+
+          <Bolt className="w-3.5 h-3.5" />
         </Button>
 
         {/* Run button */}
