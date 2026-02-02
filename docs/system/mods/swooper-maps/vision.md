@@ -1,3 +1,12 @@
+# Status: Mod design doc (Swooper Maps)
+
+This page is a working design doc for one mod’s map style.
+It is **not** canonical MapGen SDK documentation.
+
+Canonical MapGen docs:
+- `docs/system/libs/mapgen/MAPGEN.md`
+- `docs/system/libs/mapgen/explanation/ARCHITECTURE.md`
+
 # Epic Diverse Huge Generator – Terrain & Plate Smash Plan
 
 > Working design doc for improving the Civilization‑style “Epic Diverse Huge” map generator, with a focus on terrain distribution (mountains / hills / plains) and a plate‑aware “ceramic smash” landmass pipeline.
@@ -326,4 +335,3 @@ Once these steps are done, the generator should:
 - Avoid giant, perfectly linear walls of `M`.
 - Distribute hills as a natural transition between mountains and plains instead of a hard latitudinal band.
 - Guarantee a healthy amount of “normal” land for cities, resources, and adventures.
-

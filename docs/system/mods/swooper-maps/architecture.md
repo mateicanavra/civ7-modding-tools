@@ -1,15 +1,32 @@
+# Status: Mod doc (Swooper Maps)
+
+This page documents the Swooper Maps mod’s own architecture.
+It is **not** canonical MapGen SDK documentation.
+
+Canonical MapGen docs:
+- `docs/system/libs/mapgen/MAPGEN.md`
+- `docs/system/libs/mapgen/reference/REFERENCE.md`
+- `docs/system/libs/mapgen/explanation/ARCHITECTURE.md`
+
 # Map Generator Runtime Architecture
 
 ## Overview
 
 This mod uses **explicit overrides + recipe selection** so variants can share one codebase while choosing configuration and step enablement explicitly (no preset composition in the TS runtime).
 
-## Current TypeScript Architecture (M6)
+## Current mod code pointers
+
+- Map definitions: `mods/mod-swooper-maps/src/maps/*`
+- Recipes: `mods/mod-swooper-maps/src/recipes/*`
+
+## Legacy TypeScript Architecture (M6)
 
 - Entry scripts resolve map init data via `applyMapInitData` / `resolveMapInitData` in `src/maps/_runtime/map-init.ts`.
 - Entry scripts build run settings + recipe config (see `src/maps/_runtime/standard-config.ts`).
 - Entry scripts select a recipe (e.g., `standardRecipe`) and execute via `runStandardRecipe` (or `recipe.run` directly).
 - Steps read per-step config from the recipe config; run-global overrides live in `RunRequest.settings` and surface as `context.settings`.
+
+This section is retained as historical context and is not used by the current mod code pointers above.
 
 Example (minimal runnable pipeline):
 ```ts
