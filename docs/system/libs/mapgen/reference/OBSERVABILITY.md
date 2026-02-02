@@ -17,8 +17,8 @@ Define how MapGen runs can be inspected and debugged deterministically:
 
 ## Contract (trace + reproducibility)
 
-- Run reproducibility is rooted in the run settings (`RunSettings`, `Env` today): seed + dimensions, etc.
-- Trace configuration is carried inside run settings (`Env.trace` today).
+- Run reproducibility is rooted in the run boundary (`Env`): seed + dimensions, etc.
+- Trace configuration is carried inside the run boundary (`Env.trace`).
 - Trace plumbing should not change pipeline semantics (only observability).
 
 ## Visualization hooks

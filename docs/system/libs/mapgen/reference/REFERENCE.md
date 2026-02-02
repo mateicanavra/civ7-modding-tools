@@ -22,7 +22,7 @@ Reference pages define contracts precisely (APIs, schemas, invariants, and key v
 Core contract references:
 
 - Glossary: `docs/system/libs/mapgen/reference/GLOSSARY.md`
-- Run settings (target) / env (current): `docs/system/libs/mapgen/reference/RUN-SETTINGS.md`
+- Env (run boundary): `docs/system/libs/mapgen/reference/ENV.md` (legacy router: `docs/system/libs/mapgen/reference/RUN-SETTINGS.md`)
 - Recipe schema (RecipeV2): `docs/system/libs/mapgen/reference/RECIPE-SCHEMA.md`
 - Stage and step authoring: `docs/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md`
 - Config compilation: `docs/system/libs/mapgen/reference/CONFIG-COMPILATION.md`
