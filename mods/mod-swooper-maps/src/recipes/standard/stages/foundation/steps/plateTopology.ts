@@ -56,14 +56,27 @@ export default createStep(PlateTopologyStepContract, {
 
     const centroidPoints = pointsFromTileCentroids(topologyPlates);
     context.viz?.dumpPoints(context.trace, {
-      layerId: "foundation.plateTopology.centroids",
+      layerId: "foundation.plateTopology.centroidArea",
       positions: centroidPoints.positions,
       values: centroidPoints.areas,
       valueFormat: "i32",
-      fileKey: "areas",
-      meta: defineVizMeta("foundation.plateTopology.centroids", {
-        label: "Plate Centroids (Area)",
+      meta: defineVizMeta("foundation.plateTopology.centroidArea", {
+        label: "Plate Centroid Area",
         group: GROUP_PLATE_TOPOLOGY,
+        space: "tile",
+        showGrid: false,
+      }),
+    });
+
+    context.viz?.dumpPoints(context.trace, {
+      layerId: "foundation.plateTopology.centroidPlateId",
+      positions: centroidPoints.positions,
+      values: centroidPoints.ids,
+      valueFormat: "i16",
+      meta: defineVizMeta("foundation.plateTopology.centroidPlateId", {
+        label: "Plate Centroid PlateId",
+        group: GROUP_PLATE_TOPOLOGY,
+        palette: "categorical",
         space: "tile",
         showGrid: false,
       }),

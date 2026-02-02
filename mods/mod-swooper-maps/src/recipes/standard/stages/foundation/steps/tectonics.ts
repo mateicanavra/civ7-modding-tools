@@ -124,7 +124,7 @@ export default createStep(TectonicsStepContract, {
     });
 
     context.viz?.dumpSegments(context.trace, {
-      layerId: "foundation.tectonics.segments",
+      layerId: "foundation.tectonics.segmentRegime",
       segments: segmentsFromCellPairs(
         segmentsResult.segments.aCell,
         segmentsResult.segments.bCell,
@@ -133,15 +133,14 @@ export default createStep(TectonicsStepContract, {
       ),
       values: segmentsResult.segments.regime,
       valueFormat: "u8",
-      fileKey: "regime",
-      meta: defineVizMeta("foundation.tectonics.segments", {
-        label: "Tectonic Segments (Regime)",
+      meta: defineVizMeta("foundation.tectonics.segmentRegime", {
+        label: "Tectonic Segment Regime",
         group: GROUP_TECTONICS,
       }),
     });
 
     context.viz?.dumpSegments(context.trace, {
-      layerId: "foundation.tectonics.segments",
+      layerId: "foundation.tectonics.segmentCompression",
       segments: segmentsFromCellPairs(
         segmentsResult.segments.aCell,
         segmentsResult.segments.bCell,
@@ -150,15 +149,14 @@ export default createStep(TectonicsStepContract, {
       ),
       values: segmentsResult.segments.compression,
       valueFormat: "u8",
-      fileKey: "compression",
-      meta: defineVizMeta("foundation.tectonics.segments", {
-        label: "Tectonic Segments (Compression)",
+      meta: defineVizMeta("foundation.tectonics.segmentCompression", {
+        label: "Tectonic Segment Compression",
         group: GROUP_TECTONICS,
       }),
     });
 
     context.viz?.dumpSegments(context.trace, {
-      layerId: "foundation.tectonics.segments",
+      layerId: "foundation.tectonics.segmentExtension",
       segments: segmentsFromCellPairs(
         segmentsResult.segments.aCell,
         segmentsResult.segments.bCell,
@@ -167,15 +165,14 @@ export default createStep(TectonicsStepContract, {
       ),
       values: segmentsResult.segments.extension,
       valueFormat: "u8",
-      fileKey: "extension",
-      meta: defineVizMeta("foundation.tectonics.segments", {
-        label: "Tectonic Segments (Extension)",
+      meta: defineVizMeta("foundation.tectonics.segmentExtension", {
+        label: "Tectonic Segment Extension",
         group: GROUP_TECTONICS,
       }),
     });
 
     context.viz?.dumpSegments(context.trace, {
-      layerId: "foundation.tectonics.segments",
+      layerId: "foundation.tectonics.segmentShear",
       segments: segmentsFromCellPairs(
         segmentsResult.segments.aCell,
         segmentsResult.segments.bCell,
@@ -184,15 +181,14 @@ export default createStep(TectonicsStepContract, {
       ),
       values: segmentsResult.segments.shear,
       valueFormat: "u8",
-      fileKey: "shear",
-      meta: defineVizMeta("foundation.tectonics.segments", {
-        label: "Tectonic Segments (Shear)",
+      meta: defineVizMeta("foundation.tectonics.segmentShear", {
+        label: "Tectonic Segment Shear",
         group: GROUP_TECTONICS,
       }),
     });
 
     context.viz?.dumpSegments(context.trace, {
-      layerId: "foundation.tectonics.segments",
+      layerId: "foundation.tectonics.segmentVolcanism",
       segments: segmentsFromCellPairs(
         segmentsResult.segments.aCell,
         segmentsResult.segments.bCell,
@@ -201,9 +197,8 @@ export default createStep(TectonicsStepContract, {
       ),
       values: segmentsResult.segments.volcanism,
       valueFormat: "u8",
-      fileKey: "volcanism",
-      meta: defineVizMeta("foundation.tectonics.segments", {
-        label: "Tectonic Segments (Volcanism)",
+      meta: defineVizMeta("foundation.tectonics.segmentVolcanism", {
+        label: "Tectonic Segment Volcanism",
         group: GROUP_TECTONICS,
       }),
     });

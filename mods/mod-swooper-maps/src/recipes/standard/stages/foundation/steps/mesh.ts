@@ -62,7 +62,6 @@ export default createStep(MeshStepContract, {
       positions: interleaveXY(meshResult.mesh.siteX, meshResult.mesh.siteY),
       values: meshResult.mesh.areas,
       valueFormat: "f32",
-      fileKey: "areas",
       meta: defineVizMeta("foundation.mesh.sites", {
         label: "Mesh Sites (Area)",
         group: GROUP_MESH,
