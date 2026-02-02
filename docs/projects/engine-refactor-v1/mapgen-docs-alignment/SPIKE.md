@@ -60,6 +60,7 @@ This is the integrated “where we are” picture after auditing:
 
 This spike’s “fractal working memory” lives in `scratch/`:
 
+- Hardening execution plan (post-spine build): `HARDENING-IMPLEMENTATION-PROPOSAL.md`
 - Scratch index: `scratch/00-index.md`
 - Target architecture (spec-first): `scratch/target-architecture.md`
 - Current architecture (code-first): `scratch/current-architecture.md`
