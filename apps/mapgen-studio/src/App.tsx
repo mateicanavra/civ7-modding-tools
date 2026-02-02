@@ -755,10 +755,14 @@ function AppContent(props: AppContentProps) {
 
       const ctx = shortcutsRef.current;
       const isMod = event.metaKey || event.ctrlKey;
+      const isEditable = isEditableTarget(event.target);
 
-      // Allow modifier-based app shortcuts even while typing; ignore bare keys in inputs.
-      // Note: we also allow Opt/Alt-based shortcuts in inputs (for layer navigation) by request.
-      if (isEditableTarget(event.target) && !isMod && !event.altKey) return;
+      // While typing in inputs/textareas/etc, ignore bare keys (so typing doesn't trigger app shortcuts),
+      // and never steal arrow navigation (so native Cmd/Ctrl/Alt+Arrow movement/selection keeps working).
+      if (isEditable) {
+        if (event.key.startsWith("Arrow")) return;
+        if (!isMod && !event.altKey) return;
+      }
 
       // Run / re-roll
       if (isMod && event.key === "Enter") {
