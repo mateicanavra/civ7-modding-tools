@@ -2,12 +2,12 @@
   <item id="definitions" title="Definitions"/>
   <item id="spaces" title="Coordinate spaces"/>
   <item id="purpose" title="Purpose"/>
-  <item id="trace" title="Trace posture"/>
+  <item id="trace" title="Trace posture (current)"/>
   <item id="architecture" title="System architecture"/>
-  <item id="primitives" title="Dump primitives"/>
+  <item id="primitives" title="Viz primitives (implemented)"/>
   <item id="taxonomy" title="Layer taxonomy"/>
-  <item id="viewer" title="Deck.gl viewer design"/>
-  <item id="changes" title="Pipeline changes"/>
+  <item id="viewer" title="Viewer design (implemented)"/>
+  <item id="changes" title="Future enhancements"/>
   <item id="verification" title="Verification"/>
   <item id="questions" title="Open questions"/>
 </toc>
@@ -15,7 +15,7 @@
 # Pipeline Visualization (deck.gl)
 
 > **System:** Mapgen diagnostics and external visualization.
-> **Scope:** Capture per-step artifacts/buffers as post-run dumps and render them in a deck.gl viewer.
+> **Scope:** Capture per-step artifacts/buffers as streaming upserts and/or replayable dumps and render them in a deck.gl viewer.
 > **Status:** Canonical (current; implementation + conventions)
 
 ## Definitions
@@ -56,84 +56,89 @@ Mapgen produces data in multiple coordinate systems. The viewer must not “gues
 
 ## Purpose
 
-We want a **post-generation visualization system** that can replay any run and show how each layer (buffers, artifacts, and indices) evolves through the pipeline. The viewer must operate **externally** from the pipeline runtime, consuming **logs/trace/dumps** emitted during a run.
+We want a **diagnostics + visualization system** that can:
+- stream layers during live runs (Studio), and/or
+- replay any run later from dumps,
+while keeping the viewer **external** to the pipeline runtime.
 
 Key goals:
 
-- **External replay:** run once, inspect later.
+- **Live inspection:** see layers as steps execute (streaming upserts).
+- **External replay:** run once, inspect later (dump folders).
 - **Layered inspection:** show buffers (e.g., temperature), indices (e.g., biome IDs), and derived fields (e.g., mountain masks).
-- **Deterministic provenance:** every layer is tagged with run/step/plan fingerprints.
+- **Deterministic provenance:** every layer is tagged with stable ids (`runId`/`planFingerprint`, step id, phase, layer keys).
 - **Zero coupling to runtime:** pipeline must not depend on deck.gl.
 
 ---
 
-## Can We Use Trace as-is?
+## Trace posture (current)
 
-We can keep the existing trace system as the **primary event spine** and add **lightweight dump primitives** on top:
+Trace is the **event spine** for both streaming and dumps:
 
-- **Trace already supports** run/step events and allows custom payloads via `trace.event(...)` in step scopes.
-- **Trace sinks are pluggable**, so we can implement a sink that writes **JSONL events + a binary data directory**.
-- **Missing piece:** a standardized, structured **layer dump format** that references large buffers without bloating the trace stream.
+- Steps emit visualization data via `context.viz?.dump*` methods (preferred) which call `trace.event(...)` under the hood.
+- `TraceScope.event(...)` is gated behind `verbose` (`packages/mapgen-core/src/trace/index.ts`), so visualization emission is also gated.
+- Runners choose a `VizDumper` implementation that matches their transport:
+  - **Studio worker** uses inline binary refs and forwards events to the UI (`viz.layer.upsert`).
+  - **Node/dev dump** writes binary payloads to disk and indexes them in a manifest.
 
-### Conclusion
-
-- **No new runtime primitive is required** to emit diagnostics: the trace system is enough.
-- **One new convention is needed:** a **layer dump manifest** + optional helpers to write binary payloads.
-
-### Constraint to make explicit (avoid drift)
-
-If the runtime’s trace implementation gates `step.event` behind “verbose”, then layer dumps emitted via `trace.event(...)` will also be gated. The dump sink design must either:
-- reference the runtime behavior explicitly (e.g. `packages/mapgen-core/src/trace/index.ts`), and
-- document that dumps require verbose tracing for the instrumented steps, or
-- provide an additional non-verbose dump path (still without impacting pipeline correctness).
+Hard rule:
+- Step implementations should not invent new visualization event envelopes; use the `VizDumper` surface.
 
 ---
 
 ## System Architecture (Data Flow)
 
 ```
-Pipeline run
+Pipeline run (steps call context.viz?.dump*)
   → trace session (runId + planFingerprint; currently the same value)
-  → step.event payloads (metadata only)
-  → dump sink writes:
-       - trace.jsonl   (events)
-       - manifest.json (layer index)
-       - data/         (binary arrays)
-  → deck.gl viewer loads manifest + data
+  → step.event payloads (viz layer emissions)
+  → sink(s):
+       - browser/Studio: forward as `viz.layer.upsert` (Transferables)
+       - node/dev: write trace.jsonl + manifest.json + data/
+  → deck.gl viewer:
+       - live: render streamed upserts
+       - replay: load manifest + data
 ```
 
-**Key property:** the viewer never runs pipeline code; it replays serialized outputs.
+**Key property:** the viewer never runs pipeline code; it consumes serialized outputs (streamed or replayed).
 
 ---
 
-## Dump primitives (implemented)
+## Viz primitives (implemented)
 
-### 1) Trace sink (writes `trace.jsonl` + `manifest.json` + `data/`)
+### 1) `VizDumper` (step-facing surface)
 
-The dump sink is implemented in the MapGen mod:
-- `mods/mod-swooper-maps/src/dev/viz/dump.ts`
+Steps emit visualization data through `VizDumper` methods (e.g. `dumpGrid`, `dumpPoints`, `dumpGridFields`).
 
-It consumes trace events and writes a per-run folder with:
-```
-<outputsRoot>/<runId>/
-  trace.jsonl
-  manifest.json
-  data/
-    *.bin
-```
+Implemented dumpers:
 
-### 2) Manifest contract: `VizManifestV1`
+- **Studio worker dumper** (streaming; inline payloads): `apps/mapgen-studio/src/browser-runner/worker-viz-dumper.ts`
+- **Node/dev dump dumper** (replay; path payloads): `mods/mod-swooper-maps/src/dev/viz/dump.ts` (`createVizDumper`)
 
-The manifest schema is `VizManifestV1` from `@swooper/mapgen-viz` (`packages/mapgen-viz/src/index.ts`).
-MapGen Studio only accepts `manifest.json` with `version: 1` (no compatibility adapters).
+Both implementations:
+- are gated by `trace.isVerbose`,
+- emit `VizLayerEmissionV1`,
+- and derive `layerKey` via `createVizLayerKey(...)`.
 
-### 3) Layer dump event convention: `viz.layer.dump.v1`
+### 2) Trace sinks (transport)
 
-Layer dumps are emitted via `trace.event(...)` with a v1 payload:
-- `type: "viz.layer.dump.v1"`
-- `layer: VizLayerEmissionV1`
+Implemented sinks:
 
-See the producer implementation in `mods/mod-swooper-maps/src/dev/viz/dump.ts`.
+- **Studio worker sink** (streaming upserts): `apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts`
+  - Forwards `step.start`/`step.finish` to `run.progress`.
+  - Forwards `viz.layer.emit.v1` step events to `viz.layer.upsert` (Transferables).
+- **Node/dev dump sink** (writes dumps): `mods/mod-swooper-maps/src/dev/viz/dump.ts` (`createTraceDumpSink`)
+  - Writes `trace.jsonl` and `manifest.json`, and indexes layers whose binary refs are `path`-based.
+
+Note (current reality):
+- Studio’s `VizDumper` emits `viz.layer.emit.v1`.
+- The node/dev dump path uses `viz.layer.dump.v1`.
+- Step code should not care: it calls `context.viz?.dump*`; the runner chooses the matching dumper + sink pair.
+
+### 3) Manifest contract: `VizManifestV1`
+
+The replay manifest schema is `VizManifestV1` from `@swooper/mapgen-viz` (`packages/mapgen-viz/src/index.ts`).
+MapGen Studio’s dump viewer expects `manifest.json` with `version: 1`.
 
 ---
 
@@ -155,15 +160,12 @@ See the producer implementation in `mods/mod-swooper-maps/src/dev/viz/dump.ts`.
 
 ---
 
-## Deck.gl Viewer Design
+## Viewer design (implemented)
 
-### Viewer App Shape
+MapGen Studio contains both viewer modes:
 
-A standalone web app (or an extension of MapGen Studio) that can load a dump folder:
-
-- **Input:** `manifest.json` + `trace.jsonl` + binary data.
-- **UI:** layer list, time/era controls, palette controls, min/max/legend.
-- **Playback:** step-by-step overlay of layer changes.
+- **Live viewer**: renders `viz.layer.upsert` events as they stream from the worker.
+- **Dump viewer**: loads `manifest.json` + referenced binary payloads and replays layers.
 
 ### Deck.gl Layer Mapping
 
@@ -175,26 +177,18 @@ A standalone web app (or an extension of MapGen Studio) that can load a dump fol
 | Point | `ScatterplotLayer` | Seeds, hotspots, volcanoes. |
 | Polygon | `PolygonLayer` | Plate/continent extents. |
 
-### Layer Loading Path
+### Authoritative loading + rendering implementation
 
-The authoritative implementation is MapGen Studio’s v1 loader + renderer:
+MapGen Studio’s v1 loader + renderer:
 - dump manifest validation: `apps/mapgen-studio/src/features/dumpViewer/manifest.ts`
 - binary reference resolution: `apps/mapgen-studio/src/features/viz/model.ts`
 - deck.gl rendering: `apps/mapgen-studio/src/features/viz/deckgl/render.ts`
 
 ---
 
-## What Needs to Change in the Pipeline?
+## Future enhancements
 
-### Minimal changes (preferred)
-
-- **Add a dump sink** implementation (no changes to core trace primitives).
-- **Introduce optional helpers** to format layer payloads consistently.
-- **Emit layer dump events** for core artifacts/buffers (guarded by trace verbosity).
-
-### Optional enhancements
-
-- **Step-level opt-in registry** (e.g., `diagnostics.layers` for a step).
+- **Step-level opt-in registry** (e.g., `diagnostics.layers` for a step) instead of “force everything verbose”.
 - **Palette registry** in docs (shared legend definitions for IDs/fields).
 - **Layer diff events** (for deltas vs full snapshots).
 
@@ -232,25 +226,34 @@ Placement
 
 ---
 
-## Implementation Sequence (Suggested)
+## How to extend (add layers)
 
-1. Add a **trace dump sink** that writes `trace.jsonl` + `manifest.json` + `data/`.
-2. Add **layer dump helpers** in mapgen-core (format + validation).
-3. Emit layer dumps for the core pipeline (Foundation → Placement).
-4. Build a **deck.gl viewer** (standalone or MapGen Studio).
-5. Add palette definitions + legend mapping docs.
+1) In the step you care about, emit via `context.viz?.dump*` (do not hand-roll trace envelopes).
+2) Ensure the step is `verbose` (otherwise `TraceScope.event` suppresses viz emissions).
+3) Pick stable ids:
+   - `dataTypeKey` for the semantic data product
+   - `spaceId` for the coordinate space
+   - optional `role`/`variantKey` for disambiguation
+4) Verify both transports:
+   - live streaming in Studio (upserts),
+   - and replay via dumps (when produced).
 
-## Verification (proposal → implementation)
+## Verification
 
-- Add a small deterministic test that runs a tiny plan with a dump sink and asserts:
-  - `manifest.json` exists,
-  - at least one `layers[]` entry exists,
-  - the referenced `path` exists and byte length matches `dims × sizeof(format)`.
+Live (Studio):
+- Start Studio and run a recipe.
+- Confirm `run.progress` events fire (step start/finish).
+- Confirm `viz.layer.upsert` events appear when a verbose step calls `context.viz?.dump*`.
+
+Replay (dump viewer):
+- Produce a dump folder using the node/dev dump harness (mod-owned).
+- Confirm `<outputsRoot>/<runId>/manifest.json` exists and contains `layers[]`.
+- Load the folder in Studio’s dump viewer and confirm layers render.
 
 ---
 
 ## Open Questions
 
+- **Event envelope convergence:** unify `viz.layer.emit.v1` and `viz.layer.dump.v1` naming (or make sinks accept both).
 - **Binary format:** raw typed arrays + sidecar JSON vs Arrow/Parquet.
 - **File size controls:** snapshot every step vs key steps only.
-- **Layer privacy:** remove any user identifiers from dumps.
