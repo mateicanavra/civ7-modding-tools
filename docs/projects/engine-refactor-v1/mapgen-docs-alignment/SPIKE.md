@@ -256,6 +256,8 @@ These are the “teach everywhere” rules that prevent contributors from rebuil
 
 The recommendation is to create a small canonical “DX spine” that sits above the excellent conceptual domain docs and eliminates drift ambiguity.
 
+Doc spine proposal (structure + page contract): `docs/projects/engine-refactor-v1/mapgen-docs-alignment/DOC-SPINE-PROPOSAL.md`.
+
 ### 1) Canonical doc spine (proposed)
 
 Full proposal: `scratch/doc-set-proposal.md`.
