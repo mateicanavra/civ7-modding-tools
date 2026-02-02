@@ -148,5 +148,8 @@ describe("standard pipeline viz emissions", () => {
 
     const permafrostMeta = metaByKey.get("ecology.biome.permafrost01") as any;
     expect(permafrostMeta?.visibility).toBe("debug");
+
+    const rainfallAmpMeta = metaByKey.get("hydrology.climate.seasonality.rainfallAmplitude") as any;
+    expect(rainfallAmpMeta?.visibility).toBe("debug");
   });
 });
