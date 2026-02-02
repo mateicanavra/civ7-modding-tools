@@ -374,7 +374,6 @@ export default createStep(ClimateRefineStepContract, {
       meta: defineVizMeta("hydrology.cryosphere.snowCover", {
         label: "Snow Cover",
         group: GROUP_CRYOSPHERE,
-        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -386,7 +385,6 @@ export default createStep(ClimateRefineStepContract, {
       meta: defineVizMeta("hydrology.cryosphere.seaIceCover", {
         label: "Sea Ice Cover",
         group: GROUP_CRYOSPHERE,
-        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {

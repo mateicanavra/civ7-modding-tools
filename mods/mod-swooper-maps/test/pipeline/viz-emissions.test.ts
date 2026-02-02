@@ -170,7 +170,16 @@ describe("standard pipeline viz emissions", () => {
     expect(permafrostMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
     const rainfallAmpMetas = metasByKey.get("hydrology.climate.seasonality.rainfallAmplitude") as any[] | undefined;
-    expect(rainfallAmpMetas?.some((m) => m?.visibility === "debug")).toBe(true);
+    expect(rainfallAmpMetas?.some((m) => m?.visibility === "default")).toBe(true);
+
+    const humidityAmpMetas = metasByKey.get("hydrology.climate.seasonality.humidityAmplitude") as any[] | undefined;
+    expect(humidityAmpMetas?.some((m) => m?.visibility === "default")).toBe(true);
+
+    const snowMetas = metasByKey.get("hydrology.cryosphere.snowCover") as any[] | undefined;
+    expect(snowMetas?.some((m) => m?.visibility === "default")).toBe(true);
+
+    const seaIceMetas = metasByKey.get("hydrology.cryosphere.seaIceCover") as any[] | undefined;
+    expect(seaIceMetas?.some((m) => m?.visibility === "default")).toBe(true);
 
     const rainfallMetas = metasByKey.get("hydrology.climate.rainfall") as any[] | undefined;
     expect(rainfallMetas?.some((m) => m?.visibility === "default")).toBe(true);

@@ -553,7 +553,6 @@ export default createStep(ClimateBaselineStepContract, {
       meta: defineVizMeta("hydrology.climate.seasonality.rainfallAmplitude", {
         label: "Rainfall Amplitude",
         group: GROUP_SEASONALITY,
-        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -565,7 +564,6 @@ export default createStep(ClimateBaselineStepContract, {
       meta: defineVizMeta("hydrology.climate.seasonality.humidityAmplitude", {
         label: "Humidity Amplitude",
         group: GROUP_SEASONALITY,
-        visibility: "debug",
       }),
     });
     for (let s = 0; s < seasonCount; s++) {
