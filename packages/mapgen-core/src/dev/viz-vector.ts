@@ -38,7 +38,8 @@ export type VectorFieldVariantsOptions = Readonly<{
   group: string;
   visibility?: "default" | "debug" | "hidden";
   palette?: "continuous" | "categorical" | "auto";
-  magnitude?: { fieldKey?: string; format?: VizScalarFormat; values?: ArrayBufferView };
+  vector?: { debugOnly?: boolean };
+  magnitude?: { fieldKey?: string; format?: VizScalarFormat; values?: ArrayBufferView; debugOnly?: boolean };
   arrows?: {
     /** Sample step in tile space; defaults to `computeSampleStep(width,height)`. */
     sampleStep?: number;
@@ -71,6 +72,11 @@ export function dumpVectorFieldVariants(
 ): void {
   if (!viz) return;
 
+  const applyDebugOnly = (visibility: "default" | "debug" | "hidden", debugOnly: boolean | undefined) => {
+    if (visibility === "hidden") return "hidden";
+    return debugOnly ? "debug" : visibility;
+  };
+
   const { dataTypeKey, variantKey, spaceId, dims, u, v } = options;
   const width = dims.width | 0;
   const height = dims.height | 0;
@@ -98,50 +104,56 @@ export function dumpVectorFieldVariants(
   }
 
   const visibility = options.visibility ?? "default";
+  const vectorVis = applyDebugOnly(visibility, options.vector?.debugOnly);
+  const magnitudeVis = applyDebugOnly(visibility, options.magnitude?.debugOnly);
   const palette = options.palette ?? "continuous";
 
-  viz.dumpGridFields(trace, {
-    dataTypeKey,
-    variantKey,
-    spaceId,
-    dims,
-    fields: {
-      u: { format: u.format, values: u.values },
-      v: { format: v.format, values: v.values },
-      [magnitudeKey]: { format: magFormat, values: magValues },
-    },
-    vector: { u: "u", v: "v", magnitude: magnitudeKey },
-    meta: defineVizMeta(dataTypeKey, {
-      label: options.label,
-      group: options.group,
-      role: "vector",
-      palette,
-      visibility,
-    }),
-  });
+  if (vectorVis !== "hidden") {
+    viz.dumpGridFields(trace, {
+      dataTypeKey,
+      variantKey,
+      spaceId,
+      dims,
+      fields: {
+        u: { format: u.format, values: u.values },
+        v: { format: v.format, values: v.values },
+        [magnitudeKey]: { format: magFormat, values: magValues },
+      },
+      vector: { u: "u", v: "v", magnitude: magnitudeKey },
+      meta: defineVizMeta(dataTypeKey, {
+        label: options.label,
+        group: options.group,
+        role: "vector",
+        palette,
+        visibility: vectorVis,
+      }),
+    });
+  }
 
-  viz.dumpGrid(trace, {
-    dataTypeKey,
-    variantKey,
-    spaceId,
-    dims,
-    format: magFormat,
-    values: magValues,
-    meta: defineVizMeta(dataTypeKey, {
-      label: options.label,
-      group: options.group,
-      role: "magnitude",
-      palette,
-      visibility,
-      description: magnitudeProvided
-        ? "Scalar magnitude provided by the producer for alternate rendering."
-        : "Scalar magnitude derived from the vector components for alternate rendering.",
-    }),
-  });
+  if (magnitudeVis !== "hidden") {
+    viz.dumpGrid(trace, {
+      dataTypeKey,
+      variantKey,
+      spaceId,
+      dims,
+      format: magFormat,
+      values: magValues,
+      meta: defineVizMeta(dataTypeKey, {
+        label: options.label,
+        group: options.group,
+        role: "magnitude",
+        palette,
+        visibility: magnitudeVis,
+        description: magnitudeProvided
+          ? "Scalar magnitude provided by the producer for alternate rendering."
+          : "Scalar magnitude derived from the vector components for alternate rendering.",
+      }),
+    });
+  }
 
   const arrows = options.arrows;
   if (arrows) {
-    const arrowVis = arrows.debugOnly ? "debug" : visibility;
+    const arrowVis = applyDebugOnly(visibility, arrows.debugOnly);
     if (arrowVis !== "hidden") {
       const step = computeSampleStep(width, height, arrows.sampleStep);
       const maxArrowLenTiles = arrows.maxArrowLenTiles ?? 1.25;
@@ -203,7 +215,7 @@ export function dumpVectorFieldVariants(
 
   const points = options.points;
   if (!points) return;
-  const pointsVis = points.debugOnly ? "debug" : visibility;
+  const pointsVis = applyDebugOnly(visibility, points.debugOnly);
   if (pointsVis === "hidden") return;
 
   // Only emit sampled points for tile spaces; for other spaces, there is no
