@@ -1,4 +1,4 @@
-import { ctxRandom, ctxRandomLabel, defineVizMeta, writeClimateField } from "@swooper/mapgen-core";
+import { ctxRandom, ctxRandomLabel, defineVizMeta, dumpScalarFieldVariants, writeClimateField } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import ClimateRefineStepContract from "./climateRefine.contract.js";
 import { hydrologyClimateRefineArtifacts } from "../artifacts.js";
@@ -297,16 +297,14 @@ export default createStep(ClimateRefineStepContract, {
       config.computeClimateDiagnostics
     );
 
-    context.viz?.dumpGrid(context.trace, {
+    dumpScalarFieldVariants(context.trace, context.viz, {
       dataTypeKey: "hydrology.climate.rainfall",
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
-      format: "u8",
-      values: refined.rainfall,
-      meta: defineVizMeta("hydrology.climate.rainfall", {
-        label: "Rainfall",
-        group: GROUP_CLIMATE,
-      }),
+      field: { format: "u8", values: refined.rainfall },
+      label: "Rainfall",
+      group: GROUP_CLIMATE,
+      palette: "continuous",
     });
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "hydrology.climate.humidity",
@@ -320,16 +318,14 @@ export default createStep(ClimateRefineStepContract, {
         visibility: "debug",
       }),
     });
-    context.viz?.dumpGrid(context.trace, {
+    dumpScalarFieldVariants(context.trace, context.viz, {
       dataTypeKey: "hydrology.climate.indices.surfaceTemperatureC",
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
-      format: "f32",
-      values: albedoFeedback.surfaceTemperatureC,
-      meta: defineVizMeta("hydrology.climate.indices.surfaceTemperatureC", {
-        label: "Surface Temperature (C)",
-        group: GROUP_INDICES,
-      }),
+      field: { format: "f32", values: albedoFeedback.surfaceTemperatureC },
+      label: "Surface Temperature (C)",
+      group: GROUP_INDICES,
+      palette: "continuous",
     });
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "hydrology.climate.indices.pet",
@@ -376,6 +372,7 @@ export default createStep(ClimateRefineStepContract, {
       meta: defineVizMeta("hydrology.cryosphere.snowCover", {
         label: "Snow Cover",
         group: GROUP_CRYOSPHERE,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -387,6 +384,7 @@ export default createStep(ClimateRefineStepContract, {
       meta: defineVizMeta("hydrology.cryosphere.seaIceCover", {
         label: "Sea Ice Cover",
         group: GROUP_CRYOSPHERE,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
