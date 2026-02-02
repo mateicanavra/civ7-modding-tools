@@ -324,6 +324,11 @@ Marking these explicitly avoids “silent drift” in canonical docs.
 
 ## Ground truth anchors
 
+This section is a navigation aid: concrete file paths that back the contract claims in this domain reference.
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mesh/contract.ts` (`FoundationMeshSchema`, `ComputeMeshContract`)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mesh/index.ts` (`computeMesh`, call to `buildDelaunayMesh`)
+- `packages/mapgen-core/src/lib/mesh/delaunay.ts` (`buildDelaunayMesh`, `DelaunayMesh`)
+
 This page contains many inline “Ground truth anchors” callouts. This section collects the canonical entrypoints:
 
 - Domain entrypoint + op ids: `mods/mod-swooper-maps/src/domain/foundation/index.ts`
