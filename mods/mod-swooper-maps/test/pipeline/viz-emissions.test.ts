@@ -81,4 +81,66 @@ describe("standard pipeline viz emissions", () => {
     const missing = expected.filter((dataTypeKey) => !seenLayers.has(dataTypeKey));
     expect(missing).toEqual([]);
   });
+
+  it("declutters noisy layers behind debug visibility", () => {
+    const width = 32;
+    const height = 20;
+    const seed = 1337;
+    const mapInfo = {
+      GridWidth: width,
+      GridHeight: height,
+      MinLatitude: -60,
+      MaxLatitude: 60,
+      PlayersLandmass1: 4,
+      PlayersLandmass2: 4,
+      StartSectorRows: 4,
+      StartSectorCols: 4,
+    };
+
+    const env = {
+      seed,
+      dimensions: { width, height },
+      latitudeBounds: {
+        topLatitude: mapInfo.MaxLatitude,
+        bottomLatitude: mapInfo.MinLatitude,
+      },
+    };
+
+    const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
+    const context = createExtendedMapContext({ width, height }, adapter, env);
+
+    const metaByKey = new Map<string, unknown>();
+    const viz: VizDumper = {
+      outputRoot: "<test>",
+      dumpGrid: (_trace, layer) => {
+        metaByKey.set(layer.dataTypeKey, layer.meta);
+      },
+      dumpPoints: (_trace, layer) => {
+        metaByKey.set(layer.dataTypeKey, layer.meta);
+      },
+      dumpSegments: (_trace, layer) => {
+        metaByKey.set(layer.dataTypeKey, layer.meta);
+      },
+      dumpGridFields: (_trace, layer) => {
+        metaByKey.set(layer.dataTypeKey, layer.meta);
+      },
+    };
+
+    context.viz = viz;
+    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
+    standardRecipe.run(context, env, standardConfig, { log: () => {} });
+
+    const plateIdMeta = metaByKey.get("foundation.plates.tilePlateId") as any;
+    expect(plateIdMeta?.visibility).toBe("default");
+
+    const movementMeta = metaByKey.get("foundation.plates.tileMovement") as any;
+    expect(movementMeta?.visibility).toBe("default");
+    expect(movementMeta?.role).toBe("vector");
+
+    const closenessMeta = metaByKey.get("foundation.plates.tileBoundaryCloseness") as any;
+    expect(closenessMeta?.visibility).toBe("debug");
+
+    const baseElevationMeta = metaByKey.get("foundation.crustTiles.baseElevation") as any;
+    expect(baseElevationMeta?.visibility).toBe("debug");
+  });
 });
