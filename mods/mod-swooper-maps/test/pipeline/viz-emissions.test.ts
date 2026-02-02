@@ -108,20 +108,20 @@ describe("standard pipeline viz emissions", () => {
     const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
     const context = createExtendedMapContext({ width, height }, adapter, env);
 
-    const metaByKey = new Map<string, unknown>();
+    const metasByKey = new Map<string, unknown[]>();
     const viz: VizDumper = {
       outputRoot: "<test>",
       dumpGrid: (_trace, layer) => {
-        metaByKey.set(layer.dataTypeKey, layer.meta);
+        metasByKey.set(layer.dataTypeKey, [...(metasByKey.get(layer.dataTypeKey) ?? []), layer.meta]);
       },
       dumpPoints: (_trace, layer) => {
-        metaByKey.set(layer.dataTypeKey, layer.meta);
+        metasByKey.set(layer.dataTypeKey, [...(metasByKey.get(layer.dataTypeKey) ?? []), layer.meta]);
       },
       dumpSegments: (_trace, layer) => {
-        metaByKey.set(layer.dataTypeKey, layer.meta);
+        metasByKey.set(layer.dataTypeKey, [...(metasByKey.get(layer.dataTypeKey) ?? []), layer.meta]);
       },
       dumpGridFields: (_trace, layer) => {
-        metaByKey.set(layer.dataTypeKey, layer.meta);
+        metasByKey.set(layer.dataTypeKey, [...(metasByKey.get(layer.dataTypeKey) ?? []), layer.meta]);
       },
     };
 
@@ -129,35 +129,27 @@ describe("standard pipeline viz emissions", () => {
     initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
     standardRecipe.run(context, env, standardConfig, { log: () => {} });
 
-    const plateIdMeta = metaByKey.get("foundation.plates.tilePlateId") as any;
-    expect(plateIdMeta?.visibility).toBe("default");
+    const plateIdMetas = metasByKey.get("foundation.plates.tilePlateId") as any[] | undefined;
+    expect(plateIdMetas?.some((m) => m?.visibility === "default")).toBe(true);
 
-    const movementMeta = metaByKey.get("foundation.plates.tileMovement") as any;
-    expect(movementMeta?.visibility).toBe("default");
-    expect(movementMeta?.role).toBe("vector");
+    const movementMetas = metasByKey.get("foundation.plates.tileMovement") as any[] | undefined;
+    expect(movementMetas?.some((m) => m?.visibility === "default" && m?.role === "vector")).toBe(true);
+    expect(movementMetas?.some((m) => m?.visibility === "default" && m?.role === "magnitude")).toBe(true);
+    expect(movementMetas?.some((m) => m?.visibility === "default" && m?.role === "arrows")).toBe(true);
 
-    const closenessMeta = metaByKey.get("foundation.plates.tileBoundaryCloseness") as any;
-    expect(closenessMeta?.visibility).toBe("debug");
+    const closenessMetas = metasByKey.get("foundation.plates.tileBoundaryCloseness") as any[] | undefined;
+    expect(closenessMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
-    const baseElevationMeta = metaByKey.get("foundation.crustTiles.baseElevation") as any;
-    expect(baseElevationMeta?.visibility).toBe("debug");
+    const baseElevationMetas = metasByKey.get("foundation.crustTiles.baseElevation") as any[] | undefined;
+    expect(baseElevationMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
-    const albedoMeta = metaByKey.get("hydrology.cryosphere.albedo") as any;
-    expect(albedoMeta?.visibility).toBe("debug");
+    const albedoMetas = metasByKey.get("hydrology.cryosphere.albedo") as any[] | undefined;
+    expect(albedoMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
-    const permafrostMeta = metaByKey.get("ecology.biome.permafrost01") as any;
-    expect(permafrostMeta?.visibility).toBe("debug");
-<<<<<<< HEAD
-<<<<<<< HEAD
+    const permafrostMetas = metasByKey.get("ecology.biome.permafrost01") as any[] | undefined;
+    expect(permafrostMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
-    const rainfallAmpMeta = metaByKey.get("hydrology.climate.seasonality.rainfallAmplitude") as any;
-    expect(rainfallAmpMeta?.visibility).toBe("debug");
-=======
->>>>>>> 5d976911b (chore(viz): declutter ecology biomes diagnostics)
-=======
-
-    const rainfallAmpMeta = metaByKey.get("hydrology.climate.seasonality.rainfallAmplitude") as any;
-    expect(rainfallAmpMeta?.visibility).toBe("debug");
->>>>>>> 110709ac6 (chore(viz): declutter climate baseline layers)
+    const rainfallAmpMetas = metasByKey.get("hydrology.climate.seasonality.rainfallAmplitude") as any[] | undefined;
+    expect(rainfallAmpMetas?.some((m) => m?.visibility === "debug")).toBe(true);
   });
 });

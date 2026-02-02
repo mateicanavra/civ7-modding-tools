@@ -89,5 +89,8 @@ export {
 // Visualization metadata helpers
 export { defineVizMeta } from "@mapgen/dev/viz-meta.js";
 
+// Vector visualization helpers
+export { dumpVectorFieldVariants, type VectorFieldVariantsOptions } from "@mapgen/dev/viz-vector.js";
+
 /** Module version */
 export const DEV_MODULE_VERSION = "1.0.0";

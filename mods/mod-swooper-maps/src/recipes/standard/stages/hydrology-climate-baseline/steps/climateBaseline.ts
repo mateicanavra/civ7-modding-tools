@@ -1,4 +1,4 @@
-import { ctxRandom, ctxRandomLabel, defineVizMeta, writeClimateField } from "@swooper/mapgen-core";
+import { ctxRandom, ctxRandomLabel, defineVizMeta, dumpVectorFieldVariants, writeClimateField } from "@swooper/mapgen-core";
 import type { MapDimensions } from "@civ7/adapter";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { hydrologyClimateBaselineArtifacts } from "../artifacts.js";
@@ -643,108 +643,64 @@ export default createStep(ClimateBaselineStepContract, {
         visibility: "debug",
       }),
     });
-    {
-      const windMag = new Float32Array(width * height);
-      const currentMag = new Float32Array(width * height);
-      for (let i = 0; i < windMag.length; i++) {
-        const wu = Number(meanWindU[i] ?? 0);
-        const wv = Number(meanWindV[i] ?? 0);
-        const cu = Number(meanCurrentU[i] ?? 0);
-        const cv = Number(meanCurrentV[i] ?? 0);
-        windMag[i] = Math.hypot(wu, wv);
-        currentMag[i] = Math.hypot(cu, cv);
-      }
+    dumpVectorFieldVariants(context.trace, context.viz, {
+      dataTypeKey: "hydrology.wind.wind",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      u: { format: "i8", values: meanWindU },
+      v: { format: "i8", values: meanWindV },
+      label: "Wind",
+      group: GROUP_WIND,
+      palette: "continuous",
+      arrows: { maxArrowLenTiles: 1.25 },
+    });
 
-      context.viz?.dumpGridFields(context.trace, {
+    dumpVectorFieldVariants(context.trace, context.viz, {
+      dataTypeKey: "hydrology.current.current",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      u: { format: "i8", values: meanCurrentU },
+      v: { format: "i8", values: meanCurrentV },
+      label: "Current",
+      group: GROUP_CURRENT,
+      palette: "continuous",
+      arrows: { maxArrowLenTiles: 1.25 },
+    });
+
+    for (let s = 0; s < seasonCount; s++) {
+      const su = seasonalWindU[s];
+      const sv = seasonalWindV[s];
+      const cu = seasonalCurrentU[s];
+      const cv = seasonalCurrentV[s];
+      if (!su || !sv || !cu || !cv) continue;
+
+      dumpVectorFieldVariants(context.trace, context.viz, {
         dataTypeKey: "hydrology.wind.wind",
+        variantKey: `season:${s}`,
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
-        fields: {
-          u: { format: "i8", values: meanWindU },
-          v: { format: "i8", values: meanWindV },
-          magnitude: { format: "f32", values: windMag },
-        },
-        vector: { u: "u", v: "v", magnitude: "magnitude" },
-        meta: defineVizMeta("hydrology.wind.wind", {
-          label: "Wind (Vector)",
-          group: GROUP_WIND,
-          role: "vector",
-          palette: "continuous",
-        }),
+        u: { format: "i8", values: su },
+        v: { format: "i8", values: sv },
+        label: "Wind",
+        group: GROUP_WIND,
+        palette: "continuous",
+        visibility: "debug",
+        arrows: { maxArrowLenTiles: 1.25 },
       });
 
-      context.viz?.dumpGridFields(context.trace, {
+      dumpVectorFieldVariants(context.trace, context.viz, {
         dataTypeKey: "hydrology.current.current",
+        variantKey: `season:${s}`,
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
-        fields: {
-          u: { format: "i8", values: meanCurrentU },
-          v: { format: "i8", values: meanCurrentV },
-          magnitude: { format: "f32", values: currentMag },
-        },
-        vector: { u: "u", v: "v", magnitude: "magnitude" },
-        meta: defineVizMeta("hydrology.current.current", {
-          label: "Current (Vector)",
-          group: GROUP_CURRENT,
-          role: "vector",
-          palette: "continuous",
-        }),
+        u: { format: "i8", values: cu },
+        v: { format: "i8", values: cv },
+        label: "Current",
+        group: GROUP_CURRENT,
+        palette: "continuous",
+        visibility: "debug",
+        arrows: { maxArrowLenTiles: 1.25 },
       });
-
-      for (let s = 0; s < seasonCount; s++) {
-        const su = seasonalWindU[s];
-        const sv = seasonalWindV[s];
-        const cu = seasonalCurrentU[s];
-        const cv = seasonalCurrentV[s];
-        if (!su || !sv || !cu || !cv) continue;
-
-        const windSeasonMag = new Float32Array(width * height);
-        const currentSeasonMag = new Float32Array(width * height);
-        for (let i = 0; i < windSeasonMag.length; i++) {
-          windSeasonMag[i] = Math.hypot(Number(su[i] ?? 0), Number(sv[i] ?? 0));
-          currentSeasonMag[i] = Math.hypot(Number(cu[i] ?? 0), Number(cv[i] ?? 0));
-        }
-
-        context.viz?.dumpGridFields(context.trace, {
-          dataTypeKey: "hydrology.wind.wind",
-          variantKey: `season:${s}`,
-          spaceId: TILE_SPACE_ID,
-          dims: { width, height },
-          fields: {
-            u: { format: "i8", values: su },
-            v: { format: "i8", values: sv },
-            magnitude: { format: "f32", values: windSeasonMag },
-          },
-          vector: { u: "u", v: "v", magnitude: "magnitude" },
-          meta: defineVizMeta("hydrology.wind.wind", {
-            label: `Wind (Season ${s + 1})`,
-            group: GROUP_WIND,
-            role: "vector",
-            palette: "continuous",
-            visibility: "debug",
-          }),
-        });
-
-        context.viz?.dumpGridFields(context.trace, {
-          dataTypeKey: "hydrology.current.current",
-          variantKey: `season:${s}`,
-          spaceId: TILE_SPACE_ID,
-          dims: { width, height },
-          fields: {
-            u: { format: "i8", values: cu },
-            v: { format: "i8", values: cv },
-            magnitude: { format: "f32", values: currentSeasonMag },
-          },
-          vector: { u: "u", v: "v", magnitude: "magnitude" },
-          meta: defineVizMeta("hydrology.current.current", {
-            label: `Current (Season ${s + 1})`,
-            group: GROUP_CURRENT,
-            role: "vector",
-            palette: "continuous",
-            visibility: "debug",
-          }),
-        });
-      }
     }
 
     for (let y = 0; y < height; y++) {
