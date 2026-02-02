@@ -47,6 +47,29 @@ The protocol is **intentionally loose** at the recipe config boundary:
 
 This prevents Studio’s engine code from being coupled to any specific recipe config type.
 
+Concrete shapes (excerpt):
+
+```ts
+// apps/mapgen-studio/src/browser-runner/protocol.ts
+export type BrowserRunStartRequest = {
+  type: "run.start";
+  runToken: string;
+  generation: number;
+  recipeId: string;
+  seed: number;
+  dimensions: { width: number; height: number };
+  latitudeBounds: { topLatitude: number; bottomLatitude: number };
+  configOverrides?: unknown;
+};
+
+export type BrowserVizLayerUpsertEvent = {
+  type: "viz.layer.upsert";
+  runToken: string;
+  generation: number;
+  layer: VizLayerEntryV1;
+};
+```
+
 ## Config overrides + validation
 
 The worker treats the protocol boundary as untrusted/unknown input and:
@@ -69,6 +92,22 @@ The worker composes an `envBase` from run inputs (seed/dimensions/latitudes) and
 - installs `context.viz` to enable visualization emission,
 - and calls `recipe.runAsync(context, env, config, { traceSink, abortSignal, yieldToEventLoop: true })`.
 
+Concrete execution posture (excerpt):
+
+```ts
+// apps/mapgen-studio/src/browser-runner/pipeline.worker.ts
+const plan = recipeEntry.recipe.compile(envBase, config);
+const runId = deriveRunId(plan);
+const verboseSteps: Record<string, "verbose"> = Object.fromEntries(plan.nodes.map((node) => [node.stepId, "verbose"] as const));
+
+const env = { ...envBase, trace: { enabled: true, steps: verboseSteps } };
+const context = createExtendedMapContext(dimensions, adapter, env);
+context.viz = createWorkerVizDumper();
+
+post({ type: "run.started", runToken, generation, runId, planFingerprint: runId });
+await recipeEntry.recipe.runAsync(context, env, config, { traceSink, abortSignal, yieldToEventLoop: true });
+```
+
 ## Trace + visualization in Studio
 
 Studio surfaces two observability channels from the worker:
@@ -79,6 +118,14 @@ Studio surfaces two observability channels from the worker:
 Key posture:
 - Visualization emission is gated by **trace verbosity** in the worker’s `VizDumper` implementation.
 - The worker uses Transferables to avoid copying large buffers across the worker boundary.
+
+Concrete Transferables posture (excerpt):
+
+```ts
+// apps/mapgen-studio/src/browser-runner/worker-trace-sink.ts
+const transfer = collectTransferables(layer); // collects ArrayBuffers from inline refs
+post({ type: "viz.layer.upsert", runToken, generation, layer }, transfer);
+```
 
 Routing:
 - Visualization architecture and deck.gl rendering are canonical in `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`.
