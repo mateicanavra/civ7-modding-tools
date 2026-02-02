@@ -415,35 +415,40 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
             </button>
           </div>
 
-          {/* Right: Render Modes */}
-          <div className="flex items-center gap-1">
-            {renderModeOptions.map((option) =>
-            <button
-              key={option.value}
-              onClick={() => onSelectedRenderModeChange(option.value)}
-              title={option.label}
-              className={
-              selectedRenderMode === option.value ? iconBtnActive : iconBtn
-              }>
-
-                {getRenderModeIcon(option.value)}
-              </button>
-            )}
+          {/* Right: Render */}
+          <div className="flex flex-col items-end gap-1">
+            <span className={`text-[10px] uppercase tracking-wider ${textMuted}`}>Render</span>
+            <div className="flex items-center gap-1">
+              {renderModeOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => onSelectedRenderModeChange(option.value)}
+                  title={option.label}
+                  className={selectedRenderMode === option.value ? iconBtnActive : iconBtn}
+                >
+                  {getRenderModeIcon(option.value)}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         <div className="flex items-center justify-between gap-2">
-          {/* Left: Spaces */}
-          <div className="flex items-center gap-1">
-            {spaceOptions.map((option) =>
-            <button
-              key={option.value}
-              onClick={() => onSelectedSpaceChange(option.value)}
-              title={option.label}
-              className={selectedSpace === option.value ? iconBtnActive : iconBtn}>
-                {getSpaceIcon(option.value)}
-              </button>
-            )}
+          {/* Left: Space */}
+          <div className="flex flex-col gap-1">
+            <span className={`text-[10px] uppercase tracking-wider ${textMuted}`}>Space</span>
+            <div className="flex items-center gap-1">
+              {spaceOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => onSelectedSpaceChange(option.value)}
+                  title={option.label}
+                  className={selectedSpace === option.value ? iconBtnActive : iconBtn}
+                >
+                  {getSpaceIcon(option.value)}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Right: Debug toggle */}
@@ -466,6 +471,9 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
+            <span className={`text-[10px] ${textMuted}`}>
+              Semantic slices like <span className={lightMode ? "text-gray-600" : "text-[#8a8a96]"}>era:2</span>, not styling.
+            </span>
           </label>
         ) : null}
       </div>

@@ -82,7 +82,7 @@ export interface RenderModeOption {
   icon?: string;
 }
 
-/** Variant option - specific variant of a render mode */
+/** Variant option - semantic slice of the same dataType/render (e.g. era:2, season:1) */
 export interface VariantOption {
   value: string;
   label: string;
@@ -328,18 +328,4 @@ export interface Preset {
   updatedAt: string;
 }
 
-// ============================================================================
-// Legacy Aliases (for backward compatibility)
-// ============================================================================
-
-/** @deprecated Use WorldSettings instead */
-export type GlobalSettings = WorldSettings;
-
-/** @deprecated Use RecipeSettings instead */
-export type RunSettings = RecipeSettings;
-
-/** @deprecated Use selectedDataType instead */
-export type SelectedLayer = string;
-
-/** @deprecated Use selectedRenderMode instead */
-export type SelectedProjection = string;
+// (No legacy aliases: Studio is the only consumer and uses the v1 vocabulary.)
