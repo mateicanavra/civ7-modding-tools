@@ -21,14 +21,14 @@ This how-to is **recipe-level** (steps are authored/registered in a recipe). It 
 
 ## Prereqs
 
-- You know which **domain** you’re extending (Foundation/Morphology/Hydrology/Ecology/Placement/Narrative) and which **stage** owns the new step.
+- You know which **domain** you’re extending (Foundation/Morphology/Hydrology/Ecology/Gameplay) and which **stage** owns the new step.
 - You have a step id and phase that fit the stage’s naming/ordering conventions.
 
 ## Checklist
 
 ### 1) Decide the contract surface (before writing code)
 
-- Pick a stable step id (string) and phase (`"foundation" | "morphology" | "hydrology" | "ecology" | "placement" | ...`).
+- Pick a stable step id (string) and phase (`"foundation" | "morphology" | "hydrology" | "ecology" | "gameplay" | ...`).
 - Identify required dependency tags (what must exist before your step can run).
 - Identify provided dependency tags (what your step guarantees after it runs).
 - Identify artifacts read/write needs (buffer vs snapshot; publish-once rule).
@@ -39,7 +39,53 @@ This how-to is **recipe-level** (steps are authored/registered in a recipe). It 
 - Use `defineStep({ id, phase, requires, provides, artifacts, ops, schema })`.
 - Wire **artifact requirements** (and any required ops) explicitly into the contract.
 
-Example pattern (existing): a step contract with artifact requirements.
+Representative example (artifact + ops wiring; excerpt; see full file in anchors):
+
+```ts
+import { Type, defineStep } from "@swooper/mapgen-core/authoring";
+
+const GeomorphologyStepContract = defineStep({
+  id: "geomorphology",
+  phase: "morphology",
+  requires: [],
+  provides: [],
+  artifacts: {
+    requires: [
+      morphologyArtifacts.topography,
+      morphologyArtifacts.routing,
+      morphologyArtifacts.substrate,
+    ],
+  },
+  ops: {
+    geomorphology: morphology.ops.computeGeomorphicCycle,
+  },
+  schema: Type.Object({}),
+});
+```
+
+Notes:
+- `morphologyArtifacts.*` is the stage-owned artifact contract module for this stage.
+- `morphology.ops.*` is the domain op contract surface consumed by the step.
+
+Representative example (dependency tags; excerpt; see full file in anchors):
+
+```ts
+import { Type, defineStep } from "@swooper/mapgen-core/authoring";
+import { M4_EFFECT_TAGS, M10_EFFECT_TAGS } from "../../../tags.js";
+import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
+
+const PlotRiversStepContract = defineStep({
+  id: "plot-rivers",
+  phase: "gameplay",
+  requires: [M10_EFFECT_TAGS.map.elevationBuilt],
+  provides: [M4_EFFECT_TAGS.engine.riversModeled],
+  artifacts: {
+    requires: [hydrologyHydrographyArtifacts.hydrography],
+    provides: [],
+  },
+  schema: Type.Object({}),
+});
+```
 
 ### 3) Implement the step (`createStep`)
 
@@ -47,10 +93,66 @@ Example pattern (existing): a step contract with artifact requirements.
 - Keep step code “boring”: read inputs from `deps`/artifacts, mutate only permitted buffers, publish only allowed artifacts, emit trace/viz only via `context.trace` / `context.viz`.
 - Prefer `context.trace.event(() => ({ ... }))` for verbose-only structured dumps.
 
+Representative example (excerpt; see full file in anchors):
+
+```ts
+import { defineVizMeta } from "@swooper/mapgen-core";
+import { createStep } from "@swooper/mapgen-core/authoring";
+import GeomorphologyStepContract from "./geomorphology.contract.js";
+
+export default createStep(GeomorphologyStepContract, {
+  normalize: (config, ctx) => {
+    return config;
+  },
+  run: (context, config, ops, deps) => {
+    const routing = deps.artifacts.routing.read(context);
+    const heightfield = context.buffers.heightfield;
+
+    const deltas = ops.geomorphology(
+      {
+        width: context.dimensions.width,
+        height: context.dimensions.height,
+        elevation: heightfield.elevation,
+        landMask: heightfield.landMask,
+        flowDir: routing.flowDir,
+        flowAccum: routing.flowAccum,
+        erodibilityK: deps.artifacts.substrate.read(context).erodibilityK,
+        sedimentDepth: deps.artifacts.substrate.read(context).sedimentDepth,
+      },
+      config.geomorphology
+    );
+
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.geomorphology.elevationDelta",
+      spaceId: "tile.hexOddR",
+      dims: context.dimensions,
+      format: "f32",
+      values: deltas.elevationDelta,
+      meta: defineVizMeta("morphology.geomorphology.elevationDelta", { label: "Elevation Delta" }),
+    });
+
+    context.trace.event(() => ({ kind: "morphology.geomorphology.summary" }));
+  },
+});
+```
+
 ### 4) Register the step in its stage
 
 - Add your step into the stage’s `steps/index.ts` (or equivalent stage wiring).
 - Ensure the stage ordering places your step after its requirements are satisfied and before any steps that require its provides.
+
+Representative example (stage wiring; excerpt; see full file in anchors):
+
+```ts
+import { geomorphology, ruggedCoasts, routing } from "./steps/index.js";
+import { createStage } from "@swooper/mapgen-core/authoring";
+
+export default createStage({
+  id: "morphology-mid",
+  // ...
+  steps: [ruggedCoasts, routing, geomorphology],
+} as const);
+```
 
 ### 5) Update dependency tags if needed
 
@@ -81,4 +183,6 @@ If your step introduces a new required/provided dependency tag:
 - Step implementation wrapper: `packages/mapgen-core/src/authoring/step/create.ts`
 - Example step contract: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/steps/geomorphology.contract.ts`
 - Example step implementation (createStep + trace + viz): `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/steps/geomorphology.ts`
+- Example step contract (dependency tags): `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/plotRivers.contract.ts`
+- Example stage wiring: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/index.ts`
 - Pipeline executor dependency gating: `packages/mapgen-core/src/engine/PipelineExecutor.ts`
