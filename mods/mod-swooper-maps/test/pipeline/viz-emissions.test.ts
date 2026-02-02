@@ -155,7 +155,7 @@ describe("standard pipeline viz emissions", () => {
     expect(baseElevationMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
     const crustTypeMetas = metasByKey.get("foundation.crustTiles.type") as any[] | undefined;
-    expect(crustTypeMetas?.some((m) => m?.visibility === "debug")).toBe(true);
+    expect(crustTypeMetas?.some((m) => m?.visibility === "default")).toBe(true);
 
     const albedoMetas = metasByKey.get("hydrology.cryosphere.albedo") as any[] | undefined;
     expect(albedoMetas?.some((m) => m?.visibility === "debug")).toBe(true);
