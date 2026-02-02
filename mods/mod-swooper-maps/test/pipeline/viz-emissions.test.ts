@@ -132,6 +132,10 @@ describe("standard pipeline viz emissions", () => {
     const plateIdMetas = metasByKey.get("foundation.plates.tilePlateId") as any[] | undefined;
     expect(plateIdMetas?.some((m) => m?.visibility === "default")).toBe(true);
 
+    const boundaryTypeMetas = metasByKey.get("foundation.tectonics.boundaryType") as any[] | undefined;
+    expect(boundaryTypeMetas?.some((m) => m?.visibility === "default" && m?.role === "edges")).toBe(true);
+    expect(boundaryTypeMetas?.some((m) => m?.visibility === "debug")).toBe(true);
+
     const movementMetas = metasByKey.get("foundation.plates.tileMovement") as any[] | undefined;
     expect(movementMetas?.some((m) => m?.visibility === "default" && m?.role === "vector")).toBe(true);
     expect(movementMetas?.some((m) => m?.visibility === "debug" && m?.role === "magnitude")).toBe(true);
