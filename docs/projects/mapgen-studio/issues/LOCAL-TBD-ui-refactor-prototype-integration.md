@@ -45,10 +45,10 @@ vars:
 ```
 
 ## Prototype packet location
-- `apps/mapgen-studio/src/DELETE-WHEN-DONE/mapgen-studio-prototype-magic-patterns`
+- (historical; deleted after hoisting) `apps/mapgen-studio/src/DELETE-WHEN-DONE/mapgen-studio-prototype-magic-patterns`
 
 ## Current UI implementation location (hoisted)
-- `apps/mapgen-studio/src/prototype-ui` (TODO: rename to remove “prototype” framing once the refactor settles)
+- `apps/mapgen-studio/src/ui`
 
 ## Guardrails (non-negotiable)
 **Pipeline semantics**
@@ -335,9 +335,9 @@ bun run test
 This is cleanup-only (no behavior changes): treat the hoisted UI as the app, delete legacy remnants, and remove the `DELETE-WHEN-DONE` packet once it’s no longer needed.
 
 **Acceptance criteria**
-- [ ] Rename `apps/mapgen-studio/src/prototype-ui` → `apps/mapgen-studio/src/ui` (or equivalent) and update imports.
-- [ ] Delete `apps/mapgen-studio/src/DELETE-WHEN-DONE/mapgen-studio-prototype-magic-patterns` after confirming parity is stable.
-- [ ] Remove any dead legacy UI modules still present under `apps/mapgen-studio/src` (e.g. `apps/mapgen-studio/src/app/*`) if unused.
+- [x] Rename `apps/mapgen-studio/src/prototype-ui` → `apps/mapgen-studio/src/ui` and update imports.
+- [x] Delete `apps/mapgen-studio/src/DELETE-WHEN-DONE/mapgen-studio-prototype-magic-patterns` after confirming parity is stable.
+- [x] Remove dead legacy UI modules still present under `apps/mapgen-studio/src` (e.g. `apps/mapgen-studio/src/app/*`) once unused.
 
 **Verification**
 ```bash
