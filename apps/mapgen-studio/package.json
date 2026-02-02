@@ -20,6 +20,7 @@
     "@rjsf/utils": "^6.2.5",
     "@rjsf/validator-ajv8": "^6.2.5",
     "@swooper/mapgen-core": "workspace:*",
+    "@swooper/mapgen-viz": "workspace:*",
     "class-variance-authority": "latest",
     "clsx": "latest",
     "lucide-react": "0.522.0",
