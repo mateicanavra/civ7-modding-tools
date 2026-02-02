@@ -25,8 +25,12 @@ rg -l -S "\bMapGen\b|\bmapgen\b|\bhydrology\b|\becology\b|\bmorphology\b|\bfound
 - docs/projects/engine-refactor-v1/PROJECT-engine-refactor-v1.md
 - docs/projects/engine-refactor-v1/deferrals.md
 - docs/projects/engine-refactor-v1/mapgen-docs-alignment/SPIKE.md
+- docs/projects/engine-refactor-v1/mapgen-docs-alignment/PROMPT.md
 - docs/projects/engine-refactor-v1/mapgen-docs-alignment/scratch/00-index.md
+- docs/projects/engine-refactor-v1/mapgen-docs-alignment/scratch/current-architecture.md
+- docs/projects/engine-refactor-v1/mapgen-docs-alignment/scratch/doc-set-proposal.md
 - docs/projects/engine-refactor-v1/mapgen-docs-alignment/scratch/docs-inventory-auto.md
+- docs/projects/engine-refactor-v1/mapgen-docs-alignment/scratch/docs-inventory-engine-refactor-workflow.md
 - docs/projects/engine-refactor-v1/mapgen-docs-alignment/scratch/docs-inventory.md
 - docs/projects/engine-refactor-v1/mapgen-docs-alignment/scratch/domains-ecology.md
 - docs/projects/engine-refactor-v1/mapgen-docs-alignment/scratch/domains-foundation.md
@@ -34,8 +38,11 @@ rg -l -S "\bMapGen\b|\bmapgen\b|\bhydrology\b|\becology\b|\bmorphology\b|\bfound
 - docs/projects/engine-refactor-v1/mapgen-docs-alignment/scratch/domains-morphology.md
 - docs/projects/engine-refactor-v1/mapgen-docs-alignment/scratch/domains-narrative.md
 - docs/projects/engine-refactor-v1/mapgen-docs-alignment/scratch/domains-placement.md
+- docs/projects/engine-refactor-v1/mapgen-docs-alignment/scratch/drift-ledger.md
 - docs/projects/engine-refactor-v1/mapgen-docs-alignment/scratch/pipeline.md
+- docs/projects/engine-refactor-v1/mapgen-docs-alignment/scratch/policies.md
 - docs/projects/engine-refactor-v1/mapgen-docs-alignment/scratch/sdk.md
+- docs/projects/engine-refactor-v1/mapgen-docs-alignment/scratch/target-architecture.md
 - docs/projects/engine-refactor-v1/resources/repomix/repomix-ecology-canonical.config.json
 - docs/projects/engine-refactor-v1/resources/repomix/repomix-ecology-current.config.json
 - docs/projects/engine-refactor-v1/resources/repomix/repomix-mapgen.config.json

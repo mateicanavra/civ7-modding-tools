@@ -2,6 +2,8 @@
   <item id="local-plan" title="Local plan"/>
   <item id="runtime-model" title="Runtime model (stages/steps/ops)"/>
   <item id="compilation" title="Compilation layers"/>
+  <item id="tags" title="Tags + gating model (artifact/field/effect)"/>
+  <item id="standard-recipe" title="Standard recipe (truth vs projection)"/>
   <item id="notes" title="Notes + drift"/>
 </toc>
 
@@ -38,6 +40,37 @@
   - gameplay projections: `map-morphology`, `map-hydrology`, `map-ecology`
   - `placement`
 - Narrative is **not** currently wired into the standard recipe stage list (domain exists, recipe doesn’t include it yet).
+
+## Tags + gating model (artifact/field/effect)
+
+The runtime gating model is “declared deps + registry validation + satisfaction checks”:
+
+- Step registration is fail-fast against the `TagRegistry`:
+  - `packages/mapgen-core/src/engine/StepRegistry.ts` validates `requires/provides` tags exist.
+- At execution time, for each step:
+  1) `requires` must already be satisfied (or execution aborts with `MissingDependencyError`).
+  2) after `run`, all `provides` are added to the satisfied set.
+  3) each `provides` tag may have an optional `satisfies(context, state)` predicate; if false, execution aborts (`UnsatisfiedProvidesError`).
+
+Standard content package tag definitions (canonical example):
+- `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
+  - `artifact:*` tags are satisfied by artifact publish + optional artifact validation.
+  - `field:*` tags are satisfied by checking that `context.fields.<field>` is a typed array of expected grid size.
+  - `effect:*` tags are satisfied either:
+    - “logically” (just being provided), or
+    - “verified” by adapter read-back (`context.adapter.verifyEffect(id)`), or
+    - custom satisfy logic (e.g. placement checks `artifact:placementOutputs` consistency).
+
+## Standard recipe (truth vs projection)
+
+The standard recipe is explicitly split into:
+
+- **Truth stages** (publish canonical artifacts):
+  - `foundation` → `morphology-*` → `hydrology-*` → `ecology`
+- **Projection stages** (engine-facing, gameplay phase; publish `effect:*` and `field:*` tags):
+  - `map-morphology`, `map-hydrology`, `map-ecology`, plus `plot-landmass-regions` in placement
+
+This split should be taught as a first-class mental model in canonical docs.
 
 ## MapGen Studio runner (current end-to-end example)
 
