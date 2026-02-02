@@ -452,16 +452,33 @@ Applies Morphology truth into the engine adapter (terrain/features), and emits e
 3. Do we want Morphology truth artifacts to remain mutable across `map-morphology` projections, or should `map-morphology` read snapshots and treat the engine elevation/terrain as purely downstream projections?
 4. Is `artifact:morphology.volcanoes` intended to be the only canonical volcanic intent surface, or should it also include a stable “volcanism driver” snapshot for downstream consumers?
 
-**Ground truth anchors**
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-pre/steps/landmassPlates.contract.ts` (`LandmassPlatesStepContract.requires/provides` are empty)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/steps/routing.contract.ts` (`RoutingStepContract.requires/provides` are empty)
-- `mods/mod-swooper-maps/src/recipes/standard/tags.ts` (`M10_EFFECT_TAGS.map.*`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotCoasts.contract.ts` (`PlotCoastsStepContract.provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotContinents.contract.ts` (`PlotContinentsStepContract.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotMountains.contract.ts` (`PlotMountainsStepContract.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotVolcanoes.contract.ts` (`PlotVolcanoesStepContract.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/buildElevation.contract.ts` (`BuildElevationStepContract.requires/provides`)
+## Ground truth anchors
 
-- Domain id + ops bundle: `mods/mod-swooper-maps/src/domain/morphology/index.ts`
-- Standard recipe Morphology stages: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-pre/index.ts`, `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/index.ts`, `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-post/index.ts`
-- Engine-facing projections: `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/index.ts`
+This page contains many inline “Ground truth anchors” callouts. This section collects the canonical entrypoints:
+
+- Domain entrypoint + op ids: `mods/mod-swooper-maps/src/domain/morphology/index.ts`
+- Standard recipe stages:
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-pre/index.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/index.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-post/index.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/index.ts`
+- Morphology artifact schemas: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-pre/artifacts.ts`
+- Buffer mutability posture (core types): `packages/mapgen-core/src/core/types.ts`
+
+- Wiring + effect tags (current): `mods/mod-swooper-maps/src/recipes/standard/tags.ts` (`M10_EFFECT_TAGS.map.*`)
+
+- Example step contracts (truth stages):
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-pre/steps/landmassPlates.contract.ts` (`LandmassPlatesStepContract`)
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/steps/routing.contract.ts` (`RoutingStepContract`)
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/steps/ruggedCoasts.contract.ts` (`RuggedCoastsStepContract`)
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-post/steps/volcanoes.contract.ts` (`VolcanoesStepContract`)
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-post/steps/landmasses.contract.ts` (`LandmassesStepContract`)
+
+- Example step contracts (projection stage):
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotCoasts.contract.ts` (`PlotCoastsStepContract`)
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotContinents.contract.ts` (`PlotContinentsStepContract`)
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotMountains.contract.ts` (`PlotMountainsStepContract`)
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotVolcanoes.contract.ts` (`PlotVolcanoesStepContract`)
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/buildElevation.contract.ts` (`BuildElevationStepContract`)
+
+- Policy (truth vs projection posture): `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
