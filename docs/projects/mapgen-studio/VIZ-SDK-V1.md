@@ -32,13 +32,13 @@ This document describes the **implemented** v1 visualization contract used end-t
 - **`variantKey`** (`VizVariantKey`, optional): differentiates distinct variants of the same data product.
   - Example: `variantKey: "season:2"` in `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/steps/climateBaseline.ts`.
 
-### 2.2 Coordinate space (“projection” in the UI)
+### 2.2 Coordinate space (UI name: **Space**)
 
 Every layer declares its coordinate space via **`spaceId`**:
 - tile spaces: `"tile.hexOddR"`, `"tile.hexOddQ"`
 - non-tile spaces: `"mesh.world"`, `"world.xy"`
 
-MapGen Studio’s Explore panel treats **`spaceId` as the “Projection” selector**, and groups layers as:
+MapGen Studio’s Explore panel treats **`spaceId` as the Space selector**, and groups layers as:
 `dataTypeKey → spaceId → kind[:role] → variantKey`
 
 See:
@@ -194,4 +194,3 @@ In Studio, “multiple projections” are expressed as **multiple layers that sh
 - and/or `variantKey`.
 
 This keeps `dataTypeKey` stable (semantic identity) while allowing multiple representations and variants without collisions.
-

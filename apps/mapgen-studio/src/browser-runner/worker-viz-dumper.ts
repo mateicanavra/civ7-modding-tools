@@ -82,7 +82,14 @@ export function createWorkerVizDumper(): VizDumper {
       type: "viz.layer.emit.v1",
       layer: {
         kind: "grid",
-        layerKey: createVizLayerKey({ stepId: trace.stepId, dataTypeKey: layer.dataTypeKey, kind: "grid", variantKey: layer.variantKey }),
+        layerKey: createVizLayerKey({
+          stepId: trace.stepId,
+          dataTypeKey: layer.dataTypeKey,
+          spaceId: layer.spaceId,
+          kind: "grid",
+          role: layer.meta?.role,
+          variantKey: layer.variantKey,
+        }),
         dataTypeKey: layer.dataTypeKey,
         variantKey: layer.variantKey,
         stepId: trace.stepId,
@@ -103,7 +110,14 @@ export function createWorkerVizDumper(): VizDumper {
       type: "viz.layer.emit.v1",
       layer: {
         kind: "points",
-        layerKey: createVizLayerKey({ stepId: trace.stepId, dataTypeKey: layer.dataTypeKey, kind: "points", variantKey: layer.variantKey }),
+        layerKey: createVizLayerKey({
+          stepId: trace.stepId,
+          dataTypeKey: layer.dataTypeKey,
+          spaceId: layer.spaceId,
+          kind: "points",
+          role: layer.meta?.role,
+          variantKey: layer.variantKey,
+        }),
         dataTypeKey: layer.dataTypeKey,
         variantKey: layer.variantKey,
         stepId: trace.stepId,
@@ -125,7 +139,14 @@ export function createWorkerVizDumper(): VizDumper {
       type: "viz.layer.emit.v1",
       layer: {
         kind: "segments",
-        layerKey: createVizLayerKey({ stepId: trace.stepId, dataTypeKey: layer.dataTypeKey, kind: "segments", variantKey: layer.variantKey }),
+        layerKey: createVizLayerKey({
+          stepId: trace.stepId,
+          dataTypeKey: layer.dataTypeKey,
+          spaceId: layer.spaceId,
+          kind: "segments",
+          role: layer.meta?.role,
+          variantKey: layer.variantKey,
+        }),
         dataTypeKey: layer.dataTypeKey,
         variantKey: layer.variantKey,
         stepId: trace.stepId,
@@ -150,7 +171,14 @@ export function createWorkerVizDumper(): VizDumper {
 
     const emitted: VizGridFieldsLayerEmissionV1 = {
       kind: "gridFields",
-      layerKey: createVizLayerKey({ stepId: trace.stepId, dataTypeKey: layer.dataTypeKey, kind: "gridFields", variantKey: layer.variantKey }),
+      layerKey: createVizLayerKey({
+        stepId: trace.stepId,
+        dataTypeKey: layer.dataTypeKey,
+        spaceId: layer.spaceId,
+        kind: "gridFields",
+        role: layer.meta?.role,
+        variantKey: layer.variantKey,
+      }),
       dataTypeKey: layer.dataTypeKey,
       variantKey: layer.variantKey,
       stepId: trace.stepId,

@@ -9,7 +9,7 @@ describe("buildStepDataTypeModel", () => {
     const layers: VizLayerEntryV1[] = [
       {
         kind: "grid",
-        layerKey: `${stepId}::heightfield::grid::f32`,
+        layerKey: `${stepId}::heightfield::tile.hexOddR::grid::f32`,
         dataTypeKey: "heightfield",
         variantKey: "f32",
         stepId,
@@ -22,7 +22,7 @@ describe("buildStepDataTypeModel", () => {
       },
       {
         kind: "grid",
-        layerKey: `${stepId}::heightfield::grid::u8`,
+        layerKey: `${stepId}::heightfield::tile.hexOddR::grid::u8`,
         dataTypeKey: "heightfield",
         variantKey: "u8",
         stepId,
@@ -35,7 +35,7 @@ describe("buildStepDataTypeModel", () => {
       },
       {
         kind: "points",
-        layerKey: `${stepId}::hotspots::points::gradient`,
+        layerKey: `${stepId}::hotspots::world.xy::points:gradient`,
         dataTypeKey: "hotspots",
         stepId,
         stepIndex: 0,
@@ -48,7 +48,7 @@ describe("buildStepDataTypeModel", () => {
       },
       {
         kind: "points",
-        layerKey: `${stepId}::hotspots::points::clamped`,
+        layerKey: `${stepId}::hotspots::world.xy::points:clamped`,
         dataTypeKey: "hotspots",
         stepId,
         stepIndex: 0,
@@ -68,12 +68,16 @@ describe("buildStepDataTypeModel", () => {
     const heightfield = model.dataTypes.find((dt) => dt.dataTypeId === "heightfield")!;
     expect(heightfield.label).toBe("Elevation");
     expect(heightfield.visibility).toBe("default");
-    expect(heightfield.projections.map((p) => p.projectionId)).toEqual(["tile.hexOddR"]);
-    expect(heightfield.projections[0]?.renderModes.map((rm) => rm.renderModeId)).toEqual(["grid"]);
-    expect(heightfield.projections[0]?.renderModes[0]?.variants.map((v) => v.variantId)).toEqual(["f32", "u8"]);
+    expect(heightfield.spaces.map((p) => p.spaceId)).toEqual(["tile.hexOddR"]);
+    expect(heightfield.spaces[0]?.renderModes.map((rm) => rm.renderModeId)).toEqual(["grid"]);
+    expect(heightfield.spaces[0]?.renderModes[0]?.variants.map((v) => v.variantId)).toEqual(["f32"]);
 
     const hotspots = model.dataTypes.find((dt) => dt.dataTypeId === "hotspots")!;
-    expect(hotspots.projections.map((p) => p.projectionId)).toEqual(["world.xy"]);
-    expect(hotspots.projections[0]?.renderModes.map((rm) => rm.renderModeId)).toEqual(["points:gradient", "points:clamped"]);
+    expect(hotspots.spaces.map((p) => p.spaceId)).toEqual(["world.xy"]);
+    expect(hotspots.spaces[0]?.renderModes.map((rm) => rm.renderModeId)).toEqual(["points:gradient", "points:clamped"]);
+
+    const modelWithDebug = buildStepDataTypeModel({ layers }, stepId, { includeDebug: true });
+    const heightfieldWithDebug = modelWithDebug.dataTypes.find((dt) => dt.dataTypeId === "heightfield")!;
+    expect(heightfieldWithDebug.spaces[0]?.renderModes[0]?.variants.map((v) => v.variantId)).toEqual(["f32", "u8"]);
   });
 });
