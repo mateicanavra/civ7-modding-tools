@@ -1,4 +1,4 @@
-import { BYTE_SHADE_RAMP, computeSampleStep, defineVizMeta, renderAsciiGrid, shadeByte } from "@swooper/mapgen-core";
+import { BYTE_SHADE_RAMP, computeSampleStep, defineVizMeta, dumpScalarFieldVariants, renderAsciiGrid, shadeByte } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
 
@@ -118,16 +118,14 @@ export default createStep(GeomorphologyStepContract, {
       }),
     });
 
-    context.viz?.dumpGrid(context.trace, {
+    dumpScalarFieldVariants(context.trace, context.viz, {
       dataTypeKey: "morphology.topography.elevation",
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
-      format: "i16",
-      values: heightfield.elevation,
-      meta: defineVizMeta("morphology.topography.elevation", {
-        label: "Elevation (After Geomorphology)",
-        group: GROUP_GEOMORPHOLOGY,
-      }),
+      field: { format: "i16", values: heightfield.elevation },
+      label: "Elevation (After Geomorphology)",
+      group: GROUP_GEOMORPHOLOGY,
+      palette: "continuous",
     });
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "morphology.topography.landMask",
