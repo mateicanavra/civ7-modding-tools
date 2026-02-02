@@ -14,9 +14,6 @@ export type AppHeaderProps = {
   mode: AppMode;
   onModeChange(next: AppMode): void;
 
-  uiLayout: "legacy" | "prototype";
-  onUiLayoutChange(next: "legacy" | "prototype"): void;
-
   browserRecipeId: StudioRecipeId;
   recipeOptions: readonly RecipeOption[];
   onBrowserRecipeChange(next: StudioRecipeId): void;
@@ -44,16 +41,6 @@ export type AppHeaderProps = {
   onShowBackgroundGridChange(next: boolean): void;
   tileLayout: TileLayout;
   onTileLayoutChange(next: TileLayout): void;
-
-  selectedStepId: string | null;
-  pipelineStages: Array<{
-    stageId: string;
-    steps: Array<{ stepId: string; stepIndex: number }>;
-  }>;
-  onSelectedStepChange(next: string | null): void;
-  selectedLayerKey: string | null;
-  selectableLayers: Array<{ key: string; label: string; group?: string }>;
-  onSelectedLayerChange(next: string | null): void;
 };
 
 export function AppHeader(props: AppHeaderProps) {
@@ -61,8 +48,6 @@ export function AppHeader(props: AppHeaderProps) {
     isNarrow,
     mode,
     onModeChange,
-    uiLayout,
-    onUiLayoutChange,
     browserRecipeId,
     recipeOptions,
     onBrowserRecipeChange,
@@ -87,12 +72,6 @@ export function AppHeader(props: AppHeaderProps) {
     onShowBackgroundGridChange,
     tileLayout,
     onTileLayoutChange,
-    selectedStepId,
-    pipelineStages,
-    onSelectedStepChange,
-    selectedLayerKey,
-    selectableLayers,
-    onSelectedLayerChange,
   } = props;
 
   const controlBaseStyle: React.CSSProperties = useMemo(
@@ -154,24 +133,6 @@ export function AppHeader(props: AppHeaderProps) {
     []
   );
 
-  const layersForStepGrouped = useMemo(() => {
-    if (!selectableLayers.length) return [];
-    const order: string[] = [];
-    const groups = new Map<string, typeof selectableLayers>();
-    for (const entry of selectableLayers) {
-      const groupLabel = entry.group ?? "Other";
-      if (!groups.has(groupLabel)) {
-        groups.set(groupLabel, []);
-        order.push(groupLabel);
-      }
-      groups.get(groupLabel)!.push(entry);
-    }
-    return order.map((group) => ({
-      group,
-      layers: groups.get(group) ?? [],
-    }));
-  }, [selectableLayers]);
-
   const directoryInputRef = useRef<HTMLInputElement | null>(null);
   const triggerDirectoryPicker = () => directoryInputRef.current?.click();
 
@@ -191,17 +152,6 @@ export function AppHeader(props: AppHeaderProps) {
           {mode === "browser" ? "Browser Runner (V0.1 Slice)" : "Dump Viewer (V0)"}
         </div>
         <div style={{ flex: 1 }} />
-        <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <span style={{ fontSize: 12, color: "#9ca3af" }}>UI</span>
-          <select
-            value={uiLayout}
-            onChange={(e) => onUiLayoutChange(e.target.value as "legacy" | "prototype")}
-            style={{ ...controlBaseStyle, width: isNarrow ? "100%" : 170 }}
-          >
-            <option value="legacy">legacy</option>
-            <option value="prototype">prototype</option>
-          </select>
-        </label>
         {!isNarrow && mode === "dump" ? (
           <div style={{ fontSize: 12, color: "#9ca3af" }}>
             Open a run folder under <span style={{ color: "#e5e7eb" }}>mods/mod-swooper-maps/dist/visualization</span>
@@ -399,67 +349,6 @@ export function AppHeader(props: AppHeaderProps) {
               </select>
             </label>
           </div>
-        </div>
-
-        <div style={toolbarSectionStyle}>
-          <div style={toolbarSectionTitleStyle}>Inspect</div>
-          <div style={toolbarRowStyle}>
-            <label style={{ display: "flex", gap: 8, alignItems: "center", flex: 1 }}>
-              <span style={{ fontSize: 12, color: "#9ca3af", minWidth: 56 }}>Step</span>
-              <select
-                value={selectedStepId ?? ""}
-                onChange={(e) => onSelectedStepChange(e.target.value || null)}
-                style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
-                disabled={!pipelineStages.some((s) => s.steps.length) && !selectedStepId}
-              >
-                {selectedStepId &&
-                !pipelineStages.some((stage) => stage.steps.some((s) => s.stepId === selectedStepId)) ? (
-                  <option value={selectedStepId}>{formatStepLabel(selectedStepId)} (pending)</option>
-                ) : null}
-                {pipelineStages.map((stage) => (
-                  <optgroup key={stage.stageId} label={stage.stageId}>
-                    {stage.steps.map((s) => (
-                      <option key={s.stepId} value={s.stepId}>
-                        {s.stepIndex} · {formatStepLabel(s.stepId)}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <div style={toolbarRowStyle}>
-            <label style={{ display: "flex", gap: 8, alignItems: "center", flex: 1 }}>
-              <span style={{ fontSize: 12, color: "#9ca3af", minWidth: 56 }}>Layer</span>
-              <select
-                value={selectedLayerKey ?? ""}
-                onChange={(e) => onSelectedLayerChange(e.target.value || null)}
-                style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
-                disabled={!selectableLayers.length && !selectedLayerKey}
-              >
-                {selectedLayerKey && !selectableLayers.some((l) => l.key === selectedLayerKey) ? (
-                  <option value={selectedLayerKey}>
-                    {(() => {
-                      const parts = selectedLayerKey?.split("::") ?? [];
-                      const label = parts.length >= 3 ? `${parts[1]} (${parts[2]})` : selectedLayerKey;
-                      return `${label} (pending)`;
-                    })()}
-                  </option>
-                ) : null}
-                {layersForStepGrouped.map((group) => (
-                  <optgroup key={group.group} label={group.group}>
-                    {group.layers.map((l) => (
-                      <option key={l.key} value={l.key}>
-                        {l.label}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
-            </label>
-          </div>
-
         </div>
       </div>
     </div>
