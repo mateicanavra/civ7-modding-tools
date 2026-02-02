@@ -86,6 +86,8 @@ export default createStep(PlotLandmassRegionsStepContract, {
       meta: defineVizMeta("placement.landmassRegions.regionSlot", {
         label: "Landmass Region Slot",
         group: GROUP_GAMEPLAY,
+        palette: "categorical",
+        space: "tile",
         categories: [
           { value: 0, label: "None", color: [148, 163, 184, 210] },
           { value: 1, label: "West", color: [59, 130, 246, 230] },
