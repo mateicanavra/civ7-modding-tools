@@ -157,6 +157,12 @@ describe("standard pipeline viz emissions", () => {
     const crustTypeMetas = metasByKey.get("foundation.crustTiles.type") as any[] | undefined;
     expect(crustTypeMetas?.some((m) => m?.visibility === "default")).toBe(true);
 
+    const sedimentMetas = metasByKey.get("morphology.substrate.sedimentDepth") as any[] | undefined;
+    expect(sedimentMetas?.some((m) => m?.visibility === "default")).toBe(true);
+
+    const erodibilityMetas = metasByKey.get("morphology.substrate.erodibilityK") as any[] | undefined;
+    expect(erodibilityMetas?.some((m) => m?.visibility === "debug")).toBe(true);
+
     const albedoMetas = metasByKey.get("hydrology.cryosphere.albedo") as any[] | undefined;
     expect(albedoMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
