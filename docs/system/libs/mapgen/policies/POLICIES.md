@@ -20,13 +20,12 @@ Policies are *normative* (“Allowed / Disallowed”) and must be anchored to co
 
 ## Policy bundle
 
-Planned canonical policies (written in later slices):
+Canonical policies:
 
-- Imports (stable entrypoints; forbid workspace-only aliases)
-- Schemas and validation (compiler-owned)
-- Dependency IDs and registries (registered-only; fail-fast)
-- Artifact mutation posture (write-once + buffer-handle exception)
-- Config compilation vs plan compilation (responsibility split)
-- Truth vs projection (what is canonical vs derived)
-- Module shape (ops/rules/strategies boundaries)
-
+- Imports: `docs/system/libs/mapgen/policies/IMPORTS.md`
+- Schemas and validation: `docs/system/libs/mapgen/policies/SCHEMAS-AND-VALIDATION.md`
+- Dependency IDs and registries: `docs/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md`
+- Artifact mutation: `docs/system/libs/mapgen/policies/ARTIFACT-MUTATION.md`
+- Config vs plan compilation: `docs/system/libs/mapgen/policies/CONFIG-VS-PLAN-COMPILATION.md`
+- Truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
+- Module shape: `docs/system/libs/mapgen/policies/MODULE-SHAPE.md`
