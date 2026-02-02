@@ -129,6 +129,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   const [localStageExpanded, setLocalStageExpanded] = useState(true);
   const [localStepExpanded, setLocalStepExpanded] = useState(true);
   const [localLayersExpanded, setLocalLayersExpanded] = useState(true);
+  const [groupOpen, setGroupOpen] = useState<Record<string, boolean>>({});
 
   const isStageExpanded = stageExpandedProp ?? localStageExpanded;
   const setIsStageExpanded = (next: boolean) => {
@@ -150,6 +151,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   const currentStage = stages.find((s) => s.value === selectedStage);
   const currentStep = steps.find((s) => s.value === selectedStep);
   const currentLayer = dataTypeOptions.find((dt) => dt.value === selectedDataType);
+  const currentLayerGroup = currentLayer?.group ?? "";
   // Auto-select data type when only one is available
   useEffect(() => {
     if (
@@ -159,6 +161,15 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
       onSelectedDataTypeChange(dataTypeOptions[0].value);
     }
   }, [dataTypeOptions, selectedDataType, onSelectedDataTypeChange]);
+
+  useEffect(() => {
+    if (!currentLayerGroup) return;
+    setGroupOpen((prev) => {
+      const current = prev[currentLayerGroup] ?? true;
+      if (current) return prev;
+      return { ...prev, [currentLayerGroup]: true };
+    });
+  }, [currentLayerGroup]);
   // ==========================================================================
   // Handlers
   // ==========================================================================
@@ -245,6 +256,32 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
       default:
         return <Layers className="w-3.5 h-3.5" />;
     }
+  };
+
+  const groupedDataTypes = (() => {
+    const indexByValue = new Map<string, number>();
+    for (let i = 0; i < dataTypeOptions.length; i++) indexByValue.set(dataTypeOptions[i]!.value, i + 1);
+
+    const order: string[] = [];
+    const groups = new Map<string, DataTypeOption[]>();
+    for (const dt of dataTypeOptions) {
+      const key = dt.group ?? "";
+      if (!groups.has(key)) {
+        groups.set(key, []);
+        order.push(key);
+      }
+      groups.get(key)!.push(dt);
+    }
+    return order.map((key) => ({ key, label: key, items: groups.get(key) ?? [], indexByValue }));
+  })();
+
+  const isGroupExpanded = (key: string) => groupOpen[key] ?? true;
+  const toggleGroupExpanded = (key: string) => {
+    if (!key) return;
+    setGroupOpen((prev) => {
+      const current = prev[key] ?? true;
+      return { ...prev, [key]: !current };
+    });
   };
   // ==========================================================================
   // Render
@@ -354,7 +391,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
           <div className="flex items-center gap-2 min-w-0 overflow-hidden">
             <SquareStack className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />
             <span className={`text-[11px] font-semibold ${textSecondary} uppercase tracking-wider`}>
-              Layers
+              Data
             </span>
             {!isLayersExpanded ? (
               <span className={`text-[11px] font-mono ${textPrimary} truncate`}>
@@ -370,30 +407,46 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
       </div>
       {isLayersExpanded ? (
         <div className={`flex-shrink-0 pb-2 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}>
-          {(() => {
-            let lastGroup: string | undefined = undefined;
-            return dataTypeOptions.map((dataType, index) => {
-              const group = dataType.group ?? undefined;
-              const showGroupHeader = group !== lastGroup;
-              lastGroup = group;
-              return (
-                <React.Fragment key={dataType.value}>
-                  {showGroupHeader && group ? (
-                    <div className={`px-3 pt-2 pb-1 text-[10px] uppercase tracking-wider ${textMuted}`}>{group}</div>
-                  ) : null}
+          {groupedDataTypes.map((group) => {
+            const expanded = !group.key || isGroupExpanded(group.key);
+            return (
+              <React.Fragment key={group.key || "__ungrouped__"}>
+                {group.key ? (
                   <button
-                    onClick={() => handleSelectLayer(dataType.value)}
-                    className={`${stepItemBase} ${dataType.value === selectedDataType ? stepItemActive : stepItemInactive}`}>
-
-                    <span className={stepBadge(dataType.value === selectedDataType)}>
-                      {index + 1}
-                    </span>
-                    <span className="truncate">{dataType.label}</span>
+                    type="button"
+                    onClick={() => toggleGroupExpanded(group.key)}
+                    className={`w-full px-3 pt-2 pb-1 flex items-center justify-between text-[10px] uppercase tracking-wider ${textMuted} ${hoverBg}`}
+                    title={expanded ? "Collapse group" : "Expand group"}
+                  >
+                    <span className="truncate">{group.label}</span>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[10px] ${textMuted}`}>{group.items.length}</span>
+                      <ChevronDown className={`w-3.5 h-3.5 ${textMuted} transition-transform ${expanded ? "rotate-180" : ""}`} />
+                    </div>
                   </button>
-                </React.Fragment>
-              );
-            });
-          })()}
+                ) : null}
+                {expanded
+                  ? group.items.map((dataType) => {
+                      const idx = group.indexByValue.get(dataType.value) ?? 0;
+                      return (
+                        <button
+                          key={dataType.value}
+                          onClick={() => handleSelectLayer(dataType.value)}
+                          className={`${stepItemBase} ${
+                            dataType.value === selectedDataType ? stepItemActive : stepItemInactive
+                          }`}
+                        >
+                          <span className={stepBadge(dataType.value === selectedDataType)}>
+                            {idx}
+                          </span>
+                          <span className="truncate">{dataType.label}</span>
+                        </button>
+                      );
+                    })
+                  : null}
+              </React.Fragment>
+            );
+          })}
         </div>
       ) : null}
 
