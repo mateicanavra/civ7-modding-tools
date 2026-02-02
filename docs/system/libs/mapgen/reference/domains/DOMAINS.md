@@ -26,13 +26,14 @@ Truth-first simulation domains:
 - Hydrology: `docs/system/libs/mapgen/reference/domains/HYDROLOGY.md`
 - Ecology: `docs/system/libs/mapgen/reference/domains/ECOLOGY.md`
 
-Projection / engine-facing integration domains:
+Gameplay / engine-facing integration domain (target):
 
-- Placement: `docs/system/libs/mapgen/reference/domains/PLACEMENT.md`
+- Gameplay: `docs/system/libs/mapgen/reference/domains/GAMEPLAY.md`
 
-Target-canonical (not necessarily wired in the standard recipe today):
+Legacy domain naming (mapping only; not target-canonical domains):
 
-- Narrative: `docs/system/libs/mapgen/reference/domains/NARRATIVE.md`
+- Placement (legacy name for Gameplay’s placement phase): `docs/system/libs/mapgen/reference/domains/PLACEMENT.md`
+- Narrative (legacy name; absorbed into Gameplay): `docs/system/libs/mapgen/reference/domains/NARRATIVE.md`
 
 ## How to read these pages
 
@@ -50,4 +51,3 @@ Each domain page is structured as:
 - Standard recipe composition: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
 - Step contract model: `docs/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
-
