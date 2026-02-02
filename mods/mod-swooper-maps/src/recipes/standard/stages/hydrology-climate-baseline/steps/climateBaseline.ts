@@ -532,7 +532,7 @@ export default createStep(ClimateBaselineStepContract, {
       label: "Rainfall (Baseline)",
       group: GROUP_CLIMATE,
       palette: "continuous",
-      points: {},
+      points: { debugOnly: true },
     });
     dumpScalarFieldVariants(context.trace, context.viz, {
       dataTypeKey: "hydrology.climate.humidity",
@@ -652,8 +652,9 @@ export default createStep(ClimateBaselineStepContract, {
       label: "Wind",
       group: GROUP_WIND,
       palette: "continuous",
-      arrows: { maxArrowLenTiles: 1.25 },
-      points: {},
+      magnitude: { debugOnly: true },
+      arrows: { maxArrowLenTiles: 1.25, debugOnly: true },
+      points: { debugOnly: true },
     });
 
     dumpVectorFieldVariants(context.trace, context.viz, {
@@ -665,8 +666,9 @@ export default createStep(ClimateBaselineStepContract, {
       label: "Current",
       group: GROUP_CURRENT,
       palette: "continuous",
-      arrows: { maxArrowLenTiles: 1.25 },
-      points: {},
+      magnitude: { debugOnly: true },
+      arrows: { maxArrowLenTiles: 1.25, debugOnly: true },
+      points: { debugOnly: true },
     });
 
     for (let s = 0; s < seasonCount; s++) {
