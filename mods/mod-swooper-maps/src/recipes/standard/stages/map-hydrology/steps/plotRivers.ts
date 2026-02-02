@@ -68,6 +68,7 @@ export default createStep(PlotRiversStepContract, {
       meta: defineVizMeta("map.hydrology.rivers.discharge", {
         label: "River Discharge (Projected)",
         group: GROUP_MAP_HYDROLOGY,
+        visibility: "debug",
       }),
     });
 
@@ -126,6 +127,7 @@ export default createStep(PlotRiversStepContract, {
           group: GROUP_MAP_HYDROLOGY,
           palette: "categorical",
           role: "physics",
+          visibility: "debug",
         }),
       });
       context.viz?.dumpGrid(context.trace, {
@@ -139,6 +141,7 @@ export default createStep(PlotRiversStepContract, {
           group: GROUP_MAP_HYDROLOGY,
           palette: "categorical",
           role: "engine",
+          visibility: "debug",
         }),
       });
     }
