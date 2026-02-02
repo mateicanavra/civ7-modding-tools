@@ -21,7 +21,7 @@ Canonical tutorials:
 
 - Run the standard recipe in Studio: `docs/system/libs/mapgen/tutorials/run-standard-recipe-in-studio.md`
 - Inspect artifacts and projections: `docs/system/libs/mapgen/tutorials/inspect-artifacts-and-projections.md`
+- Tune a preset and knobs: `docs/system/libs/mapgen/tutorials/tune-a-preset-and-knobs.md`
 
 Planned canonical tutorials (built in later slices):
-- Tune a preset and knobs
 - Implement a new step end-to-end
