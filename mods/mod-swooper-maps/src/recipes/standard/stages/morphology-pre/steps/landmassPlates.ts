@@ -314,7 +314,6 @@ export default createStep(LandmassPlatesStepContract, {
       meta: defineVizMeta("morphology.substrate.sedimentDepth", {
         label: "Sediment Depth",
         group: GROUP_SUBSTRATE,
-        visibility: "debug",
       }),
     });
 
