@@ -63,10 +63,18 @@ export interface ExplorePanelProps {
   onShowEdgesChange: (show: boolean) => void;
   /** Callback when fit view is requested */
   onFitView: () => void;
-  /** Whether the stage list is expanded (optional controlled mode) */
+  /** Whether the stage section is expanded (optional controlled mode) */
   stageExpanded?: boolean;
   /** Callback when stageExpanded changes (optional controlled mode) */
   onStageExpandedChange?: (expanded: boolean) => void;
+  /** Whether the step section is expanded (optional controlled mode) */
+  stepExpanded?: boolean;
+  /** Callback when stepExpanded changes (optional controlled mode) */
+  onStepExpandedChange?: (expanded: boolean) => void;
+  /** Whether the layers section is expanded (optional controlled mode) */
+  layersExpanded?: boolean;
+  /** Callback when layersExpanded changes (optional controlled mode) */
+  onLayersExpandedChange?: (expanded: boolean) => void;
 }
 // ============================================================================
 // Component
@@ -89,16 +97,36 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   onShowEdgesChange,
   onFitView,
   stageExpanded: stageExpandedProp,
-  onStageExpandedChange
+  onStageExpandedChange,
+  stepExpanded: stepExpandedProp,
+  onStepExpandedChange,
+  layersExpanded: layersExpandedProp,
+  onLayersExpandedChange
 }) => {
   const [localStageExpanded, setLocalStageExpanded] = useState(true);
+  const [localStepExpanded, setLocalStepExpanded] = useState(true);
+  const [localLayersExpanded, setLocalLayersExpanded] = useState(true);
+
   const isStageExpanded = stageExpandedProp ?? localStageExpanded;
   const setIsStageExpanded = (next: boolean) => {
     onStageExpandedChange?.(next);
     if (stageExpandedProp === undefined) setLocalStageExpanded(next);
   };
-  const currentStageIndex = stages.findIndex((s) => s.value === selectedStage);
-  const currentStage = stages[currentStageIndex];
+
+  const isStepExpanded = stepExpandedProp ?? localStepExpanded;
+  const setIsStepExpanded = (next: boolean) => {
+    onStepExpandedChange?.(next);
+    if (stepExpandedProp === undefined) setLocalStepExpanded(next);
+  };
+
+  const isLayersExpanded = layersExpandedProp ?? localLayersExpanded;
+  const setIsLayersExpanded = (next: boolean) => {
+    onLayersExpandedChange?.(next);
+    if (layersExpandedProp === undefined) setLocalLayersExpanded(next);
+  };
+  const currentStage = stages.find((s) => s.value === selectedStage);
+  const currentStep = steps.find((s) => s.value === selectedStep);
+  const currentLayer = dataTypeOptions.find((dt) => dt.value === selectedDataType);
   // Auto-select data type when only one is available
   useEffect(() => {
     if (
@@ -115,6 +143,14 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
     onSelectedStageChange(stageValue);
     setIsStageExpanded(false);
   };
+  const handleSelectStep = (stepValue: string) => {
+    onSelectedStepChange(stepValue);
+    setIsStepExpanded(false);
+  };
+  const handleSelectLayer = (layerValue: string) => {
+    onSelectedDataTypeChange(layerValue);
+    setIsLayersExpanded(false);
+  };
   // ==========================================================================
   // Styles
   // ==========================================================================
@@ -125,6 +161,7 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   const textMuted = lightMode ? 'text-[#9ca3af]' : 'text-[#5a5a66]';
   const borderSubtle = lightMode ? 'border-gray-100' : 'border-[#222228]';
   const hoverBg = lightMode ? 'hover:bg-gray-50' : 'hover:bg-[#1a1a1f]';
+  const listMaxHeight = "max-h-[200px]";
   // Stage list styles
   const stageItemBase = `w-full text-left px-3 py-2 text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-2`;
   const stageItemActive = lightMode ?
@@ -175,132 +212,137 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
     <div
       className={`flex flex-col w-[260px] rounded-lg border overflow-hidden shadow-lg backdrop-blur-sm ${panelBg} ${panelBorder}`}>
 
-      {/* 1. STAGE HEADER (Collapsible) */}
+      {/* 1. STAGE SECTION */}
       <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
-        {isStageExpanded ?
-        <div className="flex items-center justify-between px-3 py-2.5">
-            <div className="flex items-center gap-2">
-              <Compass className={`w-4 h-4 shrink-0 ${textSecondary}`} />
-              <span className={`text-[13px] font-semibold ${textPrimary}`}>
-                Stage
-              </span>
-            </div>
-            <span className={`text-[10px] ${textMuted}`}>
-              {stages.length} stages
-            </span>
-          </div> :
-
-        <div className="flex items-center gap-1 px-2 py-2 overflow-hidden">
-            <button
-            onClick={() => setIsStageExpanded(true)}
-            className={`flex-1 min-w-0 flex items-center justify-between gap-2 px-2 py-1 rounded transition-colors overflow-hidden ${hoverBg}`}
-            title="Click to show all stages">
-
-              <div className="flex items-center gap-2 min-w-0 overflow-hidden">
-                <span className={stageBadge(true)}>
-                  {currentStageIndex + 1}
-                </span>
-                <span
-                className={`text-[12px] font-semibold ${textPrimary} truncate`}>
-
-                  {currentStage?.label}
-                </span>
-              </div>
-              <ChevronDown className={`w-3.5 h-3.5 shrink-0 ${textMuted}`} />
-            </button>
-          </div>
-        }
-      </div>
-
-      {/* STAGE LIST (When Expanded) */}
-      {isStageExpanded &&
-      <div className={`flex-shrink-0 py-1 border-b ${borderSubtle}`}>
-          {stages.map((stage, index) =>
         <button
-          key={stage.value}
-          onClick={() => handleSelectStage(stage.value)}
-          className={`${stageItemBase} ${stage.value === selectedStage ? stageItemActive : stageItemInactive}`}>
+          type="button"
+          onClick={() => setIsStageExpanded(!isStageExpanded)}
+          className={`w-full flex items-center justify-between px-3 py-2.5 transition-colors ${hoverBg}`}>
+
+          <div className="flex items-center gap-2 min-w-0 overflow-hidden">
+            <Compass className={`w-4 h-4 shrink-0 ${textSecondary}`} />
+            <span className={`text-[13px] font-semibold ${textPrimary}`}>
+              Stage
+            </span>
+            {!isStageExpanded ? (
+              <span className={`text-[12px] font-semibold ${textPrimary} truncate`}>
+                {currentStage?.label ?? ""}
+              </span>
+            ) : null}
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <span className={`text-[10px] ${textMuted}`}>
+              {stages.length}
+            </span>
+            <ChevronDown
+              className={`w-3.5 h-3.5 ${textMuted} transition-transform ${isStageExpanded ? "rotate-180" : ""}`}
+            />
+          </div>
+        </button>
+      </div>
+      {isStageExpanded ? (
+        <div className={`flex-shrink-0 py-1 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}>
+          {stages.map((stage, index) => (
+            <button
+              key={stage.value}
+              onClick={() => handleSelectStage(stage.value)}
+              className={`${stageItemBase} ${stage.value === selectedStage ? stageItemActive : stageItemInactive}`}>
 
               <span className={stageBadge(stage.value === selectedStage)}>
                 {index + 1}
               </span>
               <span className="truncate">{stage.label}</span>
             </button>
-        )}
+          ))}
         </div>
-      }
+      ) : null}
 
-      {/* 2. STEPS SECTION */}
-      <div className={`flex-shrink-0 border-b ${borderSubtle} flex flex-col`}>
-        {/* Steps Header */}
-        <div className={`px-3 py-2 flex items-center justify-between`}>
-          <div className="flex items-center gap-2">
+      {/* 2. STEP SECTION */}
+      <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
+        <button
+          type="button"
+          onClick={() => setIsStepExpanded(!isStepExpanded)}
+          className={`w-full flex items-center justify-between px-3 py-2 transition-colors ${hoverBg}`}>
+
+          <div className="flex items-center gap-2 min-w-0 overflow-hidden">
             <Layers className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />
-            <span
-              className={`text-[11px] font-semibold ${textSecondary} uppercase tracking-wider`}>
-
-              Steps
+            <span className={`text-[11px] font-semibold ${textSecondary} uppercase tracking-wider`}>
+              Step
             </span>
+            {!isStepExpanded ? (
+              <span className={`text-[11px] font-mono ${textPrimary} truncate`}>
+                {currentStep?.label ?? ""}
+              </span>
+            ) : null}
           </div>
-          <span className={`text-[10px] ${textMuted}`}>{steps.length}</span>
-        </div>
-
-        {/* Steps List */}
-        <div className="pb-2 max-h-[200px] overflow-y-auto custom-scrollbar">
-          {steps.length > 0 ?
-          steps.map((step, index) =>
-          <button
-            key={`${step.category}-${step.value}`}
-            onClick={() => onSelectedStepChange(step.value)}
-            className={`${stepItemBase} ${step.value === selectedStep ? stepItemActive : stepItemInactive}`}>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className={`text-[10px] ${textMuted}`}>{steps.length}</span>
+            <ChevronDown className={`w-3.5 h-3.5 ${textMuted} transition-transform ${isStepExpanded ? "rotate-180" : ""}`} />
+          </div>
+        </button>
+      </div>
+      {isStepExpanded ? (
+        <div className={`flex-shrink-0 pb-2 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}>
+          {steps.length > 0 ? (
+            steps.map((step, index) => (
+              <button
+                key={`${step.category}-${step.value}`}
+                onClick={() => handleSelectStep(step.value)}
+                className={`${stepItemBase} ${step.value === selectedStep ? stepItemActive : stepItemInactive}`}>
 
                 <span className={stepBadge(step.value === selectedStep)}>
                   {index + 1}
                 </span>
                 <span className="truncate">{step.label}</span>
               </button>
-          ) :
-
-          <div className={`px-3 py-2 text-[11px] ${textMuted} italic`}>
-              No steps available
-            </div>
-          }
+            ))
+          ) : (
+            <div className={`px-3 py-2 text-[11px] ${textMuted} italic`}>No steps available</div>
+          )}
         </div>
-      </div>
+      ) : null}
 
       {/* 3. LAYERS SECTION */}
-      <div className={`flex-shrink-0 border-b ${borderSubtle} flex flex-col`}>
-        {/* Layers Header */}
-        <div className={`px-3 py-2 flex items-center justify-between`}>
-          <div className="flex items-center gap-2">
-            <SquareStack className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />
-            <span
-              className={`text-[11px] font-semibold ${textSecondary} uppercase tracking-wider`}>
+      <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
+        <button
+          type="button"
+          onClick={() => setIsLayersExpanded(!isLayersExpanded)}
+          className={`w-full flex items-center justify-between px-3 py-2 transition-colors ${hoverBg}`}>
 
+          <div className="flex items-center gap-2 min-w-0 overflow-hidden">
+            <SquareStack className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />
+            <span className={`text-[11px] font-semibold ${textSecondary} uppercase tracking-wider`}>
               Layers
             </span>
+            {!isLayersExpanded ? (
+              <span className={`text-[11px] font-mono ${textPrimary} truncate`}>
+                {currentLayer?.label ?? ""}
+              </span>
+            ) : null}
           </div>
-          <span className={`text-[10px] ${textMuted}`}>
-            {dataTypeOptions.length}
-          </span>
-        </div>
-
-        {/* Layers List */}
-        <div className="pb-2 max-h-[200px] overflow-y-auto custom-scrollbar">
-          {dataTypeOptions.map((dataType, index) =>
-          <button
-            key={dataType.value}
-            onClick={() => onSelectedDataTypeChange(dataType.value)}
-            className={`${stepItemBase} ${dataType.value === selectedDataType ? stepItemActive : stepItemInactive}`}>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className={`text-[10px] ${textMuted}`}>{dataTypeOptions.length}</span>
+            <ChevronDown className={`w-3.5 h-3.5 ${textMuted} transition-transform ${isLayersExpanded ? "rotate-180" : ""}`} />
+          </div>
+        </button>
+      </div>
+      {isLayersExpanded ? (
+        <div className={`flex-shrink-0 pb-2 border-b ${borderSubtle} ${listMaxHeight} overflow-y-auto custom-scrollbar`}>
+          {dataTypeOptions.map((dataType, index) => (
+            <button
+              key={dataType.value}
+              onClick={() => handleSelectLayer(dataType.value)}
+              className={`${stepItemBase} ${dataType.value === selectedDataType ? stepItemActive : stepItemInactive}`}>
 
               <span className={stepBadge(dataType.value === selectedDataType)}>
                 {index + 1}
               </span>
               <span className="truncate">{dataType.label}</span>
             </button>
-          )}
+          ))}
         </div>
-      </div>
+      ) : null}
 
       {/* 4. VIEW TOOLBAR */}
       <div className="flex-shrink-0 p-2 flex items-center justify-between gap-2">

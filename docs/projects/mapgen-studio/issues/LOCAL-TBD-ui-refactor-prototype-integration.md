@@ -382,6 +382,23 @@ bun run check-types
 bun run test
 ```
 
+### UI-17 (right panel): collapsible stage/step/layers sections
+
+**Acceptance criteria**
+- [x] Explore/right panel has three collapsible sections: Stage, Step, Layers (toolbar remains at the bottom).
+- [x] Each section header is clickable and styled consistently with left panel section headers.
+- [x] Stage list is scrollable with a max height; selecting a stage collapses the Stage section.
+- [x] Step list is scrollable with a max height; selecting a step collapses the Step section.
+- [x] Layer list is scrollable with a max height; selecting a layer collapses the Layers section.
+
+**Verification**
+```bash
+bun run --cwd apps/mapgen-studio build
+bun run lint
+bun run check-types
+bun run test
+```
+
 ## Milestone-level open questions (must stay explicit)
 1) Render mode vocabulary: what is the minimal stable “projection/renderMode” set that works across future recipes without being too physics-specific?
    - Option A: `renderMode := kind` (start here; simplest).
