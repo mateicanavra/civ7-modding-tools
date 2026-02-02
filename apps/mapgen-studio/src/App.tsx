@@ -135,6 +135,7 @@ function AppContent(props: AppContentProps) {
   const theme = useMemo(() => createTheme(isLightMode), [isLightMode]);
 
   const deckApiRef = useRef<DeckCanvasApi | null>(null);
+  const [deckApiReadyTick, setDeckApiReadyTick] = useState(0);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [viewportSize, setViewportSize] = useState({ width: 800, height: 600 });
 
@@ -233,9 +234,11 @@ function AppContent(props: AppContentProps) {
     if (!viz.manifest) return;
     if (hasEverSeenVizManifestRef.current) return;
     if (!viz.activeBounds) return;
-    deckApiRef.current?.fitToBounds(viz.activeBounds);
+    const deckApi = deckApiRef.current;
+    if (!deckApi) return;
+    deckApi.fitToBounds(viz.activeBounds);
     hasEverSeenVizManifestRef.current = true;
-  }, [viz.activeBounds, viz.manifest]);
+  }, [deckApiReadyTick, viewportSize.height, viewportSize.width, viz.activeBounds, viz.manifest]);
 
   const error =
     localError ??
@@ -871,6 +874,7 @@ function AppContent(props: AppContentProps) {
       ) : null}
       <DeckCanvas
         apiRef={deckApiRef}
+        onApiReady={() => setDeckApiReadyTick((prev) => prev + 1)}
         layers={viz.deck.layers}
         effectiveLayer={viz.effectiveLayer}
         viewportSize={viewportSize}

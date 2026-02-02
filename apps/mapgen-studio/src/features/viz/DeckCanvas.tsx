@@ -28,10 +28,11 @@ export type DeckCanvasProps = {
   lightMode?: boolean;
   activeBounds: Bounds | null;
   apiRef?: MutableRefObject<DeckCanvasApi | null>;
+  onApiReady?: () => void;
 };
 
 export function DeckCanvas(props: DeckCanvasProps) {
-  const { layers, effectiveLayer, viewportSize, showBackgroundGrid = true, lightMode = false, activeBounds, apiRef } = props;
+  const { layers, effectiveLayer, viewportSize, showBackgroundGrid = true, lightMode = false, activeBounds, apiRef, onApiReady } = props;
 
   // Using the core Deck instance avoids React-driven rerenders on every pointer interaction.
   // (The @deck.gl/react wrapper can schedule React updates during camera changes.)
@@ -142,10 +143,11 @@ export function DeckCanvas(props: DeckCanvasProps) {
   useEffect(() => {
     if (!apiRef) return;
     apiRef.current = { fitToBounds, resetView };
+    onApiReady?.();
     return () => {
       apiRef.current = null;
     };
-  }, [apiRef, fitToBounds, resetView]);
+  }, [apiRef, fitToBounds, onApiReady, resetView]);
 
   // Create + destroy the Deck instance.
   useEffect(() => {
