@@ -279,6 +279,57 @@ function AppContent(props: AppContentProps) {
     [browserRunner.actions, dumpLoader.actions]
   );
 
+  const [isDumpDropActive, setIsDumpDropActive] = useState(false);
+
+  useEffect(() => {
+    if (worldSettings.mode !== "dump") {
+      setIsDumpDropActive(false);
+      return;
+    }
+
+    let dragDepth = 0;
+    const isFileDrag = (dt: DataTransfer | null) => (dt?.types ? Array.from(dt.types).includes("Files") : false);
+
+    const onDragEnter = (e: DragEvent) => {
+      if (!isFileDrag(e.dataTransfer)) return;
+      dragDepth += 1;
+      setIsDumpDropActive(true);
+    };
+
+    const onDragLeave = (e: DragEvent) => {
+      if (!isFileDrag(e.dataTransfer)) return;
+      dragDepth = Math.max(0, dragDepth - 1);
+      if (dragDepth === 0) setIsDumpDropActive(false);
+    };
+
+    const onDragOver = (e: DragEvent) => {
+      if (!isFileDrag(e.dataTransfer)) return;
+      e.preventDefault();
+    };
+
+    const onDrop = (e: DragEvent) => {
+      if (!isFileDrag(e.dataTransfer)) return;
+      e.preventDefault();
+      dragDepth = 0;
+      setIsDumpDropActive(false);
+      const files = e.dataTransfer?.files;
+      if (!files || files.length === 0) return;
+      void onUploadDumpFolder(files);
+    };
+
+    window.addEventListener("dragenter", onDragEnter);
+    window.addEventListener("dragleave", onDragLeave);
+    window.addEventListener("dragover", onDragOver);
+    window.addEventListener("drop", onDrop);
+
+    return () => {
+      window.removeEventListener("dragenter", onDragEnter);
+      window.removeEventListener("dragleave", onDragLeave);
+      window.removeEventListener("dragover", onDragOver);
+      window.removeEventListener("drop", onDrop);
+    };
+  }, [onUploadDumpFolder, worldSettings.mode]);
+
   const [selectedStageId, setSelectedStageId] = useState("");
   const [selectedStepId, setSelectedStepId] = useState("");
 
@@ -958,17 +1009,8 @@ function AppContent(props: AppContentProps) {
         </div>
       ) : null}
 
-      {worldSettings.mode === "dump" ? (
-        <div
-          className="absolute inset-0 z-20"
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => {
-            e.preventDefault();
-            const files = e.dataTransfer?.files;
-            if (!files) return;
-            void onUploadDumpFolder(files);
-          }}
-        />
+      {worldSettings.mode === "dump" && isDumpDropActive ? (
+        <div className="pointer-events-none absolute inset-0 z-20 border-2 border-dashed border-[#2a2a32] bg-[#141418]/40 backdrop-blur-[1px]" />
       ) : null}
     </div>
   );
