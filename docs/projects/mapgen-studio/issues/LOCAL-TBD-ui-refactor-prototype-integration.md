@@ -226,8 +226,8 @@ bun run check
 Add a Studio-side utility to reliably parse step ids into `{ recipeKey, stageId, stepId }` so selectors can group by stage/step.
 
 **Acceptance criteria**
-- [ ] Studio has a helper that parses *full* step ids (e.g. `mod-swooper-maps.standard.foundation.mesh`) into a structured address.
-- [ ] UI state/model uses `stageId` derived from parsing (not string slicing the last segment).
+- [x] Studio has a helper that parses *full* step ids (e.g. `mod-swooper-maps.standard.foundation.mesh`) into a structured address.
+- [x] UI state/model uses `stageId` derived from parsing (not string slicing the last segment).
 
 **Implementation guidance**
 ```yaml

@@ -43,7 +43,10 @@ export type AppHeaderProps = {
   onTileLayoutChange(next: TileLayout): void;
 
   selectedStepId: string | null;
-  steps: Array<{ stepId: string; stepIndex: number }>;
+  pipelineStages: Array<{
+    stageId: string;
+    steps: Array<{ stepId: string; stepIndex: number }>;
+  }>;
   onSelectedStepChange(next: string | null): void;
   selectedLayerKey: string | null;
   selectableLayers: Array<{ key: string; label: string; group?: string }>;
@@ -80,7 +83,7 @@ export function AppHeader(props: AppHeaderProps) {
     tileLayout,
     onTileLayoutChange,
     selectedStepId,
-    steps,
+    pipelineStages,
     onSelectedStepChange,
     selectedLayerKey,
     selectableLayers,
@@ -391,15 +394,20 @@ export function AppHeader(props: AppHeaderProps) {
                 value={selectedStepId ?? ""}
                 onChange={(e) => onSelectedStepChange(e.target.value || null)}
                 style={{ ...controlBaseStyle, flex: 1, width: "100%" }}
-                disabled={!steps.length && !selectedStepId}
+                disabled={!pipelineStages.some((s) => s.steps.length) && !selectedStepId}
               >
-                {selectedStepId && !steps.some((s) => s.stepId === selectedStepId) ? (
+                {selectedStepId &&
+                !pipelineStages.some((stage) => stage.steps.some((s) => s.stepId === selectedStepId)) ? (
                   <option value={selectedStepId}>{formatStepLabel(selectedStepId)} (pending)</option>
                 ) : null}
-                {steps.map((s) => (
-                  <option key={s.stepId} value={s.stepId}>
-                    {s.stepIndex} · {formatStepLabel(s.stepId)}
-                  </option>
+                {pipelineStages.map((stage) => (
+                  <optgroup key={stage.stageId} label={stage.stageId}>
+                    {stage.steps.map((s) => (
+                      <option key={s.stepId} value={s.stepId}>
+                        {s.stepIndex} · {formatStepLabel(s.stepId)}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </label>
