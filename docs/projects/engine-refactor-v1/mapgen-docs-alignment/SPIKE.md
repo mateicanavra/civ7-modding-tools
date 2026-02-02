@@ -251,12 +251,16 @@ These are the “teach everywhere” rules that prevent contributors from rebuil
    - Steps call ops; ops own strategy selection behind contract-first APIs; rules/strategies must not leak types or couple to contracts.
 7) **Import policy**
    - Canonical docs/examples use published entrypoints; internal TS aliases must not appear without explicit scoping.
+8) **Visualization posture is canonical**
+   - Deck.gl pipeline visualization is current and must be treated as canonical (do not fork competing viz docs).
+   - Reference: `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`.
 
 ## Recommendations (doc spine + priorities)
 
 The recommendation is to create a small canonical “DX spine” that sits above the excellent conceptual domain docs and eliminates drift ambiguity.
 
 Doc spine proposal (structure + page contract): `docs/projects/engine-refactor-v1/mapgen-docs-alignment/DOC-SPINE-PROPOSAL.md`.
+Implementation plan (agent team + slices): `docs/projects/engine-refactor-v1/mapgen-docs-alignment/DOC-SPINE-IMPLEMENTATION-PROPOSAL.md`.
 
 ### 1) Canonical doc spine (proposed)
 
