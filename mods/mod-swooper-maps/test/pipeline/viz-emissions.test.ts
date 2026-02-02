@@ -160,8 +160,16 @@ describe("standard pipeline viz emissions", () => {
     expect(rainfallAmpMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
     const rainfallMetas = metasByKey.get("hydrology.climate.rainfall") as any[] | undefined;
+    expect(rainfallMetas?.some((m) => m?.visibility === "default")).toBe(true);
     expect(
       rainfallMetas?.some((m) => m?.role === "centroids" && m?.label === "Rainfall (Baseline)" && m?.visibility === "debug")
+    ).toBe(true);
+    expect(rainfallMetas?.some((m) => m?.role === "centroids" && m?.label === "Rainfall" && m?.visibility === "debug")).toBe(true);
+
+    const temperatureMetas = metasByKey.get("hydrology.climate.indices.surfaceTemperatureC") as any[] | undefined;
+    expect(temperatureMetas?.some((m) => m?.visibility === "default")).toBe(true);
+    expect(
+      temperatureMetas?.some((m) => m?.role === "centroids" && m?.label === "Surface Temperature (C)" && m?.visibility === "debug")
     ).toBe(true);
 
     const windMetas = metasByKey.get("hydrology.wind.wind") as any[] | undefined;
