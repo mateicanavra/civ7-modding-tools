@@ -1,5 +1,5 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
-import { defineVizMeta, syncHeightfield } from "@swooper/mapgen-core";
+import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
 import { getStandardRuntime } from "../../../runtime.js";
 import LakesStepContract from "./lakes.contract.js";
 import { HYDROLOGY_LAKEINESS_TILES_PER_LAKE_MULTIPLIER } from "@mapgen/domain/hydrology/shared/knob-multipliers.js";
@@ -53,6 +53,35 @@ export default createStep(LakesStepContract, {
     });
 
     context.adapter.generateLakes(width, height, tilesPerLake);
-    syncHeightfield(context);
+    const physics = context.buffers.heightfield;
+    const engine = snapshotEngineHeightfield(context);
+    if (engine) {
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "debug.heightfield.landMask",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: physics.landMask,
+        meta: defineVizMeta("debug.heightfield.landMask", {
+          label: "Land Mask (Physics Truth)",
+          group: GROUP_MAP_HYDROLOGY,
+          palette: "categorical",
+          role: "physics",
+        }),
+      });
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "debug.heightfield.landMask",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: engine.landMask,
+        meta: defineVizMeta("debug.heightfield.landMask", {
+          label: "Land Mask (Engine After Lakes)",
+          group: GROUP_MAP_HYDROLOGY,
+          palette: "categorical",
+          role: "engine",
+        }),
+      });
+    }
   },
 });

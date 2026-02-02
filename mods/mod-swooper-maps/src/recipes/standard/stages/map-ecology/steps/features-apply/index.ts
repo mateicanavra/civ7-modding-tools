@@ -1,6 +1,6 @@
 import { createStep } from "@swooper/mapgen-core/authoring";
 import type { FeatureKey } from "@mapgen/domain/ecology";
-import { defineVizMeta, syncHeightfield } from "@swooper/mapgen-core";
+import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
 import FeaturesApplyStepContract from "./contract.js";
 import { applyFeaturePlacements, reifyFeatureField } from "../features/apply.js";
 import { resolveFeatureKeyLookups } from "../features/feature-keys.js";
@@ -48,7 +48,62 @@ export default createStep(FeaturesApplyStepContract, {
         }),
       });
       context.adapter.validateAndFixTerrain();
-      syncHeightfield(context);
+      const physics = context.buffers.heightfield;
+      const engine = snapshotEngineHeightfield(context);
+      if (engine) {
+        context.viz?.dumpGrid(context.trace, {
+          dataTypeKey: "debug.heightfield.terrain",
+          spaceId: TILE_SPACE_ID,
+          dims: { width: context.dimensions.width, height: context.dimensions.height },
+          format: "u8",
+          values: physics.terrain,
+          meta: defineVizMeta("debug.heightfield.terrain", {
+            label: "Terrain (Physics Truth)",
+            group: GROUP_MAP_ECOLOGY,
+            palette: "categorical",
+            role: "physics",
+          }),
+        });
+        context.viz?.dumpGrid(context.trace, {
+          dataTypeKey: "debug.heightfield.terrain",
+          spaceId: TILE_SPACE_ID,
+          dims: { width: context.dimensions.width, height: context.dimensions.height },
+          format: "u8",
+          values: engine.terrain,
+          meta: defineVizMeta("debug.heightfield.terrain", {
+            label: "Terrain (Engine After Features)",
+            group: GROUP_MAP_ECOLOGY,
+            palette: "categorical",
+            role: "engine",
+          }),
+        });
+        context.viz?.dumpGrid(context.trace, {
+          dataTypeKey: "debug.heightfield.landMask",
+          spaceId: TILE_SPACE_ID,
+          dims: { width: context.dimensions.width, height: context.dimensions.height },
+          format: "u8",
+          values: physics.landMask,
+          meta: defineVizMeta("debug.heightfield.landMask", {
+            label: "Land Mask (Physics Truth)",
+            group: GROUP_MAP_ECOLOGY,
+            palette: "categorical",
+            role: "physics",
+          }),
+        });
+        context.viz?.dumpGrid(context.trace, {
+          dataTypeKey: "debug.heightfield.landMask",
+          spaceId: TILE_SPACE_ID,
+          dims: { width: context.dimensions.width, height: context.dimensions.height },
+          format: "u8",
+          values: engine.landMask,
+          meta: defineVizMeta("debug.heightfield.landMask", {
+            label: "Land Mask (Engine After Features)",
+            group: GROUP_MAP_ECOLOGY,
+            palette: "categorical",
+            role: "engine",
+          }),
+        });
+      }
       context.adapter.recalculateAreas();
     }
   },

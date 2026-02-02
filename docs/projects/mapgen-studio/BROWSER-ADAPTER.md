@@ -79,7 +79,7 @@ The standard recipe uses these adapter members (directly or via `createExtendedM
   - `ctxRandom(...)` → `getRandomNumber(...)`
   - `writeHeightfield(...)` → `setTerrainType(...)`
   - `writeClimateField(...)` → `setRainfall(...)`
-  - `syncHeightfield(...)` → `getTerrainType(...)`, `getElevation(...)`, `isWater(...)`
+  - `snapshotEngineHeightfield(...)` → `getTerrainType(...)`, `getElevation(...)`, `isWater(...)` (viz/dumps only; must not overwrite physics-truth buffers)
 
 ## Feasibility classification (browser runner)
 

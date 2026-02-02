@@ -42,6 +42,10 @@ export {
 
 // Engine surface introspection
 export { logEngineSurfaceApisOnce } from "@mapgen/dev/introspection.js";
+export {
+  snapshotEngineHeightfield,
+  type EngineHeightfieldSnapshot,
+} from "@mapgen/dev/engine-heightfield.js";
 
 // ASCII visualization
 export {

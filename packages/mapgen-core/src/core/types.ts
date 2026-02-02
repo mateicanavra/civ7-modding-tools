@@ -508,36 +508,6 @@ export function validateFoundationPlatesArtifact(
   ensureTensor("plateMovementV", plates.movementV, size);
   ensureTensor("plateRotation", plates.rotation, size);
 }
-// ============================================================================
-// Sync Functions
-// ============================================================================
-
-/**
- * Synchronize staged heightfield buffers from the current engine surface.
- */
-export function syncHeightfield(ctx: ExtendedMapContext): void {
-  if (!ctx?.adapter) return;
-  const hf = ctx.buffers?.heightfield;
-  if (!hf) return;
-
-  const { width, height } = ctx.dimensions;
-
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const idxValue = y * width + x;
-      const terrain = ctx.adapter.getTerrainType(x, y);
-      if (terrain != null) {
-        hf.terrain[idxValue] = terrain & 0xff;
-      }
-      const elevation = ctx.adapter.getElevation(x, y);
-      if (Number.isFinite(elevation)) {
-        hf.elevation[idxValue] = elevation | 0;
-      }
-      hf.landMask[idxValue] = ctx.adapter.isWater(x, y) ? 0 : 1;
-    }
-  }
-}
-
 /**
  * Synchronize staged climate buffers from the current engine surface.
  */
