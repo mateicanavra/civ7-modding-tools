@@ -35,10 +35,14 @@ This tutorial uses the existing “browser-test” recipe as a minimal, Foundati
 
 This harness runs a minimal recipe and writes a dump under `dist/visualization/<runId>/`.
 
-- `bun mods/mod-swooper-maps/src/dev/viz/foundation-run.ts`
+Preferred (package script):
+
+```bash
+bun run --cwd mods/mod-swooper-maps viz:foundation
+```
 
 Optional args:
-- `bun mods/mod-swooper-maps/src/dev/viz/foundation-run.ts <width> <height> <seed>`
+- `bun run --cwd mods/mod-swooper-maps viz:foundation <width> <height> <seed>`
 
 The script prints the final dump directory.
 
@@ -49,12 +53,19 @@ Inside the run directory:
 - `manifest.json`: indexed list of steps and layers emitted, with stable `layerKey`s
 - `data/`: binary payload files referenced by the manifest
 
-### 3) Open the deck.gl visualization workflow
+### 3) Replay the dump in Studio (Dump mode)
+
+Follow the concrete replay workflow:
+- `docs/system/libs/mapgen/how-to/debug-with-trace-and-viz.md`
+
+This uses MapGen Studio’s dump viewer (deck.gl) to load `manifest.json` and the referenced `data/*` payloads.
+
+### 4) Open the deck.gl visualization workflow (system reference)
 
 Follow the canonical viz doc (do not invent alternate viewers):
 - `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
 
-### 4) Correlate projections back to their source step
+### 5) Correlate projections back to their source step
 
 Use `manifest.json` to identify:
 - which step emitted the layer (`stepId` + `phase`),
@@ -64,6 +75,31 @@ Use `manifest.json` to identify:
 Then jump to the step code and confirm:
 - the data being emitted matches your expectations,
 - the emitted meta (label/group) is consistent with the domain model.
+
+### 6) Concrete example: a step emitting projection layers
+
+The Foundation projection step emits multiple tile-space layers via `context.viz?.dumpGrid(...)` (and variants like
+`dumpGridFields`).
+
+Example (one emitted layer):
+
+```ts
+context.viz?.dumpGrid(context.trace, {
+  dataTypeKey: "foundation.plates.tilePlateId",
+  spaceId: "tile.hexOddR",
+  dims: { width, height },
+  format: "i16",
+  values: platesResult.plates.id,
+  meta: defineVizMeta("foundation.plates.tilePlateId", {
+    label: "Plate Id",
+    group: "Foundation / Plates",
+    palette: "categorical",
+  }),
+});
+```
+
+Important: the canonical Studio worker dumper (and the Node dump harness) only persists viz events for **verbose**
+trace contexts; if the current step isn’t verbose, the viewer will show no layers for it.
 
 ## Verification
 
