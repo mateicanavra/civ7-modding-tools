@@ -5,11 +5,24 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**", "types/**", "example-generated-mod/**", "mod/**"]
     },
+    "build:studio-recipes": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
     "deploy": {
       "dependsOn": ["build"],
       "cache": false
     },
     "dev": { "cache": false, "persistent": true },
+    "mapgen-studio#dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^build", "mod-swooper-maps#build:studio-recipes"]
+    },
+    "mapgen-studio#build": {
+      "dependsOn": ["^build", "mod-swooper-maps#build:studio-recipes"],
+      "outputs": ["dist/**", "types/**", "example-generated-mod/**", "mod/**"]
+    },
     "check": { "dependsOn": ["^build", "^check"], "outputs": [] },
     "lint": {},
     "test": { "dependsOn": ["^build"] },

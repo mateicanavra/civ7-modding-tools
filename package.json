@@ -13,6 +13,7 @@
     "dev:docs": "bun run --filter @civ7/docs dev",
     "docs:project": "./scripts/docs-project.sh && bunx docsify-cli serve ./docs --port 7979",
     "dev:playground": "bun run --filter @civ7/playground dev",
+    "dev:mapgen-studio": "turbo run dev --filter=mapgen-studio",
     "lint": "turbo run lint",
     "test": "bun run test:vitest && bun run test:mapgen && bun run --cwd mods/mod-swooper-maps test",
     "test:ci": "bun run test:vitest && bun run --cwd packages/civ7-adapter build && bun run --cwd packages/mapgen-core build && bun run --cwd packages/mapgen-core test && bun run --cwd mods/mod-swooper-maps test",
