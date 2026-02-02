@@ -22,7 +22,7 @@ import {
 } from "@mapgen/domain/morphology/shared/knob-multipliers.js";
 import type { MorphologyOrogenyKnob } from "@mapgen/domain/morphology/shared/knobs.js";
 
-const GROUP_MAP_PROJECTION = "Morphology / Map Projection";
+const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function buildFractalArray(
@@ -98,55 +98,55 @@ export default createStep(PlotMountainsStepContract, {
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
-        values: plan.mountainMask,
-        meta: defineVizMeta("map.morphology.mountains.mountainMask", {
-          label: "Mountain Mask (Projection)",
-          group: GROUP_MAP_PROJECTION,
-        }),
-      });
-    }
+      values: plan.mountainMask,
+      meta: defineVizMeta("map.morphology.mountains.mountainMask", {
+        label: "Mountain Mask (Planned)",
+        group: GROUP_MAP_MORPHOLOGY,
+      }),
+    });
+  }
     if (plan.hillMask instanceof Uint8Array) {
       context.viz?.dumpGrid(context.trace, {
         dataTypeKey: "map.morphology.mountains.hillMask",
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
-        values: plan.hillMask,
-        meta: defineVizMeta("map.morphology.mountains.hillMask", {
-          label: "Hill Mask (Projection)",
-          group: GROUP_MAP_PROJECTION,
-          visibility: "debug",
-        }),
-      });
-    }
+      values: plan.hillMask,
+      meta: defineVizMeta("map.morphology.mountains.hillMask", {
+        label: "Hill Mask (Planned)",
+        group: GROUP_MAP_MORPHOLOGY,
+        visibility: "debug",
+      }),
+    });
+  }
     if (plan.orogenyPotential01 instanceof Uint8Array) {
       context.viz?.dumpGrid(context.trace, {
         dataTypeKey: "map.morphology.mountains.orogenyPotential01",
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
-        values: plan.orogenyPotential01,
-        meta: defineVizMeta("map.morphology.mountains.orogenyPotential01", {
-          label: "Orogeny Potential (Projection)",
-          group: GROUP_MAP_PROJECTION,
-          visibility: "debug",
-        }),
-      });
-    }
+      values: plan.orogenyPotential01,
+      meta: defineVizMeta("map.morphology.mountains.orogenyPotential01", {
+        label: "Orogeny Potential (Planned)",
+        group: GROUP_MAP_MORPHOLOGY,
+        visibility: "debug",
+      }),
+    });
+  }
     if (plan.fracture01 instanceof Uint8Array) {
       context.viz?.dumpGrid(context.trace, {
         dataTypeKey: "map.morphology.mountains.fracture01",
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
-        values: plan.fracture01,
-        meta: defineVizMeta("map.morphology.mountains.fracture01", {
-          label: "Fracture (Projection)",
-          group: GROUP_MAP_PROJECTION,
-          visibility: "debug",
-        }),
-      });
-    }
+      values: plan.fracture01,
+      meta: defineVizMeta("map.morphology.mountains.fracture01", {
+        label: "Fracture (Planned)",
+        group: GROUP_MAP_MORPHOLOGY,
+        visibility: "debug",
+      }),
+    });
+  }
 
     context.trace.event(() => {
       const size = Math.max(0, (width | 0) * (height | 0));

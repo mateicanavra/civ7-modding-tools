@@ -4,7 +4,7 @@ import { createStep } from "@swooper/mapgen-core/authoring";
 import PlotVolcanoesStepContract from "./plotVolcanoes.contract.js";
 import { assertNoWaterDrift } from "./assertions.js";
 
-const GROUP_MAP_PROJECTION = "Morphology / Map Projection";
+const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(PlotVolcanoesStepContract, {
@@ -29,8 +29,8 @@ export default createStep(PlotVolcanoesStepContract, {
       values: strengths,
       valueFormat: "f32",
       meta: defineVizMeta("map.morphology.volcanoes.points", {
-        label: "Volcano Points (Projection)",
-        group: GROUP_MAP_PROJECTION,
+        label: "Volcano Points (Planned)",
+        group: GROUP_MAP_MORPHOLOGY,
       }),
     });
 

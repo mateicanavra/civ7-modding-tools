@@ -88,7 +88,7 @@ Groups correspond to `layer.meta.group`.
 **Debug**
 - rain shadow / convergence / continentality indices and other “why” layers.
 
-### Map / Hydrology (Projection)
+### Map / Hydrology (Engine)
 
 **Default**
 - Minimal gameplay-facing projections (e.g. `map.hydrology.rivers.riverClass`).
@@ -120,4 +120,3 @@ This spec is intended to match emissions under:
 - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine/**`
 - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/**`
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/**`
-

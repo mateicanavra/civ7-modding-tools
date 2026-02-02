@@ -5,7 +5,7 @@ import FeaturesApplyStepContract from "./contract.js";
 import { applyFeaturePlacements, reifyFeatureField } from "../features/apply.js";
 import { resolveFeatureKeyLookups } from "../features/feature-keys.js";
 
-const GROUP_MAP_ECOLOGY = "Map / Ecology (Projection)";
+const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(FeaturesApplyStepContract, {
@@ -41,8 +41,8 @@ export default createStep(FeaturesApplyStepContract, {
         dims: { width: context.dimensions.width, height: context.dimensions.height },
         format: "i16",
         values: context.fields.featureType,
-        meta: defineVizMeta("map.ecology.featureType", {
-          label: "Feature Type (Projected)",
+      meta: defineVizMeta("map.ecology.featureType", {
+          label: "Feature Type (Engine)",
           group: GROUP_MAP_ECOLOGY,
           palette: "categorical",
         }),
