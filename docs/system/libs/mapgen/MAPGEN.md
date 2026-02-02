@@ -1,6 +1,7 @@
 <toc>
   <item id="purpose" title="Purpose"/>
   <item id="start-here" title="Start here (choose your path)"/>
+  <item id="fast-links" title="Fast links"/>
   <item id="routing" title="Routing map (Diátaxis)"/>
   <item id="status" title="Status + drift posture"/>
   <item id="anchors" title="Ground truth anchors"/>
@@ -23,6 +24,15 @@ This doc routes you into the correct doc type (tutorial / how-to / reference / e
 - If you are writing docs or code and want the “rules of the road”: start in `docs/system/libs/mapgen/policies/POLICIES.md`.
 - If you are an **AI agent** and want curated pointers: start in `docs/system/libs/mapgen/llms/LLMS.md`.
 
+## Fast links
+
+Common “one hop” destinations:
+
+- Standard recipe reference: `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`
+- Domain contracts: `docs/system/libs/mapgen/reference/domains/DOMAINS.md`
+- Studio seam (reference): `docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`
+- Visualization (canonical; deck.gl): `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
+
 ## Routing map (Diátaxis)
 
 MapGen has multiple reader modes. We use a Diátaxis-aligned structure:
@@ -32,7 +42,7 @@ MapGen has multiple reader modes. We use a Diátaxis-aligned structure:
 - Reference: contract-oriented, complete and precise
 - Explanation: understanding-oriented, architecture + rationale
 
-This is a routing-only scaffold. Content is built out incrementally.
+Each section routes to implemented pages and is the authoritative entrypoint for that doc type.
 
 ## Status + drift posture
 
@@ -50,4 +60,3 @@ Primary alignment artifacts for this doc spine:
 - `docs/projects/engine-refactor-v1/mapgen-docs-alignment/SPIKE.md`
 - `docs/projects/engine-refactor-v1/mapgen-docs-alignment/DOC-SPINE-PROPOSAL.md`
 - `docs/projects/engine-refactor-v1/mapgen-docs-alignment/DOC-SPINE-IMPLEMENTATION-PROPOSAL.md`
-

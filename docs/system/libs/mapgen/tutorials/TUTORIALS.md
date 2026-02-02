@@ -23,5 +23,5 @@ Canonical tutorials:
 - Inspect artifacts and projections: `docs/system/libs/mapgen/tutorials/inspect-artifacts-and-projections.md`
 - Tune a preset and knobs: `docs/system/libs/mapgen/tutorials/tune-a-preset-and-knobs.md`
 
-Planned canonical tutorials (built in later slices):
+Potential future tutorials:
 - Implement a new step end-to-end
