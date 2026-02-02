@@ -25,9 +25,30 @@ TagRegistry is responsible for:
 - validating tags (kind and id correctness),
 - and validating `requires/provides` lists.
 
+Representative example (canonical tag ids + registry registration; excerpt; see full file in anchors):
+
+```ts
+export const M3_DEPENDENCY_TAGS = {
+  field: {
+    elevation: "field:elevation",
+    rainfall: "field:rainfall",
+  },
+} as const;
+
+export const M4_EFFECT_TAGS = {
+  engine: {
+    riversModeled: "effect:engine.riversModeled",
+  },
+} as const;
+
+export function registerStandardTags(registry: { registerTags: (defs: readonly DependencyTagDefinition[]) => void }) {
+  registry.registerTags(STANDARD_TAG_DEFINITIONS);
+}
+```
+
 ## Ground truth anchors
 
 - TagRegistry implementation and helpers: `packages/mapgen-core/src/engine/tags.ts`
 - StepRegistry validation: `packages/mapgen-core/src/engine/StepRegistry.ts`
 - Policy: registered-only tags: `docs/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md`
-
+- Example tag registry + definitions: `mods/mod-swooper-maps/src/recipes/standard/tags.ts`

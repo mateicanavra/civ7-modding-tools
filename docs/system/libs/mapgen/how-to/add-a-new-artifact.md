@@ -35,6 +35,28 @@ Routes to:
 - Define a schema using `Type.*` / `TypedArraySchemas.*`.
 - Call `defineArtifact({ name, id, schema })`.
 
+Representative example (defineArtifact with Phase-2 schema; excerpt; see full file in anchors):
+
+```ts
+import { Type, TypedArraySchemas, defineArtifact } from "@swooper/mapgen-core/authoring";
+
+const MorphologyRoutingArtifactSchema = Type.Object(
+  {
+    flowDir: TypedArraySchemas.i32({ description: "Steepest-descent receiver index per tile (or -1 for sinks/edges)." }),
+    flowAccum: TypedArraySchemas.f32({ description: "Drainage area proxy per tile." }),
+  },
+  { description: "Morphology routing buffer handle (publish once)." }
+);
+
+export const morphologyArtifacts = {
+  routing: defineArtifact({
+    name: "routing",
+    id: "artifact:morphology.routing",
+    schema: MorphologyRoutingArtifactSchema,
+  }),
+} as const;
+```
+
 ### 2) Publish the artifact in exactly one step
 
 - In the step that creates the artifact, publish it into `context.artifacts` (directly or via the helper used by that stage).
