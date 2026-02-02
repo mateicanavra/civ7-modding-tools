@@ -138,7 +138,10 @@ function scalarField(args: {
 }): VizScalarField {
   return {
     format: args.format,
-    stats: args.stats ?? computeVizScalarStats({ format: args.format, values: args.values }) ?? undefined,
+    stats:
+      args.stats ??
+      computeVizScalarStats({ format: args.format, values: args.values, noData: args.valueSpec?.noData }) ??
+      undefined,
     valueSpec: args.valueSpec,
     data: pathRef(args.path),
   };
