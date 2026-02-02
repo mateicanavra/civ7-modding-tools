@@ -42,6 +42,8 @@ export type UseVizStateResult = {
   setSelectedStepId(next: string | null): void;
   selectedLayerKey: string | null;
   setSelectedLayerKey(next: string | null): void;
+  showDebugLayers: boolean;
+  setShowDebugLayers(next: boolean): void;
 
   steps: Array<{ stepId: string; stepIndex: number }>;
   pipelineSteps: Array<{ stepId: string; stepIndex: number; address: PipelineAddress | null }>;
@@ -76,8 +78,10 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
 
   const selectedStepId = snapshot.selectedStepId;
   const selectedLayerKey = snapshot.selectedLayerKey;
+  const showDebugLayers = snapshot.showDebugLayers;
   const setSelectedStepId = store.setSelectedStepId;
   const setSelectedLayerKey = store.setSelectedLayerKey;
+  const setShowDebugLayers = store.setShowDebugLayers;
 
   const [layerStats, setLayerStats] = useState<VizScalarStats | null>(null);
   const [resolvedLayers, setResolvedLayers] = useState<Layer[]>([]);
@@ -140,8 +144,8 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
 
   const dataTypeModel = useMemo(() => {
     if (!manifest || !activeSelectedStepId) return null;
-    return buildStepDataTypeModel(manifest, activeSelectedStepId);
-  }, [activeSelectedStepId, manifest]);
+    return buildStepDataTypeModel(manifest, activeSelectedStepId, { includeDebug: showDebugLayers });
+  }, [activeSelectedStepId, manifest, showDebugLayers]);
 
   useEffect(() => {
     if (!manifest || allowPendingSelection) return;
@@ -162,8 +166,14 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     if (!manifest || !activeSelectedStepId) return [];
     return manifest.layers
       .filter((l) => l.stepId === activeSelectedStepId)
+      .filter((l) => {
+        const visibility = resolveLayerVisibility(l);
+        if (visibility === "hidden") return false;
+        if (visibility === "debug") return showDebugLayers;
+        return true;
+      })
       .map((l) => ({ key: l.layerKey, layer: l }));
-  }, [activeSelectedStepId, manifest]);
+  }, [activeSelectedStepId, manifest, showDebugLayers]);
 
   const activeSelectedLayerKey = useMemo(() => {
     if (!layersForStep.length) return selectedLayerKey ?? null;
@@ -252,6 +262,8 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     setSelectedStepId,
     selectedLayerKey: activeSelectedLayerKey,
     setSelectedLayerKey,
+    showDebugLayers,
+    setShowDebugLayers,
     steps,
     pipelineSteps,
     pipelineStages,

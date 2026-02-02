@@ -7,6 +7,7 @@ export type VizStoreSnapshot = Readonly<{
   dumpManifest: VizManifestV1 | null;
   selectedStepId: string | null;
   selectedLayerKey: string | null;
+  showDebugLayers: boolean;
 }>;
 
 export type VizStore = {
@@ -19,6 +20,7 @@ export type VizStore = {
 
   setSelectedStepId(next: string | null): void;
   setSelectedLayerKey(next: string | null): void;
+  setShowDebugLayers(next: boolean): void;
 };
 
 function scheduleFrame(cb: () => void): number {
@@ -33,6 +35,7 @@ export function createVizStore(): VizStore {
   let dumpManifest: VizManifestV1 | null = null;
   let selectedStepId: string | null = null;
   let selectedLayerKey: string | null = null;
+  let showDebugLayers = false;
 
   // `useSyncExternalStore` requires `getSnapshot()` to return a stable reference
   // when nothing changed; returning a fresh object on every call can cause
@@ -42,6 +45,7 @@ export function createVizStore(): VizStore {
     dumpManifest,
     selectedStepId,
     selectedLayerKey,
+    showDebugLayers,
   });
 
   let pendingStreamManifest: VizManifestV1 | null | undefined = undefined;
@@ -59,6 +63,7 @@ export function createVizStore(): VizStore {
       dumpManifest,
       selectedStepId,
       selectedLayerKey,
+      showDebugLayers,
     });
   };
 
@@ -159,6 +164,12 @@ export function createVizStore(): VizStore {
     setSelectedLayerKey(next) {
       if (selectedLayerKey === next) return;
       selectedLayerKey = next;
+      updateSnapshot();
+      notify();
+    },
+    setShowDebugLayers(next) {
+      if (showDebugLayers === next) return;
+      showDebugLayers = next;
       updateSnapshot();
       notify();
     },

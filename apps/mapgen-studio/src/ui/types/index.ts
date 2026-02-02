@@ -66,10 +66,11 @@ export interface StepOption {
 export interface DataTypeOption {
   value: string;
   label: string;
+  group?: string;
 }
 
-/** Projection option - which coordinate space a data type is shown in */
-export interface ProjectionOption {
+/** Space option - which coordinate space a data type is shown in */
+export interface SpaceOption {
   value: string;
   label: string;
 }
@@ -193,9 +194,6 @@ export interface StageConfig {
  * Backend: This is the primary configuration object sent to the generation API.
  */
 export type PipelineConfig = Record<string, StageConfig>;
-
-// Legacy alias for backward compatibility
-export type FullConfig = PipelineConfig;
 
 // ============================================================================
 // Config Patch Types
