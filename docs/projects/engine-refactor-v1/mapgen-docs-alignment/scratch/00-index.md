@@ -20,3 +20,4 @@ Use these scratch pads as disposable working memory. Keep notes small and focuse
 - Canonical doc set proposal: `doc-set-proposal.md`
 - MapGen Studio (consumer + examples): `studio.md`
 - Domains: `domains-*.md`
+- Hardening (claims + anchors): `hardening-claims-audit.md`

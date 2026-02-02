@@ -80,7 +80,7 @@ $MAPGEN_SPIKE = docs/projects/engine-refactor-v1/mapgen-docs-alignment
 $MAPGEN_SCRATCH = $MAPGEN_SPIKE/scratch
 
 $MAPGEN_LIB = packages/mapgen-core
-$MAPGEN_STUDIO = packages/mapgen-studio
+$MAPGEN_STUDIO = apps/mapgen-studio
 $MAPGEN_VIZ = packages/mapgen-viz
 ```
 
