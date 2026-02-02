@@ -138,6 +138,12 @@ describe("standard pipeline viz emissions", () => {
     expect(movementMetas?.some((m) => m?.visibility === "debug" && m?.role === "arrows")).toBe(true);
     expect(movementMetas?.some((m) => m?.visibility === "debug" && m?.role === "centroids")).toBe(true);
 
+    const flowMetas = metasByKey.get("morphology.routing.flow") as any[] | undefined;
+    expect(flowMetas?.some((m) => m?.visibility === "default" && m?.role === "vector")).toBe(true);
+    expect(flowMetas?.some((m) => m?.visibility === "debug" && m?.role === "magnitude")).toBe(true);
+    expect(flowMetas?.some((m) => m?.visibility === "debug" && m?.role === "arrows")).toBe(true);
+    expect(flowMetas?.some((m) => m?.visibility === "debug" && m?.role === "centroids")).toBe(true);
+
     const closenessMetas = metasByKey.get("foundation.plates.tileBoundaryCloseness") as any[] | undefined;
     expect(closenessMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
