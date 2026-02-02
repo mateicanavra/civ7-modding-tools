@@ -667,8 +667,23 @@ function AppContent(props: AppContentProps) {
       if (event.key === "ArrowUp" || event.key === "ArrowDown") {
         const dir = event.key === "ArrowUp" ? -1 : 1;
 
-        // Opt+Up/Down => stage
+        // Opt+Up/Down => layer
         if (event.altKey && !isMod) {
+          if (!ctx.dataTypeOptions.length) return;
+          event.preventDefault();
+          const selected = ctx.selectedDataTypeId ?? ctx.dataTypeOptions[0]?.value ?? "";
+          const idx = ctx.dataTypeOptions.findIndex((dt) => dt.value === selected);
+          const nextIdx = clampIndex(idx + dir, ctx.dataTypeOptions.length - 1);
+          const next = ctx.dataTypeOptions[nextIdx]?.value ?? null;
+          if (!next || next === selected) return;
+          ctx.handleDataTypeChange(next);
+          return;
+        }
+
+        if (!isMod) return;
+
+        // Cmd+Shift+Up/Down => stage
+        if (event.shiftKey) {
           if (!ctx.stages.length) return;
           event.preventDefault();
           const idx = ctx.stages.findIndex((s) => s.value === ctx.selectedStageId);
@@ -679,29 +694,14 @@ function AppContent(props: AppContentProps) {
           return;
         }
 
-        if (!isMod) return;
-
-        // Cmd+Shift+Up/Down => step
-        if (event.shiftKey) {
-          if (!ctx.steps.length) return;
-          event.preventDefault();
-          const idx = ctx.steps.findIndex((s) => s.value === ctx.selectedStepId);
-          const nextIdx = clampIndex(idx + dir, ctx.steps.length - 1);
-          const nextStep = ctx.steps[nextIdx]?.value ?? null;
-          if (!nextStep || nextStep === ctx.selectedStepId) return;
-          ctx.setSelectedStepId(nextStep);
-          return;
-        }
-
-        // Cmd+Up/Down => layer
-        if (!ctx.dataTypeOptions.length) return;
+        // Cmd+Up/Down => step
+        if (!ctx.steps.length) return;
         event.preventDefault();
-        const selected = ctx.selectedDataTypeId ?? ctx.dataTypeOptions[0]?.value ?? "";
-        const idx = ctx.dataTypeOptions.findIndex((dt) => dt.value === selected);
-        const nextIdx = clampIndex(idx + dir, ctx.dataTypeOptions.length - 1);
-        const next = ctx.dataTypeOptions[nextIdx]?.value ?? null;
-        if (!next || next === selected) return;
-        ctx.handleDataTypeChange(next);
+        const idx = ctx.steps.findIndex((s) => s.value === ctx.selectedStepId);
+        const nextIdx = clampIndex(idx + dir, ctx.steps.length - 1);
+        const nextStep = ctx.steps[nextIdx]?.value ?? null;
+        if (!nextStep || nextStep === ctx.selectedStepId) return;
+        ctx.setSelectedStepId(nextStep);
       }
     };
 
