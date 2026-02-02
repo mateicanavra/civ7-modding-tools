@@ -130,7 +130,7 @@ export default createStep(RoutingStepContract, {
         label: "Flow",
         group: GROUP_ROUTING,
         palette: "continuous",
-        arrows: { maxArrowLenTiles: 1.25, debugOnly: true },
+        arrows: { maxArrowLenTiles: 1.25 },
         points: { debugOnly: true },
       });
     }
