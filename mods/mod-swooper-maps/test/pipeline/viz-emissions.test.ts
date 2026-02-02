@@ -152,5 +152,22 @@ describe("standard pipeline viz emissions", () => {
 
     const rainfallAmpMetas = metasByKey.get("hydrology.climate.seasonality.rainfallAmplitude") as any[] | undefined;
     expect(rainfallAmpMetas?.some((m) => m?.visibility === "debug")).toBe(true);
+
+    const rainfallMetas = metasByKey.get("hydrology.climate.rainfall") as any[] | undefined;
+    expect(
+      rainfallMetas?.some((m) => m?.role === "centroids" && m?.label === "Rainfall (Baseline)" && m?.visibility === "debug")
+    ).toBe(true);
+
+    const windMetas = metasByKey.get("hydrology.wind.wind") as any[] | undefined;
+    expect(windMetas?.some((m) => m?.visibility === "default" && m?.role === "vector")).toBe(true);
+    expect(windMetas?.some((m) => m?.visibility === "debug" && m?.role === "magnitude")).toBe(true);
+    expect(windMetas?.some((m) => m?.visibility === "debug" && m?.role === "arrows")).toBe(true);
+    expect(windMetas?.some((m) => m?.visibility === "debug" && m?.role === "centroids")).toBe(true);
+
+    const currentMetas = metasByKey.get("hydrology.current.current") as any[] | undefined;
+    expect(currentMetas?.some((m) => m?.visibility === "default" && m?.role === "vector")).toBe(true);
+    expect(currentMetas?.some((m) => m?.visibility === "debug" && m?.role === "magnitude")).toBe(true);
+    expect(currentMetas?.some((m) => m?.visibility === "debug" && m?.role === "arrows")).toBe(true);
+    expect(currentMetas?.some((m) => m?.visibility === "debug" && m?.role === "centroids")).toBe(true);
   });
 });
