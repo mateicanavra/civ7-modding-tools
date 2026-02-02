@@ -18,12 +18,16 @@ They assume you already understand the basics and want to accomplish a specific 
 
 ## Task list
 
-Planned canonical how-tos (built in later slices):
+Canonical how-tos:
 
+- Add a step: `docs/system/libs/mapgen/how-to/add-a-step.md`
+- Add an op: `docs/system/libs/mapgen/how-to/add-an-op.md`
+- Add a new artifact: `docs/system/libs/mapgen/how-to/add-a-new-artifact.md`
+- Add a new tag: `docs/system/libs/mapgen/how-to/add-a-new-tag.md`
+- Debug with trace and visualization (deck.gl): `docs/system/libs/mapgen/how-to/debug-with-trace-and-viz.md`
+- Visualize pipeline (deck.gl): `docs/system/libs/mapgen/how-to/visualize-pipeline-deckgl.md`
+
+Planned canonical how-tos (built in later slices):
 - Run a recipe headless
 - Integrate the MapGen Studio worker
-- Add a stage / step / op contract
-- Add an artifact / tag
 - Add a knob / preset
-- Visualize pipeline (deck.gl): `docs/system/libs/mapgen/how-to/visualize-pipeline-deckgl.md`
-- Debug with trace and visualization (deck.gl)
