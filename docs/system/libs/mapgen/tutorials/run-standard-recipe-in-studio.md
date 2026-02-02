@@ -65,6 +65,7 @@ In the Studio UI:
 When you need deeper grounding:
 - Standard recipe reference: `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`
 - Visualization reference: `docs/system/libs/mapgen/reference/VISUALIZATION.md`
+- Studio seam reference: `docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`
 - Canonical deck.gl viz doc: `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
 
 ## Verification
