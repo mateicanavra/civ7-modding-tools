@@ -126,12 +126,12 @@ export default createStep(RoutingStepContract, {
         dims: { width, height },
         u: { format: "i8", values: u },
         v: { format: "i8", values: v },
-        magnitude: { values: magnitude, format: "f32" },
+        magnitude: { values: magnitude, format: "f32", debugOnly: true },
         label: "Flow",
         group: GROUP_ROUTING,
         palette: "continuous",
-        arrows: { maxArrowLenTiles: 1.25 },
-        points: {},
+        arrows: { maxArrowLenTiles: 1.25, debugOnly: true },
+        points: { debugOnly: true },
       });
     }
     if (routing.basinId instanceof Int32Array) {
