@@ -54,6 +54,7 @@ export default createStep(PlotRiversStepContract, {
       meta: defineVizMeta("map.hydrology.rivers.riverClass", {
         label: "River Class (Projected)",
         group: GROUP_MAP_HYDROLOGY,
+        palette: "categorical",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
