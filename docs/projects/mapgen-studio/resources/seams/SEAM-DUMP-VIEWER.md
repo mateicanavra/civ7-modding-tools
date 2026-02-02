@@ -1,3 +1,13 @@
+# Status: Project seam doc (MapGen Studio)
+
+This page documents an implementation seam and may drift.
+It is **not** canonical MapGen visualization documentation.
+
+Canonical entrypoints:
+- `docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`
+- `docs/system/libs/mapgen/reference/VISUALIZATION.md`
+- `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
+
 # agent-dump-viewer — dump replay mode seam (MapGen Studio)
 
 ## 1) Files reviewed
@@ -236,4 +246,3 @@ Notes:
   - mismatched `valueFormat` (decode errors / wrong typed array)
 - Collision detection behavior (if added):
   - selecting a folder containing multiple runs should warn or force disambiguation
-

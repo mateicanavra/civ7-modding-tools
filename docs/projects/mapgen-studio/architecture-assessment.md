@@ -1,3 +1,12 @@
+# Status: Project assessment (MapGen Studio)
+
+This page is a time-bound architecture assessment and may drift.
+It is **not** canonical MapGen documentation.
+
+Canonical entrypoints:
+- `docs/system/libs/mapgen/MAPGEN.md`
+- `docs/system/libs/mapgen/explanation/ARCHITECTURE.md`
+
 # MapGen Studio Architecture Assessment (React + Web Workers + deck.gl)
 
 Date: 2026-01-31  

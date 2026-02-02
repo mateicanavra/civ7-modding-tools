@@ -1,3 +1,12 @@
+# Status: Project doc (MapGen Studio)
+
+This page describes implementation-oriented details and may drift.
+It is **not** canonical MapGen visualization documentation.
+
+Canonical entrypoints:
+- `docs/system/libs/mapgen/reference/VISUALIZATION.md`
+- `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
+
 # Viz SDK v1 (v1-only) — Visualization contract for MapGen Studio + MapGen pipeline
 
 **Status:** Implemented

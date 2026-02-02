@@ -1,3 +1,11 @@
+# Status: Project seam doc (MapGen Studio)
+
+This page documents an implementation seam and may drift.
+It is **not** canonical MapGen documentation.
+
+Canonical entrypoints:
+- `docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`
+
 # agent-browser-runner — browser pipeline runner seam (MapGen Studio)
 
 Scope: document the current browser runner orchestration in `apps/mapgen-studio/src/App.tsx` and the worker/protocol in `apps/mapgen-studio/src/browser-runner/*`, with a focus on retention semantics (step/layer selection, seed reroll, cancel, errors) and extraction boundaries.

@@ -1,3 +1,12 @@
+# Status: Project plan (MapGen Studio)
+
+This page is an execution plan and may drift.
+It is **not** canonical MapGen visualization documentation.
+
+Canonical entrypoints:
+- `docs/system/libs/mapgen/reference/VISUALIZATION.md`
+- `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
+
 # MapGen Studio Viz v1 — Declutter + Semantics + Domain Greenfield Redesign (Executable Plan)
 
 This is an **execution-grade** plan to:
