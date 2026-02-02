@@ -33,14 +33,36 @@ Learn the “author workflow” for changing map realism posture safely:
 
 ## Walkthrough
 
-### 1) Pick a starting preset
+### 1) Establish your baseline (“preset”)
 
-Open an existing preset config:
-- `mods/mod-swooper-maps/src/maps/presets/realism/earthlike.config.ts`
+In Studio today, the pipeline config UI starts from **schema defaults** (not from a curated preset dropdown).
 
-Read the header comment: it describes the intended posture and constraints.
+This means “baseline preset” is effectively:
+- “whatever defaults the recipe config schema defines” (plus any schema defaulted enums)
 
-### 2) Choose a tuning target and edit knobs
+If you want a curated baseline that can be shared as code, authors can still write and maintain a “preset config object”
+alongside a recipe (example below). Today you apply it by copying values into Studio’s JSON view.
+
+Example curated preset object (realism/earthlike):
+
+```ts
+export const realismEarthlikeConfig = {
+  foundation: { knobs: { plateCount: "normal", plateActivity: "normal" } },
+  "morphology-pre": { knobs: { seaLevel: "earthlike" } },
+  "morphology-mid": { knobs: { erosion: "normal", coastRuggedness: "normal" } },
+  "morphology-post": { knobs: { volcanism: "normal" } },
+  "hydrology-climate-baseline": {
+    knobs: { dryness: "dry", temperature: "temperate", seasonality: "normal", oceanCoupling: "earthlike" },
+  },
+  "hydrology-hydrography": { knobs: { riverDensity: "normal" } },
+  "hydrology-climate-refine": { knobs: { dryness: "dry", temperature: "temperate", cryosphere: "on" } },
+  "map-morphology": { knobs: { orogeny: "normal" } },
+};
+```
+
+Source: `mods/mod-swooper-maps/src/maps/presets/realism/earthlike.config.ts`
+
+### 2) Enable overrides and pick one knob to change
 
 Pick one knob and change it by one step (avoid multiple simultaneous changes initially).
 
@@ -48,6 +70,11 @@ Example targets:
 - more plates → increase `foundation.knobs.plateCount`
 - rougher coasts → increase `morphology-mid.knobs.coastRuggedness`
 - wetter world → change `hydrology-*.knobs.dryness`
+
+In Studio:
+- ensure Mode is `Browser` (live run)
+- in the left panel, open **Config** and keep it switched **On** (overrides enabled)
+- use Form view for enums, or switch to JSON view to paste an entire “preset object”
 
 ### 3) Run and compare in Studio (fixed seed)
 
@@ -66,6 +93,23 @@ If knob tuning can’t express what you need:
 - override only that step config subtree under `advanced`,
 - re-run with the same seed to validate the change.
 
+Concrete stage schema posture (Foundation):
+
+```ts
+export default createStage({
+  id: "foundation",
+  knobsSchema,
+  public: publicSchema,
+  compile: ({ config }) => config.advanced ?? {},
+  steps: [mesh, crust, plateGraph, tectonics, projection, plateTopology],
+});
+```
+
+Interpretation:
+- `foundation.knobs.*` expresses semantic, stable tuning.
+- `foundation.advanced.*` is “escape hatch” step config (still validated, but higher churn).
+- Knobs apply as deterministic transforms (typically in `normalize`) over the advanced baseline.
+
 ## Verification
 
 - Your change is reproducible with the same seed.
@@ -76,5 +120,9 @@ If knob tuning can’t express what you need:
 
 - Preset config example: `mods/mod-swooper-maps/src/maps/presets/realism/earthlike.config.ts`
 - Studio knob option enums (UI): `apps/mapgen-studio/src/ui/constants/options.ts`
-- Stage knob schema examples: `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
+- Studio config defaulting from schema defaults: `apps/mapgen-studio/src/App.tsx`
+- Studio config overrides UI (On/Off + Form/JSON): `apps/mapgen-studio/src/ui/components/RecipePanel.tsx`
+- Stage knob schema examples (shape of `knobs` + `advanced`): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
+- Example knob application at normalize-time (reads `ctx.knobs`): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts`
+- Example knob multiplier tables (Foundation): `mods/mod-swooper-maps/src/domain/foundation/shared/knob-multipliers.ts`
 - Standard recipe config types: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
