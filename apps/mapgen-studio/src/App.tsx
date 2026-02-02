@@ -397,7 +397,16 @@ export function App() {
         leftPanel={
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <div style={{ fontSize: 12, color: "#e5e7eb" }}>
-              recipe: <span style={{ color: "#93c5fd" }}>{browserRecipeId}</span>
+              {mode === "browser" ? (
+                <>
+                  recipe: <span style={{ color: "#93c5fd" }}>{browserRecipeId}</span>
+                </>
+              ) : (
+                <>
+                  dump:{" "}
+                  <span style={{ color: "#e5e7eb" }}>{manifest ? `${manifest.runId.slice(0, 12)}…` : "—"}</span>
+                </>
+              )}
             </div>
 
             {mode === "browser" ? (

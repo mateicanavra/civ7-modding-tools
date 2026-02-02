@@ -301,8 +301,8 @@ bun run check
 
 ### UI-07 (polish + docs): tests + documentation updates
 **Acceptance criteria**
-- [ ] Add minimal unit tests for parsing + grouping logic (where the codebase’s existing test setup supports it).
-- [ ] Update `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md` only if selector identities/groups changed.
+- [x] Add minimal unit tests for parsing + grouping logic (where the codebase’s existing test setup supports it).
+- [x] Update `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md` only if selector identities/groups changed (no change needed in this refactor).
 
 **Verification**
 ```bash
@@ -325,7 +325,7 @@ bun run check
 ### Decide initial `renderModeId` vocabulary
 - **Context:** Prototype has `renderMode` as a small stable set; Studio has `kind` + `fileKey`.
 - **Options:** (1) `renderModeId := kind`, (2) `renderModeId := kind + fileKey`, (3) introduce explicit projection id in metadata/protocol.
-- **Choice:** start with (1), treat `fileKey` as an internal variant; revisit if UI needs explicit toggles.
+- **Choice:** start with (1) but allow `kind:role` when `meta.role` is present (expected small vocabulary); treat `fileKey` as an internal variant; revisit if UI needs explicit toggles.
 - **Risk:** hiding `fileKey` may strand access to useful variants; exposing it may explode the selector cardinality.
 
 ### Browser-only world settings
