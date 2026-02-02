@@ -1,4 +1,4 @@
-import { computeSampleStep, defineVizMeta, renderAsciiGrid } from "@swooper/mapgen-core";
+import { computeSampleStep, defineVizMeta, dumpVectorFieldVariants, renderAsciiGrid } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { foundationArtifacts } from "../artifacts.js";
 import ProjectionStepContract from "./projection.contract.js";
@@ -210,31 +210,17 @@ export default createStep(ProjectionStepContract, {
         visibility: "debug",
       }),
     });
-    {
-      const mag = new Float32Array(width * height);
-      for (let i = 0; i < mag.length; i++) {
-        const u = Number(platesResult.plates.movementU[i] ?? 0);
-        const v = Number(platesResult.plates.movementV[i] ?? 0);
-        mag[i] = Math.hypot(u, v);
-      }
-      context.viz?.dumpGridFields(context.trace, {
-        dataTypeKey: "foundation.plates.tileMovement",
-        spaceId: TILE_SPACE_ID,
-        dims: { width, height },
-        fields: {
-          u: { format: "i8", values: platesResult.plates.movementU },
-          v: { format: "i8", values: platesResult.plates.movementV },
-          magnitude: { format: "f32", values: mag },
-        },
-        vector: { u: "u", v: "v", magnitude: "magnitude" },
-        meta: defineVizMeta("foundation.plates.tileMovement", {
-          label: "Plate Movement (Vector)",
-          group: GROUP_PLATES,
-          role: "vector",
-          palette: "continuous",
-        }),
-      });
-    }
+    dumpVectorFieldVariants(context.trace, context.viz, {
+      dataTypeKey: "foundation.plates.tileMovement",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      u: { format: "i8", values: platesResult.plates.movementU },
+      v: { format: "i8", values: platesResult.plates.movementV },
+      label: "Plate Movement",
+      group: GROUP_PLATES,
+      palette: "continuous",
+      arrows: { maxArrowLenTiles: 1.25 },
+    });
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "foundation.plates.tileRotation",
       spaceId: TILE_SPACE_ID,

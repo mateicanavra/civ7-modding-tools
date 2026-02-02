@@ -1,5 +1,5 @@
 import type { MapDimensions } from "@civ7/adapter";
-import { defineVizMeta } from "@swooper/mapgen-core";
+import { defineVizMeta, dumpVectorFieldVariants } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
 import RoutingStepContract from "./routing.contract.js";
@@ -120,22 +120,17 @@ export default createStep(RoutingStepContract, {
         magnitude[i] = routing.flowAccum[i] ?? 0;
       }
 
-      context.viz?.dumpGridFields(context.trace, {
+      dumpVectorFieldVariants(context.trace, context.viz, {
         dataTypeKey: "morphology.routing.flow",
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
-        fields: {
-          u: { format: "i8", values: u },
-          v: { format: "i8", values: v },
-          magnitude: { format: "f32", values: magnitude },
-        },
-        vector: { u: "u", v: "v", magnitude: "magnitude" },
-        meta: defineVizMeta("morphology.routing.flow", {
-          label: "Flow (Vector)",
-          group: GROUP_ROUTING,
-          role: "vector",
-          palette: "continuous",
-        }),
+        u: { format: "i8", values: u },
+        v: { format: "i8", values: v },
+        magnitude: { values: magnitude, format: "f32" },
+        label: "Flow",
+        group: GROUP_ROUTING,
+        palette: "continuous",
+        arrows: { maxArrowLenTiles: 1.25 },
       });
     }
     if (routing.basinId instanceof Int32Array) {
