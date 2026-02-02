@@ -663,12 +663,12 @@ function AppContent(props: AppContentProps) {
         return;
       }
 
-      // Stage/step navigation
-      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-        if (!isMod) return;
-        const dir = event.key === "ArrowLeft" ? -1 : 1;
+      // Layer / step / stage navigation (arrows require modifiers so deck.gl can use bare arrows for panning).
+      if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+        const dir = event.key === "ArrowUp" ? -1 : 1;
 
-        if (event.shiftKey) {
+        // Opt+Up/Down => stage
+        if (event.altKey && !isMod) {
           if (!ctx.stages.length) return;
           event.preventDefault();
           const idx = ctx.stages.findIndex((s) => s.value === ctx.selectedStageId);
@@ -679,22 +679,23 @@ function AppContent(props: AppContentProps) {
           return;
         }
 
-        if (!ctx.steps.length) return;
-        event.preventDefault();
-        const idx = ctx.steps.findIndex((s) => s.value === ctx.selectedStepId);
-        const nextIdx = clampIndex(idx + dir, ctx.steps.length - 1);
-        const nextStep = ctx.steps[nextIdx]?.value ?? null;
-        if (!nextStep || nextStep === ctx.selectedStepId) return;
-        ctx.setSelectedStepId(nextStep);
-        return;
-      }
-
-      // Layer navigation
-      if (event.key === "ArrowUp" || event.key === "ArrowDown") {
         if (!isMod) return;
+
+        // Cmd+Shift+Up/Down => step
+        if (event.shiftKey) {
+          if (!ctx.steps.length) return;
+          event.preventDefault();
+          const idx = ctx.steps.findIndex((s) => s.value === ctx.selectedStepId);
+          const nextIdx = clampIndex(idx + dir, ctx.steps.length - 1);
+          const nextStep = ctx.steps[nextIdx]?.value ?? null;
+          if (!nextStep || nextStep === ctx.selectedStepId) return;
+          ctx.setSelectedStepId(nextStep);
+          return;
+        }
+
+        // Cmd+Up/Down => layer
         if (!ctx.dataTypeOptions.length) return;
         event.preventDefault();
-        const dir = event.key === "ArrowUp" ? -1 : 1;
         const selected = ctx.selectedDataTypeId ?? ctx.dataTypeOptions[0]?.value ?? "";
         const idx = ctx.dataTypeOptions.findIndex((dt) => dt.value === selected);
         const nextIdx = clampIndex(idx + dir, ctx.dataTypeOptions.length - 1);

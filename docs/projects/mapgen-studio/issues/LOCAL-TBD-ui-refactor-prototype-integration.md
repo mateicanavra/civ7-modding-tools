@@ -413,6 +413,22 @@ bun run check-types
 bun run test
 ```
 
+### UI-19 (shortcuts): remap stage/step/layer navigation
+
+**Acceptance criteria**
+- [x] Opt+Up/Down changes stages.
+- [x] Cmd/Ctrl+Shift+Up/Down changes steps.
+- [x] Cmd/Ctrl+Up/Down changes layers.
+- [x] Bare arrow keys remain available to deck.gl for panning.
+
+**Verification**
+```bash
+bun run --cwd apps/mapgen-studio build
+bun run lint
+bun run check-types
+bun run test
+```
+
 ## Milestone-level open questions (must stay explicit)
 1) Render mode vocabulary: what is the minimal stable “projection/renderMode” set that works across future recipes without being too physics-specific?
    - Option A: `renderMode := kind` (start here; simplest).
