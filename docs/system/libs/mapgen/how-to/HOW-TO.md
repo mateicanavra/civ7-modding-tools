@@ -29,5 +29,5 @@ Canonical how-tos:
 - Visualize pipeline (deck.gl): `docs/system/libs/mapgen/how-to/visualize-pipeline-deckgl.md`
 - Integrate the MapGen Studio worker: `docs/system/libs/mapgen/how-to/integrate-mapgen-studio-worker.md`
 
-Planned canonical how-tos (built in later slices):
+Potential future how-tos:
 - Run a recipe headless

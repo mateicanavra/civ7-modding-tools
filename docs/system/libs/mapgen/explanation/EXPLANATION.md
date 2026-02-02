@@ -28,7 +28,7 @@ Canonical explanation pages:
 - Domain modeling + boundaries: `docs/system/libs/mapgen/explanation/DOMAIN-MODELING.md`
 - Determinism + reproducibility: `docs/system/libs/mapgen/explanation/DETERMINISM.md`
 
-Planned canonical explanation pages (built in later slices):
+Potential future explanation pages (only if they add clarity beyond policy/reference):
 - Mutation model (artifacts vs fields/buffers) — if needed beyond policy/reference
 - Narrative status (target contract + current wiring status) — if this warrants its own page
 - Studio as a reference consumer (not architecture authority) — may be folded into Studio docs

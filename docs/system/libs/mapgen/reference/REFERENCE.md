@@ -18,7 +18,7 @@ Reference pages define contracts precisely (APIs, schemas, invariants, and key v
 
 ## Contract references
 
-Core contract references (implemented in Slice 02):
+Core contract references:
 
 - Glossary: `docs/system/libs/mapgen/reference/GLOSSARY.md`
 - Run settings (target) / env (current): `docs/system/libs/mapgen/reference/RUN-SETTINGS.md`
@@ -32,7 +32,7 @@ Core contract references (implemented in Slice 02):
 - Observability: `docs/system/libs/mapgen/reference/OBSERVABILITY.md`
 - Visualization (contract + routing): `docs/system/libs/mapgen/reference/VISUALIZATION.md`
 
-Additional reference pages are added in later slices:
+Additional reference pages:
 - Standard recipe: `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`
 - Domains: `docs/system/libs/mapgen/reference/domains/DOMAINS.md`
 - Studio integration seam: `docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`
