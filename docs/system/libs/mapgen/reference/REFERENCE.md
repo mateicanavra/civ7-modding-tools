@@ -2,6 +2,7 @@
   <item id="purpose" title="Purpose"/>
   <item id="audience" title="Audience"/>
   <item id="contracts" title="Contract references"/>
+  <item id="anchors" title="Ground truth anchors"/>
 </toc>
 
 # MapGen reference
@@ -36,3 +37,8 @@ Additional reference pages:
 - Standard recipe: `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`
 - Domains: `docs/system/libs/mapgen/reference/domains/DOMAINS.md`
 - Studio integration seam: `docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`
+
+## Ground truth anchors
+
+- Gateway: `docs/system/libs/mapgen/MAPGEN.md`
+- Reference index (this file): `docs/system/libs/mapgen/reference/REFERENCE.md`

@@ -7,6 +7,7 @@
   <section title="Knobs & Normalization" />
   <section title="Current Mapping (Standard Recipe)" />
   <section title="Open Questions" />
+  <section title="Ground truth anchors" />
 </toc>
 
 # Morphology
@@ -450,3 +451,9 @@ Applies Morphology truth into the engine adapter (terrain/features), and emits e
    - remove `distanceToCoast` from the `compute-landmask` op output contract if it’s intentionally internal/unused.
 3. Do we want Morphology truth artifacts to remain mutable across `map-morphology` projections, or should `map-morphology` read snapshots and treat the engine elevation/terrain as purely downstream projections?
 4. Is `artifact:morphology.volcanoes` intended to be the only canonical volcanic intent surface, or should it also include a stable “volcanism driver” snapshot for downstream consumers?
+
+## Ground truth anchors
+
+- Domain id + ops bundle: `mods/mod-swooper-maps/src/domain/morphology/index.ts`
+- Standard recipe Morphology stages: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-pre/index.ts`, `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/index.ts`, `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-post/index.ts`
+- Engine-facing projections: `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/index.ts`

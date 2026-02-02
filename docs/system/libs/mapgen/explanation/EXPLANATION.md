@@ -2,6 +2,7 @@
   <item id="purpose" title="Purpose"/>
   <item id="audience" title="Audience"/>
   <item id="topics" title="Explanation topics"/>
+  <item id="anchors" title="Ground truth anchors"/>
 </toc>
 
 # MapGen explanation
@@ -32,3 +33,9 @@ Potential future explanation pages (only if they add clarity beyond policy/refer
 - Mutation model (artifacts vs fields/buffers) — if needed beyond policy/reference
 - Narrative status (target contract + current wiring status) — if this warrants its own page
 - Studio as a reference consumer (not architecture authority) — may be folded into Studio docs
+
+## Ground truth anchors
+
+- Gateway: `docs/system/libs/mapgen/MAPGEN.md`
+- Explanation pages root: `docs/system/libs/mapgen/explanation/`
+- Reference index (contracts): `docs/system/libs/mapgen/reference/REFERENCE.md`

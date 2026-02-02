@@ -2,6 +2,7 @@
   <item id="purpose" title="Purpose"/>
   <item id="audience" title="Audience"/>
   <item id="tutorials" title="Tutorial list"/>
+  <item id="anchors" title="Ground truth anchors"/>
 </toc>
 
 # MapGen tutorials
@@ -25,3 +26,8 @@ Canonical tutorials:
 
 Potential future tutorials:
 - Implement a new step end-to-end
+
+## Ground truth anchors
+
+- Gateway: `docs/system/libs/mapgen/MAPGEN.md`
+- Tutorial index (this file): `docs/system/libs/mapgen/tutorials/TUTORIALS.md`

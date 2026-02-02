@@ -2,6 +2,7 @@
   <item id="purpose" title="Purpose"/>
   <item id="entrypoints" title="Curated entrypoints"/>
   <item id="rules" title="Rules for agents"/>
+  <item id="anchors" title="Ground truth anchors"/>
 </toc>
 
 # MapGen — LLM entrypoints
@@ -27,3 +28,11 @@ It’s meant for AI agents and tooling that need stable pointers to “the one r
 - Prefer published package entrypoints; do not use unstable workspace-only aliases in canonical examples.
 - Visualization (deck.gl pipeline viz) is current canon; do not create competing viz docs.
 
+## Ground truth anchors
+
+- Gateway: `docs/system/libs/mapgen/MAPGEN.md`
+- Policies: `docs/system/libs/mapgen/policies/POLICIES.md`
+- Reference: `docs/system/libs/mapgen/reference/REFERENCE.md`
+- How-to: `docs/system/libs/mapgen/how-to/HOW-TO.md`
+- Tutorials: `docs/system/libs/mapgen/tutorials/TUTORIALS.md`
+- Explanation: `docs/system/libs/mapgen/explanation/EXPLANATION.md`
