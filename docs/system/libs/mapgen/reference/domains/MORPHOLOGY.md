@@ -452,7 +452,15 @@ Applies Morphology truth into the engine adapter (terrain/features), and emits e
 3. Do we want Morphology truth artifacts to remain mutable across `map-morphology` projections, or should `map-morphology` read snapshots and treat the engine elevation/terrain as purely downstream projections?
 4. Is `artifact:morphology.volcanoes` intended to be the only canonical volcanic intent surface, or should it also include a stable “volcanism driver” snapshot for downstream consumers?
 
-## Ground truth anchors
+**Ground truth anchors**
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-pre/steps/landmassPlates.contract.ts` (`LandmassPlatesStepContract.requires/provides` are empty)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/steps/routing.contract.ts` (`RoutingStepContract.requires/provides` are empty)
+- `mods/mod-swooper-maps/src/recipes/standard/tags.ts` (`M10_EFFECT_TAGS.map.*`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotCoasts.contract.ts` (`PlotCoastsStepContract.provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotContinents.contract.ts` (`PlotContinentsStepContract.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotMountains.contract.ts` (`PlotMountainsStepContract.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotVolcanoes.contract.ts` (`PlotVolcanoesStepContract.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/buildElevation.contract.ts` (`BuildElevationStepContract.requires/provides`)
 
 - Domain id + ops bundle: `mods/mod-swooper-maps/src/domain/morphology/index.ts`
 - Standard recipe Morphology stages: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-pre/index.ts`, `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/index.ts`, `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-post/index.ts`
