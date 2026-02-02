@@ -145,5 +145,8 @@ describe("standard pipeline viz emissions", () => {
 
     const albedoMeta = metaByKey.get("hydrology.cryosphere.albedo") as any;
     expect(albedoMeta?.visibility).toBe("debug");
+
+    const permafrostMeta = metaByKey.get("ecology.biome.permafrost01") as any;
+    expect(permafrostMeta?.visibility).toBe("debug");
   });
 });
