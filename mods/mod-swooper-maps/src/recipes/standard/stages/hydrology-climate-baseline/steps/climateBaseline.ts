@@ -1,4 +1,11 @@
-import { ctxRandom, ctxRandomLabel, defineVizMeta, dumpVectorFieldVariants, writeClimateField } from "@swooper/mapgen-core";
+import {
+  ctxRandom,
+  ctxRandomLabel,
+  defineVizMeta,
+  dumpScalarFieldVariants,
+  dumpVectorFieldVariants,
+  writeClimateField,
+} from "@swooper/mapgen-core";
 import type { MapDimensions } from "@civ7/adapter";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { hydrologyClimateBaselineArtifacts } from "../artifacts.js";
@@ -517,28 +524,24 @@ export default createStep(ClimateBaselineStepContract, {
       meanCurrentV[i] = clampI8(Math.round(currentVSum / seasonCount));
     }
 
-    context.viz?.dumpGrid(context.trace, {
+    dumpScalarFieldVariants(context.trace, context.viz, {
       dataTypeKey: "hydrology.climate.rainfall",
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
-      format: "u8",
-      values: meanRainfall,
-      meta: defineVizMeta("hydrology.climate.rainfall", {
-        label: "Rainfall (Baseline)",
-        group: GROUP_CLIMATE,
-      }),
+      field: { format: "u8", values: meanRainfall },
+      label: "Rainfall (Baseline)",
+      group: GROUP_CLIMATE,
+      palette: "continuous",
     });
-    context.viz?.dumpGrid(context.trace, {
+    dumpScalarFieldVariants(context.trace, context.viz, {
       dataTypeKey: "hydrology.climate.humidity",
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
-      format: "u8",
-      values: meanHumidity,
-      meta: defineVizMeta("hydrology.climate.humidity", {
-        label: "Humidity (Baseline)",
-        group: GROUP_CLIMATE,
-        visibility: "debug",
-      }),
+      field: { format: "u8", values: meanHumidity },
+      label: "Humidity (Baseline)",
+      group: GROUP_CLIMATE,
+      palette: "continuous",
+      visibility: "debug",
     });
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "hydrology.climate.seasonality.rainfallAmplitude",
@@ -568,31 +571,27 @@ export default createStep(ClimateBaselineStepContract, {
       const rain = seasonalRainfall[s];
       const humid = seasonalHumidity[s];
       if (!rain || !humid) continue;
-      context.viz?.dumpGrid(context.trace, {
+      dumpScalarFieldVariants(context.trace, context.viz, {
         dataTypeKey: "hydrology.climate.rainfall",
         variantKey: `season:${s}`,
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
-        format: "u8",
-        values: rain,
-        meta: defineVizMeta("hydrology.climate.rainfall", {
-          label: `Rainfall (Season ${s + 1})`,
-          group: GROUP_SEASONALITY,
-          visibility: "debug",
-        }),
+        field: { format: "u8", values: rain },
+        label: `Rainfall (Season ${s + 1})`,
+        group: GROUP_SEASONALITY,
+        palette: "continuous",
+        visibility: "debug",
       });
-      context.viz?.dumpGrid(context.trace, {
+      dumpScalarFieldVariants(context.trace, context.viz, {
         dataTypeKey: "hydrology.climate.humidity",
         variantKey: `season:${s}`,
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
-        format: "u8",
-        values: humid,
-        meta: defineVizMeta("hydrology.climate.humidity", {
-          label: `Humidity (Season ${s + 1})`,
-          group: GROUP_SEASONALITY,
-          visibility: "debug",
-        }),
+        field: { format: "u8", values: humid },
+        label: `Humidity (Season ${s + 1})`,
+        group: GROUP_SEASONALITY,
+        palette: "continuous",
+        visibility: "debug",
       });
     }
     context.viz?.dumpGrid(context.trace, {
