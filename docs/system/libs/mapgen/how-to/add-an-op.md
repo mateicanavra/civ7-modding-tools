@@ -19,7 +19,7 @@ This how-to is **domain-level** (ops live inside a domain). It routes to:
 
 ## Prereqs
 
-- You’ve chosen a domain (`foundation|morphology|hydrology|ecology|placement|narrative`).
+- You’ve chosen a domain (`foundation|morphology|hydrology|ecology|gameplay`).
 - You’ve chosen a stable op id (namespaced; e.g. `"morphology/compute-base-topography"`).
 - You know what the op is: `kind: "compute" | "plan" | ...` and what its strategy surface is.
 
@@ -31,16 +31,66 @@ This how-to is **domain-level** (ops live inside a domain). It routes to:
 - Use `defineOp({ kind, id, input, output, strategies })`.
 - Make schemas explicit (TypedArray schemas for binary grids; keep descriptions meaningful).
 
+Representative example (defineOp with typed-array I/O + strategy envelope; excerpt; see full file in anchors):
+
+```ts
+import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+
+const ComputeBaseTopographyContract = defineOp({
+  kind: "compute",
+  id: "morphology/compute-base-topography",
+  input: Type.Object({
+    width: Type.Integer({ minimum: 1 }),
+    height: Type.Integer({ minimum: 1 }),
+    crustBaseElevation: TypedArraySchemas.f32({ description: "Isostatic base elevation proxy per tile (0..1)." }),
+    boundaryCloseness: TypedArraySchemas.u8({ description: "Boundary proximity per tile (0..255)." }),
+    upliftPotential: TypedArraySchemas.u8({ description: "Uplift potential per tile (0..255)." }),
+    riftPotential: TypedArraySchemas.u8({ description: "Rift potential per tile (0..255)." }),
+    rngSeed: Type.Integer({ description: "Seed for deterministic base-topography noise." }),
+  }),
+  output: Type.Object({
+    elevation: TypedArraySchemas.i16({ description: "Base elevation per tile (normalized, scaled to int16)." }),
+  }),
+  strategies: {
+    default: ReliefConfigSchema,
+  },
+});
+```
+
 ### 2) Implement the op (`createOp`)
 
 - Create `index.ts` for the op and use `createOp(Contract, { strategies })`.
 - Keep strategy functions deterministic and side-effect free.
 - Export types from the op folder to keep callsites strongly typed.
 
+Representative example (createOp + strategy binding; excerpt; see full file in anchors):
+
+```ts
+import { createOp } from "@swooper/mapgen-core/authoring";
+import ComputeBaseTopographyContract from "./contract.js";
+import { defaultStrategy } from "./strategies/index.js";
+
+export default createOp(ComputeBaseTopographyContract, {
+  strategies: { default: defaultStrategy },
+});
+```
+
 ### 3) Wire the op into the domain registry
 
 - Add the contract to the domain’s `ops/contracts.ts` export set.
 - Add the implementation to `ops/index.ts` and satisfy `DomainOpImplementationsForContracts<typeof contracts>`.
+
+Representative example (domain registry wiring; excerpt; see full file in anchors):
+
+```ts
+import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/authoring";
+import type { contracts } from "./contracts.js";
+import computeBaseTopography from "./compute-base-topography/index.js";
+
+const implementations = {
+  computeBaseTopography,
+} as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
+```
 
 ### 4) Consume the op from a step (optional but common)
 
