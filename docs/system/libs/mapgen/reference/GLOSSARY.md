@@ -21,7 +21,7 @@ Canonical MapGen vocabulary used across docs (policies, reference, tutorials).
 - **Compiled recipe config**: The shape-preserving, schema-valid config bundle produced by `compileRecipeConfig(...)`.
 - **RecipeV2 (runtime)**: A structural representation of steps (id + enabled + config) that is used to compile an execution plan.
 - **Run request / run boundary**: The input boundary that is compiled into an execution plan and then executed.
-- **Execution plan**: A list/graph of execution nodes derived from the recipe, registry, and run settings/env.
+- **Execution plan**: A list/graph of execution nodes derived from the recipe, registry, and run boundary (`Env`).
 - **Step**: A single execution unit with a stable id, `requires/provides`, a phase, and an implementation.
 - **Phase**: The step’s `GenerationPhase` (used for ordering/grouping and observability).
 - **Stage (authoring)**: An authoring-time grouping used to organize steps and compile stage-specific config into step configs.
@@ -38,7 +38,7 @@ Canonical MapGen vocabulary used across docs (policies, reference, tutorials).
 
 There are two high-impact drift pairs; docs must not invent a third term:
 
-- Target **RunSettings** vs current code **Env**.
+- Legacy specs **RunSettings** → canonical **Env**.
 - Spec `buffer:*` naming vs current runtime `field:*` naming (mutable engine-facing surfaces).
 
 ## Ground truth anchors
