@@ -62,7 +62,7 @@ export interface StepOption {
   category: string;
 }
 
-/** Data type option (formerly "layer") - what data is being visualized */
+/** Data type option - what data is being visualized */
 export interface DataTypeOption {
   value: string;
   label: string;
@@ -75,7 +75,7 @@ export interface SpaceOption {
   label: string;
 }
 
-/** Render mode option (formerly "projection") - how data is rendered/transformed */
+/** Render mode option (`kind[:role]`) - how a data type is rendered */
 export interface RenderModeOption {
   value: string;
   label: string;
@@ -255,7 +255,6 @@ export interface GenerationResult {
 
 /**
  * Visualization preferences for the map viewer.
- * Renamed: layer → dataType, projection → renderMode
  */
 export interface ViewState {
   /** Show edge/boundary lines */
@@ -266,9 +265,9 @@ export interface ViewState {
   selectedStage: string;
   /** Currently selected pipeline step (e.g., 'computeMesh') */
   selectedStep: string;
-  /** Active data type being visualized (formerly "layer") */
+  /** Active data type being visualized */
   selectedDataType: string;
-  /** Render mode / transform (formerly "projection") */
+  /** Render mode (`kind[:role]`) */
   selectedRenderMode: string;
 }
 

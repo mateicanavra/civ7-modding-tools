@@ -2,7 +2,6 @@
 // VIEW STATE HOOK
 // ============================================================================
 // Manages visualization preferences and selected step.
-// Renamed: layer → dataType, projection → renderMode
 // ============================================================================
 
 import { useState, useCallback } from 'react';

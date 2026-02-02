@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 // ============================================================================
 // Stage selector, step list, data type list, and view controls.
 // Fully controlled component - all options passed via props.
-// Renamed: layer → dataType, projection → renderMode
 // ============================================================================
 import {
   Compass,
@@ -55,7 +54,7 @@ export interface ExplorePanelProps {
   selectedSpace: string;
   /** Callback when space selection changes */
   onSelectedSpaceChange: (space: string) => void;
-  /** Available render modes (formerly "projections") */
+  /** Available render modes (`kind[:role]`) */
   renderModeOptions: RenderModeOption[];
   /** Currently selected render mode */
   selectedRenderMode: string;

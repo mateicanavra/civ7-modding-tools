@@ -92,7 +92,6 @@ const;
 
 // ============================================================================
 // View Options (defaults - can be overridden via props)
-// Renamed: layer → dataType, projection → renderMode
 // ============================================================================
 
 /** Default data type options (what data is being visualized) */
@@ -125,22 +124,3 @@ export const DEFAULT_KNOB_OPTIONS: KnobOptionsMap = {
   seasonality: ['low', 'normal', 'high'],
   oceanCoupling: ['weak', 'earthlike', 'strong']
 } as const;
-
-// ============================================================================
-// Legacy Exports (for backward compatibility)
-// ============================================================================
-
-/** @deprecated Use DEFAULT_RECIPE_OPTIONS instead */
-export const RECIPE_OPTIONS = DEFAULT_RECIPE_OPTIONS;
-
-/** @deprecated Use DEFAULT_PRESET_OPTIONS instead */
-export const PRESET_OPTIONS = DEFAULT_PRESET_OPTIONS;
-
-/** @deprecated Use DEFAULT_DATA_TYPE_OPTIONS instead */
-export const LAYER_OPTIONS = DEFAULT_DATA_TYPE_OPTIONS;
-
-/** @deprecated Use DEFAULT_RENDER_MODE_OPTIONS instead */
-export const PROJECTION_OPTIONS = DEFAULT_RENDER_MODE_OPTIONS;
-
-/** @deprecated Use DEFAULT_KNOB_OPTIONS instead */
-export const KNOB_OPTIONS = DEFAULT_KNOB_OPTIONS;
