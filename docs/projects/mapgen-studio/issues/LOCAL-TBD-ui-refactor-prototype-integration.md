@@ -247,9 +247,9 @@ bun run check
 Introduce a pure adapter layer that projects the current `VizManifestV0` into the prototype’s `dataType` + `renderMode` model without changing the viz protocol.
 
 **Acceptance criteria**
-- [ ] “Data type” groups are stable and primarily keyed by `layerId` (with documented exceptions only).
-- [ ] Render mode is a small vocabulary derived from `kind` plus a stable suffix when semantics require it (e.g. `meta.role`).
-- [ ] `fileKey` does not explode the primary selector by default; it can be surfaced as a secondary variant only when needed.
+- [x] “Data type” groups are stable and primarily keyed by `layerId` (with documented exceptions only).
+- [x] Render mode is a small vocabulary derived from `kind` plus a stable suffix when semantics require it (e.g. `meta.role`).
+- [x] `fileKey` does not explode the primary selector by default; it can be surfaced as a secondary variant only when needed.
 
 **Verification**
 ```bash
