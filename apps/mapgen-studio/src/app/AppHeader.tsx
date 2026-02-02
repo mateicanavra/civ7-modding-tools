@@ -14,6 +14,9 @@ export type AppHeaderProps = {
   mode: AppMode;
   onModeChange(next: AppMode): void;
 
+  uiLayout: "legacy" | "prototype";
+  onUiLayoutChange(next: "legacy" | "prototype"): void;
+
   browserRecipeId: StudioRecipeId;
   recipeOptions: readonly RecipeOption[];
   onBrowserRecipeChange(next: StudioRecipeId): void;
@@ -58,6 +61,8 @@ export function AppHeader(props: AppHeaderProps) {
     isNarrow,
     mode,
     onModeChange,
+    uiLayout,
+    onUiLayoutChange,
     browserRecipeId,
     recipeOptions,
     onBrowserRecipeChange,
@@ -186,6 +191,17 @@ export function AppHeader(props: AppHeaderProps) {
           {mode === "browser" ? "Browser Runner (V0.1 Slice)" : "Dump Viewer (V0)"}
         </div>
         <div style={{ flex: 1 }} />
+        <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <span style={{ fontSize: 12, color: "#9ca3af" }}>UI</span>
+          <select
+            value={uiLayout}
+            onChange={(e) => onUiLayoutChange(e.target.value as "legacy" | "prototype")}
+            style={{ ...controlBaseStyle, width: isNarrow ? "100%" : 170 }}
+          >
+            <option value="legacy">legacy</option>
+            <option value="prototype">prototype</option>
+          </select>
+        </label>
         {!isNarrow && mode === "dump" ? (
           <div style={{ fontSize: 12, color: "#9ca3af" }}>
             Open a run folder under <span style={{ color: "#e5e7eb" }}>mods/mod-swooper-maps/dist/visualization</span>
