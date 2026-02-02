@@ -244,6 +244,7 @@ export default createStep(ProjectionStepContract, {
       meta: defineVizMeta("foundation.crustTiles.type", {
         label: "Crust Type",
         group: GROUP_CRUST_TILES,
+        visibility: "debug",
         categories: [
           { value: 0, label: "Oceanic", color: [37, 99, 235, 230] },
           { value: 1, label: "Continental", color: [34, 197, 94, 230] },
