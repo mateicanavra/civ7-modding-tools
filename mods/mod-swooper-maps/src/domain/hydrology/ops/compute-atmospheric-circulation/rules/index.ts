@@ -149,14 +149,14 @@ function seasonalSignal01(seasonPhase01: number): number {
   return Math.sin(p * Math.PI * 2);
 }
 
-function getNeighborDeltaHexSpace(dx: number, dy: number): Vec2 {
-  const base = projectOddqToHexSpace(0, 0);
-  const p = projectOddqToHexSpace(dx, dy);
+function getNeighborDeltaHexSpaceFrom(baseX: number, dx: number, dy: number): Vec2 {
+  const base = projectOddqToHexSpace(baseX, 0);
+  const p = projectOddqToHexSpace(baseX + dx, dy);
   return { x: p.x - base.x, y: p.y - base.y };
 }
 
-const HEX_DELTAS_ODD: readonly Vec2[] = OFFSETS_ODD.map(([dx, dy]) => getNeighborDeltaHexSpace(dx, dy));
-const HEX_DELTAS_EVEN: readonly Vec2[] = OFFSETS_EVEN.map(([dx, dy]) => getNeighborDeltaHexSpace(dx, dy));
+const HEX_DELTAS_ODD: readonly Vec2[] = OFFSETS_ODD.map(([dx, dy]) => getNeighborDeltaHexSpaceFrom(1, dx, dy));
+const HEX_DELTAS_EVEN: readonly Vec2[] = OFFSETS_EVEN.map(([dx, dy]) => getNeighborDeltaHexSpaceFrom(0, dx, dy));
 
 function smoothFieldOddQ(width: number, height: number, fx: Float32Array, fy: Float32Array, iters: number): void {
   const size = Math.max(0, width * height);
