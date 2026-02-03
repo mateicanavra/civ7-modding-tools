@@ -128,8 +128,8 @@ const TransportMoistureContract = defineOp({
   input: TransportMoistureInputSchema,
   output: TransportMoistureOutputSchema,
   strategies: {
-    default: TransportMoistureDefaultStrategySchema,
-    vector: TransportMoistureVectorStrategySchema,
+    default: TransportMoistureVectorStrategySchema,
+    cardinal: TransportMoistureDefaultStrategySchema,
   },
 });
 

@@ -110,7 +110,7 @@ function selectUpwind(
   return { i0, w0, i1, w1 };
 }
 
-export const vectorStrategy = createStrategy(TransportMoistureContract, "vector", {
+export const defaultStrategy = createStrategy(TransportMoistureContract, "default", {
   run: (input, config) => {
     const width = input.width | 0;
     const height = input.height | 0;

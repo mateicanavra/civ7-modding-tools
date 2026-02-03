@@ -1,11 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import ComputePrecipitationContract from "./contract.js";
-import { defaultStrategy, refineStrategy, vectorStrategy } from "./strategies/index.js";
+import { basicStrategy, defaultStrategy, refineStrategy } from "./strategies/index.js";
 
 const computePrecipitation = createOp(ComputePrecipitationContract, {
   strategies: {
     default: defaultStrategy,
-    vector: vectorStrategy,
+    basic: basicStrategy,
     refine: refineStrategy,
   },
 });
