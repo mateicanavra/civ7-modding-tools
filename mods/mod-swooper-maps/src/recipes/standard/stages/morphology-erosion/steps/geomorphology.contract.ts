@@ -1,7 +1,7 @@
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import morphology from "@mapgen/domain/morphology";
 
-import { morphologyArtifacts } from "../../morphology-pre/artifacts.js";
+import { morphologyArtifacts } from "../../morphology/artifacts.js";
 
 /**
  * Applies geomorphic cycle deltas to elevation and sediment buffers.

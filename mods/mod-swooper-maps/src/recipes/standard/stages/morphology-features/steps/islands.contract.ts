@@ -2,24 +2,23 @@ import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import morphology from "@mapgen/domain/morphology";
 
 import { foundationArtifacts } from "../../foundation/artifacts.js";
-import { morphologyArtifacts } from "../../morphology-pre/artifacts.js";
+import { morphologyArtifacts } from "../../morphology/artifacts.js";
 
 /**
- * Plans volcanic placements (truth-only intent).
+ * Plans island chain edits (coastal and volcanic accents).
  */
-const VolcanoesStepContract = defineStep({
-  id: "volcanoes",
+const IslandsStepContract = defineStep({
+  id: "islands",
   phase: "morphology",
   requires: [],
+  provides: [],
   artifacts: {
     requires: [foundationArtifacts.plates, morphologyArtifacts.topography],
-    provides: [morphologyArtifacts.volcanoes],
   },
-  provides: [],
   ops: {
-    volcanoes: morphology.ops.planVolcanoes,
+    islands: morphology.ops.planIslandChains,
   },
   schema: Type.Object({}),
 });
 
-export default VolcanoesStepContract;
+export default IslandsStepContract;

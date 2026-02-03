@@ -2,7 +2,7 @@ import { Type, defineStep, type Static, type TSchema } from "@swooper/mapgen-cor
 import ecology from "@mapgen/domain/ecology";
 import { ecologyArtifacts } from "../../artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts.js";
-import { morphologyArtifacts } from "../../../morphology-pre/artifacts.js";
+import { morphologyArtifacts } from "../../../morphology/artifacts.js";
 
 function createOpSelectionSchema<Selection>(op: { id: string; strategies: Record<string, TSchema> }) {
   const strategyIds = Object.keys(op.strategies);

@@ -3,7 +3,7 @@ import morphology from "@mapgen/domain/morphology";
 
 import { M10_EFFECT_TAGS } from "../../../tags.js";
 import { foundationArtifacts } from "../../foundation/artifacts.js";
-import { morphologyArtifacts } from "../../morphology-pre/artifacts.js";
+import { morphologyArtifacts } from "../../morphology/artifacts.js";
 
 const PlotMountainsStepContract = defineStep({
   id: "plot-mountains",

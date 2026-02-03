@@ -2,7 +2,7 @@ import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import ecology from "@mapgen/domain/ecology";
 
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
-import { morphologyArtifacts } from "../../../morphology-pre/artifacts.js";
+import { morphologyArtifacts } from "../../../morphology/artifacts.js";
 
 const PlotEffectsStepContract = defineStep({
   id: "plot-effects",
