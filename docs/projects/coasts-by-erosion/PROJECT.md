@@ -15,5 +15,6 @@
 
 ## Links & References
 - Scratchpad: `docs/projects/coasts-by-erosion/scratchpad.md`
+- Report: `docs/projects/coasts-by-erosion/REPORT.md`
 - Engine terrain definitions: `.civ7/outputs/resources/Base/modules/base-standard/data/terrain.xml`
 - Official coast expansion helper: `.civ7/outputs/resources/Base/modules/base-standard/maps/elevation-terrain-generator.js`
