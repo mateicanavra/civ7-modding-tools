@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { vectorStrategy } from "../src/domain/hydrology/ops/compute-precipitation/strategies/vector.js";
+import { defaultStrategy } from "../src/domain/hydrology/ops/compute-precipitation/strategies/vector.js";
 
 function idx(x: number, y: number, width: number): number {
   return y * width + x;
@@ -35,7 +35,7 @@ describe("hydrology/compute-precipitation (default)", () => {
     const humidityF32 = new Float32Array(size);
     humidityF32.fill(0.7);
 
-    const out = vectorStrategy.run(
+    const out = defaultStrategy.run(
       {
         width,
         height,
