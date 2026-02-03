@@ -12,11 +12,19 @@ export const defaultStrategy = createStrategy(ComputeOceanGeometryContract, "def
     if (!(input.isWaterMask instanceof Uint8Array) || input.isWaterMask.length !== size) {
       throw new Error("[Hydrology] Invalid isWaterMask for hydrology/compute-ocean-geometry.");
     }
+    if (!(input.coastalWaterMask instanceof Uint8Array) || input.coastalWaterMask.length !== size) {
+      throw new Error("[Hydrology] Invalid coastalWaterMask for hydrology/compute-ocean-geometry.");
+    }
+    if (!(input.distanceToCoast instanceof Uint16Array) || input.distanceToCoast.length !== size) {
+      throw new Error("[Hydrology] Invalid distanceToCoast for hydrology/compute-ocean-geometry.");
+    }
+    if (!(input.shelfMask instanceof Uint8Array) || input.shelfMask.length !== size) {
+      throw new Error("[Hydrology] Invalid shelfMask for hydrology/compute-ocean-geometry.");
+    }
 
-    return computeOceanGeometry(width, height, input.isWaterMask, {
+    return computeOceanGeometry(width, height, input.isWaterMask, input.coastalWaterMask, {
       maxCoastDistance: config.maxCoastDistance,
       maxCoastVectorDistance: config.maxCoastVectorDistance,
     });
   },
 });
-
