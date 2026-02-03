@@ -323,16 +323,29 @@ export default createStep(ClimateBaselineStepContract, {
           }
         : config.computeEvaporationSources;
 
-    const transportMoisture =
-      config.transportMoisture.strategy === "default" || config.transportMoisture.strategy === "cardinal"
-        ? {
-            ...config.transportMoisture,
-            config: {
-              ...config.transportMoisture.config,
-              iterations: Math.max(0, Math.round(config.transportMoisture.config.iterations + transportIterationsDelta)),
-            },
-          }
-        : config.transportMoisture;
+    const transportMoisture = (() => {
+      if (config.transportMoisture.strategy === "default") {
+        return {
+          ...config.transportMoisture,
+          config: {
+            ...config.transportMoisture.config,
+            iterations: Math.max(0, Math.round(config.transportMoisture.config.iterations + transportIterationsDelta)),
+          },
+        };
+      }
+
+      if (config.transportMoisture.strategy === "cardinal") {
+        return {
+          ...config.transportMoisture,
+          config: {
+            ...config.transportMoisture.config,
+            iterations: Math.max(0, Math.round(config.transportMoisture.config.iterations + transportIterationsDelta)),
+          },
+        };
+      }
+
+      return config.transportMoisture;
+    })();
 
     const computePrecipitation = (() => {
       const waterGradientRadiusDelta =

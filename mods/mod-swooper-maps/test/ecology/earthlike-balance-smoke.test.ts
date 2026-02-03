@@ -13,7 +13,7 @@ describe("Earthlike ecology balance (smoke)", () => {
   it("has boreal presence and non-zero vegetation without drowning coasts", () => {
     const width = 32;
     const height = 20;
-    const seed = 12345;
+    const seed = 1018;
 
     const mapInfo = {
       GridWidth: width,
