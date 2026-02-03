@@ -219,21 +219,47 @@ export default createStep(ClimateBaselineStepContract, {
           }
         : config.computeThermalState;
 
-    const computeAtmosphericCirculation =
-      config.computeAtmosphericCirculation.strategy === "default"
-        ? {
-            ...config.computeAtmosphericCirculation,
-            config: {
-              ...config.computeAtmosphericCirculation.config,
-              windJetStreaks: Math.max(
-                0,
-                Math.round(config.computeAtmosphericCirculation.config.windJetStreaks + jetStreakDelta)
-              ),
-              windVariance: config.computeAtmosphericCirculation.config.windVariance * varianceFactor,
-              windJetStrength: config.computeAtmosphericCirculation.config.windJetStrength * jetStrengthFactor,
-            },
-          }
-        : config.computeAtmosphericCirculation;
+    const clampNumber = (value: number, min: number, max: number): number => Math.max(min, Math.min(max, value));
+
+    const computeAtmosphericCirculation = (() => {
+      if (config.computeAtmosphericCirculation.strategy === "latitude") {
+        return {
+          ...config.computeAtmosphericCirculation,
+          config: {
+            ...config.computeAtmosphericCirculation.config,
+            windJetStreaks: Math.max(
+              0,
+              Math.round(config.computeAtmosphericCirculation.config.windJetStreaks + jetStreakDelta)
+            ),
+            windVariance: config.computeAtmosphericCirculation.config.windVariance * varianceFactor,
+            windJetStrength: config.computeAtmosphericCirculation.config.windJetStrength * jetStrengthFactor,
+          },
+        };
+      }
+
+      if (config.computeAtmosphericCirculation.strategy === "default") {
+        return {
+          ...config.computeAtmosphericCirculation,
+          config: {
+            ...config.computeAtmosphericCirculation.config,
+            zonalStrength: clampNumber(config.computeAtmosphericCirculation.config.zonalStrength * jetStrengthFactor, 0, 300),
+            geostrophicStrength: clampNumber(
+              config.computeAtmosphericCirculation.config.geostrophicStrength * jetStrengthFactor,
+              0,
+              400
+            ),
+            pressureNoiseAmp: clampNumber(
+              config.computeAtmosphericCirculation.config.pressureNoiseAmp * varianceFactor,
+              0,
+              200
+            ),
+            waveStrength: clampNumber(config.computeAtmosphericCirculation.config.waveStrength * varianceFactor, 0, 300),
+          },
+        };
+      }
+
+      return config.computeAtmosphericCirculation;
+    })();
 
     const computeOceanSurfaceCurrents =
       config.computeOceanSurfaceCurrents.strategy === "default"
