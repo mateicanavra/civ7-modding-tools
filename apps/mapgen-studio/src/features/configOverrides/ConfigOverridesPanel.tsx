@@ -4,6 +4,7 @@ import { SchemaForm } from "./SchemaForm";
 import { collectTransparentPaths, normalizeSchemaForRjsf, toRjsfSchema } from "./schemaPresentation";
 import type { BrowserConfigFormContext } from "./rjsfTemplates";
 import type { UseConfigOverridesResult } from "./useConfigOverrides";
+import { applyCirculationV2Preset } from "../../shared/presets/circulationV2";
 
 function isNumericPathSegment(segment: string): boolean {
   return /^[0-9]+$/.test(segment);
@@ -243,68 +244,7 @@ function ConfigOverridesPanelImpl<TConfig>(props: ConfigOverridesPanelProps<TCon
 
           <button
             onClick={() => {
-              let next: unknown = controller.value;
-              next = setAtPath(next, ["hydrology-climate-baseline", "climate-baseline", "computeAtmosphericCirculation", "strategy"], "earthlike");
-              next = setAtPath(next, ["hydrology-climate-baseline", "climate-baseline", "computeAtmosphericCirculation", "config"], {
-                maxSpeed: 110,
-                zonalStrength: 90,
-                meridionalStrength: 30,
-                geostrophicStrength: 70,
-                pressureNoiseScale: 18,
-                pressureNoiseAmp: 55,
-                waveStrength: 45,
-                landHeatStrength: 20,
-                mountainDeflectStrength: 18,
-                smoothIters: 4,
-              });
-              next = setAtPath(next, ["hydrology-climate-baseline", "climate-baseline", "computeOceanGeometry", "strategy"], "default");
-              next = setAtPath(next, ["hydrology-climate-baseline", "climate-baseline", "computeOceanGeometry", "config"], {
-                maxCoastDistance: 64,
-                maxCoastVectorDistance: 10,
-              });
-              next = setAtPath(next, ["hydrology-climate-baseline", "climate-baseline", "computeOceanSurfaceCurrents", "strategy"], "earthlike");
-              next = setAtPath(next, ["hydrology-climate-baseline", "climate-baseline", "computeOceanSurfaceCurrents", "config"], {
-                maxSpeed: 80,
-                windStrength: 0.55,
-                ekmanStrength: 0.35,
-                gyreStrength: 26,
-                coastStrength: 32,
-                smoothIters: 3,
-                projectionIters: 8,
-              });
-              next = setAtPath(next, ["hydrology-climate-baseline", "climate-baseline", "computeOceanThermalState", "strategy"], "default");
-              next = setAtPath(next, ["hydrology-climate-baseline", "climate-baseline", "computeOceanThermalState", "config"], {
-                equatorTempC: 28,
-                poleTempC: -2,
-                advectIters: 28,
-                diffusion: 0.18,
-                secondaryWeightMin: 0.25,
-                seaIceThresholdC: -1,
-              });
-              next = setAtPath(next, ["hydrology-climate-baseline", "climate-baseline", "transportMoisture", "strategy"], "vector");
-              next = setAtPath(next, ["hydrology-climate-baseline", "climate-baseline", "transportMoisture", "config"], {
-                iterations: 22,
-                advection: 0.7,
-                retention: 0.93,
-                secondaryWeightMin: 0.2,
-              });
-              next = setAtPath(next, ["hydrology-climate-baseline", "climate-baseline", "computePrecipitation", "strategy"], "vector");
-              next = setAtPath(next, ["hydrology-climate-baseline", "climate-baseline", "computePrecipitation", "config"], {
-                rainfallScale: 180,
-                humidityExponent: 1,
-                noiseAmplitude: 6,
-                noiseScale: 0.12,
-                waterGradient: {
-                  radius: 5,
-                  perRingBonus: 4,
-                  lowlandBonus: 2,
-                  lowlandElevationMax: 150,
-                },
-                upliftStrength: 22,
-                convergenceStrength: 16,
-              });
-
-              controller.setValue(next as TConfig);
+              controller.setValue(applyCirculationV2Preset(controller.value) as TConfig);
               controller.setEnabled(true);
             }}
             style={{ ...buttonStyle, padding: "6px 10px", opacity: disabled ? 0.6 : 1 }}
