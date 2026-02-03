@@ -3,7 +3,7 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputeAtmosphericCirculationContract from "../contract.js";
 import { computeWindsEarthlike } from "../rules/index.js";
 
-export const earthlikeStrategy = createStrategy(ComputeAtmosphericCirculationContract, "earthlike", {
+export const defaultStrategy = createStrategy(ComputeAtmosphericCirculationContract, "default", {
   run: (input, config) => {
     const width = input.width | 0;
     const height = input.height | 0;
@@ -44,4 +44,3 @@ export const earthlikeStrategy = createStrategy(ComputeAtmosphericCirculationCon
     });
   },
 });
-
