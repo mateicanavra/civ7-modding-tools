@@ -15,7 +15,7 @@ export const defaultStrategy = createStrategy(PlanWetlandsContract, "default", {
         if (input.elevation[idx] > config.maxElevation) continue;
         const moisture = input.effectiveMoisture[idx] / moistureNormalization;
         const fert = fertility[idx];
-        if (moisture < config.moistureThreshold && fert < config.fertilityThreshold) continue;
+        if (moisture < config.moistureThreshold || fert < config.fertilityThreshold) continue;
         placements.push({ x, y, feature: "FEATURE_MARSH", weight: clamp01(moisture) });
       }
     }
