@@ -1,7 +1,7 @@
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 
 import { M10_EFFECT_TAGS } from "../../../tags.js";
-import { morphologyArtifacts } from "../../morphology-pre/artifacts.js";
+import { morphologyArtifacts } from "../../morphology/artifacts.js";
 
 const BuildElevationStepContract = defineStep({
   id: "build-elevation",

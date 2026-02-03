@@ -22,10 +22,11 @@ describe("morphology contract guardrails", () => {
   it("does not introduce runtime-continent or LandmassRegionId surfaces into morphology contracts", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const contracts = [
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-pre/artifacts.ts"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-pre/steps"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-mid/steps"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-post/steps"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology/artifacts.ts"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-coasts/steps"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-routing/steps"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-erosion/steps"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-features/steps"),
     ];
 
     const files = contracts.flatMap((candidate) => {
@@ -55,6 +56,11 @@ describe("morphology contract guardrails", () => {
   it("does not reintroduce runtime-continent or LandmassRegionId surfaces in morphology/hydrology steps", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const roots = [
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-coasts"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-routing"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-erosion"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-features"),
+      // Compatibility wrappers (until the recipe cutover removes them).
       path.join(repoRoot, "src/recipes/standard/stages/morphology-pre"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-mid"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-post"),
@@ -87,6 +93,11 @@ describe("morphology contract guardrails", () => {
   it("does not publish HOTSPOTS overlays from morphology steps", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const roots = [
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-coasts"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-routing"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-erosion"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-features"),
+      // Compatibility wrappers (until the recipe cutover removes them).
       path.join(repoRoot, "src/recipes/standard/stages/morphology-pre"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-mid"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-post"),
@@ -119,6 +130,11 @@ describe("morphology contract guardrails", () => {
   it("does not import legacy config bags in morphology contracts or steps", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const roots = [
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-coasts"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-routing"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-erosion"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-features"),
+      // Compatibility wrappers (until the recipe cutover removes them).
       path.join(repoRoot, "src/recipes/standard/stages/morphology-pre"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-mid"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-post"),
@@ -147,6 +163,11 @@ describe("morphology contract guardrails", () => {
   it("does not require story overlays in morphology step contracts", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const roots = [
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-coasts/steps"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-routing/steps"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-erosion/steps"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-features/steps"),
+      // Compatibility wrappers (until the recipe cutover removes them).
       path.join(repoRoot, "src/recipes/standard/stages/morphology-pre/steps"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-mid/steps"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-post/steps"),
@@ -167,6 +188,11 @@ describe("morphology contract guardrails", () => {
   it("does not import overlays in morphology step implementations", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const roots = [
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-coasts/steps"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-routing/steps"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-erosion/steps"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-features/steps"),
+      // Compatibility wrappers (until the recipe cutover removes them).
       path.join(repoRoot, "src/recipes/standard/stages/morphology-pre/steps"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-mid/steps"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-post/steps"),

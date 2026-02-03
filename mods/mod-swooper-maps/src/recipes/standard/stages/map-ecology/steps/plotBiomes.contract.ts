@@ -3,7 +3,7 @@ import { BiomeEngineBindingsSchema } from "@mapgen/domain/ecology";
 
 import { M3_DEPENDENCY_TAGS, M4_EFFECT_TAGS } from "../../../tags.js";
 import { ecologyArtifacts } from "../../ecology/artifacts.js";
-import { morphologyArtifacts } from "../../morphology-pre/artifacts.js";
+import { morphologyArtifacts } from "../../morphology/artifacts.js";
 
 const PlotBiomesStepContract = defineStep({
   id: "plot-biomes",

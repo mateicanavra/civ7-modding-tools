@@ -1,0 +1,3 @@
+export { default as islands } from "./islands.js";
+export { default as volcanoes } from "./volcanoes.js";
+export { default as landmasses } from "./landmasses.js";

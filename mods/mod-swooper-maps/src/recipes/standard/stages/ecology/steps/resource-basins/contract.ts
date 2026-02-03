@@ -2,7 +2,7 @@ import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import ecology from "@mapgen/domain/ecology";
 import { ecologyArtifacts } from "../../artifacts.js";
 import { hydrologyClimateBaselineArtifacts } from "../../../hydrology-climate-baseline/artifacts.js";
-import { morphologyArtifacts } from "../../../morphology-pre/artifacts.js";
+import { morphologyArtifacts } from "../../../morphology/artifacts.js";
 
 const ResourceBasinsStepContract = defineStep({
   id: "resource-basins",

@@ -1,6 +1,6 @@
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 
-import { morphologyArtifacts } from "../../morphology-pre/artifacts.js";
+import { morphologyArtifacts } from "../../morphology/artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
 
 /**

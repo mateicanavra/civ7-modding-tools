@@ -2,7 +2,7 @@ import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import hydrology from "@mapgen/domain/hydrology";
 
 import { hydrologyClimateBaselineArtifacts } from "../artifacts.js";
-import { morphologyArtifacts } from "../../morphology-pre/artifacts.js";
+import { morphologyArtifacts } from "../../morphology/artifacts.js";
 
 /**
  * Hydrology baseline climate step (mechanism-driven).

@@ -2,7 +2,7 @@ import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import morphology from "@mapgen/domain/morphology";
 
 import { foundationArtifacts } from "../../foundation/artifacts.js";
-import { morphologyArtifacts } from "../artifacts.js";
+import { morphologyArtifacts } from "../../morphology/artifacts.js";
 
 /**
  * Seeds morphology buffers from foundation plates (substrate + base topography).
