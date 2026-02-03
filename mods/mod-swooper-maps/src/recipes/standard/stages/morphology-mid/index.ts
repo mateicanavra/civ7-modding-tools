@@ -3,6 +3,7 @@ import { geomorphology, ruggedCoasts, routing } from "./steps/index.js";
 import {
   MorphologyCoastRuggednessKnobSchema,
   MorphologyErosionKnobSchema,
+  MorphologyShelfWidthKnobSchema,
 } from "@mapgen/domain/morphology/shared/knobs.js";
 
 /**
@@ -37,10 +38,11 @@ const knobsSchema = Type.Object(
   {
     erosion: Type.Optional(MorphologyErosionKnobSchema),
     coastRuggedness: Type.Optional(MorphologyCoastRuggednessKnobSchema),
+    shelfWidth: Type.Optional(MorphologyShelfWidthKnobSchema),
   },
   {
     description:
-      "Morphology-mid knobs (erosion/coastRuggedness). Knobs apply after defaulted step config as deterministic transforms.",
+      "Morphology-mid knobs (erosion/coastRuggedness/shelfWidth). Knobs apply after defaulted step config as deterministic transforms.",
   }
 );
 

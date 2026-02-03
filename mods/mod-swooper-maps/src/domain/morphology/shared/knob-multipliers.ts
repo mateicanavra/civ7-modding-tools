@@ -3,6 +3,7 @@ import type {
   MorphologyErosionKnob,
   MorphologyOrogenyKnob,
   MorphologySeaLevelKnob,
+  MorphologyShelfWidthKnob,
   MorphologyVolcanismKnob,
 } from "./knobs.js";
 
@@ -28,6 +29,13 @@ export const MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER: Readonly<
   normal: 1.0,
   rugged: 1.4,
 };
+
+export const MORPHOLOGY_SHELF_WIDTH_MULTIPLIER: Readonly<Record<MorphologyShelfWidthKnob, number>> =
+  {
+    narrow: 0.75,
+    normal: 1.0,
+    wide: 1.25,
+  };
 
 export const MORPHOLOGY_VOLCANISM_BASE_DENSITY_MULTIPLIER: Readonly<
   Record<MorphologyVolcanismKnob, number>
@@ -74,4 +82,3 @@ export const MORPHOLOGY_OROGENY_HILL_THRESHOLD_DELTA: Readonly<Record<Morphology
     normal: 0,
     high: -0.03,
   };
-

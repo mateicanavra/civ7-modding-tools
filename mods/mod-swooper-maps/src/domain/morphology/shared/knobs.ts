@@ -70,6 +70,29 @@ export const MorphologyCoastRuggednessKnobSchema = Type.Union(
 export type MorphologyCoastRuggednessKnob = Static<typeof MorphologyCoastRuggednessKnobSchema>;
 
 /**
+ * Morphology shelf width knob (semantic intent).
+ *
+ * Meaning:
+ * - Shelf width posture controlling how wide the shallow-water band can extend from shore.
+ *
+ * Stage scope:
+ * - Used by `morphology-mid` stage only.
+ *
+ * Description:
+ * - Shelf width posture (narrow/normal/wide). Applies as deterministic multipliers over shelf classifier distance caps.
+ */
+export const MorphologyShelfWidthKnobSchema = Type.Union(
+  [Type.Literal("narrow"), Type.Literal("normal"), Type.Literal("wide")],
+  {
+    default: "normal",
+    description:
+      "Shelf width posture (narrow/normal/wide). Applies as deterministic multipliers over shelf classifier distance caps.",
+  }
+);
+
+export type MorphologyShelfWidthKnob = Static<typeof MorphologyShelfWidthKnobSchema>;
+
+/**
  * Morphology volcanism knob (semantic intent).
  *
  * Meaning:
