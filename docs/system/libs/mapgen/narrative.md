@@ -13,8 +13,8 @@ It is **not** canonical documentation.
 
 ## Canonical replacements
 
-- `docs/system/libs/mapgen/reference/domains/NARRATIVE.md`
+- [`docs/system/libs/mapgen/reference/domains/NARRATIVE.md`](/system/libs/mapgen/reference/domains/NARRATIVE.md)
 
 ## Legacy archive
 
-The previous contents of this page were moved to `docs/system/libs/mapgen/_archive/narrative.md`.
+The previous contents of this page were moved to [`docs/system/libs/mapgen/_archive/narrative.md`](/system/libs/mapgen/_archive/narrative.md).

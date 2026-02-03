@@ -56,14 +56,14 @@ Inside the run directory:
 ### 3) Replay the dump in Studio (Dump mode)
 
 Follow the concrete replay workflow:
-- `docs/system/libs/mapgen/how-to/debug-with-trace-and-viz.md`
+- [`docs/system/libs/mapgen/how-to/debug-with-trace-and-viz.md`](/system/libs/mapgen/how-to/debug-with-trace-and-viz.md)
 
 This uses MapGen Studio’s dump viewer (deck.gl) to load `manifest.json` and the referenced `data/*` payloads.
 
 ### 4) Open the deck.gl visualization workflow (system reference)
 
 Follow the canonical viz doc (do not invent alternate viewers):
-- `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
+- [`docs/system/libs/mapgen/pipeline-visualization-deckgl.md`](/system/libs/mapgen/pipeline-visualization-deckgl.md)
 
 ### 5) Correlate projections back to their source step
 

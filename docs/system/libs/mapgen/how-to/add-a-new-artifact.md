@@ -16,9 +16,9 @@ Add a new **artifact** (a published, dependency-gated data product) with a stabl
 This how-to is **recipe/stage-level**: artifacts are typically owned by a stage and used by steps.
 
 Routes to:
-- Artifact reference: `docs/system/libs/mapgen/reference/ARTIFACTS.md`
-- Artifact mutation policy: `docs/system/libs/mapgen/policies/ARTIFACT-MUTATION.md`
-- Dependency id policy: `docs/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md`
+- Artifact reference: [`docs/system/libs/mapgen/reference/ARTIFACTS.md`](/system/libs/mapgen/reference/ARTIFACTS.md)
+- Artifact mutation policy: [`docs/system/libs/mapgen/policies/ARTIFACT-MUTATION.md`](/system/libs/mapgen/policies/ARTIFACT-MUTATION.md)
+- Dependency id policy: [`docs/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md`](/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md)
 
 ## Prereqs
 

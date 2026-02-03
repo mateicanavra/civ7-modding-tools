@@ -14,8 +14,8 @@
 Add a new **op** to a domain module (target posture: `defineOp` contract + `createOp` implementation + domain registry wiring).
 
 This how-to is **domain-level** (ops live inside a domain). It routes to:
-- Ops module contract reference: `docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`
-- Import policy: `docs/system/libs/mapgen/policies/IMPORTS.md`
+- Ops module contract reference: [`docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`](/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md)
+- Import policy: [`docs/system/libs/mapgen/policies/IMPORTS.md`](/system/libs/mapgen/policies/IMPORTS.md)
 
 ## Prereqs
 

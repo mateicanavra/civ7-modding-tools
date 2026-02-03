@@ -14,8 +14,8 @@
 Explain how MapGen uses domains to keep algorithmic code modular, testable, and reusable across recipes.
 
 Contract references:
-- `docs/system/libs/mapgen/reference/domains/DOMAINS.md`
-- `docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`
+- [`docs/system/libs/mapgen/reference/domains/DOMAINS.md`](/system/libs/mapgen/reference/domains/DOMAINS.md)
+- [`docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`](/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md)
 
 ## What a domain owns
 

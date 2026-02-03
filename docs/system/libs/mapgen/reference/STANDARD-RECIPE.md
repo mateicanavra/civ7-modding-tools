@@ -77,7 +77,7 @@ The standard recipe collects compile-time domain ops into a single registry:
 This registry is used during config compilation to bind op contracts to implementations by op id.
 
 Domain contract references:
-- `docs/system/libs/mapgen/reference/domains/DOMAINS.md`
+- [`docs/system/libs/mapgen/reference/domains/DOMAINS.md`](/system/libs/mapgen/reference/domains/DOMAINS.md)
 
 ## Ground truth anchors
 

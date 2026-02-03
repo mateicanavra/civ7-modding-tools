@@ -5,13 +5,13 @@
 > **Do not treat as contract truth.** This document is a detailed first-principles write-up, but it mixes legacy architectural assumptions with modeling guidance.
 >
 > **Canonical modeling references (preferred):**
-> - `docs/system/libs/mapgen/architecture.md`
-> - `docs/system/libs/mapgen/foundation.md`
-> - `docs/system/libs/mapgen/morphology.md`
-> - `docs/system/libs/mapgen/hydrology.md`
-> - `docs/system/libs/mapgen/ecology.md`
-> - `docs/system/libs/mapgen/narrative.md`
-> - `docs/system/libs/mapgen/placement.md`
+> - [`docs/system/libs/mapgen/architecture.md`](/system/libs/mapgen/architecture.md)
+> - [`docs/system/libs/mapgen/foundation.md`](/system/libs/mapgen/foundation.md)
+> - [`docs/system/libs/mapgen/morphology.md`](/system/libs/mapgen/morphology.md)
+> - [`docs/system/libs/mapgen/hydrology.md`](/system/libs/mapgen/hydrology.md)
+> - [`docs/system/libs/mapgen/ecology.md`](/system/libs/mapgen/ecology.md)
+> - [`docs/system/libs/mapgen/narrative.md`](/system/libs/mapgen/narrative.md)
+> - [`docs/system/libs/mapgen/placement.md`](/system/libs/mapgen/placement.md)
 >
 > **How to use this spike now:** treat it as “research raw material”; extract stable causal models into the canonical domain docs and ignore any implied SDK mechanics that conflict with current specs/workflows.
 

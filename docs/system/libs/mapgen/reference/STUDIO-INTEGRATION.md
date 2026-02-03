@@ -22,7 +22,7 @@ This page is:
 - and anchored to current code.
 
 For “how do I build this in my app?”, see:
-- `docs/system/libs/mapgen/how-to/integrate-mapgen-studio-worker.md`
+- [`docs/system/libs/mapgen/how-to/integrate-mapgen-studio-worker.md`](/system/libs/mapgen/how-to/integrate-mapgen-studio-worker.md)
 
 ## The Studio seam (what it is)
 
@@ -128,7 +128,7 @@ post({ type: "viz.layer.upsert", runToken, generation, layer }, transfer);
 ```
 
 Routing:
-- Visualization architecture and deck.gl rendering are canonical in `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`.
+- Visualization architecture and deck.gl rendering are canonical in [`docs/system/libs/mapgen/pipeline-visualization-deckgl.md`](/system/libs/mapgen/pipeline-visualization-deckgl.md).
 
 ## Cancellation + concurrency
 

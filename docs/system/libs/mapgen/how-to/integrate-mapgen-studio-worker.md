@@ -20,7 +20,7 @@ Use MapGen Studio’s **browser worker runner** as the canonical integration pos
 
 This is a how-to: it focuses on “what to do” and “what to copy”.
 For contracts and invariants, see:
-- `docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`
+- [`docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`](/system/libs/mapgen/reference/STUDIO-INTEGRATION.md)
 
 ## When to use this pattern
 
@@ -141,7 +141,7 @@ const dumpGrid: VizDumper["dumpGrid"] = (trace, layer) => {
 ```
 
 Routing:
-- Canonical deck.gl visualization doc: `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
+- Canonical deck.gl visualization doc: [`docs/system/libs/mapgen/pipeline-visualization-deckgl.md`](/system/libs/mapgen/pipeline-visualization-deckgl.md)
 
 ## Cancellation posture
 

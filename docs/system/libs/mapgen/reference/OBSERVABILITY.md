@@ -26,8 +26,8 @@ Define how MapGen runs can be inspected and debugged deterministically:
 Visualization is current canon and must reflect the deck.gl posture.
 
 See:
-- Contract routing: `docs/system/libs/mapgen/reference/VISUALIZATION.md`
-- Canonical implementation: `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
+- Contract routing: [`docs/system/libs/mapgen/reference/VISUALIZATION.md`](/system/libs/mapgen/reference/VISUALIZATION.md)
+- Canonical implementation: [`docs/system/libs/mapgen/pipeline-visualization-deckgl.md`](/system/libs/mapgen/pipeline-visualization-deckgl.md)
 
 ## Ground truth anchors
 

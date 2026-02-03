@@ -14,8 +14,8 @@
 Add a new **dependency tag** for pipeline gating (target posture: all requires/provides go through a registry; no magic).
 
 Routes to:
-- Tag reference: `docs/system/libs/mapgen/reference/TAGS.md`
-- Dependency id policy: `docs/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md`
+- Tag reference: [`docs/system/libs/mapgen/reference/TAGS.md`](/system/libs/mapgen/reference/TAGS.md)
+- Dependency id policy: [`docs/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md`](/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md)
 
 ## Prereqs
 

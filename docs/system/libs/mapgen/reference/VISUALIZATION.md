@@ -24,7 +24,7 @@ Hard rule:
 
 ## Canonical implementation doc
 
-- `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
+- [`docs/system/libs/mapgen/pipeline-visualization-deckgl.md`](/system/libs/mapgen/pipeline-visualization-deckgl.md)
 
 ## Ground truth anchors
 

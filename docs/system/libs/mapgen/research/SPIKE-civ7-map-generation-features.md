@@ -5,13 +5,13 @@
 > **Do not treat as contract truth.** This document is an exploratory synthesis of Civ7 mapgen behaviors and a physics-inspired framing. It may contain assumptions that are outdated relative to the current SDK architecture.
 >
 > **Canonical modeling references (preferred):**
-> - `docs/system/libs/mapgen/architecture.md`
-> - `docs/system/libs/mapgen/foundation.md`
-> - `docs/system/libs/mapgen/morphology.md`
-> - `docs/system/libs/mapgen/hydrology.md`
-> - `docs/system/libs/mapgen/ecology.md`
-> - `docs/system/libs/mapgen/narrative.md`
-> - `docs/system/libs/mapgen/placement.md`
+> - [`docs/system/libs/mapgen/architecture.md`](/system/libs/mapgen/architecture.md)
+> - [`docs/system/libs/mapgen/foundation.md`](/system/libs/mapgen/foundation.md)
+> - [`docs/system/libs/mapgen/morphology.md`](/system/libs/mapgen/morphology.md)
+> - [`docs/system/libs/mapgen/hydrology.md`](/system/libs/mapgen/hydrology.md)
+> - [`docs/system/libs/mapgen/ecology.md`](/system/libs/mapgen/ecology.md)
+> - [`docs/system/libs/mapgen/narrative.md`](/system/libs/mapgen/narrative.md)
+> - [`docs/system/libs/mapgen/placement.md`](/system/libs/mapgen/placement.md)
 >
 > **How to use this spike now:** treat it as a “feature inventory + hypothesis bank”; salvage durable insights into the canonical system docs above when doing domain modeling.
 

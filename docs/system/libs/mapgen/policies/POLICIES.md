@@ -23,13 +23,13 @@ Policies are *normative* (“Allowed / Disallowed”) and must be anchored to co
 
 Canonical policies:
 
-- Imports: `docs/system/libs/mapgen/policies/IMPORTS.md`
-- Schemas and validation: `docs/system/libs/mapgen/policies/SCHEMAS-AND-VALIDATION.md`
-- Dependency IDs and registries: `docs/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md`
-- Artifact mutation: `docs/system/libs/mapgen/policies/ARTIFACT-MUTATION.md`
-- Config vs plan compilation: `docs/system/libs/mapgen/policies/CONFIG-VS-PLAN-COMPILATION.md`
-- Truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
-- Module shape: `docs/system/libs/mapgen/policies/MODULE-SHAPE.md`
+- Imports: [`docs/system/libs/mapgen/policies/IMPORTS.md`](/system/libs/mapgen/policies/IMPORTS.md)
+- Schemas and validation: [`docs/system/libs/mapgen/policies/SCHEMAS-AND-VALIDATION.md`](/system/libs/mapgen/policies/SCHEMAS-AND-VALIDATION.md)
+- Dependency IDs and registries: [`docs/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md`](/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md)
+- Artifact mutation: [`docs/system/libs/mapgen/policies/ARTIFACT-MUTATION.md`](/system/libs/mapgen/policies/ARTIFACT-MUTATION.md)
+- Config vs plan compilation: [`docs/system/libs/mapgen/policies/CONFIG-VS-PLAN-COMPILATION.md`](/system/libs/mapgen/policies/CONFIG-VS-PLAN-COMPILATION.md)
+- Truth vs projection: [`docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`](/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md)
+- Module shape: [`docs/system/libs/mapgen/policies/MODULE-SHAPE.md`](/system/libs/mapgen/policies/MODULE-SHAPE.md)
 
 ## Ground truth anchors
 

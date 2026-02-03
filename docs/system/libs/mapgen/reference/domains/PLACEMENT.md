@@ -21,14 +21,14 @@ Placement is legacy naming for the **Gameplay** domain’s “placement phase”
 Placement is intentionally **projection/engine-facing**: it depends on prior projection steps (engine rivers/features) and uses engine adapters to apply gameplay outcomes.
 
 Target posture: Gameplay absorbs Placement. See:
-- `docs/system/libs/mapgen/reference/domains/GAMEPLAY.md`
+- [`docs/system/libs/mapgen/reference/domains/GAMEPLAY.md`](/system/libs/mapgen/reference/domains/GAMEPLAY.md)
 
 ## Stages (standard recipe)
 
 Standard recipe stage(s):
 - `placement`
 
-See: `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`.
+See: [`docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`](/system/libs/mapgen/reference/STANDARD-RECIPE.md).
 
 ## Contract (requires/provides)
 

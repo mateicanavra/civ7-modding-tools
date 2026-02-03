@@ -23,8 +23,8 @@
 
 - **Dump folder**: replayable output containing `manifest.json` plus payloads under `data/`.
 - `outputsRoot`: where dump folders are written (implementation chooses the root; the contract only assumes a per-run folder containing `manifest.json`).
-- `runId`: run identity used by trace/dumps. Current implementation: `runId === planFingerprint` (see `docs/system/libs/mapgen/reference/GLOSSARY.md`).
-- `planFingerprint`: plan identity (hash of plan inputs); see `docs/system/libs/mapgen/reference/GLOSSARY.md` and `packages/mapgen-core/src/engine/observability.ts`.
+- `runId`: run identity used by trace/dumps. Current implementation: `runId === planFingerprint` (see [`docs/system/libs/mapgen/reference/GLOSSARY.md`](/system/libs/mapgen/reference/GLOSSARY.md)).
+- `planFingerprint`: plan identity (hash of plan inputs); see [`docs/system/libs/mapgen/reference/GLOSSARY.md`](/system/libs/mapgen/reference/GLOSSARY.md) and `packages/mapgen-core/src/engine/observability.ts`.
 - `dataTypeKey`: stable semantic identity for a data product (e.g. `"hydrology.wind.wind"`).
 - `layerKey`: canonical, opaque identity for a layer within a run (used for streaming upserts and dump replay identity).
 - `spaceId`: explicit coordinate space (“projection” selector in the Studio UI).

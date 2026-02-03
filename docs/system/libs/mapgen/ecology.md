@@ -13,8 +13,8 @@ It is **not** canonical documentation.
 
 ## Canonical replacements
 
-- `docs/system/libs/mapgen/reference/domains/ECOLOGY.md`
+- [`docs/system/libs/mapgen/reference/domains/ECOLOGY.md`](/system/libs/mapgen/reference/domains/ECOLOGY.md)
 
 ## Legacy archive
 
-The previous contents of this page were moved to `docs/system/libs/mapgen/_archive/ecology.md`.
+The previous contents of this page were moved to [`docs/system/libs/mapgen/_archive/ecology.md`](/system/libs/mapgen/_archive/ecology.md).
