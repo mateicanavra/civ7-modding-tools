@@ -17,6 +17,8 @@ const ComputeOceanThermalStateInputSchema = Type.Object(
     latitudeByRow: TypedArraySchemas.f32({ description: "Latitude per row (degrees)." }),
     /** Water mask per tile (1=water, 0=land). */
     isWaterMask: TypedArraySchemas.u8({ description: "Water mask per tile (1=water, 0=land)." }),
+    /** Continental shelf mask per tile (1=shelf, 0=not), from Morphology coastline metrics. */
+    shelfMask: TypedArraySchemas.u8({ description: "Continental shelf mask per tile (1=shelf, 0=not)." }),
     /** Current U component per tile (-127..127). */
     currentU: TypedArraySchemas.i8({ description: "Current U component per tile (-127..127)." }),
     /** Current V component per tile (-127..127). */
@@ -103,4 +105,3 @@ const ComputeOceanThermalStateContract = defineOp({
 });
 
 export default ComputeOceanThermalStateContract;
-

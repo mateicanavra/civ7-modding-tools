@@ -15,6 +15,9 @@ export const defaultStrategy = createStrategy(ComputeOceanThermalStateContract, 
     if (!(input.isWaterMask instanceof Uint8Array) || input.isWaterMask.length !== size) {
       throw new Error("[Hydrology] Invalid isWaterMask for hydrology/compute-ocean-thermal-state.");
     }
+    if (!(input.shelfMask instanceof Uint8Array) || input.shelfMask.length !== size) {
+      throw new Error("[Hydrology] Invalid shelfMask for hydrology/compute-ocean-thermal-state.");
+    }
     if (!(input.currentU instanceof Int8Array) || input.currentU.length !== size) {
       throw new Error("[Hydrology] Invalid currentU for hydrology/compute-ocean-thermal-state.");
     }
@@ -22,7 +25,7 @@ export const defaultStrategy = createStrategy(ComputeOceanThermalStateContract, 
       throw new Error("[Hydrology] Invalid currentV for hydrology/compute-ocean-thermal-state.");
     }
 
-    return computeOceanThermalState(width, height, input.latitudeByRow, input.isWaterMask, input.currentU, input.currentV, {
+    return computeOceanThermalState(width, height, input.latitudeByRow, input.isWaterMask, input.shelfMask, input.currentU, input.currentV, {
       equatorTempC: config.equatorTempC,
       poleTempC: config.poleTempC,
       advectIters: config.advectIters,
@@ -32,4 +35,3 @@ export const defaultStrategy = createStrategy(ComputeOceanThermalStateContract, 
     });
   },
 });
-

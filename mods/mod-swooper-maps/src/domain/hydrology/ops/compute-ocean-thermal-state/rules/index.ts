@@ -37,6 +37,7 @@ function selectUpcurrent(
   y: number,
   width: number,
   height: number,
+  isWaterMask: Uint8Array,
   flowX: number,
   flowY: number,
   secondaryWeightMin: number
@@ -49,8 +50,8 @@ function selectUpcurrent(
   const ux = -flowX;
   const uy = -flowY;
 
-  let best0 = -1;
-  let best1 = -1;
+  let bestI0 = -1;
+  let bestI1 = -1;
   let s0 = 0;
   let s1 = 0;
 
@@ -58,31 +59,31 @@ function selectUpcurrent(
     const [dx, dy] = offsets[k];
     const ny = y + dy;
     if (ny < 0 || ny >= height) continue;
+    const nx = wrapX(x + dx, width);
+    const ni = idx(nx, ny, width);
+    if ((isWaterMask[ni] ?? 0) !== 1) continue;
     const d = deltas[k];
     const score = ux * d.x + uy * d.y;
     if (score <= 0) continue;
     if (score > s0) {
       s1 = s0;
-      best1 = best0;
+      bestI1 = bestI0;
       s0 = score;
-      best0 = k;
+      bestI0 = ni;
     } else if (score > s1) {
       s1 = score;
-      best1 = k;
+      bestI1 = ni;
     }
   }
 
-  if (best0 < 0) {
+  if (bestI0 < 0) {
     const i0 = idx(x, y, width);
     return { i0, w0: 1, i1: i0, w1: 0 };
   }
 
-  const [dx0, dy0] = offsets[best0];
-  const nx0 = wrapX(x + dx0, width);
-  const ny0 = y + dy0;
-  const i0 = idx(nx0, ny0, width);
+  const i0 = bestI0;
 
-  if (best1 < 0 || s1 <= 0) {
+  if (bestI1 < 0 || s1 <= 0) {
     return { i0, w0: 1, i1: i0, w1: 0 };
   }
 
@@ -93,10 +94,7 @@ function selectUpcurrent(
     return { i0, w0: 1, i1: i0, w1: 0 };
   }
 
-  const [dx1, dy1] = offsets[best1];
-  const nx1 = wrapX(x + dx1, width);
-  const ny1 = y + dy1;
-  const i1 = idx(nx1, ny1, width);
+  const i1 = bestI1;
   return { i0, w0, i1, w1 };
 }
 
@@ -114,6 +112,7 @@ export function computeOceanThermalState(
   height: number,
   latitudeByRow: Float32Array,
   isWaterMask: Uint8Array,
+  shelfMask: Uint8Array,
   currentU: Int8Array,
   currentV: Int8Array,
   options: Readonly<{
@@ -136,6 +135,7 @@ export function computeOceanThermalState(
   const advectIters = Math.max(0, options.advectIters | 0);
   const secondaryWeightMin = clampFinite(options.secondaryWeightMin, 0, 1);
   const seaIceThresholdC = options.seaIceThresholdC;
+  const shelfDiffusionScale = 1.35;
 
   // Baseline SST from latitude (symmetric).
   for (let y = 0; y < height; y++) {
@@ -163,7 +163,7 @@ export function computeOceanThermalState(
 
         const flowX = currentU[i] ?? 0;
         const flowY = currentV[i] ?? 0;
-        const up = selectUpcurrent(x, y, width, height, flowX, flowY, secondaryWeightMin);
+        const up = selectUpcurrent(x, y, width, height, isWaterMask, flowX, flowY, secondaryWeightMin);
         const advected = (sst[up.i0] ?? 0) * up.w0 + (sst[up.i1] ?? 0) * up.w1;
 
         // Simple diffusion: average neighbor SST over water and mix in.
@@ -182,7 +182,8 @@ export function computeOceanThermalState(
           w += 1;
         }
         const neighborAvg = w > 0 ? sum / w : advected;
-        next[i] = lerp(advected, neighborAvg, diffusion);
+        const tileDiffusion = shelfMask[i] === 1 ? Math.min(1, diffusion * shelfDiffusionScale) : diffusion;
+        next[i] = lerp(advected, neighborAvg, tileDiffusion);
       }
     }
     sst.set(next);
