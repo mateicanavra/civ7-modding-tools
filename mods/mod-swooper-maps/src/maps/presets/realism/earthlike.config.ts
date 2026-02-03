@@ -9,9 +9,9 @@ import type { StandardRecipeConfig } from "../../../recipes/standard/recipe.js";
  */
 export const realismEarthlikeConfig: StandardRecipeConfig = {
   foundation: { knobs: { plateCount: "normal", plateActivity: "normal" } },
-  "morphology-pre": { knobs: { seaLevel: "earthlike" } },
-  "morphology-mid": { knobs: { erosion: "normal", coastRuggedness: "normal" } },
-  "morphology-post": { knobs: { volcanism: "normal" } },
+  "morphology-coasts": { knobs: { seaLevel: "earthlike", coastRuggedness: "normal" } },
+  "morphology-erosion": { knobs: { erosion: "normal" } },
+  "morphology-features": { knobs: { volcanism: "normal" } },
   "hydrology-climate-baseline": {
     knobs: { dryness: "dry", temperature: "temperate", seasonality: "normal", oceanCoupling: "earthlike" },
   },

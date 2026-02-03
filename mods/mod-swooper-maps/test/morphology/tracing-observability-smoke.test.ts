@@ -33,12 +33,12 @@ describe("Morphology tracing (observability hardening smoke)", () => {
 
     const full = (stageId: string, stepId: string) => `mod-swooper-maps.standard.${stageId}.${stepId}`;
     const verboseSteps = [
-      full("morphology-pre", "landmass-plates"),
-      full("morphology-mid", "routing"),
-      full("morphology-mid", "geomorphology"),
-      full("morphology-mid", "rugged-coasts"),
-      full("morphology-post", "islands"),
-      full("morphology-post", "volcanoes"),
+      full("morphology-coasts", "landmass-plates"),
+      full("morphology-routing", "routing"),
+      full("morphology-erosion", "geomorphology"),
+      full("morphology-coasts", "rugged-coasts"),
+      full("morphology-features", "islands"),
+      full("morphology-features", "volcanoes"),
       full("map-morphology", "plot-mountains"),
     ];
 

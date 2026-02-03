@@ -60,10 +60,6 @@ describe("morphology contract guardrails", () => {
       path.join(repoRoot, "src/recipes/standard/stages/morphology-routing"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-erosion"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-features"),
-      // Compatibility wrappers (until the recipe cutover removes them).
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-pre"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-mid"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-post"),
       path.join(repoRoot, "src/recipes/standard/stages/hydrology-climate-baseline/steps"),
     ];
 
@@ -97,10 +93,6 @@ describe("morphology contract guardrails", () => {
       path.join(repoRoot, "src/recipes/standard/stages/morphology-routing"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-erosion"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-features"),
-      // Compatibility wrappers (until the recipe cutover removes them).
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-pre"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-mid"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-post"),
     ];
 
     const files = roots.flatMap((candidate) => {
@@ -134,10 +126,6 @@ describe("morphology contract guardrails", () => {
       path.join(repoRoot, "src/recipes/standard/stages/morphology-routing"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-erosion"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-features"),
-      // Compatibility wrappers (until the recipe cutover removes them).
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-pre"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-mid"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-post"),
     ];
 
     const files = roots.flatMap((candidate) => {
@@ -167,10 +155,6 @@ describe("morphology contract guardrails", () => {
       path.join(repoRoot, "src/recipes/standard/stages/morphology-routing/steps"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-erosion/steps"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-features/steps"),
-      // Compatibility wrappers (until the recipe cutover removes them).
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-pre/steps"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-mid/steps"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-post/steps"),
     ];
 
     const contractFiles = roots.flatMap((root) =>
@@ -192,10 +176,6 @@ describe("morphology contract guardrails", () => {
       path.join(repoRoot, "src/recipes/standard/stages/morphology-routing/steps"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-erosion/steps"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-features/steps"),
-      // Compatibility wrappers (until the recipe cutover removes them).
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-pre/steps"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-mid/steps"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-post/steps"),
     ];
 
     const stepFiles = roots.flatMap((root) =>
@@ -272,9 +252,10 @@ describe("morphology contract guardrails", () => {
   it("does not use morphology effect-tag gating in morphology steps or tags", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const roots = [
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-pre"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-mid"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-post"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-coasts"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-routing"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-erosion"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-features"),
       path.join(repoRoot, "src/recipes/standard/tags.ts"),
     ];
 

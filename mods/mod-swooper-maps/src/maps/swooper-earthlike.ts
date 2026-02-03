@@ -95,8 +95,9 @@ export default createMap({
           }
         }
       },
-      "morphology-pre": {
+      "morphology-coasts": {
         "knobs": {
+          "coastRuggedness": "normal",
           "seaLevel": "earthlike"
         },
         "advanced": {
@@ -174,15 +175,7 @@ export default createMap({
                 }
               }
             }
-          }
-        }
-      },
-      "morphology-mid": {
-        "knobs": {
-          "erosion": "normal",
-          "coastRuggedness": "normal"
-        },
-        "advanced": {
+          },
           "rugged-coasts": {
             "coastlines": {
               "strategy": "default",
@@ -213,12 +206,23 @@ export default createMap({
               }
             }
           },
+        }
+      },
+      "morphology-routing": {
+        "advanced": {
           "routing": {
             "routing": {
               "strategy": "default",
               "config": {}
             }
           },
+        }
+      },
+      "morphology-erosion": {
+        "knobs": {
+          "erosion": "normal"
+        },
+        "advanced": {
           "geomorphology": {
             "geomorphology": {
               "strategy": "default",
@@ -244,7 +248,7 @@ export default createMap({
           }
         }
       },
-      "morphology-post": {
+      "morphology-features": {
         "knobs": {
           "volcanism": "normal"
         },

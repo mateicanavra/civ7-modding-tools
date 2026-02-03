@@ -1,11 +1,11 @@
 import { describe, expect, it } from "bun:test";
 
-import ruggedCoasts from "../../src/recipes/standard/stages/morphology-mid/steps/ruggedCoasts.js";
+import ruggedCoasts from "../../src/recipes/standard/stages/morphology-coasts/steps/ruggedCoasts.js";
 import { standardConfig } from "../support/standard-config.js";
 
-describe("morphology-mid shelfWidth knob", () => {
+describe("morphology-coasts shelfWidth knob", () => {
   it("scales shelfMask distance caps deterministically in rugged-coasts normalize", () => {
-    const base = (standardConfig as any)["morphology-mid"]?.advanced?.["rugged-coasts"];
+    const base = (standardConfig as any)["morphology-coasts"]?.advanced?.["rugged-coasts"];
     expect(base).toBeTruthy();
 
     const shelfMask = {
