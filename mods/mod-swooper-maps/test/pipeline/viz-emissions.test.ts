@@ -66,7 +66,10 @@ describe("standard pipeline viz emissions", () => {
       "foundation.plates.tilePlateId",
       "foundation.tectonics.boundaryType",
       "morphology.topography.elevation",
+      "morphology.coastlineMetrics.shelfMask",
+      "morphology.shelf.capTiles",
       "morphology.routing.flowAccum",
+      "map.morphology.coasts.waterClass",
       "map.morphology.mountains.mountainMask",
       "hydrology.climate.rainfall",
       "hydrology.hydrography.discharge",
@@ -221,5 +224,23 @@ describe("standard pipeline viz emissions", () => {
     expect(currentMetas?.some((m) => m?.visibility === "debug" && m?.role === "magnitude")).toBe(true);
     expect(currentMetas?.some((m) => m?.visibility === "default" && m?.role === "arrows")).toBe(true);
     expect(currentMetas?.some((m) => m?.visibility === "debug" && m?.role === "centroids")).toBe(true);
+
+    const shelfMaskMetas = metasByKey.get("morphology.coastlineMetrics.shelfMask") as any[] | undefined;
+    expect(shelfMaskMetas?.some((m) => m?.visibility === "default" && m?.palette === "categorical")).toBe(true);
+
+    const activeMarginMetas = metasByKey.get("morphology.shelf.activeMarginMask") as any[] | undefined;
+    expect(activeMarginMetas?.some((m) => m?.visibility === "default" && m?.role === "membership")).toBe(true);
+
+    const capTilesMetas = metasByKey.get("morphology.shelf.capTiles") as any[] | undefined;
+    expect(capTilesMetas?.some((m) => m?.visibility === "default" && m?.palette === "continuous")).toBe(true);
+
+    const nearshoreMetas = metasByKey.get("morphology.shelf.nearshoreCandidateMask") as any[] | undefined;
+    expect(nearshoreMetas?.some((m) => m?.visibility === "debug")).toBe(true);
+
+    const depthGateMetas = metasByKey.get("morphology.shelf.depthGateMask") as any[] | undefined;
+    expect(depthGateMetas?.some((m) => m?.visibility === "debug")).toBe(true);
+
+    const waterClassMetas = metasByKey.get("map.morphology.coasts.waterClass") as any[] | undefined;
+    expect(waterClassMetas?.some((m) => m?.visibility === "default" && m?.role === "membership")).toBe(true);
   });
 });

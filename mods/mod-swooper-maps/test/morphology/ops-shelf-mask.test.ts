@@ -6,7 +6,7 @@ import { normalizeStrictOrThrow, runOpValidated } from "../support/compiler-help
 const { computeShelfMask } = morphologyDomain.ops;
 
 describe("morphology/compute-shelf-mask", () => {
-  it("returns a u8 shelfMask of size width*height and never marks land tiles", () => {
+  it("returns shelf viz tensors and never marks land tiles", () => {
     const width = 4;
     const height = 3;
     const size = width * height;
@@ -64,16 +64,26 @@ describe("morphology/compute-shelf-mask", () => {
     normalizeStrictOrThrow(computeShelfMask.output, result, "/ops/morphology/compute-shelf-mask/output");
     expect(result.shelfMask).toBeInstanceOf(Uint8Array);
     expect(result.shelfMask.length).toBe(size);
+    expect(result.activeMarginMask).toBeInstanceOf(Uint8Array);
+    expect(result.activeMarginMask.length).toBe(size);
+    expect(result.capTilesByTile).toBeInstanceOf(Uint8Array);
+    expect(result.capTilesByTile.length).toBe(size);
+    expect(result.nearshoreCandidateMask).toBeInstanceOf(Uint8Array);
+    expect(result.nearshoreCandidateMask.length).toBe(size);
+    expect(result.depthGateMask).toBeInstanceOf(Uint8Array);
+    expect(result.depthGateMask.length).toBe(size);
+    expect(Number.isFinite(result.shallowCutoff)).toBe(true);
+    expect(result.shallowCutoff).toBeLessThanOrEqual(0);
 
     // Land must never be marked as shelf.
     expect(result.shelfMask[0]).toBe(0);
 
     // Active margin tile at distance 3 should be excluded by capTilesActive=2.
     expect(result.shelfMask[3]).toBe(0);
+    expect(result.activeMarginMask[3]).toBe(1);
 
     // A passive/neutral tile within cap and shallow enough should be included.
     // Index 6: distance=3, bathymetry=-30 (shallow), passive cap=4 => eligible.
     expect(result.shelfMask[6]).toBe(1);
   });
 });
-

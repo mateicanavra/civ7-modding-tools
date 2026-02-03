@@ -62,12 +62,16 @@ export const defaultStrategy = createStrategy(ComputeShelfMaskContract, "default
       nearshoreSamples[sampleCount++] = bathymetry[i] ?? 0;
     }
 
-    const cutoff = computeQuantileCutoff(nearshoreSamples, sampleCount, config.shallowQuantile);
+    const shallowCutoff = computeQuantileCutoff(nearshoreSamples, sampleCount, config.shallowQuantile);
 
     const activeThreshold = Math.max(0, Math.min(1, config.activeClosenessThreshold));
     const activeThresholdU8 = Math.floor(activeThreshold * 255);
 
     const shelfMask = new Uint8Array(size);
+    const activeMarginMask = new Uint8Array(size);
+    const capTilesByTile = new Uint8Array(size);
+    const nearshoreCandidateMask = new Uint8Array(size);
+    const depthGateMask = new Uint8Array(size);
     for (let i = 0; i < size; i++) {
       if (landMask[i] === 1) continue;
 
@@ -77,12 +81,17 @@ export const defaultStrategy = createStrategy(ComputeShelfMaskContract, "default
         (t === BOUNDARY_CONVERGENT || t === BOUNDARY_TRANSFORM) && (boundaryCloseness[i] | 0) >= activeThresholdU8;
       const cap = isActiveMargin ? capActive : capPassive;
 
-      if (dist > cap) continue;
+      if (isActiveMargin) activeMarginMask[i] = 1;
+      capTilesByTile[i] = cap as number;
+      if (dist <= nearshoreDistance) nearshoreCandidateMask[i] = 1;
+
       const depth = bathymetry[i] ?? 0;
-      if (depth >= cutoff) shelfMask[i] = 1;
+      if (depth >= shallowCutoff) depthGateMask[i] = 1;
+
+      if (dist > cap) continue;
+      if (depth >= shallowCutoff) shelfMask[i] = 1;
     }
 
-    return { shelfMask };
+    return { shelfMask, activeMarginMask, capTilesByTile, nearshoreCandidateMask, depthGateMask, shallowCutoff };
   },
 });
-
