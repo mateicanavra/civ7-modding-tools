@@ -27,6 +27,12 @@ Canonical tutorials:
 Potential future tutorials:
 - Implement a new step end-to-end
 
+## See also
+
+- [`docs/system/libs/mapgen/MAPGEN.md`](/system/libs/mapgen/MAPGEN.md)
+- [`docs/system/libs/mapgen/how-to/HOW-TO.md`](/system/libs/mapgen/how-to/HOW-TO.md)
+- [`docs/system/libs/mapgen/reference/REFERENCE.md`](/system/libs/mapgen/reference/REFERENCE.md)
+
 ## Ground truth anchors
 
 - Gateway: `docs/system/libs/mapgen/MAPGEN.md`

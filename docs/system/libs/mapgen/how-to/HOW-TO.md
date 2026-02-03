@@ -33,6 +33,13 @@ Canonical how-tos:
 Potential future how-tos:
 - Run a recipe headless
 
+## See also
+
+- [`docs/system/libs/mapgen/MAPGEN.md`](/system/libs/mapgen/MAPGEN.md)
+- [`docs/system/libs/mapgen/reference/REFERENCE.md`](/system/libs/mapgen/reference/REFERENCE.md)
+- [`docs/system/libs/mapgen/policies/POLICIES.md`](/system/libs/mapgen/policies/POLICIES.md)
+- [`docs/system/libs/mapgen/tutorials/TUTORIALS.md`](/system/libs/mapgen/tutorials/TUTORIALS.md)
+
 ## Ground truth anchors
 
 - Gateway: `docs/system/libs/mapgen/MAPGEN.md`
