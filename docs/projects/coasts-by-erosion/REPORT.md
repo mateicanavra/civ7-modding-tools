@@ -70,14 +70,21 @@ Option D: Margin-aware hybrid (recommended target)
 
 ## Recommendation
 
-Two-step target:
+Choose **Option D (Margin-aware hybrid)**, but implement it with a **maximally minimal surface area**:
+- No Civ helpers (`expandCoasts` stays deleted).
+- No new user-facing knobs at first.
+- Deterministic, derived from existing Morphology/Foundations tensors.
 
-1. Ship Option C (Hybrid shelf) as the default deterministic replacement for Civ `expandCoasts`.
-2. Upgrade to Option D (Margin-aware hybrid) once we have a small tuning harness and visuals proving it behaves as intended.
+Concretely: a *shelf classifier* that produces a `shelfMask` from nearshore distance + bathymetry, then modulates the effective shelf width using tectonic context (active vs passive margin).
+
+Two-step delivery:
+
+1. Ship a shelf classifier with self-calibrating thresholds (so we avoid magic numbers while still being deterministic).
+2. Add margin-aware modulation (active vs passive) to amplify "wow factor" without adding knobs.
 
 Rationale:
-- Option C gives immediate gameplay-correct "enough coast" without Civ randomness.
-- Option D is where "coasts by erosion + plates/shelves" actually becomes visible and differentiated.
+- Bathymetry carries the "shelf" signal already (it is shaped upstream by crust/shelf parameters and sea-level choice).
+- Tectonic context gives us a minimal, high-impact way to make coastlines feel different by region (passive margins vs active margins).
 
 ## High-Level Solution Design
 
@@ -100,6 +107,39 @@ Rationale:
   - `shelfMask` (u8; 1 if shallow shelf water)
   - `shelfDepthClass` (optional; u8 for debug/tuning)
   - `shelfWidthClass` (optional; u8 for debug/tuning)
+
+### Minimal Shelf Classifier (V1)
+
+Inputs:
+- `landMask` (water tiles only)
+- `distanceToCoast` (nearshore)
+- `bathymetry` (shallow vs deep)
+
+Algorithm (deterministic, no new knobs):
+- Candidate nearshore water set `Wn`: water tiles where `distanceToCoast <= 3`.
+- Choose a per-run shallow cutoff `D_shallow` from the bathymetry distribution of `Wn`:
+  - Use a fixed quantile (e.g. 70th percentile of `bathymetry` in `Wn`), clamped so the cutoff stays <= 0.
+  - Interpretation: "the shallowest ~30% of nearshore water becomes shelf/coast."
+- Define `shelfMask[i]=1` iff:
+  - `landMask[i]==0`
+  - `distanceToCoast[i] <= 3`
+  - `bathymetry[i] >= D_shallow`
+
+This yields variable shelf widths that follow the generated surface without requiring unit-perfect bathymetry.
+
+### Margin-Aware Modulation (V2, Wow Factor)
+
+Goal: widen shelves on passive margins and narrow them on active margins, with minimal extra logic.
+
+Inputs:
+- `boundaryType`, `boundaryCloseness` (Foundation plates tensors)
+
+Approach:
+- Compute a per-tile margin class for nearshore water:
+  - Active margin signal: convergent/transform and/or high closeness.
+  - Passive margin signal: divergent and/or low closeness.
+- Convert margin class into a distance cap `N(i)` (e.g. 2 on active, 3 on passive) and/or a relaxed depth cutoff.
+- Apply the same shelf rule but with per-tile caps.
 
 ### Projection Rule
 In `map-morphology/plot-coasts`:
@@ -135,4 +175,3 @@ No engine helpers needed for coast creation.
   - shelfMask determinism
   - shelfMask never includes land tiles
   - projection never calls Civ coast expansion helpers
-
