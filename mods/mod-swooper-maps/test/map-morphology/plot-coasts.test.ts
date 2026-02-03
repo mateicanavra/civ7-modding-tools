@@ -9,7 +9,7 @@ import plotCoasts from "../../src/recipes/standard/stages/map-morphology/steps/p
 import { buildTestDeps } from "../support/step-deps.js";
 
 describe("map-morphology/plot-coasts", () => {
-  it("stamps coast terrain from coastlineMetrics.coastalWater (no Civ expandCoasts)", () => {
+  it("stamps coast terrain from coastlineMetrics coastalWater || shelfMask (no Civ expandCoasts)", () => {
     const width = 4;
     const height = 3;
     const seed = 1234;
@@ -29,12 +29,14 @@ describe("map-morphology/plot-coasts", () => {
 
     const coastalWater = new Uint8Array(size).fill(0);
     coastalWater[1] = 1;
-    coastalWater[6] = 1;
+    const shelfMask = new Uint8Array(size).fill(0);
+    shelfMask[6] = 1;
 
     context.artifacts.set("artifact:morphology.topography", { landMask });
     context.artifacts.set("artifact:morphology.coastlineMetrics", {
       coastalLand: new Uint8Array(size),
       coastalWater,
+      shelfMask,
       distanceToCoast: new Uint16Array(size),
     });
 
@@ -44,6 +46,7 @@ describe("map-morphology/plot-coasts", () => {
     expect(adapter.getTerrainType(0, 0)).toBe(FLAT_TERRAIN);
     // coastalWater becomes COAST terrain
     expect(adapter.getTerrainType(1, 0)).toBe(COAST_TERRAIN);
+    // shelfMask becomes COAST terrain
     expect(adapter.getTerrainType(2, 1)).toBe(COAST_TERRAIN);
     // other water stays OCEAN terrain
     expect(adapter.getTerrainType(2, 0)).toBe(OCEAN_TERRAIN);
