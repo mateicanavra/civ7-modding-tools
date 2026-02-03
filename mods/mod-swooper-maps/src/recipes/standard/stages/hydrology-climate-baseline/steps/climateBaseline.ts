@@ -482,6 +482,10 @@ export default createStep(ClimateBaselineStepContract, {
         latitudeByRowSeasonal[y] = clampLatitudeDeg(latitudeByRow[y] - declinationDeg);
       }
 
+      // If the axial tilt is effectively zero, there should be no seasonality. Keep `seasonPhase01` fixed
+      // so wind/currents don't vary solely because we looped through phases.
+      const seasonPhase01 = Math.abs(axialTiltDeg) < 1e-6 ? 0 : phase;
+
       const winds = ops.computeAtmosphericCirculation(
         {
           width,
@@ -490,7 +494,7 @@ export default createStep(ClimateBaselineStepContract, {
           rngSeed,
           landMask,
           elevation,
-          seasonPhase01: phase,
+          seasonPhase01,
         },
         config.computeAtmosphericCirculation
       );
