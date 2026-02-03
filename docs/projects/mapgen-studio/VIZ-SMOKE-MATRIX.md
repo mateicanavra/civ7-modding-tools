@@ -17,8 +17,14 @@ From repo root:
 
 ```bash
 bun run test:ci
-bun run --cwd apps/mapgen-studio build
+bunx turbo run build --filter=mapgen-studio
 bun run --cwd mods/mod-swooper-maps viz:standard --silent
+```
+
+Also supported (leaf build; runs a preflight for dist-exported deps):
+
+```bash
+bun run --cwd apps/mapgen-studio build
 ```
 
 The `viz:standard` dump writes to:
