@@ -5,6 +5,7 @@ import computeRadiativeForcing from "./compute-radiative-forcing/index.js";
 import computeThermalState from "./compute-thermal-state/index.js";
 import computeAtmosphericCirculation from "./compute-atmospheric-circulation/index.js";
 import computeOceanSurfaceCurrents from "./compute-ocean-surface-currents/index.js";
+import computeOceanGeometry from "./compute-ocean-geometry/index.js";
 import computeEvaporationSources from "./compute-evaporation-sources/index.js";
 import transportMoisture from "./transport-moisture/index.js";
 import computePrecipitation from "./compute-precipitation/index.js";
@@ -20,6 +21,7 @@ const implementations = {
   computeThermalState,
   computeAtmosphericCirculation,
   computeOceanSurfaceCurrents,
+  computeOceanGeometry,
   computeEvaporationSources,
   transportMoisture,
   computePrecipitation,
@@ -38,6 +40,7 @@ export {
   computeThermalState,
   computeAtmosphericCirculation,
   computeOceanSurfaceCurrents,
+  computeOceanGeometry,
   computeEvaporationSources,
   transportMoisture,
   computePrecipitation,
