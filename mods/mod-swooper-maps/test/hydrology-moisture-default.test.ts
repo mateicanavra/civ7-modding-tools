@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { vectorStrategy } from "../src/domain/hydrology/ops/transport-moisture/strategies/vector.js";
+import { defaultStrategy } from "../src/domain/hydrology/ops/transport-moisture/strategies/vector-advection.js";
 
 function idx(x: number, y: number, width: number): number {
   return y * width + x;
@@ -26,7 +26,7 @@ describe("hydrology/transport-moisture (default)", () => {
     const evaporation = new Float32Array(size);
     for (let y = 0; y < height; y++) evaporation[idx(0, y, width)] = 1;
 
-    const out = vectorStrategy.run(
+    const out = defaultStrategy.run(
       { width, height, latitudeByRow, landMask, windU, windV, evaporation },
       { iterations: 48, advection: 1, retention: 1, secondaryWeightMin: 0.2 }
     );
