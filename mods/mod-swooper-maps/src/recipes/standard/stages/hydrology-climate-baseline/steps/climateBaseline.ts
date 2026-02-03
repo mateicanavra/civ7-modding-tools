@@ -433,6 +433,7 @@ export default createStep(ClimateBaselineStepContract, {
     }
 
     const topography = deps.artifacts.topography.read(context);
+    const coastlineMetrics = deps.artifacts.coastlineMetrics.read(context);
     const elevation = topography.elevation;
     const landMask = topography.landMask;
     const isWaterMask = new Uint8Array(width * height);
@@ -484,7 +485,17 @@ export default createStep(ClimateBaselineStepContract, {
       | null = null;
 
     if (useCirculationV2) {
-      oceanGeometry = ops.computeOceanGeometry({ width, height, isWaterMask }, config.computeOceanGeometry);
+      oceanGeometry = ops.computeOceanGeometry(
+        {
+          width,
+          height,
+          isWaterMask,
+          coastalWaterMask: coastlineMetrics.coastalWater,
+          distanceToCoast: coastlineMetrics.distanceToCoast,
+          shelfMask: coastlineMetrics.shelfMask,
+        },
+        config.computeOceanGeometry
+      );
     }
 
     // Pass 1: winds + currents (seasonal). Legacy behavior is preserved when legacy strategies are selected.
@@ -574,6 +585,7 @@ export default createStep(ClimateBaselineStepContract, {
           height,
           latitudeByRow,
           isWaterMask,
+          shelfMask: coastlineMetrics.shelfMask,
           currentU: meanCurrentU,
           currentV: meanCurrentV,
         },

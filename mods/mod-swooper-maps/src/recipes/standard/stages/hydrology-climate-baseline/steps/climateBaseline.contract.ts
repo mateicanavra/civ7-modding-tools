@@ -63,7 +63,7 @@ const ClimateBaselineStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [morphologyArtifacts.topography],
+    requires: [morphologyArtifacts.topography, morphologyArtifacts.coastlineMetrics],
     provides: [
       hydrologyClimateBaselineArtifacts.climateField,
       hydrologyClimateBaselineArtifacts.climateSeasonality,
