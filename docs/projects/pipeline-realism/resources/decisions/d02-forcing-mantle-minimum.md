@@ -1,5 +1,7 @@
 # Decision Packet: Define Minimum Forcing Model (Mantle vs Intent vs Proxy)
 
+> Superseded by `docs/projects/pipeline-realism/resources/decisions/d02r-mantle-forcing-potential-derived.md` (maximal posture: mantle forcing is first-class truth; not optional).
+
 ## Question
 
 What is the **minimum forcing model** we will require in the next Foundation target so plate kinematics and tectonic regimes are grounded in a defensible upstream driver?

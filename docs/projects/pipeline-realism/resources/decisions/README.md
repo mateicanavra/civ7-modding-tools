@@ -8,8 +8,9 @@ Decision packets for synthesizing the two target-model proposals into one canoni
 ## Draft Defaults (Chosen So Far)
 
 - D01: `d01-ordering-crust-vs-plates.md`
-- D02: `d02-forcing-mantle-minimum.md`
-- D04: `d04-evolution-semantics-history-model.md`
+- D02r (supersedes D02): `d02r-mantle-forcing-potential-derived.md`
+- D04r (supersedes D04): `d04r-history-dual-eulerian-plus-lagrangian.md`
+- D07r: `d07r-morphology-consumption-contract.md`
 
 ## Remaining
 
