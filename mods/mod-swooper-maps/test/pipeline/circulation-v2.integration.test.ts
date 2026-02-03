@@ -95,7 +95,7 @@ describe("circulation v2 (pipeline integration)", () => {
         ...standardConfig["hydrology-climate-baseline"],
         "climate-baseline": {
           computeAtmosphericCirculation: {
-            strategy: "earthlike",
+            strategy: "default",
             config: {
               maxSpeed: 110,
               zonalStrength: 90,
@@ -114,7 +114,7 @@ describe("circulation v2 (pipeline integration)", () => {
             config: { maxCoastDistance: 64, maxCoastVectorDistance: 10 },
           },
           computeOceanSurfaceCurrents: {
-            strategy: "earthlike",
+            strategy: "default",
             config: {
               maxSpeed: 80,
               windStrength: 0.9,
@@ -137,11 +137,11 @@ describe("circulation v2 (pipeline integration)", () => {
             },
           },
           transportMoisture: {
-            strategy: "vector",
+            strategy: "default",
             config: { iterations: 42, advection: 0.7, retention: 0.93, secondaryWeightMin: 0.2 },
           },
           computePrecipitation: {
-            strategy: "vector",
+            strategy: "default",
             config: {
               rainfallScale: 180,
               humidityExponent: 1,
@@ -163,7 +163,7 @@ describe("circulation v2 (pipeline integration)", () => {
         "climate-baseline": {
           ...(baseV2["hydrology-climate-baseline"] as any)["climate-baseline"],
           computeOceanSurfaceCurrents: {
-            strategy: "earthlike",
+            strategy: "default",
             config: {
               maxSpeed: 80,
               windStrength: 0,
@@ -203,7 +203,7 @@ describe("circulation v2 (pipeline integration)", () => {
         ...standardConfig["hydrology-climate-baseline"],
         "climate-baseline": {
           computeAtmosphericCirculation: {
-            strategy: "earthlike",
+            strategy: "default",
             config: {
               maxSpeed: 110,
               zonalStrength: 90,
@@ -222,7 +222,7 @@ describe("circulation v2 (pipeline integration)", () => {
             config: { maxCoastDistance: 64, maxCoastVectorDistance: 10 },
           },
           computeOceanSurfaceCurrents: {
-            strategy: "earthlike",
+            strategy: "default",
             config: {
               maxSpeed: 80,
               windStrength: 0.55,
@@ -245,11 +245,11 @@ describe("circulation v2 (pipeline integration)", () => {
             },
           },
           transportMoisture: {
-            strategy: "vector",
+            strategy: "default",
             config: { iterations: 22, advection: 0.7, retention: 0.93, secondaryWeightMin: 0.2 },
           },
           computePrecipitation: {
-            strategy: "vector",
+            strategy: "default",
             config: {
               rainfallScale: 180,
               humidityExponent: 1,

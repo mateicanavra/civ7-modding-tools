@@ -7,8 +7,6 @@ import standardRecipe, {
   STANDARD_RECIPE_CONFIG_SCHEMA as swooperStandardConfigSchema,
 } from "mod-swooper-maps/recipes/standard";
 
-import { applyCirculationV2Preset } from "../shared/presets/circulationV2";
-
 export type StudioRecipeId = string;
 
 export type RecipeRuntimeModule = {
@@ -32,13 +30,6 @@ function makeRecipeId(namespace: string, recipeId: string): StudioRecipeId {
 }
 
 const RUNTIME_RECIPES: readonly RuntimeRecipeEntry[] = [
-  {
-    id: makeRecipeId("mod-swooper-maps", "standard-circulation-v2"),
-    label: "Swooper Maps / Standard (Circulation v2)",
-    recipe: standardRecipe,
-    defaultConfig: applyCirculationV2Preset(swooperStandardDefaultConfig),
-    configSchema: swooperStandardConfigSchema,
-  },
   {
     id: makeRecipeId("mod-swooper-maps", "standard"),
     label: "Swooper Maps / Standard",

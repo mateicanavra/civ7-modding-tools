@@ -210,6 +210,8 @@ export default createStep(ClimateBaselineStepContract, {
       HYDROLOGY_OCEAN_COUPLING_MOISTURE_TRANSPORT_ITERATIONS[oceanCoupling] -
       HYDROLOGY_OCEAN_COUPLING_MOISTURE_TRANSPORT_ITERATIONS.earthlike;
 
+    const clampNumber = (value: number, min: number, max: number): number => Math.max(min, Math.min(max, value));
+
     const computeThermalState =
       config.computeThermalState.strategy === "default"
         ? {
@@ -220,8 +222,6 @@ export default createStep(ClimateBaselineStepContract, {
             },
           }
         : config.computeThermalState;
-
-    const clampNumber = (value: number, min: number, max: number): number => Math.max(min, Math.min(max, value));
 
     const computeAtmosphericCirculation = (() => {
       if (config.computeAtmosphericCirculation.strategy === "latitude") {
@@ -244,7 +244,12 @@ export default createStep(ClimateBaselineStepContract, {
           ...config.computeAtmosphericCirculation,
           config: {
             ...config.computeAtmosphericCirculation.config,
-            zonalStrength: clampNumber(config.computeAtmosphericCirculation.config.zonalStrength * jetStrengthFactor, 0, 300),
+            // Reuse the legacy coupling knobs as broad "strength/variance" scalars.
+            zonalStrength: clampNumber(
+              config.computeAtmosphericCirculation.config.zonalStrength * jetStrengthFactor,
+              0,
+              300
+            ),
             geostrophicStrength: clampNumber(
               config.computeAtmosphericCirculation.config.geostrophicStrength * jetStrengthFactor,
               0,
@@ -253,7 +258,7 @@ export default createStep(ClimateBaselineStepContract, {
             pressureNoiseAmp: clampNumber(
               config.computeAtmosphericCirculation.config.pressureNoiseAmp * varianceFactor,
               0,
-              200
+              400
             ),
             waveStrength: clampNumber(config.computeAtmosphericCirculation.config.waveStrength * varianceFactor, 0, 300),
           },
@@ -263,16 +268,48 @@ export default createStep(ClimateBaselineStepContract, {
       return config.computeAtmosphericCirculation;
     })();
 
-    const computeOceanSurfaceCurrents =
-      config.computeOceanSurfaceCurrents.strategy === "default"
-        ? {
-            ...config.computeOceanSurfaceCurrents,
-            config: {
-              ...config.computeOceanSurfaceCurrents.config,
-              strength: config.computeOceanSurfaceCurrents.config.strength * currentStrengthFactor,
-            },
-          }
-        : config.computeOceanSurfaceCurrents;
+    const computeOceanSurfaceCurrents = (() => {
+      if (config.computeOceanSurfaceCurrents.strategy === "latitude") {
+        return {
+          ...config.computeOceanSurfaceCurrents,
+          config: {
+            ...config.computeOceanSurfaceCurrents.config,
+            strength: config.computeOceanSurfaceCurrents.config.strength * currentStrengthFactor,
+          },
+        };
+      }
+
+      if (config.computeOceanSurfaceCurrents.strategy === "default") {
+        return {
+          ...config.computeOceanSurfaceCurrents,
+          config: {
+            ...config.computeOceanSurfaceCurrents.config,
+            windStrength: clampNumber(
+              config.computeOceanSurfaceCurrents.config.windStrength * currentStrengthFactor,
+              0,
+              2
+            ),
+            ekmanStrength: clampNumber(
+              config.computeOceanSurfaceCurrents.config.ekmanStrength * currentStrengthFactor,
+              0,
+              2
+            ),
+            gyreStrength: clampNumber(
+              config.computeOceanSurfaceCurrents.config.gyreStrength * currentStrengthFactor,
+              0,
+              80
+            ),
+            coastStrength: clampNumber(
+              config.computeOceanSurfaceCurrents.config.coastStrength * currentStrengthFactor,
+              0,
+              80
+            ),
+          },
+        };
+      }
+
+      return config.computeOceanSurfaceCurrents;
+    })();
 
     const computeEvaporationSources =
       config.computeEvaporationSources.strategy === "default"
@@ -315,20 +352,12 @@ export default createStep(ClimateBaselineStepContract, {
             noiseAmplitude: config.computePrecipitation.config.noiseAmplitude * noiseAmplitudeFactor,
             waterGradient: {
               ...config.computePrecipitation.config.waterGradient,
-              radius: Math.max(
-                1,
-                Math.round(config.computePrecipitation.config.waterGradient.radius + waterGradientRadiusDelta)
-              ),
+              radius: Math.max(1, Math.round(config.computePrecipitation.config.waterGradient.radius + waterGradientRadiusDelta)),
               perRingBonus: Math.max(
                 0,
-                Math.round(
-                  (config.computePrecipitation.config.waterGradient.perRingBonus + perRingBonusDelta) * wetnessScale
-                )
+                Math.round((config.computePrecipitation.config.waterGradient.perRingBonus + perRingBonusDelta) * wetnessScale)
               ),
-              lowlandBonus: Math.max(
-                0,
-                Math.round(config.computePrecipitation.config.waterGradient.lowlandBonus * wetnessScale)
-              ),
+              lowlandBonus: Math.max(0, Math.round(config.computePrecipitation.config.waterGradient.lowlandBonus * wetnessScale)),
             },
             orographic: {
               ...config.computePrecipitation.config.orographic,
@@ -351,20 +380,12 @@ export default createStep(ClimateBaselineStepContract, {
             noiseAmplitude: config.computePrecipitation.config.noiseAmplitude * noiseAmplitudeFactor,
             waterGradient: {
               ...config.computePrecipitation.config.waterGradient,
-              radius: Math.max(
-                1,
-                Math.round(config.computePrecipitation.config.waterGradient.radius + waterGradientRadiusDelta)
-              ),
+              radius: Math.max(1, Math.round(config.computePrecipitation.config.waterGradient.radius + waterGradientRadiusDelta)),
               perRingBonus: Math.max(
                 0,
-                Math.round(
-                  (config.computePrecipitation.config.waterGradient.perRingBonus + perRingBonusDelta) * wetnessScale
-                )
+                Math.round((config.computePrecipitation.config.waterGradient.perRingBonus + perRingBonusDelta) * wetnessScale)
               ),
-              lowlandBonus: Math.max(
-                0,
-                Math.round(config.computePrecipitation.config.waterGradient.lowlandBonus * wetnessScale)
-              ),
+              lowlandBonus: Math.max(0, Math.round(config.computePrecipitation.config.waterGradient.lowlandBonus * wetnessScale)),
             },
           },
         };
@@ -433,10 +454,10 @@ export default createStep(ClimateBaselineStepContract, {
     const seasonalCurrentV: Int8Array[] = [];
 
     const useCirculationV2 =
-      config.computeAtmosphericCirculation.strategy === "earthlike" ||
-      config.computeOceanSurfaceCurrents.strategy === "earthlike" ||
-      config.transportMoisture.strategy === "vector" ||
-      config.computePrecipitation.strategy === "vector";
+      config.computeAtmosphericCirculation.strategy === "default" ||
+      config.computeOceanSurfaceCurrents.strategy === "default" ||
+      config.transportMoisture.strategy === "default" ||
+      config.computePrecipitation.strategy === "default";
 
     let oceanGeometry:
       | {
@@ -453,7 +474,7 @@ export default createStep(ClimateBaselineStepContract, {
       oceanGeometry = ops.computeOceanGeometry({ width, height, isWaterMask }, config.computeOceanGeometry);
     }
 
-    // Pass 1: winds + currents (seasonal). This keeps the legacy behavior intact unless v2 strategies are enabled.
+    // Pass 1: winds + currents (seasonal). Legacy behavior is preserved when legacy strategies are selected.
     for (const phase of phases) {
       const declinationDeg = axialTiltDeg * Math.sin(2 * Math.PI * phase);
       const latitudeByRowSeasonal = new Float32Array(height);

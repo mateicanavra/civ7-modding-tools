@@ -4,7 +4,6 @@ import { SchemaForm } from "./SchemaForm";
 import { collectTransparentPaths, normalizeSchemaForRjsf, toRjsfSchema } from "./schemaPresentation";
 import type { BrowserConfigFormContext } from "./rjsfTemplates";
 import type { UseConfigOverridesResult } from "./useConfigOverrides";
-import { applyCirculationV2Preset } from "../../shared/presets/circulationV2";
 
 function isNumericPathSegment(segment: string): boolean {
   return /^[0-9]+$/.test(segment);
@@ -240,18 +239,6 @@ function ConfigOverridesPanelImpl<TConfig>(props: ConfigOverridesPanelProps<TCon
             type="button"
           >
             Reset to base
-          </button>
-
-          <button
-            onClick={() => {
-              controller.setValue(applyCirculationV2Preset(controller.value) as TConfig);
-              controller.setEnabled(true);
-            }}
-            style={{ ...buttonStyle, padding: "6px 10px", opacity: disabled ? 0.6 : 1 }}
-            disabled={disabled}
-            type="button"
-          >
-            Apply circulation v2
           </button>
 
           <div style={{ flex: 1 }} />

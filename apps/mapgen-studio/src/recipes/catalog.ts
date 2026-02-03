@@ -60,16 +60,7 @@ import {
   studioRecipeUiMeta as swooperBrowserTestUiMeta,
 } from "mod-swooper-maps/recipes/browser-test-artifacts";
 
-import { applyCirculationV2Preset } from "../shared/presets/circulationV2";
-
 export const STUDIO_RECIPE_ARTIFACTS: readonly RecipeArtifacts[] = [
-  {
-    id: makeRecipeId("mod-swooper-maps", "standard-circulation-v2"),
-    label: "Swooper Maps / Standard (Circulation v2)",
-    configSchema: swooperStandardConfigSchema,
-    defaultConfig: applyCirculationV2Preset(swooperStandardDefaultConfig),
-    uiMeta: swooperStandardUiMeta,
-  },
   {
     id: makeRecipeId("mod-swooper-maps", "standard"),
     label: "Swooper Maps / Standard",
