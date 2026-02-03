@@ -422,18 +422,28 @@ function AppContent(props: AppContentProps) {
   );
   const presetOptions = useMemo(() => [{ value: "none", label: "None" }], []);
 
+  const stageLabels = useMemo(() => {
+    return Object.fromEntries(
+      recipeArtifacts.uiMeta.stages.map((stage) => [stage.stageId, stage.stageLabel] as const)
+    );
+  }, [recipeArtifacts.uiMeta.stages]);
+
   const stages: StageOption[] = useMemo(() => {
+    const labelByStageId = new Map(
+      recipeArtifacts.uiMeta.stages.map((stage) => [stage.stageId, stage.stageLabel] as const)
+    );
+
     if (worldSettings.mode === "browser") {
       return recipeArtifacts.uiMeta.stages.map((stage, index) => ({
         value: stage.stageId,
-        label: formatStageName(stage.stageId),
+        label: stage.stageLabel ?? formatStageName(stage.stageId),
         index: index + 1,
       }));
     }
 
     return viz.pipelineStages.map((stage, index) => ({
       value: stage.stageId,
-      label: formatStageName(stage.stageId),
+      label: labelByStageId.get(stage.stageId) ?? formatStageName(stage.stageId),
       index: index + 1,
     }));
   }, [recipeArtifacts.uiMeta.stages, viz.pipelineStages, worldSettings.mode]);
@@ -441,12 +451,18 @@ function AppContent(props: AppContentProps) {
   const steps: StepOption[] = useMemo(() => {
     if (!selectedStageId) return [];
 
+    const labelByFullStepId = new Map(
+      recipeArtifacts.uiMeta.stages.flatMap((stage) =>
+        stage.steps.map((step) => [step.fullStepId, step.stepLabel] as const)
+      )
+    );
+
     if (worldSettings.mode === "browser") {
       const stage = recipeArtifacts.uiMeta.stages.find((s) => s.stageId === selectedStageId);
       return (
         stage?.steps.map((step) => ({
           value: step.fullStepId,
-          label: step.stepId,
+          label: step.stepLabel ?? step.stepId,
           category: selectedStageId,
         })) ?? []
       );
@@ -456,7 +472,7 @@ function AppContent(props: AppContentProps) {
     return (
       stage?.steps.map((step) => ({
         value: step.stepId,
-        label: step.address?.stepId ?? step.stepId,
+        label: labelByFullStepId.get(step.stepId) ?? step.address?.stepId ?? step.stepId,
         category: selectedStageId,
       })) ?? []
     );
@@ -1016,6 +1032,7 @@ function AppContent(props: AppContentProps) {
       recipeOptions={recipeOptions}
       presetOptions={presetOptions}
       knobOptions={knobOptions}
+      stageLabels={stageLabels}
       theme={theme}
       lightMode={isLightMode}
       selectedStep={selectedStageId}
