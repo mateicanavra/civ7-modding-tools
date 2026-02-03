@@ -27,12 +27,12 @@ This doc collects reviewer feedback for the Wind/Currents v2 stack and triages w
 
 | ID | PR | Severity | Area | Summary | Status | Where it should land |
 |---:|---:|:--:|---|---|---|---|
-| 1 | 1029 | P1 | Winds schema/config | Default strategy schema rejects legacy fields still present in some configs | **Addressed (needs placement check)** | Prefer landing in **#1029** (or earlier) if any config migration is still needed |
-| 2 | 1030 | P2 | Tests | Moisture test imports non-existent `strategies/vector.js` | **Addressed** | **Move downstack to #1030** (currently fixed upstack) |
-| 3 | 1030 | P2 | Tests | Precip test imports `vectorStrategy` but export is `defaultStrategy` | **Addressed** | **Move downstack to #1030** (currently fixed upstack) |
-| 4 | 1031 | P2 | Ocean geometry | `coastDistance` uses 65535 for land; far-ocean > maxDist stays 65535, becoming indistinguishable from land | **Open** | **#1031** |
-| 5 | 1033 | P2 | Ocean thermal | SST advection selects upcurrent neighbors without checking water mask → coastal “zero injection” from land | **Open** | **#1033** |
-| 6 | 1035 | P1 | Studio defaults | Studio default config uses invalid strategy names (`earthlike`, `vector`) | **Superseded** (removed) | **#1035** |
+| 1 | 1029 | P1 | Winds schema/config | Default strategy schema rejects legacy fields still present in some configs | **Fixed (thread resolved)** | **#1029** (`1a3d811c7`) |
+| 2 | 1030 | P2 | Tests | Moisture test imports non-existent `strategies/vector.js` | **Fixed (thread resolved)** | **#1030** (`3df251013`) |
+| 3 | 1030 | P2 | Tests | Precip test imports `vectorStrategy` but export is `defaultStrategy` | **Fixed (thread resolved)** | **#1030** (`3df251013`) |
+| 4 | 1031 | P2 | Ocean geometry | `coastDistance` uses 65535 for land; far-ocean > maxDist stays 65535, becoming indistinguishable from land | **Fixed (thread resolved)** | **#1031** (`c2379331f`) |
+| 5 | 1033 | P2 | Ocean thermal | SST advection selects upcurrent neighbors without checking water mask → coastal “zero injection” from land | **Fixed (thread resolved)** | **#1033** (`bb02c8cc5`) |
+| 6 | 1035 | P1 | Studio defaults | Studio default config uses invalid strategy names (`earthlike`, `vector`) | **Superseded + resolved** | **#1035** (`536c61af8`) |
 
 ## Details (with original comment text)
 
@@ -43,7 +43,8 @@ This doc collects reviewer feedback for the Wind/Currents v2 stack and triages w
 > The default strategy schema now only allows the new geostrophic fields … but existing configs … still set `windJetStreaks`, `windJetStrength`, and `windVariance` under strategy `"default"`. … migrate to `strategy: "latitude"` or accept legacy fields.
 
 **Status**
-- **Likely addressed** by the subsequent strategy-key rename work: the new algorithm is now `"default"` and the legacy banded algorithm is `"latitude"`, and references to `windJetStreaks`/`windJetStrength`/`windVariance` should only exist on `"latitude"`.
+- **Fixed** in `1a3d811c7`: baseline normalization now applies legacy wind-only keys only for the legacy latitude-based strategy, and uses the v2 default knobs for the new circulation strategy.
+- Review thread resolved in PR #1029.
 
 **Verification checklist**
 - Search for `windJetStreaks`/`windJetStrength`/`windVariance` in map configs: ensure none exist under `computeAtmosphericCirculation.strategy === "default"`.
@@ -63,10 +64,7 @@ This doc collects reviewer feedback for the Wind/Currents v2 stack and triages w
 > The test imports `vectorStrategy` from `strategies/vector.js`, but that module does not exist … (new implementation lives in `vector-advection.ts`).
 
 **Status**
-- **Addressed**: test imports now point at the real module/export.
-
-**Important placement note**
-- The fix currently exists **upstack** (applied while fixing the top-of-stack worktree). It should be moved downstack into **#1030** so that PR-level CI and local verification on that slice are correct.
+- **Fixed** in `3df251013` (landed in PR #1030) and review thread resolved.
 
 ---
 
@@ -77,10 +75,7 @@ This doc collects reviewer feedback for the Wind/Currents v2 stack and triages w
 > The vector precipitation strategy file exports `defaultStrategy`, not `vectorStrategy` … named import will throw.
 
 **Status**
-- **Addressed**: test imports now use the exported symbol.
-
-**Important placement note**
-- Same as (2): move downstack into **#1030**.
+- **Fixed** in `3df251013` (landed in PR #1030) and review thread resolved.
 
 ---
 
@@ -91,14 +86,8 @@ This doc collects reviewer feedback for the Wind/Currents v2 stack and triages w
 > BFS stops expanding when `d >= maxDist`, leaving water tiles beyond the cap at `0xffff`. Contract says 65535 means “on land”, so distant water becomes indistinguishable from land.
 
 **Status**
-- **Open**
-
-**Proposed fix (preferred)**
-- Preserve sentinel semantics: `65535` means land **only**.
-- After BFS, for any water tile with `coastDistance === 65535`, set `coastDistance = maxDist` (clamp), or use a distinct sentinel for “far ocean” and update the contract description accordingly.
-
-**Landing**
-- This should land in **#1031**.
+- **Fixed** in `c2379331f`: `compute-ocean-geometry` now seeds coastal water from Morphology coastline metrics (`coastalWater`) and clamps far-ocean water to `maxCoastDistance` so it never collides with the land sentinel (`65535`).
+- Review thread resolved in PR #1031.
 
 ---
 
@@ -109,16 +98,8 @@ This doc collects reviewer feedback for the Wind/Currents v2 stack and triages w
 > `selectUpcurrent(...)` does not consider `isWaterMask`, so the chosen upcurrent neighbor can be land … land SSTs forced to `0` → coastal injection and artificial cooling.
 
 **Status**
-- **Open**
-
-**Proposed fix**
-- Update upcurrent selection to prefer only `isWaterMask === 1` neighbors.
-- Fallback hierarchy (deterministic):
-  1) best water neighbor(s) by score
-  2) self (no advection)
-
-**Landing**
-- This should land in **#1033**.
+- **Fixed** in `bb02c8cc5`: upcurrent selection is water-only; deterministic fallback to self if no valid water neighbor exists. `shelfMask` is now consumed to apply mild shelf-only extra mixing.
+- Review thread resolved in PR #1033.
 
 ---
 
@@ -129,11 +110,8 @@ This doc collects reviewer feedback for the Wind/Currents v2 stack and triages w
 > Studio default config sets `strategy: 'earthlike'` / `strategy: 'vector'`, but ops register `{default, latitude}` / `{default, cardinal}` / `{default, basic, refine}`.
 
 **Status**
-- **Superseded**: Studio-side preset/default injection was removed; strategy naming now aligns with op registry.
+- **Superseded** and thread resolved in PR #1035. Strategy keys now come directly from the registry-backed step config.
 
 ## Next actions (proposed)
 
-1) **Move the test-import fixes downstack** into **#1030** so that the slice is self-validating.
-2) Fix `coastDistance` sentinel/clamp in **#1031**.
-3) Fix ocean thermal advection water-only correctness in **#1033**.
-
+All items above are fixed and review threads have been resolved. If additional reviewer feedback arrives, add it to the table and repeat the “fix on owning slice + restack + reply + resolve” loop.
