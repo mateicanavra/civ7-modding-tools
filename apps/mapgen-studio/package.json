@@ -8,7 +8,7 @@
     "dev": "vite",
     "gen:civ7-tables": "bun ../../scripts/mapgen-studio/generate-civ7-browser-tables.ts",
     "check:worker-bundle": "node scripts/check-worker-bundle.mjs",
-    "build": "tsc && vite build && bun run check:worker-bundle",
+    "build": "node ../../scripts/preflight/ensure-viz-runtime-deps.mjs && tsc && vite build && bun run check:worker-bundle",
     "preview": "vite preview"
   },
   "dependencies": {
