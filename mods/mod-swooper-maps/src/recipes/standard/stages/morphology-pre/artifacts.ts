@@ -54,6 +54,10 @@ const MorphologyCoastlineMetricsArtifactSchema = Type.Object(
   {
     coastalLand: TypedArraySchemas.u8({ description: "Mask (1/0): land tiles adjacent to water." }),
     coastalWater: TypedArraySchemas.u8({ description: "Mask (1/0): water tiles adjacent to land." }),
+    shelfMask: TypedArraySchemas.u8({
+      description:
+        "Mask (1/0): shallow shelf water eligible for TERRAIN_COAST projection (deterministic, derived from Morphology truth).",
+    }),
     distanceToCoast: TypedArraySchemas.u16({
       description:
         "Minimum tile-graph distance to any coastline tile (0=coast), using wrapX=true and wrapY=false.",
