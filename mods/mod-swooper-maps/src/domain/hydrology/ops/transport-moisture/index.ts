@@ -1,9 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import TransportMoistureContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { defaultStrategy, vectorStrategy } from "./strategies/index.js";
 
 const transportMoisture = createOp(TransportMoistureContract, {
-  strategies: { default: defaultStrategy },
+  strategies: { default: defaultStrategy, vector: vectorStrategy },
 });
 
 export type * from "./types.js";
