@@ -121,15 +121,23 @@ Domain:
 
 Each item below should become a standalone decision packet under `docs/projects/pipeline-realism/resources/decisions/`.
 
-- D01: Define the primitive ordering: “crust drives plates” vs “plates drive crust”. Options: plates-first (C-like), crust-first resistance partition (D-like), hybrid (initial crust priors -> later sim updates). Impacts: partition algorithm, determinism, migration complexity, realism knobs.
-- D02: Define the forcing model minimum: do we compute a mantle stress field? Options: mantle field is first-class (D-like), mantle implied by authoring kinematics (C-like), mantle-lite proxy field (seeded low-freq basins). Impacts: “physics realism” claim, tuning surface, computational cost, testability.
+## Decision Status (Draft)
+
+Draft defaults chosen (via decision packets on the synthesis branch):
+- D01: crust-first resistance partition. See `docs/projects/pipeline-realism/resources/decisions/d01-ordering-crust-vs-plates.md`.
+- D02: mantle-lite proxy forcing + intent/kinematics. See `docs/projects/pipeline-realism/resources/decisions/d02-forcing-mantle-minimum.md`.
+- D04: Eulerian era fields + optional bounded tracer history. See `docs/projects/pipeline-realism/resources/decisions/d04-evolution-semantics-history-model.md`.
+
+Synthesis note:
+- `docs/projects/pipeline-realism/resources/spec/synthesis-d01-d02-d04.md`
+
+Remaining decisions (ordered by dependency, after D01/D02/D04):
 - D03: Define the plate motion representation. Options: plate velocities sampled from a global vector field (D-like), intent vectors + coherence mixing (C-like), vector field + intent constraints (intent shapes the field). Impacts: global patterns (assembly/breakup), boundary curvature, reproducibility.
-- D04: Define the evolution engine semantics. Options: Lagrangian material tracking core (C posture), Eulerian era fields + optional bounded tracer history (D posture), tracer-lite (store only “origin era” + local events). Impacts: cost envelope, implementation risk, how “continents are manufactured” is modeled.
 - D05: Define crust state variables and their meaning. Options: maturity/thickness/age (C), type/age/strength (D), both but with one canonical (maturity derives type/strength). Impacts: partition resistance, morphology signals, backwards compatibility.
 - D06: Define subduction + collision handling (what is destroyed vs accreted). Options: event-driven rules (C), boundary regime fields + downstream force diffusion (D), hybrid (events emit force fields). Impacts: mountain belts, arc volcanism, continent growth, morphology coupling.
 - D07: Define “history as output” API for downstream stages (esp. Morphology). Options: fixed stack of era masks (C-like), explicit era selection (D-like), aggregated effective tectonics field + optional per-era debug. Impacts: API surface, tuning UX, reproducibility, visualization.
-- D08: Define the configuration surface (what users author). Options: profiles-first with escape hatch knobs (D + C), knobs-first with presets (C), scenario templates as primary surface (D optional scenario mode). Impacts: usability, backwards compatibility, long-term maintenance.
 - D09: Define validation + observability minimum (pre-render correctness). Options: adopt M11-style metrics/diagnostics as required outputs, minimal invariants only, staged observability (debug-only first). Impacts: regression safety, tuning loop quality, developer velocity.
+- D08: Define the configuration surface (what users author). Options: profiles-first with escape hatch knobs (D + C), knobs-first with presets (C), scenario templates as primary surface (D optional scenario mode). Impacts: usability, backwards compatibility, long-term maintenance.
 
 ## Candidate “Hardening” Concepts to Harvest (M11 Spike)
 
