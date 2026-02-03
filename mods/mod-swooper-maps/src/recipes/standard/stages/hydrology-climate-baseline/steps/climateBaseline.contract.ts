@@ -75,6 +75,8 @@ const ClimateBaselineStepContract = defineStep({
     computeThermalState: hydrology.ops.computeThermalState,
     computeAtmosphericCirculation: hydrology.ops.computeAtmosphericCirculation,
     computeOceanSurfaceCurrents: hydrology.ops.computeOceanSurfaceCurrents,
+    computeOceanGeometry: hydrology.ops.computeOceanGeometry,
+    computeOceanThermalState: hydrology.ops.computeOceanThermalState,
     computeEvaporationSources: hydrology.ops.computeEvaporationSources,
     transportMoisture: hydrology.ops.transportMoisture,
     computePrecipitation: hydrology.ops.computePrecipitation,
