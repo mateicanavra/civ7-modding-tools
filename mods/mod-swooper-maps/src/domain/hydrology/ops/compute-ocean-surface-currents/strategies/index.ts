@@ -1,2 +1,2 @@
-export { defaultStrategy } from "./default.js";
-export { earthlikeStrategy } from "./earthlike.js";
+export { defaultStrategy } from "./wind-gyre-projection.js";
+export { latitudeStrategy } from "./latitude.js";

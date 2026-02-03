@@ -2,7 +2,7 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputeOceanSurfaceCurrentsContract from "../contract.js";
 import { computeCurrents } from "../rules/index.js";
 
-export const defaultStrategy = createStrategy(ComputeOceanSurfaceCurrentsContract, "default", {
+export const latitudeStrategy = createStrategy(ComputeOceanSurfaceCurrentsContract, "latitude", {
   run: (input, config) => {
     const width = input.width | 0;
     const height = input.height | 0;
