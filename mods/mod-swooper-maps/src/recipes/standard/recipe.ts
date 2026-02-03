@@ -18,9 +18,10 @@ import hydrologyClimateRefine from "./stages/hydrology-climate-refine/index.js";
 import hydrologyHydrography from "./stages/hydrology-hydrography/index.js";
 import mapEcology from "./stages/map-ecology/index.js";
 import mapHydrology from "./stages/map-hydrology/index.js";
-import morphologyMid from "./stages/morphology-mid/index.js";
-import morphologyPost from "./stages/morphology-post/index.js";
-import morphologyPre from "./stages/morphology-pre/index.js";
+import morphologyCoasts from "./stages/morphology-coasts/index.js";
+import morphologyRouting from "./stages/morphology-routing/index.js";
+import morphologyErosion from "./stages/morphology-erosion/index.js";
+import morphologyFeatures from "./stages/morphology-features/index.js";
 import mapMorphology from "./stages/map-morphology/index.js";
 import placement from "./stages/placement/index.js";
 import { STANDARD_TAG_DEFINITIONS } from "./tags.js";
@@ -28,9 +29,10 @@ import { STANDARD_TAG_DEFINITIONS } from "./tags.js";
 const NAMESPACE = "mod-swooper-maps";
 const stages = [
   foundation,
-  morphologyPre,
-  morphologyMid,
-  morphologyPost,
+  morphologyCoasts,
+  morphologyRouting,
+  morphologyErosion,
+  morphologyFeatures,
   hydrologyClimateBaseline,
   hydrologyHydrography,
   hydrologyClimateRefine,
@@ -57,9 +59,10 @@ export const compileOpsById = collectCompileOps(
 export const STANDARD_RECIPE_CONFIG_SCHEMA = Type.Object(
   {
     foundation: Type.Optional(foundation.surfaceSchema),
-    "morphology-pre": Type.Optional(morphologyPre.surfaceSchema),
-    "morphology-mid": Type.Optional(morphologyMid.surfaceSchema),
-    "morphology-post": Type.Optional(morphologyPost.surfaceSchema),
+    "morphology-coasts": Type.Optional(morphologyCoasts.surfaceSchema),
+    "morphology-routing": Type.Optional(morphologyRouting.surfaceSchema),
+    "morphology-erosion": Type.Optional(morphologyErosion.surfaceSchema),
+    "morphology-features": Type.Optional(morphologyFeatures.surfaceSchema),
     "hydrology-climate-baseline": Type.Optional(hydrologyClimateBaseline.surfaceSchema),
     "hydrology-hydrography": Type.Optional(hydrologyHydrography.surfaceSchema),
     "hydrology-climate-refine": Type.Optional(hydrologyClimateRefine.surfaceSchema),

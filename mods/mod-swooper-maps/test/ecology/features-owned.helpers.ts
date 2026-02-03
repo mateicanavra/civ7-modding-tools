@@ -10,7 +10,7 @@ import { buildTestDeps } from "../support/step-deps.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
 import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
 import { hydrologyClimateBaselineArtifacts } from "../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts.js";
-import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology-pre/artifacts.js";
+import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 import featuresApplyStep from "../../src/recipes/standard/stages/map-ecology/steps/features-apply/index.js";
 import { resolveFeatureKeyLookups } from "../../src/recipes/standard/stages/map-ecology/steps/features/feature-keys.js";
 

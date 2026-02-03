@@ -386,7 +386,7 @@ const placementConfig = {
 
 export const standardConfig = {
   foundation: { advanced: foundationConfig },
-  "morphology-pre": {
+  "morphology-coasts": {
     advanced: {
       "landmass-plates": {
         substrate: { strategy: "default", config: {} },
@@ -397,10 +397,6 @@ export const standardConfig = {
           config: { basinSeparation: basinSeparationConfig },
         },
       },
-    },
-  },
-  "morphology-mid": {
-    advanced: {
       "rugged-coasts": {
         coastlines: {
           strategy: "default",
@@ -409,9 +405,17 @@ export const standardConfig = {
           },
         },
       },
+    },
+  },
+  "morphology-routing": {
+    advanced: {
       routing: {
         routing: { strategy: "default", config: {} },
       },
+    },
+  },
+  "morphology-erosion": {
+    advanced: {
       geomorphology: {
         geomorphology: {
           strategy: "default",
@@ -423,7 +427,7 @@ export const standardConfig = {
       },
     },
   },
-  "morphology-post": {
+  "morphology-features": {
     advanced: {
       islands: {
         islands: { strategy: "default", config: islandsPlanConfig },

@@ -8,7 +8,7 @@ import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js
 import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 
 import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
-import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology-pre/artifacts.js";
+import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 import morphologyDomain from "../../src/domain/morphology/ops.js";
 import { runOpValidated } from "../support/compiler-helpers.js";
 
