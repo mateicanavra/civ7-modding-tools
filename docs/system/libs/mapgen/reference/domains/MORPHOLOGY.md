@@ -60,7 +60,7 @@ MORPHOLOGY is **tile-first**: its canonical “truth” products are tile-indexe
 
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/assertions.ts` (`assertNoWaterDrift`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotCoasts.ts` (stamps `TERRAIN_COAST` from `coastlineMetrics.coastalWater`, guarded by `assertNoWaterDrift`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotCoasts.ts` (stamps `TERRAIN_COAST` from `coastlineMetrics.coastalWater || coastlineMetrics.shelfMask`, guarded by `assertNoWaterDrift`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotContinents.ts` (`context.adapter.stampContinents`, `assertNoWaterDrift`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/buildElevation.ts` (`context.adapter.buildElevation`, `assertNoWaterDrift`)
 
@@ -190,6 +190,7 @@ Derived coastline adjacency + distance-to-coast metrics.
 Fields:
 - `coastalLand` (u8): `1` where a land tile is adjacent to water
 - `coastalWater` (u8): `1` where a water tile is adjacent to land
+- `shelfMask` (u8): `1` where a water tile is classified as shallow shelf water (eligible for `TERRAIN_COAST` projection)
 - `distanceToCoast` (u16): minimum tile-graph distance to any coast tile
 
 **Ground truth anchors**
@@ -277,6 +278,15 @@ Derives coastline adjacency masks and proposes updated masks for coastal carving
 - `mods/mod-swooper-maps/src/domain/morphology/ops/compute-coastline-metrics/contract.ts` (`ComputeCoastlineMetricsContract`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/steps/ruggedCoasts.ts` (applying `coastMask` and `landMask` to staged buffers)
 
+#### `morphology/compute-shelf-mask` → `{ shelfMask }`
+
+Classifies shallow shelf water from Morphology truth (nearshore distance + bathymetry), and narrows the shelf near active margins.
+
+**Ground truth anchors**
+- `mods/mod-swooper-maps/src/domain/morphology/ops/compute-shelf-mask/contract.ts` (`ComputeShelfMaskContract`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/steps/ruggedCoasts.ts` (publishing `coastlineMetrics.shelfMask`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotCoasts.ts` (projecting `shelfMask` into `TERRAIN_COAST`)
+
 #### `morphology/compute-flow-routing` → `{ flowDir, flowAccum, basinId }`
 
 Computes flow routing and accumulation buffers from elevation and land mask.
@@ -332,18 +342,19 @@ Plans ridge and foothill masks for mountainous terrain accents (used by `map-mor
 
 ### Stage-level knobs (semantic presets)
 
-The standard recipe exposes five Morphology knobs that apply *after* defaulted step config, as deterministic transforms:
+The standard recipe exposes six Morphology knobs that apply *after* defaulted step config, as deterministic transforms:
 - `seaLevel` (morphology-pre): adds a delta to hypsometry target water percent
 - `coastRuggedness` (morphology-mid): scales bay/fjord carving weights
+- `shelfWidth` (morphology-mid): scales shelf classifier distance caps (how wide shallow shelves can extend)
 - `erosion` (morphology-mid): scales geomorphology rates (fluvial/diffusion/deposition)
 - `volcanism` (morphology-post): scales volcano planning weights/density
 - `orogeny` (map-morphology): scales mountain planning thresholds/intensity
 
 **Ground truth anchors**
-- `mods/mod-swooper-maps/src/domain/morphology/shared/knobs.ts` (`MorphologySeaLevelKnobSchema`, `MorphologyCoastRuggednessKnobSchema`, `MorphologyErosionKnobSchema`, `MorphologyVolcanismKnobSchema`, `MorphologyOrogenyKnobSchema`)
+- `mods/mod-swooper-maps/src/domain/morphology/shared/knobs.ts` (`MorphologySeaLevelKnobSchema`, `MorphologyCoastRuggednessKnobSchema`, `MorphologyShelfWidthKnobSchema`, `MorphologyErosionKnobSchema`, `MorphologyVolcanismKnobSchema`, `MorphologyOrogenyKnobSchema`)
 - `mods/mod-swooper-maps/src/domain/morphology/shared/knob-multipliers.ts` (all `MORPHOLOGY_*` multipliers/deltas)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-pre/steps/landmassPlates.ts` (`normalize` applying `MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/steps/ruggedCoasts.ts` (`normalize` applying `MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/steps/ruggedCoasts.ts` (`normalize` applying `MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER` and `MORPHOLOGY_SHELF_WIDTH_MULTIPLIER`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/steps/geomorphology.ts` (`normalize` applying `MORPHOLOGY_EROSION_RATE_MULTIPLIER`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-post/steps/volcanoes.ts` (`normalize` applying volcanism multipliers)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotMountains.ts` (`normalize` applying orogeny multipliers/deltas)
