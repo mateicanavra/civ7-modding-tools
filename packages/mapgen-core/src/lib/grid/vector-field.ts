@@ -86,13 +86,19 @@ export function dequantizeI8Signed(value: number, maxAbs: number): number {
  * - Uses odd-q projection (`projectOddqToHexSpace`).
  * - Returns vectors in a stable, deterministic order matching the neighbor offset table.
  */
-export function getHexNeighborDirectionVectorsOddQ(isOddCol: boolean): readonly Vec2[] {
-  const offsets = isOddCol ? OFFSETS_ODD : OFFSETS_EVEN;
-  const base = projectOddqToHexSpace(0, 0);
+function computeHexNeighborDirectionVectorsOddQ(baseX: number, offsets: readonly (readonly [number, number])[]): readonly Vec2[] {
+  const base = projectOddqToHexSpace(baseX, 0);
   return offsets.map(([dx, dy]) => {
-    const p = projectOddqToHexSpace(dx, dy);
+    const p = projectOddqToHexSpace(baseX + dx, dy);
     return { x: p.x - base.x, y: p.y - base.y };
   });
+}
+
+const HEX_NEIGHBOR_DIRS_EVEN = computeHexNeighborDirectionVectorsOddQ(0, OFFSETS_EVEN);
+const HEX_NEIGHBOR_DIRS_ODD = computeHexNeighborDirectionVectorsOddQ(1, OFFSETS_ODD);
+
+export function getHexNeighborDirectionVectorsOddQ(isOddCol: boolean): readonly Vec2[] {
+  return isOddCol ? HEX_NEIGHBOR_DIRS_ODD : HEX_NEIGHBOR_DIRS_EVEN;
 }
 
 /**
@@ -213,4 +219,3 @@ export function estimateCurlZOddQ(
 
   return out;
 }
-
