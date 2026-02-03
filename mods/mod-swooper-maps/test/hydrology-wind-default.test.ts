@@ -19,7 +19,7 @@ function varianceI8Row(values: Int8Array, width: number, y: number): number {
   return acc / Math.max(1, n);
 }
 
-describe("hydrology/compute-atmospheric-circulation (earthlike)", () => {
+describe("hydrology/compute-atmospheric-circulation (default)", () => {
   it("is deterministic and not row-uniform", () => {
     const width = 64;
     const height = 32;
@@ -57,4 +57,3 @@ describe("hydrology/compute-atmospheric-circulation (earthlike)", () => {
 function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t;
 }
-

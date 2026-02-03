@@ -2,7 +2,7 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import ComputeAtmosphericCirculationContract from "../contract.js";
 import { computeWinds } from "../rules/index.js";
 
-export const defaultStrategy = createStrategy(ComputeAtmosphericCirculationContract, "default", {
+export const latitudeStrategy = createStrategy(ComputeAtmosphericCirculationContract, "latitude", {
   run: (input, config) => {
     const width = input.width | 0;
     const height = input.height | 0;
