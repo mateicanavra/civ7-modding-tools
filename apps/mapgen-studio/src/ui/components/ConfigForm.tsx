@@ -26,6 +26,8 @@ export interface ConfigFormProps {
   lightMode: boolean;
   /** Auto-expand sections up to this depth (0 = manual expand) */
   autoExpandDepth?: number;
+  /** Optional stageId -> label mapping (for author-friendly stage names) */
+  stageLabels?: Record<string, string>;
 }
 // ============================================================================
 // Helper Functions
@@ -60,7 +62,8 @@ export const ConfigForm: React.FC<ConfigFormProps> = ({
   onConfigPatch,
   knobOptions,
   lightMode,
-  autoExpandDepth = 0
+  autoExpandDepth = 0,
+  stageLabels
 }) => {
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
     {}
@@ -425,7 +428,7 @@ export const ConfigForm: React.FC<ConfigFormProps> = ({
           className={`w-full flex items-center justify-between py-1.5 rounded transition-colors ${hoverBg}`}>
 
           <span className={`font-semibold text-[12px] ${textPrimary}`}>
-            {formatStageName(stageName)}
+            {stageLabels?.[stageName] ?? formatStageName(stageName)}
           </span>
           {isExpanded ?
           <ChevronDown className={`w-3.5 h-3.5 ${textSecondary}`} /> :

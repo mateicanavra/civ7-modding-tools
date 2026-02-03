@@ -8,7 +8,7 @@
  * Format a stage/step name for display.
  * Converts kebab-case to Title Case.
  *
- * @example formatStageName('morphology-pre') // 'Morphology Pre'
+ * @example formatStageName('morphology-coasts') // 'Morphology Pre'
  */
 export function formatStageName(name: string): string {
   return name.

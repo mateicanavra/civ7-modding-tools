@@ -185,6 +185,33 @@ function deriveStageStepConfigFocusMap(args: {
   return mapping;
 }
 
+
+function formatKebabIdLabel(id: string): string {
+  return id
+    .split("-")
+    .map((word) => (word ? word[0]!.toUpperCase() + word.slice(1) : word))
+    .join(" ");
+}
+
+const STAGE_LABEL_OVERRIDES: Record<string, string> = {
+  "morphology-coasts": "Morphology / Coasts",
+  "morphology-routing": "Morphology / Routing",
+  "morphology-erosion": "Morphology / Erosion",
+  "morphology-features": "Morphology / Features",
+  "map-morphology": "Map / Morphology",
+  "map-hydrology": "Map / Hydrology",
+  "map-ecology": "Map / Ecology",
+};
+
+const STEP_LABEL_OVERRIDES: Record<string, string> = {
+  "plate-graph": "Plate Graph",
+  "plate-topology": "Plate Topology",
+  "climate-baseline": "Climate Baseline",
+  "climate-refine": "Climate Refine",
+  "rugged-coasts": "Rugged Coasts",
+  "landmass-plates": "Landmass Plates",
+};
+
 function deriveStudioRecipeUiMeta(args: {
   namespace: string;
   recipeId: string;
@@ -200,9 +227,12 @@ function deriveStudioRecipeUiMeta(args: {
     namespace,
     recipeId,
     stages: args.stages.map((stage) => {
+      const stageId = stage.id;
+      const stageLabel = STAGE_LABEL_OVERRIDES[stageId] ?? formatKebabIdLabel(stageId);
       const stepFocus = deriveStageStepConfigFocusMap({ namespace, recipeId, stage });
       return {
-        stageId: stage.id,
+        stageId,
+        stageLabel,
         steps: stage.steps.map((s) => {
           const stepId = s.contract.id;
           const configFocusPathWithinStage = stepFocus[stepId];
@@ -211,9 +241,11 @@ function deriveStudioRecipeUiMeta(args: {
               `[recipe:${namespace}.${recipeId}] stage("${stage.id}") missing config focus path for step("${stepId}")`
             );
           }
+          const stepLabel = STEP_LABEL_OVERRIDES[stepId] ?? formatKebabIdLabel(stepId);
           return {
             stepId,
-            fullStepId: `${namespace}.${recipeId}.${stage.id}.${stepId}`,
+            stepLabel,
+            fullStepId: `${namespace}.${recipeId}.${stageId}.${stepId}`,
             configFocusPathWithinStage,
           };
         }),
@@ -268,8 +300,10 @@ async function writeArtifactsModule(args: {
     `  recipeId: string;`,
     `  stages: ReadonlyArray<Readonly<{`,
     `    stageId: string;`,
+    `    stageLabel: string;`,
     `    steps: ReadonlyArray<Readonly<{`,
     `      stepId: string;`,
+    `      stepLabel: string;`,
     `      fullStepId: string;`,
     `      configFocusPathWithinStage: ReadonlyArray<string>;`,
     `    }>>;`,

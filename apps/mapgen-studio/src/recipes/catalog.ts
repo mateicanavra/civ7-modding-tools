@@ -6,9 +6,11 @@ export type StudioRecipeUiMeta = Readonly<{
   stages: ReadonlyArray<
     Readonly<{
       stageId: string;
+      stageLabel: string;
       steps: ReadonlyArray<
         Readonly<{
           stepId: string;
+          stepLabel: string;
           fullStepId: string;
           configFocusPathWithinStage: ReadonlyArray<string>;
         }>

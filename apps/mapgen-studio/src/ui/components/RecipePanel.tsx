@@ -53,6 +53,8 @@ export interface RecipePanelProps {
   presetOptions: SelectOption[];
   /** Knob options mapping (knob name → available values) */
   knobOptions?: KnobOptionsMap;
+  /** Optional stageId -> label mapping (for author-friendly stage names) */
+  stageLabels?: Record<string, string>;
   /** Theme object (kept for API compatibility) */
   theme: Theme;
   /** Light mode flag for styling */
@@ -94,6 +96,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   recipeOptions,
   presetOptions,
   knobOptions,
+  stageLabels,
   theme,
   lightMode,
   selectedStep,
@@ -353,7 +356,8 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
               knobOptions={knobOptions}
               theme={theme}
               lightMode={lightMode}
-              autoExpandDepth={autoExpandDepth} />
+              autoExpandDepth={autoExpandDepth}
+              stageLabels={stageLabels} />
 
             }
             </div>
