@@ -16,7 +16,7 @@
 Enable trace + viz emissions for a run so you can debug:
 - step ordering and gating,
 - invariants and validation failures,
-- artifact/projection drift,
+- artifact/projection drift (map projection, not UI render mode),
 - scalar field correctness (via dumped layers + deck.gl viewer).
 
 Routes to:
@@ -104,7 +104,7 @@ Then click **Run** and pick the dump folder (the folder containing `manifest.jso
 Use the Explore panel to:
 - choose a stage + step (from the manifest),
 - choose a `spaceId` (coordinate space),
-- choose a layer and render variant.
+- choose a data type (`dataTypeKey`), render mode (`kind[:role]`), and variant (`variantKey`) as needed.
 
 For the full system explanation (streaming vs replay, schema, layer taxonomy), see:
 - [`docs/system/libs/mapgen/pipeline-visualization-deckgl.md`](/system/libs/mapgen/pipeline-visualization-deckgl.md)

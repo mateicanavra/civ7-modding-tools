@@ -18,6 +18,11 @@ Define the canonical visualization contract and route readers to the single cano
 - MapGen Studio renders visualization via deck.gl:
   - live runs consume streamed layer upserts (`viz.layer.upsert`),
   - dump viewer workflows consume dump folders (when produced).
+- Studio’s primary UI terminology is:
+  - **Data type**: `dataTypeKey` (semantic identity; what a visualization *means*),
+  - **Space**: `spaceId` (coordinate space),
+  - **Render mode**: derived from `kind[:role]` (grid / points / segments / gridFields + optional role),
+  - **Variant**: `variantKey` (optional; disambiguates multiple variants of the same data type).
 
 Hard rule:
 - There must be **exactly one** canonical deck.gl visualization doc. Do not fork competing viz architecture pages.
