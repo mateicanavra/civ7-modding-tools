@@ -1,5 +1,7 @@
 # Decision Packet: Define Evolution Semantics (History Model)
 
+> Superseded by `docs/projects/pipeline-realism/resources/decisions/d04r-history-dual-eulerian-plus-lagrangian.md` (maximal posture: Eulerian era fields + mandatory Lagrangian provenance).
+
 ## Question
 
 Should the Foundation evolutionary refactor treat history as **Lagrangian material tracking** (forward-simulation of crust parcels) or as **Eulerian era-resolved fields** with optional bounded tracer history, and what is the minimal downstream history API (Morphology-first)?

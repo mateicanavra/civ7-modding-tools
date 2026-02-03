@@ -2,6 +2,8 @@
 
 Date: 2026-02-03
 
+> Superseded by the maximal posture decisions (D02r/D04r/D07r) and the canonical SPEC at `docs/projects/pipeline-realism/resources/spec/foundation-evolutionary-physics-SPEC.md`.
+
 This note consolidates the first three upstream decision packets into a single, coherent “working target” posture for the Foundation evolutionary refactor.
 
 Decisions are still **draft defaults** until we explicitly accept them, but they are consistent with the stated goal: a basaltic-lid, evolutionary physics model with bounded cost and deterministic outputs for downstream stages (especially Morphology).
@@ -68,4 +70,3 @@ With D01/D02/D04 set, the next “dependency-ordered” decisions are:
 4. D07: Downstream history API (explicit era selection vs fixed stacks vs aggregated fields).
 5. D09: Validation/observability minimums (what we can assert pre-render).
 6. D08: Authoring surface (profiles vs knobs vs scenarios).
-

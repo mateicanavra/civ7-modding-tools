@@ -125,11 +125,14 @@ Each item below should become a standalone decision packet under `docs/projects/
 
 Draft defaults chosen (via decision packets on the synthesis branch):
 - D01: crust-first resistance partition. See `docs/projects/pipeline-realism/resources/decisions/d01-ordering-crust-vs-plates.md`.
-- D02: mantle-lite proxy forcing + intent/kinematics. See `docs/projects/pipeline-realism/resources/decisions/d02-forcing-mantle-minimum.md`.
-- D04: Eulerian era fields + optional bounded tracer history. See `docs/projects/pipeline-realism/resources/decisions/d04-evolution-semantics-history-model.md`.
+- D02r (supersedes D02): mantle forcing as potential + derived stress/velocity. See `docs/projects/pipeline-realism/resources/decisions/d02r-mantle-forcing-potential-derived.md`.
+- D04r (supersedes D04): dual history outputs (Eulerian eras + mandatory Lagrangian provenance). See `docs/projects/pipeline-realism/resources/decisions/d04r-history-dual-eulerian-plus-lagrangian.md`.
+- D07r: morphology consumes era fields + provenance (no wall mountains). See `docs/projects/pipeline-realism/resources/decisions/d07r-morphology-consumption-contract.md`.
 
 Synthesis note:
 - `docs/projects/pipeline-realism/resources/spec/synthesis-d01-d02-d04.md`
+- Maximal SPEC:
+  - `docs/projects/pipeline-realism/resources/spec/foundation-evolutionary-physics-SPEC.md`
 
 Remaining decisions (ordered by dependency, after D01/D02/D04):
 - D03: Define the plate motion representation. Options: plate velocities sampled from a global vector field (D-like), intent vectors + coherence mixing (C-like), vector field + intent constraints (intent shapes the field). Impacts: global patterns (assembly/breakup), boundary curvature, reproducibility.
