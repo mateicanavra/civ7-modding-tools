@@ -15,7 +15,7 @@ function rms(values: Float32Array, mask: Uint8Array): number {
   return Math.sqrt(sum / Math.max(1, n));
 }
 
-describe("hydrology/compute-ocean-surface-currents (earthlike)", () => {
+describe("hydrology/compute-ocean-surface-currents (default)", () => {
   it("zeros land and reduces divergence with projection", () => {
     const width = 32;
     const height = 16;
@@ -81,4 +81,3 @@ describe("hydrology/compute-ocean-surface-currents (earthlike)", () => {
     expect(rms(divProj, isWaterMask)).toBeLessThan(rms(divRaw, isWaterMask));
   });
 });
-

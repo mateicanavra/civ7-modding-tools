@@ -155,8 +155,8 @@ const ComputeOceanSurfaceCurrentsContract = defineOp({
   input: ComputeOceanSurfaceCurrentsInputSchema,
   output: ComputeOceanSurfaceCurrentsOutputSchema,
   strategies: {
-    default: ComputeOceanSurfaceCurrentsDefaultStrategySchema,
-    earthlike: ComputeOceanSurfaceCurrentsEarthlikeStrategySchema,
+    default: ComputeOceanSurfaceCurrentsEarthlikeStrategySchema,
+    latitude: ComputeOceanSurfaceCurrentsDefaultStrategySchema,
   },
 });
 
