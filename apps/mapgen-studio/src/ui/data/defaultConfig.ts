@@ -148,11 +148,74 @@ export const defaultConfig: PipelineConfig = {
         modeCount: 4
       },
       computeAtmosphericCirculation: {
+        strategy: 'earthlike',
+        config: {
+          maxSpeed: 110,
+          zonalStrength: 90,
+          meridionalStrength: 30,
+          geostrophicStrength: 70,
+          pressureNoiseScale: 18,
+          pressureNoiseAmp: 55,
+          waveStrength: 45,
+          landHeatStrength: 20,
+          mountainDeflectStrength: 18,
+          smoothIters: 4
+        }
+      },
+      computeOceanGeometry: {
         strategy: 'default',
         config: {
-          windJetStrength: 1.5,
-          windVariance: 0.35,
-          windJetStreaks: 4
+          maxCoastDistance: 64,
+          maxCoastVectorDistance: 10
+        }
+      },
+      computeOceanSurfaceCurrents: {
+        strategy: 'earthlike',
+        config: {
+          maxSpeed: 80,
+          windStrength: 0.55,
+          ekmanStrength: 0.35,
+          gyreStrength: 26,
+          coastStrength: 32,
+          smoothIters: 3,
+          projectionIters: 8
+        }
+      },
+      computeOceanThermalState: {
+        strategy: 'default',
+        config: {
+          equatorTempC: 28,
+          poleTempC: -2,
+          advectIters: 28,
+          diffusion: 0.18,
+          secondaryWeightMin: 0.25,
+          seaIceThresholdC: -1
+        }
+      },
+      transportMoisture: {
+        strategy: 'vector',
+        config: {
+          iterations: 42,
+          advection: 0.7,
+          retention: 0.93,
+          secondaryWeightMin: 0.2
+        }
+      },
+      computePrecipitation: {
+        strategy: 'vector',
+        config: {
+          rainfallScale: 180,
+          humidityExponent: 1,
+          noiseAmplitude: 6,
+          noiseScale: 0.12,
+          waterGradient: {
+            radius: 5,
+            perRingBonus: 4,
+            lowlandBonus: 2,
+            lowlandElevationMax: 150
+          },
+          upliftStrength: 22,
+          convergenceStrength: 16
         }
       }
     }

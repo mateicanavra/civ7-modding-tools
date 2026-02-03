@@ -15,6 +15,14 @@ const ComputeEvaporationSourcesInputSchema = Type.Object(
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
     /** Surface temperature proxy (C). */
     surfaceTemperatureC: TypedArraySchemas.f32({ description: "Surface temperature proxy (C)." }),
+    /** Optional wind U component per tile (-127..127), for ocean evaporation coupling. */
+    windU: Type.Optional(TypedArraySchemas.i8({ description: "Optional wind U component per tile (-127..127)." })),
+    /** Optional wind V component per tile (-127..127), for ocean evaporation coupling. */
+    windV: Type.Optional(TypedArraySchemas.i8({ description: "Optional wind V component per tile (-127..127)." })),
+    /** Optional sea surface temperature (C) per tile, used to drive ocean evaporation. */
+    sstC: Type.Optional(TypedArraySchemas.f32({ description: "Optional sea surface temperature (C) per tile." })),
+    /** Optional sea ice mask per tile (1=ice, 0=no ice), used to suppress ocean evaporation. */
+    seaIceMask: Type.Optional(TypedArraySchemas.u8({ description: "Optional sea ice mask per tile (1=ice, 0=no ice)." })),
   },
   {
     additionalProperties: false,
