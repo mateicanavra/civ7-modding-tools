@@ -9,23 +9,11 @@ function popIndex(queue: number[], head: number): number {
   return queue[head] ?? 0;
 }
 
-function isCoastalWater(x: number, y: number, width: number, height: number, isWaterMask: Uint8Array): boolean {
-  const i = y * width + x;
-  if ((isWaterMask[i] ?? 0) !== 1) return false;
-  let coastal = false;
-  forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
-    const j = ny * width + nx;
-    if ((isWaterMask[j] ?? 0) === 0) coastal = true;
-  });
-  // Treat north/south edges as coast-adjacent.
-  if (y === 0 || y === height - 1) coastal = true;
-  return coastal;
-}
-
 export function computeOceanGeometry(
   width: number,
   height: number,
   isWaterMask: Uint8Array,
+  coastalWaterMask: Uint8Array,
   options: ComputeOceanGeometryOptions
 ): ComputeOceanGeometryOutput {
   const size = Math.max(0, width * height);
@@ -80,7 +68,7 @@ export function computeOceanGeometry(
     for (let x = 0; x < width; x++) {
       const i = y * width + x;
       if ((isWaterMask[i] ?? 0) !== 1) continue;
-      if (isCoastalWater(x, y, width, height, isWaterMask)) {
+      if ((coastalWaterMask[i] ?? 0) === 1) {
         coastDistance[i] = 0;
         queue.push(i);
       }
@@ -103,6 +91,13 @@ export function computeOceanGeometry(
         queue.push(j);
       }
     });
+  }
+
+  // Clamp far-ocean water to maxDist, keeping land as INF. This avoids sentinel collision between land and
+  // un-reached water tiles when BFS is bounded.
+  for (let i = 0; i < size; i++) {
+    if ((isWaterMask[i] ?? 0) !== 1) continue;
+    if ((coastDistance[i] ?? INF_U16) === INF_U16) coastDistance[i] = maxDist;
   }
 
   // 3) Coast normal/tangent (advisory). We approximate a normal pointing offshore by taking a local
