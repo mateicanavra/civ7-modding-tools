@@ -6,7 +6,7 @@ function idx(x: number, y: number, width: number): number {
   return y * width + x;
 }
 
-describe("hydrology/compute-precipitation (vector)", () => {
+describe("hydrology/compute-precipitation (default)", () => {
   it("produces a windward uplift signal on a ridge (noise disabled)", () => {
     const width = 16;
     const height = 10;
@@ -64,4 +64,3 @@ describe("hydrology/compute-precipitation (vector)", () => {
     expect(windward).toBeGreaterThan(leeward);
   });
 });
-

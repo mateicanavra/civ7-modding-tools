@@ -376,8 +376,8 @@ const ComputePrecipitationContract = defineOp({
   input: ComputePrecipitationInputSchema,
   output: ComputePrecipitationOutputSchema,
   strategies: {
-    default: ComputePrecipitationBaselineStrategySchema,
-    vector: ComputePrecipitationVectorStrategySchema,
+    default: ComputePrecipitationVectorStrategySchema,
+    basic: ComputePrecipitationBaselineStrategySchema,
     refine: ComputePrecipitationRefineStrategySchema,
   },
 });

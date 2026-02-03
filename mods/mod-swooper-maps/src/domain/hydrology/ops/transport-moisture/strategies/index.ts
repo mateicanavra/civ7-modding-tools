@@ -1,2 +1,2 @@
-export { defaultStrategy } from "./default.js";
-export { vectorStrategy } from "./vector.js";
+export { defaultStrategy } from "./vector-advection.js";
+export { cardinalStrategy } from "./cardinal.js";

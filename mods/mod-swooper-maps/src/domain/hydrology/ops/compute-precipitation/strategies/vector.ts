@@ -71,7 +71,7 @@ function elevationGradientOddQ(
   return { x: gx / w, y: gy / w };
 }
 
-export const vectorStrategy = createStrategy(ComputePrecipitationContract, "vector", {
+export const defaultStrategy = createStrategy(ComputePrecipitationContract, "default", {
   run: (input, config) => {
     const width = input.width | 0;
     const height = input.height | 0;

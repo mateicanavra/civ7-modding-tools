@@ -2,7 +2,7 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import TransportMoistureContract from "../contract.js";
 import { clamp01, upwindIndex, upwindOffset } from "../rules/index.js";
 
-export const defaultStrategy = createStrategy(TransportMoistureContract, "default", {
+export const cardinalStrategy = createStrategy(TransportMoistureContract, "cardinal", {
   run: (input, config) => {
     const width = input.width | 0;
     const height = input.height | 0;
