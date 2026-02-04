@@ -10,6 +10,7 @@ type ArtifactValidationIssue = Readonly<{ message: string }>;
 
 const GROUP_TOPOGRAPHY = "Morphology / Topography";
 const GROUP_SUBSTRATE = "Morphology / Substrate";
+const GROUP_DUAL_READ = "Morphology / Dual-Read";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -316,6 +317,240 @@ export default createStep(LandmassPlatesStepContract, {
         group: GROUP_SUBSTRATE,
       }),
     });
+
+    const historyTiles = deps.artifacts.foundationTectonicHistoryTiles.read(context) as {
+      eraCount?: number;
+      perEra?: Array<{
+        boundaryType?: Uint8Array;
+        upliftPotential?: Uint8Array;
+        riftPotential?: Uint8Array;
+        shearStress?: Uint8Array;
+        volcanism?: Uint8Array;
+        fracture?: Uint8Array;
+      }>;
+      rollups?: {
+        upliftTotal?: Uint8Array;
+        fractureTotal?: Uint8Array;
+        volcanismTotal?: Uint8Array;
+        upliftRecentFraction?: Uint8Array;
+        lastActiveEra?: Uint8Array;
+      };
+    };
+    const provenanceTiles = deps.artifacts.foundationTectonicProvenanceTiles.read(context) as {
+      originEra?: Uint8Array;
+      originPlateId?: Int16Array;
+      driftDistance?: Uint8Array;
+      lastBoundaryEra?: Uint8Array;
+      lastBoundaryType?: Uint8Array;
+    };
+
+    if (Array.isArray(historyTiles.perEra) && historyTiles.perEra.length > 0) {
+      const size = expectedSize(context.dimensions);
+      const eraIndex = Math.max(
+        0,
+        Math.min(historyTiles.perEra.length - 1, (historyTiles.eraCount ?? historyTiles.perEra.length) - 1)
+      );
+      const newest = historyTiles.perEra[eraIndex] ?? {};
+      const historyBoundary = newest.boundaryType;
+      const historyUplift = newest.upliftPotential;
+      const historyRift = newest.riftPotential;
+      const provenanceOriginEra = provenanceTiles.originEra;
+      const provenanceLastBoundary = provenanceTiles.lastBoundaryType;
+
+      if (
+        historyBoundary instanceof Uint8Array &&
+        historyBoundary.length === size &&
+        historyUplift instanceof Uint8Array &&
+        historyUplift.length === size
+      ) {
+        const boundaryDelta = new Uint8Array(size);
+        const upliftDelta = new Uint8Array(size);
+        const riftDelta = historyRift instanceof Uint8Array && historyRift.length === size ? new Uint8Array(size) : null;
+
+        let boundaryMatches = 0;
+        let upliftDiffSum = 0;
+        let riftDiffSum = 0;
+        let provenanceMatches = 0;
+
+        for (let i = 0; i < size; i++) {
+          const legacyBoundary = plates.boundaryType[i] ?? 0;
+          const nextBoundary = historyBoundary[i] ?? 0;
+          const legacyUplift = plates.upliftPotential[i] ?? 0;
+          const nextUplift = historyUplift[i] ?? 0;
+
+          if (legacyBoundary === nextBoundary) boundaryMatches += 1;
+          boundaryDelta[i] = legacyBoundary === nextBoundary ? 0 : 255;
+
+          const upliftDiff = Math.abs(legacyUplift - nextUplift);
+          upliftDiffSum += upliftDiff;
+          upliftDelta[i] = upliftDiff > 255 ? 255 : upliftDiff;
+
+          if (riftDelta && historyRift) {
+            const legacyRift = plates.riftPotential[i] ?? 0;
+            const nextRift = historyRift[i] ?? 0;
+            const riftDiff = Math.abs(legacyRift - nextRift);
+            riftDiffSum += riftDiff;
+            riftDelta[i] = riftDiff > 255 ? 255 : riftDiff;
+          }
+
+          if (provenanceLastBoundary && provenanceLastBoundary.length === size) {
+            if (legacyBoundary === (provenanceLastBoundary[i] ?? 255)) provenanceMatches += 1;
+          }
+        }
+
+        const total = Math.max(1, size);
+        context.trace.event(() => ({
+          kind: "morphology.dualRead.summary",
+          eraIndex,
+          boundaryMatchFraction: boundaryMatches / total,
+          upliftMeanAbsDiff: upliftDiffSum / total,
+          riftMeanAbsDiff: riftDelta ? riftDiffSum / total : null,
+          provenanceBoundaryMatchFraction:
+            provenanceLastBoundary && provenanceLastBoundary.length === size ? provenanceMatches / total : null,
+        }));
+
+        context.viz?.dumpGrid(context.trace, {
+          dataTypeKey: "morphology.dualRead.legacy.boundaryType",
+          spaceId: TILE_SPACE_ID,
+          dims: { width, height },
+          format: "u8",
+          values: plates.boundaryType,
+          meta: defineVizMeta("morphology.dualRead.legacy.boundaryType", {
+            label: "Legacy Boundary Type",
+            group: GROUP_DUAL_READ,
+            visibility: "debug",
+          }),
+        });
+        context.viz?.dumpGrid(context.trace, {
+          dataTypeKey: "morphology.dualRead.history.boundaryType",
+          spaceId: TILE_SPACE_ID,
+          dims: { width, height },
+          format: "u8",
+          values: historyBoundary,
+          meta: defineVizMeta("morphology.dualRead.history.boundaryType", {
+            label: "History Boundary Type (Newest Era)",
+            group: GROUP_DUAL_READ,
+            visibility: "debug",
+          }),
+        });
+        context.viz?.dumpGrid(context.trace, {
+          dataTypeKey: "morphology.dualRead.delta.boundaryType",
+          spaceId: TILE_SPACE_ID,
+          dims: { width, height },
+          format: "u8",
+          values: boundaryDelta,
+          meta: defineVizMeta("morphology.dualRead.delta.boundaryType", {
+            label: "Boundary Type Delta (Legacy vs History)",
+            group: GROUP_DUAL_READ,
+            visibility: "debug",
+          }),
+        });
+        context.viz?.dumpGrid(context.trace, {
+          dataTypeKey: "morphology.dualRead.legacy.upliftPotential",
+          spaceId: TILE_SPACE_ID,
+          dims: { width, height },
+          format: "u8",
+          values: plates.upliftPotential,
+          meta: defineVizMeta("morphology.dualRead.legacy.upliftPotential", {
+            label: "Legacy Uplift Potential",
+            group: GROUP_DUAL_READ,
+            visibility: "debug",
+          }),
+        });
+        context.viz?.dumpGrid(context.trace, {
+          dataTypeKey: "morphology.dualRead.history.upliftPotential",
+          spaceId: TILE_SPACE_ID,
+          dims: { width, height },
+          format: "u8",
+          values: historyUplift,
+          meta: defineVizMeta("morphology.dualRead.history.upliftPotential", {
+            label: "History Uplift Potential (Newest Era)",
+            group: GROUP_DUAL_READ,
+            visibility: "debug",
+          }),
+        });
+        context.viz?.dumpGrid(context.trace, {
+          dataTypeKey: "morphology.dualRead.delta.upliftPotential",
+          spaceId: TILE_SPACE_ID,
+          dims: { width, height },
+          format: "u8",
+          values: upliftDelta,
+          meta: defineVizMeta("morphology.dualRead.delta.upliftPotential", {
+            label: "Uplift Delta (Legacy vs History)",
+            group: GROUP_DUAL_READ,
+            visibility: "debug",
+          }),
+        });
+
+        if (historyRift instanceof Uint8Array && historyRift.length === size && riftDelta) {
+          context.viz?.dumpGrid(context.trace, {
+            dataTypeKey: "morphology.dualRead.legacy.riftPotential",
+            spaceId: TILE_SPACE_ID,
+            dims: { width, height },
+            format: "u8",
+            values: plates.riftPotential,
+            meta: defineVizMeta("morphology.dualRead.legacy.riftPotential", {
+              label: "Legacy Rift Potential",
+              group: GROUP_DUAL_READ,
+              visibility: "debug",
+            }),
+          });
+          context.viz?.dumpGrid(context.trace, {
+            dataTypeKey: "morphology.dualRead.history.riftPotential",
+            spaceId: TILE_SPACE_ID,
+            dims: { width, height },
+            format: "u8",
+            values: historyRift,
+            meta: defineVizMeta("morphology.dualRead.history.riftPotential", {
+              label: "History Rift Potential (Newest Era)",
+              group: GROUP_DUAL_READ,
+              visibility: "debug",
+            }),
+          });
+          context.viz?.dumpGrid(context.trace, {
+            dataTypeKey: "morphology.dualRead.delta.riftPotential",
+            spaceId: TILE_SPACE_ID,
+            dims: { width, height },
+            format: "u8",
+            values: riftDelta,
+            meta: defineVizMeta("morphology.dualRead.delta.riftPotential", {
+              label: "Rift Delta (Legacy vs History)",
+              group: GROUP_DUAL_READ,
+              visibility: "debug",
+            }),
+          });
+        }
+
+        if (provenanceOriginEra instanceof Uint8Array && provenanceOriginEra.length === size) {
+          context.viz?.dumpGrid(context.trace, {
+            dataTypeKey: "morphology.dualRead.provenance.originEra",
+            spaceId: TILE_SPACE_ID,
+            dims: { width, height },
+            format: "u8",
+            values: provenanceOriginEra,
+            meta: defineVizMeta("morphology.dualRead.provenance.originEra", {
+              label: "Provenance Origin Era",
+              group: GROUP_DUAL_READ,
+              visibility: "debug",
+            }),
+          });
+        }
+        if (provenanceLastBoundary instanceof Uint8Array && provenanceLastBoundary.length === size) {
+          context.viz?.dumpGrid(context.trace, {
+            dataTypeKey: "morphology.dualRead.provenance.lastBoundaryType",
+            spaceId: TILE_SPACE_ID,
+            dims: { width, height },
+            format: "u8",
+            values: provenanceLastBoundary,
+            meta: defineVizMeta("morphology.dualRead.provenance.lastBoundaryType", {
+              label: "Provenance Last Boundary Type",
+              group: GROUP_DUAL_READ,
+              visibility: "debug",
+            }),
+          });
+        }
+      }
+    }
 
     deps.artifacts.topography.publish(context, topography);
     deps.artifacts.substrate.publish(context, substrate);
