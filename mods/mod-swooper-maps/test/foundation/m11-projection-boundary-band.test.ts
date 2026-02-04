@@ -1,7 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import computeMesh from "../../src/domain/foundation/ops/compute-mesh/index.js";
+import computeMantlePotential from "../../src/domain/foundation/ops/compute-mantle-potential/index.js";
+import computeMantleForcing from "../../src/domain/foundation/ops/compute-mantle-forcing/index.js";
 import computePlateGraph from "../../src/domain/foundation/ops/compute-plate-graph/index.js";
+import computePlateMotion from "../../src/domain/foundation/ops/compute-plate-motion/index.js";
 import computeTectonicHistory from "../../src/domain/foundation/ops/compute-tectonic-history/index.js";
 import computeTectonicSegments from "../../src/domain/foundation/ops/compute-tectonic-segments/index.js";
 import computePlatesTensors from "../../src/domain/foundation/ops/compute-plates-tensors/index.js";
@@ -64,6 +67,14 @@ function computeDistanceFieldOddQ(params: {
   return dist;
 }
 
+function derivePlateMotion(mesh: any, plateGraph: any, rngSeed: number) {
+  const mantlePotential = computeMantlePotential.run({ mesh, rngSeed }, computeMantlePotential.defaultConfig)
+    .mantlePotential;
+  const mantleForcing = computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
+    .mantleForcing;
+  return computePlateMotion.run({ mesh, plateGraph, mantleForcing }, computePlateMotion.defaultConfig).plateMotion;
+}
+
 describe("m11 plates projection (boundary band)", () => {
   it("projects boundary regime + signals beyond the exact boundary line", () => {
     const width = 44;
@@ -104,8 +115,9 @@ describe("m11 plates projection (boundary band)", () => {
     );
     const plateGraph = computePlateGraph.run({ mesh, crust: crust as any, rngSeed: 11 }, plateGraphConfig).plateGraph;
 
+    const plateMotion = derivePlateMotion(mesh, plateGraph, 12);
     const segments = computeTectonicSegments.run(
-      { mesh, crust: crust as any, plateGraph: plateGraph as any },
+      { mesh, crust: crust as any, plateGraph: plateGraph as any, plateMotion: plateMotion as any },
       computeTectonicSegments.defaultConfig
     ).segments;
 
@@ -130,6 +142,7 @@ describe("m11 plates projection (boundary band)", () => {
         mesh,
         crust: crust as any,
         plateGraph: plateGraph as any,
+        plateMotion: plateMotion as any,
         tectonics: historyResult.tectonics as any,
         tectonicHistory: historyResult.tectonicHistory as any,
       },

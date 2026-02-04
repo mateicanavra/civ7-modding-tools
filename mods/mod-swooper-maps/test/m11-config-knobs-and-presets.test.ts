@@ -114,8 +114,8 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
     expect(compiled.foundation.projection.computePlates.config.rotationScale).toBeCloseTo(89.6, 6);
 
     // Morphology:
-    // - seaLevel=water-heavy adds +7 to targetWaterPercent.
-    expect(compiled["morphology-coasts"]["landmass-plates"].seaLevel.config.targetWaterPercent).toBe(67);
+    // - seaLevel=water-heavy adds +15 to targetWaterPercent.
+    expect(compiled["morphology-coasts"]["landmass-plates"].seaLevel.config.targetWaterPercent).toBe(75);
 
     // - erosion=high scales rates by 1.35.
     expect(compiled["morphology-erosion"].geomorphology.geomorphology.config.geomorphology.fluvial.rate).toBeCloseTo(0.27, 6);

@@ -16,6 +16,39 @@ function makeTwoCellMesh(): any {
   } as const;
 }
 
+function makePlateMotionFromGraph(plateGraph: {
+  plates: { seedX: number; seedY: number; velocityX: number; velocityY: number; rotation: number }[];
+}, cellCount: number) {
+  const plateCount = plateGraph.plates.length;
+  const plateCenterX = new Float32Array(plateCount);
+  const plateCenterY = new Float32Array(plateCount);
+  const plateVelocityX = new Float32Array(plateCount);
+  const plateVelocityY = new Float32Array(plateCount);
+  const plateOmega = new Float32Array(plateCount);
+  for (let i = 0; i < plateCount; i++) {
+    const plate = plateGraph.plates[i]!;
+    plateCenterX[i] = plate.seedX ?? 0;
+    plateCenterY[i] = plate.seedY ?? 0;
+    plateVelocityX[i] = plate.velocityX ?? 0;
+    plateVelocityY[i] = plate.velocityY ?? 0;
+    plateOmega[i] = plate.rotation ?? 0;
+  }
+  return {
+    version: 1,
+    cellCount,
+    plateCount,
+    plateCenterX,
+    plateCenterY,
+    plateVelocityX,
+    plateVelocityY,
+    plateOmega,
+    plateFitRms: new Float32Array(plateCount),
+    plateFitP90: new Float32Array(plateCount),
+    plateQuality: new Uint8Array(plateCount),
+    cellFitError: new Uint8Array(cellCount),
+  } as const;
+}
+
 describe("m11 tectonics (segments + history)", () => {
   it("segment decomposition is rotation-aware (shear changes when rotation changes)", () => {
     const mesh = makeTwoCellMesh();
@@ -39,8 +72,9 @@ describe("m11 tectonics (segments + history)", () => {
       ],
     } as const;
 
+    const basePlateMotion = makePlateMotionFromGraph(basePlateGraph, mesh.cellCount);
     const noRot = computeTectonicSegments.run(
-      { mesh, crust: crust as any, plateGraph: basePlateGraph as any },
+      { mesh, crust: crust as any, plateGraph: basePlateGraph as any, plateMotion: basePlateMotion as any },
       computeTectonicSegments.defaultConfig
     ).segments;
 
@@ -52,8 +86,9 @@ describe("m11 tectonics (segments + history)", () => {
       ],
     } as const;
 
+    const withRotPlateMotion = makePlateMotionFromGraph(withRotPlateGraph, mesh.cellCount);
     const withRot = computeTectonicSegments.run(
-      { mesh, crust: crust as any, plateGraph: withRotPlateGraph as any },
+      { mesh, crust: crust as any, plateGraph: withRotPlateGraph as any, plateMotion: withRotPlateMotion as any },
       computeTectonicSegments.defaultConfig
     ).segments;
 
@@ -85,8 +120,9 @@ describe("m11 tectonics (segments + history)", () => {
       ],
     } as const;
 
+    const plateMotion = makePlateMotionFromGraph(plateGraph, mesh.cellCount);
     const segments = computeTectonicSegments.run(
-      { mesh, crust: crust as any, plateGraph: plateGraph as any },
+      { mesh, crust: crust as any, plateGraph: plateGraph as any, plateMotion: plateMotion as any },
       computeTectonicSegments.defaultConfig
     ).segments;
 
@@ -117,8 +153,9 @@ describe("m11 tectonics (segments + history)", () => {
       ],
     } as const;
 
+    const plateMotion = makePlateMotionFromGraph(plateGraph, mesh.cellCount);
     const segments = computeTectonicSegments.run(
-      { mesh, crust: crust as any, plateGraph: plateGraph as any },
+      { mesh, crust: crust as any, plateGraph: plateGraph as any, plateMotion: plateMotion as any },
       computeTectonicSegments.defaultConfig
     ).segments;
 

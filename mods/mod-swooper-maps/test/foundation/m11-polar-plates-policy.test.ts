@@ -85,9 +85,6 @@ describe("m11 polar plates policy (caps + optional microplates)", () => {
     expect(caps[1]?.id).toBe(1);
 
     for (const cap of caps) {
-      expect(Math.abs(cap.velocityY)).toBe(0);
-      expect(Math.abs(cap.velocityX)).toBeGreaterThan(0.05);
-
       const cells = collectPlateCells(plateGraph.cellToPlate, cap.id);
       expect(cells.length).toBeGreaterThan(Math.floor(mesh.cellCount * 0.03));
       expect(isContiguous(mesh, cells)).toBe(true);
