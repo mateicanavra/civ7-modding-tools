@@ -3,6 +3,7 @@
 Unsequenced follow-ups and “we should do this later” work discovered while reconciling the proposal packets.
 
 ## Triage
+- Follow-up (M1-011): Event engine updates provenance but does not mutate `foundation.crust`; decide on a crust-mutation artifact or allow event-driven crust updates to satisfy the “material change” requirement.
 
 - Follow-up (M1-009): Add explicit contiguity/sliver guardrails for non-polar plates (or document the intentional waiver) so partition policy is enforceable beyond polar microplates.
 - Follow-up (M1-009): `computeCrust` now uses `riftWeakening01` for pre-plate damage and ignores `rngSeed`; update schema docs or split parameters to avoid semantic drift and unused inputs.
