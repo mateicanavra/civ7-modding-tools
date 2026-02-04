@@ -111,8 +111,13 @@ These 25 issue docs are the **canonical milestone checklist**. Do not duplicate 
 
 ### Validation / Observability (Cross-cutting)
 - [x] [`LOCAL-TBD-PR-M1-017`](../issues/LOCAL-TBD-PR-M1-017-determinism-suite-canonical-seeds-stable-fingerprints-float-.md) Determinism suite: canonical seeds + stable fingerprints + float tolerance policy — branch: `agent-URSULA-M1-LOCAL-TBD-PR-M1-017-determinism-suite-canonical-seeds`; PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1089
+<<<<<<< HEAD
 - [x] [`LOCAL-TBD-PR-M1-018`](../issues/LOCAL-TBD-PR-M1-018-physics-invariants-mantle-forcing-plate-motion-coupling-resi.md) Physics invariants: mantle forcing coherence + motion coupling residuals — branch: `agent-URSULA-M1-LOCAL-TBD-PR-M1-018-physics-invariants-mantle-forcing-plate-motion-coupling-resi`; PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1090; review: `agent-BURAKA-LOCAL-TBD-PR-M1-018-review-physics-invariants-mantle-forcing-plate-motion-coupling-resi` (PR: pending)
 - [x] [`LOCAL-TBD-PR-M1-019`](../issues/LOCAL-TBD-PR-M1-019-physics-invariants-events-must-change-crust-provenance-belts.md) Physics invariants: events must change crust/provenance + belts must be wide/continuous — branch: `agent-URSULA-M1-LOCAL-TBD-PR-M1-019-physics-invariants-events-must-change-crust-provenance-belts`; PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1091
+=======
+- [x] [`LOCAL-TBD-PR-M1-018`](../issues/LOCAL-TBD-PR-M1-018-physics-invariants-mantle-forcing-plate-motion-coupling-resi.md) Physics invariants: mantle forcing coherence + motion coupling residuals — branch: `agent-URSULA-M1-LOCAL-TBD-PR-M1-018-physics-invariants-mantle-forcing-plate-motion-coupling-resi`; PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1090
+- [x] [`LOCAL-TBD-PR-M1-019`](../issues/LOCAL-TBD-PR-M1-019-physics-invariants-events-must-change-crust-provenance-belts.md) Physics invariants: events must change crust/provenance + belts must be wide/continuous — branch: `agent-URSULA-M1-LOCAL-TBD-PR-M1-019-physics-invariants-events-must-change-crust-provenance-belts`; PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1091; review: `agent-BURAKA-LOCAL-TBD-PR-M1-019-review-physics-invariants-events-must-change-crust-provenance-belts` (PR: pending)
+>>>>>>> f5f2cbc33 (docs(review): record review for PR-M1-019)
 - [ ] [`LOCAL-TBD-PR-M1-020`](../issues/LOCAL-TBD-PR-M1-020-morphology-correlation-gates-drivers-belts-no-wall-mountains.md) Morphology correlation gates: drivers -> belts (no wall mountains) + distribution checks
 
 ### Studio / Viz / Tuning (Cross-cutting)
