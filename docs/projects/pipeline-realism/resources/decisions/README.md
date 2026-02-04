@@ -10,8 +10,9 @@ Decision packets for synthesizing the two target-model proposals into one canoni
 - D01: `d01-ordering-crust-vs-plates.md`
 - D02r (supersedes D02): `d02r-mantle-forcing-potential-derived.md`
 - D04r (supersedes D04): `d04r-history-dual-eulerian-plus-lagrangian.md`
+- D06r: `d06r-event-mechanics-and-force-emission.md`
 - D07r: `d07r-morphology-consumption-contract.md`
 
 ## Remaining
 
-- D03, D05, D06, D07, D08, D09 (see the backlog in `docs/projects/pipeline-realism/resources/spec/proposal-comparison-foundation-evolutionary-refactor.md`)
+- D03, D05, D08, D09 (see the backlog in `docs/projects/pipeline-realism/resources/spec/proposal-comparison-foundation-evolutionary-refactor.md`)
