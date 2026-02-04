@@ -81,6 +81,10 @@ related_to: []
 - [Testing / Verification](#testing--verification)
 - [Dependencies / Notes](#dependencies--notes)
 
+### Implementation Decisions
+- Plate graph kinematics fields are removed entirely; plate motion remains the single SSOT via `artifact:foundation.plateMotion`.
+- Tile motion projections (`foundation.plates.movementU/V`, `foundation.plates.rotation`) remain but are explicitly derived from `plateMotion` (no plateGraph fallback).
+
 ### Current State (Observed)
 
 - Plate motion today is kinematic and RNG-seeded:

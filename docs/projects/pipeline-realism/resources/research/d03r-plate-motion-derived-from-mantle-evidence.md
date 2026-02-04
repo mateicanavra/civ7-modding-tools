@@ -4,17 +4,15 @@ Date: 2026-02-03
 
 ## Summary
 
-The current Foundation implementation assigns per-plate kinematics with RNG (random direction + speed + rotation), which produces plate boundaries and regimes that are not coupled to an upstream driver. D02r establishes a mandatory mesh-space mantle forcing velocity field (`artifact:foundation.mantleForcing.forcingU/V`). D03r follows directly: plate motion is defined as a deterministic, piecewise-rigid fit of mantle forcing onto the plate partition so downstream boundary regimes operate on mantle-derived relative motion.
+Foundation plate motion is now derived from mantle forcing and published via `artifact:foundation.plateMotion`, with no RNG-assigned plate velocities in the plate graph. D02r establishes a mandatory mesh-space mantle forcing velocity field (`artifact:foundation.mantleForcing.forcingU/V`). D03r follows directly: plate motion is defined as a deterministic, piecewise-rigid fit of mantle forcing onto the plate partition so downstream boundary regimes operate on mantle-derived relative motion.
 
 ## Current Contract and Code Reality (Why D03 Exists)
 
 Contract baseline: `docs/system/libs/mapgen/reference/domains/FOUNDATION.md`
-- Plate motion is represented today by `artifact:foundation.plateGraph.plates[].velocityX/Y` and `.rotation` (truth, mesh space), projected to tiles as `foundation.plates.movementU/V` and `foundation.plates.rotation`.
+- Plate motion is represented by `artifact:foundation.plateMotion` (truth, mesh space), projected to tiles as `foundation.plates.movementU/V` and `foundation.plates.rotation`.
 
-Implementation anchor (today's non-physics kinematics):
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts` assigns:
-- `velocityX/Y` from RNG-chosen angle + speed
-- `rotation` from RNG-chosen scalar
+Implementation anchor (mantle-derived kinematics):
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-motion/index.ts` derives `plateVelocityX/Y` and `plateOmega` from `mantleForcing`.
 
 Downstream expectation (already a rigid-body model):
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts` computes velocities at boundary points as:
