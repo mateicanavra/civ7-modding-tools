@@ -16,20 +16,36 @@ related_to: []
 
 <!-- SECTION SCOPE [SYNC] -->
 ## TL;DR
-- Run a fixed-budget era loop (target/max eras per SPEC) emitting required era fields.
+- Implement the fixed-budget evolution era loop and emit the required Eulerian per-era fields + rollups for `artifact:foundation.tectonicHistory` (D04r).
 
 ## Deliverables
-- Run a fixed-budget era loop (target/max eras per SPEC) emitting required era fields.
-- Publish `tectonicHistory` and rollups with deterministic iteration counts.
+- Implement the D04r Eulerian “era loop”:
+  - fixed target/max era counts (as specified in the SPEC),
+  - fixed per-era iteration budgets (no adaptive “until stable” loops),
+  - and explicit ordering guarantees (oldest→newest era indexing).
+- Publish the required history truth artifact:
+  - `artifact:foundation.tectonicHistory` (mesh-space truth),
+  - including rollups required by downstream consumers and validation gates.
+- Align visualization emission posture:
+  - do not encode era index into `dataTypeKey` (use `variantKey` for eras),
+  - provide at least one refined overview + debug per-era variants.
 
 ## Acceptance Criteria
-- Deliverables are implemented and wired into the pipeline where applicable.
-- Outputs follow the maximal SPEC contracts (no optional artifacts).
-- Any transitional bridge has an explicit deletion target (or this issue performs the deletion).
+- `artifact:foundation.tectonicHistory` is published with era semantics that match the SPEC:
+  - `eraCount` honors target/max bounds,
+  - per-era arrays are correctly sized and consistent,
+  - rollups (e.g., cumulative totals, last-active indices) are deterministic and interpretable.
+- Boundedness is explicit (constants live in code and are referenced in docs/tests).
+- Downstream systems can consume without guessing:
+  - Morphology drivers (via projections; `LOCAL-TBD-PR-M1-002`) can read the required channels with clear semantics.
 
 ## Testing / Verification
-- Add/extend the canonical validation suite for this change (D09r posture).
-- Verify determinism: same seed + config -> identical artifacts (stable fingerprints).
+- `bun run --cwd mods/mod-swooper-maps test`
+- Update/extend existing tectonic history tests (current implementation expects 3 eras):
+  - `mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-history.test.ts`
+- Update/extend any step validation guards that hardcode era counts:
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/validation.ts`
+- Add at least one determinism test for history rollups across two identical runs.
 
 ## Dependencies / Notes
 - Blocked by:
@@ -39,6 +55,8 @@ related_to: []
 
 ### References
 - docs/projects/pipeline-realism/resources/decisions/d04r-history-dual-eulerian-plus-lagrangian.md
+- docs/projects/pipeline-realism/resources/spec/sections/history-and-provenance.md
+- docs/projects/pipeline-realism/resources/spec/budgets.md
 
 ---
 
@@ -51,3 +69,30 @@ related_to: []
 - [Acceptance Criteria](#acceptance-criteria)
 - [Testing / Verification](#testing--verification)
 - [Dependencies / Notes](#dependencies--notes)
+
+### Current State (Observed)
+
+Today’s Foundation history already exists as a multi-era artifact, but with hardcoded assumptions:
+- `artifact:foundation.tectonicHistory` exists and includes `eras[]` and rollups.
+- Current validation expects exactly 3 eras in at least one place:
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/validation.ts`
+- Current tests assume 3 eras:
+  - `mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-history.test.ts`
+
+### Proposed Change Surface
+
+Expected implementation touchpoints:
+- history op: `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/*` (likely replaced or significantly refactored)
+- any consumers that treat `eraCount` as fixed:
+  - Morphology belt drivers (future issues `LOCAL-TBD-PR-M1-014..016`)
+  - viz emissions/tests (`mods/mod-swooper-maps/test/pipeline/viz-emissions.test.ts`)
+
+### Pitfalls / Rakes
+
+- Quietly keeping a 3-era posture and only “renaming” it to D04r; this violates the explicit budgets and semantics in the SPEC.
+- Exploding per-era layers into the `dataTypeKey` namespace (breaks decluttering and violates existing regression tests).
+- Building rollups that depend on floating nondeterminism (hash/fingerprint drift across platforms).
+
+### Wow Scenarios
+
+- **Era scrubber is meaningful:** a human can scrub eras and see drivers evolve (not just re-colored noise), and provenance/belt synthesis later can cite the “last active era” semantics as causal evidence.
