@@ -16,20 +16,36 @@ related_to: []
 
 <!-- SECTION SCOPE [SYNC] -->
 ## TL;DR
-- Implement the maximal-only authoring/config surface for physics inputs (no kinematics hacks).
+- Implement the compile-time authoring/config surface for maximal Foundation physics inputs (D08r), and lock schema/versioning posture so compilation is strict and deterministic.
 
 ## Deliverables
-- Implement the maximal-only authoring/config surface for physics inputs (no kinematics hacks).
-- Establish schema versioning posture and ensure config compilation is explicit and deterministic.
+- Define the D08r authoring/config schema for maximal Foundation inputs:
+  - **Allowed (“physics inputs”):** mantle source parameters, lithosphere initial state, budgets/iteration limits, and other inputs explicitly sanctioned by D08r.
+  - **Forbidden (“kinematics outputs”):** direct authoring of plate velocities/rotations, belts, boundary regimes, or other downstream outputs.
+- Wire the schema into the compile-time pipeline:
+  - stage-level schema must compile via strict config compilation (unknown keys are errors),
+  - compilation must be deterministic (same inputs => same compiled config bundle).
+- Establish schema/versioning posture for this milestone:
+  - how schema changes are introduced (additive vs breaking),
+  - where version gating lives (recipe schema version vs artifact schema versioning),
+  - and what “break & migrate allowed” means in practice for implementers.
 
 ## Acceptance Criteria
-- Deliverables are implemented and wired into the pipeline where applicable.
-- Outputs follow the maximal SPEC contracts (no optional artifacts).
-- Any transitional bridge has an explicit deletion target (or this issue performs the deletion).
+- The maximal Foundation config surface exists as an explicit TypeBox schema and is used by compilation (not by ad-hoc runtime parsing).
+- Compilation is strict:
+  - unknown keys cause a compile error (not ignored),
+  - normalization is shape-preserving and re-validated post-normalize.
+- The schema encodes “no kinematics hacks”:
+  - plate motion outputs cannot be directly authored via config,
+  - any “templates/presets” compile into explicit physics inputs (not hidden alternate engines).
 
 ## Testing / Verification
-- Add/extend the canonical validation suite for this change (D09r posture).
-- Verify determinism: same seed + config -> identical artifacts (stable fingerprints).
+- `bun run --cwd mods/mod-swooper-maps test`
+- Add/extend schema validation tests:
+  - `mods/mod-swooper-maps/test/standard-compile-errors.test.ts` (unknown keys / strictness), and/or
+  - `mods/mod-swooper-maps/test/config/*` for schema-valid fixtures/presets if new presets are introduced.
+- Add at least one determinism sanity check that proves:
+  - compiled config is identical across two compiles for the same inputs (byte-for-byte when serialized via stable stringify).
 
 ## Dependencies / Notes
 - Blocked by: none
@@ -39,6 +55,7 @@ related_to: []
 ### References
 - docs/projects/pipeline-realism/resources/spec/sections/authoring-and-config.md
 - docs/projects/pipeline-realism/resources/spec/schema-and-versioning.md
+- docs/projects/pipeline-realism/resources/decisions/d08r-authoring-and-config-surface.md
 - docs/system/libs/mapgen/reference/CONFIG-COMPILATION.md
 
 ---
@@ -52,3 +69,36 @@ related_to: []
 - [Acceptance Criteria](#acceptance-criteria)
 - [Testing / Verification](#testing--verification)
 - [Dependencies / Notes](#dependencies--notes)
+
+### Current State (Observed)
+
+Config compilation is already strict and shape-preserving in the core compiler:
+- `docs/system/libs/mapgen/reference/CONFIG-COMPILATION.md`
+- `packages/mapgen-core/src/compiler/recipe-compile.ts`
+
+The standard recipe Foundation stage currently exposes:
+- knobs: `plateCount`, `plateActivity` (see `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`)
+- an “advanced” surface that maps to per-step config (same file).
+
+This issue defines how maximal Foundation authoring fits into that model (or explicitly supersedes it).
+
+### Proposed Change Surface
+
+Likely implementation touchpoints:
+- Stage authoring surface:
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts` (public schema + compile mapping)
+  - and/or `packages/mapgen-core/src/authoring/types.ts` (if new dependency surfaces are needed)
+- Domain knobs/normalization:
+  - `@mapgen/domain/foundation/shared/knobs.js` and `@mapgen/domain/foundation/shared/knob-multipliers.js` patterns (existing posture for “knobs apply last”)
+- Schema/versioning docs (normative):
+  - `docs/projects/pipeline-realism/resources/spec/schema-and-versioning.md`
+
+### Pitfalls / Rakes
+
+- Smuggling kinematics in through “presets” or “templates” that effectively set plate motion outputs directly.
+- Creating a parallel config compilation path (runtime parsing) that bypasses strict compilation and makes determinism un-auditable.
+- Introducing schema optionality that violates the “maximal-only” posture (if it’s in the spec, it must be produced/consumed; optionality should be strategy selection, not “maybe artifacts”).
+
+### Wow Scenarios
+
+- **Authoring with causality:** a single authored mantle source change causes an explainable cascade (mantle → plates → events → provenance → belts) and the compiled config snapshot is stable enough to diff meaningfully.
