@@ -174,3 +174,28 @@ reviewer: AI agent
 
 ### Cross-cutting Risks
 - Inert authoring knobs (amplitude) will cause Studio users to think they are steering physics inputs when they are not, undermining the physics‑first objective.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-008-plate-motion-solver-derived-from-mantle-forcing-d03r
+
+### Quick Take
+- New `foundation/compute-plate-motion` op derives per-plate translation + rotation directly from mantle forcing with fixed budgets and deterministic output, and is wired into tectonic segments + projection.
+- Plate-motion viz emits `foundation.plateMotion.motion`; tests cover determinism, forcing sensitivity, and bounds, with retunes to keep morphology outputs stable.
+
+### High-Leverage Issues
+- `foundationArtifacts.plateGraph` still exposes `velocityX/velocityY/rotation` even though kinematics are now authoritative in `plateMotion`; leaving inert kinematics in the graph invites future hidden-motion regressions unless deprecated/removed or explicitly validated as zero.
+- `requirePlateMotion` accepts `Uint8Array` for fields that should be `Float32Array` (`plateCenterX/Y`, `plateVelocity*`, `plateOmega`, `plateFit*`), weakening contract validation for downstream consumers.
+
+### PR Comment Context
+- No reviewer comments; Graphite stack + preview notices only.
+
+### Fix Now (Recommended)
+- Tighten `requirePlateMotion` to require `Float32Array` for float fields (keep `plateQuality`/`cellFitError` as `Uint8Array`) so contract guards actually catch mismatched payloads.
+
+### Defer / Follow-up
+- Deprecate or remove kinematic fields from `FoundationPlateGraphSchema` (or assert they remain zero) to keep a single source of truth for motion.
+
+### Needs Discussion
+- The emitted viz key is `foundation.plateMotion.motion`, while earlier taxonomy notes mention `foundation.plates.motion`; confirm the canonical naming and update docs/decisions to match.
+
+### Cross-cutting Risks
+- Leaving kinematics in the plate graph schema makes it easy for downstream code or future refactors to reintroduce hidden motion sources, undermining the physics-first objective.
