@@ -43,7 +43,7 @@ export default createStep(PlateGraphStepContract, {
   },
   run: (context, config, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
-    const crust = deps.artifacts.foundationCrust.read(context);
+    const crust = deps.artifacts.foundationCrustInit.read(context);
     const stepId = `${PlateGraphStepContract.phase}/${PlateGraphStepContract.id}`;
     const rngSeed = ctxRandom(context, ctxRandomLabel(stepId, "foundation/compute-plate-graph"), 2_147_483_647);
 

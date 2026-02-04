@@ -48,7 +48,7 @@ export default createStep(TectonicsStepContract, {
   run: (context, config, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const mantleForcing = deps.artifacts.foundationMantleForcing.read(context);
-    const crust = deps.artifacts.foundationCrust.read(context);
+    const crust = deps.artifacts.foundationCrustInit.read(context);
     const plateGraph = deps.artifacts.foundationPlateGraph.read(context);
     const plateMotion = deps.artifacts.foundationPlateMotion.read(context);
 

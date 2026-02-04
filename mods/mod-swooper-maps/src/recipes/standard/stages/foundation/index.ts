@@ -2,6 +2,7 @@ import { clamp01, lerp } from "@swooper/mapgen-core";
 import { Type, createStage, type Static } from "@swooper/mapgen-core/authoring";
 import {
   crust,
+  crustEvolution,
   mantleForcing,
   mantlePotential,
   mesh,
@@ -462,6 +463,7 @@ const FOUNDATION_STEP_IDS = [
   "plate-graph",
   "plate-motion",
   "tectonics",
+  "crust-evolution",
   "projection",
   "plate-topology",
 ] as const;
@@ -636,6 +638,12 @@ export default createStage({
           },
         },
       },
+      "crust-evolution": {
+        computeCrustEvolution: {
+          strategy: "default",
+          config: {},
+        },
+      },
       projection: {
         computePlates: {
           strategy: "default",
@@ -644,5 +652,5 @@ export default createStage({
       },
     };
   },
-  steps: [mesh, mantlePotential, mantleForcing, crust, plateGraph, plateMotion, tectonics, projection, plateTopology],
+  steps: [mesh, mantlePotential, mantleForcing, crust, plateGraph, plateMotion, tectonics, crustEvolution, projection, plateTopology],
 } as const);

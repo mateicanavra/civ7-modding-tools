@@ -3,31 +3,26 @@ import foundation from "@mapgen/domain/foundation";
 
 import { foundationArtifacts } from "../artifacts.js";
 
-const TectonicsStepContract = defineStep({
-  id: "tectonics",
+const CrustEvolutionStepContract = defineStep({
+  id: "crust-evolution",
   phase: "foundation",
   requires: [],
   provides: [],
   artifacts: {
     requires: [
       foundationArtifacts.mesh,
-      foundationArtifacts.mantleForcing,
       foundationArtifacts.crustInit,
-      foundationArtifacts.plateGraph,
-      foundationArtifacts.plateMotion,
-    ],
-    provides: [
-      foundationArtifacts.tectonicSegments,
+      foundationArtifacts.tectonics,
       foundationArtifacts.tectonicHistory,
       foundationArtifacts.tectonicProvenance,
-      foundationArtifacts.tectonics,
     ],
+    provides: [foundationArtifacts.crust],
   },
   ops: {
-    computeTectonicSegments: foundation.ops.computeTectonicSegments,
-    computeTectonicHistory: foundation.ops.computeTectonicHistory,
+    computeCrustEvolution: foundation.ops.computeCrustEvolution,
   },
   schema: Type.Object({}, { additionalProperties: false }),
 });
 
-export default TectonicsStepContract;
+export default CrustEvolutionStepContract;
+
