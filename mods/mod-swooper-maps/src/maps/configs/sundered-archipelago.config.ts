@@ -2,71 +2,15 @@ import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 
 export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
   foundation: {
-    advanced: {
-    mesh: {
-      computeMesh: {
-        strategy: "default",
-        config: {
-          plateCount: 32,
-          cellsPerPlate: 2,
-          relaxationSteps: 4,
-          referenceArea: 4000,
-          plateScalePower: 0.5,
-        },
-      },
+    version: 1,
+    profiles: {
+      resolutionProfile: "ultra",
+      lithosphereProfile: "maximal-basaltic-lid-v1",
+      mantleProfile: "maximal-potential-v1",
     },
-    crust: {
-      computeCrust: {
-        strategy: "default",
-        config: {
-          continentalRatio: 0.3,
-          shelfWidthCells: 6,
-          shelfElevationBoost: 0.12,
-          marginElevationPenalty: 0.04,
-          continentalBaseElevation: 0.78,
-          continentalAgeBoost: 0.12,
-          oceanicBaseElevation: 0.32,
-          oceanicAgeDepth: 0.22,
-        },
-      },
-    },
-    "plate-graph": {
-      computePlateGraph: {
-        strategy: "default",
-        config: {
-          plateCount: 32,
-          referenceArea: 4000,
-          plateScalePower: 0.5,
-        },
-      },
-    },
-    tectonics: {
-      computeTectonicSegments: {
-        strategy: "default",
-        config: { intensityScale: 180, regimeMinIntensity: 4 },
-      },
-      computeTectonicHistory: {
-        strategy: "default",
-        config: {
-          eraWeights: [0.35, 0.35, 0.3],
-          driftStepsByEra: [2, 1, 0],
-          beltInfluenceDistance: 8,
-          beltDecay: 0.55,
-          activityThreshold: 1,
-        },
-      },
-    },
-    projection: {
-      computePlates: {
-        strategy: "default",
-        config: {
-          boundaryInfluenceDistance: 5,
-          boundaryDecay: 0.55,
-          movementScale: 100,
-          rotationScale: 100,
-        },
-      },
-    },
+    knobs: {
+      plateCount: 32,
+      plateActivity: 0.5,
     },
   },
   "morphology-coasts": {

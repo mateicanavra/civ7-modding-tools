@@ -62,7 +62,7 @@ patch: ConfigPatch)
  *
  * @deprecated Use applyConfigPatch for better performance
  * @example
- * updateConfigValue(config, ['foundation', 'knobs', 'plateCount'], 'dense')
+ * updateConfigValue(config, ['foundation', 'knobs', 'plateCount'], 28)
  */
 export function updateConfigValue(
 config: PipelineConfig,
