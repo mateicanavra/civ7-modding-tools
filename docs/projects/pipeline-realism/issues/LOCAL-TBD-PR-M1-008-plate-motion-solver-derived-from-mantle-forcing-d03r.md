@@ -52,6 +52,13 @@ related_to: []
 - Related:
   - (none)
 
+### Implementation Anchors
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-motion/` (new; mesh-space `artifact:foundation.plateMotion` derived from mantle forcing)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts` (current legacy motion source embedded in plate graph; must be deleted/ignored)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts` (current consumers read `velocityX/velocityY/rotation`; must be rewired to mantle-derived motion)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts` (downstream wiring and viz emissions; ensure motion is consumed and emitted)
+- `mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-history.test.ts` (motion sensitivity tests; replace with mantle-derived coupling tests)
+
 ### References
 - docs/projects/pipeline-realism/resources/decisions/d03r-plate-motion-derived-from-mantle.md
 - docs/projects/pipeline-realism/resources/spec/sections/plate-motion.md

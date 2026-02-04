@@ -53,6 +53,13 @@ related_to: []
 - Related:
   - (none)
 
+### Implementation Anchors
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/` (new; provenance truth artifact + tracer/lineage scalars)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/*` (provenance/historical coupling; provenance must not be a rollup-only derivative)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (declare `artifact:foundation.tectonicProvenance` schema + ids)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts` (tile projection consumers; provenance must project to tiles via `LOCAL-TBD-PR-M1-002`)
+- `mods/mod-swooper-maps/test/foundation/` (new provenance causality/boundedness tests; pattern: `m11-tectonic-segments-history.test.ts`)
+
 ### References
 - docs/projects/pipeline-realism/resources/spec/sections/history-and-provenance.md
 - docs/projects/pipeline-realism/resources/decisions/d04r-history-dual-eulerian-plus-lagrangian.md

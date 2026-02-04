@@ -51,6 +51,13 @@ related_to: []
 - Related:
   - (none)
 
+### Implementation Anchors
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts` (partition + plate graph generation; must consume basaltic-lid crust priors + resistance)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/contract.ts` (plate graph contract surface; ensure no hidden kinematics knobs creep in)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/*` (crust resistance/strength surfaces that must feed partition)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/plateGraph.ts` and `.contract.ts` (step wiring)
+- `mods/mod-swooper-maps/test/foundation/m11-polar-plates-policy.test.ts` (existing partition sanity tests to update)
+
 ### References
 - docs/projects/pipeline-realism/resources/decisions/d01-ordering-crust-vs-plates.md
 - docs/system/libs/mapgen/reference/domains/FOUNDATION.md

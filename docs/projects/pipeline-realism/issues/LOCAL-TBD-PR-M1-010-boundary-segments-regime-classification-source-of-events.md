@@ -53,6 +53,13 @@ related_to: []
 - Related:
   - (none)
 
+### Implementation Anchors
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts` and `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/contract.ts` (segment decomposition + regime classification)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts` and `.contract.ts` (wires segments/history/tectonics outputs; emits per-era variants)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (`artifact:foundation.tectonicSegments` schema; keep truth vs projection posture clear)
+- `mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-history.test.ts` (existing rotation/polarity sensitivity tests; update to mantle-derived motion)
+- `mods/mod-swooper-maps/test/foundation/m11-projection-boundary-band.test.ts` (boundary band projection behavior; helpful for downstream Morphology gates)
+
 ### References
 - docs/projects/pipeline-realism/resources/spec/sections/events-and-forces.md
 - docs/projects/pipeline-realism/resources/decisions/d06r-event-mechanics-and-force-emission.md

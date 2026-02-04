@@ -52,6 +52,13 @@ related_to: []
 - Related:
   - (none)
 
+### Implementation Anchors
+- `mods/mod-swooper-maps/src/domain/foundation/ops/` (new mantle ops should live alongside existing mesh-first ops)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mantle-potential/` (new; mesh-space `artifact:foundation.mantlePotential`)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mantle-forcing/` (new; derived `artifact:foundation.mantleForcing`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts` (wire mantle steps into the canonical Foundation stage ordering)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (declare the mantle artifact ids + schemas)
+
 ### References
 - docs/projects/pipeline-realism/resources/decisions/d02r-mantle-forcing-potential-derived.md
 - docs/projects/pipeline-realism/resources/spec/sections/mantle-forcing.md

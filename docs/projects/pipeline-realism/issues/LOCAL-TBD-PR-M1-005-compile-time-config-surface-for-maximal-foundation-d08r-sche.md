@@ -52,6 +52,13 @@ related_to: []
 - Related:
   - (none)
 
+### Implementation Anchors
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts` (current authoring surface is knobs+advanced; D08r expands/supersedes this)
+- `packages/mapgen-core/src/compiler/recipe-compile.ts` (strict compilation posture; unknown keys must error)
+- `mods/mod-swooper-maps/scripts/generate-studio-recipe-types.ts` (build-time schema/defaults export for Studio; must reflect D08r authoring)
+- `apps/mapgen-studio/test/config/defaultConfigSchema.test.ts` (pins that exported schema/defaults validate)
+- `mods/mod-swooper-maps/test/m11-config-knobs-and-presets.test.ts` (good home for “no kinematics hacks” + determinism guardrails around config/presets)
+
 ### References
 - docs/projects/pipeline-realism/resources/spec/sections/authoring-and-config.md
 - docs/projects/pipeline-realism/resources/spec/schema-and-versioning.md
