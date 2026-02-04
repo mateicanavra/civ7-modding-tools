@@ -5,6 +5,8 @@ import ProjectionStepContract from "./projection.contract.js";
 import {
   validateCrustTilesArtifact,
   validatePlatesArtifact,
+  validateTectonicHistoryTilesArtifact,
+  validateTectonicProvenanceTilesArtifact,
   validateTileToCellIndexArtifact,
   wrapFoundationValidate,
 } from "./validation.js";
@@ -18,6 +20,8 @@ import { clampFinite } from "@swooper/mapgen-core/lib/math";
 const GROUP_PLATES = "Foundation / Plates";
 const GROUP_CRUST_TILES = "Foundation / Crust Tiles";
 const GROUP_TILE_MAP = "Foundation / Tile Mapping";
+const GROUP_TECTONIC_HISTORY_TILES = "Foundation / Tectonic History Tiles";
+const GROUP_TECTONIC_PROVENANCE_TILES = "Foundation / Tectonic Provenance Tiles";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function clampInt(value: number, bounds: { min: number; max?: number }): number {
@@ -27,17 +31,34 @@ function clampInt(value: number, bounds: { min: number; max?: number }): number 
 }
 
 export default createStep(ProjectionStepContract, {
-  artifacts: implementArtifacts([foundationArtifacts.plates, foundationArtifacts.tileToCellIndex, foundationArtifacts.crustTiles], {
-    foundationPlates: {
-      validate: (value, context) => wrapFoundationValidate(value, context.dimensions, validatePlatesArtifact),
-    },
-    foundationTileToCellIndex: {
-      validate: (value, context) => wrapFoundationValidate(value, context.dimensions, validateTileToCellIndexArtifact),
-    },
-    foundationCrustTiles: {
-      validate: (value, context) => wrapFoundationValidate(value, context.dimensions, validateCrustTilesArtifact),
-    },
-  }),
+  artifacts: implementArtifacts(
+    [
+      foundationArtifacts.plates,
+      foundationArtifacts.tileToCellIndex,
+      foundationArtifacts.crustTiles,
+      foundationArtifacts.tectonicHistoryTiles,
+      foundationArtifacts.tectonicProvenanceTiles,
+    ],
+    {
+      foundationPlates: {
+        validate: (value, context) => wrapFoundationValidate(value, context.dimensions, validatePlatesArtifact),
+      },
+      foundationTileToCellIndex: {
+        validate: (value, context) => wrapFoundationValidate(value, context.dimensions, validateTileToCellIndexArtifact),
+      },
+      foundationCrustTiles: {
+        validate: (value, context) => wrapFoundationValidate(value, context.dimensions, validateCrustTilesArtifact),
+      },
+      foundationTectonicHistoryTiles: {
+        validate: (value, context) =>
+          wrapFoundationValidate(value, context.dimensions, validateTectonicHistoryTilesArtifact),
+      },
+      foundationTectonicProvenanceTiles: {
+        validate: (value, context) =>
+          wrapFoundationValidate(value, context.dimensions, validateTectonicProvenanceTilesArtifact),
+      },
+    }
+  ),
   normalize: (config, ctx) => {
     const { plateActivity } = ctx.knobs as Readonly<{ plateActivity?: FoundationPlateActivityKnob }>;
     const kinematicsMultiplier = FOUNDATION_PLATE_ACTIVITY_KINEMATICS_MULTIPLIER[plateActivity ?? "normal"] ?? 1.0;
@@ -68,6 +89,11 @@ export default createStep(ProjectionStepContract, {
     const crust = deps.artifacts.foundationCrust.read(context);
     const plateGraph = deps.artifacts.foundationPlateGraph.read(context);
     const tectonics = deps.artifacts.foundationTectonics.read(context);
+    const tectonicHistory = deps.artifacts.foundationTectonicHistory.read(context);
+    const tectonicProvenance =
+      (context.artifacts.get(foundationArtifacts.tectonicProvenance.id) as
+        | { version?: unknown; eraCount?: unknown; cellCount?: unknown }
+        | undefined) ?? null;
 
     const platesResult = ops.computePlates(
       {
@@ -77,6 +103,8 @@ export default createStep(ProjectionStepContract, {
         crust,
         plateGraph,
         tectonics,
+        tectonicHistory,
+        tectonicProvenance: tectonicProvenance ?? undefined,
       },
       config.computePlates
     );
@@ -84,6 +112,8 @@ export default createStep(ProjectionStepContract, {
     deps.artifacts.foundationPlates.publish(context, platesResult.plates);
     deps.artifacts.foundationTileToCellIndex.publish(context, platesResult.tileToCellIndex);
     deps.artifacts.foundationCrustTiles.publish(context, platesResult.crustTiles);
+    deps.artifacts.foundationTectonicHistoryTiles.publish(context, platesResult.tectonicHistoryTiles);
+    deps.artifacts.foundationTectonicProvenanceTiles.publish(context, platesResult.tectonicProvenanceTiles);
 
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "foundation.plates.tilePlateId",
@@ -295,6 +325,54 @@ export default createStep(ProjectionStepContract, {
       meta: defineVizMeta("foundation.crustTiles.strength", {
         label: "Crust Strength",
         group: GROUP_CRUST_TILES,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "foundation.tectonicHistoryTiles.upliftTotal",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: platesResult.tectonicHistoryTiles.rollups.upliftTotal,
+      meta: defineVizMeta("foundation.tectonicHistoryTiles.upliftTotal", {
+        label: "History Uplift Total",
+        group: GROUP_TECTONIC_HISTORY_TILES,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "foundation.tectonicHistoryTiles.lastActiveEra",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: platesResult.tectonicHistoryTiles.rollups.lastActiveEra,
+      meta: defineVizMeta("foundation.tectonicHistoryTiles.lastActiveEra", {
+        label: "History Last Active Era",
+        group: GROUP_TECTONIC_HISTORY_TILES,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "foundation.tectonicProvenanceTiles.originEra",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: platesResult.tectonicProvenanceTiles.originEra,
+      meta: defineVizMeta("foundation.tectonicProvenanceTiles.originEra", {
+        label: "Provenance Origin Era",
+        group: GROUP_TECTONIC_PROVENANCE_TILES,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "foundation.tectonicProvenanceTiles.lastBoundaryType",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: platesResult.tectonicProvenanceTiles.lastBoundaryType,
+      meta: defineVizMeta("foundation.tectonicProvenanceTiles.lastBoundaryType", {
+        label: "Provenance Last Boundary Type",
+        group: GROUP_TECTONIC_PROVENANCE_TILES,
         visibility: "debug",
       }),
     });

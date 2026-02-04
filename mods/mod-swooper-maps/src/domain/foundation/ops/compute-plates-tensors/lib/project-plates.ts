@@ -4,7 +4,8 @@ import { wrapAbsDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 import type { FoundationMesh } from "../../compute-mesh/contract.js";
 import type { FoundationCrust } from "../../compute-crust/contract.js";
 import type { FoundationPlateGraph } from "../../compute-plate-graph/contract.js";
-import type { FoundationTectonics } from "../../compute-tectonic-history/contract.js";
+import type { FoundationTectonicHistory, FoundationTectonics } from "../../compute-tectonic-history/contract.js";
+import type { FoundationTectonicProvenance } from "../contract.js";
 import { BOUNDARY_TYPE } from "../../../constants.js";
 
 function hexDistanceSq(
@@ -77,6 +78,8 @@ export function projectPlatesFromModel(input: {
   crust: FoundationCrust;
   plateGraph: FoundationPlateGraph;
   tectonics: FoundationTectonics;
+  tectonicHistory: FoundationTectonicHistory;
+  tectonicProvenance?: FoundationTectonicProvenance | null;
   boundaryInfluenceDistance: number;
   boundaryDecay: number;
   movementScale: number;
@@ -103,6 +106,33 @@ export function projectPlatesFromModel(input: {
     movementV: Int8Array;
     rotation: Int8Array;
   };
+  tectonicHistoryTiles: {
+    version: number;
+    eraCount: number;
+    perEra: {
+      boundaryType: Uint8Array;
+      upliftPotential: Uint8Array;
+      riftPotential: Uint8Array;
+      shearStress: Uint8Array;
+      volcanism: Uint8Array;
+      fracture: Uint8Array;
+    }[];
+    rollups: {
+      upliftTotal: Uint8Array;
+      fractureTotal: Uint8Array;
+      volcanismTotal: Uint8Array;
+      upliftRecentFraction: Uint8Array;
+      lastActiveEra: Uint8Array;
+    };
+  };
+  tectonicProvenanceTiles: {
+    version: number;
+    originEra: Uint8Array;
+    originPlateId: Int16Array;
+    driftDistance: Uint8Array;
+    lastBoundaryEra: Uint8Array;
+    lastBoundaryType: Uint8Array;
+  };
 } {
   const width = input.width | 0;
   const height = input.height | 0;
@@ -111,6 +141,8 @@ export function projectPlatesFromModel(input: {
   const crust = input.crust;
   const plateGraph = input.plateGraph;
   const tectonics = input.tectonics;
+  const tectonicHistory = input.tectonicHistory;
+  const tectonicProvenance = input.tectonicProvenance ?? null;
 
   const cellCount = mesh.cellCount | 0;
   const wrapWidth = mesh.wrapWidth;
@@ -140,6 +172,43 @@ export function projectPlatesFromModel(input: {
   const rotation = new Int8Array(size);
 
   const tileToCellIndex = new Int32Array(size);
+
+  const historyEraCount = tectonicHistory.eraCount | 0;
+  const historyPerEra: {
+    boundaryType: Uint8Array;
+    upliftPotential: Uint8Array;
+    riftPotential: Uint8Array;
+    shearStress: Uint8Array;
+    volcanism: Uint8Array;
+    fracture: Uint8Array;
+  }[] = [];
+  for (let e = 0; e < historyEraCount; e++) {
+    historyPerEra.push({
+      boundaryType: new Uint8Array(size),
+      upliftPotential: new Uint8Array(size),
+      riftPotential: new Uint8Array(size),
+      shearStress: new Uint8Array(size),
+      volcanism: new Uint8Array(size),
+      fracture: new Uint8Array(size),
+    });
+  }
+  const historyRollups = {
+    upliftTotal: new Uint8Array(size),
+    fractureTotal: new Uint8Array(size),
+    volcanismTotal: new Uint8Array(size),
+    upliftRecentFraction: new Uint8Array(size),
+    lastActiveEra: new Uint8Array(size),
+  } as const;
+
+  const provenanceTiles = {
+    originEra: new Uint8Array(size),
+    originPlateId: new Int16Array(size),
+    driftDistance: new Uint8Array(size),
+    lastBoundaryEra: new Uint8Array(size),
+    lastBoundaryType: new Uint8Array(size),
+  } as const;
+
+  const provenanceScalars = tectonicProvenance?.provenance ?? null;
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
@@ -179,6 +248,39 @@ export function projectPlatesFromModel(input: {
     crustBuoyancy[i] = crust.buoyancy[cellId] ?? 0;
     crustBaseElevation[i] = crust.baseElevation[cellId] ?? 0;
     crustStrength[i] = crust.strength[cellId] ?? 0;
+
+    for (let e = 0; e < historyEraCount; e++) {
+      const era = tectonicHistory.eras[e];
+      if (!era) continue;
+      const perEra = historyPerEra[e];
+      perEra.boundaryType[i] = era.boundaryType[cellId] ?? 0;
+      perEra.upliftPotential[i] = era.upliftPotential[cellId] ?? 0;
+      perEra.riftPotential[i] = era.riftPotential[cellId] ?? 0;
+      perEra.shearStress[i] = era.shearStress[cellId] ?? 0;
+      perEra.volcanism[i] = era.volcanism[cellId] ?? 0;
+      perEra.fracture[i] = era.fracture[cellId] ?? 0;
+    }
+
+    historyRollups.upliftTotal[i] = tectonicHistory.upliftTotal[cellId] ?? 0;
+    historyRollups.fractureTotal[i] = tectonicHistory.fractureTotal[cellId] ?? 0;
+    historyRollups.volcanismTotal[i] = tectonicHistory.volcanismTotal[cellId] ?? 0;
+    historyRollups.upliftRecentFraction[i] = tectonicHistory.upliftRecentFraction[cellId] ?? 0;
+    historyRollups.lastActiveEra[i] = tectonicHistory.lastActiveEra[cellId] ?? 255;
+
+    if (provenanceScalars) {
+      provenanceTiles.originEra[i] = provenanceScalars.originEra[cellId] ?? 0;
+      provenanceTiles.originPlateId[i] =
+        provenanceScalars.originPlateId[cellId] ?? plateGraph.cellToPlate[cellId] ?? -1;
+      provenanceTiles.lastBoundaryEra[i] = provenanceScalars.lastBoundaryEra[cellId] ?? 255;
+      provenanceTiles.lastBoundaryType[i] = provenanceScalars.lastBoundaryType[cellId] ?? 255;
+      provenanceTiles.driftDistance[i] = 0;
+    } else {
+      provenanceTiles.originEra[i] = 0;
+      provenanceTiles.originPlateId[i] = plateGraph.cellToPlate[cellId] ?? -1;
+      provenanceTiles.lastBoundaryEra[i] = 255;
+      provenanceTiles.lastBoundaryType[i] = 255;
+      provenanceTiles.driftDistance[i] = 0;
+    }
   }
 
   const isBoundarySeed = new Uint8Array(size);
@@ -205,17 +307,17 @@ export function projectPlatesFromModel(input: {
   );
   void nearestSeed;
 
-	  for (let i = 0; i < size; i++) {
-	    const cellId = tileToCellIndex[i] ?? 0;
-	    const baseBoundaryType = tectonics.boundaryType[cellId] ?? BOUNDARY_TYPE.none;
-	    // `upliftPotential` in the newest-era field is intentionally scaled by era weights,
-	    // which compresses its dynamic range. For ridge/mountain planning, we want a stable
-	    // 0..255 uplift signal that represents "total orogeny opportunity" rather than
-	    // only the newest era.
-	    const baseUplift = tectonics.cumulativeUplift[cellId] ?? tectonics.upliftPotential[cellId] ?? 0;
-	    const baseRift = tectonics.riftPotential[cellId] ?? 0;
-	    const baseShear = tectonics.shearStress[cellId] ?? 0;
-	    const baseVolcanism = tectonics.volcanism[cellId] ?? 0;
+  for (let i = 0; i < size; i++) {
+    const cellId = tileToCellIndex[i] ?? 0;
+    const baseBoundaryType = tectonics.boundaryType[cellId] ?? BOUNDARY_TYPE.none;
+    // `upliftPotential` in the newest-era field is intentionally scaled by era weights,
+    // which compresses its dynamic range. For ridge/mountain planning, we want a stable
+    // 0..255 uplift signal that represents "total orogeny opportunity" rather than
+    // only the newest era.
+    const baseUplift = tectonics.cumulativeUplift[cellId] ?? tectonics.upliftPotential[cellId] ?? 0;
+    const baseRift = tectonics.riftPotential[cellId] ?? 0;
+    const baseShear = tectonics.shearStress[cellId] ?? 0;
+    const baseVolcanism = tectonics.volcanism[cellId] ?? 0;
 
     const dist = distanceField[i]!;
     const influence = dist >= maxDistance ? 0 : Math.exp(-dist * decay);
@@ -253,6 +355,20 @@ export function projectPlatesFromModel(input: {
       movementU,
       movementV,
       rotation,
+    },
+    tectonicHistoryTiles: {
+      version: 1,
+      eraCount: historyEraCount,
+      perEra: historyPerEra,
+      rollups: historyRollups,
+    },
+    tectonicProvenanceTiles: {
+      version: 1,
+      originEra: provenanceTiles.originEra,
+      originPlateId: provenanceTiles.originPlateId,
+      driftDistance: provenanceTiles.driftDistance,
+      lastBoundaryEra: provenanceTiles.lastBoundaryEra,
+      lastBoundaryType: provenanceTiles.lastBoundaryType,
     },
   } as const;
 }
