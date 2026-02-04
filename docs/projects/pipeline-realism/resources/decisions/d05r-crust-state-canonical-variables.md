@@ -115,6 +115,13 @@ D05r defines:
 - `age` as thermal age (`thermalAge`) and makes it an explicit truth variable.
 - `type/buoyancy/baseElevation/strength` as deterministic derivations from (`maturity`, `thickness`, `thermalAge`, `damage`).
 
+## Implementation Status (PR-M1-006)
+
+Initial cutover establishes the basaltic lid baseline and derived fields:
+- `maturity = 0`, `thermalAge = 0`, `damage = 0`, `thickness = basalticThickness01` (default `0.25`)
+- strength derivation uses `yieldStrength01` (default `0.55`) and `mantleCoupling01` (default `0.6`) as scalar multipliers
+- baseline constants documented in `docs/projects/pipeline-realism/resources/spec/sections/crust-state.md`
+
 ## Acceptance criteria
 
 - [ ] Evidence memo added at: `docs/projects/pipeline-realism/resources/research/d05r-crust-state-canonical-variables-evidence.md`

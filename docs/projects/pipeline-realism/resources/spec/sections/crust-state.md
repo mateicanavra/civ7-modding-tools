@@ -48,6 +48,21 @@ Constants:
 - `MATURITY_CRATON_THRESHOLD = 0.85`
 - `THERMAL_AGE_DELTA_PER_ERA = floor(255 / (ERA_COUNT_TARGET - 1))`
 
+Baseline constants (current implementation, D05r cutover):
+- `OCEANIC_BASE_ELEVATION = 0.32`
+- `OCEANIC_AGE_DEPTH = 0.22`
+- `MATURITY_BUOYANCY_BOOST = 0.45`
+- `THICKNESS_BUOYANCY_BOOST = 0.25`
+- `STRENGTH_BASE_MIN = 0.45`
+- `STRENGTH_MATURITY_MIN = 0.5`
+- `STRENGTH_THICKNESS_MIN = 0.55`
+
+Basaltic lid initialization (t=0):
+- `maturity = 0`, `thermalAge = 0`, `damage = 0`
+- `thickness = basalticThickness01` (profile default: `0.25`)
+- strength scalars: `yieldStrength01` (default `0.55`) and `mantleCoupling01` (default `0.6`)
+- `riftWeakening01` (default `0.35`) reserved for event-driven weakening in later slices
+
 Type:
 - `type[i] = (maturity[i] >= MATURITY_CONTINENT_THRESHOLD) ? 1 : 0`
 
