@@ -35,7 +35,12 @@ import { formatErrorForUi } from "./shared/errorFormat";
 import { shouldIgnoreGlobalShortcutsInEditableTarget } from "./shared/shortcuts/shortcutPolicy";
 import type { VizEvent } from "./shared/vizEvents";
 
-import { DEFAULT_STUDIO_RECIPE_ID, getRecipeArtifacts, STUDIO_RECIPE_OPTIONS } from "./recipes/catalog";
+import {
+  DEFAULT_STUDIO_RECIPE_ID,
+  getRecipeArtifacts,
+  STUDIO_RECIPE_OPTIONS,
+  type StudioRecipeUiMeta,
+} from "./recipes/catalog";
 
 function randomU32(): number {
   try {
@@ -52,6 +57,45 @@ function randomU32(): number {
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function mergeDeterministic(base: unknown, overrides: unknown): unknown {
+  if (overrides === undefined) return base;
+  if (!isPlainObject(base) || !isPlainObject(overrides)) return overrides;
+
+  const out: Record<string, unknown> = { ...(base as Record<string, unknown>) };
+  for (const key of Object.keys(overrides)) {
+    out[key] = mergeDeterministic((base as Record<string, unknown>)[key], overrides[key]);
+  }
+  return out;
+}
+
+function setAtPath(root: Record<string, unknown>, path: readonly string[], value: unknown): void {
+  let current = root;
+  for (let i = 0; i < path.length; i += 1) {
+    const key = path[i];
+    if (i === path.length - 1) {
+      if (current[key] === undefined) current[key] = value;
+      return;
+    }
+    const existing = current[key];
+    if (!isPlainObject(existing)) {
+      current[key] = {};
+    }
+    current = current[key] as Record<string, unknown>;
+  }
+}
+
+function buildConfigSkeleton(uiMeta: StudioRecipeUiMeta): Record<string, unknown> {
+  const skeleton: Record<string, unknown> = {};
+  for (const stage of uiMeta.stages) {
+    const stageConfig: Record<string, unknown> = { knobs: {} };
+    for (const step of stage.steps) {
+      setAtPath(stageConfig, step.configFocusPathWithinStage, {});
+    }
+    skeleton[stage.stageId] = stageConfig;
+  }
+  return skeleton;
 }
 
 function extractEnumValues(schema: unknown): string[] {
@@ -108,9 +152,14 @@ function extractKnobOptions(schema: unknown, stageIds: readonly string[]): KnobO
   return out;
 }
 
-function buildDefaultConfig(schema: unknown, stageIds: readonly string[]): PipelineConfig {
-  const skeleton: Record<string, unknown> = Object.fromEntries(stageIds.map((s) => [s, {}]));
-  const { value, errors } = normalizeStrict<Record<string, unknown>>(schema as any, skeleton, "/defaultConfig");
+function buildDefaultConfig(
+  schema: unknown,
+  uiMeta: StudioRecipeUiMeta,
+  defaultConfig: unknown
+): PipelineConfig {
+  const skeleton = buildConfigSkeleton(uiMeta);
+  const merged = mergeDeterministic(skeleton, defaultConfig);
+  const { value, errors } = normalizeStrict<Record<string, unknown>>(schema as any, merged, "/defaultConfig");
   if (errors.length > 0) {
     console.error("[mapgen-studio] invalid recipe config schema defaults", errors);
     return skeleton as PipelineConfig;
@@ -171,18 +220,21 @@ function AppContent(props: AppContentProps) {
 
   const [pipelineConfig, setPipelineConfig] = useState<PipelineConfig>(() => {
     const artifacts = getRecipeArtifacts(DEFAULT_STUDIO_RECIPE_ID);
-    const ids = artifacts.uiMeta.stages.map((s) => s.stageId);
-    return buildDefaultConfig(artifacts.configSchema, ids);
+    return buildDefaultConfig(artifacts.configSchema, artifacts.uiMeta, artifacts.defaultConfig);
   });
   const [overridesDisabled, setOverridesDisabled] = useState(false);
   const [lastRunSnapshot, setLastRunSnapshot] = useState<LastRunSnapshot | null>(null);
 
   useEffect(() => {
-    const base = buildDefaultConfig(recipeArtifacts.configSchema, stageIds);
+    const base = buildDefaultConfig(
+      recipeArtifacts.configSchema,
+      recipeArtifacts.uiMeta,
+      recipeArtifacts.defaultConfig
+    );
     setPipelineConfig(base);
     setOverridesDisabled(false);
     setLastRunSnapshot(null);
-  }, [recipeArtifacts.configSchema, stageIds]);
+  }, [recipeArtifacts.configSchema, recipeArtifacts.uiMeta, recipeArtifacts.defaultConfig]);
 
   const dumpLoader = useDumpLoader();
   const dumpAssetResolver = dumpLoader.state.status === "loaded" ? dumpLoader.state.reader : null;
@@ -926,7 +978,15 @@ function AppContent(props: AppContentProps) {
     <RecipePanel
       config={pipelineConfig}
       onConfigPatch={(patch: ConfigPatch) => setPipelineConfig((prev) => applyConfigPatch(prev, patch))}
-      onConfigReset={() => setPipelineConfig(buildDefaultConfig(recipeArtifacts.configSchema, stageIds))}
+      onConfigReset={() =>
+        setPipelineConfig(
+          buildDefaultConfig(
+            recipeArtifacts.configSchema,
+            recipeArtifacts.uiMeta,
+            recipeArtifacts.defaultConfig
+          )
+        )
+      }
       recipeOptions={recipeOptions}
       presetOptions={presetOptions}
       knobOptions={knobOptions}
