@@ -5,7 +5,7 @@ import { ecologyArtifacts } from "../../artifacts.js";
 import { hydrologyClimateBaselineArtifacts } from "../../../hydrology-climate-baseline/artifacts.js";
 import { hydrologyClimateRefineArtifacts } from "../../../hydrology-climate-refine/artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts.js";
-import { morphologyArtifacts } from "../../../morphology-pre/artifacts.js";
+import { morphologyArtifacts } from "../../../morphology/artifacts.js";
 
 const BiomesStepContract = defineStep({
   id: "biomes",

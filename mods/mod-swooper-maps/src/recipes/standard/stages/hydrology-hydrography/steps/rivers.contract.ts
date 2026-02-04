@@ -3,7 +3,7 @@ import hydrology from "@mapgen/domain/hydrology";
 
 import { hydrologyHydrographyArtifacts } from "../artifacts.js";
 import { hydrologyClimateBaselineArtifacts } from "../../hydrology-climate-baseline/artifacts.js";
-import { morphologyArtifacts } from "../../morphology-pre/artifacts.js";
+import { morphologyArtifacts } from "../../morphology/artifacts.js";
 
 /**
  * River projection + hydrography publication step.

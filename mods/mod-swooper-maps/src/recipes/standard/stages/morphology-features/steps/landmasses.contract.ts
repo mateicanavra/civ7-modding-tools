@@ -1,7 +1,7 @@
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import morphology from "@mapgen/domain/morphology";
 
-import { morphologyArtifacts } from "../../morphology-pre/artifacts.js";
+import { morphologyArtifacts } from "../../morphology/artifacts.js";
 
 /**
  * Publishes the landmass decomposition artifact from the final land mask.
