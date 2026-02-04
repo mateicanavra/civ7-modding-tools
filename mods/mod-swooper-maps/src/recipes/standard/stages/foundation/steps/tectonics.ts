@@ -15,10 +15,10 @@ const GROUP_TECTONIC_HISTORY = "Foundation / Tectonic History";
 const WORLD_SPACE_ID = "world.xy" as const;
 
 const BOUNDARY_TYPE_CATEGORIES = [
-  { value: 0, label: "None/Unknown", color: [107, 114, 128, 180] as const },
-  { value: 1, label: "Convergent", color: [239, 68, 68, 240] as const },
-  { value: 2, label: "Divergent", color: [59, 130, 246, 240] as const },
-  { value: 3, label: "Transform", color: [245, 158, 11, 240] as const },
+  { value: 0, label: "None/Unknown", color: [107, 114, 128, 180] as [number, number, number, number] },
+  { value: 1, label: "Convergent", color: [239, 68, 68, 240] as [number, number, number, number] },
+  { value: 2, label: "Divergent", color: [59, 130, 246, 240] as [number, number, number, number] },
+  { value: 3, label: "Transform", color: [245, 158, 11, 240] as [number, number, number, number] },
 ];
 
 export default createStep(TectonicsStepContract, {
