@@ -1,10 +1,12 @@
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
-import standardRecipe, { STANDARD_RECIPE_CONFIG } from "../../recipes/standard/recipe.js";
+import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
+import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
 import { createTraceDumpSink, createVizDumper } from "./dump.js";
 import { join } from "node:path";
 
@@ -43,7 +45,8 @@ const envBase = {
   },
 } as const;
 
-const plan = standardRecipe.compile(envBase, STANDARD_RECIPE_CONFIG);
+const config = stripSchemaMetadataRoot(swooperEarthlikeConfigRaw);
+const plan = standardRecipe.compile(envBase, config);
 const verboseSteps = Object.fromEntries(plan.nodes.map((node) => [node.stepId, "verbose"] as const));
 
 const env = {
@@ -66,8 +69,7 @@ const context = createExtendedMapContext({ width, height }, adapter, env);
 context.viz = viz;
 
 initializeStandardRuntime(context, { mapInfo, logPrefix: "[viz]", storyEnabled: true });
-standardRecipe.run(context, env, STANDARD_RECIPE_CONFIG, { traceSink, log: () => {} });
+standardRecipe.run(context, env, config, { traceSink, log: () => {} });
 
 const runId = deriveRunId(plan);
 console.log(`[viz] wrote dump under: ${join(outputRoot, runId)}`);
-

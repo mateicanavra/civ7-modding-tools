@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
+import type { TSchema } from "@swooper/mapgen-core/authoring";
 
 import { AppHeader } from "./ui/components/AppHeader";
 import { AppFooter } from "./ui/components/AppFooter";
@@ -41,6 +42,7 @@ import {
   STUDIO_RECIPE_OPTIONS,
   type StudioRecipeUiMeta,
 } from "./recipes/catalog";
+import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 
 function randomU32(): number {
   try {
@@ -112,8 +114,8 @@ function setAtPath(root: Record<string, unknown>, path: readonly string[], value
   }
 }
 
-function buildConfigSkeleton(uiMeta: StudioRecipeUiMeta): Record<string, unknown> {
-  const skeleton: Record<string, unknown> = {};
+function buildConfigSkeleton(uiMeta: StudioRecipeUiMeta): PipelineConfig {
+  const skeleton: PipelineConfig = {};
   for (const stage of uiMeta.stages) {
     const stageConfig: Record<string, unknown> = { knobs: {} };
     for (const step of stage.steps) {
@@ -179,18 +181,18 @@ function extractKnobOptions(schema: unknown, stageIds: readonly string[]): KnobO
 }
 
 function buildDefaultConfig(
-  schema: unknown,
+  schema: TSchema,
   uiMeta: StudioRecipeUiMeta,
   defaultConfig: unknown
 ): PipelineConfig {
   const skeleton = buildConfigSkeleton(uiMeta);
-  const merged = mergeDeterministic(skeleton, defaultConfig);
-  const { value, errors } = normalizeStrict<Record<string, unknown>>(schema as any, merged, "/defaultConfig");
+  const merged = mergeDeterministic(skeleton, stripSchemaMetadataRoot(defaultConfig));
+  const { value, errors } = normalizeStrict<PipelineConfig>(schema, merged, "/defaultConfig");
   if (errors.length > 0) {
     console.error("[mapgen-studio] invalid recipe config schema defaults", errors);
-    return skeleton as PipelineConfig;
+    return skeleton;
   }
-  return value as unknown as PipelineConfig;
+  return value;
 }
 
 type LastRunSnapshot = {
