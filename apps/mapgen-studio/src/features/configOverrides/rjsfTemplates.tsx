@@ -3,6 +3,7 @@ import { pathToPointer, schemaIsGroup, type BrowserConfigSchemaDef } from "./sch
 
 export type BrowserConfigFormContext = {
   transparentPaths: ReadonlySet<string>;
+  lightMode?: boolean;
 };
 
 function humanizeSchemaLabel(label: string): string {
@@ -29,6 +30,26 @@ export function BrowserConfigFieldTemplate(
   const prettyLabel = label ? humanizeSchemaLabel(label) : "";
   const schemaType = props.schema?.type;
   const suppressDescription = schemaType === "object" || schemaType === "array";
+  const isBoolean = schemaType === "boolean";
+
+  if (isBoolean) {
+    return (
+      <div className={["bc-field", "bc-fieldRow", classNames].filter(Boolean).join(" ")}>
+        <div className="bc-fieldMeta">
+          {displayLabel && label ? (
+            <label className="bc-label" htmlFor={id}>
+              {prettyLabel}
+              {required ? <span className="bc-required">*</span> : null}
+            </label>
+          ) : null}
+          {description ? <div className="bc-desc">{description}</div> : null}
+        </div>
+        <div className="bc-fieldControl">{children}</div>
+        {errors ? <div className="bc-errors">{errors}</div> : null}
+        {help ? <div className="bc-desc">{help}</div> : null}
+      </div>
+    );
+  }
 
   return (
     <div className={["bc-field", classNames].filter(Boolean).join(" ")}>
@@ -59,27 +80,23 @@ export function BrowserConfigObjectFieldTemplate(
   const isTransparent = transparentPaths.has(pathToPointer(path));
 
   if (isRoot) {
-    return <div>{properties.filter((p) => !p.hidden).map((p) => p.content)}</div>;
+    return <div className="bc-root">{properties.filter((p) => !p.hidden).map((p) => p.content)}</div>;
   }
 
   if (isTransparent) {
-    return <div>{properties.filter((p) => !p.hidden).map((p) => p.content)}</div>;
+    return <div className="bc-transparent">{properties.filter((p) => !p.hidden).map((p) => p.content)}</div>;
   }
 
   const prettyTitle = title ? humanizeSchemaLabel(title) : leafKey ? humanizeSchemaLabel(leafKey) : "Section";
   const titleLower = prettyTitle.toLowerCase();
-  const isKnobs = leafKey === "knobs" || titleLower === "knobs";
   const isStage = depth === 1;
   const isTopGroup = depth === 2;
-  const defaultOpen = isKnobs || isStage || (leafKey !== "advanced" && depth <= 2);
   const hasNestedGroups = schemaHasNestedGroups(props.schema);
-  const useDetails = !isStage && hasNestedGroups; // only parents collapse; leaf groups render without toggles.
-  const groupClass = isTopGroup ? "bc-depth2Group" : undefined;
 
   const content = (
-    <div style={{ marginTop: useDetails ? 10 : 0 }}>
-      {description ? (
-        <div className="bc-desc" style={{ marginBottom: 10 }}>
+    <div className={hasNestedGroups ? "bc-groupBody" : "bc-groupBody bc-groupBodyCompact"}>
+      {!isStage && description ? (
+        <div className="bc-desc bc-groupDesc">
           {description}
         </div>
       ) : null}
@@ -87,40 +104,28 @@ export function BrowserConfigObjectFieldTemplate(
     </div>
   );
 
-  // Stage card is the first visible container.
   if (isStage) {
     return (
-      <details className="bc-section" open>
-        <summary>
+      <section className="bc-stage">
+        <header className="bc-stageHeader">
           <div className="bc-stageTitle">{prettyTitle}</div>
-        </summary>
-        <div className="bc-stageDivider" />
+          {description ? <div className="bc-stageMeta">{description}</div> : null}
+        </header>
         {content}
-      </details>
+      </section>
     );
   }
 
-  // Nested groups render flat (no extra card), using header hierarchy + padding.
-  const headingClass = ["bc-sectionTitle", isTopGroup ? "bc-depth2" : "bc-depth3"].join(" ");
-  const wrapperClass = ["bc-subsection", groupClass].filter(Boolean).join(" ");
-  if (!useDetails) {
-    return (
-      <div className={wrapperClass}>
-        <div className="bc-subsectionHeader">
-          <div className={headingClass}>{prettyTitle}</div>
-        </div>
-        {content}
-      </div>
-    );
-  }
+  const headingClass = ["bc-groupTitle", isTopGroup ? "bc-depth2" : "bc-depth3"].join(" ");
+  const wrapperClass = isTopGroup ? "bc-group" : "bc-subgroup";
 
   return (
-    <details className={wrapperClass} open={defaultOpen}>
-      <summary className="bc-subsectionHeader" style={{ cursor: "pointer", listStyle: "none" }}>
+    <section className={wrapperClass}>
+      <header className="bc-groupHeader">
         <div className={headingClass}>{prettyTitle}</div>
-      </summary>
+      </header>
       {content}
-    </details>
+    </section>
   );
 }
 
@@ -132,26 +137,28 @@ export function BrowserConfigArrayFieldTemplate(
   const allowMutations = !disabled && !readonly;
 
   return (
-    <div className="bc-section">
-      <div className="bc-actionsRow" style={{ marginBottom: 10 }}>
-        <div className="bc-sectionTitle">{prettyTitle}</div>
+    <section className="bc-array">
+      <div className="bc-arrayHeader">
+        <div className="bc-arrayTitle">{prettyTitle}</div>
         <div style={{ flex: 1 }} />
         {canAdd && allowMutations ? (
-          <button type="button" onClick={onAddClick}>
+          <button type="button" className="bc-button" onClick={onAddClick}>
             Add
           </button>
         ) : null}
       </div>
-      {items.map((item, index) => {
-        // RJSF v6 types this as ReactElement[], but some templates/versions
-        // pass an "item" object that wraps the actual element in `.children`.
-        const content = (item as any)?.children ?? (item as any)?.props?.children ?? item;
-        return (
-          <div key={item.key ?? index} className="bc-arrayItem">
-            {content}
-          </div>
-        );
-      })}
-    </div>
+      <div className="bc-arrayItems">
+        {items.map((item, index) => {
+          // RJSF v6 types this as ReactElement[], but some templates/versions
+          // pass an "item" object that wraps the actual element in `.children`.
+          const content = (item as any)?.children ?? (item as any)?.props?.children ?? item;
+          return (
+            <div key={item.key ?? index} className="bc-arrayItem">
+              {content}
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }

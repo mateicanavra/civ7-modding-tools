@@ -14,7 +14,6 @@ export { RecipePanel, type RecipePanelProps } from './RecipePanel';
 export { ExplorePanel, type ExplorePanelProps } from './ExplorePanel';
 
 // Form components
-export { ConfigForm, type ConfigFormProps } from './ConfigForm';
 export { ViewControls, type ViewControlsProps } from './ViewControls';
 
 // UI primitives (shadcn/ui style)

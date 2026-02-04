@@ -34,21 +34,70 @@ export type SchemaConfigFormProps<TConfig> = Readonly<{
   onChange(next: TConfig): void;
   disabled: boolean;
   focusPath?: readonly string[] | null;
+  lightMode?: boolean;
 }>;
 
 export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>) {
-  const { schema, value, onChange, disabled, focusPath } = props;
+  const { schema, value, onChange, disabled, focusPath, lightMode } = props;
+
+  const buildUiSchema = useMemo(() => {
+    const hasEnum = (node: RJSFSchema): boolean =>
+      Array.isArray(node.enum) && node.enum.length > 0;
+
+    const hasEnumItems = (node: RJSFSchema): boolean => {
+      if (node.type !== "array") return false;
+      const items = node.items;
+      if (!items || Array.isArray(items) || typeof items !== "object") return false;
+      return hasEnum(items as RJSFSchema);
+    };
+
+    const visit = (node: RJSFSchema): UiSchema<unknown, RJSFSchema, BrowserConfigFormContext> => {
+      const out: UiSchema<unknown, RJSFSchema, BrowserConfigFormContext> = {};
+
+      if (node.type === "boolean") {
+        out["ui:widget"] = "switch";
+      } else if (hasEnum(node)) {
+        out["ui:widget"] = "select";
+      } else if (hasEnumItems(node)) {
+        out["ui:widget"] = "tagSelect";
+      }
+
+      if (node.type === "array") {
+        const items = node.items;
+        if (items && !Array.isArray(items) && typeof items === "object") {
+          out.items = visit(items as RJSFSchema);
+        }
+      }
+
+      if (node.type === "object" && node.properties && typeof node.properties === "object") {
+        for (const [key, child] of Object.entries(node.properties)) {
+          if (!child || typeof child !== "object") continue;
+          out[key] = visit(child as RJSFSchema);
+        }
+      }
+
+      return out;
+    };
+
+    return (schemaNode: RJSFSchema) => ({
+      ...visit(schemaNode),
+      "ui:options": { label: false },
+    });
+  }, []);
 
   const resolved = useMemo<ResolvedSchema | null>(() => {
     try {
       const normalized = normalizeSchemaForRjsf(schema);
       const root = toRjsfSchema(normalized);
-      return { schema: root, formContext: { transparentPaths: collectTransparentPaths(root) } };
+      return {
+        schema: root,
+        formContext: { transparentPaths: collectTransparentPaths(root), lightMode },
+      };
     } catch (error) {
       console.error("[mapgen-studio] failed to resolve config schema", error);
       return null;
     }
-  }, [schema]);
+  }, [schema, lightMode]);
 
   const focusView = useMemo<FocusView<TConfig> | null>(() => {
     if (!resolved || !focusPath || focusPath.length === 0) return null;
@@ -71,7 +120,7 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
       return {
         resolved: {
           schema: wrappedSchema,
-          formContext: { transparentPaths: collectTransparentPaths(wrappedSchema) },
+          formContext: { transparentPaths: collectTransparentPaths(wrappedSchema), lightMode },
         },
         formValue: wrappedValue,
         mergeBack: (nextFormValue: unknown) => {
@@ -85,7 +134,7 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
     return {
       resolved: {
         schema: focusSchema as RJSFSchema,
-        formContext: { transparentPaths: collectTransparentPaths(focusSchema as RJSFSchema) },
+        formContext: { transparentPaths: collectTransparentPaths(focusSchema as RJSFSchema), lightMode },
       },
       formValue: baseFormValue,
       mergeBack: (nextFormValue: unknown) => {
@@ -93,14 +142,7 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
         return setAtPath(value, focusPath, nextValue) as TConfig;
       },
     };
-  }, [resolved, focusPath, value]);
-
-  const uiSchema = useMemo<UiSchema<TConfig, RJSFSchema, BrowserConfigFormContext>>(
-    () => ({
-      "ui:options": { label: false },
-    }),
-    []
-  );
+  }, [resolved, focusPath, value, lightMode]);
 
   if (!resolved) {
     return (
@@ -115,6 +157,11 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
     formValue: value,
     mergeBack: (nextFormValue: unknown) => (nextFormValue as TConfig),
   };
+
+  const uiSchema = useMemo<UiSchema<TConfig, RJSFSchema, BrowserConfigFormContext>>(
+    () => buildUiSchema(active.resolved.schema) as UiSchema<TConfig, RJSFSchema, BrowserConfigFormContext>,
+    [active.resolved.schema, buildUiSchema]
+  );
 
   return (
     <SchemaForm

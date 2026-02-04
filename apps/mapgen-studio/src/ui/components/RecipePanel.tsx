@@ -361,6 +361,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
               value={config}
               focusPath={focusPath}
               disabled={overridesDisabled}
+              lightMode={lightMode}
               onChange={(next) => onConfigChange(next)}
             />
 
