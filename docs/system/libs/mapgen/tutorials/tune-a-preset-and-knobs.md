@@ -48,9 +48,10 @@ Example curated preset object (realism/earthlike):
 ```ts
 export const realismEarthlikeConfig = {
   foundation: { knobs: { plateCount: "normal", plateActivity: "normal" } },
-  "morphology-pre": { knobs: { seaLevel: "earthlike" } },
-  "morphology-mid": { knobs: { erosion: "normal", coastRuggedness: "normal" } },
-  "morphology-post": { knobs: { volcanism: "normal" } },
+  "morphology-coasts": { knobs: { seaLevel: "earthlike", coastRuggedness: "normal", shelfWidth: "normal" } },
+  "morphology-routing": { knobs: {} },
+  "morphology-erosion": { knobs: { erosion: "normal" } },
+  "morphology-features": { knobs: { volcanism: "normal" } },
   "hydrology-climate-baseline": {
     knobs: { dryness: "dry", temperature: "temperate", seasonality: "normal", oceanCoupling: "earthlike" },
   },
@@ -68,7 +69,7 @@ Pick one knob and change it by one step (avoid multiple simultaneous changes ini
 
 Example targets:
 - more plates → increase `foundation.knobs.plateCount`
-- rougher coasts → increase `morphology-mid.knobs.coastRuggedness`
+- rougher coasts → increase `morphology-coasts.knobs.coastRuggedness`
 - wetter world → change `hydrology-*.knobs.dryness`
 
 In Studio:

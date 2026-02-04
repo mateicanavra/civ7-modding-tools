@@ -56,4 +56,4 @@ Docs must keep this exception narrow and explicitly labeled as such.
 - Artifact types and DeepReadonly: `packages/mapgen-core/src/authoring/artifact/contract.ts`
 - Buffer exception and ArtifactStore notes: `packages/mapgen-core/src/core/types.ts`
 - Policy: artifact mutation: `docs/system/libs/mapgen/policies/ARTIFACT-MUTATION.md`
-- Example artifact definitions: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-pre/artifacts.ts`
+- Example artifact definitions: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/artifacts.ts`
