@@ -37,9 +37,10 @@ const run = (cwdRel, args) => {
 };
 
 // Keep this explicit (no Turbo calls) to avoid recursion when invoked from Turbo tasks.
-run("packages/civ7-adapter", ["bun", "run", "build"]);
-run("packages/mapgen-core", ["bun", "run", "build"]);
+// Order matters: mapgen-core imports mapgen-viz types from dist.
 run("packages/mapgen-viz", ["bun", "run", "build"]);
+run("packages/mapgen-core", ["bun", "run", "build"]);
+run("packages/civ7-adapter", ["bun", "run", "build"]);
 
 const stillMissing = requiredArtifacts.filter((rel) => !existsSync(join(repoRoot, rel)));
 if (stillMissing.length > 0) {
