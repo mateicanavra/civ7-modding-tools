@@ -204,7 +204,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             className={`w-full flex items-center justify-between px-3 py-2.5 transition-colors ${hoverBg}`}>
 
             <div className="flex items-center gap-2 min-w-0">
-              <BookOpen className={`w-4 h-4 shrink-0 ${textSecondary}`} />
+              <BookOpen className={`w-4 h-4 shrink-0 ${textSecondary}`} aria-hidden="true" />
               <span className={`text-[13px] font-semibold ${textPrimary}`}>
                 Recipe
               </span>
@@ -231,6 +231,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             <Select
               value={settings.recipe}
               onChange={(e) => updateSetting('recipe', e.target.value)}
+              aria-label="Recipe"
               options={recipeOptions.map((opt) => ({
                 value: opt.value,
                 label: opt.label
@@ -249,6 +250,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             <Select
               value={settings.preset}
               onChange={(e) => updateSetting('preset', e.target.value)}
+              aria-label="Preset"
               options={presetOptions.map((opt) => ({
                 value: opt.value,
                 label: opt.label
@@ -275,7 +277,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             className={`w-full flex items-center justify-between px-3 py-2.5 transition-colors cursor-pointer ${hoverBg}`}>
 
             <div className="flex items-center gap-2 min-w-0">
-              <Settings className={`w-4 h-4 shrink-0 ${textSecondary}`} />
+              <Settings className={`w-4 h-4 shrink-0 ${textSecondary}`} aria-hidden="true" />
               <span className={`text-[13px] font-semibold ${textPrimary}`}>
                 Config
               </span>
@@ -294,6 +296,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                   checked={!overridesDisabled}
                   onCheckedChange={(checked) => setOverridesDisabled(!checked)}
                   lightMode={lightMode}
+                  aria-label={overridesDisabled ? "Enable overrides" : "Disable overrides"}
                   title={overridesDisabled ? 'Enable overrides' : 'Disable overrides'} />
 
               </div>
@@ -304,12 +307,14 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                   e.stopPropagation();
                   setShowAllSteps(!showAllSteps);
                 }}
+                aria-label={showAllSteps ? "Focus current step" : "Show all steps"}
+                aria-pressed={showAllSteps}
                 title={
                 showAllSteps ? 'Focus current step' : 'Show all steps'
                 }
                 className={!showAllSteps ? iconBtnActive : iconBtn}>
 
-                <Focus className="w-3.5 h-3.5" />
+                <Focus className="w-3.5 h-3.5" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -325,19 +330,24 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
               <div className="flex-1" />
 
               <button
+              type="button"
               onClick={() => setShowResetModal(true)}
+              aria-label="Reset config to defaults"
               title="Reset to defaults"
               className={iconBtn}>
 
-                <Eraser className="w-3.5 h-3.5" />
+                <Eraser className="w-3.5 h-3.5" aria-hidden="true" />
               </button>
 
               <button
+              type="button"
               onClick={() => setShowJson(!showJson)}
+              aria-label={showJson ? "Show form view" : "Show JSON view"}
+              aria-pressed={showJson}
               title={showJson ? 'Show form view' : 'Show JSON view'}
               className={showJson ? iconBtnActive : iconBtn}>
 
-                <Braces className="w-3.5 h-3.5" />
+                <Braces className="w-3.5 h-3.5" aria-hidden="true" />
               </button>
             </div>
 
@@ -362,6 +372,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
               focusPath={focusPath}
               disabled={overridesDisabled}
               lightMode={lightMode}
+              theme={theme}
               onChange={(next) => onConfigChange(next)}
             />
 
@@ -380,8 +391,8 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
               disabled={isRunning}
               className={`flex-1 ${isDirty ? 'ring-2 ring-orange-400/50 border-orange-400' : ''} ${isRunning ? 'opacity-70 cursor-wait' : ''}`}>
 
-              <Play className="w-3.5 h-3.5" />
-              <span>{isRunning ? 'Running...' : 'Run'}</span>
+              <Play className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>{isRunning ? 'Running…' : 'Run'}</span>
             </Button>
 
             <div className="relative">
@@ -389,22 +400,28 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                 variant="outline"
                 size="icon"
                 onClick={() => setShowSaveMenu(!showSaveMenu)}
+                aria-label="Save preset"
+                aria-haspopup="menu"
+                aria-expanded={showSaveMenu}
                 title="Save preset"
                 className="h-8 w-8">
 
-                <Save className="w-4 h-4" />
+                <Save className="w-4 h-4" aria-hidden="true" />
               </Button>
 
               {showSaveMenu &&
               <>
-                  <div
+                  <button
+                  type="button"
                   className="fixed inset-0 z-40"
+                  aria-label="Close save preset menu"
                   onClick={() => setShowSaveMenu(false)} />
 
                   <div
                   className={`absolute bottom-full right-0 mb-1 w-36 rounded-lg border shadow-lg z-50 ${panelBg} ${panelBorder}`}>
 
                     <button
+                    type="button"
                     onClick={() => {
                       onSaveToCurrent();
                       setShowSaveMenu(false);
@@ -414,34 +431,38 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                       Save to Current
                     </button>
                     <button
+                    type="button"
                     onClick={() => {
                       onSaveAsNew();
                       setShowSaveMenu(false);
                     }}
                     className={`w-full text-left px-3 py-2 text-[11px] ${textPrimary} ${hoverBg} border-t ${borderSubtle}`}>
 
-                      Save as New...
+                      Save as New…
                     </button>
                     <button
+                    type="button"
                     onClick={() => {
                       onExportPreset();
                       setShowSaveMenu(false);
                     }}
                     className={`w-full text-left px-3 py-2 text-[11px] ${textPrimary} ${hoverBg} border-t ${borderSubtle}`}>
 
-                      Export...
+                      Export…
                     </button>
                     <button
+                    type="button"
                     onClick={() => {
                       onImportPreset();
                       setShowSaveMenu(false);
                     }}
                     className={`w-full text-left px-3 py-2 text-[11px] ${textPrimary} ${hoverBg} border-t ${borderSubtle}`}>
 
-                      Import...
+                      Import…
                     </button>
                     {canDeletePreset &&
                     <button
+                    type="button"
                     onClick={() => {
                       onDeletePreset();
                       setShowSaveMenu(false);

@@ -1,9 +1,12 @@
 import type { ArrayFieldTemplateProps, FieldTemplateProps, ObjectFieldTemplateProps, RJSFSchema } from "@rjsf/utils";
-import { pathToPointer, schemaIsGroup, type BrowserConfigSchemaDef } from "./schemaPresentation";
+import type { Theme } from "../../ui/types";
+import { FieldRow } from "../../ui/components/fields";
+import { pathToPointer, type BrowserConfigSchemaDef } from "./schemaPresentation";
 
 export type BrowserConfigFormContext = {
   transparentPaths: ReadonlySet<string>;
   lightMode?: boolean;
+  theme: Theme;
 };
 
 function humanizeSchemaLabel(label: string): string {
@@ -12,14 +15,6 @@ function humanizeSchemaLabel(label: string): string {
     .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
     .trim();
   return s.replace(/\b\w/g, (m) => m.toUpperCase());
-}
-
-function schemaHasNestedGroups(schema: BrowserConfigSchemaDef | undefined): boolean {
-  if (!schema || typeof schema === "boolean") return false;
-  if (schema.type !== "object") return false;
-  const props = schema.properties;
-  if (!props) return false;
-  return Object.values(props).some((child) => schemaIsGroup(child));
 }
 
 export function BrowserConfigFieldTemplate(
@@ -31,38 +26,41 @@ export function BrowserConfigFieldTemplate(
   const schemaType = props.schema?.type;
   const suppressDescription = schemaType === "object" || schemaType === "array";
   const isBoolean = schemaType === "boolean";
+  const theme = props.registry.formContext?.theme;
+  const labelClass = theme?.label ?? "";
+  const textClass = theme?.text ?? "";
 
   if (isBoolean) {
     return (
-      <div className={["bc-field", "bc-fieldRow", classNames].filter(Boolean).join(" ")}>
-        <div className="bc-fieldMeta">
+      <div className={["flex flex-col gap-1", classNames].filter(Boolean).join(" ")}>
+        <FieldRow>
           {displayLabel && label ? (
-            <label className="bc-label" htmlFor={id}>
-              {prettyLabel}
-              {required ? <span className="bc-required">*</span> : null}
+            <label className={`text-[11px] ${labelClass}`} htmlFor={id}>
+              <span className="font-medium">{prettyLabel}</span>
+              {required ? <span className="text-[11px] text-rose-400">*</span> : null}
             </label>
           ) : null}
-          {description ? <div className="bc-desc">{description}</div> : null}
-        </div>
-        <div className="bc-fieldControl">{children}</div>
-        {errors ? <div className="bc-errors">{errors}</div> : null}
-        {help ? <div className="bc-desc">{help}</div> : null}
+          <div>{children}</div>
+        </FieldRow>
+        {description ? <div className={`text-[11px] ${labelClass}`}>{description}</div> : null}
+        {errors ? <div className="text-[11px] text-rose-400">{errors}</div> : null}
+        {help ? <div className={`text-[11px] ${labelClass}`}>{help}</div> : null}
       </div>
     );
   }
 
   return (
-    <div className={["bc-field", classNames].filter(Boolean).join(" ")}>
+    <div className={["flex flex-col gap-1", classNames].filter(Boolean).join(" ")}>
       {displayLabel && label ? (
-        <label className="bc-label" htmlFor={id}>
-          {prettyLabel}
-          {required ? <span className="bc-required">*</span> : null}
+        <label className={`text-[11px] ${labelClass}`} htmlFor={id}>
+          <span className="font-medium">{prettyLabel}</span>
+          {required ? <span className="text-[11px] text-rose-400">*</span> : null}
         </label>
       ) : null}
-      {description && !suppressDescription ? <div className="bc-desc">{description}</div> : null}
-      <div>{children}</div>
-      {errors ? <div className="bc-errors">{errors}</div> : null}
-      {help ? <div className="bc-desc">{help}</div> : null}
+      {description && !suppressDescription ? <div className={`text-[11px] ${labelClass}`}>{description}</div> : null}
+      <div className={textClass}>{children}</div>
+      {errors ? <div className="text-[11px] text-rose-400">{errors}</div> : null}
+      {help ? <div className={`text-[11px] ${labelClass}`}>{help}</div> : null}
     </div>
   );
 }
@@ -78,27 +76,29 @@ export function BrowserConfigObjectFieldTemplate(
   const leafKey = typeof leaf === "string" ? leaf : "";
   const isRoot = depth === 0;
   const isTransparent = transparentPaths.has(pathToPointer(path));
+  const theme = props.registry.formContext?.theme;
+  const cardClass = theme?.card ?? "";
+  const nestedCard = theme?.nestedCard ?? "";
+  const dividerClass = theme?.divider ?? "";
+  const labelClass = theme?.label ?? "";
+  const textClass = theme?.text ?? "";
 
   if (isRoot) {
-    return <div className="bc-root">{properties.filter((p) => !p.hidden).map((p) => p.content)}</div>;
+    return <div className="flex flex-col gap-3">{properties.filter((p) => !p.hidden).map((p) => p.content)}</div>;
   }
 
   if (isTransparent) {
-    return <div className="bc-transparent">{properties.filter((p) => !p.hidden).map((p) => p.content)}</div>;
+    return <div>{properties.filter((p) => !p.hidden).map((p) => p.content)}</div>;
   }
 
   const prettyTitle = title ? humanizeSchemaLabel(title) : leafKey ? humanizeSchemaLabel(leafKey) : "Section";
-  const titleLower = prettyTitle.toLowerCase();
   const isStage = depth === 1;
   const isTopGroup = depth === 2;
-  const hasNestedGroups = schemaHasNestedGroups(props.schema);
 
   const content = (
-    <div className={hasNestedGroups ? "bc-groupBody" : "bc-groupBody bc-groupBodyCompact"}>
+    <div className="flex flex-col gap-2">
       {!isStage && description ? (
-        <div className="bc-desc bc-groupDesc">
-          {description}
-        </div>
+        <div className={`text-[11px] ${labelClass}`}>{description}</div>
       ) : null}
       {properties.filter((p) => !p.hidden).map((p) => p.content)}
     </div>
@@ -106,22 +106,22 @@ export function BrowserConfigObjectFieldTemplate(
 
   if (isStage) {
     return (
-      <section className="bc-stage">
-        <header className="bc-stageHeader">
-          <div className="bc-stageTitle">{prettyTitle}</div>
-          {description ? <div className="bc-stageMeta">{description}</div> : null}
+      <section className={`rounded-lg border p-3 ${cardClass}`}>
+        <header className="flex flex-col gap-1">
+          <div className={`text-sm font-semibold ${textClass}`}>{prettyTitle}</div>
+          {description ? <div className={`text-[11px] ${labelClass}`}>{description}</div> : null}
         </header>
+        <div className={`my-2 border-t ${dividerClass}`} />
         {content}
       </section>
     );
   }
 
-  const headingClass = ["bc-groupTitle", isTopGroup ? "bc-depth2" : "bc-depth3"].join(" ");
-  const wrapperClass = isTopGroup ? "bc-group" : "bc-subgroup";
-
+  const headingClass = `text-[12px] font-semibold ${textClass}`;
+  const wrapperClass = isTopGroup ? `rounded-md border p-2 ${nestedCard}` : `pl-2 border-l ${dividerClass}`;
   return (
     <section className={wrapperClass}>
-      <header className="bc-groupHeader">
+      <header className="mb-1">
         <div className={headingClass}>{prettyTitle}</div>
       </header>
       {content}
@@ -135,25 +135,34 @@ export function BrowserConfigArrayFieldTemplate(
   const { title, items, canAdd, onAddClick, disabled, readonly } = props;
   const prettyTitle = title ? humanizeSchemaLabel(title) : "Items";
   const allowMutations = !disabled && !readonly;
+  const theme = props.registry.formContext?.theme;
+  const nestedCard = theme?.nestedCard ?? "";
+  const textClass = theme?.text ?? "";
+  const dividerClass = theme?.divider ?? "";
 
   return (
-    <section className="bc-array">
-      <div className="bc-arrayHeader">
-        <div className="bc-arrayTitle">{prettyTitle}</div>
+    <section className={`rounded-md border p-2 ${nestedCard}`}>
+      <div className="flex items-center gap-2">
+        <div className={`text-[12px] font-semibold ${textClass}`}>{prettyTitle}</div>
         <div style={{ flex: 1 }} />
         {canAdd && allowMutations ? (
-          <button type="button" className="bc-button" onClick={onAddClick}>
+          <button
+            type="button"
+            className={`px-2 py-1 text-[11px] rounded border ${theme?.button ?? ""}`}
+            onClick={onAddClick}
+          >
             Add
           </button>
         ) : null}
       </div>
-      <div className="bc-arrayItems">
+      <div className={`my-2 border-t ${dividerClass}`} />
+      <div className="flex flex-col gap-2">
         {items.map((item, index) => {
           // RJSF v6 types this as ReactElement[], but some templates/versions
           // pass an "item" object that wraps the actual element in `.children`.
           const content = (item as any)?.children ?? (item as any)?.props?.children ?? item;
           return (
-            <div key={item.key ?? index} className="bc-arrayItem">
+            <div key={item.key ?? index} className={`rounded-md border p-2 ${nestedCard}`}>
               {content}
             </div>
           );

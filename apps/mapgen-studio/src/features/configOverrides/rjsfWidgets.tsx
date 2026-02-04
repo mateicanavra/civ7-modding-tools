@@ -1,5 +1,5 @@
 import type { WidgetProps, RJSFSchema } from "@rjsf/utils";
-import { Checkbox, Input, Select, Switch } from "../../ui/components/ui";
+import { Checkbox, Input, Select, Switch, Textarea } from "../../ui/components/ui";
 import type { BrowserConfigFormContext } from "./rjsfTemplates";
 
 type ConfigWidgetProps = WidgetProps<unknown, RJSFSchema, BrowserConfigFormContext>;
@@ -52,14 +52,15 @@ export function TextWidget(props: ConfigWidgetProps) {
 }
 
 export function TextareaWidget(props: ConfigWidgetProps) {
+  const lightMode = getLightMode(props);
   const { id, name, autoComplete, value, required, disabled, readonly, autofocus, onChange, options, placeholder } =
     props;
   return (
-    <textarea
+    <Textarea
       id={id}
       name={name}
       autoComplete={autoComplete ?? "off"}
-      className="bc-textarea"
+      lightMode={lightMode}
       spellCheck={false}
       required={required}
       autoFocus={autofocus}
@@ -175,14 +176,17 @@ export function SwitchWidget(props: ConfigWidgetProps) {
 
 export function TagSelectWidget(props: ConfigWidgetProps) {
   const { value, disabled, readonly, onChange, options } = props;
+  const theme = props.formContext?.theme;
   const enumOptions = (options.enumOptions ?? []) as Array<{ value: unknown; label: string }>;
   const allowMutations = !disabled && !readonly;
   const selected = Array.isArray(value) ? value : [];
   const selectedKeys = new Set(selected.map((entry) => String(entry)));
   const map = new Map(enumOptions.map((opt) => [String(opt.value), opt.value]));
+  const baseTag = `px-2 py-1 text-[11px] rounded-full border ${theme?.button ?? ""}`;
+  const activeTag = theme?.toggleActive ?? "";
 
   return (
-    <div className="bc-tagList">
+    <div className="flex flex-wrap gap-2">
       {enumOptions.map((opt) => {
         const key = String(opt.value);
         const isActive = selectedKeys.has(key);
@@ -190,7 +194,7 @@ export function TagSelectWidget(props: ConfigWidgetProps) {
           <button
             key={key}
             type="button"
-            className={["bc-tag", isActive ? "bc-tagActive" : null].filter(Boolean).join(" ")}
+            className={[baseTag, isActive ? activeTag : null].filter(Boolean).join(" ")}
             aria-pressed={isActive}
             disabled={!allowMutations}
             onClick={() => {

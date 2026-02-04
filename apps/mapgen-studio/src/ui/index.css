@@ -46,16 +46,6 @@
   /* Transitions */
   --transition-fast: 150ms ease;
   --transition-normal: 200ms ease;
-
-  /* Config form tokens */
-  --config-panel-bg: var(--color-bg-secondary);
-  --config-card-bg: var(--color-bg-tertiary);
-  --config-field-bg: var(--color-bg-secondary);
-  --config-border: var(--color-border-primary);
-  --config-border-strong: var(--color-border-secondary);
-  --config-text: var(--color-text-primary);
-  --config-muted: var(--color-text-muted);
-  --config-accent: var(--color-accent);
 }
 
 /* Dark mode overrides */
