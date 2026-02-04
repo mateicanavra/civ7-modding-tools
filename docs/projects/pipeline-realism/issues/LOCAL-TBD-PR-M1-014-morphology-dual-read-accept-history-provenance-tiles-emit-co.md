@@ -16,20 +16,39 @@ related_to: []
 
 <!-- SECTION SCOPE [SYNC] -->
 ## TL;DR
-- Update Morphology stage(s) to accept new tile drivers alongside legacy drivers initially.
+- Add a dual-read Morphology wiring path that can consume the new `tectonicHistoryTiles`/`tectonicProvenanceTiles` drivers while still supporting legacy drivers long enough to validate coupling.
 
 ## Deliverables
-- Update Morphology stage(s) to accept new tile drivers alongside legacy drivers initially.
-- Emit comparison diagnostics to validate coupling before full cutover.
+- Update Morphology stage wiring to accept new tile driver artifacts (from `LOCAL-TBD-PR-M1-002`) alongside legacy inputs:
+  - new required drivers (tile space):
+    - `artifact:foundation.tectonicHistoryTiles`
+    - `artifact:foundation.tectonicProvenanceTiles`
+  - legacy drivers (current required by Morphology today):
+    - `artifact:foundation.plates`
+    - `artifact:foundation.crustTiles`
+- Implement “comparison diagnostics” (must be actionable, not just plots):
+  - emit side-by-side driver layers (old vs new) and their deltas (viz),
+  - emit at least one quantitative correlation summary suitable for gating later (`LOCAL-TBD-PR-M1-020`).
+- Make the bridge explicit:
+  - dual-read is transitional and must have a deletion target (`LOCAL-TBD-PR-M1-024` / `LOCAL-TBD-PR-M1-025`).
 
 ## Acceptance Criteria
-- Deliverables are implemented and wired into the pipeline where applicable.
-- Outputs follow the maximal SPEC contracts (no optional artifacts).
-- Any transitional bridge has an explicit deletion target (or this issue performs the deletion).
+- Morphology can compile and run with:
+  - legacy drivers only (baseline),
+  - and with new drivers enabled (dual-read mode).
+- The comparison output makes it possible to answer:
+  - “Do new drivers change belts in the expected places?”
+  - “Are differences explainable by event/provenance mechanisms (not sampling artifacts)?”
+- The dual-read path is fenced:
+  - it is not the default “authoritative” path at the end of the milestone (cutover happens in `LOCAL-TBD-PR-M1-016`),
+  - and it cannot silently remain forever (explicit deletion target).
 
 ## Testing / Verification
-- Add/extend the canonical validation suite for this change (D09r posture).
-- Verify determinism: same seed + config -> identical artifacts (stable fingerprints).
+- `bun run --cwd mods/mod-swooper-maps test`
+- Add/extend a morphology integration test that runs with both driver modes and asserts:
+  - determinism for each mode,
+  - and that the delta between modes is non-trivial for a seed with active tectonics.
+  Suggested area: `mods/mod-swooper-maps/test/morphology/` or `mods/mod-swooper-maps/test/pipeline/`.
 
 ## Dependencies / Notes
 - Blocked by:
@@ -37,9 +56,18 @@ related_to: []
 - Related:
   - (none)
 
+### Implementation Anchors
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (declares `foundationArtifacts.*` ids; add `tectonicHistoryTiles`/`tectonicProvenanceTiles` here)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotMountains.contract.ts` (current Morphology requires `foundationArtifacts.plates`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts` (current requires `foundationArtifacts.plates` + `foundationArtifacts.crustTiles`)
+- `mods/mod-swooper-maps/src/dev/viz/dump.ts` (viz sink/dump output path; comparison diagnostics should be visible here)
+- `mods/mod-swooper-maps/test/morphology/m11-mountains-physics-anchored.test.ts` (physics-anchored morphology regression patterns)
+- `mods/mod-swooper-maps/test/pipeline/viz-emissions.test.ts` (asserts viz emissions are present + stable)
+
 ### References
 - docs/projects/pipeline-realism/resources/decisions/d07r-morphology-consumption-contract.md
 - docs/projects/pipeline-realism/resources/research/stack-integration-morphology-hydrology-wind-current.md
+- docs/system/libs/mapgen/reference/domains/MORPHOLOGY.md
 
 ---
 
@@ -52,3 +80,32 @@ related_to: []
 - [Acceptance Criteria](#acceptance-criteria)
 - [Testing / Verification](#testing--verification)
 - [Dependencies / Notes](#dependencies--notes)
+
+### Current State (Observed)
+
+Morphology (standard recipe) currently requires two upstream Foundation artifacts:
+- `artifact:foundation.plates`
+- `artifact:foundation.crustTiles`
+
+Anchor: `docs/system/libs/mapgen/reference/domains/MORPHOLOGY.md` (“Requires” section).
+
+### Proposed Change Surface
+
+Expected wiring touchpoints (standard recipe):
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/**`
+- any step contracts that declare required artifacts (so compilation fails loudly if drivers are missing):
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-*/steps/*.contract.ts`
+
+Expected diagnostics emission (viz):
+- Morphology step(s) that compute belt drivers or intermediate masks should emit:
+  - stable `dataTypeKey`s (reserved in `LOCAL-TBD-PR-M1-003`)
+  - delta layers (variantKey) for old vs new.
+
+### Pitfalls / Rakes
+
+- Dual-read becomes an excuse to avoid cutover (“we’ll decide later”): it must be transitional with a deletion target.
+- Comparing drivers in tile space without controlling for mapping differences (must use the same `tileToCellIndex` policy).
+
+### Wow Scenarios
+
+- **Causal deltas:** in a single run, the viewer can show “legacy belts” vs “new belts” and a delta layer that correlates to provenance/history drivers, letting implementers tune mechanisms rather than stare at mountains.
