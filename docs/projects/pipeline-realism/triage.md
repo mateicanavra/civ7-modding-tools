@@ -18,6 +18,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 - Decision (M1-007): `compute-tectonic-segments` default `intensityScale` raised to `900` (and stage config aligned) to preserve uplift/stress magnitudes under mantle-derived plate motion.
 - Decision (M1-008): Morphology sea-level tuning: `water-heavy` knob delta increased to `+15`; `realismEarthlikeConfig` uses `seaLevel: "water-heavy"` and `shelfWidth: "narrow"` to keep deep-ocean share stable post-cutover.
 - Decision (M1-009): Pre-plate weak zones are mantle-coupled: `compute-crust` consumes `mantleForcing` and seeds `damage` from positive divergence weighted by stress/forcing magnitude (`riftWeakening01` scaled), producing resistance variation before plate partition.
+- Decision (M1-010): Tectonic segment intensities scale with lithosphere resistance: compression is boosted for stronger crust, while extension/shear are boosted for weaker crust, keeping regimes resistance-aware without shifting baseline intensity budgets.
 
 ## Backlog
 
