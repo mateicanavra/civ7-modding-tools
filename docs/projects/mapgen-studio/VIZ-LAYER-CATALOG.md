@@ -1,3 +1,12 @@
+# Status: Project doc (MapGen Studio)
+
+This page is a project-local catalog and may drift.
+It is **not** canonical MapGen visualization documentation.
+
+Canonical entrypoints:
+- `docs/system/libs/mapgen/reference/VISUALIZATION.md`
+- `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
+
 # VIZ Layer Catalog — MapGen Studio
 
 ## Purpose

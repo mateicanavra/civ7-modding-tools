@@ -112,7 +112,9 @@ Morphology’s **simulation** steps do not provide effect tags directly in the s
 - `effect:map.volcanoesPlotted`
 - `effect:map.elevationBuilt`
 
-**Ground truth anchors**
+## Ground truth anchors
+
+This section is a navigation aid: concrete file paths that back the contract claims in this domain reference.
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-pre/steps/landmassPlates.contract.ts` (`LandmassPlatesStepContract.requires/provides` are empty)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/steps/routing.contract.ts` (`RoutingStepContract.requires/provides` are empty)
 - `mods/mod-swooper-maps/src/recipes/standard/tags.ts` (`M10_EFFECT_TAGS.map.*`)

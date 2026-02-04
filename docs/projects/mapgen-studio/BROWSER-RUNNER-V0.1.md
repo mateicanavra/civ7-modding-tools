@@ -1,3 +1,13 @@
+# Status: Project doc (MapGen Studio)
+
+This page is **not** canonical MapGen documentation.
+
+Canonical entrypoints:
+- `docs/system/libs/mapgen/MAPGEN.md`
+- `docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`
+- `docs/system/libs/mapgen/reference/VISUALIZATION.md`
+- `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
+
 # V0.1 In-Browser Runner Design (Foundation First, Pure Browser Pipeline)
 
 This document proposes the **V0.1 MapGen Studio runner**: run the `browser-test` recipe (currently Foundation-only) entirely in a Web Worker and stream visualization outputs **directly** into deck.gl as in-memory data.

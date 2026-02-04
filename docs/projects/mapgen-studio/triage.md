@@ -1,3 +1,12 @@
+# Status: Project tracker (MapGen Studio)
+
+This page is a project-local triage list and may drift.
+It is **not** canonical MapGen documentation.
+
+Canonical entrypoints:
+- `docs/system/libs/mapgen/MAPGEN.md`
+- `docs/process/LINEAR.md`
+
 # Mapgen Studio Triage
 
 ## Open Risks

@@ -1,3 +1,12 @@
+# Status: Project plan (MapGen Studio)
+
+This page is a time-bound performance baseline plan and may drift.
+It is **not** canonical MapGen documentation.
+
+Canonical entrypoints:
+- `docs/system/libs/mapgen/MAPGEN.md`
+- `docs/system/TESTING.md`
+
 # MapGen Studio Performance + Bundle Measurement Plan (Baseline)
 
 Date: 2026-01-31  

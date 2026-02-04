@@ -1,3 +1,12 @@
+# Status: Project handoff (MapGen Studio)
+
+This page is a time-bound deployment handoff and may drift.
+It is **not** canonical product or MapGen documentation.
+
+Canonical entrypoints:
+- `docs/system/libs/mapgen/MAPGEN.md`
+- `docs/projects/mapgen-studio/ROADMAP.md`
+
 # Railway Deployment Handoff
 
 ## For: Local Agent with CLI Access

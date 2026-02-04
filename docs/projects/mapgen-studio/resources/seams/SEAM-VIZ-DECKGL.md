@@ -1,3 +1,13 @@
+# Status: Project seam doc (MapGen Studio)
+
+This page documents an implementation seam and may drift.
+It is **not** canonical MapGen visualization documentation.
+
+Canonical entrypoints:
+- `docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`
+- `docs/system/libs/mapgen/reference/VISUALIZATION.md`
+- `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
+
 # agent-viz-deckgl — deck.gl host seam + normalized viz model (scratch)
 
 Update note (2026-01-29):

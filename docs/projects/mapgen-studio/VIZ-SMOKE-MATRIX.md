@@ -1,3 +1,12 @@
+# Status: Project checklist (MapGen Studio)
+
+This page is a project-local smoke matrix and may drift.
+It is **not** canonical MapGen visualization documentation.
+
+Canonical entrypoints:
+- `docs/system/libs/mapgen/reference/VISUALIZATION.md`
+- `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
+
 # MapGen Studio Viz v1 — Smoke Matrix (Manual + Scripted)
 
 This is the minimal-but-real verification checklist for the Viz SDK v1 work described in:

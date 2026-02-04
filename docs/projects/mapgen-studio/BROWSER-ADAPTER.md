@@ -1,3 +1,11 @@
+# Status: Project doc (MapGen Studio)
+
+This page is **not** canonical MapGen documentation.
+
+Canonical entrypoints:
+- `docs/system/libs/mapgen/MAPGEN.md`
+- `docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`
+
 # BrowserAdapter Capability Spec (MapGen Studio)
 
 This document defines the **minimum viable adapter surface** required to run mapgen in the browser (Web Worker), plus the longer-term “full standard recipe” requirements.

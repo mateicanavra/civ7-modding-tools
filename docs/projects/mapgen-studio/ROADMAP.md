@@ -1,3 +1,13 @@
+# Status: Project roadmap (MapGen Studio)
+
+This page is a roadmap for MapGen Studio work and may drift.
+It is **not** canonical MapGen documentation.
+
+Canonical entrypoints:
+- `docs/system/libs/mapgen/MAPGEN.md`
+- `docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`
+- `docs/system/libs/mapgen/reference/VISUALIZATION.md`
+
 # MapGen Studio Roadmap
 
 This roadmap describes the incremental path to a practical, external visualization workflow for Civ7 mapgen.
