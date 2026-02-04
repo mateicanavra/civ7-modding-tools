@@ -64,7 +64,7 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
     );
 
     const projection = computePlatesTensors.run(
-      { width, height, mesh, crust, plateGraph, tectonics: history.tectonics },
+      { width, height, mesh, crust, plateGraph, tectonics: history.tectonics, tectonicHistory: history.tectonicHistory },
       {
         ...computePlatesTensors.defaultConfig,
         config: {
@@ -180,4 +180,3 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
     expect(mountainTiles + hillTiles).toBeGreaterThan(0);
   });
 });
-

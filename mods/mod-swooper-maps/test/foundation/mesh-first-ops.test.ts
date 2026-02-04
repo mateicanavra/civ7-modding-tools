@@ -243,13 +243,21 @@ describe("foundation mesh-first ops (slice 2)", () => {
       ).plateGraph;
 
       const segments = computeTectonicSegments.run({ mesh, crust, plateGraph }, computeTectonicSegments.defaultConfig).segments;
-      const tectonics = computeTectonicHistory.run(
+      const historyResult = computeTectonicHistory.run(
         { mesh, segments },
         computeTectonicHistory.defaultConfig
-      ).tectonics;
+      );
 
       const platesTensors = computePlatesTensors.run(
-        { width, height, mesh, crust, plateGraph, tectonics },
+        {
+          width,
+          height,
+          mesh,
+          crust,
+          plateGraph,
+          tectonics: historyResult.tectonics,
+          tectonicHistory: historyResult.tectonicHistory,
+        },
         computePlatesTensors.defaultConfig
       );
 
@@ -371,9 +379,9 @@ describe("foundation mesh-first ops (slice 2)", () => {
       { strategy: "default", config: { plateCount: 16, referenceArea: 2400, plateScalePower: 0 } }
     ).plateGraph;
     const segments = computeTectonicSegments.run({ mesh, crust, plateGraph }, computeTectonicSegments.defaultConfig).segments;
-    const tectonics = computeTectonicHistory.run({ mesh, segments }, computeTectonicHistory.defaultConfig).tectonics;
+    const historyResult = computeTectonicHistory.run({ mesh, segments }, computeTectonicHistory.defaultConfig);
     const crustTiles = computePlatesTensors.run(
-      { width, height, mesh, crust, plateGraph, tectonics },
+      { width, height, mesh, crust, plateGraph, tectonics: historyResult.tectonics, tectonicHistory: historyResult.tectonicHistory },
       computePlatesTensors.defaultConfig
     ).crustTiles;
 
