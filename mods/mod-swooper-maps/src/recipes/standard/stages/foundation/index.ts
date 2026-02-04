@@ -143,6 +143,31 @@ const advancedLithosphereSchema = Type.Object(
   }
 );
 
+const advancedBudgetsSchema = Type.Object(
+  {
+    eraCount: Type.Optional(
+      Type.Integer({
+        minimum: 1,
+        maximum: 8,
+        description:
+          "Number of tectonic eras to simulate (physics time-horizon / resolution). Higher values produce richer history at higher compute cost.",
+        default: 5,
+      })
+    ),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Simulation resolution / time-horizon budgets. These are physics-adjacent controls (not output sculpting) and compile into internal per-era loops.",
+    gs: {
+      comments: [
+        "Budgets are treated as simulation resolution/time horizon, not output shaping.",
+        "Do not add derived fields (velocities, belts) or output targets here.",
+      ],
+    },
+  }
+);
+
 /**
  * Foundation knobs (plateCount/plateActivity). Knobs apply after defaulted step config as deterministic transforms.
  */
@@ -161,6 +186,7 @@ const advancedSchema = Type.Object(
   {
     mantleForcing: Type.Optional(advancedMantleForcingSchema),
     lithosphere: Type.Optional(advancedLithosphereSchema),
+    budgets: Type.Optional(advancedBudgetsSchema),
   },
   {
     additionalProperties: false,
@@ -216,6 +242,33 @@ const COMMON_TECTONIC_HISTORY = {
   beltDecay: 0.55,
   activityThreshold: 1,
 } as const;
+
+function normalizeWeights(weights: readonly number[]): number[] {
+  const sum = weights.reduce((acc, v) => acc + v, 0);
+  if (!Number.isFinite(sum) || sum <= 0) return weights.map(() => 1 / Math.max(1, weights.length));
+  return weights.map((w) => w / sum);
+}
+
+function deriveEraWeights(args: { eraCount: number }): number[] {
+  const base = COMMON_TECTONIC_HISTORY.eraWeights;
+  if (args.eraCount <= base.length) return normalizeWeights(base.slice(0, args.eraCount));
+  const ratio = base.length >= 2 ? base[base.length - 1]! / base[base.length - 2]! : 0.8;
+  const extended: number[] = base.slice();
+  while (extended.length < args.eraCount) {
+    const prev = extended.at(-1) ?? 0.1;
+    extended.push(prev * (Number.isFinite(ratio) && ratio > 0 ? ratio : 0.8));
+  }
+  return normalizeWeights(extended);
+}
+
+function deriveDriftStepsByEra(args: { eraCount: number }): number[] {
+  const base = COMMON_TECTONIC_HISTORY.driftStepsByEra;
+  if (args.eraCount <= base.length) return base.slice(0, args.eraCount);
+  const extended: number[] = base.slice();
+  const tail = base.at(-1) ?? 2;
+  while (extended.length < args.eraCount) extended.push(tail);
+  return extended;
+}
 
 type CrustDefaults = Readonly<{
   basalticThickness01: number;
@@ -495,6 +548,20 @@ export default createStage({
       { min: 2, max: 16 }
     );
 
+    const budgetsOverrides =
+      advanced && typeof advanced === "object" && "budgets" in advanced
+        ? (advanced as { budgets?: Record<string, unknown> }).budgets ?? {}
+        : {};
+    const budgetsOverrideValues = budgetsOverrides as { eraCount?: unknown };
+    const eraCount = clampInt(
+      typeof budgetsOverrideValues.eraCount === "number"
+        ? budgetsOverrideValues.eraCount
+        : COMMON_TECTONIC_HISTORY.eraWeights.length,
+      { min: 1, max: 8 }
+    );
+    const eraWeights = deriveEraWeights({ eraCount });
+    const driftStepsByEra = deriveDriftStepsByEra({ eraCount });
+
     return {
       mesh: {
         computeMesh: {
@@ -562,7 +629,11 @@ export default createStage({
         },
         computeTectonicHistory: {
           strategy: "default",
-          config: COMMON_TECTONIC_HISTORY,
+          config: {
+            ...COMMON_TECTONIC_HISTORY,
+            eraWeights,
+            driftStepsByEra,
+          },
         },
       },
       projection: {

@@ -113,8 +113,9 @@ steps:
       - "$STUDIO/test/config/*"
 
   - slice: 2
-    branch: "TBD"
+    branch: "agent-URSULA-M1-LOCAL-TBD-PR-M1-028-foundation-authoring-budgets-advanced-surface"
     title: "foundation(authoring): budgets + physics-first advanced surface"
+    status: done
     includes:
       - "$SWOOPER/src/recipes/standard/stages/foundation/index.ts"
       - "$PROJECT/resources/spec/sections/authoring-and-config.md (D08r update)"

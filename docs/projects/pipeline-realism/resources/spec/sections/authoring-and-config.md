@@ -37,6 +37,7 @@ the system SHALL produce:
 
 The authoring surface MUST be limited to:
 - initial conditions for Foundation physics (e.g., discretization preference, lithosphere constitutive intent, mantle forcing intent),
+- simulation resolution / time-horizon budgets (physics-adjacent “how long / how many eras”),
 - and a small number of **semantic knobs** that scale those initial conditions deterministically.
 
 The authoring surface MUST NOT allow:
@@ -45,7 +46,11 @@ The authoring surface MUST NOT allow:
 - direct authoring of tectonic belts (mountain belt masks/corridors) or other derived shaping structures,
 - direct authoring of boundary regime labels per cell/tile.
 
-Budgets are **not author-controlled** in the maximal strategy. In particular, `eraCount`, tracer advection steps, solver passes, and smoothing iteration counts are fixed by the target architecture and validated by D09r.
+Budgets are **author-controlled only as simulation resolution / time-horizon inputs**. In particular:
+- `eraCount` MAY be authored under `foundation.advanced.budgets` as the primary time-horizon control (1–8).
+- Budgets MUST remain physics-first (resolution/time) and MUST NOT become output sculpting (e.g., “target land%”, “painted belts”).
+
+Other internal iteration counts (solver passes, smoothing iterations, etc.) remain fixed by the target architecture / profiles and validated by D09r unless explicitly promoted to the authoring surface as a physics-first resolution control.
 
 Normative budgets and invariants:
 - `docs/projects/pipeline-realism/resources/spec/budgets.md`
@@ -78,6 +83,12 @@ type FoundationAuthoringSurfaceV1 = {
   // Advanced knobs are permitted only for physics inputs/initial conditions.
   // Derived constants MUST NOT be exposed here.
   advanced?: {
+    // Budgets are simulation resolution/time-horizon controls.
+    // They MUST remain physics-first and MUST NOT encode output sculpting.
+    budgets?: {
+      eraCount?: number;               // integer in [1..8]
+    };
+
     mantleForcing?: {
       potentialMode?: "default";
       potentialAmplitude01?: number;     // [0..1]
