@@ -2,6 +2,7 @@ import { writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { compile } from "json-schema-to-typescript";
+import { Type, type TObject, type TSchema } from "typebox";
 
 type JsonObject = Record<string, unknown>;
 
@@ -67,8 +68,10 @@ function assertSingleSentinelPath(input: { label: string; value: unknown }): rea
 
 type StageLike = Readonly<{
   id: string;
-  steps: readonly Readonly<{ contract: Readonly<{ id: string }> }>[];
-  public?: unknown;
+  knobsSchema: TObject;
+  steps: readonly Readonly<{ contract: Readonly<{ id: string; schema: TSchema }> }>[];
+  public?: TObject;
+  surfaceSchema: TObject;
   toInternal: (args: { env: unknown; stageConfig: unknown }) => { rawSteps: Record<string, unknown> };
 }>;
 
@@ -89,6 +92,27 @@ function typeboxObjectProperties(schema: unknown): Record<string, unknown> {
   if (!schema || typeof schema !== "object") return {};
   const props = (schema as any).properties as Record<string, unknown> | undefined;
   return props ?? {};
+}
+
+function buildStudioStageSchema(stage: StageLike): TObject {
+  if (stage.public) return stage.surfaceSchema;
+
+  const props: Record<string, TSchema> = {
+    knobs: Type.Optional(stage.knobsSchema),
+  };
+  for (const step of stage.steps) {
+    props[step.contract.id] = Type.Optional(step.contract.schema);
+  }
+
+  return Type.Object(props, { additionalProperties: false });
+}
+
+function buildStudioRecipeSchema(stages: readonly StageLike[]): TObject {
+  const props: Record<string, TSchema> = {};
+  for (const stage of stages) {
+    props[stage.id] = Type.Optional(buildStudioStageSchema(stage));
+  }
+  return Type.Object(props, { additionalProperties: false, default: {} });
 }
 
 function deriveStageStepConfigFocusMap(args: {
@@ -278,11 +302,12 @@ const mod = (await import(pathToFileURL(distBrowserTest).href)) as unknown as {
   BROWSER_TEST_STAGES: readonly StageLike[];
 };
 
-const schemaJson = stableJson(mod.BROWSER_TEST_RECIPE_CONFIG_SCHEMA);
-
 if (!Array.isArray(mod.BROWSER_TEST_STAGES)) {
   throw new Error(`[recipe:mod-swooper-maps.browser-test] missing export BROWSER_TEST_STAGES`);
 }
+
+const browserTestSchema = buildStudioRecipeSchema(mod.BROWSER_TEST_STAGES);
+const schemaJson = stableJson(browserTestSchema);
 
 const browserTestUiMeta = deriveStudioRecipeUiMeta({
   namespace: "mod-swooper-maps",
@@ -362,7 +387,7 @@ if (standardSchemaRaw) {
     stages: standardStages as readonly StageLike[],
   });
 
-  const standardSchemaJson = stableJson(standardSchemaRaw);
+  const standardSchemaJson = stableJson(buildStudioRecipeSchema(standardStages as StageLike[]));
   await writeFile(
     resolve(pkgRoot, "dist", "recipes", "standard.schema.json"),
     JSON.stringify(standardSchemaJson, null, 2)
