@@ -1,6 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
-import type { TSchema } from "@swooper/mapgen-core/authoring";
+import {
+  stripSchemaMetadataRoot,
+  type StudioPresetExportFileV1,
+  type TSchema,
+} from "@swooper/mapgen-core/authoring";
 
 import { AppHeader } from "./ui/components/AppHeader";
 import { AppFooter } from "./ui/components/AppFooter";
@@ -37,12 +41,21 @@ import { shouldIgnoreGlobalShortcutsInEditableTarget } from "./shared/shortcuts/
 import type { VizEvent } from "./shared/vizEvents";
 
 import {
+  PresetConfirmDialog,
+  PresetErrorDialog,
+  PresetSaveDialog,
+} from "./features/presets/PresetDialogs";
+import { resolveImportedPreset } from "./features/presets/importFlow";
+import { buildPresetExportFile, downloadPresetFile, parsePresetExportFile } from "./features/presets/importExport";
+import { parsePresetKey, type PresetKey } from "./features/presets/types";
+import { usePresets } from "./features/presets/usePresets";
+import {
   DEFAULT_STUDIO_RECIPE_ID,
+  findRecipeArtifacts,
   getRecipeArtifacts,
   STUDIO_RECIPE_OPTIONS,
   type StudioRecipeUiMeta,
 } from "./recipes/catalog";
-import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 
 function randomU32(): number {
   try {
@@ -65,12 +78,15 @@ function isNumericPathSegment(segment: string): boolean {
   return /^[0-9]+$/.test(segment);
 }
 
+const FORBIDDEN_MERGE_KEYS = new Set(["__proto__", "prototype", "constructor"]);
+
 function mergeDeterministic(base: unknown, overrides: unknown): unknown {
   if (overrides === undefined) return base;
   if (!isPlainObject(base) || !isPlainObject(overrides)) return overrides;
 
   const out: Record<string, unknown> = { ...(base as Record<string, unknown>) };
   for (const key of Object.keys(overrides)) {
+    if (FORBIDDEN_MERGE_KEYS.has(key)) continue;
     out[key] = mergeDeterministic((base as Record<string, unknown>)[key], overrides[key]);
   }
   return out;
@@ -195,11 +211,40 @@ function buildDefaultConfig(
   return value;
 }
 
+type PresetApplyResult = Readonly<{
+  value: PipelineConfig | null;
+  errors: ReadonlyArray<{ path: string; message: string }>;
+}>;
+
+function applyPresetConfig(args: {
+  schema: TSchema;
+  uiMeta: StudioRecipeUiMeta;
+  presetConfig: unknown;
+  label: string;
+}): PresetApplyResult {
+  const { schema, uiMeta, presetConfig, label } = args;
+  const skeleton = buildConfigSkeleton(uiMeta);
+  const merged = mergeDeterministic(skeleton, stripSchemaMetadataRoot(presetConfig));
+  const { value, errors } = normalizeStrict<PipelineConfig>(schema, merged, `/preset/${label}`);
+  if (errors.length > 0) return { value: null, errors };
+  return { value, errors: [] };
+}
+
+function formatPresetErrors(errors: ReadonlyArray<{ path: string; message: string }>): ReadonlyArray<string> {
+  return errors.map((e) => `${e.path}: ${e.message}`);
+}
+
 type LastRunSnapshot = {
   worldSettings: WorldSettings;
   recipeSettings: RecipeSettings;
   pipelineConfig: PipelineConfig;
 };
+
+type PresetErrorState = Readonly<{
+  title: string;
+  message: string;
+  details?: ReadonlyArray<string>;
+}>;
 
 type AppContentProps = {
   themePreference: "system" | "light" | "dark";
@@ -241,8 +286,22 @@ function AppContent(props: AppContentProps) {
     preset: "none",
     seed: "123",
   });
+  const [presetError, setPresetError] = useState<PresetErrorState | null>(null);
+  const [saveDialogState, setSaveDialogState] = useState<{ open: boolean; label: string; description?: string }>({
+    open: false,
+    label: "",
+    description: "",
+  });
+  const [pendingImport, setPendingImport] = useState<StudioPresetExportFileV1 | null>(null);
+  const importInputRef = useRef<HTMLInputElement | null>(null);
+  const lastPresetKeyRef = useRef<PresetKey>("none");
 
   const recipeArtifacts = useMemo(() => getRecipeArtifacts(recipeSettings.recipe), [recipeSettings.recipe]);
+  const { options: presetOptions, resolvePreset, actions: presetActions, loadWarning } = usePresets({
+    recipeId: recipeSettings.recipe,
+    builtIns: recipeArtifacts.studioBuiltInPresets,
+  });
+  const isLocalPresetSelected = parsePresetKey(recipeSettings.preset).kind === "local";
   const stageIds = useMemo(() => recipeArtifacts.uiMeta.stages.map((s) => s.stageId), [recipeArtifacts.uiMeta.stages]);
   const knobOptions = useMemo(() => extractKnobOptions(recipeArtifacts.configSchema, stageIds), [recipeArtifacts.configSchema, stageIds]);
 
@@ -263,6 +322,50 @@ function AppContent(props: AppContentProps) {
     setOverridesDisabled(false);
     setLastRunSnapshot(null);
   }, [recipeArtifacts.configSchema, recipeArtifacts.uiMeta, recipeArtifacts.defaultConfig]);
+
+  useEffect(() => {
+    const nextKey = recipeSettings.preset as PresetKey;
+    if (nextKey === lastPresetKeyRef.current) return;
+    lastPresetKeyRef.current = nextKey;
+    const parsed = parsePresetKey(nextKey);
+    if (parsed.kind === "none") return;
+    const resolved = resolvePreset(nextKey);
+    if (!resolved) {
+      toast("Preset not found", { variant: "error" });
+      setPresetError({
+        title: "Preset not found",
+        message: "The selected preset could not be resolved for this recipe.",
+      });
+      return;
+    }
+    const applied = applyPresetConfig({
+      schema: recipeArtifacts.configSchema,
+      uiMeta: recipeArtifacts.uiMeta,
+      presetConfig: resolved.config,
+      label: resolved.label,
+    });
+    if (!applied.value) {
+      toast("Preset invalid", { variant: "error" });
+      setPresetError({
+        title: "Preset invalid",
+        message: "The selected preset failed schema validation.",
+        details: formatPresetErrors(applied.errors),
+      });
+      return;
+    }
+    setPipelineConfig(applied.value);
+  }, [
+    resolvePreset,
+    recipeArtifacts.configSchema,
+    recipeArtifacts.uiMeta,
+    recipeSettings.preset,
+    toast,
+  ]);
+
+  useEffect(() => {
+    if (!loadWarning) return;
+    toast(loadWarning, { variant: "info" });
+  }, [loadWarning, toast]);
 
   const dumpLoader = useDumpLoader();
   const dumpAssetResolver = dumpLoader.state.status === "loaded" ? dumpLoader.state.reader : null;
@@ -422,7 +525,6 @@ function AppContent(props: AppContentProps) {
     () => STUDIO_RECIPE_OPTIONS.map((opt) => ({ value: opt.id, label: opt.label })),
     []
   );
-  const presetOptions = useMemo(() => [{ value: "none", label: "None" }], []);
 
   const stageLabels = useMemo(() => {
     return Object.fromEntries(
@@ -594,6 +696,179 @@ function AppContent(props: AppContentProps) {
     if (lastRunSnapshot && configsEqual(lastRunSnapshot.pipelineConfig, pipelineConfig)) return;
     startBrowserRun();
   }, [autoRunEnabled, browserRunning, lastRunSnapshot, overridesDisabled, pipelineConfig, startBrowserRun, worldSettings.mode]);
+
+  const openSaveDialog = useCallback((seed?: { label?: string; description?: string }) => {
+    setSaveDialogState({
+      open: true,
+      label: seed?.label ?? "",
+      description: seed?.description,
+    });
+  }, []);
+
+  const closeSaveDialog = useCallback(() => {
+    setSaveDialogState((prev) => ({ ...prev, open: false }));
+  }, []);
+
+  const handleSaveDialogConfirm = useCallback(
+    (args: { label: string; description?: string }) => {
+      const sanitized = stripSchemaMetadataRoot(pipelineConfig);
+      const result = presetActions.saveAsNew({
+        recipeId: recipeSettings.recipe,
+        label: args.label,
+        description: args.description,
+        config: sanitized,
+      });
+      if (result.persistenceError) {
+        toast(`Preset saved but could not persist: ${result.persistenceError}`, { variant: "error" });
+      } else {
+        toast("Preset saved", { variant: "success" });
+      }
+      setRecipeSettings((prev) => ({ ...prev, preset: `local:${result.preset.id}` }));
+      setSaveDialogState({ open: false, label: "", description: "" });
+    },
+    [pipelineConfig, presetActions, recipeSettings.recipe, toast]
+  );
+
+  const handleSaveAsNew = useCallback(() => {
+    const resolved = resolvePreset(recipeSettings.preset as PresetKey);
+    const suggested = resolved ? `Copy of ${resolved.label}` : "New Preset";
+    openSaveDialog({ label: suggested, description: resolved?.description });
+  }, [openSaveDialog, recipeSettings.preset, resolvePreset]);
+
+  const handleSaveToCurrent = useCallback(() => {
+    const parsed = parsePresetKey(recipeSettings.preset);
+    if (parsed.kind !== "local") {
+      handleSaveAsNew();
+      toast("Save to Current requires a local preset. Save as new instead.", { variant: "info" });
+      return;
+    }
+    const sanitized = stripSchemaMetadataRoot(pipelineConfig);
+    const result = presetActions.saveToCurrent({
+      recipeId: recipeSettings.recipe,
+      presetId: parsed.id,
+      config: sanitized,
+    });
+    if (result.error) {
+      toast(result.error, { variant: "error" });
+      return;
+    }
+    if (result.persistenceError) {
+      toast(`Preset updated but could not persist: ${result.persistenceError}`, { variant: "error" });
+    } else {
+      toast("Preset updated", { variant: "success" });
+    }
+  }, [handleSaveAsNew, pipelineConfig, presetActions, recipeSettings.preset, recipeSettings.recipe, toast]);
+
+  const handleDeletePreset = useCallback(() => {
+    const parsed = parsePresetKey(recipeSettings.preset);
+    if (parsed.kind !== "local") {
+      toast("Select a local preset to delete.", { variant: "info" });
+      return;
+    }
+    const result = presetActions.deleteLocal({
+      recipeId: recipeSettings.recipe,
+      presetId: parsed.id,
+    });
+    if (result.persistenceError) {
+      toast(`Preset deleted but could not persist: ${result.persistenceError}`, { variant: "error" });
+    } else {
+      toast("Preset deleted", { variant: "success" });
+    }
+    if (result.deleted) {
+      setRecipeSettings((prev) => ({ ...prev, preset: "none" }));
+    }
+  }, [presetActions, recipeSettings.preset, recipeSettings.recipe, toast]);
+
+  const handleExportPreset = useCallback(() => {
+    const key = recipeSettings.preset as PresetKey;
+    const resolved = resolvePreset(key);
+    const payload = resolved
+      ? {
+          label: resolved.label,
+          description: resolved.description,
+          config: stripSchemaMetadataRoot(resolved.config),
+        }
+      : {
+          label: "Current Config",
+          config: stripSchemaMetadataRoot(pipelineConfig),
+        };
+    const built = buildPresetExportFile({ recipeId: recipeSettings.recipe, preset: payload });
+    downloadPresetFile(built.filename, built.json);
+    toast("Preset exported", { variant: "success" });
+  }, [pipelineConfig, recipeSettings.preset, recipeSettings.recipe, resolvePreset, toast]);
+
+  const importPresetValue = useCallback(
+    (presetFile: StudioPresetExportFileV1) => {
+      const resolved = resolveImportedPreset({
+        presetFile,
+        findRecipeArtifacts,
+      });
+      if (!resolved.ok) {
+        toast("Preset import failed", { variant: "error" });
+        setPresetError({
+          title: resolved.kind === "unknown-recipe" ? "Unknown recipe" : "Preset invalid",
+          message: resolved.message,
+          details: resolved.details,
+        });
+        return;
+      }
+      const result = presetActions.saveAsNew({
+        recipeId: resolved.recipeId,
+        label: resolved.label,
+        description: resolved.description,
+        config: resolved.config,
+      });
+      if (result.persistenceError) {
+        toast(`Preset imported but could not persist: ${result.persistenceError}`, { variant: "error" });
+      } else {
+        toast("Preset imported", { variant: "success" });
+      }
+      setRecipeSettings((prev) => ({
+        ...prev,
+        recipe: resolved.recipeId,
+        preset: `local:${result.preset.id}`,
+      }));
+    },
+    [presetActions, toast]
+  );
+
+  const handleImportPreset = useCallback(() => {
+    importInputRef.current?.click();
+  }, []);
+
+  const handleImportFileChange = useCallback(
+    async (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      event.target.value = "";
+      if (!file) return;
+      const text = await file.text();
+      const parsed = parsePresetExportFile(text);
+      if (!parsed.ok) {
+        toast("Preset import failed", { variant: "error" });
+        setPresetError({
+          title: "Preset import failed",
+          message: parsed.message,
+          details: parsed.details,
+        });
+        return;
+      }
+      if (parsed.value.recipeId !== recipeSettings.recipe) {
+        setPendingImport(parsed.value);
+        return;
+      }
+      importPresetValue(parsed.value);
+    },
+    [importPresetValue, recipeSettings.recipe, toast]
+  );
+
+  const confirmImportSwitch = useCallback(() => {
+    if (!pendingImport) return;
+    const next = pendingImport;
+    setPendingImport(null);
+    importPresetValue(next);
+  }, [importPresetValue, pendingImport]);
+
+  const cancelImportSwitch = useCallback(() => setPendingImport(null), []);
 
   const reroll = useCallback(() => {
     const next = String(randomU32());
@@ -1040,11 +1315,18 @@ function AppContent(props: AppContentProps) {
       selectedStep={selectedStageId}
       settings={recipeSettings}
       onSettingsChange={(next) => {
-        setRecipeSettings(next);
+        setRecipeSettings((prev) =>
+          next.recipe !== prev.recipe ? { ...next, preset: "none" } : next
+        );
         if (next.recipe !== recipeSettings.recipe) toast(`Recipe: ${next.recipe}`, { variant: "info" });
       }}
       onRun={triggerRun}
-      onSave={() => toast("Preset saving is not implemented in Studio yet", { variant: "info" })}
+      onSaveToCurrent={handleSaveToCurrent}
+      onSaveAsNew={handleSaveAsNew}
+      onImportPreset={handleImportPreset}
+      onExportPreset={handleExportPreset}
+      onDeletePreset={handleDeletePreset}
+      canDeletePreset={isLocalPresetSelected}
       isRunning={browserRunning}
       isDirty={isDirty}
       overridesDisabled={overridesDisabled}
@@ -1112,9 +1394,53 @@ function AppContent(props: AppContentProps) {
     />
   );
 
+  const presetDialogs = (
+    <>
+      <PresetSaveDialog
+        open={saveDialogState.open}
+        lightMode={isLightMode}
+        initialLabel={saveDialogState.label}
+        initialDescription={saveDialogState.description}
+        onCancel={closeSaveDialog}
+        onConfirm={handleSaveDialogConfirm}
+      />
+      <PresetErrorDialog
+        open={Boolean(presetError)}
+        lightMode={isLightMode}
+        title={presetError?.title ?? "Preset error"}
+        message={presetError?.message ?? "Preset operation failed."}
+        details={presetError?.details}
+        onOpenChange={(open) => {
+          if (!open) setPresetError(null);
+        }}
+      />
+      <PresetConfirmDialog
+        open={Boolean(pendingImport)}
+        lightMode={isLightMode}
+        title="Import preset?"
+        message={
+          pendingImport
+            ? `Preset is for ${pendingImport.recipeId}. Switch recipes and import it?`
+            : \"\"
+        }
+        confirmLabel="Switch & Import"
+        onCancel={cancelImportSwitch}
+        onConfirm={confirmImportSwitch}
+      />
+    </>
+  );
+
   return (
     <div ref={containerRef} className={`relative w-full min-h-screen ${isLightMode ? "bg-[#f5f5f7]" : "bg-[#0a0a12]"}`}>
       {canvas}
+      {presetDialogs}
+      <input
+        ref={importInputRef}
+        type="file"
+        accept="application/json"
+        className="hidden"
+        onChange={handleImportFileChange}
+      />
 
       <div className="absolute left-4 z-10" style={{ top: panelTop }}>
         {leftPanel}

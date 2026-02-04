@@ -4,12 +4,24 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { compile } from "json-schema-to-typescript";
 import type { TObject, TSchema } from "typebox";
 
-import { deriveRecipeConfigSchema, stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
+import {
+  derivePresetLabel,
+  deriveRecipeConfigSchema,
+  stripSchemaMetadataRoot,
+  type RecipePresetDefinitionV1,
+} from "@swooper/mapgen-core/authoring";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 
 type JsonObject = Record<string, unknown>;
+type BuiltInPreset = Readonly<{
+  id: string;
+  label: string;
+  description?: string;
+  config: unknown;
+}>;
 
 const SENTINEL_KEY = "__studioUiMetaSentinelPath";
+const PRESET_WRAPPER_KEYS = new Set(["$schema", "id", "label", "description", "config"]);
 
 function assertPlainObject(value: unknown, label: string): asserts value is JsonObject {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -193,6 +205,142 @@ function deriveStageStepConfigFocusMap(args: {
   return mapping;
 }
 
+function readPresetWrapper(args: {
+  fileName: string;
+  raw: unknown;
+  errors: Array<{ path: string; message: string }>;
+}): RecipePresetDefinitionV1 | null {
+  const { fileName, raw, errors } = args;
+  const startErrorCount = errors.length;
+  if (!isPlainObject(raw)) {
+    errors.push({ path: fileName, message: "Preset wrapper must be a JSON object" });
+    return null;
+  }
+
+  for (const key of Object.keys(raw)) {
+    if (!PRESET_WRAPPER_KEYS.has(key)) {
+      errors.push({ path: fileName, message: `Unknown preset wrapper key "${key}"` });
+    }
+  }
+
+  const schemaValue = raw.$schema;
+  if (schemaValue !== undefined && typeof schemaValue !== "string") {
+    errors.push({ path: fileName, message: "Preset wrapper $schema must be a string" });
+  }
+
+  const idValue = raw.id;
+  if (idValue !== undefined && typeof idValue !== "string") {
+    errors.push({ path: fileName, message: "Preset wrapper id must be a string" });
+  }
+
+  const labelValue = raw.label;
+  if (labelValue !== undefined && typeof labelValue !== "string") {
+    errors.push({ path: fileName, message: "Preset wrapper label must be a string" });
+  }
+
+  const descriptionValue = raw.description;
+  if (descriptionValue !== undefined && typeof descriptionValue !== "string") {
+    errors.push({ path: fileName, message: "Preset wrapper description must be a string" });
+  }
+
+  if (!("config" in raw)) {
+    errors.push({ path: fileName, message: "Preset wrapper must include a config object" });
+  }
+
+  const configValue = raw.config;
+  if (configValue !== undefined && !isPlainObject(configValue)) {
+    errors.push({ path: fileName, message: "Preset wrapper config must be a JSON object" });
+  }
+
+  if (errors.length != startErrorCount) return null;
+  return {
+    ...(schemaValue ? { $schema: schemaValue } : {}),
+    ...(idValue ? { id: idValue } : {}),
+    ...(labelValue ? { label: labelValue } : {}),
+    ...(descriptionValue ? { description: descriptionValue } : {}),
+    config: configValue as Record<string, unknown>,
+  };
+}
+
+async function loadBuiltInPresets(args: {
+  pkgRoot: string;
+  recipeId: string;
+  schema: TSchema;
+}): Promise<ReadonlyArray<BuiltInPreset>> {
+  const { pkgRoot, recipeId, schema } = args;
+  const dir = resolve(pkgRoot, "src", "presets", recipeId);
+  let entries: Awaited<ReturnType<typeof readdir>>;
+  try {
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+
+  const errors: Array<{ path: string; message: string }> = [];
+  const presets: BuiltInPreset[] = [];
+  const seenIds = new Set<string>();
+
+  for (const ent of entries) {
+    if (!ent.isFile()) continue;
+    if (!ent.name.endsWith(".json")) continue;
+    const abs = resolve(dir, ent.name);
+    let raw: unknown;
+    try {
+      raw = JSON.parse(await readFile(abs, "utf-8")) as unknown;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to parse JSON";
+      errors.push({ path: ent.name, message });
+      continue;
+    }
+
+    const wrapper = readPresetWrapper({ fileName: ent.name, raw, errors });
+    if (!wrapper) continue;
+
+    const baseId = (wrapper.id ?? ent.name.replace(/\.json$/i, "")).trim();
+    if (!baseId) {
+      errors.push({ path: ent.name, message: "Preset id must not be empty" });
+      continue;
+    }
+    if (seenIds.has(baseId)) {
+      errors.push({ path: ent.name, message: `Duplicate preset id "${baseId}"` });
+      continue;
+    }
+    seenIds.add(baseId);
+
+    const sanitized = stripSchemaMetadataRoot(wrapper.config);
+    if (!isPlainObject(sanitized)) {
+      errors.push({ path: ent.name, message: "Preset config must be a JSON object" });
+      continue;
+    }
+
+    const res = normalizeStrict<Record<string, unknown>>(schema, sanitized, `/preset/${ent.name}`);
+    if (res.errors.length > 0) {
+      errors.push(
+        ...res.errors.map((e) => ({
+          path: `${ent.name}${e.path.startsWith("/") ? "" : "/"}${e.path}`,
+          message: e.message,
+        }))
+      );
+      continue;
+    }
+
+    presets.push({
+      id: baseId,
+      label: wrapper.label ?? derivePresetLabel(baseId),
+      description: wrapper.description,
+      config: res.value,
+    });
+  }
+
+  if (errors.length > 0) {
+    throw new Error(
+      `Invalid studio preset definitions:\n${errors.map((e) => `- ${e.path}: ${e.message}`).join("\n")}`
+    );
+  }
+
+  return presets;
+}
+
 
 function formatKebabIdLabel(id: string): string {
   return id
@@ -272,6 +420,7 @@ async function writeArtifactsModule(args: {
   schemaConstName: string; // e.g. "STANDARD_RECIPE_CONFIG_SCHEMA"
   configValue: unknown;
   uiMetaValue: StudioRecipeUiMeta;
+  builtInPresetsValue: ReadonlyArray<BuiltInPreset>;
 }): Promise<void> {
   const {
     pkgRoot,
@@ -283,6 +432,7 @@ async function writeArtifactsModule(args: {
     schemaConstName,
     configValue,
     uiMetaValue,
+    builtInPresetsValue,
   } = args;
 
   const jsLines = [
@@ -292,6 +442,7 @@ async function writeArtifactsModule(args: {
     `export const ${configConstName} = ${JSON.stringify(configValue, null, 2)};`,
     `export const ${schemaConstName} = ${JSON.stringify(schemaJson, null, 2)};`,
     `export const studioRecipeUiMeta = ${JSON.stringify(uiMetaValue, null, 2)};`,
+    `export const studioBuiltInPresets = ${JSON.stringify(builtInPresetsValue, null, 2)};`,
     ``,
   ];
 
@@ -318,9 +469,17 @@ async function writeArtifactsModule(args: {
     `  }>>;`,
     `}>;`,
     ``,
+    `export type StudioBuiltInPreset = Readonly<{`,
+    `  id: string;`,
+    `  label: string;`,
+    `  description?: string;`,
+    `  config: unknown;`,
+    `}>;`,
+    ``,
     `export const ${configConstName}: Readonly<${typeName}>;`,
     `export const ${schemaConstName}: TSchema;`,
     `export const studioRecipeUiMeta: Readonly<StudioRecipeUiMeta>;`,
+    `export const studioBuiltInPresets: ReadonlyArray<StudioBuiltInPreset>;`,
     ``,
   ];
 
@@ -369,6 +528,11 @@ if (browserTestDefaultsErrors.length > 0) {
   );
 }
 const browserTestDefaultsClean = stripSchemaMetadataRoot(browserTestDefaults);
+const browserTestBuiltInPresets = await loadBuiltInPresets({
+  pkgRoot,
+  recipeId: "browser-test",
+  schema: browserTestSchema,
+});
 
 await writeFile(
   resolve(pkgRoot, "dist", "recipes", "browser-test.schema.json"),
@@ -377,6 +541,10 @@ await writeFile(
 await writeFile(
   resolve(pkgRoot, "dist", "recipes", "browser-test.defaults.json"),
   JSON.stringify(browserTestDefaultsClean, null, 2)
+);
+await writeFile(
+  resolve(pkgRoot, "dist", "recipes", "browser-test.presets.json"),
+  JSON.stringify(browserTestBuiltInPresets, null, 2)
 );
 
 const browserTestConfigTypes = await compile(browserTestSchemaJson, "BrowserTestRecipeConfig", {
@@ -413,6 +581,7 @@ await writeArtifactsModule({
   schemaConstName: "BROWSER_TEST_RECIPE_CONFIG_SCHEMA",
   configValue: browserTestDefaultsClean,
   uiMetaValue: browserTestUiMeta,
+  builtInPresetsValue: browserTestBuiltInPresets,
 });
 
 const standardMod = (await import(pathToFileURL(distStandard).href)) as unknown as {
@@ -448,6 +617,11 @@ if (standardDefaultsErrors.length > 0) {
   );
 }
 const standardDefaultsClean = stripSchemaMetadataRoot(standardDefaults);
+const standardBuiltInPresets = await loadBuiltInPresets({
+  pkgRoot,
+  recipeId: "standard",
+  schema: standardSchema,
+});
 
 await writeFile(
   resolve(pkgRoot, "dist", "recipes", "standard.schema.json"),
@@ -456,6 +630,10 @@ await writeFile(
 await writeFile(
   resolve(pkgRoot, "dist", "recipes", "standard.defaults.json"),
   JSON.stringify(standardDefaultsClean, null, 2)
+);
+await writeFile(
+  resolve(pkgRoot, "dist", "recipes", "standard.presets.json"),
+  JSON.stringify(standardBuiltInPresets, null, 2)
 );
 
 const standardConfigTypes = await compile(standardSchemaJson, "StandardRecipeConfig", {
@@ -492,6 +670,7 @@ await writeArtifactsModule({
   schemaConstName: "STANDARD_RECIPE_CONFIG_SCHEMA",
   configValue: standardDefaultsClean,
   uiMetaValue: standardUiMeta,
+  builtInPresetsValue: standardBuiltInPresets,
 });
 
 async function validateStandardMapConfigPresets(): Promise<void> {

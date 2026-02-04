@@ -67,8 +67,18 @@ export interface RecipePanelProps {
   onSettingsChange: (settings: RecipeSettings) => void;
   /** Callback to start generation */
   onRun: () => void;
-  /** Callback to save preset */
-  onSave: () => void;
+  /** Callback to save preset to current */
+  onSaveToCurrent: () => void;
+  /** Callback to save preset as new */
+  onSaveAsNew: () => void;
+  /** Callback to import preset */
+  onImportPreset: () => void;
+  /** Callback to export preset */
+  onExportPreset: () => void;
+  /** Callback to delete preset */
+  onDeletePreset: () => void;
+  /** Whether delete is available */
+  canDeletePreset?: boolean;
   /** Whether generation is running */
   isRunning: boolean;
   /** Whether settings have changed since last run */
@@ -103,7 +113,12 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   settings,
   onSettingsChange,
   onRun,
-  onSave,
+  onSaveToCurrent,
+  onSaveAsNew,
+  onImportPreset,
+  onExportPreset,
+  onDeletePreset,
+  canDeletePreset = false,
   isRunning,
   isDirty,
   overridesDisabled: overridesDisabledProp,
@@ -400,7 +415,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
 
                     <button
                     onClick={() => {
-                      onSave();
+                      onSaveToCurrent();
                       setShowSaveMenu(false);
                     }}
                     className={`w-full text-left px-3 py-2 text-[11px] ${textPrimary} ${hoverBg} rounded-t-lg`}>
@@ -408,11 +423,48 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                       Save to Current
                     </button>
                     <button
-                    onClick={() => setShowSaveMenu(false)}
-                    className={`w-full text-left px-3 py-2 text-[11px] ${textPrimary} ${hoverBg} rounded-b-lg border-t ${borderSubtle}`}>
+                    onClick={() => {
+                      onSaveAsNew();
+                      setShowSaveMenu(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-[11px] ${textPrimary} ${hoverBg} border-t ${borderSubtle}`}>
 
                       Save as New...
                     </button>
+                    <button
+                    onClick={() => {
+                      onExportPreset();
+                      setShowSaveMenu(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-[11px] ${textPrimary} ${hoverBg} border-t ${borderSubtle}`}>
+
+                      Export...
+                    </button>
+                    <button
+                    onClick={() => {
+                      onImportPreset();
+                      setShowSaveMenu(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-[11px] ${textPrimary} ${hoverBg} border-t ${borderSubtle}`}>
+
+                      Import...
+                    </button>
+                    {canDeletePreset &&
+                    <button
+                    onClick={() => {
+                      onDeletePreset();
+                      setShowSaveMenu(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-[11px] text-red-600 ${hoverBg} rounded-b-lg border-t ${borderSubtle}`}>
+
+                        Delete Preset
+                      </button>
+                    }
+                    {!canDeletePreset &&
+                    <div className={`w-full text-left px-3 py-2 text-[11px] ${textMuted} rounded-b-lg border-t ${borderSubtle}`}>
+                        Delete Preset (local only)
+                      </div>
+                    }
                   </div>
                 </>
               }
