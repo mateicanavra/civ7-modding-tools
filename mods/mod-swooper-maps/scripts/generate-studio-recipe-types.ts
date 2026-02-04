@@ -150,9 +150,14 @@ function deriveStageStepConfigFocusMap(args: {
     >;
   }
 
-  const publicKeys = Object.keys(typeboxObjectProperties(stage.public));
+  const publicProps = typeboxObjectProperties(stage.public);
+  const publicKeys = Object.keys(publicProps);
+  const advancedProps = typeboxObjectProperties(publicProps.advanced);
+  const advancedHasStepIds = stepIds.some((stepId) =>
+    Object.prototype.hasOwnProperty.call(advancedProps, stepId)
+  );
 
-  if (publicKeys.includes("advanced")) {
+  if (publicKeys.includes("advanced") && advancedHasStepIds) {
     const advanced: Record<string, unknown> = Object.fromEntries(
       stepIds.map((stepId) => [stepId, makeSentinel(["advanced", stepId])])
     );

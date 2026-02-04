@@ -11,9 +11,11 @@ import {
   wrapFoundationValidate,
 } from "./validation.js";
 import {
-  FOUNDATION_PLATE_ACTIVITY_BOUNDARY_INFLUENCE_DISTANCE_DELTA,
-  FOUNDATION_PLATE_ACTIVITY_KINEMATICS_MULTIPLIER,
+  resolvePlateActivityBoundaryDelta,
+  resolvePlateActivityKinematicsMultiplier,
 } from "@mapgen/domain/foundation/shared/knob-multipliers.js";
+import type { FoundationTectonicHistory } from "@mapgen/domain/foundation/ops/compute-tectonic-history/contract.js";
+import type { FoundationTectonicProvenance } from "@mapgen/domain/foundation/ops/compute-plates-tensors/contract.js";
 import type { FoundationPlateActivityKnob } from "@mapgen/domain/foundation/shared/knobs.js";
 import { clampFinite } from "@swooper/mapgen-core/lib/math";
 
@@ -61,9 +63,8 @@ export default createStep(ProjectionStepContract, {
   ),
   normalize: (config, ctx) => {
     const { plateActivity } = ctx.knobs as Readonly<{ plateActivity?: FoundationPlateActivityKnob }>;
-    const kinematicsMultiplier = FOUNDATION_PLATE_ACTIVITY_KINEMATICS_MULTIPLIER[plateActivity ?? "normal"] ?? 1.0;
-    const boundaryDelta =
-      FOUNDATION_PLATE_ACTIVITY_BOUNDARY_INFLUENCE_DISTANCE_DELTA[plateActivity ?? "normal"] ?? 0;
+    const kinematicsMultiplier = resolvePlateActivityKinematicsMultiplier(plateActivity);
+    const boundaryDelta = resolvePlateActivityBoundaryDelta(plateActivity);
 
     const computePlates =
       config.computePlates.strategy === "default"
@@ -89,10 +90,10 @@ export default createStep(ProjectionStepContract, {
     const crust = deps.artifacts.foundationCrust.read(context);
     const plateGraph = deps.artifacts.foundationPlateGraph.read(context);
     const tectonics = deps.artifacts.foundationTectonics.read(context);
-    const tectonicHistory = deps.artifacts.foundationTectonicHistory.read(context);
+    const tectonicHistory = deps.artifacts.foundationTectonicHistory.read(context) as FoundationTectonicHistory;
     const tectonicProvenance =
       (context.artifacts.get(foundationArtifacts.tectonicProvenance.id) as
-        | { version?: unknown; eraCount?: unknown; cellCount?: unknown }
+        | FoundationTectonicProvenance
         | undefined) ?? null;
 
     const platesResult = ops.computePlates(

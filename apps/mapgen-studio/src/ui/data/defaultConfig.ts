@@ -15,61 +15,15 @@ export const defaultConfig: PipelineConfig = {
   // Creates the base mesh, crust, and tectonic structure
   // ============================================================================
   foundation: {
-    knobs: {
-      plateCount: 'normal',
-      plateActivity: 'normal'
+    version: 1,
+    profiles: {
+      resolutionProfile: 'balanced',
+      lithosphereProfile: 'maximal-basaltic-lid-v1',
+      mantleProfile: 'maximal-potential-v1'
     },
-    advanced: {
-      mesh: {
-        computeMesh: {
-          strategy: 'default',
-          config: {
-            plateCount: 28,
-            cellsPerPlate: 14,
-            relaxationSteps: 4,
-            referenceArea: 6996,
-            plateScalePower: 0.65
-          }
-        }
-      },
-      crust: {
-        computeCrust: {
-          strategy: 'default',
-          config: {
-            continentalRatio: 0.29
-          }
-        }
-      },
-      tectonics: {
-        computeTectonicSegments: {
-          strategy: 'default',
-          config: {
-            intensityScale: 180,
-            regimeMinIntensity: 4
-          }
-        },
-        computeTectonicHistory: {
-          strategy: 'default',
-          config: {
-            eraWeights: [0.35, 0.35, 0.3],
-            driftStepsByEra: [2, 1, 0],
-            beltInfluenceDistance: 8,
-            beltDecay: 0.55,
-            activityThreshold: 1
-          }
-        }
-      },
-      projection: {
-        computePlates: {
-          strategy: 'default',
-          config: {
-            boundaryInfluenceDistance: 12,
-            boundaryDecay: 0.5,
-            movementScale: 65,
-            rotationScale: 80
-          }
-        }
-      }
+    knobs: {
+      plateCount: 28,
+      plateActivity: 0.5
     }
   },
 

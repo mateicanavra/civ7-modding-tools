@@ -8,7 +8,15 @@ import type { StandardRecipeConfig } from "../../../recipes/standard/recipe.js";
  * - Authors can further tune using stage knobs without editing step-level config trees.
  */
 export const realismEarthlikeConfig: StandardRecipeConfig = {
-  foundation: { knobs: { plateCount: "normal", plateActivity: "normal" } },
+  foundation: {
+    version: 1,
+    profiles: {
+      resolutionProfile: "balanced",
+      lithosphereProfile: "maximal-basaltic-lid-v1",
+      mantleProfile: "maximal-potential-v1",
+    },
+    knobs: { plateCount: 28, plateActivity: 0.5 },
+  },
   "morphology-coasts": { knobs: { seaLevel: "earthlike", coastRuggedness: "normal", shelfWidth: "normal" } },
   "morphology-erosion": { knobs: { erosion: "normal" } },
   "morphology-features": { knobs: { volcanism: "normal" } },
