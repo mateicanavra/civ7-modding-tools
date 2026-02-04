@@ -14,8 +14,6 @@ import {
   resolvePlateActivityBoundaryDelta,
   resolvePlateActivityKinematicsMultiplier,
 } from "@mapgen/domain/foundation/shared/knob-multipliers.js";
-import type { FoundationTectonicHistory } from "@mapgen/domain/foundation/ops/compute-tectonic-history/contract.js";
-import type { FoundationTectonicProvenance } from "@mapgen/domain/foundation/ops/compute-plates-tensors/contract.js";
 import type { FoundationPlateActivityKnob } from "@mapgen/domain/foundation/shared/knobs.js";
 import { clampFinite } from "@swooper/mapgen-core/lib/math";
 
@@ -91,9 +89,8 @@ export default createStep(ProjectionStepContract, {
     const plateGraph = deps.artifacts.foundationPlateGraph.read(context);
     const plateMotion = deps.artifacts.foundationPlateMotion.read(context);
     const tectonics = deps.artifacts.foundationTectonics.read(context);
-    const tectonicHistory = deps.artifacts.foundationTectonicHistory.read(context) as FoundationTectonicHistory;
-    const tectonicProvenance =
-      deps.artifacts.foundationTectonicProvenance.read(context) as FoundationTectonicProvenance;
+    const tectonicHistory = deps.artifacts.foundationTectonicHistory.read(context);
+    const tectonicProvenance = deps.artifacts.foundationTectonicProvenance.read(context);
 
     const platesResult = ops.computePlates(
       {

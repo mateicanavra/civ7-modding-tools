@@ -188,7 +188,7 @@ export function requirePlateMotion(
     throw new Error(`[Foundation] Invalid plateMotion.plateCount for ${scope}.`);
   }
 
-  const mustMatchPlates = [
+  const mustMatchPlates: ReadonlyArray<readonly [string, Float32Array]> = [
     ["plateCenterX", motion.plateCenterX],
     ["plateCenterY", motion.plateCenterY],
     ["plateVelocityX", motion.plateVelocityX],
@@ -196,16 +196,10 @@ export function requirePlateMotion(
     ["plateOmega", motion.plateOmega],
     ["plateFitRms", motion.plateFitRms],
     ["plateFitP90", motion.plateFitP90],
-  ] as const;
+  ];
 
   for (const [key, value] of mustMatchPlates) {
-    if (
-      !(
-        value instanceof Float32Array ||
-        value instanceof Uint8Array
-      ) ||
-      value.length !== plateCount
-    ) {
+    if (!(value instanceof Float32Array) || value.length !== plateCount) {
       throw new Error(`[Foundation] Invalid plateMotion.${key} for ${scope}.`);
     }
   }

@@ -143,7 +143,9 @@ const FoundationTectonicHistoryArtifactSchema = Type.Object(
     /** Number of eras included in the history payload. */
     eraCount: Type.Integer({ minimum: 1, description: "Number of eras included in the history payload." }),
     /** Era payloads (length = eraCount). */
-    eras: Type.Array(FoundationTectonicHistoryEraArtifactSchema, { description: "Era payloads (length = eraCount)." }),
+    eras: Type.Immutable(
+      Type.Array(FoundationTectonicHistoryEraArtifactSchema, { description: "Era payloads (length = eraCount)." })
+    ),
     /** Accumulated uplift total per mesh cell (0..255). */
     upliftTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated uplift total per mesh cell (0..255)." }),
     /** Accumulated fracture total per mesh cell (0..255). */
@@ -213,12 +215,14 @@ const FoundationTectonicProvenanceArtifactSchema = Type.Object(
     /** Number of mesh cells. */
     cellCount: Type.Integer({ minimum: 1, description: "Number of mesh cells." }),
     /** Per-era tracer indices (length = eraCount; each entry length = cellCount). */
-    tracerIndex: Type.Array(
-      TypedArraySchemas.u32({
-        shape: null,
-        description: "Tracer source cell index per mesh cell (length = cellCount).",
-      }),
-      { description: "Per-era tracer indices (length = eraCount; each entry length = cellCount)." }
+    tracerIndex: Type.Immutable(
+      Type.Array(
+        TypedArraySchemas.u32({
+          shape: null,
+          description: "Tracer source cell index per mesh cell (length = cellCount).",
+        }),
+        { description: "Per-era tracer indices (length = eraCount; each entry length = cellCount)." }
+      )
     ),
     /** Provenance scalars (final state at newest era). */
     provenance: FoundationTectonicProvenanceScalarsSchema,
@@ -560,9 +564,11 @@ const FoundationTectonicHistoryTilesArtifactSchema = Type.Object(
     /** Number of eras included in the history tiles payload. */
     eraCount: Type.Integer({ minimum: 1, description: "Number of eras included in the history tiles payload." }),
     /** Per-era tile fields (length = eraCount). */
-    perEra: Type.Array(FoundationTectonicHistoryTilesEraArtifactSchema, {
-      description: "Per-era tile fields (length = eraCount).",
-    }),
+    perEra: Type.Immutable(
+      Type.Array(FoundationTectonicHistoryTilesEraArtifactSchema, {
+        description: "Per-era tile fields (length = eraCount).",
+      })
+    ),
     /** Rollup fields across eras. */
     rollups: FoundationTectonicHistoryTilesRollupArtifactSchema,
   },
