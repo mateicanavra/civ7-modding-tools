@@ -9,6 +9,7 @@ import {
   BrowserConfigObjectFieldTemplate,
   type BrowserConfigFormContext,
 } from "./rjsfTemplates";
+import { configWidgets } from "./rjsfWidgets";
 
 export type SchemaFormProps<TConfig> = {
   schema: RJSFSchema;
@@ -48,6 +49,7 @@ export function SchemaForm<TConfig>(props: SchemaFormProps<TConfig>) {
           ObjectFieldTemplate: BrowserConfigObjectFieldTemplate,
           ArrayFieldTemplate: BrowserConfigArrayFieldTemplate,
         }}
+        widgets={configWidgets}
         showErrorList={false}
         disabled={disabled}
         onChange={(e) => {
