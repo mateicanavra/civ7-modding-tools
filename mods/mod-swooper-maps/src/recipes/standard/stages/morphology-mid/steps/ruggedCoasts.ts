@@ -17,6 +17,7 @@ import type {
 type ArtifactValidationIssue = Readonly<{ message: string }>;
 
 const GROUP_COASTLINES = "Morphology / Coastlines";
+const GROUP_SHELF = "Morphology / Shelf";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -265,10 +266,94 @@ export default createStep(RuggedCoastsStepContract, {
       },
       config.shelfMask
     );
-    const shelfMask = shelfResult.shelfMask;
+    const {
+      shelfMask,
+      activeMarginMask,
+      capTilesByTile,
+      nearshoreCandidateMask,
+      depthGateMask,
+      shallowCutoff,
+    } = shelfResult as unknown as {
+      shelfMask: unknown;
+      activeMarginMask: unknown;
+      capTilesByTile: unknown;
+      nearshoreCandidateMask: unknown;
+      depthGateMask: unknown;
+      shallowCutoff: unknown;
+    };
     if (!(shelfMask instanceof Uint8Array) || shelfMask.length !== coastal.length) {
       throw new Error("Computed shelfMask missing or shape-mismatched.");
     }
+    if (!(activeMarginMask instanceof Uint8Array) || activeMarginMask.length !== coastal.length) {
+      throw new Error("Computed activeMarginMask missing or shape-mismatched.");
+    }
+    if (!(capTilesByTile instanceof Uint8Array) || capTilesByTile.length !== coastal.length) {
+      throw new Error("Computed capTilesByTile missing or shape-mismatched.");
+    }
+    if (!(nearshoreCandidateMask instanceof Uint8Array) || nearshoreCandidateMask.length !== coastal.length) {
+      throw new Error("Computed nearshoreCandidateMask missing or shape-mismatched.");
+    }
+    if (!(depthGateMask instanceof Uint8Array) || depthGateMask.length !== coastal.length) {
+      throw new Error("Computed depthGateMask missing or shape-mismatched.");
+    }
+    if (!Number.isFinite(shallowCutoff) || (shallowCutoff as number) > 0) {
+      throw new Error("Computed shallowCutoff missing or invalid (expected finite number <= 0).");
+    }
+
+    context.trace.event(() => {
+      const size = Math.max(0, (width | 0) * (height | 0));
+      let activeMarginTiles = 0;
+      let nearshoreCandidates = 0;
+      let depthGatedTiles = 0;
+      let shelfTiles = 0;
+      let shelfTilesBeyondShore = 0;
+      let activeShelfTiles = 0;
+      let passiveShelfTiles = 0;
+      let maxCapTiles = 0;
+
+      for (let i = 0; i < size; i++) {
+        if ((activeMarginMask[i] | 0) === 1) activeMarginTiles += 1;
+        if ((nearshoreCandidateMask[i] | 0) === 1) nearshoreCandidates += 1;
+        if ((depthGateMask[i] | 0) === 1) depthGatedTiles += 1;
+
+        const cap = capTilesByTile[i] | 0;
+        if (cap > maxCapTiles) maxCapTiles = cap;
+
+        if ((shelfMask[i] | 0) !== 1) continue;
+        shelfTiles += 1;
+        if ((activeMarginMask[i] | 0) === 1) activeShelfTiles += 1;
+        else passiveShelfTiles += 1;
+
+        const dist = distanceToCoast[i] | 0;
+        if ((result.coastalWater[i] | 0) === 0 && dist >= 2) shelfTilesBeyondShore += 1;
+      }
+
+      const selection = config.shelfMask;
+      const shelfConfig = selection.strategy === "default" ? (selection.config as any) : undefined;
+      return {
+        kind: "morphology.shelf.summary",
+        shallowCutoff: shallowCutoff as number,
+        nearshoreCandidates,
+        depthGatedTiles,
+        shelfTiles,
+        shelfTilesBeyondShore,
+        activeMarginTiles,
+        activeShelfTiles,
+        passiveShelfTiles,
+        maxCapTiles,
+        strategy: selection.strategy,
+        config: shelfConfig
+          ? {
+              nearshoreDistance: shelfConfig.nearshoreDistance,
+              shallowQuantile: shelfConfig.shallowQuantile,
+              activeClosenessThreshold: shelfConfig.activeClosenessThreshold,
+              capTilesActive: shelfConfig.capTilesActive,
+              capTilesPassive: shelfConfig.capTilesPassive,
+              capTilesMax: shelfConfig.capTilesMax,
+            }
+          : undefined,
+      };
+    });
 
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "morphology.coastlineMetrics.coastalLand",
@@ -300,7 +385,11 @@ export default createStep(RuggedCoastsStepContract, {
       values: shelfMask,
       meta: defineVizMeta("morphology.coastlineMetrics.shelfMask", {
         label: "Shelf Mask",
-        group: GROUP_COASTLINES,
+        group: GROUP_SHELF,
+        description:
+          "Deterministic shallow-shelf water mask used to project TERRAIN_COAST beyond the guaranteed shoreline ring.",
+        role: "membership",
+        palette: "categorical",
         categories: [
           { value: 0, label: "Deep Water", color: [37, 99, 235, 220] },
           { value: 1, label: "Shelf Water", color: [56, 189, 248, 230] },
@@ -314,8 +403,83 @@ export default createStep(RuggedCoastsStepContract, {
       format: "u16",
       values: distanceToCoast,
       meta: defineVizMeta("morphology.coastlineMetrics.distanceToCoast", {
-        label: "Distance To Coast",
-        group: GROUP_COASTLINES,
+        label: "Distance To Coast (Tiles)",
+        group: GROUP_SHELF,
+        visibility: "debug",
+      }),
+    });
+
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.shelf.activeMarginMask",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: activeMarginMask,
+      meta: defineVizMeta("morphology.shelf.activeMarginMask", {
+        label: "Active Margin Mask",
+        group: GROUP_SHELF,
+        description: "Tiles treated as active margins (convergent/transform with high boundary closeness).",
+        role: "membership",
+        palette: "categorical",
+        categories: [
+          { value: 0, label: "Passive/Other", color: [37, 99, 235, 80] },
+          { value: 1, label: "Active Margin", color: [220, 38, 38, 230] },
+        ],
+      }),
+    });
+
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.shelf.capTiles",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: capTilesByTile,
+      meta: defineVizMeta("morphology.shelf.capTiles", {
+        label: "Shelf Distance Cap (Tiles)",
+        group: GROUP_SHELF,
+        description: "Per-tile max distance to coast used by the shelf classifier (active margins narrower).",
+        role: "membership",
+        palette: "continuous",
+      }),
+    });
+
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.shelf.nearshoreCandidateMask",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: nearshoreCandidateMask,
+      meta: defineVizMeta("morphology.shelf.nearshoreCandidateMask", {
+        label: "Nearshore Candidates",
+        group: GROUP_SHELF,
+        visibility: "debug",
+        description: "Water tiles within nearshoreDistance, used to sample bathymetry for shallowCutoff.",
+        role: "membership",
+        palette: "categorical",
+        categories: [
+          { value: 0, label: "Not Sampled", color: [0, 0, 0, 0] },
+          { value: 1, label: "Sampled", color: [14, 165, 233, 230] },
+        ],
+      }),
+    });
+
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.shelf.depthGateMask",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: depthGateMask,
+      meta: defineVizMeta("morphology.shelf.depthGateMask", {
+        label: "Depth Gate (Shallow Enough)",
+        group: GROUP_SHELF,
+        visibility: "debug",
+        description: "Water tiles where bathymetry >= shallowCutoff (shallower than the selected cutoff).",
+        role: "membership",
+        palette: "categorical",
+        categories: [
+          { value: 0, label: "Too Deep", color: [37, 99, 235, 220] },
+          { value: 1, label: "Shallow Enough", color: [56, 189, 248, 230] },
+        ],
       }),
     });
 

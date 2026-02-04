@@ -71,6 +71,25 @@ const ComputeShelfMaskContract = defineOp({
     shelfMask: TypedArraySchemas.u8({
       description: "Mask (1/0): shallow shelf water eligible for TERRAIN_COAST projection.",
     }),
+    activeMarginMask: TypedArraySchemas.u8({
+      description:
+        "Mask (1/0): tiles treated as active margin for shelf narrowing (convergent/transform with high closeness).",
+    }),
+    capTilesByTile: TypedArraySchemas.u8({
+      description:
+        "Per-tile distance cap (tiles) used by the shelf classifier (active margins narrower, passive wider).",
+    }),
+    nearshoreCandidateMask: TypedArraySchemas.u8({
+      description:
+        "Mask (1/0): water tiles within nearshoreDistance used to sample bathymetry for the shallow cutoff.",
+    }),
+    depthGateMask: TypedArraySchemas.u8({
+      description: "Mask (1/0): water tiles passing the shallow bathymetry cutoff (bathymetry >= shallowCutoff).",
+    }),
+    shallowCutoff: Type.Number({
+      description:
+        "Bathymetry cutoff (meters, <=0) selected deterministically from nearshore samples; bathymetry >= cutoff is treated as shallow.",
+    }),
   }),
   strategies: {
     default: ShelfMaskConfigSchema,
@@ -78,4 +97,3 @@ const ComputeShelfMaskContract = defineOp({
 });
 
 export default ComputeShelfMaskContract;
-
