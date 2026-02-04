@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { compile } from "json-schema-to-typescript";
 import type { TObject, TSchema } from "typebox";
 
-import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
+import { deriveRecipeConfigSchema, stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 
 type JsonObject = Record<string, unknown>;
@@ -19,13 +19,6 @@ function assertPlainObject(value: unknown, label: string): asserts value is Json
 
 function isPlainObject(value: unknown): value is JsonObject {
   return !!value && typeof value === "object" && !Array.isArray(value);
-}
-
-function stripSchemaMetadata(value: unknown): unknown {
-  if (!isPlainObject(value)) return value;
-  if (!("$schema" in value) && !("$id" in value) && !("$comment" in value)) return value;
-  const { $schema: _schema, $id: _id, $comment: _comment, ...rest } = value as Record<string, unknown>;
-  return rest;
 }
 
 function stableJson(value: unknown): JsonObject {
@@ -375,7 +368,7 @@ if (browserTestDefaultsErrors.length > 0) {
     )}`
   );
 }
-const browserTestDefaultsClean = stripSchemaMetadata(browserTestDefaults);
+const browserTestDefaultsClean = stripSchemaMetadataRoot(browserTestDefaults);
 
 await writeFile(
   resolve(pkgRoot, "dist", "recipes", "browser-test.schema.json"),
@@ -437,10 +430,12 @@ const standardUiMeta = deriveStudioRecipeUiMeta({
   recipeId: "standard",
   stages: standardMod.STANDARD_STAGES,
 });
-const standardDefaultsSeed = buildDefaultsSkeleton(standardUiMeta);
+const standardDefaultPresetPath = resolve(pkgRoot, "src", "maps", "configs", "swooper-earthlike.config.json");
+const standardDefaultPresetRaw = JSON.parse(await readFile(standardDefaultPresetPath, "utf-8")) as unknown;
+const standardDefaultPresetClean = stripSchemaMetadataRoot(standardDefaultPresetRaw);
 const { value: standardDefaults, errors: standardDefaultsErrors } = normalizeStrict<Record<string, unknown>>(
   standardSchema,
-  standardDefaultsSeed,
+  standardDefaultPresetClean,
   "/defaults"
 );
 if (standardDefaultsErrors.length > 0) {
@@ -452,7 +447,7 @@ if (standardDefaultsErrors.length > 0) {
     )}`
   );
 }
-const standardDefaultsClean = stripSchemaMetadata(standardDefaults);
+const standardDefaultsClean = stripSchemaMetadataRoot(standardDefaults);
 
 await writeFile(
   resolve(pkgRoot, "dist", "recipes", "standard.schema.json"),
@@ -514,7 +509,7 @@ async function validateStandardMapConfigPresets(): Promise<void> {
     if (!ent.name.endsWith(".config.json")) continue;
     const abs = resolve(dir, ent.name);
     const raw = JSON.parse(await readFile(abs, "utf-8")) as unknown;
-    const sanitized = stripSchemaMetadata(raw);
+    const sanitized = stripSchemaMetadataRoot(raw);
     const res = normalizeStrict<Record<string, unknown>>(standardSchema, sanitized, `/preset/${ent.name}`);
     if (res.errors.length > 0) {
       errors.push(

@@ -8,7 +8,7 @@ import { deriveRunId } from "@swooper/mapgen-core/engine";
 import { CIV7_BROWSER_TABLES_V0 } from "../civ7-data/civ7-tables.gen";
 import type { BrowserRunEvent, BrowserRunRequest } from "./protocol";
 import { getRuntimeRecipe } from "./recipeRuntime";
-import { stripSchemaMetadataRoot } from "../recipes/sanitizeConfigRoot";
+import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import { createWorkerTraceSink } from "./worker-trace-sink";
 import { createWorkerVizDumper } from "./worker-viz-dumper";
 

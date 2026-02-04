@@ -42,7 +42,7 @@ import {
   STUDIO_RECIPE_OPTIONS,
   type StudioRecipeUiMeta,
 } from "./recipes/catalog";
-import { stripSchemaMetadataRoot } from "./recipes/sanitizeConfigRoot";
+import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 
 function randomU32(): number {
   try {

@@ -1,5 +1,6 @@
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
@@ -8,13 +9,6 @@ import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
 import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
 import { createTraceDumpSink, createVizDumper } from "./dump.js";
 import { join } from "node:path";
-
-function stripSchemaMetadataRoot(value: unknown): unknown {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return value;
-  const record = value as Record<string, unknown>;
-  const { $schema: _schema, $id: _id, $comment: _comment, ...rest } = record;
-  return rest;
-}
 
 function parseIntArg(value: string | undefined, fallback: number): number {
   if (!value) return fallback;
