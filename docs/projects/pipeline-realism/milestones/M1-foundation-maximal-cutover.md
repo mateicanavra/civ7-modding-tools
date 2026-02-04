@@ -86,7 +86,7 @@ These 25 issue docs are the **canonical milestone checklist**. Do not duplicate 
 
 ### Foundation Engine (Slice-02)
 - [x] [`LOCAL-TBD-PR-M1-006`](../issues/LOCAL-TBD-PR-M1-006-basaltic-lid-init-lithosphere-strength-mantle-coupled.md) Basaltic lid init + lithosphere strength (mantle-coupled) — branch: `agent-URSULA-M1-LOCAL-TBD-PR-M1-006-basaltic-lid-init-lithosphere-strength-mantle-coupled`; PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1078; review branch: `agent-BURAKA-LOCAL-TBD-PR-M1-006-review-basaltic-lid-init-lithosphere-strength-mantle-coupled`; review PR: pending
-- [ ] [`LOCAL-TBD-PR-M1-007`](../issues/LOCAL-TBD-PR-M1-007-mantle-potential-generation-derived-forcing-fields-d02r.md) Mantle potential generation + derived forcing fields (D02r)
+- [x] [`LOCAL-TBD-PR-M1-007`](../issues/LOCAL-TBD-PR-M1-007-mantle-potential-generation-derived-forcing-fields-d02r.md) Mantle potential generation + derived forcing fields (D02r) — branch: `agent-URSULA-M1-LOCAL-TBD-PR-M1-007-mantle-potential-generation-derived-forcing-fields-d02r`; PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1079
 - [ ] [`LOCAL-TBD-PR-M1-008`](../issues/LOCAL-TBD-PR-M1-008-plate-motion-solver-derived-from-mantle-forcing-d03r.md) Plate motion solver derived from mantle forcing (D03r)
 - [ ] [`LOCAL-TBD-PR-M1-009`](../issues/LOCAL-TBD-PR-M1-009-crust-priors-resistance-partition-plategraph-d01.md) Crust priors + resistance partition -> plateGraph (D01)
 - [ ] [`LOCAL-TBD-PR-M1-010`](../issues/LOCAL-TBD-PR-M1-010-boundary-segments-regime-classification-source-of-events.md) Boundary segments + regime classification (source of events)
