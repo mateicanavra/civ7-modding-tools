@@ -151,100 +151,26 @@ reviewer: AI agent
 ### Cross-cutting Risks
 - If event mechanics do not adopt `crust.strength`, the new lithosphere resistance field will be underutilized and semantics may diverge across domains.
 
-## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-013-provenance-tracer-system-lineage-scalars-d04r-lagrangian-outputs
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-017-determinism-suite-canonical-seeds
 
 ### Quick Take
-- Provenance is now emitted as a D04r Lagrangian output with per-era tracer advection (fixed steps) and event-driven resets; era bounds are enforced in `require` + validation (5..8).
-- Tests assert determinism, bounded tracer indices, and causal updates in event corridors; tile projection fixtures now reflect 5-era inputs.
+- The determinism suite now defines three canonical cases and fingerprints Tier‑1 artifacts via the shared validation harness, with byte-level float hashing.
+- The test provides a single entrypoint for CI drift detection and uses stable seeded configurations that exercise wrap and plate-count variance.
 
 ### High-Leverage Issues
-- None observed; provenance now satisfies causal + boundedness requirements and is consumed downstream.
-
-### PR Comment Context
-- No reviewer comments; Graphite stack/preview notices only.
-
-### Fix Now (Recommended)
-- None.
-
-### Defer / Follow-up
-- Document `ADVECTION_STEPS_PER_ERA` in budgets/specs or add a test guard so the provenance budget can’t drift silently.
-- Clarify whether collision/transform events should update lineage scalars beyond boundary metadata, and document the rationale if they should not.
-
-### Needs Discussion
-- Whether provenance advection should remain embedded in `compute-tectonic-history` or move to a dedicated op for clearer separation of concerns.
-
-### Cross-cutting Risks
-- If advection budgets change without aligned tests/docs, provenance lineage stability could drift across releases.
-
-## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-014-morphology-dual-read-history-provenance-diagnostics
-
-### Quick Take
-- Morphology’s landmass step now dual-reads history/provenance tiles to emit comparison diagnostics while keeping legacy plates as authoritative inputs, aligning with the transitional cutover plan.
-- Diagnostics include deltas and a quantitative summary, and tests lock the new viz keys and summary event.
-
-### High-Leverage Issues
-- The step contract now **requires** `tectonicHistoryTiles` + `tectonicProvenanceTiles`, so “legacy‑only” runs without new drivers cannot compile. This conflicts with the acceptance criterion that legacy-only mode remains runnable during the transition.
+- Drift reports only indicate “artifact fingerprint mismatch” without subfield/typed-array detail, which makes failures less actionable than the acceptance criteria call for.
 
 ### PR Comment Context
 - No reviewer comments; Graphite/preview notices only.
 
 ### Fix Now (Recommended)
-- Make the new tile drivers optional in the contract (or supply deterministic placeholders) and guard diagnostics so baseline legacy-only runs are still possible during the dual-read window.
+- Extend the determinism suite error report to surface per‑artifact subfield diffs when available (e.g., include the harness’ per-field fingerprints or the first mismatching field).
 
 ### Defer / Follow-up
-- Consider moving dual-read diagnostics into a dedicated diagnostic step to keep landmass computations focused and to make removal in PR‑M1‑024/025 simpler.
+- If cross‑platform float drift appears, add a scoped quantization policy and document which artifacts permit tolerance.
 
 ### Needs Discussion
-- Whether the milestone intent is “legacy outputs with new diagnostics” (current behavior) or truly “legacy-only without new artifacts present.”
+- Whether the canonical case set should live in docs (validation/observability spec) to lock the determinism contract beyond test code.
 
 ### Cross-cutting Risks
-- If legacy-only runs are impossible, the transition window for validating deltas independently of new drivers is effectively closed, making regression triage harder.
-
-## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-015-morphology-belt-synthesis-history-provenance
-
-### Quick Take
-- Belt driver tensors are now derived from history/provenance tiles with continuity (gap fill + min length) and age-aware diffusion, and `plotMountains` consumes those drivers instead of legacy plates.
-- New tests cover noise-only suppression, continuity, and age diffusion; viz emissions now include belt driver layers and summaries.
-
-### High-Leverage Issues
-- `plotMountains.contract` still requires `foundationArtifacts.plates` even though the step no longer uses them, keeping a legacy dependency that undercuts the cutover posture.
-
-### PR Comment Context
-- No reviewer comments; Graphite/preview notices only.
-
-### Fix Now (Recommended)
-- Remove the unused `foundationArtifacts.plates` requirement from `plotMountains.contract` (or reintroduce intentional usage) so the belt pipeline is fully driven by history/provenance inputs.
-
-### Defer / Follow-up
-- Align belt synthesis tests with the D04r 5-era budget (current fixtures use `eraCount=3`) to avoid under-testing the era-weighting logic.
-- Consider enforcing 5..8 era bounds for belt driver derivation to keep Morphology aligned with the bounded history/provenance contract.
-
-### Needs Discussion
-- When (if ever) to upgrade to anisotropic diffusion once a tangent field exists, and how to stage that without breaking current correlation gates.
-
-### Cross-cutting Risks
-- Leaving legacy plate requirements in gameplay steps makes M1-016’s “new drivers only” cutover harder and increases the chance of silent regressions back to legacy inputs.
-
-## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-016-cutover-morphology-new-drivers
-
-### Quick Take
-- `plotMountains` now requires history/provenance tiles only, and contract guards enforce that legacy plates are no longer referenced in belt synthesis.
-- Guard tests provide a hard “no legacy fallback” posture for belt drivers, aligning with the D07r cutover requirements.
-
-### High-Leverage Issues
-- None observed; belt synthesis is now gated on the new driver artifacts and legacy plate dependencies are actively banned.
-
-### PR Comment Context
-- No reviewer comments; Graphite/preview notices only.
-
-### Fix Now (Recommended)
-- None.
-
-### Defer / Follow-up
-- Track the remaining morphology steps that still consume legacy plates (coasts/islands/volcanoes) so future cleanup work doesn’t stall after belts are fully cut over.
-
-### Needs Discussion
-- Whether “cutover” should eventually include non-belt morphology steps in this milestone or remain deferred to a separate cleanup slice.
-
-### Cross-cutting Risks
-- Partial cutover (belts only) may create mixed semantics across morphology features unless the remaining plate-driven steps are explicitly scheduled for migration.
+- Artifact-level-only drift messages slow down triage and weaken the “determinism as a feature” posture.
