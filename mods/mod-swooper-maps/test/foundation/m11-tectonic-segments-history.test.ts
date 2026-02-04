@@ -16,9 +16,13 @@ function makeTwoCellMesh(): any {
   } as const;
 }
 
-function makePlateMotionFromGraph(plateGraph: {
-  plates: { seedX: number; seedY: number; velocityX: number; velocityY: number; rotation: number }[];
-}, cellCount: number) {
+function makePlateMotion(
+  plateGraph: {
+    plates: { seedX: number; seedY: number }[];
+  },
+  cellCount: number,
+  motionByPlate: Array<{ velocityX?: number; velocityY?: number; omega?: number }> = []
+) {
   const plateCount = plateGraph.plates.length;
   const plateCenterX = new Float32Array(plateCount);
   const plateCenterY = new Float32Array(plateCount);
@@ -27,11 +31,12 @@ function makePlateMotionFromGraph(plateGraph: {
   const plateOmega = new Float32Array(plateCount);
   for (let i = 0; i < plateCount; i++) {
     const plate = plateGraph.plates[i]!;
+    const motion = motionByPlate[i] ?? {};
     plateCenterX[i] = plate.seedX ?? 0;
     plateCenterY[i] = plate.seedY ?? 0;
-    plateVelocityX[i] = plate.velocityX ?? 0;
-    plateVelocityY[i] = plate.velocityY ?? 0;
-    plateOmega[i] = plate.rotation ?? 0;
+    plateVelocityX[i] = motion.velocityX ?? 0;
+    plateVelocityY[i] = motion.velocityY ?? 0;
+    plateOmega[i] = motion.omega ?? 0;
   }
   return {
     version: 1,
@@ -80,28 +85,20 @@ describe("m11 tectonics (segments + history)", () => {
     const basePlateGraph = {
       cellToPlate: new Int16Array([0, 1]),
       plates: [
-        { id: 0, role: "tectonic", kind: "major", seedX: 0, seedY: 0, velocityX: 0, velocityY: 0, rotation: 0 },
-        { id: 1, role: "tectonic", kind: "major", seedX: 1, seedY: 0, velocityX: 0, velocityY: 0, rotation: 0 },
+        { id: 0, role: "tectonic", kind: "major", seedX: 0, seedY: 0 },
+        { id: 1, role: "tectonic", kind: "major", seedX: 1, seedY: 0 },
       ],
     } as const;
 
-    const basePlateMotion = makePlateMotionFromGraph(basePlateGraph, mesh.cellCount);
+    const basePlateMotion = makePlateMotion(basePlateGraph, mesh.cellCount);
     const noRot = computeTectonicSegments.run(
       { mesh, crust: crust as any, plateGraph: basePlateGraph as any, plateMotion: basePlateMotion as any },
       computeTectonicSegments.defaultConfig
     ).segments;
 
-    const withRotPlateGraph = {
-      ...basePlateGraph,
-      plates: [
-        basePlateGraph.plates[0],
-        { ...basePlateGraph.plates[1], rotation: 1.0 },
-      ],
-    } as const;
-
-    const withRotPlateMotion = makePlateMotionFromGraph(withRotPlateGraph, mesh.cellCount);
+    const withRotPlateMotion = makePlateMotion(basePlateGraph, mesh.cellCount, [{}, { omega: 1.0 }]);
     const withRot = computeTectonicSegments.run(
-      { mesh, crust: crust as any, plateGraph: withRotPlateGraph as any, plateMotion: withRotPlateMotion as any },
+      { mesh, crust: crust as any, plateGraph: basePlateGraph as any, plateMotion: withRotPlateMotion as any },
       computeTectonicSegments.defaultConfig
     ).segments;
 
@@ -128,12 +125,12 @@ describe("m11 tectonics (segments + history)", () => {
     const plateGraph = {
       cellToPlate: new Int16Array([0, 1]),
       plates: [
-        { id: 0, role: "tectonic", kind: "major", seedX: 0, seedY: 0, velocityX: 0, velocityY: 0, rotation: 0 },
-        { id: 1, role: "tectonic", kind: "major", seedX: 1, seedY: 0, velocityX: -1.0, velocityY: 0, rotation: 0 },
+        { id: 0, role: "tectonic", kind: "major", seedX: 0, seedY: 0 },
+        { id: 1, role: "tectonic", kind: "major", seedX: 1, seedY: 0 },
       ],
     } as const;
 
-    const plateMotion = makePlateMotionFromGraph(plateGraph, mesh.cellCount);
+    const plateMotion = makePlateMotion(plateGraph, mesh.cellCount, [{}, { velocityX: -1.0 }]);
     const segments = computeTectonicSegments.run(
       { mesh, crust: crust as any, plateGraph: plateGraph as any, plateMotion: plateMotion as any },
       computeTectonicSegments.defaultConfig
@@ -161,12 +158,12 @@ describe("m11 tectonics (segments + history)", () => {
     const plateGraph = {
       cellToPlate: new Int16Array([0, 1]),
       plates: [
-        { id: 0, role: "tectonic", kind: "major", seedX: 0, seedY: 0, velocityX: 0, velocityY: 0, rotation: 0 },
-        { id: 1, role: "tectonic", kind: "major", seedX: 1, seedY: 0, velocityX: -1.0, velocityY: 0, rotation: 0 },
+        { id: 0, role: "tectonic", kind: "major", seedX: 0, seedY: 0 },
+        { id: 1, role: "tectonic", kind: "major", seedX: 1, seedY: 0 },
       ],
     } as const;
 
-    const plateMotion = makePlateMotionFromGraph(plateGraph, mesh.cellCount);
+    const plateMotion = makePlateMotion(plateGraph, mesh.cellCount, [{}, { velocityX: -1.0 }]);
     const a = computeTectonicSegments.run(
       { mesh, crust: crust as any, plateGraph: plateGraph as any, plateMotion: plateMotion as any },
       computeTectonicSegments.defaultConfig
@@ -188,12 +185,12 @@ describe("m11 tectonics (segments + history)", () => {
     const plateGraph = {
       cellToPlate: new Int16Array([0, 1]),
       plates: [
-        { id: 0, role: "tectonic", kind: "major", seedX: 0, seedY: 0, velocityX: 0, velocityY: 0, rotation: 0 },
-        { id: 1, role: "tectonic", kind: "major", seedX: 1, seedY: 0, velocityX: -1.0, velocityY: 0, rotation: 0 },
+        { id: 0, role: "tectonic", kind: "major", seedX: 0, seedY: 0 },
+        { id: 1, role: "tectonic", kind: "major", seedX: 1, seedY: 0 },
       ],
     } as const;
 
-    const plateMotion = makePlateMotionFromGraph(plateGraph, mesh.cellCount);
+    const plateMotion = makePlateMotion(plateGraph, mesh.cellCount, [{}, { velocityX: -1.0 }]);
     const scaledConfig = {
       ...computeTectonicSegments.defaultConfig,
       config: { ...computeTectonicSegments.defaultConfig.config, intensityScale: 120 },
@@ -253,12 +250,12 @@ describe("m11 tectonics (segments + history)", () => {
     const plateGraph = {
       cellToPlate: new Int16Array([0, 1]),
       plates: [
-        { id: 0, role: "tectonic", kind: "major", seedX: 0, seedY: 0, velocityX: 0, velocityY: 0, rotation: 0 },
-        { id: 1, role: "tectonic", kind: "major", seedX: 1, seedY: 0, velocityX: -1.0, velocityY: 0, rotation: 0 },
+        { id: 0, role: "tectonic", kind: "major", seedX: 0, seedY: 0 },
+        { id: 1, role: "tectonic", kind: "major", seedX: 1, seedY: 0 },
       ],
     } as const;
 
-    const plateMotion = makePlateMotionFromGraph(plateGraph, mesh.cellCount);
+    const plateMotion = makePlateMotion(plateGraph, mesh.cellCount, [{}, { velocityX: -1.0 }]);
     const segments = computeTectonicSegments.run(
       { mesh, crust: crust as any, plateGraph: plateGraph as any, plateMotion: plateMotion as any },
       computeTectonicSegments.defaultConfig
