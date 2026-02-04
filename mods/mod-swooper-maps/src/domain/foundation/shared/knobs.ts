@@ -4,22 +4,21 @@ import { Type, type Static } from "@swooper/mapgen-core/authoring";
  * Foundation plate count knob (semantic intent).
  *
  * Meaning:
- * - Scales the number of plates and plate graph seeds (after normalization).
+ * - Sets the authored plate count target (scales to runtime map size downstream).
  *
  * Stage scope:
  * - Used by `foundation` mesh + plate graph steps.
  *
  * Description:
- * - Plate count preset (sparse/normal/dense). Applies as a deterministic multiplier over authored/defaulted plateCount (no presence-gating).
+ * - Plate count target (integer >= 2). Used as the authored baseline for plate discretization.
  */
-export const FoundationPlateCountKnobSchema = Type.Union(
-  [Type.Literal("sparse"), Type.Literal("normal"), Type.Literal("dense")],
-  {
-    default: "normal",
-    description:
-      "Plate count preset (sparse/normal/dense). Applies as a deterministic multiplier over authored/defaulted plateCount (no presence-gating).",
-  }
-);
+export const FoundationPlateCountKnobSchema = Type.Integer({
+  default: 28,
+  minimum: 2,
+  maximum: 256,
+  description:
+    "Plate count target (integer >= 2). Used as the authored baseline for plate discretization.",
+});
 
 export type FoundationPlateCountKnob = Static<typeof FoundationPlateCountKnobSchema>;
 
@@ -33,15 +32,14 @@ export type FoundationPlateCountKnob = Static<typeof FoundationPlateCountKnobSch
  * - Used by `foundation` projection step only.
  *
  * Description:
- * - Plate activity preset (low/normal/high). Applies as deterministic transforms over projection kinematics and boundary influence distance.
+ * - Plate activity scalar in [0..1]. Applies as deterministic transforms over projection kinematics and boundary influence distance.
  */
-export const FoundationPlateActivityKnobSchema = Type.Union(
-  [Type.Literal("low"), Type.Literal("normal"), Type.Literal("high")],
-  {
-    default: "normal",
-    description:
-      "Plate activity preset (low/normal/high). Applies as deterministic transforms over projection kinematics and boundary influence distance.",
-  }
-);
+export const FoundationPlateActivityKnobSchema = Type.Number({
+  default: 0.5,
+  minimum: 0,
+  maximum: 1,
+  description:
+    "Plate activity scalar in [0..1]. Applies as deterministic transforms over projection kinematics and boundary influence distance.",
+});
 
 export type FoundationPlateActivityKnob = Static<typeof FoundationPlateActivityKnobSchema>;

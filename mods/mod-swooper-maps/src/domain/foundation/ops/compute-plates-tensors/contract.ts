@@ -212,6 +212,12 @@ const TectonicHistoryTilesEraSchema = Type.Object(
   {
     /** Boundary regime per tile (BOUNDARY_TYPE values). */
     boundaryType: TypedArraySchemas.u8({ description: "Boundary regime per tile (BOUNDARY_TYPE values)." }),
+    /** Convergent mask per tile (0/1). */
+    convergentMask: TypedArraySchemas.u8({ description: "Convergent mask per tile (0/1)." }),
+    /** Divergent mask per tile (0/1). */
+    divergentMask: TypedArraySchemas.u8({ description: "Divergent mask per tile (0/1)." }),
+    /** Transform mask per tile (0/1). */
+    transformMask: TypedArraySchemas.u8({ description: "Transform mask per tile (0/1)." }),
     /** Uplift potential per tile (0..255). */
     upliftPotential: TypedArraySchemas.u8({ description: "Uplift potential per tile (0..255)." }),
     /** Rift potential per tile (0..255). */
