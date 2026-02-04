@@ -248,3 +248,27 @@ reviewer: AI agent
 
 ### Cross-cutting Risks
 - Without explicit divergent-case coverage, later changes to the intensity math could silently break rift corridor detection in the event engine.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-011-event-engine-subduction-collision-rift-transform-mandatory-f
+
+### Quick Take
+- `compute-tectonic-history` now builds event-driven era fields, force corridors, and provenance scalars from boundary segments + mantle forcing, with deterministic tie-breaking and new validation/test coverage.
+- The event system still avoids mutating `artifact:foundation.crust`; all “material change” is recorded in provenance scalars, leaving the acceptance criterion only partially satisfied.
+
+### High-Leverage Issues
+- Acceptance requires each event class to change at least one crust variable and one provenance variable; the implementation only updates provenance (`originEra`, `originPlateId`, `crustAge`) and leaves `foundation.crust` untouched, so “force-only tectonics” is still possible in the data model.
+
+### PR Comment Context
+- No reviewer comments; Graphite stack + preview notices only.
+
+### Fix Now (Recommended)
+- Add a dedicated event-driven crust mutation output (either by extending `foundation.crust` with an explicit event delta, or by introducing a separate `foundation.crustEvents`/`foundation.crustMutations` artifact) and assert at least one crust scalar changes per event class.
+
+### Defer / Follow-up
+- Extend `m11-tectonic-events.test.ts` to assert an actual crust variable (or crust-mutation artifact) changes when subduction/rift events fire, not just provenance scalars.
+
+### Needs Discussion
+- If crust can only be written by `compute-crust`, should the event engine emit an explicit mutation layer that is applied in a later step, or should ownership rules be relaxed to allow crust updates here?
+
+### Cross-cutting Risks
+- Without a crust mutation path, Morphology can still be driven by “force corridors” without any material change, undermining the physics-first objective and making later invariants ambiguous.
