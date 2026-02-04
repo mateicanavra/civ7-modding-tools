@@ -97,3 +97,19 @@ Expected touchpoints:
 ### Wow Scenarios
 
 - **No legacy left (for Morphology drivers):** when you toggle the new driver mode off, compilation fails instead of silently producing mountains from legacy tensors — the new causal spine is the only way forward.
+
+## Implementation Decisions
+
+### Drop `foundation.plates` from plot-mountains contract
+- **Context:** Belt synthesis is now driven by history/provenance tiles; keeping `foundation.plates` in the step contract would allow a silent legacy dependency to linger.
+- **Options:** (A) keep `foundation.plates` required “just in case”, (B) remove `foundation.plates` from plot-mountains requirements and enforce history/provenance only.
+- **Choice:** Option B.
+- **Rationale:** Enforces a hard seam for belt drivers at compile time while allowing other morphology steps to keep plate tensors where still needed.
+- **Risk:** If any downstream code still implicitly relies on plate tensors inside plot-mountains, it will now fail at compile time (expected, but might require quick fixes).
+
+### Keep plate tensors for non-belt morphology steps (for now)
+- **Context:** `landmass-plates`, `rugged-coasts`, `islands`, and `volcanoes` still use plate tensors for base topography and feature heuristics.
+- **Options:** (A) refactor all morphology steps to history/provenance in this cutover, (B) cut over belt synthesis now and defer other plate-driven morphology consumers.
+- **Choice:** Option B.
+- **Rationale:** Keeps PR-M1-016 scoped to belt synthesis cutover while preserving existing morphology baselines for coasts/features; future cleanup issues can migrate remaining consumers.
+- **Risk:** Morphology remains partially plate-driven outside belts until follow-up migrations land.
