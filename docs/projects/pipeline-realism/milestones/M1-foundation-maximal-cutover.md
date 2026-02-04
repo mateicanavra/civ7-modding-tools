@@ -78,41 +78,41 @@ Note: issue doc links are populated in Slice 3 of the plan (local issue docs und
 These are the intended issue-shaped units for this milestone. Each item becomes a local issue doc under `docs/projects/pipeline-realism/issues/` (using `LOCAL-TBD-...` until real IDs exist).
 
 ### Prepare (Slice-01)
-- [ ] `LOCAL-TBD` Publish new mesh-space truth artifacts (mantle/plate/crust/history/provenance) + docs alignment
-- [ ] `LOCAL-TBD` Add tile projections for history + provenance (new mandatory drivers)
-- [ ] `LOCAL-TBD` Wire visualization `dataTypeKey`s + minimal layer taxonomy for the causal spine
-- [ ] `LOCAL-TBD` Add validation harness scaffolding (determinism fingerprints + invariant runners)
-- [ ] `LOCAL-TBD` Compile-time config surface for maximal Foundation (D08r) + schema versioning posture
+- [ ] [`LOCAL-TBD-PR-M1-001`](../issues/LOCAL-TBD-PR-M1-001-publish-new-foundation-truth-artifacts-mesh-tiles-docs-align.md) Publish new mesh-space truth artifacts (mantle/plate/crust/history/provenance) + docs alignment
+- [ ] [`LOCAL-TBD-PR-M1-002`](../issues/LOCAL-TBD-PR-M1-002-add-tile-projections-for-tectonic-history-provenance-mandato.md) Add tile projections for history + provenance (new mandatory drivers)
+- [ ] [`LOCAL-TBD-PR-M1-003`](../issues/LOCAL-TBD-PR-M1-003-wire-visualization-datatypekeys-minimal-layer-taxonomy-for-c.md) Wire visualization `dataTypeKey`s + minimal layer taxonomy for the causal spine
+- [ ] [`LOCAL-TBD-PR-M1-004`](../issues/LOCAL-TBD-PR-M1-004-add-validation-harness-scaffolding-determinism-fingerprints-.md) Add validation harness scaffolding (determinism fingerprints + invariant runners)
+- [ ] [`LOCAL-TBD-PR-M1-005`](../issues/LOCAL-TBD-PR-M1-005-compile-time-config-surface-for-maximal-foundation-d08r-sche.md) Compile-time config surface for maximal Foundation (D08r) + schema/versioning posture
 
 ### Foundation Engine (Slice-02)
-- [ ] `LOCAL-TBD` Basaltic lid init + lithosphere strength (mantle-coupled)
-- [ ] `LOCAL-TBD` Mantle potential generation + derived forcing fields (D02r)
-- [ ] `LOCAL-TBD` Plate motion solver derived from mantle forcing (D03r)
-- [ ] `LOCAL-TBD` Crust priors + resistance partition -> plateGraph (D01)
-- [ ] `LOCAL-TBD` Boundary segments + regime classification (source of events)
-- [ ] `LOCAL-TBD` Event engine (D06r): subduction/collision/rift/transform + mandatory force emission
-- [ ] `LOCAL-TBD` Era loop + field emission budgets (D04r Eulerian outputs)
-- [ ] `LOCAL-TBD` Provenance/tracer system + lineage scalars (D04r Lagrangian outputs)
+- [ ] [`LOCAL-TBD-PR-M1-006`](../issues/LOCAL-TBD-PR-M1-006-basaltic-lid-init-lithosphere-strength-mantle-coupled.md) Basaltic lid init + lithosphere strength (mantle-coupled)
+- [ ] [`LOCAL-TBD-PR-M1-007`](../issues/LOCAL-TBD-PR-M1-007-mantle-potential-generation-derived-forcing-fields-d02r.md) Mantle potential generation + derived forcing fields (D02r)
+- [ ] [`LOCAL-TBD-PR-M1-008`](../issues/LOCAL-TBD-PR-M1-008-plate-motion-solver-derived-from-mantle-forcing-d03r.md) Plate motion solver derived from mantle forcing (D03r)
+- [ ] [`LOCAL-TBD-PR-M1-009`](../issues/LOCAL-TBD-PR-M1-009-crust-priors-resistance-partition-plategraph-d01.md) Crust priors + resistance partition -> plateGraph (D01)
+- [ ] [`LOCAL-TBD-PR-M1-010`](../issues/LOCAL-TBD-PR-M1-010-boundary-segments-regime-classification-source-of-events.md) Boundary segments + regime classification (source of events)
+- [ ] [`LOCAL-TBD-PR-M1-011`](../issues/LOCAL-TBD-PR-M1-011-event-engine-subduction-collision-rift-transform-mandatory-f.md) Event engine (D06r): subduction/collision/rift/transform + mandatory force emission
+- [ ] [`LOCAL-TBD-PR-M1-012`](../issues/LOCAL-TBD-PR-M1-012-era-loop-field-emission-budgets-d04r-eulerian-outputs.md) Era loop + field emission budgets (D04r Eulerian outputs)
+- [ ] [`LOCAL-TBD-PR-M1-013`](../issues/LOCAL-TBD-PR-M1-013-provenance-tracer-system-lineage-scalars-d04r-lagrangian-out.md) Provenance/tracer system + lineage scalars (D04r Lagrangian outputs)
 
 ### Morphology Cutover (Slice-03)
-- [ ] `LOCAL-TBD` Morphology dual-read: accept history/provenance tiles + emit comparison diagnostics
-- [ ] `LOCAL-TBD` Morphology belt synthesis from history/provenance (continuity + age-aware diffusion)
-- [ ] `LOCAL-TBD` Cutover morphology to new drivers + remove legacy consumption paths
+- [ ] [`LOCAL-TBD-PR-M1-014`](../issues/LOCAL-TBD-PR-M1-014-morphology-dual-read-accept-history-provenance-tiles-emit-co.md) Morphology dual-read: accept history/provenance tiles + emit comparison diagnostics
+- [ ] [`LOCAL-TBD-PR-M1-015`](../issues/LOCAL-TBD-PR-M1-015-morphology-belt-synthesis-from-history-provenance-continuity.md) Morphology belt synthesis from history/provenance (continuity + age-aware diffusion)
+- [ ] [`LOCAL-TBD-PR-M1-016`](../issues/LOCAL-TBD-PR-M1-016-cutover-morphology-to-new-drivers-remove-legacy-consumption-.md) Cutover morphology to new drivers + remove legacy consumption paths
 
 ### Validation/Observability (Cross-cutting)
-- [ ] `LOCAL-TBD` Determinism suite: canonical seeds + stable fingerprints + float tolerance policy
-- [ ] `LOCAL-TBD` Physics invariants: mantle forcing (coherence/energy/bounds) + motion coupling residuals
-- [ ] `LOCAL-TBD` Physics invariants: events must change crust/provenance + belts must be wide/continuous
-- [ ] `LOCAL-TBD` Morphology correlation gates: drivers -> belts (no wall mountains) + distribution checks
+- [ ] [`LOCAL-TBD-PR-M1-017`](../issues/LOCAL-TBD-PR-M1-017-determinism-suite-canonical-seeds-stable-fingerprints-float-.md) Determinism suite: canonical seeds + stable fingerprints + float tolerance policy
+- [ ] [`LOCAL-TBD-PR-M1-018`](../issues/LOCAL-TBD-PR-M1-018-physics-invariants-mantle-forcing-plate-motion-coupling-resi.md) Physics invariants: mantle forcing (coherence/energy/bounds) + motion coupling residuals
+- [ ] [`LOCAL-TBD-PR-M1-019`](../issues/LOCAL-TBD-PR-M1-019-physics-invariants-events-must-change-crust-provenance-belts.md) Physics invariants: events must change crust/provenance + belts must be wide/continuous
+- [ ] [`LOCAL-TBD-PR-M1-020`](../issues/LOCAL-TBD-PR-M1-020-morphology-correlation-gates-drivers-belts-no-wall-mountains.md) Morphology correlation gates: drivers -> belts (no wall mountains) + distribution checks
 
 ### Authoring/Viz/Tuning (Cross-cutting)
-- [ ] `LOCAL-TBD` Studio authoring: physics-input controls + causal overlays (no velocity hacks)
-- [ ] `LOCAL-TBD` Visualization refinement: debug vs refined layer sets + era scrubber + correlation overlays
+- [ ] [`LOCAL-TBD-PR-M1-021`](../issues/LOCAL-TBD-PR-M1-021-studio-authoring-physics-input-controls-causal-overlays-no-v.md) Studio authoring: physics-input controls + causal overlays (no velocity hacks)
+- [ ] [`LOCAL-TBD-PR-M1-022`](../issues/LOCAL-TBD-PR-M1-022-visualization-refinement-debug-vs-refined-layer-sets-era-scr.md) Visualization refinement: debug vs refined layer sets + era scrubber + correlation overlays
 
 ### Cleanup (No Legacy Left)
-- [ ] `LOCAL-TBD` Delete legacy plate motion + legacy tectonics truth publication
-- [ ] `LOCAL-TBD` Delete legacy morphology belt driver paths and bridge artifacts
-- [ ] `LOCAL-TBD` Delete any dual-engine shadow compute paths after suite is green
+- [ ] [`LOCAL-TBD-PR-M1-023`](../issues/LOCAL-TBD-PR-M1-023-delete-legacy-plate-motion-legacy-tectonics-truth-publicatio.md) Delete legacy plate motion + legacy tectonics truth publication
+- [ ] [`LOCAL-TBD-PR-M1-024`](../issues/LOCAL-TBD-PR-M1-024-delete-legacy-morphology-belt-driver-paths-and-bridge-artifa.md) Delete legacy morphology belt driver paths and bridge artifacts
+- [ ] [`LOCAL-TBD-PR-M1-025`](../issues/LOCAL-TBD-PR-M1-025-delete-dual-engine-shadow-compute-paths-after-suite-is-green.md) Delete any dual-engine shadow compute paths after suite is green
 
 ### A. Prepare (Scaffolding + Plumbing + Visualization Enablement)
 - [ ] Implement/extend artifact publication plumbing for new truth + tile artifacts (Foundation and projections).
