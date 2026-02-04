@@ -28,6 +28,12 @@ It’s meant for AI agents and tooling that need stable pointers to “the one r
 - Prefer published package entrypoints; do not use unstable workspace-only aliases in canonical examples.
 - Visualization (deck.gl pipeline viz) is current canon; do not create competing viz docs.
 
+## See also
+
+- [`docs/system/libs/mapgen/MAPGEN.md`](/system/libs/mapgen/MAPGEN.md)
+- [`docs/system/libs/mapgen/policies/POLICIES.md`](/system/libs/mapgen/policies/POLICIES.md)
+- [`docs/system/libs/mapgen/reference/REFERENCE.md`](/system/libs/mapgen/reference/REFERENCE.md)
+
 ## Ground truth anchors
 
 - Gateway: `docs/system/libs/mapgen/MAPGEN.md`

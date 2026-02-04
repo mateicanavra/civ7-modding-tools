@@ -34,6 +34,12 @@ Potential future explanation pages (only if they add clarity beyond policy/refer
 - Narrative status (target contract + current wiring status) — if this warrants its own page
 - Studio as a reference consumer (not architecture authority) — may be folded into Studio docs
 
+## See also
+
+- [`docs/system/libs/mapgen/MAPGEN.md`](/system/libs/mapgen/MAPGEN.md)
+- [`docs/system/libs/mapgen/reference/REFERENCE.md`](/system/libs/mapgen/reference/REFERENCE.md)
+- [`docs/system/libs/mapgen/policies/POLICIES.md`](/system/libs/mapgen/policies/POLICIES.md)
+
 ## Ground truth anchors
 
 - Gateway: `docs/system/libs/mapgen/MAPGEN.md`

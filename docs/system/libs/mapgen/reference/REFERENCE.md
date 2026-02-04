@@ -38,6 +38,12 @@ Additional reference pages:
 - Domains: [`docs/system/libs/mapgen/reference/domains/DOMAINS.md`](/system/libs/mapgen/reference/domains/DOMAINS.md)
 - Studio integration seam: [`docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`](/system/libs/mapgen/reference/STUDIO-INTEGRATION.md)
 
+## See also
+
+- [`docs/system/libs/mapgen/MAPGEN.md`](/system/libs/mapgen/MAPGEN.md)
+- [`docs/system/libs/mapgen/policies/POLICIES.md`](/system/libs/mapgen/policies/POLICIES.md)
+- [`docs/system/libs/mapgen/explanation/EXPLANATION.md`](/system/libs/mapgen/explanation/EXPLANATION.md)
+
 ## Ground truth anchors
 
 - Gateway: `docs/system/libs/mapgen/MAPGEN.md`

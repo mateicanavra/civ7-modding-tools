@@ -31,6 +31,12 @@ Canonical policies:
 - Truth vs projection: [`docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`](/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md)
 - Module shape: [`docs/system/libs/mapgen/policies/MODULE-SHAPE.md`](/system/libs/mapgen/policies/MODULE-SHAPE.md)
 
+## See also
+
+- [`docs/system/libs/mapgen/MAPGEN.md`](/system/libs/mapgen/MAPGEN.md)
+- [`docs/system/libs/mapgen/reference/REFERENCE.md`](/system/libs/mapgen/reference/REFERENCE.md)
+- [`docs/system/libs/mapgen/how-to/HOW-TO.md`](/system/libs/mapgen/how-to/HOW-TO.md)
+
 ## Ground truth anchors
 
 - Gateway: `docs/system/libs/mapgen/MAPGEN.md`
