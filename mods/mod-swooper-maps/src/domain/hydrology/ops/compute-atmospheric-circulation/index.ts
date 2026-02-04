@@ -1,9 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import ComputeAtmosphericCirculationContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { defaultStrategy, latitudeStrategy } from "./strategies/index.js";
 
 const computeAtmosphericCirculation = createOp(ComputeAtmosphericCirculationContract, {
-  strategies: { default: defaultStrategy },
+  strategies: { default: defaultStrategy, latitude: latitudeStrategy },
 });
 
 export type * from "./types.js";
