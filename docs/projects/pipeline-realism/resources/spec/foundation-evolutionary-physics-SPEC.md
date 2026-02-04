@@ -26,12 +26,14 @@ This SPEC is intentionally **not** constrained by current Foundation contract sh
 Supersedes earlier “compromise” decisions:
 - D02 forcing (baseline) → **D02r mantle forcing as potential + derived stress/velocity**
 - D04 evolution semantics (baseline) → **D04r dual outputs: Eulerian eras + Lagrangian provenance**
+- D06 events + forces (baseline) → **D06r event mechanics + mandatory force emission**
 - D07 morphology consumption (baseline) → **D07r mandatory era + provenance consumption**
 
 Decision packets (normative):
 - `docs/projects/pipeline-realism/resources/decisions/d01-ordering-crust-vs-plates.md`
 - `docs/projects/pipeline-realism/resources/decisions/d02r-mantle-forcing-potential-derived.md`
 - `docs/projects/pipeline-realism/resources/decisions/d04r-history-dual-eulerian-plus-lagrangian.md`
+- `docs/projects/pipeline-realism/resources/decisions/d06r-event-mechanics-and-force-emission.md`
 - `docs/projects/pipeline-realism/resources/decisions/d07r-morphology-consumption-contract.md`
 
 ## High-Level Architecture
@@ -76,6 +78,11 @@ Fixed budgets (normative defaults):
 
 Normative details:
 - `docs/projects/pipeline-realism/resources/spec/sections/history-and-provenance.md`
+
+### Events And Forces (D06r)
+
+Normative details:
+- `docs/projects/pipeline-realism/resources/spec/sections/events-and-forces.md`
 
 ### Plates, Segments, Crust
 
