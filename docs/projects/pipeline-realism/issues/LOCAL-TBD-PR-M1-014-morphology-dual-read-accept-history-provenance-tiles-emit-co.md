@@ -81,6 +81,11 @@ related_to: []
 - [Testing / Verification](#testing--verification)
 - [Dependencies / Notes](#dependencies--notes)
 
+### Implementation Decisions
+- Dual-read wiring lives in `landmass-plates` (morphology-coasts): it now requires `tectonicHistoryTiles` + `tectonicProvenanceTiles` and emits comparison diagnostics while keeping legacy plates as the authoritative driver for outputs.
+- Diagnostics use newest-era history fields vs legacy plates (uplift/rift) and provenance overlays, emitting `morphology.dualRead.*` layers plus a `morphology.dualRead.summary` trace event with boundary match + mean-abs deltas.
+- Added a dedicated dual-read diagnostic test and extended viz emissions to lock the new diagnostic layers.
+
 ### Current State (Observed)
 
 Morphology (standard recipe) currently requires two upstream Foundation artifacts:
