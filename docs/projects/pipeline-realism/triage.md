@@ -3,6 +3,8 @@
 Unsequenced follow-ups and “we should do this later” work discovered while reconciling the proposal packets.
 
 ## Triage
+- Follow-up (M1-009): Add explicit contiguity/sliver guardrails for non-polar plates (or document the intentional waiver) so partition policy is enforceable beyond polar microplates.
+- Follow-up (M1-009): `computeCrust` now uses `riftWeakening01` for pre-plate damage and ignores `rngSeed`; update schema docs or split parameters to avoid semantic drift and unused inputs.
 
 - Follow-up (M1-007): `potentialAmplitude01` is effectively canceled by post-generation normalization of mantle potential; decide whether to expose amplitude via forcing scale or remove/repurpose the knob to avoid inert authoring inputs.
 - Follow-up (M1-008): Deprecate/remove `velocityX/velocityY/rotation` from `foundationArtifacts.plateGraph` (or assert they remain zero) now that `plateMotion` is canonical; avoid hidden kinematics reappearing downstream.
