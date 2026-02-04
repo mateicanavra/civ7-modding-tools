@@ -1,4 +1,5 @@
 import type { ArrayFieldTemplateProps, FieldTemplateProps, ObjectFieldTemplateProps, RJSFSchema } from "@rjsf/utils";
+import type { ReactNode } from "react";
 import type { Theme } from "../../ui/types";
 import { FieldRow } from "../../ui/components/fields";
 import { pathToPointer, type BrowserConfigSchemaDef } from "./schemaPresentation";
@@ -56,6 +57,31 @@ function humanizeSchemaLabel(label: string): string {
   return s.replace(/\b\w/g, (m) => m.toUpperCase());
 }
 
+type GsSchemaMeta = Readonly<{ gs?: Readonly<{ comments?: unknown }> }>;
+
+function normalizeGsComments(input: unknown): string | null {
+  if (typeof input === "string" && input.trim().length > 0) return input;
+  if (Array.isArray(input)) {
+    const parts = input
+      .filter((v) => typeof v === "string")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (parts.length > 0) return parts.join("\n");
+  }
+  return null;
+}
+
+function renderGsComments(args: { schema: unknown; className: string }): ReactNode {
+  const meta = args.schema as GsSchemaMeta | null;
+  const comments = normalizeGsComments(meta?.gs?.comments);
+  if (!comments) return null;
+  return (
+    <div className={["text-[11px] whitespace-pre-wrap", args.className].filter(Boolean).join(" ")}>
+      {comments}
+    </div>
+  );
+}
+
 export function BrowserConfigFieldTemplate(
   props: FieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>
 ){
@@ -76,6 +102,7 @@ export function BrowserConfigFieldTemplate(
       <div className={["flex flex-col gap-1", classNames].filter(Boolean).join(" ")}>
         <div className={textClass}>{children}</div>
         {description && !suppressDescription ? <div className={`text-[11px] ${labelClass}`}>{description}</div> : null}
+        {renderGsComments({ schema: props.schema, className: labelClass })}
         {errors ? <div className="text-[11px] text-rose-400">{errors}</div> : null}
         {help ? <div className={`text-[11px] ${mutedClass}`}>{help}</div> : null}
       </div>
@@ -92,6 +119,7 @@ export function BrowserConfigFieldTemplate(
         <div className={`flex-1 min-w-[120px] ${textClass}`}>{children}</div>
       </FieldRow>
       {description && !suppressDescription ? <div className={`text-[11px] ${labelClass}`}>{description}</div> : null}
+      {renderGsComments({ schema: props.schema, className: labelClass })}
       {errors ? <div className="text-[11px] text-rose-400">{errors}</div> : null}
       {help ? <div className={`text-[11px] ${mutedClass}`}>{help}</div> : null}
     </div>
@@ -101,7 +129,7 @@ export function BrowserConfigFieldTemplate(
 export function BrowserConfigObjectFieldTemplate(
   props: ObjectFieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>
 ){
-  const { title, description, properties, fieldPathId } = props;
+  const { title, description, properties, fieldPathId, schema } = props;
   const path = fieldPathId.path ?? [];
   const transparentPaths = props.registry.formContext?.transparentPaths ?? new Set<string>();
   const depth = path.length;
@@ -138,6 +166,7 @@ export function BrowserConfigObjectFieldTemplate(
       <section className={`rounded-lg border p-2.5 ${theme.card}`}>
         <header className="flex flex-col gap-1">
           <div className={`text-sm font-semibold ${textClass}`}>{prettyTitle}</div>
+          {renderGsComments({ schema, className: labelClass })}
           {description ? <div className={`text-[11px] ${labelClass}`}>{description}</div> : null}
         </header>
         <div className={`my-1.5 border-t ${theme.divider}`} />
@@ -164,11 +193,12 @@ export function BrowserConfigObjectFieldTemplate(
 export function BrowserConfigArrayFieldTemplate(
   props: ArrayFieldTemplateProps<unknown, RJSFSchema, BrowserConfigFormContext>
 ){
-  const { title, items, canAdd, onAddClick, disabled, readonly } = props;
+  const { title, items, canAdd, onAddClick, disabled, readonly, schema } = props;
   const prettyTitle = title ? humanizeSchemaLabel(title) : "Items";
   const allowMutations = !disabled && !readonly;
   const theme = getFormTheme(props.registry.formContext?.lightMode);
   const textClass = theme.text;
+  const labelClass = theme.label;
 
   return (
     <section className={`rounded-md border p-2 ${theme.nested}`}>
@@ -185,6 +215,7 @@ export function BrowserConfigArrayFieldTemplate(
           </button>
         ) : null}
       </div>
+      {renderGsComments({ schema, className: labelClass })}
       <div className={`my-2 border-t ${theme.divider}`} />
       <div className="flex flex-col gap-2">
         {items.map((item, index) => {

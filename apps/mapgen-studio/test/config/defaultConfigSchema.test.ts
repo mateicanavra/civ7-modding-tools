@@ -26,6 +26,53 @@ function collectSchemaKeys(schema: unknown, keys: Set<string>) {
   if ("items" in node) collectSchemaKeys(node.items as unknown, keys);
 }
 
+function getSchemaAtPath(schema: unknown, path: readonly string[]): unknown {
+  let current: any = schema as any;
+  for (const segment of path) {
+    if (!current || typeof current !== "object") {
+      throw new Error(`Schema missing path: ${path.join(".")}`);
+    }
+
+    const directProps = (current as any).properties;
+    if (directProps && typeof directProps === "object" && segment in directProps) {
+      current = (directProps as any)[segment];
+      continue;
+    }
+
+    const variants = (Array.isArray((current as any).anyOf) ? (current as any).anyOf :
+      Array.isArray((current as any).oneOf) ? (current as any).oneOf :
+        null) as any[] | null;
+    if (variants) {
+      const match = variants.find((variant) => {
+        const vProps = variant?.properties;
+        return vProps && typeof vProps === "object" && segment in vProps;
+      });
+      if (match) {
+        current = (match as any).properties[segment];
+        continue;
+      }
+    }
+
+    throw new Error(`Schema missing path: ${path.join(".")}`);
+  }
+  return current;
+}
+
+function expectSchemaHasDescription(schema: unknown, label: string) {
+  const node = schema as any;
+  expect(typeof node.description, `${label} must define description`).toBe("string");
+  expect((node.description as string).trim().length, `${label} description must be non-empty`).toBeGreaterThan(0);
+}
+
+function expectSchemaHasGsComments(schema: unknown, label: string) {
+  const node = schema as any;
+  const comments = node?.gs?.comments;
+  const ok =
+    (typeof comments === "string" && comments.trim().length > 0) ||
+    (Array.isArray(comments) && comments.every((v: unknown) => typeof v === "string") && comments.length > 0);
+  expect(ok, `${label} must define gs.comments`).toBe(true);
+}
+
 describe("Studio default config", () => {
   it("validates against the standard recipe schema (prevents UI drift)", () => {
     const { errors } = normalizeStrict<Record<string, unknown>>(STANDARD_RECIPE_CONFIG_SCHEMA, STANDARD_RECIPE_CONFIG, "/defaultConfig");
@@ -60,5 +107,40 @@ describe("Studio default config", () => {
       forbidden.some((needle) => key.toLowerCase().includes(needle))
     );
     expect(hits).toEqual([]);
+  });
+
+  it("documents the Foundation advanced schema (descriptions + gs.comments)", () => {
+    const foundation = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation"]);
+    expectSchemaHasGsComments(foundation, "foundation");
+
+    const profiles = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "profiles"]);
+    expectSchemaHasGsComments(profiles, "foundation.profiles");
+    expectSchemaHasDescription(getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "profiles", "resolutionProfile"]), "foundation.profiles.resolutionProfile");
+    expectSchemaHasDescription(getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "profiles", "lithosphereProfile"]), "foundation.profiles.lithosphereProfile");
+    expectSchemaHasDescription(getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "profiles", "mantleProfile"]), "foundation.profiles.mantleProfile");
+
+    const advanced = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "advanced"]);
+    expectSchemaHasGsComments(advanced, "foundation.advanced");
+
+    const mantleForcing = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "advanced", "mantleForcing"]);
+    const lithosphere = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "advanced", "lithosphere"]);
+    expectSchemaHasGsComments(mantleForcing, "foundation.advanced.mantleForcing");
+    expectSchemaHasGsComments(lithosphere, "foundation.advanced.lithosphere");
+
+    const mantleScalarProps = ["potentialMode", "potentialAmplitude01", "plumeCount", "downwellingCount", "lengthScale01"] as const;
+    for (const key of mantleScalarProps) {
+      expectSchemaHasDescription(
+        getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "advanced", "mantleForcing", key]),
+        `foundation.advanced.mantleForcing.${key}`
+      );
+    }
+
+    const lithosphereScalarProps = ["yieldStrength01", "mantleCoupling01", "riftWeakening01"] as const;
+    for (const key of lithosphereScalarProps) {
+      expectSchemaHasDescription(
+        getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "advanced", "lithosphere", key]),
+        `foundation.advanced.lithosphere.${key}`
+      );
+    }
   });
 });

@@ -34,6 +34,115 @@ const FoundationMantleProfileSchema = Type.Literal("maximal-potential-v1", {
   default: "maximal-potential-v1",
 });
 
+const profilesSchema = Type.Object(
+  {
+    resolutionProfile: FoundationResolutionProfileSchema,
+    lithosphereProfile: FoundationLithosphereProfileSchema,
+    mantleProfile: FoundationMantleProfileSchema,
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Foundation profile selectors (quick presets). Profiles pick default physics inputs and simulation posture; advanced config can override physics inputs explicitly.",
+    gs: {
+      comments: [
+        "Profiles are a convenience layer that selects a default posture.",
+        "They must not prevent manual configuration via `advanced`.",
+      ],
+    },
+  }
+);
+
+const advancedMantleForcingSchema = Type.Object(
+  {
+    potentialMode: Type.Optional(
+      Type.Literal("default", {
+        description: "Mantle potential model selection (currently only \"default\").",
+      })
+    ),
+    potentialAmplitude01: Type.Optional(
+      Type.Number({
+        minimum: 0,
+        maximum: 1,
+        description:
+          "Normalized amplitude selector for mantle potential strength. Compiles into physical-scale forcing amplitudes.",
+      })
+    ),
+    plumeCount: Type.Optional(
+      Type.Integer({
+        minimum: 0,
+        maximum: 128,
+        description: "Number of upwelling centers (plumes) for the mantle potential model.",
+      })
+    ),
+    downwellingCount: Type.Optional(
+      Type.Integer({
+        minimum: 0,
+        maximum: 128,
+        description: "Number of downwelling centers for the mantle potential model.",
+      })
+    ),
+    lengthScale01: Type.Optional(
+      Type.Number({
+        minimum: 0,
+        maximum: 1,
+        description:
+          "Normalized coherence/length-scale selector for the mantle potential spectrum (0 = finer, 1 = broader).",
+      })
+    ),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Advanced mantle forcing inputs (physics-first). These values affect mantle potential fields and derived forcing; they do not author motion directly.",
+    gs: {
+      comments: [
+        "Physics-first levers only: do not add derived motion vectors here.",
+        "Validate changes via mantle potential/forcing layers, then plate motion response.",
+      ],
+    },
+  }
+);
+
+const advancedLithosphereSchema = Type.Object(
+  {
+    yieldStrength01: Type.Optional(
+      Type.Number({
+        minimum: 0,
+        maximum: 1,
+        description:
+          "Normalized lithosphere yield strength scale (higher = stronger, more resistant to rifting).",
+      })
+    ),
+    mantleCoupling01: Type.Optional(
+      Type.Number({
+        minimum: 0,
+        maximum: 1,
+        description:
+          "Normalized mantle–lithosphere coupling scale (higher = stronger coupling into plate motion/interaction).",
+      })
+    ),
+    riftWeakening01: Type.Optional(
+      Type.Number({
+        minimum: 0,
+        maximum: 1,
+        description: "Normalized weakening scale applied when rifts form (higher = easier rifting/extension).",
+      })
+    ),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Advanced lithosphere constitutive inputs (physics-first). These influence strength and interaction mechanics; they do not author belts or landmasks.",
+    gs: {
+      comments: [
+        "Keep this surface limited to constitutive/initial-condition intent.",
+        "Do not add output-shaping controls (belts, land %, painted thresholds).",
+      ],
+    },
+  }
+);
+
 /**
  * Foundation knobs (plateCount/plateActivity). Knobs apply after defaulted step config as deterministic transforms.
  */
@@ -50,39 +159,20 @@ const knobsSchema = Type.Object(
 
 const advancedSchema = Type.Object(
   {
-    mantleForcing: Type.Optional(
-      Type.Object(
-        {
-          potentialMode: Type.Optional(Type.Literal("default")),
-          potentialAmplitude01: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
-          plumeCount: Type.Optional(Type.Integer({ minimum: 0, maximum: 128 })),
-          downwellingCount: Type.Optional(Type.Integer({ minimum: 0, maximum: 128 })),
-          lengthScale01: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
-        },
-        { additionalProperties: false }
-      )
-    ),
-    lithosphere: Type.Optional(
-      Type.Object(
-        {
-          yieldStrength01: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
-          mantleCoupling01: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
-          riftWeakening01: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
-        },
-        { additionalProperties: false }
-      )
-    ),
+    mantleForcing: Type.Optional(advancedMantleForcingSchema),
+    lithosphere: Type.Optional(advancedLithosphereSchema),
   },
-  { additionalProperties: false }
-);
-
-const profilesSchema = Type.Object(
   {
-    resolutionProfile: FoundationResolutionProfileSchema,
-    lithosphereProfile: FoundationLithosphereProfileSchema,
-    mantleProfile: FoundationMantleProfileSchema,
-  },
-  { additionalProperties: false }
+    additionalProperties: false,
+    description:
+      "Advanced physics-first configuration inputs for Foundation. This surface must not expose derived outputs like motion vectors or belts.",
+    gs: {
+      comments: [
+        "Advanced config is for physics inputs/initial conditions and simulation resolution.",
+        "Do not add derived outputs (velocities, belts, regime labels) to the authoring surface.",
+      ],
+    },
+  }
 );
 
 /**
@@ -91,11 +181,24 @@ const profilesSchema = Type.Object(
  */
 const publicSchema = Type.Object(
   {
-    version: Type.Literal(1, { default: 1 }),
+    version: Type.Literal(1, {
+      default: 1,
+      description: "Foundation authoring surface schema version.",
+    }),
     profiles: profilesSchema,
     advanced: Type.Optional(advancedSchema),
   },
-  { additionalProperties: false }
+  {
+    additionalProperties: false,
+    description:
+      "Foundation authoring surface (physics inputs only). Configure profiles + knobs for high-level posture and advanced for physics-first levers.",
+    gs: {
+      comments: [
+        "This surface intentionally forbids authoring of derived motion fields and derived shaping structures (belts/masks).",
+        "Use visualization layers to validate: mantle → forcing → motion → events → crust evolution.",
+      ],
+    },
+  }
 );
 
 type ResolutionProfile = Static<typeof FoundationResolutionProfileSchema>;
