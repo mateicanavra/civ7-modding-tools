@@ -538,7 +538,9 @@ export function validateTectonicProvenanceArtifact(value: unknown): void {
   }
 
   const eraCount = typeof provenance.eraCount === "number" ? (provenance.eraCount | 0) : -1;
-  if (eraCount <= 0) {
+  const minEraCount = 5;
+  const maxEraCount = 8;
+  if (eraCount < minEraCount || eraCount > maxEraCount) {
     throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenance.eraCount.");
   }
 
