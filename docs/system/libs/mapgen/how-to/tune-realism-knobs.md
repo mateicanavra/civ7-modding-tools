@@ -35,6 +35,7 @@ Each stage has a surface schema shaped like:
 Contract (stage-level posture):
 - `advanced` is the baseline (schema-defaulted + authored overrides).
 - `knobs` apply **last**, as deterministic transforms over that baseline.
+Foundation additionally exposes `profiles` in its public schema; profiles select the baseline defaults that `knobs` then refine.
 
 ## Checklist
 
@@ -49,9 +50,9 @@ Pick a preset config file and use it as your starting point:
 
 In your config object, change only stage `knobs` values (unless you have a specific reason to go deeper).
 
-Examples of common “realism” knob sets (see anchors for exact enums and mapping):
-- `foundation.knobs.plateCount`: `sparse | normal | dense`
-- `foundation.knobs.plateActivity`: `low | normal | high`
+Examples of common “realism” knob sets (see anchors for exact ranges and mapping):
+- `foundation.knobs.plateCount`: integer baseline (e.g., `20`–`36`)
+- `foundation.knobs.plateActivity`: scalar `0..1` (e.g., `0.25` calmer, `0.5` baseline, `0.75` more active)
 - `morphology-coasts.knobs.seaLevel`: `low | earthlike | high`
 - `morphology-coasts.knobs.coastRuggedness`: `smooth | normal | rugged`
 - `morphology-coasts.knobs.shelfWidth`: `narrow | normal | wide`

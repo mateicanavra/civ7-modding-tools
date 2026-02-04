@@ -47,7 +47,15 @@ Example curated preset object (realism/earthlike):
 
 ```ts
 export const realismEarthlikeConfig = {
-  foundation: { knobs: { plateCount: "normal", plateActivity: "normal" } },
+  foundation: {
+    version: 1,
+    profiles: {
+      resolutionProfile: "balanced",
+      lithosphereProfile: "maximal-basaltic-lid-v1",
+      mantleProfile: "maximal-potential-v1",
+    },
+    knobs: { plateCount: 28, plateActivity: 0.5 },
+  },
   "morphology-coasts": { knobs: { seaLevel: "earthlike", coastRuggedness: "normal", shelfWidth: "normal" } },
   "morphology-routing": { knobs: {} },
   "morphology-erosion": { knobs: { erosion: "normal" } },
@@ -94,22 +102,22 @@ If knob tuning can’t express what you need:
 - override only that step config subtree under `advanced`,
 - re-run with the same seed to validate the change.
 
-Concrete stage schema posture (Foundation):
+Concrete stage schema posture (Foundation, D08r authoring surface):
 
 ```ts
 export default createStage({
   id: "foundation",
   knobsSchema,
   public: publicSchema,
-  compile: ({ config }) => config.advanced ?? {},
+  compile: ({ config }) => buildFoundationDefaults(config.profiles.resolutionProfile),
   steps: [mesh, crust, plateGraph, tectonics, projection, plateTopology],
 });
 ```
 
 Interpretation:
 - `foundation.knobs.*` expresses semantic, stable tuning.
-- `foundation.advanced.*` is “escape hatch” step config (still validated, but higher churn).
-- Knobs apply as deterministic transforms (typically in `normalize`) over the advanced baseline.
+- `foundation.advanced.*` is restricted to physics inputs (mantle/lithosphere); it is **not** a per-step escape hatch.
+- Knobs apply as deterministic transforms (typically in `normalize`) over the profile baseline.
 
 ## Verification
 
