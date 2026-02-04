@@ -94,6 +94,11 @@ related_to: []
 - [Testing / Verification](#testing--verification)
 - [Dependencies / Notes](#dependencies--notes)
 
+### Implementation Decisions
+- Overlay resolution prefers same step and space as the primary layer, then matches the preferred `variantKey` (manual era if fixed, otherwise primary variant), and only falls back to the first available overlay layer; this preserves identity without collapsing variants.
+- Era control uses Auto (follows selected layer) vs Fixed (slider-driven) modes; Fixed keeps the era across data type/space/render mode changes when possible, and selecting a non-era variant switches back to Auto.
+- Spec overlay labels are mapped to current dataTypeKeys (`foundation.history.boundaryType` overlaid with `foundation.tectonics.boundaryType`) so the curated overlay shows up immediately; the logic still filters by availability, so future `foundation.events.boundary` keys will slot in without schema changes.
+
 ### Current State (Observed)
 
 - Studio already supports:
