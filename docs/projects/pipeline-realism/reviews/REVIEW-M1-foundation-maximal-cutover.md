@@ -224,3 +224,27 @@ reviewer: AI agent
 
 ### Cross-cutting Risks
 - If contiguity/sliver constraints stay implicit, later changes to partition heuristics could silently violate the “physics-first” posture without tripping tests.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-010-boundary-segments-regime-classification-source-of-events
+
+### Quick Take
+- Segment classification now scales compression/extension/shear intensities with crust resistance while preserving the mantle-derived plate-motion basis.
+- Tests extend the existing segments suite with determinism, polarity stability, and resistance-aware scaling assertions.
+
+### High-Leverage Issues
+- The new resistance-scaling test only exercises a compressive case (vn < 0), so extension scaling is effectively untested; a divergent scenario is needed to prevent sign/regime regressions from slipping through.
+
+### PR Comment Context
+- No reviewer comments; Graphite stack + preview notices only.
+
+### Fix Now (Recommended)
+- Add a divergent-motion test case that validates extension scaling increases as crust weakens (and verifies regime classification flips appropriately when intensities shift).
+
+### Defer / Follow-up
+- Consider whether resistance should also modulate polarity confidence (e.g., in mixed crust-type boundaries) or if polarity should remain strictly type-based.
+
+### Needs Discussion
+- Should the segments artifact expose a normalized “resistance scalar” per segment for downstream event heuristics, or is it sufficient that resistance only influences intensities?
+
+### Cross-cutting Risks
+- Without explicit divergent-case coverage, later changes to the intensity math could silently break rift corridor detection in the event engine.
