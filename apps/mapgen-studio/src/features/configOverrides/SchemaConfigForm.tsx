@@ -62,6 +62,12 @@ export function SchemaConfigForm<TConfig>(props: SchemaConfigFormProps<TConfig>)
         out["ui:widget"] = "select";
       } else if (hasEnumItems(node)) {
         out["ui:widget"] = "tagSelect";
+      } else if (node.type === "string") {
+        const format = typeof node.format === "string" ? node.format : null;
+        const maxLength = typeof node.maxLength === "number" ? node.maxLength : null;
+        if (format === "textarea" || (maxLength != null && maxLength >= 160)) {
+          out["ui:widget"] = "textarea";
+        }
       }
 
       if (node.type === "array") {

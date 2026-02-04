@@ -85,7 +85,7 @@ export function BrowserConfigFieldTemplate(
   return (
     <div className={["flex flex-col gap-1", classNames].filter(Boolean).join(" ")}>
       <FieldRow>
-        <label className={`text-[11px] ${labelClass}`} htmlFor={id}>
+        <label className={`text-[11px] min-w-[96px] ${labelClass}`} htmlFor={id}>
           <span className="font-medium">{prettyLabel}</span>
           {required ? <span className="text-[11px] text-rose-400">*</span> : null}
         </label>
@@ -114,7 +114,7 @@ export function BrowserConfigObjectFieldTemplate(
   const textClass = theme.text;
 
   if (isRoot) {
-    return <div className="flex flex-col gap-3">{properties.filter((p) => !p.hidden).map((p) => p.content)}</div>;
+    return <div className="flex flex-col gap-2">{properties.filter((p) => !p.hidden).map((p) => p.content)}</div>;
   }
 
   if (isTransparent) {
@@ -125,7 +125,7 @@ export function BrowserConfigObjectFieldTemplate(
   const isStage = depth === 1;
 
   const content = (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1.5">
       {!isStage && description ? (
         <div className={`text-[11px] ${labelClass}`}>{description}</div>
       ) : null}
@@ -135,20 +135,20 @@ export function BrowserConfigObjectFieldTemplate(
 
   if (isStage) {
     return (
-      <section className={`rounded-lg border p-3 ${theme.card}`}>
+      <section className={`rounded-lg border p-2.5 ${theme.card}`}>
         <header className="flex flex-col gap-1">
           <div className={`text-sm font-semibold ${textClass}`}>{prettyTitle}</div>
           {description ? <div className={`text-[11px] ${labelClass}`}>{description}</div> : null}
         </header>
-        <div className={`my-2 border-t ${theme.divider}`} />
+        <div className={`my-1.5 border-t ${theme.divider}`} />
         {content}
       </section>
     );
   }
 
   const headingClass = `${depth >= 3 ? "text-[11px]" : "text-[12px]"} font-semibold ${textClass}`;
-  const inlineBorder = `${depth >= 3 ? "pl-2" : "pl-3"} border-l ${theme.borderSubtle}`;
-  const groupWrapper = `flex flex-col gap-1`;
+  const inlineBorder = `${depth >= 3 ? "pl-2" : "pl-2.5"} border-l ${theme.borderSubtle}`;
+  const groupWrapper = `flex flex-col gap-0.5`;
   return (
     <section className={groupWrapper}>
       <header>
