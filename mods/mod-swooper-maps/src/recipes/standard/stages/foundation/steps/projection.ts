@@ -353,6 +353,96 @@ export default createStep(ProjectionStepContract, {
         visibility: "debug",
       }),
     });
+
+    const historyPerEra = platesResult.tectonicHistoryTiles.perEra ?? [];
+    for (let eraIndex = 0; eraIndex < historyPerEra.length; eraIndex++) {
+      const era = historyPerEra[eraIndex];
+      if (!era) continue;
+      const variantKey = `era:${eraIndex + 1}`;
+
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "foundation.history.boundaryType",
+        variantKey,
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: era.boundaryType,
+        meta: defineVizMeta("foundation.history.boundaryType", {
+          label: "History Boundary Type",
+          group: GROUP_TECTONIC_HISTORY_TILES,
+          categories: [
+            { value: 0, label: "None/Unknown", color: [107, 114, 128, 180] },
+            { value: 1, label: "Convergent", color: [239, 68, 68, 240] },
+            { value: 2, label: "Divergent", color: [59, 130, 246, 240] },
+            { value: 3, label: "Transform", color: [245, 158, 11, 240] },
+          ],
+        }),
+      });
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "foundation.history.upliftPotential",
+        variantKey,
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: era.upliftPotential,
+        meta: defineVizMeta("foundation.history.upliftPotential", {
+          label: "History Uplift Potential",
+          group: GROUP_TECTONIC_HISTORY_TILES,
+        }),
+      });
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "foundation.history.riftPotential",
+        variantKey,
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: era.riftPotential,
+        meta: defineVizMeta("foundation.history.riftPotential", {
+          label: "History Rift Potential",
+          group: GROUP_TECTONIC_HISTORY_TILES,
+          visibility: "debug",
+        }),
+      });
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "foundation.history.shearStress",
+        variantKey,
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: era.shearStress,
+        meta: defineVizMeta("foundation.history.shearStress", {
+          label: "History Shear Stress",
+          group: GROUP_TECTONIC_HISTORY_TILES,
+          visibility: "debug",
+        }),
+      });
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "foundation.history.volcanism",
+        variantKey,
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: era.volcanism,
+        meta: defineVizMeta("foundation.history.volcanism", {
+          label: "History Volcanism",
+          group: GROUP_TECTONIC_HISTORY_TILES,
+          visibility: "debug",
+        }),
+      });
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "foundation.history.fracture",
+        variantKey,
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: era.fracture,
+        meta: defineVizMeta("foundation.history.fracture", {
+          label: "History Fracture",
+          group: GROUP_TECTONIC_HISTORY_TILES,
+          visibility: "debug",
+        }),
+      });
+    }
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "foundation.provenance.originEra",
       spaceId: TILE_SPACE_ID,

@@ -138,8 +138,9 @@ steps:
       - "$SWOOPER/src/recipes/standard/stages/map-morphology/**"
 
   - slice: 5
-    branch: "TBD"
+    branch: "agent-URSULA-M1-LOCAL-TBD-PR-M1-031-viz-causal-spine-era-scrubbing"
     title: "viz(foundation+morphology): causal spine defaults + era scrubbing"
+    status: in-progress
     includes:
       - "$SWOOPER/src/** (dataTypeKey publishing)"
       - "$STUDIO/src/** (layer catalogs + UX)"

@@ -373,7 +373,6 @@ export default createStep(LandmassPlatesStepContract, {
       meta: defineVizMeta("morphology.belts.boundaryCloseness", {
         label: "Belt Boundary Closeness",
         group: GROUP_BELT_DRIVERS,
-        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
@@ -385,7 +384,6 @@ export default createStep(LandmassPlatesStepContract, {
       meta: defineVizMeta("morphology.belts.boundaryType", {
         label: "Belt Boundary Type",
         group: GROUP_BELT_DRIVERS,
-        visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {

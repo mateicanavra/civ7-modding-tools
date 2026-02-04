@@ -326,7 +326,6 @@ export default createStep(TectonicsStepContract, {
         meta: defineVizMeta("foundation.history.boundaryType", {
           label: "Boundary Type (History)",
           group: GROUP_TECTONIC_HISTORY,
-          visibility: "debug",
           categories: BOUNDARY_TYPE_CATEGORIES,
         }),
       });
@@ -340,7 +339,54 @@ export default createStep(TectonicsStepContract, {
         meta: defineVizMeta("foundation.history.upliftPotential", {
           label: "Uplift Potential (History)",
           group: GROUP_TECTONIC_HISTORY,
-          visibility: "debug",
+        }),
+      });
+      context.viz?.dumpPoints(context.trace, {
+        dataTypeKey: "foundation.history.riftPotential",
+        variantKey,
+        spaceId: WORLD_SPACE_ID,
+        positions,
+        values: era.riftPotential,
+        valueFormat: "u8",
+        meta: defineVizMeta("foundation.history.riftPotential", {
+          label: "Rift Potential (History)",
+          group: GROUP_TECTONIC_HISTORY,
+        }),
+      });
+      context.viz?.dumpPoints(context.trace, {
+        dataTypeKey: "foundation.history.shearStress",
+        variantKey,
+        spaceId: WORLD_SPACE_ID,
+        positions,
+        values: era.shearStress,
+        valueFormat: "u8",
+        meta: defineVizMeta("foundation.history.shearStress", {
+          label: "Shear Stress (History)",
+          group: GROUP_TECTONIC_HISTORY,
+        }),
+      });
+      context.viz?.dumpPoints(context.trace, {
+        dataTypeKey: "foundation.history.volcanism",
+        variantKey,
+        spaceId: WORLD_SPACE_ID,
+        positions,
+        values: era.volcanism,
+        valueFormat: "u8",
+        meta: defineVizMeta("foundation.history.volcanism", {
+          label: "Volcanism (History)",
+          group: GROUP_TECTONIC_HISTORY,
+        }),
+      });
+      context.viz?.dumpPoints(context.trace, {
+        dataTypeKey: "foundation.history.fracture",
+        variantKey,
+        spaceId: WORLD_SPACE_ID,
+        positions,
+        values: era.fracture,
+        valueFormat: "u8",
+        meta: defineVizMeta("foundation.history.fracture", {
+          label: "Fracture (History)",
+          group: GROUP_TECTONIC_HISTORY,
         }),
       });
     }
