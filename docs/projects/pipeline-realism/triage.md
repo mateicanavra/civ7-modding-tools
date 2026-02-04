@@ -32,6 +32,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 - Decision (M1-016): Plot-mountains contract drops `foundation.plates` and requires history/provenance tiles only; other morphology steps (coasts/features) still use plate tensors until explicit migration work lands.
 - Decision (M1-017): Determinism suite uses three canonical cases (baseline, wrap-active, compact-low-plates) with fixed plateCount/plateActivity knobs; float policy is bit-identical hashing (no quantization unless later explicitly scoped).
 - Decision (M1-018): Foundation physics invariants are implemented in `test/support/foundation-invariants.ts` with hard gates on mantle potential range/std, mantle forcing bounds/non-degeneracy, and plate-motion coupling residuals; diagnostic-only plate-fit stats warn on quality drift without gating.
+- Decision (M1-019): Event/provenance causality and belt continuity are gated via tile-space history/provenance signals (event threshold 20, ≥60% corridor boundary coverage, ≥75% origin resets aligned to events, belt component size/neighbor density floors) using `deriveBeltDriversFromHistory`.
 
 ## Backlog
 
