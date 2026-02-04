@@ -29,6 +29,9 @@ export type UseVizStateArgs = {
   mode: "browser" | "dump";
   assetResolver?: VizAssetResolver | null;
   showEdgeOverlay?: boolean;
+  overlayDataTypeKey?: string | null;
+  overlayVariantKeyPreference?: string | null;
+  overlayOpacity?: number;
   allowPendingSelection?: boolean;
   onError?(error: unknown): void;
 };
@@ -68,6 +71,9 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     mode,
     assetResolver,
     showEdgeOverlay = true,
+    overlayDataTypeKey = null,
+    overlayVariantKeyPreference = null,
+    overlayOpacity = 0.45,
     allowPendingSelection = false,
     onError,
   } = args;
@@ -201,6 +207,57 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
 
   const effectiveLayer = selectedLayer;
 
+  const overlayLayer = useMemo(() => {
+    if (!manifest || !overlayDataTypeKey) return null;
+    if (!effectiveLayer) return null;
+    let candidates = manifest.layers.filter((l) => l.dataTypeKey === overlayDataTypeKey);
+    if (!candidates.length) return null;
+
+    if (activeSelectedStepId) {
+      const sameStep = candidates.filter((l) => l.stepId === activeSelectedStepId);
+      if (sameStep.length) candidates = sameStep;
+    }
+
+    candidates = candidates.filter((l) => {
+      const visibility = resolveLayerVisibility(l);
+      if (visibility === "hidden") return false;
+      if (visibility === "debug" && !showDebugLayers) return false;
+      return true;
+    });
+    if (!candidates.length) return null;
+
+    const preferredSpaceId = effectiveLayer.spaceId;
+    const sameSpace = candidates.filter((l) => l.spaceId === preferredSpaceId);
+    if (sameSpace.length) candidates = sameSpace;
+
+    const preferredVariantKey = overlayVariantKeyPreference ?? effectiveLayer.variantKey ?? null;
+    if (preferredVariantKey) {
+      const sameVariant = candidates.filter((l) => l.variantKey === preferredVariantKey);
+      if (sameVariant.length) candidates = sameVariant;
+    }
+
+    const sameKind = candidates.filter((l) => l.kind === effectiveLayer.kind);
+    if (sameKind.length) candidates = sameKind;
+
+    const preferredRole = effectiveLayer.meta?.role ?? null;
+    if (preferredRole) {
+      const sameRole = candidates.filter((l) => l.meta?.role === preferredRole);
+      if (sameRole.length) candidates = sameRole;
+    }
+
+    const candidate = candidates[0] ?? null;
+    if (!candidate) return null;
+    if (candidate.layerKey === effectiveLayer.layerKey) return null;
+    return candidate;
+  }, [
+    activeSelectedStepId,
+    effectiveLayer,
+    manifest,
+    overlayDataTypeKey,
+    overlayVariantKeyPreference,
+    showDebugLayers,
+  ]);
+
   const activeBounds = useMemo(() => {
     if (!effectiveLayer) return null;
     return boundsForLayerInRenderSpace(effectiveLayer, 1);
@@ -221,6 +278,8 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
     renderDeckLayers({
       manifest,
       layer: effectiveLayer,
+      overlayLayer,
+      overlayOpacity,
       showEdgeOverlay,
       assetResolver,
       signal: controller.signal,
@@ -239,7 +298,7 @@ export function useVizState(args: UseVizStateArgs): UseVizStateResult {
       controller.abort();
       if (renderAbortRef.current === controller) renderAbortRef.current = null;
     };
-  }, [assetResolver, effectiveLayer, manifest, showEdgeOverlay]);
+  }, [assetResolver, effectiveLayer, manifest, overlayLayer, overlayOpacity, showEdgeOverlay]);
 
   const legend = useMemo(() => {
     if (!effectiveLayer) return null;

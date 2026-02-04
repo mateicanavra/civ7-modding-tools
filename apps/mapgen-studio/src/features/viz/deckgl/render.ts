@@ -20,9 +20,20 @@ const MAX_HEX_GRID_GEOMETRY_CACHE_ENTRIES = 4;
 export type RenderDeckLayersArgs = {
   manifest: VizManifestV1 | null;
   layer: VizLayerEntryV1 | null;
+  overlayLayer?: VizLayerEntryV1 | null;
+  overlayOpacity?: number;
   showEdgeOverlay: boolean;
   assetResolver?: VizAssetResolver | null;
   signal?: AbortSignal;
+};
+
+type RenderSingleLayerArgs = {
+  manifest: VizManifestV1;
+  layer: VizLayerEntryV1;
+  showEdgeOverlay: boolean;
+  assetResolver?: VizAssetResolver | null;
+  signal?: AbortSignal;
+  opacity?: number;
 };
 
 export type RenderDeckLayersResult = {
@@ -258,9 +269,8 @@ function defaultLineColor(): [number, number, number, number] {
   return [148, 163, 184, 180];
 }
 
-export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<RenderDeckLayersResult> {
-  const { manifest, layer, showEdgeOverlay, assetResolver, signal } = options;
-  if (!manifest || !layer) return { layers: [], stats: null };
+async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<RenderDeckLayersResult> {
+  const { manifest, layer, showEdgeOverlay, assetResolver, signal, opacity = 1 } = options;
   if (signal?.aborted) throw createAbortError();
   const tick = createYieldTicker(signal);
 
@@ -311,6 +321,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
         getColor: [148, 163, 184, 140],
         getWidth: 1,
         widthUnits: "pixels",
+        opacity,
         pickable: false,
       })
     );
@@ -373,6 +384,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
           getLineColor: [17, 24, 39, 220],
           getLineWidth: 1,
           lineWidthUnits: "pixels",
+          opacity,
           pickable: false,
         }),
       ],
@@ -451,6 +463,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
           },
           radiusUnits: "common",
           getRadius: 0.95,
+          opacity,
           pickable: false,
         }),
       ],
@@ -536,6 +549,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
           },
           getWidth: 1.5,
           widthUnits: "pixels",
+          opacity,
           pickable: false,
         }),
       ],
@@ -618,6 +632,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
         getLineColor: [17, 24, 39, 220],
         getLineWidth: 1,
         lineWidthUnits: "pixels",
+        opacity,
         pickable: false,
       }),
     ];
@@ -686,6 +701,7 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
             getColor: [17, 24, 39, 220],
             getWidth: 1.25,
             widthUnits: "pixels",
+            opacity,
             pickable: false,
           })
         );
@@ -696,4 +712,24 @@ export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<R
   }
 
   return { layers: baseLayers, stats: null };
+}
+
+export async function renderDeckLayers(options: RenderDeckLayersArgs): Promise<RenderDeckLayersResult> {
+  const { manifest, layer, overlayLayer, overlayOpacity, showEdgeOverlay, assetResolver, signal } = options;
+  if (!manifest || !layer) return { layers: [], stats: null };
+
+  const base = await renderSingleLayer({ manifest, layer, showEdgeOverlay, assetResolver, signal, opacity: 1 });
+  if (!overlayLayer) return base;
+
+  const normalizedOpacity = Math.max(0, Math.min(1, overlayOpacity ?? 0.45));
+  const overlay = await renderSingleLayer({
+    manifest,
+    layer: overlayLayer,
+    showEdgeOverlay: false,
+    assetResolver,
+    signal,
+    opacity: normalizedOpacity,
+  });
+
+  return { layers: [...base.layers, ...overlay.layers], stats: base.stats };
 }
