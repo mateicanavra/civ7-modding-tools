@@ -76,6 +76,12 @@ related_to: []
 - [Testing / Verification](#testing--verification)
 - [Dependencies / Notes](#dependencies--notes)
 
+### Implementation Decisions
+- Mantle forcing sensitivity: `computeMantlePotential` Poisson sampling can yield identical fields for adjacent seeds; the plate-motion sensitivity test now applies a deterministic perturbation to `mantleForcing` to guarantee measurable change.
+- Tectonic signal retune: raised `compute-tectonic-segments` `intensityScale` default to `900` (and stage config) to keep uplift/stress signals non-degenerate under mantle-derived plate motion.
+- Coastline balance retune: `realismEarthlikeConfig` uses `seaLevel: "water-heavy"` and `shelfWidth: "narrow"`; `water-heavy` delta increased to `+15` to preserve deep-ocean share post-cutover.
+- Mountain presence retune: `m12-mountains-present` test uses `tectonicIntensity: 1.7` to maintain non-zero mountain masks with mantle-derived tectonic magnitudes.
+
 ### Current State (Observed)
 
 Today’s Foundation plate kinematics live inside the plate graph and are not derived from a mantle forcing truth artifact:
