@@ -16,20 +16,32 @@ related_to: []
 
 <!-- SECTION SCOPE [SYNC] -->
 ## TL;DR
-- Project mesh-space `tectonicHistory` and `tectonicProvenance` into tile-space drivers required by Morphology.
+- Project mesh-space history/provenance into tile-space drivers so Morphology can consume mandatory causal signals deterministically (without reading mesh artifacts).
 
 ## Deliverables
-- Project mesh-space `tectonicHistory` and `tectonicProvenance` into tile-space drivers required by Morphology.
-- Define projection invariants and exact output artifact IDs.
+- Emit the new tile-space projection artifacts (defined in `LOCAL-TBD-PR-M1-001`):
+  - `artifact:foundation.tectonicHistoryTiles`
+  - `artifact:foundation.tectonicProvenanceTiles`
+- Define projection invariants (must be implemented, not implied):
+  - projections are pure functions of `{ width, height, tileToCellIndex, mesh-space truth artifacts }`
+  - projections must not re-derive a different mapping or neighbor graph (use `artifact:foundation.tileToCellIndex` as the SSOT cross-walk)
+  - wrap semantics are inherited from the mapping construction (no ad-hoc wrap logic in per-artifact projection loops)
+- Wire into the standard recipe Foundation projection step so downstream domains can require the artifacts:
+  - extend `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts` to publish the new artifacts (and optionally emit viz grids for inspection).
 
 ## Acceptance Criteria
-- Deliverables are implemented and wired into the pipeline where applicable.
-- Outputs follow the maximal SPEC contracts (no optional artifacts).
-- Any transitional bridge has an explicit deletion target (or this issue performs the deletion).
+- The artifacts exist and are publishable as declared “provides” by the Foundation projection step.
+- For each projected tile tensor, shape is exactly `width * height`, and all values are deterministic for a fixed `{ seed, env, config }`.
+- Projection correctness relies on a single mapping:
+  - changing `tileToCellIndex` changes the projections in the expected places,
+  - and no additional “nearest cell” logic exists elsewhere (one mapping, one policy).
 
 ## Testing / Verification
-- Add/extend the canonical validation suite for this change (D09r posture).
-- Verify determinism: same seed + config -> identical artifacts (stable fingerprints).
+- `bun run --cwd mods/mod-swooper-maps test`
+- Add/extend a tile-projection unit test in the existing projection test area:
+  - `mods/mod-swooper-maps/test/foundation/tile-projection-materials.test.ts` (extend pattern) to include at least one history/provenance channel.
+- Add/extend a pipeline artifact “provides” contract test:
+  - `mods/mod-swooper-maps/test/pipeline/artifacts.test.ts` (extend “fails provides when…” pattern for one new projection artifact).
 
 ## Dependencies / Notes
 - Blocked by:
@@ -40,6 +52,8 @@ related_to: []
 ### References
 - docs/projects/pipeline-realism/resources/spec/sections/history-and-provenance.md
 - docs/projects/pipeline-realism/resources/spec/sections/morphology-contract.md
+- docs/system/libs/mapgen/reference/domains/FOUNDATION.md
+- docs/system/libs/mapgen/pipeline-visualization-deckgl.md
 
 ---
 
@@ -52,3 +66,33 @@ related_to: []
 - [Acceptance Criteria](#acceptance-criteria)
 - [Testing / Verification](#testing--verification)
 - [Dependencies / Notes](#dependencies--notes)
+
+### Current State (Observed)
+
+Today’s mesh→tile projection is centralized in a single place:
+- `artifact:foundation.tileToCellIndex` is produced as part of the Foundation projection outputs.
+- The projection op `compute-plates-tensors` constructs `tileToCellIndex` and uses it to sample mesh truth into tile tensors.
+
+Ground truth anchors:
+- Projection op (mapping + sampling loop): `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts`
+- Projection step wiring: `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts`
+- Determinism + wrap/tie-breakers test: `mods/mod-swooper-maps/test/foundation/tile-projection-materials.test.ts`
+
+### Proposed Change Surface
+
+Expected implementation locations:
+- Extend the Foundation projection op to also project history/provenance tile drivers:
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/*` (extend), or introduce a sibling op if the contract would otherwise become unreasonably large.
+- Publish via the standard recipe Foundation projection step:
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts`
+- Add visualization emissions for the new tile drivers (debug visibility is fine; stable `dataTypeKey` is required):
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts` (via `context.viz?.dumpGrid(...)`)
+
+### Pitfalls / Rakes
+
+- Accidentally creating a second “tile↔mesh mapping” implementation for history/provenance, leading to silent inconsistencies across tile tensors.
+- Encoding provenance/history in tile space in a way that becomes a new truth source. These are projections and must remain derivable from mesh truth + mapping.
+
+### Wow Scenarios
+
+- **Morphology dual-read becomes meaningful:** a run can render belts from new provenance/history tile drivers and compare against legacy drivers tile-by-tile, with the only difference being the driver source (not different sampling policies).
