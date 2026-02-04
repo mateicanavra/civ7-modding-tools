@@ -14,7 +14,7 @@
 Provide a high-signal mental model for how a MapGen pipeline run works end-to-end.
 
 For contractual details, route to:
-- `docs/system/libs/mapgen/reference/REFERENCE.md`
+- [`docs/system/libs/mapgen/reference/REFERENCE.md`](/system/libs/mapgen/reference/REFERENCE.md)
 
 ## Mental model
 

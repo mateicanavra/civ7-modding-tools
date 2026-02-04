@@ -21,19 +21,19 @@ This section is the intended “source of truth” for domain boundaries and con
 
 Truth-first simulation domains:
 
-- Foundation: `docs/system/libs/mapgen/reference/domains/FOUNDATION.md`
-- Morphology: `docs/system/libs/mapgen/reference/domains/MORPHOLOGY.md`
-- Hydrology: `docs/system/libs/mapgen/reference/domains/HYDROLOGY.md`
-- Ecology: `docs/system/libs/mapgen/reference/domains/ECOLOGY.md`
+- Foundation: [`docs/system/libs/mapgen/reference/domains/FOUNDATION.md`](/system/libs/mapgen/reference/domains/FOUNDATION.md)
+- Morphology: [`docs/system/libs/mapgen/reference/domains/MORPHOLOGY.md`](/system/libs/mapgen/reference/domains/MORPHOLOGY.md)
+- Hydrology: [`docs/system/libs/mapgen/reference/domains/HYDROLOGY.md`](/system/libs/mapgen/reference/domains/HYDROLOGY.md)
+- Ecology: [`docs/system/libs/mapgen/reference/domains/ECOLOGY.md`](/system/libs/mapgen/reference/domains/ECOLOGY.md)
 
 Gameplay / engine-facing integration domain (target):
 
-- Gameplay: `docs/system/libs/mapgen/reference/domains/GAMEPLAY.md`
+- Gameplay: [`docs/system/libs/mapgen/reference/domains/GAMEPLAY.md`](/system/libs/mapgen/reference/domains/GAMEPLAY.md)
 
 Legacy domain naming (mapping only; not target-canonical domains):
 
-- Placement (legacy name for Gameplay’s placement phase): `docs/system/libs/mapgen/reference/domains/PLACEMENT.md`
-- Narrative (legacy name; absorbed into Gameplay): `docs/system/libs/mapgen/reference/domains/NARRATIVE.md`
+- Placement (legacy name for Gameplay’s placement phase): [`docs/system/libs/mapgen/reference/domains/PLACEMENT.md`](/system/libs/mapgen/reference/domains/PLACEMENT.md)
+- Narrative (legacy name; absorbed into Gameplay): [`docs/system/libs/mapgen/reference/domains/NARRATIVE.md`](/system/libs/mapgen/reference/domains/NARRATIVE.md)
 
 ## How to read these pages
 

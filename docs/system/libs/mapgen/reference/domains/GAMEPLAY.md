@@ -31,7 +31,7 @@ Authoritative scope and absorption plan lives in:
 ## Contract (current + target posture)
 
 Current (standard recipe) provides an engine-facing “placement applied” effect tag and related debug artifacts (see legacy naming page):
-- `docs/system/libs/mapgen/reference/domains/PLACEMENT.md`
+- [`docs/system/libs/mapgen/reference/domains/PLACEMENT.md`](/system/libs/mapgen/reference/domains/PLACEMENT.md)
 
 Target posture:
 - Gameplay owns the API/schema for any narrative/playability surfaces.

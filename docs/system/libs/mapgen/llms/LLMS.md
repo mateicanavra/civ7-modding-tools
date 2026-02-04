@@ -14,12 +14,12 @@ It’s meant for AI agents and tooling that need stable pointers to “the one r
 
 ## Curated entrypoints
 
-- Gateway: `docs/system/libs/mapgen/MAPGEN.md`
-- Policies: `docs/system/libs/mapgen/policies/POLICIES.md`
-- Reference: `docs/system/libs/mapgen/reference/REFERENCE.md`
-- How-to: `docs/system/libs/mapgen/how-to/HOW-TO.md`
-- Tutorials: `docs/system/libs/mapgen/tutorials/TUTORIALS.md`
-- Explanation: `docs/system/libs/mapgen/explanation/EXPLANATION.md`
+- Gateway: [`docs/system/libs/mapgen/MAPGEN.md`](/system/libs/mapgen/MAPGEN.md)
+- Policies: [`docs/system/libs/mapgen/policies/POLICIES.md`](/system/libs/mapgen/policies/POLICIES.md)
+- Reference: [`docs/system/libs/mapgen/reference/REFERENCE.md`](/system/libs/mapgen/reference/REFERENCE.md)
+- How-to: [`docs/system/libs/mapgen/how-to/HOW-TO.md`](/system/libs/mapgen/how-to/HOW-TO.md)
+- Tutorials: [`docs/system/libs/mapgen/tutorials/TUTORIALS.md`](/system/libs/mapgen/tutorials/TUTORIALS.md)
+- Explanation: [`docs/system/libs/mapgen/explanation/EXPLANATION.md`](/system/libs/mapgen/explanation/EXPLANATION.md)
 
 ## Rules for agents
 

@@ -16,9 +16,9 @@ Tune the “realism” posture of the standard recipe by changing **stage knobs*
 This is the intended **author surface** for “make the world more X” tuning.
 
 Routes to:
-- Recipe schema: `docs/system/libs/mapgen/reference/RECIPE-SCHEMA.md`
-- Config compilation: `docs/system/libs/mapgen/reference/CONFIG-COMPILATION.md`
-- Standard recipe reference: `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`
+- Recipe schema: [`docs/system/libs/mapgen/reference/RECIPE-SCHEMA.md`](/system/libs/mapgen/reference/RECIPE-SCHEMA.md)
+- Config compilation: [`docs/system/libs/mapgen/reference/CONFIG-COMPILATION.md`](/system/libs/mapgen/reference/CONFIG-COMPILATION.md)
+- Standard recipe reference: [`docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`](/system/libs/mapgen/reference/STANDARD-RECIPE.md)
 
 ## Audience
 

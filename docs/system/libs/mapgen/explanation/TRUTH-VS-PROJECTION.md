@@ -14,7 +14,7 @@
 Explain the “truth vs projection” model as a mental tool for reasoning about MapGen correctness and drift.
 
 Contract/policy lives in:
-- `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
+- [`docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`](/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md)
 
 ## Why this exists
 

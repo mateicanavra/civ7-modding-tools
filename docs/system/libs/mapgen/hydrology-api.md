@@ -13,9 +13,9 @@ It is **not** canonical documentation.
 
 ## Canonical replacements
 
-- `docs/system/libs/mapgen/reference/domains/HYDROLOGY.md`
-- `docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`
+- [`docs/system/libs/mapgen/reference/domains/HYDROLOGY.md`](/system/libs/mapgen/reference/domains/HYDROLOGY.md)
+- [`docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`](/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md)
 
 ## Legacy archive
 
-The previous contents of this page were moved to `docs/system/libs/mapgen/_archive/hydrology-api.md`.
+The previous contents of this page were moved to [`docs/system/libs/mapgen/_archive/hydrology-api.md`](/system/libs/mapgen/_archive/hydrology-api.md).

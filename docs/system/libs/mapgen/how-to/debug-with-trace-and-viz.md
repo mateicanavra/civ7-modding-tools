@@ -20,9 +20,9 @@ Enable trace + viz emissions for a run so you can debug:
 - scalar field correctness (via dumped layers + deck.gl viewer).
 
 Routes to:
-- Observability reference: `docs/system/libs/mapgen/reference/OBSERVABILITY.md`
-- Visualization reference: `docs/system/libs/mapgen/reference/VISUALIZATION.md`
-- Canonical viz doc (deck.gl): `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
+- Observability reference: [`docs/system/libs/mapgen/reference/OBSERVABILITY.md`](/system/libs/mapgen/reference/OBSERVABILITY.md)
+- Visualization reference: [`docs/system/libs/mapgen/reference/VISUALIZATION.md`](/system/libs/mapgen/reference/VISUALIZATION.md)
+- Canonical viz doc (deck.gl): [`docs/system/libs/mapgen/pipeline-visualization-deckgl.md`](/system/libs/mapgen/pipeline-visualization-deckgl.md)
 
 ## When to use
 
@@ -107,14 +107,14 @@ Use the Explore panel to:
 - choose a layer and render variant.
 
 For the full system explanation (streaming vs replay, schema, layer taxonomy), see:
-- `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
+- [`docs/system/libs/mapgen/pipeline-visualization-deckgl.md`](/system/libs/mapgen/pipeline-visualization-deckgl.md)
 
 ## Workflow: live streaming in Studio (optional)
 
 If you’re iterating on worker-side visualization behavior (Transferables, upsert semantics), prefer the live Studio run and inspect `viz.layer.upsert` events.
 
 Routing:
-- Studio integration seam reference: `docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`
+- Studio integration seam reference: [`docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`](/system/libs/mapgen/reference/STUDIO-INTEGRATION.md)
 
 ## Footguns
 

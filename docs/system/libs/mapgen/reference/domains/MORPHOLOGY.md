@@ -67,7 +67,7 @@ MORPHOLOGY is **tile-first**: its canonical “truth” products are tile-indexe
 ## Contract
 
 For the common “ops module” wiring pattern (op contracts, op envelope schemas, binding, and compile/runtime registries), see:
-- `docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`
+- [`docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`](/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md)
 
 ### Requires
 
@@ -446,7 +446,7 @@ Applies Morphology truth into the engine adapter (terrain/features), and emits e
 
 ## Open Questions
 
-0. `docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md` is referenced as the canonical ops-module contract, but is not currently present in this repo snapshot. Should it be added (and should domain docs link to it as the single source of truth for op envelope semantics)?
+0. [`docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`](/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md) is referenced as the canonical ops-module contract, but is not currently present in this repo snapshot. Should it be added (and should domain docs link to it as the single source of truth for op envelope semantics)?
 1. What is the canonical unit/datum for `morphology.topography.elevation` before (and after) engine `buildElevation`? Should the artifact schema say “normalized units * 100” rather than “meters”, or should base-topography/hypsometry be reparameterized into meters?
 2. Should `distanceToCoast` be a single canonical product? Options:
    - publish the `compute-landmask` distance field as part of `morphology.topography` (or a dedicated artifact), and remove the bespoke BFS in `rugged-coasts`; or

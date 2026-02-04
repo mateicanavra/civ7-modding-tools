@@ -13,7 +13,7 @@ Target posture: narrative/playability work is **Gameplay-owned** (Narrative is a
 
 Canonical doc:
 
-`docs/system/libs/mapgen/reference/domains/GAMEPLAY.md`
+[`docs/system/libs/mapgen/reference/domains/GAMEPLAY.md`](/system/libs/mapgen/reference/domains/GAMEPLAY.md)
 
 ## Ground truth anchors
 

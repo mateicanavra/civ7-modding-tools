@@ -22,12 +22,12 @@ Explanation pages should link down to reference/policies — not the other way a
 
 Canonical explanation pages:
 
-- System architecture + ownership boundaries: `docs/system/libs/mapgen/explanation/ARCHITECTURE.md`
-- Pipeline model (mental model): `docs/system/libs/mapgen/explanation/PIPELINE-MODEL.md`
-- Truth vs projection (rationale): `docs/system/libs/mapgen/explanation/TRUTH-VS-PROJECTION.md`
-- Pipeline compilation (why split compile phases): `docs/system/libs/mapgen/explanation/PIPELINE-COMPILATION.md`
-- Domain modeling + boundaries: `docs/system/libs/mapgen/explanation/DOMAIN-MODELING.md`
-- Determinism + reproducibility: `docs/system/libs/mapgen/explanation/DETERMINISM.md`
+- System architecture + ownership boundaries: [`docs/system/libs/mapgen/explanation/ARCHITECTURE.md`](/system/libs/mapgen/explanation/ARCHITECTURE.md)
+- Pipeline model (mental model): [`docs/system/libs/mapgen/explanation/PIPELINE-MODEL.md`](/system/libs/mapgen/explanation/PIPELINE-MODEL.md)
+- Truth vs projection (rationale): [`docs/system/libs/mapgen/explanation/TRUTH-VS-PROJECTION.md`](/system/libs/mapgen/explanation/TRUTH-VS-PROJECTION.md)
+- Pipeline compilation (why split compile phases): [`docs/system/libs/mapgen/explanation/PIPELINE-COMPILATION.md`](/system/libs/mapgen/explanation/PIPELINE-COMPILATION.md)
+- Domain modeling + boundaries: [`docs/system/libs/mapgen/explanation/DOMAIN-MODELING.md`](/system/libs/mapgen/explanation/DOMAIN-MODELING.md)
+- Determinism + reproducibility: [`docs/system/libs/mapgen/explanation/DETERMINISM.md`](/system/libs/mapgen/explanation/DETERMINISM.md)
 
 Potential future explanation pages (only if they add clarity beyond policy/reference):
 - Mutation model (artifacts vs fields/buffers) — if needed beyond policy/reference

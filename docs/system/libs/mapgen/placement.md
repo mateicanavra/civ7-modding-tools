@@ -13,8 +13,8 @@ It is **not** canonical documentation.
 
 ## Canonical replacements
 
-- `docs/system/libs/mapgen/reference/domains/PLACEMENT.md`
+- [`docs/system/libs/mapgen/reference/domains/PLACEMENT.md`](/system/libs/mapgen/reference/domains/PLACEMENT.md)
 
 ## Legacy archive
 
-The previous contents of this page were moved to `docs/system/libs/mapgen/_archive/placement.md`.
+The previous contents of this page were moved to [`docs/system/libs/mapgen/_archive/placement.md`](/system/libs/mapgen/_archive/placement.md).

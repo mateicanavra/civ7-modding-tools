@@ -12,7 +12,7 @@ Route to the single canonical deck.gl visualization doc (no duplication).
 
 ## Start here
 
-- `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
+- [`docs/system/libs/mapgen/pipeline-visualization-deckgl.md`](/system/libs/mapgen/pipeline-visualization-deckgl.md)
 
 ## Ground truth anchors
 

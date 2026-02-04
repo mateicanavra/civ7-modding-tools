@@ -11,7 +11,7 @@
 
 Canonical doc:
 
-`docs/system/libs/mapgen/reference/ENV.md`
+[`docs/system/libs/mapgen/reference/ENV.md`](/system/libs/mapgen/reference/ENV.md)
 
 ## Legacy naming
 

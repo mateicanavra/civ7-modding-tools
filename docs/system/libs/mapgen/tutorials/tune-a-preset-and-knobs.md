@@ -28,8 +28,8 @@ Learn the “author workflow” for changing map realism posture safely:
 
 - You can run Studio locally: `bun run dev:mapgen-studio`
 - You understand the schema split:
-  - `docs/system/libs/mapgen/reference/RECIPE-SCHEMA.md`
-  - `docs/system/libs/mapgen/reference/CONFIG-COMPILATION.md`
+  - [`docs/system/libs/mapgen/reference/RECIPE-SCHEMA.md`](/system/libs/mapgen/reference/RECIPE-SCHEMA.md)
+  - [`docs/system/libs/mapgen/reference/CONFIG-COMPILATION.md`](/system/libs/mapgen/reference/CONFIG-COMPILATION.md)
 
 ## Walkthrough
 

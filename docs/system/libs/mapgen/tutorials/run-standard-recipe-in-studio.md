@@ -46,7 +46,7 @@ In the Studio header:
 
 Note: `Dump` mode is for **replaying** a saved trace/viz dump; “Run” will open a folder picker instead of running a recipe.
 Replay is covered in:
-- `docs/system/libs/mapgen/how-to/debug-with-trace-and-viz.md`
+- [`docs/system/libs/mapgen/how-to/debug-with-trace-and-viz.md`](/system/libs/mapgen/how-to/debug-with-trace-and-viz.md)
 
 ### 3) Select the Standard recipe runtime
 
@@ -82,10 +82,10 @@ Today’s posture (implementation detail, but important for expectations):
 - Studio’s worker currently enables trace for **all steps** at **verbose** level (so steps that emit viz layers can be viewed).
 
 When you need deeper grounding:
-- Standard recipe reference: `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`
-- Visualization reference: `docs/system/libs/mapgen/reference/VISUALIZATION.md`
-- Studio seam reference: `docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`
-- Canonical deck.gl viz doc: `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
+- Standard recipe reference: [`docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`](/system/libs/mapgen/reference/STANDARD-RECIPE.md)
+- Visualization reference: [`docs/system/libs/mapgen/reference/VISUALIZATION.md`](/system/libs/mapgen/reference/VISUALIZATION.md)
+- Studio seam reference: [`docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`](/system/libs/mapgen/reference/STUDIO-INTEGRATION.md)
+- Canonical deck.gl viz doc: [`docs/system/libs/mapgen/pipeline-visualization-deckgl.md`](/system/libs/mapgen/pipeline-visualization-deckgl.md)
 
 ## Verification
 
@@ -97,9 +97,9 @@ When you need deeper grounding:
 
 ## Next steps
 
-- Learn how to debug with trace + viz outside Studio: `docs/system/libs/mapgen/how-to/debug-with-trace-and-viz.md`
-- Learn the reference contract model for stages/steps: `docs/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md`
-- Inspect the artifact/projection model: `docs/system/libs/mapgen/tutorials/inspect-artifacts-and-projections.md`
+- Learn how to debug with trace + viz outside Studio: [`docs/system/libs/mapgen/how-to/debug-with-trace-and-viz.md`](/system/libs/mapgen/how-to/debug-with-trace-and-viz.md)
+- Learn the reference contract model for stages/steps: [`docs/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md`](/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md)
+- Inspect the artifact/projection model: [`docs/system/libs/mapgen/tutorials/inspect-artifacts-and-projections.md`](/system/libs/mapgen/tutorials/inspect-artifacts-and-projections.md)
 
 ## Ground truth anchors
 

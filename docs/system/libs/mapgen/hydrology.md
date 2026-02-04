@@ -13,8 +13,8 @@ It is **not** canonical documentation.
 
 ## Canonical replacements
 
-- `docs/system/libs/mapgen/reference/domains/HYDROLOGY.md`
+- [`docs/system/libs/mapgen/reference/domains/HYDROLOGY.md`](/system/libs/mapgen/reference/domains/HYDROLOGY.md)
 
 ## Legacy archive
 
-The previous contents of this page were moved to `docs/system/libs/mapgen/_archive/hydrology.md`.
+The previous contents of this page were moved to [`docs/system/libs/mapgen/_archive/hydrology.md`](/system/libs/mapgen/_archive/hydrology.md).

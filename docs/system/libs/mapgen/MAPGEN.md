@@ -17,21 +17,21 @@ This doc routes you into the correct doc type (tutorial / how-to / reference / e
 
 ## Start here (choose your path)
 
-- If you want to **run MapGen end-to-end**: start in `docs/system/libs/mapgen/tutorials/TUTORIALS.md`.
-- If you want to **change or extend MapGen** (add a step/op/artifact/tag): start in `docs/system/libs/mapgen/how-to/HOW-TO.md`.
-- If you want the **exact SDK and pipeline contracts**: start in `docs/system/libs/mapgen/reference/REFERENCE.md`.
-- If you want the **why / architecture / model**: start in `docs/system/libs/mapgen/explanation/EXPLANATION.md`.
-- If you are writing docs or code and want the “rules of the road”: start in `docs/system/libs/mapgen/policies/POLICIES.md`.
-- If you are an **AI agent** and want curated pointers: start in `docs/system/libs/mapgen/llms/LLMS.md`.
+- If you want to **run MapGen end-to-end**: start in [`docs/system/libs/mapgen/tutorials/TUTORIALS.md`](/system/libs/mapgen/tutorials/TUTORIALS.md).
+- If you want to **change or extend MapGen** (add a step/op/artifact/tag): start in [`docs/system/libs/mapgen/how-to/HOW-TO.md`](/system/libs/mapgen/how-to/HOW-TO.md).
+- If you want the **exact SDK and pipeline contracts**: start in [`docs/system/libs/mapgen/reference/REFERENCE.md`](/system/libs/mapgen/reference/REFERENCE.md).
+- If you want the **why / architecture / model**: start in [`docs/system/libs/mapgen/explanation/EXPLANATION.md`](/system/libs/mapgen/explanation/EXPLANATION.md).
+- If you are writing docs or code and want the “rules of the road”: start in [`docs/system/libs/mapgen/policies/POLICIES.md`](/system/libs/mapgen/policies/POLICIES.md).
+- If you are an **AI agent** and want curated pointers: start in [`docs/system/libs/mapgen/llms/LLMS.md`](/system/libs/mapgen/llms/LLMS.md).
 
 ## Fast links
 
 Common “one hop” destinations:
 
-- Standard recipe reference: `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`
-- Domain contracts: `docs/system/libs/mapgen/reference/domains/DOMAINS.md`
-- Studio seam (reference): `docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`
-- Visualization (canonical; deck.gl): `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
+- Standard recipe reference: [`docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`](/system/libs/mapgen/reference/STANDARD-RECIPE.md)
+- Domain contracts: [`docs/system/libs/mapgen/reference/domains/DOMAINS.md`](/system/libs/mapgen/reference/domains/DOMAINS.md)
+- Studio seam (reference): [`docs/system/libs/mapgen/reference/STUDIO-INTEGRATION.md`](/system/libs/mapgen/reference/STUDIO-INTEGRATION.md)
+- Visualization (canonical; deck.gl): [`docs/system/libs/mapgen/pipeline-visualization-deckgl.md`](/system/libs/mapgen/pipeline-visualization-deckgl.md)
 
 ## Routing map (Diátaxis)
 

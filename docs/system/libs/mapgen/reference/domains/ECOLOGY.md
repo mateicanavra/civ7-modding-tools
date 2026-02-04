@@ -29,7 +29,7 @@ Truth stage:
 Projection stage:
 - `map-ecology`
 
-See: `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`.
+See: [`docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`](/system/libs/mapgen/reference/STANDARD-RECIPE.md).
 
 ## Contract (requires/provides)
 

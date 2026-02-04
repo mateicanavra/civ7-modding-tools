@@ -14,8 +14,8 @@
 Explain the canonical MapGen architecture and why it’s shaped the way it is (engine-refactor-v1 posture).
 
 This is an explanation page; it does not redefine contracts. When you need “what is allowed”, route to:
-- `docs/system/libs/mapgen/policies/POLICIES.md`
-- `docs/system/libs/mapgen/reference/REFERENCE.md`
+- [`docs/system/libs/mapgen/policies/POLICIES.md`](/system/libs/mapgen/policies/POLICIES.md)
+- [`docs/system/libs/mapgen/reference/REFERENCE.md`](/system/libs/mapgen/reference/REFERENCE.md)
 
 ## System model (what MapGen is)
 

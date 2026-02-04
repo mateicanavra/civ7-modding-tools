@@ -13,8 +13,8 @@ It is **not** canonical documentation.
 
 ## Canonical replacements
 
-- `docs/system/libs/mapgen/reference/domains/FOUNDATION.md`
+- [`docs/system/libs/mapgen/reference/domains/FOUNDATION.md`](/system/libs/mapgen/reference/domains/FOUNDATION.md)
 
 ## Legacy archive
 
-The previous contents of this page were moved to `docs/system/libs/mapgen/_archive/foundation.md`.
+The previous contents of this page were moved to [`docs/system/libs/mapgen/_archive/foundation.md`](/system/libs/mapgen/_archive/foundation.md).

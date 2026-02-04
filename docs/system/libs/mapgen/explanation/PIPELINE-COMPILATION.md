@@ -18,8 +18,8 @@ Explain why MapGen splits compilation into:
 before runtime execution.
 
 Contract reference:
-- `docs/system/libs/mapgen/reference/CONFIG-COMPILATION.md`
-- `docs/system/libs/mapgen/reference/PLAN-COMPILATION.md`
+- [`docs/system/libs/mapgen/reference/CONFIG-COMPILATION.md`](/system/libs/mapgen/reference/CONFIG-COMPILATION.md)
+- [`docs/system/libs/mapgen/reference/PLAN-COMPILATION.md`](/system/libs/mapgen/reference/PLAN-COMPILATION.md)
 
 ## Why compilation is split
 

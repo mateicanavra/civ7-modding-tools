@@ -5,13 +5,13 @@
 > **Do not treat as contract truth.** This document contains deep first-principles physics framing and candidate staging ideas, but it is not guaranteed to match the current SDK’s canonical contracts.
 >
 > **Canonical modeling references (preferred):**
-> - `docs/system/libs/mapgen/architecture.md`
-> - `docs/system/libs/mapgen/foundation.md`
-> - `docs/system/libs/mapgen/morphology.md`
-> - `docs/system/libs/mapgen/hydrology.md`
-> - `docs/system/libs/mapgen/ecology.md`
-> - `docs/system/libs/mapgen/narrative.md`
-> - `docs/system/libs/mapgen/placement.md`
+> - [`docs/system/libs/mapgen/architecture.md`](/system/libs/mapgen/architecture.md)
+> - [`docs/system/libs/mapgen/foundation.md`](/system/libs/mapgen/foundation.md)
+> - [`docs/system/libs/mapgen/morphology.md`](/system/libs/mapgen/morphology.md)
+> - [`docs/system/libs/mapgen/hydrology.md`](/system/libs/mapgen/hydrology.md)
+> - [`docs/system/libs/mapgen/ecology.md`](/system/libs/mapgen/ecology.md)
+> - [`docs/system/libs/mapgen/narrative.md`](/system/libs/mapgen/narrative.md)
+> - [`docs/system/libs/mapgen/placement.md`](/system/libs/mapgen/placement.md)
 >
 > **How to use this spike now:** mine it for “from scratch” physics insights, then rewrite the resulting target model into the canonical domain docs rather than copying proposed APIs/surfaces verbatim.
 
