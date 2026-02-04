@@ -11,7 +11,12 @@ const PlotMountainsStepContract = defineStep({
   requires: [M10_EFFECT_TAGS.map.continentsPlotted],
   provides: [M10_EFFECT_TAGS.map.mountainsPlotted],
   artifacts: {
-    requires: [foundationArtifacts.plates, morphologyArtifacts.topography],
+    requires: [
+      foundationArtifacts.plates,
+      foundationArtifacts.tectonicHistoryTiles,
+      foundationArtifacts.tectonicProvenanceTiles,
+      morphologyArtifacts.topography,
+    ],
     provides: [],
   },
   ops: {
