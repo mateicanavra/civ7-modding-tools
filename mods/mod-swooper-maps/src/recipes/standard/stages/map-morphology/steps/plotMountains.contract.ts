@@ -2,7 +2,6 @@ import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import morphology from "@mapgen/domain/morphology";
 
 import { M10_EFFECT_TAGS } from "../../../tags.js";
-import { foundationArtifacts } from "../../foundation/artifacts.js";
 import { morphologyArtifacts } from "../../morphology/artifacts.js";
 
 const PlotMountainsStepContract = defineStep({
@@ -11,7 +10,7 @@ const PlotMountainsStepContract = defineStep({
   requires: [M10_EFFECT_TAGS.map.continentsPlotted],
   provides: [M10_EFFECT_TAGS.map.mountainsPlotted],
   artifacts: {
-    requires: [foundationArtifacts.tectonicHistoryTiles, foundationArtifacts.tectonicProvenanceTiles, morphologyArtifacts.topography],
+    requires: [morphologyArtifacts.beltDrivers, morphologyArtifacts.topography],
     provides: [],
   },
   ops: {

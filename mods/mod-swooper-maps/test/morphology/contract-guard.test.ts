@@ -3,8 +3,10 @@ import { describe, expect, it } from "bun:test";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
+import LandmassPlatesStepContract from "../../src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.js";
 import PlotMountainsStepContract from "../../src/recipes/standard/stages/map-morphology/steps/plotMountains.contract.js";
 import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
+import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 
 function listFilesRecursive(rootDir: string): string[] {
   const out: string[] = [];
@@ -248,13 +250,30 @@ describe("morphology contract guardrails", () => {
     }
   });
 
-  it("requires history/provenance tiles for belt synthesis and drops legacy plates dependency", () => {
-    const requires = PlotMountainsStepContract.artifacts?.requires ?? [];
-    const requiredIds = requires.map((artifact: any) => (typeof artifact === "string" ? artifact : artifact.id));
+  it("synthesizes belt drivers in morphology-coasts and consumes them downstream (no legacy plates)", () => {
+    const landmassRequires = LandmassPlatesStepContract.artifacts?.requires ?? [];
+    const landmassRequiredIds = landmassRequires.map((artifact: any) =>
+      typeof artifact === "string" ? artifact : artifact.id
+    );
+    expect(landmassRequiredIds).toContain(foundationArtifacts.crustTiles.id);
+    expect(landmassRequiredIds).toContain(foundationArtifacts.tectonicHistoryTiles.id);
+    expect(landmassRequiredIds).toContain(foundationArtifacts.tectonicProvenanceTiles.id);
+    expect(landmassRequiredIds).not.toContain(foundationArtifacts.plates.id);
 
-    expect(requiredIds).toContain(foundationArtifacts.tectonicHistoryTiles.id);
-    expect(requiredIds).toContain(foundationArtifacts.tectonicProvenanceTiles.id);
-    expect(requiredIds).not.toContain(foundationArtifacts.plates.id);
+    const landmassProvides = LandmassPlatesStepContract.artifacts?.provides ?? [];
+    const landmassProvidedIds = landmassProvides.map((artifact: any) =>
+      typeof artifact === "string" ? artifact : artifact.id
+    );
+    expect(landmassProvidedIds).toContain(morphologyArtifacts.beltDrivers.id);
+
+    const mountainsRequires = PlotMountainsStepContract.artifacts?.requires ?? [];
+    const mountainRequiredIds = mountainsRequires.map((artifact: any) =>
+      typeof artifact === "string" ? artifact : artifact.id
+    );
+    expect(mountainRequiredIds).toContain(morphologyArtifacts.beltDrivers.id);
+    expect(mountainRequiredIds).not.toContain(foundationArtifacts.tectonicHistoryTiles.id);
+    expect(mountainRequiredIds).not.toContain(foundationArtifacts.tectonicProvenanceTiles.id);
+    expect(mountainRequiredIds).not.toContain(foundationArtifacts.plates.id);
   });
 
   it("plotMountains does not reference legacy plate drivers", () => {
