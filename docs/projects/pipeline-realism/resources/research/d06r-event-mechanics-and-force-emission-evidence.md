@@ -21,11 +21,11 @@
 ## Pointers (Morphology Consumers of Force Fields)
 
 - Base landmass/topography coupling:
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-pre/steps/landmassPlates.ts` (consumes `upliftPotential`, `riftPotential`, `boundaryType`, `boundaryCloseness`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.ts` (consumes `upliftPotential`, `riftPotential`, `boundaryType`, `boundaryCloseness`)
 - Volcano planning coupling:
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-post/steps/volcanoes.ts` (consumes `volcanism`, `boundaryType`, `boundaryCloseness`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/volcanoes.ts` (consumes `volcanism`, `boundaryType`, `boundaryCloseness`)
 - Coastline ruggedness coupling:
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/steps/ruggedCoasts.ts` (consumes `boundaryType`, `boundaryCloseness`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/ruggedCoasts.ts` (consumes `boundaryType`, `boundaryCloseness`)
 
 ## Pointers (Maximal Posture Dependencies)
 

@@ -13,7 +13,7 @@
 ## Pointers (Morphology contract + consumption)
 
 - `docs/system/libs/mapgen/reference/domains/MORPHOLOGY.md` (requires `foundation.plates` + `foundation.crustTiles`; tile-first truth)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-pre/steps/landmassPlates.contract.ts` (current recipe wiring)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts` (current recipe wiring)
 
 ## Pointers (Era + provenance posture)
 
@@ -28,7 +28,7 @@ A Morphology-first contract that **requires era projections + provenance/tracer 
 
 - Era fields + rollups: `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts`
 - Segment topology: `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/contract.ts`
-- Current consumption: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-pre/steps/landmassPlates.contract.ts`
+- Current consumption: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts`
 - Validation guard: `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/validation.ts` (`eraCount !== 3`)
 
 ## Observability hooks already present

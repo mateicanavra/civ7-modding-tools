@@ -91,7 +91,7 @@ Let `N = eraCount`, `age(e) = (N - 1 - e)` where `e = N-1` is newest. All weight
 
 - Foundation truth + projections: `docs/system/libs/mapgen/reference/domains/FOUNDATION.md`
 - Morphology contract (tile-first): `docs/system/libs/mapgen/reference/domains/MORPHOLOGY.md`
-- Current consumption path: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-pre/steps/landmassPlates.contract.ts` (requires `foundation.plates`, `foundation.crustTiles`); `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-pre/steps/landmassPlates.ts` (consumes tile drivers)
+- Current consumption path: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts` (requires `foundation.plates`, `foundation.crustTiles`); `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.ts` (consumes tile drivers)
 - Era history source: `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts` (era fields + rollups); `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/contract.ts` (segment topology for belt seeds)
 
 ## Diagram (Flow)

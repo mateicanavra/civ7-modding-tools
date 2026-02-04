@@ -16,9 +16,9 @@ Do we require **event semantics** (typed tectonic events with explicit state/pro
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts` (segment intensities + polarity + drift)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts` (era fields from segment seeds + diffusion)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts` (tile projection uses tectonics fields)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-pre/steps/landmassPlates.ts` (consumes `upliftPotential`, `riftPotential`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-post/steps/volcanoes.ts` (consumes `volcanism`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/steps/ruggedCoasts.ts` (consumes boundary regime + closeness)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.ts` (consumes `upliftPotential`, `riftPotential`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/volcanoes.ts` (consumes `volcanism`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/ruggedCoasts.ts` (consumes boundary regime + closeness)
 
 ## Why This Is Ambiguous
 
