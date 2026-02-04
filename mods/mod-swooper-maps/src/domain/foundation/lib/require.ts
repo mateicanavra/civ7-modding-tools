@@ -48,6 +48,18 @@ export function requireCrust(crust: FoundationCrust | undefined, cellCount: numb
   if (!(crust.type instanceof Uint8Array) || crust.type.length !== cellCount) {
     throw new Error(`[Foundation] Invalid crust.type for ${scope}.`);
   }
+  if (!(crust.maturity instanceof Float32Array) || crust.maturity.length !== cellCount) {
+    throw new Error(`[Foundation] Invalid crust.maturity for ${scope}.`);
+  }
+  if (!(crust.thickness instanceof Float32Array) || crust.thickness.length !== cellCount) {
+    throw new Error(`[Foundation] Invalid crust.thickness for ${scope}.`);
+  }
+  if (!(crust.thermalAge instanceof Uint8Array) || crust.thermalAge.length !== cellCount) {
+    throw new Error(`[Foundation] Invalid crust.thermalAge for ${scope}.`);
+  }
+  if (!(crust.damage instanceof Uint8Array) || crust.damage.length !== cellCount) {
+    throw new Error(`[Foundation] Invalid crust.damage for ${scope}.`);
+  }
   if (!(crust.age instanceof Uint8Array) || crust.age.length !== cellCount) {
     throw new Error(`[Foundation] Invalid crust.age for ${scope}.`);
   }
