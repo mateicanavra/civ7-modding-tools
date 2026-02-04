@@ -12,7 +12,7 @@ export const MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA: Readonly<
 > = {
   "land-heavy": -7,
   earthlike: 0,
-  "water-heavy": 7,
+  "water-heavy": 15,
 };
 
 export const MORPHOLOGY_EROSION_RATE_MULTIPLIER: Readonly<Record<MorphologyErosionKnob, number>> =

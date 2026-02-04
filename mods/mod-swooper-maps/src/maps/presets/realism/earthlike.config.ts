@@ -17,7 +17,7 @@ export const realismEarthlikeConfig: StandardRecipeConfig = {
     },
     knobs: { plateCount: 28, plateActivity: 0.5 },
   },
-  "morphology-coasts": { knobs: { seaLevel: "earthlike", coastRuggedness: "normal", shelfWidth: "normal" } },
+  "morphology-coasts": { knobs: { seaLevel: "water-heavy", coastRuggedness: "normal", shelfWidth: "narrow" } },
   "morphology-erosion": { knobs: { erosion: "normal" } },
   "morphology-features": { knobs: { volcanism: "normal" } },
   "hydrology-climate-baseline": {
