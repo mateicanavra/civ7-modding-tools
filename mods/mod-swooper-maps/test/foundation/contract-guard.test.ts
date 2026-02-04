@@ -11,6 +11,7 @@ import {
   FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG,
 } from "@swooper/mapgen-core";
 import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
+import ProjectionStepContract from "../../src/recipes/standard/stages/foundation/steps/projection.contract.js";
 
 function listFilesRecursive(rootDir: string): string[] {
   const out: string[] = [];
@@ -118,5 +119,11 @@ describe("foundation contract guardrails", () => {
     expect(foundationArtifacts.tectonicProvenanceTiles.id).toBe(
       FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG
     );
+  });
+
+  it("requires tectonic provenance before projection", () => {
+    const requires = ProjectionStepContract.artifacts?.requires ?? [];
+    const requiredIds = requires.map((artifact: any) => (typeof artifact === "string" ? artifact : artifact.id));
+    expect(requiredIds).toContain(foundationArtifacts.tectonicProvenance.id);
   });
 });
