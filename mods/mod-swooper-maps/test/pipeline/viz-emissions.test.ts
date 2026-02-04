@@ -68,6 +68,17 @@ describe("standard pipeline viz emissions", () => {
       "foundation.history.upliftTotal",
       "foundation.history.lastActiveEra",
       "foundation.provenance.originEra",
+      "morphology.dualRead.legacy.boundaryType",
+      "morphology.dualRead.history.boundaryType",
+      "morphology.dualRead.delta.boundaryType",
+      "morphology.dualRead.legacy.upliftPotential",
+      "morphology.dualRead.history.upliftPotential",
+      "morphology.dualRead.delta.upliftPotential",
+      "morphology.dualRead.legacy.riftPotential",
+      "morphology.dualRead.history.riftPotential",
+      "morphology.dualRead.delta.riftPotential",
+      "morphology.dualRead.provenance.originEra",
+      "morphology.dualRead.provenance.lastBoundaryType",
       "morphology.topography.elevation",
       "morphology.coastlineMetrics.shelfMask",
       "morphology.shelf.capTiles",
@@ -167,6 +178,9 @@ describe("standard pipeline viz emissions", () => {
 
     const provenanceOriginMetas = metasByKey.get("foundation.provenance.originEra") as any[] | undefined;
     expect(provenanceOriginMetas?.some((m) => m?.visibility === "debug")).toBe(true);
+
+    const dualReadDeltaMetas = metasByKey.get("morphology.dualRead.delta.boundaryType") as any[] | undefined;
+    expect(dualReadDeltaMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
     const crustTypeMetas = metasByKey.get("foundation.crustTiles.type") as any[] | undefined;
     expect(crustTypeMetas?.some((m) => m?.visibility === "default")).toBe(true);
