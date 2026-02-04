@@ -151,8 +151,9 @@ steps:
     status: done
 
   - slice: 7
-    branch: "TBD"
+    branch: "agent-URSULA-M1-LOCAL-TBD-PR-M1-033-testing-verification-suite"
     title: "testing pass: build/check/lint/deploy + targeted tests"
+    status: done
 
   - slice: 8
     branch: "TBD"
