@@ -81,8 +81,8 @@ export default createMap({
     },
     },
   },
-  "morphology-pre": {
-    advanced: {
+  "morphology-coasts": {
+    "advanced": {
     "landmass-plates": {
       substrate: {
         strategy: "default",
@@ -156,10 +156,6 @@ export default createMap({
         },
       },
     },
-    },
-  },
-  "morphology-mid": {
-    advanced: {
     "rugged-coasts": {
       coastlines: {
         strategy: "default",
@@ -192,12 +188,20 @@ export default createMap({
         },
       },
     },
+    }
+  },
+  "morphology-routing": {
+    "advanced": {
     routing: {
       routing: {
         strategy: "default",
         config: {},
       },
     },
+    }
+  },
+  "morphology-erosion": {
+    "advanced": {
     geomorphology: {
       geomorphology: {
         strategy: "default",
@@ -221,10 +225,10 @@ export default createMap({
         },
       },
     },
-    },
+    }
   },
-  "morphology-post": {
-    advanced: {
+  "morphology-features": {
+    "advanced": {
     islands: {
       islands: {
         strategy: "default",
@@ -269,7 +273,7 @@ export default createMap({
         config: {},
       },
     },
-    },
+    }
   },
   "map-morphology": {
     mountains: {

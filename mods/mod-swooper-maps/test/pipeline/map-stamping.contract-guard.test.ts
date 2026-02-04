@@ -25,9 +25,10 @@ describe("map stamping contract guardrails", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const roots = [
       path.join(repoRoot, "src/recipes/standard/stages/foundation"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-pre"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-mid"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-post"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-coasts"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-routing"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-erosion"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-features"),
       path.join(repoRoot, "src/recipes/standard/stages/hydrology-climate-baseline"),
       path.join(repoRoot, "src/recipes/standard/stages/hydrology-hydrography"),
       path.join(repoRoot, "src/recipes/standard/stages/hydrology-climate-refine"),
@@ -80,9 +81,10 @@ describe("map stamping contract guardrails", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const physicsRoots = [
       path.join(repoRoot, "src/recipes/standard/stages/foundation"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-pre"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-mid"),
-      path.join(repoRoot, "src/recipes/standard/stages/morphology-post"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-coasts"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-routing"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-erosion"),
+      path.join(repoRoot, "src/recipes/standard/stages/morphology-features"),
       path.join(repoRoot, "src/recipes/standard/stages/hydrology-climate-baseline"),
       path.join(repoRoot, "src/recipes/standard/stages/hydrology-hydrography"),
       path.join(repoRoot, "src/recipes/standard/stages/hydrology-climate-refine"),

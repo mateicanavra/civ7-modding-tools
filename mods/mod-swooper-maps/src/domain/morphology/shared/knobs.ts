@@ -7,7 +7,7 @@ import { Type, type Static } from "@swooper/mapgen-core/authoring";
  * - Sea level posture controlling global water coverage bias.
  *
  * Stage scope:
- * - Used by `morphology-pre` stage only.
+ * - Used by `morphology-coasts` stage only.
  *
  * Description:
  * - Sea level posture (land-heavy/earthlike/water-heavy). Applies as a deterministic delta to hypsometry targets (targetWaterPercent).
@@ -30,7 +30,7 @@ export type MorphologySeaLevelKnob = Static<typeof MorphologySeaLevelKnobSchema>
  * - Erosion strength posture controlling the overall intensity of geomorphic change.
  *
  * Stage scope:
- * - Used by `morphology-mid` stage only.
+ * - Used by `morphology-erosion` stage only.
  *
  * Description:
  * - Erosion posture (low/normal/high). Applies as a deterministic multiplier over geomorphology rates (no presence-gating).
@@ -53,7 +53,7 @@ export type MorphologyErosionKnob = Static<typeof MorphologyErosionKnobSchema>;
  * - Coastline carving posture for bays/fjords and plate-bias weights.
  *
  * Stage scope:
- * - Used by `morphology-mid` stage only.
+ * - Used by `morphology-coasts` stage only.
  *
  * Description:
  * - Coastline ruggedness posture (smooth/normal/rugged). Applies as deterministic multipliers over bay/fjord carving parameters.
@@ -76,7 +76,7 @@ export type MorphologyCoastRuggednessKnob = Static<typeof MorphologyCoastRuggedn
  * - Shelf width posture controlling how wide the shallow-water band can extend from shore.
  *
  * Stage scope:
- * - Used by `morphology-mid` stage only.
+ * - Used by `morphology-coasts` stage only.
  *
  * Description:
  * - Shelf width posture (narrow/normal/wide). Applies as deterministic multipliers over shelf classifier distance caps.
@@ -99,7 +99,7 @@ export type MorphologyShelfWidthKnob = Static<typeof MorphologyShelfWidthKnobSch
  * - Volcanism intensity posture controlling how frequently volcanoes are planned.
  *
  * Stage scope:
- * - Used by `morphology-post` stage only.
+ * - Used by `morphology-features` stage only.
  *
  * Description:
  * - Volcanism posture (low/normal/high). Applies as deterministic transforms over volcano plan weights/density.
