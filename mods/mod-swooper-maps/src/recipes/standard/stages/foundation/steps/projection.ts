@@ -329,48 +329,48 @@ export default createStep(ProjectionStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.tectonicHistoryTiles.upliftTotal",
+      dataTypeKey: "foundation.history.upliftTotal",
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: platesResult.tectonicHistoryTiles.rollups.upliftTotal,
-      meta: defineVizMeta("foundation.tectonicHistoryTiles.upliftTotal", {
+      meta: defineVizMeta("foundation.history.upliftTotal", {
         label: "History Uplift Total",
         group: GROUP_TECTONIC_HISTORY_TILES,
         visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.tectonicHistoryTiles.lastActiveEra",
+      dataTypeKey: "foundation.history.lastActiveEra",
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: platesResult.tectonicHistoryTiles.rollups.lastActiveEra,
-      meta: defineVizMeta("foundation.tectonicHistoryTiles.lastActiveEra", {
+      meta: defineVizMeta("foundation.history.lastActiveEra", {
         label: "History Last Active Era",
         group: GROUP_TECTONIC_HISTORY_TILES,
         visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.tectonicProvenanceTiles.originEra",
+      dataTypeKey: "foundation.provenance.originEra",
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: platesResult.tectonicProvenanceTiles.originEra,
-      meta: defineVizMeta("foundation.tectonicProvenanceTiles.originEra", {
+      meta: defineVizMeta("foundation.provenance.originEra", {
         label: "Provenance Origin Era",
         group: GROUP_TECTONIC_PROVENANCE_TILES,
         visibility: "debug",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "foundation.tectonicProvenanceTiles.lastBoundaryType",
+      dataTypeKey: "foundation.provenance.lastBoundaryType",
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: platesResult.tectonicProvenanceTiles.lastBoundaryType,
-      meta: defineVizMeta("foundation.tectonicProvenanceTiles.lastBoundaryType", {
+      meta: defineVizMeta("foundation.provenance.lastBoundaryType", {
         label: "Provenance Last Boundary Type",
         group: GROUP_TECTONIC_PROVENANCE_TILES,
         visibility: "debug",
