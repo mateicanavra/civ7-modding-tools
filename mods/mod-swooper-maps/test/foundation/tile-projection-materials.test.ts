@@ -38,6 +38,21 @@ describe("foundation tile projection (materials)", () => {
       ],
     } as const;
 
+    const plateMotion = {
+      version: 1,
+      cellCount: 4,
+      plateCount: 1,
+      plateCenterX: new Float32Array([0]),
+      plateCenterY: new Float32Array([0]),
+      plateVelocityX: new Float32Array([0]),
+      plateVelocityY: new Float32Array([0]),
+      plateOmega: new Float32Array([0]),
+      plateFitRms: new Float32Array([0]),
+      plateFitP90: new Float32Array([0]),
+      plateQuality: new Uint8Array([0]),
+      cellFitError: new Uint8Array(4),
+    } as const;
+
     const tectonics = {
       boundaryType: new Uint8Array(4),
       upliftPotential: new Uint8Array(4),
@@ -98,6 +113,7 @@ describe("foundation tile projection (materials)", () => {
         mesh: mesh as any,
         crust: crust as any,
         plateGraph: plateGraph as any,
+        plateMotion: plateMotion as any,
         tectonics: tectonics as any,
         tectonicHistory: tectonicHistory as any,
         tectonicProvenance: tectonicProvenance as any,
@@ -112,6 +128,7 @@ describe("foundation tile projection (materials)", () => {
         mesh: mesh as any,
         crust: crust as any,
         plateGraph: plateGraph as any,
+        plateMotion: plateMotion as any,
         tectonics: tectonics as any,
         tectonicHistory: tectonicHistory as any,
         tectonicProvenance: tectonicProvenance as any,
