@@ -556,61 +556,61 @@
         "strategy": "default",
         "config": {
           "temperature": {
-            "equator": 34,
-            "pole": -22,
-            "lapseRate": 7.5,
+            "equator": 31,
+            "pole": -10,
+            "lapseRate": 6.7,
             "seaLevel": 0,
-            "bias": 0.5,
-            "polarCutoff": -6,
-            "tundraCutoff": -1,
-            "midLatitude": 10,
-            "tropicalThreshold": 18
+            "bias": 1,
+            "polarCutoff": -5,
+            "tundraCutoff": 1,
+            "midLatitude": 12,
+            "tropicalThreshold": 24
           },
           "moisture": {
             "thresholds": [
-              100,
-              130,
-              150,
-              180
+              70,
+              95,
+              135,
+              185
             ],
-            "bias": -15,
-            "humidityWeight": 0.42
+            "bias": 0,
+            "humidityWeight": 0.35
           },
           "aridity": {
             "temperatureMin": 0,
-            "temperatureMax": 37,
-            "petBase": 19,
-            "petTemperatureWeight": 180,
-            "humidityDampening": 0.18,
-            "rainfallWeight": 1.8,
-            "bias": 1,
-            "normalization": 80,
+            "temperatureMax": 35,
+            "petBase": 20,
+            "petTemperatureWeight": 90,
+            "humidityDampening": 0.5,
+            "rainfallWeight": 1.2,
+            "bias": 2,
+            "normalization": 120,
             "moistureShiftThresholds": [
-              0.38,
-              0.4
+              0.4,
+              0.6
             ],
-            "vegetationPenalty": 0
+            "vegetationPenalty": 0.18
           },
           "freeze": {
-            "minTemperature": -10,
-            "maxTemperature": 3
+            "minTemperature": -12,
+            "maxTemperature": 2
           },
           "vegetation": {
-            "base": 0.72,
-            "moistureWeight": 0.88,
-            "humidityWeight": 0.32,
-            "moistureNormalizationPadding": 45,
+            "base": 0.3,
+            "moistureWeight": 0.6,
+            "humidityWeight": 0.3,
+            "moistureNormalizationPadding": 60,
             "biomeModifiers": {
               "snow": {
-                "multiplier": 3.2,
-                "bonus": 0.3
+                "multiplier": 0.6,
+                "bonus": 0
               },
               "tundra": {
-                "multiplier": 0.55,
+                "multiplier": 0.5,
                 "bonus": 0
               },
               "boreal": {
-                "multiplier": 0.9,
+                "multiplier": 0.85,
                 "bonus": 0
               },
               "temperateDry": {
@@ -626,23 +626,23 @@
                 "bonus": 0
               },
               "tropicalRainforest": {
-                "multiplier": 5,
-                "bonus": 1.2
+                "multiplier": 1,
+                "bonus": 0.25
               },
               "desert": {
-                "multiplier": 5,
-                "bonus": 0.25
+                "multiplier": 0.12,
+                "bonus": 0
               }
             }
           },
           "noise": {
-            "amplitude": 0.028,
+            "amplitude": 0.04,
             "seed": 53337
           },
           "riparian": {
             "adjacencyRadius": 1,
-            "minorRiverMoistureBonus": 4,
-            "majorRiverMoistureBonus": 8
+            "minorRiverMoistureBonus": 6,
+            "majorRiverMoistureBonus": 12
           }
         }
       }
@@ -660,32 +660,32 @@
       "vegetation": {
         "strategy": "clustered",
         "config": {
-          "baseDensity": 0.35,
-          "fertilityWeight": 0.55,
-          "moistureWeight": 0.6,
-          "moistureNormalization": 230,
-          "coldCutoff": -10
+          "baseDensity": 0.42,
+          "fertilityWeight": 0.6,
+          "moistureWeight": 0.7,
+          "moistureNormalization": 200,
+          "coldCutoff": -8
         }
       },
       "wetlands": {
         "strategy": "delta-focused",
         "config": {
-          "moistureThreshold": 0.93,
-          "fertilityThreshold": 0.35,
-          "moistureNormalization": 230,
+          "moistureThreshold": 0.88,
+          "fertilityThreshold": 0.33,
+          "moistureNormalization": 200,
           "maxElevation": 1200
         }
       },
       "wetFeaturePlacements": {
         "strategy": "default",
         "config": {
-          "multiplier": 0.35,
+          "multiplier": 0.5,
           "chances": {
-            "FEATURE_MARSH": 0,
-            "FEATURE_TUNDRA_BOG": 20,
-            "FEATURE_MANGROVE": 30,
-            "FEATURE_OASIS": 40,
-            "FEATURE_WATERING_HOLE": 20
+            "FEATURE_MARSH": 20,
+            "FEATURE_TUNDRA_BOG": 18,
+            "FEATURE_MANGROVE": 32,
+            "FEATURE_OASIS": 30,
+            "FEATURE_WATERING_HOLE": 18
           },
           "rules": {
             "nearRiverRadius": 2,
@@ -697,6 +697,7 @@
             ],
             "mangroveWarmTemperatureMin": 20,
             "mangroveWarmBiomeSymbols": [
+              "tropicalSeasonal",
               "tropicalRainforest"
             ],
             "coastalAdjacencyRadius": 1,
@@ -712,8 +713,8 @@
       "reefs": {
         "strategy": "default",
         "config": {
-          "warmThreshold": 12,
-          "density": 0.35
+          "warmThreshold": 10,
+          "density": 0.45
         }
       },
       "ice": {
@@ -840,11 +841,11 @@
               "typeName": "PLOTEFFECT_SAND"
             },
             "chance": 32,
-            "minAridity": 0.48,
+            "minAridity": 0.42,
             "minTemperature": 14,
             "maxFreeze": 0.3,
-            "maxVegetation": 0.2,
-            "maxMoisture": 85,
+            "maxVegetation": 0.25,
+            "maxMoisture": 95,
             "allowedBiomes": [
               "desert",
               "temperateDry"
@@ -855,8 +856,8 @@
             "selector": {
               "typeName": "PLOTEFFECT_BURNED"
             },
-            "chance": 5,
-            "minAridity": 0.48,
+            "chance": 6,
+            "minAridity": 0.45,
             "minTemperature": 21,
             "maxFreeze": 0.22,
             "maxVegetation": 0.27,
