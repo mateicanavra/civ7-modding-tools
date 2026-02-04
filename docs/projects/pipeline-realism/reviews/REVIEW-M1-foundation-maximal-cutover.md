@@ -251,3 +251,30 @@ reviewer: AI agent
 
 ### Cross-cutting Risks
 - If we only validate the reconstructed plan, downstream morphology changes can drift without tripping the physics-alignment gates.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-021-studio-authoring-physics-input-controls-causal-overlays-no-v
+
+### Quick Take
+- Studio now exposes a dedicated “Foundation (Physics Inputs)” panel backed by the recipe schema, keeping authoring confined to D08r inputs; schema guard tests enforce that derived keys (velocity/belt/regime) are absent.
+- “Causality spine” layer shortcuts were added to ExplorePanel, letting authors jump to canonical `dataTypeKey` layers without adding correctness logic to the viewer.
+
+### High-Leverage Issues
+- `CAUSAL_LAYER_SHORTCUTS` is hard-coded in `App.tsx`, tightly coupling Studio to pipeline-specific keys. This breaks the Studio-agnostic boundary and will drift when other recipes or key taxonomies evolve.
+- The Foundation authoring panel is hardwired into `RecipePanel` instead of using a generic “stage authoring” mechanism, which sets a precedent for domain-specific UI in a supposed agnostic shell.
+- `FoundationAuthoringPanel`’s schema lookup skips `allOf`/`$ref` traversal; if schema structure changes, the panel will silently degrade to “schema unavailable.”
+
+### PR Comment Context
+- No actionable review comments; Graphite/Railway bot notices only.
+
+### Fix Now (Recommended)
+- Add `aria-label`s for icon-only buttons and replace click-only `<div>` overlays with accessible buttons or keyboard handlers (per Web Interface Guidelines).
+- Move causal shortcut definitions into recipe UI meta (or a shared config file) so Studio doesn’t hardcode pipeline keys.
+
+### Defer / Follow-up
+- Consider a generic “stage authoring panel” registry keyed by recipe metadata to avoid future Foundation-only UI accretion.
+
+### Needs Discussion
+- Is it acceptable for Studio to ship with hard-coded D08r/D09r shortcuts, or should all shortcuts be recipe-defined?
+
+### Cross-cutting Risks
+- Hard-coded UI shortcuts and domain panels will force Studio updates for every taxonomy change, undermining the intended agnostic boundary.

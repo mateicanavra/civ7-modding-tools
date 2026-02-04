@@ -112,7 +112,7 @@ These 25 issue docs are the **canonical milestone checklist**. Do not duplicate 
 >>>>>>> 74ac52a96 (docs(review): record review for PR-M1-020)
 
 ### Studio / Viz / Tuning (Cross-cutting)
-- [x] [`LOCAL-TBD-PR-M1-021`](../issues/LOCAL-TBD-PR-M1-021-studio-authoring-physics-input-controls-causal-overlays-no-v.md) Studio authoring: physics-input controls + causal overlays (no velocity hacks) — branch: `agent-URSULA-M1-LOCAL-TBD-PR-M1-021-studio-authoring-physics-input-controls-causal-overlays-no-v`; PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1093
+- [x] [`LOCAL-TBD-PR-M1-021`](../issues/LOCAL-TBD-PR-M1-021-studio-authoring-physics-input-controls-causal-overlays-no-v.md) Studio authoring: physics-input controls + causal overlays (no velocity hacks) — branch: `agent-URSULA-M1-LOCAL-TBD-PR-M1-021-studio-authoring-physics-input-controls-causal-overlays-no-v`; PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1093; review: `agent-BURAKA-LOCAL-TBD-PR-M1-021-review-studio-authoring-physics-input-controls-causal-overlays-no-v` (PR: pending)
 - [ ] [`LOCAL-TBD-PR-M1-022`](../issues/LOCAL-TBD-PR-M1-022-visualization-refinement-debug-vs-refined-layer-sets-era-scr.md) Visualization refinement: debug vs refined layer sets + era scrubber + correlation overlays
 
 ### Cleanup (No Legacy Left)
