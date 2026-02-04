@@ -475,7 +475,9 @@ export function validateTectonicHistoryArtifact(value: unknown): void {
   };
 
   const eraCount = typeof history.eraCount === "number" ? (history.eraCount | 0) : -1;
-  if (eraCount !== 3) {
+  const minEraCount = 5;
+  const maxEraCount = 8;
+  if (eraCount < minEraCount || eraCount > maxEraCount) {
     throw new Error("[FoundationArtifact] Invalid foundation tectonicHistory.eraCount.");
   }
   if (!Array.isArray(history.eras) || history.eras.length !== eraCount) {
