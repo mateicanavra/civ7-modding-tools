@@ -1,0 +1,56 @@
+id: LOCAL-TBD-PR-M1-023
++title: Delete legacy plate motion + legacy tectonics truth publication
++state: planned
++priority: 2
++estimate: 8
++project: pipeline-realism
++milestone: M1-foundation-maximal-cutover
++assignees: [codex]
++labels: [pipeline-realism]
++parent: null
++children: []
++blocked_by: [LOCAL-TBD-PR-M1-017, LOCAL-TBD-PR-M1-018, LOCAL-TBD-PR-M1-012]
++blocked: []
++related_to: []
++---
++
++<!-- SECTION SCOPE [SYNC] -->
++## TL;DR
++- Remove legacy plate motion generation and any legacy authoritative tectonics semantics.
++
++## Deliverables
++- Remove legacy plate motion generation and any legacy authoritative tectonics semantics.
+- Ensure any remaining legacy outputs are explicitly derived from maximal truth (if temporarily required).
++
++## Acceptance Criteria
++- Deliverables are implemented and wired into the pipeline where applicable.
++- Outputs follow the maximal SPEC contracts (no optional artifacts).
++- Any transitional bridge has an explicit deletion target (or this issue performs the deletion).
++
++## Testing / Verification
++- Add/extend the canonical validation suite for this change (D09r posture).
++- Verify determinism: same seed + config -> identical artifacts (stable fingerprints).
++
++## Dependencies / Notes
++- Blocked by:
+  - `LOCAL-TBD-PR-M1-017`
+  - `LOCAL-TBD-PR-M1-018`
+  - `LOCAL-TBD-PR-M1-012`
+- Related:
+  - (none)
++
++### References
++- docs/projects/pipeline-realism/resources/spec/migration-slices/slice-02-cutover-foundation-maximal.md
++
++---
++
++<!-- SECTION IMPLEMENTATION [NOSYNC] -->
++## Implementation Details (Local Only)
++
++### Quick Navigation
++- [TL;DR](#tldr)
++- [Deliverables](#deliverables)
++- [Acceptance Criteria](#acceptance-criteria)
++- [Testing / Verification](#testing--verification)
++- [Dependencies / Notes](#dependencies--notes)
++
