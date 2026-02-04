@@ -56,11 +56,11 @@ MORPHOLOGY is **tile-first**: its canonical “truth” products are tile-indexe
 “Map projection” steps (in `map-morphology`) apply Morphology truth into the engine adapter’s terrain/feature fields and are guarded by **no-water-drift** invariants: the engine surface must remain consistent with Morphology’s land/water truth.
 
 **Invariants**
-- **Projections must not drift land/water classification.** After calling engine-facing helpers (`expandCoasts`, `stampContinents`, `buildElevation`), the adapter’s `isWater(x,y)` must still match Morphology `topography.landMask`.
+- **Projections must not drift land/water classification.** After calling engine-facing helpers (`stampContinents`, `buildElevation`, or any engine-side terrain fixups), the adapter's `isWater(x,y)` must still match Morphology `topography.landMask`.
 
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/assertions.ts` (`assertNoWaterDrift`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotCoasts.ts` (`context.adapter.expandCoasts`, `assertNoWaterDrift`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotCoasts.ts` (stamps `TERRAIN_COAST` from `coastlineMetrics.coastalWater`, guarded by `assertNoWaterDrift`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotContinents.ts` (`context.adapter.stampContinents`, `assertNoWaterDrift`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/buildElevation.ts` (`context.adapter.buildElevation`, `assertNoWaterDrift`)
 
@@ -195,7 +195,7 @@ Fields:
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-pre/artifacts.ts` (`MorphologyCoastlineMetricsArtifactSchema`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/steps/ruggedCoasts.ts` (`computeDistanceToCoast`, publishing `coastlineMetrics`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotCoasts.ts` (projection uses `coastlineMetrics` “pre-expandCoasts”)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotCoasts.ts` (projection uses `coastlineMetrics` derived from Morphology truth; no Civ `expandCoasts`)
 
 ### `artifact:morphology.volcanoes` (truth-only intent; tile space; immutable-at-F2)
 
