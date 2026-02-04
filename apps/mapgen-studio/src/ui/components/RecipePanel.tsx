@@ -17,7 +17,6 @@ import {
   ChevronDown } from
 'lucide-react';
 import { ConfigForm } from './ConfigForm';
-import { FoundationAuthoringPanel } from '../../features/configOverrides/FoundationAuthoringPanel';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -46,8 +45,6 @@ import type {
 export interface RecipePanelProps {
   /** Current pipeline configuration */
   config: PipelineConfig;
-  /** Config schema (recipe artifacts) */
-  configSchema: unknown;
   /** Path-based patch callback for efficient state updates */
   onConfigPatch: (patch: ConfigPatch) => void;
   /** Callback to reset config to defaults */
@@ -106,7 +103,6 @@ export interface RecipePanelProps {
 // ============================================================================
 export const RecipePanel: React.FC<RecipePanelProps> = ({
   config,
-  configSchema,
   onConfigPatch,
   onConfigReset,
   recipeOptions,
@@ -142,7 +138,6 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   const [localOverridesDisabled, setLocalOverridesDisabled] = useState(false);
   const [showJson, setShowJson] = useState(false);
   const [showAllSteps, setShowAllSteps] = useState(false);
-  const [foundationExpanded, setFoundationExpanded] = useState(true);
   const [showResetModal, setShowResetModal] = useState(false);
   const [showSaveMenu, setShowSaveMenu] = useState(false);
 
@@ -360,41 +355,6 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             {/* Config Form / JSON */}
             <div
             className={`px-3 pb-3 ${overridesDisabled ? 'opacity-40 pointer-events-none select-none' : ''}`}>
-
-              {!showJson ? (
-                <div className={`mb-3 rounded border ${borderSubtle} ${sectionBg}`}>
-                  <button
-                    type="button"
-                    onClick={() => setFoundationExpanded(!foundationExpanded)}
-                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded transition-colors ${hoverBg}`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Settings className={`w-3.5 h-3.5 ${textSecondary}`} />
-                      <span className={`text-[11px] font-semibold ${textPrimary}`}>
-                        Foundation (Physics Inputs)
-                      </span>
-                    </div>
-                    <ChevronDown
-                      className={`w-3.5 h-3.5 ${textMuted} transition-transform ${foundationExpanded ? "rotate-180" : ""}`}
-                    />
-                  </button>
-                  {foundationExpanded ? (
-                    <div className="px-2.5 pb-2">
-                      <div className={`text-[10px] ${textMuted} mb-2`}>
-                        Profiles, knobs, and advanced overrides only. Derived fields are intentionally not exposed.
-                      </div>
-                      <FoundationAuthoringPanel
-                        schema={configSchema}
-                        value={config.foundation ?? {}}
-                        disabled={overridesDisabled}
-                        onChange={(next) =>
-                          handleConfigPatch({ path: ["foundation"], value: next as unknown as ConfigValue })
-                        }
-                      />
-                    </div>
-                  ) : null}
-                </div>
-              ) : null}
 
               {showJson ?
             <div
