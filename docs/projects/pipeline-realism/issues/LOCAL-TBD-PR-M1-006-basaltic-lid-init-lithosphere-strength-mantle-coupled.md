@@ -16,20 +16,35 @@ related_to: []
 
 <!-- SECTION SCOPE [SYNC] -->
 ## TL;DR
-- Initialize t=0 as global basaltic/oceanic crust everywhere.
+- Initialize t=0 as a global basaltic (oceanic) lid and produce mantle-coupled lithosphere strength fields that upstream partition/events can treat as authoritative resistance.
 
 ## Deliverables
-- Initialize t=0 as global basaltic/oceanic crust everywhere.
-- Produce mantle-coupled lithosphere strength fields required by partition/events.
+- Update the crust initialization model to the SPEC’s posture:
+  - t=0 starts as oceanic/basaltic lid everywhere (no pre-authored continents),
+  - “continents/cratons” must emerge through evolution + events + provenance, not initial random assignment.
+- Define (and emit as part of the canonical crust state) the lithosphere resistance/strength surfaces required by:
+  - plate partition resistance (D01),
+  - event mechanics (D06r),
+  - and provenance update rules (D04r).
+- Document the post-cutover semantics in the project spec sections and decision packet (do not rely on “tribal knowledge” of what fields mean).
 
 ## Acceptance Criteria
-- Deliverables are implemented and wired into the pipeline where applicable.
-- Outputs follow the maximal SPEC contracts (no optional artifacts).
-- Any transitional bridge has an explicit deletion target (or this issue performs the deletion).
+- Running a Foundation-only pipeline produces a crust state consistent with “basaltic lid at t=0” (no “continentalRatio” semantics remain authoritative).
+- Lithosphere strength/resistance fields exist and are:
+  - bounded (explicit numeric ranges),
+  - deterministic,
+  - and consumed by partition/event codepaths (no duplicated strength computation elsewhere).
+- Any transitional bridging that preserves legacy “continentalRatio” behavior is explicitly:
+  - labeled as transitional,
+  - blocked on deletion (`LOCAL-TBD-PR-M1-023..025`), and
+  - excluded from maximal-authoring surfaces (D08r).
 
 ## Testing / Verification
-- Add/extend the canonical validation suite for this change (D09r posture).
-- Verify determinism: same seed + config -> identical artifacts (stable fingerprints).
+- `bun run --cwd mods/mod-swooper-maps test`
+- Add/extend a Foundation-level test that asserts the initial crust starts oceanic everywhere (at t=0), for a small mesh:
+  - new test file under `mods/mod-swooper-maps/test/foundation/` (recommended).
+- Identify and update any downstream tests that currently assume “initial continents”:
+  - example current assumption: `mods/mod-swooper-maps/test/morphology/m11-crust-baseline-consumption.test.ts`
 
 ## Dependencies / Notes
 - Blocked by:
@@ -41,6 +56,7 @@ related_to: []
 ### References
 - docs/projects/pipeline-realism/resources/spec/foundation-evolutionary-physics-SPEC.md
 - docs/projects/pipeline-realism/resources/decisions/d05r-crust-state-canonical-variables.md
+- docs/system/libs/mapgen/reference/domains/FOUNDATION.md
 
 ---
 
@@ -53,3 +69,29 @@ related_to: []
 - [Acceptance Criteria](#acceptance-criteria)
 - [Testing / Verification](#testing--verification)
 - [Dependencies / Notes](#dependencies--notes)
+
+### Current State (Observed)
+
+Current Foundation crust generation is “continental ratio” driven:
+- op: `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts`
+- contract: `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/contract.ts`
+
+Downstream Morphology currently treats crustTiles type/isostasy as an initial continent/ocean separator (example):
+- `mods/mod-swooper-maps/test/morphology/m11-crust-baseline-consumption.test.ts`
+
+### Proposed Change Surface
+
+Expected touchpoints:
+- crust op + schema: `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/*`
+- crust step wiring: `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/crust.ts`
+- any consumers that assume initial continents (Morphology baseline, partition heuristics).
+
+### Pitfalls / Rakes
+
+- Leaving legacy “continentalRatio” semantics implicitly active while also adding basaltic-lid semantics (“two truths”).
+- Updating crust init but forgetting to update partition/events to consume the new strength/resistance surfaces (then the lid is just a rename).
+- Breaking Morphology in a way that makes failures look like “mountain tuning problems” rather than “driver semantics changed.” Call this out early in test failures.
+
+### Wow Scenarios
+
+- **Continents as consequences:** belts and continental emergence can be traced to event history + provenance, instead of being a randomized initial condition that tectonics merely decorates.
