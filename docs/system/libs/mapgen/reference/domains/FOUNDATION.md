@@ -336,19 +336,19 @@ FOUNDATION ops are the domain’s compute units. The standard recipe wires them 
 
 ## Knobs & Normalization
 
-### Stage-level knobs (semantic presets)
+### Stage-level knobs (semantic scalars)
 
 The standard recipe exposes two knobs that apply *after* defaulted step config, as deterministic transforms:
-- `plateCount`: scales plate count used by mesh + plate graph
-- `plateActivity`: scales kinematics and boundary influence used by the projection step
+- `plateCount`: authored plate-count target used by mesh + plate graph
+- `plateActivity`: scalar in `[0..1]` that scales kinematics and boundary influence used by the projection step
 
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/foundation/shared/knobs.ts` (`FoundationPlateCountKnobSchema`, `FoundationPlateActivityKnobSchema`)
-- `mods/mod-swooper-maps/src/domain/foundation/shared/knob-multipliers.ts` (`FOUNDATION_PLATE_COUNT_MULTIPLIER`, `FOUNDATION_PLATE_ACTIVITY_KINEMATICS_MULTIPLIER`, `FOUNDATION_PLATE_ACTIVITY_BOUNDARY_INFLUENCE_DISTANCE_DELTA`)
+- `mods/mod-swooper-maps/src/domain/foundation/shared/knob-multipliers.ts` (`resolvePlateActivityKinematicsMultiplier`, `resolvePlateActivityBoundaryDelta`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts` (`knobsSchema`, “Knobs apply last” docstrings)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/mesh.ts` (`normalize` applying `FOUNDATION_PLATE_COUNT_MULTIPLIER`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/plateGraph.ts` (`normalize` applying `FOUNDATION_PLATE_COUNT_MULTIPLIER`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts` (`normalize` applying plate activity multipliers/deltas)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/mesh.ts` (`normalize` applying `plateCount` override)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/plateGraph.ts` (`normalize` applying `plateCount` override)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts` (`normalize` applying plate activity scaling)
 
 ### Op normalization (dimension-aware scaling)
 
