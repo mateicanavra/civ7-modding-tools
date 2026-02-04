@@ -1,82 +1,8 @@
 import { memo, useEffect, useMemo, useState } from "react";
-import type { RJSFSchema, UiSchema } from "@rjsf/utils";
-import { SchemaForm } from "./SchemaForm";
-import { collectTransparentPaths, normalizeSchemaForRjsf, toRjsfSchema } from "./schemaPresentation";
-import type { BrowserConfigFormContext } from "./rjsfTemplates";
+import { SchemaConfigForm } from "./SchemaConfigForm";
+import { normalizeSchemaForRjsf, toRjsfSchema, tryGetSchemaAtPath } from "./schemaPresentation";
 import type { UseConfigOverridesResult } from "./useConfigOverrides";
-
-function isNumericPathSegment(segment: string): boolean {
-  return /^[0-9]+$/.test(segment);
-}
-
-function getAtPath(root: unknown, path: readonly string[]): unknown {
-  let current: unknown = root;
-  for (const segment of path) {
-    if (!current || typeof current !== "object") return undefined;
-    const record = current as Record<string, unknown>;
-    current = record[segment];
-  }
-  return current;
-}
-
-function setAtPath(root: unknown, path: readonly string[], value: unknown): unknown {
-  if (path.length === 0) return value;
-  const [head, ...rest] = path;
-  const container: unknown =
-    root && typeof root === "object"
-      ? Array.isArray(root)
-        ? [...root]
-        : { ...(root as Record<string, unknown>) }
-      : isNumericPathSegment(head)
-        ? []
-        : {};
-
-  if (Array.isArray(container) && isNumericPathSegment(head)) {
-    const idx = Number(head);
-    (container as unknown[])[idx] = setAtPath((container as unknown[])[idx], rest, value);
-    return container;
-  }
-
-  (container as Record<string, unknown>)[head] = setAtPath(
-    (container as Record<string, unknown>)[head],
-    rest,
-    value
-  );
-  return container;
-}
-
-function tryGetSchemaAtPath(schema: unknown, path: readonly string[]): unknown | null {
-  let current: unknown = schema;
-  for (const segment of path) {
-    if (!current || typeof current !== "object") return null;
-    const node = current as Record<string, unknown>;
-    const properties = node.properties;
-    if (properties && typeof properties === "object" && segment in (properties as Record<string, unknown>)) {
-      current = (properties as Record<string, unknown>)[segment];
-      continue;
-    }
-
-    // Best-effort: if we hit a union, pick the first branch that contains the property.
-    const anyOf = node.anyOf;
-    const oneOf = node.oneOf;
-    const variants = (Array.isArray(anyOf) ? anyOf : Array.isArray(oneOf) ? oneOf : null) as unknown[] | null;
-    if (variants) {
-      const match = variants.find((variant) => {
-        if (!variant || typeof variant !== "object") return false;
-        const vProps = (variant as Record<string, unknown>).properties;
-        return Boolean(vProps && typeof vProps === "object" && segment in (vProps as Record<string, unknown>));
-      });
-      if (match) {
-        const vProps = (match as Record<string, unknown>).properties as Record<string, unknown>;
-        current = vProps[segment];
-        continue;
-      }
-    }
-
-    return null;
-  }
-  return current;
-}
+import { getAtPath } from "./pathUtils";
 
 export type ConfigOverridesPanelProps<TConfig> = {
   open: boolean;
@@ -128,31 +54,21 @@ function ConfigOverridesPanelImpl<TConfig>(props: ConfigOverridesPanelProps<TCon
     [controlBaseStyle, isNarrow]
   );
 
-  const { rjsfSchema, formContext } = useMemo(() => {
-    const normalized = toRjsfSchema(normalizeSchemaForRjsf(schema));
-    const transparentPaths = collectTransparentPaths(normalized);
-    return { rjsfSchema: normalized, formContext: { transparentPaths } satisfies BrowserConfigFormContext };
-  }, [schema]);
-
   const focused = useMemo(() => {
     const focus = focusPath && focusPath.length > 0 ? [...focusPath] : null;
     if (!focus) return null;
-    const focusedSchema = tryGetSchemaAtPath(rjsfSchema, focus);
-    if (!focusedSchema) return null;
-    return {
-      path: focus,
-      schema: focusedSchema,
-      formContext: { transparentPaths: collectTransparentPaths(focusedSchema as any) } satisfies BrowserConfigFormContext,
-      value: getAtPath(controller.value, focus),
-    } as const;
-  }, [controller.value, focusPath, rjsfSchema]);
-
-  const uiSchema = useMemo<UiSchema<TConfig, RJSFSchema, BrowserConfigFormContext>>(
-    () => ({
-      "ui:options": { label: false },
-    }),
-    []
-  );
+    try {
+      const normalized = toRjsfSchema(normalizeSchemaForRjsf(schema));
+      const focusedSchema = tryGetSchemaAtPath(normalized, focus);
+      if (!focusedSchema) return null;
+      return {
+        path: focus,
+        value: getAtPath(controller.value, focus),
+      } as const;
+    } catch {
+      return null;
+    }
+  }, [controller.value, focusPath, schema]);
 
   if (!open) return null;
 
@@ -271,21 +187,14 @@ function ConfigOverridesPanelImpl<TConfig>(props: ConfigOverridesPanelProps<TCon
 
         <div style={{ flex: 1, minHeight: 0, overflow: "auto", paddingRight: 2 }}>
           {controller.tab === "form" ? (
-            <SchemaForm
-              schema={focused?.schema ?? rjsfSchema}
-              uiSchema={uiSchema}
-              formContext={focused?.formContext ?? formContext}
-              value={(focused?.value ?? controller.value) as any}
+            <SchemaConfigForm
+              schema={schema}
+              value={controller.value}
+              focusPath={focused?.path ?? null}
               // Toggling disabled on a huge RJSF subtree is very expensive. "Enable overrides"
               // controls whether values apply to the next run, not whether the form is editable.
               disabled={disabled}
-              onChange={(next) => {
-                if (!focused) {
-                  controller.setValue(next as TConfig);
-                  return;
-                }
-                controller.setValue(setAtPath(controller.value, focused.path, next) as TConfig);
-              }}
+              onChange={(next) => controller.setValue(next)}
             />
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 8, height: "100%" }}>
