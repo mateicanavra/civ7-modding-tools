@@ -5,8 +5,14 @@ import RuggedCoastsStepContract from "./ruggedCoasts.contract.js";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
-import { MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER } from "@mapgen/domain/morphology/shared/knob-multipliers.js";
-import type { MorphologyCoastRuggednessKnob } from "@mapgen/domain/morphology/shared/knobs.js";
+import {
+  MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER,
+  MORPHOLOGY_SHELF_WIDTH_MULTIPLIER,
+} from "@mapgen/domain/morphology/shared/knob-multipliers.js";
+import type {
+  MorphologyCoastRuggednessKnob,
+  MorphologyShelfWidthKnob,
+} from "@mapgen/domain/morphology/shared/knobs.js";
 
 type ArtifactValidationIssue = Readonly<{ message: string }>;
 
@@ -100,8 +106,12 @@ export default createStep(RuggedCoastsStepContract, {
     },
   }),
   normalize: (config, ctx) => {
-    const { coastRuggedness } = ctx.knobs as Readonly<{ coastRuggedness?: MorphologyCoastRuggednessKnob }>;
+    const { coastRuggedness, shelfWidth } = ctx.knobs as Readonly<{
+      coastRuggedness?: MorphologyCoastRuggednessKnob;
+      shelfWidth?: MorphologyShelfWidthKnob;
+    }>;
     const multiplier = MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER[coastRuggedness ?? "normal"] ?? 1.0;
+    const shelfMultiplier = MORPHOLOGY_SHELF_WIDTH_MULTIPLIER[shelfWidth ?? "normal"] ?? 1.0;
 
     const coastlinesSelection =
       config.coastlines.strategy === "default"
@@ -122,7 +132,31 @@ export default createStep(RuggedCoastsStepContract, {
           }
         : config.coastlines;
 
-    return { ...config, coastlines: coastlinesSelection };
+    const shelfMaskSelection =
+      config.shelfMask.strategy === "default"
+        ? {
+            ...config.shelfMask,
+            config: {
+              ...config.shelfMask.config,
+              capTilesActive: Math.max(
+                0,
+                Math.min(
+                  config.shelfMask.config.capTilesMax,
+                  Math.round(config.shelfMask.config.capTilesActive * shelfMultiplier)
+                )
+              ),
+              capTilesPassive: Math.max(
+                0,
+                Math.min(
+                  config.shelfMask.config.capTilesMax,
+                  Math.round(config.shelfMask.config.capTilesPassive * shelfMultiplier)
+                )
+              ),
+            },
+          }
+        : config.shelfMask;
+
+    return { ...config, coastlines: coastlinesSelection, shelfMask: shelfMaskSelection };
   },
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;
