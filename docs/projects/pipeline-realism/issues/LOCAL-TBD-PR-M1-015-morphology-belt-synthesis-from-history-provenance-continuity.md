@@ -102,3 +102,26 @@ The goal is to keep downstream op contracts stable where possible by regeneratin
 ### Wow Scenarios
 
 - **Belts reflect tectonic memory:** two otherwise identical corridors produce different belt width/shape when provenance age differs, and a human can see that as “older orogeny is broader/eroded” rather than random variance.
+
+## Implementation Decisions
+
+### Seed belts from history/provenance tiles (defer explicit segment projection)
+- **Context:** The spec prefers segment-derived corridors, but the current pipeline does not expose a tile-level segment projection artifact.
+- **Options:** (A) build an ad-hoc segment→tile projection inside Morphology, (B) seed belts from `tectonicHistoryTiles`/`tectonicProvenanceTiles` boundary regimes and enforce continuity in tile space.
+- **Choice:** Option B.
+- **Rationale:** Keeps Morphology tile-first and uses the canonical projected history/provenance drivers that are already required; avoids introducing a one-off segment projection surface.
+- **Risk:** If segment topology diverges from era boundary projections, belt continuity may deviate from segment intent until a dedicated segment tile projection is introduced.
+
+### Approximate anisotropic diffusion with seed-based isotropic diffusion
+- **Context:** The contract specifies anisotropic diffusion along belt tangents, but we do not yet have a stable tangent field for belts in tile space.
+- **Options:** (A) delay diffusion until a tangent field exists, (B) use isotropic diffusion with belt-seed width/age parameters and enforce monotonic decay.
+- **Choice:** Option B.
+- **Rationale:** Delivers age-aware belt widening now and preserves determinism while keeping a clear path to upgrade to anisotropic diffusion later.
+- **Risk:** Belt shapes may be rounder than intended; correlation gates may need tighter tuning once anisotropic tangents land.
+
+### Propagate belt drivers from nearest belt seed
+- **Context:** Diffusion belts can create non-zero boundaryCloseness outside the original driver tiles.
+- **Options:** (A) keep per-tile blended drivers unchanged, (B) propagate driver magnitudes from the nearest belt seed alongside boundaryCloseness.
+- **Choice:** Option B.
+- **Rationale:** Ensures belt regions carry causal driver intensity instead of “empty” belts, aligning orogeny potential with diffusion width.
+- **Risk:** Localized driver variation inside belts may be smoothed more than desired until per-belt tangent-aware diffusion is implemented.
