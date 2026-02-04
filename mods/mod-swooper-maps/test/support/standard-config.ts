@@ -73,18 +73,13 @@ const volcanoesConfig = {
 };
 
 const foundationConfig = {
-  mesh: {
-    computeMesh: {
-      strategy: "default",
-      config: { plateCount: 23, cellsPerPlate: 2, relaxationSteps: 4 },
-    },
+  version: 1,
+  profiles: {
+    resolutionProfile: "balanced",
+    lithosphereProfile: "maximal-basaltic-lid-v1",
+    mantleProfile: "maximal-potential-v1",
   },
-  "plate-graph": {
-    computePlateGraph: {
-      strategy: "default",
-      config: { plateCount: 23 },
-    },
-  },
+  knobs: { plateCount: 23, plateActivity: 0.5 },
 };
 
 const basinSeparationConfig = {
@@ -385,7 +380,7 @@ const placementConfig = {
 };
 
 export const standardConfig = {
-  foundation: { advanced: foundationConfig },
+  foundation: foundationConfig,
   "morphology-coasts": {
     advanced: {
       "landmass-plates": {

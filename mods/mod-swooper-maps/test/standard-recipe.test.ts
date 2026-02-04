@@ -9,6 +9,18 @@ const baseSettings = {
   latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
 };
 
+const baseConfig = {
+  foundation: {
+    version: 1,
+    profiles: {
+      resolutionProfile: "balanced",
+      lithosphereProfile: "maximal-basaltic-lid-v1",
+      mantleProfile: "maximal-potential-v1",
+    },
+    knobs: { plateCount: 28, plateActivity: 0.5 },
+  },
+};
+
 describe("standard recipe composition", () => {
   it("keeps tag definitions unique", () => {
     const ids = STANDARD_TAG_DEFINITIONS.map((tag) => tag.id);
@@ -45,6 +57,6 @@ describe("standard recipe composition", () => {
   });
 
   it("compiles without missing tag errors", () => {
-    expect(() => standardRecipe.compile(baseSettings)).not.toThrow();
+    expect(() => standardRecipe.compile(baseSettings, baseConfig)).not.toThrow();
   });
 });
