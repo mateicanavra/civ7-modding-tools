@@ -11,6 +11,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 
 - Follow-up (M1-007): `potentialAmplitude01` is effectively canceled by post-generation normalization of mantle potential; decide whether to expose amplitude via forcing scale or remove/repurpose the knob to avoid inert authoring inputs.
 - Follow-up (M1-008): Deprecate/remove `velocityX/velocityY/rotation` from `foundationArtifacts.plateGraph` (or assert they remain zero) now that `plateMotion` is canonical; avoid hidden kinematics reappearing downstream.
+- Follow-up (M1-018): Add non-finite checks for plate-fit residual arrays and a wrap-seam continuity check for mantle potential/forcing; calibrate plate-motion diagnostics so they don’t warn on every canonical case.
 - Follow-up (M1-006): Event mechanics should consume `crust.strength` (no duplicated resistance computation) once M1-011 lands; currently strength feeds partitioning only.
 - Follow-up (M1-012): Enforce 5..8 era bounds in `tectonicHistoryTiles` validation and regenerate shipped preset configs so runtime artifacts match the bounded era loop.
 - Follow-up (M1-005): Foundation `advanced` (mantleForcing/lithosphere) is validated but not yet wired into step configs; ensure upcoming Foundation ops consume these inputs so the authoring surface is not inert.
