@@ -13,7 +13,7 @@ This doc is the **single execution plan** for converting the existing maximal Fo
 - [x] Slice 1: Draft milestone from SPEC
 - [x] Slice 2: Harden milestone
 - [x] Slice 3: Expand milestone into local issue docs
-- [ ] Slice 4: Prework sweep (no dangling prompts)
+- [x] Slice 4: Prework sweep (no dangling prompts)
 - [ ] Slice 5: Readiness report + doc stewardship pass
 - [ ] Submit planning stack (`gt submit --stack --draft`)
 
@@ -23,7 +23,7 @@ This doc is the **single execution plan** for converting the existing maximal Fo
 - Slice 1: `agent-URSULA-M1-s1-draft-milestone`
 - Slice 2: `agent-URSULA-M1-s2-harden-milestone`
 - Slice 3: `agent-URSULA-M1-s3-issues`
-- Slice 4: `TBD`
+- Slice 4: `agent-URSULA-M1-s4-prework-sweep`
 - Slice 5: `TBD`
 
 ## Canonical Inputs
