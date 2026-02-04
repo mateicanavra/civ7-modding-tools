@@ -5,6 +5,7 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
+import { M1_FOUNDATION_DIAGNOSTICS, M1_FOUNDATION_GATES } from "../support/foundation-invariants.js";
 import { M1_TIER1_ARTIFACT_IDS, runValidationHarness } from "../support/validation-harness.js";
 import { M1_DETERMINISM_CASES, type DeterminismCase } from "../support/determinism-suite.js";
 
@@ -60,16 +61,37 @@ function diffFingerprints(a: Record<string, any>, b: Record<string, any>): strin
 describe("pipeline determinism suite (M1)", () => {
   it("produces identical fingerprints across canonical cases", () => {
     for (const caseData of M1_DETERMINISM_CASES) {
+      const contextA = runStandardContext(caseData);
+      const contextB = runStandardContext(caseData);
       const reportA = runValidationHarness({
-        context: runStandardContext(caseData),
+        context: contextA,
         artifactIds: M1_TIER1_ARTIFACT_IDS,
-        invariants: [],
+        invariants: M1_FOUNDATION_GATES,
       });
       const reportB = runValidationHarness({
-        context: runStandardContext(caseData),
+        context: contextB,
         artifactIds: M1_TIER1_ARTIFACT_IDS,
-        invariants: [],
+        invariants: M1_FOUNDATION_GATES,
       });
+
+      const invariantFailures = [...reportA.failures, ...reportB.failures];
+      if (invariantFailures.length > 0) {
+        const summary = invariantFailures
+          .map((failure) => `${failure.name}: ${failure.message ?? "failed"}`)
+          .join("\n");
+        throw new Error(`Invariant failures for ${caseData.label}:\n${summary}`);
+      }
+
+      const diagnostics = runValidationHarness({
+        context: contextA,
+        artifactIds: M1_TIER1_ARTIFACT_IDS,
+        invariants: M1_FOUNDATION_DIAGNOSTICS,
+      });
+      if (diagnostics.failures.length > 0) {
+        for (const failure of diagnostics.failures) {
+          console.warn(`[diagnostic:${caseData.label}] ${failure.name}: ${failure.message ?? "check failed"}`);
+        }
+      }
 
       const diffs = diffFingerprints(reportA.fingerprints.artifacts, reportB.fingerprints.artifacts);
       if (reportA.fingerprints.missing.length > 0) {
