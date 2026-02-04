@@ -15,12 +15,12 @@ export default createStep(PlotCoastsStepContract, {
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const idx = y * width + x;
-        // Coasts are shallow-water tiles adjacent to land (our truth-driven analogue of Civ's
+        // Coasts are shallow shelf water derived from Morphology truth (our analogue of Civ's
         // validateAndFixTerrain + expandCoasts pipeline). We intentionally avoid Civ's coast expansion.
         const terrain =
           topography.landMask[idx] === 1
             ? FLAT_TERRAIN
-            : coastlineMetrics.coastalWater[idx] === 1
+            : coastlineMetrics.coastalWater[idx] === 1 || coastlineMetrics.shelfMask[idx] === 1
               ? COAST_TERRAIN
               : OCEAN_TERRAIN;
         context.adapter.setTerrainType(x, y, terrain);
@@ -48,6 +48,17 @@ export default createStep(PlotCoastsStepContract, {
       values: coastlineMetrics.coastalWater,
       meta: defineVizMeta("map.morphology.coasts.coastalWater", {
         label: "Coastal Water (Coastline Metrics)",
+        group: GROUP_MAP_MORPHOLOGY,
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "map.morphology.coasts.shelfMask",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: coastlineMetrics.shelfMask,
+      meta: defineVizMeta("map.morphology.coasts.shelfMask", {
+        label: "Shelf Mask (Coastline Metrics)",
         group: GROUP_MAP_MORPHOLOGY,
       }),
     });
