@@ -21,8 +21,8 @@ related_to: []
 ## Deliverables
 - Define stable `dataTypeKey` values for the new artifacts (no temporal info encoded in `dataTypeKey`; use `variantKey` for eras/variants):
   - mantle (mesh / world space): `foundation.mantle.potential`, `foundation.mantle.forcing`
-  - plate motion (mesh / world space): `foundation.plateMotion.motion`
-  - provenance/history projections (tile space): `foundation.tectonicHistoryTiles.*`, `foundation.tectonicProvenanceTiles.*`
+  - plate motion (mesh / world space): `foundation.plates.motion`
+  - provenance/history projections (tile space): `foundation.history.*`, `foundation.provenance.*`
   - belt-driver diagnostics (tile space; for dual-read): `morphology.drivers.*` (wired in Morphology issues, but keys must be reserved here)
 - Establish a minimal taxonomy posture consistent with the canonical viz doc:
   - **Debug layers:** raw intermediate tensors (divergence, residuals, per-era fields) are behind `meta.visibility = "debug"`.
@@ -93,6 +93,11 @@ Expected wiring points for new keys:
 - Foundation steps (mesh-space): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/*.ts`
 - Foundation projections (tile-space): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts`
 - Meta/taxonomy helpers: `defineVizMeta(...)` callsites across the steps (group/label/palette/visibility conventions).
+
+## Implementation Decisions
+
+- **DataTypeKey names follow the artifact catalog:** use `foundation.history.*` + `foundation.provenance.*` for both mesh- and tile-space history/provenance outputs, and `foundation.plates.motion` for plate motion (matching `docs/projects/pipeline-realism/resources/spec/artifact-catalog.md`).
+- **Mantle + plate-motion keys are reserved but not emitted yet:** until PR-M1-007/008 add mantle/plate-motion producers, only history/provenance keys are emitted in this slice; mantle/plate-motion keys remain declared in docs and tests once data exists.
 
 ### Pitfalls / Rakes
 
