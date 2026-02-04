@@ -102,11 +102,9 @@ Rationale:
 - Crust context (already computed upstream):
   - `artifact:foundation.crustTiles.type`, `baseElevation`, etc.
 
-### New Derived Product (suggested)
-- `artifact:morphology.shelf` (new):
-  - `shelfMask` (u8; 1 if shallow shelf water)
-  - `shelfDepthClass` (optional; u8 for debug/tuning)
-  - `shelfWidthClass` (optional; u8 for debug/tuning)
+### New Derived Product (Implemented Contract)
+Extend `artifact:morphology.coastlineMetrics` with:
+- `shelfMask` (u8; 1 if shallow shelf water eligible for `TERRAIN_COAST` projection)
 
 ### Minimal Shelf Classifier (V1)
 
@@ -168,7 +166,7 @@ No engine helpers needed for coast creation.
 ## Next Actions (Implementation Plan, High Level)
 
 1. Define coast semantics formally (choose Option C defaults for `N` and `D`).
-2. Add a Morphology-mid "shelf classification" step (or extend rugged-coasts to compute it) and publish `artifact:morphology.shelf`.
+2. Extend `artifact:morphology.coastlineMetrics` to include `shelfMask` (computed in `morphology-mid/rugged-coasts`).
 3. Update `plot-coasts` to use `shelfMask`.
 4. Add viz layers for `shelfMask` and shelf classes for tuning (MapGen Studio).
 5. Add tests:
