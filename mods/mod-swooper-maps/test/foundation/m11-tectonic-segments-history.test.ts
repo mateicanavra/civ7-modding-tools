@@ -49,6 +49,19 @@ function makePlateMotionFromGraph(plateGraph: {
   } as const;
 }
 
+function makeMantleForcing(cellCount: number) {
+  return {
+    version: 1,
+    cellCount,
+    stress: new Float32Array(cellCount),
+    forcingU: new Float32Array(cellCount),
+    forcingV: new Float32Array(cellCount),
+    forcingMag: new Float32Array(cellCount),
+    upwellingClass: new Int8Array(cellCount),
+    divergence: new Float32Array(cellCount),
+  } as const;
+}
+
 describe("m11 tectonics (segments + history)", () => {
   it("segment decomposition is rotation-aware (shear changes when rotation changes)", () => {
     const mesh = makeTwoCellMesh();
@@ -251,8 +264,15 @@ describe("m11 tectonics (segments + history)", () => {
       computeTectonicSegments.defaultConfig
     ).segments;
 
-    const a = computeTectonicHistory.run({ mesh, segments }, computeTectonicHistory.defaultConfig);
-    const b = computeTectonicHistory.run({ mesh, segments }, computeTectonicHistory.defaultConfig);
+    const mantleForcing = makeMantleForcing(mesh.cellCount);
+    const a = computeTectonicHistory.run(
+      { mesh, crust, mantleForcing, plateGraph, segments },
+      computeTectonicHistory.defaultConfig
+    );
+    const b = computeTectonicHistory.run(
+      { mesh, crust, mantleForcing, plateGraph, segments },
+      computeTectonicHistory.defaultConfig
+    );
 
     expect(a.tectonicHistory.eraCount).toBe(3);
     expect(a.tectonicHistory.eras.length).toBe(3);
