@@ -517,6 +517,74 @@ export function validateTectonicHistoryArtifact(value: unknown): void {
   }
 }
 
+export function validateTectonicProvenanceArtifact(value: unknown): void {
+  if (!value || typeof value !== "object") {
+    throw new Error("[FoundationArtifact] Missing foundation tectonicProvenance artifact payload.");
+  }
+
+  const provenance = value as {
+    version?: unknown;
+    eraCount?: unknown;
+    cellCount?: unknown;
+    tracerIndex?: unknown;
+    provenance?: unknown;
+  };
+
+  const version = typeof provenance.version === "number" ? (provenance.version | 0) : 0;
+  if (version <= 0) {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenance.version.");
+  }
+
+  const eraCount = typeof provenance.eraCount === "number" ? (provenance.eraCount | 0) : -1;
+  if (eraCount <= 0) {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenance.eraCount.");
+  }
+
+  const cellCount = typeof provenance.cellCount === "number" ? (provenance.cellCount | 0) : -1;
+  if (cellCount <= 0) {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenance.cellCount.");
+  }
+
+  if (!Array.isArray(provenance.tracerIndex) || provenance.tracerIndex.length !== eraCount) {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenance.tracerIndex.");
+  }
+
+  for (let e = 0; e < provenance.tracerIndex.length; e++) {
+    const trace = provenance.tracerIndex[e] as unknown;
+    if (!(trace instanceof Uint32Array) || trace.length !== cellCount) {
+      throw new Error(`[FoundationArtifact] Invalid foundation tectonicProvenance.tracerIndex[${e}].`);
+    }
+  }
+
+  const scalars = provenance.provenance as Record<string, unknown> | undefined;
+  if (!scalars || typeof scalars !== "object") {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenance.provenance.");
+  }
+
+  const checks: Array<[string, unknown, "u8" | "i8" | "i16"]> = [
+    ["originEra", scalars.originEra, "u8"],
+    ["originPlateId", scalars.originPlateId, "i16"],
+    ["lastBoundaryEra", scalars.lastBoundaryEra, "u8"],
+    ["lastBoundaryType", scalars.lastBoundaryType, "u8"],
+    ["lastBoundaryPolarity", scalars.lastBoundaryPolarity, "i8"],
+    ["lastBoundaryIntensity", scalars.lastBoundaryIntensity, "u8"],
+    ["crustAge", scalars.crustAge, "u8"],
+  ];
+
+  for (const [label, value, kind] of checks) {
+    const ok =
+      (kind === "u8" && value instanceof Uint8Array) ||
+      (kind === "i8" && value instanceof Int8Array) ||
+      (kind === "i16" && value instanceof Int16Array);
+    if (!ok) {
+      throw new Error(`[FoundationArtifact] Invalid foundation tectonicProvenance.provenance.${label}.`);
+    }
+    if ((value as { length: number }).length !== cellCount) {
+      throw new Error(`[FoundationArtifact] Invalid foundation tectonicProvenance.provenance.${label} length.`);
+    }
+  }
+}
+
 export function validatePlateTopologyArtifact(value: unknown): void {
   if (!value || typeof value !== "object") {
     throw new Error("[FoundationArtifact] Missing foundation plateTopology artifact payload.");

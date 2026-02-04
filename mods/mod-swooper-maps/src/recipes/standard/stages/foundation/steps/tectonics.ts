@@ -4,6 +4,7 @@ import { foundationArtifacts } from "../artifacts.js";
 import TectonicsStepContract from "./tectonics.contract.js";
 import {
   validateTectonicHistoryArtifact,
+  validateTectonicProvenanceArtifact,
   validateTectonicSegmentsArtifact,
   validateTectonicsArtifact,
   wrapFoundationValidateNoDims,
@@ -23,13 +24,21 @@ const BOUNDARY_TYPE_CATEGORIES = [
 
 export default createStep(TectonicsStepContract, {
   artifacts: implementArtifacts(
-    [foundationArtifacts.tectonicSegments, foundationArtifacts.tectonicHistory, foundationArtifacts.tectonics],
+    [
+      foundationArtifacts.tectonicSegments,
+      foundationArtifacts.tectonicHistory,
+      foundationArtifacts.tectonicProvenance,
+      foundationArtifacts.tectonics,
+    ],
     {
       foundationTectonicSegments: {
         validate: (value) => wrapFoundationValidateNoDims(value, validateTectonicSegmentsArtifact),
       },
       foundationTectonicHistory: {
         validate: (value) => wrapFoundationValidateNoDims(value, validateTectonicHistoryArtifact),
+      },
+      foundationTectonicProvenance: {
+        validate: (value) => wrapFoundationValidateNoDims(value, validateTectonicProvenanceArtifact),
       },
       foundationTectonics: {
         validate: (value) => wrapFoundationValidateNoDims(value, validateTectonicsArtifact),
@@ -38,6 +47,7 @@ export default createStep(TectonicsStepContract, {
   ),
   run: (context, config, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
+    const mantleForcing = deps.artifacts.foundationMantleForcing.read(context);
     const crust = deps.artifacts.foundationCrust.read(context);
     const plateGraph = deps.artifacts.foundationPlateGraph.read(context);
     const plateMotion = deps.artifacts.foundationPlateMotion.read(context);
@@ -57,12 +67,16 @@ export default createStep(TectonicsStepContract, {
     const historyResult = ops.computeTectonicHistory(
       {
         mesh,
+        crust,
+        mantleForcing,
+        plateGraph,
         segments: segmentsResult.segments,
       },
       config.computeTectonicHistory
     );
 
     deps.artifacts.foundationTectonicHistory.publish(context, historyResult.tectonicHistory);
+    deps.artifacts.foundationTectonicProvenance.publish(context, historyResult.tectonicProvenance);
     deps.artifacts.foundationTectonics.publish(context, historyResult.tectonics);
 
     const positions = interleaveXY(mesh.siteX, mesh.siteY);
