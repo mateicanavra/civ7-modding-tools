@@ -59,6 +59,10 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
+function isNumericPathSegment(segment: string): boolean {
+  return /^[0-9]+$/.test(segment);
+}
+
 function mergeDeterministic(base: unknown, overrides: unknown): unknown {
   if (overrides === undefined) return base;
   if (!isPlainObject(base) || !isPlainObject(overrides)) return overrides;
@@ -71,18 +75,40 @@ function mergeDeterministic(base: unknown, overrides: unknown): unknown {
 }
 
 function setAtPath(root: Record<string, unknown>, path: readonly string[], value: unknown): void {
-  let current = root;
+  let current: unknown = root;
   for (let i = 0; i < path.length; i += 1) {
     const key = path[i];
-    if (i === path.length - 1) {
-      if (current[key] === undefined) current[key] = value;
+    const isLast = i === path.length - 1;
+    const nextKey = path[i + 1];
+    const wantsArray = typeof nextKey === "string" && isNumericPathSegment(nextKey);
+
+    if (Array.isArray(current) && isNumericPathSegment(key)) {
+      const idx = Number(key);
+      if (isLast) {
+        if (current[idx] === undefined) current[idx] = value;
+        return;
+      }
+      const next = current[idx];
+      if (!isPlainObject(next) && !Array.isArray(next)) {
+        current[idx] = wantsArray ? [] : {};
+      }
+      current = current[idx];
+      continue;
+    }
+
+    if (!isPlainObject(current) && !Array.isArray(current)) {
       return;
     }
-    const existing = current[key];
-    if (!isPlainObject(existing)) {
-      current[key] = {};
+    const record = current as Record<string, unknown>;
+    if (isLast) {
+      if (record[key] === undefined) record[key] = value;
+      return;
     }
-    current = current[key] as Record<string, unknown>;
+    const existing = record[key];
+    if (!isPlainObject(existing) && !Array.isArray(existing)) {
+      record[key] = wantsArray ? [] : {};
+    }
+    current = record[key];
   }
 }
 
