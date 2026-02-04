@@ -69,7 +69,29 @@ export function validateCrustArtifact(value: unknown): void {
   if (!value || typeof value !== "object") {
     throw new Error("[FoundationArtifact] Missing foundation crust artifact payload.");
   }
-  const crust = value as { type?: unknown; age?: unknown; buoyancy?: unknown; baseElevation?: unknown; strength?: unknown };
+  const crust = value as {
+    maturity?: unknown;
+    thickness?: unknown;
+    thermalAge?: unknown;
+    damage?: unknown;
+    type?: unknown;
+    age?: unknown;
+    buoyancy?: unknown;
+    baseElevation?: unknown;
+    strength?: unknown;
+  };
+  if (!(crust.maturity instanceof Float32Array)) {
+    throw new Error("[FoundationArtifact] Invalid foundation crust.maturity.");
+  }
+  if (!(crust.thickness instanceof Float32Array)) {
+    throw new Error("[FoundationArtifact] Invalid foundation crust.thickness.");
+  }
+  if (!(crust.thermalAge instanceof Uint8Array)) {
+    throw new Error("[FoundationArtifact] Invalid foundation crust.thermalAge.");
+  }
+  if (!(crust.damage instanceof Uint8Array)) {
+    throw new Error("[FoundationArtifact] Invalid foundation crust.damage.");
+  }
   if (!(crust.type instanceof Uint8Array)) {
     throw new Error("[FoundationArtifact] Invalid foundation crust.type.");
   }
@@ -89,6 +111,10 @@ export function validateCrustArtifact(value: unknown): void {
     throw new Error("[FoundationArtifact] Invalid foundation crust tensor lengths.");
   }
   if (
+    crust.maturity.length !== crust.type.length ||
+    crust.thickness.length !== crust.type.length ||
+    crust.thermalAge.length !== crust.type.length ||
+    crust.damage.length !== crust.type.length ||
     crust.buoyancy.length !== crust.type.length ||
     crust.baseElevation.length !== crust.type.length ||
     crust.strength.length !== crust.type.length

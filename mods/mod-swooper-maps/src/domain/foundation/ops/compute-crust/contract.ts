@@ -7,87 +7,71 @@ function withDescription<T extends TSchema>(schema: T, description: string) {
   return Type.Unsafe<Static<T>>({ ...rest, description } as any);
 }
 
-/** Default strategy configuration for computing crust drivers. */
+/** Default strategy configuration for computing basaltic-lid crust truth + derived drivers. */
 const StrategySchema = Type.Object(
   {
-    /** Fraction of cells assigned continental crust (default: 0.3). Increase to bias more cells toward continental crust; decrease for more oceanic coverage. */
-    continentalRatio: Type.Number({
-      default: 0.3,
+    /** Basaltic lid thickness proxy (0..1). Controls baseline lithosphere strength and buoyancy. */
+    basalticThickness01: Type.Number({
+      default: 0.25,
       minimum: 0,
       maximum: 1,
-      description:
-        "Fraction of cells assigned continental crust (default: 0.3). Increase to bias more cells toward continental crust; decrease for more oceanic coverage.",
+      description: "Basaltic lid thickness proxy (0..1). Controls baseline lithosphere strength and buoyancy.",
     }),
-    /** Shelf/margin influence radius in mesh-cell steps (default: 6). Increase to widen the shelf/passive-margin transition; decrease to tighten it. */
-    shelfWidthCells: Type.Integer({
-      default: 6,
-      minimum: 1,
-      maximum: 64,
-      description:
-        "Shelf/margin influence radius in mesh-cell steps (default: 6). Increase to widen the shelf/passive-margin transition; decrease to tighten it.",
-    }),
-    /** BaseElevation boost applied to oceanic cells near continental boundaries (default: 0.12). Increase to raise continental shelves; decrease to flatten shelves. */
-    shelfElevationBoost: Type.Number({
-      default: 0.12,
+    /** Yield strength scalar for the lithosphere (0..1). */
+    yieldStrength01: Type.Number({
+      default: 0.55,
       minimum: 0,
       maximum: 1,
-      description:
-        "BaseElevation boost applied to oceanic cells near continental boundaries (default: 0.12). Increase to raise continental shelves; decrease to flatten shelves.",
+      description: "Yield strength scalar for the lithosphere (0..1).",
     }),
-    /** BaseElevation penalty applied to continental cells near boundaries (default: 0.04). Increase to lower passive margins; decrease to keep margins closer to interior elevation. */
-    marginElevationPenalty: Type.Number({
-      default: 0.04,
+    /** Mantle coupling scalar (0..1) used to scale initial strength (mantle-coupled baseline). */
+    mantleCoupling01: Type.Number({
+      default: 0.6,
       minimum: 0,
       maximum: 1,
-      description:
-        "BaseElevation penalty applied to continental cells near boundaries (default: 0.04). Increase to lower passive margins; decrease to keep margins closer to interior elevation.",
+      description: "Mantle coupling scalar (0..1) used to scale initial strength (mantle-coupled baseline).",
     }),
-    /** Baseline isostatic baseElevation for continental crust (default: 0.78). Increase to raise continental interiors; decrease to lower them. */
-    continentalBaseElevation: Type.Number({
-      default: 0.78,
+    /** Rift weakening scalar (0..1). Reserved for event-driven weakening in later slices. */
+    riftWeakening01: Type.Number({
+      default: 0.35,
       minimum: 0,
       maximum: 1,
-      description:
-        "Baseline isostatic baseElevation for continental crust (default: 0.78). Increase to raise continental interiors; decrease to lower them.",
-    }),
-    /** Age-based baseElevation boost for continental interiors (default: 0.12). Increase to make old continental crust higher; decrease to reduce age-driven uplift. */
-    continentalAgeBoost: Type.Number({
-      default: 0.12,
-      minimum: 0,
-      maximum: 1,
-      description:
-        "Age-based baseElevation boost for continental interiors (default: 0.12). Increase to make old continental crust higher; decrease to reduce age-driven uplift.",
-    }),
-    /** Baseline isostatic baseElevation for oceanic crust (default: 0.32). Increase to make oceans shallower; decrease to deepen oceans. */
-    oceanicBaseElevation: Type.Number({
-      default: 0.32,
-      minimum: 0,
-      maximum: 1,
-      description:
-        "Baseline isostatic baseElevation for oceanic crust (default: 0.32). Increase to make oceans shallower; decrease to deepen oceans.",
-    }),
-    /** Age-based baseElevation depth increase for oceanic crust (default: 0.22). Increase to deepen old oceanic crust; decrease to flatten age-driven deepening. */
-    oceanicAgeDepth: Type.Number({
-      default: 0.22,
-      minimum: 0,
-      maximum: 1,
-      description:
-        "Age-based baseElevation depth increase for oceanic crust (default: 0.22). Increase to deepen old oceanic crust; decrease to flatten age-driven deepening.",
+      description: "Rift weakening scalar (0..1). Reserved for event-driven weakening in later slices.",
     }),
   },
-  { description: "Default strategy configuration for computing crust drivers." }
+  { description: "Default strategy configuration for computing basaltic-lid crust truth + derived drivers." }
 );
 
-/** Crust drivers (type/age/buoyancy/baseElevation/strength) per mesh cell. */
+/** Crust truth + derived drivers per mesh cell. */
 export const FoundationCrustSchema = Type.Object(
   {
+    /** Crust maturity per mesh cell (0=basaltic lid, 1=cratonic). */
+    maturity: TypedArraySchemas.f32({
+      shape: null,
+      description: "Crust maturity per mesh cell (0=basaltic lid, 1=cratonic).",
+    }),
+    /** Crust thickness proxy per mesh cell (0..1). */
+    thickness: TypedArraySchemas.f32({
+      shape: null,
+      description: "Crust thickness proxy per mesh cell (0..1).",
+    }),
+    /** Crust thermal age per mesh cell (0..255). */
+    thermalAge: TypedArraySchemas.u8({
+      shape: null,
+      description: "Crust thermal age per mesh cell (0..255).",
+    }),
+    /** Crust damage per mesh cell (0..255). */
+    damage: TypedArraySchemas.u8({
+      shape: null,
+      description: "Crust damage per mesh cell (0..255).",
+    }),
     type: TypedArraySchemas.u8({
       shape: null,
       description: "Crust type per mesh cell (0=oceanic, 1=continental).",
     }),
     age: TypedArraySchemas.u8({
       shape: null,
-      description: "Crust age per mesh cell (0=new, 255=ancient).",
+      description: "Crust thermal age per mesh cell (0=new, 255=ancient).",
     }),
     buoyancy: TypedArraySchemas.f32({
       shape: null,
@@ -102,7 +86,7 @@ export const FoundationCrustSchema = Type.Object(
       description: "Lithospheric strength proxy per mesh cell (0..1).",
     }),
   },
-  { description: "Crust drivers (type/age/buoyancy/baseElevation/strength) per mesh cell." }
+  { description: "Crust truth + derived drivers per mesh cell." }
 );
 
 /** Input payload for foundation/compute-crust. */
@@ -126,7 +110,7 @@ const InputSchema = Type.Object(
 /** Output payload for foundation/compute-crust. */
 const OutputSchema = Type.Object(
   {
-    /** Crust drivers (type/age/buoyancy/baseElevation/strength) per mesh cell. */
+    /** Crust truth + derived drivers per mesh cell. */
     crust: FoundationCrustSchema,
   },
   { description: "Output payload for foundation/compute-crust." }

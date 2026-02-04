@@ -426,6 +426,26 @@ const FoundationPlateMotionArtifactSchema = Type.Object(
 /** Foundation crust artifact payload (mesh-space crust driver tensors). */
 const FoundationCrustArtifactSchema = Type.Object(
   {
+    /** Crust maturity per mesh cell (0=basaltic lid, 1=cratonic). */
+    maturity: TypedArraySchemas.f32({
+      shape: null,
+      description: "Crust maturity per mesh cell (0=basaltic lid, 1=cratonic).",
+    }),
+    /** Crust thickness proxy per mesh cell (0..1). */
+    thickness: TypedArraySchemas.f32({
+      shape: null,
+      description: "Crust thickness proxy per mesh cell (0..1).",
+    }),
+    /** Crust thermal age per mesh cell (0..255). */
+    thermalAge: TypedArraySchemas.u8({
+      shape: null,
+      description: "Crust thermal age per mesh cell (0..255).",
+    }),
+    /** Crust damage per mesh cell (0..255). */
+    damage: TypedArraySchemas.u8({
+      shape: null,
+      description: "Crust damage per mesh cell (0..255).",
+    }),
     /** Crust type per mesh cell (0=oceanic, 1=continental). */
     type: TypedArraySchemas.u8({
       shape: null,
@@ -434,7 +454,7 @@ const FoundationCrustArtifactSchema = Type.Object(
     /** Crust age per mesh cell (0=new, 255=ancient). */
     age: TypedArraySchemas.u8({
       shape: null,
-      description: "Crust age per mesh cell (0=new, 255=ancient).",
+      description: "Crust thermal age per mesh cell (0=new, 255=ancient).",
     }),
     /** Crust buoyancy proxy per mesh cell (0..1). */
     buoyancy: TypedArraySchemas.f32({
@@ -472,7 +492,7 @@ const FoundationCrustTilesArtifactSchema = Type.Object(
     /** Crust age per tile (0=new, 255=ancient), sampled via tileToCellIndex. */
     age: TypedArraySchemas.u8({
       shape: null,
-      description: "Crust age per tile (0=new, 255=ancient), sampled via tileToCellIndex.",
+      description: "Crust thermal age per tile (0=new, 255=ancient), sampled via tileToCellIndex.",
     }),
     /** Crust buoyancy proxy per tile (0..1), sampled via tileToCellIndex. */
     buoyancy: TypedArraySchemas.f32({

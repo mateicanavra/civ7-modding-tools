@@ -104,36 +104,24 @@ const COMMON_TECTONIC_HISTORY = {
 } as const;
 
 type CrustDefaults = Readonly<{
-  continentalRatio: number;
-  shelfWidthCells: number;
-  shelfElevationBoost: number;
-  marginElevationPenalty: number;
-  continentalBaseElevation: number;
-  continentalAgeBoost: number;
-  oceanicBaseElevation: number;
-  oceanicAgeDepth: number;
+  basalticThickness01: number;
+  yieldStrength01: number;
+  mantleCoupling01: number;
+  riftWeakening01: number;
 }>;
 
 const COMMON_CRUST_BALANCED: CrustDefaults = {
-  continentalRatio: 0.29,
-  shelfWidthCells: 6,
-  shelfElevationBoost: 0.12,
-  marginElevationPenalty: 0.04,
-  continentalBaseElevation: 0.78,
-  continentalAgeBoost: 0.12,
-  oceanicBaseElevation: 0.32,
-  oceanicAgeDepth: 0.22,
+  basalticThickness01: 0.25,
+  yieldStrength01: 0.55,
+  mantleCoupling01: 0.6,
+  riftWeakening01: 0.35,
 };
 
 const COMMON_CRUST_STANDARD: CrustDefaults = {
-  continentalRatio: 0.3,
-  shelfWidthCells: 6,
-  shelfElevationBoost: 0.12,
-  marginElevationPenalty: 0.04,
-  continentalBaseElevation: 0.78,
-  continentalAgeBoost: 0.12,
-  oceanicBaseElevation: 0.32,
-  oceanicAgeDepth: 0.22,
+  basalticThickness01: 0.25,
+  yieldStrength01: 0.55,
+  mantleCoupling01: 0.6,
+  riftWeakening01: 0.35,
 };
 
 const FOUNDATION_PROFILE_DEFAULTS: Readonly<
@@ -295,6 +283,11 @@ export default createStage({
       { min: 2, max: 256 }
     );
 
+    const lithosphereOverrides =
+      advanced && typeof advanced === "object" && "lithosphere" in advanced
+        ? (advanced as { lithosphere?: Record<string, unknown> }).lithosphere ?? {}
+        : {};
+
     return {
       mesh: {
         computeMesh: {
@@ -311,7 +304,10 @@ export default createStage({
       crust: {
         computeCrust: {
           strategy: "default",
-          config: defaults.crust,
+          config: {
+            ...defaults.crust,
+            ...(typeof lithosphereOverrides === "object" ? lithosphereOverrides : {}),
+          },
         },
       },
       "plate-graph": {
