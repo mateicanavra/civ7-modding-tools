@@ -4,6 +4,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 
 ## Triage
 
+- Follow-up (M1-004): Expand fingerprint normalization to cover ArrayBuffer/Map/Set if future artifacts use them, to avoid silent data loss in determinism fingerprints.
 - Follow-up (M1-002): Add an explicit placeholder/provenance-missing signal for `tectonicProvenanceTiles` until tracer lineage lands (avoid downstream misinterpretation).
 - Follow-up (M1-001): Promote `artifact:foundation.tectonicHistory` (and `artifact:foundation.tectonicSegments` if canonical) to core tag constants to prevent stringly-typed drift in standard recipe contracts.
 - Decision (M1-001): Use `artifact:foundation.plateMotion` as the canonical ID; `plateKinematics` remains a schema concept. New M1 artifacts carry `version: 1` while legacy artifacts stay unversioned until their owning issues update producers.

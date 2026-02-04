@@ -78,3 +78,27 @@ reviewer: AI agent
 ### Cross-cutting Risks
 - If Studio ever stops grouping by `spaceId`, mesh/tile history layers will collide under the same `dataTypeKey`.
 
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-004-validation-harness-scaffolding
+
+### Quick Take
+- Shared validation harness utilities landed in `mods/mod-swooper-maps/test/support`, with stable fingerprinting for typed arrays and a reusable invariant runner.
+- The harness smoke test verifies determinism and failure reporting, giving M1 a single, obvious entry point for future invariants.
+
+### High-Leverage Issues
+- None observed; the harness is reusable, deterministic, and scoped to the test support layer as intended.
+
+### PR Comment Context
+- No actionable review comments; Graphite stack/preview notices only.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- Expand `normalizeForFingerprint` to handle `ArrayBuffer`, `Map`, and `Set` explicitly if those appear in downstream artifacts to avoid silent hash collisions or missing data in fingerprints.
+
+### Needs Discussion
+- Confirm whether the M1 validation seeds/dimensions should be centralized in a shared “suite config” doc/source (for reuse by non-test tooling) or remain test-only constants.
+
+### Cross-cutting Risks
+- If future artifacts include non-plain objects (e.g., `Map`, `ArrayBuffer`), fingerprints may under-represent data until normalization is extended.
