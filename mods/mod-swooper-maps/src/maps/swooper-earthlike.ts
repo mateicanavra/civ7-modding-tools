@@ -11,12 +11,20 @@
 /// <reference types="@civ7/types" />
 
 import { createMap } from "@swooper/mapgen-core/authoring/maps";
+import type { StandardRecipeConfig } from "../recipes/standard/recipe.js";
 import standardRecipe from "../recipes/standard/recipe.js";
-import { SWOOPER_EARTHLIKE_CONFIG } from "./configs/swooper-earthlike.config.js";
+import swooperEarthlikeConfigRaw from "./configs/swooper-earthlike.config.json";
+
+function stripSchemaMetadataRoot(value: unknown): unknown {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return value;
+  const record = value as Record<string, unknown>;
+  const { $schema: _schema, $id: _id, $comment: _comment, ...rest } = record;
+  return rest;
+}
 
 export default createMap({
   id: "swooper-earthlike",
   name: "Swooper Earthlike",
   recipe: standardRecipe,
-  config: SWOOPER_EARTHLIKE_CONFIG,
+  config: stripSchemaMetadataRoot(swooperEarthlikeConfigRaw) as StandardRecipeConfig,
 });

@@ -1,5 +1,4 @@
 import {
-  Type,
   collectCompileOps,
   createRecipe,
   type CompiledRecipeConfigOf,
@@ -55,27 +54,6 @@ export const compileOpsById = collectCompileOps(
   ecologyDomain,
   placementDomain
 );
-
-export const STANDARD_RECIPE_CONFIG_SCHEMA = Type.Object(
-  {
-    foundation: Type.Optional(foundation.surfaceSchema),
-    "morphology-coasts": Type.Optional(morphologyCoasts.surfaceSchema),
-    "morphology-routing": Type.Optional(morphologyRouting.surfaceSchema),
-    "morphology-erosion": Type.Optional(morphologyErosion.surfaceSchema),
-    "morphology-features": Type.Optional(morphologyFeatures.surfaceSchema),
-    "hydrology-climate-baseline": Type.Optional(hydrologyClimateBaseline.surfaceSchema),
-    "hydrology-hydrography": Type.Optional(hydrologyHydrography.surfaceSchema),
-    "hydrology-climate-refine": Type.Optional(hydrologyClimateRefine.surfaceSchema),
-    ecology: Type.Optional(ecology.surfaceSchema),
-    "map-morphology": Type.Optional(mapMorphology.surfaceSchema),
-    "map-hydrology": Type.Optional(mapHydrology.surfaceSchema),
-    "map-ecology": Type.Optional(mapEcology.surfaceSchema),
-    placement: Type.Optional(placement.surfaceSchema),
-  },
-  { additionalProperties: false, default: {} }
-);
-
-export const STANDARD_RECIPE_CONFIG = {} satisfies StandardRecipeConfig;
 
 export default createRecipe({
   id: "standard",

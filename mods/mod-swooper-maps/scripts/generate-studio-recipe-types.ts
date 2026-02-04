@@ -1,8 +1,11 @@
-import { writeFile } from "node:fs/promises";
+import { readFile, readdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { compile } from "json-schema-to-typescript";
-import { Type, type TObject, type TSchema } from "typebox";
+import type { TObject, TSchema } from "typebox";
+
+import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
+import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 
 type JsonObject = Record<string, unknown>;
 
@@ -16,6 +19,13 @@ function assertPlainObject(value: unknown, label: string): asserts value is Json
 
 function isPlainObject(value: unknown): value is JsonObject {
   return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+function stripSchemaMetadata(value: unknown): unknown {
+  if (!isPlainObject(value)) return value;
+  if (!("$schema" in value) && !("$id" in value) && !("$comment" in value)) return value;
+  const { $schema: _schema, $id: _id, $comment: _comment, ...rest } = value as Record<string, unknown>;
+  return rest;
 }
 
 function stableJson(value: unknown): JsonObject {
@@ -88,31 +98,14 @@ type StudioRecipeUiMeta = Readonly<{
   }>[];
 }>;
 
+function buildDefaultsSeed(stages: readonly StageLike[]): Record<string, unknown> {
+  return Object.fromEntries(stages.map((stage) => [stage.id, {}]));
+}
+
 function typeboxObjectProperties(schema: unknown): Record<string, unknown> {
   if (!schema || typeof schema !== "object") return {};
   const props = (schema as any).properties as Record<string, unknown> | undefined;
   return props ?? {};
-}
-
-function buildStudioStageSchema(stage: StageLike): TObject {
-  if (stage.public) return stage.surfaceSchema;
-
-  const props: Record<string, TSchema> = {
-    knobs: Type.Optional(stage.knobsSchema),
-  };
-  for (const step of stage.steps) {
-    props[step.contract.id] = Type.Optional(step.contract.schema);
-  }
-
-  return Type.Object(props, { additionalProperties: false });
-}
-
-function buildStudioRecipeSchema(stages: readonly StageLike[]): TObject {
-  const props: Record<string, TSchema> = {};
-  for (const stage of stages) {
-    props[stage.id] = Type.Optional(buildStudioStageSchema(stage));
-  }
-  return Type.Object(props, { additionalProperties: false, default: {} });
 }
 
 function deriveStageStepConfigFocusMap(args: {
@@ -329,32 +322,49 @@ const pkgRoot = resolve(__dirname, "..");
 const distBrowserTest = resolve(pkgRoot, "dist", "recipes", "browser-test.js");
 const distStandard = resolve(pkgRoot, "dist", "recipes", "standard.js");
 
-const mod = (await import(pathToFileURL(distBrowserTest).href)) as unknown as {
-  BROWSER_TEST_FOUNDATION_STAGE_CONFIG: unknown;
-  BROWSER_TEST_RECIPE_CONFIG: unknown;
-  BROWSER_TEST_RECIPE_CONFIG_SCHEMA: unknown;
+const browserTestMod = (await import(pathToFileURL(distBrowserTest).href)) as unknown as {
   BROWSER_TEST_STAGES: readonly StageLike[];
+  compileOpsById: Readonly<Record<string, unknown>>;
 };
 
-if (!Array.isArray(mod.BROWSER_TEST_STAGES)) {
+if (!Array.isArray(browserTestMod.BROWSER_TEST_STAGES)) {
   throw new Error(`[recipe:mod-swooper-maps.browser-test] missing export BROWSER_TEST_STAGES`);
 }
 
-const browserTestSchema = buildStudioRecipeSchema(mod.BROWSER_TEST_STAGES);
-const schemaJson = stableJson(browserTestSchema);
+const browserTestSchema = deriveRecipeConfigSchema(browserTestMod.BROWSER_TEST_STAGES);
+const browserTestSchemaJson = stableJson(browserTestSchema);
+const { value: browserTestDefaults, errors: browserTestDefaultsErrors } = normalizeStrict<any>(
+  browserTestSchema as any,
+  buildDefaultsSeed(browserTestMod.BROWSER_TEST_STAGES),
+  "/defaults"
+);
+if (browserTestDefaultsErrors.length > 0) {
+  throw new Error(
+    `[recipe:mod-swooper-maps.browser-test] derived defaults do not validate: ${JSON.stringify(
+      browserTestDefaultsErrors,
+      null,
+      2
+    )}`
+  );
+}
+const browserTestDefaultsClean = stripSchemaMetadata(browserTestDefaults);
 
 const browserTestUiMeta = deriveStudioRecipeUiMeta({
   namespace: "mod-swooper-maps",
   recipeId: "browser-test",
-  stages: mod.BROWSER_TEST_STAGES,
+  stages: browserTestMod.BROWSER_TEST_STAGES,
 });
 
 await writeFile(
   resolve(pkgRoot, "dist", "recipes", "browser-test.schema.json"),
-  JSON.stringify(schemaJson, null, 2)
+  JSON.stringify(browserTestSchemaJson, null, 2)
+);
+await writeFile(
+  resolve(pkgRoot, "dist", "recipes", "browser-test.defaults.json"),
+  JSON.stringify(browserTestDefaultsClean, null, 2)
 );
 
-const configTypes = await compile(schemaJson, "BrowserTestRecipeConfig", {
+const browserTestConfigTypes = await compile(browserTestSchemaJson, "BrowserTestRecipeConfig", {
   bannerComment: "",
   style: {
     singleQuote: false,
@@ -362,28 +372,14 @@ const configTypes = await compile(schemaJson, "BrowserTestRecipeConfig", {
   },
 });
 
-const recipeTypeExports = [
-  `export type BrowserTestFoundationStageConfig = NonNullable<BrowserTestRecipeConfig["foundation"]>;`,
-  `export type BrowserTestFoundationStageKnobsConfig = NonNullable<BrowserTestFoundationStageConfig["knobs"]>;`,
-  `export type BrowserTestFoundationStageAdvancedConfig = NonNullable<BrowserTestFoundationStageConfig["advanced"]>;`,
-  `export type BrowserTestRecipeCompiledConfig = Readonly<{`,
-  `  foundation?: BrowserTestFoundationStageAdvancedConfig;`,
-  `}>;`,
-  ``,
-];
-
 const browserTestDts = [
   `import type { ExtendedMapContext } from "@swooper/mapgen-core";`,
   `import type { RecipeModule } from "@swooper/mapgen-core/authoring";`,
-  `import type { TSchema } from "typebox";`,
   ``,
-  configTypes.trimEnd(),
+  browserTestConfigTypes.trimEnd(),
   ``,
-  ...recipeTypeExports,
-  `export const BROWSER_TEST_FOUNDATION_STAGE_CONFIG: Readonly<BrowserTestFoundationStageConfig>;`,
-  `export const BROWSER_TEST_RECIPE_CONFIG: Readonly<BrowserTestRecipeConfig>;`,
-  `export const BROWSER_TEST_RECIPE_CONFIG_SCHEMA: TSchema;`,
   `export const compileOpsById: Readonly<Record<string, unknown>>;`,
+  `export const BROWSER_TEST_STAGES: ReadonlyArray<unknown>;`,
   ``,
   `declare const recipe: RecipeModule<ExtendedMapContext, Readonly<BrowserTestRecipeConfig>, unknown>;`,
   `export default recipe;`,
@@ -395,86 +391,124 @@ await writeFile(resolve(pkgRoot, "dist", "recipes", "browser-test.d.ts"), browse
 await writeArtifactsModule({
   pkgRoot,
   outBase: "browser-test-artifacts",
-  schemaJson,
+  schemaJson: browserTestSchemaJson,
   typeName: "BrowserTestRecipeConfig",
-  configTypes,
+  configTypes: browserTestConfigTypes,
   configConstName: "BROWSER_TEST_RECIPE_CONFIG",
   schemaConstName: "BROWSER_TEST_RECIPE_CONFIG_SCHEMA",
-  configValue: mod.BROWSER_TEST_RECIPE_CONFIG ?? {},
+  configValue: browserTestDefaultsClean,
   uiMetaValue: browserTestUiMeta,
 });
 
-const standardMod = (await import(pathToFileURL(distStandard).href)) as Record<string, unknown>;
-const standardSchemaRaw = standardMod.STANDARD_RECIPE_CONFIG_SCHEMA;
-
-let standardDts = "";
-
-if (standardSchemaRaw) {
-  const standardStages = (standardMod as any).STANDARD_STAGES as unknown;
-  if (!Array.isArray(standardStages)) {
-    throw new Error(`[recipe:mod-swooper-maps.standard] missing export STANDARD_STAGES`);
-  }
-
-  const standardUiMeta = deriveStudioRecipeUiMeta({
-    namespace: "mod-swooper-maps",
-    recipeId: "standard",
-    stages: standardStages as readonly StageLike[],
-  });
-
-  const standardSchemaJson = stableJson(buildStudioRecipeSchema(standardStages as StageLike[]));
-  await writeFile(
-    resolve(pkgRoot, "dist", "recipes", "standard.schema.json"),
-    JSON.stringify(standardSchemaJson, null, 2)
-  );
-
-  const standardConfigTypes = await compile(standardSchemaJson, "StandardRecipeConfig", {
-    bannerComment: "",
-    style: {
-      singleQuote: false,
-      semi: true,
-    },
-  });
-
-    standardDts = [
-      `import type { ExtendedMapContext } from "@swooper/mapgen-core";`,
-      `import type { RecipeModule } from "@swooper/mapgen-core/authoring";`,
-      `import type { TSchema } from "typebox";`,
-      ``,
-      standardConfigTypes.trimEnd(),
-      ``,
-      `export const STANDARD_RECIPE_CONFIG: Readonly<StandardRecipeConfig>;`,
-      `export const STANDARD_RECIPE_CONFIG_SCHEMA: TSchema;`,
-      `export const compileOpsById: Readonly<Record<string, unknown>>;`,
-      ``,
-      `declare const recipe: RecipeModule<ExtendedMapContext, Readonly<StandardRecipeConfig>, unknown>;`,
-    `export default recipe;`,
-    ``,
-  ].join("\n");
-
-  await writeArtifactsModule({
-    pkgRoot,
-    outBase: "standard-artifacts",
-    schemaJson: standardSchemaJson,
-    typeName: "StandardRecipeConfig",
-    configTypes: standardConfigTypes,
-    configConstName: "STANDARD_RECIPE_CONFIG",
-    schemaConstName: "STANDARD_RECIPE_CONFIG_SCHEMA",
-    configValue: standardMod.STANDARD_RECIPE_CONFIG ?? {},
-    uiMetaValue: standardUiMeta,
-  });
-} else {
-  standardDts = [
-    `import type { ExtendedMapContext } from "@swooper/mapgen-core";`,
-    `import type { RecipeModule } from "@swooper/mapgen-core/authoring";`,
-    ``,
-    `export type StandardRecipeConfig = Readonly<Record<string, unknown>>;`,
-    `export const STANDARD_RECIPE_CONFIG: Readonly<StandardRecipeConfig>;`,
-    `export const compileOpsById: Readonly<Record<string, unknown>>;`,
-    ``,
-    `declare const recipe: RecipeModule<ExtendedMapContext, Readonly<StandardRecipeConfig>, unknown>;`,
-    `export default recipe;`,
-    ``,
-  ].join("\n");
+const standardMod = (await import(pathToFileURL(distStandard).href)) as unknown as {
+  STANDARD_STAGES: readonly StageLike[];
+  compileOpsById: Readonly<Record<string, unknown>>;
+};
+if (!Array.isArray(standardMod.STANDARD_STAGES)) {
+  throw new Error(`[recipe:mod-swooper-maps.standard] missing export STANDARD_STAGES`);
 }
 
+const standardSchema = deriveRecipeConfigSchema(standardMod.STANDARD_STAGES);
+const standardSchemaJson = stableJson(standardSchema);
+const { value: standardDefaults, errors: standardDefaultsErrors } = normalizeStrict<any>(
+  standardSchema as any,
+  buildDefaultsSeed(standardMod.STANDARD_STAGES),
+  "/defaults"
+);
+if (standardDefaultsErrors.length > 0) {
+  throw new Error(
+    `[recipe:mod-swooper-maps.standard] derived defaults do not validate: ${JSON.stringify(
+      standardDefaultsErrors,
+      null,
+      2
+    )}`
+  );
+}
+const standardDefaultsClean = stripSchemaMetadata(standardDefaults);
+
+const standardUiMeta = deriveStudioRecipeUiMeta({
+  namespace: "mod-swooper-maps",
+  recipeId: "standard",
+  stages: standardMod.STANDARD_STAGES,
+});
+
+await writeFile(
+  resolve(pkgRoot, "dist", "recipes", "standard.schema.json"),
+  JSON.stringify(standardSchemaJson, null, 2)
+);
+await writeFile(
+  resolve(pkgRoot, "dist", "recipes", "standard.defaults.json"),
+  JSON.stringify(standardDefaultsClean, null, 2)
+);
+
+const standardConfigTypes = await compile(standardSchemaJson, "StandardRecipeConfig", {
+  bannerComment: "",
+  style: {
+    singleQuote: false,
+    semi: true,
+  },
+});
+
+const standardDts = [
+  `import type { ExtendedMapContext } from "@swooper/mapgen-core";`,
+  `import type { RecipeModule } from "@swooper/mapgen-core/authoring";`,
+  ``,
+  standardConfigTypes.trimEnd(),
+  ``,
+  `export const compileOpsById: Readonly<Record<string, unknown>>;`,
+  `export const STANDARD_STAGES: ReadonlyArray<unknown>;`,
+  ``,
+  `declare const recipe: RecipeModule<ExtendedMapContext, Readonly<StandardRecipeConfig>, unknown>;`,
+  `export default recipe;`,
+  ``,
+].join("\n");
+
 await writeFile(resolve(pkgRoot, "dist", "recipes", "standard.d.ts"), standardDts);
+
+await writeArtifactsModule({
+  pkgRoot,
+  outBase: "standard-artifacts",
+  schemaJson: standardSchemaJson,
+  typeName: "StandardRecipeConfig",
+  configTypes: standardConfigTypes,
+  configConstName: "STANDARD_RECIPE_CONFIG",
+  schemaConstName: "STANDARD_RECIPE_CONFIG_SCHEMA",
+  configValue: standardDefaultsClean,
+  uiMetaValue: standardUiMeta,
+});
+
+async function validateStandardMapConfigPresets(): Promise<void> {
+  const dir = resolve(pkgRoot, "src", "maps", "configs");
+  let entries: Awaited<ReturnType<typeof readdir>>;
+  try {
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch {
+    return;
+  }
+
+  const errors: Array<{ path: string; message: string }> = [];
+  for (const ent of entries) {
+    if (!ent.isFile()) continue;
+    if (!ent.name.endsWith(".config.json")) continue;
+    const abs = resolve(dir, ent.name);
+    const raw = JSON.parse(await readFile(abs, "utf-8")) as unknown;
+    const sanitized = stripSchemaMetadata(raw);
+    const res = normalizeStrict<any>(standardSchema as any, sanitized, `/preset/${ent.name}`);
+    if (res.errors.length > 0) {
+      errors.push(
+        ...res.errors.map((e) => ({
+          path: `${ent.name}${e.path.startsWith("/") ? "" : "/"}${e.path}`,
+          message: e.message,
+        }))
+      );
+    }
+  }
+
+  if (errors.length > 0) {
+    throw new Error(
+      `Invalid standard map config presets:\n${errors.map((e) => `- ${e.path}: ${e.message}`).join("\n")}`
+    );
+  }
+}
+
+await validateStandardMapConfigPresets();

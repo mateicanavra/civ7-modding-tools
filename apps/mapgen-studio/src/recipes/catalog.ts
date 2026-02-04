@@ -52,6 +52,7 @@ function makeRecipeId(namespace: string, recipeId: string): StudioRecipeId {
 // This is a bundled catalog for the current Studio build. Studio's engine code
 // only depends on the generic `RecipeArtifacts` interface, not on any one recipe.
 import {
+  STANDARD_RECIPE_CONFIG as swooperStandardDefaultConfig,
   STANDARD_RECIPE_CONFIG_SCHEMA as swooperStandardConfigSchema,
   studioRecipeUiMeta as swooperStandardUiMeta,
 } from "mod-swooper-maps/recipes/standard-artifacts";
@@ -60,15 +61,13 @@ import {
   BROWSER_TEST_RECIPE_CONFIG_SCHEMA as swooperBrowserTestConfigSchema,
   studioRecipeUiMeta as swooperBrowserTestUiMeta,
 } from "mod-swooper-maps/recipes/browser-test-artifacts";
-import { SWOOPER_EARTHLIKE_DEFAULT_CONFIG } from "./defaultConfigs/swooperEarthlike";
 
 export const STUDIO_RECIPE_ARTIFACTS: readonly RecipeArtifacts[] = [
   {
     id: makeRecipeId("mod-swooper-maps", "standard"),
     label: "Swooper Maps / Standard",
     configSchema: swooperStandardConfigSchema,
-    // Keep Studio defaults aligned with the canonical Swooper Earthlike map config.
-    defaultConfig: SWOOPER_EARTHLIKE_DEFAULT_CONFIG,
+    defaultConfig: swooperStandardDefaultConfig,
     uiMeta: swooperStandardUiMeta,
   },
   {

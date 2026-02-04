@@ -41,6 +41,7 @@ import {
   STUDIO_RECIPE_OPTIONS,
   type StudioRecipeUiMeta,
 } from "./recipes/catalog";
+import { stripSchemaMetadataRoot } from "./recipes/sanitizeConfigRoot";
 
 function randomU32(): number {
   try {
@@ -184,7 +185,7 @@ function buildDefaultConfig(
   defaultConfig: unknown
 ): PipelineConfig {
   const skeleton = buildConfigSkeleton(uiMeta);
-  const merged = mergeDeterministic(skeleton, defaultConfig);
+  const merged = mergeDeterministic(skeleton, stripSchemaMetadataRoot(defaultConfig));
   const { value, errors } = normalizeStrict<Record<string, unknown>>(schema as any, merged, "/defaultConfig");
   if (errors.length > 0) {
     console.error("[mapgen-studio] invalid recipe config schema defaults", errors);
