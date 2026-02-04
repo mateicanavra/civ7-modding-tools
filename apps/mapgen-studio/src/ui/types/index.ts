@@ -88,8 +88,14 @@ export interface VariantOption {
   label: string;
 }
 
+/** Overlay option for correlation visualizations */
+export interface OverlayOption {
+  value: string;
+  label: string;
+}
+
 /** Knob options mapping - knob name to available values */
-export type KnobOptionsMap = Record<string, readonly Array<string | number>>;
+export type KnobOptionsMap = Record<string, readonly string[]>;
 
 // ============================================================================
 // World Settings Types
@@ -179,8 +185,8 @@ export interface StepConfig {
  * - advanced: Detailed step-by-step configuration
  */
 export interface StageConfig {
-  /** High-level knobs (e.g., 'plateCount': 28 or 'coastRuggedness': 'normal') */
-  knobs?: Record<string, ConfigPrimitive>;
+  /** High-level knobs (e.g., 'plateCount': 'normal') */
+  knobs?: Record<string, string>;
   /** Advanced step configurations grouped by category */
   advanced?: Record<string, StepConfig> | Record<string, Record<string, StepConfig>>;
   /** Additional stage-specific groups */
