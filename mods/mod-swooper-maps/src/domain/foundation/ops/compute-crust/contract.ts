@@ -1,6 +1,7 @@
 import { TypedArraySchemas, Type, defineOp } from "@swooper/mapgen-core/authoring";
 import type { Static, TSchema } from "@swooper/mapgen-core/authoring";
 import { FoundationMeshSchema } from "../compute-mesh/contract.js";
+import { FoundationMantleForcingSchema } from "../compute-mantle-forcing/contract.js";
 
 function withDescription<T extends TSchema>(schema: T, description: string) {
   const { additionalProperties: _additionalProperties, default: _default, ...rest } = schema as any;
@@ -96,6 +97,11 @@ const InputSchema = Type.Object(
     mesh: withDescription(
       FoundationMeshSchema,
       "Foundation mesh (cells, adjacency, site coordinates)."
+    ),
+    /** Mantle forcing fields (derived from mantle potential). */
+    mantleForcing: withDescription(
+      FoundationMantleForcingSchema,
+      "Mantle forcing fields (derived from mantle potential)."
     ),
     /** Deterministic RNG seed (derived in the step; pure data). */
     rngSeed: Type.Integer({

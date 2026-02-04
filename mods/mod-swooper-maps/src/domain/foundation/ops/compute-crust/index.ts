@@ -1,7 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import { clamp01 } from "@swooper/mapgen-core/lib/math";
 
-import { requireMesh } from "../../lib/require.js";
+import { requireMantleForcing, requireMesh } from "../../lib/require.js";
 import ComputeCrustContract from "./contract.js";
 
 const MATURITY_CONTINENT_THRESHOLD = 0.55;
@@ -46,6 +46,11 @@ const computeCrust = createOp(ComputeCrustContract, {
     default: {
       run: (input, config) => {
         const mesh = requireMesh(input.mesh, "foundation/compute-crust");
+        const mantleForcing = requireMantleForcing(
+          input.mantleForcing,
+          mesh.cellCount | 0,
+          "foundation/compute-crust"
+        );
         const cellCount = mesh.cellCount | 0;
 
         const maturity = new Float32Array(cellCount);
@@ -62,15 +67,26 @@ const computeCrust = createOp(ComputeCrustContract, {
         const basalticThickness = clamp01(config.basalticThickness01 ?? 0.25);
         const yieldStrength = clamp01(config.yieldStrength01 ?? 0.55);
         const mantleCoupling = clamp01(config.mantleCoupling01 ?? 0.6);
+        const riftWeakening = clamp01(config.riftWeakening01 ?? 0.35);
 
         const strengthYieldScalar = 0.85 + 0.3 * yieldStrength;
         const strengthCouplingScalar = 0.9 + 0.2 * mantleCoupling;
 
         for (let i = 0; i < cellCount; i++) {
-          maturity[i] = 0;
-          thickness[i] = basalticThickness;
+          const divergenceRaw = mantleForcing.divergence[i] ?? 0;
+          const divergencePos = clamp01(Math.max(0, divergenceRaw));
+          const divergenceNeg = clamp01(Math.max(0, -divergenceRaw));
+          const stress = clamp01(mantleForcing.stress[i] ?? 0);
+          const forcingMag = clamp01(mantleForcing.forcingMag[i] ?? 0);
+
+          const riftSignal = clamp01(divergencePos * (0.35 + 0.65 * forcingMag) * (0.5 + 0.5 * stress));
+          const maturitySeed = clamp01(divergenceNeg * (0.4 + 0.6 * stress)) * 0.25;
+          const thicknessSeed = clamp01(basalticThickness + maturitySeed * 0.25);
+
+          maturity[i] = maturitySeed;
+          thickness[i] = thicknessSeed;
           thermalAge[i] = 0;
-          damage[i] = 0;
+          damage[i] = clampU8(riftSignal * riftWeakening * 255);
 
           const m = maturity[i] ?? 0;
           const t = thickness[i] ?? 0;
