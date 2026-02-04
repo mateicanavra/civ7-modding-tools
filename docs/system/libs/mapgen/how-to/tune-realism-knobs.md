@@ -52,8 +52,10 @@ In your config object, change only stage `knobs` values (unless you have a speci
 Examples of common “realism” knob sets (see anchors for exact enums and mapping):
 - `foundation.knobs.plateCount`: `sparse | normal | dense`
 - `foundation.knobs.plateActivity`: `low | normal | high`
-- `morphology-mid.knobs.erosion`: `low | normal | high`
-- `morphology-mid.knobs.coastRuggedness`: `smooth | normal | rugged`
+- `morphology-coasts.knobs.seaLevel`: `low | earthlike | high`
+- `morphology-coasts.knobs.coastRuggedness`: `smooth | normal | rugged`
+- `morphology-coasts.knobs.shelfWidth`: `narrow | normal | wide`
+- `morphology-erosion.knobs.erosion`: `low | normal | high`
 - `hydrology-*.knobs.dryness`: `wet | mix | dry`
 - `hydrology-*.knobs.temperature`: `cold | temperate | hot`
 
@@ -78,6 +80,6 @@ Then:
 
 - Preset configs (author surface): `mods/mod-swooper-maps/src/maps/presets/realism/earthlike.config.ts`
 - Foundation stage surface schema (knobs vs advanced, “knobs apply last” statement): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
-- Morphology erosion knob application (normalize-time multiplier): `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/steps/geomorphology.ts`
+- Morphology erosion knob application (normalize-time multiplier): `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology.ts`
 - Morphology erosion knob multipliers: `mods/mod-swooper-maps/src/domain/morphology/shared/knob-multipliers.ts`
 - Studio knob option enums (UI): `apps/mapgen-studio/src/ui/constants/options.ts`

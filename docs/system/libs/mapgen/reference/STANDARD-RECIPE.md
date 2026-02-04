@@ -36,20 +36,21 @@ The standard recipe is **content-owned** (not SDK-owned):
 The current stage order is:
 
 1) `foundation`
-2) `morphology-pre`
-3) `morphology-mid`
-4) `morphology-post`
-5) `hydrology-climate-baseline`
-6) `hydrology-hydrography`
-7) `hydrology-climate-refine`
-8) `ecology`
-9) `map-morphology`
-10) `map-hydrology`
-11) `map-ecology`
-12) `placement`
+2) `morphology-coasts`
+3) `morphology-routing`
+4) `morphology-erosion`
+5) `morphology-features`
+6) `hydrology-climate-baseline`
+7) `hydrology-hydrography`
+8) `hydrology-climate-refine`
+9) `ecology`
+10) `map-morphology`
+11) `map-hydrology`
+12) `map-ecology`
+13) `placement`
 
 Note:
-- “foundation/morphology/hydrology/ecology” stages are primarily **truth** producers.
+- “foundation/morphology-*/hydrology/ecology” stages are primarily **truth** producers.
 - “map-*” and “placement” stages are primarily **projection** / engine-facing surfaces.
 
 ## Config surface (schema + posture)

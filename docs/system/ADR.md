@@ -109,3 +109,26 @@ Each decision follows this structure:
 - MapGen Studio and dump replay accept **only** `manifest.json` with `version: 1` (no compatibility shims/adapters for older dumps).
 - Studio can safely present multiple spaces/representations/variants for a single `dataTypeKey` without collisions by grouping on `dataTypeKey → spaceId → kind[:meta.role] → variantKey`.
 - Producers should keep `layerKey` stable and treat `dataTypeKey`/`spaceId` as intentional, user-facing structure (not incidental implementation details).
+
+## ADR-006: Standard Recipe splits Morphology truth into coasts/routing/erosion/features stages
+
+**Status:** Accepted
+**Date:** 2026-02-03
+**Context:** The Standard recipe previously grouped multiple distinct Morphology responsibilities under `morphology-mid` (coast shaping + routing + geomorphology), which reduced legibility in the pipeline, Studio navigation, and configuration surfaces. It also made it harder to name contracts according to what the stage actually guarantees, and complicated future work (notably: splitting routing into finer-grained stages without conflating “same-kind” operations).
+**Decision:** The Standard recipe’s Morphology truth is authored as four stages:
+- `morphology-coasts` (landmass formation + coastline metrics)
+- `morphology-routing` (flow routing truth)
+- `morphology-erosion` (geomorphology / erosion pass)
+- `morphology-features` (islands + volcano intent + landmass decomposition)
+
+We keep domain-level identities stable:
+- Artifact ids remain `artifact:morphology.*`.
+- Op ids remain `morphology/*`.
+- Viz `dataTypeKey` remains stable.
+
+We accept that full step ids change because stage ids are embedded in the full id.
+**Consequences:**
+- Stage boundaries become explicit and align with author mental models (“what exists before what”).
+- Knobs become easier to scope correctly (steering inputs rather than post-hoc correction).
+- Studio stage/step naming becomes more meaningful by adding explicit `stageLabel`/`stepLabel` to recipe uiMeta.
+- Any tooling that relied on the old stage ids (`morphology-pre/mid/post`) must be updated as part of the cutover (configs, docs, guardrails).
