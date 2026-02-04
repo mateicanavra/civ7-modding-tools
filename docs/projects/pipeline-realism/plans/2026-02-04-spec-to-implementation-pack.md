@@ -15,7 +15,7 @@ This doc is the **single execution plan** for converting the existing maximal Fo
 - [x] Slice 3: Expand milestone into local issue docs
 - [x] Slice 4: Prework sweep (no dangling prompts)
 - [x] Slice 5: Readiness report + doc stewardship pass
-- [ ] Submit planning stack (`gt submit --stack --draft`)
+- [x] Submit planning stack (`gt submit --stack --draft`)
 
 ## Branch Stack Map (Fill In As Slices Are Created)
 
