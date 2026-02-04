@@ -33,6 +33,8 @@ const EMISSION_DECAY = {
 const RIFT_RESET_THRESHOLD = 160;
 const ARC_RESET_THRESHOLD = 170;
 const HOTSPOT_RESET_THRESHOLD = 200;
+const ERA_COUNT_TARGET = 5;
+const ERA_COUNT_MAX = 8;
 
 function clampByte(value: number): number {
   return Math.max(0, Math.min(255, Math.round(value))) | 0;
@@ -603,9 +605,14 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
 
         const weights = config.eraWeights;
         const driftSteps = config.driftStepsByEra;
-        const eraCount = Math.min(weights.length, driftSteps.length, 3);
-        if (eraCount !== 3) {
-          throw new Error("[Foundation] compute-tectonic-history expects exactly 3 eras.");
+        if (weights.length !== driftSteps.length) {
+          throw new Error("[Foundation] compute-tectonic-history expects eraWeights/driftStepsByEra to match length.");
+        }
+        const eraCount = Math.min(weights.length, driftSteps.length);
+        if (eraCount < ERA_COUNT_TARGET || eraCount > ERA_COUNT_MAX) {
+          throw new Error(
+            `[Foundation] compute-tectonic-history expects eraCount within ${ERA_COUNT_TARGET}..${ERA_COUNT_MAX}.`
+          );
         }
 
         const eras: EraFields[] = [];
