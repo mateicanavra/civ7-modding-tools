@@ -104,3 +104,22 @@ Expected test placement:
 ### Wow Scenarios
 
 - **Determinism as a feature:** implementers can refactor internals aggressively because any causal drift surfaces immediately, and the failure report tells them which artifact boundary they violated.
+
+## Implementation Decisions
+
+### Canonical determinism cases (M1)
+- **Context:** The suite must exercise wrap semantics, multiple plate counts, and at least one tectonically active scenario.
+- **Options:** (A) single baseline case, (B) small multi-case suite with explicit plate/activity variation, (C) large grid of cases.
+- **Choice:** Option B — three fixed cases in `test/support/determinism-suite.ts`:
+  - `baseline-balanced`: seed 1337, 32×20, plateCount 23, plateActivity 0.5
+  - `wrap-active`: seed 9001, 37×23 (odd width), plateCount 31, plateActivity 0.85
+  - `compact-low-plates`: seed 4242, 28×18, plateCount 15, plateActivity 0.25
+- **Rationale:** Covers wrap + multiple plate counts + active forcing while keeping CI runtime bounded.
+- **Risk:** Edge cases outside these dimensions may still drift; expand suite if real regressions escape.
+
+### Float tolerance policy: bit-identical
+- **Context:** The harness fingerprints TypedArray bytes (including Float32Array).
+- **Options:** (A) byte-level determinism, (B) quantized/tolerant floats with explicit scope.
+- **Choice:** Option A.
+- **Rationale:** Strongest determinism signal and simplest audit; any future tolerance must be explicit and scoped.
+- **Risk:** Cross-platform float drift could require a controlled quantization layer later.
