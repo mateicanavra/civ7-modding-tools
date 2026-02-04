@@ -199,3 +199,28 @@ reviewer: AI agent
 
 ### Cross-cutting Risks
 - If legacy-only runs are impossible, the transition window for validating deltas independently of new drivers is effectively closed, making regression triage harder.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-015-morphology-belt-synthesis-history-provenance
+
+### Quick Take
+- Belt driver tensors are now derived from history/provenance tiles with continuity (gap fill + min length) and age-aware diffusion, and `plotMountains` consumes those drivers instead of legacy plates.
+- New tests cover noise-only suppression, continuity, and age diffusion; viz emissions now include belt driver layers and summaries.
+
+### High-Leverage Issues
+- `plotMountains.contract` still requires `foundationArtifacts.plates` even though the step no longer uses them, keeping a legacy dependency that undercuts the cutover posture.
+
+### PR Comment Context
+- No reviewer comments; Graphite/preview notices only.
+
+### Fix Now (Recommended)
+- Remove the unused `foundationArtifacts.plates` requirement from `plotMountains.contract` (or reintroduce intentional usage) so the belt pipeline is fully driven by history/provenance inputs.
+
+### Defer / Follow-up
+- Align belt synthesis tests with the D04r 5-era budget (current fixtures use `eraCount=3`) to avoid under-testing the era-weighting logic.
+- Consider enforcing 5..8 era bounds for belt driver derivation to keep Morphology aligned with the bounded history/provenance contract.
+
+### Needs Discussion
+- When (if ever) to upgrade to anisotropic diffusion once a tangent field exists, and how to stage that without breaking current correlation gates.
+
+### Cross-cutting Risks
+- Leaving legacy plate requirements in gameplay steps makes M1-016’s “new drivers only” cutover harder and increases the chance of silent regressions back to legacy inputs.
