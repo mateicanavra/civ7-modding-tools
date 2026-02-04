@@ -1,4 +1,4 @@
-// Generated once from mods/mod-swooper-maps/src/maps/swooper-earthlike.ts
+// Generated once from mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.ts
 // Keep this 1:1 with the map until we have real preset plumbing.
 
 export const SWOOPER_EARTHLIKE_DEFAULT_CONFIG = {
@@ -24,7 +24,14 @@ export const SWOOPER_EARTHLIKE_DEFAULT_CONFIG = {
             "computeCrust": {
               "strategy": "default",
               "config": {
-                "continentalRatio": 0.29
+                "continentalRatio": 0.29,
+                "shelfWidthCells": 6,
+                "shelfElevationBoost": 0.12,
+                "marginElevationPenalty": 0.04,
+                "continentalBaseElevation": 0.78,
+                "continentalAgeBoost": 0.12,
+                "oceanicBaseElevation": 0.32,
+                "oceanicAgeDepth": 0.22
               }
             }
           },
@@ -78,8 +85,9 @@ export const SWOOPER_EARTHLIKE_DEFAULT_CONFIG = {
           }
         }
       },
-      "morphology-pre": {
+      "morphology-coasts": {
         "knobs": {
+          "coastRuggedness": "normal",
           "seaLevel": "earthlike"
         },
         "advanced": {
@@ -157,15 +165,7 @@ export const SWOOPER_EARTHLIKE_DEFAULT_CONFIG = {
                 }
               }
             }
-          }
-        }
-      },
-      "morphology-mid": {
-        "knobs": {
-          "erosion": "normal",
-          "coastRuggedness": "normal"
-        },
-        "advanced": {
+          },
           "rugged-coasts": {
             "coastlines": {
               "strategy": "default",
@@ -196,12 +196,23 @@ export const SWOOPER_EARTHLIKE_DEFAULT_CONFIG = {
               }
             }
           },
+        }
+      },
+      "morphology-routing": {
+        "advanced": {
           "routing": {
             "routing": {
               "strategy": "default",
               "config": {}
             }
           },
+        }
+      },
+      "morphology-erosion": {
+        "knobs": {
+          "erosion": "normal"
+        },
+        "advanced": {
           "geomorphology": {
             "geomorphology": {
               "strategy": "default",
@@ -227,7 +238,7 @@ export const SWOOPER_EARTHLIKE_DEFAULT_CONFIG = {
           }
         }
       },
-      "morphology-post": {
+      "morphology-features": {
         "knobs": {
           "volcanism": "normal"
         },
