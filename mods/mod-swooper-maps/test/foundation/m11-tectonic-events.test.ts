@@ -130,8 +130,8 @@ describe("m11 tectonic events", () => {
         ...computeTectonicHistory.defaultConfig,
         config: {
           ...computeTectonicHistory.defaultConfig.config,
-          eraWeights: [0, 1, 0],
-          driftStepsByEra: [0, 0, 0],
+          eraWeights: [0, 1, 0, 0, 0],
+          driftStepsByEra: [0, 0, 0, 0, 0],
           beltInfluenceDistance: 8,
           beltDecay: 0.55,
           activityThreshold: 1,
