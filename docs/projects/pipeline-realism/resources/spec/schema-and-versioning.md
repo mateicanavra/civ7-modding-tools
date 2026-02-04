@@ -30,7 +30,7 @@ The Foundation authoring surface is versioned separately from artifact payloads:
 - The stage surface schema enforces the current major (M1 uses `version: 1`).
 - Any breaking change to the authoring surface requires:
   - incrementing `foundation.version`, and
-  - updating shipped presets/configs (e.g., `swooper-earthlike.config.json`) in the same change.
+  - updating shipped recipe presets/configs (e.g., `mods/mod-swooper-maps/src/presets/standard/earthlike.json`) in the same change.
 
 ### Change taxonomy
 
@@ -72,6 +72,9 @@ Visualization must not guess semantics:
 - `dataTypeKey` remains stable for a semantic concept.
 - If payload versions differ, producers must supply value semantics (domain, transforms) via metadata, or expose version explicitly in layer meta.
 - Avoid “v2” in `dataTypeKey`. Prefer to keep the same semantic key and disambiguate in payload and/or `variantKey` only when comparing.
+
+Note:
+- Stage surface schemas may include a `gs` metadata extension (e.g. `gs.comments`) for author-facing guidance. This metadata must be preserved through schema derivation and shown in Studio where relevant, but it must not be interpreted as executable behavior.
 
 ## Schema Ownership
 

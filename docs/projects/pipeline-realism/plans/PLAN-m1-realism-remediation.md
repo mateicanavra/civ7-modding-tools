@@ -146,8 +146,9 @@ steps:
       - "$STUDIO/src/** (layer catalogs + UX)"
 
   - slice: 6
-    branch: "TBD"
+    branch: "agent-URSULA-M1-LOCAL-TBD-PR-M1-032-docs-schema-presets-pass"
     title: "docs pass: schema + presets alignment"
+    status: done
 
   - slice: 7
     branch: "TBD"

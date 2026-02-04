@@ -23,6 +23,7 @@ Define the canonical visualization contract and route readers to the single cano
   - **Space**: `spaceId` (coordinate space),
   - **Render mode**: derived from `kind[:role]` (grid / points / segments / gridFields + optional role),
   - **Variant**: `variantKey` (optional; disambiguates multiple variants of the same data type).
+    - Temporal scrubbing is expressed via `variantKey`, not `dataTypeKey` (e.g. `era:1`, `era:2`, ... for per-era history; `snapshot:latest` for “current” mesh snapshots).
 
 Hard rule:
 - There must be **exactly one** canonical deck.gl visualization doc. Do not fork competing viz architecture pages.
