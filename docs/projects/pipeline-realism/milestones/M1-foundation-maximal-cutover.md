@@ -73,6 +73,47 @@ This milestone is internally phased using the migration slices (prepare -> cutov
 
 Note: issue doc links are populated in Slice 3 of the plan (local issue docs under `docs/projects/pipeline-realism/issues/`).
 
+## Candidate Issues / Deliverables (Index)
+
+These are the intended issue-shaped units for this milestone. Each item becomes a local issue doc under `docs/projects/pipeline-realism/issues/` (using `LOCAL-TBD-...` until real IDs exist).
+
+### Prepare (Slice-01)
+- [ ] `LOCAL-TBD` Publish new mesh-space truth artifacts (mantle/plate/crust/history/provenance) + docs alignment
+- [ ] `LOCAL-TBD` Add tile projections for history + provenance (new mandatory drivers)
+- [ ] `LOCAL-TBD` Wire visualization `dataTypeKey`s + minimal layer taxonomy for the causal spine
+- [ ] `LOCAL-TBD` Add validation harness scaffolding (determinism fingerprints + invariant runners)
+- [ ] `LOCAL-TBD` Compile-time config surface for maximal Foundation (D08r) + schema versioning posture
+
+### Foundation Engine (Slice-02)
+- [ ] `LOCAL-TBD` Basaltic lid init + lithosphere strength (mantle-coupled)
+- [ ] `LOCAL-TBD` Mantle potential generation + derived forcing fields (D02r)
+- [ ] `LOCAL-TBD` Plate motion solver derived from mantle forcing (D03r)
+- [ ] `LOCAL-TBD` Crust priors + resistance partition -> plateGraph (D01)
+- [ ] `LOCAL-TBD` Boundary segments + regime classification (source of events)
+- [ ] `LOCAL-TBD` Event engine (D06r): subduction/collision/rift/transform + mandatory force emission
+- [ ] `LOCAL-TBD` Era loop + field emission budgets (D04r Eulerian outputs)
+- [ ] `LOCAL-TBD` Provenance/tracer system + lineage scalars (D04r Lagrangian outputs)
+
+### Morphology Cutover (Slice-03)
+- [ ] `LOCAL-TBD` Morphology dual-read: accept history/provenance tiles + emit comparison diagnostics
+- [ ] `LOCAL-TBD` Morphology belt synthesis from history/provenance (continuity + age-aware diffusion)
+- [ ] `LOCAL-TBD` Cutover morphology to new drivers + remove legacy consumption paths
+
+### Validation/Observability (Cross-cutting)
+- [ ] `LOCAL-TBD` Determinism suite: canonical seeds + stable fingerprints + float tolerance policy
+- [ ] `LOCAL-TBD` Physics invariants: mantle forcing (coherence/energy/bounds) + motion coupling residuals
+- [ ] `LOCAL-TBD` Physics invariants: events must change crust/provenance + belts must be wide/continuous
+- [ ] `LOCAL-TBD` Morphology correlation gates: drivers -> belts (no wall mountains) + distribution checks
+
+### Authoring/Viz/Tuning (Cross-cutting)
+- [ ] `LOCAL-TBD` Studio authoring: physics-input controls + causal overlays (no velocity hacks)
+- [ ] `LOCAL-TBD` Visualization refinement: debug vs refined layer sets + era scrubber + correlation overlays
+
+### Cleanup (No Legacy Left)
+- [ ] `LOCAL-TBD` Delete legacy plate motion + legacy tectonics truth publication
+- [ ] `LOCAL-TBD` Delete legacy morphology belt driver paths and bridge artifacts
+- [ ] `LOCAL-TBD` Delete any dual-engine shadow compute paths after suite is green
+
 ### A. Prepare (Scaffolding + Plumbing + Visualization Enablement)
 - [ ] Implement/extend artifact publication plumbing for new truth + tile artifacts (Foundation and projections).
 - [ ] Add canonical visualization dataTypeKeys + layers (debug/refined) per the visualization spec.
@@ -134,4 +175,3 @@ Note: issue doc links are populated in Slice 3 of the plan (local issue docs und
   - Mitigation: coupling invariants + residual bounds; visualization correlation layers.
 - **Fake tectonics:** belts emitted without material/provenance change.
   - Mitigation: D06r requires crust + provenance updates per event; invariants enforce continent emergence by state transition.
-
