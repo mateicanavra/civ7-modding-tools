@@ -16,8 +16,6 @@ const LandmassPlatesStepContract = defineStep({
     requires: [
       foundationArtifacts.plates,
       foundationArtifacts.crustTiles,
-      foundationArtifacts.tectonicHistoryTiles,
-      foundationArtifacts.tectonicProvenanceTiles,
     ],
     provides: [morphologyArtifacts.topography, morphologyArtifacts.substrate],
   },
