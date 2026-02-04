@@ -37,9 +37,11 @@ describe("m11 morphology baseline consumes crust isostasy prior", () => {
       { strategy: "default", config: { plateCount: 16, referenceArea: 2400, plateScalePower: 0 } }
     ).plateGraph;
     const segments = computeTectonicSegments.run({ mesh, crust, plateGraph }, computeTectonicSegments.defaultConfig).segments;
-    const tectonics = computeTectonicHistory.run({ mesh, segments }, computeTectonicHistory.defaultConfig).tectonics;
+    const historyResult = computeTectonicHistory.run({ mesh, segments }, computeTectonicHistory.defaultConfig);
+    const tectonicHistory = historyResult.tectonicHistory;
+    const tectonics = historyResult.tectonics;
     const crustTiles = computePlatesTensors.run(
-      { width, height, mesh, crust, plateGraph, tectonics },
+      { width, height, mesh, crust, plateGraph, tectonics, tectonicHistory },
       computePlatesTensors.defaultConfig
     ).crustTiles;
 
@@ -71,4 +73,3 @@ describe("m11 morphology baseline consumes crust isostasy prior", () => {
     }
   });
 });
-

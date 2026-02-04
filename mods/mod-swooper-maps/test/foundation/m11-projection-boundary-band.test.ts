@@ -105,7 +105,7 @@ describe("m11 plates projection (boundary band)", () => {
       computeTectonicSegments.defaultConfig
     ).segments;
 
-    const tectonics = computeTectonicHistory.run(
+    const historyResult = computeTectonicHistory.run(
       { mesh, segments },
       {
         strategy: "default",
@@ -117,7 +117,7 @@ describe("m11 plates projection (boundary band)", () => {
           activityThreshold: 1,
         },
       }
-    ).tectonics;
+    );
 
     const projected = computePlatesTensors.run(
       {
@@ -126,7 +126,8 @@ describe("m11 plates projection (boundary band)", () => {
         mesh,
         crust: crust as any,
         plateGraph: plateGraph as any,
-        tectonics: tectonics as any,
+        tectonics: historyResult.tectonics as any,
+        tectonicHistory: historyResult.tectonicHistory as any,
       },
       {
         strategy: "default",
