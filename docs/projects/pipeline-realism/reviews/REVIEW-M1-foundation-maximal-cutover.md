@@ -226,3 +226,28 @@ reviewer: AI agent
 
 ### Cross-cutting Risks
 - Without a crust-change gate, events can remain “cosmetic,” undermining the physics-first objective even while provenance checks pass.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-020-morphology-correlation-gates-drivers-belts-no-wall-mountains
+
+### Quick Take
+- Added `morphology-driver-correlation` to `M1_FOUNDATION_GATES`, re-running `planRidgesAndFoothills` with history/provenance-derived drivers and enforcing driver coverage + “no noise-only mountains.”
+- Gates now run in the determinism suite, aligning belts/mountains with causal drivers and catching obvious wall/noise regressions early.
+
+### High-Leverage Issues
+- The gate validates a **reconstructed plan** rather than the actual `plotMountains` output. If the pipeline diverges after the planning step, this invariant can pass while the shipped mountain mask regresses.
+- “No wall mountains” checks are still applied to derived belt drivers, not the final mountain/belt outputs. This leaves a gap for output-level distribution regressions.
+
+### PR Comment Context
+- No actionable review comments; Graphite/Railway bot notices only.
+
+### Fix Now (Recommended)
+- Add a gate that inspects the actual `plotMountains` output artifact (or a published mountain/belt mask) and applies the distribution checks directly to that output.
+
+### Defer / Follow-up
+- Validate correlation thresholds against multiple seeds or configs to reduce brittleness as tuning evolves.
+
+### Needs Discussion
+- Should correlation gates lock to the default morphology config, or should they read the recipe/profile-specific config used in the run?
+
+### Cross-cutting Risks
+- If we only validate the reconstructed plan, downstream morphology changes can drift without tripping the physics-alignment gates.
