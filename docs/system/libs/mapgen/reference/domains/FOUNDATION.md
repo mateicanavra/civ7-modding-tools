@@ -322,11 +322,25 @@ Marking these explicitly avoids “silent drift” in canonical docs.
 3. Is the effective invariant “tectonic history uses exactly 3 eras” a deliberate contract, or should validation be relaxed to match `FoundationTectonicHistorySchema` (`eraCount <= 8`)?
 4. Which downstream domain(s) should consume `artifact:foundation.tectonicHistory` (if any), and what is the minimal cross-domain contract for “age of orogeny” vs “recent activity”?
 
-**Ground truth anchors**
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mesh/contract.ts` (`FoundationMeshSchema`, `ComputeMeshContract`)
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mesh/index.ts` (`computeMesh`, call to `buildDelaunayMesh`)
-- `packages/mapgen-core/src/lib/mesh/delaunay.ts` (`buildDelaunayMesh`, `DelaunayMesh`)
+## Ground truth anchors
 
-- Domain id + ops bundle: `mods/mod-swooper-maps/src/domain/foundation/index.ts`
-- Standard recipe Foundation stage: `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
-- Core artifact tag constants: `packages/mapgen-core/src/core/types.ts`
+This page contains many inline “Ground truth anchors” callouts. This section collects the canonical entrypoints:
+
+- Domain entrypoint + op ids: `mods/mod-swooper-maps/src/domain/foundation/index.ts`
+- Standard recipe stage definition (step ordering + wiring): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
+- Stage artifact wiring (recipe-level tags, schemas, and helpers): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts`
+- Core artifact tag constants (shared ids/types): `packages/mapgen-core/src/core/types.ts`
+
+- Mesh construction (truth root):
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mesh/contract.ts` (`ComputeMeshContract`, `FoundationMeshSchema`)
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mesh/index.ts` (`computeMesh`)
+  - `packages/mapgen-core/src/lib/mesh/delaunay.ts` (`buildDelaunayMesh`, `DelaunayMesh`)
+
+- Plates + tectonics (truth + projection):
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/contract.ts` (`ComputePlateGraphContract`, `FoundationPlateGraphSchema`)
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/contract.ts` (`ComputeTectonicSegmentsContract`, `FoundationTectonicSegmentsSchema`)
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts` (`ComputeTectonicHistoryContract`, `FoundationTectonicHistorySchema`, `FoundationTectonicsSchema`)
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/contract.ts` (`ComputePlatesTensorsContract`, `tileToCellIndex`)
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts` (`projectPlatesFromModel`, `tileToCellIndex`)
+
+- Policy (truth vs projection posture): `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
