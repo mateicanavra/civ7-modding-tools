@@ -296,63 +296,63 @@ export default createMap({
       "hydrology-climate-baseline": {
         "knobs": {
           "dryness": "mix",
-          "temperature": "hot",
-          "seasonality": "high",
+          "temperature": "temperate",
+          "seasonality": "normal",
           "oceanCoupling": "earthlike"
         },
         "climate-baseline": {
-          "seasonality": {
-            "axialTiltDeg": 29.44,
-            "modeCount": 4
-          },
           "computeAtmosphericCirculation": {
             "strategy": "default",
             "config": {
-              "windJetStrength": 1.5,
-              "windVariance": 0.35,
-              "windJetStreaks": 4
+              "maxSpeed": 110,
+              "zonalStrength": 90,
+              "meridionalStrength": 30,
+              "geostrophicStrength": 70,
+              "pressureNoiseScale": 18,
+              "pressureNoiseAmp": 55,
+              "waveStrength": 45,
+              "landHeatStrength": 20,
+              "mountainDeflectStrength": 18,
+              "smoothIters": 4
             }
           },
-          "computeRadiativeForcing": {
+          "computeOceanGeometry": {
             "strategy": "default",
             "config": {
-              "equatorInsolation": 1,
-              "poleInsolation": 0.35,
-              "latitudeExponent": 1.2
-            }
-          },
-          "computeThermalState": {
-            "strategy": "default",
-            "config": {
-              "baseTemperatureC": 14,
-              "insolationScaleC": 28,
-              "lapseRateCPerM": -0.0065,
-              "landCoolingC": 2,
-              "minC": -40,
-              "maxC": 50
+              "maxCoastDistance": 64,
+              "maxCoastVectorDistance": 10
             }
           },
           "computeOceanSurfaceCurrents": {
             "strategy": "default",
             "config": {
-              "strength": 1
+              "maxSpeed": 80,
+              "windStrength": 0.55,
+              "ekmanStrength": 0.35,
+              "gyreStrength": 26,
+              "coastStrength": 32,
+              "smoothIters": 3,
+              "projectionIters": 8
             }
           },
-          "computeEvaporationSources": {
+          "computeOceanThermalState": {
             "strategy": "default",
             "config": {
-              "oceanStrength": 1,
-              "landStrength": 0.2,
-              "minTempC": -10,
-              "maxTempC": 30
+              "equatorTempC": 28,
+              "poleTempC": -2,
+              "advectIters": 28,
+              "diffusion": 0.18,
+              "secondaryWeightMin": 0.25,
+              "seaIceThresholdC": -1
             }
           },
           "transportMoisture": {
             "strategy": "default",
             "config": {
-              "iterations": 28,
-              "advection": 0.65,
-              "retention": 0.92
+              "iterations": 22,
+              "advection": 0.7,
+              "retention": 0.93,
+              "secondaryWeightMin": 0.2
             }
           },
           "computePrecipitation": {
@@ -368,12 +368,40 @@ export default createMap({
                 "lowlandBonus": 2,
                 "lowlandElevationMax": 150
               },
-              "orographic": {
-                "steps": 4,
-                "reductionBase": 8,
-                "reductionPerStep": 6,
-                "barrierElevationM": 500
-              }
+              "upliftStrength": 22,
+              "convergenceStrength": 16
+            }
+          },
+          "seasonality": {
+            "modeCount": 2,
+            "axialTiltDeg": 18
+          },
+          "computeRadiativeForcing": {
+            "strategy": "default",
+            "config": {
+              "equatorInsolation": 1,
+              "poleInsolation": 0.25,
+              "latitudeExponent": 1.2
+            }
+          },
+          "computeThermalState": {
+            "strategy": "default",
+            "config": {
+              "baseTemperatureC": 14,
+              "insolationScaleC": 28,
+              "lapseRateCPerM": -0.0065,
+              "landCoolingC": 2,
+              "minC": -40,
+              "maxC": 50
+            }
+          },
+          "computeEvaporationSources": {
+            "strategy": "default",
+            "config": {
+              "oceanStrength": 1,
+              "landStrength": 0.2,
+              "minTempC": -10,
+              "maxTempC": 30
             }
           }
         }

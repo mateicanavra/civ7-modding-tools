@@ -81,7 +81,7 @@ describe("hydrology knobs compilation", () => {
         knobs: { dryness: "wet", seasonality: "high", oceanCoupling: "off" },
         "climate-baseline": {
           computePrecipitation: {
-            strategy: "default",
+            strategy: "basic",
             config: {
               rainfallScale: 123,
               humidityExponent: 1,

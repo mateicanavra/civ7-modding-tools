@@ -17,6 +17,11 @@ export const defaultStrategy = createStrategy(ComputeThermalStateContract, "defa
     if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
       throw new Error("[Hydrology] Invalid landMask for hydrology/compute-thermal-state.");
     }
+    if (input.sstC != null) {
+      if (!(input.sstC instanceof Float32Array) || input.sstC.length !== size) {
+        throw new Error("[Hydrology] Invalid sstC for hydrology/compute-thermal-state.");
+      }
+    }
 
     const surfaceTemperatureC = new Float32Array(size);
     const base = config.baseTemperatureC;
@@ -25,11 +30,16 @@ export const defaultStrategy = createStrategy(ComputeThermalStateContract, "defa
     const landCooling = config.landCoolingC;
     const minC = config.minC;
     const maxC = config.maxC;
+    const sstC = input.sstC;
 
     for (let i = 0; i < size; i++) {
       const forcing = (input.insolation[i] ?? 0) - 0.5;
       const elevation = input.elevation[i] | 0;
       const isLand = input.landMask[i] === 1;
+      if (!isLand && sstC) {
+        surfaceTemperatureC[i] = clampNumber(sstC[i] ?? minC, minC, maxC);
+        continue;
+      }
       const temp =
         base +
         forcing * insolationScale +

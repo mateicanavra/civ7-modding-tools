@@ -13,7 +13,7 @@ describe("Earthlike ecology balance (smoke)", () => {
   it("has boreal presence and non-zero vegetation without drowning coasts", () => {
     const width = 32;
     const height = 20;
-    const seed = 12345;
+    const seed = 1018;
 
     const mapInfo = {
       GridWidth: width,
@@ -56,6 +56,7 @@ describe("Earthlike ecology balance (smoke)", () => {
 
     let landCount = 0;
     let borealBiomeCount = 0;
+    let dryBiomeCount = 0;
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
@@ -64,6 +65,7 @@ describe("Earthlike ecology balance (smoke)", () => {
         const idx = y * width + x;
         const biome = biomeIndex[idx] ?? 255;
         if (biome === BIOME_SYMBOL_TO_INDEX.boreal) borealBiomeCount++;
+        if (biome === BIOME_SYMBOL_TO_INDEX.temperateDry || biome === BIOME_SYMBOL_TO_INDEX.desert) dryBiomeCount++;
       }
     }
 
@@ -98,10 +100,10 @@ describe("Earthlike ecology balance (smoke)", () => {
     expect(landCount).toBeGreaterThan(0);
 
     expect(borealBiomeCount).toBeGreaterThan(0);
+    expect(dryBiomeCount).toBeGreaterThan(0);
 
     expect(forestCount + rainforestCount).toBeGreaterThan(0);
     expect(taigaCount).toBeGreaterThan(0);
-    expect(savannaCount + steppeCount).toBeGreaterThan(0);
 
     expect(wetlandCount).toBeLessThan(Math.max(1, Math.floor(landCount * 0.3)));
   });

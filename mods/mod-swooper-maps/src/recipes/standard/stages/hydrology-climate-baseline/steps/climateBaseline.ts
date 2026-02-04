@@ -8,6 +8,7 @@ import {
 } from "@swooper/mapgen-core";
 import type { MapDimensions } from "@civ7/adapter";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { estimateCurlZOddQ, estimateDivergenceOddQ } from "@swooper/mapgen-core/lib/grid";
 import { hydrologyClimateBaselineArtifacts } from "../artifacts.js";
 import ClimateBaselineStepContract from "./climateBaseline.contract.js";
 import {
@@ -42,6 +43,7 @@ const GROUP_SEASONALITY = "Hydrology / Seasonality";
 const GROUP_CLIMATE = "Hydrology / Climate";
 const GROUP_WIND = "Hydrology / Wind";
 const GROUP_CURRENT = "Hydrology / Currents";
+const GROUP_OCEAN = "Hydrology / Ocean";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -208,6 +210,8 @@ export default createStep(ClimateBaselineStepContract, {
       HYDROLOGY_OCEAN_COUPLING_MOISTURE_TRANSPORT_ITERATIONS[oceanCoupling] -
       HYDROLOGY_OCEAN_COUPLING_MOISTURE_TRANSPORT_ITERATIONS.earthlike;
 
+    const clampNumber = (value: number, min: number, max: number): number => Math.max(min, Math.min(max, value));
+
     const computeThermalState =
       config.computeThermalState.strategy === "default"
         ? {
@@ -218,8 +222,6 @@ export default createStep(ClimateBaselineStepContract, {
             },
           }
         : config.computeThermalState;
-
-    const clampNumber = (value: number, min: number, max: number): number => Math.max(min, Math.min(max, value));
 
     const computeAtmosphericCirculation = (() => {
       if (config.computeAtmosphericCirculation.strategy === "latitude") {
@@ -242,7 +244,12 @@ export default createStep(ClimateBaselineStepContract, {
           ...config.computeAtmosphericCirculation,
           config: {
             ...config.computeAtmosphericCirculation.config,
-            zonalStrength: clampNumber(config.computeAtmosphericCirculation.config.zonalStrength * jetStrengthFactor, 0, 300),
+            // Reuse the legacy coupling knobs as broad "strength/variance" scalars.
+            zonalStrength: clampNumber(
+              config.computeAtmosphericCirculation.config.zonalStrength * jetStrengthFactor,
+              0,
+              300
+            ),
             geostrophicStrength: clampNumber(
               config.computeAtmosphericCirculation.config.geostrophicStrength * jetStrengthFactor,
               0,
@@ -251,7 +258,7 @@ export default createStep(ClimateBaselineStepContract, {
             pressureNoiseAmp: clampNumber(
               config.computeAtmosphericCirculation.config.pressureNoiseAmp * varianceFactor,
               0,
-              200
+              400
             ),
             waveStrength: clampNumber(config.computeAtmosphericCirculation.config.waveStrength * varianceFactor, 0, 300),
           },
@@ -261,16 +268,48 @@ export default createStep(ClimateBaselineStepContract, {
       return config.computeAtmosphericCirculation;
     })();
 
-    const computeOceanSurfaceCurrents =
-      config.computeOceanSurfaceCurrents.strategy === "default"
-        ? {
-            ...config.computeOceanSurfaceCurrents,
-            config: {
-              ...config.computeOceanSurfaceCurrents.config,
-              strength: config.computeOceanSurfaceCurrents.config.strength * currentStrengthFactor,
-            },
-          }
-        : config.computeOceanSurfaceCurrents;
+    const computeOceanSurfaceCurrents = (() => {
+      if (config.computeOceanSurfaceCurrents.strategy === "latitude") {
+        return {
+          ...config.computeOceanSurfaceCurrents,
+          config: {
+            ...config.computeOceanSurfaceCurrents.config,
+            strength: config.computeOceanSurfaceCurrents.config.strength * currentStrengthFactor,
+          },
+        };
+      }
+
+      if (config.computeOceanSurfaceCurrents.strategy === "default") {
+        return {
+          ...config.computeOceanSurfaceCurrents,
+          config: {
+            ...config.computeOceanSurfaceCurrents.config,
+            windStrength: clampNumber(
+              config.computeOceanSurfaceCurrents.config.windStrength * currentStrengthFactor,
+              0,
+              2
+            ),
+            ekmanStrength: clampNumber(
+              config.computeOceanSurfaceCurrents.config.ekmanStrength * currentStrengthFactor,
+              0,
+              2
+            ),
+            gyreStrength: clampNumber(
+              config.computeOceanSurfaceCurrents.config.gyreStrength * currentStrengthFactor,
+              0,
+              80
+            ),
+            coastStrength: clampNumber(
+              config.computeOceanSurfaceCurrents.config.coastStrength * currentStrengthFactor,
+              0,
+              80
+            ),
+          },
+        };
+      }
+
+      return config.computeOceanSurfaceCurrents;
+    })();
 
     const computeEvaporationSources =
       config.computeEvaporationSources.strategy === "default"
@@ -284,16 +323,29 @@ export default createStep(ClimateBaselineStepContract, {
           }
         : config.computeEvaporationSources;
 
-    const transportMoisture =
-      config.transportMoisture.strategy === "default" || config.transportMoisture.strategy === "cardinal"
-        ? {
-            ...config.transportMoisture,
-            config: {
-              ...config.transportMoisture.config,
-              iterations: Math.max(0, Math.round(config.transportMoisture.config.iterations + transportIterationsDelta)),
-            },
-          }
-        : config.transportMoisture;
+    const transportMoisture = (() => {
+      if (config.transportMoisture.strategy === "default") {
+        return {
+          ...config.transportMoisture,
+          config: {
+            ...config.transportMoisture.config,
+            iterations: Math.max(0, Math.round(config.transportMoisture.config.iterations + transportIterationsDelta)),
+          },
+        };
+      }
+
+      if (config.transportMoisture.strategy === "cardinal") {
+        return {
+          ...config.transportMoisture,
+          config: {
+            ...config.transportMoisture.config,
+            iterations: Math.max(0, Math.round(config.transportMoisture.config.iterations + transportIterationsDelta)),
+          },
+        };
+      }
+
+      return config.transportMoisture;
+    })();
 
     const computePrecipitation = (() => {
       const waterGradientRadiusDelta =
@@ -313,20 +365,12 @@ export default createStep(ClimateBaselineStepContract, {
             noiseAmplitude: config.computePrecipitation.config.noiseAmplitude * noiseAmplitudeFactor,
             waterGradient: {
               ...config.computePrecipitation.config.waterGradient,
-              radius: Math.max(
-                1,
-                Math.round(config.computePrecipitation.config.waterGradient.radius + waterGradientRadiusDelta)
-              ),
+              radius: Math.max(1, Math.round(config.computePrecipitation.config.waterGradient.radius + waterGradientRadiusDelta)),
               perRingBonus: Math.max(
                 0,
-                Math.round(
-                  (config.computePrecipitation.config.waterGradient.perRingBonus + perRingBonusDelta) * wetnessScale
-                )
+                Math.round((config.computePrecipitation.config.waterGradient.perRingBonus + perRingBonusDelta) * wetnessScale)
               ),
-              lowlandBonus: Math.max(
-                0,
-                Math.round(config.computePrecipitation.config.waterGradient.lowlandBonus * wetnessScale)
-              ),
+              lowlandBonus: Math.max(0, Math.round(config.computePrecipitation.config.waterGradient.lowlandBonus * wetnessScale)),
             },
             orographic: {
               ...config.computePrecipitation.config.orographic,
@@ -349,20 +393,12 @@ export default createStep(ClimateBaselineStepContract, {
             noiseAmplitude: config.computePrecipitation.config.noiseAmplitude * noiseAmplitudeFactor,
             waterGradient: {
               ...config.computePrecipitation.config.waterGradient,
-              radius: Math.max(
-                1,
-                Math.round(config.computePrecipitation.config.waterGradient.radius + waterGradientRadiusDelta)
-              ),
+              radius: Math.max(1, Math.round(config.computePrecipitation.config.waterGradient.radius + waterGradientRadiusDelta)),
               perRingBonus: Math.max(
                 0,
-                Math.round(
-                  (config.computePrecipitation.config.waterGradient.perRingBonus + perRingBonusDelta) * wetnessScale
-                )
+                Math.round((config.computePrecipitation.config.waterGradient.perRingBonus + perRingBonusDelta) * wetnessScale)
               ),
-              lowlandBonus: Math.max(
-                0,
-                Math.round(config.computePrecipitation.config.waterGradient.lowlandBonus * wetnessScale)
-              ),
+              lowlandBonus: Math.max(0, Math.round(config.computePrecipitation.config.waterGradient.lowlandBonus * wetnessScale)),
             },
           },
         };
@@ -397,6 +433,7 @@ export default createStep(ClimateBaselineStepContract, {
     }
 
     const topography = deps.artifacts.topography.read(context);
+    const coastlineMetrics = deps.artifacts.coastlineMetrics.read(context);
     const elevation = topography.elevation;
     const landMask = topography.landMask;
     const isWaterMask = new Uint8Array(width * height);
@@ -430,6 +467,38 @@ export default createStep(ClimateBaselineStepContract, {
     const seasonalCurrentU: Int8Array[] = [];
     const seasonalCurrentV: Int8Array[] = [];
 
+    const useCirculationV2 =
+      config.computeAtmosphericCirculation.strategy === "default" ||
+      config.computeOceanSurfaceCurrents.strategy === "default" ||
+      config.transportMoisture.strategy === "default" ||
+      config.computePrecipitation.strategy === "default";
+
+    let oceanGeometry:
+      | {
+          basinId: Int32Array;
+          coastDistance: Uint16Array;
+          coastNormalU: Int8Array;
+          coastNormalV: Int8Array;
+          coastTangentU: Int8Array;
+          coastTangentV: Int8Array;
+        }
+      | null = null;
+
+    if (useCirculationV2) {
+      oceanGeometry = ops.computeOceanGeometry(
+        {
+          width,
+          height,
+          isWaterMask,
+          coastalWaterMask: coastlineMetrics.coastalWater,
+          distanceToCoast: coastlineMetrics.distanceToCoast,
+          shelfMask: coastlineMetrics.shelfMask,
+        },
+        config.computeOceanGeometry
+      );
+    }
+
+    // Pass 1: winds + currents (seasonal). Legacy behavior is preserved when legacy strategies are selected.
     for (const phase of phases) {
       const declinationDeg = axialTiltDeg * Math.sin(2 * Math.PI * phase);
       const latitudeByRowSeasonal = new Float32Array(height);
@@ -437,21 +506,9 @@ export default createStep(ClimateBaselineStepContract, {
         latitudeByRowSeasonal[y] = clampLatitudeDeg(latitudeByRow[y] - declinationDeg);
       }
 
-      const forcing = ops.computeRadiativeForcing(
-        { width, height, latitudeByRow: latitudeByRowSeasonal },
-        config.computeRadiativeForcing
-      );
-
-      const thermal = ops.computeThermalState(
-        {
-          width,
-          height,
-          insolation: forcing.insolation,
-          elevation,
-          landMask,
-        },
-        config.computeThermalState
-      );
+      // If the axial tilt is effectively zero, there should be no seasonality. Keep `seasonPhase01` fixed
+      // so wind/currents don't vary solely because we looped through phases.
+      const seasonPhase01 = Math.abs(axialTiltDeg) < 1e-6 ? 0 : phase;
 
       const winds = ops.computeAtmosphericCirculation(
         {
@@ -459,6 +516,9 @@ export default createStep(ClimateBaselineStepContract, {
           height,
           latitudeByRow: latitudeByRowSeasonal,
           rngSeed,
+          landMask,
+          elevation,
+          seasonPhase01,
         },
         config.computeAtmosphericCirculation
       );
@@ -471,53 +531,14 @@ export default createStep(ClimateBaselineStepContract, {
           isWaterMask,
           windU: winds.windU,
           windV: winds.windV,
+          basinId: oceanGeometry?.basinId,
+          coastDistance: oceanGeometry?.coastDistance,
+          coastTangentU: oceanGeometry?.coastTangentU,
+          coastTangentV: oceanGeometry?.coastTangentV,
         },
         config.computeOceanSurfaceCurrents
       );
 
-      const evaporation = ops.computeEvaporationSources(
-        {
-          width,
-          height,
-          landMask,
-          surfaceTemperatureC: thermal.surfaceTemperatureC,
-        },
-        config.computeEvaporationSources
-      );
-
-      const moisture = ops.transportMoisture(
-        {
-          width,
-          height,
-          latitudeByRow: latitudeByRowSeasonal,
-          landMask,
-          windU: winds.windU,
-          windV: winds.windV,
-          evaporation: evaporation.evaporation,
-        },
-        config.transportMoisture
-      );
-
-      const precipitation = ops.computePrecipitation(
-        {
-          width,
-          height,
-          latitudeByRow: latitudeByRowSeasonal,
-          elevation,
-          landMask,
-          windU: winds.windU,
-          windV: winds.windV,
-          humidityF32: moisture.humidity,
-          rainfallIn: zeros,
-          humidityIn: zeros,
-          riverAdjacency: zeros,
-          perlinSeed,
-        },
-        config.computePrecipitation
-      );
-
-      seasonalRainfall.push(precipitation.rainfall);
-      seasonalHumidity.push(precipitation.humidity);
       seasonalWindU.push(winds.windU);
       seasonalWindV.push(winds.windV);
       seasonalCurrentU.push(currents.currentU);
@@ -537,16 +558,321 @@ export default createStep(ClimateBaselineStepContract, {
     const clampI8 = (value: number): number => Math.max(-128, Math.min(127, value));
 
     for (let i = 0; i < size; i++) {
+      let windUSum = 0;
+      let windVSum = 0;
+      let currentUSum = 0;
+      let currentVSum = 0;
+
+      for (let s = 0; s < seasonCount; s++) {
+        windUSum += seasonalWindU[s]?.[i] ?? 0;
+        windVSum += seasonalWindV[s]?.[i] ?? 0;
+        currentUSum += seasonalCurrentU[s]?.[i] ?? 0;
+        currentVSum += seasonalCurrentV[s]?.[i] ?? 0;
+      }
+
+      meanWindU[i] = clampI8(Math.round(windUSum / seasonCount));
+      meanWindV[i] = clampI8(Math.round(windVSum / seasonCount));
+      meanCurrentU[i] = clampI8(Math.round(currentUSum / seasonCount));
+      meanCurrentV[i] = clampI8(Math.round(currentVSum / seasonCount));
+    }
+
+    let oceanThermal: { sstC: Float32Array; seaIceMask: Uint8Array } | null = null;
+    if (useCirculationV2) {
+      // Annual mean SST/ice coupling: compute once from mean currents (bounded, deterministic).
+      oceanThermal = ops.computeOceanThermalState(
+        {
+          width,
+          height,
+          latitudeByRow,
+          isWaterMask,
+          shelfMask: coastlineMetrics.shelfMask,
+          currentU: meanCurrentU,
+          currentV: meanCurrentV,
+        },
+        config.computeOceanThermalState
+      );
+
+      if (oceanGeometry) {
+        dumpScalarFieldVariants(context.trace, context.viz, {
+          dataTypeKey: "hydrology.ocean.basinId",
+          spaceId: TILE_SPACE_ID,
+          dims: { width, height },
+          field: { format: "i32", values: oceanGeometry.basinId },
+          label: "Ocean Basin Id",
+          group: GROUP_OCEAN,
+          palette: "categorical",
+          visibility: "debug",
+          points: {},
+        });
+        dumpScalarFieldVariants(context.trace, context.viz, {
+          dataTypeKey: "hydrology.ocean.coastDistance",
+          spaceId: TILE_SPACE_ID,
+          dims: { width, height },
+          field: { format: "u16", values: oceanGeometry.coastDistance },
+          label: "Ocean Coast Distance (Water)",
+          group: GROUP_OCEAN,
+          palette: "continuous",
+          visibility: "debug",
+          points: {},
+        });
+        dumpVectorFieldVariants(context.trace, context.viz, {
+          dataTypeKey: "hydrology.ocean.coastFrame",
+          spaceId: TILE_SPACE_ID,
+          dims: { width, height },
+          u: { format: "i8", values: oceanGeometry.coastTangentU },
+          v: { format: "i8", values: oceanGeometry.coastTangentV },
+          label: "Coast Tangent (Advisory)",
+          group: GROUP_OCEAN,
+          palette: "continuous",
+          visibility: "debug",
+          arrows: { maxArrowLenTiles: 1.25 },
+          points: {},
+        });
+      }
+
+      if (oceanThermal) {
+        dumpScalarFieldVariants(context.trace, context.viz, {
+          dataTypeKey: "hydrology.ocean.sstC",
+          spaceId: TILE_SPACE_ID,
+          dims: { width, height },
+          field: { format: "f32", values: oceanThermal.sstC },
+          label: "Ocean SST (C)",
+          group: GROUP_OCEAN,
+          palette: "continuous",
+          visibility: "debug",
+          points: {},
+        });
+        dumpScalarFieldVariants(context.trace, context.viz, {
+          dataTypeKey: "hydrology.ocean.seaIceMask",
+          spaceId: TILE_SPACE_ID,
+          dims: { width, height },
+          field: { format: "u8", values: oceanThermal.seaIceMask },
+          label: "Ocean Sea Ice Mask",
+          group: GROUP_OCEAN,
+          palette: "categorical",
+          visibility: "debug",
+          points: {},
+        });
+      }
+
+      const toF32 = (arr: Int8Array): Float32Array => {
+        const out = new Float32Array(arr.length);
+        for (let i = 0; i < out.length; i++) out[i] = arr[i] ?? 0;
+        return out;
+      };
+
+      const windFx = toF32(meanWindU);
+      const windFy = toF32(meanWindV);
+      const currentFx = toF32(meanCurrentU);
+      const currentFy = toF32(meanCurrentV);
+
+      dumpScalarFieldVariants(context.trace, context.viz, {
+        dataTypeKey: "hydrology.wind.divergence",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        field: { format: "f32", values: estimateDivergenceOddQ(width, height, windFx, windFy) },
+        label: "Wind Divergence (Proxy)",
+        group: GROUP_WIND,
+        palette: "continuous",
+        visibility: "debug",
+        points: {},
+      });
+      dumpScalarFieldVariants(context.trace, context.viz, {
+        dataTypeKey: "hydrology.wind.curlZ",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        field: { format: "f32", values: estimateCurlZOddQ(width, height, windFx, windFy) },
+        label: "Wind Curl Z (Proxy)",
+        group: GROUP_WIND,
+        palette: "continuous",
+        visibility: "debug",
+        points: {},
+      });
+      dumpScalarFieldVariants(context.trace, context.viz, {
+        dataTypeKey: "hydrology.current.divergence",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        field: { format: "f32", values: estimateDivergenceOddQ(width, height, currentFx, currentFy) },
+        label: "Current Divergence (Proxy)",
+        group: GROUP_CURRENT,
+        palette: "continuous",
+        visibility: "debug",
+        points: {},
+      });
+      dumpScalarFieldVariants(context.trace, context.viz, {
+        dataTypeKey: "hydrology.current.curlZ",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        field: { format: "f32", values: estimateCurlZOddQ(width, height, currentFx, currentFy) },
+        label: "Current Curl Z (Proxy)",
+        group: GROUP_CURRENT,
+        palette: "continuous",
+        visibility: "debug",
+        points: {},
+      });
+    }
+
+    if (useCirculationV2) {
+      // Pass 2: moisture + precip (seasonal), with optional SST/wind coupling into thermal+evap.
+      for (let s = 0; s < phases.length; s++) {
+        const phase = phases[s] ?? 0;
+        const declinationDeg = axialTiltDeg * Math.sin(2 * Math.PI * phase);
+        const latitudeByRowSeasonal = new Float32Array(height);
+        for (let y = 0; y < height; y++) {
+          latitudeByRowSeasonal[y] = clampLatitudeDeg(latitudeByRow[y] - declinationDeg);
+        }
+
+        const forcing = ops.computeRadiativeForcing(
+          { width, height, latitudeByRow: latitudeByRowSeasonal },
+          config.computeRadiativeForcing
+        );
+
+        const thermal = ops.computeThermalState(
+          {
+            width,
+            height,
+            insolation: forcing.insolation,
+            elevation,
+            landMask,
+            sstC: oceanThermal?.sstC,
+          },
+          config.computeThermalState
+        );
+
+        const windU = seasonalWindU[s] ?? meanWindU;
+        const windV = seasonalWindV[s] ?? meanWindV;
+
+        const evaporation = ops.computeEvaporationSources(
+          {
+            width,
+            height,
+            landMask,
+            surfaceTemperatureC: thermal.surfaceTemperatureC,
+            windU,
+            windV,
+            sstC: oceanThermal?.sstC,
+            seaIceMask: oceanThermal?.seaIceMask,
+          },
+          config.computeEvaporationSources
+        );
+
+        const moisture = ops.transportMoisture(
+          {
+            width,
+            height,
+            latitudeByRow: latitudeByRowSeasonal,
+            landMask,
+            windU,
+            windV,
+            evaporation: evaporation.evaporation,
+          },
+          config.transportMoisture
+        );
+
+        const precipitation = ops.computePrecipitation(
+          {
+            width,
+            height,
+            latitudeByRow: latitudeByRowSeasonal,
+            elevation,
+            landMask,
+            windU,
+            windV,
+            humidityF32: moisture.humidity,
+            rainfallIn: zeros,
+            humidityIn: zeros,
+            riverAdjacency: zeros,
+            perlinSeed,
+          },
+          config.computePrecipitation
+        );
+
+        seasonalRainfall.push(precipitation.rainfall);
+        seasonalHumidity.push(precipitation.humidity);
+      }
+    } else {
+      // Legacy coupling path: compute full seasonal climate in one pass (kept intact for stability).
+      for (let s = 0; s < phases.length; s++) {
+        const phase = phases[s] ?? 0;
+        const declinationDeg = axialTiltDeg * Math.sin(2 * Math.PI * phase);
+        const latitudeByRowSeasonal = new Float32Array(height);
+        for (let y = 0; y < height; y++) {
+          latitudeByRowSeasonal[y] = clampLatitudeDeg(latitudeByRow[y] - declinationDeg);
+        }
+
+        const forcing = ops.computeRadiativeForcing(
+          { width, height, latitudeByRow: latitudeByRowSeasonal },
+          config.computeRadiativeForcing
+        );
+
+        const thermal = ops.computeThermalState(
+          {
+            width,
+            height,
+            insolation: forcing.insolation,
+            elevation,
+            landMask,
+          },
+          config.computeThermalState
+        );
+
+        const windU = seasonalWindU[s] ?? meanWindU;
+        const windV = seasonalWindV[s] ?? meanWindV;
+
+        const evaporation = ops.computeEvaporationSources(
+          {
+            width,
+            height,
+            landMask,
+            surfaceTemperatureC: thermal.surfaceTemperatureC,
+          },
+          config.computeEvaporationSources
+        );
+
+        const moisture = ops.transportMoisture(
+          {
+            width,
+            height,
+            latitudeByRow: latitudeByRowSeasonal,
+            landMask,
+            windU,
+            windV,
+            evaporation: evaporation.evaporation,
+          },
+          config.transportMoisture
+        );
+
+        const precipitation = ops.computePrecipitation(
+          {
+            width,
+            height,
+            latitudeByRow: latitudeByRowSeasonal,
+            elevation,
+            landMask,
+            windU,
+            windV,
+            humidityF32: moisture.humidity,
+            rainfallIn: zeros,
+            humidityIn: zeros,
+            riverAdjacency: zeros,
+            perlinSeed,
+          },
+          config.computePrecipitation
+        );
+
+        seasonalRainfall.push(precipitation.rainfall);
+        seasonalHumidity.push(precipitation.humidity);
+      }
+    }
+
+    // Recompute annual mean + amplitude now that we have seasonal rainfall/humidity.
+    for (let i = 0; i < size; i++) {
       let rainSum = 0;
       let humidSum = 0;
       let rainMin = 255;
       let rainMax = 0;
       let humidMin = 255;
       let humidMax = 0;
-      let windUSum = 0;
-      let windVSum = 0;
-      let currentUSum = 0;
-      let currentVSum = 0;
 
       for (let s = 0; s < seasonCount; s++) {
         const rain = seasonalRainfall[s]?.[i] ?? 0;
@@ -557,22 +883,12 @@ export default createStep(ClimateBaselineStepContract, {
         if (rain > rainMax) rainMax = rain;
         if (humid < humidMin) humidMin = humid;
         if (humid > humidMax) humidMax = humid;
-
-        windUSum += seasonalWindU[s]?.[i] ?? 0;
-        windVSum += seasonalWindV[s]?.[i] ?? 0;
-        currentUSum += seasonalCurrentU[s]?.[i] ?? 0;
-        currentVSum += seasonalCurrentV[s]?.[i] ?? 0;
       }
 
       meanRainfall[i] = Math.max(0, Math.min(255, Math.round(rainSum / seasonCount)));
       meanHumidity[i] = Math.max(0, Math.min(255, Math.round(humidSum / seasonCount)));
       rainfallAmplitude[i] = Math.max(0, Math.min(255, Math.round((rainMax - rainMin) / 2)));
       humidityAmplitude[i] = Math.max(0, Math.min(255, Math.round((humidMax - humidMin) / 2)));
-
-      meanWindU[i] = clampI8(Math.round(windUSum / seasonCount));
-      meanWindV[i] = clampI8(Math.round(windVSum / seasonCount));
-      meanCurrentU[i] = clampI8(Math.round(currentUSum / seasonCount));
-      meanCurrentV[i] = clampI8(Math.round(currentVSum / seasonCount));
     }
 
     dumpScalarFieldVariants(context.trace, context.viz, {

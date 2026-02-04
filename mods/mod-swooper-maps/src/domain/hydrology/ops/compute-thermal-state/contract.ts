@@ -20,6 +20,13 @@ const ComputeThermalStateInputSchema = Type.Object(
     elevation: TypedArraySchemas.i16({ description: "Elevation (meters) per tile." }),
     /** Land mask per tile (1=land, 0=water). */
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
+    /**
+     * Optional ocean SST field (Celsius) to override water-tile temperatures.
+     *
+     * Intended use:
+     * - Coupling ocean currents/SST into downstream thermal + evap/cryosphere without breaking the default posture.
+     */
+    sstC: Type.Optional(TypedArraySchemas.f32({ description: "Optional sea surface temperature (C) per tile." })),
   },
   {
     additionalProperties: false,
