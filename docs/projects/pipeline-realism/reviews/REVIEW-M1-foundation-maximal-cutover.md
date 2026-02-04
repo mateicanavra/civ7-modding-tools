@@ -342,3 +342,28 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 
 ### Cross-cutting Risks
 - If legacy 3-era presets ship without regeneration, validation will reject history artifacts and downstream consumers will see missing/invalid driver channels.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-013-provenance-tracer-system-lineage-scalars-d04r-lagrangian-outputs
+
+### Quick Take
+- Provenance is now emitted as a D04r Lagrangian output with per-era tracer advection (fixed steps) and event-driven resets; era bounds are enforced in `require` + validation (5..8).
+- Tests assert determinism, bounded tracer indices, and causal updates in event corridors; tile projection fixtures now reflect 5-era inputs.
+
+### High-Leverage Issues
+- None observed; provenance now satisfies causal + boundedness requirements and is consumed downstream.
+
+### PR Comment Context
+- No reviewer comments; Graphite/preview notices only.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- Document `ADVECTION_STEPS_PER_ERA` in budgets/specs or add a test guard so the provenance budget can’t drift silently.
+- Confirm whether collision/transform events should update lineage scalars beyond boundary metadata, and document the rationale if they should not.
+
+### Needs Discussion
+- Whether provenance advection should remain embedded in `compute-tectonic-history` or move to a dedicated op for clearer separation of concerns.
+
+### Cross-cutting Risks
+- If advection budgets change without aligned tests/docs, provenance lineage stability could drift across releases.
