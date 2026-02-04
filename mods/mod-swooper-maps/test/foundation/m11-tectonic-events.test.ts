@@ -61,6 +61,8 @@ function makeSegments(params: {
   shear?: number;
   volcanism?: number;
   fracture?: number;
+  driftU?: number;
+  driftV?: number;
 }) {
   return {
     segmentCount: 1,
@@ -75,8 +77,8 @@ function makeSegments(params: {
     shear: new Uint8Array([params.shear ?? 0]),
     volcanism: new Uint8Array([params.volcanism ?? 0]),
     fracture: new Uint8Array([params.fracture ?? 0]),
-    driftU: new Int8Array([0]),
-    driftV: new Int8Array([0]),
+    driftU: new Int8Array([params.driftU ?? 0]),
+    driftV: new Int8Array([params.driftV ?? 0]),
   } as const;
 }
 
@@ -143,5 +145,48 @@ describe("m11 tectonic events", () => {
     expect(originEra.some((value) => value === 1)).toBe(true);
     const crustAge = Array.from(history.tectonicProvenance.provenance.crustAge);
     expect(Math.min(...crustAge)).toBeLessThan(255);
+  });
+
+  it("provenance tracer indices are deterministic and bounded", () => {
+    const mesh = makeTwoCellMesh();
+    const crust = makeCrust(mesh.cellCount);
+    const mantleForcing = makeMantleForcing(mesh.cellCount);
+    const plateGraph = makePlateGraph();
+    const segments = makeSegments({
+      regime: BOUNDARY_TYPE.convergent,
+      polarity: -1,
+      compression: 210,
+      volcanism: 180,
+      fracture: 80,
+      driftU: 127,
+      driftV: 0,
+    });
+
+    const a = computeTectonicHistory.run(
+      { mesh, crust, mantleForcing, plateGraph, segments },
+      computeTectonicHistory.defaultConfig
+    );
+    const b = computeTectonicHistory.run(
+      { mesh, crust, mantleForcing, plateGraph, segments },
+      computeTectonicHistory.defaultConfig
+    );
+
+    const tracesA = a.tectonicProvenance.tracerIndex;
+    const tracesB = b.tectonicProvenance.tracerIndex;
+    expect(tracesA.length).toBe(a.tectonicHistory.eraCount);
+    expect(tracesB.length).toBe(tracesA.length);
+
+    for (let e = 0; e < tracesA.length; e++) {
+      const traceA = tracesA[e]!;
+      const traceB = tracesB[e]!;
+      expect(traceA.length).toBe(mesh.cellCount);
+      expect(Array.from(traceA)).toEqual(Array.from(traceB));
+      for (const value of traceA) {
+        expect(value).toBeGreaterThanOrEqual(0);
+        expect(value).toBeLessThan(mesh.cellCount);
+      }
+    }
+
+    expect(Array.from(tracesA[0]!)).toEqual([0, 1]);
   });
 });
