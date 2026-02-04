@@ -9,13 +9,13 @@ import { realismOldErosionConfig } from "../../src/maps/presets/realism/old-eros
 
 describe("Standard recipe preset configs", () => {
   it("stay schema-valid (prevents silent drift)", () => {
-    const schema = deriveRecipeConfigSchema(STANDARD_STAGES as any);
-    normalizeStrictOrThrow(schema as any, realismEarthlikeConfig, "/presets/earthlike");
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+    normalizeStrictOrThrow(schema, realismEarthlikeConfig, "/presets/earthlike");
     normalizeStrictOrThrow(
-      schema as any,
+      schema,
       realismYoungTectonicsConfig,
       "/presets/young-tectonics"
     );
-    normalizeStrictOrThrow(schema as any, realismOldErosionConfig, "/presets/old-erosion");
+    normalizeStrictOrThrow(schema, realismOldErosionConfig, "/presets/old-erosion");
   });
 });

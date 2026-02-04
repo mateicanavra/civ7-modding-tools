@@ -1,3 +1,5 @@
+import type { TSchema } from "typebox";
+
 export type StudioRecipeId = string;
 
 export type StudioRecipeUiMeta = Readonly<{
@@ -19,7 +21,7 @@ export type StudioRecipeUiMeta = Readonly<{
   >;
 }>;
 
-export type RecipeArtifacts = {
+export type RecipeArtifacts<TConfig = unknown> = {
   id: StudioRecipeId;
   label: string;
   /**
@@ -27,13 +29,13 @@ export type RecipeArtifacts = {
    *
    * Treated as unknown by Studio so recipes can choose their own schema tooling.
    */
-  configSchema: unknown;
+  configSchema: TSchema;
   /**
    * Default recipe config object (used as the base for overrides).
    *
    * Treated as unknown by Studio so each recipe controls its config shape.
    */
-  defaultConfig: unknown;
+  defaultConfig: TConfig;
   /**
    * UI-facing meta derived from the authored recipe/stage source at build time.
    *

@@ -98,14 +98,36 @@ type StudioRecipeUiMeta = Readonly<{
   }>[];
 }>;
 
-function buildDefaultsSeed(stages: readonly StageLike[]): Record<string, unknown> {
-  return Object.fromEntries(stages.map((stage) => [stage.id, {}]));
+function setAtPath(root: Record<string, unknown>, path: readonly string[]): void {
+  let current: Record<string, unknown> = root;
+  for (const segment of path) {
+    const next = current[segment];
+    if (isPlainObject(next)) {
+      current = next;
+      continue;
+    }
+    const created: Record<string, unknown> = {};
+    current[segment] = created;
+    current = created;
+  }
 }
 
 function typeboxObjectProperties(schema: unknown): Record<string, unknown> {
   if (!schema || typeof schema !== "object") return {};
-  const props = (schema as any).properties as Record<string, unknown> | undefined;
-  return props ?? {};
+  const props = (schema as { properties?: unknown }).properties;
+  return isPlainObject(props) ? props : {};
+}
+
+function buildDefaultsSkeleton(uiMeta: StudioRecipeUiMeta): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const stage of uiMeta.stages) {
+    const stageConfig: Record<string, unknown> = { knobs: {} };
+    for (const step of stage.steps) {
+      setAtPath(stageConfig, step.configFocusPathWithinStage);
+    }
+    out[stage.stageId] = stageConfig;
+  }
+  return out;
 }
 
 function deriveStageStepConfigFocusMap(args: {
@@ -333,9 +355,15 @@ if (!Array.isArray(browserTestMod.BROWSER_TEST_STAGES)) {
 
 const browserTestSchema = deriveRecipeConfigSchema(browserTestMod.BROWSER_TEST_STAGES);
 const browserTestSchemaJson = stableJson(browserTestSchema);
-const { value: browserTestDefaults, errors: browserTestDefaultsErrors } = normalizeStrict<any>(
-  browserTestSchema as any,
-  buildDefaultsSeed(browserTestMod.BROWSER_TEST_STAGES),
+const browserTestUiMeta = deriveStudioRecipeUiMeta({
+  namespace: "mod-swooper-maps",
+  recipeId: "browser-test",
+  stages: browserTestMod.BROWSER_TEST_STAGES,
+});
+const browserTestDefaultsSeed = buildDefaultsSkeleton(browserTestUiMeta);
+const { value: browserTestDefaults, errors: browserTestDefaultsErrors } = normalizeStrict<Record<string, unknown>>(
+  browserTestSchema,
+  browserTestDefaultsSeed,
   "/defaults"
 );
 if (browserTestDefaultsErrors.length > 0) {
@@ -348,12 +376,6 @@ if (browserTestDefaultsErrors.length > 0) {
   );
 }
 const browserTestDefaultsClean = stripSchemaMetadata(browserTestDefaults);
-
-const browserTestUiMeta = deriveStudioRecipeUiMeta({
-  namespace: "mod-swooper-maps",
-  recipeId: "browser-test",
-  stages: browserTestMod.BROWSER_TEST_STAGES,
-});
 
 await writeFile(
   resolve(pkgRoot, "dist", "recipes", "browser-test.schema.json"),
@@ -410,9 +432,15 @@ if (!Array.isArray(standardMod.STANDARD_STAGES)) {
 
 const standardSchema = deriveRecipeConfigSchema(standardMod.STANDARD_STAGES);
 const standardSchemaJson = stableJson(standardSchema);
-const { value: standardDefaults, errors: standardDefaultsErrors } = normalizeStrict<any>(
-  standardSchema as any,
-  buildDefaultsSeed(standardMod.STANDARD_STAGES),
+const standardUiMeta = deriveStudioRecipeUiMeta({
+  namespace: "mod-swooper-maps",
+  recipeId: "standard",
+  stages: standardMod.STANDARD_STAGES,
+});
+const standardDefaultsSeed = buildDefaultsSkeleton(standardUiMeta);
+const { value: standardDefaults, errors: standardDefaultsErrors } = normalizeStrict<Record<string, unknown>>(
+  standardSchema,
+  standardDefaultsSeed,
   "/defaults"
 );
 if (standardDefaultsErrors.length > 0) {
@@ -425,12 +453,6 @@ if (standardDefaultsErrors.length > 0) {
   );
 }
 const standardDefaultsClean = stripSchemaMetadata(standardDefaults);
-
-const standardUiMeta = deriveStudioRecipeUiMeta({
-  namespace: "mod-swooper-maps",
-  recipeId: "standard",
-  stages: standardMod.STANDARD_STAGES,
-});
 
 await writeFile(
   resolve(pkgRoot, "dist", "recipes", "standard.schema.json"),
@@ -493,7 +515,7 @@ async function validateStandardMapConfigPresets(): Promise<void> {
     const abs = resolve(dir, ent.name);
     const raw = JSON.parse(await readFile(abs, "utf-8")) as unknown;
     const sanitized = stripSchemaMetadata(raw);
-    const res = normalizeStrict<any>(standardSchema as any, sanitized, `/preset/${ent.name}`);
+    const res = normalizeStrict<Record<string, unknown>>(standardSchema, sanitized, `/preset/${ent.name}`);
     if (res.errors.length > 0) {
       errors.push(
         ...res.errors.map((e) => ({

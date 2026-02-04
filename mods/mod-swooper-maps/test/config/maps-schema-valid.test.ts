@@ -18,21 +18,21 @@ function stripSchemaMetadataRoot(value: unknown): unknown {
 
 describe("Shipped map configs", () => {
   it("stay schema-valid (prevents Civ pipeline compile failures)", () => {
-    const schema = deriveRecipeConfigSchema(STANDARD_STAGES as any);
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
 
     normalizeStrictOrThrow(
-      schema as any,
-      stripSchemaMetadataRoot(swooperEarthlikeConfigRaw) as any,
+      schema,
+      stripSchemaMetadataRoot(swooperEarthlikeConfigRaw),
       "/maps/swooper-earthlike"
     );
     normalizeStrictOrThrow(
-      schema as any,
+      schema,
       SWOOPER_DESERT_MOUNTAINS_CONFIG,
       "/maps/swooper-desert-mountains"
     );
-    normalizeStrictOrThrow(schema as any, SHATTERED_RING_CONFIG, "/maps/shattered-ring");
+    normalizeStrictOrThrow(schema, SHATTERED_RING_CONFIG, "/maps/shattered-ring");
     normalizeStrictOrThrow(
-      schema as any,
+      schema,
       SUNDERED_ARCHIPELAGO_CONFIG,
       "/maps/sundered-archipelago"
     );

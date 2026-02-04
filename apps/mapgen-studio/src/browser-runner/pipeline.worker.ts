@@ -137,7 +137,11 @@ async function runRecipe(
     stripSchemaMetadataRoot(recipeEntry.defaultConfig),
     stripSchemaMetadataRoot(configOverrides)
   );
-  const { value: config, errors: configErrors } = normalizeStrict<any>(recipeEntry.configSchema as any, mergedRaw, "/config");
+  const { value: config, errors: configErrors } = normalizeStrict<Record<string, unknown>>(
+    recipeEntry.configSchema,
+    mergedRaw,
+    "/config"
+  );
   if (configErrors.length > 0) {
     throw new Error(`Invalid config overrides:\n${formatConfigErrors(configErrors)}`);
   }

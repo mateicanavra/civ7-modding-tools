@@ -1,18 +1,10 @@
 import { Type, type TObject, type TSchema } from "typebox";
 
+import type { StageContractAny } from "./types.js";
+
 type StageStepLike = Readonly<{ contract: Readonly<{ id: string; schema: TSchema }> }>;
-type StageLike = Readonly<{
-  id: string;
-  /**
-   * If present, stage.surfaceSchema already includes a curated public schema surface.
-   * When absent, the stage surface schema is internal-as-public and may not include
-   * per-step schemas (it is optimized for runtime compilation, not UI surfaces).
-   */
-  public?: unknown;
-  surfaceSchema: TObject;
-  knobsSchema: TObject;
-  steps: readonly StageStepLike[];
-}>;
+type StageLike = Pick<StageContractAny, "id" | "surfaceSchema" | "knobsSchema" | "steps"> &
+  Readonly<{ public?: unknown; steps: readonly StageStepLike[] }>;
 
 function deriveStageSurfaceSchema(stage: StageLike): TObject {
   if (stage.public) return stage.surfaceSchema;
@@ -42,4 +34,3 @@ export function deriveRecipeConfigSchema(stages: readonly StageLike[]): TObject 
   }
   return Type.Object(properties, { additionalProperties: false });
 }
-

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
+import type { TSchema } from "typebox";
 
 import { AppHeader } from "./ui/components/AppHeader";
 import { AppFooter } from "./ui/components/AppFooter";
@@ -180,18 +181,18 @@ function extractKnobOptions(schema: unknown, stageIds: readonly string[]): KnobO
 }
 
 function buildDefaultConfig(
-  schema: unknown,
+  schema: TSchema,
   uiMeta: StudioRecipeUiMeta,
   defaultConfig: unknown
 ): PipelineConfig {
   const skeleton = buildConfigSkeleton(uiMeta);
   const merged = mergeDeterministic(skeleton, stripSchemaMetadataRoot(defaultConfig));
-  const { value, errors } = normalizeStrict<Record<string, unknown>>(schema as any, merged, "/defaultConfig");
+  const { value, errors } = normalizeStrict<PipelineConfig>(schema, merged, "/defaultConfig");
   if (errors.length > 0) {
     console.error("[mapgen-studio] invalid recipe config schema defaults", errors);
-    return skeleton as PipelineConfig;
+    return skeleton;
   }
-  return value as unknown as PipelineConfig;
+  return value;
 }
 
 type LastRunSnapshot = {
