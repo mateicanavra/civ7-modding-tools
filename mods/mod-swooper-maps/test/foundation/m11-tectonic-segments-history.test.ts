@@ -131,6 +131,98 @@ describe("m11 tectonics (segments + history)", () => {
     expect(segments.polarity[0]).toBe(-1);
   });
 
+  it("segment arrays are deterministic for identical inputs", () => {
+    const mesh = makeTwoCellMesh();
+    const crust = {
+      maturity: new Float32Array([0.2, 0.2]),
+      thickness: new Float32Array([0.25, 0.25]),
+      thermalAge: new Uint8Array([0, 0]),
+      damage: new Uint8Array([0, 0]),
+      type: new Uint8Array([0, 0]),
+      age: new Uint8Array([0, 0]),
+      buoyancy: new Float32Array([0.2, 0.2]),
+      baseElevation: new Float32Array([0.2, 0.2]),
+      strength: new Float32Array([0.4, 0.4]),
+    } as const;
+
+    const plateGraph = {
+      cellToPlate: new Int16Array([0, 1]),
+      plates: [
+        { id: 0, role: "tectonic", kind: "major", seedX: 0, seedY: 0, velocityX: 0, velocityY: 0, rotation: 0 },
+        { id: 1, role: "tectonic", kind: "major", seedX: 1, seedY: 0, velocityX: -1.0, velocityY: 0, rotation: 0 },
+      ],
+    } as const;
+
+    const plateMotion = makePlateMotionFromGraph(plateGraph, mesh.cellCount);
+    const a = computeTectonicSegments.run(
+      { mesh, crust: crust as any, plateGraph: plateGraph as any, plateMotion: plateMotion as any },
+      computeTectonicSegments.defaultConfig
+    ).segments;
+    const b = computeTectonicSegments.run(
+      { mesh, crust: crust as any, plateGraph: plateGraph as any, plateMotion: plateMotion as any },
+      computeTectonicSegments.defaultConfig
+    ).segments;
+
+    expect(Array.from(a.regime)).toEqual(Array.from(b.regime));
+    expect(Array.from(a.polarity)).toEqual(Array.from(b.polarity));
+    expect(Array.from(a.compression)).toEqual(Array.from(b.compression));
+    expect(Array.from(a.extension)).toEqual(Array.from(b.extension));
+    expect(Array.from(a.shear)).toEqual(Array.from(b.shear));
+  });
+
+  it("crust resistance scales compression vs extension intensities", () => {
+    const mesh = makeTwoCellMesh();
+    const plateGraph = {
+      cellToPlate: new Int16Array([0, 1]),
+      plates: [
+        { id: 0, role: "tectonic", kind: "major", seedX: 0, seedY: 0, velocityX: 0, velocityY: 0, rotation: 0 },
+        { id: 1, role: "tectonic", kind: "major", seedX: 1, seedY: 0, velocityX: -1.0, velocityY: 0, rotation: 0 },
+      ],
+    } as const;
+
+    const plateMotion = makePlateMotionFromGraph(plateGraph, mesh.cellCount);
+    const scaledConfig = {
+      ...computeTectonicSegments.defaultConfig,
+      config: { ...computeTectonicSegments.defaultConfig.config, intensityScale: 120 },
+    };
+
+    const crustStrong = {
+      maturity: new Float32Array([0.2, 0.2]),
+      thickness: new Float32Array([0.5, 0.5]),
+      thermalAge: new Uint8Array([0, 0]),
+      damage: new Uint8Array([0, 0]),
+      type: new Uint8Array([0, 0]),
+      age: new Uint8Array([0, 0]),
+      buoyancy: new Float32Array([0.3, 0.3]),
+      baseElevation: new Float32Array([0.3, 0.3]),
+      strength: new Float32Array([0.9, 0.9]),
+    } as const;
+
+    const crustWeak = {
+      maturity: new Float32Array([0.1, 0.1]),
+      thickness: new Float32Array([0.2, 0.2]),
+      thermalAge: new Uint8Array([0, 0]),
+      damage: new Uint8Array([0, 0]),
+      type: new Uint8Array([0, 0]),
+      age: new Uint8Array([0, 0]),
+      buoyancy: new Float32Array([0.2, 0.2]),
+      baseElevation: new Float32Array([0.2, 0.2]),
+      strength: new Float32Array([0.1, 0.1]),
+    } as const;
+
+    const strongSeg = computeTectonicSegments.run(
+      { mesh, crust: crustStrong as any, plateGraph: plateGraph as any, plateMotion: plateMotion as any },
+      scaledConfig
+    ).segments;
+    const weakSeg = computeTectonicSegments.run(
+      { mesh, crust: crustWeak as any, plateGraph: plateGraph as any, plateMotion: plateMotion as any },
+      scaledConfig
+    ).segments;
+
+    expect(strongSeg.compression[0]).toBeGreaterThan(weakSeg.compression[0]);
+    expect(weakSeg.extension[0]).toBeLessThanOrEqual(strongSeg.extension[0]);
+  });
+
   it("3-era history is deterministic and populates lastActiveEra", () => {
     const mesh = makeTwoCellMesh();
     const crust = {
