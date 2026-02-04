@@ -55,6 +55,13 @@ related_to: []
 - Related:
   - (none)
 
+### Implementation Anchors
+- `packages/mapgen-core/src/core/types.ts` (artifact tag constants; avoid stringly-typed ids in consumers)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (canonical `defineArtifact(...)` registry for Foundation artifacts)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/*.contract.ts` (requires/provides declarations; must match what steps actually publish)
+- `mods/mod-swooper-maps/test/pipeline/artifacts.test.ts` (pipeline artifact “provides” contract checks)
+- `mods/mod-swooper-maps/test/foundation/contract-guard.test.ts` (artifact id + schema drift guard)
+
 ### References
 - docs/projects/pipeline-realism/resources/spec/artifact-catalog.md
 - docs/projects/pipeline-realism/resources/spec/schema-and-versioning.md

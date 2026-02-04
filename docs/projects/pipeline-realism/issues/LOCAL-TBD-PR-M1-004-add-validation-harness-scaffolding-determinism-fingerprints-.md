@@ -47,6 +47,13 @@ related_to: []
 - Related:
   - (none)
 
+### Implementation Anchors
+- `mods/mod-swooper-maps/test/support/` (preferred home for shared fingerprint/invariant harness helpers)
+- `mods/mod-swooper-maps/test/standard-run.test.ts` (existing TypedArray byte hashing pattern to generalize)
+- `packages/mapgen-core/src/trace/index.ts` (`sha256Hex`, `stableStringify` primitives used by current tests)
+- `packages/mapgen-core/src/engine/observability.ts` (`computePlanFingerprint` as an existing “stable identity” reference)
+- `mods/mod-swooper-maps/test/pipeline/` (good home for suite-level harness smoke tests)
+
 ### References
 - docs/projects/pipeline-realism/resources/spec/sections/validation-and-observability.md
 - docs/projects/pipeline-realism/resources/decisions/d09r-validation-and-observability.md

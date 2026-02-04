@@ -53,6 +53,13 @@ related_to: []
 - Related:
   - (none)
 
+### Implementation Anchors
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/*` (era loop + rollups; likely refactor/replace to match D04r budgets)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts` (already emits per-era `variantKey=era:<n>`; expand to D04r semantics)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/validation.ts` (currently hardcodes an era count; must be removed)
+- `mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-history.test.ts` (currently assumes 3 eras; must be updated to D04r budgets)
+- `apps/mapgen-studio/src/features/viz/dataTypeModel.ts` (Studio variant model; era scrubber depends on `variantKey=era:<n>` staying consistent)
+
 ### References
 - docs/projects/pipeline-realism/resources/decisions/d04r-history-dual-eulerian-plus-lagrangian.md
 - docs/projects/pipeline-realism/resources/spec/sections/history-and-provenance.md

@@ -51,6 +51,13 @@ related_to: []
 - Related:
   - (none)
 
+### Implementation Anchors
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts` (existing “history” surfaces; event engine must produce/update these causally, not just post-hoc rollups)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/*` (segment regime classification provides the raw materials for events)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/*` (event engine must update crust state variables; no “forces-only” tectonics)
+- `mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-history.test.ts` (existing determinism/regime tests; extend for event causality)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (ensure event outputs are published as first-class artifacts, not implied by viz)
+
 ### References
 - docs/projects/pipeline-realism/resources/decisions/d06r-event-mechanics-and-force-emission.md
 - docs/projects/pipeline-realism/resources/spec/sections/events-and-forces.md

@@ -49,6 +49,13 @@ related_to: []
 - Related:
   - (none)
 
+### Implementation Anchors
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts` (canonical mesh→tile mapping + sampling loop; `tileToCellIndex` SSOT)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts` and `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.contract.ts` (publish + declare projection artifacts)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (declare the new `foundationArtifacts.*Tiles` ids + schemas)
+- `mods/mod-swooper-maps/test/foundation/tile-projection-materials.test.ts` (determinism/wrap/tie-breaker projection tests)
+- `mods/mod-swooper-maps/test/pipeline/artifacts.test.ts` (assert “provides means published” for new projection artifacts)
+
 ### References
 - docs/projects/pipeline-realism/resources/spec/sections/history-and-provenance.md
 - docs/projects/pipeline-realism/resources/spec/sections/morphology-contract.md

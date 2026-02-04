@@ -53,6 +53,13 @@ related_to: []
 - Related:
   - (none)
 
+### Implementation Anchors
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts` and `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/contract.ts` (current “continental ratio” crust init to replace)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/crust.ts` and `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/crust.contract.ts` (step wiring + requires/provides)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (crust artifact schema/ids; strength/resistance fields must be first-class)
+- `mods/mod-swooper-maps/test/morphology/m11-crust-baseline-consumption.test.ts` (downstream assumptions about initial continents; must be updated)
+- `mods/mod-swooper-maps/test/foundation/mesh-first-ops.test.ts` (mesh-first posture test patterns to extend)
+
 ### References
 - docs/projects/pipeline-realism/resources/spec/foundation-evolutionary-physics-SPEC.md
 - docs/projects/pipeline-realism/resources/decisions/d05r-crust-state-canonical-variables.md

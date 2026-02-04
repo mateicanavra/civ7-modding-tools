@@ -53,6 +53,13 @@ related_to: []
 - Related:
   - (none)
 
+### Implementation Anchors
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts` (already emits per-era `variantKey=era:<n>`; proving ground for taxonomy + variants)
+- `mods/mod-swooper-maps/src/dev/viz/dump.ts` (VizDumper consumer; validates that emitted meta/keys are useful in dumps)
+- `mods/mod-swooper-maps/test/pipeline/viz-emissions.test.ts` (pins `dataTypeKey` stability; bans “eraN” in keys)
+- `packages/mapgen-viz/src/index.ts` (shared viz contract types; keep identity semantics aligned)
+- `apps/mapgen-studio/src/features/viz/dataTypeModel.ts` (Studio grouping: `dataTypeKey → spaceId → kind[:role] → variantKey`)
+
 ### References
 - docs/projects/pipeline-realism/resources/spec/sections/visualization-and-tuning.md
 - docs/system/libs/mapgen/pipeline-visualization-deckgl.md
