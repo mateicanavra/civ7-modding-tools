@@ -13,8 +13,7 @@ import {
   Focus,
   Settings,
   Save,
-  Play,
-  ChevronDown } from
+  Play } from
 'lucide-react';
 import { SchemaConfigForm } from '../../features/configOverrides/SchemaConfigForm';
 import {
@@ -474,7 +473,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                     }
                     {!canDeletePreset &&
                     <div className={`w-full text-left px-3 py-2 text-[11px] ${textMuted} rounded-b-lg border-t ${borderSubtle}`}>
-                        Delete Preset (local only)
+                        Delete Preset (Local Only)
                       </div>
                     }
                   </div>
