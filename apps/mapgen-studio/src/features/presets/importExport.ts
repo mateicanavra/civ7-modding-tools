@@ -12,7 +12,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 export type PresetExportPayload = Readonly<{
   label: string;
   description?: string;
-  config: unknown;
+  config: Record<string, unknown>;
 }>;
 
 export type PresetExportBuild = Readonly<{
