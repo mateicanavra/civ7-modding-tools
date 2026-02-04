@@ -1,55 +1,54 @@
 id: LOCAL-TBD-PR-M1-005
-+title: Compile-time config surface for maximal Foundation (D08r) + schema/versioning posture
-+state: planned
-+priority: 2
-+estimate: 8
-+project: pipeline-realism
-+milestone: M1-foundation-maximal-cutover
-+assignees: [codex]
-+labels: [pipeline-realism]
-+parent: null
-+children: []
-+blocked_by: []
-+blocked: []
-+related_to: []
-+---
-+
-+<!-- SECTION SCOPE [SYNC] -->
-+## TL;DR
-+- Implement the maximal-only authoring/config surface for physics inputs (no kinematics hacks).
-+
-+## Deliverables
-+- Implement the maximal-only authoring/config surface for physics inputs (no kinematics hacks).
+title: Compile-time config surface for maximal Foundation (D08r) + schema/versioning posture
+state: planned
+priority: 2
+estimate: 8
+project: pipeline-realism
+milestone: M1-foundation-maximal-cutover
+assignees: [codex]
+labels: [pipeline-realism]
+parent: null
+children: []
+blocked_by: []
+blocked: []
+related_to: []
+---
+
+<!-- SECTION SCOPE [SYNC] -->
+## TL;DR
+- Implement the maximal-only authoring/config surface for physics inputs (no kinematics hacks).
+
+## Deliverables
+- Implement the maximal-only authoring/config surface for physics inputs (no kinematics hacks).
 - Establish schema versioning posture and ensure config compilation is explicit and deterministic.
-+
-+## Acceptance Criteria
-+- Deliverables are implemented and wired into the pipeline where applicable.
-+- Outputs follow the maximal SPEC contracts (no optional artifacts).
-+- Any transitional bridge has an explicit deletion target (or this issue performs the deletion).
-+
-+## Testing / Verification
-+- Add/extend the canonical validation suite for this change (D09r posture).
-+- Verify determinism: same seed + config -> identical artifacts (stable fingerprints).
-+
-+## Dependencies / Notes
-+- Blocked by: none
+
+## Acceptance Criteria
+- Deliverables are implemented and wired into the pipeline where applicable.
+- Outputs follow the maximal SPEC contracts (no optional artifacts).
+- Any transitional bridge has an explicit deletion target (or this issue performs the deletion).
+
+## Testing / Verification
+- Add/extend the canonical validation suite for this change (D09r posture).
+- Verify determinism: same seed + config -> identical artifacts (stable fingerprints).
+
+## Dependencies / Notes
+- Blocked by: none
 - Related:
   - (none)
-+
-+### References
-+- docs/projects/pipeline-realism/resources/spec/sections/authoring-and-config.md
+
+### References
+- docs/projects/pipeline-realism/resources/spec/sections/authoring-and-config.md
 - docs/projects/pipeline-realism/resources/spec/schema-and-versioning.md
 - docs/system/libs/mapgen/reference/CONFIG-COMPILATION.md
-+
-+---
-+
-+<!-- SECTION IMPLEMENTATION [NOSYNC] -->
-+## Implementation Details (Local Only)
-+
-+### Quick Navigation
-+- [TL;DR](#tldr)
-+- [Deliverables](#deliverables)
-+- [Acceptance Criteria](#acceptance-criteria)
-+- [Testing / Verification](#testing--verification)
-+- [Dependencies / Notes](#dependencies--notes)
-+
+
+---
+
+<!-- SECTION IMPLEMENTATION [NOSYNC] -->
+## Implementation Details (Local Only)
+
+### Quick Navigation
+- [TL;DR](#tldr)
+- [Deliverables](#deliverables)
+- [Acceptance Criteria](#acceptance-criteria)
+- [Testing / Verification](#testing--verification)
+- [Dependencies / Notes](#dependencies--notes)
