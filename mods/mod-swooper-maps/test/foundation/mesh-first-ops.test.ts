@@ -233,11 +233,11 @@ describe("foundation mesh-first ops (slice 2)", () => {
     expect(Array.from(segA.regime)).toEqual(Array.from(segB.regime));
 
     const histA = computeTectonicHistory.run(
-      { mesh, segments: segA },
+      { mesh, crust: crustA, mantleForcing, plateGraph: graphA, segments: segA },
       computeTectonicHistory.defaultConfig
     );
     const histB = computeTectonicHistory.run(
-      { mesh, segments: segA },
+      { mesh, crust: crustA, mantleForcing, plateGraph: graphA, segments: segA },
       computeTectonicHistory.defaultConfig
     );
 
@@ -283,7 +283,7 @@ describe("foundation mesh-first ops (slice 2)", () => {
         computeTectonicSegments.defaultConfig
       ).segments;
       const historyResult = computeTectonicHistory.run(
-        { mesh, segments },
+        { mesh, crust, mantleForcing, plateGraph, segments },
         computeTectonicHistory.defaultConfig
       );
 
@@ -415,7 +415,10 @@ describe("foundation mesh-first ops (slice 2)", () => {
       { mesh, crust, plateGraph, plateMotion },
       computeTectonicSegments.defaultConfig
     ).segments;
-    const historyResult = computeTectonicHistory.run({ mesh, segments }, computeTectonicHistory.defaultConfig);
+    const historyResult = computeTectonicHistory.run(
+      { mesh, crust, mantleForcing, plateGraph, segments },
+      computeTectonicHistory.defaultConfig
+    );
     const projection = computePlatesTensors.run(
       {
         width,
