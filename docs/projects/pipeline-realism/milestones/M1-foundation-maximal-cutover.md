@@ -96,7 +96,7 @@ These 25 issue docs are the **canonical milestone checklist**. Do not duplicate 
 
 ### Morphology Cutover (Slice-03)
 - [x] [`LOCAL-TBD-PR-M1-014`](../issues/LOCAL-TBD-PR-M1-014-morphology-dual-read-accept-history-provenance-tiles-emit-co.md) Morphology dual-read: accept history/provenance tiles + emit comparison diagnostics — branch: `agent-URSULA-M1-LOCAL-TBD-PR-M1-014-morphology-dual-read-history-provenance-diagnostics`; PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1086; review branch: `agent-BURAKA-LOCAL-TBD-PR-M1-014-review-morphology-dual-read-history-provenance-diagnostics`; review PR: pending
-- [ ] [`LOCAL-TBD-PR-M1-015`](../issues/LOCAL-TBD-PR-M1-015-morphology-belt-synthesis-from-history-provenance-continuity.md) Morphology belt synthesis from history/provenance (continuity + age-aware diffusion)
+- [x] [`LOCAL-TBD-PR-M1-015`](../issues/LOCAL-TBD-PR-M1-015-morphology-belt-synthesis-from-history-provenance-continuity.md) Morphology belt synthesis from history/provenance (continuity + age-aware diffusion) — branch: `agent-URSULA-M1-LOCAL-TBD-PR-M1-015-morphology-belt-synthesis-history-provenance`; PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1087
 - [ ] [`LOCAL-TBD-PR-M1-016`](../issues/LOCAL-TBD-PR-M1-016-cutover-morphology-to-new-drivers-remove-legacy-consumption-.md) Cutover Morphology to new drivers + remove legacy consumption paths
 
 ### Validation / Observability (Cross-cutting)
