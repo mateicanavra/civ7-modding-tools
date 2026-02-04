@@ -1,6 +1,6 @@
 import { describe, it, expect } from "bun:test";
 
-import { deriveBeltDriversFromHistory } from "../../src/recipes/standard/stages/map-morphology/steps/beltDrivers.js";
+import { deriveBeltDriversFromHistory } from "../../src/domain/morphology/ops/compute-belt-drivers/deriveFromHistory.js";
 
 function buildHistoryTiles(width: number, height: number, eraCount: number) {
   const size = width * height;

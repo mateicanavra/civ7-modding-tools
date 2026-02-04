@@ -6,31 +6,10 @@ import type {
   FoundationTectonicProvenanceTiles,
 } from "@mapgen/domain/foundation/ops/compute-plates-tensors/contract.js";
 
+import type { BeltComponentSummary, BeltDriverOutputs } from "./types.js";
+
 const GAP_FILL_DISTANCE = 2;
 const MIN_BELT_LENGTH = 6;
-
-export type BeltComponentSummary = {
-  id: number;
-  boundaryType: number;
-  size: number;
-  meanUpliftBlend: number;
-  meanWidthScale: number;
-  meanSigma: number;
-  meanOriginEra: number;
-  meanOriginPlateId: number;
-};
-
-export type BeltDriverOutputs = {
-  boundaryCloseness: Uint8Array;
-  boundaryType: Uint8Array;
-  upliftPotential: Uint8Array;
-  riftPotential: Uint8Array;
-  tectonicStress: Uint8Array;
-  beltMask: Uint8Array;
-  beltDistance: Uint8Array;
-  beltNearestSeed: Int32Array;
-  beltComponents: BeltComponentSummary[];
-};
 
 function clampByte(value: number): number {
   return Math.max(0, Math.min(255, Math.round(value))) | 0;
@@ -361,3 +340,4 @@ export function deriveBeltDriversFromHistory(input: {
     beltComponents,
   } as const;
 }
+

@@ -15,17 +15,12 @@ import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 import PlotMountainsStepContract from "./plotMountains.contract.js";
 import { assertNoWaterDrift } from "./assertions.js";
-import { deriveBeltDriversFromHistory } from "./beltDrivers.js";
 import {
   MORPHOLOGY_OROGENY_HILL_THRESHOLD_DELTA,
   MORPHOLOGY_OROGENY_MOUNTAIN_THRESHOLD_DELTA,
   MORPHOLOGY_OROGENY_TECTONIC_INTENSITY_MULTIPLIER,
 } from "@mapgen/domain/morphology/shared/knob-multipliers.js";
 import type { MorphologyOrogenyKnob } from "@mapgen/domain/morphology/shared/knobs.js";
-import type {
-  FoundationTectonicHistoryTiles,
-  FoundationTectonicProvenanceTiles,
-} from "@mapgen/domain/foundation/ops/compute-plates-tensors/contract.js";
 
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
 const GROUP_BELT_DRIVERS = "Morphology / Belt Drivers";
@@ -75,21 +70,12 @@ export default createStep(PlotMountainsStepContract, {
   },
   run: (context, config, ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
-    const historyTiles = deps.artifacts.foundationTectonicHistoryTiles.read(context) as FoundationTectonicHistoryTiles;
-    const provenanceTiles =
-      deps.artifacts.foundationTectonicProvenanceTiles.read(context) as FoundationTectonicProvenanceTiles;
+    const beltDrivers = deps.artifacts.beltDrivers.read(context);
     const { width, height } = context.dimensions;
     const baseSeed = deriveStepSeed(context.env.seed, "morphology:planMountains");
 
     const fractalMountain = buildFractalArray(width, height, baseSeed ^ 0x3d, 5);
     const fractalHill = buildFractalArray(width, height, baseSeed ^ 0x5f, 5);
-
-    const beltDrivers = deriveBeltDriversFromHistory({
-      width,
-      height,
-      historyTiles,
-      provenanceTiles,
-    });
 
     const plan = ops.mountains(
       {

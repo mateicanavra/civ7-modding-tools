@@ -6,7 +6,7 @@ import type { ValidationInvariant, ValidationInvariantContext } from "./validati
 import planRidgesAndFoothills from "../../src/domain/morphology/ops/plan-ridges-and-foothills/index.js";
 import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
-import { deriveBeltDriversFromHistory } from "../../src/recipes/standard/stages/map-morphology/steps/beltDrivers.js";
+import { deriveBeltDriversFromHistory } from "../../src/domain/morphology/ops/compute-belt-drivers/deriveFromHistory.js";
 
 const EPS = 1e-6;
 const POTENTIAL_MIN_ABS = 0.12;
