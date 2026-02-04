@@ -96,3 +96,15 @@ Invariants should consume:
 ### Wow Scenarios
 
 - **Fake tectonics is impossible:** if someone “simplifies” event mechanics into force-only fields, CI fails because provenance/crust remain unchanged.
+
+### Implementation Decisions
+
+- Invariants are implemented in `mods/mod-swooper-maps/test/support/foundation-invariants.ts` and run via the determinism suite `M1_FOUNDATION_GATES`.
+- Event/provenance causality gates use tile-space history/provenance:
+  - `EVENT_SIGNAL_THRESHOLD = 20` (u8 event intensity threshold).
+  - Require ≥ `60%` of event-corridor tiles to stamp `lastBoundaryEra` when corridors are active (≥ 12 tiles).
+  - Require ≥ `75%` of `originEra` resets and ≥ `85%` of `lastBoundaryEra` stamps to align with same-era event signals.
+- Belt continuity gate uses `deriveBeltDriversFromHistory` from history/provenance tiles:
+  - `beltMask` must contain ≥ 20 cells when event corridors are active.
+  - Mean belt component size ≥ 8, max component size ≥ 12.
+  - Mean belt neighbor count ≥ 1.6 (guards against single-tile walls).
