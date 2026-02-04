@@ -49,6 +49,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 - Decision (M1-019): Event/provenance causality and belt continuity are gated via tile-space history/provenance signals (event threshold 20, ≥60% corridor boundary coverage, ≥75% origin resets aligned to events, belt component size/neighbor density floors) using `deriveBeltDriversFromHistory`.
 - Decision (M1-020): Morphology correlation gate replays `planRidgesAndFoothills` with plotMountains-equivalent fractal seeds and enforces driver/mountain alignment thresholds (signal ≥30, strong ≥80, ≥35% strong-driver coverage, ≥60% mountains on-driver).
 - Decision (M1-024): Remove morphology dual-read diagnostics from `landmass-plates` once belt consumption is history/provenance-only; keep `landmassPlates` plate usage limited to base topography/substrate (non-belt).
+- Decision (M1-025): Projection requires mesh-level `foundation.tectonicProvenance` once D04r provenance is live; optional fallback is removed to prevent shadow paths.
 
 ## Backlog
 
