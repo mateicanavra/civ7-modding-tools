@@ -102,3 +102,27 @@ reviewer: AI agent
 
 ### Cross-cutting Risks
 - If future artifacts include non-plain objects (e.g., `Map`, `ArrayBuffer`), fingerprints may under-represent data until normalization is extended.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-005-compile-config-surface
+
+### Quick Take
+- D08r Foundation authoring is now an explicit TypeBox schema (`foundation.version`, `profiles`, `knobs`, optional `advanced`) with strict compile-time validation and determinism tests.
+- Presets/configs were migrated to the new profile + knob surface, and plate activity scaling is wired into projection kinematics with clear, test‑backed semantics.
+
+### High-Leverage Issues
+- None observed; schema and tests align with the “no kinematics hacks” posture and compile strictness goals.
+
+### PR Comment Context
+- No actionable review comments; Graphite stack + Railway preview notices only.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- `foundation.advanced` (mantleForcing/lithosphere) is validated but not yet consumed in step configs; ensure the upcoming mantle/lithosphere ops plumb these inputs so the authoring surface is not inert.
+
+### Needs Discussion
+- Whether the D08r profile defaults (coarse/balanced/fine/ultra) should be centralized in a single “authoring defaults” reference to avoid drift between recipe defaults, presets, and Studio defaults.
+
+### Cross-cutting Risks
+- If advanced mantle/lithosphere inputs remain unused past M1, authors may believe they are driving physics inputs when they are effectively ignored.
