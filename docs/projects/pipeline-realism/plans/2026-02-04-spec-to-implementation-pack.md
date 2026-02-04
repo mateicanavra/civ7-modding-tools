@@ -9,10 +9,10 @@ This doc is the **single execution plan** for converting the existing maximal Fo
 
 ## Internal Checklist (Updated As Work Lands)
 
-- [ ] Slice 0: Setup + plan doc + scratchpad
-- [ ] Slice 1: Draft milestone from SPEC
-- [ ] Slice 2: Harden milestone
-- [ ] Slice 3: Expand milestone into local issue docs
+- [x] Slice 0: Setup + plan doc + scratchpad
+- [x] Slice 1: Draft milestone from SPEC
+- [x] Slice 2: Harden milestone
+- [x] Slice 3: Expand milestone into local issue docs
 - [ ] Slice 4: Prework sweep (no dangling prompts)
 - [ ] Slice 5: Readiness report + doc stewardship pass
 - [ ] Submit planning stack (`gt submit --stack --draft`)
@@ -20,9 +20,9 @@ This doc is the **single execution plan** for converting the existing maximal Fo
 ## Branch Stack Map (Fill In As Slices Are Created)
 
 - Base: `agent-URSULA-M1-foundation-maximal-cutover`
-- Slice 1: `TBD`
-- Slice 2: `TBD`
-- Slice 3: `TBD`
+- Slice 1: `agent-URSULA-M1-s1-draft-milestone`
+- Slice 2: `agent-URSULA-M1-s2-harden-milestone`
+- Slice 3: `agent-URSULA-M1-s3-issues`
 - Slice 4: `TBD`
 - Slice 5: `TBD`
 
@@ -246,4 +246,3 @@ Outputs:
 - `docs/projects/pipeline-realism/issues/LOCAL-TBD-*.md`
 - `docs/projects/pipeline-realism/plans/2026-02-04-spec-to-implementation-pack.md` (contains the full plan you're executing)
 - `docs/projects/pipeline-realism/plans/2026-02-04-implementation-readiness-report.md`
-
