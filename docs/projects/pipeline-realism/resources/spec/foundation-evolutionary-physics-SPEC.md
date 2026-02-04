@@ -31,8 +31,10 @@ Supersedes earlier “compromise” decisions:
 
 Decision packets (normative):
 - `docs/projects/pipeline-realism/resources/decisions/d01-ordering-crust-vs-plates.md`
+- `docs/projects/pipeline-realism/resources/decisions/d03r-plate-motion-derived-from-mantle.md`
 - `docs/projects/pipeline-realism/resources/decisions/d02r-mantle-forcing-potential-derived.md`
 - `docs/projects/pipeline-realism/resources/decisions/d04r-history-dual-eulerian-plus-lagrangian.md`
+- `docs/projects/pipeline-realism/resources/decisions/d05r-crust-state-canonical-variables.md`
 - `docs/projects/pipeline-realism/resources/decisions/d06r-event-mechanics-and-force-emission.md`
 - `docs/projects/pipeline-realism/resources/decisions/d07r-morphology-consumption-contract.md`
 
@@ -66,6 +68,14 @@ Mandatory:
 Normative details:
 - `docs/projects/pipeline-realism/resources/spec/sections/mantle-forcing.md`
 
+### Plate Motion (D03r)
+
+Mandatory (truth; mesh space):
+- `artifact:foundation.plateMotion`
+
+Normative details:
+- `docs/projects/pipeline-realism/resources/spec/sections/plate-motion.md`
+
 ### Evolution Outputs (D04r)
 
 Mandatory:
@@ -79,6 +89,14 @@ Fixed budgets (normative defaults):
 Normative details:
 - `docs/projects/pipeline-realism/resources/spec/sections/history-and-provenance.md`
 
+### Crust State (D05r)
+
+Mandatory (truth; mesh space):
+- `artifact:foundation.crust` (canonical state vector)
+
+Normative details:
+- `docs/projects/pipeline-realism/resources/spec/sections/crust-state.md`
+
 ### Events And Forces (D06r)
 
 Normative details:
@@ -88,8 +106,8 @@ Normative details:
 
 This SPEC assumes we continue to produce (or replace with superior equivalents) the existing core truth products:
 - mesh geometry (`artifact:foundation.mesh`)
-- crust state (`artifact:foundation.crust`) with a physically meaningful strength field
-- plate partition/kinematics (`artifact:foundation.plateGraph`)
+- crust state (`artifact:foundation.crust`) with mantle-coupled strength and differentiation state
+- plate partition (`artifact:foundation.plateGraph`)
 - boundary segments (`artifact:foundation.tectonicSegments`)
 
 Note: D01 ordering remains crust-first for partitioning, but crust priors must be mantle-coupled (no pre-authored “continents by fiat”).
@@ -127,6 +145,13 @@ Canonical mechanism:
 
 See: `docs/projects/pipeline-realism/resources/spec/sections/mantle-forcing.md`
 
+### Plate Motion (D03r)
+
+Canonical mechanism:
+- Derive `artifact:foundation.plateMotion` from mantle forcing, then compress to per-plate rigid kinematics via a single bounded fit pass (no convergence loops).
+
+See: `docs/projects/pipeline-realism/resources/spec/sections/plate-motion.md`
+
 ### Plate Partition + Boundary Segments
 
 1. Build resistance field from lithosphere/crust strength, rifts, and differentiation structure.
@@ -141,6 +166,13 @@ Per era:
 - update tracer history + provenance scalars (mandatory)
 
 See: `docs/projects/pipeline-realism/resources/spec/sections/history-and-provenance.md`
+
+### Events + Force Emission (D06r)
+
+Canonical mechanism:
+- Boundary events (segment-addressed) are the cause layer; anisotropic belt emission produces era fields; provenance is updated from both transport and events.
+
+See: `docs/projects/pipeline-realism/resources/spec/sections/events-and-forces.md`
 
 ### Morphology Consumption (D07r)
 
@@ -180,8 +212,12 @@ This SPEC is maximal but bounded. Budgets are fixed for determinism and testabil
 | `eraCount` max | 8 | hard max |
 | tracer advection steps / era | 6 | fixed |
 | mantle smoothing steps | 1–2 | fixed count (no convergence loops) |
+| plate-motion rigid fit passes | 1 | fixed (no iterative solver) |
+| event/belt diffusion budgets | fixed | see `sections/events-and-forces.md` + `sections/morphology-contract.md` |
+
+Consolidated budgets:
+- `docs/projects/pipeline-realism/resources/spec/budgets.md`
 
 ## Migration / Cutover Notes (Non-Normative)
 
 This SPEC is target state. Migration slices will define how to land it (prepare → cutover → cleanup), and may require temporary bridges, but bridges must have explicit deletion targets.
-
