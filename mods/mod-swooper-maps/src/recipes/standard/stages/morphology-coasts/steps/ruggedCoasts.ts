@@ -161,7 +161,7 @@ export default createStep(RuggedCoastsStepContract, {
   },
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;
-    const plates = deps.artifacts.foundationPlates.read(context);
+    const beltDrivers = deps.artifacts.beltDrivers.read(context);
     const topography = deps.artifacts.topography.read(context) as { seaLevel?: number; bathymetry?: Int16Array };
     const heightfield = context.buffers.heightfield;
     const rngSeed = deriveStepSeed(context.env.seed, "morphology:computeCoastlineMetrics");
@@ -171,8 +171,8 @@ export default createStep(RuggedCoastsStepContract, {
         width,
         height,
         landMask: heightfield.landMask,
-        boundaryCloseness: plates.boundaryCloseness,
-        boundaryType: plates.boundaryType,
+        boundaryCloseness: beltDrivers.boundaryCloseness,
+        boundaryType: beltDrivers.boundaryType,
         rngSeed,
       },
       config.coastlines
@@ -261,8 +261,8 @@ export default createStep(RuggedCoastsStepContract, {
         landMask: heightfield.landMask,
         bathymetry,
         distanceToCoast,
-        boundaryCloseness: plates.boundaryCloseness,
-        boundaryType: plates.boundaryType,
+        boundaryCloseness: beltDrivers.boundaryCloseness,
+        boundaryType: beltDrivers.boundaryType,
       },
       config.shelfMask
     );

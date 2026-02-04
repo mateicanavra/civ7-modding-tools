@@ -58,7 +58,11 @@ export const defaultStrategy = createStrategy(ComputeShelfMaskContract, "default
     let sampleCount = 0;
     for (let i = 0; i < size; i++) {
       if (landMask[i] === 1) continue;
-      if ((distanceToCoast[i] | 0) > nearshoreDistance) continue;
+      const dist = distanceToCoast[i] | 0;
+      // Exclude the guaranteed shoreline ring (distance 0), which is often artificially clamped to seaLevel and would
+      // otherwise skew the shallow cutoff too close to 0m (eliminating the shelf band beyond the ring).
+      if (dist <= 0) continue;
+      if (dist > nearshoreDistance) continue;
       nearshoreSamples[sampleCount++] = bathymetry[i] ?? 0;
     }
 
@@ -83,7 +87,7 @@ export const defaultStrategy = createStrategy(ComputeShelfMaskContract, "default
 
       if (isActiveMargin) activeMarginMask[i] = 1;
       capTilesByTile[i] = cap as number;
-      if (dist <= nearshoreDistance) nearshoreCandidateMask[i] = 1;
+      if (dist > 0 && dist <= nearshoreDistance) nearshoreCandidateMask[i] = 1;
 
       const depth = bathymetry[i] ?? 0;
       if (depth >= shallowCutoff) depthGateMask[i] = 1;
