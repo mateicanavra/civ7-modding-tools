@@ -353,17 +353,41 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 - None observed; provenance now satisfies causal + boundedness requirements and is consumed downstream.
 
 ### PR Comment Context
-- No reviewer comments; Graphite/preview notices only.
+- No reviewer comments; Graphite stack/preview notices only.
 
 ### Fix Now (Recommended)
 - None.
 
 ### Defer / Follow-up
 - Document `ADVECTION_STEPS_PER_ERA` in budgets/specs or add a test guard so the provenance budget can’t drift silently.
-- Confirm whether collision/transform events should update lineage scalars beyond boundary metadata, and document the rationale if they should not.
+- Clarify whether collision/transform events should update lineage scalars beyond boundary metadata, and document the rationale if they should not.
 
 ### Needs Discussion
 - Whether provenance advection should remain embedded in `compute-tectonic-history` or move to a dedicated op for clearer separation of concerns.
 
 ### Cross-cutting Risks
 - If advection budgets change without aligned tests/docs, provenance lineage stability could drift across releases.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-014-morphology-dual-read-history-provenance-diagnostics
+
+### Quick Take
+- Morphology’s landmass step now dual-reads history/provenance tiles to emit comparison diagnostics while keeping legacy plates as authoritative inputs, aligning with the transitional cutover plan.
+- Diagnostics include deltas and a quantitative summary, and tests lock the new viz keys and summary event.
+
+### High-Leverage Issues
+- The step contract now **requires** `tectonicHistoryTiles` + `tectonicProvenanceTiles`, so “legacy‑only” runs without new drivers cannot compile. This conflicts with the acceptance criterion that legacy-only mode remains runnable during the transition.
+
+### PR Comment Context
+- No reviewer comments; Graphite/preview notices only.
+
+### Fix Now (Recommended)
+- Make the new tile drivers optional in the contract (or supply deterministic placeholders) and guard diagnostics so baseline legacy-only runs are still possible during the dual-read window.
+
+### Defer / Follow-up
+- Consider moving dual-read diagnostics into a dedicated diagnostic step to keep landmass computations focused and to make removal in PR‑M1‑024/025 simpler.
+
+### Needs Discussion
+- Whether the milestone intent is “legacy outputs with new diagnostics” (current behavior) or truly “legacy-only without new artifacts present.”
+
+### Cross-cutting Risks
+- If legacy-only runs are impossible, the transition window for validating deltas independently of new drivers is effectively closed, making regression triage harder.
