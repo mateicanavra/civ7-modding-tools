@@ -35,6 +35,7 @@ const ARC_RESET_THRESHOLD = 170;
 const HOTSPOT_RESET_THRESHOLD = 200;
 const ERA_COUNT_TARGET = 5;
 const ERA_COUNT_MAX = 8;
+const ADVECTION_STEPS_PER_ERA = 6;
 
 function clampByte(value: number): number {
   return Math.max(0, Math.min(255, Math.round(value))) | 0;
@@ -128,6 +129,8 @@ type EraFields = Readonly<{
   fracture: Uint8Array;
   boundaryPolarity: Int8Array;
   boundaryIntensity: Uint8Array;
+  boundaryDriftU: Int8Array;
+  boundaryDriftV: Int8Array;
   riftOriginPlate: Int16Array;
   volcanismOriginPlate: Int16Array;
   volcanismEventType: Uint8Array;
@@ -433,6 +436,8 @@ function buildEraFields(params: {
   const boundaryType = new Uint8Array(cellCount);
   const boundaryPolarity = new Int8Array(cellCount);
   const boundaryIntensity = new Uint8Array(cellCount);
+  const boundaryDriftU = new Int8Array(cellCount);
+  const boundaryDriftV = new Int8Array(cellCount);
   for (let i = 0; i < cellCount; i++) {
     const uScore = upliftScore[i] ?? -1;
     const rScore = riftScore[i] ?? -1;
@@ -468,15 +473,25 @@ function buildEraFields(params: {
       bestScore = sScore;
     }
 
+    let eventIndex = -1;
     if (selected === "uplift") {
       boundaryType[i] = BOUNDARY_TYPE.convergent;
       boundaryPolarity[i] = upliftPolarity[i] ?? 0;
+      eventIndex = upliftEventIndex[i] ?? -1;
     } else if (selected === "rift") {
       boundaryType[i] = BOUNDARY_TYPE.divergent;
       boundaryPolarity[i] = 0;
+      eventIndex = riftEventIndex[i] ?? -1;
     } else {
       boundaryType[i] = BOUNDARY_TYPE.transform;
       boundaryPolarity[i] = 0;
+      eventIndex = shearEventIndex[i] ?? -1;
+    }
+
+    if (eventIndex >= 0 && eventIndex < params.events.length) {
+      const event = params.events[eventIndex]!;
+      boundaryDriftU[i] = clampInt8(event.driftU ?? 0);
+      boundaryDriftV[i] = clampInt8(event.driftV ?? 0);
     }
   }
 
@@ -489,10 +504,62 @@ function buildEraFields(params: {
     fracture,
     boundaryPolarity,
     boundaryIntensity,
+    boundaryDriftU,
+    boundaryDriftV,
     riftOriginPlate,
     volcanismOriginPlate,
     volcanismEventType,
   } as const;
+}
+
+function advectTracerIndex(params: {
+  mesh: {
+    cellCount: number;
+    wrapWidth: number;
+    siteX: Float32Array;
+    siteY: Float32Array;
+    neighborsOffsets: Int32Array;
+    neighbors: Int32Array;
+  };
+  boundaryDriftU: Int8Array;
+  boundaryDriftV: Int8Array;
+  mantleDriftU: Int8Array;
+  mantleDriftV: Int8Array;
+  steps: number;
+}): Uint32Array {
+  const cellCount = params.mesh.cellCount | 0;
+  const steps = Math.max(0, params.steps | 0);
+  const out = new Uint32Array(cellCount);
+  if (steps <= 0) {
+    for (let i = 0; i < cellCount; i++) out[i] = i;
+    return out;
+  }
+
+  for (let i = 0; i < cellCount; i++) {
+    let driftU = params.boundaryDriftU[i] ?? 0;
+    let driftV = params.boundaryDriftV[i] ?? 0;
+    if (!driftU && !driftV) {
+      driftU = params.mantleDriftU[i] ?? 0;
+      driftV = params.mantleDriftV[i] ?? 0;
+    }
+    if (!driftU && !driftV) {
+      out[i] = i;
+      continue;
+    }
+
+    let cell = i;
+    for (let step = 0; step < steps; step++) {
+      cell = chooseDriftNeighbor({
+        cellId: cell,
+        driftU: -(driftU | 0),
+        driftV: -(driftV | 0),
+        mesh: params.mesh,
+      });
+    }
+    out[i] = cell;
+  }
+
+  return out;
 }
 
 const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
@@ -687,19 +754,38 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
           cumulativeUplift: upliftTotal,
         } as const;
 
-        const tracerIndex: Uint32Array[] = [];
-        for (let era = 0; era < eraCount; era++) {
-          const trace = new Uint32Array(cellCount);
-          for (let i = 0; i < cellCount; i++) trace[i] = i;
-          tracerIndex.push(trace);
+        const mantleDriftU = new Int8Array(cellCount);
+        const mantleDriftV = new Int8Array(cellCount);
+        for (let i = 0; i < cellCount; i++) {
+          const drift = normalizeToInt8(mantleForcing.forcingU[i] ?? 0, mantleForcing.forcingV[i] ?? 0);
+          mantleDriftU[i] = drift.u;
+          mantleDriftV[i] = drift.v;
         }
 
-        const originEra = new Uint8Array(cellCount);
-        const originPlateId = new Int16Array(cellCount);
-        const lastBoundaryEra = new Uint8Array(cellCount);
-        const lastBoundaryType = new Uint8Array(cellCount);
-        const lastBoundaryPolarity = new Int8Array(cellCount);
-        const lastBoundaryIntensity = new Uint8Array(cellCount);
+        const tracerIndex: Uint32Array[] = [];
+        const tracerIdentity = new Uint32Array(cellCount);
+        for (let i = 0; i < cellCount; i++) tracerIdentity[i] = i;
+        tracerIndex.push(tracerIdentity);
+        for (let era = 1; era < eraCount; era++) {
+          const prevEra = eras[era - 1]!;
+          tracerIndex.push(
+            advectTracerIndex({
+              mesh,
+              boundaryDriftU: prevEra.boundaryDriftU,
+              boundaryDriftV: prevEra.boundaryDriftV,
+              mantleDriftU,
+              mantleDriftV,
+              steps: ADVECTION_STEPS_PER_ERA,
+            })
+          );
+        }
+
+        let originEra = new Uint8Array(cellCount);
+        let originPlateId = new Int16Array(cellCount);
+        let lastBoundaryEra = new Uint8Array(cellCount);
+        let lastBoundaryType = new Uint8Array(cellCount);
+        let lastBoundaryPolarity = new Int8Array(cellCount);
+        let lastBoundaryIntensity = new Uint8Array(cellCount);
         const crustAge = new Uint8Array(cellCount);
 
         lastBoundaryEra.fill(255);
@@ -710,6 +796,42 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
         }
 
         for (let era = 0; era < eraCount; era++) {
+          if (era > 0) {
+            const trace = tracerIndex[era]!;
+            const nextOriginEra = new Uint8Array(cellCount);
+            const nextOriginPlateId = new Int16Array(cellCount);
+            const nextLastBoundaryEra = new Uint8Array(cellCount);
+            const nextLastBoundaryType = new Uint8Array(cellCount);
+            const nextLastBoundaryPolarity = new Int8Array(cellCount);
+            const nextLastBoundaryIntensity = new Uint8Array(cellCount);
+
+            for (let i = 0; i < cellCount; i++) {
+              const src = trace[i] ?? i;
+              if (src < 0 || src >= cellCount) {
+                nextOriginEra[i] = originEra[i] ?? 0;
+                nextOriginPlateId[i] = originPlateId[i] ?? -1;
+                nextLastBoundaryEra[i] = lastBoundaryEra[i] ?? 255;
+                nextLastBoundaryType[i] = lastBoundaryType[i] ?? 255;
+                nextLastBoundaryPolarity[i] = lastBoundaryPolarity[i] ?? 0;
+                nextLastBoundaryIntensity[i] = lastBoundaryIntensity[i] ?? 0;
+                continue;
+              }
+              nextOriginEra[i] = originEra[src] ?? 0;
+              nextOriginPlateId[i] = originPlateId[src] ?? -1;
+              nextLastBoundaryEra[i] = lastBoundaryEra[src] ?? 255;
+              nextLastBoundaryType[i] = lastBoundaryType[src] ?? 255;
+              nextLastBoundaryPolarity[i] = lastBoundaryPolarity[src] ?? 0;
+              nextLastBoundaryIntensity[i] = lastBoundaryIntensity[src] ?? 0;
+            }
+
+            originEra = nextOriginEra;
+            originPlateId = nextOriginPlateId;
+            lastBoundaryEra = nextLastBoundaryEra;
+            lastBoundaryType = nextLastBoundaryType;
+            lastBoundaryPolarity = nextLastBoundaryPolarity;
+            lastBoundaryIntensity = nextLastBoundaryIntensity;
+          }
+
           const fields = eras[era]!;
           for (let i = 0; i < cellCount; i++) {
             const boundary = fields.boundaryType[i] ?? BOUNDARY_TYPE.none;
