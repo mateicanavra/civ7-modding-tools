@@ -118,6 +118,12 @@ related_to: []
 - Recipe artifacts:
   - Ensure `standard-artifacts` exports include the D08r surface (schema + defaults + uiMeta) and Studio consumes it.
 
+### Implementation Decisions
+
+- Implement the “Foundation (Physics Inputs)” view with the existing schema-driven (RJSF) config form, scoped to the `foundation` stage schema extracted from `STANDARD_RECIPE_CONFIG_SCHEMA`. This keeps authoring schema-backed without introducing new schema surfaces.
+- Jump-to-layer shortcuts scan the viz manifest for matching `dataTypeKey`s and select a stable candidate (step index → visibility → space → variant → kind). Selection is staged via a pending jump so the step sync does not clear the layer selection.
+- Preserve `normalizeStrict` error readability by rendering the run error banner with `whitespace-pre-wrap`, so path+message lines remain actionable.
+
 ### Pitfalls / Rakes
 
 - Accidentally exposing derived/forbidden fields (velocities, belts, regimes) via the authoring surface or UI.
