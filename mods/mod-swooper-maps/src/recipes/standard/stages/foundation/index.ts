@@ -6,6 +6,7 @@ import {
   mantlePotential,
   mesh,
   plateGraph,
+  plateMotion,
   plateTopology,
   projection,
   tectonics,
@@ -101,7 +102,7 @@ type ResolutionProfile = Static<typeof FoundationResolutionProfileSchema>;
 type FoundationStageCompileConfig = Static<typeof publicSchema>;
 
 const COMMON_TECTONIC_SEGMENTS = {
-  intensityScale: 180,
+  intensityScale: 900,
   regimeMinIntensity: 4,
 } as const;
 
@@ -161,6 +162,15 @@ const COMMON_MANTLE_FORCING = {
   curvatureWeight: 0.35,
   upwellingThreshold: 0.35,
   downwellingThreshold: 0.35,
+} as const;
+
+const COMMON_PLATE_MOTION = {
+  omegaFactor: 1,
+  plateRadiusMin: 1,
+  residualNormScale: 1,
+  p90NormScale: 1,
+  histogramBins: 32,
+  smoothingSteps: 0,
 } as const;
 
 const MANTLE_RADIUS_RANGE = {
@@ -294,6 +304,7 @@ const FOUNDATION_STEP_IDS = [
   "mantle-forcing",
   "crust",
   "plate-graph",
+  "plate-motion",
   "tectonics",
   "projection",
   "plate-topology",
@@ -435,6 +446,12 @@ export default createStage({
           },
         },
       },
+      "plate-motion": {
+        computePlateMotion: {
+          strategy: "default",
+          config: COMMON_PLATE_MOTION,
+        },
+      },
       tectonics: {
         computeTectonicSegments: {
           strategy: "default",
@@ -453,5 +470,5 @@ export default createStage({
       },
     };
   },
-  steps: [mesh, mantlePotential, mantleForcing, crust, plateGraph, tectonics, projection, plateTopology],
+  steps: [mesh, mantlePotential, mantleForcing, crust, plateGraph, plateMotion, tectonics, projection, plateTopology],
 } as const);

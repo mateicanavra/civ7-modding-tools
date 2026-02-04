@@ -4,6 +4,7 @@ import { wrapAbsDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 import type { FoundationMesh } from "../../compute-mesh/contract.js";
 import type { FoundationCrust } from "../../compute-crust/contract.js";
 import type { FoundationPlateGraph } from "../../compute-plate-graph/contract.js";
+import type { FoundationPlateMotion } from "../../compute-plate-motion/contract.js";
 import type { FoundationTectonicHistory, FoundationTectonics } from "../../compute-tectonic-history/contract.js";
 import type { FoundationTectonicProvenance } from "../contract.js";
 import { BOUNDARY_TYPE } from "../../../constants.js";
@@ -77,6 +78,7 @@ export function projectPlatesFromModel(input: {
   mesh: FoundationMesh;
   crust: FoundationCrust;
   plateGraph: FoundationPlateGraph;
+  plateMotion: FoundationPlateMotion;
   tectonics: FoundationTectonics;
   tectonicHistory: FoundationTectonicHistory;
   tectonicProvenance?: FoundationTectonicProvenance | null;
@@ -156,10 +158,9 @@ export function projectPlatesFromModel(input: {
   const plateMovementV = new Int8Array(plateGraph.plates.length);
   const plateRotation = new Int8Array(plateGraph.plates.length);
   for (let p = 0; p < plateGraph.plates.length; p++) {
-    const plate = plateGraph.plates[p]!;
-    plateMovementU[p] = clampInt8((plate.velocityX ?? 0) * input.movementScale);
-    plateMovementV[p] = clampInt8((plate.velocityY ?? 0) * input.movementScale);
-    plateRotation[p] = clampInt8((plate.rotation ?? 0) * input.rotationScale);
+    plateMovementU[p] = clampInt8((input.plateMotion.plateVelocityX[p] ?? 0) * input.movementScale);
+    plateMovementV[p] = clampInt8((input.plateMotion.plateVelocityY[p] ?? 0) * input.movementScale);
+    plateRotation[p] = clampInt8((input.plateMotion.plateOmega[p] ?? 0) * input.rotationScale);
   }
 
   const plateId = new Int16Array(size);

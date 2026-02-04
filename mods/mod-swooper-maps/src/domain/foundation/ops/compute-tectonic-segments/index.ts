@@ -2,7 +2,8 @@ import { createOp } from "@swooper/mapgen-core/authoring";
 import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import { BOUNDARY_TYPE } from "../../constants.js";
-import { requireCrust, requireMesh, requirePlateGraph } from "../../lib/require.js";
+import { requireCrust, requireMesh, requirePlateGraph, requirePlateMotion } from "../../lib/require.js";
+import type { FoundationPlateMotion } from "../compute-plate-motion/contract.js";
 import ComputeTectonicSegmentsContract from "./contract.js";
 
 function clampByte(value: number): number {
@@ -24,20 +25,21 @@ function normalizeToInt8(x: number, y: number): { u: number; v: number } {
 }
 
 function velocityAtPoint(params: {
-  plate: { velocityX?: number; velocityY?: number; rotation?: number; seedX?: number; seedY?: number };
+  plateId: number;
+  plateMotion: FoundationPlateMotion;
   x: number;
   y: number;
   wrapWidth: number;
 }): { vx: number; vy: number } {
-  const plate = params.plate;
-  const vx = plate.velocityX ?? 0;
-  const vy = plate.velocityY ?? 0;
+  const plateId = params.plateId | 0;
+  const vx = params.plateMotion.plateVelocityX[plateId] ?? 0;
+  const vy = params.plateMotion.plateVelocityY[plateId] ?? 0;
 
-  const omega = plate.rotation ?? 0;
+  const omega = params.plateMotion.plateOmega[plateId] ?? 0;
   if (!omega) return { vx, vy };
 
-  const cx = plate.seedX ?? 0;
-  const cy = plate.seedY ?? 0;
+  const cx = params.plateMotion.plateCenterX[plateId] ?? 0;
+  const cy = params.plateMotion.plateCenterY[plateId] ?? 0;
   const dx = wrapDeltaPeriodic(params.x - cx, params.wrapWidth);
   const dy = params.y - cy;
 
@@ -68,6 +70,12 @@ const computeTectonicSegments = createOp(ComputeTectonicSegmentsContract, {
         const mesh = requireMesh(input.mesh, "foundation/compute-tectonic-segments");
         const crust = requireCrust(input.crust, mesh.cellCount | 0, "foundation/compute-tectonic-segments");
         const plateGraph = requirePlateGraph(input.plateGraph, mesh.cellCount | 0, "foundation/compute-tectonic-segments");
+        const plateMotion = requirePlateMotion(
+          input.plateMotion,
+          mesh.cellCount | 0,
+          plateGraph.plates.length | 0,
+          "foundation/compute-tectonic-segments"
+        );
 
         const cellCount = mesh.cellCount | 0;
         const wrapWidth = mesh.wrapWidth;
@@ -92,8 +100,7 @@ const computeTectonicSegments = createOp(ComputeTectonicSegmentsContract, {
           const start = mesh.neighborsOffsets[i] | 0;
           const end = mesh.neighborsOffsets[i + 1] | 0;
           const plateAId = plateGraph.cellToPlate[i] | 0;
-          const pA = plateGraph.plates[plateAId];
-          if (!pA) continue;
+          if (!plateGraph.plates[plateAId]) continue;
 
           const ax = mesh.siteX[i] ?? 0;
           const ay = mesh.siteY[i] ?? 0;
@@ -106,8 +113,7 @@ const computeTectonicSegments = createOp(ComputeTectonicSegmentsContract, {
             const plateBId = plateGraph.cellToPlate[j] | 0;
             if (plateBId === plateAId) continue;
 
-            const pB = plateGraph.plates[plateBId];
-            if (!pB) continue;
+            if (!plateGraph.plates[plateBId]) continue;
 
             const bx = mesh.siteX[j] ?? 0;
             const by = mesh.siteY[j] ?? 0;
@@ -125,8 +131,8 @@ const computeTectonicSegments = createOp(ComputeTectonicSegmentsContract, {
             const midX = ax + dx * 0.5;
             const midY = ay + dy * 0.5;
 
-            const vA = velocityAtPoint({ plate: pA, x: midX, y: midY, wrapWidth });
-            const vB = velocityAtPoint({ plate: pB, x: midX, y: midY, wrapWidth });
+            const vA = velocityAtPoint({ plateId: plateAId, plateMotion, x: midX, y: midY, wrapWidth });
+            const vB = velocityAtPoint({ plateId: plateBId, plateMotion, x: midX, y: midY, wrapWidth });
 
             const rvx = (vB.vx ?? 0) - (vA.vx ?? 0);
             const rvy = (vB.vy ?? 0) - (vA.vy ?? 0);
@@ -164,7 +170,10 @@ const computeTectonicSegments = createOp(ComputeTectonicSegmentsContract, {
               return 0;
             })();
 
-            const drift = normalizeToInt8((pA.velocityX ?? 0) + (pB.velocityX ?? 0), (pA.velocityY ?? 0) + (pB.velocityY ?? 0));
+            const drift = normalizeToInt8(
+              (plateMotion.plateVelocityX[plateAId] ?? 0) + (plateMotion.plateVelocityX[plateBId] ?? 0),
+              (plateMotion.plateVelocityY[plateAId] ?? 0) + (plateMotion.plateVelocityY[plateBId] ?? 0)
+            );
 
             aCell.push(i);
             bCell.push(j);
@@ -208,4 +217,3 @@ const computeTectonicSegments = createOp(ComputeTectonicSegmentsContract, {
 });
 
 export default computeTectonicSegments;
-

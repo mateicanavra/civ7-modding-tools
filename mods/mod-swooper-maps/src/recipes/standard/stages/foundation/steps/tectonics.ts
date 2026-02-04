@@ -40,12 +40,14 @@ export default createStep(TectonicsStepContract, {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const crust = deps.artifacts.foundationCrust.read(context);
     const plateGraph = deps.artifacts.foundationPlateGraph.read(context);
+    const plateMotion = deps.artifacts.foundationPlateMotion.read(context);
 
     const segmentsResult = ops.computeTectonicSegments(
       {
         mesh,
         crust,
         plateGraph,
+        plateMotion,
       },
       config.computeTectonicSegments
     );

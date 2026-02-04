@@ -4,6 +4,7 @@ import type { Static, TSchema } from "@swooper/mapgen-core/authoring";
 import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 import { FoundationCrustSchema } from "../compute-crust/contract.js";
 import { FoundationPlateGraphSchema } from "../compute-plate-graph/contract.js";
+import { FoundationPlateMotionSchema } from "../compute-plate-motion/contract.js";
 import { FoundationTectonicHistorySchema, FoundationTectonicsSchema } from "../compute-tectonic-history/contract.js";
 
 function withDescription<T extends TSchema>(schema: T, description: string) {
@@ -129,6 +130,11 @@ const InputSchema = Type.Object(
     plateGraph: withDescription(
       FoundationPlateGraphSchema,
       "Plate graph per mesh cell (cellToPlate + per-plate metadata)."
+    ),
+    /** Plate motion per plate (mantle-derived translation + rotation). */
+    plateMotion: withDescription(
+      FoundationPlateMotionSchema,
+      "Plate motion per plate (mantle-derived translation + rotation)."
     ),
     /** Tectonic drivers per mesh cell (boundary regime + stress/potential tensors). */
     tectonics: withDescription(

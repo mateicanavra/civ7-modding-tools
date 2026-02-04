@@ -6,6 +6,7 @@ import computeMantleForcing from "./compute-mantle-forcing/index.js";
 import computeMantlePotential from "./compute-mantle-potential/index.js";
 import computeMesh from "./compute-mesh/index.js";
 import computePlateGraph from "./compute-plate-graph/index.js";
+import computePlateMotion from "./compute-plate-motion/index.js";
 import computePlatesTensors from "./compute-plates-tensors/index.js";
 import computeTectonicHistory from "./compute-tectonic-history/index.js";
 import computeTectonicSegments from "./compute-tectonic-segments/index.js";
@@ -16,6 +17,7 @@ const implementations = {
   computeMantleForcing,
   computeCrust,
   computePlateGraph,
+  computePlateMotion,
   computeTectonicSegments,
   computeTectonicHistory,
   computePlatesTensors,
@@ -29,6 +31,7 @@ export {
   computeMantlePotential,
   computeMesh,
   computePlateGraph,
+  computePlateMotion,
   computePlatesTensors,
   computeTectonicHistory,
   computeTectonicSegments,
