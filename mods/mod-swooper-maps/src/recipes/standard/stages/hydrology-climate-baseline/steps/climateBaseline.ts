@@ -285,7 +285,7 @@ export default createStep(ClimateBaselineStepContract, {
         : config.computeEvaporationSources;
 
     const transportMoisture =
-      config.transportMoisture.strategy === "default"
+      config.transportMoisture.strategy === "default" || config.transportMoisture.strategy === "cardinal"
         ? {
             ...config.transportMoisture,
             config: {
@@ -295,56 +295,81 @@ export default createStep(ClimateBaselineStepContract, {
           }
         : config.transportMoisture;
 
-    const computePrecipitation =
-      config.computePrecipitation.strategy !== "default"
-        ? config.computePrecipitation
-        : (() => {
-            const waterGradientRadiusDelta =
-              HYDROLOGY_OCEAN_COUPLING_WATER_GRADIENT_RADIUS[oceanCoupling] -
-              HYDROLOGY_OCEAN_COUPLING_WATER_GRADIENT_RADIUS.earthlike;
-            const perRingBonusDelta =
-              HYDROLOGY_WATER_GRADIENT_PER_RING_BONUS_BASE[oceanCoupling] -
-              HYDROLOGY_WATER_GRADIENT_PER_RING_BONUS_BASE.earthlike;
+    const computePrecipitation = (() => {
+      const waterGradientRadiusDelta =
+        HYDROLOGY_OCEAN_COUPLING_WATER_GRADIENT_RADIUS[oceanCoupling] -
+        HYDROLOGY_OCEAN_COUPLING_WATER_GRADIENT_RADIUS.earthlike;
+      const perRingBonusDelta =
+        HYDROLOGY_WATER_GRADIENT_PER_RING_BONUS_BASE[oceanCoupling] -
+        HYDROLOGY_WATER_GRADIENT_PER_RING_BONUS_BASE.earthlike;
 
-            const scaleDenom = Math.max(0.1, wetnessScale);
+      if (config.computePrecipitation.strategy === "basic") {
+        const scaleDenom = Math.max(0.1, wetnessScale);
+        return {
+          ...config.computePrecipitation,
+          config: {
+            ...config.computePrecipitation.config,
+            rainfallScale: config.computePrecipitation.config.rainfallScale * wetnessScale,
+            noiseAmplitude: config.computePrecipitation.config.noiseAmplitude * noiseAmplitudeFactor,
+            waterGradient: {
+              ...config.computePrecipitation.config.waterGradient,
+              radius: Math.max(
+                1,
+                Math.round(config.computePrecipitation.config.waterGradient.radius + waterGradientRadiusDelta)
+              ),
+              perRingBonus: Math.max(
+                0,
+                Math.round(
+                  (config.computePrecipitation.config.waterGradient.perRingBonus + perRingBonusDelta) * wetnessScale
+                )
+              ),
+              lowlandBonus: Math.max(
+                0,
+                Math.round(config.computePrecipitation.config.waterGradient.lowlandBonus * wetnessScale)
+              ),
+            },
+            orographic: {
+              ...config.computePrecipitation.config.orographic,
+              reductionBase: Math.max(0, Math.round(config.computePrecipitation.config.orographic.reductionBase / scaleDenom)),
+              reductionPerStep: Math.max(
+                0,
+                Math.round(config.computePrecipitation.config.orographic.reductionPerStep / scaleDenom)
+              ),
+            },
+          },
+        };
+      }
 
-            return {
-              ...config.computePrecipitation,
-              config: {
-                ...config.computePrecipitation.config,
-                rainfallScale: config.computePrecipitation.config.rainfallScale * wetnessScale,
-                noiseAmplitude: config.computePrecipitation.config.noiseAmplitude * noiseAmplitudeFactor,
-                waterGradient: {
-                  ...config.computePrecipitation.config.waterGradient,
-                  radius: Math.max(
-                    1,
-                    Math.round(config.computePrecipitation.config.waterGradient.radius + waterGradientRadiusDelta)
-                  ),
-                  perRingBonus: Math.max(
-                    0,
-                    Math.round(
-                      (config.computePrecipitation.config.waterGradient.perRingBonus + perRingBonusDelta) * wetnessScale
-                    )
-                  ),
-                  lowlandBonus: Math.max(
-                    0,
-                    Math.round(config.computePrecipitation.config.waterGradient.lowlandBonus * wetnessScale)
-                  ),
-                },
-                orographic: {
-                  ...config.computePrecipitation.config.orographic,
-                  reductionBase: Math.max(
-                    0,
-                    Math.round(config.computePrecipitation.config.orographic.reductionBase / scaleDenom)
-                  ),
-                  reductionPerStep: Math.max(
-                    0,
-                    Math.round(config.computePrecipitation.config.orographic.reductionPerStep / scaleDenom)
-                  ),
-                },
-              },
-            };
-          })();
+      if (config.computePrecipitation.strategy === "default") {
+        return {
+          ...config.computePrecipitation,
+          config: {
+            ...config.computePrecipitation.config,
+            rainfallScale: config.computePrecipitation.config.rainfallScale * wetnessScale,
+            noiseAmplitude: config.computePrecipitation.config.noiseAmplitude * noiseAmplitudeFactor,
+            waterGradient: {
+              ...config.computePrecipitation.config.waterGradient,
+              radius: Math.max(
+                1,
+                Math.round(config.computePrecipitation.config.waterGradient.radius + waterGradientRadiusDelta)
+              ),
+              perRingBonus: Math.max(
+                0,
+                Math.round(
+                  (config.computePrecipitation.config.waterGradient.perRingBonus + perRingBonusDelta) * wetnessScale
+                )
+              ),
+              lowlandBonus: Math.max(
+                0,
+                Math.round(config.computePrecipitation.config.waterGradient.lowlandBonus * wetnessScale)
+              ),
+            },
+          },
+        };
+      }
+
+      return config.computePrecipitation;
+    })();
 
     return {
       ...config,

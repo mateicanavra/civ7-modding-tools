@@ -158,6 +158,65 @@ const ComputePrecipitationBaselineStrategySchema = Type.Object(
 );
 
 /**
+ * Vector precipitation parameters.
+ *
+ * This strategy consumes the full wind vector (U/V) to compute uplift and convergence proxies on a hex grid.
+ * It keeps the same output ranges as baseline (rainfall 0..200, humidity 0..255).
+ */
+const ComputePrecipitationVectorStrategySchema = Type.Object(
+  {
+    /** Scales humidity into rainfall (0..200 clamp happens at output). */
+    rainfallScale: Type.Number({
+      default: 180,
+      minimum: 0,
+      maximum: 400,
+      description: "Scales humidity into rainfall (0..200 clamp happens at output).",
+    }),
+    /** Non-linear scaling applied to humidity before rainfall mapping. */
+    humidityExponent: Type.Number({
+      default: 1,
+      minimum: 0.1,
+      maximum: 6,
+      description: "Non-linear scaling applied to humidity before rainfall mapping.",
+    }),
+    /** Perlin noise amplitude added to baseline rainfall. */
+    noiseAmplitude: Type.Number({
+      default: 6,
+      minimum: 0,
+      maximum: 40,
+      description: "Perlin noise amplitude added to baseline rainfall.",
+    }),
+    /** Perlin noise frequency for rainfall texture. */
+    noiseScale: Type.Number({
+      default: 0.12,
+      minimum: 0.01,
+      maximum: 1,
+      description: "Perlin noise frequency for rainfall texture.",
+    }),
+    /** Continental effect (distance from ocean impacts humidity/precip). */
+    waterGradient: ComputePrecipitationWaterGradientSchema,
+    /** Strength of windward uplift rainfall boost derived from ∇elevation · wind. */
+    upliftStrength: Type.Number({
+      default: 22,
+      minimum: 0,
+      maximum: 200,
+      description: "Strength of windward uplift rainfall boost derived from ∇elevation · wind.",
+    }),
+    /** Strength of convergence rainfall boost derived from negative divergence (convergence). */
+    convergenceStrength: Type.Number({
+      default: 16,
+      minimum: 0,
+      maximum: 200,
+      description: "Strength of convergence rainfall boost derived from negative divergence (convergence).",
+    }),
+  },
+  {
+    additionalProperties: false,
+    description: "Precipitation parameters (vector strategy).",
+  }
+);
+
+/**
  * River corridor refinement parameters.
  */
 const ComputePrecipitationRiverCorridorSchema = Type.Object(
@@ -317,7 +376,8 @@ const ComputePrecipitationContract = defineOp({
   input: ComputePrecipitationInputSchema,
   output: ComputePrecipitationOutputSchema,
   strategies: {
-    default: ComputePrecipitationBaselineStrategySchema,
+    default: ComputePrecipitationVectorStrategySchema,
+    basic: ComputePrecipitationBaselineStrategySchema,
     refine: ComputePrecipitationRefineStrategySchema,
   },
 });

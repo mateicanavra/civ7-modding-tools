@@ -9,7 +9,7 @@ import {
   upwindBarrierDistance,
 } from "../rules/index.js";
 
-export const defaultStrategy = createStrategy(ComputePrecipitationContract, "default", {
+export const basicStrategy = createStrategy(ComputePrecipitationContract, "basic", {
   run: (input, config) => {
     const width = input.width | 0;
     const height = input.height | 0;
