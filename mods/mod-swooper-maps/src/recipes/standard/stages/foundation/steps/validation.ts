@@ -147,6 +147,97 @@ export function validateCrustTilesArtifact(value: unknown, dims: MapDimensions):
   }
 }
 
+export function validateTectonicHistoryTilesArtifact(value: unknown, dims: MapDimensions): void {
+  if (!value || typeof value !== "object") {
+    throw new Error("[FoundationArtifact] Missing foundation tectonicHistoryTiles artifact payload.");
+  }
+  const history = value as {
+    version?: unknown;
+    eraCount?: unknown;
+    perEra?: unknown;
+    rollups?: unknown;
+  };
+
+  const version = typeof history.version === "number" ? (history.version | 0) : 0;
+  if (version <= 0) {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.version.");
+  }
+  const eraCount = typeof history.eraCount === "number" ? (history.eraCount | 0) : -1;
+  if (eraCount <= 0) {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.eraCount.");
+  }
+  if (!Array.isArray(history.perEra) || history.perEra.length !== eraCount) {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.perEra.");
+  }
+
+  const expectedLen = Math.max(0, (dims.width | 0) * (dims.height | 0));
+  for (let e = 0; e < history.perEra.length; e++) {
+    const era = history.perEra[e] as Record<string, unknown> | undefined;
+    if (!era) {
+      throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.perEra payload.");
+    }
+    const fields = ["boundaryType", "upliftPotential", "riftPotential", "shearStress", "volcanism", "fracture"] as const;
+    for (const field of fields) {
+      const v = era[field] as unknown;
+      if (!(v instanceof Uint8Array) || v.length !== expectedLen) {
+        throw new Error(`[FoundationArtifact] Invalid foundation tectonicHistoryTiles.perEra.${field}.`);
+      }
+    }
+  }
+
+  const rollups = history.rollups as Record<string, unknown> | undefined;
+  if (!rollups || typeof rollups !== "object") {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.rollups.");
+  }
+  const rollupFields = [
+    ["upliftTotal", rollups.upliftTotal],
+    ["fractureTotal", rollups.fractureTotal],
+    ["volcanismTotal", rollups.volcanismTotal],
+    ["upliftRecentFraction", rollups.upliftRecentFraction],
+    ["lastActiveEra", rollups.lastActiveEra],
+  ] as const;
+  for (const [label, arr] of rollupFields) {
+    if (!(arr instanceof Uint8Array) || arr.length !== expectedLen) {
+      throw new Error(`[FoundationArtifact] Invalid foundation tectonicHistoryTiles.rollups.${label}.`);
+    }
+  }
+}
+
+export function validateTectonicProvenanceTilesArtifact(value: unknown, dims: MapDimensions): void {
+  if (!value || typeof value !== "object") {
+    throw new Error("[FoundationArtifact] Missing foundation tectonicProvenanceTiles artifact payload.");
+  }
+  const provenance = value as {
+    version?: unknown;
+    originEra?: unknown;
+    originPlateId?: unknown;
+    driftDistance?: unknown;
+    lastBoundaryEra?: unknown;
+    lastBoundaryType?: unknown;
+  };
+  const version = typeof provenance.version === "number" ? (provenance.version | 0) : 0;
+  if (version <= 0) {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.version.");
+  }
+
+  const expectedLen = Math.max(0, (dims.width | 0) * (dims.height | 0));
+  if (!(provenance.originEra instanceof Uint8Array) || provenance.originEra.length !== expectedLen) {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.originEra.");
+  }
+  if (!(provenance.originPlateId instanceof Int16Array) || provenance.originPlateId.length !== expectedLen) {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.originPlateId.");
+  }
+  if (!(provenance.driftDistance instanceof Uint8Array) || provenance.driftDistance.length !== expectedLen) {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.driftDistance.");
+  }
+  if (!(provenance.lastBoundaryEra instanceof Uint8Array) || provenance.lastBoundaryEra.length !== expectedLen) {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.lastBoundaryEra.");
+  }
+  if (!(provenance.lastBoundaryType instanceof Uint8Array) || provenance.lastBoundaryType.length !== expectedLen) {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicProvenanceTiles.lastBoundaryType.");
+  }
+}
+
 export function validatePlateGraphArtifact(value: unknown): void {
   if (!value || typeof value !== "object") {
     throw new Error("[FoundationArtifact] Missing foundation plateGraph artifact payload.");

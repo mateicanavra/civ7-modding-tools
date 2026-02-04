@@ -1,7 +1,11 @@
 import type { FoundationMesh } from "../ops/compute-mesh/contract.js";
 import type { FoundationCrust } from "../ops/compute-crust/contract.js";
 import type { FoundationPlateGraph } from "../ops/compute-plate-graph/contract.js";
-import type { FoundationTectonics } from "../ops/compute-tectonic-history/contract.js";
+import type {
+  FoundationTectonicHistory,
+  FoundationTectonics,
+} from "../ops/compute-tectonic-history/contract.js";
+import type { FoundationTectonicProvenance } from "../ops/compute-plates-tensors/contract.js";
 
 export function requireMesh(mesh: FoundationMesh | undefined, scope: string): FoundationMesh {
   if (!mesh) {
@@ -105,4 +109,98 @@ export function requireTectonics(
   }
 
   return tectonics;
+}
+
+export function requireTectonicHistory(
+  history: FoundationTectonicHistory | undefined,
+  cellCount: number,
+  scope: string
+): FoundationTectonicHistory {
+  if (!history) {
+    throw new Error(`[Foundation] TectonicHistory not provided for ${scope}.`);
+  }
+
+  const eraCount = history.eraCount | 0;
+  if (eraCount <= 0 || !Array.isArray(history.eras) || history.eras.length !== eraCount) {
+    throw new Error(`[Foundation] Invalid tectonicHistory.eraCount for ${scope}.`);
+  }
+
+  const totals = [
+    ["upliftTotal", history.upliftTotal],
+    ["fractureTotal", history.fractureTotal],
+    ["volcanismTotal", history.volcanismTotal],
+    ["upliftRecentFraction", history.upliftRecentFraction],
+    ["lastActiveEra", history.lastActiveEra],
+  ] as const;
+
+  for (const [label, arr] of totals) {
+    if (!(arr instanceof Uint8Array) || arr.length !== cellCount) {
+      throw new Error(`[Foundation] Invalid tectonicHistory.${label} for ${scope}.`);
+    }
+  }
+
+  for (let e = 0; e < history.eras.length; e++) {
+    const era = history.eras[e] as Record<string, unknown> | undefined;
+    if (!era) {
+      throw new Error(`[Foundation] Invalid tectonicHistory.eras[${e}] for ${scope}.`);
+    }
+    const fields = ["boundaryType", "upliftPotential", "riftPotential", "shearStress", "volcanism", "fracture"] as const;
+    for (const field of fields) {
+      const v = era[field] as unknown;
+      if (!(v instanceof Uint8Array) || v.length !== cellCount) {
+        throw new Error(`[Foundation] Invalid tectonicHistory.eras[${e}].${field} for ${scope}.`);
+      }
+    }
+  }
+
+  return history;
+}
+
+export function requireTectonicProvenance(
+  provenance: FoundationTectonicProvenance | undefined,
+  cellCount: number,
+  scope: string
+): FoundationTectonicProvenance {
+  if (!provenance) {
+    throw new Error(`[Foundation] TectonicProvenance not provided for ${scope}.`);
+  }
+
+  const eraCount = provenance.eraCount | 0;
+  if (eraCount <= 0 || !Array.isArray(provenance.tracerIndex) || provenance.tracerIndex.length !== eraCount) {
+    throw new Error(`[Foundation] Invalid tectonicProvenance.eraCount for ${scope}.`);
+  }
+
+  if ((provenance.cellCount | 0) !== cellCount) {
+    throw new Error(`[Foundation] Invalid tectonicProvenance.cellCount for ${scope}.`);
+  }
+
+  for (let e = 0; e < provenance.tracerIndex.length; e++) {
+    const tracer = provenance.tracerIndex[e];
+    if (!(tracer instanceof Uint32Array) || tracer.length !== cellCount) {
+      throw new Error(`[Foundation] Invalid tectonicProvenance.tracerIndex[${e}] for ${scope}.`);
+    }
+  }
+
+  const scalars = provenance.provenance as Record<string, unknown> | undefined;
+  if (!scalars || typeof scalars !== "object") {
+    throw new Error(`[Foundation] Invalid tectonicProvenance.provenance for ${scope}.`);
+  }
+
+  const scalarFields: Array<[string, unknown, { new (...args: any[]): { length: number } }]> = [
+    ["originEra", scalars.originEra, Uint8Array],
+    ["originPlateId", scalars.originPlateId, Int16Array],
+    ["lastBoundaryEra", scalars.lastBoundaryEra, Uint8Array],
+    ["lastBoundaryType", scalars.lastBoundaryType, Uint8Array],
+    ["lastBoundaryPolarity", scalars.lastBoundaryPolarity, Int8Array],
+    ["lastBoundaryIntensity", scalars.lastBoundaryIntensity, Uint8Array],
+    ["crustAge", scalars.crustAge, Uint8Array],
+  ];
+
+  for (const [label, arr, ctor] of scalarFields) {
+    if (!(arr instanceof ctor) || arr.length !== cellCount) {
+      throw new Error(`[Foundation] Invalid tectonicProvenance.provenance.${label} for ${scope}.`);
+    }
+  }
+
+  return provenance;
 }

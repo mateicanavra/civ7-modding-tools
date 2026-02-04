@@ -14,8 +14,15 @@ const ProjectionStepContract = defineStep({
       foundationArtifacts.crust,
       foundationArtifacts.plateGraph,
       foundationArtifacts.tectonics,
+      foundationArtifacts.tectonicHistory,
     ],
-    provides: [foundationArtifacts.plates, foundationArtifacts.tileToCellIndex, foundationArtifacts.crustTiles],
+    provides: [
+      foundationArtifacts.plates,
+      foundationArtifacts.tileToCellIndex,
+      foundationArtifacts.crustTiles,
+      foundationArtifacts.tectonicHistoryTiles,
+      foundationArtifacts.tectonicProvenanceTiles,
+    ],
   },
   ops: {
     computePlates: foundation.ops.computePlatesTensors,
