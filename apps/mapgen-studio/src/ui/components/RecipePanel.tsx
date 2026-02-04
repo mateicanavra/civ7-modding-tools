@@ -295,8 +295,8 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                   checked={!overridesDisabled}
                   onCheckedChange={(checked) => setOverridesDisabled(!checked)}
                   lightMode={lightMode}
-                  aria-label={overridesDisabled ? "Enable overrides" : "Disable overrides"}
-                  title={overridesDisabled ? 'Enable overrides' : 'Disable overrides'} />
+                  aria-label={overridesDisabled ? "Enable Overrides" : "Disable Overrides"}
+                  title={overridesDisabled ? 'Enable Overrides' : 'Disable Overrides'} />
 
               </div>
 
@@ -306,10 +306,10 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                   e.stopPropagation();
                   setShowAllSteps(!showAllSteps);
                 }}
-                aria-label={showAllSteps ? "Focus current step" : "Show all steps"}
+                aria-label={showAllSteps ? "Focus Current Step" : "Show All Steps"}
                 aria-pressed={showAllSteps}
                 title={
-                showAllSteps ? 'Focus current step' : 'Show all steps'
+                showAllSteps ? 'Focus Current Step' : 'Show All Steps'
                 }
                 className={!showAllSteps ? iconBtnActive : iconBtn}>
 
@@ -331,8 +331,8 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
               <button
               type="button"
               onClick={() => setShowResetModal(true)}
-              aria-label="Reset config to defaults"
-              title="Reset to defaults"
+              aria-label="Reset Config to Defaults"
+              title="Reset to Defaults"
               className={iconBtn}>
 
                 <Eraser className="w-3.5 h-3.5" aria-hidden="true" />
@@ -341,9 +341,9 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
               <button
               type="button"
               onClick={() => setShowJson(!showJson)}
-              aria-label={showJson ? "Show form view" : "Show JSON view"}
+              aria-label={showJson ? "Show Form View" : "Show JSON View"}
               aria-pressed={showJson}
-              title={showJson ? 'Show form view' : 'Show JSON view'}
+              title={showJson ? 'Show Form View' : 'Show JSON View'}
               className={showJson ? iconBtnActive : iconBtn}>
 
                 <Braces className="w-3.5 h-3.5" aria-hidden="true" />
@@ -399,10 +399,10 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                 variant="outline"
                 size="icon"
                 onClick={() => setShowSaveMenu(!showSaveMenu)}
-                aria-label="Save preset"
+                aria-label="Save Preset"
                 aria-haspopup="menu"
                 aria-expanded={showSaveMenu}
-                title="Save preset"
+                title="Save Preset"
                 className="h-8 w-8">
 
                 <Save className="w-4 h-4" aria-hidden="true" />
@@ -413,7 +413,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                   <button
                   type="button"
                   className="fixed inset-0 z-40"
-                  aria-label="Close save preset menu"
+                  aria-label="Close Save Preset Menu"
                   onClick={() => setShowSaveMenu(false)} />
 
                   <div
