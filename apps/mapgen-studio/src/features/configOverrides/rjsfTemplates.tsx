@@ -9,6 +9,45 @@ export type BrowserConfigFormContext = {
   theme: Theme;
 };
 
+type FormTheme = Readonly<{
+  card: string;
+  nested: string;
+  divider: string;
+  label: string;
+  muted: string;
+  text: string;
+  borderSubtle: string;
+  button: string;
+  buttonActive: string;
+}>;
+
+function getFormTheme(lightMode?: boolean): FormTheme {
+  if (lightMode) {
+    return {
+      card: "bg-white border-gray-200",
+      nested: "bg-gray-50 border-gray-100",
+      divider: "border-gray-200",
+      label: "text-[#6b7280]",
+      muted: "text-[#9ca3af]",
+      text: "text-[#1f2937]",
+      borderSubtle: "border-gray-100",
+      button: "bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200",
+      buttonActive: "bg-[#4b5563] text-white border-[#4b5563]",
+    };
+  }
+  return {
+    card: "bg-[#141418] border-[#2a2a32]",
+    nested: "bg-[#0f0f12] border-[#222228]",
+    divider: "border-[#2a2a32]",
+    label: "text-[#8a8a96]",
+    muted: "text-[#5a5a66]",
+    text: "text-[#e8e8ed]",
+    borderSubtle: "border-[#222228]",
+    button: "bg-[#222228] text-[#e8e8ed] border-[#2a2a32] hover:bg-[#2a2a32]",
+    buttonActive: "bg-[#4b5563] text-white border-[#4b5563]",
+  };
+}
+
 function humanizeSchemaLabel(label: string): string {
   const s = label
     .replace(/[_-]+/g, " ")
@@ -25,42 +64,36 @@ export function BrowserConfigFieldTemplate(
   const prettyLabel = label ? humanizeSchemaLabel(label) : "";
   const schemaType = props.schema?.type;
   const suppressDescription = schemaType === "object" || schemaType === "array";
-  const isBoolean = schemaType === "boolean";
-  const theme = props.registry.formContext?.theme;
-  const labelClass = theme?.label ?? "";
-  const textClass = theme?.text ?? "";
+  const theme = getFormTheme(props.registry.formContext?.lightMode);
+  const labelClass = theme.label;
+  const textClass = theme.text;
+  const mutedClass = theme.muted;
 
-  if (isBoolean) {
+  const showLabel = displayLabel && label;
+
+  if (!showLabel) {
     return (
       <div className={["flex flex-col gap-1", classNames].filter(Boolean).join(" ")}>
-        <FieldRow>
-          {displayLabel && label ? (
-            <label className={`text-[11px] ${labelClass}`} htmlFor={id}>
-              <span className="font-medium">{prettyLabel}</span>
-              {required ? <span className="text-[11px] text-rose-400">*</span> : null}
-            </label>
-          ) : null}
-          <div>{children}</div>
-        </FieldRow>
-        {description ? <div className={`text-[11px] ${labelClass}`}>{description}</div> : null}
+        <div className={textClass}>{children}</div>
+        {description && !suppressDescription ? <div className={`text-[11px] ${labelClass}`}>{description}</div> : null}
         {errors ? <div className="text-[11px] text-rose-400">{errors}</div> : null}
-        {help ? <div className={`text-[11px] ${labelClass}`}>{help}</div> : null}
+        {help ? <div className={`text-[11px] ${mutedClass}`}>{help}</div> : null}
       </div>
     );
   }
 
   return (
     <div className={["flex flex-col gap-1", classNames].filter(Boolean).join(" ")}>
-      {displayLabel && label ? (
+      <FieldRow>
         <label className={`text-[11px] ${labelClass}`} htmlFor={id}>
           <span className="font-medium">{prettyLabel}</span>
           {required ? <span className="text-[11px] text-rose-400">*</span> : null}
         </label>
-      ) : null}
+        <div className={`flex-1 min-w-[120px] ${textClass}`}>{children}</div>
+      </FieldRow>
       {description && !suppressDescription ? <div className={`text-[11px] ${labelClass}`}>{description}</div> : null}
-      <div className={textClass}>{children}</div>
       {errors ? <div className="text-[11px] text-rose-400">{errors}</div> : null}
-      {help ? <div className={`text-[11px] ${labelClass}`}>{help}</div> : null}
+      {help ? <div className={`text-[11px] ${mutedClass}`}>{help}</div> : null}
     </div>
   );
 }
@@ -76,12 +109,9 @@ export function BrowserConfigObjectFieldTemplate(
   const leafKey = typeof leaf === "string" ? leaf : "";
   const isRoot = depth === 0;
   const isTransparent = transparentPaths.has(pathToPointer(path));
-  const theme = props.registry.formContext?.theme;
-  const cardClass = theme?.card ?? "";
-  const nestedCard = theme?.nestedCard ?? "";
-  const dividerClass = theme?.divider ?? "";
-  const labelClass = theme?.label ?? "";
-  const textClass = theme?.text ?? "";
+  const theme = getFormTheme(props.registry.formContext?.lightMode);
+  const labelClass = theme.label;
+  const textClass = theme.text;
 
   if (isRoot) {
     return <div className="flex flex-col gap-3">{properties.filter((p) => !p.hidden).map((p) => p.content)}</div>;
@@ -93,7 +123,6 @@ export function BrowserConfigObjectFieldTemplate(
 
   const prettyTitle = title ? humanizeSchemaLabel(title) : leafKey ? humanizeSchemaLabel(leafKey) : "Section";
   const isStage = depth === 1;
-  const isTopGroup = depth === 2;
 
   const content = (
     <div className="flex flex-col gap-2">
@@ -106,25 +135,28 @@ export function BrowserConfigObjectFieldTemplate(
 
   if (isStage) {
     return (
-      <section className={`rounded-lg border p-3 ${cardClass}`}>
+      <section className={`rounded-lg border p-3 ${theme.card}`}>
         <header className="flex flex-col gap-1">
           <div className={`text-sm font-semibold ${textClass}`}>{prettyTitle}</div>
           {description ? <div className={`text-[11px] ${labelClass}`}>{description}</div> : null}
         </header>
-        <div className={`my-2 border-t ${dividerClass}`} />
+        <div className={`my-2 border-t ${theme.divider}`} />
         {content}
       </section>
     );
   }
 
-  const headingClass = `text-[12px] font-semibold ${textClass}`;
-  const wrapperClass = isTopGroup ? `rounded-md border p-2 ${nestedCard}` : `pl-2 border-l ${dividerClass}`;
+  const headingClass = `${depth >= 3 ? "text-[11px]" : "text-[12px]"} font-semibold ${textClass}`;
+  const inlineBorder = `${depth >= 3 ? "pl-2" : "pl-3"} border-l ${theme.borderSubtle}`;
+  const groupWrapper = `flex flex-col gap-1`;
   return (
-    <section className={wrapperClass}>
-      <header className="mb-1">
+    <section className={groupWrapper}>
+      <header>
         <div className={headingClass}>{prettyTitle}</div>
       </header>
-      {content}
+      <div className={inlineBorder}>
+        {content}
+      </div>
     </section>
   );
 }
@@ -135,34 +167,32 @@ export function BrowserConfigArrayFieldTemplate(
   const { title, items, canAdd, onAddClick, disabled, readonly } = props;
   const prettyTitle = title ? humanizeSchemaLabel(title) : "Items";
   const allowMutations = !disabled && !readonly;
-  const theme = props.registry.formContext?.theme;
-  const nestedCard = theme?.nestedCard ?? "";
-  const textClass = theme?.text ?? "";
-  const dividerClass = theme?.divider ?? "";
+  const theme = getFormTheme(props.registry.formContext?.lightMode);
+  const textClass = theme.text;
 
   return (
-    <section className={`rounded-md border p-2 ${nestedCard}`}>
+    <section className={`rounded-md border p-2 ${theme.nested}`}>
       <div className="flex items-center gap-2">
         <div className={`text-[12px] font-semibold ${textClass}`}>{prettyTitle}</div>
         <div style={{ flex: 1 }} />
         {canAdd && allowMutations ? (
           <button
             type="button"
-            className={`px-2 py-1 text-[11px] rounded border ${theme?.button ?? ""}`}
+            className={`px-2 py-1 text-[11px] rounded border ${theme.button}`}
             onClick={onAddClick}
           >
             Add
           </button>
         ) : null}
       </div>
-      <div className={`my-2 border-t ${dividerClass}`} />
+      <div className={`my-2 border-t ${theme.divider}`} />
       <div className="flex flex-col gap-2">
         {items.map((item, index) => {
           // RJSF v6 types this as ReactElement[], but some templates/versions
           // pass an "item" object that wraps the actual element in `.children`.
           const content = (item as any)?.children ?? (item as any)?.props?.children ?? item;
           return (
-            <div key={item.key ?? index} className={`rounded-md border p-2 ${nestedCard}`}>
+            <div key={item.key ?? index} className={`rounded-md border p-2 ${theme.nested}`}>
               {content}
             </div>
           );

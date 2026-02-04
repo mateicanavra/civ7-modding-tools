@@ -176,14 +176,19 @@ export function SwitchWidget(props: ConfigWidgetProps) {
 
 export function TagSelectWidget(props: ConfigWidgetProps) {
   const { value, disabled, readonly, onChange, options } = props;
-  const theme = props.formContext?.theme;
+  const lightMode = getLightMode(props);
   const enumOptions = (options.enumOptions ?? []) as Array<{ value: unknown; label: string }>;
   const allowMutations = !disabled && !readonly;
   const selected = Array.isArray(value) ? value : [];
   const selectedKeys = new Set(selected.map((entry) => String(entry)));
   const map = new Map(enumOptions.map((opt) => [String(opt.value), opt.value]));
-  const baseTag = `px-2 py-1 text-[11px] rounded-full border ${theme?.button ?? ""}`;
-  const activeTag = theme?.toggleActive ?? "";
+  const baseTag = [
+    "px-2 py-1 text-[11px] rounded-full border transition-colors",
+    lightMode
+      ? "bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200"
+      : "bg-[#222228] text-[#e8e8ed] border-[#2a2a32] hover:bg-[#2a2a32]",
+  ].join(" ");
+  const activeTag = "bg-[#4b5563] text-white border-[#4b5563]";
 
   return (
     <div className="flex flex-wrap gap-2">
