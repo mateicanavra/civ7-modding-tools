@@ -13,7 +13,7 @@ Required Foundation truth artifacts (mesh space)
 
 ## Truth Artifacts and Schemas
 
-### `artifact:foundation.plateKinematics` (truth; mesh space)
+### `artifact:foundation.plateMotion` (truth; mesh space)
 
 Canonical plate-motion truth artifact derived from mantle forcing.
 
@@ -32,11 +32,8 @@ Schema (mesh space)
 
 ### `artifact:foundation.plateGraph` mapping (truth; mesh space)
 
-The plate-graph contract remains the truth home for partition. Plate kinematics are copied from `plateKinematics` into the existing per-plate kinematics fields:
-- `plates[].velocityX/Y` = `plateVelocityX/Y[plateId]`
-- `plates[].rotation` = `plateOmega[plateId]`
-
-Rotation center uses `plateKinematics.plateCenterX/Y` as the canonical reference point. Current code uses `plateGraph.plates[].seedX/Y` as the rotation center; target posture uses `plateCenterX/Y` for rotation-center semantics.
+The plate-graph contract remains the truth home for partition and seed metadata only.
+Rotation center uses `plateMotion.plateCenterX/Y` as the canonical reference point. Current code uses `plateGraph.plates[].seedX/Y` as the rotation center; target posture uses `plateCenterX/Y` for rotation-center semantics.
 
 ## Deterministic Algorithm (Rigid Fit From Mantle Forcing)
 
@@ -248,7 +245,7 @@ function derivePlateKinematics(params: {
 
 ### Determinism
 
-- `plateKinematics` is bitwise stable for identical seed + config.
+- `plateMotion` is bitwise stable for identical seed + config.
 - Histogram and percentile computations use deterministic bucket edges and tie-breakers.
 
 ### Kinematics Energy Bounds
@@ -299,14 +296,14 @@ This scenario demonstrates that mantle forcing produces coherent, explainable pl
 
 Contract reference: `docs/system/libs/mapgen/reference/domains/FOUNDATION.md`
 
-- Plate kinematics fields exist today:
-- `foundation.plateGraph.plates[].velocityX/Y` and `.rotation`
-- projected to tile space as `foundation.plates.movementU/V` and `foundation.plates.rotation`
-- Current kinematics source is RNG (to be replaced):
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts`
+- Plate kinematics truth exists today:
+- `foundation.plateMotion` (`plateVelocityX/Y`, `plateOmega`, centers, fit diagnostics)
+- tile motion projections are emitted as `foundation.plates.movementU/V` and `foundation.plates.rotation`
+- Current kinematics source is mantle forcing (no RNG plate velocities):
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-motion/index.ts`
 - Current downstream rigid-body usage already matches the representation:
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts` (`velocityAtPoint`)
 
 Target wiring posture
 - `foundation/compute-plate-graph` owns partition (`cellToPlate`) and emits seed references.
-- A new mesh-space op derives `artifact:foundation.plateKinematics` from `(mesh, plateGraph, mantleForcing)` and copies `(vX, vY, omega)` into `plateGraph.plates[]` for compatibility with existing consumers and projections.
+- `foundation/compute-plate-motion` derives `artifact:foundation.plateMotion` from `(mesh, plateGraph, mantleForcing)`, and projections consume it directly (no plateGraph kinematics surface).
