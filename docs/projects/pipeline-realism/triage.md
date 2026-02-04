@@ -9,6 +9,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 - Decision (M1-001): Use `artifact:foundation.plateMotion` as the canonical ID; `plateKinematics` remains a schema concept. New M1 artifacts carry `version: 1` while legacy artifacts stay unversioned until their owning issues update producers.
 - Decision (M1-002): Projection accepts optional `tectonicProvenance` input; when absent, provenance tiles publish deterministic placeholder values (`originEra=0`, `originPlateId=cellToPlate`, `lastBoundaryEra=255`, `lastBoundaryType=255`, `driftDistance=0`). Revisit once PR-M1-013 lands.
 - Decision (M1-003): Visualization keys for history/provenance align to the artifact catalog (`foundation.history.*`, `foundation.provenance.*`), and plate-motion keys use `foundation.plates.motion`. Mantle/plate-motion emissions are deferred until their producer ops land (PR-M1-007/008).
+- Decision (M1-004): Validation harness lives in `mods/mod-swooper-maps/test/support/validation-harness.ts`; missing artifacts are reported as `status: missing` until producers land; Tier-1 fingerprint list mirrors milestone acceptance artifacts.
 
 ## Backlog
 
