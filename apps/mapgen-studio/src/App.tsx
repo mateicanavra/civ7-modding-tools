@@ -12,14 +12,12 @@ import { ExplorePanel } from "./ui/components/ExplorePanel";
 import { RecipePanel } from "./ui/components/RecipePanel";
 import { ToastProvider, useToast } from "./ui/components/ui";
 import { createTheme, useThemePreference } from "./ui/hooks";
-import { applyConfigPatch, configsEqual, recipeSettingsEqual, worldSettingsEqual } from "./ui/utils/config";
+import { configsEqual, recipeSettingsEqual, worldSettingsEqual } from "./ui/utils/config";
 import { formatStageName } from "./ui/utils/formatting";
 import { LAYOUT } from "./ui/constants/layout";
 import type {
-  ConfigPatch,
   DataTypeOption,
   GenerationStatus,
-  KnobOptionsMap,
   OverlayOption,
   PipelineConfig,
   RecipeSettings,
@@ -159,59 +157,6 @@ function buildConfigSkeleton(uiMeta: StudioRecipeUiMeta): PipelineConfig {
   return skeleton;
 }
 
-function extractEnumValues(schema: unknown): string[] {
-  if (!schema || typeof schema !== "object") return [];
-  const obj = schema as Record<string, unknown>;
-
-  const direct = obj.enum;
-  if (Array.isArray(direct) && direct.every((v) => typeof v === "string")) return [...direct] as string[];
-
-  const anyOf = obj.anyOf;
-  if (Array.isArray(anyOf)) {
-    const values = anyOf
-      .map((entry) => (entry && typeof entry === "object" ? (entry as Record<string, unknown>).const : undefined))
-      .filter((v): v is string => typeof v === "string");
-    if (values.length > 0) return values;
-  }
-
-  const oneOf = obj.oneOf;
-  if (Array.isArray(oneOf)) {
-    const values = oneOf
-      .map((entry) => (entry && typeof entry === "object" ? (entry as Record<string, unknown>).const : undefined))
-      .filter((v): v is string => typeof v === "string");
-    if (values.length > 0) return values;
-  }
-
-  return [];
-}
-
-function extractKnobOptions(schema: unknown, stageIds: readonly string[]): KnobOptionsMap {
-  if (!schema || typeof schema !== "object") return {};
-  const root = schema as Record<string, unknown>;
-  const properties = root.properties;
-  if (!isPlainObject(properties)) return {};
-
-  const out: Record<string, string[]> = {};
-  for (const stageId of stageIds) {
-    const stageSchema = properties[stageId];
-    if (!isPlainObject(stageSchema)) continue;
-    const stageProps = stageSchema.properties;
-    if (!isPlainObject(stageProps)) continue;
-    const knobs = stageProps.knobs;
-    if (!isPlainObject(knobs)) continue;
-    const knobProps = knobs.properties;
-    if (!isPlainObject(knobProps)) continue;
-
-    for (const [knobName, knobSchema] of Object.entries(knobProps)) {
-      const values = extractEnumValues(knobSchema);
-      if (values.length === 0) continue;
-      const merged = new Set([...(out[knobName] ?? []), ...values]);
-      out[knobName] = [...merged];
-    }
-  }
-
-  return out;
-}
 
 function buildDefaultConfig(
   schema: TSchema,
@@ -331,9 +276,6 @@ function AppContent(props: AppContentProps) {
     builtIns: recipeArtifacts.studioBuiltInPresets ?? [],
   });
   const isLocalPresetSelected = parsePresetKey(recipeSettings.preset).kind === "local";
-  const stageIds = useMemo(() => recipeArtifacts.uiMeta.stages.map((s) => s.stageId), [recipeArtifacts.uiMeta.stages]);
-  const knobOptions = useMemo(() => extractKnobOptions(recipeArtifacts.configSchema, stageIds), [recipeArtifacts.configSchema, stageIds]);
-
   const [pipelineConfig, setPipelineConfig] = useState<PipelineConfig>(() => {
     const artifacts = getRecipeArtifacts(DEFAULT_STUDIO_RECIPE_ID);
     return buildDefaultConfig(artifacts.configSchema, artifacts.uiMeta, artifacts.defaultConfig);
@@ -557,12 +499,6 @@ function AppContent(props: AppContentProps) {
     () => STUDIO_RECIPE_OPTIONS.map((opt) => ({ value: opt.id, label: opt.label })),
     []
   );
-
-  const stageLabels = useMemo(() => {
-    return Object.fromEntries(
-      recipeArtifacts.uiMeta.stages.map((stage) => [stage.stageId, stage.stageLabel] as const)
-    );
-  }, [recipeArtifacts.uiMeta.stages]);
 
   const stages: StageOption[] = useMemo(() => {
     const labelByStageId = new Map(
@@ -1451,7 +1387,8 @@ function AppContent(props: AppContentProps) {
   const leftPanel = (
     <RecipePanel
       config={pipelineConfig}
-      onConfigPatch={(patch: ConfigPatch) => setPipelineConfig((prev) => applyConfigPatch(prev, patch))}
+      configSchema={recipeArtifacts.configSchema}
+      onConfigChange={(next) => setPipelineConfig(next)}
       onConfigReset={() =>
         setPipelineConfig(
           buildDefaultConfig(
@@ -1463,8 +1400,6 @@ function AppContent(props: AppContentProps) {
       }
       recipeOptions={recipeOptions}
       presetOptions={presetOptions}
-      knobOptions={knobOptions}
-      stageLabels={stageLabels}
       theme={theme}
       lightMode={isLightMode}
       selectedStep={selectedStageId}

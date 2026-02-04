@@ -159,6 +159,39 @@ export function toRjsfSchema(schema: unknown): RJSFSchema {
   return schema;
 }
 
+export function tryGetSchemaAtPath(schema: unknown, path: readonly string[]): unknown | null {
+  let current: unknown = schema;
+  for (const segment of path) {
+    if (!current || typeof current !== "object") return null;
+    const node = current as Record<string, unknown>;
+    const properties = node.properties;
+    if (properties && typeof properties === "object" && segment in (properties as Record<string, unknown>)) {
+      current = (properties as Record<string, unknown>)[segment];
+      continue;
+    }
+
+    // Best-effort: if we hit a union, pick the first branch that contains the property.
+    const anyOf = node.anyOf;
+    const oneOf = node.oneOf;
+    const variants = (Array.isArray(anyOf) ? anyOf : Array.isArray(oneOf) ? oneOf : null) as unknown[] | null;
+    if (variants) {
+      const match = variants.find((variant) => {
+        if (!variant || typeof variant !== "object") return false;
+        const vProps = (variant as Record<string, unknown>).properties;
+        return Boolean(vProps && typeof vProps === "object" && segment in (vProps as Record<string, unknown>));
+      });
+      if (match) {
+        const vProps = (match as Record<string, unknown>).properties as Record<string, unknown>;
+        current = vProps[segment];
+        continue;
+      }
+    }
+
+    return null;
+  }
+  return current;
+}
+
 export function pathToPointer(path: Array<string | number>): string {
   if (!path.length) return "";
   const parts = path.map((p) => String(p).replace(/~/g, "~0").replace(/\//g, "~1"));

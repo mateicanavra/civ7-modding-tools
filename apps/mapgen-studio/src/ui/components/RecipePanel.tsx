@@ -16,7 +16,7 @@ import {
   Play,
   ChevronDown } from
 'lucide-react';
-import { ConfigForm } from './ConfigForm';
+import { SchemaConfigForm } from '../../features/configOverrides/SchemaConfigForm';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -34,10 +34,7 @@ import type {
   PipelineConfig,
   Theme,
   RecipeSettings,
-  ConfigPatch,
-  ConfigValue,
-  SelectOption,
-  KnobOptionsMap } from
+  SelectOption } from
 '../types';
 // ============================================================================
 // Props
@@ -45,18 +42,16 @@ import type {
 export interface RecipePanelProps {
   /** Current pipeline configuration */
   config: PipelineConfig;
+  /** Config schema (recipe artifacts) */
+  configSchema: unknown;
   /** Path-based patch callback for efficient state updates */
-  onConfigPatch: (patch: ConfigPatch) => void;
+  onConfigChange: (next: PipelineConfig) => void;
   /** Callback to reset config to defaults */
   onConfigReset: () => void;
   /** Available recipe options */
   recipeOptions: ReadonlyArray<SelectOption>;
   /** Available preset options */
   presetOptions: ReadonlyArray<SelectOption>;
-  /** Knob options mapping (knob name → available values) */
-  knobOptions?: KnobOptionsMap;
-  /** Optional stageId -> label mapping (for author-friendly stage names) */
-  stageLabels?: Record<string, string>;
   /** Theme object (kept for API compatibility) */
   theme: Theme;
   /** Light mode flag for styling */
@@ -103,12 +98,11 @@ export interface RecipePanelProps {
 // ============================================================================
 export const RecipePanel: React.FC<RecipePanelProps> = ({
   config,
-  onConfigPatch,
+  configSchema,
+  onConfigChange,
   onConfigReset,
   recipeOptions,
   presetOptions,
-  knobOptions,
-  stageLabels,
   theme,
   lightMode,
   selectedStep,
@@ -167,15 +161,10 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
     };
     return config;
   }, [config, selectedStep, showAllSteps]);
-  // In focus mode (single step), auto-expand to depth 3
-  const autoExpandDepth = !showAllSteps ? 3 : 0;
+  const focusPath = !showAllSteps && selectedStep ? [selectedStep] : null;
   // ==========================================================================
   // Handlers
   // ==========================================================================
-  const handleConfigPatch = (patch: ConfigPatch) => {
-    // If in filtered mode, patches still use full paths
-    onConfigPatch(patch);
-  };
   const updateSetting = <K extends keyof RecipeSettings,>(
   key: K,
   value: RecipeSettings[K]) =>
@@ -367,14 +356,13 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                   </pre>
                 </div> :
 
-            <ConfigForm
-              config={filteredConfig}
-              onConfigPatch={handleConfigPatch}
-              knobOptions={knobOptions}
-              theme={theme}
-              lightMode={lightMode}
-              autoExpandDepth={autoExpandDepth}
-              stageLabels={stageLabels} />
+            <SchemaConfigForm
+              schema={configSchema}
+              value={config}
+              focusPath={focusPath}
+              disabled={overridesDisabled}
+              onChange={(next) => onConfigChange(next)}
+            />
 
             }
             </div>
