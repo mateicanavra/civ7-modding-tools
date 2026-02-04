@@ -1,6 +1,9 @@
 import { TypedArraySchemas, Type, defineOp } from "@swooper/mapgen-core/authoring";
 import type { Static } from "@swooper/mapgen-core/authoring";
+import { FoundationCrustSchema } from "../compute-crust/contract.js";
+import { FoundationMantleForcingSchema } from "../compute-mantle-forcing/contract.js";
 import { FoundationMeshSchema } from "../compute-mesh/contract.js";
+import { FoundationPlateGraphSchema } from "../compute-plate-graph/contract.js";
 import { FoundationTectonicSegmentsSchema } from "../compute-tectonic-segments/contract.js";
 
 const StrategySchema = Type.Object(
@@ -85,18 +88,90 @@ export const FoundationTectonicsSchema = Type.Object(
   { additionalProperties: false }
 );
 
+/** Foundation provenance scalars payload (per-cell, newest-era state). */
+const FoundationTectonicProvenanceScalarsSchema = Type.Object(
+  {
+    /** Era index of first appearance per mesh cell (0..eraCount-1). */
+    originEra: TypedArraySchemas.u8({
+      shape: null,
+      description: "Era index of first appearance per mesh cell (0..eraCount-1).",
+    }),
+    /** Origin plate id per mesh cell (plate id; -1 for unknown). */
+    originPlateId: TypedArraySchemas.i16({
+      shape: null,
+      description: "Origin plate id per mesh cell (plate id; -1 for unknown).",
+    }),
+    /** Era index of most recent boundary event per mesh cell (255 = none). */
+    lastBoundaryEra: TypedArraySchemas.u8({
+      shape: null,
+      description: "Era index of most recent boundary event per mesh cell (255 = none).",
+    }),
+    /** Boundary regime associated with lastBoundaryEra (BOUNDARY_TYPE; 255 = none). */
+    lastBoundaryType: TypedArraySchemas.u8({
+      shape: null,
+      description: "Boundary regime associated with lastBoundaryEra (BOUNDARY_TYPE; 255 = none).",
+    }),
+    /** Boundary polarity associated with lastBoundaryEra (-1, 0, +1). */
+    lastBoundaryPolarity: TypedArraySchemas.i8({
+      shape: null,
+      description: "Boundary polarity associated with lastBoundaryEra (-1, 0, +1).",
+    }),
+    /** Boundary intensity associated with lastBoundaryEra (0..255). */
+    lastBoundaryIntensity: TypedArraySchemas.u8({
+      shape: null,
+      description: "Boundary intensity associated with lastBoundaryEra (0..255).",
+    }),
+    /** Normalized crust age per mesh cell (0=new, 255=ancient). */
+    crustAge: TypedArraySchemas.u8({
+      shape: null,
+      description: "Normalized crust age per mesh cell (0=new, 255=ancient).",
+    }),
+  },
+  { description: "Foundation provenance scalars payload (per-cell, newest-era state)." }
+);
+
+/** Foundation tectonic provenance payload (tracer history + scalars). */
+export const FoundationTectonicProvenanceSchema = Type.Object(
+  {
+    /** Schema major version. */
+    version: Type.Integer({ minimum: 1, description: "Schema major version." }),
+    /** Number of eras included in the provenance payload. */
+    eraCount: Type.Integer({ minimum: 1, description: "Number of eras included in the provenance payload." }),
+    /** Number of mesh cells. */
+    cellCount: Type.Integer({ minimum: 1, description: "Number of mesh cells." }),
+    /** Per-era tracer indices (length = eraCount; each entry length = cellCount). */
+    tracerIndex: Type.Array(
+      TypedArraySchemas.u32({
+        shape: null,
+        description: "Tracer source cell index per mesh cell (length = cellCount).",
+      }),
+      { description: "Per-era tracer indices (length = eraCount; each entry length = cellCount)." }
+    ),
+    /** Provenance scalars (final state at newest era). */
+    provenance: FoundationTectonicProvenanceScalarsSchema,
+  },
+  { additionalProperties: false, description: "Foundation tectonic provenance payload (tracer history + scalars)." }
+);
+
 const ComputeTectonicHistoryContract = defineOp({
   kind: "compute",
   id: "foundation/compute-tectonic-history",
   input: Type.Object(
     {
       mesh: FoundationMeshSchema,
+      crust: FoundationCrustSchema,
+      mantleForcing: FoundationMantleForcingSchema,
+      plateGraph: FoundationPlateGraphSchema,
       segments: FoundationTectonicSegmentsSchema,
     },
     { additionalProperties: false }
   ),
   output: Type.Object(
-    { tectonicHistory: FoundationTectonicHistorySchema, tectonics: FoundationTectonicsSchema },
+    {
+      tectonicHistory: FoundationTectonicHistorySchema,
+      tectonics: FoundationTectonicsSchema,
+      tectonicProvenance: FoundationTectonicProvenanceSchema,
+    },
     { additionalProperties: false }
   ),
   strategies: {
@@ -108,3 +183,4 @@ export default ComputeTectonicHistoryContract;
 export type ComputeTectonicHistoryConfig = Static<typeof StrategySchema>;
 export type FoundationTectonicHistory = Static<typeof FoundationTectonicHistorySchema>;
 export type FoundationTectonics = Static<typeof FoundationTectonicsSchema>;
+export type FoundationTectonicProvenance = Static<typeof FoundationTectonicProvenanceSchema>;
