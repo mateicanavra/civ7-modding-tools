@@ -59,12 +59,15 @@ describe("standard pipeline viz emissions", () => {
     // Regression guard: never encode temporal slices into `dataTypeKey`.
     // Those should be `variantKey` instead (e.g. `era:<n>`), so the UI can
     // declutter by default while preserving depth behind a debug toggle.
-    const explodedHistoryKeys = [...seenLayers].filter((key) => /^foundation\.tectonicHistory\.era\d+\./.test(key));
+    const explodedHistoryKeys = [...seenLayers].filter((key) => /^foundation\.history\.era\d+\./.test(key));
     expect(explodedHistoryKeys).toEqual([]);
 
     const expected = [
       "foundation.plates.tilePlateId",
       "foundation.tectonics.boundaryType",
+      "foundation.history.upliftTotal",
+      "foundation.history.lastActiveEra",
+      "foundation.provenance.originEra",
       "morphology.topography.elevation",
       "morphology.coastlineMetrics.shelfMask",
       "morphology.shelf.capTiles",
@@ -158,6 +161,12 @@ describe("standard pipeline viz emissions", () => {
 
     const baseElevationMetas = metasByKey.get("foundation.crustTiles.baseElevation") as any[] | undefined;
     expect(baseElevationMetas?.some((m) => m?.visibility === "debug")).toBe(true);
+
+    const historyUpliftMetas = metasByKey.get("foundation.history.upliftTotal") as any[] | undefined;
+    expect(historyUpliftMetas?.some((m) => m?.visibility === "debug")).toBe(true);
+
+    const provenanceOriginMetas = metasByKey.get("foundation.provenance.originEra") as any[] | undefined;
+    expect(provenanceOriginMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
     const crustTypeMetas = metasByKey.get("foundation.crustTiles.type") as any[] | undefined;
     expect(crustTypeMetas?.some((m) => m?.visibility === "default")).toBe(true);
