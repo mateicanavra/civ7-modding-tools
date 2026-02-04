@@ -31,7 +31,7 @@
     "test": "bun test",
     "viz:foundation": "node ../../scripts/preflight/ensure-viz-runtime-deps.mjs && bun ./src/dev/viz/foundation-run.ts",
     "viz:standard": "node ../../scripts/preflight/ensure-viz-runtime-deps.mjs && bun ./src/dev/viz/standard-run.ts",
-    "deploy": "bun run build && bun run --filter @mateicanavra/civ7-cli dev -- mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps"
+    "deploy": "bun run build && bunx turbo run build --filter=@mateicanavra/civ7-cli && bun run --filter @mateicanavra/civ7-cli dev -- mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps"
   },
   "dependencies": {
     "@swooper/mapgen-core": "workspace:*",
