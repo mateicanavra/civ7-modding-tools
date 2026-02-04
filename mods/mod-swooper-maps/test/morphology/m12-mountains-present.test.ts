@@ -63,8 +63,8 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
         ...computeTectonicHistory.defaultConfig,
         config: {
           ...computeTectonicHistory.defaultConfig.config,
-          eraWeights: [0.35, 0.35, 0.3],
-          driftStepsByEra: [2, 1, 0],
+          eraWeights: [0.3, 0.25, 0.2, 0.15, 0.1],
+          driftStepsByEra: [2, 2, 2, 2, 2],
           beltInfluenceDistance: 8,
           beltDecay: 0.55,
           activityThreshold: 1,
