@@ -109,3 +109,11 @@ Likely implementation touchpoints:
 ### Wow Scenarios
 
 - **Authoring with causality:** a single authored mantle source change causes an explainable cascade (mantle → plates → events → provenance → belts) and the compiled config snapshot is stable enough to diff meaningfully.
+
+### Implementation Decisions
+
+- Adopt the D08r authoring surface as the only public Foundation config shape: `foundation.version` + `foundation.profiles` + `foundation.knobs` + optional `foundation.advanced` (mantle/lithosphere only). Per-step `foundation.advanced.*` overrides are no longer part of the authoring surface.
+- `foundation.knobs.plateCount` and `foundation.knobs.plateActivity` are numeric scalars (integer and `[0..1]` respectively). `plateCount` is the authored baseline for mesh + plate graph; `plateActivity` scales projection kinematics and boundary influence via a piecewise linear mapping (0.0 → 0.8 / -1, 0.5 → 1.0 / 0, 1.0 → 1.2 / +2).
+- Resolution profiles map to the existing shipped baselines to preserve intent during the D08r cutover: `coarse` (desert-mountains), `balanced` (earthlike), `fine` (shattered-ring), `ultra` (sundered-archipelago). Map configs select the appropriate profile and set `plateCount` explicitly.
+- Legacy realism preset strings map to numeric `plateActivity` targets for continuity: `low` → `0.25`, `normal` → `0.5`, `high` → `0.75`.
+- `foundation.advanced` is validated but not yet consumed in runtime steps; upcoming Foundation engine issues will wire mantle/lithosphere inputs into the new ops.
