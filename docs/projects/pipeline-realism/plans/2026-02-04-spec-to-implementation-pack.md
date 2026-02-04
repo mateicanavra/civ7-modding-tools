@@ -9,6 +9,8 @@ This doc is the **single execution plan** for converting the existing maximal Fo
 
 ## Internal Checklist (Updated As Work Lands)
 
+### Legacy Pass (s0–s5)
+
 - [x] Slice 0: Setup + plan doc + scratchpad
 - [x] Slice 1: Draft milestone from SPEC
 - [x] Slice 2: Harden milestone
@@ -16,6 +18,16 @@ This doc is the **single execution plan** for converting the existing maximal Fo
 - [x] Slice 4: Prework sweep (no dangling prompts)
 - [x] Slice 5: Readiness report + doc stewardship pass
 - [x] Submit planning stack (`gt submit --stack --draft`)
+
+### Rebuild Pass (s7–s13) — Implementation-Ready Deepening (No Code Changes)
+
+- [x] Slice s7: Issue doc sanitize (remove stray diff markers / syntax drift)
+- [x] Slice s8: Rebuild milestone index (25 canonical issue-backed tasks + coverage + sequencing)
+- [x] Slice s9: Deepen issues 001–005 (prepare)
+- [x] Slice s10: Deepen issues 006–013 (foundation engine)
+- [x] Slice s11: Deepen issues 014–025 (morphology cutover, gates, studio/viz, cleanup)
+- [x] Slice s12: Link/dependency integrity pass (no changes required)
+- [x] Slice s13: Update readiness report + update this plan doc
 
 ## Branch Stack Map (Fill In As Slices Are Created)
 
@@ -25,6 +37,14 @@ This doc is the **single execution plan** for converting the existing maximal Fo
 - Slice 3: `agent-URSULA-M1-s3-issues`
 - Slice 4: `agent-URSULA-M1-s4-prework-sweep`
 - Slice 5: `agent-URSULA-M1-s5-readiness`
+- Slice 6 (baseline for rebuild pass): `agent-URSULA-M1-s6-deepen-issues`
+- Slice 7: `agent-URSULA-M1-s7-issue-doc-sanitize`
+- Slice 8: `agent-URSULA-M1-s8-rebuild-milestone-index`
+- Slice 9: `agent-URSULA-M1-s9-issues-prepare-deepened`
+- Slice 10: `agent-URSULA-M1-s10-issues-foundation-engine-deepened`
+- Slice 11: `agent-URSULA-M1-s11-issues-cutover-gates-cleanup-deepened`
+- Slice 12: `agent-URSULA-M1-s12-link-integrity`
+- Slice 13: `agent-URSULA-M1-s13-readiness-report`
 
 ## Canonical Inputs
 

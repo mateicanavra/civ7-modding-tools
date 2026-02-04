@@ -12,6 +12,12 @@
 - Local issue set (Linear-sync ready via `LOCAL-TBD`):
   - `docs/projects/pipeline-realism/issues/`
 
+## No Gaps Audit (Spec → Issues)
+
+The milestone doc is the canonical “no gaps” map. Use its coverage table as the enforcement mechanism:
+
+- `docs/projects/pipeline-realism/milestones/M1-foundation-maximal-cutover.md` → `## Coverage Table (Spec / Decisions → Issues)`
+
 ## Recommended Execution Order (Stacks)
 
 The goal is to preserve the maximal posture while staying deterministic and debuggable. Execute as 3–5 stacks, keeping a single “spine” stack that everything else builds on.
@@ -99,9 +105,17 @@ These should be treated as single sources of truth:
 
 ## Risks (Blocking If Unresolved)
 
-- Legacy semantics remain authoritative (“maximal in name only”).
-- Plate motion decouples from mantle forcing (implicit authoring intent creeps back).
-- “Fake tectonics” appears: belts emitted without crust/provenance evolution.
+- Legacy semantics remain authoritative (“maximal in name only”):
+  - Mitigated by: `LOCAL-TBD-PR-M1-023`, `LOCAL-TBD-PR-M1-024`, `LOCAL-TBD-PR-M1-025` (explicit deletion / no legacy left).
+- Plate motion decouples from mantle forcing (implicit authoring intent creeps back):
+  - Mitigated by: `LOCAL-TBD-PR-M1-018` (coupling invariants) + `LOCAL-TBD-PR-M1-017` (determinism suite).
+- “Fake tectonics” appears (forces-only fields; no crust/provenance evolution; belts not causal):
+  - Mitigated by: `LOCAL-TBD-PR-M1-019` (material/provenance change invariants) + `LOCAL-TBD-PR-M1-020` (correlation gates).
 
 If any of these occur, treat as a **hard block** (not a deferral).
 
+## Open Decisions
+
+- None currently tracked.
+- If new decisions are discovered during implementation, record them in:
+  - `docs/projects/pipeline-realism/triage.md`
