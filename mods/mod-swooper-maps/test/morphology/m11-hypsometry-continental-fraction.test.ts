@@ -33,10 +33,7 @@ describe("m11 hypsometry: continentalFraction does not collapse water coverage",
     );
     const mesh = computeMesh.run({ width, height, rngSeed: 1 }, meshConfig).mesh;
 
-    const crust = computeCrust.run(
-      { mesh, rngSeed: 2 },
-      { ...computeCrust.defaultConfig, config: { ...computeCrust.defaultConfig.config, continentalRatio: 0.37 } }
-    ).crust;
+    const crust = computeCrust.run({ mesh, rngSeed: 2 }, computeCrust.defaultConfig).crust;
 
     const plateGraphConfig = computePlateGraph.normalize(
       { strategy: "default", config: { plateCount: 19, referenceArea: 16000, plateScalePower: 1 } },
@@ -83,11 +80,25 @@ describe("m11 hypsometry: continentalFraction does not collapse water coverage",
     const plates = projection.plates;
     const crustTiles = projection.crustTiles;
 
+    const crustType = new Uint8Array(size);
+    const crustBaseElevation = new Float32Array(size);
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = y * width + x;
+        const inLatBand = y > height * 0.2 && y < height * 0.8;
+        const inLonBand = x > width * 0.15 && x < width * 0.85;
+        const isContinental = inLatBand && inLonBand;
+        crustType[idx] = isContinental ? 1 : 0;
+        const base = crustTiles.baseElevation[idx] ?? 0;
+        crustBaseElevation[idx] = isContinental ? Math.min(1, base + 0.25) : base;
+      }
+    }
+
     const baseTopography = computeBaseTopography.run(
       {
         width,
         height,
-        crustBaseElevation: crustTiles.baseElevation,
+        crustBaseElevation,
         boundaryCloseness: plates.boundaryCloseness,
         upliftPotential: plates.upliftPotential,
         riftPotential: plates.riftPotential,
@@ -101,7 +112,7 @@ describe("m11 hypsometry: continentalFraction does not collapse water coverage",
         width,
         height,
         elevation: baseTopography.elevation,
-        crustType: crustTiles.type,
+        crustType,
         boundaryCloseness: plates.boundaryCloseness,
         upliftPotential: plates.upliftPotential,
         rngSeed: 5,
@@ -137,7 +148,7 @@ describe("m11 hypsometry: continentalFraction does not collapse water coverage",
       const isLand = landmask.landMask[i] === 1;
       if (isLand) {
         land++;
-        if ((crustTiles.type[i] ?? 0) === 1) continentalLand++;
+        if ((crustType[i] ?? 0) === 1) continentalLand++;
       } else {
         water++;
       }

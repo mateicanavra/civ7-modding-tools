@@ -153,8 +153,16 @@ describe("foundation mesh-first ops (slice 2)", () => {
 
     expect(Array.from(crustA.type)).toEqual(Array.from(crustB.type));
     expect(Array.from(crustA.age)).toEqual(Array.from(crustB.age));
+    expect(Array.from(crustA.maturity)).toEqual(Array.from(crustB.maturity));
+    expect(Array.from(crustA.thickness)).toEqual(Array.from(crustB.thickness));
+    expect(Array.from(crustA.thermalAge)).toEqual(Array.from(crustB.thermalAge));
+    expect(Array.from(crustA.damage)).toEqual(Array.from(crustB.damage));
     expect(crustA.type.length).toBe(mesh.cellCount);
     expect(crustA.age.length).toBe(mesh.cellCount);
+    expect(crustA.maturity.length).toBe(mesh.cellCount);
+    expect(crustA.thickness.length).toBe(mesh.cellCount);
+    expect(crustA.thermalAge.length).toBe(mesh.cellCount);
+    expect(crustA.damage.length).toBe(mesh.cellCount);
 
     const graphA = computePlateGraph.run(
       {
@@ -295,7 +303,7 @@ describe("foundation mesh-first ops (slice 2)", () => {
     }
   });
 
-  it("compute-crust exhibits spatial coherence (non-IID)", () => {
+  it("compute-crust initializes a basaltic lid with bounded truth fields", () => {
     const width = 60;
     const height = 30;
 
@@ -317,49 +325,29 @@ describe("foundation mesh-first ops (slice 2)", () => {
       meshConfig
     ).mesh;
 
-    const crust = computeCrust.run(
-      {
-        mesh,
-        rngSeed: 11,
-      },
-      { strategy: "default", config: { continentalRatio: 0.35 } }
-    ).crust;
+    const crust = computeCrust.run({ mesh, rngSeed: 11 }, computeCrust.defaultConfig).crust;
 
-    let sameTypeEdges = 0;
-    let totalEdges = 0;
+    let minStrength = Number.POSITIVE_INFINITY;
+    let maxStrength = Number.NEGATIVE_INFINITY;
+
     for (let i = 0; i < mesh.cellCount; i++) {
-      const neighbors = neighborsFor(mesh, i);
-      for (let j = 0; j < neighbors.length; j++) {
-        const n = neighbors[j]!;
-        if (n <= i) continue;
-        totalEdges++;
-        if (crust.type[i] === crust.type[n]) sameTypeEdges++;
-      }
+      expect(crust.type[i]).toBe(0);
+      expect(crust.maturity[i]).toBeCloseTo(0, 6);
+      expect(crust.thermalAge[i]).toBe(0);
+      expect(crust.damage[i]).toBe(0);
+      expect(crust.age[i]).toBe(crust.thermalAge[i]);
+
+      const strength = crust.strength[i] ?? 0;
+      minStrength = Math.min(minStrength, strength);
+      maxStrength = Math.max(maxStrength, strength);
+      expect(strength).toBeGreaterThanOrEqual(0);
+      expect(strength).toBeLessThanOrEqual(1);
     }
 
-    const sameTypeRatio = totalEdges <= 0 ? 1 : sameTypeEdges / totalEdges;
-    expect(sameTypeRatio).toBeGreaterThan(0.7);
-
-    let contSum = 0;
-    let contCount = 0;
-    let oceanSum = 0;
-    let oceanCount = 0;
-    for (let i = 0; i < mesh.cellCount; i++) {
-      if (crust.type[i] === 1) {
-        contSum += crust.age[i] ?? 0;
-        contCount++;
-      } else {
-        oceanSum += crust.age[i] ?? 0;
-        oceanCount++;
-      }
-    }
-
-    if (contCount > 0 && oceanCount > 0) {
-      expect(contSum / contCount).toBeGreaterThan(oceanSum / oceanCount);
-    }
+    expect(maxStrength - minStrength).toBeLessThan(1e-6);
   });
 
-  it("crust publishes an isostatic baseline and projects it to tiles (continental > oceanic)", () => {
+  it("crust publishes an isostatic baseline and projects it to tiles (basaltic lid)", () => {
     const width = 60;
     const height = 40;
 
@@ -373,30 +361,26 @@ describe("foundation mesh-first ops (slice 2)", () => {
     );
 
     const mesh = computeMesh.run({ width, height, rngSeed: 10 }, meshConfig).mesh;
-    const crust = computeCrust.run({ mesh, rngSeed: 11 }, { strategy: "default", config: { continentalRatio: 0.35 } }).crust;
+    const crust = computeCrust.run({ mesh, rngSeed: 11 }, computeCrust.defaultConfig).crust;
     const plateGraph = computePlateGraph.run(
       { mesh, crust, rngSeed: 12 },
       { strategy: "default", config: { plateCount: 16, referenceArea: 2400, plateScalePower: 0 } }
     ).plateGraph;
     const segments = computeTectonicSegments.run({ mesh, crust, plateGraph }, computeTectonicSegments.defaultConfig).segments;
     const historyResult = computeTectonicHistory.run({ mesh, segments }, computeTectonicHistory.defaultConfig);
-    const crustTiles = computePlatesTensors.run(
+    const projection = computePlatesTensors.run(
       { width, height, mesh, crust, plateGraph, tectonics: historyResult.tectonics, tectonicHistory: historyResult.tectonicHistory },
       computePlatesTensors.defaultConfig
-    ).crustTiles;
+    );
+    const crustTiles = projection.crustTiles;
 
-    const continental: number[] = [];
-    const oceanic: number[] = [];
-    for (let i = 0; i < crustTiles.type.length; i++) {
-      const value = crustTiles.baseElevation[i] ?? 0;
-      if (crustTiles.type[i] === 1) continental.push(value);
-      else oceanic.push(value);
+    let maxDelta = 0;
+    for (let i = 0; i < crustTiles.baseElevation.length; i += 13) {
+      const cell = projection.tileToCellIndex[i] ?? 0;
+      const delta = Math.abs((crustTiles.baseElevation[i] ?? 0) - (crust.baseElevation[cell] ?? 0));
+      if (delta > maxDelta) maxDelta = delta;
+      expect(crustTiles.type[i]).toBe(0);
     }
-
-    continental.sort((a, b) => a - b);
-    oceanic.sort((a, b) => a - b);
-    if (continental.length > 0 && oceanic.length > 0) {
-      expect(quantile(continental, 0.5)).toBeGreaterThan(quantile(oceanic, 0.5));
-    }
+    expect(maxDelta).toBeLessThan(1e-6);
   });
 });

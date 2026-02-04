@@ -20,6 +20,10 @@ describe("foundation tile projection (materials)", () => {
     } as const;
 
     const crust = {
+      maturity: new Float32Array([0.9, 0.1, 0.2, 0.3]),
+      thickness: new Float32Array([0.8, 0.2, 0.3, 0.4]),
+      thermalAge: new Uint8Array([200, 10, 20, 30]),
+      damage: new Uint8Array([0, 5, 0, 0]),
       type: new Uint8Array([1, 0, 0, 0]),
       age: new Uint8Array([200, 10, 20, 30]),
       buoyancy: new Float32Array([0.9, 0.2, 0.3, 0.4]),

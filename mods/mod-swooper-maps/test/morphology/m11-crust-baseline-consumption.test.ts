@@ -31,7 +31,7 @@ describe("m11 morphology baseline consumes crust isostasy prior", () => {
     );
 
     const mesh = computeMesh.run({ width, height, rngSeed: 10 }, meshConfig).mesh;
-    const crust = computeCrust.run({ mesh, rngSeed: 11 }, { strategy: "default", config: { continentalRatio: 0.35 } }).crust;
+    const crust = computeCrust.run({ mesh, rngSeed: 11 }, computeCrust.defaultConfig).crust;
     const plateGraph = computePlateGraph.run(
       { mesh, crust, rngSeed: 12 },
       { strategy: "default", config: { plateCount: 16, referenceArea: 2400, plateScalePower: 0 } }
@@ -40,16 +40,33 @@ describe("m11 morphology baseline consumes crust isostasy prior", () => {
     const historyResult = computeTectonicHistory.run({ mesh, segments }, computeTectonicHistory.defaultConfig);
     const tectonicHistory = historyResult.tectonicHistory;
     const tectonics = historyResult.tectonics;
-    const crustTiles = computePlatesTensors.run(
+    const projection = computePlatesTensors.run(
       { width, height, mesh, crust, plateGraph, tectonics, tectonicHistory },
       computePlatesTensors.defaultConfig
-    ).crustTiles;
+    );
+    const crustTiles = projection.crustTiles;
+
+    const continentMask = new Uint8Array(size);
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = y * width + x;
+        const inLatBand = y > height * 0.2 && y < height * 0.8;
+        const inLonBand = x > width * 0.2 && x < width * 0.8;
+        continentMask[idx] = inLatBand && inLonBand ? 1 : 0;
+      }
+    }
+
+    const crustBaseElevation = new Float32Array(size);
+    for (let i = 0; i < size; i++) {
+      const base = crustTiles.baseElevation[i] ?? 0;
+      crustBaseElevation[i] = continentMask[i] ? Math.min(1, base + 0.25) : base;
+    }
 
     const elevation = computeBaseTopography.run(
       {
         width,
         height,
-        crustBaseElevation: crustTiles.baseElevation,
+        crustBaseElevation,
         boundaryCloseness: new Uint8Array(size),
         upliftPotential: new Uint8Array(size),
         riftPotential: new Uint8Array(size),
@@ -62,7 +79,7 @@ describe("m11 morphology baseline consumes crust isostasy prior", () => {
     const oceanic: number[] = [];
     for (let i = 0; i < size; i++) {
       const value = elevation[i] ?? 0;
-      if (crustTiles.type[i] === 1) continental.push(value);
+      if (continentMask[i] === 1) continental.push(value);
       else oceanic.push(value);
     }
     continental.sort((a, b) => a - b);
