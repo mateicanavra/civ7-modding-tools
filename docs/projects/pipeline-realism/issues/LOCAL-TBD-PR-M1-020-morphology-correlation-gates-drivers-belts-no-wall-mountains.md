@@ -97,3 +97,17 @@ Correlation gates should consume:
 ### Wow Scenarios
 
 - **Mountain regressions are instantly caught:** a tuning change that accidentally creates walls or noise belts fails with a distribution/correlation message that tells you what drifted.
+
+### Implementation Decisions
+
+- Correlation gate implemented in `mods/mod-swooper-maps/test/support/foundation-invariants.ts` and run in the determinism suite via `M1_FOUNDATION_GATES`.
+- Gate replays `planRidgesAndFoothills` using the same driver tensors and fractal seeding as `plotMountains`:
+  - `baseSeed = deriveStepSeed(env.seed, "morphology:planMountains")`
+  - `fractalMountain = buildFractalArray(seed ^ 0x3d, grain 5)`
+  - `fractalHill = buildFractalArray(seed ^ 0x5f, grain 5)`
+- Driver correlation thresholds:
+  - `DRIVER_SIGNAL_THRESHOLD = 30`
+  - `DRIVER_STRONG_THRESHOLD = 80`
+  - `DRIVER_MIN_TILES = 20`
+  - `DRIVER_COVERAGE_MIN = 0.35` (strong drivers must produce mountains)
+  - `MOUNTAIN_DRIVER_FRACTION_MIN = 0.6` (mountains must be mostly driver-aligned)
