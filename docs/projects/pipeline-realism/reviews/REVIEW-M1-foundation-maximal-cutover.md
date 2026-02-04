@@ -126,3 +126,27 @@ reviewer: AI agent
 
 ### Cross-cutting Risks
 - If advanced mantle/lithosphere inputs remain unused past M1, authors may believe they are driving physics inputs when they are effectively ignored.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-006-basaltic-lid-init-lithosphere-strength-mantle-coupled
+
+### Quick Take
+- Crust initialization now starts as a uniform basaltic lid (no pre-authored continents) and emits the full truth set (`maturity`, `thickness`, `thermalAge`, `damage`, `strength`).
+- Plate partitioning now consumes `crust.strength`, and tests + specs were updated to validate the basaltic‑lid baseline and downstream morphology expectations.
+
+### High-Leverage Issues
+- None observed in the baseline crust initialization; determinism and bounds checks are covered by new/updated tests.
+
+### PR Comment Context
+- No actionable review comments; Graphite stack + Railway preview notices only.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- Event mechanics still need to consume `crust.strength` (and avoid recomputing resistance) once the D06r event engine lands; otherwise the new strength surface is only partially authoritative.
+
+### Needs Discussion
+- Confirm whether `crust.type` should remain derived purely from `maturity` (threshold = 0.55) or if future event-driven transitions should explicitly set type to avoid drift with evolving maturity semantics.
+
+### Cross-cutting Risks
+- If event mechanics do not adopt `crust.strength`, the new lithosphere resistance field will be underutilized and semantics may diverge across domains.
