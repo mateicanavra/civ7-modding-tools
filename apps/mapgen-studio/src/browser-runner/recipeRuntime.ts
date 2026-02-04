@@ -8,7 +8,7 @@ import {
   STANDARD_RECIPE_CONFIG as swooperStandardDefaultConfig,
   STANDARD_RECIPE_CONFIG_SCHEMA as swooperStandardConfigSchema,
 } from "mod-swooper-maps/recipes/standard-artifacts";
-import type { TSchema } from "typebox";
+import type { TSchema } from "@swooper/mapgen-core/authoring";
 
 export type StudioRecipeId = string;
 

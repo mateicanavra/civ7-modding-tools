@@ -1,4 +1,4 @@
-import type { TSchema } from "typebox";
+import type { TSchema } from "@swooper/mapgen-core/authoring";
 
 export type StudioRecipeId = string;
 

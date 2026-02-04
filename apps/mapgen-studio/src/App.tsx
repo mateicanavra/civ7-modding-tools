@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
-import type { TSchema } from "typebox";
+import type { TSchema } from "@swooper/mapgen-core/authoring";
 
 import { AppHeader } from "./ui/components/AppHeader";
 import { AppFooter } from "./ui/components/AppFooter";
@@ -114,8 +114,8 @@ function setAtPath(root: Record<string, unknown>, path: readonly string[], value
   }
 }
 
-function buildConfigSkeleton(uiMeta: StudioRecipeUiMeta): Record<string, unknown> {
-  const skeleton: Record<string, unknown> = {};
+function buildConfigSkeleton(uiMeta: StudioRecipeUiMeta): PipelineConfig {
+  const skeleton: PipelineConfig = {};
   for (const stage of uiMeta.stages) {
     const stageConfig: Record<string, unknown> = { knobs: {} };
     for (const step of stage.steps) {
