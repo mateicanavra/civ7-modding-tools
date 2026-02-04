@@ -26,6 +26,12 @@ import type {
   VariantOption,
   RenderModeOption } from
 '../types';
+export type CausalityJumpTarget = Readonly<{
+  key: string;
+  label: string;
+  group?: string;
+  available?: boolean;
+}>;
 // ============================================================================
 // Props
 // ============================================================================
@@ -78,6 +84,10 @@ export interface ExplorePanelProps {
   onShowDebugLayersChange: (show: boolean) => void;
   /** Callback when fit view is requested */
   onFitView: () => void;
+  /** Optional causality spine jump targets */
+  jumpTargets?: ReadonlyArray<CausalityJumpTarget>;
+  /** Callback when a jump target is selected */
+  onJumpToLayer?: (dataTypeKey: string) => void;
   /** Whether the stage section is expanded (optional controlled mode) */
   stageExpanded?: boolean;
   /** Callback when stageExpanded changes (optional controlled mode) */
@@ -119,6 +129,8 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   showDebugLayers,
   onShowDebugLayersChange,
   onFitView,
+  jumpTargets,
+  onJumpToLayer,
   stageExpanded: stageExpandedProp,
   onStageExpandedChange,
   stepExpanded: stepExpandedProp,
@@ -193,6 +205,13 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   const borderSubtle = lightMode ? 'border-gray-100' : 'border-[#222228]';
   const hoverBg = lightMode ? 'hover:bg-gray-50' : 'hover:bg-[#1a1a1f]';
   const listMaxHeight = "max-h-[200px]";
+  const jumpItemBase = `w-full text-left px-3 py-1.5 text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-2`;
+  const jumpItemActive = lightMode ?
+  'bg-gray-100 text-[#1f2937]' :
+  'bg-[#1a1a1f] text-[#e8e8ed]';
+  const jumpItemInactive = lightMode ?
+  'text-[#6b7280] hover:bg-gray-50 hover:text-[#1f2937]' :
+  'text-[#8a8a96] hover:bg-[#1a1a1f] hover:text-[#e8e8ed]';
   // Stage list styles
   const stageItemBase = `w-full text-left px-3 py-2 text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-2`;
   const stageItemActive = lightMode ?
@@ -270,6 +289,21 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
       groups.get(key)!.push(dt);
     }
     return order.map((key) => ({ key, label: key, items: groups.get(key) ?? [], indexByValue }));
+  })();
+
+  const groupedJumpTargets = (() => {
+    if (!jumpTargets || jumpTargets.length === 0) return [];
+    const order: string[] = [];
+    const groups = new Map<string, CausalityJumpTarget[]>();
+    for (const target of jumpTargets) {
+      const key = target.group ?? "";
+      if (!groups.has(key)) {
+        groups.set(key, []);
+        order.push(key);
+      }
+      groups.get(key)!.push(target);
+    }
+    return order.map((key) => ({ key, items: groups.get(key) ?? [] }));
   })();
 
   const isGroupExpanded = (key: string) => groupOpen[key] ?? true;
@@ -375,6 +409,50 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
           ) : (
             <div className={`px-3 py-2 text-[11px] ${textMuted} italic`}>No steps available</div>
           )}
+        </div>
+      ) : null}
+
+      {/* 2.5 CAUSALITY SPINE SHORTCUTS */}
+      {groupedJumpTargets.length > 0 ? (
+        <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
+          <div className="px-3 py-2 flex items-center justify-between">
+            <span className={`text-[10px] font-semibold ${textSecondary} uppercase tracking-wider`}>
+              Causality Spine
+            </span>
+            <span className={`text-[10px] ${textMuted}`}>{jumpTargets?.length ?? 0}</span>
+          </div>
+          <div className={`flex-shrink-0 pb-2 ${listMaxHeight} overflow-y-auto custom-scrollbar`}>
+            {groupedJumpTargets.map((group) => (
+              <React.Fragment key={group.key || "__ungrouped__"}>
+                {group.key ? (
+                  <div className={`px-3 pt-2 pb-1 text-[10px] uppercase tracking-wider ${textMuted}`}>
+                    {group.key}
+                  </div>
+                ) : null}
+                {group.items.map((target) => {
+                  const isActive = target.key === selectedDataType;
+                  const isAvailable = target.available ?? true;
+                  const disabled = !isAvailable || !onJumpToLayer;
+                  return (
+                    <button
+                      key={target.key}
+                      type="button"
+                      onClick={() => onJumpToLayer?.(target.key)}
+                      disabled={disabled}
+                      title={isAvailable ? target.key : `${target.key} (not yet available)`}
+                      className={[
+                        jumpItemBase,
+                        isActive ? jumpItemActive : jumpItemInactive,
+                        disabled ? "opacity-40 cursor-not-allowed" : "",
+                      ].join(" ")}
+                    >
+                      <span className="truncate">{target.label}</span>
+                    </button>
+                  );
+                })}
+              </React.Fragment>
+            ))}
+          </div>
         </div>
       ) : null}
 
