@@ -5,7 +5,7 @@
   <item id="trace" title="Trace posture (current)"/>
   <item id="architecture" title="System architecture"/>
   <item id="primitives" title="Viz primitives (implemented)"/>
-  <item id="taxonomy" title="Layer taxonomy"/>
+  <item id="taxonomy" title="Data type taxonomy"/>
   <item id="viewer" title="Viewer design (implemented)"/>
   <item id="changes" title="Future enhancements"/>
   <item id="verification" title="Verification"/>
@@ -27,7 +27,9 @@
 - `planFingerprint`: plan identity (hash of plan inputs); see [`docs/system/libs/mapgen/reference/GLOSSARY.md`](/system/libs/mapgen/reference/GLOSSARY.md) and `packages/mapgen-core/src/engine/observability.ts`.
 - `dataTypeKey`: stable semantic identity for a data product (e.g. `"hydrology.wind.wind"`).
 - `layerKey`: canonical, opaque identity for a layer within a run (used for streaming upserts and dump replay identity).
-- `spaceId`: explicit coordinate space (“projection” selector in the Studio UI).
+- `variantKey`: optional disambiguator for variants within the same semantic data product (UI label: “Variant”).
+- `spaceId`: explicit coordinate space (UI label: “Space”).
+- `renderModeId`: UI grouping key derived from `kind[:role]` (e.g. `"grid"`, `"segments:edgeOverlay"`).
 
 ## Coordinate Spaces (critical for “why does it look rotated?”)
 
@@ -143,7 +145,18 @@ MapGen Studio’s dump viewer expects `manifest.json` with `version: 1`.
 
 ---
 
-## Layer Taxonomy (What We Visualize)
+## Data Type Taxonomy (How Studio groups visualization)
+
+Studio presents visualization by grouping concrete layer emissions into “data types”:
+
+- **Data type**: `dataTypeKey` (stable semantic identity; what the thing *means*).
+- **Space**: `spaceId` (coordinate system; where the numbers live).
+- **Render mode**: derived `kind[:role]` (how the thing is rendered).
+- **Variant**: `variantKey` (optional; multiple complementary variants of the same data type).
+
+Each emitted entry in `manifest.layers[]` is still a **layer** (concrete emission), but Studio’s primary selector is the **data type**.
+
+## Layer Taxonomy (What we render)
 
 **Layer kinds:**
 
