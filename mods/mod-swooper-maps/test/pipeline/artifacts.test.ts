@@ -8,6 +8,7 @@ import {
   StepRegistry,
   isDependencyTagSatisfied,
 } from "@swooper/mapgen-core/engine";
+import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
 import { hydrologyClimateBaselineArtifacts } from "../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts.js";
 import { M3_DEPENDENCY_TAGS, STANDARD_TAG_DEFINITIONS } from "../../src/recipes/standard/tags.js";
@@ -127,6 +128,42 @@ describe("pipeline artifacts", () => {
 
     const executor = new PipelineExecutor(registry, { log: () => {} });
     const plan = compilePlan(registry, baseEnv, ["climate-baseline"]);
+    const { stepResults } = executor.executePlanReport(ctx, plan);
+
+    expect(stepResults[0]?.success).toBe(false);
+    expect(stepResults[0]?.error).toContain("did not satisfy declared provides");
+  });
+
+  it("fails provides when a step claims artifact:foundation.mantlePotential but does not publish it", () => {
+    const adapter = createMockAdapter({ width: 4, height: 3, rng: () => 0 });
+    const ctx = createExtendedMapContext(
+      { width: 4, height: 3 },
+      adapter,
+      baseEnv
+    );
+    const foundationContracts = implementArtifacts([foundationArtifacts.mantlePotential], {
+      foundationMantlePotential: {},
+    });
+
+    const registry = new StepRegistry<typeof ctx>();
+    registry.registerTags([
+      ...STANDARD_TAG_DEFINITIONS,
+      {
+        id: foundationArtifacts.mantlePotential.id,
+        kind: "artifact",
+        satisfies: foundationContracts.foundationMantlePotential.satisfies,
+      },
+    ]);
+    registry.register({
+      id: "mantle-potential",
+      phase: "foundation",
+      requires: [],
+      provides: [foundationArtifacts.mantlePotential.id],
+      run: (_context, _config) => {},
+    });
+
+    const executor = new PipelineExecutor(registry, { log: () => {} });
+    const plan = compilePlan(registry, baseEnv, ["mantle-potential"]);
     const { stepResults } = executor.executePlanReport(ctx, plan);
 
     expect(stepResults[0]?.success).toBe(false);
