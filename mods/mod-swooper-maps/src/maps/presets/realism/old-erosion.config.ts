@@ -5,7 +5,7 @@ import type { StandardRecipeConfig } from "../../../recipes/standard/recipe.js";
  */
 export const realismOldErosionConfig: StandardRecipeConfig = {
   foundation: { knobs: { plateCount: "normal", plateActivity: "low" } },
-  "morphology-coasts": { knobs: { seaLevel: "earthlike", coastRuggedness: "smooth" } },
+  "morphology-coasts": { knobs: { seaLevel: "earthlike", coastRuggedness: "smooth", shelfWidth: "normal" } },
   "morphology-erosion": { knobs: { erosion: "high" } },
   "morphology-features": { knobs: { volcanism: "low" } },
 };

@@ -5,7 +5,7 @@ import type { StandardRecipeConfig } from "../../../recipes/standard/recipe.js";
  */
 export const realismYoungTectonicsConfig: StandardRecipeConfig = {
   foundation: { knobs: { plateCount: "normal", plateActivity: "high" } },
-  "morphology-coasts": { knobs: { seaLevel: "earthlike", coastRuggedness: "rugged" } },
+  "morphology-coasts": { knobs: { seaLevel: "earthlike", coastRuggedness: "rugged", shelfWidth: "normal" } },
   "morphology-erosion": { knobs: { erosion: "high" } },
   "morphology-features": { knobs: { volcanism: "high" } },
 };

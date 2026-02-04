@@ -9,7 +9,7 @@ import type { StandardRecipeConfig } from "../../../recipes/standard/recipe.js";
  */
 export const realismEarthlikeConfig: StandardRecipeConfig = {
   foundation: { knobs: { plateCount: "normal", plateActivity: "normal" } },
-  "morphology-coasts": { knobs: { seaLevel: "earthlike", coastRuggedness: "normal" } },
+  "morphology-coasts": { knobs: { seaLevel: "earthlike", coastRuggedness: "normal", shelfWidth: "normal" } },
   "morphology-erosion": { knobs: { erosion: "normal" } },
   "morphology-features": { knobs: { volcanism: "normal" } },
   "hydrology-climate-baseline": {
