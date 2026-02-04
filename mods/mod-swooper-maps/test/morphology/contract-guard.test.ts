@@ -122,6 +122,20 @@ describe("morphology contract guardrails", () => {
     }
   });
 
+  it("does not retain morphology dual-read diagnostics in morphology-coasts steps", () => {
+    const repoRoot = path.resolve(import.meta.dir, "../..");
+    const root = path.join(repoRoot, "src/recipes/standard/stages/morphology-coasts/steps");
+    const files = listFilesRecursive(root).filter((file) => file.endsWith(".ts"));
+
+    expect(files.length).toBeGreaterThan(0);
+
+    for (const file of files) {
+      const text = readFileSync(file, "utf8");
+      expect(text).not.toContain("morphology.dualRead");
+      expect(text).not.toContain("dualRead");
+    }
+  });
+
   it("does not import legacy config bags in morphology contracts or steps", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const roots = [
