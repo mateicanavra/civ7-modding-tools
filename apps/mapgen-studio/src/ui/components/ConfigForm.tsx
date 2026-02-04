@@ -54,6 +54,22 @@ function buildKeySignature(value: unknown, depth: number): string {
   if (depth === 1) return `{${keys.join(',')}}`;
   return `{${keys.join(',')}}(${keys.map((k) => `${k}:${buildKeySignature(obj[k], depth - 1)}`).join('|')})`;
 }
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (value == null || typeof value !== "object" || Array.isArray(value)) return false;
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
+}
+
+function isStepConfigValue(value: unknown): value is StepConfig {
+  if (!isPlainObject(value)) return false;
+  return "config" in value || "strategy" in value;
+}
+
+function isStepGroupValue(value: unknown): value is Record<string, StepConfig | ConfigValue> {
+  if (!isPlainObject(value)) return false;
+  return Object.values(value).some((entry) => isStepConfigValue(entry));
+}
 // ============================================================================
 // Main Component
 // ============================================================================
@@ -260,12 +276,15 @@ export const ConfigForm: React.FC<ConfigFormProps> = ({
   };
   const renderStepConfig = (
   stepName: string,
-  stepConfig: StepConfig,
+  stepConfig: StepConfig | ConfigValue,
   path: string[])
   : React.ReactNode => {
+    if (!isStepConfigValue(stepConfig)) {
+      return renderConfigValue(stepName, stepConfig as ConfigValue, path);
+    }
     const sectionKey = [...path, stepName].join('.');
     const isExpanded = expandedSections[sectionKey] ?? false;
-    const hasConfig = 'config' in stepConfig && stepConfig.config;
+    const hasConfig = Boolean(stepConfig.config);
     return (
       <div
         key={stepName}
@@ -306,7 +325,7 @@ export const ConfigForm: React.FC<ConfigFormProps> = ({
   };
   const renderStepGroup = (
   groupName: string,
-  steps: Record<string, StepConfig>,
+  steps: Record<string, StepConfig | ConfigValue>,
   basePath: string[])
   : React.ReactNode => {
     const sectionKey = [...basePath, groupName].join('.');
@@ -469,18 +488,10 @@ export const ConfigForm: React.FC<ConfigFormProps> = ({
             {otherSteps.length > 0 &&
           <div className="pt-1.5 flex flex-col gap-1.5">
                 {otherSteps.map(([groupName, group]) => {
-              if (
-              typeof group === 'object' &&
-              group !== null &&
-              !Array.isArray(group))
-              {
-                return renderStepGroup(
-                  groupName,
-                  group as Record<string, StepConfig>,
-                  [stageName]
-                );
+              if (isStepGroupValue(group)) {
+                return renderStepGroup(groupName, group, [stageName]);
               }
-              return null;
+              return renderConfigValue(groupName, group as ConfigValue, [stageName]);
             })}
               </div>
           }
