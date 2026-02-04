@@ -48,9 +48,9 @@ export interface RecipePanelProps {
   /** Callback to reset config to defaults */
   onConfigReset: () => void;
   /** Available recipe options */
-  recipeOptions: SelectOption[];
+  recipeOptions: ReadonlyArray<SelectOption>;
   /** Available preset options */
-  presetOptions: SelectOption[];
+  presetOptions: ReadonlyArray<SelectOption>;
   /** Knob options mapping (knob name → available values) */
   knobOptions?: KnobOptionsMap;
   /** Optional stageId -> label mapping (for author-friendly stage names) */

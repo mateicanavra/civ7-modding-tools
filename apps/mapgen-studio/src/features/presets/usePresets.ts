@@ -2,7 +2,6 @@ import { useCallback, useMemo, useState } from "react";
 import type { SelectOption } from "../../ui/types";
 import type { BuiltInPreset } from "../../recipes/catalog";
 import {
-  createEmptyStore,
   loadPresetStore,
   persistPresetStore,
   removeLocalPreset,
@@ -25,7 +24,7 @@ export type PresetActions = Readonly<{
     config: unknown;
   }) => { preset?: LocalPresetV1; error?: string; persistenceError?: string };
   deleteLocal: (args: { recipeId: string; presetId: string }) => { deleted: boolean; persistenceError?: string };
-};
+}>;
 
 export type UsePresetsResult = Readonly<{
   options: ReadonlyArray<SelectOption>;

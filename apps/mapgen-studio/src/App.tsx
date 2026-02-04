@@ -299,7 +299,7 @@ function AppContent(props: AppContentProps) {
   const recipeArtifacts = useMemo(() => getRecipeArtifacts(recipeSettings.recipe), [recipeSettings.recipe]);
   const { options: presetOptions, resolvePreset, actions: presetActions, loadWarning } = usePresets({
     recipeId: recipeSettings.recipe,
-    builtIns: recipeArtifacts.studioBuiltInPresets,
+    builtIns: recipeArtifacts.studioBuiltInPresets ?? [],
   });
   const isLocalPresetSelected = parsePresetKey(recipeSettings.preset).kind === "local";
   const stageIds = useMemo(() => recipeArtifacts.uiMeta.stages.map((s) => s.stageId), [recipeArtifacts.uiMeta.stages]);
@@ -782,15 +782,22 @@ function AppContent(props: AppContentProps) {
   const handleExportPreset = useCallback(() => {
     const key = recipeSettings.preset as PresetKey;
     const resolved = resolvePreset(key);
+    const sanitizedConfig = resolved
+      ? stripSchemaMetadataRoot(resolved.config)
+      : stripSchemaMetadataRoot(pipelineConfig);
+    if (!isPlainObject(sanitizedConfig)) {
+      toast("Preset export failed: config must be an object", { variant: "error" });
+      return;
+    }
     const payload = resolved
       ? {
           label: resolved.label,
           description: resolved.description,
-          config: stripSchemaMetadataRoot(resolved.config),
+          config: sanitizedConfig,
         }
       : {
           label: "Current Config",
-          config: stripSchemaMetadataRoot(pipelineConfig),
+          config: sanitizedConfig,
         };
     const built = buildPresetExportFile({ recipeId: recipeSettings.recipe, preset: payload });
     downloadPresetFile(built.filename, built.json);
@@ -1421,7 +1428,7 @@ function AppContent(props: AppContentProps) {
         message={
           pendingImport
             ? `Preset is for ${pendingImport.recipeId}. Switch recipes and import it?`
-            : \"\"
+            : ""
         }
         confirmLabel="Switch & Import"
         onCancel={cancelImportSwitch}
