@@ -148,11 +148,17 @@ Shape highlights:
 
 ### `artifact:foundation.crust` (truth; mesh space)
 
-Per-mesh-cell lithosphere driver tensors.
+Per-mesh-cell lithosphere truth state plus derived drivers.
 
-Shape highlights (all per mesh cell):
-- `type` (u8): `0=oceanic`, `1=continental`
-- `age` (u8): `0=new`, `255=ancient`
+Truth state (all per mesh cell):
+- `maturity` (f32): `0=basaltic lid`, `1=cratonic`
+- `thickness` (f32): `0..1` crust thickness proxy
+- `thermalAge` (u8): `0..255` thermal age
+- `damage` (u8): `0..255` mechanical weakening
+
+Derived drivers (all per mesh cell):
+- `type` (u8): `0=oceanic`, `1=continental` (derived from `maturity`)
+- `age` (u8): `0=new`, `255=ancient` (aliases `thermalAge`)
 - `buoyancy` (f32): `0..1` proxy
 - `baseElevation` (f32): `0..1` isostatic base elevation proxy
 - `strength` (f32): `0..1` lithospheric strength proxy

@@ -102,3 +102,11 @@ Expected touchpoints:
 ### Wow Scenarios
 
 - **Continents as consequences:** belts and continental emergence can be traced to event history + provenance, instead of being a randomized initial condition that tectonics merely decorates.
+
+### Implementation Decisions
+
+- Basaltic lid baseline: initialize `maturity=0`, `thermalAge=0`, `damage=0`, and `thickness=basalticThickness01` (profile default `0.25`).
+- `artifact:foundation.crust` publishes the truth arrays (`maturity`, `thickness`, `thermalAge`, `damage`) plus derived fields; `age` aliases `thermalAge`.
+- Strength derivation uses monotone base/maturity/thickness/damage multipliers and is scaled by `yieldStrength01` + `mantleCoupling01` (defaults `0.55`/`0.6`).
+- Plate partition resistance now derives directly from `crust.strength` (`1 + 4*strength`); seed quality uses `strength` + `maturity` (no duplicated resistance computation).
+- Legacy `continentalRatio` initialization removed from the basaltic-lid default path (no pre-authored continents).
