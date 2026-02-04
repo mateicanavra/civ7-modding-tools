@@ -27,6 +27,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 - Decision (M1-013): D04r provenance now advects with fixed `ADVECTION_STEPS_PER_ERA=6`, using boundary-event drift with mantle drift fallback; provenance scalars are propagated per era before event resets. Provenance/history era counts are enforced to `5..8` in require/validation to prevent legacy posture.
 - Decision (M1-014): Morphology dual-read diagnostics live in `landmass-plates`, comparing legacy plates to newest-era history/provenance tiles. New `morphology.dualRead.*` layers + `morphology.dualRead.summary` trace event provide quantitative deltas while leaving legacy drivers authoritative until PR-M1-016.
 - Decision (M1-015): Belt synthesis now seeds from `tectonicHistoryTiles`/`tectonicProvenanceTiles` boundary regimes (no dedicated segment→tile projection yet). Belts use seed-based isotropic diffusion with age/recency width scaling, and propagate driver magnitudes from nearest belt seed to keep orogeny causal. Upgrade path: introduce tangent-aware diffusion once belt orientation fields exist.
+- Decision (M1-016): Plot-mountains contract drops `foundation.plates` and requires history/provenance tiles only; other morphology steps (coasts/features) still use plate tensors until explicit migration work lands.
 
 ## Backlog
 
