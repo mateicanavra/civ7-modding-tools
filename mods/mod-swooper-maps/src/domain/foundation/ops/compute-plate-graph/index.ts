@@ -522,19 +522,12 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
           const role = roleById[id]!;
           const kind = kindById[id]!;
 
-          const velocityX = 0;
-          const velocityY = 0;
-          const rotation = 0;
-
           return {
             id,
             role,
             kind,
             seedX,
             seedY,
-            velocityX,
-            velocityY,
-            rotation,
           };
         });
 
