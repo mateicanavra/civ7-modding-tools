@@ -54,3 +54,27 @@ reviewer: AI agent
 ### Cross-cutting Risks
 - Placeholder provenance may be misinterpreted by downstream gates/visuals if not clearly labeled until the tracer system is in place.
 
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-003-wire-viz-datatypekeys-causal-spine
+
+### Quick Take
+- DataTypeKeys were normalized to the `foundation.history.*` / `foundation.provenance.*` taxonomy with `variantKey` used for eras, and viz emission tests now enforce the no‑era‑in‑key rule.
+- Debug/refined visibility is wired consistently via `defineVizMeta`, keeping the causal spine discoverable without flooding default layers.
+
+### High-Leverage Issues
+- None observed; keys, space IDs, and variant usage align with the taxonomy + regression tests.
+
+### PR Comment Context
+- No actionable review comments; Graphite stack notices only.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- Ensure downstream Morphology issues reserve and emit the planned `morphology.drivers.*` keys so the taxonomy stays consistent end‑to‑end.
+
+### Needs Discussion
+- Confirm the shared `foundation.history.*` keys across mesh‑space and tile‑space are intended to be disambiguated solely by `spaceId` in Studio grouping (current contract assumes this).
+
+### Cross-cutting Risks
+- If Studio ever stops grouping by `spaceId`, mesh/tile history layers will collide under the same `dataTypeKey`.
+
