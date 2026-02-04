@@ -344,8 +344,6 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
         const requestedMicroPerPole = Math.max(0, polarPolicy.microplatesPerPole ?? 0);
         const microplatesMinPlateCount = Math.max(0, polarPolicy.microplatesMinPlateCount ?? 14);
         const microplateMinAreaCells = Math.max(1, polarPolicy.microplateMinAreaCells ?? 8);
-        const tangentialSpeed = Math.max(0, polarPolicy.tangentialSpeed ?? 0.9);
-        const tangentialJitterDeg = Math.max(0, polarPolicy.tangentialJitterDeg ?? 12);
 
         let minSiteY = Number.POSITIVE_INFINITY;
         let maxSiteY = Number.NEGATIVE_INFINITY;
@@ -524,34 +522,9 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
           const role = roleById[id]!;
           const kind = kindById[id]!;
 
-          let velocityX = 0;
-          let velocityY = 0;
-          let rotation = 0;
-
-          if (role === "polarCap") {
-            const sign = id === 0 ? 1 : -1;
-            const speed = tangentialSpeed * (0.85 + rng(100, "PlateGraphPolarSpeed") / 400);
-            velocityX = sign * speed;
-            velocityY = 0;
-            rotation = (rng(60, "PlateGraphPolarRotation") - 30) * 0.02;
-          } else if (role === "polarMicroplate") {
-            const hemisphereSign = id < 2 + microPerPole ? 1 : -1;
-            const base = hemisphereSign > 0 ? 0 : 180;
-            const jitter = (rng(Math.max(1, Math.floor(tangentialJitterDeg * 2)), "PlateGraphPolarJitter") - tangentialJitterDeg) as number;
-            const angleDeg = base + jitter;
-            const rad = (angleDeg * Math.PI) / 180;
-            const speed = tangentialSpeed * (0.55 + rng(100, "PlateGraphPolarMicroSpeed") / 500);
-            velocityX = Math.cos(rad) * speed;
-            velocityY = Math.sin(rad) * speed;
-            rotation = (rng(60, "PlateGraphPolarMicroRotation") - 30) * 0.03;
-          } else {
-            const baseAngleDeg = rng(360, "PlateGraphAngle");
-            const speed = 0.5 + rng(100, "PlateGraphSpeed") / 200;
-            const rad = (baseAngleDeg * Math.PI) / 180;
-            velocityX = Math.cos(rad) * speed;
-            velocityY = Math.sin(rad) * speed;
-            rotation = (rng(60, "PlateGraphRotation") - 30) * 0.1;
-          }
+          const velocityX = 0;
+          const velocityY = 0;
+          const rotation = 0;
 
           return {
             id,

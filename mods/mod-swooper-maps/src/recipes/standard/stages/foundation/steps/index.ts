@@ -2,6 +2,7 @@ export { default as crust } from "./crust.js";
 export { default as mantleForcing } from "./mantleForcing.js";
 export { default as mantlePotential } from "./mantlePotential.js";
 export { default as mesh } from "./mesh.js";
+export { default as plateMotion } from "./plateMotion.js";
 export { default as plateGraph } from "./plateGraph.js";
 export { default as plateTopology } from "./plateTopology.js";
 export { default as projection } from "./projection.js";
