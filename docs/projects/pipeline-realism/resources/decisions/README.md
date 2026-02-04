@@ -14,7 +14,11 @@ Decision packets for synthesizing the two target-model proposals into one canoni
 - D05r: `d05r-crust-state-canonical-variables.md`
 - D06r: `d06r-event-mechanics-and-force-emission.md`
 - D07r: `d07r-morphology-consumption-contract.md`
+- D08r: `d08r-authoring-and-config-surface.md`
+- D09r: `d09r-validation-and-observability.md`
 
 ## Remaining
 
-- D08, D09 (see the backlog in `docs/projects/pipeline-realism/resources/spec/proposal-comparison-foundation-evolutionary-refactor.md`)
+- None. Any remaining calibration work (thresholds, suites, etc.) must be recorded in:
+  - `docs/projects/pipeline-realism/triage.md`
+  - `docs/projects/pipeline-realism/deferrals.md`

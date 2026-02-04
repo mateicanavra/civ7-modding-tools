@@ -134,13 +134,17 @@ Synthesis note:
 - Maximal SPEC:
   - `docs/projects/pipeline-realism/resources/spec/foundation-evolutionary-physics-SPEC.md`
 
-Remaining decisions (ordered by dependency, after D01/D02/D04):
-- D03: Define the plate motion representation. Options: plate velocities sampled from a global vector field (D-like), intent vectors + coherence mixing (C-like), vector field + intent constraints (intent shapes the field). Impacts: global patterns (assembly/breakup), boundary curvature, reproducibility.
-- D05: Define crust state variables and their meaning. Options: maturity/thickness/age (C), type/age/strength (D), both but with one canonical (maturity derives type/strength). Impacts: partition resistance, morphology signals, backwards compatibility.
-- D06: Define subduction + collision handling (what is destroyed vs accreted). Options: event-driven rules (C), boundary regime fields + downstream force diffusion (D), hybrid (events emit force fields). Impacts: mountain belts, arc volcanism, continent growth, morphology coupling.
-- D07: Define “history as output” API for downstream stages (esp. Morphology). Options: fixed stack of era masks (C-like), explicit era selection (D-like), aggregated effective tectonics field + optional per-era debug. Impacts: API surface, tuning UX, reproducibility, visualization.
-- D09: Define validation + observability minimum (pre-render correctness). Options: adopt M11-style metrics/diagnostics as required outputs, minimal invariants only, staged observability (debug-only first). Impacts: regression safety, tuning loop quality, developer velocity.
-- D08: Define the configuration surface (what users author). Options: profiles-first with escape hatch knobs (D + C), knobs-first with presets (C), scenario templates as primary surface (D optional scenario mode). Impacts: usability, backwards compatibility, long-term maintenance.
+Decision status (this project):
+
+- D01: Ordering (crust-first resistance partition) — chosen: `docs/projects/pipeline-realism/resources/decisions/d01-ordering-crust-vs-plates.md`
+- D02r: Mantle forcing as potential + derived fields — chosen: `docs/projects/pipeline-realism/resources/decisions/d02r-mantle-forcing-potential-derived.md`
+- D03r: Plate motion derived from mantle forcing — chosen: `docs/projects/pipeline-realism/resources/decisions/d03r-plate-motion-derived-from-mantle.md`
+- D04r: Dual outputs (Eulerian eras + Lagrangian provenance) — chosen: `docs/projects/pipeline-realism/resources/decisions/d04r-history-dual-eulerian-plus-lagrangian.md`
+- D05r: Canonical crust state vector — chosen: `docs/projects/pipeline-realism/resources/decisions/d05r-crust-state-canonical-variables.md`
+- D06r: Event mechanics + mandatory force emission — chosen: `docs/projects/pipeline-realism/resources/decisions/d06r-event-mechanics-and-force-emission.md`
+- D07r: Morphology consumes era + provenance projections — chosen: `docs/projects/pipeline-realism/resources/decisions/d07r-morphology-consumption-contract.md`
+- D08r: Authoring/config surface (physics inputs only) — chosen: `docs/projects/pipeline-realism/resources/decisions/d08r-authoring-and-config-surface.md`
+- D09r: Validation/observability posture — chosen: `docs/projects/pipeline-realism/resources/decisions/d09r-validation-and-observability.md`
 
 ## Candidate “Hardening” Concepts to Harvest (M11 Spike)
 
@@ -155,9 +159,14 @@ Verification needed:
 - Which of these are already implemented in current Foundation steps.
 - Which are already better specified in `docs/system/libs/mapgen/reference/domains/FOUNDATION.md` or adjacent canonical docs.
 
-## Next Step (After You Review This Draft)
+## Next Step (After This Draft)
 
-1. Write decision packets for D01–D09 under `docs/projects/pipeline-realism/resources/decisions/`.
-2. Once decisions are accepted, write a **pure SPEC** target architecture doc (separate from migration):
-   - Proposed path: `docs/projects/pipeline-realism/resources/spec/foundation-evolutionary-physics-SPEC.md`
-3. Then write migration slices (prepare -> cutover -> cleanup) and a milestones/issues plan.
+Decisions are complete and the canonical SPEC exists:
+- `docs/projects/pipeline-realism/resources/spec/foundation-evolutionary-physics-SPEC.md`
+
+Migration slices exist (prepare → cutover → cleanup):
+- `docs/projects/pipeline-realism/resources/spec/migration-slices/`
+
+Remaining work is implementation + calibration:
+- implement the migration slices (code changes)
+- calibrate strict validation thresholds (promote a small subset of diagnostics → CI gates)

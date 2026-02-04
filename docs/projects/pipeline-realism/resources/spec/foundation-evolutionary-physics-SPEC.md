@@ -37,6 +37,18 @@ Decision packets (normative):
 - `docs/projects/pipeline-realism/resources/decisions/d05r-crust-state-canonical-variables.md`
 - `docs/projects/pipeline-realism/resources/decisions/d06r-event-mechanics-and-force-emission.md`
 - `docs/projects/pipeline-realism/resources/decisions/d07r-morphology-consumption-contract.md`
+- `docs/projects/pipeline-realism/resources/decisions/d08r-authoring-and-config-surface.md`
+- `docs/projects/pipeline-realism/resources/decisions/d09r-validation-and-observability.md`
+
+## Authoring, Validation, Visualization (Required)
+
+These are part of the target architecture, not “nice-to-have” project garnish:
+
+- Authoring surface (D08r): `docs/projects/pipeline-realism/resources/spec/sections/authoring-and-config.md`
+- Validation/observability posture (D09r): `docs/projects/pipeline-realism/resources/spec/sections/validation-and-observability.md`
+- Visualization/tuning taxonomy (project-scoped; uses canonical viz plumbing): `docs/projects/pipeline-realism/resources/spec/sections/visualization-and-tuning.md`
+- Units + scaling (interpretability; threshold safety): `docs/projects/pipeline-realism/resources/spec/units-and-scaling.md`
+- Artifact catalog + versioning (prevent drift): `docs/projects/pipeline-realism/resources/spec/artifact-catalog.md`, `docs/projects/pipeline-realism/resources/spec/schema-and-versioning.md`
 
 ## High-Level Architecture
 
@@ -186,6 +198,10 @@ See: `docs/projects/pipeline-realism/resources/spec/sections/morphology-contract
 ## Determinism + Validation (Non-Render Invariants)
 
 Minimum invariants are mandatory and must be validated in pipeline steps (pre-render).
+Normative posture:
+- `docs/projects/pipeline-realism/resources/spec/sections/validation-and-observability.md`
+Normative units/anchors for thresholds:
+- `docs/projects/pipeline-realism/resources/spec/units-and-scaling.md`
 
 From mantle forcing:
 - determinism (bitwise stable given seed/config)
@@ -205,6 +221,8 @@ From morphology:
 ## Performance Budget (Fixed)
 
 This SPEC is maximal but bounded. Budgets are fixed for determinism and testability.
+Consolidated budgets (normative):
+- `docs/projects/pipeline-realism/resources/spec/budgets.md`
 
 | Budget | Value | Notes |
 | --- | --- | --- |
@@ -221,3 +239,5 @@ Consolidated budgets:
 ## Migration / Cutover Notes (Non-Normative)
 
 This SPEC is target state. Migration slices will define how to land it (prepare → cutover → cleanup), and may require temporary bridges, but bridges must have explicit deletion targets.
+Migration slices:
+- `docs/projects/pipeline-realism/resources/spec/migration-slices/`
