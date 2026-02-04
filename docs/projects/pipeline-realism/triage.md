@@ -4,6 +4,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 
 ## Triage
 
+- Follow-up (M1-018): Add non-finite checks for plate-fit residual arrays and a wrap-seam continuity check for mantle potential/forcing; calibrate plate-motion diagnostics so they don’t warn on every canonical case.
 - Follow-up (M1-006): Event mechanics should consume `crust.strength` (no duplicated resistance computation) once M1-011 lands; currently strength feeds partitioning only.
 - Follow-up (M1-005): Foundation `advanced` (mantleForcing/lithosphere) is validated but not yet wired into step configs; ensure upcoming Foundation ops consume these inputs so the authoring surface is not inert.
 - Follow-up (M1-004): Expand fingerprint normalization to cover ArrayBuffer/Map/Set if future artifacts use them, to avoid silent data loss in determinism fingerprints.
