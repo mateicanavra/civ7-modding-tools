@@ -43,8 +43,11 @@ describe("m11 hypsometry: continentalFraction does not collapse water coverage",
       ctx as any
     );
     const mesh = computeMesh.run({ width, height, rngSeed: 1 }, meshConfig).mesh;
-
-    const crust = computeCrust.run({ mesh, rngSeed: 2 }, computeCrust.defaultConfig).crust;
+    const mantlePotential = computeMantlePotential.run({ mesh, rngSeed: 2 }, computeMantlePotential.defaultConfig)
+      .mantlePotential;
+    const mantleForcing = computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
+      .mantleForcing;
+    const crust = computeCrust.run({ mesh, mantleForcing, rngSeed: 2 }, computeCrust.defaultConfig).crust;
 
     const plateGraphConfig = computePlateGraph.normalize(
       { strategy: "default", config: { plateCount: 19, referenceArea: 16000, plateScalePower: 1 } },
