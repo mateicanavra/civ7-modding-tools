@@ -1,7 +1,11 @@
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
+import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
+import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 
 import type { ValidationInvariant, ValidationInvariantContext } from "./validation-harness.js";
+import planRidgesAndFoothills from "../../src/domain/morphology/ops/plan-ridges-and-foothills/index.js";
 import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
+import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 import { deriveBeltDriversFromHistory } from "../../src/recipes/standard/stages/map-morphology/steps/beltDrivers.js";
 
 const EPS = 1e-6;
@@ -23,6 +27,11 @@ const BELT_MIN_CELLS = 20;
 const BELT_COMPONENT_MEAN_MIN = 8;
 const BELT_COMPONENT_MAX_MIN = 12;
 const BELT_NEIGHBOR_MEAN_MIN = 1.6;
+const DRIVER_SIGNAL_THRESHOLD = 30;
+const DRIVER_STRONG_THRESHOLD = 80;
+const DRIVER_MIN_TILES = 20;
+const DRIVER_COVERAGE_MIN = 0.35;
+const MOUNTAIN_DRIVER_FRACTION_MIN = 0.6;
 
 type FloatStats = {
   min: number;
@@ -149,6 +158,21 @@ function meanBeltNeighbors(mask: Uint8Array, width: number, height: number): num
     neighborSum += neighbors;
   }
   return beltCells > 0 ? neighborSum / beltCells : 0;
+}
+
+function buildFractalArray(width: number, height: number, seed: number, grain: number): Int16Array {
+  const fractal = new Int16Array(width * height);
+  const perlin = new PerlinNoise(seed | 0);
+  const scale = 1 / Math.max(1, Math.round(grain));
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = y * width + x;
+      const noise = perlin.noise2D(x * scale, y * scale);
+      const normalized = Math.max(0, Math.min(1, (noise + 1) / 2));
+      fractal[i] = Math.round(normalized * 255);
+    }
+  }
+  return fractal;
 }
 
 function requireArtifact<T>(ctx: ValidationInvariantContext, id: string, label: string): T | null {
@@ -562,6 +586,131 @@ const beltContinuityInvariant: ValidationInvariant = {
   },
 };
 
+const morphologyDriverCorrelationInvariant: ValidationInvariant = {
+  name: "morphology-driver-correlation",
+  description: "Mountains should align with driver corridors and avoid wall-like artifacts.",
+  check: (ctx) => {
+    const historyTiles = requireArtifact<any>(
+      ctx,
+      foundationArtifacts.tectonicHistoryTiles.id,
+      "tectonicHistoryTiles"
+    );
+    const provenanceTiles = requireArtifact<any>(
+      ctx,
+      foundationArtifacts.tectonicProvenanceTiles.id,
+      "tectonicProvenanceTiles"
+    );
+    const topography = requireArtifact<any>(ctx, morphologyArtifacts.topography.id, "topography");
+    if (!historyTiles || !provenanceTiles || !topography) {
+      return { name: "morphology-driver-correlation", ok: false, message: "Missing morphology driver inputs." };
+    }
+
+    const { width, height } = ctx.context.dimensions;
+    const size = Math.max(0, width * height);
+    const landMask: Uint8Array = topography.landMask ?? new Uint8Array(size);
+    if (landMask.length !== size) {
+      return { name: "morphology-driver-correlation", ok: false, message: "Topography landMask size mismatch." };
+    }
+
+    const baseSeed = deriveStepSeed(ctx.context.env.seed, "morphology:planMountains");
+    const fractalMountain = buildFractalArray(width, height, baseSeed ^ 0x3d, 5);
+    const fractalHill = buildFractalArray(width, height, baseSeed ^ 0x5f, 5);
+
+    const beltDrivers = deriveBeltDriversFromHistory({ width, height, historyTiles, provenanceTiles });
+    const planConfig = planRidgesAndFoothills.defaultConfig as { strategy?: string; config?: Record<string, unknown> };
+    const plan = planRidgesAndFoothills.run(
+      {
+        width,
+        height,
+        landMask,
+        boundaryCloseness: beltDrivers.boundaryCloseness,
+        boundaryType: beltDrivers.boundaryType,
+        upliftPotential: beltDrivers.upliftPotential,
+        riftPotential: beltDrivers.riftPotential,
+        tectonicStress: beltDrivers.tectonicStress,
+        fractalMountain,
+        fractalHill,
+      },
+      {
+        strategy: planConfig?.strategy ?? "default",
+        config: planConfig?.config ?? {},
+      }
+    );
+
+    if (!(plan.mountainMask instanceof Uint8Array)) {
+      return { name: "morphology-driver-correlation", ok: false, message: "Missing mountainMask output." };
+    }
+
+    let strongDriverCount = 0;
+    let mountainCount = 0;
+    let mountainOnStrong = 0;
+    let mountainOffDrivers = 0;
+    let driverSumMountain = 0;
+    let driverSumOther = 0;
+    let driverCountMountain = 0;
+    let driverCountOther = 0;
+
+    for (let i = 0; i < size; i++) {
+      if (landMask[i] !== 1) continue;
+      const driver = Math.max(
+        beltDrivers.upliftPotential[i] ?? 0,
+        beltDrivers.riftPotential[i] ?? 0,
+        beltDrivers.tectonicStress[i] ?? 0
+      );
+      const isMountain = plan.mountainMask[i] === 1;
+
+      if (driver >= DRIVER_STRONG_THRESHOLD) {
+        strongDriverCount += 1;
+        if (isMountain) mountainOnStrong += 1;
+      }
+
+      if (isMountain) {
+        mountainCount += 1;
+        driverSumMountain += driver;
+        driverCountMountain += 1;
+        if (driver < DRIVER_SIGNAL_THRESHOLD) mountainOffDrivers += 1;
+      } else {
+        driverSumOther += driver;
+        driverCountOther += 1;
+      }
+    }
+
+    const driverCoverage = strongDriverCount > 0 ? mountainOnStrong / strongDriverCount : 1;
+    const mountainDriverFraction = mountainCount > 0 ? 1 - mountainOffDrivers / mountainCount : 1;
+    const meanDriverMountain = driverCountMountain > 0 ? driverSumMountain / driverCountMountain : 0;
+    const meanDriverOther = driverCountOther > 0 ? driverSumOther / driverCountOther : 0;
+
+    if (strongDriverCount >= DRIVER_MIN_TILES && driverCoverage < DRIVER_COVERAGE_MIN) {
+      return {
+        name: "morphology-driver-correlation",
+        ok: false,
+        message: "Strong driver corridors are missing mountain coverage.",
+        details: { strongDriverCount, driverCoverage },
+      };
+    }
+    if (mountainCount > 0 && mountainDriverFraction < MOUNTAIN_DRIVER_FRACTION_MIN) {
+      return {
+        name: "morphology-driver-correlation",
+        ok: false,
+        message: "Too many mountains appear without driver signal.",
+        details: { mountainCount, mountainDriverFraction },
+      };
+    }
+    return {
+      name: "morphology-driver-correlation",
+      ok: true,
+      details: {
+        strongDriverCount,
+        driverCoverage,
+        mountainCount,
+        mountainDriverFraction,
+        meanDriverMountain,
+        meanDriverOther,
+      },
+    };
+  },
+};
+
 const couplingDiagnostics: ValidationInvariant = {
   name: "foundation-plate-motion-diagnostics",
   description: "Diagnostic coupling metrics (non-gating).",
@@ -612,6 +761,7 @@ export const M1_FOUNDATION_GATES: ValidationInvariant[] = [
   plateCouplingInvariant,
   eventProvenanceInvariant,
   beltContinuityInvariant,
+  morphologyDriverCorrelationInvariant,
 ];
 
 export const M1_FOUNDATION_DIAGNOSTICS: ValidationInvariant[] = [couplingDiagnostics];
