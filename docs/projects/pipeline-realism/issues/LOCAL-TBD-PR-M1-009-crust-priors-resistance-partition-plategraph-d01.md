@@ -96,3 +96,8 @@ Expected implementation touchpoints:
 ### Wow Scenarios
 
 - **Cratons don’t get bisected:** stable strong lithosphere regions persist through partitioning and become the seeds of long-lived continental cores once events/provenance begin to accumulate.
+
+### Implementation Decisions
+
+- Pre-plate weak zones are derived directly from mantle forcing: `damage` is seeded from positive divergence with stress/forcing-weighted scaling (`riftWeakening01`), yielding resistance variation without pre-authored continents.
+- `compute-crust` now requires `mantleForcing` input so resistance priors remain mantle-coupled before partitioning.
