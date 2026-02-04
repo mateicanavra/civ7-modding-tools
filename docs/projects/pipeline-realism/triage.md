@@ -29,6 +29,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 - Decision (M1-010): Tectonic segment intensities scale with lithosphere resistance: compression is boosted for stronger crust, while extension/shear are boosted for weaker crust, keeping regimes resistance-aware without shifting baseline intensity budgets.
 - Decision (M1-011): Event mechanics are integrated into `compute-tectonic-history` (segments + mantle upwelling as events) with fixed D06r emission radii/decays and deterministic tie-breaks; `foundation.tectonicProvenance` is now emitted with identity tracerIndex per era until PR-M1-013 adds advection; lineage resets use D06r thresholds and overriding-plate attribution for subduction arcs.
 - Decision (M1-012): D04r era loop is bounded to a target of 5 eras (max 8) with fixed per-era budgets; config arrays must match `eraCount` and defaults are set to 5-era weights/steps. Validation now enforces `5..8` era counts (no legacy 3-era acceptance).
+- Decision (M1-013): D04r provenance now advects with fixed `ADVECTION_STEPS_PER_ERA=6`, using boundary-event drift with mantle drift fallback; provenance scalars are propagated per era before event resets. Provenance/history era counts are enforced to `5..8` in require/validation to prevent legacy posture.
 
 ## Backlog
 
