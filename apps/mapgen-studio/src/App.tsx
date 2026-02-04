@@ -32,6 +32,7 @@ import { getCiv7MapSizePreset } from "./features/browserRunner/mapSizes";
 import { DeckCanvas, type DeckCanvasApi } from "./features/viz/DeckCanvas";
 import { useVizState } from "./features/viz/useVizState";
 import { formatErrorForUi } from "./shared/errorFormat";
+import { shouldIgnoreGlobalShortcutsInEditableTarget } from "./shared/shortcuts/shortcutPolicy";
 import type { VizEvent } from "./shared/vizEvents";
 
 import { DEFAULT_STUDIO_RECIPE_ID, getRecipeArtifacts, STUDIO_RECIPE_OPTIONS } from "./recipes/catalog";
@@ -760,9 +761,15 @@ function AppContent(props: AppContentProps) {
 
       // While typing in inputs/textareas/etc, ignore bare keys (so typing doesn't trigger app shortcuts).
       // Allow modifier+Arrow so Cmd/Opt shortcuts still work when focus is in a field.
-      if (isEditable) {
-        if (!isMod && !event.altKey) return;
-      }
+      if (
+        shouldIgnoreGlobalShortcutsInEditableTarget({
+          isEditableTarget: isEditable,
+          metaKey: event.metaKey,
+          ctrlKey: event.ctrlKey,
+          altKey: event.altKey,
+        })
+      )
+        return;
 
       // Run / re-roll
       if (isMod && event.key === "Enter") {
