@@ -15,14 +15,20 @@ import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 import PlotMountainsStepContract from "./plotMountains.contract.js";
 import { assertNoWaterDrift } from "./assertions.js";
+import { deriveBeltDriversFromHistory } from "./beltDrivers.js";
 import {
   MORPHOLOGY_OROGENY_HILL_THRESHOLD_DELTA,
   MORPHOLOGY_OROGENY_MOUNTAIN_THRESHOLD_DELTA,
   MORPHOLOGY_OROGENY_TECTONIC_INTENSITY_MULTIPLIER,
 } from "@mapgen/domain/morphology/shared/knob-multipliers.js";
 import type { MorphologyOrogenyKnob } from "@mapgen/domain/morphology/shared/knobs.js";
+import type {
+  FoundationTectonicHistoryTiles,
+  FoundationTectonicProvenanceTiles,
+} from "@mapgen/domain/foundation/ops/compute-plates-tensors/contract.js";
 
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
+const GROUP_BELT_DRIVERS = "Morphology / Belt Drivers";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function buildFractalArray(
@@ -69,28 +75,138 @@ export default createStep(PlotMountainsStepContract, {
   },
   run: (context, config, ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
-    const plates = deps.artifacts.foundationPlates.read(context);
+    const historyTiles = deps.artifacts.foundationTectonicHistoryTiles.read(context) as FoundationTectonicHistoryTiles;
+    const provenanceTiles =
+      deps.artifacts.foundationTectonicProvenanceTiles.read(context) as FoundationTectonicProvenanceTiles;
     const { width, height } = context.dimensions;
     const baseSeed = deriveStepSeed(context.env.seed, "morphology:planMountains");
 
     const fractalMountain = buildFractalArray(width, height, baseSeed ^ 0x3d, 5);
     const fractalHill = buildFractalArray(width, height, baseSeed ^ 0x5f, 5);
 
+    const beltDrivers = deriveBeltDriversFromHistory({
+      width,
+      height,
+      historyTiles,
+      provenanceTiles,
+    });
+
     const plan = ops.mountains(
       {
         width,
         height,
         landMask: topography.landMask,
-        boundaryCloseness: plates.boundaryCloseness,
-        boundaryType: plates.boundaryType,
-        upliftPotential: plates.upliftPotential,
-        riftPotential: plates.riftPotential,
-        tectonicStress: plates.tectonicStress,
+        boundaryCloseness: beltDrivers.boundaryCloseness,
+        boundaryType: beltDrivers.boundaryType,
+        upliftPotential: beltDrivers.upliftPotential,
+        riftPotential: beltDrivers.riftPotential,
+        tectonicStress: beltDrivers.tectonicStress,
         fractalMountain,
         fractalHill,
       },
       config.mountains
     );
+
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.belts.boundaryCloseness",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: beltDrivers.boundaryCloseness,
+      meta: defineVizMeta("morphology.belts.boundaryCloseness", {
+        label: "Belt Boundary Closeness",
+        group: GROUP_BELT_DRIVERS,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.belts.boundaryType",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: beltDrivers.boundaryType,
+      meta: defineVizMeta("morphology.belts.boundaryType", {
+        label: "Belt Boundary Type",
+        group: GROUP_BELT_DRIVERS,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.belts.upliftPotential",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: beltDrivers.upliftPotential,
+      meta: defineVizMeta("morphology.belts.upliftPotential", {
+        label: "Belt Uplift Potential",
+        group: GROUP_BELT_DRIVERS,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.belts.riftPotential",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: beltDrivers.riftPotential,
+      meta: defineVizMeta("morphology.belts.riftPotential", {
+        label: "Belt Rift Potential",
+        group: GROUP_BELT_DRIVERS,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.belts.tectonicStress",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: beltDrivers.tectonicStress,
+      meta: defineVizMeta("morphology.belts.tectonicStress", {
+        label: "Belt Tectonic Stress",
+        group: GROUP_BELT_DRIVERS,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.belts.mask",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: beltDrivers.beltMask,
+      meta: defineVizMeta("morphology.belts.mask", {
+        label: "Belt Mask",
+        group: GROUP_BELT_DRIVERS,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.belts.distance",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: beltDrivers.beltDistance,
+      meta: defineVizMeta("morphology.belts.distance", {
+        label: "Belt Distance",
+        group: GROUP_BELT_DRIVERS,
+        visibility: "debug",
+      }),
+    });
+
+    context.trace.event(() => {
+      const totals = { convergent: 0, divergent: 0, transform: 0 };
+      for (const component of beltDrivers.beltComponents) {
+        if (component.boundaryType === 1) totals.convergent += 1;
+        if (component.boundaryType === 2) totals.divergent += 1;
+        if (component.boundaryType === 3) totals.transform += 1;
+      }
+      return {
+        kind: "morphology.belts.summary",
+        componentCount: beltDrivers.beltComponents.length,
+        componentCounts: totals,
+        components: beltDrivers.beltComponents.slice(0, 64),
+        truncated: beltDrivers.beltComponents.length > 64,
+      };
+    });
 
     if (plan.mountainMask instanceof Uint8Array) {
       context.viz?.dumpGrid(context.trace, {
@@ -98,55 +214,55 @@ export default createStep(PlotMountainsStepContract, {
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
-      values: plan.mountainMask,
-      meta: defineVizMeta("map.morphology.mountains.mountainMask", {
-        label: "Mountain Mask (Planned)",
-        group: GROUP_MAP_MORPHOLOGY,
-      }),
-    });
-  }
+        values: plan.mountainMask,
+        meta: defineVizMeta("map.morphology.mountains.mountainMask", {
+          label: "Mountain Mask (Planned)",
+          group: GROUP_MAP_MORPHOLOGY,
+        }),
+      });
+    }
     if (plan.hillMask instanceof Uint8Array) {
       context.viz?.dumpGrid(context.trace, {
         dataTypeKey: "map.morphology.mountains.hillMask",
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
-      values: plan.hillMask,
-      meta: defineVizMeta("map.morphology.mountains.hillMask", {
-        label: "Hill Mask (Planned)",
-        group: GROUP_MAP_MORPHOLOGY,
-        visibility: "debug",
-      }),
-    });
-  }
+        values: plan.hillMask,
+        meta: defineVizMeta("map.morphology.mountains.hillMask", {
+          label: "Hill Mask (Planned)",
+          group: GROUP_MAP_MORPHOLOGY,
+          visibility: "debug",
+        }),
+      });
+    }
     if (plan.orogenyPotential01 instanceof Uint8Array) {
       context.viz?.dumpGrid(context.trace, {
         dataTypeKey: "map.morphology.mountains.orogenyPotential01",
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
-      values: plan.orogenyPotential01,
-      meta: defineVizMeta("map.morphology.mountains.orogenyPotential01", {
-        label: "Orogeny Potential (Planned)",
-        group: GROUP_MAP_MORPHOLOGY,
-        visibility: "debug",
-      }),
-    });
-  }
+        values: plan.orogenyPotential01,
+        meta: defineVizMeta("map.morphology.mountains.orogenyPotential01", {
+          label: "Orogeny Potential (Planned)",
+          group: GROUP_MAP_MORPHOLOGY,
+          visibility: "debug",
+        }),
+      });
+    }
     if (plan.fracture01 instanceof Uint8Array) {
       context.viz?.dumpGrid(context.trace, {
         dataTypeKey: "map.morphology.mountains.fracture01",
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
-      values: plan.fracture01,
-      meta: defineVizMeta("map.morphology.mountains.fracture01", {
-        label: "Fracture (Planned)",
-        group: GROUP_MAP_MORPHOLOGY,
-        visibility: "debug",
-      }),
-    });
-  }
+        values: plan.fracture01,
+        meta: defineVizMeta("map.morphology.mountains.fracture01", {
+          label: "Fracture (Planned)",
+          group: GROUP_MAP_MORPHOLOGY,
+          visibility: "debug",
+        }),
+      });
+    }
 
     context.trace.event(() => {
       const size = Math.max(0, (width | 0) * (height | 0));
