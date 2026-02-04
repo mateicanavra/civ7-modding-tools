@@ -101,3 +101,12 @@ Metrics/invariants should consume artifacts:
 ### Wow Scenarios
 
 - **Coupling is non-negotiable:** a regression that accidentally reintroduces “random plate velocities” fails instantly with a coupling residual assertion, before it can contaminate segments/events/provenance.
+
+### Implementation Decisions
+
+- Invariants live alongside the validation harness: `mods/mod-swooper-maps/test/support/foundation-invariants.ts`, exported as `M1_FOUNDATION_GATES` (hard gates) and `M1_FOUNDATION_DIAGNOSTICS` (non-gating diagnostics).
+- Hard gates chosen for M1:
+  - Mantle potential must be finite, span at least `±0.12`, and have std-dev ≥ `0.05`.
+  - Mantle forcing must be finite, bounded (`forcingMag`, `stress` in `0..1`, `divergence` in `-1..1`), and non-degenerate (`forcingMag.max ≥ 0.2`, `forcingMag.mean ≥ 0.02`, `stress.max ≥ 0.2`).
+  - Plate motion coupling must remain tight: mean `plateFitRms / meanForcingSpeed ≤ 1.2` as a hard gate; plate quality and `cellFitError` coverage are tracked as diagnostic-only.
+- Diagnostics report plate-fit distribution stats and warn if quality drifts below the preferred mean threshold; they do not gate the suite.
