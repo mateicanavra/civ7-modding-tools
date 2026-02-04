@@ -16,20 +16,28 @@ related_to: []
 
 <!-- SECTION SCOPE [SYNC] -->
 ## TL;DR
-- Add invariants that prevent “fake tectonics”: material/provenance must change when events occur.
+- Add D09r invariants that prevent “fake tectonics”: if events/forces exist, they must cause material + provenance change, and belt outputs must be wide/continuous (not wall lines).
 
 ## Deliverables
-- Add invariants that prevent “fake tectonics”: material/provenance must change when events occur.
-- Ensure belts are not lines; enforce corridor width/continuity distributions.
+- Implement invariant checks (using the shared harness from `LOCAL-TBD-PR-M1-004`) that enforce:
+  - **Material change:** event corridors imply measurable updates to crust state variables (not just “forces emitted”).
+  - **Provenance change:** event corridors imply measurable updates to provenance/lineage scalars.
+  - **Belt plausibility:** belts are wide and continuous relative to driver corridors (no single-tile walls).
+- Classify each invariant as hard gate vs diagnostic (Tier-1 failures should block merging).
 
 ## Acceptance Criteria
-- Deliverables are implemented and wired into the pipeline where applicable.
-- Outputs follow the maximal SPEC contracts (no optional artifacts).
-- Any transitional bridge has an explicit deletion target (or this issue performs the deletion).
+- The invariants run as part of the canonical suite (`LOCAL-TBD-PR-M1-017`) and fail loudly when:
+  - event mechanics emit corridor signals but crust/provenance remain unchanged (“force-only tectonics”).
+- Belt width/continuity is measurable and enforced:
+  - a belt mask distribution check prevents long 1-tile-wide walls across the map,
+  - continuity checks ensure belts follow corridors rather than speckle noise.
 
 ## Testing / Verification
-- Add/extend the canonical validation suite for this change (D09r posture).
-- Verify determinism: same seed + config -> identical artifacts (stable fingerprints).
+- `bun run --cwd mods/mod-swooper-maps test`
+- Add/extend an integration suite entry that:
+  - runs a canonical seed case with active events,
+  - asserts that provenance and crust fingerprints change when events are active,
+  - and asserts belt continuity/width metrics.
 
 ## Dependencies / Notes
 - Blocked by:
@@ -39,8 +47,17 @@ related_to: []
 - Related:
   - (none)
 
+### Implementation Anchors
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts` (event→history signal surfaces; invariants should target these fields)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/contract.ts` (crust state variables that must measurably change when events fire)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (artifact ids for crust/provenance/history; invariants fingerprint these ids)
+- `mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-history.test.ts` (existing event/history regression patterns)
+- `mods/mod-swooper-maps/test/morphology/m11-mountains-physics-anchored.test.ts` (existing “noise-only cannot create belts” + correlation posture)
+
 ### References
 - docs/projects/pipeline-realism/resources/decisions/d09r-validation-and-observability.md
+- docs/projects/pipeline-realism/resources/decisions/d06r-event-mechanics-and-force-emission.md
+- docs/projects/pipeline-realism/resources/decisions/d07r-morphology-consumption-contract.md
 
 ---
 
@@ -53,3 +70,29 @@ related_to: []
 - [Acceptance Criteria](#acceptance-criteria)
 - [Testing / Verification](#testing--verification)
 - [Dependencies / Notes](#dependencies--notes)
+
+### Current State (Observed)
+
+There are existing “anti-noise” invariants in Morphology tests that can serve as patterns:
+- `mods/mod-swooper-maps/test/morphology/m11-mountains-physics-anchored.test.ts` (noise-only cannot create belts)
+
+The missing piece for M1 is enforcing causality between:
+- event corridors (`LOCAL-TBD-PR-M1-011`),
+- provenance (`LOCAL-TBD-PR-M1-013`),
+- and the belts produced from the new drivers (`LOCAL-TBD-PR-M1-015`).
+
+### Proposed Change Surface
+
+Invariants should consume:
+- crust truth artifact fields (`artifact:foundation.crust`)
+- provenance truth artifact (`artifact:foundation.tectonicProvenance`)
+- morphology belt outputs (either explicit belt mask artifacts or derived from Morphology outputs)
+
+### Pitfalls / Rakes
+
+- “We validate belts but not causality”: belts look fine but are not tied to event/provenance.
+- Checks that are too brittle to tuning (false positives) or too weak to catch regressions (false negatives).
+
+### Wow Scenarios
+
+- **Fake tectonics is impossible:** if someone “simplifies” event mechanics into force-only fields, CI fails because provenance/crust remain unchanged.

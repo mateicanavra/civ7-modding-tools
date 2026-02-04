@@ -16,20 +16,29 @@ related_to: []
 
 <!-- SECTION SCOPE [SYNC] -->
 ## TL;DR
-- Add D09r invariants for mantle forcing (coherence/energy/bounds) and for plate motion coupling residuals.
+- Add D09r physics invariants that prove mantle forcing is sane and plate motion is actually coupled to it (residual bounds), failing fast when coupling degenerates into arbitrary kinematics.
 
 ## Deliverables
-- Add D09r invariants for mantle forcing (coherence/energy/bounds) and for plate motion coupling residuals.
-- Ensure violations are hard gates (Tier-1) where specified.
+- Implement invariant checks (using the shared harness from `LOCAL-TBD-PR-M1-004`) for:
+  - mantle potential + forcing: finite/bounded, non-degenerate, wrap-correct
+  - plate motion coupling: residual bounds / correlation metrics that catch “decoupled motion”
+- Classify each invariant as:
+  - **Hard gate:** fails the run/suite immediately (Tier-1), or
+  - **Diagnostic-only:** emits metrics for tuning but does not gate initially.
 
 ## Acceptance Criteria
-- Deliverables are implemented and wired into the pipeline where applicable.
-- Outputs follow the maximal SPEC contracts (no optional artifacts).
-- Any transitional bridge has an explicit deletion target (or this issue performs the deletion).
+- The invariants run in the determinism suite (`LOCAL-TBD-PR-M1-017`) and fail loudly on violation.
+- Mantle forcing invariants catch common invalid states:
+  - NaNs/infs,
+  - all-zero or constant fields (degenerate driver),
+  - values outside declared bounds.
+- Coupling invariants catch “fake coupling”:
+  - if plate motion stops responding to forcing (or is overridden elsewhere), residual metrics fail (hard gate or diagnostic with explicit threshold).
 
 ## Testing / Verification
-- Add/extend the canonical validation suite for this change (D09r posture).
-- Verify determinism: same seed + config -> identical artifacts (stable fingerprints).
+- `bun run --cwd mods/mod-swooper-maps test`
+- Add/extend suite-level tests that run the invariants against at least one canonical seed case:
+  - best home: the determinism suite test file introduced in `LOCAL-TBD-PR-M1-017`.
 
 ## Dependencies / Notes
 - Blocked by:
@@ -39,8 +48,17 @@ related_to: []
 - Related:
   - (none)
 
+### Implementation Anchors
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (add/own `artifact:foundation.mantlePotential`, `artifact:foundation.mantleForcing`, `artifact:foundation.plateMotion`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts` and `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.contract.ts` (current Foundation end-to-end wiring; invariants must attach to the artifacts produced by the new ops)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/` (where mantle forcing + plate motion solver ops will live; invariants should reference their contract surfaces)
+- `mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-history.test.ts` (existing Foundation “history” regression patterns; extend for coupling residuals)
+- `mods/mod-swooper-maps/test/pipeline/` (home for suite-level invariants if they span multiple domains)
+
 ### References
 - docs/projects/pipeline-realism/resources/decisions/d09r-validation-and-observability.md
+- docs/projects/pipeline-realism/resources/decisions/d02r-mantle-forcing-potential-derived.md
+- docs/projects/pipeline-realism/resources/decisions/d03r-plate-motion-derived-from-mantle.md
 
 ---
 
@@ -53,3 +71,33 @@ related_to: []
 - [Acceptance Criteria](#acceptance-criteria)
 - [Testing / Verification](#testing--verification)
 - [Dependencies / Notes](#dependencies--notes)
+
+### Current State (Observed)
+
+The repo has examples of “physics anchored” invariants in Morphology (pattern to emulate):
+- `mods/mod-swooper-maps/test/morphology/m11-mountains-physics-anchored.test.ts`
+
+For M1, these invariants must be:
+- not viewer-dependent,
+- not qualitative,
+- and tied directly to artifacts produced by `LOCAL-TBD-PR-M1-007` and `LOCAL-TBD-PR-M1-008`.
+
+### Proposed Change Surface
+
+Implementation should live alongside the shared validation harness:
+- `mods/mod-swooper-maps/test/support/` (recommended) or shared core if it becomes reusable.
+
+Metrics/invariants should consume artifacts:
+- `artifact:foundation.mantlePotential`
+- `artifact:foundation.mantleForcing`
+- `artifact:foundation.plateMotion`
+
+### Pitfalls / Rakes
+
+- Using visualization-only metrics (“looks smooth”) without quantifiable thresholds.
+- Choosing thresholds that are not scale-aware (must be consistent with `docs/projects/pipeline-realism/resources/spec/units-and-scaling.md`).
+- Making coupling checks too weak (plate motion can drift arbitrarily while still passing “finite/bounded”).
+
+### Wow Scenarios
+
+- **Coupling is non-negotiable:** a regression that accidentally reintroduces “random plate velocities” fails instantly with a coupling residual assertion, before it can contaminate segments/events/provenance.
