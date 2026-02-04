@@ -1451,6 +1451,7 @@ function AppContent(props: AppContentProps) {
   const leftPanel = (
     <RecipePanel
       config={pipelineConfig}
+      configSchema={recipeArtifacts.configSchema}
       onConfigPatch={(patch: ConfigPatch) => setPipelineConfig((prev) => applyConfigPatch(prev, patch))}
       onConfigReset={() =>
         setPipelineConfig(
