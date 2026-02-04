@@ -18,6 +18,7 @@ const RuggedCoastsStepContract = defineStep({
   },
   ops: {
     coastlines: morphology.ops.computeCoastlineMetrics,
+    shelfMask: { contract: morphology.ops.computeShelfMask, defaultStrategy: "default" },
   },
   schema: Type.Object({}),
 });

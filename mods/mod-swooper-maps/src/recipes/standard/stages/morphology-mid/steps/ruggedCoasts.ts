@@ -47,9 +47,15 @@ function validateCoastlineMetrics(value: unknown, dimensions: MapDimensions): Ar
     return errors;
   }
   const size = expectedSize(dimensions);
-  const candidate = value as { coastalLand?: unknown; coastalWater?: unknown; distanceToCoast?: unknown };
+  const candidate = value as {
+    coastalLand?: unknown;
+    coastalWater?: unknown;
+    shelfMask?: unknown;
+    distanceToCoast?: unknown;
+  };
   validateTypedArray(errors, "coastlineMetrics.coastalLand", candidate.coastalLand, Uint8Array, size);
   validateTypedArray(errors, "coastlineMetrics.coastalWater", candidate.coastalWater, Uint8Array, size);
+  validateTypedArray(errors, "coastlineMetrics.shelfMask", candidate.shelfMask, Uint8Array, size);
   validateTypedArray(errors, "coastlineMetrics.distanceToCoast", candidate.distanceToCoast, Uint16Array, size);
   return errors;
 }
@@ -213,6 +219,23 @@ export default createStep(RuggedCoastsStepContract, {
     }
     const distanceToCoast = computeDistanceToCoast(width, height, coastal);
 
+    const shelfResult = ops.shelfMask(
+      {
+        width,
+        height,
+        landMask: heightfield.landMask,
+        bathymetry,
+        distanceToCoast,
+        boundaryCloseness: plates.boundaryCloseness,
+        boundaryType: plates.boundaryType,
+      },
+      config.shelfMask
+    );
+    const shelfMask = shelfResult.shelfMask;
+    if (!(shelfMask instanceof Uint8Array) || shelfMask.length !== coastal.length) {
+      throw new Error("Computed shelfMask missing or shape-mismatched.");
+    }
+
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "morphology.coastlineMetrics.coastalLand",
       spaceId: TILE_SPACE_ID,
@@ -236,6 +259,21 @@ export default createStep(RuggedCoastsStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.coastlineMetrics.shelfMask",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: shelfMask,
+      meta: defineVizMeta("morphology.coastlineMetrics.shelfMask", {
+        label: "Shelf Mask",
+        group: GROUP_COASTLINES,
+        categories: [
+          { value: 0, label: "Deep Water", color: [37, 99, 235, 220] },
+          { value: 1, label: "Shelf Water", color: [56, 189, 248, 230] },
+        ],
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "morphology.coastlineMetrics.distanceToCoast",
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
@@ -250,6 +288,7 @@ export default createStep(RuggedCoastsStepContract, {
     deps.artifacts.coastlineMetrics.publish(context, {
       coastalLand: result.coastalLand,
       coastalWater: result.coastalWater,
+      shelfMask,
       distanceToCoast,
     });
   },
