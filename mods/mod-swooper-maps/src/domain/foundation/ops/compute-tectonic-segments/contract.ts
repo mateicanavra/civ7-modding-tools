@@ -2,12 +2,13 @@ import { TypedArraySchemas, Type, defineOp } from "@swooper/mapgen-core/authorin
 import type { Static } from "@swooper/mapgen-core/authoring";
 import { FoundationCrustSchema } from "../compute-crust/contract.js";
 import { FoundationMeshSchema } from "../compute-mesh/contract.js";
+import { FoundationPlateMotionSchema } from "../compute-plate-motion/contract.js";
 import { FoundationPlateGraphSchema } from "../compute-plate-graph/contract.js";
 
 const StrategySchema = Type.Object(
   {
     intensityScale: Type.Number({
-      default: 180,
+      default: 900,
       minimum: 1,
       maximum: 10_000,
       description: "Scale factor applied to relative motion components to produce 0..255 segment intensities.",
@@ -63,6 +64,7 @@ const ComputeTectonicSegmentsContract = defineOp({
       mesh: FoundationMeshSchema,
       crust: FoundationCrustSchema,
       plateGraph: FoundationPlateGraphSchema,
+      plateMotion: FoundationPlateMotionSchema,
     },
     { additionalProperties: false }
   ),
@@ -75,4 +77,3 @@ const ComputeTectonicSegmentsContract = defineOp({
 export default ComputeTectonicSegmentsContract;
 export type ComputeTectonicSegmentsConfig = Static<typeof StrategySchema>;
 export type FoundationTectonicSegments = Static<typeof FoundationTectonicSegmentsSchema>;
-

@@ -5,6 +5,7 @@ import {
   requireCrust,
   requireMesh,
   requirePlateGraph,
+  requirePlateMotion,
   requireTectonicHistory,
   requireTectonicProvenance,
   requireTectonics,
@@ -20,6 +21,12 @@ const computePlatesTensors = createOp(ComputePlatesTensorsContract, {
         const mesh = requireMesh(input.mesh, "foundation/compute-plates-tensors");
         const crust = requireCrust(input.crust, mesh.cellCount | 0, "foundation/compute-plates-tensors");
         const plateGraph = requirePlateGraph(input.plateGraph, mesh.cellCount | 0, "foundation/compute-plates-tensors");
+        const plateMotion = requirePlateMotion(
+          input.plateMotion,
+          mesh.cellCount | 0,
+          plateGraph.plates.length | 0,
+          "foundation/compute-plates-tensors"
+        );
         const tectonics = requireTectonics(input.tectonics, mesh.cellCount | 0, "foundation/compute-plates-tensors");
         const tectonicHistory = requireTectonicHistory(
           input.tectonicHistory,
@@ -41,6 +48,7 @@ const computePlatesTensors = createOp(ComputePlatesTensorsContract, {
           mesh,
           crust,
           plateGraph,
+          plateMotion,
           tectonics,
           tectonicHistory,
           tectonicProvenance,

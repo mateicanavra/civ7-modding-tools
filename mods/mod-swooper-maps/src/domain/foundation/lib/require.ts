@@ -2,6 +2,7 @@ import type { FoundationMesh } from "../ops/compute-mesh/contract.js";
 import type { FoundationCrust } from "../ops/compute-crust/contract.js";
 import type { FoundationMantleForcing } from "../ops/compute-mantle-forcing/contract.js";
 import type { FoundationMantlePotential } from "../ops/compute-mantle-potential/contract.js";
+import type { FoundationPlateMotion } from "../ops/compute-plate-motion/contract.js";
 import type { FoundationPlateGraph } from "../ops/compute-plate-graph/contract.js";
 import type {
   FoundationTectonicHistory,
@@ -165,6 +166,55 @@ export function requirePlateGraph(
   }
 
   return graph;
+}
+
+export function requirePlateMotion(
+  motion: FoundationPlateMotion | undefined,
+  cellCount: number,
+  plateCount: number,
+  scope: string
+): FoundationPlateMotion {
+  if (!motion) {
+    throw new Error(`[Foundation] PlateMotion not provided for ${scope}.`);
+  }
+
+  if ((motion.cellCount | 0) !== cellCount) {
+    throw new Error(`[Foundation] Invalid plateMotion.cellCount for ${scope}.`);
+  }
+  if ((motion.plateCount | 0) !== plateCount) {
+    throw new Error(`[Foundation] Invalid plateMotion.plateCount for ${scope}.`);
+  }
+
+  const mustMatchPlates = [
+    ["plateCenterX", motion.plateCenterX],
+    ["plateCenterY", motion.plateCenterY],
+    ["plateVelocityX", motion.plateVelocityX],
+    ["plateVelocityY", motion.plateVelocityY],
+    ["plateOmega", motion.plateOmega],
+    ["plateFitRms", motion.plateFitRms],
+    ["plateFitP90", motion.plateFitP90],
+  ] as const;
+
+  for (const [key, value] of mustMatchPlates) {
+    if (
+      !(
+        value instanceof Float32Array ||
+        value instanceof Uint8Array
+      ) ||
+      value.length !== plateCount
+    ) {
+      throw new Error(`[Foundation] Invalid plateMotion.${key} for ${scope}.`);
+    }
+  }
+
+  if (!(motion.plateQuality instanceof Uint8Array) || motion.plateQuality.length !== plateCount) {
+    throw new Error(`[Foundation] Invalid plateMotion.plateQuality for ${scope}.`);
+  }
+  if (!(motion.cellFitError instanceof Uint8Array) || motion.cellFitError.length !== cellCount) {
+    throw new Error(`[Foundation] Invalid plateMotion.cellFitError for ${scope}.`);
+  }
+
+  return motion;
 }
 
 export function requireTectonics(

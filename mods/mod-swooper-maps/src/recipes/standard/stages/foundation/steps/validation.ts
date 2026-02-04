@@ -209,6 +209,61 @@ export function validateMantleForcingArtifact(value: unknown): void {
   }
 }
 
+export function validatePlateMotionArtifact(value: unknown): void {
+  if (!value || typeof value !== "object") {
+    throw new Error("[FoundationArtifact] Missing foundation plateMotion artifact payload.");
+  }
+  const motion = value as {
+    version?: unknown;
+    cellCount?: unknown;
+    plateCount?: unknown;
+    plateCenterX?: unknown;
+    plateCenterY?: unknown;
+    plateVelocityX?: unknown;
+    plateVelocityY?: unknown;
+    plateOmega?: unknown;
+    plateFitRms?: unknown;
+    plateFitP90?: unknown;
+    plateQuality?: unknown;
+    cellFitError?: unknown;
+  };
+
+  const version = typeof motion.version === "number" ? (motion.version | 0) : 0;
+  if (version <= 0) {
+    throw new Error("[FoundationArtifact] Invalid foundation plateMotion.version.");
+  }
+  const cellCount = typeof motion.cellCount === "number" ? (motion.cellCount | 0) : 0;
+  if (cellCount <= 0) {
+    throw new Error("[FoundationArtifact] Invalid foundation plateMotion.cellCount.");
+  }
+  const plateCount = typeof motion.plateCount === "number" ? (motion.plateCount | 0) : 0;
+  if (plateCount <= 0) {
+    throw new Error("[FoundationArtifact] Invalid foundation plateMotion.plateCount.");
+  }
+
+  const mustMatchPlates = [
+    ["plateCenterX", motion.plateCenterX],
+    ["plateCenterY", motion.plateCenterY],
+    ["plateVelocityX", motion.plateVelocityX],
+    ["plateVelocityY", motion.plateVelocityY],
+    ["plateOmega", motion.plateOmega],
+    ["plateFitRms", motion.plateFitRms],
+    ["plateFitP90", motion.plateFitP90],
+  ] as const;
+
+  for (const [key, value] of mustMatchPlates) {
+    if (!(value instanceof Float32Array) || value.length !== plateCount) {
+      throw new Error(`[FoundationArtifact] Invalid foundation plateMotion.${key}.`);
+    }
+  }
+  if (!(motion.plateQuality instanceof Uint8Array) || motion.plateQuality.length !== plateCount) {
+    throw new Error("[FoundationArtifact] Invalid foundation plateMotion.plateQuality.");
+  }
+  if (!(motion.cellFitError instanceof Uint8Array) || motion.cellFitError.length !== cellCount) {
+    throw new Error("[FoundationArtifact] Invalid foundation plateMotion.cellFitError.");
+  }
+}
+
 export function validateTileToCellIndexArtifact(value: unknown, dims: MapDimensions): void {
   if (!(value instanceof Int32Array)) {
     throw new Error("[FoundationArtifact] Invalid foundation tileToCellIndex.");
