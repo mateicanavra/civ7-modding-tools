@@ -95,7 +95,7 @@ These 25 issue docs are the **canonical milestone checklist**. Do not duplicate 
 - [x] [`LOCAL-TBD-PR-M1-013`](../issues/LOCAL-TBD-PR-M1-013-provenance-tracer-system-lineage-scalars-d04r-lagrangian-out.md) Provenance tracer system + lineage scalars (D04r Lagrangian outputs) — branch: `agent-URSULA-M1-LOCAL-TBD-PR-M1-013-provenance-tracer-system-lineage-scalars-d04r-lagrangian-outputs`; PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1085; review branch: `agent-BURAKA-LOCAL-TBD-PR-M1-013-review-provenance-tracer-system-lineage-scalars-d04r-lagrangian-outputs`; review PR: pending
 
 ### Morphology Cutover (Slice-03)
-- [ ] [`LOCAL-TBD-PR-M1-014`](../issues/LOCAL-TBD-PR-M1-014-morphology-dual-read-accept-history-provenance-tiles-emit-co.md) Morphology dual-read: accept history/provenance tiles + emit comparison diagnostics
+- [x] [`LOCAL-TBD-PR-M1-014`](../issues/LOCAL-TBD-PR-M1-014-morphology-dual-read-accept-history-provenance-tiles-emit-co.md) Morphology dual-read: accept history/provenance tiles + emit comparison diagnostics — branch: `agent-URSULA-M1-LOCAL-TBD-PR-M1-014-morphology-dual-read-history-provenance-diagnostics`; PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1086
 - [ ] [`LOCAL-TBD-PR-M1-015`](../issues/LOCAL-TBD-PR-M1-015-morphology-belt-synthesis-from-history-provenance-continuity.md) Morphology belt synthesis from history/provenance (continuity + age-aware diffusion)
 - [ ] [`LOCAL-TBD-PR-M1-016`](../issues/LOCAL-TBD-PR-M1-016-cutover-morphology-to-new-drivers-remove-legacy-consumption-.md) Cutover Morphology to new drivers + remove legacy consumption paths
 
