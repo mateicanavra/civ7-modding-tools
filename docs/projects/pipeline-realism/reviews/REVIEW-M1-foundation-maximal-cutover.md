@@ -391,3 +391,28 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 
 ### Cross-cutting Risks
 - Artifact-level-only drift messages slow down triage and weaken the “determinism as a feature” posture.
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-018-physics-invariants-mantle-forcing-plate-motion-coupling-resi
+
+### Quick Take
+- Added `M1_FOUNDATION_GATES` and `M1_FOUNDATION_DIAGNOSTICS` invariants (mantle potential/forcing bounds + plate motion coupling residual ratio) and wired them into the determinism suite; gates now fail runs on non-physical forcing/coupling drift.
+- Diagnostics run but currently warn for all canonical cases (plate motion diagnostics), suggesting thresholds need calibration to stay signal-bearing.
+
+### High-Leverage Issues
+- Coupling invariants do not fail on non-finite `plateFitRms` / `plateFitP90` values. `scanFloat` tracks `nonFinite` but the coupling checks ignore it, so NaNs can slip through while still passing the residual ratio. Add explicit non-finite checks to align with “NaNs/infs fail loudly.”
+- The “wrap-correct” requirement for mantle potential/forcing is not explicitly checked; invariants only validate bounds and variance. If wrap integrity matters (e.g., continuity at longitudinal seam), add an explicit wrap seam check.
+
+### PR Comment Context
+- No actionable review comments; Graphite/Railway bot notices only.
+
+### Fix Now (Recommended)
+- Add non-finite checks for `plateFitRms` / `plateFitP90` and fail hard when `nonFinite > 0`.
+- Add a simple wrap-seam continuity check for mantle potential/forcing (e.g., max seam delta threshold) if wrap-correctness is a requirement.
+
+### Defer / Follow-up
+- Calibrate diagnostic thresholds (`PLATE_QUALITY_MEAN_MIN`, `CELL_FIT_OK_FRACTION_MIN`) or log as structured metrics; current diagnostics warn on every canonical case, which will desensitize triage.
+
+### Needs Discussion
+- Are the coupling residual thresholds intended to be scale-aware (from units spec), or should we lock to these static values for M1 and revisit in M2?
+
+### Cross-cutting Risks
+- Diagnostics that always fail will be ignored, reducing the ability to detect real coupling regressions later.
