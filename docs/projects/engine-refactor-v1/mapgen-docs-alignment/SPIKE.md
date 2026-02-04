@@ -21,7 +21,7 @@
 Reconcile our current MapGen docs + examples with the intended “DX-first” architecture:
 - MapGen core SDK
 - MapGen pipeline / recipe model
-- Domains + “standard recipe” (foundation/morphology/hydrology/ecology/placement/narrative)
+- Domains + “standard recipe” (foundation/morphology/hydrology/ecology), plus gameplay surfaces
 
 This spike treats all non-archived docs as **not meeting the bar** until proven otherwise.
 
@@ -39,7 +39,7 @@ This is the integrated “where we are” picture after auditing:
 - The **standard recipe** has a coherent stage order and a practical separation between:
   - **truth** artifact-producing stages (foundation/morphology/hydrology/ecology), and
   - gameplay **projection** stages that mostly produce `effect:*` / `field:*` and write engine-facing surfaces.
-- Domain conceptual docs under `docs/system/libs/mapgen/**` are generally strong and align with the target mental model (especially Hydrology + Placement + Narrative’s intended posture).
+- Domain conceptual docs under `docs/system/libs/mapgen/**` are generally strong and align with the target mental model (especially Foundation/Morphology/Hydrology), while gameplay-facing concerns are now documented under a separate “Gameplay” domain surface.
 
 ### What is confusing (high-impact doc drift)
 
@@ -51,9 +51,9 @@ This is the integrated “where we are” picture after auditing:
 
 ### What must be reconciled (non-negotiable for canonical docs)
 
-- **Run boundary naming:** target `RunRequest = { recipe, settings }` vs current code `RunRequest = { recipe, env }`.
+- **Run boundary naming:** `Env` is canonical in current code; `RunSettings` is legacy naming and must not be treated as “target posture”.
 - **Dependency kind naming:** specs mention `buffer:*` while runtime uses `field:*` as the “mutable engine-facing surface” kind.
-- **Narrative integration:** Narrative is target-canonical (story entries), but it is not currently wired into the standard recipe pipeline.
+- **Domain ownership:** Narrative + Placement were explicitly absorbed into **Gameplay** planning/ownership; docs must not present them as target-canonical MapGen domains.
 - **Import policy:** `@mapgen/*` is not a stable public import surface; it collides across packages and breaks copy/paste.
 
 ## Working artifacts
