@@ -1,7 +1,31 @@
 import { describe, expect, it } from "bun:test";
 import { stableStringify } from "@swooper/mapgen-core";
+import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
 
-import standardRecipe from "../src/recipes/standard/recipe.js";
+import standardRecipe, { STANDARD_STAGES } from "../src/recipes/standard/recipe.js";
+
+function collectSchemaKeys(schema: unknown, keys: Set<string>) {
+  if (!schema || typeof schema !== "object") return;
+  if (Array.isArray(schema)) {
+    schema.forEach((item) => collectSchemaKeys(item, keys));
+    return;
+  }
+  const node = schema as Record<string, unknown>;
+  const properties = node.properties;
+  if (properties && typeof properties === "object") {
+    for (const [key, value] of Object.entries(properties)) {
+      keys.add(key);
+      collectSchemaKeys(value, keys);
+    }
+  }
+  const anyOf = node.anyOf;
+  if (Array.isArray(anyOf)) anyOf.forEach((item) => collectSchemaKeys(item, keys));
+  const oneOf = node.oneOf;
+  if (Array.isArray(oneOf)) oneOf.forEach((item) => collectSchemaKeys(item, keys));
+  const allOf = node.allOf;
+  if (Array.isArray(allOf)) allOf.forEach((item) => collectSchemaKeys(item, keys));
+  if ("items" in node) collectSchemaKeys(node.items as unknown, keys);
+}
 
 const env = {
   seed: 123,
@@ -20,6 +44,18 @@ const foundationBaseConfig = {
 };
 
 describe("M11 config layering: knobs-last (foundation + morphology)", () => {
+  it("keeps foundation authoring surface D08r-only (no derived-field keys)", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES) as { properties?: Record<string, unknown> };
+    const foundation = schema.properties?.foundation;
+    expect(foundation).toBeTruthy();
+    const keys = new Set<string>();
+    collectSchemaKeys(foundation, keys);
+    const forbidden = ["velocity", "belt", "regime"];
+    const hits = [...keys].filter((key) =>
+      forbidden.some((needle) => key.toLowerCase().includes(needle))
+    );
+    expect(hits).toEqual([]);
+  });
   it("applies knobs as deterministic transforms over profile defaults", () => {
     const compiled = standardRecipe.compileConfig(env, {
       foundation: {
