@@ -225,6 +225,7 @@ export function TagSelectWidget(props: ConfigWidgetProps) {
 export const configWidgets = {
   TextWidget,
   TextareaWidget,
+  textarea: TextareaWidget,
   SelectWidget,
   CheckboxWidget,
   CheckboxesWidget: TagSelectWidget,
