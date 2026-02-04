@@ -144,13 +144,13 @@ export default createStep(GeomorphologyStepContract, {
 Representative example (stage wiring; excerpt; see full file in anchors):
 
 ```ts
-import { geomorphology, ruggedCoasts, routing } from "./steps/index.js";
+import { geomorphology } from "./steps/index.js";
 import { createStage } from "@swooper/mapgen-core/authoring";
 
 export default createStage({
-  id: "morphology-mid",
+  id: "morphology-erosion",
   // ...
-  steps: [ruggedCoasts, routing, geomorphology],
+  steps: [geomorphology],
 } as const);
 ```
 
@@ -181,8 +181,8 @@ If your step introduces a new required/provided dependency tag:
 
 - Step contract API: `packages/mapgen-core/src/authoring/step/contract.ts`
 - Step implementation wrapper: `packages/mapgen-core/src/authoring/step/create.ts`
-- Example step contract: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/steps/geomorphology.contract.ts`
-- Example step implementation (createStep + trace + viz): `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/steps/geomorphology.ts`
+- Example step contract: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology.contract.ts`
+- Example step implementation (createStep + trace + viz): `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology.ts`
 - Example step contract (dependency tags): `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/plotRivers.contract.ts`
-- Example stage wiring: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/index.ts`
+- Example stage wiring: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/index.ts`
 - Pipeline executor dependency gating: `packages/mapgen-core/src/engine/PipelineExecutor.ts`

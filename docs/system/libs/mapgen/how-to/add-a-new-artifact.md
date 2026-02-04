@@ -91,5 +91,5 @@ export const morphologyArtifacts = {
 
 - Artifact store + publish-once comment: `packages/mapgen-core/src/core/types.ts`
 - Artifact authoring API: `packages/mapgen-core/src/authoring/artifact/contract.ts`
-- Example artifact definitions: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-pre/artifacts.ts`
-- Example step reading artifacts via deps: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-mid/steps/geomorphology.ts`
+- Example artifact definitions: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/artifacts.ts`
+- Example step reading artifacts via deps: `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology.ts`
