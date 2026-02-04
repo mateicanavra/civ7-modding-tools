@@ -16,6 +16,7 @@ const ProjectionStepContract = defineStep({
       foundationArtifacts.plateMotion,
       foundationArtifacts.tectonics,
       foundationArtifacts.tectonicHistory,
+      foundationArtifacts.tectonicProvenance,
     ],
     provides: [
       foundationArtifacts.plates,
