@@ -74,12 +74,13 @@ export const defaultConfig: PipelineConfig = {
   },
 
   // ============================================================================
-  // Morphology Pre Stage
-  // Initial landmass formation and sea level
+  // Morphology Coasts Stage
+  // Landmass formation + coastline shaping
   // ============================================================================
-  'morphology-pre': {
+  'morphology-coasts': {
     knobs: {
-      seaLevel: 'earthlike'
+      seaLevel: 'earthlike',
+      coastRuggedness: 'normal'
     },
     advanced: {
       'landmass-plates': {
@@ -105,13 +106,26 @@ export const defaultConfig: PipelineConfig = {
   },
 
   // ============================================================================
-  // Morphology Mid Stage
+  // Morphology Routing Stage
+  // Drainage routing truth
+  // ============================================================================
+  'morphology-routing': {
+    advanced: {
+      routing: {
+        routing: {
+          strategy: 'default',
+          config: {}
+        }
+      }
+    }
+  },
+
+  // Morphology Erosion Stage
   // Erosion and geomorphology
   // ============================================================================
-  'morphology-mid': {
+  'morphology-erosion': {
     knobs: {
-      erosion: 'normal',
-      coastRuggedness: 'normal'
+      erosion: 'normal'
     },
     advanced: {
       geomorphology: {
@@ -132,6 +146,15 @@ export const defaultConfig: PipelineConfig = {
   },
 
   // ============================================================================
+  // Morphology Features Stage
+  // Islands, volcanism, landmass decomposition
+  // ============================================================================
+  'morphology-features': {
+    knobs: {
+      volcanism: 'normal'
+    }
+  },
+
   // Hydrology & Climate Baseline Stage
   // Climate simulation and water systems
   // ============================================================================
