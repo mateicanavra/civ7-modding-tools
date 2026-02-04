@@ -87,6 +87,10 @@ describe("m11 plates projection (boundary band)", () => {
     const cellCount = mesh.cellCount | 0;
 
     const crust = {
+      maturity: new Float32Array(cellCount),
+      thickness: new Float32Array(cellCount).fill(0.25),
+      thermalAge: new Uint8Array(cellCount),
+      damage: new Uint8Array(cellCount),
       type: new Uint8Array(cellCount),
       age: new Uint8Array(cellCount),
       buoyancy: new Float32Array(cellCount),
