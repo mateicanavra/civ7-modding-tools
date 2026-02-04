@@ -10,7 +10,7 @@ const CrustStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [foundationArtifacts.mesh, foundationArtifacts.mantleForcing],
-    provides: [foundationArtifacts.crust],
+    provides: [foundationArtifacts.crustInit],
   },
   ops: {
     computeCrust: foundation.ops.computeCrust,

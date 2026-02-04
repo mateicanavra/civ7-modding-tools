@@ -9,7 +9,7 @@ const PlateGraphStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [foundationArtifacts.mesh, foundationArtifacts.crust],
+    requires: [foundationArtifacts.mesh, foundationArtifacts.crustInit],
     provides: [foundationArtifacts.plateGraph],
   },
   ops: {

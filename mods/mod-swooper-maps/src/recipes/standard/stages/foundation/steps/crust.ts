@@ -8,8 +8,8 @@ import { interleaveXY } from "./viz.js";
 const GROUP_CRUST = "Foundation / Crust";
 
 export default createStep(CrustStepContract, {
-  artifacts: implementArtifacts([foundationArtifacts.crust], {
-    foundationCrust: {
+  artifacts: implementArtifacts([foundationArtifacts.crustInit], {
+    foundationCrustInit: {
       validate: (value) => wrapFoundationValidateNoDims(value, validateCrustArtifact),
     },
   }),
@@ -28,40 +28,43 @@ export default createStep(CrustStepContract, {
       config.computeCrust
     );
 
-    deps.artifacts.foundationCrust.publish(context, crustResult.crust);
+    deps.artifacts.foundationCrustInit.publish(context, crustResult.crust);
 
     const positions = interleaveXY(mesh.siteX, mesh.siteY);
     context.viz?.dumpPoints(context.trace, {
-      dataTypeKey: "foundation.crust.cellType",
+      dataTypeKey: "foundation.crustInit.cellType",
       spaceId: "world.xy",
       positions,
       values: crustResult.crust.type,
       valueFormat: "u8",
-      meta: defineVizMeta("foundation.crust.cellType", {
-        label: "Crust Cell Type",
+      meta: defineVizMeta("foundation.crustInit.cellType", {
+        label: "Crust Cell Type (Init)",
         group: GROUP_CRUST,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpPoints(context.trace, {
-      dataTypeKey: "foundation.crust.cellAge",
+      dataTypeKey: "foundation.crustInit.cellAge",
       spaceId: "world.xy",
       positions,
       values: crustResult.crust.age,
       valueFormat: "u8",
-      meta: defineVizMeta("foundation.crust.cellAge", {
-        label: "Crust Cell Age",
+      meta: defineVizMeta("foundation.crustInit.cellAge", {
+        label: "Crust Cell Age (Init)",
         group: GROUP_CRUST,
+        visibility: "debug",
       }),
     });
     context.viz?.dumpPoints(context.trace, {
-      dataTypeKey: "foundation.crust.cellBaseElevation",
+      dataTypeKey: "foundation.crustInit.cellBaseElevation",
       spaceId: "world.xy",
       positions,
       values: crustResult.crust.baseElevation,
       valueFormat: "f32",
-      meta: defineVizMeta("foundation.crust.cellBaseElevation", {
-        label: "Crust Cell Base Elevation",
+      meta: defineVizMeta("foundation.crustInit.cellBaseElevation", {
+        label: "Crust Cell Base Elevation (Init)",
         group: GROUP_CRUST,
+        visibility: "debug",
       }),
     });
   },

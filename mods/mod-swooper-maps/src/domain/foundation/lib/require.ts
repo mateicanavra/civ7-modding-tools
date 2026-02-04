@@ -10,7 +10,7 @@ import type {
 } from "../ops/compute-tectonic-history/contract.js";
 import type { FoundationTectonicProvenance } from "../ops/compute-plates-tensors/contract.js";
 
-const ERA_COUNT_TARGET = 5;
+const ERA_COUNT_MIN = 1;
 const ERA_COUNT_MAX = 8;
 
 export function requireMesh(mesh: FoundationMesh | undefined, scope: string): FoundationMesh {
@@ -259,7 +259,7 @@ export function requireTectonicHistory(
 
   const eraCount = history.eraCount | 0;
   if (
-    eraCount < ERA_COUNT_TARGET ||
+    eraCount < ERA_COUNT_MIN ||
     eraCount > ERA_COUNT_MAX ||
     !Array.isArray(history.eras) ||
     history.eras.length !== eraCount
@@ -309,7 +309,7 @@ export function requireTectonicProvenance(
 
   const eraCount = provenance.eraCount | 0;
   if (
-    eraCount < ERA_COUNT_TARGET ||
+    eraCount < ERA_COUNT_MIN ||
     eraCount > ERA_COUNT_MAX ||
     !Array.isArray(provenance.tracerIndex) ||
     provenance.tracerIndex.length !== eraCount

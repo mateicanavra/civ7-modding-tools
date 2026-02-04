@@ -33,7 +33,7 @@ const EMISSION_DECAY = {
 const RIFT_RESET_THRESHOLD = 160;
 const ARC_RESET_THRESHOLD = 170;
 const HOTSPOT_RESET_THRESHOLD = 200;
-const ERA_COUNT_TARGET = 5;
+const ERA_COUNT_MIN = 1;
 const ERA_COUNT_MAX = 8;
 const ADVECTION_STEPS_PER_ERA = 6;
 
@@ -676,9 +676,9 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
           throw new Error("[Foundation] compute-tectonic-history expects eraWeights/driftStepsByEra to match length.");
         }
         const eraCount = Math.min(weights.length, driftSteps.length);
-        if (eraCount < ERA_COUNT_TARGET || eraCount > ERA_COUNT_MAX) {
+        if (eraCount < ERA_COUNT_MIN || eraCount > ERA_COUNT_MAX) {
           throw new Error(
-            `[Foundation] compute-tectonic-history expects eraCount within ${ERA_COUNT_TARGET}..${ERA_COUNT_MAX}.`
+            `[Foundation] compute-tectonic-history expects eraCount within ${ERA_COUNT_MIN}..${ERA_COUNT_MAX}.`
           );
         }
 
