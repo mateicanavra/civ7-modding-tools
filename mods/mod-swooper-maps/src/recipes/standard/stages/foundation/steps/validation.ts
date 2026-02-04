@@ -123,6 +123,92 @@ export function validateCrustArtifact(value: unknown): void {
   }
 }
 
+export function validateMantlePotentialArtifact(value: unknown): void {
+  if (!value || typeof value !== "object") {
+    throw new Error("[FoundationArtifact] Missing foundation mantlePotential artifact payload.");
+  }
+  const mantle = value as {
+    version?: unknown;
+    cellCount?: unknown;
+    potential?: unknown;
+    sourceCount?: unknown;
+    sourceType?: unknown;
+    sourceCell?: unknown;
+    sourceAmplitude?: unknown;
+    sourceRadius?: unknown;
+  };
+  const version = typeof mantle.version === "number" ? (mantle.version | 0) : 0;
+  if (version <= 0) {
+    throw new Error("[FoundationArtifact] Invalid foundation mantlePotential.version.");
+  }
+  const cellCount = typeof mantle.cellCount === "number" ? (mantle.cellCount | 0) : 0;
+  if (cellCount <= 0) {
+    throw new Error("[FoundationArtifact] Invalid foundation mantlePotential.cellCount.");
+  }
+  if (!(mantle.potential instanceof Float32Array) || mantle.potential.length !== cellCount) {
+    throw new Error("[FoundationArtifact] Invalid foundation mantlePotential.potential.");
+  }
+
+  const sourceCount = typeof mantle.sourceCount === "number" ? (mantle.sourceCount | 0) : -1;
+  if (sourceCount < 0) {
+    throw new Error("[FoundationArtifact] Invalid foundation mantlePotential.sourceCount.");
+  }
+  if (!(mantle.sourceType instanceof Int8Array) || mantle.sourceType.length !== sourceCount) {
+    throw new Error("[FoundationArtifact] Invalid foundation mantlePotential.sourceType.");
+  }
+  if (!(mantle.sourceCell instanceof Uint32Array) || mantle.sourceCell.length !== sourceCount) {
+    throw new Error("[FoundationArtifact] Invalid foundation mantlePotential.sourceCell.");
+  }
+  if (!(mantle.sourceAmplitude instanceof Float32Array) || mantle.sourceAmplitude.length !== sourceCount) {
+    throw new Error("[FoundationArtifact] Invalid foundation mantlePotential.sourceAmplitude.");
+  }
+  if (!(mantle.sourceRadius instanceof Float32Array) || mantle.sourceRadius.length !== sourceCount) {
+    throw new Error("[FoundationArtifact] Invalid foundation mantlePotential.sourceRadius.");
+  }
+}
+
+export function validateMantleForcingArtifact(value: unknown): void {
+  if (!value || typeof value !== "object") {
+    throw new Error("[FoundationArtifact] Missing foundation mantleForcing artifact payload.");
+  }
+  const forcing = value as {
+    version?: unknown;
+    cellCount?: unknown;
+    stress?: unknown;
+    forcingU?: unknown;
+    forcingV?: unknown;
+    forcingMag?: unknown;
+    upwellingClass?: unknown;
+    divergence?: unknown;
+  };
+  const version = typeof forcing.version === "number" ? (forcing.version | 0) : 0;
+  if (version <= 0) {
+    throw new Error("[FoundationArtifact] Invalid foundation mantleForcing.version.");
+  }
+  const cellCount = typeof forcing.cellCount === "number" ? (forcing.cellCount | 0) : 0;
+  if (cellCount <= 0) {
+    throw new Error("[FoundationArtifact] Invalid foundation mantleForcing.cellCount.");
+  }
+  if (!(forcing.stress instanceof Float32Array) || forcing.stress.length !== cellCount) {
+    throw new Error("[FoundationArtifact] Invalid foundation mantleForcing.stress.");
+  }
+  if (!(forcing.forcingU instanceof Float32Array) || forcing.forcingU.length !== cellCount) {
+    throw new Error("[FoundationArtifact] Invalid foundation mantleForcing.forcingU.");
+  }
+  if (!(forcing.forcingV instanceof Float32Array) || forcing.forcingV.length !== cellCount) {
+    throw new Error("[FoundationArtifact] Invalid foundation mantleForcing.forcingV.");
+  }
+  if (!(forcing.forcingMag instanceof Float32Array) || forcing.forcingMag.length !== cellCount) {
+    throw new Error("[FoundationArtifact] Invalid foundation mantleForcing.forcingMag.");
+  }
+  if (!(forcing.upwellingClass instanceof Int8Array) || forcing.upwellingClass.length !== cellCount) {
+    throw new Error("[FoundationArtifact] Invalid foundation mantleForcing.upwellingClass.");
+  }
+  if (!(forcing.divergence instanceof Float32Array) || forcing.divergence.length !== cellCount) {
+    throw new Error("[FoundationArtifact] Invalid foundation mantleForcing.divergence.");
+  }
+}
+
 export function validateTileToCellIndexArtifact(value: unknown, dims: MapDimensions): void {
   if (!(value instanceof Int32Array)) {
     throw new Error("[FoundationArtifact] Invalid foundation tileToCellIndex.");

@@ -1,4 +1,6 @@
 import ComputeCrustContract from "./compute-crust/contract.js";
+import ComputeMantleForcingContract from "./compute-mantle-forcing/contract.js";
+import ComputeMantlePotentialContract from "./compute-mantle-potential/contract.js";
 import ComputeMeshContract from "./compute-mesh/contract.js";
 import ComputePlateGraphContract from "./compute-plate-graph/contract.js";
 import ComputePlatesTensorsContract from "./compute-plates-tensors/contract.js";
@@ -7,6 +9,8 @@ import ComputeTectonicSegmentsContract from "./compute-tectonic-segments/contrac
 
 export const contracts = {
   computeMesh: ComputeMeshContract,
+  computeMantlePotential: ComputeMantlePotentialContract,
+  computeMantleForcing: ComputeMantleForcingContract,
   computeCrust: ComputeCrustContract,
   computePlateGraph: ComputePlateGraphContract,
   computeTectonicSegments: ComputeTectonicSegmentsContract,

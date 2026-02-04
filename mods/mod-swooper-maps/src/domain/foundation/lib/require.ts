@@ -1,5 +1,7 @@
 import type { FoundationMesh } from "../ops/compute-mesh/contract.js";
 import type { FoundationCrust } from "../ops/compute-crust/contract.js";
+import type { FoundationMantleForcing } from "../ops/compute-mantle-forcing/contract.js";
+import type { FoundationMantlePotential } from "../ops/compute-mantle-potential/contract.js";
 import type { FoundationPlateGraph } from "../ops/compute-plate-graph/contract.js";
 import type {
   FoundationTectonicHistory,
@@ -74,6 +76,76 @@ export function requireCrust(crust: FoundationCrust | undefined, cellCount: numb
   }
 
   return crust;
+}
+
+export function requireMantlePotential(
+  mantle: FoundationMantlePotential | undefined,
+  cellCount: number,
+  scope: string
+): FoundationMantlePotential {
+  if (!mantle) {
+    throw new Error(`[Foundation] MantlePotential not provided for ${scope}.`);
+  }
+
+  if ((mantle.cellCount | 0) !== cellCount) {
+    throw new Error(`[Foundation] Invalid mantlePotential.cellCount for ${scope}.`);
+  }
+  if (!(mantle.potential instanceof Float32Array) || mantle.potential.length !== cellCount) {
+    throw new Error(`[Foundation] Invalid mantlePotential.potential for ${scope}.`);
+  }
+
+  const sourceCount = mantle.sourceCount | 0;
+  if (sourceCount < 0) {
+    throw new Error(`[Foundation] Invalid mantlePotential.sourceCount for ${scope}.`);
+  }
+  if (!(mantle.sourceType instanceof Int8Array) || mantle.sourceType.length !== sourceCount) {
+    throw new Error(`[Foundation] Invalid mantlePotential.sourceType for ${scope}.`);
+  }
+  if (!(mantle.sourceCell instanceof Uint32Array) || mantle.sourceCell.length !== sourceCount) {
+    throw new Error(`[Foundation] Invalid mantlePotential.sourceCell for ${scope}.`);
+  }
+  if (!(mantle.sourceAmplitude instanceof Float32Array) || mantle.sourceAmplitude.length !== sourceCount) {
+    throw new Error(`[Foundation] Invalid mantlePotential.sourceAmplitude for ${scope}.`);
+  }
+  if (!(mantle.sourceRadius instanceof Float32Array) || mantle.sourceRadius.length !== sourceCount) {
+    throw new Error(`[Foundation] Invalid mantlePotential.sourceRadius for ${scope}.`);
+  }
+
+  return mantle;
+}
+
+export function requireMantleForcing(
+  forcing: FoundationMantleForcing | undefined,
+  cellCount: number,
+  scope: string
+): FoundationMantleForcing {
+  if (!forcing) {
+    throw new Error(`[Foundation] MantleForcing not provided for ${scope}.`);
+  }
+
+  if ((forcing.cellCount | 0) !== cellCount) {
+    throw new Error(`[Foundation] Invalid mantleForcing.cellCount for ${scope}.`);
+  }
+  if (!(forcing.stress instanceof Float32Array) || forcing.stress.length !== cellCount) {
+    throw new Error(`[Foundation] Invalid mantleForcing.stress for ${scope}.`);
+  }
+  if (!(forcing.forcingU instanceof Float32Array) || forcing.forcingU.length !== cellCount) {
+    throw new Error(`[Foundation] Invalid mantleForcing.forcingU for ${scope}.`);
+  }
+  if (!(forcing.forcingV instanceof Float32Array) || forcing.forcingV.length !== cellCount) {
+    throw new Error(`[Foundation] Invalid mantleForcing.forcingV for ${scope}.`);
+  }
+  if (!(forcing.forcingMag instanceof Float32Array) || forcing.forcingMag.length !== cellCount) {
+    throw new Error(`[Foundation] Invalid mantleForcing.forcingMag for ${scope}.`);
+  }
+  if (!(forcing.upwellingClass instanceof Int8Array) || forcing.upwellingClass.length !== cellCount) {
+    throw new Error(`[Foundation] Invalid mantleForcing.upwellingClass for ${scope}.`);
+  }
+  if (!(forcing.divergence instanceof Float32Array) || forcing.divergence.length !== cellCount) {
+    throw new Error(`[Foundation] Invalid mantleForcing.divergence for ${scope}.`);
+  }
+
+  return forcing;
 }
 
 export function requirePlateGraph(

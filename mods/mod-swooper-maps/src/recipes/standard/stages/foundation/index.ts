@@ -1,5 +1,15 @@
+import { clamp01, lerp } from "@swooper/mapgen-core";
 import { Type, createStage, type Static } from "@swooper/mapgen-core/authoring";
-import { crust, mesh, plateGraph, plateTopology, projection, tectonics } from "./steps/index.js";
+import {
+  crust,
+  mantleForcing,
+  mantlePotential,
+  mesh,
+  plateGraph,
+  plateTopology,
+  projection,
+  tectonics,
+} from "./steps/index.js";
 import {
   FoundationPlateActivityKnobSchema,
   FoundationPlateCountKnobSchema,
@@ -110,6 +120,13 @@ type CrustDefaults = Readonly<{
   riftWeakening01: number;
 }>;
 
+type MantleDefaults = Readonly<{
+  plumeCount: number;
+  downwellingCount: number;
+  radius: number;
+  amplitudeScale: number;
+}>;
+
 const COMMON_CRUST_BALANCED: CrustDefaults = {
   basalticThickness01: 0.25,
   yieldStrength01: 0.55,
@@ -124,6 +141,38 @@ const COMMON_CRUST_STANDARD: CrustDefaults = {
   riftWeakening01: 0.35,
 };
 
+const COMMON_MANTLE_DEFAULTS: MantleDefaults = {
+  plumeCount: 6,
+  downwellingCount: 6,
+  radius: 0.18,
+  amplitudeScale: 1,
+};
+
+const COMMON_MANTLE_POTENTIAL = {
+  smoothingIterations: 2,
+  smoothingAlpha: 0.35,
+  minSeparationScale: 0.85,
+} as const;
+
+const COMMON_MANTLE_FORCING = {
+  velocityScale: 1,
+  rotationScale: 0.2,
+  stressNorm: 1,
+  curvatureWeight: 0.35,
+  upwellingThreshold: 0.35,
+  downwellingThreshold: 0.35,
+} as const;
+
+const MANTLE_RADIUS_RANGE = {
+  min: 0.08,
+  max: 0.35,
+} as const;
+
+const MANTLE_AMPLITUDE_RANGE = {
+  min: 0.4,
+  max: 2.0,
+} as const;
+
 const FOUNDATION_PROFILE_DEFAULTS: Readonly<
   Record<
     ResolutionProfile,
@@ -136,6 +185,7 @@ const FOUNDATION_PROFILE_DEFAULTS: Readonly<
         plateScalePower: number;
       }>;
       crust: CrustDefaults;
+      mantle: MantleDefaults;
       plateGraph: Readonly<{ referenceArea: number; plateScalePower: number }>;
       projection: Readonly<{
         boundaryInfluenceDistance: number;
@@ -155,6 +205,7 @@ const FOUNDATION_PROFILE_DEFAULTS: Readonly<
       plateScalePower: 0.6,
     },
     crust: COMMON_CRUST_STANDARD,
+    mantle: COMMON_MANTLE_DEFAULTS,
     plateGraph: {
       referenceArea: 4000,
       plateScalePower: 0.6,
@@ -175,6 +226,7 @@ const FOUNDATION_PROFILE_DEFAULTS: Readonly<
       plateScalePower: 0.65,
     },
     crust: COMMON_CRUST_BALANCED,
+    mantle: COMMON_MANTLE_DEFAULTS,
     plateGraph: {
       referenceArea: 6996,
       plateScalePower: 0.65,
@@ -195,6 +247,7 @@ const FOUNDATION_PROFILE_DEFAULTS: Readonly<
       plateScalePower: 0.5,
     },
     crust: COMMON_CRUST_STANDARD,
+    mantle: COMMON_MANTLE_DEFAULTS,
     plateGraph: {
       referenceArea: 4000,
       plateScalePower: 0.5,
@@ -215,6 +268,7 @@ const FOUNDATION_PROFILE_DEFAULTS: Readonly<
       plateScalePower: 0.5,
     },
     crust: COMMON_CRUST_STANDARD,
+    mantle: COMMON_MANTLE_DEFAULTS,
     plateGraph: {
       referenceArea: 4000,
       plateScalePower: 0.5,
@@ -236,6 +290,8 @@ const DEFAULT_PROFILES = {
 
 const FOUNDATION_STEP_IDS = [
   "mesh",
+  "mantle-potential",
+  "mantle-forcing",
   "crust",
   "plate-graph",
   "tectonics",
@@ -288,6 +344,43 @@ export default createStage({
         ? (advanced as { lithosphere?: Record<string, unknown> }).lithosphere ?? {}
         : {};
 
+    const mantleOverrides =
+      advanced && typeof advanced === "object" && "mantleForcing" in advanced
+        ? (advanced as { mantleForcing?: Record<string, unknown> }).mantleForcing ?? {}
+        : {};
+    const mantleOverrideValues = mantleOverrides as {
+      plumeCount?: unknown;
+      downwellingCount?: unknown;
+      lengthScale01?: unknown;
+      potentialAmplitude01?: unknown;
+    };
+    const mantleLengthScale =
+      typeof mantleOverrideValues.lengthScale01 === "number"
+        ? clamp01(mantleOverrideValues.lengthScale01)
+        : undefined;
+    const mantleRadius =
+      mantleLengthScale !== undefined
+        ? lerp(MANTLE_RADIUS_RANGE.min, MANTLE_RADIUS_RANGE.max, mantleLengthScale)
+        : defaults.mantle.radius;
+    const mantleAmplitudeScale =
+      typeof mantleOverrideValues.potentialAmplitude01 === "number"
+        ? lerp(
+            MANTLE_AMPLITUDE_RANGE.min,
+            MANTLE_AMPLITUDE_RANGE.max,
+            clamp01(mantleOverrideValues.potentialAmplitude01)
+          )
+        : defaults.mantle.amplitudeScale;
+    const mantlePlumeCount = clampInt(
+      typeof mantleOverrideValues.plumeCount === "number" ? mantleOverrideValues.plumeCount : defaults.mantle.plumeCount,
+      { min: 2, max: 16 }
+    );
+    const mantleDownwellingCount = clampInt(
+      typeof mantleOverrideValues.downwellingCount === "number"
+        ? mantleOverrideValues.downwellingCount
+        : defaults.mantle.downwellingCount,
+      { min: 2, max: 16 }
+    );
+
     return {
       mesh: {
         computeMesh: {
@@ -299,6 +392,28 @@ export default createStage({
             referenceArea: defaults.mesh.referenceArea,
             plateScalePower: defaults.mesh.plateScalePower,
           },
+        },
+      },
+      "mantle-potential": {
+        computeMantlePotential: {
+          strategy: "default",
+          config: {
+            plumeCount: mantlePlumeCount,
+            downwellingCount: mantleDownwellingCount,
+            plumeRadius: mantleRadius,
+            downwellingRadius: mantleRadius,
+            plumeAmplitude: mantleAmplitudeScale,
+            downwellingAmplitude: -mantleAmplitudeScale,
+            smoothingIterations: COMMON_MANTLE_POTENTIAL.smoothingIterations,
+            smoothingAlpha: COMMON_MANTLE_POTENTIAL.smoothingAlpha,
+            minSeparationScale: COMMON_MANTLE_POTENTIAL.minSeparationScale,
+          },
+        },
+      },
+      "mantle-forcing": {
+        computeMantleForcing: {
+          strategy: "default",
+          config: COMMON_MANTLE_FORCING,
         },
       },
       crust: {
@@ -338,5 +453,5 @@ export default createStage({
       },
     };
   },
-  steps: [mesh, crust, plateGraph, tectonics, projection, plateTopology],
+  steps: [mesh, mantlePotential, mantleForcing, crust, plateGraph, tectonics, projection, plateTopology],
 } as const);
