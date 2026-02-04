@@ -4,6 +4,12 @@ export { createStage } from "./stage.js";
 export { createRecipe } from "./recipe.js";
 export { deriveRecipeConfigSchema } from "./recipe-config-schema.js";
 export { stripSchemaMetadataRoot } from "./sanitize-config-root.js";
+export {
+  RecipePresetDefinitionV1Schema,
+  StudioPresetExportFileV1Schema,
+  derivePresetLabel,
+  isPresetWrapper,
+} from "./preset-schemas.js";
 export { createDomain, defineDomain } from "./domain.js";
 export {
   bindCompileOps,
@@ -51,6 +57,7 @@ export type {
   Step,
   StepModule,
 } from "./types.js";
+export type { RecipePresetDefinitionV1, StudioPresetExportFileV1 } from "./preset-schemas.js";
 export type {
   ArtifactContract,
   ArtifactReadValueOf,
