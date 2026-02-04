@@ -416,3 +416,27 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 
 ### Cross-cutting Risks
 - Leaving legacy plate requirements in gameplay steps makes M1-016’s “new drivers only” cutover harder and increases the chance of silent regressions back to legacy inputs.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-016-cutover-morphology-new-drivers
+
+### Quick Take
+- `plotMountains` now requires history/provenance tiles only, and contract guards enforce that legacy plates are no longer referenced in belt synthesis.
+- Guard tests provide a hard “no legacy fallback” posture for belt drivers, aligning with the D07r cutover requirements.
+
+### High-Leverage Issues
+- None observed; belt synthesis is now gated on the new driver artifacts and legacy plate dependencies are actively banned.
+
+### PR Comment Context
+- No reviewer comments; Graphite/preview notices only.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- Track the remaining morphology steps that still consume legacy plates (coasts/islands/volcanoes) so future cleanup work doesn’t stall after belts are fully cut over.
+
+### Needs Discussion
+- Whether “cutover” should eventually include non-belt morphology steps in this milestone or remain deferred to a separate cleanup slice.
+
+### Cross-cutting Risks
+- Partial cutover (belts only) may create mixed semantics across morphology features unless the remaining plate-driven steps are explicitly scheduled for migration.
