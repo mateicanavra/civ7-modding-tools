@@ -433,6 +433,7 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 
 ### High-Leverage Issues
 - The cutover is intentionally narrow (belts/mountains). Any remaining morphology features that still accept legacy plates should be explicitly enumerated and scheduled, otherwise “partial cutover” becomes the new steady state.
+- None observed; belt synthesis is now gated on the new driver artifacts and legacy plate dependencies are actively banned.
 
 ### PR Comment Context
 - No reviewer comments; Graphite/preview notices only.
@@ -442,9 +443,11 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 
 ### Defer / Follow-up
 - Add a small “remaining legacy consumers” inventory (doc or test) to prevent silent reintroduction of legacy inputs.
+- Track the remaining morphology steps that still consume legacy plates (coasts/islands/volcanoes) so future cleanup work doesn’t stall after belts are fully cut over.
 
 ### Needs Discussion
 - Whether “no legacy fallback” should become a repo-wide invariant for M1+ (beyond morphology) once the stack merges.
+- Whether “cutover” should eventually include non-belt morphology steps in this milestone or remain deferred to a separate cleanup slice.
 
 ### Cross-cutting Risks
 - Partial cutover (belts only) may create mixed semantics across morphology features unless the remaining plate-driven steps are explicitly scheduled for migration.
