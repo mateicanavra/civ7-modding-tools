@@ -17,6 +17,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 - Follow-up (M1-021): Move causal shortcut definitions into recipe UI meta (avoid hardcoded dataTypeKeys in Studio) and consider a generic stage-authoring panel registry.
 - Follow-up (M1-022): Snap manual era selection to available `variantKey` eras (not just min/max) and normalize overlay era preferences to the actual variant keys to avoid UI/overlay mismatches.
 - Follow-up (M1-022): Move overlay suggestion mappings into recipe UI metadata or shared config to keep Studio agnostic of pipeline-specific keys.
+- Follow-up (M1-024): Enumerate and justify remaining `foundationArtifacts.plates` consumers in morphology (coasts/islands/volcanoes/ruggedCoasts), or migrate them to history/provenance-driven inputs.
 - Follow-up (M1-006): Event mechanics should consume `crust.strength` (no duplicated resistance computation) once M1-011 lands; currently strength feeds partitioning only.
 - Follow-up (M1-012): Enforce 5..8 era bounds in `tectonicHistoryTiles` validation and regenerate shipped preset configs so runtime artifacts match the bounded era loop.
 - Follow-up (M1-005): Foundation `advanced` (mantleForcing/lithosphere) is validated but not yet wired into step configs; ensure upcoming Foundation ops consume these inputs so the authoring surface is not inert.
