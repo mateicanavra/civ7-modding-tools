@@ -4,6 +4,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 
 ## Triage
 
+- Follow-up (M1-007): `potentialAmplitude01` is effectively canceled by post-generation normalization of mantle potential; decide whether to expose amplitude via forcing scale or remove/repurpose the knob to avoid inert authoring inputs.
 - Follow-up (M1-006): Event mechanics should consume `crust.strength` (no duplicated resistance computation) once M1-011 lands; currently strength feeds partitioning only.
 - Follow-up (M1-005): Foundation `advanced` (mantleForcing/lithosphere) is validated but not yet wired into step configs; ensure upcoming Foundation ops consume these inputs so the authoring surface is not inert.
 - Follow-up (M1-004): Expand fingerprint normalization to cover ArrayBuffer/Map/Set if future artifacts use them, to avoid silent data loss in determinism fingerprints.
