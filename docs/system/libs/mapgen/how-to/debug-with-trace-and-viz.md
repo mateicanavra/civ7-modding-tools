@@ -23,6 +23,7 @@ Routes to:
 - Observability reference: [`docs/system/libs/mapgen/reference/OBSERVABILITY.md`](/system/libs/mapgen/reference/OBSERVABILITY.md)
 - Visualization reference: [`docs/system/libs/mapgen/reference/VISUALIZATION.md`](/system/libs/mapgen/reference/VISUALIZATION.md)
 - Canonical viz doc (deck.gl): [`docs/system/libs/mapgen/pipeline-visualization-deckgl.md`](/system/libs/mapgen/pipeline-visualization-deckgl.md)
+- Dump-first diagnosis: [`docs/system/libs/mapgen/how-to/diagnose-with-viz-dumps.md`](/system/libs/mapgen/how-to/diagnose-with-viz-dumps.md)
 
 ## When to use
 

@@ -31,6 +31,11 @@
     "test": "bun test",
     "viz:foundation": "node ../../scripts/preflight/ensure-viz-runtime-deps.mjs && bun ./src/dev/viz/foundation-run.ts",
     "viz:standard": "node ../../scripts/preflight/ensure-viz-runtime-deps.mjs && bun ./src/dev/viz/standard-run.ts",
+    "diag:dump": "node ../../scripts/preflight/ensure-viz-runtime-deps.mjs && bun ./src/dev/diagnostics/run-standard-dump.ts",
+    "diag:analyze": "bun ./src/dev/diagnostics/analyze-dump.ts",
+    "diag:list": "bun ./src/dev/diagnostics/list-layers.ts",
+    "diag:diff": "bun ./src/dev/diagnostics/diff-layers.ts",
+    "diag:trace": "bun ./src/dev/diagnostics/extract-trace.ts",
     "deploy": "bun run build && bunx turbo run build --filter=@mateicanavra/civ7-cli && bun run --filter @mateicanavra/civ7-cli dev -- mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps"
   },
   "dependencies": {
