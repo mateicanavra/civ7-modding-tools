@@ -656,3 +656,29 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 
 ### Cross-cutting Risks
 - Leaving plate tensors in downstream morphology steps creates a backdoor for legacy-driver drift, weakening the “maximal realism” cutover guarantees.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-025-delete-dual-engine-shadow-compute-paths-after-suite-is-green
+
+### Quick Take
+- Projection now requires tectonic provenance and a guard test enforces that dependency, which is a meaningful contract hardening step.
+- The bulk of the diff is a MapGen Studio config-override refactor; the ticket’s core deliverable (removing shadow/dual compute paths and comparison layers) is not clearly implemented.
+
+### High-Leverage Issues
+- Acceptance criteria are not met: there is no removal of shadow/dual compute paths or comparison-only layers, and no “no shadow paths” guard beyond the provenance requirement.
+- The large Studio config override refactor is out-of-scope for a pipeline shadow-path cleanup and increases review surface area and regression risk without explicit justification.
+
+### PR Comment Context
+- No actionable review comments; Graphite/Railway bot notices only.
+- Final downstack scan for open PR comments (M1-022..M1-025) found no additional unresolved reviewer notes beyond the M1-022 comments already captured.
+
+### Fix Now (Recommended)
+- Either implement the actual shadow-path deletions (remove comparison-only emissions/toggles and add a dedicated “no dual-engine” guard) or split the Studio refactor into a separate PR and keep this one focused.
+
+### Defer / Follow-up
+- If the Studio refactor remains, add a focused UI regression check for schema-driven config overrides and document the intended replacement for the removed panels.
+
+### Needs Discussion
+- Is M1-025 intended to be a pipeline-only cleanup? If so, should the Studio refactor be moved to a separate milestone or issue?
+
+### Cross-cutting Risks
+- Leaving dual/compare paths in place undermines the “one authoritative spine” objective, and mixing in a large UI refactor makes it harder to verify the physics-first cutover.
