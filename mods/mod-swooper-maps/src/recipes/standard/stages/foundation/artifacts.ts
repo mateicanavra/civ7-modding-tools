@@ -2,9 +2,15 @@ import { TypedArraySchemas, Type, defineArtifact } from "@swooper/mapgen-core/au
 import {
   FOUNDATION_CRUST_ARTIFACT_TAG,
   FOUNDATION_CRUST_TILES_ARTIFACT_TAG,
+  FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG,
+  FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG,
   FOUNDATION_MESH_ARTIFACT_TAG,
+  FOUNDATION_PLATE_MOTION_ARTIFACT_TAG,
   FOUNDATION_PLATE_GRAPH_ARTIFACT_TAG,
   FOUNDATION_PLATES_ARTIFACT_TAG,
+  FOUNDATION_TECTONIC_HISTORY_TILES_ARTIFACT_TAG,
+  FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG,
+  FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG,
   FOUNDATION_TECTONICS_ARTIFACT_TAG,
   FOUNDATION_TILE_TO_CELL_INDEX_ARTIFACT_TAG,
 } from "@swooper/mapgen-core";
@@ -160,6 +166,71 @@ const FoundationTectonicHistoryArtifactSchema = Type.Object(
   { description: "Foundation tectonic history artifact payload (fixed-count eras + cumulative fields)." }
 );
 
+/** Foundation provenance scalars payload (per-cell, newest-era state). */
+const FoundationTectonicProvenanceScalarsSchema = Type.Object(
+  {
+    /** Era index of first appearance per mesh cell (0..eraCount-1). */
+    originEra: TypedArraySchemas.u8({
+      shape: null,
+      description: "Era index of first appearance per mesh cell (0..eraCount-1).",
+    }),
+    /** Origin plate id per mesh cell (plate id; -1 for unknown). */
+    originPlateId: TypedArraySchemas.i16({
+      shape: null,
+      description: "Origin plate id per mesh cell (plate id; -1 for unknown).",
+    }),
+    /** Era index of most recent boundary event per mesh cell (255 = none). */
+    lastBoundaryEra: TypedArraySchemas.u8({
+      shape: null,
+      description: "Era index of most recent boundary event per mesh cell (255 = none).",
+    }),
+    /** Boundary regime associated with lastBoundaryEra (BOUNDARY_TYPE; 255 = none). */
+    lastBoundaryType: TypedArraySchemas.u8({
+      shape: null,
+      description: "Boundary regime associated with lastBoundaryEra (BOUNDARY_TYPE; 255 = none).",
+    }),
+    /** Boundary polarity associated with lastBoundaryEra (-1, 0, +1). */
+    lastBoundaryPolarity: TypedArraySchemas.i8({
+      shape: null,
+      description: "Boundary polarity associated with lastBoundaryEra (-1, 0, +1).",
+    }),
+    /** Boundary intensity associated with lastBoundaryEra (0..255). */
+    lastBoundaryIntensity: TypedArraySchemas.u8({
+      shape: null,
+      description: "Boundary intensity associated with lastBoundaryEra (0..255).",
+    }),
+    /** Normalized crust age per mesh cell (0=new, 255=ancient). */
+    crustAge: TypedArraySchemas.u8({
+      shape: null,
+      description: "Normalized crust age per mesh cell (0=new, 255=ancient).",
+    }),
+  },
+  { description: "Foundation provenance scalars payload (per-cell, newest-era state)." }
+);
+
+/** Foundation tectonic provenance artifact payload (tracer history + scalars). */
+const FoundationTectonicProvenanceArtifactSchema = Type.Object(
+  {
+    /** Schema major version. */
+    version: Type.Integer({ minimum: 1, description: "Schema major version." }),
+    /** Number of eras included in the provenance payload. */
+    eraCount: Type.Integer({ minimum: 1, description: "Number of eras included in the provenance payload." }),
+    /** Number of mesh cells. */
+    cellCount: Type.Integer({ minimum: 1, description: "Number of mesh cells." }),
+    /** Per-era tracer indices (length = eraCount; each entry length = cellCount). */
+    tracerIndex: Type.Array(
+      TypedArraySchemas.u32({
+        shape: null,
+        description: "Tracer source cell index per mesh cell (length = cellCount).",
+      }),
+      { description: "Per-era tracer indices (length = eraCount; each entry length = cellCount)." }
+    ),
+    /** Provenance scalars (final state at newest era). */
+    provenance: FoundationTectonicProvenanceScalarsSchema,
+  },
+  { description: "Foundation tectonic provenance artifact payload (tracer history + scalars)." }
+);
+
 /** Foundation plates artifact payload (tile-space plate tensors). */
 const FoundationPlatesArtifactSchema = Type.Object(
   {
@@ -213,6 +284,143 @@ const FoundationMeshArtifactSchema = Type.Object(
     bbox: BoundingBoxSchema,
   },
   { description: "Foundation mesh artifact payload (cells + adjacency + site coordinates)." }
+);
+
+/** Foundation mantle potential artifact payload (mesh-space forcing potential). */
+const FoundationMantlePotentialArtifactSchema = Type.Object(
+  {
+    /** Schema major version. */
+    version: Type.Integer({ minimum: 1, description: "Schema major version." }),
+    /** Number of mesh cells. */
+    cellCount: Type.Integer({ minimum: 1, description: "Number of mesh cells." }),
+    /** Mantle potential per mesh cell (normalized -1..1). */
+    potential: TypedArraySchemas.f32({
+      shape: null,
+      description: "Mantle potential per mesh cell (normalized -1..1).",
+    }),
+    /** Number of mantle sources. */
+    sourceCount: Type.Integer({ minimum: 0, description: "Number of mantle sources." }),
+    /** Source type per source (+1 upwelling, -1 downwelling). */
+    sourceType: TypedArraySchemas.i8({
+      shape: null,
+      description: "Source type per source (+1 upwelling, -1 downwelling).",
+    }),
+    /** Source mesh cell index per source. */
+    sourceCell: TypedArraySchemas.u32({
+      shape: null,
+      description: "Source mesh cell index per source.",
+    }),
+    /** Source amplitude per source (signed). */
+    sourceAmplitude: TypedArraySchemas.f32({
+      shape: null,
+      description: "Source amplitude per source (signed).",
+    }),
+    /** Source radius per source (mesh-distance units). */
+    sourceRadius: TypedArraySchemas.f32({
+      shape: null,
+      description: "Source radius per source (mesh-distance units).",
+    }),
+  },
+  { description: "Foundation mantle potential artifact payload (mesh-space forcing potential)." }
+);
+
+/** Foundation mantle forcing artifact payload (derived stress/velocity fields). */
+const FoundationMantleForcingArtifactSchema = Type.Object(
+  {
+    /** Schema major version. */
+    version: Type.Integer({ minimum: 1, description: "Schema major version." }),
+    /** Number of mesh cells. */
+    cellCount: Type.Integer({ minimum: 1, description: "Number of mesh cells." }),
+    /** Stress proxy per mesh cell (normalized 0..1). */
+    stress: TypedArraySchemas.f32({
+      shape: null,
+      description: "Stress proxy per mesh cell (normalized 0..1).",
+    }),
+    /** Forcing velocity X component per mesh cell. */
+    forcingU: TypedArraySchemas.f32({
+      shape: null,
+      description: "Forcing velocity X component per mesh cell.",
+    }),
+    /** Forcing velocity Y component per mesh cell. */
+    forcingV: TypedArraySchemas.f32({
+      shape: null,
+      description: "Forcing velocity Y component per mesh cell.",
+    }),
+    /** Forcing magnitude per mesh cell (normalized 0..1). */
+    forcingMag: TypedArraySchemas.f32({
+      shape: null,
+      description: "Forcing magnitude per mesh cell (normalized 0..1).",
+    }),
+    /** Upwelling classification per mesh cell (+1 upwelling, -1 downwelling, 0 neutral). */
+    upwellingClass: TypedArraySchemas.i8({
+      shape: null,
+      description: "Upwelling classification per mesh cell (+1 upwelling, -1 downwelling, 0 neutral).",
+    }),
+    /** Divergence per mesh cell (normalized -1..1). */
+    divergence: TypedArraySchemas.f32({
+      shape: null,
+      description: "Divergence per mesh cell (normalized -1..1).",
+    }),
+  },
+  { description: "Foundation mantle forcing artifact payload (derived stress/velocity fields)." }
+);
+
+/** Foundation plate motion artifact payload (mantle-derived rigid kinematics). */
+const FoundationPlateMotionArtifactSchema = Type.Object(
+  {
+    /** Schema major version. */
+    version: Type.Integer({ minimum: 1, description: "Schema major version." }),
+    /** Number of mesh cells. */
+    cellCount: Type.Integer({ minimum: 1, description: "Number of mesh cells." }),
+    /** Number of plates. */
+    plateCount: Type.Integer({ minimum: 1, description: "Number of plates." }),
+    /** Plate rotation center X coordinate per plate (mesh space, unwrapped). */
+    plateCenterX: TypedArraySchemas.f32({
+      shape: null,
+      description: "Plate rotation center X coordinate per plate (mesh space, unwrapped).",
+    }),
+    /** Plate rotation center Y coordinate per plate (mesh space, unwrapped). */
+    plateCenterY: TypedArraySchemas.f32({
+      shape: null,
+      description: "Plate rotation center Y coordinate per plate (mesh space, unwrapped).",
+    }),
+    /** Plate translation X component per plate. */
+    plateVelocityX: TypedArraySchemas.f32({
+      shape: null,
+      description: "Plate translation X component per plate.",
+    }),
+    /** Plate translation Y component per plate. */
+    plateVelocityY: TypedArraySchemas.f32({
+      shape: null,
+      description: "Plate translation Y component per plate.",
+    }),
+    /** Plate angular velocity per plate. */
+    plateOmega: TypedArraySchemas.f32({
+      shape: null,
+      description: "Plate angular velocity per plate.",
+    }),
+    /** RMS fit error per plate (mesh-space residual magnitude). */
+    plateFitRms: TypedArraySchemas.f32({
+      shape: null,
+      description: "RMS fit error per plate (mesh-space residual magnitude).",
+    }),
+    /** P90 fit error per plate (mesh-space residual magnitude). */
+    plateFitP90: TypedArraySchemas.f32({
+      shape: null,
+      description: "P90 fit error per plate (mesh-space residual magnitude).",
+    }),
+    /** Plate fit quality scalar per plate (0..255). */
+    plateQuality: TypedArraySchemas.u8({
+      shape: null,
+      description: "Plate fit quality scalar per plate (0..255).",
+    }),
+    /** Per-cell fit residual (normalized 0..255). */
+    cellFitError: TypedArraySchemas.u8({
+      shape: null,
+      description: "Per-cell fit residual (normalized 0..255).",
+    }),
+  },
+  { description: "Foundation plate motion artifact payload (mantle-derived rigid kinematics)." }
 );
 
 /** Foundation crust artifact payload (mesh-space crust driver tensors). */
@@ -285,6 +493,90 @@ const FoundationCrustTilesArtifactSchema = Type.Object(
   { description: "Foundation crust tiles artifact payload (tile-space crust driver tensors)." }
 );
 
+/** Foundation tectonic history tiles era payload (tile-space era fields). */
+const FoundationTectonicHistoryTilesEraArtifactSchema = Type.Object(
+  {
+    /** Boundary type per tile (BOUNDARY_TYPE values). */
+    boundaryType: TypedArraySchemas.u8({ description: "Boundary type per tile (BOUNDARY_TYPE values)." }),
+    /** Convergent mask per tile (0/1). */
+    convergentMask: TypedArraySchemas.u8({ description: "Convergent mask per tile (0/1)." }),
+    /** Divergent mask per tile (0/1). */
+    divergentMask: TypedArraySchemas.u8({ description: "Divergent mask per tile (0/1)." }),
+    /** Transform mask per tile (0/1). */
+    transformMask: TypedArraySchemas.u8({ description: "Transform mask per tile (0/1)." }),
+    /** Uplift potential per tile (0..255). */
+    upliftPotential: TypedArraySchemas.u8({ description: "Uplift potential per tile (0..255)." }),
+    /** Rift potential per tile (0..255). */
+    riftPotential: TypedArraySchemas.u8({ description: "Rift potential per tile (0..255)." }),
+    /** Shear stress per tile (0..255). */
+    shearStress: TypedArraySchemas.u8({ description: "Shear stress per tile (0..255)." }),
+    /** Volcanism per tile (0..255). */
+    volcanism: TypedArraySchemas.u8({ description: "Volcanism per tile (0..255)." }),
+    /** Fracture potential per tile (0..255). */
+    fracture: TypedArraySchemas.u8({ description: "Fracture potential per tile (0..255)." }),
+  },
+  { description: "Foundation tectonic history tiles era payload (tile-space era fields)." }
+);
+
+/** Foundation tectonic history tiles rollup payload (tile-space rollups). */
+const FoundationTectonicHistoryTilesRollupArtifactSchema = Type.Object(
+  {
+    /** Accumulated uplift total per tile (0..255). */
+    upliftTotal: TypedArraySchemas.u8({ description: "Accumulated uplift total per tile (0..255)." }),
+    /** Accumulated fracture total per tile (0..255). */
+    fractureTotal: TypedArraySchemas.u8({ description: "Accumulated fracture total per tile (0..255)." }),
+    /** Accumulated volcanism total per tile (0..255). */
+    volcanismTotal: TypedArraySchemas.u8({ description: "Accumulated volcanism total per tile (0..255)." }),
+    /** Fraction of uplift attributable to recent eras per tile (0..255). */
+    upliftRecentFraction: TypedArraySchemas.u8({
+      description: "Fraction of uplift attributable to recent eras per tile (0..255).",
+    }),
+    /** Last active era index per tile (0..255; 255 = never). */
+    lastActiveEra: TypedArraySchemas.u8({ description: "Last active era index per tile (0..255; 255 = never)." }),
+  },
+  { description: "Foundation tectonic history tiles rollup payload (tile-space rollups)." }
+);
+
+/** Foundation tectonic history tiles artifact payload (tile-space era fields + rollups). */
+const FoundationTectonicHistoryTilesArtifactSchema = Type.Object(
+  {
+    /** Schema major version. */
+    version: Type.Integer({ minimum: 1, description: "Schema major version." }),
+    /** Number of eras included in the history tiles payload. */
+    eraCount: Type.Integer({ minimum: 1, description: "Number of eras included in the history tiles payload." }),
+    /** Per-era tile fields (length = eraCount). */
+    perEra: Type.Array(FoundationTectonicHistoryTilesEraArtifactSchema, {
+      description: "Per-era tile fields (length = eraCount).",
+    }),
+    /** Rollup fields across eras. */
+    rollups: FoundationTectonicHistoryTilesRollupArtifactSchema,
+  },
+  { description: "Foundation tectonic history tiles artifact payload (tile-space era fields + rollups)." }
+);
+
+/** Foundation tectonic provenance tiles artifact payload (tile-space provenance scalars). */
+const FoundationTectonicProvenanceTilesArtifactSchema = Type.Object(
+  {
+    /** Schema major version. */
+    version: Type.Integer({ minimum: 1, description: "Schema major version." }),
+    /** Era index of first appearance per tile (0..eraCount-1). */
+    originEra: TypedArraySchemas.u8({ description: "Era index of first appearance per tile (0..eraCount-1)." }),
+    /** Origin plate id per tile (plate id; -1 for unknown). */
+    originPlateId: TypedArraySchemas.i16({ description: "Origin plate id per tile (plate id; -1 for unknown)." }),
+    /** Drift distance bucket per tile (0..255). */
+    driftDistance: TypedArraySchemas.u8({ description: "Drift distance bucket per tile (0..255)." }),
+    /** Era index of most recent boundary event per tile (255 = none). */
+    lastBoundaryEra: TypedArraySchemas.u8({
+      description: "Era index of most recent boundary event per tile (255 = none).",
+    }),
+    /** Boundary regime associated with lastBoundaryEra (BOUNDARY_TYPE; 255 = none). */
+    lastBoundaryType: TypedArraySchemas.u8({
+      description: "Boundary regime associated with lastBoundaryEra (BOUNDARY_TYPE; 255 = none).",
+    }),
+  },
+  { description: "Foundation tectonic provenance tiles artifact payload (tile-space provenance scalars)." }
+);
+
 /** Foundation plate graph artifact payload (mesh-space plate assignment + metadata). */
 const FoundationPlateGraphArtifactSchema = Type.Object(
   {
@@ -344,10 +636,25 @@ export const foundationArtifacts = {
     id: FOUNDATION_MESH_ARTIFACT_TAG,
     schema: FoundationMeshArtifactSchema,
   }),
+  mantlePotential: defineArtifact({
+    name: "foundationMantlePotential",
+    id: FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG,
+    schema: FoundationMantlePotentialArtifactSchema,
+  }),
+  mantleForcing: defineArtifact({
+    name: "foundationMantleForcing",
+    id: FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG,
+    schema: FoundationMantleForcingArtifactSchema,
+  }),
   crust: defineArtifact({
     name: "foundationCrust",
     id: FOUNDATION_CRUST_ARTIFACT_TAG,
     schema: FoundationCrustArtifactSchema,
+  }),
+  plateMotion: defineArtifact({
+    name: "foundationPlateMotion",
+    id: FOUNDATION_PLATE_MOTION_ARTIFACT_TAG,
+    schema: FoundationPlateMotionArtifactSchema,
   }),
   tileToCellIndex: defineArtifact({
     name: "foundationTileToCellIndex",
@@ -358,6 +665,16 @@ export const foundationArtifacts = {
     name: "foundationCrustTiles",
     id: FOUNDATION_CRUST_TILES_ARTIFACT_TAG,
     schema: FoundationCrustTilesArtifactSchema,
+  }),
+  tectonicHistoryTiles: defineArtifact({
+    name: "foundationTectonicHistoryTiles",
+    id: FOUNDATION_TECTONIC_HISTORY_TILES_ARTIFACT_TAG,
+    schema: FoundationTectonicHistoryTilesArtifactSchema,
+  }),
+  tectonicProvenanceTiles: defineArtifact({
+    name: "foundationTectonicProvenanceTiles",
+    id: FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG,
+    schema: FoundationTectonicProvenanceTilesArtifactSchema,
   }),
   plateGraph: defineArtifact({
     name: "foundationPlateGraph",
@@ -373,6 +690,11 @@ export const foundationArtifacts = {
     name: "foundationTectonicHistory",
     id: FOUNDATION_TECTONIC_HISTORY_ARTIFACT_TAG,
     schema: FoundationTectonicHistoryArtifactSchema,
+  }),
+  tectonicProvenance: defineArtifact({
+    name: "foundationTectonicProvenance",
+    id: FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG,
+    schema: FoundationTectonicProvenanceArtifactSchema,
   }),
   plateTopology: defineArtifact({
     name: "foundationPlateTopology",

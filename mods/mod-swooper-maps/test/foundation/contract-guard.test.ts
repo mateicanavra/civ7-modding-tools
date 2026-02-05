@@ -2,6 +2,15 @@ import { describe, expect, it } from "bun:test";
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
+import {
+  FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG,
+  FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG,
+  FOUNDATION_PLATE_MOTION_ARTIFACT_TAG,
+  FOUNDATION_TECTONIC_HISTORY_TILES_ARTIFACT_TAG,
+  FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG,
+  FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG,
+} from "@swooper/mapgen-core";
+import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
 
 function listFilesRecursive(rootDir: string): string[] {
   const out: string[] = [];
@@ -86,5 +95,16 @@ describe("foundation contract guardrails", () => {
       expect(text).not.toContain("polarBandFraction");
       expect(text).not.toContain("polarBoundary");
     }
+  });
+
+  it("publishes maximal foundation artifact ids via contracts", () => {
+    expect(foundationArtifacts.mantlePotential.id).toBe(FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG);
+    expect(foundationArtifacts.mantleForcing.id).toBe(FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG);
+    expect(foundationArtifacts.plateMotion.id).toBe(FOUNDATION_PLATE_MOTION_ARTIFACT_TAG);
+    expect(foundationArtifacts.tectonicProvenance.id).toBe(FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG);
+    expect(foundationArtifacts.tectonicHistoryTiles.id).toBe(FOUNDATION_TECTONIC_HISTORY_TILES_ARTIFACT_TAG);
+    expect(foundationArtifacts.tectonicProvenanceTiles.id).toBe(
+      FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG
+    );
   });
 });

@@ -40,6 +40,8 @@ export const TypedArraySchemas = Object.freeze({
     unsafe<Int8Array>("Int8Array", options),
   u16: (options?: TypedArraySchemaOptions): TUnsafe<Uint16Array> =>
     unsafe<Uint16Array>("Uint16Array", options),
+  u32: (options?: TypedArraySchemaOptions): TUnsafe<Uint32Array> =>
+    unsafe<Uint32Array>("Uint32Array", options),
   i16: (options?: TypedArraySchemaOptions): TUnsafe<Int16Array> =>
     unsafe<Int16Array>("Int16Array", options),
   i32: (options?: TypedArraySchemaOptions): TUnsafe<Int32Array> =>

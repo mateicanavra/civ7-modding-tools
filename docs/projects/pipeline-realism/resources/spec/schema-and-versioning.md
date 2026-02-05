@@ -22,6 +22,19 @@ Where “public” means:
 - consumed by visualization as part of the authoring loop, or
 - listed in `docs/projects/pipeline-realism/resources/spec/artifact-catalog.md`.
 
+#### M1 Foundation artifacts (versioned now)
+
+The following new Foundation artifacts introduced in M1 MUST carry `version: 1` at top level:
+
+- `artifact:foundation.mantlePotential`
+- `artifact:foundation.mantleForcing`
+- `artifact:foundation.plateMotion`
+- `artifact:foundation.tectonicProvenance`
+- `artifact:foundation.tectonicHistoryTiles`
+- `artifact:foundation.tectonicProvenanceTiles`
+
+Legacy artifacts without explicit `version` fields remain unchanged until their owning issues upgrade the schema and producers in lockstep.
+
 ### Change taxonomy
 
 1. **Breaking change** (shape OR meaning)
@@ -72,4 +85,3 @@ Normative sources:
 - Validation gates: `docs/projects/pipeline-realism/resources/spec/sections/validation-and-observability.md`
 
 Any artifact schema change MUST update all three where relevant.
-

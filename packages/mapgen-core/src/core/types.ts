@@ -157,11 +157,18 @@ export interface FoundationPlateFields {
 
 export const FOUNDATION_PLATES_ARTIFACT_TAG = "artifact:foundation.plates";
 export const FOUNDATION_MESH_ARTIFACT_TAG = "artifact:foundation.mesh";
+export const FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG = "artifact:foundation.mantlePotential";
+export const FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG = "artifact:foundation.mantleForcing";
 export const FOUNDATION_CRUST_ARTIFACT_TAG = "artifact:foundation.crust";
+export const FOUNDATION_PLATE_MOTION_ARTIFACT_TAG = "artifact:foundation.plateMotion";
 export const FOUNDATION_PLATE_GRAPH_ARTIFACT_TAG = "artifact:foundation.plateGraph";
 export const FOUNDATION_TECTONICS_ARTIFACT_TAG = "artifact:foundation.tectonics";
+export const FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG = "artifact:foundation.tectonicProvenance";
 export const FOUNDATION_TILE_TO_CELL_INDEX_ARTIFACT_TAG = "artifact:foundation.tileToCellIndex";
 export const FOUNDATION_CRUST_TILES_ARTIFACT_TAG = "artifact:foundation.crustTiles";
+export const FOUNDATION_TECTONIC_HISTORY_TILES_ARTIFACT_TAG = "artifact:foundation.tectonicHistoryTiles";
+export const FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG =
+  "artifact:foundation.tectonicProvenanceTiles";
 
 /**
  * Store of published artifacts keyed by dependency tag id.

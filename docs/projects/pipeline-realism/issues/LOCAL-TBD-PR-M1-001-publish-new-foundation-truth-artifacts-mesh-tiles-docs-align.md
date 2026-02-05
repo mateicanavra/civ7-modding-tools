@@ -97,6 +97,11 @@ Implementation is expected to touch (non-exhaustive, but the “main highways”
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/*.contract.ts` (requires/provides lists; if step ownership changes)
 - `docs/projects/pipeline-realism/resources/spec/artifact-catalog.md` (normative artifact entries)
 
+## Implementation Decisions
+
+- **Plate motion artifact naming:** `artifact:foundation.plateMotion` is the canonical ID (per milestone + artifact catalog). The schema mirrors the `plateKinematics` contract defined in `docs/projects/pipeline-realism/resources/spec/sections/plate-motion.md`; `plateKinematics` remains a schema concept, not a separate artifact id.
+- **Versioned payloads for new artifacts:** new maximal artifacts introduced here carry `version: 1` at top level; legacy artifacts without explicit `version` remain unchanged until their owning issues upgrade producers.
+
 ### Pitfalls / Rakes
 
 - “We implemented the algorithm but forgot the contract surface”: new arrays exist but are not published as artifacts, so consumers can’t rely on them.

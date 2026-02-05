@@ -58,20 +58,26 @@ FOUNDATION provides the following artifact dependency tags (all `artifact:*`).
 
 **Truth artifacts (mesh space)**
 - `artifact:foundation.mesh`
+- `artifact:foundation.mantlePotential`
+- `artifact:foundation.mantleForcing`
 - `artifact:foundation.crust`
+- `artifact:foundation.plateMotion`
 - `artifact:foundation.plateGraph`
 - `artifact:foundation.tectonicSegments`
 - `artifact:foundation.tectonicHistory`
+- `artifact:foundation.tectonicProvenance`
 - `artifact:foundation.tectonics`
 
 **Projection artifacts (tile space or derived from tile projections)**
 - `artifact:foundation.tileToCellIndex`
 - `artifact:foundation.crustTiles`
+- `artifact:foundation.tectonicHistoryTiles`
+- `artifact:foundation.tectonicProvenanceTiles`
 - `artifact:foundation.plates`
 - `artifact:foundation.plateTopology`
 
 **Ground truth anchors**
-- `packages/mapgen-core/src/core/types.ts` (`FOUNDATION_MESH_ARTIFACT_TAG`, `FOUNDATION_CRUST_ARTIFACT_TAG`, `FOUNDATION_PLATE_GRAPH_ARTIFACT_TAG`, `FOUNDATION_TECTONICS_ARTIFACT_TAG`, `FOUNDATION_TILE_TO_CELL_INDEX_ARTIFACT_TAG`, `FOUNDATION_CRUST_TILES_ARTIFACT_TAG`, `FOUNDATION_PLATES_ARTIFACT_TAG`)
+- `packages/mapgen-core/src/core/types.ts` (`FOUNDATION_MESH_ARTIFACT_TAG`, `FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG`, `FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG`, `FOUNDATION_CRUST_ARTIFACT_TAG`, `FOUNDATION_PLATE_MOTION_ARTIFACT_TAG`, `FOUNDATION_PLATE_GRAPH_ARTIFACT_TAG`, `FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG`, `FOUNDATION_TECTONICS_ARTIFACT_TAG`, `FOUNDATION_TILE_TO_CELL_INDEX_ARTIFACT_TAG`, `FOUNDATION_CRUST_TILES_ARTIFACT_TAG`, `FOUNDATION_TECTONIC_HISTORY_TILES_ARTIFACT_TAG`, `FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG`, `FOUNDATION_PLATES_ARTIFACT_TAG`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (`FOUNDATION_TECTONIC_SEGMENTS_ARTIFACT_TAG`, `FOUNDATION_TECTONIC_HISTORY_ARTIFACT_TAG`, `FOUNDATION_PLATE_TOPOLOGY_ARTIFACT_TAG`, `foundationArtifacts`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/mesh.contract.ts` (`MeshStepContract.artifacts.provides`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/crust.contract.ts` (`CrustStepContract.artifacts.requires/provides`)
@@ -112,6 +118,34 @@ Shape highlights:
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mesh/index.ts` (`computeMesh`, call to `buildDelaunayMesh`)
 - `packages/mapgen-core/src/lib/mesh/delaunay.ts` (`buildDelaunayMesh`, `DelaunayMesh`)
 
+### `artifact:foundation.mantlePotential` (truth; mesh space)
+
+Canonical mantle forcing potential field. This is the first “physics” truth surface and the source for all downstream forcing and kinematics.
+
+Shape highlights:
+- `cellCount`: number of mesh cells
+- `potential`: per-cell potential (normalized `-1..1`)
+- `sourceType`, `sourceCell`, `sourceAmplitude`, `sourceRadius`: low-order mantle sources
+
+**Ground truth anchors**
+- `docs/projects/pipeline-realism/resources/spec/sections/mantle-forcing.md` (schema + derivation rules)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (`FoundationMantlePotentialArtifactSchema`)
+
+### `artifact:foundation.mantleForcing` (truth; mesh space)
+
+Derived mantle stress + forcing vector field. This is the canonical driver for plate motion, regime classification, and event emission.
+
+Shape highlights:
+- `stress`: per-cell stress proxy (`0..1`)
+- `forcingU`, `forcingV`: per-cell forcing velocity components
+- `forcingMag`: per-cell forcing magnitude (`0..1`)
+- `upwellingClass`: per-cell `+1/-1/0` classification
+- `divergence`: per-cell divergence (`-1..1`)
+
+**Ground truth anchors**
+- `docs/projects/pipeline-realism/resources/spec/sections/mantle-forcing.md` (schema + derivation rules)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (`FoundationMantleForcingArtifactSchema`)
+
 ### `artifact:foundation.crust` (truth; mesh space)
 
 Per-mesh-cell lithosphere driver tensors.
@@ -126,6 +160,24 @@ Shape highlights (all per mesh cell):
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/contract.ts` (`FoundationCrustSchema`, `ComputeCrustContract`)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts` (`computeCrust`)
+
+### `artifact:foundation.plateMotion` (truth; mesh space)
+
+Mantle-derived rigid plate kinematics (translation + rotation) with fit residual diagnostics.
+
+Shape highlights:
+- `plateCenterX`, `plateCenterY`: rotation center per plate (mesh space, unwrapped)
+- `plateVelocityX`, `plateVelocityY`: translation per plate
+- `plateOmega`: angular velocity per plate
+- `plateFitRms`, `plateFitP90`, `plateQuality`: fit diagnostics per plate
+- `cellFitError`: per-cell residual (`0..255`)
+
+Mapping notes:
+- `plateGraph.plates[].velocityX/Y` and `.rotation` are derived from `plateMotion`.
+
+**Ground truth anchors**
+- `docs/projects/pipeline-realism/resources/spec/sections/plate-motion.md` (schema + derivation rules)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (`FoundationPlateMotionArtifactSchema`)
 
 ### `artifact:foundation.plateGraph` (truth; mesh space)
 
@@ -169,6 +221,18 @@ Key fields:
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts` (`computeTectonicHistory`, `buildEraFields`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/validation.ts` (`validateTectonicHistoryArtifact`, `eraCount !== 3` guard)
 
+### `artifact:foundation.tectonicProvenance` (truth; mesh space)
+
+Per-cell tracer history and provenance scalars across eras. This is the Lagrangian companion to `tectonicHistory`.
+
+Shape highlights:
+- `tracerIndex[era][cell]`: source cell index history
+- `provenance.originEra`, `originPlateId`, `lastBoundaryEra/Type/Polarity/Intensity`, `crustAge`
+
+**Ground truth anchors**
+- `docs/projects/pipeline-realism/resources/spec/sections/history-and-provenance.md` (schema + invariants)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (`FoundationTectonicProvenanceArtifactSchema`)
+
 ### `artifact:foundation.tectonics` (truth; mesh space)
 
 The “current drivers” tensor set used by downstream shaping. Includes a cumulative uplift channel intended to be the stable “total orogeny opportunity” signal.
@@ -197,6 +261,33 @@ Per-tile crust drivers sampled via `tileToCellIndex`.
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/contract.ts` (`CrustTilesSchema`)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts` (crust sampling loop)
+
+### `artifact:foundation.tectonicHistoryTiles` (projection; tile space)
+
+Tile-space projection of per-era tectonic history fields and rollups. This is the primary Morphology-era driver surface.
+
+Shape highlights:
+- `perEra[]`: per-era boundary/regime + force tensors (tile space)
+- `rollups`: uplift/volcanism/fracture totals + `lastActiveEra`
+
+**Ground truth anchors**
+- `docs/projects/pipeline-realism/resources/spec/sections/morphology-contract.md` (tile contract)
+- `docs/projects/pipeline-realism/resources/spec/sections/history-and-provenance.md` (mesh truth → projection posture)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (`FoundationTectonicHistoryTilesArtifactSchema`)
+
+### `artifact:foundation.tectonicProvenanceTiles` (projection; tile space)
+
+Tile-space projection of provenance/tracer scalars (origin era/plate, drift distance, last boundary signals).
+
+Shape highlights:
+- `originEra`, `originPlateId`: dominant material origin
+- `driftDistance`: provenance travel proxy
+- `lastBoundaryEra`, `lastBoundaryType`: most recent boundary activity
+
+**Ground truth anchors**
+- `docs/projects/pipeline-realism/resources/spec/sections/morphology-contract.md` (tile contract)
+- `docs/projects/pipeline-realism/resources/spec/sections/history-and-provenance.md` (mesh truth → projection posture)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (`FoundationTectonicProvenanceTilesArtifactSchema`)
 
 ### `artifact:foundation.plates` (projection; tile space)
 
