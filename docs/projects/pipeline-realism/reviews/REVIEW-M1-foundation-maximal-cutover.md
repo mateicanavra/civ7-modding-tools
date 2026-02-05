@@ -404,18 +404,23 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 
 ### High-Leverage Issues
 - The belt synthesis pipeline still has coupled knobs (continuity + diffusion + intensity gates). Without a consolidated “parameter intent” doc, future tuning risks becoming output-sculpting rather than physics-first posture.
+- `plotMountains.contract` still requires `foundationArtifacts.plates` even though the step no longer uses them, keeping a legacy dependency that undercuts the cutover posture.
 
 ### PR Comment Context
 - No reviewer comments; Graphite/preview notices only.
 
 ### Fix Now (Recommended)
 - None.
+- Remove the unused `foundationArtifacts.plates` requirement from `plotMountains.contract` (or reintroduce intentional usage) so the belt pipeline is fully driven by history/provenance inputs.
 
 ### Defer / Follow-up
 - Consider lifting belt synthesis tuning + rationale into a single morphology doc so “maximal realism” posture is explicit and doesn’t drift into ad-hoc tuning.
+- Align belt synthesis tests with the D04r 5-era budget (current fixtures use `eraCount=3`) to avoid under-testing the era-weighting logic.
+- Consider enforcing 5..8 era bounds for belt driver derivation to keep Morphology aligned with the bounded history/provenance contract.
 
 ### Needs Discussion
 - Whether belt synthesis should expose diagnostics for “age diffusion vs continuity fill” contributions to make tuning explainable.
+- When (if ever) to upgrade to anisotropic diffusion once a tangent field exists, and how to stage that without breaking current correlation gates.
 
 ### Cross-cutting Risks
 - Leaving legacy plate requirements in gameplay steps makes M1-016’s “new drivers only” cutover harder and increases the chance of silent regressions back to legacy inputs.
