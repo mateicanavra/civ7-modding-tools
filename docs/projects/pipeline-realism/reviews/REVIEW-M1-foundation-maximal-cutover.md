@@ -631,3 +631,28 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 
 ### Cross-cutting Risks
 - Leaving legacy motion fields in contracts invites future accidental re-binding to non-physics motion, which undermines the physics-first objective.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-024-delete-legacy-morphology-belt-driver-paths-and-bridge-artifa
+
+### Quick Take
+- Removed the legacy landmass-plates step and dual-read diagnostics, and added contract guards that enforce history/provenance tiles for belt synthesis.
+- This completes the belt-driver cutover, but other morphology steps still depend on `foundationArtifacts.plates` without explicit justification.
+
+### High-Leverage Issues
+- `foundationArtifacts.plates` is still required by morphology steps like rugged coasts, islands, and volcanoes. If those dependencies are still intended, they should be explicitly documented as non-belt uses; otherwise the “no legacy plates” posture is incomplete.
+- The contract guard only asserts `plotMountains` drops `foundationArtifacts.plates`; there is no guard to prevent other morphology steps from reintroducing plate tensors into belt planning or adjacent flows.
+
+### PR Comment Context
+- No actionable review comments; Graphite/Railway bot notices only.
+
+### Fix Now (Recommended)
+- Add a guard (or explicit documentation) that enumerates allowed plate-tensor consumers in morphology, and remove `foundationArtifacts.plates` from any steps that are now supposed to be driver-only.
+
+### Defer / Follow-up
+- Decide whether coasts/islands/volcanoes should migrate to a new derived surface (e.g., plate topology/tectonic history) instead of plate tensors, and plan the migration if so.
+
+### Needs Discussion
+- Are plate tensors still a valid input for non-belt morphology steps, or should the pipeline fully converge on history/provenance-derived inputs?
+
+### Cross-cutting Risks
+- Leaving plate tensors in downstream morphology steps creates a backdoor for legacy-driver drift, weakening the “maximal realism” cutover guarantees.
