@@ -272,3 +272,73 @@ reviewer: AI agent
 
 ### Cross-cutting Risks
 - Without a crust mutation path, Morphology can still be driven by “force corridors” without any material change, undermining the physics-first objective and making later invariants ambiguous.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-012-era-loop-field-emission-budgets-d04r-eulerian-outputs
+
+### Quick Take
+- D04r era loop now enforces 5–8 bounded eras with fixed per-era weights/steps and deterministic rollups; recipe validation aligns to the 5..8 window.
+- Coverage gaps remain: history tile validation still accepts any positive era count, and rollup determinism checks only cover a subset of rollups.
+
+### High-Leverage Issues
+- `validateTectonicHistoryTiles` only asserts `eraCount > 0`; it does not enforce the 5..8 budget window, so tiles can drift from the bounded history contract without being rejected.
+
+### PR Comment Context
+- Downstack PR Comment Context (PR-M1-002..PR-M1-011): reviewed all PR comments. Only substantive inline review comments existed; Graphite/Railway bot comments were omitted as non-technical noise.
+- PR-M1-002 (#1074) — **Emit required tectonic history masks or update schema** (thread resolved as superseded)
+```text
+**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Emit required tectonic history masks or update schema**
+
+The per‑era history tile payload you construct here omits `convergentMask`, `divergentMask`, and `transformMask`, but `FoundationTectonicHistoryTilesEraArtifactSchema` declares those fields as required (see `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts`). Now that `projection.ts` publishes `foundationTectonicHistoryTiles`, any downstream consumer using the artifact contract/schema (or relying on those masks being present) will see `undefined` and can mis-render or crash. Either populate these mask arrays alongside `boundaryType` or remove them from the artifact schema to keep the published payload consistent with the contract.
+
+Useful? React with 👍 / 👎.
+```
+Assessment: This is now superseded (masks are emitted and schema remains aligned). Keeping it here as a “contract drift” example: when Foundation publishes artifacts, schema-required fields must be emitted immediately or schema loosened, otherwise downstream domains can silently break.
+- PR-M1-005 (#1077) — **Honor profile plateCount when knobs are omitted**
+```text
+**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Honor profile plateCount when knobs are omitted**
+
+Because `knobs.plateCount` is now always a number (it’s defaulted to 28 in `FoundationPlateCountKnobSchema`), the `defaults.plateCount` branch here is never taken, so configs that omit `foundation.knobs.plateCount` will still get 28 plates even when `profiles.resolutionProfile` is `coarse`/`fine`/`ultra`. This makes the per-profile plate-count baselines in `FOUNDATION_PROFILE_DEFAULTS` effectively dead unless every config explicitly sets `plateCount`. If profiles are meant to supply the baseline, consider making `plateCount` optional/no-default so the profile default can take effect.
+
+Useful? React with 👍 / 👎.
+```
+Assessment: Still relevant. It’s not directly “M1-012 era loop” work, but it’s an authoring-surface semantics footgun that undermines “physics-first, evolutionary” intent: if the authored plate discretization baseline can’t vary with resolution profiles unless explicitly set, recipes/presets can look “realism-tuned” but actually be stuck on a hidden default.
+- PR-M1-006 (#1078) — **Apply lithosphere scalars directly (0 should weaken strength)**
+```text
+**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Apply lithosphere scalars directly (0 should weaken strength)**
+
+The `yieldStrength01` and `mantleCoupling01` knobs are documented as 0..1 scalars, but these formulas remap them to 0.85..1.15 and 0.9..1.1. As a result, setting either knob to 0 still yields ~85–90% of baseline strength, and setting it to 1 can boost strength above baseline before clamping. This makes the “scalar” knobs ineffective for weakening or disabling lithosphere strength in configs. Consider multiplying `rawStrength` directly by the 0..1 values (or updating schema/docs to match the nonlinear mapping).
+
+Useful? React with 👍 / 👎.
+```
+Assessment: Still relevant. It’s a mismatch between the authored parameter surface (“0..1 scalars”) and runtime semantics (“narrow remap around baseline”). This becomes more important as later M1 stages rely on strength/resistance to drive evolutionary features; if authors cannot actually weaken the lithosphere, “maximal realism” tuning is constrained and confusing.
+- PR-M1-008 (#1080) — **Avoid capping P90 fit errors at residualNorm**
+```text
+**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Avoid capping P90 fit errors at residualNorm**
+
+When residual errors exceed `residualNorm` (mean forcing speed × `residualNormScale`), the binning logic clamps all larger errors into the last histogram bucket (`Math.min(histogramBins - 1, ...)`). Because `plateFitP90` is later reconstructed from the bucket index times `residualNorm`, the reported P90 is effectively capped at ~`residualNorm` even if the true 90th‑percentile error is much larger. This under-reports fit error and can inflate `plateQuality` for poorly fitted plates, especially on noisy/low-forcing runs. Consider computing P90 from the unnormalized errors or extending bins to cover >1×`residualNorm` so the 90th percentile can exceed that scale when appropriate.
+
+Useful? React with 👍 / 👎.
+```
+Assessment: Still relevant. This is a “metrics lie” risk: fit diagnostics drive validation and tuning loops, so capping error can make low-quality physics appear stable. That’s directly contrary to the objective (“maximally realist”) because it hides when the solver is failing.
+- PR-M1-011 (#1083) — **Honor belt influence/decay config values**
+```text
+**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Honor belt influence/decay config values**
+
+The strategy contract still exposes `beltInfluenceDistance` and `beltDecay`, but the new event-driven implementation never reads them. The call to `buildEraFields` only passes `weight`/`driftSteps`, and the emission logic uses fixed `EMISSION_RADIUS`/`EMISSION_DECAY`, so any preset or test that customizes belt width/decay will now silently have no effect. This is a behavioral regression for callers relying on those knobs; consider wiring the config values through or removing them from the contract to avoid a misleading API.
+
+Useful? React with 👍 / 👎.
+```
+Assessment: Still relevant. This is a contract/authoring-surface drift problem (similar class to the #1074 schema drift) and it matters upstack: Morphology and Studio depend on authored controls being “real” controls, not vestigial knobs.
+
+### Fix Now (Recommended)
+- Align `tectonicHistoryTiles` validation with the 5..8 era bounds so tile payloads cannot diverge from the bounded era loop contract.
+
+### Defer / Follow-up
+- Regenerate shipped preset configs (`mods/mod-swooper-maps/mod/maps/*`) when release tooling allows so 5-era defaults are reflected in artifacts and validation does not fail in runtime presets.
+- Extend rollup determinism tests to cover `fractureTotal`, `volcanismTotal`, and `upliftRecentFraction`, and rename the “3-era history” test description to avoid confusion.
+
+### Needs Discussion
+- Whether D04r budget constants should be referenced in spec docs (`resources/spec/budgets.md`) or remain code/test-only.
+
+### Cross-cutting Risks
+- If legacy 3-era presets ship without regeneration, validation will reject history artifacts and downstream consumers will see missing/invalid driver channels.
