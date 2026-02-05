@@ -579,3 +579,30 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 
 ### Cross-cutting Risks
 - Hard-coded UI shortcuts and domain panels will force Studio updates for every taxonomy change, undermining the intended agnostic boundary.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-022-visualization-refinement-debug-vs-refined-layer-sets-era-scr
+
+### Quick Take
+- The Studio explorer now supports an era scrubber (auto/fixed), debug vs refined layer visibility, and optional overlay layers with opacity control, with contract tests covering `variantKey=era:<n>` expectations.
+- The UX upgrades materially improve pipeline-realism tuning, but a few selection/normalization gaps can still mislead users about which era/variant they are actually seeing.
+
+### High-Leverage Issues
+- Era selection uses only min/max bounds, so gaps in available variants (e.g., eras 1 and 3 only) allow choosing a non-existent era. The UI will display the requested era while the renderer silently falls back to a different variant.
+- Overlay selection uses a raw `era:${manualEra}` preference; if producers emit zero-padded or otherwise formatted era keys, the overlay will fail to match the intended era even when the base layer does.
+- Overlay suggestions and keys are hard-coded in `App.tsx`, deepening pipeline-specific coupling in the Studio shell and repeating the agnostic-boundary risk surfaced in M1-021.
+
+### PR Comment Context
+- PR #1094: “`overlayVariantKeyPreference` is built as `era:${manualEra}` … if actual variant keys are zero‑padded (e.g. `era:01`) … the overlay will fall back to an arbitrary candidate.” Still relevant and aligns with the “era mismatch” risk above.
+- PR #1094: “The era slider clamps only to min/max … UI reports ‘Era 2’ while rendering Era 1.” Still relevant and should be addressed to avoid misleading tuning reads.
+
+### Fix Now (Recommended)
+- Normalize era preferences to actual variants: derive the preferred overlay variant via `findVariantIdForEra` (or by matching the currently selected era variant key) rather than string formatting, and snap manual era to the nearest available era variant instead of using a blind min/max range.
+
+### Defer / Follow-up
+- Move overlay suggestions into recipe UI metadata (or a shared config) so the Studio shell remains agnostic to pipeline-specific `dataTypeKey` taxonomies.
+
+### Needs Discussion
+- Should overlay mode allow cross-variant overlays with a warning, or should it hard-lock to the same era/space by default and disable overlays when a matching variant is unavailable?
+
+### Cross-cutting Risks
+- Era/overlay mismatches can lead to false causal inference during tuning (e.g., attributing changes to the wrong era), which undermines the physics-first objective even if the underlying data is correct.
