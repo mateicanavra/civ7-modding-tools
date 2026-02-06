@@ -10,6 +10,7 @@ type ArtifactValidationIssue = Readonly<{ message: string }>;
 
 const GROUP_TOPOGRAPHY = "Morphology / Topography";
 const GROUP_SUBSTRATE = "Morphology / Substrate";
+const GROUP_BELT_DRIVERS = "Morphology / Belt Drivers";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -74,6 +75,38 @@ function validateSubstrateBuffer(value: unknown, dimensions: MapDimensions): Art
   return errors;
 }
 
+function validateBeltDriversBuffer(value: unknown, dimensions: MapDimensions): ArtifactValidationIssue[] {
+  const errors: ArtifactValidationIssue[] = [];
+  if (!isRecord(value)) {
+    errors.push({ message: "Missing beltDrivers buffer." });
+    return errors;
+  }
+  const size = expectedSize(dimensions);
+  const candidate = value as {
+    boundaryCloseness?: unknown;
+    boundaryType?: unknown;
+    upliftPotential?: unknown;
+    riftPotential?: unknown;
+    tectonicStress?: unknown;
+    beltMask?: unknown;
+    beltDistance?: unknown;
+    beltNearestSeed?: unknown;
+    beltComponents?: unknown;
+  };
+  validateTypedArray(errors, "beltDrivers.boundaryCloseness", candidate.boundaryCloseness, Uint8Array, size);
+  validateTypedArray(errors, "beltDrivers.boundaryType", candidate.boundaryType, Uint8Array, size);
+  validateTypedArray(errors, "beltDrivers.upliftPotential", candidate.upliftPotential, Uint8Array, size);
+  validateTypedArray(errors, "beltDrivers.riftPotential", candidate.riftPotential, Uint8Array, size);
+  validateTypedArray(errors, "beltDrivers.tectonicStress", candidate.tectonicStress, Uint8Array, size);
+  validateTypedArray(errors, "beltDrivers.beltMask", candidate.beltMask, Uint8Array, size);
+  validateTypedArray(errors, "beltDrivers.beltDistance", candidate.beltDistance, Uint8Array, size);
+  validateTypedArray(errors, "beltDrivers.beltNearestSeed", candidate.beltNearestSeed, Int32Array, size);
+  if (!Array.isArray(candidate.beltComponents)) {
+    errors.push({ message: "Expected beltDrivers.beltComponents to be an array." });
+  }
+  return errors;
+}
+
 function applyBaseTerrainBuffers(
   width: number,
   height: number,
@@ -112,6 +145,9 @@ export default createStep(LandmassPlatesStepContract, {
     substrate: {
       validate: (value, context) => validateSubstrateBuffer(value, context.dimensions),
     },
+    beltDrivers: {
+      validate: (value, context) => validateBeltDriversBuffer(value, context.dimensions),
+    },
   }),
   normalize: (config, ctx) => {
     const { seaLevel } = ctx.knobs as Readonly<{ seaLevel?: MorphologySeaLevelKnob }>;
@@ -131,19 +167,30 @@ export default createStep(LandmassPlatesStepContract, {
     return { ...config, seaLevel: seaLevelSelection };
   },
   run: (context, config, ops, deps) => {
-    const plates = deps.artifacts.foundationPlates.read(context);
     const crustTiles = deps.artifacts.foundationCrustTiles.read(context);
+    const historyTiles = deps.artifacts.foundationTectonicHistoryTiles.read(context);
+    const provenanceTiles = deps.artifacts.foundationTectonicProvenanceTiles.read(context);
     const { width, height } = context.dimensions;
     const stepId = `${LandmassPlatesStepContract.phase}/${LandmassPlatesStepContract.id}`;
+
+    const beltDrivers = ops.beltDrivers(
+      {
+        width,
+        height,
+        historyTiles,
+        provenanceTiles,
+      },
+      config.beltDrivers
+    );
 
     const substrate = ops.substrate(
       {
         width,
         height,
-        upliftPotential: plates.upliftPotential,
-        riftPotential: plates.riftPotential,
-        boundaryCloseness: plates.boundaryCloseness,
-        boundaryType: plates.boundaryType,
+        upliftPotential: beltDrivers.upliftPotential,
+        riftPotential: beltDrivers.riftPotential,
+        boundaryCloseness: beltDrivers.boundaryCloseness,
+        boundaryType: beltDrivers.boundaryType,
         crustType: crustTiles.type,
         crustAge: crustTiles.age,
       },
@@ -155,9 +202,9 @@ export default createStep(LandmassPlatesStepContract, {
         width,
         height,
         crustBaseElevation: crustTiles.baseElevation,
-        boundaryCloseness: plates.boundaryCloseness,
-        upliftPotential: plates.upliftPotential,
-        riftPotential: plates.riftPotential,
+        boundaryCloseness: beltDrivers.boundaryCloseness,
+        upliftPotential: beltDrivers.upliftPotential,
+        riftPotential: beltDrivers.riftPotential,
         rngSeed: ctxRandom(context, ctxRandomLabel(stepId, "morphology/compute-base-topography"), 2_147_483_647),
       },
       config.baseTopography
@@ -169,8 +216,8 @@ export default createStep(LandmassPlatesStepContract, {
         height,
         elevation: baseTopography.elevation,
         crustType: crustTiles.type,
-        boundaryCloseness: plates.boundaryCloseness,
-        upliftPotential: plates.upliftPotential,
+        boundaryCloseness: beltDrivers.boundaryCloseness,
+        upliftPotential: beltDrivers.upliftPotential,
         rngSeed: ctxRandom(context, ctxRandomLabel(stepId, "morphology/compute-sea-level"), 2_147_483_647),
       },
       config.seaLevel
@@ -182,7 +229,7 @@ export default createStep(LandmassPlatesStepContract, {
         height,
         elevation: baseTopography.elevation,
         seaLevel: seaLevel.seaLevel,
-        boundaryCloseness: plates.boundaryCloseness,
+        boundaryCloseness: beltDrivers.boundaryCloseness,
       },
       config.landmask
     );
@@ -317,7 +364,81 @@ export default createStep(LandmassPlatesStepContract, {
       }),
     });
 
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.belts.boundaryCloseness",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: beltDrivers.boundaryCloseness,
+      meta: defineVizMeta("morphology.belts.boundaryCloseness", {
+        label: "Belt Boundary Closeness",
+        group: GROUP_BELT_DRIVERS,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.belts.boundaryType",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: beltDrivers.boundaryType,
+      meta: defineVizMeta("morphology.belts.boundaryType", {
+        label: "Belt Boundary Type",
+        group: GROUP_BELT_DRIVERS,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.belts.upliftPotential",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: beltDrivers.upliftPotential,
+      meta: defineVizMeta("morphology.belts.upliftPotential", {
+        label: "Belt Uplift Potential",
+        group: GROUP_BELT_DRIVERS,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.belts.riftPotential",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: beltDrivers.riftPotential,
+      meta: defineVizMeta("morphology.belts.riftPotential", {
+        label: "Belt Rift Potential",
+        group: GROUP_BELT_DRIVERS,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.belts.tectonicStress",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: beltDrivers.tectonicStress,
+      meta: defineVizMeta("morphology.belts.tectonicStress", {
+        label: "Belt Tectonic Stress",
+        group: GROUP_BELT_DRIVERS,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.belts.mask",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: beltDrivers.beltMask,
+      meta: defineVizMeta("morphology.belts.mask", {
+        label: "Belt Mask",
+        group: GROUP_BELT_DRIVERS,
+        visibility: "debug",
+      }),
+    });
+
     deps.artifacts.topography.publish(context, topography);
     deps.artifacts.substrate.publish(context, substrate);
+    deps.artifacts.beltDrivers.publish(context, beltDrivers);
   },
 });

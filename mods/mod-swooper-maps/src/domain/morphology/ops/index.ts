@@ -2,6 +2,7 @@ import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/a
 import type { contracts } from "./contracts.js";
 
 import computeBaseTopography from "./compute-base-topography/index.js";
+import computeBeltDrivers from "./compute-belt-drivers/index.js";
 import computeCoastlineMetrics from "./compute-coastline-metrics/index.js";
 import computeFlowRouting from "./compute-flow-routing/index.js";
 import computeGeomorphicCycle from "./compute-geomorphic-cycle/index.js";
@@ -16,6 +17,7 @@ import planVolcanoes from "./plan-volcanoes/index.js";
 
 const implementations = {
   computeBaseTopography,
+  computeBeltDrivers,
   computeCoastlineMetrics,
   computeFlowRouting,
   computeGeomorphicCycle,
@@ -33,6 +35,7 @@ export default implementations;
 
 export {
   computeBaseTopography,
+  computeBeltDrivers,
   computeCoastlineMetrics,
   computeFlowRouting,
   computeGeomorphicCycle,
