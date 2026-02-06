@@ -2,6 +2,15 @@
 
 Last hardened: 2026-02-06
 
+<!-- Path roots (convenience; do not mass-refactor paths in this doc) -->
+$PROJECT = docs/projects/pipeline-realism
+$PLAN = $PROJECT/plans
+$RESEARCH = $PROJECT/resources/research
+$SPEC = $PROJECT/resources/spec
+$DECISIONS = $PROJECT/resources/decisions
+$MILESTONES = $PROJECT/milestones
+$MOD = mods/mod-swooper-maps
+
 ## Canonical Sources (Normative)
 
 Treat these as the source of truth for “what maximal means”:
@@ -72,6 +81,22 @@ Objective: ensure we have **exactly one causal spine** (no legacy fallback/compa
   - Run: `bun run --cwd mods/mod-swooper-maps test test/pipeline/no-shadow-paths.test.ts`
   - Acceptance: test is green.
 
+- Precision (what counts as a violation):
+  - Source of truth: `$MOD/test/pipeline/no-shadow-paths.test.ts`
+  - Scope:
+    - Standard contracts: `$MOD/src/recipes/standard/**/{*contract.ts,*artifacts.ts}`
+    - Standard sources: `$MOD/src/recipes/standard/**/*.ts`
+  - Banned surface patterns (case-insensitive):
+    - `\bdualRead`
+    - `\bdual[-_ ]?engine`
+    - `\bdual[-_ ]?path`
+    - `\bshadow(?:Path|Compute|Layer|Mode|Toggle)`
+    - `\bcompare(?:Layer|Layers|Mode|Toggle|Only)`
+    - `\bcomparison(?:Layer|Layers|Mode|Toggle|Only)`
+  - Failure posture:
+    - Fix by deletion/rename of surfaced symbols/toggles (no compatibility shims).
+    - If an equivalent surface reappears under a new synonym, extend the guardrail patterns (do not waive Phase 0).
+
 - 0.1 If the gate fails: delete or rename the surfaced symbols (do not add compatibility shims).
   - Re-run the test until green.
 
@@ -84,10 +109,19 @@ Objective: make the material evolution half real (crust truth + provenance are c
   - Events/eras can emit fields and update provenance scalars, but still fail to update crust truth in a way that changes downstream continents.
   - When crust truth is degenerate, any downstream “continent constraints” become unsatisfiable and landmask devolves to noise thresholding.
 
+- Phase A gate bundle (blocking):
+  - [ ] Phase 0 gate is green: `bun run --cwd $MOD test test/pipeline/no-shadow-paths.test.ts`
+  - [ ] Fingerprints are stable (authoritative: what actually ran):
+    - `bun run --cwd $MOD test test/pipeline/determinism-suite.test.ts`
+  - [ ] Foundation invariants are enforced:
+    - `bun run --cwd $MOD test test/pipeline/foundation-gates.test.ts`
+
 - A0. Re-establish baseline probe evidence bundle:
   - `bun run --cwd mods/mod-swooper-maps diag:dump -- 106 66 1337 --label probe-baseline`
   - `bun run --cwd mods/mod-swooper-maps diag:analyze -- <runDir>`
-  - Capture: `foundation.crustTiles.type` stats + provenance reset counts.
+  - Capture in evidence bundle:
+    - `foundation.crustTiles.type` stats (or its replacement derived view, if `type` is made non-truth or removed)
+    - provenance causality signal (resets non-zero, non-trivial spatial structure)
 - A1. Make crust truth continuous and non-degenerate for canonical probes (no `min=max` degenerate projections).
 - A2. Ensure crust evolution scalars + provenance resets are materially present and calibrated to observed driver ranges (no “events emit fields but don’t change state”).
 - A3. Promote Phase A invariants to enforcement (Tier 1 gates) and wire their evidence bundle to the Phase A review threads.
@@ -100,10 +134,18 @@ Objective: continents emerge from crust truth and provenance, not from noise thr
   - Landmask can be driven by threshold/noise in a narrow elevation distribution, producing speckle and high component counts.
   - Mountains/belts can consume history/provenance while landmask does not, producing hybrid incoherence (“new belts on old continents”).
 
+- Phase B gate bundle (blocking):
+  - [ ] Phase A gate bundle is satisfied.
+  - [ ] Baseline vs after evidence is posted using a two-run compare (earthlike proxy expectations):
+    - Capture baseline: `bun run --cwd $MOD diag:dump -- 106 66 1337 --label phase-b-baseline`
+    - Capture after: `bun run --cwd $MOD diag:dump -- 106 66 1337 --label phase-b-after`
+    - Compare: `bun run --cwd $MOD diag:analyze -- <baselineRunDir> <afterRunDir>`
+
 - B0. Define and implement a continent potential grounded in crust truth + provenance stability (low-frequency, physics-first).
 - B1. Replace threshold/noise-dominant landmask behavior with the crust-truth-driven classifier.
 - B2. Delete/redefine any “basin separation truth” or land/water reclassification that isn’t derived from Foundation truth.
 - B3. Gate: landmask coherence improves for canonical probes (components down, largestLandFrac up).
+  - Prework prompt applies: define numeric “material improvement” thresholds from earthlike baselines before merging the first Phase B slice (do not leave this subjective).
 
 ### Phase C — Belt-driver modulation cleanup
 
@@ -124,6 +166,12 @@ Objective: make maximalism *enforced* via determinism + invariants, and make dif
   - CI: strict promoted subset (mantle structure, plate-fit residuals, belts continuity/flicker)
 - D1. Clarify “viewer aids” vs correctness gates; the fingerprint report is the authoritative diff artifact.
 
+- Precision (current enforcement surface):
+  - Fingerprints/determinism are enforced today by `$MOD/test/pipeline/determinism-suite.test.ts` and the validation harness fingerprinting surface in `$MOD/test/support/validation-harness.ts`.
+  - The “fingerprint report” is the `report.fingerprints` structure (fingerprint hashes of artifacts) produced by the harness and compared in tests.
+  - Stats output (`diag:analyze`) is still required alongside fingerprints for realism/coherence measurements.
+  - If we later require a standalone file artifact for CI/PR attachment, treat that as explicit prework (do not assume it exists).
+
 ## Execution Checklist (Per Slice)
 
 This is the execution loop for each Phase A–D slice. The goal is to keep every slice reviewable and forward-only.
@@ -140,6 +188,26 @@ This is the execution loop for each Phase A–D slice. The goal is to keep every
 6. Restack + submit upstack: `gt restack --upstack` then `gt submit --stack --no-edit`
 7. Close the phase’s review threads only when the phase gate bundle is attached and pass conditions are met.
 
+## Evidence Bundle (Required)
+
+This plan is dump-first. Every Phase A–D slice must attach a comparable evidence bundle (PR description + any owning PRRT threads).
+
+- Where dumps go / what to paste:
+  - `diag:dump` prints JSON `{"runId":"...","outputDir":"..."}`.
+  - Paste that JSON verbatim; `outputDir` is the run directory used by `diag:analyze` / `diag:list` / `diag:diff`.
+
+- Canonical probe command (earthlike proxy expectations, unless a phase/thread explicitly overrides it):
+  - `bun run --cwd $MOD diag:dump -- 106 66 1337 --label <slice-label>`
+
+- Minimum evidence bundle payload:
+  1. `diag:dump` output JSON (runId + outputDir).
+  2. `bun run --cwd $MOD diag:analyze -- <outputDir>` output JSON.
+  3. Spot-check key layers exist and are non-degenerate:
+     - `bun run --cwd $MOD diag:list -- <outputDir> --dataTypeKey foundation.crustTiles.type`
+     - `bun run --cwd $MOD diag:list -- <outputDir> --dataTypeKey morphology.topography.landMask`
+  4. “What actually ran” enforcement:
+     - `bun run --cwd $MOD test test/pipeline/determinism-suite.test.ts`
+
 ## Non-negotiables (physics-first, maximal realism)
 
 - Foundation is the only source of tectonic “truth”.
@@ -153,6 +221,35 @@ This is the execution loop for each Phase A–D slice. The goal is to keep every
   - consumed correctly downstream, or
   - deleted, or
   - explicitly deferred with trigger + rationale.
+
+## Open Questions / Prework Prompts (Do Not Silent-Decide)
+
+### Prework Prompt: Canonical probes and required cases
+Purpose: eliminate ambiguity about which runs are required to claim Phase A/B gates are satisfied (tests + dumps).
+
+- Expected output:
+  - Explicit list of required cases per phase:
+    - CI-enforced (fingerprints): `test/pipeline/determinism-suite.test.ts` (driven by `M1_DETERMINISM_CASES`)
+    - Human-readable dump probe: `diag:dump -- 106 66 1337`
+- Sources to check:
+  - `$MOD/test/pipeline/determinism-suite.test.ts`
+  - `$MOD/test/support/determinism-suite.ts` (`M1_DETERMINISM_CASES`)
+  - `$MOD/test/support/validation-harness.ts` (`M1_VALIDATION_*`)
+
+### Prework Prompt: Numeric thresholds for “material” landmask improvement (Phase B)
+Purpose: turn “components down, largestLandFrac up” into a numeric gate for earthlike proxy expectations.
+
+- Expected output:
+  - Baseline metrics from:
+    - `bun run --cwd $MOD diag:dump -- 106 66 1337 --label phase-b-baseline`
+    - `bun run --cwd $MOD diag:analyze -- <baselineRunDir>`
+  - Proposed thresholds (delta vs baseline) that are sensible and intelligible.
+
+### Open question: What artifact is the “fingerprint report” we attach to PRs?
+Default posture (today): test output is authoritative for fingerprint equivalence; attach `diag:analyze` output as the realism/coherence measure.
+
+- Option A (default): treat `determinism-suite.test.ts` output as the authoritative report surface (no extra artifact file).
+- Option B (new work): add a CLI/script that writes `report.fingerprints` to a file for CI/PR attachment.
 
 ## Contract vNext (decision-complete)
 
