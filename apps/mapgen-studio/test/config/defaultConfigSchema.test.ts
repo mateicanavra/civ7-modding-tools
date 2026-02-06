@@ -98,7 +98,9 @@ describe("Studio default config", () => {
     );
     const advancedProps =
       (foundationProps.advanced as { properties?: Record<string, unknown> })?.properties ?? {};
-    expect(Object.keys(advancedProps)).toEqual(expect.arrayContaining(["mantleForcing", "lithosphere"]));
+    expect(Object.keys(advancedProps)).toEqual(
+      expect.arrayContaining(["mantleForcing", "lithosphere", "budgets"])
+    );
 
     const keys = new Set<string>();
     collectSchemaKeys(foundationSchema, keys);
@@ -124,8 +126,10 @@ describe("Studio default config", () => {
 
     const mantleForcing = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "advanced", "mantleForcing"]);
     const lithosphere = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "advanced", "lithosphere"]);
+    const budgets = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "advanced", "budgets"]);
     expectSchemaHasGsComments(mantleForcing, "foundation.advanced.mantleForcing");
     expectSchemaHasGsComments(lithosphere, "foundation.advanced.lithosphere");
+    expectSchemaHasGsComments(budgets, "foundation.advanced.budgets");
 
     const mantleScalarProps = ["potentialMode", "potentialAmplitude01", "plumeCount", "downwellingCount", "lengthScale01"] as const;
     for (const key of mantleScalarProps) {
@@ -142,5 +146,10 @@ describe("Studio default config", () => {
         `foundation.advanced.lithosphere.${key}`
       );
     }
+
+    expectSchemaHasDescription(
+      getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "advanced", "budgets", "eraCount"]),
+      "foundation.advanced.budgets.eraCount"
+    );
   });
 });
