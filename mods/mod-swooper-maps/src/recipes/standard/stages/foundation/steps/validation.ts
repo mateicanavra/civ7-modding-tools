@@ -330,8 +330,8 @@ export function validateTectonicHistoryTilesArtifact(value: unknown, dims: MapDi
     throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.version.");
   }
   const eraCount = typeof history.eraCount === "number" ? (history.eraCount | 0) : -1;
-  if (eraCount <= 0) {
-    throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.eraCount.");
+  if (eraCount < 5 || eraCount > 8) {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.eraCount (expected 5..8).");
   }
   if (!Array.isArray(history.perEra) || history.perEra.length !== eraCount) {
     throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.perEra.");
