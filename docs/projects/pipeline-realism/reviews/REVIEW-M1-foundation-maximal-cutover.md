@@ -150,3 +150,27 @@ reviewer: AI agent
 
 ### Cross-cutting Risks
 - If event mechanics do not adopt `crust.strength`, the new lithosphere resistance field will be underutilized and semantics may diverge across domains.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-007-mantle-potential-generation-derived-forcing-fields-d02r
+
+### Quick Take
+- Mantle potential + forcing are now first‑class mesh‑space truth artifacts with deterministic, bounded generation, plus minimal viz emissions for inspection.
+- Tests cover determinism, non‑uniform potential, and wrap‑seam behavior.
+
+### High-Leverage Issues
+- `potentialAmplitude01` is effectively neutralized: `compute-mantle-potential` normalizes the field to [-1,1] after applying amplitude, so the authored amplitude scale does not actually change forcing magnitude. This conflicts with D08r’s intent to let amplitude scale drive plate motion strength.
+
+### PR Comment Context
+- No actionable review comments; Graphite stack + Railway preview notices only.
+
+### Fix Now (Recommended)
+- Make amplitude scale observable by forcing: either scale `mantleForcing` outputs by `potentialAmplitude01` (or derived amplitude scale), or remove the post‑normalize step and instead clamp to a bounded range that preserves relative amplitude.
+
+### Defer / Follow-up
+- If normalization must remain for compatibility, expose amplitude via a dedicated `forcingScale` in the mantle forcing config and document it as the authoring control.
+
+### Needs Discussion
+- Should `foundation.mantlePotential` remain “normalized” per schema, or should we relax the contract so amplitude is preserved and bounded elsewhere (e.g., via forcing normalization)?
+
+### Cross-cutting Risks
+- Inert authoring knobs (amplitude) will cause Studio users to think they are steering physics inputs when they are not, undermining the physics‑first objective.
