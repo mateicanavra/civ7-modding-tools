@@ -159,16 +159,76 @@ export function toRjsfSchema(schema: unknown): RJSFSchema {
   return schema;
 }
 
+export function tryGetSchemaAtPath(schema: unknown, path: readonly string[]): unknown | null {
+  let current: unknown = schema;
+  for (const segment of path) {
+    if (!current || typeof current !== "object") return null;
+    const node = current as Record<string, unknown>;
+    const properties = node.properties;
+    if (properties && typeof properties === "object" && segment in (properties as Record<string, unknown>)) {
+      current = (properties as Record<string, unknown>)[segment];
+      continue;
+    }
+
+    // Best-effort: if we hit a union, pick the first branch that contains the property.
+    const anyOf = node.anyOf;
+    const oneOf = node.oneOf;
+    const variants = (Array.isArray(anyOf) ? anyOf : Array.isArray(oneOf) ? oneOf : null) as unknown[] | null;
+    if (variants) {
+      const match = variants.find((variant) => {
+        if (!variant || typeof variant !== "object") return false;
+        const vProps = (variant as Record<string, unknown>).properties;
+        return Boolean(vProps && typeof vProps === "object" && segment in (vProps as Record<string, unknown>));
+      });
+      if (match) {
+        const vProps = (match as Record<string, unknown>).properties as Record<string, unknown>;
+        current = vProps[segment];
+        continue;
+      }
+    }
+
+    return null;
+  }
+  return current;
+}
+
 export function pathToPointer(path: Array<string | number>): string {
   if (!path.length) return "";
   const parts = path.map((p) => String(p).replace(/~/g, "~0").replace(/\//g, "~1"));
   return `/${parts.join("/")}`;
 }
 
+function normalizeLabel(label: string): string {
+  return label
+    .toLowerCase()
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getNodeLabel(node: BrowserConfigSchemaDef | undefined, fallbackKey: string | null): string | null {
+  if (!node || typeof node === "boolean") return fallbackKey;
+  if (typeof node.title === "string" && node.title.trim().length > 0) return node.title;
+  return fallbackKey;
+}
+
+function isConfigWrapper(node: BrowserConfigSchemaDef | undefined): boolean {
+  if (!node || typeof node === "boolean") return false;
+  if (node.type !== "object") return false;
+  if (node.description != null) return false;
+  const props = node.properties;
+  if (!props) return false;
+  const keys = Object.keys(props);
+  return keys.includes("strategy") && keys.includes("config");
+}
+
 export function collectTransparentPaths(schema: RJSFSchema): ReadonlySet<string> {
   const out = new Set<string>();
 
-  const visit = (node: BrowserConfigSchemaDef | undefined, path: Array<string | number>): void => {
+  const visit = (
+    node: BrowserConfigSchemaDef | undefined,
+    path: Array<string | number>
+  ): void => {
     if (!node || typeof node === "boolean") return;
 
     const nodeAnyOf = node.anyOf;
@@ -199,6 +259,8 @@ export function collectTransparentPaths(schema: RJSFSchema): ReadonlySet<string>
     if (!props) return;
 
     const propKeys = Object.keys(props);
+    const currentKey = typeof path.at(-1) === "string" ? (path.at(-1) as string) : null;
+    const currentLabel = getNodeLabel(node, currentKey);
     // Never collapse the very top-level wrapper: we want the stage container visible.
     // to remain visible even when there's only one stage in the schema.
     if (path.length > 0 && propKeys.length === 1 && node.description == null) {
@@ -212,7 +274,23 @@ export function collectTransparentPaths(schema: RJSFSchema): ReadonlySet<string>
     }
 
     for (const key of propKeys) {
-      visit((props as Record<string, BrowserConfigSchemaDef>)[key], [...path, key]);
+      const child = (props as Record<string, BrowserConfigSchemaDef>)[key];
+      const childLabel = getNodeLabel(child, key);
+      if (
+        childLabel &&
+        currentLabel &&
+        normalizeLabel(childLabel) === normalizeLabel(currentLabel) &&
+        typeof child !== "boolean" &&
+        child.description == null
+      ) {
+        out.add(pathToPointer([...path, key]));
+      }
+      if (isConfigWrapper(node) && key === "config") {
+        if (schemaIsGroup(child) && typeof child !== "boolean" && child.description == null) {
+          out.add(pathToPointer([...path, key]));
+        }
+      }
+      visit(child, [...path, key]);
     }
   };
 

@@ -2,13 +2,13 @@ import Form from "@rjsf/core";
 import { customizeValidator } from "@rjsf/validator-ajv8";
 import type { RJSFSchema, UiSchema } from "@rjsf/utils";
 import { useMemo } from "react";
-import { browserConfigFormCss } from "./formStyles";
 import {
   BrowserConfigArrayFieldTemplate,
   BrowserConfigFieldTemplate,
   BrowserConfigObjectFieldTemplate,
   type BrowserConfigFormContext,
 } from "./rjsfTemplates";
+import { configWidgets } from "./rjsfWidgets";
 
 export type SchemaFormProps<TConfig> = {
   schema: RJSFSchema;
@@ -34,9 +34,7 @@ export function SchemaForm<TConfig>(props: SchemaFormProps<TConfig>) {
         border: "none",
         background: "transparent",
       }}
-      className="browserConfigForm"
     >
-      <style>{browserConfigFormCss}</style>
       <Form<TConfig, RJSFSchema, BrowserConfigFormContext>
         schema={schema}
         uiSchema={uiSchema}
@@ -48,6 +46,7 @@ export function SchemaForm<TConfig>(props: SchemaFormProps<TConfig>) {
           ObjectFieldTemplate: BrowserConfigObjectFieldTemplate,
           ArrayFieldTemplate: BrowserConfigArrayFieldTemplate,
         }}
+        widgets={configWidgets}
         showErrorList={false}
         disabled={disabled}
         onChange={(e) => {

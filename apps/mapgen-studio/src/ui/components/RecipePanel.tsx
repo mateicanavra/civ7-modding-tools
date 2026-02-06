@@ -13,11 +13,9 @@ import {
   Focus,
   Settings,
   Save,
-  Play,
-  ChevronDown } from
+  Play } from
 'lucide-react';
-import { ConfigForm } from './ConfigForm';
-import { FoundationAuthoringPanel } from '../../features/configOverrides/FoundationAuthoringPanel';
+import { SchemaConfigForm } from '../../features/configOverrides/SchemaConfigForm';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -35,10 +33,7 @@ import type {
   PipelineConfig,
   Theme,
   RecipeSettings,
-  ConfigPatch,
-  ConfigValue,
-  SelectOption,
-  KnobOptionsMap } from
+  SelectOption } from
 '../types';
 // ============================================================================
 // Props
@@ -49,17 +44,13 @@ export interface RecipePanelProps {
   /** Config schema (recipe artifacts) */
   configSchema: unknown;
   /** Path-based patch callback for efficient state updates */
-  onConfigPatch: (patch: ConfigPatch) => void;
+  onConfigChange: (next: PipelineConfig) => void;
   /** Callback to reset config to defaults */
   onConfigReset: () => void;
   /** Available recipe options */
   recipeOptions: ReadonlyArray<SelectOption>;
   /** Available preset options */
   presetOptions: ReadonlyArray<SelectOption>;
-  /** Knob options mapping (knob name → available values) */
-  knobOptions?: KnobOptionsMap;
-  /** Optional stageId -> label mapping (for author-friendly stage names) */
-  stageLabels?: Record<string, string>;
   /** Theme object (kept for API compatibility) */
   theme: Theme;
   /** Light mode flag for styling */
@@ -107,12 +98,10 @@ export interface RecipePanelProps {
 export const RecipePanel: React.FC<RecipePanelProps> = ({
   config,
   configSchema,
-  onConfigPatch,
+  onConfigChange,
   onConfigReset,
   recipeOptions,
   presetOptions,
-  knobOptions,
-  stageLabels,
   theme,
   lightMode,
   selectedStep,
@@ -142,7 +131,6 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   const [localOverridesDisabled, setLocalOverridesDisabled] = useState(false);
   const [showJson, setShowJson] = useState(false);
   const [showAllSteps, setShowAllSteps] = useState(false);
-  const [foundationExpanded, setFoundationExpanded] = useState(true);
   const [showResetModal, setShowResetModal] = useState(false);
   const [showSaveMenu, setShowSaveMenu] = useState(false);
 
@@ -172,15 +160,10 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
     };
     return config;
   }, [config, selectedStep, showAllSteps]);
-  // In focus mode (single step), auto-expand to depth 3
-  const autoExpandDepth = !showAllSteps ? 3 : 0;
+  const focusPath = !showAllSteps && selectedStep ? [selectedStep] : null;
   // ==========================================================================
   // Handlers
   // ==========================================================================
-  const handleConfigPatch = (patch: ConfigPatch) => {
-    // If in filtered mode, patches still use full paths
-    onConfigPatch(patch);
-  };
   const updateSetting = <K extends keyof RecipeSettings,>(
   key: K,
   value: RecipeSettings[K]) =>
@@ -220,7 +203,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             className={`w-full flex items-center justify-between px-3 py-2.5 transition-colors ${hoverBg}`}>
 
             <div className="flex items-center gap-2 min-w-0">
-              <BookOpen className={`w-4 h-4 shrink-0 ${textSecondary}`} />
+              <BookOpen className={`w-4 h-4 shrink-0 ${textSecondary}`} aria-hidden="true" />
               <span className={`text-[13px] font-semibold ${textPrimary}`}>
                 Recipe
               </span>
@@ -247,6 +230,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             <Select
               value={settings.recipe}
               onChange={(e) => updateSetting('recipe', e.target.value)}
+              aria-label="Recipe"
               options={recipeOptions.map((opt) => ({
                 value: opt.value,
                 label: opt.label
@@ -265,6 +249,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             <Select
               value={settings.preset}
               onChange={(e) => updateSetting('preset', e.target.value)}
+              aria-label="Preset"
               options={presetOptions.map((opt) => ({
                 value: opt.value,
                 label: opt.label
@@ -291,7 +276,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             className={`w-full flex items-center justify-between px-3 py-2.5 transition-colors cursor-pointer ${hoverBg}`}>
 
             <div className="flex items-center gap-2 min-w-0">
-              <Settings className={`w-4 h-4 shrink-0 ${textSecondary}`} />
+              <Settings className={`w-4 h-4 shrink-0 ${textSecondary}`} aria-hidden="true" />
               <span className={`text-[13px] font-semibold ${textPrimary}`}>
                 Config
               </span>
@@ -310,7 +295,8 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                   checked={!overridesDisabled}
                   onCheckedChange={(checked) => setOverridesDisabled(!checked)}
                   lightMode={lightMode}
-                  title={overridesDisabled ? 'Enable overrides' : 'Disable overrides'} />
+                  aria-label={overridesDisabled ? "Enable Overrides" : "Disable Overrides"}
+                  title={overridesDisabled ? 'Enable Overrides' : 'Disable Overrides'} />
 
               </div>
 
@@ -320,12 +306,14 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                   e.stopPropagation();
                   setShowAllSteps(!showAllSteps);
                 }}
+                aria-label={showAllSteps ? "Focus Current Step" : "Show All Steps"}
+                aria-pressed={showAllSteps}
                 title={
-                showAllSteps ? 'Focus current step' : 'Show all steps'
+                showAllSteps ? 'Focus Current Step' : 'Show All Steps'
                 }
                 className={!showAllSteps ? iconBtnActive : iconBtn}>
 
-                <Focus className="w-3.5 h-3.5" />
+                <Focus className="w-3.5 h-3.5" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -341,60 +329,30 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
               <div className="flex-1" />
 
               <button
+              type="button"
               onClick={() => setShowResetModal(true)}
-              title="Reset to defaults"
+              aria-label="Reset Config to Defaults"
+              title="Reset to Defaults"
               className={iconBtn}>
 
-                <Eraser className="w-3.5 h-3.5" />
+                <Eraser className="w-3.5 h-3.5" aria-hidden="true" />
               </button>
 
               <button
+              type="button"
               onClick={() => setShowJson(!showJson)}
-              title={showJson ? 'Show form view' : 'Show JSON view'}
+              aria-label={showJson ? "Show Form View" : "Show JSON View"}
+              aria-pressed={showJson}
+              title={showJson ? 'Show Form View' : 'Show JSON View'}
               className={showJson ? iconBtnActive : iconBtn}>
 
-                <Braces className="w-3.5 h-3.5" />
+                <Braces className="w-3.5 h-3.5" aria-hidden="true" />
               </button>
             </div>
 
             {/* Config Form / JSON */}
             <div
             className={`px-3 pb-3 ${overridesDisabled ? 'opacity-40 pointer-events-none select-none' : ''}`}>
-
-              {!showJson ? (
-                <div className={`mb-3 rounded border ${borderSubtle} ${sectionBg}`}>
-                  <button
-                    type="button"
-                    onClick={() => setFoundationExpanded(!foundationExpanded)}
-                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded transition-colors ${hoverBg}`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Settings className={`w-3.5 h-3.5 ${textSecondary}`} />
-                      <span className={`text-[11px] font-semibold ${textPrimary}`}>
-                        Foundation (Physics Inputs)
-                      </span>
-                    </div>
-                    <ChevronDown
-                      className={`w-3.5 h-3.5 ${textMuted} transition-transform ${foundationExpanded ? "rotate-180" : ""}`}
-                    />
-                  </button>
-                  {foundationExpanded ? (
-                    <div className="px-2.5 pb-2">
-                      <div className={`text-[10px] ${textMuted} mb-2`}>
-                        Profiles, knobs, and advanced overrides only. Derived fields are intentionally not exposed.
-                      </div>
-                      <FoundationAuthoringPanel
-                        schema={configSchema}
-                        value={config.foundation ?? {}}
-                        disabled={overridesDisabled}
-                        onChange={(next) =>
-                          handleConfigPatch({ path: ["foundation"], value: next as unknown as ConfigValue })
-                        }
-                      />
-                    </div>
-                  ) : null}
-                </div>
-              ) : null}
 
               {showJson ?
             <div
@@ -407,14 +365,15 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                   </pre>
                 </div> :
 
-            <ConfigForm
-              config={filteredConfig}
-              onConfigPatch={handleConfigPatch}
-              knobOptions={knobOptions}
-              theme={theme}
+            <SchemaConfigForm
+              schema={configSchema}
+              value={config}
+              focusPath={focusPath}
+              disabled={overridesDisabled}
               lightMode={lightMode}
-              autoExpandDepth={autoExpandDepth}
-              stageLabels={stageLabels} />
+              theme={theme}
+              onChange={(next) => onConfigChange(next)}
+            />
 
             }
             </div>
@@ -431,8 +390,8 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
               disabled={isRunning}
               className={`flex-1 ${isDirty ? 'ring-2 ring-orange-400/50 border-orange-400' : ''} ${isRunning ? 'opacity-70 cursor-wait' : ''}`}>
 
-              <Play className="w-3.5 h-3.5" />
-              <span>{isRunning ? 'Running...' : 'Run'}</span>
+              <Play className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>{isRunning ? 'Running…' : 'Run'}</span>
             </Button>
 
             <div className="relative">
@@ -440,22 +399,28 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                 variant="outline"
                 size="icon"
                 onClick={() => setShowSaveMenu(!showSaveMenu)}
-                title="Save preset"
+                aria-label="Save Preset"
+                aria-haspopup="menu"
+                aria-expanded={showSaveMenu}
+                title="Save Preset"
                 className="h-8 w-8">
 
-                <Save className="w-4 h-4" />
+                <Save className="w-4 h-4" aria-hidden="true" />
               </Button>
 
               {showSaveMenu &&
               <>
-                  <div
+                  <button
+                  type="button"
                   className="fixed inset-0 z-40"
+                  aria-label="Close Save Preset Menu"
                   onClick={() => setShowSaveMenu(false)} />
 
                   <div
                   className={`absolute bottom-full right-0 mb-1 w-36 rounded-lg border shadow-lg z-50 ${panelBg} ${panelBorder}`}>
 
                     <button
+                    type="button"
                     onClick={() => {
                       onSaveToCurrent();
                       setShowSaveMenu(false);
@@ -465,34 +430,38 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                       Save to Current
                     </button>
                     <button
+                    type="button"
                     onClick={() => {
                       onSaveAsNew();
                       setShowSaveMenu(false);
                     }}
                     className={`w-full text-left px-3 py-2 text-[11px] ${textPrimary} ${hoverBg} border-t ${borderSubtle}`}>
 
-                      Save as New...
+                      Save as New…
                     </button>
                     <button
+                    type="button"
                     onClick={() => {
                       onExportPreset();
                       setShowSaveMenu(false);
                     }}
                     className={`w-full text-left px-3 py-2 text-[11px] ${textPrimary} ${hoverBg} border-t ${borderSubtle}`}>
 
-                      Export...
+                      Export…
                     </button>
                     <button
+                    type="button"
                     onClick={() => {
                       onImportPreset();
                       setShowSaveMenu(false);
                     }}
                     className={`w-full text-left px-3 py-2 text-[11px] ${textPrimary} ${hoverBg} border-t ${borderSubtle}`}>
 
-                      Import...
+                      Import…
                     </button>
                     {canDeletePreset &&
                     <button
+                    type="button"
                     onClick={() => {
                       onDeletePreset();
                       setShowSaveMenu(false);
@@ -504,7 +473,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                     }
                     {!canDeletePreset &&
                     <div className={`w-full text-left px-3 py-2 text-[11px] ${textMuted} rounded-b-lg border-t ${borderSubtle}`}>
-                        Delete Preset (local only)
+                        Delete Preset (Local Only)
                       </div>
                     }
                   </div>
