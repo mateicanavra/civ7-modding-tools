@@ -103,3 +103,7 @@ Expected implementation touchpoints:
 ### Wow Scenarios
 
 - **Event corridors are legible:** a human can look at the segment regime layer and understand where subduction/collision chains will appear before morphology runs, and later see provenance/belt continuity follow those corridors.
+
+### Implementation Decisions
+
+- Segment intensities now scale with lithosphere resistance: compression is boosted by higher `crust.strength`, extension/shear are boosted by weaker crust, keeping average intensity near baseline while making resistance influence regime classification.

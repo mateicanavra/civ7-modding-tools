@@ -14,6 +14,13 @@ function clampInt8(value: number): number {
   return Math.max(-127, Math.min(127, Math.round(value))) | 0;
 }
 
+function clamp01(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  if (value <= 0) return 0;
+  if (value >= 1) return 1;
+  return value;
+}
+
 function hypot2(x: number, y: number): number {
   return Math.sqrt(x * x + y * y);
 }
@@ -140,9 +147,18 @@ const computeTectonicSegments = createOp(ComputeTectonicSegmentsContract, {
             const vn = rvx * nx + rvy * ny;
             const vt = rvx * tx + rvy * ty;
 
-            const c = clampByte(Math.max(0, -vn) * intensityScale);
-            const e = clampByte(Math.max(0, vn) * intensityScale);
-            const s = clampByte(Math.abs(vt) * intensityScale);
+            const strengthA = clamp01(crust.strength[i] ?? 0);
+            const strengthB = clamp01(crust.strength[j] ?? 0);
+            const resistance = clamp01((strengthA + strengthB) * 0.5);
+            const weakness = clamp01(1 - resistance);
+
+            const compressionScale = 0.85 + 0.3 * resistance;
+            const extensionScale = 0.85 + 0.3 * weakness;
+            const shearScale = 0.9 + 0.2 * weakness;
+
+            const c = clampByte(Math.max(0, -vn) * intensityScale * compressionScale);
+            const e = clampByte(Math.max(0, vn) * intensityScale * extensionScale);
+            const s = clampByte(Math.abs(vt) * intensityScale * shearScale);
             const kind = boundaryRegimeFromIntensities({ compression: c, extension: e, shear: s, minIntensity: regimeMinIntensity });
 
             let pol = 0;
