@@ -156,8 +156,9 @@ steps:
     status: done
 
   - slice: 8
-    branch: "TBD"
+    branch: "agent-URSULA-M1-LOCAL-TBD-PR-M1-034-cleanup-legacy-config-presets"
     title: "cleanup pass: remove legacy config/dual paths/presets"
+    status: done
 ```
 
 ### Verification (Global)
@@ -177,3 +178,4 @@ Additionally, Studio verification must include:
 - Confirm final artifact IDs and any unavoidable breaking contract boundaries (minimize churn while preserving correctness).
 - Decide how era scrubbing is represented in artifacts and surfaced in Studio (schema vs UI-only timeline control).
 - Confirm whether any legacy preset must remain supported for backward compatibility; default posture is “migrate all in-repo presets”.
+- Studio verification: Chrome MCP tools currently fail with HTTP 400 for the MCP endpoint; if this persists, capture screenshots manually from the running Studio dev server.

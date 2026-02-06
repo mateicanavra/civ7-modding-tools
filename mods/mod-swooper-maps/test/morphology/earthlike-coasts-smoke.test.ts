@@ -7,7 +7,6 @@ import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 
-import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 import morphologyDomain from "../../src/domain/morphology/ops.js";
 import { runOpValidated } from "../support/compiler-helpers.js";
@@ -56,11 +55,11 @@ describe("Earthlike coasts (smoke)", () => {
     if (!(coastlineMetrics?.shelfMask instanceof Uint8Array)) throw new Error("Missing coastlineMetrics.shelfMask.");
     if (!(coastlineMetrics?.distanceToCoast instanceof Uint16Array)) throw new Error("Missing coastlineMetrics.distanceToCoast.");
 
-    const plates = context.artifacts.get(foundationArtifacts.plates.id) as
+    const beltDrivers = context.artifacts.get(morphologyArtifacts.beltDrivers.id) as
       | { boundaryCloseness?: Uint8Array; boundaryType?: Uint8Array }
       | undefined;
-    if (!(plates?.boundaryCloseness instanceof Uint8Array)) throw new Error("Missing plates.boundaryCloseness.");
-    if (!(plates?.boundaryType instanceof Uint8Array)) throw new Error("Missing plates.boundaryType.");
+    if (!(beltDrivers?.boundaryCloseness instanceof Uint8Array)) throw new Error("Missing beltDrivers.boundaryCloseness.");
+    if (!(beltDrivers?.boundaryType instanceof Uint8Array)) throw new Error("Missing beltDrivers.boundaryType.");
 
     // Basic “earthlike” guardrails: not all-coast, and shelf extends beyond adjacency ring.
     let waterTiles = 0;
@@ -109,8 +108,8 @@ describe("Earthlike coasts (smoke)", () => {
         landMask: topography.landMask,
         bathymetry: topography.bathymetry,
         distanceToCoast: coastlineMetrics.distanceToCoast,
-        boundaryCloseness: plates.boundaryCloseness,
-        boundaryType: plates.boundaryType,
+        boundaryCloseness: beltDrivers.boundaryCloseness,
+        boundaryType: beltDrivers.boundaryType,
       },
       { strategy: "default", config: {} }
     );
@@ -142,4 +141,3 @@ describe("Earthlike coasts (smoke)", () => {
     }
   });
 });
-
