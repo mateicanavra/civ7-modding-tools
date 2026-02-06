@@ -148,7 +148,7 @@ const advancedBudgetsSchema = Type.Object(
   {
     eraCount: Type.Optional(
       Type.Integer({
-        minimum: 1,
+        minimum: 5,
         maximum: 8,
         description:
           "Number of tectonic eras to simulate (physics time-horizon / resolution). Higher values produce richer history at higher compute cost.",
@@ -559,7 +559,7 @@ export default createStage({
       typeof budgetsOverrideValues.eraCount === "number"
         ? budgetsOverrideValues.eraCount
         : COMMON_TECTONIC_HISTORY.eraWeights.length,
-      { min: 1, max: 8 }
+      { min: 5, max: 8 }
     );
     const eraWeights = deriveEraWeights({ eraCount });
     const driftStepsByEra = deriveDriftStepsByEra({ eraCount });

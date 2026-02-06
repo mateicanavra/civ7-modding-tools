@@ -280,4 +280,44 @@ describe("m11 tectonics (segments + history)", () => {
     expect(a.tectonicHistory.lastActiveEra[0]).toBe(4);
     expect(a.tectonicHistory.lastActiveEra[1]).toBe(4);
   });
+
+  it("rejects eraCount below the 5-era contract minimum", () => {
+    const mesh = makeTwoCellMesh();
+    const crust = {
+      maturity: new Float32Array([0, 0.9]),
+      thickness: new Float32Array([0.2, 0.8]),
+      thermalAge: new Uint8Array([0, 0]),
+      damage: new Uint8Array([0, 0]),
+      type: new Uint8Array([0, 1]),
+      age: new Uint8Array([0, 0]),
+      buoyancy: new Float32Array([0.2, 0.9]),
+      baseElevation: new Float32Array([0.2, 0.9]),
+      strength: new Float32Array([0.2, 0.9]),
+    } as const;
+    const plateGraph = {
+      cellToPlate: new Int16Array([0, 1]),
+      plates: [
+        { id: 0, role: "tectonic", kind: "major", seedX: 0, seedY: 0 },
+        { id: 1, role: "tectonic", kind: "major", seedX: 1, seedY: 0 },
+      ],
+    } as const;
+    const plateMotion = makePlateMotion(plateGraph, mesh.cellCount, [{}, { velocityX: -1.0 }]);
+    const segments = computeTectonicSegments.run(
+      { mesh, crust: crust as any, plateGraph: plateGraph as any, plateMotion: plateMotion as any },
+      computeTectonicSegments.defaultConfig
+    ).segments;
+    const mantleForcing = makeMantleForcing(mesh.cellCount);
+    const invalidConfig = {
+      strategy: "default" as const,
+      config: {
+        ...computeTectonicHistory.defaultConfig.config,
+        eraWeights: [0.4, 0.3, 0.2, 0.1],
+        driftStepsByEra: [2, 2, 2, 2],
+      },
+    };
+
+    expect(() =>
+      computeTectonicHistory.run({ mesh, crust, mantleForcing, plateGraph, segments }, invalidConfig)
+    ).toThrow("[Foundation] compute-tectonic-history expects eraCount within 5..8.");
+  });
 });
