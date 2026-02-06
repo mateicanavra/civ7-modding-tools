@@ -126,4 +126,28 @@ describe("foundation contract guardrails", () => {
     const requiredIds = requires.map((artifact: any) => (typeof artifact === "string" ? artifact : artifact.id));
     expect(requiredIds).toContain(foundationArtifacts.tectonicProvenance.id);
   });
+
+  it("keeps projected motion surfaces derived from canonical plateMotion", () => {
+    const repoRoot = path.resolve(import.meta.dir, "../..");
+    const projectionContractFile = path.join(
+      repoRoot,
+      "src/recipes/standard/stages/foundation/steps/projection.contract.ts"
+    );
+    const projectionStepFile = path.join(
+      repoRoot,
+      "src/recipes/standard/stages/foundation/steps/projection.ts"
+    );
+
+    const projectionContractText = readFileSync(projectionContractFile, "utf8");
+    expect(projectionContractText).toContain("foundationArtifacts.plateMotion");
+
+    const projectionStepText = readFileSync(projectionStepFile, "utf8");
+    expect(projectionStepText).toContain("const plateMotion = deps.artifacts.foundationPlateMotion.read(context);");
+    expect(projectionStepText).toContain("plateMotion,");
+    expect(projectionStepText).toContain("platesResult.plates.movementU");
+    expect(projectionStepText).toContain("platesResult.plates.movementV");
+    expect(projectionStepText).not.toContain("plateGraph.plates[");
+    expect(projectionStepText).not.toContain(".velocityX");
+    expect(projectionStepText).not.toContain(".velocityY");
+  });
 });

@@ -1,19 +1,5 @@
 # PLAN — No-legacy Foundation ↔ Morphology refactor (2026-02-05)
 
-## Canonical Status
-
-This file is the sole canonical runbook going forward.
-
-The extracted "Execution Runbook — Remediation Spike v2" from session `019c2c49-864f-7cd2-904f-14c5cc310a9f` is historical execution context that has already been carried out.
-
-## Completed Prerequisites (as of 2026-02-06)
-
-- [x] Stack repair/restack completed during remediation spike execution (`2b940a030`, `a081c3ce4`, `b869cb526` context stack).
-- [x] Diagnostics toolkit promoted into repo tooling (`2b940a030`).
-- [x] Dump-first diagnosis docs added and cross-linked (`2b940a030`).
-- [x] Consolidated realism diagnosis spike doc added (`a081c3ce4`).
-- [x] Planning artifacts generated, including this canonical plan (`b869cb526`).
-
 ## Summary
 
 This plan converts the current “looks wired but behaves unchanged” posture into a **single causal spine**:
@@ -28,10 +14,6 @@ This plan is intentionally **no-legacy**: any legacy-independent “truth” (oc
 
 Only future-facing implementation work remains:
 
-### Phase 0 — No Dual-Engine Preflight
-- Add preflight-only guards and targeted UI correctness fixes that unblock Phase A.
-- Preflight slices complete here; do not execute Phase A/B/C/D in this pass.
-
 ### Phase A — Foundation truth normalization + degeneracy elimination
 - Make crust truth continuous and non-degenerate for canonical probes.
 - Ensure provenance resets are materially present and calibrated to observed forcing ranges.
@@ -45,16 +27,16 @@ Only future-facing implementation work remains:
 - Remove or constrain any hidden re-thresholding that shreds land connectivity.
 
 ### Phase D — Observability hardening as enforcement
-- Use existing diagnostics tooling as regression gates (not bootstrap/setup work).
+- Use diagnostics tooling as regression gates.
 - Promote required acceptance checks into routine verification for each refactor slice.
 
-## Why this plan exists (current ground truth)
+## Execution Baseline
 
 Deterministic probe (`106×66 seed=1337`) demonstrates:
 - `morphology-coasts.landmass-plates` landmask components: **434** (high speckle)
 - `foundation.crustTiles.type` stats: `min=max=1` (continent signal saturated / degenerate)
 
-Diagnostics bootstrap is already complete; use these existing commands for verification/regression checks:
+Use these commands for verification/regression checks:
 - `bun run --cwd mods/mod-swooper-maps diag:dump -- 106 66 1337 --label probe-baseline`
 - `bun run --cwd mods/mod-swooper-maps diag:analyze -- <runDir>`
 - `bun run --cwd mods/mod-swooper-maps diag:list -- <runDir> --dataTypeKey foundation.crustTiles.type`
@@ -176,30 +158,30 @@ This requires:
 - a provenance reset model calibrated to actual driver signals
 - a maturity evolution model that yields multi-modal distributions (oceanic vs continental vs craton cores), not saturation
 
-## Phased refactor proposal (no dual pipelines)
+## Phase criteria (aligned to Forward Runbook)
 
-This is the intended sequencing for the *next* implementation stack. Each phase deletes legacy paths as it lands; no “run both”.
+Each phase deletes legacy paths as it lands; no dual implementation paths.
 
-### Phase 1 — Foundation truth normalization + degeneracy gates
+### Phase A — Foundation truth normalization + degeneracy gates
 - Make `crust.type` derived (or delete it as a primary state); ensure tile projections are non-degenerate.
 - Add invariants:
   - `foundation.crustTiles.type` not uniform
   - maturity/age distributions non-trivial
   - provenance reset frequency non-zero
 
-### Phase 2 — Morphology landmask grounded in crust truth
+### Phase B — Morphology landmask grounded in crust truth
 - Replace the primary landmask classifier with the continent potential posture above.
 - Ensure geomorphology cannot silently destroy connectivity unless explicitly intended.
 - Gate: connected-components and largestLandFrac must improve for earthlike baselines.
 
-### Phase 3 — Belt drivers as modifiers (unified spine)
+### Phase C — Belt drivers as modifiers (unified spine)
 - Ensure beltDrivers modulate mountain building and ruggedness without becoming the primary land/water generator.
 - Confirm consumers (coasts/features/mountains) all consume the same beltDrivers artifact.
 
-### Phase 4 — Observability hardening
+### Phase D — Observability hardening
 - Make dump-first metrics a required harness for regression prevention:
   - store canonical probe run commands in docs
-  - add CI-adjacent checks later (post-spike) for degeneracy gates
+  - add CI-adjacent checks for degeneracy gates
 
 ## Matrix — Foundation outputs → consumers → disposition
 
@@ -225,11 +207,11 @@ Legend:
 | `foundationArtifacts.crustTiles` | projection | morphology-coasts landmass | keep | must be non-degenerate; `type` becomes derived view |
 | `foundationArtifacts.tectonicHistoryTiles` | projection | morphology-coasts landmass | keep | era-indexed drivers |
 | `foundationArtifacts.tectonicProvenanceTiles` | projection | morphology-coasts landmass | keep | provenance stability inputs |
-| `foundationArtifacts.plateTopology` | derived | (currently foundation-only) | defer | defer unless a downstream consumer requires explicit topology; trigger: morphology or other domains need stable plate adjacency not already encoded in `plates.*` projections |
+| `foundationArtifacts.plateTopology` | derived | foundation-only | defer | defer unless a downstream consumer requires explicit topology; trigger: morphology or other domains need stable plate adjacency not already encoded in `plates.*` projections |
 
-## Consumer map (current, code-anchored)
+## Consumer map (code-anchored)
 
-This is the current (as of this plan) “who reads what” map in `mods/mod-swooper-maps`:
+This map captures “who reads what” in `mods/mod-swooper-maps`:
 
 - `foundationArtifacts.mesh`
   - required by: `foundation/steps/{mantlePotential,mantleForcing,crust,plateGraph,plateMotion,tectonics,crustEvolution,projection}.*`
@@ -291,7 +273,7 @@ This is the current (as of this plan) “who reads what” map in `mods/mod-swoo
 | `compute-landmask` | elevation + sea level | Morphology derived | derived | Replace threshold-first posture: landmask must be grounded in crust truth potential; avoid noise-dominated thresholding. |
 | `geomorphology` (erosion) | topography | Morphology derived | derived | Constrain reclassification: erosion should sculpt; land/water should not silently fragment as a side effect. |
 
-## Required dump-first acceptance checks (for the next implementation)
+## Required dump-first acceptance checks
 
 These are mandatory for verifying the refactor:
 
@@ -300,8 +282,3 @@ These are mandatory for verifying the refactor:
   - landmass-plates components drop materially
   - largestLandFrac rises materially
 - meaningful knob/physics changes produce non-trivial A/B hamming where expected (dead levers eliminated)
-
-## Non-Goals for this runbook
-
-- Do not repeat stack-unscrew/restack work unless a new divergence event is observed.
-- Do not re-run diagnostics bootstrap/setup phases already captured by completed commits.
