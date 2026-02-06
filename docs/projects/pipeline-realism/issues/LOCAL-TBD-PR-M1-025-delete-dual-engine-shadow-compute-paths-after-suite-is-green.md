@@ -80,6 +80,7 @@ related_to: []
   - dual-read Morphology inputs (`LOCAL-TBD-PR-M1-014`),
   - correlation diagnostics and delta layers for tuning/gating (`LOCAL-TBD-PR-M1-020`),
   - potentially legacy motion/morphology computations run in parallel for comparison.
+- `projection.ts` still treats mesh-level `tectonicProvenance` as optional, allowing a fallback path even after the provenance producer is in place.
 
 ### Proposed Change Surface
 
@@ -87,6 +88,13 @@ related_to: []
 - Keep only:
   - stable, semantic viz layer taxonomy (D08r),
   - and the D09r validation suite as the correctness authority.
+- Remove optional provenance fallback in projection:
+  - require `foundationArtifacts.tectonicProvenance` in the projection contract,
+  - read provenance via `deps.artifacts.foundationTectonicProvenance` only.
+
+### Implementation Decisions
+
+- Treat mesh-level provenance as mandatory for projection once D04r provenance is in place; optional fallback is removed to prevent shadow paths.
 
 ### Pitfalls / Rakes
 

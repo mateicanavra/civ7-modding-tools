@@ -93,9 +93,7 @@ export default createStep(ProjectionStepContract, {
     const tectonics = deps.artifacts.foundationTectonics.read(context);
     const tectonicHistory = deps.artifacts.foundationTectonicHistory.read(context) as FoundationTectonicHistory;
     const tectonicProvenance =
-      (context.artifacts.get(foundationArtifacts.tectonicProvenance.id) as
-        | FoundationTectonicProvenance
-        | undefined) ?? null;
+      deps.artifacts.foundationTectonicProvenance.read(context) as FoundationTectonicProvenance;
 
     const platesResult = ops.computePlates(
       {
@@ -107,7 +105,7 @@ export default createStep(ProjectionStepContract, {
         plateMotion,
         tectonics,
         tectonicHistory,
-        tectonicProvenance: tectonicProvenance ?? undefined,
+        tectonicProvenance,
       },
       config.computePlates
     );
