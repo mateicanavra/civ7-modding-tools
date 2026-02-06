@@ -6,14 +6,17 @@ Last hardened: 2026-02-06
 
 Treat these as the source of truth for “what maximal means”:
 
-- Milestone plan-of-record: `docs/projects/pipeline-realism/milestones/M1-foundation-maximal-cutover.md`
 - Canonical target architecture: `docs/projects/pipeline-realism/resources/spec/foundation-evolutionary-physics-SPEC.md`
 - Decision set index (normative): `docs/projects/pipeline-realism/resources/decisions/README.md`
-- Migration slices (procedural landing plan):
+- Spec-to-code delta diagnosis: `docs/projects/pipeline-realism/resources/research/SPIKE-m1-foundation-realism-regression-2026-02-04.md`
+- Milestone plan-of-record (what we tried to land in M1; useful for scope/acceptance framing, not a “remaining work” checklist):
+  - `docs/projects/pipeline-realism/milestones/M1-foundation-maximal-cutover.md`
+- Migration slices (historical M1 landing sequence; **not** a current TODO list, and the checkboxes inside may be stale):
   - `docs/projects/pipeline-realism/resources/spec/migration-slices/slice-01-prepare-new-artifacts-and-viz.md`
   - `docs/projects/pipeline-realism/resources/spec/migration-slices/slice-02-cutover-foundation-maximal.md`
   - `docs/projects/pipeline-realism/resources/spec/migration-slices/slice-03-cutover-morphology-consumption-and-cleanup.md`
-- Spec-to-code delta diagnosis: `docs/projects/pipeline-realism/resources/research/SPIKE-m1-foundation-realism-regression-2026-02-04.md`
+
+If you are executing this plan, prefer the phase sections below + the Execution Checklist, and treat the migration-slices docs as rationale/intent only.
 
 ## Root Problem (Why This Exists)
 
