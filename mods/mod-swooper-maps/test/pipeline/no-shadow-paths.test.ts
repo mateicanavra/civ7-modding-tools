@@ -19,12 +19,12 @@ function listFilesRecursive(rootDir: string): string[] {
 }
 
 const bannedShadowSurfacePatterns: RegExp[] = [
-  /\bdualRead\b/i,
-  /\bdual[-_ ]?engine\b/i,
-  /\bdual[-_ ]?path\b/i,
-  /\bshadow(?:Path|Compute|Layer|Mode|Toggle)\b/i,
-  /\bcompare(?:Layer|Layers|Mode|Toggle|Only)\b/i,
-  /\bcomparison(?:Layer|Layers|Mode|Toggle|Only)\b/i,
+  /\bdualRead/i,
+  /\bdual[-_ ]?engine/i,
+  /\bdual[-_ ]?path/i,
+  /\bshadow(?:Path|Compute|Layer|Mode|Toggle)/i,
+  /\bcompare(?:Layer|Layers|Mode|Toggle|Only)/i,
+  /\bcomparison(?:Layer|Layers|Mode|Toggle|Only)/i,
 ];
 
 describe("pipeline no-shadow-path guardrails", () => {
