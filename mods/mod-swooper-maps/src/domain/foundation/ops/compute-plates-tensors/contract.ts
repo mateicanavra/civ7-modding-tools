@@ -60,7 +60,7 @@ const FoundationTectonicProvenanceSchema = Type.Object(
     /** Schema major version. */
     version: Type.Integer({ minimum: 1, description: "Schema major version." }),
     /** Number of eras included in the provenance payload. */
-    eraCount: Type.Integer({ minimum: 1, description: "Number of eras included in the provenance payload." }),
+    eraCount: Type.Integer({ minimum: 5, maximum: 8, description: "Number of eras included in the provenance payload." }),
     /** Number of mesh cells. */
     cellCount: Type.Integer({ minimum: 1, description: "Number of mesh cells." }),
     /** Per-era tracer indices (length = eraCount; each entry length = cellCount). */
@@ -265,7 +265,7 @@ const TectonicHistoryTilesSchema = Type.Object(
     /** Schema major version. */
     version: Type.Integer({ minimum: 1, description: "Schema major version." }),
     /** Number of eras included in the history tiles payload. */
-    eraCount: Type.Integer({ minimum: 1, description: "Number of eras included in the history tiles payload." }),
+    eraCount: Type.Integer({ minimum: 5, maximum: 8, description: "Number of eras included in the history tiles payload." }),
     /** Per-era tile fields (length = eraCount). */
     perEra: Type.Immutable(
       Type.Array(TectonicHistoryTilesEraSchema, {

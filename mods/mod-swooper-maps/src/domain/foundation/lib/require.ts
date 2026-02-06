@@ -10,7 +10,7 @@ import type {
 } from "../ops/compute-tectonic-history/contract.js";
 import type { FoundationTectonicProvenance } from "../ops/compute-plates-tensors/contract.js";
 
-const ERA_COUNT_MIN = 1;
+const ERA_COUNT_MIN = 5;
 const ERA_COUNT_MAX = 8;
 
 export function requireMesh(mesh: FoundationMesh | undefined, scope: string): FoundationMesh {
