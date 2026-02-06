@@ -9,12 +9,12 @@ import { FoundationTectonicSegmentsSchema } from "../compute-tectonic-segments/c
 const StrategySchema = Type.Object(
   {
     eraWeights: Type.Array(Type.Number({ minimum: 0, maximum: 10 }), {
-      default: [0.35, 0.35, 0.3],
-      description: "Per-era weight multipliers (3 eras).",
+      default: [0.3, 0.25, 0.2, 0.15, 0.1],
+      description: "Per-era weight multipliers (5 eras).",
     }),
     driftStepsByEra: Type.Array(Type.Integer({ minimum: 0, maximum: 16 }), {
-      default: [2, 1, 0],
-      description: "How many discrete neighbor steps to drift segment seeds per era (3 eras; oldest→newest).",
+      default: [2, 2, 2, 2, 2],
+      description: "How many discrete neighbor steps to drift segment seeds per era (5 eras; oldest→newest).",
     }),
     beltInfluenceDistance: Type.Integer({
       default: 8,

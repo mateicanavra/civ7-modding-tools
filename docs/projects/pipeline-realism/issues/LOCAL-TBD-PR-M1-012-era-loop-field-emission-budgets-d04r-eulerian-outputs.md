@@ -77,6 +77,12 @@ related_to: []
 - [Testing / Verification](#testing--verification)
 - [Dependencies / Notes](#dependencies--notes)
 
+### Implementation Decisions
+- D04r era loop now enforces bounded counts: target `5` eras with `8` as the hard max; `eraWeights` and `driftStepsByEra` must match `eraCount`.
+- Defaults align to the 5-era posture (`eraWeights=[0.3,0.25,0.2,0.15,0.1]`, `driftStepsByEra=[2,2,2,2,2]`) and validation now enforces `5..8` eras (no legacy `3`-era acceptance).
+- Determinism check for rollups is asserted via identical-run comparisons in `m11-tectonic-segments-history.test.ts` (e.g., `upliftTotal`, `lastActiveEra`).
+- Generated `mods/mod-swooper-maps/mod/maps/*` configs still carry 3-era arrays; do not hand-edit. Regenerate via build once the new defaults are ready to ship.
+
 ### Current State (Observed)
 
 Today’s Foundation history already exists as a multi-era artifact, but with hardcoded assumptions:

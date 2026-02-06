@@ -274,13 +274,13 @@ describe("m11 tectonics (segments + history)", () => {
       computeTectonicHistory.defaultConfig
     );
 
-    expect(a.tectonicHistory.eraCount).toBe(3);
-    expect(a.tectonicHistory.eras.length).toBe(3);
+    expect(a.tectonicHistory.eraCount).toBe(5);
+    expect(a.tectonicHistory.eras.length).toBe(5);
     expect(Array.from(a.tectonicHistory.upliftTotal)).toEqual(Array.from(b.tectonicHistory.upliftTotal));
     expect(Array.from(a.tectonicHistory.lastActiveEra)).toEqual(Array.from(b.tectonicHistory.lastActiveEra));
 
     // Both cells are within belt influence for this tiny mesh and should be active in the newest era.
-    expect(a.tectonicHistory.lastActiveEra[0]).toBe(2);
-    expect(a.tectonicHistory.lastActiveEra[1]).toBe(2);
+    expect(a.tectonicHistory.lastActiveEra[0]).toBe(4);
+    expect(a.tectonicHistory.lastActiveEra[1]).toBe(4);
   });
 });

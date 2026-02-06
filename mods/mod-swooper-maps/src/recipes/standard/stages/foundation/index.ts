@@ -107,8 +107,8 @@ const COMMON_TECTONIC_SEGMENTS = {
 } as const;
 
 const COMMON_TECTONIC_HISTORY = {
-  eraWeights: [0.35, 0.35, 0.3],
-  driftStepsByEra: [2, 1, 0],
+  eraWeights: [0.3, 0.25, 0.2, 0.15, 0.1],
+  driftStepsByEra: [2, 2, 2, 2, 2],
   beltInfluenceDistance: 8,
   beltDecay: 0.55,
   activityThreshold: 1,
