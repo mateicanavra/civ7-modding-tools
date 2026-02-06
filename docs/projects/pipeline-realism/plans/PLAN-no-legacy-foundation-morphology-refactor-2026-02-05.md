@@ -1,17 +1,5 @@
 # PLAN — No-legacy Foundation ↔ Morphology refactor (2026-02-05)
 
-## Canonical Status
-
-This file is the sole canonical implementation runbook.
-
-## Completed Prerequisites
-
-- [x] Stack repair/restack completed.
-- [x] Diagnostics toolkit promoted into repo tooling.
-- [x] Dump-first diagnosis docs added and cross-linked.
-- [x] Consolidated realism diagnosis spike doc added.
-- [x] Preflight slices completed and review feedback integrated.
-
 ## Summary
 
 This plan converts the current “looks wired but behaves unchanged” posture into a **single causal spine**:
@@ -39,16 +27,16 @@ Only future-facing implementation work remains:
 - Remove or constrain any hidden re-thresholding that shreds land connectivity.
 
 ### Phase D — Observability hardening as enforcement
-- Use existing diagnostics tooling as regression gates (not bootstrap/setup work).
+- Use diagnostics tooling as regression gates.
 - Promote required acceptance checks into routine verification for each refactor slice.
 
-## Why this plan exists (current ground truth)
+## Execution Baseline
 
 Deterministic probe (`106×66 seed=1337`) demonstrates:
 - `morphology-coasts.landmass-plates` landmask components: **434** (high speckle)
 - `foundation.crustTiles.type` stats: `min=max=1` (continent signal saturated / degenerate)
 
-Diagnostics bootstrap is already complete; use these existing commands for verification/regression checks:
+Use these commands for verification/regression checks:
 - `bun run --cwd mods/mod-swooper-maps diag:dump -- 106 66 1337 --label probe-baseline`
 - `bun run --cwd mods/mod-swooper-maps diag:analyze -- <runDir>`
 - `bun run --cwd mods/mod-swooper-maps diag:list -- <runDir> --dataTypeKey foundation.crustTiles.type`
@@ -193,7 +181,7 @@ Each phase deletes legacy paths as it lands; no dual implementation paths.
 ### Phase D — Observability hardening
 - Make dump-first metrics a required harness for regression prevention:
   - store canonical probe run commands in docs
-  - add CI-adjacent checks later (post-spike) for degeneracy gates
+  - add CI-adjacent checks for degeneracy gates
 
 ## Matrix — Foundation outputs → consumers → disposition
 
@@ -219,11 +207,11 @@ Legend:
 | `foundationArtifacts.crustTiles` | projection | morphology-coasts landmass | keep | must be non-degenerate; `type` becomes derived view |
 | `foundationArtifacts.tectonicHistoryTiles` | projection | morphology-coasts landmass | keep | era-indexed drivers |
 | `foundationArtifacts.tectonicProvenanceTiles` | projection | morphology-coasts landmass | keep | provenance stability inputs |
-| `foundationArtifacts.plateTopology` | derived | (currently foundation-only) | defer | defer unless a downstream consumer requires explicit topology; trigger: morphology or other domains need stable plate adjacency not already encoded in `plates.*` projections |
+| `foundationArtifacts.plateTopology` | derived | foundation-only | defer | defer unless a downstream consumer requires explicit topology; trigger: morphology or other domains need stable plate adjacency not already encoded in `plates.*` projections |
 
-## Consumer map (current, code-anchored)
+## Consumer map (code-anchored)
 
-This is the current (as of this plan) “who reads what” map in `mods/mod-swooper-maps`:
+This map captures “who reads what” in `mods/mod-swooper-maps`:
 
 - `foundationArtifacts.mesh`
   - required by: `foundation/steps/{mantlePotential,mantleForcing,crust,plateGraph,plateMotion,tectonics,crustEvolution,projection}.*`
@@ -285,7 +273,7 @@ This is the current (as of this plan) “who reads what” map in `mods/mod-swoo
 | `compute-landmask` | elevation + sea level | Morphology derived | derived | Replace threshold-first posture: landmask must be grounded in crust truth potential; avoid noise-dominated thresholding. |
 | `geomorphology` (erosion) | topography | Morphology derived | derived | Constrain reclassification: erosion should sculpt; land/water should not silently fragment as a side effect. |
 
-## Required dump-first acceptance checks (for the next implementation)
+## Required dump-first acceptance checks
 
 These are mandatory for verifying the refactor:
 
@@ -294,8 +282,3 @@ These are mandatory for verifying the refactor:
   - landmass-plates components drop materially
   - largestLandFrac rises materially
 - meaningful knob/physics changes produce non-trivial A/B hamming where expected (dead levers eliminated)
-
-## Non-Goals for this runbook
-
-- Do not repeat stack-unscrew/restack work unless a new divergence event is observed.
-- Do not re-run diagnostics bootstrap/setup phases already captured by completed commits.
