@@ -10,12 +10,16 @@ const StrategySchema = Type.Object(
   {
     eraWeights: Type.Array(Type.Number({ minimum: 0, maximum: 10 }), {
       default: [0.3, 0.25, 0.2, 0.15, 0.1],
-      description: "Per-era weight multipliers (oldest→newest). Array length defines eraCount (1..8).",
+      minItems: 5,
+      maxItems: 8,
+      description: "Per-era weight multipliers (oldest→newest). Array length defines eraCount (5..8).",
     }),
     driftStepsByEra: Type.Array(Type.Integer({ minimum: 0, maximum: 16 }), {
       default: [2, 2, 2, 2, 2],
+      minItems: 5,
+      maxItems: 8,
       description:
-        "How many discrete neighbor steps to drift segment seeds per era (oldest→newest). Array length defines eraCount (1..8).",
+        "How many discrete neighbor steps to drift segment seeds per era (oldest→newest). Array length defines eraCount (5..8).",
     }),
     beltInfluenceDistance: Type.Integer({
       default: 8,
@@ -53,7 +57,7 @@ const EraFieldsSchema = Type.Object(
 
 export const FoundationTectonicHistorySchema = Type.Object(
   {
-    eraCount: Type.Integer({ minimum: 1, maximum: 8 }),
+    eraCount: Type.Integer({ minimum: 5, maximum: 8 }),
     eras: Type.Immutable(Type.Array(EraFieldsSchema, { description: "Era fields (oldest→newest)." })),
     upliftTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated uplift across eras (0..255)." }),
     fractureTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated fracture across eras (0..255)." }),
@@ -137,7 +141,7 @@ export const FoundationTectonicProvenanceSchema = Type.Object(
     /** Schema major version. */
     version: Type.Integer({ minimum: 1, description: "Schema major version." }),
     /** Number of eras included in the provenance payload. */
-    eraCount: Type.Integer({ minimum: 1, description: "Number of eras included in the provenance payload." }),
+    eraCount: Type.Integer({ minimum: 5, maximum: 8, description: "Number of eras included in the provenance payload." }),
     /** Number of mesh cells. */
     cellCount: Type.Integer({ minimum: 1, description: "Number of mesh cells." }),
     /** Per-era tracer indices (length = eraCount; each entry length = cellCount). */

@@ -183,4 +183,41 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
     const second = standardRecipe.compileConfig(env, config);
     expect(stableStringify(first.foundation)).toBe(stableStringify(second.foundation));
   });
+
+  it("enforces and compiles foundation advanced budgets eraCount in 5..8", () => {
+    expect(() =>
+      standardRecipe.compileConfig(env, {
+        foundation: {
+          ...foundationBaseConfig,
+          advanced: { budgets: { eraCount: 1 } },
+        },
+      })
+    ).toThrow("/config/foundation/advanced/budgets/eraCount: must be >= 5");
+    expect(() =>
+      standardRecipe.compileConfig(env, {
+        foundation: {
+          ...foundationBaseConfig,
+          advanced: { budgets: { eraCount: 9 } },
+        },
+      })
+    ).toThrow("/config/foundation/advanced/budgets/eraCount: must be <= 8");
+
+    const min = standardRecipe.compileConfig(env, {
+      foundation: {
+        ...foundationBaseConfig,
+        advanced: { budgets: { eraCount: 5 } },
+      },
+    });
+    const max = standardRecipe.compileConfig(env, {
+      foundation: {
+        ...foundationBaseConfig,
+        advanced: { budgets: { eraCount: 8 } },
+      },
+    });
+
+    expect(min.foundation.tectonics.computeTectonicHistory.config.eraWeights.length).toBe(5);
+    expect(min.foundation.tectonics.computeTectonicHistory.config.driftStepsByEra.length).toBe(5);
+    expect(max.foundation.tectonics.computeTectonicHistory.config.eraWeights.length).toBe(8);
+    expect(max.foundation.tectonics.computeTectonicHistory.config.driftStepsByEra.length).toBe(8);
+  });
 });
