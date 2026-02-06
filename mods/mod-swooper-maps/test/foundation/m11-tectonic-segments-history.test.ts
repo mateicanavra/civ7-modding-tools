@@ -20,6 +20,10 @@ describe("m11 tectonics (segments + history)", () => {
   it("segment decomposition is rotation-aware (shear changes when rotation changes)", () => {
     const mesh = makeTwoCellMesh();
     const crust = {
+      maturity: new Float32Array([0, 0]),
+      thickness: new Float32Array([0.25, 0.25]),
+      thermalAge: new Uint8Array([0, 0]),
+      damage: new Uint8Array([0, 0]),
       type: new Uint8Array([0, 0]),
       age: new Uint8Array([0, 0]),
       buoyancy: new Float32Array([0.2, 0.2]),
@@ -62,6 +66,10 @@ describe("m11 tectonics (segments + history)", () => {
   it("convergent polarity is stable for oceanic-under-continental pairing", () => {
     const mesh = makeTwoCellMesh();
     const crust = {
+      maturity: new Float32Array([0, 0.9]),
+      thickness: new Float32Array([0.2, 0.8]),
+      thermalAge: new Uint8Array([0, 0]),
+      damage: new Uint8Array([0, 0]),
       type: new Uint8Array([0, 1]),
       age: new Uint8Array([0, 0]),
       buoyancy: new Float32Array([0.2, 0.9]),
@@ -90,6 +98,10 @@ describe("m11 tectonics (segments + history)", () => {
   it("3-era history is deterministic and populates lastActiveEra", () => {
     const mesh = makeTwoCellMesh();
     const crust = {
+      maturity: new Float32Array([0, 0.9]),
+      thickness: new Float32Array([0.2, 0.8]),
+      thermalAge: new Uint8Array([0, 0]),
+      damage: new Uint8Array([0, 0]),
       type: new Uint8Array([0, 1]),
       age: new Uint8Array([0, 0]),
       buoyancy: new Float32Array([0.2, 0.9]),

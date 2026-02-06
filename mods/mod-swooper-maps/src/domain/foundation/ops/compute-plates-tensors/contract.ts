@@ -120,10 +120,10 @@ const InputSchema = Type.Object(
     height: Type.Integer({ minimum: 1, description: "Map height in tiles." }),
     /** Foundation mesh (cells, adjacency, site coordinates). */
     mesh: withDescription(FoundationMeshSchema, "Foundation mesh (cells, adjacency, site coordinates)."),
-    /** Crust drivers (type/age/buoyancy/baseElevation/strength) per mesh cell. */
+    /** Crust truth + derived drivers (maturity/thickness/thermalAge/damage + type/age/buoyancy/baseElevation/strength) per mesh cell. */
     crust: withDescription(
       FoundationCrustSchema,
-      "Crust drivers (type/age/buoyancy/baseElevation/strength) per mesh cell."
+      "Crust truth + derived drivers (maturity/thickness/thermalAge/damage + type/age/buoyancy/baseElevation/strength) per mesh cell."
     ),
     /** Plate graph per mesh cell (cellToPlate + per-plate metadata). */
     plateGraph: withDescription(
@@ -155,9 +155,9 @@ const CrustTilesSchema = Type.Object(
     type: TypedArraySchemas.u8({
       description: "Crust type per tile (0=oceanic, 1=continental), sampled via tileToCellIndex.",
     }),
-    /** Crust age per tile (0=new, 255=ancient), sampled via tileToCellIndex. */
+    /** Crust thermal age per tile (0=new, 255=ancient), sampled via tileToCellIndex. */
     age: TypedArraySchemas.u8({
-      description: "Crust age per tile (0=new, 255=ancient), sampled via tileToCellIndex.",
+      description: "Crust thermal age per tile (0=new, 255=ancient), sampled via tileToCellIndex.",
     }),
     /** Crust buoyancy proxy per tile (0..1), sampled via tileToCellIndex. */
     buoyancy: TypedArraySchemas.f32({

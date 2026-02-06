@@ -88,20 +88,15 @@ function distanceSqWrapped(ax: number, ay: number, bx: number, by: number, wrapW
   return dx * dx + dy * dy;
 }
 
-function crustAgeNorm(age: number): number {
-  if (!Number.isFinite(age)) return 0;
-  return Math.max(0, Math.min(1, age / 255));
+function crustStrengthNorm(strength: number): number {
+  if (!Number.isFinite(strength)) return 0;
+  return clamp01(strength);
 }
 
-function computeCellResistance(type: number, age: number): number {
-  const a = crustAgeNorm(age);
-  const agePenalty = a * a;
-  if ((type | 0) === 1) {
-    // Continental / cratonic crust: high resistance discourages bisecting cores.
-    return 2.2 + 2.8 * agePenalty;
-  }
-  // Oceanic crust: lower resistance encourages boundaries offshore.
-  return 1.0 + 0.8 * agePenalty;
+function computeCellResistance(strength: number): number {
+  const s = crustStrengthNorm(strength);
+  // Map 0..1 strength into a 1..5 resistance range (stronger lithosphere resists partitioning).
+  return 1.0 + 4.0 * s;
 }
 
 function clamp01(value: number): number {
@@ -139,7 +134,7 @@ function pickExtremeYCell(params: {
 
 function pickSeedCell(params: {
   mesh: { cellCount: number; wrapWidth: number; siteX: Float32Array; siteY: Float32Array; bbox: { yt: number; yb: number } };
-  crust: { type: Uint8Array; age: Uint8Array };
+  crust: { strength: Float32Array; maturity: Float32Array };
   rng: (max: number, label?: string) => number;
   used: Uint8Array;
   existingSeeds: number[];
@@ -171,13 +166,12 @@ function pickSeedCell(params: {
       if (d < minDistSq) minDistSq = d;
     }
 
-    const type = params.crust.type[candidate] ?? 0;
-    const age = params.crust.age[candidate] ?? 0;
-    const a = crustAgeNorm(age);
+    const strength = clamp01(params.crust.strength[candidate] ?? 0);
+    const maturity = clamp01(params.crust.maturity[candidate] ?? 0);
     const quality =
       params.kind === "major"
-        ? (type === 1 ? 1.0 + 1.5 * a : 0.25)
-        : (type === 0 ? 1.0 + 1.0 * (1 - a) : 0.1);
+        ? 0.6 + 1.6 * (0.6 * strength + 0.4 * maturity)
+        : 0.4 + 1.2 * (1 - strength);
 
     const score = minDistSq * (0.5 + quality);
     if (score > bestScore) {
@@ -583,7 +577,7 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
 
         const cellResistance = new Float32Array(cellCount);
         for (let i = 0; i < cellCount; i++) {
-          cellResistance[i] = computeCellResistance(crust.type[i] ?? 0, crust.age[i] ?? 0);
+          cellResistance[i] = computeCellResistance(crust.strength[i] ?? 0);
         }
 
         const cellToPlate = new Int16Array(cellCount);
