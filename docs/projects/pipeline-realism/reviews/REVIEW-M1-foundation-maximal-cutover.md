@@ -5,6 +5,31 @@ status: draft
 reviewer: AI agent
 ---
 
+## Reconciliation Sync (2026-02-06)
+
+### Stack Coverage
+- Scanned stack PRs with numbers: #1074, #1075, #1076, #1077, #1078, #1079, #1080, #1081, #1082, #1083, #1084, #1085, #1086, #1087, #1088, #1089, #1090, #1091, #1092, #1093, #1094, #1095, #1096, #1097, #1098, #1114, #1115, #1116, #1117, #1118, #1119, #1120, #1121, #1122.
+- Review comments scanned: 14 total (`pulls/{pr}/comments`), covering 13 review threads (`reviewThreads`), with 12 currently open + 1 already resolved upstream.
+- Issue comments scanned: 80 total (`issues/{pr}/comments`); all were automation/status comments from `github-actions[bot]` + Graphite stack notices posted by `mateicanavra` (no reviewer-authored actionable issue comments found).
+
+### Review-Thread Ledger (Synced)
+
+| PR | Thread ID | Comment | Disposition | Current State |
+| --- | --- | --- | --- | --- |
+| #1074 | `PRRT_kwDOOOKvrc5swmNv` | Emit required tectonic history masks or update schema | done: superseded/resolved | Resolved upstream; follow-up resolution comment already posted. |
+| #1077 | `PRRT_kwDOOOKvrc5swnXi` | Honor profile `plateCount` when knobs omitted | remaining/open | Still reproducible (`FoundationPlateCountKnobSchema` default + compile fallback logic). |
+| #1078 | `PRRT_kwDOOOKvrc5swoFn` | Apply lithosphere scalars directly (0 should weaken) | remaining/open | Still reproducible (`compute-crust` remaps scalars to narrow bands). |
+| #1080 | `PRRT_kwDOOOKvrc5swnAd` | Avoid capping P90 fit errors at residualNorm | remaining/open | Still reproducible (histogram reconstruction caps P90 to residual scale). |
+| #1083 | `PRRT_kwDOOOKvrc5swl4c` | Honor belt influence/decay config values | remaining/open | Still reproducible (`EMISSION_*` constants used; knobs not consumed). |
+| #1086 | `PRRT_kwDOOOKvrc5swmfq` | Gate dual-read diagnostics to avoid always-on O(n) work | done: fixed/resolved | Resolved by dual-read bridge removal (`7b5db6b31`), with follow-up + thread resolution in this reconciliation pass. |
+| #1087 | `PRRT_kwDOOOKvrc5swmNO` | Seed diffusion from zero-intensity belt tiles | remaining/open | Still reproducible (`computeDistanceField` seeded from full `beltMask`). |
+| #1090 | `PRRT_kwDOOOKvrc5swl8j` | Fail coupling gate on non-finite `plateFitRms` | remaining/open | Still reproducible (`scanFloat(...).nonFinite` not enforced in coupling gate). |
+| #1091 | `PRRT_kwDOOOKvrc5swmJI` | Count era-0 origins in event provenance gate | remaining/open | Still reproducible (`originEra > 0` gate excludes era 0). |
+| #1092 | `PRRT_kwDOOOKvrc5swmzA` | Use recipe mountain config for correlation gate | remaining/open | Still reproducible (gate replays with `defaultConfig`, not recipe-normalized config). |
+| #1094 | `PRRT_kwDOOOKvrc5swnHU` | Normalize overlay era key to avoid padded mismatch | done: fixed/resolved | Resolved by era key normalization (`e14d78796`), with follow-up + thread resolution in this reconciliation pass. |
+| #1094 | `PRRT_kwDOOOKvrc5swnHW` | Guard against sparse/gapped era variants in UI | remaining/open | Partially mitigated by variant snapping; fixed-mode UI value can still diverge from rendered snapped era. |
+| #1116 | `PRRT_kwDOOOKvrc5swmdy` | Restrict `eraCount` to 5..8 to match history guard | remaining/open | Still reproducible (`advanced.budgets.eraCount` schema/compile clamp allows 1..8). |
+
 ## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-001-publish-foundation-truth-artifacts
 
 ### Quick Take
@@ -292,7 +317,7 @@ The per‑era history tile payload you construct here omits `convergentMask`, `d
 
 Useful? React with 👍 / 👎.
 ```
-Assessment: This is now superseded (masks are emitted and schema remains aligned). Keeping it here as a “contract drift” example: when Foundation publishes artifacts, schema-required fields must be emitted immediately or schema loosened, otherwise downstream domains can silently break.
+Assessment: **[done: superseded/resolved]** Masks are emitted and schema remains aligned. Keeping it here as a “contract drift” example: when Foundation publishes artifacts, schema-required fields must be emitted immediately or schema loosened, otherwise downstream domains can silently break.
 - PR-M1-005 (#1077) — **Honor profile plateCount when knobs are omitted**
 ```text
 **<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Honor profile plateCount when knobs are omitted**
@@ -301,7 +326,7 @@ Because `knobs.plateCount` is now always a number (it’s defaulted to 28 in `Fo
 
 Useful? React with 👍 / 👎.
 ```
-Assessment: Still relevant. It’s not directly “M1-012 era loop” work, but it’s an authoring-surface semantics footgun that undermines “physics-first, evolutionary” intent: if the authored plate discretization baseline can’t vary with resolution profiles unless explicitly set, recipes/presets can look “realism-tuned” but actually be stuck on a hidden default.
+Assessment: **[remaining/open]** Still relevant. It’s not directly “M1-012 era loop” work, but it’s an authoring-surface semantics footgun that undermines “physics-first, evolutionary” intent: if the authored plate discretization baseline can’t vary with resolution profiles unless explicitly set, recipes/presets can look “realism-tuned” but actually be stuck on a hidden default.
 - PR-M1-006 (#1078) — **Apply lithosphere scalars directly (0 should weaken strength)**
 ```text
 **<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Apply lithosphere scalars directly (0 should weaken strength)**
@@ -310,7 +335,7 @@ The `yieldStrength01` and `mantleCoupling01` knobs are documented as 0..1 scalar
 
 Useful? React with 👍 / 👎.
 ```
-Assessment: Still relevant. It’s a mismatch between the authored parameter surface (“0..1 scalars”) and runtime semantics (“narrow remap around baseline”). This becomes more important as later M1 stages rely on strength/resistance to drive evolutionary features; if authors cannot actually weaken the lithosphere, “maximal realism” tuning is constrained and confusing.
+Assessment: **[remaining/open]** Still relevant. It’s a mismatch between the authored parameter surface (“0..1 scalars”) and runtime semantics (“narrow remap around baseline”). This becomes more important as later M1 stages rely on strength/resistance to drive evolutionary features; if authors cannot actually weaken the lithosphere, “maximal realism” tuning is constrained and confusing.
 - PR-M1-008 (#1080) — **Avoid capping P90 fit errors at residualNorm**
 ```text
 **<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Avoid capping P90 fit errors at residualNorm**
@@ -319,7 +344,7 @@ When residual errors exceed `residualNorm` (mean forcing speed × `residualNormS
 
 Useful? React with 👍 / 👎.
 ```
-Assessment: Still relevant. This is a “metrics lie” risk: fit diagnostics drive validation and tuning loops, so capping error can make low-quality physics appear stable. That’s directly contrary to the objective (“maximally realist”) because it hides when the solver is failing.
+Assessment: **[remaining/open]** Still relevant. This is a “metrics lie” risk: fit diagnostics drive validation and tuning loops, so capping error can make low-quality physics appear stable. That’s directly contrary to the objective (“maximally realist”) because it hides when the solver is failing.
 - PR-M1-011 (#1083) — **Honor belt influence/decay config values**
 ```text
 **<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Honor belt influence/decay config values**
@@ -328,7 +353,7 @@ The strategy contract still exposes `beltInfluenceDistance` and `beltDecay`, but
 
 Useful? React with 👍 / 👎.
 ```
-Assessment: Still relevant. This is a contract/authoring-surface drift problem (similar class to the #1074 schema drift) and it matters upstack: Morphology and Studio depend on authored controls being “real” controls, not vestigial knobs.
+Assessment: **[remaining/open]** Still relevant. This is a contract/authoring-surface drift problem (similar class to the #1074 schema drift) and it matters upstack: Morphology and Studio depend on authored controls being “real” controls, not vestigial knobs.
 
 ### Fix Now (Recommended)
 - Align `tectonicHistoryTiles` validation with the 5..8 era bounds so tile payloads cannot diverge from the bounded era loop contract.
@@ -353,7 +378,7 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 - None observed; provenance now satisfies causal + boundedness requirements and is consumed downstream.
 
 ### PR Comment Context
-- No reviewer comments; Graphite/preview notices only.
+- PR #1086: **[done: fixed/resolved]** “Gate dual-read diagnostics to avoid always-on O(n) work.” This was closed by removing the dual-read diagnostics bridge (`7b5db6b31`), and the step now runs the history/provenance driver path directly.
 
 ### Fix Now (Recommended)
 - None.
@@ -379,7 +404,7 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 - The step contract now **requires** `tectonicHistoryTiles` + `tectonicProvenanceTiles`, so “legacy‑only” runs without new drivers cannot compile. This conflicts with the acceptance criterion that legacy-only mode remains runnable during the transition.
 
 ### PR Comment Context
-- No reviewer comments; Graphite/preview notices only.
+- PR #1087: **[remaining/open]** “Seed diffusion from zero-intensity belt tiles.” Current diffusion still seeds from full `beltMask`, so zero-intensity seed behavior remains possible.
 
 ### Fix Now (Recommended)
 - None.
@@ -487,7 +512,7 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 - The “wrap-correct” requirement for mantle potential/forcing is not explicitly checked; invariants only validate bounds and variance. If wrap integrity matters (e.g., continuity at longitudinal seam), add an explicit wrap seam check.
 
 ### PR Comment Context
-- No actionable review comments; Graphite/Railway bot notices only.
+- PR #1090: **[remaining/open]** “Fail coupling gate on non-finite `plateFitRms` values.” The coupling gate still does not fail on `scanFloat(...).nonFinite > 0`.
 
 ### Fix Now (Recommended)
 - Add non-finite checks for `plateFitRms` / `plateFitP90` and fail hard when `nonFinite > 0`.
@@ -513,7 +538,7 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 - Belt continuity is validated on `deriveBeltDriversFromHistory` output rather than actual Morphology belt artifacts. This can miss regressions where Morphology output diverges from the drivers.
 
 ### PR Comment Context
-- No actionable review comments; Graphite/Railway bot notices only.
+- PR #1091: **[remaining/open]** “Count era-0 origins in event provenance gate.” The gate still checks `originEra > 0`, so era-0 origins are excluded.
 
 ### Fix Now (Recommended)
 - Add a crust-change gate that asserts event corridors imply measurable deltas in crust state (e.g., `damage`, `thermalAge`, `strength`) relative to pre-event baselines or previous era.
@@ -539,7 +564,7 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 - “No wall mountains” checks are still applied to derived belt drivers, not the final mountain/belt outputs. This leaves a gap for output-level distribution regressions.
 
 ### PR Comment Context
-- No actionable review comments; Graphite/Railway bot notices only.
+- PR #1092: **[remaining/open]** “Use the recipe’s mountain config for the correlation gate.” The invariant still replays with `planRidgesAndFoothills.defaultConfig` instead of recipe-normalized runtime config.
 
 ### Fix Now (Recommended)
 - Add a gate that inspects the actual `plotMountains` output artifact (or a published mountain/belt mask) and applies the distribution checks directly to that output.
@@ -592,8 +617,8 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 - Overlay suggestions and keys are hard-coded in `App.tsx`, deepening pipeline-specific coupling in the Studio shell and repeating the agnostic-boundary risk surfaced in M1-021.
 
 ### PR Comment Context
-- PR #1094: “`overlayVariantKeyPreference` is built as `era:${manualEra}` … if actual variant keys are zero‑padded (e.g. `era:01`) … the overlay will fall back to an arbitrary candidate.” Still relevant and aligns with the “era mismatch” risk above.
-- PR #1094: “The era slider clamps only to min/max … UI reports ‘Era 2’ while rendering Era 1.” Still relevant and should be addressed to avoid misleading tuning reads.
+- PR #1094: **[done: fixed/resolved]** “`overlayVariantKeyPreference` is built as `era:${manualEra}` … if actual variant keys are zero‑padded … overlay will fall back.” This is fixed by deriving the key from available variants (`findVariantKeyForEra`) in `e14d78796`.
+- PR #1094: **[remaining/open]** “Era slider clamps only to min/max … UI reports ‘Era 2’ while rendering Era 1.” Partially mitigated by variant snapping, but fixed-era UI can still display the unsnapped manual value.
 
 ### Fix Now (Recommended)
 - Normalize era preferences to actual variants: derive the preferred overlay variant via `findVariantIdForEra` (or by matching the currently selected era variant key) rather than string formatting, and snap manual era to the nearest available era variant instead of using a blind min/max range.
@@ -694,3 +719,17 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 
 ### Cross-cutting Risks
 - Leaving dual/compare paths in place undermines the “one authoritative spine” objective, and mixing in a large UI refactor makes it harder to verify the physics-first cutover.
+
+## Stack Extension Comment Sync (PR-M1-026..PR-M1-034 + PR #1098)
+
+### Review Comment Coverage
+- PR-M1-026 / #1114: no review-thread comments; issue comments are automation-only (Railway/Graphite status).
+- PR-M1-027 / #1115: no review-thread comments; issue comments are automation-only (Railway/Graphite status).
+- PR-M1-028 / #1116: **[remaining/open]** review thread `PRRT_kwDOOOKvrc5swmdy` (“Restrict `eraCount` to 5..8 to match history guard”); runtime guard remains 5..8 while authoring surface still allows 1..8.
+- PR-M1-029 / #1117: no review-thread comments; issue comments are automation-only (Railway/Graphite status).
+- PR-M1-030 / #1118: no review-thread comments; issue comments are automation-only (Railway/Graphite status).
+- PR-M1-031 / #1119: no review-thread comments; issue comments are automation-only (Railway/Graphite status).
+- PR-M1-032 / #1120: no review-thread comments; issue comments are automation-only (Railway/Graphite status).
+- PR-M1-033 / #1121: no review-thread comments; issue comments are automation-only (Railway/Graphite status).
+- PR-M1-034 / #1122: no review-thread comments; issue comments are automation-only (Railway/Graphite status).
+- PR #1098 (`agent-URSULA-M1-fix-studio-authoring-schema`): no review-thread comments; issue comments are automation-only (Railway/Graphite status).
