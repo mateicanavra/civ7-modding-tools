@@ -33,10 +33,41 @@ export function listEraVariants(variants: readonly LayerVariant[]): EraVariantSu
   return out.sort((a, b) => a.era - b.era);
 }
 
+export function snapEraToAvailable(variants: readonly LayerVariant[], requestedEra: number): number | null {
+  if (!Number.isFinite(requestedEra) || requestedEra <= 0) return null;
+  const eraVariants = listEraVariants(variants);
+  if (!eraVariants.length) return null;
+
+  let bestEra = eraVariants[0]!.era;
+  let bestDistance = Math.abs(bestEra - requestedEra);
+  for (let i = 1; i < eraVariants.length; i += 1) {
+    const candidateEra = eraVariants[i]!.era;
+    const distance = Math.abs(candidateEra - requestedEra);
+    if (distance < bestDistance || (distance === bestDistance && candidateEra < bestEra)) {
+      bestEra = candidateEra;
+      bestDistance = distance;
+    }
+  }
+  return bestEra;
+}
+
 export function findVariantIdForEra(variants: readonly LayerVariant[], era: number): string | null {
+  const snappedEra = snapEraToAvailable(variants, era);
+  if (snappedEra == null) return null;
   for (const variant of variants) {
     const parsed = parseEraVariantKey(variant.layer.variantKey ?? null);
-    if (parsed === era) return variant.variantId;
+    if (parsed === snappedEra) return variant.variantId;
+  }
+  return null;
+}
+
+export function findVariantKeyForEra(variants: readonly LayerVariant[], era: number): string | null {
+  const snappedEra = snapEraToAvailable(variants, era);
+  if (snappedEra == null) return null;
+  for (const variant of variants) {
+    const variantKey = variant.layer.variantKey ?? null;
+    const parsed = parseEraVariantKey(variantKey);
+    if (parsed === snappedEra) return variantKey;
   }
   return null;
 }
