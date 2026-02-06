@@ -9,7 +9,7 @@ reviewer: AI agent
 
 ### Stack Coverage
 - Scanned stack PRs with numbers: #1074, #1075, #1076, #1077, #1078, #1079, #1080, #1081, #1082, #1083, #1084, #1085, #1086, #1087, #1088, #1089, #1090, #1091, #1092, #1093, #1094, #1095, #1096, #1097, #1098, #1114, #1115, #1116, #1117, #1118, #1119, #1120, #1121, #1122.
-- Review comments scanned: 14 total (`pulls/{pr}/comments`), covering 13 review threads (`reviewThreads`), with 12 currently open + 1 already resolved upstream.
+- Review comments scanned: 14 total (`pulls/{pr}/comments`), covering 13 review threads (`reviewThreads`), with 6 currently open + 7 resolved upstream.
 - Issue comments scanned: 80 total (`issues/{pr}/comments`); all were automation/status comments from `github-actions[bot]` + Graphite stack notices posted by `mateicanavra` (no reviewer-authored actionable issue comments found).
 
 ### Review-Thread Ledger (Synced)
@@ -17,18 +17,29 @@ reviewer: AI agent
 | PR | Thread ID | Comment | Disposition | Current State |
 | --- | --- | --- | --- | --- |
 | #1074 | `PRRT_kwDOOOKvrc5swmNv` | Emit required tectonic history masks or update schema | done: superseded/resolved | Resolved upstream; follow-up resolution comment already posted. |
-| #1077 | `PRRT_kwDOOOKvrc5swnXi` | Honor profile `plateCount` when knobs omitted | remaining/open | Still reproducible (`FoundationPlateCountKnobSchema` default + compile fallback logic). |
-| #1078 | `PRRT_kwDOOOKvrc5swoFn` | Apply lithosphere scalars directly (0 should weaken) | remaining/open | Still reproducible (`compute-crust` remaps scalars to narrow bands). |
-| #1080 | `PRRT_kwDOOOKvrc5swnAd` | Avoid capping P90 fit errors at residualNorm | remaining/open | Still reproducible (histogram reconstruction caps P90 to residual scale). |
-| #1083 | `PRRT_kwDOOOKvrc5swl4c` | Honor belt influence/decay config values | remaining/open | Still reproducible (`EMISSION_*` constants used; knobs not consumed). |
+| #1077 | `PRRT_kwDOOOKvrc5swnXi` | Honor profile `plateCount` when knobs omitted | planned-via-runbook | Phase A acceptance target: profile-default precedence + explicit knob override wins. Closure trigger: plan section “Canonical phase mapping — six remaining open review threads” + “Phase-end PR thread closure checklist.” |
+| #1078 | `PRRT_kwDOOOKvrc5swoFn` | Apply lithosphere scalars directly (0 should weaken) | planned-via-runbook | Phase A acceptance target: direct 0..1 lithosphere lever semantics (no narrow remap). Closure trigger: plan section “Canonical phase mapping — six remaining open review threads” + “Phase-end PR thread closure checklist.” |
+| #1080 | `PRRT_kwDOOOKvrc5swnAd` | Avoid capping P90 fit errors at residualNorm | planned-via-runbook | Phase D acceptance target: uncapped residual distribution for `plateFitP90`. Closure trigger: plan section “Canonical phase mapping — six remaining open review threads” + “Phase-end PR thread closure checklist.” |
+| #1083 | `PRRT_kwDOOOKvrc5swl4c` | Honor belt influence/decay config values | planned-via-runbook | Phase A acceptance target: runtime consumption of `beltInfluenceDistance`/`beltDecay` knobs. Closure trigger: plan section “Canonical phase mapping — six remaining open review threads” + “Phase-end PR thread closure checklist.” |
 | #1086 | `PRRT_kwDOOOKvrc5swmfq` | Gate dual-read diagnostics to avoid always-on O(n) work | done: fixed/resolved | Resolved by dual-read bridge removal (`7b5db6b31`), with follow-up + thread resolution in this reconciliation pass. |
-| #1087 | `PRRT_kwDOOOKvrc5swmNO` | Seed diffusion from zero-intensity belt tiles | remaining/open | Still reproducible (`computeDistanceField` seeded from full `beltMask`). |
-| #1090 | `PRRT_kwDOOOKvrc5swl8j` | Fail coupling gate on non-finite `plateFitRms` | remaining/open | Still reproducible (`scanFloat(...).nonFinite` not enforced in coupling gate). |
-| #1091 | `PRRT_kwDOOOKvrc5swmJI` | Count era-0 origins in event provenance gate | remaining/open | Still reproducible (`originEra > 0` gate excludes era 0). |
-| #1092 | `PRRT_kwDOOOKvrc5swmzA` | Use recipe mountain config for correlation gate | remaining/open | Still reproducible (gate replays with `defaultConfig`, not recipe-normalized config). |
+| #1087 | `PRRT_kwDOOOKvrc5swmNO` | Seed diffusion from zero-intensity belt tiles | planned-via-runbook | Phase C acceptance target: diffusion seeded from positive-intensity belt sources only. Closure trigger: plan section “Canonical phase mapping — six remaining open review threads” + “Phase-end PR thread closure checklist.” |
+| #1090 | `PRRT_kwDOOOKvrc5swl8j` | Fail coupling gate on non-finite `plateFitRms` | done: fixed/resolved | Resolved upstream; coupling gate now fails non-finite plate-fit diagnostics and thread is resolved. |
+| #1091 | `PRRT_kwDOOOKvrc5swmJI` | Count era-0 origins in event provenance gate | done: fixed/resolved | Resolved upstream; provenance gate includes era-0 origins and thread is resolved. |
+| #1092 | `PRRT_kwDOOOKvrc5swmzA` | Use recipe mountain config for correlation gate | planned-via-runbook | Phase D acceptance target: correlation gate uses recipe-normalized runtime config. Closure trigger: plan section “Canonical phase mapping — six remaining open review threads” + “Phase-end PR thread closure checklist.” |
 | #1094 | `PRRT_kwDOOOKvrc5swnHU` | Normalize overlay era key to avoid padded mismatch | done: fixed/resolved | Resolved by era key normalization (`e14d78796`), with follow-up + thread resolution in this reconciliation pass. |
-| #1094 | `PRRT_kwDOOOKvrc5swnHW` | Guard against sparse/gapped era variants in UI | remaining/open | Partially mitigated by variant snapping; fixed-mode UI value can still diverge from rendered snapped era. |
-| #1116 | `PRRT_kwDOOOKvrc5swmdy` | Restrict `eraCount` to 5..8 to match history guard | remaining/open | Still reproducible (`advanced.budgets.eraCount` schema/compile clamp allows 1..8). |
+| #1094 | `PRRT_kwDOOOKvrc5swnHW` | Guard against sparse/gapped era variants in UI | done: fixed/resolved | Resolved upstream; fixed-era UI now snaps to available variants and thread is resolved. |
+| #1116 | `PRRT_kwDOOOKvrc5swmdy` | Restrict `eraCount` to 5..8 to match history guard | done: fixed/resolved | Resolved upstream; authoring/runtime `eraCount` bounds now align at 5..8 and thread is resolved. |
+
+### Planned-via-runbook acceptance map (open threads only)
+
+| Thread ID | Phase | Acceptance target | Closure trigger |
+| --- | --- | --- | --- |
+| `PRRT_kwDOOOKvrc5swnXi` | Phase A | Profile `plateCount` precedence when knob omitted; explicit knob override wins. | Post Phase A evidence in-thread and close only after checklist completion in the runbook. |
+| `PRRT_kwDOOOKvrc5swoFn` | Phase A | Lithosphere scalars are direct 0..1 levers (no narrow remap). | Post Phase A evidence in-thread and close only after checklist completion in the runbook. |
+| `PRRT_kwDOOOKvrc5swl4c` | Phase A | `beltInfluenceDistance`/`beltDecay` knobs are consumed at runtime. | Post Phase A evidence in-thread and close only after checklist completion in the runbook. |
+| `PRRT_kwDOOOKvrc5swmNO` | Phase C | Diffusion seeding uses positive-intensity belt sources only. | Post Phase C evidence in-thread and close only after checklist completion in the runbook. |
+| `PRRT_kwDOOOKvrc5swnAd` | Phase D | `plateFitP90` distribution is uncapped relative to residual normalization. | Post Phase D evidence in-thread and close only after checklist completion in the runbook. |
+| `PRRT_kwDOOOKvrc5swmzA` | Phase D | Correlation gate consumes recipe-normalized runtime mountain config. | Post Phase D evidence in-thread and close only after checklist completion in the runbook. |
 
 ## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-001-publish-foundation-truth-artifacts
 
@@ -326,7 +337,7 @@ Because `knobs.plateCount` is now always a number (it’s defaulted to 28 in `Fo
 
 Useful? React with 👍 / 👎.
 ```
-Assessment: **[remaining/open]** Still relevant. It’s not directly “M1-012 era loop” work, but it’s an authoring-surface semantics footgun that undermines “physics-first, evolutionary” intent: if the authored plate discretization baseline can’t vary with resolution profiles unless explicitly set, recipes/presets can look “realism-tuned” but actually be stuck on a hidden default.
+Assessment: **[planned-via-runbook]** Integrated into canonical runbook **Phase A** with acceptance target “profile plateCount precedence + explicit knob override wins”; closure is gated by phase evidence and the runbook phase-end thread checklist.
 - PR-M1-006 (#1078) — **Apply lithosphere scalars directly (0 should weaken strength)**
 ```text
 **<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Apply lithosphere scalars directly (0 should weaken strength)**
@@ -335,7 +346,7 @@ The `yieldStrength01` and `mantleCoupling01` knobs are documented as 0..1 scalar
 
 Useful? React with 👍 / 👎.
 ```
-Assessment: **[remaining/open]** Still relevant. It’s a mismatch between the authored parameter surface (“0..1 scalars”) and runtime semantics (“narrow remap around baseline”). This becomes more important as later M1 stages rely on strength/resistance to drive evolutionary features; if authors cannot actually weaken the lithosphere, “maximal realism” tuning is constrained and confusing.
+Assessment: **[planned-via-runbook]** Integrated into canonical runbook **Phase A** with acceptance target “direct lever semantics for lithosphere scalars (no narrow remap)”; closure is gated by phase evidence and the runbook phase-end thread checklist.
 - PR-M1-008 (#1080) — **Avoid capping P90 fit errors at residualNorm**
 ```text
 **<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Avoid capping P90 fit errors at residualNorm**
@@ -344,7 +355,7 @@ When residual errors exceed `residualNorm` (mean forcing speed × `residualNormS
 
 Useful? React with 👍 / 👎.
 ```
-Assessment: **[remaining/open]** Still relevant. This is a “metrics lie” risk: fit diagnostics drive validation and tuning loops, so capping error can make low-quality physics appear stable. That’s directly contrary to the objective (“maximally realist”) because it hides when the solver is failing.
+Assessment: **[planned-via-runbook]** Integrated into canonical runbook **Phase D** with acceptance target “uncapped residual distribution for `plateFitP90`”; closure is gated by phase evidence and the runbook phase-end thread checklist.
 - PR-M1-011 (#1083) — **Honor belt influence/decay config values**
 ```text
 **<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Honor belt influence/decay config values**
@@ -353,7 +364,7 @@ The strategy contract still exposes `beltInfluenceDistance` and `beltDecay`, but
 
 Useful? React with 👍 / 👎.
 ```
-Assessment: **[remaining/open]** Still relevant. This is a contract/authoring-surface drift problem (similar class to the #1074 schema drift) and it matters upstack: Morphology and Studio depend on authored controls being “real” controls, not vestigial knobs.
+Assessment: **[planned-via-runbook]** Integrated into canonical runbook **Phase A** with acceptance target “belt influence/decay knobs consumed at runtime”; closure is gated by phase evidence and the runbook phase-end thread checklist.
 
 ### Fix Now (Recommended)
 - Align `tectonicHistoryTiles` validation with the 5..8 era bounds so tile payloads cannot diverge from the bounded era loop contract.
@@ -404,7 +415,7 @@ Assessment: **[remaining/open]** Still relevant. This is a contract/authoring-su
 - The step contract now **requires** `tectonicHistoryTiles` + `tectonicProvenanceTiles`, so “legacy‑only” runs without new drivers cannot compile. This conflicts with the acceptance criterion that legacy-only mode remains runnable during the transition.
 
 ### PR Comment Context
-- PR #1087: **[remaining/open]** “Seed diffusion from zero-intensity belt tiles.” Current diffusion still seeds from full `beltMask`, so zero-intensity seed behavior remains possible.
+- PR #1087: **[planned-via-runbook]** “Seed diffusion from zero-intensity belt tiles.” Routed to canonical runbook **Phase C** with acceptance target “seed diffusion from positive-intensity belt sources only,” and thread closure gated by phase evidence + checklist.
 
 ### Fix Now (Recommended)
 - None.
@@ -512,7 +523,7 @@ Assessment: **[remaining/open]** Still relevant. This is a contract/authoring-su
 - The “wrap-correct” requirement for mantle potential/forcing is not explicitly checked; invariants only validate bounds and variance. If wrap integrity matters (e.g., continuity at longitudinal seam), add an explicit wrap seam check.
 
 ### PR Comment Context
-- PR #1090: **[remaining/open]** “Fail coupling gate on non-finite `plateFitRms` values.” The coupling gate still does not fail on `scanFloat(...).nonFinite > 0`.
+- PR #1090: **[done: fixed/resolved]** “Fail coupling gate on non-finite `plateFitRms` values.” Resolved upstream; coupling gate now fails non-finite plate-fit diagnostics and thread is closed.
 
 ### Fix Now (Recommended)
 - Add non-finite checks for `plateFitRms` / `plateFitP90` and fail hard when `nonFinite > 0`.
@@ -538,7 +549,7 @@ Assessment: **[remaining/open]** Still relevant. This is a contract/authoring-su
 - Belt continuity is validated on `deriveBeltDriversFromHistory` output rather than actual Morphology belt artifacts. This can miss regressions where Morphology output diverges from the drivers.
 
 ### PR Comment Context
-- PR #1091: **[remaining/open]** “Count era-0 origins in event provenance gate.” The gate still checks `originEra > 0`, so era-0 origins are excluded.
+- PR #1091: **[done: fixed/resolved]** “Count era-0 origins in event provenance gate.” Resolved upstream; era-0 origins are now included in gate accounting and thread is closed.
 
 ### Fix Now (Recommended)
 - Add a crust-change gate that asserts event corridors imply measurable deltas in crust state (e.g., `damage`, `thermalAge`, `strength`) relative to pre-event baselines or previous era.
@@ -564,7 +575,7 @@ Assessment: **[remaining/open]** Still relevant. This is a contract/authoring-su
 - “No wall mountains” checks are still applied to derived belt drivers, not the final mountain/belt outputs. This leaves a gap for output-level distribution regressions.
 
 ### PR Comment Context
-- PR #1092: **[remaining/open]** “Use the recipe’s mountain config for the correlation gate.” The invariant still replays with `planRidgesAndFoothills.defaultConfig` instead of recipe-normalized runtime config.
+- PR #1092: **[planned-via-runbook]** “Use the recipe’s mountain config for the correlation gate.” Routed to canonical runbook **Phase D** with acceptance target “correlation gate uses recipe-normalized runtime config,” and closure gated by phase evidence + checklist.
 
 ### Fix Now (Recommended)
 - Add a gate that inspects the actual `plotMountains` output artifact (or a published mountain/belt mask) and applies the distribution checks directly to that output.
@@ -618,7 +629,7 @@ Assessment: **[remaining/open]** Still relevant. This is a contract/authoring-su
 
 ### PR Comment Context
 - PR #1094: **[done: fixed/resolved]** “`overlayVariantKeyPreference` is built as `era:${manualEra}` … if actual variant keys are zero‑padded … overlay will fall back.” This is fixed by deriving the key from available variants (`findVariantKeyForEra`) in `e14d78796`.
-- PR #1094: **[remaining/open]** “Era slider clamps only to min/max … UI reports ‘Era 2’ while rendering Era 1.” Partially mitigated by variant snapping, but fixed-era UI can still display the unsnapped manual value.
+- PR #1094: **[done: fixed/resolved]** “Era slider clamps only to min/max … UI reports ‘Era 2’ while rendering Era 1.” Resolved upstream; fixed-era mode now snaps to available variants and thread is closed.
 
 ### Fix Now (Recommended)
 - Normalize era preferences to actual variants: derive the preferred overlay variant via `findVariantIdForEra` (or by matching the currently selected era variant key) rather than string formatting, and snap manual era to the nearest available era variant instead of using a blind min/max range.
@@ -725,7 +736,7 @@ Assessment: **[remaining/open]** Still relevant. This is a contract/authoring-su
 ### Review Comment Coverage
 - PR-M1-026 / #1114: no review-thread comments; issue comments are automation-only (Railway/Graphite status).
 - PR-M1-027 / #1115: no review-thread comments; issue comments are automation-only (Railway/Graphite status).
-- PR-M1-028 / #1116: **[remaining/open]** review thread `PRRT_kwDOOOKvrc5swmdy` (“Restrict `eraCount` to 5..8 to match history guard”); runtime guard remains 5..8 while authoring surface still allows 1..8.
+- PR-M1-028 / #1116: **[done: fixed/resolved]** review thread `PRRT_kwDOOOKvrc5swmdy` (“Restrict `eraCount` to 5..8 to match history guard”); authoring/runtime bounds now align at 5..8 and thread is closed.
 - PR-M1-029 / #1117: no review-thread comments; issue comments are automation-only (Railway/Graphite status).
 - PR-M1-030 / #1118: no review-thread comments; issue comments are automation-only (Railway/Graphite status).
 - PR-M1-031 / #1119: no review-thread comments; issue comments are automation-only (Railway/Graphite status).
