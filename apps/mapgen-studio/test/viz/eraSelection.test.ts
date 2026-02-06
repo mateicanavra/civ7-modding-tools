@@ -5,6 +5,7 @@ import {
   findVariantKeyForEra,
   listEraVariants,
   parseEraVariantKey,
+  resolveFixedEraUiValue,
   snapEraToAvailable,
 } from "../../src/features/viz/era";
 
@@ -81,5 +82,25 @@ describe("findVariantKeyForEra", () => {
     const variants = [makeVariant("display-era-001", "era:001"), makeVariant("display-era-003", "era:003")];
     expect(findVariantKeyForEra(variants, 2)).toBe("era:001");
     expect(findVariantKeyForEra(variants, 3)).toBe("era:003");
+  });
+});
+
+describe("resolveFixedEraUiValue", () => {
+  it("uses the selected rendered era when fixed mode snaps to sparse variants", () => {
+    const variants = [
+      makeVariant("era:1", "era:1"),
+      makeVariant("era:3", "era:3"),
+      makeVariant("era:5", "era:5"),
+    ];
+    expect(resolveFixedEraUiValue({ variants, selectedVariantKey: "era:3", requestedEra: 4 })).toBe(3);
+  });
+
+  it("falls back to nearest snapped era with lower-era tiebreak", () => {
+    const variants = [
+      makeVariant("era:1", "era:1"),
+      makeVariant("era:3", "era:3"),
+      makeVariant("era:5", "era:5"),
+    ];
+    expect(resolveFixedEraUiValue({ variants, selectedVariantKey: null, requestedEra: 4 })).toBe(3);
   });
 });

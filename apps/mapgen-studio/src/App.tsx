@@ -40,6 +40,7 @@ import {
   findVariantKeyForEra,
   listEraVariants,
   parseEraVariantKey,
+  resolveFixedEraUiValue,
 } from "./features/viz/era";
 import { formatErrorForUi } from "./shared/errorFormat";
 import { shouldIgnoreGlobalShortcutsInEditableTarget } from "./shared/shortcuts/shortcutPolicy";
@@ -948,7 +949,16 @@ function AppContent(props: AppContentProps) {
   }, [eraVariants]);
   const autoEra = useMemo(() => parseEraVariantKey(selectedVariantKey), [selectedVariantKey]);
   const eraEnabled = Boolean(eraRange);
-  const eraDisplayValue = eraMode === "fixed" ? manualEra : autoEra ?? eraRange?.min ?? 1;
+  const fixedEraUiValue = useMemo(
+    () =>
+      resolveFixedEraUiValue({
+        variants: selectedVariants,
+        selectedVariantKey,
+        requestedEra: manualEra,
+      }),
+    [manualEra, selectedVariantKey, selectedVariants]
+  );
+  const eraDisplayValue = eraMode === "fixed" ? fixedEraUiValue : autoEra ?? eraRange?.min ?? 1;
 
   useEffect(() => {
     if (!eraRange) return;
