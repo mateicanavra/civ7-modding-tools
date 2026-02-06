@@ -341,35 +341,6 @@ To validate the plan’s Evidence Bundle commands end-to-end for the canonical e
 - `bun run --cwd $MOD diag:list -- <outputDir> --dataTypeKey morphology.topography.landMask`
   - Observed (baseline): `stats.min=0`, `stats.max=1` for both the landmass-plates and geomorphology landmask layers (non-degenerate).
 
-## Open Questions / Prework Prompts (Do Not Silent-Decide)
-
-### Prework Prompt: Canonical probes and required cases
-Purpose: eliminate ambiguity about which runs are required to claim Phase A/B gates are satisfied (tests + dumps).
-
-- Expected output:
-  - Explicit list of required cases per phase:
-    - CI-enforced (fingerprints): `test/pipeline/determinism-suite.test.ts` (driven by `M1_DETERMINISM_CASES`)
-    - Human-readable dump probe: `diag:dump -- 106 66 1337`
-- Sources to check:
-  - `$MOD/test/pipeline/determinism-suite.test.ts`
-  - `$MOD/test/support/determinism-suite.ts` (`M1_DETERMINISM_CASES`)
-  - `$MOD/test/support/validation-harness.ts` (`M1_VALIDATION_*`)
-
-### Prework Prompt: Numeric thresholds for “material” landmask improvement (Phase B)
-Purpose: turn “components down, largestLandFrac up” into a numeric gate for earthlike proxy expectations.
-
-- Expected output:
-  - Baseline metrics from:
-    - `bun run --cwd $MOD diag:dump -- 106 66 1337 --label phase-b-baseline`
-    - `bun run --cwd $MOD diag:analyze -- <baselineOutputDir>`
-  - Proposed thresholds (delta vs baseline) that are sensible and intelligible.
-
-### Open question: What artifact is the “fingerprint report” we attach to PRs?
-Default posture (today): test output is authoritative for fingerprint equivalence; attach `diag:analyze` output as the realism/coherence measure.
-
-- Option A (default): treat `determinism-suite.test.ts` output as the authoritative report surface (no extra artifact file).
-- Option B (new work): add a CLI/script that writes `report.fingerprints` to a file for CI/PR attachment.
-
 ## Contract vNext (decision-complete)
 
 ### Foundation “crust truth” contract
