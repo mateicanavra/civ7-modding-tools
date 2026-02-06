@@ -13,6 +13,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 - Follow-up (M1-008): Deprecate/remove `velocityX/velocityY/rotation` from `foundationArtifacts.plateGraph` (or assert they remain zero) now that `plateMotion` is canonical; avoid hidden kinematics reappearing downstream.
 - Follow-up (M1-018): Add non-finite checks for plate-fit residual arrays and a wrap-seam continuity check for mantle potential/forcing; calibrate plate-motion diagnostics so they don’t warn on every canonical case.
 - Follow-up (M1-019): Add a crust-change invariant tied to event corridors and validate belt continuity against actual Morphology outputs (not just derived drivers).
+- Follow-up (M1-020): Add output-level distribution gates against actual `plotMountains` mask and ensure correlation gates use runtime morphology config (not just defaults).
 - Follow-up (M1-006): Event mechanics should consume `crust.strength` (no duplicated resistance computation) once M1-011 lands; currently strength feeds partitioning only.
 - Follow-up (M1-012): Enforce 5..8 era bounds in `tectonicHistoryTiles` validation and regenerate shipped preset configs so runtime artifacts match the bounded era loop.
 - Follow-up (M1-005): Foundation `advanced` (mantleForcing/lithosphere) is validated but not yet wired into step configs; ensure upcoming Foundation ops consume these inputs so the authoring surface is not inert.
@@ -42,6 +43,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 - Decision (M1-017): Determinism suite uses three canonical cases (baseline, wrap-active, compact-low-plates) with fixed plateCount/plateActivity knobs; float policy is bit-identical hashing (no quantization unless later explicitly scoped).
 - Decision (M1-018): Foundation physics invariants are implemented in `test/support/foundation-invariants.ts` with hard gates on mantle potential range/std, mantle forcing bounds/non-degeneracy, and plate-motion coupling residuals; diagnostic-only plate-fit stats warn on quality drift without gating.
 - Decision (M1-019): Event/provenance causality and belt continuity are gated via tile-space history/provenance signals (event threshold 20, ≥60% corridor boundary coverage, ≥75% origin resets aligned to events, belt component size/neighbor density floors) using `deriveBeltDriversFromHistory`.
+- Decision (M1-020): Morphology correlation gate replays `planRidgesAndFoothills` with plotMountains-equivalent fractal seeds and enforces driver/mountain alignment thresholds (signal ≥30, strong ≥80, ≥35% strong-driver coverage, ≥60% mountains on-driver).
 
 ## Backlog
 
