@@ -459,7 +459,7 @@ const eventProvenanceInvariant: ValidationInvariant = {
 
     for (let i = 0; i < size; i++) {
       const o = originEra[i] ?? 0;
-      if (o > 0 && o < perEra.length) {
+      if (o >= 0 && o < perEra.length) {
         originCount += 1;
         if (eraHasSignal(perEra, o, i, EVENT_SIGNAL_THRESHOLD)) originWithSignal += 1;
       }
