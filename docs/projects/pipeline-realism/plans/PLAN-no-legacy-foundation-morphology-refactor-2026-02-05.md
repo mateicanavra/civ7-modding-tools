@@ -10,6 +10,64 @@ This plan converts the current “looks wired but behaves unchanged” posture i
 
 This plan is intentionally **no-legacy**: any legacy-independent “truth” (ocean basin separation, noise-first landmask) is deleted or redefined as a derived view of Foundation truth.
 
+## How to Execute This Plan (Orchestrated)
+
+This plan is executed as a **Graphite stack**, driven by **one long-running worker agent**.
+
+- Orchestrator: keep the worker moving one slice at a time; monitor via scratchpad; only compact at slice boundaries; between slices, move the **primary** worktree to the current stack tip so code-intel indexes the newest state.
+- Worker: own each slice end-to-end (explore → implement → validate → evidence → commit → Graphite submit), with a strict posture:
+  - forward-only, no dual paths, no shims
+  - delete/replace legacy surfaces instead of bridging
+  - evidence + numeric gates are blocking
+
+### Scratch runbooks (untracked; required)
+
+These files are intentionally untracked (`**/*.scratch.md` is ignored). They must exist and be kept current during execution:
+
+- Orchestrator runbook:
+  - `docs/projects/pipeline-realism/issues/ORCH-YARSI.scratch.md`
+- Worker scratchpad (per-slice plan + running notes; wipe at end of each slice):
+  - `docs/projects/pipeline-realism/issues/YARSI.scratch.md`
+
+## Naming / Worktree Conventions (Agent Prefix Required)
+
+Agent id: `YARSI`  
+Synthetic milestone key for naming: `PRR` (Pipeline Realism Remediation)
+
+- Milestone base branch:
+  - `agent-YARSI-PRR-milestone-pipeline-realism-remediation`
+- Prep slice branch (docs + runbooks only; must land before Phase 0):
+  - `agent-YARSI-PRR-p00-prep-execution-ready-docs-runbooks`
+- Slice branches (one per slice):
+  - `agent-YARSI-PRR-s00-phase0-no-shadow`
+  - `agent-YARSI-PRR-s10-phaseA-crust-truth-nondegenerate`
+  - `agent-YARSI-PRR-s11-phaseA-thread-closures-1077-1078-1083`
+  - `agent-YARSI-PRR-s20-phaseB-landmask-grounded-continent-potential`
+  - `agent-YARSI-PRR-s21-phaseB-geomorphology-connectivity-no-rethreshold`
+  - `agent-YARSI-PRR-s30-phaseC-belts-modifiers-positive-seeding`
+  - `agent-YARSI-PRR-s40-phaseD-observability-gates-1080-1092`
+  - `agent-YARSI-PRR-s90-final-legacy-sweep-docs-cleanup`
+
+Worktree root:
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees`
+
+Single long-lived milestone worktree:
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-YARSI-PRR-milestone-pipeline-realism-remediation`
+
+## Slice Map (Execution Checklist)
+
+This is the canonical slice order for execution. Each slice closes only when its gates pass and its evidence is recorded.
+
+- [ ] P00 — Prep: make plan execution-ready + write scratch runbooks
+- [ ] S00 — Phase 0: no shadow / no dual / no compare
+- [ ] S10 — Phase A core: crust truth non-degenerate + material evolution
+- [ ] S11 — Phase A thread closures: #1077 / #1078 / #1083
+- [ ] S20 — Phase B: landmask grounded in continent potential (numeric gate)
+- [ ] S21 — Phase B: geomorphology must not re-shatter connectivity (numeric gate)
+- [ ] S30 — Phase C: belts are modifiers + positive-intensity seeding (#1087)
+- [ ] S40 — Phase D: observability + gate correctness (#1080 / #1092)
+- [ ] S90 — Final: legacy + docs cleanup sweep (no shims, forward-only)
+
 ## Forward Runbook (Start Here)
 
 Only future-facing implementation work remains:
@@ -40,6 +98,15 @@ Use these commands for verification/regression checks:
 - `bun run --cwd mods/mod-swooper-maps diag:dump -- 106 66 1337 --label probe-baseline`
 - `bun run --cwd mods/mod-swooper-maps diag:analyze -- <runDir>`
 - `bun run --cwd mods/mod-swooper-maps diag:list -- <runDir> --dataTypeKey foundation.crustTiles.type`
+
+## Execution Log (Fill During Execution)
+
+Record per-slice evidence here so it is durable and reviewable:
+- branch name
+- `diag:dump` JSON `{runId, outputDir}`
+- `diag:analyze` JSON (or Phase B baseline/after compare)
+- determinism-suite output excerpt (or CI log excerpt)
+- explicit gate pass/fail notes (including Phase B numeric gate formulas)
 
 ## Non-negotiables (physics-first, maximal realism)
 
@@ -117,6 +184,13 @@ Remove or redesign parameter surfaces where amplitude knobs are canceled out by 
 
 Anchor example:
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mantle-potential/index.ts` (`normalizeSigned`)
+
+## Final Legacy + Docs Sweep (Required)
+
+End-of-project requirement:
+- remove any remaining dual paths / shims / legacy remnants (no “temporary” compatibility)
+- be willing to break contracts if needed, as long as everything is working and gates are green
+- re-run Phase 0 guard and keep it green at the end (`test/pipeline/no-shadow-paths.test.ts`)
 
 ## What must be replaced (explicit replacements)
 
