@@ -9,11 +9,11 @@ function findGate(name: string) {
   return gate;
 }
 
-function makeInvariantContext(artifacts: Map<string, unknown>) {
+function makeInvariantContext(artifacts: Map<string, unknown>, width = 2, height = 1) {
   return {
     context: {
       artifacts,
-      dimensions: { width: 2, height: 1 },
+      dimensions: { width, height },
     } as any,
     fingerprints: { artifacts: {}, missing: [] },
   };
@@ -45,5 +45,60 @@ describe("foundation invariant gates", () => {
     expect(result.ok).toBe(false);
     expect(result.message).toContain("non-finite");
     expect((result.details as { nonFinite?: number } | undefined)?.nonFinite).toBe(1);
+  });
+
+  it("includes era-0 origins in provenance causality checks", () => {
+    const size = 16;
+    const zeroes = new Uint8Array(size);
+    const artifacts = new Map<string, unknown>([
+      [
+        foundationArtifacts.tectonicHistoryTiles.id,
+        {
+          perEra: [
+            {
+              boundaryType: zeroes,
+              upliftPotential: zeroes,
+              riftPotential: zeroes,
+              shearStress: zeroes,
+              volcanism: zeroes,
+              fracture: zeroes,
+            },
+            {
+              boundaryType: zeroes,
+              upliftPotential: new Uint8Array(size).fill(80),
+              riftPotential: zeroes,
+              shearStress: zeroes,
+              volcanism: zeroes,
+              fracture: zeroes,
+            },
+          ],
+          rollups: {
+            upliftTotal: zeroes,
+            fractureTotal: zeroes,
+            volcanismTotal: zeroes,
+          },
+        },
+      ],
+      [
+        foundationArtifacts.tectonicProvenanceTiles.id,
+        {
+          originEra: new Uint8Array(size).fill(0),
+          lastBoundaryEra: new Uint8Array(size).fill(255),
+        },
+      ],
+    ]);
+
+    const gate = findGate("foundation-event-provenance-causality");
+    const result = gate.check(
+      makeInvariantContext(
+        artifacts,
+        4,
+        4
+      )
+    );
+
+    expect(result.ok).toBe(false);
+    expect(result.message).toContain("Origin resets lack same-era event signal");
+    expect((result.details as { originCount?: number } | undefined)?.originCount).toBe(size);
   });
 });
