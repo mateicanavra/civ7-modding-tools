@@ -5,6 +5,7 @@ import {
   type StudioPresetExportFileV1,
   type TSchema,
 } from "@swooper/mapgen-core/authoring";
+import type { VizLayerEntryV1 } from "@swooper/mapgen-viz";
 
 import { AppHeader } from "./ui/components/AppHeader";
 import { AppFooter } from "./ui/components/AppFooter";
@@ -76,6 +77,55 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 
 function isNumericPathSegment(segment: string): boolean {
   return /^[0-9]+$/.test(segment);
+}
+
+const CAUSAL_LAYER_SHORTCUTS = [
+  { key: "foundation.mantle.potential", label: "Mantle · Potential", group: "Mantle" },
+  { key: "foundation.mantle.forcing", label: "Mantle · Forcing", group: "Mantle" },
+  { key: "foundation.plates.motion", label: "Plates · Motion", group: "Plates" },
+  { key: "foundation.plates.partition", label: "Plates · Partition", group: "Plates" },
+  { key: "foundation.events.boundary", label: "Events · Boundary", group: "Events / History" },
+  { key: "foundation.history.regime", label: "History · Regime", group: "Events / History" },
+  { key: "foundation.provenance.tracerAge", label: "Provenance · Tracer Age", group: "Provenance" },
+  { key: "foundation.provenance.lineage", label: "Provenance · Lineage", group: "Provenance" },
+  { key: "morphology.drivers.uplift", label: "Morphology · Uplift", group: "Morphology Drivers" },
+  { key: "morphology.drivers.fracture", label: "Morphology · Fracture", group: "Morphology Drivers" },
+] as const;
+
+const LAYER_SPACE_PRIORITY: Record<string, number> = {
+  "tile.hexOddR": 0,
+  "tile.hexOddQ": 1,
+  "world.xy": 2,
+  "mesh.world": 3,
+};
+
+const LAYER_KIND_PRIORITY: Record<string, number> = {
+  grid: 0,
+  gridFields: 1,
+  segments: 2,
+  points: 3,
+};
+
+function visibilityRank(visibility?: string): number {
+  if (visibility === "debug") return 1;
+  if (visibility === "hidden") return 2;
+  return 0;
+}
+
+function pickBestLayer(layers: readonly VizLayerEntryV1[]): VizLayerEntryV1 {
+  const ordered = [...layers].sort((a, b) => {
+    if (a.stepIndex !== b.stepIndex) return a.stepIndex - b.stepIndex;
+    const visDiff = visibilityRank(a.meta?.visibility) - visibilityRank(b.meta?.visibility);
+    if (visDiff !== 0) return visDiff;
+    const spaceDiff = (LAYER_SPACE_PRIORITY[a.spaceId] ?? 99) - (LAYER_SPACE_PRIORITY[b.spaceId] ?? 99);
+    if (spaceDiff !== 0) return spaceDiff;
+    const variantDiff = (a.variantKey ? 1 : 0) - (b.variantKey ? 1 : 0);
+    if (variantDiff !== 0) return variantDiff;
+    const kindDiff = (LAYER_KIND_PRIORITY[a.kind] ?? 99) - (LAYER_KIND_PRIORITY[b.kind] ?? 99);
+    if (kindDiff !== 0) return kindDiff;
+    return a.layerKey.localeCompare(b.layerKey);
+  });
+  return ordered[0] ?? layers[0]!;
 }
 
 const FORBIDDEN_MERGE_KEYS = new Set(["__proto__", "prototype", "constructor"]);
@@ -520,6 +570,10 @@ function AppContent(props: AppContentProps) {
 
   const [selectedStageId, setSelectedStageId] = useState("");
   const [selectedStepId, setSelectedStepId] = useState("");
+  const [pendingLayerJump, setPendingLayerJump] = useState<{
+    stepId: string;
+    layerKey: string;
+  } | null>(null);
 
   const recipeOptions = useMemo(
     () => STUDIO_RECIPE_OPTIONS.map((opt) => ({ value: opt.id, label: opt.label })),
@@ -599,6 +653,14 @@ function AppContent(props: AppContentProps) {
     viz.setSelectedLayerKey(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedStepId]);
+
+  useEffect(() => {
+    if (!pendingLayerJump) return;
+    if (pendingLayerJump.stepId !== selectedStepId) return;
+    viz.setSelectedLayerKey(pendingLayerJump.layerKey);
+    setPendingLayerJump(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingLayerJump, selectedStepId]);
 
   const startBrowserRun = useCallback(
     (overrides?: { seed?: string }) => {
@@ -903,6 +965,39 @@ function AppContent(props: AppContentProps) {
   }, [lastRunSnapshot, pipelineConfig, recipeSettings, worldSettings]);
 
   const dataTypeModel = viz.dataTypeModel;
+  const availableDataTypeKeys = useMemo(() => {
+    if (!viz.manifest) return new Set<string>();
+    return new Set(viz.manifest.layers.map((layer) => layer.dataTypeKey));
+  }, [viz.manifest]);
+
+  const jumpTargets = useMemo(
+    () =>
+      CAUSAL_LAYER_SHORTCUTS.map((target) => ({
+        ...target,
+        available: availableDataTypeKeys.has(target.key),
+      })),
+    [availableDataTypeKeys]
+  );
+
+  const jumpToLayer = useCallback(
+    (dataTypeKey: string) => {
+      if (!viz.manifest) {
+        toast("Run the pipeline to load causal layers.", { variant: "info" });
+        return;
+      }
+      const candidates = viz.manifest.layers.filter((layer) => layer.dataTypeKey === dataTypeKey);
+      if (candidates.length === 0) {
+        toast(`Layer not available: ${dataTypeKey}`, { variant: "info" });
+        return;
+      }
+      const selected = pickBestLayer(candidates);
+      const stage = viz.pipelineStages.find((s) => s.steps.some((step) => step.stepId === selected.stepId));
+      if (stage) setSelectedStageId(stage.stageId);
+      setSelectedStepId(selected.stepId);
+      setPendingLayerJump({ stepId: selected.stepId, layerKey: selected.layerKey });
+    },
+    [toast, viz.manifest, viz.pipelineStages]
+  );
   const dataTypeOptions: DataTypeOption[] = useMemo(() => {
     if (!dataTypeModel) return [];
     return dataTypeModel.dataTypes.map((dt) => ({ value: dt.dataTypeId, label: dt.label, group: dt.group }));
@@ -1303,6 +1398,7 @@ function AppContent(props: AppContentProps) {
   const leftPanel = (
     <RecipePanel
       config={pipelineConfig}
+      configSchema={recipeArtifacts.configSchema}
       onConfigPatch={(patch: ConfigPatch) => setPipelineConfig((prev) => applyConfigPatch(prev, patch))}
       onConfigReset={() =>
         setPipelineConfig(
@@ -1374,6 +1470,8 @@ function AppContent(props: AppContentProps) {
         if (!viz.activeBounds) return;
         deckApiRef.current?.fitToBounds(viz.activeBounds);
       }}
+      jumpTargets={jumpTargets}
+      onJumpToLayer={jumpToLayer}
       stageExpanded={exploreStageExpanded}
       onStageExpandedChange={setExploreStageExpanded}
       stepExpanded={exploreStepExpanded}
@@ -1460,7 +1558,7 @@ function AppContent(props: AppContentProps) {
       {footer}
 
       {error ? (
-        <div className="absolute left-1/2 -translate-x-1/2 top-[84px] z-30 max-w-[min(720px,calc(100%-32px))] rounded-lg border border-red-500/30 bg-red-950/40 px-4 py-2 text-[12px] text-red-200 backdrop-blur-sm">
+        <div className="absolute left-1/2 -translate-x-1/2 top-[84px] z-30 max-w-[min(720px,calc(100%-32px))] rounded-lg border border-red-500/30 bg-red-950/40 px-4 py-2 text-[12px] text-red-200 whitespace-pre-wrap backdrop-blur-sm">
           {error}
         </div>
       ) : null}

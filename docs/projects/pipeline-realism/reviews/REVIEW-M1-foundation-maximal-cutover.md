@@ -368,6 +368,78 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 ### Cross-cutting Risks
 - If advection budgets change without aligned tests/docs, provenance lineage stability could drift across releases.
 
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-014-morphology-dual-read-history-provenance-diagnostics
+
+### Quick Take
+- Morphology’s landmass step now dual-reads history/provenance tiles to emit comparison diagnostics while keeping legacy plates as authoritative inputs, aligning with the transitional cutover plan.
+- Diagnostics include deltas and a quantitative summary, and tests lock the new viz keys and summary event.
+
+### High-Leverage Issues
+- Dual-read comparisons assume identical mesh addressing across legacy/new paths; if tile mapping diverges (e.g., resolution/profile shifts), diagnostics can report misleading “regressions” that are actually coordinate mismatches. Consider asserting shared addressing invariants in the diagnostic harness.
+
+### PR Comment Context
+- No reviewer comments; Graphite/preview notices only.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- Add a thresholded “diff severity” signal (and test) so diagnostics are not purely qualitative and can gate regressions when desired.
+
+### Needs Discussion
+- Whether the dual-read period should be time-boxed by milestone (and enforced by tests) so the legacy diagnostic bridge doesn’t become permanent.
+
+### Cross-cutting Risks
+- If legacy-only runs are impossible, the transition window for validating deltas independently of new drivers is effectively closed, making regression triage harder.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-015-morphology-belt-synthesis-history-provenance
+
+### Quick Take
+- Belt driver tensors are now derived from history/provenance tiles with continuity (gap fill + min length) and age-aware diffusion, and `plotMountains` consumes those drivers instead of legacy plates.
+- New tests cover noise-only suppression, continuity, and age diffusion; viz emissions now include belt driver layers and summaries.
+
+### High-Leverage Issues
+- The belt synthesis pipeline still has coupled knobs (continuity + diffusion + intensity gates). Without a consolidated “parameter intent” doc, future tuning risks becoming output-sculpting rather than physics-first posture.
+
+### PR Comment Context
+- No reviewer comments; Graphite/preview notices only.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- Consider lifting belt synthesis tuning + rationale into a single morphology doc so “maximal realism” posture is explicit and doesn’t drift into ad-hoc tuning.
+
+### Needs Discussion
+- Whether belt synthesis should expose diagnostics for “age diffusion vs continuity fill” contributions to make tuning explainable.
+
+### Cross-cutting Risks
+- Leaving legacy plate requirements in gameplay steps makes M1-016’s “new drivers only” cutover harder and increases the chance of silent regressions back to legacy inputs.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-016-cutover-morphology-new-drivers
+
+### Quick Take
+- `plotMountains` now requires history/provenance tiles only, and contract guards enforce that legacy plates are no longer referenced in belt synthesis.
+- Guard tests provide a hard “no legacy fallback” posture for belt drivers, aligning with the D07r cutover requirements.
+
+### High-Leverage Issues
+- The cutover is intentionally narrow (belts/mountains). Any remaining morphology features that still accept legacy plates should be explicitly enumerated and scheduled, otherwise “partial cutover” becomes the new steady state.
+
+### PR Comment Context
+- No reviewer comments; Graphite/preview notices only.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- Add a small “remaining legacy consumers” inventory (doc or test) to prevent silent reintroduction of legacy inputs.
+
+### Needs Discussion
+- Whether “no legacy fallback” should become a repo-wide invariant for M1+ (beyond morphology) once the stack merges.
+
+### Cross-cutting Risks
+- Partial cutover (belts only) may create mixed semantics across morphology features unless the remaining plate-driven steps are explicitly scheduled for migration.
+
 ## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-017-determinism-suite-canonical-seeds
 
 ### Quick Take
@@ -468,3 +540,30 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 
 ### Cross-cutting Risks
 - If we only validate the reconstructed plan, downstream morphology changes can drift without tripping the physics-alignment gates.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-021-studio-authoring-physics-input-controls-causal-overlays-no-v
+
+### Quick Take
+- Studio now exposes a dedicated “Foundation (Physics Inputs)” panel backed by the recipe schema, keeping authoring confined to D08r inputs; schema guard tests enforce that derived keys (velocity/belt/regime) are absent.
+- “Causality spine” layer shortcuts were added to ExplorePanel, letting authors jump to canonical `dataTypeKey` layers without adding correctness logic to the viewer.
+
+### High-Leverage Issues
+- `CAUSAL_LAYER_SHORTCUTS` is hard-coded in `App.tsx`, tightly coupling Studio to pipeline-specific keys. This breaks the Studio-agnostic boundary and will drift when other recipes or key taxonomies evolve.
+- The Foundation authoring panel is hardwired into `RecipePanel` instead of using a generic “stage authoring” mechanism, which sets a precedent for domain-specific UI in a supposed agnostic shell.
+- `FoundationAuthoringPanel`’s schema lookup skips `allOf`/`$ref` traversal; if schema structure changes, the panel will silently degrade to “schema unavailable.”
+
+### PR Comment Context
+- No actionable review comments; Graphite/Railway bot notices only.
+
+### Fix Now (Recommended)
+- Add `aria-label`s for icon-only buttons and replace click-only `<div>` overlays with accessible buttons or keyboard handlers (per Web Interface Guidelines).
+- Move causal shortcut definitions into recipe UI meta (or a shared config file) so Studio doesn’t hardcode pipeline keys.
+
+### Defer / Follow-up
+- Consider a generic “stage authoring panel” registry keyed by recipe metadata to avoid future Foundation-only UI accretion.
+
+### Needs Discussion
+- Is it acceptable for Studio to ship with hard-coded D08r/D09r shortcuts, or should all shortcuts be recipe-defined?
+
+### Cross-cutting Risks
+- Hard-coded UI shortcuts and domain panels will force Studio updates for every taxonomy change, undermining the intended agnostic boundary.
