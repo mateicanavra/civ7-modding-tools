@@ -15,6 +15,13 @@ const STRENGTH_BASE_MIN = 0.45;
 const STRENGTH_MATURITY_MIN = 0.5;
 const STRENGTH_THICKNESS_MIN = 0.55;
 
+function clamp02(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  if (value <= 0) return 0;
+  if (value >= 2) return 2;
+  return value;
+}
+
 function clampByte(value: number): number {
   if (!Number.isFinite(value)) return 0;
   if (value <= 0) return 0;
@@ -73,9 +80,10 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
         const strength = new Float32Array(cellCount);
 
         const provenance = tectonicProvenance.provenance;
-        const ageToMaturity = clamp01(config.ageToMaturity ?? 0.8);
-        const upliftToMaturity = clamp01(config.upliftToMaturity ?? 1.0);
-        const disruptionToMaturity = clamp01(config.disruptionToMaturity ?? 0.9);
+        // Contract allows these scalars in 0..2 (not normalized 0..1).
+        const ageToMaturity = clamp02(config.ageToMaturity ?? 0.8);
+        const upliftToMaturity = clamp02(config.upliftToMaturity ?? 1.0);
+        const disruptionToMaturity = clamp02(config.disruptionToMaturity ?? 0.9);
 
         for (let i = 0; i < cellCount; i++) {
           const initThickness = crustInit.thickness[i] ?? 0.25;
@@ -149,4 +157,3 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
 });
 
 export default computeCrustEvolution;
-
