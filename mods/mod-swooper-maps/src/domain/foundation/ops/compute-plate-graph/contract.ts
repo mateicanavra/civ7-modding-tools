@@ -83,9 +83,6 @@ export const FoundationPlateSchema = Type.Object(
     kind: Type.Union([Type.Literal("major"), Type.Literal("minor")]),
     seedX: Type.Number({ description: "Seed location X in mesh hex space." }),
     seedY: Type.Number({ description: "Seed location Y in mesh hex space." }),
-    velocityX: Type.Number(),
-    velocityY: Type.Number(),
-    rotation: Type.Number(),
   },
   { additionalProperties: false }
 );

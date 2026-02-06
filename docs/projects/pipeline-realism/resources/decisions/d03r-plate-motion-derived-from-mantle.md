@@ -2,7 +2,7 @@
 
 ## Question
 
-Do we define plate motion as a mantle-derived, mesh-space kinematics field and treat `foundation.plateGraph` plate velocities/rotation as deterministic projections of that mantle forcing (not RNG-assigned)?
+Do we define plate motion as a mantle-derived, mesh-space kinematics field and keep `foundation.plateGraph` kinematics-free (seed metadata only), with motion published via `foundation.plateMotion`?
 
 ## Decision
 
@@ -11,14 +11,14 @@ Plate motion is a piecewise-rigid fit of the mesh-space mantle forcing velocity 
 ## Context (pointers only)
 
 - Current contract baseline:
-- `docs/system/libs/mapgen/reference/domains/FOUNDATION.md` (`foundation.plateGraph` provides per-plate `velocityX/Y` + `rotation`; `foundation.plates` projects `movementU/V` + `rotation` to tiles)
+- `docs/system/libs/mapgen/reference/domains/FOUNDATION.md` (`foundation.plateMotion` is the kinematics truth; `foundation.plateGraph` provides partition + seed metadata)
 - Upstream forcing posture:
 - `docs/projects/pipeline-realism/resources/decisions/d02r-mantle-forcing-potential-derived.md` (mantle forcing is canonical truth; stress/velocity are deterministic derivatives)
 - `docs/projects/pipeline-realism/resources/spec/sections/mantle-forcing.md` (`artifact:foundation.mantleForcing` defines `forcingU/V` as truth)
 - Current implementation anchors (today's non-physics kinematics):
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts` (RNG-assigned `velocityX/Y` and `rotation`)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts` (partition + seed metadata only; no RNG kinematics)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts` (`velocityAtPoint` treats plates as 2D rigid bodies: translation + rotation about a reference point)
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts` (tile projection scales `velocityX/Y` to `movementU/V` and `rotation` to `rotation`)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts` (tile projection scales `plateMotion` to `movementU/V` and `rotation`)
 
 ## Plate Motion Representation (Canonical)
 
@@ -34,10 +34,9 @@ This representation is canonical because it matches the current downstream usage
 This decision defines a new truth artifact and a contract mapping:
 
 - Truth artifact (mesh space):
-- `artifact:foundation.plateKinematics` (new): per-plate `(cX, cY, vX, vY, omega)` plus fit residual diagnostics (per-plate and per-cell)
+- `artifact:foundation.plateMotion`: per-plate `(cX, cY, vX, vY, omega)` plus fit residual diagnostics (per-plate and per-cell)
 - Contract placement:
-- `artifact:foundation.plateGraph.plates[].velocityX/Y` and `.rotation` are defined as deterministic copies of `(vX, vY, omega)` from `plateKinematics`
-- `artifact:foundation.plateGraph.plates[].seedX/Y` remains the partition seed reference
+- `artifact:foundation.plateGraph.plates[]` remains partition + seed metadata (no kinematics).
 
 ## Non-Negotiable Invariants
 

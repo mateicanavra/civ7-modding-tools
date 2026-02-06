@@ -113,7 +113,7 @@ These coupling rules are the sole source for regime drivers used by `foundation.
 ## Contract Mapping (Current Foundation Artifacts)
 
 - `foundation.crust.strength` provides lithosphere resistance used in coupling rules.
-- `foundation.plateGraph.plates[].velocity` is derived from `mantleForcing.forcingU/V` (aggregate per plate).
+- `foundation.plateMotion` is derived from `mantleForcing.forcingU/V` (aggregate per plate with rigid fit).
 - `foundation.tectonics` fields are derived from mantle forcing + strength:
 - `upliftPotential` from convergence + downwelling adjacency
 - `riftPotential` from divergence + stress
@@ -132,7 +132,7 @@ flowchart TD
   A["foundation.mantlePotential (truth)"] --> B["foundation.mantleForcing (stress + velocity + upwelling)"]
   B --> C["Coupling: stress vs crust strength"]
   C --> D["foundation.tectonics"]
-  C --> E["foundation.plateGraph (kinematics)"]
+  C --> E["foundation.plateMotion"]
   D --> F["foundation.tectonicHistory"]
   D --> G["foundation.plates (tile projection)"]
 ```

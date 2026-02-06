@@ -606,3 +606,28 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 
 ### Cross-cutting Risks
 - Era/overlay mismatches can lead to false causal inference during tuning (e.g., attributing changes to the wrong era), which undermines the physics-first objective even if the underlying data is correct.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-023-delete-legacy-plate-motion-legacy-tectonics-truth-publicatio
+
+### Quick Take
+- RNG-driven plate velocities were removed; tile-space motion is now derived from mantle-driven `plateMotion`, and docs/tests were updated to reflect the new source of truth.
+- The cleanup achieves the main motion-source cutover, but legacy motion fields still exist in contracts, leaving a surface for future drift.
+
+### High-Leverage Issues
+- `FoundationPlateSchema` and `foundationPlates` still publish `velocityX/velocityY/rotation` and tile `movementU/V/rotation`. They are now zeroed or derived, but keeping them in the contract leaves a legacy surface that can be accidentally re-used.
+- There is no explicit guard that plate-graph velocities stay zero or that tile movement must originate from `plateMotion`. Tests still build `plateMotion` from plate-graph velocities, which weakens the “mantle-derived only” posture.
+
+### PR Comment Context
+- No actionable review comments; Graphite/Railway bot notices only.
+
+### Fix Now (Recommended)
+- Add a contract guard that prevents non-zero plate-graph velocities or remove the plate-graph velocity fields entirely, and update tests to avoid sourcing `plateMotion` from legacy plate-graph values.
+
+### Defer / Follow-up
+- If `foundationPlates` must continue to publish movement for visualization, explicitly mark it as derived-from-plateMotion and document the deprecation plan for legacy fields.
+
+### Needs Discussion
+- Should `foundationPlates` continue publishing movement/rotation at all, or should the canonical visualization surface be `foundation.plates.motion` only?
+
+### Cross-cutting Risks
+- Leaving legacy motion fields in contracts invites future accidental re-binding to non-physics motion, which undermines the physics-first objective.

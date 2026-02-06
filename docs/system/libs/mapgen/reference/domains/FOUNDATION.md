@@ -179,7 +179,7 @@ Shape highlights:
 - `cellFitError`: per-cell residual (`0..255`)
 
 Mapping notes:
-- `plateGraph.plates[].velocityX/Y` and `.rotation` are derived from `plateMotion`.
+- `plateMotion` is derived from mantle forcing; plate graph remains kinematics-free metadata.
 
 **Ground truth anchors**
 - `docs/projects/pipeline-realism/resources/spec/sections/plate-motion.md` (schema + derivation rules)
@@ -187,11 +187,11 @@ Mapping notes:
 
 ### `artifact:foundation.plateGraph` (truth; mesh space)
 
-Tectonic plate partition and kinematic metadata.
+Tectonic plate partition and seed metadata.
 
 Shape highlights:
 - `cellToPlate` (i16): plate id per mesh cell
-- `plates[]`: per-plate metadata (`role`, `kind`, `seedX/Y`, `velocityX/Y`, `rotation`)
+- `plates[]`: per-plate metadata (`role`, `kind`, `seedX/Y`)
 
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/contract.ts` (`FoundationPlateGraphSchema`, `FoundationPlateSchema`)

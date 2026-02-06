@@ -65,6 +65,18 @@ describe("foundation contract guardrails", () => {
     }
   });
 
+  it("does not reintroduce legacy plate kinematics on plateGraph", () => {
+    const repoRoot = path.resolve(import.meta.dir, "../..");
+    const contractFile = path.join(
+      repoRoot,
+      "src/domain/foundation/ops/compute-plate-graph/contract.ts"
+    );
+    const text = readFileSync(contractFile, "utf8");
+    expect(text).not.toContain("velocityX");
+    expect(text).not.toContain("velocityY");
+    expect(text).not.toContain("rotation");
+  });
+
   it("does not reintroduce removed foundation surfaces", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const roots = [

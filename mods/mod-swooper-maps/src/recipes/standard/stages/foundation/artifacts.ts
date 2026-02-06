@@ -34,7 +34,7 @@ const BoundingBoxSchema = Type.Object(
   { description: "Bounding box in mesh-space units." }
 );
 
-/** Plate metadata entry (seed + kinematics + classification). */
+/** Plate metadata entry (seed + classification). */
 const FoundationPlateMetadataSchema = Type.Object(
   {
     /** Plate id (0..plateCount-1). */
@@ -49,14 +49,8 @@ const FoundationPlateMetadataSchema = Type.Object(
     seedX: Type.Number({ description: "Plate seed X coordinate in mesh space." }),
     /** Plate seed Y coordinate in mesh space. */
     seedY: Type.Number({ description: "Plate seed Y coordinate in mesh space." }),
-    /** Plate velocity X component. */
-    velocityX: Type.Number({ description: "Plate velocity X component." }),
-    /** Plate velocity Y component. */
-    velocityY: Type.Number({ description: "Plate velocity Y component." }),
-    /** Plate angular rotation rate. */
-    rotation: Type.Number({ description: "Plate angular rotation rate." }),
   },
-  { description: "Plate metadata entry (seed + kinematics + classification)." }
+  { description: "Plate metadata entry (seed + classification)." }
 );
 
 /** Plate centroid in mesh-space coordinates. */
