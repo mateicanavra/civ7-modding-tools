@@ -1,5 +1,19 @@
 # PLAN — No-legacy Foundation ↔ Morphology refactor (2026-02-05)
 
+## Canonical Status
+
+This file is the sole canonical runbook going forward.
+
+The extracted "Execution Runbook — Remediation Spike v2" from session `019c2c49-864f-7cd2-904f-14c5cc310a9f` is historical execution context that has already been carried out.
+
+## Completed Prerequisites (as of 2026-02-06)
+
+- [x] Stack repair/restack completed during remediation spike execution (`2b940a030`, `a081c3ce4`, `b869cb526` context stack).
+- [x] Diagnostics toolkit promoted into repo tooling (`2b940a030`).
+- [x] Dump-first diagnosis docs added and cross-linked (`2b940a030`).
+- [x] Consolidated realism diagnosis spike doc added (`a081c3ce4`).
+- [x] Planning artifacts generated, including this canonical plan (`b869cb526`).
+
 ## Summary
 
 This plan converts the current “looks wired but behaves unchanged” posture into a **single causal spine**:
@@ -10,13 +24,33 @@ This plan converts the current “looks wired but behaves unchanged” posture i
 
 This plan is intentionally **no-legacy**: any legacy-independent “truth” (ocean basin separation, noise-first landmask) is deleted or redefined as a derived view of Foundation truth.
 
+## Forward Runbook (Start Here)
+
+Only future-facing implementation work remains:
+
+### Phase A — Foundation truth normalization + degeneracy elimination
+- Make crust truth continuous and non-degenerate for canonical probes.
+- Ensure provenance resets are materially present and calibrated to observed forcing ranges.
+
+### Phase B — Morphology landmask re-grounding on Foundation truth
+- Replace threshold/noise-dominant landmask behavior with crust-truth-driven continent potential.
+- Ensure coherence gates (components and largestLandFrac) become pass conditions.
+
+### Phase C — Belt-driver modulation cleanup
+- Keep belts as modifiers for mountains/coasts/islands, not the primary landmass generator.
+- Remove or constrain any hidden re-thresholding that shreds land connectivity.
+
+### Phase D — Observability hardening as enforcement
+- Use existing diagnostics tooling as regression gates (not bootstrap/setup work).
+- Promote required acceptance checks into routine verification for each refactor slice.
+
 ## Why this plan exists (current ground truth)
 
 Deterministic probe (`106×66 seed=1337`) demonstrates:
 - `morphology-coasts.landmass-plates` landmask components: **434** (high speckle)
 - `foundation.crustTiles.type` stats: `min=max=1` (continent signal saturated / degenerate)
 
-Repro:
+Diagnostics bootstrap is already complete; use these existing commands for verification/regression checks:
 - `bun run --cwd mods/mod-swooper-maps diag:dump -- 106 66 1337 --label probe-baseline`
 - `bun run --cwd mods/mod-swooper-maps diag:analyze -- <runDir>`
 - `bun run --cwd mods/mod-swooper-maps diag:list -- <runDir> --dataTypeKey foundation.crustTiles.type`
@@ -262,3 +296,8 @@ These are mandatory for verifying the refactor:
   - landmass-plates components drop materially
   - largestLandFrac rises materially
 - meaningful knob/physics changes produce non-trivial A/B hamming where expected (dead levers eliminated)
+
+## Non-Goals for this runbook
+
+- Do not repeat stack-unscrew/restack work unless a new divergence event is observed.
+- Do not re-run diagnostics bootstrap/setup phases already captured by completed commits.
