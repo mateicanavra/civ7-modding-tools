@@ -63,9 +63,19 @@ function buildInternalAsPublicSurfaceSchema(stepIds: readonly string[], knobsSch
 }
 
 function buildPublicSurfaceSchema(publicSchema: TObject, knobsSchema: TObject): TObject {
+  const meta: Record<string, unknown> = {};
+  const maybeTitle = (publicSchema as any).title;
+  if (typeof maybeTitle === "string" && maybeTitle.trim().length > 0) meta.title = maybeTitle;
+  const maybeDescription = (publicSchema as any).description;
+  if (typeof maybeDescription === "string" && maybeDescription.trim().length > 0) {
+    meta.description = maybeDescription;
+  }
+  const maybeGs = (publicSchema as any).gs;
+  if (maybeGs && typeof maybeGs === "object") meta.gs = maybeGs;
+
   return Type.Object(
     { knobs: Type.Optional(knobsSchema), ...objectProperties(publicSchema) },
-    { additionalProperties: false }
+    { additionalProperties: false, ...meta }
   );
 }
 

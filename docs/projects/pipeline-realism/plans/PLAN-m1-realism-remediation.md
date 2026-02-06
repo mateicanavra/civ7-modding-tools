@@ -97,15 +97,17 @@ Workflow constraints:
 ```yaml
 steps:
   - slice: 0
-    branch: "TBD"
+    branch: "agent-URSULA-M1-LOCAL-TBD-PR-M1-026-docs-m1-realism-remediation-plan"
     title: "docs(plan): remediation plan"
+    status: done
     includes:
       - "$PROJECT/plans/PLAN-m1-realism-remediation.md"
       - "$PROJECT/resources/research/SPIKE-m1-foundation-realism-regression-2026-02-04.md (if untracked)"
 
   - slice: 1
-    branch: "TBD"
+    branch: "agent-URSULA-M1-LOCAL-TBD-PR-M1-027-studio-gs-comments-schema-doc-enforcement"
     title: "studio(schema): gs.comments + description enforcement"
+    status: done
     includes:
       - "$STUDIO/src/features/configOverrides/rjsfTemplates.tsx"
       - "$STUDIO/test/config/*"
@@ -169,4 +171,3 @@ Additionally, Studio verification must include:
 - Confirm final artifact IDs and any unavoidable breaking contract boundaries (minimize churn while preserving correctness).
 - Decide how era scrubbing is represented in artifacts and surfaced in Studio (schema vs UI-only timeline control).
 - Confirm whether any legacy preset must remain supported for backward compatibility; default posture is “migrate all in-repo presets”.
-
