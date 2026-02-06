@@ -663,6 +663,18 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 - Projection now requires tectonic provenance and a guard test enforces that dependency, which is a meaningful contract hardening step.
 - The bulk of the diff is a MapGen Studio config-override refactor; the ticket’s core deliverable (removing shadow/dual compute paths and comparison layers) is not clearly implemented.
 
+### Disposition (2026-02-06)
+
+| Item | Disposition | Rationale | Owning Slice | Phase |
+| --- | --- | --- | --- | --- |
+| no-dual-engine guard | must-fix-now | Core M1-025 acceptance requires explicit protection against shadow/dual compare surfaces in standard pipeline paths. | Slice 1 | Phase 0 |
+| provenance-required projection guard | fixed | Projection now hard-requires provenance and is covered by contract guard coverage. | — | Complete |
+| dual-read lingering concern | fixed | Prior dual-read concern from belt cutover is closed by existing no-dual-read guard coverage. | — | Complete |
+| M1-022 era snapping + overlay normalization | scheduled | Studio manual era selection must resolve to available variant keys with normalized matching to avoid drift. | Slice 2 | Phase 0 |
+| M1-021/022 overlay hardcoding | scheduled | Move overlay suggestions out of app shell and bind to recipe-driven lookup to reduce coupling. | Slice 3 | Phase 0 |
+| M1-023 motion-field risk | scheduled | Add guard that motion surfaces stay derived from canonical `plateMotion` path while preserving current contract shape. | Slice 4 | Phase 0 |
+| M1-024 plate-tensor concern | superseded by plan matrices/Phase B/C | Remaining morphology tensor-consumer decisions are tracked in canonical plan matrices and execute in later phases. | — | Phase B/C |
+
 ### High-Leverage Issues
 - Acceptance criteria are not met: there is no removal of shadow/dual compute paths or comparison-only layers, and no “no shadow paths” guard beyond the provenance requirement.
 - The large Studio config override refactor is out-of-scope for a pipeline shadow-path cleanup and increases review surface area and regression risk without explicit justification.
