@@ -18,6 +18,7 @@ import {
 const FOUNDATION_TECTONIC_SEGMENTS_ARTIFACT_TAG = "artifact:foundation.tectonicSegments";
 const FOUNDATION_TECTONIC_HISTORY_ARTIFACT_TAG = "artifact:foundation.tectonicHistory";
 const FOUNDATION_PLATE_TOPOLOGY_ARTIFACT_TAG = "artifact:foundation.plateTopology";
+const FOUNDATION_CRUST_INIT_ARTIFACT_TAG = "artifact:foundation.crustInit";
 
 /** Bounding box in mesh-space units. */
 const BoundingBoxSchema = Type.Object(
@@ -659,6 +660,11 @@ export const foundationArtifacts = {
     name: "foundationMantleForcing",
     id: FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG,
     schema: FoundationMantleForcingArtifactSchema,
+  }),
+  crustInit: defineArtifact({
+    name: "foundationCrustInit",
+    id: FOUNDATION_CRUST_INIT_ARTIFACT_TAG,
+    schema: FoundationCrustArtifactSchema,
   }),
   crust: defineArtifact({
     name: "foundationCrust",

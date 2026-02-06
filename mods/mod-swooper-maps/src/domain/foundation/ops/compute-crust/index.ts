@@ -75,28 +75,27 @@ const computeCrust = createOp(ComputeCrustContract, {
         for (let i = 0; i < cellCount; i++) {
           const divergenceRaw = mantleForcing.divergence[i] ?? 0;
           const divergencePos = clamp01(Math.max(0, divergenceRaw));
-          const divergenceNeg = clamp01(Math.max(0, -divergenceRaw));
           const stress = clamp01(mantleForcing.stress[i] ?? 0);
           const forcingMag = clamp01(mantleForcing.forcingMag[i] ?? 0);
 
+          // Basaltic-lid initial condition: oceanic everywhere at t=0.
+          // Event/era mechanics are responsible for continental emergence in later steps.
+          const maturitySeed = 0;
+          const thicknessSeed = basalticThickness;
           const riftSignal = clamp01(divergencePos * (0.35 + 0.65 * forcingMag) * (0.5 + 0.5 * stress));
-          const maturitySeed = clamp01(divergenceNeg * (0.4 + 0.6 * stress)) * 0.25;
-          const thicknessSeed = clamp01(basalticThickness + maturitySeed * 0.25);
 
           maturity[i] = maturitySeed;
           thickness[i] = thicknessSeed;
           thermalAge[i] = 0;
           damage[i] = clampU8(riftSignal * riftWeakening * 255);
 
-          const m = maturity[i] ?? 0;
-          const t = thickness[i] ?? 0;
-          const a = thermalAge[i] ?? 0;
-          const d = damage[i] ?? 0;
-          const age01 = clamp01(a / 255);
-          const damage01 = clamp01(d / 255);
+          const m = maturitySeed;
+          const t = thicknessSeed;
+          const age01 = 0;
+          const damage01 = clamp01((damage[i] ?? 0) / 255);
 
           type[i] = m >= MATURITY_CONTINENT_THRESHOLD ? 1 : 0;
-          age[i] = clampU8(a);
+          age[i] = 0;
 
           const buoy = deriveBuoyancy({ maturity: m, thickness: t, thermalAge01: age01 });
           buoyancy[i] = buoy;

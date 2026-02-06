@@ -121,8 +121,9 @@ steps:
       - "$PROJECT/resources/spec/sections/authoring-and-config.md (D08r update)"
 
   - slice: 3
-    branch: "TBD"
+    branch: "agent-URSULA-M1-LOCAL-TBD-PR-M1-029-foundation-crust-evolution-crustInit-artifact"
     title: "foundation(runtime): crust evolution + event→truth wiring"
+    status: done
     includes:
       - "$SWOOPER/src/domain/foundation/ops/**"
       - "$SWOOPER/src/recipes/standard/stages/foundation/steps/**"
