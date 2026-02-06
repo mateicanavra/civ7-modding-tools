@@ -118,7 +118,7 @@ Objective: make the material evolution half real (crust truth + provenance are c
 
 - A0. Re-establish baseline probe evidence bundle:
   - `bun run --cwd mods/mod-swooper-maps diag:dump -- 106 66 1337 --label probe-baseline`
-  - `bun run --cwd mods/mod-swooper-maps diag:analyze -- <runDir>`
+  - `bun run --cwd mods/mod-swooper-maps diag:analyze -- <outputDir>`
   - Capture in evidence bundle:
     - `foundation.crustTiles.type` stats (or its replacement derived view, if `type` is made non-truth or removed)
     - provenance causality signal (resets non-zero, non-trivial spatial structure)
@@ -139,7 +139,7 @@ Objective: continents emerge from crust truth and provenance, not from noise thr
   - [ ] Baseline vs after evidence is posted using a two-run compare (earthlike proxy expectations):
     - Capture baseline: `bun run --cwd $MOD diag:dump -- 106 66 1337 --label phase-b-baseline`
     - Capture after: `bun run --cwd $MOD diag:dump -- 106 66 1337 --label phase-b-after`
-    - Compare: `bun run --cwd $MOD diag:analyze -- <baselineRunDir> <afterRunDir>`
+    - Compare: `bun run --cwd $MOD diag:analyze -- <baselineOutputDir> <afterOutputDir>`
 
 - B0. Define and implement a continent potential grounded in crust truth + provenance stability (low-frequency, physics-first).
 - B1. Replace threshold/noise-dominant landmask behavior with the crust-truth-driven classifier.
@@ -222,34 +222,124 @@ This plan is dump-first. Every Phase A–D slice must attach a comparable eviden
   - deleted, or
   - explicitly deferred with trigger + rationale.
 
-## Open Questions / Prework Prompts (Do Not Silent-Decide)
+## Prework Findings (Resolved)
 
-### Prework Prompt: Canonical probes and required cases
-Purpose: eliminate ambiguity about which runs are required to claim Phase A/B gates are satisfied (tests + dumps).
+This section resolves and replaces the original plan’s prework prompts (no remaining open questions).
 
-- Expected output:
-  - Explicit list of required cases per phase:
-    - CI-enforced (fingerprints): `test/pipeline/determinism-suite.test.ts` (driven by `M1_DETERMINISM_CASES`)
-    - Human-readable dump probe: `diag:dump -- 106 66 1337`
-- Sources to check:
-  - `$MOD/test/pipeline/determinism-suite.test.ts`
-  - `$MOD/test/support/determinism-suite.ts` (`M1_DETERMINISM_CASES`)
-  - `$MOD/test/support/validation-harness.ts` (`M1_VALIDATION_*`)
+### Canonical Probes and Required Cases (Resolved)
 
-### Prework Prompt: Numeric thresholds for “material” landmask improvement (Phase B)
-Purpose: turn “components down, largestLandFrac up” into a numeric gate for earthlike proxy expectations.
+**CI-enforced determinism (authoritative fingerprints):**
 
-- Expected output:
-  - Baseline metrics from:
-    - `bun run --cwd $MOD diag:dump -- 106 66 1337 --label phase-b-baseline`
-    - `bun run --cwd $MOD diag:analyze -- <baselineRunDir>`
-  - Proposed thresholds (delta vs baseline) that are sensible and intelligible.
+- Run: `bun run --cwd $MOD test test/pipeline/determinism-suite.test.ts`
+- Required cases are exactly `M1_DETERMINISM_CASES` from `$MOD/test/support/determinism-suite.ts`:
+  - `baseline-balanced`: `seed=1337`, `dims=32x20`, overrides `plateCount=23`, `plateActivity=0.5`
+  - `wrap-active`: `seed=9001`, `dims=37x23`, overrides `plateCount=31`, `plateActivity=0.85`
+  - `compact-low-plates`: `seed=4242`, `dims=28x18`, overrides `plateCount=15`, `plateActivity=0.25`
 
-### Open question: What artifact is the “fingerprint report” we attach to PRs?
-Default posture (today): test output is authoritative for fingerprint equivalence; attach `diag:analyze` output as the realism/coherence measure.
+**Invariant harness baseline sweep (Tier 1 gating surface):**
 
-- Option A (default): treat `determinism-suite.test.ts` output as the authoritative report surface (no extra artifact file).
-- Option B (new work): add a CLI/script that writes `report.fingerprints` to a file for CI/PR attachment.
+- Seeds and dimensions used by the validation harness are fixed and defined in `$MOD/test/support/validation-harness.ts`:
+  - `M1_VALIDATION_SEEDS = [1337, 9001]`
+  - `M1_VALIDATION_DIMENSIONS = [{ width: 32, height: 20 }]`
+- CI “promoted subset” (Tier 1 artifacts) is concretely anchored by `M1_TIER1_ARTIFACT_IDS` in `$MOD/test/support/validation-harness.ts`:
+  - `foundationArtifacts.mantlePotential`
+  - `foundationArtifacts.mantleForcing`
+  - `foundationArtifacts.plateMotion`
+  - `foundationArtifacts.crust`
+  - `foundationArtifacts.tectonicHistory`
+  - `foundationArtifacts.tectonicProvenance`
+  - `foundationArtifacts.tectonicHistoryTiles`
+  - `foundationArtifacts.tectonicProvenanceTiles`
+
+**Human-readable realism / coherence probe (earthlike proxy expectations):**
+
+- Run: `bun run --cwd $MOD diag:dump -- 106 66 1337 --label <slice-label>`
+- Then: `bun run --cwd $MOD diag:analyze -- <outputDir>`
+
+### Numeric Thresholds for “Material” Landmask Improvement (Phase B) (Resolved)
+
+Phase B “material improvement” gates are defined as delta-based formulas against the *captured baseline* for the same canonical probe.
+
+**Baseline acquisition (required, per branch):**
+
+1. Capture baseline: `bun run --cwd $MOD diag:dump -- 106 66 1337 --label phase-b-baseline`
+2. Analyze: `bun run --cwd $MOD diag:analyze -- <baselineOutputDir>`
+
+**Baseline evidence (example from 2026-02-06, captured by running the plan commands in the primary checkout because the isolated worktree lacked viz runtime deps):**
+
+```json
+{"runId":"f38bd16daa5fd570b1bde65c8fb71aff831aa5f5f6472050daa32225807fe966","outputDir":"/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/dist/visualization/phase-b-baseline/f38bd16daa5fd570b1bde65c8fb71aff831aa5f5f6472050daa32225807fe966"}
+```
+
+Baseline metrics (from `diag:analyze` JSON):
+
+- Step `mod-swooper-maps.standard.morphology-coasts.landmass-plates`:
+  - `landComponents = 434`
+  - `largestLandFrac = 0.2565217391304348`
+  - `pctLand = 0.36163522012578614`
+- Step `mod-swooper-maps.standard.morphology-erosion.geomorphology`:
+  - `landComponents = 183`
+  - `largestLandFrac = 0.3515673017824216`
+  - `pctLand = 0.23256146369353917`
+
+**Phase B pass/fail formulas (use the baseline values from *your* branch’s baseline run):**
+
+Define baseline metrics:
+
+- `C0 = baseline.landmassPlates.landComponents`
+- `L0 = baseline.landmassPlates.largestLandFrac`
+- `P0 = baseline.landmassPlates.pctLand`
+- `C1 = baseline.geomorphology.landComponents`
+- `L1 = baseline.geomorphology.largestLandFrac`
+- `P1 = baseline.geomorphology.pctLand`
+
+Define after metrics analogously (`C0'`, `L0'`, `P0'`, `C1'`, `L1'`, `P1'`) from `diag:analyze -- <baselineOutputDir> <afterOutputDir>`.
+
+**Gate B (blocking) passes only if all are true:**
+
+- `landmass-plates` coherence:
+  - `C0' <= floor(C0 * 0.35)` (at least 65% reduction in land components)
+  - `L0' >= max(0.40, L0 + 0.12)` (material increase in largest-land share)
+  - `P0'` stays in an earthlike sanity band: `0.25 <= P0' <= 0.55` (prevents “cheating” by collapsing to all-water/all-land)
+- `geomorphology` does not re-shatter coherence:
+  - `C1' <= floor(C1 * 0.45)` (at least 55% reduction in land components vs baseline erosion outcome)
+  - `L1' >= max(0.45, L1 + 0.10)` (largest-land share increases materially after erosion)
+  - `P1'` stays in a post-erosion sanity band: `0.15 <= P1' <= 0.45`
+
+**What these formulas mean in the example baseline above (for intuition only):**
+
+- `landmass-plates` must reach:
+  - `landComponents <= floor(434 * 0.35) = 151`
+  - `largestLandFrac >= max(0.40, 0.2565 + 0.12) = 0.40`
+- `geomorphology` must reach:
+  - `landComponents <= floor(183 * 0.45) = 82`
+  - `largestLandFrac >= max(0.45, 0.3516 + 0.10) = 0.4516`
+
+### Fingerprints vs Stats Attachment Posture (Resolved)
+
+This plan adopts an explicit, non-negotiable attachment posture:
+
+- **Fingerprints are authoritative** for “what actually ran” and for determinism equivalence.
+  - Required: `bun run --cwd $MOD test test/pipeline/determinism-suite.test.ts`
+  - Attachment rule: paste the determinism-suite output (or CI log excerpt) into the PR description (or owning PRRT thread). No additional file artifact is required.
+- **Stats are required** for realism/coherence evaluation and for Phase A/B gating.
+  - Required: `bun run --cwd $MOD diag:analyze -- <outputDir>` (and the two-run compare form for Phase B)
+  - Attachment rule: paste the `diag:analyze` JSON output for each referenced `outputDir` into the PR description (or owning PRRT thread).
+
+Deferred work item (only if CI/PR reviewers require a standalone attachment file):
+
+- Add a CLI/script that writes the validation harness `report.fingerprints` structure (and optionally `diag:analyze` output) to a stable JSON file for upload.
+  - Output: `fingerprints.json` containing `{ fingerprints, invariants, ok }` and artifact IDs from `M1_TIER1_ARTIFACT_IDS`.
+  - Gate: only implement if a specific reviewer/CI requirement exists; otherwise keep Option A.
+
+### Evidence Bundle Spot-Checks (Validated)
+
+To validate the plan’s Evidence Bundle commands end-to-end for the canonical earthlike probe (`106 66 1337`), the following layer spot-checks were executed against the baseline `outputDir` (see baseline evidence JSON above):
+
+- `bun run --cwd $MOD diag:list -- <outputDir> --dataTypeKey foundation.crustTiles.type`
+  - Observed (baseline): `stats.min=1`, `stats.max=1` (degenerate; this is a Phase A target condition to eliminate).
+- `bun run --cwd $MOD diag:list -- <outputDir> --dataTypeKey morphology.topography.landMask`
+  - Observed (baseline): `stats.min=0`, `stats.max=1` for both the landmass-plates and geomorphology landmask layers (non-degenerate).
 
 ## Contract vNext (decision-complete)
 
