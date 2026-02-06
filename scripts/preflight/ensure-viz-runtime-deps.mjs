@@ -19,9 +19,19 @@ if (missingArtifacts.length === 0) {
   process.exit(0);
 }
 
-const hasTsup = existsSync(join(repoRoot, "node_modules", ".bin", "tsup"));
+const tsupCandidates = [
+  join(repoRoot, "node_modules", ".bin", "tsup"),
+  // Bun may be configured to use isolated linking, where each workspace has its own node_modules.
+  join(repoRoot, "mods", "mod-swooper-maps", "node_modules", ".bin", "tsup"),
+  join(repoRoot, "packages", "mapgen-viz", "node_modules", ".bin", "tsup"),
+  join(repoRoot, "packages", "mapgen-core", "node_modules", ".bin", "tsup"),
+  join(repoRoot, "packages", "civ7-adapter", "node_modules", ".bin", "tsup"),
+];
+const hasTsup = tsupCandidates.some((p) => existsSync(p));
 if (!hasTsup) {
-  console.error("[preflight] missing dev deps (tsup). Run `bun install` at repo root, then retry.");
+  console.error(
+    "[preflight] missing dev deps (tsup). Run `bun install` at repo root (and/or in the relevant workspace if using isolated linking), then retry."
+  );
   process.exit(1);
 }
 
@@ -37,10 +47,12 @@ const run = (cwdRel, args) => {
 };
 
 // Keep this explicit (no Turbo calls) to avoid recursion when invoked from Turbo tasks.
-// Order matters: mapgen-core imports mapgen-viz types from dist.
+// Order matters:
+// - mapgen-core imports mapgen-viz types from dist
+// - mapgen-core also imports @civ7/adapter dist exports
+run("packages/civ7-adapter", ["bun", "run", "build"]);
 run("packages/mapgen-viz", ["bun", "run", "build"]);
 run("packages/mapgen-core", ["bun", "run", "build"]);
-run("packages/civ7-adapter", ["bun", "run", "build"]);
 
 const stillMissing = requiredArtifacts.filter((rel) => !existsSync(join(repoRoot, rel)));
 if (stillMissing.length > 0) {
