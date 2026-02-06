@@ -2,6 +2,7 @@ import { parseArgs, loadManifest, listLayers, readU8Grid, readI16Grid, hammingU8
 
 type DiffRow = Readonly<{
   dataTypeKey: string;
+  variantKey?: string | null;
   stepIdA: string;
   stepIdB: string;
   format: string | null;
@@ -20,11 +21,11 @@ function pickComparablePairs(args: {
   const rowsA = listLayers(manifestA, { prefix: args.prefix, dataTypeKey: args.dataTypeKey });
   const rowsB = listLayers(manifestB, { prefix: args.prefix, dataTypeKey: args.dataTypeKey });
 
-  // Use latest layer per (dataTypeKey, stepId) is already included; listLayers sorts by stepIndex.
-  const byKeyB = new Map(rowsB.map((r: any) => [`${r.dataTypeKey}::${r.stepId}`, r] as const));
+  // Use latest layer per (dataTypeKey, stepId, variantKey) is already included; listLayers sorts by stepIndex.
+  const byKeyB = new Map(rowsB.map((r: any) => [`${r.dataTypeKey}::${r.stepId}::${r.variantKey ?? ""}`, r] as const));
   const out: Array<[any, any]> = [];
   for (const rA of rowsA) {
-    const key = `${rA.dataTypeKey}::${rA.stepId}`;
+    const key = `${rA.dataTypeKey}::${rA.stepId}::${rA.variantKey ?? ""}`;
     const rB = byKeyB.get(key);
     if (rB) out.push([rA, rB]);
   }
@@ -55,15 +56,40 @@ function main(): void {
 
   for (const [a, b] of pairs) {
     const format = a.format ?? null;
+    const variantKey = a.variantKey ?? null;
     if (format === "u8") {
-      const layerA = manifestA.layers.find((l) => l.stepId === a.stepId && l.dataTypeKey === a.dataTypeKey && l.field?.data?.path === a.path);
-      const layerB = manifestB.layers.find((l) => l.stepId === b.stepId && l.dataTypeKey === b.dataTypeKey && l.field?.data?.path === b.path);
+      const layerA = manifestA.layers.find(
+        (l) =>
+          l.stepId === a.stepId &&
+          l.dataTypeKey === a.dataTypeKey &&
+          (l.variantKey ?? null) === variantKey &&
+          l.field?.data?.path === a.path
+      );
+      const layerB = manifestB.layers.find(
+        (l) =>
+          l.stepId === b.stepId &&
+          l.dataTypeKey === b.dataTypeKey &&
+          (l.variantKey ?? null) === variantKey &&
+          l.field?.data?.path === b.path
+      );
       if (!layerA || !layerB) continue;
       const gA = readU8Grid(runDirA, layerA);
       const gB = readU8Grid(runDirB, layerB);
+      if (gA.values.length !== gB.values.length) {
+        diffs.push({
+          dataTypeKey: a.dataTypeKey,
+          variantKey,
+          stepIdA: a.stepId,
+          stepIdB: b.stepId,
+          format,
+          note: "length mismatch",
+        });
+        continue;
+      }
       const ham = hammingU8(gA.values, gB.values);
       diffs.push({
         dataTypeKey: a.dataTypeKey,
+        variantKey,
         stepIdA: a.stepId,
         stepIdB: b.stepId,
         format,
@@ -73,14 +99,27 @@ function main(): void {
       continue;
     }
     if (format === "i16") {
-      const layerA = manifestA.layers.find((l) => l.stepId === a.stepId && l.dataTypeKey === a.dataTypeKey && l.field?.data?.path === a.path);
-      const layerB = manifestB.layers.find((l) => l.stepId === b.stepId && l.dataTypeKey === b.dataTypeKey && l.field?.data?.path === b.path);
+      const layerA = manifestA.layers.find(
+        (l) =>
+          l.stepId === a.stepId &&
+          l.dataTypeKey === a.dataTypeKey &&
+          (l.variantKey ?? null) === variantKey &&
+          l.field?.data?.path === a.path
+      );
+      const layerB = manifestB.layers.find(
+        (l) =>
+          l.stepId === b.stepId &&
+          l.dataTypeKey === b.dataTypeKey &&
+          (l.variantKey ?? null) === variantKey &&
+          l.field?.data?.path === b.path
+      );
       if (!layerA || !layerB) continue;
       const gA = readI16Grid(runDirA, layerA);
       const gB = readI16Grid(runDirB, layerB);
       if (gA.values.length !== gB.values.length) {
         diffs.push({
           dataTypeKey: a.dataTypeKey,
+          variantKey,
           stepIdA: a.stepId,
           stepIdB: b.stepId,
           format,
@@ -92,6 +131,7 @@ function main(): void {
       for (let i = 0; i < gA.values.length; i++) if (gA.values[i] !== gB.values[i]) diff++;
       diffs.push({
         dataTypeKey: a.dataTypeKey,
+        variantKey,
         stepIdA: a.stepId,
         stepIdB: b.stepId,
         format,
@@ -103,6 +143,7 @@ function main(): void {
 
     diffs.push({
       dataTypeKey: a.dataTypeKey,
+      variantKey,
       stepIdA: a.stepId,
       stepIdB: b.stepId,
       format,
@@ -130,4 +171,3 @@ try {
   console.error(err);
   process.exitCode = 1;
 }
-

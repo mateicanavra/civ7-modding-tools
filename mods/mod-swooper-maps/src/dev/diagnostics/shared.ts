@@ -112,6 +112,7 @@ export function listLayers(manifest: VizManifestV1, filter?: { prefix?: string; 
     })
     .map((l) => ({
       dataTypeKey: l.dataTypeKey,
+      variantKey: l.variantKey ?? null,
       stepId: l.stepId,
       stepIndex: l.stepIndex,
       kind: l.kind,
@@ -224,4 +225,3 @@ export function connectedComponentsLandOddQ(values: Uint8Array, width: number, h
     totalLand,
   };
 }
-
