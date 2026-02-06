@@ -60,6 +60,21 @@ This plan converts the current “looks wired but behaves unchanged” posture i
 
 Only future-facing implementation work remains. Each phase is **forward-only** (no dual semantics) and ends with explicit gates.
 
+### Phase 0 — No-dual-engine / no-shadow / no-compare preflight gate
+
+Objective: ensure we have **exactly one causal spine** (no legacy fallback/compare/shadow path can mask causality), before we attempt Phase A/B changes.
+
+- Why this phase exists:
+  - Review evidence indicates shadow/dual/compare surfaces can persist even after “no-legacy” posture was adopted.
+  - If any shadow/compare/fallback path exists, Phase A/B work can look “wired” while producing unchanged downstream outcomes.
+
+- 0.0 Gate (blocking): prove the standard pipeline contains no shadow/dual/compare surfaces.
+  - Run: `bun run --cwd mods/mod-swooper-maps test test/pipeline/no-shadow-paths.test.ts`
+  - Acceptance: test is green.
+
+- 0.1 If the gate fails: delete or rename the surfaced symbols (do not add compatibility shims).
+  - Re-run the test until green.
+
 ### Phase A — Foundation truth normalization + degeneracy elimination
 
 Objective: make the material evolution half real (crust truth + provenance are causal and non-degenerate).
