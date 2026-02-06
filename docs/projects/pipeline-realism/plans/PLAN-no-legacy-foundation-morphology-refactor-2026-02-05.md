@@ -28,6 +28,10 @@ This plan is intentionally **no-legacy**: any legacy-independent “truth” (oc
 
 Only future-facing implementation work remains:
 
+### Phase 0 — No Dual-Engine Preflight
+- Add preflight-only guards and targeted UI correctness fixes that unblock Phase A.
+- Preflight slices complete here; do not execute Phase A/B/C/D in this pass.
+
 ### Phase A — Foundation truth normalization + degeneracy elimination
 - Make crust truth continuous and non-degenerate for canonical probes.
 - Ensure provenance resets are materially present and calibrated to observed forcing ranges.
