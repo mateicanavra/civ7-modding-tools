@@ -2,7 +2,10 @@ import { describe, expect, it } from "bun:test";
 
 import computeMesh from "../../src/domain/foundation/ops/compute-mesh/index.js";
 import computeCrust from "../../src/domain/foundation/ops/compute-crust/index.js";
+import computeMantlePotential from "../../src/domain/foundation/ops/compute-mantle-potential/index.js";
+import computeMantleForcing from "../../src/domain/foundation/ops/compute-mantle-forcing/index.js";
 import computePlateGraph from "../../src/domain/foundation/ops/compute-plate-graph/index.js";
+import computePlateMotion from "../../src/domain/foundation/ops/compute-plate-motion/index.js";
 import computeTectonicSegments from "../../src/domain/foundation/ops/compute-tectonic-segments/index.js";
 import computeTectonicHistory from "../../src/domain/foundation/ops/compute-tectonic-history/index.js";
 import computePlatesTensors from "../../src/domain/foundation/ops/compute-plates-tensors/index.js";
@@ -14,6 +17,14 @@ import computeSeaLevel from "../../src/domain/morphology/ops/compute-sea-level/i
 function share(numerator: number, denominator: number): number {
   if (denominator <= 0) return 0;
   return numerator / denominator;
+}
+
+function derivePlateMotion(mesh: any, plateGraph: any, rngSeed: number) {
+  const mantlePotential = computeMantlePotential.run({ mesh, rngSeed }, computeMantlePotential.defaultConfig)
+    .mantlePotential;
+  const mantleForcing = computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
+    .mantleForcing;
+  return computePlateMotion.run({ mesh, plateGraph, mantleForcing }, computePlateMotion.defaultConfig).plateMotion;
 }
 
 describe("m11 hypsometry: continentalFraction does not collapse water coverage", () => {
@@ -41,12 +52,10 @@ describe("m11 hypsometry: continentalFraction does not collapse water coverage",
     );
     const plateGraph = computePlateGraph.run({ mesh, crust, rngSeed: 3 }, plateGraphConfig).plateGraph;
 
+    const plateMotion = derivePlateMotion(mesh, plateGraph, 4);
     const segments = computeTectonicSegments.run(
-      { mesh, crust, plateGraph },
-      {
-        ...computeTectonicSegments.defaultConfig,
-        config: { ...computeTectonicSegments.defaultConfig.config, intensityScale: 180, regimeMinIntensity: 4 },
-      }
+      { mesh, crust, plateGraph, plateMotion },
+      computeTectonicSegments.defaultConfig
     ).segments;
 
     const history = computeTectonicHistory.run(
@@ -65,7 +74,16 @@ describe("m11 hypsometry: continentalFraction does not collapse water coverage",
     );
 
     const projection = computePlatesTensors.run(
-      { width, height, mesh, crust, plateGraph, tectonics: history.tectonics, tectonicHistory: history.tectonicHistory },
+      {
+        width,
+        height,
+        mesh,
+        crust,
+        plateGraph,
+        plateMotion,
+        tectonics: history.tectonics,
+        tectonicHistory: history.tectonicHistory,
+      },
       {
         ...computePlatesTensors.defaultConfig,
         config: {

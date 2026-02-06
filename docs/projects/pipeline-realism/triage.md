@@ -5,6 +5,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 ## Triage
 
 - Follow-up (M1-007): `potentialAmplitude01` is effectively canceled by post-generation normalization of mantle potential; decide whether to expose amplitude via forcing scale or remove/repurpose the knob to avoid inert authoring inputs.
+- Follow-up (M1-008): Deprecate/remove `velocityX/velocityY/rotation` from `foundationArtifacts.plateGraph` (or assert they remain zero) now that `plateMotion` is canonical; avoid hidden kinematics reappearing downstream.
 - Follow-up (M1-006): Event mechanics should consume `crust.strength` (no duplicated resistance computation) once M1-011 lands; currently strength feeds partitioning only.
 - Follow-up (M1-005): Foundation `advanced` (mantleForcing/lithosphere) is validated but not yet wired into step configs; ensure upcoming Foundation ops consume these inputs so the authoring surface is not inert.
 - Follow-up (M1-004): Expand fingerprint normalization to cover ArrayBuffer/Map/Set if future artifacts use them, to avoid silent data loss in determinism fingerprints.
@@ -16,6 +17,8 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 - Decision (M1-004): Validation harness lives in `mods/mod-swooper-maps/test/support/validation-harness.ts`; missing artifacts are reported as `status: missing` until producers land; Tier-1 fingerprint list mirrors milestone acceptance artifacts.
 - Decision (M1-005): Foundation authoring surface follows D08r (`version` + `profiles` + numeric `knobs` + optional mantle/lithosphere `advanced`); per-step `foundation.advanced.*` overrides are removed. Resolution profiles map to shipped baselines (`coarse`=desert-mountains, `balanced`=earthlike, `fine`=shattered-ring, `ultra`=sundered-archipelago). `plateActivity` scales projection via piecewise linear mapping (0→0.8/-1, 0.5→1/0, 1→1.2/+2).
 - Decision (M1-006): Basaltic lid baseline ships as canonical crust truth (`maturity/thickness/thermalAge/damage`) with derived `type/age/buoyancy/baseElevation/strength`. Default lithosphere scalars: `basalticThickness01=0.25`, `yieldStrength01=0.55`, `mantleCoupling01=0.6`, `riftWeakening01=0.35`. Plate partition resistance now derives from `crust.strength` via `1 + 4*strength` (no duplicate resistance computation).
+- Decision (M1-007): `compute-tectonic-segments` default `intensityScale` raised to `900` (and stage config aligned) to preserve uplift/stress magnitudes under mantle-derived plate motion.
+- Decision (M1-008): Morphology sea-level tuning: `water-heavy` knob delta increased to `+15`; `realismEarthlikeConfig` uses `seaLevel: "water-heavy"` and `shelfWidth: "narrow"` to keep deep-ocean share stable post-cutover.
 
 ## Backlog
 

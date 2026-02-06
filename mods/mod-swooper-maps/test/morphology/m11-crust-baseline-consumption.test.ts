@@ -2,7 +2,10 @@ import { describe, expect, it } from "bun:test";
 
 import computeCrust from "../../src/domain/foundation/ops/compute-crust/index.js";
 import computeMesh from "../../src/domain/foundation/ops/compute-mesh/index.js";
+import computeMantlePotential from "../../src/domain/foundation/ops/compute-mantle-potential/index.js";
+import computeMantleForcing from "../../src/domain/foundation/ops/compute-mantle-forcing/index.js";
 import computePlateGraph from "../../src/domain/foundation/ops/compute-plate-graph/index.js";
+import computePlateMotion from "../../src/domain/foundation/ops/compute-plate-motion/index.js";
 import computePlatesTensors from "../../src/domain/foundation/ops/compute-plates-tensors/index.js";
 import computeTectonicHistory from "../../src/domain/foundation/ops/compute-tectonic-history/index.js";
 import computeTectonicSegments from "../../src/domain/foundation/ops/compute-tectonic-segments/index.js";
@@ -13,6 +16,14 @@ function quantile(sorted: number[], q: number): number {
   const clamped = Math.max(0, Math.min(1, q));
   const idx = Math.floor((sorted.length - 1) * clamped);
   return sorted[idx] ?? 0;
+}
+
+function derivePlateMotion(mesh: any, plateGraph: any, rngSeed: number) {
+  const mantlePotential = computeMantlePotential.run({ mesh, rngSeed }, computeMantlePotential.defaultConfig)
+    .mantlePotential;
+  const mantleForcing = computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
+    .mantleForcing;
+  return computePlateMotion.run({ mesh, plateGraph, mantleForcing }, computePlateMotion.defaultConfig).plateMotion;
 }
 
 describe("m11 morphology baseline consumes crust isostasy prior", () => {
@@ -36,12 +47,16 @@ describe("m11 morphology baseline consumes crust isostasy prior", () => {
       { mesh, crust, rngSeed: 12 },
       { strategy: "default", config: { plateCount: 16, referenceArea: 2400, plateScalePower: 0 } }
     ).plateGraph;
-    const segments = computeTectonicSegments.run({ mesh, crust, plateGraph }, computeTectonicSegments.defaultConfig).segments;
+    const plateMotion = derivePlateMotion(mesh, plateGraph, 13);
+    const segments = computeTectonicSegments.run(
+      { mesh, crust, plateGraph, plateMotion },
+      computeTectonicSegments.defaultConfig
+    ).segments;
     const historyResult = computeTectonicHistory.run({ mesh, segments }, computeTectonicHistory.defaultConfig);
     const tectonicHistory = historyResult.tectonicHistory;
     const tectonics = historyResult.tectonics;
     const projection = computePlatesTensors.run(
-      { width, height, mesh, crust, plateGraph, tectonics, tectonicHistory },
+      { width, height, mesh, crust, plateGraph, plateMotion, tectonics, tectonicHistory },
       computePlatesTensors.defaultConfig
     );
     const crustTiles = projection.crustTiles;
