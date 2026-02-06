@@ -19,6 +19,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 - Follow-up (M1-001): Promote `artifact:foundation.tectonicHistory` (and `artifact:foundation.tectonicSegments` if canonical) to core tag constants to prevent stringly-typed drift in standard recipe contracts.
 - Follow-up (M1-013): Guard/document `ADVECTION_STEPS_PER_ERA` budget and clarify whether non-rift events should update lineage scalars beyond boundary metadata.
 - Follow-up (M1-014): Decide whether dual-read should permit legacy-only runs; if so, make history/provenance tile requirements optional or provide placeholders and isolate diagnostics for easy removal.
+- Follow-up (M1-015): Remove legacy `foundationArtifacts.plates` requirement from `plotMountains` once history/provenance-driven belts are authoritative; align belt tests to 5-era budgets.
 - Decision (M1-001): Use `artifact:foundation.plateMotion` as the canonical ID; `plateKinematics` remains a schema concept. New M1 artifacts carry `version: 1` while legacy artifacts stay unversioned until their owning issues update producers.
 - Decision (M1-002): Projection accepts optional `tectonicProvenance` input; when absent, provenance tiles publish deterministic placeholder values (`originEra=0`, `originPlateId=cellToPlate`, `lastBoundaryEra=255`, `lastBoundaryType=255`, `driftDistance=0`). Revisit once PR-M1-013 lands.
 - Decision (M1-003): Visualization keys for history/provenance align to the artifact catalog (`foundation.history.*`, `foundation.provenance.*`), and plate-motion keys use `foundation.plates.motion`. Mantle/plate-motion emissions are deferred until their producer ops land (PR-M1-007/008).
@@ -33,6 +34,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 - Decision (M1-012): D04r era loop is bounded to a target of 5 eras (max 8) with fixed per-era budgets; config arrays must match `eraCount` and defaults are set to 5-era weights/steps. Validation now enforces `5..8` era counts (no legacy 3-era acceptance).
 - Decision (M1-013): D04r provenance now advects with fixed `ADVECTION_STEPS_PER_ERA=6`, using boundary-event drift with mantle drift fallback; provenance scalars are propagated per era before event resets. Provenance/history era counts are enforced to `5..8` in require/validation to prevent legacy posture.
 - Decision (M1-014): Morphology dual-read diagnostics live in `landmass-plates`, comparing legacy plates to newest-era history/provenance tiles. New `morphology.dualRead.*` layers + `morphology.dualRead.summary` trace event provide quantitative deltas while leaving legacy drivers authoritative until PR-M1-016.
+- Decision (M1-015): Belt synthesis now seeds from `tectonicHistoryTiles`/`tectonicProvenanceTiles` boundary regimes (no dedicated segment→tile projection yet). Belts use seed-based isotropic diffusion with age/recency width scaling, and propagate driver magnitudes from nearest belt seed to keep orogeny causal. Upgrade path: introduce tangent-aware diffusion once belt orientation fields exist.
 
 ## Backlog
 
