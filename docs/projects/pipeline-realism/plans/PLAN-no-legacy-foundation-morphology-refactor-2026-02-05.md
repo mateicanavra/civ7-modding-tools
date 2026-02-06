@@ -1,50 +1,132 @@
-# PLAN — No-legacy Foundation ↔ Morphology refactor (2026-02-05)
+# IMPLEMENTATION PLAN — No-legacy Foundation ↔ Morphology refactor (2026-02-05)
 
-## Summary
+Last hardened: 2026-02-06
+
+## Canonical Sources (Normative)
+
+Treat these as the source of truth for “what maximal means”:
+
+- Milestone plan-of-record: `docs/projects/pipeline-realism/milestones/M1-foundation-maximal-cutover.md`
+- Canonical target architecture: `docs/projects/pipeline-realism/resources/spec/foundation-evolutionary-physics-SPEC.md`
+- Decision set index (normative): `docs/projects/pipeline-realism/resources/decisions/README.md`
+- Migration slices (procedural landing plan):
+  - `docs/projects/pipeline-realism/resources/spec/migration-slices/slice-01-prepare-new-artifacts-and-viz.md`
+  - `docs/projects/pipeline-realism/resources/spec/migration-slices/slice-02-cutover-foundation-maximal.md`
+  - `docs/projects/pipeline-realism/resources/spec/migration-slices/slice-03-cutover-morphology-consumption-and-cleanup.md`
+- Spec-to-code delta diagnosis: `docs/projects/pipeline-realism/resources/research/SPIKE-m1-foundation-realism-regression-2026-02-04.md`
+
+## Root Problem (Why This Exists)
+
+The original problem is a **causality/realism break** at the Foundation → Morphology seam:
+
+- The pipeline can emit “tectonic-looking fields,” but **events do not reliably produce material evolution** (crust truth + provenance) that downstream can consume to generate coherent continents and belts.
+- The regression spike shows the failure mode of partial maximalism: a **field emission system without the material-evolution half**, plus a **hybrid seam** where mountains/belts use new drivers but the landmask remains noise/threshold-driven, yielding speckled, spread-out landforms.
+
+### Spec vs Code Delta (Maximal Intent vs Current Behavior)
+
+See the spike doc for the full divergence matrix. The load-bearing deltas that define our work are:
+
+| Area | Maximal intent (docs) | Current behavior (code truth) | Impact |
+| --- | --- | --- | --- |
+| Crust evolution (D05r) | Events + eras update crust truth (maturity/thickness/thermal age/damage) and provenance | History/provenance exist, but crust truth can remain degenerate/saturated and/or not driven by evolution semantics | Continents do not “emerge” as state; downstream continent expectations are unsatisfiable |
+| Landmask consumption (D07r) | Landmask/continents are grounded in crust truth + provenance (same causal spine as belts) | Landmask can be driven primarily by thresholding + noise, while mountains use history/provenance | Hybrid incoherence: “new belts on old continents” |
+| Observability (D09r) | Determinism + invariants are enforcement gates, not optional diagnostics | Diagnostics exist but must be promoted to phase gates + CI strict posture | Regressions can slip as “looks OK” diffs |
+
+## North Star (Maximal, Forward-Only, No-Legacy)
+
+Ship exactly one tectonics reality:
+
+- **Basaltic-lid + mantle-forced evolutionary physics** whose events update crust truth and provenance.
+- Morphology landmask + belts consume that same causal spine (mandatory history/provenance tile projections and/or coherently projected crust truth).
+
+This is a **hard cutover** plan:
+
+- No legacy compatibility, no legacy shims.
+- Any temporary bridge must be explicitly derived from the new truth, and must ship with a deletion trigger + a named deletion slice.
+- Determinism + invariants are phase gates, and CI gates (not “debug tools”).
+
+## Summary (What We’re Doing)
 
 This plan converts the current “looks wired but behaves unchanged” posture into a **single causal spine**:
 
-- **Foundation** produces a non-degenerate continent/basin truth signal and era/provenance fields that materially affect downstream outcomes.
-- **Morphology** consumes Foundation truth as the primary driver for continents and landmask coherence; tectonic belts/drivers modulate and refine, and noise is strictly secondary flavor.
+- **Foundation** produces non-degenerate continent/basin truth and era/provenance fields that materially affect downstream outcomes.
+- **Morphology** consumes Foundation truth as the primary driver for continents and landmask coherence; belts/drivers modulate and refine, and noise is strictly secondary flavor.
 - **Observability** becomes a correctness harness: dumps + metrics gate degeneracy and dead-lever regressions.
 
-This plan is intentionally **no-legacy**: any legacy-independent “truth” (ocean basin separation, noise-first landmask) is deleted or redefined as a derived view of Foundation truth.
+## Implementation Phases (Start Here)
 
-## Forward Runbook (Start Here)
-
-Only future-facing implementation work remains:
+Only future-facing implementation work remains. Each phase is **forward-only** (no dual semantics) and ends with explicit gates.
 
 ### Phase A — Foundation truth normalization + degeneracy elimination
-- Make crust truth continuous and non-degenerate for canonical probes.
-- Ensure provenance resets are materially present and calibrated to observed forcing ranges.
+
+Objective: make the material evolution half real (crust truth + provenance are causal and non-degenerate).
+
+- Why this phase exists (current failure modes):
+  - `foundation.crustTiles.type` can be uniform/degenerate (no continent truth signal).
+  - Events/eras can emit fields and update provenance scalars, but still fail to update crust truth in a way that changes downstream continents.
+  - When crust truth is degenerate, any downstream “continent constraints” become unsatisfiable and landmask devolves to noise thresholding.
+
+- A0. Re-establish baseline probe evidence bundle:
+  - `bun run --cwd mods/mod-swooper-maps diag:dump -- 106 66 1337 --label probe-baseline`
+  - `bun run --cwd mods/mod-swooper-maps diag:analyze -- <runDir>`
+  - Capture: `foundation.crustTiles.type` stats + provenance reset counts.
+- A1. Make crust truth continuous and non-degenerate for canonical probes (no `min=max` degenerate projections).
+- A2. Ensure crust evolution scalars + provenance resets are materially present and calibrated to observed driver ranges (no “events emit fields but don’t change state”).
+- A3. Promote Phase A invariants to enforcement (Tier 1 gates) and wire their evidence bundle to the Phase A review threads.
 
 ### Phase B — Morphology landmask re-grounding on Foundation truth
-- Replace threshold/noise-dominant landmask behavior with crust-truth-driven continent potential.
-- Ensure coherence gates (components and largestLandFrac) become pass conditions.
+
+Objective: continents emerge from crust truth and provenance, not from noise thresholding.
+
+- Why this phase exists (current failure modes):
+  - Landmask can be driven by threshold/noise in a narrow elevation distribution, producing speckle and high component counts.
+  - Mountains/belts can consume history/provenance while landmask does not, producing hybrid incoherence (“new belts on old continents”).
+
+- B0. Define and implement a continent potential grounded in crust truth + provenance stability (low-frequency, physics-first).
+- B1. Replace threshold/noise-dominant landmask behavior with the crust-truth-driven classifier.
+- B2. Delete/redefine any “basin separation truth” or land/water reclassification that isn’t derived from Foundation truth.
+- B3. Gate: landmask coherence improves for canonical probes (components down, largestLandFrac up).
 
 ### Phase C — Belt-driver modulation cleanup
-- Keep belts as modifiers for mountains/coasts/islands, not the primary landmass generator.
-- Remove or constrain any hidden re-thresholding that shreds land connectivity.
+
+Objective: belts remain modifiers for mountains/coasts/islands, not the primary landmass generator.
+
+- C0. Enforce positive-intensity seeding semantics for belt diffusion (zero-intensity must not seed).
+- C1. Confirm belts modulate relief/coasts/mountains but do not create continents.
+- C2. Reconcile “segments seed belts” semantics with current implementation as either a Phase C change or an explicit deferral with deletion trigger.
 
 ### Phase D — Observability hardening as enforcement
-- Use diagnostics tooling as regression gates.
-- Promote required acceptance checks into routine verification for each refactor slice.
 
-## Execution Baseline
+Objective: make maximalism *enforced* via determinism + invariants, and make diffs legible.
 
-Deterministic probe (`106×66 seed=1337`) demonstrates:
-- `morphology-coasts.landmass-plates` landmask components: **434** (high speckle)
-- `foundation.crustTiles.type` stats: `min=max=1` (continent signal saturated / degenerate)
+- D0. Define and enforce gate tiers:
+  - Tier 1: contract + cross-artifact agreement
+  - Tier 1: fixed budgets
+  - CI: strict determinism double-run equivalence (fingerprint report)
+  - CI: strict promoted subset (mantle structure, plate-fit residuals, belts continuity/flicker)
+- D1. Clarify “viewer aids” vs correctness gates; the fingerprint report is the authoritative diff artifact.
 
-Use these commands for verification/regression checks:
-- `bun run --cwd mods/mod-swooper-maps diag:dump -- 106 66 1337 --label probe-baseline`
-- `bun run --cwd mods/mod-swooper-maps diag:analyze -- <runDir>`
-- `bun run --cwd mods/mod-swooper-maps diag:list -- <runDir> --dataTypeKey foundation.crustTiles.type`
+## Execution Checklist (Per Slice)
+
+This is the execution loop for each Phase A–D slice. The goal is to keep every slice reviewable and forward-only.
+
+1. `gt sync --no-restack`
+2. Create/enter a Graphite slice branch (insert where needed; do not edit legacy branches in place).
+3. Implement the minimal forward-only change (include deletions; no compatibility shims).
+4. Validation:
+   - `bun run --cwd mods/mod-swooper-maps check`
+   - `bun run --cwd mods/mod-swooper-maps test`
+   - `bun run --cwd mods/mod-swooper-maps diag:dump -- 106 66 1337 --label <slice-label>`
+5. Record evidence:
+   - Paste run IDs + key metrics into the slice PR description or a phase evidence section.
+6. Restack + submit upstack: `gt restack --upstack` then `gt submit --stack --no-edit`
+7. Close the phase’s review threads only when the phase gate bundle is attached and pass conditions are met.
 
 ## Non-negotiables (physics-first, maximal realism)
 
 - Foundation is the only source of tectonic “truth”.
 - Morphology must be grounded in Foundation (no parallel legacy truth).
+- Hard cutover: no legacy compatibility and no legacy shims; any temporary bridge must have an explicit deletion trigger + named deletion slice.
 - Noise is allowed only as *secondary* diversity; it must not create continents.
 - Every authored input must be either:
   - physics input (initial conditions / constitutive parameters / simulation horizon), or
@@ -158,7 +240,7 @@ This requires:
 - a provenance reset model calibrated to actual driver signals
 - a maturity evolution model that yields multi-modal distributions (oceanic vs continental vs craton cores), not saturation
 
-## Phase criteria (aligned to Forward Runbook)
+## Phase criteria (aligned to Implementation Phases)
 
 Each phase deletes legacy paths as it lands; no dual implementation paths.
 
