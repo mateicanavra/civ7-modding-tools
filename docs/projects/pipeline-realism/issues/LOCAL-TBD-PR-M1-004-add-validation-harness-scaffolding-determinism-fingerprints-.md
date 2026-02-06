@@ -91,6 +91,12 @@ The harness will be consumed by:
 - determinism suite issue: `LOCAL-TBD-PR-M1-017`
 - invariants issues: `LOCAL-TBD-PR-M1-018..020`
 
+## Implementation Decisions
+
+- **Harness lives in test support (mod-swooper-maps):** shared utilities are placed under `mods/mod-swooper-maps/test/support/validation-harness.ts` to keep M1-scoped scaffolding near the tests that consume it.
+- **Missing artifacts are reported, not failed by default:** fingerprinting marks missing artifacts as `status: missing` (in a diff-friendly report) while leaving invariants to enforce presence later, so the harness can ship before mantle/plate-motion producers exist.
+- **Tier-1 artifact list mirrors milestone acceptance:** the initial fingerprint list includes the Tier-1 artifacts from `M1-foundation-maximal-cutover` (mantle/plate motion/history/provenance + projections), even if some are currently absent.
+
 ### Pitfalls / Rakes
 
 - “Fingerprinting by JSON.stringify on TypedArrays”: this is slow and unstable; typed arrays must be hashed as bytes.
