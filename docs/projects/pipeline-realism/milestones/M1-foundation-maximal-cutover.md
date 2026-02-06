@@ -121,7 +121,7 @@ These 25 issue docs are the **canonical milestone checklist**. Do not duplicate 
 
 ### Cleanup (No Legacy Left)
 - [x] [`LOCAL-TBD-PR-M1-023`](../issues/LOCAL-TBD-PR-M1-023-delete-legacy-plate-motion-legacy-tectonics-truth-publicatio.md) Delete legacy plate motion + legacy tectonics truth publication — branch: `agent-URSULA-M1-LOCAL-TBD-PR-M1-023-delete-legacy-plate-motion-legacy-tectonics-truth-publicatio`; PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1095; review: `agent-BURAKA-LOCAL-TBD-PR-M1-023-review-delete-legacy-plate-motion-legacy-tectonics-truth-publicatio` (PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1124)
-- [ ] [`LOCAL-TBD-PR-M1-024`](../issues/LOCAL-TBD-PR-M1-024-delete-legacy-morphology-belt-driver-paths-and-bridge-artifa.md) Delete legacy Morphology belt-driver paths and bridge artifacts
+- [x] [`LOCAL-TBD-PR-M1-024`](../issues/LOCAL-TBD-PR-M1-024-delete-legacy-morphology-belt-driver-paths-and-bridge-artifa.md) Delete legacy Morphology belt-driver paths and bridge artifacts — branch: `agent-URSULA-M1-LOCAL-TBD-PR-M1-024-delete-legacy-morphology-belt-driver-paths-and-bridge-artifa`; PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1096
 - [ ] [`LOCAL-TBD-PR-M1-025`](../issues/LOCAL-TBD-PR-M1-025-delete-dual-engine-shadow-compute-paths-after-suite-is-green.md) Delete dual-engine shadow compute paths (after suite is green)
 
 ## Issue Summaries (Why/What)

@@ -51,8 +51,8 @@ related_to: []
   - (none)
 
 ### Implementation Anchors
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotMountains.ts` (legacy belt planning reads `deps.artifacts.foundationPlates`; must be removed post-cutover)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotMountains.contract.ts` (artifact requires currently include `foundationArtifacts.plates`; must be removed for belts)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.ts` (dual-read diagnostics + bridge plumbing removal)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts` (drop history/provenance requires once dual-read removed)
 - `mods/mod-swooper-maps/src/domain/morphology/ops/plan-ridges-and-foothills/contract.ts` (belt planning input driver tensors; upstream extraction must come from new drivers)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (new driver artifact ids; Morphology contracts should require these)
 - `mods/mod-swooper-maps/test/morphology/contract-guard.test.ts` (enforce “no legacy plates for belts” posture)
@@ -75,12 +75,11 @@ related_to: []
 
 ### Current State (Observed)
 
-- Mountain/belt planning currently consumes legacy plate tensors:
-  - `plotMountains.ts` reads `deps.artifacts.foundationPlates` which ultimately comes from `artifact:foundation.plates`.
+- Morphology dual-read diagnostics currently live in `landmassPlates.ts`, comparing legacy plate tensors to newest-era history/provenance tiles and emitting `morphology.dualRead.*` grids + a `morphology.dualRead.summary` trace event.
   Anchor:
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotMountains.ts`
-- Multiple Morphology-adjacent steps also require `foundationArtifacts.plates` today (not all are belt-related):
-  - `rg -n "foundationArtifacts\\.plates" mods/mod-swooper-maps/src/recipes/standard/stages`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.ts`
+- `landmassPlates.contract.ts` requires `tectonicHistoryTiles` + `tectonicProvenanceTiles` solely to power those diagnostics.
+- Plot-mountains belt synthesis already uses history/provenance tiles only (no legacy plates dependency).
 
 ### Proposed Change Surface
 
@@ -88,6 +87,10 @@ related_to: []
   - delete the dual-read path and any “comparison-only” artifact plumbing.
 - Make the new driver posture compile-time strict:
   - contracts require the new driver artifacts; no runtime branching.
+
+### Implementation Decisions
+
+- Remove dual-read diagnostics entirely once belt consumption is history/provenance-only; keep plates usage in `landmassPlates` limited to base topography/substrate (non-belt concerns).
 
 ### Pitfalls / Rakes
 

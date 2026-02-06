@@ -17,6 +17,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 - Follow-up (M1-021): Move causal shortcut definitions into recipe UI meta (avoid hardcoded dataTypeKeys in Studio) and consider a generic stage-authoring panel registry.
 - Follow-up (M1-022): Snap manual era selection to available `variantKey` eras (not just min/max) and normalize overlay era preferences to the actual variant keys to avoid UI/overlay mismatches.
 - Follow-up (M1-022): Move overlay suggestion mappings into recipe UI metadata or shared config to keep Studio agnostic of pipeline-specific keys.
+- Follow-up (M1-024): Enumerate and justify remaining `foundationArtifacts.plates` consumers in morphology (coasts/islands/volcanoes/ruggedCoasts), or migrate them to history/provenance-driven inputs.
 - Follow-up (M1-006): Event mechanics should consume `crust.strength` (no duplicated resistance computation) once M1-011 lands; currently strength feeds partitioning only.
 - Follow-up (M1-012): Enforce 5..8 era bounds in `tectonicHistoryTiles` validation and regenerate shipped preset configs so runtime artifacts match the bounded era loop.
 - Follow-up (M1-005): Foundation `advanced` (mantleForcing/lithosphere) is validated but not yet wired into step configs; ensure upcoming Foundation ops consume these inputs so the authoring surface is not inert.
@@ -47,6 +48,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 - Decision (M1-018): Foundation physics invariants are implemented in `test/support/foundation-invariants.ts` with hard gates on mantle potential range/std, mantle forcing bounds/non-degeneracy, and plate-motion coupling residuals; diagnostic-only plate-fit stats warn on quality drift without gating.
 - Decision (M1-019): Event/provenance causality and belt continuity are gated via tile-space history/provenance signals (event threshold 20, ≥60% corridor boundary coverage, ≥75% origin resets aligned to events, belt component size/neighbor density floors) using `deriveBeltDriversFromHistory`.
 - Decision (M1-020): Morphology correlation gate replays `planRidgesAndFoothills` with plotMountains-equivalent fractal seeds and enforces driver/mountain alignment thresholds (signal ≥30, strong ≥80, ≥35% strong-driver coverage, ≥60% mountains on-driver).
+- Decision (M1-024): Remove morphology dual-read diagnostics from `landmass-plates` once belt consumption is history/provenance-only; keep `landmassPlates` plate usage limited to base topography/substrate (non-belt).
 
 ## Backlog
 
