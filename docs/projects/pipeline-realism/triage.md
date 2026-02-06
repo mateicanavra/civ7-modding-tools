@@ -11,6 +11,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 
 - Follow-up (M1-007): `potentialAmplitude01` is effectively canceled by post-generation normalization of mantle potential; decide whether to expose amplitude via forcing scale or remove/repurpose the knob to avoid inert authoring inputs.
 - Follow-up (M1-008): Deprecate/remove `velocityX/velocityY/rotation` from `foundationArtifacts.plateGraph` (or assert they remain zero) now that `plateMotion` is canonical; avoid hidden kinematics reappearing downstream.
+- Follow-up (M1-018): Add non-finite checks for plate-fit residual arrays and a wrap-seam continuity check for mantle potential/forcing; calibrate plate-motion diagnostics so they don’t warn on every canonical case.
 - Follow-up (M1-006): Event mechanics should consume `crust.strength` (no duplicated resistance computation) once M1-011 lands; currently strength feeds partitioning only.
 - Follow-up (M1-012): Enforce 5..8 era bounds in `tectonicHistoryTiles` validation and regenerate shipped preset configs so runtime artifacts match the bounded era loop.
 - Follow-up (M1-005): Foundation `advanced` (mantleForcing/lithosphere) is validated but not yet wired into step configs; ensure upcoming Foundation ops consume these inputs so the authoring surface is not inert.
@@ -38,6 +39,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 - Decision (M1-015): Belt synthesis now seeds from `tectonicHistoryTiles`/`tectonicProvenanceTiles` boundary regimes (no dedicated segment→tile projection yet). Belts use seed-based isotropic diffusion with age/recency width scaling, and propagate driver magnitudes from nearest belt seed to keep orogeny causal. Upgrade path: introduce tangent-aware diffusion once belt orientation fields exist.
 - Decision (M1-016): Plot-mountains contract drops `foundation.plates` and requires history/provenance tiles only; other morphology steps (coasts/features) still use plate tensors until explicit migration work lands.
 - Decision (M1-017): Determinism suite uses three canonical cases (baseline, wrap-active, compact-low-plates) with fixed plateCount/plateActivity knobs; float policy is bit-identical hashing (no quantization unless later explicitly scoped).
+- Decision (M1-018): Foundation physics invariants are implemented in `test/support/foundation-invariants.ts` with hard gates on mantle potential range/std, mantle forcing bounds/non-degeneracy, and plate-motion coupling residuals; diagnostic-only plate-fit stats warn on quality drift without gating.
 
 ## Backlog
 
