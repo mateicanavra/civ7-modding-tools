@@ -376,18 +376,22 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 
 ### High-Leverage Issues
 - Dual-read comparisons assume identical mesh addressing across legacy/new paths; if tile mapping diverges (e.g., resolution/profile shifts), diagnostics can report misleading “regressions” that are actually coordinate mismatches. Consider asserting shared addressing invariants in the diagnostic harness.
+- The step contract now **requires** `tectonicHistoryTiles` + `tectonicProvenanceTiles`, so “legacy‑only” runs without new drivers cannot compile. This conflicts with the acceptance criterion that legacy-only mode remains runnable during the transition.
 
 ### PR Comment Context
 - No reviewer comments; Graphite/preview notices only.
 
 ### Fix Now (Recommended)
 - None.
+- Make the new tile drivers optional in the contract (or supply deterministic placeholders) and guard diagnostics so baseline legacy-only runs are still possible during the dual-read window.
 
 ### Defer / Follow-up
 - Add a thresholded “diff severity” signal (and test) so diagnostics are not purely qualitative and can gate regressions when desired.
+- Consider moving dual-read diagnostics into a dedicated diagnostic step to keep landmass computations focused and to make removal in PR‑M1‑024/025 simpler.
 
 ### Needs Discussion
 - Whether the dual-read period should be time-boxed by milestone (and enforced by tests) so the legacy diagnostic bridge doesn’t become permanent.
+- Whether the milestone intent is “legacy outputs with new diagnostics” (current behavior) or truly “legacy-only without new artifacts present.”
 
 ### Cross-cutting Risks
 - If legacy-only runs are impossible, the transition window for validating deltas independently of new drivers is effectively closed, making regression triage harder.
@@ -400,18 +404,23 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 
 ### High-Leverage Issues
 - The belt synthesis pipeline still has coupled knobs (continuity + diffusion + intensity gates). Without a consolidated “parameter intent” doc, future tuning risks becoming output-sculpting rather than physics-first posture.
+- `plotMountains.contract` still requires `foundationArtifacts.plates` even though the step no longer uses them, keeping a legacy dependency that undercuts the cutover posture.
 
 ### PR Comment Context
 - No reviewer comments; Graphite/preview notices only.
 
 ### Fix Now (Recommended)
 - None.
+- Remove the unused `foundationArtifacts.plates` requirement from `plotMountains.contract` (or reintroduce intentional usage) so the belt pipeline is fully driven by history/provenance inputs.
 
 ### Defer / Follow-up
 - Consider lifting belt synthesis tuning + rationale into a single morphology doc so “maximal realism” posture is explicit and doesn’t drift into ad-hoc tuning.
+- Align belt synthesis tests with the D04r 5-era budget (current fixtures use `eraCount=3`) to avoid under-testing the era-weighting logic.
+- Consider enforcing 5..8 era bounds for belt driver derivation to keep Morphology aligned with the bounded history/provenance contract.
 
 ### Needs Discussion
 - Whether belt synthesis should expose diagnostics for “age diffusion vs continuity fill” contributions to make tuning explainable.
+- When (if ever) to upgrade to anisotropic diffusion once a tangent field exists, and how to stage that without breaking current correlation gates.
 
 ### Cross-cutting Risks
 - Leaving legacy plate requirements in gameplay steps makes M1-016’s “new drivers only” cutover harder and increases the chance of silent regressions back to legacy inputs.
@@ -424,6 +433,7 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 
 ### High-Leverage Issues
 - The cutover is intentionally narrow (belts/mountains). Any remaining morphology features that still accept legacy plates should be explicitly enumerated and scheduled, otherwise “partial cutover” becomes the new steady state.
+- None observed; belt synthesis is now gated on the new driver artifacts and legacy plate dependencies are actively banned.
 
 ### PR Comment Context
 - No reviewer comments; Graphite/preview notices only.
@@ -433,9 +443,11 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 
 ### Defer / Follow-up
 - Add a small “remaining legacy consumers” inventory (doc or test) to prevent silent reintroduction of legacy inputs.
+- Track the remaining morphology steps that still consume legacy plates (coasts/islands/volcanoes) so future cleanup work doesn’t stall after belts are fully cut over.
 
 ### Needs Discussion
 - Whether “no legacy fallback” should become a repo-wide invariant for M1+ (beyond morphology) once the stack merges.
+- Whether “cutover” should eventually include non-belt morphology steps in this milestone or remain deferred to a separate cleanup slice.
 
 ### Cross-cutting Risks
 - Partial cutover (belts only) may create mixed semantics across morphology features unless the remaining plate-driven steps are explicitly scheduled for migration.
@@ -567,3 +579,30 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 
 ### Cross-cutting Risks
 - Hard-coded UI shortcuts and domain panels will force Studio updates for every taxonomy change, undermining the intended agnostic boundary.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-022-visualization-refinement-debug-vs-refined-layer-sets-era-scr
+
+### Quick Take
+- The Studio explorer now supports an era scrubber (auto/fixed), debug vs refined layer visibility, and optional overlay layers with opacity control, with contract tests covering `variantKey=era:<n>` expectations.
+- The UX upgrades materially improve pipeline-realism tuning, but a few selection/normalization gaps can still mislead users about which era/variant they are actually seeing.
+
+### High-Leverage Issues
+- Era selection uses only min/max bounds, so gaps in available variants (e.g., eras 1 and 3 only) allow choosing a non-existent era. The UI will display the requested era while the renderer silently falls back to a different variant.
+- Overlay selection uses a raw `era:${manualEra}` preference; if producers emit zero-padded or otherwise formatted era keys, the overlay will fail to match the intended era even when the base layer does.
+- Overlay suggestions and keys are hard-coded in `App.tsx`, deepening pipeline-specific coupling in the Studio shell and repeating the agnostic-boundary risk surfaced in M1-021.
+
+### PR Comment Context
+- PR #1094: “`overlayVariantKeyPreference` is built as `era:${manualEra}` … if actual variant keys are zero‑padded (e.g. `era:01`) … the overlay will fall back to an arbitrary candidate.” Still relevant and aligns with the “era mismatch” risk above.
+- PR #1094: “The era slider clamps only to min/max … UI reports ‘Era 2’ while rendering Era 1.” Still relevant and should be addressed to avoid misleading tuning reads.
+
+### Fix Now (Recommended)
+- Normalize era preferences to actual variants: derive the preferred overlay variant via `findVariantIdForEra` (or by matching the currently selected era variant key) rather than string formatting, and snap manual era to the nearest available era variant instead of using a blind min/max range.
+
+### Defer / Follow-up
+- Move overlay suggestions into recipe UI metadata (or a shared config) so the Studio shell remains agnostic to pipeline-specific `dataTypeKey` taxonomies.
+
+### Needs Discussion
+- Should overlay mode allow cross-variant overlays with a warning, or should it hard-lock to the same era/space by default and disable overlays when a matching variant is unavailable?
+
+### Cross-cutting Risks
+- Era/overlay mismatches can lead to false causal inference during tuning (e.g., attributing changes to the wrong era), which undermines the physics-first objective even if the underlying data is correct.

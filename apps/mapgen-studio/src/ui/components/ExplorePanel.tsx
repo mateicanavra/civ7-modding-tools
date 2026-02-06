@@ -24,14 +24,9 @@ import type {
   DataTypeOption,
   SpaceOption,
   VariantOption,
+  OverlayOption,
   RenderModeOption } from
 '../types';
-export type CausalityJumpTarget = Readonly<{
-  key: string;
-  label: string;
-  group?: string;
-  available?: boolean;
-}>;
 // ============================================================================
 // Props
 // ============================================================================
@@ -72,6 +67,30 @@ export interface ExplorePanelProps {
   selectedVariant: string;
   /** Callback when variant selection changes */
   onSelectedVariantChange: (variant: string) => void;
+  /** Overlay options for correlation mode */
+  overlayOptions: OverlayOption[];
+  /** Currently selected overlay option */
+  selectedOverlay: string;
+  /** Callback when overlay selection changes */
+  onSelectedOverlayChange: (overlay: string) => void;
+  /** Overlay opacity (0..1) */
+  overlayOpacity: number;
+  /** Callback when overlay opacity changes */
+  onOverlayOpacityChange: (opacity: number) => void;
+  /** Whether era control is active */
+  eraEnabled: boolean;
+  /** Era control mode */
+  eraMode: "auto" | "fixed";
+  /** Current era value */
+  eraValue: number;
+  /** Minimum era value */
+  eraMin: number;
+  /** Maximum era value */
+  eraMax: number;
+  /** Callback when era mode changes */
+  onEraModeChange: (mode: "auto" | "fixed") => void;
+  /** Callback when era value changes */
+  onEraValueChange: (era: number) => void;
   /** Light mode flag for styling */
   lightMode: boolean;
   /** Whether to show edge visualization */
@@ -84,10 +103,6 @@ export interface ExplorePanelProps {
   onShowDebugLayersChange: (show: boolean) => void;
   /** Callback when fit view is requested */
   onFitView: () => void;
-  /** Optional causality spine jump targets */
-  jumpTargets?: ReadonlyArray<CausalityJumpTarget>;
-  /** Callback when a jump target is selected */
-  onJumpToLayer?: (dataTypeKey: string) => void;
   /** Whether the stage section is expanded (optional controlled mode) */
   stageExpanded?: boolean;
   /** Callback when stageExpanded changes (optional controlled mode) */
@@ -123,14 +138,24 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   variantOptions,
   selectedVariant,
   onSelectedVariantChange,
+  overlayOptions,
+  selectedOverlay,
+  onSelectedOverlayChange,
+  overlayOpacity,
+  onOverlayOpacityChange,
+  eraEnabled,
+  eraMode,
+  eraValue,
+  eraMin,
+  eraMax,
+  onEraModeChange,
+  onEraValueChange,
   lightMode,
   showEdges,
   onShowEdgesChange,
   showDebugLayers,
   onShowDebugLayersChange,
   onFitView,
-  jumpTargets,
-  onJumpToLayer,
   stageExpanded: stageExpandedProp,
   onStageExpandedChange,
   stepExpanded: stepExpandedProp,
@@ -205,13 +230,6 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   const borderSubtle = lightMode ? 'border-gray-100' : 'border-[#222228]';
   const hoverBg = lightMode ? 'hover:bg-gray-50' : 'hover:bg-[#1a1a1f]';
   const listMaxHeight = "max-h-[200px]";
-  const jumpItemBase = `w-full text-left px-3 py-1.5 text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-2`;
-  const jumpItemActive = lightMode ?
-  'bg-gray-100 text-[#1f2937]' :
-  'bg-[#1a1a1f] text-[#e8e8ed]';
-  const jumpItemInactive = lightMode ?
-  'text-[#6b7280] hover:bg-gray-50 hover:text-[#1f2937]' :
-  'text-[#8a8a96] hover:bg-[#1a1a1f] hover:text-[#e8e8ed]';
   // Stage list styles
   const stageItemBase = `w-full text-left px-3 py-2 text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-2`;
   const stageItemActive = lightMode ?
@@ -289,21 +307,6 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
       groups.get(key)!.push(dt);
     }
     return order.map((key) => ({ key, label: key, items: groups.get(key) ?? [], indexByValue }));
-  })();
-
-  const groupedJumpTargets = (() => {
-    if (!jumpTargets || jumpTargets.length === 0) return [];
-    const order: string[] = [];
-    const groups = new Map<string, CausalityJumpTarget[]>();
-    for (const target of jumpTargets) {
-      const key = target.group ?? "";
-      if (!groups.has(key)) {
-        groups.set(key, []);
-        order.push(key);
-      }
-      groups.get(key)!.push(target);
-    }
-    return order.map((key) => ({ key, items: groups.get(key) ?? [] }));
   })();
 
   const isGroupExpanded = (key: string) => groupOpen[key] ?? true;
@@ -409,50 +412,6 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
           ) : (
             <div className={`px-3 py-2 text-[11px] ${textMuted} italic`}>No steps available</div>
           )}
-        </div>
-      ) : null}
-
-      {/* 2.5 CAUSALITY SPINE SHORTCUTS */}
-      {groupedJumpTargets.length > 0 ? (
-        <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
-          <div className="px-3 py-2 flex items-center justify-between">
-            <span className={`text-[10px] font-semibold ${textSecondary} uppercase tracking-wider`}>
-              Causality Spine
-            </span>
-            <span className={`text-[10px] ${textMuted}`}>{jumpTargets?.length ?? 0}</span>
-          </div>
-          <div className={`flex-shrink-0 pb-2 ${listMaxHeight} overflow-y-auto custom-scrollbar`}>
-            {groupedJumpTargets.map((group) => (
-              <React.Fragment key={group.key || "__ungrouped__"}>
-                {group.key ? (
-                  <div className={`px-3 pt-2 pb-1 text-[10px] uppercase tracking-wider ${textMuted}`}>
-                    {group.key}
-                  </div>
-                ) : null}
-                {group.items.map((target) => {
-                  const isActive = target.key === selectedDataType;
-                  const isAvailable = target.available ?? true;
-                  const disabled = !isAvailable || !onJumpToLayer;
-                  return (
-                    <button
-                      key={target.key}
-                      type="button"
-                      onClick={() => onJumpToLayer?.(target.key)}
-                      disabled={disabled}
-                      title={isAvailable ? target.key : `${target.key} (not yet available)`}
-                      className={[
-                        jumpItemBase,
-                        isActive ? jumpItemActive : jumpItemInactive,
-                        disabled ? "opacity-40 cursor-not-allowed" : "",
-                      ].join(" ")}
-                    >
-                      <span className="truncate">{target.label}</span>
-                    </button>
-                  );
-                })}
-              </React.Fragment>
-            ))}
-          </div>
         </div>
       ) : null}
 
@@ -587,6 +546,44 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
           </button>
         </div>
 
+        {eraEnabled ? (
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between">
+              <span className={`text-[10px] uppercase tracking-wider ${textMuted}`}>Era</span>
+              <button
+                type="button"
+                onClick={() => onEraModeChange(eraMode === "auto" ? "fixed" : "auto")}
+                title={eraMode === "auto" ? "Auto (follow selected layer)" : "Manual era"}
+                className={`px-2 h-6 rounded text-[10px] font-semibold uppercase tracking-wider transition-colors ${
+                  eraMode === "auto"
+                    ? lightMode
+                      ? "bg-gray-200 text-[#1f2937]"
+                      : "bg-[#222228] text-[#e8e8ed]"
+                    : lightMode
+                      ? "bg-white border border-gray-200 text-[#6b7280]"
+                      : "bg-[#111116] border border-[#2a2a32] text-[#8a8a96]"
+                }`}
+              >
+                Auto
+              </button>
+            </div>
+            <input
+              type="range"
+              min={eraMin}
+              max={eraMax}
+              step={1}
+              value={eraValue}
+              disabled={eraMode === "auto"}
+              onChange={(e) => onEraValueChange(Number(e.target.value))}
+              className="w-full accent-[#64748b]"
+            />
+            <div className="flex items-center justify-between text-[10px]">
+              <span className={textMuted}>{`Era ${eraValue}`}</span>
+              <span className={textMuted}>{`${eraMin}-${eraMax}`}</span>
+            </div>
+          </div>
+        ) : null}
+
         {variantOptions.length > 1 ? (
           <label className="flex flex-col gap-1">
             <span className={`text-[10px] uppercase tracking-wider ${textMuted}`}>Variant</span>
@@ -601,6 +598,37 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
             <span className={`text-[10px] ${textMuted}`}>
               Semantic slices like <span className={lightMode ? "text-gray-600" : "text-[#8a8a96]"}>era:2</span>, not styling.
             </span>
+          </label>
+        ) : null}
+
+        {overlayOptions.length ? (
+          <label className="flex flex-col gap-1">
+            <span className={`text-[10px] uppercase tracking-wider ${textMuted}`}>Overlay</span>
+            <select
+              value={selectedOverlay}
+              onChange={(e) => onSelectedOverlayChange(e.target.value)}
+              className={`h-8 rounded px-2 text-[11px] ${lightMode ? 'bg-white border border-gray-200 text-[#1f2937]' : 'bg-[#111116] border border-[#2a2a32] text-[#e8e8ed]'}`}>
+              {overlayOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            {selectedOverlay ? (
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center justify-between text-[10px]">
+                  <span className={textMuted}>Opacity</span>
+                  <span className={textMuted}>{Math.round(overlayOpacity * 100)}%</span>
+                </div>
+                <input
+                  type="range"
+                  min={0.1}
+                  max={0.9}
+                  step={0.05}
+                  value={overlayOpacity}
+                  onChange={(e) => onOverlayOpacityChange(Number(e.target.value))}
+                  className="w-full accent-[#64748b]"
+                />
+              </div>
+            ) : null}
           </label>
         ) : null}
       </div>

@@ -5,7 +5,6 @@ import {
   type StudioPresetExportFileV1,
   type TSchema,
 } from "@swooper/mapgen-core/authoring";
-import type { VizLayerEntryV1 } from "@swooper/mapgen-viz";
 
 import { AppHeader } from "./ui/components/AppHeader";
 import { AppFooter } from "./ui/components/AppFooter";
@@ -21,6 +20,7 @@ import type {
   DataTypeOption,
   GenerationStatus,
   KnobOptionsMap,
+  OverlayOption,
   PipelineConfig,
   RecipeSettings,
   RenderModeOption,
@@ -37,6 +37,7 @@ import { capturePinnedSelection } from "./features/browserRunner/retention";
 import { getCiv7MapSizePreset } from "./features/browserRunner/mapSizes";
 import { DeckCanvas, type DeckCanvasApi } from "./features/viz/DeckCanvas";
 import { useVizState } from "./features/viz/useVizState";
+import { findVariantIdForEra, listEraVariants, parseEraVariantKey } from "./features/viz/era";
 import { formatErrorForUi } from "./shared/errorFormat";
 import { shouldIgnoreGlobalShortcutsInEditableTarget } from "./shared/shortcuts/shortcutPolicy";
 import type { VizEvent } from "./shared/vizEvents";
@@ -79,56 +80,22 @@ function isNumericPathSegment(segment: string): boolean {
   return /^[0-9]+$/.test(segment);
 }
 
-const CAUSAL_LAYER_SHORTCUTS = [
-  { key: "foundation.mantle.potential", label: "Mantle · Potential", group: "Mantle" },
-  { key: "foundation.mantle.forcing", label: "Mantle · Forcing", group: "Mantle" },
-  { key: "foundation.plates.motion", label: "Plates · Motion", group: "Plates" },
-  { key: "foundation.plates.partition", label: "Plates · Partition", group: "Plates" },
-  { key: "foundation.events.boundary", label: "Events · Boundary", group: "Events / History" },
-  { key: "foundation.history.regime", label: "History · Regime", group: "Events / History" },
-  { key: "foundation.provenance.tracerAge", label: "Provenance · Tracer Age", group: "Provenance" },
-  { key: "foundation.provenance.lineage", label: "Provenance · Lineage", group: "Provenance" },
-  { key: "morphology.drivers.uplift", label: "Morphology · Uplift", group: "Morphology Drivers" },
-  { key: "morphology.drivers.fracture", label: "Morphology · Fracture", group: "Morphology Drivers" },
-] as const;
-
-const LAYER_SPACE_PRIORITY: Record<string, number> = {
-  "tile.hexOddR": 0,
-  "tile.hexOddQ": 1,
-  "world.xy": 2,
-  "mesh.world": 3,
-};
-
-const LAYER_KIND_PRIORITY: Record<string, number> = {
-  grid: 0,
-  gridFields: 1,
-  segments: 2,
-  points: 3,
-};
-
-function visibilityRank(visibility?: string): number {
-  if (visibility === "debug") return 1;
-  if (visibility === "hidden") return 2;
-  return 0;
-}
-
-function pickBestLayer(layers: readonly VizLayerEntryV1[]): VizLayerEntryV1 {
-  const ordered = [...layers].sort((a, b) => {
-    if (a.stepIndex !== b.stepIndex) return a.stepIndex - b.stepIndex;
-    const visDiff = visibilityRank(a.meta?.visibility) - visibilityRank(b.meta?.visibility);
-    if (visDiff !== 0) return visDiff;
-    const spaceDiff = (LAYER_SPACE_PRIORITY[a.spaceId] ?? 99) - (LAYER_SPACE_PRIORITY[b.spaceId] ?? 99);
-    if (spaceDiff !== 0) return spaceDiff;
-    const variantDiff = (a.variantKey ? 1 : 0) - (b.variantKey ? 1 : 0);
-    if (variantDiff !== 0) return variantDiff;
-    const kindDiff = (LAYER_KIND_PRIORITY[a.kind] ?? 99) - (LAYER_KIND_PRIORITY[b.kind] ?? 99);
-    if (kindDiff !== 0) return kindDiff;
-    return a.layerKey.localeCompare(b.layerKey);
-  });
-  return ordered[0] ?? layers[0]!;
-}
-
 const FORBIDDEN_MERGE_KEYS = new Set(["__proto__", "prototype", "constructor"]);
+
+const OVERLAY_SUGGESTIONS = [
+  {
+    id: "foundation.history.boundaryType::foundation.tectonics.boundaryType",
+    primaryDataTypeKey: "foundation.history.boundaryType",
+    overlayDataTypeKey: "foundation.tectonics.boundaryType",
+    label: "Boundary events (snapshot)",
+  },
+  {
+    id: "map.morphology.mountains.orogenyPotential01::morphology.drivers.uplift",
+    primaryDataTypeKey: "map.morphology.mountains.orogenyPotential01",
+    overlayDataTypeKey: "morphology.drivers.uplift",
+    label: "Uplift driver",
+  },
+] as const;
 
 function mergeDeterministic(base: unknown, overrides: unknown): unknown {
   if (overrides === undefined) return base;
@@ -284,6 +251,10 @@ function formatPresetErrors(errors: ReadonlyArray<{ path: string; message: strin
   return errors.map((e) => `${e.path}: ${e.message}`);
 }
 
+function clampNumber(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
 type LastRunSnapshot = {
   worldSettings: WorldSettings;
   recipeSettings: RecipeSettings;
@@ -315,6 +286,10 @@ function AppContent(props: AppContentProps) {
 
   const [showGrid, setShowGrid] = useState(true);
   const [showEdges, setShowEdges] = useState(true);
+  const [overlaySelectionId, setOverlaySelectionId] = useState("");
+  const [overlayOpacity, setOverlayOpacity] = useState(0.45);
+  const [eraMode, setEraMode] = useState<"auto" | "fixed">("auto");
+  const [manualEra, setManualEra] = useState(1);
   const [recipeSectionCollapsed, setRecipeSectionCollapsed] = useState(false);
   const [configSectionCollapsed, setConfigSectionCollapsed] = useState(false);
   const [exploreStageExpanded, setExploreStageExpanded] = useState(true);
@@ -345,6 +320,10 @@ function AppContent(props: AppContentProps) {
   const [pendingImport, setPendingImport] = useState<StudioPresetExportFileV1 | null>(null);
   const importInputRef = useRef<HTMLInputElement | null>(null);
   const lastPresetKeyRef = useRef<PresetKey>("none");
+
+  const overlaySelection = OVERLAY_SUGGESTIONS.find((opt) => opt.id === overlaySelectionId) ?? null;
+  const overlayDataTypeKey = overlaySelection?.overlayDataTypeKey ?? null;
+  const overlayVariantKeyPreference = eraMode === "fixed" ? `era:${manualEra}` : null;
 
   const recipeArtifacts = useMemo(() => getRecipeArtifacts(recipeSettings.recipe), [recipeSettings.recipe]);
   const { options: presetOptions, resolvePreset, actions: presetActions, loadWarning } = usePresets({
@@ -439,6 +418,9 @@ function AppContent(props: AppContentProps) {
     mode: worldSettings.mode,
     assetResolver: worldSettings.mode === "dump" ? dumpAssetResolver : null,
     showEdgeOverlay: showEdges,
+    overlayDataTypeKey,
+    overlayVariantKeyPreference,
+    overlayOpacity,
     allowPendingSelection: worldSettings.mode === "browser" && browserRunning,
     onError: (e) => setLocalError(formatErrorForUi(e)),
   });
@@ -570,10 +552,6 @@ function AppContent(props: AppContentProps) {
 
   const [selectedStageId, setSelectedStageId] = useState("");
   const [selectedStepId, setSelectedStepId] = useState("");
-  const [pendingLayerJump, setPendingLayerJump] = useState<{
-    stepId: string;
-    layerKey: string;
-  } | null>(null);
 
   const recipeOptions = useMemo(
     () => STUDIO_RECIPE_OPTIONS.map((opt) => ({ value: opt.id, label: opt.label })),
@@ -653,14 +631,6 @@ function AppContent(props: AppContentProps) {
     viz.setSelectedLayerKey(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedStepId]);
-
-  useEffect(() => {
-    if (!pendingLayerJump) return;
-    if (pendingLayerJump.stepId !== selectedStepId) return;
-    viz.setSelectedLayerKey(pendingLayerJump.layerKey);
-    setPendingLayerJump(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pendingLayerJump, selectedStepId]);
 
   const startBrowserRun = useCallback(
     (overrides?: { seed?: string }) => {
@@ -965,39 +935,6 @@ function AppContent(props: AppContentProps) {
   }, [lastRunSnapshot, pipelineConfig, recipeSettings, worldSettings]);
 
   const dataTypeModel = viz.dataTypeModel;
-  const availableDataTypeKeys = useMemo(() => {
-    if (!viz.manifest) return new Set<string>();
-    return new Set(viz.manifest.layers.map((layer) => layer.dataTypeKey));
-  }, [viz.manifest]);
-
-  const jumpTargets = useMemo(
-    () =>
-      CAUSAL_LAYER_SHORTCUTS.map((target) => ({
-        ...target,
-        available: availableDataTypeKeys.has(target.key),
-      })),
-    [availableDataTypeKeys]
-  );
-
-  const jumpToLayer = useCallback(
-    (dataTypeKey: string) => {
-      if (!viz.manifest) {
-        toast("Run the pipeline to load causal layers.", { variant: "info" });
-        return;
-      }
-      const candidates = viz.manifest.layers.filter((layer) => layer.dataTypeKey === dataTypeKey);
-      if (candidates.length === 0) {
-        toast(`Layer not available: ${dataTypeKey}`, { variant: "info" });
-        return;
-      }
-      const selected = pickBestLayer(candidates);
-      const stage = viz.pipelineStages.find((s) => s.steps.some((step) => step.stepId === selected.stepId));
-      if (stage) setSelectedStageId(stage.stageId);
-      setSelectedStepId(selected.stepId);
-      setPendingLayerJump({ stepId: selected.stepId, layerKey: selected.layerKey });
-    },
-    [toast, viz.manifest, viz.pipelineStages]
-  );
   const dataTypeOptions: DataTypeOption[] = useMemo(() => {
     if (!dataTypeModel) return [];
     return dataTypeModel.dataTypes.map((dt) => ({ value: dt.dataTypeId, label: dt.label, group: dt.group }));
@@ -1034,39 +971,111 @@ function AppContent(props: AppContentProps) {
     };
   }, [dataTypeModel, viz.selectedLayerKey]);
 
-  const spaceOptions: SpaceOption[] = useMemo(() => {
-    if (!dataTypeModel || !selection) return [];
-    const dt = dataTypeModel.dataTypes.find((x) => x.dataTypeId === selection.dataTypeId);
-    return dt?.spaces.map((s) => ({ value: s.spaceId, label: s.label })) ?? [];
+  const selectedDataType = useMemo(() => {
+    if (!dataTypeModel || !selection) return null;
+    return dataTypeModel.dataTypes.find((x) => x.dataTypeId === selection.dataTypeId) ?? null;
   }, [dataTypeModel, selection]);
+
+  const selectedSpace = useMemo(() => {
+    if (!selectedDataType || !selection) return null;
+    return selectedDataType.spaces.find((s) => s.spaceId === selection.spaceId) ?? selectedDataType.spaces[0] ?? null;
+  }, [selectedDataType, selection]);
+
+  const selectedRenderMode = useMemo(() => {
+    if (!selectedSpace || !selection) return null;
+    return selectedSpace.renderModes.find((rm) => rm.renderModeId === selection.renderModeId) ?? selectedSpace.renderModes[0] ?? null;
+  }, [selectedSpace, selection]);
+
+  const selectedVariants = selectedRenderMode?.variants ?? [];
+  const selectedVariant = useMemo(() => {
+    if (!selection) return selectedVariants[0] ?? null;
+    return selectedVariants.find((v) => v.variantId === selection.variantId) ?? selectedVariants[0] ?? null;
+  }, [selectedVariants, selection]);
+  const selectedVariantKey = selectedVariant?.layer.variantKey ?? null;
+
+  const spaceOptions: SpaceOption[] = useMemo(() => {
+    if (!selectedDataType) return [];
+    return selectedDataType.spaces.map((s) => ({ value: s.spaceId, label: s.label }));
+  }, [selectedDataType]);
 
   const renderModeOptions: RenderModeOption[] = useMemo(() => {
+    if (!selectedSpace) return [];
+    return selectedSpace.renderModes.map((rm) => ({
+      value: rm.renderModeId,
+      label: rm.label,
+    }));
+  }, [selectedSpace]);
+
+  const variantOptions: VariantOption[] = useMemo(
+    () => selectedVariants.map((v) => ({ value: v.variantId, label: v.label })),
+    [selectedVariants]
+  );
+
+  const eraVariants = useMemo(() => listEraVariants(selectedVariants), [selectedVariants]);
+  const eraRange = useMemo(() => {
+    if (!eraVariants.length) return null;
+    const min = eraVariants[0]?.era ?? 1;
+    const max = eraVariants[eraVariants.length - 1]?.era ?? min;
+    return { min, max };
+  }, [eraVariants]);
+  const autoEra = useMemo(() => parseEraVariantKey(selectedVariantKey), [selectedVariantKey]);
+  const eraEnabled = Boolean(eraRange);
+  const eraDisplayValue = eraMode === "fixed" ? manualEra : autoEra ?? eraRange?.min ?? 1;
+
+  useEffect(() => {
+    if (!eraRange) return;
+    setManualEra((prev) => clampNumber(prev, eraRange.min, eraRange.max));
+  }, [eraRange]);
+
+  const overlayCandidates: OverlayOption[] = useMemo(() => {
     if (!dataTypeModel || !selection) return [];
-    const dt = dataTypeModel.dataTypes.find((x) => x.dataTypeId === selection.dataTypeId);
-    const space = dt?.spaces.find((s) => s.spaceId === selection.spaceId) ?? dt?.spaces[0];
-    return (
-      space?.renderModes.map((rm) => ({
-        value: rm.renderModeId,
-        label: rm.label,
-      })) ?? []
-    );
+    const out: OverlayOption[] = [];
+    for (const suggestion of OVERLAY_SUGGESTIONS) {
+      if (suggestion.primaryDataTypeKey !== selection.dataTypeId) continue;
+      const overlayDt = dataTypeModel.dataTypes.find((dt) => dt.dataTypeId === suggestion.overlayDataTypeKey);
+      if (!overlayDt) continue;
+      out.push({ value: suggestion.id, label: suggestion.label });
+    }
+    return out;
   }, [dataTypeModel, selection]);
 
-  const variantOptions: VariantOption[] = useMemo(() => {
-    if (!dataTypeModel || !selection) return [];
-    const dt = dataTypeModel.dataTypes.find((x) => x.dataTypeId === selection.dataTypeId);
-    const space = dt?.spaces.find((s) => s.spaceId === selection.spaceId) ?? dt?.spaces[0];
-    const rm = space?.renderModes.find((x) => x.renderModeId === selection.renderModeId) ?? space?.renderModes[0];
-    return rm?.variants.map((v) => ({ value: v.variantId, label: v.label })) ?? [];
-  }, [dataTypeModel, selection]);
+  const overlayOptions: OverlayOption[] = useMemo(() => {
+    if (!overlayCandidates.length) return [];
+    return [{ value: "", label: "No overlay" }, ...overlayCandidates];
+  }, [overlayCandidates]);
+
+  useEffect(() => {
+    if (!overlayCandidates.length) {
+      if (overlaySelectionId) setOverlaySelectionId("");
+      return;
+    }
+    if (overlaySelectionId && !overlayCandidates.some((opt) => opt.value === overlaySelectionId)) {
+      setOverlaySelectionId("");
+    }
+  }, [overlayCandidates, overlaySelectionId]);
 
   const selectLayerFor = useCallback(
-    (dataTypeId: string, spaceId: string, renderModeId: string, variantId?: string) => {
+    (
+      dataTypeId: string,
+      spaceId: string,
+      renderModeId: string,
+      opts?: { variantId?: string; variantKey?: string; era?: number }
+    ) => {
       if (!dataTypeModel) return;
       const dt = dataTypeModel.dataTypes.find((x) => x.dataTypeId === dataTypeId);
       const space = dt?.spaces.find((s) => s.spaceId === spaceId) ?? dt?.spaces[0];
       const rm = space?.renderModes.find((x) => x.renderModeId === renderModeId) ?? space?.renderModes[0];
-      const variant = variantId ? rm?.variants.find((v) => v.variantId === variantId) ?? rm?.variants[0] : rm?.variants[0];
+      if (!space || !rm) return;
+      let variant =
+        opts?.variantId ? rm.variants.find((v) => v.variantId === opts.variantId) ?? null : null;
+      if (!variant && opts?.variantKey) {
+        variant = rm.variants.find((v) => v.layer.variantKey === opts.variantKey) ?? null;
+      }
+      if (!variant && opts?.era != null) {
+        const eraVariantId = findVariantIdForEra(rm.variants, opts.era);
+        variant = eraVariantId ? rm.variants.find((v) => v.variantId === eraVariantId) ?? null : null;
+      }
+      if (!variant) variant = rm.variants[0] ?? null;
       viz.setSelectedLayerKey(variant?.layerKey ?? null);
     },
     [dataTypeModel, viz]
@@ -1100,11 +1109,14 @@ function AppContent(props: AppContentProps) {
       const dt = dataTypeModel.dataTypes.find((x) => x.dataTypeId === next);
       const space = dt?.spaces[0];
       const rm = space?.renderModes[0];
-      const variant = rm?.variants[0];
-      if (!space || !rm || !variant) return;
-      selectLayerFor(next, space.spaceId, rm.renderModeId, variant.variantId);
+      if (!space || !rm) return;
+      if (eraMode === "fixed") {
+        selectLayerFor(next, space.spaceId, rm.renderModeId, { era: manualEra });
+        return;
+      }
+      selectLayerFor(next, space.spaceId, rm.renderModeId);
     },
-    [dataTypeModel, selectLayerFor]
+    [dataTypeModel, eraMode, manualEra, selectLayerFor]
   );
 
   const handleSpaceChange = useCallback(
@@ -1115,27 +1127,68 @@ function AppContent(props: AppContentProps) {
       const dt = dataTypeModel.dataTypes.find((x) => x.dataTypeId === dataTypeId);
       const space = dt?.spaces.find((s) => s.spaceId === next) ?? dt?.spaces[0];
       const rm = space?.renderModes[0];
-      const variant = rm?.variants[0];
-      if (!space || !rm || !variant) return;
-      selectLayerFor(dataTypeId, space.spaceId, rm.renderModeId, variant.variantId);
+      if (!space || !rm) return;
+      if (eraMode === "fixed") {
+        selectLayerFor(dataTypeId, space.spaceId, rm.renderModeId, { era: manualEra });
+        return;
+      }
+      selectLayerFor(dataTypeId, space.spaceId, rm.renderModeId);
     },
-    [dataTypeModel, selectLayerFor, selection]
+    [dataTypeModel, eraMode, manualEra, selectLayerFor, selection]
   );
 
   const handleRenderModeChange = useCallback(
     (next: string) => {
       if (!selection) return;
+      if (eraMode === "fixed") {
+        selectLayerFor(selection.dataTypeId, selection.spaceId, next, { era: manualEra });
+        return;
+      }
       selectLayerFor(selection.dataTypeId, selection.spaceId, next);
     },
-    [selectLayerFor, selection]
+    [eraMode, manualEra, selectLayerFor, selection]
   );
 
   const handleVariantChange = useCallback(
     (next: string) => {
       if (!selection) return;
-      selectLayerFor(selection.dataTypeId, selection.spaceId, selection.renderModeId, next);
+      const variant = selectedVariants.find((v) => v.variantId === next) ?? null;
+      const parsedEra = parseEraVariantKey(variant?.layer.variantKey ?? null);
+      if (parsedEra != null) setManualEra(parsedEra);
+      if (parsedEra == null && eraMode === "fixed") setEraMode("auto");
+      selectLayerFor(selection.dataTypeId, selection.spaceId, selection.renderModeId, { variantId: next });
     },
-    [selectLayerFor, selection]
+    [eraMode, selectLayerFor, selection, selectedVariants]
+  );
+
+  const handleEraModeChange = useCallback(
+    (nextMode: "auto" | "fixed") => {
+      if (nextMode === "auto") {
+        setEraMode("auto");
+        return;
+      }
+      if (!selection || !eraRange) {
+        setEraMode("fixed");
+        return;
+      }
+      const seedEra = autoEra ?? manualEra ?? eraRange.min;
+      const clampedEra = clampNumber(seedEra, eraRange.min, eraRange.max);
+      setManualEra(clampedEra);
+      setEraMode("fixed");
+      selectLayerFor(selection.dataTypeId, selection.spaceId, selection.renderModeId, { era: clampedEra });
+    },
+    [autoEra, eraRange, manualEra, selectLayerFor, selection]
+  );
+
+  const handleEraValueChange = useCallback(
+    (nextEra: number) => {
+      if (!selection || !eraRange) return;
+      const clampedEra = clampNumber(nextEra, eraRange.min, eraRange.max);
+      setManualEra(clampedEra);
+      if (eraMode !== "fixed") setEraMode("fixed");
+      selectLayerFor(selection.dataTypeId, selection.spaceId, selection.renderModeId, { era: clampedEra });
+    },
+    [eraMode, eraRange, selectLayerFor, selection]
   );
 
   const shortcutsRef = useRef<{
@@ -1398,7 +1451,6 @@ function AppContent(props: AppContentProps) {
   const leftPanel = (
     <RecipePanel
       config={pipelineConfig}
-      configSchema={recipeArtifacts.configSchema}
       onConfigPatch={(patch: ConfigPatch) => setPipelineConfig((prev) => applyConfigPatch(prev, patch))}
       onConfigReset={() =>
         setPipelineConfig(
@@ -1461,6 +1513,18 @@ function AppContent(props: AppContentProps) {
       variantOptions={variantOptions}
       selectedVariant={selection?.variantId ?? ""}
       onSelectedVariantChange={handleVariantChange}
+      overlayOptions={overlayOptions}
+      selectedOverlay={overlaySelectionId}
+      onSelectedOverlayChange={setOverlaySelectionId}
+      overlayOpacity={overlayOpacity}
+      onOverlayOpacityChange={setOverlayOpacity}
+      eraEnabled={eraEnabled}
+      eraMode={eraMode}
+      eraValue={eraDisplayValue}
+      eraMin={eraRange?.min ?? 1}
+      eraMax={eraRange?.max ?? 1}
+      onEraModeChange={handleEraModeChange}
+      onEraValueChange={handleEraValueChange}
       lightMode={isLightMode}
       showEdges={showEdges}
       onShowEdgesChange={setShowEdges}
@@ -1470,8 +1534,6 @@ function AppContent(props: AppContentProps) {
         if (!viz.activeBounds) return;
         deckApiRef.current?.fitToBounds(viz.activeBounds);
       }}
-      jumpTargets={jumpTargets}
-      onJumpToLayer={jumpToLayer}
       stageExpanded={exploreStageExpanded}
       onStageExpandedChange={setExploreStageExpanded}
       stepExpanded={exploreStepExpanded}
@@ -1558,7 +1620,7 @@ function AppContent(props: AppContentProps) {
       {footer}
 
       {error ? (
-        <div className="absolute left-1/2 -translate-x-1/2 top-[84px] z-30 max-w-[min(720px,calc(100%-32px))] rounded-lg border border-red-500/30 bg-red-950/40 px-4 py-2 text-[12px] text-red-200 whitespace-pre-wrap backdrop-blur-sm">
+        <div className="absolute left-1/2 -translate-x-1/2 top-[84px] z-30 max-w-[min(720px,calc(100%-32px))] rounded-lg border border-red-500/30 bg-red-950/40 px-4 py-2 text-[12px] text-red-200 backdrop-blur-sm">
           {error}
         </div>
       ) : null}

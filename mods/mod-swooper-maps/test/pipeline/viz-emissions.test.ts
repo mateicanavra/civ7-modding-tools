@@ -59,29 +59,12 @@ describe("standard pipeline viz emissions", () => {
     // Regression guard: never encode temporal slices into `dataTypeKey`.
     // Those should be `variantKey` instead (e.g. `era:<n>`), so the UI can
     // declutter by default while preserving depth behind a debug toggle.
-    const explodedHistoryKeys = [...seenLayers].filter((key) => /^foundation\.history\.era\d+\./.test(key));
+    const explodedHistoryKeys = [...seenLayers].filter((key) => /^foundation\.tectonicHistory\.era\d+\./.test(key));
     expect(explodedHistoryKeys).toEqual([]);
 
     const expected = [
       "foundation.plates.tilePlateId",
       "foundation.tectonics.boundaryType",
-      "foundation.history.upliftTotal",
-      "foundation.history.lastActiveEra",
-      "foundation.provenance.originEra",
-      "morphology.dualRead.legacy.boundaryType",
-      "morphology.dualRead.history.boundaryType",
-      "morphology.dualRead.delta.boundaryType",
-      "morphology.dualRead.legacy.upliftPotential",
-      "morphology.dualRead.history.upliftPotential",
-      "morphology.dualRead.delta.upliftPotential",
-      "morphology.dualRead.legacy.riftPotential",
-      "morphology.dualRead.history.riftPotential",
-      "morphology.dualRead.delta.riftPotential",
-      "morphology.dualRead.provenance.originEra",
-      "morphology.dualRead.provenance.lastBoundaryType",
-      "morphology.belts.boundaryCloseness",
-      "morphology.belts.boundaryType",
-      "morphology.belts.upliftPotential",
       "morphology.topography.elevation",
       "morphology.coastlineMetrics.shelfMask",
       "morphology.shelf.capTiles",
@@ -101,6 +84,63 @@ describe("standard pipeline viz emissions", () => {
     ];
     const missing = expected.filter((dataTypeKey) => !seenLayers.has(dataTypeKey));
     expect(missing).toEqual([]);
+  });
+
+  it("emits per-era variants for foundation tectonics", () => {
+    const width = 32;
+    const height = 20;
+    const seed = 1337;
+    const mapInfo = {
+      GridWidth: width,
+      GridHeight: height,
+      MinLatitude: -60,
+      MaxLatitude: 60,
+      PlayersLandmass1: 4,
+      PlayersLandmass2: 4,
+      StartSectorRows: 4,
+      StartSectorCols: 4,
+    };
+
+    const env = {
+      seed,
+      dimensions: { width, height },
+      latitudeBounds: {
+        topLatitude: mapInfo.MaxLatitude,
+        bottomLatitude: mapInfo.MinLatitude,
+      },
+    };
+
+    const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
+    const context = createExtendedMapContext({ width, height }, adapter, env);
+
+    const variantsByKey = new Map<string, Set<string>>();
+    const recordVariant = (layer: { dataTypeKey: string; variantKey?: string | null }) => {
+      if (!layer.variantKey) return;
+      const entry = variantsByKey.get(layer.dataTypeKey) ?? new Set<string>();
+      entry.add(layer.variantKey);
+      variantsByKey.set(layer.dataTypeKey, entry);
+    };
+
+    const viz: VizDumper = {
+      outputRoot: "<test>",
+      dumpGrid: (_trace, layer) => recordVariant(layer),
+      dumpPoints: (_trace, layer) => recordVariant(layer),
+      dumpSegments: (_trace, layer) => recordVariant(layer),
+      dumpGridFields: (_trace, layer) => recordVariant(layer),
+    };
+
+    context.viz = viz;
+    initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
+    standardRecipe.run(context, env, standardConfig, { log: () => {} });
+
+    const historyBoundaryVariants = variantsByKey.get("foundation.history.boundaryType") ?? new Set<string>();
+    expect([...historyBoundaryVariants].some((key) => /^era:\d+$/.test(key))).toBe(true);
+
+    const snapshotBoundaryVariants = variantsByKey.get("foundation.tectonics.boundaryType") ?? new Set<string>();
+    expect(snapshotBoundaryVariants.has("snapshot:latest")).toBe(true);
+
+    const upliftVariants = variantsByKey.get("foundation.history.upliftPotential") ?? new Set<string>();
+    expect([...upliftVariants].some((key) => /^era:\d+$/.test(key))).toBe(true);
   });
 
   it("declutters noisy layers behind debug visibility", () => {
@@ -175,15 +215,6 @@ describe("standard pipeline viz emissions", () => {
 
     const baseElevationMetas = metasByKey.get("foundation.crustTiles.baseElevation") as any[] | undefined;
     expect(baseElevationMetas?.some((m) => m?.visibility === "debug")).toBe(true);
-
-    const historyUpliftMetas = metasByKey.get("foundation.history.upliftTotal") as any[] | undefined;
-    expect(historyUpliftMetas?.some((m) => m?.visibility === "debug")).toBe(true);
-
-    const provenanceOriginMetas = metasByKey.get("foundation.provenance.originEra") as any[] | undefined;
-    expect(provenanceOriginMetas?.some((m) => m?.visibility === "debug")).toBe(true);
-
-    const dualReadDeltaMetas = metasByKey.get("morphology.dualRead.delta.boundaryType") as any[] | undefined;
-    expect(dualReadDeltaMetas?.some((m) => m?.visibility === "debug")).toBe(true);
 
     const crustTypeMetas = metasByKey.get("foundation.crustTiles.type") as any[] | undefined;
     expect(crustTypeMetas?.some((m) => m?.visibility === "default")).toBe(true);
