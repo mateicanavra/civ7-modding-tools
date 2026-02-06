@@ -13,7 +13,12 @@ const LandmassPlatesStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [foundationArtifacts.plates, foundationArtifacts.crustTiles],
+    requires: [
+      foundationArtifacts.plates,
+      foundationArtifacts.crustTiles,
+      foundationArtifacts.tectonicHistoryTiles,
+      foundationArtifacts.tectonicProvenanceTiles,
+    ],
     provides: [morphologyArtifacts.topography, morphologyArtifacts.substrate],
   },
   ops: {
