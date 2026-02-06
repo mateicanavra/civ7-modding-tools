@@ -46,7 +46,7 @@ export function SchemaForm<TConfig>(props: SchemaFormProps<TConfig>) {
           ObjectFieldTemplate: BrowserConfigObjectFieldTemplate,
           ArrayFieldTemplate: BrowserConfigArrayFieldTemplate,
         }}
-        widgets={configWidgets}
+        widgets={configWidgets as any}
         showErrorList={false}
         disabled={disabled}
         onChange={(e) => {

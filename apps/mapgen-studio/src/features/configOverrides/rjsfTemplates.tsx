@@ -2,7 +2,7 @@ import type { ArrayFieldTemplateProps, FieldTemplateProps, ObjectFieldTemplatePr
 import type { ReactNode } from "react";
 import type { Theme } from "../../ui/types";
 import { FieldRow } from "../../ui/components/fields";
-import { pathToPointer, type BrowserConfigSchemaDef } from "./schemaPresentation";
+import { pathToPointer } from "./schemaPresentation";
 
 export type BrowserConfigFormContext = {
   transparentPaths: ReadonlySet<string>;

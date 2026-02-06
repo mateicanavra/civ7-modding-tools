@@ -54,7 +54,7 @@ const EraFieldsSchema = Type.Object(
 export const FoundationTectonicHistorySchema = Type.Object(
   {
     eraCount: Type.Integer({ minimum: 1, maximum: 8 }),
-    eras: Type.Array(EraFieldsSchema, { description: "Era fields (oldest→newest)." }),
+    eras: Type.Immutable(Type.Array(EraFieldsSchema, { description: "Era fields (oldest→newest)." })),
     upliftTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated uplift across eras (0..255)." }),
     fractureTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated fracture across eras (0..255)." }),
     volcanismTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated volcanism across eras (0..255)." }),
@@ -141,12 +141,14 @@ export const FoundationTectonicProvenanceSchema = Type.Object(
     /** Number of mesh cells. */
     cellCount: Type.Integer({ minimum: 1, description: "Number of mesh cells." }),
     /** Per-era tracer indices (length = eraCount; each entry length = cellCount). */
-    tracerIndex: Type.Array(
-      TypedArraySchemas.u32({
-        shape: null,
-        description: "Tracer source cell index per mesh cell (length = cellCount).",
-      }),
-      { description: "Per-era tracer indices (length = eraCount; each entry length = cellCount)." }
+    tracerIndex: Type.Immutable(
+      Type.Array(
+        TypedArraySchemas.u32({
+          shape: null,
+          description: "Tracer source cell index per mesh cell (length = cellCount).",
+        }),
+        { description: "Per-era tracer indices (length = eraCount; each entry length = cellCount)." }
+      )
     ),
     /** Provenance scalars (final state at newest era). */
     provenance: FoundationTectonicProvenanceScalarsSchema,

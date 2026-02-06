@@ -64,12 +64,14 @@ const FoundationTectonicProvenanceSchema = Type.Object(
     /** Number of mesh cells. */
     cellCount: Type.Integer({ minimum: 1, description: "Number of mesh cells." }),
     /** Per-era tracer indices (length = eraCount; each entry length = cellCount). */
-    tracerIndex: Type.Array(
-      TypedArraySchemas.u32({
-        shape: null,
-        description: "Tracer source cell index per mesh cell (length = cellCount).",
-      }),
-      { description: "Per-era tracer indices (length = eraCount; each entry length = cellCount)." }
+    tracerIndex: Type.Immutable(
+      Type.Array(
+        TypedArraySchemas.u32({
+          shape: null,
+          description: "Tracer source cell index per mesh cell (length = cellCount).",
+        }),
+        { description: "Per-era tracer indices (length = eraCount; each entry length = cellCount)." }
+      )
     ),
     /** Provenance scalars (final state at newest era). */
     provenance: FoundationTectonicProvenanceScalarsSchema,
@@ -265,9 +267,11 @@ const TectonicHistoryTilesSchema = Type.Object(
     /** Number of eras included in the history tiles payload. */
     eraCount: Type.Integer({ minimum: 1, description: "Number of eras included in the history tiles payload." }),
     /** Per-era tile fields (length = eraCount). */
-    perEra: Type.Array(TectonicHistoryTilesEraSchema, {
-      description: "Per-era tile fields (length = eraCount).",
-    }),
+    perEra: Type.Immutable(
+      Type.Array(TectonicHistoryTilesEraSchema, {
+        description: "Per-era tile fields (length = eraCount).",
+      })
+    ),
     /** Rollup fields across eras. */
     rollups: TectonicHistoryTilesRollupSchema,
   },

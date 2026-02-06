@@ -185,8 +185,8 @@ export interface StepConfig {
  * - advanced: Detailed step-by-step configuration
  */
 export interface StageConfig {
-  /** High-level knobs (e.g., 'plateCount': 'normal') */
-  knobs?: Record<string, string>;
+  /** High-level knobs (semantic scalars or enums). */
+  knobs?: Record<string, ConfigPrimitive>;
   /** Advanced step configurations grouped by category */
   advanced?: Record<string, StepConfig> | Record<string, Record<string, StepConfig>>;
   /** Additional stage-specific groups */
