@@ -354,6 +354,14 @@ const plateCouplingInvariant: ValidationInvariant = {
     }
 
     const rmsStats = scanFloat(motion.plateFitRms);
+    if (rmsStats.nonFinite > 0) {
+      return {
+        name: "foundation-plate-motion-coupling",
+        ok: false,
+        message: "Plate motion residuals contain non-finite values.",
+        details: { nonFinite: rmsStats.nonFinite },
+      };
+    }
     const meanRatio = rmsStats.mean / Math.max(meanForcing, EPS);
     const qualityStats = scanBytes(motion.plateQuality);
     const cellStats = scanBytes(motion.cellFitError);
