@@ -86,11 +86,20 @@ There is not currently a dedicated “event engine” that updates crust/provena
 ### Proposed Change Surface
 
 Expected new op placements:
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-events/*` (name can vary; keep it consistent with existing op naming)
+- Event mechanics are implemented in `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/*` to keep the pipeline single-op for now.
 
 Expected artifact updates:
 - crust truth artifact (state variables that events mutate): `artifact:foundation.crust`
 - provenance truth artifact (lineage/scalars): `artifact:foundation.tectonicProvenance`
+
+### Implementation Decisions
+
+- Event mechanics are implemented by extending `foundation/compute-tectonic-history` to emit event-driven era fields and mesh-space provenance, rather than introducing a separate op (keeps existing pipeline wiring intact while making events canonical).
+- Each tectonic segment is treated as a boundary event seed; intraplate hotspot events are seeded from `mantleForcing.upwellingClass` peaks.
+- Per-channel force emission uses fixed D06r radii/decays with max-influence scoring + deterministic tie-breaks (score → intensity → eventType → eventIndex).
+- Provenance `tracerIndex` is initialized as identity per era for now; full tracer advection is deferred to `LOCAL-TBD-PR-M1-013`.
+- Lineage resets use the D06r thresholds (`rift >= 160`, `hotspot volcanism >= 200`, `arc volcanism >= 170`); origin plate is overriding plate for subduction, min plate id for rift/collision, and plateGraph plate for hotspots.
+- Event-driven “crust change” is recorded via provenance scalars (`originEra`, `crustAge`) rather than mutating `artifact:foundation.crust` (single-provider constraint).
 
 ### Pitfalls / Rakes
 

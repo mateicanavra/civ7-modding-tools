@@ -75,6 +75,12 @@ function derivePlateMotion(mesh: any, plateGraph: any, rngSeed: number) {
   return computePlateMotion.run({ mesh, plateGraph, mantleForcing }, computePlateMotion.defaultConfig).plateMotion;
 }
 
+function deriveMantleForcing(mesh: any, rngSeed: number) {
+  const mantlePotential = computeMantlePotential.run({ mesh, rngSeed }, computeMantlePotential.defaultConfig)
+    .mantlePotential;
+  return computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig).mantleForcing;
+}
+
 describe("m11 plates projection (boundary band)", () => {
   it("projects boundary regime + signals beyond the exact boundary line", () => {
     const width = 44;
@@ -116,13 +122,14 @@ describe("m11 plates projection (boundary band)", () => {
     const plateGraph = computePlateGraph.run({ mesh, crust: crust as any, rngSeed: 11 }, plateGraphConfig).plateGraph;
 
     const plateMotion = derivePlateMotion(mesh, plateGraph, 12);
+    const mantleForcing = deriveMantleForcing(mesh, 12);
     const segments = computeTectonicSegments.run(
       { mesh, crust: crust as any, plateGraph: plateGraph as any, plateMotion: plateMotion as any },
       computeTectonicSegments.defaultConfig
     ).segments;
 
     const historyResult = computeTectonicHistory.run(
-      { mesh, segments },
+      { mesh, crust, mantleForcing, plateGraph, segments },
       {
         strategy: "default",
         config: {
