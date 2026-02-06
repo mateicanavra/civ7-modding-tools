@@ -13,7 +13,8 @@ These are the only docs in this directory that should be treated as the current 
 
 These are supporting references (spike/SPEC/decisions/milestone). They are not execution plans:
 
-- Spike pointer: `../resources/packets/m11-foundation-realism-spike/README.md`
+- Spike diagnosis (spec vs code truth): `../resources/research/SPIKE-m1-foundation-realism-regression-2026-02-04.md`
+- Spike packet pointer: `../resources/packets/m11-foundation-realism-spike/README.md`
 - Canonical SPEC: `../resources/spec/foundation-evolutionary-physics-SPEC.md`
 - Decisions index: `../resources/decisions/README.md`
 - Milestone: `../milestones/M1-foundation-maximal-cutover.md`
