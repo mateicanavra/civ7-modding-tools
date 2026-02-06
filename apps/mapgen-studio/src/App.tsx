@@ -61,6 +61,7 @@ import {
   STUDIO_RECIPE_OPTIONS,
   type StudioRecipeUiMeta,
 } from "./recipes/catalog";
+import { getOverlaySuggestions } from "./recipes/overlaySuggestions";
 
 function randomU32(): number {
   try {
@@ -84,21 +85,6 @@ function isNumericPathSegment(segment: string): boolean {
 }
 
 const FORBIDDEN_MERGE_KEYS = new Set(["__proto__", "prototype", "constructor"]);
-
-const OVERLAY_SUGGESTIONS = [
-  {
-    id: "foundation.history.boundaryType::foundation.tectonics.boundaryType",
-    primaryDataTypeKey: "foundation.history.boundaryType",
-    overlayDataTypeKey: "foundation.tectonics.boundaryType",
-    label: "Boundary events (snapshot)",
-  },
-  {
-    id: "map.morphology.mountains.orogenyPotential01::morphology.drivers.uplift",
-    primaryDataTypeKey: "map.morphology.mountains.orogenyPotential01",
-    overlayDataTypeKey: "morphology.drivers.uplift",
-    label: "Uplift driver",
-  },
-] as const;
 
 function mergeDeterministic(base: unknown, overrides: unknown): unknown {
   if (overrides === undefined) return base;
@@ -272,7 +258,8 @@ function AppContent(props: AppContentProps) {
   const importInputRef = useRef<HTMLInputElement | null>(null);
   const lastPresetKeyRef = useRef<PresetKey>("none");
 
-  const overlaySelection = OVERLAY_SUGGESTIONS.find((opt) => opt.id === overlaySelectionId) ?? null;
+  const overlaySuggestions = useMemo(() => getOverlaySuggestions(recipeSettings.recipe), [recipeSettings.recipe]);
+  const overlaySelection = overlaySuggestions.find((opt) => opt.id === overlaySelectionId) ?? null;
   const overlayDataTypeKey = overlaySelection?.overlayDataTypeKey ?? null;
 
   const recipeArtifacts = useMemo(() => getRecipeArtifacts(recipeSettings.recipe), [recipeSettings.recipe]);
@@ -971,14 +958,14 @@ function AppContent(props: AppContentProps) {
   const overlayCandidates: OverlayOption[] = useMemo(() => {
     if (!dataTypeModel || !selection) return [];
     const out: OverlayOption[] = [];
-    for (const suggestion of OVERLAY_SUGGESTIONS) {
+    for (const suggestion of overlaySuggestions) {
       if (suggestion.primaryDataTypeKey !== selection.dataTypeId) continue;
       const overlayDt = dataTypeModel.dataTypes.find((dt) => dt.dataTypeId === suggestion.overlayDataTypeKey);
       if (!overlayDt) continue;
       out.push({ value: suggestion.id, label: suggestion.label });
     }
     return out;
-  }, [dataTypeModel, selection]);
+  }, [dataTypeModel, overlaySuggestions, selection]);
 
   const overlayOptions: OverlayOption[] = useMemo(() => {
     if (!overlayCandidates.length) return [];
