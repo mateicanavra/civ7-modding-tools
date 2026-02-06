@@ -71,3 +71,13 @@ export function findVariantKeyForEra(variants: readonly LayerVariant[], era: num
   }
   return null;
 }
+
+export function resolveFixedEraUiValue(args: {
+  variants: readonly LayerVariant[];
+  selectedVariantKey: string | null | undefined;
+  requestedEra: number;
+}): number {
+  const selectedEra = parseEraVariantKey(args.selectedVariantKey);
+  if (selectedEra != null) return selectedEra;
+  return snapEraToAvailable(args.variants, args.requestedEra) ?? args.requestedEra;
+}
