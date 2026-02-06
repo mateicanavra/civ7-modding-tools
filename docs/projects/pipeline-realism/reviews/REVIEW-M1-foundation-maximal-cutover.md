@@ -391,6 +391,7 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 
 ### Cross-cutting Risks
 - Artifact-level-only drift messages slow down triage and weaken the “determinism as a feature” posture.
+
 ## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-018-physics-invariants-mantle-forcing-plate-motion-coupling-resi
 
 ### Quick Take
@@ -416,3 +417,29 @@ Assessment: Still relevant. This is a contract/authoring-surface drift problem (
 
 ### Cross-cutting Risks
 - Diagnostics that always fail will be ignored, reducing the ability to detect real coupling regressions later.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-019-physics-invariants-events-must-change-crust-provenance-belts
+
+### Quick Take
+- Added event→provenance causality checks and belt continuity gates to `M1_FOUNDATION_GATES`, so corridor signals now require provenance stamps and belts must be wide/continuous when events are active.
+- The new gates run inside the determinism suite, giving fast feedback on “force-only tectonics” and belt wall regressions, but they currently only validate provenance and derived belt masks.
+
+### High-Leverage Issues
+- The acceptance criteria require **material/crust change** when events fire, but no crust-state invariant was added. Right now only provenance tiles are enforced, so “force-only crust” can still pass.
+- Belt continuity is validated on `deriveBeltDriversFromHistory` output rather than actual Morphology belt artifacts. This can miss regressions where Morphology output diverges from the drivers.
+
+### PR Comment Context
+- No actionable review comments; Graphite/Railway bot notices only.
+
+### Fix Now (Recommended)
+- Add a crust-change gate that asserts event corridors imply measurable deltas in crust state (e.g., `damage`, `thermalAge`, `strength`) relative to pre-event baselines or previous era.
+- If an explicit belt output artifact exists, add a belt continuity check against that output (not just derived drivers).
+
+### Defer / Follow-up
+- Calibrate belt continuity thresholds against multiple canonical seeds to avoid brittle failures as tuning changes.
+
+### Needs Discussion
+- Which crust fields are considered the canonical “material change” signal for D09r (damage, strength, maturity, or a derived delta)?
+
+### Cross-cutting Risks
+- Without a crust-change gate, events can remain “cosmetic,” undermining the physics-first objective even while provenance checks pass.

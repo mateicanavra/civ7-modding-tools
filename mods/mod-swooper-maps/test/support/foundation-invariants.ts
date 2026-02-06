@@ -1,5 +1,8 @@
+import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
+
 import type { ValidationInvariant, ValidationInvariantContext } from "./validation-harness.js";
 import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
+import { deriveBeltDriversFromHistory } from "../../src/recipes/standard/stages/map-morphology/steps/beltDrivers.js";
 
 const EPS = 1e-6;
 const POTENTIAL_MIN_ABS = 0.12;
@@ -11,6 +14,15 @@ const PLATE_RMS_RATIO_MAX = 1.2;
 const PLATE_QUALITY_MEAN_MIN = 40;
 const CELL_FIT_OK_MAX = 180;
 const CELL_FIT_OK_FRACTION_MIN = 0.5;
+const EVENT_SIGNAL_THRESHOLD = 20;
+const EVENT_CORRIDOR_MIN_TILES = 12;
+const EVENT_BOUNDARY_COVERAGE_MIN = 0.6;
+const EVENT_ORIGIN_FRACTION_MIN = 0.75;
+const EVENT_BOUNDARY_FRACTION_MIN = 0.85;
+const BELT_MIN_CELLS = 20;
+const BELT_COMPONENT_MEAN_MIN = 8;
+const BELT_COMPONENT_MAX_MIN = 12;
+const BELT_NEIGHBOR_MEAN_MIN = 1.6;
 
 type FloatStats = {
   min: number;
@@ -92,6 +104,51 @@ function meanSpeed(u: Float32Array, v: Float32Array): number {
     count += 1;
   }
   return count > 0 ? sum / count : 0;
+}
+
+function countAbove(values: Uint8Array, threshold: number): number {
+  let count = 0;
+  for (let i = 0; i < values.length; i++) {
+    if ((values[i] ?? 0) > threshold) count += 1;
+  }
+  return count;
+}
+
+function eraHasSignal(perEra: Array<any>, eraIndex: number, cellIndex: number, threshold: number): boolean {
+  const era = perEra[eraIndex];
+  if (!era) return false;
+  const boundaryType = era.boundaryType?.[cellIndex] ?? 0;
+  if (boundaryType > 0) return true;
+  const uplift = era.upliftPotential?.[cellIndex] ?? 0;
+  const rift = era.riftPotential?.[cellIndex] ?? 0;
+  const shear = era.shearStress?.[cellIndex] ?? 0;
+  const volcanism = era.volcanism?.[cellIndex] ?? 0;
+  const fracture = era.fracture?.[cellIndex] ?? 0;
+  return (
+    uplift > threshold ||
+    rift > threshold ||
+    shear > threshold ||
+    volcanism > threshold ||
+    fracture > threshold
+  );
+}
+
+function meanBeltNeighbors(mask: Uint8Array, width: number, height: number): number {
+  let beltCells = 0;
+  let neighborSum = 0;
+  for (let i = 0; i < mask.length; i++) {
+    if (!mask[i]) continue;
+    beltCells += 1;
+    const x = i % width;
+    const y = Math.floor(i / width);
+    let neighbors = 0;
+    forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
+      const idx = ny * width + nx;
+      if (mask[idx]) neighbors += 1;
+    });
+    neighborSum += neighbors;
+  }
+  return beltCells > 0 ? neighborSum / beltCells : 0;
 }
 
 function requireArtifact<T>(ctx: ValidationInvariantContext, id: string, label: string): T | null {
@@ -307,6 +364,204 @@ const plateCouplingInvariant: ValidationInvariant = {
   },
 };
 
+const eventProvenanceInvariant: ValidationInvariant = {
+  name: "foundation-event-provenance-causality",
+  description: "Event corridors must drive provenance resets and boundary stamps.",
+  check: (ctx) => {
+    const historyTiles = requireArtifact<any>(
+      ctx,
+      foundationArtifacts.tectonicHistoryTiles.id,
+      "tectonicHistoryTiles"
+    );
+    const provenanceTiles = requireArtifact<any>(
+      ctx,
+      foundationArtifacts.tectonicProvenanceTiles.id,
+      "tectonicProvenanceTiles"
+    );
+    if (!historyTiles || !provenanceTiles) {
+      return {
+        name: "foundation-event-provenance-causality",
+        ok: false,
+        message: "Missing tectonic history/provenance tiles.",
+      };
+    }
+
+    const width = ctx.context.dimensions.width | 0;
+    const height = ctx.context.dimensions.height | 0;
+    const size = Math.max(0, width * height);
+
+    const perEra: Array<any> = historyTiles.perEra ?? [];
+    const rollups = historyTiles.rollups ?? {};
+    const upliftTotal: Uint8Array = rollups.upliftTotal ?? new Uint8Array(size);
+    const fractureTotal: Uint8Array = rollups.fractureTotal ?? new Uint8Array(size);
+    const volcanismTotal: Uint8Array = rollups.volcanismTotal ?? new Uint8Array(size);
+
+    if (upliftTotal.length !== size || fractureTotal.length !== size || volcanismTotal.length !== size) {
+      return {
+        name: "foundation-event-provenance-causality",
+        ok: false,
+        message: "History rollup lengths do not match map dimensions.",
+      };
+    }
+
+    const originEra: Uint8Array = provenanceTiles.originEra ?? new Uint8Array(size);
+    const lastBoundaryEra: Uint8Array = provenanceTiles.lastBoundaryEra ?? new Uint8Array(size);
+
+    let eventCount = 0;
+    let boundaryCoverageCount = 0;
+
+    for (let i = 0; i < size; i++) {
+      const eventSignal = Math.max(upliftTotal[i] ?? 0, fractureTotal[i] ?? 0, volcanismTotal[i] ?? 0);
+      if (eventSignal > EVENT_SIGNAL_THRESHOLD) {
+        eventCount += 1;
+        if ((lastBoundaryEra[i] ?? 255) !== 255) boundaryCoverageCount += 1;
+      }
+    }
+
+    const boundaryCoverage = eventCount > 0 ? boundaryCoverageCount / eventCount : 1;
+
+    let originCount = 0;
+    let originWithSignal = 0;
+    let boundaryEraCount = 0;
+    let boundaryEraWithSignal = 0;
+
+    for (let i = 0; i < size; i++) {
+      const o = originEra[i] ?? 0;
+      if (o > 0 && o < perEra.length) {
+        originCount += 1;
+        if (eraHasSignal(perEra, o, i, EVENT_SIGNAL_THRESHOLD)) originWithSignal += 1;
+      }
+      const b = lastBoundaryEra[i] ?? 255;
+      if (b !== 255 && b < perEra.length) {
+        boundaryEraCount += 1;
+        if (eraHasSignal(perEra, b, i, EVENT_SIGNAL_THRESHOLD)) boundaryEraWithSignal += 1;
+      }
+    }
+
+    const originFraction = originCount > 0 ? originWithSignal / originCount : 1;
+    const boundaryEraFraction = boundaryEraCount > 0 ? boundaryEraWithSignal / boundaryEraCount : 1;
+
+    if (eventCount >= EVENT_CORRIDOR_MIN_TILES && boundaryCoverage < EVENT_BOUNDARY_COVERAGE_MIN) {
+      return {
+        name: "foundation-event-provenance-causality",
+        ok: false,
+        message: "Event corridors do not stamp lastBoundaryEra consistently.",
+        details: { eventCount, boundaryCoverage },
+      };
+    }
+    if (originCount >= EVENT_CORRIDOR_MIN_TILES && originFraction < EVENT_ORIGIN_FRACTION_MIN) {
+      return {
+        name: "foundation-event-provenance-causality",
+        ok: false,
+        message: "Origin resets lack same-era event signal.",
+        details: { originCount, originFraction },
+      };
+    }
+    if (boundaryEraCount >= EVENT_CORRIDOR_MIN_TILES && boundaryEraFraction < EVENT_BOUNDARY_FRACTION_MIN) {
+      return {
+        name: "foundation-event-provenance-causality",
+        ok: false,
+        message: "Boundary era stamps lack same-era event signal.",
+        details: { boundaryEraCount, boundaryEraFraction },
+      };
+    }
+
+    return {
+      name: "foundation-event-provenance-causality",
+      ok: true,
+      details: { eventCount, boundaryCoverage, originFraction, boundaryEraFraction },
+    };
+  },
+};
+
+const beltContinuityInvariant: ValidationInvariant = {
+  name: "morphology-belt-continuity",
+  description: "Belts must be continuous and wider than single-tile walls when events are active.",
+  check: (ctx) => {
+    const historyTiles = requireArtifact<any>(
+      ctx,
+      foundationArtifacts.tectonicHistoryTiles.id,
+      "tectonicHistoryTiles"
+    );
+    const provenanceTiles = requireArtifact<any>(
+      ctx,
+      foundationArtifacts.tectonicProvenanceTiles.id,
+      "tectonicProvenanceTiles"
+    );
+    if (!historyTiles || !provenanceTiles) {
+      return { name: "morphology-belt-continuity", ok: false, message: "Missing belt driver inputs." };
+    }
+    const width = ctx.context.dimensions.width | 0;
+    const height = ctx.context.dimensions.height | 0;
+    const size = Math.max(0, width * height);
+    const rollups = historyTiles.rollups ?? {};
+    const upliftTotal: Uint8Array = rollups.upliftTotal ?? new Uint8Array(size);
+    const fractureTotal: Uint8Array = rollups.fractureTotal ?? new Uint8Array(size);
+    const volcanismTotal: Uint8Array = rollups.volcanismTotal ?? new Uint8Array(size);
+
+    let eventCount = 0;
+    for (let i = 0; i < size; i++) {
+      const signal = Math.max(upliftTotal[i] ?? 0, fractureTotal[i] ?? 0, volcanismTotal[i] ?? 0);
+      if (signal > EVENT_SIGNAL_THRESHOLD) eventCount += 1;
+    }
+
+    const drivers = deriveBeltDriversFromHistory({
+      width,
+      height,
+      historyTiles,
+      provenanceTiles,
+    });
+    const beltMask = drivers.beltMask;
+    const beltCellCount = countAbove(beltMask, 0);
+    const componentCount = drivers.beltComponents.length;
+    const meanNeighbor = beltCellCount > 0 ? meanBeltNeighbors(beltMask, width, height) : 0;
+
+    let meanComponentSize = 0;
+    let maxComponentSize = 0;
+    if (componentCount > 0) {
+      for (const component of drivers.beltComponents) {
+        meanComponentSize += component.size;
+        if (component.size > maxComponentSize) maxComponentSize = component.size;
+      }
+      meanComponentSize /= componentCount;
+    }
+
+    if (eventCount >= EVENT_CORRIDOR_MIN_TILES && beltCellCount < BELT_MIN_CELLS) {
+      return {
+        name: "morphology-belt-continuity",
+        ok: false,
+        message: "Belt mask too sparse for active event corridors.",
+        details: { eventCount, beltCellCount },
+      };
+    }
+
+    if (beltCellCount > 0) {
+      if (meanComponentSize < BELT_COMPONENT_MEAN_MIN || maxComponentSize < BELT_COMPONENT_MAX_MIN) {
+        return {
+          name: "morphology-belt-continuity",
+          ok: false,
+          message: "Belt components are too small or fragmented.",
+          details: { meanComponentSize, maxComponentSize, componentCount },
+        };
+      }
+      if (meanNeighbor < BELT_NEIGHBOR_MEAN_MIN) {
+        return {
+          name: "morphology-belt-continuity",
+          ok: false,
+          message: "Belt neighborhood density suggests single-tile walls.",
+          details: { meanNeighbor },
+        };
+      }
+    }
+
+    return {
+      name: "morphology-belt-continuity",
+      ok: true,
+      details: { beltCellCount, componentCount, meanComponentSize, maxComponentSize, meanNeighbor },
+    };
+  },
+};
+
 const couplingDiagnostics: ValidationInvariant = {
   name: "foundation-plate-motion-diagnostics",
   description: "Diagnostic coupling metrics (non-gating).",
@@ -355,6 +610,8 @@ export const M1_FOUNDATION_GATES: ValidationInvariant[] = [
   mantlePotentialInvariant,
   mantleForcingInvariant,
   plateCouplingInvariant,
+  eventProvenanceInvariant,
+  beltContinuityInvariant,
 ];
 
 export const M1_FOUNDATION_DIAGNOSTICS: ValidationInvariant[] = [couplingDiagnostics];
