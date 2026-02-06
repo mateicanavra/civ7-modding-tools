@@ -114,8 +114,6 @@ const;
 // ============================================================================
 
 export const DEFAULT_KNOB_OPTIONS: KnobOptionsMap = {
-  plateCount: ['sparse', 'normal', 'dense'],
-  plateActivity: ['low', 'normal', 'high'],
   seaLevel: ['land-heavy', 'earthlike', 'water-heavy'],
   erosion: ['low', 'normal', 'high'],
   coastRuggedness: ['smooth', 'normal', 'rugged'],

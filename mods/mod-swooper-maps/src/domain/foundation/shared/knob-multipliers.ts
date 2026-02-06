@@ -1,36 +1,30 @@
-import type { FoundationPlateActivityKnob, FoundationPlateCountKnob } from "./knobs.js";
+function clamp01(value: number): number {
+  if (!Number.isFinite(value)) return 0.5;
+  return Math.max(0, Math.min(1, value));
+}
 
-/**
- * Plate count multipliers are applied after schema defaults/advanced config are resolved.
- * They intentionally scale authored `plateCount` rather than hard-overriding it.
- */
-export const FOUNDATION_PLATE_COUNT_MULTIPLIER: Readonly<Record<FoundationPlateCountKnob, number>> =
-  {
-    sparse: 0.8,
-    normal: 1.0,
-    dense: 1.25,
-  };
+function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * t;
+}
 
 /**
  * Plate activity scales kinematics used to project motion tensors.
+ *
+ * Mapping: 0.0 -> 0.8, 0.5 -> 1.0, 1.0 -> 1.2 (piecewise linear).
  */
-export const FOUNDATION_PLATE_ACTIVITY_KINEMATICS_MULTIPLIER: Readonly<
-  Record<FoundationPlateActivityKnob, number>
-> = {
-  low: 0.8,
-  normal: 1.0,
-  high: 1.2,
-};
+export function resolvePlateActivityKinematicsMultiplier(value: number | undefined): number {
+  const v = clamp01(value ?? 0.5);
+  if (v <= 0.5) return lerp(0.8, 1.0, v / 0.5);
+  return lerp(1.0, 1.2, (v - 0.5) / 0.5);
+}
 
 /**
- * Plate activity shifts boundary influence distance (tiles). This is additive so maps with authored
- * advanced configs remain meaningful while still responding to knobs-last tuning.
+ * Plate activity shifts boundary influence distance (tiles).
+ *
+ * Mapping: 0.0 -> -1, 0.5 -> 0, 1.0 -> +2 (piecewise linear, rounded).
  */
-export const FOUNDATION_PLATE_ACTIVITY_BOUNDARY_INFLUENCE_DISTANCE_DELTA: Readonly<
-  Record<FoundationPlateActivityKnob, number>
-> = {
-  low: -1,
-  normal: 0,
-  high: 2,
-};
-
+export function resolvePlateActivityBoundaryDelta(value: number | undefined): number {
+  const v = clamp01(value ?? 0.5);
+  const delta = v <= 0.5 ? lerp(-1, 0, v / 0.5) : lerp(0, 2, (v - 0.5) / 0.5);
+  return Math.round(delta);
+}

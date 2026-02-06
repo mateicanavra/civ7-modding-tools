@@ -9,7 +9,7 @@ import React, { Fragment, useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { ArrayField, BooleanField, FieldRow, NumberField, SelectField, StringField } from "./fields";
 import { formatFieldName, formatStageName } from "../utils";
-import type { ConfigPatch, ConfigValue, KnobOptionsMap, PipelineConfig, StageConfig, StepConfig, Theme } from "../types";
+import type { ConfigPatch, ConfigPrimitive, ConfigValue, KnobOptionsMap, PipelineConfig, StageConfig, StepConfig, Theme } from "../types";
 // ============================================================================
 // Props
 // ============================================================================
@@ -35,10 +35,10 @@ export interface ConfigFormProps {
 function getKnobOptionValues(
 knobOptions: KnobOptionsMap | undefined,
 knobName: string,
-currentValue: string)
-: string[] {
+currentValue: ConfigPrimitive)
+: Array<string | number> {
   const options = knobOptions?.[knobName] || [currentValue];
-  if (!options.includes(currentValue)) {
+  if (!options.some((option) => option === currentValue)) {
     return [...options, currentValue];
   }
   return [...options];
@@ -344,21 +344,46 @@ export const ConfigForm: React.FC<ConfigFormProps> = ({
   };
   const renderKnobs = (
   stageName: string,
-  knobs: Record<string, string>)
+  knobs: Record<string, ConfigPrimitive>)
   : React.ReactNode => {
     if (Object.keys(knobs).length === 0) return null;
     return (
       <div className="flex flex-col">
-        {Object.entries(knobs).map(([knobName, knobValue]) =>
-        <SelectField
-          key={knobName}
-          label={formatFieldName(knobName)}
-          value={knobValue}
-          options={getKnobOptionValues(knobOptions, knobName, knobValue)}
-          onChange={(v) => updateConfig([stageName, 'knobs', knobName], v)}
-          lightMode={lightMode} />
+        {Object.entries(knobs).map(([knobName, knobValue]) => {
+          if (typeof knobValue === 'number') {
+            return (
+              <NumberField
+                key={knobName}
+                label={formatFieldName(knobName)}
+                value={knobValue}
+                onChange={(v) => updateConfig([stageName, 'knobs', knobName], v)}
+                lightMode={lightMode} />
 
-        )}
+            );
+          }
+          if (typeof knobValue === 'boolean') {
+            return (
+              <BooleanField
+                key={knobName}
+                label={formatFieldName(knobName)}
+                value={knobValue}
+                onChange={(v) => updateConfig([stageName, 'knobs', knobName], v)}
+                lightMode={lightMode} />
+
+            );
+          }
+          const options = getKnobOptionValues(knobOptions, knobName, knobValue).map((opt) => String(opt));
+          return (
+            <SelectField
+              key={knobName}
+              label={formatFieldName(knobName)}
+              value={String(knobValue)}
+              options={options}
+              onChange={(v) => updateConfig([stageName, 'knobs', knobName], v)}
+              lightMode={lightMode} />
+
+          );
+        })}
       </div>);
 
   };

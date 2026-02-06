@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { stableStringify } from "@swooper/mapgen-core";
 
 import standardRecipe from "../src/recipes/standard/recipe.js";
 
@@ -8,45 +9,22 @@ const env = {
   latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
 };
 
+const foundationBaseConfig = {
+  version: 1,
+  profiles: {
+    resolutionProfile: "balanced",
+    lithosphereProfile: "maximal-basaltic-lid-v1",
+    mantleProfile: "maximal-potential-v1",
+  },
+  knobs: { plateCount: 28, plateActivity: 0.5 },
+};
+
 describe("M11 config layering: knobs-last (foundation + morphology)", () => {
-  it("treats missing knobs the same as explicit empty knobs objects", () => {
-    const compiledMissing = standardRecipe.compileConfig(env, {});
-    const compiledExplicit = standardRecipe.compileConfig(env, {
-      foundation: { knobs: {} },
-      "morphology-coasts": { knobs: {} },
-      "morphology-routing": { knobs: {} },
-      "morphology-erosion": { knobs: {} },
-      "morphology-features": { knobs: {} },
-      "map-morphology": { knobs: {} },
-    });
-
-    expect(compiledMissing.foundation).toEqual(compiledExplicit.foundation);
-    expect(compiledMissing["morphology-coasts"]).toEqual(compiledExplicit["morphology-coasts"]);
-    expect(compiledMissing["morphology-routing"]).toEqual(compiledExplicit["morphology-routing"]);
-    expect(compiledMissing["morphology-erosion"]).toEqual(compiledExplicit["morphology-erosion"]);
-    expect(compiledMissing["morphology-features"]).toEqual(compiledExplicit["morphology-features"]);
-    expect(compiledMissing["map-morphology"]).toEqual(compiledExplicit["map-morphology"]);
-  });
-
-  it("applies knobs as deterministic transforms over advanced config baselines", () => {
+  it("applies knobs as deterministic transforms over profile defaults", () => {
     const compiled = standardRecipe.compileConfig(env, {
       foundation: {
-        knobs: { plateCount: "dense", plateActivity: "high" },
-        advanced: {
-          mesh: { computeMesh: { strategy: "default", config: { plateCount: 10 } } },
-          "plate-graph": { computePlateGraph: { strategy: "default", config: { plateCount: 10 } } },
-          projection: {
-            computePlates: {
-              strategy: "default",
-              config: {
-                boundaryInfluenceDistance: 5,
-                boundaryDecay: 0.55,
-                movementScale: 100,
-                rotationScale: 100,
-              },
-            },
-          },
-        },
+        ...foundationBaseConfig,
+        knobs: { plateCount: 12, plateActivity: 0.8 },
       },
       "morphology-coasts": {
         knobs: { seaLevel: "water-heavy", coastRuggedness: "rugged" },
@@ -113,13 +91,27 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
     });
 
     // Foundation:
-    // - plateCount=dense multiplies plateCount by 1.25 before op normalization (area scaling).
-    expect(compiled.foundation.mesh.computeMesh.config.plateCount).toBe(14);
-    expect(compiled.foundation["plate-graph"].computePlateGraph.config.plateCount).toBe(14);
-    // - plateActivity=high shifts boundaryInfluenceDistance by +2 and scales kinematics by 1.2.
-    expect(compiled.foundation.projection.computePlates.config.boundaryInfluenceDistance).toBe(7);
-    expect(compiled.foundation.projection.computePlates.config.movementScale).toBeCloseTo(120, 6);
-    expect(compiled.foundation.projection.computePlates.config.rotationScale).toBeCloseTo(120, 6);
+    // - plateCount sets authored plate count before dimension-aware scaling.
+    const area = env.dimensions.width * env.dimensions.height;
+    const meshScale = Math.pow(
+      area / compiled.foundation.mesh.computeMesh.config.referenceArea,
+      compiled.foundation.mesh.computeMesh.config.plateScalePower
+    );
+    const expectedMeshPlateCount = Math.max(2, Math.round(12 * meshScale));
+    expect(compiled.foundation.mesh.computeMesh.config.plateCount).toBe(expectedMeshPlateCount);
+
+    const plateGraphScale = Math.pow(
+      area / compiled.foundation["plate-graph"].computePlateGraph.config.referenceArea,
+      compiled.foundation["plate-graph"].computePlateGraph.config.plateScalePower
+    );
+    const expectedPlateGraphPlateCount = Math.max(2, Math.round(12 * plateGraphScale));
+    expect(compiled.foundation["plate-graph"].computePlateGraph.config.plateCount).toBe(
+      expectedPlateGraphPlateCount
+    );
+    // - plateActivity=0.8 scales kinematics and shifts boundary influence distance from the profile baseline.
+    expect(compiled.foundation.projection.computePlates.config.boundaryInfluenceDistance).toBe(13);
+    expect(compiled.foundation.projection.computePlates.config.movementScale).toBeCloseTo(72.8, 6);
+    expect(compiled.foundation.projection.computePlates.config.rotationScale).toBeCloseTo(89.6, 6);
 
     // Morphology:
     // - seaLevel=water-heavy adds +7 to targetWaterPercent.
@@ -144,5 +136,15 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
     expect(compiled["map-morphology"]["plot-mountains"].mountains.config.tectonicIntensity).toBeCloseTo(1.25, 6);
     expect(compiled["map-morphology"]["plot-mountains"].mountains.config.mountainThreshold).toBeCloseTo(0.55, 6);
     expect(compiled["map-morphology"]["plot-mountains"].mountains.config.hillThreshold).toBeCloseTo(0.32, 6);
+  });
+
+  it("compiles deterministically for identical inputs", () => {
+    const config = {
+      foundation: foundationBaseConfig,
+      "morphology-coasts": { knobs: { seaLevel: "earthlike", coastRuggedness: "normal" } },
+    };
+    const first = standardRecipe.compileConfig(env, config);
+    const second = standardRecipe.compileConfig(env, config);
+    expect(stableStringify(first.foundation)).toBe(stableStringify(second.foundation));
   });
 });

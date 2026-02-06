@@ -15,6 +15,16 @@ const baseSettings = {
   latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
 };
 
+const foundationConfig = {
+  version: 1,
+  profiles: {
+    resolutionProfile: "balanced",
+    lithosphereProfile: "maximal-basaltic-lid-v1",
+    mantleProfile: "maximal-potential-v1",
+  },
+  knobs: { plateCount: 28, plateActivity: 0.5 },
+};
+
 function expectCompileError(fn: () => void): RecipeCompileError {
   try {
     fn();
@@ -29,6 +39,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("flags unknown stage public keys", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
         ecology: {
           extraField: {},
         },
@@ -46,6 +57,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("flags schema errors within ecology step configs", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
         ecology: {
           biomes: {
             classify: 123,
@@ -57,6 +69,25 @@ describe("standard recipe compile errors (ecology)", () => {
     expect(
       err.errors.some(
         (item) => item.code === "config.invalid" && item.path.includes("/config/ecology/biomes")
+      )
+    ).toBe(true);
+  });
+
+  it("flags unknown keys in Foundation authoring surface", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: {
+          ...foundationConfig,
+          forbiddenKinematics: { velocity: [1, 2, 3] },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path.includes("/config/foundation/forbiddenKinematics")
       )
     ).toBe(true);
   });

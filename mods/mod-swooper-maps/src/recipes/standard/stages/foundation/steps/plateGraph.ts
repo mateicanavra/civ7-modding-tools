@@ -3,7 +3,6 @@ import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { foundationArtifacts } from "../artifacts.js";
 import PlateGraphStepContract from "./plateGraph.contract.js";
 import { validatePlateGraphArtifact, wrapFoundationValidateNoDims } from "./validation.js";
-import { FOUNDATION_PLATE_COUNT_MULTIPLIER } from "@mapgen/domain/foundation/shared/knob-multipliers.js";
 import type { FoundationPlateCountKnob } from "@mapgen/domain/foundation/shared/knobs.js";
 import { interleaveXY, pointsFromPlateSeeds } from "./viz.js";
 
@@ -23,15 +22,16 @@ export default createStep(PlateGraphStepContract, {
   }),
   normalize: (config, ctx) => {
     const { plateCount } = ctx.knobs as Readonly<{ plateCount?: FoundationPlateCountKnob }>;
-    const multiplier = FOUNDATION_PLATE_COUNT_MULTIPLIER[plateCount ?? "normal"] ?? 1.0;
+    const override =
+      typeof plateCount === "number" && Number.isFinite(plateCount) ? plateCount : undefined;
 
     const computePlateGraph =
-      config.computePlateGraph.strategy === "default"
+      config.computePlateGraph.strategy === "default" && override !== undefined
         ? {
             ...config.computePlateGraph,
             config: {
               ...config.computePlateGraph.config,
-              plateCount: clampInt((config.computePlateGraph.config.plateCount ?? 0) * multiplier, {
+              plateCount: clampInt(override, {
                 min: 2,
                 max: 256,
               }),

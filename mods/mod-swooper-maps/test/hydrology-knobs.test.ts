@@ -8,15 +8,33 @@ const env = {
   latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
 };
 
+const foundationConfig = {
+  version: 1,
+  profiles: {
+    resolutionProfile: "balanced",
+    lithosphereProfile: "maximal-basaltic-lid-v1",
+    mantleProfile: "maximal-potential-v1",
+  },
+  knobs: { plateCount: 28, plateActivity: 0.5 },
+};
+
+const withFoundation = (config: Record<string, unknown>) => ({
+  foundation: foundationConfig,
+  ...config,
+});
+
 describe("hydrology knobs compilation", () => {
   it("treats missing knobs the same as explicit empty knobs objects", () => {
-    const compiledMissing = standardRecipe.compileConfig(env, {});
-    const compiledExplicit = standardRecipe.compileConfig(env, {
-      "hydrology-climate-baseline": { knobs: {} },
-      "hydrology-hydrography": { knobs: {} },
-      "hydrology-climate-refine": { knobs: {} },
-      "map-hydrology": { knobs: {} },
-    });
+    const compiledMissing = standardRecipe.compileConfig(env, withFoundation({}));
+    const compiledExplicit = standardRecipe.compileConfig(
+      env,
+      withFoundation({
+        "hydrology-climate-baseline": { knobs: {} },
+        "hydrology-hydrography": { knobs: {} },
+        "hydrology-climate-refine": { knobs: {} },
+        "map-hydrology": { knobs: {} },
+      })
+    );
 
     expect(compiledMissing["hydrology-climate-baseline"]).toEqual(compiledExplicit["hydrology-climate-baseline"]);
     expect(compiledMissing["hydrology-hydrography"]).toEqual(compiledExplicit["hydrology-hydrography"]);
@@ -31,22 +49,28 @@ describe("hydrology knobs compilation", () => {
       "hydrology-climate-refine": { knobs: { dryness: "wet" } },
     } as const;
 
-    const a = standardRecipe.compileConfig(env, input);
-    const b = standardRecipe.compileConfig(env, input);
+    const a = standardRecipe.compileConfig(env, withFoundation(input));
+    const b = standardRecipe.compileConfig(env, withFoundation(input));
     expect(a["hydrology-climate-baseline"]).toEqual(b["hydrology-climate-baseline"]);
     expect(a["hydrology-climate-refine"]).toEqual(b["hydrology-climate-refine"]);
     expect(a["map-hydrology"]).toEqual(b["map-hydrology"]);
   });
 
   it("maps dryness to monotonic internal wetness tuning (legacy)", () => {
-    const wet = standardRecipe.compileConfig(env, {
-      "hydrology-climate-baseline": { knobs: { dryness: "wet" } },
-      "hydrology-climate-refine": { knobs: { dryness: "wet" } },
-    });
-    const dry = standardRecipe.compileConfig(env, {
-      "hydrology-climate-baseline": { knobs: { dryness: "dry" } },
-      "hydrology-climate-refine": { knobs: { dryness: "dry" } },
-    });
+    const wet = standardRecipe.compileConfig(
+      env,
+      withFoundation({
+        "hydrology-climate-baseline": { knobs: { dryness: "wet" } },
+        "hydrology-climate-refine": { knobs: { dryness: "wet" } },
+      })
+    );
+    const dry = standardRecipe.compileConfig(
+      env,
+      withFoundation({
+        "hydrology-climate-baseline": { knobs: { dryness: "dry" } },
+        "hydrology-climate-refine": { knobs: { dryness: "dry" } },
+      })
+    );
 
     const wetScale = wet["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.config.rainfallScale;
     const dryScale = dry["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.config.rainfallScale;
@@ -60,67 +84,82 @@ describe("hydrology knobs compilation", () => {
   });
 
   it("maps riverDensity to monotonic engine river thresholds (legacy)", () => {
-    const sparse = standardRecipe.compileConfig(env, { "map-hydrology": { knobs: { riverDensity: "sparse" } } });
-    const normal = standardRecipe.compileConfig(env, { "map-hydrology": { knobs: { riverDensity: "normal" } } });
-    const dense = standardRecipe.compileConfig(env, { "map-hydrology": { knobs: { riverDensity: "dense" } } });
+    const sparse = standardRecipe.compileConfig(
+      env,
+      withFoundation({ "map-hydrology": { knobs: { riverDensity: "sparse" } } })
+    );
+    const normal = standardRecipe.compileConfig(
+      env,
+      withFoundation({ "map-hydrology": { knobs: { riverDensity: "normal" } } })
+    );
+    const dense = standardRecipe.compileConfig(
+      env,
+      withFoundation({ "map-hydrology": { knobs: { riverDensity: "dense" } } })
+    );
 
     expect(sparse["map-hydrology"]["plot-rivers"].minLength).toBeGreaterThan(normal["map-hydrology"]["plot-rivers"].minLength);
     expect(normal["map-hydrology"]["plot-rivers"].minLength).toBeGreaterThan(dense["map-hydrology"]["plot-rivers"].minLength);
   });
 
   it("allows optional advanced step config in hydrology stages", () => {
-    const compiled = standardRecipe.compileConfig(env, {
-      "map-hydrology": { lakes: {} },
-    });
+    const compiled = standardRecipe.compileConfig(
+      env,
+      withFoundation({
+        "map-hydrology": { lakes: {} },
+      })
+    );
     expect(compiled["map-hydrology"].lakes.tilesPerLakeMultiplier).toBe(1);
   });
 
   it("applies knobs as deterministic transforms over advanced config baselines", () => {
-    const compiled = standardRecipe.compileConfig(env, {
-      "hydrology-climate-baseline": {
-        knobs: { dryness: "wet", seasonality: "high", oceanCoupling: "off" },
-        "climate-baseline": {
-          computePrecipitation: {
-            strategy: "basic",
-            config: {
-              rainfallScale: 123,
-              humidityExponent: 1,
-              noiseAmplitude: 6,
-              noiseScale: 0.12,
-              waterGradient: {},
-              orographic: {},
-            },
-          },
-        },
-      },
-      "map-hydrology": {
-        knobs: { riverDensity: "dense", lakeiness: "many" },
-        lakes: { tilesPerLakeMultiplier: 2 },
-        "plot-rivers": { minLength: 11, maxLength: 11 },
-      },
-      "hydrology-climate-refine": {
-        knobs: { dryness: "wet", temperature: "hot", cryosphere: "on" },
-        "climate-refine": {
-          computePrecipitation: {
-            strategy: "refine",
-            config: {
-              riverCorridor: {
-                adjacencyRadius: 1,
-                lowlandAdjacencyBonus: 44,
-                highlandAdjacencyBonus: 10,
-                lowlandElevationMax: 250,
-              },
-              lowBasin: {
-                radius: 2,
-                delta: 6,
-                elevationMax: 200,
-                openThresholdM: 20,
+    const compiled = standardRecipe.compileConfig(
+      env,
+      withFoundation({
+        "hydrology-climate-baseline": {
+          knobs: { dryness: "wet", seasonality: "high", oceanCoupling: "off" },
+          "climate-baseline": {
+            computePrecipitation: {
+              strategy: "basic",
+              config: {
+                rainfallScale: 123,
+                humidityExponent: 1,
+                noiseAmplitude: 6,
+                noiseScale: 0.12,
+                waterGradient: {},
+                orographic: {},
               },
             },
           },
         },
-      },
-    });
+        "map-hydrology": {
+          knobs: { riverDensity: "dense", lakeiness: "many" },
+          lakes: { tilesPerLakeMultiplier: 2 },
+          "plot-rivers": { minLength: 11, maxLength: 11 },
+        },
+        "hydrology-climate-refine": {
+          knobs: { dryness: "wet", temperature: "hot", cryosphere: "on" },
+          "climate-refine": {
+            computePrecipitation: {
+              strategy: "refine",
+              config: {
+                riverCorridor: {
+                  adjacencyRadius: 1,
+                  lowlandAdjacencyBonus: 44,
+                  highlandAdjacencyBonus: 10,
+                  lowlandElevationMax: 250,
+                },
+                lowBasin: {
+                  radius: 2,
+                  delta: 6,
+                  elevationMax: 200,
+                  openThresholdM: 20,
+                },
+              },
+            },
+          },
+        },
+      })
+    );
 
     // Baseline values apply first (schema defaults + advanced config), then knobs transform them.
     // - lakeiness=many multiplies tilesPerLakeMultiplier by 0.7 (more lakes).

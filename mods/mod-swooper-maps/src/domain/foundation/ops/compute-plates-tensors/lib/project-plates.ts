@@ -111,6 +111,9 @@ export function projectPlatesFromModel(input: {
     eraCount: number;
     perEra: {
       boundaryType: Uint8Array;
+      convergentMask: Uint8Array;
+      divergentMask: Uint8Array;
+      transformMask: Uint8Array;
       upliftPotential: Uint8Array;
       riftPotential: Uint8Array;
       shearStress: Uint8Array;
@@ -176,6 +179,9 @@ export function projectPlatesFromModel(input: {
   const historyEraCount = tectonicHistory.eraCount | 0;
   const historyPerEra: {
     boundaryType: Uint8Array;
+    convergentMask: Uint8Array;
+    divergentMask: Uint8Array;
+    transformMask: Uint8Array;
     upliftPotential: Uint8Array;
     riftPotential: Uint8Array;
     shearStress: Uint8Array;
@@ -185,6 +191,9 @@ export function projectPlatesFromModel(input: {
   for (let e = 0; e < historyEraCount; e++) {
     historyPerEra.push({
       boundaryType: new Uint8Array(size),
+      convergentMask: new Uint8Array(size),
+      divergentMask: new Uint8Array(size),
+      transformMask: new Uint8Array(size),
       upliftPotential: new Uint8Array(size),
       riftPotential: new Uint8Array(size),
       shearStress: new Uint8Array(size),
@@ -253,7 +262,11 @@ export function projectPlatesFromModel(input: {
       const era = tectonicHistory.eras[e];
       if (!era) continue;
       const perEra = historyPerEra[e];
-      perEra.boundaryType[i] = era.boundaryType[cellId] ?? 0;
+      const boundary = era.boundaryType[cellId] ?? 0;
+      perEra.boundaryType[i] = boundary;
+      perEra.convergentMask[i] = boundary === BOUNDARY_TYPE.convergent ? 1 : 0;
+      perEra.divergentMask[i] = boundary === BOUNDARY_TYPE.divergent ? 1 : 0;
+      perEra.transformMask[i] = boundary === BOUNDARY_TYPE.transform ? 1 : 0;
       perEra.upliftPotential[i] = era.upliftPotential[cellId] ?? 0;
       perEra.riftPotential[i] = era.riftPotential[cellId] ?? 0;
       perEra.shearStress[i] = era.shearStress[cellId] ?? 0;

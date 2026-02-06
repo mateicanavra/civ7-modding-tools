@@ -22,18 +22,15 @@ Where “public” means:
 - consumed by visualization as part of the authoring loop, or
 - listed in `docs/projects/pipeline-realism/resources/spec/artifact-catalog.md`.
 
-#### M1 Foundation artifacts (versioned now)
+### Authoring surface version
 
-The following new Foundation artifacts introduced in M1 MUST carry `version: 1` at top level:
+The Foundation authoring surface is versioned separately from artifact payloads:
 
-- `artifact:foundation.mantlePotential`
-- `artifact:foundation.mantleForcing`
-- `artifact:foundation.plateMotion`
-- `artifact:foundation.tectonicProvenance`
-- `artifact:foundation.tectonicHistoryTiles`
-- `artifact:foundation.tectonicProvenanceTiles`
-
-Legacy artifacts without explicit `version` fields remain unchanged until their owning issues upgrade the schema and producers in lockstep.
+- `foundation.version` (stage config) is the **authoring surface version**.
+- The stage surface schema enforces the current major (M1 uses `version: 1`).
+- Any breaking change to the authoring surface requires:
+  - incrementing `foundation.version`, and
+  - updating shipped presets/configs (e.g., `swooper-earthlike.config.json`) in the same change.
 
 ### Change taxonomy
 

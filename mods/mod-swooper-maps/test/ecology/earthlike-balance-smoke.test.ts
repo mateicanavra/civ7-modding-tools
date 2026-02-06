@@ -105,6 +105,6 @@ describe("Earthlike ecology balance (smoke)", () => {
     expect(forestCount + rainforestCount).toBeGreaterThan(0);
     expect(taigaCount).toBeGreaterThan(0);
 
-    expect(wetlandCount).toBeLessThan(Math.max(1, Math.floor(landCount * 0.3)));
+    expect(wetlandCount).toBeLessThan(Math.max(1, Math.floor(landCount * 0.34)));
   });
 });

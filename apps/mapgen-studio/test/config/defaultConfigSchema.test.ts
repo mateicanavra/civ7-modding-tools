@@ -10,8 +10,8 @@ describe("Studio default config", () => {
   });
 
   it("matches the authored swooper-earthlike posture (prevents accidental skeleton defaults)", () => {
-    expect(STANDARD_RECIPE_CONFIG.foundation.advanced.mesh.computeMesh.config.plateCount).toBe(28);
-    expect(STANDARD_RECIPE_CONFIG.foundation.advanced.mesh.computeMesh.config.referenceArea).toBe(6996);
-    expect(STANDARD_RECIPE_CONFIG.foundation.advanced.crust.computeCrust.config.continentalRatio).toBe(0.29);
+    expect(STANDARD_RECIPE_CONFIG.foundation.version).toBe(1);
+    expect(STANDARD_RECIPE_CONFIG.foundation.profiles.resolutionProfile).toBe("balanced");
+    expect(STANDARD_RECIPE_CONFIG.foundation.knobs.plateCount).toBe(28);
   });
 });
