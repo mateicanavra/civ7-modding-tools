@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { LayerVariant } from "../../src/features/viz/dataTypeModel";
-import { findVariantIdForEra, listEraVariants, parseEraVariantKey } from "../../src/features/viz/era";
+import {
+  findVariantIdForEra,
+  findVariantKeyForEra,
+  listEraVariants,
+  parseEraVariantKey,
+  snapEraToAvailable,
+} from "../../src/features/viz/era";
 
 function makeVariant(variantId: string, variantKey: string | null): LayerVariant {
   return {
@@ -38,9 +44,42 @@ describe("listEraVariants", () => {
 });
 
 describe("findVariantIdForEra", () => {
-  it("finds a variantId by era number", () => {
+  it("snaps sparse eras to nearest available variantId", () => {
+    const variants = [
+      makeVariant("era:1", "era:1"),
+      makeVariant("era:3", "era:3"),
+      makeVariant("era:5", "era:5"),
+    ];
+    expect(findVariantIdForEra(variants, 4)).toBe("era:3");
+  });
+
+  it("matches zero-padded variants through normalized era parsing", () => {
+    const variants = [makeVariant("era:01", "era:01"), makeVariant("era:03", "era:03")];
+    expect(findVariantIdForEra(variants, 2)).toBe("era:01");
+  });
+
+  it("returns null when no era variants are available", () => {
     const variants = [makeVariant("era:3", "era:3"), makeVariant("snapshot:latest", "snapshot:latest")];
     expect(findVariantIdForEra(variants, 3)).toBe("era:3");
-    expect(findVariantIdForEra(variants, 2)).toBe(null);
+    expect(findVariantIdForEra([makeVariant("snapshot:latest", "snapshot:latest")], 2)).toBe(null);
+  });
+});
+
+describe("snapEraToAvailable", () => {
+  it("snaps to nearest lower era on ties", () => {
+    const variants = [
+      makeVariant("era:1", "era:1"),
+      makeVariant("era:3", "era:3"),
+      makeVariant("era:5", "era:5"),
+    ];
+    expect(snapEraToAvailable(variants, 4)).toBe(3);
+  });
+});
+
+describe("findVariantKeyForEra", () => {
+  it("returns the normalized existing variant key for overlays", () => {
+    const variants = [makeVariant("display-era-001", "era:001"), makeVariant("display-era-003", "era:003")];
+    expect(findVariantKeyForEra(variants, 2)).toBe("era:001");
+    expect(findVariantKeyForEra(variants, 3)).toBe("era:003");
   });
 });

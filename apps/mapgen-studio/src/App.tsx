@@ -35,7 +35,12 @@ import { capturePinnedSelection } from "./features/browserRunner/retention";
 import { getCiv7MapSizePreset } from "./features/browserRunner/mapSizes";
 import { DeckCanvas, type DeckCanvasApi } from "./features/viz/DeckCanvas";
 import { useVizState } from "./features/viz/useVizState";
-import { findVariantIdForEra, listEraVariants, parseEraVariantKey } from "./features/viz/era";
+import {
+  findVariantIdForEra,
+  findVariantKeyForEra,
+  listEraVariants,
+  parseEraVariantKey,
+} from "./features/viz/era";
 import { formatErrorForUi } from "./shared/errorFormat";
 import { shouldIgnoreGlobalShortcutsInEditableTarget } from "./shared/shortcuts/shortcutPolicy";
 import type { VizEvent } from "./shared/vizEvents";
@@ -233,6 +238,7 @@ function AppContent(props: AppContentProps) {
   const [showEdges, setShowEdges] = useState(true);
   const [overlaySelectionId, setOverlaySelectionId] = useState("");
   const [overlayOpacity, setOverlayOpacity] = useState(0.45);
+  const [overlayVariantKeyPreference, setOverlayVariantKeyPreference] = useState<string | null>(null);
   const [eraMode, setEraMode] = useState<"auto" | "fixed">("auto");
   const [manualEra, setManualEra] = useState(1);
   const [recipeSectionCollapsed, setRecipeSectionCollapsed] = useState(false);
@@ -268,7 +274,6 @@ function AppContent(props: AppContentProps) {
 
   const overlaySelection = OVERLAY_SUGGESTIONS.find((opt) => opt.id === overlaySelectionId) ?? null;
   const overlayDataTypeKey = overlaySelection?.overlayDataTypeKey ?? null;
-  const overlayVariantKeyPreference = eraMode === "fixed" ? `era:${manualEra}` : null;
 
   const recipeArtifacts = useMemo(() => getRecipeArtifacts(recipeSettings.recipe), [recipeSettings.recipe]);
   const { options: presetOptions, resolvePreset, actions: presetActions, loadWarning } = usePresets({
@@ -989,6 +994,42 @@ function AppContent(props: AppContentProps) {
       setOverlaySelectionId("");
     }
   }, [overlayCandidates, overlaySelectionId]);
+
+  useEffect(() => {
+    if (eraMode !== "fixed" || !overlaySelection || !dataTypeModel || !selection) {
+      setOverlayVariantKeyPreference((prev) => (prev === null ? prev : null));
+      return;
+    }
+
+    const overlayDataType = dataTypeModel.dataTypes.find(
+      (dataType) => dataType.dataTypeId === overlaySelection.overlayDataTypeKey
+    );
+    if (!overlayDataType) {
+      setOverlayVariantKeyPreference((prev) => (prev === null ? prev : null));
+      return;
+    }
+
+    const preferredSpace =
+      overlayDataType.spaces.find((space) => space.spaceId === selection.spaceId) ??
+      overlayDataType.spaces[0] ??
+      null;
+    if (!preferredSpace) {
+      setOverlayVariantKeyPreference((prev) => (prev === null ? prev : null));
+      return;
+    }
+
+    const preferredRenderMode =
+      preferredSpace.renderModes.find((renderMode) => renderMode.renderModeId === selection.renderModeId) ??
+      preferredSpace.renderModes[0] ??
+      null;
+
+    const availableVariants =
+      preferredRenderMode?.variants.length
+        ? preferredRenderMode.variants
+        : preferredSpace.renderModes.flatMap((renderMode) => renderMode.variants);
+    const resolvedVariantKey = findVariantKeyForEra(availableVariants, manualEra);
+    setOverlayVariantKeyPreference((prev) => (prev === resolvedVariantKey ? prev : resolvedVariantKey));
+  }, [dataTypeModel, eraMode, manualEra, overlaySelection, selection]);
 
   const selectLayerFor = useCallback(
     (
