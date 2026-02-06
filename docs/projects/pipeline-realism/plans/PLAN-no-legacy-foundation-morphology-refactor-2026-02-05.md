@@ -183,6 +183,31 @@ Each phase deletes legacy paths as it lands; no dual implementation paths.
   - store canonical probe run commands in docs
   - add CI-adjacent checks for degeneracy gates
 
+## Canonical phase mapping — six remaining open review threads
+
+These six open review threads are integrated into phase execution and stay open until their phase closure gates are met.
+
+### Phase A threads (Foundation config/runtime semantics)
+
+| PR / Thread | Acceptance target | Verification commands | Closure trigger |
+| --- | --- | --- | --- |
+| #1077 / `PRRT_kwDOOOKvrc5swnXi` | When `foundation.knobs.plateCount` is omitted, compile-time plate count inherits the selected profile baseline; when explicitly provided, the knob value wins. | `bun run --cwd mods/mod-swooper-maps test test/m11-config-knobs-and-presets.test.ts`<br>`bun run --cwd mods/mod-swooper-maps diag:dump -- 106 66 1337 --label phase-a-1077-profile-default --override '{"foundation":{"profiles":{"resolutionProfile":"coarse"},"knobs":{}}}'`<br>`bun run --cwd mods/mod-swooper-maps diag:dump -- 106 66 1337 --label phase-a-1077-explicit-override --override '{"foundation":{"profiles":{"resolutionProfile":"coarse"},"knobs":{"plateCount":31}}}'` | Leave thread open until Phase A evidence bundle is posted in-thread (pass/fail output + run IDs) and checklist item is complete. |
+| #1078 / `PRRT_kwDOOOKvrc5swoFn` | Lithosphere scalars (`yieldStrength01`, `mantleCoupling01`) are consumed as direct 0..1 levers; no narrow remap that prevents true weakening at 0. | `bun run --cwd mods/mod-swooper-maps test test/m11-config-knobs-and-presets.test.ts`<br>`bun run --cwd mods/mod-swooper-maps test test/foundation/m11-plate-graph-resistance.test.ts`<br>`rg -n "yieldStrength01|mantleCoupling01|\\*\\s*0\\.3|\\*\\s*0\\.2" mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts` | Leave thread open until Phase A evidence bundle is posted in-thread (scalar-semantics proof) and checklist item is complete. |
+| #1083 / `PRRT_kwDOOOKvrc5swl4c` | `beltInfluenceDistance` and `beltDecay` are consumed by runtime belt-field generation; authored values are not ignored/replaced by fixed constants. | `bun run --cwd mods/mod-swooper-maps test test/foundation/m11-tectonic-events.test.ts`<br>`bun run --cwd mods/mod-swooper-maps test test/morphology/belt-synthesis-history-provenance.test.ts`<br>`rg -n "beltInfluenceDistance|beltDecay|EMISSION_RADIUS|EMISSION_DECAY" mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts` | Leave thread open until Phase A evidence bundle is posted in-thread (config-consumption proof) and checklist item is complete. |
+
+### Phase C thread (belt diffusion seeding semantics)
+
+| PR / Thread | Acceptance target | Verification commands | Closure trigger |
+| --- | --- | --- | --- |
+| #1087 / `PRRT_kwDOOOKvrc5swmNO` | Diffusion seeding starts only from positive-intensity belt sources; zero-intensity belt tiles must not seed. | `bun run --cwd mods/mod-swooper-maps test test/morphology/belt-synthesis-history-provenance.test.ts`<br>`bun run --cwd mods/mod-swooper-maps test test/pipeline/foundation-gates.test.ts`<br>`rg -n "computeDistanceField|beltMask|beltIntensity|>\\s*0" mods/mod-swooper-maps/src/domain/morphology/ops/derive-belt-drivers-from-history/index.ts` | Leave thread open until Phase C evidence bundle is posted in-thread (positive-intensity seeding proof) and checklist item is complete. |
+
+### Phase D threads (observability and gate correctness)
+
+| PR / Thread | Acceptance target | Verification commands | Closure trigger |
+| --- | --- | --- | --- |
+| #1080 / `PRRT_kwDOOOKvrc5swnAd` | `plateFitP90` reflects uncapped residual distribution (can exceed `residualNorm` where warranted); no histogram reconstruction cap artifact. | `bun run --cwd mods/mod-swooper-maps test test/foundation/m11-plate-motion.test.ts`<br>`bun run --cwd mods/mod-swooper-maps test test/pipeline/foundation-gates.test.ts`<br>`rg -n "plateFitP90|residualNorm|histogramBins|Math\\.min" mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-motion/index.ts` | Leave thread open until Phase D evidence bundle is posted in-thread (uncapped-P90 proof) and checklist item is complete. |
+| #1092 / `PRRT_kwDOOOKvrc5swmzA` | Morphology correlation gate evaluates using recipe-normalized runtime mountain config, not static `defaultConfig` replay. | `bun run --cwd mods/mod-swooper-maps test test/pipeline/foundation-gates.test.ts`<br>`bun run --cwd mods/mod-swooper-maps test test/morphology/m11-mountains-physics-anchored.test.ts`<br>`rg -n "planRidgesAndFoothills\\.defaultConfig|runtime.*config|normalize" mods/mod-swooper-maps/test/support/foundation-invariants.ts mods/mod-swooper-maps/src/domain/morphology/ops/plan-ridges-and-foothills/index.ts` | Leave thread open until Phase D evidence bundle is posted in-thread (runtime-config gate proof) and checklist item is complete. |
+
 ## Matrix — Foundation outputs → consumers → disposition
 
 Legend:
@@ -282,3 +307,9 @@ These are mandatory for verifying the refactor:
   - landmass-plates components drop materially
   - largestLandFrac rises materially
 - meaningful knob/physics changes produce non-trivial A/B hamming where expected (dead levers eliminated)
+
+## Phase-end PR thread closure checklist
+
+- Revisit the six planned-via-runbook threads after executing each owning phase: `PRRT_kwDOOOKvrc5swnXi`, `PRRT_kwDOOOKvrc5swoFn`, `PRRT_kwDOOOKvrc5swl4c`, `PRRT_kwDOOOKvrc5swmNO`, `PRRT_kwDOOOKvrc5swnAd`, `PRRT_kwDOOOKvrc5swmzA`.
+- Post final in-thread evidence (acceptance target met + verification command output + run identifiers) before any resolution action.
+- Resolve a thread only when evidence is present in-thread and the owning phase acceptance target is explicitly satisfied.
