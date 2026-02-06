@@ -78,6 +78,12 @@ related_to: []
 - [Testing / Verification](#testing--verification)
 - [Dependencies / Notes](#dependencies--notes)
 
+### Implementation Decisions
+- Tracer advection is fixed to `ADVECTION_STEPS_PER_ERA = 6` and uses per-cell boundary drift (from the dominant event) with mantle-forcing drift as fallback for non-boundary cells; `tracerIndex[0]` remains identity.
+- Provenance scalars now advect forward with the tracer indices each era, then apply event-driven resets (rift/hotspot/subduction) to keep lineage causal and bounded.
+- Era-count invariants for provenance/history are enforced in `require` + validation (target 5, max 8) to match D04r and prevent legacy `eraCount=3` backsliding.
+- Added provenance determinism/boundedness tests and updated projection materials fixture to a 5-era contract.
+
 ### Current State (Observed)
 
 The current Foundation implementation does not have a provenance/tracer truth artifact analogous to D04r’s mandatory Lagrangian outputs.

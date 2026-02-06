@@ -64,7 +64,7 @@ describe("foundation tile projection (materials)", () => {
     } as const;
 
     const tectonicHistory = {
-      eraCount: 2,
+      eraCount: 5,
       eras: [
         {
           boundaryType: new Uint8Array([1, 2, 3, 4]),
@@ -82,6 +82,30 @@ describe("foundation tile projection (materials)", () => {
           volcanism: new Uint8Array([90, 91, 92, 93]),
           fracture: new Uint8Array([100, 101, 102, 103]),
         },
+        {
+          boundaryType: new Uint8Array([0, 0, 0, 0]),
+          upliftPotential: new Uint8Array([0, 0, 0, 0]),
+          riftPotential: new Uint8Array([0, 0, 0, 0]),
+          shearStress: new Uint8Array([0, 0, 0, 0]),
+          volcanism: new Uint8Array([0, 0, 0, 0]),
+          fracture: new Uint8Array([0, 0, 0, 0]),
+        },
+        {
+          boundaryType: new Uint8Array([0, 0, 0, 0]),
+          upliftPotential: new Uint8Array([0, 0, 0, 0]),
+          riftPotential: new Uint8Array([0, 0, 0, 0]),
+          shearStress: new Uint8Array([0, 0, 0, 0]),
+          volcanism: new Uint8Array([0, 0, 0, 0]),
+          fracture: new Uint8Array([0, 0, 0, 0]),
+        },
+        {
+          boundaryType: new Uint8Array([0, 0, 0, 0]),
+          upliftPotential: new Uint8Array([0, 0, 0, 0]),
+          riftPotential: new Uint8Array([0, 0, 0, 0]),
+          shearStress: new Uint8Array([0, 0, 0, 0]),
+          volcanism: new Uint8Array([0, 0, 0, 0]),
+          fracture: new Uint8Array([0, 0, 0, 0]),
+        },
       ],
       upliftTotal: new Uint8Array([10, 11, 12, 13]),
       fractureTotal: new Uint8Array([20, 21, 22, 23]),
@@ -92,9 +116,15 @@ describe("foundation tile projection (materials)", () => {
 
     const tectonicProvenance = {
       version: 1,
-      eraCount: 2,
+      eraCount: 5,
       cellCount: 4,
-      tracerIndex: [new Uint32Array([0, 1, 2, 3]), new Uint32Array([3, 2, 1, 0])],
+      tracerIndex: [
+        new Uint32Array([0, 1, 2, 3]),
+        new Uint32Array([3, 2, 1, 0]),
+        new Uint32Array([0, 1, 2, 3]),
+        new Uint32Array([3, 2, 1, 0]),
+        new Uint32Array([0, 1, 2, 3]),
+      ],
       provenance: {
         originEra: new Uint8Array([0, 1, 1, 0]),
         originPlateId: new Int16Array([0, 0, 1, 1]),
