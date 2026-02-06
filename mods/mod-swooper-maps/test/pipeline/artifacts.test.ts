@@ -170,6 +170,42 @@ describe("pipeline artifacts", () => {
     expect(stepResults[0]?.error).toContain("did not satisfy declared provides");
   });
 
+  it("fails provides when a step claims artifact:foundation.tectonicHistoryTiles but does not publish it", () => {
+    const adapter = createMockAdapter({ width: 4, height: 3, rng: () => 0 });
+    const ctx = createExtendedMapContext(
+      { width: 4, height: 3 },
+      adapter,
+      baseEnv
+    );
+    const foundationContracts = implementArtifacts([foundationArtifacts.tectonicHistoryTiles], {
+      foundationTectonicHistoryTiles: {},
+    });
+
+    const registry = new StepRegistry<typeof ctx>();
+    registry.registerTags([
+      ...STANDARD_TAG_DEFINITIONS,
+      {
+        id: foundationArtifacts.tectonicHistoryTiles.id,
+        kind: "artifact",
+        satisfies: foundationContracts.foundationTectonicHistoryTiles.satisfies,
+      },
+    ]);
+    registry.register({
+      id: "history-tiles",
+      phase: "foundation",
+      requires: [],
+      provides: [foundationArtifacts.tectonicHistoryTiles.id],
+      run: (_context, _config) => {},
+    });
+
+    const executor = new PipelineExecutor(registry, { log: () => {} });
+    const plan = compilePlan(registry, baseEnv, ["history-tiles"]);
+    const { stepResults } = executor.executePlanReport(ctx, plan);
+
+    expect(stepResults[0]?.success).toBe(false);
+    expect(stepResults[0]?.error).toContain("did not satisfy declared provides");
+  });
+
   it("accepts provides when a step publishes artifact:hydrology.hydrography", () => {
     const adapter = createMockAdapter({ width: 4, height: 3, rng: () => 0 });
     const ctx = createExtendedMapContext(

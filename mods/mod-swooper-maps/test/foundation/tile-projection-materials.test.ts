@@ -44,19 +44,86 @@ describe("foundation tile projection (materials)", () => {
       cumulativeUplift: new Uint8Array(4),
     } as const;
 
+    const tectonicHistory = {
+      eraCount: 2,
+      eras: [
+        {
+          boundaryType: new Uint8Array([1, 2, 3, 4]),
+          upliftPotential: new Uint8Array([10, 11, 12, 13]),
+          riftPotential: new Uint8Array([20, 21, 22, 23]),
+          shearStress: new Uint8Array([30, 31, 32, 33]),
+          volcanism: new Uint8Array([40, 41, 42, 43]),
+          fracture: new Uint8Array([50, 51, 52, 53]),
+        },
+        {
+          boundaryType: new Uint8Array([5, 6, 7, 8]),
+          upliftPotential: new Uint8Array([60, 61, 62, 63]),
+          riftPotential: new Uint8Array([70, 71, 72, 73]),
+          shearStress: new Uint8Array([80, 81, 82, 83]),
+          volcanism: new Uint8Array([90, 91, 92, 93]),
+          fracture: new Uint8Array([100, 101, 102, 103]),
+        },
+      ],
+      upliftTotal: new Uint8Array([10, 11, 12, 13]),
+      fractureTotal: new Uint8Array([20, 21, 22, 23]),
+      volcanismTotal: new Uint8Array([30, 31, 32, 33]),
+      upliftRecentFraction: new Uint8Array([40, 41, 42, 43]),
+      lastActiveEra: new Uint8Array([1, 1, 0, 0]),
+    } as const;
+
+    const tectonicProvenance = {
+      version: 1,
+      eraCount: 2,
+      cellCount: 4,
+      tracerIndex: [new Uint32Array([0, 1, 2, 3]), new Uint32Array([3, 2, 1, 0])],
+      provenance: {
+        originEra: new Uint8Array([0, 1, 1, 0]),
+        originPlateId: new Int16Array([0, 0, 1, 1]),
+        lastBoundaryEra: new Uint8Array([255, 0, 1, 255]),
+        lastBoundaryType: new Uint8Array([255, 1, 2, 255]),
+        lastBoundaryPolarity: new Int8Array([0, 1, -1, 0]),
+        lastBoundaryIntensity: new Uint8Array([0, 10, 20, 0]),
+        crustAge: new Uint8Array([200, 10, 20, 30]),
+      },
+    } as const;
+
     const first = computePlatesTensors.run(
-      { width, height, mesh: mesh as any, crust: crust as any, plateGraph: plateGraph as any, tectonics: tectonics as any },
+      {
+        width,
+        height,
+        mesh: mesh as any,
+        crust: crust as any,
+        plateGraph: plateGraph as any,
+        tectonics: tectonics as any,
+        tectonicHistory: tectonicHistory as any,
+        tectonicProvenance: tectonicProvenance as any,
+      },
       computePlatesTensors.defaultConfig
     );
 
     const second = computePlatesTensors.run(
-      { width, height, mesh: mesh as any, crust: crust as any, plateGraph: plateGraph as any, tectonics: tectonics as any },
+      {
+        width,
+        height,
+        mesh: mesh as any,
+        crust: crust as any,
+        plateGraph: plateGraph as any,
+        tectonics: tectonics as any,
+        tectonicHistory: tectonicHistory as any,
+        tectonicProvenance: tectonicProvenance as any,
+      },
       computePlatesTensors.defaultConfig
     );
 
     expect(Array.from(first.tileToCellIndex)).toEqual(Array.from(second.tileToCellIndex));
     expect(Array.from(first.crustTiles.type)).toEqual(Array.from(second.crustTiles.type));
     expect(Array.from(first.crustTiles.age)).toEqual(Array.from(second.crustTiles.age));
+    expect(Array.from(first.tectonicHistoryTiles.rollups.upliftTotal)).toEqual(
+      Array.from(second.tectonicHistoryTiles.rollups.upliftTotal)
+    );
+    expect(Array.from(first.tectonicProvenanceTiles.originEra)).toEqual(
+      Array.from(second.tectonicProvenanceTiles.originEra)
+    );
 
     expect(first.tileToCellIndex.length).toBe(width * height);
     expect(first.tileToCellIndex[0]).toBe(0);
@@ -68,5 +135,13 @@ describe("foundation tile projection (materials)", () => {
     expect(first.crustTiles.age[0]).toBe(200);
     expect(first.crustTiles.type[1]).toBe(0);
     expect(first.crustTiles.age[1]).toBe(20);
+
+    expect(first.tectonicHistoryTiles.perEra[0]?.boundaryType[0]).toBe(1);
+    expect(first.tectonicHistoryTiles.perEra[1]?.boundaryType[1]).toBe(7);
+    expect(first.tectonicHistoryTiles.rollups.upliftTotal[0]).toBe(10);
+    expect(first.tectonicHistoryTiles.rollups.upliftTotal[1]).toBe(12);
+    expect(first.tectonicProvenanceTiles.originEra[0]).toBe(0);
+    expect(first.tectonicProvenanceTiles.originEra[1]).toBe(1);
+    expect(first.tectonicProvenanceTiles.lastBoundaryType[0]).toBe(255);
   });
 });

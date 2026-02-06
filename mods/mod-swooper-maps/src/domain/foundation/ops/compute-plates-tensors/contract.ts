@@ -4,12 +4,77 @@ import type { Static, TSchema } from "@swooper/mapgen-core/authoring";
 import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 import { FoundationCrustSchema } from "../compute-crust/contract.js";
 import { FoundationPlateGraphSchema } from "../compute-plate-graph/contract.js";
-import { FoundationTectonicsSchema } from "../compute-tectonic-history/contract.js";
+import { FoundationTectonicHistorySchema, FoundationTectonicsSchema } from "../compute-tectonic-history/contract.js";
 
 function withDescription<T extends TSchema>(schema: T, description: string) {
   const { additionalProperties: _additionalProperties, default: _default, ...rest } = schema as any;
   return Type.Unsafe<Static<T>>({ ...rest, description } as any);
 }
+
+/** Foundation provenance scalars payload (per-cell, newest-era state). */
+const FoundationTectonicProvenanceScalarsSchema = Type.Object(
+  {
+    /** Era index of first appearance per mesh cell (0..eraCount-1). */
+    originEra: TypedArraySchemas.u8({
+      shape: null,
+      description: "Era index of first appearance per mesh cell (0..eraCount-1).",
+    }),
+    /** Origin plate id per mesh cell (plate id; -1 for unknown). */
+    originPlateId: TypedArraySchemas.i16({
+      shape: null,
+      description: "Origin plate id per mesh cell (plate id; -1 for unknown).",
+    }),
+    /** Era index of most recent boundary event per mesh cell (255 = none). */
+    lastBoundaryEra: TypedArraySchemas.u8({
+      shape: null,
+      description: "Era index of most recent boundary event per mesh cell (255 = none).",
+    }),
+    /** Boundary regime associated with lastBoundaryEra (BOUNDARY_TYPE; 255 = none). */
+    lastBoundaryType: TypedArraySchemas.u8({
+      shape: null,
+      description: "Boundary regime associated with lastBoundaryEra (BOUNDARY_TYPE; 255 = none).",
+    }),
+    /** Boundary polarity associated with lastBoundaryEra (-1, 0, +1). */
+    lastBoundaryPolarity: TypedArraySchemas.i8({
+      shape: null,
+      description: "Boundary polarity associated with lastBoundaryEra (-1, 0, +1).",
+    }),
+    /** Boundary intensity associated with lastBoundaryEra (0..255). */
+    lastBoundaryIntensity: TypedArraySchemas.u8({
+      shape: null,
+      description: "Boundary intensity associated with lastBoundaryEra (0..255).",
+    }),
+    /** Normalized crust age per mesh cell (0=new, 255=ancient). */
+    crustAge: TypedArraySchemas.u8({
+      shape: null,
+      description: "Normalized crust age per mesh cell (0=new, 255=ancient).",
+    }),
+  },
+  { description: "Foundation provenance scalars payload (per-cell, newest-era state)." }
+);
+
+/** Foundation tectonic provenance payload (tracer history + scalars). */
+const FoundationTectonicProvenanceSchema = Type.Object(
+  {
+    /** Schema major version. */
+    version: Type.Integer({ minimum: 1, description: "Schema major version." }),
+    /** Number of eras included in the provenance payload. */
+    eraCount: Type.Integer({ minimum: 1, description: "Number of eras included in the provenance payload." }),
+    /** Number of mesh cells. */
+    cellCount: Type.Integer({ minimum: 1, description: "Number of mesh cells." }),
+    /** Per-era tracer indices (length = eraCount; each entry length = cellCount). */
+    tracerIndex: Type.Array(
+      TypedArraySchemas.u32({
+        shape: null,
+        description: "Tracer source cell index per mesh cell (length = cellCount).",
+      }),
+      { description: "Per-era tracer indices (length = eraCount; each entry length = cellCount)." }
+    ),
+    /** Provenance scalars (final state at newest era). */
+    provenance: FoundationTectonicProvenanceScalarsSchema,
+  },
+  { additionalProperties: false, description: "Foundation tectonic provenance payload (tracer history + scalars)." }
+);
 
 /** Default strategy configuration for computing tile-space plate tensors. */
 const StrategySchema = Type.Object(
@@ -69,6 +134,15 @@ const InputSchema = Type.Object(
     tectonics: withDescription(
       FoundationTectonicsSchema,
       "Tectonic drivers per mesh cell (boundary regime + stress/potential tensors)."
+    ),
+    /** Tectonic history per mesh cell (per-era fields + rollups). */
+    tectonicHistory: withDescription(
+      FoundationTectonicHistorySchema,
+      "Tectonic history per mesh cell (per-era fields + rollups)."
+    ),
+    /** Optional tectonic provenance payload (tracer history + scalars). */
+    tectonicProvenance: Type.Optional(
+      withDescription(FoundationTectonicProvenanceSchema, "Optional tectonic provenance payload (tracer history + scalars).")
     ),
   },
   { description: "Input payload for foundation/compute-plates-tensors." }
@@ -133,6 +207,84 @@ const PlatesTilesSchema = Type.Object(
   { description: "Plate tensors per tile (id + boundary regime + potentials + motion fields)." }
 );
 
+/** Foundation tectonic history tiles era payload (tile-space per-era fields). */
+const TectonicHistoryTilesEraSchema = Type.Object(
+  {
+    /** Boundary regime per tile (BOUNDARY_TYPE values). */
+    boundaryType: TypedArraySchemas.u8({ description: "Boundary regime per tile (BOUNDARY_TYPE values)." }),
+    /** Uplift potential per tile (0..255). */
+    upliftPotential: TypedArraySchemas.u8({ description: "Uplift potential per tile (0..255)." }),
+    /** Rift potential per tile (0..255). */
+    riftPotential: TypedArraySchemas.u8({ description: "Rift potential per tile (0..255)." }),
+    /** Shear stress per tile (0..255). */
+    shearStress: TypedArraySchemas.u8({ description: "Shear stress per tile (0..255)." }),
+    /** Volcanism per tile (0..255). */
+    volcanism: TypedArraySchemas.u8({ description: "Volcanism per tile (0..255)." }),
+    /** Fracture potential per tile (0..255). */
+    fracture: TypedArraySchemas.u8({ description: "Fracture potential per tile (0..255)." }),
+  },
+  { description: "Foundation tectonic history tiles era payload (tile-space per-era fields)." }
+);
+
+/** Foundation tectonic history tiles rollup payload (tile-space rollups). */
+const TectonicHistoryTilesRollupSchema = Type.Object(
+  {
+    /** Accumulated uplift total per tile (0..255). */
+    upliftTotal: TypedArraySchemas.u8({ description: "Accumulated uplift total per tile (0..255)." }),
+    /** Accumulated fracture total per tile (0..255). */
+    fractureTotal: TypedArraySchemas.u8({ description: "Accumulated fracture total per tile (0..255)." }),
+    /** Accumulated volcanism total per tile (0..255). */
+    volcanismTotal: TypedArraySchemas.u8({ description: "Accumulated volcanism total per tile (0..255)." }),
+    /** Fraction of uplift attributable to recent eras per tile (0..255). */
+    upliftRecentFraction: TypedArraySchemas.u8({
+      description: "Fraction of uplift attributable to recent eras per tile (0..255).",
+    }),
+    /** Last active era index per tile (0..255; 255 = never). */
+    lastActiveEra: TypedArraySchemas.u8({ description: "Last active era index per tile (0..255; 255 = never)." }),
+  },
+  { description: "Foundation tectonic history tiles rollup payload (tile-space rollups)." }
+);
+
+/** Foundation tectonic history tiles artifact payload (tile-space era fields + rollups). */
+const TectonicHistoryTilesSchema = Type.Object(
+  {
+    /** Schema major version. */
+    version: Type.Integer({ minimum: 1, description: "Schema major version." }),
+    /** Number of eras included in the history tiles payload. */
+    eraCount: Type.Integer({ minimum: 1, description: "Number of eras included in the history tiles payload." }),
+    /** Per-era tile fields (length = eraCount). */
+    perEra: Type.Array(TectonicHistoryTilesEraSchema, {
+      description: "Per-era tile fields (length = eraCount).",
+    }),
+    /** Rollup fields across eras. */
+    rollups: TectonicHistoryTilesRollupSchema,
+  },
+  { description: "Foundation tectonic history tiles artifact payload (tile-space era fields + rollups)." }
+);
+
+/** Foundation tectonic provenance tiles artifact payload (tile-space provenance scalars). */
+const TectonicProvenanceTilesSchema = Type.Object(
+  {
+    /** Schema major version. */
+    version: Type.Integer({ minimum: 1, description: "Schema major version." }),
+    /** Era index of first appearance per tile (0..eraCount-1). */
+    originEra: TypedArraySchemas.u8({ description: "Era index of first appearance per tile (0..eraCount-1)." }),
+    /** Origin plate id per tile (plate id; -1 for unknown). */
+    originPlateId: TypedArraySchemas.i16({ description: "Origin plate id per tile (plate id; -1 for unknown)." }),
+    /** Drift distance bucket per tile (0..255). */
+    driftDistance: TypedArraySchemas.u8({ description: "Drift distance bucket per tile (0..255)." }),
+    /** Era index of most recent boundary event per tile (255 = none). */
+    lastBoundaryEra: TypedArraySchemas.u8({
+      description: "Era index of most recent boundary event per tile (255 = none).",
+    }),
+    /** Boundary regime associated with lastBoundaryEra (BOUNDARY_TYPE; 255 = none). */
+    lastBoundaryType: TypedArraySchemas.u8({
+      description: "Boundary regime associated with lastBoundaryEra (BOUNDARY_TYPE; 255 = none).",
+    }),
+  },
+  { description: "Foundation tectonic provenance tiles artifact payload (tile-space provenance scalars)." }
+);
+
 /** Output payload for foundation/compute-plates-tensors. */
 const OutputSchema = Type.Object(
   {
@@ -144,6 +296,10 @@ const OutputSchema = Type.Object(
     crustTiles: CrustTilesSchema,
     /** Plate tensors per tile (id + boundary regime + potentials + motion fields). */
     plates: PlatesTilesSchema,
+    /** Tectonic history tiles (per-era fields + rollups). */
+    tectonicHistoryTiles: TectonicHistoryTilesSchema,
+    /** Tectonic provenance tiles (provenance scalars). */
+    tectonicProvenanceTiles: TectonicProvenanceTilesSchema,
   },
   { description: "Output payload for foundation/compute-plates-tensors." }
 );
@@ -160,3 +316,6 @@ const ComputePlatesTensorsContract = defineOp({
 
 export default ComputePlatesTensorsContract;
 export type ComputePlatesTensorsConfig = Static<typeof StrategySchema>;
+export type FoundationTectonicProvenance = Static<typeof FoundationTectonicProvenanceSchema>;
+export type FoundationTectonicHistoryTiles = Static<typeof TectonicHistoryTilesSchema>;
+export type FoundationTectonicProvenanceTiles = Static<typeof TectonicProvenanceTilesSchema>;

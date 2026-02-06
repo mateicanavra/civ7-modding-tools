@@ -68,7 +68,7 @@ describe("m11 hypsometry: continentalFraction does not collapse water coverage",
     );
 
     const projection = computePlatesTensors.run(
-      { width, height, mesh, crust, plateGraph, tectonics: history.tectonics },
+      { width, height, mesh, crust, plateGraph, tectonics: history.tectonics, tectonicHistory: history.tectonicHistory },
       {
         ...computePlatesTensors.defaultConfig,
         config: {

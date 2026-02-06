@@ -30,3 +30,27 @@ reviewer: AI agent
 ### Cross-cutting Risks
 - Stringly‑typed truth artifact IDs in the causal spine can silently diverge from the catalog and break Studio/pipeline consumers.
 
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-002-project-tectonic-history-provenance-tiles
+
+### Quick Take
+- History/provenance tile projections are wired through the Foundation projection op and step, using a single `tileToCellIndex` mapping and deterministic placeholders when provenance is missing.
+- Validation and tests cover the new projection artifacts and “provides means published” contract, aligning with the physics-first, derived‑from‑truth objective.
+
+### High-Leverage Issues
+- None observed; projections are derived from a single mapping and validated for shape/determinism.
+
+### PR Comment Context
+- No actionable review comments; Graphite stack notices only.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- Consider an explicit “provenance missing” flag or metadata on `tectonicProvenanceTiles` so downstream consumers don’t treat placeholder values as real lineage data before `LOCAL-TBD-PR-M1-013` lands.
+
+### Needs Discussion
+- Whether placeholder provenance tiles should be surfaced to Studio/tuning overlays as “synthetic” to avoid misinterpretation during iteration.
+
+### Cross-cutting Risks
+- Placeholder provenance may be misinterpreted by downstream gates/visuals if not clearly labeled until the tracer system is in place.
+

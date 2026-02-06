@@ -95,6 +95,11 @@ Expected implementation locations:
 - Add visualization emissions for the new tile drivers (debug visibility is fine; stable `dataTypeKey` is required):
   - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts` (via `context.viz?.dumpGrid(...)`)
 
+## Implementation Decisions
+
+- **Provenance is optional at projection time:** `tectonicProvenance` is treated as an optional input to the projection op so PR-M1-002 can ship ahead of PR-M1-013. When the provenance artifact is missing, the step still publishes provenance tiles with deterministic placeholders.
+- **Placeholder provenance values (until tracer system lands):** when `tectonicProvenance` is missing, set `originEra=0`, `originPlateId=cellToPlate`, `lastBoundaryEra=255`, `lastBoundaryType=255`, and `driftDistance=0`. When provenance exists, map scalars directly and keep `driftDistance=0` until PR-M1-013 provides a real drift metric.
+
 ### Pitfalls / Rakes
 
 - Accidentally creating a second “tile↔mesh mapping” implementation for history/provenance, leading to silent inconsistencies across tile tensors.
