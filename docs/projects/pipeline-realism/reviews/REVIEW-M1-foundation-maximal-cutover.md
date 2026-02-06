@@ -199,3 +199,28 @@ reviewer: AI agent
 
 ### Cross-cutting Risks
 - Leaving kinematics in the plate graph schema makes it easy for downstream code or future refactors to reintroduce hidden motion sources, undermining the physics-first objective.
+
+## REVIEW agent-URSULA-M1-LOCAL-TBD-PR-M1-009-crust-priors-resistance-partition-plategraph-d01
+
+### Quick Take
+- Crust priors are now mantle-forcing coupled (divergence/stress/forcingMag), and plate partitioning consumes the resulting strength field to bias resistance.
+- New tests validate resistance sensitivity and polar contiguity/sliver guards; mesh-first determinism stays intact.
+
+### High-Leverage Issues
+- Contiguity + sliver policy for non-polar plates remains implicit: only polar microplates enforce `microplateMinAreaCells` and contiguity checks, while general plates rely on algorithmic behavior without explicit guardrails. Acceptance asked for an explicit policy or rationale.
+
+### PR Comment Context
+- No reviewer comments; Graphite stack + preview notices only.
+
+### Fix Now (Recommended)
+- Add a minimal contiguity/sliver guard (or an explicit documented waiver) for non‑polar plates so the acceptance criterion is met and future refactors can’t reintroduce degenerate partitions unnoticed.
+
+### Defer / Follow-up
+- The `computeCrust` schema says `riftWeakening01` is “reserved for event-driven weakening,” but it now scales pre-plate damage; either update the description or split the parameter to avoid semantic drift.
+- `computeCrust` takes `rngSeed` but does not use it; either remove it from the contract or introduce a small deterministic noise term so the seed has meaning.
+
+### Needs Discussion
+- Should resistance sensitivity be asserted via a dedicated crust/resistance artifact (separate from `crust.strength`) for clarity, or is the crust artifact expected to remain the only truth surface for partitioning?
+
+### Cross-cutting Risks
+- If contiguity/sliver constraints stay implicit, later changes to partition heuristics could silently violate the “physics-first” posture without tripping tests.

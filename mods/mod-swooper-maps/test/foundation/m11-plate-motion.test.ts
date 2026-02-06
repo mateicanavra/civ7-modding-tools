@@ -29,13 +29,12 @@ describe("foundation plate motion (D03r)", () => {
     );
 
     const mesh = computeMesh.run({ width, height, rngSeed: 11 }, meshConfig).mesh;
-    const crust = computeCrust.run({ mesh, rngSeed: 12 }, computeCrust.defaultConfig).crust;
-    const plateGraph = computePlateGraph.run({ mesh, crust, rngSeed: 13 }, computePlateGraph.defaultConfig).plateGraph;
-
     const mantlePotential = computeMantlePotential.run({ mesh, rngSeed: 14 }, computeMantlePotential.defaultConfig)
       .mantlePotential;
     const mantleForcing = computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
       .mantleForcing;
+    const crust = computeCrust.run({ mesh, mantleForcing, rngSeed: 12 }, computeCrust.defaultConfig).crust;
+    const plateGraph = computePlateGraph.run({ mesh, crust, rngSeed: 13 }, computePlateGraph.defaultConfig).plateGraph;
 
     const motionA = computePlateMotion.run(
       { mesh, plateGraph, mantleForcing },
@@ -65,9 +64,6 @@ describe("foundation plate motion (D03r)", () => {
     );
 
     const mesh = computeMesh.run({ width, height, rngSeed: 21 }, meshConfig).mesh;
-    const crust = computeCrust.run({ mesh, rngSeed: 22 }, computeCrust.defaultConfig).crust;
-    const plateGraph = computePlateGraph.run({ mesh, crust, rngSeed: 23 }, computePlateGraph.defaultConfig).plateGraph;
-
     const mantlePotentialA = computeMantlePotential.run({ mesh, rngSeed: 24 }, computeMantlePotential.defaultConfig)
       .mantlePotential;
     const mantlePotentialB = computeMantlePotential.run({ mesh, rngSeed: 25 }, computeMantlePotential.defaultConfig)
@@ -88,6 +84,9 @@ describe("foundation plate motion (D03r)", () => {
       forcingU,
       forcingV,
     };
+    const crust = computeCrust.run({ mesh, mantleForcing: mantleForcingA, rngSeed: 22 }, computeCrust.defaultConfig)
+      .crust;
+    const plateGraph = computePlateGraph.run({ mesh, crust, rngSeed: 23 }, computePlateGraph.defaultConfig).plateGraph;
 
     const motionA = computePlateMotion.run(
       { mesh, plateGraph, mantleForcing: mantleForcingA },
@@ -114,13 +113,12 @@ describe("foundation plate motion (D03r)", () => {
     );
 
     const mesh = computeMesh.run({ width, height, rngSeed: 31 }, meshConfig).mesh;
-    const crust = computeCrust.run({ mesh, rngSeed: 32 }, computeCrust.defaultConfig).crust;
-    const plateGraph = computePlateGraph.run({ mesh, crust, rngSeed: 33 }, computePlateGraph.defaultConfig).plateGraph;
-
     const mantlePotential = computeMantlePotential.run({ mesh, rngSeed: 34 }, computeMantlePotential.defaultConfig)
       .mantlePotential;
     const mantleForcing = computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
       .mantleForcing;
+    const crust = computeCrust.run({ mesh, mantleForcing, rngSeed: 32 }, computeCrust.defaultConfig).crust;
+    const plateGraph = computePlateGraph.run({ mesh, crust, rngSeed: 33 }, computePlateGraph.defaultConfig).plateGraph;
 
     const motion = computePlateMotion.run(
       { mesh, plateGraph, mantleForcing },

@@ -42,7 +42,11 @@ describe("m11 morphology baseline consumes crust isostasy prior", () => {
     );
 
     const mesh = computeMesh.run({ width, height, rngSeed: 10 }, meshConfig).mesh;
-    const crust = computeCrust.run({ mesh, rngSeed: 11 }, computeCrust.defaultConfig).crust;
+    const mantlePotential = computeMantlePotential.run({ mesh, rngSeed: 11 }, computeMantlePotential.defaultConfig)
+      .mantlePotential;
+    const mantleForcing = computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
+      .mantleForcing;
+    const crust = computeCrust.run({ mesh, mantleForcing, rngSeed: 11 }, computeCrust.defaultConfig).crust;
     const plateGraph = computePlateGraph.run(
       { mesh, crust, rngSeed: 12 },
       { strategy: "default", config: { plateCount: 16, referenceArea: 2400, plateScalePower: 0 } }

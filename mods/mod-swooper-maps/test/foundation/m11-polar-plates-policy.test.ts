@@ -2,6 +2,8 @@ import { describe, expect, it } from "bun:test";
 
 import computeCrust from "../../src/domain/foundation/ops/compute-crust/index.js";
 import computeMesh from "../../src/domain/foundation/ops/compute-mesh/index.js";
+import computeMantlePotential from "../../src/domain/foundation/ops/compute-mantle-potential/index.js";
+import computeMantleForcing from "../../src/domain/foundation/ops/compute-mantle-forcing/index.js";
 import computePlateGraph from "../../src/domain/foundation/ops/compute-plate-graph/index.js";
 
 function collectPlateCells(cellToPlate: Int16Array, plateId: number): number[] {
@@ -58,7 +60,11 @@ describe("m11 polar plates policy (caps + optional microplates)", () => {
     );
 
     const mesh = computeMesh.run({ width, height, rngSeed: 1234 }, meshConfig).mesh;
-    const crust = computeCrust.run({ mesh, rngSeed: 2345 }, computeCrust.defaultConfig).crust;
+    const mantlePotential = computeMantlePotential.run({ mesh, rngSeed: 2345 }, computeMantlePotential.defaultConfig)
+      .mantlePotential;
+    const mantleForcing = computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
+      .mantleForcing;
+    const crust = computeCrust.run({ mesh, mantleForcing, rngSeed: 2346 }, computeCrust.defaultConfig).crust;
 
     const plateGraph = computePlateGraph.run(
       { mesh, crust, rngSeed: 3456 },
@@ -105,7 +111,11 @@ describe("m11 polar plates policy (caps + optional microplates)", () => {
     );
 
     const mesh = computeMesh.run({ width, height, rngSeed: 4444 }, meshConfig).mesh;
-    const crust = computeCrust.run({ mesh, rngSeed: 5555 }, computeCrust.defaultConfig).crust;
+    const mantlePotential = computeMantlePotential.run({ mesh, rngSeed: 5555 }, computeMantlePotential.defaultConfig)
+      .mantlePotential;
+    const mantleForcing = computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
+      .mantleForcing;
+    const crust = computeCrust.run({ mesh, mantleForcing, rngSeed: 5556 }, computeCrust.defaultConfig).crust;
 
     const microplateMinAreaCells = 6;
     const plateGraph = computePlateGraph.run(
