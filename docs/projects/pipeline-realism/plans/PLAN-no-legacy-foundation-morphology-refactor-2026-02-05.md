@@ -2,17 +2,15 @@
 
 ## Canonical Status
 
-This file is the sole canonical runbook going forward.
+This file is the sole canonical implementation runbook.
 
-The extracted "Execution Runbook — Remediation Spike v2" from session `019c2c49-864f-7cd2-904f-14c5cc310a9f` is historical execution context that has already been carried out.
+## Completed Prerequisites
 
-## Completed Prerequisites (as of 2026-02-06)
-
-- [x] Stack repair/restack completed during remediation spike execution (`2b940a030`, `a081c3ce4`, `b869cb526` context stack).
-- [x] Diagnostics toolkit promoted into repo tooling (`2b940a030`).
-- [x] Dump-first diagnosis docs added and cross-linked (`2b940a030`).
-- [x] Consolidated realism diagnosis spike doc added (`a081c3ce4`).
-- [x] Planning artifacts generated, including this canonical plan (`b869cb526`).
+- [x] Stack repair/restack completed.
+- [x] Diagnostics toolkit promoted into repo tooling.
+- [x] Dump-first diagnosis docs added and cross-linked.
+- [x] Consolidated realism diagnosis spike doc added.
+- [x] Preflight slices completed and review feedback integrated.
 
 ## Summary
 
@@ -27,10 +25,6 @@ This plan is intentionally **no-legacy**: any legacy-independent “truth” (oc
 ## Forward Runbook (Start Here)
 
 Only future-facing implementation work remains:
-
-### Phase 0 — No Dual-Engine Preflight
-- Add preflight-only guards and targeted UI correctness fixes that unblock Phase A.
-- Preflight slices complete here; do not execute Phase A/B/C/D in this pass.
 
 ### Phase A — Foundation truth normalization + degeneracy elimination
 - Make crust truth continuous and non-degenerate for canonical probes.
@@ -176,27 +170,27 @@ This requires:
 - a provenance reset model calibrated to actual driver signals
 - a maturity evolution model that yields multi-modal distributions (oceanic vs continental vs craton cores), not saturation
 
-## Phased refactor proposal (no dual pipelines)
+## Phase criteria (aligned to Forward Runbook)
 
-This is the intended sequencing for the *next* implementation stack. Each phase deletes legacy paths as it lands; no “run both”.
+Each phase deletes legacy paths as it lands; no dual implementation paths.
 
-### Phase 1 — Foundation truth normalization + degeneracy gates
+### Phase A — Foundation truth normalization + degeneracy gates
 - Make `crust.type` derived (or delete it as a primary state); ensure tile projections are non-degenerate.
 - Add invariants:
   - `foundation.crustTiles.type` not uniform
   - maturity/age distributions non-trivial
   - provenance reset frequency non-zero
 
-### Phase 2 — Morphology landmask grounded in crust truth
+### Phase B — Morphology landmask grounded in crust truth
 - Replace the primary landmask classifier with the continent potential posture above.
 - Ensure geomorphology cannot silently destroy connectivity unless explicitly intended.
 - Gate: connected-components and largestLandFrac must improve for earthlike baselines.
 
-### Phase 3 — Belt drivers as modifiers (unified spine)
+### Phase C — Belt drivers as modifiers (unified spine)
 - Ensure beltDrivers modulate mountain building and ruggedness without becoming the primary land/water generator.
 - Confirm consumers (coasts/features/mountains) all consume the same beltDrivers artifact.
 
-### Phase 4 — Observability hardening
+### Phase D — Observability hardening
 - Make dump-first metrics a required harness for regression prevention:
   - store canonical probe run commands in docs
   - add CI-adjacent checks later (post-spike) for degeneracy gates
