@@ -3,13 +3,13 @@ import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authorin
 const LandmaskConfigSchema = Type.Object(
   {
     continentPotentialGrain: Type.Integer({
-      default: 8,
+      default: 5,
       minimum: 1,
       maximum: 64,
-      description: "Coarse grain (tile block size) used to low-pass continent potential before thresholding.",
+      description: "Coarse grain (hex bin size) used to low-pass continent potential before thresholding.",
     }),
     continentPotentialBlurSteps: Type.Integer({
-      default: 3,
+      default: 5,
       minimum: 0,
       maximum: 16,
       description: "Number of hex-neighborhood blur passes applied after coarse-grain averaging.",

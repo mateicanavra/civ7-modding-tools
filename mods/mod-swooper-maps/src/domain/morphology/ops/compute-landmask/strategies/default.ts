@@ -34,31 +34,40 @@ const CRATON_EMERGENCE_GAIN = 0.65;
 const CRATON_SHOULDER_DEPOSIT_FRACTION = 0.2;
 const CRATON_DIFFUSION_FANOUT = 7; // self + 6 neighbors
 
-function buildCoarseAverage(width: number, height: number, values: Float32Array, grain: number): Float32Array {
+function buildCoarseAverageHexOddQ(width: number, height: number, values: Float32Array, grain: number): Float32Array {
   const size = Math.max(0, (width | 0) * (height | 0));
   const g = Math.max(1, Math.round(grain)) | 0;
-  const gx = Math.max(1, Math.ceil(width / g)) | 0;
-  const gy = Math.max(1, Math.ceil(height / g)) | 0;
-  const sums = new Float32Array(gx * gy);
-  const counts = new Int32Array(gx * gy);
+
+  // Bin in axial coordinates derived from odd-q offset coordinates so the low-pass kernel aligns with
+  // the hex grid topology (avoids axis-aligned rectangular artifacts).
+  const sums = new Map<number, number>();
+  const counts = new Map<number, number>();
 
   for (let y = 0; y < height; y++) {
-    const gyIdx = ((y / g) | 0) * gx;
     for (let x = 0; x < width; x++) {
-      const cell = gyIdx + ((x / g) | 0);
       const i = y * width + x;
-      sums[cell] += values[i] ?? 0;
-      counts[cell] += 1;
+      const q = x | 0;
+      const r = (y - ((x - (x & 1)) >> 1)) | 0;
+      const qb = Math.floor(q / g) | 0;
+      const rb = Math.floor(r / g) | 0;
+      // Pack two signed 16-bit integers into one 32-bit key.
+      const key = (((qb & 0xffff) << 16) | (rb & 0xffff)) | 0;
+      sums.set(key, (sums.get(key) ?? 0) + (values[i] ?? 0));
+      counts.set(key, (counts.get(key) ?? 0) + 1);
     }
   }
 
   const out = new Float32Array(size);
   for (let y = 0; y < height; y++) {
-    const gyIdx = ((y / g) | 0) * gx;
     for (let x = 0; x < width; x++) {
-      const cell = gyIdx + ((x / g) | 0);
-      const denom = counts[cell] || 1;
-      out[y * width + x] = sums[cell] / denom;
+      const i = y * width + x;
+      const q = x | 0;
+      const r = (y - ((x - (x & 1)) >> 1)) | 0;
+      const qb = Math.floor(q / g) | 0;
+      const rb = Math.floor(r / g) | 0;
+      const key = (((qb & 0xffff) << 16) | (rb & 0xffff)) | 0;
+      const denom = counts.get(key) ?? 1;
+      out[i] = (sums.get(key) ?? 0) / denom;
     }
   }
 
@@ -470,8 +479,9 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
       }
     }
 
-    const coarse = buildCoarseAverage(width, height, potentialRaw, config.continentPotentialGrain);
-    const coarseCraton = cratonWeight > 0 ? buildCoarseAverage(width, height, cratonNorm, config.continentPotentialGrain) : cratonNorm;
+    const coarse = buildCoarseAverageHexOddQ(width, height, potentialRaw, config.continentPotentialGrain);
+    const coarseCraton =
+      cratonWeight > 0 ? buildCoarseAverageHexOddQ(width, height, cratonNorm, config.continentPotentialGrain) : cratonNorm;
     const blurred = blurHex(width, height, coarse, config.continentPotentialBlurSteps);
     const blurredCraton =
       cratonWeight > 0 ? blurHex(width, height, coarseCraton, config.continentPotentialBlurSteps) : coarseCraton;
