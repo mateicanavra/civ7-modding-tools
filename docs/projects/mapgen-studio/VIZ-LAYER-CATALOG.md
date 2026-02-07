@@ -42,8 +42,8 @@ This catalog documents the visualization layers that MapGen Studio surfaces from
 **Map‑morphology projections (pipeline‑owned mocks)**
 - `map.morphology.mountains.mountainMask`
 - `map.morphology.mountains.hillMask`
-- `map.morphology.mountains.orogenyPotential01`
-- `map.morphology.mountains.fracture01`
+- `map.morphology.mountains.orogenyPotential`
+- `map.morphology.mountains.fracturePotential`
 - `map.morphology.coasts.coastalLand`
 - `map.morphology.coasts.coastalWater`
 - `map.morphology.volcanoes.points`

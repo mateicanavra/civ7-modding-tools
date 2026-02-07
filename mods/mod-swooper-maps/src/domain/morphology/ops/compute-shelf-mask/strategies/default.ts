@@ -6,7 +6,7 @@ import ComputeShelfMaskContract from "../contract.js";
 const BOUNDARY_CONVERGENT = 1;
 const BOUNDARY_TRANSFORM = 3;
 
-function computeQuantileCutoff(values: Int16Array, count: number, q01: number): number {
+function computeQuantileCutoff(values: Int16Array, count: number, qUnit: number): number {
   if (count <= 0) return 0;
 
   // Copy into a normal array for a simple deterministic quantile.
@@ -15,7 +15,7 @@ function computeQuantileCutoff(values: Int16Array, count: number, q01: number): 
   for (let i = 0; i < count; i++) copy[i] = values[i] as number;
   copy.sort((a, b) => a - b); // ascending: deepest (more negative) -> shallowest (towards 0)
 
-  const q = Math.max(0, Math.min(1, q01));
+  const q = Math.max(0, Math.min(1, qUnit));
   const idx = Math.floor(q * (count - 1));
   const cutoff = copy[idx] ?? 0;
   // Bathymetry contract says <= 0 in water; clamp just in case.

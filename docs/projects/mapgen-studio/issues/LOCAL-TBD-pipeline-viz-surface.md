@@ -198,8 +198,8 @@ related_to: []
 **Map‑morphology (projection overlays for viz/mock)**
 - `map.morphology.mountains.mountainMask` (grid, u8)
 - `map.morphology.mountains.hillMask` (grid, u8)
-- `map.morphology.mountains.orogenyPotential01` (grid, u8/ f32)
-- `map.morphology.mountains.fracture01` (grid, u8/ f32)
+- `map.morphology.mountains.orogenyPotential` (grid, u8/ f32)
+- `map.morphology.mountains.fracturePotential` (grid, u8/ f32)
 - `map.morphology.coasts.coastalLand` (grid, u8) + `map.morphology.coasts.coastalWater` (grid, u8)
 - `map.morphology.volcanoes.points` (points; value=strength01) [if not reusing morphology layer]
 

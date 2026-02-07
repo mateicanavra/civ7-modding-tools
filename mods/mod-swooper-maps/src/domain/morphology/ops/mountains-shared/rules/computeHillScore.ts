@@ -5,7 +5,7 @@ import { clamp } from "@swooper/mapgen-core/lib/math";
 import type { MountainsConfig } from "./types.js";
 import { clamp01 } from "./util.js";
 import { resolveBoundaryRegime } from "./resolveBoundaryRegime.js";
-import { computeOrogenyPotential01 } from "./computeOrogenyPotential01.js";
+import { computeOrogenyPotential } from "./computeOrogenyPotential.js";
 
 /**
  * Computes hill score from tectonic signals and fractal noise.
@@ -29,7 +29,7 @@ export function computeHillScore(params: {
   const collision = regime === BOUNDARY_TYPE.convergent ? boundaryStrength : 0;
   const divergence = regime === BOUNDARY_TYPE.divergent ? boundaryStrength : 0;
 
-  const orogenyPotential01 = computeOrogenyPotential01({
+  const orogenyPotential = computeOrogenyPotential({
     boundaryStrength,
     boundaryType: regime,
     uplift,
@@ -41,7 +41,7 @@ export function computeHillScore(params: {
   const hillIntensity = Math.sqrt(boundaryStrength);
   const foothillExtent = config.hillFoothillBase + fractal * config.hillFoothillFractalGain;
   let hillScore =
-    fractal * config.fractalWeight * config.hillFractalScale * orogenyPotential01 +
+    fractal * config.fractalWeight * config.hillFractalScale * orogenyPotential +
     uplift * config.hillUpliftWeight * config.hillUpliftScale * driverStrength;
 
   if (collision > 0 && config.hillBoundaryWeight > 0) {

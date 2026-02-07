@@ -26,7 +26,7 @@ export const defaultStrategy = createStrategy(ComputeBaseTopographyContract, "de
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const i = y * width + x;
-        const crust01 = crustBaseElevation[i] ?? 0;
+        const crustUnit = crustBaseElevation[i] ?? 0;
         const upliftNorm = (uplift[i] ?? 0) / 255;
         const riftNorm = (rift[i] ?? 0) / 255;
         const closenessNorm = (closeness[i] ?? 0) / 255;
@@ -35,7 +35,7 @@ export const defaultStrategy = createStrategy(ComputeBaseTopographyContract, "de
         const noise = (rng(1000, `base-topography:${gx},${gy}`) / 1000 - 0.5) * noiseAmplitude;
         const arcNoise = (rng(1000, `boundary-arc:${gx},${gy}`) / 1000 - 0.5) * arcNoiseWeight;
         elevationRaw[i] = computeElevationRaw({
-          crustBaseElevation01: crust01,
+          crustBaseElevationUnit: crustUnit,
           upliftNorm,
           riftNorm,
           closenessNorm,

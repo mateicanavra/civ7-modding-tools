@@ -73,15 +73,15 @@ export function erodibilityForTile(
   crustTypeValue: number,
   crustAgeValue: number
 ): number {
-  const uplift01 = (upliftValue ?? 0) / 255;
-  const closeness01 = (boundaryClosenessValue ?? 0) / 255;
-  const age01 = (crustAgeValue ?? 0) / 255;
+  const upliftUnit = (upliftValue ?? 0) / 255;
+  const closenessUnit = (boundaryClosenessValue ?? 0) / 255;
+  const ageUnit = (crustAgeValue ?? 0) / 255;
   const isContinental = (crustTypeValue | 0) === 1;
 
   const base = isContinental ? config.continentalBaseErodibility : config.oceanicBaseErodibility;
-  const aged = base * (1 - age01 * config.ageErodibilityReduction);
-  const boundary = closeness01 * boundaryErodibilityBoost(config, boundaryTypeValue ?? 0);
-  const uplift = uplift01 * config.upliftErodibilityBoost;
+  const aged = base * (1 - ageUnit * config.ageErodibilityReduction);
+  const boundary = closenessUnit * boundaryErodibilityBoost(config, boundaryTypeValue ?? 0);
+  const uplift = upliftUnit * config.upliftErodibilityBoost;
 
   return clampNonNegative(aged + boundary + uplift);
 }
@@ -97,15 +97,15 @@ export function sedimentDepthForTile(
   crustTypeValue: number,
   crustAgeValue: number
 ): number {
-  const rift01 = (riftValue ?? 0) / 255;
-  const closeness01 = (boundaryClosenessValue ?? 0) / 255;
-  const age01 = (crustAgeValue ?? 0) / 255;
+  const riftUnit = (riftValue ?? 0) / 255;
+  const closenessUnit = (boundaryClosenessValue ?? 0) / 255;
+  const ageUnit = (crustAgeValue ?? 0) / 255;
   const isContinental = (crustTypeValue | 0) === 1;
 
   const base = isContinental ? config.continentalBaseSediment : config.oceanicBaseSediment;
-  const aged = base + age01 * config.ageSedimentBoost;
-  const boundary = closeness01 * boundarySedimentBoost(config, boundaryTypeValue ?? 0);
-  const rift = rift01 * config.riftSedimentBoost;
+  const aged = base + ageUnit * config.ageSedimentBoost;
+  const boundary = closenessUnit * boundarySedimentBoost(config, boundaryTypeValue ?? 0);
+  const rift = riftUnit * config.riftSedimentBoost;
 
   return clampNonNegative(aged + boundary + rift);
 }

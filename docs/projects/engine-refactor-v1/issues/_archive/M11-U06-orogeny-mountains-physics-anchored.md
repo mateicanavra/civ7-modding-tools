@@ -36,7 +36,7 @@ related_to: [M11-U00]
   - correlation between convergence regime and mountain density above a threshold,
   - noise-only runs cannot create mountain belts without orogeny signal.
 - Add a simple “diagnostic dump” (trace or artifact) to render:
-  - `orogenyPotential01`, `fracture01`, and final mountain mask for a fixture.
+  - `orogenyPotential`, `fracturePotential`, and final mountain mask for a fixture.
 
 ## Dependencies / Notes
 - Primary driver source is Foundation; the work is blocked on adding coherent regime blends / fracture / cumulative deformation signals if they do not already exist.

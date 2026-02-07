@@ -3,13 +3,13 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import PlanRidgesContract from "../contract.js";
 import type { PlanRidgesTypes } from "../types.js";
 import {
-  computeFracture01,
+  computeFracturePotential,
   computeMountainScore,
-  computeOrogenyPotential01,
-  encode01Byte,
+  computeOrogenyPotential,
+  encodeNormalizedToU8,
   normalizeMountainFractal,
   resolveBoundaryStrength,
-  resolveDriverStrength01,
+  resolveDriverStrength,
 } from "../../mountains-shared/rules.js";
 
 function validateRidgesInputs(input: PlanRidgesTypes["input"]): {
@@ -63,8 +63,8 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
       validateRidgesInputs(input);
 
     const mountainMask = new Uint8Array(size);
-    const orogenyPotential01 = new Uint8Array(size);
-    const fracture01 = new Uint8Array(size);
+    const orogenyPotential = new Uint8Array(size);
+    const fracturePotential = new Uint8Array(size);
 
     const boundaryGate = Math.min(0.99, Math.max(0, config.boundaryGate));
     const falloffExponent = config.boundaryExponent;
@@ -85,7 +85,7 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
       const bType = boundaryType[i];
 
       const driverByte = Math.max(upliftPotential[i] ?? 0, tectonicStress[i] ?? 0, riftPotential[i] ?? 0);
-      const driverStrength = resolveDriverStrength01({
+      const driverStrength = resolveDriverStrength({
         driverByte,
         driverSignalByteMin: config.driverSignalByteMin,
         driverExponent: config.driverExponent,
@@ -93,7 +93,7 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
 
       const fractal = normalizeMountainFractal(fractalMountain[i]);
 
-      const orogeny = computeOrogenyPotential01({
+      const orogeny = computeOrogenyPotential({
         boundaryStrength: boundaryInfluence,
         boundaryType: bType,
         uplift,
@@ -101,10 +101,10 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
         rift,
         config,
       });
-      orogenyPotential01[i] = encode01Byte(orogeny);
+      orogenyPotential[i] = encodeNormalizedToU8(orogeny);
 
-      const fracture = computeFracture01({ boundaryStrength: boundaryInfluence, stress, rift, config });
-      fracture01[i] = encode01Byte(fracture);
+      const fracture = computeFracturePotential({ boundaryStrength: boundaryInfluence, stress, rift, config });
+      fracturePotential[i] = encodeNormalizedToU8(fracture);
 
       const score = computeMountainScore({
         boundaryStrength,
@@ -122,6 +122,6 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
       }
     }
 
-    return { mountainMask, orogenyPotential01, fracture01 };
+    return { mountainMask, orogenyPotential, fracturePotential };
   },
 });

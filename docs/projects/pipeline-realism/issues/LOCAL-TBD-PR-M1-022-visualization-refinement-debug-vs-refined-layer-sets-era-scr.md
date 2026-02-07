@@ -37,7 +37,7 @@ related_to: []
     - with controllable alpha.
   - Provide curated overlay presets for M1 tuning (depends on `LOCAL-TBD-PR-M1-003` stable `dataTypeKey`s):
     - overlay `foundation.events.boundary` on top of `foundation.history.regime`
-    - overlay `morphology.drivers.uplift` on top of `map.morphology.mountains.orogenyPotential01`
+    - overlay `morphology.drivers.uplift` on top of `map.morphology.mountains.orogenyPotential`
   - Keep overlays clearly labeled as “viewer assistance”; all gates live in D09r (`LOCAL-TBD-PR-M1-020`).
 
 ## Acceptance Criteria
