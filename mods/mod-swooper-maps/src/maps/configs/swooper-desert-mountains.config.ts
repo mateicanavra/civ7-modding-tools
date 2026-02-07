@@ -57,28 +57,9 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
       landmask: {
         strategy: "default",
         config: {
-          basinSeparation: {
-            enabled: false,
-            bandPairs: [],
-            baseSeparationTiles: 3,
-            boundaryClosenessMultiplier: 0.9,
-            maxPerRowDelta: 10,
-            minChannelWidth: 3,
-            channelJitter: 0,
-            respectSeaLanes: true,
-            edgeWest: {
-              enabled: false,
-              baseTiles: 3,
-              boundaryClosenessMultiplier: 0.5,
-              maxPerRowDelta: 1,
-            },
-            edgeEast: {
-              enabled: false,
-              baseTiles: 3,
-              boundaryClosenessMultiplier: 0.5,
-              maxPerRowDelta: 1,
-            },
-          },
+          continentPotentialGrain: 8,
+          continentPotentialBlurSteps: 3,
+          keepLandComponentFraction: 0.985,
         },
       },
     },
