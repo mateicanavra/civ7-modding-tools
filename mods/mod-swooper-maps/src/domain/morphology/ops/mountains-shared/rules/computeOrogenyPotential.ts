@@ -4,7 +4,7 @@ import type { MountainsConfig } from "./types.js";
 import { clamp01 } from "./util.js";
 import { resolveBoundaryRegime } from "./resolveBoundaryRegime.js";
 
-export function computeOrogenyPotential01(params: {
+export function computeOrogenyPotential(params: {
   boundaryStrength: number;
   boundaryType: number;
   uplift: number;
@@ -27,4 +27,3 @@ export function computeOrogenyPotential01(params: {
 
   return clamp01(collisionSignal + transformSignal + divergenceSignal);
 }
-

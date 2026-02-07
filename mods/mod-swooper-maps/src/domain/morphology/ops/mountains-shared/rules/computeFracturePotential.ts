@@ -1,7 +1,7 @@
 import type { MountainsConfig } from "./types.js";
 import { clamp01 } from "./util.js";
 
-export function computeFracture01(params: {
+export function computeFracturePotential(params: {
   boundaryStrength: number;
   stress: number;
   rift: number;
@@ -14,4 +14,3 @@ export function computeFracture01(params: {
       config.fractureRiftWeight * rift
   );
 }
-

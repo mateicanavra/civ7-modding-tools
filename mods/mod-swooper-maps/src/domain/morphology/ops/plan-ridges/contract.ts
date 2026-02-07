@@ -24,10 +24,10 @@ const PlanRidgesContract = defineOp({
   }),
   output: Type.Object({
     mountainMask: TypedArraySchemas.u8({ description: "Mask (1/0): mountain tiles." }),
-    orogenyPotential01: TypedArraySchemas.u8({
+    orogenyPotential: TypedArraySchemas.u8({
       description: "Orogeny potential per tile (0..255). Diagnostic driver surface (physics-gated).",
     }),
-    fracture01: TypedArraySchemas.u8({
+    fracturePotential: TypedArraySchemas.u8({
       description: "Fracture proxy per tile (0..255). Diagnostic driver surface (physics-gated).",
     }),
   }),
@@ -37,4 +37,3 @@ const PlanRidgesContract = defineOp({
 });
 
 export default PlanRidgesContract;
-

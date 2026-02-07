@@ -7,7 +7,7 @@ import {
   computeHillScore,
   normalizeMountainFractal,
   resolveBoundaryStrength,
-  resolveDriverStrength01,
+  resolveDriverStrength,
 } from "../../mountains-shared/rules.js";
 
 function validateFoothillsInputs(input: PlanFoothillsTypes["input"]): {
@@ -91,7 +91,7 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
       const bType = boundaryType[i];
 
       const driverByte = Math.max(upliftPotential[i] ?? 0, tectonicStress[i] ?? 0, riftPotential[i] ?? 0);
-      const driverStrength = resolveDriverStrength01({
+      const driverStrength = resolveDriverStrength({
         driverByte,
         driverSignalByteMin: config.driverSignalByteMin,
         driverExponent: config.driverExponent,
@@ -117,4 +117,3 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
     return { hillMask };
   },
 });
-

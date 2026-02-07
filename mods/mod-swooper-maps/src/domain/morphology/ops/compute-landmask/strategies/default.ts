@@ -401,29 +401,29 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
 
     for (let i = 0; i < size; i++) {
       // 1) Low-frequency crust backbone (isostasy + stable craton).
-      const type01 = (crustType[i] ?? 0) === 1 ? 1 : 0;
-      const baseElev01 = clamp01(crustBaseElevation[i] ?? 0);
-      const maturity01 = clamp01(crustMaturity[i] ?? 0);
-      const thickness01 = clamp01(crustThickness[i] ?? 0);
-      const strength01 = clamp01(crustStrength[i] ?? 0);
-      const damage01 = clamp01((crustDamage[i] ?? 0) / 255);
+      const crustTypeUnit = (crustType[i] ?? 0) === 1 ? 1 : 0;
+      const baseElevationUnit = clamp01(crustBaseElevation[i] ?? 0);
+      const maturityUnit = clamp01(crustMaturity[i] ?? 0);
+      const thicknessUnit = clamp01(crustThickness[i] ?? 0);
+      const strengthUnit = clamp01(crustStrength[i] ?? 0);
+      const damageUnit = clamp01((crustDamage[i] ?? 0) / 255);
 
-  const drift01 = clamp01((provenanceDriftDistance[i] ?? 0) / 255);
-  const originEra01 = 1 - (provenanceOriginEra[i] ?? 0) / Math.max(1, eraCount - 1);
-  const stability01 = clamp01(
-    STABILITY_DRIFT_WEIGHT * (1 - drift01) + STABILITY_ORIGIN_ERA_WEIGHT * originEra01
-  );
-  const age01 = clamp01((crustAge[i] ?? 0) / 255);
+      const driftUnit = clamp01((provenanceDriftDistance[i] ?? 0) / 255);
+      const originEraUnit = 1 - (provenanceOriginEra[i] ?? 0) / Math.max(1, eraCount - 1);
+      const stabilityUnit = clamp01(
+        STABILITY_DRIFT_WEIGHT * (1 - driftUnit) + STABILITY_ORIGIN_ERA_WEIGHT * originEraUnit
+      );
+      const ageUnit = clamp01((crustAge[i] ?? 0) / 255);
 
       let crustP =
-        W_CRUST_TYPE * type01 +
-        W_BASE_ELEVATION * baseElev01 +
-        W_MATURITY * maturity01 +
-        W_THICKNESS * thickness01 +
-        W_STRENGTH * strength01 +
-        W_STABILITY * stability01 +
-        W_CRUST_AGE * age01 -
-        W_DAMAGE_PENALTY * damage01;
+        W_CRUST_TYPE * crustTypeUnit +
+        W_BASE_ELEVATION * baseElevationUnit +
+        W_MATURITY * maturityUnit +
+        W_THICKNESS * thicknessUnit +
+        W_STRENGTH * strengthUnit +
+        W_STABILITY * stabilityUnit +
+        W_CRUST_AGE * ageUnit -
+        W_DAMAGE_PENALTY * damageUnit;
       potentialCrustRaw[i] = clamp01(crustP);
 
       // 2) Mid-frequency collision sculpting (boundary type + proximity + intensity).
@@ -443,15 +443,15 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
       potentialBoundaryRaw[i] = 0.5 + 0.5 * boundary;
 
       // 3) Mid-frequency integrated tectonic buildup.
-      const upliftTotal01 = (upliftTotal[i] ?? 0) / 255;
-      const volcanismTotal01 = (volcanismTotal[i] ?? 0) / 255;
-      const recent01 = (upliftRecentFraction[i] ?? 0) / 255;
-      const fracture01 = (fractureTotal[i] ?? 0) / 255;
+      const upliftTotalUnit = (upliftTotal[i] ?? 0) / 255;
+      const volcanismTotalUnit = (volcanismTotal[i] ?? 0) / 255;
+      const upliftRecentUnit = (upliftRecentFraction[i] ?? 0) / 255;
+      const fractureTotalUnit = (fractureTotal[i] ?? 0) / 255;
       const h =
-        HISTORY_UPLIFT_TOTAL_WEIGHT * upliftTotal01 +
-        HISTORY_VOLCANISM_TOTAL_WEIGHT * volcanismTotal01 +
-        HISTORY_UPLIFT_RECENT_WEIGHT * recent01 -
-        HISTORY_FRACTURE_TOTAL_PENALTY * fracture01;
+        HISTORY_UPLIFT_TOTAL_WEIGHT * upliftTotalUnit +
+        HISTORY_VOLCANISM_TOTAL_WEIGHT * volcanismTotalUnit +
+        HISTORY_UPLIFT_RECENT_WEIGHT * upliftRecentUnit -
+        HISTORY_FRACTURE_TOTAL_PENALTY * fractureTotalUnit;
       // `lastActiveEra` is intentionally not used directly here; it remains available for future
       // recency weighting without changing the authoring surface.
       void lastActiveEra;
@@ -487,20 +487,21 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
         for (let step = 0; step < stepsPerEra; step++) {
           // Nucleate material at rifts. Fracture history and plate speed increase seafloor-spreading likelihood.
           for (let i = 0; i < size; i++) {
-            const rift01 = (riftEra[i] ?? 0) / 255;
-            if (rift01 <= 0) continue;
+            const riftUnit = (riftEra[i] ?? 0) / 255;
+            if (riftUnit <= 0) continue;
 
-            const fracture01 = (fractureTotal[i] ?? 0) / 255;
+            const fractureTotalUnit = (fractureTotal[i] ?? 0) / 255;
             const u = (movementU[i] ?? 0) / MOVEMENT_UV_NORM_DENOM;
             const v = (movementV[i] ?? 0) / MOVEMENT_UV_NORM_DENOM;
-            const speed01 = clamp01(Math.sqrt(u * u + v * v));
+            const speedUnit = clamp01(Math.sqrt(u * u + v * v));
 
-            const fractureBlend = CRATON_FRACTURE_BLEND_BASE + CRATON_FRACTURE_BLEND_GAIN * fracture01;
-            const speedBlend = CRATON_SPEED_BLEND_BASE + CRATON_SPEED_BLEND_GAIN * speed01;
-            const baseElev01 = clamp01(crustBaseElevation[i] ?? 0);
-            const emergenceBias = CRATON_EMERGENCE_BASE + CRATON_EMERGENCE_GAIN * baseElev01;
+            const fractureBlend =
+              CRATON_FRACTURE_BLEND_BASE + CRATON_FRACTURE_BLEND_GAIN * fractureTotalUnit;
+            const speedBlend = CRATON_SPEED_BLEND_BASE + CRATON_SPEED_BLEND_GAIN * speedUnit;
+            const baseElevationUnit = clamp01(crustBaseElevation[i] ?? 0);
+            const emergenceBias = CRATON_EMERGENCE_BASE + CRATON_EMERGENCE_GAIN * baseElevationUnit;
 
-            const nucleate = eraWeight * nucleationScale * rift01 * fractureBlend * speedBlend * emergenceBias;
+            const nucleate = eraWeight * nucleationScale * riftUnit * fractureBlend * speedBlend * emergenceBias;
             if (nucleate <= 0) continue;
 
             // Deposit on the rift tile and immediate neighbors (rift shoulders).

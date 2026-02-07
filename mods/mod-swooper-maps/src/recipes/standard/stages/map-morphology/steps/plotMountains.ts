@@ -126,8 +126,8 @@ export default createStep(PlotMountainsStepContract, {
     const plan = {
       mountainMask: ridges.mountainMask,
       hillMask: foothills.hillMask,
-      orogenyPotential01: ridges.orogenyPotential01,
-      fracture01: ridges.fracture01,
+      orogenyPotential: ridges.orogenyPotential,
+      fracturePotential: ridges.fracturePotential,
     } as const;
 
     context.viz?.dumpGrid(context.trace, {
@@ -258,28 +258,28 @@ export default createStep(PlotMountainsStepContract, {
         }),
       });
     }
-    if (plan.orogenyPotential01 instanceof Uint8Array) {
+    if (plan.orogenyPotential instanceof Uint8Array) {
       context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "map.morphology.mountains.orogenyPotential01",
+        dataTypeKey: "map.morphology.mountains.orogenyPotential",
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
-        values: plan.orogenyPotential01,
-        meta: defineVizMeta("map.morphology.mountains.orogenyPotential01", {
+        values: plan.orogenyPotential,
+        meta: defineVizMeta("map.morphology.mountains.orogenyPotential", {
           label: "Orogeny Potential (Planned)",
           group: GROUP_MAP_MORPHOLOGY,
           visibility: "debug",
         }),
       });
     }
-    if (plan.fracture01 instanceof Uint8Array) {
+    if (plan.fracturePotential instanceof Uint8Array) {
       context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "map.morphology.mountains.fracture01",
+        dataTypeKey: "map.morphology.mountains.fracturePotential",
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
-        values: plan.fracture01,
-        meta: defineVizMeta("map.morphology.mountains.fracture01", {
+        values: plan.fracturePotential,
+        meta: defineVizMeta("map.morphology.mountains.fracturePotential", {
           label: "Fracture (Planned)",
           group: GROUP_MAP_MORPHOLOGY,
           visibility: "debug",
@@ -334,11 +334,11 @@ export default createStep(PlotMountainsStepContract, {
         sampleStep,
         cellFn: (x, y) => {
           const idx = y * width + x;
-          return { base: shadeByte(plan.orogenyPotential01?.[idx] ?? 0) };
+          return { base: shadeByte(plan.orogenyPotential?.[idx] ?? 0) };
         },
       });
       return {
-        kind: "morphology.mountains.ascii.orogenyPotential01",
+        kind: "morphology.mountains.ascii.orogenyPotential",
         sampleStep,
         legend: `${BYTE_SHADE_RAMP} (low→high)`,
         rows,
@@ -352,11 +352,11 @@ export default createStep(PlotMountainsStepContract, {
         sampleStep,
         cellFn: (x, y) => {
           const idx = y * width + x;
-          return { base: shadeByte(plan.fracture01?.[idx] ?? 0) };
+          return { base: shadeByte(plan.fracturePotential?.[idx] ?? 0) };
         },
       });
       return {
-        kind: "morphology.mountains.ascii.fracture01",
+        kind: "morphology.mountains.ascii.fracturePotential",
         sampleStep,
         legend: `${BYTE_SHADE_RAMP} (low→high)`,
         rows,
