@@ -39,9 +39,9 @@ $MOD = mods/mod-swooper-maps
     - [x] `bun run --cwd $MOD diag:list -- <outputDir> --dataTypeKey foundation.crustTiles.type`
     - [x] `bun run --cwd $MOD diag:list -- <outputDir> --dataTypeKey morphology.topography.landMask`
 - [x] Plan is execution-ready (this section exists + runbooks below are present).
-- [ ] Submit posture (per slice):
-  - [ ] `gt restack --upstack`
-  - [ ] `gt submit --stack --draft --ai`
+- [x] Submit posture (per slice):
+  - [x] `gt restack --upstack`
+  - [x] `gt submit --stack --draft --ai`
 - [x] This plan doc is updated to reflect completion of s00 (checkboxes in this section are checked).
 
 ### Orchestrator Loop (Milestone Owner)
