@@ -35,11 +35,13 @@ const EMISSION_DECAY_MUL = {
 // Reset thresholds must be calibrated to the actually-emitted driver magnitudes.
 // If these are too high relative to emitted fields, provenance never resets and the
 // downstream crust truth degenerates (uniformly ancient, uniformly "continental").
-const RIFT_RESET_THRESHOLD_MIN = 35;
-const ARC_RESET_THRESHOLD_MIN = 45;
-const HOTSPOT_RESET_THRESHOLD_MIN = 55;
+// Note: these minimums must remain low. Emitted potentials are often in the ~0-30 range
+// after per-era weighting + diffusion, so high floors can fully disable resets.
+const RIFT_RESET_THRESHOLD_MIN = 1;
+const ARC_RESET_THRESHOLD_MIN = 1;
+const HOTSPOT_RESET_THRESHOLD_MIN = 1;
 
-const RIFT_RESET_THRESHOLD_FRAC_OF_MAX = 0.7;
+const RIFT_RESET_THRESHOLD_FRAC_OF_MAX = 0.6;
 const ARC_RESET_THRESHOLD_FRAC_OF_MAX = 0.75;
 const HOTSPOT_RESET_THRESHOLD_FRAC_OF_MAX = 0.8;
 const ERA_COUNT_MIN = 5;

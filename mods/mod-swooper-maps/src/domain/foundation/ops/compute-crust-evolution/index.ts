@@ -77,9 +77,12 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
 
         const provenance = tectonicProvenance.provenance;
         // Contract allows these scalars in 0..2 (not normalized 0..1).
-        const ageToMaturity = clampFinite(config.ageToMaturity ?? 0.8, 0, 2, 0);
+        // Provenance "material age" is a stabilizing term, not the primary continent generator.
+        // If this is too large, most of the map matures into "continental" purely via age.
+        const ageToMaturity = clampFinite(config.ageToMaturity ?? 0.25, 0, 2, 0);
         const upliftToMaturity = clampFinite(config.upliftToMaturity ?? 1.0, 0, 2, 0);
-        const disruptionToMaturity = clampFinite(config.disruptionToMaturity ?? 0.9, 0, 2, 0);
+        // Disruption should strongly suppress maturity so boundary recycling prevents global saturation.
+        const disruptionToMaturity = clampFinite(config.disruptionToMaturity ?? 1.1, 0, 2, 0);
 
         for (let i = 0; i < cellCount; i++) {
           const initThickness = crustInit.thickness[i] ?? 0.25;
