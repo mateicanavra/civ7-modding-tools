@@ -102,6 +102,14 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
     const falloffExponent = config.boundaryExponent;
     const oldBeltHillScale = Math.max(0, Math.min(2, config.oldBeltHillScale));
     const foothillMaxDistance = Math.max(0, Math.min(255, Math.round(config.foothillMaxDistance))) | 0;
+    const hillMaxFraction = Math.max(0, Math.min(1, config.hillMaxFraction));
+
+    let landCount = 0;
+    let mountainCount = 0;
+    for (let i = 0; i < size; i++) {
+      if (landMask[i] === 1) landCount += 1;
+      if (mountainMask[i] === 1) mountainCount += 1;
+    }
 
     for (let i = 0; i < size; i++) {
       if (landMask[i] === 0) continue;
@@ -156,6 +164,7 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
 
     const threshold = Math.max(0, config.hillThreshold);
 
+    const candidates: number[] = [];
     for (let i = 0; i < size; i++) {
       if (landMask[i] === 0) continue;
       if (mountainMask[i] === 1) continue;
@@ -186,8 +195,39 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
       const strongBoundaryDeformation = strongConvergence || strongDivergence || strongTransform;
 
       if (closeToMountains || (closeToBoundary && strongBoundaryDeformation)) {
-        hillMask[i] = 1;
+        candidates.push(i);
       }
+    }
+
+    const hillTargetRaw = Math.round(landCount * hillMaxFraction) | 0;
+    const hillCapacity = Math.max(0, landCount - mountainCount) | 0;
+    let hillTarget = Math.max(0, Math.min(candidates.length, hillCapacity, hillTargetRaw)) | 0;
+
+    // Robustness fallback: if thresholds/config changes yield zero candidates, still allow a thin
+    // foothill skirt adjacent to mountains (score>0, distance-gated). This preserves the intended
+    // "mountains imply foothills" relationship without reintroducing planet-wide hills.
+    if (hillTarget === 0 && hillTargetRaw > 0 && foothillMaxDistance > 0) {
+      for (let i = 0; i < size; i++) {
+        if (landMask[i] === 0) continue;
+        if (mountainMask[i] === 1) continue;
+        const score = hillScoreByTile[i] ?? 0;
+        if (!(score > 0)) continue;
+        const dist = distanceToMountains[i] ?? 255;
+        if (dist === 255 || dist > foothillMaxDistance) continue;
+        candidates.push(i);
+      }
+      hillTarget = Math.max(0, Math.min(candidates.length, hillCapacity, hillTargetRaw)) | 0;
+    }
+
+    candidates.sort((a, b) => {
+      const sa = hillScoreByTile[a] ?? 0;
+      const sb = hillScoreByTile[b] ?? 0;
+      if (sb !== sa) return sb - sa;
+      return a - b;
+    });
+    for (let k = 0; k < hillTarget; k++) {
+      const idx = candidates[k]!;
+      hillMask[idx] = 1;
     }
 
     return { hillMask };

@@ -224,6 +224,19 @@ export const MountainsConfigSchema = Type.Object(
       maximum: 1,
     }),
     /**
+     * Hard cap on hill tile coverage, expressed as a fraction of *land* tiles (0..1).
+     *
+     * Hills represent foothills, uplifted rift shoulders, and worn-down ranges.
+     * This cap prevents hills from becoming a planet-wide fill when broad driver
+     * fields exist, while still allowing active margins to be rugged.
+     */
+    hillMaxFraction: Type.Number({
+      description: "Hard cap on hill coverage as a fraction of land tiles (0..1).",
+      default: 0.18,
+      minimum: 0,
+      maximum: 1,
+    }),
+    /**
      * Target fraction of land tiles used as *ridge spines* (0..1).
      *
      * Spines are selected as local maxima of the mountain score and then optionally expanded.
