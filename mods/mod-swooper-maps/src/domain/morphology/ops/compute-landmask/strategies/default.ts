@@ -2,21 +2,46 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { clamp01 } from "@swooper/mapgen-core/lib/math";
 
+import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
+
 import ComputeLandmaskContract from "../contract.js";
 import { validateLandmaskInputs } from "../rules/index.js";
 
 /**
- * Weights for the base continent potential (crust truth + provenance stability).
+ * Weights for the low-frequency crust-driven continent potential.
  *
  * Notes:
  * - These are internal constants (not authoring inputs) and should only change alongside
  *   Phase B numeric-gate recalibration.
- * - Sum is 1.0 to keep the field in a stable 0..1-ish range before low-pass filtering.
+ * - Sum of positive terms is 1.0 (damage is subtractive).
  */
-const W_CRUST_TYPE = 0.48;
-const W_BASE_ELEVATION = 0.28;
-const W_STABILITY = 0.14;
-const W_CRUST_AGE = 0.1;
+const W_CRUST_TYPE = 0.28;
+const W_BASE_ELEVATION = 0.22;
+const W_MATURITY = 0.16;
+const W_THICKNESS = 0.12;
+const W_STRENGTH = 0.06;
+const W_STABILITY = 0.1;
+const W_CRUST_AGE = 0.06;
+const W_DAMAGE_PENALTY = 0.18;
+
+const STABILITY_DRIFT_WEIGHT = 0.6;
+const STABILITY_ORIGIN_ERA_WEIGHT = 0.4;
+
+const BOUNDARY_CONVERGENT_STRESS_WEIGHT = 0.55;
+const BOUNDARY_CONVERGENT_UPLIFT_WEIGHT = 0.45;
+const BOUNDARY_TRANSFORM_STRESS_WEIGHT = 0.35;
+const BOUNDARY_DIVERGENT_RIFT_WEIGHT = 0.65;
+
+const HISTORY_UPLIFT_TOTAL_WEIGHT = 0.55;
+const HISTORY_VOLCANISM_TOTAL_WEIGHT = 0.25;
+const HISTORY_UPLIFT_RECENT_WEIGHT = 0.2;
+const HISTORY_FRACTURE_TOTAL_PENALTY = 0.2;
+
+const BLUR_MID_FREQUENCY_STEPS = 2;
+
+const FINAL_BLEND_CRUST_WEIGHT = 0.72;
+const FINAL_BLEND_BOUNDARY_WEIGHT = 0.18;
+const FINAL_BLEND_HISTORY_WEIGHT = 0.1;
 
 /**
  * Internal rift-driven craton growth constants.
@@ -33,6 +58,13 @@ const CRATON_EMERGENCE_BASE = 0.35;
 const CRATON_EMERGENCE_GAIN = 0.65;
 const CRATON_SHOULDER_DEPOSIT_FRACTION = 0.2;
 const CRATON_DIFFUSION_FANOUT = 7; // self + 6 neighbors
+
+const FILL_TO_TARGET_MAX_ROUNDS = 8;
+const MOVEMENT_UV_NORM_DENOM = 127;
+const MOVEMENT_SPEED_ADVECTION_GATE = 0.05;
+
+const CRATON_HALF_SATURATION_MIN = 0.01;
+const CRATON_HALF_SATURATION_FALLBACK = 0.35;
 
 function buildCoarseAverageHexOddQ(width: number, height: number, values: Float32Array, grain: number): Float32Array {
   const size = Math.max(0, (width | 0) * (height | 0));
@@ -237,7 +269,7 @@ function fillToTarget(params: {
 
   // Grow continents by annexing high-potential water adjacent to existing land.
   // Recompute frontier in rounds to allow growth to continue outward.
-  for (let round = 0; round < 8 && current < desired; round++) {
+  for (let round = 0; round < FILL_TO_TARGET_MAX_ROUNDS && current < desired; round++) {
     const candidates: { idx: number; score: number }[] = [];
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
@@ -324,13 +356,26 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
     const {
       size,
       elevation,
+      boundaryCloseness,
+      boundaryType,
+      upliftPotential,
+      riftPotential,
+      tectonicStress,
       crustType,
+      crustMaturity,
+      crustThickness,
+      crustDamage,
       crustBaseElevation,
+      crustStrength,
       crustAge,
       provenanceOriginEra,
       provenanceDriftDistance,
       riftPotentialByEra,
       fractureTotal,
+      upliftTotal,
+      volcanismTotal,
+      upliftRecentFraction,
+      lastActiveEra,
       movementU,
       movementV,
     } = validateLandmaskInputs(input);
@@ -346,19 +391,71 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
 
     const eraCount = Math.max(1, riftPotentialByEra.length | 0);
 
+    // Multi-scale continent potential:
+    // - crust truth + provenance stability: low-frequency backbone
+    // - belt drivers (boundary type + stress/uplift/rift): mid-frequency collision sculpting
+    // - history rollups (uplift/volcanism/recent activity): mid-frequency integrated signal
+    const potentialCrustRaw = new Float32Array(size);
+    const potentialBoundaryRaw = new Float32Array(size);
+    const potentialHistoryRaw = new Float32Array(size);
 
-    const potentialRaw = new Float32Array(size);
     for (let i = 0; i < size; i++) {
+      // 1) Low-frequency crust backbone (isostasy + stable craton).
       const type01 = (crustType[i] ?? 0) === 1 ? 1 : 0;
       const baseElev01 = clamp01(crustBaseElevation[i] ?? 0);
-      const drift01 = clamp01((provenanceDriftDistance[i] ?? 0) / 255);
-      const originEra01 = 1 - (provenanceOriginEra[i] ?? 0) / Math.max(1, eraCount - 1);
-      const stability01 = clamp01(0.6 * (1 - drift01) + 0.4 * originEra01);
-      const age01 = clamp01((crustAge[i] ?? 0) / 255);
+      const maturity01 = clamp01(crustMaturity[i] ?? 0);
+      const thickness01 = clamp01(crustThickness[i] ?? 0);
+      const strength01 = clamp01(crustStrength[i] ?? 0);
+      const damage01 = clamp01((crustDamage[i] ?? 0) / 255);
 
-      // Continent potential: crust truth primary; provenance stability secondary.
-      const p = W_CRUST_TYPE * type01 + W_BASE_ELEVATION * baseElev01 + W_STABILITY * stability01 + W_CRUST_AGE * age01;
-      potentialRaw[i] = clamp01(p);
+  const drift01 = clamp01((provenanceDriftDistance[i] ?? 0) / 255);
+  const originEra01 = 1 - (provenanceOriginEra[i] ?? 0) / Math.max(1, eraCount - 1);
+  const stability01 = clamp01(
+    STABILITY_DRIFT_WEIGHT * (1 - drift01) + STABILITY_ORIGIN_ERA_WEIGHT * originEra01
+  );
+  const age01 = clamp01((crustAge[i] ?? 0) / 255);
+
+      let crustP =
+        W_CRUST_TYPE * type01 +
+        W_BASE_ELEVATION * baseElev01 +
+        W_MATURITY * maturity01 +
+        W_THICKNESS * thickness01 +
+        W_STRENGTH * strength01 +
+        W_STABILITY * stability01 +
+        W_CRUST_AGE * age01 -
+        W_DAMAGE_PENALTY * damage01;
+      potentialCrustRaw[i] = clamp01(crustP);
+
+      // 2) Mid-frequency collision sculpting (boundary type + proximity + intensity).
+      const b = (boundaryCloseness[i] ?? 0) / 255;
+      const u = (upliftPotential[i] ?? 0) / 255;
+      const r = (riftPotential[i] ?? 0) / 255;
+      const s = (tectonicStress[i] ?? 0) / 255;
+      const bt = boundaryType[i] ?? 0;
+
+      let boundary = 0;
+      if (bt === BOUNDARY_TYPE.convergent)
+        boundary += b * (BOUNDARY_CONVERGENT_STRESS_WEIGHT * s + BOUNDARY_CONVERGENT_UPLIFT_WEIGHT * u);
+      else if (bt === BOUNDARY_TYPE.transform) boundary += b * (BOUNDARY_TRANSFORM_STRESS_WEIGHT * s);
+      else if (bt === BOUNDARY_TYPE.divergent) boundary -= b * (BOUNDARY_DIVERGENT_RIFT_WEIGHT * r);
+      boundary = Math.max(-1, Math.min(1, boundary));
+      // Remap to 0..1 for blending.
+      potentialBoundaryRaw[i] = 0.5 + 0.5 * boundary;
+
+      // 3) Mid-frequency integrated tectonic buildup.
+      const upliftTotal01 = (upliftTotal[i] ?? 0) / 255;
+      const volcanismTotal01 = (volcanismTotal[i] ?? 0) / 255;
+      const recent01 = (upliftRecentFraction[i] ?? 0) / 255;
+      const fracture01 = (fractureTotal[i] ?? 0) / 255;
+      const h =
+        HISTORY_UPLIFT_TOTAL_WEIGHT * upliftTotal01 +
+        HISTORY_VOLCANISM_TOTAL_WEIGHT * volcanismTotal01 +
+        HISTORY_UPLIFT_RECENT_WEIGHT * recent01 -
+        HISTORY_FRACTURE_TOTAL_PENALTY * fracture01;
+      // `lastActiveEra` is intentionally not used directly here; it remains available for future
+      // recency weighting without changing the authoring surface.
+      void lastActiveEra;
+      potentialHistoryRaw[i] = clamp01(h);
     }
 
     // Rift/fracture-driven craton growth:
@@ -369,7 +466,7 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
     const nucleationScale = Math.max(0, config.cratonNucleationScale ?? 0);
     const diffusion = clamp01(config.cratonDiffusion ?? 0);
     const advection = clamp01(config.cratonAdvection ?? 0);
-    const halfSat = Math.max(0.01, config.cratonHalfSaturation ?? 0.35);
+    const halfSat = Math.max(CRATON_HALF_SATURATION_MIN, config.cratonHalfSaturation ?? CRATON_HALF_SATURATION_FALLBACK);
     const cratonWeight = clamp01(config.cratonPotentialWeight ?? 0);
 
     let cratonMass = new Float32Array(size);
@@ -394,8 +491,8 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
             if (rift01 <= 0) continue;
 
             const fracture01 = (fractureTotal[i] ?? 0) / 255;
-            const u = (movementU[i] ?? 0) / 127;
-            const v = (movementV[i] ?? 0) / 127;
+            const u = (movementU[i] ?? 0) / MOVEMENT_UV_NORM_DENOM;
+            const v = (movementV[i] ?? 0) / MOVEMENT_UV_NORM_DENOM;
             const speed01 = clamp01(Math.sqrt(u * u + v * v));
 
             const fractureBlend = CRATON_FRACTURE_BLEND_BASE + CRATON_FRACTURE_BLEND_GAIN * fracture01;
@@ -426,10 +523,10 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
                 const m = cratonMass[i] ?? 0;
                 if (m <= 0) continue;
 
-                const u = (movementU[i] ?? 0) / 127;
-                const v = (movementV[i] ?? 0) / 127;
+                const u = (movementU[i] ?? 0) / MOVEMENT_UV_NORM_DENOM;
+                const v = (movementV[i] ?? 0) / MOVEMENT_UV_NORM_DENOM;
                 const speed = Math.sqrt(u * u + v * v);
-                if (speed <= 0.05) {
+                if (speed <= MOVEMENT_SPEED_ADVECTION_GATE) {
                   cratonNext[i] += m;
                   continue;
                 }
@@ -479,16 +576,28 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
       }
     }
 
-    const coarse = buildCoarseAverageHexOddQ(width, height, potentialRaw, config.continentPotentialGrain);
+    // Multi-scale smoothing:
+    // - Low-pass only the crust backbone (coarse bin + blur) to avoid "rectangular blocks"
+    // - Lightly blur boundary/history fields (no coarse binning) to preserve corridor structure
+    const coarseCrust = buildCoarseAverageHexOddQ(width, height, potentialCrustRaw, config.continentPotentialGrain);
+    const blurredCrust = blurHex(width, height, coarseCrust, config.continentPotentialBlurSteps);
+
+    const blurredBoundary = blurHex(width, height, potentialBoundaryRaw, BLUR_MID_FREQUENCY_STEPS);
+    const blurredHistory = blurHex(width, height, potentialHistoryRaw, BLUR_MID_FREQUENCY_STEPS);
+
     const coarseCraton =
       cratonWeight > 0 ? buildCoarseAverageHexOddQ(width, height, cratonNorm, config.continentPotentialGrain) : cratonNorm;
-    const blurred = blurHex(width, height, coarse, config.continentPotentialBlurSteps);
     const blurredCraton =
       cratonWeight > 0 ? blurHex(width, height, coarseCraton, config.continentPotentialBlurSteps) : coarseCraton;
 
     const potential = new Float32Array(size);
     for (let i = 0; i < size; i++) {
-      potential[i] = clamp01((blurred[i] ?? 0) + cratonWeight * (blurredCraton[i] ?? 0));
+      potential[i] = clamp01(
+        FINAL_BLEND_CRUST_WEIGHT * (blurredCrust[i] ?? 0) +
+          FINAL_BLEND_BOUNDARY_WEIGHT * (blurredBoundary[i] ?? 0) +
+          FINAL_BLEND_HISTORY_WEIGHT * (blurredHistory[i] ?? 0) +
+          cratonWeight * (blurredCraton[i] ?? 0)
+      );
     }
 
     const threshold = chooseThresholdForLandCount(potential, desiredLandCount);
