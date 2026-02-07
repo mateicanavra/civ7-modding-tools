@@ -6,3 +6,5 @@ export { computeMountainScore } from "./computeMountainScore.js";
 export { computeHillScore } from "./computeHillScore.js";
 export { normalizeMountainFractal } from "./normalizeMountainFractal.js";
 export { encodeNormalizedToU8 } from "./encodeNormalizedToU8.js";
+export { isStrictLocalMaximumHexWithTies } from "./isStrictLocalMaximumHex.js";
+export { computeHexDistanceToMask } from "./computeDistanceToMask.js";

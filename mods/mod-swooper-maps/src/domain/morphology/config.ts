@@ -210,6 +210,76 @@ export const MountainsConfigSchema = Type.Object(
       default: 1.0,
       minimum: 0.01,
     }),
+    /**
+     * Hard cap on mountain tile coverage, expressed as a fraction of *land* tiles (0..1).
+     *
+     * This is a geometry constraint, not a noise/threshold hack: even in highly active orogens,
+     * only a minority of land becomes true mountain terrain (ridges/peaks). The rest is foothills,
+     * plateaus, basins, and lowlands.
+     */
+    mountainMaxFraction: Type.Number({
+      description: "Hard cap on mountain coverage as a fraction of land tiles (0..1).",
+      default: 0.07,
+      minimum: 0,
+      maximum: 1,
+    }),
+    /**
+     * Target fraction of land tiles used as *ridge spines* (0..1).
+     *
+     * Spines are selected as local maxima of the mountain score and then optionally expanded.
+     * Keeping spines sparse prevents blocky mountain blobs when the underlying driver fields are broad.
+     */
+    mountainSpineFraction: Type.Number({
+      description: "Target fraction of land tiles used as ridge spines (0..1).",
+      default: 0.015,
+      minimum: 0,
+      maximum: 1,
+    }),
+    /**
+     * Expansion radius (in hex steps) around ridge spines to form the final mountain mask.
+     *
+     * This provides limited ridge width while keeping ridgelines spine-driven.
+     */
+    mountainSpineDilationSteps: Type.Integer({
+      description: "Expansion radius (hex steps) around ridge spines to form the final mountain mask.",
+      default: 1,
+      minimum: 0,
+      maximum: 6,
+    }),
+    /**
+     * Age-based relief attenuation for mountains (0..1).
+     *
+     * Old belts should preferentially degrade to hills rather than keeping sharp ridge masks forever.
+     * This is a proxy for erosion + isostatic adjustment over time.
+     */
+    oldBeltMountainScale: Type.Number({
+      description: "Scale applied to mountain scoring in old belts (0..1).",
+      default: 0.4,
+      minimum: 0,
+      maximum: 1,
+    }),
+    /**
+     * Age-based relief attenuation for hills (0..2).
+     *
+     * Old belts can remain rugged but should transition from mountains to hills.
+     */
+    oldBeltHillScale: Type.Number({
+      description: "Scale applied to hill scoring in old belts (0..2).",
+      default: 1.1,
+      minimum: 0,
+      maximum: 2,
+    }),
+    /**
+     * Maximum foothill extent (hex steps) away from mountains.
+     *
+     * Foothills should be adjacent to ridges, not a planet-wide fill.
+     */
+    foothillMaxDistance: Type.Integer({
+      description: "Maximum foothill extent (hex steps) away from mountains.",
+      default: 2,
+      minimum: 0,
+      maximum: 12,
+    }),
     /** Score threshold for promoting a tile to a mountain; lower values allow more peaks. */
     mountainThreshold: Type.Number({
       description: "Score threshold for promoting a tile to a mountain; lower values allow more peaks.",

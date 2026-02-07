@@ -151,6 +151,7 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
     for (let i = 0; i < size; i++) {
       landMask[i] = baseTopography.elevation[i]! > seaLevel ? 1 : 0;
     }
+    const beltAge = new Uint8Array(size);
 
     const fractalMountain = new Int16Array(size);
     const fractalHill = new Int16Array(size);
@@ -167,6 +168,7 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
         upliftPotential: plates.upliftPotential,
         riftPotential: plates.riftPotential,
         tectonicStress: plates.tectonicStress,
+        beltAge,
         fractalMountain,
       },
       {
@@ -207,6 +209,7 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
         upliftPotential: plates.upliftPotential,
         riftPotential: plates.riftPotential,
         tectonicStress: plates.tectonicStress,
+        beltAge,
         fractalHill,
       },
       {

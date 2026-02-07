@@ -21,6 +21,9 @@ const PlanFoothillsContract = defineOp({
     upliftPotential: TypedArraySchemas.u8({ description: "Uplift potential per tile (0..255)." }),
     riftPotential: TypedArraySchemas.u8({ description: "Rift potential per tile (0..255)." }),
     tectonicStress: TypedArraySchemas.u8({ description: "Tectonic stress per tile (0..255)." }),
+    beltAge: TypedArraySchemas.u8({
+      description: "Normalized belt age proxy per tile (0..255). 0=youngest, 255=oldest.",
+    }),
     fractalHill: TypedArraySchemas.i16({ description: "Fractal noise for hill scores." }),
   }),
   output: Type.Object({
@@ -32,4 +35,3 @@ const PlanFoothillsContract = defineOp({
 });
 
 export default PlanFoothillsContract;
-
