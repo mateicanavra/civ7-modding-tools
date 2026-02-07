@@ -30,9 +30,16 @@ const EMISSION_DECAY = {
   fracture: 0.65,
 } as const;
 
-const RIFT_RESET_THRESHOLD = 160;
-const ARC_RESET_THRESHOLD = 170;
-const HOTSPOT_RESET_THRESHOLD = 200;
+// Reset thresholds must be calibrated to the actually-emitted driver magnitudes.
+// If these are too high relative to emitted fields, provenance never resets and the
+// downstream crust truth degenerates (uniformly ancient, uniformly "continental").
+const RIFT_RESET_THRESHOLD_MIN = 35;
+const ARC_RESET_THRESHOLD_MIN = 45;
+const HOTSPOT_RESET_THRESHOLD_MIN = 55;
+
+const RIFT_RESET_THRESHOLD_FRAC_OF_MAX = 0.7;
+const ARC_RESET_THRESHOLD_FRAC_OF_MAX = 0.75;
+const HOTSPOT_RESET_THRESHOLD_FRAC_OF_MAX = 0.8;
 const ERA_COUNT_MIN = 5;
 const ERA_COUNT_MAX = 8;
 const ADVECTION_STEPS_PER_ERA = 6;
@@ -102,6 +109,13 @@ function chooseDriftNeighbor(params: {
     }
   }
   return best;
+}
+
+function deriveResetThreshold(maxValue: number, fracOfMax: number, minThreshold: number): number {
+  const maxByte = Math.max(0, Math.min(255, maxValue | 0)) | 0;
+  const frac = Number.isFinite(fracOfMax) ? Math.max(0, Math.min(1, fracOfMax)) : 0;
+  const derived = Math.round(maxByte * frac) | 0;
+  return Math.max(minThreshold | 0, Math.min(255, derived)) | 0;
 }
 
 type TectonicEvent = Readonly<{
@@ -780,6 +794,48 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
           );
         }
 
+        // Calibrate provenance reset thresholds per-era to the magnitudes that actually occur in that era.
+        // If thresholds are set against a global max, later eras can fail to reset even when they contain
+        // the era-relative "strongest" rift/subduction/hotspot signals.
+        const riftResetThresholdByEra = new Uint8Array(eraCount);
+        const arcResetThresholdByEra = new Uint8Array(eraCount);
+        const hotspotResetThresholdByEra = new Uint8Array(eraCount);
+        for (let era = 0; era < eraCount; era++) {
+          const fields = eras[era]!;
+          let maxRiftPotential = 0;
+          let maxArcVolcanism = 0;
+          let maxHotspotVolcanism = 0;
+          for (let i = 0; i < cellCount; i++) {
+            const boundary = fields.boundaryType[i] ?? BOUNDARY_TYPE.none;
+            if (boundary === BOUNDARY_TYPE.divergent) {
+              maxRiftPotential = Math.max(maxRiftPotential, fields.riftPotential[i] ?? 0);
+            }
+            const volc = fields.volcanism[i] ?? 0;
+            const volcType = fields.volcanismEventType[i] ?? 0;
+            if (boundary === BOUNDARY_TYPE.convergent && volcType === EVENT_TYPE.convergenceSubduction) {
+              maxArcVolcanism = Math.max(maxArcVolcanism, volc);
+            }
+            if (boundary === BOUNDARY_TYPE.none && volcType === EVENT_TYPE.intraplateHotspot) {
+              maxHotspotVolcanism = Math.max(maxHotspotVolcanism, volc);
+            }
+          }
+          riftResetThresholdByEra[era] = deriveResetThreshold(
+            maxRiftPotential,
+            RIFT_RESET_THRESHOLD_FRAC_OF_MAX,
+            RIFT_RESET_THRESHOLD_MIN
+          );
+          arcResetThresholdByEra[era] = deriveResetThreshold(
+            maxArcVolcanism,
+            ARC_RESET_THRESHOLD_FRAC_OF_MAX,
+            ARC_RESET_THRESHOLD_MIN
+          );
+          hotspotResetThresholdByEra[era] = deriveResetThreshold(
+            maxHotspotVolcanism,
+            HOTSPOT_RESET_THRESHOLD_FRAC_OF_MAX,
+            HOTSPOT_RESET_THRESHOLD_MIN
+          );
+        }
+
         let originEra = new Uint8Array(cellCount);
         let originPlateId = new Int16Array(cellCount);
         let lastBoundaryEra = new Uint8Array(cellCount);
@@ -833,6 +889,10 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
           }
 
           const fields = eras[era]!;
+          const riftResetThreshold = riftResetThresholdByEra[era] ?? RIFT_RESET_THRESHOLD_MIN;
+          const arcResetThreshold = arcResetThresholdByEra[era] ?? ARC_RESET_THRESHOLD_MIN;
+          const hotspotResetThreshold = hotspotResetThresholdByEra[era] ?? HOTSPOT_RESET_THRESHOLD_MIN;
+
           for (let i = 0; i < cellCount; i++) {
             const boundary = fields.boundaryType[i] ?? BOUNDARY_TYPE.none;
             const intensity = fields.boundaryIntensity[i] ?? 0;
@@ -843,14 +903,14 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
               lastBoundaryIntensity[i] = intensity;
             }
 
-            if (boundary === BOUNDARY_TYPE.divergent && (fields.riftPotential[i] ?? 0) >= RIFT_RESET_THRESHOLD) {
+            if (boundary === BOUNDARY_TYPE.divergent && (fields.riftPotential[i] ?? 0) >= riftResetThreshold) {
               originEra[i] = era;
               originPlateId[i] = fields.riftOriginPlate[i] ?? plateGraph.cellToPlate[i] ?? -1;
             }
 
             if (
               boundary === BOUNDARY_TYPE.none &&
-              (fields.volcanism[i] ?? 0) >= HOTSPOT_RESET_THRESHOLD &&
+              (fields.volcanism[i] ?? 0) >= hotspotResetThreshold &&
               (fields.volcanismEventType[i] ?? 0) === EVENT_TYPE.intraplateHotspot
             ) {
               originEra[i] = era;
@@ -859,7 +919,7 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
 
             if (
               boundary === BOUNDARY_TYPE.convergent &&
-              (fields.volcanism[i] ?? 0) >= ARC_RESET_THRESHOLD &&
+              (fields.volcanism[i] ?? 0) >= arcResetThreshold &&
               (fields.volcanismEventType[i] ?? 0) === EVENT_TYPE.convergenceSubduction
             ) {
               originEra[i] = era;
