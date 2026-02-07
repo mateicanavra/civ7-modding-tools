@@ -14,28 +14,54 @@ const EVENT_TYPE = {
   intraplateHotspot: 5,
 } as const;
 
-const EMISSION_RADIUS = {
-  uplift: 12,
-  rift: 10,
-  shear: 8,
-  volcanism: 7,
-  fracture: 10,
+// Belt-field influence is a runtime contract ("authored values must be honored"),
+// but we preserve the old channel shape by scaling around the previous defaults.
+const EMISSION_RADIUS_MUL = {
+  uplift: 1.5,
+  rift: 1.25,
+  shear: 1.0,
+  volcanism: 0.875,
+  fracture: 1.25,
 } as const;
 
-const EMISSION_DECAY = {
-  uplift: 0.45,
-  rift: 0.55,
-  shear: 0.7,
-  volcanism: 0.85,
-  fracture: 0.65,
+const EMISSION_DECAY_MUL = {
+  uplift: 0.45 / 0.55,
+  rift: 1.0,
+  shear: 0.7 / 0.55,
+  volcanism: 0.85 / 0.55,
+  fracture: 0.65 / 0.55,
 } as const;
 
-const RIFT_RESET_THRESHOLD = 160;
-const ARC_RESET_THRESHOLD = 170;
-const HOTSPOT_RESET_THRESHOLD = 200;
+// Reset thresholds must be calibrated to the actually-emitted driver magnitudes.
+// If these are too high relative to emitted fields, provenance never resets and the
+// downstream crust truth degenerates (uniformly ancient, uniformly "continental").
+const RIFT_RESET_THRESHOLD_MIN = 35;
+const ARC_RESET_THRESHOLD_MIN = 45;
+const HOTSPOT_RESET_THRESHOLD_MIN = 55;
+
+const RIFT_RESET_THRESHOLD_FRAC_OF_MAX = 0.7;
+const ARC_RESET_THRESHOLD_FRAC_OF_MAX = 0.75;
+const HOTSPOT_RESET_THRESHOLD_FRAC_OF_MAX = 0.8;
 const ERA_COUNT_MIN = 5;
 const ERA_COUNT_MAX = 8;
 const ADVECTION_STEPS_PER_ERA = 6;
+
+type EmissionParams = Readonly<{
+  radius: Readonly<{
+    uplift: number;
+    rift: number;
+    shear: number;
+    volcanism: number;
+    fracture: number;
+  }>;
+  decay: Readonly<{
+    uplift: number;
+    rift: number;
+    shear: number;
+    volcanism: number;
+    fracture: number;
+  }>;
+}>;
 
 function clampByte(value: number): number {
   return Math.max(0, Math.min(255, Math.round(value))) | 0;
@@ -102,6 +128,36 @@ function chooseDriftNeighbor(params: {
     }
   }
   return best;
+}
+
+function deriveResetThreshold(maxValue: number, fracOfMax: number, minThreshold: number): number {
+  const maxByte = Math.max(0, Math.min(255, maxValue | 0)) | 0;
+  const frac = Number.isFinite(fracOfMax) ? Math.max(0, Math.min(1, fracOfMax)) : 0;
+  const derived = Math.round(maxByte * frac) | 0;
+  return Math.max(minThreshold | 0, Math.min(255, derived)) | 0;
+}
+
+function deriveEmissionParams(config: { beltInfluenceDistance: number; beltDecay: number }): EmissionParams {
+  const baseRadius = Math.max(1, Math.min(64, Math.round(config.beltInfluenceDistance ?? 0))) | 0;
+  const baseDecay = Math.max(0.01, Number.isFinite(config.beltDecay) ? config.beltDecay : 0) as number;
+
+  const radius = {
+    uplift: Math.max(1, Math.round(baseRadius * EMISSION_RADIUS_MUL.uplift)) | 0,
+    rift: Math.max(1, Math.round(baseRadius * EMISSION_RADIUS_MUL.rift)) | 0,
+    shear: Math.max(1, Math.round(baseRadius * EMISSION_RADIUS_MUL.shear)) | 0,
+    volcanism: Math.max(1, Math.round(baseRadius * EMISSION_RADIUS_MUL.volcanism)) | 0,
+    fracture: Math.max(1, Math.round(baseRadius * EMISSION_RADIUS_MUL.fracture)) | 0,
+  };
+
+  const decay = {
+    uplift: Math.max(0.01, baseDecay * EMISSION_DECAY_MUL.uplift),
+    rift: Math.max(0.01, baseDecay * EMISSION_DECAY_MUL.rift),
+    shear: Math.max(0.01, baseDecay * EMISSION_DECAY_MUL.shear),
+    volcanism: Math.max(0.01, baseDecay * EMISSION_DECAY_MUL.volcanism),
+    fracture: Math.max(0.01, baseDecay * EMISSION_DECAY_MUL.fracture),
+  };
+
+  return { radius, decay };
 }
 
 type TectonicEvent = Readonly<{
@@ -173,8 +229,11 @@ function buildEraFields(params: {
   events: ReadonlyArray<TectonicEvent>;
   weight: number;
   driftSteps: number;
+  emission: EmissionParams;
 }): EraFields {
   const cellCount = params.mesh.cellCount | 0;
+  const R = params.emission.radius;
+  const D = params.emission.decay;
 
   const upliftPotential = new Uint8Array(cellCount);
   const riftPotential = new Uint8Array(cellCount);
@@ -296,11 +355,11 @@ function buildEraFields(params: {
     const intensityFracture = clampByte((event.intensityFracture ?? 0) * weight);
 
     const maxRadius = Math.max(
-      intensityUplift > 0 ? EMISSION_RADIUS.uplift : 0,
-      intensityRift > 0 ? EMISSION_RADIUS.rift : 0,
-      intensityShear > 0 ? EMISSION_RADIUS.shear : 0,
-      intensityVolcanism > 0 ? EMISSION_RADIUS.volcanism : 0,
-      intensityFracture > 0 ? EMISSION_RADIUS.fracture : 0
+      intensityUplift > 0 ? R.uplift : 0,
+      intensityRift > 0 ? R.rift : 0,
+      intensityShear > 0 ? R.shear : 0,
+      intensityVolcanism > 0 ? R.volcanism : 0,
+      intensityFracture > 0 ? R.fracture : 0
     );
     if (maxRadius <= 0) continue;
 
@@ -333,8 +392,8 @@ function buildEraFields(params: {
       const d = distance[cellId] ?? 0;
       if (d > maxRadius) continue;
 
-      if (intensityUplift > 0 && d <= EMISSION_RADIUS.uplift) {
-        const score = intensityUplift * Math.exp(-d * EMISSION_DECAY.uplift);
+      if (intensityUplift > 0 && d <= R.uplift) {
+        const score = intensityUplift * Math.exp(-d * D.uplift);
         updateChannel({
           cellId,
           score,
@@ -351,8 +410,8 @@ function buildEraFields(params: {
         });
       }
 
-      if (intensityRift > 0 && d <= EMISSION_RADIUS.rift) {
-        const score = intensityRift * Math.exp(-d * EMISSION_DECAY.rift);
+      if (intensityRift > 0 && d <= R.rift) {
+        const score = intensityRift * Math.exp(-d * D.rift);
         updateChannel({
           cellId,
           score,
@@ -369,8 +428,8 @@ function buildEraFields(params: {
         });
       }
 
-      if (intensityShear > 0 && d <= EMISSION_RADIUS.shear) {
-        const score = intensityShear * Math.exp(-d * EMISSION_DECAY.shear);
+      if (intensityShear > 0 && d <= R.shear) {
+        const score = intensityShear * Math.exp(-d * D.shear);
         updateChannel({
           cellId,
           score,
@@ -385,8 +444,8 @@ function buildEraFields(params: {
         });
       }
 
-      if (intensityVolcanism > 0 && d <= EMISSION_RADIUS.volcanism) {
-        const score = intensityVolcanism * Math.exp(-d * EMISSION_DECAY.volcanism);
+      if (intensityVolcanism > 0 && d <= R.volcanism) {
+        const score = intensityVolcanism * Math.exp(-d * D.volcanism);
         updateChannel({
           cellId,
           score,
@@ -403,8 +462,8 @@ function buildEraFields(params: {
         });
       }
 
-      if (intensityFracture > 0 && d <= EMISSION_RADIUS.fracture) {
-        const score = intensityFracture * Math.exp(-d * EMISSION_DECAY.fracture);
+      if (intensityFracture > 0 && d <= R.fracture) {
+        const score = intensityFracture * Math.exp(-d * D.fracture);
         updateChannel({
           cellId,
           score,
@@ -682,6 +741,12 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
           );
         }
 
+        // Honor authored belt influence parameters; these control the belt-field diffusion footprint.
+        const emission = deriveEmissionParams({
+          beltInfluenceDistance: config.beltInfluenceDistance,
+          beltDecay: config.beltDecay,
+        });
+
         const eras: EraFields[] = [];
         for (let era = 0; era < eraCount; era++) {
           eras.push(
@@ -690,6 +755,7 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
               events,
               weight: weights[era] ?? 0,
               driftSteps: driftSteps[era] ?? 0,
+              emission,
             })
           );
         }
@@ -780,6 +846,48 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
           );
         }
 
+        // Calibrate provenance reset thresholds per-era to the magnitudes that actually occur in that era.
+        // If thresholds are set against a global max, later eras can fail to reset even when they contain
+        // the era-relative "strongest" rift/subduction/hotspot signals.
+        const riftResetThresholdByEra = new Uint8Array(eraCount);
+        const arcResetThresholdByEra = new Uint8Array(eraCount);
+        const hotspotResetThresholdByEra = new Uint8Array(eraCount);
+        for (let era = 0; era < eraCount; era++) {
+          const fields = eras[era]!;
+          let maxRiftPotential = 0;
+          let maxArcVolcanism = 0;
+          let maxHotspotVolcanism = 0;
+          for (let i = 0; i < cellCount; i++) {
+            const boundary = fields.boundaryType[i] ?? BOUNDARY_TYPE.none;
+            if (boundary === BOUNDARY_TYPE.divergent) {
+              maxRiftPotential = Math.max(maxRiftPotential, fields.riftPotential[i] ?? 0);
+            }
+            const volc = fields.volcanism[i] ?? 0;
+            const volcType = fields.volcanismEventType[i] ?? 0;
+            if (boundary === BOUNDARY_TYPE.convergent && volcType === EVENT_TYPE.convergenceSubduction) {
+              maxArcVolcanism = Math.max(maxArcVolcanism, volc);
+            }
+            if (boundary === BOUNDARY_TYPE.none && volcType === EVENT_TYPE.intraplateHotspot) {
+              maxHotspotVolcanism = Math.max(maxHotspotVolcanism, volc);
+            }
+          }
+          riftResetThresholdByEra[era] = deriveResetThreshold(
+            maxRiftPotential,
+            RIFT_RESET_THRESHOLD_FRAC_OF_MAX,
+            RIFT_RESET_THRESHOLD_MIN
+          );
+          arcResetThresholdByEra[era] = deriveResetThreshold(
+            maxArcVolcanism,
+            ARC_RESET_THRESHOLD_FRAC_OF_MAX,
+            ARC_RESET_THRESHOLD_MIN
+          );
+          hotspotResetThresholdByEra[era] = deriveResetThreshold(
+            maxHotspotVolcanism,
+            HOTSPOT_RESET_THRESHOLD_FRAC_OF_MAX,
+            HOTSPOT_RESET_THRESHOLD_MIN
+          );
+        }
+
         let originEra = new Uint8Array(cellCount);
         let originPlateId = new Int16Array(cellCount);
         let lastBoundaryEra = new Uint8Array(cellCount);
@@ -833,6 +941,10 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
           }
 
           const fields = eras[era]!;
+          const riftResetThreshold = riftResetThresholdByEra[era] ?? RIFT_RESET_THRESHOLD_MIN;
+          const arcResetThreshold = arcResetThresholdByEra[era] ?? ARC_RESET_THRESHOLD_MIN;
+          const hotspotResetThreshold = hotspotResetThresholdByEra[era] ?? HOTSPOT_RESET_THRESHOLD_MIN;
+
           for (let i = 0; i < cellCount; i++) {
             const boundary = fields.boundaryType[i] ?? BOUNDARY_TYPE.none;
             const intensity = fields.boundaryIntensity[i] ?? 0;
@@ -843,14 +955,14 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
               lastBoundaryIntensity[i] = intensity;
             }
 
-            if (boundary === BOUNDARY_TYPE.divergent && (fields.riftPotential[i] ?? 0) >= RIFT_RESET_THRESHOLD) {
+            if (boundary === BOUNDARY_TYPE.divergent && (fields.riftPotential[i] ?? 0) >= riftResetThreshold) {
               originEra[i] = era;
               originPlateId[i] = fields.riftOriginPlate[i] ?? plateGraph.cellToPlate[i] ?? -1;
             }
 
             if (
               boundary === BOUNDARY_TYPE.none &&
-              (fields.volcanism[i] ?? 0) >= HOTSPOT_RESET_THRESHOLD &&
+              (fields.volcanism[i] ?? 0) >= hotspotResetThreshold &&
               (fields.volcanismEventType[i] ?? 0) === EVENT_TYPE.intraplateHotspot
             ) {
               originEra[i] = era;
@@ -859,7 +971,7 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
 
             if (
               boundary === BOUNDARY_TYPE.convergent &&
-              (fields.volcanism[i] ?? 0) >= ARC_RESET_THRESHOLD &&
+              (fields.volcanism[i] ?? 0) >= arcResetThreshold &&
               (fields.volcanismEventType[i] ?? 0) === EVENT_TYPE.convergenceSubduction
             ) {
               originEra[i] = era;

@@ -153,11 +153,14 @@ function deriveStageStepConfigFocusMap(args: {
   const publicProps = typeboxObjectProperties(stage.public);
   const publicKeys = Object.keys(publicProps);
   const advancedProps = typeboxObjectProperties(publicProps.advanced);
-  const advancedHasStepIds = stepIds.some((stepId) =>
+  const advancedStepIds = stepIds.filter((stepId) =>
     Object.prototype.hasOwnProperty.call(advancedProps, stepId)
   );
 
-  if (publicKeys.includes("advanced") && advancedHasStepIds) {
+  // If `advanced` is a full step-config map (advanced.<stepId> for every step), we can map
+  // all steps directly to `advanced.<stepId>`. This is used by stages whose only public
+  // surface is `advanced` (e.g. morphology-coasts).
+  if (publicKeys.includes("advanced") && advancedStepIds.length === stepIds.length) {
     const advanced: Record<string, unknown> = Object.fromEntries(
       stepIds.map((stepId) => [stepId, makeSentinel(["advanced", stepId])])
     );
@@ -205,6 +208,16 @@ function deriveStageStepConfigFocusMap(args: {
       label: `[recipe:${args.namespace}.${args.recipeId}] stage("${stage.id}") step("${stepId}")`,
       value: rawSteps[stepId],
     });
+  }
+
+  // Some stages expose an `advanced` surface that configures only a subset of steps.
+  // In that case, we focus those steps directly under `advanced.<stepId>`, and fall back
+  // to the stage-level mapping (usually `profiles`) for the rest.
+  if (publicKeys.includes("advanced") && advancedStepIds.length > 0) {
+    // Intentionally schema-driven: `advanced.<stepId>` may be compiled into a derived step config
+    // (so a sentinel value won't necessarily survive through `toInternal`), but the Studio editor
+    // still needs to focus the relevant subtree for that step.
+    for (const stepId of advancedStepIds) mapping[stepId] = ["advanced", stepId];
   }
 
   return mapping;

@@ -11,6 +11,98 @@ $DECISIONS = $PROJECT/resources/decisions
 $MILESTONES = $PROJECT/milestones
 $MOD = mods/mod-swooper-maps
 
+## Execution (Read This First)
+
+### Master Slice Checklist (Mark As You Go)
+
+- [x] **s00** Phase 0 preflight + plan readiness (blocking): `agent-GOBI-PRR-s00-phase-0-preflight-no-shadow-and-plan-readiness`
+- [x] **s10** Phase A Foundation truth normalization + degeneracy elimination: `agent-GOBI-PRR-s10-phase-a-foundation-truth-nondegenerate`
+- [x] **s11** Phase A review thread closures (1077/1078/1083): `agent-GOBI-PRR-s11-phase-a-thread-closures-1077-1078-1083`
+- [x] **s20** Phase B landmask grounded in crust truth (numeric gate slice): `agent-GOBI-PRR-s20-phase-b-landmask-grounded-in-crust-truth`
+- [x] **s21** Phase B erosion: no hidden land/water reclassification: `agent-GOBI-PRR-s21-phase-b-erosion-no-hidden-reclass`
+- [x] **s30** Phase C belts as modifiers (positive-intensity seeding): `agent-GOBI-PRR-s30-phase-c-belts-as-modifiers`
+- [x] **s40** Phase D observability enforcement (tiers + gate correctness): `agent-GOBI-PRR-s40-phase-d-observability-enforcement`
+- [x] **s90** Final legacy cleanup sweep + docs sweep: `agent-GOBI-PRR-s90-final-legacy-sweep-and-docs`
+- [x] **s91** Follow-up: rift-driven craton growth landmask + foundation mesh resolution controls: `agent-GOBI-PRR-s91-phase-b-rift-craton-growth-landmass`
+
+### Slice s00 — Phase 0 (No-Shadow) + Plan Readiness (blocking)
+
+- [x] Working checkout is the isolated milestone worktree (single worktree + single stack).
+- [x] Branch posture is correct: on the current slice branch (not `main`).
+- [x] Graphite sync posture:
+  - [x] `gt sync --no-restack`
+- [x] Phase 0 blocking gate is green:
+  - [x] `bun run --cwd $MOD test test/pipeline/no-shadow-paths.test.ts`
+- [x] Slice evidence bundle captured (required every slice):
+  - [x] Determinism suite (authoritative “what actually ran”): `bun run --cwd $MOD test test/pipeline/determinism-suite.test.ts`
+  - [x] Dump: `bun run --cwd $MOD diag:dump -- 106 66 1337 --label s00-phase-0`
+  - [x] Analyze: `bun run --cwd $MOD diag:analyze -- <outputDir>`
+  - [x] Spot-check layers:
+    - [x] `bun run --cwd $MOD diag:list -- <outputDir> --dataTypeKey foundation.crustTiles.type`
+    - [x] `bun run --cwd $MOD diag:list -- <outputDir> --dataTypeKey morphology.topography.landMask`
+- [x] Plan is execution-ready (this section exists + runbooks below are present).
+- [x] Submit posture (per slice):
+  - [x] `gt restack --upstack`
+  - [x] `gt submit --stack --draft --ai`
+- [x] This plan doc is updated to reflect completion of s00 (checkboxes in this section are checked).
+
+### Orchestrator Loop (Milestone Owner)
+
+1. Keep the primary checkout clean and stable.
+2. At slice boundaries, move the primary checkout to the worker’s reported stack tip (detached at the tip commit is fine) so `narsil-code-intel` can re-index the latest code.
+3. Review the slice PR evidence bundle:
+   - Phase gate(s) are green.
+   - Evidence bundle commands ran and outputs are attached in the PR description (runId/outputDir JSON + analyze JSON + spot-check excerpts + determinism log excerpt).
+4. Confirm the canonical plan’s slice checkboxes are updated (this top-of-doc checklist is the enforcement surface).
+
+### Worker Per-Slice Loop (Step-by-Step)
+
+1. Sync trunk without global restacks: `gt sync --no-restack`
+2. Create the slice branch on the current stack: `gt create <slice-branch>`
+3. Implement the minimal forward-only change:
+   - Delete/rename shadow/dual/compare surfaces (no compatibility shims).
+4. Validate the phase gate(s) and required suite(s):
+   - Always: Phase 0 no-shadow gate command (until Phase 0 is complete).
+   - Always: determinism suite for “what actually ran”.
+5. Produce the slice evidence bundle:
+   - `diag:dump` → `diag:analyze` → `diag:list` spot-checks.
+6. Commit in small units, restack, submit:
+   - `gt restack --upstack`
+   - `gt submit --stack --draft --ai`
+7. Report the stack tip (branch + commit SHA) to the orchestrator so primary checkout + narsil indexing can be advanced.
+
+### Execution Log (Slice Completion + Evidence Pointers)
+
+This section is intentionally short and pointer-only. Evidence payloads live under `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/`.
+
+- s00: `agent-GOBI-PRR-s00-phase-0-preflight-no-shadow-and-plan-readiness`
+  - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1150
+  - Evidence: `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/s00.md`
+- s10: `agent-GOBI-PRR-s10-phase-a-foundation-truth-nondegenerate`
+  - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1151
+  - Evidence: `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/s10.md`
+- s11: `agent-GOBI-PRR-s11-phase-a-thread-closures-1077-1078-1083`
+  - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1152
+  - Evidence: `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/s11.md`
+- s20: `agent-GOBI-PRR-s20-phase-b-landmask-grounded-in-crust-truth`
+  - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1153
+  - Evidence: `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/s20.md`
+- s21: `agent-GOBI-PRR-s21-phase-b-erosion-no-hidden-reclass`
+  - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1154
+  - Evidence: `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/s21.md`
+- s30: `agent-GOBI-PRR-s30-phase-c-belts-as-modifiers`
+  - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1155
+  - Evidence: `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/s30.md`
+- s40: `agent-GOBI-PRR-s40-phase-d-observability-enforcement`
+  - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1156
+  - Evidence: `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/s40.md`
+- s90: `agent-GOBI-PRR-s90-final-legacy-sweep-and-docs`
+  - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1157
+  - Evidence: `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/s90.md`
+- s91: `agent-GOBI-PRR-s91-phase-b-rift-craton-growth-landmass`
+  - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1158
+  - Evidence: `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/s91.md`
+
 ## Canonical Sources (Normative)
 
 Treat these as the source of truth for “what maximal means”:

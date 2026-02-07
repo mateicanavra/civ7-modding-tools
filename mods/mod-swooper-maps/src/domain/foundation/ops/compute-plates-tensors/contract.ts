@@ -255,6 +255,10 @@ const TectonicHistoryTilesRollupSchema = Type.Object(
     }),
     /** Last active era index per tile (0..255; 255 = never). */
     lastActiveEra: TypedArraySchemas.u8({ description: "Last active era index per tile (0..255; 255 = never)." }),
+    /** Plate movement U component per tile (-127..127). */
+    movementU: TypedArraySchemas.i8({ description: "Plate movement U component per tile (-127..127)." }),
+    /** Plate movement V component per tile (-127..127). */
+    movementV: TypedArraySchemas.i8({ description: "Plate movement V component per tile (-127..127)." }),
   },
   { description: "Foundation tectonic history tiles rollup payload (tile-space rollups)." }
 );

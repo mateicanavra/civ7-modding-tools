@@ -230,6 +230,15 @@ export default createStep(LandmassPlatesStepContract, {
         elevation: baseTopography.elevation,
         seaLevel: seaLevel.seaLevel,
         boundaryCloseness: beltDrivers.boundaryCloseness,
+        crustType: crustTiles.type,
+        crustBaseElevation: crustTiles.baseElevation,
+        crustAge: crustTiles.age,
+        provenanceOriginEra: provenanceTiles.originEra,
+        provenanceDriftDistance: provenanceTiles.driftDistance,
+        riftPotentialByEra: historyTiles.perEra.map((era) => era.riftPotential),
+        fractureTotal: historyTiles.rollups.fractureTotal,
+        movementU: historyTiles.rollups.movementU,
+        movementV: historyTiles.rollups.movementV,
       },
       config.landmask
     );

@@ -103,6 +103,39 @@ describe("morphology belt synthesis (history + provenance)", () => {
     expect(longestRun).toBeGreaterThanOrEqual(8);
   });
 
+  it("diffusion seeds only from positive-intensity sources (zero-intensity belt tiles do not suppress seeding)", () => {
+    const width = 20;
+    const height = 1;
+    const historyTiles = buildHistoryTiles(width, height, 3);
+    const provenanceTiles = buildProvenanceTiles(width, height);
+    const era = historyTiles.perEra[2]!;
+
+    // Declare a long convergent boundary corridor with intensity only on an interior segment.
+    // Gap-fill produces a beltMask corridor that includes some boundaryType tiles with zero intensity.
+    // Those zero-intensity belt tiles must not become diffusion "seeds" (otherwise they can suppress
+    // influence by becoming the nearest seed with intensity=0).
+    for (let i = 4; i <= 14; i++) {
+      era.boundaryType[i] = 1;
+      historyTiles.rollups.lastActiveEra[i] = 2;
+    }
+    for (let i = 6; i <= 12; i++) {
+      era.upliftPotential[i] = 220;
+    }
+
+    const drivers = deriveBeltDriversFromHistory({
+      width,
+      height,
+      historyTiles,
+      provenanceTiles,
+    });
+
+    // Belt exists (component length >= MIN_BELT_LENGTH), so tiles near the corridor should receive influence.
+    expect(sumMask(drivers.beltMask)).toBeGreaterThan(0);
+    expect(drivers.beltMask[4]).toBe(1);
+    expect(drivers.boundaryCloseness[4]).toBeGreaterThan(0);
+    expect(drivers.boundaryCloseness[0]).toBe(0);
+  });
+
   it("older belts diffuse wider than newer belts", () => {
     const width = 24;
     const height = 1;
