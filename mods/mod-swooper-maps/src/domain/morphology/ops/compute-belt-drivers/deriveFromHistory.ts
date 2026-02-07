@@ -9,7 +9,7 @@ import type {
 import type { BeltComponentSummary, BeltDriverOutputs } from "./types.js";
 
 const GAP_FILL_DISTANCE = 2;
-const MIN_BELT_LENGTH = 6;
+const MIN_BELT_LENGTH = 3;
 
 function clampByte(value: number): number {
   return Math.max(0, Math.min(255, Math.round(value))) | 0;
