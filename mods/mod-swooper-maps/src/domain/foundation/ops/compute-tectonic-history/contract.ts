@@ -15,7 +15,7 @@ const StrategySchema = Type.Object(
       description: "Per-era weight multipliers (oldest→newest). Array length defines eraCount (5..8).",
     }),
     driftStepsByEra: Type.Array(Type.Integer({ minimum: 0, maximum: 16 }), {
-      default: [2, 2, 2, 2, 2],
+      default: [12, 9, 6, 3, 1],
       minItems: 5,
       maxItems: 8,
       description:
