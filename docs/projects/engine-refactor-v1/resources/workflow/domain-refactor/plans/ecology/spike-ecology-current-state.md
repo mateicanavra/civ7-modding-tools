@@ -1,57 +1,30 @@
-# Ecology Domain Refactor — Phase 1 Current-State Spike
+# Ecology Domain Refactor — Phase 1 Current-State Spike (Pointer)
 
-This spike is the Phase 1 output for the Ecology vertical refactor workflow.
+This “Phase 1 spike” is captured in the canonical Ecology spike directory. This file is a thin navigation pointer to avoid duplicating content.
 
 References:
-- Plan: docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/ecology/ECOLOGY.md
-- Workflow: docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/WORKFLOW.md
+- Plan: `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/ecology/ECOLOGY.md`
+- Workflow: `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/WORKFLOW.md`
+- Canonical spike directory: `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/`
 
-Goal: ground the Ecology refactor in current-state reality (wiring, contracts, boundary violations) so Phase 2/3 can be re-scoped based on evidence.
+## Current-State Outputs (Authoritative)
 
----
+- Current-state narrative + mental map:
+  - `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/CURRENT.md`
+- Drift evidence (current vs target):
+  - `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/DRIFT.md`
+- Contract inventory and ids:
+  - `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/CONTRACTS.md`
+- Contract matrix (step↔op↔artifact↔tags↔viz):
+  - `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/CONTRACT-MATRIX.md`
 
-## Phase 0 baseline gates (status: pending)
+## Phase 0 Baseline Gates (Status)
 
-Status: not run.
+Baseline ecology tests pass, but require build-order for workspace packages that export `dist/*`:
+- `bun run --cwd packages/civ7-adapter build`
+- `bun run --cwd packages/mapgen-viz build`
+- `bun run --cwd packages/mapgen-core build`
+- `bun --cwd mods/mod-swooper-maps test test/ecology`
 
-## Phase 1 hypotheses to validate (from plan)
-
-- /src/domain/ecology/ops/contracts.ts is populated (contract router exists).
-- /src/recipes/standard/stages/ecology/ exists and compiles a stage config surface.
-- Some Ecology step modules still use legacy dependency wiring patterns (validate and record).
-
-## Domain surface inventory (outside view)
-
-TBD.
-
-## Contract matrix (current-state)
-
-TBD.
-
-## Legacy surface inventory (config properties + rules/policies + functions)
-
-TBD.
-
-## Upstream authoritative input review
-
-TBD.
-
-## Decisions + defaults (initial)
-
-TBD.
-
-## Risk register (initial)
-
-TBD.
-
-## Golden path candidate
-
-TBD.
-
-## Deletion list
-
-TBD.
-
-## Lookback 1
-
-TBD.
+See also:
+- `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/_scratch/feasibility/03-experiments.md`
