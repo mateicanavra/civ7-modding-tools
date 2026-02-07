@@ -5,6 +5,33 @@ import { clamp01 } from "@swooper/mapgen-core/lib/math";
 import ComputeLandmaskContract from "../contract.js";
 import { validateLandmaskInputs } from "../rules/index.js";
 
+/**
+ * Weights for the base continent potential (crust truth + provenance stability).
+ *
+ * Notes:
+ * - These are internal constants (not authoring inputs) and should only change alongside
+ *   Phase B numeric-gate recalibration.
+ * - Sum is 1.0 to keep the field in a stable 0..1-ish range before low-pass filtering.
+ */
+const W_CRUST_TYPE = 0.48;
+const W_BASE_ELEVATION = 0.28;
+const W_STABILITY = 0.14;
+const W_CRUST_AGE = 0.1;
+
+/**
+ * Internal rift-driven craton growth constants.
+ *
+ * These are intentionally expressed as small, named constants (not magic numbers) so
+ * the physical meaning stays reviewable.
+ */
+const CRATON_ERA_DECAY = 0.7;
+const CRATON_FRACTURE_BLEND_BASE = 0.65;
+const CRATON_FRACTURE_BLEND_GAIN = 0.35;
+const CRATON_SPEED_BLEND_BASE = 0.25;
+const CRATON_SPEED_BLEND_GAIN = 0.75;
+const CRATON_SHOULDER_DEPOSIT_FRACTION = 0.35;
+const CRATON_DIFFUSION_FANOUT = 7; // self + 6 neighbors
+
 function buildCoarseAverage(width: number, height: number, values: Float32Array, grain: number): Float32Array {
   const size = Math.max(0, (width | 0) * (height | 0));
   const g = Math.max(1, Math.round(grain)) | 0;
@@ -63,6 +90,36 @@ function blurHex(width: number, height: number, values: Float32Array, steps: num
   }
 
   return current;
+}
+
+function chooseAdvectionTargetIndex(params: {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  u: number;
+  v: number;
+}): number {
+  const { x, y, width, height } = params;
+  const self = y * width + x;
+  const u = params.u;
+  const v = params.v;
+  let bestIdx = self;
+  let bestScore = 0;
+
+  // Pick the neighbor that best aligns with the movement vector in offset-grid coordinates.
+  // This is a deterministic approximation of plate drift at the tile level.
+  forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
+    const dx = nx - x;
+    const dy = ny - y;
+    const score = u * dx + v * dy;
+    if (score > bestScore) {
+      bestScore = score;
+      bestIdx = ny * width + nx;
+    }
+  });
+
+  return bestIdx;
 }
 
 function chooseThresholdForLandCount(potential: Float32Array, landCount: number): number {
@@ -261,6 +318,10 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
       crustAge,
       provenanceOriginEra,
       provenanceDriftDistance,
+      riftPotentialByEra,
+      fractureTotal,
+      movementU,
+      movementV,
     } = validateLandmaskInputs(input);
 
     // Preserve hypsometry intent by targeting the land fraction implied by (elevation > seaLevel),
@@ -272,22 +333,148 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
     }
     desiredLandCount = Math.max(1, Math.min(size - 1, desiredLandCount));
 
+    const eraCount = Math.max(1, riftPotentialByEra.length | 0);
+
+
     const potentialRaw = new Float32Array(size);
     for (let i = 0; i < size; i++) {
       const type01 = (crustType[i] ?? 0) === 1 ? 1 : 0;
       const baseElev01 = clamp01(crustBaseElevation[i] ?? 0);
       const drift01 = clamp01((provenanceDriftDistance[i] ?? 0) / 255);
-      const originEra01 = clamp01(1 - (provenanceOriginEra[i] ?? 0) / 7);
+      const originEra01 = 1 - (provenanceOriginEra[i] ?? 0) / Math.max(1, eraCount - 1);
       const stability01 = clamp01(0.6 * (1 - drift01) + 0.4 * originEra01);
       const age01 = clamp01((crustAge[i] ?? 0) / 255);
 
       // Continent potential: crust truth primary; provenance stability secondary.
-      const p = 0.48 * type01 + 0.28 * baseElev01 + 0.14 * stability01 + 0.1 * age01;
+      const p = W_CRUST_TYPE * type01 + W_BASE_ELEVATION * baseElev01 + W_STABILITY * stability01 + W_CRUST_AGE * age01;
       potentialRaw[i] = clamp01(p);
     }
 
+    // Rift/fracture-driven craton growth:
+    // Deterministic, physics-anchored seeding derived from rifts/fractures + plate motion.
+    // This is a time-stepped accumulator (eras × steps) that creates small craton seeds near rifts,
+    // then merges and drifts them without introducing stochastic noise.
+    const stepsPerEra = Math.max(0, Math.round(config.cratonStepsPerEra ?? 0)) | 0;
+    const nucleationScale = Math.max(0, config.cratonNucleationScale ?? 0);
+    const diffusion = clamp01(config.cratonDiffusion ?? 0);
+    const advection = clamp01(config.cratonAdvection ?? 0);
+    const halfSat = Math.max(0.01, config.cratonHalfSaturation ?? 0.35);
+    const cratonWeight = clamp01(config.cratonPotentialWeight ?? 0);
+
+    let cratonMass = new Float32Array(size);
+    let cratonNext = new Float32Array(size);
+
+    const eraWeights = new Float32Array(eraCount);
+    for (let e = 0; e < eraCount; e++) {
+      // Exponential decay: older eras contribute less to present-day continent roots.
+      const age = (eraCount - 1 - e) | 0;
+      eraWeights[e] = Math.exp(-CRATON_ERA_DECAY * age);
+    }
+
+    if (stepsPerEra > 0 && cratonWeight > 0) {
+      for (let era = 0; era < eraCount; era++) {
+        const riftEra = riftPotentialByEra[era] ?? riftPotentialByEra[riftPotentialByEra.length - 1]!;
+        const eraWeight = eraWeights[era] ?? 1;
+
+        for (let step = 0; step < stepsPerEra; step++) {
+          // Nucleate material at rifts. Fracture history and plate speed increase seafloor-spreading likelihood.
+          for (let i = 0; i < size; i++) {
+            const rift01 = (riftEra[i] ?? 0) / 255;
+            if (rift01 <= 0) continue;
+
+            const fracture01 = (fractureTotal[i] ?? 0) / 255;
+            const u = (movementU[i] ?? 0) / 127;
+            const v = (movementV[i] ?? 0) / 127;
+            const speed01 = clamp01(Math.sqrt(u * u + v * v));
+
+            const fractureBlend = CRATON_FRACTURE_BLEND_BASE + CRATON_FRACTURE_BLEND_GAIN * fracture01;
+            const speedBlend = CRATON_SPEED_BLEND_BASE + CRATON_SPEED_BLEND_GAIN * speed01;
+            const nucleate = eraWeight * nucleationScale * rift01 * fractureBlend * speedBlend;
+            if (nucleate <= 0) continue;
+
+            // Deposit on the rift tile and immediate neighbors (rift shoulders).
+            cratonMass[i] = (cratonMass[i] ?? 0) + nucleate;
+
+            const y = (i / width) | 0;
+            const x = i - y * width;
+            forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
+              const ni = ny * width + nx;
+              cratonMass[ni] = (cratonMass[ni] ?? 0) + CRATON_SHOULDER_DEPOSIT_FRACTION * nucleate;
+            });
+          }
+
+          // Advect a small fraction along the plate movement vector (approximate drift).
+          if (advection > 0) {
+            for (let i = 0; i < size; i++) cratonNext[i] = 0;
+            for (let y = 0; y < height; y++) {
+              for (let x = 0; x < width; x++) {
+                const i = y * width + x;
+                const m = cratonMass[i] ?? 0;
+                if (m <= 0) continue;
+
+                const u = (movementU[i] ?? 0) / 127;
+                const v = (movementV[i] ?? 0) / 127;
+                const speed = Math.sqrt(u * u + v * v);
+                if (speed <= 0.05) {
+                  cratonNext[i] += m;
+                  continue;
+                }
+
+                const adv = advection * m;
+                cratonNext[i] += m - adv;
+                const target = chooseAdvectionTargetIndex({ x, y, width, height, u, v });
+                cratonNext[target] += adv;
+              }
+            }
+            const tmp = cratonMass;
+            cratonMass = cratonNext;
+            cratonNext = tmp;
+          }
+
+          // Diffuse/merge: prevents single-tile speckle from dominating and approximates multi-step
+          // accumulation + merging without introducing stochastic noise.
+          if (diffusion > 0) {
+            for (let i = 0; i < size; i++) cratonNext[i] = (cratonMass[i] ?? 0) * (1 - diffusion);
+            for (let y = 0; y < height; y++) {
+              for (let x = 0; x < width; x++) {
+                const i = y * width + x;
+                const share = (diffusion * (cratonMass[i] ?? 0)) / CRATON_DIFFUSION_FANOUT;
+                cratonNext[i] += share;
+                forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
+                  const ni = ny * width + nx;
+                  cratonNext[ni] += share;
+                });
+              }
+            }
+            const tmp = cratonMass;
+            cratonMass = cratonNext;
+            cratonNext = tmp;
+          }
+        }
+      }
+    }
+
+    // Normalize craton mass without hard clamping:
+    // x / (x + k) behaves like a "soft clamp" and avoids saturating large swaths of the map when
+    // rift activity is high.
+    const cratonNorm = new Float32Array(size);
+    if (stepsPerEra > 0 && cratonWeight > 0) {
+      for (let i = 0; i < size; i++) {
+        const m = cratonMass[i] ?? 0;
+        cratonNorm[i] = m <= 0 ? 0 : m / (m + halfSat);
+      }
+    }
+
     const coarse = buildCoarseAverage(width, height, potentialRaw, config.continentPotentialGrain);
-    const potential = blurHex(width, height, coarse, config.continentPotentialBlurSteps);
+    const coarseCraton = cratonWeight > 0 ? buildCoarseAverage(width, height, cratonNorm, config.continentPotentialGrain) : cratonNorm;
+    const blurred = blurHex(width, height, coarse, config.continentPotentialBlurSteps);
+    const blurredCraton =
+      cratonWeight > 0 ? blurHex(width, height, coarseCraton, config.continentPotentialBlurSteps) : coarseCraton;
+
+    const potential = new Float32Array(size);
+    for (let i = 0; i < size; i++) {
+      potential[i] = clamp01((blurred[i] ?? 0) + cratonWeight * (blurredCraton[i] ?? 0));
+    }
 
     const threshold = chooseThresholdForLandCount(potential, desiredLandCount);
     const landMask = new Uint8Array(size);

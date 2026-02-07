@@ -1,5 +1,5 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
-import { clamp01 } from "@swooper/mapgen-core/lib/math";
+import { clamp01, clampFinite, clampU8 } from "@swooper/mapgen-core/lib/math";
 
 import { requireCrust, requireMesh, requireTectonicHistory, requireTectonicProvenance, requireTectonics } from "../../lib/require.js";
 import ComputeCrustEvolutionContract from "./contract.js";
@@ -15,19 +15,15 @@ const STRENGTH_BASE_MIN = 0.45;
 const STRENGTH_MATURITY_MIN = 0.5;
 const STRENGTH_THICKNESS_MIN = 0.55;
 
-function clamp02(value: number): number {
-  if (!Number.isFinite(value)) return 0;
-  if (value <= 0) return 0;
-  if (value >= 2) return 2;
-  return value;
-}
-
-function clampByte(value: number): number {
-  if (!Number.isFinite(value)) return 0;
-  if (value <= 0) return 0;
-  if (value >= 255) return 255;
-  return value | 0;
-}
+/**
+ * Normalization denominators for weighted sums.
+ *
+ * These are derived from coefficients to keep the intermediate fields in a stable 0..1 range
+ * without frequent clamp saturation.
+ */
+const DISRUPTION_MEAN_DIVISOR = 4;
+const THERMAL_RESET_COEFF_SUM = 0.8 + 0.3;
+const DAMAGE_COEFF_SUM = 0.55 + 0.6 + 0.45;
 
 function strengthFromThermalAge(age01: number): number {
   return STRENGTH_BASE_MIN + (1 - STRENGTH_BASE_MIN) * clamp01(age01);
@@ -81,9 +77,9 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
 
         const provenance = tectonicProvenance.provenance;
         // Contract allows these scalars in 0..2 (not normalized 0..1).
-        const ageToMaturity = clamp02(config.ageToMaturity ?? 0.8);
-        const upliftToMaturity = clamp02(config.upliftToMaturity ?? 1.0);
-        const disruptionToMaturity = clamp02(config.disruptionToMaturity ?? 0.9);
+        const ageToMaturity = clampFinite(config.ageToMaturity ?? 0.8, 0, 2, 0);
+        const upliftToMaturity = clampFinite(config.upliftToMaturity ?? 1.0, 0, 2, 0);
+        const disruptionToMaturity = clampFinite(config.disruptionToMaturity ?? 0.9, 0, 2, 0);
 
         for (let i = 0; i < cellCount; i++) {
           const initThickness = crustInit.thickness[i] ?? 0.25;
@@ -100,7 +96,8 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
           // Craton/differentiation-first heuristic:
           // - Mature crust emerges from long-lived uplift + material age.
           // - Disruption (rift/fracture/shear) suppresses maturity and increases damage.
-          const disruption01 = clamp01((riftNow01 + fractureNow01 + shearNow01 + fracture01) / 3);
+          // Note: keep this normalized; a too-small divisor causes frequent clamp saturation.
+          const disruption01 = clamp01((riftNow01 + fractureNow01 + shearNow01 + fracture01) / DISRUPTION_MEAN_DIVISOR);
           const maturity01 = clamp01(
             upliftToMaturity * uplift01 +
               ageToMaturity * materialAge01 +
@@ -112,20 +109,20 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
           const thickness01 = clamp01(initThickness + 0.6 * maturity01 + 0.15 * uplift01 + 0.12 * volcanism01);
 
           // Thermal age: tie primarily to material age, with partial resets where rifting is recent/strong.
-          const reset01 = clamp01(riftNow01 * 0.8 + fractureNow01 * 0.3);
+          const reset01 = clamp01((riftNow01 * 0.8 + fractureNow01 * 0.3) / THERMAL_RESET_COEFF_SUM);
           const thermalAge01 = clamp01(materialAge01 * (1 - 0.6 * reset01));
 
           // Damage: disruption + fracture accumulation.
-          const damage01 = clamp01(0.55 * fracture01 + 0.6 * riftNow01 + 0.45 * shearNow01);
+          const damage01 = clamp01((0.55 * fracture01 + 0.6 * riftNow01 + 0.45 * shearNow01) / DAMAGE_COEFF_SUM);
 
           maturity[i] = maturity01;
           thickness[i] = thickness01;
-          thermalAge[i] = clampByte(thermalAge01 * 255);
-          damage[i] = clampByte(damage01 * 255);
+          thermalAge[i] = clampU8(thermalAge01 * 255);
+          damage[i] = clampU8(damage01 * 255);
 
           const isContinent = maturity01 >= MATURITY_CONTINENT_THRESHOLD ? 1 : 0;
           type[i] = isContinent;
-          age[i] = thermalAge[i] ?? 0;
+          age[i] = thermalAge[i];
 
           const buoy = deriveBuoyancy({ maturity: maturity01, thickness: thickness01, thermalAge01 });
           buoyancy[i] = buoy;
