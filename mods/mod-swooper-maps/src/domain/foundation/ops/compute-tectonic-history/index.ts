@@ -289,7 +289,33 @@ function buildEraFields(params: {
   volcanismOriginPlate.fill(-1);
 
   const visitMark = new Int32Array(cellCount);
-  const distance = new Int16Array(cellCount);
+  const distance = new Float32Array(cellCount);
+
+  // Normalize edge lengths so authored radii remain approximately "in steps" while decay becomes continuous.
+  const meanEdgeLen = (() => {
+    let sum = 0;
+    let count = 0;
+    const maxEdges = 100_000;
+    for (let cellId = 0; cellId < cellCount && count < maxEdges; cellId++) {
+      const ax = params.mesh.siteX[cellId] ?? 0;
+      const ay = params.mesh.siteY[cellId] ?? 0;
+      const start = params.mesh.neighborsOffsets[cellId] | 0;
+      const end = params.mesh.neighborsOffsets[cellId + 1] | 0;
+      for (let cursor = start; cursor < end && count < maxEdges; cursor++) {
+        const n = params.mesh.neighbors[cursor] | 0;
+        if (n <= cellId || n < 0 || n >= cellCount) continue;
+        const bx = params.mesh.siteX[n] ?? 0;
+        const by = params.mesh.siteY[n] ?? 0;
+        const dx = wrapDeltaPeriodic(bx - ax, params.mesh.wrapWidth);
+        const dy = by - ay;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        if (!Number.isFinite(len) || len <= 1e-9) continue;
+        sum += len;
+        count++;
+      }
+    }
+    return count > 0 ? sum / count : 1;
+  })();
   const queue = new Int32Array(cellCount);
   let visitToken = 1;
 
@@ -481,6 +507,8 @@ function buildEraFields(params: {
       }
 
       if (d >= maxRadius) continue;
+      const ax = params.mesh.siteX[cellId] ?? 0;
+      const ay = params.mesh.siteY[cellId] ?? 0;
       const start = params.mesh.neighborsOffsets[cellId] | 0;
       const end = params.mesh.neighborsOffsets[cellId + 1] | 0;
       for (let cursor = start; cursor < end; cursor++) {
@@ -488,7 +516,12 @@ function buildEraFields(params: {
         if (n < 0 || n >= cellCount) continue;
         if (visitMark[n] === token) continue;
         visitMark[n] = token;
-        distance[n] = (d + 1) as number;
+        const bx = params.mesh.siteX[n] ?? 0;
+        const by = params.mesh.siteY[n] ?? 0;
+        const dx = wrapDeltaPeriodic(bx - ax, params.mesh.wrapWidth);
+        const dy = by - ay;
+        const edgeLen = Math.sqrt(dx * dx + dy * dy);
+        distance[n] = d + edgeLen / meanEdgeLen;
         queue[tail++] = n;
       }
     }
