@@ -6,7 +6,20 @@ Understand the **current ecology domain** and the **target architecture**, ident
 
 This spike is research-only: it produces documentation and refactor targets, not production refactors.
 
-## 2) Assumptions and Unknowns
+## 2) Locked Directives (No Ambiguity)
+
+These are fixed goals for the eventual refactor target (use them to resolve related ambiguity in proposals):
+
+- **Atomic per-feature operations:** each feature family is modeled as distinct op(s). Avoid bulk/multi-feature mega-ops.
+- **Shared compute substrate:** separate **compute ops** (shared compute layers) from **plan ops** (discrete intent/placement planning), and reuse compute outputs across feature planners.
+  - Reference pattern: Morphology domain uses `compute-*` ops as shared substrate plus `plan-*` ops for discrete planning (example: `morphology/compute-substrate`).
+- **Maximal modularity:** target the maximal ideal modular architecture; do not optimize prematurely. Performance can be recovered via the shared compute substrate, caching, and compile-time normalization.
+
+Documentation posture:
+- Prefer canonical system/lib guidelines for MapGen (architecture, policies, specs) over historical ADRs.
+- Treat ADRs older than ~10 days as non-authoritative for behavior/architecture direction.
+
+## 3) Assumptions and Remaining Unknowns
 
 ### Assumptions (explicit)
 
@@ -19,13 +32,13 @@ This spike is research-only: it produces documentation and refactor targets, not
   - step ids, artifact ids, op ids
   - `dataTypeKey`/`spaceId` viz keys emitted by steps
 
-### Unknowns (tracked)
+### Unknowns (still tracked)
 
 - Whether `artifact:ecology.biomeClassification` should be treated as an immutable snapshot or a publish-once mutable handle (current code mutates in place).
 - Whether `plot-effects` should provide an effect tag (it currently performs adapter writes without an explicit effect guarantee).
-- Whether `features-plan` should remain a single orchestration step, or be split into multiple feature-family steps.
+- Whether `map-ecology` should remain a single stage or be split into projection-only vs stamping-only stages (a clean separation, but more pipeline nodes).
 
-## 3) What We Learned
+## 4) What We Learned
 
 ### Ecology already matches many target-architecture shapes
 
@@ -46,21 +59,25 @@ This spike is research-only: it produces documentation and refactor targets, not
 Ecology emits stable `dataTypeKey`s (tile space `tile.hexOddR`) consumed by MapGen Studio’s deck.gl viewer.
 A behavior-preserving refactor must keep these keys stable.
 
-## 4) Potential Shapes (Conceptual Refactor Targets)
+## 5) Potential Shapes (Conceptual Refactor Targets)
 
-### Shape A (recommended): Make step/contract surfaces fully explicit, preserve stage split
+### Shape A (target; recommended): Maximal modularity + compute substrate + explicit contracts
 
-- Keep stages: `ecology` (truth) and `map-ecology` (projection).
+- Keep stages: `ecology` (truth) and `map-ecology` (gameplay projection/materialization).
+- Model ecology around a shared **compute substrate** (compute ops) plus **atomic per-feature plan ops**.
 - Remove direct domain imports from steps by declaring *all used ops* in `contract.ops`.
-- Decide and document ecology artifact mutability posture.
-- Optionally split `features-plan` into multiple feature-family steps if we want more explicit orchestration boundaries.
+- Drive feature planning by per-feature op contracts (and per-feature orchestration seams if helpful), not by “one big feature op”.
 
-### Shape B (alternative): Keep `features-plan` as one step, but fully contract-ize optional ops
+See also:
+- `GREENFIELD.md` (physics-first ideal ecology organization; explicitly compute-vs-plan).
 
-- Minimal structural change: keep the current step list but ensure compiler-owned op envelopes.
-- Lower plan-node churn, but less granular seams for future work.
+### Shape B (transitional, not target): Keep current step list; contract-ize the missing ops
 
-## 5) Minimal Experiment (Optional)
+- Keep the current step list and current artifact ids.
+- Make the compiler own all op envelopes by declaring the optional placement ops in `features-plan` step contract and removing direct `@mapgen/domain/ecology/ops` imports.
+- Still aligns with the “atomic per-feature ops” directive (this shape is about step topology, not op modeling).
+
+## 6) Minimal Experiment (Optional)
 
 Use existing deterministic dump-first tooling as a baseline harness:
 
@@ -70,13 +87,13 @@ Use existing deterministic dump-first tooling as a baseline harness:
 
 This supports “no behavior change” parity validation without committing large binaries.
 
-## 6) Risks and Open Questions
+## 7) Risks and Open Questions
 
 - **Contract drift risk:** Direct domain imports in steps make refactors more error-prone.
 - **Implicit mutability:** In-place artifact mutation can create hidden dependencies.
 - **Effect modeling:** Side-effectful projection steps without effect tags reduce plan legibility.
 
-## 7) Next Steps
+## 8) Next Steps
 
 - If the next question is **integration/landing the refactor**, escalate to `/dev-spike-feasibility` and define:
   - the exact refactor approach (step split or not),
@@ -90,6 +107,7 @@ See:
 - `TARGET.md` for ecology-scoped target architecture interpretation.
 - `DRIFT.md` for the drift matrix.
 - `REFRACTOR-TARGET-SHAPE.md` for the conceptual refactor target.
+- `GREENFIELD.md` for a physics-first, maximal-modularity ideal ecology shape (compute substrate + plan ops).
 - `CONTRACTS.md` for ids (steps/artifacts/ops/tags).
 - `DECKGL-VIZ.md` for viz key compatibility surfaces.
 - `HARDENING.md` for behavior-preservation invariants and harness tooling.

@@ -1,4 +1,4 @@
-# agent-deckgl.md
+# DECKGL VIZ: Ecology Compatibility Surface
 
 ## Objective
 

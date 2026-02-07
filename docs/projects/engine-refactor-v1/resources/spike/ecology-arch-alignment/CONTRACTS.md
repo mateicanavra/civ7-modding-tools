@@ -1,4 +1,4 @@
-# agent-contracts.md
+# CONTRACTS: Ecology (Artifacts, Steps, Ops, Tags)
 
 ## Objective
 

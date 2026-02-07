@@ -1,4 +1,4 @@
-# agent-drift.md
+# DRIFT: Ecology vs Target Architecture (Evidence-Backed)
 
 ## Objective
 

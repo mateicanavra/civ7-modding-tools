@@ -8,7 +8,7 @@ If we later execute the refactor, some docs may need updates/promotions.
 - **Explanation** (why + mental model):
   - `docs/system/libs/mapgen/explanation/ARCHITECTURE.md`
   - `docs/system/libs/mapgen/explanation/DOMAIN-MODELING.md`
-  - This spike’s `CURRENT.md`, `TARGET.md`, `REFRACTOR-TARGET-SHAPE.md`
+  - This spike’s `CURRENT.md`, `TARGET.md`, `REFRACTOR-TARGET-SHAPE.md`, `GREENFIELD.md`
 
 - **Reference** (what is / contracts / ids):
   - `docs/system/libs/mapgen/reference/domains/ECOLOGY.md`
@@ -39,3 +39,4 @@ If we later execute the refactor, some docs may need updates/promotions.
 ## Notes
 
 - This spike is intentionally project-scoped; any durable, evergreen rule changes should be promoted into the canonical system docs (reference/policy/spec) rather than left in spike form.
+- For future work, prioritize canonical MapGen guidelines/specs/policies over ADRs; treat ADRs older than ~10 days as non-authoritative for behavior/architecture direction.

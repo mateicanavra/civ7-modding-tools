@@ -1,4 +1,4 @@
-# agent-hardening.md
+# HARDENING: Behavior-Preserving Ecology Refactors (Parity + Invariants)
 
 ## Objective
 
