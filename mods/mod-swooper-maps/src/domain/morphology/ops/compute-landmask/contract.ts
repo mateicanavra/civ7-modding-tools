@@ -52,7 +52,7 @@ const LandmaskConfigSchema = Type.Object(
       description: "Half-saturation constant used to normalize craton mass into 0..1 without hard clamping.",
     }),
     cratonPotentialWeight: Type.Number({
-      default: 0.18,
+      default: 0.12,
       minimum: 0,
       maximum: 1,
       description: "Weight of rift/fracture-driven craton mass in the final continent potential.",

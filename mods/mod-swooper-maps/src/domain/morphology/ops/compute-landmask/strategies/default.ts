@@ -29,7 +29,9 @@ const CRATON_FRACTURE_BLEND_BASE = 0.65;
 const CRATON_FRACTURE_BLEND_GAIN = 0.35;
 const CRATON_SPEED_BLEND_BASE = 0.25;
 const CRATON_SPEED_BLEND_GAIN = 0.75;
-const CRATON_SHOULDER_DEPOSIT_FRACTION = 0.35;
+const CRATON_EMERGENCE_BASE = 0.35;
+const CRATON_EMERGENCE_GAIN = 0.65;
+const CRATON_SHOULDER_DEPOSIT_FRACTION = 0.2;
 const CRATON_DIFFUSION_FANOUT = 7; // self + 6 neighbors
 
 function buildCoarseAverage(width: number, height: number, values: Float32Array, grain: number): Float32Array {
@@ -389,7 +391,10 @@ export const defaultStrategy = createStrategy(ComputeLandmaskContract, "default"
 
             const fractureBlend = CRATON_FRACTURE_BLEND_BASE + CRATON_FRACTURE_BLEND_GAIN * fracture01;
             const speedBlend = CRATON_SPEED_BLEND_BASE + CRATON_SPEED_BLEND_GAIN * speed01;
-            const nucleate = eraWeight * nucleationScale * rift01 * fractureBlend * speedBlend;
+            const baseElev01 = clamp01(crustBaseElevation[i] ?? 0);
+            const emergenceBias = CRATON_EMERGENCE_BASE + CRATON_EMERGENCE_GAIN * baseElev01;
+
+            const nucleate = eraWeight * nucleationScale * rift01 * fractureBlend * speedBlend * emergenceBias;
             if (nucleate <= 0) continue;
 
             // Deposit on the rift tile and immediate neighbors (rift shoulders).
