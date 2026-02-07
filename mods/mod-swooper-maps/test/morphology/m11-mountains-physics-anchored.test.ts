@@ -20,6 +20,8 @@ describe("m11 mountains (physics-anchored)", () => {
     const boundaryCloseness = new Uint8Array(size);
     const boundaryType = new Uint8Array(size);
     const upliftPotential = new Uint8Array(size);
+    const collisionPotential = upliftPotential;
+    const subductionPotential = new Uint8Array(size);
     const riftPotential = new Uint8Array(size);
     const tectonicStress = new Uint8Array(size);
     const beltAge = new Uint8Array(size);
@@ -41,6 +43,8 @@ describe("m11 mountains (physics-anchored)", () => {
         boundaryCloseness,
         boundaryType,
         upliftPotential,
+        collisionPotential,
+        subductionPotential,
         riftPotential,
         tectonicStress,
         beltAge,
@@ -68,6 +72,8 @@ describe("m11 mountains (physics-anchored)", () => {
         boundaryCloseness,
         boundaryType,
         upliftPotential,
+        collisionPotential,
+        subductionPotential,
         riftPotential,
         tectonicStress,
         beltAge,
@@ -106,6 +112,8 @@ describe("m11 mountains (physics-anchored)", () => {
     const boundaryCloseness = new Uint8Array(size);
     const boundaryType = new Uint8Array(size);
     const upliftPotential = new Uint8Array(size);
+    const collisionPotential = upliftPotential;
+    const subductionPotential = new Uint8Array(size);
     const riftPotential = new Uint8Array(size);
     const tectonicStress = new Uint8Array(size);
     const beltAge = new Uint8Array(size);
@@ -123,6 +131,8 @@ describe("m11 mountains (physics-anchored)", () => {
         boundaryCloseness,
         boundaryType,
         upliftPotential,
+        collisionPotential,
+        subductionPotential,
         riftPotential,
         tectonicStress,
         beltAge,
@@ -150,6 +160,8 @@ describe("m11 mountains (physics-anchored)", () => {
         boundaryCloseness,
         boundaryType,
         upliftPotential,
+        collisionPotential,
+        subductionPotential,
         riftPotential,
         tectonicStress,
         beltAge,

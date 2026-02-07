@@ -19,6 +19,8 @@ const PlanFoothillsContract = defineOp({
     boundaryCloseness: TypedArraySchemas.u8({ description: "Boundary proximity per tile (0..255)." }),
     boundaryType: TypedArraySchemas.u8({ description: "Boundary type per tile (BOUNDARY_TYPE values)." }),
     upliftPotential: TypedArraySchemas.u8({ description: "Uplift potential per tile (0..255)." }),
+    collisionPotential: TypedArraySchemas.u8({ description: "Collision-driven uplift potential per tile (0..255)." }),
+    subductionPotential: TypedArraySchemas.u8({ description: "Subduction-driven uplift potential per tile (0..255)." }),
     riftPotential: TypedArraySchemas.u8({ description: "Rift potential per tile (0..255)." }),
     tectonicStress: TypedArraySchemas.u8({ description: "Tectonic stress per tile (0..255)." }),
     beltAge: TypedArraySchemas.u8({

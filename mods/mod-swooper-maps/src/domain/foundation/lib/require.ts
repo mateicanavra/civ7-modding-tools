@@ -263,10 +263,16 @@ export function requireTectonicHistory(
 
   const totals = [
     ["upliftTotal", history.upliftTotal],
+    ["collisionTotal", history.collisionTotal],
+    ["subductionTotal", history.subductionTotal],
     ["fractureTotal", history.fractureTotal],
     ["volcanismTotal", history.volcanismTotal],
     ["upliftRecentFraction", history.upliftRecentFraction],
+    ["collisionRecentFraction", history.collisionRecentFraction],
+    ["subductionRecentFraction", history.subductionRecentFraction],
     ["lastActiveEra", history.lastActiveEra],
+    ["lastCollisionEra", history.lastCollisionEra],
+    ["lastSubductionEra", history.lastSubductionEra],
   ] as const;
 
   for (const [label, arr] of totals) {
@@ -280,7 +286,16 @@ export function requireTectonicHistory(
     if (!era) {
       throw new Error(`[Foundation] Invalid tectonicHistory.eras[${e}] for ${scope}.`);
     }
-    const fields = ["boundaryType", "upliftPotential", "riftPotential", "shearStress", "volcanism", "fracture"] as const;
+    const fields = [
+      "boundaryType",
+      "upliftPotential",
+      "collisionPotential",
+      "subductionPotential",
+      "riftPotential",
+      "shearStress",
+      "volcanism",
+      "fracture",
+    ] as const;
     for (const field of fields) {
       const v = era[field] as unknown;
       if (!(v instanceof Uint8Array) || v.length !== cellCount) {

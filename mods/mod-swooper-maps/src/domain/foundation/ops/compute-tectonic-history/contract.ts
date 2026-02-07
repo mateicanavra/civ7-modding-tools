@@ -47,6 +47,14 @@ const EraFieldsSchema = Type.Object(
   {
     boundaryType: TypedArraySchemas.u8({ shape: null, description: "Boundary regime per mesh cell (BOUNDARY_TYPE values)." }),
     upliftPotential: TypedArraySchemas.u8({ shape: null, description: "Uplift potential per mesh cell (0..255)." }),
+    collisionPotential: TypedArraySchemas.u8({
+      shape: null,
+      description: "Collision-driven uplift potential per mesh cell (0..255).",
+    }),
+    subductionPotential: TypedArraySchemas.u8({
+      shape: null,
+      description: "Subduction-driven uplift potential per mesh cell (0..255).",
+    }),
     riftPotential: TypedArraySchemas.u8({ shape: null, description: "Rift potential per mesh cell (0..255)." }),
     shearStress: TypedArraySchemas.u8({ shape: null, description: "Shear stress per mesh cell (0..255)." }),
     volcanism: TypedArraySchemas.u8({ shape: null, description: "Volcanism potential per mesh cell (0..255)." }),
@@ -60,15 +68,34 @@ export const FoundationTectonicHistorySchema = Type.Object(
     eraCount: Type.Integer({ minimum: 5, maximum: 8 }),
     eras: Type.Immutable(Type.Array(EraFieldsSchema, { description: "Era fields (oldest→newest)." })),
     upliftTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated uplift across eras (0..255)." }),
+    collisionTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated collision uplift across eras (0..255)." }),
+    subductionTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated subduction uplift across eras (0..255)." }),
     fractureTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated fracture across eras (0..255)." }),
     volcanismTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated volcanism across eras (0..255)." }),
     upliftRecentFraction: TypedArraySchemas.u8({
       shape: null,
       description: "Fraction of total uplift contributed by newest era (0..255).",
     }),
+    collisionRecentFraction: TypedArraySchemas.u8({
+      shape: null,
+      description: "Fraction of collision uplift contributed by newest era (0..255).",
+    }),
+    subductionRecentFraction: TypedArraySchemas.u8({
+      shape: null,
+      description: "Fraction of subduction uplift contributed by newest era (0..255).",
+    }),
     lastActiveEra: TypedArraySchemas.u8({
       shape: null,
       description: "Most recent active era index per cell (0..eraCount-1), or 255 when never active.",
+    }),
+    lastCollisionEra: TypedArraySchemas.u8({
+      shape: null,
+      description: "Most recent collision-active era index per cell (0..eraCount-1), or 255 when never collision-active.",
+    }),
+    lastSubductionEra: TypedArraySchemas.u8({
+      shape: null,
+      description:
+        "Most recent subduction-active era index per cell (0..eraCount-1), or 255 when never subduction-active.",
     }),
   },
   { additionalProperties: false }
