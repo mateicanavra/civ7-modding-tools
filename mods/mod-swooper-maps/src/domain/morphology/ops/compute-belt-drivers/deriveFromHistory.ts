@@ -286,8 +286,16 @@ export function deriveBeltDriversFromHistory(input: {
 
   const maxSigma = 1 + 3 * (maxAge / Math.max(1, maxAge));
   const maxDistance = Math.max(1, Math.round(5 * maxSigma * 1.2));
+  // Diffusion must be seeded only from positive-intensity sources; otherwise nearestSeed can land on a
+  // zero-intensity belt tile and silently suppress the entire region.
+  const beltSeedMask = new Uint8Array(size);
+  for (let i = 0; i < size; i++) {
+    if (beltMask[i] !== 1) continue;
+    if ((intensityBlend[i] ?? 0) <= 0) continue;
+    beltSeedMask[i] = 1;
+  }
   const { distance: beltDistance, nearestSeed: beltNearestSeed } = computeDistanceField(
-    beltMask,
+    beltSeedMask,
     width,
     height,
     maxDistance
@@ -340,4 +348,3 @@ export function deriveBeltDriversFromHistory(input: {
     beltComponents,
   } as const;
 }
-
