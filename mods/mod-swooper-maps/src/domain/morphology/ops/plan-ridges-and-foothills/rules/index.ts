@@ -1,11 +1,35 @@
 import { clamp } from "@swooper/mapgen-core/lib/math";
 import { normalizeFractal } from "@swooper/mapgen-core/lib/noise";
 
+import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
+
 import type { PlanRidgesAndFoothillsTypes } from "../types.js";
 
-const BOUNDARY_CONVERGENT = 1;
-const BOUNDARY_DIVERGENT = 2;
-const BOUNDARY_TRANSFORM = 3;
+const BOUNDARY_STRENGTH_EPS = 1e-6;
+
+const OROGENY_CONVERGENT_STRESS_WEIGHT = 0.6;
+const OROGENY_CONVERGENT_UPLIFT_WEIGHT = 0.4;
+const OROGENY_TRANSFORM_STRESS_WEIGHT = 0.4;
+const OROGENY_DIVERGENT_RIFT_WEIGHT = 0.55;
+const OROGENY_DIVERGENT_STRESS_WEIGHT = 0.15;
+
+const FRACTURE_BOUNDARY_WEIGHT = 0.7;
+const FRACTURE_STRESS_WEIGHT = 0.2;
+const FRACTURE_RIFT_WEIGHT = 0.1;
+
+const MOUNTAIN_BOUNDARY_STRESS_WEIGHT = 0.5;
+const MOUNTAIN_BOUNDARY_UPLIFT_WEIGHT = 0.5;
+const MOUNTAIN_UPLIFT_WEIGHT_SCALE = 0.5;
+const MOUNTAIN_FRACTAL_WEIGHT_SCALE = 0.3;
+const MOUNTAIN_CONVERGENCE_BASE = 0.6;
+const MOUNTAIN_CONVERGENCE_FRACTAL_GAIN = 0.4;
+
+const HILL_FOOTHILL_BASE = 0.5;
+const HILL_FOOTHILL_FRACTAL_GAIN = 0.5;
+const HILL_FRACTAL_WEIGHT_SCALE = 0.8;
+const HILL_UPLIFT_WEIGHT_SCALE = 0.3;
+const HILL_RIFT_BONUS_SCALE = 0.5;
+const HILL_RIFT_DEPTH_SCALE = 0.5;
 
 function clampByte(value: number): number {
   if (!Number.isFinite(value)) return 0;
@@ -15,9 +39,9 @@ function clampByte(value: number): number {
 function resolveBoundaryRegime(params: { boundaryType: number; uplift: number; stress: number; rift: number }): number {
   const boundaryType = params.boundaryType | 0;
   if (
-    boundaryType === BOUNDARY_CONVERGENT ||
-    boundaryType === BOUNDARY_DIVERGENT ||
-    boundaryType === BOUNDARY_TRANSFORM
+    boundaryType === BOUNDARY_TYPE.convergent ||
+    boundaryType === BOUNDARY_TYPE.divergent ||
+    boundaryType === BOUNDARY_TYPE.transform
   ) {
     return boundaryType;
   }
@@ -26,9 +50,9 @@ function resolveBoundaryRegime(params: { boundaryType: number; uplift: number; s
   const rift = params.rift;
   const stress = params.stress;
 
-  if (uplift > 0 && uplift >= rift) return BOUNDARY_CONVERGENT;
-  if (rift > 0 && rift > uplift) return BOUNDARY_DIVERGENT;
-  if (stress > 0) return BOUNDARY_TRANSFORM;
+  if (uplift > 0 && uplift >= rift) return BOUNDARY_TYPE.convergent;
+  if (rift > 0 && rift > uplift) return BOUNDARY_TYPE.divergent;
+  if (stress > 0) return BOUNDARY_TYPE.transform;
   return 0;
 }
 
@@ -96,7 +120,7 @@ export function resolveBoundaryStrength(
   const normalized =
     closenessNorm <= boundaryGate
       ? 0
-      : (closenessNorm - boundaryGate) / Math.max(1e-6, 1 - boundaryGate);
+      : (closenessNorm - boundaryGate) / Math.max(BOUNDARY_STRENGTH_EPS, 1 - boundaryGate);
   return Math.pow(normalized, exponent);
 }
 
@@ -110,20 +134,24 @@ export function computeOrogenyPotential01(params: {
   const { boundaryStrength, boundaryType, uplift, stress, rift } = params;
   const regime = resolveBoundaryRegime({ boundaryType, uplift, stress, rift });
 
-  const collision = regime === BOUNDARY_CONVERGENT ? boundaryStrength : 0;
-  const transform = regime === BOUNDARY_TRANSFORM ? boundaryStrength : 0;
-  const divergence = regime === BOUNDARY_DIVERGENT ? boundaryStrength : 0;
+  const collision = regime === BOUNDARY_TYPE.convergent ? boundaryStrength : 0;
+  const transform = regime === BOUNDARY_TYPE.transform ? boundaryStrength : 0;
+  const divergence = regime === BOUNDARY_TYPE.divergent ? boundaryStrength : 0;
 
-  const collisionSignal = collision * (0.6 * stress + 0.4 * uplift);
-  const transformSignal = transform * (0.4 * stress);
-  const divergenceSignal = divergence * (0.55 * rift + 0.15 * stress);
+  const collisionSignal = collision * (OROGENY_CONVERGENT_STRESS_WEIGHT * stress + OROGENY_CONVERGENT_UPLIFT_WEIGHT * uplift);
+  const transformSignal = transform * (OROGENY_TRANSFORM_STRESS_WEIGHT * stress);
+  const divergenceSignal = divergence * (OROGENY_DIVERGENT_RIFT_WEIGHT * rift + OROGENY_DIVERGENT_STRESS_WEIGHT * stress);
 
   return clamp(collisionSignal + transformSignal + divergenceSignal, 0, 1);
 }
 
 export function computeFracture01(params: { boundaryStrength: number; stress: number; rift: number }): number {
   const { boundaryStrength, stress, rift } = params;
-  return clamp(0.7 * boundaryStrength + 0.2 * stress + 0.1 * rift, 0, 1);
+  return clamp(
+    FRACTURE_BOUNDARY_WEIGHT * boundaryStrength + FRACTURE_STRESS_WEIGHT * stress + FRACTURE_RIFT_WEIGHT * rift,
+    0,
+    1
+  );
 }
 
 /**
@@ -145,9 +173,9 @@ export function computeMountainScore(params: {
   const scaledBoundaryWeight = config.boundaryWeight * config.tectonicIntensity;
   const scaledUpliftWeight = config.upliftWeight * config.tectonicIntensity;
 
-  const collision = regime === BOUNDARY_CONVERGENT ? boundaryStrength : 0;
-  const transform = regime === BOUNDARY_TRANSFORM ? boundaryStrength : 0;
-  const divergence = regime === BOUNDARY_DIVERGENT ? boundaryStrength : 0;
+  const collision = regime === BOUNDARY_TYPE.convergent ? boundaryStrength : 0;
+  const transform = regime === BOUNDARY_TYPE.transform ? boundaryStrength : 0;
+  const divergence = regime === BOUNDARY_TYPE.divergent ? boundaryStrength : 0;
 
   const orogenyPotential01 = computeOrogenyPotential01({
     boundaryStrength,
@@ -158,12 +186,16 @@ export function computeMountainScore(params: {
   });
 
   let mountainScore =
-    collision * scaledBoundaryWeight * (0.5 * stress + 0.5 * uplift) +
-    uplift * scaledUpliftWeight * 0.5 +
-    fractal * config.fractalWeight * 0.3 * orogenyPotential01;
+    collision * scaledBoundaryWeight * (MOUNTAIN_BOUNDARY_STRESS_WEIGHT * stress + MOUNTAIN_BOUNDARY_UPLIFT_WEIGHT * uplift) +
+    uplift * scaledUpliftWeight * MOUNTAIN_UPLIFT_WEIGHT_SCALE +
+    fractal * config.fractalWeight * MOUNTAIN_FRACTAL_WEIGHT_SCALE * orogenyPotential01;
 
   if (collision > 0) {
-    mountainScore += collision * scaledConvergenceBonus * (0.6 + fractal * 0.4) * orogenyPotential01;
+    mountainScore +=
+      collision *
+      scaledConvergenceBonus *
+      (MOUNTAIN_CONVERGENCE_BASE + fractal * MOUNTAIN_CONVERGENCE_FRACTAL_GAIN) *
+      orogenyPotential01;
   }
 
   if (config.interiorPenaltyWeight > 0) {
@@ -178,7 +210,7 @@ export function computeMountainScore(params: {
     mountainScore *= Math.max(0, 1 - transform * config.transformPenalty);
   }
 
-  if (config.riftDepth > 0 && regime === BOUNDARY_DIVERGENT) {
+  if (config.riftDepth > 0 && regime === BOUNDARY_TYPE.divergent) {
     mountainScore = Math.max(0, mountainScore - rift * config.riftDepth);
   }
 
@@ -203,8 +235,8 @@ export function computeHillScore(params: {
   const scaledHillBoundaryWeight = config.hillBoundaryWeight * config.tectonicIntensity;
   const scaledHillConvergentFoothill = config.hillConvergentFoothill * config.tectonicIntensity;
 
-  const collision = regime === BOUNDARY_CONVERGENT ? boundaryStrength : 0;
-  const divergence = regime === BOUNDARY_DIVERGENT ? boundaryStrength : 0;
+  const collision = regime === BOUNDARY_TYPE.convergent ? boundaryStrength : 0;
+  const divergence = regime === BOUNDARY_TYPE.divergent ? boundaryStrength : 0;
 
   const orogenyPotential01 = computeOrogenyPotential01({
     boundaryStrength,
@@ -215,8 +247,10 @@ export function computeHillScore(params: {
   });
 
   const hillIntensity = Math.sqrt(boundaryStrength);
-  const foothillExtent = 0.5 + fractal * 0.5;
-  let hillScore = fractal * config.fractalWeight * 0.8 * orogenyPotential01 + uplift * config.hillUpliftWeight * 0.3;
+  const foothillExtent = HILL_FOOTHILL_BASE + fractal * HILL_FOOTHILL_FRACTAL_GAIN;
+  let hillScore =
+    fractal * config.fractalWeight * HILL_FRACTAL_WEIGHT_SCALE * orogenyPotential01 +
+    uplift * config.hillUpliftWeight * HILL_UPLIFT_WEIGHT_SCALE;
 
   if (collision > 0 && config.hillBoundaryWeight > 0) {
     hillScore += hillIntensity * scaledHillBoundaryWeight * foothillExtent;
@@ -224,7 +258,7 @@ export function computeHillScore(params: {
   }
 
   if (divergence > 0) {
-    hillScore += hillIntensity * rift * config.hillRiftBonus * foothillExtent * 0.5;
+    hillScore += hillIntensity * rift * config.hillRiftBonus * foothillExtent * HILL_RIFT_BONUS_SCALE;
   }
 
   if (config.hillInteriorFalloff > 0) {
@@ -232,8 +266,8 @@ export function computeHillScore(params: {
     hillScore *= Math.max(0, 1 - penalty);
   }
 
-  if (config.riftDepth > 0 && regime === BOUNDARY_DIVERGENT) {
-    hillScore = Math.max(0, hillScore - rift * config.riftDepth * 0.5);
+  if (config.riftDepth > 0 && regime === BOUNDARY_TYPE.divergent) {
+    hillScore = Math.max(0, hillScore - rift * config.riftDepth * HILL_RIFT_DEPTH_SCALE);
   }
 
   return Math.max(0, hillScore);
