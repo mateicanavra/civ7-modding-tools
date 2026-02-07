@@ -214,32 +214,10 @@ function deriveStageStepConfigFocusMap(args: {
   // In that case, we focus those steps directly under `advanced.<stepId>`, and fall back
   // to the stage-level mapping (usually `profiles`) for the rest.
   if (publicKeys.includes("advanced") && advancedStepIds.length > 0) {
-    const advanced: Record<string, unknown> = Object.fromEntries(
-      advancedStepIds.map((stepId) => [stepId, makeSentinel(["advanced", stepId])])
-    );
-    const { rawSteps: advancedRawSteps } = stage.toInternal({
-      env: {},
-      stageConfig: { knobs: {}, advanced },
-    });
-    for (const stepId of advancedStepIds) {
-      if (!(stepId in advancedRawSteps)) {
-        throw new Error(
-          `[recipe:${args.namespace}.${args.recipeId}] stage("${stage.id}") missing rawSteps["${stepId}"] when probing partial advanced mapping`
-        );
-      }
-      const path = assertSingleSentinelPath({
-        label: `[recipe:${args.namespace}.${args.recipeId}] stage("${stage.id}") step("${stepId}")`,
-        value: advancedRawSteps[stepId],
-      });
-      if (path.join(".") !== ["advanced", stepId].join(".")) {
-        throw new Error(
-          `[recipe:${args.namespace}.${args.recipeId}] stage("${stage.id}") partial advanced mapping produced unexpected focus path for step("${stepId}"): ${JSON.stringify(
-            path
-          )}`
-        );
-      }
-      mapping[stepId] = path;
-    }
+    // Intentionally schema-driven: `advanced.<stepId>` may be compiled into a derived step config
+    // (so a sentinel value won't necessarily survive through `toInternal`), but the Studio editor
+    // still needs to focus the relevant subtree for that step.
+    for (const stepId of advancedStepIds) mapping[stepId] = ["advanced", stepId];
   }
 
   return mapping;
