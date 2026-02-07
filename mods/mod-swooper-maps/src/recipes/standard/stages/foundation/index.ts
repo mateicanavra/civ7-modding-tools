@@ -503,6 +503,10 @@ const FOUNDATION_STEP_IDS = [
   "plate-topology",
 ] as const;
 
+// Studio-only sentinel mode uses per-step config objects under `advanced.<stepId>`. This should not
+// trigger for the physics-first `advanced` surface (which includes `advanced.mesh`).
+const FOUNDATION_STUDIO_STEP_CONFIG_IDS = FOUNDATION_STEP_IDS.filter((id) => id.includes("-"));
+
 function clampInt(value: number, bounds: { min: number; max?: number }): number {
   const rounded = Math.round(value);
   const max = bounds.max ?? Number.POSITIVE_INFINITY;
@@ -522,7 +526,8 @@ export default createStage({
   }) => {
     const advanced = config.advanced as Record<string, unknown> | undefined;
     if (advanced && typeof advanced === "object") {
-      const hasSentinel = FOUNDATION_STEP_IDS.some((stepId) =>
+      // Avoid colliding with `advanced.mesh` (physics), which is not a per-step config override.
+      const hasSentinel = FOUNDATION_STUDIO_STEP_CONFIG_IDS.some((stepId) =>
         Object.prototype.hasOwnProperty.call(advanced, stepId)
       );
       if (hasSentinel) {
