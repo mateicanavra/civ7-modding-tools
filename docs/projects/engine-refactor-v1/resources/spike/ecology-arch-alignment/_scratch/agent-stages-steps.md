@@ -27,6 +27,14 @@ Inventory stage compile mappings and step boundaries for `ecology` and `map-ecol
 #### Ecology stage
 
 - Stage file: `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/index.ts`
+- Stage `knobsSchema` shape: `Type.Object({}, { additionalProperties: false })` (closed empty object)
+- Stage public surface shape (top-level keys on `stageConfig`):
+  - `knobs?: {}` (reserved key added by `createStage`; see `packages/mapgen-core/src/authoring/stage.ts`)
+  - `pedology?: <step schema>`
+  - `resourceBasins?: <step schema>`
+  - `biomes?: <step schema>`
+  - `biomeEdgeRefine?: <step schema>`
+  - `featuresPlan?: <step schema>`
 - Public schema keys -> step ids mapping:
   - `pedology` -> `pedology`
   - `resourceBasins` -> `resource-basins`
@@ -36,13 +44,37 @@ Inventory stage compile mappings and step boundaries for `ecology` and `map-ecol
 
 This uses `createStage({ id: "ecology", ... compile: ({ env, knobs, config }) => ({ ... }) })` and returns a per-step config object keyed by step ids.
 
+Step order (stage-level sequencing):
+- `pedology`
+- `resource-basins`
+- `biomes`
+- `biome-edge-refine`
+- `features-plan`
+
 #### Map-ecology stage
 
 - Stage file: `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/index.ts`
+- Stage `knobsSchema` shape: `Type.Object({}, { additionalProperties: false })` (closed empty object)
+- Stage public surface shape:
+  - `knobs?: {}`
+  - `biomes?: <step schema>` (maps to `plot-biomes`)
+  - `featuresApply?: <step schema>`
+  - `plotEffects?: <step schema>`
 - Public schema keys -> step ids mapping:
   - `biomes` -> `plot-biomes`
   - `featuresApply` -> `features-apply`
   - `plotEffects` -> `plot-effects`
+
+Step order:
+- `plot-biomes`
+- `features-apply`
+- `plot-effects`
+
+Compiler enforcement notes:
+- The stage `compile()` output keys must be declared step ids (unknown step ids are a compile error).
+  - `packages/mapgen-core/src/compiler/recipe-compile.ts`
+- `createStage` reserves the `knobs` key at the stage surface (cannot be a step id or public key).
+  - `packages/mapgen-core/src/authoring/stage.ts`
 
 ### 2) Step.normalize posture
 
@@ -53,6 +85,12 @@ This uses `createStage({ id: "ecology", ... compile: ({ env, knobs, config }) =>
   - It appears shape-preserving (returns the same schema shape, only normalizing nested selections).
 
 No other ecology/map-ecology step currently defines a `normalize`.
+
+Additional grounding:
+- Shape-preserving is enforced by the compiler: it re-validates the post-normalize value against the step schema and emits `normalize.not.shape-preserving` on failure.
+  - `packages/mapgen-core/src/compiler/recipe-compile.ts`
+- The domain op normalize used here comes from `createOp`, which always installs a normalize function (even if the selected strategy doesn't supply a custom normalizer).
+  - `packages/mapgen-core/src/authoring/op/create.ts`
 
 ### 3) Orchestration boundaries (what lives in steps)
 
@@ -67,7 +105,19 @@ No other ecology/map-ecology step currently defines a `normalize`.
 - `resource-basins` orchestrates `plan` then `score` ops:
   - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/resource-basins/index.ts`
 
-This is consistent with “steps orchestrate, ops compute/plan.”
+This is consistent with "steps orchestrate, ops compute/plan."
+
+Map-ecology orchestration (projection to engine):
+- `plot-biomes` directly drives engine state (adapter + fields):
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/plotBiomes.ts`
+- `features-apply` calls a domain op then applies to the engine (terrain validation, area recalc, debug dumps):
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/features-apply/index.ts`
+- `plot-effects` plans then applies plot effects to the engine:
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/plot-effects/index.ts`
+
+Orchestration inside ops (vs steps):
+- `applyFeatures` merges 4 placement arrays into a flattened placement list (ordering + max-per-tile + weight gating).
+  - `mods/mod-swooper-maps/src/domain/ecology/ops/features-apply/strategies/default.ts`
 
 ### 4) Contract drift: direct import of a domain implementation
 
@@ -75,7 +125,7 @@ This is consistent with “steps orchestrate, ops compute/plan.”
 - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/features-plan/index.ts`:
   - `import ecologyOps from "@mapgen/domain/ecology/ops";`
 
-This bypasses the injected `ops` argument from `createStep(...)` and could represent drift vs the intended “step contract declares ops, runner injects ops.”
+This bypasses the injected `ops` argument from `createStep(...)` and could represent drift vs the intended "step contract declares ops, runner injects ops."
 
 However, note: it uses this import specifically to access `normalize` and `run` on optional placement ops (and uses `ops.*` for the declared ops in the contract).
 
@@ -103,5 +153,5 @@ However, note: it uses this import specifically to access `normalize` and `run` 
 ## Suggested Refactor Shapes (Conceptual Only)
 
 - Move all op usages (including optional placement ops) behind the step contract `ops` surface.
-- Consider splitting `features-plan` into per-feature steps if we want “each feature is a distinct operation” to also be visible as a distinct step boundary.
-- If we keep in-place refinement, document it explicitly in the ecology contract and treat `biomeClassification` as a “publish-once handle” akin to climateField/topography.
+- Consider splitting `features-plan` into per-feature steps if we want "each feature is a distinct operation" to also be visible as a distinct step boundary.
+- If we keep in-place refinement, document it explicitly in the ecology contract and treat `biomeClassification` as a "publish-once handle" akin to climateField/topography.
