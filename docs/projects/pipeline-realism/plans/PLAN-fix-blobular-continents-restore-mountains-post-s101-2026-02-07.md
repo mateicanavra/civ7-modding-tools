@@ -210,4 +210,3 @@ For each slice:
 - Drift profile: **Realistic** `[12, 9, 6, 3, 1]`.
 - Belt fix: **boundaryCloseness becomes pure proximity** (not intensity-scaled).
 - Landmask: **include boundary type + stress + history rollups + crust truth**, blended multi-scale, while keeping land fraction fixed via thresholding to `desiredLandCount`.
-
