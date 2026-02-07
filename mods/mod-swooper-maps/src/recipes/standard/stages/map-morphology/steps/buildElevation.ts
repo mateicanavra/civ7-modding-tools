@@ -37,24 +37,38 @@ export default createStep(BuildElevationStepContract, {
     // cannot "grow lakes" or otherwise flip land/water in a way that violates our truth tensors.
     //
     // Note: we intentionally do NOT call validateAndFixTerrain here; that can reintroduce drift.
+    //
+    // Important: GameplayMap.isWater is not guaranteed to be derived from TerrainBuilder.getTerrainType
+    // after buildElevation; it can be backed by cached water tables. So repairing only the drift tiles
+    // is not sufficient in the engine.
+    //
+    // Our invariant is: Morphology landMask is authoritative. So after buildElevation has populated
+    // engine elevation internals, we restore the full plotted terrain snapshot, then run the engine's
+    // own bookkeeping to sync water caches back to that plotted truth.
     let driftCount = 0;
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const idx = y * width + x;
+        context.adapter.setTerrainType(x, y, terrainBefore[idx] | 0);
         const wantsLand = topography.landMask[idx] === 1;
         const isWater = context.adapter.isWater(x, y);
         const isLand = !isWater;
-        if (wantsLand === isLand) continue;
-        driftCount += 1;
-        context.adapter.setTerrainType(x, y, terrainBefore[idx] | 0);
+        if (wantsLand !== isLand) driftCount += 1;
       }
     }
+
+    // Sync engine continent/area/water caches to match the restored plotted terrain.
+    // These calls are engine-owned, and are no-ops in the MockAdapter.
+    context.adapter.stampContinents();
+    context.adapter.recalculateAreas();
+    context.adapter.storeWaterData();
+    context.adapter.recalculateAreas();
+
     if (driftCount > 0) {
       context.trace.event(() => ({
         kind: "map.morphology.buildElevation.driftRepair",
         driftTiles: driftCount,
       }));
-      context.adapter.recalculateAreas();
     }
 
     const physics = context.buffers.heightfield;
