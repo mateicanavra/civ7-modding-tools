@@ -82,26 +82,10 @@ const foundationConfig = {
   knobs: { plateCount: 23, plateActivity: 0.5 },
 };
 
-const basinSeparationConfig = {
-  enabled: false,
-  baseSeparationTiles: 0,
-  boundaryClosenessMultiplier: 1.0,
-  maxPerRowDelta: 3,
-  minChannelWidth: 4,
-  channelJitter: 0,
-  respectSeaLanes: true,
-  edgeWest: {
-    enabled: false,
-    baseTiles: 0,
-    boundaryClosenessMultiplier: 1.0,
-    maxPerRowDelta: 2,
-  },
-  edgeEast: {
-    enabled: false,
-    baseTiles: 0,
-    boundaryClosenessMultiplier: 1.0,
-    maxPerRowDelta: 2,
-  },
+const landmaskConfig = {
+  continentPotentialGrain: 8,
+  continentPotentialBlurSteps: 3,
+  keepLandComponentFraction: 0.985,
 };
 
 const biomesConfig = {
@@ -389,7 +373,7 @@ export const standardConfig = {
         seaLevel: { strategy: "default", config: hypsometryConfig },
         landmask: {
           strategy: "default",
-          config: { basinSeparation: basinSeparationConfig },
+          config: landmaskConfig,
         },
       },
       "rugged-coasts": {

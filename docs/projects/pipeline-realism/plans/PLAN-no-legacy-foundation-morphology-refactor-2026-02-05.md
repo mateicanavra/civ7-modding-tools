@@ -18,7 +18,7 @@ $MOD = mods/mod-swooper-maps
 - [x] **s00** Phase 0 preflight + plan readiness (blocking): `agent-GOBI-PRR-s00-phase-0-preflight-no-shadow-and-plan-readiness`
 - [x] **s10** Phase A Foundation truth normalization + degeneracy elimination: `agent-GOBI-PRR-s10-phase-a-foundation-truth-nondegenerate`
 - [x] **s11** Phase A review thread closures (1077/1078/1083): `agent-GOBI-PRR-s11-phase-a-thread-closures-1077-1078-1083`
-- [ ] **s20** Phase B landmask grounded in crust truth (numeric gate slice): `agent-GOBI-PRR-s20-phase-b-landmask-grounded-in-crust-truth`
+- [x] **s20** Phase B landmask grounded in crust truth (numeric gate slice): `agent-GOBI-PRR-s20-phase-b-landmask-grounded-in-crust-truth`
 - [ ] **s21** Phase B erosion: no hidden land/water reclassification: `agent-GOBI-PRR-s21-phase-b-erosion-no-hidden-reclass`
 - [ ] **s30** Phase C belts as modifiers (positive-intensity seeding): `agent-GOBI-PRR-s30-phase-c-belts-as-modifiers`
 - [ ] **s40** Phase D observability enforcement (tiers + gate correctness): `agent-GOBI-PRR-s40-phase-d-observability-enforcement`
@@ -83,6 +83,9 @@ This section is intentionally short and pointer-only. Evidence payloads live und
 - s11: `agent-GOBI-PRR-s11-phase-a-thread-closures-1077-1078-1083`
   - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1152
   - Evidence: `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/s11.md`
+- s20: `agent-GOBI-PRR-s20-phase-b-landmask-grounded-in-crust-truth`
+  - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1153
+  - Evidence: `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/s20.md`
 
 ## Canonical Sources (Normative)
 

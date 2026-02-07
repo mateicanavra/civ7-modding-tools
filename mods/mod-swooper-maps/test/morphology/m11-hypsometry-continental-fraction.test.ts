@@ -152,14 +152,19 @@ describe("m11 hypsometry: continentalFraction does not collapse water coverage",
     ).seaLevel;
 
     const landmask = computeLandmask.run(
-      { width, height, elevation: baseTopography.elevation, seaLevel, boundaryCloseness: plates.boundaryCloseness },
       {
-        ...computeLandmask.defaultConfig,
-        config: {
-          ...computeLandmask.defaultConfig.config,
-          basinSeparation: { ...computeLandmask.defaultConfig.config.basinSeparation, enabled: false },
-        },
-      }
+        width,
+        height,
+        elevation: baseTopography.elevation,
+        seaLevel,
+        boundaryCloseness: plates.boundaryCloseness,
+        crustType,
+        crustBaseElevation,
+        crustAge: crustTiles.age,
+        provenanceOriginEra: projection.tectonicProvenanceTiles.originEra,
+        provenanceDriftDistance: projection.tectonicProvenanceTiles.driftDistance,
+      },
+      computeLandmask.defaultConfig
     );
 
     let land = 0;

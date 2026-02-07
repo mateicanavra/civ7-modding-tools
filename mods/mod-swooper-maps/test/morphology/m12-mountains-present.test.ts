@@ -148,7 +148,18 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
     ).seaLevel;
 
     const landmask = computeLandmask.run(
-      { width, height, elevation: baseTopography.elevation, seaLevel, boundaryCloseness: plates.boundaryCloseness },
+      {
+        width,
+        height,
+        elevation: baseTopography.elevation,
+        seaLevel,
+        boundaryCloseness: plates.boundaryCloseness,
+        crustType,
+        crustBaseElevation,
+        crustAge: crustTiles.age,
+        provenanceOriginEra: projection.tectonicProvenanceTiles.originEra,
+        provenanceDriftDistance: projection.tectonicProvenanceTiles.driftDistance,
+      },
       computeLandmask.defaultConfig
     );
 

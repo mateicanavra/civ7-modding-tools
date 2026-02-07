@@ -61,28 +61,9 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
       landmask: {
         strategy: "default",
         config: {
-          basinSeparation: {
-            enabled: false,
-            bandPairs: [],
-            baseSeparationTiles: 0,
-            boundaryClosenessMultiplier: 1.0,
-            maxPerRowDelta: 4,
-            minChannelWidth: 5,
-            channelJitter: 0,
-            respectSeaLanes: true,
-            edgeWest: {
-              enabled: false,
-              baseTiles: 0,
-              boundaryClosenessMultiplier: 1.0,
-              maxPerRowDelta: 2,
-            },
-            edgeEast: {
-              enabled: false,
-              baseTiles: 0,
-              boundaryClosenessMultiplier: 1.0,
-              maxPerRowDelta: 2,
-            },
-          },
+          continentPotentialGrain: 8,
+          continentPotentialBlurSteps: 3,
+          keepLandComponentFraction: 0.985,
         },
       },
     },
