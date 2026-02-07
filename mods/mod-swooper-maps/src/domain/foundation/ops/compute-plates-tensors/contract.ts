@@ -240,6 +240,10 @@ const TectonicHistoryTilesEraSchema = Type.Object(
     transformMask: TypedArraySchemas.u8({ description: "Transform mask per tile (0/1)." }),
     /** Uplift potential per tile (0..255). */
     upliftPotential: TypedArraySchemas.u8({ description: "Uplift potential per tile (0..255)." }),
+    /** Collision-driven uplift potential per tile (0..255). */
+    collisionPotential: TypedArraySchemas.u8({ description: "Collision-driven uplift potential per tile (0..255)." }),
+    /** Subduction-driven uplift potential per tile (0..255). */
+    subductionPotential: TypedArraySchemas.u8({ description: "Subduction-driven uplift potential per tile (0..255)." }),
     /** Rift potential per tile (0..255). */
     riftPotential: TypedArraySchemas.u8({ description: "Rift potential per tile (0..255)." }),
     /** Shear stress per tile (0..255). */
@@ -257,6 +261,10 @@ const TectonicHistoryTilesRollupSchema = Type.Object(
   {
     /** Accumulated uplift total per tile (0..255). */
     upliftTotal: TypedArraySchemas.u8({ description: "Accumulated uplift total per tile (0..255)." }),
+    /** Accumulated collision uplift total per tile (0..255). */
+    collisionTotal: TypedArraySchemas.u8({ description: "Accumulated collision uplift total per tile (0..255)." }),
+    /** Accumulated subduction uplift total per tile (0..255). */
+    subductionTotal: TypedArraySchemas.u8({ description: "Accumulated subduction uplift total per tile (0..255)." }),
     /** Accumulated fracture total per tile (0..255). */
     fractureTotal: TypedArraySchemas.u8({ description: "Accumulated fracture total per tile (0..255)." }),
     /** Accumulated volcanism total per tile (0..255). */
@@ -265,8 +273,20 @@ const TectonicHistoryTilesRollupSchema = Type.Object(
     upliftRecentFraction: TypedArraySchemas.u8({
       description: "Fraction of uplift attributable to recent eras per tile (0..255).",
     }),
+    /** Fraction of collision uplift attributable to recent eras per tile (0..255). */
+    collisionRecentFraction: TypedArraySchemas.u8({
+      description: "Fraction of collision uplift attributable to recent eras per tile (0..255).",
+    }),
+    /** Fraction of subduction uplift attributable to recent eras per tile (0..255). */
+    subductionRecentFraction: TypedArraySchemas.u8({
+      description: "Fraction of subduction uplift attributable to recent eras per tile (0..255).",
+    }),
     /** Last active era index per tile (0..255; 255 = never). */
     lastActiveEra: TypedArraySchemas.u8({ description: "Last active era index per tile (0..255; 255 = never)." }),
+    /** Last collision-active era index per tile (0..255; 255 = never). */
+    lastCollisionEra: TypedArraySchemas.u8({ description: "Last collision-active era index per tile (0..255; 255 = never)." }),
+    /** Last subduction-active era index per tile (0..255; 255 = never). */
+    lastSubductionEra: TypedArraySchemas.u8({ description: "Last subduction-active era index per tile (0..255; 255 = never)." }),
     /** Plate movement U component per tile (-127..127). */
     movementU: TypedArraySchemas.i8({ description: "Plate movement U component per tile (-127..127)." }),
     /** Plate movement V component per tile (-127..127). */

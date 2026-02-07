@@ -20,6 +20,8 @@ function validateRidgesInputs(input: PlanRidgesTypes["input"]): {
   boundaryCloseness: Uint8Array;
   boundaryType: Uint8Array;
   upliftPotential: Uint8Array;
+  collisionPotential: Uint8Array;
+  subductionPotential: Uint8Array;
   riftPotential: Uint8Array;
   tectonicStress: Uint8Array;
   beltAge: Uint8Array;
@@ -32,6 +34,8 @@ function validateRidgesInputs(input: PlanRidgesTypes["input"]): {
   const boundaryCloseness = input.boundaryCloseness as Uint8Array;
   const boundaryType = input.boundaryType as Uint8Array;
   const upliftPotential = input.upliftPotential as Uint8Array;
+  const collisionPotential = input.collisionPotential as Uint8Array;
+  const subductionPotential = input.subductionPotential as Uint8Array;
   const riftPotential = input.riftPotential as Uint8Array;
   const tectonicStress = input.tectonicStress as Uint8Array;
   const beltAge = input.beltAge as Uint8Array;
@@ -42,6 +46,8 @@ function validateRidgesInputs(input: PlanRidgesTypes["input"]): {
     boundaryCloseness.length !== size ||
     boundaryType.length !== size ||
     upliftPotential.length !== size ||
+    collisionPotential.length !== size ||
+    subductionPotential.length !== size ||
     riftPotential.length !== size ||
     tectonicStress.length !== size ||
     beltAge.length !== size ||
@@ -56,6 +62,8 @@ function validateRidgesInputs(input: PlanRidgesTypes["input"]): {
     boundaryCloseness,
     boundaryType,
     upliftPotential,
+    collisionPotential,
+    subductionPotential,
     riftPotential,
     tectonicStress,
     beltAge,
@@ -68,7 +76,7 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
     const { width, height } = input;
     const w = width | 0;
     const h = height | 0;
-    const { size, landMask, boundaryCloseness, boundaryType, upliftPotential, riftPotential, tectonicStress, beltAge, fractalMountain } =
+    const { size, landMask, boundaryCloseness, boundaryType, upliftPotential, collisionPotential, subductionPotential, riftPotential, tectonicStress, beltAge, fractalMountain } =
       validateRidgesInputs(input);
 
     const mountainMask = new Uint8Array(size);
@@ -96,12 +104,14 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
       // but the underlying physical proximity signal does not have a discontinuity.
       const boundaryInfluence = Math.pow(closenessNorm, falloffExponent);
 
-      const uplift = upliftPotential[i] / 255;
+      const collisionUplift = collisionPotential[i] / 255;
+      const subductionUplift = subductionPotential[i] / 255;
+      const uplift = Math.max(upliftPotential[i] / 255, collisionUplift, subductionUplift);
       const stress = tectonicStress[i] / 255;
       const rift = riftPotential[i] / 255;
       const bType = boundaryType[i];
 
-      const driverByte = Math.max(upliftPotential[i] ?? 0, tectonicStress[i] ?? 0, riftPotential[i] ?? 0);
+      const driverByte = Math.max(upliftPotential[i] ?? 0, collisionPotential[i] ?? 0, subductionPotential[i] ?? 0, tectonicStress[i] ?? 0, riftPotential[i] ?? 0);
       const driverStrength = resolveDriverStrength({
         driverByte,
         driverSignalByteMin: config.driverSignalByteMin,
@@ -127,6 +137,8 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
         boundaryStrength,
         boundaryType: bType,
         uplift,
+        collisionUplift,
+        subductionUplift,
         stress,
         rift,
         fractal,

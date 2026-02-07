@@ -45,8 +45,11 @@ export function computeHillScore(params: {
     uplift * config.hillUpliftWeight * config.hillUpliftScale * driverStrength;
 
   if (collision > 0 && config.hillBoundaryWeight > 0) {
-    hillScore += hillIntensity * scaledHillBoundaryWeight * foothillExtent;
-    hillScore += hillIntensity * scaledHillConvergentFoothill * foothillExtent;
+    // Boundary proximity alone does not create hills; deformation (uplift/stress) does.
+    // Multiply by orogenyPotential to prevent broad, low-signal boundary "halos" from
+    // turning entire continents into hills when boundaryCloseness is pure proximity.
+    hillScore += hillIntensity * scaledHillBoundaryWeight * foothillExtent * orogenyPotential;
+    hillScore += hillIntensity * scaledHillConvergentFoothill * foothillExtent * orogenyPotential;
   }
 
   if (divergence > 0) {

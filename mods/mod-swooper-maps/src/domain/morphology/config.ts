@@ -366,6 +366,17 @@ export const MountainsConfigSchema = Type.Object(
       minimum: 0,
     }),
     /**
+     * Subduction-driven uplift contribution to mountain scoring (unitless weight).
+     *
+     * Subduction arcs are often narrower and less topographically broad than continent-continent
+     * collision belts, so this should typically be lower than collision uplift weights.
+     */
+    mountainSubductionUpliftWeight: Type.Number({
+      description: "Subduction-driven uplift contribution to mountain scoring (unitless weight).",
+      default: 0.25,
+      minimum: 0,
+    }),
+    /**
      * Interior uplift factor (0..1+) applied only when driverStrength is nonzero.
      *
      * This keeps mountains tied to tectonic driver corridors instead of appearing as plate-interior noise.

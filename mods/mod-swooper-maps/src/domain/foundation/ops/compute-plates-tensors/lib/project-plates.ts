@@ -120,6 +120,8 @@ export function projectPlatesFromModel(input: {
       divergentMask: Uint8Array;
       transformMask: Uint8Array;
       upliftPotential: Uint8Array;
+      collisionPotential: Uint8Array;
+      subductionPotential: Uint8Array;
       riftPotential: Uint8Array;
       shearStress: Uint8Array;
       volcanism: Uint8Array;
@@ -127,10 +129,16 @@ export function projectPlatesFromModel(input: {
     }[];
     rollups: {
       upliftTotal: Uint8Array;
+      collisionTotal: Uint8Array;
+      subductionTotal: Uint8Array;
       fractureTotal: Uint8Array;
       volcanismTotal: Uint8Array;
       upliftRecentFraction: Uint8Array;
+      collisionRecentFraction: Uint8Array;
+      subductionRecentFraction: Uint8Array;
       lastActiveEra: Uint8Array;
+      lastCollisionEra: Uint8Array;
+      lastSubductionEra: Uint8Array;
       movementU: Int8Array;
       movementV: Int8Array;
     };
@@ -189,6 +197,8 @@ export function projectPlatesFromModel(input: {
     divergentMask: Uint8Array;
     transformMask: Uint8Array;
     upliftPotential: Uint8Array;
+    collisionPotential: Uint8Array;
+    subductionPotential: Uint8Array;
     riftPotential: Uint8Array;
     shearStress: Uint8Array;
     volcanism: Uint8Array;
@@ -201,6 +211,8 @@ export function projectPlatesFromModel(input: {
       divergentMask: new Uint8Array(size),
       transformMask: new Uint8Array(size),
       upliftPotential: new Uint8Array(size),
+      collisionPotential: new Uint8Array(size),
+      subductionPotential: new Uint8Array(size),
       riftPotential: new Uint8Array(size),
       shearStress: new Uint8Array(size),
       volcanism: new Uint8Array(size),
@@ -209,10 +221,16 @@ export function projectPlatesFromModel(input: {
   }
   const historyRollups = {
     upliftTotal: new Uint8Array(size),
+    collisionTotal: new Uint8Array(size),
+    subductionTotal: new Uint8Array(size),
     fractureTotal: new Uint8Array(size),
     volcanismTotal: new Uint8Array(size),
     upliftRecentFraction: new Uint8Array(size),
+    collisionRecentFraction: new Uint8Array(size),
+    subductionRecentFraction: new Uint8Array(size),
     lastActiveEra: new Uint8Array(size),
+    lastCollisionEra: new Uint8Array(size),
+    lastSubductionEra: new Uint8Array(size),
     movementU,
     movementV,
   } as const;
@@ -282,6 +300,8 @@ export function projectPlatesFromModel(input: {
       perEra.divergentMask[i] = boundary === BOUNDARY_TYPE.divergent ? 1 : 0;
       perEra.transformMask[i] = boundary === BOUNDARY_TYPE.transform ? 1 : 0;
       perEra.upliftPotential[i] = era.upliftPotential[cellId] ?? 0;
+      perEra.collisionPotential[i] = era.collisionPotential[cellId] ?? 0;
+      perEra.subductionPotential[i] = era.subductionPotential[cellId] ?? 0;
       perEra.riftPotential[i] = era.riftPotential[cellId] ?? 0;
       perEra.shearStress[i] = era.shearStress[cellId] ?? 0;
       perEra.volcanism[i] = era.volcanism[cellId] ?? 0;
@@ -289,10 +309,16 @@ export function projectPlatesFromModel(input: {
     }
 
     historyRollups.upliftTotal[i] = tectonicHistory.upliftTotal[cellId] ?? 0;
+    historyRollups.collisionTotal[i] = tectonicHistory.collisionTotal[cellId] ?? 0;
+    historyRollups.subductionTotal[i] = tectonicHistory.subductionTotal[cellId] ?? 0;
     historyRollups.fractureTotal[i] = tectonicHistory.fractureTotal[cellId] ?? 0;
     historyRollups.volcanismTotal[i] = tectonicHistory.volcanismTotal[cellId] ?? 0;
     historyRollups.upliftRecentFraction[i] = tectonicHistory.upliftRecentFraction[cellId] ?? 0;
+    historyRollups.collisionRecentFraction[i] = tectonicHistory.collisionRecentFraction[cellId] ?? 0;
+    historyRollups.subductionRecentFraction[i] = tectonicHistory.subductionRecentFraction[cellId] ?? 0;
     historyRollups.lastActiveEra[i] = tectonicHistory.lastActiveEra[cellId] ?? 255;
+    historyRollups.lastCollisionEra[i] = tectonicHistory.lastCollisionEra[cellId] ?? 255;
+    historyRollups.lastSubductionEra[i] = tectonicHistory.lastSubductionEra[cellId] ?? 255;
 
     if (provenanceScalars) {
       provenanceTiles.originEra[i] = provenanceScalars.originEra[cellId] ?? 0;
