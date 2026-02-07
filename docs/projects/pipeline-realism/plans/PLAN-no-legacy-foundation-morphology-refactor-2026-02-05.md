@@ -16,7 +16,8 @@ $MOD = mods/mod-swooper-maps
 ### Master Slice Checklist (Mark As You Go)
 
 - [x] **s00** Phase 0 preflight + plan readiness (blocking): `agent-GOBI-PRR-s00-phase-0-preflight-no-shadow-and-plan-readiness`
-- [ ] **s10** Phase A Foundation truth normalization + degeneracy elimination: `agent-GOBI-PRR-s10-phase-a-foundation-truth-nondegenerate`
+- [x] **s10** Phase A Foundation truth normalization + degeneracy elimination: `agent-GOBI-PRR-s10-phase-a-foundation-truth-nondegenerate`
+- [ ] **s11** Phase A review thread closures (1077/1078/1083): `agent-GOBI-PRR-s11-phase-a-thread-closures-1077-1078-1083`
 - [ ] **s20** Phase B landmask grounded in crust truth (numeric gate slice): `agent-GOBI-PRR-s20-phase-b-landmask-grounded-in-crust-truth`
 - [ ] **s21** Phase B erosion: no hidden land/water reclassification: `agent-GOBI-PRR-s21-phase-b-erosion-no-hidden-reclass`
 - [ ] **s30** Phase C belts as modifiers (positive-intensity seeding): `agent-GOBI-PRR-s30-phase-c-belts-as-modifiers`
@@ -68,6 +69,17 @@ $MOD = mods/mod-swooper-maps
    - `gt restack --upstack`
    - `gt submit --stack --draft --ai`
 7. Report the stack tip (branch + commit SHA) to the orchestrator so primary checkout + narsil indexing can be advanced.
+
+### Execution Log (Slice Completion + Evidence Pointers)
+
+This section is intentionally short and pointer-only. Evidence payloads live under `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/`.
+
+- s00: `agent-GOBI-PRR-s00-phase-0-preflight-no-shadow-and-plan-readiness`
+  - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1150
+  - Evidence: `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/s00.md`
+- s10: `agent-GOBI-PRR-s10-phase-a-foundation-truth-nondegenerate`
+  - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1151
+  - Evidence: `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/s10.md`
 
 ## Canonical Sources (Normative)
 

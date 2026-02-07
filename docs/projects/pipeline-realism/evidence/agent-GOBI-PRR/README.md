@@ -5,6 +5,7 @@ This directory is the durable, repo-tracked evidence bundle for the Pipeline Rea
 Evidence files (in stack order):
 - `s00.md`: Phase 0 no-shadow + execution runbook readiness
 - `s10.md`: Phase A (Foundation truth non-degenerate)
+- `s11.md`: Phase A review thread closures (1077/1078/1083)
 - `s20.md`: Phase B (landmask grounded in crust truth) + numeric gate
 - `s21.md`: Phase B erosion connectivity (no hidden reclassification)
 - `s30.md`: Phase C belts as modifiers (positive-intensity diffusion seeding)
