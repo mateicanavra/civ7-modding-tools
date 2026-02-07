@@ -78,6 +78,7 @@ This section is intentionally short and pointer-only. Evidence payloads live und
   - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1150
   - Evidence: `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/s00.md`
 - s10: `agent-GOBI-PRR-s10-phase-a-foundation-truth-nondegenerate`
+  - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1151
   - Evidence: `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/s10.md`
 
 ## Canonical Sources (Normative)
