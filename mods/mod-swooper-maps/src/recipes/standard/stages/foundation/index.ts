@@ -201,6 +201,35 @@ const advancedMeshSchema = Type.Object(
   }
 );
 
+const advancedTectonicsHistorySchema = Type.Object(
+  {
+    driftStepsByEra: Type.Optional(
+      Type.Array(
+        Type.Integer({
+          minimum: 0,
+          maximum: 16,
+          description:
+            "Discrete neighbor-step drift to apply per era (oldest->newest). Larger values create more visible boundary migration across eras.",
+        })
+      )
+    ),
+  },
+  {
+    additionalProperties: false,
+    description: "Advanced tectonic-history inputs (physics levers).",
+  }
+);
+
+const advancedTectonicsSchema = Type.Object(
+  {
+    history: Type.Optional(advancedTectonicsHistorySchema),
+  },
+  {
+    additionalProperties: false,
+    description: "Advanced tectonics inputs (physics levers only).",
+  }
+);
+
 /**
  * Foundation knobs (plateCount/plateActivity). Knobs apply after defaulted step config as deterministic transforms.
  */
@@ -221,6 +250,7 @@ const advancedSchema = Type.Object(
     lithosphere: Type.Optional(advancedLithosphereSchema),
     budgets: Type.Optional(advancedBudgetsSchema),
     mesh: Type.Optional(advancedMeshSchema),
+    tectonics: Type.Optional(advancedTectonicsSchema),
   },
   {
     additionalProperties: false,
@@ -271,7 +301,9 @@ const COMMON_TECTONIC_SEGMENTS = {
 
 const COMMON_TECTONIC_HISTORY = {
   eraWeights: [0.3, 0.25, 0.2, 0.15, 0.1],
-  driftStepsByEra: [2, 2, 2, 2, 2],
+  // Oldest -> newest. Older eras should drift farther to create visible boundary migration
+  // (and reduce the "static snapshot reweighted" feel).
+  driftStepsByEra: [12, 9, 6, 3, 1],
   beltInfluenceDistance: 8,
   beltDecay: 0.55,
   activityThreshold: 1,
@@ -302,6 +334,20 @@ function deriveDriftStepsByEra(args: { eraCount: number }): number[] {
   const tail = base.at(-1) ?? 2;
   while (extended.length < args.eraCount) extended.push(tail);
   return extended;
+}
+
+function normalizeDriftStepsByEra(args: { eraCount: number; raw: unknown }): number[] | undefined {
+  if (!Array.isArray(args.raw)) return undefined;
+  const out: number[] = [];
+  for (const v of args.raw) {
+    if (typeof v !== "number" || !Number.isFinite(v)) continue;
+    out.push(clampInt(v, 0, 16));
+  }
+  if (out.length <= 0) return undefined;
+  if (out.length > args.eraCount) return out.slice(0, args.eraCount);
+  const tail = out.at(-1) ?? 0;
+  while (out.length < args.eraCount) out.push(tail);
+  return out;
 }
 
 type CrustDefaults = Readonly<{
@@ -602,7 +648,19 @@ export default createStage({
       8
     );
     const eraWeights = deriveEraWeights({ eraCount });
-    const driftStepsByEra = deriveDriftStepsByEra({ eraCount });
+    const driftStepsByEra = (() => {
+      const base = deriveDriftStepsByEra({ eraCount });
+      const driftOverride =
+        advanced &&
+        typeof advanced === "object" &&
+        "tectonics" in advanced &&
+        (advanced as { tectonics?: unknown }).tectonics &&
+        typeof (advanced as { tectonics?: unknown }).tectonics === "object" &&
+        "history" in ((advanced as { tectonics?: unknown }).tectonics as Record<string, unknown>) &&
+        (((advanced as { tectonics?: unknown }).tectonics as { history?: unknown }).history as Record<string, unknown> | undefined)
+          ?.driftStepsByEra;
+      return normalizeDriftStepsByEra({ eraCount, raw: driftOverride }) ?? base;
+    })();
 
     const meshOverrides =
       advanced && typeof advanced === "object" && "mesh" in advanced ? (advanced as { mesh?: Record<string, unknown> }).mesh ?? {} : {};
