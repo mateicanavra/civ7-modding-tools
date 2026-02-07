@@ -419,7 +419,10 @@ export const standardConfig = {
     },
   },
   "map-morphology": {
-    mountains: { mountains: { strategy: "default", config: mountainsConfig } },
+    mountains: {
+      ridges: { strategy: "default", config: mountainsConfig },
+      foothills: { strategy: "default", config: mountainsConfig },
+    },
   },
   "hydrology-climate-baseline": {
     knobs: {

@@ -180,7 +180,31 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
   },
   "map-morphology": {
     mountains: {
-      mountains: {
+      ridges: {
+        strategy: "default",
+        config: {
+          // Desert mountains: frequent peaks, strong rift relief, reduced erosion
+          tectonicIntensity: 0.63,
+          mountainThreshold: 0.64,
+          hillThreshold: 0.36,
+          upliftWeight: 0.20,
+          fractalWeight: 0.90,
+          riftDepth: 0.45,
+          boundaryWeight: 0.38,
+          boundaryGate: 0.14,
+          boundaryExponent: 1.1,
+          interiorPenaltyWeight: 0.16,
+          convergenceBonus: 0.6,
+          transformPenalty: 0.55,
+          riftPenalty: 0.65,
+          hillBoundaryWeight: 0.22,
+          hillRiftBonus: 0.5,
+          hillConvergentFoothill: 0.36,
+          hillInteriorFalloff: 0.2,
+          hillUpliftWeight: 0.2,
+        },
+      },
+      foothills: {
         strategy: "default",
         config: {
           // Desert mountains: frequent peaks, strong rift relief, reduced erosion

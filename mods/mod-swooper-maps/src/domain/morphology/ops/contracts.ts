@@ -9,6 +9,8 @@ import ComputeShelfMaskContract from "./compute-shelf-mask/contract.js";
 import ComputeSeaLevelContract from "./compute-sea-level/contract.js";
 import ComputeSubstrateContract from "./compute-substrate/contract.js";
 import PlanIslandChainsContract from "./plan-island-chains/contract.js";
+import PlanFoothillsContract from "./plan-foothills/contract.js";
+import PlanRidgesContract from "./plan-ridges/contract.js";
 import PlanRidgesAndFoothillsContract from "./plan-ridges-and-foothills/contract.js";
 import PlanVolcanoesContract from "./plan-volcanoes/contract.js";
 
@@ -24,6 +26,8 @@ export const contracts = {
   computeSeaLevel: ComputeSeaLevelContract,
   computeSubstrate: ComputeSubstrateContract,
   planIslandChains: PlanIslandChainsContract,
+  planFoothills: PlanFoothillsContract,
+  planRidges: PlanRidgesContract,
   planRidgesAndFoothills: PlanRidgesAndFoothillsContract,
   planVolcanoes: PlanVolcanoesContract,
 } as const;

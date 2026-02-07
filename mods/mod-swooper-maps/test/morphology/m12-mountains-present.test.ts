@@ -11,9 +11,9 @@ import computeTectonicHistory from "../../src/domain/foundation/ops/compute-tect
 import computePlatesTensors from "../../src/domain/foundation/ops/compute-plates-tensors/index.js";
 
 import computeBaseTopography from "../../src/domain/morphology/ops/compute-base-topography/index.js";
-import computeLandmask from "../../src/domain/morphology/ops/compute-landmask/index.js";
 import computeSeaLevel from "../../src/domain/morphology/ops/compute-sea-level/index.js";
-import planRidgesAndFoothills from "../../src/domain/morphology/ops/plan-ridges-and-foothills/index.js";
+import planRidges from "../../src/domain/morphology/ops/plan-ridges/index.js";
+import planFoothills from "../../src/domain/morphology/ops/plan-foothills/index.js";
 
 function derivePlateMotion(mesh: any, plateGraph: any, rngSeed: number) {
   const mantlePotential = computeMantlePotential.run({ mesh, rngSeed }, computeMantlePotential.defaultConfig)
@@ -147,49 +147,72 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
       }
     ).seaLevel;
 
-    const landmask = computeLandmask.run(
-      {
-        width,
-        height,
-        elevation: baseTopography.elevation,
-        seaLevel,
-        boundaryCloseness: plates.boundaryCloseness,
-        crustType,
-        crustBaseElevation,
-        crustAge: crustTiles.age,
-        provenanceOriginEra: projection.tectonicProvenanceTiles.originEra,
-        provenanceDriftDistance: projection.tectonicProvenanceTiles.driftDistance,
-        riftPotentialByEra: projection.tectonicHistoryTiles.perEra.map((era) => era.riftPotential),
-        fractureTotal: projection.tectonicHistoryTiles.rollups.fractureTotal,
-        movementU: plates.movementU,
-        movementV: plates.movementV,
-      },
-      computeLandmask.defaultConfig
-    );
+    const landMask = new Uint8Array(size);
+    for (let i = 0; i < size; i++) {
+      landMask[i] = baseTopography.elevation[i]! > seaLevel ? 1 : 0;
+    }
 
     const fractalMountain = new Int16Array(size);
     const fractalHill = new Int16Array(size);
     fractalMountain.fill(255);
     fractalHill.fill(255);
 
-    const ridges = planRidgesAndFoothills.run(
+    const ridges = planRidges.run(
       {
         width,
         height,
-        landMask: landmask.landMask,
+        landMask,
         boundaryCloseness: plates.boundaryCloseness,
         boundaryType: plates.boundaryType,
         upliftPotential: plates.upliftPotential,
         riftPotential: plates.riftPotential,
         tectonicStress: plates.tectonicStress,
         fractalMountain,
+      },
+      {
+        ...planRidges.defaultConfig,
+        config: {
+          ...planRidges.defaultConfig.config,
+          // Retuned for mantle-derived motion to preserve mountain presence.
+          tectonicIntensity: 1.7,
+          mountainThreshold: 0.59,
+          hillThreshold: 0.44,
+          upliftWeight: 0.28,
+          fractalWeight: 0.72,
+          riftDepth: 0.27,
+          boundaryWeight: 0.18,
+          boundaryGate: 0.11,
+          boundaryExponent: 1.18,
+          interiorPenaltyWeight: 0.09,
+          convergenceBonus: 0.6,
+          transformPenalty: 0.65,
+          riftPenalty: 0.78,
+          hillBoundaryWeight: 0.32,
+          hillRiftBonus: 0.36,
+          hillConvergentFoothill: 0.36,
+          hillInteriorFalloff: 0.2,
+          hillUpliftWeight: 0.18,
+        },
+      }
+    );
+
+    const foothills = planFoothills.run(
+      {
+        width,
+        height,
+        landMask,
+        mountainMask: ridges.mountainMask,
+        boundaryCloseness: plates.boundaryCloseness,
+        boundaryType: plates.boundaryType,
+        upliftPotential: plates.upliftPotential,
+        riftPotential: plates.riftPotential,
+        tectonicStress: plates.tectonicStress,
         fractalHill,
       },
       {
-        ...planRidgesAndFoothills.defaultConfig,
+        ...planFoothills.defaultConfig,
         config: {
-          ...planRidgesAndFoothills.defaultConfig.config,
-          // Retuned for mantle-derived motion to preserve mountain presence.
+          ...planFoothills.defaultConfig.config,
           tectonicIntensity: 1.7,
           mountainThreshold: 0.59,
           hillThreshold: 0.44,
@@ -216,10 +239,10 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
     let mountainTiles = 0;
     let hillTiles = 0;
     for (let i = 0; i < size; i++) {
-      if (landmask.landMask[i] !== 1) continue;
+      if (landMask[i] !== 1) continue;
       landTiles++;
       if (ridges.mountainMask[i] === 1) mountainTiles++;
-      else if (ridges.hillMask[i] === 1) hillTiles++;
+      else if (foothills.hillMask[i] === 1) hillTiles++;
     }
 
     expect(landTiles).toBeGreaterThan(0);
