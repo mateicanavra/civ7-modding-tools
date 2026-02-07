@@ -709,6 +709,8 @@ const morphologyDriverCorrelationInvariant: ValidationInvariant = {
         boundaryCloseness: beltDrivers.boundaryCloseness,
         boundaryType: beltDrivers.boundaryType,
         upliftPotential: beltDrivers.upliftPotential,
+        collisionPotential: beltDrivers.collisionPotential,
+        subductionPotential: beltDrivers.subductionPotential,
         riftPotential: beltDrivers.riftPotential,
         tectonicStress: beltDrivers.tectonicStress,
         beltAge: beltDrivers.beltAge,
@@ -728,6 +730,8 @@ const morphologyDriverCorrelationInvariant: ValidationInvariant = {
         boundaryCloseness: beltDrivers.boundaryCloseness,
         boundaryType: beltDrivers.boundaryType,
         upliftPotential: beltDrivers.upliftPotential,
+        collisionPotential: beltDrivers.collisionPotential,
+        subductionPotential: beltDrivers.subductionPotential,
         riftPotential: beltDrivers.riftPotential,
         tectonicStress: beltDrivers.tectonicStress,
         beltAge: beltDrivers.beltAge,
@@ -758,6 +762,8 @@ const morphologyDriverCorrelationInvariant: ValidationInvariant = {
       if (landMask[i] !== 1) continue;
       const driver = Math.max(
         beltDrivers.upliftPotential[i] ?? 0,
+        beltDrivers.collisionPotential[i] ?? 0,
+        beltDrivers.subductionPotential[i] ?? 0,
         beltDrivers.riftPotential[i] ?? 0,
         beltDrivers.tectonicStress[i] ?? 0
       );

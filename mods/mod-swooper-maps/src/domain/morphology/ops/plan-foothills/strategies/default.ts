@@ -1,5 +1,7 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
+import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
+
 import PlanFoothillsContract from "../contract.js";
 import type { PlanFoothillsTypes } from "../types.js";
 
@@ -18,6 +20,8 @@ function validateFoothillsInputs(input: PlanFoothillsTypes["input"]): {
   boundaryCloseness: Uint8Array;
   boundaryType: Uint8Array;
   upliftPotential: Uint8Array;
+  collisionPotential: Uint8Array;
+  subductionPotential: Uint8Array;
   riftPotential: Uint8Array;
   tectonicStress: Uint8Array;
   beltAge: Uint8Array;
@@ -31,6 +35,8 @@ function validateFoothillsInputs(input: PlanFoothillsTypes["input"]): {
   const boundaryCloseness = input.boundaryCloseness as Uint8Array;
   const boundaryType = input.boundaryType as Uint8Array;
   const upliftPotential = input.upliftPotential as Uint8Array;
+  const collisionPotential = input.collisionPotential as Uint8Array;
+  const subductionPotential = input.subductionPotential as Uint8Array;
   const riftPotential = input.riftPotential as Uint8Array;
   const tectonicStress = input.tectonicStress as Uint8Array;
   const beltAge = input.beltAge as Uint8Array;
@@ -42,6 +48,8 @@ function validateFoothillsInputs(input: PlanFoothillsTypes["input"]): {
     boundaryCloseness.length !== size ||
     boundaryType.length !== size ||
     upliftPotential.length !== size ||
+    collisionPotential.length !== size ||
+    subductionPotential.length !== size ||
     riftPotential.length !== size ||
     tectonicStress.length !== size ||
     beltAge.length !== size ||
@@ -57,6 +65,8 @@ function validateFoothillsInputs(input: PlanFoothillsTypes["input"]): {
     boundaryCloseness,
     boundaryType,
     upliftPotential,
+    collisionPotential,
+    subductionPotential,
     riftPotential,
     tectonicStress,
     beltAge,
@@ -73,6 +83,8 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
       boundaryCloseness,
       boundaryType,
       upliftPotential,
+      collisionPotential,
+      subductionPotential,
       riftPotential,
       tectonicStress,
       beltAge,
@@ -98,12 +110,20 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
       const closenessNorm = boundaryCloseness[i] / 255;
       const boundaryStrength = resolveBoundaryStrength(closenessNorm, boundaryGate, falloffExponent);
 
-      const uplift = upliftPotential[i] / 255;
+      const collisionUplift = collisionPotential[i] / 255;
+      const subductionUplift = subductionPotential[i] / 255;
+      const uplift = Math.max(upliftPotential[i] / 255, collisionUplift, subductionUplift);
       const stress = tectonicStress[i] / 255;
       const rift = riftPotential[i] / 255;
       const bType = boundaryType[i];
 
-      const driverByte = Math.max(upliftPotential[i] ?? 0, tectonicStress[i] ?? 0, riftPotential[i] ?? 0);
+      const driverByte = Math.max(
+        upliftPotential[i] ?? 0,
+        collisionPotential[i] ?? 0,
+        subductionPotential[i] ?? 0,
+        tectonicStress[i] ?? 0,
+        riftPotential[i] ?? 0
+      );
       const driverStrength = resolveDriverStrength({
         driverByte,
         driverSignalByteMin: config.driverSignalByteMin,
@@ -145,13 +165,27 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
       const dist = distanceToMountains[i] ?? 255;
       const closeToMountains = dist !== 255 && dist <= foothillMaxDistance;
 
-      // Allow foothills either as skirts adjacent to ridges, or as boundary-adjacent ruggedness in
-      // places where physics indicates deformation but ridge spines are sparse.
+      // Allow foothills either as skirts adjacent to ridges, or as boundary-adjacent ruggedness
+      // only when physics indicates meaningful deformation. This prevents planet-wide hills when
+      // boundaryCloseness is treated as pure proximity (as it should be).
       const closenessNorm = boundaryCloseness[i] / 255;
       const boundaryStrength = resolveBoundaryStrength(closenessNorm, boundaryGate, falloffExponent);
       const closeToBoundary = boundaryStrength > 0;
 
-      if (closeToMountains || closeToBoundary) {
+      // Strong boundary deformation signals (byte-space) used to avoid "all hills everywhere".
+      // The threshold is `driverSignalByteMin` so this remains coherent with determinism gates.
+      const boundary = boundaryType[i] ?? 0;
+      const collisionByte = collisionPotential[i] ?? 0;
+      const subductionByte = subductionPotential[i] ?? 0;
+      const riftByte = riftPotential[i] ?? 0;
+      const stressByte = tectonicStress[i] ?? 0;
+
+      const strongConvergence = collisionByte >= config.driverSignalByteMin || subductionByte >= config.driverSignalByteMin;
+      const strongDivergence = boundary === BOUNDARY_TYPE.divergent && riftByte >= config.driverSignalByteMin;
+      const strongTransform = boundary === BOUNDARY_TYPE.transform && stressByte >= config.driverSignalByteMin;
+      const strongBoundaryDeformation = strongConvergence || strongDivergence || strongTransform;
+
+      if (closeToMountains || (closeToBoundary && strongBoundaryDeformation)) {
         hillMask[i] = 1;
       }
     }

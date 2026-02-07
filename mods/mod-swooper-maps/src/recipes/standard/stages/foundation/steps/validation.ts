@@ -364,7 +364,7 @@ export function validateTectonicHistoryTilesArtifact(value: unknown, dims: MapDi
     if (!era) {
       throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.perEra payload.");
     }
-    const fields = ["boundaryType", "upliftPotential", "riftPotential", "shearStress", "volcanism", "fracture"] as const;
+    const fields = ["boundaryType", "upliftPotential", "collisionPotential", "subductionPotential", "riftPotential", "shearStress", "volcanism", "fracture"] as const;
     for (const field of fields) {
       const v = era[field] as unknown;
       if (!(v instanceof Uint8Array) || v.length !== expectedLen) {
@@ -379,10 +379,16 @@ export function validateTectonicHistoryTilesArtifact(value: unknown, dims: MapDi
   }
   const rollupFields = [
     ["upliftTotal", rollups.upliftTotal],
+    ["collisionTotal", rollups.collisionTotal],
+    ["subductionTotal", rollups.subductionTotal],
     ["fractureTotal", rollups.fractureTotal],
     ["volcanismTotal", rollups.volcanismTotal],
     ["upliftRecentFraction", rollups.upliftRecentFraction],
+    ["collisionRecentFraction", rollups.collisionRecentFraction],
+    ["subductionRecentFraction", rollups.subductionRecentFraction],
     ["lastActiveEra", rollups.lastActiveEra],
+    ["lastCollisionEra", rollups.lastCollisionEra],
+    ["lastSubductionEra", rollups.lastSubductionEra],
   ] as const;
   for (const [label, arr] of rollupFields) {
     if (!(arr instanceof Uint8Array) || arr.length !== expectedLen) {
@@ -498,10 +504,16 @@ export function validateTectonicHistoryArtifact(value: unknown): void {
     eraCount?: unknown;
     eras?: unknown;
     upliftTotal?: unknown;
+    collisionTotal?: unknown;
+    subductionTotal?: unknown;
     fractureTotal?: unknown;
     volcanismTotal?: unknown;
     upliftRecentFraction?: unknown;
+    collisionRecentFraction?: unknown;
+    subductionRecentFraction?: unknown;
     lastActiveEra?: unknown;
+    lastCollisionEra?: unknown;
+    lastSubductionEra?: unknown;
   };
 
   const eraCount = typeof history.eraCount === "number" ? (history.eraCount | 0) : -1;
@@ -516,10 +528,16 @@ export function validateTectonicHistoryArtifact(value: unknown): void {
 
   const totals = [
     ["upliftTotal", history.upliftTotal],
+    ["collisionTotal", history.collisionTotal],
+    ["subductionTotal", history.subductionTotal],
     ["fractureTotal", history.fractureTotal],
     ["volcanismTotal", history.volcanismTotal],
     ["upliftRecentFraction", history.upliftRecentFraction],
+    ["collisionRecentFraction", history.collisionRecentFraction],
+    ["subductionRecentFraction", history.subductionRecentFraction],
     ["lastActiveEra", history.lastActiveEra],
+    ["lastCollisionEra", history.lastCollisionEra],
+    ["lastSubductionEra", history.lastSubductionEra],
   ] as const;
 
   let cellCount: number | null = null;
@@ -536,7 +554,7 @@ export function validateTectonicHistoryArtifact(value: unknown): void {
   for (let e = 0; e < history.eras.length; e++) {
     const era = history.eras[e] as Record<string, unknown> | undefined;
     if (!era) throw new Error("[FoundationArtifact] Invalid foundation tectonicHistory era payload.");
-    const fields = ["boundaryType", "upliftPotential", "riftPotential", "shearStress", "volcanism", "fracture"] as const;
+    const fields = ["boundaryType", "upliftPotential", "collisionPotential", "subductionPotential", "riftPotential", "shearStress", "volcanism", "fracture"] as const;
     for (const field of fields) {
       const v = era[field] as unknown;
       if (!(v instanceof Uint8Array)) {

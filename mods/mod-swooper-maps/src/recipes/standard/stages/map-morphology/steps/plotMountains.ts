@@ -101,6 +101,8 @@ export default createStep(PlotMountainsStepContract, {
         boundaryCloseness: beltDrivers.boundaryCloseness,
         boundaryType: beltDrivers.boundaryType,
         upliftPotential: beltDrivers.upliftPotential,
+        collisionPotential: beltDrivers.collisionPotential,
+        subductionPotential: beltDrivers.subductionPotential,
         riftPotential: beltDrivers.riftPotential,
         tectonicStress: beltDrivers.tectonicStress,
         beltAge: beltDrivers.beltAge,
@@ -117,6 +119,8 @@ export default createStep(PlotMountainsStepContract, {
         boundaryCloseness: beltDrivers.boundaryCloseness,
         boundaryType: beltDrivers.boundaryType,
         upliftPotential: beltDrivers.upliftPotential,
+        collisionPotential: beltDrivers.collisionPotential,
+        subductionPotential: beltDrivers.subductionPotential,
         riftPotential: beltDrivers.riftPotential,
         tectonicStress: beltDrivers.tectonicStress,
         beltAge: beltDrivers.beltAge,
@@ -164,6 +168,30 @@ export default createStep(PlotMountainsStepContract, {
       values: beltDrivers.upliftPotential,
       meta: defineVizMeta("morphology.belts.upliftPotential", {
         label: "Belt Uplift Potential",
+        group: GROUP_BELT_DRIVERS,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.belts.collisionPotential",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: beltDrivers.collisionPotential,
+      meta: defineVizMeta("morphology.belts.collisionPotential", {
+        label: "Belt Collision Potential",
+        group: GROUP_BELT_DRIVERS,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.belts.subductionPotential",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: beltDrivers.subductionPotential,
+      meta: defineVizMeta("morphology.belts.subductionPotential", {
+        label: "Belt Subduction Potential",
         group: GROUP_BELT_DRIVERS,
         visibility: "debug",
       }),

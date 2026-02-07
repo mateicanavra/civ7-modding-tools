@@ -13,6 +13,8 @@ export type BeltDriverOutputs = {
   boundaryCloseness: Uint8Array;
   boundaryType: Uint8Array;
   upliftPotential: Uint8Array;
+  collisionPotential: Uint8Array;
+  subductionPotential: Uint8Array;
   riftPotential: Uint8Array;
   tectonicStress: Uint8Array;
   /**
