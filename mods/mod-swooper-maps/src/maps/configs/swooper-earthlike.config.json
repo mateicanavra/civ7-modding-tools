@@ -48,7 +48,7 @@
             "continentalHeight": 0.62,
             "oceanicHeight": -0.75,
             "tectonics": {
-              "boundaryArcWeight": 0.32,
+              "boundaryArcWeight": 0.55,
               "boundaryArcNoiseWeight": 0.26,
               "interiorNoiseWeight": 0.5,
               "fractalGrain": 3

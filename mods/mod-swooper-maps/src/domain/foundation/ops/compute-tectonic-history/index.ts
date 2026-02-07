@@ -17,7 +17,7 @@ const EVENT_TYPE = {
 // Belt-field influence is a runtime contract ("authored values must be honored"),
 // but we preserve the old channel shape by scaling around the previous defaults.
 const EMISSION_RADIUS_MUL = {
-  uplift: 1.5,
+  uplift: 2.0,
   rift: 1.25,
   shear: 1.0,
   volcanism: 0.875,
@@ -25,7 +25,7 @@ const EMISSION_RADIUS_MUL = {
 } as const;
 
 const EMISSION_DECAY_MUL = {
-  uplift: 0.45 / 0.55,
+  uplift: 0.30 / 0.55,
   rift: 1.0,
   shear: 0.7 / 0.55,
   volcanism: 0.85 / 0.55,

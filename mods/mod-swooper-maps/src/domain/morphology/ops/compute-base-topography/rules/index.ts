@@ -65,7 +65,7 @@ export function computeElevationRaw(params: {
   const crust01 = clamp(crustBaseElevation01, 0, 1);
   const base = config.oceanicHeight + reliefSpan * crust01;
   const boundaryBoost = config.boundaryBias * closenessNorm;
-  const upliftEffect = upliftBlend * reliefSpan * 0.25;
+  const upliftEffect = upliftBlend * reliefSpan * 0.45;
   const riftPenalty = riftNorm * reliefSpan * 0.15;
   return base + upliftEffect + boundaryBoost - riftPenalty + noise + arcNoise * closenessNorm;
 }
