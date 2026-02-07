@@ -13,26 +13,36 @@ $MOD = mods/mod-swooper-maps
 
 ## Execution (Read This First)
 
+### Master Slice Checklist (Mark As You Go)
+
+- [x] **s00** Phase 0 preflight + plan readiness (blocking): `agent-GOBI-PRR-s00-phase-0-preflight-no-shadow-and-plan-readiness`
+- [ ] **s10** Phase A Foundation truth normalization + degeneracy elimination: `agent-GOBI-PRR-s10-phase-a-foundation-truth-nondegenerate`
+- [ ] **s20** Phase B landmask grounded in crust truth (numeric gate slice): `agent-GOBI-PRR-s20-phase-b-landmask-grounded-in-crust-truth`
+- [ ] **s21** Phase B erosion: no hidden land/water reclassification: `agent-GOBI-PRR-s21-phase-b-erosion-no-hidden-reclass`
+- [ ] **s30** Phase C belts as modifiers (positive-intensity seeding): `agent-GOBI-PRR-s30-phase-c-belts-as-modifiers`
+- [ ] **s40** Phase D observability enforcement (tiers + gate correctness): `agent-GOBI-PRR-s40-phase-d-observability-enforcement`
+- [ ] **s90** Final legacy cleanup sweep + docs sweep: `agent-GOBI-PRR-s90-final-legacy-sweep-and-docs`
+
 ### Slice s00 — Phase 0 (No-Shadow) + Plan Readiness (blocking)
 
-- [ ] Working checkout is the isolated milestone worktree (single worktree + single stack).
-- [ ] Branch posture is correct: on the current slice branch (not `main`).
-- [ ] Graphite sync posture:
-  - [ ] `gt sync --no-restack`
-- [ ] Phase 0 blocking gate is green:
-  - [ ] `bun run --cwd $MOD test test/pipeline/no-shadow-paths.test.ts`
-- [ ] Slice evidence bundle captured (required every slice):
-  - [ ] Determinism suite (authoritative “what actually ran”): `bun run --cwd $MOD test test/pipeline/determinism-suite.test.ts`
-  - [ ] Dump: `bun run --cwd $MOD diag:dump -- 106 66 1337 --label s00-phase-0`
-  - [ ] Analyze: `bun run --cwd $MOD diag:analyze -- <outputDir>`
-  - [ ] Spot-check layers:
-    - [ ] `bun run --cwd $MOD diag:list -- <outputDir> --dataTypeKey foundation.crustTiles.type`
-    - [ ] `bun run --cwd $MOD diag:list -- <outputDir> --dataTypeKey morphology.topography.landMask`
-- [ ] Plan is execution-ready (this section exists + runbooks below are present).
+- [x] Working checkout is the isolated milestone worktree (single worktree + single stack).
+- [x] Branch posture is correct: on the current slice branch (not `main`).
+- [x] Graphite sync posture:
+  - [x] `gt sync --no-restack`
+- [x] Phase 0 blocking gate is green:
+  - [x] `bun run --cwd $MOD test test/pipeline/no-shadow-paths.test.ts`
+- [x] Slice evidence bundle captured (required every slice):
+  - [x] Determinism suite (authoritative “what actually ran”): `bun run --cwd $MOD test test/pipeline/determinism-suite.test.ts`
+  - [x] Dump: `bun run --cwd $MOD diag:dump -- 106 66 1337 --label s00-phase-0`
+  - [x] Analyze: `bun run --cwd $MOD diag:analyze -- <outputDir>`
+  - [x] Spot-check layers:
+    - [x] `bun run --cwd $MOD diag:list -- <outputDir> --dataTypeKey foundation.crustTiles.type`
+    - [x] `bun run --cwd $MOD diag:list -- <outputDir> --dataTypeKey morphology.topography.landMask`
+- [x] Plan is execution-ready (this section exists + runbooks below are present).
 - [ ] Submit posture (per slice):
   - [ ] `gt restack --upstack`
   - [ ] `gt submit --stack --draft --ai`
-- [ ] This plan doc is updated to reflect completion of s00 (checkboxes in this section are checked).
+- [x] This plan doc is updated to reflect completion of s00 (checkboxes in this section are checked).
 
 ### Orchestrator Loop (Milestone Owner)
 
