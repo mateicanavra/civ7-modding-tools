@@ -110,6 +110,7 @@ Treat these as the source of truth for “what maximal means”:
 - Canonical target architecture: `docs/projects/pipeline-realism/resources/spec/foundation-evolutionary-physics-SPEC.md`
 - Decision set index (normative): `docs/projects/pipeline-realism/resources/decisions/README.md`
 - Spec-to-code delta diagnosis: `docs/projects/pipeline-realism/resources/research/SPIKE-m1-foundation-realism-regression-2026-02-04.md`
+- Continents + mountains remediation plan (verbatim capture): `docs/projects/pipeline-realism/resources/runbooks/FIX-CONTINENTS-MOUNTAINS-PLAN-PRR.md`
 - Milestone plan-of-record (what we tried to land in M1; useful for scope/acceptance framing, not a “remaining work” checklist):
   - `docs/projects/pipeline-realism/milestones/M1-foundation-maximal-cutover.md`
 - Migration slices (historical M1 landing sequence; **not** a current TODO list, and the checkboxes inside may be stale):
