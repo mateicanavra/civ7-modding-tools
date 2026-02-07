@@ -122,7 +122,16 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
       },
       "map-morphology": {
         knobs: { orogeny: "high" },
-        mountains: { mountains: { strategy: "default", config: { tectonicIntensity: 1.0, mountainThreshold: 0.6, hillThreshold: 0.35 } } },
+        mountains: {
+          ridges: {
+            strategy: "default",
+            config: { tectonicIntensity: 1.0, mountainThreshold: 0.6, hillThreshold: 0.35 },
+          },
+          foothills: {
+            strategy: "default",
+            config: { tectonicIntensity: 1.0, mountainThreshold: 0.6, hillThreshold: 0.35 },
+          },
+        },
       },
     });
 
@@ -169,9 +178,14 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
     expect(compiled["morphology-features"].volcanoes.volcanoes.config.convergentMultiplier).toBeCloseTo(3.0, 6);
 
     // - orogeny=high scales intensity and lowers thresholds.
-    expect(compiled["map-morphology"]["plot-mountains"].mountains.config.tectonicIntensity).toBeCloseTo(1.25, 6);
-    expect(compiled["map-morphology"]["plot-mountains"].mountains.config.mountainThreshold).toBeCloseTo(0.55, 6);
-    expect(compiled["map-morphology"]["plot-mountains"].mountains.config.hillThreshold).toBeCloseTo(0.32, 6);
+    expect(compiled["map-morphology"]["plot-mountains"].ridges.config.tectonicIntensity).toBeCloseTo(1.25, 6);
+    expect(compiled["map-morphology"]["plot-mountains"].ridges.config.mountainThreshold).toBeCloseTo(0.55, 6);
+    expect(compiled["map-morphology"]["plot-mountains"].ridges.config.hillThreshold).toBeCloseTo(0.32, 6);
+
+    // Both ops should receive the same knob transform (they share the knob envelope).
+    expect(compiled["map-morphology"]["plot-mountains"].foothills.config.tectonicIntensity).toBeCloseTo(1.25, 6);
+    expect(compiled["map-morphology"]["plot-mountains"].foothills.config.mountainThreshold).toBeCloseTo(0.55, 6);
+    expect(compiled["map-morphology"]["plot-mountains"].foothills.config.hillThreshold).toBeCloseTo(0.32, 6);
   });
 
   it("compiles deterministically for identical inputs", () => {

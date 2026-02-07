@@ -53,20 +53,36 @@ export default createStep(PlotMountainsStepContract, {
     const mountainThresholdDelta = MORPHOLOGY_OROGENY_MOUNTAIN_THRESHOLD_DELTA[orogeny ?? "normal"] ?? 0;
     const hillThresholdDelta = MORPHOLOGY_OROGENY_HILL_THRESHOLD_DELTA[orogeny ?? "normal"] ?? 0;
 
-    const mountainsSelection =
-      config.mountains.strategy === "default"
+    const ridgesSelection =
+      config.ridges.strategy === "default"
         ? {
-            ...config.mountains,
+            ...config.ridges,
             config: {
-              ...config.mountains.config,
-              tectonicIntensity: clampFinite(config.mountains.config.tectonicIntensity * multiplier, 0),
-              mountainThreshold: clampFinite(config.mountains.config.mountainThreshold + mountainThresholdDelta, 0),
-              hillThreshold: clampFinite(config.mountains.config.hillThreshold + hillThresholdDelta, 0),
+              ...config.ridges.config,
+              tectonicIntensity: clampFinite(config.ridges.config.tectonicIntensity * multiplier, 0),
+              mountainThreshold: clampFinite(config.ridges.config.mountainThreshold + mountainThresholdDelta, 0),
+              hillThreshold: clampFinite(config.ridges.config.hillThreshold + hillThresholdDelta, 0),
             },
           }
-        : config.mountains;
+        : config.ridges;
 
-    return { ...config, mountains: mountainsSelection };
+    const foothillsSelection =
+      config.foothills.strategy === "default"
+        ? {
+            ...config.foothills,
+            config: {
+              ...config.foothills.config,
+              tectonicIntensity: clampFinite(config.foothills.config.tectonicIntensity * multiplier, 0),
+              mountainThreshold: clampFinite(
+                config.foothills.config.mountainThreshold + mountainThresholdDelta,
+                0
+              ),
+              hillThreshold: clampFinite(config.foothills.config.hillThreshold + hillThresholdDelta, 0),
+            },
+          }
+        : config.foothills;
+
+    return { ...config, ridges: ridgesSelection, foothills: foothillsSelection };
   },
   run: (context, config, ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
@@ -77,7 +93,7 @@ export default createStep(PlotMountainsStepContract, {
     const fractalMountain = buildFractalArray(width, height, baseSeed ^ 0x3d, 5);
     const fractalHill = buildFractalArray(width, height, baseSeed ^ 0x5f, 5);
 
-    const plan = ops.mountains(
+    const ridges = ops.ridges(
       {
         width,
         height,
@@ -88,10 +104,31 @@ export default createStep(PlotMountainsStepContract, {
         riftPotential: beltDrivers.riftPotential,
         tectonicStress: beltDrivers.tectonicStress,
         fractalMountain,
+      },
+      config.ridges
+    );
+    const foothills = ops.foothills(
+      {
+        width,
+        height,
+        landMask: topography.landMask,
+        mountainMask: ridges.mountainMask,
+        boundaryCloseness: beltDrivers.boundaryCloseness,
+        boundaryType: beltDrivers.boundaryType,
+        upliftPotential: beltDrivers.upliftPotential,
+        riftPotential: beltDrivers.riftPotential,
+        tectonicStress: beltDrivers.tectonicStress,
         fractalHill,
       },
-      config.mountains
+      config.foothills
     );
+
+    const plan = {
+      mountainMask: ridges.mountainMask,
+      hillMask: foothills.hillMask,
+      orogenyPotential01: ridges.orogenyPotential01,
+      fracture01: ridges.fracture01,
+    } as const;
 
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "morphology.belts.boundaryCloseness",

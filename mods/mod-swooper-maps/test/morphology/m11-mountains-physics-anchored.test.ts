@@ -1,5 +1,6 @@
 import { describe, it, expect } from "bun:test";
-import planRidgesAndFoothills from "../../src/domain/morphology/ops/plan-ridges-and-foothills/index.js";
+import planRidges from "../../src/domain/morphology/ops/plan-ridges/index.js";
+import planFoothills from "../../src/domain/morphology/ops/plan-foothills/index.js";
 
 function countMask(mask: Uint8Array, start: number, end: number): number {
   let count = 0;
@@ -31,7 +32,7 @@ describe("m11 mountains (physics-anchored)", () => {
       tectonicStress[i] = 220;
     }
 
-    const plan = planRidgesAndFoothills.run(
+    const ridges = planRidges.run(
       {
         width,
         height,
@@ -42,12 +43,11 @@ describe("m11 mountains (physics-anchored)", () => {
         riftPotential,
         tectonicStress,
         fractalMountain,
-        fractalHill,
       },
       {
         strategy: "default",
         config: {
-          ...(planRidgesAndFoothills.defaultConfig as any).config,
+          ...(planRidges.defaultConfig as any).config,
           boundaryGate: 0,
           boundaryExponent: 1,
           fractalWeight: 0,
@@ -57,10 +57,39 @@ describe("m11 mountains (physics-anchored)", () => {
       }
     );
 
-    const mountainsNearConvergence = countMask(plan.mountainMask, 0, 10);
-    const mountainsInterior = countMask(plan.mountainMask, 10, 20);
+    const foothills = planFoothills.run(
+      {
+        width,
+        height,
+        landMask,
+        mountainMask: ridges.mountainMask,
+        boundaryCloseness,
+        boundaryType,
+        upliftPotential,
+        riftPotential,
+        tectonicStress,
+        fractalHill,
+      },
+      {
+        strategy: "default",
+        config: {
+          ...(planFoothills.defaultConfig as any).config,
+          boundaryGate: 0,
+          boundaryExponent: 1,
+          fractalWeight: 0,
+          mountainThreshold: 0.15,
+          hillThreshold: 0.1,
+        },
+      }
+    );
+
+    const mountainsNearConvergence = countMask(ridges.mountainMask, 0, 10);
+    const mountainsInterior = countMask(ridges.mountainMask, 10, 20);
     expect(mountainsNearConvergence).toBeGreaterThan(0);
     expect(mountainsInterior).toBe(0);
+
+    // No assertion about foothills here; this test is specifically about ridge correlation.
+    expect(foothills.hillMask).toBeInstanceOf(Uint8Array);
   });
 
   it("noise-only runs cannot create mountain belts without orogeny signal", () => {
@@ -82,7 +111,7 @@ describe("m11 mountains (physics-anchored)", () => {
     fractalMountain.fill(255);
     fractalHill.fill(255);
 
-    const plan = planRidgesAndFoothills.run(
+    const ridges = planRidges.run(
       {
         width,
         height,
@@ -93,12 +122,11 @@ describe("m11 mountains (physics-anchored)", () => {
         riftPotential,
         tectonicStress,
         fractalMountain,
-        fractalHill,
       },
       {
         strategy: "default",
         config: {
-          ...(planRidgesAndFoothills.defaultConfig as any).config,
+          ...(planRidges.defaultConfig as any).config,
           boundaryGate: 0,
           boundaryExponent: 1,
           fractalWeight: 5,
@@ -108,10 +136,35 @@ describe("m11 mountains (physics-anchored)", () => {
       }
     );
 
-    expect(countMask(plan.mountainMask, 0, size)).toBe(0);
-    expect(countMask(plan.hillMask, 0, size)).toBe(0);
-    expect(Array.from(plan.orogenyPotential01)).toEqual(Array.from(new Uint8Array(size)));
-    expect(Array.from(plan.fracture01)).toEqual(Array.from(new Uint8Array(size)));
+    const foothills = planFoothills.run(
+      {
+        width,
+        height,
+        landMask,
+        mountainMask: ridges.mountainMask,
+        boundaryCloseness,
+        boundaryType,
+        upliftPotential,
+        riftPotential,
+        tectonicStress,
+        fractalHill,
+      },
+      {
+        strategy: "default",
+        config: {
+          ...(planFoothills.defaultConfig as any).config,
+          boundaryGate: 0,
+          boundaryExponent: 1,
+          fractalWeight: 5,
+          mountainThreshold: 0.01,
+          hillThreshold: 0.01,
+        },
+      }
+    );
+
+    expect(countMask(ridges.mountainMask, 0, size)).toBe(0);
+    expect(countMask(foothills.hillMask, 0, size)).toBe(0);
+    expect(Array.from(ridges.orogenyPotential01)).toEqual(Array.from(new Uint8Array(size)));
+    expect(Array.from(ridges.fracture01)).toEqual(Array.from(new Uint8Array(size)));
   });
 });
-

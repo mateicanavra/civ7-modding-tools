@@ -12,6 +12,8 @@ import computeShelfMask from "./compute-shelf-mask/index.js";
 import computeSeaLevel from "./compute-sea-level/index.js";
 import computeSubstrate from "./compute-substrate/index.js";
 import planIslandChains from "./plan-island-chains/index.js";
+import planFoothills from "./plan-foothills/index.js";
+import planRidges from "./plan-ridges/index.js";
 import planRidgesAndFoothills from "./plan-ridges-and-foothills/index.js";
 import planVolcanoes from "./plan-volcanoes/index.js";
 
@@ -27,6 +29,8 @@ const implementations = {
   computeSeaLevel,
   computeSubstrate,
   planIslandChains,
+  planFoothills,
+  planRidges,
   planRidgesAndFoothills,
   planVolcanoes,
 } as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
@@ -45,6 +49,8 @@ export {
   computeSeaLevel,
   computeSubstrate,
   planIslandChains,
+  planFoothills,
+  planRidges,
   planRidgesAndFoothills,
   planVolcanoes,
 };
