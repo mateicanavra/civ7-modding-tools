@@ -10,6 +10,13 @@
     "knobs": {
       "plateCount": 28,
       "plateActivity": 0.5
+    },
+    "advanced": {
+      "tectonics": {
+        "history": {
+          "driftStepsByEra": [12, 9, 6, 3, 1]
+        }
+      }
     }
   },
   "morphology-coasts": {
