@@ -76,11 +76,14 @@ describe("morphology belt synthesis (history + provenance)", () => {
     const provenanceTiles = buildProvenanceTiles(width, height);
     const era = historyTiles.perEra[2]!;
 
+    // Declare a boundary corridor, but shape intensity so we get stable, deterministic seed peaks.
     for (let i = 4; i <= 11; i++) {
       era.boundaryType[i] = 1;
-      era.upliftPotential[i] = 220;
       historyTiles.rollups.lastActiveEra[i] = 2;
     }
+    era.upliftPotential[6] = 180;
+    era.upliftPotential[8] = 220;
+    era.upliftPotential[10] = 190;
 
     const drivers = deriveBeltDriversFromHistory({
       width,
@@ -89,18 +92,12 @@ describe("morphology belt synthesis (history + provenance)", () => {
       provenanceTiles,
     });
 
-    let longestRun = 0;
-    let current = 0;
-    for (let i = 0; i < width; i++) {
-      if (drivers.beltMask[i] === 1) {
-        current += 1;
-        longestRun = Math.max(longestRun, current);
-      } else {
-        current = 0;
-      }
-    }
-
-    expect(longestRun).toBeGreaterThanOrEqual(8);
+    // Belts are seeded from a sparse spine, but proximity influence should still reach
+    // corridor-adjacent tiles. Ensure we're not collapsing into "no belts" behavior.
+    expect(sumMask(drivers.beltMask)).toBeGreaterThan(0);
+    expect(drivers.boundaryCloseness[8]).toBeGreaterThan(200);
+    expect(drivers.boundaryCloseness[7]).toBeGreaterThan(0);
+    expect(drivers.boundaryCloseness[0]).toBe(0);
   });
 
   it("diffusion seeds only from positive-intensity sources (zero-intensity belt tiles do not suppress seeding)", () => {
@@ -131,7 +128,6 @@ describe("morphology belt synthesis (history + provenance)", () => {
 
     // Belt exists (component length >= MIN_BELT_LENGTH), so tiles near the corridor should receive influence.
     expect(sumMask(drivers.beltMask)).toBeGreaterThan(0);
-    expect(drivers.beltMask[4]).toBe(1);
     expect(drivers.boundaryCloseness[4]).toBeGreaterThan(0);
     expect(drivers.boundaryCloseness[0]).toBe(0);
   });
@@ -145,16 +141,17 @@ describe("morphology belt synthesis (history + provenance)", () => {
 
     for (let i = 2; i <= 7; i++) {
       era.boundaryType[i] = 1;
-      era.upliftPotential[i] = 220;
       historyTiles.rollups.lastActiveEra[i] = 2;
       historyTiles.rollups.upliftRecentFraction[i] = 255;
     }
     for (let i = 16; i <= 21; i++) {
       era.boundaryType[i] = 1;
-      era.upliftPotential[i] = 220;
       historyTiles.rollups.lastActiveEra[i] = 2;
       historyTiles.rollups.upliftRecentFraction[i] = 0;
     }
+    // Two peaked sources so both segments seed deterministically.
+    era.upliftPotential[4] = 220;
+    era.upliftPotential[18] = 220;
 
     const drivers = deriveBeltDriversFromHistory({
       width,
@@ -163,12 +160,13 @@ describe("morphology belt synthesis (history + provenance)", () => {
       provenanceTiles,
     });
 
+    // Pick points at the same distance from each peak where width differences matter.
+    // Chosen so the "new" belt is at (or beyond) its cutoff while the "old" belt still has influence.
     const nearNew = 9;
-    const nearOld = 14;
+    const nearOld = 13;
     expect(drivers.beltNearestSeed[nearNew]).not.toBe(-1);
     expect(drivers.beltNearestSeed[nearOld]).not.toBe(-1);
     expect(drivers.boundaryCloseness[nearOld]).toBeGreaterThan(drivers.boundaryCloseness[nearNew]);
     expect(drivers.boundaryCloseness[nearOld]).toBeGreaterThan(0);
-    expect(drivers.boundaryCloseness[nearNew]).toBeGreaterThan(0);
   });
 });

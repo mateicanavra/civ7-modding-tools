@@ -11,11 +11,6 @@ import type { BeltComponentSummary, BeltDriverOutputs } from "./types.js";
 const GAP_FILL_DISTANCE = 2;
 const MIN_BELT_LENGTH = 3;
 
-// Seed selection: intensity fields are influence fields (nonzero over large radii). We threshold relative to
-// the per-type max so seeds form a thin "spine" rather than making the whole world distance=0.
-const SEED_THRESHOLD_MIN = 1;
-const SEED_THRESHOLD_FRAC_OF_MAX = 0.35;
-
 // Era blending: favor newer eras exponentially, but lightly boost the last-active era when known.
 const ERA_WEIGHT_DECAY_PER_ERA = 0.7;
 const ERA_WEIGHT_LAST_ACTIVE_BOOST = 1.25;
@@ -37,11 +32,39 @@ function clampByte(value: number): number {
   return Math.max(0, Math.min(255, Math.round(value))) | 0;
 }
 
-function computeSeedThreshold(maxIntensity: number): number {
-  // The foundation boundary/intensity fields are influence fields (often nonzero almost everywhere),
-  // so we must seed belts only from the high-intensity spine; otherwise every tile becomes distance=0.
-  // This keeps seeding self-calibrating across configs and probes.
-  return Math.max(SEED_THRESHOLD_MIN, Math.round(maxIntensity * SEED_THRESHOLD_FRAC_OF_MAX));
+function selectQuantileThreshold(values: number[], targetCount: number): number {
+  if (values.length === 0) return Infinity;
+  const positives = values.filter((v) => v > 0);
+  if (positives.length === 0) return Infinity;
+  positives.sort((a, b) => a - b);
+  const clampedTarget = Math.max(1, Math.min(positives.length, Math.round(targetCount)));
+  const idx = Math.max(0, positives.length - clampedTarget);
+  return positives[idx] ?? Infinity;
+}
+
+function isStrictLocalMaximumWithTies(
+  i: number,
+  width: number,
+  height: number,
+  boundaryTypeBlend: Uint8Array,
+  intensityBlend: Float32Array
+): boolean {
+  const boundaryType = boundaryTypeBlend[i] ?? 0;
+  if (boundaryType === 0) return false;
+  const v = intensityBlend[i] ?? 0;
+  if (!(v > 0)) return false;
+  const x = i % width;
+  const y = Math.floor(i / width);
+  let ok = true;
+  forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
+    const ni = ny * width + nx;
+    if ((boundaryTypeBlend[ni] ?? 0) !== boundaryType) return;
+    const nv = intensityBlend[ni] ?? 0;
+    if (nv > v) ok = false;
+    // Deterministic tie-break: only the lowest index in a plateau is allowed to seed.
+    if (nv === v && ni < i) ok = false;
+  });
+  return ok;
 }
 
 function computeDistanceField(
@@ -237,9 +260,11 @@ export function deriveBeltDriversFromHistory(input: {
 
     riftBlend[i] = riftSum;
     shearBlend[i] = shearSum;
-    // Mountain belts should be driven by integrated collision history (upliftTotal), not just the
-    // newest-era influence field. Using upliftTotal restores the expected dynamic range for ridge planning.
-    upliftBlend[i] = upliftTotal[i] ?? upliftSum;
+    // Belt drivers are an *active* belt extraction pass: they should represent proximity to the
+    // high-intensity present-day/late-era boundary spine, not "any uplift that ever happened".
+    // Using the integrated upliftTotal here can make intensity nonzero almost everywhere, collapsing
+    // distance-to-seed to ~0 globally and saturating boundaryCloseness (everything looks like a boundary).
+    upliftBlend[i] = upliftSum;
     intensityBlend[i] = Math.max(upliftBlend[i] ?? 0, riftSum, shearSum);
 
     const boundary = perEra[bestEra]?.boundaryType?.[i] ?? BOUNDARY_TYPE.none;
@@ -272,26 +297,71 @@ export function deriveBeltDriversFromHistory(input: {
     [BOUNDARY_TYPE.divergent]: 0,
     [BOUNDARY_TYPE.transform]: 0,
   };
+  const countByType: Record<number, number> = {
+    [BOUNDARY_TYPE.convergent]: 0,
+    [BOUNDARY_TYPE.divergent]: 0,
+    [BOUNDARY_TYPE.transform]: 0,
+  };
+  const maxIndexByType: Record<number, number> = {
+    [BOUNDARY_TYPE.convergent]: -1,
+    [BOUNDARY_TYPE.divergent]: -1,
+    [BOUNDARY_TYPE.transform]: -1,
+  };
   for (let i = 0; i < size; i++) {
     const boundary = boundaryTypeBlend[i] ?? BOUNDARY_TYPE.none;
     if (!typeSeeds[boundary]) continue;
     const intensity = intensityBlend[i] ?? 0;
     maxIntensityByType[boundary] = Math.max(maxIntensityByType[boundary] ?? 0, intensity);
+    countByType[boundary] = (countByType[boundary] ?? 0) + 1;
+    if ((maxIndexByType[boundary] ?? -1) < 0) {
+      maxIndexByType[boundary] = i;
+    } else {
+      const best = maxIndexByType[boundary] ?? -1;
+      if ((intensityBlend[i] ?? 0) > (intensityBlend[best] ?? 0)) maxIndexByType[boundary] = i;
+    }
   }
+  // Seed selection: belt extraction must find a thin 1D-ish spine from long-range influence fields.
+  // We target a seed count that scales with the *linear* extent of the boundary region. Since we only
+  // have a tile-area proxy for the boundary's support, we use sqrt(area) as a 1D length estimate.
   const seedThresholdByType: Record<number, number> = {
-    [BOUNDARY_TYPE.convergent]: computeSeedThreshold(maxIntensityByType[BOUNDARY_TYPE.convergent] ?? 0),
-    [BOUNDARY_TYPE.divergent]: computeSeedThreshold(maxIntensityByType[BOUNDARY_TYPE.divergent] ?? 0),
-    [BOUNDARY_TYPE.transform]: computeSeedThreshold(maxIntensityByType[BOUNDARY_TYPE.transform] ?? 0),
+    [BOUNDARY_TYPE.convergent]: Infinity,
+    [BOUNDARY_TYPE.divergent]: Infinity,
+    [BOUNDARY_TYPE.transform]: Infinity,
   };
+  for (const boundaryType of [
+    BOUNDARY_TYPE.convergent,
+    BOUNDARY_TYPE.divergent,
+    BOUNDARY_TYPE.transform,
+  ]) {
+    const count = countByType[boundaryType] ?? 0;
+    const targetCount = Math.max(1, Math.round(Math.sqrt(Math.max(1, count))));
+    const values: number[] = [];
+    for (let i = 0; i < size; i++) {
+      if ((boundaryTypeBlend[i] ?? 0) !== boundaryType) continue;
+      const v = intensityBlend[i] ?? 0;
+      if (v > 0) values.push(v);
+    }
+    seedThresholdByType[boundaryType] = selectQuantileThreshold(values, targetCount);
+  }
 
   for (let i = 0; i < size; i++) {
     const boundary = boundaryTypeBlend[i] ?? BOUNDARY_TYPE.none;
     const intensity = intensityBlend[i] ?? 0;
-    // `boundaryTypeBlend` is a tiled "dominant influence" map (often nonzero everywhere) because
-    // tectonic emissions are long-range fields. Belts must be seeded from only the high-intensity
-    // spine, otherwise every tile becomes distance=0 and downstream orogeny collapses.
-    if (boundary !== BOUNDARY_TYPE.none && intensity >= (seedThresholdByType[boundary] ?? 1)) {
-      if (typeSeeds[boundary]) typeSeeds[boundary][i] = 1;
+    if (boundary === BOUNDARY_TYPE.none) continue;
+    const threshold = seedThresholdByType[boundary] ?? Infinity;
+    if (!(intensity >= threshold)) continue;
+    if (!isStrictLocalMaximumWithTies(i, width, height, boundaryTypeBlend, intensityBlend)) continue;
+    typeSeeds[boundary][i] = 1;
+  }
+  // Ensure each boundary type with any intensity produces at least one seed.
+  for (const boundaryType of [
+    BOUNDARY_TYPE.convergent,
+    BOUNDARY_TYPE.divergent,
+    BOUNDARY_TYPE.transform,
+  ]) {
+    const maxIdx = maxIndexByType[boundaryType] ?? -1;
+    if (maxIdx >= 0 && (intensityBlend[maxIdx] ?? 0) > 0) {
+      typeSeeds[boundaryType]![maxIdx] = 1;
     }
   }
 
@@ -338,7 +408,11 @@ export function deriveBeltDriversFromHistory(input: {
   }
 
   const maxSigma = BELT_SIGMA_BASE + BELT_SIGMA_AGE_RANGE * (maxAge / Math.max(1, maxAge));
-  const maxDistance = Math.max(1, Math.round(BELT_CUTOFF_SIGMA_MULT * maxSigma * BELT_MAX_DISTANCE_FUDGE));
+  const minCutoffTiles = Math.max(1, Math.round(Math.sqrt(Math.max(width, height))));
+  const maxDistance = Math.max(
+    1,
+    Math.round(Math.max(minCutoffTiles, BELT_CUTOFF_SIGMA_MULT * maxSigma) * BELT_MAX_DISTANCE_FUDGE)
+  );
   // Seed diffusion from the high-intensity spine (not the entire beltMask), otherwise
   // beltDistance collapses to 0 across the belt and boundaryCloseness saturates everywhere.
   const beltSeedMask = new Uint8Array(size);
@@ -377,7 +451,9 @@ export function deriveBeltDriversFromHistory(input: {
     const seedWidthScale = widthScale[seedIndex] ?? 1;
     const seedAge = beltAge[seedIndex] ?? 0;
     const sigma = BELT_SIGMA_BASE + (BELT_SIGMA_AGE_RANGE * seedAge) / Math.max(1, maxAge);
-    const cutoff = Math.max(1, Math.round(BELT_CUTOFF_SIGMA_MULT * sigma * seedWidthScale));
+    // Belt influence should remain wide enough to support foothills/shoulders even for very young belts.
+    // Our tile resolution changes with map size, so we enforce a minimum cutoff that grows sublinearly.
+    const cutoff = Math.max(minCutoffTiles, Math.round(BELT_CUTOFF_SIGMA_MULT * sigma * seedWidthScale));
 
     const dist = beltDistance[i] ?? 255;
     if (dist > cutoff) continue;
