@@ -22,7 +22,7 @@ $MOD = mods/mod-swooper-maps
 - [x] **s21** Phase B erosion: no hidden land/water reclassification: `agent-GOBI-PRR-s21-phase-b-erosion-no-hidden-reclass`
 - [x] **s30** Phase C belts as modifiers (positive-intensity seeding): `agent-GOBI-PRR-s30-phase-c-belts-as-modifiers`
 - [x] **s40** Phase D observability enforcement (tiers + gate correctness): `agent-GOBI-PRR-s40-phase-d-observability-enforcement`
-- [ ] **s90** Final legacy cleanup sweep + docs sweep: `agent-GOBI-PRR-s90-final-legacy-sweep-and-docs`
+- [x] **s90** Final legacy cleanup sweep + docs sweep: `agent-GOBI-PRR-s90-final-legacy-sweep-and-docs`
 
 ### Slice s00 — Phase 0 (No-Shadow) + Plan Readiness (blocking)
 
