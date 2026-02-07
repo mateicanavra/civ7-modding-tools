@@ -73,28 +73,9 @@
           "landmask": {
             "strategy": "default",
             "config": {
-              "basinSeparation": {
-                "enabled": false,
-                "bandPairs": [],
-                "baseSeparationTiles": 0,
-                "boundaryClosenessMultiplier": 1,
-                "maxPerRowDelta": 3,
-                "minChannelWidth": 4,
-                "channelJitter": 0,
-                "respectSeaLanes": true,
-                "edgeWest": {
-                  "enabled": false,
-                  "baseTiles": 0,
-                  "boundaryClosenessMultiplier": 1,
-                  "maxPerRowDelta": 2
-                },
-                "edgeEast": {
-                  "enabled": false,
-                  "baseTiles": 0,
-                  "boundaryClosenessMultiplier": 1,
-                  "maxPerRowDelta": 2
-                }
-              }
+              "continentPotentialGrain": 8,
+              "continentPotentialBlurSteps": 3,
+              "keepLandComponentFraction": 0.985
             }
           }
         },

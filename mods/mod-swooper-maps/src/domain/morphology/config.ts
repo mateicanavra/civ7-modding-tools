@@ -1,99 +1,6 @@
 import { Type, type Static } from "@swooper/mapgen-core/authoring";
 
 /**
- * Edge override policy for the ocean separation pass.
- */
-export const OceanSeparationEdgePolicySchema = Type.Object(
-  {
-    /** Enable edge-specific override for this map border (west or east). */
-    enabled: Type.Boolean({
-      description: "Enable edge-specific override for this map border (west or east).",
-      default: false,
-    }),
-    /** Baseline separation enforced at the map edge in tiles (before boundary multipliers). */
-    baseTiles: Type.Number({
-      description: "Baseline separation enforced at the map edge in tiles (before boundary multipliers).",
-      default: 0,
-      minimum: 0,
-    }),
-    /** Multiplier applied near active margins when widening oceans at the edge. */
-    boundaryClosenessMultiplier: Type.Number({
-      description: "Multiplier applied near active margins when widening oceans at the edge.",
-      default: 1,
-      minimum: 0,
-    }),
-    /** Maximum allowed per-latitude separation delta for this edge to avoid extreme zig-zags. */
-    maxPerRowDelta: Type.Number({
-      description: "Maximum allowed per-latitude separation delta for this edge to avoid extreme zig-zags.",
-      default: 3,
-      minimum: 0,
-    }),
-  }
-);
-
-/**
- * Plate-aware ocean separation policy controlling continental drift spacing.
- */
-export const OceanSeparationConfigSchema = Type.Object(
-  {
-    /** Master switch for plate-aware ocean widening between continent bands. */
-    enabled: Type.Boolean({
-      description: "Master switch for plate-aware ocean widening between continent bands.",
-      default: false,
-    }),
-    /**
-     * Pairs of continent indices to separate.
-     * @example [[0,1],[1,2]] separates band 0 from 1, and band 1 from 2.
-     */
-    bandPairs: Type.Optional(
-      Type.Array(Type.Tuple([Type.Number(), Type.Number()]), {
-        default: [],
-        description: "Pairs of continent indices to separate (e.g., [[0,1],[1,2]]).",
-      })
-    ),
-    /** Baseline widening between continents in tiles before modifiers are applied. */
-    baseSeparationTiles: Type.Number({
-      description: "Baseline widening between continents in tiles before modifiers are applied.",
-      default: 0,
-      minimum: 0,
-    }),
-    /** Extra separation applied when plates are close to active boundaries (multiplier 0..2). */
-    boundaryClosenessMultiplier: Type.Number({
-      description: "Extra separation applied when plates are close to active boundaries (multiplier 0..2).",
-      default: 1,
-      minimum: 0,
-    }),
-    /** Maximum per-latitude variation in separation (tiles) to keep oceans smooth north-south. */
-    maxPerRowDelta: Type.Number({
-      description: "Maximum per-latitude variation in separation (tiles) to keep oceans smooth north-south.",
-      default: 3,
-      minimum: 0,
-    }),
-    /** Minimum navigable channel width to preserve while widening seas (tiles). */
-    minChannelWidth: Type.Number({
-      description: "Minimum navigable channel width to preserve while widening seas (tiles).",
-      default: 3,
-      minimum: 0,
-    }),
-    /** Random jitter applied to channel widths to avoid uniform straight lines. */
-    channelJitter: Type.Number({
-      description: "Random jitter applied to channel widths to avoid uniform straight lines.",
-      default: 0,
-      minimum: 0,
-    }),
-    /** Whether strategic sea corridors should be preserved when enforcing separation. */
-    respectSeaLanes: Type.Boolean({
-      description: "Whether strategic sea corridors should be preserved when enforcing separation.",
-      default: true,
-    }),
-    /** West edge-specific override policy. */
-    edgeWest: OceanSeparationEdgePolicySchema,
-    /** East edge-specific override policy. */
-    edgeEast: OceanSeparationEdgePolicySchema,
-  }
-);
-
-/**
  * Plate-aware weighting for bay/fjord odds based on boundary closeness.
  */
 export const CoastlinePlateBiasConfigSchema = Type.Object(
@@ -698,7 +605,6 @@ export const MorphologyConfigSchema = Type.Object(
   {
     hypsometry: HypsometryConfigSchema,
     relief: ReliefConfigSchema,
-    basinSeparation: OceanSeparationConfigSchema,
     coast: CoastConfigSchema,
     landforms: LandformsConfigSchema,
     geomorphology: GeomorphologyConfigSchema,
@@ -710,10 +616,6 @@ export type MorphologyConfig = Static<typeof MorphologyConfigSchema>;
 export type HypsometryConfig = Static<typeof HypsometryConfigSchema>;
 export type ReliefConfig = Static<typeof ReliefConfigSchema>;
 export type GeomorphologyConfig = Static<typeof GeomorphologyConfigSchema>;
-export type BasinSeparationConfig =
-  Static<typeof MorphologyConfigSchema["properties"]["basinSeparation"]>;
-export type OceanSeparationEdgePolicy =
-  Static<typeof OceanSeparationConfigSchema["properties"]["edgeWest"]>;
 export type CoastConfig = Static<typeof CoastConfigSchema>;
 export type LandformsConfig = Static<typeof LandformsConfigSchema>;
 export type CoastlinePlateBiasConfig =
