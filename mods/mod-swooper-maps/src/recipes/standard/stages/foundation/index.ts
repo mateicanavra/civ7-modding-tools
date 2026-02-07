@@ -169,13 +169,45 @@ const advancedBudgetsSchema = Type.Object(
   }
 );
 
+const advancedMeshSchema = Type.Object(
+  {
+    cellsPerPlate: Type.Optional(
+      Type.Integer({
+        minimum: 1,
+        maximum: 32,
+        description:
+          "Mesh resolution control: number of Voronoi cells per plate. Higher values increase Foundation detail at increased compute cost.",
+      })
+    ),
+    relaxationSteps: Type.Optional(
+      Type.Integer({
+        minimum: 0,
+        maximum: 50,
+        description:
+          "Mesh relaxation passes applied during Voronoi site relaxation. Higher values produce more even cells but cost more.",
+      })
+    ),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Advanced mesh resolution inputs. These are simulation resolution knobs, not output sculpting.",
+    gs: {
+      comments: [
+        "This surface controls simulation resolution (mesh refinement), not output targets.",
+        "Validate changes via mesh/plates diagnostics and downstream determinism suite.",
+      ],
+    },
+  }
+);
+
 /**
  * Foundation knobs (plateCount/plateActivity). Knobs apply after defaulted step config as deterministic transforms.
  */
 const knobsSchema = Type.Object(
   {
-    plateCount: FoundationPlateCountKnobSchema,
-    plateActivity: FoundationPlateActivityKnobSchema,
+    plateCount: Type.Optional(FoundationPlateCountKnobSchema),
+    plateActivity: Type.Optional(FoundationPlateActivityKnobSchema),
   },
   {
     description:
@@ -188,6 +220,7 @@ const advancedSchema = Type.Object(
     mantleForcing: Type.Optional(advancedMantleForcingSchema),
     lithosphere: Type.Optional(advancedLithosphereSchema),
     budgets: Type.Optional(advancedBudgetsSchema),
+    mesh: Type.Optional(advancedMeshSchema),
   },
   {
     additionalProperties: false,
@@ -408,7 +441,8 @@ const FOUNDATION_PROFILE_DEFAULTS: Readonly<
   fine: {
     plateCount: 28,
     mesh: {
-      cellsPerPlate: 2,
+      // Fine = higher mesh resolution than balanced.
+      cellsPerPlate: 16,
       relaxationSteps: 6,
       referenceArea: 4000,
       plateScalePower: 0.5,
@@ -429,7 +463,8 @@ const FOUNDATION_PROFILE_DEFAULTS: Readonly<
   ultra: {
     plateCount: 32,
     mesh: {
-      cellsPerPlate: 2,
+      // Ultra = highest mesh resolution.
+      cellsPerPlate: 18,
       relaxationSteps: 4,
       referenceArea: 4000,
       plateScalePower: 0.5,
@@ -468,6 +503,10 @@ const FOUNDATION_STEP_IDS = [
   "plate-topology",
 ] as const;
 
+// Studio-only sentinel mode uses per-step config objects under `advanced.<stepId>`. This should not
+// trigger for the physics-first `advanced` surface (which includes `advanced.mesh`).
+const FOUNDATION_STUDIO_STEP_CONFIG_IDS = FOUNDATION_STEP_IDS.filter((id) => id.includes("-"));
+
 function clampInt(value: number, bounds: { min: number; max?: number }): number {
   const rounded = Math.round(value);
   const max = bounds.max ?? Number.POSITIVE_INFINITY;
@@ -487,7 +526,8 @@ export default createStage({
   }) => {
     const advanced = config.advanced as Record<string, unknown> | undefined;
     if (advanced && typeof advanced === "object") {
-      const hasSentinel = FOUNDATION_STEP_IDS.some((stepId) =>
+      // Avoid colliding with `advanced.mesh` (physics), which is not a per-step config override.
+      const hasSentinel = FOUNDATION_STUDIO_STEP_CONFIG_IDS.some((stepId) =>
         Object.prototype.hasOwnProperty.call(advanced, stepId)
       );
       if (hasSentinel) {
@@ -564,14 +604,26 @@ export default createStage({
     const eraWeights = deriveEraWeights({ eraCount });
     const driftStepsByEra = deriveDriftStepsByEra({ eraCount });
 
+    const meshOverrides =
+      advanced && typeof advanced === "object" && "mesh" in advanced ? (advanced as { mesh?: Record<string, unknown> }).mesh ?? {} : {};
+    const meshOverrideValues = meshOverrides as { cellsPerPlate?: unknown; relaxationSteps?: unknown };
+    const meshCellsPerPlate = clampInt(
+      typeof meshOverrideValues.cellsPerPlate === "number" ? meshOverrideValues.cellsPerPlate : defaults.mesh.cellsPerPlate,
+      { min: 1, max: 32 }
+    );
+    const meshRelaxationSteps = clampInt(
+      typeof meshOverrideValues.relaxationSteps === "number" ? meshOverrideValues.relaxationSteps : defaults.mesh.relaxationSteps,
+      { min: 0, max: 50 }
+    );
+
     return {
       mesh: {
         computeMesh: {
           strategy: "default",
           config: {
             plateCount,
-            cellsPerPlate: defaults.mesh.cellsPerPlate,
-            relaxationSteps: defaults.mesh.relaxationSteps,
+            cellsPerPlate: meshCellsPerPlate,
+            relaxationSteps: meshRelaxationSteps,
             referenceArea: defaults.mesh.referenceArea,
             plateScalePower: defaults.mesh.plateScalePower,
           },

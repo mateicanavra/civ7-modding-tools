@@ -159,6 +159,10 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
         crustAge: crustTiles.age,
         provenanceOriginEra: projection.tectonicProvenanceTiles.originEra,
         provenanceDriftDistance: projection.tectonicProvenanceTiles.driftDistance,
+        riftPotentialByEra: projection.tectonicHistoryTiles.perEra.map((era) => era.riftPotential),
+        fractureTotal: projection.tectonicHistoryTiles.rollups.fractureTotal,
+        movementU: plates.movementU,
+        movementV: plates.movementV,
       },
       computeLandmask.defaultConfig
     );

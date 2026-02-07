@@ -11,3 +11,4 @@ Evidence files (in stack order):
 - `s30.md`: Phase C belts as modifiers (positive-intensity diffusion seeding)
 - `s40.md`: Phase D observability enforcement
 - `s90.md`: Final legacy + docs cleanup sweep
+- `s91.md`: Follow-up: rift-driven craton growth landmask + foundation mesh resolution controls
