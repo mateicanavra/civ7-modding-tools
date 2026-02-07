@@ -27,6 +27,7 @@ const BELT_SIGMA_AGE_RANGE = 3;
 // Distance BFS budget: we cap exploration at a generous multiple of the maximum cutoff.
 const BELT_CUTOFF_SIGMA_MULT = 5;
 const BELT_MAX_DISTANCE_FUDGE = 1.2;
+const GAUSSIAN_EXP_COEFF = -0.5;
 
 function clampByte(value: number): number {
   return Math.max(0, Math.min(255, Math.round(value))) | 0;
@@ -215,7 +216,9 @@ export function deriveBeltDriversFromHistory(input: {
   const riftBlend = new Float32Array(size);
   const shearBlend = new Float32Array(size);
   const intensityBlend = new Float32Array(size);
+  const beltAgeEras = new Uint8Array(size);
   const beltAge = new Uint8Array(size);
+  const dominantEra = new Uint8Array(size);
   const widthScale = new Float32Array(size);
 
   const maxAge = Math.max(1, eraCount - 1);
@@ -257,6 +260,7 @@ export function deriveBeltDriversFromHistory(input: {
         bestEra = e;
       }
     }
+    dominantEra[i] = clampByte(bestEra);
 
     riftBlend[i] = riftSum;
     shearBlend[i] = shearSum;
@@ -291,7 +295,9 @@ export function deriveBeltDriversFromHistory(input: {
       lastActive !== 255
         ? Math.max(0, maxAge - Math.min(maxAge, lastActive))
         : Math.max(0, maxAge - Math.min(maxAge, origin));
-    beltAge[i] = clampByte(age);
+    const ageEras = clampByte(age);
+    beltAgeEras[i] = ageEras;
+    beltAge[i] = maxAge > 0 ? clampByte((ageEras / maxAge) * 255) : 0;
   }
 
   const typeSeeds: Record<number, Uint8Array> = {
@@ -401,7 +407,7 @@ export function deriveBeltDriversFromHistory(input: {
       boundaryType,
       upliftBlend,
       widthScale,
-      seedAge: beltAge,
+      seedAge: beltAgeEras,
       originEra,
       originPlateId,
       maxAge,
@@ -461,7 +467,7 @@ export function deriveBeltDriversFromHistory(input: {
     const seedShear = shearBlend[seedIndex] ?? 0;
     const seedType = boundaryTypeBlend[seedIndex] ?? BOUNDARY_TYPE.none;
     const seedWidthScale = widthScale[seedIndex] ?? 1;
-    const seedAge = beltAge[seedIndex] ?? 0;
+    const seedAge = beltAgeEras[seedIndex] ?? 0;
     const sigma = BELT_SIGMA_BASE + (BELT_SIGMA_AGE_RANGE * seedAge) / Math.max(1, maxAge);
     // Belt influence should remain wide enough to support foothills/shoulders even for very young belts.
     // Our tile resolution changes with map size, so we enforce a minimum cutoff that grows sublinearly.
@@ -470,7 +476,11 @@ export function deriveBeltDriversFromHistory(input: {
     const dist = beltDistance[i] ?? 255;
     if (dist > cutoff) continue;
 
-    const normalized = Math.max(0, 1 - dist / cutoff);
+    // Use a Gaussian kernel so "strong drivers" remain spatially localized.
+    // This matches the intent of sigma-based spread better than a linear falloff.
+    const spread = Math.max(1e-6, sigma * seedWidthScale);
+    const t = dist / spread;
+    const normalized = Math.exp(GAUSSIAN_EXP_COEFF * t * t);
     // Proximity should be a pure distance signal; intensity is carried by uplift/rift/stress fields.
     boundaryCloseness[i] = clampByte(255 * normalized);
     upliftPotential[i] = clampByte(seedUplift * normalized);
@@ -486,6 +496,8 @@ export function deriveBeltDriversFromHistory(input: {
     upliftPotential,
     riftPotential,
     tectonicStress,
+    beltAge,
+    dominantEra,
     beltMask,
     beltDistance,
     beltNearestSeed,

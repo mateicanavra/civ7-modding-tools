@@ -22,6 +22,7 @@ describe("m11 mountains (physics-anchored)", () => {
     const upliftPotential = new Uint8Array(size);
     const riftPotential = new Uint8Array(size);
     const tectonicStress = new Uint8Array(size);
+    const beltAge = new Uint8Array(size);
     const fractalMountain = new Int16Array(size);
     const fractalHill = new Int16Array(size);
 
@@ -42,6 +43,7 @@ describe("m11 mountains (physics-anchored)", () => {
         upliftPotential,
         riftPotential,
         tectonicStress,
+        beltAge,
         fractalMountain,
       },
       {
@@ -68,6 +70,7 @@ describe("m11 mountains (physics-anchored)", () => {
         upliftPotential,
         riftPotential,
         tectonicStress,
+        beltAge,
         fractalHill,
       },
       {
@@ -105,6 +108,7 @@ describe("m11 mountains (physics-anchored)", () => {
     const upliftPotential = new Uint8Array(size);
     const riftPotential = new Uint8Array(size);
     const tectonicStress = new Uint8Array(size);
+    const beltAge = new Uint8Array(size);
 
     const fractalMountain = new Int16Array(size);
     const fractalHill = new Int16Array(size);
@@ -121,6 +125,7 @@ describe("m11 mountains (physics-anchored)", () => {
         upliftPotential,
         riftPotential,
         tectonicStress,
+        beltAge,
         fractalMountain,
       },
       {
@@ -147,6 +152,7 @@ describe("m11 mountains (physics-anchored)", () => {
         upliftPotential,
         riftPotential,
         tectonicStress,
+        beltAge,
         fractalHill,
       },
       {

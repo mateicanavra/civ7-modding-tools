@@ -88,6 +88,8 @@ function validateBeltDriversBuffer(value: unknown, dimensions: MapDimensions): A
     upliftPotential?: unknown;
     riftPotential?: unknown;
     tectonicStress?: unknown;
+    beltAge?: unknown;
+    dominantEra?: unknown;
     beltMask?: unknown;
     beltDistance?: unknown;
     beltNearestSeed?: unknown;
@@ -98,6 +100,8 @@ function validateBeltDriversBuffer(value: unknown, dimensions: MapDimensions): A
   validateTypedArray(errors, "beltDrivers.upliftPotential", candidate.upliftPotential, Uint8Array, size);
   validateTypedArray(errors, "beltDrivers.riftPotential", candidate.riftPotential, Uint8Array, size);
   validateTypedArray(errors, "beltDrivers.tectonicStress", candidate.tectonicStress, Uint8Array, size);
+  validateTypedArray(errors, "beltDrivers.beltAge", candidate.beltAge, Uint8Array, size);
+  validateTypedArray(errors, "beltDrivers.dominantEra", candidate.dominantEra, Uint8Array, size);
   validateTypedArray(errors, "beltDrivers.beltMask", candidate.beltMask, Uint8Array, size);
   validateTypedArray(errors, "beltDrivers.beltDistance", candidate.beltDistance, Uint8Array, size);
   validateTypedArray(errors, "beltDrivers.beltNearestSeed", candidate.beltNearestSeed, Int32Array, size);
