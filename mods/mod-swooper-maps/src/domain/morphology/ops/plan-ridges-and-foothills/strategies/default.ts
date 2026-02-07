@@ -11,6 +11,8 @@ import {
   validateRidgesInputs,
 } from "../rules/index.js";
 
+const SCORE_NORMALIZATION_EPS = 1e-6;
+
 export const defaultStrategy = createStrategy(PlanRidgesAndFoothillsContract, "default", {
   run: (input, config) => {
     const { size, landMask, boundaryCloseness, boundaryType, upliftPotential, riftPotential, tectonicStress, fractalMountain, fractalHill } =
@@ -23,6 +25,9 @@ export const defaultStrategy = createStrategy(PlanRidgesAndFoothillsContract, "d
 
     const boundaryGate = Math.min(0.99, Math.max(0, config.boundaryGate));
     const falloffExponent = config.boundaryExponent;
+
+    let maxMountainScore = 0;
+    let maxHillScore = 0;
 
     for (let i = 0; i < size; i++) {
       if (landMask[i] === 0) continue;
@@ -69,6 +74,18 @@ export const defaultStrategy = createStrategy(PlanRidgesAndFoothillsContract, "d
         fractal: fractalHillValue,
         config,
       });
+
+      if (scores[i] > maxMountainScore) maxMountainScore = scores[i];
+      if (hillScores[i] > maxHillScore) maxHillScore = hillScores[i];
+    }
+
+    // Normalize by the in-map maxima so thresholds behave consistently even when physics driver magnitudes
+    // are not saturating 0..255 (the spatial pattern remains physics-driven and deterministic).
+    if (maxMountainScore > SCORE_NORMALIZATION_EPS) {
+      for (let i = 0; i < size; i++) scores[i] = scores[i]! / maxMountainScore;
+    }
+    if (maxHillScore > SCORE_NORMALIZATION_EPS) {
+      for (let i = 0; i < size; i++) hillScores[i] = hillScores[i]! / maxHillScore;
     }
 
     const mountainMask = new Uint8Array(size);
