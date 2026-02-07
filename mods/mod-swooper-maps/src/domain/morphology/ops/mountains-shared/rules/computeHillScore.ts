@@ -45,11 +45,13 @@ export function computeHillScore(params: {
     uplift * config.hillUpliftWeight * config.hillUpliftScale * driverStrength;
 
   if (collision > 0 && config.hillBoundaryWeight > 0) {
-    // Boundary proximity alone does not create hills; deformation (uplift/stress) does.
-    // Multiply by orogenyPotential to prevent broad, low-signal boundary "halos" from
-    // turning entire continents into hills when boundaryCloseness is pure proximity.
-    hillScore += hillIntensity * scaledHillBoundaryWeight * foothillExtent * orogenyPotential;
-    hillScore += hillIntensity * scaledHillConvergentFoothill * foothillExtent * orogenyPotential;
+    // Boundary-adjacent hills are the expected foothill skirt around convergent orogens.
+    // We keep this term independent from the diagnostic `orogenyPotential` to preserve
+    // a usable hill-score dynamic range. Placement is still constrained by:
+    // - driverStrength gating in this function, and
+    // - candidate gating + coverage budgets in the foothills planner op.
+    hillScore += hillIntensity * scaledHillBoundaryWeight * foothillExtent;
+    hillScore += hillIntensity * scaledHillConvergentFoothill * foothillExtent;
   }
 
   if (divergence > 0) {

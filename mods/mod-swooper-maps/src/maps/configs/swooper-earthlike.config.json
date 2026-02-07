@@ -684,14 +684,15 @@
     "plotCoasts": {},
     "plotContinents": {},
   "mountains": {
-    "ridges": {
-      "strategy": "default",
-      "config": {
-        "tectonicIntensity": 2,
-        "mountainThreshold": 0.55,
-        "hillThreshold": 0.42,
-        "upliftWeight": 0.3,
-        "fractalWeight": 0.75,
+	    "ridges": {
+	      "strategy": "default",
+	      "config": {
+	        "tectonicIntensity": 2,
+	        "hillMaxFraction": 0.18,
+	        "mountainThreshold": 0.55,
+	        "hillThreshold": 0.42,
+	        "upliftWeight": 0.3,
+	        "fractalWeight": 0.75,
         "riftDepth": 0.25,
         "boundaryWeight": 0.8,
         "boundaryGate": 0.1,
@@ -707,14 +708,15 @@
         "hillUpliftWeight": 0.18
       }
     },
-    "foothills": {
-      "strategy": "default",
-      "config": {
-        "tectonicIntensity": 2,
-        "mountainThreshold": 0.55,
-        "hillThreshold": 0.42,
-        "upliftWeight": 0.3,
-        "fractalWeight": 0.75,
+	    "foothills": {
+	      "strategy": "default",
+	      "config": {
+	        "tectonicIntensity": 2,
+	        "hillMaxFraction": 0.18,
+	        "mountainThreshold": 0.55,
+	        "hillThreshold": 0.42,
+	        "upliftWeight": 0.3,
+	        "fractalWeight": 0.75,
         "riftDepth": 0.25,
         "boundaryWeight": 0.8,
         "boundaryGate": 0.1,
