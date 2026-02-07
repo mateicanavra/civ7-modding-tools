@@ -5,7 +5,7 @@ import { clamp } from "@swooper/mapgen-core/lib/math";
 import type { MountainsConfig } from "./types.js";
 import { clamp01 } from "./util.js";
 import { resolveBoundaryRegime } from "./resolveBoundaryRegime.js";
-import { computeOrogenyPotential01 } from "./computeOrogenyPotential01.js";
+import { computeOrogenyPotential } from "./computeOrogenyPotential.js";
 
 /**
  * Computes mountain score from tectonic signals and fractal noise.
@@ -31,7 +31,7 @@ export function computeMountainScore(params: {
   const transform = regime === BOUNDARY_TYPE.transform ? boundaryStrength : 0;
   const divergence = regime === BOUNDARY_TYPE.divergent ? boundaryStrength : 0;
 
-  const orogenyPotential01 = computeOrogenyPotential01({
+  const orogenyPotential = computeOrogenyPotential({
     boundaryStrength,
     boundaryType: regime,
     uplift,
@@ -45,14 +45,14 @@ export function computeMountainScore(params: {
       scaledBoundaryWeight *
       (config.mountainCollisionStressWeight * stress + config.mountainCollisionUpliftWeight * uplift) +
     uplift * scaledUpliftWeight * config.mountainInteriorUpliftScale * driverStrength +
-    fractal * config.fractalWeight * config.mountainFractalScale * orogenyPotential01;
+    fractal * config.fractalWeight * config.mountainFractalScale * orogenyPotential;
 
   if (collision > 0) {
     mountainScore +=
       collision *
       scaledConvergenceBonus *
       (config.mountainConvergenceFractalBase + fractal * config.mountainConvergenceFractalSpan) *
-      orogenyPotential01;
+      orogenyPotential;
   }
 
   if (config.interiorPenaltyWeight > 0) {

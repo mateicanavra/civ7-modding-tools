@@ -1,9 +1,8 @@
-export { resolveDriverStrength01 } from "./resolveDriverStrength01.js";
+export { resolveDriverStrength } from "./resolveDriverStrength.js";
 export { resolveBoundaryStrength } from "./resolveBoundaryStrength.js";
-export { computeOrogenyPotential01 } from "./computeOrogenyPotential01.js";
-export { computeFracture01 } from "./computeFracture01.js";
+export { computeOrogenyPotential } from "./computeOrogenyPotential.js";
+export { computeFracturePotential } from "./computeFracturePotential.js";
 export { computeMountainScore } from "./computeMountainScore.js";
 export { computeHillScore } from "./computeHillScore.js";
 export { normalizeMountainFractal } from "./normalizeMountainFractal.js";
-export { encode01Byte } from "./encode01Byte.js";
-
+export { encodeNormalizedToU8 } from "./encodeNormalizedToU8.js";

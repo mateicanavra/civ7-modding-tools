@@ -164,7 +164,7 @@ describe("m11 mountains (physics-anchored)", () => {
 
     expect(countMask(ridges.mountainMask, 0, size)).toBe(0);
     expect(countMask(foothills.hillMask, 0, size)).toBe(0);
-    expect(Array.from(ridges.orogenyPotential01)).toEqual(Array.from(new Uint8Array(size)));
-    expect(Array.from(ridges.fracture01)).toEqual(Array.from(new Uint8Array(size)));
+    expect(Array.from(ridges.orogenyPotential)).toEqual(Array.from(new Uint8Array(size)));
+    expect(Array.from(ridges.fracturePotential)).toEqual(Array.from(new Uint8Array(size)));
   });
 });

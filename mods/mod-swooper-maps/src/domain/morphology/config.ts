@@ -238,7 +238,7 @@ export const MountainsConfigSchema = Type.Object(
     /**
      * Orogeny diagnostic weights (physics decomposition).
      *
-     * These weights are used to build the `orogenyPotential01` visualization surface from
+     * These weights are used to build the `orogenyPotential` visualization surface from
      * boundary regime + stress/uplift/rift signals.
      */
     orogenyCollisionStressWeight: Type.Number({

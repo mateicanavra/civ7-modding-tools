@@ -12,7 +12,7 @@ Using `bun run --cwd mods/mod-swooper-maps diag:dump -- 106 66 1337 --label code
 
 - `map.morphology.mountains.mountainMask`: `min=0 max=0`
 - `map.morphology.mountains.hillMask`: `min=0 max=0`
-- `map.morphology.mountains.orogenyPotential01`: `min=0 max=0`
+- `map.morphology.mountains.orogenyPotential`: `min=0 max=0`
 - Volcanoes are present: `map.morphology.volcanoes.points count = 17`
 - Belt drivers show the scaling issue:
   - `morphology.belts.boundaryCloseness`: `min=2 max=28` (too low to drive boundaryStrength meaningfully)
@@ -27,7 +27,7 @@ In `.../compute-belt-drivers/deriveFromHistory.ts`, `boundaryCloseness` is compu
 
 So even at the boundary (normalized≈1), if the seed intensity is ~30–60, you only get closeness≈30–60, and after diffusion it’s often <30.  
 Then in `plan-ridges-and-foothills`, `boundaryStrength` is computed via a gate+exponent (default `boundaryGate=0.1`, `boundaryExponent=1.6`) and becomes so tiny that:
-- `orogenyPotential01` rounds to 0 everywhere
+- `orogenyPotential` rounds to 0 everywhere
 - mountain/hill scores never exceed thresholds
 
 ### B) “Plopped up blob” continents because plates still don’t *visibly* migrate enough
@@ -65,7 +65,7 @@ We’ll add a new mini-stack (3 slices) on top of `agent-GOBI-PRR-s101-per-era-c
 
 **Acceptance (canonical probe)**
 - Re-run `diag:dump 106 66 1337`.
-- `map.morphology.mountains.orogenyPotential01 max > 0`
+- `map.morphology.mountains.orogenyPotential max > 0`
 - `map.morphology.mountains.mountainMask max == 1` and nonzero count
 - Volcano points still nonzero.
 
@@ -181,7 +181,7 @@ Compute 3 intermediate fields, then blend:
 - Capture `map.morphology.mountains.mountainMask` and assert:
   - `max == 1`
   - `sum(mountainMask) >= 10` (small but nonzero guard)
-  - `map.morphology.mountains.orogenyPotential01 max > 0`
+  - `map.morphology.mountains.orogenyPotential max > 0`
 - Also assert volcano points count within a sane band (e.g. `>= 1`), to catch “all volcanoes disappeared” regressions.
 
 **Acceptance (canonical probe + gates)**
@@ -210,4 +210,3 @@ For each slice:
 - Drift profile: **Realistic** `[12, 9, 6, 3, 1]`.
 - Belt fix: **boundaryCloseness becomes pure proximity** (not intensity-scaled).
 - Landmask: **include boundary type + stress + history rollups + crust truth**, blended multi-scale, while keeping land fraction fixed via thresholding to `desiredLandCount`.
-
