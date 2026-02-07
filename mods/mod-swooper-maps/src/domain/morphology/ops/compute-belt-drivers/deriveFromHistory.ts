@@ -11,8 +11,37 @@ import type { BeltComponentSummary, BeltDriverOutputs } from "./types.js";
 const GAP_FILL_DISTANCE = 2;
 const MIN_BELT_LENGTH = 3;
 
+// Seed selection: intensity fields are influence fields (nonzero over large radii). We threshold relative to
+// the per-type max so seeds form a thin "spine" rather than making the whole world distance=0.
+const SEED_THRESHOLD_MIN = 1;
+const SEED_THRESHOLD_FRAC_OF_MAX = 0.35;
+
+// Era blending: favor newer eras exponentially, but lightly boost the last-active era when known.
+const ERA_WEIGHT_DECAY_PER_ERA = 0.7;
+const ERA_WEIGHT_LAST_ACTIVE_BOOST = 1.25;
+const ERA_WEIGHT_NON_ACTIVE_SCALE = 0.85;
+
+// Width modulation: more recent uplift implies narrower belts; older uplift yields wider, diffused belts.
+const BELT_WIDTH_SCALE_BASE = 1.2;
+const BELT_WIDTH_SCALE_RECENCY_RANGE = 0.6;
+
+// Spatial falloff: sigma controls spread (age-shaped), cutoff is a sigma multiple.
+const BELT_SIGMA_BASE = 1;
+const BELT_SIGMA_AGE_RANGE = 3;
+
+// Distance BFS budget: we cap exploration at a generous multiple of the maximum cutoff.
+const BELT_CUTOFF_SIGMA_MULT = 5;
+const BELT_MAX_DISTANCE_FUDGE = 1.2;
+
 function clampByte(value: number): number {
   return Math.max(0, Math.min(255, Math.round(value))) | 0;
+}
+
+function computeSeedThreshold(maxIntensity: number): number {
+  // The foundation boundary/intensity fields are influence fields (often nonzero almost everywhere),
+  // so we must seed belts only from the high-intensity spine; otherwise every tile becomes distance=0.
+  // This keeps seeding self-calibrating across configs and probes.
+  return Math.max(SEED_THRESHOLD_MIN, Math.round(maxIntensity * SEED_THRESHOLD_FRAC_OF_MAX));
 }
 
 function computeDistanceField(
@@ -145,6 +174,7 @@ export function deriveBeltDriversFromHistory(input: {
   const eraCount = Math.max(1, historyTiles.eraCount | 0);
   const perEra = historyTiles.perEra ?? [];
   const rollups = historyTiles.rollups ?? {};
+  const upliftTotal = rollups.upliftTotal ?? new Uint8Array(size);
   const upliftRecentFraction = rollups.upliftRecentFraction ?? new Uint8Array(size);
   const lastActiveEra = rollups.lastActiveEra ?? new Uint8Array(size);
   const originEra = provenanceTiles.originEra ?? new Uint8Array(size);
@@ -154,7 +184,7 @@ export function deriveBeltDriversFromHistory(input: {
   const baseWeights = new Float32Array(eraCount);
   for (let e = 0; e < eraCount; e++) {
     const age = (eraCount - 1 - e) | 0;
-    baseWeights[e] = Math.exp(-0.7 * age);
+    baseWeights[e] = Math.exp(-ERA_WEIGHT_DECAY_PER_ERA * age);
   }
 
   const boundaryTypeBlend = new Uint8Array(size);
@@ -174,7 +204,8 @@ export function deriveBeltDriversFromHistory(input: {
     const weights = new Float32Array(eraCount);
     for (let e = 0; e < eraCount; e++) {
       const base = baseWeights[e] ?? 0;
-      const weight = base * (boostActive && e === lastActive ? 1.25 : 0.85);
+      const weight =
+        base * (boostActive && e === lastActive ? ERA_WEIGHT_LAST_ACTIVE_BOOST : ERA_WEIGHT_NON_ACTIVE_SCALE);
       weights[e] = weight;
       weightSum += weight;
     }
@@ -204,10 +235,12 @@ export function deriveBeltDriversFromHistory(input: {
       }
     }
 
-    upliftBlend[i] = upliftSum;
     riftBlend[i] = riftSum;
     shearBlend[i] = shearSum;
-    intensityBlend[i] = Math.max(upliftSum, riftSum, shearSum);
+    // Mountain belts should be driven by integrated collision history (upliftTotal), not just the
+    // newest-era influence field. Using upliftTotal restores the expected dynamic range for ridge planning.
+    upliftBlend[i] = upliftTotal[i] ?? upliftSum;
+    intensityBlend[i] = Math.max(upliftBlend[i] ?? 0, riftSum, shearSum);
 
     const boundary = perEra[bestEra]?.boundaryType?.[i] ?? BOUNDARY_TYPE.none;
     let resolvedBoundary = clampByte(boundary);
@@ -218,7 +251,7 @@ export function deriveBeltDriversFromHistory(input: {
     boundaryTypeBlend[i] = resolvedBoundary;
 
     const recent = upliftRecentFraction[i] ?? 0;
-    widthScale[i] = 1.2 - 0.6 * (recent / 255);
+    widthScale[i] = BELT_WIDTH_SCALE_BASE - BELT_WIDTH_SCALE_RECENCY_RANGE * (recent / 255);
 
     const origin = originEra[i] ?? 0;
     const age =
@@ -234,10 +267,30 @@ export function deriveBeltDriversFromHistory(input: {
     [BOUNDARY_TYPE.transform]: new Uint8Array(size),
   };
 
+  const maxIntensityByType: Record<number, number> = {
+    [BOUNDARY_TYPE.convergent]: 0,
+    [BOUNDARY_TYPE.divergent]: 0,
+    [BOUNDARY_TYPE.transform]: 0,
+  };
+  for (let i = 0; i < size; i++) {
+    const boundary = boundaryTypeBlend[i] ?? BOUNDARY_TYPE.none;
+    if (!typeSeeds[boundary]) continue;
+    const intensity = intensityBlend[i] ?? 0;
+    maxIntensityByType[boundary] = Math.max(maxIntensityByType[boundary] ?? 0, intensity);
+  }
+  const seedThresholdByType: Record<number, number> = {
+    [BOUNDARY_TYPE.convergent]: computeSeedThreshold(maxIntensityByType[BOUNDARY_TYPE.convergent] ?? 0),
+    [BOUNDARY_TYPE.divergent]: computeSeedThreshold(maxIntensityByType[BOUNDARY_TYPE.divergent] ?? 0),
+    [BOUNDARY_TYPE.transform]: computeSeedThreshold(maxIntensityByType[BOUNDARY_TYPE.transform] ?? 0),
+  };
+
   for (let i = 0; i < size; i++) {
     const boundary = boundaryTypeBlend[i] ?? BOUNDARY_TYPE.none;
     const intensity = intensityBlend[i] ?? 0;
-    if (boundary !== BOUNDARY_TYPE.none && intensity > 0) {
+    // `boundaryTypeBlend` is a tiled "dominant influence" map (often nonzero everywhere) because
+    // tectonic emissions are long-range fields. Belts must be seeded from only the high-intensity
+    // spine, otherwise every tile becomes distance=0 and downstream orogeny collapses.
+    if (boundary !== BOUNDARY_TYPE.none && intensity >= (seedThresholdByType[boundary] ?? 1)) {
       if (typeSeeds[boundary]) typeSeeds[boundary][i] = 1;
     }
   }
@@ -284,14 +337,17 @@ export function deriveBeltDriversFromHistory(input: {
     }
   }
 
-  const maxSigma = 1 + 3 * (maxAge / Math.max(1, maxAge));
-  const maxDistance = Math.max(1, Math.round(5 * maxSigma * 1.2));
-  // Diffusion must be seeded only from positive-intensity sources; otherwise nearestSeed can land on a
-  // zero-intensity belt tile and silently suppress the entire region.
+  const maxSigma = BELT_SIGMA_BASE + BELT_SIGMA_AGE_RANGE * (maxAge / Math.max(1, maxAge));
+  const maxDistance = Math.max(1, Math.round(BELT_CUTOFF_SIGMA_MULT * maxSigma * BELT_MAX_DISTANCE_FUDGE));
+  // Seed diffusion from the high-intensity spine (not the entire beltMask), otherwise
+  // beltDistance collapses to 0 across the belt and boundaryCloseness saturates everywhere.
   const beltSeedMask = new Uint8Array(size);
   for (let i = 0; i < size; i++) {
     if (beltMask[i] !== 1) continue;
-    if ((intensityBlend[i] ?? 0) <= 0) continue;
+    const boundary = boundaryTypeBlend[i] ?? BOUNDARY_TYPE.none;
+    const seeds = typeSeeds[boundary];
+    if (!seeds) continue;
+    if (seeds[i] !== 1) continue;
     beltSeedMask[i] = 1;
   }
   const { distance: beltDistance, nearestSeed: beltNearestSeed } = computeDistanceField(
@@ -320,15 +376,15 @@ export function deriveBeltDriversFromHistory(input: {
     const seedType = boundaryTypeBlend[seedIndex] ?? BOUNDARY_TYPE.none;
     const seedWidthScale = widthScale[seedIndex] ?? 1;
     const seedAge = beltAge[seedIndex] ?? 0;
-    const sigma = 1 + (3 * seedAge) / Math.max(1, maxAge);
-    const cutoff = Math.max(1, Math.round(5 * sigma * seedWidthScale));
+    const sigma = BELT_SIGMA_BASE + (BELT_SIGMA_AGE_RANGE * seedAge) / Math.max(1, maxAge);
+    const cutoff = Math.max(1, Math.round(BELT_CUTOFF_SIGMA_MULT * sigma * seedWidthScale));
 
     const dist = beltDistance[i] ?? 255;
     if (dist > cutoff) continue;
 
     const normalized = Math.max(0, 1 - dist / cutoff);
-    const intensityScale = seedIntensity / 255;
-    boundaryCloseness[i] = clampByte(255 * normalized * intensityScale);
+    // Proximity should be a pure distance signal; intensity is carried by uplift/rift/stress fields.
+    boundaryCloseness[i] = clampByte(255 * normalized);
     upliftPotential[i] = clampByte(seedUplift * normalized);
     riftPotential[i] = clampByte(seedRift * normalized);
     const shear = clampByte(seedShear * normalized);
