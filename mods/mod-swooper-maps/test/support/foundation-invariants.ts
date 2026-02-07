@@ -7,6 +7,8 @@ import planRidgesAndFoothills from "../../src/domain/morphology/ops/plan-ridges-
 import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 import { deriveBeltDriversFromHistory } from "../../src/domain/morphology/ops/compute-belt-drivers/deriveFromHistory.js";
+import standardRecipe from "../../src/recipes/standard/recipe.js";
+import { standardConfig } from "./standard-config.js";
 
 const EPS = 1e-6;
 const POTENTIAL_MIN_ABS = 0.12;
@@ -184,6 +186,56 @@ function requireArtifact<T>(ctx: ValidationInvariantContext, id: string, label: 
     return null;
   }
   return value as T;
+}
+
+let cachedMountainsConfigKey: string | null = null;
+let cachedMountainsOpConfig: { strategy: string; config: Record<string, unknown> } | null = null;
+
+function resolveRuntimeMountainsOpConfig(
+  ctx: ValidationInvariantContext
+): { strategy: string; config: Record<string, unknown> } {
+  const fallback = planRidgesAndFoothills.defaultConfig as { strategy?: string; config?: Record<string, unknown> };
+  const fallbackResolved = {
+    strategy: fallback?.strategy ?? "default",
+    config: fallback?.config ?? {},
+  } as const;
+
+  const env = (ctx.context as any)?.env as
+    | {
+        dimensions?: { width?: number; height?: number };
+        latitudeBounds?: { topLatitude?: number; bottomLatitude?: number };
+        seed?: number;
+      }
+    | undefined;
+  if (!env?.dimensions?.width || !env?.dimensions?.height) return fallbackResolved;
+
+  // NOTE: The correlation gate should use the same compiled config that the recipe used at runtime,
+  // not the op's static defaultConfig replay (thread #1092).
+  const key = JSON.stringify({
+    width: env.dimensions.width,
+    height: env.dimensions.height,
+    topLatitude: env.latitudeBounds?.topLatitude ?? null,
+    bottomLatitude: env.latitudeBounds?.bottomLatitude ?? null,
+  });
+
+  if (cachedMountainsOpConfig && cachedMountainsConfigKey === key) return cachedMountainsOpConfig;
+  cachedMountainsConfigKey = key;
+  cachedMountainsOpConfig = null;
+
+  try {
+    const compiled = standardRecipe.compileConfig(env as any, standardConfig) as any;
+    const mountains = compiled?.["map-morphology"]?.["plot-mountains"]?.mountains;
+    if (mountains && typeof mountains === "object") {
+      cachedMountainsOpConfig = {
+        strategy: mountains.strategy ?? "default",
+        config: mountains.config ?? {},
+      };
+    }
+  } catch {
+    cachedMountainsOpConfig = null;
+  }
+
+  return cachedMountainsOpConfig ?? fallbackResolved;
 }
 
 const mantlePotentialInvariant: ValidationInvariant = {
@@ -625,7 +677,7 @@ const morphologyDriverCorrelationInvariant: ValidationInvariant = {
     const fractalHill = buildFractalArray(width, height, baseSeed ^ 0x5f, 5);
 
     const beltDrivers = deriveBeltDriversFromHistory({ width, height, historyTiles, provenanceTiles });
-    const planConfig = planRidgesAndFoothills.defaultConfig as { strategy?: string; config?: Record<string, unknown> };
+    const mountainsOpConfig = resolveRuntimeMountainsOpConfig(ctx);
     const plan = planRidgesAndFoothills.run(
       {
         width,
@@ -640,8 +692,8 @@ const morphologyDriverCorrelationInvariant: ValidationInvariant = {
         fractalHill,
       },
       {
-        strategy: planConfig?.strategy ?? "default",
-        config: planConfig?.config ?? {},
+        strategy: mountainsOpConfig.strategy,
+        config: mountainsOpConfig.config,
       }
     );
 

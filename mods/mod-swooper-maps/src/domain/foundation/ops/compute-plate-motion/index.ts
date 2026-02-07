@@ -201,8 +201,10 @@ const computePlateMotion = createOp(ComputePlateMotionContract, {
 
         const residualNorm = Math.max(EPS, meanForcingSpeed * residualNormScale);
         const p90Norm = Math.max(EPS, meanForcingSpeed * p90NormScale);
-        const hist = new Float64Array(plateCount * histogramBins);
         const sumErrSq = new Float64Array(plateCount);
+        const cellWeight = new Float32Array(cellCount);
+        const cellErr = new Float32Array(cellCount);
+        const maxNormByPlate = new Float32Array(plateCount);
 
         for (let i = 0; i < cellCount; i++) {
           const plateId = plateGraph.cellToPlate[i] | 0;
@@ -238,11 +240,40 @@ const computePlateMotion = createOp(ComputePlateMotionContract, {
           const dv = (forcingV[i] ?? 0) - vy;
           const err = Math.hypot(du, dv);
 
+          cellWeight[i] = weight;
+          cellErr[i] = err;
           sumErrSq[plateId] += weight * err * err;
           cellFitError[i] = clampByte((255 * err) / residualNorm);
 
           const normalized = err / residualNorm;
-          const bin = Math.min(histogramBins - 1, Math.max(0, Math.floor(normalized * histogramBins)));
+          if (normalized > (maxNormByPlate[plateId] ?? 0)) {
+            maxNormByPlate[plateId] = normalized;
+          }
+        }
+
+        // Compute P90 from an uncapped residual distribution.
+        // residualNorm is a normalization scale, not a cap; P90 can exceed residualNorm where warranted.
+        const logMaxByPlate = new Float32Array(plateCount);
+        for (let p = 0; p < plateCount; p++) {
+          const maxNorm = Math.max(0, maxNormByPlate[p] ?? 0);
+          logMaxByPlate[p] = Math.log1p(maxNorm);
+        }
+
+        const hist = new Float64Array(plateCount * histogramBins);
+        for (let i = 0; i < cellCount; i++) {
+          const plateId = plateGraph.cellToPlate[i] | 0;
+          if (plateId < 0 || plateId >= plateCount) continue;
+
+          const weight = cellWeight[i] ?? 0;
+          if (weight <= 0) continue;
+
+          const logMax = logMaxByPlate[plateId] ?? 0;
+          if (logMax <= EPS) continue;
+
+          // Use log-spaced bins so extreme outliers do not collapse all residuals into the first bucket.
+          const normalized = Math.max(0, (cellErr[i] ?? 0) / residualNorm);
+          const t = Math.log1p(normalized) / logMax;
+          const bin = Math.min(histogramBins - 1, Math.max(0, Math.floor(t * histogramBins)));
           hist[plateId * histogramBins + bin] += weight;
         }
 
@@ -266,7 +297,10 @@ const computePlateMotion = createOp(ComputePlateMotionContract, {
               break;
             }
           }
-          plateFitP90[p] = ((bin + 0.5) / histogramBins) * residualNorm;
+          const logMax = Math.max(EPS, logMaxByPlate[p] ?? 0);
+          const t = ((bin + 0.5) / histogramBins) * logMax;
+          const normalizedP90 = Math.expm1(t);
+          plateFitP90[p] = normalizedP90 * residualNorm;
 
           const q = clamp01(1 - (plateFitP90[p] ?? 0) / p90Norm);
           plateQuality[p] = Math.round(q * 255);
