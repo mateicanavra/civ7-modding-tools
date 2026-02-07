@@ -22,7 +22,9 @@ const StrategySchema = Type.Object(
     ageToMaturity: Type.Number({
       minimum: 0,
       maximum: 2,
-      default: 0.8,
+      // Provenance "material age" is an important stability/strength signal, but it should not
+      // dominate continental emergence (oceanic crust does not become continental simply by aging).
+      default: 0.25,
       description: "How strongly provenance “material age” contributes to maturity (0..2).",
     }),
     /** How strongly rift/fracture signals suppress maturity (0..2). */
@@ -62,4 +64,3 @@ const ComputeCrustEvolutionContract = defineOp({
 
 export default ComputeCrustEvolutionContract;
 export type ComputeCrustEvolutionConfig = Static<typeof StrategySchema>;
-

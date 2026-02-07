@@ -8,6 +8,12 @@ const DEFAULT_BOUNDARY_THRESHOLD = 200;
 const DEFAULT_TARGET_STEP = 5;
 const MAX_ITERATIONS = 8;
 
+// Hard guardrail: hypsometry targetPct is the primary objective. Constraint satisfaction is
+// important, but should not drive the world into extreme all-water / all-land outcomes when
+// the constraints are incompatible with the current upstream truth.
+const MAX_TARGET_ADJUSTMENT_PCT = 20; // percentage points
+const TARGET_PCT_PENALTY_WEIGHT = 1.0; // penalty per +/-100 percentage points of adjustment
+
 /**
  * Ensures sea-level inputs match the expected map size.
  */
@@ -94,7 +100,7 @@ export function resolveSeaLevel(params: {
     return { pct, seaLevel };
   };
 
-  const evaluate = (candidateSeaLevel: number): { error: number; seaLevel: number } => {
+  const evaluate = (candidateSeaLevel: number): { constraintError: number; seaLevel: number } => {
     let landCount = 0;
     let boundaryLand = 0;
     let continentalLand = 0;
@@ -113,45 +119,41 @@ export function resolveSeaLevel(params: {
 
     const boundaryErr = boundaryTarget == null ? 0 : Math.max(0, boundaryTarget - boundaryShare);
     const continentalErr = continentalTarget == null ? 0 : Math.max(0, continentalTarget - continentalShare);
-    const error = boundaryErr + continentalErr;
+    const constraintError = boundaryErr + continentalErr;
 
-    return { error, seaLevel: candidateSeaLevel };
+    return { constraintError, seaLevel: candidateSeaLevel };
   };
 
-  let targetPct = clampPct(initialTarget);
-  let seaLevel = resolveSeaLevelAtPct(targetPct);
-  let current = evaluate(seaLevel);
+  const initialPct = clampPct(initialTarget);
 
-  for (let iter = 0; iter <= MAX_ITERATIONS; iter++) {
-    if (current.error <= 0) break;
+  const scoreCandidate = (pct: number): { objective: number; pctDelta: number; seaLevel: number } => {
+    const clampedPct = clampPct(pct);
+    const seaLevel = resolveSeaLevelAtPct(clampedPct);
+    const evald = evaluate(seaLevel);
+    const pctDelta = Math.abs(clampedPct - initialPct);
+    const objective = evald.constraintError + TARGET_PCT_PENALTY_WEIGHT * (pctDelta / 100);
+    return { objective, pctDelta, seaLevel };
+  };
 
-    const downCandidate = resolveDistinctCandidate(targetPct, -1, seaLevel);
-    const upCandidate = resolveDistinctCandidate(targetPct, 1, seaLevel);
+  // Greedy local steps can drift too far if constraints are unsatisfiable.
+  // Instead, scan a bounded window around the initial hypsometry target.
+  let best = scoreCandidate(initialPct);
+  for (let iter = 0; iter < MAX_ITERATIONS; iter++) {
+    const delta = (iter + 1) * targetPctStep;
+    if (delta > MAX_TARGET_ADJUSTMENT_PCT) break;
+    const down = scoreCandidate(initialPct - delta);
+    const up = scoreCandidate(initialPct + delta);
 
-    if (!downCandidate && !upCandidate) break;
-
-    const down = downCandidate ? evaluate(downCandidate.seaLevel) : null;
-    const up = upCandidate ? evaluate(upCandidate.seaLevel) : null;
-
-    // Pick the direction that best reduces constraint error; stop if we can't improve.
-    let nextPct = targetPct;
-    let next = current;
-    if ((down && down.error < next.error) || (up && up.error < next.error)) {
-      if (up && (!down || up.error <= down.error)) {
-        nextPct = upCandidate!.pct;
-        next = up;
-      } else if (down) {
-        nextPct = downCandidate!.pct;
-        next = down;
-      }
-    } else {
-      break;
-    }
-
-    targetPct = nextPct;
-    seaLevel = next.seaLevel;
-    current = next;
+    const pick = (a: typeof best, b: typeof best): typeof best => {
+      if (b.objective < a.objective) return b;
+      if (b.objective > a.objective) return a;
+      // Tie-break: prefer less deviation from the hypsometry target.
+      if (b.pctDelta < a.pctDelta) return b;
+      return a;
+    };
+    best = pick(best, down);
+    best = pick(best, up);
   }
 
-  return seaLevel;
+  return best.seaLevel;
 }
