@@ -100,7 +100,7 @@ This section is intentionally short and pointer-only. Evidence payloads live und
   - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1157
   - Evidence: `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/s90.md`
 - s91: `agent-GOBI-PRR-s91-phase-b-rift-craton-growth-landmass`
-  - PR: (pending submit)
+  - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1158
   - Evidence: `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/s91.md`
 
 ## Canonical Sources (Normative)
