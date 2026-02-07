@@ -711,6 +711,7 @@ const morphologyDriverCorrelationInvariant: ValidationInvariant = {
         upliftPotential: beltDrivers.upliftPotential,
         riftPotential: beltDrivers.riftPotential,
         tectonicStress: beltDrivers.tectonicStress,
+        beltAge: beltDrivers.beltAge,
         fractalMountain,
       },
       {
@@ -729,6 +730,7 @@ const morphologyDriverCorrelationInvariant: ValidationInvariant = {
         upliftPotential: beltDrivers.upliftPotential,
         riftPotential: beltDrivers.riftPotential,
         tectonicStress: beltDrivers.tectonicStress,
+        beltAge: beltDrivers.beltAge,
         fractalHill,
       },
       {

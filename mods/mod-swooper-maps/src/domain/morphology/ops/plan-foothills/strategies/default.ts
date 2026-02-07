@@ -5,6 +5,7 @@ import type { PlanFoothillsTypes } from "../types.js";
 
 import {
   computeHillScore,
+  computeHexDistanceToMask,
   normalizeMountainFractal,
   resolveBoundaryStrength,
   resolveDriverStrength,
@@ -19,6 +20,7 @@ function validateFoothillsInputs(input: PlanFoothillsTypes["input"]): {
   upliftPotential: Uint8Array;
   riftPotential: Uint8Array;
   tectonicStress: Uint8Array;
+  beltAge: Uint8Array;
   fractalHill: Int16Array;
 } {
   const { width, height } = input;
@@ -31,6 +33,7 @@ function validateFoothillsInputs(input: PlanFoothillsTypes["input"]): {
   const upliftPotential = input.upliftPotential as Uint8Array;
   const riftPotential = input.riftPotential as Uint8Array;
   const tectonicStress = input.tectonicStress as Uint8Array;
+  const beltAge = input.beltAge as Uint8Array;
   const fractalHill = input.fractalHill as Int16Array;
 
   if (
@@ -41,6 +44,7 @@ function validateFoothillsInputs(input: PlanFoothillsTypes["input"]): {
     upliftPotential.length !== size ||
     riftPotential.length !== size ||
     tectonicStress.length !== size ||
+    beltAge.length !== size ||
     fractalHill.length !== size
   ) {
     throw new Error("[PlanFoothills] Input tensors must match width*height.");
@@ -55,6 +59,7 @@ function validateFoothillsInputs(input: PlanFoothillsTypes["input"]): {
     upliftPotential,
     riftPotential,
     tectonicStress,
+    beltAge,
     fractalHill,
   };
 }
@@ -70,13 +75,21 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
       upliftPotential,
       riftPotential,
       tectonicStress,
+      beltAge,
       fractalHill,
     } = validateFoothillsInputs(input);
 
+    const { width, height } = input;
+    const w = width | 0;
+    const h = height | 0;
+
     const hillMask = new Uint8Array(size);
+    const hillScoreByTile = new Float32Array(size);
 
     const boundaryGate = Math.min(0.99, Math.max(0, config.boundaryGate));
     const falloffExponent = config.boundaryExponent;
+    const oldBeltHillScale = Math.max(0, Math.min(2, config.oldBeltHillScale));
+    const foothillMaxDistance = Math.max(0, Math.min(255, Math.round(config.foothillMaxDistance))) | 0;
 
     for (let i = 0; i < size; i++) {
       if (landMask[i] === 0) continue;
@@ -109,7 +122,36 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
         config,
       });
 
-      if (hillScore > config.hillThreshold) {
+      // Age shaping: old belts should degrade to hills more readily than mountains.
+      const ageNorm = (beltAge[i] ?? 0) / 255;
+      const ageScale = 1 + ageNorm * (oldBeltHillScale - 1);
+      hillScoreByTile[i] = hillScore * ageScale;
+    }
+
+    const distanceToMountains =
+      foothillMaxDistance > 0
+        ? computeHexDistanceToMask({ mask: mountainMask, width: w, height: h, maxDistance: foothillMaxDistance })
+        : new Uint8Array(size);
+    if (foothillMaxDistance <= 0) distanceToMountains.fill(255);
+
+    const threshold = Math.max(0, config.hillThreshold);
+
+    for (let i = 0; i < size; i++) {
+      if (landMask[i] === 0) continue;
+      if (mountainMask[i] === 1) continue;
+      const score = hillScoreByTile[i] ?? 0;
+      if (!(score > threshold)) continue;
+
+      const dist = distanceToMountains[i] ?? 255;
+      const closeToMountains = dist !== 255 && dist <= foothillMaxDistance;
+
+      // Allow foothills either as skirts adjacent to ridges, or as boundary-adjacent ruggedness in
+      // places where physics indicates deformation but ridge spines are sparse.
+      const closenessNorm = boundaryCloseness[i] / 255;
+      const boundaryStrength = resolveBoundaryStrength(closenessNorm, boundaryGate, falloffExponent);
+      const closeToBoundary = boundaryStrength > 0;
+
+      if (closeToMountains || closeToBoundary) {
         hillMask[i] = 1;
       }
     }
