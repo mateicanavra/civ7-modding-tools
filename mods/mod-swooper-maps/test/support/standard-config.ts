@@ -37,17 +37,20 @@ const coastConfig = {
 };
 
 const mountainsConfig = {
-  tectonicIntensity: 0.65,
-  mountainThreshold: 0.62,
+  // Physics-first: mountain placement should be primarily driven by belts/uplift history, not
+  // fractal noise. Keep thresholds compatible with current driver magnitudes so invariants can
+  // catch "no mountains" regressions.
+  tectonicIntensity: 1.4,
+  mountainThreshold: 0.55,
   hillThreshold: 0.32,
-  upliftWeight: 0.4,
-  fractalWeight: 0.45,
+  upliftWeight: 0.45,
+  fractalWeight: 0.2,
   riftDepth: 0.25,
-  boundaryWeight: 0.55,
+  boundaryWeight: 1.0,
   boundaryGate: 0,
   boundaryExponent: 1.15,
   interiorPenaltyWeight: 0.15,
-  convergenceBonus: 0.6,
+  convergenceBonus: 1.0,
   transformPenalty: 0.6,
   riftPenalty: 0.76,
   hillBoundaryWeight: 0.32,
