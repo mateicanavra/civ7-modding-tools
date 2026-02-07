@@ -63,7 +63,7 @@ const ComputeBeltDriversContract = defineOp({
   output: Type.Object(
     {
       boundaryCloseness: TypedArraySchemas.u8({
-        description: "Boundary proximity field per tile (0..255), weighted by tectonic intensity and belt decay.",
+        description: "Boundary proximity field per tile (0..255), derived from distance to active belt seed spines.",
       }),
       boundaryType: TypedArraySchemas.u8({
         description: "Boundary regime per tile (BOUNDARY_TYPE values), resolved from active eras/provenance.",
@@ -97,4 +97,3 @@ const ComputeBeltDriversContract = defineOp({
 });
 
 export default ComputeBeltDriversContract;
-
