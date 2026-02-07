@@ -13,7 +13,6 @@ import { Type, type Static } from "@swooper/mapgen-core/authoring";
  * - Plate count target (integer >= 2). Used as the authored baseline for plate discretization.
  */
 export const FoundationPlateCountKnobSchema = Type.Integer({
-  default: 28,
   minimum: 2,
   maximum: 256,
   description:

@@ -163,6 +163,10 @@ describe("m11 hypsometry: continentalFraction does not collapse water coverage",
         crustAge: crustTiles.age,
         provenanceOriginEra: projection.tectonicProvenanceTiles.originEra,
         provenanceDriftDistance: projection.tectonicProvenanceTiles.driftDistance,
+        riftPotentialByEra: projection.tectonicHistoryTiles.perEra.map((era) => era.riftPotential),
+        fractureTotal: projection.tectonicHistoryTiles.rollups.fractureTotal,
+        movementU: plates.movementU,
+        movementV: plates.movementV,
       },
       computeLandmask.defaultConfig
     );
