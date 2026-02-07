@@ -3,7 +3,8 @@ import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 
 import type { ValidationInvariant, ValidationInvariantContext } from "./validation-harness.js";
-import planRidgesAndFoothills from "../../src/domain/morphology/ops/plan-ridges-and-foothills/index.js";
+import planFoothills from "../../src/domain/morphology/ops/plan-foothills/index.js";
+import planRidges from "../../src/domain/morphology/ops/plan-ridges/index.js";
 import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 import { deriveBeltDriversFromHistory } from "../../src/domain/morphology/ops/compute-belt-drivers/deriveFromHistory.js";
@@ -189,15 +190,31 @@ function requireArtifact<T>(ctx: ValidationInvariantContext, id: string, label: 
 }
 
 let cachedMountainsConfigKey: string | null = null;
-let cachedMountainsOpConfig: { strategy: string; config: Record<string, unknown> } | null = null;
+let cachedMountainsOpConfig:
+  | {
+      ridges: { strategy: string; config: Record<string, unknown> };
+      foothills: { strategy: string; config: Record<string, unknown> };
+    }
+  | null = null;
 
 function resolveRuntimeMountainsOpConfig(
   ctx: ValidationInvariantContext
-): { strategy: string; config: Record<string, unknown> } {
-  const fallback = planRidgesAndFoothills.defaultConfig as { strategy?: string; config?: Record<string, unknown> };
+): {
+  ridges: { strategy: string; config: Record<string, unknown> };
+  foothills: { strategy: string; config: Record<string, unknown> };
+} {
+  const fallbackRidges = planRidges.defaultConfig as { strategy?: string; config?: Record<string, unknown> };
+  const fallbackFoothills = planFoothills.defaultConfig as { strategy?: string; config?: Record<string, unknown> };
+
   const fallbackResolved = {
-    strategy: fallback?.strategy ?? "default",
-    config: fallback?.config ?? {},
+    ridges: {
+      strategy: fallbackRidges?.strategy ?? "default",
+      config: fallbackRidges?.config ?? {},
+    },
+    foothills: {
+      strategy: fallbackFoothills?.strategy ?? "default",
+      config: fallbackFoothills?.config ?? {},
+    },
   } as const;
 
   const env = (ctx.context as any)?.env as
@@ -224,13 +241,19 @@ function resolveRuntimeMountainsOpConfig(
 
   try {
     const compiled = standardRecipe.compileConfig(env as any, standardConfig) as any;
-    const mountains = compiled?.["map-morphology"]?.["plot-mountains"]?.mountains;
-    if (mountains && typeof mountains === "object") {
-      cachedMountainsOpConfig = {
-        strategy: mountains.strategy ?? "default",
-        config: mountains.config ?? {},
-      };
-    }
+    const plot = compiled?.["map-morphology"]?.["plot-mountains"];
+    const ridges = plot?.ridges;
+    const foothills = plot?.foothills;
+    cachedMountainsOpConfig = {
+      ridges: {
+        strategy: ridges?.strategy ?? fallbackResolved.ridges.strategy,
+        config: ridges?.config ?? fallbackResolved.ridges.config,
+      },
+      foothills: {
+        strategy: foothills?.strategy ?? fallbackResolved.foothills.strategy,
+        config: foothills?.config ?? fallbackResolved.foothills.config,
+      },
+    };
   } catch {
     cachedMountainsOpConfig = null;
   }
@@ -678,7 +701,7 @@ const morphologyDriverCorrelationInvariant: ValidationInvariant = {
 
     const beltDrivers = deriveBeltDriversFromHistory({ width, height, historyTiles, provenanceTiles });
     const mountainsOpConfig = resolveRuntimeMountainsOpConfig(ctx);
-    const plan = planRidgesAndFoothills.run(
+    const ridges = planRidges.run(
       {
         width,
         height,
@@ -689,13 +712,32 @@ const morphologyDriverCorrelationInvariant: ValidationInvariant = {
         riftPotential: beltDrivers.riftPotential,
         tectonicStress: beltDrivers.tectonicStress,
         fractalMountain,
+      },
+      {
+        strategy: mountainsOpConfig.ridges.strategy,
+        config: mountainsOpConfig.ridges.config,
+      }
+    );
+    const foothills = planFoothills.run(
+      {
+        width,
+        height,
+        landMask,
+        mountainMask: ridges.mountainMask,
+        boundaryCloseness: beltDrivers.boundaryCloseness,
+        boundaryType: beltDrivers.boundaryType,
+        upliftPotential: beltDrivers.upliftPotential,
+        riftPotential: beltDrivers.riftPotential,
+        tectonicStress: beltDrivers.tectonicStress,
         fractalHill,
       },
       {
-        strategy: mountainsOpConfig.strategy,
-        config: mountainsOpConfig.config,
+        strategy: mountainsOpConfig.foothills.strategy,
+        config: mountainsOpConfig.foothills.config,
       }
     );
+
+    const plan = { mountainMask: ridges.mountainMask, hillMask: foothills.hillMask } as const;
 
     if (!(plan.mountainMask instanceof Uint8Array)) {
       return { name: "morphology-driver-correlation", ok: false, message: "Missing mountainMask output." };

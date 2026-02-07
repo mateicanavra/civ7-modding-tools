@@ -14,13 +14,15 @@ const PlotMountainsStepContract = defineStep({
     provides: [],
   },
   ops: {
-    mountains: morphology.ops.planRidgesAndFoothills,
+    ridges: morphology.ops.planRidges,
+    foothills: morphology.ops.planFoothills,
   },
   schema: Type.Object(
     {},
     {
       additionalProperties: false,
-      description: "Gameplay mountain projection config (op envelope for morphology/plan-ridges-and-foothills).",
+      description:
+        "Gameplay mountain projection config (op envelopes for morphology/plan-ridges + morphology/plan-foothills).",
     }
   ),
 });

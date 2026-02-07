@@ -188,7 +188,32 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
   },
   "map-morphology": {
     mountains: {
-      mountains: {
+      ridges: {
+        strategy: "default",
+        config: {
+          // High intensity for ring mountain formation
+          tectonicIntensity: 0.85,
+          mountainThreshold: 0.5,
+          hillThreshold: 0.3,
+          upliftWeight: 0.45,
+          fractalWeight: 0.3,
+          riftDepth: 0.3,
+          // Strong emphasis on plate boundaries for the ring
+          boundaryWeight: 1.35,
+          boundaryGate: 0.1,
+          boundaryExponent: 2.0,
+          interiorPenaltyWeight: 0.1,
+          convergenceBonus: 0.95,
+          transformPenalty: 0.5,
+          riftPenalty: 0.7,
+          hillBoundaryWeight: 0.45,
+          hillRiftBonus: 0.35,
+          hillConvergentFoothill: 0.5,
+          hillInteriorFalloff: 0.2,
+          hillUpliftWeight: 0.3,
+        },
+      },
+      foothills: {
         strategy: "default",
         config: {
           // High intensity for ring mountain formation
