@@ -12,9 +12,18 @@
       "plateActivity": 0.5
     },
     "advanced": {
+      "budgets": {
+        "eraCount": 5
+      },
       "tectonics": {
         "history": {
-          "driftStepsByEra": [12, 9, 6, 3, 1]
+          "driftStepsByEra": [
+            12,
+            9,
+            6,
+            3,
+            1
+          ]
         }
       }
     }
@@ -22,7 +31,8 @@
   "morphology-coasts": {
     "knobs": {
       "coastRuggedness": "normal",
-      "seaLevel": "earthlike"
+      "seaLevel": "earthlike",
+      "shelfWidth": "normal"
     },
     "advanced": {
       "landmass-plates": {
@@ -77,8 +87,18 @@
           "config": {
             "continentPotentialGrain": 4,
             "continentPotentialBlurSteps": 4,
-            "keepLandComponentFraction": 0.985
+            "keepLandComponentFraction": 0.985,
+            "cratonStepsPerEra": 2,
+            "cratonNucleationScale": 0.9,
+            "cratonDiffusion": 0.25,
+            "cratonAdvection": 0.15,
+            "cratonHalfSaturation": 0.35,
+            "cratonPotentialWeight": 0.12
           }
+        },
+        "beltDrivers": {
+          "strategy": "default",
+          "config": {}
         }
       },
       "rugged-coasts": {
@@ -108,6 +128,17 @@
                 "passiveBonus": 1
               }
             }
+          }
+        },
+        "shelfMask": {
+          "strategy": "default",
+          "config": {
+            "nearshoreDistance": 3,
+            "shallowQuantile": 0.7,
+            "activeClosenessThreshold": 0.45,
+            "capTilesActive": 2,
+            "capTilesPassive": 4,
+            "capTilesMax": 8
           }
         }
       }
