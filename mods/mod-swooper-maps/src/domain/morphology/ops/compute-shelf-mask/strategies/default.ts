@@ -1,14 +1,10 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
+import { clampInt } from "@swooper/mapgen-core/lib/math";
 
 import ComputeShelfMaskContract from "../contract.js";
 
 const BOUNDARY_CONVERGENT = 1;
 const BOUNDARY_TRANSFORM = 3;
-
-function clampInt(value: number, min: number, max: number): number {
-  if (!Number.isFinite(value)) return min;
-  return Math.max(min, Math.min(max, value));
-}
 
 function computeQuantileCutoff(values: Int16Array, count: number, q01: number): number {
   if (count <= 0) return 0;
