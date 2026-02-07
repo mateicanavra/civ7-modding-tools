@@ -3,13 +3,13 @@ import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authorin
 const LandmaskConfigSchema = Type.Object(
   {
     continentPotentialGrain: Type.Integer({
-      default: 5,
+      default: 4,
       minimum: 1,
       maximum: 64,
       description: "Coarse grain (hex bin size) used to low-pass continent potential before thresholding.",
     }),
     continentPotentialBlurSteps: Type.Integer({
-      default: 5,
+      default: 4,
       minimum: 0,
       maximum: 16,
       description: "Number of hex-neighborhood blur passes applied after coarse-grain averaging.",
@@ -79,11 +79,35 @@ const ComputeLandmaskContract = defineOp({
     boundaryCloseness: TypedArraySchemas.u8({
       description: "Boundary proximity per tile (0..255).",
     }),
+    boundaryType: TypedArraySchemas.u8({
+      description: "Boundary type per tile (1=conv,2=div,3=trans).",
+    }),
+    upliftPotential: TypedArraySchemas.u8({
+      description: "Uplift potential per tile (0..255).",
+    }),
+    riftPotential: TypedArraySchemas.u8({
+      description: "Rift potential per tile (0..255).",
+    }),
+    tectonicStress: TypedArraySchemas.u8({
+      description: "Tectonic stress per tile (0..255).",
+    }),
     crustType: TypedArraySchemas.u8({
       description: "Foundation crust type per tile (0=oceanic, 1=continental).",
     }),
+    crustMaturity: TypedArraySchemas.f32({
+      description: "Foundation crust maturity per tile (0..1).",
+    }),
+    crustThickness: TypedArraySchemas.f32({
+      description: "Foundation crust thickness proxy per tile (0..1).",
+    }),
+    crustDamage: TypedArraySchemas.u8({
+      description: "Foundation crust damage per tile (0..255).",
+    }),
     crustBaseElevation: TypedArraySchemas.f32({
       description: "Foundation crust base elevation proxy per tile (0..1).",
+    }),
+    crustStrength: TypedArraySchemas.f32({
+      description: "Foundation crust strength proxy per tile (0..1).",
     }),
     crustAge: TypedArraySchemas.u8({
       description: "Foundation crust age bucket per tile (0..255).",
@@ -100,6 +124,18 @@ const ComputeLandmaskContract = defineOp({
     }),
     fractureTotal: TypedArraySchemas.u8({
       description: "Accumulated fracture total per tile (0..255) from Foundation history rollups.",
+    }),
+    upliftTotal: TypedArraySchemas.u8({
+      description: "Accumulated uplift total per tile (0..255) from Foundation history rollups.",
+    }),
+    volcanismTotal: TypedArraySchemas.u8({
+      description: "Accumulated volcanism total per tile (0..255) from Foundation history rollups.",
+    }),
+    upliftRecentFraction: TypedArraySchemas.u8({
+      description: "Fraction of uplift attributable to recent eras per tile (0..255).",
+    }),
+    lastActiveEra: TypedArraySchemas.u8({
+      description: "Most recent active era per tile (0..eraCount-1) or 255 when inactive.",
     }),
     movementU: TypedArraySchemas.i8({
       description: "Plate movement U component per tile (-127..127) from Foundation plate tensors.",

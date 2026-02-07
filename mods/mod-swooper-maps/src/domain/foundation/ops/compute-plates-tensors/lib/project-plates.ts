@@ -90,6 +90,9 @@ export function projectPlatesFromModel(input: {
   tileToCellIndex: Int32Array;
   crustTiles: {
     type: Uint8Array;
+    maturity: Float32Array;
+    thickness: Float32Array;
+    damage: Uint8Array;
     age: Uint8Array;
     buoyancy: Float32Array;
     baseElevation: Float32Array;
@@ -251,6 +254,9 @@ export function projectPlatesFromModel(input: {
   }
 
   const crustType = new Uint8Array(size);
+  const crustMaturity = new Float32Array(size);
+  const crustThickness = new Float32Array(size);
+  const crustDamage = new Uint8Array(size);
   const crustAge = new Uint8Array(size);
   const crustBuoyancy = new Float32Array(size);
   const crustBaseElevation = new Float32Array(size);
@@ -258,6 +264,9 @@ export function projectPlatesFromModel(input: {
   for (let i = 0; i < size; i++) {
     const cellId = tileToCellIndex[i] ?? 0;
     crustType[i] = crust.type[cellId] ?? 0;
+    crustMaturity[i] = crust.maturity[cellId] ?? 0;
+    crustThickness[i] = crust.thickness[cellId] ?? 0;
+    crustDamage[i] = crust.damage[cellId] ?? 0;
     crustAge[i] = crust.age[cellId] ?? 0;
     crustBuoyancy[i] = crust.buoyancy[cellId] ?? 0;
     crustBaseElevation[i] = crust.baseElevation[cellId] ?? 0;
@@ -356,6 +365,9 @@ export function projectPlatesFromModel(input: {
     tileToCellIndex,
     crustTiles: {
       type: crustType,
+      maturity: crustMaturity,
+      thickness: crustThickness,
+      damage: crustDamage,
       age: crustAge,
       buoyancy: crustBuoyancy,
       baseElevation: crustBaseElevation,
