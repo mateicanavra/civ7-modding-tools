@@ -48,6 +48,11 @@ const ERA_COUNT_MIN = 5;
 const ERA_COUNT_MAX = 8;
 const ADVECTION_STEPS_PER_ERA = 6;
 
+// Boost convergent uplift/volcanism modestly toward newer eras to emulate strengthening orogeny over time
+// without re-segmenting the plate graph per era.
+const OROGENY_ERA_GAIN_MIN = 0.85;
+const OROGENY_ERA_GAIN_MAX = 1.15;
+
 type EmissionParams = Readonly<{
   radius: Readonly<{
     uplift: number;
@@ -230,6 +235,7 @@ function buildEraFields(params: {
   };
   events: ReadonlyArray<TectonicEvent>;
   weight: number;
+  eraGain: number;
   driftSteps: number;
   emission: EmissionParams;
 }): EraFields {
@@ -373,13 +379,21 @@ function buildEraFields(params: {
   };
 
   const weight = Math.max(0, params.weight);
+  const eraGain = Number.isFinite(params.eraGain) ? Math.max(0, params.eraGain) : 1;
 
   for (let e = 0; e < params.events.length; e++) {
     const event = params.events[e]!;
-    const intensityUplift = clampByte((event.intensityUplift ?? 0) * weight);
+    const eventType = event.eventType | 0;
+    const isConvergent =
+      eventType === EVENT_TYPE.convergenceSubduction || eventType === EVENT_TYPE.convergenceCollision;
+
+    const upliftGain = isConvergent ? eraGain : 1;
+    const volcanismGain = eventType === EVENT_TYPE.convergenceSubduction ? eraGain : 1;
+
+    const intensityUplift = clampByte((event.intensityUplift ?? 0) * weight * upliftGain);
     const intensityRift = clampByte((event.intensityRift ?? 0) * weight);
     const intensityShear = clampByte((event.intensityShear ?? 0) * weight);
-    const intensityVolcanism = clampByte((event.intensityVolcanism ?? 0) * weight);
+    const intensityVolcanism = clampByte((event.intensityVolcanism ?? 0) * weight * volcanismGain);
     const intensityFracture = clampByte((event.intensityFracture ?? 0) * weight);
 
     const maxRadius = Math.max(
@@ -784,11 +798,15 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
 
         const eras: EraFields[] = [];
         for (let era = 0; era < eraCount; era++) {
+          const t = eraCount > 1 ? era / (eraCount - 1) : 0;
+          const eraGain = OROGENY_ERA_GAIN_MIN + (OROGENY_ERA_GAIN_MAX - OROGENY_ERA_GAIN_MIN) * t;
+
           eras.push(
             buildEraFields({
               mesh,
               events,
               weight: weights[era] ?? 0,
+              eraGain,
               driftSteps: driftSteps[era] ?? 0,
               emission,
             })
