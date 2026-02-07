@@ -1,15 +1,9 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
-import { clamp01, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
+import { clamp01, clampInt, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import { requireMesh } from "../../lib/require.js";
 import ComputeMantlePotentialContract from "./contract.js";
-
-function clampInt(value: number, bounds: { min: number; max?: number }): number {
-  const rounded = Math.round(value);
-  const max = bounds.max ?? Number.POSITIVE_INFINITY;
-  return Math.max(bounds.min, Math.min(max, rounded));
-}
 
 function distanceSqWrapped(ax: number, ay: number, bx: number, by: number, wrapWidth: number): number {
   const dx = wrapDeltaPeriodic(ax - bx, wrapWidth);
@@ -101,13 +95,13 @@ const computeMantlePotential = createOp(ComputeMantlePotentialContract, {
         const rng = createLabelRng(rngSeed);
         const cellCount = mesh.cellCount | 0;
 
-        const plumeCount = clampInt(config.plumeCount ?? 6, { min: 0, max: 32 });
-        const downwellingCount = clampInt(config.downwellingCount ?? 6, { min: 0, max: 32 });
+        const plumeCount = clampInt(config.plumeCount ?? 6, 0, 32);
+        const downwellingCount = clampInt(config.downwellingCount ?? 6, 0, 32);
         const plumeRadius = Math.max(1e-6, config.plumeRadius ?? 0.18);
         const downwellingRadius = Math.max(1e-6, config.downwellingRadius ?? 0.18);
         const plumeAmplitude = config.plumeAmplitude ?? 1.0;
         const downwellingAmplitude = config.downwellingAmplitude ?? -1.0;
-        const smoothingIterations = clampInt(config.smoothingIterations ?? 2, { min: 0, max: 4 });
+        const smoothingIterations = clampInt(config.smoothingIterations ?? 2, 0, 4);
         const smoothingAlpha = clamp01(config.smoothingAlpha ?? 0.35);
         const minSeparationScale = Math.max(0, config.minSeparationScale ?? 0.85);
 

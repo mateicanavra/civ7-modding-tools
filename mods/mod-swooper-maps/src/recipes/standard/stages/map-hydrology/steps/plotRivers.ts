@@ -6,6 +6,7 @@ import {
   snapshotEngineHeightfield,
 } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
+import { clampInt } from "@swooper/mapgen-core/lib/math";
 import PlotRiversStepContract from "./plotRivers.contract.js";
 import {
   HYDROLOGY_RIVER_DENSITY_LENGTH_BOUNDS,
@@ -14,13 +15,6 @@ import type { HydrologyRiverDensityKnob } from "@mapgen/domain/hydrology/shared/
 
 const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
-
-function clampInt(value: number, min: number, max: number): number {
-  const int = Math.trunc(value);
-  if (int < min) return min;
-  if (int > max) return max;
-  return int;
-}
 
 export default createStep(PlotRiversStepContract, {
   normalize: (config, ctx) => {

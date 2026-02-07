@@ -15,7 +15,7 @@ import {
   resolvePlateActivityKinematicsMultiplier,
 } from "@mapgen/domain/foundation/shared/knob-multipliers.js";
 import type { FoundationPlateActivityKnob } from "@mapgen/domain/foundation/shared/knobs.js";
-import { clampFinite } from "@swooper/mapgen-core/lib/math";
+import { clampFinite, clampInt } from "@swooper/mapgen-core/lib/math";
 
 const GROUP_PLATES = "Foundation / Plates";
 const GROUP_CRUST_TILES = "Foundation / Crust Tiles";
@@ -23,12 +23,6 @@ const GROUP_TILE_MAP = "Foundation / Tile Mapping";
 const GROUP_TECTONIC_HISTORY_TILES = "Foundation / Tectonic History Tiles";
 const GROUP_TECTONIC_PROVENANCE_TILES = "Foundation / Tectonic Provenance Tiles";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
-
-function clampInt(value: number, bounds: { min: number; max?: number }): number {
-  const rounded = Math.round(value);
-  const max = bounds.max ?? Number.POSITIVE_INFINITY;
-  return Math.max(bounds.min, Math.min(max, rounded));
-}
 
 export default createStep(ProjectionStepContract, {
   artifacts: implementArtifacts(
@@ -68,16 +62,17 @@ export default createStep(ProjectionStepContract, {
       config.computePlates.strategy === "default"
         ? {
             ...config.computePlates,
-            config: {
-              ...config.computePlates.config,
-              boundaryInfluenceDistance: clampInt(
-                (config.computePlates.config.boundaryInfluenceDistance ?? 0) + boundaryDelta,
-                { min: 1, max: 32 }
-              ),
-              movementScale: clampFinite((config.computePlates.config.movementScale ?? 0) * kinematicsMultiplier, 1, 200),
-              rotationScale: clampFinite((config.computePlates.config.rotationScale ?? 0) * kinematicsMultiplier, 1, 200),
-            },
-          }
+	            config: {
+	              ...config.computePlates.config,
+	              boundaryInfluenceDistance: clampInt(
+	                (config.computePlates.config.boundaryInfluenceDistance ?? 0) + boundaryDelta,
+	                1,
+	                32
+	              ),
+	              movementScale: clampFinite((config.computePlates.config.movementScale ?? 0) * kinematicsMultiplier, 1, 200),
+	              rotationScale: clampFinite((config.computePlates.config.rotationScale ?? 0) * kinematicsMultiplier, 1, 200),
+	            },
+	          }
         : config.computePlates;
 
     return { ...config, computePlates };

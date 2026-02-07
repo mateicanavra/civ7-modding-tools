@@ -1,4 +1,4 @@
-import { clamp01, lerp } from "@swooper/mapgen-core";
+import { clamp01, clampInt, lerp } from "@swooper/mapgen-core";
 import { Type, createStage, type Static } from "@swooper/mapgen-core/authoring";
 import {
   crust,
@@ -507,12 +507,6 @@ const FOUNDATION_STEP_IDS = [
 // trigger for the physics-first `advanced` surface (which includes `advanced.mesh`).
 const FOUNDATION_STUDIO_STEP_CONFIG_IDS = FOUNDATION_STEP_IDS.filter((id) => id.includes("-"));
 
-function clampInt(value: number, bounds: { min: number; max?: number }): number {
-  const rounded = Math.round(value);
-  const max = bounds.max ?? Number.POSITIVE_INFINITY;
-  return Math.max(bounds.min, Math.min(max, rounded));
-}
-
 export default createStage({
   id: "foundation",
   knobsSchema,
@@ -545,7 +539,8 @@ export default createStage({
     const defaults = FOUNDATION_PROFILE_DEFAULTS[profiles.resolutionProfile];
     const plateCount = clampInt(
       typeof knobs.plateCount === "number" ? knobs.plateCount : defaults.plateCount,
-      { min: 2, max: 256 }
+      2,
+      256
     );
 
     const lithosphereOverrides =
@@ -580,14 +575,18 @@ export default createStage({
           )
         : defaults.mantle.amplitudeScale;
     const mantlePlumeCount = clampInt(
-      typeof mantleOverrideValues.plumeCount === "number" ? mantleOverrideValues.plumeCount : defaults.mantle.plumeCount,
-      { min: 2, max: 16 }
+      typeof mantleOverrideValues.plumeCount === "number"
+        ? mantleOverrideValues.plumeCount
+        : defaults.mantle.plumeCount,
+      2,
+      16
     );
     const mantleDownwellingCount = clampInt(
       typeof mantleOverrideValues.downwellingCount === "number"
         ? mantleOverrideValues.downwellingCount
         : defaults.mantle.downwellingCount,
-      { min: 2, max: 16 }
+      2,
+      16
     );
 
     const budgetsOverrides =
@@ -599,7 +598,8 @@ export default createStage({
       typeof budgetsOverrideValues.eraCount === "number"
         ? budgetsOverrideValues.eraCount
         : COMMON_TECTONIC_HISTORY.eraWeights.length,
-      { min: 5, max: 8 }
+      5,
+      8
     );
     const eraWeights = deriveEraWeights({ eraCount });
     const driftStepsByEra = deriveDriftStepsByEra({ eraCount });
@@ -608,12 +608,18 @@ export default createStage({
       advanced && typeof advanced === "object" && "mesh" in advanced ? (advanced as { mesh?: Record<string, unknown> }).mesh ?? {} : {};
     const meshOverrideValues = meshOverrides as { cellsPerPlate?: unknown; relaxationSteps?: unknown };
     const meshCellsPerPlate = clampInt(
-      typeof meshOverrideValues.cellsPerPlate === "number" ? meshOverrideValues.cellsPerPlate : defaults.mesh.cellsPerPlate,
-      { min: 1, max: 32 }
+      typeof meshOverrideValues.cellsPerPlate === "number"
+        ? meshOverrideValues.cellsPerPlate
+        : defaults.mesh.cellsPerPlate,
+      1,
+      32
     );
     const meshRelaxationSteps = clampInt(
-      typeof meshOverrideValues.relaxationSteps === "number" ? meshOverrideValues.relaxationSteps : defaults.mesh.relaxationSteps,
-      { min: 0, max: 50 }
+      typeof meshOverrideValues.relaxationSteps === "number"
+        ? meshOverrideValues.relaxationSteps
+        : defaults.mesh.relaxationSteps,
+      0,
+      50
     );
 
     return {

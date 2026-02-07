@@ -1,5 +1,5 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
-import { clamp01, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
+import { clamp01, clampInt, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import { requireMantleForcing, requireMesh, requirePlateGraph } from "../../lib/require.js";
 import ComputePlateMotionContract from "./contract.js";
@@ -9,11 +9,6 @@ function clampByte(value: number): number {
   if (value <= 0) return 0;
   if (value >= 255) return 255;
   return Math.round(value) | 0;
-}
-
-function clampInt(value: number, bounds: { min: number; max: number }): number {
-  const rounded = Math.round(value);
-  return Math.max(bounds.min, Math.min(bounds.max, rounded));
 }
 
 const EPS = 1e-9;
@@ -42,8 +37,8 @@ const computePlateMotion = createOp(ComputePlateMotionContract, {
         const plateRadiusMin = Math.max(1e-6, config.plateRadiusMin ?? 1);
         const residualNormScale = Math.max(0.01, config.residualNormScale ?? 1);
         const p90NormScale = Math.max(0.01, config.p90NormScale ?? 1);
-        const histogramBins = clampInt(config.histogramBins ?? 32, { min: 8, max: 128 });
-        const smoothingSteps = clampInt(config.smoothingSteps ?? 0, { min: 0, max: 1 });
+        const histogramBins = clampInt(config.histogramBins ?? 32, 8, 128);
+        const smoothingSteps = clampInt(config.smoothingSteps ?? 0, 0, 1);
 
         let forcingU = mantleForcing.forcingU;
         let forcingV = mantleForcing.forcingV;

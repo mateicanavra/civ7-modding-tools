@@ -1,4 +1,4 @@
-import { ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
+import { clampInt, ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { foundationArtifacts } from "../artifacts.js";
 import MeshStepContract from "./mesh.contract.js";
@@ -7,12 +7,6 @@ import type { FoundationPlateCountKnob } from "@mapgen/domain/foundation/shared/
 import { interleaveXY, segmentsFromMeshNeighbors } from "./viz.js";
 
 const GROUP_MESH = "Foundation / Mesh";
-
-function clampInt(value: number, bounds: { min: number; max?: number }): number {
-  const rounded = Math.round(value);
-  const max = bounds.max ?? Number.POSITIVE_INFINITY;
-  return Math.max(bounds.min, Math.min(max, rounded));
-}
 
 export default createStep(MeshStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.mesh], {
@@ -29,15 +23,12 @@ export default createStep(MeshStepContract, {
       config.computeMesh.strategy === "default" && override !== undefined
         ? {
             ...config.computeMesh,
-            config: {
-              ...config.computeMesh.config,
-              plateCount: clampInt(override, {
-                min: 2,
-                max: 256,
-              }),
-            },
-          }
-        : config.computeMesh;
+	            config: {
+	              ...config.computeMesh.config,
+	              plateCount: clampInt(override, 2, 256),
+	            },
+	          }
+	        : config.computeMesh;
 
     return { ...config, computeMesh };
   },
