@@ -53,6 +53,7 @@ export default createStep(GeomorphologyStepContract, {
     };
     const { width, height } = context.dimensions;
     const heightfield = context.buffers.heightfield;
+    const landMaskStable = new Uint8Array(heightfield.landMask);
 
     const deltas = ops.geomorphology(
       {
@@ -82,12 +83,17 @@ export default createStep(GeomorphologyStepContract, {
     if (!(bathymetry instanceof Int16Array) || bathymetry.length !== elevation.length) {
       throw new Error("Morphology topography bathymetry buffer missing or shape-mismatched.");
     }
+    const waterElevation = clampInt16(Math.floor(seaLevel));
+    const landElevation = clampInt16(Math.floor(seaLevel) + 1);
     for (let i = 0; i < elevation.length; i++) {
-      const isLand = elevation[i] > seaLevel;
+      const isLand = landMaskStable[i] === 1;
       heightfield.landMask[i] = isLand ? 1 : 0;
       if (isLand) {
+        // Erosion should sculpt; it must not silently reclassify land/water by pushing tiles across sea level.
+        if ((elevation[i] ?? 0) <= seaLevel) elevation[i] = landElevation;
         bathymetry[i] = 0;
       } else {
+        if ((elevation[i] ?? 0) > seaLevel) elevation[i] = waterElevation;
         const delta = Math.min(0, elevation[i] - seaLevel);
         bathymetry[i] = clampInt16(roundHalfAwayFromZero(delta));
       }
