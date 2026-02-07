@@ -95,6 +95,9 @@ This section is intentionally short and pointer-only. Evidence payloads live und
 - s40: `agent-GOBI-PRR-s40-phase-d-observability-enforcement`
   - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1156
   - Evidence: `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/s40.md`
+- s90: `agent-GOBI-PRR-s90-final-legacy-sweep-and-docs`
+  - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1157
+  - Evidence: `docs/projects/pipeline-realism/evidence/agent-GOBI-PRR/s90.md`
 
 ## Canonical Sources (Normative)
 
