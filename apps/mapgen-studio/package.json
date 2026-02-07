@@ -5,10 +5,10 @@
   "private": true,
   "packageManager": "bun@1.3.7",
   "scripts": {
-    "dev": "vite",
+    "dev": "node ../../scripts/preflight/ensure-viz-runtime-deps.mjs && node ../../scripts/preflight/ensure-studio-recipe-artifacts.mjs && vite",
     "gen:civ7-tables": "bun ../../scripts/mapgen-studio/generate-civ7-browser-tables.ts",
     "check:worker-bundle": "node scripts/check-worker-bundle.mjs",
-    "build": "node ../../scripts/preflight/ensure-viz-runtime-deps.mjs && tsc && vite build && bun run check:worker-bundle",
+    "build": "node ../../scripts/preflight/ensure-viz-runtime-deps.mjs && node ../../scripts/preflight/ensure-studio-recipe-artifacts.mjs && tsc && vite build && bun run check:worker-bundle",
     "preview": "vite preview"
   },
   "dependencies": {
