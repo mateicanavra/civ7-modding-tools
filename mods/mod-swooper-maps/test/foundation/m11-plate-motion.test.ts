@@ -51,6 +51,67 @@ describe("foundation plate motion (D03r)", () => {
     expect(Array.from(motionA.cellFitError)).toEqual(Array.from(motionB.cellFitError));
   });
 
+  it("does not cap plateFitP90 at residualNorm (P90 can exceed normalization scale)", () => {
+    const width = 44;
+    const height = 28;
+    const ctx = { env: { dimensions: { width, height } }, knobs: {} };
+    const meshConfig = computeMesh.normalize(
+      {
+        strategy: "default",
+        config: { plateCount: 10, cellsPerPlate: 4, relaxationSteps: 2, referenceArea: 1200, plateScalePower: 0 },
+      },
+      ctx as any
+    );
+
+    const mesh = computeMesh.run({ width, height, rngSeed: 111 }, meshConfig).mesh;
+    const mantlePotential = computeMantlePotential.run({ mesh, rngSeed: 114 }, computeMantlePotential.defaultConfig)
+      .mantlePotential;
+    const mantleForcingBase = computeMantleForcing.run({ mesh, mantlePotential }, computeMantleForcing.defaultConfig)
+      .mantleForcing;
+    const crust = computeCrust.run({ mesh, mantleForcing: mantleForcingBase, rngSeed: 112 }, computeCrust.defaultConfig)
+      .crust;
+    const plateGraph = computePlateGraph.run({ mesh, crust, rngSeed: 113 }, computePlateGraph.defaultConfig).plateGraph;
+
+    // Construct a forcing field with mean speed ~= 1, but with sign flips that a rigid plate motion
+    // cannot perfectly fit for all plates.
+    const forcingU = new Float32Array(mesh.cellCount);
+    const forcingV = new Float32Array(mesh.cellCount);
+    const forcingMag = new Float32Array(mesh.cellCount);
+    for (let i = 0; i < mesh.cellCount; i++) {
+      const u = i % 2 === 0 ? 1 : -1;
+      forcingU[i] = u;
+      forcingV[i] = 0;
+      forcingMag[i] = 1;
+    }
+    const mantleForcing = {
+      ...mantleForcingBase,
+      forcingU,
+      forcingV,
+      forcingMag,
+      stress: new Float32Array(mesh.cellCount),
+      divergence: new Float32Array(mesh.cellCount),
+      upwellingClass: new Int8Array(mesh.cellCount),
+    };
+
+    const residualNormScale = 0.1;
+    const motionConfig = computePlateMotion.normalize(
+      {
+        strategy: "default",
+        config: { residualNormScale, p90NormScale: 1, histogramBins: 32 },
+      },
+      ctx as any
+    );
+    const motion = computePlateMotion.run({ mesh, plateGraph, mantleForcing }, motionConfig).plateMotion;
+
+    const residualNorm = 1 * residualNormScale;
+    let maxP90 = 0;
+    for (let i = 0; i < motion.plateFitP90.length; i++) {
+      const v = motion.plateFitP90[i] ?? 0;
+      if (v > maxP90) maxP90 = v;
+    }
+    expect(maxP90).toBeGreaterThan(residualNorm);
+  });
+
   it("responds to mantle forcing changes", () => {
     const width = 44;
     const height = 28;
