@@ -72,6 +72,13 @@ See:
   - strict validation
   - op.normalize routing
 
+- Model ecology around a shared compute substrate:
+  - compute ops produce reusable compute layers,
+  - plan ops consume those layers to produce discrete intents/placements,
+  following the in-repo reference pattern used in Morphology (`compute-*` ops + `plan-*` ops).
+
+- For features specifically: each feature family should be modeled as atomic per-feature op(s).
+
 - If a step mutates a published artifact in-place, that mutability must be treated as part of the artifact’s contract (or replaced with explicit republish).
 
 - Any adapter write in map-ecology should ideally correspond to an effect tag if downstream needs to gate on it.
