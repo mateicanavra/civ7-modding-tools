@@ -3,11 +3,11 @@ import { createStrategy, type Static } from "@swooper/mapgen-core/authoring";
 
 import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology/types.js";
 
-import PlanReefEmbellishmentsContract from "../contract.js";
+import PlanReefEmbellishmentsReefContract from "../contract.js";
 import { planParadiseReefs, planShelfReefs } from "../rules/index.js";
 
-type Config = Static<(typeof PlanReefEmbellishmentsContract)["strategies"]["default"]>;
-type Placement = Static<(typeof PlanReefEmbellishmentsContract)["output"]>["placements"][number];
+type Config = Static<(typeof PlanReefEmbellishmentsReefContract)["strategies"]["default"]>;
+type Placement = Static<(typeof PlanReefEmbellishmentsReefContract)["output"]>["placements"][number];
 
 const NO_FEATURE = -1;
 
@@ -30,7 +30,7 @@ function normalizeConfig(config: Config): Config {
   };
 }
 
-export const defaultStrategy = createStrategy(PlanReefEmbellishmentsContract, "default", {
+export const defaultStrategy = createStrategy(PlanReefEmbellishmentsReefContract, "default", {
   normalize: (config) => normalizeConfig(config),
   run: (input, config) => {
     const { width, height, landMask, featureKeyField, paradiseMask, passiveShelfMask } = input;

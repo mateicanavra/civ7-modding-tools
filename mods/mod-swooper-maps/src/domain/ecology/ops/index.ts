@@ -19,9 +19,13 @@ import planAquaticLotusPlacements from "./plan-aquatic-lotus-placements/index.js
 import planAquaticReefPlacements from "./plan-aquatic-reef-placements/index.js";
 import planIceFeaturePlacements from "./plan-ice-feature-placements/index.js";
 import planPlotEffects from "./plan-plot-effects/index.js";
-import planReefEmbellishments from "./plan-reef-embellishments/index.js";
+import planReefEmbellishmentsReef from "./plan-reef-embellishments-reef/index.js";
 import planVegetatedFeaturePlacements from "./plan-vegetated-feature-placements/index.js";
-import planVegetationEmbellishments from "./plan-vegetation-embellishments/index.js";
+import planVegetationEmbellishmentsForestDensity from "./plan-vegetation-embellishments-forest-density/index.js";
+import planVegetationEmbellishmentsRainforestDensity from "./plan-vegetation-embellishments-rainforest-density/index.js";
+import planVegetationEmbellishmentsTaigaDensity from "./plan-vegetation-embellishments-taiga-density/index.js";
+import planVegetationEmbellishmentsVolcanicForest from "./plan-vegetation-embellishments-volcanic-forest/index.js";
+import planVegetationEmbellishmentsVolcanicTaiga from "./plan-vegetation-embellishments-volcanic-taiga/index.js";
 import planWetFeaturePlacements from "./plan-wet-feature-placements/index.js";
 
 const implementations = {
@@ -38,9 +42,13 @@ const implementations = {
   planAquaticLotusPlacements,
   planIceFeaturePlacements,
   planPlotEffects,
-  planReefEmbellishments,
+  planReefEmbellishmentsReef,
   planVegetatedFeaturePlacements,
-  planVegetationEmbellishments,
+  planVegetationEmbellishmentsVolcanicForest,
+  planVegetationEmbellishmentsVolcanicTaiga,
+  planVegetationEmbellishmentsRainforestDensity,
+  planVegetationEmbellishmentsForestDensity,
+  planVegetationEmbellishmentsTaigaDensity,
   planWetFeaturePlacements,
   planVegetation,
   planWetlands,
@@ -70,8 +78,12 @@ export {
   planAquaticLotusPlacements,
   planIceFeaturePlacements,
   planPlotEffects,
-  planReefEmbellishments,
+  planReefEmbellishmentsReef,
   planVegetatedFeaturePlacements,
-  planVegetationEmbellishments,
+  planVegetationEmbellishmentsVolcanicForest,
+  planVegetationEmbellishmentsVolcanicTaiga,
+  planVegetationEmbellishmentsRainforestDensity,
+  planVegetationEmbellishmentsForestDensity,
+  planVegetationEmbellishmentsTaigaDensity,
   planWetFeaturePlacements,
 };
