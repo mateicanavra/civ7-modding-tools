@@ -59,10 +59,26 @@ Note: some Ecology artifact schemas are currently permissive (`Type.Any()` field
 
 ## Ops surface
 
-Ecology domain ops used by the standard recipe include:
-- `classifyBiomes`
-- `planPlotEffects`
-- `applyFeatures`
+Ecology domain ops used by the standard recipe are split along the target architecture boundaries:
+- Compute substrate ops (shared compute layers used by multiple planners):
+  - `computeFeatureSubstrate`
+- Truth planners (truth stage `ecology`):
+  - `classifyPedology`, `aggregatePedology`
+  - `planResourceBasins`, `scoreResourceBasins`
+  - `classifyBiomes`, `refineBiomeEdges`
+- Feature intent planners (truth stage, owned by the `features-plan` step):
+  - Atomic vegetation intent planners: `planVegetationForest`, `planVegetationRainforest`, `planVegetationTaiga`, `planVegetationSavannaWoodland`, `planVegetationSagebrushSteppe`
+  - Other intent planners: `planWetlands`, `planReefs`, `planIce`
+- Atomic per-feature placement planners (truth stage, disabled-by-default; see config posture):
+  - Vegetated placements: `planVegetatedPlacement*`
+  - Wet placements: `planWetPlacement*`
+  - Aquatic placements: `planAquatic*Placements`
+- Embellishments (truth stage, currently applied as part of feature planning):
+  - `planReefEmbellishmentsReef`
+  - `planVegetationEmbellishments*`
+- Projection ops (projection stage `map-ecology`):
+  - `applyFeatures`
+  - `planPlotEffects`
 
 Other ops exist and may be used by additional steps (see the domain contracts).
 
@@ -72,6 +88,12 @@ Current posture in the standard recipe:
 - `ecology` stage compiles a strict public config surface into step configs with explicit key mapping.
 - `map-ecology` stage compiles a strict public config surface into projection step configs.
 - knobs are present but currently empty at the stage level.
+
+Key contract point: the `ecology` stage exposes a curated public config surface for `featuresPlan`, but does *not* expose internal per-feature op envelope keys. The stage `compile` function translates:
+- public `featuresPlan.vegetatedFeaturePlacements` to internal per-feature selections (`vegetatedPlacementForest`, `vegetatedPlacementRainforest`, ...)
+- public `featuresPlan.wetFeaturePlacements` to internal per-feature selections (`wetPlacementMarsh`, `wetPlacementTundraBog`, ...)
+
+The internal atomic per-feature planners are declared in the `features-plan` step `contract.ops` with disabled-by-default posture so compiler prefill cannot accidentally turn them on when the public keys are omitted.
 
 ## Engine projection notes (map-ecology)
 
@@ -87,6 +109,9 @@ The `map-ecology` stage:
   - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/index.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/index.ts`
 - Ecology truth artifacts: `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/artifacts.ts`
+- Ecology domain op catalog (contracts + implementations):
+  - `mods/mod-swooper-maps/src/domain/ecology/ops/contracts.ts`
+  - `mods/mod-swooper-maps/src/domain/ecology/ops/index.ts`
 - Example step contracts (truth stage):
   - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/biomes/contract.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/pedology/contract.ts`
@@ -96,6 +121,9 @@ The `map-ecology` stage:
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/features-apply/contract.ts`
 - Tag registry (effect tags, current `field:*` deps): `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
+- Architecture guardrails (import bans and parity gates):
+  - `mods/mod-swooper-maps/test/ecology/ecology-step-import-guardrails.test.ts`
+  - `mods/mod-swooper-maps/test/ecology/ecology-parity-baseline.test.ts`
 
 ## Open questions
 

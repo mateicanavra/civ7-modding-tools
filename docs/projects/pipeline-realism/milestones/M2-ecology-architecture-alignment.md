@@ -115,7 +115,8 @@ These resolve ambiguity; do not open new decision packets for them.
   - `ecology`: `pedology`, `resource-basins`, `biomes`, `biome-edge-refine`, `features-plan`
   - `map-ecology`: `plot-biomes`, `features-apply`, `plot-effects`
 - [ ] Artifact ids preserved:
-  - `artifact:ecology.soils`, `artifact:ecology.resourceBasins`, `artifact:ecology.biomeClassification`, `artifact:ecology.featureIntents`
+  - `artifact:ecology.soils`, `artifact:ecology.resourceBasins`, `artifact:ecology.biomeClassification`
+  - `artifact:ecology.featureIntents.vegetation`, `artifact:ecology.featureIntents.wetlands`, `artifact:ecology.featureIntents.reefs`, `artifact:ecology.featureIntents.ice`
 - [ ] `artifact:ecology.biomeClassification` mutability posture preserved (publish-once mutable handle refined in-place).
 - [ ] DeckGL/Studio viz keys preserved (`dataTypeKey`, `spaceId`, kinds) for ecology and map-ecology emissions.
 
