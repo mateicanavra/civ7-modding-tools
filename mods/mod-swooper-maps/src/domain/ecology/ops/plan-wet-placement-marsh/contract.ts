@@ -1,6 +1,6 @@
 import { defineOp } from "@swooper/mapgen-core/authoring";
 
-import { WetFeaturePlacementsContractParts } from "../plan-wet-feature-placements/contract.js";
+import { WetFeaturePlacementsContractParts } from "../../shared/wet-feature-placements/contract-parts.js";
 
 const PlanWetPlacementMarshContract = defineOp({
   kind: "plan",
