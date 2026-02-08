@@ -103,6 +103,7 @@ export default createStep(PlotMountainsStepContract, {
         upliftPotential: beltDrivers.upliftPotential,
         riftPotential: beltDrivers.riftPotential,
         tectonicStress: beltDrivers.tectonicStress,
+        beltAge: beltDrivers.beltAge,
         fractalMountain,
       },
       config.ridges
@@ -118,6 +119,7 @@ export default createStep(PlotMountainsStepContract, {
         upliftPotential: beltDrivers.upliftPotential,
         riftPotential: beltDrivers.riftPotential,
         tectonicStress: beltDrivers.tectonicStress,
+        beltAge: beltDrivers.beltAge,
         fractalHill,
       },
       config.foothills
@@ -186,6 +188,30 @@ export default createStep(PlotMountainsStepContract, {
       values: beltDrivers.tectonicStress,
       meta: defineVizMeta("morphology.belts.tectonicStress", {
         label: "Belt Tectonic Stress",
+        group: GROUP_BELT_DRIVERS,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.belts.beltAge",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: beltDrivers.beltAge,
+      meta: defineVizMeta("morphology.belts.beltAge", {
+        label: "Belt Age (0=Young,255=Old)",
+        group: GROUP_BELT_DRIVERS,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.belts.dominantEra",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: beltDrivers.dominantEra,
+      meta: defineVizMeta("morphology.belts.dominantEra", {
+        label: "Belt Dominant Era",
         group: GROUP_BELT_DRIVERS,
         visibility: "debug",
       }),

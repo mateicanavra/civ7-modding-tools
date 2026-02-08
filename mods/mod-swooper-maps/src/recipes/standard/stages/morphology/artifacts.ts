@@ -191,6 +191,13 @@ const MorphologyBeltDriversArtifactSchema = Type.Object(
     tectonicStress: TypedArraySchemas.u8({
       description: "Combined tectonic stress per tile (0..255), derived from uplift/rift/shear contributions.",
     }),
+    beltAge: TypedArraySchemas.u8({
+      description:
+        "Normalized belt age proxy per tile (0..255). 0=youngest/most recently active, 255=oldest/least recently active.",
+    }),
+    dominantEra: TypedArraySchemas.u8({
+      description: "Dominant tectonic era index per tile (0..eraCount-1), based on weighted boundary intensity.",
+    }),
     beltMask: TypedArraySchemas.u8({
       description: "Seed mask (1/0): tiles considered belt seed centers prior to decay.",
     }),

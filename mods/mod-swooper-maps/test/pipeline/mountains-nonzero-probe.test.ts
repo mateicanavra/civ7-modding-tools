@@ -148,6 +148,7 @@ describe("pipeline: mountains nonzero canonical probe (earthlike)", () => {
         upliftPotential: belts.upliftPotential,
         riftPotential: belts.riftPotential,
         tectonicStress: belts.tectonicStress,
+        beltAge: belts.beltAge,
         fractalMountain: zeros,
       },
       // Map-morphology step config shape: { strategy, config }.
@@ -165,6 +166,7 @@ describe("pipeline: mountains nonzero canonical probe (earthlike)", () => {
         upliftPotential: belts.upliftPotential,
         riftPotential: belts.riftPotential,
         tectonicStress: belts.tectonicStress,
+        beltAge: belts.beltAge,
         fractalHill: zeros,
       },
       (compiled as any)?.["map-morphology"]?.["plot-mountains"]?.foothills ?? { strategy: "default", config: {} }
