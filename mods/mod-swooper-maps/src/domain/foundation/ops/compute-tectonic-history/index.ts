@@ -997,7 +997,7 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
 
             const plateA = segments.plateA[s] ?? -1;
             const plateB = segments.plateB[s] ?? -1;
-            const polarity = regime === BOUNDARY_TYPE.convergent ? (segments.polarity[s] ?? 0) : 0;
+            let polarity = regime === BOUNDARY_TYPE.convergent ? (segments.polarity[s] ?? 0) : 0;
 
             let eventType = 0;
             let intensityUplift = 0;
@@ -1007,7 +1007,16 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
             let intensityFracture = 0;
 
             if (regime === BOUNDARY_TYPE.convergent) {
-              eventType = polarity !== 0 ? EVENT_TYPE.convergenceSubduction : EVENT_TYPE.convergenceCollision;
+              const aCell = segments.aCell[s] ?? -1;
+              const bCell = segments.bCell[s] ?? -1;
+              const aType = aCell >= 0 && aCell < mesh.cellCount ? (crust.type[aCell] ?? 0) : 0;
+              const bType = bCell >= 0 && bCell < mesh.cellCount ? (crust.type[bCell] ?? 0) : 0;
+              const isCollision = aType > 0 && bType > 0;
+
+              // Collision vs. subduction should be driven by crustal type, not by whether polarity happened to be set.
+              // We keep polarity as a direction signal for subduction arcs when available.
+              eventType = isCollision ? EVENT_TYPE.convergenceCollision : EVENT_TYPE.convergenceSubduction;
+              if (isCollision) polarity = 0;
               intensityUplift = segments.compression[s] ?? 0;
               intensityVolcanism = segments.volcanism[s] ?? 0;
               intensityFracture = segments.fracture[s] ?? 0;
