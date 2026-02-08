@@ -13,7 +13,10 @@ import aggregatePedology from "./pedology-aggregate/index.js";
 import planResourceBasins from "./resource-plan-basins/index.js";
 import scoreResourceBasins from "./resource-score-balance/index.js";
 import refineBiomeEdges from "./refine-biome-edges/index.js";
-import planAquaticFeaturePlacements from "./plan-aquatic-feature-placements/index.js";
+import planAquaticAtollPlacements from "./plan-aquatic-atoll-placements/index.js";
+import planAquaticColdReefPlacements from "./plan-aquatic-cold-reef-placements/index.js";
+import planAquaticLotusPlacements from "./plan-aquatic-lotus-placements/index.js";
+import planAquaticReefPlacements from "./plan-aquatic-reef-placements/index.js";
 import planIceFeaturePlacements from "./plan-ice-feature-placements/index.js";
 import planPlotEffects from "./plan-plot-effects/index.js";
 import planReefEmbellishments from "./plan-reef-embellishments/index.js";
@@ -29,7 +32,10 @@ const implementations = {
   scoreResourceBasins,
   refineBiomeEdges,
   computeFeatureSubstrate,
-  planAquaticFeaturePlacements,
+  planAquaticReefPlacements,
+  planAquaticColdReefPlacements,
+  planAquaticAtollPlacements,
+  planAquaticLotusPlacements,
   planIceFeaturePlacements,
   planPlotEffects,
   planReefEmbellishments,
@@ -58,7 +64,10 @@ export {
   planResourceBasins,
   scoreResourceBasins,
   refineBiomeEdges,
-  planAquaticFeaturePlacements,
+  planAquaticReefPlacements,
+  planAquaticColdReefPlacements,
+  planAquaticAtollPlacements,
+  planAquaticLotusPlacements,
   planIceFeaturePlacements,
   planPlotEffects,
   planReefEmbellishments,

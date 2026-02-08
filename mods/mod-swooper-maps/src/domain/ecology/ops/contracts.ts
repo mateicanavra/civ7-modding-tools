@@ -3,7 +3,10 @@ import BiomeClassificationContract from "./classify-biomes/contract.js";
 import ComputeFeatureSubstrateContract from "./compute-feature-substrate/contract.js";
 import FeaturesApplyContract from "./features-apply/contract.js";
 import PedologyClassifyContract from "./pedology-classify/contract.js";
-import PlanAquaticFeaturePlacementsContract from "./plan-aquatic-feature-placements/contract.js";
+import PlanAquaticAtollPlacementsContract from "./plan-aquatic-atoll-placements/contract.js";
+import PlanAquaticColdReefPlacementsContract from "./plan-aquatic-cold-reef-placements/contract.js";
+import PlanAquaticLotusPlacementsContract from "./plan-aquatic-lotus-placements/contract.js";
+import PlanAquaticReefPlacementsContract from "./plan-aquatic-reef-placements/contract.js";
 import PlanIceContract from "./features-plan-ice/contract.js";
 import PlanIceFeaturePlacementsContract from "./plan-ice-feature-placements/contract.js";
 import PlanPlotEffectsContract from "./plan-plot-effects/contract.js";
@@ -26,7 +29,10 @@ export const contracts = {
   scoreResourceBasins: ResourceScoreBalanceContract,
   refineBiomeEdges: RefineBiomeEdgesContract,
   computeFeatureSubstrate: ComputeFeatureSubstrateContract,
-  planAquaticFeaturePlacements: PlanAquaticFeaturePlacementsContract,
+  planAquaticReefPlacements: PlanAquaticReefPlacementsContract,
+  planAquaticColdReefPlacements: PlanAquaticColdReefPlacementsContract,
+  planAquaticAtollPlacements: PlanAquaticAtollPlacementsContract,
+  planAquaticLotusPlacements: PlanAquaticLotusPlacementsContract,
   planIceFeaturePlacements: PlanIceFeaturePlacementsContract,
   planPlotEffects: PlanPlotEffectsContract,
   planReefEmbellishments: PlanReefEmbellishmentsContract,
@@ -48,7 +54,10 @@ export {
   ComputeFeatureSubstrateContract,
   FeaturesApplyContract,
   PedologyClassifyContract,
-  PlanAquaticFeaturePlacementsContract,
+  PlanAquaticAtollPlacementsContract,
+  PlanAquaticColdReefPlacementsContract,
+  PlanAquaticLotusPlacementsContract,
+  PlanAquaticReefPlacementsContract,
   PlanIceContract,
   PlanIceFeaturePlacementsContract,
   PlanPlotEffectsContract,
