@@ -15,7 +15,10 @@ export const ECOLOGY_TIER1_ARTIFACT_IDS = [
   ecologyArtifacts.pedology.id,
   ecologyArtifacts.resourceBasins.id,
   ecologyArtifacts.biomeClassification.id,
-  ecologyArtifacts.featureIntents.id,
+  ecologyArtifacts.featureIntentsVegetation.id,
+  ecologyArtifacts.featureIntentsWetlands.id,
+  ecologyArtifacts.featureIntentsReefs.id,
+  ecologyArtifacts.featureIntentsIce.id,
 ] as const;
 
 const VIZ_KEY_PREFIXES = ["ecology.", "map.ecology.", "debug.heightfield."] as const;
@@ -130,4 +133,3 @@ export function computeEcologyBaselineV1(input?: {
     vizKeys: listVizKeys(entries),
   };
 }
-

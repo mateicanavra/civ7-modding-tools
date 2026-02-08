@@ -9,6 +9,9 @@
     "artifact:ecology.soils": "109728a5197411f0285108d4a55b68a603b14bcc48efe08b60f8909c26499594",
     "artifact:ecology.resourceBasins": "f0955ebb31fb793be429702cbef7346c9ef395c901aed38dfc196ed473c3e709",
     "artifact:ecology.biomeClassification": "058b9d4216c457fa4b085b090c555b2e55cf31351c1b690c0e2afb700c203dd1",
-    "artifact:ecology.featureIntents": "c8a4cc9c5f919c79c52c5b608f17d92f7b22a71fe65d3636d99b53231db953cf"
+    "artifact:ecology.featureIntents.vegetation": "83fd22ae911440ce45953232436b8c0bbb9f79b426fa2c711603623f989f782d",
+    "artifact:ecology.featureIntents.wetlands": "85f032656e4e0d08309f49971057c174b5c8745013061c18886f501f8fffae20",
+    "artifact:ecology.featureIntents.reefs": "b79e55f8955a717d1083ed37dd3d199093dd8ea31450703112806b5c2ffaa1cc",
+    "artifact:ecology.featureIntents.ice": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   }
 }

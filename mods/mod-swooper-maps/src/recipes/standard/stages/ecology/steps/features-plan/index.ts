@@ -2,7 +2,7 @@ import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { FEATURE_PLACEMENT_KEYS } from "@mapgen/domain/ecology";
 import { ecologyArtifacts } from "../../artifacts.js";
-import { validateFeatureIntentsArtifact } from "../../artifact-validation.js";
+import { validateFeatureIntentsListArtifact } from "../../artifact-validation.js";
 import FeaturesPlanStepContract from "./contract.js";
 import { computeRiverAdjacencyMaskFromRiverClass } from "../../../hydrology-hydrography/river-adjacency.js";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
@@ -72,11 +72,28 @@ function featureColor(index: number, count: number): [number, number, number, nu
 }
 
 export default createStep(FeaturesPlanStepContract, {
-  artifacts: implementArtifacts([ecologyArtifacts.featureIntents], {
-    featureIntents: {
-      validate: (value, context) => validateFeatureIntentsArtifact(value, context.dimensions),
-    },
-  }),
+  artifacts: implementArtifacts(
+    [
+      ecologyArtifacts.featureIntentsVegetation,
+      ecologyArtifacts.featureIntentsWetlands,
+      ecologyArtifacts.featureIntentsReefs,
+      ecologyArtifacts.featureIntentsIce,
+    ],
+    {
+      featureIntentsVegetation: {
+        validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
+      },
+      featureIntentsWetlands: {
+        validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
+      },
+      featureIntentsReefs: {
+        validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
+      },
+      featureIntentsIce: {
+        validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
+      },
+    }
+  ),
   run: (context, config, ops, deps) => {
     const classification = deps.artifacts.biomeClassification.read(context);
     const pedology = deps.artifacts.pedology.read(context);
@@ -92,11 +109,11 @@ export default createStep(FeaturesPlanStepContract, {
       navigableRiverMask[i] = hydrography.riverClass[i] === 2 ? 1 : 0;
     }
 
-    const advancedVegetated = config.advancedVegetatedFeaturePlacements;
+    const advancedVegetated = config.vegetatedFeaturePlacements;
     const useAdvancedVegetated = advancedVegetated.strategy !== "disabled";
 
     const vegetationPlacements = useAdvancedVegetated
-      ? ops.advancedVegetatedFeaturePlacements(
+      ? ops.vegetatedFeaturePlacements(
           {
             width,
             height,
@@ -140,11 +157,11 @@ export default createStep(FeaturesPlanStepContract, {
       config.wetlands
     );
 
-    const advancedWet = config.advancedWetFeaturePlacements;
+    const advancedWet = config.wetFeaturePlacements;
     const useAdvancedWet = advancedWet.strategy !== "disabled";
 
     const wetPlacements = useAdvancedWet
-      ? ops.advancedWetFeaturePlacements(
+      ? ops.wetFeaturePlacements(
           {
             width,
             height,
@@ -192,18 +209,15 @@ export default createStep(FeaturesPlanStepContract, {
       config.ice
     );
 
-    const featureIntents = {
-      vegetation: vegetationPlacements,
-      wetlands: [...wetlandsPlan.placements, ...wetPlacements],
-      reefs: reefsPlan.placements,
-      ice: icePlan.placements,
-    };
+    const wetlandsPlacements = [...wetlandsPlan.placements, ...wetPlacements];
+    const reefsPlacements = reefsPlan.placements;
+    const icePlacements = icePlan.placements;
 
     const allPlacements = [
-      ...featureIntents.vegetation,
-      ...featureIntents.wetlands,
-      ...featureIntents.reefs,
-      ...featureIntents.ice,
+      ...vegetationPlacements,
+      ...wetlandsPlacements,
+      ...reefsPlacements,
+      ...icePlacements,
     ];
     if (allPlacements.length > 0) {
       const knownKeys = new Set(FEATURE_PLACEMENT_KEYS);
@@ -248,6 +262,9 @@ export default createStep(FeaturesPlanStepContract, {
       });
     }
 
-    deps.artifacts.featureIntents.publish(context, featureIntents);
+    deps.artifacts.featureIntentsVegetation.publish(context, vegetationPlacements);
+    deps.artifacts.featureIntentsWetlands.publish(context, wetlandsPlacements);
+    deps.artifacts.featureIntentsReefs.publish(context, reefsPlacements);
+    deps.artifacts.featureIntentsIce.publish(context, icePlacements);
   },
 });

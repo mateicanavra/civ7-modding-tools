@@ -50,7 +50,10 @@ describe("M2 contract freeze: ecology compatibility ledger (v1)", () => {
       ecologyArtifacts.pedology.id,
       ecologyArtifacts.resourceBasins.id,
       ecologyArtifacts.biomeClassification.id,
-      ecologyArtifacts.featureIntents.id,
+      ecologyArtifacts.featureIntentsVegetation.id,
+      ecologyArtifacts.featureIntentsWetlands.id,
+      ecologyArtifacts.featureIntentsReefs.id,
+      ecologyArtifacts.featureIntentsIce.id,
     ];
     expect(actualArtifactIds).toEqual([...ledger.artifactIds.ecology]);
 

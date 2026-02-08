@@ -10,12 +10,11 @@ const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(FeaturesApplyStepContract, {
   run: (context, config, ops, deps) => {
-    const intents = deps.artifacts.featureIntents.read(context);
     const placements = {
-      vegetation: Array.from(intents.vegetation),
-      wetlands: Array.from(intents.wetlands),
-      reefs: Array.from(intents.reefs),
-      ice: Array.from(intents.ice),
+      vegetation: Array.from(deps.artifacts.featureIntentsVegetation.read(context)),
+      wetlands: Array.from(deps.artifacts.featureIntentsWetlands.read(context)),
+      reefs: Array.from(deps.artifacts.featureIntentsReefs.read(context)),
+      ice: Array.from(deps.artifacts.featureIntentsIce.read(context)),
     };
 
     const merged = ops.apply(

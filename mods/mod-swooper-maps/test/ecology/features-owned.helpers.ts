@@ -262,15 +262,24 @@ export function runOwnedFeaturePlacements(options: {
     placements.ice
   );
 
-  const intentsRuntime = implementArtifacts([ecologyArtifacts.featureIntents], {
-    featureIntents: {},
-  });
-  intentsRuntime.featureIntents.publish(ctx, {
-    vegetation: vegetation.placements,
-    wetlands: wetlands.placements,
-    reefs: reefs.placements,
-    ice: ice.placements,
-  });
+  const intentsRuntime = implementArtifacts(
+    [
+      ecologyArtifacts.featureIntentsVegetation,
+      ecologyArtifacts.featureIntentsWetlands,
+      ecologyArtifacts.featureIntentsReefs,
+      ecologyArtifacts.featureIntentsIce,
+    ],
+    {
+      featureIntentsVegetation: {},
+      featureIntentsWetlands: {},
+      featureIntentsReefs: {},
+      featureIntentsIce: {},
+    }
+  );
+  intentsRuntime.featureIntentsVegetation.publish(ctx, vegetation.placements);
+  intentsRuntime.featureIntentsWetlands.publish(ctx, wetlands.placements);
+  intentsRuntime.featureIntentsReefs.publish(ctx, reefs.placements);
+  intentsRuntime.featureIntentsIce.publish(ctx, ice.placements);
 
   const applyConfig = {
     apply: normalizeOpSelectionOrThrow(ecology.ops.applyFeatures, {

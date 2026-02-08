@@ -13,7 +13,7 @@ function getStrategy(config: unknown, key: string): string | undefined {
 }
 
 describe("features-plan advanced planner defaults", () => {
-  it("keeps internal advanced planners disabled when public keys are omitted", () => {
+  it("keeps advanced planners disabled when keys are omitted", () => {
     const env = {
       seed: 1337,
       dimensions: { width: 32, height: 20 },
@@ -30,7 +30,7 @@ describe("features-plan advanced planner defaults", () => {
     if (!node) throw new Error("Missing features-plan node.");
 
     const config = (node as Record<string, unknown>).config;
-    expect(getStrategy(config, "advancedVegetatedFeaturePlacements")).toBe("disabled");
-    expect(getStrategy(config, "advancedWetFeaturePlacements")).toBe("disabled");
+    expect(getStrategy(config, "vegetatedFeaturePlacements")).toBe("disabled");
+    expect(getStrategy(config, "wetFeaturePlacements")).toBe("disabled");
   });
 });

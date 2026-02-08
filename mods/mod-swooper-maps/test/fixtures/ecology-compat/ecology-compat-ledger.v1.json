@@ -23,7 +23,10 @@
       "artifact:ecology.soils",
       "artifact:ecology.resourceBasins",
       "artifact:ecology.biomeClassification",
-      "artifact:ecology.featureIntents"
+      "artifact:ecology.featureIntents.vegetation",
+      "artifact:ecology.featureIntents.wetlands",
+      "artifact:ecology.featureIntents.reefs",
+      "artifact:ecology.featureIntents.ice"
     ]
   },
   "vizKeysFixture": {
@@ -32,4 +35,3 @@
   },
   "determinismLabels": ["ecology:planFeatureIntents", "ecology:planPlotEffects"]
 }
-
