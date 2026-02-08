@@ -128,6 +128,8 @@ export function projectPlatesFromModel(input: {
       volcanismTotal: Uint8Array;
       upliftRecentFraction: Uint8Array;
       lastActiveEra: Uint8Array;
+      movementU: Int8Array;
+      movementV: Int8Array;
     };
   };
   tectonicProvenanceTiles: {
@@ -208,6 +210,8 @@ export function projectPlatesFromModel(input: {
     volcanismTotal: new Uint8Array(size),
     upliftRecentFraction: new Uint8Array(size),
     lastActiveEra: new Uint8Array(size),
+    movementU,
+    movementV,
   } as const;
 
   const provenanceTiles = {

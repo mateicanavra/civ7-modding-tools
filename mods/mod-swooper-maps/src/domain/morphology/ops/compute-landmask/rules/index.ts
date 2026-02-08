@@ -14,6 +14,10 @@ export function validateLandmaskInputs(
   crustAge: Uint8Array;
   provenanceOriginEra: Uint8Array;
   provenanceDriftDistance: Uint8Array;
+  riftPotentialByEra: Uint8Array[];
+  fractureTotal: Uint8Array;
+  movementU: Int8Array;
+  movementV: Int8Array;
 } {
   const { width, height } = input;
   const size = Math.max(0, (width | 0) * (height | 0));
@@ -24,6 +28,10 @@ export function validateLandmaskInputs(
   const crustAge = input.crustAge as Uint8Array;
   const provenanceOriginEra = input.provenanceOriginEra as Uint8Array;
   const provenanceDriftDistance = input.provenanceDriftDistance as Uint8Array;
+  const riftPotentialByEra = input.riftPotentialByEra as Uint8Array[];
+  const fractureTotal = input.fractureTotal as Uint8Array;
+  const movementU = input.movementU as Int8Array;
+  const movementV = input.movementV as Int8Array;
 
   if (
     elevation.length !== size ||
@@ -32,9 +40,25 @@ export function validateLandmaskInputs(
     crustBaseElevation.length !== size ||
     crustAge.length !== size ||
     provenanceOriginEra.length !== size ||
-    provenanceDriftDistance.length !== size
+    provenanceDriftDistance.length !== size ||
+    fractureTotal.length !== size ||
+    movementU.length !== size ||
+    movementV.length !== size
   ) {
     throw new Error("[Landmask] Input tensors must match width*height.");
+  }
+
+  if (!Array.isArray(riftPotentialByEra) || riftPotentialByEra.length <= 0) {
+    throw new Error("[Landmask] Expected riftPotentialByEra to be a non-empty array.");
+  }
+  for (let e = 0; e < riftPotentialByEra.length; e++) {
+    const era = riftPotentialByEra[e];
+    if (!(era instanceof Uint8Array)) {
+      throw new Error(`[Landmask] Expected riftPotentialByEra[${e}] to be Uint8Array.`);
+    }
+    if (era.length !== size) {
+      throw new Error(`[Landmask] Expected riftPotentialByEra[${e}] length ${size}.`);
+    }
   }
 
   return {
@@ -46,5 +70,9 @@ export function validateLandmaskInputs(
     crustAge,
     provenanceOriginEra,
     provenanceDriftDistance,
+    riftPotentialByEra,
+    fractureTotal,
+    movementU,
+    movementV,
   };
 }

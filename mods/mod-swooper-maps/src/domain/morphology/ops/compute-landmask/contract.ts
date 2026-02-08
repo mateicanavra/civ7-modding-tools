@@ -21,6 +21,42 @@ const LandmaskConfigSchema = Type.Object(
       description:
         "Fraction of land tiles to keep by retaining only the largest connected components (removes speckle islands).",
     }),
+    cratonStepsPerEra: Type.Integer({
+      default: 2,
+      minimum: 0,
+      maximum: 8,
+      description: "Craton-growth simulation steps per tectonic era (0 disables rift-driven growth).",
+    }),
+    cratonNucleationScale: Type.Number({
+      default: 0.9,
+      minimum: 0,
+      maximum: 3,
+      description: "Scalar applied to rift/fracture-driven craton nucleation rate.",
+    }),
+    cratonDiffusion: Type.Number({
+      default: 0.25,
+      minimum: 0,
+      maximum: 1,
+      description: "Per-step diffusion rate for craton mass (merges/advects seeds over time).",
+    }),
+    cratonAdvection: Type.Number({
+      default: 0.15,
+      minimum: 0,
+      maximum: 1,
+      description: "Per-step advection rate moving craton mass along plate movement vectors (approximates drift).",
+    }),
+    cratonHalfSaturation: Type.Number({
+      default: 0.35,
+      minimum: 0.01,
+      maximum: 10,
+      description: "Half-saturation constant used to normalize craton mass into 0..1 without hard clamping.",
+    }),
+    cratonPotentialWeight: Type.Number({
+      default: 0.12,
+      minimum: 0,
+      maximum: 1,
+      description: "Weight of rift/fracture-driven craton mass in the final continent potential.",
+    }),
   },
   {
     additionalProperties: false,
@@ -57,6 +93,19 @@ const ComputeLandmaskContract = defineOp({
     }),
     provenanceDriftDistance: TypedArraySchemas.u8({
       description: "Foundation provenance drift distance bucket per tile (0..255).",
+    }),
+    riftPotentialByEra: Type.Array(TypedArraySchemas.u8({ shape: null }), {
+      description:
+        "Rift potential per tile (0..255) for each tectonic era (oldest..newest). Used for time-stepped rift-driven craton growth.",
+    }),
+    fractureTotal: TypedArraySchemas.u8({
+      description: "Accumulated fracture total per tile (0..255) from Foundation history rollups.",
+    }),
+    movementU: TypedArraySchemas.i8({
+      description: "Plate movement U component per tile (-127..127) from Foundation plate tensors.",
+    }),
+    movementV: TypedArraySchemas.i8({
+      description: "Plate movement V component per tile (-127..127) from Foundation plate tensors.",
     }),
   }),
   output: Type.Object({

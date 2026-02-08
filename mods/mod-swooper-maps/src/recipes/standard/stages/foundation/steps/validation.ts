@@ -368,6 +368,15 @@ export function validateTectonicHistoryTilesArtifact(value: unknown, dims: MapDi
       throw new Error(`[FoundationArtifact] Invalid foundation tectonicHistoryTiles.rollups.${label}.`);
     }
   }
+
+  const movementU = (rollups as { movementU?: unknown }).movementU;
+  if (!(movementU instanceof Int8Array) || movementU.length !== expectedLen) {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.rollups.movementU.");
+  }
+  const movementV = (rollups as { movementV?: unknown }).movementV;
+  if (!(movementV instanceof Int8Array) || movementV.length !== expectedLen) {
+    throw new Error("[FoundationArtifact] Invalid foundation tectonicHistoryTiles.rollups.movementV.");
+  }
 }
 
 export function validateTectonicProvenanceTilesArtifact(value: unknown, dims: MapDimensions): void {
