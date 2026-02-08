@@ -24,34 +24,15 @@ const FeaturesPlanStepContract = defineStep({
     ],
   },
   ops: {
-    vegetationForest: ecology.ops.planVegetationForest,
-    vegetationRainforest: ecology.ops.planVegetationRainforest,
-    vegetationTaiga: ecology.ops.planVegetationTaiga,
-    vegetationSavannaWoodland: ecology.ops.planVegetationSavannaWoodland,
-    vegetationSagebrushSteppe: ecology.ops.planVegetationSagebrushSteppe,
+    vegetationSubstrate: ecology.ops.computeVegetationSubstrate,
+    vegetationScoreForest: ecology.ops.scoreVegetationForest,
+    vegetationScoreRainforest: ecology.ops.scoreVegetationRainforest,
+    vegetationScoreTaiga: ecology.ops.scoreVegetationTaiga,
+    vegetationScoreSavannaWoodland: ecology.ops.scoreVegetationSavannaWoodland,
+    vegetationScoreSagebrushSteppe: ecology.ops.scoreVegetationSagebrushSteppe,
     wetlands: ecology.ops.planWetlands,
     reefs: ecology.ops.planReefs,
     ice: ecology.ops.planIce,
-    vegetatedPlacementForest: {
-      contract: ecology.ops.planVegetatedPlacementForest,
-      defaultStrategy: "disabled",
-    },
-    vegetatedPlacementRainforest: {
-      contract: ecology.ops.planVegetatedPlacementRainforest,
-      defaultStrategy: "disabled",
-    },
-    vegetatedPlacementTaiga: {
-      contract: ecology.ops.planVegetatedPlacementTaiga,
-      defaultStrategy: "disabled",
-    },
-    vegetatedPlacementSavannaWoodland: {
-      contract: ecology.ops.planVegetatedPlacementSavannaWoodland,
-      defaultStrategy: "disabled",
-    },
-    vegetatedPlacementSagebrushSteppe: {
-      contract: ecology.ops.planVegetatedPlacementSagebrushSteppe,
-      defaultStrategy: "disabled",
-    },
     wetPlacementMarsh: {
       contract: ecology.ops.planWetPlacementMarsh,
       defaultStrategy: "disabled",
@@ -74,7 +55,20 @@ const FeaturesPlanStepContract = defineStep({
     },
   },
   schema: Type.Object(
-    {},
+    {
+      vegetation: Type.Object(
+        {
+          minScoreThreshold: Type.Number({
+            description:
+              "Minimum score required for a tile to receive a vegetation feature intent.",
+            default: 0.15,
+            minimum: 0,
+            maximum: 1,
+          }),
+        },
+        { additionalProperties: false, default: {} }
+      ),
+    },
     { additionalProperties: false, description: "Configuration for planning ecology features." }
   ),
 });

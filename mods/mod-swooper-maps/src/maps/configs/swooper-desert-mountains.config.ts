@@ -278,52 +278,7 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
       refine: { strategy: "default", config: { radius: 1, iterations: 1 } },  // Sharp desert/mountain transitions
     },
     featuresPlan: {
-      vegetation: {
-        strategy: "default",
-        config: {
-          baseDensity: 0.25,
-          fertilityWeight: 0.4,
-          moistureWeight: 0.5,
-          moistureNormalization: 200,
-          coldCutoff: -10,
-        },
-      },  // Sparse desert vegetation
-      vegetatedFeaturePlacements: {
-        strategy: "default",
-        config: {
-          multiplier: 1.2,
-          chances: {
-            FEATURE_FOREST: 10,
-            FEATURE_RAINFOREST: 8,
-            FEATURE_TAIGA: 0,
-            FEATURE_SAVANNA_WOODLAND: 12,
-            FEATURE_SAGEBRUSH_STEPPE: 55,
-          },
-          rules: {
-            minVegetationByBiome: {
-              snow: 0.06,
-              tundra: 0.05,
-              boreal: 0.06,
-              temperateDry: 0.04,
-              temperateHumid: 0.05,
-              tropicalSeasonal: 0.05,
-              tropicalRainforest: 0.04,
-              desert: 0.01,
-            },
-            vegetationChanceScalar: 1.4,
-            desertSagebrushMinVegetation: 0.05,
-            desertSagebrushMaxAridity: 0.98,
-            tundraTaigaMinVegetation: 0.12,
-            tundraTaigaMinTemperature: -2,
-            tundraTaigaMaxFreeze: 0.95,
-            temperateDryForestMoisture: 150,
-            temperateDryForestMaxAridity: 0.5,
-            temperateDryForestVegetation: 0.55,
-            tropicalSeasonalRainforestMoisture: 150,
-            tropicalSeasonalRainforestMaxAridity: 0.55,
-          },
-        },
-      },
+      vegetation: { minScoreThreshold: 0.15 },  // Vegetation intent threshold
       wetlands: {
         strategy: "default",
         config: {

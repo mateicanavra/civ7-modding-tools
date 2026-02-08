@@ -605,16 +605,7 @@
       }
     },
     "featuresPlan": {
-      "vegetation": {
-        "strategy": "clustered",
-        "config": {
-          "baseDensity": 0.42,
-          "fertilityWeight": 0.6,
-          "moistureWeight": 0.7,
-          "moistureNormalization": 200,
-          "coldCutoff": -8
-        }
-      },
+      "vegetation": { "minScoreThreshold": 0.15 },
       "wetlands": {
         "strategy": "delta-focused",
         "config": {

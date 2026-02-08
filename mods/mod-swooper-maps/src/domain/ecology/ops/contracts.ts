@@ -21,18 +21,6 @@ import PlanPlotEffectsContract from "./plan-plot-effects/contract.js";
 import PlanReefEmbellishmentsReefContract from "./plan-reef-embellishments-reef/contract.js";
 import PlanReefsContract from "./features-plan-reefs/contract.js";
 
-import PlanVegetatedPlacementForestContract from "./plan-vegetated-placement-forest/contract.js";
-import PlanVegetatedPlacementRainforestContract from "./plan-vegetated-placement-rainforest/contract.js";
-import PlanVegetatedPlacementSagebrushSteppeContract from "./plan-vegetated-placement-sagebrush-steppe/contract.js";
-import PlanVegetatedPlacementSavannaWoodlandContract from "./plan-vegetated-placement-savanna-woodland/contract.js";
-import PlanVegetatedPlacementTaigaContract from "./plan-vegetated-placement-taiga/contract.js";
-
-import PlanVegetationForestContract from "./features-plan-vegetation-forest/contract.js";
-import PlanVegetationRainforestContract from "./features-plan-vegetation-rainforest/contract.js";
-import PlanVegetationSagebrushSteppeContract from "./features-plan-vegetation-sagebrush-steppe/contract.js";
-import PlanVegetationSavannaWoodlandContract from "./features-plan-vegetation-savanna-woodland/contract.js";
-import PlanVegetationTaigaContract from "./features-plan-vegetation-taiga/contract.js";
-
 import PlanVegetationEmbellishmentsForestDensityContract from "./plan-vegetation-embellishments-forest-density/contract.js";
 import PlanVegetationEmbellishmentsRainforestDensityContract from "./plan-vegetation-embellishments-rainforest-density/contract.js";
 import PlanVegetationEmbellishmentsTaigaDensityContract from "./plan-vegetation-embellishments-taiga-density/contract.js";
@@ -75,12 +63,6 @@ export const contracts = {
   planPlotEffects: PlanPlotEffectsContract,
   planReefEmbellishmentsReef: PlanReefEmbellishmentsReefContract,
 
-  planVegetatedPlacementForest: PlanVegetatedPlacementForestContract,
-  planVegetatedPlacementRainforest: PlanVegetatedPlacementRainforestContract,
-  planVegetatedPlacementTaiga: PlanVegetatedPlacementTaigaContract,
-  planVegetatedPlacementSavannaWoodland: PlanVegetatedPlacementSavannaWoodlandContract,
-  planVegetatedPlacementSagebrushSteppe: PlanVegetatedPlacementSagebrushSteppeContract,
-
   planVegetationEmbellishmentsVolcanicForest: PlanVegetationEmbellishmentsVolcanicForestContract,
   planVegetationEmbellishmentsVolcanicTaiga: PlanVegetationEmbellishmentsVolcanicTaigaContract,
   planVegetationEmbellishmentsRainforestDensity: PlanVegetationEmbellishmentsRainforestDensityContract,
@@ -93,11 +75,6 @@ export const contracts = {
   planWetPlacementOasis: PlanWetPlacementOasisContract,
   planWetPlacementWateringHole: PlanWetPlacementWateringHoleContract,
 
-  planVegetationForest: PlanVegetationForestContract,
-  planVegetationRainforest: PlanVegetationRainforestContract,
-  planVegetationTaiga: PlanVegetationTaigaContract,
-  planVegetationSavannaWoodland: PlanVegetationSavannaWoodlandContract,
-  planVegetationSagebrushSteppe: PlanVegetationSagebrushSteppeContract,
   planWetlands: PlanWetlandsContract,
   planReefs: PlanReefsContract,
   planIce: PlanIceContract,
@@ -130,18 +107,6 @@ export {
   PlanPlotEffectsContract,
   PlanReefEmbellishmentsReefContract,
   PlanReefsContract,
-
-  PlanVegetatedPlacementForestContract,
-  PlanVegetatedPlacementRainforestContract,
-  PlanVegetatedPlacementSagebrushSteppeContract,
-  PlanVegetatedPlacementSavannaWoodlandContract,
-  PlanVegetatedPlacementTaigaContract,
-
-  PlanVegetationForestContract,
-  PlanVegetationRainforestContract,
-  PlanVegetationSagebrushSteppeContract,
-  PlanVegetationSavannaWoodlandContract,
-  PlanVegetationTaigaContract,
 
   PlanVegetationEmbellishmentsForestDensityContract,
   PlanVegetationEmbellishmentsRainforestDensityContract,

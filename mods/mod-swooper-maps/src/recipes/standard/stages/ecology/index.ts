@@ -2,24 +2,16 @@ import { Type, createStage, type Static } from "@swooper/mapgen-core/authoring";
 import ecology from "@mapgen/domain/ecology";
 import { steps } from "./steps/index.js";
 
-const VegetatedFeaturePlacementsSchema = Type.Union(
-  [
-    Type.Object(
-      {
-        strategy: Type.Literal("disabled"),
-        config: ecology.ops.planVegetatedPlacementForest.strategies.disabled,
-      },
-      { additionalProperties: false }
-    ),
-    Type.Object(
-      {
-        strategy: Type.Literal("default"),
-        config: ecology.ops.planVegetatedPlacementForest.strategies.default,
-      },
-      { additionalProperties: false }
-    ),
-  ],
-  { default: { strategy: "disabled", config: {} } }
+const VegetationPickingSchema = Type.Object(
+  {
+    minScoreThreshold: Type.Number({
+      description: "Minimum score required for a tile to receive a vegetation feature intent.",
+      default: 0.15,
+      minimum: 0,
+      maximum: 1,
+    }),
+  },
+  { additionalProperties: false, default: {} }
 );
 
 const WetFeaturePlacementsSchema = Type.Union(
@@ -44,11 +36,10 @@ const WetFeaturePlacementsSchema = Type.Union(
 
 const FeaturesPlanPublicSchema = Type.Object(
   {
-    vegetation: ecology.ops.planVegetationForest.config,
+    vegetation: VegetationPickingSchema,
     wetlands: ecology.ops.planWetlands.config,
     reefs: ecology.ops.planReefs.config,
     ice: ecology.ops.planIce.config,
-    vegetatedFeaturePlacements: VegetatedFeaturePlacementsSchema,
     wetFeaturePlacements: WetFeaturePlacementsSchema,
   },
   { additionalProperties: false }
@@ -85,19 +76,16 @@ export default createStage({
         // Forward the sentinel by reference through every internal key so the generator finds exactly one
         // path for this step (it de-dupes by object identity).
         return {
-          vegetationForest: input,
-          vegetationRainforest: input,
-          vegetationTaiga: input,
-          vegetationSavannaWoodland: input,
-          vegetationSagebrushSteppe: input,
+          vegetation: input,
+          vegetationSubstrate: input,
+          vegetationScoreForest: input,
+          vegetationScoreRainforest: input,
+          vegetationScoreTaiga: input,
+          vegetationScoreSavannaWoodland: input,
+          vegetationScoreSagebrushSteppe: input,
           wetlands: input,
           reefs: input,
           ice: input,
-          vegetatedPlacementForest: input,
-          vegetatedPlacementRainforest: input,
-          vegetatedPlacementTaiga: input,
-          vegetatedPlacementSavannaWoodland: input,
-          vegetatedPlacementSagebrushSteppe: input,
           wetPlacementMarsh: input,
           wetPlacementTundraBog: input,
           wetPlacementMangrove: input,
@@ -106,19 +94,16 @@ export default createStage({
         };
       }
       return {
-        vegetationForest: input.vegetation,
-        vegetationRainforest: input.vegetation,
-        vegetationTaiga: input.vegetation,
-        vegetationSavannaWoodland: input.vegetation,
-        vegetationSagebrushSteppe: input.vegetation,
+        vegetation: input.vegetation,
+        vegetationSubstrate: {},
+        vegetationScoreForest: {},
+        vegetationScoreRainforest: {},
+        vegetationScoreTaiga: {},
+        vegetationScoreSavannaWoodland: {},
+        vegetationScoreSagebrushSteppe: {},
         wetlands: input.wetlands,
         reefs: input.reefs,
         ice: input.ice,
-        vegetatedPlacementForest: input.vegetatedFeaturePlacements,
-        vegetatedPlacementRainforest: input.vegetatedFeaturePlacements,
-        vegetatedPlacementTaiga: input.vegetatedFeaturePlacements,
-        vegetatedPlacementSavannaWoodland: input.vegetatedFeaturePlacements,
-        vegetatedPlacementSagebrushSteppe: input.vegetatedFeaturePlacements,
         wetPlacementMarsh: input.wetFeaturePlacements,
         wetPlacementTundraBog: input.wetFeaturePlacements,
         wetPlacementMangrove: input.wetFeaturePlacements,
