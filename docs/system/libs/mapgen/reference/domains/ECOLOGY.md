@@ -42,7 +42,10 @@ Ecology provides (truth artifacts):
 - `artifact:ecology.soils`
 - `artifact:ecology.resourceBasins`
 - `artifact:ecology.biomeClassification`
-- `artifact:ecology.featureIntents`
+- `artifact:ecology.featureIntents.vegetation`
+- `artifact:ecology.featureIntents.wetlands`
+- `artifact:ecology.featureIntents.reefs`
+- `artifact:ecology.featureIntents.ice`
 
 Projection posture:
 - `map-ecology` is projection-only and publishes current runtime dependency tags (`field:*`) and effect tags.
@@ -74,7 +77,7 @@ Current posture in the standard recipe:
 
 The `map-ecology` stage:
 - is `phase: "gameplay"` (projection-only),
-- consumes Ecology truth artifacts (biomeClassification, featureIntents) and Morphology truth (topography),
+- consumes Ecology truth artifacts (biomeClassification, featureIntents.*) and Morphology truth (topography),
 - publishes `field:*` runtime dependency tags (e.g., `field:biomeId`, `field:featureType`),
 - and publishes engine effect tags (e.g., `effect:engine.biomesApplied`).
 
@@ -97,4 +100,3 @@ The `map-ecology` stage:
 ## Open questions
 
 - Tightening Ecology artifact schemas: which fields should be typed as typed arrays vs structured objects, and where should those schemas live (content vs SDK)?
-
