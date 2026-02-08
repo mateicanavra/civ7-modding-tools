@@ -24,12 +24,32 @@ const FeaturesPlanStepContract = defineStep({
     ],
   },
   ops: {
-    vegetation: ecology.ops.planVegetation,
+    vegetationForest: ecology.ops.planVegetationForest,
+    vegetationRainforest: ecology.ops.planVegetationRainforest,
+    vegetationTaiga: ecology.ops.planVegetationTaiga,
+    vegetationSavannaWoodland: ecology.ops.planVegetationSavannaWoodland,
+    vegetationSagebrushSteppe: ecology.ops.planVegetationSagebrushSteppe,
     wetlands: ecology.ops.planWetlands,
     reefs: ecology.ops.planReefs,
     ice: ecology.ops.planIce,
-    vegetatedFeaturePlacements: {
-      contract: ecology.ops.planVegetatedFeaturePlacements,
+    vegetatedPlacementForest: {
+      contract: ecology.ops.planVegetatedPlacementForest,
+      defaultStrategy: "disabled",
+    },
+    vegetatedPlacementRainforest: {
+      contract: ecology.ops.planVegetatedPlacementRainforest,
+      defaultStrategy: "disabled",
+    },
+    vegetatedPlacementTaiga: {
+      contract: ecology.ops.planVegetatedPlacementTaiga,
+      defaultStrategy: "disabled",
+    },
+    vegetatedPlacementSavannaWoodland: {
+      contract: ecology.ops.planVegetatedPlacementSavannaWoodland,
+      defaultStrategy: "disabled",
+    },
+    vegetatedPlacementSagebrushSteppe: {
+      contract: ecology.ops.planVegetatedPlacementSagebrushSteppe,
       defaultStrategy: "disabled",
     },
     wetFeaturePlacements: {

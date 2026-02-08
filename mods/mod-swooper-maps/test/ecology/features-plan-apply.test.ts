@@ -32,7 +32,23 @@ describe("features plan/apply pipeline", () => {
     });
 
     const planConfig = {
-      vegetation: normalizeOpSelectionOrThrow(ecology.ops.planVegetation, {
+      vegetationForest: normalizeOpSelectionOrThrow(ecology.ops.planVegetationForest, {
+        strategy: "default",
+        config: {},
+      }),
+      vegetationRainforest: normalizeOpSelectionOrThrow(ecology.ops.planVegetationRainforest, {
+        strategy: "default",
+        config: {},
+      }),
+      vegetationTaiga: normalizeOpSelectionOrThrow(ecology.ops.planVegetationTaiga, {
+        strategy: "default",
+        config: {},
+      }),
+      vegetationSavannaWoodland: normalizeOpSelectionOrThrow(ecology.ops.planVegetationSavannaWoodland, {
+        strategy: "default",
+        config: {},
+      }),
+      vegetationSagebrushSteppe: normalizeOpSelectionOrThrow(ecology.ops.planVegetationSagebrushSteppe, {
         strategy: "default",
         config: {},
       }),
@@ -42,7 +58,23 @@ describe("features plan/apply pipeline", () => {
       }),
       reefs: normalizeOpSelectionOrThrow(ecology.ops.planReefs, { strategy: "default", config: {} }),
       ice: normalizeOpSelectionOrThrow(ecology.ops.planIce, { strategy: "default", config: {} }),
-      vegetatedFeaturePlacements: normalizeOpSelectionOrThrow(ecology.ops.planVegetatedFeaturePlacements, {
+      vegetatedPlacementForest: normalizeOpSelectionOrThrow(ecology.ops.planVegetatedPlacementForest, {
+        strategy: "disabled",
+        config: {},
+      }),
+      vegetatedPlacementRainforest: normalizeOpSelectionOrThrow(ecology.ops.planVegetatedPlacementRainforest, {
+        strategy: "disabled",
+        config: {},
+      }),
+      vegetatedPlacementTaiga: normalizeOpSelectionOrThrow(ecology.ops.planVegetatedPlacementTaiga, {
+        strategy: "disabled",
+        config: {},
+      }),
+      vegetatedPlacementSavannaWoodland: normalizeOpSelectionOrThrow(ecology.ops.planVegetatedPlacementSavannaWoodland, {
+        strategy: "disabled",
+        config: {},
+      }),
+      vegetatedPlacementSagebrushSteppe: normalizeOpSelectionOrThrow(ecology.ops.planVegetatedPlacementSagebrushSteppe, {
         strategy: "disabled",
         config: {},
       }),

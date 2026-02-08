@@ -43,7 +43,7 @@ describe("ecology defaults regression", () => {
 
   it("treats effectiveMoisture in consistent units for vegetation weights", () => {
     const result = runOpValidated(
-      ecology.ops.planVegetation,
+      ecology.ops.planVegetationForest,
       {
         width: 1,
         height: 1,

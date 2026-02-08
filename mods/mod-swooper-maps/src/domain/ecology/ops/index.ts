@@ -3,7 +3,11 @@ import type { contracts } from "./contracts.js";
 
 import applyFeatures from "./features-apply/index.js";
 import computeFeatureSubstrate from "./compute-feature-substrate/index.js";
-import planVegetation from "./features-plan-vegetation/index.js";
+import planVegetationForest from "./features-plan-vegetation-forest/index.js";
+import planVegetationRainforest from "./features-plan-vegetation-rainforest/index.js";
+import planVegetationSagebrushSteppe from "./features-plan-vegetation-sagebrush-steppe/index.js";
+import planVegetationSavannaWoodland from "./features-plan-vegetation-savanna-woodland/index.js";
+import planVegetationTaiga from "./features-plan-vegetation-taiga/index.js";
 import planWetlands from "./features-plan-wetlands/index.js";
 import planReefs from "./features-plan-reefs/index.js";
 import planIce from "./features-plan-ice/index.js";
@@ -17,7 +21,11 @@ import planAquaticFeaturePlacements from "./plan-aquatic-feature-placements/inde
 import planIceFeaturePlacements from "./plan-ice-feature-placements/index.js";
 import planPlotEffects from "./plan-plot-effects/index.js";
 import planReefEmbellishments from "./plan-reef-embellishments/index.js";
-import planVegetatedFeaturePlacements from "./plan-vegetated-feature-placements/index.js";
+import planVegetatedPlacementForest from "./plan-vegetated-placement-forest/index.js";
+import planVegetatedPlacementRainforest from "./plan-vegetated-placement-rainforest/index.js";
+import planVegetatedPlacementSagebrushSteppe from "./plan-vegetated-placement-sagebrush-steppe/index.js";
+import planVegetatedPlacementSavannaWoodland from "./plan-vegetated-placement-savanna-woodland/index.js";
+import planVegetatedPlacementTaiga from "./plan-vegetated-placement-taiga/index.js";
 import planVegetationEmbellishments from "./plan-vegetation-embellishments/index.js";
 import planWetFeaturePlacements from "./plan-wet-feature-placements/index.js";
 
@@ -33,10 +41,18 @@ const implementations = {
   planIceFeaturePlacements,
   planPlotEffects,
   planReefEmbellishments,
-  planVegetatedFeaturePlacements,
+  planVegetatedPlacementForest,
+  planVegetatedPlacementRainforest,
+  planVegetatedPlacementTaiga,
+  planVegetatedPlacementSavannaWoodland,
+  planVegetatedPlacementSagebrushSteppe,
   planVegetationEmbellishments,
   planWetFeaturePlacements,
-  planVegetation,
+  planVegetationForest,
+  planVegetationRainforest,
+  planVegetationTaiga,
+  planVegetationSavannaWoodland,
+  planVegetationSagebrushSteppe,
   planWetlands,
   planReefs,
   planIce,
@@ -48,7 +64,11 @@ export default implementations;
 export {
   applyFeatures,
   computeFeatureSubstrate,
-  planVegetation,
+  planVegetationForest,
+  planVegetationRainforest,
+  planVegetationTaiga,
+  planVegetationSavannaWoodland,
+  planVegetationSagebrushSteppe,
   planWetlands,
   planReefs,
   planIce,
@@ -62,7 +82,11 @@ export {
   planIceFeaturePlacements,
   planPlotEffects,
   planReefEmbellishments,
-  planVegetatedFeaturePlacements,
+  planVegetatedPlacementForest,
+  planVegetatedPlacementRainforest,
+  planVegetatedPlacementTaiga,
+  planVegetatedPlacementSavannaWoodland,
+  planVegetatedPlacementSagebrushSteppe,
   planVegetationEmbellishments,
   planWetFeaturePlacements,
 };
