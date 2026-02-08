@@ -1,5 +1,6 @@
 import AggregatePedologyContract from "./pedology-aggregate/contract.js";
 import BiomeClassificationContract from "./classify-biomes/contract.js";
+import ComputeFeatureSubstrateContract from "./compute-feature-substrate/contract.js";
 import FeaturesApplyContract from "./features-apply/contract.js";
 import PedologyClassifyContract from "./pedology-classify/contract.js";
 import PlanAquaticFeaturePlacementsContract from "./plan-aquatic-feature-placements/contract.js";
@@ -24,6 +25,7 @@ export const contracts = {
   planResourceBasins: ResourcePlanBasinsContract,
   scoreResourceBasins: ResourceScoreBalanceContract,
   refineBiomeEdges: RefineBiomeEdgesContract,
+  computeFeatureSubstrate: ComputeFeatureSubstrateContract,
   planAquaticFeaturePlacements: PlanAquaticFeaturePlacementsContract,
   planIceFeaturePlacements: PlanIceFeaturePlacementsContract,
   planPlotEffects: PlanPlotEffectsContract,
@@ -43,6 +45,7 @@ export default contracts;
 export {
   AggregatePedologyContract,
   BiomeClassificationContract,
+  ComputeFeatureSubstrateContract,
   FeaturesApplyContract,
   PedologyClassifyContract,
   PlanAquaticFeaturePlacementsContract,
