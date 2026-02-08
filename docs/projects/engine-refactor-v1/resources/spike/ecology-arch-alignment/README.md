@@ -4,6 +4,9 @@ This directory contains:
 - the original architecture-alignment spike outputs, and
 - the follow-on feasibility/spec-prep outputs that make Phase 3 planning straightforward.
 
+Execution plan (authoritative):
+- `docs/projects/pipeline-realism/milestones/M2-ecology-architecture-alignment.md`
+
 ## 1) Objective
 
 Understand the **current ecology domain** and the **target architecture**, identify **drift**, and define the **conceptual refactor target shape** needed to realign ecology to the architecture **without changing behavior**.
@@ -36,11 +39,18 @@ Documentation posture:
   - step ids, artifact ids, op ids
   - `dataTypeKey`/`spaceId` viz keys emitted by steps
 
-### Unknowns (still tracked)
+### Decisions (resolved; do not reopen)
 
-- Whether `artifact:ecology.biomeClassification` should be treated as an immutable snapshot or a publish-once mutable handle (current code mutates in place).
-- Whether `plot-effects` should provide an effect tag (it currently performs adapter writes without an explicit effect guarantee).
-- Whether `map-ecology` should remain a single stage or be split into projection-only vs stamping-only stages (a clean separation, but more pipeline nodes).
+These were resolved during feasibility/hardening and are now tracked as decision packets + baked into M2:
+
+- `artifact:ecology.biomeClassification` mutability posture is preserved (publish-once mutable handle refined in-place).
+- `plot-effects` provides an explicit effect tag (mod-owned) per decision.
+- Stage topology remains stable (`ecology` truth, `map-ecology` gameplay/materialization) for this behavior-preserving milestone.
+
+See:
+- `DECISIONS/README.md`
+- `FEASIBILITY.md`
+- `docs/projects/pipeline-realism/milestones/M2-ecology-architecture-alignment.md`
 
 ## 4) What We Learned
 
@@ -106,10 +116,9 @@ This supports “no behavior change” parity validation without committing larg
   - `DECISIONS/` (explicit “this-or-this” outcomes)
   - `PHASE-3-SKELETON.md` (execution shape, not hardened)
 
-- The next stage is to harden `PHASE-3-SKELETON.md` into a full implementation plan:
-  - explicit slice sequencing
-  - explicit verification gates per slice
-  - explicit migration/compat commitments (especially config surfaces for `features-plan`)
+- The implementation plan is now owned by:
+  - `docs/projects/pipeline-realism/milestones/M2-ecology-architecture-alignment.md`
+  - and its derived local issue docs under `docs/projects/pipeline-realism/issues/`
 
 ---
 

@@ -99,7 +99,14 @@ Ecology special-case guidance:
 | Phase 1 | `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/ecology/spike-ecology-current-state.md` | captured (see canonical spike directory) |
 | Phase 2 | `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/ecology/spike-ecology-modeling.md` | captured (see canonical spike directory) |
 | Phase 2.5 (feasibility/spec-prep) | `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/FEASIBILITY.md` | captured |
-| Phase 3 | `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/PHASE-3-SKELETON.md` | captured (skeleton only; hardening is next stage) |
+| Phase 3 (hardening) | `docs/projects/pipeline-realism/milestones/M2-ecology-architecture-alignment.md` | captured (authoritative execution plan) |
+
+## Current execution plan (authoritative)
+
+Ecology implementation planning is now owned by the pipeline-realism milestone doc and its derived local issue docs:
+
+- Milestone plan (index): `docs/projects/pipeline-realism/milestones/M2-ecology-architecture-alignment.md`
+- Local issue docs (slices): `docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M2-*.md`
 
 ## Canonical Spike Outputs (Single Source Of Truth)
 
