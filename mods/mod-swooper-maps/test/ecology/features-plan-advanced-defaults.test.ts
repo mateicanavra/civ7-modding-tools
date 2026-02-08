@@ -35,6 +35,10 @@ describe("features-plan advanced planner defaults", () => {
     expect(getStrategy(config, "vegetatedPlacementTaiga")).toBe("disabled");
     expect(getStrategy(config, "vegetatedPlacementSavannaWoodland")).toBe("disabled");
     expect(getStrategy(config, "vegetatedPlacementSagebrushSteppe")).toBe("disabled");
-    expect(getStrategy(config, "wetFeaturePlacements")).toBe("disabled");
+    expect(getStrategy(config, "wetPlacementMarsh")).toBe("disabled");
+    expect(getStrategy(config, "wetPlacementTundraBog")).toBe("disabled");
+    expect(getStrategy(config, "wetPlacementMangrove")).toBe("disabled");
+    expect(getStrategy(config, "wetPlacementOasis")).toBe("disabled");
+    expect(getStrategy(config, "wetPlacementWateringHole")).toBe("disabled");
   });
 });

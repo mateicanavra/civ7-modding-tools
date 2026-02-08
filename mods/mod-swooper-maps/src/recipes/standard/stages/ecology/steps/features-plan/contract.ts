@@ -52,8 +52,24 @@ const FeaturesPlanStepContract = defineStep({
       contract: ecology.ops.planVegetatedPlacementSagebrushSteppe,
       defaultStrategy: "disabled",
     },
-    wetFeaturePlacements: {
-      contract: ecology.ops.planWetFeaturePlacements,
+    wetPlacementMarsh: {
+      contract: ecology.ops.planWetPlacementMarsh,
+      defaultStrategy: "disabled",
+    },
+    wetPlacementTundraBog: {
+      contract: ecology.ops.planWetPlacementTundraBog,
+      defaultStrategy: "disabled",
+    },
+    wetPlacementMangrove: {
+      contract: ecology.ops.planWetPlacementMangrove,
+      defaultStrategy: "disabled",
+    },
+    wetPlacementOasis: {
+      contract: ecology.ops.planWetPlacementOasis,
+      defaultStrategy: "disabled",
+    },
+    wetPlacementWateringHole: {
+      contract: ecology.ops.planWetPlacementWateringHole,
       defaultStrategy: "disabled",
     },
   },

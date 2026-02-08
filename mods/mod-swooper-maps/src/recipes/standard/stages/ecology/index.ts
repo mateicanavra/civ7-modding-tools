@@ -93,7 +93,11 @@ export default createStage({
         vegetatedPlacementTaiga: input.vegetatedFeaturePlacements,
         vegetatedPlacementSavannaWoodland: input.vegetatedFeaturePlacements,
         vegetatedPlacementSagebrushSteppe: input.vegetatedFeaturePlacements,
-        wetFeaturePlacements: input.wetFeaturePlacements,
+        wetPlacementMarsh: input.wetFeaturePlacements,
+        wetPlacementTundraBog: input.wetFeaturePlacements,
+        wetPlacementMangrove: input.wetFeaturePlacements,
+        wetPlacementOasis: input.wetFeaturePlacements,
+        wetPlacementWateringHole: input.wetFeaturePlacements,
       };
     };
 
