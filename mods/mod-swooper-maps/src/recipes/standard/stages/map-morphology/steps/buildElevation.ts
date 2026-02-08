@@ -11,14 +11,51 @@ export default createStep(BuildElevationStepContract, {
     const topography = deps.artifacts.topography.read(context);
     const { width, height } = context.dimensions;
 
-    // Align with base-standard posture: validate + stamp before buildElevation so
-    // engine elevation/cliffs reflect the finalized terrain surface (incl. mountains/volcanoes).
-    context.adapter.validateAndFixTerrain();
-    context.adapter.recalculateAreas();
-    context.adapter.stampContinents();
+    const size = Math.max(0, (width | 0) * (height | 0));
+    const terrainBefore = new Int32Array(size);
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = y * width + x;
+        terrainBefore[idx] = context.adapter.getTerrainType(x, y) | 0;
+      }
+    }
+
+    // Base-standard ordering: do not call validateAndFixTerrain/stampContinents here.
+    // We have already stamped land/water + coasts from Morphology truth and verified
+    // no drift earlier (plot-coasts/plot-continents/plot-mountains/plot-volcanoes).
+    //
+    // Calling validateAndFixTerrain here can reclassify coastal tiles (engine coast/lake
+    // repair) and violate our "landMask is authoritative" invariant.
     context.adapter.recalculateAreas();
     context.adapter.buildElevation();
     context.adapter.recalculateAreas();
+
+    // Repair pass: if the engine's post-buildElevation water classification drifted away
+    // from Morphology truth (landMask), restore the pre-buildElevation terrain for those tiles.
+    //
+    // This is conservative: it preserves mountains/hills/coasts while ensuring buildElevation
+    // cannot "grow lakes" or otherwise flip land/water in a way that violates our truth tensors.
+    //
+    // Note: we intentionally do NOT call validateAndFixTerrain here; that can reintroduce drift.
+    let driftCount = 0;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = y * width + x;
+        const wantsLand = topography.landMask[idx] === 1;
+        const isWater = context.adapter.isWater(x, y);
+        const isLand = !isWater;
+        if (wantsLand === isLand) continue;
+        driftCount += 1;
+        context.adapter.setTerrainType(x, y, terrainBefore[idx] | 0);
+      }
+    }
+    if (driftCount > 0) {
+      context.trace.event(() => ({
+        kind: "map.morphology.buildElevation.driftRepair",
+        driftTiles: driftCount,
+      }));
+      context.adapter.recalculateAreas();
+    }
 
     const physics = context.buffers.heightfield;
     const engine = snapshotEngineHeightfield(context);
