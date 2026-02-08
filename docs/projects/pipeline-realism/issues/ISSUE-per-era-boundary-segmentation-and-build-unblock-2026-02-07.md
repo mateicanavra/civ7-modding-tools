@@ -11,6 +11,19 @@ This plan is “maximal” in two senses:
 
 It also includes “everything else still needed”: config explicitization tooling for `swooper-earthlike.config.json`, remaining mountain-kind taxonomy wiring (including hotspot-track style volcanic mountain chains), audits for “no magic numbers,” “one rule per file,” and any stack hygiene/orphan branch integration.
 
+## Progress (Graphite PRs)
+Builds / runtime unblock:
+- `agent-GOBI-PRR-s116-earthlike-preset-build-fix` (PR #1186)
+- `agent-GOBI-PRR-s116a-per-era-boundaries-issue-and-scratch` (PR #1187)
+- `agent-GOBI-PRR-s117-build-elevation-no-water-drift` (PR #1188)
+- `agent-GOBI-PRR-s118-studio-smoke-and-doc` (PR #1189)
+
+Per-era boundary segmentation:
+- `agent-GOBI-PRR-s119-era-plates-membership` (PR #1190)
+- `agent-GOBI-PRR-s120-era-boundary-classification` (PR #1191): implements per-era re-segmentation by re-running `compute-tectonic-segments` against `plateIdByEra[era]` and rebuilding era fields from those era-specific segments.
+- `agent-GOBI-PRR-s121-era-polarity-and-orogen-type` (PR #1192): classifies collision vs. subduction based on crust type on each side of the boundary.
+- `agent-GOBI-PRR-s122-era-membership-anchor-present` (PR #1193): anchors newest-era plate membership to the current plate graph so "present day" boundaries match exactly.
+
 ---
 
 ## Current State (Ground Truth)
@@ -194,4 +207,3 @@ Minimum per slice (where applicable):
 - No magic numbers: thresholds/weights live in schemas/config with defaults and docs.
 - Determinism is a hard gate: explicit tie-breaks.
 - Engine drift invariant is preserved by restore+stampContinents+storeWaterData, not by weakening assertions.
-
