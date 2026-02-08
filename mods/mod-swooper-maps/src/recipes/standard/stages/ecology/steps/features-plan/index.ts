@@ -1,6 +1,5 @@
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import ecologyOps from "@mapgen/domain/ecology/ops";
 import { FEATURE_PLACEMENT_KEYS } from "@mapgen/domain/ecology";
 import { ecologyArtifacts } from "../../artifacts.js";
 import { validateFeatureIntentsArtifact } from "../../artifact-validation.js";
@@ -9,6 +8,18 @@ import { computeRiverAdjacencyMaskFromRiverClass } from "../../../hydrology-hydr
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 
 const GROUP_FEATURE_INTENTS = "Ecology / Feature Intents";
+
+function readRulesRadius(
+  config: unknown,
+  key: "nearRiverRadius" | "isolatedRiverRadius",
+  fallback: number
+): number {
+  if (!config || typeof config !== "object") return fallback;
+  const rules = (config as Record<string, unknown>).rules;
+  if (!rules || typeof rules !== "object") return fallback;
+  const raw = (rules as Record<string, unknown>)[key];
+  return typeof raw === "number" && Number.isFinite(raw) ? raw : fallback;
+}
 
 function labelFeatureKey(key: string): string {
   const trimmed = key.replace(/^FEATURE_/, "");
@@ -66,31 +77,6 @@ export default createStep(FeaturesPlanStepContract, {
       validate: (value, context) => validateFeatureIntentsArtifact(value, context.dimensions),
     },
   }),
-  normalize: (config, ctx) => {
-    let next = config;
-
-    if (next.vegetatedFeaturePlacements) {
-      const normalize = ecologyOps.ops.planVegetatedFeaturePlacements.normalize;
-      if (typeof normalize === "function") {
-        next = {
-          ...next,
-          vegetatedFeaturePlacements: normalize(next.vegetatedFeaturePlacements, ctx),
-        };
-      }
-    }
-
-    if (next.wetFeaturePlacements) {
-      const normalize = ecologyOps.ops.planWetFeaturePlacements.normalize;
-      if (typeof normalize === "function") {
-        next = {
-          ...next,
-          wetFeaturePlacements: normalize(next.wetFeaturePlacements, ctx),
-        };
-      }
-    }
-
-    return next;
-  },
   run: (context, config, ops, deps) => {
     const classification = deps.artifacts.biomeClassification.read(context);
     const pedology = deps.artifacts.pedology.read(context);
@@ -106,8 +92,11 @@ export default createStep(FeaturesPlanStepContract, {
       navigableRiverMask[i] = hydrography.riverClass[i] === 2 ? 1 : 0;
     }
 
-    const vegetationPlacements = config.vegetatedFeaturePlacements
-      ? ecologyOps.ops.planVegetatedFeaturePlacements.run(
+    const advancedVegetated = config.advancedVegetatedFeaturePlacements;
+    const useAdvancedVegetated = advancedVegetated.strategy !== "disabled";
+
+    const vegetationPlacements = useAdvancedVegetated
+      ? ops.advancedVegetatedFeaturePlacements(
           {
             width,
             height,
@@ -122,7 +111,7 @@ export default createStep(FeaturesPlanStepContract, {
             navigableRiverMask,
             featureKeyField: emptyFeatureKeyField(),
           },
-          config.vegetatedFeaturePlacements
+          advancedVegetated
         ).placements
       : ops.vegetation(
           {
@@ -151,8 +140,11 @@ export default createStep(FeaturesPlanStepContract, {
       config.wetlands
     );
 
-    const wetPlacements = config.wetFeaturePlacements
-      ? ecologyOps.ops.planWetFeaturePlacements.run(
+    const advancedWet = config.advancedWetFeaturePlacements;
+    const useAdvancedWet = advancedWet.strategy !== "disabled";
+
+    const wetPlacements = useAdvancedWet
+      ? ops.advancedWetFeaturePlacements(
           {
             width,
             height,
@@ -166,24 +158,16 @@ export default createStep(FeaturesPlanStepContract, {
               width,
               height,
               riverClass: hydrography.riverClass,
-              radius: Math.max(
-                1,
-                Math.floor(config.wetFeaturePlacements.config?.rules?.nearRiverRadius ?? 2)
-              ),
+              radius: Math.max(1, Math.floor(readRulesRadius(advancedWet.config, "nearRiverRadius", 2))),
             }),
             isolatedRiverMask: computeRiverAdjacencyMaskFromRiverClass({
               width,
               height,
               riverClass: hydrography.riverClass,
-              radius: Math.max(
-                1,
-                Math.floor(
-                  config.wetFeaturePlacements.config?.rules?.isolatedRiverRadius ?? 1
-                )
-              ),
+              radius: Math.max(1, Math.floor(readRulesRadius(advancedWet.config, "isolatedRiverRadius", 1))),
             }),
           },
-          config.wetFeaturePlacements
+          advancedWet
         ).placements
       : [];
 

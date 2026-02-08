@@ -1,10 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 
 import PlanVegetatedFeaturePlacementsContract from "./contract.js";
-import { defaultStrategy } from "./strategies/index.js";
+import { defaultStrategy, disabledStrategy } from "./strategies/index.js";
 
 const planVegetatedFeaturePlacements = createOp(PlanVegetatedFeaturePlacementsContract, {
   strategies: {
+    disabled: disabledStrategy,
     default: defaultStrategy,
   },
 });

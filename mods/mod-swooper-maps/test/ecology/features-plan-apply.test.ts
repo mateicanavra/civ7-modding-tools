@@ -42,6 +42,14 @@ describe("features plan/apply pipeline", () => {
       }),
       reefs: normalizeOpSelectionOrThrow(ecology.ops.planReefs, { strategy: "default", config: {} }),
       ice: normalizeOpSelectionOrThrow(ecology.ops.planIce, { strategy: "default", config: {} }),
+      advancedVegetatedFeaturePlacements: normalizeOpSelectionOrThrow(ecology.ops.planVegetatedFeaturePlacements, {
+        strategy: "disabled",
+        config: {},
+      }),
+      advancedWetFeaturePlacements: normalizeOpSelectionOrThrow(ecology.ops.planWetFeaturePlacements, {
+        strategy: "disabled",
+        config: {},
+      }),
     };
     const planOps = ecology.ops.bind(featuresPlanStep.contract.ops!).runtime;
     featuresPlanStep.run(ctx, planConfig, planOps, buildTestDeps(featuresPlanStep));
