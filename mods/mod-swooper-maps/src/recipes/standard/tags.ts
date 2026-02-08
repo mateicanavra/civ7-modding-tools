@@ -20,6 +20,7 @@ export const M4_EFFECT_TAGS = {
     riversModeled: "effect:engine.riversModeled",
     biomesApplied: ENGINE_EFFECT_TAGS.biomesApplied,
     featuresApplied: ENGINE_EFFECT_TAGS.featuresApplied,
+    plotEffectsApplied: "effect:engine.plotEffectsApplied",
     placementApplied: ENGINE_EFFECT_TAGS.placementApplied,
   },
 } as const;
@@ -90,6 +91,11 @@ const EFFECT_OWNERS: Record<string, TagOwner> = {
     pkg: "mod-swooper-maps",
     phase: "gameplay",
     stepId: "features-apply",
+  },
+  [M4_EFFECT_TAGS.engine.plotEffectsApplied]: {
+    pkg: "mod-swooper-maps",
+    phase: "gameplay",
+    stepId: "plot-effects",
   },
   [M4_EFFECT_TAGS.engine.placementApplied]: {
     pkg: "mod-swooper-maps",
