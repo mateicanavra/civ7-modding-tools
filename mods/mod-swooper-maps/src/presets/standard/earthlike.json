@@ -73,8 +73,8 @@
           "landmask": {
             "strategy": "default",
             "config": {
-              "continentPotentialGrain": 8,
-              "continentPotentialBlurSteps": 3,
+              "continentPotentialGrain": 4,
+              "continentPotentialBlurSteps": 4,
               "keepLandComponentFraction": 0.985
             }
           }
