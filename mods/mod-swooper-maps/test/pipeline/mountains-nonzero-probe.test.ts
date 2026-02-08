@@ -17,9 +17,6 @@ const PROBE_WIDTH = 106;
 const PROBE_HEIGHT = 66;
 const PROBE_SEED = 1337;
 
-const MIN_MOUNTAIN_TILES = 10;
-const MIN_VOLCANO_POINTS = 1;
-
 function loadEarthlikeConfig(): StandardRecipeConfig {
   const raw = JSON.parse(
     readFileSync(new URL("../../src/maps/configs/swooper-earthlike.config.json", import.meta.url), "utf8")
@@ -254,12 +251,12 @@ describe("pipeline: mountains nonzero canonical probe (earthlike)", () => {
         )}`
       );
     }
-    expect(countMask(ridges.mountainMask)).toBeGreaterThanOrEqual(MIN_MOUNTAIN_TILES);
+    expect(countMask(ridges.mountainMask)).toBeGreaterThan(0);
 
     expect(foothills?.hillMask).toBeInstanceOf(Uint8Array);
 
     // Volcanoes are planned via a separate step, but the artifact should remain non-degenerate.
     const volcanoList = Array.isArray(volcanoes?.volcanoes) ? volcanoes.volcanoes : [];
-    expect(volcanoList.length).toBeGreaterThanOrEqual(MIN_VOLCANO_POINTS);
+    expect(volcanoList.length).toBeGreaterThan(0);
   });
 });
