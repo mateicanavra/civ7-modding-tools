@@ -16,7 +16,7 @@ related_to: []
 
 <!-- SECTION SCOPE [SYNC] -->
 ## TL;DR
-- Split:
+- Split vegetation/reef embellishment mega-ops into atomic per-feature embellishment ops (behavior-preserving).
 
 ## Deliverables
 - Extracted from the M2 milestone doc; see Implementation Details for the full preserved spec body.
@@ -35,7 +35,6 @@ related_to: []
 - Blocks: (none)
 - Paper trail:
   - `$SPIKE/CONTRACTS.md` (op inventory)
-  - ---
 
 ---
 
@@ -72,9 +71,18 @@ into atomic per-feature embellishment ops.
 **Implementation guidance**
 - Complexity: medium-high (feature-key surface is broad).
 
-## Prework Prompt (Agent Brief)
-- Identify the *actual* feature keys placed by each embellishment op today (the contracts accept `FEATURE_PLACEMENT_KEYS`, but implementations likely only place a subset).
-- Expected output: a list of feature keys per op, plus file pointers, so the split set is exact and not speculative.
+### Prework Results (Resolved)
+
+Actual feature-key subset placed today (so the atomic split set is exact, not speculative):
+
+- `ecology/features/vegetation-embellishments` places:
+  - `FEATURE_FOREST`, `FEATURE_RAINFOREST`, `FEATURE_TAIGA`
+  - Evidence: `mods/mod-swooper-maps/src/domain/ecology/ops/plan-vegetation-embellishments/strategies/default.ts`
+- `ecology/features/reef-embellishments` places:
+  - `FEATURE_REEF`
+  - Evidence: `mods/mod-swooper-maps/src/domain/ecology/ops/plan-reef-embellishments/strategies/default.ts`
+
+**Implementation anchors**
 
 ```yaml
 files:
