@@ -1,7 +1,10 @@
 import { Type, type Static } from "@swooper/mapgen-core/authoring";
 import { BiomeEngineBindingsSchema } from "./biome-bindings.js";
 import BiomeClassificationContract from "./ops/classify-biomes/contract.js";
-import PlanAquaticFeaturePlacementsContract from "./ops/plan-aquatic-feature-placements/contract.js";
+import PlanAquaticAtollPlacementsContract from "./ops/plan-aquatic-atoll-placements/contract.js";
+import PlanAquaticColdReefPlacementsContract from "./ops/plan-aquatic-cold-reef-placements/contract.js";
+import PlanAquaticLotusPlacementsContract from "./ops/plan-aquatic-lotus-placements/contract.js";
+import PlanAquaticReefPlacementsContract from "./ops/plan-aquatic-reef-placements/contract.js";
 import PlanIceFeaturePlacementsContract from "./ops/plan-ice-feature-placements/contract.js";
 import PlanPlotEffectsContract from "./ops/plan-plot-effects/contract.js";
 import PlanVegetatedPlacementForestContract from "./ops/plan-vegetated-placement-forest/contract.js";
@@ -24,7 +27,15 @@ const FeaturesPlacementConfigSchema = Type.Object(
   {
     vegetated: PlanVegetatedPlacementForestContract.config,
     wet: PlanWetFeaturePlacementsContract.config,
-    aquatic: PlanAquaticFeaturePlacementsContract.config,
+    aquatic: Type.Object(
+      {
+        reef: PlanAquaticReefPlacementsContract.config,
+        coldReef: PlanAquaticColdReefPlacementsContract.config,
+        atoll: PlanAquaticAtollPlacementsContract.config,
+        lotus: PlanAquaticLotusPlacementsContract.config,
+      },
+      { additionalProperties: false }
+    ),
     ice: PlanIceFeaturePlacementsContract.config,
   },
   { additionalProperties: false }

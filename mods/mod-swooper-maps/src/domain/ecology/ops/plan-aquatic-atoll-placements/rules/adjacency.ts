@@ -48,3 +48,4 @@ export function isAdjacentToShallowWater(
   }
   return false;
 }
+

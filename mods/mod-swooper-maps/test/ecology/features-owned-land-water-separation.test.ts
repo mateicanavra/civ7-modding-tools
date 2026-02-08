@@ -37,12 +37,10 @@ describe("features (owned baseline)", () => {
         },
       },
       aquatic: {
-        chances: {
-          FEATURE_REEF: 100,
-          FEATURE_COLD_REEF: 100,
-          FEATURE_ATOLL: 100,
-          FEATURE_LOTUS: 100,
-        },
+        reef: { chance: 100 },
+        coldReef: { chance: 100 },
+        atoll: { chance: 100, rules: {} },
+        lotus: { chance: 100 },
       },
       ice: {
         chances: { FEATURE_ICE: 100 },

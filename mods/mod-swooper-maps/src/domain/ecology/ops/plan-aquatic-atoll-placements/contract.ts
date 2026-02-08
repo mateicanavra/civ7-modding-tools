@@ -1,27 +1,6 @@
 import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
 
-import type { FeatureKey } from "@mapgen/domain/ecology/types.js";
-
-const AquaticFeatureKeySchema = Type.Unsafe<FeatureKey>(
-  Type.Union(
-    [
-      Type.Literal("FEATURE_REEF"),
-      Type.Literal("FEATURE_COLD_REEF"),
-      Type.Literal("FEATURE_ATOLL"),
-      Type.Literal("FEATURE_LOTUS"),
-    ],
-    { description: "Baseline aquatic feature keys." }
-  )
-);
-
-const AquaticChancesSchema = Type.Object({
-  FEATURE_REEF: Type.Number({ default: 30, minimum: 0, maximum: 100 }),
-  FEATURE_COLD_REEF: Type.Number({ default: 30, minimum: 0, maximum: 100 }),
-  FEATURE_ATOLL: Type.Number({ default: 12, minimum: 0, maximum: 100 }),
-  FEATURE_LOTUS: Type.Number({ default: 15, minimum: 0, maximum: 100 }),
-});
-
-const AquaticAtollSchema = Type.Object({
+const AtollRulesSchema = Type.Object({
   enableClustering: Type.Boolean({ default: true }),
   clusterRadius: Type.Number({ default: 1, minimum: 0, maximum: 2 }),
   equatorialBandMaxAbsLatitude: Type.Number({ default: 23, minimum: 0, maximum: 90 }),
@@ -31,20 +10,9 @@ const AquaticAtollSchema = Type.Object({
   growthChanceNonEquatorial: Type.Number({ default: 5, minimum: 0, maximum: 100 }),
 });
 
-const AquaticRulesSchema = Type.Object({
-  reefLatitudeSplit: Type.Number({ default: 55, minimum: 0, maximum: 90 }),
-  atoll: AquaticAtollSchema,
-});
-
-const AquaticPlacementSchema = Type.Object({
-  x: Type.Integer({ minimum: 0 }),
-  y: Type.Integer({ minimum: 0 }),
-  feature: AquaticFeatureKeySchema,
-});
-
-const PlanAquaticFeaturePlacementsContract = defineOp({
+const PlanAquaticAtollPlacementsContract = defineOp({
   kind: "plan",
-  id: "ecology/features/aquatic-placement",
+  id: "ecology/features/aquatic-placement/atoll",
   input: Type.Object({
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -58,19 +26,26 @@ const PlanAquaticFeaturePlacementsContract = defineOp({
     coastTerrain: Type.Integer({ description: "Terrain id for coast/shallow water." }),
   }),
   output: Type.Object({
-    placements: Type.Array(AquaticPlacementSchema),
+    placements: Type.Array(
+      Type.Object({
+        x: Type.Integer({ minimum: 0 }),
+        y: Type.Integer({ minimum: 0 }),
+        feature: Type.Literal("FEATURE_ATOLL"),
+      })
+    ),
   }),
   strategies: {
     default: Type.Object({
       multiplier: Type.Number({
-        description: "Scalar multiplier applied to all per-feature chances (0..2 typical).",
+        description: "Scalar multiplier applied to base atoll chance (0..2 typical).",
         default: 1,
         minimum: 0,
       }),
-      chances: AquaticChancesSchema,
-      rules: AquaticRulesSchema,
+      chance: Type.Number({ default: 12, minimum: 0, maximum: 100 }),
+      rules: AtollRulesSchema,
     }),
   },
 });
 
-export default PlanAquaticFeaturePlacementsContract;
+export default PlanAquaticAtollPlacementsContract;
+

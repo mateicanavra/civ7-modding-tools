@@ -3,6 +3,7 @@ import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 import { implementArtifacts, type Static } from "@swooper/mapgen-core/authoring";
 import ecology from "@mapgen/domain/ecology/ops";
+import { FEATURE_PLACEMENT_KEYS, type FeatureKey } from "@mapgen/domain/ecology/types.js";
 
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 import { buildTestDeps } from "../support/step-deps.js";
@@ -20,21 +21,40 @@ type VegetatedPlacementConfig = Static<
 type WetPlacementConfig = Static<
   typeof ecology.ops.planWetFeaturePlacements.strategies.default.config
 >;
-type AquaticPlacementConfig = Static<
-  typeof ecology.ops.planAquaticFeaturePlacements.strategies.default.config
+type AquaticReefConfig = Static<
+  typeof ecology.ops.planAquaticReefPlacements.strategies.default.config
+>;
+type AquaticColdReefConfig = Static<
+  typeof ecology.ops.planAquaticColdReefPlacements.strategies.default.config
+>;
+type AquaticAtollConfig = Static<
+  typeof ecology.ops.planAquaticAtollPlacements.strategies.default.config
+>;
+type AquaticLotusConfig = Static<
+  typeof ecology.ops.planAquaticLotusPlacements.strategies.default.config
 >;
 type IcePlacementConfig = Static<
   typeof ecology.ops.planIceFeaturePlacements.strategies.default.config
 >;
 
+type AquaticPlacementOverrides = {
+  multiplier?: number;
+  reef?: Partial<AquaticReefConfig>;
+  coldReef?: Partial<AquaticColdReefConfig>;
+  atoll?: Partial<AquaticAtollConfig>;
+  lotus?: Partial<AquaticLotusConfig>;
+};
+
 type FeaturesPlacementOverrides = {
   vegetated?: Partial<VegetatedPlacementConfig>;
   wet?: Partial<WetPlacementConfig>;
-  aquatic?: Partial<AquaticPlacementConfig>;
+  aquatic?: AquaticPlacementOverrides;
   ice?: Partial<IcePlacementConfig>;
 };
 
 export function buildFeaturesPlacementConfig(overrides: FeaturesPlacementOverrides = {}) {
+  const aquatic = overrides.aquatic;
+  const aquaticMultiplier = aquatic?.multiplier;
   return {
     vegetated: normalizeOpSelectionOrThrow(ecology.ops.planVegetatedPlacementForest, {
       strategy: "default",
@@ -44,10 +64,24 @@ export function buildFeaturesPlacementConfig(overrides: FeaturesPlacementOverrid
       strategy: "default",
       config: overrides.wet ?? {},
     }),
-    aquatic: normalizeOpSelectionOrThrow(ecology.ops.planAquaticFeaturePlacements, {
-      strategy: "default",
-      config: overrides.aquatic ?? {},
-    }),
+    aquatic: {
+      reef: normalizeOpSelectionOrThrow(ecology.ops.planAquaticReefPlacements, {
+        strategy: "default",
+        config: { multiplier: aquaticMultiplier, ...aquatic?.reef },
+      }),
+      coldReef: normalizeOpSelectionOrThrow(ecology.ops.planAquaticColdReefPlacements, {
+        strategy: "default",
+        config: { multiplier: aquaticMultiplier, ...aquatic?.coldReef },
+      }),
+      atoll: normalizeOpSelectionOrThrow(ecology.ops.planAquaticAtollPlacements, {
+        strategy: "default",
+        config: { multiplier: aquaticMultiplier, ...aquatic?.atoll },
+      }),
+      lotus: normalizeOpSelectionOrThrow(ecology.ops.planAquaticLotusPlacements, {
+        strategy: "default",
+        config: { multiplier: aquaticMultiplier, ...aquatic?.lotus },
+      }),
+    },
     ice: normalizeOpSelectionOrThrow(ecology.ops.planIceFeaturePlacements, {
       strategy: "default",
       config: overrides.ice ?? {},
@@ -87,6 +121,11 @@ function buildLatitudeField(
 
 const NO_FEATURE = -1;
 const UNKNOWN_FEATURE = -2;
+
+const FEATURE_KEY_INDEX = FEATURE_PLACEMENT_KEYS.reduce((acc, key, index) => {
+  acc[key] = index;
+  return acc;
+}, {} as Record<FeatureKey, number>);
 
 function buildFeatureKeyField(
   ctx: ReturnType<typeof createFeaturesTestContext>["ctx"],
@@ -154,6 +193,19 @@ function buildRiverAdjacencyMask(options: {
   }
 
   return mask;
+}
+
+function applyPlannedPlacementsToField(args: {
+  width: number;
+  featureKeyField: Int16Array;
+  placements: Array<{ x: number; y: number; feature: FeatureKey }>;
+}): void {
+  const { width, featureKeyField, placements } = args;
+  for (const p of placements) {
+    const idx = p.y * width + p.x;
+    if (featureKeyField[idx] !== NO_FEATURE) continue;
+    featureKeyField[idx] = FEATURE_KEY_INDEX[p.feature];
+  }
 }
 
 export function runOwnedFeaturePlacements(options: {
@@ -248,7 +300,7 @@ export function runOwnedFeaturePlacements(options: {
     placements.wet
   );
 
-  const reefs = ecology.ops.planAquaticFeaturePlacements.run(
+  const warmReefs = ecology.ops.planAquaticReefPlacements.run(
     {
       width,
       height,
@@ -259,8 +311,54 @@ export function runOwnedFeaturePlacements(options: {
       featureKeyField: featureKeyField.slice(),
       coastTerrain,
     },
-    placements.aquatic
+    placements.aquatic.reef
   );
+  applyPlannedPlacementsToField({ width, featureKeyField, placements: warmReefs.placements });
+
+  const coldReefs = ecology.ops.planAquaticColdReefPlacements.run(
+    {
+      width,
+      height,
+      seed,
+      landMask,
+      terrainType,
+      latitude,
+      featureKeyField: featureKeyField.slice(),
+      coastTerrain,
+    },
+    placements.aquatic.coldReef
+  );
+  applyPlannedPlacementsToField({ width, featureKeyField, placements: coldReefs.placements });
+
+  const atolls = ecology.ops.planAquaticAtollPlacements.run(
+    {
+      width,
+      height,
+      seed,
+      landMask,
+      terrainType,
+      latitude,
+      featureKeyField: featureKeyField.slice(),
+      coastTerrain,
+    },
+    placements.aquatic.atoll
+  );
+  applyPlannedPlacementsToField({ width, featureKeyField, placements: atolls.placements });
+
+  const lotus = ecology.ops.planAquaticLotusPlacements.run(
+    {
+      width,
+      height,
+      seed,
+      landMask,
+      terrainType,
+      latitude,
+      featureKeyField: featureKeyField.slice(),
+      coastTerrain,
+    },
+    placements.aquatic.lotus
+  );
+  applyPlannedPlacementsToField({ width, featureKeyField, placements: lotus.placements });
 
   const ice = ecology.ops.planIceFeaturePlacements.run(
     {
@@ -291,7 +389,12 @@ export function runOwnedFeaturePlacements(options: {
   );
   intentsRuntime.featureIntentsVegetation.publish(ctx, vegetationPlacements);
   intentsRuntime.featureIntentsWetlands.publish(ctx, wetlands.placements);
-  intentsRuntime.featureIntentsReefs.publish(ctx, reefs.placements);
+  intentsRuntime.featureIntentsReefs.publish(ctx, [
+    ...warmReefs.placements,
+    ...coldReefs.placements,
+    ...atolls.placements,
+    ...lotus.placements,
+  ]);
   intentsRuntime.featureIntentsIce.publish(ctx, ice.placements);
 
   const applyConfig = {
