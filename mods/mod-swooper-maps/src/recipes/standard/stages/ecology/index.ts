@@ -95,12 +95,12 @@ export default createStage({
       }
       return {
         vegetation: input.vegetation,
-        vegetationSubstrate: {},
-        vegetationScoreForest: {},
-        vegetationScoreRainforest: {},
-        vegetationScoreTaiga: {},
-        vegetationScoreSavannaWoodland: {},
-        vegetationScoreSagebrushSteppe: {},
+        vegetationSubstrate: { strategy: "default", config: {} },
+        vegetationScoreForest: { strategy: "default", config: {} },
+        vegetationScoreRainforest: { strategy: "default", config: {} },
+        vegetationScoreTaiga: { strategy: "default", config: {} },
+        vegetationScoreSavannaWoodland: { strategy: "default", config: {} },
+        vegetationScoreSagebrushSteppe: { strategy: "default", config: {} },
         wetlands: input.wetlands,
         reefs: input.reefs,
         ice: input.ice,
