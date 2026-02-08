@@ -156,6 +156,12 @@ const FoundationTectonicHistoryArtifactSchema = Type.Object(
     eras: Type.Immutable(
       Type.Array(FoundationTectonicHistoryEraArtifactSchema, { description: "Era payloads (length = eraCount)." })
     ),
+    /** Plate id per mesh cell for each era (length = eraCount; each entry length = cellCount). */
+    plateIdByEra: Type.Immutable(
+      Type.Array(TypedArraySchemas.i16({ shape: null, description: "Plate id per mesh cell for the era." }), {
+        description: "Era plate membership (oldest→newest).",
+      })
+    ),
     /** Accumulated uplift total per mesh cell (0..255). */
     upliftTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated uplift total per mesh cell (0..255)." }),
     /** Accumulated collision uplift total per mesh cell (0..255). */

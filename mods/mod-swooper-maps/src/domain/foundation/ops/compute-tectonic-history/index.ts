@@ -2,7 +2,7 @@ import { createOp } from "@swooper/mapgen-core/authoring";
 import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import { BOUNDARY_TYPE } from "../../constants.js";
-import { requireCrust, requireMantleForcing, requireMesh, requirePlateGraph } from "../../lib/require.js";
+import { requireCrust, requireMantleForcing, requireMesh, requirePlateGraph, requirePlateMotion } from "../../lib/require.js";
 import type { FoundationTectonicSegments } from "../compute-tectonic-segments/contract.js";
 import ComputeTectonicHistoryContract from "./contract.js";
 
@@ -53,6 +53,22 @@ const ADVECTION_STEPS_PER_ERA = 6;
 const OROGENY_ERA_GAIN_MIN = 0.85;
 const OROGENY_ERA_GAIN_MAX = 1.15;
 
+type PlateMembershipParams = Readonly<{
+  mesh: Readonly<{
+    cellCount: number;
+    wrapWidth: number;
+    siteX: Float32Array;
+    siteY: Float32Array;
+    neighborsOffsets: Int32Array;
+    neighbors: Int32Array;
+  }>;
+  plates: ReadonlyArray<Readonly<{ id: number; seedX: number; seedY: number }>>;
+  plateVelocityX: Float32Array;
+  plateVelocityY: Float32Array;
+  driftStepsByEra: ReadonlyArray<number>;
+  eraCount: number;
+}>;
+
 type EmissionParams = Readonly<{
   radius: Readonly<{
     uplift: number;
@@ -93,6 +109,207 @@ function normalizeToInt8(x: number, y: number): { u: number; v: number } {
   const len = Math.sqrt(x * x + y * y);
   if (!Number.isFinite(len) || len <= 1e-9) return { u: 0, v: 0 };
   return { u: clampInt8((x / len) * 127), v: clampInt8((y / len) * 127) };
+}
+
+type MinHeapItem = Readonly<{ cost: number; plateId: number; cellId: number; seq: number }>;
+
+class MinHeap {
+  private readonly items: MinHeapItem[] = [];
+  private seq = 0;
+
+  get size(): number {
+    return this.items.length | 0;
+  }
+
+  push(value: Omit<MinHeapItem, "seq">): void {
+    const item: MinHeapItem = { ...value, seq: this.seq++ };
+    this.items.push(item);
+    this.bubbleUp((this.items.length - 1) | 0);
+  }
+
+  pop(): MinHeapItem | null {
+    const size = this.items.length | 0;
+    if (size <= 0) return null;
+    const top = this.items[0]!;
+    if (size === 1) {
+      this.items.pop();
+      return top;
+    }
+    this.items[0] = this.items.pop()!;
+    this.bubbleDown(0);
+    return top;
+  }
+
+  private bubbleUp(index: number): void {
+    let i = index | 0;
+    while (i > 0) {
+      const parent = ((i - 1) >> 1) | 0;
+      if (!this.less(this.items[i]!, this.items[parent]!)) break;
+      const tmp = this.items[i]!;
+      this.items[i] = this.items[parent]!;
+      this.items[parent] = tmp;
+      i = parent;
+    }
+  }
+
+  private bubbleDown(index: number): void {
+    let i = index | 0;
+    const size = this.items.length | 0;
+    while (true) {
+      const left = (i * 2 + 1) | 0;
+      const right = (left + 1) | 0;
+      if (left >= size) return;
+      let best = left;
+      if (right < size && this.less(this.items[right]!, this.items[left]!)) best = right;
+      if (!this.less(this.items[best]!, this.items[i]!)) return;
+      const tmp = this.items[i]!;
+      this.items[i] = this.items[best]!;
+      this.items[best] = tmp;
+      i = best;
+    }
+  }
+
+  private less(a: MinHeapItem, b: MinHeapItem): boolean {
+    if (a.cost !== b.cost) return a.cost < b.cost;
+    if (a.plateId !== b.plateId) return a.plateId < b.plateId;
+    if (a.cellId !== b.cellId) return a.cellId < b.cellId;
+    return a.seq < b.seq;
+  }
+}
+
+function computeMeanEdgeLen(mesh: PlateMembershipParams["mesh"], maxEdges = 100_000): number {
+  const cellCount = mesh.cellCount | 0;
+  let sum = 0;
+  let count = 0;
+  for (let cellId = 0; cellId < cellCount && count < maxEdges; cellId++) {
+    const ax = mesh.siteX[cellId] ?? 0;
+    const ay = mesh.siteY[cellId] ?? 0;
+    const start = mesh.neighborsOffsets[cellId] | 0;
+    const end = mesh.neighborsOffsets[cellId + 1] | 0;
+    for (let cursor = start; cursor < end && count < maxEdges; cursor++) {
+      const n = mesh.neighbors[cursor] | 0;
+      if (n <= cellId || n < 0 || n >= cellCount) continue;
+      const bx = mesh.siteX[n] ?? 0;
+      const by = mesh.siteY[n] ?? 0;
+      const dx = wrapDeltaPeriodic(bx - ax, mesh.wrapWidth);
+      const dy = by - ay;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      if (!Number.isFinite(len) || len <= 1e-9) continue;
+      sum += len;
+      count++;
+    }
+  }
+  return count > 0 ? sum / count : 1;
+}
+
+function findNearestCell(mesh: PlateMembershipParams["mesh"], x: number, y: number): number {
+  const cellCount = mesh.cellCount | 0;
+  let best = -1;
+  let bestD2 = Number.POSITIVE_INFINITY;
+  for (let cellId = 0; cellId < cellCount; cellId++) {
+    const cx = mesh.siteX[cellId] ?? 0;
+    const cy = mesh.siteY[cellId] ?? 0;
+    const dx = wrapDeltaPeriodic(cx - x, mesh.wrapWidth);
+    const dy = cy - y;
+    const d2 = dx * dx + dy * dy;
+    if (d2 < bestD2) {
+      bestD2 = d2;
+      best = cellId;
+    }
+  }
+  return best;
+}
+
+function computePlateIdByEra(params: PlateMembershipParams): ReadonlyArray<Int16Array> {
+  const cellCount = params.mesh.cellCount | 0;
+  const plateCount = params.plates.length | 0;
+  const eraCount = Math.max(0, params.eraCount | 0);
+  const driftStepsByEra = params.driftStepsByEra;
+
+  const meanEdgeLen = computeMeanEdgeLen(params.mesh);
+
+  // Use mean plate speed to normalize advection so authored driftStepsByEra controls the
+  // typical displacement scale in units of mesh neighbor steps (meanEdgeLen).
+  let meanPlateSpeed = 0;
+  for (let p = 0; p < plateCount; p++) {
+    const vx = params.plateVelocityX[p] ?? 0;
+    const vy = params.plateVelocityY[p] ?? 0;
+    meanPlateSpeed += Math.sqrt(vx * vx + vy * vy);
+  }
+  meanPlateSpeed = plateCount > 0 ? meanPlateSpeed / plateCount : 1;
+  if (!Number.isFinite(meanPlateSpeed) || meanPlateSpeed <= 1e-9) meanPlateSpeed = 1;
+
+  const result: Int16Array[] = [];
+
+  for (let era = 0; era < eraCount; era++) {
+    const driftSteps = Math.max(0, driftStepsByEra[era] ?? 0);
+    const displacement = driftSteps * meanEdgeLen;
+    const scale = displacement / meanPlateSpeed;
+
+    const seedCellsByPlate = new Int32Array(plateCount);
+    seedCellsByPlate.fill(-1);
+    for (let p = 0; p < plateCount; p++) {
+      const plate = params.plates[p]!;
+      const vx = params.plateVelocityX[p] ?? 0;
+      const vy = params.plateVelocityY[p] ?? 0;
+      const sx = (plate.seedX ?? 0) + vx * scale;
+      const sy = (plate.seedY ?? 0) + vy * scale;
+      seedCellsByPlate[p] = findNearestCell(params.mesh, sx, sy);
+    }
+
+    const dist = new Float32Array(cellCount);
+    dist.fill(Number.POSITIVE_INFINITY);
+    const owner = new Int16Array(cellCount);
+    owner.fill(-1);
+    const heap = new MinHeap();
+
+    for (let p = 0; p < plateCount; p++) {
+      const seed = seedCellsByPlate[p] ?? -1;
+      if (seed < 0 || seed >= cellCount) continue;
+      const plateId = params.plates[p]!.id | 0;
+      if (dist[seed]! === 0 && (owner[seed] ?? 32767) <= plateId) continue;
+      dist[seed] = 0;
+      owner[seed] = plateId;
+      heap.push({ cost: 0, plateId, cellId: seed });
+    }
+
+    while (heap.size > 0) {
+      const item = heap.pop();
+      if (!item) break;
+      const cellId = item.cellId | 0;
+      const plateId = item.plateId | 0;
+      const cost = item.cost;
+      if (owner[cellId] !== plateId) continue;
+      if (dist[cellId] !== cost) continue;
+
+      const ax = params.mesh.siteX[cellId] ?? 0;
+      const ay = params.mesh.siteY[cellId] ?? 0;
+      const start = params.mesh.neighborsOffsets[cellId] | 0;
+      const end = params.mesh.neighborsOffsets[cellId + 1] | 0;
+      for (let cursor = start; cursor < end; cursor++) {
+        const n = params.mesh.neighbors[cursor] | 0;
+        if (n < 0 || n >= cellCount) continue;
+        const bx = params.mesh.siteX[n] ?? 0;
+        const by = params.mesh.siteY[n] ?? 0;
+        const dx = wrapDeltaPeriodic(bx - ax, params.mesh.wrapWidth);
+        const dy = by - ay;
+        const edgeLenNorm = Math.sqrt(dx * dx + dy * dy) / meanEdgeLen;
+        if (!Number.isFinite(edgeLenNorm) || edgeLenNorm <= 0) continue;
+
+        const next = cost + edgeLenNorm;
+        const current = dist[n] ?? Number.POSITIVE_INFINITY;
+        if (next < current || (next === current && plateId < (owner[n] ?? 32767))) {
+          dist[n] = next;
+          owner[n] = plateId;
+          heap.push({ cost: next, plateId, cellId: n });
+        }
+      }
+    }
+
+    result.push(owner);
+  }
+
+  return result;
 }
 
 function chooseDriftNeighbor(params: {
@@ -736,6 +953,12 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
           mesh.cellCount | 0,
           "foundation/compute-tectonic-history"
         );
+        const plateMotion = requirePlateMotion(
+          input.plateMotion,
+          mesh.cellCount | 0,
+          plateGraph.plates.length | 0,
+          "foundation/compute-tectonic-history"
+        );
         const segments = input.segments as FoundationTectonicSegments;
 
         const events: TectonicEvent[] = [];
@@ -862,6 +1085,15 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
             })
           );
         }
+
+        const plateIdByEra = computePlateIdByEra({
+          mesh,
+          plates: plateGraph.plates,
+          plateVelocityX: plateMotion.plateVelocityX,
+          plateVelocityY: plateMotion.plateVelocityY,
+          driftStepsByEra: driftSteps,
+          eraCount,
+        });
 
         const cellCount = mesh.cellCount | 0;
         const upliftTotal = new Uint8Array(cellCount);
@@ -1174,6 +1406,7 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
               volcanism: era.volcanism,
               fracture: era.fracture,
             })),
+            plateIdByEra,
             upliftTotal,
             collisionTotal,
             subductionTotal,

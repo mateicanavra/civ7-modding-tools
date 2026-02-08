@@ -263,11 +263,11 @@ describe("m11 tectonics (segments + history)", () => {
 
     const mantleForcing = makeMantleForcing(mesh.cellCount);
     const a = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, segments },
+      { mesh, crust, mantleForcing, plateGraph, plateMotion, segments },
       computeTectonicHistory.defaultConfig
     );
     const b = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, segments },
+      { mesh, crust, mantleForcing, plateGraph, plateMotion, segments },
       computeTectonicHistory.defaultConfig
     );
 
@@ -317,7 +317,7 @@ describe("m11 tectonics (segments + history)", () => {
     };
 
     expect(() =>
-      computeTectonicHistory.run({ mesh, crust, mantleForcing, plateGraph, segments }, invalidConfig)
+      computeTectonicHistory.run({ mesh, crust, mantleForcing, plateGraph, plateMotion, segments }, invalidConfig)
     ).toThrow("[Foundation] compute-tectonic-history expects eraCount within 5..8.");
   });
 });
