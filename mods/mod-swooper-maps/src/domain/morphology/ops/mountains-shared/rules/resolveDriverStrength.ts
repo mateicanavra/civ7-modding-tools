@@ -1,6 +1,6 @@
 import { clamp01 } from "./util.js";
 
-export function resolveDriverStrength01(params: {
+export function resolveDriverStrength(params: {
   driverByte: number;
   driverSignalByteMin: number;
   driverExponent: number;
@@ -13,4 +13,3 @@ export function resolveDriverStrength01(params: {
   const exponent = Math.max(0.01, params.driverExponent);
   return Math.pow(clamp01(normalized), exponent);
 }
-

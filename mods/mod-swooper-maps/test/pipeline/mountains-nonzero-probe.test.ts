@@ -229,11 +229,11 @@ describe("pipeline: mountains nonzero canonical probe (earthlike)", () => {
       },
     };
 
-    expect(ridges?.orogenyPotential01).toBeInstanceOf(Uint8Array);
-    const maxOrogeny = maxU8(ridges.orogenyPotential01);
+    expect(ridges?.orogenyPotential).toBeInstanceOf(Uint8Array);
+    const maxOrogeny = maxU8(ridges.orogenyPotential);
     if (maxOrogeny <= 0) {
       throw new Error(
-        `Expected nonzero orogenyPotential01 on canonical probe; got max=${maxOrogeny}. beltStats=${JSON.stringify(
+        `Expected nonzero orogenyPotential on canonical probe; got max=${maxOrogeny}. beltStats=${JSON.stringify(
           beltStats
         )}`
       );

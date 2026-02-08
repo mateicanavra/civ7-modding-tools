@@ -45,7 +45,7 @@ export function computeUpliftBlend(params: {
  * Computes a raw elevation sample before edge blending and scaling.
  */
 export function computeElevationRaw(params: {
-  crustBaseElevation01: number;
+  crustBaseElevationUnit: number;
   upliftNorm: number;
   riftNorm: number;
   closenessNorm: number;
@@ -53,7 +53,7 @@ export function computeElevationRaw(params: {
   arcNoise: number;
   config: ComputeBaseTopographyTypes["config"]["default"];
 }): number {
-  const { crustBaseElevation01, upliftNorm, riftNorm, closenessNorm, noise, arcNoise, config } = params;
+  const { crustBaseElevationUnit, upliftNorm, riftNorm, closenessNorm, noise, arcNoise, config } = params;
   const upliftBlend = computeUpliftBlend({
     upliftNorm,
     closenessNorm,
@@ -62,8 +62,8 @@ export function computeElevationRaw(params: {
     clusteringBias: config.clusteringBias,
   });
   const reliefSpan = config.continentalHeight - config.oceanicHeight;
-  const crust01 = clamp(crustBaseElevation01, 0, 1);
-  const base = config.oceanicHeight + reliefSpan * crust01;
+  const crustUnit = clamp(crustBaseElevationUnit, 0, 1);
+  const base = config.oceanicHeight + reliefSpan * crustUnit;
   const boundaryBoost = config.boundaryBias * closenessNorm;
   const upliftEffect = upliftBlend * reliefSpan * 0.45;
   const riftPenalty = riftNorm * reliefSpan * 0.15;

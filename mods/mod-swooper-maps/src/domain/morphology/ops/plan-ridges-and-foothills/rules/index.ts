@@ -16,7 +16,7 @@ function clamp01(value: number): number {
   return clamp(value, 0, 1);
 }
 
-export function resolveDriverStrength01(params: {
+export function resolveDriverStrength(params: {
   driverByte: number;
   driverSignalByteMin: number;
   driverExponent: number;
@@ -118,7 +118,7 @@ export function resolveBoundaryStrength(
   return Math.pow(normalized, exponent);
 }
 
-export function computeOrogenyPotential01(params: {
+export function computeOrogenyPotential(params: {
   boundaryStrength: number;
   boundaryType: number;
   uplift: number;
@@ -142,7 +142,7 @@ export function computeOrogenyPotential01(params: {
   return clamp01(collisionSignal + transformSignal + divergenceSignal);
 }
 
-export function computeFracture01(params: {
+export function computeFracturePotential(params: {
   boundaryStrength: number;
   stress: number;
   rift: number;
@@ -178,7 +178,7 @@ export function computeMountainScore(params: {
   const transform = regime === BOUNDARY_TYPE.transform ? boundaryStrength : 0;
   const divergence = regime === BOUNDARY_TYPE.divergent ? boundaryStrength : 0;
 
-  const orogenyPotential01 = computeOrogenyPotential01({
+  const orogenyPotential = computeOrogenyPotential({
     boundaryStrength,
     boundaryType: regime,
     uplift,
@@ -192,14 +192,14 @@ export function computeMountainScore(params: {
       scaledBoundaryWeight *
       (config.mountainCollisionStressWeight * stress + config.mountainCollisionUpliftWeight * uplift) +
     uplift * scaledUpliftWeight * config.mountainInteriorUpliftScale * driverStrength +
-    fractal * config.fractalWeight * config.mountainFractalScale * orogenyPotential01;
+    fractal * config.fractalWeight * config.mountainFractalScale * orogenyPotential;
 
   if (collision > 0) {
     mountainScore +=
       collision *
       scaledConvergenceBonus *
       (config.mountainConvergenceFractalBase + fractal * config.mountainConvergenceFractalSpan) *
-      orogenyPotential01;
+      orogenyPotential;
   }
 
   if (config.interiorPenaltyWeight > 0) {
@@ -219,7 +219,8 @@ export function computeMountainScore(params: {
   }
 
   // Ensure mountains cannot appear without a meaningful tectonic driver signal.
-  return Math.max(0, mountainScore) * clamp01(driverStrength);
+  const driverGate = driverStrength > 0 ? 1 : 0;
+  return Math.max(0, mountainScore) * driverGate;
 }
 
 /**
@@ -244,7 +245,7 @@ export function computeHillScore(params: {
   const collision = regime === BOUNDARY_TYPE.convergent ? boundaryStrength : 0;
   const divergence = regime === BOUNDARY_TYPE.divergent ? boundaryStrength : 0;
 
-  const orogenyPotential01 = computeOrogenyPotential01({
+  const orogenyPotential = computeOrogenyPotential({
     boundaryStrength,
     boundaryType: regime,
     uplift,
@@ -256,7 +257,7 @@ export function computeHillScore(params: {
   const hillIntensity = Math.sqrt(boundaryStrength);
   const foothillExtent = config.hillFoothillBase + fractal * config.hillFoothillFractalGain;
   let hillScore =
-    fractal * config.fractalWeight * config.hillFractalScale * orogenyPotential01 +
+    fractal * config.fractalWeight * config.hillFractalScale * orogenyPotential +
     uplift * config.hillUpliftWeight * config.hillUpliftScale * driverStrength;
 
   if (collision > 0 && config.hillBoundaryWeight > 0) {
@@ -277,7 +278,8 @@ export function computeHillScore(params: {
     hillScore = Math.max(0, hillScore - rift * config.riftDepth * config.hillRiftDepthScale);
   }
 
-  return Math.max(0, hillScore) * clamp01(driverStrength);
+  const driverGate = driverStrength > 0 ? 1 : 0;
+  return Math.max(0, hillScore) * driverGate;
 }
 
 /**
@@ -287,6 +289,6 @@ export function normalizeRidgeFractal(value: number): number {
   return normalizeFractal(value);
 }
 
-export function encode01Byte(value01: number): number {
-  return clampByte(clamp(value01, 0, 1) * 255);
+export function encodeNormalizedToU8(valueUnit: number): number {
+  return clampByte(clamp(valueUnit, 0, 1) * 255);
 }
