@@ -5,7 +5,6 @@ import PlanAquaticAtollPlacementsContract from "./ops/plan-aquatic-atoll-placeme
 import PlanAquaticColdReefPlacementsContract from "./ops/plan-aquatic-cold-reef-placements/contract.js";
 import PlanAquaticLotusPlacementsContract from "./ops/plan-aquatic-lotus-placements/contract.js";
 import PlanAquaticReefPlacementsContract from "./ops/plan-aquatic-reef-placements/contract.js";
-import PlanIceFeaturePlacementsContract from "./ops/plan-ice-feature-placements/contract.js";
 import PlanPlotEffectsContract from "./ops/plan-plot-effects/contract.js";
 import PlanWetPlacementMarshContract from "./ops/plan-wet-placement-marsh/contract.js";
 /**
@@ -34,7 +33,6 @@ const FeaturesPlacementConfigSchema = Type.Object(
       },
       { additionalProperties: false }
     ),
-    ice: PlanIceFeaturePlacementsContract.config,
   },
   { additionalProperties: false }
 );

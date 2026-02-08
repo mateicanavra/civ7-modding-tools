@@ -16,16 +16,8 @@ import PlanAquaticLotusPlacementsContract from "./plan-aquatic-lotus-placements/
 import PlanAquaticReefPlacementsContract from "./plan-aquatic-reef-placements/contract.js";
 
 import PlanIceContract from "./features-plan-ice/contract.js";
-import PlanIceFeaturePlacementsContract from "./plan-ice-feature-placements/contract.js";
 import PlanPlotEffectsContract from "./plan-plot-effects/contract.js";
-import PlanReefEmbellishmentsReefContract from "./plan-reef-embellishments-reef/contract.js";
 import PlanReefsContract from "./features-plan-reefs/contract.js";
-
-import PlanVegetationEmbellishmentsForestDensityContract from "./plan-vegetation-embellishments-forest-density/contract.js";
-import PlanVegetationEmbellishmentsRainforestDensityContract from "./plan-vegetation-embellishments-rainforest-density/contract.js";
-import PlanVegetationEmbellishmentsTaigaDensityContract from "./plan-vegetation-embellishments-taiga-density/contract.js";
-import PlanVegetationEmbellishmentsVolcanicForestContract from "./plan-vegetation-embellishments-volcanic-forest/contract.js";
-import PlanVegetationEmbellishmentsVolcanicTaigaContract from "./plan-vegetation-embellishments-volcanic-taiga/contract.js";
 
 import PlanWetPlacementMangroveContract from "./plan-wet-placement-mangrove/contract.js";
 import PlanWetPlacementMarshContract from "./plan-wet-placement-marsh/contract.js";
@@ -59,15 +51,7 @@ export const contracts = {
   planAquaticAtollPlacements: PlanAquaticAtollPlacementsContract,
   planAquaticLotusPlacements: PlanAquaticLotusPlacementsContract,
 
-  planIceFeaturePlacements: PlanIceFeaturePlacementsContract,
   planPlotEffects: PlanPlotEffectsContract,
-  planReefEmbellishmentsReef: PlanReefEmbellishmentsReefContract,
-
-  planVegetationEmbellishmentsVolcanicForest: PlanVegetationEmbellishmentsVolcanicForestContract,
-  planVegetationEmbellishmentsVolcanicTaiga: PlanVegetationEmbellishmentsVolcanicTaigaContract,
-  planVegetationEmbellishmentsRainforestDensity: PlanVegetationEmbellishmentsRainforestDensityContract,
-  planVegetationEmbellishmentsForestDensity: PlanVegetationEmbellishmentsForestDensityContract,
-  planVegetationEmbellishmentsTaigaDensity: PlanVegetationEmbellishmentsTaigaDensityContract,
 
   planWetPlacementMarsh: PlanWetPlacementMarshContract,
   planWetPlacementTundraBog: PlanWetPlacementTundraBogContract,
@@ -103,16 +87,8 @@ export {
   PlanAquaticReefPlacementsContract,
 
   PlanIceContract,
-  PlanIceFeaturePlacementsContract,
   PlanPlotEffectsContract,
-  PlanReefEmbellishmentsReefContract,
   PlanReefsContract,
-
-  PlanVegetationEmbellishmentsForestDensityContract,
-  PlanVegetationEmbellishmentsRainforestDensityContract,
-  PlanVegetationEmbellishmentsTaigaDensityContract,
-  PlanVegetationEmbellishmentsVolcanicForestContract,
-  PlanVegetationEmbellishmentsVolcanicTaigaContract,
 
   PlanWetPlacementMangroveContract,
   PlanWetPlacementMarshContract,
