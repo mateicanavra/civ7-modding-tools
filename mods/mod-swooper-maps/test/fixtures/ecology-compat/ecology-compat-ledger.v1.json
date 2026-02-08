@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "stageIds": {
+    "truth": "ecology",
+    "projection": "map-ecology"
+  },
+  "stepIds": {
+    "ecology": [
+      "mod-swooper-maps.standard.ecology.pedology",
+      "mod-swooper-maps.standard.ecology.resource-basins",
+      "mod-swooper-maps.standard.ecology.biomes",
+      "mod-swooper-maps.standard.ecology.biome-edge-refine",
+      "mod-swooper-maps.standard.ecology.features-plan"
+    ],
+    "mapEcology": [
+      "mod-swooper-maps.standard.map-ecology.plot-biomes",
+      "mod-swooper-maps.standard.map-ecology.features-apply",
+      "mod-swooper-maps.standard.map-ecology.plot-effects"
+    ]
+  },
+  "artifactIds": {
+    "ecology": [
+      "artifact:ecology.soils",
+      "artifact:ecology.resourceBasins",
+      "artifact:ecology.biomeClassification",
+      "artifact:ecology.featureIntents"
+    ]
+  },
+  "vizKeysFixture": {
+    "version": 1,
+    "path": "test/fixtures/viz-keys/ecology-vizkeys-v1.txt"
+  },
+  "determinismLabels": ["ecology:planFeatureIntents", "ecology:planPlotEffects"]
+}
+
