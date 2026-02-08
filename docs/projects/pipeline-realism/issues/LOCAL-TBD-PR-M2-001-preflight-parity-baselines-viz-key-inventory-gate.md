@@ -107,8 +107,4 @@ Decision: use a **diff-friendly, stable text inventory** derived from the viz du
      - emit sorted unique `<dataTypeKey>|<spaceId>|<kind>`
 - CI posture: check in a baseline inventory file under test fixtures (e.g. `mods/mod-swooper-maps/test/fixtures/viz-keys/ecology-vizkeys-v1.txt`) and diff against the newly generated inventory.
 
-## Prework Prompt (Agent Brief)
-- Identify the minimal stable “viz key inventory” format we can diff in CI.
-- Expected output: a file format choice + exact command(s) to generate it.
-
----
+ 
