@@ -52,57 +52,23 @@ export const ResourceBasinsArtifactSchema = Type.Object(
 
 export type ResourceBasinsArtifact = Static<typeof ResourceBasinsArtifactSchema>;
 
-export const FeatureIntentsArtifactSchema = Type.Object(
+export const FeaturePlacementIntentSchema = Type.Object(
   {
-    vegetation: Type.Array(
-      Type.Object(
-        {
-          x: Type.Integer({ minimum: 0 }),
-          y: Type.Integer({ minimum: 0 }),
-          feature: Type.String(),
-          weight: Type.Optional(Type.Number()),
-        },
-        { additionalProperties: false }
-      )
-    ),
-    wetlands: Type.Array(
-      Type.Object(
-        {
-          x: Type.Integer({ minimum: 0 }),
-          y: Type.Integer({ minimum: 0 }),
-          feature: Type.String(),
-          weight: Type.Optional(Type.Number()),
-        },
-        { additionalProperties: false }
-      )
-    ),
-    reefs: Type.Array(
-      Type.Object(
-        {
-          x: Type.Integer({ minimum: 0 }),
-          y: Type.Integer({ minimum: 0 }),
-          feature: Type.String(),
-          weight: Type.Optional(Type.Number()),
-        },
-        { additionalProperties: false }
-      )
-    ),
-    ice: Type.Array(
-      Type.Object(
-        {
-          x: Type.Integer({ minimum: 0 }),
-          y: Type.Integer({ minimum: 0 }),
-          feature: Type.String(),
-          weight: Type.Optional(Type.Number()),
-        },
-        { additionalProperties: false }
-      )
-    ),
+    x: Type.Integer({ minimum: 0 }),
+    y: Type.Integer({ minimum: 0 }),
+    feature: Type.String(),
+    weight: Type.Optional(Type.Number()),
   },
   { additionalProperties: false }
 );
 
-export type FeatureIntentsArtifact = Static<typeof FeatureIntentsArtifactSchema>;
+export type FeaturePlacementIntent = Static<typeof FeaturePlacementIntentSchema>;
+
+export const FeatureIntentsListArtifactSchema = Type.Array(FeaturePlacementIntentSchema, {
+  additionalProperties: false,
+});
+
+export type FeatureIntentsListArtifact = Static<typeof FeatureIntentsListArtifactSchema>;
 
 export const ecologyArtifacts = {
   biomeClassification: defineArtifact({
@@ -120,9 +86,24 @@ export const ecologyArtifacts = {
     id: "artifact:ecology.resourceBasins",
     schema: ResourceBasinsArtifactSchema,
   }),
-  featureIntents: defineArtifact({
-    name: "featureIntents",
-    id: "artifact:ecology.featureIntents",
-    schema: FeatureIntentsArtifactSchema,
+  featureIntentsVegetation: defineArtifact({
+    name: "featureIntentsVegetation",
+    id: "artifact:ecology.featureIntents.vegetation",
+    schema: FeatureIntentsListArtifactSchema,
+  }),
+  featureIntentsWetlands: defineArtifact({
+    name: "featureIntentsWetlands",
+    id: "artifact:ecology.featureIntents.wetlands",
+    schema: FeatureIntentsListArtifactSchema,
+  }),
+  featureIntentsReefs: defineArtifact({
+    name: "featureIntentsReefs",
+    id: "artifact:ecology.featureIntents.reefs",
+    schema: FeatureIntentsListArtifactSchema,
+  }),
+  featureIntentsIce: defineArtifact({
+    name: "featureIntentsIce",
+    id: "artifact:ecology.featureIntents.ice",
+    schema: FeatureIntentsListArtifactSchema,
   }),
 } as const;

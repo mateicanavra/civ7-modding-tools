@@ -1,14 +1,25 @@
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import ecologyOps from "@mapgen/domain/ecology/ops";
 import { FEATURE_PLACEMENT_KEYS } from "@mapgen/domain/ecology";
 import { ecologyArtifacts } from "../../artifacts.js";
-import { validateFeatureIntentsArtifact } from "../../artifact-validation.js";
+import { validateFeatureIntentsListArtifact } from "../../artifact-validation.js";
 import FeaturesPlanStepContract from "./contract.js";
 import { computeRiverAdjacencyMaskFromRiverClass } from "../../../hydrology-hydrography/river-adjacency.js";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 
 const GROUP_FEATURE_INTENTS = "Ecology / Feature Intents";
+
+function readRulesRadius(
+  config: unknown,
+  key: "nearRiverRadius" | "isolatedRiverRadius",
+  fallback: number
+): number {
+  if (!config || typeof config !== "object") return fallback;
+  const rules = (config as Record<string, unknown>).rules;
+  if (!rules || typeof rules !== "object") return fallback;
+  const raw = (rules as Record<string, unknown>)[key];
+  return typeof raw === "number" && Number.isFinite(raw) ? raw : fallback;
+}
 
 function labelFeatureKey(key: string): string {
   const trimmed = key.replace(/^FEATURE_/, "");
@@ -61,36 +72,28 @@ function featureColor(index: number, count: number): [number, number, number, nu
 }
 
 export default createStep(FeaturesPlanStepContract, {
-  artifacts: implementArtifacts([ecologyArtifacts.featureIntents], {
-    featureIntents: {
-      validate: (value, context) => validateFeatureIntentsArtifact(value, context.dimensions),
-    },
-  }),
-  normalize: (config, ctx) => {
-    let next = config;
-
-    if (next.vegetatedFeaturePlacements) {
-      const normalize = ecologyOps.ops.planVegetatedFeaturePlacements.normalize;
-      if (typeof normalize === "function") {
-        next = {
-          ...next,
-          vegetatedFeaturePlacements: normalize(next.vegetatedFeaturePlacements, ctx),
-        };
-      }
+  artifacts: implementArtifacts(
+    [
+      ecologyArtifacts.featureIntentsVegetation,
+      ecologyArtifacts.featureIntentsWetlands,
+      ecologyArtifacts.featureIntentsReefs,
+      ecologyArtifacts.featureIntentsIce,
+    ],
+    {
+      featureIntentsVegetation: {
+        validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
+      },
+      featureIntentsWetlands: {
+        validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
+      },
+      featureIntentsReefs: {
+        validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
+      },
+      featureIntentsIce: {
+        validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
+      },
     }
-
-    if (next.wetFeaturePlacements) {
-      const normalize = ecologyOps.ops.planWetFeaturePlacements.normalize;
-      if (typeof normalize === "function") {
-        next = {
-          ...next,
-          wetFeaturePlacements: normalize(next.wetFeaturePlacements, ctx),
-        };
-      }
-    }
-
-    return next;
-  },
+  ),
   run: (context, config, ops, deps) => {
     const classification = deps.artifacts.biomeClassification.read(context);
     const pedology = deps.artifacts.pedology.read(context);
@@ -106,8 +109,11 @@ export default createStep(FeaturesPlanStepContract, {
       navigableRiverMask[i] = hydrography.riverClass[i] === 2 ? 1 : 0;
     }
 
-    const vegetationPlacements = config.vegetatedFeaturePlacements
-      ? ecologyOps.ops.planVegetatedFeaturePlacements.run(
+    const advancedVegetated = config.vegetatedFeaturePlacements;
+    const useAdvancedVegetated = advancedVegetated.strategy !== "disabled";
+
+    const vegetationPlacements = useAdvancedVegetated
+      ? ops.vegetatedFeaturePlacements(
           {
             width,
             height,
@@ -122,7 +128,7 @@ export default createStep(FeaturesPlanStepContract, {
             navigableRiverMask,
             featureKeyField: emptyFeatureKeyField(),
           },
-          config.vegetatedFeaturePlacements
+          advancedVegetated
         ).placements
       : ops.vegetation(
           {
@@ -151,8 +157,11 @@ export default createStep(FeaturesPlanStepContract, {
       config.wetlands
     );
 
-    const wetPlacements = config.wetFeaturePlacements
-      ? ecologyOps.ops.planWetFeaturePlacements.run(
+    const advancedWet = config.wetFeaturePlacements;
+    const useAdvancedWet = advancedWet.strategy !== "disabled";
+
+    const wetPlacements = useAdvancedWet
+      ? ops.wetFeaturePlacements(
           {
             width,
             height,
@@ -166,24 +175,16 @@ export default createStep(FeaturesPlanStepContract, {
               width,
               height,
               riverClass: hydrography.riverClass,
-              radius: Math.max(
-                1,
-                Math.floor(config.wetFeaturePlacements.config?.rules?.nearRiverRadius ?? 2)
-              ),
+              radius: Math.max(1, Math.floor(readRulesRadius(advancedWet.config, "nearRiverRadius", 2))),
             }),
             isolatedRiverMask: computeRiverAdjacencyMaskFromRiverClass({
               width,
               height,
               riverClass: hydrography.riverClass,
-              radius: Math.max(
-                1,
-                Math.floor(
-                  config.wetFeaturePlacements.config?.rules?.isolatedRiverRadius ?? 1
-                )
-              ),
+              radius: Math.max(1, Math.floor(readRulesRadius(advancedWet.config, "isolatedRiverRadius", 1))),
             }),
           },
-          config.wetFeaturePlacements
+          advancedWet
         ).placements
       : [];
 
@@ -208,18 +209,15 @@ export default createStep(FeaturesPlanStepContract, {
       config.ice
     );
 
-    const featureIntents = {
-      vegetation: vegetationPlacements,
-      wetlands: [...wetlandsPlan.placements, ...wetPlacements],
-      reefs: reefsPlan.placements,
-      ice: icePlan.placements,
-    };
+    const wetlandsPlacements = [...wetlandsPlan.placements, ...wetPlacements];
+    const reefsPlacements = reefsPlan.placements;
+    const icePlacements = icePlan.placements;
 
     const allPlacements = [
-      ...featureIntents.vegetation,
-      ...featureIntents.wetlands,
-      ...featureIntents.reefs,
-      ...featureIntents.ice,
+      ...vegetationPlacements,
+      ...wetlandsPlacements,
+      ...reefsPlacements,
+      ...icePlacements,
     ];
     if (allPlacements.length > 0) {
       const knownKeys = new Set(FEATURE_PLACEMENT_KEYS);
@@ -264,6 +262,9 @@ export default createStep(FeaturesPlanStepContract, {
       });
     }
 
-    deps.artifacts.featureIntents.publish(context, featureIntents);
+    deps.artifacts.featureIntentsVegetation.publish(context, vegetationPlacements);
+    deps.artifacts.featureIntentsWetlands.publish(context, wetlandsPlacements);
+    deps.artifacts.featureIntentsReefs.publish(context, reefsPlacements);
+    deps.artifacts.featureIntentsIce.publish(context, icePlacements);
   },
 });

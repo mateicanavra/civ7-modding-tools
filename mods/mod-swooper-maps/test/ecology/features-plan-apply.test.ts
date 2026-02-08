@@ -42,13 +42,21 @@ describe("features plan/apply pipeline", () => {
       }),
       reefs: normalizeOpSelectionOrThrow(ecology.ops.planReefs, { strategy: "default", config: {} }),
       ice: normalizeOpSelectionOrThrow(ecology.ops.planIce, { strategy: "default", config: {} }),
+      vegetatedFeaturePlacements: normalizeOpSelectionOrThrow(ecology.ops.planVegetatedFeaturePlacements, {
+        strategy: "disabled",
+        config: {},
+      }),
+      wetFeaturePlacements: normalizeOpSelectionOrThrow(ecology.ops.planWetFeaturePlacements, {
+        strategy: "disabled",
+        config: {},
+      }),
     };
     const planOps = ecology.ops.bind(featuresPlanStep.contract.ops!).runtime;
     featuresPlanStep.run(ctx, planConfig, planOps, buildTestDeps(featuresPlanStep));
 
-    const intents = ctx.artifacts.get(ecologyArtifacts.featureIntents.id);
-    expect(intents).toBeTruthy();
-    expect(intents?.vegetation.length).toBeGreaterThanOrEqual(0);
+    const vegetationIntents = ctx.artifacts.get(ecologyArtifacts.featureIntentsVegetation.id);
+    expect(vegetationIntents).toBeTruthy();
+    expect(Array.isArray(vegetationIntents)).toBe(true);
 
     const applyConfig = {
       apply: normalizeOpSelectionOrThrow(ecology.ops.applyFeatures, { strategy: "default", config: {} }),

@@ -1,7 +1,7 @@
 import type { MapDimensions } from "@civ7/adapter";
 import type {
   BiomeClassificationArtifact,
-  FeatureIntentsArtifact,
+  FeatureIntentsListArtifact,
   PedologyArtifact,
   ResourceBasinsArtifact,
 } from "./artifacts.js";
@@ -79,15 +79,8 @@ function isResourceBasinsArtifact(value: unknown): value is ResourceBasinsArtifa
   );
 }
 
-function isFeatureIntentsArtifact(value: unknown): value is FeatureIntentsArtifact {
-  if (!value || typeof value !== "object") return false;
-  const candidate = value as FeatureIntentsArtifact;
-  return (
-    Array.isArray(candidate.vegetation) &&
-    Array.isArray(candidate.wetlands) &&
-    Array.isArray(candidate.reefs) &&
-    Array.isArray(candidate.ice)
-  );
+function isFeatureIntentsListArtifact(value: unknown): value is FeatureIntentsListArtifact {
+  return Array.isArray(value);
 }
 
 export function validateBiomeClassificationArtifact(
@@ -146,12 +139,12 @@ export function validateResourceBasinsArtifact(
   return errors;
 }
 
-export function validateFeatureIntentsArtifact(
+export function validateFeatureIntentsListArtifact(
   value: unknown,
   _dimensions: MapDimensions
 ): ArtifactValidationIssue[] {
   const errors: ArtifactValidationIssue[] = [];
-  if (!isFeatureIntentsArtifact(value)) {
+  if (!isFeatureIntentsListArtifact(value)) {
     errors.push({ message: "Invalid feature intents artifact payload." });
     return errors;
   }

@@ -1,43 +1,8 @@
-import { Type, defineStep, type Static, type TSchema } from "@swooper/mapgen-core/authoring";
+import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import ecology from "@mapgen/domain/ecology";
 import { ecologyArtifacts } from "../../artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts.js";
 import { morphologyArtifacts } from "../../../morphology/artifacts.js";
-
-function createOpSelectionSchema<Selection>(op: { id: string; strategies: Record<string, TSchema> }) {
-  const strategyIds = Object.keys(op.strategies);
-  if (strategyIds.length === 0) {
-    throw new Error(`op(${op.id}) missing strategies`);
-  }
-
-  return Type.Unsafe<Selection>(
-    Type.Union(
-      strategyIds.map((id) =>
-        Type.Object(
-          {
-            strategy: Type.Literal(id),
-            config: op.strategies[id]!,
-          },
-          { additionalProperties: false }
-        )
-      ) as any
-    )
-  );
-}
-
-type VegetatedFeaturePlacementsSelection = Static<
-  (typeof ecology.ops.planVegetatedFeaturePlacements)["config"]
->;
-type WetFeaturePlacementsSelection = Static<(typeof ecology.ops.planWetFeaturePlacements)["config"]>;
-
-const VegetatedFeaturePlacementsSelectionSchema =
-  createOpSelectionSchema<VegetatedFeaturePlacementsSelection>(
-    ecology.ops.planVegetatedFeaturePlacements
-  );
-
-const WetFeaturePlacementsSelectionSchema = createOpSelectionSchema<WetFeaturePlacementsSelection>(
-  ecology.ops.planWetFeaturePlacements
-);
 
 const FeaturesPlanStepContract = defineStep({
   id: "features-plan",
@@ -51,22 +16,30 @@ const FeaturesPlanStepContract = defineStep({
       hydrologyHydrographyArtifacts.hydrography,
       morphologyArtifacts.topography,
     ],
-    provides: [ecologyArtifacts.featureIntents],
+    provides: [
+      ecologyArtifacts.featureIntentsVegetation,
+      ecologyArtifacts.featureIntentsWetlands,
+      ecologyArtifacts.featureIntentsReefs,
+      ecologyArtifacts.featureIntentsIce,
+    ],
   },
   ops: {
     vegetation: ecology.ops.planVegetation,
     wetlands: ecology.ops.planWetlands,
     reefs: ecology.ops.planReefs,
     ice: ecology.ops.planIce,
+    vegetatedFeaturePlacements: {
+      contract: ecology.ops.planVegetatedFeaturePlacements,
+      defaultStrategy: "disabled",
+    },
+    wetFeaturePlacements: {
+      contract: ecology.ops.planWetFeaturePlacements,
+      defaultStrategy: "disabled",
+    },
   },
   schema: Type.Object(
-    {
-      vegetatedFeaturePlacements: Type.Optional(VegetatedFeaturePlacementsSelectionSchema),
-      wetFeaturePlacements: Type.Optional(WetFeaturePlacementsSelectionSchema),
-    },
-    {
-      description: "Configuration for planning vegetation, wetlands, reefs, and ice features.",
-    }
+    {},
+    { additionalProperties: false, description: "Configuration for planning ecology features." }
   ),
 });
 

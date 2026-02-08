@@ -100,6 +100,13 @@ const PlanVegetatedFeaturePlacementsContract = defineOp({
     placements: Type.Array(VegetatedPlacementSchema),
   }),
   strategies: {
+    disabled: Type.Object(
+      {},
+      {
+        additionalProperties: false,
+        description: "Disabled planner (returns no placements).",
+      }
+    ),
     default: Type.Object({
       multiplier: Type.Number({
         description: "Scalar multiplier applied to all per-feature chances (0..2 typical).",

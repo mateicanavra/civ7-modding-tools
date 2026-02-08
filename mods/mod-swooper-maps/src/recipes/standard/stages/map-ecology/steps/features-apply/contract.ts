@@ -9,7 +9,12 @@ const FeaturesApplyStepContract = defineStep({
   requires: [],
   provides: [M3_DEPENDENCY_TAGS.field.featureType, M4_EFFECT_TAGS.engine.featuresApplied],
   artifacts: {
-    requires: [ecologyArtifacts.featureIntents],
+    requires: [
+      ecologyArtifacts.featureIntentsVegetation,
+      ecologyArtifacts.featureIntentsWetlands,
+      ecologyArtifacts.featureIntentsReefs,
+      ecologyArtifacts.featureIntentsIce,
+    ],
   },
   ops: {
     apply: ecology.ops.applyFeatures,
