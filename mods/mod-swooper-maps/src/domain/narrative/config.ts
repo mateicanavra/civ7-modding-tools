@@ -1,5 +1,4 @@
 import { Type, type Static } from "@swooper/mapgen-core/authoring";
-import { EcologyConfigSchema } from "@mapgen/domain/ecology/config.js";
 
 /**
  * Hotspot tuning used by story overlays.
@@ -221,8 +220,6 @@ const StoryConfigSchema = Type.Object(
     rift: Type.Optional(RiftTunablesSchema),
     /** Orogeny belt climate modifiers. */
     orogeny: Type.Optional(OrogenyTunablesSchema),
-    /** Localized feature bonuses around story elements. */
-    features: Type.Optional(EcologyConfigSchema.properties.features),
   },
   { additionalProperties: false }
 );

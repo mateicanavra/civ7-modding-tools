@@ -67,12 +67,10 @@ Ecology domain ops used by the standard recipe are split along the target archit
   - `planResourceBasins`, `scoreResourceBasins`
   - `classifyBiomes`, `refineBiomeEdges`
 - Feature intent planners (truth stage, owned by the `features-plan` step):
-  - Atomic vegetation intent planners: `planVegetationForest`, `planVegetationRainforest`, `planVegetationTaiga`, `planVegetationSavannaWoodland`, `planVegetationSagebrushSteppe`
+  - Vegetation signals (compute) used by step-owned picking: `computeVegetationSubstrate`, `scoreVegetation*`
   - Other intent planners: `planWetlands`, `planReefs`, `planIce`
 - Atomic per-feature placement planners (truth stage, disabled-by-default; see config posture):
-  - Vegetated placements: `planVegetatedPlacement*`
   - Wet placements: `planWetPlacement*`
-  - Aquatic placements: `planAquatic*Placements`
 - Projection ops (projection stage `map-ecology`):
   - `applyFeatures`
   - `planPlotEffects`
@@ -87,7 +85,6 @@ Current posture in the standard recipe:
 - knobs are present but currently empty at the stage level.
 
 Key contract point: the `ecology` stage exposes a curated public config surface for `featuresPlan`, but does *not* expose internal per-feature op envelope keys. The stage `compile` function translates:
-- public `featuresPlan.vegetatedFeaturePlacements` to internal per-feature selections (`vegetatedPlacementForest`, `vegetatedPlacementRainforest`, ...)
 - public `featuresPlan.wetFeaturePlacements` to internal per-feature selections (`wetPlacementMarsh`, `wetPlacementTundraBog`, ...)
 
 The internal atomic per-feature planners are declared in the `features-plan` step `contract.ops` with disabled-by-default posture so compiler prefill cannot accidentally turn them on when the public keys are omitted.
