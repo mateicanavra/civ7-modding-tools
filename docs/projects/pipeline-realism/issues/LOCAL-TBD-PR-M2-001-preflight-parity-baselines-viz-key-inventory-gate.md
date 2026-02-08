@@ -88,6 +88,25 @@ files:
 - `$SPIKE/HARDENING.md`
 - `$SPIKE/DECKGL-VIZ.md`
 
+### Prework Results (Resolved)
+
+Decision: use a **diff-friendly, stable text inventory** derived from the viz dump `manifest.json`.
+
+- Inventory format: newline-delimited UTF-8 text, sorted, one entry per unique key:
+  - `<dataTypeKey>|<spaceId>|<kind>`
+- Include prefixes (Ecology surface area per `$SPIKE/DECKGL-VIZ.md`):
+  - `ecology.`
+  - `map.ecology.`
+  - `debug.heightfield.`
+- Baseline generation (fixed seed, deterministic):
+  1. Produce a run dir:
+     - `bun --cwd mods/mod-swooper-maps run diag:dump -- 106 66 1337 --label ecology-vizkeys-baseline`
+  2. Extract keys from `<runDir>/manifest.json` (example; implement as a tiny script in `LOCAL-TBD-PR-M2-001`):
+     - read `manifest.layers[]`
+     - filter by prefixes above
+     - emit sorted unique `<dataTypeKey>|<spaceId>|<kind>`
+- CI posture: check in a baseline inventory file under test fixtures (e.g. `mods/mod-swooper-maps/test/fixtures/viz-keys/ecology-vizkeys-v1.txt`) and diff against the newly generated inventory.
+
 ## Prework Prompt (Agent Brief)
 - Identify the minimal stable “viz key inventory” format we can diff in CI.
 - Expected output: a file format choice + exact command(s) to generate it.
