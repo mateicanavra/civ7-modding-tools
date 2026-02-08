@@ -1,4 +1,4 @@
-import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
+import { Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 import type { BiomeSymbol, FeatureKey } from "@mapgen/domain/ecology/types.js";
 
@@ -71,9 +71,7 @@ const VegetatedPlacementSchema = Type.Object({
   feature: VegetatedFeatureKeySchema,
 });
 
-const PlanVegetatedFeaturePlacementsContract = defineOp({
-  kind: "plan",
-  id: "ecology/features/vegetated-placement",
+export const VegetatedFeaturePlacementsContractParts = {
   input: Type.Object({
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -117,6 +115,4 @@ const PlanVegetatedFeaturePlacementsContract = defineOp({
       rules: VegetatedRulesSchema,
     }),
   },
-});
-
-export default PlanVegetatedFeaturePlacementsContract;
+} as const;

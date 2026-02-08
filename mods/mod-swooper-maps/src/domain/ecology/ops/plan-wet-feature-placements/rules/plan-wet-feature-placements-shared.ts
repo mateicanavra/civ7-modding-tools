@@ -7,12 +7,19 @@ import {
   type FeatureKey,
 } from "@mapgen/domain/ecology/types.js";
 
-import PlanWetFeaturePlacementsContract from "../contract.js";
+import { WetFeaturePlacementsContractParts } from "../contract.js";
 import { hasAdjacentFeatureType, isCoastalLand } from "./adjacency.js";
 
-type Config = Static<(typeof PlanWetFeaturePlacementsContract)["strategies"]["default"]>;
-type Input = Static<(typeof PlanWetFeaturePlacementsContract)["input"]>;
-type Placement = Static<(typeof PlanWetFeaturePlacementsContract)["output"]>["placements"][number];
+type Config = Static<(typeof WetFeaturePlacementsContractParts)["strategies"]["default"]>;
+type Input = Static<(typeof WetFeaturePlacementsContractParts)["input"]>;
+type Placement = Static<
+  (typeof WetFeaturePlacementsContractParts)["output"]
+>["placements"][number];
+
+export type WetFeaturePlacementsPlanArgs = Readonly<{
+  input: Input;
+  config: Config;
+}>;
 
 const NO_FEATURE = -1;
 
@@ -23,7 +30,7 @@ type WetFeatureKey =
   | "FEATURE_OASIS"
   | "FEATURE_WATERING_HOLE";
 
-export function planWetFeaturePlacementsForFeature(args: {
+export function planWetFeaturePlacementsShared(args: {
   input: Input;
   config: Config;
   featureKey: WetFeatureKey;

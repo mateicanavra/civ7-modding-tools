@@ -1,9 +1,9 @@
 import { clamp01, clampChance } from "@swooper/mapgen-core";
 import { type Static } from "@swooper/mapgen-core/authoring";
 
-import PlanVegetatedFeaturePlacementsContract from "../contract.js";
+import { VegetatedFeaturePlacementsContractParts } from "../contract.js";
 
-type Config = Static<(typeof PlanVegetatedFeaturePlacementsContract)["strategies"]["default"]>;
+type Config = Static<(typeof VegetatedFeaturePlacementsContractParts)["strategies"]["default"]>;
 
 export function normalizeVegetatedFeaturePlacementsConfig(config: Config): Config {
   const rules = config.rules;
@@ -40,4 +40,3 @@ export function normalizeVegetatedFeaturePlacementsConfig(config: Config): Confi
     },
   };
 }
-

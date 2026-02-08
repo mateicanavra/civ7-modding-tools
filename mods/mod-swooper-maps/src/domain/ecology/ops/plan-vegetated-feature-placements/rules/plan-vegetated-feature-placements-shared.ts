@@ -48,9 +48,14 @@ type VegetatedPlacementConfig = Readonly<{
   }>;
 }>;
 
+export type VegetatedFeaturePlacementsPlanArgs = Readonly<{
+  input: VegetatedPlacementInput;
+  config: VegetatedPlacementConfig;
+}>;
+
 const NO_FEATURE = -1;
 
-export function planVegetatedFeaturePlacementsForFeature(args: {
+export function planVegetatedFeaturePlacementsShared(args: {
   input: VegetatedPlacementInput;
   config: VegetatedPlacementConfig;
   featureKey: VegetatedFeatureKey;
@@ -133,3 +138,4 @@ export function planVegetatedFeaturePlacementsForFeature(args: {
 
   return { placements };
 }
+

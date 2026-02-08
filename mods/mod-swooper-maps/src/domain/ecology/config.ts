@@ -8,7 +8,7 @@ import PlanAquaticReefPlacementsContract from "./ops/plan-aquatic-reef-placement
 import PlanIceFeaturePlacementsContract from "./ops/plan-ice-feature-placements/contract.js";
 import PlanPlotEffectsContract from "./ops/plan-plot-effects/contract.js";
 import PlanVegetatedPlacementForestContract from "./ops/plan-vegetated-placement-forest/contract.js";
-import PlanWetFeaturePlacementsContract from "./ops/plan-wet-feature-placements/contract.js";
+import PlanWetPlacementMarshContract from "./ops/plan-wet-placement-marsh/contract.js";
 /**
  * Biome classification config (Holdridge/Whittaker-inspired).
  * Sourced from the ecology domain operation to keep schema + logic colocated.
@@ -26,7 +26,7 @@ const BiomeBindingsSchema = BiomeEngineBindingsSchema;
 const FeaturesPlacementConfigSchema = Type.Object(
   {
     vegetated: PlanVegetatedPlacementForestContract.config,
-    wet: PlanWetFeaturePlacementsContract.config,
+    wet: PlanWetPlacementMarshContract.config,
     aquatic: Type.Object(
       {
         reef: PlanAquaticReefPlacementsContract.config,

@@ -79,18 +79,111 @@ const collectLandElevations = (input: PlotEffectsInput): number[] => {
   return elevations;
 };
 
-const resolveSnowElevationRange = (input: PlotEffectsInput, config: any) => {
+type SnowResolvedConfig = {
+  enabled: boolean;
+  selectors: {
+    light: { typeName: string };
+    medium: { typeName: string };
+    heavy: { typeName: string };
+  };
+  elevationStrategy: "percentile" | "absolute";
+  elevationPercentileMin: number;
+  elevationPercentileMax: number;
+  elevationMin: number;
+  elevationMax: number;
+  moistureMin: number;
+  moistureMax: number;
+  freezeWeight: number;
+  elevationWeight: number;
+  moistureWeight: number;
+  scoreBias: number;
+  scoreNormalization: number;
+  maxTemperature: number;
+  maxAridity: number;
+  lightThreshold: number;
+  mediumThreshold: number;
+  heavyThreshold: number;
+  coverageChance: number;
+};
+
+type PlotEffectsResolvedConfig = {
+  snow: SnowResolvedConfig;
+};
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== "object") return null;
+  return value as Record<string, unknown>;
+}
+
+function asBoolean(value: unknown, fallback: boolean): boolean {
+  return typeof value === "boolean" ? value : fallback;
+}
+
+function asNumber(value: unknown, fallback: number): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) return fallback;
+  return value;
+}
+
+function asString(value: unknown, fallback: string): string {
+  return typeof value === "string" ? value : fallback;
+}
+
+function resolvePlotEffectsConfig(config: unknown): PlotEffectsResolvedConfig | null {
+  const root = asRecord(config);
+  const snowRaw = root ? asRecord(root.snow) : null;
+  if (!snowRaw) return null;
+
+  const selectorsRaw = asRecord(snowRaw.selectors);
+  const lightRaw = selectorsRaw ? asRecord(selectorsRaw.light) : null;
+  const mediumRaw = selectorsRaw ? asRecord(selectorsRaw.medium) : null;
+  const heavyRaw = selectorsRaw ? asRecord(selectorsRaw.heavy) : null;
+
+  const elevationStrategyRaw = asString(snowRaw.elevationStrategy, "absolute");
+  const elevationStrategy =
+    elevationStrategyRaw === "percentile" ? "percentile" : "absolute";
+
+  return {
+    snow: {
+      enabled: asBoolean(snowRaw.enabled, false),
+      selectors: {
+        light: { typeName: asString(lightRaw?.typeName, "light") },
+        medium: { typeName: asString(mediumRaw?.typeName, "medium") },
+        heavy: { typeName: asString(heavyRaw?.typeName, "heavy") },
+      },
+      elevationStrategy,
+      elevationPercentileMin: asNumber(snowRaw.elevationPercentileMin, 0),
+      elevationPercentileMax: asNumber(snowRaw.elevationPercentileMax, 1),
+      elevationMin: asNumber(snowRaw.elevationMin, 0),
+      elevationMax: asNumber(snowRaw.elevationMax, 0),
+      moistureMin: asNumber(snowRaw.moistureMin, 0),
+      moistureMax: asNumber(snowRaw.moistureMax, 0),
+      freezeWeight: asNumber(snowRaw.freezeWeight, 0),
+      elevationWeight: asNumber(snowRaw.elevationWeight, 0),
+      moistureWeight: asNumber(snowRaw.moistureWeight, 0),
+      scoreBias: asNumber(snowRaw.scoreBias, 0),
+      scoreNormalization: asNumber(snowRaw.scoreNormalization, 1),
+      maxTemperature: asNumber(snowRaw.maxTemperature, 0),
+      maxAridity: asNumber(snowRaw.maxAridity, 0),
+      lightThreshold: asNumber(snowRaw.lightThreshold, 0),
+      mediumThreshold: asNumber(snowRaw.mediumThreshold, 0),
+      heavyThreshold: asNumber(snowRaw.heavyThreshold, 0),
+      coverageChance: asNumber(snowRaw.coverageChance, 0),
+    },
+  };
+}
+
+const resolveSnowElevationRange = (input: PlotEffectsInput, snow: SnowResolvedConfig) => {
   const elevations = collectLandElevations(input);
   const sorted = elevations.slice().sort((a, b) => a - b);
   const stats = computeSnowElevationStats(sorted);
 
-  if (config.snow.elevationStrategy === "percentile") {
-    const minPercentile = clamp01(config.snow.elevationPercentileMin);
-    const maxPercentile = clamp01(config.snow.elevationPercentileMax);
+  if (snow.elevationStrategy === "percentile") {
+    const minPercentile = clamp01(snow.elevationPercentileMin);
+    const maxPercentile = clamp01(snow.elevationPercentileMax);
     const min =
-      sorted.length > 0 ? pickPercentile(sorted, minPercentile) : config.snow.elevationMin;
+      sorted.length > 0 ? pickPercentile(sorted, minPercentile) : snow.elevationMin;
     const max =
-      sorted.length > 0 ? pickPercentile(sorted, maxPercentile) : config.snow.elevationMax;
+      sorted.length > 0 ? pickPercentile(sorted, maxPercentile) : snow.elevationMax;
 
     return {
       strategy: "percentile",
@@ -106,8 +199,8 @@ const resolveSnowElevationRange = (input: PlotEffectsInput, config: any) => {
 
   return {
     strategy: "absolute",
-    min: config.snow.elevationMin,
-    max: config.snow.elevationMax,
+    min: snow.elevationMin,
+    max: snow.elevationMax,
     stats,
   };
 };
@@ -147,7 +240,8 @@ export function logSnowEligibilitySummary(
 ): void {
   if (!trace?.isVerbose) return;
 
-  const resolved = config as any;
+  const resolved = resolvePlotEffectsConfig(config);
+  if (!resolved) return;
 
   if (!resolved.snow.enabled) {
     devLogJson(trace, "snow summary", {
@@ -168,7 +262,7 @@ export function logSnowEligibilitySummary(
   const bucketHill = createBucket();
   const bucketFlat = createBucket();
 
-  const snowElevation = resolveSnowElevationRange(input, resolved);
+  const snowElevation = resolveSnowElevationRange(input, resolved.snow);
   const elevationMin = snowElevation.min;
   const elevationMax = snowElevation.max;
 

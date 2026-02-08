@@ -19,7 +19,7 @@ type VegetatedPlacementConfig = Static<
   typeof ecology.ops.planVegetatedPlacementForest.strategies.default.config
 >;
 type WetPlacementConfig = Static<
-  typeof ecology.ops.planWetFeaturePlacements.strategies.default.config
+  typeof ecology.ops.planWetPlacementMarsh.strategies.default.config
 >;
 type AquaticReefConfig = Static<
   typeof ecology.ops.planAquaticReefPlacements.strategies.default.config
@@ -60,7 +60,7 @@ export function buildFeaturesPlacementConfig(overrides: FeaturesPlacementOverrid
       strategy: "default",
       config: overrides.vegetated ?? {},
     }),
-    wet: normalizeOpSelectionOrThrow(ecology.ops.planWetFeaturePlacements, {
+    wet: normalizeOpSelectionOrThrow(ecology.ops.planWetPlacementMarsh, {
       strategy: "default",
       config: overrides.wet ?? {},
     }),
@@ -274,31 +274,66 @@ export function runOwnedFeaturePlacements(options: {
   ];
   vegetationPlacements.sort((a, b) => (a.y * width + a.x) - (b.y * width + b.x));
 
-  const wetlands = ecology.ops.planWetFeaturePlacements.run(
-    {
+  const wetFeatureKeyField = featureKeyField.slice();
+  const wetInputBase = {
+    width,
+    height,
+    seed,
+    biomeIndex: classification.biomeIndex,
+    surfaceTemperature: classification.surfaceTemperature,
+    landMask,
+    navigableRiverMask,
+    featureKeyField: wetFeatureKeyField,
+    nearRiverMask: buildRiverAdjacencyMask({
       width,
       height,
-      seed,
-      biomeIndex: classification.biomeIndex,
-      surfaceTemperature: classification.surfaceTemperature,
-      landMask,
       navigableRiverMask,
-      featureKeyField: featureKeyField.slice(),
-      nearRiverMask: buildRiverAdjacencyMask({
-        width,
-        height,
-        navigableRiverMask,
-        radius: nearRadius,
-      }),
-      isolatedRiverMask: buildRiverAdjacencyMask({
-        width,
-        height,
-        navigableRiverMask,
-        radius: isolatedRadius,
-      }),
-    },
-    placements.wet
-  );
+      radius: nearRadius,
+    }),
+    isolatedRiverMask: buildRiverAdjacencyMask({
+      width,
+      height,
+      navigableRiverMask,
+      radius: isolatedRadius,
+    }),
+  };
+
+  const applyWetPlacements = (placements: Array<{ x: number; y: number; feature: FeatureKey }>) =>
+    applyPlannedPlacementsToField({ width, featureKeyField: wetFeatureKeyField, placements });
+
+  const wetSelectionInput = {
+    strategy: placements.wet.strategy,
+    config: placements.wet.config,
+  } as const;
+
+  const marshPlacements = ecology.ops.planWetPlacementMarsh.run(wetInputBase, placements.wet).placements;
+  applyWetPlacements(marshPlacements);
+
+  const tundraBogSelection = normalizeOpSelectionOrThrow(ecology.ops.planWetPlacementTundraBog, wetSelectionInput);
+  const tundraBogPlacements = ecology.ops.planWetPlacementTundraBog.run(wetInputBase, tundraBogSelection).placements;
+  applyWetPlacements(tundraBogPlacements);
+
+  const riverWetPlacements = [...marshPlacements, ...tundraBogPlacements];
+  riverWetPlacements.sort((a, b) => (a.y * width + a.x) - (b.y * width + b.x));
+
+  const mangroveSelection = normalizeOpSelectionOrThrow(ecology.ops.planWetPlacementMangrove, wetSelectionInput);
+  const mangrovePlacements = ecology.ops.planWetPlacementMangrove.run(wetInputBase, mangroveSelection).placements;
+  applyWetPlacements(mangrovePlacements);
+
+  const oasisSelection = normalizeOpSelectionOrThrow(ecology.ops.planWetPlacementOasis, wetSelectionInput);
+  const oasisPlacements = ecology.ops.planWetPlacementOasis.run(wetInputBase, oasisSelection).placements;
+  applyWetPlacements(oasisPlacements);
+
+  const wateringHoleSelection = normalizeOpSelectionOrThrow(ecology.ops.planWetPlacementWateringHole, wetSelectionInput);
+  const wateringHolePlacements = ecology.ops.planWetPlacementWateringHole.run(wetInputBase, wateringHoleSelection).placements;
+  applyWetPlacements(wateringHolePlacements);
+
+  const isolatedWetPlacements = [...oasisPlacements, ...wateringHolePlacements];
+  isolatedWetPlacements.sort((a, b) => (a.y * width + a.x) - (b.y * width + b.x));
+
+  const wetlands = {
+    placements: [...riverWetPlacements, ...mangrovePlacements, ...isolatedWetPlacements],
+  };
 
   const warmReefs = ecology.ops.planAquaticReefPlacements.run(
     {

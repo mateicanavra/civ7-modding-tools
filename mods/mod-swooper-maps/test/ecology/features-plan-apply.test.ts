@@ -78,7 +78,23 @@ describe("features plan/apply pipeline", () => {
         strategy: "disabled",
         config: {},
       }),
-      wetFeaturePlacements: normalizeOpSelectionOrThrow(ecology.ops.planWetFeaturePlacements, {
+      wetPlacementMarsh: normalizeOpSelectionOrThrow(ecology.ops.planWetPlacementMarsh, {
+        strategy: "disabled",
+        config: {},
+      }),
+      wetPlacementTundraBog: normalizeOpSelectionOrThrow(ecology.ops.planWetPlacementTundraBog, {
+        strategy: "disabled",
+        config: {},
+      }),
+      wetPlacementMangrove: normalizeOpSelectionOrThrow(ecology.ops.planWetPlacementMangrove, {
+        strategy: "disabled",
+        config: {},
+      }),
+      wetPlacementOasis: normalizeOpSelectionOrThrow(ecology.ops.planWetPlacementOasis, {
+        strategy: "disabled",
+        config: {},
+      }),
+      wetPlacementWateringHole: normalizeOpSelectionOrThrow(ecology.ops.planWetPlacementWateringHole, {
         strategy: "disabled",
         config: {},
       }),

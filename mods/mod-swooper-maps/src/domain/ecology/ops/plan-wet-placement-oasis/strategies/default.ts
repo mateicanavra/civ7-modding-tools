@@ -3,12 +3,10 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 import PlanWetPlacementOasisContract from "../contract.js";
 import {
   normalizeWetFeaturePlacementsConfig,
-  planWetFeaturePlacementsForFeature,
+  planWetFeaturePlacementsForOasis,
 } from "../../plan-wet-feature-placements/rules/index.js";
 
 export const defaultStrategy = createStrategy(PlanWetPlacementOasisContract, "default", {
   normalize: (config) => normalizeWetFeaturePlacementsConfig(config),
-  run: (input, config) =>
-    planWetFeaturePlacementsForFeature({ input, config, featureKey: "FEATURE_OASIS" }),
+  run: (input, config) => planWetFeaturePlacementsForOasis({ input, config }),
 });
-

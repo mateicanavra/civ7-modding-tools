@@ -33,7 +33,6 @@ import PlanVegetationEmbellishmentsTaigaDensityContract from "./plan-vegetation-
 import PlanVegetationEmbellishmentsVolcanicForestContract from "./plan-vegetation-embellishments-volcanic-forest/contract.js";
 import PlanVegetationEmbellishmentsVolcanicTaigaContract from "./plan-vegetation-embellishments-volcanic-taiga/contract.js";
 
-import PlanWetFeaturePlacementsContract from "./plan-wet-feature-placements/contract.js";
 import PlanWetPlacementMangroveContract from "./plan-wet-placement-mangrove/contract.js";
 import PlanWetPlacementMarshContract from "./plan-wet-placement-marsh/contract.js";
 import PlanWetPlacementOasisContract from "./plan-wet-placement-oasis/contract.js";
@@ -76,7 +75,6 @@ export const contracts = {
   planVegetationEmbellishmentsForestDensity: PlanVegetationEmbellishmentsForestDensityContract,
   planVegetationEmbellishmentsTaigaDensity: PlanVegetationEmbellishmentsTaigaDensityContract,
 
-  planWetFeaturePlacements: PlanWetFeaturePlacementsContract,
   planWetPlacementMarsh: PlanWetPlacementMarshContract,
   planWetPlacementTundraBog: PlanWetPlacementTundraBogContract,
   planWetPlacementMangrove: PlanWetPlacementMangroveContract,
@@ -133,7 +131,6 @@ export {
   PlanVegetationEmbellishmentsVolcanicForestContract,
   PlanVegetationEmbellishmentsVolcanicTaigaContract,
 
-  PlanWetFeaturePlacementsContract,
   PlanWetPlacementMangroveContract,
   PlanWetPlacementMarshContract,
   PlanWetPlacementOasisContract,
@@ -145,6 +142,3 @@ export {
   ResourcePlanBasinsContract,
   ResourceScoreBalanceContract,
 };
-
-export type { PlanWetFeaturePlacementsTypes } from "./plan-wet-feature-placements/types.js";
-

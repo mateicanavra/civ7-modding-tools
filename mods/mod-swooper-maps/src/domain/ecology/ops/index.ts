@@ -42,7 +42,6 @@ import planVegetationEmbellishmentsTaigaDensity from "./plan-vegetation-embellis
 import planVegetationEmbellishmentsVolcanicForest from "./plan-vegetation-embellishments-volcanic-forest/index.js";
 import planVegetationEmbellishmentsVolcanicTaiga from "./plan-vegetation-embellishments-volcanic-taiga/index.js";
 
-import planWetFeaturePlacements from "./plan-wet-feature-placements/index.js";
 import planWetPlacementMangrove from "./plan-wet-placement-mangrove/index.js";
 import planWetPlacementMarsh from "./plan-wet-placement-marsh/index.js";
 import planWetPlacementOasis from "./plan-wet-placement-oasis/index.js";
@@ -80,7 +79,6 @@ const implementations = {
   planVegetationEmbellishmentsForestDensity,
   planVegetationEmbellishmentsTaigaDensity,
 
-  planWetFeaturePlacements,
   planWetPlacementMarsh,
   planWetPlacementTundraBog,
   planWetPlacementMangrove,
@@ -143,11 +141,9 @@ export {
   planVegetationEmbellishmentsForestDensity,
   planVegetationEmbellishmentsTaigaDensity,
 
-  planWetFeaturePlacements,
   planWetPlacementMarsh,
   planWetPlacementTundraBog,
   planWetPlacementMangrove,
   planWetPlacementOasis,
   planWetPlacementWateringHole,
 };
-

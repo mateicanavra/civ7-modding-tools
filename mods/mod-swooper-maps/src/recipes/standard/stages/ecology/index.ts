@@ -27,14 +27,14 @@ const WetFeaturePlacementsSchema = Type.Union(
     Type.Object(
       {
         strategy: Type.Literal("disabled"),
-        config: ecology.ops.planWetFeaturePlacements.strategies.disabled,
+        config: ecology.ops.planWetPlacementMarsh.strategies.disabled,
       },
       { additionalProperties: false }
     ),
     Type.Object(
       {
         strategy: Type.Literal("default"),
-        config: ecology.ops.planWetFeaturePlacements.strategies.default,
+        config: ecology.ops.planWetPlacementMarsh.strategies.default,
       },
       { additionalProperties: false }
     ),

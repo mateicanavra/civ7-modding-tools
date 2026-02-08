@@ -253,17 +253,17 @@ describe("ecology op contract surfaces", () => {
     expect(result.placements[0]?.feature).toBe("FEATURE_FOREST");
   });
 
-  it("planWetFeaturePlacements validates output", () => {
+  it("planWetPlacementMarsh validates output", () => {
     const width = 2;
     const height = 2;
     const size = width * height;
     const temperateHumid = BIOME_SYMBOL_TO_INDEX.temperateHumid ?? 4;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planWetFeaturePlacements, {
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.planWetPlacementMarsh, {
       strategy: "default",
       config: { chances: { FEATURE_MARSH: 100 } },
     });
 
-    const result = ecology.ops.planWetFeaturePlacements.run(
+    const result = ecology.ops.planWetPlacementMarsh.run(
       {
         width,
         height,

@@ -1,9 +1,9 @@
 import { clampChance } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
 
-import PlanWetFeaturePlacementsContract from "../contract.js";
+import { WetFeaturePlacementsContractParts } from "../contract.js";
 
-type Config = Static<(typeof PlanWetFeaturePlacementsContract)["strategies"]["default"]>;
+type Config = Static<(typeof WetFeaturePlacementsContractParts)["strategies"]["default"]>;
 
 function normalizeRadius(value: number): number {
   return Math.max(1, Math.floor(value));
@@ -30,4 +30,3 @@ export function normalizeWetFeaturePlacementsConfig(config: Config): Config {
     },
   };
 }
-
