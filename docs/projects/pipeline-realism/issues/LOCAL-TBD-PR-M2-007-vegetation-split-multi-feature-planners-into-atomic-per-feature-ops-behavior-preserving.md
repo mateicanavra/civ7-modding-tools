@@ -23,9 +23,9 @@ related_to: []
 - Execute in slice order as defined in the milestone index.
 
 ## Acceptance Criteria
-- [ ] There is one plan op per vegetated feature key.
-- [ ] Behavior matches baseline (parity diff is empty).
-- [ ] RNG label strings and per-label call order are preserved.
+- [x] There is one plan op per vegetated feature key.
+- [x] Behavior matches baseline (parity diff is empty).
+- [x] RNG label strings and per-label call order are preserved.
 
 ## Testing / Verification
 - Gate G0.
@@ -57,9 +57,9 @@ Replace multi-feature vegetation planners with atomic per-feature plan ops:
 - `FEATURE_FOREST`, `FEATURE_RAINFOREST`, `FEATURE_TAIGA`, `FEATURE_SAVANNA_WOODLAND`, `FEATURE_SAGEBRUSH_STEPPE`
 
 **Acceptance Criteria**
-- [ ] There is one plan op per vegetated feature key.
-- [ ] Behavior matches baseline (parity diff is empty).
-- [ ] RNG label strings and per-label call order are preserved.
+- [x] There is one plan op per vegetated feature key.
+- [x] Behavior matches baseline (parity diff is empty).
+- [x] RNG label strings and per-label call order are preserved.
 
 **Scope boundaries**
 - In scope: new per-feature plan ops + rules factoring.
