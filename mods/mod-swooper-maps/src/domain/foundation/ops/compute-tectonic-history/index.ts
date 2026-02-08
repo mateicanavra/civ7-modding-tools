@@ -4,6 +4,7 @@ import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 import { BOUNDARY_TYPE } from "../../constants.js";
 import { requireCrust, requireMantleForcing, requireMesh, requirePlateGraph, requirePlateMotion } from "../../lib/require.js";
 import type { FoundationTectonicSegments } from "../compute-tectonic-segments/contract.js";
+import computeTectonicSegments from "../compute-tectonic-segments/index.js";
 import ComputeTectonicHistoryContract from "./contract.js";
 
 const EVENT_TYPE = {
@@ -48,8 +49,7 @@ const ERA_COUNT_MIN = 5;
 const ERA_COUNT_MAX = 8;
 const ADVECTION_STEPS_PER_ERA = 6;
 
-// Boost convergent uplift/volcanism modestly toward newer eras to emulate strengthening orogeny over time
-// without re-segmenting the plate graph per era.
+// Boost convergent uplift/volcanism modestly toward newer eras to emulate strengthening orogeny over time.
 const OROGENY_ERA_GAIN_MIN = 0.85;
 const OROGENY_ERA_GAIN_MAX = 1.15;
 
@@ -959,97 +959,6 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
           plateGraph.plates.length | 0,
           "foundation/compute-tectonic-history"
         );
-        const segments = input.segments as FoundationTectonicSegments;
-
-        const events: TectonicEvent[] = [];
-        const segmentCount = segments.segmentCount | 0;
-        for (let s = 0; s < segmentCount; s++) {
-          const regime = segments.regime[s] ?? BOUNDARY_TYPE.none;
-          if (regime === BOUNDARY_TYPE.none) continue;
-
-          const plateA = segments.plateA[s] ?? -1;
-          const plateB = segments.plateB[s] ?? -1;
-          const polarity = regime === BOUNDARY_TYPE.convergent ? (segments.polarity[s] ?? 0) : 0;
-
-          let eventType = 0;
-          let intensityUplift = 0;
-          let intensityRift = 0;
-          let intensityShear = 0;
-          let intensityVolcanism = 0;
-          let intensityFracture = 0;
-
-          if (regime === BOUNDARY_TYPE.convergent) {
-            eventType = polarity !== 0 ? EVENT_TYPE.convergenceSubduction : EVENT_TYPE.convergenceCollision;
-            intensityUplift = segments.compression[s] ?? 0;
-            intensityVolcanism = segments.volcanism[s] ?? 0;
-            intensityFracture = segments.fracture[s] ?? 0;
-          } else if (regime === BOUNDARY_TYPE.divergent) {
-            eventType = EVENT_TYPE.divergenceRift;
-            intensityRift = segments.extension[s] ?? 0;
-            intensityVolcanism = segments.volcanism[s] ?? 0;
-            intensityFracture = segments.fracture[s] ?? 0;
-          } else if (regime === BOUNDARY_TYPE.transform) {
-            eventType = EVENT_TYPE.transformShear;
-            intensityShear = segments.shear[s] ?? 0;
-            intensityFracture = segments.fracture[s] ?? 0;
-          }
-
-          if (!eventType) continue;
-
-          const aCell = segments.aCell[s] ?? -1;
-          const bCell = segments.bCell[s] ?? -1;
-          const seeds = aCell === bCell ? [aCell] : [aCell, bCell];
-
-          let originPlateId = -1;
-          if (eventType === EVENT_TYPE.convergenceSubduction) {
-            originPlateId = polarity < 0 ? plateB : polarity > 0 ? plateA : -1;
-          } else if (eventType === EVENT_TYPE.divergenceRift || eventType === EVENT_TYPE.convergenceCollision) {
-            originPlateId = Math.min(plateA, plateB);
-          }
-
-          events.push({
-            eventType,
-            plateA,
-            plateB,
-            polarity,
-            intensityUplift,
-            intensityRift,
-            intensityShear,
-            intensityVolcanism,
-            intensityFracture,
-            driftU: segments.driftU[s] ?? 0,
-            driftV: segments.driftV[s] ?? 0,
-            seedCells: Int32Array.from(seeds.filter((cell) => cell >= 0)),
-            originPlateId,
-          });
-        }
-
-        for (let i = 0; i < mesh.cellCount; i++) {
-          if ((mantleForcing.upwellingClass[i] ?? 0) <= 0) continue;
-          const forcingMag = clamp01(mantleForcing.forcingMag[i] ?? 0);
-          const stress = clamp01(mantleForcing.stress[i] ?? 0);
-          if (forcingMag <= 0) continue;
-          const intensity = clampByte(forcingMag * (0.6 + 0.4 * stress) * 255);
-          if (intensity <= 0) continue;
-
-          const drift = normalizeToInt8(mantleForcing.forcingU[i] ?? 0, mantleForcing.forcingV[i] ?? 0);
-
-          events.push({
-            eventType: EVENT_TYPE.intraplateHotspot,
-            plateA: -1,
-            plateB: -1,
-            polarity: 0,
-            intensityUplift: clampByte(intensity * 0.45),
-            intensityRift: 0,
-            intensityShear: 0,
-            intensityVolcanism: intensity,
-            intensityFracture: clampByte(intensity * 0.35),
-            driftU: drift.u,
-            driftV: drift.v,
-            seedCells: Int32Array.from([i]),
-            originPlateId: plateGraph.cellToPlate[i] ?? -1,
-          });
-        }
 
         const weights = config.eraWeights;
         const driftSteps = config.driftStepsByEra;
@@ -1069,23 +978,6 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
           beltDecay: config.beltDecay,
         });
 
-        const eras: EraFields[] = [];
-        for (let era = 0; era < eraCount; era++) {
-          const t = eraCount > 1 ? era / (eraCount - 1) : 0;
-          const eraGain = OROGENY_ERA_GAIN_MIN + (OROGENY_ERA_GAIN_MAX - OROGENY_ERA_GAIN_MIN) * t;
-
-          eras.push(
-            buildEraFields({
-              mesh,
-              events,
-              weight: weights[era] ?? 0,
-              eraGain,
-              driftSteps: driftSteps[era] ?? 0,
-              emission,
-            })
-          );
-        }
-
         const plateIdByEra = computePlateIdByEra({
           mesh,
           plates: plateGraph.plates,
@@ -1094,6 +986,155 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
           driftStepsByEra: driftSteps,
           eraCount,
         });
+
+        const buildBoundaryEventsFromSegments = (params: { segments: FoundationTectonicSegments }): TectonicEvent[] => {
+          const segments = params.segments;
+          const events: TectonicEvent[] = [];
+          const segmentCount = segments.segmentCount | 0;
+          for (let s = 0; s < segmentCount; s++) {
+            const regime = segments.regime[s] ?? BOUNDARY_TYPE.none;
+            if (regime === BOUNDARY_TYPE.none) continue;
+
+            const plateA = segments.plateA[s] ?? -1;
+            const plateB = segments.plateB[s] ?? -1;
+            const polarity = regime === BOUNDARY_TYPE.convergent ? (segments.polarity[s] ?? 0) : 0;
+
+            let eventType = 0;
+            let intensityUplift = 0;
+            let intensityRift = 0;
+            let intensityShear = 0;
+            let intensityVolcanism = 0;
+            let intensityFracture = 0;
+
+            if (regime === BOUNDARY_TYPE.convergent) {
+              eventType = polarity !== 0 ? EVENT_TYPE.convergenceSubduction : EVENT_TYPE.convergenceCollision;
+              intensityUplift = segments.compression[s] ?? 0;
+              intensityVolcanism = segments.volcanism[s] ?? 0;
+              intensityFracture = segments.fracture[s] ?? 0;
+            } else if (regime === BOUNDARY_TYPE.divergent) {
+              eventType = EVENT_TYPE.divergenceRift;
+              intensityRift = segments.extension[s] ?? 0;
+              intensityVolcanism = segments.volcanism[s] ?? 0;
+              intensityFracture = segments.fracture[s] ?? 0;
+            } else if (regime === BOUNDARY_TYPE.transform) {
+              eventType = EVENT_TYPE.transformShear;
+              intensityShear = segments.shear[s] ?? 0;
+              intensityFracture = segments.fracture[s] ?? 0;
+            }
+
+            if (!eventType) continue;
+
+            const aCell = segments.aCell[s] ?? -1;
+            const bCell = segments.bCell[s] ?? -1;
+            const seeds = aCell === bCell ? [aCell] : [aCell, bCell];
+
+            let originPlateId = -1;
+            if (eventType === EVENT_TYPE.convergenceSubduction) {
+              originPlateId = polarity < 0 ? plateB : polarity > 0 ? plateA : -1;
+            } else if (eventType === EVENT_TYPE.divergenceRift || eventType === EVENT_TYPE.convergenceCollision) {
+              originPlateId = Math.min(plateA, plateB);
+            }
+
+            events.push({
+              eventType,
+              plateA,
+              plateB,
+              polarity,
+              intensityUplift,
+              intensityRift,
+              intensityShear,
+              intensityVolcanism,
+              intensityFracture,
+              driftU: segments.driftU[s] ?? 0,
+              driftV: segments.driftV[s] ?? 0,
+              seedCells: Int32Array.from(seeds.filter((cell) => cell >= 0)),
+              originPlateId,
+            });
+          }
+          return events;
+        };
+
+        const hotspotSeedCells: number[] = [];
+        const hotspotIntensity: number[] = [];
+        const hotspotUpliftIntensity: number[] = [];
+        const hotspotFractureIntensity: number[] = [];
+        const hotspotDriftU: number[] = [];
+        const hotspotDriftV: number[] = [];
+        for (let i = 0; i < mesh.cellCount; i++) {
+          if ((mantleForcing.upwellingClass[i] ?? 0) <= 0) continue;
+          const forcingMag = clamp01(mantleForcing.forcingMag[i] ?? 0);
+          const stress = clamp01(mantleForcing.stress[i] ?? 0);
+          if (forcingMag <= 0) continue;
+          const intensity = clampByte(forcingMag * (0.6 + 0.4 * stress) * 255);
+          if (intensity <= 0) continue;
+
+          const drift = normalizeToInt8(mantleForcing.forcingU[i] ?? 0, mantleForcing.forcingV[i] ?? 0);
+          hotspotSeedCells.push(i);
+          hotspotIntensity.push(intensity);
+          hotspotUpliftIntensity.push(clampByte(intensity * 0.45));
+          hotspotFractureIntensity.push(clampByte(intensity * 0.35));
+          hotspotDriftU.push(drift.u);
+          hotspotDriftV.push(drift.v);
+        }
+
+        const eras: EraFields[] = [];
+        for (let era = 0; era < eraCount; era++) {
+          const t = eraCount > 1 ? era / (eraCount - 1) : 0;
+          const eraGain = OROGENY_ERA_GAIN_MIN + (OROGENY_ERA_GAIN_MAX - OROGENY_ERA_GAIN_MIN) * t;
+
+          const eraPlateId = plateIdByEra[era] ?? plateIdByEra[plateIdByEra.length - 1]!;
+          const eraPlateGraph = {
+            cellToPlate: eraPlateId,
+            plates: plateGraph.plates,
+          } as const;
+
+          // Re-evaluate boundary segmentation per era by re-deriving segments from the era plate membership.
+          const eraSegments = computeTectonicSegments.run(
+            {
+              mesh,
+              crust,
+              plateGraph: eraPlateGraph as any,
+              plateMotion,
+            },
+            computeTectonicSegments.defaultConfig
+          ).segments as FoundationTectonicSegments;
+
+          const events: TectonicEvent[] = buildBoundaryEventsFromSegments({ segments: eraSegments });
+
+          // Hotspot events are intraplate, but their provenance (origin plate id) depends on era membership.
+          for (let hi = 0; hi < hotspotSeedCells.length; hi++) {
+            const cellId = hotspotSeedCells[hi] ?? -1;
+            if (cellId < 0 || cellId >= mesh.cellCount) continue;
+            const intensity = hotspotIntensity[hi] ?? 0;
+            events.push({
+              eventType: EVENT_TYPE.intraplateHotspot,
+              plateA: -1,
+              plateB: -1,
+              polarity: 0,
+              intensityUplift: hotspotUpliftIntensity[hi] ?? 0,
+              intensityRift: 0,
+              intensityShear: 0,
+              intensityVolcanism: intensity,
+              intensityFracture: hotspotFractureIntensity[hi] ?? 0,
+              driftU: hotspotDriftU[hi] ?? 0,
+              driftV: hotspotDriftV[hi] ?? 0,
+              seedCells: Int32Array.from([cellId]),
+              originPlateId: eraPlateId[cellId] ?? -1,
+            });
+          }
+
+          eras.push(
+            buildEraFields({
+              mesh,
+              events,
+              weight: weights[era] ?? 0,
+              eraGain,
+              // Plate membership already drifts per era; keep seed drift disabled to avoid double-displacement.
+              driftSteps: 0,
+              emission,
+            })
+          );
+        }
 
         const cellCount = mesh.cellCount | 0;
         const upliftTotal = new Uint8Array(cellCount);
