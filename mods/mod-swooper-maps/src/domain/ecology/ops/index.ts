@@ -21,7 +21,11 @@ import planAquaticFeaturePlacements from "./plan-aquatic-feature-placements/inde
 import planIceFeaturePlacements from "./plan-ice-feature-placements/index.js";
 import planPlotEffects from "./plan-plot-effects/index.js";
 import planReefEmbellishments from "./plan-reef-embellishments/index.js";
-import planVegetatedFeaturePlacements from "./plan-vegetated-feature-placements/index.js";
+import planVegetatedPlacementForest from "./plan-vegetated-placement-forest/index.js";
+import planVegetatedPlacementRainforest from "./plan-vegetated-placement-rainforest/index.js";
+import planVegetatedPlacementSagebrushSteppe from "./plan-vegetated-placement-sagebrush-steppe/index.js";
+import planVegetatedPlacementSavannaWoodland from "./plan-vegetated-placement-savanna-woodland/index.js";
+import planVegetatedPlacementTaiga from "./plan-vegetated-placement-taiga/index.js";
 import planVegetationEmbellishments from "./plan-vegetation-embellishments/index.js";
 import planWetFeaturePlacements from "./plan-wet-feature-placements/index.js";
 
@@ -37,7 +41,11 @@ const implementations = {
   planIceFeaturePlacements,
   planPlotEffects,
   planReefEmbellishments,
-  planVegetatedFeaturePlacements,
+  planVegetatedPlacementForest,
+  planVegetatedPlacementRainforest,
+  planVegetatedPlacementTaiga,
+  planVegetatedPlacementSavannaWoodland,
+  planVegetatedPlacementSagebrushSteppe,
   planVegetationEmbellishments,
   planWetFeaturePlacements,
   planVegetationForest,
@@ -74,7 +82,11 @@ export {
   planIceFeaturePlacements,
   planPlotEffects,
   planReefEmbellishments,
-  planVegetatedFeaturePlacements,
+  planVegetatedPlacementForest,
+  planVegetatedPlacementRainforest,
+  planVegetatedPlacementTaiga,
+  planVegetatedPlacementSavannaWoodland,
+  planVegetatedPlacementSagebrushSteppe,
   planVegetationEmbellishments,
   planWetFeaturePlacements,
 };

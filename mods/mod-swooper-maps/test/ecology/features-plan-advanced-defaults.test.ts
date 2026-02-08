@@ -30,7 +30,11 @@ describe("features-plan advanced planner defaults", () => {
     if (!node) throw new Error("Missing features-plan node.");
 
     const config = (node as Record<string, unknown>).config;
-    expect(getStrategy(config, "vegetatedFeaturePlacements")).toBe("disabled");
+    expect(getStrategy(config, "vegetatedPlacementForest")).toBe("disabled");
+    expect(getStrategy(config, "vegetatedPlacementRainforest")).toBe("disabled");
+    expect(getStrategy(config, "vegetatedPlacementTaiga")).toBe("disabled");
+    expect(getStrategy(config, "vegetatedPlacementSavannaWoodland")).toBe("disabled");
+    expect(getStrategy(config, "vegetatedPlacementSagebrushSteppe")).toBe("disabled");
     expect(getStrategy(config, "wetFeaturePlacements")).toBe("disabled");
   });
 });

@@ -218,12 +218,12 @@ describe("ecology op contract surfaces", () => {
     expect(result.vegetationDensity.length).toBe(size);
   });
 
-  it("planVegetatedFeaturePlacements validates output", () => {
+  it("planVegetatedPlacementForest validates output", () => {
     const width = 2;
     const height = 2;
     const size = width * height;
     const temperateHumid = BIOME_SYMBOL_TO_INDEX.temperateHumid ?? 4;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetatedFeaturePlacements, {
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetatedPlacementForest, {
       strategy: "default",
       config: {
         chances: { FEATURE_FOREST: 100 },
@@ -231,7 +231,7 @@ describe("ecology op contract surfaces", () => {
       },
     });
 
-    const result = ecology.ops.planVegetatedFeaturePlacements.run(
+    const result = ecology.ops.planVegetatedPlacementForest.run(
       {
         width,
         height,

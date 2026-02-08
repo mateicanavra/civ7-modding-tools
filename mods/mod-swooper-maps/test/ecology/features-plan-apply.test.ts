@@ -58,7 +58,23 @@ describe("features plan/apply pipeline", () => {
       }),
       reefs: normalizeOpSelectionOrThrow(ecology.ops.planReefs, { strategy: "default", config: {} }),
       ice: normalizeOpSelectionOrThrow(ecology.ops.planIce, { strategy: "default", config: {} }),
-      vegetatedFeaturePlacements: normalizeOpSelectionOrThrow(ecology.ops.planVegetatedFeaturePlacements, {
+      vegetatedPlacementForest: normalizeOpSelectionOrThrow(ecology.ops.planVegetatedPlacementForest, {
+        strategy: "disabled",
+        config: {},
+      }),
+      vegetatedPlacementRainforest: normalizeOpSelectionOrThrow(ecology.ops.planVegetatedPlacementRainforest, {
+        strategy: "disabled",
+        config: {},
+      }),
+      vegetatedPlacementTaiga: normalizeOpSelectionOrThrow(ecology.ops.planVegetatedPlacementTaiga, {
+        strategy: "disabled",
+        config: {},
+      }),
+      vegetatedPlacementSavannaWoodland: normalizeOpSelectionOrThrow(ecology.ops.planVegetatedPlacementSavannaWoodland, {
+        strategy: "disabled",
+        config: {},
+      }),
+      vegetatedPlacementSagebrushSteppe: normalizeOpSelectionOrThrow(ecology.ops.planVegetatedPlacementSagebrushSteppe, {
         strategy: "disabled",
         config: {},
       }),

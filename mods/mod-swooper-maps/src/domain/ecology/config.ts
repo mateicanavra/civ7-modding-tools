@@ -4,7 +4,7 @@ import BiomeClassificationContract from "./ops/classify-biomes/contract.js";
 import PlanAquaticFeaturePlacementsContract from "./ops/plan-aquatic-feature-placements/contract.js";
 import PlanIceFeaturePlacementsContract from "./ops/plan-ice-feature-placements/contract.js";
 import PlanPlotEffectsContract from "./ops/plan-plot-effects/contract.js";
-import PlanVegetatedFeaturePlacementsContract from "./ops/plan-vegetated-feature-placements/contract.js";
+import PlanVegetatedPlacementForestContract from "./ops/plan-vegetated-placement-forest/contract.js";
 import PlanWetFeaturePlacementsContract from "./ops/plan-wet-feature-placements/contract.js";
 /**
  * Biome classification config (Holdridge/Whittaker-inspired).
@@ -22,7 +22,7 @@ const BiomeBindingsSchema = BiomeEngineBindingsSchema;
  */
 const FeaturesPlacementConfigSchema = Type.Object(
   {
-    vegetated: PlanVegetatedFeaturePlacementsContract.config,
+    vegetated: PlanVegetatedPlacementForestContract.config,
     wet: PlanWetFeaturePlacementsContract.config,
     aquatic: PlanAquaticFeaturePlacementsContract.config,
     ice: PlanIceFeaturePlacementsContract.config,

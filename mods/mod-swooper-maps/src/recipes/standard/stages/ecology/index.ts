@@ -7,14 +7,14 @@ const VegetatedFeaturePlacementsSchema = Type.Union(
     Type.Object(
       {
         strategy: Type.Literal("disabled"),
-        config: ecology.ops.planVegetatedFeaturePlacements.strategies.disabled,
+        config: ecology.ops.planVegetatedPlacementForest.strategies.disabled,
       },
       { additionalProperties: false }
     ),
     Type.Object(
       {
         strategy: Type.Literal("default"),
-        config: ecology.ops.planVegetatedFeaturePlacements.strategies.default,
+        config: ecology.ops.planVegetatedPlacementForest.strategies.default,
       },
       { additionalProperties: false }
     ),
@@ -88,7 +88,11 @@ export default createStage({
         wetlands: input.wetlands,
         reefs: input.reefs,
         ice: input.ice,
-        vegetatedFeaturePlacements: input.vegetatedFeaturePlacements,
+        vegetatedPlacementForest: input.vegetatedFeaturePlacements,
+        vegetatedPlacementRainforest: input.vegetatedFeaturePlacements,
+        vegetatedPlacementTaiga: input.vegetatedFeaturePlacements,
+        vegetatedPlacementSavannaWoodland: input.vegetatedFeaturePlacements,
+        vegetatedPlacementSagebrushSteppe: input.vegetatedFeaturePlacements,
         wetFeaturePlacements: input.wetFeaturePlacements,
       };
     };

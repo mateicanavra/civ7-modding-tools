@@ -15,7 +15,7 @@ import featuresApplyStep from "../../src/recipes/standard/stages/map-ecology/ste
 import { resolveFeatureKeyLookups } from "../../src/recipes/standard/stages/map-ecology/steps/features/feature-keys.js";
 
 type VegetatedPlacementConfig = Static<
-  typeof ecology.ops.planVegetatedFeaturePlacements.strategies.default.config
+  typeof ecology.ops.planVegetatedPlacementForest.strategies.default.config
 >;
 type WetPlacementConfig = Static<
   typeof ecology.ops.planWetFeaturePlacements.strategies.default.config
@@ -36,7 +36,7 @@ type FeaturesPlacementOverrides = {
 
 export function buildFeaturesPlacementConfig(overrides: FeaturesPlacementOverrides = {}) {
   return {
-    vegetated: normalizeOpSelectionOrThrow(ecology.ops.planVegetatedFeaturePlacements, {
+    vegetated: normalizeOpSelectionOrThrow(ecology.ops.planVegetatedPlacementForest, {
       strategy: "default",
       config: overrides.vegetated ?? {},
     }),
@@ -191,23 +191,36 @@ export function runOwnedFeaturePlacements(options: {
   const nearRadius = Math.max(1, Math.floor(wetRules.nearRiverRadius ?? 2));
   const isolatedRadius = Math.max(1, Math.floor(wetRules.isolatedRiverRadius ?? 1));
 
-  const vegetation = ecology.ops.planVegetatedFeaturePlacements.run(
-    {
-      width,
-      height,
-      seed,
-      biomeIndex: classification.biomeIndex,
-      vegetationDensity: classification.vegetationDensity,
-      effectiveMoisture: classification.effectiveMoisture,
-      surfaceTemperature: classification.surfaceTemperature,
-      aridityIndex: classification.aridityIndex,
-      freezeIndex: classification.freezeIndex,
-      landMask,
-      navigableRiverMask,
-      featureKeyField: featureKeyField.slice(),
-    },
-    placements.vegetated
-  );
+  const vegetationInput = {
+    width,
+    height,
+    seed,
+    biomeIndex: classification.biomeIndex,
+    vegetationDensity: classification.vegetationDensity,
+    effectiveMoisture: classification.effectiveMoisture,
+    surfaceTemperature: classification.surfaceTemperature,
+    aridityIndex: classification.aridityIndex,
+    freezeIndex: classification.freezeIndex,
+    landMask,
+    navigableRiverMask,
+    featureKeyField: featureKeyField.slice(),
+  };
+  const vegetationPlacements = [
+    ...ecology.ops.planVegetatedPlacementForest.run(vegetationInput, placements.vegetated)
+      .placements,
+    ...ecology.ops.planVegetatedPlacementRainforest.run(vegetationInput, placements.vegetated)
+      .placements,
+    ...ecology.ops.planVegetatedPlacementTaiga.run(vegetationInput, placements.vegetated).placements,
+    ...ecology.ops.planVegetatedPlacementSavannaWoodland.run(
+      vegetationInput,
+      placements.vegetated
+    ).placements,
+    ...ecology.ops.planVegetatedPlacementSagebrushSteppe.run(
+      vegetationInput,
+      placements.vegetated
+    ).placements,
+  ];
+  vegetationPlacements.sort((a, b) => (a.y * width + a.x) - (b.y * width + b.x));
 
   const wetlands = ecology.ops.planWetFeaturePlacements.run(
     {
@@ -276,7 +289,7 @@ export function runOwnedFeaturePlacements(options: {
       featureIntentsIce: {},
     }
   );
-  intentsRuntime.featureIntentsVegetation.publish(ctx, vegetation.placements);
+  intentsRuntime.featureIntentsVegetation.publish(ctx, vegetationPlacements);
   intentsRuntime.featureIntentsWetlands.publish(ctx, wetlands.placements);
   intentsRuntime.featureIntentsReefs.publish(ctx, reefs.placements);
   intentsRuntime.featureIntentsIce.publish(ctx, ice.placements);

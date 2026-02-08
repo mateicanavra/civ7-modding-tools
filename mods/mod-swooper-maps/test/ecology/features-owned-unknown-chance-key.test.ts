@@ -21,7 +21,7 @@ describe("baseline feature placement config", () => {
     };
 
     expect(() =>
-      normalizeOpSelectionOrThrow(ecology.ops.planVegetatedFeaturePlacements, {
+      normalizeOpSelectionOrThrow(ecology.ops.planVegetatedPlacementForest, {
         strategy: "default",
         config: {
           chances: {
@@ -37,6 +37,11 @@ describe("baseline feature placement config", () => {
       })
     ).toThrow(/Unknown key/);
 
-    expect(() => ecology.ops.planVegetatedFeaturePlacements.run(input, ecology.ops.planVegetatedFeaturePlacements.defaultConfig)).not.toThrow();
+    expect(() =>
+      ecology.ops.planVegetatedPlacementForest.run(
+        input,
+        ecology.ops.planVegetatedPlacementForest.defaultConfig
+      )
+    ).not.toThrow();
   });
 });
