@@ -199,7 +199,11 @@ export function deriveBeltDriversFromHistory(input: {
   const perEra = historyTiles.perEra ?? [];
   const rollups = historyTiles.rollups ?? {};
   const upliftTotal = rollups.upliftTotal ?? new Uint8Array(size);
+  const collisionTotal = rollups.collisionTotal ?? new Uint8Array(size);
+  const subductionTotal = rollups.subductionTotal ?? new Uint8Array(size);
   const upliftRecentFraction = rollups.upliftRecentFraction ?? new Uint8Array(size);
+  const collisionRecentFraction = rollups.collisionRecentFraction ?? new Uint8Array(size);
+  const subductionRecentFraction = rollups.subductionRecentFraction ?? new Uint8Array(size);
   const lastActiveEra = rollups.lastActiveEra ?? new Uint8Array(size);
   const originEra = provenanceTiles.originEra ?? new Uint8Array(size);
   const originPlateId = provenanceTiles.originPlateId ?? new Int16Array(size);
@@ -213,6 +217,8 @@ export function deriveBeltDriversFromHistory(input: {
 
   const boundaryTypeBlend = new Uint8Array(size);
   const upliftBlend = new Float32Array(size);
+  const collisionBlend = new Float32Array(size);
+  const subductionBlend = new Float32Array(size);
   const riftBlend = new Float32Array(size);
   const shearBlend = new Float32Array(size);
   const intensityBlend = new Float32Array(size);
@@ -240,6 +246,8 @@ export function deriveBeltDriversFromHistory(input: {
     let bestEra = 0;
     let bestScore = -1;
     let upliftSum = 0;
+    let collisionSum = 0;
+    let subductionSum = 0;
     let riftSum = 0;
     let shearSum = 0;
     for (let e = 0; e < eraCount; e++) {
@@ -247,9 +255,13 @@ export function deriveBeltDriversFromHistory(input: {
       if (!era) continue;
       const weight = (weights[e] ?? 0) / weightSum;
       const uplift = era.upliftPotential?.[i] ?? 0;
+      const collision = era.collisionPotential?.[i] ?? 0;
+      const subduction = era.subductionPotential?.[i] ?? 0;
       const rift = era.riftPotential?.[i] ?? 0;
       const shear = era.shearStress?.[i] ?? 0;
       upliftSum += weight * uplift;
+      collisionSum += weight * collision;
+      subductionSum += weight * subduction;
       riftSum += weight * rift;
       shearSum += weight * shear;
 
@@ -277,6 +289,19 @@ export function deriveBeltDriversFromHistory(input: {
     const recentFrac = upliftRecentFraction[i] ?? 0;
     const recentWeightedTotal = (total * recentFrac) / 255;
     upliftBlend[i] = Math.max(upliftSum, recentWeightedTotal);
+
+    // Collision/subduction are the physics-grounded kind split for convergent belts.
+    // We recover dynamic range using a recent-weighted total term, mirroring upliftBlend.
+    const collisionTotalByte = collisionTotal[i] ?? 0;
+    const collisionRecent = collisionRecentFraction[i] ?? 0;
+    const collisionRecentWeightedTotal = (collisionTotalByte * collisionRecent) / 255;
+    collisionBlend[i] = Math.max(collisionSum, collisionRecentWeightedTotal);
+
+    const subductionTotalByte = subductionTotal[i] ?? 0;
+    const subductionRecent = subductionRecentFraction[i] ?? 0;
+    const subductionRecentWeightedTotal = (subductionTotalByte * subductionRecent) / 255;
+    subductionBlend[i] = Math.max(subductionSum, subductionRecentWeightedTotal);
+
     intensityBlend[i] = Math.max(upliftBlend[i] ?? 0, riftSum, shearSum);
 
     const boundary = perEra[bestEra]?.boundaryType?.[i] ?? BOUNDARY_TYPE.none;
@@ -448,6 +473,8 @@ export function deriveBeltDriversFromHistory(input: {
   const boundaryCloseness = new Uint8Array(size);
   const boundaryType = new Uint8Array(size);
   const upliftPotential = new Uint8Array(size);
+  const collisionPotential = new Uint8Array(size);
+  const subductionPotential = new Uint8Array(size);
   const riftPotential = new Uint8Array(size);
   const tectonicStress = new Uint8Array(size);
 
@@ -463,6 +490,8 @@ export function deriveBeltDriversFromHistory(input: {
     // uplift field too small for mountain planning. We keep the seed *selection* anchored on late-era
     // intensity (intensityBlend), but emit upliftPotential using the strongest of (late-era blend, total).
     const seedUplift = Math.max(upliftBlend[seedIndex] ?? 0, upliftTotal[seedIndex] ?? 0);
+    const seedCollision = Math.max(collisionBlend[seedIndex] ?? 0, collisionTotal[seedIndex] ?? 0);
+    const seedSubduction = Math.max(subductionBlend[seedIndex] ?? 0, subductionTotal[seedIndex] ?? 0);
     const seedRift = riftBlend[seedIndex] ?? 0;
     const seedShear = shearBlend[seedIndex] ?? 0;
     const seedType = boundaryTypeBlend[seedIndex] ?? BOUNDARY_TYPE.none;
@@ -484,6 +513,8 @@ export function deriveBeltDriversFromHistory(input: {
     // Proximity should be a pure distance signal; intensity is carried by uplift/rift/stress fields.
     boundaryCloseness[i] = clampByte(255 * normalized);
     upliftPotential[i] = clampByte(seedUplift * normalized);
+    collisionPotential[i] = clampByte(seedCollision * normalized);
+    subductionPotential[i] = clampByte(seedSubduction * normalized);
     riftPotential[i] = clampByte(seedRift * normalized);
     const shear = clampByte(seedShear * normalized);
     tectonicStress[i] = clampByte(Math.max(upliftPotential[i]!, riftPotential[i]!, shear));
@@ -494,6 +525,8 @@ export function deriveBeltDriversFromHistory(input: {
     boundaryCloseness,
     boundaryType,
     upliftPotential,
+    collisionPotential,
+    subductionPotential,
     riftPotential,
     tectonicStress,
     beltAge,

@@ -186,6 +186,8 @@ type TectonicEvent = Readonly<{
 type EraFields = Readonly<{
   boundaryType: Uint8Array;
   upliftPotential: Uint8Array;
+  collisionPotential: Uint8Array;
+  subductionPotential: Uint8Array;
   riftPotential: Uint8Array;
   shearStress: Uint8Array;
   volcanism: Uint8Array;
@@ -244,45 +246,61 @@ function buildEraFields(params: {
   const D = params.emission.decay;
 
   const upliftPotential = new Uint8Array(cellCount);
+  const collisionPotential = new Uint8Array(cellCount);
+  const subductionPotential = new Uint8Array(cellCount);
   const riftPotential = new Uint8Array(cellCount);
   const shearStress = new Uint8Array(cellCount);
   const volcanism = new Uint8Array(cellCount);
   const fracture = new Uint8Array(cellCount);
 
   const upliftScore = new Float32Array(cellCount);
+  const collisionScore = new Float32Array(cellCount);
+  const subductionScore = new Float32Array(cellCount);
   const riftScore = new Float32Array(cellCount);
   const shearScore = new Float32Array(cellCount);
   const volcanismScore = new Float32Array(cellCount);
   const fractureScore = new Float32Array(cellCount);
   upliftScore.fill(-1);
+  collisionScore.fill(-1);
+  subductionScore.fill(-1);
   riftScore.fill(-1);
   shearScore.fill(-1);
   volcanismScore.fill(-1);
   fractureScore.fill(-1);
 
   const upliftIntensity = new Uint8Array(cellCount);
+  const collisionIntensity = new Uint8Array(cellCount);
+  const subductionIntensity = new Uint8Array(cellCount);
   const riftIntensity = new Uint8Array(cellCount);
   const shearIntensity = new Uint8Array(cellCount);
   const volcanismIntensity = new Uint8Array(cellCount);
   const fractureIntensity = new Uint8Array(cellCount);
 
   const upliftEventType = new Uint8Array(cellCount);
+  const collisionEventType = new Uint8Array(cellCount);
+  const subductionEventType = new Uint8Array(cellCount);
   const riftEventType = new Uint8Array(cellCount);
   const shearEventType = new Uint8Array(cellCount);
   const volcanismEventType = new Uint8Array(cellCount);
   const fractureEventType = new Uint8Array(cellCount);
   upliftEventType.fill(255);
+  collisionEventType.fill(255);
+  subductionEventType.fill(255);
   riftEventType.fill(255);
   shearEventType.fill(255);
   volcanismEventType.fill(255);
   fractureEventType.fill(255);
 
   const upliftEventIndex = new Int32Array(cellCount);
+  const collisionEventIndex = new Int32Array(cellCount);
+  const subductionEventIndex = new Int32Array(cellCount);
   const riftEventIndex = new Int32Array(cellCount);
   const shearEventIndex = new Int32Array(cellCount);
   const volcanismEventIndex = new Int32Array(cellCount);
   const fractureEventIndex = new Int32Array(cellCount);
   upliftEventIndex.fill(1 << 30);
+  collisionEventIndex.fill(1 << 30);
+  subductionEventIndex.fill(1 << 30);
   riftEventIndex.fill(1 << 30);
   shearEventIndex.fill(1 << 30);
   volcanismEventIndex.fill(1 << 30);
@@ -450,6 +468,36 @@ function buildEraFields(params: {
           polarity: upliftPolarity,
           polarityValue: event.polarity,
         });
+
+        // Split convergent uplift into collision vs. subduction components. This is the
+        // core "collision history" signal downstream mountain-kind logic needs.
+        if (eventType === EVENT_TYPE.convergenceCollision) {
+          updateChannel({
+            cellId,
+            score,
+            intensity: intensityUplift,
+            eventType: event.eventType,
+            eventIndex: e,
+            scores: collisionScore,
+            values: collisionPotential,
+            intensities: collisionIntensity,
+            eventTypes: collisionEventType,
+            eventIndices: collisionEventIndex,
+          });
+        } else if (eventType === EVENT_TYPE.convergenceSubduction) {
+          updateChannel({
+            cellId,
+            score,
+            intensity: intensityUplift,
+            eventType: event.eventType,
+            eventIndex: e,
+            scores: subductionScore,
+            values: subductionPotential,
+            intensities: subductionIntensity,
+            eventTypes: subductionEventType,
+            eventIndices: subductionEventIndex,
+          });
+        }
       }
 
       if (intensityRift > 0 && d <= R.rift) {
@@ -606,6 +654,8 @@ function buildEraFields(params: {
   return {
     boundaryType,
     upliftPotential,
+    collisionPotential,
+    subductionPotential,
     riftPotential,
     shearStress,
     volcanism,
@@ -815,26 +865,43 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
 
         const cellCount = mesh.cellCount | 0;
         const upliftTotal = new Uint8Array(cellCount);
+        const collisionTotal = new Uint8Array(cellCount);
+        const subductionTotal = new Uint8Array(cellCount);
         const fractureTotal = new Uint8Array(cellCount);
         const volcanismTotal = new Uint8Array(cellCount);
         const upliftRecentFraction = new Uint8Array(cellCount);
+        const collisionRecentFraction = new Uint8Array(cellCount);
+        const subductionRecentFraction = new Uint8Array(cellCount);
 
         for (let i = 0; i < cellCount; i++) {
           let upliftSum = 0;
+          let collisionSum = 0;
+          let subductionSum = 0;
           let fracSum = 0;
           let volcSum = 0;
           for (let era = 0; era < eraCount; era++) {
             const e = eras[era]!;
             upliftSum = addClampedByte(upliftSum, e.upliftPotential[i] ?? 0);
+            collisionSum = addClampedByte(collisionSum, e.collisionPotential[i] ?? 0);
+            subductionSum = addClampedByte(subductionSum, e.subductionPotential[i] ?? 0);
             fracSum = addClampedByte(fracSum, e.fracture[i] ?? 0);
             volcSum = addClampedByte(volcSum, e.volcanism[i] ?? 0);
           }
           upliftTotal[i] = upliftSum;
+          collisionTotal[i] = collisionSum;
+          subductionTotal[i] = subductionSum;
           fractureTotal[i] = fracSum;
           volcanismTotal[i] = volcSum;
 
           const recent = eras[eraCount - 1]!.upliftPotential[i] ?? 0;
           upliftRecentFraction[i] = upliftSum > 0 ? clampByte((recent / upliftSum) * 255) : 0;
+
+          const recentCollision = eras[eraCount - 1]!.collisionPotential[i] ?? 0;
+          collisionRecentFraction[i] = collisionSum > 0 ? clampByte((recentCollision / collisionSum) * 255) : 0;
+
+          const recentSubduction = eras[eraCount - 1]!.subductionPotential[i] ?? 0;
+          subductionRecentFraction[i] =
+            subductionSum > 0 ? clampByte((recentSubduction / subductionSum) * 255) : 0;
         }
 
         const lastActiveEra = (() => {
@@ -853,6 +920,44 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
                 era.fracture[i] ?? 0
               );
               if (max > (config.activityThreshold | 0)) {
+                lastEra = e;
+                break;
+              }
+            }
+            last[i] = lastEra;
+          }
+          return last;
+        })();
+
+        const lastCollisionEra = (() => {
+          const last = new Uint8Array(cellCount);
+          last.fill(255);
+
+          for (let i = 0; i < cellCount; i++) {
+            let lastEra = 255;
+            for (let e = eras.length - 1; e >= 0; e--) {
+              const era = eras[e]!;
+              const value = era.collisionPotential[i] ?? 0;
+              if (value > (config.activityThreshold | 0)) {
+                lastEra = e;
+                break;
+              }
+            }
+            last[i] = lastEra;
+          }
+          return last;
+        })();
+
+        const lastSubductionEra = (() => {
+          const last = new Uint8Array(cellCount);
+          last.fill(255);
+
+          for (let i = 0; i < cellCount; i++) {
+            let lastEra = 255;
+            for (let e = eras.length - 1; e >= 0; e--) {
+              const era = eras[e]!;
+              const value = era.subductionPotential[i] ?? 0;
+              if (value > (config.activityThreshold | 0)) {
                 lastEra = e;
                 break;
               }
@@ -1062,16 +1167,24 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
             eras: eras.map((era) => ({
               boundaryType: era.boundaryType,
               upliftPotential: era.upliftPotential,
+              collisionPotential: era.collisionPotential,
+              subductionPotential: era.subductionPotential,
               riftPotential: era.riftPotential,
               shearStress: era.shearStress,
               volcanism: era.volcanism,
               fracture: era.fracture,
             })),
             upliftTotal,
+            collisionTotal,
+            subductionTotal,
             fractureTotal,
             volcanismTotal,
             upliftRecentFraction,
+            collisionRecentFraction,
+            subductionRecentFraction,
             lastActiveEra,
+            lastCollisionEra,
+            lastSubductionEra,
           },
           tectonics,
           tectonicProvenance,

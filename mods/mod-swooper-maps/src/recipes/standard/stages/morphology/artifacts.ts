@@ -185,6 +185,12 @@ const MorphologyBeltDriversArtifactSchema = Type.Object(
     upliftPotential: TypedArraySchemas.u8({
       description: "Orogeny / uplift potential per tile (0..255), decayed away from belt seed centers.",
     }),
+    collisionPotential: TypedArraySchemas.u8({
+      description: "Collision-driven uplift potential per tile (0..255), decayed away from belt seed centers.",
+    }),
+    subductionPotential: TypedArraySchemas.u8({
+      description: "Subduction-driven uplift potential per tile (0..255), decayed away from belt seed centers.",
+    }),
     riftPotential: TypedArraySchemas.u8({
       description: "Rift potential per tile (0..255), decayed away from belt seed centers.",
     }),

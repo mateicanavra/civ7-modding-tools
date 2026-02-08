@@ -3,25 +3,48 @@ import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
 import { clamp } from "@swooper/mapgen-core/lib/math";
 
 import type { MountainsConfig } from "./types.js";
-import { clamp01 } from "./util.js";
 import { resolveBoundaryRegime } from "./resolveBoundaryRegime.js";
 import { computeOrogenyPotential } from "./computeOrogenyPotential.js";
 
 /**
  * Computes mountain score from tectonic signals and fractal noise.
+ *
+ * Prefer passing `collisionUplift` + `subductionUplift` when available. Those two values
+ * are derived from Foundation's convergent event typing and let us model collision vs.
+ * subduction arcs differently while keeping the algorithm deterministic.
  */
 export function computeMountainScore(params: {
   boundaryStrength: number;
   boundaryType: number;
   uplift: number;
+  /** Collision-driven uplift component (0..1). If omitted, falls back to `uplift`. */
+  collisionUplift?: number;
+  /** Subduction-driven uplift component (0..1). If omitted, treated as 0. */
+  subductionUplift?: number;
   stress: number;
   rift: number;
   fractal: number;
   driverStrength: number;
   config: MountainsConfig;
 }): number {
-  const { boundaryStrength, boundaryType, uplift, stress, rift, fractal, driverStrength, config } = params;
-  const regime = resolveBoundaryRegime({ boundaryType, uplift, stress, rift });
+  const {
+    boundaryStrength,
+    boundaryType,
+    uplift,
+    collisionUplift,
+    subductionUplift,
+    stress,
+    rift,
+    fractal,
+    driverStrength,
+    config,
+  } = params;
+
+  const resolvedCollisionUplift = collisionUplift ?? uplift;
+  const resolvedSubductionUplift = subductionUplift ?? 0;
+  const convergentUplift = Math.max(uplift, resolvedCollisionUplift, resolvedSubductionUplift);
+
+  const regime = resolveBoundaryRegime({ boundaryType, uplift: convergentUplift, stress, rift });
 
   const scaledConvergenceBonus = config.convergenceBonus * config.tectonicIntensity;
   const scaledBoundaryWeight = config.boundaryWeight * config.tectonicIntensity;
@@ -34,17 +57,22 @@ export function computeMountainScore(params: {
   const orogenyPotential = computeOrogenyPotential({
     boundaryStrength,
     boundaryType: regime,
-    uplift,
+    uplift: convergentUplift,
     stress,
     rift,
     config,
   });
 
   let mountainScore =
+    // Collision orogeny is the dominant source of large continuous ranges.
     collision *
       scaledBoundaryWeight *
-      (config.mountainCollisionStressWeight * stress + config.mountainCollisionUpliftWeight * uplift) +
-    uplift * scaledUpliftWeight * config.mountainInteriorUpliftScale * driverStrength +
+      (config.mountainCollisionStressWeight * stress +
+        config.mountainCollisionUpliftWeight * resolvedCollisionUplift +
+        config.mountainSubductionUpliftWeight * resolvedSubductionUplift) +
+    // Interior uplift is allowed, but it should still be coupled to proximity and driver gating.
+    convergentUplift * scaledUpliftWeight * config.mountainInteriorUpliftScale * driverStrength * boundaryStrength +
+    // Fractal modulation is visual roughness; the physics signal is carried by orogenyPotential.
     fractal * config.fractalWeight * config.mountainFractalScale * orogenyPotential;
 
   if (collision > 0) {

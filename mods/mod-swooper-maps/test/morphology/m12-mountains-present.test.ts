@@ -158,6 +158,11 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
     fractalMountain.fill(255);
     fractalHill.fill(255);
 
+    // This test uses plate-derived belts (pre-collision/subduction split).
+    // Treat upliftPotential as the collision channel and leave subduction empty.
+    const collisionPotential = plates.upliftPotential;
+    const subductionPotential = new Uint8Array(size);
+
     const ridges = planRidges.run(
       {
         width,
@@ -166,6 +171,8 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
         boundaryCloseness: plates.boundaryCloseness,
         boundaryType: plates.boundaryType,
         upliftPotential: plates.upliftPotential,
+        collisionPotential,
+        subductionPotential,
         riftPotential: plates.riftPotential,
         tectonicStress: plates.tectonicStress,
         beltAge,
@@ -207,6 +214,8 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
         boundaryCloseness: plates.boundaryCloseness,
         boundaryType: plates.boundaryType,
         upliftPotential: plates.upliftPotential,
+        collisionPotential,
+        subductionPotential,
         riftPotential: plates.riftPotential,
         tectonicStress: plates.tectonicStress,
         beltAge,
