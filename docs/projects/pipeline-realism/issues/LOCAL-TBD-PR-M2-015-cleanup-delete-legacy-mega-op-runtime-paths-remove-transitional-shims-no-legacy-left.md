@@ -36,7 +36,6 @@ related_to: []
 - Blocks: `LOCAL-TBD-PR-M2-016`
 - Paper trail:
   - `$SPIKE/DRIFT.md` (removal targets correspond to recorded drift)
-  - ---
 
 ---
 
@@ -67,9 +66,22 @@ Remove legacy code paths after gates are green.
 - Gate G1/G2 (no step bypasses remain).
 - Gate G3/G4 (parity + viz keys unchanged).
 
-## Prework Prompt (Agent Brief)
-- Search for external usages of legacy mega-ops (outside standard recipe).
-- Expected output: a yes/no list; if any exist, add a migration sub-issue before deleting.
+### Prework Results (Resolved)
+
+Result: **no external runtime consumers** of the legacy mega-op ids were found outside the standard recipe/test surfaces.
+
+Evidence (search-based):
+- `rg "ecology/features/(plan-vegetation|vegetated-placement|wet-placement|aquatic-placement|vegetation-embellishments|reef-embellishments)"`:
+  - matches only the op contract definitions + docs (no other runtime call sites).
+- `rg "from \\\"@mapgen/domain/ecology/ops\\\""`:
+  - runtime: standard recipe wiring (`mods/mod-swooper-maps/src/recipes/standard/recipe.ts`) and the known drift (`.../features-plan/index.ts`)
+  - non-runtime: ecology tests under `mods/mod-swooper-maps/test/ecology/**` and archived docs.
+
+Conclusion:
+- No additional “migration sub-issue” is required for third-party consumers.
+- Cleanup can delete legacy mega-op runtime paths once `LOCAL-TBD-PR-M2-011` has cut over `features-plan` and gates are green.
+
+**Implementation anchors**
 
 ```yaml
 files:
