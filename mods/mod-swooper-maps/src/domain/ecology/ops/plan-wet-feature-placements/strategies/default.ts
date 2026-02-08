@@ -8,7 +8,11 @@ import {
 } from "@mapgen/domain/ecology/types.js";
 
 import PlanWetFeaturePlacementsContract from "../contract.js";
-import { hasAdjacentFeatureType, isCoastalLand } from "../rules/index.js";
+import {
+  hasAdjacentFeatureType,
+  isCoastalLand,
+  normalizeWetFeaturePlacementsConfig,
+} from "../rules/index.js";
 
 const FEATURE_KEY_INDEX = FEATURE_PLACEMENT_KEYS.reduce((acc, key, index) => {
   acc[key] = index;
@@ -19,30 +23,8 @@ type Config = Static<(typeof PlanWetFeaturePlacementsContract)["strategies"]["de
 
 const NO_FEATURE = -1;
 
-function normalizeRadius(value: number): number {
-  return Math.max(1, Math.floor(value));
-}
-
 function normalizeConfig(config: Config): Config {
-  const rules = config.rules;
-  return {
-    ...config,
-    multiplier: Math.max(0, config.multiplier),
-    chances: {
-      FEATURE_MARSH: clampChance(config.chances.FEATURE_MARSH),
-      FEATURE_TUNDRA_BOG: clampChance(config.chances.FEATURE_TUNDRA_BOG),
-      FEATURE_MANGROVE: clampChance(config.chances.FEATURE_MANGROVE),
-      FEATURE_OASIS: clampChance(config.chances.FEATURE_OASIS),
-      FEATURE_WATERING_HOLE: clampChance(config.chances.FEATURE_WATERING_HOLE),
-    },
-    rules: {
-      ...rules,
-      nearRiverRadius: normalizeRadius(rules.nearRiverRadius),
-      coastalAdjacencyRadius: normalizeRadius(rules.coastalAdjacencyRadius),
-      isolatedRiverRadius: normalizeRadius(rules.isolatedRiverRadius),
-      isolatedSpacingRadius: normalizeRadius(rules.isolatedSpacingRadius),
-    },
-  };
+  return normalizeWetFeaturePlacementsConfig(config);
 }
 
 export const defaultStrategy = createStrategy(PlanWetFeaturePlacementsContract, "default", {

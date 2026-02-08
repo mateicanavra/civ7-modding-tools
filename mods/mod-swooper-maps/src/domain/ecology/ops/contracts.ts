@@ -21,6 +21,11 @@ import PlanVegetationSavannaWoodlandContract from "./features-plan-vegetation-sa
 import PlanVegetationTaigaContract from "./features-plan-vegetation-taiga/contract.js";
 import PlanVegetationEmbellishmentsContract from "./plan-vegetation-embellishments/contract.js";
 import PlanWetFeaturePlacementsContract from "./plan-wet-feature-placements/contract.js";
+import PlanWetPlacementMangroveContract from "./plan-wet-placement-mangrove/contract.js";
+import PlanWetPlacementMarshContract from "./plan-wet-placement-marsh/contract.js";
+import PlanWetPlacementOasisContract from "./plan-wet-placement-oasis/contract.js";
+import PlanWetPlacementTundraBogContract from "./plan-wet-placement-tundra-bog/contract.js";
+import PlanWetPlacementWateringHoleContract from "./plan-wet-placement-watering-hole/contract.js";
 import PlanWetlandsContract from "./features-plan-wetlands/contract.js";
 import RefineBiomeEdgesContract from "./refine-biome-edges/contract.js";
 import ResourcePlanBasinsContract from "./resource-plan-basins/contract.js";
@@ -45,6 +50,11 @@ export const contracts = {
   planVegetatedPlacementSagebrushSteppe: PlanVegetatedPlacementSagebrushSteppeContract,
   planVegetationEmbellishments: PlanVegetationEmbellishmentsContract,
   planWetFeaturePlacements: PlanWetFeaturePlacementsContract,
+  planWetPlacementMarsh: PlanWetPlacementMarshContract,
+  planWetPlacementTundraBog: PlanWetPlacementTundraBogContract,
+  planWetPlacementMangrove: PlanWetPlacementMangroveContract,
+  planWetPlacementOasis: PlanWetPlacementOasisContract,
+  planWetPlacementWateringHole: PlanWetPlacementWateringHoleContract,
   planVegetationForest: PlanVegetationForestContract,
   planVegetationRainforest: PlanVegetationRainforestContract,
   planVegetationTaiga: PlanVegetationTaigaContract,
@@ -82,6 +92,11 @@ export {
   PlanVegetationTaigaContract,
   PlanVegetationEmbellishmentsContract,
   PlanWetFeaturePlacementsContract,
+  PlanWetPlacementMangroveContract,
+  PlanWetPlacementMarshContract,
+  PlanWetPlacementOasisContract,
+  PlanWetPlacementTundraBogContract,
+  PlanWetPlacementWateringHoleContract,
   PlanWetlandsContract,
   RefineBiomeEdgesContract,
   ResourcePlanBasinsContract,

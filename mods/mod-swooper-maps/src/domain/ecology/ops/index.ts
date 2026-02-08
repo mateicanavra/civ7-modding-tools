@@ -28,6 +28,11 @@ import planVegetatedPlacementSavannaWoodland from "./plan-vegetated-placement-sa
 import planVegetatedPlacementTaiga from "./plan-vegetated-placement-taiga/index.js";
 import planVegetationEmbellishments from "./plan-vegetation-embellishments/index.js";
 import planWetFeaturePlacements from "./plan-wet-feature-placements/index.js";
+import planWetPlacementMangrove from "./plan-wet-placement-mangrove/index.js";
+import planWetPlacementMarsh from "./plan-wet-placement-marsh/index.js";
+import planWetPlacementOasis from "./plan-wet-placement-oasis/index.js";
+import planWetPlacementTundraBog from "./plan-wet-placement-tundra-bog/index.js";
+import planWetPlacementWateringHole from "./plan-wet-placement-watering-hole/index.js";
 
 const implementations = {
   classifyBiomes,
@@ -48,6 +53,11 @@ const implementations = {
   planVegetatedPlacementSagebrushSteppe,
   planVegetationEmbellishments,
   planWetFeaturePlacements,
+  planWetPlacementMarsh,
+  planWetPlacementTundraBog,
+  planWetPlacementMangrove,
+  planWetPlacementOasis,
+  planWetPlacementWateringHole,
   planVegetationForest,
   planVegetationRainforest,
   planVegetationTaiga,
@@ -89,4 +99,9 @@ export {
   planVegetatedPlacementSagebrushSteppe,
   planVegetationEmbellishments,
   planWetFeaturePlacements,
+  planWetPlacementMarsh,
+  planWetPlacementTundraBog,
+  planWetPlacementMangrove,
+  planWetPlacementOasis,
+  planWetPlacementWateringHole,
 };
