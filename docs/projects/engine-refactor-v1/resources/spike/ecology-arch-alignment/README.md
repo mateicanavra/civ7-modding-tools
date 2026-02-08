@@ -1,5 +1,9 @@
 # SPIKE: Ecology Domain Architecture Alignment (No Behavior Change)
 
+This directory contains:
+- the original architecture-alignment spike outputs, and
+- the follow-on feasibility/spec-prep outputs that make Phase 3 planning straightforward.
+
 ## 1) Objective
 
 Understand the **current ecology domain** and the **target architecture**, identify **drift**, and define the **conceptual refactor target shape** needed to realign ecology to the architecture **without changing behavior**.
@@ -74,8 +78,9 @@ See also:
 ### Shape B (transitional, not target): Keep current step list; contract-ize the missing ops
 
 - Keep the current step list and current artifact ids.
-- Make the compiler own all op envelopes by declaring the optional placement ops in `features-plan` step contract and removing direct `@mapgen/domain/ecology/ops` imports.
-- Still aligns with the “atomic per-feature ops” directive (this shape is about step topology, not op modeling).
+- Remove direct domain-op imports from steps and move all runtime op use behind compiler-owned injection/normalization.
+- Preserve config compatibility for `vegetatedFeaturePlacements` / `wetFeaturePlacements` by treating them as step-owned orchestration config and translating into internal per-feature op envelopes (default disabled).
+- This can keep the *step list* stable while still achieving **atomic per-feature ops** at the op level.
 
 ## 6) Minimal Experiment (Optional)
 
@@ -95,10 +100,16 @@ This supports “no behavior change” parity validation without committing larg
 
 ## 8) Next Steps
 
-- If the next question is **integration/landing the refactor**, escalate to `/dev-spike-feasibility` and define:
-  - the exact refactor approach (step split or not),
-  - the artifact mutability decision,
-  - and the parity harness gates to protect behavior.
+- Feasibility/spec-prep is captured here:
+  - `FEASIBILITY.md` (verdict + locked blueprint)
+  - `CONTRACT-MATRIX.md` (step↔op↔artifact↔tags↔viz reference)
+  - `DECISIONS/` (explicit “this-or-this” outcomes)
+  - `PHASE-3-SKELETON.md` (execution shape, not hardened)
+
+- The next stage is to harden `PHASE-3-SKELETON.md` into a full implementation plan:
+  - explicit slice sequencing
+  - explicit verification gates per slice
+  - explicit migration/compat commitments (especially config surfaces for `features-plan`)
 
 ---
 
@@ -112,3 +123,7 @@ See:
 - `DECKGL-VIZ.md` for viz key compatibility surfaces.
 - `HARDENING.md` for behavior-preservation invariants and harness tooling.
 - `DOCS-IMPACT.md` for Diataxis-oriented docs updates.
+- `FEASIBILITY.md` for feasibility verdict + spec-ready blueprint.
+- `CONTRACT-MATRIX.md` for the current-state contract matrix and feasibility seams.
+- `DECISIONS/README.md` for decision packets.
+- `PHASE-3-SKELETON.md` for the Phase 3 execution skeleton.

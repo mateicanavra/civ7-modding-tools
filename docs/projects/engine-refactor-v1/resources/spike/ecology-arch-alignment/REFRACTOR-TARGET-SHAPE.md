@@ -113,8 +113,13 @@ Recommended: choose one consistent model for each feature family:
   - strategies under the owned placement op, or
   - deprecated/fallback modes (but that is a behavior change story).
 
-For a no-behavior-change refactor, we keep both, but we make the contract usage explicit:
-- Step declares both op envelopes in `contract.ops`, and step chooses which to call based on config presence.
+For a no-behavior-change refactor, we keep behavior but must be careful about compiler semantics:
+- Declaring an op in `contract.ops` causes the compiler to **prefill** `defaultConfig` when the author omits that key.
+  - This means “config presence” is not a safe signal for optionality once an op is declared.
+- Feasibility-stage default (locked):
+  - treat legacy “advanced planner” keys as **step-owned orchestration config**, and
+  - translate them into internal per-feature op envelopes (defaulting to “disabled”) in stage.compile or step.normalize,
+  - see: `FEASIBILITY.md` and `DECISIONS/DECISION-features-plan-advanced-planners.md`.
 
 ### Artifacts and mutability
 
@@ -141,6 +146,9 @@ Feature intents artifact should remain the single “truth” surface for planne
 Tradeoff:
 - Fewer nodes/steps in plan (simpler).
 - Less granular observability and fewer seams for future refactors.
+
+Note:
+- “Optional placement ops” must be modeled with explicit disabled/fallback semantics; otherwise compiler default-prefill can accidentally turn them on.
 
 ## Open Questions
 

@@ -32,7 +32,9 @@ Current ecology code anchors:
 - **Drift:** `features-plan` step imports domain ops directly for optional placement ops (`planVegetatedFeaturePlacements`, `planWetFeaturePlacements`), bypassing contract-injected ops.
   - Evidence: `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/features-plan/index.ts` imports `@mapgen/domain/ecology/ops`.
 - **Why it matters:** Compiler-owned op binding/defaulting/normalization is undermined; contract mismatch risk.
-- **Refactor shape note:** Declare those optional ops in `features-plan` contract ops (or split into dedicated steps) so all op usage flows through injected ops.
+- **Refactor shape note:** Move this wiring behind compiler-owned binding/normalization, but account for `contract.ops` prefill semantics:
+  - Declaring an op under `contract.ops` will prefill its `defaultConfig` (so “presence” is not a safe optionality signal).
+  - Feasibility-stage default: model `vegetatedFeaturePlacements` / `wetFeaturePlacements` as step-owned orchestration config and translate into internal per-feature op envelopes (see `DECISIONS/DECISION-features-plan-advanced-planners.md`).
 
 ### 2) Stage compile boundary (config compilation)
 
@@ -43,7 +45,7 @@ Current ecology code anchors:
 - **Drift:** Because optional placement ops are not declared in the step contract, their envelopes are not compiler-prefilled/validated by the usual `prefillOpDefaults`/`normalizeOpsTopLevel` path.
   - Evidence: `packages/mapgen-core/src/compiler/normalize.ts` only processes declared `contract.ops`; contrast with `features-plan` config fields and implementation calls.
 - **Why it matters:** “No behavior change refactor” becomes harder because config/normalize semantics are partly manual.
-- **Refactor shape note:** Put *all* op envelopes behind `contract.ops` so compilation sees them.
+- **Refactor shape note:** Put all runtime op envelopes behind `contract.ops`, but only after we lock an explicit “disabled/fallback” strategy or compile-time translation for optional toggles so prefill does not change behavior (see `FEASIBILITY.md`).
 
 ### 3) Truth vs projection boundary
 

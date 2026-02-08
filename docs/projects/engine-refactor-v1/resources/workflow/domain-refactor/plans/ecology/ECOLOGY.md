@@ -8,7 +8,7 @@ description: |
 
 # PLAN: Ecology (Vertical Domain Refactor)
 
-This is a **thin policy + index** plan for the Ecology refactor. Modeling lives in the Phase 2 spike. Slice planning lives in the Phase 3 issue.
+This is a **thin policy + index** plan for the Ecology refactor. It points to the canonical spike outputs and the next-stage planning artifacts.
 
 Backbone workflow:
 - `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/WORKFLOW.md`
@@ -80,11 +80,13 @@ It typically publishes:
 - placement-facing planning products for downstream consumers (Gameplay, etc).
 
 North-star references:
-- `docs/system/libs/mapgen/ecology.md`
-- `docs/system/libs/mapgen/architecture.md`
-- `docs/system/libs/mapgen/hydrology.md`
-- `docs/system/libs/mapgen/morphology.md`
-- `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/gameplay/GAMEPLAY.md`
+- `docs/system/libs/mapgen/reference/domains/ECOLOGY.md`
+- `docs/system/libs/mapgen/explanation/ARCHITECTURE.md`
+- `docs/system/libs/mapgen/explanation/DOMAIN-MODELING.md`
+- `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
+- `docs/system/libs/mapgen/reference/domains/HYDROLOGY.md`
+- `docs/system/libs/mapgen/reference/domains/MORPHOLOGY.md`
+- `docs/system/libs/mapgen/reference/domains/PLACEMENT.md`
 
 Ecology special-case guidance:
 - No shortcuts: do the full Phase 0.5 → 3 process and produce each phase’s canonical deliverable.
@@ -94,9 +96,26 @@ Ecology special-case guidance:
 
 | Phase | Artifact | Status |
 | --- | --- | --- |
-| Phase 1 | `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/ecology/spike-ecology-current-state.md` | not started |
-| Phase 2 | `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/ecology/spike-ecology-modeling.md` | not started |
-| Phase 3 | `docs/projects/engine-refactor-v1/issues/LOCAL-TBD-ecology-vertical-domain-refactor.md` | not started |
+| Phase 1 | `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/ecology/spike-ecology-current-state.md` | captured (see canonical spike directory) |
+| Phase 2 | `docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/plans/ecology/spike-ecology-modeling.md` | captured (see canonical spike directory) |
+| Phase 2.5 (feasibility/spec-prep) | `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/FEASIBILITY.md` | captured |
+| Phase 3 | `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/PHASE-3-SKELETON.md` | captured (skeleton only; hardening is next stage) |
+
+## Canonical Spike Outputs (Single Source Of Truth)
+
+All authoritative Ecology spike outputs live here (do not duplicate content into this plan):
+- `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/README.md`
+
+Key entrypoints in that directory:
+- Current-state map: `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/CURRENT.md`
+- Target interpretation: `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/TARGET.md`
+- Drift matrix: `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/DRIFT.md`
+- Greenfield target (physics-first): `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/GREENFIELD.md`
+- Refactor target shape: `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/REFRACTOR-TARGET-SHAPE.md`
+- Contracts + ids: `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/CONTRACTS.md`
+- Contract matrix (current-state + seams): `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/CONTRACT-MATRIX.md`
+- Feasibility verdict + blueprint: `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/FEASIBILITY.md`
+- Phase 3 skeleton: `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/PHASE-3-SKELETON.md`
 
 ## Phase 1 hypotheses to validate (current-state)
 
@@ -107,6 +126,5 @@ Ecology special-case guidance:
 ## Notes
 
 - This plan is an index and posture statement only.
-- Current-state inventory belongs in the Phase 1 spike.
-- Authoritative modeling belongs in the Phase 2 spike.
-- Slice planning and sequencing belong in the Phase 3 issue.
+- Current-state inventory + modeling live in the canonical spike directory referenced above.
+- Slice planning and sequencing will be hardened in the next stage (Phase 3 plan hardening).
