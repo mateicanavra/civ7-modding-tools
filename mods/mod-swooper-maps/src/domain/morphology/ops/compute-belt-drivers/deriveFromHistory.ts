@@ -264,7 +264,15 @@ export function deriveBeltDriversFromHistory(input: {
     // high-intensity present-day/late-era boundary spine, not "any uplift that ever happened".
     // Using the integrated upliftTotal here can make intensity nonzero almost everywhere, collapsing
     // distance-to-seed to ~0 globally and saturating boundaryCloseness (everything looks like a boundary).
-    upliftBlend[i] = upliftSum;
+    //
+    // However, per-era upliftPotential is intentionally weight-compressed upstream (for stable newest-era fields),
+    // which can make the late-era uplift signal too small for believable mountains/foothills. We recover dynamic
+    // range by mixing in a "recent-weighted cumulative uplift" term: upliftTotal * upliftRecentFraction.
+    // This preserves the key invariant: old/stable interiors (low recent fraction) do not light up everywhere.
+    const total = upliftTotal[i] ?? 0;
+    const recentFrac = upliftRecentFraction[i] ?? 0;
+    const recentWeightedTotal = (total * recentFrac) / 255;
+    upliftBlend[i] = Math.max(upliftSum, recentWeightedTotal);
     intensityBlend[i] = Math.max(upliftBlend[i] ?? 0, riftSum, shearSum);
 
     const boundary = perEra[bestEra]?.boundaryType?.[i] ?? BOUNDARY_TYPE.none;
@@ -444,7 +452,11 @@ export function deriveBeltDriversFromHistory(input: {
     const seedIntensity = intensityBlend[seedIndex] ?? 0;
     if (seedIntensity <= 0) continue;
 
-    const seedUplift = upliftBlend[seedIndex] ?? 0;
+    // Uplift totals carry the physically meaningful "how much this corridor has been built up over time"
+    // signal. Per-era uplifts are intentionally weight-compressed upstream, which can make the active
+    // uplift field too small for mountain planning. We keep the seed *selection* anchored on late-era
+    // intensity (intensityBlend), but emit upliftPotential using the strongest of (late-era blend, total).
+    const seedUplift = Math.max(upliftBlend[seedIndex] ?? 0, upliftTotal[seedIndex] ?? 0);
     const seedRift = riftBlend[seedIndex] ?? 0;
     const seedShear = shearBlend[seedIndex] ?? 0;
     const seedType = boundaryTypeBlend[seedIndex] ?? BOUNDARY_TYPE.none;
