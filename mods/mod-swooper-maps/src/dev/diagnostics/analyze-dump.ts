@@ -1,4 +1,13 @@
-import { parseArgs, loadManifest, loadTraceLines, landmaskStats, connectedComponentsLandOddQ, hammingU8, readU8Grid } from "./shared.js";
+import {
+  parseArgs,
+  loadManifest,
+  loadTraceLines,
+  landmaskStats,
+  connectedComponentsLandOddQ,
+  hammingU8,
+  pickLatestGridLayer,
+  readU8Grid,
+} from "./shared.js";
 
 function lastSummary(trace: any[], kind: string): unknown {
   const matches = trace
@@ -29,6 +38,41 @@ function summarizeLandmasks(runDir: string, manifest: ReturnType<typeof loadMani
       ...cc,
     };
   });
+}
+
+function countEqU8(values: Uint8Array, expected: number): number {
+  const e = expected | 0;
+  let n = 0;
+  for (let i = 0; i < values.length; i++) {
+    if (((values[i] ?? 0) | 0) === e) n++;
+  }
+  return n;
+}
+
+function maxU8(values: Uint8Array): number {
+  let m = 0;
+  for (let i = 0; i < values.length; i++) {
+    const v = values[i] ?? 0;
+    if (v > m) m = v;
+  }
+  return m;
+}
+
+function summarizeMountains(runDir: string, manifest: ReturnType<typeof loadManifest>) {
+  // These keys are the stable, user-facing visualization outputs used in Mapgen Studio.
+  const mountainMaskLayer = pickLatestGridLayer(manifest, "map.morphology.mountains.mountainMask");
+  const hillMaskLayer = pickLatestGridLayer(manifest, "map.morphology.mountains.hillMask");
+  const orogenyLayer = pickLatestGridLayer(manifest, "map.morphology.mountains.orogenyPotential");
+
+  const mountain = readU8Grid(runDir, mountainMaskLayer);
+  const hill = readU8Grid(runDir, hillMaskLayer);
+  const orogeny = readU8Grid(runDir, orogenyLayer);
+
+  return {
+    mountainTiles: countEqU8(mountain.values, 1),
+    hillTiles: countEqU8(hill.values, 1),
+    orogenyMax: maxU8(orogeny.values),
+  };
 }
 
 function diffLandmasks(runDirA: string, runDirB: string, manifestA: ReturnType<typeof loadManifest>, manifestB: ReturnType<typeof loadManifest>) {
@@ -80,6 +124,7 @@ function main(): void {
       landmassSummary: lastSummary(traceA, "morphology.landmassPlates.summary"),
       geomorphologySummary: lastSummary(traceA, "morphology.geomorphology.summary"),
       landmasks: summarizeLandmasks(runDirA, manifestA),
+      mountainsSummary: summarizeMountains(runDirA, manifestA),
     },
   };
 
@@ -92,6 +137,7 @@ function main(): void {
       landmassSummary: lastSummary(traceB, "morphology.landmassPlates.summary"),
       geomorphologySummary: lastSummary(traceB, "morphology.geomorphology.summary"),
       landmasks: summarizeLandmasks(runDirB, manifestB),
+      mountainsSummary: summarizeMountains(runDirB, manifestB),
     };
     out.diff = {
       landmaskLayerDiffs: diffLandmasks(runDirA, runDirB, manifestA, manifestB),
@@ -107,4 +153,3 @@ try {
   console.error(err);
   process.exitCode = 1;
 }
-
