@@ -42,25 +42,37 @@ describe("ecology defaults regression", () => {
   });
 
   it("treats effectiveMoisture in consistent units for vegetation weights", () => {
-    const result = runOpValidated(
-      ecology.ops.planVegetationForest,
+    const substrate = runOpValidated(
+      ecology.ops.computeVegetationSubstrate,
       {
         width: 1,
         height: 1,
-        biomeIndex: new Uint8Array([4]),
-        vegetationDensity: new Float32Array([0.6]),
+        landMask: new Uint8Array([1]),
         effectiveMoisture: new Float32Array([120]),
         surfaceTemperature: new Float32Array([15]),
+        aridityIndex: new Float32Array([0.2]),
+        freezeIndex: new Float32Array([0.05]),
+        vegetationDensity: new Float32Array([0.6]),
         fertility: new Float32Array([0]),
-        landMask: new Uint8Array([1]),
       },
       { strategy: "default", config: {} }
     );
 
-    expect(result.placements).toHaveLength(1);
-    const weight = result.placements[0]?.weight;
-    expect(typeof weight).toBe("number");
-    expect(Number.isFinite(weight!)).toBe(true);
-    expect(weight!).toBeLessThan(0.95);
+    const result = runOpValidated(
+      ecology.ops.scoreVegetationForest,
+      {
+        width: 1,
+        height: 1,
+        landMask: new Uint8Array([1]),
+        ...substrate,
+      },
+      { strategy: "default", config: {} }
+    );
+
+    const score = result.score01[0];
+    expect(typeof score).toBe("number");
+    expect(Number.isFinite(score)).toBe(true);
+    expect(score).toBeGreaterThanOrEqual(0);
+    expect(score).toBeLessThan(0.95);
   });
 });
