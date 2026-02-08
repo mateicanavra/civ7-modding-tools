@@ -112,6 +112,33 @@ export default createStep(FeaturesPlanStepContract, {
     const advancedVegetated = config.vegetatedFeaturePlacements;
     const useAdvancedVegetated = advancedVegetated.strategy !== "disabled";
 
+    const legacyVegetationInput = {
+      width,
+      height,
+      biomeIndex: classification.biomeIndex,
+      vegetationDensity: classification.vegetationDensity,
+      effectiveMoisture: classification.effectiveMoisture,
+      surfaceTemperature: classification.surfaceTemperature,
+      fertility: pedology.fertility,
+      landMask: topography.landMask,
+    };
+    const legacyVegetationPlacements = [
+      ...ops.vegetationForest(legacyVegetationInput, config.vegetationForest).placements,
+      ...ops.vegetationRainforest(legacyVegetationInput, config.vegetationRainforest).placements,
+      ...ops.vegetationTaiga(legacyVegetationInput, config.vegetationTaiga).placements,
+      ...ops.vegetationSavannaWoodland(
+        legacyVegetationInput,
+        config.vegetationSavannaWoodland
+      ).placements,
+      ...ops.vegetationSagebrushSteppe(
+        legacyVegetationInput,
+        config.vegetationSagebrushSteppe
+      ).placements,
+    ];
+    legacyVegetationPlacements.sort(
+      (a, b) => (a.y * width + a.x) - (b.y * width + b.x)
+    );
+
     const vegetationPlacements = useAdvancedVegetated
       ? ops.vegetatedFeaturePlacements(
           {
@@ -130,19 +157,7 @@ export default createStep(FeaturesPlanStepContract, {
           },
           advancedVegetated
         ).placements
-      : ops.vegetation(
-          {
-            width,
-            height,
-            biomeIndex: classification.biomeIndex,
-            vegetationDensity: classification.vegetationDensity,
-            effectiveMoisture: classification.effectiveMoisture,
-            surfaceTemperature: classification.surfaceTemperature,
-            fertility: pedology.fertility,
-            landMask: topography.landMask,
-          },
-          config.vegetation
-        ).placements;
+      : legacyVegetationPlacements;
 
     const wetlandsPlan = ops.wetlands(
       {

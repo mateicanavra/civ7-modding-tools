@@ -405,15 +405,15 @@ describe("ecology op contract surfaces", () => {
     expect(Array.isArray(result.placements)).toBe(true);
   });
 
-  it("planVegetation validates output", () => {
+  it("planVegetationRainforest validates output", () => {
     const width = 2;
     const height = 2;
     const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetation, {
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetationRainforest, {
       strategy: "default",
       config: {},
     });
-    const result = ecology.ops.planVegetation.run(
+    const result = ecology.ops.planVegetationRainforest.run(
       {
         width,
         height,
@@ -429,15 +429,15 @@ describe("ecology op contract surfaces", () => {
     expect(result.placements.length).toBeGreaterThan(0);
   });
 
-  it("planVegetation clustered strategy validates output", () => {
+  it("planVegetationRainforest clustered strategy validates output", () => {
     const width = 2;
     const height = 2;
     const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetation, {
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetationRainforest, {
       strategy: "clustered",
       config: {},
     });
-    const result = ecology.ops.planVegetation.run(
+    const result = ecology.ops.planVegetationRainforest.run(
       {
         width,
         height,

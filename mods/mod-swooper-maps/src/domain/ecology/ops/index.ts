@@ -3,7 +3,11 @@ import type { contracts } from "./contracts.js";
 
 import applyFeatures from "./features-apply/index.js";
 import computeFeatureSubstrate from "./compute-feature-substrate/index.js";
-import planVegetation from "./features-plan-vegetation/index.js";
+import planVegetationForest from "./features-plan-vegetation-forest/index.js";
+import planVegetationRainforest from "./features-plan-vegetation-rainforest/index.js";
+import planVegetationSagebrushSteppe from "./features-plan-vegetation-sagebrush-steppe/index.js";
+import planVegetationSavannaWoodland from "./features-plan-vegetation-savanna-woodland/index.js";
+import planVegetationTaiga from "./features-plan-vegetation-taiga/index.js";
 import planWetlands from "./features-plan-wetlands/index.js";
 import planReefs from "./features-plan-reefs/index.js";
 import planIce from "./features-plan-ice/index.js";
@@ -36,7 +40,11 @@ const implementations = {
   planVegetatedFeaturePlacements,
   planVegetationEmbellishments,
   planWetFeaturePlacements,
-  planVegetation,
+  planVegetationForest,
+  planVegetationRainforest,
+  planVegetationTaiga,
+  planVegetationSavannaWoodland,
+  planVegetationSagebrushSteppe,
   planWetlands,
   planReefs,
   planIce,
@@ -48,7 +56,11 @@ export default implementations;
 export {
   applyFeatures,
   computeFeatureSubstrate,
-  planVegetation,
+  planVegetationForest,
+  planVegetationRainforest,
+  planVegetationTaiga,
+  planVegetationSavannaWoodland,
+  planVegetationSagebrushSteppe,
   planWetlands,
   planReefs,
   planIce,

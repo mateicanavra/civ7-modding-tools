@@ -32,7 +32,23 @@ describe("features plan/apply pipeline", () => {
     });
 
     const planConfig = {
-      vegetation: normalizeOpSelectionOrThrow(ecology.ops.planVegetation, {
+      vegetationForest: normalizeOpSelectionOrThrow(ecology.ops.planVegetationForest, {
+        strategy: "default",
+        config: {},
+      }),
+      vegetationRainforest: normalizeOpSelectionOrThrow(ecology.ops.planVegetationRainforest, {
+        strategy: "default",
+        config: {},
+      }),
+      vegetationTaiga: normalizeOpSelectionOrThrow(ecology.ops.planVegetationTaiga, {
+        strategy: "default",
+        config: {},
+      }),
+      vegetationSavannaWoodland: normalizeOpSelectionOrThrow(ecology.ops.planVegetationSavannaWoodland, {
+        strategy: "default",
+        config: {},
+      }),
+      vegetationSagebrushSteppe: normalizeOpSelectionOrThrow(ecology.ops.planVegetationSagebrushSteppe, {
         strategy: "default",
         config: {},
       }),
