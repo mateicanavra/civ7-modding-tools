@@ -63,6 +63,8 @@ type PlateMembershipParams = Readonly<{
     neighbors: Int32Array;
   }>;
   plates: ReadonlyArray<Readonly<{ id: number; seedX: number; seedY: number }>>;
+  /** Present-day plate membership, used to anchor the newest era to the current plate graph. */
+  currentCellToPlate: Int16Array;
   plateVelocityX: Float32Array;
   plateVelocityY: Float32Array;
   driftStepsByEra: ReadonlyArray<number>;
@@ -242,6 +244,12 @@ function computePlateIdByEra(params: PlateMembershipParams): ReadonlyArray<Int16
   const result: Int16Array[] = [];
 
   for (let era = 0; era < eraCount; era++) {
+    if (era === eraCount - 1 && params.currentCellToPlate.length === cellCount) {
+      // Anchor the newest era to the current plate graph membership. Older eras drift via advection.
+      result.push(params.currentCellToPlate.slice());
+      continue;
+    }
+
     const driftSteps = Math.max(0, driftStepsByEra[era] ?? 0);
     const displacement = driftSteps * meanEdgeLen;
     const scale = displacement / meanPlateSpeed;
@@ -981,6 +989,7 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
         const plateIdByEra = computePlateIdByEra({
           mesh,
           plates: plateGraph.plates,
+          currentCellToPlate: plateGraph.cellToPlate,
           plateVelocityX: plateMotion.plateVelocityX,
           plateVelocityY: plateMotion.plateVelocityY,
           driftStepsByEra: driftSteps,
