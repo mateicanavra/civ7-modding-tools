@@ -40,7 +40,12 @@ export default createStep(BiomeEdgeRefineStepContract, {
       config.refine
     );
 
-    // Biome classification is refined in-place after the initial publish.
+    // Publish-once mutable handle posture:
+    // - `biomes` publishes `artifact:ecology.biomeClassification` once.
+    // - `biome-edge-refine` refines the *same* artifact buffers in-place by mutating `biomeIndex`.
+    // Downstream consumers must treat this artifact as ordering-sensitive, not as an immutable snapshot.
+    //
+    // Guardrail: mods/mod-swooper-maps/test/ecology/biome-edge-refine-mutability.test.ts
     const mutable = classification as BiomeClassificationArtifact;
     mutable.biomeIndex.set(refined.biomeIndex);
 
