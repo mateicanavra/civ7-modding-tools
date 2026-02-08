@@ -437,17 +437,17 @@ describe("ecology op contract surfaces", () => {
     expect(result.placements[0]?.feature).toBe("FEATURE_ICE");
   });
 
-  it("planReefEmbellishments validates output", () => {
+  it("planReefEmbellishmentsReef validates output", () => {
     const width = 2;
     const height = 2;
     const size = width * height;
 
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planReefEmbellishments, {
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.planReefEmbellishmentsReef, {
       strategy: "default",
       config: disabledEmbellishmentsConfig,
     });
 
-    const result = ecology.ops.planReefEmbellishments.run(
+    const result = ecology.ops.planReefEmbellishmentsReef.run(
       {
         width,
         height,
@@ -463,18 +463,150 @@ describe("ecology op contract surfaces", () => {
     expect(Array.isArray(result.placements)).toBe(true);
   });
 
-  it("planVegetationEmbellishments validates output", () => {
+  it("planVegetationEmbellishmentsVolcanicForest validates output", () => {
     const width = 2;
     const height = 2;
     const size = width * height;
     const temperateHumid = BIOME_SYMBOL_TO_INDEX.temperateHumid ?? 4;
 
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetationEmbellishments, {
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetationEmbellishmentsVolcanicForest, {
       strategy: "default",
       config: disabledEmbellishmentsConfig,
     });
 
-    const result = ecology.ops.planVegetationEmbellishments.run(
+    const result = ecology.ops.planVegetationEmbellishmentsVolcanicForest.run(
+      {
+        width,
+        height,
+        seed: 0,
+        landMask: new Uint8Array(size).fill(1),
+        terrainType: new Uint8Array(size).fill(0),
+        biomeIndex: new Uint8Array(size).fill(temperateHumid),
+        featureKeyField: createFeatureKeyField(size),
+        rainfall: new Uint8Array(size).fill(120),
+        vegetationDensity: new Float32Array(size).fill(0.2),
+        elevation: new Int16Array(size).fill(0),
+        latitude: new Float32Array(size).fill(10),
+        volcanicMask: new Uint8Array(size).fill(0),
+        navigableRiverTerrain: 255,
+      },
+      selection
+    );
+
+    expect(Array.isArray(result.placements)).toBe(true);
+  });
+
+  it("planVegetationEmbellishmentsVolcanicTaiga validates output", () => {
+    const width = 2;
+    const height = 2;
+    const size = width * height;
+    const temperateHumid = BIOME_SYMBOL_TO_INDEX.temperateHumid ?? 4;
+
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetationEmbellishmentsVolcanicTaiga, {
+      strategy: "default",
+      config: disabledEmbellishmentsConfig,
+    });
+
+    const result = ecology.ops.planVegetationEmbellishmentsVolcanicTaiga.run(
+      {
+        width,
+        height,
+        seed: 0,
+        landMask: new Uint8Array(size).fill(1),
+        terrainType: new Uint8Array(size).fill(0),
+        biomeIndex: new Uint8Array(size).fill(temperateHumid),
+        featureKeyField: createFeatureKeyField(size),
+        rainfall: new Uint8Array(size).fill(120),
+        vegetationDensity: new Float32Array(size).fill(0.2),
+        elevation: new Int16Array(size).fill(0),
+        latitude: new Float32Array(size).fill(10),
+        volcanicMask: new Uint8Array(size).fill(0),
+        navigableRiverTerrain: 255,
+      },
+      selection
+    );
+
+    expect(Array.isArray(result.placements)).toBe(true);
+  });
+
+  it("planVegetationEmbellishmentsRainforestDensity validates output", () => {
+    const width = 2;
+    const height = 2;
+    const size = width * height;
+    const temperateHumid = BIOME_SYMBOL_TO_INDEX.temperateHumid ?? 4;
+
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetationEmbellishmentsRainforestDensity, {
+      strategy: "default",
+      config: disabledEmbellishmentsConfig,
+    });
+
+    const result = ecology.ops.planVegetationEmbellishmentsRainforestDensity.run(
+      {
+        width,
+        height,
+        seed: 0,
+        landMask: new Uint8Array(size).fill(1),
+        terrainType: new Uint8Array(size).fill(0),
+        biomeIndex: new Uint8Array(size).fill(temperateHumid),
+        featureKeyField: createFeatureKeyField(size),
+        rainfall: new Uint8Array(size).fill(120),
+        vegetationDensity: new Float32Array(size).fill(0.2),
+        elevation: new Int16Array(size).fill(0),
+        latitude: new Float32Array(size).fill(10),
+        volcanicMask: new Uint8Array(size).fill(0),
+        navigableRiverTerrain: 255,
+      },
+      selection
+    );
+
+    expect(Array.isArray(result.placements)).toBe(true);
+  });
+
+  it("planVegetationEmbellishmentsForestDensity validates output", () => {
+    const width = 2;
+    const height = 2;
+    const size = width * height;
+    const temperateHumid = BIOME_SYMBOL_TO_INDEX.temperateHumid ?? 4;
+
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetationEmbellishmentsForestDensity, {
+      strategy: "default",
+      config: disabledEmbellishmentsConfig,
+    });
+
+    const result = ecology.ops.planVegetationEmbellishmentsForestDensity.run(
+      {
+        width,
+        height,
+        seed: 0,
+        landMask: new Uint8Array(size).fill(1),
+        terrainType: new Uint8Array(size).fill(0),
+        biomeIndex: new Uint8Array(size).fill(temperateHumid),
+        featureKeyField: createFeatureKeyField(size),
+        rainfall: new Uint8Array(size).fill(120),
+        vegetationDensity: new Float32Array(size).fill(0.2),
+        elevation: new Int16Array(size).fill(0),
+        latitude: new Float32Array(size).fill(10),
+        volcanicMask: new Uint8Array(size).fill(0),
+        navigableRiverTerrain: 255,
+      },
+      selection
+    );
+
+    expect(Array.isArray(result.placements)).toBe(true);
+  });
+
+  it("planVegetationEmbellishmentsTaigaDensity validates output", () => {
+    const width = 2;
+    const height = 2;
+    const size = width * height;
+    const temperateHumid = BIOME_SYMBOL_TO_INDEX.temperateHumid ?? 4;
+
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetationEmbellishmentsTaigaDensity, {
+      strategy: "default",
+      config: disabledEmbellishmentsConfig,
+    });
+
+    const result = ecology.ops.planVegetationEmbellishmentsTaigaDensity.run(
       {
         width,
         height,
