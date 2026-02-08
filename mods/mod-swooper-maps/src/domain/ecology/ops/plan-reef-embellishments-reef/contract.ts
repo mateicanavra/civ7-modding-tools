@@ -1,24 +1,15 @@
 import { Type, defineOp, TypedArraySchemas } from "@swooper/mapgen-core/authoring";
 
 import { FeaturesConfigSchema, FeaturesDensityConfigSchema } from "../../config.js";
-import { FEATURE_PLACEMENT_KEYS, type FeatureKey } from "@mapgen/domain/ecology/types.js";
-
-const FeatureKeySchema = Type.Unsafe<FeatureKey>(
-  Type.Union(
-    FEATURE_PLACEMENT_KEYS.map((key) => Type.Literal(key)),
-    { description: "Feature placement key (FEATURE_*)." }
-  )
-);
-
 const ReefEmbellishmentPlacementSchema = Type.Object({
   x: Type.Integer({ minimum: 0 }),
   y: Type.Integer({ minimum: 0 }),
-  feature: FeatureKeySchema,
+  feature: Type.Literal("FEATURE_REEF"),
 });
 
-const PlanReefEmbellishmentsContract = defineOp({
+const PlanReefEmbellishmentsReefContract = defineOp({
   kind: "plan",
-  id: "ecology/features/reef-embellishments",
+  id: "ecology/features/reef-embellishments/reef",
   input: Type.Object({
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
@@ -43,4 +34,4 @@ const PlanReefEmbellishmentsContract = defineOp({
   },
 });
 
-export default PlanReefEmbellishmentsContract;
+export default PlanReefEmbellishmentsReefContract;
