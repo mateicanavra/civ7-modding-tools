@@ -22,13 +22,10 @@ describe("features (owned baseline)", () => {
       vegetated: { multiplier: 0 },
       wet: { multiplier: 0 },
       aquatic: {
-        rules: { reefLatitudeSplit: 55 },
-        chances: {
-          FEATURE_REEF: 100,
-          FEATURE_COLD_REEF: 100,
-          FEATURE_ATOLL: 0,
-          FEATURE_LOTUS: 0,
-        },
+        reef: { chance: 100, reefLatitudeSplit: 55 },
+        coldReef: { chance: 100, reefLatitudeSplit: 55 },
+        atoll: { chance: 0, rules: {} },
+        lotus: { chance: 0 },
       },
       ice: { multiplier: 0 },
     });

@@ -283,19 +283,19 @@ describe("ecology op contract surfaces", () => {
     expect(result.placements[0]?.feature).toBe("FEATURE_MARSH");
   });
 
-  it("planAquaticFeaturePlacements validates output", () => {
+  it("planAquaticReefPlacements validates output", () => {
     const width = 2;
     const height = 2;
     const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planAquaticFeaturePlacements, {
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.planAquaticReefPlacements, {
       strategy: "default",
       config: {
-        chances: { FEATURE_REEF: 100 },
-        rules: { reefLatitudeSplit: 90 },
+        chance: 100,
+        reefLatitudeSplit: 90,
       },
     });
 
-    const result = ecology.ops.planAquaticFeaturePlacements.run(
+    const result = ecology.ops.planAquaticReefPlacements.run(
       {
         width,
         height,
@@ -311,6 +311,97 @@ describe("ecology op contract surfaces", () => {
 
     expect(result.placements.length).toBe(size);
     expect(result.placements[0]?.feature).toBe("FEATURE_REEF");
+  });
+
+  it("planAquaticColdReefPlacements validates output", () => {
+    const width = 2;
+    const height = 2;
+    const size = width * height;
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.planAquaticColdReefPlacements, {
+      strategy: "default",
+      config: {
+        chance: 100,
+        reefLatitudeSplit: 0,
+      },
+    });
+
+    const result = ecology.ops.planAquaticColdReefPlacements.run(
+      {
+        width,
+        height,
+        seed: 0,
+        landMask: new Uint8Array(size).fill(0),
+        terrainType: new Uint8Array(size).fill(0),
+        latitude: new Float32Array(size).fill(0),
+        featureKeyField: createFeatureKeyField(size),
+        coastTerrain: 1,
+      },
+      selection
+    );
+
+    expect(result.placements.length).toBe(size);
+    expect(result.placements[0]?.feature).toBe("FEATURE_COLD_REEF");
+  });
+
+  it("planAquaticAtollPlacements validates output", () => {
+    const width = 2;
+    const height = 2;
+    const size = width * height;
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.planAquaticAtollPlacements, {
+      strategy: "default",
+      config: {
+        chance: 100,
+        rules: {
+          enableClustering: false,
+          clusterRadius: 0,
+          shallowWaterAdjacencyGateChance: 0,
+        },
+      },
+    });
+
+    const result = ecology.ops.planAquaticAtollPlacements.run(
+      {
+        width,
+        height,
+        seed: 0,
+        landMask: new Uint8Array(size).fill(0),
+        terrainType: new Uint8Array(size).fill(0),
+        latitude: new Float32Array(size).fill(0),
+        featureKeyField: createFeatureKeyField(size),
+        coastTerrain: 1,
+      },
+      selection
+    );
+
+    expect(result.placements.length).toBe(size);
+    expect(result.placements[0]?.feature).toBe("FEATURE_ATOLL");
+  });
+
+  it("planAquaticLotusPlacements validates output", () => {
+    const width = 2;
+    const height = 2;
+    const size = width * height;
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.planAquaticLotusPlacements, {
+      strategy: "default",
+      config: { chance: 100 },
+    });
+
+    const result = ecology.ops.planAquaticLotusPlacements.run(
+      {
+        width,
+        height,
+        seed: 0,
+        landMask: new Uint8Array(size).fill(0),
+        terrainType: new Uint8Array(size).fill(0),
+        latitude: new Float32Array(size).fill(0),
+        featureKeyField: createFeatureKeyField(size),
+        coastTerrain: 1,
+      },
+      selection
+    );
+
+    expect(result.placements.length).toBe(size);
+    expect(result.placements[0]?.feature).toBe("FEATURE_LOTUS");
   });
 
   it("planIceFeaturePlacements validates output", () => {
