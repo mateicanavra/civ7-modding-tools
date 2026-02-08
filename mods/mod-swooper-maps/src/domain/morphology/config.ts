@@ -185,6 +185,31 @@ export const MountainsConfigSchema = Type.Object(
       default: 1.0,
       minimum: 0,
     }),
+    /**
+     * Minimum driver byte (0..255) required for mountains/hills to form.
+     *
+     * This intentionally mirrors the `morphology-driver-correlation` invariant's `DRIVER_SIGNAL_THRESHOLD`
+     * so we don't produce mountains from pure noise or low-intensity residual fields.
+     */
+    driverSignalByteMin: Type.Number({
+      description:
+        "Minimum driver byte (0..255) required for mountains/hills to form. Mirrors the determinism gate's driver-signal threshold.",
+      default: 30,
+      minimum: 0,
+      maximum: 255,
+    }),
+    /**
+     * Nonlinear shaping applied after `driverSignalByteMin`.
+     *
+     * Values >1 concentrate mountains into the strongest corridors (narrower belts).
+     * Values <1 spread mountains wider (broader ranges).
+     */
+    driverExponent: Type.Number({
+      description:
+        "Nonlinear shaping applied after driverSignalByteMin; >1 concentrates mountains into strongest corridors, <1 spreads them wider.",
+      default: 1.0,
+      minimum: 0.01,
+    }),
     /** Score threshold for promoting a tile to a mountain; lower values allow more peaks. */
     mountainThreshold: Type.Number({
       description: "Score threshold for promoting a tile to a mountain; lower values allow more peaks.",
@@ -207,6 +232,96 @@ export const MountainsConfigSchema = Type.Object(
     fractalWeight: Type.Number({
       description: "Weight applied to fractal noise to introduce natural variation in ranges.",
       default: 0.15,
+      minimum: 0,
+    }),
+
+    /**
+     * Orogeny diagnostic weights (physics decomposition).
+     *
+     * These weights are used to build the `orogenyPotential01` visualization surface from
+     * boundary regime + stress/uplift/rift signals.
+     */
+    orogenyCollisionStressWeight: Type.Number({
+      description: "Stress contribution to collision orogeny potential (unitless weight).",
+      default: 0.6,
+      minimum: 0,
+    }),
+    orogenyCollisionUpliftWeight: Type.Number({
+      description: "Uplift contribution to collision orogeny potential (unitless weight).",
+      default: 0.4,
+      minimum: 0,
+    }),
+    orogenyTransformStressWeight: Type.Number({
+      description: "Stress contribution to transform/transpressional orogeny potential (unitless weight).",
+      default: 0.4,
+      minimum: 0,
+    }),
+    orogenyDivergentRiftWeight: Type.Number({
+      description: "Rift contribution to divergent (rift-shoulder) orogeny potential (unitless weight).",
+      default: 0.55,
+      minimum: 0,
+    }),
+    orogenyDivergentStressWeight: Type.Number({
+      description: "Stress contribution to divergent (rift-shoulder) orogeny potential (unitless weight).",
+      default: 0.15,
+      minimum: 0,
+    }),
+
+    /** Diagnostic fracture surface weights (physics decomposition). */
+    fractureBoundaryWeight: Type.Number({
+      description: "Boundary closeness contribution to fracture proxy (unitless weight).",
+      default: 0.7,
+      minimum: 0,
+    }),
+    fractureStressWeight: Type.Number({
+      description: "Stress contribution to fracture proxy (unitless weight).",
+      default: 0.2,
+      minimum: 0,
+    }),
+    fractureRiftWeight: Type.Number({
+      description: "Rift contribution to fracture proxy (unitless weight).",
+      default: 0.1,
+      minimum: 0,
+    }),
+
+    /** Stress/uplift mix used specifically for mountain scoring in collision regimes. */
+    mountainCollisionStressWeight: Type.Number({
+      description: "Stress contribution to mountain scoring in collision regimes (unitless weight).",
+      default: 0.5,
+      minimum: 0,
+    }),
+    mountainCollisionUpliftWeight: Type.Number({
+      description: "Uplift contribution to mountain scoring in collision regimes (unitless weight).",
+      default: 0.5,
+      minimum: 0,
+    }),
+    /**
+     * Interior uplift factor (0..1+) applied only when driverStrength is nonzero.
+     *
+     * This keeps mountains tied to tectonic driver corridors instead of appearing as plate-interior noise.
+     */
+    mountainInteriorUpliftScale: Type.Number({
+      description:
+        "Interior uplift factor applied when driverStrength is nonzero; keeps mountains tied to driver corridors.",
+      default: 0.25,
+      minimum: 0,
+    }),
+    /** Scale factor for fractal modulation of mountain scoring (unitless). */
+    mountainFractalScale: Type.Number({
+      description: "Scale factor for fractal modulation of mountain scoring (unitless).",
+      default: 0.3,
+      minimum: 0,
+    }),
+    /** Base term used when blending convergence bonus with fractal modulation (unitless). */
+    mountainConvergenceFractalBase: Type.Number({
+      description: "Base term for convergence-bonus blend (unitless).",
+      default: 0.6,
+      minimum: 0,
+    }),
+    /** Fractal span used when blending convergence bonus with fractal modulation (unitless). */
+    mountainConvergenceFractalSpan: Type.Number({
+      description: "Fractal span for convergence-bonus blend (unitless).",
+      default: 0.4,
       minimum: 0,
     }),
     /** Depression severity along divergent boundaries (0..1); higher values carve deeper rifts. */
@@ -283,6 +398,18 @@ export const MountainsConfigSchema = Type.Object(
       default: 0.25,
       minimum: 0,
     }),
+    /** Foothill extent base used for hill skirts (unitless). */
+    hillFoothillBase: Type.Number({
+      description: "Foothill extent base used for hill skirts (unitless).",
+      default: 0.5,
+      minimum: 0,
+    }),
+    /** Foothill extent gain from fractal modulation (unitless). */
+    hillFoothillFractalGain: Type.Number({
+      description: "Foothill extent gain from fractal modulation (unitless).",
+      default: 0.5,
+      minimum: 0,
+    }),
     /** Extra foothill weight on convergent tiles to smooth transitions into mountain ranges. */
     hillConvergentFoothill: Type.Number({
       description: "Extra foothill weight on convergent tiles to smooth transitions into mountain ranges.",
@@ -304,6 +431,30 @@ export const MountainsConfigSchema = Type.Object(
     hillUpliftWeight: Type.Number({
       description: "Residual uplift contribution applied to hills so basins and foothills stay balanced.",
       default: 0.2,
+      minimum: 0,
+    }),
+    /** Scale factor for fractal modulation of hill scoring (unitless). */
+    hillFractalScale: Type.Number({
+      description: "Scale factor for fractal modulation of hill scoring (unitless).",
+      default: 0.8,
+      minimum: 0,
+    }),
+    /** Scale factor for uplift contribution to hill scoring (unitless). */
+    hillUpliftScale: Type.Number({
+      description: "Scale factor for uplift contribution to hill scoring (unitless).",
+      default: 0.3,
+      minimum: 0,
+    }),
+    /** Scale factor for rift-shoulder hill bonuses (unitless). */
+    hillRiftBonusScale: Type.Number({
+      description: "Scale factor for rift-shoulder hill bonuses (unitless).",
+      default: 0.5,
+      minimum: 0,
+    }),
+    /** Scale factor for rift depth suppression in hill scoring (unitless). */
+    hillRiftDepthScale: Type.Number({
+      description: "Scale factor for rift depth suppression in hill scoring (unitless).",
+      default: 0.5,
       minimum: 0,
     }),
   }

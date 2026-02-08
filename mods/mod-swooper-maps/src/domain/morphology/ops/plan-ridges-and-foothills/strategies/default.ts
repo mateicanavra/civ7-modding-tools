@@ -8,10 +8,9 @@ import {
   encode01Byte,
   normalizeRidgeFractal,
   resolveBoundaryStrength,
+  resolveDriverStrength01,
   validateRidgesInputs,
 } from "../rules/index.js";
-
-const SCORE_NORMALIZATION_EPS = 1e-6;
 
 export const defaultStrategy = createStrategy(PlanRidgesAndFoothillsContract, "default", {
   run: (input, config) => {
@@ -26,9 +25,6 @@ export const defaultStrategy = createStrategy(PlanRidgesAndFoothillsContract, "d
     const boundaryGate = Math.min(0.99, Math.max(0, config.boundaryGate));
     const falloffExponent = config.boundaryExponent;
 
-    let maxMountainScore = 0;
-    let maxHillScore = 0;
-
     for (let i = 0; i < size; i++) {
       if (landMask[i] === 0) continue;
 
@@ -40,6 +36,13 @@ export const defaultStrategy = createStrategy(PlanRidgesAndFoothillsContract, "d
       const rift = riftPotential[i] / 255;
       const bType = boundaryType[i];
 
+      const driverByte = Math.max(upliftPotential[i] ?? 0, tectonicStress[i] ?? 0, riftPotential[i] ?? 0);
+      const driverStrength = resolveDriverStrength01({
+        driverByte,
+        driverSignalByteMin: config.driverSignalByteMin,
+        driverExponent: config.driverExponent,
+      });
+
       const fractalMtn = normalizeRidgeFractal(fractalMountain[i]);
       const fractalHillValue = normalizeRidgeFractal(fractalHill[i]);
 
@@ -49,10 +52,11 @@ export const defaultStrategy = createStrategy(PlanRidgesAndFoothillsContract, "d
         uplift,
         stress,
         rift,
+        config,
       });
       orogenyPotential01[i] = encode01Byte(orogeny);
 
-      const fracture = computeFracture01({ boundaryStrength, stress, rift });
+      const fracture = computeFracture01({ boundaryStrength, stress, rift, config });
       fracture01[i] = encode01Byte(fracture);
 
       scores[i] = computeMountainScore({
@@ -62,6 +66,7 @@ export const defaultStrategy = createStrategy(PlanRidgesAndFoothillsContract, "d
         stress,
         rift,
         fractal: fractalMtn,
+        driverStrength,
         config,
       });
 
@@ -72,20 +77,9 @@ export const defaultStrategy = createStrategy(PlanRidgesAndFoothillsContract, "d
         stress,
         rift,
         fractal: fractalHillValue,
+        driverStrength,
         config,
       });
-
-      if (scores[i] > maxMountainScore) maxMountainScore = scores[i];
-      if (hillScores[i] > maxHillScore) maxHillScore = hillScores[i];
-    }
-
-    // Normalize by the in-map maxima so thresholds behave consistently even when physics driver magnitudes
-    // are not saturating 0..255 (the spatial pattern remains physics-driven and deterministic).
-    if (maxMountainScore > SCORE_NORMALIZATION_EPS) {
-      for (let i = 0; i < size; i++) scores[i] = scores[i]! / maxMountainScore;
-    }
-    if (maxHillScore > SCORE_NORMALIZATION_EPS) {
-      for (let i = 0; i < size; i++) hillScores[i] = hillScores[i]! / maxHillScore;
     }
 
     const mountainMask = new Uint8Array(size);
