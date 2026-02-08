@@ -1,22 +1,30 @@
 # PROJECT: pipeline-realism
 
-**Status:** Planned
+**Status:** Active
 
 ## Scope & Objectives
 
-This project exists to plan (and later execute) a **fresh refactor of the mapgen pipeline “Foundation” stage** into an **evolutionary physics model**, starting from a basaltic lid over a mantle, with explicit control over:
+This project owns the “pipeline realism” refactor program:
+
+1. **Maximal physics cutover** for the mapgen pipeline spine (Foundation -> Morphology), eliminating legacy/shadow paths.
+2. **Downstream domain alignment** milestones that keep later stages compatible with the target architecture and the new upstream truth surfaces.
+
+The work started with a fresh refactor of the mapgen pipeline **Foundation** stage into an **evolutionary physics model**, starting from a basaltic lid over a mantle, with explicit control over:
 
 - history / iteration steps
 - plate partitions and motions
 - tectonic simulation (to the extent scoped by the proposal docs)
 
-Primary output (near-term): a reconciled, actionable design packet that is clearly positioned relative to the current codebase.
+## Milestones
+
+- M1 (spine cutover): `docs/projects/pipeline-realism/milestones/M1-foundation-maximal-cutover.md`
+- M2 (downstream alignment, behavior-preserving): `docs/projects/pipeline-realism/milestones/M2-ecology-architecture-alignment.md`
 
 ## Deliverables
 
 - [ ] Consolidated proposal packets under `docs/projects/pipeline-realism/resources/packets/`
 - [ ] A synthesis doc that reconciles packet differences + identifies “target vs current” gaps
-- [ ] A refactor plan (milestones + issues) for landing the new Foundation model
+- [ ] A refactor plan (milestones + issues) for landing the new Foundation model and required downstream alignment work
 
 ## Packets (Imported Sources)
 
