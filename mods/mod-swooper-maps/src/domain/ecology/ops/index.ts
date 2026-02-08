@@ -2,6 +2,7 @@ import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/a
 import type { contracts } from "./contracts.js";
 
 import applyFeatures from "./features-apply/index.js";
+import computeFeatureSubstrate from "./compute-feature-substrate/index.js";
 import planVegetation from "./features-plan-vegetation/index.js";
 import planWetlands from "./features-plan-wetlands/index.js";
 import planReefs from "./features-plan-reefs/index.js";
@@ -27,6 +28,7 @@ const implementations = {
   planResourceBasins,
   scoreResourceBasins,
   refineBiomeEdges,
+  computeFeatureSubstrate,
   planAquaticFeaturePlacements,
   planIceFeaturePlacements,
   planPlotEffects,
@@ -45,6 +47,7 @@ export default implementations;
 
 export {
   applyFeatures,
+  computeFeatureSubstrate,
   planVegetation,
   planWetlands,
   planReefs,

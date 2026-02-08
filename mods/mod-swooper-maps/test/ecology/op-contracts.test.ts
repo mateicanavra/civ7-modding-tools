@@ -165,6 +165,32 @@ describe("ecology op contract surfaces", () => {
     expect(result.biomeIndex.length).toBe(size);
   });
 
+  it("computeFeatureSubstrate validates output", () => {
+    const width = 3;
+    const height = 3;
+    const size = width * height;
+
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.computeFeatureSubstrate, {
+      strategy: "default",
+      config: {},
+    });
+
+    const result = ecology.ops.computeFeatureSubstrate.run(
+      {
+        width,
+        height,
+        riverClass: new Uint8Array(size),
+        landMask: new Uint8Array(size).fill(1),
+      },
+      selection
+    );
+
+    expect(result.navigableRiverMask.length).toBe(size);
+    expect(result.nearRiverMask.length).toBe(size);
+    expect(result.isolatedRiverMask.length).toBe(size);
+    expect(result.coastalLandMask.length).toBe(size);
+  });
+
   it("classifyBiomes validates output", () => {
     const width = 2;
     const height = 2;
