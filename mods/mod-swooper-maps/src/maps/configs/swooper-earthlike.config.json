@@ -571,7 +571,9 @@
       }
     },
     "featuresPlan": {
-      "vegetation": { "minScoreThreshold": 0.15 },
+      "vegetation": {
+        "minScoreThreshold": 0.15
+      },
       "wetlands": {
         "strategy": "delta-focused",
         "config": {
@@ -640,56 +642,56 @@
     },
     "plotCoasts": {},
     "plotContinents": {},
-  "mountains": {
-	    "ridges": {
-	      "strategy": "default",
-	      "config": {
-	        "tectonicIntensity": 2,
-	        "hillMaxFraction": 0.18,
-	        "mountainThreshold": 0.55,
-	        "hillThreshold": 0.42,
-	        "upliftWeight": 0.3,
-	        "fractalWeight": 0.75,
-        "riftDepth": 0.25,
-        "boundaryWeight": 0.8,
-        "boundaryGate": 0.1,
-        "boundaryExponent": 1.12,
-        "interiorPenaltyWeight": 0.09,
-        "convergenceBonus": 0.9,
-        "transformPenalty": 0.65,
-        "riftPenalty": 0.78,
-        "hillBoundaryWeight": 0.36,
-        "hillRiftBonus": 0.36,
-        "hillConvergentFoothill": 0.42,
-        "hillInteriorFalloff": 0.14,
-        "hillUpliftWeight": 0.18
+    "mountains": {
+      "ridges": {
+        "strategy": "default",
+        "config": {
+          "tectonicIntensity": 2,
+          "hillMaxFraction": 0.18,
+          "mountainThreshold": 0.55,
+          "hillThreshold": 0.42,
+          "upliftWeight": 0.3,
+          "fractalWeight": 0.75,
+          "riftDepth": 0.25,
+          "boundaryWeight": 0.8,
+          "boundaryGate": 0.1,
+          "boundaryExponent": 1.12,
+          "interiorPenaltyWeight": 0.09,
+          "convergenceBonus": 0.9,
+          "transformPenalty": 0.65,
+          "riftPenalty": 0.78,
+          "hillBoundaryWeight": 0.36,
+          "hillRiftBonus": 0.36,
+          "hillConvergentFoothill": 0.42,
+          "hillInteriorFalloff": 0.14,
+          "hillUpliftWeight": 0.18
+        }
+      },
+      "foothills": {
+        "strategy": "default",
+        "config": {
+          "tectonicIntensity": 2,
+          "hillMaxFraction": 0.18,
+          "mountainThreshold": 0.55,
+          "hillThreshold": 0.42,
+          "upliftWeight": 0.3,
+          "fractalWeight": 0.75,
+          "riftDepth": 0.25,
+          "boundaryWeight": 0.8,
+          "boundaryGate": 0.1,
+          "boundaryExponent": 1.12,
+          "interiorPenaltyWeight": 0.09,
+          "convergenceBonus": 0.9,
+          "transformPenalty": 0.65,
+          "riftPenalty": 0.78,
+          "hillBoundaryWeight": 0.36,
+          "hillRiftBonus": 0.36,
+          "hillConvergentFoothill": 0.42,
+          "hillInteriorFalloff": 0.14,
+          "hillUpliftWeight": 0.18
+        }
       }
     },
-	    "foothills": {
-	      "strategy": "default",
-	      "config": {
-	        "tectonicIntensity": 2,
-	        "hillMaxFraction": 0.18,
-	        "mountainThreshold": 0.55,
-	        "hillThreshold": 0.42,
-	        "upliftWeight": 0.3,
-	        "fractalWeight": 0.75,
-        "riftDepth": 0.25,
-        "boundaryWeight": 0.8,
-        "boundaryGate": 0.1,
-        "boundaryExponent": 1.12,
-        "interiorPenaltyWeight": 0.09,
-        "convergenceBonus": 0.9,
-        "transformPenalty": 0.65,
-        "riftPenalty": 0.78,
-        "hillBoundaryWeight": 0.36,
-        "hillRiftBonus": 0.36,
-        "hillConvergentFoothill": 0.42,
-        "hillInteriorFalloff": 0.14,
-        "hillUpliftWeight": 0.18
-      }
-    }
-  },
     "plotVolcanoes": {},
     "buildElevation": {}
   },
