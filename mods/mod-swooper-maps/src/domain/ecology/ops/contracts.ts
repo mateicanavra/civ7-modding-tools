@@ -2,6 +2,11 @@ import AggregatePedologyContract from "./pedology-aggregate/contract.js";
 import BiomeClassificationContract from "./classify-biomes/contract.js";
 import ComputeFeatureSubstrateContract from "./compute-feature-substrate/contract.js";
 import ComputeVegetationSubstrateContract from "./compute-vegetation-substrate/contract.js";
+import ScoreVegetationForestContract from "./vegetation-score-forest/contract.js";
+import ScoreVegetationRainforestContract from "./vegetation-score-rainforest/contract.js";
+import ScoreVegetationTaigaContract from "./vegetation-score-taiga/contract.js";
+import ScoreVegetationSavannaWoodlandContract from "./vegetation-score-savanna-woodland/contract.js";
+import ScoreVegetationSagebrushSteppeContract from "./vegetation-score-sagebrush-steppe/contract.js";
 import FeaturesApplyContract from "./features-apply/contract.js";
 import PedologyClassifyContract from "./pedology-classify/contract.js";
 
@@ -55,6 +60,11 @@ export const contracts = {
 
   computeFeatureSubstrate: ComputeFeatureSubstrateContract,
   computeVegetationSubstrate: ComputeVegetationSubstrateContract,
+  scoreVegetationForest: ScoreVegetationForestContract,
+  scoreVegetationRainforest: ScoreVegetationRainforestContract,
+  scoreVegetationTaiga: ScoreVegetationTaigaContract,
+  scoreVegetationSavannaWoodland: ScoreVegetationSavannaWoodlandContract,
+  scoreVegetationSagebrushSteppe: ScoreVegetationSagebrushSteppeContract,
 
   planAquaticReefPlacements: PlanAquaticReefPlacementsContract,
   planAquaticColdReefPlacements: PlanAquaticColdReefPlacementsContract,
@@ -102,6 +112,11 @@ export {
   BiomeClassificationContract,
   ComputeFeatureSubstrateContract,
   ComputeVegetationSubstrateContract,
+  ScoreVegetationForestContract,
+  ScoreVegetationRainforestContract,
+  ScoreVegetationTaigaContract,
+  ScoreVegetationSavannaWoodlandContract,
+  ScoreVegetationSagebrushSteppeContract,
   FeaturesApplyContract,
   PedologyClassifyContract,
 
