@@ -5,79 +5,46 @@ import type { ComputeLandmaskTypes } from "../types.js";
  */
 export function validateLandmaskInputs(
   input: ComputeLandmaskTypes["input"]
-): { size: number; elevation: Int16Array } {
+): {
+  size: number;
+  elevation: Int16Array;
+  boundaryCloseness: Uint8Array;
+  crustType: Uint8Array;
+  crustBaseElevation: Float32Array;
+  crustAge: Uint8Array;
+  provenanceOriginEra: Uint8Array;
+  provenanceDriftDistance: Uint8Array;
+} {
   const { width, height } = input;
   const size = Math.max(0, (width | 0) * (height | 0));
   const elevation = input.elevation as Int16Array;
-  if (elevation.length !== size) {
-    throw new Error(`Expected elevation length ${size} (received ${elevation.length}).`);
-  }
-  return { size, elevation };
-}
+  const boundaryCloseness = input.boundaryCloseness as Uint8Array;
+  const crustType = input.crustType as Uint8Array;
+  const crustBaseElevation = input.crustBaseElevation as Float32Array;
+  const crustAge = input.crustAge as Uint8Array;
+  const provenanceOriginEra = input.provenanceOriginEra as Uint8Array;
+  const provenanceDriftDistance = input.provenanceDriftDistance as Uint8Array;
 
-/**
- * Applies plate-aware basin separation to carve ocean buffers.
- */
-export function applyBasinSeparation(
-  width: number,
-  height: number,
-  landMask: Uint8Array,
-  config: ComputeLandmaskTypes["config"]["default"]["basinSeparation"]
-): void {
-  if (!config.enabled) return;
-  const base = Math.max(0, Math.round(config.baseSeparationTiles));
-  if (base <= 0) return;
-
-  const bandPairs = config.bandPairs ?? [];
-  let maxBand = 1;
-  for (const [a, b] of bandPairs) {
-    maxBand = Math.max(maxBand, a, b);
-  }
-  const bands = Math.max(2, maxBand + 1);
-  const half = Math.max(1, Math.floor(base / 2));
-
-  const boundaries = new Set<number>();
-  for (const [a, b] of bandPairs) {
-    const boundary = Math.max(a | 0, b | 0);
-    if (boundary > 0 && boundary < bands) boundaries.add(boundary);
-  }
-  if (boundaries.size === 0) {
-    for (let boundary = 1; boundary < bands; boundary++) {
-      boundaries.add(boundary);
-    }
+  if (
+    elevation.length !== size ||
+    boundaryCloseness.length !== size ||
+    crustType.length !== size ||
+    crustBaseElevation.length !== size ||
+    crustAge.length !== size ||
+    provenanceOriginEra.length !== size ||
+    provenanceDriftDistance.length !== size
+  ) {
+    throw new Error("[Landmask] Input tensors must match width*height.");
   }
 
-  const sortedBoundaries = Array.from(boundaries).sort((a, b) => a - b);
-
-  for (const band of sortedBoundaries) {
-    const center = Math.round((band / bands) * width);
-    const start = Math.max(0, center - half);
-    const end = Math.min(width - 1, center + half);
-    for (let y = 0; y < height; y++) {
-      const row = y * width;
-      for (let x = start; x <= end; x++) {
-        landMask[row + x] = 0;
-      }
-    }
-  }
-
-  if (config.edgeWest.enabled) {
-    const edge = Math.max(0, Math.round(config.edgeWest.baseTiles));
-    for (let y = 0; y < height; y++) {
-      const row = y * width;
-      for (let x = 0; x < Math.min(width, edge); x++) {
-        landMask[row + x] = 0;
-      }
-    }
-  }
-
-  if (config.edgeEast.enabled) {
-    const edge = Math.max(0, Math.round(config.edgeEast.baseTiles));
-    for (let y = 0; y < height; y++) {
-      const row = y * width;
-      for (let x = Math.max(0, width - edge); x < width; x++) {
-        landMask[row + x] = 0;
-      }
-    }
-  }
+  return {
+    size,
+    elevation,
+    boundaryCloseness,
+    crustType,
+    crustBaseElevation,
+    crustAge,
+    provenanceOriginEra,
+    provenanceDriftDistance,
+  };
 }
