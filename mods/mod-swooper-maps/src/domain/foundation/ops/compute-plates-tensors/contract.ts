@@ -163,6 +163,18 @@ const CrustTilesSchema = Type.Object(
     type: TypedArraySchemas.u8({
       description: "Crust type per tile (0=oceanic, 1=continental), sampled via tileToCellIndex.",
     }),
+    /** Crust maturity per tile (0=basaltic lid, 1=cratonic), sampled via tileToCellIndex. */
+    maturity: TypedArraySchemas.f32({
+      description: "Crust maturity per tile (0=basaltic lid, 1=cratonic), sampled via tileToCellIndex.",
+    }),
+    /** Crust thickness proxy per tile (0..1), sampled via tileToCellIndex. */
+    thickness: TypedArraySchemas.f32({
+      description: "Crust thickness proxy per tile (0..1), sampled via tileToCellIndex.",
+    }),
+    /** Crust damage per tile (0..255), sampled via tileToCellIndex. */
+    damage: TypedArraySchemas.u8({
+      description: "Crust damage per tile (0..255), sampled via tileToCellIndex.",
+    }),
     /** Crust thermal age per tile (0=new, 255=ancient), sampled via tileToCellIndex. */
     age: TypedArraySchemas.u8({
       description: "Crust thermal age per tile (0=new, 255=ancient), sampled via tileToCellIndex.",
