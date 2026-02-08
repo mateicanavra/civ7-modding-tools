@@ -501,7 +501,7 @@ export const ReliefConfigSchema = Type.Object(
         }),
         boundaryArcWeight: Type.Number({
           description: "Multiplier for convergent boundary uplift arcs.",
-          default: 0.35,
+          default: 0.55,
           minimum: 0,
         }),
         boundaryArcNoiseWeight: Type.Number({
