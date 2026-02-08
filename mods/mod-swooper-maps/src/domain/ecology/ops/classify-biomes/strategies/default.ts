@@ -1,23 +1,11 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
-import { BIOME_SYMBOL_TO_INDEX, type BiomeSymbol } from "@mapgen/domain/ecology/types.js";
 import BiomeClassificationContract from "../contract.js";
-import {
-  aridityShiftForIndex,
-  biomeSymbolForZones,
-  clamp01,
-  computeRiparianMoistureBonus,
-  computeAridityIndex,
-  computeEffectiveMoisture,
-  computeFreezeIndex,
-  computeMaxLatitude,
-  computeTemperature,
-  moistureZoneOf,
-  pseudoRandom01,
-  shiftMoistureZone,
-  temperatureZoneOf,
-  vegetationDensityForBiome,
-} from "../rules/index.js";
+import { computeMaxLatitude } from "../rules/index.js";
+import { computeAridityIndexField } from "../layers/aridity.js";
+import { classifyBiomesFromFields } from "../layers/classify.js";
+import { computeEffectiveMoistureField } from "../layers/moisture.js";
+import { computeSurfaceTemperatureAndFreezeIndex } from "../layers/temperature.js";
 
 export const defaultStrategy = createStrategy(BiomeClassificationContract, "default", {
   run: (input, config) => {
@@ -32,97 +20,62 @@ export const defaultStrategy = createStrategy(BiomeClassificationContract, "defa
     const landMask = input.landMask as Uint8Array;
     const riverClass = input.riverClass as Uint8Array;
 
-    const biomeIndex = new Uint8Array(size).fill(255);
-    const vegetationDensity = new Float32Array(size);
-    const effectiveMoisture = new Float32Array(size);
-    const surfaceTemperature = new Float32Array(size);
-    const aridityIndex = new Float32Array(size);
-    const freezeIndex = new Float32Array(size);
-
     const maxLatitude = computeMaxLatitude(latitude);
-    const [dry, semiArid, subhumid, humidThreshold] = resolvedConfig.moisture.thresholds;
-    const noiseScale = resolvedConfig.noise.amplitude * 255;
-    const moistureNormalization =
-      humidThreshold + resolvedConfig.vegetation.moistureNormalizationPadding;
-
-    const riparianBonusByTile = computeRiparianMoistureBonus({
+    const { surfaceTemperatureF64, freezeIndex } = computeSurfaceTemperatureAndFreezeIndex({
       width,
       height,
-      riverClass,
-      cfg: resolvedConfig.riparian,
+      landMask,
+      elevation,
+      latitude,
+      maxLatitude,
+      temperature: resolvedConfig.temperature,
+      freeze: resolvedConfig.freeze,
     });
 
-    const biomeModifiers = resolvedConfig.vegetation
-      .biomeModifiers as Record<BiomeSymbol, { multiplier: number; bonus: number }>;
+    const effectiveMoistureF64 = computeEffectiveMoistureField({
+      width,
+      height,
+      landMask,
+      rainfall,
+      humidity,
+      riverClass,
+      moisture: resolvedConfig.moisture,
+      noise: resolvedConfig.noise,
+      riparian: resolvedConfig.riparian,
+    });
 
+    const aridityIndexF64 = computeAridityIndexField({
+      width,
+      height,
+      landMask,
+      rainfall,
+      humidity,
+      surfaceTemperatureF64,
+      aridity: resolvedConfig.aridity,
+    });
+
+    const { biomeIndex, vegetationDensity } = classifyBiomesFromFields({
+      width,
+      height,
+      landMask,
+      humidity,
+      effectiveMoistureF64,
+      surfaceTemperatureF64,
+      aridityIndexF64,
+      config: resolvedConfig,
+    });
+
+    // IMPORTANT: Preserve behavior by avoiding intermediate float32 rounding.
+    // The original implementation used full-precision JS numbers for classification, then stored
+    // results into float32 arrays at the end of each iteration. We preserve that by computing in
+    // float64 first, then casting to float32 once here.
+    const surfaceTemperature = new Float32Array(size);
+    const effectiveMoisture = new Float32Array(size);
+    const aridityIndex = new Float32Array(size);
     for (let i = 0; i < size; i++) {
-      if (landMask[i] === 0) {
-        biomeIndex[i] = 255;
-        vegetationDensity[i] = 0;
-        effectiveMoisture[i] = 0;
-        const temperature = computeTemperature({
-          latitudeAbs: Math.abs(latitude[i]),
-          maxLatitude,
-          elevationMeters: 0,
-          cfg: resolvedConfig.temperature,
-        });
-        surfaceTemperature[i] = temperature;
-        aridityIndex[i] = 0;
-        freezeIndex[i] = computeFreezeIndex(temperature, resolvedConfig.freeze);
-        continue;
-      }
-
-      const temperature = computeTemperature({
-        latitudeAbs: Math.abs(latitude[i]),
-        maxLatitude,
-        elevationMeters: elevation[i],
-        cfg: resolvedConfig.temperature,
-      });
-      surfaceTemperature[i] = temperature;
-      freezeIndex[i] = computeFreezeIndex(temperature, resolvedConfig.freeze);
-
-      const noise = (pseudoRandom01(i, resolvedConfig.noise.seed) - 0.5) * 2;
-      const moistureBonus = riparianBonusByTile[i] ?? 0;
-      const moisture = computeEffectiveMoisture({
-        rainfall: rainfall[i],
-        humidity: humidity[i],
-        bias: resolvedConfig.moisture.bias,
-        humidityWeight: resolvedConfig.moisture.humidityWeight,
-        moistureBonus,
-        noise,
-        noiseScale,
-      });
-
-      effectiveMoisture[i] = moisture;
-
-      const aridity = computeAridityIndex({
-        temperature,
-        humidity: humidity[i],
-        rainfall: rainfall[i],
-        cfg: resolvedConfig.aridity,
-      });
-      aridityIndex[i] = aridity;
-
-      const tempZone = temperatureZoneOf(temperature, resolvedConfig.temperature);
-      const moistureZone = shiftMoistureZone(
-        moistureZoneOf(moisture, [dry, semiArid, subhumid, humidThreshold]),
-        aridityShiftForIndex(aridity, resolvedConfig.aridity.moistureShiftThresholds)
-      );
-      const symbol = biomeSymbolForZones(tempZone, moistureZone);
-      biomeIndex[i] = BIOME_SYMBOL_TO_INDEX[symbol]!;
-
-      const moistureNorm = clamp01(moisture / moistureNormalization);
-      const humidityNorm = clamp01(humidity[i] / 255);
-      vegetationDensity[i] = vegetationDensityForBiome(symbol, {
-        base: resolvedConfig.vegetation.base,
-        moistureWeight: resolvedConfig.vegetation.moistureWeight,
-        humidityWeight: resolvedConfig.vegetation.humidityWeight,
-        moistureNorm,
-        humidityNorm,
-        aridityIndex: aridity,
-        aridityPenalty: resolvedConfig.aridity.vegetationPenalty,
-        modifiers: biomeModifiers,
-      });
+      surfaceTemperature[i] = surfaceTemperatureF64[i] ?? 0;
+      effectiveMoisture[i] = effectiveMoistureF64[i] ?? 0;
+      aridityIndex[i] = aridityIndexF64[i] ?? 0;
     }
 
     return {
