@@ -368,16 +368,6 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
             moistureWeight: 0.5,
             humidityWeight: 0.2,
             moistureNormalizationPadding: 45,
-            biomeModifiers: {
-              snow: { multiplier: 0.05, bonus: 0 },
-              tundra: { multiplier: 0.3, bonus: 0 },
-              boreal: { multiplier: 0.7, bonus: 0 },
-              temperateDry: { multiplier: 0.6, bonus: 0 },
-              temperateHumid: { multiplier: 0.9, bonus: 0 },
-              tropicalSeasonal: { multiplier: 0.9, bonus: 0 },
-              tropicalRainforest: { multiplier: 1, bonus: 0.2 },
-              desert: { multiplier: 0.18, bonus: 0.02 },
-            },
           },
           noise: {
             amplitude: 0.03,

@@ -514,41 +514,7 @@
               "base": 0.72,
               "moistureWeight": 0.88,
               "humidityWeight": 0.32,
-              "moistureNormalizationPadding": 45,
-              "biomeModifiers": {
-                "snow": {
-                  "multiplier": 3.2,
-                  "bonus": 0.3
-                },
-                "tundra": {
-                  "multiplier": 0.55,
-                  "bonus": 0
-                },
-                "boreal": {
-                  "multiplier": 0.9,
-                  "bonus": 0
-                },
-                "temperateDry": {
-                  "multiplier": 0.75,
-                  "bonus": 0
-                },
-                "temperateHumid": {
-                  "multiplier": 1,
-                  "bonus": 0
-                },
-                "tropicalSeasonal": {
-                  "multiplier": 1,
-                  "bonus": 0
-                },
-                "tropicalRainforest": {
-                  "multiplier": 5,
-                  "bonus": 1.2
-                },
-                "desert": {
-                  "multiplier": 5,
-                  "bonus": 0.25
-                }
-              }
+              "moistureNormalizationPadding": 45
             },
             "noise": {
               "amplitude": 0.028,
