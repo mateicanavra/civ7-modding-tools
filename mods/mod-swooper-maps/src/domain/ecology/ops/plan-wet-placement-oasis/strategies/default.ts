@@ -1,11 +1,10 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import PlanWetPlacementOasisContract from "../contract.js";
-import { normalizeWetFeaturePlacementsConfig } from "../../../shared/wet-feature-placements/normalize-config.js";
-import { planWetFeaturePlacementsShared } from "../../../shared/wet-feature-placements/plan-wet-feature-placements-shared.js";
+import { normalizePlanWetPlacementOasisConfig } from "../rules/normalize-config.js";
+import { planWetPlacementOasis } from "../rules/plan-wet-placement-oasis.js";
 
 export const defaultStrategy = createStrategy(PlanWetPlacementOasisContract, "default", {
-  normalize: (config) => normalizeWetFeaturePlacementsConfig(config),
-  run: (input, config) =>
-    planWetFeaturePlacementsShared({ input, config, featureKey: "FEATURE_OASIS" }),
+  normalize: (config) => normalizePlanWetPlacementOasisConfig(config),
+  run: (input, config) => planWetPlacementOasis(input, config),
 });
