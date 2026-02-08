@@ -40,6 +40,23 @@ function makePlateGraph() {
   } as const;
 }
 
+function makePlateMotion(cellCount: number, plateCount: number) {
+  return {
+    version: 1,
+    cellCount,
+    plateCount,
+    plateCenterX: new Float32Array(plateCount),
+    plateCenterY: new Float32Array(plateCount),
+    plateVelocityX: new Float32Array(plateCount),
+    plateVelocityY: new Float32Array(plateCount),
+    plateOmega: new Float32Array(plateCount),
+    plateFitRms: new Float32Array(plateCount),
+    plateFitP90: new Float32Array(plateCount),
+    plateQuality: new Uint8Array(plateCount),
+    cellFitError: new Uint8Array(cellCount),
+  } as const;
+}
+
 function makeMantleForcing(cellCount: number) {
   return {
     version: 1,
@@ -88,6 +105,7 @@ describe("m11 tectonic events", () => {
     const crust = makeCrust(mesh.cellCount);
     const mantleForcing = makeMantleForcing(mesh.cellCount);
     const plateGraph = makePlateGraph();
+    const plateMotion = makePlateMotion(mesh.cellCount, plateGraph.plates.length);
     const segments = makeSegments({
       regime: BOUNDARY_TYPE.convergent,
       polarity: -1,
@@ -97,11 +115,11 @@ describe("m11 tectonic events", () => {
     });
 
     const a = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, segments },
+      { mesh, crust, mantleForcing, plateGraph, plateMotion, segments },
       computeTectonicHistory.defaultConfig
     );
     const b = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, segments },
+      { mesh, crust, mantleForcing, plateGraph, plateMotion, segments },
       computeTectonicHistory.defaultConfig
     );
 
@@ -118,6 +136,7 @@ describe("m11 tectonic events", () => {
     const crust = makeCrust(mesh.cellCount);
     const mantleForcing = makeMantleForcing(mesh.cellCount);
     const plateGraph = makePlateGraph();
+    const plateMotion = makePlateMotion(mesh.cellCount, plateGraph.plates.length);
     const segments = makeSegments({
       regime: BOUNDARY_TYPE.divergent,
       polarity: 0,
@@ -127,7 +146,7 @@ describe("m11 tectonic events", () => {
     });
 
     const history = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, segments },
+      { mesh, crust, mantleForcing, plateGraph, plateMotion, segments },
       {
         ...computeTectonicHistory.defaultConfig,
         config: {
@@ -152,6 +171,7 @@ describe("m11 tectonic events", () => {
     const crust = makeCrust(mesh.cellCount);
     const mantleForcing = makeMantleForcing(mesh.cellCount);
     const plateGraph = makePlateGraph();
+    const plateMotion = makePlateMotion(mesh.cellCount, plateGraph.plates.length);
     const segments = makeSegments({
       regime: BOUNDARY_TYPE.convergent,
       polarity: -1,
@@ -163,11 +183,11 @@ describe("m11 tectonic events", () => {
     });
 
     const a = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, segments },
+      { mesh, crust, mantleForcing, plateGraph, plateMotion, segments },
       computeTectonicHistory.defaultConfig
     );
     const b = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, segments },
+      { mesh, crust, mantleForcing, plateGraph, plateMotion, segments },
       computeTectonicHistory.defaultConfig
     );
 

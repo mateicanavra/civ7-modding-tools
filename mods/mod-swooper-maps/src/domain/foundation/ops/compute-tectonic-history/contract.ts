@@ -4,6 +4,7 @@ import { FoundationCrustSchema } from "../compute-crust/contract.js";
 import { FoundationMantleForcingSchema } from "../compute-mantle-forcing/contract.js";
 import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 import { FoundationPlateGraphSchema } from "../compute-plate-graph/contract.js";
+import { FoundationPlateMotionSchema } from "../compute-plate-motion/contract.js";
 import { FoundationTectonicSegmentsSchema } from "../compute-tectonic-segments/contract.js";
 
 const StrategySchema = Type.Object(
@@ -67,6 +68,11 @@ export const FoundationTectonicHistorySchema = Type.Object(
   {
     eraCount: Type.Integer({ minimum: 5, maximum: 8 }),
     eras: Type.Immutable(Type.Array(EraFieldsSchema, { description: "Era fields (oldest→newest)." })),
+    plateIdByEra: Type.Immutable(
+      Type.Array(TypedArraySchemas.i16({ shape: null, description: "Plate id per mesh cell for the era." }), {
+        description: "Era plate membership (oldest→newest).",
+      })
+    ),
     upliftTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated uplift across eras (0..255)." }),
     collisionTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated collision uplift across eras (0..255)." }),
     subductionTotal: TypedArraySchemas.u8({ shape: null, description: "Accumulated subduction uplift across eras (0..255)." }),
@@ -196,6 +202,7 @@ const ComputeTectonicHistoryContract = defineOp({
       crust: FoundationCrustSchema,
       mantleForcing: FoundationMantleForcingSchema,
       plateGraph: FoundationPlateGraphSchema,
+      plateMotion: FoundationPlateMotionSchema,
       segments: FoundationTectonicSegmentsSchema,
     },
     { additionalProperties: false }
