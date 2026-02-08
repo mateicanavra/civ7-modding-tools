@@ -25,6 +25,7 @@ Paper trail (canonical spike + feasibility package):
 - `../../engine-refactor-v1/resources/spike/ecology-arch-alignment/FEASIBILITY.md` (verdict + locked caveats)
 - `../../engine-refactor-v1/resources/spike/ecology-arch-alignment/CONTRACT-MATRIX.md` (steps ↔ ops ↔ artifacts ↔ viz ↔ RNG)
 - `../../engine-refactor-v1/resources/spike/ecology-arch-alignment/DECISIONS/README.md` (locked decisions)
+- Implementation handoff (runbook): `../resources/runbooks/HANDOFF-M2-ECOLOGY-IMPLEMENTATION.md`
 
 This milestone is **refactor-only**:
 - no algorithm changes
