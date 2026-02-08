@@ -295,6 +295,10 @@ export default createStep(PlotMountainsStepContract, {
         meta: defineVizMeta("map.morphology.mountains.mountainMask", {
           label: "Mountain Mask (Planned)",
           group: GROUP_MAP_MORPHOLOGY,
+          categories: [
+            { value: 0, label: "Not mountain", color: [148, 163, 184, 0] },
+            { value: 1, label: "Mountain", color: [250, 204, 21, 240] },
+          ],
         }),
       });
     }

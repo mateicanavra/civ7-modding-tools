@@ -16,8 +16,8 @@ const SUGGESTIONS_BY_RECIPE: Readonly<Record<string, readonly OverlaySuggestion[
       label: "Boundary events (snapshot)",
     },
     {
-      id: "map.morphology.mountains.orogenyPotential01::morphology.drivers.uplift",
-      primaryDataTypeKey: "map.morphology.mountains.orogenyPotential01",
+      id: "map.morphology.mountains.orogenyPotential::morphology.drivers.uplift",
+      primaryDataTypeKey: "map.morphology.mountains.orogenyPotential",
       overlayDataTypeKey: "morphology.drivers.uplift",
       label: "Uplift driver",
     },
@@ -30,8 +30,8 @@ const SUGGESTIONS_BY_RECIPE: Readonly<Record<string, readonly OverlaySuggestion[
       label: "Boundary events (snapshot)",
     },
     {
-      id: "map.morphology.mountains.orogenyPotential01::morphology.drivers.uplift",
-      primaryDataTypeKey: "map.morphology.mountains.orogenyPotential01",
+      id: "map.morphology.mountains.orogenyPotential::morphology.drivers.uplift",
+      primaryDataTypeKey: "map.morphology.mountains.orogenyPotential",
       overlayDataTypeKey: "morphology.drivers.uplift",
       label: "Uplift driver",
     },
