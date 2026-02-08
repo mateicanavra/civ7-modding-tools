@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "case": {
+    "seed": 1337,
+    "width": 32,
+    "height": 20
+  },
+  "artifacts": {
+    "artifact:ecology.soils": "109728a5197411f0285108d4a55b68a603b14bcc48efe08b60f8909c26499594",
+    "artifact:ecology.resourceBasins": "f0955ebb31fb793be429702cbef7346c9ef395c901aed38dfc196ed473c3e709",
+    "artifact:ecology.biomeClassification": "058b9d4216c457fa4b085b090c555b2e55cf31351c1b690c0e2afb700c203dd1",
+    "artifact:ecology.featureIntents": "c8a4cc9c5f919c79c52c5b608f17d92f7b22a71fe65d3636d99b53231db953cf"
+  }
+}
