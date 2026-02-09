@@ -148,17 +148,22 @@ Cons:
 Score-layer posture inside `ecology-features`:
 - If we want planners to see multiple score layers without circular dependencies, introduce a scoring step that outputs a single structured “score layers” artifact, and have each planner consume it (read-only) while still producing only its own intent list (keeps “atomic per-feature planning ops” intact).
 
-Concrete “sensible boundary” inside `ecology-features` (recommended):
-- `compute-feature-substrate` (step): calls `ecology.ops.computeFeatureSubstrate` and publishes a small, reusable mask artifact (or keeps it step-local if we’re not ready to surface a new artifact yet).
-- Vegetation:
-  - `score-vegetation` (step/op): one scoring op that proxies multiple vegetation scoring rules and emits layered `Float32Array`s (forest/rainforest/taiga/etc).
-  - `plan-vegetation` (step/op): consumes the aggregated vegetation score layers (and optionally other feature-family layers) and produces `artifact:ecology.featureIntents.vegetation`.
-- Wetlands:
-  - `plan-wetlands` (step): consumes substrate masks + inputs, calls `ecology.ops.planWetlands` plus atomic wet-placement ops (marsh/bog/mangrove/oasis/watering hole) in a step-owned sequence so ops never call each other.
-  - Remove “disabled strategy” by making these planners honest and always runnable (placements can naturally be empty).
-- Marine/cryosphere:
-  - `plan-reefs` (step/op) -> `artifact:ecology.featureIntents.reefs`
-  - `plan-ice` (step/op) -> `artifact:ecology.featureIntents.ice`
+Concrete “sensible boundary” inside `ecology-features` (recommended default):
+
+Treat every feature family the same:
+- Each family has a `plan-<family>` step that orchestrates any score ops + the plan op (ops remain atomic; steps orchestrate).
+- We only split scoring into its own step when we have a real need for cross-family or cross-layer visibility (see the “upgrade path” below).
+
+Proposed steps:
+- `compute-feature-substrate` (step): calls `ecology.ops.computeFeatureSubstrate` and publishes a small reusable mask artifact.
+- `plan-vegetation` (step): calls vegetation score ops (or a unified vegetation scoring op) and then runs vegetation planning; publishes `artifact:ecology.featureIntents.vegetation`.
+- `plan-wetlands` (step): computes wetlands suitability (score if needed), runs wetlands planning, and orchestrates atomic wet-placement ops; publishes `artifact:ecology.featureIntents.wetlands`.
+- `plan-reefs` (step): computes reefs suitability (score if needed) and plans reefs; publishes `artifact:ecology.featureIntents.reefs`.
+- `plan-ice` (step): computes ice suitability (score if needed) and plans ice; publishes `artifact:ecology.featureIntents.ice`.
+
+Upgrade path (when we *do* need score separation):
+- Add a single `score-features` step that emits a unified `artifact:ecology.scoreLayers` containing *all* feature-family layers.
+- Each `plan-<family>` step consumes this single artifact, so planners can do explicit cross-layer composition without circular dependencies and without baking cross-score heuristics into scores.
 
 Rule posture (as per session guidance):
 - Use rules for codified decisions and scoring inputs (especially where “a scoring op runs many rules and returns layered results”).
@@ -234,23 +239,18 @@ Artifacts (owned by the domain-level artifact registry):
 New truth artifacts (recommended to make seams explicit):
 - `artifact:ecology.featureSubstrate`
   - payload mirrors `ecology.ops.computeFeatureSubstrate` output (masks) for reuse by multiple planners.
-- `artifact:ecology.scoreLayers` (or split per family, see note below)
-  - holds layered per-tile scores so planners can consume a single “layers object” and escape circular dependencies.
+- `artifact:ecology.scoreLayers` (OPTIONAL; only when we actually need score separation)
+  - unified layered per-tile scores for *all* feature families.
 
 Steps (tightened; ids are proposed):
 - `compute-feature-substrate`
   - Requires artifacts: `artifact:hydrology.hydrography`, `artifact:morphology.topography`
   - Provides artifacts: `artifact:ecology.featureSubstrate`
   - Ops: `ecology.ops.computeFeatureSubstrate`
-- `score-vegetation`
-  - Requires artifacts: `artifact:ecology.biomeClassification`, `artifact:ecology.soils`, `artifact:ecology.featureSubstrate` (for navigable river masks), `artifact:morphology.topography`
-  - Provides artifacts: `artifact:ecology.scoreLayers` (vegetation layers at minimum)
-  - Ops: new `ecology/features/score-vegetation` op (front door), implemented by running multiple scoring rules and emitting layered `Float32Array`s.
-  - Replacement for today’s “multiple score ops + picking inside step”.
 - `plan-vegetation`
-  - Requires artifacts: `artifact:ecology.scoreLayers`, `artifact:ecology.featureSubstrate`, `artifact:morphology.topography`
+  - Requires artifacts: `artifact:ecology.biomeClassification`, `artifact:ecology.soils`, `artifact:ecology.featureSubstrate`, `artifact:morphology.topography`
   - Provides artifacts: `artifact:ecology.featureIntents.vegetation`
-  - Ops: new `ecology/features/plan-vegetation` op that takes a single layers object (global visibility) and produces placements deterministically (rank/select with constraints).
+  - Ops: (target) a vegetation plan op that is allowed to consume a single layers object when we introduce `artifact:ecology.scoreLayers`.
 - `plan-wetlands`
   - Requires artifacts: `artifact:ecology.biomeClassification`, `artifact:ecology.soils`, `artifact:morphology.topography`, `artifact:ecology.featureSubstrate`
   - Provides artifacts: `artifact:ecology.featureIntents.wetlands`
@@ -267,13 +267,14 @@ Steps (tightened; ids are proposed):
   - Requires artifacts: `artifact:ecology.biomeClassification` (temperature), `artifact:morphology.topography` (landMask/elevation)
   - Provides artifacts: `artifact:ecology.featureIntents.ice`
   - Ops: `ecology.ops.planIce` (remove jitter/probabilistic edge/densityScale; deterministic selection).
-- `feature-intents-viz`
-  - Requires artifacts: all `artifact:ecology.featureIntents.*`
-  - Provides: none
-  - Purpose: preserve/centralize the existing viz key `ecology.featureIntents.featureType` currently emitted inside the old `features-plan` mega-step.
+Visualization posture:
+- Do NOT add a viz-only step.
+- Emit viz inside the step that owns the work.
+  - Per-family intent viz can live in each `plan-<family>` step.
+  - The existing aggregated viz key `ecology.featureIntents.featureType` can move to `map-ecology/features-apply` (that step already reads all intent artifacts and aggregates them via `ecology.ops.applyFeatures`), preserving the key without inventing a separate “viz step”.
 
-Note on `artifact:ecology.scoreLayers` shape:
-- Option 1 (recommended to start): explicit object keys for the known vegetation layers plus any wetlands “suitability” layers we need; easiest to validate and easiest to consume.
+Note on `artifact:ecology.scoreLayers` shape (if/when introduced):
+- Option 1 (recommended to start): explicit object keys for all known layers across *all* feature families; easiest to validate and easiest to consume.
 - Option 2: packed/binary representation (faster, smaller), but harder to validate and harder to evolve.
 
 #### `map-ecology` (projection)
@@ -332,13 +333,13 @@ Slice ordering (dependencies):
 
 Slices (detail lives in the scratchpad):
 - Slice 1: Stage topology split (`ecology` -> `ecology-pedology` + `ecology-biomes` + `ecology-features`)
-- Slice 2: Replace `features-plan` mega-step with per-family steps (+ optional `feature-intents-viz` step)
+- Slice 2: Replace `features-plan` mega-step with per-family steps (no viz-only step; viz lives in the working steps)
 - Slice 3: Remove “disabled strategy” posture for wet placements (no optional ops; honest inputs)
 - Slice 4: Integrate biome edge refinement into biome classification (no separate op/step)
 - Slice 5: Update guardrails + tests for new step directory topology
 - Slice 6: Add explicit `artifact:ecology.featureSubstrate` + `compute-feature-substrate` step
-- Slice 7: Add `artifact:ecology.scoreLayers` + `ecology/features/score-vegetation` op + `score-vegetation` step
-- Slice 8: Add `ecology/features/plan-vegetation` op + `plan-vegetation` step (global visibility; deterministic)
+- Slice 7 (OPTIONAL; only if we need cross-layer visibility): add unified `artifact:ecology.scoreLayers` + `score-features` step/op(s)
+- Slice 8: Vegetation planning op/step hardening (deterministic selection under constraints; can consume scoreLayers when present)
 - Slice 9: Redesign all `plan-wet-placement-*` ops to deterministic rank/select; remove chances/multipliers/disabled
 - Slice 10: Redesign reefs/ice planners to deterministic; remove density/jitter/probabilistic edges
 - Slice 11: Redesign plot effects to deterministic + add explicit effect tag for `plot-effects`

@@ -191,9 +191,11 @@ Goal: replace the single truth stage `ecology` with multiple smaller truth stage
 3. `ecology-features`
 - Steps (target posture, not current):
   - shared compute substrate step: `compute-feature-substrate` (calls `ecology.ops.computeFeatureSubstrate`)
-  - vegetation pipeline: `score-vegetation` -> `plan-vegetation`
-  - wetlands pipeline: `score-wetlands` (optional) -> `plan-wetlands` (includes atomic wet placement planners orchestrated here)
-  - marine/cryosphere: `plan-reefs`, `plan-ice`
+  - per-family planning steps (symmetric posture):
+    - `plan-vegetation`
+    - `plan-wetlands` (includes atomic wet placement planners orchestrated here)
+    - `plan-reefs`
+    - `plan-ice`
 - Outputs: `artifact:ecology.featureIntents.*`
 - Meaning: “feature intent truth” (all discrete placement intents; no engine writes).
 
@@ -239,15 +241,14 @@ Anchor: `packages/mapgen-core/src/authoring/stage.ts`
 3. Stage: `ecology-features`
 - Steps (proposed ids):
   - `compute-feature-substrate`
-  - `score-vegetation`
   - `plan-vegetation`
   - `plan-wetlands`
   - `plan-reefs`
   - `plan-ice`
-  - `feature-intents-viz`
 - Artifacts out:
   - existing: `artifact:ecology.featureIntents.{vegetation,wetlands,reefs,ice}`
-  - new (recommended): `artifact:ecology.featureSubstrate`, `artifact:ecology.scoreLayers`
+  - new (recommended): `artifact:ecology.featureSubstrate`
+  - optional future seam: `artifact:ecology.scoreLayers` (only if we need cross-layer visibility)
 
 ### New artifacts (recommended)
 
@@ -256,9 +257,10 @@ Anchor: `packages/mapgen-core/src/authoring/stage.ts`
 - Shape: mirrors `ecology.ops.computeFeatureSubstrate` output.
 - Anchor: `mods/mod-swooper-maps/src/domain/ecology/ops/compute-feature-substrate/contract.ts`
 
-2. `artifact:ecology.scoreLayers`
+2. `artifact:ecology.scoreLayers` (OPTIONAL)
 - Purpose: single “layers object” planners can consume to avoid circular dependencies and avoid baking cross-score heuristics into scores.
-- Initial posture: explicit keys (vegetation layers first), not packed/binary.
+- Trigger: introduce only when we actually need cross-layer visibility (otherwise keep score+plan orchestration inside each `plan-<family>` step).
+- Initial posture: explicit keys for *all* families, not “vegetation only” and not packed/binary.
 
 ### Required planner posture changes (non-negotiables)
 
@@ -354,10 +356,12 @@ Acceptance:
 
 ### Slice 7: Introduce “score layers” artifact + vegetation score front door op
 
-- Scope:
-  - Add `artifact:ecology.scoreLayers` (or per-family score artifacts) to the ecology artifact registry.
-  - Create op `ecology/features/score-vegetation` that runs multiple scoring rules and emits layered `Float32Array`s.
-  - Create step `score-vegetation` that publishes the score artifact.
+- Scope (OPTIONAL; only if we need cross-layer visibility):
+  - Add `artifact:ecology.scoreLayers` to the ecology artifact registry.
+  - Create a scoring front door that covers *all* feature families (not just vegetation):
+    - either one op `ecology/features/score-features` that runs many rules and emits layers, or
+    - one `score-<family>` op per family, but still published as one unified artifact.
+  - Add a `score-features` step that publishes the artifact.
 - Acceptance:
   - “Rules are codified decisions/inputs” posture is enforced: scoring logic lives in rules proxied via a scoring op.
   - Score layers are consumed as a single structured object to avoid circular dependencies.
@@ -365,8 +369,8 @@ Acceptance:
 ### Slice 8: Vegetation planning op (global visibility, deterministic selection)
 
 - Scope:
-  - Create op `ecology/features/plan-vegetation` that consumes score layers + substrate and returns placements.
-  - Create step `plan-vegetation` that publishes `artifact:ecology.featureIntents.vegetation`.
+  - Create/harden op `ecology/features/plan-vegetation` so it can consume `artifact:ecology.scoreLayers` when present, but does not require it when we keep score+plan orchestration inside the step.
+  - Create step `plan-vegetation` that publishes `artifact:ecology.featureIntents.vegetation` and emits vegetation intent viz.
 - Acceptance:
   - No scoring heuristics are baked into planning; planning consumes layers and does any cross-layer composition explicitly.
   - Determinism: selection is deterministic for a given env seed and inputs (seeded tie-breakers allowed).
@@ -417,6 +421,13 @@ Acceptance:
 - Scope:
   - Update domain reference docs that currently state truth stage is `ecology`:
     - `docs/system/libs/mapgen/reference/domains/ECOLOGY.md`
-  - Update any viz catalogs if new artifacts/steps introduce new dataTypeKeys (but preserve existing keys).
+- Update any viz catalogs if new artifacts/steps introduce new dataTypeKeys (but preserve existing keys).
+
+### Viz placement adjustment (explicit)
+
+- Do not add a viz-only step.
+- Emit viz where the work happens:
+  - per-family intent viz inside `plan-<family>` steps
+  - aggregated intent viz key `ecology.featureIntents.featureType` moves to `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/features-apply/index.ts` because that step already reads all intent artifacts and aggregates them via `ecology.ops.applyFeatures`.
 - Acceptance:
   - Canonical doc spine remains target-architecture-first and matches the new recipe topology.
