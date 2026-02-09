@@ -10,6 +10,40 @@ import { RiparianSchema } from "./rules/riparian.schema.js";
 
 /** Biome classification parameters for temperature, moisture, vegetation, and riparian moisture. */
 
+const EdgeRefineSchema = Type.Object(
+  {
+    /**
+     * Neighborhood radius (tiles) used for deterministic biome edge smoothing.
+     * @default 1
+     */
+    radius: Type.Optional(
+      Type.Integer({
+        description: "Neighborhood radius (tiles) used for deterministic biome edge smoothing.",
+        default: 1,
+        minimum: 1,
+        maximum: 5,
+      })
+    ),
+    /**
+     * Number of smoothing iterations.
+     * @default 1
+     */
+    iterations: Type.Optional(
+      Type.Integer({
+        description: "Number of smoothing iterations.",
+        default: 1,
+        minimum: 1,
+        maximum: 4,
+      })
+    ),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Deterministic smoothing pass applied to biomeIndex after classification (integrated edge refinement).",
+  }
+);
+
 const BiomeClassificationContract = defineOp({
   kind: "compute",
   id: "ecology/biomes/classify",
@@ -54,6 +88,8 @@ const BiomeClassificationContract = defineOp({
         noise: NoiseSchema,
         /** Moisture bonuses near hydrology rivers. */
         riparian: RiparianSchema,
+        /** Deterministic biome edge refinement applied after classification. */
+        edgeRefine: Type.Optional(EdgeRefineSchema),
       },
       {
         description:

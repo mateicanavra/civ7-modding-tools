@@ -53,7 +53,6 @@ const publicSchema = Type.Object(
     pedology: Type.Optional(steps.pedology.contract.schema),
     resourceBasins: Type.Optional(steps.resourceBasins.contract.schema),
     biomes: Type.Optional(steps.biomes.contract.schema),
-    biomeEdgeRefine: Type.Optional(steps.biomeEdgeRefine.contract.schema),
     featuresPlan: Type.Optional(FeaturesPlanPublicSchema),
   },
   { additionalProperties: false }
@@ -116,7 +115,6 @@ export default createStage({
       pedology: config.pedology,
       "resource-basins": config.resourceBasins,
       biomes: config.biomes,
-      "biome-edge-refine": config.biomeEdgeRefine,
       "features-plan": compileFeaturesPlan(config.featuresPlan),
     };
   },
@@ -124,7 +122,6 @@ export default createStage({
     steps.pedology,
     steps.resourceBasins,
     steps.biomes,
-    steps.biomeEdgeRefine,
     steps.featuresPlan,
   ],
 });
