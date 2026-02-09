@@ -169,6 +169,195 @@ Rule posture (as per session guidance):
 - Use rules for codified decisions and scoring inputs (especially where “a scoring op runs many rules and returns layered results”).
 - If a component is likely to host many future algorithms/strategies, keep it as a standalone op rather than overloading rules.
 
+## 5.2 Layout Matrix (Stage/Step/Op/Strategy/Rules Arrangements)
+
+The question behind “should steps be plot?” is really: where should algorithmic decisions live vs where should pipeline orchestration live.
+
+Target-architecture answer:
+- A **step** is an execution node. It can publish artifacts, call ops, emit viz, and (in projection stages) call the adapter. “plot-*” is a naming convention for projection steps, not a hard rule that all steps must be “plot”.
+- **Ops** are the right place to codify algorithmic logic (scoring functions, selection/packing, spacing rules, etc.), expressed as strategies and rules.
+- **Steps** should orchestrate: read artifacts/buffers, call ops in a sequence, publish artifacts/fields/effects, and emit viz for what they own.
+
+Below is a comprehensive arrangement matrix: the viable ways to split responsibilities across stage/step/op/strategy/rules while keeping:
+- ops atomic,
+- steps as orchestrators,
+- and viz emitted where the work happens.
+
+### Option 1: Per-family plan steps orchestrate scoring ops + plan op (symmetric default)
+
+Stages:
+- `ecology-features`
+
+Steps:
+- `compute-feature-substrate` (optional but recommended; publishes substrate masks)
+- `plan-vegetation`
+- `plan-wetlands`
+- `plan-reefs`
+- `plan-ice`
+
+Ops:
+- scoring ops (optional, per family)
+- planning op (per family)
+- rules used inside those ops
+
+Intermediate score transport:
+- step-local (scores computed in the step by calling score ops, then passed into the planning op input)
+
+Viz:
+- per-family score + placements viz inside each `plan-<family>` step
+- aggregated “final feature intent view” viz belongs in projection `features-apply` (it already aggregates intents)
+
+Choose this when:
+- we do not need cross-family score visibility yet
+- we want minimal pipeline nodes while keeping ops as the logic source of truth
+
+### Option 2: unified score step publishes a scoreLayers artifact; per-family plan steps consume it
+
+Stages:
+- `ecology-features`
+
+Steps:
+- `compute-feature-substrate`
+- `score-features` (publishes `artifact:ecology.scoreLayers`)
+- `plan-vegetation`
+- `plan-wetlands`
+- `plan-reefs`
+- `plan-ice`
+
+Ops:
+- scoring op(s) proxy many rules and emit layered arrays for all families
+- per-family planning ops consume the unified layers object
+
+Intermediate score transport:
+- explicit artifact seam (`artifact:ecology.scoreLayers`)
+
+Viz:
+- score-layer viz lives in `score-features`
+- per-family placement viz lives in each `plan-<family>`
+
+Choose this when:
+- planners must see multiple layers without circular dependencies
+- we want to prevent “bake other scores into my score” drift by design
+
+### Option 3: per-family score steps + per-family plan steps (maximal modularity; more nodes)
+
+Stages:
+- `ecology-features`
+
+Steps:
+- `compute-feature-substrate`
+- `score-vegetation`, `plan-vegetation`
+- `score-wetlands`, `plan-wetlands`
+- `score-reefs`, `plan-reefs`
+- `score-ice`, `plan-ice`
+
+Ops:
+- one scoring op per family (rules-heavy)
+- one planning op per family (strategy-heavy if we expect many variants)
+
+Intermediate score transport:
+- per-family score artifacts (e.g. `artifact:ecology.scoreLayers.vegetation`)
+
+Viz:
+- score viz in `score-<family>`
+- placement viz in `plan-<family>`
+
+Choose this when:
+- we want independent tuning and observability per family
+- we expect major algorithmic churn and want very tight contracts per family
+
+Tradeoff:
+- more steps and more artifacts to maintain
+
+### Option 4: planning ops compute scores internally via rules (no separate score ops)
+
+Stages:
+- `ecology-features`
+
+Steps:
+- `compute-feature-substrate`
+- `plan-vegetation`
+- `plan-wetlands`
+- `plan-reefs`
+- `plan-ice`
+
+Ops:
+- planning op per family
+- rules implement scoring inside each planning strategy
+
+Intermediate score transport:
+- none (scores are internal to the planning op)
+
+Viz:
+- if we need score viz, planning ops must either:
+- include debug scores in op output, or
+- accept score invisibility and only viz final placements
+
+Choose this when:
+- we don’t need score reuse between families
+- we want the smallest surface area of ops
+
+Risk:
+- harder to prevent circular-dependency heuristics if cross-family logic creeps in
+
+### Option 5: two truth stages (score stage then plan stage)
+
+Stages:
+- `ecology-features-score`
+- `ecology-features-plan`
+
+Steps:
+- score stage: `compute-feature-substrate`, `score-features` (or per-family score steps)
+- plan stage: `plan-vegetation`, `plan-wetlands`, `plan-reefs`, `plan-ice`
+
+Intermediate score transport:
+- artifact seam is mandatory (score stage must publish artifacts)
+
+Viz:
+- score viz in score stage steps
+- placement viz in plan steps
+
+Choose this when:
+- presets/knobs want a clean config boundary between scoring posture and planning posture
+
+Tradeoff:
+- more stage modules and more config surfaces to keep coherent
+
+### Option 6: global multi-family planning op (single decision-maker), with per-family scoring
+
+Stages:
+- `ecology-features`
+
+Steps:
+- `compute-feature-substrate`
+- `score-features` (or per-family score steps)
+- `plan-features-global` (publishes all `artifact:ecology.featureIntents.*` or a single combined intent artifact)
+
+Ops:
+- scoring ops (rules-heavy)
+- one global planning op that consumes all layers and resolves cross-family conflicts explicitly
+
+Intermediate score transport:
+- unified score artifact (recommended)
+
+Viz:
+- score viz in score step
+- global conflict-resolution viz in global plan step (often extremely valuable)
+
+Choose this when:
+- cross-family interactions are central and must be resolved in truth (not deferred to engine apply)
+
+Tradeoff:
+- challenges “atomic per-feature ops” unless we treat the global resolver as its own atomic concern
+
+### Naming convention (recommended, not required)
+
+Truth stages:
+- `compute-*`, `classify-*`, `score-*`, `plan-*`
+
+Projection stages:
+- `plot-*` and `apply-*`
+
 ### Shape A.1 (tightened): Concrete stage + step contract spec (recommended)
 
 This is the tightened “what exactly exists” proposal: stage ids, step ids, artifact seams, and op bindings. It is designed to be directly sliceable into `dev-loop-parallel` worktrees.

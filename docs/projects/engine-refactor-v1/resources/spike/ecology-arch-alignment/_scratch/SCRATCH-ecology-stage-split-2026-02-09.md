@@ -272,6 +272,35 @@ Anchor: `packages/mapgen-core/src/authoring/stage.ts`
   - ice (`plan-ice`)
   - plot effects (`plan-plot-effects`) if it still relies on `coverageChance`
 
+## Arrangement Options (matrix)
+
+This is the quick decision table for “where do scores live, where does planning live, where does viz live”.
+Full prose version is in the spike doc (`5.2 Layout Matrix`).
+
+Option A: per-family `plan-<family>` step orchestrates score ops + plan op
+- Pros: minimal pipeline nodes; symmetric; easy to evolve
+- Cons: no explicit cross-family score seam unless we add one later
+
+Option B: `score-features` step publishes unified `artifact:ecology.scoreLayers`, then per-family plan steps consume
+- Pros: explicit seam; prevents circular dependencies; best for “global visibility” planning
+- Cons: adds an artifact and a step; must define scoreLayers schema
+
+Option C: per-family score steps + per-family plan steps
+- Pros: maximal modularity and observability
+- Cons: many nodes/artifacts
+
+Option D: plan ops compute scores internally via rules (no score ops/steps)
+- Pros: smallest op surface
+- Cons: weak observability of scores unless op outputs debug payloads
+
+Option E: split into separate truth stages `ecology-features-score` + `ecology-features-plan`
+- Pros: stage-level config boundaries become crisp for presets/knobs
+- Cons: more stage modules; artifact seams mandatory
+
+Option F: global multi-family plan op (single decision maker)
+- Pros: explicit cross-family conflict resolution in truth
+- Cons: challenges “atomic per-feature ops” unless resolver is treated as its own atomic concern
+
 ## Remediation Slices (dev-loop-parallel inputs)
 
 Placeholder: we will enumerate one slice per “fixable unit” (stage split, op extraction, rule refactor, config compilation boundary, artifact boundaries, tag/id/registry alignment).
