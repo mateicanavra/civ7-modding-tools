@@ -73,9 +73,6 @@ Ecology domain ops used by the standard recipe are split along the target archit
   - Vegetated placements: `planVegetatedPlacement*`
   - Wet placements: `planWetPlacement*`
   - Aquatic placements: `planAquatic*Placements`
-- Embellishments (truth stage, currently applied as part of feature planning):
-  - `planReefEmbellishmentsReef`
-  - `planVegetationEmbellishments*`
 - Projection ops (projection stage `map-ecology`):
   - `applyFeatures`
   - `planPlotEffects`

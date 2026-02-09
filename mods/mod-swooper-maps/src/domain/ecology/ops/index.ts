@@ -21,20 +21,7 @@ import planResourceBasins from "./resource-plan-basins/index.js";
 import scoreResourceBasins from "./resource-score-balance/index.js";
 import refineBiomeEdges from "./refine-biome-edges/index.js";
 
-import planAquaticAtollPlacements from "./plan-aquatic-atoll-placements/index.js";
-import planAquaticColdReefPlacements from "./plan-aquatic-cold-reef-placements/index.js";
-import planAquaticLotusPlacements from "./plan-aquatic-lotus-placements/index.js";
-import planAquaticReefPlacements from "./plan-aquatic-reef-placements/index.js";
-
-import planIceFeaturePlacements from "./plan-ice-feature-placements/index.js";
 import planPlotEffects from "./plan-plot-effects/index.js";
-import planReefEmbellishmentsReef from "./plan-reef-embellishments-reef/index.js";
-
-import planVegetationEmbellishmentsForestDensity from "./plan-vegetation-embellishments-forest-density/index.js";
-import planVegetationEmbellishmentsRainforestDensity from "./plan-vegetation-embellishments-rainforest-density/index.js";
-import planVegetationEmbellishmentsTaigaDensity from "./plan-vegetation-embellishments-taiga-density/index.js";
-import planVegetationEmbellishmentsVolcanicForest from "./plan-vegetation-embellishments-volcanic-forest/index.js";
-import planVegetationEmbellishmentsVolcanicTaiga from "./plan-vegetation-embellishments-volcanic-taiga/index.js";
 
 import planWetPlacementMangrove from "./plan-wet-placement-mangrove/index.js";
 import planWetPlacementMarsh from "./plan-wet-placement-marsh/index.js";
@@ -58,20 +45,7 @@ const implementations = {
   scoreVegetationSavannaWoodland,
   scoreVegetationSagebrushSteppe,
 
-  planAquaticReefPlacements,
-  planAquaticColdReefPlacements,
-  planAquaticAtollPlacements,
-  planAquaticLotusPlacements,
-
-  planIceFeaturePlacements,
   planPlotEffects,
-  planReefEmbellishmentsReef,
-
-  planVegetationEmbellishmentsVolcanicForest,
-  planVegetationEmbellishmentsVolcanicTaiga,
-  planVegetationEmbellishmentsRainforestDensity,
-  planVegetationEmbellishmentsForestDensity,
-  planVegetationEmbellishmentsTaigaDensity,
 
   planWetPlacementMarsh,
   planWetPlacementTundraBog,
@@ -109,20 +83,7 @@ export {
   scoreResourceBasins,
   refineBiomeEdges,
 
-  planAquaticReefPlacements,
-  planAquaticColdReefPlacements,
-  planAquaticAtollPlacements,
-  planAquaticLotusPlacements,
-
-  planIceFeaturePlacements,
   planPlotEffects,
-  planReefEmbellishmentsReef,
-
-  planVegetationEmbellishmentsVolcanicForest,
-  planVegetationEmbellishmentsVolcanicTaiga,
-  planVegetationEmbellishmentsRainforestDensity,
-  planVegetationEmbellishmentsForestDensity,
-  planVegetationEmbellishmentsTaigaDensity,
 
   planWetPlacementMarsh,
   planWetPlacementTundraBog,

@@ -1,13 +1,7 @@
 import { Type, type Static } from "@swooper/mapgen-core/authoring";
 import { BiomeEngineBindingsSchema } from "./biome-bindings.js";
 import BiomeClassificationContract from "./ops/classify-biomes/contract.js";
-import PlanAquaticAtollPlacementsContract from "./ops/plan-aquatic-atoll-placements/contract.js";
-import PlanAquaticColdReefPlacementsContract from "./ops/plan-aquatic-cold-reef-placements/contract.js";
-import PlanAquaticLotusPlacementsContract from "./ops/plan-aquatic-lotus-placements/contract.js";
-import PlanAquaticReefPlacementsContract from "./ops/plan-aquatic-reef-placements/contract.js";
-import PlanIceFeaturePlacementsContract from "./ops/plan-ice-feature-placements/contract.js";
 import PlanPlotEffectsContract from "./ops/plan-plot-effects/contract.js";
-import PlanWetPlacementMarshContract from "./ops/plan-wet-placement-marsh/contract.js";
 /**
  * Biome classification config (Holdridge/Whittaker-inspired).
  * Sourced from the ecology domain operation to keep schema + logic colocated.
@@ -18,26 +12,6 @@ const BiomeConfigSchema = BiomeClassificationContract.config;
  * Optional bindings from biome symbols -> engine biome globals.
  */
 const BiomeBindingsSchema = BiomeEngineBindingsSchema;
-
-/**
- * Baseline feature placement config split by concern (step orchestrates order).
- */
-const FeaturesPlacementConfigSchema = Type.Object(
-  {
-    wet: PlanWetPlacementMarshContract.config,
-    aquatic: Type.Object(
-      {
-        reef: PlanAquaticReefPlacementsContract.config,
-        coldReef: PlanAquaticColdReefPlacementsContract.config,
-        atoll: PlanAquaticAtollPlacementsContract.config,
-        lotus: PlanAquaticLotusPlacementsContract.config,
-      },
-      { additionalProperties: false }
-    ),
-    ice: PlanIceFeaturePlacementsContract.config,
-  },
-  { additionalProperties: false }
-);
 
 /**
  * Config for climate/ecology plot effects (snow, sand, burned).
@@ -286,7 +260,6 @@ export const EcologyConfigSchema = Type.Object(
   {
     biomes: Type.Optional(BiomeConfigSchema),
     bindings: Type.Optional(BiomeBindingsSchema),
-    featuresPlacement: Type.Optional(FeaturesPlacementConfigSchema),
     plotEffects: Type.Optional(PlotEffectsConfigSchema),
     features: Type.Optional(FeaturesConfigSchema),
     featuresDensity: Type.Optional(FeaturesDensityConfigSchema),
@@ -296,8 +269,6 @@ export const EcologyConfigSchema = Type.Object(
 
 export type BiomeConfig = Static<typeof EcologyConfigSchema["properties"]["biomes"]>;
 export type BiomeBindings = Static<typeof EcologyConfigSchema["properties"]["bindings"]>;
-export type FeaturesPlacementConfig =
-  Static<typeof EcologyConfigSchema["properties"]["featuresPlacement"]>;
 export type PlotEffectsConfig =
   Static<typeof EcologyConfigSchema["properties"]["plotEffects"]>;
 export type FeaturesConfig = Static<typeof EcologyConfigSchema["properties"]["features"]>;
