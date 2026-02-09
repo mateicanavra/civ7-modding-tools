@@ -4,8 +4,8 @@ import { defaultStrategy, gaussianStrategy } from "./strategies/index.js";
 
 const refineBiomeEdges = createOp(RefineBiomeEdgesContract, {
   strategies: {
-    default: defaultStrategy,
-    morphological: defaultStrategy,
+    default: gaussianStrategy,
+    morphological: gaussianStrategy,
     gaussian: gaussianStrategy,
   },
 });
