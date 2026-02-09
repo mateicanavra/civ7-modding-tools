@@ -1,7 +1,7 @@
 import { clampChance } from "@swooper/mapgen-core";
 import type { Static } from "@swooper/mapgen-core/authoring";
 
-import { WetFeaturePlacementsContractParts } from "../contract.js";
+import { WetFeaturePlacementsContractParts } from "./contract-parts.js";
 
 type Config = Static<(typeof WetFeaturePlacementsContractParts)["strategies"]["default"]>;
 
@@ -30,3 +30,4 @@ export function normalizeWetFeaturePlacementsConfig(config: Config): Config {
     },
   };
 }
+

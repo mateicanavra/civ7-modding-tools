@@ -47,3 +47,4 @@ export function isCoastalLand(
   }
   return false;
 }
+

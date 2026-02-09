@@ -7,7 +7,7 @@ import {
   type FeatureKey,
 } from "@mapgen/domain/ecology/types.js";
 
-import { WetFeaturePlacementsContractParts } from "../contract.js";
+import { WetFeaturePlacementsContractParts } from "./contract-parts.js";
 import { hasAdjacentFeatureType, isCoastalLand } from "./adjacency.js";
 
 type Config = Static<(typeof WetFeaturePlacementsContractParts)["strategies"]["default"]>;
@@ -15,11 +15,6 @@ type Input = Static<(typeof WetFeaturePlacementsContractParts)["input"]>;
 type Placement = Static<
   (typeof WetFeaturePlacementsContractParts)["output"]
 >["placements"][number];
-
-export type WetFeaturePlacementsPlanArgs = Readonly<{
-  input: Input;
-  config: Config;
-}>;
 
 const NO_FEATURE = -1;
 
