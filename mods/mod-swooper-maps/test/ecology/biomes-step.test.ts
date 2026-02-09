@@ -100,7 +100,7 @@ describe("biomes step", () => {
       {
         bindings: {},
       },
-      {} as any,
+      {},
       buildTestDeps(plotBiomesStep)
     );
 

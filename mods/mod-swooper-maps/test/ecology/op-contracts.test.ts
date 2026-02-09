@@ -218,39 +218,82 @@ describe("ecology op contract surfaces", () => {
     expect(result.vegetationDensity.length).toBe(size);
   });
 
-  it("planVegetatedPlacementForest validates output", () => {
+  it("computeVegetationSubstrate validates output", () => {
     const width = 2;
     const height = 2;
     const size = width * height;
-    const temperateHumid = BIOME_SYMBOL_TO_INDEX.temperateHumid ?? 4;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetatedPlacementForest, {
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.computeVegetationSubstrate, {
       strategy: "default",
-      config: {
-        chances: { FEATURE_FOREST: 100 },
-        rules: { vegetationChanceScalar: 1 },
-      },
+      config: {},
     });
 
-    const result = ecology.ops.planVegetatedPlacementForest.run(
+    const result = ecology.ops.computeVegetationSubstrate.run(
       {
         width,
         height,
-        seed: 0,
-        biomeIndex: new Uint8Array(size).fill(temperateHumid),
-        vegetationDensity: new Float32Array(size).fill(1),
-        effectiveMoisture: new Float32Array(size).fill(200),
-        surfaceTemperature: new Float32Array(size).fill(18),
-        aridityIndex: new Float32Array(size).fill(0.2),
-        freezeIndex: new Float32Array(size).fill(0),
         landMask: new Uint8Array(size).fill(1),
-        navigableRiverMask: new Uint8Array(size).fill(0),
-        featureKeyField: createFeatureKeyField(size),
+        effectiveMoisture: new Float32Array(size).fill(180),
+        surfaceTemperature: new Float32Array(size).fill(15),
+        aridityIndex: new Float32Array(size).fill(0.2),
+        freezeIndex: new Float32Array(size).fill(0.05),
+        vegetationDensity: new Float32Array(size).fill(0.7),
+        fertility: new Float32Array(size).fill(0.4),
       },
       selection
     );
 
-    expect(result.placements.length).toBe(size);
-    expect(result.placements[0]?.feature).toBe("FEATURE_FOREST");
+    expect(result.energy01.length).toBe(size);
+    expect(result.water01.length).toBe(size);
+    expect(result.waterStress01.length).toBe(size);
+    expect(result.coldStress01.length).toBe(size);
+    expect(result.biomass01.length).toBe(size);
+    expect(result.fertility01.length).toBe(size);
+  });
+
+  it("vegetation score ops validate output", () => {
+    const width = 2;
+    const height = 2;
+    const size = width * height;
+
+    const substrateSelection = normalizeOpSelectionOrThrow(ecology.ops.computeVegetationSubstrate, {
+      strategy: "default",
+      config: {},
+    });
+
+    const substrate = ecology.ops.computeVegetationSubstrate.run(
+      {
+        width,
+        height,
+        landMask: new Uint8Array(size).fill(1),
+        effectiveMoisture: new Float32Array(size).fill(180),
+        surfaceTemperature: new Float32Array(size).fill(15),
+        aridityIndex: new Float32Array(size).fill(0.2),
+        freezeIndex: new Float32Array(size).fill(0.05),
+        vegetationDensity: new Float32Array(size).fill(0.7),
+        fertility: new Float32Array(size).fill(0.4),
+      },
+      substrateSelection
+    );
+
+    const scoreOps = [
+      ecology.ops.scoreVegetationForest,
+      ecology.ops.scoreVegetationRainforest,
+      ecology.ops.scoreVegetationTaiga,
+      ecology.ops.scoreVegetationSavannaWoodland,
+      ecology.ops.scoreVegetationSagebrushSteppe,
+    ] as const;
+
+    for (const op of scoreOps) {
+      const selection = normalizeOpSelectionOrThrow(op, { strategy: "default", config: {} });
+      const result = op.run({ width, height, landMask: new Uint8Array(size).fill(1), ...substrate }, selection);
+      expect(result.score01.length).toBe(size);
+      for (let i = 0; i < size; i++) {
+        const score = result.score01[i];
+        expect(Number.isFinite(score)).toBe(true);
+        expect(score).toBeGreaterThanOrEqual(0);
+        expect(score).toBeLessThanOrEqual(1);
+      }
+    }
   });
 
   it("planWetPlacementMarsh validates output", () => {
@@ -626,54 +669,6 @@ describe("ecology op contract surfaces", () => {
     );
 
     expect(Array.isArray(result.placements)).toBe(true);
-  });
-
-  it("planVegetationRainforest validates output", () => {
-    const width = 2;
-    const height = 2;
-    const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetationRainforest, {
-      strategy: "default",
-      config: {},
-    });
-    const result = ecology.ops.planVegetationRainforest.run(
-      {
-        width,
-        height,
-        biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid ?? 0),
-        vegetationDensity: new Float32Array(size).fill(0.8),
-        effectiveMoisture: new Float32Array(size).fill(0.6),
-        surfaceTemperature: new Float32Array(size).fill(15),
-        fertility: new Float32Array(size).fill(0.5),
-        landMask: new Uint8Array(size).fill(1),
-      },
-      selection
-    );
-    expect(result.placements.length).toBeGreaterThan(0);
-  });
-
-  it("planVegetationRainforest clustered strategy validates output", () => {
-    const width = 2;
-    const height = 2;
-    const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetationRainforest, {
-      strategy: "clustered",
-      config: {},
-    });
-    const result = ecology.ops.planVegetationRainforest.run(
-      {
-        width,
-        height,
-        biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid ?? 0),
-        vegetationDensity: new Float32Array(size).fill(0.8),
-        effectiveMoisture: new Float32Array(size).fill(0.6),
-        surfaceTemperature: new Float32Array(size).fill(15),
-        fertility: new Float32Array(size).fill(0.5),
-        landMask: new Uint8Array(size).fill(1),
-      },
-      selection
-    );
-    expect(result.placements.length).toBeGreaterThan(0);
   });
 
   it("planWetlands validates output", () => {
