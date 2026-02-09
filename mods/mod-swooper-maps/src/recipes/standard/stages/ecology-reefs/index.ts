@@ -5,11 +5,8 @@ import { Type, createStage } from "@swooper/mapgen-core/authoring";
  *
  * Slice M3-005 will implement deterministic reef-family planning here.
  */
-const knobsSchema = Type.Object({}, { additionalProperties: false });
-
 export default createStage({
   id: "ecology-reefs",
-  knobsSchema,
+  knobsSchema: Type.Object({}),
   steps: [],
 } as const);
-

@@ -11,7 +11,7 @@ const VegetationPickingSchema = Type.Object(
       maximum: 1,
     }),
   },
-  { additionalProperties: false, default: {} }
+  { default: {} }
 );
 
 const WetFeaturePlacementsSchema = Type.Union(
@@ -20,15 +20,13 @@ const WetFeaturePlacementsSchema = Type.Union(
       {
         strategy: Type.Literal("disabled"),
         config: ecology.ops.planWetPlacementMarsh.strategies.disabled,
-      },
-      { additionalProperties: false }
+      }
     ),
     Type.Object(
       {
         strategy: Type.Literal("default"),
         config: ecology.ops.planWetPlacementMarsh.strategies.default,
-      },
-      { additionalProperties: false }
+      }
     ),
   ],
   { default: { strategy: "disabled", config: {} } }
@@ -41,30 +39,19 @@ const FeaturesPlanPublicSchema = Type.Object(
     reefs: ecology.ops.planReefs.config,
     ice: ecology.ops.planIce.config,
     wetFeaturePlacements: WetFeaturePlacementsSchema,
-  },
-  { additionalProperties: false }
+  }
 );
 
 type FeaturesPlanPublicConfig = Static<typeof FeaturesPlanPublicSchema>;
 type StudioUiMetaSentinel = { __studioUiMetaSentinelPath: unknown };
 
-const publicSchema = Type.Object(
-  {
-    featuresPlan: Type.Optional(FeaturesPlanPublicSchema),
-  },
-  { additionalProperties: false }
-);
-
-type EcologyVegetationStageConfig = Static<typeof publicSchema>;
-
 export default createStage({
   id: "ecology-vegetation",
-  knobsSchema: Type.Object({}, { additionalProperties: false }),
-  public: publicSchema,
-  compile: ({ env, knobs, config }: { env: unknown; knobs: unknown; config: EcologyVegetationStageConfig }) => {
-    void env;
-    void knobs;
-
+  knobsSchema: Type.Object({}),
+  public: Type.Object({
+    featuresPlan: Type.Optional(FeaturesPlanPublicSchema),
+  }),
+  compile: ({ config }) => {
     const compileFeaturesPlan = (
       input: FeaturesPlanPublicConfig | StudioUiMetaSentinel | undefined
     ): Record<string, unknown> | undefined => {
@@ -116,4 +103,3 @@ export default createStage({
   },
   steps: [steps.featuresPlan],
 } as const);
-

@@ -5,11 +5,8 @@ import { Type, createStage } from "@swooper/mapgen-core/authoring";
  *
  * Slice M3-006 will implement deterministic wet-family planning here.
  */
-const knobsSchema = Type.Object({}, { additionalProperties: false });
-
 export default createStage({
   id: "ecology-wetlands",
-  knobsSchema,
+  knobsSchema: Type.Object({}),
   steps: [],
 } as const);
-
