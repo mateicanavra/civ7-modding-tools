@@ -63,8 +63,7 @@ related_to: []
 ```yaml
 files:
   - path: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/features-plan/index.ts
-    notes: Legacy step planning entrypoint; in M3 it is replaced by dedicated planner stages.
-  - path: mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-vegetation/**
-    notes: Legacy multi-feature planning logic (M2 split); M3 replaces with score->plan joint resolver.
+    notes: Current vegetation selection logic lives here today (step-level planning). M3 replaces it with a dedicated truth planner stage/op.
+  - path: mods/mod-swooper-maps/src/domain/ecology/ops/vegetation-score-*
+    notes: Existing independent vegetation score ops to reuse as scoreLayers inputs.
 ```
-

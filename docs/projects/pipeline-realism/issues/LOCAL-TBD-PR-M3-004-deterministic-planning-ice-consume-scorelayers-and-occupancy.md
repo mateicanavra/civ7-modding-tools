@@ -63,9 +63,10 @@ related_to: []
 
 ```yaml
 files:
-  - path: mods/mod-swooper-maps/src/domain/ecology/ops/plan-ice/**
-    notes: Existing chance-based logic must be deleted and replaced with deterministic planning.
+  - path: mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-ice/**
+    notes: Current ice planning op (chance/RNG posture) to delete and replace with deterministic planning.
+  - path: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/features-plan/index.ts
+    notes: Current monolithic orchestration site that will be replaced by the dedicated planner stages.
   - path: docs/projects/pipeline-realism/resources/packets/PACKET-M3-ecology-physics-first/CONTRACTS.md
     notes: Ice planner contract is locked here.
 ```
-

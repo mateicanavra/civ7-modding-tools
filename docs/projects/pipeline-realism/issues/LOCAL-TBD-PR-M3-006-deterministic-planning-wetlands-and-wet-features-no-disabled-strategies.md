@@ -64,9 +64,10 @@ related_to: []
 
 ```yaml
 files:
-  - path: mods/mod-swooper-maps/src/domain/ecology/ops/plan-wet-feature-placements/**
-    notes: Current chance/multiplier-based wet placement logic must be deleted and replaced.
-  - path: mods/mod-swooper-maps/src/domain/ecology/ops/plan-wet-feature-placements/strategies/default.ts
-    notes: Evidence of current "chances/multipliers" posture that is forbidden in M3.
+  - path: mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-wetlands/**
+    notes: Current wetlands-family planning op surface to replace.
+  - path: mods/mod-swooper-maps/src/domain/ecology/ops/plan-wet-placement-*
+    notes: Per-feature wet placement ops with `disabled` strategies and chance/multiplier gating; these must be deleted/replaced by deterministic wetlands planning.
+  - path: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/features-plan/index.ts
+    notes: Current monolithic orchestration site that will be replaced by the dedicated planner stages.
 ```
-

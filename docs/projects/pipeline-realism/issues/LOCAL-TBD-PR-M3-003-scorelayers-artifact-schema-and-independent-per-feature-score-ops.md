@@ -71,7 +71,8 @@ files:
     notes: FeatureKey inventory (must match scoreLayers keys).
   - path: mods/mod-swooper-maps/src/domain/ecology/ops
     notes: Add/replace score ops per feature.
+  - path: mods/mod-swooper-maps/src/domain/ecology/ops/vegetation-score-*
+    notes: Existing vegetation scoring ops already match the "independent score layer" posture; reuse them as the canonical vegetation layers in `artifact:ecology.scoreLayers`.
   - path: packages/mapgen-core/src
     notes: Artifact schema plumbing / TypeBox helpers / validation surfaces.
 ```
-

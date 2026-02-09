@@ -63,9 +63,10 @@ related_to: []
 
 ```yaml
 files:
-  - path: mods/mod-swooper-maps/src/domain/ecology/ops/plan-reef-feature-placements/**
-    notes: Current reef planning surfaces to replace; ensure cold reefs/atolls/lotus are actually produced.
+  - path: mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-reefs/**
+    notes: Current reef planning op surface to replace; ensure cold reefs/atolls/lotus are actually produced.
+  - path: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/features-plan/index.ts
+    notes: Current monolithic orchestration site that will be replaced by the dedicated planner stages.
   - path: mods/mod-swooper-maps/src/domain/ecology/types.ts
     notes: Reef feature keys inventory (must match scoreLayers).
 ```
-
