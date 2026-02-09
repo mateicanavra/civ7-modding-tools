@@ -1,6 +1,7 @@
 # ORCH: M3 Ecology Physics-First Feature Scoring + Planning (Pipeline-Realism)
 
 Status: ACTIVE (orchestrator scratch plan; keep concise; update at phase boundaries)
+Last updated: 2026-02-09
 Owner: agent-codex
 Branch/worktree: `agent-codex-m3-ecology-physics-first-plan` / `wt-agent-codex-m3-ecology-physics-first-plan`
 
@@ -18,6 +19,12 @@ Branch/worktree: `agent-codex-m3-ecology-physics-first-plan` / `wt-agent-codex-m
 2. Milestone: `docs/projects/pipeline-realism/milestones/M3-ecology-physics-first-feature-planning.md`
 3. Local issue docs: `docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M3-*.md`
 4. Prework sweep complete: zero remaining `## Prework Prompt (Agent Brief)` in the M3 issue scope.
+
+Current status:
+- Packet: DONE (decision-complete; topology/contracts aligned)
+- Milestone: DONE (derived from packet; "M3 remediates M2" framing explicit)
+- Issues: DONE (M3-001..009; no prework prompts)
+- Phase runbooks: DONE (phase 0..8 runbooks under packet)
 
 ## Phase Checklist (stop at gates)
 
@@ -42,6 +49,12 @@ Branch/worktree: `agent-codex-m3-ecology-physics-first-plan` / `wt-agent-codex-m
 - [ ] Harden milestone (`dev-harden-milestone` posture)
 - [ ] Milestone -> issues (`dev-milestone-to-issues` posture)
 - [ ] Prework sweep (`dev-prework-sweep` posture)
+
+Note: for M3 docs, we executed the posture manually and captured it in packet runbooks:
+- `docs/projects/pipeline-realism/resources/packets/PACKET-M3-ecology-physics-first/RUNBOOKS/PHASE-4-spec-to-milestone.md`
+- `docs/projects/pipeline-realism/resources/packets/PACKET-M3-ecology-physics-first/RUNBOOKS/PHASE-5-harden-milestone.md`
+- `docs/projects/pipeline-realism/resources/packets/PACKET-M3-ecology-physics-first/RUNBOOKS/PHASE-6-milestone-to-issues.md`
+- `docs/projects/pipeline-realism/resources/packets/PACKET-M3-ecology-physics-first/RUNBOOKS/PHASE-7-prework-sweep.md`
 
 ## Non-Negotiable Gates
 
