@@ -288,16 +288,7 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
       refine: { strategy: "default", config: { radius: 1, iterations: 1 } },
     },
     featuresPlan: {
-      vegetation: {
-        strategy: "clustered",
-        config: {
-          baseDensity: 0.32,
-          fertilityWeight: 0.4,
-          moistureWeight: 0.55,
-          moistureNormalization: 230,
-          coldCutoff: -10,
-        },
-      },     // Volcanic forest clusters
+      vegetation: { minScoreThreshold: 0.15 },     // Vegetation intent threshold
       wetlands: {
         strategy: "delta-focused",
         config: {

@@ -290,16 +290,7 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
       refine: { strategy: "gaussian", config: { radius: 1, iterations: 1 } },         // Smooth tropical biome blending
     },
     featuresPlan: {
-      vegetation: {
-        strategy: "clustered",
-        config: {
-          baseDensity: 0.45,
-          fertilityWeight: 0.4,
-          moistureWeight: 0.7,
-          moistureNormalization: 210,
-          coldCutoff: -10,
-        },
-      },    // Tropical rainforest clusters
+      vegetation: { minScoreThreshold: 0.15 },    // Vegetation intent threshold
       wetlands: {
         strategy: "delta-focused",
         config: {

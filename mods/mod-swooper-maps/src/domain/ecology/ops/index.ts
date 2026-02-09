@@ -10,12 +10,6 @@ import scoreVegetationTaiga from "./vegetation-score-taiga/index.js";
 import scoreVegetationSavannaWoodland from "./vegetation-score-savanna-woodland/index.js";
 import scoreVegetationSagebrushSteppe from "./vegetation-score-sagebrush-steppe/index.js";
 
-import planVegetationForest from "./features-plan-vegetation-forest/index.js";
-import planVegetationRainforest from "./features-plan-vegetation-rainforest/index.js";
-import planVegetationSagebrushSteppe from "./features-plan-vegetation-sagebrush-steppe/index.js";
-import planVegetationSavannaWoodland from "./features-plan-vegetation-savanna-woodland/index.js";
-import planVegetationTaiga from "./features-plan-vegetation-taiga/index.js";
-
 import planWetlands from "./features-plan-wetlands/index.js";
 import planReefs from "./features-plan-reefs/index.js";
 import planIce from "./features-plan-ice/index.js";
@@ -35,12 +29,6 @@ import planAquaticReefPlacements from "./plan-aquatic-reef-placements/index.js";
 import planIceFeaturePlacements from "./plan-ice-feature-placements/index.js";
 import planPlotEffects from "./plan-plot-effects/index.js";
 import planReefEmbellishmentsReef from "./plan-reef-embellishments-reef/index.js";
-
-import planVegetatedPlacementForest from "./plan-vegetated-placement-forest/index.js";
-import planVegetatedPlacementRainforest from "./plan-vegetated-placement-rainforest/index.js";
-import planVegetatedPlacementSagebrushSteppe from "./plan-vegetated-placement-sagebrush-steppe/index.js";
-import planVegetatedPlacementSavannaWoodland from "./plan-vegetated-placement-savanna-woodland/index.js";
-import planVegetatedPlacementTaiga from "./plan-vegetated-placement-taiga/index.js";
 
 import planVegetationEmbellishmentsForestDensity from "./plan-vegetation-embellishments-forest-density/index.js";
 import planVegetationEmbellishmentsRainforestDensity from "./plan-vegetation-embellishments-rainforest-density/index.js";
@@ -79,12 +67,6 @@ const implementations = {
   planPlotEffects,
   planReefEmbellishmentsReef,
 
-  planVegetatedPlacementForest,
-  planVegetatedPlacementRainforest,
-  planVegetatedPlacementTaiga,
-  planVegetatedPlacementSavannaWoodland,
-  planVegetatedPlacementSagebrushSteppe,
-
   planVegetationEmbellishmentsVolcanicForest,
   planVegetationEmbellishmentsVolcanicTaiga,
   planVegetationEmbellishmentsRainforestDensity,
@@ -97,11 +79,6 @@ const implementations = {
   planWetPlacementOasis,
   planWetPlacementWateringHole,
 
-  planVegetationForest,
-  planVegetationRainforest,
-  planVegetationTaiga,
-  planVegetationSavannaWoodland,
-  planVegetationSagebrushSteppe,
   planWetlands,
   planReefs,
   planIce,
@@ -120,12 +97,6 @@ export {
   scoreVegetationTaiga,
   scoreVegetationSavannaWoodland,
   scoreVegetationSagebrushSteppe,
-
-  planVegetationForest,
-  planVegetationRainforest,
-  planVegetationTaiga,
-  planVegetationSavannaWoodland,
-  planVegetationSagebrushSteppe,
 
   planWetlands,
   planReefs,
@@ -146,12 +117,6 @@ export {
   planIceFeaturePlacements,
   planPlotEffects,
   planReefEmbellishmentsReef,
-
-  planVegetatedPlacementForest,
-  planVegetatedPlacementRainforest,
-  planVegetatedPlacementTaiga,
-  planVegetatedPlacementSavannaWoodland,
-  planVegetatedPlacementSagebrushSteppe,
 
   planVegetationEmbellishmentsVolcanicForest,
   planVegetationEmbellishmentsVolcanicTaiga,

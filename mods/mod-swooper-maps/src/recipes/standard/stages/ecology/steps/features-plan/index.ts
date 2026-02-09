@@ -109,82 +109,85 @@ export default createStep(FeaturesPlanStepContract, {
       navigableRiverMask[i] = hydrography.riverClass[i] === 2 ? 1 : 0;
     }
 
-    const useAdvancedVegetated =
-      config.vegetatedPlacementForest.strategy !== "disabled" ||
-      config.vegetatedPlacementRainforest.strategy !== "disabled" ||
-      config.vegetatedPlacementTaiga.strategy !== "disabled" ||
-      config.vegetatedPlacementSavannaWoodland.strategy !== "disabled" ||
-      config.vegetatedPlacementSagebrushSteppe.strategy !== "disabled";
-
-    const legacyVegetationInput = {
-      width,
-      height,
-      biomeIndex: classification.biomeIndex,
-      vegetationDensity: classification.vegetationDensity,
-      effectiveMoisture: classification.effectiveMoisture,
-      surfaceTemperature: classification.surfaceTemperature,
-      fertility: pedology.fertility,
-      landMask: topography.landMask,
-    };
-    const legacyVegetationPlacements = [
-      ...ops.vegetationForest(legacyVegetationInput, config.vegetationForest).placements,
-      ...ops.vegetationRainforest(legacyVegetationInput, config.vegetationRainforest).placements,
-      ...ops.vegetationTaiga(legacyVegetationInput, config.vegetationTaiga).placements,
-      ...ops.vegetationSavannaWoodland(
-        legacyVegetationInput,
-        config.vegetationSavannaWoodland
-      ).placements,
-      ...ops.vegetationSagebrushSteppe(
-        legacyVegetationInput,
-        config.vegetationSagebrushSteppe
-      ).placements,
-    ];
-    legacyVegetationPlacements.sort(
-      (a, b) => (a.y * width + a.x) - (b.y * width + b.x)
+    const vegetationSubstrate = ops.vegetationSubstrate(
+      {
+        width,
+        height,
+        landMask: topography.landMask,
+        effectiveMoisture: classification.effectiveMoisture,
+        surfaceTemperature: classification.surfaceTemperature,
+        aridityIndex: classification.aridityIndex,
+        freezeIndex: classification.freezeIndex,
+        vegetationDensity: classification.vegetationDensity,
+        fertility: pedology.fertility,
+      },
+      config.vegetationSubstrate
     );
 
-    const vegetationPlacements = useAdvancedVegetated
-      ? (() => {
-          const advancedVegetationInput = {
-            width,
-            height,
-            seed,
-            biomeIndex: classification.biomeIndex,
-            vegetationDensity: classification.vegetationDensity,
-            effectiveMoisture: classification.effectiveMoisture,
-            surfaceTemperature: classification.surfaceTemperature,
-            aridityIndex: classification.aridityIndex,
-            freezeIndex: classification.freezeIndex,
-            landMask: topography.landMask,
-            navigableRiverMask,
-            featureKeyField: emptyFeatureKeyField(),
-          };
-          const placements = [
-            ...ops.vegetatedPlacementForest(
-              advancedVegetationInput,
-              config.vegetatedPlacementForest
-            ).placements,
-            ...ops.vegetatedPlacementRainforest(
-              advancedVegetationInput,
-              config.vegetatedPlacementRainforest
-            ).placements,
-            ...ops.vegetatedPlacementTaiga(
-              advancedVegetationInput,
-              config.vegetatedPlacementTaiga
-            ).placements,
-            ...ops.vegetatedPlacementSavannaWoodland(
-              advancedVegetationInput,
-              config.vegetatedPlacementSavannaWoodland
-            ).placements,
-            ...ops.vegetatedPlacementSagebrushSteppe(
-              advancedVegetationInput,
-              config.vegetatedPlacementSagebrushSteppe
-            ).placements,
-          ];
-          placements.sort((a, b) => (a.y * width + a.x) - (b.y * width + b.x));
-          return placements;
-        })()
-      : legacyVegetationPlacements;
+    const forestScore = ops.vegetationScoreForest(
+      { width, height, landMask: topography.landMask, ...vegetationSubstrate },
+      config.vegetationScoreForest
+    ).score01;
+    const rainforestScore = ops.vegetationScoreRainforest(
+      { width, height, landMask: topography.landMask, ...vegetationSubstrate },
+      config.vegetationScoreRainforest
+    ).score01;
+    const taigaScore = ops.vegetationScoreTaiga(
+      { width, height, landMask: topography.landMask, ...vegetationSubstrate },
+      config.vegetationScoreTaiga
+    ).score01;
+    const savannaWoodlandScore = ops.vegetationScoreSavannaWoodland(
+      { width, height, landMask: topography.landMask, ...vegetationSubstrate },
+      config.vegetationScoreSavannaWoodland
+    ).score01;
+    const sagebrushSteppeScore = ops.vegetationScoreSagebrushSteppe(
+      { width, height, landMask: topography.landMask, ...vegetationSubstrate },
+      config.vegetationScoreSagebrushSteppe
+    ).score01;
+
+    const vegetationPlacements: Array<{
+      x: number;
+      y: number;
+      feature: (typeof FEATURE_PLACEMENT_KEYS)[number];
+      weight: number;
+    }> = [];
+
+    const minScoreThreshold = config.vegetation?.minScoreThreshold ?? 0.15;
+    const candidates: Array<{
+      feature: (typeof FEATURE_PLACEMENT_KEYS)[number];
+      score: Float32Array;
+    }> = [
+      { feature: "FEATURE_FOREST", score: forestScore },
+      { feature: "FEATURE_RAINFOREST", score: rainforestScore },
+      { feature: "FEATURE_TAIGA", score: taigaScore },
+      { feature: "FEATURE_SAVANNA_WOODLAND", score: savannaWoodlandScore },
+      { feature: "FEATURE_SAGEBRUSH_STEPPE", score: sagebrushSteppeScore },
+    ];
+
+    for (let y = 0; y < height; y++) {
+      const row = y * width;
+      for (let x = 0; x < width; x++) {
+        const idx = row + x;
+        if (topography.landMask[idx] === 0) continue;
+        if (navigableRiverMask[idx] === 1) continue;
+
+        let bestFeature: (typeof FEATURE_PLACEMENT_KEYS)[number] | null = null;
+        let bestScore = -1;
+
+        for (const candidate of candidates) {
+          const score = candidate.score[idx] ?? 0;
+          if (score > bestScore) {
+            bestScore = score;
+            bestFeature = candidate.feature;
+          }
+        }
+
+        if (!bestFeature) continue;
+        if (bestScore < minScoreThreshold) continue;
+
+        vegetationPlacements.push({ x, y, feature: bestFeature, weight: bestScore });
+      }
+    }
 
     const wetlandsPlan = ops.wetlands(
       {
