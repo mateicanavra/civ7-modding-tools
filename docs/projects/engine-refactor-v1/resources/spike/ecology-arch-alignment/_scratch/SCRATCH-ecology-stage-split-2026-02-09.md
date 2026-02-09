@@ -2,7 +2,7 @@
 
 Owner: `agent-codex` (spike worktree: `wt-agent-codex-spike-ecology-stage-split`)
 
-Purpose: ongoing scratchpad for maximal drift analysis + remediation planning, with a focus on splitting the current ecology gameplay stage into multiple sensible stages that align with MapGen target architecture (engine-refactor-v1 posture).
+Purpose: ongoing scratchpad for maximal drift analysis + remediation planning, with a focus on splitting the current truth `ecology` stage into multiple sensible stages that align with MapGen target architecture (engine-refactor-v1 posture).
 
 ## Working Agreements (from session)
 
