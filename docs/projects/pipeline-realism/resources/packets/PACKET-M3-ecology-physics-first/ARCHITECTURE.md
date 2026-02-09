@@ -38,6 +38,52 @@ In M3:
   2. pass relevant layers into plan ops
   3. publish deterministic feature intent artifacts
 
+## Design Space We Considered (and why we chose this shape)
+
+We can legitimately arrange scoring/planning across stage/step/op boundaries in a few ways.
+M3 selects one and bans the others to avoid drift.
+
+### Option A: Score + Plan in the same step (per family)
+
+Shape:
+- A family truth stage has one step that calls:
+  - many score ops (one per feature layer)
+  - then one family plan op
+  - then publishes intents/viz
+
+Pros:
+- locality (everything "wetlands" happens together)
+
+Cons (why M3 does not choose it):
+- encourages cross-feature heuristics to leak into score ops (because all inputs are "right there")
+- makes it harder to enforce "score independence" and to reuse score layers across multiple planners
+
+### Option B (Chosen): Dedicated score stage, then ordered planning stages
+
+Shape:
+- One truth stage publishes `artifact:ecology.scoreLayers` (independent per-feature layers)
+- Ordered planner stages consume the shared store and an explicit occupancy snapshot chain
+- Projection stamps the finalized plan
+
+Why this matches the human intent:
+- it is the cleanest escape hatch from circular dependencies (planners see all layers at once)
+- it makes cross-family sequencing and conflict resolution explicit and gateable
+- it underutilizes neither rules (score + plan ops can both use rules) nor strategies (variants live inside ops)
+
+### Option C: Per-feature planners orchestrated by steps
+
+Shape:
+- A step calls `planFeatureX`, `planFeatureY`, ... then merges/conflict-resolves in the step
+
+Pros:
+- maximal decomposition into tiny ops
+
+Cons (why M3 does not choose it as the default):
+- pushes joint decision logic into steps (which violates "planning is codified")
+- forces each step to become a de facto planner framework
+
+M3 still allows per-feature ops *inside* the score stage (because scores are independent), and planning variability is handled via strategies inside the family planner ops.
+
 ### Stamp (projection)
 
 - `map-ecology/features-apply` stamps the plan into the engine.

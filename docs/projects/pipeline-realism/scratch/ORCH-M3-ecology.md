@@ -51,6 +51,15 @@ Branch/worktree: `agent-codex-m3-ecology-physics-first-plan` / `wt-agent-codex-m
 - No silent skips / no shouldRun.
 - Steps do not import op impls or rules.
 
+## Tooling Notes (Do Not Forget)
+
+- Prefer `$narsil-mcp` for semantic code discovery and impact analysis.
+  - Do **not** use `hybrid_search` (currently crashes the server in this environment).
+  - Native tools (`rg`, `git`, file reads) are still preferred for bulk/fast scans.
+- MCP freshness depends on the primary checkout:
+  - Keep `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools` checked out on the latest changes (can be detached HEAD).
+  - Work happens in worktrees; the primary checkout is for keeping the index current.
+
 ## Agent Team (peers; each keeps scratch)
 
 - ARCH: stage topology + truth/projection invariants + recipe wiring

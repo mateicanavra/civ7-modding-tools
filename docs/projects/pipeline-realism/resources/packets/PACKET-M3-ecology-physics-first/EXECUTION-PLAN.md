@@ -24,6 +24,12 @@ Diagnostics scripts in `mods/mod-swooper-maps`:
 - `bun --cwd mods/mod-swooper-maps run diag:diff -- <baselineRunDir> <candidateRunDir>`
 - `bun --cwd mods/mod-swooper-maps run diag:list`
 
+Code discovery posture:
+- Prefer `$narsil-mcp` when semantic search helps. Do not use `hybrid_search` (server instability).
+- Prefer native tools (`rg`, `git`, direct file reads) for bulk scanning and high-signal verification.
+- Keep the primary checkout on latest commits to keep MCP index fresh:
+  - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools` can be detached HEAD.
+
 ## Slice Map (for later implementation via dev-loop-parallel)
 
 M3 is a behavior-changing milestone. We will still keep slices reviewable and shippable.
