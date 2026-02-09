@@ -3,6 +3,7 @@ import type { contracts } from "./contracts.js";
 
 import applyFeatures from "./features-apply/index.js";
 import computeFeatureSubstrate from "./compute-feature-substrate/index.js";
+import computeVegetationSubstrate from "./compute-vegetation-substrate/index.js";
 
 import planVegetationForest from "./features-plan-vegetation-forest/index.js";
 import planVegetationRainforest from "./features-plan-vegetation-rainforest/index.js";
@@ -57,6 +58,7 @@ const implementations = {
   refineBiomeEdges,
 
   computeFeatureSubstrate,
+  computeVegetationSubstrate,
 
   planAquaticReefPlacements,
   planAquaticColdReefPlacements,
@@ -102,6 +104,7 @@ export default implementations;
 export {
   applyFeatures,
   computeFeatureSubstrate,
+  computeVegetationSubstrate,
 
   planVegetationForest,
   planVegetationRainforest,
