@@ -269,6 +269,11 @@ Choose this when:
 Tradeoff:
 - more steps and more artifacts to maintain
 
+Important note (symmetry + why this is *usually* not worth it):
+- This option does *not* give us the primary benefit of score separation (a planner consuming a single aggregated layers object to escape circular dependencies) unless we also introduce cross-family consumption.
+- If our only motivation is “keep score logic out of plan logic”, Option 1 already achieves that by calling score ops first inside the `plan-<family>` step, then calling the plan op.
+- If our motivation is “planner needs multi-layer visibility across feature families”, prefer Option 2 (unified `score-features` artifact) rather than per-family score artifacts.
+
 ### Option 4: planning ops compute scores internally via rules (no separate score ops)
 
 Stages:
@@ -350,6 +355,25 @@ Choose this when:
 Tradeoff:
 - challenges “atomic per-feature ops” unless we treat the global resolver as its own atomic concern
 
+### Recommendation (tightened; aligns to current constraints)
+
+Default (recommended):
+- Stage split: `ecology-pedology` + `ecology-biomes` + `ecology-features` (Shape A).
+- Inside `ecology-features`: Option 1 (symmetric per-family `plan-<family>` steps).
+  - Each `plan-<family>` step orchestrates: score ops (rules-heavy) -> plan op (selection/packing; strategy-heavy if needed) -> publish `artifact:ecology.featureIntents.<family>` + viz.
+  - This treats vegetation/wetlands/reefs/ice consistently and avoids “vegetation gets a special score pipeline” drift.
+
+Upgrade trigger for score separation:
+- Move to Option 2 (unified `score-features` step publishing `artifact:ecology.scoreLayers`) only when we concretely need a planning op to see multiple score layers at once (to avoid circular dependencies and to avoid baking cross-score heuristics into the score computations).
+
+Upgrade trigger for a global planner:
+- Move to Option 6 only when cross-family conflict resolution must be explicit in truth (not deferred to projection apply), and we can justify “global feature planning” as an atomic op concern.
+
+Rules posture (important because we are currently under-using rules):
+- Rules should encode codified policy decisions (especially scoring/filtering inputs) and stay op-local.
+- Steps should not import rules directly; steps call score ops that proxy rules and return layered results.
+  - Anchor: `docs/projects/engine-refactor-v1/resources/spec/SPEC-step-domain-operation-modules.md`
+
 ### Naming convention (recommended, not required)
 
 Truth stages:
@@ -357,6 +381,21 @@ Truth stages:
 
 Projection stages:
 - `plot-*` and `apply-*`
+
+Boundary semantics (answering “aren’t steps supposed to be plot?”):
+- Target docs define **steps as orchestration units** across the whole pipeline (truth and projection).
+  - Anchor: `docs/system/libs/mapgen/explanation/PIPELINE-MODEL.md`
+- “plot/apply” is a projection concern (adapter-facing fields/effects). Truth steps should typically publish artifacts (and viz), not call the adapter.
+- Planning (selection/packing) belongs in ops (strategies + rules). Steps should orchestrate the dataflow: score ops -> plan op -> publish intent artifacts (then later projection applies those intents).
+
+Responsibility table (what lives where):
+
+| Unit | Owns | Should NOT own |
+|------|------|----------------|
+| Truth step (`plan-*`, `classify-*`, `compute-*`) | Orchestration; reading artifacts; calling ops in sequence; publishing artifacts; emitting viz for its products | Heavy algorithmic logic; policy decisions encoded as ad hoc in-step heuristics |
+| Projection step (`plot-*`, `apply-*`) | Orchestration; calling adapter-facing ops; emitting viz; materializing truth artifacts into engine fields/effects | Treating projections as truth; inventing new “shadow truth” products |
+| Op (domain) | Algorithmic logic (scoring, planning, packing); explicit strategies; deterministic behavior (seeded tie-breakers allowed) | Calling other ops; step/stage orchestration responsibilities |
+| Rule (op-local) | Codified policy unit (scoring inputs, filters, thresholds); reusable within an op/strategy | Being imported directly by steps; exporting shared types from deep rule modules |
 
 ### Shape A.1 (tightened): Concrete stage + step contract spec (recommended)
 
@@ -465,6 +504,28 @@ Visualization posture:
 Note on `artifact:ecology.scoreLayers` shape (if/when introduced):
 - Option 1 (recommended to start): explicit object keys for all known layers across *all* feature families; easiest to validate and easiest to consume.
 - Option 2: packed/binary representation (faster, smaller), but harder to validate and harder to evolve.
+
+#### Alternative: split `ecology-features` into per-family truth stages (when stage-level seams matter)
+
+Instead of one `ecology-features` truth stage with multiple `plan-<family>` steps, we can split into:
+- `ecology-vegetation`
+- `ecology-wetlands`
+- `ecology-reefs`
+- `ecology-ice`
+
+Each stage would typically have:
+- a shared prerequisite stage `ecology-feature-substrate` (or keep `compute-feature-substrate` as the first step in each stage, but that duplicates work),
+- one `plan` step per stage (Option 1 inside each family stage),
+- and the same projection `map-ecology/features-apply` continues to apply all intents.
+
+Prefer this when:
+- we want stage-level config boundaries/presets per family (authoring ergonomics),
+- we expect frequent independent iteration per family (teams working in parallel),
+- or we want recipe composition to explicitly include/exclude entire families (rather than relying on “yields empty” behavior).
+
+Prefer the single-stage `ecology-features` layout when:
+- we want fewer stage modules and a more compact recipe shape,
+- cross-family score visibility might be introduced soon (Option 2 is simpler within one stage).
 
 #### `map-ecology` (projection)
 

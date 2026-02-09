@@ -11,6 +11,19 @@ Purpose: ongoing scratchpad for maximal drift analysis + remediation planning, w
 - Rules are underutilized. Rules fit well for codified decisions / score inputs, and can be proxied via a single scoring op as the front door.
 - Separation of scoring vs planning is justified when we want a planning op to see multiple score layers at once (to avoid circular dependencies and avoid baking cross-score heuristics into individual score computations).
 
+## Clarifications We Incorporated (important semantics)
+
+- Feature-family symmetry: if we introduce a “score step” separation, it should be justified for *all* feature groups (vegetation/wetlands/reefs/ice), not just vegetation.
+  - Otherwise, default to a single per-family `plan-<family>` step that orchestrates score ops + plan op in one node.
+- No viz-only steps: viz emissions should live inside the step that owns the work, not in a dedicated “visualization” step.
+  - Aggregated viz should move to a step that already aggregates products (e.g. `map-ecology/features-apply`), not a bespoke viz step.
+- “Are steps supposed to be plot?”:
+  - Target docs define **steps as orchestration nodes** (truth and projection). “plot-*” is a *projection naming convention*, not the universal job of a step.
+  - Anchor: `docs/system/libs/mapgen/explanation/PIPELINE-MODEL.md` (“executed as steps (each step is an orchestration unit)”).
+- Planning is an op concern:
+  - Any logic that combines/selects between score layers should be codified inside the planning op (strategies + rules), not reimplemented ad hoc in steps.
+  - Steps should focus on: reading required artifacts, calling score ops to produce layers, calling plan ops with those layers, and publishing intent artifacts + viz.
+
 ## Breadcrumbs (where we looked)
 
 ### Repo state
@@ -198,6 +211,10 @@ Goal: replace the single truth stage `ecology` with multiple smaller truth stage
     - `plan-ice`
 - Outputs: `artifact:ecology.featureIntents.*`
 - Meaning: “feature intent truth” (all discrete placement intents; no engine writes).
+
+Recommended default inside `ecology-features`:
+- Use per-family `plan-<family>` steps (Option 1 in the spike doc) that orchestrate score ops + plan op in one node.
+- Only introduce a separate `score-features` step (publishing `artifact:ecology.scoreLayers`) when we have a real cross-layer visibility requirement that would otherwise force circular dependencies.
 
 ### Why these boundaries are “sensible”
 
