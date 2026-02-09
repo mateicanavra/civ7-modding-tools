@@ -55,6 +55,7 @@ const FeaturesPlanPublicSchema = Type.Object(
 );
 
 type FeaturesPlanPublicConfig = Static<typeof FeaturesPlanPublicSchema>;
+type StudioUiMetaSentinel = { __studioUiMetaSentinelPath: unknown };
 
 const publicSchema = Type.Object(
   {
@@ -76,9 +77,34 @@ export default createStage({
     void knobs;
 
     const compileFeaturesPlan = (
-      input: FeaturesPlanPublicConfig | undefined
+      input: FeaturesPlanPublicConfig | StudioUiMetaSentinel | undefined
     ): Record<string, unknown> | undefined => {
       if (!input) return undefined;
+      if ("__studioUiMetaSentinelPath" in input) {
+        // Studio typegen probes stage compilation by injecting a sentinel object at each public config key.
+        // Forward the sentinel by reference through every internal key so the generator finds exactly one
+        // path for this step (it de-dupes by object identity).
+        return {
+          vegetationForest: input,
+          vegetationRainforest: input,
+          vegetationTaiga: input,
+          vegetationSavannaWoodland: input,
+          vegetationSagebrushSteppe: input,
+          wetlands: input,
+          reefs: input,
+          ice: input,
+          vegetatedPlacementForest: input,
+          vegetatedPlacementRainforest: input,
+          vegetatedPlacementTaiga: input,
+          vegetatedPlacementSavannaWoodland: input,
+          vegetatedPlacementSagebrushSteppe: input,
+          wetPlacementMarsh: input,
+          wetPlacementTundraBog: input,
+          wetPlacementMangrove: input,
+          wetPlacementOasis: input,
+          wetPlacementWateringHole: input,
+        };
+      }
       return {
         vegetationForest: input.vegetation,
         vegetationRainforest: input.vegetation,
