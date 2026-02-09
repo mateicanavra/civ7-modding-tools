@@ -1,8 +1,8 @@
-# SPIKE: Ecology Stage Split (Map Ecology Gameplay) + Maximal Drift Plan
+# SPIKE: Ecology Stage Split (Truth Ecology) + Maximal Drift Plan
 
 Status: in progress (research-only; no production refactors in this branch)
 
-This spike extends the existing ecology architecture-alignment packet by focusing on **stage boundaries** for the gameplay/projection portion of ecology, and on how we should structure **score -> plan -> plot/apply** sequences without violating the target MapGen architecture (engine-refactor-v1 posture).
+This spike extends the existing ecology architecture-alignment packet by focusing on **stage boundaries** for the truth portion of ecology (currently a single overloaded `ecology` stage), and on how we should structure **score -> plan -> plot/apply** sequences without violating the target MapGen architecture (engine-refactor-v1 posture).
 
 Companion scratchpad (breadcrumbs + raw notes):
 - `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/_scratch/SCRATCH-ecology-stage-split-2026-02-09.md`
@@ -23,9 +23,8 @@ Assumptions (explicit):
 - Rules are a good fit for codified decisions and scoring inputs, and can be proxied via “scoring ops” as front doors.
 
 Unknowns (to resolve during investigation):
-- The precise current step ordering + contracts inside `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/`.
-- Where “wetFeaturePlacements” exists today (data model, artifacts, config surface) and what depends on it.
-- Which ecology ops currently mix scoring+planning+plotting responsibilities, if any.
+- What the “score layers artifact” shape should be (explicit keys vs packed/binary representation) so planners can consume multi-layer visibility without cross-score heuristics.
+- How aggressive we want to be in removing probability/density knobs while keeping maps “feeling alive” (deterministic ranking with seeded tie-breakers is allowed; chance percentages are not).
 
 ## 3) What We Learned (target model recap)
 
@@ -97,6 +96,26 @@ Evidence:
 - `features-plan` step reimplements navigable river masks and adjacency masks ad hoc:
   - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/features-plan/index.ts`
 
+### 4.6 No-output-fudging violations (chances/multipliers/density/jitter)
+
+Non-negotiable constraints from session:
+- No chance percentages.
+- No multipliers/bonuses that “fudge outputs”.
+- No “probabilistic edge” heuristics.
+
+Concrete violations (evidence):
+- Wet placement ops use `multiplier` + per-feature `chances` (0..100) with RNG gating (`rollPercent`):
+  - `mods/mod-swooper-maps/src/domain/ecology/ops/plan-wet-placement-marsh/contract.ts`
+  - `mods/mod-swooper-maps/src/domain/ecology/ops/plan-wet-placement-marsh/strategies/default.ts`
+  - and the sibling `plan-wet-placement-*` ops.
+- Ice planner includes probabilistic knobs (`jitterC`, “probabilistic edge”, `densityScale`):
+  - `mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-ice/contract.ts`
+- Plot effects config includes `coverageChance`:
+  - `mods/mod-swooper-maps/src/domain/ecology/ops/plan-plot-effects/**`
+
+Implication:
+- These must become deterministic score -> plan pipelines (rank/select with spacing and constraints), with seeded tie-breaking if needed for variety.
+
 ## 5) Potential Stage Split Shapes (conceptual; no implementation yet)
 
 We are choosing boundaries based on meaning and compilation seams. Two main shapes seem plausible:
@@ -120,7 +139,7 @@ Pros:
 - Config surfaces map cleanly to conceptual levers.
 - Execution ordering is readable and tag seams are explicit.
 - Easy to extend with new feature families without turning one stage into a “kitchen sink”.
- - Lets us collapse the current `featuresPlan` compile multiplexor and use per-step schemas directly (hydrology pattern).
+- Lets us collapse the current `featuresPlan` compile multiplexor and use per-step schemas directly (hydrology pattern).
 
 Cons:
 - More stage modules and compilation surfaces (more files).
@@ -144,6 +163,129 @@ Concrete “sensible boundary” inside `ecology-features` (recommended):
 Rule posture (as per session guidance):
 - Use rules for codified decisions and scoring inputs (especially where “a scoring op runs many rules and returns layered results”).
 - If a component is likely to host many future algorithms/strategies, keep it as a standalone op rather than overloading rules.
+
+### Shape A.1 (tightened): Concrete stage + step contract spec (recommended)
+
+This is the tightened “what exactly exists” proposal: stage ids, step ids, artifact seams, and op bindings. It is designed to be directly sliceable into `dev-loop-parallel` worktrees.
+
+#### Standard recipe stage order (proposed)
+
+Anchor (current ordering): `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
+
+Replace the single truth stage `ecology` with:
+- `ecology-pedology`
+- `ecology-biomes`
+- `ecology-features`
+
+So the relevant slice becomes:
+`hydrology-climate-refine` -> `ecology-pedology` -> `ecology-biomes` -> `ecology-features` -> `map-morphology` -> `map-hydrology` -> `map-ecology` -> `placement`
+
+#### Stage surface posture (critical)
+
+Use *internal* stage surfaces (no `public`, no `compile`) to avoid multiplexors:
+- This matches Hydrology’s pattern.
+- It also removes the need for “Studio sentinel forwarding” through stage compile.
+
+Mechanic anchors:
+- Stage surfaces: `packages/mapgen-core/src/authoring/stage.ts`
+- Op envelope prefill: `packages/mapgen-core/src/compiler/normalize.ts` (`prefillOpDefaults`)
+
+#### `ecology-pedology` (truth)
+
+Stage id: `ecology-pedology`
+
+Steps (ids and existing contracts):
+- `pedology`
+  - Contract: `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/pedology/contract.ts`
+  - Requires artifacts: `artifact:morphology.topography`, `artifact:hydrology.climateField`
+  - Provides artifacts: `artifact:ecology.soils`
+  - Ops: `ecology.ops.classifyPedology`
+- `resource-basins`
+  - Contract: `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/resource-basins/contract.ts`
+  - Requires artifacts: `artifact:ecology.soils`, `artifact:morphology.topography`, `artifact:hydrology.climateField`
+  - Provides artifacts: `artifact:ecology.resourceBasins`
+  - Ops: `ecology.ops.planResourceBasins` + `ecology.ops.scoreResourceBasins`
+
+#### `ecology-biomes` (truth)
+
+Stage id: `ecology-biomes`
+
+Steps:
+- `biomes`
+  - Contract: `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/biomes/contract.ts`
+  - Requires artifacts: `artifact:hydrology.climateField`, `artifact:hydrology.cryosphere`, `artifact:morphology.topography`, `artifact:hydrology.hydrography`
+  - Provides artifacts: `artifact:ecology.biomeClassification`
+  - Ops: `ecology.ops.classifyBiomes`
+  - Required change: integrate edge refinement into classification so `biomeIndex` is final here (remove `refineBiomeEdges` op and remove `biome-edge-refine` step).
+  - Viz: move `ecology.biome.biomeIndex` emission into this step to preserve the viz surface currently owned by `biome-edge-refine`.
+
+#### `ecology-features` (truth)
+
+Stage id: `ecology-features`
+
+Artifacts (owned by the domain-level artifact registry):
+- Existing intent artifacts:
+  - `artifact:ecology.featureIntents.vegetation`
+  - `artifact:ecology.featureIntents.wetlands`
+  - `artifact:ecology.featureIntents.reefs`
+  - `artifact:ecology.featureIntents.ice`
+  - Source: `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/artifacts.ts`
+
+New truth artifacts (recommended to make seams explicit):
+- `artifact:ecology.featureSubstrate`
+  - payload mirrors `ecology.ops.computeFeatureSubstrate` output (masks) for reuse by multiple planners.
+- `artifact:ecology.scoreLayers` (or split per family, see note below)
+  - holds layered per-tile scores so planners can consume a single “layers object” and escape circular dependencies.
+
+Steps (tightened; ids are proposed):
+- `compute-feature-substrate`
+  - Requires artifacts: `artifact:hydrology.hydrography`, `artifact:morphology.topography`
+  - Provides artifacts: `artifact:ecology.featureSubstrate`
+  - Ops: `ecology.ops.computeFeatureSubstrate`
+- `score-vegetation`
+  - Requires artifacts: `artifact:ecology.biomeClassification`, `artifact:ecology.soils`, `artifact:ecology.featureSubstrate` (for navigable river masks), `artifact:morphology.topography`
+  - Provides artifacts: `artifact:ecology.scoreLayers` (vegetation layers at minimum)
+  - Ops: new `ecology/features/score-vegetation` op (front door), implemented by running multiple scoring rules and emitting layered `Float32Array`s.
+  - Replacement for today’s “multiple score ops + picking inside step”.
+- `plan-vegetation`
+  - Requires artifacts: `artifact:ecology.scoreLayers`, `artifact:ecology.featureSubstrate`, `artifact:morphology.topography`
+  - Provides artifacts: `artifact:ecology.featureIntents.vegetation`
+  - Ops: new `ecology/features/plan-vegetation` op that takes a single layers object (global visibility) and produces placements deterministically (rank/select with constraints).
+- `plan-wetlands`
+  - Requires artifacts: `artifact:ecology.biomeClassification`, `artifact:ecology.soils`, `artifact:morphology.topography`, `artifact:ecology.featureSubstrate`
+  - Provides artifacts: `artifact:ecology.featureIntents.wetlands`
+  - Ops: existing `ecology.ops.planWetlands` plus wet placement ops orchestrated by the step.
+  - Required changes:
+    - remove “disabled strategy” and remove chance/multiplier configs from wet placement ops.
+    - re-express as deterministic score -> plan (rank/select) planners that can return empty placements honestly.
+    - use `artifact:ecology.featureSubstrate` masks rather than step-local ad hoc mask computation.
+- `plan-reefs`
+  - Requires artifacts: `artifact:ecology.biomeClassification` (temperature), `artifact:morphology.topography` (landMask)
+  - Provides artifacts: `artifact:ecology.featureIntents.reefs`
+  - Ops: `ecology.ops.planReefs` (but must remove density/chance posture; become deterministic rank/select).
+- `plan-ice`
+  - Requires artifacts: `artifact:ecology.biomeClassification` (temperature), `artifact:morphology.topography` (landMask/elevation)
+  - Provides artifacts: `artifact:ecology.featureIntents.ice`
+  - Ops: `ecology.ops.planIce` (remove jitter/probabilistic edge/densityScale; deterministic selection).
+- `feature-intents-viz`
+  - Requires artifacts: all `artifact:ecology.featureIntents.*`
+  - Provides: none
+  - Purpose: preserve/centralize the existing viz key `ecology.featureIntents.featureType` currently emitted inside the old `features-plan` mega-step.
+
+Note on `artifact:ecology.scoreLayers` shape:
+- Option 1 (recommended to start): explicit object keys for the known vegetation layers plus any wetlands “suitability” layers we need; easiest to validate and easiest to consume.
+- Option 2: packed/binary representation (faster, smaller), but harder to validate and harder to evolve.
+
+#### `map-ecology` (projection)
+
+No stage split required for correctness today; it is already small and semantically crisp:
+- `plot-biomes`
+- `features-apply`
+- `plot-effects`
+
+However, the refactor must preserve:
+- effect/field tag semantics on `plot-biomes` and `features-apply`,
+- and should introduce an explicit effect tag for `plot-effects` (currently missing).
 
 ### Shape B: Keep one truth `ecology` stage but split `features-plan` into many steps
 
@@ -177,6 +319,34 @@ If we need a fast validation step before planning the full refactor:
 - Enumerate the exact current ecology stage/step layout and contracts (breadcrumbs to code).
 - Do a hydrology comparison pass: “hydrology pattern” vs “ecology violation” vs “required change”.
 - Finalize the recommended stage split shape and produce the sliceable remediation plan.
+
+## 9) Execution Plan (Slices; dev-loop-parallel friendly)
+
+This is the comprehensive “do the work later” plan, decomposed into slices that can live on separate Graphite branches/worktrees.
+
+Slice ordering (dependencies):
+1. Topology first (stage split + step split skeleton).
+2. Then artifacts/seams (substrate + score layers).
+3. Then planner redesign (remove chance/multiplier/jitter/density).
+4. Then projections/tags, presets, and docs.
+
+Slices (detail lives in the scratchpad):
+- Slice 1: Stage topology split (`ecology` -> `ecology-pedology` + `ecology-biomes` + `ecology-features`)
+- Slice 2: Replace `features-plan` mega-step with per-family steps (+ optional `feature-intents-viz` step)
+- Slice 3: Remove “disabled strategy” posture for wet placements (no optional ops; honest inputs)
+- Slice 4: Integrate biome edge refinement into biome classification (no separate op/step)
+- Slice 5: Update guardrails + tests for new step directory topology
+- Slice 6: Add explicit `artifact:ecology.featureSubstrate` + `compute-feature-substrate` step
+- Slice 7: Add `artifact:ecology.scoreLayers` + `ecology/features/score-vegetation` op + `score-vegetation` step
+- Slice 8: Add `ecology/features/plan-vegetation` op + `plan-vegetation` step (global visibility; deterministic)
+- Slice 9: Redesign all `plan-wet-placement-*` ops to deterministic rank/select; remove chances/multipliers/disabled
+- Slice 10: Redesign reefs/ice planners to deterministic; remove density/jitter/probabilistic edges
+- Slice 11: Redesign plot effects to deterministic + add explicit effect tag for `plot-effects`
+- Slice 12: Migrate presets/configs to new stage ids (no legacy shim)
+- Slice 13: Update canonical docs/catalogs to reflect the new stage topology (preserve existing viz keys)
+
+Scratchpad pointer:
+- `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/_scratch/SCRATCH-ecology-stage-split-2026-02-09.md`
 
 ## Appendix: Hydrology Comparison (pattern vs violation vs required change)
 

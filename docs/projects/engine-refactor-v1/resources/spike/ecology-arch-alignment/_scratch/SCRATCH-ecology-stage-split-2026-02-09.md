@@ -69,6 +69,40 @@ These definitions are *target authority* for vocabulary and boundaries; code is 
     - `docs/system/libs/mapgen/explanation/ARCHITECTURE.md`
     - `docs/system/libs/mapgen/policies/MODULE-SHAPE.md`
 
+## Authoring + Compilation Semantics (load-bearing)
+
+These mechanics explain why some “obvious” configurations are not viable (e.g. “optional ops”), and why stage splitting is the right move to remove compile multiplexors.
+
+### Stages: `public` + `compile` vs internal surfaces
+
+Anchor: `packages/mapgen-core/src/authoring/stage.ts`
+
+- If a stage defines `public`, it must also define `compile`.
+  - Surface schema becomes `{ knobs?, ...publicProps }`.
+  - `compile({ env, knobs, config })` returns `{ [stepId]: rawStepConfig }`.
+- If a stage does NOT define `public`:
+  - Surface schema becomes `{ knobs?, <stepId>?: unknown }` for each step id.
+  - Stage config keys that match step ids become the raw step configs directly (no mapping layer).
+
+Implication for the ecology split:
+- We can follow the Hydrology pattern (no `public`, no `compile`) and eliminate “stage as multiplexor” entirely, especially for feature planning.
+
+### Step schemas automatically include op envelope keys
+
+Anchor: `packages/mapgen-core/src/authoring/step/contract.ts`
+
+- `defineStep({ ops: { foo: someOp }})` injects `foo` into the step schema as an op envelope schema.
+- A step schema MUST NOT define a key that collides with an op key.
+
+### Prefill semantics: declared ops cannot be “optional by omission”
+
+Anchor: `packages/mapgen-core/src/compiler/normalize.ts` (`prefillOpDefaults`)
+
+- During config compilation, every op envelope key in `contract.ops` is prefilled with `defaultConfig` when omitted by the author.
+- Therefore:
+  - “config key missing” cannot mean “op disabled” once the op is declared.
+  - if a planner must sometimes yield no placements, that needs to be honest strategy behavior driven by inputs/constraints, not “missing envelope” or “optional ops”.
+
 ## Drift Findings (to be expanded; grouped)
 
 ### Stage boundary drift (truth ecology stage is overloaded)
@@ -100,6 +134,24 @@ Evidence:
 
 Impact:
 - This will fail typecheck/build; regardless of the longer refactor, it’s a correctness issue that must be fixed in the eventual execution plan.
+
+### No-output-fudging drift (probabilities/multipliers/jitter/chance)
+
+Non-negotiable constraint from session: no chance percentages, multipliers, bonuses, or “output fudging”.
+
+Concrete violations (evidence):
+- Wet placement ops use `multiplier` + `chances` (0..100) and RNG gating (`rollPercent`):
+  - `mods/mod-swooper-maps/src/domain/ecology/ops/plan-wet-placement-marsh/contract.ts`
+  - `mods/mod-swooper-maps/src/domain/ecology/ops/plan-wet-placement-marsh/strategies/default.ts`
+  - Similar patterns in:
+    - `mods/mod-swooper-maps/src/domain/ecology/ops/plan-wet-placement-{tundra-bog,mangrove,oasis,watering-hole}/**`
+- Ice planner contains probabilistic knobs (explicit “probabilistic edge”, `jitterC`, `densityScale` multiplier):
+  - `mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-ice/contract.ts`
+- Plot effects config includes `coverageChance`:
+  - `mods/mod-swooper-maps/src/domain/ecology/ops/plan-plot-effects/**`
+
+Plan implication:
+- Re-express these planners as deterministic score -> plan pipelines (rank/select with constraints), not probability gates.
 
 ### Op/step boundary drift (grouping ops inside ops)
 
@@ -157,6 +209,67 @@ Goal: replace the single truth stage `ecology` with multiple smaller truth stage
 - Tradeoff: more stages, but the per-stage config surfaces become very clean and may map better to presets.
 - Risk: cross-feature planning needs an explicit shared score-layers artifact if planners should see each other’s scores.
 
+## Tightened Stage + Step Spec (recommended)
+
+This is the “tightened” version: explicit stage ids, step ids, artifact seams, and which ops are bound at each step. This is what we’ll hand to `dev-loop-parallel`.
+
+### Stage surface posture
+
+Use internal stage surfaces (no `public`, no `compile`) for the new truth stages:
+- avoids compile multiplexors
+- matches Hydrology’s pattern
+- removes Studio sentinel forwarding hacks
+
+Anchor: `packages/mapgen-core/src/authoring/stage.ts`
+
+### Proposed truth stages
+
+1. Stage: `ecology-pedology`
+- Steps:
+  - `pedology` (existing)
+  - `resource-basins` (existing)
+- Artifacts out: `artifact:ecology.soils`, `artifact:ecology.resourceBasins`
+
+2. Stage: `ecology-biomes`
+- Steps:
+  - `biomes` (existing contract, but integrate edge refinement into classification)
+- Artifacts out: `artifact:ecology.biomeClassification` (final refined)
+- Viz: move `ecology.biome.biomeIndex` emission into this step (currently owned by `biome-edge-refine`).
+
+3. Stage: `ecology-features`
+- Steps (proposed ids):
+  - `compute-feature-substrate`
+  - `score-vegetation`
+  - `plan-vegetation`
+  - `plan-wetlands`
+  - `plan-reefs`
+  - `plan-ice`
+  - `feature-intents-viz`
+- Artifacts out:
+  - existing: `artifact:ecology.featureIntents.{vegetation,wetlands,reefs,ice}`
+  - new (recommended): `artifact:ecology.featureSubstrate`, `artifact:ecology.scoreLayers`
+
+### New artifacts (recommended)
+
+1. `artifact:ecology.featureSubstrate`
+- Purpose: explicit, reusable compute substrate masks for multiple planners.
+- Shape: mirrors `ecology.ops.computeFeatureSubstrate` output.
+- Anchor: `mods/mod-swooper-maps/src/domain/ecology/ops/compute-feature-substrate/contract.ts`
+
+2. `artifact:ecology.scoreLayers`
+- Purpose: single “layers object” planners can consume to avoid circular dependencies and avoid baking cross-score heuristics into scores.
+- Initial posture: explicit keys (vegetation layers first), not packed/binary.
+
+### Required planner posture changes (non-negotiables)
+
+- Delete “disabled strategy” everywhere; do not replace it with “optional ops”.
+  - Prefill semantics make omission meaningless once ops are declared: `packages/mapgen-core/src/compiler/normalize.ts`.
+- Replace probability/density/jitter/chance knobs with deterministic rank/select under constraints:
+  - wet placement planners (`plan-wet-placement-*`)
+  - reefs (`plan-reefs`)
+  - ice (`plan-ice`)
+  - plot effects (`plan-plot-effects`) if it still relies on `coverageChance`
+
 ## Remediation Slices (dev-loop-parallel inputs)
 
 Placeholder: we will enumerate one slice per “fixable unit” (stage split, op extraction, rule refactor, config compilation boundary, artifact boundaries, tag/id/registry alignment).
@@ -209,3 +322,101 @@ Each slice will include:
 - Acceptance:
   - The refined `biomeIndex` is available immediately from biome classification.
   - No output fudging or post-hoc projection tricks.
+
+### Slice 5: Update guardrails + tests for new stage topology
+
+Evidence:
+- Guardrails currently scan only:
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps`
+  - `mods/mod-swooper-maps/test/ecology/ecology-step-import-guardrails.test.ts`
+
+Acceptance:
+- Guardrails scan the new truth-stage step directories:
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-pedology/steps`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-biomes/steps`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps`
+  - plus the projection directory `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps`
+- Update step-level integration tests that import old paths (example hotspots):
+  - `mods/mod-swooper-maps/test/ecology/features-plan-apply.test.ts`
+  - `mods/mod-swooper-maps/test/ecology/biome-edge-refine-mutability.test.ts` (will be deleted/rewritten when refine is integrated)
+  - `mods/mod-swooper-maps/test/ecology/wet-atomic-ops.test.ts` (planner redesign removes chances/disabled)
+
+### Slice 6: Add explicit feature substrate artifact + step
+
+- Scope:
+  - Add `artifact:ecology.featureSubstrate` to `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/artifacts.ts`.
+  - Create step `compute-feature-substrate` that calls `ecology.ops.computeFeatureSubstrate` and publishes the artifact.
+  - Replace ad hoc mask computation in feature planners with reads from this artifact.
+- Acceptance:
+  - No step imports any `rules/` modules (guardrails).
+  - Multiple planners can consume masks without recomputation and without cross-feature coupling.
+
+### Slice 7: Introduce “score layers” artifact + vegetation score front door op
+
+- Scope:
+  - Add `artifact:ecology.scoreLayers` (or per-family score artifacts) to the ecology artifact registry.
+  - Create op `ecology/features/score-vegetation` that runs multiple scoring rules and emits layered `Float32Array`s.
+  - Create step `score-vegetation` that publishes the score artifact.
+- Acceptance:
+  - “Rules are codified decisions/inputs” posture is enforced: scoring logic lives in rules proxied via a scoring op.
+  - Score layers are consumed as a single structured object to avoid circular dependencies.
+
+### Slice 8: Vegetation planning op (global visibility, deterministic selection)
+
+- Scope:
+  - Create op `ecology/features/plan-vegetation` that consumes score layers + substrate and returns placements.
+  - Create step `plan-vegetation` that publishes `artifact:ecology.featureIntents.vegetation`.
+- Acceptance:
+  - No scoring heuristics are baked into planning; planning consumes layers and does any cross-layer composition explicitly.
+  - Determinism: selection is deterministic for a given env seed and inputs (seeded tie-breakers allowed).
+
+### Slice 9: Wet placement ops redesign (remove chance/multiplier/disabled)
+
+- Scope:
+  - For all `plan-wet-placement-*` ops:
+    - remove `disabled` strategy
+    - remove `multiplier` and `chances` (0..100) config
+    - remove `rollPercent` RNG gating
+    - redesign as deterministic rank/select under constraints (spacing, thresholds, masks)
+  - Update `plan-wetlands` step to orchestrate these atomic ops via step-owned sequencing (no op calls other ops).
+- Acceptance:
+  - Wet feature placement remains a first-class concept, but no longer depends on “disabled strategy” or probability knobs.
+  - Step orchestration is the only grouping boundary; ops remain atomic.
+
+### Slice 10: Reefs + ice planners redesign (remove density/jitter/probabilistic edges)
+
+- Scope:
+  - `ecology/features/plan-reefs`: remove density-as-probability posture; switch to deterministic selection under constraints.
+  - `ecology/features/plan-ice`: remove `jitterC`, “probabilistic edge”, `densityScale` multipliers; switch to deterministic selection under constraints.
+- Acceptance:
+  - No probability knobs remain; results remain deterministic and legible.
+
+### Slice 11: Plot effects redesign + effect tag
+
+- Scope:
+  - Remove `coverageChance`/probability posture from `ecology.ops.planPlotEffects` config.
+  - Add an explicit effect tag in `plot-effects` step contract and tag registry so projection side-effects are gateable.
+    - Contract: `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/plot-effects/contract.ts`
+- Acceptance:
+  - Plot effects are deterministic and tagged.
+
+### Slice 12: Preset/config migration to new stage ids
+
+- Scope:
+  - Update all presets/configs that currently configure `ecology` to configure the new stages:
+    - `mods/mod-swooper-maps/src/maps/configs/*.config.*`
+    - `mods/mod-swooper-maps/src/presets/**`
+  - Update any Studio/preset schemas if they assume the old stage id.
+- Acceptance:
+  - Standard recipe config schema defaults still materialize.
+  - No legacy shim stage remains.
+
+### Slice 13: Docs + catalogs updates
+
+- Scope:
+  - Update domain reference docs that currently state truth stage is `ecology`:
+    - `docs/system/libs/mapgen/reference/domains/ECOLOGY.md`
+  - Update any viz catalogs if new artifacts/steps introduce new dataTypeKeys (but preserve existing keys).
+- Acceptance:
+  - Canonical doc spine remains target-architecture-first and matches the new recipe topology.
