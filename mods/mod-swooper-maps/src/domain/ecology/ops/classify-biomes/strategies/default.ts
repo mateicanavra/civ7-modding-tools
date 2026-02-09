@@ -61,6 +61,7 @@ export const defaultStrategy = createStrategy(BiomeClassificationContract, "defa
       humidity,
       effectiveMoistureF64,
       surfaceTemperatureF64,
+      freezeIndex,
       aridityIndexF64,
       config: resolvedConfig,
     });

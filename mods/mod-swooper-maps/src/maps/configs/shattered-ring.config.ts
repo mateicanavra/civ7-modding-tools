@@ -354,16 +354,6 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
             moistureWeight: 0.6,
             humidityWeight: 0.3,
             moistureNormalizationPadding: 55,
-            biomeModifiers: {
-              snow: { multiplier: 0.4, bonus: 0 },
-              tundra: { multiplier: 0.5, bonus: 0 },
-              boreal: { multiplier: 0.8, bonus: 0 },
-              temperateDry: { multiplier: 0.7, bonus: 0 },
-              temperateHumid: { multiplier: 0.95, bonus: 0 },
-              tropicalSeasonal: { multiplier: 0.95, bonus: 0 },
-              tropicalRainforest: { multiplier: 1, bonus: 0.2 },
-              desert: { multiplier: 0.1, bonus: 0 },
-            },
           },
           noise: {
             amplitude: 0.03,

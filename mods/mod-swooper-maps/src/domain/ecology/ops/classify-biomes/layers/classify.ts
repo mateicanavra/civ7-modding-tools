@@ -20,6 +20,7 @@ export function classifyBiomesFromFields(args: {
   humidity: Uint8Array;
   effectiveMoistureF64: Float64Array;
   surfaceTemperatureF64: Float64Array;
+  freezeIndex: Float32Array;
   aridityIndexF64: Float64Array;
   config: DefaultConfig;
 }): Readonly<{ biomeIndex: Uint8Array; vegetationDensity: Float32Array }> {
@@ -32,9 +33,9 @@ export function classifyBiomesFromFields(args: {
   const [dry, semiArid, subhumid, humidThreshold] = args.config.moisture.thresholds;
   const moistureNormalization =
     humidThreshold + args.config.vegetation.moistureNormalizationPadding;
-
-  const biomeModifiers = args.config.vegetation
-    .biomeModifiers as Record<BiomeSymbol, { multiplier: number; bonus: number }>;
+  const energyMin = args.config.temperature.polarCutoff;
+  const energyMax = args.config.temperature.tropicalThreshold;
+  const energyRange = Math.max(1e-6, energyMax - energyMin);
 
   for (let i = 0; i < size; i++) {
     if (args.landMask[i] === 0) {
@@ -46,6 +47,8 @@ export function classifyBiomesFromFields(args: {
     const temperature = args.surfaceTemperatureF64[i];
     const moisture = args.effectiveMoistureF64[i];
     const aridity = args.aridityIndexF64[i];
+    const freezeIndex = args.freezeIndex[i] ?? 0;
+    const energy01 = clamp01((temperature - energyMin) / energyRange);
 
     const tempZone = temperatureZoneOf(temperature, args.config.temperature);
     const moistureZone = shiftMoistureZone(
@@ -63,9 +66,10 @@ export function classifyBiomesFromFields(args: {
       humidityWeight: args.config.vegetation.humidityWeight,
       moistureNorm,
       humidityNorm,
+      energy01,
+      freezeIndex,
       aridityIndex: aridity,
       aridityPenalty: args.config.aridity.vegetationPenalty,
-      modifiers: biomeModifiers,
     });
   }
 

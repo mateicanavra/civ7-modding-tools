@@ -356,16 +356,6 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
             moistureWeight: 0.7,
             humidityWeight: 0.4,
             moistureNormalizationPadding: 70,
-            biomeModifiers: {
-              snow: { multiplier: 0.5, bonus: 0 },
-              tundra: { multiplier: 0.55, bonus: 0 },
-              boreal: { multiplier: 0.9, bonus: 0 },
-              temperateDry: { multiplier: 0.8, bonus: 0 },
-              temperateHumid: { multiplier: 1, bonus: 0 },
-              tropicalSeasonal: { multiplier: 1, bonus: 0 },
-              tropicalRainforest: { multiplier: 1, bonus: 0.3 },
-              desert: { multiplier: 0.15, bonus: 0 },
-            },
           },
           noise: {
             amplitude: 0.03,
