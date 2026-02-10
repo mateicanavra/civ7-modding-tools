@@ -106,7 +106,7 @@ const biomesConfig = {
       tropicalThreshold: 24,
     },
     moisture: {
-      thresholds: [70, 95, 135, 185] as [number, number, number, number],
+      thresholds: [130, 180, 230, 280] as [number, number, number, number],
       bias: 0.2,
       humidityWeight: 0.35,
     },
@@ -121,10 +121,6 @@ const biomesConfig = {
       normalization: 125,
       moistureShiftThresholds: [0.45, 0.7] as [number, number],
       vegetationPenalty: 0.12,
-    },
-    freeze: {
-      minTemperature: -12,
-      maxTemperature: 2,
     },
     vegetation: {
       base: 0.35,
