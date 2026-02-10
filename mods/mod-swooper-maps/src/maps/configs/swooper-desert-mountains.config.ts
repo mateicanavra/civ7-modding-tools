@@ -345,139 +345,16 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
       planReefs: { strategy: "default", config: { minScore01: 0.55 } },
     },
   },
+  "ecology-wetlands": {
+    knobs: {},
+    "plan-wetlands": {
+      planWetlands: { strategy: "default", config: { minScore01: 0.55 } },
+    },
+  },
   "ecology-vegetation": {
     knobs: {},
     "features-plan": {
       vegetation: { minScoreThreshold: 0.15 }, // Vegetation intent threshold
-      wetlands: {
-        strategy: "default",
-        config: {
-          moistureThreshold: 0.75,
-          fertilityThreshold: 0.35,
-          moistureNormalization: 230,
-          maxElevation: 1200,
-        },
-      }, // Minimal wetlands
-      wetPlacementMarsh: {
-        strategy: "default",
-        config: {
-          multiplier: 1,
-          chances: {
-            FEATURE_MARSH: 0,
-            FEATURE_TUNDRA_BOG: 0,
-            FEATURE_MANGROVE: 0,
-            FEATURE_OASIS: 14,
-            FEATURE_WATERING_HOLE: 10,
-          },
-          rules: {
-            nearRiverRadius: 2,
-            coldTemperatureMax: 2,
-            coldBiomeSymbols: ["snow", "tundra", "boreal"],
-            mangroveWarmTemperatureMin: 18,
-            mangroveWarmBiomeSymbols: ["tropicalRainforest", "tropicalSeasonal"],
-            coastalAdjacencyRadius: 1,
-            isolatedRiverRadius: 1,
-            isolatedSpacingRadius: 2,
-            oasisBiomeSymbols: ["desert", "temperateDry"],
-          },
-        },
-      },
-      wetPlacementTundraBog: {
-        strategy: "default",
-        config: {
-          multiplier: 1,
-          chances: {
-            FEATURE_MARSH: 0,
-            FEATURE_TUNDRA_BOG: 0,
-            FEATURE_MANGROVE: 0,
-            FEATURE_OASIS: 14,
-            FEATURE_WATERING_HOLE: 10,
-          },
-          rules: {
-            nearRiverRadius: 2,
-            coldTemperatureMax: 2,
-            coldBiomeSymbols: ["snow", "tundra", "boreal"],
-            mangroveWarmTemperatureMin: 18,
-            mangroveWarmBiomeSymbols: ["tropicalRainforest", "tropicalSeasonal"],
-            coastalAdjacencyRadius: 1,
-            isolatedRiverRadius: 1,
-            isolatedSpacingRadius: 2,
-            oasisBiomeSymbols: ["desert", "temperateDry"],
-          },
-        },
-      },
-      wetPlacementMangrove: {
-        strategy: "default",
-        config: {
-          multiplier: 1,
-          chances: {
-            FEATURE_MARSH: 0,
-            FEATURE_TUNDRA_BOG: 0,
-            FEATURE_MANGROVE: 0,
-            FEATURE_OASIS: 14,
-            FEATURE_WATERING_HOLE: 10,
-          },
-          rules: {
-            nearRiverRadius: 2,
-            coldTemperatureMax: 2,
-            coldBiomeSymbols: ["snow", "tundra", "boreal"],
-            mangroveWarmTemperatureMin: 18,
-            mangroveWarmBiomeSymbols: ["tropicalRainforest", "tropicalSeasonal"],
-            coastalAdjacencyRadius: 1,
-            isolatedRiverRadius: 1,
-            isolatedSpacingRadius: 2,
-            oasisBiomeSymbols: ["desert", "temperateDry"],
-          },
-        },
-      },
-      wetPlacementOasis: {
-        strategy: "default",
-        config: {
-          multiplier: 1,
-          chances: {
-            FEATURE_MARSH: 0,
-            FEATURE_TUNDRA_BOG: 0,
-            FEATURE_MANGROVE: 0,
-            FEATURE_OASIS: 14,
-            FEATURE_WATERING_HOLE: 10,
-          },
-          rules: {
-            nearRiverRadius: 2,
-            coldTemperatureMax: 2,
-            coldBiomeSymbols: ["snow", "tundra", "boreal"],
-            mangroveWarmTemperatureMin: 18,
-            mangroveWarmBiomeSymbols: ["tropicalRainforest", "tropicalSeasonal"],
-            coastalAdjacencyRadius: 1,
-            isolatedRiverRadius: 1,
-            isolatedSpacingRadius: 2,
-            oasisBiomeSymbols: ["desert", "temperateDry"],
-          },
-        },
-      },
-      wetPlacementWateringHole: {
-        strategy: "default",
-        config: {
-          multiplier: 1,
-          chances: {
-            FEATURE_MARSH: 0,
-            FEATURE_TUNDRA_BOG: 0,
-            FEATURE_MANGROVE: 0,
-            FEATURE_OASIS: 14,
-            FEATURE_WATERING_HOLE: 10,
-          },
-          rules: {
-            nearRiverRadius: 2,
-            coldTemperatureMax: 2,
-            coldBiomeSymbols: ["snow", "tundra", "boreal"],
-            mangroveWarmTemperatureMin: 18,
-            mangroveWarmBiomeSymbols: ["tropicalRainforest", "tropicalSeasonal"],
-            coastalAdjacencyRadius: 1,
-            isolatedRiverRadius: 1,
-            isolatedSpacingRadius: 2,
-            oasisBiomeSymbols: ["desert", "temperateDry"],
-          },
-        },
-      },
     },
   },
   "map-ecology": {
