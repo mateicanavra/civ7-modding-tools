@@ -24,16 +24,6 @@ export const VegetationSchema = Type.Object(
       minimum: 0,
     }),
     /**
-     * Weight applied to humidity when computing vegetation density.
-     * Higher values favor lush vegetation even if rainfall is moderate.
-     */
-    humidityWeight: Type.Number({
-      description:
-        "Weight applied to humidity when computing vegetation density (scalar).",
-      default: 0.25,
-      minimum: 0,
-    }),
-    /**
      * Extra padding added to the humid threshold when normalizing moisture (units).
      * Larger values soften how quickly vegetation saturates as rainfall increases.
      */
@@ -45,6 +35,6 @@ export const VegetationSchema = Type.Object(
     }),
   },
   {
-    description: "Vegetation density model knobs (base, moisture/humidity weights, normalization).",
+    description: "Vegetation density model knobs (base, moisture weight, normalization).",
   }
 );
