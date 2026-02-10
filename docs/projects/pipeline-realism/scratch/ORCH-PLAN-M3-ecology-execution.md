@@ -3,10 +3,10 @@
 ## Breadcrumbs
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-MAMBO-M3-ecology-physics-first`
 - Branch: `codex/MAMBO-m3-009-cleanup-delete-legacy-chance` (parent: `codex/MAMBO-m3-008-stamping-strict-features-apply`; base: `main`)
-- Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`, M3-006 `#1227`, M3-007 `#1228`, M3-008 `#1229`, M3-009 `#1230`
+- Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`, M3-006 `#1227`, M3-007 `#1228`, M3-008 `#1229`, M3-009 `#1230`, M3-010 `#1231`
 - Packet: `docs/projects/pipeline-realism/resources/packets/PACKET-M3-ecology-physics-first/`
   - Authority order: `VISION.md` -> `TOPOLOGY.md` -> `CONTRACTS.md` -> `DECISIONS.md`
-- Current issue: (TBD) M3-010 post-cutover cleanup (issue doc not yet authored)
+- Current issue: M3-010 post-cutover cleanup (draft PR `#1231`; issue doc TBD)
 
 ## Slice Checklist (M3-001..009)
 - [x] M3-001 Packet harden: topology/contracts/gates (verification-only unless drift)
@@ -94,10 +94,17 @@ Current pointer: **M3-010**
 
 ### M3-009 (No-Fudging Cleanup) DONE
 - Draft PR: `#1230`
-- Key behavior: `plot-effects` is deterministic top-coverage selection (seeded tie-break only), and the ecology baseline fixtures now explicitly track M3 truth artifacts (scoreLayers + occupancy chain) and viz keys.
+- Key behavior:
+  - `plot-effects` is deterministic top-coverage selection (seeded tie-break only).
+  - Plot effects now follow the M3 posture: compute-only score ops (`score/snow|sand|burned`) + a planner op consuming those scores.
+  - `map.ecology.plotEffects.plotEffect` categorical viz now declares explicit, stable categories/colors (no Studio auto palette).
+  - Ecology baseline fixtures track viz keys and M3 truth artifacts.
 - Gates (local):
   - `bun --cwd mods/mod-swooper-maps test test/ecology` PASS
-  - `diag:dump` rerun + `diag:diff` mismatches `0` (runId `ad6048a12...`, labels `m3-final-a`/`m3-final-b`)
-  - static scan: no `rollPercent|coverageChance|chance|multiplier` hits in ecology planning surfaces (also gated by `no-fudging-static-scan` test)
+  - `diag:dump` rerun + `diag:diff` mismatches `0` (runId `cc5296195...`, labels `m3-stamp-a`/`m3-stamp-b`)
+  - static scan: `0` hits in `mods/mod-swooper-maps/src/domain/ecology` for `rollPercent|coverageChance|chance|multiplier` (also gated by `no-fudging-static-scan` test)
+  - `bun run --cwd packages/civ7-adapter build` PASS
+  - `bun run --cwd packages/mapgen-viz build` PASS
+  - `bun run --cwd packages/mapgen-core build` PASS
   - `bun run build` PASS
   - `timeout 20s bun run dev:mapgen-studio` reached Vite READY (exit `124` OK)
