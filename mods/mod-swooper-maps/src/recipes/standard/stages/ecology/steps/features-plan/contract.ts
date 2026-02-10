@@ -19,7 +19,6 @@ const FeaturesPlanStepContract = defineStep({
     provides: [
       ecologyArtifacts.featureIntentsVegetation,
       ecologyArtifacts.featureIntentsWetlands,
-      ecologyArtifacts.featureIntentsReefs,
     ],
   },
   ops: {
@@ -30,7 +29,6 @@ const FeaturesPlanStepContract = defineStep({
     scoreSavannaWoodland: ecology.ops.scoreVegetationSavannaWoodland,
     scoreSagebrushSteppe: ecology.ops.scoreVegetationSagebrushSteppe,
     wetlands: ecology.ops.planWetlands,
-    reefs: ecology.ops.planReefs,
     wetPlacementMarsh: {
       contract: ecology.ops.planWetPlacementMarsh,
       defaultStrategy: "disabled",

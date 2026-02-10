@@ -7,20 +7,29 @@ const PlanReefsContract = defineOp({
   input: Type.Object({
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
-    landMask: TypedArraySchemas.u8({ description: "Land mask (1 = land, 0 = water)." }),
-    surfaceTemperature: TypedArraySchemas.f32({ description: "Surface temperature (C)." }),
+    seed: Type.Integer({ minimum: 0 }),
+    scoreReef01: TypedArraySchemas.f32({ description: "Reef suitability score per tile (0..1)." }),
+    scoreColdReef01: TypedArraySchemas.f32({
+      description: "Cold reef suitability score per tile (0..1).",
+    }),
+    scoreAtoll01: TypedArraySchemas.f32({ description: "Atoll suitability score per tile (0..1)." }),
+    scoreLotus01: TypedArraySchemas.f32({ description: "Lotus suitability score per tile (0..1)." }),
+    featureIndex: TypedArraySchemas.u16({
+      description: "0 = unoccupied, otherwise 1 + FEATURE_KEY_INDEX",
+    }),
+    reserved: TypedArraySchemas.u8({
+      description: "0 = tile can be claimed, 1 = permanently blocked",
+    }),
   }),
   output: Type.Object({
     placements: Type.Array(FeaturePlacementSchema),
   }),
   strategies: {
     default: Type.Object({
-      warmThreshold: Type.Number({ default: 12 }),
-      density: Type.Number({ minimum: 0, maximum: 1, default: 0.35 }),
+      minScore01: Type.Number({ default: 0.55, minimum: 0, maximum: 1 }),
     }),
     "shipping-lanes": Type.Object({
-      warmThreshold: Type.Number({ default: 12 }),
-      density: Type.Number({ minimum: 0, maximum: 1, default: 0.35 }),
+      minScore01: Type.Number({ default: 0.55, minimum: 0, maximum: 1 }),
     }),
   },
 });

@@ -339,6 +339,12 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
       planIce: { strategy: "continentality", config: { minScore01: 0.55 } },
     },
   },
+  "ecology-reefs": {
+    knobs: {},
+    "plan-reefs": {
+      planReefs: { strategy: "default", config: { minScore01: 0.55 } },
+    },
+  },
   "ecology-vegetation": {
     knobs: {},
     "features-plan": {
@@ -352,13 +358,6 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
           maxElevation: 1200,
         },
       }, // Minimal wetlands
-      reefs: {
-        strategy: "default",
-        config: {
-          warmThreshold: 12,
-          density: 0.35,
-        },
-      },
       wetPlacementMarsh: {
         strategy: "default",
         config: {
