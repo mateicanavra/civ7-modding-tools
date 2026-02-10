@@ -3,7 +3,6 @@ import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authorin
 import { TemperatureSchema } from "./rules/temperature.schema.js";
 import { MoistureSchema } from "./rules/moisture.schema.js";
 import { AriditySchema } from "./rules/aridity.schema.js";
-import { FreezeSchema } from "./rules/freeze.schema.js";
 import { VegetationSchema } from "./rules/vegetation.schema.js";
 import { NoiseSchema } from "./rules/noise.schema.js";
 import { RiparianSchema } from "./rules/riparian.schema.js";
@@ -38,7 +37,6 @@ const EdgeRefineSchema = Type.Object(
     ),
   },
   {
-    additionalProperties: false,
     description:
       "Deterministic smoothing pass applied to biomeIndex after classification (integrated edge refinement).",
   }
@@ -52,8 +50,17 @@ const BiomeClassificationContract = defineOp({
     height: Type.Integer({ minimum: 1 }),
     rainfall: TypedArraySchemas.u8({ description: "Rainfall per tile (0..255)." }),
     humidity: TypedArraySchemas.u8({ description: "Humidity per tile (0..255)." }),
-    elevation: TypedArraySchemas.i16({ description: "Elevation per tile (meters)." }),
-    latitude: TypedArraySchemas.f32({ description: "Latitude per tile (degrees)." }),
+    surfaceTemperatureC: TypedArraySchemas.f32({
+      description:
+        "Surface temperature proxy (C) per tile (from Hydrology climate indices; do not recompute from latitude).",
+    }),
+    aridityIndex: TypedArraySchemas.f32({
+      description:
+        "Aridity index (0..1) per tile (from Hydrology climate indices; do not recompute from rainfall alone).",
+    }),
+    freezeIndex: TypedArraySchemas.f32({
+      description: "Freeze persistence index (0..1) per tile (from Hydrology climate indices).",
+    }),
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
     riverClass: TypedArraySchemas.u8({
       description: "Hydrology river class per tile (0=none, 1=minor, 2=major).",
@@ -78,10 +85,8 @@ const BiomeClassificationContract = defineOp({
         temperature: TemperatureSchema,
         /** Moisture model knobs (thresholds, humidity weight, bias). */
         moisture: MoistureSchema,
-        /** Aridity/PET proxy knobs (used to shift moisture zones). */
+        /** Aridity knobs (used to shift moisture zones + vegetation penalty). */
         aridity: AriditySchema,
-        /** Freeze index thresholds used for snow/ice suitability. */
-        freeze: FreezeSchema,
         /** Vegetation density model knobs (0..1 weights). */
         vegetation: VegetationSchema,
         /** Noise settings for moisture variation. */
