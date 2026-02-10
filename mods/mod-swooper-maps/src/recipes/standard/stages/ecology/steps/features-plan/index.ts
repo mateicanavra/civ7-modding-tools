@@ -4,22 +4,8 @@ import { FEATURE_PLACEMENT_KEYS } from "@mapgen/domain/ecology";
 import { ecologyArtifacts } from "../../artifacts.js";
 import { validateFeatureIntentsListArtifact } from "../../artifact-validation.js";
 import FeaturesPlanStepContract from "./contract.js";
-import { computeRiverAdjacencyMaskFromRiverClass } from "../../../hydrology-hydrography/river-adjacency.js";
-import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 
 const GROUP_FEATURE_INTENTS = "Ecology / Feature Intents";
-
-function readRulesRadius(
-  config: unknown,
-  key: "nearRiverRadius" | "isolatedRiverRadius",
-  fallback: number
-): number {
-  if (!config || typeof config !== "object") return fallback;
-  const rules = (config as Record<string, unknown>).rules;
-  if (!rules || typeof rules !== "object") return fallback;
-  const raw = (rules as Record<string, unknown>)[key];
-  return typeof raw === "number" && Number.isFinite(raw) ? raw : fallback;
-}
 
 function labelFeatureKey(key: string): string {
   const trimmed = key.replace(/^FEATURE_/, "");
@@ -73,15 +59,9 @@ function featureColor(index: number, count: number): [number, number, number, nu
 
 export default createStep(FeaturesPlanStepContract, {
   artifacts: implementArtifacts(
-    [
-      ecologyArtifacts.featureIntentsVegetation,
-      ecologyArtifacts.featureIntentsWetlands,
-    ],
+    [ecologyArtifacts.featureIntentsVegetation],
     {
       featureIntentsVegetation: {
-        validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
-      },
-      featureIntentsWetlands: {
         validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
       },
     }
@@ -93,9 +73,7 @@ export default createStep(FeaturesPlanStepContract, {
     const hydrography = deps.artifacts.hydrography.read(context);
 
     const { width, height } = context.dimensions;
-    const seed = deriveStepSeed(context.env.seed, "ecology:planFeatureIntents");
     const size = width * height;
-    const emptyFeatureKeyField = (): Int16Array => new Int16Array(size).fill(-1);
     const navigableRiverMask = new Uint8Array(size);
     for (let i = 0; i < size; i++) {
       navigableRiverMask[i] = hydrography.riverClass[i] === 2 ? 1 : 0;
@@ -181,112 +159,7 @@ export default createStep(FeaturesPlanStepContract, {
       }
     }
 
-    const wetlandsPlan = ops.wetlands(
-      {
-        width,
-        height,
-        landMask: topography.landMask,
-        effectiveMoisture: classification.effectiveMoisture,
-        surfaceTemperature: classification.surfaceTemperature,
-        fertility: pedology.fertility,
-        elevation: topography.elevation,
-      },
-      config.wetlands
-    );
-
-    const disabledSelection = { strategy: "disabled", config: {} } as const;
-    const wetPlacementMarsh = config.wetPlacementMarsh ?? disabledSelection;
-    const wetPlacementTundraBog = config.wetPlacementTundraBog ?? disabledSelection;
-    const wetPlacementMangrove = config.wetPlacementMangrove ?? disabledSelection;
-    const wetPlacementOasis = config.wetPlacementOasis ?? disabledSelection;
-    const wetPlacementWateringHole = config.wetPlacementWateringHole ?? disabledSelection;
-
-    const useAdvancedWet =
-      wetPlacementMarsh.strategy !== "disabled" ||
-      wetPlacementTundraBog.strategy !== "disabled" ||
-      wetPlacementMangrove.strategy !== "disabled" ||
-      wetPlacementOasis.strategy !== "disabled" ||
-      wetPlacementWateringHole.strategy !== "disabled";
-
-    const wetPlacements = useAdvancedWet
-      ? (() => {
-          const wetFeatureKeyField = emptyFeatureKeyField();
-          const baseWetInput = {
-            width,
-            height,
-            seed,
-            biomeIndex: classification.biomeIndex,
-            surfaceTemperature: classification.surfaceTemperature,
-            landMask: topography.landMask,
-            navigableRiverMask,
-            featureKeyField: wetFeatureKeyField,
-            nearRiverMask: computeRiverAdjacencyMaskFromRiverClass({
-              width,
-              height,
-              riverClass: hydrography.riverClass,
-              radius: Math.max(
-                1,
-                Math.floor(readRulesRadius(wetPlacementMarsh.config, "nearRiverRadius", 2))
-              ),
-            }),
-            isolatedRiverMask: computeRiverAdjacencyMaskFromRiverClass({
-              width,
-              height,
-              riverClass: hydrography.riverClass,
-              radius: Math.max(
-                1,
-                Math.floor(readRulesRadius(wetPlacementMarsh.config, "isolatedRiverRadius", 1))
-              ),
-            }),
-          };
-
-          const applyToField = (
-            placements: Array<{ x: number; y: number; feature: (typeof FEATURE_PLACEMENT_KEYS)[number] }>
-          ): void => {
-            for (const placement of placements) {
-              const idx = placement.y * width + placement.x;
-              const keyIndex = FEATURE_PLACEMENT_KEYS.indexOf(placement.feature);
-              if (keyIndex >= 0) wetFeatureKeyField[idx] = keyIndex;
-            }
-          };
-
-          const byTileIndex = (a: { x: number; y: number }, b: { x: number; y: number }): number =>
-            a.y * width + a.x - (b.y * width + b.x);
-
-          const marshPlacements = ops.wetPlacementMarsh(baseWetInput, wetPlacementMarsh).placements;
-          applyToField(marshPlacements);
-          const bogPlacements = ops.wetPlacementTundraBog(
-            baseWetInput,
-            wetPlacementTundraBog
-          ).placements;
-          applyToField(bogPlacements);
-          const riverWetPlacements = [...marshPlacements, ...bogPlacements];
-          riverWetPlacements.sort(byTileIndex);
-
-          const mangrovePlacements = ops.wetPlacementMangrove(baseWetInput, wetPlacementMangrove)
-            .placements;
-          applyToField(mangrovePlacements);
-
-          const oasisPlacements = ops.wetPlacementOasis(baseWetInput, wetPlacementOasis).placements;
-          applyToField(oasisPlacements);
-          const wateringHolePlacements = ops.wetPlacementWateringHole(
-            baseWetInput,
-            wetPlacementWateringHole
-          ).placements;
-          applyToField(wateringHolePlacements);
-          const isolatedWetPlacements = [...oasisPlacements, ...wateringHolePlacements];
-          isolatedWetPlacements.sort(byTileIndex);
-
-          return [...riverWetPlacements, ...mangrovePlacements, ...isolatedWetPlacements];
-        })()
-      : [];
-
-    const wetlandsPlacements = [...wetlandsPlan.placements, ...wetPlacements];
-
-    const allPlacements = [
-      ...vegetationPlacements,
-      ...wetlandsPlacements,
-    ];
+    const allPlacements = vegetationPlacements;
     if (allPlacements.length > 0) {
       const knownKeys = new Set(FEATURE_PLACEMENT_KEYS);
       const unknownKeys = new Set<string>();
@@ -331,6 +204,5 @@ export default createStep(FeaturesPlanStepContract, {
     }
 
     deps.artifacts.featureIntentsVegetation.publish(context, vegetationPlacements);
-    deps.artifacts.featureIntentsWetlands.publish(context, wetlandsPlacements);
   },
 });
