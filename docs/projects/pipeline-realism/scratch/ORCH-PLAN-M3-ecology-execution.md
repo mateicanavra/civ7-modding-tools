@@ -2,11 +2,11 @@
 
 ## Breadcrumbs
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-MAMBO-M3-ecology-physics-first`
-- Branch: `codex/MAMBO-m3-006-plan-wetlands-deterministic` (parent: `codex/MAMBO-m3-005-plan-reefs-deterministic`; base: `main`)
-- Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`
+- Branch: `codex/MAMBO-m3-007-plan-vegetation-deterministic` (parent: `codex/MAMBO-m3-006-plan-wetlands-deterministic`; base: `main`)
+- Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`, M3-006 `#1227`
 - Packet: `docs/projects/pipeline-realism/resources/packets/PACKET-M3-ecology-physics-first/`
   - Authority order: `VISION.md` -> `TOPOLOGY.md` -> `CONTRACTS.md` -> `DECISIONS.md`
-- Current issue: `docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M3-006-deterministic-planning-wetlands-and-wet-features-no-disabled-strategies.md`
+- Current issue: `docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M3-007-deterministic-planning-vegetation-joint-resolver-over-score-layers.md`
 
 ## Slice Checklist (M3-001..009)
 - [x] M3-001 Packet harden: topology/contracts/gates (verification-only unless drift)
@@ -14,7 +14,7 @@
 - [x] M3-003 ScoreLayers: schema + independent per-feature score ops + base occupancy
 - [x] M3-004 Deterministic planning: ice (consume scoreLayers + occupancy; publish intents + snapshot)
 - [x] M3-005 Deterministic planning: reefs (consume scoreLayers + occupancy; add missing reef-family features)
-- [ ] M3-006 Deterministic planning: wetlands (joint resolver; no disabled strategies)
+- [x] M3-006 Deterministic planning: wetlands (joint resolver; no disabled strategies)
 - [ ] M3-007 Deterministic planning: vegetation (joint resolver over score layers)
 - [ ] M3-008 Projection strictness: stamping must not drop placements or randomly gate (add gates)
 - [ ] M3-009 Cleanup: delete chance/multiplier paths; update tests + viz inventories
@@ -23,7 +23,7 @@ Future slices (post M3-009):
 - [ ] M3-010 Post-cutover cleanup (dedicated cleanup slice; after M3-009)
 - [ ] M3-011 Canonical docs sweep (dedicated docs sweep; after M3-010)
 
-Current pointer: **M3-006**
+Current pointer: **M3-007**
 
 ## Gates Checklist (Hard, Forward-Only)
 - [ ] No legacy shims/dual paths/wrappers
