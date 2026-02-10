@@ -470,7 +470,7 @@
       }
     }
   },
-  "ecology": {
+  "ecology-pedology": {
     "knobs": {},
     "pedology": {
       "classify": {
@@ -484,7 +484,7 @@
         }
       }
     },
-    "resourceBasins": {
+    "resource-basins": {
       "plan": {
         "strategy": "mixed",
         "config": {
@@ -498,7 +498,10 @@
           "maxPerResource": 14
         }
       }
-    },
+    }
+  },
+  "ecology-biomes": {
+    "knobs": {},
     "biomes": {
       "classify": {
         "strategy": "default",
@@ -557,20 +560,18 @@
             "adjacencyRadius": 1,
             "minorRiverMoistureBonus": 6,
             "majorRiverMoistureBonus": 12
+          },
+          "edgeRefine": {
+            "radius": 1,
+            "iterations": 1
           }
         }
       }
-    },
-    "biomeEdgeRefine": {
-      "refine": {
-        "strategy": "gaussian",
-        "config": {
-          "radius": 1,
-          "iterations": 1
-        }
-      }
-    },
-    "featuresPlan": {
+    }
+  },
+  "ecology-vegetation": {
+    "knobs": {},
+    "features-plan": {
       "vegetation": {
         "minScoreThreshold": 0.15
       },
