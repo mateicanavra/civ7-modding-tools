@@ -100,30 +100,6 @@ describe("features plan/apply pipeline", () => {
         strategy: "default",
         config: {},
       }),
-      wetlands: normalizeOpSelectionOrThrow(ecology.ops.planWetlands, {
-        strategy: "default",
-        config: {},
-      }),
-      wetPlacementMarsh: normalizeOpSelectionOrThrow(ecology.ops.planWetPlacementMarsh, {
-        strategy: "disabled",
-        config: {},
-      }),
-      wetPlacementTundraBog: normalizeOpSelectionOrThrow(ecology.ops.planWetPlacementTundraBog, {
-        strategy: "disabled",
-        config: {},
-      }),
-      wetPlacementMangrove: normalizeOpSelectionOrThrow(ecology.ops.planWetPlacementMangrove, {
-        strategy: "disabled",
-        config: {},
-      }),
-      wetPlacementOasis: normalizeOpSelectionOrThrow(ecology.ops.planWetPlacementOasis, {
-        strategy: "disabled",
-        config: {},
-      }),
-      wetPlacementWateringHole: normalizeOpSelectionOrThrow(ecology.ops.planWetPlacementWateringHole, {
-        strategy: "disabled",
-        config: {},
-      }),
     };
     const planOps = ecology.ops.bind(featuresPlanStep.contract.ops!).runtime;
     featuresPlanStep.run(ctx, planConfig, planOps, buildTestDeps(featuresPlanStep));
@@ -138,6 +114,13 @@ describe("features plan/apply pipeline", () => {
     // M3-005 moves reef intents into the dedicated `ecology-reefs/plan-reefs` stage. For this unit test,
     // explicitly publish an empty list so the apply step has a complete artifact surface.
     implementArtifacts([ecologyArtifacts.featureIntentsReefs], { featureIntentsReefs: {} }).featureIntentsReefs.publish(
+      ctx,
+      []
+    );
+
+    // M3-006 moves wet intents into the dedicated `ecology-wetlands/plan-wetlands` stage. For this unit test,
+    // explicitly publish an empty list so the apply step has a complete artifact surface.
+    implementArtifacts([ecologyArtifacts.featureIntentsWetlands], { featureIntentsWetlands: {} }).featureIntentsWetlands.publish(
       ctx,
       []
     );
