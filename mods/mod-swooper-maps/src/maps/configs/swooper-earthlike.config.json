@@ -523,9 +523,7 @@
               180,
               230,
               280
-            ],
-            "bias": 0,
-            "humidityWeight": 0.35
+            ]
           },
           "aridity": {
             "temperatureMin": 0,
@@ -545,17 +543,7 @@
           "vegetation": {
             "base": 0.3,
             "moistureWeight": 0.6,
-            "humidityWeight": 0.3,
             "moistureNormalizationPadding": 60
-          },
-          "noise": {
-            "amplitude": 0.04,
-            "seed": 53337
-          },
-          "riparian": {
-            "adjacencyRadius": 1,
-            "minorRiverMoistureBonus": 6,
-            "majorRiverMoistureBonus": 12
           },
           "edgeRefine": {
             "radius": 1,
