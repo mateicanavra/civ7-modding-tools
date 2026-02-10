@@ -4,16 +4,16 @@ export const BiomeClassificationArtifactSchema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
-    biomeIndex: Type.Any(),
-    vegetationDensity: Type.Any(),
-    effectiveMoisture: Type.Any(),
-    surfaceTemperature: Type.Any(),
-    aridityIndex: Type.Any(),
-    freezeIndex: Type.Any(),
-    groundIce01: Type.Any(),
-    permafrost01: Type.Any(),
-    meltPotential01: Type.Any(),
-    treeLine01: Type.Any(),
+    biomeIndex: TypedArraySchemas.u8({ description: "Biome symbol index per tile." }),
+    vegetationDensity: TypedArraySchemas.f32({ description: "Vegetation density per tile (0..1)." }),
+    effectiveMoisture: TypedArraySchemas.f32({ description: "Effective moisture per tile." }),
+    surfaceTemperature: TypedArraySchemas.f32({ description: "Surface temperature per tile (C)." }),
+    aridityIndex: TypedArraySchemas.f32({ description: "Aridity index per tile (0..1)." }),
+    freezeIndex: TypedArraySchemas.f32({ description: "Freeze index per tile (0..1)." }),
+    groundIce01: TypedArraySchemas.f32({ description: "Ground ice per tile (0..1)." }),
+    permafrost01: TypedArraySchemas.f32({ description: "Permafrost per tile (0..1)." }),
+    meltPotential01: TypedArraySchemas.f32({ description: "Melt potential per tile (0..1)." }),
+    treeLine01: TypedArraySchemas.f32({ description: "Tree line suitability per tile (0..1)." }),
   }
 );
 
@@ -23,8 +23,8 @@ export const PedologyArtifactSchema = Type.Object(
   {
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
-    soilType: Type.Any(),
-    fertility: Type.Any(),
+    soilType: TypedArraySchemas.u8({ description: "Soil type index per tile." }),
+    fertility: TypedArraySchemas.f32({ description: "Fertility per tile (0..1)." }),
   }
 );
 
