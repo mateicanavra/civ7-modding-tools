@@ -80,23 +80,23 @@ describe("features plan/apply pipeline", () => {
         strategy: "default",
         config: {},
       }),
-      vegetationScoreForest: normalizeOpSelectionOrThrow(ecology.ops.scoreVegetationForest, {
+      scoreVegetationForest: normalizeOpSelectionOrThrow(ecology.ops.scoreVegetationForest, {
         strategy: "default",
         config: {},
       }),
-      vegetationScoreRainforest: normalizeOpSelectionOrThrow(ecology.ops.scoreVegetationRainforest, {
+      scoreVegetationRainforest: normalizeOpSelectionOrThrow(ecology.ops.scoreVegetationRainforest, {
         strategy: "default",
         config: {},
       }),
-      vegetationScoreTaiga: normalizeOpSelectionOrThrow(ecology.ops.scoreVegetationTaiga, {
+      scoreVegetationTaiga: normalizeOpSelectionOrThrow(ecology.ops.scoreVegetationTaiga, {
         strategy: "default",
         config: {},
       }),
-      vegetationScoreSavannaWoodland: normalizeOpSelectionOrThrow(ecology.ops.scoreVegetationSavannaWoodland, {
+      scoreVegetationSavannaWoodland: normalizeOpSelectionOrThrow(ecology.ops.scoreVegetationSavannaWoodland, {
         strategy: "default",
         config: {},
       }),
-      vegetationScoreSagebrushSteppe: normalizeOpSelectionOrThrow(ecology.ops.scoreVegetationSagebrushSteppe, {
+      scoreVegetationSagebrushSteppe: normalizeOpSelectionOrThrow(ecology.ops.scoreVegetationSagebrushSteppe, {
         strategy: "default",
         config: {},
       }),
