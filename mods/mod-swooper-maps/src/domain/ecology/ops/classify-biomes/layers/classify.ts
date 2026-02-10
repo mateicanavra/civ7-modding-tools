@@ -17,11 +17,12 @@ export function classifyBiomesFromFields(args: {
   width: number;
   height: number;
   landMask: Uint8Array;
-  humidity: Uint8Array;
   effectiveMoistureF64: Float64Array;
   surfaceTemperatureF64: Float64Array;
   freezeIndex: Float32Array;
   aridityIndexF64: Float64Array;
+  soilType: Uint8Array;
+  fertility: Float32Array;
   config: DefaultConfig;
 }): Readonly<{ biomeIndex: Uint8Array; vegetationDensity: Float32Array }> {
   const { width, height } = args;
@@ -44,9 +45,9 @@ export function classifyBiomesFromFields(args: {
       continue;
     }
 
-    const temperature = args.surfaceTemperatureF64[i];
-    const moisture = args.effectiveMoistureF64[i];
-    const aridity = args.aridityIndexF64[i];
+    const temperature = args.surfaceTemperatureF64[i] ?? 0;
+    const moisture = args.effectiveMoistureF64[i] ?? 0;
+    const aridity = args.aridityIndexF64[i] ?? 0;
     const freezeIndex = args.freezeIndex[i] ?? 0;
     const energy01 = clamp01((temperature - energyMin) / energyRange);
 
@@ -64,7 +65,7 @@ export function classifyBiomesFromFields(args: {
       (tempZone === "temperate" || tempZone === "tropical") &&
       Math.abs(temperature - tropicalThreshold) <= transitionBandC
     ) {
-      // Soft transition: use a stronger x-varying wetness signal (derived from rainfall + humidity)
+      // Soft transition: use a stronger x-varying wetness signal (Hydrology effectiveMoisture)
       // to prevent row-perfect biome cutoffs near the tropical threshold.
       const transitionDenom = Math.max(1e-6, humidThreshold - subhumid);
       const wetness01 = clamp01((moisture - subhumid) / transitionDenom);
@@ -79,17 +80,16 @@ export function classifyBiomesFromFields(args: {
     biomeIndex[i] = BIOME_SYMBOL_TO_INDEX[symbol]!;
 
     const moistureNorm = clamp01(moisture / moistureNormalization);
-    const humidityNorm = clamp01(args.humidity[i] / 255);
     vegetationDensity[i] = vegetationDensityForBiome(symbol, {
       base: args.config.vegetation.base,
       moistureWeight: args.config.vegetation.moistureWeight,
-      humidityWeight: args.config.vegetation.humidityWeight,
       moistureNorm,
-      humidityNorm,
       energy01,
       freezeIndex,
       aridityIndex: aridity,
       aridityPenalty: args.config.aridity.vegetationPenalty,
+      fertility01: args.fertility[i] ?? 0,
+      soilType: args.soilType[i] ?? 0,
     });
   }
 

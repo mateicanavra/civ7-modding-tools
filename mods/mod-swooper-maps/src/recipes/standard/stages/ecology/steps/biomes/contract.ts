@@ -2,9 +2,7 @@ import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import ecology from "@mapgen/domain/ecology";
 
 import { ecologyArtifacts } from "../../artifacts.js";
-import { hydrologyClimateBaselineArtifacts } from "../../../hydrology-climate-baseline/artifacts.js";
 import { hydrologyClimateRefineArtifacts } from "../../../hydrology-climate-refine/artifacts.js";
-import { hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts.js";
 import { morphologyArtifacts } from "../../../morphology/artifacts.js";
 
 const BiomesStepContract = defineStep({
@@ -14,11 +12,10 @@ const BiomesStepContract = defineStep({
   provides: [],
   artifacts: {
     requires: [
-      hydrologyClimateBaselineArtifacts.climateField,
       hydrologyClimateRefineArtifacts.cryosphere,
       hydrologyClimateRefineArtifacts.climateIndices,
       morphologyArtifacts.topography,
-      hydrologyHydrographyArtifacts.hydrography,
+      ecologyArtifacts.pedology,
     ],
     provides: [ecologyArtifacts.biomeClassification],
   },
