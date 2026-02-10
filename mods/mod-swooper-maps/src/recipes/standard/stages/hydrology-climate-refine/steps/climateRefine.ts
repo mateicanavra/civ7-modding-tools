@@ -120,7 +120,10 @@ export default createStep(ClimateRefineStepContract, {
           ...next.computeThermalState,
           config: {
             ...next.computeThermalState.config,
-            baseTemperatureC: next.computeThermalState.config.baseTemperatureC + deltaC,
+            // Temperature knobs should not simply warm/cool the whole world uniformly (that erases tundra/snow).
+            // Instead, bias the baseline modestly and put most of the adjustment into the equator-to-pole contrast.
+            baseTemperatureC: next.computeThermalState.config.baseTemperatureC + deltaC * 0.5,
+            insolationScaleC: Math.max(0, Math.min(80, next.computeThermalState.config.insolationScaleC + deltaC * 2)),
           },
         };
       }
