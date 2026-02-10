@@ -518,12 +518,17 @@ describe("ecology op contract surfaces", () => {
       {
         width,
         height,
-        landMask: new Uint8Array(size).fill(0),
-        surfaceTemperature: new Float32Array(size).fill(20),
+        seed: 1337,
+        scoreReef01: new Float32Array(size).fill(1),
+        scoreColdReef01: new Float32Array(size).fill(1),
+        scoreAtoll01: new Float32Array(size).fill(1),
+        scoreLotus01: new Float32Array(size).fill(1),
+        featureIndex: new Uint16Array(size),
+        reserved: new Uint8Array(size),
       },
       selection
     );
-    expect(result.placements.length).toBeGreaterThanOrEqual(0);
+    expect(result.placements.length).toBeGreaterThan(0);
   });
 
   it("planReefs shipping lanes strategy validates output", () => {
@@ -538,12 +543,17 @@ describe("ecology op contract surfaces", () => {
       {
         width,
         height,
-        landMask: new Uint8Array(size).fill(0),
-        surfaceTemperature: new Float32Array(size).fill(24),
+        seed: 1337,
+        scoreReef01: new Float32Array(size).fill(1),
+        scoreColdReef01: new Float32Array(size).fill(1),
+        scoreAtoll01: new Float32Array(size).fill(1),
+        scoreLotus01: new Float32Array(size).fill(1),
+        featureIndex: new Uint16Array(size),
+        reserved: new Uint8Array(size),
       },
       selection
     );
-    expect(result.placements.length).toBeGreaterThanOrEqual(0);
+    expect(result.placements.length).toBeGreaterThan(0);
   });
 
   it("planIce validates output", () => {
