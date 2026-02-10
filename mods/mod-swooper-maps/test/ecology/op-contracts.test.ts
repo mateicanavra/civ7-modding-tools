@@ -454,6 +454,33 @@ describe("ecology op contract surfaces", () => {
     expect(result.placements.length).toBeGreaterThan(0);
   });
 
+  it("planVegetation validates output", () => {
+    const width = 2;
+    const height = 2;
+    const size = width * height;
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetation, {
+      strategy: "default",
+      config: { minScore01: 0.15 },
+    });
+    const result = ecology.ops.planVegetation.run(
+      {
+        width,
+        height,
+        seed: 1337,
+        scoreForest01: new Float32Array(size).fill(1),
+        scoreRainforest01: new Float32Array(size).fill(1),
+        scoreTaiga01: new Float32Array(size).fill(1),
+        scoreSavannaWoodland01: new Float32Array(size).fill(1),
+        scoreSagebrushSteppe01: new Float32Array(size).fill(1),
+        landMask: new Uint8Array(size).fill(1),
+        featureIndex: new Uint16Array(size),
+        reserved: new Uint8Array(size),
+      },
+      selection
+    );
+    expect(result.placements.length).toBeGreaterThan(0);
+  });
+
   it("planReefs validates output", () => {
     const width = 2;
     const height = 2;
