@@ -536,6 +536,21 @@
         }
       }
     },
+    "ecology-ice": {
+      "knobs": {},
+      "plan-ice": {
+        "planIce": {
+          "strategy": "continentality",
+          "config": {
+            "seaIceThreshold": -16,
+            "alpineThreshold": 2600,
+            "featherC": 4,
+            "jitterC": 2.5,
+            "densityScale": 0.25
+          }
+        }
+      }
+    },
     "ecology-vegetation": {
       "knobs": {},
       "features-plan": {
@@ -554,16 +569,6 @@
           "config": {
             "warmThreshold": 12,
             "density": 0.35
-          }
-        },
-        "ice": {
-          "strategy": "continentality",
-          "config": {
-            "seaIceThreshold": -16,
-            "alpineThreshold": 2600,
-            "featherC": 4,
-            "jitterC": 2.5,
-            "densityScale": 0.25
           }
         }
       }
