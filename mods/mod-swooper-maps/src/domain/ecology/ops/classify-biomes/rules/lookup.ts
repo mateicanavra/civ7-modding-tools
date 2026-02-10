@@ -23,7 +23,7 @@ const BIOME_LOOKUP: Record<
     semiArid: "temperateDry",
     subhumid: "temperateHumid",
     humid: "temperateHumid",
-    perhumid: "temperateHumid",
+    perhumid: "tropicalRainforest",
   },
   tropical: {
     arid: "desert",
