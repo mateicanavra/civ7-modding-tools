@@ -188,22 +188,19 @@ describe("ecology op contract surfaces", () => {
     const width = 2;
     const height = 2;
     const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.classifyBiomes, {
-      strategy: "default",
-      config: { riparian: {} },
-    });
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.classifyBiomes, ecology.ops.classifyBiomes.defaultConfig);
 
     const result = ecology.ops.classifyBiomes.run(
       {
         width,
         height,
-        rainfall: new Uint8Array(size).fill(160),
-        humidity: new Uint8Array(size).fill(120),
+        effectiveMoisture: new Float32Array(size).fill(160 + 0.35 * 120),
         surfaceTemperatureC: new Float32Array(size).fill(15),
         aridityIndex: new Float32Array(size).fill(0.2),
         freezeIndex: new Float32Array(size).fill(0.05),
         landMask: new Uint8Array(size).fill(1),
-        riverClass: new Uint8Array(size).fill(0),
+        soilType: new Uint8Array(size).fill(0),
+        fertility: new Float32Array(size).fill(0.5),
       },
       selection
     );
