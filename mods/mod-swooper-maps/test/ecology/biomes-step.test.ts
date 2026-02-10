@@ -46,8 +46,9 @@ describe("biomes step", () => {
         hydrologyClimateBaselineArtifacts.climateField,
         hydrologyHydrographyArtifacts.hydrography,
         hydrologyClimateRefineArtifacts.cryosphere,
+        hydrologyClimateRefineArtifacts.climateIndices,
       ],
-      { topography: {}, climateField: {}, hydrography: {}, cryosphere: {} }
+      { topography: {}, climateField: {}, hydrography: {}, cryosphere: {}, climateIndices: {} }
     );
     const seaLevel = 0;
     const bathymetry = new Int16Array(size);
@@ -72,6 +73,12 @@ describe("biomes step", () => {
       groundIce01: new Float32Array(size),
       permafrost01: new Float32Array(size),
       meltPotential01: new Float32Array(size),
+    });
+    hydrologyArtifacts.climateIndices.publish(ctx, {
+      surfaceTemperatureC: new Float32Array(size).fill(15),
+      pet: new Float32Array(size),
+      aridityIndex: new Float32Array(size).fill(0.2),
+      freezeIndex: new Float32Array(size).fill(0.05),
     });
 
     const classifyConfig = normalizeOpSelectionOrThrow(ecology.ops.classifyBiomes, {
@@ -112,6 +119,89 @@ describe("biomes step", () => {
     expect(ctx.fields.biomeId[landIdx]).toBeGreaterThanOrEqual(0);
   });
 
+  it("uses hydrology climateIndices for temperature/aridity/freeze (no local re-derive)", () => {
+    const width = 3;
+    const height = 1;
+    const size = width * height;
+    const env = {
+      seed: 0,
+      dimensions: { width, height },
+      latitudeBounds: { topLatitude: 0, bottomLatitude: 0 },
+    };
+
+    const adapter = createMockAdapter({ width, height });
+    adapter.fillWater(false);
+    const ctx = createExtendedMapContext({ width, height }, adapter, env);
+
+    ctx.buffers.heightfield.landMask.fill(1);
+    ctx.buffers.heightfield.elevation.fill(1);
+    ctx.buffers.climate.rainfall.fill(120);
+    ctx.buffers.climate.humidity.fill(80);
+
+    const hydrologyArtifacts = implementArtifacts(
+      [
+        morphologyArtifacts.topography,
+        hydrologyClimateBaselineArtifacts.climateField,
+        hydrologyHydrographyArtifacts.hydrography,
+        hydrologyClimateRefineArtifacts.cryosphere,
+        hydrologyClimateRefineArtifacts.climateIndices,
+      ],
+      { topography: {}, climateField: {}, hydrography: {}, cryosphere: {}, climateIndices: {} }
+    );
+
+    hydrologyArtifacts.topography.publish(ctx, {
+      elevation: ctx.buffers.heightfield.elevation,
+      seaLevel: 0,
+      landMask: ctx.buffers.heightfield.landMask,
+      bathymetry: new Int16Array(size),
+    });
+    hydrologyArtifacts.climateField.publish(ctx, ctx.buffers.climate);
+    hydrologyArtifacts.hydrography.publish(ctx, {
+      runoff: new Float32Array(size),
+      discharge: new Float32Array(size),
+      riverClass: new Uint8Array(size),
+      sinkMask: new Uint8Array(size),
+      outletMask: new Uint8Array(size),
+    });
+    hydrologyArtifacts.cryosphere.publish(ctx, {
+      snowCover: new Uint8Array(size),
+      seaIceCover: new Uint8Array(size),
+      albedo: new Uint8Array(size),
+      groundIce01: new Float32Array(size),
+      permafrost01: new Float32Array(size),
+      meltPotential01: new Float32Array(size),
+    });
+
+    const surfaceTemperatureC = new Float32Array([10, 20, 30]);
+    const aridityIndex = new Float32Array([0.1, 0.2, 0.3]);
+    const freezeIndex = new Float32Array([0.9, 0.8, 0.7]);
+    hydrologyArtifacts.climateIndices.publish(ctx, {
+      surfaceTemperatureC,
+      pet: new Float32Array(size),
+      aridityIndex,
+      freezeIndex,
+    });
+
+    const classifyConfig = normalizeOpSelectionOrThrow(ecology.ops.classifyBiomes, {
+      strategy: "default",
+      config: { riparian: {} },
+    });
+
+    const ops = ecology.ops.bind(biomesStep.contract.ops!).runtime;
+    biomesStep.run(ctx, { classify: classifyConfig }, ops, buildTestDeps(biomesStep));
+
+    const classification = ctx.artifacts.get(ecologyArtifacts.biomeClassification.id) as
+      | { surfaceTemperature?: Float32Array; aridityIndex?: Float32Array; freezeIndex?: Float32Array }
+      | undefined;
+    if (!(classification?.surfaceTemperature instanceof Float32Array)) throw new Error("Missing surfaceTemperature.");
+    if (!(classification?.aridityIndex instanceof Float32Array)) throw new Error("Missing aridityIndex.");
+    if (!(classification?.freezeIndex instanceof Float32Array)) throw new Error("Missing freezeIndex.");
+
+    expect(Array.from(classification.surfaceTemperature)).toEqual(Array.from(surfaceTemperatureC));
+    expect(Array.from(classification.aridityIndex)).toEqual(Array.from(aridityIndex));
+    expect(Array.from(classification.freezeIndex)).toEqual(Array.from(freezeIndex));
+  });
+
   it("applies a riparian moisture bonus near major rivers", () => {
     const width = 5;
     const height = 5;
@@ -150,8 +240,9 @@ describe("biomes step", () => {
           hydrologyClimateBaselineArtifacts.climateField,
           hydrologyHydrographyArtifacts.hydrography,
           hydrologyClimateRefineArtifacts.cryosphere,
+          hydrologyClimateRefineArtifacts.climateIndices,
         ],
-        { topography: {}, climateField: {}, hydrography: {}, cryosphere: {} }
+        { topography: {}, climateField: {}, hydrography: {}, cryosphere: {}, climateIndices: {} }
       );
       const seaLevel = 0;
       const bathymetry = new Int16Array(size);
@@ -176,6 +267,12 @@ describe("biomes step", () => {
         groundIce01: new Float32Array(size),
         permafrost01: new Float32Array(size),
         meltPotential01: new Float32Array(size),
+      });
+      hydrologyArtifacts.climateIndices.publish(ctx, {
+        surfaceTemperatureC: new Float32Array(size).fill(15),
+        pet: new Float32Array(size),
+        aridityIndex: new Float32Array(size).fill(0.2),
+        freezeIndex: new Float32Array(size).fill(0.05),
       });
 
       const ops = ecology.ops.bind(biomesStep.contract.ops!).runtime;
