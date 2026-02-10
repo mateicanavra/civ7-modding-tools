@@ -2,11 +2,11 @@
 
 ## Breadcrumbs
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-MAMBO-M3-ecology-physics-first`
-- Stack tip branch: `codex/MAMBO-m3-012-fix-biomes-stripes` (parent: `codex/MAMBO-m3-011-canonical-docs-sweep`; base: `main`)
-- Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`, M3-006 `#1227`, M3-007 `#1228`, M3-008 `#1229`, M3-009 `#1230`, M3-010 `#1231`, M3-011 `#1232`, M3-012 `#1233`
+- Stack tip branch: `codex/M3-015-hydrology-effectiveMoisture-soils` (parent: `codex/MAMBO-m3-013-bio-lat-cutoff`; base: `main`)
+- Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`, M3-006 `#1227`, M3-007 `#1228`, M3-008 `#1229`, M3-009 `#1230`, M3-010 `#1231`, M3-011 `#1232`, M3-012 `#1233`, M3-014 `#1234`, M3-013 `#1235`, M3-015 `#1236`
 - Packet: `docs/projects/pipeline-realism/resources/packets/PACKET-M3-ecology-physics-first/`
   - Authority order: `VISION.md` -> `TOPOLOGY.md` -> `CONTRACTS.md` -> `DECISIONS.md`
-- Current issue: `docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M3-012-fix-biomes-horizontal-stripes.md`
+- Current issue: `docs/projects/pipeline-realism/issues/M3-015-hydrology-effectiveMoisture-soils.scratch.md`
 
 ## Slice Checklist (M3-001..012)
 - [x] M3-001 Packet harden: topology/contracts/gates (verification-only unless drift)
@@ -22,7 +22,12 @@
 - [x] M3-011 Canonical docs sweep: ecology config reference + directional intent
 - [x] M3-012 Bugfix: biomes horizontal stripe banding (and ensure biomes inputs are correctly wired)
 
-Current pointer: **M3 COMPLETE**
+### Longtail slices
+- [x] M3-013 Biomes lat cutoff: reduce hard latitude striping while preserving cold biomes
+- [x] M3-014 Lakes not filled: fix freshwater fill regressions without reintroducing noise/chance
+- [x] M3-015 Hydrology moisture ownership: publish `effectiveMoisture` + thread soils/fertility into biomes
+
+Current pointer: **M3-015**
 
 ## Gates Checklist (Hard, Forward-Only)
 - [ ] No legacy shims/dual paths/wrappers
@@ -126,3 +131,11 @@ Current pointer: **M3 COMPLETE**
   - Added truth viz layer `ecology.biome.biomeIndex` with stable explicit categories/colors.
   - Added regression test ensuring within-row biome variety for fixed seed (prevents horizontal banding domination).
   - Removed remaining `additionalProperties: false` annotations in the classify-biomes schema surface per compiler-closed-object posture.
+
+### M3-015 (Hydrology effectiveMoisture + Soils/Fertility Biomes) DONE
+- Draft PR: `#1236`
+- Notes:
+  - Hydrology publishes deterministic `artifact:hydrology.climateIndices.effectiveMoisture` (rainfall + `0.35*humidity` + riparian bonus; radius=1; minor=4; major=8).
+  - Ecology biomes consumes `effectiveMoisture` from Hydrology + `artifact:ecology.soils` (`soilType`, `fertility`) with no local re-derivation and no probabilistic noise.
+  - Presets + test configs were aligned to remove now-unknown `moisture.bias`, `humidityWeight`, and legacy `noise`/`riparian` blocks.
+  - Gates: `bun run build` PASS; `bun run dev:mapgen-studio` started successfully.
