@@ -3,7 +3,7 @@
 ## Breadcrumbs
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-MAMBO-M3-ecology-physics-first`
 - Stack tip branch: `codex/MAMBO-m3-012-fix-biomes-stripes` (parent: `codex/MAMBO-m3-011-canonical-docs-sweep`; base: `main`)
-- Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`, M3-006 `#1227`, M3-007 `#1228`, M3-008 `#1229`, M3-009 `#1230`, M3-010 `#1231`, M3-011 (see Graphite stack)
+- Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`, M3-006 `#1227`, M3-007 `#1228`, M3-008 `#1229`, M3-009 `#1230`, M3-010 `#1231`, M3-011 `#1232`, M3-012 `#1233`
 - Packet: `docs/projects/pipeline-realism/resources/packets/PACKET-M3-ecology-physics-first/`
   - Authority order: `VISION.md` -> `TOPOLOGY.md` -> `CONTRACTS.md` -> `DECISIONS.md`
 - Current issue: `docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M3-012-fix-biomes-horizontal-stripes.md`
@@ -20,9 +20,9 @@
 - [x] M3-009 Cleanup: delete chance/multiplier paths; update tests + viz inventories (and enforce explicit viz palettes)
 - [x] M3-010 Post-cutover cleanup: plot-effects score ops split + stable viz categories + preset sync
 - [x] M3-011 Canonical docs sweep: ecology config reference + directional intent
-- [ ] M3-012 Bugfix: biomes horizontal stripe banding (and ensure biomes inputs are correctly wired)
+- [x] M3-012 Bugfix: biomes horizontal stripe banding (and ensure biomes inputs are correctly wired)
 
-Current pointer: **M3-012**
+Current pointer: **M3 COMPLETE**
 
 ## Gates Checklist (Hard, Forward-Only)
 - [ ] No legacy shims/dual paths/wrappers
@@ -107,13 +107,6 @@ Current pointer: **M3-012**
   - `bun run build` PASS
   - `timeout 20s bun run dev:mapgen-studio` reached Vite READY (exit `124` OK)
 
-### M3-010 (Post-Cutover Cleanup) IN PROGRESS
-- Draft PR: `#1231`
-- Key behavior (target):
-  - Plot effects follow the M3 posture: separate compute score ops (`ecology/plot-effects/score/snow|sand|burned`) and a planner op consuming those scores.
-  - `map.ecology.plotEffects.plotEffect` categorical viz declares explicit, stable categories/colors (no Studio auto palette).
-  - Default preset/config stays in sync with the new step op surface (`scoreSnow|scoreSand|scoreBurned|plotEffects`).
-
 ### M3-010 (Post-Cutover Cleanup) DONE
 - Draft PR: `#1231`
 - Notes:
@@ -125,3 +118,11 @@ Current pointer: **M3-012**
 - Notes:
   - Updated canonical mapgen docs for stage order, ecology stage split, and schema posture (no `additionalProperties: false`; avoid manual stage `public`/`compile` unless truly needed).
   - Added per-property descriptions + JSDoc for new/changed ecology config surfaces.
+
+### M3-012 (Biomes Stripe Banding Fix) DONE
+- Draft PR: `#1233`
+- Notes:
+  - Biomes consumes Hydrology `climateIndices` (surfaceTemperatureC/aridityIndex/freezeIndex) instead of re-deriving from latitude/elevation.
+  - Added truth viz layer `ecology.biome.biomeIndex` with stable explicit categories/colors.
+  - Added regression test ensuring within-row biome variety for fixed seed (prevents horizontal banding domination).
+  - Removed remaining `additionalProperties: false` annotations in the classify-biomes schema surface per compiler-closed-object posture.
