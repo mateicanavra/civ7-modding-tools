@@ -68,8 +68,9 @@ export function classifyBiomesFromFields(args: {
       // to prevent row-perfect biome cutoffs near the tropical threshold.
       const transitionDenom = Math.max(1e-6, humidThreshold - subhumid);
       const wetness01 = clamp01((moisture - subhumid) / transitionDenom);
-      const wetnessShiftC = (wetness01 - 0.5) * 2.0; // [-1C..+1C]
-      const wetnessShiftScaleC = 0.85;
+      const wetnessShiftRaw = (wetness01 - 0.55) * 2.0;
+      const wetnessShiftC = Math.max(-1, Math.min(1, wetnessShiftRaw)); // [-1C..+1C]
+      const wetnessShiftScaleC = 1.4;
       const effectiveThreshold = tropicalThreshold - wetnessShiftC * wetnessShiftScaleC;
       tempZone = temperature >= effectiveThreshold ? "tropical" : "temperate";
     }
