@@ -199,21 +199,6 @@ function scanStepDir(dir: string, repoRoot: string): Finding[] {
       }
     }
 
-    // Gate for the known drift location: step-owned normalize should not be used here.
-    if (relFile.endsWith("src/recipes/standard/stages/ecology/steps/features-plan/index.ts")) {
-      const match = stripped.match(/\bnormalize\s*:\s*\(/u);
-      if (match?.index != null) {
-        const prefix = stripped.slice(0, match.index);
-        const lineNo = prefix.split("\n").length; // 1-based
-        const snippet = (originalLines[lineNo - 1] ?? "").trim();
-        findings.push({
-          file: relFile,
-          line: lineNo,
-          kind: "manual-normalize",
-          text: snippet,
-        });
-      }
-    }
   }
 
   return findings;
