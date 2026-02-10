@@ -18,7 +18,6 @@ import { morphologyArtifacts } from "../../morphology/artifacts.js";
 const ClimateRefineStepConfigSchema = Type.Object(
   {},
   {
-    additionalProperties: false,
     description:
       "Climate refine step config (empty). Use Hydrology knobs (dryness/temperature/cryosphere) to influence behavior deterministically.",
   }
