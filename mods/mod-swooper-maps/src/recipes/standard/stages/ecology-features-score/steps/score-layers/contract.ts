@@ -28,6 +28,16 @@ const ScoreLayersStepContract = defineStep({
     vegetationScoreTaiga: ecology.ops.scoreVegetationTaiga,
     vegetationScoreSavannaWoodland: ecology.ops.scoreVegetationSavannaWoodland,
     vegetationScoreSagebrushSteppe: ecology.ops.scoreVegetationSagebrushSteppe,
+    scoreWetMarsh: ecology.ops.scoreWetMarsh,
+    scoreWetTundraBog: ecology.ops.scoreWetTundraBog,
+    scoreWetMangrove: ecology.ops.scoreWetMangrove,
+    scoreWetOasis: ecology.ops.scoreWetOasis,
+    scoreWetWateringHole: ecology.ops.scoreWetWateringHole,
+    scoreReef: ecology.ops.scoreReef,
+    scoreColdReef: ecology.ops.scoreColdReef,
+    scoreReefAtoll: ecology.ops.scoreReefAtoll,
+    scoreReefLotus: ecology.ops.scoreReefLotus,
+    scoreIce: ecology.ops.scoreIce,
   },
   schema: Type.Object(
     {},
@@ -39,4 +49,3 @@ const ScoreLayersStepContract = defineStep({
 });
 
 export default ScoreLayersStepContract;
-
