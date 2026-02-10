@@ -49,7 +49,6 @@ export const MoistureSchema = Type.Object(
     }),
   },
   {
-    additionalProperties: false,
     description: "Effective moisture thresholds and weighting (rainfall + humidity + overlays).",
   }
 );

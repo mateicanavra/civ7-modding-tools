@@ -76,7 +76,6 @@ export const TemperatureSchema = Type.Object(
     }),
   },
   {
-    additionalProperties: false,
     description: "Temperature model parameters (degrees C, lapse rate, thresholds).",
   }
 );

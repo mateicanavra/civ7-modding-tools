@@ -2,9 +2,9 @@ import { defineVizMeta, dumpScalarFieldVariants } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clamp01 } from "@swooper/mapgen-core/lib/math";
 import BiomesStepContract from "./contract.js";
-import { buildLatitudeField } from "./helpers/inputs.js";
 import { ecologyArtifacts } from "../../artifacts.js";
 import { validateBiomeClassificationArtifact } from "../../artifact-validation.js";
+import { assertBiomeIndexVizCategoriesCoverSymbols, BIOME_INDEX_VIZ_CATEGORIES } from "./viz.js";
 
 const GROUP_BIOMES = "Ecology / Biomes";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
@@ -19,9 +19,9 @@ export default createStep(BiomesStepContract, {
     const { width, height } = context.dimensions;
 
     const climateField = deps.artifacts.climateField.read(context);
+    const climateIndices = deps.artifacts.climateIndices.read(context);
     const topography = deps.artifacts.topography.read(context);
-    const { landMask, elevation } = topography;
-    const latitude = buildLatitudeField(context.env.latitudeBounds, width, height);
+    const { landMask } = topography;
     const hydrography = deps.artifacts.hydrography.read(context);
     const cryosphere = deps.artifacts.cryosphere.read(context);
 
@@ -31,8 +31,9 @@ export default createStep(BiomesStepContract, {
         height,
         rainfall: climateField.rainfall,
         humidity: climateField.humidity,
-        elevation,
-        latitude,
+        surfaceTemperatureC: climateIndices.surfaceTemperatureC,
+        aridityIndex: climateIndices.aridityIndex,
+        freezeIndex: climateIndices.freezeIndex,
         landMask,
         riverClass: hydrography.riverClass,
       },
@@ -62,6 +63,20 @@ export default createStep(BiomesStepContract, {
       label: "Effective Moisture",
       group: GROUP_BIOMES,
       points: {},
+    });
+    assertBiomeIndexVizCategoriesCoverSymbols();
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "ecology.biome.biomeIndex",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: result.biomeIndex,
+      meta: defineVizMeta("ecology.biome.biomeIndex", {
+        label: "Biome Index",
+        group: GROUP_BIOMES,
+        palette: "categorical",
+        categories: BIOME_INDEX_VIZ_CATEGORIES,
+      }),
     });
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "ecology.biome.surfaceTemperature",
