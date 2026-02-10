@@ -14,8 +14,7 @@ export const BiomeClassificationArtifactSchema = Type.Object(
     permafrost01: Type.Any(),
     meltPotential01: Type.Any(),
     treeLine01: Type.Any(),
-  },
-  { additionalProperties: false }
+  }
 );
 
 export type BiomeClassificationArtifact = Static<typeof BiomeClassificationArtifactSchema>;
@@ -26,8 +25,7 @@ export const PedologyArtifactSchema = Type.Object(
     height: Type.Integer({ minimum: 1 }),
     soilType: Type.Any(),
     fertility: Type.Any(),
-  },
-  { additionalProperties: false }
+  }
 );
 
 export type PedologyArtifact = Static<typeof PedologyArtifactSchema>;
@@ -41,12 +39,10 @@ export const ResourceBasinsArtifactSchema = Type.Object(
           plots: Type.Array(Type.Integer({ minimum: 0 })),
           intensity: Type.Array(Type.Number({ minimum: 0 })),
           confidence: Type.Number({ minimum: 0 }),
-        },
-        { additionalProperties: false }
+        }
       )
     ),
-  },
-  { additionalProperties: false }
+  }
 );
 
 export type ResourceBasinsArtifact = Static<typeof ResourceBasinsArtifactSchema>;
@@ -94,15 +90,12 @@ export const FeaturePlacementIntentSchema = Type.Object(
     y: Type.Integer({ minimum: 0 }),
     feature: Type.String(),
     weight: Type.Optional(Type.Number()),
-  },
-  { additionalProperties: false }
+  }
 );
 
 export type FeaturePlacementIntent = Static<typeof FeaturePlacementIntentSchema>;
 
-export const FeatureIntentsListArtifactSchema = Type.Array(FeaturePlacementIntentSchema, {
-  additionalProperties: false,
-});
+export const FeatureIntentsListArtifactSchema = Type.Array(FeaturePlacementIntentSchema);
 
 export type FeatureIntentsListArtifact = Static<typeof FeatureIntentsListArtifactSchema>;
 
