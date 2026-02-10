@@ -17,6 +17,9 @@ import ScoreColdReefContract from "./reef-score-cold-reef/contract.js";
 import ScoreLotusContract from "./reef-score-lotus/contract.js";
 import ScoreReefContract from "./reef-score-reef/contract.js";
 import ScoreIceContract from "./ice-score-ice/contract.js";
+import PlotEffectsScoreSnowContract from "./plot-effects-score-snow/contract.js";
+import PlotEffectsScoreSandContract from "./plot-effects-score-sand/contract.js";
+import PlotEffectsScoreBurnedContract from "./plot-effects-score-burned/contract.js";
 import FeaturesApplyContract from "./features-apply/contract.js";
 import PedologyClassifyContract from "./pedology-classify/contract.js";
 
@@ -56,6 +59,9 @@ export const contracts = {
   scoreReefLotus: ScoreLotusContract,
   scoreIce: ScoreIceContract,
 
+  scorePlotEffectsSnow: PlotEffectsScoreSnowContract,
+  scorePlotEffectsSand: PlotEffectsScoreSandContract,
+  scorePlotEffectsBurned: PlotEffectsScoreBurnedContract,
   planPlotEffects: PlanPlotEffectsContract,
 
   planWetlands: PlanWetlandsContract,
@@ -88,6 +94,9 @@ export {
   ScoreLotusContract,
   ScoreReefContract,
   ScoreIceContract,
+  PlotEffectsScoreSnowContract,
+  PlotEffectsScoreSandContract,
+  PlotEffectsScoreBurnedContract,
   FeaturesApplyContract,
   PedologyClassifyContract,
 
