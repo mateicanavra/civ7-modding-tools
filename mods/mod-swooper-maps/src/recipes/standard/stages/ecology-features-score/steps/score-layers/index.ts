@@ -72,6 +72,131 @@ export default createStep(ScoreLayersStepContract, {
       config.featureSubstrate
     );
 
+    const marshScore = ops.scoreWetMarsh(
+      {
+        width,
+        height,
+        landMask: topography.landMask,
+        nearRiverMask: featureSubstrate.nearRiverMask,
+        water01: vegetationSubstrate.water01,
+        fertility01: vegetationSubstrate.fertility01,
+        surfaceTemperature: classification.surfaceTemperature,
+        aridityIndex: classification.aridityIndex,
+      },
+      config.scoreWetMarsh
+    ).score01;
+
+    const tundraBogScore = ops.scoreWetTundraBog(
+      {
+        width,
+        height,
+        landMask: topography.landMask,
+        nearRiverMask: featureSubstrate.nearRiverMask,
+        water01: vegetationSubstrate.water01,
+        fertility01: vegetationSubstrate.fertility01,
+        surfaceTemperature: classification.surfaceTemperature,
+        freezeIndex: classification.freezeIndex,
+      },
+      config.scoreWetTundraBog
+    ).score01;
+
+    const mangroveScore = ops.scoreWetMangrove(
+      {
+        width,
+        height,
+        landMask: topography.landMask,
+        coastalLandMask: featureSubstrate.coastalLandMask,
+        water01: vegetationSubstrate.water01,
+        fertility01: vegetationSubstrate.fertility01,
+        surfaceTemperature: classification.surfaceTemperature,
+        aridityIndex: classification.aridityIndex,
+      },
+      config.scoreWetMangrove
+    ).score01;
+
+    const oasisScore = ops.scoreWetOasis(
+      {
+        width,
+        height,
+        landMask: topography.landMask,
+        isolatedRiverMask: featureSubstrate.isolatedRiverMask,
+        water01: vegetationSubstrate.water01,
+        aridityIndex: classification.aridityIndex,
+        surfaceTemperature: classification.surfaceTemperature,
+      },
+      config.scoreWetOasis
+    ).score01;
+
+    const wateringHoleScore = ops.scoreWetWateringHole(
+      {
+        width,
+        height,
+        landMask: topography.landMask,
+        isolatedRiverMask: featureSubstrate.isolatedRiverMask,
+        water01: vegetationSubstrate.water01,
+        fertility01: vegetationSubstrate.fertility01,
+        aridityIndex: classification.aridityIndex,
+        surfaceTemperature: classification.surfaceTemperature,
+      },
+      config.scoreWetWateringHole
+    ).score01;
+
+    const reefScore = ops.scoreReef(
+      {
+        width,
+        height,
+        landMask: topography.landMask,
+        surfaceTemperature: classification.surfaceTemperature,
+        bathymetry: topography.bathymetry,
+      },
+      config.scoreReef
+    ).score01;
+
+    const coldReefScore = ops.scoreColdReef(
+      {
+        width,
+        height,
+        landMask: topography.landMask,
+        surfaceTemperature: classification.surfaceTemperature,
+        bathymetry: topography.bathymetry,
+      },
+      config.scoreColdReef
+    ).score01;
+
+    const atollScore = ops.scoreReefAtoll(
+      {
+        width,
+        height,
+        landMask: topography.landMask,
+        surfaceTemperature: classification.surfaceTemperature,
+        bathymetry: topography.bathymetry,
+      },
+      config.scoreReefAtoll
+    ).score01;
+
+    const lotusScore = ops.scoreReefLotus(
+      {
+        width,
+        height,
+        landMask: topography.landMask,
+        surfaceTemperature: classification.surfaceTemperature,
+        bathymetry: topography.bathymetry,
+      },
+      config.scoreReefLotus
+    ).score01;
+
+    const iceScore = ops.scoreIce(
+      {
+        width,
+        height,
+        landMask: topography.landMask,
+        surfaceTemperature: classification.surfaceTemperature,
+        elevation: topography.elevation,
+        freezeIndex: classification.freezeIndex,
+      },
+      config.scoreIce
+    ).score01;
+
     deps.artifacts.scoreLayers.publish(context, {
       width,
       height,
@@ -81,16 +206,16 @@ export default createStep(ScoreLayersStepContract, {
         FEATURE_TAIGA: taigaScore,
         FEATURE_SAVANNA_WOODLAND: savannaWoodlandScore,
         FEATURE_SAGEBRUSH_STEPPE: sagebrushSteppeScore,
-        FEATURE_MARSH: new Float32Array(size),
-        FEATURE_TUNDRA_BOG: new Float32Array(size),
-        FEATURE_MANGROVE: new Float32Array(size),
-        FEATURE_OASIS: new Float32Array(size),
-        FEATURE_WATERING_HOLE: new Float32Array(size),
-        FEATURE_REEF: new Float32Array(size),
-        FEATURE_COLD_REEF: new Float32Array(size),
-        FEATURE_ATOLL: new Float32Array(size),
-        FEATURE_LOTUS: new Float32Array(size),
-        FEATURE_ICE: new Float32Array(size),
+        FEATURE_MARSH: marshScore,
+        FEATURE_TUNDRA_BOG: tundraBogScore,
+        FEATURE_MANGROVE: mangroveScore,
+        FEATURE_OASIS: oasisScore,
+        FEATURE_WATERING_HOLE: wateringHoleScore,
+        FEATURE_REEF: reefScore,
+        FEATURE_COLD_REEF: coldReefScore,
+        FEATURE_ATOLL: atollScore,
+        FEATURE_LOTUS: lotusScore,
+        FEATURE_ICE: iceScore,
       },
     });
 
@@ -111,4 +236,3 @@ export default createStep(ScoreLayersStepContract, {
     });
   },
 });
-
