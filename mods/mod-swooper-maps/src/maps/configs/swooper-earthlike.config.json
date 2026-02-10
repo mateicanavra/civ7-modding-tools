@@ -782,14 +782,14 @@
             "selector": {
               "typeName": "PLOTEFFECT_SAND"
             },
-            "coveragePct": 32,
+            "coveragePct": 32
           },
           "burned": {
             "enabled": true,
             "selector": {
               "typeName": "PLOTEFFECT_BURNED"
             },
-            "coveragePct": 6,
+            "coveragePct": 6
           }
         }
       }
