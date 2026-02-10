@@ -124,25 +124,25 @@ export default createStep(FeaturesPlanStepContract, {
       config.vegetationSubstrate
     );
 
-    const forestScore = ops.scoreVegetationForest(
+    const forestScore = ops.scoreForest(
       { width, height, landMask: topography.landMask, ...vegetationSubstrate },
-      config.scoreVegetationForest
+      config.scoreForest
     ).score01;
-    const rainforestScore = ops.scoreVegetationRainforest(
+    const rainforestScore = ops.scoreRainforest(
       { width, height, landMask: topography.landMask, ...vegetationSubstrate },
-      config.scoreVegetationRainforest
+      config.scoreRainforest
     ).score01;
-    const taigaScore = ops.scoreVegetationTaiga(
+    const taigaScore = ops.scoreTaiga(
       { width, height, landMask: topography.landMask, ...vegetationSubstrate },
-      config.scoreVegetationTaiga
+      config.scoreTaiga
     ).score01;
-    const savannaWoodlandScore = ops.scoreVegetationSavannaWoodland(
+    const savannaWoodlandScore = ops.scoreSavannaWoodland(
       { width, height, landMask: topography.landMask, ...vegetationSubstrate },
-      config.scoreVegetationSavannaWoodland
+      config.scoreSavannaWoodland
     ).score01;
-    const sagebrushSteppeScore = ops.scoreVegetationSagebrushSteppe(
+    const sagebrushSteppeScore = ops.scoreSagebrushSteppe(
       { width, height, landMask: topography.landMask, ...vegetationSubstrate },
-      config.scoreVegetationSagebrushSteppe
+      config.scoreSagebrushSteppe
     ).score01;
 
     const vegetationPlacements: Array<{
