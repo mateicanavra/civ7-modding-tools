@@ -298,7 +298,7 @@ const plotEffectsConfig = {
           typeName: "PLOTEFFECT_SNOW_HEAVY_PERMANENT",
         },
       },
-      coverageChance: 70,
+      coveragePct: 70,
       freezeWeight: 1.1,
       elevationWeight: 0.9,
       moistureWeight: 0.7,
@@ -322,7 +322,7 @@ const plotEffectsConfig = {
       selector: {
         typeName: "PLOTEFFECT_SAND",
       },
-      chance: 6,
+      coveragePct: 6,
       minAridity: 0.65,
       minTemperature: 20,
       maxFreeze: 0.25,
@@ -335,7 +335,7 @@ const plotEffectsConfig = {
       selector: {
         typeName: "PLOTEFFECT_BURNED",
       },
-      chance: 6,
+      coveragePct: 6,
       minAridity: 0.5,
       minTemperature: 22,
       maxFreeze: 0.2,

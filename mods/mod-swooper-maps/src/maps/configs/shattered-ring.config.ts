@@ -398,7 +398,7 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
                 typeName: "PLOTEFFECT_SNOW_HEAVY_PERMANENT",
               },
             },
-            coverageChance: 55,
+            coveragePct: 55,
             freezeWeight: 1.0,
             elevationWeight: 1.0,
             moistureWeight: 0.6,
@@ -422,7 +422,7 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
             selector: {
               typeName: "PLOTEFFECT_SAND",
             },
-            chance: 10,
+            coveragePct: 10,
             minAridity: 0.65,
             minTemperature: 22,
             maxFreeze: 0.25,
@@ -438,7 +438,7 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
             selector: {
               typeName: "PLOTEFFECT_BURNED",
             },
-            chance: 16,            // More volcanic scorched earth
+            coveragePct: 16,       // More volcanic scorched earth
             minAridity: 0.42,      // Capture more volcanic tiles
             minTemperature: 18,
             maxFreeze: 0.25,

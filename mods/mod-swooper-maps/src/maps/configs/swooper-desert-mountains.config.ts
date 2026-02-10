@@ -388,7 +388,7 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
                 typeName: "PLOTEFFECT_SNOW_HEAVY_PERMANENT",
               },
             },
-            coverageChance: 35,
+            coveragePct: 35,
             freezeWeight: 1,
             elevationWeight: 1.2,
             moistureWeight: 0.4,
@@ -412,7 +412,7 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
             selector: {
               typeName: "PLOTEFFECT_SAND",
             },
-            chance: 38,            // Aggressive for desert world
+            coveragePct: 38,       // Aggressive for desert world
             minAridity: 0.48,      // Capture more arid tiles
             minTemperature: 18,    // Include cooler desert edges
             maxFreeze: 0.2,
@@ -428,7 +428,7 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
             selector: {
               typeName: "PLOTEFFECT_BURNED",
             },
-            chance: 14,            // More scorched earth
+            coveragePct: 14,       // More scorched earth
             minAridity: 0.55,      // Capture more tiles
             minTemperature: 22,
             maxFreeze: 0.15,
