@@ -1,24 +1,24 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import FeaturesApplyContract from "../contract.js";
 type Placement = { x: number; y: number; feature: string; weight?: number };
 
 export const defaultStrategy = createStrategy(FeaturesApplyContract, "default", {
   run: (input, config) => {
-    const rng = createLabelRng(1337);
+    // Stamping is strict in M3: no probabilistic gating and no silent drops.
+    // Any collision (multiple placements for a tile) is treated as a bug and fails loudly.
     const seen = new Map<number, Placement[]>();
     const merge = (placements: Placement[]) => {
       for (const placement of placements) {
-        const weight = placement.weight ?? 1;
-        if (weight <= 0) continue;
-        if (weight < 1) {
-          const r = rng(1_000_000, `feature:${placement.feature}:${placement.x},${placement.y}`) / 1_000_000;
-          if (r >= weight) continue;
-        }
-        const key = placement.y * 65536 + placement.x;
+        const x = placement.x | 0;
+        const y = placement.y | 0;
+        const key = y * 65536 + x;
         const list = seen.get(key) ?? [];
-        if (list.length >= config.maxPerTile) continue;
-        list.push(placement);
+        if (list.length >= config.maxPerTile) {
+          throw new Error(
+            `features-apply collision: tile=(${x},${y}) has >${config.maxPerTile} placements (example feature=${placement.feature})`
+          );
+        }
+        list.push({ ...placement, x, y });
         seen.set(key, list);
       }
     };
@@ -27,9 +27,12 @@ export const defaultStrategy = createStrategy(FeaturesApplyContract, "default", 
     merge(input.wetlands);
     merge(input.vegetation);
 
+    // Deterministic application order: sort by tile key (y-major, then x), preserving merge order within a tile.
+    const keys = [...seen.keys()].sort((a, b) => a - b);
     const merged: Placement[] = [];
-    for (const values of seen.values()) {
-      merged.push(...values);
+    for (const key of keys) {
+      const values = seen.get(key);
+      if (values) merged.push(...values);
     }
 
     return { placements: merged };
