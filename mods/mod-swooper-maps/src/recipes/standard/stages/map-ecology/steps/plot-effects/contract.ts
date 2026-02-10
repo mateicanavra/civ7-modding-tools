@@ -14,6 +14,9 @@ const PlotEffectsStepContract = defineStep({
     requires: [morphologyArtifacts.topography, ecologyArtifacts.biomeClassification],
   },
   ops: {
+    scoreSnow: ecology.ops.scorePlotEffectsSnow,
+    scoreSand: ecology.ops.scorePlotEffectsSand,
+    scoreBurned: ecology.ops.scorePlotEffectsBurned,
     plotEffects: ecology.ops.planPlotEffects,
   },
   schema: Type.Object(
