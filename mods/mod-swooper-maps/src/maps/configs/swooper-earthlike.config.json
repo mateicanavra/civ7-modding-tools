@@ -604,9 +604,12 @@
   },
   "ecology-vegetation": {
     "knobs": {},
-    "features-plan": {
-      "vegetation": {
-        "minScoreThreshold": 0.15
+    "plan-vegetation": {
+      "planVegetation": {
+        "strategy": "default",
+        "config": {
+          "minScore01": 0.15
+        }
       }
     }
   },

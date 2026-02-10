@@ -23,6 +23,7 @@ import scoreIce from "./ice-score-ice/index.js";
 import planWetlands from "./features-plan-wetlands/index.js";
 import planReefs from "./features-plan-reefs/index.js";
 import planIce from "./features-plan-ice/index.js";
+import planVegetation from "./features-plan-vegetation/index.js";
 
 import classifyBiomes from "./classify-biomes/index.js";
 import classifyPedology from "./pedology-classify/index.js";
@@ -64,6 +65,7 @@ const implementations = {
   planWetlands,
   planReefs,
   planIce,
+  planVegetation,
 
   applyFeatures,
 } as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
@@ -93,6 +95,7 @@ export {
   planWetlands,
   planReefs,
   planIce,
+  planVegetation,
 
   classifyBiomes,
   classifyPedology,
