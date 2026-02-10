@@ -2,15 +2,15 @@
 
 ## Breadcrumbs
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-MAMBO-M3-ecology-physics-first`
-- Branch: `codex/MAMBO-m3-003-scorelayers-artifact-and-score-ops` (parent: `codex/MAMBO-m3-002-stage-split-earth-system-first`; base: `main`)
+- Branch: `codex/MAMBO-m3-004-plan-ice-deterministic` (parent: `codex/MAMBO-m3-003-scorelayers-artifact-and-score-ops`; base: `main`)
 - Packet: `docs/projects/pipeline-realism/resources/packets/PACKET-M3-ecology-physics-first/`
   - Authority order: `VISION.md` -> `TOPOLOGY.md` -> `CONTRACTS.md` -> `DECISIONS.md`
-- Current issue: `docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M3-003-scorelayers-artifact-schema-and-independent-per-feature-score-ops.md`
+- Current issue: `docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M3-004-deterministic-planning-ice-consume-scorelayers-and-occupancy.md`
 
 ## Slice Checklist (M3-001..009)
 - [x] M3-001 Packet harden: topology/contracts/gates (verification-only unless drift)
 - [x] M3-002 Stage split: earth-system-first truth stages + recipe wiring cutover
-- [ ] M3-003 ScoreLayers: schema + independent per-feature score ops + base occupancy
+- [x] M3-003 ScoreLayers: schema + independent per-feature score ops + base occupancy
 - [ ] M3-004 Deterministic planning: ice (consume scoreLayers + occupancy; publish intents + snapshot)
 - [ ] M3-005 Deterministic planning: reefs (consume scoreLayers + occupancy; add missing reef-family features)
 - [ ] M3-006 Deterministic planning: wetlands (joint resolver; no disabled strategies)
@@ -22,7 +22,7 @@ Future slices (post M3-009):
 - [ ] M3-010 Post-cutover cleanup (dedicated cleanup slice; after M3-009)
 - [ ] M3-011 Canonical docs sweep (dedicated docs sweep; after M3-010)
 
-Current pointer: **M3-003** (keep pointer on M3-003 until the PR is submitted)
+Current pointer: **M3-004**
 
 ## Gates Checklist (Hard, Forward-Only)
 - [ ] No legacy shims/dual paths/wrappers
