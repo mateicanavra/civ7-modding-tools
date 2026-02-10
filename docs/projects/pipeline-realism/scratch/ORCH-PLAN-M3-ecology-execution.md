@@ -33,6 +33,17 @@ Current pointer: **M3-003** (keep pointer on M3-003 until the PR is submitted)
 - [ ] Stage authoring invariant: stage config surface is 1:1 with internal step ids
   - Do **not** define stage `public` + `compile` unless intentionally defining a dedicated public config schema (rare)
   - Stage `public`/`compile` aliasing was removed from M3 ecology stages
+  - Avoid `additionalProperties: false` (compiler already enforces closed objects)
+  - Avoid manual type annotations in step/stage `run` handler params when inference already provides it
 - [ ] Uniform model: scoreLayers first, then ordered planners with explicit occupancy snapshots (ice -> reefs -> wetlands -> vegetation)
 - [ ] Projection stamping strict: `map-ecology/features-apply` must not drop placements or randomly gate
   - Rejections fail gates
+- [ ] Preset invariant: keep default presets in sync with stage/step ids (prevent silently ignored config)
+  - `mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json` is the default preset for standard recipe defaults
+- [ ] Naming invariant: step-facing score op keys start with `score*`
+  - Vegetation score step keys: `scoreForest|scoreRainforest|scoreTaiga|scoreSavannaWoodland|scoreSagebrushSteppe`
+- [ ] Schema invariant: prefer `TypedArraySchemas.*` over `Type.Any()` for typed arrays (artifacts/config); only keep `Any` with written rationale
+- [ ] Slice-end command gates (run and record each slice)
+  - `bun --cwd mods/mod-swooper-maps test test/ecology`
+  - `bun run build`
+  - `timeout 20s bun run dev:mapgen-studio` (exit code 124 OK if it started; fail only on early crash)
