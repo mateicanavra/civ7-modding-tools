@@ -327,8 +327,8 @@
       "computeThermalState": {
         "strategy": "default",
         "config": {
-          "baseTemperatureC": 14,
-          "insolationScaleC": 28,
+          "baseTemperatureC": 9,
+          "insolationScaleC": 47,
           "lapseRateCPerM": -0.0065,
           "landCoolingC": 2,
           "minC": -40,
@@ -399,15 +399,15 @@
         "strategy": "default",
         "config": {
           "equatorInsolation": 1,
-          "poleInsolation": 0.35,
+          "poleInsolation": 0.25,
           "latitudeExponent": 1.2
         }
       },
       "computeThermalState": {
         "strategy": "default",
         "config": {
-          "baseTemperatureC": 14,
-          "insolationScaleC": 28,
+          "baseTemperatureC": 9,
+          "insolationScaleC": 47,
           "lapseRateCPerM": -0.0065,
           "landCoolingC": 2,
           "minC": -40,
