@@ -601,7 +601,7 @@ describe("ecology op contract surfaces", () => {
           elevationStrategy: "absolute",
           elevationMin: 0,
           elevationMax: 3000,
-          coverageChance: 100,
+          coveragePct: 100,
           lightThreshold: 0,
           mediumThreshold: 0,
           heavyThreshold: 0,

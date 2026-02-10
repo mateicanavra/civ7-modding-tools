@@ -400,7 +400,7 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
                 typeName: "PLOTEFFECT_SNOW_HEAVY_PERMANENT",
               },
             },
-            coverageChance: 35,           // Reduced for tropical world
+            coveragePct: 35,              // Reduced for tropical world
             freezeWeight: 0.9,
             elevationWeight: 0.8,
             moistureWeight: 0.7,
@@ -424,7 +424,7 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
             selector: {
               typeName: "PLOTEFFECT_SAND",
             },
-            chance: 5,
+            coveragePct: 5,
             minAridity: 0.7,
             minTemperature: 24,
             maxFreeze: 0.2,
@@ -440,7 +440,7 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
             selector: {
               typeName: "PLOTEFFECT_BURNED",
             },
-            chance: 4,
+            coveragePct: 4,
             minAridity: 0.65,
             minTemperature: 26,
             maxFreeze: 0.15,
