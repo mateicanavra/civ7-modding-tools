@@ -6,7 +6,7 @@
 - Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`, M3-006 `#1227`, M3-007 `#1228`, M3-008 `#1229`, M3-009 `#1230`
 - Packet: `docs/projects/pipeline-realism/resources/packets/PACKET-M3-ecology-physics-first/`
   - Authority order: `VISION.md` -> `TOPOLOGY.md` -> `CONTRACTS.md` -> `DECISIONS.md`
-- Current issue: `docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M3-009-delete-legacy-chance-and-multiplier-paths-update-tests-and-viz-inventories.md`
+- Current issue: (TBD) M3-010 post-cutover cleanup (issue doc not yet authored)
 
 ## Slice Checklist (M3-001..009)
 - [x] M3-001 Packet harden: topology/contracts/gates (verification-only unless drift)
