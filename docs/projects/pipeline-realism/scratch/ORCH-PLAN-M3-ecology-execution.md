@@ -2,10 +2,10 @@
 
 ## Breadcrumbs
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-MAMBO-M3-ecology-physics-first`
-- Branch: `codex/MAMBO-m3-002-stage-split-earth-system-first` (base: `main`)
+- Branch: `codex/MAMBO-m3-003-scorelayers-artifact-and-score-ops` (parent: `codex/MAMBO-m3-002-stage-split-earth-system-first`; base: `main`)
 - Packet: `docs/projects/pipeline-realism/resources/packets/PACKET-M3-ecology-physics-first/`
   - Authority order: `VISION.md` -> `TOPOLOGY.md` -> `CONTRACTS.md` -> `DECISIONS.md`
-- Current issue: `docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M3-002-stage-split-ecology-into-earth-system-first-truth-stages-and-wire-recipe.md`
+- Current issue: `docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M3-003-scorelayers-artifact-schema-and-independent-per-feature-score-ops.md`
 
 ## Slice Checklist (M3-001..009)
 - [x] M3-001 Packet harden: topology/contracts/gates (verification-only unless drift)
@@ -22,7 +22,7 @@ Future slices (post M3-009):
 - [ ] M3-010 Post-cutover cleanup (dedicated cleanup slice; after M3-009)
 - [ ] M3-011 Canonical docs sweep (dedicated docs sweep; after M3-010)
 
-Current pointer: **M3-003**
+Current pointer: **M3-003** (keep pointer on M3-003 until the PR is submitted)
 
 ## Gates Checklist (Hard, Forward-Only)
 - [ ] No legacy shims/dual paths/wrappers
@@ -30,6 +30,9 @@ Current pointer: **M3-003**
 - [ ] No output fudging: no chance %, no multipliers gating existence, no probabilistic edges/jitter
   - Seeded RNG allowed only for tie-breaking equal scores
 - [ ] Ops are atomic and never call ops; steps orchestrate
+- [ ] Stage authoring invariant: stage config surface is 1:1 with internal step ids
+  - Do **not** define stage `public` + `compile` unless intentionally defining a dedicated public config schema (rare)
+  - Stage `public`/`compile` aliasing was removed from M3 ecology stages
 - [ ] Uniform model: scoreLayers first, then ordered planners with explicit occupancy snapshots (ice -> reefs -> wetlands -> vegetation)
 - [ ] Projection stamping strict: `map-ecology/features-apply` must not drop placements or randomly gate
   - Rejections fail gates
