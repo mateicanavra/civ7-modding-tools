@@ -23,6 +23,7 @@ import PedologyClassifyContract from "./pedology-classify/contract.js";
 import PlanIceContract from "./features-plan-ice/contract.js";
 import PlanPlotEffectsContract from "./plan-plot-effects/contract.js";
 import PlanReefsContract from "./features-plan-reefs/contract.js";
+import PlanVegetationContract from "./features-plan-vegetation/contract.js";
 
 import PlanWetlandsContract from "./features-plan-wetlands/contract.js";
 import RefineBiomeEdgesContract from "./refine-biome-edges/contract.js";
@@ -60,6 +61,7 @@ export const contracts = {
   planWetlands: PlanWetlandsContract,
   planReefs: PlanReefsContract,
   planIce: PlanIceContract,
+  planVegetation: PlanVegetationContract,
 
   applyFeatures: FeaturesApplyContract,
 } as const;
@@ -92,6 +94,7 @@ export {
   PlanIceContract,
   PlanPlotEffectsContract,
   PlanReefsContract,
+  PlanVegetationContract,
 
   PlanWetlandsContract,
   RefineBiomeEdgesContract,

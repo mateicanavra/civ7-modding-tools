@@ -1,6 +1,5 @@
 import pedology from "./pedology/index.js";
 import resourceBasins from "./resource-basins/index.js";
 import biomes from "./biomes/index.js";
-import featuresPlan from "./features-plan/index.js";
 
-export const steps = { pedology, resourceBasins, biomes, featuresPlan };
+export const steps = { pedology, resourceBasins, biomes };

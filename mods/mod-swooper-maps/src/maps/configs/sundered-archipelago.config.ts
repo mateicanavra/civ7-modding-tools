@@ -365,8 +365,8 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
   },
   "ecology-vegetation": {
     knobs: {},
-    "features-plan": {
-      vegetation: { minScoreThreshold: 0.15 }, // Vegetation intent threshold
+    "plan-vegetation": {
+      planVegetation: { strategy: "default", config: { minScore01: 0.15 } },
     },
   },
   "map-ecology": {
