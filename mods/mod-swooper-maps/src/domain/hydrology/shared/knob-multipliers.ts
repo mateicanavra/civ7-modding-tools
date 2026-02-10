@@ -14,9 +14,9 @@ export const HYDROLOGY_DRYNESS_WETNESS_SCALE = {
 } as const satisfies Record<HydrologyDrynessKnob, number>;
 
 export const HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C = {
-  cold: 6,
-  temperate: 14,
-  hot: 22,
+  cold: 4,
+  temperate: 9,
+  hot: 14,
 } as const satisfies Record<HydrologyTemperatureKnob, number>;
 
 export const HYDROLOGY_SEASONALITY_WIND_JET_STREAKS = {
