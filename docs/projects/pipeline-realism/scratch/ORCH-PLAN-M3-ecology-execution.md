@@ -2,11 +2,11 @@
 
 ## Breadcrumbs
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-MAMBO-M3-ecology-physics-first`
-- Branch: `codex/MAMBO-m3-007-plan-vegetation-deterministic` (parent: `codex/MAMBO-m3-006-plan-wetlands-deterministic`; base: `main`)
+- Branch: `codex/MAMBO-m3-008-stamping-strict-features-apply` (parent: `codex/MAMBO-m3-007-plan-vegetation-deterministic`; base: `main`)
 - Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`, M3-006 `#1227`, M3-007 `#1228`
 - Packet: `docs/projects/pipeline-realism/resources/packets/PACKET-M3-ecology-physics-first/`
   - Authority order: `VISION.md` -> `TOPOLOGY.md` -> `CONTRACTS.md` -> `DECISIONS.md`
-- Current issue: `docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M3-007-deterministic-planning-vegetation-joint-resolver-over-score-layers.md`
+- Current issue: `docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M3-008-projection-stamping-strictness-features-apply-must-not-drop-or-randomly-gate.md`
 
 ## Slice Checklist (M3-001..009)
 - [x] M3-001 Packet harden: topology/contracts/gates (verification-only unless drift)
@@ -77,5 +77,7 @@ Current pointer: **M3-008**
 - Key behavior: Vegetation planning is deterministic (seeded tie-break for exact equal scores only) and joint-resolved inside `ops.planVegetation`, consuming `artifact:ecology.scoreLayers` + explicit occupancy.
 - Gates (local):
   - `bun --cwd mods/mod-swooper-maps test test/ecology` PASS
+  - `diag:dump` rerun + `diag:diff` mismatches `0` (runId `b391a4d0...`)
+  - static scan: remaining `rollPercent|chance|multiplier` hits only in `plan-plot-effects` + a `noise.schema.ts` docstring
   - `bun run build` PASS
-  - `timeout 20s bun run dev:mapgen-studio` exit `124` OK
+  - `timeout 20s bun run dev:mapgen-studio` reached Vite READY (exit `124` OK)
