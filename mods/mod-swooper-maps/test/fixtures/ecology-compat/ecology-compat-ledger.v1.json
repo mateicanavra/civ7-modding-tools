@@ -2,14 +2,27 @@
   "version": 1,
   "stageIds": {
     "truth": "ecology",
-    "projection": "map-ecology"
+    "projection": "map-ecology",
+    "truthStages": [
+      "ecology-pedology",
+      "ecology-biomes",
+      "ecology-features-score",
+      "ecology-ice",
+      "ecology-reefs",
+      "ecology-wetlands",
+      "ecology-vegetation"
+    ]
   },
   "stepIds": {
     "ecology": [
-      "mod-swooper-maps.standard.ecology.pedology",
-      "mod-swooper-maps.standard.ecology.resource-basins",
-      "mod-swooper-maps.standard.ecology.biomes",
-      "mod-swooper-maps.standard.ecology.features-plan"
+      "mod-swooper-maps.standard.ecology-pedology.pedology",
+      "mod-swooper-maps.standard.ecology-pedology.resource-basins",
+      "mod-swooper-maps.standard.ecology-biomes.biomes",
+      "mod-swooper-maps.standard.ecology-features-score.score-layers",
+      "mod-swooper-maps.standard.ecology-ice.plan-ice",
+      "mod-swooper-maps.standard.ecology-reefs.plan-reefs",
+      "mod-swooper-maps.standard.ecology-wetlands.plan-wetlands",
+      "mod-swooper-maps.standard.ecology-vegetation.plan-vegetation"
     ],
     "mapEcology": [
       "mod-swooper-maps.standard.map-ecology.plot-biomes",
@@ -22,6 +35,12 @@
       "artifact:ecology.soils",
       "artifact:ecology.resourceBasins",
       "artifact:ecology.biomeClassification",
+      "artifact:ecology.scoreLayers",
+      "artifact:ecology.occupancy.base",
+      "artifact:ecology.occupancy.ice",
+      "artifact:ecology.occupancy.reefs",
+      "artifact:ecology.occupancy.wetlands",
+      "artifact:ecology.occupancy.vegetation",
       "artifact:ecology.featureIntents.vegetation",
       "artifact:ecology.featureIntents.wetlands",
       "artifact:ecology.featureIntents.reefs",
@@ -32,5 +51,11 @@
     "version": 1,
     "path": "test/fixtures/viz-keys/ecology-vizkeys-v1.txt"
   },
-  "determinismLabels": ["ecology:planFeatureIntents", "ecology:planPlotEffects"]
+  "determinismLabels": [
+    "ecology:planIce",
+    "ecology:planReefs",
+    "ecology:planWetlands",
+    "ecology:planVegetation",
+    "ecology:planPlotEffects"
+  ]
 }
