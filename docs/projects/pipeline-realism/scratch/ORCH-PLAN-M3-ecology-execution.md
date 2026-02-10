@@ -3,7 +3,7 @@
 ## Breadcrumbs
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-MAMBO-M3-ecology-physics-first`
 - Branch: `codex/MAMBO-m3-009-cleanup-delete-legacy-chance` (parent: `codex/MAMBO-m3-008-stamping-strict-features-apply`; base: `main`)
-- Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`, M3-006 `#1227`, M3-007 `#1228`, M3-008 `#1229`
+- Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`, M3-006 `#1227`, M3-007 `#1228`, M3-008 `#1229`, M3-009 `#1230`
 - Packet: `docs/projects/pipeline-realism/resources/packets/PACKET-M3-ecology-physics-first/`
   - Authority order: `VISION.md` -> `TOPOLOGY.md` -> `CONTRACTS.md` -> `DECISIONS.md`
 - Current issue: `docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M3-009-delete-legacy-chance-and-multiplier-paths-update-tests-and-viz-inventories.md`
@@ -17,13 +17,13 @@
 - [x] M3-006 Deterministic planning: wetlands (joint resolver; no disabled strategies)
 - [x] M3-007 Deterministic planning: vegetation (joint resolver over score layers)
 - [x] M3-008 Projection strictness: stamping must not drop placements or randomly gate (add gates)
-- [ ] M3-009 Cleanup: delete chance/multiplier paths; update tests + viz inventories (and enforce explicit viz palettes)
+- [x] M3-009 Cleanup: delete chance/multiplier paths; update tests + viz inventories (and enforce explicit viz palettes)
 
 Future slices (post M3-009):
 - [ ] M3-010 Post-cutover cleanup (dedicated cleanup slice; after M3-009)
 - [ ] M3-011 Canonical docs sweep (dedicated docs sweep; after M3-010)
 
-Current pointer: **M3-009**
+Current pointer: **M3-010**
 
 ## Gates Checklist (Hard, Forward-Only)
 - [ ] No legacy shims/dual paths/wrappers
@@ -89,5 +89,15 @@ Current pointer: **M3-009**
   - `bun --cwd mods/mod-swooper-maps test test/ecology` PASS
   - `diag:dump` rerun + `diag:diff` mismatches `0` (runId `b391a4d0...`, label `m3-stamp`)
   - static scan: no `rollPercent|chance|createLabelRng(` in `ops/features-apply`
+  - `bun run build` PASS
+  - `timeout 20s bun run dev:mapgen-studio` reached Vite READY (exit `124` OK)
+
+### M3-009 (No-Fudging Cleanup) DONE
+- Draft PR: `#1230`
+- Key behavior: `plot-effects` is deterministic top-coverage selection (seeded tie-break only), and the ecology baseline fixtures now explicitly track M3 truth artifacts (scoreLayers + occupancy chain) and viz keys.
+- Gates (local):
+  - `bun --cwd mods/mod-swooper-maps test test/ecology` PASS
+  - `diag:dump` rerun + `diag:diff` mismatches `0` (runId `ad6048a12...`, labels `m3-final-a`/`m3-final-b`)
+  - static scan: no `rollPercent|coverageChance|chance|multiplier` hits in ecology planning surfaces (also gated by `no-fudging-static-scan` test)
   - `bun run build` PASS
   - `timeout 20s bun run dev:mapgen-studio` reached Vite READY (exit `124` OK)
