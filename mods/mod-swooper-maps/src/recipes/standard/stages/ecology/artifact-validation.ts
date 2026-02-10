@@ -1,10 +1,13 @@
 import type { MapDimensions } from "@civ7/adapter";
 import type {
   BiomeClassificationArtifact,
+  OccupancyArtifact,
   FeatureIntentsListArtifact,
   PedologyArtifact,
   ResourceBasinsArtifact,
+  ScoreLayersArtifact,
 } from "./artifacts.js";
+import { FEATURE_PLACEMENT_KEYS } from "@mapgen/domain/ecology";
 
 export type ArtifactValidationIssue = Readonly<{ message: string }>;
 
@@ -83,6 +86,28 @@ function isFeatureIntentsListArtifact(value: unknown): value is FeatureIntentsLi
   return Array.isArray(value);
 }
 
+function isScoreLayersArtifact(value: unknown): value is ScoreLayersArtifact {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as ScoreLayersArtifact;
+  if (typeof candidate.width !== "number" || typeof candidate.height !== "number") return false;
+  if (!isRecord(candidate.layers)) return false;
+  for (const key of FEATURE_PLACEMENT_KEYS) {
+    if (!((candidate.layers as Record<string, unknown>)[key] instanceof Float32Array)) return false;
+  }
+  return true;
+}
+
+function isOccupancyArtifact(value: unknown): value is OccupancyArtifact {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as OccupancyArtifact;
+  return (
+    typeof candidate.width === "number" &&
+    typeof candidate.height === "number" &&
+    candidate.featureIndex instanceof Uint16Array &&
+    candidate.reserved instanceof Uint8Array
+  );
+}
+
 export function validateBiomeClassificationArtifact(
   value: unknown,
   dimensions: MapDimensions
@@ -148,5 +173,42 @@ export function validateFeatureIntentsListArtifact(
     errors.push({ message: "Invalid feature intents artifact payload." });
     return errors;
   }
+  return errors;
+}
+
+export function validateScoreLayersArtifact(
+  value: unknown,
+  dimensions: MapDimensions
+): ArtifactValidationIssue[] {
+  const errors: ArtifactValidationIssue[] = [];
+  if (!isScoreLayersArtifact(value)) {
+    errors.push({ message: "Invalid score layers artifact payload." });
+    return errors;
+  }
+  const size = expectedSize(dimensions);
+  if (value.width !== dimensions.width || value.height !== dimensions.height) {
+    errors.push({ message: "Score layers dimensions mismatch." });
+  }
+  for (const key of FEATURE_PLACEMENT_KEYS) {
+    validateTypedArray(errors, `layers.${key}`, value.layers[key], Float32Array, size);
+  }
+  return errors;
+}
+
+export function validateOccupancyArtifact(
+  value: unknown,
+  dimensions: MapDimensions
+): ArtifactValidationIssue[] {
+  const errors: ArtifactValidationIssue[] = [];
+  if (!isOccupancyArtifact(value)) {
+    errors.push({ message: "Invalid occupancy artifact payload." });
+    return errors;
+  }
+  const size = expectedSize(dimensions);
+  if (value.width !== dimensions.width || value.height !== dimensions.height) {
+    errors.push({ message: "Occupancy dimensions mismatch." });
+  }
+  validateTypedArray(errors, "featureIndex", value.featureIndex, Uint16Array, size);
+  validateTypedArray(errors, "reserved", value.reserved, Uint8Array, size);
   return errors;
 }
