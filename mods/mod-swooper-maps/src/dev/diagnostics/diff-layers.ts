@@ -1,4 +1,4 @@
-import { parseArgs, loadManifest, listLayers, readU8Grid, readI16Grid, hammingU8 } from "./shared.js";
+import { parseArgs, loadManifest, listLayers, readU8Grid, readI16Grid, readF32Grid, hammingU8 } from "./shared.js";
 
 type DiffRow = Readonly<{
   dataTypeKey: string;
@@ -8,6 +8,7 @@ type DiffRow = Readonly<{
   format: string | null;
   hamming?: number;
   hammingPct?: number;
+  maxAbsDiff?: number;
   note?: string;
 }>;
 
@@ -140,6 +141,58 @@ function main(): void {
       });
       continue;
     }
+    if (format === "f32") {
+      const layerA = manifestA.layers.find(
+        (l) =>
+          l.stepId === a.stepId &&
+          l.dataTypeKey === a.dataTypeKey &&
+          (l.variantKey ?? null) === variantKey &&
+          l.field?.data?.path === a.path
+      );
+      const layerB = manifestB.layers.find(
+        (l) =>
+          l.stepId === b.stepId &&
+          l.dataTypeKey === b.dataTypeKey &&
+          (l.variantKey ?? null) === variantKey &&
+          l.field?.data?.path === b.path
+      );
+      if (!layerA || !layerB) continue;
+      const gA = readF32Grid(runDirA, layerA);
+      const gB = readF32Grid(runDirB, layerB);
+      if (gA.values.length !== gB.values.length) {
+        diffs.push({
+          dataTypeKey: a.dataTypeKey,
+          variantKey,
+          stepIdA: a.stepId,
+          stepIdB: b.stepId,
+          format,
+          note: "length mismatch",
+        });
+        continue;
+      }
+      let diff = 0;
+      let maxAbsDiff = 0;
+      for (let i = 0; i < gA.values.length; i++) {
+        const va = gA.values[i]!;
+        const vb = gB.values[i]!;
+        if (Object.is(va, vb)) continue;
+        if (Number.isNaN(va) && Number.isNaN(vb)) continue;
+        diff++;
+        const abs = Math.abs(va - vb);
+        if (abs > maxAbsDiff) maxAbsDiff = abs;
+      }
+      diffs.push({
+        dataTypeKey: a.dataTypeKey,
+        variantKey,
+        stepIdA: a.stepId,
+        stepIdB: b.stepId,
+        format,
+        hamming: diff,
+        hammingPct: gA.values.length > 0 ? diff / gA.values.length : 0,
+        maxAbsDiff,
+      });
+      continue;
+    }
 
     diffs.push({
       dataTypeKey: a.dataTypeKey,
@@ -147,7 +200,7 @@ function main(): void {
       stepIdA: a.stepId,
       stepIdB: b.stepId,
       format,
-      note: "format not diffed (supported: u8, i16)",
+      note: "format not diffed (supported: u8, i16, f32)",
     });
   }
 
