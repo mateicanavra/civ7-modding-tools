@@ -2,11 +2,11 @@
 
 ## Breadcrumbs
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-MAMBO-M3-ecology-physics-first`
-- Branch: `codex/MAMBO-m3-007-plan-vegetation-deterministic` (parent: `codex/MAMBO-m3-006-plan-wetlands-deterministic`; base: `main`)
-- Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`, M3-006 `#1227`, M3-007 `#1228`
+- Branch: `codex/MAMBO-m3-009-cleanup-delete-legacy-chance` (parent: `codex/MAMBO-m3-008-stamping-strict-features-apply`; base: `main`)
+- Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`, M3-006 `#1227`, M3-007 `#1228`, M3-008 `#1229`
 - Packet: `docs/projects/pipeline-realism/resources/packets/PACKET-M3-ecology-physics-first/`
   - Authority order: `VISION.md` -> `TOPOLOGY.md` -> `CONTRACTS.md` -> `DECISIONS.md`
-- Current issue: `docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M3-007-deterministic-planning-vegetation-joint-resolver-over-score-layers.md`
+- Current issue: `docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M3-009-delete-legacy-chance-and-multiplier-paths-update-tests-and-viz-inventories.md`
 
 ## Slice Checklist (M3-001..009)
 - [x] M3-001 Packet harden: topology/contracts/gates (verification-only unless drift)
@@ -16,14 +16,14 @@
 - [x] M3-005 Deterministic planning: reefs (consume scoreLayers + occupancy; add missing reef-family features)
 - [x] M3-006 Deterministic planning: wetlands (joint resolver; no disabled strategies)
 - [x] M3-007 Deterministic planning: vegetation (joint resolver over score layers)
-- [ ] M3-008 Projection strictness: stamping must not drop placements or randomly gate (add gates)
+- [x] M3-008 Projection strictness: stamping must not drop placements or randomly gate (add gates)
 - [ ] M3-009 Cleanup: delete chance/multiplier paths; update tests + viz inventories (and enforce explicit viz palettes)
 
 Future slices (post M3-009):
 - [ ] M3-010 Post-cutover cleanup (dedicated cleanup slice; after M3-009)
 - [ ] M3-011 Canonical docs sweep (dedicated docs sweep; after M3-010)
 
-Current pointer: **M3-008**
+Current pointer: **M3-009**
 
 ## Gates Checklist (Hard, Forward-Only)
 - [ ] No legacy shims/dual paths/wrappers
@@ -77,5 +77,17 @@ Current pointer: **M3-008**
 - Key behavior: Vegetation planning is deterministic (seeded tie-break for exact equal scores only) and joint-resolved inside `ops.planVegetation`, consuming `artifact:ecology.scoreLayers` + explicit occupancy.
 - Gates (local):
   - `bun --cwd mods/mod-swooper-maps test test/ecology` PASS
+  - `diag:dump` rerun + `diag:diff` mismatches `0` (runId `b391a4d0...`)
+  - static scan: remaining `rollPercent|chance|multiplier` hits only in `plan-plot-effects` + a `noise.schema.ts` docstring
   - `bun run build` PASS
-  - `timeout 20s bun run dev:mapgen-studio` exit `124` OK
+  - `timeout 20s bun run dev:mapgen-studio` reached Vite READY (exit `124` OK)
+
+### M3-008 (Stamping Strictness) DONE
+- Draft PR: `#1229`
+- Key behavior: `map-ecology/features-apply` is strict stamping (no RNG, no chance/weight gating, no silent drops). Unknown features and any rejected placements fail loudly with a rejection report.
+- Gates (local):
+  - `bun --cwd mods/mod-swooper-maps test test/ecology` PASS
+  - `diag:dump` rerun + `diag:diff` mismatches `0` (runId `b391a4d0...`, label `m3-stamp`)
+  - static scan: no `rollPercent|chance|createLabelRng(` in `ops/features-apply`
+  - `bun run build` PASS
+  - `timeout 20s bun run dev:mapgen-studio` reached Vite READY (exit `124` OK)
