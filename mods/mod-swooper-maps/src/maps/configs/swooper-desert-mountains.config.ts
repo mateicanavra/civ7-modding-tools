@@ -372,6 +372,51 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
       },
     },
     plotEffects: {
+      scoreSnow: {
+        strategy: "default",
+        config: {
+          elevationStrategy: "percentile" as const,
+          elevationMin: 400,
+          elevationMax: 3200,
+          elevationPercentileMin: 0.85,
+          elevationPercentileMax: 0.99,
+          moistureMin: 20,
+          moistureMax: 120,
+          maxTemperature: 2,
+          maxAridity: 0.8,
+          freezeWeight: 1,
+          elevationWeight: 1.2,
+          moistureWeight: 0.4,
+          scoreNormalization: 2.6,
+          scoreBias: 0,
+        },
+      },
+      scoreSand: {
+        strategy: "default",
+        config: {
+          minAridity: 0.48, // Capture more arid tiles
+          minTemperature: 18, // Include cooler desert edges
+          maxFreeze: 0.2,
+          maxVegetation: 0.15,
+          maxMoisture: 75,
+          allowedBiomes: ["desert", "temperateDry"] as ["desert", "temperateDry"],
+        },
+      },
+      scoreBurned: {
+        strategy: "default",
+        config: {
+          minAridity: 0.55, // Capture more tiles
+          minTemperature: 22,
+          maxFreeze: 0.15,
+          maxVegetation: 0.25,
+          maxMoisture: 95,
+          allowedBiomes: ["desert", "temperateDry", "tropicalSeasonal"] as [
+            "desert",
+            "temperateDry",
+            "tropicalSeasonal",
+          ],
+        },
+      },
       plotEffects: {
         strategy: "default",
         config: {
@@ -389,23 +434,9 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
               },
             },
             coveragePct: 35,
-            freezeWeight: 1,
-            elevationWeight: 1.2,
-            moistureWeight: 0.4,
-            scoreNormalization: 2.6,
-            scoreBias: 0,
             lightThreshold: 0.5,
             mediumThreshold: 0.7,
             heavyThreshold: 0.85,
-            elevationStrategy: "percentile" as const,
-            elevationMin: 400,
-            elevationMax: 3200,
-            elevationPercentileMin: 0.85,
-            elevationPercentileMax: 0.99,
-            moistureMin: 20,
-            moistureMax: 120,
-            maxTemperature: 2,
-            maxAridity: 0.8,
           },
           sand: {
             enabled: true,
@@ -413,15 +444,6 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
               typeName: "PLOTEFFECT_SAND",
             },
             coveragePct: 38,       // Aggressive for desert world
-            minAridity: 0.48,      // Capture more arid tiles
-            minTemperature: 18,    // Include cooler desert edges
-            maxFreeze: 0.2,
-            maxVegetation: 0.15,
-            maxMoisture: 75,
-            allowedBiomes: ["desert", "temperateDry"] as [
-              "desert",
-              "temperateDry",
-            ],
           },
           burned: {
             enabled: true,
@@ -429,16 +451,6 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
               typeName: "PLOTEFFECT_BURNED",
             },
             coveragePct: 14,       // More scorched earth
-            minAridity: 0.55,      // Capture more tiles
-            minTemperature: 22,
-            maxFreeze: 0.15,
-            maxVegetation: 0.25,
-            maxMoisture: 95,
-            allowedBiomes: ["desert", "temperateDry", "tropicalSeasonal"] as [
-              "desert",
-              "temperateDry",
-              "tropicalSeasonal",
-            ],
           },
         },
       },

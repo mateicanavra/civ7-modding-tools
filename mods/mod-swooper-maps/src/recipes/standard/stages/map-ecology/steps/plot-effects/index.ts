@@ -4,6 +4,7 @@ import { buildPlotEffectsInput } from "./inputs.js";
 import { applyPlotEffectPlacements } from "./apply.js";
 import { logSnowEligibilitySummary } from "./diagnostics.js";
 import PlotEffectsStepContract from "./contract.js";
+import { PLOT_EFFECT_VIZ_CATEGORIES, plotEffectVizValueOrThrow } from "./viz.js";
 
 const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
 
@@ -14,13 +15,69 @@ export default createStep(PlotEffectsStepContract, {
       heightfield: context.buffers.heightfield,
     };
     const input = buildPlotEffectsInput(context, artifacts);
-    const result = ops.plotEffects(input, config.plotEffects);
+    const scoreSnow = ops.scoreSnow(
+      {
+        width: input.width,
+        height: input.height,
+        landMask: input.landMask,
+        elevation: input.elevation,
+        effectiveMoisture: input.effectiveMoisture,
+        surfaceTemperature: input.surfaceTemperature,
+        aridityIndex: input.aridityIndex,
+        freezeIndex: input.freezeIndex,
+      },
+      config.scoreSnow
+    );
+    const scoreSand = ops.scoreSand(
+      {
+        width: input.width,
+        height: input.height,
+        landMask: input.landMask,
+        biomeIndex: input.biomeIndex,
+        vegetationDensity: input.vegetationDensity,
+        effectiveMoisture: input.effectiveMoisture,
+        surfaceTemperature: input.surfaceTemperature,
+        aridityIndex: input.aridityIndex,
+        freezeIndex: input.freezeIndex,
+      },
+      config.scoreSand
+    );
+    const scoreBurned = ops.scoreBurned(
+      {
+        width: input.width,
+        height: input.height,
+        landMask: input.landMask,
+        biomeIndex: input.biomeIndex,
+        vegetationDensity: input.vegetationDensity,
+        effectiveMoisture: input.effectiveMoisture,
+        surfaceTemperature: input.surfaceTemperature,
+        aridityIndex: input.aridityIndex,
+        freezeIndex: input.freezeIndex,
+      },
+      config.scoreBurned
+    );
+
+    const result = ops.plotEffects(
+      {
+        width: input.width,
+        height: input.height,
+        seed: input.seed,
+        snowScore01: scoreSnow.score01,
+        snowEligibleMask: scoreSnow.eligibleMask,
+        sandScore01: scoreSand.score01,
+        sandEligibleMask: scoreSand.eligibleMask,
+        burnedScore01: scoreBurned.score01,
+        burnedEligibleMask: scoreBurned.eligibleMask,
+      },
+      config.plotEffects
+    );
 
     if (context.trace.isVerbose) {
       logSnowEligibilitySummary(
         context.trace,
         input,
-        config.plotEffects.config,
+        config.scoreSnow.config,
+        config.plotEffects.config.snow,
         result.placements,
         artifacts.heightfield.terrain
       );
@@ -29,19 +86,12 @@ export default createStep(PlotEffectsStepContract, {
     if (result.placements.length > 0) {
       const positions = new Float32Array(result.placements.length * 2);
       const values = new Uint16Array(result.placements.length);
-      const valueByKey = new Map<string, number>();
       for (let i = 0; i < result.placements.length; i++) {
         const placement = result.placements[i]!;
         positions[i * 2] = placement.x;
         positions[i * 2 + 1] = placement.y;
 
-        const key = placement.plotEffect;
-        let value = valueByKey.get(key);
-        if (value == null) {
-          value = valueByKey.size + 1;
-          valueByKey.set(key, value);
-        }
-        values[i] = value;
+        values[i] = plotEffectVizValueOrThrow(placement.plotEffect);
       }
 
       context.viz?.dumpPoints(context.trace, {
@@ -53,7 +103,7 @@ export default createStep(PlotEffectsStepContract, {
         meta: defineVizMeta("map.ecology.plotEffects.plotEffect", {
           label: "Plot Effects (Engine)",
           group: GROUP_MAP_ECOLOGY,
-          palette: "categorical",
+          categories: PLOT_EFFECT_VIZ_CATEGORIES,
         }),
       });
     }
