@@ -107,8 +107,6 @@ const biomesConfig = {
     },
     moisture: {
       thresholds: [130, 180, 230, 280] as [number, number, number, number],
-      bias: 0.2,
-      humidityWeight: 0.35,
     },
     aridity: {
       temperatureMin: 0,
@@ -125,7 +123,6 @@ const biomesConfig = {
     vegetation: {
       base: 0.35,
       moistureWeight: 0.65,
-      humidityWeight: 0.35,
       moistureNormalizationPadding: 60,
       biomeModifiers: {
         snow: { multiplier: 0.6, bonus: 0 },
@@ -137,15 +134,6 @@ const biomesConfig = {
         tropicalRainforest: { multiplier: 1, bonus: 0.25 },
         desert: { multiplier: 0.12, bonus: 0 },
       },
-    },
-    noise: {
-      amplitude: 0.03,
-      seed: 1337,
-    },
-    riparian: {
-      adjacencyRadius: 1,
-      minorRiverMoistureBonus: 4,
-      majorRiverMoistureBonus: 8,
     },
   },
 };
