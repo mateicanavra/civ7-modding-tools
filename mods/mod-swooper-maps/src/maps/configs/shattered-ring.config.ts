@@ -266,8 +266,8 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
       riverDensity: "normal",
     },
   },
-  ecology: {
-    // New ecology steps with strategy selections for volcanic ring world
+  "ecology-pedology": {
+    knobs: {},
     pedology: {
       classify: {
         strategy: "orogeny-boosted",
@@ -278,41 +278,15 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
           bedrockWeight: 0.6,
           fertilityCeiling: 0.95,
         },
-      },  // Volcanic terrain soils
+      }, // Volcanic terrain soils
     },
-    resourceBasins: {
+    "resource-basins": {
       plan: { strategy: "default", config: { resources: [] } },
       score: { strategy: "default", config: { minConfidence: 0.3, maxPerResource: 12 } },
     },
-    biomeEdgeRefine: {
-      refine: { strategy: "default", config: { radius: 1, iterations: 1 } },
-    },
-    featuresPlan: {
-      vegetation: { minScoreThreshold: 0.15 },     // Vegetation intent threshold
-      wetlands: {
-        strategy: "delta-focused",
-        config: {
-          moistureThreshold: 0.8,
-          fertilityThreshold: 0.35,
-          moistureNormalization: 230,
-          maxElevation: 1200,
-        },
-      },   // Volcanic valley wetlands
-      reefs: {
-        strategy: "default",
-        config: {
-          warmThreshold: 12,
-          density: 0.4,
-        },
-      },
-      ice: {
-        strategy: "default",
-        config: {
-          seaIceThreshold: -6,
-          alpineThreshold: 2800,
-        },
-      },
-    },
+  },
+  "ecology-biomes": {
+    knobs: {},
     biomes: {
       classify: {
         strategy: "default",
@@ -364,8 +338,36 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
             minorRiverMoistureBonus: 4,
             majorRiverMoistureBonus: 8,
           },
+          edgeRefine: { radius: 1, iterations: 1 },
         },
       },
+    },
+  },
+  "ecology-ice": {
+    knobs: {},
+    "plan-ice": {
+      planIce: { strategy: "default", config: { minScore01: 0.55 } },
+    },
+  },
+  "ecology-reefs": {
+    knobs: {},
+    "plan-reefs": {
+      planReefs: { strategy: "default", config: { minScore01: 0.55 } },
+    },
+  },
+  "ecology-vegetation": {
+    knobs: {},
+    "features-plan": {
+      vegetation: { minScoreThreshold: 0.15 }, // Vegetation intent threshold
+      wetlands: {
+        strategy: "delta-focused",
+        config: {
+          moistureThreshold: 0.8,
+          fertilityThreshold: 0.35,
+          moistureNormalization: 230,
+          maxElevation: 1200,
+        },
+      }, // Volcanic valley wetlands
     },
   },
   "map-ecology": {
