@@ -1,3 +1,4 @@
+import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
@@ -6,6 +7,8 @@ import {
   validateScoreLayersArtifact,
 } from "../../../ecology/artifact-validation.js";
 import ScoreLayersStepContract from "./contract.js";
+
+const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(ScoreLayersStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyBase], {
@@ -197,26 +200,42 @@ export default createStep(ScoreLayersStepContract, {
       config.scoreIce
     ).score01;
 
+    const layers = {
+      FEATURE_FOREST: forestScore,
+      FEATURE_RAINFOREST: rainforestScore,
+      FEATURE_TAIGA: taigaScore,
+      FEATURE_SAVANNA_WOODLAND: savannaWoodlandScore,
+      FEATURE_SAGEBRUSH_STEPPE: sagebrushSteppeScore,
+      FEATURE_MARSH: marshScore,
+      FEATURE_TUNDRA_BOG: tundraBogScore,
+      FEATURE_MANGROVE: mangroveScore,
+      FEATURE_OASIS: oasisScore,
+      FEATURE_WATERING_HOLE: wateringHoleScore,
+      FEATURE_REEF: reefScore,
+      FEATURE_COLD_REEF: coldReefScore,
+      FEATURE_ATOLL: atollScore,
+      FEATURE_LOTUS: lotusScore,
+      FEATURE_ICE: iceScore,
+    } as const;
+
+    // Score layers are a primary debugging surface in M3; dump them for deterministic diffs.
+    for (const [featureKey, values] of Object.entries(layers)) {
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: `ecology.scoreLayers.${featureKey}`,
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "f32",
+        values: values as Float32Array,
+        meta: defineVizMeta(`ecology.scoreLayers.${featureKey}`, {
+          visibility: "debug",
+        }),
+      });
+    }
+
     deps.artifacts.scoreLayers.publish(context, {
       width,
       height,
-      layers: {
-        FEATURE_FOREST: forestScore,
-        FEATURE_RAINFOREST: rainforestScore,
-        FEATURE_TAIGA: taigaScore,
-        FEATURE_SAVANNA_WOODLAND: savannaWoodlandScore,
-        FEATURE_SAGEBRUSH_STEPPE: sagebrushSteppeScore,
-        FEATURE_MARSH: marshScore,
-        FEATURE_TUNDRA_BOG: tundraBogScore,
-        FEATURE_MANGROVE: mangroveScore,
-        FEATURE_OASIS: oasisScore,
-        FEATURE_WATERING_HOLE: wateringHoleScore,
-        FEATURE_REEF: reefScore,
-        FEATURE_COLD_REEF: coldReefScore,
-        FEATURE_ATOLL: atollScore,
-        FEATURE_LOTUS: lotusScore,
-        FEATURE_ICE: iceScore,
-      },
+      layers,
     });
 
     const featureIndex = new Uint16Array(size);
@@ -227,6 +246,15 @@ export default createStep(ScoreLayersStepContract, {
       const navigableRiver = featureSubstrate.navigableRiverMask[i] === 1;
       reserved[i] = deepWater || navigableRiver ? 1 : 0;
     }
+
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "ecology.occupancy.base.reserved",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: reserved,
+      meta: defineVizMeta("ecology.occupancy.base.reserved", { visibility: "debug" }),
+    });
 
     deps.artifacts.occupancyBase.publish(context, {
       width,
