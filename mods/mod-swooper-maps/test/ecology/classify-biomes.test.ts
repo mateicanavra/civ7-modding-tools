@@ -12,8 +12,9 @@ describe("classifyBiomes operation", () => {
 
     const rainfall = new Uint8Array([210, 130, 70, 35, 180, 50]);
     const humidity = new Uint8Array([180, 80, 30, 20, 160, 10]);
-    const elevation = new Int16Array([0, 200, 500, 800, 100, 0]);
-    const latitude = new Float32Array([0, 10, 25, 40, 90, 15]);
+    const surfaceTemperatureC = new Float32Array([30, 20, 15, 30, -10, 15]);
+    const aridityIndex = new Float32Array(size);
+    const freezeIndex = new Float32Array([0, 0, 0, 0, 1, 0]);
     const landMask = new Uint8Array([1, 1, 1, 1, 1, 0]);
     const riverClass = new Uint8Array(size).fill(0);
 
@@ -28,8 +29,9 @@ describe("classifyBiomes operation", () => {
         height,
         rainfall,
         humidity,
-        elevation,
-        latitude,
+        surfaceTemperatureC,
+        aridityIndex,
+        freezeIndex,
         landMask,
         riverClass,
       },
