@@ -268,8 +268,8 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
       riverDensity: "dense",
     },
   },
-  ecology: {
-    // New ecology steps with strategy selections for tropical island world
+  "ecology-pedology": {
+    knobs: {},
     pedology: {
       classify: {
         strategy: "coastal-shelf",
@@ -280,41 +280,15 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
           bedrockWeight: 0.6,
           fertilityCeiling: 0.95,
         },
-      },  // Island-focused coastal soils
+      }, // Island-focused coastal soils
     },
-    resourceBasins: {
-      plan: { strategy: "hydro-fluvial", config: { resources: [] } },      // Water-focused resources
+    "resource-basins": {
+      plan: { strategy: "hydro-fluvial", config: { resources: [] } }, // Water-focused resources
       score: { strategy: "default", config: { minConfidence: 0.3, maxPerResource: 12 } },
     },
-    biomeEdgeRefine: {
-      refine: { strategy: "gaussian", config: { radius: 1, iterations: 1 } },         // Smooth tropical biome blending
-    },
-    featuresPlan: {
-      vegetation: { minScoreThreshold: 0.15 },    // Vegetation intent threshold
-      wetlands: {
-        strategy: "delta-focused",
-        config: {
-          moistureThreshold: 0.65,
-          fertilityThreshold: 0.35,
-          moistureNormalization: 210,
-          maxElevation: 800,
-        },
-      },  // Mangrove deltas
-      reefs: {
-        strategy: "shipping-lanes",
-        config: {
-          warmThreshold: 14,
-          density: 0.5,
-        },
-      },    // Island chain reef patterns
-      ice: {
-        strategy: "default",
-        config: {
-          seaIceThreshold: -4,
-          alpineThreshold: 2800,
-        },
-      },             // Minimal polar ice
-    },
+  },
+  "ecology-biomes": {
+    knobs: {},
     biomes: {
       classify: {
         strategy: "default",
@@ -366,8 +340,33 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
             minorRiverMoistureBonus: 4,
             majorRiverMoistureBonus: 8,
           },
+          edgeRefine: { radius: 1, iterations: 1 }, // Smooth tropical biome blending
         },
       },
+    },
+  },
+  "ecology-ice": {
+    knobs: {},
+    "plan-ice": {
+      planIce: { strategy: "default", config: { minScore01: 0.55 } }, // Minimal polar ice
+    },
+  },
+  "ecology-reefs": {
+    knobs: {},
+    "plan-reefs": {
+      planReefs: { strategy: "shipping-lanes", config: { minScore01: 0.55 } }, // Island chain reef patterns
+    },
+  },
+  "ecology-wetlands": {
+    knobs: {},
+    "plan-wetlands": {
+      planWetlands: { strategy: "default", config: { minScore01: 0.55 } },
+    },
+  },
+  "ecology-vegetation": {
+    knobs: {},
+    "features-plan": {
+      vegetation: { minScoreThreshold: 0.15 }, // Vegetation intent threshold
     },
   },
   "map-ecology": {
