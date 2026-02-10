@@ -44,25 +44,25 @@ export default createStep(ScoreLayersStepContract, {
       config.vegetationSubstrate
     );
 
-    const forestScore = ops.vegetationScoreForest(
+    const forestScore = ops.scoreVegetationForest(
       { width, height, landMask: topography.landMask, ...vegetationSubstrate },
-      config.vegetationScoreForest
+      config.scoreVegetationForest
     ).score01;
-    const rainforestScore = ops.vegetationScoreRainforest(
+    const rainforestScore = ops.scoreVegetationRainforest(
       { width, height, landMask: topography.landMask, ...vegetationSubstrate },
-      config.vegetationScoreRainforest
+      config.scoreVegetationRainforest
     ).score01;
-    const taigaScore = ops.vegetationScoreTaiga(
+    const taigaScore = ops.scoreVegetationTaiga(
       { width, height, landMask: topography.landMask, ...vegetationSubstrate },
-      config.vegetationScoreTaiga
+      config.scoreVegetationTaiga
     ).score01;
-    const savannaWoodlandScore = ops.vegetationScoreSavannaWoodland(
+    const savannaWoodlandScore = ops.scoreVegetationSavannaWoodland(
       { width, height, landMask: topography.landMask, ...vegetationSubstrate },
-      config.vegetationScoreSavannaWoodland
+      config.scoreVegetationSavannaWoodland
     ).score01;
-    const sagebrushSteppeScore = ops.vegetationScoreSagebrushSteppe(
+    const sagebrushSteppeScore = ops.scoreVegetationSagebrushSteppe(
       { width, height, landMask: topography.landMask, ...vegetationSubstrate },
-      config.vegetationScoreSagebrushSteppe
+      config.scoreVegetationSagebrushSteppe
     ).score01;
 
     const featureSubstrate = ops.featureSubstrate(
