@@ -1,6 +1,7 @@
 debug.heightfield.landMask|tile.hexOddR|grid
 debug.heightfield.terrain|tile.hexOddR|grid
 ecology.biome.aridityIndex|tile.hexOddR|grid
+ecology.biome.biomeIndex|tile.hexOddR|grid
 ecology.biome.effectiveMoisture|tile.hexOddR|grid
 ecology.biome.effectiveMoisture|tile.hexOddR|points
 ecology.biome.freezeIndex|tile.hexOddR|grid
