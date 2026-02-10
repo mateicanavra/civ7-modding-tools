@@ -547,6 +547,17 @@
         }
       }
     },
+    "ecology-reefs": {
+      "knobs": {},
+      "plan-reefs": {
+        "planReefs": {
+          "strategy": "default",
+          "config": {
+            "minScore01": 0.55
+          }
+        }
+      }
+    },
     "ecology-vegetation": {
       "knobs": {},
       "features-plan": {
@@ -558,13 +569,6 @@
             "fertilityThreshold": 0.35,
             "moistureNormalization": 230,
             "maxElevation": 1200
-          }
-        },
-        "reefs": {
-          "strategy": "default",
-          "config": {
-            "warmThreshold": 12,
-            "density": 0.35
           }
         }
       }
