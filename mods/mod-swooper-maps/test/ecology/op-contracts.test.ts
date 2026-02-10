@@ -4,8 +4,6 @@ import ecology from "@mapgen/domain/ecology/ops";
 
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 
-const createFeatureKeyField = (size: number) => new Int16Array(size).fill(-1);
-
 describe("ecology op contract surfaces", () => {
   it("classifyPedology validates output", () => {
     const width = 2;
@@ -430,76 +428,26 @@ describe("ecology op contract surfaces", () => {
     }
   });
 
-  it("planWetPlacementMarsh validates output", () => {
-    const width = 2;
-    const height = 2;
-    const size = width * height;
-    const temperateHumid = BIOME_SYMBOL_TO_INDEX.temperateHumid ?? 4;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planWetPlacementMarsh, {
-      strategy: "default",
-      config: { chances: { FEATURE_MARSH: 100 } },
-    });
-
-    const result = ecology.ops.planWetPlacementMarsh.run(
-      {
-        width,
-        height,
-        seed: 0,
-        biomeIndex: new Uint8Array(size).fill(temperateHumid),
-        surfaceTemperature: new Float32Array(size).fill(12),
-        landMask: new Uint8Array(size).fill(1),
-        navigableRiverMask: new Uint8Array(size).fill(0),
-        featureKeyField: createFeatureKeyField(size),
-        nearRiverMask: new Uint8Array(size).fill(1),
-        isolatedRiverMask: new Uint8Array(size).fill(0),
-      },
-      selection
-    );
-
-    expect(result.placements.length).toBe(size);
-    expect(result.placements[0]?.feature).toBe("FEATURE_MARSH");
-  });
-
   it("planWetlands validates output", () => {
     const width = 2;
     const height = 2;
     const size = width * height;
     const selection = normalizeOpSelectionOrThrow(ecology.ops.planWetlands, {
       strategy: "default",
-      config: {},
+      config: { minScore01: 0.55 },
     });
     const result = ecology.ops.planWetlands.run(
       {
         width,
         height,
-        landMask: new Uint8Array(size).fill(1),
-        effectiveMoisture: new Float32Array(size).fill(200),
-        surfaceTemperature: new Float32Array(size).fill(10),
-        fertility: new Float32Array(size).fill(0.6),
-        elevation: new Int16Array(size).fill(100),
-      },
-      selection
-    );
-    expect(result.placements.length).toBeGreaterThan(0);
-  });
-
-  it("planWetlands delta strategy validates output", () => {
-    const width = 2;
-    const height = 2;
-    const size = width * height;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planWetlands, {
-      strategy: "delta-focused",
-      config: {},
-    });
-    const result = ecology.ops.planWetlands.run(
-      {
-        width,
-        height,
-        landMask: new Uint8Array(size).fill(1),
-        effectiveMoisture: new Float32Array(size).fill(200),
-        surfaceTemperature: new Float32Array(size).fill(14),
-        fertility: new Float32Array(size).fill(0.4),
-        elevation: new Int16Array(size).fill(50),
+        seed: 1337,
+        scoreMarsh01: new Float32Array(size).fill(1),
+        scoreTundraBog01: new Float32Array(size).fill(1),
+        scoreMangrove01: new Float32Array(size).fill(1),
+        scoreOasis01: new Float32Array(size).fill(1),
+        scoreWateringHole01: new Float32Array(size).fill(1),
+        featureIndex: new Uint16Array(size),
+        reserved: new Uint8Array(size),
       },
       selection
     );
