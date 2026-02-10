@@ -1,6 +1,6 @@
 import type { PlotEffectKey } from "@mapgen/domain/ecology";
 
-export const PLOT_EFFECT_VIZ_VALUE_BY_KEY: Readonly<Record<PlotEffectKey, number>> = {
+export const PLOT_EFFECT_VIZ_VALUE_BY_KEY: Readonly<Record<string, number>> = {
   PLOTEFFECT_SNOW_LIGHT_PERMANENT: 1,
   PLOTEFFECT_SNOW_MEDIUM_PERMANENT: 2,
   PLOTEFFECT_SNOW_HEAVY_PERMANENT: 3,
