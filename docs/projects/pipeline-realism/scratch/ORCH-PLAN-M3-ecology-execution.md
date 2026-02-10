@@ -2,13 +2,13 @@
 
 ## Breadcrumbs
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-MAMBO-M3-ecology-physics-first`
-- Branch: `codex/MAMBO-m3-008-stamping-strict-features-apply` (parent: `codex/MAMBO-m3-007-plan-vegetation-deterministic`; base: `main`)
-- Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`, M3-006 `#1227`, M3-007 `#1228`
+- Stack tip branch: `codex/M3-015-hydrology-effectiveMoisture-soils` (parent: `codex/MAMBO-m3-013-bio-lat-cutoff`; base: `main`)
+- Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`, M3-006 `#1227`, M3-007 `#1228`, M3-008 `#1229`, M3-009 `#1230`, M3-010 `#1231`, M3-011 `#1232`, M3-012 `#1233`, M3-014 `#1234`, M3-013 `#1235`, M3-015 `#1236`
 - Packet: `docs/projects/pipeline-realism/resources/packets/PACKET-M3-ecology-physics-first/`
   - Authority order: `VISION.md` -> `TOPOLOGY.md` -> `CONTRACTS.md` -> `DECISIONS.md`
-- Current issue: `docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M3-008-projection-stamping-strictness-features-apply-must-not-drop-or-randomly-gate.md`
+- Current issue: `docs/projects/pipeline-realism/issues/M3-015-hydrology-effectiveMoisture-soils.scratch.md`
 
-## Slice Checklist (M3-001..009)
+## Slice Checklist (M3-001..012)
 - [x] M3-001 Packet harden: topology/contracts/gates (verification-only unless drift)
 - [x] M3-002 Stage split: earth-system-first truth stages + recipe wiring cutover
 - [x] M3-003 ScoreLayers: schema + independent per-feature score ops + base occupancy
@@ -16,14 +16,18 @@
 - [x] M3-005 Deterministic planning: reefs (consume scoreLayers + occupancy; add missing reef-family features)
 - [x] M3-006 Deterministic planning: wetlands (joint resolver; no disabled strategies)
 - [x] M3-007 Deterministic planning: vegetation (joint resolver over score layers)
-- [ ] M3-008 Projection strictness: stamping must not drop placements or randomly gate (add gates)
-- [ ] M3-009 Cleanup: delete chance/multiplier paths; update tests + viz inventories (and enforce explicit viz palettes)
+- [x] M3-008 Projection strictness: stamping must not drop placements or randomly gate (add gates)
+- [x] M3-009 Cleanup: delete chance/multiplier paths; update tests + viz inventories (and enforce explicit viz palettes)
+- [x] M3-010 Post-cutover cleanup: plot-effects score ops split + stable viz categories + preset sync
+- [x] M3-011 Canonical docs sweep: ecology config reference + directional intent
+- [x] M3-012 Bugfix: biomes horizontal stripe banding (and ensure biomes inputs are correctly wired)
 
-Future slices (post M3-009):
-- [ ] M3-010 Post-cutover cleanup (dedicated cleanup slice; after M3-009)
-- [ ] M3-011 Canonical docs sweep (dedicated docs sweep; after M3-010)
+### Longtail slices
+- [x] M3-013 Biomes lat cutoff: reduce hard latitude striping while preserving cold biomes
+- [x] M3-014 Lakes not filled: fix freshwater fill regressions without reintroducing noise/chance
+- [x] M3-015 Hydrology moisture ownership: publish `effectiveMoisture` + thread soils/fertility into biomes
 
-Current pointer: **M3-008**
+Current pointer: **M3-015**
 
 ## Gates Checklist (Hard, Forward-Only)
 - [ ] No legacy shims/dual paths/wrappers
@@ -55,6 +59,7 @@ Current pointer: **M3-008**
   - `bun run build`
   - `timeout 20s bun run dev:mapgen-studio` (exit code 124 OK if it started; fail only on early crash)
   - (Stamping slice only) `rg -n "createLabelRng" mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/features-apply -S | cat`
+  - (Worker init check) first action each slice: write a "CHECK-IN" line to `docs/projects/pipeline-realism/issues/MAMBO.scratch.md`
 
 ## Closure Notes
 
@@ -81,3 +86,56 @@ Current pointer: **M3-008**
   - static scan: remaining `rollPercent|chance|multiplier` hits only in `plan-plot-effects` + a `noise.schema.ts` docstring
   - `bun run build` PASS
   - `timeout 20s bun run dev:mapgen-studio` reached Vite READY (exit `124` OK)
+
+### M3-008 (Stamping Strictness) DONE
+- Draft PR: `#1229`
+- Key behavior: `map-ecology/features-apply` is strict stamping (no RNG, no chance/weight gating, no silent drops). Unknown features and any rejected placements fail loudly with a rejection report.
+- Gates (local):
+  - `bun --cwd mods/mod-swooper-maps test test/ecology` PASS
+  - `diag:dump` rerun + `diag:diff` mismatches `0` (runId `b391a4d0...`, label `m3-stamp`)
+  - static scan: no `rollPercent|chance|createLabelRng(` in `ops/features-apply`
+  - `bun run build` PASS
+  - `timeout 20s bun run dev:mapgen-studio` reached Vite READY (exit `124` OK)
+
+### M3-009 (No-Fudging Cleanup) DONE
+- Draft PR: `#1230`
+- Key behavior:
+  - `plot-effects` is deterministic top-coverage selection (seeded tie-break only).
+  - Ecology baseline fixtures track viz keys and M3 truth artifacts.
+- Gates (local):
+  - `bun --cwd mods/mod-swooper-maps test test/ecology` PASS
+  - `diag:dump` rerun + `diag:diff` mismatches `0` (runId `cc5296195...`, labels `m3-stamp-a`/`m3-stamp-b`)
+  - static scan: `0` hits in `mods/mod-swooper-maps/src/domain/ecology` for `rollPercent|coverageChance|chance|multiplier` (also gated by `no-fudging-static-scan` test)
+  - `bun run --cwd packages/civ7-adapter build` PASS
+  - `bun run --cwd packages/mapgen-viz build` PASS
+  - `bun run --cwd packages/mapgen-core build` PASS
+  - `bun run build` PASS
+  - `timeout 20s bun run dev:mapgen-studio` reached Vite READY (exit `124` OK)
+
+### M3-010 (Post-Cutover Cleanup) DONE
+- Draft PR: `#1231`
+- Notes:
+  - Split plot-effects scoring into separate ops (snow/sand/burned) and planner consumes score arrays + eligibility masks.
+  - Added stable categories/colors for plot-effects viz and meaningful tests around viz metadata.
+  - Fixed default preset JSON validity so `bun run build` + Studio startup stay green.
+
+### M3-011 (Canonical Docs Sweep) DONE
+- Notes:
+  - Updated canonical mapgen docs for stage order, ecology stage split, and schema posture (no `additionalProperties: false`; avoid manual stage `public`/`compile` unless truly needed).
+  - Added per-property descriptions + JSDoc for new/changed ecology config surfaces.
+
+### M3-012 (Biomes Stripe Banding Fix) DONE
+- Draft PR: `#1233`
+- Notes:
+  - Biomes consumes Hydrology `climateIndices` (surfaceTemperatureC/aridityIndex/freezeIndex) instead of re-deriving from latitude/elevation.
+  - Added truth viz layer `ecology.biome.biomeIndex` with stable explicit categories/colors.
+  - Added regression test ensuring within-row biome variety for fixed seed (prevents horizontal banding domination).
+  - Removed remaining `additionalProperties: false` annotations in the classify-biomes schema surface per compiler-closed-object posture.
+
+### M3-015 (Hydrology effectiveMoisture + Soils/Fertility Biomes) DONE
+- Draft PR: `#1236`
+- Notes:
+  - Hydrology publishes deterministic `artifact:hydrology.climateIndices.effectiveMoisture` (rainfall + `0.35*humidity` + riparian bonus; radius=1; minor=4; major=8).
+  - Ecology biomes consumes `effectiveMoisture` from Hydrology + `artifact:ecology.soils` (`soilType`, `fertility`) with no local re-derivation and no probabilistic noise.
+  - Presets + test configs were aligned to remove now-unknown `moisture.bias`, `humidityWeight`, and legacy `noise`/`riparian` blocks.
+  - Gates: `bun run build` PASS; `bun run dev:mapgen-studio` started successfully.
