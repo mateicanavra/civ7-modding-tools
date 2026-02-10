@@ -2,11 +2,11 @@
 
 ## Breadcrumbs
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-MAMBO-M3-ecology-physics-first`
-- Branch: `codex/MAMBO-m3-010-post-cutover-cleanup` (parent: `codex/MAMBO-m3-009-cleanup-delete-legacy-chance`; base: `main`)
-- Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`, M3-006 `#1227`, M3-007 `#1228`, M3-008 `#1229`, M3-009 `#1230`, M3-010 `#1231`
+- Stack tip branch: `codex/MAMBO-m3-012-fix-biomes-stripes` (parent: `codex/MAMBO-m3-011-canonical-docs-sweep`; base: `main`)
+- Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`, M3-006 `#1227`, M3-007 `#1228`, M3-008 `#1229`, M3-009 `#1230`, M3-010 `#1231`, M3-011 (see Graphite stack)
 - Packet: `docs/projects/pipeline-realism/resources/packets/PACKET-M3-ecology-physics-first/`
   - Authority order: `VISION.md` -> `TOPOLOGY.md` -> `CONTRACTS.md` -> `DECISIONS.md`
-- Current issue: M3-010 post-cutover cleanup (draft PR `#1231`; issue doc TBD)
+- Current issue: `docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M3-012-fix-biomes-horizontal-stripes.md`
 
 ## Slice Checklist (M3-001..012)
 - [x] M3-001 Packet harden: topology/contracts/gates (verification-only unless drift)
@@ -18,15 +18,11 @@
 - [x] M3-007 Deterministic planning: vegetation (joint resolver over score layers)
 - [x] M3-008 Projection strictness: stamping must not drop placements or randomly gate (add gates)
 - [x] M3-009 Cleanup: delete chance/multiplier paths; update tests + viz inventories (and enforce explicit viz palettes)
-- [ ] M3-010 Post-cutover cleanup: plot-effects score ops split + stable viz categories + preset sync
-- [ ] M3-011 Canonical docs sweep: ecology config reference + directional intent
+- [x] M3-010 Post-cutover cleanup: plot-effects score ops split + stable viz categories + preset sync
+- [x] M3-011 Canonical docs sweep: ecology config reference + directional intent
 - [ ] M3-012 Bugfix: biomes horizontal stripe banding (and ensure biomes inputs are correctly wired)
 
-Future slices (post M3-009):
-- [ ] M3-011 Canonical docs sweep (dedicated docs sweep; after M3-010)
-- [ ] M3-012 Biomes banding fix (after M3-011)
-
-Current pointer: **M3-010**
+Current pointer: **M3-012**
 
 ## Gates Checklist (Hard, Forward-Only)
 - [ ] No legacy shims/dual paths/wrappers
@@ -58,6 +54,7 @@ Current pointer: **M3-010**
   - `bun run build`
   - `timeout 20s bun run dev:mapgen-studio` (exit code 124 OK if it started; fail only on early crash)
   - (Stamping slice only) `rg -n "createLabelRng" mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/features-apply -S | cat`
+  - (Worker init check) first action each slice: write a "CHECK-IN" line to `docs/projects/pipeline-realism/issues/MAMBO.scratch.md`
 
 ## Closure Notes
 
@@ -116,3 +113,15 @@ Current pointer: **M3-010**
   - Plot effects follow the M3 posture: separate compute score ops (`ecology/plot-effects/score/snow|sand|burned`) and a planner op consuming those scores.
   - `map.ecology.plotEffects.plotEffect` categorical viz declares explicit, stable categories/colors (no Studio auto palette).
   - Default preset/config stays in sync with the new step op surface (`scoreSnow|scoreSand|scoreBurned|plotEffects`).
+
+### M3-010 (Post-Cutover Cleanup) DONE
+- Draft PR: `#1231`
+- Notes:
+  - Split plot-effects scoring into separate ops (snow/sand/burned) and planner consumes score arrays + eligibility masks.
+  - Added stable categories/colors for plot-effects viz and meaningful tests around viz metadata.
+  - Fixed default preset JSON validity so `bun run build` + Studio startup stay green.
+
+### M3-011 (Canonical Docs Sweep) DONE
+- Notes:
+  - Updated canonical mapgen docs for stage order, ecology stage split, and schema posture (no `additionalProperties: false`; avoid manual stage `public`/`compile` unless truly needed).
+  - Added per-property descriptions + JSDoc for new/changed ecology config surfaces.
