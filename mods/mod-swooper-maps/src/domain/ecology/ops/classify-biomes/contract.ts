@@ -48,8 +48,10 @@ const BiomeClassificationContract = defineOp({
   input: Type.Object({
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
-    rainfall: TypedArraySchemas.u8({ description: "Rainfall per tile (0..255)." }),
-    humidity: TypedArraySchemas.u8({ description: "Humidity per tile (0..255)." }),
+    effectiveMoisture: TypedArraySchemas.f32({
+      description:
+        "Effective moisture advisory index per tile (from Hydrology climate indices; do not re-derive from rainfall/humidity locally).",
+    }),
     surfaceTemperatureC: TypedArraySchemas.f32({
       description:
         "Surface temperature proxy (C) per tile (from Hydrology climate indices; do not recompute from latitude).",
@@ -62,9 +64,8 @@ const BiomeClassificationContract = defineOp({
       description: "Freeze persistence index (0..1) per tile (from Hydrology climate indices).",
     }),
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
-    riverClass: TypedArraySchemas.u8({
-      description: "Hydrology river class per tile (0=none, 1=minor, 2=major).",
-    }),
+    soilType: TypedArraySchemas.u8({ description: "Soil type palette index per tile (from Ecology soils artifact)." }),
+    fertility: TypedArraySchemas.f32({ description: "Fertility per tile (0..1) (from Ecology soils artifact)." }),
   }),
   output: Type.Object({
     biomeIndex: TypedArraySchemas.u8({ description: "Biome symbol indices per tile." }),

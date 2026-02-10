@@ -2,7 +2,6 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import BiomeClassificationContract from "../contract.js";
 import { classifyBiomesFromFields } from "../layers/classify.js";
-import { computeEffectiveMoistureField } from "../layers/moisture.js";
 
 function refineBiomeIndexGaussian(args: {
   width: number;
@@ -92,43 +91,34 @@ export const defaultStrategy = createStrategy(BiomeClassificationContract, "defa
     const { width, height } = input;
     const size = width * height;
 
-    const rainfall = input.rainfall as Uint8Array;
-    const humidity = input.humidity as Uint8Array;
+    const effectiveMoistureIn = input.effectiveMoisture as Float32Array;
     const surfaceTemperatureC = input.surfaceTemperatureC as Float32Array;
     const aridityIndexIn = input.aridityIndex as Float32Array;
     const freezeIndex = input.freezeIndex as Float32Array;
     const landMask = input.landMask as Uint8Array;
-    const riverClass = input.riverClass as Uint8Array;
+    const soilType = input.soilType as Uint8Array;
+    const fertility = input.fertility as Float32Array;
 
     // M3: Biomes consumes Hydrology’s derived indices rather than re-deriving locally.
     const surfaceTemperatureF64 = new Float64Array(size);
     const aridityIndexF64 = new Float64Array(size);
+    const effectiveMoistureF64 = new Float64Array(size);
     for (let i = 0; i < size; i++) {
       surfaceTemperatureF64[i] = surfaceTemperatureC[i] ?? 0;
       aridityIndexF64[i] = aridityIndexIn[i] ?? 0;
+      effectiveMoistureF64[i] = effectiveMoistureIn[i] ?? 0;
     }
-
-    const effectiveMoistureF64 = computeEffectiveMoistureField({
-      width,
-      height,
-      landMask,
-      rainfall,
-      humidity,
-      riverClass,
-      moisture: resolvedConfig.moisture,
-      noise: resolvedConfig.noise,
-      riparian: resolvedConfig.riparian,
-    });
 
     const { biomeIndex, vegetationDensity } = classifyBiomesFromFields({
       width,
       height,
       landMask,
-      humidity,
       effectiveMoistureF64,
       surfaceTemperatureF64,
       freezeIndex,
       aridityIndexF64,
+      soilType,
+      fertility,
       config: resolvedConfig,
     });
 
@@ -142,15 +132,10 @@ export const defaultStrategy = createStrategy(BiomeClassificationContract, "defa
       iterations: resolvedConfig.edgeRefine?.iterations ?? 1,
     });
 
-    const effectiveMoisture = new Float32Array(size);
-    for (let i = 0; i < size; i++) {
-      effectiveMoisture[i] = effectiveMoistureF64[i] ?? 0;
-    }
-
     return {
       biomeIndex: refinedBiomeIndex,
       vegetationDensity,
-      effectiveMoisture,
+      effectiveMoisture: effectiveMoistureIn,
       surfaceTemperature: surfaceTemperatureC,
       aridityIndex: aridityIndexIn,
       freezeIndex,
