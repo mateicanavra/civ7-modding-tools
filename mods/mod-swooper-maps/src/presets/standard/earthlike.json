@@ -542,11 +542,7 @@
         "planIce": {
           "strategy": "continentality",
           "config": {
-            "seaIceThreshold": -16,
-            "alpineThreshold": 2600,
-            "featherC": 4,
-            "jitterC": 2.5,
-            "densityScale": 0.25
+            "minScore01": 0.55
           }
         }
       }
