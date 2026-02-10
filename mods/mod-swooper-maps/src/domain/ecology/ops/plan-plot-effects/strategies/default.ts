@@ -1,11 +1,9 @@
-import { clamp01, createLabelRng, normalizeRange } from "@swooper/mapgen-core";
+import { createLabelRng } from "@swooper/mapgen-core";
 import { createStrategy, type Static } from "@swooper/mapgen-core/authoring";
 
 import type { PlotEffectKey } from "@mapgen/domain/ecology/types.js";
 
-import { biomeSymbolFromIndex } from "@mapgen/domain/ecology/types.js";
 import PlanPlotEffectsContract from "../contract.js";
-import { resolveSnowElevationRange } from "../rules/index.js";
 
 type PlotEffectSelector = { typeName: PlotEffectKey };
 type Config = Static<(typeof PlanPlotEffectsContract)["strategies"]["default"]>;
@@ -78,7 +76,7 @@ function selectTopCoverage(candidates: Candidate[], coveragePct: number): Candid
 export const defaultStrategy = createStrategy(PlanPlotEffectsContract, "default", {
   normalize: (config) => normalizeConfig(config),
   run: (input, config) => {
-    const { width, height, landMask } = input;
+    const { width, height } = input;
     // M3 posture: deterministic selection. Seeded randomness is allowed only as a tie-break for exact-equal scores.
     const placements: Array<{ x: number; y: number; plotEffect: PlotEffectKey }> = [];
     const rng = createLabelRng(input.seed);
@@ -91,126 +89,61 @@ export const defaultStrategy = createStrategy(PlanPlotEffectsContract, "default"
     const sandSelector = sand.selector;
     const burnedSelector = burned.selector;
 
-    const sandBiomeSet = new Set(sand.allowedBiomes);
-    const burnedBiomeSet = new Set(burned.allowedBiomes);
     const snowEnabled = snow.enabled;
-    const snowElevation = snowEnabled
-      ? resolveSnowElevationRange(input, {
-          snow: {
-            elevationStrategy: snow.elevationStrategy,
-            elevationPercentileMin: snow.elevationPercentileMin,
-            elevationPercentileMax: snow.elevationPercentileMax,
-            elevationMin: snow.elevationMin,
-            elevationMax: snow.elevationMax,
-          },
-        })
-      : null;
-    const snowElevationMin = snowElevation?.min ?? snow.elevationMin;
-    const snowElevationMax = snowElevation?.max ?? snow.elevationMax;
+    const sandEnabled = sand.enabled;
+    const burnedEnabled = burned.enabled;
 
     const snowCandidates: Candidate[] = [];
     const sandCandidates: Candidate[] = [];
     const burnedCandidates: Candidate[] = [];
 
-    for (let y = 0; y < height; y++) {
-      const rowOffset = y * width;
-      for (let x = 0; x < width; x++) {
-        const idx = rowOffset + x;
-        if (landMask[idx] === 0) continue;
+    const tileCount = width * height;
+    for (let idx = 0; idx < tileCount; idx++) {
+      const x = idx % width;
+      const y = (idx - x) / width;
 
-        const temp = input.surfaceTemperature[idx];
-        const moisture = input.effectiveMoisture[idx];
-        const vegetation = input.vegetationDensity[idx];
-        const aridity = input.aridityIndex[idx];
-        const freeze = input.freezeIndex[idx];
-        const elevation = input.elevation[idx];
-        const symbol = biomeSymbolFromIndex(input.biomeIndex[idx]);
-
-        if (snowEnabled) {
-          if (temp <= snow.maxTemperature && aridity <= snow.maxAridity) {
-            const elevationFactor = normalizeRange(elevation, snowElevationMin, snowElevationMax);
-            const moistureFactor = normalizeRange(moisture, snow.moistureMin, snow.moistureMax);
-            const scoreRaw =
-              freeze * snow.freezeWeight +
-              elevationFactor * snow.elevationWeight +
-              moistureFactor * snow.moistureWeight +
-              snow.scoreBias;
-            const score = clamp01(scoreRaw / Math.max(0.0001, snow.scoreNormalization));
-
-            if (score >= snow.lightThreshold) {
-              const typeToUse =
-                score >= snow.heavyThreshold
-                  ? snowSelectors.heavy.typeName
-                  : score >= snow.mediumThreshold
-                    ? snowSelectors.medium.typeName
-                    : snowSelectors.light.typeName;
-              snowCandidates.push({
-                idx,
-                x,
-                y,
-                plotEffect: typeToUse,
-                score,
-                tie: rng(0x7fffffff, `plot-effects:snow:${idx}`),
-              });
-            }
-          }
+      if (snowEnabled && input.snowEligibleMask[idx] === 1) {
+        const score = input.snowScore01[idx]!;
+        if (score >= snow.lightThreshold) {
+          const typeToUse =
+            score >= snow.heavyThreshold
+              ? snowSelectors.heavy.typeName
+              : score >= snow.mediumThreshold
+                ? snowSelectors.medium.typeName
+                : snowSelectors.light.typeName;
+          snowCandidates.push({
+            idx,
+            x,
+            y,
+            plotEffect: typeToUse,
+            score,
+            tie: rng(0x7fffffff, `plot-effects:snow:${idx}`),
+          });
         }
+      }
 
-        if (sand.enabled) {
-          if (
-            aridity >= sand.minAridity &&
-            temp >= sand.minTemperature &&
-            freeze <= sand.maxFreeze &&
-            vegetation <= sand.maxVegetation &&
-            moisture <= sand.maxMoisture &&
-            sandBiomeSet.has(symbol)
-          ) {
-            const aridityFactor = normalizeRange(aridity, sand.minAridity, 1);
-            const tempFactor = normalizeRange(temp, sand.minTemperature, sand.minTemperature + 10);
-            const freezeFactor = 1 - normalizeRange(freeze, 0, Math.max(0.0001, sand.maxFreeze));
-            const vegetationFactor = 1 - normalizeRange(vegetation, 0, Math.max(0.0001, sand.maxVegetation));
-            const moistureFactor = 1 - normalizeRange(moisture, 0, Math.max(0.0001, sand.maxMoisture));
-            const score = clamp01(
-              (aridityFactor + tempFactor + freezeFactor + vegetationFactor + moistureFactor) / 5
-            );
-            sandCandidates.push({
-              idx,
-              x,
-              y,
-              plotEffect: sandSelector.typeName,
-              score,
-              tie: rng(0x7fffffff, `plot-effects:sand:${idx}`),
-            });
-          }
-        }
+      if (sandEnabled && input.sandEligibleMask[idx] === 1) {
+        const score = input.sandScore01[idx]!;
+        sandCandidates.push({
+          idx,
+          x,
+          y,
+          plotEffect: sandSelector.typeName,
+          score,
+          tie: rng(0x7fffffff, `plot-effects:sand:${idx}`),
+        });
+      }
 
-        if (burned.enabled) {
-          if (
-            aridity >= burned.minAridity &&
-            temp >= burned.minTemperature &&
-            moisture <= burned.maxMoisture &&
-            freeze <= burned.maxFreeze &&
-            vegetation <= burned.maxVegetation &&
-            burnedBiomeSet.has(symbol)
-          ) {
-            const aridityFactor = normalizeRange(aridity, burned.minAridity, 1);
-            const tempFactor = normalizeRange(temp, burned.minTemperature, burned.minTemperature + 10);
-            const freezeFactor = 1 - normalizeRange(freeze, 0, Math.max(0.0001, burned.maxFreeze));
-            const vegetationFactor = 1 - normalizeRange(vegetation, 0, Math.max(0.0001, burned.maxVegetation));
-            const moistureFactor = 1 - normalizeRange(moisture, 0, Math.max(0.0001, burned.maxMoisture));
-            const score = clamp01(
-              (aridityFactor + tempFactor + freezeFactor + vegetationFactor + moistureFactor) / 5
-            );
-            burnedCandidates.push({
-              idx,
-              x,
-              y,
-              plotEffect: burnedSelector.typeName,
-              score,
-              tie: rng(0x7fffffff, `plot-effects:burned:${idx}`),
-            });
-          }
-        }
+      if (burnedEnabled && input.burnedEligibleMask[idx] === 1) {
+        const score = input.burnedScore01[idx]!;
+        burnedCandidates.push({
+          idx,
+          x,
+          y,
+          plotEffect: burnedSelector.typeName,
+          score,
+          tie: rng(0x7fffffff, `plot-effects:burned:${idx}`),
+        });
       }
     }
 
