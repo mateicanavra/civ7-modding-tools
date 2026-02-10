@@ -9,7 +9,6 @@
       "mod-swooper-maps.standard.ecology.pedology",
       "mod-swooper-maps.standard.ecology.resource-basins",
       "mod-swooper-maps.standard.ecology.biomes",
-      "mod-swooper-maps.standard.ecology.biome-edge-refine",
       "mod-swooper-maps.standard.ecology.features-plan"
     ],
     "mapEcology": [
