@@ -26,10 +26,20 @@ const PlanReefsContract = defineOp({
   }),
   strategies: {
     default: Type.Object({
-      minScore01: Type.Number({ default: 0.55, minimum: 0, maximum: 1 }),
+      minScore01: Type.Number({
+        description: "Minimum suitability score (0..1) required to place the feature.",
+        default: 0.55,
+        minimum: 0,
+        maximum: 1,
+      }),
     }),
     "shipping-lanes": Type.Object({
-      minScore01: Type.Number({ default: 0.55, minimum: 0, maximum: 1 }),
+      minScore01: Type.Number({
+        description: "Minimum suitability score (0..1) required to place the feature.",
+        default: 0.55,
+        minimum: 0,
+        maximum: 1,
+      }),
     }),
   },
 });
