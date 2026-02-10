@@ -37,7 +37,6 @@ export const RiparianSchema = Type.Object(
     ),
   },
   {
-    additionalProperties: false,
     description: "Riparian moisture bonuses derived from hydrology river classification.",
   }
 );

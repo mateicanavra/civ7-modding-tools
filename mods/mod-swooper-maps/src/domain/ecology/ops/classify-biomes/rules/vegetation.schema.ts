@@ -45,7 +45,6 @@ export const VegetationSchema = Type.Object(
     }),
   },
   {
-    additionalProperties: false,
     description: "Vegetation density model knobs (base, moisture/humidity weights, normalization).",
   }
 );
