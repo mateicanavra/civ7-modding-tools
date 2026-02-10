@@ -46,5 +46,26 @@ Current pointer: **M3-006**
 - [ ] Schema invariant: prefer `TypedArraySchemas.*` over `Type.Any()` for typed arrays (artifacts/config); only keep `Any` with written rationale
 - [ ] Slice-end command gates (run and record each slice)
   - `bun --cwd mods/mod-swooper-maps test test/ecology`
+  - `bun --cwd mods/mod-swooper-maps run diag:dump -- 106 66 1337 --label <label>`
+  - Rerun `diag:dump` with a second label and verify `diag:diff` is empty
+    - `bun --cwd mods/mod-swooper-maps run diag:diff -- dist/visualization/<label>/<runId> dist/visualization/<label2>/<runId>`
+  - `rg -n "rollPercent|chance\\b|multiplier\\b" mods/mod-swooper-maps/src/domain/ecology/ops | cat`
   - `bun run build`
   - `timeout 20s bun run dev:mapgen-studio` (exit code 124 OK if it started; fail only on early crash)
+  - (Stamping slice only) `rg -n "createLabelRng" mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/features-apply -S | cat`
+
+## Closure Notes
+
+### M3-005 (Reefs) DONE
+- Draft PR: `#1226`
+- Notes: Stage-id config posture migration was required for TS map configs to align with `plan-reefs`/`plan-ice` minScore01-only planner contracts.
+
+### M3-006 (Wetlands) DONE
+- Draft PR: `#1227`
+- Key behavior: Wet-family placement is deterministic (seeded tie-break for exact equal scores only), joint-resolved inside `ops.planWetlands`, with all chance/multiplier/disabled-strategy wet placement ops deleted.
+- Gates (local):
+  - `bun --cwd mods/mod-swooper-maps test test/ecology` PASS
+  - `diag:dump` rerun + `diag:diff` mismatches `0`
+  - static scan: no `rollPercent|chance|multiplier` hits in wetlands/reefs/ice planning ops
+  - `bun run build` PASS
+  - `timeout 20s bun run dev:mapgen-studio` reached Vite READY (exit `124` OK)
