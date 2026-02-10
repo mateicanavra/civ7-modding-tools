@@ -725,7 +725,7 @@
                 "typeName": "PLOTEFFECT_SNOW_HEAVY_PERMANENT"
               }
             },
-            "coverageChance": 65,
+            "coveragePct": 65,
             "freezeWeight": 1.1,
             "elevationWeight": 0.9,
             "moistureWeight": 0.7,
@@ -749,7 +749,7 @@
             "selector": {
               "typeName": "PLOTEFFECT_SAND"
             },
-            "chance": 32,
+            "coveragePct": 32,
             "minAridity": 0.42,
             "minTemperature": 14,
             "maxFreeze": 0.3,
@@ -765,7 +765,7 @@
             "selector": {
               "typeName": "PLOTEFFECT_BURNED"
             },
-            "chance": 6,
+            "coveragePct": 6,
             "minAridity": 0.45,
             "minTemperature": 21,
             "maxFreeze": 0.22,

@@ -51,7 +51,7 @@ const SnowElevationStrategySchema = Type.Union(
 const PlotEffectsSnowSchema = Type.Object({
   enabled: Type.Boolean({ default: true }),
   selectors: PlotEffectsSnowSelectorsSchema,
-  coverageChance: Type.Number({ default: 80, minimum: 0, maximum: 100 }),
+  coveragePct: Type.Number({ default: 80, minimum: 0, maximum: 100 }),
   freezeWeight: Type.Number({ default: 1, minimum: 0 }),
   elevationWeight: Type.Number({ default: 1, minimum: 0 }),
   moistureWeight: Type.Number({ default: 1, minimum: 0 }),
@@ -74,7 +74,7 @@ const PlotEffectsSnowSchema = Type.Object({
 const PlotEffectsSandSchema = Type.Object({
   enabled: Type.Boolean({ default: false }),
   selector: createPlotEffectSelectorSchema({ typeName: "PLOTEFFECT_SAND" }),
-  chance: Type.Number({ default: 18, minimum: 0, maximum: 100 }),
+  coveragePct: Type.Number({ default: 18, minimum: 0, maximum: 100 }),
   minAridity: Type.Number({ default: 0.55, minimum: 0, maximum: 1 }),
   minTemperature: Type.Number({ default: 18 }),
   maxFreeze: Type.Number({ default: 0.25, minimum: 0, maximum: 1 }),
@@ -86,7 +86,7 @@ const PlotEffectsSandSchema = Type.Object({
 const PlotEffectsBurnedSchema = Type.Object({
   enabled: Type.Boolean({ default: false }),
   selector: createPlotEffectSelectorSchema({ typeName: "PLOTEFFECT_BURNED" }),
-  chance: Type.Number({ default: 8, minimum: 0, maximum: 100 }),
+  coveragePct: Type.Number({ default: 8, minimum: 0, maximum: 100 }),
   minAridity: Type.Number({ default: 0.45, minimum: 0, maximum: 1 }),
   minTemperature: Type.Number({ default: 20 }),
   maxFreeze: Type.Number({ default: 0.2, minimum: 0, maximum: 1 }),
@@ -114,7 +114,7 @@ const PlanPlotEffectsContract = defineOp({
   input: Type.Object({
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
-    seed: Type.Number({ description: "Deterministic seed for plot-effect RNG." }),
+    seed: Type.Number({ description: "Deterministic seed for tie-break ordering." }),
     biomeIndex: TypedArraySchemas.u8({ description: "Biome symbol indices per tile." }),
     vegetationDensity: TypedArraySchemas.f32({
       description: "Vegetation density per tile (0..1).",

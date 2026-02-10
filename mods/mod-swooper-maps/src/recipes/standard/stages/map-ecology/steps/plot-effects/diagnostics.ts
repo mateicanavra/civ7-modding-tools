@@ -103,7 +103,7 @@ type SnowResolvedConfig = {
   lightThreshold: number;
   mediumThreshold: number;
   heavyThreshold: number;
-  coverageChance: number;
+  coveragePct: number;
 };
 
 type PlotEffectsResolvedConfig = {
@@ -167,7 +167,7 @@ function resolvePlotEffectsConfig(config: unknown): PlotEffectsResolvedConfig | 
       lightThreshold: asNumber(snowRaw.lightThreshold, 0),
       mediumThreshold: asNumber(snowRaw.mediumThreshold, 0),
       heavyThreshold: asNumber(snowRaw.heavyThreshold, 0),
-      coverageChance: asNumber(snowRaw.coverageChance, 0),
+      coveragePct: asNumber(snowRaw.coveragePct, 0),
     },
   };
 }
@@ -356,7 +356,7 @@ export function logSnowEligibilitySummary(
     enabled: true,
     snowTypes,
     config: {
-      coverageChance: resolved.snow.coverageChance,
+      coveragePct: resolved.snow.coveragePct,
       thresholds: {
         light: resolved.snow.lightThreshold,
         medium: resolved.snow.mediumThreshold,
@@ -405,8 +405,6 @@ export function logSnowEligibilitySummary(
       scoreStats: finalizeScoreStats(bucketFlat),
     },
     placements: placementCounts,
-    expectedCoverage: Number(
-      ((bucketLand.scoreEligible * resolved.snow.coverageChance) / 100).toFixed(2)
-    ),
+    targetPlacements: Math.round((bucketLand.scoreEligible * resolved.snow.coveragePct) / 100),
   });
 }
