@@ -18,24 +18,23 @@ export default createStep(BiomesStepContract, {
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;
 
-    const climateField = deps.artifacts.climateField.read(context);
     const climateIndices = deps.artifacts.climateIndices.read(context);
     const topography = deps.artifacts.topography.read(context);
     const { landMask } = topography;
-    const hydrography = deps.artifacts.hydrography.read(context);
+    const pedology = deps.artifacts.pedology.read(context);
     const cryosphere = deps.artifacts.cryosphere.read(context);
 
     const result = ops.classify(
       {
         width,
         height,
-        rainfall: climateField.rainfall,
-        humidity: climateField.humidity,
+        effectiveMoisture: climateIndices.effectiveMoisture,
         surfaceTemperatureC: climateIndices.surfaceTemperatureC,
         aridityIndex: climateIndices.aridityIndex,
         freezeIndex: climateIndices.freezeIndex,
         landMask,
-        riverClass: hydrography.riverClass,
+        soilType: pedology.soilType,
+        fertility: pedology.fertility,
       },
       config.classify
     );

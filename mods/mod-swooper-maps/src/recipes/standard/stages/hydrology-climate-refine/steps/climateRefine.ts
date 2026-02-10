@@ -21,6 +21,11 @@ const GROUP_CRYOSPHERE = "Hydrology / Cryosphere";
 const GROUP_DIAGNOSTICS = "Hydrology / Diagnostics";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
+const EFFECTIVE_MOISTURE_HUMIDITY_WEIGHT = 0.35;
+const EFFECTIVE_MOISTURE_RIPARIAN_RADIUS = 1;
+const EFFECTIVE_MOISTURE_MINOR_RIVER_BONUS = 4;
+const EFFECTIVE_MOISTURE_MAJOR_RIVER_BONUS = 8;
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
@@ -60,11 +65,13 @@ export default createStep(ClimateRefineStepContract, {
           if (!isRecord(value)) return [{ message: "Missing hydrology climate indices artifact payload." }];
           const candidate = value as {
             surfaceTemperatureC?: unknown;
+            effectiveMoisture?: unknown;
             pet?: unknown;
             aridityIndex?: unknown;
             freezeIndex?: unknown;
           };
           validateTypedArray(errors, "climateIndices.surfaceTemperatureC", candidate.surfaceTemperatureC, Float32Array, size);
+          validateTypedArray(errors, "climateIndices.effectiveMoisture", candidate.effectiveMoisture, Float32Array, size);
           validateTypedArray(errors, "climateIndices.pet", candidate.pet, Float32Array, size);
           validateTypedArray(errors, "climateIndices.aridityIndex", candidate.aridityIndex, Float32Array, size);
           validateTypedArray(errors, "climateIndices.freezeIndex", candidate.freezeIndex, Float32Array, size);
@@ -239,6 +246,44 @@ export default createStep(ClimateRefineStepContract, {
       config.computePrecipitation
     );
 
+    const riparianBonusByTile = new Float32Array(size);
+    for (let y = 0; y < height; y++) {
+      const y0 = Math.max(0, y - EFFECTIVE_MOISTURE_RIPARIAN_RADIUS);
+      const y1 = Math.min(height - 1, y + EFFECTIVE_MOISTURE_RIPARIAN_RADIUS);
+      const yOffset = y * width;
+      for (let x = 0; x < width; x++) {
+        const x0 = Math.max(0, x - EFFECTIVE_MOISTURE_RIPARIAN_RADIUS);
+        const x1 = Math.min(width - 1, x + EFFECTIVE_MOISTURE_RIPARIAN_RADIUS);
+
+        let maxClass = 0;
+        for (let yy = y0; yy <= y1; yy++) {
+          const yyOffset = yy * width;
+          for (let xx = x0; xx <= x1; xx++) {
+            const cls = hydrography.riverClass[yyOffset + xx] ?? 0;
+            if (cls > maxClass) maxClass = cls;
+            if (maxClass >= 2) break;
+          }
+          if (maxClass >= 2) break;
+        }
+
+        const idx = yOffset + x;
+        if (maxClass >= 2) riparianBonusByTile[idx] = EFFECTIVE_MOISTURE_MAJOR_RIVER_BONUS;
+        else if (maxClass >= 1) riparianBonusByTile[idx] = EFFECTIVE_MOISTURE_MINOR_RIVER_BONUS;
+      }
+    }
+
+    const effectiveMoisture = new Float32Array(size);
+    for (let i = 0; i < size; i++) {
+      if (topography.landMask[i] === 0) {
+        effectiveMoisture[i] = 0;
+        continue;
+      }
+      const rainfall = refined.rainfall[i] ?? 0;
+      const humidity = refined.humidity[i] ?? 0;
+      const riparianBonus = riparianBonusByTile[i] ?? 0;
+      effectiveMoisture[i] = rainfall + EFFECTIVE_MOISTURE_HUMIDITY_WEIGHT * humidity + riparianBonus;
+    }
+
     const forcing = ops.computeRadiativeForcing({ width, height, latitudeByRow }, config.computeRadiativeForcing);
     const thermal = ops.computeThermalState(
       {
@@ -340,6 +385,18 @@ export default createStep(ClimateRefineStepContract, {
       values: waterBudget.pet,
       meta: defineVizMeta("hydrology.climate.indices.pet", {
         label: "Potential Evapotranspiration",
+        group: GROUP_INDICES,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "hydrology.climate.indices.effectiveMoisture",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "f32",
+      values: effectiveMoisture,
+      meta: defineVizMeta("hydrology.climate.indices.effectiveMoisture", {
+        label: "Effective Moisture",
         group: GROUP_INDICES,
         visibility: "debug",
       }),
@@ -488,6 +545,7 @@ export default createStep(ClimateRefineStepContract, {
 
     deps.artifacts.climateIndices.publish(context, {
       surfaceTemperatureC: albedoFeedback.surfaceTemperatureC,
+      effectiveMoisture,
       pet: waterBudget.pet,
       aridityIndex: waterBudget.aridityIndex,
       freezeIndex: cryosphere.freezeIndex,

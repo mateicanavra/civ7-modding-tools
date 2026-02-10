@@ -9,29 +9,28 @@ export function vegetationDensityForBiome(
   params: {
     base: number;
     moistureWeight: number;
-    humidityWeight: number;
     moistureNorm: number;
-    humidityNorm: number;
     energy01: number;
     freezeIndex: number;
     aridityIndex: number;
     aridityPenalty: number;
+    fertility01: number;
+    soilType: number;
   }
 ): number {
   const {
     base,
     moistureWeight,
-    humidityWeight,
     moistureNorm,
-    humidityNorm,
     energy01,
     freezeIndex,
     aridityIndex,
     aridityPenalty,
+    fertility01,
+    soilType,
   } = params;
 
-  let density =
-    base + moistureWeight * moistureNorm + humidityWeight * humidityNorm;
+  let density = base + moistureWeight * moistureNorm;
   void symbol;
 
   // Mechanistic postures:
@@ -41,6 +40,17 @@ export function vegetationDensityForBiome(
   density *= clamp01(energy01);
   density *= clamp01(1 - freezeIndex);
   density -= aridityIndex * aridityPenalty;
+
+  // Soils: fertility (0..1) and soil palette bucket gently modulate vegetation density.
+  // Deterministic and local: we consume soils artifact without re-deriving Hydrology indices.
+  const soilTypeDelta =
+    soilType === 0 ? -0.15 : // rocky
+    soilType === 1 ? -0.08 : // sandy
+    soilType === 3 ? 0.02 : // clayish / wet
+    0.05; // loam/default
+  const fertilityFactor = 0.6 + 0.5 * clamp01(fertility01);
+  const soilFactor = Math.max(0, fertilityFactor + soilTypeDelta);
+  density *= soilFactor;
 
   return Math.max(0, Math.min(1, density));
 }
