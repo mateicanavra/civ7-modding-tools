@@ -1,32 +1,36 @@
+import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
+
+import { validateGridSize } from "../../score-shared/index.js";
 import PlanIceContract from "../contract.js";
+
 export const defaultStrategy = createStrategy(PlanIceContract, "default", {
   run: (input, config) => {
+    const width = input.width | 0;
+    const height = input.height | 0;
+    const size = validateGridSize({
+      width,
+      height,
+      fields: [
+        { label: "score01", arr: input.score01 as Float32Array },
+        { label: "featureIndex", arr: input.featureIndex as Uint16Array },
+        { label: "reserved", arr: input.reserved as Uint8Array },
+      ],
+    });
+
     const placements: Array<{ x: number; y: number; feature: string; weight?: number }> = [];
-    const { width, height } = input;
-    const rng = createLabelRng(1337);
-    const { seaIceThreshold, featherC, jitterC, densityScale } = config;
-    for (let y = 0; y < height; y++) {
-      const row = y * width;
-      for (let x = 0; x < width; x++) {
-        const idx = row + x;
-        const jitter = (rng(1000, `ice:${x},${y}`) / 1000 - 0.5) * 2 * jitterC;
-        const temperature = input.surfaceTemperature[idx] + jitter;
-        if (input.landMask[idx] === 0) {
-          const delta = temperature - seaIceThreshold;
-          if (delta <= 0) {
-            placements.push({ x, y, feature: "FEATURE_ICE", weight: densityScale });
-          } else if (delta <= featherC && featherC > 0) {
-            const w = 1 - delta / featherC;
-            const weight = Math.max(0, Math.min(1, w)) * densityScale;
-            if (weight > 0) placements.push({ x, y, feature: "FEATURE_ICE", weight });
-          }
-        } else if (input.elevation[idx] >= config.alpineThreshold) {
-          placements.push({ x, y, feature: "FEATURE_ICE", weight: densityScale });
-        }
-      }
+    const minScore01 = clamp01(config.minScore01);
+
+    for (let i = 0; i < size; i++) {
+      if (input.reserved[i] !== 0) continue;
+      if (input.featureIndex[i] !== 0) continue;
+      const score = input.score01[i];
+      if (!Number.isFinite(score) || score < minScore01) continue;
+      const x = i % width;
+      const y = (i / width) | 0;
+      placements.push({ x, y, feature: "FEATURE_ICE" });
     }
+
     return { placements };
   },
 });
