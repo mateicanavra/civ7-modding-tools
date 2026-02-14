@@ -100,3 +100,9 @@ Conventions:
 - Command: `bun run --cwd mods/mod-swooper-maps test`
 - Result: fail (174 pass, 26 fail)
 - Top recurring blocker: `RecipeCompileError` unknown key `/config/ecology/biomes/classify/config/vegetation/biomeModifiers`.
+
+## 2026-02-14 PRR-s118-c01
+- Branch: `agent-SWANKO-PRR-s118-c01-fix-studio-artifacts-preflight`
+- Change: preflight now requires `standard`/`browser-test` recipe modules, `.d.ts`, and generated `*.schema.json`/`*.defaults.json`/`*.presets.json` in addition to `*-artifacts.js`.
+- Checks: (not executed) `node scripts/preflight/ensure-studio-recipe-artifacts.mjs` (skipped to avoid generating dist artifacts in this worktree)
+- PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1254 (draft)
