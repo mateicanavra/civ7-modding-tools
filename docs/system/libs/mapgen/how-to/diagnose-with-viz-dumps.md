@@ -4,6 +4,7 @@
   <item id="quickstart" title="Quickstart (deterministic probes)"/>
   <item id="metrics" title="Canonical metrics"/>
   <item id="ab-diff" title="A/B diff workflow"/>
+  <item id="anchors" title="Ground truth anchors"/>
   <item id="notes" title="Notes + footguns"/>
 </toc>
 
@@ -96,6 +97,20 @@ If Foundation layers change but landmask doesn’t, the problem is usually one o
 - “Foundation output isn’t consumed by Morphology” (contract/wiring gap),
 - “Morphology normalizes/thresholds away the difference” (algorithmic trap),
 - “the knob is dead / normalized away upstream.”
+
+## Ground truth anchors
+
+- Dump writer / pipeline entry:
+  - `mods/mod-swooper-maps/src/dev/diagnostics/run-standard-dump.ts`
+- Dump analyzers:
+  - `mods/mod-swooper-maps/src/dev/diagnostics/analyze-dump.ts`
+  - `mods/mod-swooper-maps/src/dev/diagnostics/diff-layers.ts`
+  - `mods/mod-swooper-maps/src/dev/diagnostics/list-layers.ts`
+  - `mods/mod-swooper-maps/src/dev/diagnostics/extract-trace.ts`
+- Shared dump readers and helpers:
+  - `mods/mod-swooper-maps/src/dev/diagnostics/shared.ts`
+- Trace + viz observer wiring:
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/viz.ts`
 
 ## Notes + footguns
 

@@ -67,6 +67,8 @@ describe("foundation tile projection (materials)", () => {
         {
           boundaryType: new Uint8Array([1, 2, 3, 4]),
           upliftPotential: new Uint8Array([10, 11, 12, 13]),
+          collisionPotential: new Uint8Array([14, 15, 16, 17]),
+          subductionPotential: new Uint8Array([18, 19, 20, 21]),
           riftPotential: new Uint8Array([20, 21, 22, 23]),
           shearStress: new Uint8Array([30, 31, 32, 33]),
           volcanism: new Uint8Array([40, 41, 42, 43]),
@@ -75,6 +77,8 @@ describe("foundation tile projection (materials)", () => {
         {
           boundaryType: new Uint8Array([5, 6, 7, 8]),
           upliftPotential: new Uint8Array([60, 61, 62, 63]),
+          collisionPotential: new Uint8Array([64, 65, 66, 67]),
+          subductionPotential: new Uint8Array([68, 69, 70, 71]),
           riftPotential: new Uint8Array([70, 71, 72, 73]),
           shearStress: new Uint8Array([80, 81, 82, 83]),
           volcanism: new Uint8Array([90, 91, 92, 93]),
@@ -83,6 +87,8 @@ describe("foundation tile projection (materials)", () => {
         {
           boundaryType: new Uint8Array([0, 0, 0, 0]),
           upliftPotential: new Uint8Array([0, 0, 0, 0]),
+          collisionPotential: new Uint8Array([0, 0, 0, 0]),
+          subductionPotential: new Uint8Array([0, 0, 0, 0]),
           riftPotential: new Uint8Array([0, 0, 0, 0]),
           shearStress: new Uint8Array([0, 0, 0, 0]),
           volcanism: new Uint8Array([0, 0, 0, 0]),
@@ -91,6 +97,8 @@ describe("foundation tile projection (materials)", () => {
         {
           boundaryType: new Uint8Array([0, 0, 0, 0]),
           upliftPotential: new Uint8Array([0, 0, 0, 0]),
+          collisionPotential: new Uint8Array([0, 0, 0, 0]),
+          subductionPotential: new Uint8Array([0, 0, 0, 0]),
           riftPotential: new Uint8Array([0, 0, 0, 0]),
           shearStress: new Uint8Array([0, 0, 0, 0]),
           volcanism: new Uint8Array([0, 0, 0, 0]),
@@ -99,6 +107,8 @@ describe("foundation tile projection (materials)", () => {
         {
           boundaryType: new Uint8Array([0, 0, 0, 0]),
           upliftPotential: new Uint8Array([0, 0, 0, 0]),
+          collisionPotential: new Uint8Array([0, 0, 0, 0]),
+          subductionPotential: new Uint8Array([0, 0, 0, 0]),
           riftPotential: new Uint8Array([0, 0, 0, 0]),
           shearStress: new Uint8Array([0, 0, 0, 0]),
           volcanism: new Uint8Array([0, 0, 0, 0]),
@@ -106,10 +116,16 @@ describe("foundation tile projection (materials)", () => {
         },
       ],
       upliftTotal: new Uint8Array([10, 11, 12, 13]),
+      collisionTotal: new Uint8Array([14, 15, 16, 17]),
+      subductionTotal: new Uint8Array([18, 19, 20, 21]),
       fractureTotal: new Uint8Array([20, 21, 22, 23]),
       volcanismTotal: new Uint8Array([30, 31, 32, 33]),
       upliftRecentFraction: new Uint8Array([40, 41, 42, 43]),
+      collisionRecentFraction: new Uint8Array([44, 45, 46, 47]),
+      subductionRecentFraction: new Uint8Array([48, 49, 50, 51]),
       lastActiveEra: new Uint8Array([1, 1, 0, 0]),
+      lastCollisionEra: new Uint8Array([1, 1, 0, 0]),
+      lastSubductionEra: new Uint8Array([1, 1, 0, 0]),
     } as const;
 
     const tectonicProvenance = {

@@ -117,7 +117,7 @@ The `map-ecology` stage:
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
 - Architecture guardrails (import bans and parity gates):
   - `mods/mod-swooper-maps/test/ecology/ecology-step-import-guardrails.test.ts`
-  - `mods/mod-swooper-maps/test/ecology/ecology-parity-baseline.test.ts`
+  - `mods/mod-swooper-maps/test/ecology/earthlike-balance-smoke.test.ts`
 
 ## Open questions
 
