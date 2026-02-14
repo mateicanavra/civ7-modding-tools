@@ -9,7 +9,7 @@ import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js
 import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 
 describe("placement landmass region projection", () => {
-  it("projects LandmassRegionId before resources and starts using adapter constants", () => {
+  it("projects LandmassRegionId before deterministic resource stamping and starts using adapter constants", () => {
     const width = 20;
     const height = 12;
     const seed = 1337;
@@ -43,10 +43,10 @@ describe("placement landmass region projection", () => {
       regionIds.push(regionId);
       originalSetLandmassRegionId(x, y, regionId);
     };
-    const originalGenerateResources = adapter.generateResources.bind(adapter);
-    adapter.generateResources = (width, height) => {
-      callOrder.push("generateResources");
-      originalGenerateResources(width, height);
+    const originalSetResourceType = adapter.setResourceType.bind(adapter);
+    adapter.setResourceType = (x, y, resourceType) => {
+      callOrder.push("setResourceType");
+      originalSetResourceType(x, y, resourceType);
     };
     const originalSetStartPosition = adapter.setStartPosition.bind(adapter);
     adapter.setStartPosition = (plotIndex, playerId) => {
@@ -59,13 +59,14 @@ describe("placement landmass region projection", () => {
     standardRecipe.run(context, env, realismEarthlikeConfig, { log: () => {} });
 
     const firstProjection = callOrder.indexOf("setLandmassRegionId");
-    const firstResources = callOrder.indexOf("generateResources");
+    const firstResourceStamp = callOrder.indexOf("setResourceType");
     const firstStart = callOrder.indexOf("setStartPosition");
 
     expect(firstProjection).toBeGreaterThanOrEqual(0);
-    expect(firstResources).toBeGreaterThan(firstProjection);
+    expect(firstResourceStamp).toBeGreaterThan(firstProjection);
     expect(firstStart).toBeGreaterThan(firstProjection);
-    expect(firstStart).toBeGreaterThan(firstResources);
+    expect(firstStart).toBeGreaterThan(firstResourceStamp);
+    expect(adapter.calls.setResourceType.length).toBeGreaterThan(0);
 
     const allowed = new Set([
       adapter.getLandmassId("WEST"),

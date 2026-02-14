@@ -13,6 +13,7 @@ import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 import type { PlacementOutputsV1 } from "../../placement-outputs.js";
 
 type PlanFloodplainsOutput = Static<typeof placement.ops.planFloodplains["output"]>;
+type PlanResourcesOutput = Static<typeof placement.ops.planResources["output"]>;
 type PlanStartsOutput = Static<typeof placement.ops.planStarts["output"]>;
 type PlanWondersOutput = Static<typeof placement.ops.planWonders["output"]>;
 
@@ -31,6 +32,7 @@ type ApplyPlacementArgs = {
   starts: DeepReadonly<PlanStartsOutput>;
   wonders: DeepReadonly<PlanWondersOutput>;
   floodplains: DeepReadonly<PlanFloodplainsOutput>;
+  resources: DeepReadonly<PlanResourcesOutput>;
   landmassRegionSlotByTile: DeepReadonly<LandmassRegionSlotByTile>;
   publishOutputs: (outputs: PlacementOutputsV1) => DeepReadonly<PlacementOutputsV1>;
   publishEngineState?: (engineState: PlacementEngineState) => DeepReadonly<PlacementEngineState>;
@@ -61,6 +63,7 @@ export function applyPlacementPlan({
   starts,
   wonders,
   floodplains,
+  resources,
   landmassRegionSlotByTile,
   publishOutputs,
   publishEngineState = (engineState) => engineState,
@@ -144,10 +147,25 @@ export function applyPlacementPlan({
   }
 
   let resourcesAttempted = false;
+  let resourcesPlaced = 0;
   let resourcesError: string | undefined;
   try {
     resourcesAttempted = true;
-    adapter.generateResources(width, height);
+    const stamping = stampResourcesFromPlan({
+      adapter,
+      width,
+      height,
+      resources,
+    });
+    resourcesPlaced = stamping.placedCount;
+    emit({
+      type: "placement.resources.stamped",
+      plannedCount: stamping.plannedCount,
+      placedCount: stamping.placedCount,
+      skippedOccupiedCount: stamping.skippedOccupiedCount,
+      skippedIneligibleCount: stamping.skippedIneligibleCount,
+      skippedOutOfBoundsCount: stamping.skippedOutOfBoundsCount,
+    });
   } catch (err) {
     resourcesError = err instanceof Error ? err.message : String(err);
     emit({
@@ -273,6 +291,7 @@ export function applyPlacementPlan({
     slotCounts,
     startsAssigned: startPositions.filter((pos) => Number.isFinite(pos) && pos >= 0).length,
     resourcesAttempted,
+    resourcesPlaced,
     ...(resourcesError != null ? { resourcesError } : {}),
     waterDriftCount,
   });
@@ -281,6 +300,7 @@ export function applyPlacementPlan({
     type: "placement.parity",
     slotCounts,
     resourcesAttempted,
+    resourcesPlaced,
     resourcesError: resourcesError ?? null,
     waterDriftCount,
   });
@@ -290,12 +310,111 @@ export function applyPlacementPlan({
     naturalWondersCount: wonders.wondersCount,
     floodplainsCount: 0,
     snowTilesCount: 0,
-    resourcesCount: 0,
+    resourcesCount: resourcesPlaced,
     startsAssigned,
     discoveriesCount: 0,
   };
 
   return publishOutputs(outputs);
+}
+
+type StampResourcesFromPlanArgs = {
+  adapter: ExtendedMapContext["adapter"];
+  width: number;
+  height: number;
+  resources: DeepReadonly<PlanResourcesOutput>;
+};
+
+type ResourceStampingStats = {
+  plannedCount: number;
+  placedCount: number;
+  skippedOccupiedCount: number;
+  skippedIneligibleCount: number;
+  skippedOutOfBoundsCount: number;
+};
+
+function stampResourcesFromPlan({
+  adapter,
+  width,
+  height,
+  resources,
+}: StampResourcesFromPlanArgs): ResourceStampingStats {
+  if ((resources.width | 0) !== (width | 0) || (resources.height | 0) !== (height | 0)) {
+    throw new Error(
+      `[Placement] Resource plan dimensions ${resources.width}x${resources.height} do not match map ${width}x${height}.`
+    );
+  }
+
+  const candidateResourceTypes = Array.from(
+    new Set(
+      resources.candidateResourceTypes
+        .map((value) => value | 0)
+        .filter((value) => Number.isFinite(value) && value >= 0)
+    )
+  );
+  const candidateTypeSet = new Set(candidateResourceTypes);
+
+  let placedCount = 0;
+  let skippedOccupiedCount = 0;
+  let skippedIneligibleCount = 0;
+  let skippedOutOfBoundsCount = 0;
+
+  for (const placementPlan of resources.placements) {
+    const plotIndex = placementPlan.plotIndex | 0;
+    if (plotIndex < 0 || plotIndex >= width * height) {
+      skippedOutOfBoundsCount += 1;
+      continue;
+    }
+
+    const y = (plotIndex / width) | 0;
+    const x = plotIndex - y * width;
+
+    const existing = adapter.getResourceType(x, y);
+    if (Number.isFinite(existing) && existing >= 0) {
+      skippedOccupiedCount += 1;
+      continue;
+    }
+
+    const preferredType = placementPlan.preferredResourceType | 0;
+    const preferredOffset = placementPlan.preferredTypeOffset | 0;
+    const orderedCandidates = rotateCandidates(candidateResourceTypes, preferredOffset);
+    if (preferredType >= 0 && !candidateTypeSet.has(preferredType)) {
+      orderedCandidates.unshift(preferredType);
+    }
+
+    let stamped = false;
+    for (const resourceType of orderedCandidates) {
+      if (!adapter.canHaveResource(x, y, resourceType)) continue;
+      adapter.setResourceType(x, y, resourceType);
+      const stampedType = adapter.getResourceType(x, y);
+      if (Number.isFinite(stampedType) && stampedType >= 0) {
+        placedCount += 1;
+        stamped = true;
+        break;
+      }
+    }
+
+    if (!stamped) skippedIneligibleCount += 1;
+  }
+
+  return {
+    plannedCount: resources.placements.length,
+    placedCount,
+    skippedOccupiedCount,
+    skippedIneligibleCount,
+    skippedOutOfBoundsCount,
+  };
+}
+
+function rotateCandidates(values: number[], offset: number): number[] {
+  if (values.length === 0) return [];
+  const length = values.length;
+  const start = ((offset % length) + length) % length;
+  const rotated: number[] = [];
+  for (let i = 0; i < length; i++) {
+    rotated.push(values[(start + i) % length]!);
+  }
+  return rotated;
 }
 
 function applyLandmassRegionSlots(

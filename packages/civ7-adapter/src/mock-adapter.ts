@@ -211,6 +211,8 @@ export interface MockAdapterConfig {
   landmassIds?: Partial<Record<LandmassIdName, number>>;
   /** Optional feature validation hook for tests (return false to reject placement). */
   canHaveFeature?: (x: number, y: number, featureType: number) => boolean;
+  /** Optional resource validation hook for tests (return false to reject placement). */
+  canHaveResource?: (x: number, y: number, resourceType: number) => boolean;
   /** Plot effect types and tag sets for getPlotEffectTypesContainingTags. */
   plotEffectTypes?: MockPlotEffectType[];
 }
@@ -230,6 +232,7 @@ export class MockAdapter implements EngineAdapter {
   private rainfall: Uint8Array;
   private temperature: Uint8Array;
   private features: Int16Array;
+  private resources: Int16Array;
   private biomes: Uint8Array;
   private waterMask: Uint8Array;
   private mountainMask: Uint8Array;
@@ -242,6 +245,7 @@ export class MockAdapter implements EngineAdapter {
   private plotTags: Record<PlotTagName, number>;
   private landmassIds: Record<LandmassIdName, number>;
   private canHaveFeatureFn?: (x: number, y: number, featureType: number) => boolean;
+  private canHaveResourceFn?: (x: number, y: number, resourceType: number) => boolean;
   private plotEffectTypes: Array<{ id: number; name: string; tags: Set<string> }>;
   private plotEffectsByIndex: Map<number, Set<number>>;
   private readonly effectEvidence = new Set<string>();
@@ -257,6 +261,7 @@ export class MockAdapter implements EngineAdapter {
     addNaturalWonders: Array<{ width: number; height: number; numWonders: number }>;
     generateSnow: Array<{ width: number; height: number }>;
     generateResources: Array<{ width: number; height: number }>;
+    setResourceType: Array<{ x: number; y: number; resourceType: number }>;
     generateLakes: Array<{ width: number; height: number; tilesPerLake: number }>;
     expandCoasts: Array<{ width: number; height: number }>;
     assignStartPositions: Array<{
@@ -272,6 +277,7 @@ export class MockAdapter implements EngineAdapter {
     recalculateFertility: number;
     addPlotEffect: Array<{ x: number; y: number; plotEffectType: number }>;
   };
+  resourcesPlaced = 0;
 
   constructor(config: MockAdapterConfig = {}) {
     this.width = config.width ?? 128;
@@ -285,6 +291,7 @@ export class MockAdapter implements EngineAdapter {
     this.rainfall = new Uint8Array(size).fill(config.defaultRainfall ?? 50);
     this.temperature = new Uint8Array(size).fill(config.defaultTemperature ?? 15);
     this.features = new Int16Array(size).fill(-1);
+    this.resources = new Int16Array(size).fill(-1);
     this.biomes = new Uint8Array(size).fill(config.defaultBiomeType ?? 0);
     this.waterMask = new Uint8Array(size);
     this.mountainMask = new Uint8Array(size);
@@ -297,6 +304,7 @@ export class MockAdapter implements EngineAdapter {
     this.plotTags = { ...DEFAULT_PLOT_TAGS, ...(config.plotTags ?? {}) };
     this.landmassIds = { ...DEFAULT_LANDMASS_IDS, ...(config.landmassIds ?? {}) };
     this.canHaveFeatureFn = config.canHaveFeature;
+    this.canHaveResourceFn = config.canHaveResource;
     this.plotEffectTypes = (config.plotEffectTypes ?? DEFAULT_PLOT_EFFECT_TYPES).map((entry) => ({
       id: entry.id,
       name: entry.name,
@@ -314,6 +322,7 @@ export class MockAdapter implements EngineAdapter {
       addNaturalWonders: [],
       generateSnow: [],
       generateResources: [],
+      setResourceType: [],
       generateLakes: [],
       expandCoasts: [],
       assignStartPositions: [],
@@ -494,6 +503,27 @@ export class MockAdapter implements EngineAdapter {
       return this.canHaveFeatureFn(_x, _y, _featureType);
     }
     return true; // Mock: always allow features
+  }
+
+  getResourceType(x: number, y: number): number {
+    return this.resources[this.idx(x, y)];
+  }
+
+  setResourceType(x: number, y: number, resourceType: number): void {
+    const i = this.idx(x, y);
+    const prev = this.resources[i];
+    this.resources[i] = resourceType;
+    this.calls.setResourceType.push({ x, y, resourceType });
+    if (prev < 0 && resourceType >= 0) this.resourcesPlaced += 1;
+    if (prev >= 0 && resourceType < 0) this.resourcesPlaced = Math.max(0, this.resourcesPlaced - 1);
+    this.recordPlacementEffect();
+  }
+
+  canHaveResource(x: number, y: number, resourceType: number): boolean {
+    if (this.canHaveResourceFn) {
+      return this.canHaveResourceFn(x, y, resourceType);
+    }
+    return resourceType >= 0;
   }
 
   // === PLOT EFFECTS ===
@@ -798,6 +828,7 @@ export class MockAdapter implements EngineAdapter {
     this.rainfall.fill(config.defaultRainfall ?? 50);
     this.temperature.fill(config.defaultTemperature ?? 15);
     this.features.fill(-1);
+    this.resources.fill(-1);
     this.biomes.fill(config.defaultBiomeType ?? 0);
     this.waterMask.fill(0);
     this.mountainMask.fill(0);
@@ -811,6 +842,7 @@ export class MockAdapter implements EngineAdapter {
     this.calls.addNaturalWonders.length = 0;
     this.calls.generateSnow.length = 0;
     this.calls.generateResources.length = 0;
+    this.calls.setResourceType.length = 0;
     this.calls.generateLakes.length = 0;
     this.calls.expandCoasts.length = 0;
     this.calls.assignStartPositions.length = 0;
@@ -820,11 +852,13 @@ export class MockAdapter implements EngineAdapter {
     this.calls.addFloodplains.length = 0;
     this.calls.recalculateFertility = 0;
     this.calls.addPlotEffect.length = 0;
+    this.resourcesPlaced = 0;
     this.effectEvidence.clear();
     this.terrainTypeIndices = config.terrainTypeIndices ?? { ...DEFAULT_TERRAIN_TYPE_INDICES };
     this.plotTags = { ...DEFAULT_PLOT_TAGS, ...(config.plotTags ?? {}) };
     this.landmassIds = { ...DEFAULT_LANDMASS_IDS, ...(config.landmassIds ?? {}) };
     this.canHaveFeatureFn = config.canHaveFeature ?? this.canHaveFeatureFn;
+    this.canHaveResourceFn = config.canHaveResource ?? this.canHaveResourceFn;
     this.plotEffectTypes = (config.plotEffectTypes ?? DEFAULT_PLOT_EFFECT_TYPES).map((entry) => ({
       id: entry.id,
       name: entry.name,

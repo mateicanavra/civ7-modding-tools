@@ -244,6 +244,42 @@ export class Civ7Adapter implements EngineAdapter {
     return TerrainBuilder.canHaveFeature(x, y, featureType);
   }
 
+  getResourceType(x: number, y: number): number {
+    return GameplayMap.getResourceType(x, y);
+  }
+
+  setResourceType(x: number, y: number, resourceType: number): void {
+    const rb = (
+      globalThis as typeof globalThis & {
+        ResourceBuilder?: { setResourceType?: (x: number, y: number, resourceType: number) => void };
+      }
+    ).ResourceBuilder;
+    if (!rb?.setResourceType) {
+      throw new Error("[Adapter] ResourceBuilder.setResourceType is unavailable.");
+    }
+    rb.setResourceType(x, y, resourceType);
+    this.recordPlacementEffect();
+  }
+
+  canHaveResource(x: number, y: number, resourceType: number): boolean {
+    const rb = (
+      globalThis as typeof globalThis & {
+        ResourceBuilder?: {
+          canHaveResource?: (
+            x: number,
+            y: number,
+            resourceType: number,
+            ignoreWeight?: boolean
+          ) => boolean;
+        };
+      }
+    ).ResourceBuilder;
+    if (!rb?.canHaveResource) {
+      throw new Error("[Adapter] ResourceBuilder.canHaveResource is unavailable.");
+    }
+    return rb.canHaveResource(x, y, resourceType, false);
+  }
+
   // === PLOT EFFECTS ===
 
   getPlotEffectTypesContainingTags(tags: string[]): number[] {
