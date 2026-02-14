@@ -105,3 +105,4 @@ Conventions:
 - Branch: `agent-SWANKO-PRR-s118-c01-fix-studio-artifacts-preflight`
 - Change: preflight now requires `standard`/`browser-test` recipe modules, `.d.ts`, and generated `*.schema.json`/`*.defaults.json`/`*.presets.json` in addition to `*-artifacts.js`.
 - Checks: (not executed) `node scripts/preflight/ensure-studio-recipe-artifacts.mjs` (skipped to avoid generating dist artifacts in this worktree)
+- PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1254 (draft)
