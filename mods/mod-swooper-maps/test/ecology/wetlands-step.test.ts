@@ -60,7 +60,7 @@ describe("ecology-wetlands plan-wetlands step", () => {
     const config = {
       planWetlands: normalizeOpSelectionOrThrow(ecology.ops.planWetlands, {
         strategy: "default",
-        config: { minScore01: 0.55 },
+        config: {},
       }),
     };
     const ops = ecology.ops.bind(planWetlandsStep.contract.ops!).runtime;
@@ -79,4 +79,3 @@ describe("ecology-wetlands plan-wetlands step", () => {
     expect(occupancy.reserved instanceof Uint8Array).toBe(true);
   });
 });
-
