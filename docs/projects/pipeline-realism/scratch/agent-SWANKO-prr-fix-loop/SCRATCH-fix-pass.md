@@ -77,3 +77,9 @@ Conventions:
   - `mods/mod-swooper-maps/src/domain/morphology/ops/compute-belt-drivers/deriveFromHistory.ts`
 - Checks:
   - `bun run --cwd mods/mod-swooper-maps check` (pass)
+
+## 2026-02-14 PRR-s112-c01
+- Branch: `agent-SWANKO-PRR-s112-c01-fix-driverStrength-proportional`
+- Change: restore proportional `driverStrength` scaling for mountain score output gate.
+- Checks: `bun run --cwd mods/mod-swooper-maps check` (pass)
+- PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1251 (draft)
