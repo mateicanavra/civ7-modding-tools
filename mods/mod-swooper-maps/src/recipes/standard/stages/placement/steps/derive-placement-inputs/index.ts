@@ -5,11 +5,25 @@ import { buildPlacementInputs } from "./inputs.js";
 import { placementArtifacts } from "../../artifacts.js";
 
 export default createStep(DerivePlacementInputsContract, {
-  artifacts: implementArtifacts([placementArtifacts.placementInputs], {
+  artifacts: implementArtifacts([placementArtifacts.placementInputs, placementArtifacts.resourcePlan], {
     placementInputs: {},
+    resourcePlan: {},
   }),
   run: (context, config, ops, deps) => {
-    const inputs = buildPlacementInputs(context, config, ops);
+    const topography = deps.artifacts.topography.read(context);
+    const hydrography = deps.artifacts.hydrography.read(context);
+    const lakePlan = deps.artifacts.lakePlan.read(context);
+    const biomeClassification = deps.artifacts.biomeClassification.read(context);
+    const pedology = deps.artifacts.pedology.read(context);
+
+    const inputs = buildPlacementInputs(context, config, ops, {
+      topography,
+      hydrography,
+      lakePlan,
+      biomeClassification,
+      pedology,
+    });
     deps.artifacts.placementInputs.publish(context, inputs);
+    deps.artifacts.resourcePlan.publish(context, inputs.resources);
   },
 });

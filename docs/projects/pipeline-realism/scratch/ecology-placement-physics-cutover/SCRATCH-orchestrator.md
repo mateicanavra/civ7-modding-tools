@@ -2,7 +2,7 @@
 
 ## Program Metadata
 - Program branch root: `codex/prr-ecology-placement-physics-cutover`
-- Current branch: `codex/prr-epp-s3-lakes-deterministic`
+- Current branch: `codex/prr-epp-s4-resources-deterministic`
 - Scope lock: `Ecology+Placement first`
 - Drift policy lock: `Observe first`
 - Local safety lock: do not touch `mods/mod-swooper-maps/src/domain/morphology/ops/compute-sea-level/rules/index.ts`
@@ -13,8 +13,8 @@
 | S0 | codex/prr-epp-s0-plan-bootstrap | Orchestrator | completed |  | Plan + scratchpads scaffold committed |
 | S1 | codex/prr-epp-s1-drift-observability | Worker D | completed |  | Observe-first parity artifacts/effects + trace/viz drift layers committed (`c03c163b7`) |
 | S2 | codex/prr-epp-s2-ecology-physics-cutover | Worker A | completed |  | Physics-surface cutover and no-fudge/RNG purge committed (`581aea351`) |
-| S3 | codex/prr-epp-s3-lakes-deterministic | Worker B | in_progress |  | Deterministic hydrology lake plan + map-hydrology stamping in progress |
-| S4 | codex/prr-epp-s4-resources-deterministic | Worker C | pending |  | |
+| S3 | codex/prr-epp-s3-lakes-deterministic | Worker B | completed |  | Deterministic hydrology lake plan + map-hydrology stamping committed (`e42ac109d`) |
+| S4 | codex/prr-epp-s4-resources-deterministic | Worker C | in_progress |  | Deterministic resource planner + adapter/stamping cutover; tests/docs being aligned |
 | S5 | codex/prr-epp-s5-placement-randomness-zero | Worker C | pending |  | |
 | S6 | codex/prr-epp-s6-hardening-docs-tests | Worker E + Orchestrator | pending |  | |
 
@@ -39,6 +39,10 @@
 - Validation completed for S1: `bun run --cwd mods/mod-swooper-maps check` plus targeted hydrology/morphology/placement/ecology tests.
 - S2 completed with map-ecology stage-surface correction (removed explicit `public`/`compile` shim; config moved to step-id keys only).
 - S3 has removed `lakeiness` and `tilesPerLakeMultiplier` from active config/knob paths and switched `map-hydrology/lakes` to deterministic terrain stamping from `artifact:hydrology.lakePlan`.
+- S4 execution is running through worker agents with strict architecture guardrails:
+  - no schema-import indirection in step contracts;
+  - no local duplicated shared grid/math helpers in domain ops (promote to `mapgen-core` first);
+  - no legacy compatibility fallback paths in placement apply.
 
 ## Authoring Guardrails (enforced for active workers)
 - For new domain ops, inline `input`/`output`/`strategies` schemas directly inside `defineOp(...)` (no detached `*Schema` wrapper constants for this program’s new ops).

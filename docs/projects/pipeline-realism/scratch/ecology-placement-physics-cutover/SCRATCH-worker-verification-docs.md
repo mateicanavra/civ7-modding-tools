@@ -48,3 +48,12 @@
 - During validation we detected and fixed stale fixture/preset schema drift:
   - `test/support/standard-config.ts` had pre-cutover `map-ecology` keys.
   - `src/presets/standard/earthlike.json` had pre-cutover `map-ecology` keys + removed `minScore01` fields.
+
+## Worker Verification Update (2026-02-14) — S4 deterministic resources
+
+- Updated placement-focused verification tests to match deterministic resource stamping from `resourcePlan` (no `generateResources()` path).
+- `landmass-region-id-projection.test.ts`: switched ordering assertions from `generateResources` to `setResourceType`, keeping landmass projection ordering checks ahead of resource stamping and starts.
+- `resources-landmass-region-restamp.test.ts`: replaced engine resource-generation override with `canHaveResource` region gating, passed explicit deterministic `resources` plan into `applyPlacementPlan`, and asserted `setResourceType` call shape plus `resourcesPlaced/resourcesCount`.
+- `lakes-area-recalc-resources.test.ts`: replaced `generateResources` override with water-aware `canHaveResource`, passed deterministic `resources` plan targeting the lake tile, and asserted stamped resource call + `resourcesPlaced/resourcesCount` while preserving lake-water ordering checks.
+- `placement-does-not-call-generate-snow.test.ts`: passed deterministic `resources` plan and added assertion that placement does **not** call `adapter.generateResources`.
+- Goal of these changes: ensure tests validate deterministic stamping behavior and guard against regressions back to legacy runtime resource generation.
