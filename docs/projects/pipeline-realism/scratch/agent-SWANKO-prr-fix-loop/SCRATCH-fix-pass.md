@@ -119,3 +119,4 @@ Conventions:
 - Change: recompute `plateMotion` per era (using `mantleForcing` + era plate membership) before calling `computeTectonicSegments`.
 - Checks: `bun run --cwd mods/mod-swooper-maps check` (pass)
 - Tests: `bun run --cwd mods/mod-swooper-maps test test/foundation/m11-tectonic-segments-history.test.ts` (pass)
+- PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1256 (draft)
