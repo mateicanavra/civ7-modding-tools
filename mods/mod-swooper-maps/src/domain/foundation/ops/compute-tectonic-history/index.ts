@@ -5,6 +5,7 @@ import { BOUNDARY_TYPE } from "../../constants.js";
 import { requireCrust, requireMantleForcing, requireMesh, requirePlateGraph, requirePlateMotion } from "../../lib/require.js";
 import type { FoundationTectonicSegments } from "../compute-tectonic-segments/contract.js";
 import computeTectonicSegments from "../compute-tectonic-segments/index.js";
+import computePlateMotion from "../compute-plate-motion/index.js";
 import ComputeTectonicHistoryContract from "./contract.js";
 
 const EVENT_TYPE = {
@@ -1180,13 +1181,22 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
             plates: plateGraph.plates,
           } as const;
 
+          const eraPlateMotion = computePlateMotion.run(
+            {
+              mesh,
+              mantleForcing,
+              plateGraph: eraPlateGraph as any,
+            },
+            computePlateMotion.defaultConfig
+          ).plateMotion;
+
           // Re-evaluate boundary segmentation per era by re-deriving segments from the era plate membership.
           const eraSegments = computeTectonicSegments.run(
             {
               mesh,
               crust,
               plateGraph: eraPlateGraph as any,
-              plateMotion,
+              plateMotion: eraPlateMotion,
             },
             computeTectonicSegments.defaultConfig
           ).segments as FoundationTectonicSegments;
