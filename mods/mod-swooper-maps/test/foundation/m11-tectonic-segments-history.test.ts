@@ -55,13 +55,23 @@ function makePlateMotion(
 }
 
 function makeMantleForcing(cellCount: number) {
+  // Non-zero forcing ensures compute-plate-motion (used by compute-tectonic-history per-era) produces
+  // a meaningful plate velocity field in minimal synthetic tests.
+  const stress = new Float32Array(cellCount);
+  const forcingU = new Float32Array(cellCount);
+  const forcingV = new Float32Array(cellCount);
+  if (cellCount >= 2) forcingU[1] = -1;
+
+  const forcingMag = new Float32Array(cellCount);
+  for (let i = 0; i < cellCount; i++) forcingMag[i] = Math.hypot(forcingU[i] ?? 0, forcingV[i] ?? 0);
+
   return {
     version: 1,
     cellCount,
-    stress: new Float32Array(cellCount),
-    forcingU: new Float32Array(cellCount),
-    forcingV: new Float32Array(cellCount),
-    forcingMag: new Float32Array(cellCount),
+    stress,
+    forcingU,
+    forcingV,
+    forcingMag,
     upwellingClass: new Int8Array(cellCount),
     divergence: new Float32Array(cellCount),
   } as const;
