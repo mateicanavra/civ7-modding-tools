@@ -6,11 +6,12 @@
 - Focus: Add parity artifacts/effects and trace/viz drift layers at all boundary hooks.
 
 ## Working Checklist
-- [ ] Extend map/ecology/hydrology/placement artifacts for parity diagnostics.
-- [ ] Extend tags/effect ownership for parity capture points.
-- [ ] Add trace + viz emission at each risk hook.
-- [ ] Keep observe-first policy (no new fail-hard except existing hard errors).
-- [ ] Add parity tests for non-empty diagnostics outputs.
+- [x] Extend map/ecology/hydrology/placement artifacts for parity diagnostics.
+- [x] Extend tags/effect ownership for parity capture points.
+- [x] Add trace + viz emission at each risk hook.
+- [x] Keep observe-first policy (no new fail-hard except existing hard errors).
+- [x] Add parity tests for non-empty diagnostics outputs.
 
 ## Decision Log
-- None yet.
+- Write-once artifact constraint required per-step parity artifacts rather than a shared hydrology/map snapshot artifact.
+- Placement parity publishers were made optional in `applyPlacementPlan` to avoid breaking pre-existing direct-test call sites while keeping stage wiring strict.

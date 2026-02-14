@@ -10,7 +10,7 @@ describe("planWetlands (joint resolver)", () => {
     const size = width * height;
     const selection = normalizeOpSelectionOrThrow(ecology.ops.planWetlands, {
       strategy: "default",
-      config: { minScore01: 0.55 },
+      config: {},
     });
 
     const scoreMarsh01 = new Float32Array(size);
@@ -55,13 +55,13 @@ describe("planWetlands (joint resolver)", () => {
     ]);
   });
 
-  it("uses the seed only to break exact ties deterministically", () => {
+  it("is deterministic and seed-independent for exact ties", () => {
     const width = 1;
     const height = 1;
     const size = width * height;
     const selection = normalizeOpSelectionOrThrow(ecology.ops.planWetlands, {
       strategy: "default",
-      config: { minScore01: 0.55 },
+      config: {},
     });
 
     const input = {
@@ -77,8 +77,7 @@ describe("planWetlands (joint resolver)", () => {
     } as const;
 
     const a = ecology.ops.planWetlands.run({ ...input, seed: 123 }, selection);
-    const b = ecology.ops.planWetlands.run({ ...input, seed: 123 }, selection);
+    const b = ecology.ops.planWetlands.run({ ...input, seed: 987654 }, selection);
     expect(b).toEqual(a);
   });
 });
-

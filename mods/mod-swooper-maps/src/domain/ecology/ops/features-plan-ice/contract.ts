@@ -20,22 +20,8 @@ const PlanIceContract = defineOp({
     placements: Type.Array(FeaturePlacementSchema),
   }),
   strategies: {
-    default: Type.Object({
-      minScore01: Type.Number({
-        description: "Minimum suitability score (0..1) required to place the feature.",
-        default: 0.55,
-        minimum: 0,
-        maximum: 1,
-      }),
-    }),
-    continentality: Type.Object({
-      minScore01: Type.Number({
-        description: "Minimum suitability score (0..1) required to place the feature.",
-        default: 0.55,
-        minimum: 0,
-        maximum: 1,
-      }),
-    }),
+    default: Type.Object({}),
+    continentality: Type.Object({}),
   },
 });
 

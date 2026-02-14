@@ -71,7 +71,7 @@ describe("plan-vegetation/apply pipeline", () => {
     const planConfig = {
       planVegetation: normalizeOpSelectionOrThrow(ecology.ops.planVegetation, {
         strategy: "default",
-        config: { minScore01: 0.05 },
+        config: {},
       }),
     };
     const planOps = ecology.ops.bind(planVegetationStep.contract.ops!).runtime;
@@ -109,4 +109,3 @@ describe("plan-vegetation/apply pipeline", () => {
     expect(applied).toBeGreaterThan(0);
   });
 });
-

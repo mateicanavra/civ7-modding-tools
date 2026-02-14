@@ -86,7 +86,7 @@ const BiomeClassificationContract = defineOp({
         temperature: TemperatureSchema,
         /** Moisture model knobs (thresholds only; no local effective-moisture derivation). */
         moisture: MoistureSchema,
-        /** Aridity knobs (used to shift moisture zones + vegetation penalty). */
+        /** Aridity knobs (used to shift moisture zones + vegetation dryness stress). */
         aridity: AriditySchema,
         /** Vegetation density model knobs (0..1 weights, soil modifiers). */
         vegetation: VegetationSchema,

@@ -1,8 +1,11 @@
-import { clamp01 } from "@swooper/mapgen-core";
-import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
-import { validateGridSize } from "../../score-shared/index.js";
+import {
+  choosePhysicalCandidate,
+  confidenceFromScore01,
+  stressFromConfidence01,
+  validateGridSize,
+} from "../../score-shared/index.js";
 import PlanReefsContract from "../contract.js";
 
 export const defaultStrategy = createStrategy(PlanReefsContract, "default", {
@@ -23,9 +26,8 @@ export const defaultStrategy = createStrategy(PlanReefsContract, "default", {
     });
 
     const placements: Array<{ x: number; y: number; feature: string; weight?: number }> = [];
-    const minScore01 = clamp01(config.minScore01);
-    const rng = createLabelRng(input.seed);
-    const candidates: string[] = [];
+    void config;
+    void input.seed;
 
     for (let i = 0; i < size; i++) {
       if (input.reserved[i] !== 0) continue;
@@ -36,42 +38,43 @@ export const defaultStrategy = createStrategy(PlanReefsContract, "default", {
       const atoll = input.scoreAtoll01[i] ?? 0;
       const lotus = input.scoreLotus01[i] ?? 0;
 
-      let bestScore = reef;
-      candidates.length = 0;
-      candidates.push("FEATURE_REEF");
+      const reefConfidence01 = confidenceFromScore01(reef);
+      const coldReefConfidence01 = confidenceFromScore01(coldReef);
+      const atollConfidence01 = confidenceFromScore01(atoll);
+      const lotusConfidence01 = confidenceFromScore01(lotus);
 
-      if (coldReef > bestScore) {
-        bestScore = coldReef;
-        candidates.length = 0;
-        candidates.push("FEATURE_COLD_REEF");
-      } else if (coldReef === bestScore) {
-        candidates.push("FEATURE_COLD_REEF");
-      }
-
-      if (atoll > bestScore) {
-        bestScore = atoll;
-        candidates.length = 0;
-        candidates.push("FEATURE_ATOLL");
-      } else if (atoll === bestScore) {
-        candidates.push("FEATURE_ATOLL");
-      }
-
-      if (lotus > bestScore) {
-        bestScore = lotus;
-        candidates.length = 0;
-        candidates.push("FEATURE_LOTUS");
-      } else if (lotus === bestScore) {
-        candidates.push("FEATURE_LOTUS");
-      }
-
-      if (!Number.isFinite(bestScore) || bestScore < minScore01) continue;
-
-      const feature =
-        candidates.length === 1 ? candidates[0]! : candidates[rng(candidates.length, `reef:${i}`)]!;
+      const best = choosePhysicalCandidate([
+        {
+          feature: "FEATURE_REEF",
+          confidence01: reefConfidence01,
+          stress01: stressFromConfidence01(reefConfidence01),
+          tileIndex: i,
+        },
+        {
+          feature: "FEATURE_COLD_REEF",
+          confidence01: coldReefConfidence01,
+          stress01: stressFromConfidence01(coldReefConfidence01),
+          tileIndex: i,
+        },
+        {
+          feature: "FEATURE_ATOLL",
+          confidence01: atollConfidence01,
+          stress01: stressFromConfidence01(atollConfidence01),
+          tileIndex: i,
+        },
+        {
+          feature: "FEATURE_LOTUS",
+          confidence01: lotusConfidence01,
+          stress01: stressFromConfidence01(lotusConfidence01),
+          tileIndex: i,
+        },
+      ]);
+      if (best === null) continue;
+      if (best.confidence01 <= 0) continue;
 
       const x = i % width;
       const y = (i / width) | 0;
-      placements.push({ x, y, feature });
+      placements.push({ x, y, feature: best.feature });
     }
     return { placements };
   },

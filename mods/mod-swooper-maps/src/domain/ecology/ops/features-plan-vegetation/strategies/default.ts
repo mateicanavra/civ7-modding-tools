@@ -1,8 +1,11 @@
-import { clamp01 } from "@swooper/mapgen-core";
-import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
-import { validateGridSize } from "../../score-shared/index.js";
+import {
+  choosePhysicalCandidate,
+  confidenceFromScore01,
+  stressFromConfidence01,
+  validateGridSize,
+} from "../../score-shared/index.js";
 import PlanVegetationContract from "../contract.js";
 
 export const defaultStrategy = createStrategy(PlanVegetationContract, "default", {
@@ -25,9 +28,8 @@ export const defaultStrategy = createStrategy(PlanVegetationContract, "default",
     });
 
     const placements: Array<{ x: number; y: number; feature: string; weight?: number }> = [];
-    const minScore01 = clamp01(config.minScore01);
-    const rng = createLabelRng(input.seed);
-    const candidates: string[] = [];
+    void config;
+    void input.seed;
 
     for (let i = 0; i < size; i++) {
       if (input.landMask[i] === 0) continue;
@@ -40,52 +42,52 @@ export const defaultStrategy = createStrategy(PlanVegetationContract, "default",
       const savannaWoodland = input.scoreSavannaWoodland01[i] ?? 0;
       const sagebrushSteppe = input.scoreSagebrushSteppe01[i] ?? 0;
 
-      let bestScore = forest;
-      candidates.length = 0;
-      candidates.push("FEATURE_FOREST");
+      const forestConfidence01 = confidenceFromScore01(forest);
+      const rainforestConfidence01 = confidenceFromScore01(rainforest);
+      const taigaConfidence01 = confidenceFromScore01(taiga);
+      const savannaConfidence01 = confidenceFromScore01(savannaWoodland);
+      const steppeConfidence01 = confidenceFromScore01(sagebrushSteppe);
 
-      if (rainforest > bestScore) {
-        bestScore = rainforest;
-        candidates.length = 0;
-        candidates.push("FEATURE_RAINFOREST");
-      } else if (rainforest === bestScore) {
-        candidates.push("FEATURE_RAINFOREST");
-      }
+      const best = choosePhysicalCandidate([
+        {
+          feature: "FEATURE_FOREST",
+          confidence01: forestConfidence01,
+          stress01: stressFromConfidence01(forestConfidence01),
+          tileIndex: i,
+        },
+        {
+          feature: "FEATURE_RAINFOREST",
+          confidence01: rainforestConfidence01,
+          stress01: stressFromConfidence01(rainforestConfidence01),
+          tileIndex: i,
+        },
+        {
+          feature: "FEATURE_TAIGA",
+          confidence01: taigaConfidence01,
+          stress01: stressFromConfidence01(taigaConfidence01),
+          tileIndex: i,
+        },
+        {
+          feature: "FEATURE_SAVANNA_WOODLAND",
+          confidence01: savannaConfidence01,
+          stress01: stressFromConfidence01(savannaConfidence01),
+          tileIndex: i,
+        },
+        {
+          feature: "FEATURE_SAGEBRUSH_STEPPE",
+          confidence01: steppeConfidence01,
+          stress01: stressFromConfidence01(steppeConfidence01),
+          tileIndex: i,
+        },
+      ]);
+      if (best === null) continue;
+      if (best.confidence01 <= 0) continue;
 
-      if (taiga > bestScore) {
-        bestScore = taiga;
-        candidates.length = 0;
-        candidates.push("FEATURE_TAIGA");
-      } else if (taiga === bestScore) {
-        candidates.push("FEATURE_TAIGA");
-      }
-
-      if (savannaWoodland > bestScore) {
-        bestScore = savannaWoodland;
-        candidates.length = 0;
-        candidates.push("FEATURE_SAVANNA_WOODLAND");
-      } else if (savannaWoodland === bestScore) {
-        candidates.push("FEATURE_SAVANNA_WOODLAND");
-      }
-
-      if (sagebrushSteppe > bestScore) {
-        bestScore = sagebrushSteppe;
-        candidates.length = 0;
-        candidates.push("FEATURE_SAGEBRUSH_STEPPE");
-      } else if (sagebrushSteppe === bestScore) {
-        candidates.push("FEATURE_SAGEBRUSH_STEPPE");
-      }
-
-      if (!Number.isFinite(bestScore) || bestScore < minScore01) continue;
-
-      const feature =
-        candidates.length === 1 ? candidates[0]! : candidates[rng(candidates.length, `veg:${i}`)]!;
       const x = i % width;
       const y = (i / width) | 0;
-      placements.push({ x, y, feature });
+      placements.push({ x, y, feature: best.feature });
     }
 
     return { placements };
   },
 });
-
