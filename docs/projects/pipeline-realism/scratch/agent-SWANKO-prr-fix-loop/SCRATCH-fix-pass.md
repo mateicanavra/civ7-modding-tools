@@ -45,3 +45,11 @@ Conventions:
 - Checks:
   - `bun run --cwd mods/mod-swooper-maps check` (pass)
   - Note: some morphology tests currently fail earlier due to missing `plateMotion` inputs; tracked as `PRR-s119-c01`.
+
+## PRR-s97-c01
+- Branch: `agent-SWANKO-PRR-s97-c01-fix-polarity-bootstrap-oceanic-only`
+- Change: restrict polarity bootstrapping to oceanic-oceanic convergence; keep continental-continent convergence neutral.
+- Files:
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts`
+- Checks:
+  - `bun run --cwd mods/mod-swooper-maps check` (pass)
