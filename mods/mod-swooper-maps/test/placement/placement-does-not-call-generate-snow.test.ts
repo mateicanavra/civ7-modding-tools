@@ -44,6 +44,21 @@ describe("placement", () => {
       {},
       placement.ops.planFloodplains.defaultConfig
     );
+    const resources = {
+      width: 4,
+      height: 4,
+      candidateResourceTypes: [1],
+      targetCount: 1,
+      plannedCount: 1,
+      placements: [
+        {
+          plotIndex: 0,
+          preferredResourceType: 1,
+          preferredTypeOffset: 0,
+          priority: 1,
+        },
+      ],
+    };
 
     const placementRuntime = implementArtifacts([placementArtifacts.placementOutputs], {
       placementOutputs: {},
@@ -53,6 +68,7 @@ describe("placement", () => {
       starts,
       wonders,
       floodplains,
+      resources,
       landmassRegionSlotByTile: {
         slotByTile: new Uint8Array(16).fill(1),
       },
@@ -60,5 +76,6 @@ describe("placement", () => {
     });
 
     expect(adapter.calls.generateSnow.length).toBe(0);
+    expect(adapter.calls.generateResources.length).toBe(0);
   });
 });

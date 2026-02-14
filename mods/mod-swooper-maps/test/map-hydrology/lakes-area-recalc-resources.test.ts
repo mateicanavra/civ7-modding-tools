@@ -15,7 +15,6 @@ class AreaSensitiveLakeAdapter extends MockAdapter {
   private cachedWater: Uint8Array;
   private lakeNeedsAreaRefresh = false;
   readonly callOrder: string[] = [];
-  resourcesPlaced = 0;
 
   constructor(config: ConstructorParameters<typeof MockAdapter>[0]) {
     super(config);
@@ -75,23 +74,13 @@ class AreaSensitiveLakeAdapter extends MockAdapter {
     this.callOrder.push("defineNamedRivers");
   }
 
-  override generateResources(width: number, height: number): void {
-    this.callOrder.push("generateResources");
-    let waterTiles = 0;
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        if (this.isWater(x, y)) waterTiles += 1;
-      }
-    }
-    this.resourcesPlaced = waterTiles;
-    if (waterTiles === 0) {
-      throw new Error("No water-eligible plots available for resources.");
-    }
+  override canHaveResource(x: number, y: number, resourceType: number): boolean {
+    return this.isWater(x, y) && super.canHaveResource(x, y, resourceType);
   }
 }
 
 describe("map-hydrology lakes area/water ordering", () => {
-  it("keeps lake tiles water-filled across rivers + placement and preserves resource generation", () => {
+  it("keeps lake tiles water-filled across rivers + placement and preserves deterministic resource stamping", () => {
     const width = 4;
     const height = 4;
     const seed = 1234;
@@ -162,17 +151,35 @@ describe("map-hydrology lakes area/water ordering", () => {
       placement.ops.planWonders.defaultConfig
     );
     const floodplains = placement.ops.planFloodplains.run({}, placement.ops.planFloodplains.defaultConfig);
+    const resources = {
+      width,
+      height,
+      candidateResourceTypes: [3],
+      targetCount: 1,
+      plannedCount: 1,
+      placements: [
+        {
+          plotIndex: 1 + width,
+          preferredResourceType: 3,
+          preferredTypeOffset: 0,
+          priority: 1,
+        },
+      ],
+    };
 
-    applyPlacementPlan({
+    const outputs = applyPlacementPlan({
       context,
       starts,
       wonders,
       floodplains,
+      resources,
       landmassRegionSlotByTile: { slotByTile: new Uint8Array(size).fill(1) },
       publishOutputs: (outputs) => outputs,
     });
 
-    expect(adapter.resourcesPlaced).toBeGreaterThan(0);
+    expect(adapter.calls.setResourceType).toEqual([{ x: 1, y: 1, resourceType: 3 }]);
+    expect(adapter.resourcesPlaced).toBe(1);
+    expect(outputs.resourcesCount).toBe(1);
     expect(adapter.isWater(1, 1)).toBe(true);
   });
 });
