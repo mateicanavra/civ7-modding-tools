@@ -8,10 +8,14 @@ const PlacementStepContract = defineStep({
   id: "placement",
   phase: "placement",
   requires: [M10_EFFECT_TAGS.map.landmassRegionsPlotted],
-  provides: [M4_EFFECT_TAGS.engine.placementApplied],
+  provides: [M4_EFFECT_TAGS.engine.placementApplied, M10_EFFECT_TAGS.map.placementParityCaptured],
   artifacts: {
     requires: [placementArtifacts.placementInputs, mapArtifacts.landmassRegionSlotByTile],
-    provides: [placementArtifacts.placementOutputs],
+    provides: [
+      placementArtifacts.placementOutputs,
+      placementArtifacts.engineState,
+      mapArtifacts.placementEngineTerrainSnapshot,
+    ],
   },
   schema: Type.Object({}),
 });

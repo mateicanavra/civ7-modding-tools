@@ -1,12 +1,16 @@
 import { defineVizMeta, logElevationSummary, logLandmassAscii, snapshotEngineHeightfield } from "@swooper/mapgen-core";
-import { createStep } from "@swooper/mapgen-core/authoring";
+import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import BuildElevationStepContract from "./buildElevation.contract.js";
 import { assertNoWaterDrift } from "./assertions.js";
+import { mapArtifacts } from "../../../map-artifacts.js";
 
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(BuildElevationStepContract, {
+  artifacts: implementArtifacts([mapArtifacts.morphologyEngineTerrainSnapshot], {
+    morphologyEngineTerrainSnapshot: {},
+  }),
   run: (context, _config, _ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const { width, height } = context.dimensions;
@@ -106,6 +110,32 @@ export default createStep(BuildElevationStepContract, {
       }),
     });
     if (engine) {
+      const driftMask = new Uint8Array(width * height);
+      let mismatchCount = 0;
+      for (let i = 0; i < driftMask.length; i++) {
+        const mismatched = (topography.landMask[i] ?? 0) !== (engine.landMask[i] ?? 0);
+        if (mismatched) {
+          driftMask[i] = 1;
+          mismatchCount += 1;
+        }
+      }
+
+      deps.artifacts.morphologyEngineTerrainSnapshot.publish(context, {
+        stage: "map-morphology/build-elevation",
+        width,
+        height,
+        landMask: engine.landMask,
+        terrain: engine.terrain,
+        elevation: engine.elevation,
+      });
+
+      context.trace.event(() => ({
+        type: "map.morphology.parity",
+        step: "build-elevation",
+        landMaskMismatchCount: mismatchCount,
+        landMaskMismatchShare: Number((mismatchCount / Math.max(1, width * height)).toFixed(4)),
+      }));
+
       context.viz?.dumpGrid(context.trace, {
         dataTypeKey: "map.morphology.elevation.elevation",
         spaceId: TILE_SPACE_ID,
@@ -132,6 +162,20 @@ export default createStep(BuildElevationStepContract, {
         visibility: "debug",
       }),
     });
+
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "map.morphology.elevation.driftMask",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: driftMask,
+        meta: defineVizMeta("map.morphology.elevation.driftMask", {
+          label: "Land/Water Drift Mask",
+          group: GROUP_MAP_MORPHOLOGY,
+          palette: "categorical",
+          visibility: "debug",
+        }),
+      });
     }
 
     logElevationSummary(context.trace, context.adapter, width, height, "map-morphology/build-elevation");
