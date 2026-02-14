@@ -125,3 +125,4 @@ Conventions:
 - Branch: `agent-SWANKO-PRR-s124-c01-fix-diag-analyze-mountains-guard`
 - Change: `diag:analyze` now returns `mountainsSummary: null` when mountain layers are missing instead of throwing.
 - Checks: `bun run --cwd mods/mod-swooper-maps check` (pass)
+- PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1257 (draft)
