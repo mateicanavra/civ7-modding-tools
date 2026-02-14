@@ -112,3 +112,4 @@ Conventions:
 - Change: update `computeTectonicHistory.run(...)` call sites to pass `plateMotion` (fixes requirePlateMotion throws).
 - Checks: `bun run --cwd mods/mod-swooper-maps check` (pass)
 - Tests: `bun run --cwd mods/mod-swooper-maps test test/foundation/mesh-first-ops.test.ts` (pass)
+- PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1255 (draft)
