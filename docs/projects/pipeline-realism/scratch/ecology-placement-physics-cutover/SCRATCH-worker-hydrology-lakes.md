@@ -31,3 +31,45 @@
 4. **Test coverage gap:** If we only adjust knobs/tests that target the old engine call, we risk shipping S3 without automated guards that ensure deterministic stamping stays aligned with hydrology artifacts. The new stamping logic should have a small regression test (mock hydrology data inputs → deterministic lake mask) so we can detect divergence early.
 5. **Hydrography artifact consumption lag:** The `hydrology-hydrography` stage currently treats `sinkMask`/`outletMask` as purely diagnostic. If we repurpose them for stamping without formalizing the artifact contract (schema/validation), future pipeline shuffles (e.g., splitting hydrography or removing viz dumps) might break the deterministic stamp silently. S3 should lock the artifact schema to include `lakeMask` or a direct `lakeIntent` overlay.
 
+## Implementation Log (2026-02-14)
+
+### Landed in working branch
+- Added new deterministic hydrology op:
+  - `src/domain/hydrology/ops/plan-lakes/*`
+  - consumes `landMask + elevation + sinkMask`
+  - outputs `lakeMask + plannedLakeTileCount + sinkLakeCount`
+- Wired new op into hydrology domain contract/runtime registry:
+  - `src/domain/hydrology/ops/contracts.ts`
+  - `src/domain/hydrology/ops/index.ts`
+- Added canonical artifact:
+  - `artifact:hydrology.lakePlan` in `src/recipes/standard/stages/hydrology-hydrography/artifacts.ts`
+- Updated hydrology-hydrography rivers step to publish lake plan:
+  - `steps/rivers.contract.ts` and `steps/rivers.ts`
+- Replaced map-hydrology lake projection behavior:
+  - removed `generateLakes(...)` usage from `steps/lakes.ts`
+  - deterministic `setTerrainType(..., TERRAIN_COAST)` stamping from `lakePlan.lakeMask`
+  - retained `recalculateAreas()` and `storeWaterData()` ordering
+  - parity drift now compares planned lake mask vs post-projection engine water mask
+- Removed lake-frequency fudge surface:
+  - dropped `HydrologyLakeinessKnobSchema` from `src/domain/hydrology/shared/knobs.ts`
+  - removed `HYDROLOGY_LAKEINESS_TILES_PER_LAKE_MULTIPLIER` from `src/domain/hydrology/shared/knob-multipliers.ts`
+  - removed `lakeiness` from `map-hydrology` stage knobs schema.
+
+### Test updates completed
+- Updated deterministic lake projection tests:
+  - `test/map-hydrology/lakes-store-water-data.test.ts`
+  - `test/map-hydrology/lakes-area-recalc-resources.test.ts`
+- Added new hydrology unit coverage:
+  - `test/hydrology-plan-lakes.test.ts`
+  - includes sink->lake determinism and sink/outlet disjointness + sink-driven lake planning check.
+- Updated knob/config compilation test:
+  - `test/hydrology-knobs.test.ts` (removed lakeiness expectations, `lakes` now `{}`).
+
+### Follow-up fixed while validating
+- Resolved stale fixture/preset drift causing schema failures:
+  - updated `test/support/standard-config.ts` map-ecology keys to step-id keys
+  - updated `src/presets/standard/earthlike.json` map-ecology keys and removed `minScore01` legacy fields from ecology planners.
+- Corrected op contract authoring style:
+  - inlined plan-lakes schemas directly inside `defineOp(...)`
+  - removed `additionalProperties` options from plan-lakes contract
+  - replaced empty default strategy config with explicit physical control (`maxUpstreamSteps`).

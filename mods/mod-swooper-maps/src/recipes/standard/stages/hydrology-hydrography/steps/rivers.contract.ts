@@ -30,11 +30,12 @@ const RiversStepContract = defineStep({
       hydrologyClimateBaselineArtifacts.climateField,
       morphologyArtifacts.topography,
     ],
-    provides: [hydrologyHydrographyArtifacts.hydrography],
+    provides: [hydrologyHydrographyArtifacts.hydrography, hydrologyHydrographyArtifacts.lakePlan],
   },
   ops: {
     accumulateDischarge: hydrology.ops.accumulateDischarge,
     projectRiverNetwork: hydrology.ops.projectRiverNetwork,
+    planLakes: hydrology.ops.planLakes,
   },
   schema: RiversStepConfigSchema,
 });
