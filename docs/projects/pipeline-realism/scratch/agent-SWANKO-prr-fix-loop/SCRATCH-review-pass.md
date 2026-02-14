@@ -35,3 +35,4 @@ Conventions:
   - Parsed inline items from review doc to `/tmp/prr_manifest.json` (deterministic IDs `PRR-sXX-cYY`)
 - Canonical doc update:
   - Added section: `## Full-chain Revalidation (2026-02-14, agent-SWANKO)` with manifest table
+- Manifest table update: added columns for `Fix commit` to allow per-slice commit SHA capture.
