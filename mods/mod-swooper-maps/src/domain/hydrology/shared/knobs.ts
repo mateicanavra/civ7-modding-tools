@@ -117,23 +117,3 @@ export const HydrologyRiverDensityKnobSchema = Type.Union(
 
 export type HydrologyRiverDensityKnob = Static<typeof HydrologyRiverDensityKnobSchema>;
 
-/**
- * Hydrology lakeiness knob (semantic intent).
- *
- * Meaning:
- * - Lake projection frequency bias (does not change discharge routing truth).
- *
- * Stage scope:
- * - Used by `hydrology-climate-baseline` only.
- */
-export const HydrologyLakeinessKnobSchema = Type.Union(
-  [Type.Literal("few"), Type.Literal("normal"), Type.Literal("many")],
-  {
-    default: "normal",
-    description:
-      "Lake projection frequency preset (few/normal/many). Applies as a deterministic multiplier over lake projection frequency; routing/discharge truth is unchanged.",
-  }
-);
-
-export type HydrologyLakeinessKnob = Static<typeof HydrologyLakeinessKnobSchema>;
-

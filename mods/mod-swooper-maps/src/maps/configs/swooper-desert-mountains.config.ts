@@ -252,7 +252,6 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
   },
   "map-hydrology": {
     knobs: {
-      lakeiness: "few",
       riverDensity: "sparse",
     },
   },

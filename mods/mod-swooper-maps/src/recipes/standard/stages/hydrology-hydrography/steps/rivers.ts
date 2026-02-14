@@ -66,6 +66,23 @@ function validateHydrography(value: unknown, dimensions: MapDimensions): Artifac
   return errors;
 }
 
+function validateLakePlan(value: unknown, dimensions: MapDimensions): ArtifactValidationIssue[] {
+  const errors: ArtifactValidationIssue[] = [];
+  const size = expectedSize(dimensions);
+  if (!isRecord(value)) {
+    errors.push({ message: "Missing hydrology lake plan artifact payload." });
+    return errors;
+  }
+  validateTypedArray(errors, "lakePlan.lakeMask", value.lakeMask, Uint8Array, size);
+  if (!Number.isInteger(value.plannedLakeTileCount) || (value.plannedLakeTileCount as number) < 0) {
+    errors.push({ message: "Expected lakePlan.plannedLakeTileCount to be a non-negative integer." });
+  }
+  if (!Number.isInteger(value.sinkLakeCount) || (value.sinkLakeCount as number) < 0) {
+    errors.push({ message: "Expected lakePlan.sinkLakeCount to be a non-negative integer." });
+  }
+  return errors;
+}
+
 function computeFlowDir(options: {
   width: number;
   height: number;
@@ -87,9 +104,12 @@ function computeFlowDir(options: {
 }
 
 export default createStep(RiversStepContract, {
-  artifacts: implementArtifacts([hydrologyHydrographyArtifacts.hydrography], {
+  artifacts: implementArtifacts([hydrologyHydrographyArtifacts.hydrography, hydrologyHydrographyArtifacts.lakePlan], {
     hydrography: {
       validate: (value, context) => validateHydrography(value, context.dimensions),
+    },
+    lakePlan: {
+      validate: (value, context) => validateLakePlan(value, context.dimensions),
     },
   }),
   normalize: (config, ctx) => {
@@ -159,12 +179,30 @@ export default createStep(RiversStepContract, {
       config.projectRiverNetwork
     );
 
+    const lakePlan = ops.planLakes(
+      {
+        width,
+        height,
+        landMask: topography.landMask,
+        flowDir,
+        sinkMask: discharge.sinkMask,
+      },
+      config.planLakes
+    );
+
     deps.artifacts.hydrography.publish(context, {
       runoff: discharge.runoff,
       discharge: discharge.discharge,
       riverClass: projected.riverClass,
       sinkMask: discharge.sinkMask,
       outletMask: discharge.outletMask,
+    });
+    deps.artifacts.lakePlan.publish(context, {
+      width,
+      height,
+      lakeMask: lakePlan.lakeMask,
+      plannedLakeTileCount: lakePlan.plannedLakeTileCount,
+      sinkLakeCount: lakePlan.sinkLakeCount,
     });
 
     context.viz?.dumpGrid(context.trace, {
@@ -226,6 +264,18 @@ export default createStep(RiversStepContract, {
         group: GROUP_HYDROGRAPHY,
         palette: "categorical",
         visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "hydrology.hydrography.lakePlan",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: lakePlan.lakeMask,
+      meta: defineVizMeta("hydrology.hydrography.lakePlan", {
+        label: "Lake Plan Mask",
+        group: GROUP_HYDROGRAPHY,
+        palette: "categorical",
       }),
     });
   },
