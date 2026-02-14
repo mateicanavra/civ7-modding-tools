@@ -82,3 +82,4 @@ Conventions:
 - Branch: `agent-SWANKO-PRR-s112-c01-fix-driverStrength-proportional`
 - Change: restore proportional `driverStrength` scaling for mountain score output gate.
 - Checks: `bun run --cwd mods/mod-swooper-maps check` (pass)
+- PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1251 (draft)
