@@ -31,7 +31,7 @@ export const FEATURE_TYPE_VIZ_COLORS_BY_KEY: Readonly<Record<FeatureKey, VizCate
 const NONE_CATEGORY: VizCategory = Object.freeze({
   value: FEATURE_TYPE_NONE_VALUE,
   label: "None",
-  color: [148, 163, 184, 0],
+  color: [148, 163, 184, 0] as const,
 });
 
 function colorForKey(key: FeatureKey): VizCategory["color"] {

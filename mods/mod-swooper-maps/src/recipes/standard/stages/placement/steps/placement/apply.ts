@@ -1,5 +1,11 @@
 import type { ExtendedMapContext, TraceScope } from "@swooper/mapgen-core";
-import { HILL_TERRAIN, MOUNTAIN_TERRAIN, defineVizMeta, getTerrainSymbol } from "@swooper/mapgen-core";
+import {
+  HILL_TERRAIN,
+  MOUNTAIN_TERRAIN,
+  defineVizMeta,
+  getTerrainSymbol,
+  snapshotEngineHeightfield,
+} from "@swooper/mapgen-core";
 import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import placement from "@mapgen/domain/placement";
@@ -13,6 +19,12 @@ type PlanWondersOutput = Static<typeof placement.ops.planWonders["output"]>;
 type LandmassRegionSlotByTile = Static<
   (typeof import("../../../../map-artifacts.js").mapArtifacts)["landmassRegionSlotByTile"]["schema"]
 >;
+type EngineTerrainSnapshot = Static<
+  (typeof import("../../../../map-artifacts.js").mapArtifacts)["placementEngineTerrainSnapshot"]["schema"]
+>;
+type PlacementEngineState = Static<
+  (typeof import("../../artifacts.js").placementArtifacts)["engineState"]["schema"]
+>;
 
 type ApplyPlacementArgs = {
   context: ExtendedMapContext;
@@ -21,6 +33,10 @@ type ApplyPlacementArgs = {
   floodplains: DeepReadonly<PlanFloodplainsOutput>;
   landmassRegionSlotByTile: DeepReadonly<LandmassRegionSlotByTile>;
   publishOutputs: (outputs: PlacementOutputsV1) => DeepReadonly<PlacementOutputsV1>;
+  publishEngineState?: (engineState: PlacementEngineState) => DeepReadonly<PlacementEngineState>;
+  publishEngineTerrainSnapshot?: (
+    snapshot: EngineTerrainSnapshot
+  ) => DeepReadonly<EngineTerrainSnapshot>;
 };
 
 const GROUP_GAMEPLAY = "Gameplay / Placement";
@@ -47,6 +63,8 @@ export function applyPlacementPlan({
   floodplains,
   landmassRegionSlotByTile,
   publishOutputs,
+  publishEngineState = (engineState) => engineState,
+  publishEngineTerrainSnapshot = (snapshot) => snapshot,
 }: ApplyPlacementArgs): DeepReadonly<PlacementOutputsV1> {
   const { adapter, trace } = context;
   const { width, height } = context.dimensions;
@@ -125,12 +143,16 @@ export function applyPlacementPlan({
     );
   }
 
+  let resourcesAttempted = false;
+  let resourcesError: string | undefined;
   try {
+    resourcesAttempted = true;
     adapter.generateResources(width, height);
   } catch (err) {
+    resourcesError = err instanceof Error ? err.message : String(err);
     emit({
       type: "placement.resources.error",
-      error: err instanceof Error ? err.message : String(err),
+      error: resourcesError,
     });
   }
 
@@ -201,6 +223,67 @@ export function applyPlacementPlan({
 
   logTerrainStats(trace, adapter, width, height, "Final");
   logAsciiMap(trace, adapter, width, height);
+
+  const slotCounts = { none: 0, west: 0, east: 0 };
+  for (let i = 0; i < slotByTile.length; i++) {
+    const slot = slotByTile[i] ?? 0;
+    if (slot === 1) slotCounts.west += 1;
+    else if (slot === 2) slotCounts.east += 1;
+    else slotCounts.none += 1;
+  }
+
+  const physics = context.buffers.heightfield;
+  const engineSnapshot = snapshotEngineHeightfield(context);
+  const engineLandMask = engineSnapshot ? engineSnapshot.landMask : new Uint8Array(physics.landMask);
+  let waterDriftCount = 0;
+  for (let i = 0; i < engineLandMask.length; i++) {
+    if ((engineLandMask[i] ?? 0) !== (physics.landMask[i] ?? 0)) waterDriftCount += 1;
+  }
+
+  if (engineSnapshot) {
+    publishEngineTerrainSnapshot({
+      stage: "placement/placement",
+      width,
+      height,
+      landMask: engineSnapshot.landMask,
+      terrain: engineSnapshot.terrain,
+      elevation: engineSnapshot.elevation,
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "map.placement.engine.landMask",
+      spaceId: "tile.hexOddR",
+      dims: { width, height },
+      format: "u8",
+      values: engineSnapshot.landMask,
+      meta: defineVizMeta("map.placement.engine.landMask", {
+        label: "Land Mask (Engine After Placement)",
+        group: GROUP_GAMEPLAY,
+        palette: "categorical",
+        role: "engine",
+        visibility: "debug",
+      }),
+    });
+  }
+
+  publishEngineState({
+    width,
+    height,
+    slotByTile: new Uint8Array(slotByTile),
+    engineLandMask,
+    slotCounts,
+    startsAssigned: startPositions.filter((pos) => Number.isFinite(pos) && pos >= 0).length,
+    resourcesAttempted,
+    ...(resourcesError != null ? { resourcesError } : {}),
+    waterDriftCount,
+  });
+
+  emit({
+    type: "placement.parity",
+    slotCounts,
+    resourcesAttempted,
+    resourcesError: resourcesError ?? null,
+    waterDriftCount,
+  });
 
   const startsAssigned = startPositions.filter((pos) => Number.isFinite(pos) && pos >= 0).length;
   const outputs: PlacementOutputsV1 = {
