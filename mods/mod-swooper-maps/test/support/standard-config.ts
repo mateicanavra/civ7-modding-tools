@@ -124,16 +124,6 @@ const biomesConfig = {
       base: 0.35,
       moistureWeight: 0.65,
       moistureNormalizationPadding: 60,
-      biomeModifiers: {
-        snow: { multiplier: 0.6, bonus: 0 },
-        tundra: { multiplier: 0.5, bonus: 0 },
-        boreal: { multiplier: 0.85, bonus: 0 },
-        temperateDry: { multiplier: 0.75, bonus: 0 },
-        temperateHumid: { multiplier: 1, bonus: 0 },
-        tropicalSeasonal: { multiplier: 1, bonus: 0 },
-        tropicalRainforest: { multiplier: 1, bonus: 0.25 },
-        desert: { multiplier: 0.12, bonus: 0 },
-      },
     },
   },
 };
