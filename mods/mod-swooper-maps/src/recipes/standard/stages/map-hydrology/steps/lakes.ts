@@ -1,14 +1,26 @@
-import { createStep } from "@swooper/mapgen-core/authoring";
+import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
 import { getStandardRuntime } from "../../../runtime.js";
 import LakesStepContract from "./lakes.contract.js";
 import { HYDROLOGY_LAKEINESS_TILES_PER_LAKE_MULTIPLIER } from "@mapgen/domain/hydrology/shared/knob-multipliers.js";
 import type { HydrologyLakeinessKnob } from "@mapgen/domain/hydrology/shared/knobs.js";
+import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
+import { mapArtifacts } from "../../../map-artifacts.js";
 
 const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(LakesStepContract, {
+  artifacts: implementArtifacts(
+    [
+      hydrologyHydrographyArtifacts.engineProjectionLakes,
+      mapArtifacts.hydrologyLakesEngineTerrainSnapshot,
+    ],
+    {
+      engineProjectionLakes: {},
+      hydrologyLakesEngineTerrainSnapshot: {},
+    }
+  ),
   normalize: (config, ctx) => {
     const { lakeiness = "normal" as HydrologyLakeinessKnob } = ctx.knobs as {
       lakeiness?: HydrologyLakeinessKnob;
@@ -65,6 +77,69 @@ export default createStep(LakesStepContract, {
     const physics = context.buffers.heightfield;
     const engine = snapshotEngineHeightfield(context);
     if (engine) {
+      const lakeMask = new Uint8Array(width * height);
+      const sinkMismatchMask = new Uint8Array(width * height);
+      let sinkMismatchCount = 0;
+      for (let i = 0; i < lakeMask.length; i++) {
+        const isWater = (engine.landMask[i] ?? 1) === 0;
+        lakeMask[i] = isWater ? 1 : 0;
+        if ((hydrography.sinkMask[i] ?? 0) === 1 && !isWater) {
+          sinkMismatchMask[i] = 1;
+          sinkMismatchCount += 1;
+        }
+      }
+
+      deps.artifacts.engineProjectionLakes.publish(context, {
+        width,
+        height,
+        lakeMask,
+        riverMask: new Uint8Array(width * height),
+        sinkMismatchCount,
+        riverMismatchCount: 0,
+      });
+
+      deps.artifacts.hydrologyLakesEngineTerrainSnapshot.publish(context, {
+        stage: "map-hydrology/lakes",
+        width,
+        height,
+        landMask: engine.landMask,
+        terrain: engine.terrain,
+        elevation: engine.elevation,
+      });
+
+      context.trace.event(() => ({
+        type: "map.hydrology.lakes.parity",
+        sinkMismatchCount,
+        sinkMismatchShare: Number((sinkMismatchCount / Math.max(1, width * height)).toFixed(4)),
+      }));
+
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "map.hydrology.lakes.engineLakeMask",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: lakeMask,
+        meta: defineVizMeta("map.hydrology.lakes.engineLakeMask", {
+          label: "Lake Mask (Engine)",
+          group: GROUP_MAP_HYDROLOGY,
+          palette: "categorical",
+          role: "engine",
+        }),
+      });
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "map.hydrology.lakes.sinkMismatchMask",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: sinkMismatchMask,
+        meta: defineVizMeta("map.hydrology.lakes.sinkMismatchMask", {
+          label: "Sink Mismatch Mask",
+          group: GROUP_MAP_HYDROLOGY,
+          palette: "categorical",
+          visibility: "debug",
+        }),
+      });
+
       context.viz?.dumpGrid(context.trace, {
         dataTypeKey: "debug.heightfield.landMask",
         spaceId: TILE_SPACE_ID,

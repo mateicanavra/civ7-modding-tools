@@ -1,6 +1,7 @@
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 
 import { M4_EFFECT_TAGS, M10_EFFECT_TAGS } from "../../../tags.js";
+import { mapArtifacts } from "../../../map-artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
 
 const PlotRiversStepConfigSchema = Type.Object(
@@ -34,10 +35,13 @@ const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
   phase: "gameplay",
   requires: [M10_EFFECT_TAGS.map.elevationBuilt],
-  provides: [M4_EFFECT_TAGS.engine.riversModeled],
+  provides: [M4_EFFECT_TAGS.engine.riversModeled, M10_EFFECT_TAGS.map.hydrologyRiversParityCaptured],
   artifacts: {
     requires: [hydrologyHydrographyArtifacts.hydrography],
-    provides: [],
+    provides: [
+      hydrologyHydrographyArtifacts.engineProjectionRivers,
+      mapArtifacts.hydrologyRiversEngineTerrainSnapshot,
+    ],
   },
   schema: PlotRiversStepConfigSchema,
 });

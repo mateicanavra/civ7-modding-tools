@@ -99,6 +99,50 @@ export const FeatureIntentsListArtifactSchema = Type.Array(FeaturePlacementInten
 
 export type FeatureIntentsListArtifact = Static<typeof FeatureIntentsListArtifactSchema>;
 
+export const BiomeBindingsArtifactSchema = Type.Object(
+  {
+    width: Type.Integer({ minimum: 1 }),
+    height: Type.Integer({ minimum: 1 }),
+    engineBiomeId: TypedArraySchemas.u16({
+      description: "Engine biome id resolved from biome symbols (tile order).",
+    }),
+    bindingClass: TypedArraySchemas.u8({
+      description:
+        "Binding class per tile (0=water, 1=unique binding, 2=colliding binding where multiple symbols map to same engine biome).",
+    }),
+    collapsedBindingCount: Type.Integer({
+      minimum: 0,
+      description: "Count of land tiles whose symbol maps through a colliding engine biome binding.",
+    }),
+    landWaterMismatchCount: Type.Integer({
+      minimum: 0,
+      description: "Count of land-mask mismatches between Morphology truth and engine water state.",
+    }),
+  },
+  { additionalProperties: false }
+);
+
+export type BiomeBindingsArtifact = Static<typeof BiomeBindingsArtifactSchema>;
+
+export const FeatureApplyDiagnosticsArtifactSchema = Type.Object(
+  {
+    width: Type.Integer({ minimum: 1 }),
+    height: Type.Integer({ minimum: 1 }),
+    attempted: Type.Integer({ minimum: 0 }),
+    applied: Type.Integer({ minimum: 0 }),
+    rejected: Type.Integer({ minimum: 0 }),
+    rejectedCanHaveFeature: Type.Integer({ minimum: 0 }),
+    rejectedOutOfBounds: Type.Integer({ minimum: 0 }),
+    rejectedUnknownFeature: Type.Integer({ minimum: 0 }),
+    rejectionMask: TypedArraySchemas.u8({
+      description: "Per-tile rejection mask (0=accepted/untouched, 1=rejected).",
+    }),
+  },
+  { additionalProperties: false }
+);
+
+export type FeatureApplyDiagnosticsArtifact = Static<typeof FeatureApplyDiagnosticsArtifactSchema>;
+
 export const ecologyArtifacts = {
   biomeClassification: defineArtifact({
     name: "biomeClassification",
@@ -164,5 +208,15 @@ export const ecologyArtifacts = {
     name: "featureIntentsIce",
     id: "artifact:ecology.featureIntents.ice",
     schema: FeatureIntentsListArtifactSchema,
+  }),
+  biomeBindings: defineArtifact({
+    name: "biomeBindings",
+    id: "artifact:ecology.biomeBindings",
+    schema: BiomeBindingsArtifactSchema,
+  }),
+  featureApplyDiagnostics: defineArtifact({
+    name: "featureApplyDiagnostics",
+    id: "artifact:ecology.featureApplyDiagnostics",
+    schema: FeatureApplyDiagnosticsArtifactSchema,
   }),
 } as const;
