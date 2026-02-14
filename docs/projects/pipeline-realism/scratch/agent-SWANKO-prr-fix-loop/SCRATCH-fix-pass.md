@@ -11,3 +11,12 @@ Conventions:
 - Record test commands run and whether they passed.
 
 ## Log
+
+## PRR-s10-c01
+- Branch: `agent-SWANKO-PRR-s10-c01-fix-cap-reset-threshold-era-max`
+- Change: cap deriveResetThreshold floor against era maxByte so reset thresholds cannot exceed a channel's emitted maxima.
+- Files:
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts`
+- Checks:
+  - `bun run --cwd mods/mod-swooper-maps check` (pass)
+  - `bun run --cwd mods/mod-swooper-maps test test/foundation/m11-tectonic-events.test.ts` (fails here: missing expected polarity=-1 + originEra reset; re-run after upcoming PRR foundation fixes)
