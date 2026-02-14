@@ -20,3 +20,11 @@ Conventions:
 - Checks:
   - `bun run --cwd mods/mod-swooper-maps check` (pass)
   - `bun run --cwd mods/mod-swooper-maps test test/foundation/m11-tectonic-events.test.ts` (fails here: missing expected polarity=-1 + originEra reset; re-run after upcoming PRR foundation fixes)
+
+## PRR-s11-c01
+- Branch: `agent-SWANKO-PRR-s11-c01-fix-belt-influence-distance-contract`
+- Change: clarify contract wording for `beltInfluenceDistance` (base distance; per-channel multipliers may expand effective radius).
+- Files:
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts`
+- Checks:
+  - `bun run --cwd mods/mod-swooper-maps check` (pass)
