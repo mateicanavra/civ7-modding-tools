@@ -264,7 +264,7 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
   },
   "map-hydrology": {
     knobs: {
-      lakeiness: "many",
+      lakeiness: "normal",
       riverDensity: "dense",
     },
   },
@@ -294,41 +294,37 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
         strategy: "default",
         config: {
           temperature: {
-            equator: 32,
-            pole: -2,
-            lapseRate: 6.5,
+            equator: 31,
+            pole: -6,
+            lapseRate: 6.7,
             seaLevel: 0,
-            bias: 2.5,
-            polarCutoff: -3,
-            tundraCutoff: 4,
-            midLatitude: 14,
-            tropicalThreshold: 26,
+            bias: 1.8,
+            polarCutoff: -5,
+            tundraCutoff: 2,
+            midLatitude: 13,
+            tropicalThreshold: 24,
           },
           moisture: {
-            thresholds: [95, 130, 175, 230] as [number, number, number, number],
+            thresholds: [88, 120, 162, 210] as [number, number, number, number],
           },
           aridity: {
             temperatureMin: 2,
-            temperatureMax: 36,
+            temperatureMax: 37,
             petBase: 22,
-            petTemperatureWeight: 85,
-            humidityDampening: 0.6,
-            rainfallWeight: 1,
-            bias: -2,
-            normalization: 150,
-            moistureShiftThresholds: [0.45, 0.7] as [number, number],
-            vegetationPenalty: 0.08,
-          },
-          freeze: {
-            minTemperature: -9,
-            maxTemperature: 4,
+            petTemperatureWeight: 95,
+            humidityDampening: 0.52,
+            rainfallWeight: 1.08,
+            bias: 2,
+            normalization: 132,
+            moistureShiftThresholds: [0.43, 0.66] as [number, number],
+            vegetationPenalty: 0.14,
           },
           vegetation: {
-            base: 0.4,
-            moistureWeight: 0.7,
-            moistureNormalizationPadding: 70,
+            base: 0.34,
+            moistureWeight: 0.66,
+            moistureNormalizationPadding: 64,
           },
-          edgeRefine: { radius: 1, iterations: 1 }, // Smooth tropical biome blending
+          edgeRefine: { radius: 1, iterations: 2 }, // Smooth tropical biome blending
         },
       },
     },
@@ -336,25 +332,25 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
   "ecology-ice": {
     knobs: {},
     "plan-ice": {
-      planIce: { strategy: "default", config: { minScore01: 0.55 } }, // Minimal polar ice
+      planIce: { strategy: "default", config: { minScore01: 0.62 } }, // Minimal polar ice
     },
   },
   "ecology-reefs": {
     knobs: {},
     "plan-reefs": {
-      planReefs: { strategy: "shipping-lanes", config: { minScore01: 0.55 } }, // Island chain reef patterns
+      planReefs: { strategy: "shipping-lanes", config: { minScore01: 0.48 } }, // Island chain reef patterns
     },
   },
   "ecology-wetlands": {
     knobs: {},
     "plan-wetlands": {
-      planWetlands: { strategy: "default", config: { minScore01: 0.55 } },
+      planWetlands: { strategy: "default", config: { minScore01: 0.5 } },
     },
   },
   "ecology-vegetation": {
     knobs: {},
     "plan-vegetation": {
-      planVegetation: { strategy: "default", config: { minScore01: 0.15 } },
+      planVegetation: { strategy: "default", config: { minScore01: 0.12 } },
     },
   },
   "map-ecology": {
@@ -432,7 +428,7 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
                 typeName: "PLOTEFFECT_SNOW_HEAVY_PERMANENT",
               },
             },
-            coveragePct: 35,              // Reduced for tropical world
+            coveragePct: 28,              // Reduced for tropical world
             lightThreshold: 0.45,         // Higher threshold
             mediumThreshold: 0.7,
             heavyThreshold: 0.85,

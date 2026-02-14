@@ -245,12 +245,12 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
       dryness: "mix",
       temperature: "temperate",
       seasonality: "high",
-      oceanCoupling: "simple",
+      oceanCoupling: "earthlike",
     },
   },
   "hydrology-hydrography": {
     knobs: {
-      riverDensity: "normal",
+      riverDensity: "dense",
     },
   },
   "hydrology-climate-refine": {
@@ -263,7 +263,7 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
   "map-hydrology": {
     knobs: {
       lakeiness: "normal",
-      riverDensity: "normal",
+      riverDensity: "dense",
     },
   },
   "ecology-pedology": {
@@ -292,41 +292,37 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
         strategy: "default",
         config: {
           temperature: {
-            equator: 29,
-            pole: -10,
-            lapseRate: 7.0,
+            equator: 30,
+            pole: -14,
+            lapseRate: 7.3,
             seaLevel: 0,
-            bias: 1.2,
-            polarCutoff: -5,
-            tundraCutoff: 2,
-            midLatitude: 11,
-            tropicalThreshold: 23,
+            bias: 0.8,
+            polarCutoff: -7,
+            tundraCutoff: 0,
+            midLatitude: 10,
+            tropicalThreshold: 22,
           },
           moisture: {
-            thresholds: [70, 100, 135, 180] as [number, number, number, number],
+            thresholds: [64, 96, 132, 176] as [number, number, number, number],
           },
           aridity: {
             temperatureMin: 0,
-            temperatureMax: 35,
-            petBase: 20,
-            petTemperatureWeight: 78,
-            humidityDampening: 0.48,
-            rainfallWeight: 1,
-            bias: 4,
-            normalization: 110,
-            moistureShiftThresholds: [0.42, 0.68] as [number, number],
-            vegetationPenalty: 0.18,
-          },
-          freeze: {
-            minTemperature: -10,
-            maxTemperature: 3,
+            temperatureMax: 36,
+            petBase: 21,
+            petTemperatureWeight: 86,
+            humidityDampening: 0.42,
+            rainfallWeight: 1.08,
+            bias: 7,
+            normalization: 104,
+            moistureShiftThresholds: [0.4, 0.64] as [number, number],
+            vegetationPenalty: 0.2,
           },
           vegetation: {
-            base: 0.28,
-            moistureWeight: 0.6,
-            moistureNormalizationPadding: 55,
+            base: 0.24,
+            moistureWeight: 0.62,
+            moistureNormalizationPadding: 50,
           },
-          edgeRefine: { radius: 1, iterations: 1 },
+          edgeRefine: { radius: 1, iterations: 2 },
         },
       },
     },
@@ -346,13 +342,13 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
   "ecology-wetlands": {
     knobs: {},
     "plan-wetlands": {
-      planWetlands: { strategy: "default", config: { minScore01: 0.55 } },
+      planWetlands: { strategy: "default", config: { minScore01: 0.5 } },
     },
   },
   "ecology-vegetation": {
     knobs: {},
     "plan-vegetation": {
-      planVegetation: { strategy: "default", config: { minScore01: 0.15 } },
+      planVegetation: { strategy: "default", config: { minScore01: 0.12 } },
     },
   },
   "map-ecology": {
@@ -392,22 +388,22 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
       scoreSand: {
         strategy: "default",
         config: {
-          minAridity: 0.65,
-          minTemperature: 22,
+          minAridity: 0.62,
+          minTemperature: 20,
           maxFreeze: 0.25,
-          maxVegetation: 0.15,
-          maxMoisture: 85,
+          maxVegetation: 0.18,
+          maxMoisture: 90,
           allowedBiomes: ["desert", "temperateDry"] as ["desert", "temperateDry"],
         },
       },
       scoreBurned: {
         strategy: "default",
         config: {
-          minAridity: 0.42, // Capture more volcanic tiles
-          minTemperature: 18,
+          minAridity: 0.46, // Capture more volcanic tiles
+          minTemperature: 17,
           maxFreeze: 0.25,
-          maxVegetation: 0.35, // Allow more in volcanic areas
-          maxMoisture: 120,
+          maxVegetation: 0.4, // Allow more in volcanic areas
+          maxMoisture: 128,
           allowedBiomes: ["desert", "temperateDry", "tropicalSeasonal"] as [
             "desert",
             "temperateDry",
@@ -441,14 +437,14 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
             selector: {
               typeName: "PLOTEFFECT_SAND",
             },
-            coveragePct: 10,
+            coveragePct: 14,
           },
           burned: {
             enabled: true,
             selector: {
               typeName: "PLOTEFFECT_BURNED",
             },
-            coveragePct: 16,       // More volcanic scorched earth
+            coveragePct: 20,       // More volcanic scorched earth
           },
         },
       },
