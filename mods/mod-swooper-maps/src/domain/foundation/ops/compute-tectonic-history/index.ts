@@ -366,7 +366,11 @@ function deriveResetThreshold(maxValue: number, fracOfMax: number, minThreshold:
   const maxByte = Math.max(0, Math.min(255, maxValue | 0)) | 0;
   const frac = Number.isFinite(fracOfMax) ? Math.max(0, Math.min(1, fracOfMax)) : 0;
   const derived = Math.round(maxByte * frac) | 0;
-  return Math.max(minThreshold | 0, Math.min(255, derived)) | 0;
+
+  // Ensure the derived threshold never exceeds the era's actual emitted maxima (maxByte).
+  const minByte = Math.max(0, Math.min(255, minThreshold | 0)) | 0;
+  const floor = Math.min(maxByte, minByte) | 0;
+  return Math.max(floor, derived) | 0;
 }
 
 function deriveEmissionParams(config: { beltInfluenceDistance: number; beltDecay: number }): EmissionParams {
