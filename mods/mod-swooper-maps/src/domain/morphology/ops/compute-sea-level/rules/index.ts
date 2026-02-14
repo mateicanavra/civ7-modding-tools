@@ -8,11 +8,10 @@ const DEFAULT_BOUNDARY_THRESHOLD = 200;
 const DEFAULT_TARGET_STEP = 5;
 const MAX_ITERATIONS = 8;
 
-// Hard guardrail: hypsometry targetPct is the primary objective. Constraint satisfaction is
-// important, but should not drive the world into extreme all-water / all-land outcomes when
-// the constraints are incompatible with the current upstream truth.
+// Hard guardrail: hypsometry targetPct is the primary objective.
+// Within a bounded window, prefer satisfying explicit constraints (boundary/continental) and
+// then minimize deviation from the hypsometry target.
 const MAX_TARGET_ADJUSTMENT_PCT = 20; // percentage points
-const TARGET_PCT_PENALTY_WEIGHT = 1.0; // penalty per +/-100 percentage points of adjustment
 
 /**
  * Ensures sea-level inputs match the expected map size.
@@ -126,13 +125,12 @@ export function resolveSeaLevel(params: {
 
   const initialPct = clampPct(initialTarget);
 
-  const scoreCandidate = (pct: number): { objective: number; pctDelta: number; seaLevel: number } => {
+  const scoreCandidate = (pct: number): { constraintError: number; pctDelta: number; seaLevel: number } => {
     const clampedPct = clampPct(pct);
     const seaLevel = resolveSeaLevelAtPct(clampedPct);
     const evald = evaluate(seaLevel);
     const pctDelta = Math.abs(clampedPct - initialPct);
-    const objective = evald.constraintError + TARGET_PCT_PENALTY_WEIGHT * (pctDelta / 100);
-    return { objective, pctDelta, seaLevel };
+    return { constraintError: evald.constraintError, pctDelta, seaLevel };
   };
 
   // Greedy local steps can drift too far if constraints are unsatisfiable.
@@ -145,8 +143,8 @@ export function resolveSeaLevel(params: {
     const up = scoreCandidate(initialPct + delta);
 
     const pick = (a: typeof best, b: typeof best): typeof best => {
-      if (b.objective < a.objective) return b;
-      if (b.objective > a.objective) return a;
+      if (b.constraintError < a.constraintError) return b;
+      if (b.constraintError > a.constraintError) return a;
       // Tie-break: prefer less deviation from the hypsometry target.
       if (b.pctDelta < a.pctDelta) return b;
       return a;
