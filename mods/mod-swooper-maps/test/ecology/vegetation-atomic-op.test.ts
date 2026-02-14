@@ -10,7 +10,7 @@ describe("planVegetation (joint resolver)", () => {
     const size = width * height;
     const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetation, {
       strategy: "default",
-      config: { minScore01: 0.15 },
+      config: {},
     });
 
     const scoreForest01 = new Float32Array(size);
@@ -54,13 +54,13 @@ describe("planVegetation (joint resolver)", () => {
     expect(result.placements.map((p) => p.feature)).toEqual(["FEATURE_FOREST", "FEATURE_TAIGA"]);
   });
 
-  it("uses the seed only to break exact ties deterministically", () => {
+  it("is deterministic and seed-independent for exact ties", () => {
     const width = 1;
     const height = 1;
     const size = width * height;
     const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetation, {
       strategy: "default",
-      config: { minScore01: 0.15 },
+      config: {},
     });
 
     const input = {
@@ -77,8 +77,7 @@ describe("planVegetation (joint resolver)", () => {
     } as const;
 
     const a = ecology.ops.planVegetation.run({ ...input, seed: 123 }, selection);
-    const b = ecology.ops.planVegetation.run({ ...input, seed: 123 }, selection);
+    const b = ecology.ops.planVegetation.run({ ...input, seed: 987654 }, selection);
     expect(b).toEqual(a);
   });
 });
-

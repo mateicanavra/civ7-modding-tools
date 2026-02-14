@@ -330,29 +330,29 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
   "ecology-ice": {
     knobs: {},
     "plan-ice": {
-      planIce: { strategy: "default", config: { minScore01: 0.55 } },
+      planIce: { strategy: "default", config: {} },
     },
   },
   "ecology-reefs": {
     knobs: {},
     "plan-reefs": {
-      planReefs: { strategy: "default", config: { minScore01: 0.55 } },
+      planReefs: { strategy: "default", config: {} },
     },
   },
   "ecology-wetlands": {
     knobs: {},
     "plan-wetlands": {
-      planWetlands: { strategy: "default", config: { minScore01: 0.5 } },
+      planWetlands: { strategy: "default", config: {} },
     },
   },
   "ecology-vegetation": {
     knobs: {},
     "plan-vegetation": {
-      planVegetation: { strategy: "default", config: { minScore01: 0.12 } },
+      planVegetation: { strategy: "default", config: {} },
     },
   },
   "map-ecology": {
-    biomes: {
+    "plot-biomes": {
       bindings: {
         snow: "BIOME_TUNDRA",
         tundra: "BIOME_TUNDRA",
@@ -365,7 +365,7 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
         marine: "BIOME_MARINE",
       },
     },
-    plotEffects: {
+    "plot-effects": {
       scoreSnow: {
         strategy: "default",
         config: {
@@ -449,7 +449,7 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
         },
       },
     },
-    featuresApply: {
+    "features-apply": {
       apply: { strategy: "default", config: { maxPerTile: 1 } },
     },
   },
