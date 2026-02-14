@@ -235,7 +235,7 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
       dryness: "dry",
       temperature: "hot",
       seasonality: "low",
-      oceanCoupling: "off",
+      oceanCoupling: "simple",
     },
   },
   "hydrology-hydrography": {
@@ -282,41 +282,37 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
         strategy: "default",
         config: {
           temperature: {
-            equator: 34,
-            pole: 12,
-            lapseRate: 7.5,
+            equator: 35,
+            pole: 8,
+            lapseRate: 7.8,
             seaLevel: 0,
-            bias: 2,
-            polarCutoff: -5,
-            tundraCutoff: 0,
-            midLatitude: 12,
-            tropicalThreshold: 24,
+            bias: 2.2,
+            polarCutoff: -8,
+            tundraCutoff: -2,
+            midLatitude: 11,
+            tropicalThreshold: 25,
           },
           moisture: {
-            thresholds: [55, 85, 120, 170] as [number, number, number, number],
+            thresholds: [48, 78, 112, 160] as [number, number, number, number],
           },
           aridity: {
             temperatureMin: 2,
-            temperatureMax: 40,
-            petBase: 28,
-            petTemperatureWeight: 110,
-            humidityDampening: 0.35,
-            rainfallWeight: 1,
-            bias: 20,
-            normalization: 80,
-            moistureShiftThresholds: [0.4, 0.65] as [number, number],
-            vegetationPenalty: 0.28,
-          },
-          freeze: {
-            minTemperature: -6,
-            maxTemperature: 5,
+            temperatureMax: 42,
+            petBase: 30,
+            petTemperatureWeight: 122,
+            humidityDampening: 0.28,
+            rainfallWeight: 0.95,
+            bias: 24,
+            normalization: 76,
+            moistureShiftThresholds: [0.38, 0.62] as [number, number],
+            vegetationPenalty: 0.31,
           },
           vegetation: {
-            base: 0.12,
-            moistureWeight: 0.5,
-            moistureNormalizationPadding: 45,
+            base: 0.09,
+            moistureWeight: 0.46,
+            moistureNormalizationPadding: 40,
           },
-          edgeRefine: { radius: 1, iterations: 1 }, // Sharp desert/mountain transitions
+          edgeRefine: { radius: 1, iterations: 2 }, // Sharp desert/mountain transitions
         },
       },
     },
@@ -336,13 +332,13 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
   "ecology-wetlands": {
     knobs: {},
     "plan-wetlands": {
-      planWetlands: { strategy: "default", config: { minScore01: 0.55 } },
+      planWetlands: { strategy: "default", config: { minScore01: 0.62 } },
     },
   },
   "ecology-vegetation": {
     knobs: {},
     "plan-vegetation": {
-      planVegetation: { strategy: "default", config: { minScore01: 0.15 } },
+      planVegetation: { strategy: "default", config: { minScore01: 0.2 } },
     },
   },
   "map-ecology": {
@@ -382,22 +378,22 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
       scoreSand: {
         strategy: "default",
         config: {
-          minAridity: 0.48, // Capture more arid tiles
-          minTemperature: 18, // Include cooler desert edges
+          minAridity: 0.58, // Capture more arid tiles
+          minTemperature: 19, // Include cooler desert edges
           maxFreeze: 0.2,
           maxVegetation: 0.15,
-          maxMoisture: 75,
+          maxMoisture: 70,
           allowedBiomes: ["desert", "temperateDry"] as ["desert", "temperateDry"],
         },
       },
       scoreBurned: {
         strategy: "default",
         config: {
-          minAridity: 0.55, // Capture more tiles
-          minTemperature: 22,
+          minAridity: 0.62, // Capture more tiles
+          minTemperature: 24,
           maxFreeze: 0.15,
-          maxVegetation: 0.25,
-          maxMoisture: 95,
+          maxVegetation: 0.22,
+          maxMoisture: 90,
           allowedBiomes: ["desert", "temperateDry", "tropicalSeasonal"] as [
             "desert",
             "temperateDry",
@@ -431,14 +427,14 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
             selector: {
               typeName: "PLOTEFFECT_SAND",
             },
-            coveragePct: 38,       // Aggressive for desert world
+            coveragePct: 42,       // Aggressive for desert world
           },
           burned: {
             enabled: true,
             selector: {
               typeName: "PLOTEFFECT_BURNED",
             },
-            coveragePct: 14,       // More scorched earth
+            coveragePct: 16,       // More scorched earth
           },
         },
       },
