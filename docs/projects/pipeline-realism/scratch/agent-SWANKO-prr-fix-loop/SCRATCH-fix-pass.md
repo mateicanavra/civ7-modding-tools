@@ -89,3 +89,8 @@ Conventions:
 - Change: apply `config.mountainThreshold` when selecting ridge spines and expansions.
 - Checks: `bun run --cwd mods/mod-swooper-maps check` (pass)
 - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1252 (draft)
+
+## 2026-02-14 PRR-s115-c01
+- Branch: `agent-SWANKO-PRR-s115-c01-fix-hill-cap-floor`
+- Change: use `Math.floor` for hill max fraction cap to keep the cap strict on small maps.
+- Checks: `bun run --cwd mods/mod-swooper-maps check` (pass)
