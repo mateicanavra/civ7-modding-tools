@@ -48,7 +48,7 @@ export function buildEngineBiomeIdVizCategories(args: {
   const out: VizCategory[] = [];
   for (const [engineId, bucket] of byEngineId.entries()) {
     const symbols = bucket.symbols.slice().sort((a, b) => BIOME_SYMBOL_ORDER.indexOf(a) - BIOME_SYMBOL_ORDER.indexOf(b));
-    const labelParts = symbols.slice();
+    const labelParts: string[] = [...symbols];
     if (bucket.marine) labelParts.push(MARINE_LABEL);
 
     let color: VizCategory["color"] = MARINE_COLOR;
@@ -65,4 +65,3 @@ export function buildEngineBiomeIdVizCategories(args: {
   out.sort((a, b) => a.value - b.value);
   return out;
 }
-

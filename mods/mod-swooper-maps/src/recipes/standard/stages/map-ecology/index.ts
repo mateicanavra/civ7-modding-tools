@@ -9,7 +9,7 @@ export default createStage({
     featuresApply: Type.Optional(steps.featuresApply.contract.schema),
     plotEffects: Type.Optional(steps.plotEffects.contract.schema),
   }),
-  compile: ({ config }) => ({
+  compile: ({ config }: { config: { biomes?: unknown; featuresApply?: unknown; plotEffects?: unknown } }) => ({
     "plot-biomes": config.biomes,
     "features-apply": config.featuresApply,
     "plot-effects": config.plotEffects,
