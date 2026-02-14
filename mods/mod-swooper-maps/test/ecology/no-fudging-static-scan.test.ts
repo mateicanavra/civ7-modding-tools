@@ -94,5 +94,38 @@ describe("M3 no-fudging posture (static scan)", () => {
 
     expect(findings.length, formatFindings(findings)).toBe(0);
   });
-});
 
+  it("keeps scoped classifier/planner runtime logic free of fudge + RNG constructs", () => {
+    const testDir = path.dirname(fileURLToPath(import.meta.url));
+    const repoRoot = path.resolve(testDir, "..", "..");
+
+    const roots = [
+      path.join(repoRoot, "src", "domain", "ecology", "ops", "classify-biomes", "layers"),
+      path.join(repoRoot, "src", "domain", "ecology", "ops", "classify-biomes", "rules"),
+      path.join(repoRoot, "src", "domain", "ecology", "ops", "features-plan-vegetation", "strategies"),
+      path.join(repoRoot, "src", "domain", "ecology", "ops", "features-plan-wetlands", "strategies"),
+      path.join(repoRoot, "src", "domain", "ecology", "ops", "features-plan-reefs", "strategies"),
+      path.join(repoRoot, "src", "domain", "ecology", "ops", "features-plan-ice", "strategies"),
+    ] as const;
+
+    const exts = [".ts"] as const;
+    const patterns = [
+      { name: "createLabelRng", re: /\bcreateLabelRng\b/u },
+      { name: "rngCall", re: /\brng\s*\(/u },
+      { name: "bandpass", re: /\bbandpass\b/iu },
+      { name: "rampUp01", re: /\brampUp01\s*\(/u },
+      { name: "rampDown01", re: /\brampDown01\s*\(/u },
+      { name: "window01", re: /\bwindow01\s*\(/u },
+      { name: "bonusTerm", re: /\bbonus\b/iu },
+      { name: "penaltyTerm", re: /\bpenalty\b/iu },
+      { name: "minScoreGate", re: /\bminScore01\b.*[<>]=?|[<>]=?.*\bminScore01\b/u },
+    ] as const;
+
+    const files = roots
+      .flatMap((root) => walkFiles(root, exts))
+      .filter((abs) => !abs.endsWith(".schema.ts"));
+    const findings = files.flatMap((abs) => scanFile(abs, repoRoot, patterns));
+
+    expect(findings.length, formatFindings(findings)).toBe(0);
+  });
+});
