@@ -69,11 +69,38 @@ export const HydrologyEngineProjectionArtifactSchema = Type.Object(
   }
 );
 
+export const HydrologyLakePlanArtifactSchema = Type.Object(
+  {
+    width: Type.Integer({ minimum: 1 }),
+    height: Type.Integer({ minimum: 1 }),
+    lakeMask: TypedArraySchemas.u8({
+      description: "Deterministic hydrology-derived lake plan mask (1=planned lake tile).",
+    }),
+    plannedLakeTileCount: Type.Integer({
+      minimum: 0,
+      description: "Count of tiles marked as planned lakes.",
+    }),
+    sinkLakeCount: Type.Integer({
+      minimum: 0,
+      description: "Count of sink tiles mapped to lake tiles.",
+    }),
+  },
+  {
+    additionalProperties: false,
+    description: "Hydrology-owned deterministic lake plan artifact for map-stage projection.",
+  }
+);
+
 export const hydrologyHydrographyArtifacts = {
   hydrography: defineArtifact({
     name: "hydrography",
     id: "artifact:hydrology.hydrography",
     schema: HydrologyHydrographyArtifactSchema,
+  }),
+  lakePlan: defineArtifact({
+    name: "lakePlan",
+    id: "artifact:hydrology.lakePlan",
+    schema: HydrologyLakePlanArtifactSchema,
   }),
   engineProjectionLakes: defineArtifact({
     name: "engineProjectionLakes",
