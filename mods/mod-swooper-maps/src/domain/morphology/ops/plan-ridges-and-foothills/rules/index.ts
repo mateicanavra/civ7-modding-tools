@@ -219,7 +219,7 @@ export function computeMountainScore(params: {
   }
 
   // Ensure mountains cannot appear without a meaningful tectonic driver signal.
-  const driverGate = driverStrength > 0 ? 1 : 0;
+  const driverGate = driverStrength > 0 ? clamp01(driverStrength) : 0;
   return Math.max(0, mountainScore) * driverGate;
 }
 
