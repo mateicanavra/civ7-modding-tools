@@ -58,7 +58,7 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
     ).segments;
 
     const history = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, segments },
+      { mesh, crust, mantleForcing, plateGraph, plateMotion, segments },
       {
         ...computeTectonicHistory.defaultConfig,
         config: {
