@@ -37,8 +37,8 @@ const computePlateMotion = createOp(ComputePlateMotionContract, {
         const plateRadiusMin = Math.max(1e-6, config.plateRadiusMin ?? 1);
         const residualNormScale = Math.max(0.01, config.residualNormScale ?? 1);
         const p90NormScale = Math.max(0.01, config.p90NormScale ?? 1);
-        const histogramBins = clampInt(config.histogramBins ?? 32, 8, 128);
-        const smoothingSteps = clampInt(config.smoothingSteps ?? 0, 0, 1);
+        const histogramBins = clampInt(Math.round(config.histogramBins ?? 32), 8, 128);
+        const smoothingSteps = clampInt(Math.round(config.smoothingSteps ?? 0), 0, 1);
 
         let forcingU = mantleForcing.forcingU;
         let forcingV = mantleForcing.forcingV;
