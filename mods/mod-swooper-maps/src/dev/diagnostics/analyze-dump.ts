@@ -15,6 +15,17 @@ function lastSummary(trace: any[], kind: string): unknown {
     .map((e) => e.data);
   return matches.at(-1) ?? null;
 }
+function tryPickLatestGridLayer(
+  manifest: ReturnType<typeof loadManifest>,
+  dataTypeKey: string
+) {
+  try {
+    return pickLatestGridLayer(manifest, dataTypeKey);
+  } catch {
+    return null;
+  }
+}
+
 
 function landmaskLayers(manifest: ReturnType<typeof loadManifest>) {
   return manifest.layers
@@ -60,9 +71,11 @@ function maxU8(values: Uint8Array): number {
 
 function summarizeMountains(runDir: string, manifest: ReturnType<typeof loadManifest>) {
   // These keys are the stable, user-facing visualization outputs used in Mapgen Studio.
-  const mountainMaskLayer = pickLatestGridLayer(manifest, "map.morphology.mountains.mountainMask");
-  const hillMaskLayer = pickLatestGridLayer(manifest, "map.morphology.mountains.hillMask");
-  const orogenyLayer = pickLatestGridLayer(manifest, "map.morphology.mountains.orogenyPotential");
+  const mountainMaskLayer = tryPickLatestGridLayer(manifest, "map.morphology.mountains.mountainMask");
+  const hillMaskLayer = tryPickLatestGridLayer(manifest, "map.morphology.mountains.hillMask");
+  const orogenyLayer = tryPickLatestGridLayer(manifest, "map.morphology.mountains.orogenyPotential");
+
+  if (!mountainMaskLayer || !hillMaskLayer || !orogenyLayer) return null;
 
   const mountain = readU8Grid(runDir, mountainMaskLayer);
   const hill = readU8Grid(runDir, hillMaskLayer);
