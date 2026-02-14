@@ -10,7 +10,6 @@ import { applyPlacementPlan } from "../../src/recipes/standard/stages/placement/
 
 class RegionSensitiveResourceAdapter extends MockAdapter {
   private regionByTile: Uint8Array;
-  resourcesPlaced = 0;
 
   constructor(config: ConstructorParameters<typeof MockAdapter>[0]) {
     super(config);
@@ -32,15 +31,9 @@ class RegionSensitiveResourceAdapter extends MockAdapter {
     this.regionByTile.fill(this.getLandmassId("NONE"));
   }
 
-  override generateResources(width: number, height: number): void {
+  override canHaveResource(x: number, y: number, resourceType: number): boolean {
     const none = this.getLandmassId("NONE");
-    let eligibleTiles = 0;
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        if (this.regionByTile[this.idx2(x, y)] !== none) eligibleTiles += 1;
-      }
-    }
-    this.resourcesPlaced = eligibleTiles;
+    return this.regionByTile[this.idx2(x, y)] !== none && super.canHaveResource(x, y, resourceType);
   }
 }
 
@@ -103,16 +96,34 @@ describe("placement resources landmass-region restamp", () => {
       placement.ops.planWonders.defaultConfig
     );
     const floodplains = placement.ops.planFloodplains.run({}, placement.ops.planFloodplains.defaultConfig);
+    const resources = {
+      width,
+      height,
+      candidateResourceTypes: [7],
+      targetCount: 1,
+      plannedCount: 1,
+      placements: [
+        {
+          plotIndex: 0,
+          preferredResourceType: 7,
+          preferredTypeOffset: 0,
+          priority: 1,
+        },
+      ],
+    };
 
-    applyPlacementPlan({
+    const outputs = applyPlacementPlan({
       context,
       starts,
       wonders,
       floodplains,
+      resources,
       landmassRegionSlotByTile: { slotByTile: new Uint8Array(width * height).fill(1) },
       publishOutputs: (outputs) => outputs,
     });
 
-    expect(adapter.resourcesPlaced).toBeGreaterThan(0);
+    expect(adapter.calls.setResourceType).toEqual([{ x: 0, y: 0, resourceType: 7 }]);
+    expect(adapter.resourcesPlaced).toBe(1);
+    expect(outputs.resourcesCount).toBe(1);
   });
 });

@@ -1,4 +1,5 @@
 import { Type, TypedArraySchemas, defineArtifact } from "@swooper/mapgen-core/authoring";
+import placement from "@mapgen/domain/placement";
 import { PlacementInputsV1Schema } from "./placement-inputs.js";
 import { PlacementOutputsV1Schema } from "./placement-outputs.js";
 
@@ -22,6 +23,7 @@ const PlacementEngineStateV1Schema = Type.Object(
     ),
     startsAssigned: Type.Integer({ minimum: 0 }),
     resourcesAttempted: Type.Boolean(),
+    resourcesPlaced: Type.Integer({ minimum: 0 }),
     resourcesError: Type.Optional(Type.String()),
     waterDriftCount: Type.Integer({
       minimum: 0,
@@ -36,6 +38,11 @@ export const placementArtifacts = {
     name: "placementInputs",
     id: "artifact:placementInputs",
     schema: PlacementInputsV1Schema,
+  }),
+  resourcePlan: defineArtifact({
+    name: "resourcePlan",
+    id: "artifact:placement.resourcePlan",
+    schema: placement.ops.planResources.output,
   }),
   placementOutputs: defineArtifact({
     name: "placementOutputs",
