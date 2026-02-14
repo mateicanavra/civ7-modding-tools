@@ -106,3 +106,9 @@ Conventions:
 - Change: preflight now requires `standard`/`browser-test` recipe modules, `.d.ts`, and generated `*.schema.json`/`*.defaults.json`/`*.presets.json` in addition to `*-artifacts.js`.
 - Checks: (not executed) `node scripts/preflight/ensure-studio-recipe-artifacts.mjs` (skipped to avoid generating dist artifacts in this worktree)
 - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1254 (draft)
+
+## 2026-02-14 PRR-s119-c01
+- Branch: `agent-SWANKO-PRR-s119-c01-fix-pass-plateMotion`
+- Change: update `computeTectonicHistory.run(...)` call sites to pass `plateMotion` (fixes requirePlateMotion throws).
+- Checks: `bun run --cwd mods/mod-swooper-maps check` (pass)
+- Tests: `bun run --cwd mods/mod-swooper-maps test test/foundation/mesh-first-ops.test.ts` (pass)
