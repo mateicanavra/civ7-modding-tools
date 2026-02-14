@@ -53,3 +53,11 @@ Conventions:
   - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts`
 - Checks:
   - `bun run --cwd mods/mod-swooper-maps check` (pass)
+
+## PRR-s98-c01
+- Branch: `agent-SWANKO-PRR-s98-c01-fix-era-fields-dijkstra`
+- Change: switch era-field diffusion traversal to Dijkstra-style relaxation (variable edge weights), avoiding FIFO+visitMark correctness issues.
+- Files:
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts`
+- Checks:
+  - `bun run --cwd mods/mod-swooper-maps check` (pass)
