@@ -36,3 +36,12 @@ Conventions:
   - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-motion/index.ts`
 - Checks:
   - `bun run --cwd mods/mod-swooper-maps check` (pass)
+
+## PRR-s94-c01
+- Branch: `agent-SWANKO-PRR-s94-c01-fix-sea-level-constraints-first`
+- Change: within the bounded targetPct window, prefer minimizing constraintError first, then minimize deviation from the hypsometry target.
+- Files:
+  - `mods/mod-swooper-maps/src/domain/morphology/ops/compute-sea-level/rules/index.ts`
+- Checks:
+  - `bun run --cwd mods/mod-swooper-maps check` (pass)
+  - Note: some morphology tests currently fail earlier due to missing `plateMotion` inputs; tracked as `PRR-s119-c01`.
