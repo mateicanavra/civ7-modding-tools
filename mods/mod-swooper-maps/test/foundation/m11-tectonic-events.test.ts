@@ -16,13 +16,13 @@ function makeTwoCellMesh(): any {
   } as const;
 }
 
-function makeCrust(cellCount: number) {
+function makeCrust(cellCount: number, types: readonly [number, number] = [0, 0]) {
   return {
     maturity: new Float32Array(cellCount),
     thickness: new Float32Array(cellCount).fill(0.25),
     thermalAge: new Uint8Array(cellCount),
     damage: new Uint8Array(cellCount),
-    type: new Uint8Array(cellCount),
+    type: new Uint8Array(types),
     age: new Uint8Array(cellCount),
     buoyancy: new Float32Array(cellCount).fill(0.2),
     baseElevation: new Float32Array(cellCount).fill(0.2),
@@ -57,14 +57,20 @@ function makePlateMotion(cellCount: number, plateCount: number) {
   } as const;
 }
 
-function makeMantleForcing(cellCount: number) {
+function makeMantleForcing(
+  cellCount: number,
+  forcing: readonly [number, number] = [0, 0],
+  stress: readonly [number, number] = [0, 0]
+) {
+  const [u0, u1] = forcing;
+  const [s0, s1] = stress;
   return {
     version: 1,
     cellCount,
-    stress: new Float32Array(cellCount),
-    forcingU: new Float32Array(cellCount),
+    stress: new Float32Array([s0, s1]),
+    forcingU: new Float32Array([u0, u1]),
     forcingV: new Float32Array(cellCount),
-    forcingMag: new Float32Array(cellCount),
+    forcingMag: new Float32Array([Math.abs(u0), Math.abs(u1)]),
     upwellingClass: new Int8Array(cellCount),
     divergence: new Float32Array(cellCount),
   } as const;
@@ -102,8 +108,9 @@ function makeSegments(params: {
 describe("m11 tectonic events", () => {
   it("subduction events deterministically update boundary provenance", () => {
     const mesh = makeTwoCellMesh();
-    const crust = makeCrust(mesh.cellCount);
-    const mantleForcing = makeMantleForcing(mesh.cellCount);
+    // Oceanic -> continental polarity is deterministically resolvable under convergent forcing.
+    const crust = makeCrust(mesh.cellCount, [0, 1]);
+    const mantleForcing = makeMantleForcing(mesh.cellCount, [1, -1], [1, 1]);
     const plateGraph = makePlateGraph();
     const plateMotion = makePlateMotion(mesh.cellCount, plateGraph.plates.length);
     const segments = makeSegments({
@@ -134,7 +141,8 @@ describe("m11 tectonic events", () => {
   it("rift events reset origin era when activated by weights", () => {
     const mesh = makeTwoCellMesh();
     const crust = makeCrust(mesh.cellCount);
-    const mantleForcing = makeMantleForcing(mesh.cellCount);
+    // Divergent forcing keeps the rift signal in the weighted era.
+    const mantleForcing = makeMantleForcing(mesh.cellCount, [-1, 1], [1, 1]);
     const plateGraph = makePlateGraph();
     const plateMotion = makePlateMotion(mesh.cellCount, plateGraph.plates.length);
     const segments = makeSegments({
@@ -162,6 +170,8 @@ describe("m11 tectonic events", () => {
 
     const originEra = Array.from(history.tectonicProvenance.provenance.originEra);
     expect(originEra.some((value) => value === 1)).toBe(true);
+    const lastBoundaryType = Array.from(history.tectonicProvenance.provenance.lastBoundaryType);
+    expect(lastBoundaryType.some((value) => value === BOUNDARY_TYPE.divergent)).toBe(true);
     const crustAge = Array.from(history.tectonicProvenance.provenance.crustAge);
     expect(Math.min(...crustAge)).toBeLessThan(255);
   });

@@ -160,13 +160,18 @@ describe("morphology belt synthesis (history + provenance)", () => {
       provenanceTiles,
     });
 
-    // Pick points at the same distance from each peak where width differences matter.
-    // Chosen so the "new" belt is at (or beyond) its cutoff while the "old" belt still has influence.
-    const nearNew = 9;
-    const nearOld = 13;
-    expect(drivers.beltNearestSeed[nearNew]).not.toBe(-1);
-    expect(drivers.beltNearestSeed[nearOld]).not.toBe(-1);
-    expect(drivers.boundaryCloseness[nearOld]).toBeGreaterThan(drivers.boundaryCloseness[nearNew]);
-    expect(drivers.boundaryCloseness[nearOld]).toBeGreaterThan(0);
+    // Newer belts should diffuse over fewer tiles than older belts.
+    const newSeed = 4;
+    const oldSeed = 18;
+    let newInfluence = 0;
+    let oldInfluence = 0;
+    for (let i = 0; i < width; i++) {
+      if ((drivers.boundaryCloseness[i] ?? 0) <= 0) continue;
+      if ((drivers.beltNearestSeed[i] ?? -1) === newSeed) newInfluence++;
+      if ((drivers.beltNearestSeed[i] ?? -1) === oldSeed) oldInfluence++;
+    }
+    expect(newInfluence).toBeGreaterThan(0);
+    expect(oldInfluence).toBeGreaterThan(0);
+    expect(oldInfluence).toBeGreaterThan(newInfluence);
   });
 });

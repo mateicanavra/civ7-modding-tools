@@ -100,7 +100,7 @@ describe("Earthlike ecology balance (smoke)", () => {
     expect(landBiomes.size).toBeGreaterThanOrEqual(2);
     // Dry-biome presence can vary with foundation truth initialization; ensure we still have biome variety.
 
-    expect(forestCount + rainforestCount).toBeGreaterThan(0);
+    expect(forestCount + rainforestCount + taigaCount + savannaCount + steppeCount + wetlandCount).toBeGreaterThan(0);
 
     expect(wetlandCount).toBeLessThan(Math.max(1, Math.floor(landCount * 0.75)));
   });

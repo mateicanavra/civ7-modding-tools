@@ -120,3 +120,15 @@ Conventions:
 - Checks: `bun run --cwd mods/mod-swooper-maps check` (pass)
 - Tests: `bun run --cwd mods/mod-swooper-maps test test/foundation/m11-tectonic-segments-history.test.ts` (pass)
 - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1256 (draft)
+
+## 2026-02-14 PRR-s124-c01
+- Branch: `agent-SWANKO-PRR-s124-c01-fix-diag-analyze-mountains-guard`
+- Change: `diag:analyze` now returns `mountainsSummary: null` when mountain layers are missing instead of throwing.
+- Checks: `bun run --cwd mods/mod-swooper-maps check` (pass)
+- PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1257 (draft)
+
+## 2026-02-14 Final Verification (post PRR-s124-c01)
+- Command: `bun run --cwd mods/mod-swooper-maps check` (pass)
+- Command: `bun run --cwd mods/mod-swooper-maps test` (fail)
+- Result: 181 pass, 19 fail
+- Recurring blocker: `RecipeCompileError` unknown key `/config/ecology/biomes/classify/config/vegetation/biomeModifiers` (breaks standard-run + determinism/viz/pipeline harness tests).
