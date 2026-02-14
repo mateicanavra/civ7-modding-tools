@@ -26,7 +26,7 @@ const StrategySchema = Type.Object(
       default: 8,
       minimum: 1,
       maximum: 64,
-      description: "Maximum belt influence distance in mesh-neighbor steps.",
+      description: "Base belt influence distance in mesh-neighbor steps (effective radii may be scaled per channel).",
     }),
     beltDecay: Type.Number({
       default: 0.55,
