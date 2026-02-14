@@ -26,6 +26,11 @@ if [ "$DOMAIN_REFACTOR_GUARDRAILS_PROFILE" != "boundary" ] && [ "$DOMAIN_REFACTO
   echo -e "${RED}ERROR: Unknown DOMAIN_REFACTOR_GUARDRAILS_PROFILE='${DOMAIN_REFACTOR_GUARDRAILS_PROFILE}'. Use 'boundary' or 'full'.${NC}"
   exit 2
 fi
+DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL="${DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL:-0}"
+if [ "$DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL" = "1" ] && [ "$DOMAIN_REFACTOR_GUARDRAILS_PROFILE" != "full" ]; then
+  echo -e "${RED}ERROR: DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL=1 requires DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full.${NC}"
+  exit 2
+fi
 
 echo "Profile: ${DOMAIN_REFACTOR_GUARDRAILS_PROFILE}"
 echo ""
@@ -194,12 +199,21 @@ stage_roots_for_domain() {
     ecology) echo "mods/mod-swooper-maps/src/recipes/standard/stages/ecology" ;;
     foundation) echo "mods/mod-swooper-maps/src/recipes/standard/stages/foundation" ;;
     morphology) echo "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts mods/mod-swooper-maps/src/recipes/standard/stages/morphology-routing mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features" ;;
-    narrative) echo "mods/mod-swooper-maps/src/recipes/standard/stages/narrative-pre mods/mod-swooper-maps/src/recipes/standard/stages/narrative-mid mods/mod-swooper-maps/src/recipes/standard/stages/narrative-post" ;;
-    hydrology) echo "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-pre mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-core mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-post" ;;
+    narrative) echo "" ;;
+    hydrology) echo "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine" ;;
     placement) echo "mods/mod-swooper-maps/src/recipes/standard/stages/placement" ;;
     *)
       echo ""
       ;;
+  esac
+}
+
+allow_stage_rootless_full_domain() {
+  local domain="$1"
+  case "$domain" in
+    # Narrative runtime stages are not wired into the standard recipe topology in this stack.
+    narrative) return 0 ;;
+    *) return 1 ;;
   esac
 }
 
@@ -215,20 +229,27 @@ for domain in "${DOMAINS[@]}"; do
     continue
   fi
 
+  stage_roots=()
   read -r -a stage_roots <<< "$(stage_roots_for_domain "$domain")"
   if [ "$DOMAIN_REFACTOR_GUARDRAILS_PROFILE" = "full" ]; then
     if [ ${#stage_roots[@]} -eq 0 ]; then
-      echo -e "${RED}ERROR: No stage roots configured for '${domain}'.${NC}"
-      violations=$((violations + 1))
-      continue
+      if allow_stage_rootless_full_domain "$domain"; then
+        echo -e "${YELLOW}Skip stage-root checks for '${domain}' (no runtime stage roots configured).${NC}"
+      else
+        echo -e "${RED}ERROR: No stage roots configured for '${domain}'.${NC}"
+        violations=$((violations + 1))
+        continue
+      fi
     fi
 
-    for stage_root in "${stage_roots[@]}"; do
-      if [ ! -d "$stage_root" ]; then
-        echo -e "${RED}ERROR: Missing stage root for '${domain}': ${stage_root}${NC}"
-        violations=$((violations + 1))
-      fi
-    done
+    if [ ${#stage_roots[@]} -gt 0 ]; then
+      for stage_root in "${stage_roots[@]}"; do
+        if [ ! -d "$stage_root" ]; then
+          echo -e "${RED}ERROR: Missing stage root for '${domain}': ${stage_root}${NC}"
+          violations=$((violations + 1))
+        fi
+      done
+    fi
   fi
 
   echo -e "${YELLOW}Checking domain: ${domain}${NC}"
@@ -245,22 +266,24 @@ for domain in "${DOMAINS[@]}"; do
     run_rg "Engine imports in ops (${domain})" "from \"@swooper/mapgen-core/engine\"|from \"@mapgen/engine\"" -- "$ops_root"
     run_rg "Non-type engine imports in ops (${domain})" "import(?!\\s+type)\\s+.*from\\s+\"@swooper/mapgen-core/engine\"|import(?!\\s+type)\\s+.*from\\s+\"@mapgen/engine\"" -P -- "$ops_root"
     run_rg "Runtime config merges in ops (${domain})" "\\?\\?\\s*\\{\\}|\\bValue\\.Default\\(" -- "$ops_root"
-    run_rg "Literal dependency keys in requires (${domain})" "requires:\\s*\\[[^\\]]*['\\\"](artifact|field|effect):" -U -- "${stage_roots[@]}"
-    run_rg "Literal dependency keys in provides (${domain})" "provides:\\s*\\[[^\\]]*['\\\"](artifact|field|effect):" -U -- "${stage_roots[@]}"
-    run_rg "Map projection/effect deps in stage contracts (${domain})" "(requires|provides):\\s*\\[[^\\]]*['\\\"](artifact|effect):map\\." -P -U -- "${stage_roots[@]}"
-    run_rg "Runtime config merges in steps (${domain})" "\\?\\?\\s*\\{\\}|\\bValue\\.Default\\(" -- "${stage_roots[@]}"
+    if [ ${#stage_roots[@]} -gt 0 ]; then
+      run_rg "Literal dependency keys in requires (${domain})" "requires:\\s*\\[[^\\]]*['\\\"](artifact|field|effect):" -U -- "${stage_roots[@]}"
+      run_rg "Literal dependency keys in provides (${domain})" "provides:\\s*\\[[^\\]]*['\\\"](artifact|field|effect):" -U -- "${stage_roots[@]}"
+      run_rg "Map projection/effect deps in stage contracts (${domain})" "(requires|provides):\\s*\\[[^\\]]*['\\\"](artifact|effect):map\\." -P -U -- "${stage_roots[@]}"
+      run_rg "Runtime config merges in steps (${domain})" "\\?\\?\\s*\\{\\}|\\bValue\\.Default\\(" -- "${stage_roots[@]}"
+    fi
 
     if [ "$domain" = "hydrology" ]; then
     run_rg "Authored climate interventions (hydrology)" "climate\\.swatches\\b|climate\\.story\\b" -- \
       "mods/mod-swooper-maps/src/domain/hydrology" \
-      "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-pre" \
-      "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-core" \
-      "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-post"
+      "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline" \
+      "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography" \
+      "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine"
     run_rg "Narrative domain imports (hydrology)" "@mapgen/domain/narrative/" -- \
       "mods/mod-swooper-maps/src/domain/hydrology" \
-      "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-pre" \
-      "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-core" \
-      "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-post"
+      "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline" \
+      "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography" \
+      "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine"
     run_rg "Narrative swatches stage exists" "\"narrative-swatches\"" -- \
       "mods/mod-swooper-maps/src/recipes/standard" \
       "mods/mod-swooper-maps/src/maps" \

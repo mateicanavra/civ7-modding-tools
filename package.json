@@ -37,6 +37,8 @@
     "build:mapgen": "bun run --cwd packages/mapgen-core build",
     "lint:adapter-boundary": "./scripts/lint/lint-adapter-boundary.sh",
     "lint:domain-refactor-guardrails": "./scripts/lint/lint-domain-refactor-guardrails.sh",
+    "lint:domain-refactor-guardrails:strict-core": "REFRACTOR_DOMAINS=\"foundation,morphology,hydrology,ecology,placement,narrative\" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL=1 ./scripts/lint/lint-domain-refactor-guardrails.sh",
+    "ci:architecture-strict-core": "bun run lint && bun run lint:adapter-boundary && bun run lint:domain-refactor-guardrails:strict-core && REFRACTOR_DOMAINS=\"foundation,morphology,hydrology,ecology,placement,narrative\" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL=1 bun run check",
     "lint:adrs": "node scripts/lint/lint-doc-adrs.mjs",
     "lint:doc-ambiguity": "node scripts/lint/lint-doc-ambiguity.mjs",
     "lint:mapgen-docs": "python3 ./scripts/lint/lint-mapgen-docs.py",
