@@ -61,3 +61,11 @@ Conventions:
   - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts`
 - Checks:
   - `bun run --cwd mods/mod-swooper-maps check` (pass)
+
+## PRR-s101-c01
+- Branch: `agent-SWANKO-PRR-s101-c01-fix-crust-thickness-evolution`
+- Change: evolve crust thickness as a maturity-driven thickening term (maturity already integrates uplift/volcanism and disruption).
+- Files:
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust-evolution/index.ts`
+- Checks:
+  - `bun run --cwd mods/mod-swooper-maps check` (pass)

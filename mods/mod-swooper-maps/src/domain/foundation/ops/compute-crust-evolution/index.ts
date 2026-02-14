@@ -11,6 +11,11 @@ const OCEANIC_AGE_DEPTH = 0.22;
 const MATURITY_BUOYANCY_BOOST = 0.45;
 const THICKNESS_BUOYANCY_BOOST = 0.25;
 
+// Thickening is driven by differentiated (mature) crust; maturity integrates uplift/volcanism and
+// is suppressed by disruption, so a maturity-based mapping keeps thickness coherent with the
+// rest of the evolution model.
+const THICKNESS_FROM_MATURITY_GAIN = 0.5;
+
 const STRENGTH_BASE_MIN = 0.45;
 const STRENGTH_MATURITY_MIN = 0.5;
 const STRENGTH_THICKNESS_MIN = 0.55;
@@ -131,6 +136,9 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
             // Thermal age accrual.
             thermalAge01 = clamp01(thermalAge01 + thermalAgeStep * (1 - THERMAL_AGE_RIFT_SLOWDOWN * r));
           }
+
+          // Thickness increases with differentiated crust, and implicitly responds to uplift/volcanism via maturity.
+          thickness01 = clamp01(Math.max(thickness01, initThickness + THICKNESS_FROM_MATURITY_GAIN * maturity01));
 
           maturity[i] = maturity01;
           thickness[i] = thickness01;
