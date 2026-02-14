@@ -1,7 +1,9 @@
-import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
-import { validateGridSize } from "../../score-shared/index.js";
+import {
+  confidenceFromScore01,
+  validateGridSize,
+} from "../../score-shared/index.js";
 import PlanIceContract from "../contract.js";
 
 export const continentalityStrategy = createStrategy(PlanIceContract, "continentality", {
@@ -19,13 +21,15 @@ export const continentalityStrategy = createStrategy(PlanIceContract, "continent
     });
 
     const placements: Array<{ x: number; y: number; feature: string; weight?: number }> = [];
-    const minScore01 = clamp01(config.minScore01);
+    void config;
+    void input.seed;
 
     for (let i = 0; i < size; i++) {
       if (input.reserved[i] !== 0) continue;
       if (input.featureIndex[i] !== 0) continue;
-      const score = input.score01[i];
-      if (!Number.isFinite(score) || score < minScore01) continue;
+      const score = input.score01[i] ?? 0;
+      const confidence01 = confidenceFromScore01(score);
+      if (confidence01 <= 0) continue;
       const x = i % width;
       const y = (i / width) | 0;
       placements.push({ x, y, feature: "FEATURE_ICE" });

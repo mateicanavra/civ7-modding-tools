@@ -558,9 +558,7 @@
     "plan-ice": {
       "planIce": {
         "strategy": "continentality",
-        "config": {
-          "minScore01": 0.58
-        }
+        "config": {}
       }
     }
   },
@@ -569,9 +567,7 @@
     "plan-reefs": {
       "planReefs": {
         "strategy": "default",
-        "config": {
-          "minScore01": 0.5
-        }
+        "config": {}
       }
     }
   },
@@ -580,9 +576,7 @@
     "plan-wetlands": {
       "planWetlands": {
         "strategy": "default",
-        "config": {
-          "minScore01": 0.5
-        }
+        "config": {}
       }
     }
   },
@@ -591,9 +585,7 @@
     "plan-vegetation": {
       "planVegetation": {
         "strategy": "default",
-        "config": {
-          "minScore01": 0.13
-        }
+        "config": {}
       }
     }
   },
@@ -671,7 +663,7 @@
   },
   "map-ecology": {
     "knobs": {},
-    "biomes": {
+    "plot-biomes": {
       "bindings": {
         "snow": "BIOME_TUNDRA",
         "tundra": "BIOME_TUNDRA",
@@ -684,7 +676,7 @@
         "marine": "BIOME_MARINE"
       }
     },
-    "featuresApply": {
+    "features-apply": {
       "apply": {
         "strategy": "default",
         "config": {
@@ -692,7 +684,7 @@
         }
       }
     },
-    "plotEffects": {
+    "plot-effects": {
       "scoreSnow": {
         "strategy": "default",
         "config": {

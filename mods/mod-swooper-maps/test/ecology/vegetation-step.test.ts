@@ -67,7 +67,7 @@ describe("ecology-vegetation plan-vegetation step", () => {
     const config = {
       planVegetation: normalizeOpSelectionOrThrow(ecology.ops.planVegetation, {
         strategy: "default",
-        config: { minScore01: 0.15 },
+        config: {},
       }),
     };
     const ops = ecology.ops.bind(planVegetationStep.contract.ops!).runtime;
@@ -86,4 +86,3 @@ describe("ecology-vegetation plan-vegetation step", () => {
     expect(occupancy.reserved instanceof Uint8Array).toBe(true);
   });
 });
-

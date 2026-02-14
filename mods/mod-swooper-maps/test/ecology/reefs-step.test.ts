@@ -61,7 +61,7 @@ describe("ecology-reefs plan-reefs step", () => {
     const config = {
       planReefs: normalizeOpSelectionOrThrow(ecology.ops.planReefs, {
         strategy: "default",
-        config: { minScore01: 0.55 },
+        config: {},
       }),
     };
     const ops = ecology.ops.bind(planReefsStep.contract.ops!).runtime;
@@ -80,4 +80,3 @@ describe("ecology-reefs plan-reefs step", () => {
     expect(occupancy.reserved instanceof Uint8Array).toBe(true);
   });
 });
-

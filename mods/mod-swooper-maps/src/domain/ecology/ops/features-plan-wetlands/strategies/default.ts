@@ -1,8 +1,11 @@
-import { clamp01 } from "@swooper/mapgen-core";
-import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
-import { validateGridSize } from "../../score-shared/index.js";
+import {
+  choosePhysicalCandidate,
+  confidenceFromScore01,
+  stressFromConfidence01,
+  validateGridSize,
+} from "../../score-shared/index.js";
 import PlanWetlandsContract from "../contract.js";
 
 export const defaultStrategy = createStrategy(PlanWetlandsContract, "default", {
@@ -24,9 +27,8 @@ export const defaultStrategy = createStrategy(PlanWetlandsContract, "default", {
     });
 
     const placements: Array<{ x: number; y: number; feature: string; weight?: number }> = [];
-    const minScore01 = clamp01(config.minScore01);
-    const rng = createLabelRng(input.seed);
-    const candidates: string[] = [];
+    void config;
+    void input.seed;
 
     for (let i = 0; i < size; i++) {
       if (input.reserved[i] !== 0) continue;
@@ -38,49 +40,50 @@ export const defaultStrategy = createStrategy(PlanWetlandsContract, "default", {
       const oasis = input.scoreOasis01[i] ?? 0;
       const wateringHole = input.scoreWateringHole01[i] ?? 0;
 
-      let bestScore = marsh;
-      candidates.length = 0;
-      candidates.push("FEATURE_MARSH");
+      const marshConfidence01 = confidenceFromScore01(marsh);
+      const bogConfidence01 = confidenceFromScore01(tundraBog);
+      const mangroveConfidence01 = confidenceFromScore01(mangrove);
+      const oasisConfidence01 = confidenceFromScore01(oasis);
+      const wateringHoleConfidence01 = confidenceFromScore01(wateringHole);
 
-      if (tundraBog > bestScore) {
-        bestScore = tundraBog;
-        candidates.length = 0;
-        candidates.push("FEATURE_TUNDRA_BOG");
-      } else if (tundraBog === bestScore) {
-        candidates.push("FEATURE_TUNDRA_BOG");
-      }
+      const best = choosePhysicalCandidate([
+        {
+          feature: "FEATURE_MARSH",
+          confidence01: marshConfidence01,
+          stress01: stressFromConfidence01(marshConfidence01),
+          tileIndex: i,
+        },
+        {
+          feature: "FEATURE_TUNDRA_BOG",
+          confidence01: bogConfidence01,
+          stress01: stressFromConfidence01(bogConfidence01),
+          tileIndex: i,
+        },
+        {
+          feature: "FEATURE_MANGROVE",
+          confidence01: mangroveConfidence01,
+          stress01: stressFromConfidence01(mangroveConfidence01),
+          tileIndex: i,
+        },
+        {
+          feature: "FEATURE_OASIS",
+          confidence01: oasisConfidence01,
+          stress01: stressFromConfidence01(oasisConfidence01),
+          tileIndex: i,
+        },
+        {
+          feature: "FEATURE_WATERING_HOLE",
+          confidence01: wateringHoleConfidence01,
+          stress01: stressFromConfidence01(wateringHoleConfidence01),
+          tileIndex: i,
+        },
+      ]);
+      if (best === null) continue;
+      if (best.confidence01 <= 0) continue;
 
-      if (mangrove > bestScore) {
-        bestScore = mangrove;
-        candidates.length = 0;
-        candidates.push("FEATURE_MANGROVE");
-      } else if (mangrove === bestScore) {
-        candidates.push("FEATURE_MANGROVE");
-      }
-
-      if (oasis > bestScore) {
-        bestScore = oasis;
-        candidates.length = 0;
-        candidates.push("FEATURE_OASIS");
-      } else if (oasis === bestScore) {
-        candidates.push("FEATURE_OASIS");
-      }
-
-      if (wateringHole > bestScore) {
-        bestScore = wateringHole;
-        candidates.length = 0;
-        candidates.push("FEATURE_WATERING_HOLE");
-      } else if (wateringHole === bestScore) {
-        candidates.push("FEATURE_WATERING_HOLE");
-      }
-
-      if (!Number.isFinite(bestScore) || bestScore < minScore01) continue;
-
-      const feature =
-        candidates.length === 1 ? candidates[0]! : candidates[rng(candidates.length, `wet:${i}`)]!;
       const x = i % width;
       const y = (i / width) | 0;
-      placements.push({ x, y, feature });
+      placements.push({ x, y, feature: best.feature });
     }
 
     return { placements };

@@ -24,14 +24,14 @@ describe("ecology defaults regression", () => {
     expect(result.surfaceTemperature[0]).toBeGreaterThan(result.surfaceTemperature[1]);
   });
 
-  it("does not place marsh everywhere at typical moisture", () => {
+  it("does not place marsh when all wetland confidences are zero", () => {
     const result = runOpValidated(
       ecology.ops.planWetlands,
       {
         width: 1,
         height: 1,
         seed: 0,
-        scoreMarsh01: new Float32Array([0.2]),
+        scoreMarsh01: new Float32Array([0]),
         scoreTundraBog01: new Float32Array([0]),
         scoreMangrove01: new Float32Array([0]),
         scoreOasis01: new Float32Array([0]),
@@ -39,7 +39,7 @@ describe("ecology defaults regression", () => {
         featureIndex: new Uint16Array([0]),
         reserved: new Uint8Array([0]),
       },
-      { strategy: "default", config: { minScore01: 0.55 } }
+      { strategy: "default", config: {} }
     );
 
     expect(result.placements).toHaveLength(0);
