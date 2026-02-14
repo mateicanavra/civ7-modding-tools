@@ -169,8 +169,10 @@ const computeTectonicSegments = createOp(ComputeTectonicSegmentsContract, {
                 // Oceanic crust subducts under continental crust.
                 if (aType === 0 && bType === 1) pol = -1;
                 if (aType === 1 && bType === 0) pol = 1;
-              } else {
-                // Bootstrap polarity when both sides are the same crust type (common early when all crust is oceanic).
+              } else if (aType === 0) {
+                // Bootstrap polarity only for oceanic-oceanic early when crust types are still uniform.
+                // For continental-continent convergence, keep polarity neutral (0) so downstream logic
+                // does not interpret it as a subduction direction.
                 const diff = strengthA - strengthB;
                 if (Math.abs(diff) >= 0.03) pol = diff < 0 ? -1 : 1;
               }
