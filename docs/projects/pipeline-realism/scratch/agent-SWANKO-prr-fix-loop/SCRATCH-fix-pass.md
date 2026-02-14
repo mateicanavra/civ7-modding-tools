@@ -88,3 +88,4 @@ Conventions:
 - Branch: `agent-SWANKO-PRR-s113-c01-fix-mountainThreshold-candidates`
 - Change: apply `config.mountainThreshold` when selecting ridge spines and expansions.
 - Checks: `bun run --cwd mods/mod-swooper-maps check` (pass)
+- PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1252 (draft)
