@@ -569,8 +569,60 @@ function buildEraFields(params: {
     }
     return count > 0 ? sum / count : 1;
   })();
-  const queue = new Int32Array(cellCount);
-  let visitToken = 1;
+
+type HeapEntry = { id: number; dist: number };
+
+const heapIds: number[] = [];
+const heapDists: number[] = [];
+
+const heapPush = (id: number, dist: number): void => {
+  heapIds.push(id);
+  heapDists.push(dist);
+  let i = heapIds.length - 1;
+  while (i > 0) {
+    const p = (i - 1) >> 1;
+    const pd = heapDists[p] ?? 0;
+    if (pd <= dist) break;
+    heapIds[i] = heapIds[p]!;
+    heapDists[i] = pd;
+    heapIds[p] = id;
+    heapDists[p] = dist;
+    i = p;
+  }
+};
+
+const heapPop = (): HeapEntry | null => {
+  const n = heapIds.length;
+  if (n <= 0) return null;
+  const id = heapIds[0]!;
+  const dist = heapDists[0]!;
+  const lastId = heapIds.pop()!;
+  const lastDist = heapDists.pop()!;
+  if (n > 1) {
+    heapIds[0] = lastId;
+    heapDists[0] = lastDist;
+    let i = 0;
+    while (true) {
+      const l = i * 2 + 1;
+      const r = l + 1;
+      if (l >= heapIds.length) break;
+      let m = l;
+      if (r < heapIds.length && (heapDists[r] ?? 0) < (heapDists[l] ?? 0)) m = r;
+      const md = heapDists[m] ?? 0;
+      if ((heapDists[i] ?? 0) <= md) break;
+      const tmpId = heapIds[i]!;
+      const tmpD = heapDists[i]!;
+      heapIds[i] = heapIds[m]!;
+      heapDists[i] = md;
+      heapIds[m] = tmpId;
+      heapDists[m] = tmpD;
+      i = m;
+    }
+  }
+  return { id, dist };
+};
+
+let visitToken = 1;
 
   const updateChannel = (params: {
     cellId: number;
@@ -665,21 +717,30 @@ function buildEraFields(params: {
       params.driftSteps,
       params.mesh
     );
-    let head = 0;
-    let tail = 0;
-    for (let i = 0; i < driftedSeeds.length; i++) {
-      const cellId = driftedSeeds[i] ?? -1;
-      if (cellId < 0 || cellId >= cellCount) continue;
-      if (visitMark[cellId] === token) continue;
-      visitMark[cellId] = token;
-      distance[cellId] = 0;
-      queue[tail++] = cellId;
-    }
 
-    while (head < tail) {
-      const cellId = queue[head++]!;
-      const d = distance[cellId] ?? 0;
-      if (d > maxRadius) continue;
+heapIds.length = 0;
+heapDists.length = 0;
+
+for (let i = 0; i < driftedSeeds.length; i++) {
+  const cellId = driftedSeeds[i] ?? -1;
+  if (cellId < 0 || cellId >= cellCount) continue;
+  if (visitMark[cellId] === token) continue;
+  visitMark[cellId] = token;
+  distance[cellId] = 0;
+  heapPush(cellId, 0);
+}
+
+while (true) {
+  const entry = heapPop();
+  if (!entry) break;
+
+  const cellId = entry.id | 0;
+  const d = entry.dist;
+  if (visitMark[cellId] !== token) continue;
+
+  const best = visitMark[cellId] === token ? (distance[cellId] ?? Infinity) : Infinity;
+  if (!(d <= best + 1e-6)) continue;
+  if (d > maxRadius) continue;
 
       if (intensityUplift > 0 && d <= R.uplift) {
         const score = intensityUplift * Math.exp(-d * D.uplift);
@@ -802,19 +863,28 @@ function buildEraFields(params: {
       const ay = params.mesh.siteY[cellId] ?? 0;
       const start = params.mesh.neighborsOffsets[cellId] | 0;
       const end = params.mesh.neighborsOffsets[cellId + 1] | 0;
-      for (let cursor = start; cursor < end; cursor++) {
-        const n = params.mesh.neighbors[cursor] | 0;
-        if (n < 0 || n >= cellCount) continue;
-        if (visitMark[n] === token) continue;
-        visitMark[n] = token;
-        const bx = params.mesh.siteX[n] ?? 0;
-        const by = params.mesh.siteY[n] ?? 0;
-        const dx = wrapDeltaPeriodic(bx - ax, params.mesh.wrapWidth);
-        const dy = by - ay;
-        const edgeLen = Math.sqrt(dx * dx + dy * dy);
-        distance[n] = d + edgeLen / meanEdgeLen;
-        queue[tail++] = n;
-      }
+
+for (let cursor = start; cursor < end; cursor++) {
+  const n = params.mesh.neighbors[cursor] | 0;
+  if (n < 0 || n >= cellCount) continue;
+
+  const bx = params.mesh.siteX[n] ?? 0;
+  const by = params.mesh.siteY[n] ?? 0;
+  const dx = wrapDeltaPeriodic(bx - ax, params.mesh.wrapWidth);
+  const dy = by - ay;
+  const edgeLen = Math.sqrt(dx * dx + dy * dy);
+  if (!Number.isFinite(edgeLen) || edgeLen <= 1e-9) continue;
+
+  const nd = d + edgeLen / meanEdgeLen;
+  if (nd > maxRadius) continue;
+
+  const prev = visitMark[n] === token ? (distance[n] ?? Infinity) : Infinity;
+  if (nd + 1e-6 < prev) {
+    visitMark[n] = token;
+    distance[n] = nd;
+    heapPush(n, nd);
+  }
+}
     }
   }
 
