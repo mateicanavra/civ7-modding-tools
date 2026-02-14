@@ -1,13 +1,17 @@
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import ecology from "@mapgen/domain/ecology";
-import { M3_DEPENDENCY_TAGS, M4_EFFECT_TAGS } from "../../../../tags.js";
+import { M3_DEPENDENCY_TAGS, M4_EFFECT_TAGS, M10_EFFECT_TAGS } from "../../../../tags.js";
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 
 const FeaturesApplyStepContract = defineStep({
   id: "features-apply",
   phase: "gameplay",
   requires: [],
-  provides: [M3_DEPENDENCY_TAGS.field.featureType, M4_EFFECT_TAGS.engine.featuresApplied],
+  provides: [
+    M3_DEPENDENCY_TAGS.field.featureType,
+    M4_EFFECT_TAGS.engine.featuresApplied,
+    M10_EFFECT_TAGS.map.ecologyFeaturesParityCaptured,
+  ],
   artifacts: {
     requires: [
       ecologyArtifacts.featureIntentsVegetation,
@@ -15,6 +19,7 @@ const FeaturesApplyStepContract = defineStep({
       ecologyArtifacts.featureIntentsReefs,
       ecologyArtifacts.featureIntentsIce,
     ],
+    provides: [ecologyArtifacts.featureApplyDiagnostics],
   },
   ops: {
     apply: ecology.ops.applyFeatures,
