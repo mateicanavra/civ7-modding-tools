@@ -199,7 +199,7 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
       }
     }
 
-    const hillTargetRaw = Math.round(landCount * hillMaxFraction) | 0;
+    const hillTargetRaw = Math.floor(landCount * hillMaxFraction) | 0;
     const hillCapacity = Math.max(0, landCount - mountainCount) | 0;
     let hillTarget = Math.max(0, Math.min(candidates.length, hillCapacity, hillTargetRaw)) | 0;
 
