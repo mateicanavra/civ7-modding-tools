@@ -29,6 +29,10 @@ const BELT_CUTOFF_SIGMA_MULT = 5;
 const BELT_MAX_DISTANCE_FUDGE = 1.2;
 const GAUSSIAN_EXP_COEFF = -0.5;
 
+// Plateau seeding: allow a small, deterministic number of additional seeds for flat maxima
+// so large constant-intensity belts do not collapse to a single source.
+const PLATEAU_EXTRA_SEED_STRIDE = 32;
+
 function clampByte(value: number): number {
   return Math.max(0, Math.min(255, Math.round(value))) | 0;
 }
@@ -54,18 +58,32 @@ function isStrictLocalMaximumWithTies(
   if (boundaryType === 0) return false;
   const v = intensityBlend[i] ?? 0;
   if (!(v > 0)) return false;
+
   const x = i % width;
   const y = Math.floor(i / width);
   let ok = true;
+  let hasEqual = false;
+  let hasLowerEqualNeighbor = false;
+
   forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
     const ni = ny * width + nx;
     if ((boundaryTypeBlend[ni] ?? 0) !== boundaryType) return;
     const nv = intensityBlend[ni] ?? 0;
     if (nv > v) ok = false;
-    // Deterministic tie-break: only the lowest index in a plateau is allowed to seed.
-    if (nv === v && ni < i) ok = false;
+    if (nv === v) {
+      hasEqual = true;
+      if (ni < i) hasLowerEqualNeighbor = true;
+    }
   });
-  return ok;
+
+  if (!ok) return false;
+  if (!hasEqual) return true;
+
+  // Deterministic plateau seeding: always allow a seed for local minima within the plateau neighborhood,
+  // and allow a small, stable number of extra seeds so large flat belts don't collapse to a single source.
+  if (!hasLowerEqualNeighbor) return true;
+  const h = (((i | 0) * 2654435761) >>> 0) % PLATEAU_EXTRA_SEED_STRIDE;
+  return h === 0;
 }
 
 function computeDistanceField(

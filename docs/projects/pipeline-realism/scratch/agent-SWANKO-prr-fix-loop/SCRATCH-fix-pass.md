@@ -69,3 +69,11 @@ Conventions:
   - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust-evolution/index.ts`
 - Checks:
   - `bun run --cwd mods/mod-swooper-maps check` (pass)
+
+## PRR-s108-c01
+- Branch: `agent-SWANKO-PRR-s108-c01-fix-plateau-seeding`
+- Change: allow a small deterministic number of extra seeds on flat maxima plateaus (prevents single-seed belts on constant-intensity fields).
+- Files:
+  - `mods/mod-swooper-maps/src/domain/morphology/ops/compute-belt-drivers/deriveFromHistory.ts`
+- Checks:
+  - `bun run --cwd mods/mod-swooper-maps check` (pass)
