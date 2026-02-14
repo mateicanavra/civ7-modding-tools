@@ -42,29 +42,34 @@ export default createStep(BuildElevationStepContract, {
     // after buildElevation; it can be backed by cached water tables. So repairing only the drift tiles
     // is not sufficient in the engine.
     //
-    // Our invariant is: Morphology landMask is authoritative. So after buildElevation has populated
-    // engine elevation internals, we restore the full plotted terrain snapshot, then run the engine's
-    // own bookkeeping to sync water caches back to that plotted truth.
+    // Our invariant is: Morphology landMask is authoritative. If buildElevation introduces water drift,
+    // restore the full plotted terrain snapshot and then run engine bookkeeping to sync caches.
+    // If there is no drift, keep the post-buildElevation terrain as-is.
     let driftCount = 0;
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const idx = y * width + x;
-        context.adapter.setTerrainType(x, y, terrainBefore[idx] | 0);
         const wantsLand = topography.landMask[idx] === 1;
         const isWater = context.adapter.isWater(x, y);
         const isLand = !isWater;
         if (wantsLand !== isLand) driftCount += 1;
       }
     }
-
-    // Sync engine continent/area/water caches to match the restored plotted terrain.
-    // These calls are engine-owned, and are no-ops in the MockAdapter.
-    context.adapter.stampContinents();
-    context.adapter.recalculateAreas();
-    context.adapter.storeWaterData();
-    context.adapter.recalculateAreas();
-
     if (driftCount > 0) {
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const idx = y * width + x;
+          context.adapter.setTerrainType(x, y, terrainBefore[idx] | 0);
+        }
+      }
+
+      // Sync engine continent/area/water caches to match the restored plotted terrain.
+      // These calls are engine-owned, and are no-ops in the MockAdapter.
+      context.adapter.stampContinents();
+      context.adapter.recalculateAreas();
+      context.adapter.storeWaterData();
+      context.adapter.recalculateAreas();
+
       context.trace.event(() => ({
         kind: "map.morphology.buildElevation.driftRepair",
         driftTiles: driftCount,
