@@ -215,12 +215,12 @@
             "zonalStrength": 90,
             "meridionalStrength": 30,
             "geostrophicStrength": 70,
-            "pressureNoiseScale": 18,
-            "pressureNoiseAmp": 55,
-            "waveStrength": 45,
-            "landHeatStrength": 20,
-            "mountainDeflectStrength": 18,
-            "smoothIters": 4
+            "pressureNoiseScale": 20,
+            "pressureNoiseAmp": 62,
+            "waveStrength": 48,
+            "landHeatStrength": 23,
+            "mountainDeflectStrength": 22,
+            "smoothIters": 5
           }
         },
         "computeOceanGeometry": {
@@ -234,21 +234,21 @@
           "strategy": "default",
           "config": {
             "maxSpeed": 80,
-            "windStrength": 0.55,
-            "ekmanStrength": 0.35,
-            "gyreStrength": 26,
-            "coastStrength": 32,
-            "smoothIters": 3,
+            "windStrength": 0.58,
+            "ekmanStrength": 0.38,
+            "gyreStrength": 30,
+            "coastStrength": 36,
+            "smoothIters": 4,
             "projectionIters": 8
           }
         },
         "computeOceanThermalState": {
           "strategy": "default",
           "config": {
-            "equatorTempC": 28,
-            "poleTempC": -2,
-            "advectIters": 28,
-            "diffusion": 0.18,
+            "equatorTempC": 27,
+            "poleTempC": -4,
+            "advectIters": 30,
+            "diffusion": 0.2,
             "secondaryWeightMin": 0.25,
             "seaIceThresholdC": -1
           }
@@ -256,48 +256,48 @@
         "transportMoisture": {
           "strategy": "default",
           "config": {
-            "iterations": 22,
-            "advection": 0.7,
-            "retention": 0.93,
+            "iterations": 26,
+            "advection": 0.74,
+            "retention": 0.91,
             "secondaryWeightMin": 0.2
           }
         },
         "computePrecipitation": {
           "strategy": "default",
           "config": {
-            "rainfallScale": 180,
-            "humidityExponent": 1,
-            "noiseAmplitude": 6,
-            "noiseScale": 0.12,
+            "rainfallScale": 174,
+            "humidityExponent": 1.05,
+            "noiseAmplitude": 9,
+            "noiseScale": 0.16,
             "waterGradient": {
-              "radius": 5,
-              "perRingBonus": 4,
-              "lowlandBonus": 2,
-              "lowlandElevationMax": 150
+              "radius": 6,
+              "perRingBonus": 5,
+              "lowlandBonus": 3,
+              "lowlandElevationMax": 200
             },
-            "upliftStrength": 22,
-            "convergenceStrength": 16
+            "upliftStrength": 27,
+            "convergenceStrength": 19
           }
         },
         "seasonality": {
           "modeCount": 2,
-          "axialTiltDeg": 18
+          "axialTiltDeg": 20
         },
         "computeRadiativeForcing": {
           "strategy": "default",
           "config": {
             "equatorInsolation": 1,
-            "poleInsolation": 0.25,
+            "poleInsolation": 0.22,
             "latitudeExponent": 1.2
           }
         },
         "computeThermalState": {
           "strategy": "default",
           "config": {
-            "baseTemperatureC": 14,
-            "insolationScaleC": 28,
+            "baseTemperatureC": 8,
+            "insolationScaleC": 44,
             "lapseRateCPerM": -0.0065,
-            "landCoolingC": 2,
+            "landCoolingC": 3.2,
             "minC": -40,
             "maxC": 50
           }
@@ -308,7 +308,7 @@
             "oceanStrength": 1,
             "landStrength": 0.2,
             "minTempC": -10,
-            "maxTempC": 30
+            "maxTempC": 32
           }
         }
       }
@@ -320,13 +320,13 @@
       "rivers": {
         "accumulateDischarge": {
           "strategy": "default",
-          "config": {
-            "runoffScale": 1,
-            "infiltrationFraction": 0.15,
-            "humidityDampening": 0.25,
-            "minRunoff": 0
-          }
-        },
+        "config": {
+          "runoffScale": 1,
+          "infiltrationFraction": 0.18,
+          "humidityDampening": 0.22,
+          "minRunoff": 0
+        }
+      },
         "projectRiverNetwork": {
           "strategy": "default",
           "config": {
@@ -341,7 +341,7 @@
     "hydrology-climate-refine": {
       "knobs": {
         "dryness": "mix",
-        "temperature": "hot",
+        "temperature": "temperate",
         "cryosphere": "on"
       },
       "climate-refine": {
@@ -349,16 +349,16 @@
           "strategy": "refine",
           "config": {
             "riverCorridor": {
-              "adjacencyRadius": 1,
-              "lowlandAdjacencyBonus": 14,
-              "highlandAdjacencyBonus": 10,
-              "lowlandElevationMax": 250
+              "adjacencyRadius": 2,
+              "lowlandAdjacencyBonus": 16,
+              "highlandAdjacencyBonus": 12,
+              "lowlandElevationMax": 280
             },
             "lowBasin": {
-              "radius": 2,
-              "delta": 6,
-              "elevationMax": 200,
-              "openThresholdM": 20
+              "radius": 3,
+              "delta": 8,
+              "elevationMax": 220,
+              "openThresholdM": 24
             }
           }
         },
@@ -366,17 +366,17 @@
           "strategy": "default",
           "config": {
             "equatorInsolation": 1,
-            "poleInsolation": 0.35,
+            "poleInsolation": 0.22,
             "latitudeExponent": 1.2
           }
         },
         "computeThermalState": {
           "strategy": "default",
           "config": {
-            "baseTemperatureC": 14,
-            "insolationScaleC": 28,
+            "baseTemperatureC": 8,
+            "insolationScaleC": 44,
             "lapseRateCPerM": -0.0065,
-            "landCoolingC": 2,
+            "landCoolingC": 3.2,
             "minC": -40,
             "maxC": 50
           }
@@ -384,7 +384,7 @@
         "applyAlbedoFeedback": {
           "strategy": "default",
           "config": {
-            "iterations": 4,
+            "iterations": 5,
             "snowCoolingC": 4,
             "seaIceCoolingC": 6,
             "minC": -60,
@@ -420,19 +420,19 @@
           "strategy": "default",
           "config": {
             "tMinC": 0,
-            "tMaxC": 35,
-            "petBase": 18,
-            "petTemperatureWeight": 75,
-            "humidityDampening": 0.55
+            "tMaxC": 36,
+            "petBase": 19,
+            "petTemperatureWeight": 82,
+            "humidityDampening": 0.5
           }
         },
         "computeClimateDiagnostics": {
           "strategy": "default",
           "config": {
-            "barrierSteps": 4,
-            "barrierElevationM": 500,
-            "continentalityMaxDist": 12,
-            "convergenceNormalization": 64
+            "barrierSteps": 5,
+            "barrierElevationM": 550,
+            "continentalityMaxDist": 14,
+            "convergenceNormalization": 68
           }
         }
       }
@@ -474,47 +474,47 @@
           "strategy": "default",
           "config": {
             "temperature": {
-              "equator": 34,
-              "pole": -22,
-              "lapseRate": 7.5,
+              "equator": 30,
+              "pole": -24,
+              "lapseRate": 7.1,
               "seaLevel": 0,
-              "bias": 0.5,
-              "polarCutoff": -6,
-              "tundraCutoff": -1,
+              "bias": 0.15,
+              "polarCutoff": -9,
+              "tundraCutoff": 3,
               "midLatitude": 10,
-              "tropicalThreshold": 18
+              "tropicalThreshold": 20
             },
             "moisture": {
               "thresholds": [
-                100,
+                95,
                 130,
-                150,
-                180
+                170,
+                220
               ]
             },
             "aridity": {
               "temperatureMin": 0,
-              "temperatureMax": 37,
+              "temperatureMax": 36,
               "petBase": 19,
-              "petTemperatureWeight": 180,
-              "humidityDampening": 0.18,
-              "rainfallWeight": 1.8,
-              "bias": 1,
-              "normalization": 80,
+              "petTemperatureWeight": 98,
+              "humidityDampening": 0.46,
+              "rainfallWeight": 1.15,
+              "bias": 3,
+              "normalization": 112,
               "moistureShiftThresholds": [
-                0.38,
-                0.4
+                0.37,
+                0.62
               ],
-              "vegetationPenalty": 0
+              "vegetationPenalty": 0.22
             },
             "vegetation": {
-              "base": 0.72,
-              "moistureWeight": 0.88,
-              "moistureNormalizationPadding": 45
+              "base": 0.29,
+              "moistureWeight": 0.63,
+              "moistureNormalizationPadding": 58
             },
             "edgeRefine": {
-              "radius": 1,
-              "iterations": 1
+              "radius": 2,
+              "iterations": 2
             }
           }
         }
@@ -526,7 +526,7 @@
         "planIce": {
           "strategy": "continentality",
           "config": {
-            "minScore01": 0.55
+            "minScore01": 0.58
           }
         }
       }
@@ -537,7 +537,7 @@
         "planReefs": {
           "strategy": "default",
           "config": {
-            "minScore01": 0.55
+            "minScore01": 0.5
           }
         }
       }
@@ -548,7 +548,7 @@
         "planWetlands": {
           "strategy": "default",
           "config": {
-            "minScore01": 0.55
+            "minScore01": 0.5
           }
         }
       }
@@ -559,7 +559,7 @@
         "planVegetation": {
           "strategy": "default",
           "config": {
-            "minScore01": 0.15
+            "minScore01": 0.13
           }
         }
       }
@@ -615,29 +615,29 @@
           "strategy": "default",
           "config": {
             "elevationStrategy": "percentile",
-            "elevationMin": 200,
+            "elevationMin": 220,
             "elevationMax": 2800,
-            "elevationPercentileMin": 0.68,
+            "elevationPercentileMin": 0.72,
             "elevationPercentileMax": 0.98,
-            "moistureMin": 50,
+            "moistureMin": 45,
             "moistureMax": 170,
-            "maxTemperature": 3,
-            "maxAridity": 0.85,
-            "freezeWeight": 1.1,
+            "maxTemperature": 2,
+            "maxAridity": 0.82,
+            "freezeWeight": 1.05,
             "elevationWeight": 0.9,
             "moistureWeight": 0.7,
-            "scoreNormalization": 2.7,
+            "scoreNormalization": 2.65,
             "scoreBias": 0
           }
         },
         "scoreSand": {
           "strategy": "default",
           "config": {
-            "minAridity": 0.48,
-            "minTemperature": 14,
+            "minAridity": 0.5,
+            "minTemperature": 15,
             "maxFreeze": 0.3,
-            "maxVegetation": 0.2,
-            "maxMoisture": 85,
+            "maxVegetation": 0.23,
+            "maxMoisture": 90,
             "allowedBiomes": [
               "desert",
               "temperateDry"
@@ -647,11 +647,11 @@
         "scoreBurned": {
           "strategy": "default",
           "config": {
-            "minAridity": 0.48,
+            "minAridity": 0.52,
             "minTemperature": 21,
             "maxFreeze": 0.22,
-            "maxVegetation": 0.27,
-            "maxMoisture": 100,
+            "maxVegetation": 0.26,
+            "maxMoisture": 98,
             "allowedBiomes": [
               "temperateDry",
               "tropicalSeasonal"
@@ -674,24 +674,24 @@
                   "typeName": "PLOTEFFECT_SNOW_HEAVY_PERMANENT"
                 }
               },
-              "coveragePct": 65,
-              "lightThreshold": 0.35,
-              "mediumThreshold": 0.6,
-              "heavyThreshold": 0.8
+              "coveragePct": 55,
+              "lightThreshold": 0.38,
+              "mediumThreshold": 0.62,
+              "heavyThreshold": 0.82
             },
             "sand": {
               "enabled": true,
               "selector": {
                 "typeName": "PLOTEFFECT_SAND"
               },
-              "coveragePct": 32
+              "coveragePct": 24
             },
             "burned": {
               "enabled": true,
               "selector": {
                 "typeName": "PLOTEFFECT_BURNED"
               },
-              "coveragePct": 5
+              "coveragePct": 6
             }
           }
         }
