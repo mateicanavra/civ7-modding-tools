@@ -129,7 +129,7 @@ describe("m11 plates projection (boundary band)", () => {
     ).segments;
 
     const historyResult = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, segments },
+      { mesh, crust, mantleForcing, plateGraph, plateMotion, segments },
       {
         strategy: "default",
         config: {
