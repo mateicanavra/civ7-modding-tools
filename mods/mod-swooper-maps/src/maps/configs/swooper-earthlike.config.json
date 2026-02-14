@@ -650,11 +650,7 @@
   },
   "map-hydrology": {
     "knobs": {
-      "lakeiness": "normal",
       "riverDensity": "dense"
-    },
-    "lakes": {
-      "tilesPerLakeMultiplier": 1
     },
     "plot-rivers": {
       "minLength": 5,

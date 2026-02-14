@@ -446,15 +446,14 @@ export const standardConfig = {
   "map-hydrology": {
     knobs: {
       riverDensity: "normal",
-      lakeiness: "normal",
     },
   },
   ecology: {
     biomes: { classify: biomesConfig },
   },
   "map-ecology": {
-    biomes: { bindings: biomeBindingsConfig },
-    plotEffects: {
+    "plot-biomes": { bindings: biomeBindingsConfig },
+    "plot-effects": {
       scoreSnow: plotEffectsScoreSnowConfig,
       scoreSand: plotEffectsScoreSandConfig,
       scoreBurned: plotEffectsScoreBurnedConfig,
