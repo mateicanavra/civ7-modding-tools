@@ -67,3 +67,19 @@ Fix the crash in `bun run dev:mapgen-studio` where `defineStep` throws:
 - Verification rerun (`build:studio-recipes`):
   - no longer fails with `artifact.id` TypeError.
   - now fails later with unrelated preset validation errors (unknown keys in earthlike preset), indicating the original crash path is fixed.
+
+## 2026-02-15 RS2 follow-up: preset-schema blocker
+- Context: after fixing `artifact.id` crash, `build:studio-recipes` failed with preset-schema unknown keys in `src/presets/standard/earthlike.json`.
+- Root mismatch identified:
+  - `foundation.version` and `foundation.profiles` are no longer part of stage surface schema (`foundation` accepts `knobs` + step configs).
+  - Ecology plan step op strategies (`planIce`, `planReefs`, `planWetlands`, `planVegetation`) now use empty strategy config schemas, so `minScore01` is invalid.
+  - `map-ecology` surface uses step ids (`plot-biomes`, `features-apply`, `plot-effects`), not legacy `biomes` / `featuresApply` / `plotEffects` keys.
+- Source fix applied in:
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps/src/presets/standard/earthlike.json`
+- Changes:
+  - Removed `foundation.version` + `foundation.profiles`.
+  - Replaced `minScore01` configs with `{}` for `planIce`, `planReefs`, `planWetlands`, `planVegetation`.
+  - Renamed `map-ecology` config keys to `plot-biomes`, `features-apply`, `plot-effects`.
+- Verification:
+  - `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps build:studio-recipes` => PASS.
+  - `bun run --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack dev:mapgen-studio` => startup PASS; reaches Vite ready (`http://localhost:5173/`); manually interrupted with Ctrl+C afterward.
