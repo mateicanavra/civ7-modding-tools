@@ -288,9 +288,7 @@ export class MockAdapter implements EngineAdapter {
       discoveryVisualType: number;
       discoveryActivationType: number;
     }>;
-    addNaturalWonders: Array<{ width: number; height: number; numWonders: number }>;
     generateSnow: Array<{ width: number; height: number }>;
-    generateResources: Array<{ width: number; height: number }>;
     setResourceType: Array<{ x: number; y: number; resourceType: number }>;
     generateLakes: Array<{ width: number; height: number; tilesPerLake: number }>;
     expandCoasts: Array<{ width: number; height: number }>;
@@ -301,7 +299,6 @@ export class MockAdapter implements EngineAdapter {
       startSectorCols: number;
     }>;
     setStartPosition: Array<{ plotIndex: number; playerId: number }>;
-    generateDiscoveries: Array<{ width: number; height: number; startPositions: number[] }>;
     assignAdvancedStartRegions: number;
     addFloodplains: Array<{ minLength: number; maxLength: number }>;
     recalculateFertility: number;
@@ -358,15 +355,12 @@ export class MockAdapter implements EngineAdapter {
       addFeatures: [],
       stampNaturalWonder: [],
       stampDiscovery: [],
-      addNaturalWonders: [],
       generateSnow: [],
-      generateResources: [],
       setResourceType: [],
       generateLakes: [],
       expandCoasts: [],
       assignStartPositions: [],
       setStartPosition: [],
-      generateDiscoveries: [],
       assignAdvancedStartRegions: 0,
       addFloodplains: [],
       recalculateFertility: 0,
@@ -824,20 +818,8 @@ export class MockAdapter implements EngineAdapter {
     return { ...this.defaultDiscoveryPlacement };
   }
 
-  addNaturalWonders(width: number, height: number, numWonders: number): void {
-    this.calls.addNaturalWonders.push({ width, height, numWonders });
-    // Mock: no-op
-    this.recordPlacementEffect();
-  }
-
   generateSnow(width: number, height: number): void {
     this.calls.generateSnow.push({ width, height });
-    // Mock: no-op
-    this.recordPlacementEffect();
-  }
-
-  generateResources(width: number, height: number): void {
-    this.calls.generateResources.push({ width, height });
     // Mock: no-op
     this.recordPlacementEffect();
   }
@@ -865,12 +847,6 @@ export class MockAdapter implements EngineAdapter {
 
   setStartPosition(plotIndex: number, playerId: number): void {
     this.calls.setStartPosition.push({ plotIndex, playerId });
-    this.recordPlacementEffect();
-  }
-
-  generateDiscoveries(width: number, height: number, startPositions: number[]): void {
-    this.calls.generateDiscoveries.push({ width, height, startPositions: [...startPositions] });
-    // Mock: no-op
     this.recordPlacementEffect();
   }
 
@@ -944,15 +920,12 @@ export class MockAdapter implements EngineAdapter {
     this.calls.addFeatures.length = 0;
     this.calls.stampNaturalWonder.length = 0;
     this.calls.stampDiscovery.length = 0;
-    this.calls.addNaturalWonders.length = 0;
     this.calls.generateSnow.length = 0;
-    this.calls.generateResources.length = 0;
     this.calls.setResourceType.length = 0;
     this.calls.generateLakes.length = 0;
     this.calls.expandCoasts.length = 0;
     this.calls.assignStartPositions.length = 0;
     this.calls.setStartPosition.length = 0;
-    this.calls.generateDiscoveries.length = 0;
     this.calls.assignAdvancedStartRegions = 0;
     this.calls.addFloodplains.length = 0;
     this.calls.recalculateFertility = 0;

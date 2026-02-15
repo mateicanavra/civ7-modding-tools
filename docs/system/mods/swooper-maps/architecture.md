@@ -14,6 +14,18 @@ Canonical MapGen docs:
 
 This mod uses **explicit overrides + recipe selection** so variants can share one codebase while choosing configuration and step enablement explicitly (no preset composition in the TS runtime).
 
+## Physics-Truth Cutover (Ecology + Placement)
+
+Current architecture for ecology, lakes, and placement is intentionally physics-first:
+
+- Pipeline artifacts are canonical truth (`hydrography`, `lakePlan`, biome/feature intents, resource/wonder/discovery plans).
+- Map and placement stages project those artifacts to engine state; they do not delegate generation authority to engine random generators.
+- Runtime parity is now treated as a contract boundary:
+  - lake plan vs engine water mask mismatch is fail-hard,
+  - biome/placement land-water drift is always emitted and remains a strict-candidate gate until a post-hydrology authoritative land mask artifact is finalized.
+
+Deterministic placement now stamps directly through adapter primitives (`setResourceType`, `stampNaturalWonder`, `stampDiscovery`) and records actual placed counts from engine acknowledgements.
+
 ## Current mod code pointers
 
 - Map definitions: `mods/mod-swooper-maps/src/maps/*`

@@ -49,3 +49,13 @@ bun run test:vitest -- --project <name>
 Use the project name from `vitest.config.ts` (`cli`, `sdk`, `docs`, or `playground`) to target an individual suite.
 
 Each app and package includes a minimal smoke test and a local `TESTING.md` describing recommended scenarios to cover.
+
+## Physics-Truth Guardrails (Swooper Maps)
+
+For `mods/mod-swooper-maps`, CI/local validation should include:
+
+- Deterministic placement suite (`test/placement/**`) validating stamp-based resources/wonders/discoveries.
+- Hydrology regression suite (`test/map-hydrology/**`, `test/hydrology-plan-lakes.test.ts`) validating sink-driven lake planning and runtime fill parity.
+- Static policy scans (`test/ecology/no-fudging-static-scan.test.ts`) enforcing no RNG/fudge constructs and no legacy generator call/module usage in scoped ecology/hydrology/placement surfaces.
+
+When these fail, treat them as architecture regressions rather than tuning noise.
