@@ -13,8 +13,8 @@ const PlanDiscoveriesContract = defineOp({
     lakeMask: TypedArraySchemas.u8({ description: "Hydrology lake mask per tile (1=lake, 0=non-lake)." }),
     candidateDiscoveries: Type.Array(
       Type.Object({
-        discoveryVisualType: Type.Integer({ minimum: 0 }),
-        discoveryActivationType: Type.Integer({ minimum: 0 }),
+        discoveryVisualType: Type.Integer(),
+        discoveryActivationType: Type.Integer(),
       }),
       {
         description: "Adapter-owned deterministic discovery candidate catalog.",
@@ -27,8 +27,8 @@ const PlanDiscoveriesContract = defineOp({
     height: Type.Integer({ minimum: 1 }),
     candidateDiscoveries: Type.Array(
       Type.Object({
-        discoveryVisualType: Type.Integer({ minimum: 0 }),
-        discoveryActivationType: Type.Integer({ minimum: 0 }),
+        discoveryVisualType: Type.Integer(),
+        discoveryActivationType: Type.Integer(),
       })
     ),
     targetCount: Type.Integer({ minimum: 0 }),
@@ -36,8 +36,8 @@ const PlanDiscoveriesContract = defineOp({
     placements: Type.Array(
       Type.Object({
         plotIndex: Type.Integer({ minimum: 0 }),
-        preferredDiscoveryVisualType: Type.Integer({ minimum: 0 }),
-        preferredDiscoveryActivationType: Type.Integer({ minimum: 0 }),
+        preferredDiscoveryVisualType: Type.Integer(),
+        preferredDiscoveryActivationType: Type.Integer(),
         preferredDiscoveryOffset: Type.Integer({ minimum: 0 }),
         priority: Type.Number({ minimum: 0, maximum: 1 }),
       })

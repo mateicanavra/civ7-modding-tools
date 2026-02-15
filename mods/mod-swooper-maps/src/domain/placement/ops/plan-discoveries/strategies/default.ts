@@ -21,9 +21,8 @@ function sanitizeCandidateDiscoveries(values: DiscoveryCandidate[]): DiscoveryCa
   const candidates: DiscoveryCandidate[] = [];
   for (const raw of values) {
     if (!Number.isFinite(raw?.discoveryVisualType) || !Number.isFinite(raw?.discoveryActivationType)) continue;
-    const discoveryVisualType = (raw.discoveryVisualType as number) | 0;
-    const discoveryActivationType = (raw.discoveryActivationType as number) | 0;
-    if (discoveryVisualType < 0 || discoveryActivationType < 0) continue;
+    const discoveryVisualType = Math.trunc(raw.discoveryVisualType as number);
+    const discoveryActivationType = Math.trunc(raw.discoveryActivationType as number);
     const key = `${discoveryVisualType}:${discoveryActivationType}`;
     if (unique.has(key)) continue;
     unique.add(key);

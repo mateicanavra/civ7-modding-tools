@@ -441,9 +441,8 @@ function sanitizeDiscoveryCandidates(values: ReadonlyArray<DiscoveryCandidate>):
   const candidates: DiscoveryCandidate[] = [];
   for (const raw of values) {
     if (!Number.isFinite(raw?.discoveryVisualType) || !Number.isFinite(raw?.discoveryActivationType)) continue;
-    const discoveryVisualType = (raw.discoveryVisualType as number) | 0;
-    const discoveryActivationType = (raw.discoveryActivationType as number) | 0;
-    if (discoveryVisualType < 0 || discoveryActivationType < 0) continue;
+    const discoveryVisualType = Math.trunc(raw.discoveryVisualType as number);
+    const discoveryActivationType = Math.trunc(raw.discoveryActivationType as number);
     const candidate = { discoveryVisualType, discoveryActivationType };
     const key = discoveryCandidateKey(candidate);
     if (unique.has(key)) continue;
@@ -518,14 +517,10 @@ function stampDiscoveriesFromPlan({
       preferredDiscoveryOffset
     );
     const preferredCandidate = {
-      discoveryVisualType: placementPlan.preferredDiscoveryVisualType | 0,
-      discoveryActivationType: placementPlan.preferredDiscoveryActivationType | 0,
+      discoveryVisualType: Math.trunc(placementPlan.preferredDiscoveryVisualType),
+      discoveryActivationType: Math.trunc(placementPlan.preferredDiscoveryActivationType),
     };
-    if (
-      preferredCandidate.discoveryVisualType >= 0 &&
-      preferredCandidate.discoveryActivationType >= 0 &&
-      !candidateSet.has(discoveryCandidateKey(preferredCandidate))
-    ) {
+    if (!candidateSet.has(discoveryCandidateKey(preferredCandidate))) {
       orderedCandidates.unshift(preferredCandidate);
     }
 

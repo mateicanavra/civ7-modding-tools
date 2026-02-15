@@ -38,6 +38,11 @@ export {
   resolvePlaceableDiscoveryCatalog,
 } from "./discovery-constants.js";
 export type { DiscoveryCatalogSymbol } from "./discovery-constants.js";
+export { NATURAL_WONDER_CATALOG } from "./manual-catalogs/natural-wonders.js";
+export {
+  DEFAULT_DISCOVERY_PLACEMENT,
+  DISCOVERY_CATALOG,
+} from "./manual-catalogs/discoveries.js";
 
 // Re-export mock adapter (safe to import anywhere)
 export { MockAdapter, createMockAdapter } from "./mock-adapter.js";

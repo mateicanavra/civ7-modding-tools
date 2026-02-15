@@ -9,6 +9,7 @@
 
 import type {
   DiscoveryCatalogEntry,
+  DiscoveryPlacementDefaults,
   EngineAdapter,
   FeatureData,
   LandmassIdName,
@@ -20,7 +21,8 @@ import type {
   VoronoiUtils,
 } from "./types.js";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
-import { resolvePlaceableDiscoveryCatalog } from "./discovery-constants.js";
+import { NATURAL_WONDER_CATALOG } from "./manual-catalogs/natural-wonders.js";
+import { DEFAULT_DISCOVERY_PLACEMENT, DISCOVERY_CATALOG } from "./manual-catalogs/discoveries.js";
 import { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.js";
 
 // Import from /base-standard/... — these are external Civ7 runtime paths
@@ -525,28 +527,15 @@ export class Civ7Adapter implements EngineAdapter {
   }
 
   getNaturalWonderCatalog(): NaturalWonderCatalogEntry[] {
-    const table = GameInfo?.Feature_NaturalWonders;
-    if (!table) return [];
-    const catalog: NaturalWonderCatalogEntry[] = [];
-    for (const row of table) {
-      const featureType = typeof row?.$hash === "number" ? row.$hash : -1;
-      if (featureType < 0) continue;
-      const direction = typeof row?.Direction === "number" ? row.Direction : 0;
-      catalog.push({ featureType, direction });
-    }
-    catalog.sort((a, b) => a.featureType - b.featureType);
-    return catalog;
+    return NATURAL_WONDER_CATALOG;
   }
 
   getDiscoveryCatalog(): DiscoveryCatalogEntry[] {
-    const database = (globalThis as Record<string, unknown>).Database as
-      | { makeHash?: (value: string) => number }
-      | undefined;
-    const makeHash = database?.makeHash;
-    if (typeof makeHash !== "function") {
-      throw new Error("[Adapter] Database.makeHash is unavailable for discovery catalog resolution.");
-    }
-    return resolvePlaceableDiscoveryCatalog((value) => makeHash(value));
+    return DISCOVERY_CATALOG;
+  }
+
+  getDefaultDiscoveryPlacement(): DiscoveryPlacementDefaults {
+    return DEFAULT_DISCOVERY_PLACEMENT;
   }
 
   generateSnow(width: number, height: number): void {

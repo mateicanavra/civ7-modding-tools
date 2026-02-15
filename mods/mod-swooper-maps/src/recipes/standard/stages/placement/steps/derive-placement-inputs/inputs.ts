@@ -1,6 +1,7 @@
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import type { DiscoveryCatalogEntry } from "@civ7/adapter";
+import { DISCOVERY_CATALOG, NATURAL_WONDER_CATALOG } from "@civ7/adapter";
 import type { PlacementInputsV1 } from "../../placement-inputs.js";
 import { getStandardRuntime } from "../../../../runtime.js";
 
@@ -26,9 +27,8 @@ function sanitizeDiscoveryCandidates(values: DiscoveryCatalogEntry[]): Discovery
   const candidates: DiscoveryCatalogEntry[] = [];
   for (const raw of values) {
     if (!Number.isFinite(raw?.discoveryVisualType) || !Number.isFinite(raw?.discoveryActivationType)) continue;
-    const discoveryVisualType = (raw.discoveryVisualType as number) | 0;
-    const discoveryActivationType = (raw.discoveryActivationType as number) | 0;
-    if (discoveryVisualType < 0 || discoveryActivationType < 0) continue;
+    const discoveryVisualType = Math.trunc(raw.discoveryVisualType as number);
+    const discoveryActivationType = Math.trunc(raw.discoveryActivationType as number);
     const key = `${discoveryVisualType}:${discoveryActivationType}`;
     if (unique.has(key)) continue;
     unique.add(key);
@@ -76,8 +76,8 @@ export function buildPlacementInputs(
   };
   const startsPlan = ops.starts({ baseStarts }, config.starts);
   const wondersPlan = ops.wonders({ mapInfo: runtime.mapInfo }, config.wonders);
-  const naturalWonderCatalog = context.adapter.getNaturalWonderCatalog();
-  const discoveryCatalog = sanitizeDiscoveryCandidates(context.adapter.getDiscoveryCatalog());
+  const naturalWonderCatalog = NATURAL_WONDER_CATALOG;
+  const discoveryCatalog = sanitizeDiscoveryCandidates(DISCOVERY_CATALOG);
   const noResourceSentinel = context.adapter.NO_RESOURCE | 0;
   const candidateResourceTypes = sanitizeResourceCandidates(
     context.adapter.getPlaceableResourceTypes(),

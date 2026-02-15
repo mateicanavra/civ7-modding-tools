@@ -74,7 +74,7 @@ These ops produce placement plans/inputs which are then applied in the placement
 
 Placement stage config is currently minimal:
 - placement inputs are derived from runtime config and placement ops,
-- resource/discovery planning consumes adapter-owned explicit candidate catalogs (deterministic ordering; no runtime table/default lookups for planning),
+- resource/discovery planning consumes adapter-owned manual catalogs (`packages/civ7-adapter/src/manual-catalogs`) that are verified against the official tables via `scripts/placement/verify-manual-catalogs.ts`, so there are no runtime GameInfo/Database lookups for these catalogs,
 - then placement application runs deterministically given the plan inputs and map artifacts.
 
 ## Ground truth anchors
