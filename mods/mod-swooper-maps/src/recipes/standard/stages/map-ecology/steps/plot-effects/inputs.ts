@@ -1,10 +1,20 @@
 import type { ExtendedMapContext, HeightfieldBuffer } from "@swooper/mapgen-core";
-import type { Static } from "@swooper/mapgen-core/authoring";
-import ecology from "@mapgen/domain/ecology";
 import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 import type { BiomeClassificationArtifact } from "../../../ecology/artifacts.js";
 
-type PlotEffectsInput = Static<typeof ecology.ops.planPlotEffects.input>;
+export type PlotEffectsStepInput = {
+  width: number;
+  height: number;
+  seed: number;
+  biomeIndex: Uint8Array;
+  vegetationDensity: Float32Array;
+  effectiveMoisture: Float32Array;
+  surfaceTemperature: Float32Array;
+  aridityIndex: Float32Array;
+  freezeIndex: Float32Array;
+  elevation: Int16Array;
+  landMask: Uint8Array;
+};
 
 /**
  * Builds the input payload for plot effects planning from published artifacts.
@@ -15,7 +25,7 @@ export function buildPlotEffectsInput(
     classification: BiomeClassificationArtifact;
     heightfield: HeightfieldBuffer;
   }
-): PlotEffectsInput {
+): PlotEffectsStepInput {
   const { width, height } = context.dimensions;
   const { classification, heightfield } = artifacts;
 

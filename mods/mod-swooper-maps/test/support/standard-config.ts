@@ -282,7 +282,51 @@ const featuresPlacementConfig = {
   },
 };
 
-const plotEffectsConfig = {
+const plotEffectsScoreSnowConfig = {
+  strategy: "default",
+  config: {
+    elevationStrategy: "percentile" as const,
+    elevationMin: 200,
+    elevationMax: 2800,
+    elevationPercentileMin: 0.7,
+    elevationPercentileMax: 0.98,
+    moistureMin: 50,
+    moistureMax: 170,
+    maxTemperature: 4,
+    maxAridity: 0.85,
+    freezeWeight: 1.1,
+    elevationWeight: 0.9,
+    moistureWeight: 0.7,
+    scoreNormalization: 2.7,
+    scoreBias: 0,
+  },
+};
+const plotEffectsScoreSandConfig = {
+  strategy: "default",
+  config: {
+    minAridity: 0.65,
+    minTemperature: 20,
+    maxFreeze: 0.25,
+    maxVegetation: 0.15,
+    maxMoisture: 80,
+    allowedBiomes: ["desert", "temperateDry"] as ["desert", "temperateDry"],
+  },
+};
+const plotEffectsScoreBurnedConfig = {
+  strategy: "default",
+  config: {
+    minAridity: 0.5,
+    minTemperature: 22,
+    maxFreeze: 0.2,
+    maxVegetation: 0.25,
+    maxMoisture: 100,
+    allowedBiomes: ["temperateDry", "tropicalSeasonal"] as [
+      "temperateDry",
+      "tropicalSeasonal",
+    ],
+  },
+};
+const plotEffectsPlanConfig = {
   strategy: "default",
   config: {
     snow: {
@@ -298,53 +342,24 @@ const plotEffectsConfig = {
           typeName: "PLOTEFFECT_SNOW_HEAVY_PERMANENT",
         },
       },
-      coverageChance: 70,
-      freezeWeight: 1.1,
-      elevationWeight: 0.9,
-      moistureWeight: 0.7,
-      scoreNormalization: 2.7,
-      scoreBias: 0,
+      coveragePct: 70,
       lightThreshold: 0.35,
       mediumThreshold: 0.6,
       heavyThreshold: 0.8,
-      elevationStrategy: "percentile" as const,
-      elevationMin: 200,
-      elevationMax: 2800,
-      elevationPercentileMin: 0.7,
-      elevationPercentileMax: 0.98,
-      moistureMin: 50,
-      moistureMax: 170,
-      maxTemperature: 4,
-      maxAridity: 0.85,
     },
     sand: {
       enabled: true,
       selector: {
         typeName: "PLOTEFFECT_SAND",
       },
-      chance: 6,
-      minAridity: 0.65,
-      minTemperature: 20,
-      maxFreeze: 0.25,
-      maxVegetation: 0.15,
-      maxMoisture: 80,
-      allowedBiomes: ["desert", "temperateDry"] as ["desert", "temperateDry"],
+      coveragePct: 6,
     },
     burned: {
       enabled: false,
       selector: {
         typeName: "PLOTEFFECT_BURNED",
       },
-      chance: 6,
-      minAridity: 0.5,
-      minTemperature: 22,
-      maxFreeze: 0.2,
-      maxVegetation: 0.25,
-      maxMoisture: 100,
-      allowedBiomes: ["temperateDry", "tropicalSeasonal"] as [
-        "temperateDry",
-        "tropicalSeasonal",
-      ],
+      coveragePct: 6,
     },
   },
 };
@@ -455,7 +470,12 @@ export const standardConfig = {
   },
   "map-ecology": {
     biomes: { bindings: biomeBindingsConfig },
-    plotEffects: { plotEffects: plotEffectsConfig },
+    plotEffects: {
+      scoreSnow: plotEffectsScoreSnowConfig,
+      scoreSand: plotEffectsScoreSandConfig,
+      scoreBurned: plotEffectsScoreBurnedConfig,
+      plotEffects: plotEffectsPlanConfig,
+    },
   },
   placement: {
     "derive-placement-inputs": placementConfig,

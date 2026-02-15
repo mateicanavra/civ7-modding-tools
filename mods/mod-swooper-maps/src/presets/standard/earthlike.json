@@ -627,6 +627,53 @@
         }
       },
       "plotEffects": {
+        "scoreSnow": {
+          "strategy": "default",
+          "config": {
+            "elevationStrategy": "percentile",
+            "elevationMin": 200,
+            "elevationMax": 2800,
+            "elevationPercentileMin": 0.68,
+            "elevationPercentileMax": 0.98,
+            "moistureMin": 50,
+            "moistureMax": 170,
+            "maxTemperature": 3,
+            "maxAridity": 0.85,
+            "freezeWeight": 1.1,
+            "elevationWeight": 0.9,
+            "moistureWeight": 0.7,
+            "scoreNormalization": 2.7,
+            "scoreBias": 0
+          }
+        },
+        "scoreSand": {
+          "strategy": "default",
+          "config": {
+            "minAridity": 0.48,
+            "minTemperature": 14,
+            "maxFreeze": 0.3,
+            "maxVegetation": 0.2,
+            "maxMoisture": 85,
+            "allowedBiomes": [
+              "desert",
+              "temperateDry"
+            ]
+          }
+        },
+        "scoreBurned": {
+          "strategy": "default",
+          "config": {
+            "minAridity": 0.48,
+            "minTemperature": 21,
+            "maxFreeze": 0.22,
+            "maxVegetation": 0.27,
+            "maxMoisture": 100,
+            "allowedBiomes": [
+              "temperateDry",
+              "tropicalSeasonal"
+            ]
+          }
+        },
         "plotEffects": {
           "strategy": "default",
           "config": {
@@ -643,56 +690,24 @@
                   "typeName": "PLOTEFFECT_SNOW_HEAVY_PERMANENT"
                 }
               },
-              "coverageChance": 65,
-              "freezeWeight": 1.1,
-              "elevationWeight": 0.9,
-              "moistureWeight": 0.7,
-              "scoreNormalization": 2.7,
-              "scoreBias": 0,
+              "coveragePct": 65,
               "lightThreshold": 0.35,
               "mediumThreshold": 0.6,
-              "heavyThreshold": 0.8,
-              "elevationStrategy": "percentile",
-              "elevationMin": 200,
-              "elevationMax": 2800,
-              "elevationPercentileMin": 0.68,
-              "elevationPercentileMax": 0.98,
-              "moistureMin": 50,
-              "moistureMax": 170,
-              "maxTemperature": 3,
-              "maxAridity": 0.85
+              "heavyThreshold": 0.8
             },
             "sand": {
               "enabled": true,
               "selector": {
                 "typeName": "PLOTEFFECT_SAND"
               },
-              "chance": 32,
-              "minAridity": 0.48,
-              "minTemperature": 14,
-              "maxFreeze": 0.3,
-              "maxVegetation": 0.2,
-              "maxMoisture": 85,
-              "allowedBiomes": [
-                "desert",
-                "temperateDry"
-              ]
+              "coveragePct": 32
             },
             "burned": {
               "enabled": true,
               "selector": {
                 "typeName": "PLOTEFFECT_BURNED"
               },
-              "chance": 5,
-              "minAridity": 0.48,
-              "minTemperature": 21,
-              "maxFreeze": 0.22,
-              "maxVegetation": 0.27,
-              "maxMoisture": 100,
-              "allowedBiomes": [
-                "temperateDry",
-                "tropicalSeasonal"
-              ]
+              "coveragePct": 5
             }
           }
         }

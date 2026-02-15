@@ -384,6 +384,50 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
       },
     },
     plotEffects: {
+      scoreSnow: {
+        strategy: "default",
+        config: {
+          elevationStrategy: "percentile" as const,
+          elevationMin: 300, // Only high elevations
+          elevationMax: 2600,
+          elevationPercentileMin: 0.82, // Only very high peaks
+          elevationPercentileMax: 0.98,
+          moistureMin: 70,
+          moistureMax: 180,
+          maxTemperature: 3, // Stricter temperature
+          maxAridity: 0.75,
+          freezeWeight: 0.9,
+          elevationWeight: 0.8,
+          moistureWeight: 0.7,
+          scoreNormalization: 2.6,
+          scoreBias: -0.1, // Bias against snow
+        },
+      },
+      scoreSand: {
+        strategy: "default",
+        config: {
+          minAridity: 0.7,
+          minTemperature: 24,
+          maxFreeze: 0.2,
+          maxVegetation: 0.1,
+          maxMoisture: 70,
+          allowedBiomes: ["desert", "temperateDry"] as ["desert", "temperateDry"],
+        },
+      },
+      scoreBurned: {
+        strategy: "default",
+        config: {
+          minAridity: 0.65,
+          minTemperature: 26,
+          maxFreeze: 0.15,
+          maxVegetation: 0.15,
+          maxMoisture: 90,
+          allowedBiomes: ["temperateDry", "tropicalSeasonal"] as [
+            "temperateDry",
+            "tropicalSeasonal",
+          ],
+        },
+      },
       plotEffects: {
         strategy: "default",
         config: {
@@ -400,56 +444,24 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
                 typeName: "PLOTEFFECT_SNOW_HEAVY_PERMANENT",
               },
             },
-            coverageChance: 35,           // Reduced for tropical world
-            freezeWeight: 0.9,
-            elevationWeight: 0.8,
-            moistureWeight: 0.7,
-            scoreNormalization: 2.6,
-            scoreBias: -0.1,              // Bias against snow
+            coveragePct: 35,              // Reduced for tropical world
             lightThreshold: 0.45,         // Higher threshold
             mediumThreshold: 0.7,
             heavyThreshold: 0.85,
-            elevationStrategy: "percentile" as const,
-            elevationMin: 300,            // Only high elevations
-            elevationMax: 2600,
-            elevationPercentileMin: 0.82, // Only very high peaks
-            elevationPercentileMax: 0.98,
-            moistureMin: 70,
-            moistureMax: 180,
-            maxTemperature: 3,            // Stricter temperature
-            maxAridity: 0.75,
           },
           sand: {
             enabled: false,               // Tropical islands don't have desert sand
             selector: {
               typeName: "PLOTEFFECT_SAND",
             },
-            chance: 5,
-            minAridity: 0.7,
-            minTemperature: 24,
-            maxFreeze: 0.2,
-            maxVegetation: 0.1,
-            maxMoisture: 70,
-            allowedBiomes: ["desert", "temperateDry"] as [
-              "desert",
-              "temperateDry",
-            ],
+            coveragePct: 5,
           },
           burned: {
             enabled: false,               // Lush tropical - no scorched earth
             selector: {
               typeName: "PLOTEFFECT_BURNED",
             },
-            chance: 4,
-            minAridity: 0.65,
-            minTemperature: 26,
-            maxFreeze: 0.15,
-            maxVegetation: 0.15,
-            maxMoisture: 90,
-            allowedBiomes: ["temperateDry", "tropicalSeasonal"] as [
-              "temperateDry",
-              "tropicalSeasonal",
-            ],
+            coveragePct: 4,
           },
         },
       },
