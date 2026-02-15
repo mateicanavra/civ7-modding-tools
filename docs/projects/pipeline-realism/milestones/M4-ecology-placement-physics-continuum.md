@@ -31,3 +31,32 @@ Canonical milestone source is the M4 context packet for the ecology continuum re
 - [x] M4-T26 branch: `codex/prr-epp-s5-placement-randomness-zero`
 - [x] M4-T27 branch: `codex/prr-epp-s6-hardening-docs-tests`
 
+
+## Review Traceability
+- M4-T01 reviewBranch: `agent-TOMMY-M4-T01-review-MAMBO-m3-002-stage-split-earth-system--a47102` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1268
+- M4-T02 reviewBranch: `agent-TOMMY-M4-T02-review-MAMBO-m3-003-scorelayers-artifact-and--9d3358` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1269
+- M4-T03 reviewBranch: `agent-TOMMY-M4-T03-review-MAMBO-m3-004-plan-ice-deterministic-6f0890` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1270
+- M4-T04 reviewBranch: `agent-TOMMY-M4-T04-review-MAMBO-m3-005-plan-reefs-deterministic-42c50e` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1271
+- M4-T05 reviewBranch: `agent-TOMMY-M4-T05-review-MAMBO-m3-006-plan-wetlands-determinist-284a7e` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1272
+- M4-T06 reviewBranch: `agent-TOMMY-M4-T06-review-MAMBO-m3-007-plan-vegetation-determini-33fa9e` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1273
+- M4-T07 reviewBranch: `agent-TOMMY-M4-T07-review-MAMBO-m3-008-stamping-strict-features--5cbbf9` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1274
+- M4-T08 reviewBranch: `agent-TOMMY-M4-T08-review-MAMBO-m3-009-cleanup-delete-legacy-cha-912363` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1275
+- M4-T09 reviewBranch: `agent-TOMMY-M4-T09-review-MAMBO-m3-010-post-cutover-cleanup-5fefd4` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1276
+- M4-T10 reviewBranch: `agent-TOMMY-M4-T10-review-MAMBO-m3-011-canonical-docs-sweep-f6feb2` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1277
+- M4-T11 reviewBranch: `agent-TOMMY-M4-T11-review-MAMBO-m3-012-fix-biomes-stripes-faece2` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1278
+- M4-T12 reviewBranch: `agent-TOMMY-M4-T12-review-MAMBO-m3-014-lakes-not-filled-993ca5` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1279
+- M4-T13 reviewBranch: `agent-TOMMY-M4-T13-review-MAMBO-m3-013-bio-lat-cutoff-2ab14f` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1280
+- M4-T14 reviewBranch: `agent-TOMMY-M4-T14-review-M3-015-hydrology-effectiveMoisture-soi-69ea1b` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1281
+- M4-T15 reviewBranch: `agent-TOMMY-M4-T15-review-default-config-intent-tuning-384ba2` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1282
+- M4-T16 reviewBranch: `agent-TOMMY-M4-T16-review-MAMBO-lakes-resources-waterfill-rootca-693afa` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1283
+- M4-T17 reviewBranch: `agent-TOMMY-M4-T17-review-MAMBO-elevation-terrain-parity-audit-06489e` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1284
+- M4-T18 reviewBranch: `agent-TOMMY-M4-T18-review-MAMBO-resources-stamping-rootcause-01732c` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1285
+- M4-T19 reviewBranch: `agent-TOMMY-M4-T19-review-MAMBO-elevation-post-hydrology-lifecyc-2f0228` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1286
+- M4-T20 reviewBranch: `agent-TOMMY-M4-T20-review-prr-epp-s0-plan-bootstrap-888878` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1287
+- M4-T21 reviewBranch: `agent-TOMMY-M4-T21-review-prr-epp-s1-drift-observability-60cf6d` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1288
+- M4-T22 reviewBranch: `agent-TOMMY-M4-T22-review-prr-epp-s2-ecology-physics-cutover-38049d` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1289
+- M4-T23 reviewBranch: `agent-TOMMY-M4-T23-review-prr-epp-s3-lakes-deterministic-2ad056` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1290
+- M4-T24 reviewBranch: `agent-TOMMY-M4-T24-review-prr-epp-s3b-lakes-regression-fix-08449d` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1291
+- M4-T25 reviewBranch: `agent-TOMMY-M4-T25-review-prr-epp-s4-resources-deterministic-21a5eb` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1292
+- M4-T26 reviewBranch: `agent-TOMMY-M4-T26-review-prr-epp-s5-placement-randomness-zero-9913bc` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1293
+- M4-T27 reviewBranch: `agent-TOMMY-M4-T27-review-prr-epp-s6-hardening-docs-tests-4fee2c` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1294
