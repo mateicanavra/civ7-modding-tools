@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/MAMBO-m3-007-plan-vegetation-deterministic
+
+### Quick Take
+- Vegetation planning is deterministic and stage-isolated as intended.
+
+### High-Leverage Issues
+- No blocking branch-local defect confirmed in this pass.
+
+### PR Comment Context
+- PR #1228 has no unresolved inline reviewer findings.
+- PR #1228: docs(pipeline-realism): update M3 execution plan for vegetation deterministic planning (https://github.com/mateicanavra/civ7-modding-tools/pull/1228)
+
+### Fix Now (Recommended)
+- None immediate.
+
+### Defer / Follow-up
+- Add seed-matrix distribution sanity tests for vegetation planners.
+
+### Needs Discussion
+- Shared invariant suite coverage across per-family planners.
+
+### Cross-cutting Risks
+- Per-family planner drift can reintroduce inconsistency over time.
+- Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
