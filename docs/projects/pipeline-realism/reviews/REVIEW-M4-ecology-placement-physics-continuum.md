@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/MAMBO-resources-stamping-rootcause
+
+### Quick Take
+- Restamp-before-resource generation addresses root cause directionally.
+
+### High-Leverage Issues
+- Failure path is fail-open: code logs restamp failure and continues generation.
+
+### PR Comment Context
+- PR #1240 has unresolved P2 feedback on fail-open continuation.
+- PR #1240: fix(placement): restamp landmass regions before resource generation (https://github.com/mateicanavra/civ7-modding-tools/pull/1240)
+
+### Fix Now (Recommended)
+- Make restamp failure fatal or explicitly skip downstream generation.
+
+### Defer / Follow-up
+- Replace placeholder resource-count outputs with real counts.
+
+### Needs Discussion
+- Fail-fast policy for placement pipeline invariants.
+
+### Cross-cutting Risks
+- Catch-and-continue can hide invalid world-state generation.
+- Runtime-vs-viz mismatch analysis: observed: invalid state can propagate despite logged failure. Gameplay/runtime truth remains authoritative when conflicts exist.
