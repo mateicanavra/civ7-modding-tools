@@ -242,9 +242,8 @@ export default createStep(ScoreLayersStepContract, {
     const reserved = new Uint8Array(size);
 
     for (let i = 0; i < size; i++) {
-      const deepWater = topography.landMask[i] === 0 && coastline.shelfMask[i] === 0;
       const navigableRiver = featureSubstrate.navigableRiverMask[i] === 1;
-      reserved[i] = deepWater || navigableRiver ? 1 : 0;
+      reserved[i] = navigableRiver ? 1 : 0;
     }
 
     context.viz?.dumpGrid(context.trace, {
