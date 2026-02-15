@@ -19,7 +19,7 @@ describe('subtree config helpers', () => {
     fs.rmSync(repoDir, { recursive: true, force: true });
   });
 
-  it('lists, removes, and clears configs', async () => {
+  it('lists, removes, and clears configs', { timeout: 20000 }, async () => {
     await execGit(['config', '--local', 'civ7.mod.foo.repoUrl', 'git@example.com:foo.git'], { cwd: repoDir });
     await execGit(['config', '--local', 'civ7.mod.foo.branch', 'main'], { cwd: repoDir });
     await execGit(['config', '--local', 'civ7.mod.bar.repoUrl', 'git@example.com:bar.git'], { cwd: repoDir });

@@ -32,6 +32,8 @@ ecology.scoreLayers.FEATURE_SAVANNA_WOODLAND|tile.hexOddR|grid
 ecology.scoreLayers.FEATURE_TAIGA|tile.hexOddR|grid
 ecology.scoreLayers.FEATURE_TUNDRA_BOG|tile.hexOddR|grid
 ecology.scoreLayers.FEATURE_WATERING_HOLE|tile.hexOddR|grid
+map.ecology.biome.bindingClass|tile.hexOddR|grid
 map.ecology.biomeId|tile.hexOddR|grid
+map.ecology.features.rejectionMask|tile.hexOddR|grid
 map.ecology.featureType|tile.hexOddR|grid
 map.ecology.temperature|tile.hexOddR|grid

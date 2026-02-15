@@ -32,7 +32,13 @@ describe("map stamping contract guardrails", () => {
       path.join(repoRoot, "src/recipes/standard/stages/hydrology-climate-baseline"),
       path.join(repoRoot, "src/recipes/standard/stages/hydrology-hydrography"),
       path.join(repoRoot, "src/recipes/standard/stages/hydrology-climate-refine"),
-      path.join(repoRoot, "src/recipes/standard/stages/ecology"),
+      path.join(repoRoot, "src/recipes/standard/stages/ecology-pedology"),
+      path.join(repoRoot, "src/recipes/standard/stages/ecology-biomes"),
+      path.join(repoRoot, "src/recipes/standard/stages/ecology-features-score"),
+      path.join(repoRoot, "src/recipes/standard/stages/ecology-ice"),
+      path.join(repoRoot, "src/recipes/standard/stages/ecology-reefs"),
+      path.join(repoRoot, "src/recipes/standard/stages/ecology-wetlands"),
+      path.join(repoRoot, "src/recipes/standard/stages/ecology-vegetation"),
     ];
 
     const contractFiles = roots.flatMap((candidate) => {
@@ -88,7 +94,13 @@ describe("map stamping contract guardrails", () => {
       path.join(repoRoot, "src/recipes/standard/stages/hydrology-climate-baseline"),
       path.join(repoRoot, "src/recipes/standard/stages/hydrology-hydrography"),
       path.join(repoRoot, "src/recipes/standard/stages/hydrology-climate-refine"),
-      path.join(repoRoot, "src/recipes/standard/stages/ecology"),
+      path.join(repoRoot, "src/recipes/standard/stages/ecology-pedology"),
+      path.join(repoRoot, "src/recipes/standard/stages/ecology-biomes"),
+      path.join(repoRoot, "src/recipes/standard/stages/ecology-features-score"),
+      path.join(repoRoot, "src/recipes/standard/stages/ecology-ice"),
+      path.join(repoRoot, "src/recipes/standard/stages/ecology-reefs"),
+      path.join(repoRoot, "src/recipes/standard/stages/ecology-wetlands"),
+      path.join(repoRoot, "src/recipes/standard/stages/ecology-vegetation"),
     ];
 
     const files = physicsRoots.flatMap((candidate) => {
@@ -141,7 +153,7 @@ describe("map stamping contract guardrails", () => {
   });
 
   it("uses the expected naming convention for map effects", () => {
-    const effectPattern = /^effect:map\.[a-z][a-zA-Z0-9]*(Plotted|Built)$/;
+    const effectPattern = /^effect:map\.[a-z][a-zA-Z0-9]*(Plotted|Built|ParityCaptured)$/;
     const effects = Object.values(M10_EFFECT_TAGS.map);
 
     expect(effects.length).toBeGreaterThan(0);

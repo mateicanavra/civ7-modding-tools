@@ -9,10 +9,6 @@ const env = {
 };
 
 const foundationConfig = {
-  version: 1,
-  profiles: {
-    resolutionProfile: "balanced",
-  },
   knobs: { plateCount: 28, plateActivity: 0.5 },
 };
 
