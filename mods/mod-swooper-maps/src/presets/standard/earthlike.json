@@ -702,9 +702,7 @@
       "derive-placement-inputs": {
         "wonders": {
           "strategy": "default",
-          "config": {
-            "wondersPlusOne": true
-          }
+          "config": {}
         },
         "floodplains": {
           "strategy": "default",

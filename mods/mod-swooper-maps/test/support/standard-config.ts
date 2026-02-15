@@ -360,7 +360,7 @@ const geomorphologyConfig = {
   eras: 2,
 };
 const placementConfig = {
-  wonders: { strategy: "default", config: { wondersPlusOne: true } },
+  wonders: { strategy: "default", config: {} },
   floodplains: { strategy: "default", config: { minLength: 4, maxLength: 10 } },
   starts: { strategy: "default", config: {} },
 };
