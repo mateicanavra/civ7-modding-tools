@@ -62,6 +62,24 @@ function colorForStartPosition(index: number): [number, number, number, number] 
   return START_POSITION_COLORS[index % START_POSITION_COLORS.length] ?? [148, 163, 184, 220];
 }
 
+function toErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function runPlacementStep<T>(
+  stepId: string,
+  emit: (payload: Record<string, unknown>) => void,
+  fn: () => T
+): T {
+  try {
+    return fn();
+  } catch (error) {
+    const message = toErrorMessage(error);
+    emit({ type: `${stepId}.error`, error: message });
+    throw new Error(`[SWOOPER_MOD] Aborting placement: ${stepId} failed (${message}).`);
+  }
+}
+
 export function applyPlacementPlan({
   context,
   starts,
@@ -85,207 +103,149 @@ export function applyPlacementPlan({
   emit({ type: "placement.start", message: "[SWOOPER_MOD] === placement plan apply ===" });
   emit({ type: "placement.start", message: `[SWOOPER_MOD] Map size: ${width}x${height}` });
 
+  const resolvedNaturalWonderPlan: DeepReadonly<PlanNaturalWondersOutput> = naturalWonderPlan ?? {
+    width,
+    height,
+    wondersCount: 0,
+    targetCount: 0,
+    plannedCount: 0,
+    placements: [],
+  };
+  const resolvedDiscoveryPlan: DeepReadonly<PlanDiscoveriesOutput> = discoveryPlan ?? {
+    width,
+    height,
+    targetCount: 0,
+    plannedCount: 0,
+    placements: [],
+  };
+  const resolvedResourcePlan: DeepReadonly<PlanResourcesOutput> = resources ?? {
+    width,
+    height,
+    candidateResourceTypes: [],
+    targetCount: 0,
+    plannedCount: 0,
+    placements: [],
+  };
+
   logTerrainStats(trace, adapter, width, height, "Initial");
 
-  let wondersPlanned = 0;
-  let wondersPlaced = 0;
-  let wondersError: string | undefined;
-  try {
+  const wonderStamping = runPlacementStep("placement.wonders", emit, () => {
     const stamping = stampNaturalWondersFromPlan({
       adapter,
       width,
       height,
-      wonders: naturalWonderPlan,
+      wonders: resolvedNaturalWonderPlan,
     });
-    wondersPlanned = stamping.plannedCount;
-    wondersPlaced = stamping.placedCount;
-    emit({
-      type: "placement.wonders.stamped",
-      plannedCount: stamping.plannedCount,
-      placedCount: stamping.placedCount,
-      skippedOutOfBoundsCount: stamping.skippedOutOfBoundsCount,
-      rejectedCount: stamping.rejectedCount,
-    });
-    if ((wonders.wondersCount | 0) !== wondersPlanned) {
-      emit({
-        type: "placement.wonders.planMismatch",
-        requestedCount: wonders.wondersCount,
-        plannedCount: wondersPlanned,
-      });
+    const requestedCount = Math.max(0, wonders.wondersCount | 0);
+    if (requestedCount !== (stamping.plannedCount | 0)) {
+      throw new Error(
+        `[Placement] Natural wonder planner could not meet requested count (requested ${requestedCount}, planned ${stamping.plannedCount}).`
+      );
     }
-  } catch (err) {
-    wondersError = err instanceof Error ? err.message : String(err);
-    emit({ type: "placement.wonders.error", error: wondersError });
-  }
+    return stamping;
+  });
+  const wondersPlanned = wonderStamping.plannedCount;
+  const wondersPlaced = wonderStamping.placedCount;
+  emit({
+    type: "placement.wonders.stamped",
+    plannedCount: wonderStamping.plannedCount,
+    placedCount: wonderStamping.placedCount,
+    skippedOutOfBoundsCount: wonderStamping.skippedOutOfBoundsCount,
+    rejectedCount: wonderStamping.rejectedCount,
+  });
 
-  try {
+  runPlacementStep("placement.floodplains", emit, () => {
     adapter.addFloodplains(floodplains.minLength, floodplains.maxLength);
-  } catch (err) {
-    emit({
-      type: "placement.floodplains.error",
-      error: err instanceof Error ? err.message : String(err),
-    });
-  }
+  });
 
-  try {
+  runPlacementStep("placement.terrain.validate", emit, () => {
     adapter.validateAndFixTerrain();
     emit({ type: "placement.terrain.validated" });
     logTerrainStats(trace, adapter, width, height, "After validateAndFixTerrain");
-  } catch (err) {
-    emit({
-      type: "placement.terrain.error",
-      error: err instanceof Error ? err.message : String(err),
-    });
-  }
+  });
 
-  try {
+  runPlacementStep("placement.areas.recalculate", emit, () => {
     adapter.recalculateAreas();
     emit({ type: "placement.areas.recalculated" });
-  } catch (err) {
-    emit({
-      type: "placement.areas.error",
-      error: err instanceof Error ? err.message : String(err),
-    });
-  }
+  });
 
-  try {
+  runPlacementStep("placement.water.store", emit, () => {
     adapter.storeWaterData();
     emit({ type: "placement.water.stored" });
-  } catch (err) {
-    emit({
-      type: "placement.water.error",
-      error: err instanceof Error ? err.message : String(err),
-    });
-  }
+  });
 
   const slotByTile = landmassRegionSlotByTile.slotByTile;
-  let landmassRegionRestampError: string | undefined;
-
-  try {
+  runPlacementStep("placement.landmassRegion.restamp", emit, () => {
     applyLandmassRegionSlots(adapter, width, height, slotByTile as Uint8Array);
     emit({ type: "placement.landmassRegion.restamped" });
-  } catch (err) {
-    landmassRegionRestampError = err instanceof Error ? err.message : String(err);
-    emit({
-      type: "placement.landmassRegion.error",
-      error: landmassRegionRestampError,
-    });
-  }
-  if (landmassRegionRestampError) {
-    throw new Error(
-      `[SWOOPER_MOD] Aborting placement: landmass region restamp failed (${landmassRegionRestampError}).`
-    );
-  }
+  });
 
-  let resourcesAttempted = false;
-  let resourcesPlaced = 0;
-  let resourcesError: string | undefined;
-  try {
-    resourcesAttempted = true;
-    const stamping = stampResourcesFromPlan({
+  const resourcesAttempted = true;
+  const resourceStamping = runPlacementStep("placement.resources", emit, () =>
+    stampResourcesFromPlan({
       adapter,
       width,
       height,
-      resources,
-    });
-    resourcesPlaced = stamping.placedCount;
-    emit({
-      type: "placement.resources.stamped",
-      plannedCount: stamping.plannedCount,
-      placedCount: stamping.placedCount,
-      skippedOccupiedCount: stamping.skippedOccupiedCount,
-      skippedIneligibleCount: stamping.skippedIneligibleCount,
-      skippedOutOfBoundsCount: stamping.skippedOutOfBoundsCount,
-    });
-  } catch (err) {
-    resourcesError = err instanceof Error ? err.message : String(err);
-    emit({
-      type: "placement.resources.error",
-      error: resourcesError,
-    });
-  }
+      resources: resolvedResourcePlan,
+    })
+  );
+  const resourcesPlaced = resourceStamping.placedCount;
+  emit({
+    type: "placement.resources.stamped",
+    plannedCount: resourceStamping.plannedCount,
+    placedCount: resourceStamping.placedCount,
+    skippedOccupiedCount: resourceStamping.skippedOccupiedCount,
+    skippedIneligibleCount: resourceStamping.skippedIneligibleCount,
+    skippedOutOfBoundsCount: resourceStamping.skippedOutOfBoundsCount,
+  });
 
   const startPositions: number[] = [];
-  try {
-    const { positions, assigned } = assignStartPositions({
+  const startAssignment = runPlacementStep("placement.starts", emit, () =>
+    assignStartPositions({
       context,
       starts,
       slotByTile: slotByTile as Uint8Array,
-    });
+    })
+  );
+  startPositions.push(...startAssignment.positions);
+  emit({
+    type: "placement.starts.assigned",
+    successCount: startAssignment.assigned,
+    totalPlayers: startAssignment.positions.length,
+    primaryAssigned: startAssignment.primaryAssigned,
+    fallbackAssigned: startAssignment.fallbackAssigned,
+    fallbackUsed: startAssignment.fallbackUsed,
+  });
 
-    const totalPlayers = positions.length;
-    const successCount = assigned;
+  emitStartSectorViz(context, slotByTile as Uint8Array, starts);
+  emitStartPositionsViz(context, startPositions);
 
-    if (totalPlayers > 0 && successCount !== totalPlayers) {
-      emit({
-        type: "placement.starts.partial",
-        successCount,
-        totalPlayers,
-        failures: Math.max(0, totalPlayers - successCount),
-      });
-      throw new Error(
-        `[SWOOPER_MOD] Failed to assign start positions for all players (assigned ${successCount}/${totalPlayers}).`
-      );
-    }
-
-    startPositions.push(...positions);
-    emit({ type: "placement.starts.assigned", successCount, totalPlayers });
-
-    emitStartSectorViz(context, slotByTile as Uint8Array, starts);
-    emitStartPositionsViz(context, startPositions);
-  } catch (err) {
-    emit({
-      type: "placement.starts.error",
-      error: err instanceof Error ? err.message : String(err),
-    });
-    throw err;
-  }
-
-  let discoveriesPlanned = 0;
-  let discoveriesPlaced = 0;
-  let discoveriesError: string | undefined;
-  try {
-    const stamping = stampDiscoveriesFromPlan({
+  const discoveryStamping = runPlacementStep("placement.discoveries", emit, () =>
+    stampDiscoveriesFromPlan({
       adapter,
       width,
       height,
-      discoveries: discoveryPlan,
-    });
-    discoveriesPlanned = stamping.plannedCount;
-    discoveriesPlaced = stamping.placedCount;
-    emit({
-      type: "placement.discoveries.stamped",
-      plannedCount: stamping.plannedCount,
-      placedCount: stamping.placedCount,
-      skippedOutOfBoundsCount: stamping.skippedOutOfBoundsCount,
-      rejectedCount: stamping.rejectedCount,
-    });
-  } catch (err) {
-    discoveriesError = err instanceof Error ? err.message : String(err);
-    emit({
-      type: "placement.discoveries.error",
-      error: discoveriesError,
-    });
-  }
+      discoveries: resolvedDiscoveryPlan,
+    })
+  );
+  const discoveriesPlanned = discoveryStamping.plannedCount;
+  const discoveriesPlaced = discoveryStamping.placedCount;
+  emit({
+    type: "placement.discoveries.stamped",
+    plannedCount: discoveryStamping.plannedCount,
+    placedCount: discoveryStamping.placedCount,
+    skippedOutOfBoundsCount: discoveryStamping.skippedOutOfBoundsCount,
+    rejectedCount: discoveryStamping.rejectedCount,
+  });
 
-  try {
+  runPlacementStep("placement.fertility.recalculate", emit, () => {
     adapter.recalculateFertility();
     emit({ type: "placement.fertility.recalculated" });
-  } catch (err) {
-    emit({
-      type: "placement.fertility.error",
-      error: err instanceof Error ? err.message : String(err),
-    });
-  }
+  });
 
-  try {
+  runPlacementStep("placement.advancedStart.assign", emit, () => {
     adapter.assignAdvancedStartRegions();
-  } catch (err) {
-    emit({
-      type: "placement.advancedStart.error",
-      error: err instanceof Error ? err.message : String(err),
-    });
-  }
+  });
 
   logTerrainStats(trace, adapter, width, height, "Final");
   logAsciiMap(trace, adapter, width, height);
@@ -341,14 +301,11 @@ export function applyPlacementPlan({
     startsAssigned,
     resourcesAttempted,
     resourcesPlaced,
-    ...(resourcesError != null ? { resourcesError } : {}),
     waterDriftCount,
     wondersPlanned,
     wondersPlaced,
-    ...(wondersError != null ? { wondersError } : {}),
     discoveriesPlanned,
     discoveriesPlaced,
-    ...(discoveriesError != null ? { discoveriesError } : {}),
   });
 
   emit({
@@ -356,13 +313,10 @@ export function applyPlacementPlan({
     slotCounts,
     wondersPlanned,
     wondersPlaced,
-    wondersError: wondersError ?? null,
     resourcesAttempted,
     resourcesPlaced,
-    resourcesError: resourcesError ?? null,
     discoveriesPlanned,
     discoveriesPlaced,
-    discoveriesError: discoveriesError ?? null,
     waterDriftCount,
   });
 
@@ -403,6 +357,19 @@ function stampNaturalWondersFromPlan({
       `[Placement] Natural wonder plan dimensions ${wonders.width}x${wonders.height} do not match map ${width}x${height}.`
     );
   }
+  const plannedCount = wonders.placements.length;
+  const declaredPlannedCount = Math.max(0, wonders.plannedCount | 0);
+  const targetCount = Math.max(0, wonders.targetCount | 0);
+  if (declaredPlannedCount !== plannedCount) {
+    throw new Error(
+      `[Placement] Natural wonder plan metadata mismatch (plannedCount=${declaredPlannedCount}, placements=${plannedCount}).`
+    );
+  }
+  if (plannedCount < targetCount) {
+    throw new Error(
+      `[Placement] Natural wonder plan cannot satisfy target count (target=${targetCount}, planned=${plannedCount}).`
+    );
+  }
 
   let placedCount = 0;
   let skippedOutOfBoundsCount = 0;
@@ -428,8 +395,14 @@ function stampNaturalWondersFromPlan({
     else rejectedCount += 1;
   }
 
+  if (placedCount !== plannedCount || skippedOutOfBoundsCount > 0 || rejectedCount > 0) {
+    throw new Error(
+      `[Placement] Failed to stamp all natural wonders (placed ${placedCount}/${plannedCount}, target=${targetCount}, outOfBounds=${skippedOutOfBoundsCount}, rejected=${rejectedCount}).`
+    );
+  }
+
   return {
-    plannedCount: wonders.placements.length,
+    plannedCount,
     placedCount,
     skippedOutOfBoundsCount,
     rejectedCount,
@@ -461,6 +434,19 @@ function stampDiscoveriesFromPlan({
       `[Placement] Discovery plan dimensions ${discoveries.width}x${discoveries.height} do not match map ${width}x${height}.`
     );
   }
+  const plannedCount = discoveries.placements.length;
+  const declaredPlannedCount = Math.max(0, discoveries.plannedCount | 0);
+  const targetCount = Math.max(0, discoveries.targetCount | 0);
+  if (declaredPlannedCount !== plannedCount) {
+    throw new Error(
+      `[Placement] Discovery plan metadata mismatch (plannedCount=${declaredPlannedCount}, placements=${plannedCount}).`
+    );
+  }
+  if (plannedCount < targetCount) {
+    throw new Error(
+      `[Placement] Discovery plan cannot satisfy target count (target=${targetCount}, planned=${plannedCount}).`
+    );
+  }
 
   let placedCount = 0;
   let skippedOutOfBoundsCount = 0;
@@ -485,8 +471,14 @@ function stampDiscoveriesFromPlan({
     else rejectedCount += 1;
   }
 
+  if (placedCount !== plannedCount || skippedOutOfBoundsCount > 0 || rejectedCount > 0) {
+    throw new Error(
+      `[Placement] Failed to stamp all discoveries (placed ${placedCount}/${plannedCount}, target=${targetCount}, outOfBounds=${skippedOutOfBoundsCount}, rejected=${rejectedCount}).`
+    );
+  }
+
   return {
-    plannedCount: discoveries.placements.length,
+    plannedCount,
     placedCount,
     skippedOutOfBoundsCount,
     rejectedCount,
@@ -520,13 +512,33 @@ function stampResourcesFromPlan({
     );
   }
 
+  const noResourceSentinel = adapter.NO_RESOURCE | 0;
+  const plannedCount = resources.placements.length;
+  const declaredPlannedCount = Math.max(0, resources.plannedCount | 0);
+  const targetCount = Math.max(0, resources.targetCount | 0);
+  if (declaredPlannedCount !== plannedCount) {
+    throw new Error(
+      `[Placement] Resource plan metadata mismatch (plannedCount=${declaredPlannedCount}, placements=${plannedCount}).`
+    );
+  }
+  if (plannedCount < targetCount) {
+    throw new Error(
+      `[Placement] Resource plan cannot satisfy target count (target=${targetCount}, planned=${plannedCount}).`
+    );
+  }
+
   const candidateResourceTypes = Array.from(
     new Set(
       resources.candidateResourceTypes
         .map((value) => value | 0)
-        .filter((value) => Number.isFinite(value) && value >= 0)
+        .filter((value) => Number.isFinite(value) && value >= 0 && value !== noResourceSentinel)
     )
-  );
+  ).sort((a, b) => a - b);
+  if (plannedCount > 0 && candidateResourceTypes.length === 0) {
+    throw new Error(
+      `[Placement] Resource plan has no placeable candidate types (planned=${plannedCount}, noResourceSentinel=${noResourceSentinel}).`
+    );
+  }
   const candidateTypeSet = new Set(candidateResourceTypes);
 
   let placedCount = 0;
@@ -544,8 +556,8 @@ function stampResourcesFromPlan({
     const y = (plotIndex / width) | 0;
     const x = plotIndex - y * width;
 
-    const existing = adapter.getResourceType(x, y);
-    if (Number.isFinite(existing) && existing >= 0) {
+    const existing = adapter.getResourceType(x, y) | 0;
+    if (existing !== noResourceSentinel) {
       skippedOccupiedCount += 1;
       continue;
     }
@@ -553,16 +565,21 @@ function stampResourcesFromPlan({
     const preferredType = placementPlan.preferredResourceType | 0;
     const preferredOffset = placementPlan.preferredTypeOffset | 0;
     const orderedCandidates = rotateCandidates(candidateResourceTypes, preferredOffset);
-    if (preferredType >= 0 && !candidateTypeSet.has(preferredType)) {
+    if (
+      preferredType >= 0 &&
+      preferredType !== noResourceSentinel &&
+      !candidateTypeSet.has(preferredType)
+    ) {
       orderedCandidates.unshift(preferredType);
     }
 
     let stamped = false;
     for (const resourceType of orderedCandidates) {
+      if (resourceType === noResourceSentinel) continue;
       if (!adapter.canHaveResource(x, y, resourceType)) continue;
       adapter.setResourceType(x, y, resourceType);
-      const stampedType = adapter.getResourceType(x, y);
-      if (Number.isFinite(stampedType) && stampedType >= 0) {
+      const stampedType = adapter.getResourceType(x, y) | 0;
+      if (stampedType !== noResourceSentinel) {
         placedCount += 1;
         stamped = true;
         break;
@@ -572,8 +589,14 @@ function stampResourcesFromPlan({
     if (!stamped) skippedIneligibleCount += 1;
   }
 
+  if (placedCount !== plannedCount || skippedOccupiedCount > 0 || skippedIneligibleCount > 0 || skippedOutOfBoundsCount > 0) {
+    throw new Error(
+      `[Placement] Failed to stamp all resources (placed ${placedCount}/${plannedCount}, target=${targetCount}, occupied=${skippedOccupiedCount}, ineligible=${skippedIneligibleCount}, outOfBounds=${skippedOutOfBoundsCount}, noResourceSentinel=${noResourceSentinel}).`
+    );
+  }
+
   return {
-    plannedCount: resources.placements.length,
+    plannedCount,
     placedCount,
     skippedOccupiedCount,
     skippedIneligibleCount,
@@ -626,7 +649,13 @@ function assignStartPositions({
   context,
   starts,
   slotByTile,
-}: AssignStartPositionsArgs): { positions: number[]; assigned: number } {
+}: AssignStartPositionsArgs): {
+  positions: number[];
+  assigned: number;
+  primaryAssigned: number;
+  fallbackAssigned: number;
+  fallbackUsed: boolean;
+} {
   const { adapter } = context;
   const { width, height } = context.dimensions;
   const playersWest = Math.max(0, starts.playersLandmass1 | 0);
@@ -634,7 +663,13 @@ function assignStartPositions({
   const totalPlayers = playersWest + playersEast;
 
   if (totalPlayers <= 0) {
-    return { positions: new Array<number>(Math.max(0, totalPlayers)).fill(-1), assigned: 0 };
+    return {
+      positions: new Array<number>(Math.max(0, totalPlayers)).fill(-1),
+      assigned: 0,
+      primaryAssigned: 0,
+      fallbackAssigned: 0,
+      fallbackUsed: false,
+    };
   }
 
   const expected = Math.max(0, (width | 0) * (height | 0));
@@ -690,8 +725,12 @@ function assignStartPositions({
       assigned++;
     }
   }
+  const primaryAssigned = assigned;
+  let fallbackAssigned = 0;
+  let fallbackUsed = false;
 
   if (assigned < totalPlayers && allCandidates.length) {
+    fallbackUsed = true;
     const remaining = totalPlayers - assigned;
     const fallback = chooseStartTiles(allCandidates, remaining, width, height, used);
     let writeIndex = 0;
@@ -702,12 +741,19 @@ function assignStartPositions({
       if (plotIndex >= 0) {
         adapter.setStartPosition(plotIndex, i);
         assigned++;
+        fallbackAssigned++;
       }
       writeIndex++;
     }
   }
 
-  return { positions, assigned };
+  if (assigned !== totalPlayers) {
+    throw new Error(
+      `[Placement] Unable to assign all start positions after deterministic fallback (assigned ${assigned}/${totalPlayers}, westCandidates=${westCandidates.length}, eastCandidates=${eastCandidates.length}, allCandidates=${allCandidates.length}, primaryAssigned=${primaryAssigned}, fallbackAssigned=${fallbackAssigned}).`
+    );
+  }
+
+  return { positions, assigned, primaryAssigned, fallbackAssigned, fallbackUsed };
 }
 
 function emitStartSectorViz(

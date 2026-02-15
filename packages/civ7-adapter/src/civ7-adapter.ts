@@ -255,6 +255,16 @@ export class Civ7Adapter implements EngineAdapter {
     return tb.canHaveFeatureParam(x, y, featureData.Feature, featureData);
   }
 
+  get NO_RESOURCE(): number {
+    const resourceTypes = (globalThis as Record<string, unknown>).ResourceTypes as
+      | Record<string, number>
+      | undefined;
+    if (resourceTypes && typeof resourceTypes.NO_RESOURCE === "number") {
+      return resourceTypes.NO_RESOURCE;
+    }
+    return -1;
+  }
+
   getResourceType(x: number, y: number): number {
     return GameplayMap.getResourceType(x, y);
   }
@@ -273,6 +283,7 @@ export class Civ7Adapter implements EngineAdapter {
   }
 
   canHaveResource(x: number, y: number, resourceType: number): boolean {
+    if ((resourceType | 0) === (this.NO_RESOURCE | 0)) return false;
     const rb = (
       globalThis as typeof globalThis & {
         ResourceBuilder?: {
@@ -289,6 +300,37 @@ export class Civ7Adapter implements EngineAdapter {
       throw new Error("[Adapter] ResourceBuilder.canHaveResource is unavailable.");
     }
     return rb.canHaveResource(x, y, resourceType, false);
+  }
+
+  getPlaceableResourceTypes(): number[] {
+    const resources = GameInfo?.Resources;
+    if (!resources) return [];
+
+    const candidates: number[] = [];
+    for (const row of resources) {
+      const resourceClassType = typeof row?.ResourceClassType === "string"
+        ? row.ResourceClassType.toUpperCase()
+        : "";
+      if (resourceClassType === "NO_RESOURCECLASS") continue;
+
+      const resourceType = typeof row?.ResourceType === "string"
+        ? row.ResourceType.toUpperCase()
+        : "";
+      if (resourceType === "NO_RESOURCE") continue;
+
+      const index = typeof row?.Index === "number"
+        ? row.Index
+        : typeof row?.$index === "number"
+          ? row.$index
+          : -1;
+      if (!Number.isFinite(index)) continue;
+      const resolved = index | 0;
+      if (resolved < 0) continue;
+      if (resolved === (this.NO_RESOURCE | 0)) continue;
+      candidates.push(resolved);
+    }
+
+    return Array.from(new Set(candidates)).sort((a, b) => a - b);
   }
 
   // === PLOT EFFECTS ===
