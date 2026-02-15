@@ -19,7 +19,7 @@ export default createStep(DerivePlacementInputsContract, {
   run: (context, config, ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);
-    const lakePlan = deps.artifacts.lakePlan.read(context);
+    const lakePlan = deps.artifacts.engineProjectionLakes.read(context);
     const biomeClassification = deps.artifacts.biomeClassification.read(context);
     const pedology = deps.artifacts.pedology.read(context);
 
