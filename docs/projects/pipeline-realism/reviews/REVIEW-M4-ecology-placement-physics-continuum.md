@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/M3-015-hydrology-effectiveMoisture-soils
+
+### Quick Take
+- Hydrology-owned effective moisture and soils integration improves ecology grounding.
+
+### High-Leverage Issues
+- Climate-refine schema strictness relaxation can hide payload drift.
+
+### PR Comment Context
+- PR #1236 has no unresolved human inline review threads.
+- PR #1236: refactor(ecology): use Hydrology effectiveMoisture instead of local derivation (https://github.com/mateicanavra/civ7-modding-tools/pull/1236)
+
+### Fix Now (Recommended)
+- Re-tighten unknown-key validation or add explicit rejection tests.
+
+### Defer / Follow-up
+- Add seed-matrix evidence for biome/vegetation response deltas.
+
+### Needs Discussion
+- Keep fixed moisture constants hardcoded vs config-driven.
+
+### Cross-cutting Risks
+- Hydrology/ecology semantics can drift without strict contracts.
+- Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
