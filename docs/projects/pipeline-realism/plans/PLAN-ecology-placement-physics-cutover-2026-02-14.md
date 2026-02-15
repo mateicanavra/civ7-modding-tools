@@ -7,7 +7,7 @@ The rollout is slice-based, worker-agent driven, interface-breaking by design, a
 Locked defaults from this planning session:
 1. Scope: `Ecology+Placement first`.
 2. Drift policy: `Observe first` (telemetry/viz first, then fail-hard once deterministic cutover lands).
-3. Existing local change safety: leave `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/morphology/ops/compute-sea-level/rules/index.ts` untouched.
+3. Existing local change safety: leave `mods/mod-swooper-maps/src/domain/morphology/ops/compute-sea-level/rules/index.ts` untouched.
 
 ## Non-Negotiable Standards
 1. No random generation in the scoped surfaces after cutover.
@@ -19,14 +19,14 @@ Locked defaults from this planning session:
 ## Implementation Start Sequence (must happen first when we switch to implementation)
 1. Create isolated worktree from `codex/MAMBO-elevation-post-hydrology-lifecycle`.
 2. Create branch `codex/prr-ecology-placement-physics-cutover`.
-3. Write this plan first to `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/pipeline-realism/plans/PLAN-ecology-placement-physics-cutover-2026-02-14.md`.
-4. Create orchestrator scratchpad `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/pipeline-realism/scratch/ecology-placement-physics-cutover/SCRATCH-orchestrator.md`.
+3. Write this plan first to `docs/projects/pipeline-realism/plans/PLAN-ecology-placement-physics-cutover-2026-02-14.md`.
+4. Create orchestrator scratchpad `docs/projects/pipeline-realism/scratch/ecology-placement-physics-cutover/SCRATCH-orchestrator.md`.
 5. Create worker scratchpads:
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/pipeline-realism/scratch/ecology-placement-physics-cutover/SCRATCH-worker-ecology-algorithms.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/pipeline-realism/scratch/ecology-placement-physics-cutover/SCRATCH-worker-hydrology-lakes.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/pipeline-realism/scratch/ecology-placement-physics-cutover/SCRATCH-worker-placement-resources.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/pipeline-realism/scratch/ecology-placement-physics-cutover/SCRATCH-worker-observability.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/pipeline-realism/scratch/ecology-placement-physics-cutover/SCRATCH-worker-verification-docs.md`
+- `docs/projects/pipeline-realism/scratch/ecology-placement-physics-cutover/SCRATCH-worker-ecology-algorithms.md`
+- `docs/projects/pipeline-realism/scratch/ecology-placement-physics-cutover/SCRATCH-worker-hydrology-lakes.md`
+- `docs/projects/pipeline-realism/scratch/ecology-placement-physics-cutover/SCRATCH-worker-placement-resources.md`
+- `docs/projects/pipeline-realism/scratch/ecology-placement-physics-cutover/SCRATCH-worker-observability.md`
+- `docs/projects/pipeline-realism/scratch/ecology-placement-physics-cutover/SCRATCH-worker-verification-docs.md`
 
 ## Worker-Agent Orchestration Model
 1. Orchestrator owns slice boundaries, dependency ordering, and final no-legacy sweeps.
@@ -54,18 +54,18 @@ Branch: `codex/prr-epp-s1-drift-observability`
 Owner: Worker D
 Changes:
 1. Add parity diagnostics artifacts/effects and wire contracts:
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/map-artifacts.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/ecology/artifacts.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/artifacts.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/tags.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/map-artifacts.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/artifacts.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/artifacts.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
 2. Emit trace + viz drift layers at each risk hook:
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/buildElevation.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/plotRivers.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/plotBiomes.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/features-apply/index.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/apply.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/buildElevation.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/plotRivers.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/plotBiomes.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/features-apply/index.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/apply.ts`
 3. Enforce observe-first behavior:
 - log and publish drift diagnostics;
 - do not fail on drift yet except existing hard errors.
@@ -78,16 +78,16 @@ Branch: `codex/prr-epp-s2-ecology-physics-cutover`
 Owner: Worker A
 Changes:
 1. Replace ecology scoring model with physics surface model, remove ad-hoc gates:
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/ecology/ops/classify-biomes/layers/classify.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/ecology/ops/classify-biomes/rules/aridity.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/ecology/ops/classify-biomes/rules/vegetation.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/ecology/ops/score-shared/index.ts`
-- all `vegetation-score-*`, `wet-score-*`, `reef-score-*`, `ice-score-*` strategy files under `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/ecology/ops/`
+- `mods/mod-swooper-maps/src/domain/ecology/ops/classify-biomes/layers/classify.ts`
+- `mods/mod-swooper-maps/src/domain/ecology/ops/classify-biomes/rules/aridity.ts`
+- `mods/mod-swooper-maps/src/domain/ecology/ops/classify-biomes/rules/vegetation.ts`
+- `mods/mod-swooper-maps/src/domain/ecology/ops/score-shared/index.ts`
+- all `vegetation-score-*`, `wet-score-*`, `reef-score-*`, `ice-score-*` strategy files under `mods/mod-swooper-maps/src/domain/ecology/ops/`
 2. Remove `minScore01` gating and random tie-breaking from feature planners:
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-vegetation/`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-wetlands/`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-reefs/`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-ice/`
+- `mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-vegetation/`
+- `mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-wetlands/`
+- `mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-reefs/`
+- `mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-ice/`
 3. Deterministic tie-break policy:
 - tie order = higher physical confidence, then lower stress, then lower tile index.
 - no RNG calls allowed in these planners.
@@ -101,13 +101,13 @@ Branch: `codex/prr-epp-s3-lakes-deterministic`
 Owner: Worker B
 Changes:
 1. Add deterministic lake planning op from hydrography truth (sink/outlet/basin fill):
-- new op under `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/hydrology/ops/plan-lakes/`
-- publish `artifact:hydrology.lakePlan` in `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/artifacts.ts`
+- new op under `mods/mod-swooper-maps/src/domain/hydrology/ops/plan-lakes/`
+- publish `artifact:hydrology.lakePlan` in `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/artifacts.ts`
 2. Replace engine random lakes in map stage:
-- remove `adapter.generateLakes(...)` call from `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts`
+- remove `adapter.generateLakes(...)` call from `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts`
 - deterministically stamp planned lake tiles via terrain writes + cache refresh (`recalculateAreas`, `storeWaterData`)
 3. Remove lake-frequency fudge:
-- remove `lakeiness` knob and `tilesPerLakeMultiplier` contract path from `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/index.ts` and `lakes.contract.ts`
+- remove `lakeiness` knob and `tilesPerLakeMultiplier` contract path from `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/index.ts` and `lakes.contract.ts`
 Exit criteria:
 1. Lake placement is fully derived from hydrology artifacts.
 2. No random lake generation call remains.
@@ -118,16 +118,16 @@ Branch: `codex/prr-epp-s4-resources-deterministic`
 Owner: Worker C
 Changes:
 1. Add placement resource planner op and schema:
-- new `placement/plan-resources` under `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/placement/ops/`
-- extend `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/placement/placement-inputs.ts`
-- add `artifact:placement.resourcePlan` in `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts.ts`
+- new `placement/plan-resources` under `mods/mod-swooper-maps/src/domain/placement/ops/`
+- extend `mods/mod-swooper-maps/src/recipes/standard/stages/placement/placement-inputs.ts`
+- add `artifact:placement.resourcePlan` in `mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts.ts`
 2. Break adapter interface and implement deterministic resource IO:
-- update `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/packages/civ7-adapter/src/types.ts`
-- update `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/packages/civ7-adapter/src/civ7-adapter.ts`
-- update `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/packages/civ7-adapter/src/mock-adapter.ts`
+- update `packages/civ7-adapter/src/types.ts`
+- update `packages/civ7-adapter/src/civ7-adapter.ts`
+- update `packages/civ7-adapter/src/mock-adapter.ts`
 - new required methods: `getResourceType`, `setResourceType`, `canHaveResource`
 3. Replace engine generator call:
-- remove `adapter.generateResources(width, height)` from `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/apply.ts`
+- remove `adapter.generateResources(width, height)` from `mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/apply.ts`
 - stamp resource plan deterministically and publish real counts in `placementOutputs`.
 Exit criteria:
 1. `generateResources` is no longer used.
@@ -159,15 +159,15 @@ Changes:
 1. Remove dead contracts/knobs/config keys from staged cutovers.
 2. Convert observe-first drift checks to fail-hard for true contract mismatches.
 3. Final no-legacy static scans:
-- extend `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/test/ecology/no-fudging-static-scan.test.ts`
+- extend `mods/mod-swooper-maps/test/ecology/no-fudging-static-scan.test.ts`
 - add placement/hydrology randomness scans.
 4. Docs and ADR updates:
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/system/mods/swooper-maps/architecture.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/system/mods/swooper-maps/vision.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/system/TESTING.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/pipeline-realism/resources/spec/sections/validation-and-observability.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/pipeline-realism/plans/README.md`
-- add ADR in `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/system/mods/swooper-maps/adrs/`
+- `docs/system/mods/swooper-maps/architecture.md`
+- `docs/system/mods/swooper-maps/vision.md`
+- `docs/system/TESTING.md`
+- `docs/projects/pipeline-realism/resources/spec/sections/validation-and-observability.md`
+- `docs/projects/pipeline-realism/plans/README.md`
+- add ADR in `docs/system/mods/swooper-maps/adrs/`
 Exit criteria:
 1. No legacy dual-path code remains in scoped surfaces.
 2. Drift policy is strict for contract-truth violations.
@@ -185,31 +185,31 @@ Exit criteria:
 ## Test Cases and Scenarios (must pass per slice gate)
 
 1. Determinism and replay:
-- update `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/test/pipeline/determinism-suite.test.ts`
-- add `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/test/pipeline/trace-replay.test.ts`
+- update `mods/mod-swooper-maps/test/pipeline/determinism-suite.test.ts`
+- add `mods/mod-swooper-maps/test/pipeline/trace-replay.test.ts`
 
 2. Drift parity:
 - add stage parity tests for morphology/hydrology/ecology/placement artifacts and viz emissions.
 - assert parity artifacts exist and contain non-empty diagnostics per stage.
 
 3. Ecology realism:
-- update/add ecology tests under `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/test/ecology/`
+- update/add ecology tests under `mods/mod-swooper-maps/test/ecology/`
 - enforce no-fudge static scan includes banned constructs and banned RNG usage in scoped ecology files.
 
 4. Lakes:
-- update `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/test/map-hydrology/lakes-area-recalc-resources.test.ts`
-- update `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/test/map-hydrology/lakes-store-water-data.test.ts`
+- update `mods/mod-swooper-maps/test/map-hydrology/lakes-area-recalc-resources.test.ts`
+- update `mods/mod-swooper-maps/test/map-hydrology/lakes-store-water-data.test.ts`
 - add deterministic lake-plan contract test and sink/outlet consistency test.
 
 5. Resources and placement:
-- update `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/test/placement/resources-landmass-region-restamp.test.ts`
+- update `mods/mod-swooper-maps/test/placement/resources-landmass-region-restamp.test.ts`
 - add deterministic resource-plan stamping tests and resource-count parity tests.
 - add deterministic wonders/discoveries tests once slice S5 lands.
 
 6. Metrics gate:
-- add `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/test/pipeline/seed-matrix-stats.test.ts`
-- add `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/test/pipeline/earth-metrics.test.ts`
-- add diagnostics helper scripts under `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/dev/diagnostics/` for automated metric extraction.
+- add `mods/mod-swooper-maps/test/pipeline/seed-matrix-stats.test.ts`
+- add `mods/mod-swooper-maps/test/pipeline/earth-metrics.test.ts`
+- add diagnostics helper scripts under `mods/mod-swooper-maps/src/dev/diagnostics/` for automated metric extraction.
 
 ## Acceptance Criteria (program-level)
 1. Biomes, vegetation, lakes, and resources are deterministic for a given seed/config.
