@@ -545,21 +545,17 @@ export class Civ7Adapter implements EngineAdapter {
     const configuration = (globalThis as Record<string, unknown>).Configuration as
       | { getGameValue?: (key: string) => unknown }
       | undefined;
-    const database = (globalThis as Record<string, unknown>).Database as
-      | { makeHash?: (value: string) => number }
-      | undefined;
 
     const defaults = resolveDefaultDiscoveryPlacement({
       discoveryVisualTypes: discoveryVisualType,
       discoveryActivationTypes: discoveryActivationType,
       discoverySiftingImprovements: GameInfo?.DiscoverySiftingImprovements,
       activeSiftingType: configuration?.getGameValue?.("DiscoverySiftingType"),
-      makeHash: database?.makeHash,
     });
 
     if (defaults == null) {
       throw new Error(
-        "[Adapter] Discovery placement defaults are unavailable from DiscoverySiftingImprovements or fallback constants."
+        "[Adapter] Discovery placement defaults are unavailable for active DiscoverySiftingType."
       );
     }
     return defaults;

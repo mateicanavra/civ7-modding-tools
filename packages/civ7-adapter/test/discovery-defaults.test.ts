@@ -3,7 +3,7 @@ import { describe, expect, it } from "bun:test";
 import { resolveDefaultDiscoveryPlacement } from "../src/discovery-defaults.js";
 
 describe("resolveDefaultDiscoveryPlacement", () => {
-  it("selects mapping matching active DiscoverySiftingType hash", () => {
+  it("selects mapping matching active DiscoverySiftingType", () => {
     const result = resolveDefaultDiscoveryPlacement({
       discoveryVisualTypes: {
         IMPROVEMENT_CAVE: 10,
@@ -14,11 +14,10 @@ describe("resolveDefaultDiscoveryPlacement", () => {
         INVESTIGATION: 2,
       },
       discoverySiftingImprovements: [
-        { QueueType: "QUEUE_A", ConstructibleType: "IMPROVEMENT_CAVE", Activation: "BASIC" },
-        { QueueType: "QUEUE_B", ConstructibleType: "IMPROVEMENT_RUINS", Activation: "INVESTIGATION" },
+        { QueueType: 111, ConstructibleType: "IMPROVEMENT_CAVE", Activation: "BASIC" },
+        { QueueType: 222, ConstructibleType: "IMPROVEMENT_RUINS", Activation: "INVESTIGATION" },
       ],
       activeSiftingType: 222,
-      makeHash: (value) => (value === "QUEUE_B" ? 222 : 111),
     });
 
     expect(result).toEqual({
@@ -27,7 +26,7 @@ describe("resolveDefaultDiscoveryPlacement", () => {
     });
   });
 
-  it("falls back to first valid row when active DiscoverySiftingType is unavailable", () => {
+  it("returns null when active DiscoverySiftingType has no mapping", () => {
     const result = resolveDefaultDiscoveryPlacement({
       discoveryVisualTypes: {
         IMPROVEMENT_CAVE: 10,
@@ -38,20 +37,16 @@ describe("resolveDefaultDiscoveryPlacement", () => {
         INVESTIGATION: 2,
       },
       discoverySiftingImprovements: [
-        { QueueType: "QUEUE_A", ConstructibleType: "IMPROVEMENT_CAVE", Activation: "BASIC" },
-        { QueueType: "QUEUE_B", ConstructibleType: "IMPROVEMENT_RUINS", Activation: "INVESTIGATION" },
+        { QueueType: 111, ConstructibleType: "IMPROVEMENT_CAVE", Activation: "BASIC" },
+        { QueueType: 222, ConstructibleType: "IMPROVEMENT_RUINS", Activation: "INVESTIGATION" },
       ],
-      activeSiftingType: "UNKNOWN_QUEUE",
-      makeHash: () => 999,
+      activeSiftingType: 999,
     });
 
-    expect(result).toEqual({
-      discoveryVisualType: 10,
-      discoveryActivationType: 1,
-    });
+    expect(result).toBeNull();
   });
 
-  it("falls back to cave/basic constants when table entries are unusable", () => {
+  it("returns null when active mapping exists but row is unusable", () => {
     const result = resolveDefaultDiscoveryPlacement({
       discoveryVisualTypes: {
         IMPROVEMENT_CAVE: 10,
@@ -60,13 +55,11 @@ describe("resolveDefaultDiscoveryPlacement", () => {
         BASIC: 1,
       },
       discoverySiftingImprovements: [
-        { QueueType: "QUEUE_A", ConstructibleType: "UNKNOWN", Activation: "UNKNOWN" },
+        { QueueType: 111, ConstructibleType: "UNKNOWN", Activation: "UNKNOWN" },
       ],
+      activeSiftingType: 111,
     });
 
-    expect(result).toEqual({
-      discoveryVisualType: 10,
-      discoveryActivationType: 1,
-    });
+    expect(result).toBeNull();
   });
 });
