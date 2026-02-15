@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/MAMBO-m3-005-plan-reefs-deterministic
+
+### Quick Take
+- Deterministic reef-family planning is in place and test-backed.
+
+### High-Leverage Issues
+- No blocking branch-local defect confirmed in this pass.
+
+### PR Comment Context
+- PR #1226 has no unresolved inline reviewer findings.
+- PR #1226: feat(ecology): implement deterministic reef family planning (https://github.com/mateicanavra/civ7-modding-tools/pull/1226)
+
+### Fix Now (Recommended)
+- None immediate.
+
+### Defer / Follow-up
+- Add realism-metric checks for reef distribution quality.
+
+### Needs Discussion
+- Whether current reef heuristics are sufficient for realism goals.
+
+### Cross-cutting Risks
+- Determinism can mask ecological quality regressions without quality gates.
+- Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
