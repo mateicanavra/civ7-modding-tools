@@ -5,8 +5,6 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
     version: 1,
     profiles: {
       resolutionProfile: "coarse",
-      lithosphereProfile: "maximal-basaltic-lid-v1",
-      mantleProfile: "maximal-potential-v1",
     },
     knobs: {
       plateCount: 9,

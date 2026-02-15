@@ -56,18 +56,6 @@ const StrategySchema = Type.Object(
             maximum: 10_000,
             description: "Minimum cell area for a polar microplate (sliver guardrail).",
           }),
-          tangentialSpeed: Type.Number({
-            default: 0.9,
-            minimum: 0,
-            maximum: 10,
-            description: "Baseline tangential speed magnitude used for polar caps and polar microplates.",
-          }),
-          tangentialJitterDeg: Type.Number({
-            default: 12,
-            minimum: 0,
-            maximum: 90,
-            description: "Angle jitter (degrees) applied around tangential direction for polar microplates.",
-          }),
         },
         { additionalProperties: false }
       )

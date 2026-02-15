@@ -25,21 +25,9 @@ const FoundationResolutionProfileSchema = Type.Union(
   }
 );
 
-const FoundationLithosphereProfileSchema = Type.Literal("maximal-basaltic-lid-v1", {
-  description: "Lithosphere profile identifier.",
-  default: "maximal-basaltic-lid-v1",
-});
-
-const FoundationMantleProfileSchema = Type.Literal("maximal-potential-v1", {
-  description: "Mantle profile identifier.",
-  default: "maximal-potential-v1",
-});
-
 const profilesSchema = Type.Object(
   {
     resolutionProfile: FoundationResolutionProfileSchema,
-    lithosphereProfile: FoundationLithosphereProfileSchema,
-    mantleProfile: FoundationMantleProfileSchema,
   },
   {
     additionalProperties: false,
@@ -56,11 +44,6 @@ const profilesSchema = Type.Object(
 
 const advancedMantleForcingSchema = Type.Object(
   {
-    potentialMode: Type.Optional(
-      Type.Literal("default", {
-        description: "Mantle potential model selection (currently only \"default\").",
-      })
-    ),
     potentialAmplitude01: Type.Optional(
       Type.Number({
         minimum: 0,
@@ -532,8 +515,6 @@ const FOUNDATION_PROFILE_DEFAULTS: Readonly<
 
 const DEFAULT_PROFILES = {
   resolutionProfile: "balanced",
-  lithosphereProfile: "maximal-basaltic-lid-v1",
-  mantleProfile: "maximal-potential-v1",
 } as const;
 
 const FOUNDATION_STEP_IDS = [

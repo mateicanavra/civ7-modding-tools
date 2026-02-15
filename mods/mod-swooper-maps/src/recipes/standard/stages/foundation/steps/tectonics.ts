@@ -71,7 +71,6 @@ export default createStep(TectonicsStepContract, {
         mantleForcing,
         plateGraph,
         plateMotion,
-        segments: segmentsResult.segments,
       },
       config.computeTectonicHistory
     );

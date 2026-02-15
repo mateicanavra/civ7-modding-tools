@@ -8,9 +8,7 @@
     "foundation": {
       "version": 1,
       "profiles": {
-        "resolutionProfile": "balanced",
-        "lithosphereProfile": "maximal-basaltic-lid-v1",
-        "mantleProfile": "maximal-potential-v1"
+        "resolutionProfile": "balanced"
       },
       "knobs": {
         "plateCount": 28,

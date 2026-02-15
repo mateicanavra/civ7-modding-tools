@@ -4,8 +4,12 @@ import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 import { BOUNDARY_TYPE } from "../../constants.js";
 import { requireCrust, requireMantleForcing, requireMesh, requirePlateGraph, requirePlateMotion } from "../../lib/require.js";
 import type { FoundationTectonicSegments } from "../compute-tectonic-segments/contract.js";
-import computeTectonicSegments from "../compute-tectonic-segments/index.js";
-import computePlateMotion from "../compute-plate-motion/index.js";
+import {
+  computePlateMotionFromState,
+  computeTectonicSegmentsFromState,
+  DEFAULT_PLATE_MOTION_CONFIG,
+  DEFAULT_TECTONIC_SEGMENTS_CONFIG,
+} from "./lib/era-tectonics-kernels.js";
 import ComputeTectonicHistoryContract from "./contract.js";
 
 const EVENT_TYPE = {
@@ -1181,25 +1185,25 @@ const computeTectonicHistory = createOp(ComputeTectonicHistoryContract, {
             plates: plateGraph.plates,
           } as const;
 
-          const eraPlateMotion = computePlateMotion.run(
+          const eraPlateMotion = computePlateMotionFromState(
             {
               mesh,
               mantleForcing,
-              plateGraph: eraPlateGraph as any,
+              plateGraph: eraPlateGraph,
             },
-            computePlateMotion.defaultConfig
-          ).plateMotion;
+            DEFAULT_PLATE_MOTION_CONFIG
+          );
 
           // Re-evaluate boundary segmentation per era by re-deriving segments from the era plate membership.
-          const eraSegments = computeTectonicSegments.run(
+          const eraSegments = computeTectonicSegmentsFromState(
             {
               mesh,
               crust,
-              plateGraph: eraPlateGraph as any,
+              plateGraph: eraPlateGraph,
               plateMotion: eraPlateMotion,
             },
-            computeTectonicSegments.defaultConfig
-          ).segments as FoundationTectonicSegments;
+            DEFAULT_TECTONIC_SEGMENTS_CONFIG
+          );
 
           const events: TectonicEvent[] = buildBoundaryEventsFromSegments({ segments: eraSegments });
 
