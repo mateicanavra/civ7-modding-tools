@@ -49,5 +49,64 @@ describe("map-ecology features-apply strictness (M3-008)", () => {
       /unknown feature keys/i
     );
   });
-});
 
+  it("keeps canHaveFeature rejections non-fatal and publishes diagnostics", () => {
+    const width = 2;
+    const height = 2;
+    const env = {
+      seed: 0,
+      dimensions: { width, height },
+      latitudeBounds: { topLatitude: 0, bottomLatitude: 0 },
+    };
+
+    const adapter = createMockAdapter({
+      width,
+      height,
+      canHaveFeature: () => false,
+    });
+    adapter.fillWater(false);
+    const ctx = createExtendedMapContext({ width, height }, adapter, env);
+
+    const stageArtifacts = implementArtifacts(
+      [
+        ecologyArtifacts.featureIntentsVegetation,
+        ecologyArtifacts.featureIntentsWetlands,
+        ecologyArtifacts.featureIntentsReefs,
+        ecologyArtifacts.featureIntentsIce,
+      ],
+      { featureIntentsVegetation: {}, featureIntentsWetlands: {}, featureIntentsReefs: {}, featureIntentsIce: {} }
+    );
+
+    stageArtifacts.featureIntentsVegetation.publish(ctx, [{ x: 0, y: 0, feature: "FEATURE_FOREST" }]);
+    stageArtifacts.featureIntentsWetlands.publish(ctx, []);
+    stageArtifacts.featureIntentsReefs.publish(ctx, []);
+    stageArtifacts.featureIntentsIce.publish(ctx, []);
+
+    const config = {
+      apply: normalizeOpSelectionOrThrow(ecology.ops.applyFeatures, { strategy: "default", config: {} }),
+    };
+    const ops = ecology.ops.bind(featuresApplyStep.contract.ops!).runtime;
+
+    expect(() => featuresApplyStep.run(ctx, config, ops, buildTestDeps(featuresApplyStep))).not.toThrow();
+
+    const diagnostics = ctx.artifacts.get(ecologyArtifacts.featureApplyDiagnostics.id) as
+      | {
+          attempted: number;
+          applied: number;
+          rejected: number;
+          rejectedCanHaveFeature: number;
+          rejectedOutOfBounds: number;
+          rejectedUnknownFeature: number;
+          rejectionMask: Uint8Array;
+        }
+      | undefined;
+    expect(diagnostics).toBeDefined();
+    expect(diagnostics?.attempted).toBe(1);
+    expect(diagnostics?.applied).toBe(0);
+    expect(diagnostics?.rejected).toBe(1);
+    expect(diagnostics?.rejectedCanHaveFeature).toBe(1);
+    expect(diagnostics?.rejectedOutOfBounds).toBe(0);
+    expect(diagnostics?.rejectedUnknownFeature).toBe(0);
+    expect(diagnostics?.rejectionMask[0]).toBe(1);
+  });
+});
