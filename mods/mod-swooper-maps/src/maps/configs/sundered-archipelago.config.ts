@@ -264,7 +264,6 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
   },
   "map-hydrology": {
     knobs: {
-      lakeiness: "normal",
       riverDensity: "dense",
     },
   },

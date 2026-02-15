@@ -42,11 +42,12 @@ class AreaSensitiveLakeAdapter extends MockAdapter {
     return this.cachedWater[this.idx2(x, y)] === 1;
   }
 
-  override generateLakes(width: number, height: number, tilesPerLake: number): void {
-    this.callOrder.push("generateLakes");
-    super.generateLakes(width, height, tilesPerLake);
-    this.setTerrainType(1, 1, COAST_TERRAIN);
-    this.lakeNeedsAreaRefresh = true;
+  override setTerrainType(x: number, y: number, terrainType: number): void {
+    this.callOrder.push("setTerrainType");
+    super.setTerrainType(x, y, terrainType);
+    if (x === 1 && y === 1 && terrainType === COAST_TERRAIN) {
+      this.lakeNeedsAreaRefresh = true;
+    }
   }
 
   override recalculateAreas(): void {
@@ -137,11 +138,20 @@ describe("map-hydrology lakes area/water ordering", () => {
       sinkMask: new Uint8Array(size),
       outletMask: new Uint8Array(size),
     });
+    const lakeMask = new Uint8Array(size);
+    lakeMask[1 + width] = 1;
+    context.artifacts.set("artifact:hydrology.lakePlan", {
+      width,
+      height,
+      lakeMask,
+      plannedLakeTileCount: 1,
+      sinkLakeCount: 1,
+    });
 
-    lakes.run(context as any, { tilesPerLakeMultiplier: 1 }, {} as any, buildTestDeps(lakes));
+    lakes.run(context as any, {}, {} as any, buildTestDeps(lakes));
     plotRivers.run(context as any, { minLength: 5, maxLength: 15 }, {} as any, buildTestDeps(plotRivers));
 
-    expect(adapter.callOrder.slice(0, 3)).toEqual(["generateLakes", "recalculateAreas", "storeWaterData"]);
+    expect(adapter.callOrder.slice(0, 3)).toEqual(["setTerrainType", "recalculateAreas", "storeWaterData"]);
     expect(adapter.isWater(1, 1)).toBe(true);
 
     const runtime = getStandardRuntime(context);

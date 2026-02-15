@@ -108,7 +108,7 @@ describe("hydrology knobs compilation", () => {
         "map-hydrology": { lakes: {} },
       })
     );
-    expect(compiled["map-hydrology"].lakes.tilesPerLakeMultiplier).toBe(1);
+    expect(compiled["map-hydrology"].lakes).toEqual({});
   });
 
   it("applies knobs as deterministic transforms over advanced config baselines", () => {
@@ -132,8 +132,8 @@ describe("hydrology knobs compilation", () => {
           },
         },
         "map-hydrology": {
-          knobs: { riverDensity: "dense", lakeiness: "many" },
-          lakes: { tilesPerLakeMultiplier: 2 },
+          knobs: { riverDensity: "dense" },
+          lakes: {},
           "plot-rivers": { minLength: 11, maxLength: 11 },
         },
         "hydrology-climate-refine": {
@@ -162,8 +162,7 @@ describe("hydrology knobs compilation", () => {
     );
 
     // Baseline values apply first (schema defaults + advanced config), then knobs transform them.
-    // - lakeiness=many multiplies tilesPerLakeMultiplier by 0.7 (more lakes).
-    expect(compiled["map-hydrology"].lakes.tilesPerLakeMultiplier).toBeCloseTo(1.4, 6);
+    expect(compiled["map-hydrology"].lakes).toEqual({});
     // - dryness=wet scales rainfallScale by 1.15 (wetter climate).
     expect(compiled["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.config.rainfallScale).toBeCloseTo(
       141.45,

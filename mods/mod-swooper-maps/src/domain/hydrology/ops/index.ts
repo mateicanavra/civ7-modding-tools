@@ -16,6 +16,7 @@ import computeLandWaterBudget from "./compute-land-water-budget/index.js";
 import computeClimateDiagnostics from "./compute-climate-diagnostics/index.js";
 import accumulateDischarge from "./accumulate-discharge/index.js";
 import projectRiverNetwork from "./project-river-network/index.js";
+import planLakes from "./plan-lakes/index.js";
 
 const implementations = {
   computeRadiativeForcing,
@@ -33,6 +34,7 @@ const implementations = {
   computeClimateDiagnostics,
   accumulateDischarge,
   projectRiverNetwork,
+  planLakes,
 } as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
 
 export default implementations;
@@ -53,4 +55,5 @@ export {
   computeClimateDiagnostics,
   accumulateDischarge,
   projectRiverNetwork,
+  planLakes,
 };
