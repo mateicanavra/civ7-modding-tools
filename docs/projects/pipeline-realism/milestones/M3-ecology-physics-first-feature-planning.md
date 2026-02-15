@@ -76,13 +76,17 @@ This milestone is an index. Full detail lives in `$PACKET/EXECUTION-PLAN.md` and
 - [ ] `LOCAL-TBD-PR-M3-007`: Deterministic planning: vegetation
 - [ ] `LOCAL-TBD-PR-M3-008`: Projection stamping strictness + gates
 - [ ] `LOCAL-TBD-PR-M3-009`: Delete legacy chance/multiplier paths + update tests/viz inventories
+- [ ] `LOCAL-TBD-PR-M3-010`: Post-cutover cleanup: plot-effects score ops split + stable viz categories + preset sync
+- [ ] `LOCAL-TBD-PR-M3-011`: Canonical docs sweep: ecology config reference + directional intent
+- [ ] `LOCAL-TBD-PR-M3-012`: Bugfix: biomes horizontal stripe banding
 
 ## Sequencing & Parallelization Plan
 
 **Stacks Overview**
 - Stack A (sequential unblockers): `M3-001` -> `M3-002` -> `M3-003`
 - Stack B (parallel planners after substrate+scoreLayers): `M3-004..007`
-- Stack C (sequential integration): `M3-008` -> `M3-009`
+- Stack C (sequential integration): `M3-008` -> `M3-009` -> `M3-010`
+- Stack D (post-cutover): `M3-011` -> `M3-012`
 
 ## Notes
 
