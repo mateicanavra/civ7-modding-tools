@@ -2,7 +2,7 @@ import type { BiomeSymbol } from "@mapgen/domain/ecology/types.js";
 import { clamp01 } from "@swooper/mapgen-core";
 
 /**
- * Computes vegetation density using climate signals and stress penalties.
+ * Computes vegetation density using climate signals and stress attenuation.
  */
 export function vegetationDensityForBiome(
   symbol: BiomeSymbol,
@@ -13,7 +13,7 @@ export function vegetationDensityForBiome(
     energy01: number;
     freezeIndex: number;
     aridityIndex: number;
-    aridityPenalty: number;
+    aridityStressWeight: number;
     fertility01: number;
     soilType: number;
   }
@@ -25,7 +25,7 @@ export function vegetationDensityForBiome(
     energy01,
     freezeIndex,
     aridityIndex,
-    aridityPenalty,
+    aridityStressWeight,
     fertility01,
     soilType,
   } = params;
@@ -35,11 +35,11 @@ export function vegetationDensityForBiome(
 
   // Mechanistic postures:
   // - energy01 suppresses growth in cold climates
-  // - freezeIndex penalizes perennial cold/frozen regimes
-  // - aridityIndex reduces density via a PET proxy penalty
+  // - freezeIndex attenuates perennial cold/frozen regimes
+  // - aridityIndex applies PET-proxy dryness stress
   density *= clamp01(energy01);
   density *= clamp01(1 - freezeIndex);
-  density -= aridityIndex * aridityPenalty;
+  density *= clamp01(1 - aridityIndex * aridityStressWeight);
 
   // Soils: fertility (0..1) and soil palette bucket gently modulate vegetation density.
   // Deterministic and local: we consume soils artifact without re-deriving Hydrology indices.

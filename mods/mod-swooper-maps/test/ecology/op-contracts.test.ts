@@ -431,7 +431,7 @@ describe("ecology op contract surfaces", () => {
     const size = width * height;
     const selection = normalizeOpSelectionOrThrow(ecology.ops.planWetlands, {
       strategy: "default",
-      config: { minScore01: 0.55 },
+      config: {},
     });
     const result = ecology.ops.planWetlands.run(
       {
@@ -457,7 +457,7 @@ describe("ecology op contract surfaces", () => {
     const size = width * height;
     const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetation, {
       strategy: "default",
-      config: { minScore01: 0.15 },
+      config: {},
     });
     const result = ecology.ops.planVegetation.run(
       {

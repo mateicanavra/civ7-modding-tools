@@ -97,11 +97,11 @@ export const AriditySchema = Type.Object(
       }
     ),
     /**
-     * Vegetation density penalty applied by aridity (0..1).
+     * Vegetation dryness-stress weight applied from aridity (0..1).
      * Higher values make arid regions sparser even if moisture is high.
      */
     vegetationPenalty: Type.Number({
-      description: "Vegetation density penalty applied by aridity (0..1).",
+      description: "Vegetation dryness-stress weight applied from aridity (0..1).",
       default: 0.15,
       minimum: 0,
       maximum: 1,
