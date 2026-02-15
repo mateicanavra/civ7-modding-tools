@@ -46,6 +46,13 @@ class RestampFailingAdapter extends RegionSensitiveResourceAdapter {
   }
 }
 
+class PlannedTileIneligibleAdapter extends MockAdapter {
+  override canHaveResource(x: number, y: number, resourceType: number): boolean {
+    if (x === 0 && y === 0) return false;
+    return super.canHaveResource(x, y, resourceType);
+  }
+}
+
 describe("placement resources landmass-region restamp", () => {
   it("re-stamps landmass regions immediately before resources so placement survives terrain validation", () => {
     const width = 10;
@@ -214,5 +221,101 @@ describe("placement resources landmass-region restamp", () => {
     ).toThrow(/restamp failed/i);
 
     expect(adapter.resourcesPlaced).toBe(0);
+  });
+
+  it("deterministically rescues ineligible planned resource tiles by relocating to the next eligible empty tile", () => {
+    const width = 4;
+    const height = 4;
+    const seed = 31415;
+    const mapInfo = {
+      GridWidth: width,
+      GridHeight: height,
+      MinLatitude: -60,
+      MaxLatitude: 60,
+      PlayersLandmass1: 1,
+      PlayersLandmass2: 1,
+      StartSectorRows: 1,
+      StartSectorCols: 1,
+      NumNaturalWonders: 0,
+    };
+
+    const adapter = new PlannedTileIneligibleAdapter({
+      width,
+      height,
+      mapInfo,
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
+      defaultTerrainType: FLAT_TERRAIN,
+    });
+    const context = createExtendedMapContext({ width, height }, adapter, {
+      seed,
+      dimensions: { width, height },
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    });
+
+    const runtime = getStandardRuntime(context);
+    const starts = placement.ops.planStarts.run(
+      {
+        baseStarts: {
+          playersLandmass1: runtime.playersLandmass1,
+          playersLandmass2: runtime.playersLandmass2,
+          startSectorRows: runtime.startSectorRows,
+          startSectorCols: runtime.startSectorCols,
+          startSectors: runtime.startSectors,
+        },
+      },
+      placement.ops.planStarts.defaultConfig
+    );
+    const wonders = placement.ops.planWonders.run(
+      { mapInfo: runtime.mapInfo },
+      placement.ops.planWonders.defaultConfig
+    );
+    const floodplains = placement.ops.planFloodplains.run({}, placement.ops.planFloodplains.defaultConfig);
+
+    const outputs = applyPlacementPlan({
+      context,
+      starts,
+      wonders,
+      naturalWonderPlan: {
+        width,
+        height,
+        wondersCount: 0,
+        targetCount: 0,
+        plannedCount: 0,
+        placements: [],
+      },
+      discoveryPlan: {
+        width,
+        height,
+        candidateDiscoveries: [],
+        targetCount: 0,
+        plannedCount: 0,
+        placements: [],
+      },
+      floodplains,
+      resources: {
+        width,
+        height,
+        candidateResourceTypes: [7],
+        targetCount: 1,
+        plannedCount: 1,
+        placements: [
+          {
+            plotIndex: 0,
+            preferredResourceType: 7,
+            preferredTypeOffset: 0,
+            priority: 1,
+          },
+        ],
+      },
+      landmassRegionSlotByTile: {
+        slotByTile: new Uint8Array(width * height).fill(1),
+      },
+      publishOutputs: (placementOutputs) => placementOutputs,
+    });
+
+    expect(adapter.resourcesPlaced).toBe(1);
+    expect(outputs.resourcesCount).toBe(1);
+    expect(adapter.calls.setResourceType).toEqual([{ x: 1, y: 0, resourceType: 7 }]);
   });
 });
