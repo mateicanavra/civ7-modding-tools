@@ -341,3 +341,34 @@ next_actions:
   - re-run architecture remediation with docs-anchored workers only
   - require independent reviewer confirmation against the same docs set
 ```
+
+## Checkpoint 11 — Foundation Compile Smell Remediation (2026-02-15)
+```yaml
+incident:
+  class: wrong_worktree_worker_output_and_foundation_compile_sentinel_smell
+  remediation_mode: orchestrator_hard_cut_with_docs_anchored_worker_revalidation
+
+landed_fix:
+  branch: codex/prr-m4-s06-test-rewrite-architecture-scans
+  commit: 11ec9525d
+  files:
+    - mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+    - mods/mod-swooper-maps/test/foundation/contract-guard.test.ts
+  key_changes:
+    - removed_advanced_stepid_sentinel_passthrough
+    - removed_profiles_studio_sentinel_passthrough
+    - removed_foundation_sentinel_scaffolding_constants
+    - added_guard_assertions_against_sentinel_token_reintroduction
+
+verification:
+  - bun run --cwd mods/mod-swooper-maps check
+  - bun run --cwd mods/mod-swooper-maps test test/foundation/contract-guard.test.ts test/standard-compile-errors.test.ts
+  - rg -n "FOUNDATION_STUDIO_STEP_CONFIG_IDS|__studioUiMetaSentinelPath|advancedRecord\\[stepId\\]" mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+  reviewer_verdict: pass
+
+orchestrator_status:
+  integration_point: maintained
+  S04_unblocked: false
+  pending_before_S04:
+    - IG1_ecology_merge_reanchor_checkpoint
+```

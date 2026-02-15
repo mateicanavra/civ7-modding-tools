@@ -189,3 +189,18 @@ worker_governance_decision:
       - worker_scratch_must_include_docs_anchor_yaml
       - orchestrator_rejects_unanchored_worker_output
 ```
+
+## 2026-02-15 — Foundation sentinel hard-cut remediation decisions
+```yaml
+foundation_sentinel_remediation_decisions:
+  - id: M4-D-033
+    decision: delete_foundation_compile_sentinel_passthrough_paths_in_S06
+    commit: 11ec9525d
+    affected_file: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+  - id: M4-D-034
+    decision: add_contract_guard_assertions_to_prevent_sentinel_reintroduction
+    affected_file: mods/mod-swooper-maps/test/foundation/contract-guard.test.ts
+  - id: M4-D-035
+    decision: treat_wrong_worktree_worker_outputs_as_invalid_until_replayed_on_target_branch
+    enforcement: orchestrator_revalidates_on_target_worktree_before_acceptance
+```
