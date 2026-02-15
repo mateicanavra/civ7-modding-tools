@@ -319,3 +319,25 @@ orchestrator_status:
     - IG1_ecology_merge_and_reanchor
     - resolve_or_accept_external_ecology_guardrail_debt_at_checkpoint
 ```
+
+## Checkpoint 10 — Worker Governance Hardening (2026-02-15)
+```yaml
+trigger:
+  issue: worker_outputs_were_not_consistently_anchored_in_framework_docs_before_editing
+policy_update:
+  docs_first_architecture_anchor: mandatory
+  required_docs:
+    - docs/system/mods/swooper-maps/architecture.md
+    - docs/system/libs/mapgen/architecture.md
+    - docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+  worker_evidence_contract:
+    - docs_anchor_yaml_block_required
+    - canonical_example_paths_required
+    - explicit_constraints_applied_required
+  orchestrator_acceptance_rule:
+    - reject_worker_outputs_without_architecture_anchor_evidence
+
+next_actions:
+  - re-run architecture remediation with docs-anchored workers only
+  - require independent reviewer confirmation against the same docs set
+```
