@@ -31,6 +31,7 @@ export type {
 } from "./types.js";
 export { ENGINE_EFFECT_TAGS } from "./effects.js";
 export type { EngineEffectTagId } from "./effects.js";
+export { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.js";
 
 // Re-export mock adapter (safe to import anywhere)
 export { MockAdapter, createMockAdapter } from "./mock-adapter.js";

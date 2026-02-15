@@ -23,6 +23,10 @@ import type {
   VoronoiUtils,
 } from "./types.js";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
+import {
+  NO_RESOURCE as ADAPTER_NO_RESOURCE,
+  PLACEABLE_RESOURCE_TYPE_IDS,
+} from "./resource-constants.js";
 
 const DEFAULT_VORONOI_UTILS: VoronoiUtils = {
   createRandomSites(count: number, width: number, height: number): VoronoiSite[] {
@@ -191,8 +195,8 @@ const DEFAULT_DISCOVERY_PLACEMENT: DiscoveryPlacementDefaults = {
   discoveryActivationType: 0,
 };
 
-const DEFAULT_NO_RESOURCE = -1;
-const DEFAULT_RESOURCE_TYPE_CATALOG: number[] = Array.from({ length: 24 }, (_, index) => index);
+const DEFAULT_NO_RESOURCE = ADAPTER_NO_RESOURCE;
+const DEFAULT_RESOURCE_TYPE_CATALOG: number[] = [...PLACEABLE_RESOURCE_TYPE_IDS];
 
 function sanitizeResourceTypeCatalog(input: number[] | undefined, noResource: number): number[] {
   const source = Array.isArray(input) ? input : DEFAULT_RESOURCE_TYPE_CATALOG;
@@ -242,7 +246,7 @@ export interface MockAdapterConfig {
   canHaveResource?: (x: number, y: number, resourceType: number) => boolean;
   /** Sentinel used to represent "no resource". */
   noResourceSentinel?: number;
-  /** Runtime resource candidate catalog returned by getPlaceableResourceTypes. */
+  /** Adapter-provided resource candidate catalog returned by getPlaceableResourceTypes. */
   resourceTypeCatalog?: number[];
   /** Natural wonder feature catalog used by deterministic planners. */
   naturalWonderCatalog?: NaturalWonderCatalogEntry[];

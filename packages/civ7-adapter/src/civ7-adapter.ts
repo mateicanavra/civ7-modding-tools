@@ -21,6 +21,7 @@ import type {
 } from "./types.js";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
 import { resolveDefaultDiscoveryPlacement } from "./discovery-defaults.js";
+import { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.js";
 
 // Import from /base-standard/... — these are external Civ7 runtime paths
 // resolved by the game's module loader, not TypeScript
@@ -256,13 +257,7 @@ export class Civ7Adapter implements EngineAdapter {
   }
 
   get NO_RESOURCE(): number {
-    const resourceTypes = (globalThis as Record<string, unknown>).ResourceTypes as
-      | Record<string, number>
-      | undefined;
-    if (resourceTypes && typeof resourceTypes.NO_RESOURCE === "number") {
-      return resourceTypes.NO_RESOURCE;
-    }
-    return -1;
+    return NO_RESOURCE;
   }
 
   getResourceType(x: number, y: number): number {
@@ -303,34 +298,7 @@ export class Civ7Adapter implements EngineAdapter {
   }
 
   getPlaceableResourceTypes(): number[] {
-    const resources = GameInfo?.Resources;
-    if (!resources) return [];
-
-    const candidates: number[] = [];
-    for (const row of resources) {
-      const resourceClassType = typeof row?.ResourceClassType === "string"
-        ? row.ResourceClassType.toUpperCase()
-        : "";
-      if (resourceClassType === "NO_RESOURCECLASS") continue;
-
-      const resourceType = typeof row?.ResourceType === "string"
-        ? row.ResourceType.toUpperCase()
-        : "";
-      if (resourceType === "NO_RESOURCE") continue;
-
-      const index = typeof row?.Index === "number"
-        ? row.Index
-        : typeof row?.$index === "number"
-          ? row.$index
-          : -1;
-      if (!Number.isFinite(index)) continue;
-      const resolved = index | 0;
-      if (resolved < 0) continue;
-      if (resolved === (this.NO_RESOURCE | 0)) continue;
-      candidates.push(resolved);
-    }
-
-    return Array.from(new Set(candidates)).sort((a, b) => a - b);
+    return [...PLACEABLE_RESOURCE_TYPE_IDS];
   }
 
   // === PLOT EFFECTS ===
