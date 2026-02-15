@@ -343,3 +343,12 @@ anchor_triage_disposition_decisions:
   - id: M4-D-050
     decision: accept_RP1_reanchored_plan_as_canonical_forward_plan_for_IG1_and_post_S04
 ```
+
+## 2026-02-15 — Handoff quality decision
+```yaml
+handoff_quality_decision:
+  - id: M4-D-051
+    decision: rewrite_successor_handoff_as_contextual_operator_prompt_not_checklist_only
+    rationale: improve successor ramp_quality_and_reduce_repeated_misinterpretation
+    file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/HANDOFF-successor-orchestrator-m4-foundation.md
+```

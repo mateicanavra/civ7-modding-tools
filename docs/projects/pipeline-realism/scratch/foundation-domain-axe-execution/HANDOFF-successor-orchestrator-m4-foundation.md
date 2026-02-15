@@ -1,14 +1,37 @@
-# Successor Handoff — M4 Foundation Domain Axe Cutover
+# Successor Handoff Prompt — M4 Foundation Domain Axe Cutover
 
-## Mission
-- Complete M4 architecture-first cutover for Foundation through integration gate `IG-1` and remaining execution slices, enforcing no-legacy/no-shim posture.
+## Read This First
+You are stepping into the orchestrator role for the Foundation M4 cutover after a turbulent implementation phase that required an explicit red-team anchoring pass. Your job is not to preserve momentum at all costs; your job is to preserve architecture quality while still shipping.
 
-## Current stack snapshot
+The most important context is this: we already did a corrective pass and validated it. The branch is not in free-fall anymore, but it is still pre-integration. You should treat this handoff as a continuation from a stabilized checkpoint, not a fresh discovery spike.
+
+## What We Were Trying To Achieve (and still are)
+The mission of M4 is an architecture-first cutover of Foundation with a strict no-legacy end state. We are intentionally willing to break compatibility where needed to avoid carrying bad boundaries forward.
+
+The north star:
+- clean operation boundaries,
+- step-owned orchestration,
+- stage boundaries that reflect domain semantics,
+- lane ownership that is explicit (`artifact:map.*` cut in the right slice),
+- and guardrails that keep these boundaries from regressing.
+
+## Current Reality (post-anchor pass)
+The anchoring pass is complete. We launched three fresh threads (AR1, AR2, RP1), ran independent reviews, triaged findings, fixed mandatory pre-integration items, and revalidated.
+
+What that means practically:
+- The known high-risk regressions around disabled `compute-tectonic-history` test callsites were fixed.
+- Milestone and issue docs were synced so they no longer pretend `S04`/`S07` are already landed.
+- Foundation reference docs were corrected to reflect the current ops surface.
+- We intentionally deferred lane-cutover implementation work to the correct slice (`S07`) to avoid out-of-order churn.
+- We kept one temporary guard stub (`compute-tectonic-history`) with explicit deletion trigger.
+
+## Branch + Stack Snapshot
 ```yaml
-handoff_snapshot:
+stack_snapshot:
   worktree: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
-  current_branch: codex/prr-m4-s06d-foundation-scratch-audit-ledger
-  top_stack:
+  branch: codex/prr-m4-s06d-foundation-scratch-audit-ledger
+  top_commit: 103a641d8
+  stack_tip_order:
     - codex/prr-m4-s06d-foundation-scratch-audit-ledger
     - codex/prr-m4-s06c-foundation-guardrails-hardening
     - codex/prr-m4-s06b-foundation-tectonics-local-rules
@@ -17,143 +40,150 @@ handoff_snapshot:
     - codex/prr-m4-s05-ci-strict-core-gates
     - codex/prr-m4-s03-tectonics-op-decomposition
     - codex/prr-m4-s02-contract-freeze-dead-knobs
-  anchor_phase:
-    status: in_progress
-    active_threads_expected:
-      - AR1
-      - AR2
-      - RP1
 ```
 
-## What is complete before integration
+## Anchor Findings Disposition (authoritative)
 ```yaml
-pre_integration_complete:
-  - S02_S03_S05_S06_committed_on_stack
-  - stage_compile_sentinel_paths_removed
-  - foundation_stage_simplified_to_knobs_first_posture
-  - startup_discipline_guardrails_added_to_orchestrator_docs
-  - anchor_red_team_pass_initialized
+anchor_findings:
+  ANCHOR-F001:
+    summary: tests still called disabled computeTectonicHistory
+    disposition: resolved
+  ANCHOR-F002:
+    summary: docs implied stage split already landed
+    disposition: resolved
+  ANCHOR-F003:
+    summary: lane split not yet implemented
+    disposition: keep_for_S07_intentionally
+  ANCHOR-F004:
+    summary: stale Foundation reference docs
+    disposition: resolved
+  ANCHOR-F005:
+    summary: temporary legacy guard stub still exists
+    disposition: keep_temporarily_with_deletion_trigger
 ```
 
-## Unresolved risks and blocked items
+## Hard Invariants (Non-Negotiable)
+These are not “guidance.” They are operating constraints.
+
+- No stage runtime merge/defaulting.
+- No manual public→internal schema translation.
+- Compile is not runtime normalization.
+- Step orchestrates ops; ops do not orchestrate peer ops.
+- Strategies stay inside ops and should be powered by op-local rules.
+- No casual shared-lib rule-shim patterns.
+- No duplicate core helper math when mapgen-core already has it.
+- Architecture quality takes precedence over backward compatibility; no legacy bridge final state.
+
+## Strategic Posture For Remaining Work
+You are now in control of a sequence that should be conservative in architecture and aggressive in execution.
+
+The strategy from here:
+1. Hold `S04` blocked until IG-1 integration checkpoint exits green.
+2. Use RP1 plan as canonical execution steering for integration-and-beyond.
+3. Keep changes slice-correct:
+   - do not pull `S07` lane-cut implementation forward,
+   - do not muddy `S04` with tuning or docs-only churn,
+   - do not re-open old architecture debates unless a new hard blocker appears.
+4. Keep worker prompts architecture-anchored and absolute-path-only every time.
+
+## IG-1 Integration Gate (what “ready” actually means)
 ```yaml
-open_risks:
-  - anchor_findings_pending_from_AR1_AR2
-  - pre_IG1_p0_p1_fix_scope_not_finalized
-  - ecology_integration_checkpoint_dependencies_can_shift
-blocked_items:
-  - S04_unblock_until_anchor_triage_and_IG1_readiness_confirmed
+ig1_contract:
+  entry_requires:
+    - S02_S03_S05_S06_committed_and_stable
+    - anchor_pass_triage_and_mandatory_fixes_complete
+    - pre_IG1_validation_green
+  mandatory_actions:
+    - integrate_ecology_stack
+    - evaluate_pr_threshold_policy
+    - reanchor_on_resulting_tip
+    - run_GI1_validation_bundle
+  exit_requires:
+    - ecology_merge_status: pass
+    - reanchor_status: pass
+    - baseline_gates: pass
+    - explicit_signoff_logged_in_scratch
 ```
 
-## Hard policies and invariants (non-negotiable)
+## Verification Baseline Already Confirmed
 ```yaml
-hard_invariants:
-  - no_stage_runtime_merge_or_defaulting
-  - no_manual_public_to_internal_schema_translation
-  - compile_is_not_runtime_normalization
-  - step_orchestrates_ops_no_op_calls_op
-  - strategies_inside_ops_with_op_local_rules
-  - no_shared_lib_rule_shim_pattern_without_strong_necessity_and_proof
-  - no_duplicate_core_helpers_if_mapgen_core_equivalent_exists
-  - architecture_over_backward_compatibility_no_legacy_bridges
+verified_in_anchor_pass:
+  - bun run --cwd mods/mod-swooper-maps check
+  - bun run --cwd mods/mod-swooper-maps lint
+  - REFRACTOR_DOMAINS="foundation" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full bun run lint:domain-refactor-guardrails
+  - bun run --cwd mods/mod-swooper-maps test -- test/foundation/contract-guard.test.ts test/foundation/no-op-calls-op-tectonics.test.ts test/foundation/m11-tectonic-events.test.ts test/foundation/m11-tectonic-segments-history.test.ts test/foundation/tile-projection-materials.test.ts test/m11-config-knobs-and-presets.test.ts test/standard-recipe.test.ts test/standard-compile-errors.test.ts
+  - rewritten_hotspot_tests: pass
 ```
 
-## Agent team operating model
+## How To Run Your Agent Team Without Repeating Past Failures
+Treat every worker assignment as a mini-contract.
+
+Required in each assignment:
+- absolute worktree paths,
+- docs-first read + attestation,
+- explicit invariants,
+- exact files they own,
+- exact verification commands,
+- scratch update expectations.
+
+Avoid two failure modes:
+- “Do a review” with vague scope (creates shallow output).
+- “Fix this area” without architecture constraints (creates thrash).
+
+Use this sequencing template when work is risky:
+1. Independent review agent (fresh eyes).
+2. Orchestrator triage and explicit disposition.
+3. Focused fix agent with strict file scope.
+4. Quick re-check reviewer on hotspots only.
+
+## Canonical Artifact Map
 ```yaml
-agent_operating_model:
-  max_open_threads: 6
-  required_scratch_root: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution
-  scratch_contract:
-    - append_only_updates
-    - yaml_evidence_blocks_for_path_heavy_sections
-    - required_footer_sections
-  startup_packet_required:
-    - absolute_paths_only
-    - docs_first_attestation
-    - invariant_attestation
-  workflow_note:
-    - keep_agents_on_correct_worktree_with_absolute_path_reminders_every_assignment
+canonical_artifacts:
+  milestone:
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/milestones/M4-foundation-domain-axe-cutover.md
+  issues:
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/issues
+  orchestrator_scratch:
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/00-plan.md
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/master-scratch.md
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/decision-log.md
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/stack-ledger.md
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/orchestrator-anchor-triage.md
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-RP1-reanchor-plan.md
 ```
 
-## Worktree + Graphite protocol
-```yaml
-graphite_protocol:
-  - verify_branch_and_worktree_before_assignment
-  - isolate_agent_work_on_dedicated_child_branches
-  - prefer_gt_move_for_reanchor_alignment
-  - avoid_rebase_when_stack_realignment_intent_is_gt_move
-  - no_global_restack_from_parallel_worktrees
-```
+## First 60 Minutes (Operator Runbook)
+Start by orienting, not editing.
 
-## Required gates around IG-1
-```yaml
-gates:
-  before_IG1:
-    - G0
-    - G1
-    - G2
-    - anchor_triage_complete_with_p0_p1_resolved
-  IG1:
-    - ecology_merge
-    - optional_stack_collapse_if_pr_threshold_met
-    - reanchor_to_new_tip
-    - GI1_validation_suite_green
-  after_IG1:
-    - S04_then_S07_then_S08_then_S09
-    - final_G5_closeout
-```
+- Confirm you are on the expected branch/worktree and stack tip.
+- Read triage + RP1 plan first, then milestone/issues.
+- Reconfirm what is intentionally deferred (`S07`) vs ready now (IG-1 prep).
 
-## Canonical planning artifacts
-```yaml
-planning_artifacts:
-  milestone: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/milestones/M4-foundation-domain-axe-cutover.md
-  issues_dir: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/issues
-  orchestrator_plan: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/00-plan.md
-  anchor_triage: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/orchestrator-anchor-triage.md
-  reanchor_plan: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-RP1-reanchor-plan.md
-```
+Then execute control actions:
+- stamp takeover in `master-scratch.md`, `decision-log.md`, `stack-ledger.md`.
+- run IG-1 prep commands and capture evidence logs.
+- if integration reveals drift, create one dedicated conflict-fix slice before touching S04.
 
-## First 60-minute takeover checklist
-1. Verify stack/worktree state with `git status --short`, `git rev-parse --abbrev-ref HEAD`, and `gt ls --stack`.
-2. Read AR1/AR2/RP1 scratch docs and `orchestrator-anchor-triage.md`.
-3. Confirm `P0/P1` dispositions are complete or create immediate fix queue.
-4. Update `master-scratch.md`, `decision-log.md`, and `stack-ledger.md` with takeover timestamp.
-5. Re-run pre-IG1 gates for touched areas and capture evidence logs.
-6. Sync milestone + impacted issue docs to actual state before unblocking IG-1 actions.
+Only after IG-1 is green:
+- unblock `S04`.
+- keep strict ordering through `S07`, `S08`, `S09`.
+
+## Communication Style Expected From Successor
+You should communicate in a way that keeps the project calm and precise:
+- explain intent before each major mutation,
+- call out architectural tradeoffs directly,
+- reject low-signal churn,
+- and keep scratch artifacts current so future handoffs are cheap.
 
 ## Proposed target
-- Successor can step in immediately with enough context, controls, and next actions to run M4 safely through integration and completion.
+A successor can take this doc, orient in under one hour, and continue execution through IG-1 and post-S04 without reopening resolved architecture mistakes.
 
 ## Changes landed
-- Initial role-bootstrap handoff created with stack map, invariants, operating model, and 60-minute checklist.
+Rewritten handoff as an operator-level briefing with contextual ramp-up, strategy guidance, and structured maps for enumerable state.
 
 ## Open risks
-- Anchoring findings are pending; this document must be refreshed after AR1/AR2 triage and pre-IG1 fixes.
+- Ecology integration timing can still shift IG-1 timing.
+- Temporary legacy stub deletion must be enforced later; do not let it fossilize.
 
 ## Decision asks
 - none
-
-## Anchor pass outcome (2026-02-15)
-```yaml
-anchor_pass_outcome:
-  mandatory_findings:
-    ANCHOR-F001: resolved
-    ANCHOR-F002: resolved
-    ANCHOR-F004: resolved
-  kept_with_rationale:
-    ANCHOR-F003: deferred_to_S07_to_preserve_slice_order
-    ANCHOR-F005: temporary_guard_stub_until_post_IG1_cleanup
-  verification:
-    check: pass
-    lint: pass
-    foundation_guardrails_full: pass
-    focused_suite: pass
-  canonical_artifacts:
-    triage: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/orchestrator-anchor-triage.md
-    rp1_plan: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-RP1-reanchor-plan.md
-```
-
-## Immediate takeover next actions (post-anchor)
-1. Ensure top branch restack is clean after committing anchor-pass artifacts.
-2. Execute `IG-1` prep/merge script flow from RP1 plan and update checkpoint packet evidence.
-3. Keep `S04` blocked until `IG-1` exits green.

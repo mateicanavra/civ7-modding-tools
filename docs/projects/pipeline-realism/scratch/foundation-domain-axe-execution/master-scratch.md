@@ -603,3 +603,17 @@ checkpoint_14_anchor_complete:
     - restack_top_branch_after_committing_anchor_artifacts
     - proceed_to_IG1_integration_prep_using_RP1_plan
 ```
+
+## Checkpoint 15 — Handoff Rewrite (2026-02-15)
+
+```yaml
+handoff_rewrite:
+  trigger: user_feedback_handoff_too_checklist_like_and_low_context
+  file:
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/HANDOFF-successor-orchestrator-m4-foundation.md
+  changes:
+    - replaced_checklist_only_structure_with_contextual_operator_briefing
+    - added_strategy_and_decision_posture_sections
+    - kept_yaml_for_enumerables_only
+  status: complete
+```
