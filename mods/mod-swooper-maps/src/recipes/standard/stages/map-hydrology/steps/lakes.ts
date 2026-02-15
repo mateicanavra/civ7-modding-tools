@@ -55,10 +55,12 @@ export default createStep(LakesStepContract, {
 
     context.adapter.generateLakes(width, height, tilesPerLake);
 
-    // Civ's base-standard scripts run `generateLakes()` before `buildElevation()`, which implicitly
-    // refreshes engine water caches. Our pipeline runs `generateLakes()` after `buildElevation()`,
-    // so we must explicitly resync water tables here; otherwise `isWater()` (and downstream rendering)
-    // can treat lake tiles as land even if terrain was set to COAST.
+    // Keep area topology in sync with post-lake terrain edits before any downstream validation.
+    // Base-standard scripts always rebuild areas immediately after generateLakes().
+    context.adapter.recalculateAreas();
+
+    // Our pipeline projects lakes after buildElevation(), so refresh water caches explicitly.
+    // This ensures GameplayMap.isWater and downstream eligibility reads include new lakes.
     context.adapter.storeWaterData();
     const physics = context.buffers.heightfield;
     const engine = snapshotEngineHeightfield(context);
