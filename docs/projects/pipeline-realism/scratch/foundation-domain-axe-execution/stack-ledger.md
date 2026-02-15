@@ -207,3 +207,39 @@ IG1_entry_readiness:
   S06: true
   gate_status: ready_with_external_blocker_documented
 ```
+
+## Runtime Snapshot Update — 2026-02-15 (post-foundation-sentinel-cut)
+```yaml
+runtime_snapshot_post_foundation_sentinel_cut:
+  stack_B:
+    S02:
+      branch: codex/prr-m4-s02-contract-freeze-dead-knobs
+      head: 9b65ae462
+      state: committed
+    S03:
+      branch: codex/prr-m4-s03-tectonics-op-decomposition
+      head: 8a596087a
+      state: committed
+  stack_C:
+    S05:
+      branch: codex/prr-m4-s05-ci-strict-core-gates
+      head: 5b066753a
+      state: committed
+    S06:
+      branch: codex/prr-m4-s06-test-rewrite-architecture-scans
+      head: 11ec9525d
+      state: committed
+      note: foundation_compile_sentinel_passthrough_removed
+
+verification_delta:
+  targeted_check: pass
+  targeted_tests: pass
+  reviewer_verdict: pass
+
+IG1_entry_readiness:
+  S02: true
+  S03: true
+  S05: true
+  S06: true
+  gate_status: ready_with_external_ecology_guardrail_blocker_only
+```
