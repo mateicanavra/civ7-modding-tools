@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/prr-epp-s2-ecology-physics-cutover
+
+### Quick Take
+- Core deterministic ecology cutover landed and aligns with intended architecture.
+
+### High-Leverage Issues
+- Legacy map-ecology key translation drop can break existing configs branch-locally.
+
+### PR Comment Context
+- PR #1260 has one unresolved compatibility review thread.
+- PR #1260: feat(ecology): enforce deterministic physics-first planners (https://github.com/mateicanavra/civ7-modding-tools/pull/1260)
+
+### Fix Now (Recommended)
+- Restore compatibility mapping or complete all config migrations in same slice.
+
+### Defer / Follow-up
+- Remove compatibility path only after explicit migration closure.
+
+### Needs Discussion
+- Policy for intentional mid-stack breaking changes.
+
+### Cross-cutting Risks
+- Branch-local breakage risk if consumed outside full stack context.
+- Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
