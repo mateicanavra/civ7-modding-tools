@@ -87,7 +87,10 @@ export default createStep(FeaturesApplyStepContract, {
     }
     if (applied > 0) {
       reifyFeatureField(context);
-      const featureTypeCategories = buildFeatureTypeVizCategories(context.adapter);
+      const featureTypeCategories = buildFeatureTypeVizCategories(
+        context.adapter,
+        context.fields.featureType
+      );
       context.viz?.dumpGrid(context.trace, {
         dataTypeKey: "map.ecology.featureType",
         spaceId: TILE_SPACE_ID,

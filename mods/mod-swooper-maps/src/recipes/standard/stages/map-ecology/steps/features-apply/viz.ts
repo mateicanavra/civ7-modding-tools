@@ -8,6 +8,7 @@ export type VizCategory = Readonly<{
 }>;
 
 export const FEATURE_TYPE_NONE_VALUE = -1;
+const UNKNOWN_FEATURE_COLOR: VizCategory["color"] = [148, 163, 184, 180];
 
 export const FEATURE_TYPE_VIZ_COLORS_BY_KEY: Readonly<Record<FeatureKey, VizCategory["color"]>> = {
   FEATURE_FOREST: [34, 197, 94, 235],
@@ -47,14 +48,15 @@ function colorForKey(key: FeatureKey): VizCategory["color"] {
  * - If multiple keys map to the same engine id, labels are combined deterministically.
  * - Colors are explicit per feature key (no auto palette).
  */
-export function buildFeatureTypeVizCategories(adapter: EngineAdapter): ReadonlyArray<VizCategory> {
+export function buildFeatureTypeVizCategories(
+  adapter: EngineAdapter,
+  observedFeatureTypes?: Int16Array | ReadonlyArray<number>
+): ReadonlyArray<VizCategory> {
   const byEngineId = new Map<number, FeatureKey[]>();
 
   for (const key of FEATURE_PLACEMENT_KEYS) {
     const engineId = adapter.getFeatureTypeIndex(key);
-    if (typeof engineId !== "number" || Number.isNaN(engineId) || engineId < 0) {
-      throw new Error(`buildFeatureTypeVizCategories: missing engine feature for key "${key}".`);
-    }
+    if (typeof engineId !== "number" || Number.isNaN(engineId) || engineId < 0) continue;
     const bucket = byEngineId.get(engineId) ?? [];
     bucket.push(key);
     byEngineId.set(engineId, bucket);
@@ -73,7 +75,22 @@ export function buildFeatureTypeVizCategories(adapter: EngineAdapter): ReadonlyA
     });
   }
 
+  if (observedFeatureTypes) {
+    const seen = new Set<number>();
+    for (const value of observedFeatureTypes) {
+      if (!Number.isFinite(value) || value < 0) continue;
+      seen.add(value | 0);
+    }
+    for (const engineId of seen) {
+      if (byEngineId.has(engineId)) continue;
+      out.push({
+        value: engineId,
+        label: `FEATURE_ID_${engineId}`,
+        color: UNKNOWN_FEATURE_COLOR,
+      });
+    }
+  }
+
   out.sort((a, b) => a.value - b.value);
   return out;
 }
-
