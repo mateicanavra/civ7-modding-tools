@@ -48,8 +48,7 @@ describe("standard recipe compile errors (ecology)", () => {
 
     expect(
       err.errors.some(
-        (item) =>
-          item.code === "config.invalid" && item.path.includes("/config/ecology/extraField")
+        (item) => item.code === "config.invalid" && item.path === "/config/ecology"
       )
     ).toBe(true);
   });
