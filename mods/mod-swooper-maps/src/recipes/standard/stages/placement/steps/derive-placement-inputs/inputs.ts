@@ -20,9 +20,7 @@ function sanitizeResourceCandidates(values: number[], noResourceSentinel: number
   return Array.from(unique).sort((a, b) => a - b);
 }
 
-/**
- * Builds placement inputs from runtime map info and authored placement configs.
- */
+/** Builds placement inputs from map info, authored config, and adapter-owned catalogs. */
 export function buildPlacementInputs(
   context: ExtendedMapContext,
   config: DerivePlacementInputsConfig,
