@@ -22,9 +22,15 @@ const PlacementEngineStateV1Schema = Type.Object(
       { additionalProperties: false }
     ),
     startsAssigned: Type.Integer({ minimum: 0 }),
+    wondersPlanned: Type.Integer({ minimum: 0 }),
+    wondersPlaced: Type.Integer({ minimum: 0 }),
+    wondersError: Type.Optional(Type.String()),
     resourcesAttempted: Type.Boolean(),
     resourcesPlaced: Type.Integer({ minimum: 0 }),
     resourcesError: Type.Optional(Type.String()),
+    discoveriesPlanned: Type.Integer({ minimum: 0 }),
+    discoveriesPlaced: Type.Integer({ minimum: 0 }),
+    discoveriesError: Type.Optional(Type.String()),
     waterDriftCount: Type.Integer({
       minimum: 0,
       description: "Mismatch count between physics landMask and engine landMask at placement completion.",
@@ -43,6 +49,16 @@ export const placementArtifacts = {
     name: "resourcePlan",
     id: "artifact:placement.resourcePlan",
     schema: placement.ops.planResources.output,
+  }),
+  naturalWonderPlan: defineArtifact({
+    name: "naturalWonderPlan",
+    id: "artifact:placement.naturalWonderPlan",
+    schema: placement.ops.planNaturalWonders.output,
+  }),
+  discoveryPlan: defineArtifact({
+    name: "discoveryPlan",
+    id: "artifact:placement.discoveryPlan",
+    schema: placement.ops.planDiscoveries.output,
   }),
   placementOutputs: defineArtifact({
     name: "placementOutputs",

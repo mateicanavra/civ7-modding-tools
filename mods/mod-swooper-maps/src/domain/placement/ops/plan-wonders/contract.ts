@@ -17,13 +17,7 @@ const PlanWondersContract = defineOp({
     wondersCount: Type.Integer({ minimum: 0 }),
   }),
   strategies: {
-    default: Type.Object({
-      wondersPlusOne: Type.Boolean({
-        description:
-          "Whether to add one extra natural wonder beyond map-size defaults to diversify layouts.",
-        default: true,
-      }),
-    }),
+    default: Type.Object({}),
   },
 });
 
