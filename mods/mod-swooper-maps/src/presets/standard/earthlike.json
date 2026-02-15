@@ -688,12 +688,10 @@
     "placement": {
       "knobs": {},
       "derive-placement-inputs": {
-        "wonders": {
-          "strategy": "default",
-          "config": {
-            "wondersPlusOne": true
-          }
-        },
+          "wonders": {
+            "strategy": "default",
+            "config": {}
+          },
         "floodplains": {
           "strategy": "default",
           "config": {

@@ -193,6 +193,15 @@ Validation MUST NOT:
 - republish artifacts to “store validation results” (violates write-once contract)
 - depend on deck.gl rendering code
 
+## Ecology + Placement Drift Gates (Swooper Maps)
+
+For the ecology/hydrology/placement cutover:
+
+- `map-hydrology/lakes` is a runtime hard failure when any planned-lake tile is not water in engine projection (`sinkMismatchCount > 0`).
+- `map-ecology/plot-biomes` and `placement/placement` always emit parity diagnostics and remain strict-candidate gates until post-hydrology authoritative land-mask truth is formalized for those boundaries.
+
+These diagnostics are contract-truth telemetry, not visualization-only noise.
+
 ## Trap List (Non-Negotiable)
 
 - Do not gate correctness on visualization.
@@ -200,4 +209,3 @@ Validation MUST NOT:
 - Do not add convergence loops (budgets must be fixed).
 - Do not normalize truth artifacts by per-run min/max (breaks thresholds and comparability).
 - Do not allow diagnostics artifacts to become implicit truth dependencies.
-
