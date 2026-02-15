@@ -14,6 +14,14 @@ describe("placement plan operations", () => {
     expect(result.wondersCount).toBe(2);
   });
 
+  it("accepts legacy wondersPlusOne config without reintroducing inflation", () => {
+    const result = runOpValidated(planWonders, { mapInfo: { NumNaturalWonders: 2 } }, {
+      strategy: "default",
+      config: { wondersPlusOne: true },
+    });
+    expect(result.wondersCount).toBe(2);
+  });
+
   it("plans zero wonders when map-size default is absent", () => {
     const result = runOpValidated(planWonders, { mapInfo: {} }, {
       strategy: "default",
