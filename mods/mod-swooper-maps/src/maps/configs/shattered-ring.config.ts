@@ -2,10 +2,6 @@ import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 
 export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
   foundation: {
-    version: 1,
-    profiles: {
-      resolutionProfile: "fine",
-    },
     knobs: {
       plateCount: 28,
       plateActivity: 0.5,

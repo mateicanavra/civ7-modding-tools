@@ -13,7 +13,6 @@ export type BrowserTestRecipeConfig = RecipeConfigInputOf<typeof stages>;
 export type BrowserTestRecipeCompiledConfig = CompiledRecipeConfigOf<typeof stages>;
 export type BrowserTestFoundationStageConfig = NonNullable<BrowserTestRecipeConfig["foundation"]>;
 export type BrowserTestFoundationStageKnobsConfig = NonNullable<BrowserTestFoundationStageConfig["knobs"]>;
-export type BrowserTestFoundationStageAdvancedConfig = NonNullable<BrowserTestFoundationStageConfig["advanced"]>;
 
 export const compileOpsById = collectCompileOps(foundationDomain);
 

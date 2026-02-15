@@ -76,10 +76,6 @@ const volcanoesConfig = {
 };
 
 const foundationConfig = {
-  version: 1,
-  profiles: {
-    resolutionProfile: "balanced",
-  },
   knobs: { plateCount: 23, plateActivity: 0.5 },
 };
 
