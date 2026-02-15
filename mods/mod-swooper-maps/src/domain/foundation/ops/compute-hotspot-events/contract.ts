@@ -2,7 +2,7 @@ import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authorin
 
 import { FoundationMantleForcingSchema } from "../compute-mantle-forcing/contract.js";
 import { FoundationMeshSchema } from "../compute-mesh/contract.js";
-import { TectonicEventsSchema } from "../compute-tectonic-history/lib/internal-contract.js";
+import { TectonicEventsSchema } from "../../lib/tectonics/internal-contract.js";
 
 const ComputeHotspotEventsContract = defineOp({
   kind: "compute",

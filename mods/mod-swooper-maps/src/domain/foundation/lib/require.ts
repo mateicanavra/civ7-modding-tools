@@ -6,9 +6,9 @@ import type { FoundationPlateMotion } from "../ops/compute-plate-motion/contract
 import type { FoundationPlateGraph } from "../ops/compute-plate-graph/contract.js";
 import type {
   FoundationTectonicHistory,
+  FoundationTectonicProvenance,
   FoundationTectonics,
-} from "../ops/compute-tectonic-history/contract.js";
-import type { FoundationTectonicProvenance } from "../ops/compute-plates-tensors/contract.js";
+} from "./tectonics/schemas.js";
 
 const ERA_COUNT_MIN = 5;
 const ERA_COUNT_MAX = 8;

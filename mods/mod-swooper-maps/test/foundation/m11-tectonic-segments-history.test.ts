@@ -1,7 +1,15 @@
 import { describe, expect, it } from "bun:test";
 
-import computeTectonicHistory from "../../src/domain/foundation/ops/compute-tectonic-history/index.js";
+import computeEraPlateMembership from "../../src/domain/foundation/ops/compute-era-plate-membership/index.js";
+import computeEraTectonicFields from "../../src/domain/foundation/ops/compute-era-tectonic-fields/index.js";
+import computeHotspotEvents from "../../src/domain/foundation/ops/compute-hotspot-events/index.js";
+import computePlateMotion from "../../src/domain/foundation/ops/compute-plate-motion/index.js";
+import computeSegmentEvents from "../../src/domain/foundation/ops/compute-segment-events/index.js";
+import computeTectonicHistoryRollups from "../../src/domain/foundation/ops/compute-tectonic-history-rollups/index.js";
 import computeTectonicSegments from "../../src/domain/foundation/ops/compute-tectonic-segments/index.js";
+
+const OROGENY_ERA_GAIN_MIN = 0.85;
+const OROGENY_ERA_GAIN_MAX = 1.15;
 
 function makeTwoCellMesh(): any {
   return {
@@ -55,8 +63,8 @@ function makePlateMotion(
 }
 
 function makeMantleForcing(cellCount: number) {
-  // Non-zero forcing ensures compute-plate-motion (used by compute-tectonic-history per-era) produces
-  // a meaningful plate velocity field in minimal synthetic tests.
+  // Non-zero forcing ensures the decomposed per-era plate-motion chain produces
+  // a meaningful velocity field in minimal synthetic tests.
   const stress = new Float32Array(cellCount);
   const forcingU = new Float32Array(cellCount);
   const forcingV = new Float32Array(cellCount);
@@ -75,6 +83,126 @@ function makeMantleForcing(cellCount: number) {
     upwellingClass: new Int8Array(cellCount),
     divergence: new Float32Array(cellCount),
   } as const;
+}
+
+function runDecomposedTectonicHistory(params: {
+  mesh: any;
+  crust: any;
+  mantleForcing: any;
+  plateGraph: any;
+  plateMotion: any;
+  config?: {
+    eraWeights?: number[];
+    driftStepsByEra?: number[];
+    beltInfluenceDistance?: number;
+    beltDecay?: number;
+    activityThreshold?: number;
+  };
+}) {
+  const { mesh, crust, mantleForcing, plateGraph, plateMotion } = params;
+  const custom = params.config ?? {};
+
+  const eraMembershipConfig = {
+    ...computeEraPlateMembership.defaultConfig,
+    config: {
+      ...computeEraPlateMembership.defaultConfig.config,
+      ...(custom.eraWeights ? { eraWeights: custom.eraWeights } : {}),
+      ...(custom.driftStepsByEra ? { driftStepsByEra: custom.driftStepsByEra } : {}),
+    },
+  };
+
+  const eraFieldsConfig = {
+    ...computeEraTectonicFields.defaultConfig,
+    config: {
+      ...computeEraTectonicFields.defaultConfig.config,
+      ...(custom.beltInfluenceDistance != null ? { beltInfluenceDistance: custom.beltInfluenceDistance } : {}),
+      ...(custom.beltDecay != null ? { beltDecay: custom.beltDecay } : {}),
+    },
+  };
+
+  const historyRollupsConfig = {
+    ...computeTectonicHistoryRollups.defaultConfig,
+    config: {
+      ...computeTectonicHistoryRollups.defaultConfig.config,
+      ...(custom.activityThreshold != null ? { activityThreshold: custom.activityThreshold } : {}),
+    },
+  };
+
+  const eraPlateMembership = computeEraPlateMembership.run({ mesh, plateGraph, plateMotion }, eraMembershipConfig);
+
+  const eras: Array<ReturnType<typeof computeEraTectonicFields.run>["eraFields"]> = [];
+  for (let era = 0; era < eraPlateMembership.eraCount; era++) {
+    const eraPlateId =
+      eraPlateMembership.plateIdByEra[era] ??
+      eraPlateMembership.plateIdByEra[eraPlateMembership.plateIdByEra.length - 1];
+    if (!eraPlateId) continue;
+
+    const eraPlateGraph = {
+      cellToPlate: eraPlateId,
+      plates: plateGraph.plates,
+    } as const;
+
+    const eraPlateMotion = computePlateMotion.run(
+      {
+        mesh,
+        mantleForcing,
+        plateGraph: eraPlateGraph,
+      },
+      computePlateMotion.defaultConfig
+    ).plateMotion;
+
+    const eraSegments = computeTectonicSegments.run(
+      {
+        mesh,
+        crust,
+        plateGraph: eraPlateGraph,
+        plateMotion: eraPlateMotion,
+      },
+      computeTectonicSegments.defaultConfig
+    ).segments;
+
+    const segmentEvents = computeSegmentEvents.run(
+      {
+        mesh,
+        crust,
+        segments: eraSegments,
+      },
+      computeSegmentEvents.defaultConfig
+    );
+
+    const hotspotEvents = computeHotspotEvents.run(
+      {
+        mesh,
+        mantleForcing,
+        eraPlateId,
+      },
+      computeHotspotEvents.defaultConfig
+    );
+
+    const t = eraPlateMembership.eraCount > 1 ? era / (eraPlateMembership.eraCount - 1) : 0;
+    const eraGain = OROGENY_ERA_GAIN_MIN + (OROGENY_ERA_GAIN_MAX - OROGENY_ERA_GAIN_MIN) * t;
+
+    const eraFields = computeEraTectonicFields.run(
+      {
+        mesh,
+        segmentEvents: segmentEvents.events,
+        hotspotEvents: hotspotEvents.events,
+        weight: eraPlateMembership.eraWeights[era] ?? 0,
+        eraGain,
+      },
+      eraFieldsConfig
+    );
+
+    eras.push(eraFields.eraFields);
+  }
+
+  return computeTectonicHistoryRollups.run(
+    {
+      eras,
+      plateIdByEra: eraPlateMembership.plateIdByEra,
+    },
+    historyRollupsConfig
+  ).tectonicHistory;
 }
 
 describe("m11 tectonics (segments + history)", () => {
@@ -266,29 +394,18 @@ describe("m11 tectonics (segments + history)", () => {
     } as const;
 
     const plateMotion = makePlateMotion(plateGraph, mesh.cellCount, [{}, { velocityX: -1.0 }]);
-    const segments = computeTectonicSegments.run(
-      { mesh, crust: crust as any, plateGraph: plateGraph as any, plateMotion: plateMotion as any },
-      computeTectonicSegments.defaultConfig
-    ).segments;
-
     const mantleForcing = makeMantleForcing(mesh.cellCount);
-    const a = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, plateMotion },
-      computeTectonicHistory.defaultConfig
-    );
-    const b = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, plateMotion },
-      computeTectonicHistory.defaultConfig
-    );
+    const a = runDecomposedTectonicHistory({ mesh, crust, mantleForcing, plateGraph, plateMotion });
+    const b = runDecomposedTectonicHistory({ mesh, crust, mantleForcing, plateGraph, plateMotion });
 
-    expect(a.tectonicHistory.eraCount).toBe(5);
-    expect(a.tectonicHistory.eras.length).toBe(5);
-    expect(Array.from(a.tectonicHistory.upliftTotal)).toEqual(Array.from(b.tectonicHistory.upliftTotal));
-    expect(Array.from(a.tectonicHistory.lastActiveEra)).toEqual(Array.from(b.tectonicHistory.lastActiveEra));
+    expect(a.eraCount).toBe(5);
+    expect(a.eras.length).toBe(5);
+    expect(Array.from(a.upliftTotal)).toEqual(Array.from(b.upliftTotal));
+    expect(Array.from(a.lastActiveEra)).toEqual(Array.from(b.lastActiveEra));
 
     // Both cells are within belt influence for this tiny mesh and should be active in the newest era.
-    expect(a.tectonicHistory.lastActiveEra[0]).toBe(4);
-    expect(a.tectonicHistory.lastActiveEra[1]).toBe(4);
+    expect(a.lastActiveEra[0]).toBe(4);
+    expect(a.lastActiveEra[1]).toBe(4);
   });
 
   it("rejects eraCount below the 5-era contract minimum", () => {
@@ -312,22 +429,21 @@ describe("m11 tectonics (segments + history)", () => {
       ],
     } as const;
     const plateMotion = makePlateMotion(plateGraph, mesh.cellCount, [{}, { velocityX: -1.0 }]);
-    const segments = computeTectonicSegments.run(
-      { mesh, crust: crust as any, plateGraph: plateGraph as any, plateMotion: plateMotion as any },
-      computeTectonicSegments.defaultConfig
-    ).segments;
     const mantleForcing = makeMantleForcing(mesh.cellCount);
     const invalidConfig = {
-      strategy: "default" as const,
-      config: {
-        ...computeTectonicHistory.defaultConfig.config,
-        eraWeights: [0.4, 0.3, 0.2, 0.1],
-        driftStepsByEra: [2, 2, 2, 2],
-      },
+      eraWeights: [0.4, 0.3, 0.2, 0.1],
+      driftStepsByEra: [2, 2, 2, 2],
     };
 
     expect(() =>
-      computeTectonicHistory.run({ mesh, crust, mantleForcing, plateGraph, plateMotion }, invalidConfig)
-    ).toThrow("[Foundation] compute-tectonic-history expects eraCount within 5..8.");
+      runDecomposedTectonicHistory({
+        mesh,
+        crust,
+        mantleForcing,
+        plateGraph,
+        plateMotion,
+        config: invalidConfig,
+      })
+    ).toThrow("[Foundation] compute-era-plate-membership expects eraCount within 5..8.");
   });
 });

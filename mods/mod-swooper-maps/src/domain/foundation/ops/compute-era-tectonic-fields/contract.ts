@@ -5,7 +5,7 @@ import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 import {
   FoundationTectonicEraFieldsInternalSchema,
   TectonicEventsSchema,
-} from "../compute-tectonic-history/lib/internal-contract.js";
+} from "../../lib/tectonics/internal-contract.js";
 
 const StrategySchema = Type.Object(
   {

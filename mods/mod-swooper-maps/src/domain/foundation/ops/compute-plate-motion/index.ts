@@ -1,15 +1,8 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
-import { clamp01, clampInt, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
+import { clamp01, clampInt, clampU8, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import { requireMantleForcing, requireMesh, requirePlateGraph } from "../../lib/require.js";
 import ComputePlateMotionContract from "./contract.js";
-
-function clampByte(value: number): number {
-  if (!Number.isFinite(value)) return 0;
-  if (value <= 0) return 0;
-  if (value >= 255) return 255;
-  return Math.round(value) | 0;
-}
 
 const EPS = 1e-9;
 
@@ -238,7 +231,8 @@ const computePlateMotion = createOp(ComputePlateMotionContract, {
           cellWeight[i] = weight;
           cellErr[i] = err;
           sumErrSq[plateId] += weight * err * err;
-          cellFitError[i] = clampByte((255 * err) / residualNorm);
+          const normalizedErr = (255 * err) / residualNorm;
+          cellFitError[i] = Number.isFinite(normalizedErr) ? clampU8(Math.round(normalizedErr)) : 0;
 
           const normalized = err / residualNorm;
           if (normalized > (maxNormByPlate[plateId] ?? 0)) {
