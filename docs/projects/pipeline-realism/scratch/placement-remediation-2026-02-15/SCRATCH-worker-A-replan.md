@@ -81,13 +81,6 @@ Canonical S1 placement catalog (0..40):
 - 39 `RESOURCE_QUININE`
 - 40 `RESOURCE_RUBBER`
 
-USER NOTE: THE ABOVE IS NOT COMPLETE -- THERE SHOULD BE MORE 
-
-Cross-checks already in repo:
-- `packages/civ7-adapter/src/mock-adapter.ts` default catalog `Array.from({ length: 24 })`
-- `mods/mod-swooper-maps/src/domain/placement/ops/plan-resources/contract.ts` default `candidateResourceTypes` list
-- `mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json` candidate list
-
 ## Concrete Implementation Plan
 
 ### A branch (`codex/agent-A-placement-s1-runtime-hardening`) — code authority and behavior cutover
@@ -96,7 +89,7 @@ Cross-checks already in repo:
    - New file: `packages/civ7-adapter/src/resource-constants.ts`
    - Exports:
      - `NO_RESOURCE = -1`
-     - frozen placement catalog IDs (0..23) + optional name map comments from official resources.
+     - frozen placement catalog IDs (0..40) + optional name map comments from official resources.
 
 2. Switch Civ7 adapter resource sentinel/catalog to static constants.
    - Edit `packages/civ7-adapter/src/civ7-adapter.ts`:
