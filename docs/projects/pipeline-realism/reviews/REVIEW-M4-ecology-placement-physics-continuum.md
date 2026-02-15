@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/MAMBO-m3-013-bio-lat-cutoff
+
+### Quick Take
+- Latitude-cutoff smoothing and thermal-state adjustments reduce abrupt biome seams.
+
+### High-Leverage Issues
+- Feature viz categories may omit pre-existing engine features.
+
+### PR Comment Context
+- PR #1235 has unresolved P2 feedback on viz-category completeness.
+- PR #1235: fix(ecology): smooth tropical-temperate biome transitions to prevent latitude cutoffs (https://github.com/mateicanavra/civ7-modding-tools/pull/1235)
+
+### Fix Now (Recommended)
+- Build category metadata from observed/runtime feature IDs.
+
+### Defer / Follow-up
+- Add regression coverage with pre-existing non-placed features.
+
+### Needs Discussion
+- Whether hydrology thermal-state coupling inside this ecology fix is intentional.
+
+### Cross-cutting Risks
+- Incomplete viz metadata can mislead downstream analysis.
+- Runtime-vs-viz mismatch analysis: observed: runtime features can exist outside emitted viz categories. Gameplay/runtime truth remains authoritative when conflicts exist.
