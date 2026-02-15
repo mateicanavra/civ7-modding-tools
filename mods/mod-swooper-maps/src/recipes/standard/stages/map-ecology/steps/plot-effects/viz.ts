@@ -19,11 +19,5 @@ export const PLOT_EFFECT_VIZ_CATEGORIES = [
 
 export function plotEffectVizValueOrThrow(key: PlotEffectKey): number {
   const value = PLOT_EFFECT_VIZ_VALUE_BY_KEY[key];
-  if (value == null) {
-    throw new Error(
-      `plot effects viz layer missing explicit category mapping for plotEffect=${key}`
-    );
-  }
-  return value;
+  return value ?? 0;
 }
-
