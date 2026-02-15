@@ -31,3 +31,9 @@ Run one sequential `dev-loop-fix-review` pass across M4 (`T01..T27`) with team a
 4. Orchestrator gate and frozen execution queue (`T01 -> T27`).
 5. Sequential fix loop (single writer token): create fix branch/worktree, apply fix/doc-only disposition, update review+milestone(+triage/+deferrals), submit `gt ss --draft --ai`, cleanup worktree.
 6. Final isolation validation + handoff summary.
+
+## Continuation Re-anchor (Forward-only)
+- Scope reset: complete remaining 19 tasks only; do not reopen completed fixes.
+- Enforce absolute-path worker execution and preflight logging (`pwd`, `git rev-parse --show-toplevel`, `git branch --show-current`) per task handoff.
+- Consolidate shared-doc traceability updates on `agent-TOMMY-m4-fix-bootstrap` due to missing M4 docs on early stack branches.
+- Close each remaining task with a branch commit (code fix or disposition receipt), then submit scoped Graphite PRs.
