@@ -1,12 +1,13 @@
 # pipeline-realism plans
 
-This directory intentionally has a single canonical execution plan. Everything else that can be mistaken as "the plan" is archived.
+This directory tracks active execution plans for the pipeline-realism program. Plans are canonical only within their scoped epic.
 
 ## ACTIVE (Canonical)
 
-These are the only docs in this directory that should be treated as the current execution plan:
+These docs are current execution plans:
 
 - Canonical plan: `PLAN-no-legacy-foundation-morphology-refactor-2026-02-05.md`
+- Canonical plan: `PLAN-ecology-placement-physics-cutover-2026-02-14.md`
 - Alias pointer (stable entrypoint): `IMPLEMENTATION-PLAN-no-legacy-foundation-morphology.md`
 
 ## Reference (keep)
