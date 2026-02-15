@@ -294,8 +294,6 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
           },
           moisture: {
             thresholds: [55, 85, 120, 170] as [number, number, number, number],
-            bias: 6,
-            humidityWeight: 0.35,
           },
           aridity: {
             temperatureMin: 2,
@@ -316,17 +314,7 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
           vegetation: {
             base: 0.12,
             moistureWeight: 0.5,
-            humidityWeight: 0.2,
             moistureNormalizationPadding: 45,
-          },
-          noise: {
-            amplitude: 0.03,
-            seed: 1337,
-          },
-          riparian: {
-            adjacencyRadius: 1,
-            minorRiverMoistureBonus: 4,
-            majorRiverMoistureBonus: 8,
           },
           edgeRefine: { radius: 1, iterations: 1 }, // Sharp desert/mountain transitions
         },

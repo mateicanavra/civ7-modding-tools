@@ -4,7 +4,7 @@ export const MoistureSchema = Type.Object(
   {
     /**
      * Moisture thresholds (arid -> semi-arid -> subhumid -> humid -> perhumid).
-     * Units are "effective moisture" (rainfall + humidity contribution + overlays).
+     * Units are Hydrology's "effective moisture" advisory index.
      */
     thresholds: Type.Tuple(
       [
@@ -28,27 +28,11 @@ export const MoistureSchema = Type.Object(
       {
         default: [45, 90, 140, 190],
         description:
-          "Moisture thresholds in effective moisture units (rainfall + humidity weight + overlays).",
+          "Moisture thresholds in effective moisture units (Hydrology effectiveMoisture advisory index).",
       }
     ),
-    /**
-     * Global moisture bias (effective moisture units).
-     * Positive values make the world wetter; negative values dry it out.
-     */
-    bias: Type.Number({
-      description: "Global moisture bias (effective moisture units).",
-      default: 0,
-    }),
-    /**
-     * Weight applied to humidity when computing effective moisture (scalar).
-     * Higher values make humidity matter more than rainfall.
-     */
-    humidityWeight: Type.Number({
-      description: "Weight applied to humidity when computing effective moisture (scalar).",
-      default: 0.35,
-    }),
   },
   {
-    description: "Effective moisture thresholds and weighting (rainfall + humidity + overlays).",
+    description: "Effective moisture thresholds (Hydrology effectiveMoisture advisory index).",
   }
 );

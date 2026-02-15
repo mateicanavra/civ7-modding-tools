@@ -304,8 +304,6 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
           },
           moisture: {
             thresholds: [70, 100, 135, 180] as [number, number, number, number],
-            bias: 0.05,
-            humidityWeight: 0.35,
           },
           aridity: {
             temperatureMin: 0,
@@ -326,17 +324,7 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
           vegetation: {
             base: 0.28,
             moistureWeight: 0.6,
-            humidityWeight: 0.3,
             moistureNormalizationPadding: 55,
-          },
-          noise: {
-            amplitude: 0.03,
-            seed: 1337,
-          },
-          riparian: {
-            adjacencyRadius: 1,
-            minorRiverMoistureBonus: 4,
-            majorRiverMoistureBonus: 8,
           },
           edgeRefine: { radius: 1, iterations: 1 },
         },

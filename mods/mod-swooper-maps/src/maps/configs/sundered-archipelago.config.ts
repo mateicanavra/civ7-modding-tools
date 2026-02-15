@@ -306,8 +306,6 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
           },
           moisture: {
             thresholds: [95, 130, 175, 230] as [number, number, number, number],
-            bias: 0.2,
-            humidityWeight: 0.35,
           },
           aridity: {
             temperatureMin: 2,
@@ -328,17 +326,7 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
           vegetation: {
             base: 0.4,
             moistureWeight: 0.7,
-            humidityWeight: 0.4,
             moistureNormalizationPadding: 70,
-          },
-          noise: {
-            amplitude: 0.03,
-            seed: 1337,
-          },
-          riparian: {
-            adjacencyRadius: 1,
-            minorRiverMoistureBonus: 4,
-            majorRiverMoistureBonus: 8,
           },
           edgeRefine: { radius: 1, iterations: 1 }, // Smooth tropical biome blending
         },

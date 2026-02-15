@@ -10,30 +10,36 @@ describe("classifyBiomes operation", () => {
     const height = 2;
     const size = width * height;
 
-    const rainfall = new Uint8Array([210, 130, 70, 35, 180, 50]);
-    const humidity = new Uint8Array([180, 80, 30, 20, 160, 10]);
+    // Keep expectations stable by deriving effectiveMoisture in the same unit scale as the legacy inputs:
+    // effectiveMoisture = rainfall + 0.35 * humidity (no river bonus in this test).
+    const effectiveMoisture = new Float32Array([
+      210 + 0.35 * 180,
+      130 + 0.35 * 80,
+      70 + 0.35 * 30,
+      35 + 0.35 * 20,
+      180 + 0.35 * 160,
+      50 + 0.35 * 10,
+    ]);
     const surfaceTemperatureC = new Float32Array([30, 20, 15, 30, -10, 15]);
     const aridityIndex = new Float32Array(size);
     const freezeIndex = new Float32Array([0, 0, 0, 0, 1, 0]);
     const landMask = new Uint8Array([1, 1, 1, 1, 1, 0]);
-    const riverClass = new Uint8Array(size).fill(0);
+    const soilType = new Uint8Array(size).fill(0);
+    const fertility = new Float32Array(size).fill(0.5);
 
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.classifyBiomes, {
-      strategy: "default",
-      config: { riparian: {} },
-    });
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.classifyBiomes, ecology.ops.classifyBiomes.defaultConfig);
 
     const result = ecology.ops.classifyBiomes.run(
       {
         width,
         height,
-        rainfall,
-        humidity,
+        effectiveMoisture,
         surfaceTemperatureC,
         aridityIndex,
         freezeIndex,
         landMask,
-        riverClass,
+        soilType,
+        fertility,
       },
       selection
     );
