@@ -437,7 +437,7 @@
         }
       }
     },
-    "ecology": {
+    "ecology-pedology": {
       "knobs": {},
       "pedology": {
         "classify": {
@@ -451,7 +451,7 @@
           }
         }
       },
-      "resourceBasins": {
+      "resource-basins": {
         "plan": {
           "strategy": "mixed",
           "config": {
@@ -465,7 +465,10 @@
             "maxPerResource": 14
           }
         }
-      },
+      }
+    },
+    "ecology-biomes": {
+      "knobs": {},
       "biomes": {
         "classify": {
           "strategy": "default",
@@ -524,20 +527,18 @@
               "adjacencyRadius": 1,
               "minorRiverMoistureBonus": 4,
               "majorRiverMoistureBonus": 8
+            },
+            "edgeRefine": {
+              "radius": 1,
+              "iterations": 1
             }
           }
         }
-      },
-      "biomeEdgeRefine": {
-        "refine": {
-          "strategy": "gaussian",
-          "config": {
-            "radius": 1,
-            "iterations": 1
-          }
-        }
-      },
-      "featuresPlan": {
+      }
+    },
+    "ecology-vegetation": {
+      "knobs": {},
+      "features-plan": {
         "vegetation": { "minScoreThreshold": 0.15 },
         "wetlands": {
           "strategy": "delta-focused",
@@ -546,39 +547,6 @@
             "fertilityThreshold": 0.35,
             "moistureNormalization": 230,
             "maxElevation": 1200
-          }
-        },
-        "wetFeaturePlacements": {
-          "strategy": "default",
-          "config": {
-            "multiplier": 0.35,
-            "chances": {
-              "FEATURE_MARSH": 0,
-              "FEATURE_TUNDRA_BOG": 20,
-              "FEATURE_MANGROVE": 30,
-              "FEATURE_OASIS": 40,
-              "FEATURE_WATERING_HOLE": 20
-            },
-            "rules": {
-              "nearRiverRadius": 2,
-              "coldTemperatureMax": 2,
-              "coldBiomeSymbols": [
-                "snow",
-                "tundra",
-                "boreal"
-              ],
-              "mangroveWarmTemperatureMin": 20,
-              "mangroveWarmBiomeSymbols": [
-                "tropicalRainforest"
-              ],
-              "coastalAdjacencyRadius": 1,
-              "isolatedRiverRadius": 1,
-              "isolatedSpacingRadius": 2,
-              "oasisBiomeSymbols": [
-                "desert",
-                "temperateDry"
-              ]
-            }
           }
         },
         "reefs": {

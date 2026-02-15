@@ -1,12 +1,8 @@
 import { Type, createStage } from "@swooper/mapgen-core/authoring";
+import { steps } from "./steps/index.js";
 
-/**
- * M3 topology placeholder stage.
- *
- * Slice M3-003 will implement scoreLayers artifacts + ops and add the `score-layers` step here.
- */
 export default createStage({
   id: "ecology-features-score",
   knobsSchema: Type.Object({}),
-  steps: [],
+  steps: [steps.scoreLayers],
 } as const);

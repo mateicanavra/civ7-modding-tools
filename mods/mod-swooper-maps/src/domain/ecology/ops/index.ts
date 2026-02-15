@@ -9,6 +9,16 @@ import scoreVegetationRainforest from "./vegetation-score-rainforest/index.js";
 import scoreVegetationTaiga from "./vegetation-score-taiga/index.js";
 import scoreVegetationSavannaWoodland from "./vegetation-score-savanna-woodland/index.js";
 import scoreVegetationSagebrushSteppe from "./vegetation-score-sagebrush-steppe/index.js";
+import scoreWetMangrove from "./wet-score-mangrove/index.js";
+import scoreWetMarsh from "./wet-score-marsh/index.js";
+import scoreWetOasis from "./wet-score-oasis/index.js";
+import scoreWetTundraBog from "./wet-score-tundra-bog/index.js";
+import scoreWetWateringHole from "./wet-score-watering-hole/index.js";
+import scoreReef from "./reef-score-reef/index.js";
+import scoreColdReef from "./reef-score-cold-reef/index.js";
+import scoreReefAtoll from "./reef-score-atoll/index.js";
+import scoreReefLotus from "./reef-score-lotus/index.js";
+import scoreIce from "./ice-score-ice/index.js";
 
 import planWetlands from "./features-plan-wetlands/index.js";
 import planReefs from "./features-plan-reefs/index.js";
@@ -44,6 +54,16 @@ const implementations = {
   scoreVegetationTaiga,
   scoreVegetationSavannaWoodland,
   scoreVegetationSagebrushSteppe,
+  scoreWetMarsh,
+  scoreWetTundraBog,
+  scoreWetMangrove,
+  scoreWetOasis,
+  scoreWetWateringHole,
+  scoreReef,
+  scoreColdReef,
+  scoreReefAtoll,
+  scoreReefLotus,
+  scoreIce,
 
   planPlotEffects,
 
@@ -71,6 +91,16 @@ export {
   scoreVegetationTaiga,
   scoreVegetationSavannaWoodland,
   scoreVegetationSagebrushSteppe,
+  scoreWetMangrove,
+  scoreWetMarsh,
+  scoreWetOasis,
+  scoreWetTundraBog,
+  scoreWetWateringHole,
+  scoreReef,
+  scoreColdReef,
+  scoreReefAtoll,
+  scoreReefLotus,
+  scoreIce,
 
   planWetlands,
   planReefs,
