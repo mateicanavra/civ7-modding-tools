@@ -107,6 +107,14 @@ export default createStep(PlotRiversStepContract, {
     logStats("POST-MODELRIVERS");
     context.adapter.validateAndFixTerrain();
     logStats("POST-VALIDATE");
+    context.adapter.defineNamedRivers();
+
+    // map-ecology runs immediately after map-hydrology in this recipe.
+    // Refresh area/water caches after river + validation terrain edits so
+    // downstream engine checks read current topology.
+    context.adapter.recalculateAreas();
+    context.adapter.storeWaterData();
+
     const physics = context.buffers.heightfield;
     const engine = snapshotEngineHeightfield(context);
     if (engine) {
@@ -139,6 +147,5 @@ export default createStep(PlotRiversStepContract, {
         }),
       });
     }
-    context.adapter.defineNamedRivers();
   },
 });
