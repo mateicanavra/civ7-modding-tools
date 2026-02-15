@@ -107,15 +107,22 @@ export function applyPlacementPlan({
   }
 
   const slotByTile = landmassRegionSlotByTile.slotByTile;
+  let landmassRegionRestampError: string | undefined;
 
   try {
     applyLandmassRegionSlots(adapter, width, height, slotByTile as Uint8Array);
     emit({ type: "placement.landmassRegion.restamped" });
   } catch (err) {
+    landmassRegionRestampError = err instanceof Error ? err.message : String(err);
     emit({
       type: "placement.landmassRegion.error",
-      error: err instanceof Error ? err.message : String(err),
+      error: landmassRegionRestampError,
     });
+  }
+  if (landmassRegionRestampError) {
+    throw new Error(
+      `[SWOOPER_MOD] Aborting placement: landmass region restamp failed (${landmassRegionRestampError}).`
+    );
   }
 
   try {
