@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/prr-epp-s4-resources-deterministic
+
+### Quick Take
+- Deterministic resource planning/stamping and adapter updates are coherent.
+
+### High-Leverage Issues
+- No blocking branch-local defect confirmed in this pass.
+
+### PR Comment Context
+- PR #1265 has no unresolved review threads.
+- PR #1265: feat(placement): implement deterministic resource planning and stamping (https://github.com/mateicanavra/civ7-modding-tools/pull/1265)
+
+### Fix Now (Recommended)
+- None immediate.
+
+### Defer / Follow-up
+- Run seed-matrix balance validations under S6 hardening.
+
+### Needs Discussion
+- Candidate resource-set governance across configs/mods.
+
+### Cross-cutting Risks
+- Adapter/runtime differences can still affect deterministic outcomes.
+- Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
