@@ -617,3 +617,21 @@ handoff_rewrite:
     - kept_yaml_for_enumerables_only
   status: complete
 ```
+
+## Checkpoint 16 — Integration Restack Agent Bootstrap (2026-02-15)
+
+```yaml
+cleanup_and_bootstrap:
+  closed_prior_agents:
+    - 019c5fba-8360-7693-bf46-1e908bbeaf98
+    - 019c5fba-84de-7740-af86-c5f539171317
+    - 019c5fba-8669-7411-9303-98d2cfdc53d5
+  removed_worktrees:
+    - /private/tmp/wt-m4-s03-baseline-check
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-agent-ORCH-foundation-domain-axe-execution
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s02-core
+  renamed_integration_worktree:
+    from: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+    to: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
+  next_action: spawn_default_agent_RS1_for_post_ecology_restack
+```
