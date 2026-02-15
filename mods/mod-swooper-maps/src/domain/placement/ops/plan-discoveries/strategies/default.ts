@@ -8,13 +8,41 @@ type Candidate = {
   plotIndex: number;
   priority: number;
   relief: number;
+  preferredDiscoveryOffset: number;
 };
+
+type DiscoveryCandidate = {
+  discoveryVisualType: number;
+  discoveryActivationType: number;
+};
+
+function sanitizeCandidateDiscoveries(values: DiscoveryCandidate[]): DiscoveryCandidate[] {
+  const unique = new Set<string>();
+  const candidates: DiscoveryCandidate[] = [];
+  for (const raw of values) {
+    if (!Number.isFinite(raw?.discoveryVisualType) || !Number.isFinite(raw?.discoveryActivationType)) continue;
+    const discoveryVisualType = (raw.discoveryVisualType as number) | 0;
+    const discoveryActivationType = (raw.discoveryActivationType as number) | 0;
+    if (discoveryVisualType < 0 || discoveryActivationType < 0) continue;
+    const key = `${discoveryVisualType}:${discoveryActivationType}`;
+    if (unique.has(key)) continue;
+    unique.add(key);
+    candidates.push({
+      discoveryVisualType,
+      discoveryActivationType,
+    });
+  }
+  return candidates;
+}
 
 export const defaultStrategy = createStrategy(PlanDiscoveriesContract, "default", {
   run: (input, config) => {
     const width = input.width | 0;
     const height = input.height | 0;
     const size = Math.max(0, width * height);
+    const candidateDiscoveries = sanitizeCandidateDiscoveries(
+      input.candidateDiscoveries ?? []
+    );
     if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
       throw new Error("[Placement] Invalid landMask for placement/plan-discoveries.");
     }
@@ -55,6 +83,17 @@ export const defaultStrategy = createStrategy(PlanDiscoveriesContract, "default"
       return {
         width,
         height,
+        candidateDiscoveries,
+        targetCount: 0,
+        plannedCount: 0,
+        placements: [],
+      };
+    }
+    if (candidateDiscoveries.length === 0) {
+      return {
+        width,
+        height,
+        candidateDiscoveries: [],
         targetCount: 0,
         plannedCount: 0,
         placements: [],
@@ -68,7 +107,12 @@ export const defaultStrategy = createStrategy(PlanDiscoveriesContract, "default"
       const reliefN = clamp01((reliefByTile[i] ?? 0) / reliefScale);
       const aridity = clamp01(input.aridityIndex[i] ?? 0);
       const priority = clamp01(reliefN * 0.65 + (1 - aridity) * 0.35);
-      candidates.push({ plotIndex: i, priority, relief: reliefN });
+      const discoverySignature = clamp01((reliefN + (1 - aridity)) * 0.5);
+      const preferredDiscoveryOffset = Math.min(
+        candidateDiscoveries.length - 1,
+        Math.floor(discoverySignature * candidateDiscoveries.length)
+      );
+      candidates.push({ plotIndex: i, priority, relief: reliefN, preferredDiscoveryOffset });
     }
 
     candidates.sort((a, b) => {
@@ -84,8 +128,9 @@ export const defaultStrategy = createStrategy(PlanDiscoveriesContract, "default"
     const minSpacingTiles = Math.max(0, config.minSpacingTiles | 0);
     const selected: Array<{
       plotIndex: number;
-      discoveryVisualType: number;
-      discoveryActivationType: number;
+      preferredDiscoveryVisualType: number;
+      preferredDiscoveryActivationType: number;
+      preferredDiscoveryOffset: number;
       priority: number;
     }> = [];
 
@@ -102,10 +147,12 @@ export const defaultStrategy = createStrategy(PlanDiscoveriesContract, "default"
       }
       if (tooClose) continue;
 
+      const preferredDiscovery = candidateDiscoveries[candidate.preferredDiscoveryOffset]!;
       selected.push({
         plotIndex: candidate.plotIndex,
-        discoveryVisualType: input.discoveryVisualType | 0,
-        discoveryActivationType: input.discoveryActivationType | 0,
+        preferredDiscoveryVisualType: preferredDiscovery.discoveryVisualType,
+        preferredDiscoveryActivationType: preferredDiscovery.discoveryActivationType,
+        preferredDiscoveryOffset: candidate.preferredDiscoveryOffset,
         priority: candidate.priority,
       });
     }
@@ -113,6 +160,7 @@ export const defaultStrategy = createStrategy(PlanDiscoveriesContract, "default"
     return {
       width,
       height,
+      candidateDiscoveries,
       targetCount,
       plannedCount: selected.length,
       placements: selected,

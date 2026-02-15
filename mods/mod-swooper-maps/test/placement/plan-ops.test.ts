@@ -79,8 +79,10 @@ describe("placement plan operations", () => {
       aridityIndex: new Float32Array(size).fill(0.4),
       riverClass: new Uint8Array(size),
       lakeMask: new Uint8Array(size),
-      discoveryVisualType: 11,
-      discoveryActivationType: 22,
+      candidateDiscoveries: [
+        { discoveryVisualType: 11, discoveryActivationType: 22 },
+        { discoveryVisualType: 13, discoveryActivationType: 24 },
+      ],
     }, {
       strategy: "default",
       config: { densityPer100Tiles: 10, minSpacingTiles: 1 },
@@ -88,11 +90,23 @@ describe("placement plan operations", () => {
 
     expect(result.plannedCount).toBeGreaterThan(0);
     expect(result.placements.length).toBe(result.plannedCount);
-    expect(result.placements[0]?.discoveryVisualType).toBe(11);
-    expect(result.placements[0]?.discoveryActivationType).toBe(22);
+    expect(result.candidateDiscoveries).toEqual([
+      { discoveryVisualType: 11, discoveryActivationType: 22 },
+      { discoveryVisualType: 13, discoveryActivationType: 24 },
+    ]);
+    for (const placement of result.placements) {
+      expect(placement.preferredDiscoveryOffset).toBeGreaterThanOrEqual(0);
+      expect(
+        result.candidateDiscoveries.some(
+          (candidate) =>
+            candidate.discoveryVisualType === placement.preferredDiscoveryVisualType &&
+            candidate.discoveryActivationType === placement.preferredDiscoveryActivationType
+        )
+      ).toBe(true);
+    }
   });
 
-  it("prefers runtime-discovered resource candidates over authored config candidates", () => {
+  it("uses adapter-owned resource candidate catalog for planning", () => {
     const width = 6;
     const height = 4;
     const size = width * height;
@@ -100,7 +114,7 @@ describe("placement plan operations", () => {
       width,
       height,
       noResourceSentinel: 99,
-      runtimeCandidateResourceTypes: [7, 2, 7, -1, 99],
+      candidateResourceTypes: [7, 2, 7, -1, 99],
       landMask: new Uint8Array(size).fill(1),
       fertility: new Float32Array(size).fill(0.8),
       effectiveMoisture: new Float32Array(size).fill(0.6),
@@ -111,7 +125,7 @@ describe("placement plan operations", () => {
     }, {
       strategy: "default",
       config: {
-        candidateResourceTypes: [1, 3],
+        candidateResourceTypes: [1, 3], // kept for config-compat, ignored for planning input.
         densityPer100Tiles: 25,
         minSpacingTiles: 0,
         maxPlacementsPerResourceShare: 1,
@@ -125,7 +139,7 @@ describe("placement plan operations", () => {
     }
   });
 
-  it("falls back to authored config candidates when runtime candidates are empty", () => {
+  it("returns an empty plan when adapter candidate catalog is empty", () => {
     const width = 6;
     const height = 4;
     const size = width * height;
@@ -133,7 +147,7 @@ describe("placement plan operations", () => {
       width,
       height,
       noResourceSentinel: 99,
-      runtimeCandidateResourceTypes: [],
+      candidateResourceTypes: [],
       landMask: new Uint8Array(size).fill(1),
       fertility: new Float32Array(size).fill(0.8),
       effectiveMoisture: new Float32Array(size).fill(0.6),
@@ -151,11 +165,10 @@ describe("placement plan operations", () => {
       },
     });
 
-    expect(result.candidateResourceTypes).toEqual([1, 5]);
-    expect(result.placements.length).toBeGreaterThan(0);
-    for (const placement of result.placements) {
-      expect(result.candidateResourceTypes.includes(placement.preferredResourceType)).toBe(true);
-    }
+    expect(result.candidateResourceTypes).toEqual([]);
+    expect(result.targetCount).toBe(0);
+    expect(result.plannedCount).toBe(0);
+    expect(result.placements).toEqual([]);
   });
 
   it("returns an empty plan when no usable candidates remain after sentinel filtering", () => {
@@ -166,7 +179,7 @@ describe("placement plan operations", () => {
       width,
       height,
       noResourceSentinel: 7,
-      runtimeCandidateResourceTypes: [7, -1, -2],
+      candidateResourceTypes: [7, -1, -2],
       landMask: new Uint8Array(size).fill(1),
       fertility: new Float32Array(size).fill(0.8),
       effectiveMoisture: new Float32Array(size).fill(0.6),

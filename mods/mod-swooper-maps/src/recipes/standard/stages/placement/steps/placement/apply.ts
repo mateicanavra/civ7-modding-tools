@@ -117,6 +117,7 @@ export function applyPlacementPlan({
   const resolvedDiscoveryPlan: DeepReadonly<PlanDiscoveriesOutput> = discoveryPlan ?? {
     width,
     height,
+    candidateDiscoveries: [],
     targetCount: 0,
     plannedCount: 0,
     placements: [],
@@ -426,6 +427,46 @@ type DiscoveryStampingStats = {
   rejectedCount: number;
 };
 
+type DiscoveryCandidate = {
+  discoveryVisualType: number;
+  discoveryActivationType: number;
+};
+
+function discoveryCandidateKey(candidate: DiscoveryCandidate): string {
+  return `${candidate.discoveryVisualType}:${candidate.discoveryActivationType}`;
+}
+
+function sanitizeDiscoveryCandidates(values: ReadonlyArray<DiscoveryCandidate>): DiscoveryCandidate[] {
+  const unique = new Set<string>();
+  const candidates: DiscoveryCandidate[] = [];
+  for (const raw of values) {
+    if (!Number.isFinite(raw?.discoveryVisualType) || !Number.isFinite(raw?.discoveryActivationType)) continue;
+    const discoveryVisualType = (raw.discoveryVisualType as number) | 0;
+    const discoveryActivationType = (raw.discoveryActivationType as number) | 0;
+    if (discoveryVisualType < 0 || discoveryActivationType < 0) continue;
+    const candidate = { discoveryVisualType, discoveryActivationType };
+    const key = discoveryCandidateKey(candidate);
+    if (unique.has(key)) continue;
+    unique.add(key);
+    candidates.push(candidate);
+  }
+  return candidates;
+}
+
+function rotateDiscoveryCandidates(
+  values: ReadonlyArray<DiscoveryCandidate>,
+  offset: number
+): DiscoveryCandidate[] {
+  if (values.length === 0) return [];
+  const length = values.length;
+  const start = ((offset % length) + length) % length;
+  const rotated: DiscoveryCandidate[] = [];
+  for (let i = 0; i < length; i++) {
+    rotated.push(values[(start + i) % length]!);
+  }
+  return rotated;
+}
+
 function stampDiscoveriesFromPlan({
   adapter,
   width,
@@ -450,6 +491,13 @@ function stampDiscoveriesFromPlan({
       `[Placement] Discovery plan cannot satisfy target count (target=${targetCount}, planned=${plannedCount}).`
     );
   }
+  const candidateDiscoveries = sanitizeDiscoveryCandidates(discoveries.candidateDiscoveries ?? []);
+  if (plannedCount > 0 && candidateDiscoveries.length === 0) {
+    throw new Error(
+      `[Placement] Discovery plan has no placeable candidate catalog entries (planned=${plannedCount}).`
+    );
+  }
+  const candidateSet = new Set(candidateDiscoveries.map(discoveryCandidateKey));
 
   let placedCount = 0;
   let skippedOutOfBoundsCount = 0;
@@ -464,12 +512,37 @@ function stampDiscoveriesFromPlan({
 
     const y = (plotIndex / width) | 0;
     const x = plotIndex - y * width;
-    const placed = adapter.stampDiscovery(
-      x,
-      y,
-      placementPlan.discoveryVisualType | 0,
-      placementPlan.discoveryActivationType | 0
+    const preferredDiscoveryOffset = placementPlan.preferredDiscoveryOffset | 0;
+    const orderedCandidates = rotateDiscoveryCandidates(
+      candidateDiscoveries,
+      preferredDiscoveryOffset
     );
+    const preferredCandidate = {
+      discoveryVisualType: placementPlan.preferredDiscoveryVisualType | 0,
+      discoveryActivationType: placementPlan.preferredDiscoveryActivationType | 0,
+    };
+    if (
+      preferredCandidate.discoveryVisualType >= 0 &&
+      preferredCandidate.discoveryActivationType >= 0 &&
+      !candidateSet.has(discoveryCandidateKey(preferredCandidate))
+    ) {
+      orderedCandidates.unshift(preferredCandidate);
+    }
+
+    let placed = false;
+    for (const candidate of orderedCandidates) {
+      if (
+        adapter.stampDiscovery(
+          x,
+          y,
+          candidate.discoveryVisualType,
+          candidate.discoveryActivationType
+        )
+      ) {
+        placed = true;
+        break;
+      }
+    }
     if (placed) placedCount += 1;
     else rejectedCount += 1;
   }

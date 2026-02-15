@@ -74,7 +74,7 @@ These ops produce placement plans/inputs which are then applied in the placement
 
 Placement stage config is currently minimal:
 - placement inputs are derived from runtime config and placement ops,
-- resource planning consumes adapter runtime candidate catalogs when available and falls back to authored candidates when unavailable,
+- resource/discovery planning consumes adapter-owned explicit candidate catalogs (deterministic ordering; no runtime table/default lookups for planning),
 - then placement application runs deterministically given the plan inputs and map artifacts.
 
 ## Ground truth anchors

@@ -1,5 +1,6 @@
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
+import type { DiscoveryCatalogEntry } from "@civ7/adapter";
 import type { PlacementInputsV1 } from "../../placement-inputs.js";
 import { getStandardRuntime } from "../../../../runtime.js";
 
@@ -18,6 +19,25 @@ function sanitizeResourceCandidates(values: number[], noResourceSentinel: number
     unique.add(value);
   }
   return Array.from(unique).sort((a, b) => a - b);
+}
+
+function sanitizeDiscoveryCandidates(values: DiscoveryCatalogEntry[]): DiscoveryCatalogEntry[] {
+  const unique = new Set<string>();
+  const candidates: DiscoveryCatalogEntry[] = [];
+  for (const raw of values) {
+    if (!Number.isFinite(raw?.discoveryVisualType) || !Number.isFinite(raw?.discoveryActivationType)) continue;
+    const discoveryVisualType = (raw.discoveryVisualType as number) | 0;
+    const discoveryActivationType = (raw.discoveryActivationType as number) | 0;
+    if (discoveryVisualType < 0 || discoveryActivationType < 0) continue;
+    const key = `${discoveryVisualType}:${discoveryActivationType}`;
+    if (unique.has(key)) continue;
+    unique.add(key);
+    candidates.push({
+      discoveryVisualType,
+      discoveryActivationType,
+    });
+  }
+  return candidates;
 }
 
 /** Builds placement inputs from map info, authored config, and adapter-owned catalogs. */
@@ -57,18 +77,12 @@ export function buildPlacementInputs(
   const startsPlan = ops.starts({ baseStarts }, config.starts);
   const wondersPlan = ops.wonders({ mapInfo: runtime.mapInfo }, config.wonders);
   const naturalWonderCatalog = context.adapter.getNaturalWonderCatalog();
-  const defaultDiscoveryPlacement = context.adapter.getDefaultDiscoveryPlacement();
+  const discoveryCatalog = sanitizeDiscoveryCandidates(context.adapter.getDiscoveryCatalog());
   const noResourceSentinel = context.adapter.NO_RESOURCE | 0;
-  let runtimeCandidateResourceTypes: number[] = [];
-  try {
-    // Adapter controls this catalog; if unavailable, planner falls back to authored candidates.
-    runtimeCandidateResourceTypes = sanitizeResourceCandidates(
-      context.adapter.getPlaceableResourceTypes(),
-      noResourceSentinel
-    );
-  } catch {
-    runtimeCandidateResourceTypes = [];
-  }
+  const candidateResourceTypes = sanitizeResourceCandidates(
+    context.adapter.getPlaceableResourceTypes(),
+    noResourceSentinel
+  );
   const naturalWonderPlan = ops.naturalWonders(
     {
       width,
@@ -92,8 +106,7 @@ export function buildPlacementInputs(
       aridityIndex: physical.biomeClassification.aridityIndex,
       riverClass: physical.hydrography.riverClass,
       lakeMask: physical.lakePlan.lakeMask,
-      discoveryVisualType: defaultDiscoveryPlacement.discoveryVisualType,
-      discoveryActivationType: defaultDiscoveryPlacement.discoveryActivationType,
+      candidateDiscoveries: discoveryCatalog,
     },
     config.discoveries
   );
@@ -103,7 +116,7 @@ export function buildPlacementInputs(
       width,
       height,
       noResourceSentinel,
-      runtimeCandidateResourceTypes,
+      candidateResourceTypes,
       landMask: physical.topography.landMask,
       fertility: physical.pedology.fertility,
       effectiveMoisture: physical.biomeClassification.effectiveMoisture,
