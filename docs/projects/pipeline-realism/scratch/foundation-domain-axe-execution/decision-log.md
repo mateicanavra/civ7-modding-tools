@@ -30,6 +30,26 @@ decisions:
 ## Decision asks
 - none
 
+## 2026-02-15 — Anti-thrash boundary decisions (shared tectonics vs op-local rules)
+```yaml
+anti_thrash_boundary_decisions:
+  - id: M4-D-041
+    decision: keep_foundation_shared_tectonics_only_for_cross_op_primitives_types_schemas_constants
+    reject:
+      - shared_as_primary_home_for_op_specific_rule_logic
+  - id: M4-D-042
+    decision: require_decomposed_tectonics_ops_to_own_local_rules_implementations
+    guardrails:
+      - strategy_imports_must_be_local_contract_plus_local_rules
+      - no_rule_reexport_shims_from_lib_tectonics
+  - id: M4-D-043
+    decision: delete_compute_tectonic_history_lib_shim_layer_after_decomposed_cutover
+    rationale: disabled_mega_op_should_not_host_active_rule_logic_or_bridge_exports
+  - id: M4-D-044
+    decision: normalize_worktree_state_with_git_reset_before_integration_review
+    rationale: reduce_mm_staged_unstaged_noise_and_restore_single_source_change_view
+```
+
 ## 2026-02-14 — Planning decisions captured during execution kickoff
 ```yaml
 new_decisions:
@@ -220,3 +240,65 @@ restack_alignment_decision:
       S05: 72edaac27
       S06: 9f7cfdfc6
 ```
+
+## 2026-02-15 - Foundation stage architecture cut (public/compile removal)
+
+- Decision: remove Foundation stage `public` surface + stage `compile` logic entirely in favor of framework-default internal stage surface (knobs + step config).
+- Rationale: enforce architecture posture that stage compile is not a normalization/merge layer.
+
+```yaml
+changed:
+  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+    action: removed public schema + compile; inlined knobs schema in createStage
+  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json
+    action: removed foundation.version/profiles/advanced
+  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/presets/standard/earthlike.json
+    action: removed foundation.version/profiles/advanced
+  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/m11-config-knobs-and-presets.test.ts
+    action: updated expectations to knobs-first foundation surface
+verification:
+  - bun run --cwd mods/mod-swooper-maps check
+  - bun run --cwd mods/mod-swooper-maps lint
+  - bun run --cwd mods/mod-swooper-maps test -- test/m11-config-knobs-and-presets.test.ts test/standard-recipe.test.ts test/foundation/contract-guard.test.ts test/standard-compile-errors.test.ts
+  - bun run --cwd mods/mod-swooper-maps test -- test/foundation/no-op-calls-op-tectonics.test.ts test/foundation/m11-tectonic-events.test.ts
+  - REFRACTOR_DOMAINS="foundation" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full bun run lint:domain-refactor-guardrails
+```
+
+## 2026-02-15 — Future-worker startup discipline decisions
+```yaml
+future_worker_startup_discipline_decisions:
+  - id: M4-D-036
+    decision: require_absolute_execution_worktree_paths_in_all_worker_startup_packets
+    applies_to:
+      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+  - id: M4-D-037
+    decision: require_docs_anchor_and_canonical_example_evidence_before_any_worker_code_edits
+    required_docs:
+      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/mods/swooper-maps/architecture.md
+      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/architecture.md
+      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+  - id: M4-D-038
+    decision: enforce_antipattern_denylist_no_stage_compile_runtime_merge_no_manual_public_internal_translation_no_runtime_stage_defaulting
+  - id: M4-D-039
+    decision: require_pre_handoff_verification_gate_logs_before_orchestrator_acceptance
+    required_commands:
+      - bun run --cwd mods/mod-swooper-maps check
+      - bun run --cwd mods/mod-swooper-maps lint
+      - REFRACTOR_DOMAINS="foundation" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full bun run lint:domain-refactor-guardrails
+      - bun run --cwd mods/mod-swooper-maps test -- test/foundation/contract-guard.test.ts test/foundation/no-op-calls-op-tectonics.test.ts test/foundation/m11-tectonic-events.test.ts test/m11-config-knobs-and-presets.test.ts test/standard-recipe.test.ts
+  - id: M4-D-040
+    decision: enforce_orchestrator_oversight_checklist_and_reject_worker_handoff_on_first_missing_item
+    escalation: append_decision_ask_and_stop
+```
+
+## Proposed target
+- Decision log remains the auditable source for startup-discipline policy changes and exceptions.
+
+## Changes landed
+- Added M4-D-036 through M4-D-040 covering path-lock, docs-anchor, anti-pattern denylist, verification gates, and oversight enforcement.
+
+## Open risks
+- If gate commands evolve, decision entries must be updated in lockstep with `00-plan.md` and `stack-ledger.md`.
+
+## Decision asks
+- none

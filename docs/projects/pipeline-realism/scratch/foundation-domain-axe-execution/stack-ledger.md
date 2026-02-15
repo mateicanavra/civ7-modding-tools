@@ -45,6 +45,42 @@ stacks:
 ## Decision asks
 - none
 
+## 2026-02-15 — Hygiene and scope-lock snapshot
+```yaml
+scope_lock_snapshot:
+  decomposed_tectonics_ops:
+    - compute-era-plate-membership
+    - compute-segment-events
+    - compute-hotspot-events
+    - compute-era-tectonic-fields
+    - compute-tectonic-history-rollups
+    - compute-tectonics-current
+    - compute-tracer-advection
+    - compute-tectonic-provenance
+  enforced_shape:
+    strategies_import_only_local_contract_and_rules: true
+    local_rules_reexporting_lib_tectonics: false
+  removed_bridge_layer:
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib
+```
+
+```yaml
+verification_snapshot_post_scope_lock:
+  check: pass
+  lint: pass
+  foundation_guardrails_full: pass
+  focused_tests:
+    - test/foundation/contract-guard.test.ts
+    - test/foundation/no-op-calls-op-tectonics.test.ts
+    - test/foundation/m11-tectonic-events.test.ts
+    - test/foundation/m11-tectonic-segments-history.test.ts
+    - test/foundation/tile-projection-materials.test.ts
+    - test/m11-config-knobs-and-presets.test.ts
+    - test/standard-recipe.test.ts
+    - test/standard-compile-errors.test.ts
+  focused_tests_status: pass
+```
+
 ## Issue to Slice to Gate Map
 ```yaml
 issue_slice_gate_map:
@@ -276,3 +312,78 @@ IG1_entry_readiness:
   S06: true
   integration_gate_required_before_S04: true
 ```
+
+## 2026-02-15 - Hotspot remediation wave (architecture-first)
+
+```yaml
+slices_impacted:
+  - codex/prr-m4-s03-tectonics-op-decomposition
+  - codex/prr-m4-s05-ci-strict-core-gates
+  - codex/prr-m4-s06-test-rewrite-architecture-scans
+notable_changes:
+  - foundation stage simplified to knobs-only createStage (no public/compile)
+  - compute-tectonic-history op converted to disabled guardrail surface
+  - tectonics step relies on declared config envelopes only
+  - no-op-calls-op and stage-merge guard tests hardened
+status:
+  check: pass
+  lint_mod: pass
+  foundation_guardrails_full: pass
+  hotspot_tests: pass
+```
+
+## 2026-02-15 — Worker Startup Governance Overlay
+```yaml
+worker_governance_overlay:
+  applies_to_slices:
+    - S04
+    - S07
+    - S08
+    - S09
+    - future_child_slices
+  startup_gate:
+    id: WG-STARTUP
+    required_checks:
+      - worker_prompt_uses_absolute_paths_only
+      - execution_worktree_matches_/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+      - docs_anchor_yaml_block_present
+      - canonical_example_paths_present
+      - antipattern_attestation_present
+  handoff_gate:
+    id: WG-HANDOFF
+    required_checks:
+      - check_command_log_present
+      - lint_command_log_present
+      - foundation_guardrails_full_log_present
+      - hotspot_test_log_present
+      - changed_file_inventory_uses_absolute_paths
+      - decision_log_and_master_scratch_updates_linked
+  rejection_policy:
+    on_missing_check: reject_and_return_to_worker
+    requires_decision_log_entry_for_exceptions: true
+```
+
+## Oversight checklist snapshot
+```yaml
+oversight_checklist_snapshot:
+  owner: orchestrator
+  checklist:
+    - verify_worker_startup_gate_passed_before_first_edit
+    - verify_docs_anchor_paths_are_absolute_and_repo_local
+    - verify_antipattern_denylist_explicitly_passed
+    - verify_handoff_gate_passed_before_integration
+    - verify_rejections_are_recorded_in_master_scratch
+  current_state: active
+```
+
+## Proposed target
+- Ledger enforces startup and handoff governance gates as first-class blockers for all downstream slices.
+
+## Changes landed
+- Added `WG-STARTUP` and `WG-HANDOFF` governance gates plus an orchestrator oversight checklist snapshot.
+
+## Open risks
+- Reused worker templates may still contain relative-path examples and need one-time cleanup.
+
+## Decision asks
+- none
