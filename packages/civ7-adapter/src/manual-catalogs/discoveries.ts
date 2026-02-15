@@ -1,4 +1,4 @@
-import type { DiscoveryCatalogEntry, DiscoveryPlacementDefaults } from "../types.js";
+import type { DiscoveryCatalogEntry } from "../types.js";
 
 /**
  * Canonical unsigned discovery hashes (`u32`) for engine-facing placement.
@@ -35,8 +35,3 @@ export const DISCOVERY_CATALOG: DiscoveryCatalogEntry[] = [
   { discoveryVisualType: IMPROVEMENT_WRECKAGE, discoveryActivationType: BASIC_HASH },
   { discoveryVisualType: IMPROVEMENT_WRECKAGE, discoveryActivationType: INVESTIGATION_HASH },
 ];
-
-export const DEFAULT_DISCOVERY_PLACEMENT: DiscoveryPlacementDefaults = {
-  discoveryVisualType: DISCOVERY_CATALOG[0].discoveryVisualType,
-  discoveryActivationType: DISCOVERY_CATALOG[0].discoveryActivationType,
-};

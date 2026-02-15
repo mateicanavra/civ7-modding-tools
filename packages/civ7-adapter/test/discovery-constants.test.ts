@@ -1,9 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import {
-  DEFAULT_DISCOVERY_PLACEMENT,
-  DISCOVERY_CATALOG,
-} from "../src/manual-catalogs/discoveries.js";
+import { DISCOVERY_CATALOG } from "../src/manual-catalogs/discoveries.js";
 import { createMockAdapter } from "../src/mock-adapter.js";
 
 describe("manual discovery catalog", () => {
@@ -26,7 +23,6 @@ describe("manual discovery catalog", () => {
       { discoveryVisualType: 1318962585, discoveryActivationType: 210036031 },
       { discoveryVisualType: 1318962585, discoveryActivationType: 2398750021 },
     ]);
-    expect(DEFAULT_DISCOVERY_PLACEMENT).toEqual(DISCOVERY_CATALOG[0]);
     for (const entry of DISCOVERY_CATALOG) {
       expect(entry.discoveryVisualType).toBeGreaterThanOrEqual(0);
       expect(entry.discoveryVisualType).toBeLessThanOrEqual(0xffffffff);
