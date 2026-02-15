@@ -35,3 +35,8 @@
   4. Record runtime-vs-viz conclusion and recommended next action.
 - Open questions / blockers: none at re-anchor.
 - Guardrails: absolute paths only; no primary worktree edits; Graphite-only branch operations.
+- [2026-02-15T04:13:58Z] Continuation safety and PR-comment revalidation complete; manifest frozen at docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/continuation-manifest.tsv.
+- [2026-02-15T04:13:58Z] Created missing fix branches/worktrees for T24/T25/T26/T27 with agent-TOMMY naming and absolute paths.
+- [2026-02-15T04:13:58Z] Closed remaining queue: T26 code fix committed with targeted tests passing; T24 validated as inherited snapshot/frontier fix with hydrology test evidence; disposition receipts committed for all remaining non-code tasks.
+- [2026-02-15T04:13:58Z] Consolidated docs started: REVIEW-M4 blocks augmented with per-branch Fix Loop Status; milestone Fix Traceability regenerated from final status ledger; triage updated with T11/T27 decision prompts.
+- [2026-02-15T04:13:58Z] PR-limit guard applied: keep total stack PR submissions under 50; fold low-risk branch only if projected submissions exceed limit.

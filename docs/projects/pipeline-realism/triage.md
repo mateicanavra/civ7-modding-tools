@@ -3,6 +3,8 @@
 Unsequenced follow-ups and “we should do this later” work discovered while reconciling the proposal packets.
 
 ## Triage
+- Follow-up (M4-fix-loop): Decide legacy biome knob compatibility policy for post-classifier posture (`codex/MAMBO-m3-012-fix-biomes-stripes`): explicit shim, explicit compile error, or contract removal; align docs + migration guidance.
+- Follow-up (M4-fix-loop): Decide permanent policy for `maxUpstreamSteps > 0` after deterministic lakes cutover (`codex/prr-epp-s6-hardening-docs-tests`): keep disallowed, or support with enforced hop-invariant/property tests and guardrails.
 - Follow-up (M4-review): Decouple runtime feature placement/stamping from Studio-viz key/category completeness so missing viz metadata never aborts valid gameplay/runtime outcomes.
 - Follow-up (M4-review): Resolve score-layer occupancy baseline conflicts with feature-specific eligibility (notably deep-ocean ice) and add explicit invariant tests for occupancy-vs-score coherence.
 - Follow-up (M4-review): Re-tighten schema strictness for ecology/placement contracts (unknown-key rejection) and add coverage for legacy/retired knob drift.
