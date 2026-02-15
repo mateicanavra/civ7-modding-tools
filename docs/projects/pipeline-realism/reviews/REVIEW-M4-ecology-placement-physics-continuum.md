@@ -147,7 +147,7 @@ This document is append-only for milestone task reviews. Each entry must use:
 - task: M4-T04
 - status: no-action
 - fixBranch: `agent-TOMMY-M4-T04-fix-mambo-m3-005-plan-reefs-deterministic-42c50e`
-- fixPR: omitted (stack PR cap at 50)
+- fixPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1318
 - evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T04.md`.
 ## REVIEW codex/MAMBO-m3-006-plan-wetlands-deterministic
 
@@ -180,7 +180,7 @@ This document is append-only for milestone task reviews. Each entry must use:
 - task: M4-T05
 - status: no-action
 - fixBranch: `agent-TOMMY-M4-T05-fix-mambo-m3-006-plan-wetlands-deterministic-284a7e`
-- fixPR: omitted (stack PR cap at 50)
+- fixPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1319
 - evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T05.md`.
 ## REVIEW codex/MAMBO-m3-007-plan-vegetation-deterministic
 
@@ -213,7 +213,7 @@ This document is append-only for milestone task reviews. Each entry must use:
 - task: M4-T06
 - status: no-action
 - fixBranch: `agent-TOMMY-M4-T06-fix-mambo-m3-007-plan-vegetation-determinist-33fa9e`
-- fixPR: omitted (stack PR cap at 50)
+- fixPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1320
 - evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T06.md`.
 ## REVIEW codex/MAMBO-m3-008-stamping-strict-features-apply
 
@@ -246,7 +246,7 @@ This document is append-only for milestone task reviews. Each entry must use:
 - task: M4-T07
 - status: no-action
 - fixBranch: `agent-TOMMY-M4-T07-fix-mambo-m3-008-stamping-strict-features-ap-5cbbf9`
-- fixPR: omitted (stack PR cap at 50)
+- fixPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1321
 - evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T07.md`.
 ## REVIEW codex/MAMBO-m3-009-cleanup-delete-legacy-chance
 
@@ -312,7 +312,7 @@ This document is append-only for milestone task reviews. Each entry must use:
 - task: M4-T09
 - status: no-action
 - fixBranch: `agent-TOMMY-M4-T09-fix-mambo-m3-010-post-cutover-cleanup-5fefd4`
-- fixPR: omitted (stack PR cap at 50)
+- fixPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1322
 - evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T09.md`.
 ## REVIEW codex/MAMBO-m3-011-canonical-docs-sweep
 
