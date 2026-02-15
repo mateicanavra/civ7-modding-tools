@@ -149,3 +149,29 @@ slice_progression_decisions:
       - 6193ee133
       - e5beccd72
 ```
+
+## 2026-02-15 — Pre-IG1 alignment and gate decisions
+```yaml
+pre_ig1_alignment_and_gate_decisions:
+  - id: M4-D-029
+    decision: align_S05_S06_on_top_of_S03_using_gt_move_without_rebase
+    command: gt move --source codex/prr-m4-s05-ci-strict-core-gates --onto codex/prr-m4-s03-tectonics-op-decomposition
+    resulting_commits:
+      S05: 5b066753a
+      S06: 6cee8de01
+  - id: M4-D-030
+    decision: accept_pre_IG1_gate_matrix_as_green_except_external_ecology_guardrail_debt
+    gate_summary:
+      G0_build: pass
+      G0_lint: pass
+      G1_adapter_boundary: pass
+      G1_full_domain_guardrails: fail_external_ecology_debt
+      G1_check: pass
+      G2_no_op_calls_op: pass
+      G2_no_dual_contract_paths: pass
+      G2_no_shim_surfaces: pass
+      G2_foundation_topology_lock: pass
+  - id: M4-D-031
+    decision: mark_IG1_entry_ready_and_hold_S04_until_ecology_merge_checkpoint_is_completed
+    owner_issue: LOCAL-TBD-PR-M4-003
+```

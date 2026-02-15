@@ -176,6 +176,37 @@ Verification commands:
 - `bun run --cwd mods/mod-swooper-maps test -- test/pipeline/no-shadow-paths.test.ts`
 - `bun run test:ci`
 
+## 2026-02-15 Execution update (post-S03 restack)
+```yaml
+branch_status:
+  S05_branch: codex/prr-m4-s05-ci-strict-core-gates
+  S05_commit: 5b066753a
+  S06_branch: codex/prr-m4-s06-test-rewrite-architecture-scans
+  S06_commit: 6cee8de01
+  topology: S03 -> S05 -> S06
+
+pre_ig1_gate_run:
+  G0_build: pass
+  G0_lint: pass
+  G1_adapter_boundary: pass
+  G1_full_domain_guardrails: fail
+  G1_check: pass
+  G2_no_op_calls_op: pass
+  G2_no_dual_contract_paths: pass
+  G2_no_shim_surfaces: pass
+  G2_foundation_topology_lock: pass
+
+failure_detail:
+  gate: G1_full_domain_guardrails
+  cause: preexisting_ecology_canonical_module_debt
+  representative_findings:
+    - missing_types_ts_in_compute_feature_substrate
+    - missing_types_ts_in_compute_vegetation_substrate
+    - missing_rules_index_ts_in_plan_wet_placement_ops
+    - missing_types_ts_in_multiple_vegetation_score_ops
+  source_log: .tmp/m4-gates/G1_full_guardrails.log
+```
+
 ## Proposed target
 - M4-005 enforces strict no-shim posture via required CI (G1) and deterministic structural architecture scans (G2), then closes with no-legacy verification (G5).
 

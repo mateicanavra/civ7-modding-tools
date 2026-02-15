@@ -164,3 +164,46 @@ IG1_entry_readiness:
   S05: true
   S06: true
 ```
+
+## Runtime Snapshot Update — 2026-02-15 (post-S03 + restack)
+```yaml
+runtime_snapshot_post_s03_restack:
+  stack_B:
+    S02:
+      branch: codex/prr-m4-s02-contract-freeze-dead-knobs
+      head: 9b65ae462
+      state: committed
+    S03:
+      branch: codex/prr-m4-s03-tectonics-op-decomposition
+      head: 8a596087a
+      state: committed
+  stack_C:
+    S05:
+      branch: codex/prr-m4-s05-ci-strict-core-gates
+      head: 5b066753a
+      parent: codex/prr-m4-s03-tectonics-op-decomposition
+      state: committed
+    S06:
+      branch: codex/prr-m4-s06-test-rewrite-architecture-scans
+      head: 6cee8de01
+      parent: codex/prr-m4-s05-ci-strict-core-gates
+      state: committed
+
+pre_ig1_gate_summary:
+  G0_build: pass
+  G0_lint: pass
+  G1_adapter_boundary: pass
+  G1_full_domain_guardrails: fail_external_ecology_debt
+  G1_check: pass
+  G2_no_op_calls_op: pass
+  G2_no_dual_contract_paths: pass
+  G2_no_shim_surfaces: pass
+  G2_foundation_topology_lock: pass
+
+IG1_entry_readiness:
+  S02: true
+  S03: true
+  S05: true
+  S06: true
+  gate_status: ready_with_external_blocker_documented
+```
