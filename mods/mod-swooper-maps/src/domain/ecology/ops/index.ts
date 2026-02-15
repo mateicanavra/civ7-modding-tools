@@ -33,12 +33,6 @@ import refineBiomeEdges from "./refine-biome-edges/index.js";
 
 import planPlotEffects from "./plan-plot-effects/index.js";
 
-import planWetPlacementMangrove from "./plan-wet-placement-mangrove/index.js";
-import planWetPlacementMarsh from "./plan-wet-placement-marsh/index.js";
-import planWetPlacementOasis from "./plan-wet-placement-oasis/index.js";
-import planWetPlacementTundraBog from "./plan-wet-placement-tundra-bog/index.js";
-import planWetPlacementWateringHole from "./plan-wet-placement-watering-hole/index.js";
-
 const implementations = {
   classifyBiomes,
   classifyPedology,
@@ -66,12 +60,6 @@ const implementations = {
   scoreIce,
 
   planPlotEffects,
-
-  planWetPlacementMarsh,
-  planWetPlacementTundraBog,
-  planWetPlacementMangrove,
-  planWetPlacementOasis,
-  planWetPlacementWateringHole,
 
   planWetlands,
   planReefs,
@@ -114,10 +102,4 @@ export {
   refineBiomeEdges,
 
   planPlotEffects,
-
-  planWetPlacementMarsh,
-  planWetPlacementTundraBog,
-  planWetPlacementMangrove,
-  planWetPlacementOasis,
-  planWetPlacementWateringHole,
 };

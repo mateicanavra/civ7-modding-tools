@@ -18,7 +18,6 @@ const FeaturesPlanStepContract = defineStep({
     ],
     provides: [
       ecologyArtifacts.featureIntentsVegetation,
-      ecologyArtifacts.featureIntentsWetlands,
     ],
   },
   ops: {
@@ -28,27 +27,6 @@ const FeaturesPlanStepContract = defineStep({
     scoreTaiga: ecology.ops.scoreVegetationTaiga,
     scoreSavannaWoodland: ecology.ops.scoreVegetationSavannaWoodland,
     scoreSagebrushSteppe: ecology.ops.scoreVegetationSagebrushSteppe,
-    wetlands: ecology.ops.planWetlands,
-    wetPlacementMarsh: {
-      contract: ecology.ops.planWetPlacementMarsh,
-      defaultStrategy: "disabled",
-    },
-    wetPlacementTundraBog: {
-      contract: ecology.ops.planWetPlacementTundraBog,
-      defaultStrategy: "disabled",
-    },
-    wetPlacementMangrove: {
-      contract: ecology.ops.planWetPlacementMangrove,
-      defaultStrategy: "disabled",
-    },
-    wetPlacementOasis: {
-      contract: ecology.ops.planWetPlacementOasis,
-      defaultStrategy: "disabled",
-    },
-    wetPlacementWateringHole: {
-      contract: ecology.ops.planWetPlacementWateringHole,
-      defaultStrategy: "disabled",
-    },
   },
   schema: Type.Object(
     {
@@ -62,10 +40,10 @@ const FeaturesPlanStepContract = defineStep({
             maximum: 1,
           }),
         },
-        { additionalProperties: false, default: {} }
+        { default: {} }
       ),
     },
-    { additionalProperties: false, description: "Configuration for planning ecology features." }
+    { description: "Configuration for planning ecology features." }
   ),
 });
 
