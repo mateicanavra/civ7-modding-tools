@@ -110,6 +110,37 @@ describe("foundation contract guardrails", () => {
     }
   });
 
+  it("does not reintroduce dead foundation knobs or required-unused inputs", () => {
+    const repoRoot = path.resolve(import.meta.dir, "../..");
+    const roots = [
+      path.join(repoRoot, "src/domain/foundation"),
+      path.join(repoRoot, "src/recipes/standard/stages/foundation"),
+      path.join(repoRoot, "src/maps"),
+    ];
+    const files = roots.flatMap((root) =>
+      listFilesRecursive(root).filter((file) => file.endsWith(".ts") || file.endsWith(".json"))
+    );
+    expect(files.length).toBeGreaterThan(0);
+
+    for (const file of files) {
+      const text = readFileSync(file, "utf8");
+      expect(text).not.toContain("upliftToMaturity");
+      expect(text).not.toContain("ageToMaturity");
+      expect(text).not.toContain("disruptionToMaturity");
+      expect(text).not.toContain("lithosphereProfile");
+      expect(text).not.toContain("mantleProfile");
+      expect(text).not.toContain("potentialMode");
+      expect(text).not.toContain("tangentialSpeed");
+      expect(text).not.toContain("tangentialJitterDeg");
+    }
+
+    const tectonicHistoryContract = readFileSync(
+      path.join(repoRoot, "src/domain/foundation/ops/compute-tectonic-history/contract.ts"),
+      "utf8"
+    );
+    expect(tectonicHistoryContract).not.toContain("segments: FoundationTectonicSegmentsSchema");
+  });
+
   it("publishes maximal foundation artifact ids via contracts", () => {
     expect(foundationArtifacts.mantlePotential.id).toBe(FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG);
     expect(foundationArtifacts.mantleForcing.id).toBe(FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG);

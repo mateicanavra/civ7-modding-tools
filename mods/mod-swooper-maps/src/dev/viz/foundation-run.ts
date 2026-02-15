@@ -11,8 +11,6 @@ const BROWSER_TEST_RECIPE_CONFIG = {
     version: 1,
     profiles: {
       resolutionProfile: "balanced",
-      lithosphereProfile: "maximal-basaltic-lid-v1",
-      mantleProfile: "maximal-potential-v1",
     },
     knobs: {
       plateCount: 28,

@@ -46,7 +46,7 @@ function isContiguous(mesh: { neighborsOffsets: Int32Array; neighbors: Int32Arra
 }
 
 describe("m11 polar plates policy (caps + optional microplates)", () => {
-  it("always emits north+south cap plates (contiguous, tangential motion baseline)", () => {
+  it("always emits north+south cap plates (contiguous)", () => {
     const width = 90;
     const height = 60;
 
@@ -79,7 +79,6 @@ describe("m11 polar plates policy (caps + optional microplates)", () => {
             ...computePlateGraph.defaultConfig.config.polarCaps,
             capFraction: 0.1,
             microplatesPerPole: 0,
-            tangentialSpeed: 1.0,
           },
         },
       }
@@ -134,8 +133,6 @@ describe("m11 polar plates policy (caps + optional microplates)", () => {
             microplatesPerPole: 2,
             microplatesMinPlateCount: 0,
             microplateMinAreaCells,
-            tangentialSpeed: 1.0,
-            tangentialJitterDeg: 18,
           },
         },
       }

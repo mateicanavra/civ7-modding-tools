@@ -6,7 +6,6 @@ import computeMantlePotential from "../../src/domain/foundation/ops/compute-mant
 import computeMantleForcing from "../../src/domain/foundation/ops/compute-mantle-forcing/index.js";
 import computePlateGraph from "../../src/domain/foundation/ops/compute-plate-graph/index.js";
 import computePlateMotion from "../../src/domain/foundation/ops/compute-plate-motion/index.js";
-import computeTectonicSegments from "../../src/domain/foundation/ops/compute-tectonic-segments/index.js";
 import computeTectonicHistory from "../../src/domain/foundation/ops/compute-tectonic-history/index.js";
 import computePlatesTensors from "../../src/domain/foundation/ops/compute-plates-tensors/index.js";
 
@@ -56,13 +55,9 @@ describe("m11 hypsometry: continentalFraction does not collapse water coverage",
     const plateGraph = computePlateGraph.run({ mesh, crust, rngSeed: 3 }, plateGraphConfig).plateGraph;
 
     const plateMotion = derivePlateMotion(mesh, plateGraph, 4);
-    const segments = computeTectonicSegments.run(
-      { mesh, crust, plateGraph, plateMotion },
-      computeTectonicSegments.defaultConfig
-    ).segments;
 
     const history = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, plateMotion, segments },
+      { mesh, crust, mantleForcing, plateGraph, plateMotion },
       {
         ...computeTectonicHistory.defaultConfig,
         config: {

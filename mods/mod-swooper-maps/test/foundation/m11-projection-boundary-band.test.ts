@@ -6,7 +6,6 @@ import computeMantleForcing from "../../src/domain/foundation/ops/compute-mantle
 import computePlateGraph from "../../src/domain/foundation/ops/compute-plate-graph/index.js";
 import computePlateMotion from "../../src/domain/foundation/ops/compute-plate-motion/index.js";
 import computeTectonicHistory from "../../src/domain/foundation/ops/compute-tectonic-history/index.js";
-import computeTectonicSegments from "../../src/domain/foundation/ops/compute-tectonic-segments/index.js";
 import computePlatesTensors from "../../src/domain/foundation/ops/compute-plates-tensors/index.js";
 
 function computeBoundaryTiles(width: number, height: number, plateId: Int16Array): Uint8Array {
@@ -123,13 +122,9 @@ describe("m11 plates projection (boundary band)", () => {
 
     const plateMotion = derivePlateMotion(mesh, plateGraph, 12);
     const mantleForcing = deriveMantleForcing(mesh, 12);
-    const segments = computeTectonicSegments.run(
-      { mesh, crust: crust as any, plateGraph: plateGraph as any, plateMotion: plateMotion as any },
-      computeTectonicSegments.defaultConfig
-    ).segments;
 
     const historyResult = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, plateMotion, segments },
+      { mesh, crust, mantleForcing, plateGraph, plateMotion },
       {
         strategy: "default",
         config: {

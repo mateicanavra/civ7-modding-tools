@@ -198,3 +198,171 @@ bun run --cwd mods/mod-swooper-maps test test/foundation/no-op-calls-op-tectonic
 
 ## Decision asks
 - none
+
+### 2026-02-15 — Compact context bridge (/compact ack) + S02/S03 execution plan
+
+#### Compact context bridge
+- Locked posture remains unchanged: S02 is hard contract cleanup (remove dead knobs + required-but-unused inputs) and boundary cleanup (no op-calls-op in Foundation); S03 is hard decomposition of `compute-tectonic-history` into step-orchestrated focused ops with no compatibility wrapper.
+- Coupling to respect: S02 removes drifted surfaces now, while S03 owns the tectonics sequencing split so `segments` stops being a passed-but-unused history op input and peer-op calls move to step orchestration.
+- Determinism/compatibility guard remains strict: output artifacts (`foundationTectonicSegments`, `foundationTectonicHistory`, `foundationTectonicProvenance`, `foundationTectonics`) must remain schema-compatible for downstream slices.
+
+#### Assumptions
+- Branch `codex/prr-m4-s02-contract-freeze-dead-knobs` is the active S02 base and is clean for S02 changes.
+- S03 branch will stack directly on S02 (`codex/prr-m4-s03-tectonics-op-decomposition`) and include all tectonics-chain rewiring + tests required for no-op-calls-op in this domain.
+- Existing M11 foundation/morphology tests are the primary behavior-regression net for tectonics decomposition in this slice.
+
+#### Slice plan
+1. S02 contract freeze + dead-surface removal:
+   - Remove inert config knobs/required inputs from contracts, stage public schema, presets/configs, and step wiring.
+   - Remove Foundation op-calls-op in tectonics history path by eliminating peer-op invocation from op runtime surface (completed via S03 decomposition chain).
+   - Update affected tests/contracts to assert removed surfaces remain absent.
+2. S03 tectonics op decomposition:
+   - Split mega-op responsibilities into focused ops (`compute-era-plate-membership`, `compute-segment-events`, `compute-hotspot-events`, `compute-era-tectonic-fields`, `compute-tectonic-history-rollups`, `compute-tectonics-current`, `compute-tracer-advection`, `compute-tectonic-provenance`).
+   - Rewire `tectonics` step contract/runtime to orchestrate the chain deterministically; remove `computeTectonicHistory` from foundation op registry/wiring.
+   - Keep artifact outputs stable and deterministic; update tests to call decomposed chain where unit-level coverage previously targeted the mega-op.
+
+#### Verification plan
+```bash
+# S02 dead-surface + required-input removal scans
+rg -n "upliftToMaturity|ageToMaturity|disruptionToMaturity" mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust-evolution
+rg -n "tangentialSpeed|tangentialJitterDeg" mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph
+rg -n "lithosphereProfile|mantleProfile|potentialMode" mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+rg -n "tectonicProvenance" mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust-evolution mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/crustEvolution.ts
+
+# S03 topology and no-op-calls-op scans
+rg -n "computeTectonicHistory|foundation/compute-tectonic-history" mods/mod-swooper-maps/src/domain/foundation/ops mods/mod-swooper-maps/src/recipes/standard/stages/foundation
+rg -n "import\\s+.+\\s+from\\s+\"\\.\\./.+/index\\.js\"" mods/mod-swooper-maps/src/domain/foundation/ops -g 'index.ts'
+
+# required behavior + guard gates for S02/S03
+bun run lint
+bun run lint:adapter-boundary
+REFRACTOR_DOMAINS="foundation,morphology,hydrology,ecology,placement,narrative" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full bun run lint:domain-refactor-guardrails
+bun run --cwd mods/mod-swooper-maps test test/foundation/contract-guard.test.ts
+bun run --cwd mods/mod-swooper-maps test test/foundation/m11-tectonic-events.test.ts
+bun run --cwd mods/mod-swooper-maps test test/foundation/m11-tectonic-segments-history.test.ts
+bun run --cwd mods/mod-swooper-maps test test/foundation/m11-tectonic-segments-polarity-bootstrap.test.ts
+bun run --cwd mods/mod-swooper-maps test test/pipeline/foundation-gates.test.ts
+bun run --cwd mods/mod-swooper-maps test test/pipeline/determinism-suite.test.ts
+bun run --cwd mods/mod-swooper-maps test test/pipeline/no-shadow-paths.test.ts
+```
+
+```yaml
+s02_s03_execution_evidence_paths:
+  planning_sources:
+    - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-A-core-spine.md
+    - docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M4-001-planning-contract-freeze.md
+    - docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M4-002-foundation-ops-boundaries.md
+    - docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+  s02_contract_targets:
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust-evolution/contract.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust-evolution/index.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/contract.ts
+    - mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+    - mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/crustEvolution.contract.ts
+    - mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/crustEvolution.ts
+  s03_decomposition_targets:
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/*
+    - mods/mod-swooper-maps/src/domain/foundation/ops/contracts.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/index.ts
+    - mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.contract.ts
+    - mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts
+    - mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+  s02_s03_tests:
+    - mods/mod-swooper-maps/test/foundation/contract-guard.test.ts
+    - mods/mod-swooper-maps/test/foundation/m11-tectonic-events.test.ts
+    - mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-history.test.ts
+    - mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-polarity-bootstrap.test.ts
+    - mods/mod-swooper-maps/test/pipeline/foundation-gates.test.ts
+    - mods/mod-swooper-maps/test/pipeline/determinism-suite.test.ts
+    - mods/mod-swooper-maps/test/pipeline/no-shadow-paths.test.ts
+```
+
+## Proposed target
+- Land S02 then S03 as stacked Graphite commits: contract-truth cleanup first, then deterministic step-orchestrated tectonics decomposition with stable public artifacts.
+
+## Changes landed
+- Appended compact context bridge, assumptions, slice plan, verification commands, and YAML evidence path block for S02/S03 execution.
+
+## Open risks
+- S03 requires broad unit-test rewiring because many tests currently import/call `computeTectonicHistory` directly.
+- Removing profile fields (`lithosphereProfile`/`mantleProfile`) affects map configs and compile/type tests outside foundation unit scope.
+
+## Decision asks
+- none
+
+### 2026-02-15 — S02 final status (contract freeze + dead knobs)
+
+#### Status
+- S02 is complete in this worktree and ready for stack handoff.
+- Scope held to S02 only (no S03 decomposition work started).
+
+#### Decision notes
+- Removed Foundation dead/inert knobs and required-but-unused inputs across op contracts, stage surface, and config/preset fixtures.
+- Enforced `no op-calls-op` for the targeted tectonic-history mega-op surface by removing peer-op runtime imports/calls from `compute-tectonic-history/index.ts`.
+- Preserved deterministic behavior by extracting local deterministic kernels in `compute-tectonic-history/lib/era-tectonics-kernels.ts` and invoking those kernels directly inside the history op runtime.
+
+#### Verification command log (S02)
+```bash
+$ bun run --cwd mods/mod-swooper-maps lint
+# result: PASS (exit 0)
+
+$ bun run --cwd mods/mod-swooper-maps build
+# result: PASS (exit 0)
+
+$ bun run --cwd mods/mod-swooper-maps check
+# result: PASS (exit 0)
+
+$ bun run --cwd mods/mod-swooper-maps test test/foundation/contract-guard.test.ts test/foundation/m11-polar-plates-policy.test.ts test/foundation/m11-tectonic-events.test.ts test/foundation/m11-tectonic-segments-history.test.ts test/foundation/m11-projection-boundary-band.test.ts test/foundation/mesh-first-ops.test.ts
+# result: PASS (26 pass, 0 fail)
+
+$ bun run --cwd mods/mod-swooper-maps test test/standard-recipe.test.ts test/standard-compile-errors.test.ts test/m11-config-knobs-and-presets.test.ts test/hydrology-knobs.test.ts
+# result: PASS (17 pass, 0 fail)
+
+$ rg dead-surface + no-op-calls-op scan bundle (S02 guard scans)
+# result: PASS
+# - no dead crust-evolution knobs
+# - no dead plate-graph tangential knobs
+# - no inert foundation stage fields
+# - crustEvolution tectonicProvenance surface removed
+# - tectonic-history input.segments removed
+# - no op-calls-op residue in tectonic-history mega-op surface
+```
+
+```yaml
+s02_final_evidence:
+  branch: codex/prr-m4-s02-contract-freeze-dead-knobs
+  key_runtime_changes:
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust-evolution/contract.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust-evolution/index.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/contract.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/era-tectonics-kernels.ts
+  key_stage_contract_changes:
+    - mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+    - mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/crustEvolution.contract.ts
+    - mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/crustEvolution.ts
+    - mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts
+  key_guard_tests:
+    - mods/mod-swooper-maps/test/foundation/contract-guard.test.ts
+    - mods/mod-swooper-maps/test/foundation/m11-tectonic-events.test.ts
+    - mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-history.test.ts
+    - mods/mod-swooper-maps/test/foundation/mesh-first-ops.test.ts
+```
+
+## Proposed target
+- S02 is closed as contract-freeze/dead-knob cleanup with no-op-calls-op enforcement in the targeted tectonics history surface.
+
+## Changes landed
+- Dead/inert knobs removed from Foundation op and stage contract surfaces.
+- Required-but-unused `tectonicProvenance` input removed from crust-evolution contract/runtime and step wiring.
+- Required-but-unused history `input.segments` removed from tectonic-history contract and call sites.
+- Peer-op calls removed from tectonic-history op runtime via local deterministic kernels.
+- Guard and regression tests updated to lock removed surfaces out of the API.
+
+## Open risks
+- Kernel extraction duplicates algorithms currently shared with `compute-plate-motion` / `compute-tectonic-segments`; S03 decomposition should converge these internals to avoid future drift.
+- Full pipeline determinism suite should be rerun during S03 once tectonics op decomposition lands.
+
+## Decision asks
+- none

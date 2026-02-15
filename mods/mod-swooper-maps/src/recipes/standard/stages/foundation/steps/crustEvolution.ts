@@ -19,7 +19,6 @@ export default createStep(CrustEvolutionStepContract, {
     const crustInit = deps.artifacts.foundationCrustInit.read(context);
     const tectonics = deps.artifacts.foundationTectonics.read(context);
     const tectonicHistory = deps.artifacts.foundationTectonicHistory.read(context);
-    const tectonicProvenance = deps.artifacts.foundationTectonicProvenance.read(context);
 
     const crustResult = ops.computeCrustEvolution(
       {
@@ -27,7 +26,6 @@ export default createStep(CrustEvolutionStepContract, {
         crustInit,
         tectonics,
         tectonicHistory,
-        tectonicProvenance,
       },
       config.computeCrustEvolution
     );
@@ -105,4 +103,3 @@ export default createStep(CrustEvolutionStepContract, {
     });
   },
 });
-
