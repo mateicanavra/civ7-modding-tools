@@ -1,0 +1,28 @@
+# task	workBranch	classification	action	note
+M4-T01	codex/MAMBO-m3-002-stage-split-earth-system-first	Fix now	code+docs	legacy ecology key migration/error path missing; unresolved PR #1223
+M4-T02	codex/MAMBO-m3-003-scorelayers-artifact-and-score-ops	Fix now	code+tests	deep-ocean occupancy blanket blocks ice; unresolved PR #1224
+M4-T03	codex/MAMBO-m3-004-plan-ice-deterministic	Fix now	code+tests	seed signedness mismatch; unresolved PR #1225
+M4-T04	codex/MAMBO-m3-005-plan-reefs-deterministic	No actionable fix-now	doc-only	review says none immediate
+M4-T05	codex/MAMBO-m3-006-plan-wetlands-deterministic	No actionable fix-now	doc-only	review says none immediate
+M4-T06	codex/MAMBO-m3-007-plan-vegetation-deterministic	No actionable fix-now	doc-only	review says none immediate
+M4-T07	codex/MAMBO-m3-008-stamping-strict-features-apply	No actionable fix-now	doc-only	timeout finding stale under Bun 1.3.7
+M4-T08	codex/MAMBO-m3-009-cleanup-delete-legacy-chance	Fix now	code+tests	viz mapping throw still reproducible; PR #1230 unresolved
+M4-T09	codex/MAMBO-m3-010-post-cutover-cleanup	No actionable fix-now	doc-only	review says none code-level
+M4-T10	codex/MAMBO-m3-011-canonical-docs-sweep	No actionable fix-now	doc-only	review says none immediate
+M4-T11	codex/MAMBO-m3-012-fix-biomes-stripes	Needs discussion	doc-only	legacy biome knob policy ambiguous; unresolved PR #1233
+M4-T12	codex/MAMBO-m3-014-lakes-not-filled	Already tracked/superseded	doc-only	superseded by codex/MAMBO-lakes-resources-waterfill-rootcause PR #1238
+M4-T13	codex/MAMBO-m3-013-bio-lat-cutoff	Fix now	code+tests	feature category metadata should reflect observed runtime IDs; unresolved PR #1235
+M4-T14	codex/M3-015-hydrology-effectiveMoisture-soils	No actionable fix-now	doc-only	unknown-key rejection active via schema conventions
+M4-T15	codex/default-config-intent-tuning	Already tracked/superseded	doc-only	superseded by codex/prr-epp-s6-hardening-docs-tests PR #1267
+M4-T16	codex/MAMBO-lakes-resources-waterfill-rootcause	No actionable fix-now	doc-only	review says none immediate
+M4-T17	codex/MAMBO-elevation-terrain-parity-audit	No actionable fix-now	doc-only	stale-cache false-negative guard already present
+M4-T18	codex/MAMBO-resources-stamping-rootcause	Fix now	code+tests	restamp fail-open path still reproducible; unresolved PR #1240
+M4-T19	codex/MAMBO-elevation-post-hydrology-lifecycle	No actionable fix-now	doc-only	review says none immediate
+M4-T20	codex/prr-epp-s0-plan-bootstrap	Fix now	docs	absolute local paths still present in canonical plan docs; unresolved PR #1258
+M4-T21	codex/prr-epp-s1-drift-observability	No actionable fix-now	doc-only	review says none immediate
+M4-T22	codex/prr-epp-s2-ecology-physics-cutover	Already tracked/superseded	doc-only	superseded by downstream migrated configs in PR #1267
+M4-T23	codex/prr-epp-s3-lakes-deterministic	Fix now	code+tests	in-pass mutation in lake expansion still reproducible; unresolved PR #1261
+M4-T24	codex/prr-epp-s3b-lakes-regression-fix	Fix now	code+tests	nonzero maxUpstreamSteps remains unsafe without frontier fix
+M4-T25	codex/prr-epp-s4-resources-deterministic	No actionable fix-now	doc-only	review says none immediate
+M4-T26	codex/prr-epp-s5-placement-randomness-zero	Fix now	code+tests	discovery defaults still hardcoded; unresolved PR #1266
+M4-T27	codex/prr-epp-s6-hardening-docs-tests	Needs discussion	doc-only	policy choice: lock maxUpstreamSteps to 0 vs keep configurable

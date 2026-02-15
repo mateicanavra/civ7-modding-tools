@@ -1,0 +1,5 @@
+/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools                                             5eac99f9c [agent-TOMMY-m4-review-bootstrap]
+/private/tmp/wt-m4-s03-baseline-check                                                                    9b65ae462 (detached HEAD)
+/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-agent-ORCH-foundation-domain-axe-execution  54b5238db [codex/agent-ORCH-foundation-domain-axe-execution]
+/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s02-core                             ddf490455 [codex/prr-m4-s03-tectonics-op-decomposition]
+/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails                       9f7cfdfc6 [codex/prr-m4-s06-test-rewrite-architecture-scans]
