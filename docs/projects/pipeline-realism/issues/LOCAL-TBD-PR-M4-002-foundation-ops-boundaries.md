@@ -69,3 +69,21 @@ files:
 ### Prework Findings (Complete)
 1. Decomposition target op list and boundary rationale are already captured in spike agent B output.
 2. Contract drift items to remove are captured in spike agent D output.
+
+### Anchor Pass Remediation (2026-02-15)
+```yaml
+anchor_pass_2026_02_15:
+  finding_id: ANCHOR-F001
+  status: resolved
+  changes:
+    - rewired tests from computeTectonicHistory.run to decomposed-op helper chain
+    - added /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/support/tectonics-history-runner.js for test-only orchestration
+  impacted_tests:
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/foundation/m11-projection-boundary-band.test.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/foundation/mesh-first-ops.test.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/morphology/m11-crust-baseline-consumption.test.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/morphology/m11-hypsometry-continental-fraction.test.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/morphology/m12-mountains-present.test.ts
+  keep_rationale:
+    legacy_stub_compute_tectonic_history: retained_temporarily_as_guard_until_post_IG1_cleanup_trigger
+```

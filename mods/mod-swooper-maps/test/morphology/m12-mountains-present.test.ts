@@ -6,8 +6,8 @@ import computeMantlePotential from "../../src/domain/foundation/ops/compute-mant
 import computeMantleForcing from "../../src/domain/foundation/ops/compute-mantle-forcing/index.js";
 import computePlateGraph from "../../src/domain/foundation/ops/compute-plate-graph/index.js";
 import computePlateMotion from "../../src/domain/foundation/ops/compute-plate-motion/index.js";
-import computeTectonicHistory from "../../src/domain/foundation/ops/compute-tectonic-history/index.js";
 import computePlatesTensors from "../../src/domain/foundation/ops/compute-plates-tensors/index.js";
+import { runTectonicHistoryChain } from "../support/tectonics-history-runner.js";
 
 import computeBaseTopography from "../../src/domain/morphology/ops/compute-base-topography/index.js";
 import computeSeaLevel from "../../src/domain/morphology/ops/compute-sea-level/index.js";
@@ -52,20 +52,20 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
 
     const plateMotion = derivePlateMotion(mesh, plateGraph, 4);
 
-    const history = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, plateMotion },
-      {
-        ...computeTectonicHistory.defaultConfig,
-        config: {
-          ...computeTectonicHistory.defaultConfig.config,
-          eraWeights: [0.3, 0.25, 0.2, 0.15, 0.1],
-          driftStepsByEra: [2, 2, 2, 2, 2],
-          beltInfluenceDistance: 8,
-          beltDecay: 0.55,
-          activityThreshold: 1,
-        },
-      }
-    );
+    const history = runTectonicHistoryChain({
+      mesh,
+      crust,
+      mantleForcing,
+      plateGraph,
+      plateMotion,
+      config: {
+        eraWeights: [0.3, 0.25, 0.2, 0.15, 0.1],
+        driftStepsByEra: [2, 2, 2, 2, 2],
+        beltInfluenceDistance: 8,
+        beltDecay: 0.55,
+        activityThreshold: 1,
+      },
+    });
 
     const projection = computePlatesTensors.run(
       {

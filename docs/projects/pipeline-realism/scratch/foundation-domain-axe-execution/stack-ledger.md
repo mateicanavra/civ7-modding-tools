@@ -387,3 +387,40 @@ oversight_checklist_snapshot:
 
 ## Decision asks
 - none
+
+## Anchoring lane — 2026-02-15
+```yaml
+anchoring_lane:
+  stage: pre_IG1
+  status: in_progress
+  threads:
+    AR1: architecture_red_team
+    AR2: architecture_docs_red_team
+    RP1: reanchor_planning
+  exit_criteria:
+    - orchestrator_anchor_triage_complete
+    - p0_p1_disposition_complete
+    - milestone_and_issue_docs_synced
+    - successor_handoff_doc_ready
+  notes:
+    - do_not_unblock_S04_until_anchor_lane_exit_criteria_are_met
+```
+
+## Anchoring lane closeout — 2026-02-15
+```yaml
+anchoring_lane_closeout:
+  status: complete
+  required_outputs:
+    ranked_findings_pack: complete
+    pre_IG1_fix_list: complete
+    revised_reanchor_plan: complete
+    successor_handoff_bootstrap: complete
+  gate_status:
+    structural: pass
+    project_checks: pass
+    focused_suite: pass
+  forward_state:
+    next_gate: IG1_integration_checkpoint
+    S04_unblocked: false
+    unblock_condition: IG1_complete
+```
