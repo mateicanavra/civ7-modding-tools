@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/MAMBO-m3-010-post-cutover-cleanup
+
+### Quick Take
+- This branch is planning/docs scaffolding for follow-up cleanup work.
+
+### High-Leverage Issues
+- Scope/expectation mismatch risk if interpreted as runtime cleanup completion.
+
+### PR Comment Context
+- PR #1231 has no unresolved inline reviewer findings.
+- PR #1231: docs(pipeline-realism): add post-cutover cleanup and bugfix issues (https://github.com/mateicanavra/civ7-modding-tools/pull/1231)
+
+### Fix Now (Recommended)
+- None code-level.
+
+### Defer / Follow-up
+- Track downstream implementation closure explicitly from this scaffold.
+
+### Needs Discussion
+- Whether docs-only completion should count as milestone implementation completion.
+
+### Cross-cutting Risks
+- Milestone can look complete while execution work remains deferred.
+- Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
