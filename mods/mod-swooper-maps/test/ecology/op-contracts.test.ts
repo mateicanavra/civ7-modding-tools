@@ -1,5 +1,4 @@
 import { describe, expect, it } from "bun:test";
-import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology";
 import ecology from "@mapgen/domain/ecology/ops";
 
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
@@ -592,16 +591,47 @@ describe("ecology op contract surfaces", () => {
     const width = 2;
     const height = 2;
     const size = width * height;
-    const tundra = BIOME_SYMBOL_TO_INDEX.tundra ?? 1;
-    const selection = normalizeOpSelectionOrThrow(ecology.ops.planPlotEffects, {
+
+    const scoreSnowSelection = normalizeOpSelectionOrThrow(ecology.ops.scorePlotEffectsSnow, {
+      strategy: "default",
+      config: {
+        elevationStrategy: "absolute",
+        elevationMin: 0,
+        elevationMax: 3000,
+        elevationPercentileMin: 0,
+        elevationPercentileMax: 1,
+        moistureMin: 0,
+        moistureMax: 200,
+        maxTemperature: 4,
+        maxAridity: 1,
+        freezeWeight: 1,
+        elevationWeight: 1,
+        moistureWeight: 1,
+        scoreNormalization: 2,
+        scoreBias: 0,
+      },
+    });
+
+    const scoreSnowResult = ecology.ops.scorePlotEffectsSnow.run(
+      {
+        width,
+        height,
+        landMask: new Uint8Array(size).fill(1),
+        elevation: new Int16Array(size).fill(2400),
+        effectiveMoisture: new Float32Array(size).fill(120),
+        surfaceTemperature: new Float32Array(size).fill(-6),
+        aridityIndex: new Float32Array(size).fill(0.2),
+        freezeIndex: new Float32Array(size).fill(0.95),
+      },
+      scoreSnowSelection
+    );
+
+    const planSelection = normalizeOpSelectionOrThrow(ecology.ops.planPlotEffects, {
       strategy: "default",
       config: {
         snow: {
           enabled: true,
-          elevationStrategy: "absolute",
-          elevationMin: 0,
-          elevationMax: 3000,
-          coverageChance: 100,
+          coveragePct: 100,
           lightThreshold: 0,
           mediumThreshold: 0,
           heavyThreshold: 0,
@@ -616,16 +646,14 @@ describe("ecology op contract surfaces", () => {
         width,
         height,
         seed: 0,
-        biomeIndex: new Uint8Array(size).fill(tundra),
-        vegetationDensity: new Float32Array(size).fill(0.1),
-        effectiveMoisture: new Float32Array(size).fill(120),
-        surfaceTemperature: new Float32Array(size).fill(-6),
-        aridityIndex: new Float32Array(size).fill(0.2),
-        freezeIndex: new Float32Array(size).fill(0.95),
-        elevation: new Int16Array(size).fill(2400),
-        landMask: new Uint8Array(size).fill(1),
+        snowScore01: scoreSnowResult.score01,
+        snowEligibleMask: scoreSnowResult.eligibleMask,
+        sandScore01: new Float32Array(size),
+        sandEligibleMask: new Uint8Array(size),
+        burnedScore01: new Float32Array(size),
+        burnedEligibleMask: new Uint8Array(size),
       },
-      selection
+      planSelection
     );
 
     expect(result.placements.length).toBeGreaterThan(0);

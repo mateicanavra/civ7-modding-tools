@@ -2,23 +2,6 @@ import { Type, defineOp, TypedArraySchemas } from "@swooper/mapgen-core/authorin
 
 import type { PlotEffectKey } from "@mapgen/domain/ecology/types.js";
 
-const BiomeSymbolSchema = Type.Union(
-  [
-    Type.Literal("snow"),
-    Type.Literal("tundra"),
-    Type.Literal("boreal"),
-    Type.Literal("temperateDry"),
-    Type.Literal("temperateHumid"),
-    Type.Literal("tropicalSeasonal"),
-    Type.Literal("tropicalRainforest"),
-    Type.Literal("desert"),
-  ],
-  {
-    description:
-      "Biome symbol names used by the ecology classifier (maps to engine biome bindings).",
-  }
-);
-
 const createPlotEffectSelectorSchema = (defaultValue: { typeName: PlotEffectKey }) =>
   Type.Object(
     {
@@ -39,60 +22,25 @@ const PlotEffectsSnowSelectorsSchema = Type.Object({
   heavy: createPlotEffectSelectorSchema({ typeName: "PLOTEFFECT_SNOW_HEAVY_PERMANENT" }),
 });
 
-const SnowElevationStrategySchema = Type.Union(
-  [Type.Literal("absolute"), Type.Literal("percentile")],
-  {
-    description:
-      "Elevation normalization strategy for snow scoring: absolute meters or percentile-based land elevation.",
-    default: "absolute",
-  }
-);
-
-const PlotEffectsSnowSchema = Type.Object({
+const PlotEffectsSnowPlanSchema = Type.Object({
   enabled: Type.Boolean({ default: true }),
   selectors: PlotEffectsSnowSelectorsSchema,
-  coverageChance: Type.Number({ default: 80, minimum: 0, maximum: 100 }),
-  freezeWeight: Type.Number({ default: 1, minimum: 0 }),
-  elevationWeight: Type.Number({ default: 1, minimum: 0 }),
-  moistureWeight: Type.Number({ default: 1, minimum: 0 }),
-  scoreNormalization: Type.Number({ default: 3, minimum: 0.0001 }),
-  scoreBias: Type.Number({ default: 0 }),
+  coveragePct: Type.Number({ default: 80, minimum: 0, maximum: 100 }),
   lightThreshold: Type.Number({ default: 0.35, minimum: 0, maximum: 1 }),
   mediumThreshold: Type.Number({ default: 0.6, minimum: 0, maximum: 1 }),
   heavyThreshold: Type.Number({ default: 0.8, minimum: 0, maximum: 1 }),
-  elevationStrategy: SnowElevationStrategySchema,
-  elevationMin: Type.Number({ default: 200 }),
-  elevationMax: Type.Number({ default: 2400 }),
-  elevationPercentileMin: Type.Number({ default: 0.7, minimum: 0, maximum: 1 }),
-  elevationPercentileMax: Type.Number({ default: 0.98, minimum: 0, maximum: 1 }),
-  moistureMin: Type.Number({ default: 40, minimum: 0 }),
-  moistureMax: Type.Number({ default: 160, minimum: 0 }),
-  maxTemperature: Type.Number({ default: 4 }),
-  maxAridity: Type.Number({ default: 0.9, minimum: 0, maximum: 1 }),
 });
 
-const PlotEffectsSandSchema = Type.Object({
+const PlotEffectsSandPlanSchema = Type.Object({
   enabled: Type.Boolean({ default: false }),
   selector: createPlotEffectSelectorSchema({ typeName: "PLOTEFFECT_SAND" }),
-  chance: Type.Number({ default: 18, minimum: 0, maximum: 100 }),
-  minAridity: Type.Number({ default: 0.55, minimum: 0, maximum: 1 }),
-  minTemperature: Type.Number({ default: 18 }),
-  maxFreeze: Type.Number({ default: 0.25, minimum: 0, maximum: 1 }),
-  maxVegetation: Type.Number({ default: 0.2, minimum: 0, maximum: 1 }),
-  maxMoisture: Type.Number({ default: 90, minimum: 0 }),
-  allowedBiomes: Type.Array(BiomeSymbolSchema, { default: ["desert", "temperateDry"] }),
+  coveragePct: Type.Number({ default: 18, minimum: 0, maximum: 100 }),
 });
 
-const PlotEffectsBurnedSchema = Type.Object({
+const PlotEffectsBurnedPlanSchema = Type.Object({
   enabled: Type.Boolean({ default: false }),
   selector: createPlotEffectSelectorSchema({ typeName: "PLOTEFFECT_BURNED" }),
-  chance: Type.Number({ default: 8, minimum: 0, maximum: 100 }),
-  minAridity: Type.Number({ default: 0.45, minimum: 0, maximum: 1 }),
-  minTemperature: Type.Number({ default: 20 }),
-  maxFreeze: Type.Number({ default: 0.2, minimum: 0, maximum: 1 }),
-  maxVegetation: Type.Number({ default: 0.35, minimum: 0, maximum: 1 }),
-  maxMoisture: Type.Number({ default: 110, minimum: 0 }),
-  allowedBiomes: Type.Array(BiomeSymbolSchema, { default: ["temperateDry", "tropicalSeasonal"] }),
+  coveragePct: Type.Number({ default: 8, minimum: 0, maximum: 100 }),
 });
 
 const PlotEffectKeySchema = Type.Unsafe<PlotEffectKey>(
@@ -114,28 +62,34 @@ const PlanPlotEffectsContract = defineOp({
   input: Type.Object({
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
-    seed: Type.Number({ description: "Deterministic seed for plot-effect RNG." }),
-    biomeIndex: TypedArraySchemas.u8({ description: "Biome symbol indices per tile." }),
-    vegetationDensity: TypedArraySchemas.f32({
-      description: "Vegetation density per tile (0..1).",
+    seed: Type.Number({ description: "Deterministic seed for tie-break ordering." }),
+    snowScore01: TypedArraySchemas.f32({
+      description: "Snow suitability score per tile (0..1).",
     }),
-    effectiveMoisture: TypedArraySchemas.f32({ description: "Effective moisture per tile." }),
-    surfaceTemperature: TypedArraySchemas.f32({
-      description: "Surface temperature per tile (C).",
+    snowEligibleMask: TypedArraySchemas.u8({
+      description: "Snow eligibility mask per tile (1=eligible, 0=ineligible).",
     }),
-    aridityIndex: TypedArraySchemas.f32({ description: "Aridity index per tile (0..1)." }),
-    freezeIndex: TypedArraySchemas.f32({ description: "Freeze index per tile (0..1)." }),
-    elevation: TypedArraySchemas.i16({ description: "Elevation per tile (meters)." }),
-    landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
+    sandScore01: TypedArraySchemas.f32({
+      description: "Sand suitability score per tile (0..1).",
+    }),
+    sandEligibleMask: TypedArraySchemas.u8({
+      description: "Sand eligibility mask per tile (1=eligible, 0=ineligible).",
+    }),
+    burnedScore01: TypedArraySchemas.f32({
+      description: "Burned suitability score per tile (0..1).",
+    }),
+    burnedEligibleMask: TypedArraySchemas.u8({
+      description: "Burned eligibility mask per tile (1=eligible, 0=ineligible).",
+    }),
   }),
   output: Type.Object({
     placements: Type.Array(PlotEffectPlacementSchema),
   }),
   strategies: {
     default: Type.Object({
-      snow: PlotEffectsSnowSchema,
-      sand: PlotEffectsSandSchema,
-      burned: PlotEffectsBurnedSchema,
+      snow: PlotEffectsSnowPlanSchema,
+      sand: PlotEffectsSandPlanSchema,
+      burned: PlotEffectsBurnedPlanSchema,
     }),
   },
 });

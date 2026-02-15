@@ -4,7 +4,7 @@ export const NoiseSchema = Type.Object(
   {
     /**
      * Noise amplitude applied to moisture (scalar).
-     * Acts as a multiplier against 0..255 moisture units.
+     * Acts as a scale factor against 0..255 moisture units.
      */
     amplitude: Type.Number({
       description: "Noise amplitude applied to moisture (scalar, multiplies 0..255).",
@@ -20,7 +20,6 @@ export const NoiseSchema = Type.Object(
     }),
   },
   {
-    additionalProperties: false,
     description: "Noise settings for biome moisture variation.",
   }
 );

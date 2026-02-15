@@ -1,5 +1,4 @@
 import { describe, it, expect } from "bun:test";
-import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology";
 import ecology from "@mapgen/domain/ecology/ops";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 
@@ -12,8 +11,6 @@ const createInput = () => {
     width,
     height,
     seed: 0,
-    biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.tundra ?? 1),
-    vegetationDensity: new Float32Array(size).fill(0.1),
     effectiveMoisture: new Float32Array(size).fill(120),
     surfaceTemperature: new Float32Array(size).fill(-6),
     aridityIndex: new Float32Array(size).fill(0.2),
@@ -31,19 +28,53 @@ describe("plot effects (owned)", () => {
       dimensions: { width: input.width, height: input.height },
       latitudeBounds: { topLatitude: 0, bottomLatitude: 0 },
     };
-    const selection = normalizeOpSelectionOrThrow(
+
+    const scoreSnowSelection = normalizeOpSelectionOrThrow(
+      ecology.ops.scorePlotEffectsSnow,
+      {
+        strategy: "default",
+        config: {
+          elevationStrategy: "percentile",
+          elevationPercentileMin: 0,
+          elevationPercentileMax: 1,
+          elevationMin: 0,
+          elevationMax: 3000,
+          moistureMin: 0,
+          moistureMax: 200,
+          maxTemperature: 4,
+          maxAridity: 0.85,
+          freezeWeight: 1,
+          elevationWeight: 1,
+          moistureWeight: 1,
+          scoreNormalization: 2,
+          scoreBias: 0,
+        },
+      },
+      { ctx: { env, knobs: {} }, path: "/ops/scorePlotEffectsSnow" }
+    );
+
+    const scoreSnowResult = ecology.ops.scorePlotEffectsSnow.run(
+      {
+        width: input.width,
+        height: input.height,
+        landMask: input.landMask,
+        elevation: input.elevation,
+        effectiveMoisture: input.effectiveMoisture,
+        surfaceTemperature: input.surfaceTemperature,
+        aridityIndex: input.aridityIndex,
+        freezeIndex: input.freezeIndex,
+      },
+      scoreSnowSelection
+    );
+
+    const planSelection = normalizeOpSelectionOrThrow(
       ecology.ops.planPlotEffects,
       {
         strategy: "default",
         config: {
           snow: {
             enabled: true,
-            elevationStrategy: "percentile",
-            elevationPercentileMin: 0,
-            elevationPercentileMax: 1,
-            elevationMin: 0,
-            elevationMax: 3000,
-            coverageChance: 100,
+            coveragePct: 100,
             lightThreshold: 0.1,
             mediumThreshold: 0.2,
             heavyThreshold: 0.3,
@@ -54,7 +85,21 @@ describe("plot effects (owned)", () => {
       },
       { ctx: { env, knobs: {} }, path: "/ops/planPlotEffects" }
     );
-    const result = ecology.ops.planPlotEffects.run(input, selection);
+
+    const result = ecology.ops.planPlotEffects.run(
+      {
+        width: input.width,
+        height: input.height,
+        seed: input.seed,
+        snowScore01: scoreSnowResult.score01,
+        snowEligibleMask: scoreSnowResult.eligibleMask,
+        sandScore01: new Float32Array(input.width * input.height),
+        sandEligibleMask: new Uint8Array(input.width * input.height),
+        burnedScore01: new Float32Array(input.width * input.height),
+        burnedEligibleMask: new Uint8Array(input.width * input.height),
+      },
+      planSelection
+    );
 
     expect(result.placements.length).toBeGreaterThan(0);
     const anySnow = result.placements.some((placement) =>

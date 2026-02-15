@@ -382,6 +382,51 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
       },
     },
     plotEffects: {
+      scoreSnow: {
+        strategy: "default",
+        config: {
+          elevationStrategy: "percentile" as const,
+          elevationMin: 250,
+          elevationMax: 3000,
+          elevationPercentileMin: 0.78,
+          elevationPercentileMax: 0.98,
+          moistureMin: 40,
+          moistureMax: 150,
+          maxTemperature: 4,
+          maxAridity: 0.85,
+          freezeWeight: 1.0,
+          elevationWeight: 1.0,
+          moistureWeight: 0.6,
+          scoreNormalization: 2.7,
+          scoreBias: 0,
+        },
+      },
+      scoreSand: {
+        strategy: "default",
+        config: {
+          minAridity: 0.65,
+          minTemperature: 22,
+          maxFreeze: 0.25,
+          maxVegetation: 0.15,
+          maxMoisture: 85,
+          allowedBiomes: ["desert", "temperateDry"] as ["desert", "temperateDry"],
+        },
+      },
+      scoreBurned: {
+        strategy: "default",
+        config: {
+          minAridity: 0.42, // Capture more volcanic tiles
+          minTemperature: 18,
+          maxFreeze: 0.25,
+          maxVegetation: 0.35, // Allow more in volcanic areas
+          maxMoisture: 120,
+          allowedBiomes: ["desert", "temperateDry", "tropicalSeasonal"] as [
+            "desert",
+            "temperateDry",
+            "tropicalSeasonal",
+          ],
+        },
+      },
       plotEffects: {
         strategy: "default",
         config: {
@@ -398,57 +443,24 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
                 typeName: "PLOTEFFECT_SNOW_HEAVY_PERMANENT",
               },
             },
-            coverageChance: 55,
-            freezeWeight: 1.0,
-            elevationWeight: 1.0,
-            moistureWeight: 0.6,
-            scoreNormalization: 2.7,
-            scoreBias: 0,
+            coveragePct: 55,
             lightThreshold: 0.4,
             mediumThreshold: 0.65,
             heavyThreshold: 0.82,
-            elevationStrategy: "percentile" as const,
-            elevationMin: 250,
-            elevationMax: 3000,
-            elevationPercentileMin: 0.78,
-            elevationPercentileMax: 0.98,
-            moistureMin: 40,
-            moistureMax: 150,
-            maxTemperature: 4,
-            maxAridity: 0.85,
           },
           sand: {
             enabled: true,
             selector: {
               typeName: "PLOTEFFECT_SAND",
             },
-            chance: 10,
-            minAridity: 0.65,
-            minTemperature: 22,
-            maxFreeze: 0.25,
-            maxVegetation: 0.15,
-            maxMoisture: 85,
-            allowedBiomes: ["desert", "temperateDry"] as [
-              "desert",
-              "temperateDry",
-            ],
+            coveragePct: 10,
           },
           burned: {
             enabled: true,
             selector: {
               typeName: "PLOTEFFECT_BURNED",
             },
-            chance: 16,            // More volcanic scorched earth
-            minAridity: 0.42,      // Capture more volcanic tiles
-            minTemperature: 18,
-            maxFreeze: 0.25,
-            maxVegetation: 0.35,   // Allow more in volcanic areas
-            maxMoisture: 120,
-            allowedBiomes: ["desert", "temperateDry", "tropicalSeasonal"] as [
-              "desert",
-              "temperateDry",
-              "tropicalSeasonal",
-            ],
+            coveragePct: 16,       // More volcanic scorched earth
           },
         },
       },

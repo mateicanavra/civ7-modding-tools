@@ -33,6 +33,9 @@ import scoreResourceBasins from "./resource-score-balance/index.js";
 import refineBiomeEdges from "./refine-biome-edges/index.js";
 
 import planPlotEffects from "./plan-plot-effects/index.js";
+import scorePlotEffectsSnow from "./plot-effects-score-snow/index.js";
+import scorePlotEffectsSand from "./plot-effects-score-sand/index.js";
+import scorePlotEffectsBurned from "./plot-effects-score-burned/index.js";
 
 const implementations = {
   classifyBiomes,
@@ -60,6 +63,9 @@ const implementations = {
   scoreReefLotus,
   scoreIce,
 
+  scorePlotEffectsSnow,
+  scorePlotEffectsSand,
+  scorePlotEffectsBurned,
   planPlotEffects,
 
   planWetlands,
@@ -104,5 +110,8 @@ export {
   scoreResourceBasins,
   refineBiomeEdges,
 
+  scorePlotEffectsSnow,
+  scorePlotEffectsSand,
+  scorePlotEffectsBurned,
   planPlotEffects,
 };
