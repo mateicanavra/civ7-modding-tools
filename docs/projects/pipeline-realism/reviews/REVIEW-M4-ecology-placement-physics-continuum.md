@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/MAMBO-m3-003-scorelayers-artifact-and-score-ops
+
+### Quick Take
+- ScoreLayers substrate landed and enables deterministic feature planning.
+
+### High-Leverage Issues
+- Occupancy base reserves deep ocean and can contradict ice suitability scoring.
+
+### PR Comment Context
+- PR #1224 has one unresolved thread on occupancy/placement semantics.
+- PR #1224: feat(ecology): add score layer operations for wetlands, reefs, and ice features (https://github.com/mateicanavra/civ7-modding-tools/pull/1224)
+
+### Fix Now (Recommended)
+- Remove blanket deep-ocean reservation from shared occupancy base.
+
+### Defer / Follow-up
+- Add dedicated deep-water ice placement coverage tests.
+
+### Needs Discussion
+- Canonical boundary between occupancy hard-blocks and feature-specific constraints.
+
+### Cross-cutting Risks
+- Mismatched occupancy vs score artifacts can mislead truth validation.
+- Runtime-vs-viz mismatch analysis: observed: score and occupancy can disagree for ice-eligible ocean tiles. Gameplay/runtime truth remains authoritative when conflicts exist.
