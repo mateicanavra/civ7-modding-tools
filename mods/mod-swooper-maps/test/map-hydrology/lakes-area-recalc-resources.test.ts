@@ -182,6 +182,7 @@ describe("map-hydrology lakes area/water ordering", () => {
       discoveryPlan: {
         width,
         height,
+        candidateDiscoveries: [],
         targetCount: 0,
         plannedCount: 0,
         placements: [],

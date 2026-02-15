@@ -78,9 +78,18 @@ describe("placement", () => {
       discoveryPlan: {
         width: 4,
         height: 4,
+        candidateDiscoveries: [{ discoveryVisualType: 0, discoveryActivationType: 0 }],
         targetCount: 1,
         plannedCount: 1,
-        placements: [{ plotIndex: 2, discoveryVisualType: 0, discoveryActivationType: 0, priority: 1 }],
+        placements: [
+          {
+            plotIndex: 2,
+            preferredDiscoveryVisualType: 0,
+            preferredDiscoveryActivationType: 0,
+            preferredDiscoveryOffset: 0,
+            priority: 1,
+          },
+        ],
       },
       floodplains,
       resources,
@@ -154,11 +163,24 @@ describe("placement", () => {
         discoveryPlan: {
           width: 4,
           height: 4,
+          candidateDiscoveries: [{ discoveryVisualType: 0, discoveryActivationType: 0 }],
           targetCount: 2,
           plannedCount: 2,
           placements: [
-            { plotIndex: 98, discoveryVisualType: 0, discoveryActivationType: 0, priority: 1 },
-            { plotIndex: 2, discoveryVisualType: 0, discoveryActivationType: 0, priority: 1 },
+            {
+              plotIndex: 98,
+              preferredDiscoveryVisualType: 0,
+              preferredDiscoveryActivationType: 0,
+              preferredDiscoveryOffset: 0,
+              priority: 1,
+            },
+            {
+              plotIndex: 2,
+              preferredDiscoveryVisualType: 0,
+              preferredDiscoveryActivationType: 0,
+              preferredDiscoveryOffset: 0,
+              priority: 1,
+            },
           ],
         },
         floodplains,

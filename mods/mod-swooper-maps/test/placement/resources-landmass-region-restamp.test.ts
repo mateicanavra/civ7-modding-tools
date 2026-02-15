@@ -136,6 +136,7 @@ describe("placement resources landmass-region restamp", () => {
       discoveryPlan: {
         width,
         height,
+        candidateDiscoveries: [],
         targetCount: 0,
         plannedCount: 0,
         placements: [],

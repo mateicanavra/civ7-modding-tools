@@ -9,9 +9,9 @@ const PlanResourcesContract = defineOp({
     noResourceSentinel: Type.Integer({
       description: "Adapter-level sentinel used to represent an empty resource slot.",
     }),
-    runtimeCandidateResourceTypes: Type.Array(Type.Integer(), {
+    candidateResourceTypes: Type.Array(Type.Integer(), {
       description:
-        "Adapter-provided resource candidates (deterministic ordering).",
+        "Adapter-owned deterministic resource candidate catalog.",
       default: [],
     }),
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),

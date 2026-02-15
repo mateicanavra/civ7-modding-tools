@@ -8,7 +8,7 @@
 /// <reference types="@civ7/types" />
 
 import type {
-  DiscoveryPlacementDefaults,
+  DiscoveryCatalogEntry,
   EngineAdapter,
   FeatureData,
   LandmassIdName,
@@ -20,7 +20,7 @@ import type {
   VoronoiUtils,
 } from "./types.js";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
-import { resolveDefaultDiscoveryPlacement } from "./discovery-defaults.js";
+import { resolvePlaceableDiscoveryCatalog } from "./discovery-constants.js";
 import { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.js";
 
 // Import from /base-standard/... — these are external Civ7 runtime paths
@@ -538,30 +538,15 @@ export class Civ7Adapter implements EngineAdapter {
     return catalog;
   }
 
-  getDefaultDiscoveryPlacement(): DiscoveryPlacementDefaults {
-    const discoveryVisualType = (globalThis as Record<string, unknown>).DiscoveryVisualTypes as
-      | Record<string, number>
+  getDiscoveryCatalog(): DiscoveryCatalogEntry[] {
+    const database = (globalThis as Record<string, unknown>).Database as
+      | { makeHash?: (value: string) => number }
       | undefined;
-    const discoveryActivationType = (globalThis as Record<string, unknown>).DiscoveryActivationTypes as
-      | Record<string, number>
-      | undefined;
-    const configuration = (globalThis as Record<string, unknown>).Configuration as
-      | { getGameValue?: (key: string) => unknown }
-      | undefined;
-
-    const defaults = resolveDefaultDiscoveryPlacement({
-      discoveryVisualTypes: discoveryVisualType,
-      discoveryActivationTypes: discoveryActivationType,
-      discoverySiftingImprovements: GameInfo?.DiscoverySiftingImprovements,
-      activeSiftingType: configuration?.getGameValue?.("DiscoverySiftingType"),
-    });
-
-    if (defaults == null) {
-      throw new Error(
-        "[Adapter] Discovery placement defaults are unavailable for active DiscoverySiftingType."
-      );
+    const makeHash = database?.makeHash;
+    if (typeof makeHash !== "function") {
+      throw new Error("[Adapter] Database.makeHash is unavailable for discovery catalog resolution.");
     }
-    return defaults;
+    return resolvePlaceableDiscoveryCatalog((value) => makeHash(value));
   }
 
   generateSnow(width: number, height: number): void {

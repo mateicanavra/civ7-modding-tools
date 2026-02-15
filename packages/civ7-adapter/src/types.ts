@@ -21,7 +21,7 @@ export interface NaturalWonderCatalogEntry {
   direction: number;
 }
 
-export interface DiscoveryPlacementDefaults {
+export interface DiscoveryCatalogEntry {
   discoveryVisualType: number;
   discoveryActivationType: number;
 }
@@ -434,8 +434,8 @@ export interface EngineAdapter {
   /** Engine catalog of natural wonder feature definitions. */
   getNaturalWonderCatalog(): NaturalWonderCatalogEntry[];
 
-  /** Engine default discovery visual + activation types for deterministic stamping. */
-  getDefaultDiscoveryPlacement(): DiscoveryPlacementDefaults;
+  /** Adapter-owned discovery visual/activation catalog for deterministic planners. */
+  getDiscoveryCatalog(): DiscoveryCatalogEntry[];
 
   /**
    * Generate snow terrain

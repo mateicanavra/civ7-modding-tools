@@ -6,7 +6,7 @@
  */
 
 import type {
-  DiscoveryPlacementDefaults,
+  DiscoveryCatalogEntry,
   EngineAdapter,
   FeatureData,
   LandmassIdName,
@@ -190,10 +190,9 @@ const DEFAULT_NATURAL_WONDER_CATALOG: NaturalWonderCatalogEntry[] = [
   { featureType: DEFAULT_FEATURE_TYPES.FEATURE_MOUNT_EVEREST, direction: 0 },
 ];
 
-const DEFAULT_DISCOVERY_PLACEMENT: DiscoveryPlacementDefaults = {
-  discoveryVisualType: 0,
-  discoveryActivationType: 0,
-};
+const DEFAULT_DISCOVERY_CATALOG: DiscoveryCatalogEntry[] = [
+  { discoveryVisualType: 0, discoveryActivationType: 0 },
+];
 
 const DEFAULT_NO_RESOURCE = ADAPTER_NO_RESOURCE;
 const DEFAULT_RESOURCE_TYPE_CATALOG: number[] = [...PLACEABLE_RESOURCE_TYPE_IDS];
@@ -209,6 +208,28 @@ function sanitizeResourceTypeCatalog(input: number[] | undefined, noResource: nu
     unique.add(normalized);
   }
   return Array.from(unique).sort((a, b) => a - b);
+}
+
+function sanitizeDiscoveryCatalog(input: DiscoveryCatalogEntry[] | undefined): DiscoveryCatalogEntry[] {
+  const source = Array.isArray(input) ? input : DEFAULT_DISCOVERY_CATALOG;
+  const unique = new Set<string>();
+  const catalog: DiscoveryCatalogEntry[] = [];
+  for (const entry of source) {
+    const discoveryVisualType = entry?.discoveryVisualType;
+    const discoveryActivationType = entry?.discoveryActivationType;
+    if (!Number.isFinite(discoveryVisualType) || !Number.isFinite(discoveryActivationType)) continue;
+    const visual = (discoveryVisualType as number) | 0;
+    const activation = (discoveryActivationType as number) | 0;
+    if (visual < 0 || activation < 0) continue;
+    const key = `${visual}:${activation}`;
+    if (unique.has(key)) continue;
+    unique.add(key);
+    catalog.push({
+      discoveryVisualType: visual,
+      discoveryActivationType: activation,
+    });
+  }
+  return catalog;
 }
 
 export interface MockAdapterConfig {
@@ -250,8 +271,8 @@ export interface MockAdapterConfig {
   resourceTypeCatalog?: number[];
   /** Natural wonder feature catalog used by deterministic planners. */
   naturalWonderCatalog?: NaturalWonderCatalogEntry[];
-  /** Default discovery visual/activation types used by deterministic planners. */
-  defaultDiscoveryPlacement?: DiscoveryPlacementDefaults;
+  /** Discovery visual/activation candidate catalog used by deterministic planners. */
+  discoveryCatalog?: DiscoveryCatalogEntry[];
   /** Plot effect types and tag sets for getPlotEffectTypesContainingTags. */
   plotEffectTypes?: MockPlotEffectType[];
 }
@@ -288,7 +309,7 @@ export class MockAdapter implements EngineAdapter {
   private noResourceSentinel: number;
   private resourceTypeCatalog: number[];
   private naturalWonderCatalog: NaturalWonderCatalogEntry[];
-  private defaultDiscoveryPlacement: DiscoveryPlacementDefaults;
+  private discoveryCatalog: DiscoveryCatalogEntry[];
   private plotEffectTypes: Array<{ id: number; name: string; tags: Set<string> }>;
   private plotEffectsByIndex: Map<number, Set<number>>;
   private readonly effectEvidence = new Set<string>();
@@ -369,9 +390,7 @@ export class MockAdapter implements EngineAdapter {
       featureType: entry.featureType,
       direction: entry.direction,
     }));
-    this.defaultDiscoveryPlacement = {
-      ...(config.defaultDiscoveryPlacement ?? DEFAULT_DISCOVERY_PLACEMENT),
-    };
+    this.discoveryCatalog = sanitizeDiscoveryCatalog(config.discoveryCatalog);
     this.plotEffectTypes = (config.plotEffectTypes ?? DEFAULT_PLOT_EFFECT_TYPES).map((entry) => ({
       id: entry.id,
       name: entry.name,
@@ -858,8 +877,11 @@ export class MockAdapter implements EngineAdapter {
     }));
   }
 
-  getDefaultDiscoveryPlacement(): DiscoveryPlacementDefaults {
-    return { ...this.defaultDiscoveryPlacement };
+  getDiscoveryCatalog(): DiscoveryCatalogEntry[] {
+    return this.discoveryCatalog.map((entry) => ({
+      discoveryVisualType: entry.discoveryVisualType,
+      discoveryActivationType: entry.discoveryActivationType,
+    }));
   }
 
   generateSnow(width: number, height: number): void {
@@ -995,9 +1017,9 @@ export class MockAdapter implements EngineAdapter {
       featureType: entry.featureType,
       direction: entry.direction,
     }));
-    this.defaultDiscoveryPlacement = {
-      ...(config.defaultDiscoveryPlacement ?? this.defaultDiscoveryPlacement ?? DEFAULT_DISCOVERY_PLACEMENT),
-    };
+    this.discoveryCatalog = sanitizeDiscoveryCatalog(
+      config.discoveryCatalog ?? this.discoveryCatalog ?? DEFAULT_DISCOVERY_CATALOG
+    );
     this.plotEffectTypes = (config.plotEffectTypes ?? DEFAULT_PLOT_EFFECT_TYPES).map((entry) => ({
       id: entry.id,
       name: entry.name,
