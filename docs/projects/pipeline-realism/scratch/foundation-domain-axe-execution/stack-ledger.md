@@ -243,3 +243,36 @@ IG1_entry_readiness:
   S06: true
   gate_status: ready_with_external_ecology_guardrail_blocker_only
 ```
+
+## Runtime Snapshot Update — 2026-02-15 (post-restack)
+```yaml
+runtime_snapshot_post_restack:
+  stack_B:
+    S02:
+      branch: codex/prr-m4-s02-contract-freeze-dead-knobs
+      head: 4def49fbe
+      state: committed
+    S03:
+      branch: codex/prr-m4-s03-tectonics-op-decomposition
+      head: ddf490455
+      state: committed
+  stack_C:
+    S05:
+      branch: codex/prr-m4-s05-ci-strict-core-gates
+      head: 72edaac27
+      state: committed
+    S06:
+      branch: codex/prr-m4-s06-test-rewrite-architecture-scans
+      head: 9f7cfdfc6
+      state: committed
+  orchestrator:
+    branch: codex/agent-ORCH-foundation-domain-axe-execution
+    head: 0f868f8b9
+
+IG1_entry_readiness:
+  S02: true
+  S03: true
+  S05: true
+  S06: true
+  integration_gate_required_before_S04: true
+```
