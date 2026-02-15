@@ -262,7 +262,6 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
   },
   "map-hydrology": {
     knobs: {
-      lakeiness: "normal",
       riverDensity: "dense",
     },
   },

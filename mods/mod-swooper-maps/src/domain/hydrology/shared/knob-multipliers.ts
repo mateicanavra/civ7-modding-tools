@@ -1,6 +1,5 @@
 import type {
   HydrologyDrynessKnob,
-  HydrologyLakeinessKnob,
   HydrologyOceanCouplingKnob,
   HydrologyRiverDensityKnob,
   HydrologySeasonalityKnob,
@@ -82,12 +81,6 @@ export const HYDROLOGY_BASELINE_RAINFALL_SCALE = 180 as const;
 export const HYDROLOGY_OROGRAPHIC_REDUCTION_BASE = 8 as const;
 export const HYDROLOGY_OROGRAPHIC_REDUCTION_PER_STEP = 6 as const;
 export const HYDROLOGY_WATER_GRADIENT_LOWLAND_BONUS_BASE = 2 as const;
-
-export const HYDROLOGY_LAKEINESS_TILES_PER_LAKE_MULTIPLIER = {
-  few: 1.5,
-  normal: 1.0,
-  many: 0.7,
-} as const satisfies Record<HydrologyLakeinessKnob, number>;
 
 export const HYDROLOGY_RIVER_DENSITY_LENGTH_BOUNDS = {
   sparse: { minLength: 7, maxLength: 18 },
