@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/prr-epp-s5-placement-randomness-zero
+
+### Quick Take
+- Deterministic wonders/discoveries cut random placement authority successfully.
+
+### High-Leverage Issues
+- Two significant regressions remain: wonders key compatibility and discovery default mapping semantics.
+
+### PR Comment Context
+- PR #1266 has unresolved P1 and P2 review threads.
+- PR #1266: feat(placement): replace random wonders/discoveries with deterministic stamping (https://github.com/mateicanavra/civ7-modding-tools/pull/1266)
+
+### Fix Now (Recommended)
+- Fix config key migration/compat and ensure discovery defaults reflect active runtime mapping.
+
+### Defer / Follow-up
+- Add conformance tests for non-default discovery mappings.
+
+### Needs Discussion
+- Backward-compatibility expectations for config surfaces during cutover.
+
+### Cross-cutting Risks
+- Branch-local compile/semantic drift risk in modded configs.
+- Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
