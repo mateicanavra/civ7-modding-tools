@@ -102,5 +102,102 @@ describe("map-hydrology/lakes", () => {
     // After storeWaterData: cached water tables reflect the new lake tile.
     expect(adapter.isWater(1, 1)).toBe(true);
   });
-});
 
+  it("keeps sink mismatch as diagnostics (no runtime throw)", () => {
+    const width = 4;
+    const height = 3;
+    const seed = 4321;
+    const mapInfo = {
+      GridWidth: width,
+      GridHeight: height,
+      MinLatitude: -60,
+      MaxLatitude: 60,
+      LakeGenerationFrequency: 5,
+    };
+    const env = {
+      seed,
+      dimensions: { width, height },
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    };
+
+    const adapter = new CachedWaterAdapter({
+      width,
+      height,
+      mapInfo,
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
+      defaultTerrainType: FLAT_TERRAIN,
+    });
+    const context = createExtendedMapContext({ width, height }, adapter, env);
+
+    const size = width * height;
+    context.artifacts.set("artifact:morphology.topography", {
+      elevation: new Int16Array(size),
+      seaLevel: 0,
+      landMask: new Uint8Array(size).fill(1),
+      bathymetry: new Int16Array(size),
+    });
+    context.artifacts.set("artifact:hydrology.hydrography", {
+      runoff: new Float32Array(size),
+      discharge: new Float32Array(size),
+      riverClass: new Uint8Array(size),
+      sinkMask: new Uint8Array(size).fill(1),
+      outletMask: new Uint8Array(size),
+    });
+
+    expect(() => lakes.run(context as any, { tilesPerLakeMultiplier: 1 }, {} as any, buildTestDeps(lakes))).not.toThrow();
+
+    const projection = context.artifacts.get("artifact:hydrology.engineProjectionLakes") as
+      | { sinkMismatchCount: number }
+      | undefined;
+    expect(projection).toBeDefined();
+    expect(projection?.sinkMismatchCount ?? 0).toBeGreaterThan(0);
+  });
+
+  it("uses map info lake frequency directly so default projection does not over-seed lakes", () => {
+    const width = 84;
+    const height = 54;
+    const seed = 9876;
+    const mapInfo = {
+      GridWidth: width,
+      GridHeight: height,
+      MinLatitude: -60,
+      MaxLatitude: 60,
+      LakeGenerationFrequency: 25,
+    };
+    const env = {
+      seed,
+      dimensions: { width, height },
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    };
+
+    const adapter = new CachedWaterAdapter({
+      width,
+      height,
+      mapInfo,
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
+      defaultTerrainType: FLAT_TERRAIN,
+    });
+    const context = createExtendedMapContext({ width, height }, adapter, env);
+
+    const size = width * height;
+    context.artifacts.set("artifact:morphology.topography", {
+      elevation: new Int16Array(size),
+      seaLevel: 0,
+      landMask: new Uint8Array(size).fill(1),
+      bathymetry: new Int16Array(size),
+    });
+    context.artifacts.set("artifact:hydrology.hydrography", {
+      runoff: new Float32Array(size),
+      discharge: new Float32Array(size),
+      riverClass: new Uint8Array(size),
+      sinkMask: new Uint8Array(size),
+      outletMask: new Uint8Array(size),
+    });
+
+    lakes.run(context as any, { tilesPerLakeMultiplier: 1 }, {} as any, buildTestDeps(lakes));
+
+    expect(adapter.calls.generateLakes.at(-1)?.tilesPerLake).toBe(25);
+  });
+});
