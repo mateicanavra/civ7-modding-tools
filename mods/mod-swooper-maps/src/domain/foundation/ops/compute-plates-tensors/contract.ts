@@ -5,79 +5,16 @@ import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 import { FoundationCrustSchema } from "../compute-crust/contract.js";
 import { FoundationPlateGraphSchema } from "../compute-plate-graph/contract.js";
 import { FoundationPlateMotionSchema } from "../compute-plate-motion/contract.js";
-import { FoundationTectonicHistorySchema, FoundationTectonicsSchema } from "../compute-tectonic-history/contract.js";
+import {
+  FoundationTectonicHistorySchema,
+  FoundationTectonicProvenanceSchema,
+  FoundationTectonicsSchema,
+} from "../../lib/tectonics/schemas.js";
 
 function withDescription<T extends TSchema>(schema: T, description: string) {
   const { additionalProperties: _additionalProperties, default: _default, ...rest } = schema as any;
   return Type.Unsafe<Static<T>>({ ...rest, description } as any);
 }
-
-/** Foundation provenance scalars payload (per-cell, newest-era state). */
-const FoundationTectonicProvenanceScalarsSchema = Type.Object(
-  {
-    /** Era index of first appearance per mesh cell (0..eraCount-1). */
-    originEra: TypedArraySchemas.u8({
-      shape: null,
-      description: "Era index of first appearance per mesh cell (0..eraCount-1).",
-    }),
-    /** Origin plate id per mesh cell (plate id; -1 for unknown). */
-    originPlateId: TypedArraySchemas.i16({
-      shape: null,
-      description: "Origin plate id per mesh cell (plate id; -1 for unknown).",
-    }),
-    /** Era index of most recent boundary event per mesh cell (255 = none). */
-    lastBoundaryEra: TypedArraySchemas.u8({
-      shape: null,
-      description: "Era index of most recent boundary event per mesh cell (255 = none).",
-    }),
-    /** Boundary regime associated with lastBoundaryEra (BOUNDARY_TYPE; 255 = none). */
-    lastBoundaryType: TypedArraySchemas.u8({
-      shape: null,
-      description: "Boundary regime associated with lastBoundaryEra (BOUNDARY_TYPE; 255 = none).",
-    }),
-    /** Boundary polarity associated with lastBoundaryEra (-1, 0, +1). */
-    lastBoundaryPolarity: TypedArraySchemas.i8({
-      shape: null,
-      description: "Boundary polarity associated with lastBoundaryEra (-1, 0, +1).",
-    }),
-    /** Boundary intensity associated with lastBoundaryEra (0..255). */
-    lastBoundaryIntensity: TypedArraySchemas.u8({
-      shape: null,
-      description: "Boundary intensity associated with lastBoundaryEra (0..255).",
-    }),
-    /** Normalized crust age per mesh cell (0=new, 255=ancient). */
-    crustAge: TypedArraySchemas.u8({
-      shape: null,
-      description: "Normalized crust age per mesh cell (0=new, 255=ancient).",
-    }),
-  },
-  { description: "Foundation provenance scalars payload (per-cell, newest-era state)." }
-);
-
-/** Foundation tectonic provenance payload (tracer history + scalars). */
-const FoundationTectonicProvenanceSchema = Type.Object(
-  {
-    /** Schema major version. */
-    version: Type.Integer({ minimum: 1, description: "Schema major version." }),
-    /** Number of eras included in the provenance payload. */
-    eraCount: Type.Integer({ minimum: 5, maximum: 8, description: "Number of eras included in the provenance payload." }),
-    /** Number of mesh cells. */
-    cellCount: Type.Integer({ minimum: 1, description: "Number of mesh cells." }),
-    /** Per-era tracer indices (length = eraCount; each entry length = cellCount). */
-    tracerIndex: Type.Immutable(
-      Type.Array(
-        TypedArraySchemas.u32({
-          shape: null,
-          description: "Tracer source cell index per mesh cell (length = cellCount).",
-        }),
-        { description: "Per-era tracer indices (length = eraCount; each entry length = cellCount)." }
-      )
-    ),
-    /** Provenance scalars (final state at newest era). */
-    provenance: FoundationTectonicProvenanceScalarsSchema,
-  },
-  { additionalProperties: false, description: "Foundation tectonic provenance payload (tracer history + scalars)." }
-);
 
 /** Default strategy configuration for computing tile-space plate tensors. */
 const StrategySchema = Type.Object(
