@@ -302,3 +302,44 @@ future_worker_startup_discipline_decisions:
 
 ## Decision asks
 - none
+
+## 2026-02-15 — Anchoring pass governance decisions
+```yaml
+anchoring_governance_decisions:
+  - id: M4-D-041
+    decision: run_exactly_three_fresh_threads_for_anchor_pass_AR1_AR2_RP1
+    active_cap: 3
+  - id: M4-D-042
+    decision: freeze_new_feature_work_until_red_team_triage_completed
+    unblock_condition: p0_p1_findings_resolved_or_explicitly_dispositioned
+  - id: M4-D-043
+    decision: require_docs_first_attestation_with_absolute_paths_in_every_new_anchor_thread
+    required_docs:
+      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/mods/swooper-maps/architecture.md
+      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/architecture.md
+  - id: M4-D-044
+    decision: promote_reanchored_plan_and_successor_handoff_as_blocking_pre_IG1_artifacts
+    artifacts:
+      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-RP1-reanchor-plan.md
+      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/HANDOFF-successor-orchestrator-m4-foundation.md
+```
+
+## 2026-02-15 — Anchor triage disposition decisions
+```yaml
+anchor_triage_disposition_decisions:
+  - id: M4-D-045
+    decision: resolve_anchor_f001_by_rewiring_legacy_test_call_sites_off_compute_tectonic_history
+    artifacts:
+      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/support/tectonics-history-runner.js
+  - id: M4-D-046
+    decision: resolve_anchor_f002_via_milestone_issue_sync_to_actual_runtime_state_pre_S04
+  - id: M4-D-047
+    decision: keep_anchor_f003_for_locked_S07_lane_cut_sequence_and_block_out_of_order_changes
+  - id: M4-D-048
+    decision: resolve_anchor_f004_by_updating_foundation_reference_ops_catalog
+  - id: M4-D-049
+    decision: keep_anchor_f005_legacy_stub_temporarily_with_explicit_post_IG1_deletion_trigger
+  - id: M4-D-050
+    decision: accept_RP1_reanchored_plan_as_canonical_forward_plan_for_IG1_and_post_S04
+```

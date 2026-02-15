@@ -1,7 +1,7 @@
 # M4-foundation-domain-axe-cutover: Foundation Domain Axe (Boundaries, Stages, and Lane Cutover)
 
 **Goal:** Execute a no-legacy, decision-complete Foundation architecture cutover with locked 3-stage topology, op boundary decomposition, phased hard lane split, strict guardrails, and config/docs parity.
-**Status:** Planned
+**Status:** In Progress
 **Owner:** pipeline-realism
 
 <!-- Path roots -->
@@ -15,12 +15,41 @@ $SCRATCH = $PROJECT/scratch/foundation-domain-axe-execution
 
 This milestone converts the Foundation spike into implementation-ready slices and issue contracts, then executes the architectural cutover with no compatibility bridges in the end state.
 
+Current implementation still runs the single `foundation` stage and produces all projection artifacts under `artifact:foundation.*`; the locked 3-stage topology and lane split remain gated to the upcoming `S04` stage-split slice and the `S07` lane cutover slice. These docs now reflect the plan and gate sequencing instead of claiming the split is already reflected in the live recipe.
+
 Locked posture:
 1. 3-stage Foundation topology is mandatory.
 2. Lane split is phased by slice, but final state has zero dual paths.
 3. Dead/inert knobs are removed now.
 4. Guardrails become strict early.
 5. Structure lands before preset retuning.
+
+## Anchor Pass Update (2026-02-15)
+
+```yaml
+anchor_pass_2026_02_15:
+  finding_clusters:
+    - id: ANCHOR-F001
+      status: resolved
+      summary: test suites rewired off disabled compute-tectonic-history mega-op
+    - id: ANCHOR-F002
+      status: resolved
+      summary: issue docs now reflect that 3-stage topology is planned for S04 (not already landed)
+    - id: ANCHOR-F003
+      status: accepted_for_S07
+      summary: lane split remains explicitly gated to S07 to avoid out-of-order churn
+    - id: ANCHOR-F004
+      status: resolved
+      summary: foundation domain reference updated to current ops catalog
+    - id: ANCHOR-F005
+      status: kept_temporarily
+      summary: disabled legacy op stub retained as migration guard; delete after consumer migration stabilizes
+  verification:
+    - bun run --cwd mods/mod-swooper-maps check
+    - bun run --cwd mods/mod-swooper-maps lint
+    - REFRACTOR_DOMAINS=\"foundation\" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full bun run lint:domain-refactor-guardrails
+    - bun run --cwd mods/mod-swooper-maps test -- test/foundation/contract-guard.test.ts test/foundation/no-op-calls-op-tectonics.test.ts test/foundation/m11-tectonic-events.test.ts test/foundation/m11-tectonic-segments-history.test.ts test/foundation/tile-projection-materials.test.ts test/m11-config-knobs-and-presets.test.ts test/standard-recipe.test.ts test/standard-compile-errors.test.ts
+```
 
 Canonical reference:
 - Spike decision source: `$SPIKE`

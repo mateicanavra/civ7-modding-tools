@@ -549,3 +549,57 @@ discipline_lock:
 
 ## Decision asks
 - none
+
+## Checkpoint 13 — Anchoring Team Launch (2026-02-15)
+
+- Mode: architecture red-team + re-anchor planning.
+- Feature work: frozen pending red-team triage outcomes.
+
+```yaml
+checkpoint_13:
+  orchestrator_branch: codex/prr-m4-s06d-foundation-scratch-audit-ledger
+  orchestrator_worktree: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+  active_threads_target:
+    - AR1
+    - AR2
+    - RP1
+  stale_threads_policy:
+    handling: close_if_known_id_else_treat_as_already_closed
+    note: no_resumable_legacy_agent_ids_present_in_current_orchestrator_context
+  startup_packet:
+    requires_absolute_paths: true
+    requires_docs_attestation: true
+    required_docs:
+      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/mods/swooper-maps/architecture.md
+      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/architecture.md
+  planned_outputs:
+    - ranked_findings_pack
+    - p0_p1_fix_queue_before_IG1
+    - revised_execution_plan_post_anchor
+    - successor_handoff_bootstrap
+```
+
+## Checkpoint 14 — Anchor Pass Complete (2026-02-15)
+
+```yaml
+checkpoint_14_anchor_complete:
+  agents:
+    AR1: complete
+    AR2: complete
+    RP1: complete
+  mandatory_findings_resolution:
+    ANCHOR-F001: resolved
+    ANCHOR-F002: resolved
+    ANCHOR-F004: resolved
+  kept_with_rationale:
+    ANCHOR-F003: deferred_to_S07
+    ANCHOR-F005: temporary_guard_stub_with_deletion_trigger
+  verification:
+    structural: pass
+    project_checks: pass
+    focused_suite: pass
+  next_step:
+    - restack_top_branch_after_committing_anchor_artifacts
+    - proceed_to_IG1_integration_prep_using_RP1_plan
+```

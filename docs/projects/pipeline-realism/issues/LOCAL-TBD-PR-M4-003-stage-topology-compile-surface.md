@@ -18,17 +18,20 @@ related_to: [LOCAL-TBD-PR-M4-005]
 ## TL;DR
 - Apply the locked 3-stage Foundation topology and remove compile-surface dual-path/inert fields so stage contracts are explicit and single-path.
 
+Current runtime still executes the single `foundation` stage, and the 3-stage IDs exist only as planned targets. This issue locks the sequencing and signal expectations for the `S04` stage-split slice so that planners and execution slices are aligned before implementation lands.
+
 ## Deliverables
 - Stage split plan for:
   - `foundation-substrate-kinematics`
   - `foundation-tectonics-history`
   - `foundation-projection`
+- Explicit milestone/gate punchlist tying the planned IDs to the pending `S04` slice and the eventually gated `S07` lane split.
 - Step relocation map and stage-ordering contract.
 - Compile surface cleanup list removing sentinel branches and inert stage fields.
 - Full step-id/stage-id break impact matrix for config/tests/diagnostics/traces.
 
 ## Acceptance Criteria
-- [ ] 3-stage topology is explicitly mapped with ordered steps and dependencies.
+- [ ] 3-stage topology is explicitly mapped with ordered steps and dependencies, and the `S04` slice is the first gate toward landing those IDs.
 - [ ] Stage compile sentinel path removal is represented as mandatory cutover work.
 - [ ] Inert stage compile fields are marked for deletion in the same cutover posture.
 - [ ] Break-impact inventory includes recipe config keys, full step IDs, and trace/viz implications.

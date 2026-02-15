@@ -5,8 +5,8 @@ import computeMantlePotential from "../../src/domain/foundation/ops/compute-mant
 import computeMantleForcing from "../../src/domain/foundation/ops/compute-mantle-forcing/index.js";
 import computePlateGraph from "../../src/domain/foundation/ops/compute-plate-graph/index.js";
 import computePlateMotion from "../../src/domain/foundation/ops/compute-plate-motion/index.js";
-import computeTectonicHistory from "../../src/domain/foundation/ops/compute-tectonic-history/index.js";
 import computePlatesTensors from "../../src/domain/foundation/ops/compute-plates-tensors/index.js";
+import { runTectonicHistoryChain } from "../support/tectonics-history-runner.js";
 
 function computeBoundaryTiles(width: number, height: number, plateId: Int16Array): Uint8Array {
   const size = width * height;
@@ -123,19 +123,20 @@ describe("m11 plates projection (boundary band)", () => {
     const plateMotion = derivePlateMotion(mesh, plateGraph, 12);
     const mantleForcing = deriveMantleForcing(mesh, 12);
 
-    const historyResult = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, plateMotion },
-      {
-        strategy: "default",
-        config: {
-          eraWeights: [0.3, 0.25, 0.2, 0.15, 0.1],
-          driftStepsByEra: [2, 2, 2, 2, 2],
-          beltInfluenceDistance: 8,
-          beltDecay: 0.55,
-          activityThreshold: 1,
-        },
-      }
-    );
+    const historyResult = runTectonicHistoryChain({
+      mesh,
+      crust,
+      mantleForcing,
+      plateGraph,
+      plateMotion,
+      config: {
+        eraWeights: [0.3, 0.25, 0.2, 0.15, 0.1],
+        driftStepsByEra: [2, 2, 2, 2, 2],
+        beltInfluenceDistance: 8,
+        beltDecay: 0.55,
+        activityThreshold: 1,
+      },
+    });
 
     const projected = computePlatesTensors.run(
       {

@@ -223,9 +223,9 @@ Key fields:
 - rollups: `upliftTotal`, `fractureTotal`, `volcanismTotal`, `upliftRecentFraction`, `lastActiveEra`
 
 **Ground truth anchors**
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts` (`FoundationTectonicHistorySchema`)
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts` (`computeTectonicHistory`, `buildEraFields`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/validation.ts` (`validateTectonicHistoryArtifact`, `eraCount !== 3` guard)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/contract.ts` (`FoundationTectonicHistorySchema`)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/index.ts` (`computeTectonicHistoryRollups`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts` (`historyResult` publication)
 
 ### `artifact:foundation.tectonicProvenance` (truth; mesh space)
 
@@ -249,7 +249,8 @@ Key fields (all u8 per mesh cell; `0..255`):
 - `cumulativeUplift`
 
 **Ground truth anchors**
-- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts` (`FoundationTectonicsSchema`)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/contract.ts` (`FoundationTectonicsSchema`)
+- `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/index.ts` (`computeTectonicsCurrent`)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts` (`projectPlatesFromModel`, `baseUplift = tectonics.cumulativeUplift ?? tectonics.upliftPotential`)
 
 ### `artifact:foundation.tileToCellIndex` (projection; tile space → mesh cell index)
@@ -327,12 +328,27 @@ FOUNDATION ops are the domain’s compute units. The standard recipe wires them 
 ### Mesh and partition ops (truth)
 - `foundation/compute-mesh` → `{ mesh }`
 - `foundation/compute-crust` → `{ crust }`
+- `foundation/compute-crust-evolution` → `{ crust }`
+- `foundation/compute-mantle-potential` → `{ mantlePotential, sourceCount, sourceType, sourceCell, sourceAmplitude, sourceRadius }`
+- `foundation/compute-mantle-forcing` → `{ mantleForcing, stress, forcingU, forcingV, forcingMag, upwellingClass }`
 - `foundation/compute-plate-graph` → `{ plateGraph }`
+- `foundation/compute-plate-motion` → `{ plateMotion }`
 - `foundation/compute-tectonic-segments` → `{ segments }`
-- `foundation/compute-tectonic-history` → `{ tectonicHistory, tectonics }`
+
+### Tectonic modeling ops (history + diagnostics)
+- `foundation/compute-era-plate-membership` → `{ eraCount, plateIdByEra, eraWeights }`
+- `foundation/compute-segment-events` → `{ events }`
+- `foundation/compute-hotspot-events` → `{ events }`
+- `foundation/compute-era-tectonic-fields` → `{ eraFields }`
+- `foundation/compute-tectonic-history-rollups` → `{ tectonicHistory }`
+- `foundation/compute-tectonics-current` → `{ tectonics }`
+- `foundation/compute-tracer-advection` → `{ tracerIndex }`
+- `foundation/compute-tectonic-provenance` → `{ tectonicProvenance }`
 
 ### Projection op (non-truth)
 - `foundation/compute-plates-tensors` → `{ tileToCellIndex, crustTiles, plates }`
+
+Legacy `foundation/compute-tectonic-history` used to act as a monolithic history + tectonics op; the current surface intentionally removes it so the `tectonics` step bonds to the focused ops above (see `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts`). This reference doc now points readers to the active operations rather than the retired aggregate.
 
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/foundation/index.ts` (`defineDomain({ id: "foundation", ops })`)

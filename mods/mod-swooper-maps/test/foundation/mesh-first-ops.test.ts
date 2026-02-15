@@ -6,9 +6,9 @@ import computeMantlePotential from "../../src/domain/foundation/ops/compute-mant
 import computeMantleForcing from "../../src/domain/foundation/ops/compute-mantle-forcing/index.js";
 import computePlateGraph from "../../src/domain/foundation/ops/compute-plate-graph/index.js";
 import computePlateMotion from "../../src/domain/foundation/ops/compute-plate-motion/index.js";
-import computeTectonicHistory from "../../src/domain/foundation/ops/compute-tectonic-history/index.js";
 import computeTectonicSegments from "../../src/domain/foundation/ops/compute-tectonic-segments/index.js";
 import computePlatesTensors from "../../src/domain/foundation/ops/compute-plates-tensors/index.js";
+import { runTectonicHistoryChain } from "../support/tectonics-history-runner.js";
 
 function neighborsFor(mesh: {
   neighborsOffsets: Int32Array;
@@ -232,14 +232,20 @@ describe("foundation mesh-first ops (slice 2)", () => {
     expect(Array.from(segA.bCell)).toEqual(Array.from(segB.bCell));
     expect(Array.from(segA.regime)).toEqual(Array.from(segB.regime));
 
-    const histA = computeTectonicHistory.run(
-      { mesh, crust: crustA, mantleForcing, plateGraph: graphA, plateMotion },
-      computeTectonicHistory.defaultConfig
-    );
-    const histB = computeTectonicHistory.run(
-      { mesh, crust: crustA, mantleForcing, plateGraph: graphA, plateMotion },
-      computeTectonicHistory.defaultConfig
-    );
+    const histA = runTectonicHistoryChain({
+      mesh,
+      crust: crustA,
+      mantleForcing,
+      plateGraph: graphA,
+      plateMotion,
+    });
+    const histB = runTectonicHistoryChain({
+      mesh,
+      crust: crustA,
+      mantleForcing,
+      plateGraph: graphA,
+      plateMotion,
+    });
 
     expect(Array.from(histA.tectonics.boundaryType)).toEqual(Array.from(histB.tectonics.boundaryType));
     expect(histA.tectonics.boundaryType.length).toBe(mesh.cellCount);
@@ -282,10 +288,13 @@ describe("foundation mesh-first ops (slice 2)", () => {
         { mesh, crust, plateGraph, plateMotion },
         computeTectonicSegments.defaultConfig
       ).segments;
-      const historyResult = computeTectonicHistory.run(
-        { mesh, crust, mantleForcing, plateGraph, plateMotion },
-        computeTectonicHistory.defaultConfig
-      );
+      const historyResult = runTectonicHistoryChain({
+        mesh,
+        crust,
+        mantleForcing,
+        plateGraph,
+        plateMotion,
+      });
 
       const platesTensors = computePlatesTensors.run(
         {
@@ -415,10 +424,13 @@ describe("foundation mesh-first ops (slice 2)", () => {
       { mesh, crust, plateGraph, plateMotion },
       computeTectonicSegments.defaultConfig
     ).segments;
-    const historyResult = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, plateMotion },
-      computeTectonicHistory.defaultConfig
-    );
+    const historyResult = runTectonicHistoryChain({
+      mesh,
+      crust,
+      mantleForcing,
+      plateGraph,
+      plateMotion,
+    });
     const projection = computePlatesTensors.run(
       {
         width,
