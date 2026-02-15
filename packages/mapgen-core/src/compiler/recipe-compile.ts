@@ -77,6 +77,22 @@ export function compileRecipeConfig<const TStages extends readonly StageContract
   const recipe = args.recipe as Readonly<{ stages: readonly StageContractAny[] }>;
   const config = (args.config ?? {}) as Record<string, unknown>;
   const compileOpsById = args.compileOpsById;
+  const declaredStageIds = new Set(recipe.stages.map((stage) => stage.id));
+
+  for (const stageKey of Object.keys(config)) {
+    if (declaredStageIds.has(stageKey)) continue;
+    const message =
+      stageKey === "ecology" &&
+      declaredStageIds.has("ecology-pedology") &&
+      declaredStageIds.has("ecology-biomes")
+        ? 'Unknown stage id "ecology"; use split ecology stages (for example: "ecology-pedology", "ecology-biomes", "ecology-features-score").'
+        : `Unknown stage id "${stageKey}"`;
+    errors.push({
+      code: "config.invalid",
+      path: `/config/${stageKey}`,
+      message,
+    });
+  }
 
   for (const stage of recipe.stages) {
     const stageId = stage.id;
