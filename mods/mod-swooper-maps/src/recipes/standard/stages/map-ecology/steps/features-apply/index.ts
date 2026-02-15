@@ -1,15 +1,19 @@
-import { createStep } from "@swooper/mapgen-core/authoring";
+import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import type { FeatureKey } from "@mapgen/domain/ecology";
 import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
 import FeaturesApplyStepContract from "./contract.js";
 import { reifyFeatureField } from "../features/apply.js";
 import { resolveFeatureKeyLookups } from "../features/feature-keys.js";
 import { buildFeatureTypeVizCategories } from "./viz.js";
+import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 
 const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(FeaturesApplyStepContract, {
+  artifacts: implementArtifacts([ecologyArtifacts.featureApplyDiagnostics], {
+    featureApplyDiagnostics: {},
+  }),
   run: (context, config, ops, deps) => {
     const placements = {
       vegetation: Array.from(deps.artifacts.featureIntentsVegetation.read(context)),
@@ -72,6 +76,60 @@ export default createStep(FeaturesApplyStepContract, {
       applied += 1;
     }
 
+    const rejectionMask = new Uint8Array(width * height);
+    let rejectedCanHaveFeature = 0;
+    let rejectedOutOfBounds = 0;
+    let rejectedUnknownFeature = 0;
+    for (const rejection of rejections) {
+      if (rejection.reason === "canHaveFeature=false") rejectedCanHaveFeature += 1;
+      if (rejection.reason === "out-of-bounds") rejectedOutOfBounds += 1;
+      if (rejection.reason === "unknown-feature-index") rejectedUnknownFeature += 1;
+      if (
+        rejection.x >= 0 &&
+        rejection.x < width &&
+        rejection.y >= 0 &&
+        rejection.y < height
+      ) {
+        rejectionMask[rejection.y * width + rejection.x] = 1;
+      }
+    }
+
+    deps.artifacts.featureApplyDiagnostics.publish(context, {
+      width,
+      height,
+      attempted: resolvedPlacements.length,
+      applied,
+      rejected: rejections.length,
+      rejectedCanHaveFeature,
+      rejectedOutOfBounds,
+      rejectedUnknownFeature,
+      rejectionMask,
+    });
+
+    context.trace.event(() => ({
+      type: "map.ecology.features.parity",
+      attempted: resolvedPlacements.length,
+      applied,
+      rejected: rejections.length,
+      rejectedCanHaveFeature,
+      rejectedOutOfBounds,
+      rejectedUnknownFeature,
+    }));
+
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "map.ecology.features.rejectionMask",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: rejectionMask,
+      meta: defineVizMeta("map.ecology.features.rejectionMask", {
+        label: "Feature Rejection Mask",
+        group: GROUP_MAP_ECOLOGY,
+        palette: "categorical",
+        visibility: "debug",
+      }),
+    });
+
     if (rejections.length > 0) {
       const sample = rejections.slice(0, 12).map((r) => `(${r.x},${r.y}) ${r.feature} ${r.reason}`);
       throw new Error(
@@ -98,7 +156,11 @@ export default createStep(FeaturesApplyStepContract, {
           label: "Feature Type (Engine)",
           group: GROUP_MAP_ECOLOGY,
           palette: "categorical",
-          categories: featureTypeCategories,
+          categories: featureTypeCategories.map((category) => ({
+            value: category.value,
+            label: category.label,
+            color: [...category.color] as [number, number, number, number],
+          })),
         }),
       });
       context.adapter.validateAndFixTerrain();

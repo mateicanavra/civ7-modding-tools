@@ -28,6 +28,30 @@ const LandmassRegionSlotByTileArtifactSchema = Type.Object(
   }
 );
 
+const EngineTerrainSnapshotArtifactSchema = Type.Object(
+  {
+    stage: Type.String({
+      description: "Step identifier that produced this snapshot (e.g. map-hydrology/lakes).",
+    }),
+    width: Type.Integer({ minimum: 1, description: "Map width in tiles." }),
+    height: Type.Integer({ minimum: 1, description: "Map height in tiles." }),
+    landMask: TypedArraySchemas.u8({
+      description: "Engine-derived land mask snapshot (1=land, 0=water), tile order.",
+    }),
+    terrain: TypedArraySchemas.u8({
+      description: "Engine-derived terrain type snapshot (tile order).",
+    }),
+    elevation: TypedArraySchemas.i16({
+      description: "Engine-derived elevation snapshot (tile order).",
+    }),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Machine-readable engine terrain snapshot captured at a projection boundary for parity diagnostics.",
+  }
+);
+
 export const mapArtifacts = {
   projectionMeta: defineArtifact({
     name: "projectionMeta",
@@ -39,5 +63,24 @@ export const mapArtifacts = {
     id: "artifact:map.landmassRegionSlotByTile",
     schema: LandmassRegionSlotByTileArtifactSchema,
   }),
+  morphologyEngineTerrainSnapshot: defineArtifact({
+    name: "morphologyEngineTerrainSnapshot",
+    id: "artifact:map.morphologyEngineTerrainSnapshot",
+    schema: EngineTerrainSnapshotArtifactSchema,
+  }),
+  hydrologyLakesEngineTerrainSnapshot: defineArtifact({
+    name: "hydrologyLakesEngineTerrainSnapshot",
+    id: "artifact:map.hydrologyLakesEngineTerrainSnapshot",
+    schema: EngineTerrainSnapshotArtifactSchema,
+  }),
+  hydrologyRiversEngineTerrainSnapshot: defineArtifact({
+    name: "hydrologyRiversEngineTerrainSnapshot",
+    id: "artifact:map.hydrologyRiversEngineTerrainSnapshot",
+    schema: EngineTerrainSnapshotArtifactSchema,
+  }),
+  placementEngineTerrainSnapshot: defineArtifact({
+    name: "placementEngineTerrainSnapshot",
+    id: "artifact:map.placementEngineTerrainSnapshot",
+    schema: EngineTerrainSnapshotArtifactSchema,
+  }),
 } as const;
-

@@ -5,18 +5,30 @@ import {
   defineVizMeta,
   snapshotEngineHeightfield,
 } from "@swooper/mapgen-core";
-import { createStep } from "@swooper/mapgen-core/authoring";
+import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clampInt } from "@swooper/mapgen-core/lib/math";
 import PlotRiversStepContract from "./plotRivers.contract.js";
 import {
   HYDROLOGY_RIVER_DENSITY_LENGTH_BOUNDS,
 } from "@mapgen/domain/hydrology/shared/knob-multipliers.js";
 import type { HydrologyRiverDensityKnob } from "@mapgen/domain/hydrology/shared/knobs.js";
+import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
+import { mapArtifacts } from "../../../map-artifacts.js";
 
 const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(PlotRiversStepContract, {
+  artifacts: implementArtifacts(
+    [
+      hydrologyHydrographyArtifacts.engineProjectionRivers,
+      mapArtifacts.hydrologyRiversEngineTerrainSnapshot,
+    ],
+    {
+      engineProjectionRivers: {},
+      hydrologyRiversEngineTerrainSnapshot: {},
+    }
+  ),
   normalize: (config, ctx) => {
     const { riverDensity = "normal" as HydrologyRiverDensityKnob } = ctx.knobs as {
       riverDensity?: HydrologyRiverDensityKnob;
@@ -118,6 +130,78 @@ export default createStep(PlotRiversStepContract, {
     const physics = context.buffers.heightfield;
     const engine = snapshotEngineHeightfield(context);
     if (engine) {
+      const lakeMask = new Uint8Array(width * height);
+      const riverMask = new Uint8Array(width * height);
+      const riverMismatchMask = new Uint8Array(width * height);
+      let riverMismatchCount = 0;
+      for (let i = 0; i < width * height; i++) {
+        const terrain = engine.terrain[i] ?? 0;
+        const isRiver = terrain === NAVIGABLE_RIVER_TERRAIN;
+        const isWater = (engine.landMask[i] ?? 1) === 0;
+        if (isRiver) riverMask[i] = 1;
+        if (isWater) lakeMask[i] = 1;
+        if ((hydrography.riverClass[i] ?? 0) > 0 && !isRiver) {
+          riverMismatchMask[i] = 1;
+          riverMismatchCount += 1;
+        }
+      }
+
+      const sinkMismatchCount = lakeMask.reduce((acc, _v, idx) => {
+        if ((hydrography.sinkMask[idx] ?? 0) === 1 && lakeMask[idx] === 0) return acc + 1;
+        return acc;
+      }, 0);
+
+      deps.artifacts.engineProjectionRivers.publish(context, {
+        width,
+        height,
+        lakeMask,
+        riverMask,
+        sinkMismatchCount,
+        riverMismatchCount,
+      });
+
+      deps.artifacts.hydrologyRiversEngineTerrainSnapshot.publish(context, {
+        stage: "map-hydrology/plot-rivers",
+        width,
+        height,
+        landMask: engine.landMask,
+        terrain: engine.terrain,
+        elevation: engine.elevation,
+      });
+
+      context.trace.event(() => ({
+        type: "map.hydrology.rivers.parity",
+        riverMismatchCount,
+        riverMismatchShare: Number((riverMismatchCount / Math.max(1, width * height)).toFixed(4)),
+      }));
+
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "map.hydrology.rivers.engineRiverMask",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: riverMask,
+        meta: defineVizMeta("map.hydrology.rivers.engineRiverMask", {
+          label: "Navigable River Mask (Engine)",
+          group: GROUP_MAP_HYDROLOGY,
+          palette: "categorical",
+          role: "engine",
+        }),
+      });
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: "map.hydrology.rivers.riverMismatchMask",
+        spaceId: TILE_SPACE_ID,
+        dims: { width, height },
+        format: "u8",
+        values: riverMismatchMask,
+        meta: defineVizMeta("map.hydrology.rivers.riverMismatchMask", {
+          label: "River Mismatch Mask",
+          group: GROUP_MAP_HYDROLOGY,
+          palette: "categorical",
+          visibility: "debug",
+        }),
+      });
+
       context.viz?.dumpGrid(context.trace, {
         dataTypeKey: "debug.heightfield.landMask",
         spaceId: TILE_SPACE_ID,
