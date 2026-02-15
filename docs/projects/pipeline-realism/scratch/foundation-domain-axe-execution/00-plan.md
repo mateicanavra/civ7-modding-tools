@@ -71,6 +71,19 @@ gates:
    - `Open risks`
    - `Decision asks`
 
+## Worker Architecture Anchor Protocol (Mandatory)
+1. Before any worker edits code, the worker must read and cite:
+   - `docs/system/mods/swooper-maps/architecture.md`
+   - `docs/system/libs/mapgen/architecture.md`
+   - `docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md`
+2. Before any worker edits code, the worker must inspect at least one in-repo canonical example and cite file path(s) in scratch.
+3. Worker handoffs must include a `docs_anchor` YAML block with:
+   - `docs_read`
+   - `canonical_examples`
+   - `architecture_constraints_applied`
+4. If a worker cannot map the requested change to documented architecture constraints, it must stop and raise a decision ask instead of editing.
+5. Orchestrator cannot accept worker output without explicit architecture-anchor evidence in scratch.
+
 ## Proposed target
 - M4 milestone + issue pack is decision-complete and implementation-ready.
 

@@ -175,3 +175,17 @@ pre_ig1_alignment_and_gate_decisions:
     decision: mark_IG1_entry_ready_and_hold_S04_until_ecology_merge_checkpoint_is_completed
     owner_issue: LOCAL-TBD-PR-M4-003
 ```
+
+## 2026-02-15 — Worker architecture-anchor governance decision
+```yaml
+worker_governance_decision:
+  - id: M4-D-032
+    decision: enforce_docs_first_architecture_anchor_protocol_for_all_future_workers
+    required_docs:
+      - docs/system/mods/swooper-maps/architecture.md
+      - docs/system/libs/mapgen/architecture.md
+      - docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+    enforcement:
+      - worker_scratch_must_include_docs_anchor_yaml
+      - orchestrator_rejects_unanchored_worker_output
+```
