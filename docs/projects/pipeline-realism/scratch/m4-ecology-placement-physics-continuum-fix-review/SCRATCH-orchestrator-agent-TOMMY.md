@@ -44,3 +44,7 @@
 - [2026-02-15T05:07:00Z] Submission under 50-PR cap completed via direct PR creation for 21 additional fix branches (plus existing T01 fix PR), with 5 low-risk no-action tasks marked `omitted (stack PR cap at 50)`: T04, T05, T06, T07, T09.
 - [2026-02-15T05:07:00Z] Recorded PR outputs at `continuation-created-prs.tsv`; updated review/milestone traceability with final fix PR URLs and cap omissions; out-of-scope drift check remains clean.
 - [2026-02-15T05:12:00Z] Continuation-created worktrees for T24/T25/T26/T27 removed with `git worktree remove --force` (submodule-aware cleanup).
+- [2026-02-15T05:25:00Z] Fold pass applied: folded `agent-TOMMY-M4-T27-fix-prr-epp-s6-hardening-docs-tests-4fee2c` into `codex/prr-epp-s6-hardening-docs-tests` to free stack PR capacity.
+- [2026-02-15T05:26:00Z] Closed low-risk fix PRs #1311, #1312, #1314, #1315, #1317 to stay under stack cap while opening missing no-action fix PRs.
+- [2026-02-15T05:28:00Z] Opened previously omitted fix PRs: T04=#1318, T05=#1319, T06=#1320, T07=#1321, T09=#1322; refreshed continuation-created-prs.tsv and milestone/review traceability.
+- [2026-02-15T05:21:00Z] Attempted fold on T25 was aborted via `gt abort --force` after conflict surfaced while restacking `codex/prr-epp-s6-hardening-docs-tests`; no residual conflict state retained.

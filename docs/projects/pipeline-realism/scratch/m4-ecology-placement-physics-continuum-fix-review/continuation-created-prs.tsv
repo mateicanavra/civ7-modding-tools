@@ -2,12 +2,12 @@ task	workBranch	fixBranch	fixStatus	prUrl
 M4-T01	codex/MAMBO-m3-002-stage-split-earth-system-first	agent-TOMMY-M4-T01-fix-mambo-m3-002-stage-split-earth-system-fi-a47102	fixed	https://github.com/mateicanavra/civ7-modding-tools/pull/1296
 M4-T02	codex/MAMBO-m3-003-scorelayers-artifact-and-score-ops	agent-TOMMY-M4-T02-fix-mambo-m3-003-scorelayers-artifact-and-sc-9d3358	fixed	https://github.com/mateicanavra/civ7-modding-tools/pull/1297
 M4-T03	codex/MAMBO-m3-004-plan-ice-deterministic	agent-TOMMY-M4-T03-fix-mambo-m3-004-plan-ice-deterministic-6f0890	fixed	https://github.com/mateicanavra/civ7-modding-tools/pull/1298
-M4-T04	codex/MAMBO-m3-005-plan-reefs-deterministic	agent-TOMMY-M4-T04-fix-mambo-m3-005-plan-reefs-deterministic-42c50e	no-action	omitted-pr-cap
-M4-T05	codex/MAMBO-m3-006-plan-wetlands-deterministic	agent-TOMMY-M4-T05-fix-mambo-m3-006-plan-wetlands-deterministic-284a7e	no-action	omitted-pr-cap
-M4-T06	codex/MAMBO-m3-007-plan-vegetation-deterministic	agent-TOMMY-M4-T06-fix-mambo-m3-007-plan-vegetation-determinist-33fa9e	no-action	omitted-pr-cap
-M4-T07	codex/MAMBO-m3-008-stamping-strict-features-apply	agent-TOMMY-M4-T07-fix-mambo-m3-008-stamping-strict-features-ap-5cbbf9	no-action	omitted-pr-cap
+M4-T04	codex/MAMBO-m3-005-plan-reefs-deterministic	agent-TOMMY-M4-T04-fix-mambo-m3-005-plan-reefs-deterministic-42c50e	no-action	https://github.com/mateicanavra/civ7-modding-tools/pull/1318
+M4-T05	codex/MAMBO-m3-006-plan-wetlands-deterministic	agent-TOMMY-M4-T05-fix-mambo-m3-006-plan-wetlands-deterministic-284a7e	no-action	https://github.com/mateicanavra/civ7-modding-tools/pull/1319
+M4-T06	codex/MAMBO-m3-007-plan-vegetation-deterministic	agent-TOMMY-M4-T06-fix-mambo-m3-007-plan-vegetation-determinist-33fa9e	no-action	https://github.com/mateicanavra/civ7-modding-tools/pull/1320
+M4-T07	codex/MAMBO-m3-008-stamping-strict-features-apply	agent-TOMMY-M4-T07-fix-mambo-m3-008-stamping-strict-features-ap-5cbbf9	no-action	https://github.com/mateicanavra/civ7-modding-tools/pull/1321
 M4-T08	codex/MAMBO-m3-009-cleanup-delete-legacy-chance	agent-TOMMY-M4-T08-fix-mambo-m3-009-cleanup-delete-legacy-chanc-912363	fixed	https://github.com/mateicanavra/civ7-modding-tools/pull/1299
-M4-T09	codex/MAMBO-m3-010-post-cutover-cleanup	agent-TOMMY-M4-T09-fix-mambo-m3-010-post-cutover-cleanup-5fefd4	no-action	omitted-pr-cap
+M4-T09	codex/MAMBO-m3-010-post-cutover-cleanup	agent-TOMMY-M4-T09-fix-mambo-m3-010-post-cutover-cleanup-5fefd4	no-action	https://github.com/mateicanavra/civ7-modding-tools/pull/1322
 M4-T10	codex/MAMBO-m3-011-canonical-docs-sweep	agent-TOMMY-M4-T10-fix-mambo-m3-011-canonical-docs-sweep-f6feb2	no-action	https://github.com/mateicanavra/civ7-modding-tools/pull/1300
 M4-T11	codex/MAMBO-m3-012-fix-biomes-stripes	agent-TOMMY-M4-T11-fix-mambo-m3-012-fix-biomes-stripes-faece2	needs-discussion	https://github.com/mateicanavra/civ7-modding-tools/pull/1301
 M4-T12	codex/MAMBO-m3-014-lakes-not-filled	agent-TOMMY-M4-T12-fix-mambo-m3-014-lakes-not-filled-993ca5	superseded	https://github.com/mateicanavra/civ7-modding-tools/pull/1302

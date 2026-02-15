@@ -62,16 +62,17 @@ Canonical milestone source is the M4 context packet for the ecology continuum re
 - M4-T27 reviewBranch: `agent-TOMMY-M4-T27-review-prr-epp-s6-hardening-docs-tests-4fee2c` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1294
 
 
+
 ## Fix Traceability
 - M4-T01 fixBranch: `agent-TOMMY-M4-T01-fix-mambo-m3-002-stage-split-earth-system-fi-a47102` fixPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1296 outcome: fixed
 - M4-T02 fixBranch: `agent-TOMMY-M4-T02-fix-mambo-m3-003-scorelayers-artifact-and-sc-9d3358` fixPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1297 outcome: fixed
 - M4-T03 fixBranch: `agent-TOMMY-M4-T03-fix-mambo-m3-004-plan-ice-deterministic-6f0890` fixPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1298 outcome: fixed
-- M4-T04 fixBranch: `agent-TOMMY-M4-T04-fix-mambo-m3-005-plan-reefs-deterministic-42c50e` fixPR: omitted (stack PR cap at 50) outcome: no-action
-- M4-T05 fixBranch: `agent-TOMMY-M4-T05-fix-mambo-m3-006-plan-wetlands-deterministic-284a7e` fixPR: omitted (stack PR cap at 50) outcome: no-action
-- M4-T06 fixBranch: `agent-TOMMY-M4-T06-fix-mambo-m3-007-plan-vegetation-determinist-33fa9e` fixPR: omitted (stack PR cap at 50) outcome: no-action
-- M4-T07 fixBranch: `agent-TOMMY-M4-T07-fix-mambo-m3-008-stamping-strict-features-ap-5cbbf9` fixPR: omitted (stack PR cap at 50) outcome: no-action
+- M4-T04 fixBranch: `agent-TOMMY-M4-T04-fix-mambo-m3-005-plan-reefs-deterministic-42c50e` fixPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1318 outcome: no-action
+- M4-T05 fixBranch: `agent-TOMMY-M4-T05-fix-mambo-m3-006-plan-wetlands-deterministic-284a7e` fixPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1319 outcome: no-action
+- M4-T06 fixBranch: `agent-TOMMY-M4-T06-fix-mambo-m3-007-plan-vegetation-determinist-33fa9e` fixPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1320 outcome: no-action
+- M4-T07 fixBranch: `agent-TOMMY-M4-T07-fix-mambo-m3-008-stamping-strict-features-ap-5cbbf9` fixPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1321 outcome: no-action
 - M4-T08 fixBranch: `agent-TOMMY-M4-T08-fix-mambo-m3-009-cleanup-delete-legacy-chanc-912363` fixPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1299 outcome: fixed
-- M4-T09 fixBranch: `agent-TOMMY-M4-T09-fix-mambo-m3-010-post-cutover-cleanup-5fefd4` fixPR: omitted (stack PR cap at 50) outcome: no-action
+- M4-T09 fixBranch: `agent-TOMMY-M4-T09-fix-mambo-m3-010-post-cutover-cleanup-5fefd4` fixPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1322 outcome: no-action
 - M4-T10 fixBranch: `agent-TOMMY-M4-T10-fix-mambo-m3-011-canonical-docs-sweep-f6feb2` fixPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1300 outcome: no-action
 - M4-T11 fixBranch: `agent-TOMMY-M4-T11-fix-mambo-m3-012-fix-biomes-stripes-faece2` fixPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1301 outcome: needs-discussion
 - M4-T12 fixBranch: `agent-TOMMY-M4-T12-fix-mambo-m3-014-lakes-not-filled-993ca5` fixPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1302 outcome: superseded
