@@ -43,6 +43,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T01
+- status: fixed
+- fixBranch: `agent-TOMMY-M4-T01-fix-mambo-m3-002-stage-split-earth-system-fi-a47102`
+- fixPR: pending submission
+- evidence: branch-local fix commit recorded on fix branch.
 ## REVIEW codex/MAMBO-m3-003-scorelayers-artifact-and-score-ops
 
 ### Quick Take
@@ -69,6 +76,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Mismatched occupancy vs score artifacts can mislead truth validation.
 - Runtime-vs-viz mismatch analysis: observed: score and occupancy can disagree for ice-eligible ocean tiles. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T02
+- status: fixed
+- fixBranch: `agent-TOMMY-M4-T02-fix-mambo-m3-003-scorelayers-artifact-and-sc-9d3358`
+- fixPR: pending submission
+- evidence: branch-local fix commit recorded on fix branch.
 ## REVIEW codex/MAMBO-m3-004-plan-ice-deterministic
 
 ### Quick Take
@@ -95,6 +109,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Input validation mismatches can fail valid deterministic runs.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T03
+- status: fixed
+- fixBranch: `agent-TOMMY-M4-T03-fix-mambo-m3-004-plan-ice-deterministic-6f0890`
+- fixPR: pending submission
+- evidence: branch-local fix commit recorded on fix branch.
 ## REVIEW codex/MAMBO-m3-005-plan-reefs-deterministic
 
 ### Quick Take
@@ -121,6 +142,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Determinism can mask ecological quality regressions without quality gates.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T04
+- status: no-action
+- fixBranch: `agent-TOMMY-M4-T04-fix-mambo-m3-005-plan-reefs-deterministic-42c50e`
+- fixPR: pending submission
+- evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T04.md`.
 ## REVIEW codex/MAMBO-m3-006-plan-wetlands-deterministic
 
 ### Quick Take
@@ -147,6 +175,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Large deletion slices can hide niche behavior regressions.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T05
+- status: no-action
+- fixBranch: `agent-TOMMY-M4-T05-fix-mambo-m3-006-plan-wetlands-deterministic-284a7e`
+- fixPR: pending submission
+- evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T05.md`.
 ## REVIEW codex/MAMBO-m3-007-plan-vegetation-deterministic
 
 ### Quick Take
@@ -173,6 +208,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Per-family planner drift can reintroduce inconsistency over time.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T06
+- status: no-action
+- fixBranch: `agent-TOMMY-M4-T06-fix-mambo-m3-007-plan-vegetation-determinist-33fa9e`
+- fixPR: pending submission
+- evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T06.md`.
 ## REVIEW codex/MAMBO-m3-008-stamping-strict-features-apply
 
 ### Quick Take
@@ -199,6 +241,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Broken smoke tests can hide real runtime regressions.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T07
+- status: no-action
+- fixBranch: `agent-TOMMY-M4-T07-fix-mambo-m3-008-stamping-strict-features-ap-5cbbf9`
+- fixPR: pending submission
+- evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T07.md`.
 ## REVIEW codex/MAMBO-m3-009-cleanup-delete-legacy-chance
 
 ### Quick Take
@@ -225,6 +274,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Viz metadata gaps can become runtime blockers against gameplay truth.
 - Runtime-vs-viz mismatch analysis: observed: viz category lookup can abort valid runtime behavior. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T08
+- status: fixed
+- fixBranch: `agent-TOMMY-M4-T08-fix-mambo-m3-009-cleanup-delete-legacy-chanc-912363`
+- fixPR: pending submission
+- evidence: branch-local fix commit recorded on fix branch.
 ## REVIEW codex/MAMBO-m3-010-post-cutover-cleanup
 
 ### Quick Take
@@ -251,6 +307,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Milestone can look complete while execution work remains deferred.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T09
+- status: no-action
+- fixBranch: `agent-TOMMY-M4-T09-fix-mambo-m3-010-post-cutover-cleanup-5fefd4`
+- fixPR: pending submission
+- evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T09.md`.
 ## REVIEW codex/MAMBO-m3-011-canonical-docs-sweep
 
 ### Quick Take
@@ -277,6 +340,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Docs-only changes can drift without behavioral conformance checks.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T10
+- status: no-action
+- fixBranch: `agent-TOMMY-M4-T10-fix-mambo-m3-011-canonical-docs-sweep-f6feb2`
+- fixPR: pending submission
+- evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T10.md`.
 ## REVIEW codex/MAMBO-m3-012-fix-biomes-stripes
 
 ### Quick Take
@@ -303,6 +373,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Silent knob no-ops erode trust in configuration surfaces.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T11
+- status: needs-discussion
+- fixBranch: `agent-TOMMY-M4-T11-fix-mambo-m3-012-fix-biomes-stripes-faece2`
+- fixPR: pending submission
+- evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T11.md`.
 ## REVIEW codex/MAMBO-m3-014-lakes-not-filled
 
 ### Quick Take
@@ -329,6 +406,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Partial fixes can leave similar hydrology failures elsewhere.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T12
+- status: superseded
+- fixBranch: `agent-TOMMY-M4-T12-fix-mambo-m3-014-lakes-not-filled-993ca5`
+- fixPR: pending submission
+- evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T12.md`.
 ## REVIEW codex/MAMBO-m3-013-bio-lat-cutoff
 
 ### Quick Take
@@ -355,6 +439,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Incomplete viz metadata can mislead downstream analysis.
 - Runtime-vs-viz mismatch analysis: observed: runtime features can exist outside emitted viz categories. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T13
+- status: fixed
+- fixBranch: `agent-TOMMY-M4-T13-fix-mambo-m3-013-bio-lat-cutoff-2ab14f`
+- fixPR: pending submission
+- evidence: branch-local fix commit recorded on fix branch.
 ## REVIEW codex/M3-015-hydrology-effectiveMoisture-soils
 
 ### Quick Take
@@ -381,6 +472,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Hydrology/ecology semantics can drift without strict contracts.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T14
+- status: no-action
+- fixBranch: `agent-TOMMY-M4-T14-fix-m3-015-hydrology-effectivemoisture-soils-69ea1b`
+- fixPR: pending submission
+- evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T14.md`.
 ## REVIEW codex/default-config-intent-tuning
 
 ### Quick Take
@@ -407,6 +505,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Debug/rollback complexity rises sharply with broad tuning bundles.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T15
+- status: superseded
+- fixBranch: `agent-TOMMY-M4-T15-fix-default-config-intent-tuning-384ba2`
+- fixPR: pending submission
+- evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T15.md`.
 ## REVIEW codex/MAMBO-lakes-resources-waterfill-rootcause
 
 ### Quick Take
@@ -433,6 +538,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Engine-lake authority can still diverge from hydrology truth at edges.
 - Runtime-vs-viz mismatch analysis: observed: branch specifically mitigates runtime-vs-viz/lifecycle mismatch. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T16
+- status: no-action
+- fixBranch: `agent-TOMMY-M4-T16-fix-mambo-lakes-resources-waterfill-rootcaus-693afa`
+- fixPR: pending submission
+- evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T16.md`.
 ## REVIEW codex/MAMBO-elevation-terrain-parity-audit
 
 ### Quick Take
@@ -459,6 +571,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Missed drift can cascade into hydrology/ecology/placement artifacts.
 - Runtime-vs-viz mismatch analysis: observed: potential stale-cache mismatch between runtime state and parity logic. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T17
+- status: no-action
+- fixBranch: `agent-TOMMY-M4-T17-fix-mambo-elevation-terrain-parity-audit-06489e`
+- fixPR: pending submission
+- evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T17.md`.
 ## REVIEW codex/MAMBO-resources-stamping-rootcause
 
 ### Quick Take
@@ -485,6 +604,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Catch-and-continue can hide invalid world-state generation.
 - Runtime-vs-viz mismatch analysis: observed: invalid state can propagate despite logged failure. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T18
+- status: fixed
+- fixBranch: `agent-TOMMY-M4-T18-fix-mambo-resources-stamping-rootcause-01732c`
+- fixPR: pending submission
+- evidence: branch-local fix commit recorded on fix branch.
 ## REVIEW codex/MAMBO-elevation-post-hydrology-lifecycle
 
 ### Quick Take
@@ -511,6 +637,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Parity divergence remains possible without hard gates.
 - Runtime-vs-viz mismatch analysis: observed: branch mitigates a known runtime-vs-viz/lifecycle mismatch. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T19
+- status: no-action
+- fixBranch: `agent-TOMMY-M4-T19-fix-mambo-elevation-post-hydrology-lifecycle-2f0228`
+- fixPR: pending submission
+- evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T19.md`.
 ## REVIEW codex/prr-epp-s0-plan-bootstrap
 
 ### Quick Take
@@ -537,6 +670,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Portability issues can break collaboration and automation reuse.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T20
+- status: fixed
+- fixBranch: `agent-TOMMY-M4-T20-fix-prr-epp-s0-plan-bootstrap-888878`
+- fixPR: pending submission
+- evidence: branch-local fix commit recorded on fix branch.
 ## REVIEW codex/prr-epp-s1-drift-observability
 
 ### Quick Take
@@ -563,6 +703,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Telemetry volume can dilute critical regressions without curation.
 - Runtime-vs-viz mismatch analysis: observed: mismatch channels are intentionally surfaced. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T21
+- status: no-action
+- fixBranch: `agent-TOMMY-M4-T21-fix-prr-epp-s1-drift-observability-60cf6d`
+- fixPR: pending submission
+- evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T21.md`.
 ## REVIEW codex/prr-epp-s2-ecology-physics-cutover
 
 ### Quick Take
@@ -589,6 +736,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Branch-local breakage risk if consumed outside full stack context.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T22
+- status: superseded
+- fixBranch: `agent-TOMMY-M4-T22-fix-prr-epp-s2-ecology-physics-cutover-38049d`
+- fixPR: pending submission
+- evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T22.md`.
 ## REVIEW codex/prr-epp-s3-lakes-deterministic
 
 ### Quick Take
@@ -615,6 +769,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Order-coupled expansion can produce non-physical lake growth.
 - Runtime-vs-viz mismatch analysis: observed: runtime lake growth can diverge from intended planning semantics. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T23
+- status: fixed
+- fixBranch: `agent-TOMMY-M4-T23-fix-prr-epp-s3-lakes-deterministic-2ad056`
+- fixPR: pending submission
+- evidence: branch-local fix commit recorded on fix branch.
 ## REVIEW codex/prr-epp-s3b-lakes-regression-fix
 
 ### Quick Take
@@ -641,6 +802,14 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Default-only mitigation can hide unresolved root-cause paths.
 - Runtime-vs-viz mismatch analysis: observed: mitigation reduces mismatch by constraining behavior. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T24
+- status: superseded
+- fixBranch: `agent-TOMMY-M4-T24-fix-prr-epp-s3b-lakes-regression-fix-08449d`
+- fixPR: pending submission
+- evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T24.md`.
+- note: inherited snapshot/frontier semantics from T23
 ## REVIEW codex/prr-epp-s4-resources-deterministic
 
 ### Quick Take
@@ -667,6 +836,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Adapter/runtime differences can still affect deterministic outcomes.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T25
+- status: no-action
+- fixBranch: `agent-TOMMY-M4-T25-fix-prr-epp-s4-resources-deterministic-21a5eb`
+- fixPR: pending submission
+- evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T25.md`.
 ## REVIEW codex/prr-epp-s5-placement-randomness-zero
 
 ### Quick Take
@@ -693,6 +869,13 @@ This document is append-only for milestone task reviews. Each entry must use:
 - Branch-local compile/semantic drift risk in modded configs.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
 
+
+### Fix Loop Status
+- task: M4-T26
+- status: fixed
+- fixBranch: `agent-TOMMY-M4-T26-fix-prr-epp-s5-placement-randomness-zero-9913bc`
+- fixPR: pending submission
+- evidence: code+tests updated on fix branch (`mods/mod-swooper-maps` + `packages/civ7-adapter` targeted tests).
 ## REVIEW codex/prr-epp-s6-hardening-docs-tests
 
 ### Quick Take
@@ -718,3 +901,10 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Hidden regressions can return if sensitive knobs are re-enabled without guards.
 - Runtime-vs-viz mismatch analysis: observed: branch hardens mismatch detection but inherits prior latent algorithm risk. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+### Fix Loop Status
+- task: M4-T27
+- status: needs-discussion
+- fixBranch: `agent-TOMMY-M4-T27-fix-prr-epp-s6-hardening-docs-tests-4fee2c`
+- fixPR: pending submission
+- evidence: disposition receipt at `docs/projects/pipeline-realism/scratch/m4-ecology-placement-physics-continuum-fix-review/outcomes/M4-T27.md`.
