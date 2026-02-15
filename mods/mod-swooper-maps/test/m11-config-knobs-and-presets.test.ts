@@ -227,9 +227,9 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
       },
     });
 
-    expect(min.foundation.tectonics.computeTectonicHistory.config.eraWeights.length).toBe(5);
-    expect(min.foundation.tectonics.computeTectonicHistory.config.driftStepsByEra.length).toBe(5);
-    expect(max.foundation.tectonics.computeTectonicHistory.config.eraWeights.length).toBe(8);
-    expect(max.foundation.tectonics.computeTectonicHistory.config.driftStepsByEra.length).toBe(8);
+    expect(min.foundation.tectonics.computeEraPlateMembership.config.eraWeights.length).toBe(5);
+    expect(min.foundation.tectonics.computeEraPlateMembership.config.driftStepsByEra.length).toBe(5);
+    expect(max.foundation.tectonics.computeEraPlateMembership.config.eraWeights.length).toBe(8);
+    expect(max.foundation.tectonics.computeEraPlateMembership.config.driftStepsByEra.length).toBe(8);
   });
 });

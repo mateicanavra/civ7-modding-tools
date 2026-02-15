@@ -1,5 +1,10 @@
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+
+import {
+  DEFAULT_PLATE_MOTION_CONFIG,
+  DEFAULT_TECTONIC_SEGMENTS_CONFIG,
+} from "../../../../../domain/foundation/ops/compute-tectonic-history/lib/era-tectonics-kernels.js";
 import { foundationArtifacts } from "../artifacts.js";
 import TectonicsStepContract from "./tectonics.contract.js";
 import {
@@ -14,6 +19,16 @@ import { interleaveXY, segmentsFromCellPairs } from "./viz.js";
 const GROUP_TECTONICS = "Foundation / Tectonics";
 const GROUP_TECTONIC_HISTORY = "Foundation / Tectonic History";
 const WORLD_SPACE_ID = "world.xy" as const;
+const OROGENY_ERA_GAIN_MIN = 0.85;
+const OROGENY_ERA_GAIN_MAX = 1.15;
+const ERA_PLATE_MOTION_STRATEGY = {
+  strategy: "default",
+  config: DEFAULT_PLATE_MOTION_CONFIG,
+} as const;
+const ERA_TECTONIC_SEGMENTS_STRATEGY = {
+  strategy: "default",
+  config: DEFAULT_TECTONIC_SEGMENTS_CONFIG,
+} as const;
 
 const BOUNDARY_TYPE_CATEGORIES = [
   { value: 0, label: "None/Unknown", color: [107, 114, 128, 180] as [number, number, number, number] },
@@ -64,20 +79,123 @@ export default createStep(TectonicsStepContract, {
 
     deps.artifacts.foundationTectonicSegments.publish(context, segmentsResult.segments);
 
-    const historyResult = ops.computeTectonicHistory(
+    const eraPlateMembership = ops.computeEraPlateMembership(
       {
         mesh,
-        crust,
-        mantleForcing,
         plateGraph,
         plateMotion,
       },
-      config.computeTectonicHistory
+      config.computeEraPlateMembership
+    );
+
+    const eraFieldsChain: Array<ReturnType<typeof ops.computeEraTectonicFields>["eraFields"]> = [];
+    for (let era = 0; era < eraPlateMembership.eraCount; era++) {
+      const eraPlateId =
+        eraPlateMembership.plateIdByEra[era] ??
+        eraPlateMembership.plateIdByEra[eraPlateMembership.plateIdByEra.length - 1];
+      if (!eraPlateId) continue;
+
+      const eraPlateGraph: typeof plateGraph = {
+        cellToPlate: eraPlateId,
+        plates: plateGraph.plates,
+      };
+      const eraPlateMotion = ops.computePlateMotion(
+        {
+          mesh,
+          mantleForcing,
+          plateGraph: eraPlateGraph,
+        },
+        ERA_PLATE_MOTION_STRATEGY
+      ).plateMotion;
+      const eraSegments = ops.computeTectonicSegments(
+        {
+          mesh,
+          crust,
+          plateGraph: eraPlateGraph,
+          plateMotion: eraPlateMotion,
+        },
+        ERA_TECTONIC_SEGMENTS_STRATEGY
+      ).segments;
+
+      const segmentEvents = ops.computeSegmentEvents(
+        {
+          mesh,
+          crust,
+          segments: eraSegments,
+        },
+        config.computeSegmentEvents
+      );
+
+      const hotspotEvents = ops.computeHotspotEvents(
+        {
+          mesh,
+          mantleForcing,
+          eraPlateId,
+        },
+        config.computeHotspotEvents
+      );
+
+      const t = eraPlateMembership.eraCount > 1 ? era / (eraPlateMembership.eraCount - 1) : 0;
+      const eraGain = OROGENY_ERA_GAIN_MIN + (OROGENY_ERA_GAIN_MAX - OROGENY_ERA_GAIN_MIN) * t;
+      const eraFields = ops.computeEraTectonicFields(
+        {
+          mesh,
+          segmentEvents: segmentEvents.events,
+          hotspotEvents: hotspotEvents.events,
+          weight: eraPlateMembership.eraWeights[era] ?? 0,
+          eraGain,
+        },
+        config.computeEraTectonicFields
+      );
+      eraFieldsChain.push(eraFields.eraFields);
+    }
+
+    const historyResult = ops.computeTectonicHistoryRollups(
+      {
+        eras: eraFieldsChain,
+        plateIdByEra: eraPlateMembership.plateIdByEra,
+      },
+      config.computeTectonicHistoryRollups
+    );
+
+    const newestEra =
+      eraFieldsChain[eraPlateMembership.eraCount - 1] ?? eraFieldsChain[eraFieldsChain.length - 1];
+    if (!newestEra) {
+      throw new Error("[Foundation] tectonics step failed to derive newest era fields.");
+    }
+
+    const tectonicsResult = ops.computeTectonicsCurrent(
+      {
+        newestEra,
+        upliftTotal: historyResult.tectonicHistory.upliftTotal,
+      },
+      config.computeTectonicsCurrent
+    );
+
+    const tracerResult = ops.computeTracerAdvection(
+      {
+        mesh,
+        mantleForcing,
+        eras: eraFieldsChain,
+        eraCount: eraPlateMembership.eraCount,
+      },
+      config.computeTracerAdvection
+    );
+
+    const provenanceResult = ops.computeTectonicProvenance(
+      {
+        mesh,
+        plateGraph,
+        eras: eraFieldsChain,
+        tracerIndex: tracerResult.tracerIndex,
+        eraCount: eraPlateMembership.eraCount,
+      },
+      config.computeTectonicProvenance
     );
 
     deps.artifacts.foundationTectonicHistory.publish(context, historyResult.tectonicHistory);
-    deps.artifacts.foundationTectonicProvenance.publish(context, historyResult.tectonicProvenance);
-    deps.artifacts.foundationTectonics.publish(context, historyResult.tectonics);
+    deps.artifacts.foundationTectonicProvenance.publish(context, provenanceResult.tectonicProvenance);
+    deps.artifacts.foundationTectonics.publish(context, tectonicsResult.tectonics);
 
     const positions = interleaveXY(mesh.siteX, mesh.siteY);
     context.viz?.dumpSegments(context.trace, {
@@ -104,7 +222,7 @@ export default createStep(TectonicsStepContract, {
       variantKey: "snapshot:latest",
       spaceId: WORLD_SPACE_ID,
       positions,
-      values: historyResult.tectonics.boundaryType,
+      values: tectonicsResult.tectonics.boundaryType,
       valueFormat: "u8",
       meta: defineVizMeta("foundation.tectonics.boundaryType", {
         label: "Boundary Type",
@@ -118,7 +236,7 @@ export default createStep(TectonicsStepContract, {
       variantKey: "snapshot:latest",
       spaceId: WORLD_SPACE_ID,
       positions,
-      values: historyResult.tectonics.upliftPotential,
+      values: tectonicsResult.tectonics.upliftPotential,
       valueFormat: "u8",
       meta: defineVizMeta("foundation.tectonics.upliftPotential", {
         label: "Uplift Potential",
@@ -130,7 +248,7 @@ export default createStep(TectonicsStepContract, {
       variantKey: "snapshot:latest",
       spaceId: WORLD_SPACE_ID,
       positions,
-      values: historyResult.tectonics.riftPotential,
+      values: tectonicsResult.tectonics.riftPotential,
       valueFormat: "u8",
       meta: defineVizMeta("foundation.tectonics.riftPotential", {
         label: "Rift Potential",
@@ -143,7 +261,7 @@ export default createStep(TectonicsStepContract, {
       variantKey: "snapshot:latest",
       spaceId: WORLD_SPACE_ID,
       positions,
-      values: historyResult.tectonics.shearStress,
+      values: tectonicsResult.tectonics.shearStress,
       valueFormat: "u8",
       meta: defineVizMeta("foundation.tectonics.shearStress", {
         label: "Shear Stress",
@@ -156,7 +274,7 @@ export default createStep(TectonicsStepContract, {
       variantKey: "snapshot:latest",
       spaceId: WORLD_SPACE_ID,
       positions,
-      values: historyResult.tectonics.volcanism,
+      values: tectonicsResult.tectonics.volcanism,
       valueFormat: "u8",
       meta: defineVizMeta("foundation.tectonics.volcanism", {
         label: "Volcanism",
@@ -168,7 +286,7 @@ export default createStep(TectonicsStepContract, {
       variantKey: "snapshot:latest",
       spaceId: WORLD_SPACE_ID,
       positions,
-      values: historyResult.tectonics.fracture,
+      values: tectonicsResult.tectonics.fracture,
       valueFormat: "u8",
       meta: defineVizMeta("foundation.tectonics.fracture", {
         label: "Fracture",
