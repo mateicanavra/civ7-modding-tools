@@ -77,7 +77,6 @@ export default createStep(FeaturesPlanStepContract, {
       ecologyArtifacts.featureIntentsVegetation,
       ecologyArtifacts.featureIntentsWetlands,
       ecologyArtifacts.featureIntentsReefs,
-      ecologyArtifacts.featureIntentsIce,
     ],
     {
       featureIntentsVegetation: {
@@ -87,9 +86,6 @@ export default createStep(FeaturesPlanStepContract, {
         validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
       },
       featureIntentsReefs: {
-        validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
-      },
-      featureIntentsIce: {
         validate: (value, context) => validateFeatureIntentsListArtifact(value, context.dimensions),
       },
     }
@@ -299,26 +295,13 @@ export default createStep(FeaturesPlanStepContract, {
       config.reefs
     );
 
-    const icePlan = ops.ice(
-      {
-        width,
-        height,
-        landMask: topography.landMask,
-        surfaceTemperature: classification.surfaceTemperature,
-        elevation: topography.elevation,
-      },
-      config.ice
-    );
-
     const wetlandsPlacements = [...wetlandsPlan.placements, ...wetPlacements];
     const reefsPlacements = reefsPlan.placements;
-    const icePlacements = icePlan.placements;
 
     const allPlacements = [
       ...vegetationPlacements,
       ...wetlandsPlacements,
       ...reefsPlacements,
-      ...icePlacements,
     ];
     if (allPlacements.length > 0) {
       const knownKeys = new Set(FEATURE_PLACEMENT_KEYS);
@@ -366,6 +349,5 @@ export default createStep(FeaturesPlanStepContract, {
     deps.artifacts.featureIntentsVegetation.publish(context, vegetationPlacements);
     deps.artifacts.featureIntentsWetlands.publish(context, wetlandsPlacements);
     deps.artifacts.featureIntentsReefs.publish(context, reefsPlacements);
-    deps.artifacts.featureIntentsIce.publish(context, icePlacements);
   },
 });

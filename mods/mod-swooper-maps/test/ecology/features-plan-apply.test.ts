@@ -105,7 +105,6 @@ describe("features plan/apply pipeline", () => {
         config: {},
       }),
       reefs: normalizeOpSelectionOrThrow(ecology.ops.planReefs, { strategy: "default", config: {} }),
-      ice: normalizeOpSelectionOrThrow(ecology.ops.planIce, { strategy: "default", config: {} }),
       wetPlacementMarsh: normalizeOpSelectionOrThrow(ecology.ops.planWetPlacementMarsh, {
         strategy: "disabled",
         config: {},
@@ -129,6 +128,13 @@ describe("features plan/apply pipeline", () => {
     };
     const planOps = ecology.ops.bind(featuresPlanStep.contract.ops!).runtime;
     featuresPlanStep.run(ctx, planConfig, planOps, buildTestDeps(featuresPlanStep));
+
+    // M3-004 moves ice intents into the dedicated `ecology-ice/plan-ice` stage. For this unit test,
+    // explicitly publish an empty list so the apply step has a complete artifact surface.
+    implementArtifacts([ecologyArtifacts.featureIntentsIce], { featureIntentsIce: {} }).featureIntentsIce.publish(
+      ctx,
+      []
+    );
 
     const vegetationIntents = ctx.artifacts.get(ecologyArtifacts.featureIntentsVegetation.id);
     expect(vegetationIntents).toBeTruthy();
