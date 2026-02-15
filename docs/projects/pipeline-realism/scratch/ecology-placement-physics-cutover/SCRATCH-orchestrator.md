@@ -17,7 +17,7 @@
 | S4 | codex/prr-epp-s4-resources-deterministic | Worker C | completed |  | Deterministic resource planner + adapter/stamping cutover committed (`a5541b8f8`) |
 | S5 | codex/prr-epp-s5-placement-randomness-zero | Worker C | completed |  | Deterministic wonder/discovery planners + adapter stamping cutover committed (`77686c94b`) |
 | S5b | codex/prr-epp-s5b-lakes-regression-fix | Worker B | completed |  | Dedicated lake regression fix committed (`671b4a30b`) |
-| S6 | codex/prr-epp-s6-hardening-docs-tests | Worker E + Orchestrator | in_progress |  | Hard fail drift gates + no-legacy scan + docs/ADR alignment |
+| S6 | codex/prr-epp-s6-hardening-docs-tests | Worker E + Orchestrator | completed |  | Hardening/docs/tests + legacy API removal + drift guard policy committed (`8d13d0293`) |
 
 ## Handoff Checklist Template
 - [ ] Branch exists and is tracked with correct parent.
