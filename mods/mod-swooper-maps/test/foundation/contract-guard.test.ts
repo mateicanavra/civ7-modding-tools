@@ -104,7 +104,7 @@ describe("foundation contract guardrails", () => {
       expect(text).not.toContain("environment_wrap");
 
       // M11/U11: remove legacy latitude-band tectonics injection and neighbor-scan op surface.
-      expect(text).not.toContain("computeTectonics");
+      expect(text).not.toMatch(/\bcomputeTectonics\b/);
       expect(text).not.toContain("polarBandFraction");
       expect(text).not.toContain("polarBoundary");
     }
@@ -139,6 +139,21 @@ describe("foundation contract guardrails", () => {
       "utf8"
     );
     expect(tectonicHistoryContract).not.toContain("segments: FoundationTectonicSegmentsSchema");
+  });
+
+  it("keeps tectonics step on decomposed op chain (no mega-op binding)", () => {
+    const repoRoot = path.resolve(import.meta.dir, "../..");
+    const tectonicsStepContract = readFileSync(
+      path.join(repoRoot, "src/recipes/standard/stages/foundation/steps/tectonics.contract.ts"),
+      "utf8"
+    );
+    expect(tectonicsStepContract).not.toMatch(/\bcomputeTectonicHistory\s*:/);
+    expect(tectonicsStepContract).toContain("computeEraPlateMembership");
+    expect(tectonicsStepContract).toContain("computeEraTectonicFields");
+    expect(tectonicsStepContract).toContain("computeTectonicHistoryRollups");
+    expect(tectonicsStepContract).toContain("computeTectonicsCurrent");
+    expect(tectonicsStepContract).toContain("computeTracerAdvection");
+    expect(tectonicsStepContract).toContain("computeTectonicProvenance");
   });
 
   it("publishes maximal foundation artifact ids via contracts", () => {

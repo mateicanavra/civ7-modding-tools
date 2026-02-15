@@ -24,8 +24,16 @@ const TectonicsStepContract = defineStep({
     ],
   },
   ops: {
+    computePlateMotion: foundation.ops.computePlateMotion,
     computeTectonicSegments: foundation.ops.computeTectonicSegments,
-    computeTectonicHistory: foundation.ops.computeTectonicHistory,
+    computeEraPlateMembership: foundation.ops.computeEraPlateMembership,
+    computeSegmentEvents: foundation.ops.computeSegmentEvents,
+    computeHotspotEvents: foundation.ops.computeHotspotEvents,
+    computeEraTectonicFields: foundation.ops.computeEraTectonicFields,
+    computeTectonicHistoryRollups: foundation.ops.computeTectonicHistoryRollups,
+    computeTectonicsCurrent: foundation.ops.computeTectonicsCurrent,
+    computeTracerAdvection: foundation.ops.computeTracerAdvection,
+    computeTectonicProvenance: foundation.ops.computeTectonicProvenance,
   },
   schema: Type.Object({}, { additionalProperties: false }),
 });

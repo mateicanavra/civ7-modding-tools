@@ -366,3 +366,139 @@ s02_final_evidence:
 
 ## Decision asks
 - none
+
+### 2026-02-15 — S03 final status (tectonics op decomposition)
+
+#### Status
+- S03 is complete on child branch `codex/prr-m4-s03-tectonics-op-decomposition` stacked on S02.
+- `tectonics` step now orchestrates a focused op chain for tectonic-history production and no longer binds `computeTectonicHistory` in step contract wiring.
+
+#### Decision notes
+- Decomposition implemented with focused Foundation ops:
+  - `foundation/compute-era-plate-membership`
+  - `foundation/compute-segment-events`
+  - `foundation/compute-hotspot-events`
+  - `foundation/compute-era-tectonic-fields`
+  - `foundation/compute-tectonic-history-rollups`
+  - `foundation/compute-tectonics-current`
+  - `foundation/compute-tracer-advection`
+  - `foundation/compute-tectonic-provenance`
+- `compute-tectonic-history` implementation was retained and refactored to shared deterministic helpers for compatibility, but step runtime now owns orchestration through the focused chain.
+- Added explicit architecture-cutover guardrail test for no op-calls-op sibling index imports in foundation ops.
+
+#### Verification command log (S03)
+```bash
+$ bun run --cwd mods/mod-swooper-maps lint
+# result: PASS (exit 0)
+
+$ bun run --cwd mods/mod-swooper-maps build
+# result: PASS (exit 0)
+
+$ bun run --cwd mods/mod-swooper-maps check
+# result: PASS (exit 0)
+
+$ bun run --cwd mods/mod-swooper-maps test test/foundation/no-op-calls-op-tectonics.test.ts test/foundation/contract-guard.test.ts test/foundation/m11-tectonic-events.test.ts test/foundation/m11-tectonic-segments-history.test.ts test/foundation/mesh-first-ops.test.ts test/pipeline/foundation-gates.test.ts test/pipeline/determinism-suite.test.ts test/pipeline/no-shadow-paths.test.ts test/m11-config-knobs-and-presets.test.ts
+# result: PASS (34 pass, 0 fail)
+```
+
+```yaml
+s03_final_evidence:
+  branch: codex/prr-m4-s03-tectonics-op-decomposition
+  decomposition_ops:
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/
+  key_wiring_paths:
+    - mods/mod-swooper-maps/src/domain/foundation/ops/contracts.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/index.ts
+    - mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.contract.ts
+    - mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts
+    - mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+  architecture_cutover_tests:
+    - mods/mod-swooper-maps/test/foundation/no-op-calls-op-tectonics.test.ts
+    - mods/mod-swooper-maps/test/foundation/contract-guard.test.ts
+```
+
+## Proposed target
+- S03 closes the tectonics mega-op cutover at step runtime boundary while preserving deterministic outputs and downstream artifact compatibility.
+
+## Changes landed
+- Added eight focused foundation tectonics ops and shared internal decomposition contracts/helpers.
+- Rewired `tectonics` step contract/runtime to orchestrate focused ops and removed mega-op binding from step contract.
+- Updated foundation stage compile output to emit decomposed tectonics op strategy configs.
+- Added architecture-cutover no-op-calls-op guardrail test and extended contract-guard decomposition assertions.
+- Updated config-layering tests to assert decomposed tectonics config path (`computeEraPlateMembership`) for era arrays.
+
+## Open risks
+- `compute-tectonic-history` remains in domain op registry for compatibility while step runtime has cut over; full deletion can be a follow-up once no direct op callers remain.
+- Decomposition introduces additional internal op surfaces; future cleanup can consolidate shared internal schemas/helpers after downstream S04 slices settle.
+
+## Decision asks
+- none
+
+### 2026-02-15 — S03 validation refresh after stack realignment
+
+#### Status
+- S03 branch head is `d094a0eb5` (stack-aligned on top of S02).
+- Determinism regression observed during local refactor staging was resolved by restoring the original era-field kernel behavior in `compute-tectonic-history/lib/pipeline-core.ts` and matching legacy era-loop defaults in `tectonics.ts`.
+
+#### Verification command log (refresh)
+```bash
+$ bun run --cwd mods/mod-swooper-maps lint
+# result: PASS (exit 0)
+
+$ bun run --cwd mods/mod-swooper-maps build
+# result: PASS (exit 0)
+
+$ bun run --cwd mods/mod-swooper-maps check
+# result: PASS (exit 0)
+
+$ bun run --cwd mods/mod-swooper-maps test test/foundation/no-op-calls-op-tectonics.test.ts test/foundation/contract-guard.test.ts test/foundation/m11-tectonic-events.test.ts test/foundation/m11-tectonic-segments-history.test.ts test/foundation/m11-tectonic-segments-polarity-bootstrap.test.ts test/pipeline/foundation-gates.test.ts test/pipeline/determinism-suite.test.ts test/standard-recipe.test.ts
+# result: PASS (27 pass, 0 fail)
+
+$ bun run build
+# result: PASS (turbo build green)
+
+$ bun run lint
+# result: PASS (turbo lint green)
+
+$ bun run test:vitest
+# result: PARTIAL (mapgen-studio schema assertions fixed; one plugin-git timeout observed in full-suite run, while plugin-git targeted test passed)
+
+$ bun run --cwd packages/plugins/plugin-git test test/config.test.ts
+# result: PASS (1 pass, 0 fail)
+```
+
+```yaml
+s03_refresh_evidence:
+  branch_head: d094a0eb5
+  parity_fix_paths:
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts
+    - mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts
+  cross_workspace_test_alignment:
+    - apps/mapgen-studio/test/config/defaultConfigSchema.test.ts
+  known_flaky_signal:
+    suite: bun run test:vitest
+    failing_test: packages/plugins/plugin-git/test/config.test.ts
+    symptom: timeout_at_5s_observed_once
+    targeted_rerun: pass
+```
+
+## Proposed target
+- S03 remains complete and stack-aligned, with deterministic tectonics behavior preserved under the decomposed step orchestration model.
+
+## Changes landed
+- Revalidated and locked S03 outputs on aligned stack head `d094a0eb5`.
+- Restored historical tectonic field parity in shared pipeline helpers after local drift check.
+- Updated mapgen-studio default schema posture tests to match S02’s removal of inert foundation profile fields.
+
+## Open risks
+- Full `test:vitest` remains sensitive to occasional plugin-git timeout flake under full-suite load.
+
+## Decision asks
+- none
