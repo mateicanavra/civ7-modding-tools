@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/prr-epp-s0-plan-bootstrap
+
+### Quick Take
+- Bootstrap plan establishes sequence and constraints for EPP continuum.
+
+### High-Leverage Issues
+- Plan docs use machine-local absolute paths that reduce portability.
+
+### PR Comment Context
+- PR #1258 has one unresolved doc portability review thread.
+- PR #1258: docs(plan): bootstrap ecology placement physics cutover s0 (https://github.com/mateicanavra/civ7-modding-tools/pull/1258)
+
+### Fix Now (Recommended)
+- Convert canonical plan/scratch references to repo-relative paths.
+
+### Defer / Follow-up
+- None.
+
+### Needs Discussion
+- Whether absolute local paths are ever acceptable in canonical docs.
+
+### Cross-cutting Risks
+- Portability issues can break collaboration and automation reuse.
+- Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
