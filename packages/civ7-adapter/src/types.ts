@@ -16,6 +16,16 @@ export interface FeatureData {
   Elevation: number;
 }
 
+export interface NaturalWonderCatalogEntry {
+  featureType: number;
+  direction: number;
+}
+
+export interface DiscoveryPlacementDefaults {
+  discoveryVisualType: number;
+  discoveryActivationType: number;
+}
+
 /**
  * Map dimensions
  */
@@ -245,6 +255,9 @@ export interface EngineAdapter {
   /** Validate feature placement */
   canHaveFeature(x: number, y: number, featureType: number): boolean;
 
+  /** Validate parameterized feature placement. */
+  canHaveFeatureParam(x: number, y: number, featureData: FeatureData): boolean;
+
   // === RESOURCE READS/WRITES ===
 
   /** Get resource type ID (-1 when no resource is present). */
@@ -388,6 +401,35 @@ export interface EngineAdapter {
   readonly NO_FEATURE: number;
 
   // === PLACEMENT ===
+
+  /**
+   * Stamp a natural wonder deterministically at a specific tile.
+   * Returns true when the placement succeeds.
+   */
+  stampNaturalWonder(
+    x: number,
+    y: number,
+    featureType: number,
+    direction: number,
+    elevation?: number
+  ): boolean;
+
+  /**
+   * Stamp a discovery deterministically at a specific tile.
+   * Returns true when the placement succeeds.
+   */
+  stampDiscovery(
+    x: number,
+    y: number,
+    discoveryVisualType: number,
+    discoveryActivationType: number
+  ): boolean;
+
+  /** Engine catalog of natural wonder feature definitions. */
+  getNaturalWonderCatalog(): NaturalWonderCatalogEntry[];
+
+  /** Engine default discovery visual + activation types for deterministic stamping. */
+  getDefaultDiscoveryPlacement(): DiscoveryPlacementDefaults;
 
   /**
    * Add natural wonders to the map

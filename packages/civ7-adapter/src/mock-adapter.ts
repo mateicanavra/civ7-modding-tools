@@ -6,12 +6,14 @@
  */
 
 import type {
+  DiscoveryPlacementDefaults,
   EngineAdapter,
   FeatureData,
   LandmassIdName,
   MapInfo,
   MapInitParams,
   MapSizeId,
+  NaturalWonderCatalogEntry,
   PlotTagName,
   VoronoiBoundingBox,
   VoronoiCell,
@@ -180,6 +182,15 @@ export const DEFAULT_PLOT_EFFECT_TYPES: MockPlotEffectType[] = [
   { id: 4, name: "PLOTEFFECT_BURNED", tags: ["BURNED"] },
 ];
 
+const DEFAULT_NATURAL_WONDER_CATALOG: NaturalWonderCatalogEntry[] = [
+  { featureType: DEFAULT_FEATURE_TYPES.FEATURE_MOUNT_EVEREST, direction: 0 },
+];
+
+const DEFAULT_DISCOVERY_PLACEMENT: DiscoveryPlacementDefaults = {
+  discoveryVisualType: 0,
+  discoveryActivationType: 0,
+};
+
 export interface MockAdapterConfig {
   width?: number;
   height?: number;
@@ -213,6 +224,10 @@ export interface MockAdapterConfig {
   canHaveFeature?: (x: number, y: number, featureType: number) => boolean;
   /** Optional resource validation hook for tests (return false to reject placement). */
   canHaveResource?: (x: number, y: number, resourceType: number) => boolean;
+  /** Natural wonder feature catalog used by deterministic planners. */
+  naturalWonderCatalog?: NaturalWonderCatalogEntry[];
+  /** Default discovery visual/activation types used by deterministic planners. */
+  defaultDiscoveryPlacement?: DiscoveryPlacementDefaults;
   /** Plot effect types and tag sets for getPlotEffectTypesContainingTags. */
   plotEffectTypes?: MockPlotEffectType[];
 }
@@ -246,6 +261,8 @@ export class MockAdapter implements EngineAdapter {
   private landmassIds: Record<LandmassIdName, number>;
   private canHaveFeatureFn?: (x: number, y: number, featureType: number) => boolean;
   private canHaveResourceFn?: (x: number, y: number, resourceType: number) => boolean;
+  private naturalWonderCatalog: NaturalWonderCatalogEntry[];
+  private defaultDiscoveryPlacement: DiscoveryPlacementDefaults;
   private plotEffectTypes: Array<{ id: number; name: string; tags: Set<string> }>;
   private plotEffectsByIndex: Map<number, Set<number>>;
   private readonly effectEvidence = new Set<string>();
@@ -258,6 +275,19 @@ export class MockAdapter implements EngineAdapter {
     setMapInitData: Array<MapInitParams>;
     designateBiomes: Array<{ width: number; height: number }>;
     addFeatures: Array<{ width: number; height: number }>;
+    stampNaturalWonder: Array<{
+      x: number;
+      y: number;
+      featureType: number;
+      direction: number;
+      elevation: number;
+    }>;
+    stampDiscovery: Array<{
+      x: number;
+      y: number;
+      discoveryVisualType: number;
+      discoveryActivationType: number;
+    }>;
     addNaturalWonders: Array<{ width: number; height: number; numWonders: number }>;
     generateSnow: Array<{ width: number; height: number }>;
     generateResources: Array<{ width: number; height: number }>;
@@ -305,6 +335,13 @@ export class MockAdapter implements EngineAdapter {
     this.landmassIds = { ...DEFAULT_LANDMASS_IDS, ...(config.landmassIds ?? {}) };
     this.canHaveFeatureFn = config.canHaveFeature;
     this.canHaveResourceFn = config.canHaveResource;
+    this.naturalWonderCatalog = (config.naturalWonderCatalog ?? DEFAULT_NATURAL_WONDER_CATALOG).map((entry) => ({
+      featureType: entry.featureType,
+      direction: entry.direction,
+    }));
+    this.defaultDiscoveryPlacement = {
+      ...(config.defaultDiscoveryPlacement ?? DEFAULT_DISCOVERY_PLACEMENT),
+    };
     this.plotEffectTypes = (config.plotEffectTypes ?? DEFAULT_PLOT_EFFECT_TYPES).map((entry) => ({
       id: entry.id,
       name: entry.name,
@@ -319,6 +356,8 @@ export class MockAdapter implements EngineAdapter {
       setMapInitData: [],
       designateBiomes: [],
       addFeatures: [],
+      stampNaturalWonder: [],
+      stampDiscovery: [],
       addNaturalWonders: [],
       generateSnow: [],
       generateResources: [],
@@ -503,6 +542,10 @@ export class MockAdapter implements EngineAdapter {
       return this.canHaveFeatureFn(_x, _y, _featureType);
     }
     return true; // Mock: always allow features
+  }
+
+  canHaveFeatureParam(x: number, y: number, featureData: FeatureData): boolean {
+    return this.canHaveFeature(x, y, featureData.Feature);
   }
 
   getResourceType(x: number, y: number): number {
@@ -721,6 +764,66 @@ export class MockAdapter implements EngineAdapter {
 
   // === PLACEMENT ===
 
+  stampNaturalWonder(
+    x: number,
+    y: number,
+    featureType: number,
+    direction: number,
+    elevation?: number
+  ): boolean {
+    if (x < 0 || x >= this.width || y < 0 || y >= this.height) return false;
+    if (!this.canHaveFeature(x, y, featureType)) return false;
+    const existing = this.getFeatureType(x, y);
+    if (Number.isFinite(existing) && existing >= 0) return false;
+
+    const i = this.idx(x, y);
+    const resolvedElevation = Number.isFinite(elevation)
+      ? (elevation as number)
+      : this.elevations[i]!;
+    this.setFeatureType(x, y, {
+      Feature: featureType,
+      Direction: direction,
+      Elevation: resolvedElevation,
+    });
+    this.calls.stampNaturalWonder.push({
+      x,
+      y,
+      featureType,
+      direction,
+      elevation: resolvedElevation,
+    });
+    this.recordPlacementEffect();
+    return true;
+  }
+
+  stampDiscovery(
+    x: number,
+    y: number,
+    discoveryVisualType: number,
+    discoveryActivationType: number
+  ): boolean {
+    if (x < 0 || x >= this.width || y < 0 || y >= this.height) return false;
+    this.calls.stampDiscovery.push({
+      x,
+      y,
+      discoveryVisualType,
+      discoveryActivationType,
+    });
+    this.recordPlacementEffect();
+    return true;
+  }
+
+  getNaturalWonderCatalog(): NaturalWonderCatalogEntry[] {
+    return this.naturalWonderCatalog.map((entry) => ({
+      featureType: entry.featureType,
+      direction: entry.direction,
+    }));
+  }
+
+  getDefaultDiscoveryPlacement(): DiscoveryPlacementDefaults {
+    return { ...this.defaultDiscoveryPlacement };
+  }
+
   addNaturalWonders(width: number, height: number, numWonders: number): void {
     this.calls.addNaturalWonders.push({ width, height, numWonders });
     // Mock: no-op
@@ -839,6 +942,8 @@ export class MockAdapter implements EngineAdapter {
     this.calls.setMapInitData.length = 0;
     this.calls.designateBiomes.length = 0;
     this.calls.addFeatures.length = 0;
+    this.calls.stampNaturalWonder.length = 0;
+    this.calls.stampDiscovery.length = 0;
     this.calls.addNaturalWonders.length = 0;
     this.calls.generateSnow.length = 0;
     this.calls.generateResources.length = 0;
@@ -859,6 +964,15 @@ export class MockAdapter implements EngineAdapter {
     this.landmassIds = { ...DEFAULT_LANDMASS_IDS, ...(config.landmassIds ?? {}) };
     this.canHaveFeatureFn = config.canHaveFeature ?? this.canHaveFeatureFn;
     this.canHaveResourceFn = config.canHaveResource ?? this.canHaveResourceFn;
+    this.naturalWonderCatalog = (
+      config.naturalWonderCatalog ?? this.naturalWonderCatalog ?? DEFAULT_NATURAL_WONDER_CATALOG
+    ).map((entry) => ({
+      featureType: entry.featureType,
+      direction: entry.direction,
+    }));
+    this.defaultDiscoveryPlacement = {
+      ...(config.defaultDiscoveryPlacement ?? this.defaultDiscoveryPlacement ?? DEFAULT_DISCOVERY_PLACEMENT),
+    };
     this.plotEffectTypes = (config.plotEffectTypes ?? DEFAULT_PLOT_EFFECT_TYPES).map((entry) => ({
       id: entry.id,
       name: entry.name,

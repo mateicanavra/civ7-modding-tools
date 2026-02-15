@@ -13,6 +13,8 @@ const PlacementStepContract = defineStep({
     requires: [
       placementArtifacts.placementInputs,
       placementArtifacts.resourcePlan,
+      placementArtifacts.naturalWonderPlan,
+      placementArtifacts.discoveryPlan,
       mapArtifacts.landmassRegionSlotByTile,
     ],
     provides: [
