@@ -266,6 +266,8 @@ for domain in "${DOMAINS[@]}"; do
     run_rg "Engine imports in ops (${domain})" "from \"@swooper/mapgen-core/engine\"|from \"@mapgen/engine\"" -- "$ops_root"
     run_rg "Non-type engine imports in ops (${domain})" "import(?!\\s+type)\\s+.*from\\s+\"@swooper/mapgen-core/engine\"|import(?!\\s+type)\\s+.*from\\s+\"@mapgen/engine\"" -P -- "$ops_root"
     run_rg "Runtime config merges in ops (${domain})" "\\?\\?\\s*\\{\\}|\\bValue\\.Default\\(" -- "$ops_root"
+    run_rg "Op-calls-op runtime imports (${domain})" "from\\s+[\"']\\.\\./[^\"']+/index\\.js[\"']|from\\s+[\"']@mapgen/domain/[^\"']+/ops(?:/index\\.js)?[\"']" -P -g "*/index.ts" -- "$ops_root"
+    run_rg "Op orchestration bind/runValidated usage (${domain})" "\\bops\\.bind\\(|\\brunValidated\\(" -P -g "*/index.ts" -- "$ops_root"
     if [ ${#stage_roots[@]} -gt 0 ]; then
       run_rg "Literal dependency keys in requires (${domain})" "requires:\\s*\\[[^\\]]*['\\\"](artifact|field|effect):" -U -- "${stage_roots[@]}"
       run_rg "Literal dependency keys in provides (${domain})" "provides:\\s*\\[[^\\]]*['\\\"](artifact|field|effect):" -U -- "${stage_roots[@]}"
@@ -292,6 +294,66 @@ for domain in "${DOMAINS[@]}"; do
       "mods/mod-swooper-maps/src/maps"
     run_rg "Hydrology step-id configs in maps" "\"climate-baseline\"\\s*:|\"climate-refine\"\\s*:|\\blakes\\s*:|\\brivers\\s*:" -- \
       "mods/mod-swooper-maps/src/maps"
+  fi
+
+  if [ "$domain" = "foundation" ]; then
+    run_rg "Foundation stage cast-merge hacks" "\\(\\s*advanced\\?\\.[^\\)]*\\?\\?\\s*\\{\\}\\s*\\)\\s+as\\s+|\\.\\.\\.\\s*\\(\\s*typeof\\s+[^\\)]*===\\s*['\\\"]object['\\\"]\\s*\\?\\s*[^:]+:\\s*\\{\\}\\s*\\)" -P -- \
+      "mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts"
+    run_rg "Foundation stage sentinel passthrough reintroduction" "FOUNDATION_STUDIO_STEP_CONFIG_IDS|FOUNDATION_STEP_IDS|advancedRecord\\[stepId\\]|__studioUiMetaSentinelPath" -P -- \
+      "mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts"
+    run_rg "Foundation legacy aggregate tectonic-history op surface reintroduction" "\\bcomputeTectonicHistory\\b|compute-tectonic-history/(contract|index)\\.js" -P -- \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/contracts.ts" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/index.ts"
+    run_rg "Foundation decomposed tectonics ops importing legacy compute-tectonic-history internals" "compute-tectonic-history/(lib|contract)\\.js" -P -- \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance"
+    run_rg "Foundation decomposed tectonics strategies importing shared tectonics libs directly (must stay local to op rules/modules)" "from\\s+[\"'][^\"']*lib/tectonics/[^\"']*[\"']" -P -- \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/strategies"
+    run_rg "Foundation decomposed tectonics rules re-exporting shared tectonics modules (forbidden shims)" "^\\s*export\\s+\\{[^}]+\\}\\s+from\\s+[\"'][^\"']*lib/tectonics/[^\"']*[\"']" -P -- \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/rules" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/rules" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/rules" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/rules" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/rules" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/rules" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/rules" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/rules"
+    run_rg "Foundation decomposed tectonics strategies importing non-local modules (allow: @swooper/mapgen-core/authoring, ../contract.js, ../rules/*)" "^\\s*import(?:\\s+type)?\\s+.*from\\s+[\"'](?!@swooper/mapgen-core/authoring[\"']|\\.\\./contract\\.js[\"']|\\.\\./rules/[^\"']+[\"'])[^\"']+[\"']" -P -- \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/strategies"
+    run_rg "Foundation duplicate math helper redefinitions in decomposed tectonics modules" "function\\s+(clampByte|addClampedByte|clamp01|clampInt8|normalizeToInt8)\\s*\\(" -P -g "*.ts" -- \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/strategies" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/strategies"
+    run_rg "Foundation hotspot files re-declaring canonical clamp helpers" "function\\s+(clampByte|addClampedByte|clamp01|clampInt8|normalizeToInt8)\\s*\\(" -P -- \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-motion/index.ts" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts" \
+      "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts"
   fi
 
   # Ecology is the canonical exemplar for the stricter op/step module rules.
