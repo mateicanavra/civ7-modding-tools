@@ -26,10 +26,17 @@ const DerivePlacementInputsContract = defineStep({
       ecologyArtifacts.biomeClassification,
       ecologyArtifacts.pedology,
     ],
-    provides: [placementArtifacts.placementInputs, placementArtifacts.resourcePlan],
+    provides: [
+      placementArtifacts.placementInputs,
+      placementArtifacts.resourcePlan,
+      placementArtifacts.naturalWonderPlan,
+      placementArtifacts.discoveryPlan,
+    ],
   },
   ops: {
     wonders: placement.ops.planWonders,
+    naturalWonders: placement.ops.planNaturalWonders,
+    discoveries: placement.ops.planDiscoveries,
     floodplains: placement.ops.planFloodplains,
     resources: placement.ops.planResources,
     starts: placement.ops.planStarts,
