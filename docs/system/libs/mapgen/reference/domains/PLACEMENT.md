@@ -42,8 +42,13 @@ Placement provides:
 
 Placement artifacts:
 - Provides `artifact:placementInputs` (derived from config + placement ops)
+- Provides deterministic plan artifacts: `artifact:placement.resourcePlan`, `artifact:placement.naturalWonderPlan`, `artifact:placement.discoveryPlan`
 - Requires `artifact:placementInputs` and `artifact:map.landmassRegionSlotByTile` for final placement
 - Provides `artifact:placementOutputs` (verification/debug surface)
+
+Runtime semantics:
+- Placement apply is fail-hard with full-stamp-or-fail behavior for deterministic wonder/discovery/resource plans.
+- Any metadata mismatch, out-of-bounds entry, rejected stamp, or partial stamping aborts the placement step.
 
 ## Key artifacts
 
@@ -58,6 +63,9 @@ Placement also depends on gameplay-owned projection artifacts:
 Placement domain ops used by the standard recipe:
 - `planWonders`
 - `planFloodplains`
+- `planNaturalWonders`
+- `planDiscoveries`
+- `planResources`
 - `planStarts`
 
 These ops produce placement plans/inputs which are then applied in the placement step.
@@ -66,6 +74,7 @@ These ops produce placement plans/inputs which are then applied in the placement
 
 Placement stage config is currently minimal:
 - placement inputs are derived from runtime config and placement ops,
+- resource planning consumes adapter runtime candidate catalogs when available and falls back to authored candidates when unavailable,
 - then placement application runs deterministically given the plan inputs and map artifacts.
 
 ## Ground truth anchors

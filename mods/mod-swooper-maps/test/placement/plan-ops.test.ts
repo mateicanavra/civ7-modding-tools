@@ -3,7 +3,14 @@ import { describe, expect, it } from "bun:test";
 import placementDomain from "../../src/domain/placement/ops.js";
 import { runOpValidated } from "../support/compiler-helpers.js";
 
-const { planDiscoveries, planFloodplains, planNaturalWonders, planStarts, planWonders } = placementDomain.ops;
+const {
+  planDiscoveries,
+  planFloodplains,
+  planNaturalWonders,
+  planResources,
+  planStarts,
+  planWonders,
+} = placementDomain.ops;
 
 describe("placement plan operations", () => {
   it("plans wonders from map-size defaults without bonus inflation", () => {
@@ -83,6 +90,104 @@ describe("placement plan operations", () => {
     expect(result.placements.length).toBe(result.plannedCount);
     expect(result.placements[0]?.discoveryVisualType).toBe(11);
     expect(result.placements[0]?.discoveryActivationType).toBe(22);
+  });
+
+  it("prefers runtime-discovered resource candidates over authored config candidates", () => {
+    const width = 6;
+    const height = 4;
+    const size = width * height;
+    const result = runOpValidated(planResources, {
+      width,
+      height,
+      noResourceSentinel: 99,
+      runtimeCandidateResourceTypes: [7, 2, 7, -1, 99],
+      landMask: new Uint8Array(size).fill(1),
+      fertility: new Float32Array(size).fill(0.8),
+      effectiveMoisture: new Float32Array(size).fill(0.6),
+      surfaceTemperature: new Float32Array(size).fill(18),
+      aridityIndex: new Float32Array(size).fill(0.4),
+      riverClass: new Uint8Array(size),
+      lakeMask: new Uint8Array(size),
+    }, {
+      strategy: "default",
+      config: {
+        candidateResourceTypes: [1, 3],
+        densityPer100Tiles: 25,
+        minSpacingTiles: 0,
+        maxPlacementsPerResourceShare: 1,
+      },
+    });
+
+    expect(result.candidateResourceTypes).toEqual([2, 7]);
+    expect(result.placements.length).toBeGreaterThan(0);
+    for (const placement of result.placements) {
+      expect(result.candidateResourceTypes.includes(placement.preferredResourceType)).toBe(true);
+    }
+  });
+
+  it("falls back to authored config candidates when runtime candidates are empty", () => {
+    const width = 6;
+    const height = 4;
+    const size = width * height;
+    const result = runOpValidated(planResources, {
+      width,
+      height,
+      noResourceSentinel: 99,
+      runtimeCandidateResourceTypes: [],
+      landMask: new Uint8Array(size).fill(1),
+      fertility: new Float32Array(size).fill(0.8),
+      effectiveMoisture: new Float32Array(size).fill(0.6),
+      surfaceTemperature: new Float32Array(size).fill(18),
+      aridityIndex: new Float32Array(size).fill(0.4),
+      riverClass: new Uint8Array(size),
+      lakeMask: new Uint8Array(size),
+    }, {
+      strategy: "default",
+      config: {
+        candidateResourceTypes: [5, 1, 5],
+        densityPer100Tiles: 25,
+        minSpacingTiles: 0,
+        maxPlacementsPerResourceShare: 1,
+      },
+    });
+
+    expect(result.candidateResourceTypes).toEqual([1, 5]);
+    expect(result.placements.length).toBeGreaterThan(0);
+    for (const placement of result.placements) {
+      expect(result.candidateResourceTypes.includes(placement.preferredResourceType)).toBe(true);
+    }
+  });
+
+  it("returns an empty plan when no usable candidates remain after sentinel filtering", () => {
+    const width = 4;
+    const height = 4;
+    const size = width * height;
+    const result = runOpValidated(planResources, {
+      width,
+      height,
+      noResourceSentinel: 7,
+      runtimeCandidateResourceTypes: [7, -1, -2],
+      landMask: new Uint8Array(size).fill(1),
+      fertility: new Float32Array(size).fill(0.8),
+      effectiveMoisture: new Float32Array(size).fill(0.6),
+      surfaceTemperature: new Float32Array(size).fill(18),
+      aridityIndex: new Float32Array(size).fill(0.4),
+      riverClass: new Uint8Array(size),
+      lakeMask: new Uint8Array(size),
+    }, {
+      strategy: "default",
+      config: {
+        candidateResourceTypes: [],
+        densityPer100Tiles: 25,
+        minSpacingTiles: 0,
+        maxPlacementsPerResourceShare: 1,
+      },
+    });
+
+    expect(result.candidateResourceTypes).toEqual([]);
+    expect(result.targetCount).toBe(0);
+    expect(result.plannedCount).toBe(0);
+    expect(result.placements).toEqual([]);
   });
 
   it("plans floodplains respecting min/max", () => {

@@ -103,6 +103,9 @@ export function applyPlacementPlan({
   emit({ type: "placement.start", message: "[SWOOPER_MOD] === placement plan apply ===" });
   emit({ type: "placement.start", message: `[SWOOPER_MOD] Map size: ${width}x${height}` });
 
+  // Contract: deterministic plans are authoritative. Any partial stamp/rejection
+  // is a hard failure for this step (full-stamp-or-fail semantics).
+
   const resolvedNaturalWonderPlan: DeepReadonly<PlanNaturalWondersOutput> = naturalWonderPlan ?? {
     width,
     height,

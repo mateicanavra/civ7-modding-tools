@@ -20,7 +20,11 @@ function sanitizeResourceCandidates(values: number[], noResourceSentinel: number
   return Array.from(unique).sort((a, b) => a - b);
 }
 
+<<<<<<< HEAD
 /** Builds placement inputs from map info, authored config, and adapter-owned catalogs. */
+=======
+/** Builds placement inputs from map info, authored config, and adapter-owned catalogs. */
+>>>>>>> dfbf677ff (test(placement): add fail-hard and runtime-candidate regressions)
 export function buildPlacementInputs(
   context: ExtendedMapContext,
   config: DerivePlacementInputsConfig,
@@ -61,6 +65,7 @@ export function buildPlacementInputs(
   const noResourceSentinel = context.adapter.NO_RESOURCE | 0;
   let runtimeCandidateResourceTypes: number[] = [];
   try {
+    // Adapter controls this catalog; if unavailable, planner falls back to authored candidates.
     runtimeCandidateResourceTypes = sanitizeResourceCandidates(
       context.adapter.getPlaceableResourceTypes(),
       noResourceSentinel
