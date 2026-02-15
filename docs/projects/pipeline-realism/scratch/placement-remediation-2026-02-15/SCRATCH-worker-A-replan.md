@@ -36,9 +36,12 @@ Supporting downstream plumbing introduced in S1:
 ### Placeable resource IDs
 Use official resources submodule row order in:
 - `.civ7/outputs/resources/Base/modules/base-standard/data/resources.xml`
-- `<Resources>` section row order (41 entries total in current base data).
+- `.civ7/outputs/resources/Base/modules/base-standard/data/resources-v2.xml`
+- load order from `.civ7/outputs/resources/Base/modules/base-standard/base-standard.modinfo`:
+  - `resources.xml` then `resources-v2.xml`
+  - total 55 entries.
 
-Canonical S1 placement catalog (0..40):
+Canonical S1 placement catalog (0..54):
 - 0 `RESOURCE_COTTON`
 - 1 `RESOURCE_DATES`
 - 2 `RESOURCE_DYES`
@@ -80,6 +83,20 @@ Canonical S1 placement catalog (0..40):
 - 38 `RESOURCE_OIL`
 - 39 `RESOURCE_QUININE`
 - 40 `RESOURCE_RUBBER`
+- 41 `RESOURCE_MANGOS`
+- 42 `RESOURCE_CLAY`
+- 43 `RESOURCE_FLAX`
+- 44 `RESOURCE_RUBIES`
+- 45 `RESOURCE_RICE`
+- 46 `RESOURCE_LIMESTONE`
+- 47 `RESOURCE_TIN`
+- 48 `RESOURCE_LLAMAS`
+- 49 `RESOURCE_HARDWOOD`
+- 50 `RESOURCE_WILD_GAME`
+- 51 `RESOURCE_CRABS`
+- 52 `RESOURCE_COWRIE`
+- 53 `RESOURCE_TURTLES`
+- 54 `RESOURCE_PITCH`
 
 ## Concrete Implementation Plan
 
@@ -89,7 +106,7 @@ Canonical S1 placement catalog (0..40):
    - New file: `packages/civ7-adapter/src/resource-constants.ts`
    - Exports:
      - `NO_RESOURCE = -1`
-     - frozen placement catalog IDs (0..40) + optional name map comments from official resources.
+     - frozen placement catalog IDs (0..54) + optional name map comments from official resources.
 
 2. Switch Civ7 adapter resource sentinel/catalog to static constants.
    - Edit `packages/civ7-adapter/src/civ7-adapter.ts`:
