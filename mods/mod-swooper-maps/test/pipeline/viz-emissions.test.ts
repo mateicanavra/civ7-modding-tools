@@ -78,7 +78,7 @@ describe("standard pipeline viz emissions", () => {
       "ecology.pedology.fertility",
       "ecology.biome.biomeIndex",
       "ecology.biome.vegetationDensity",
-      "ecology.featureIntents.featureType",
+      "map.ecology.featureType",
       "placement.landmassRegions.regionSlot",
       "placement.starts.startPosition",
     ];

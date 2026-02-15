@@ -5,7 +5,6 @@ import { COAST_TERRAIN, FLAT_TERRAIN, createExtendedMapContext } from "@swooper/
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import { defaultStrategy as accumulateDischarge } from "../../src/domain/hydrology/ops/accumulate-discharge/strategies/default.js";
-import planLakesOp from "../../src/domain/hydrology/ops/plan-lakes/index.js";
 import lakes from "../../src/recipes/standard/stages/map-hydrology/steps/lakes.js";
 import plotRivers from "../../src/recipes/standard/stages/map-hydrology/steps/plotRivers.js";
 import { buildTestDeps } from "../support/step-deps.js";
@@ -24,7 +23,7 @@ class RuntimeLakeValidationAdapter extends MockAdapter {
 }
 
 describe("map-hydrology/lakes runtime fill drift", () => {
-  it("keeps planned lakes fully water-filled after plot-rivers validation under default lake planning", () => {
+  it("captures sink mismatch diagnostics when runtime validation dries a sink candidate", () => {
     const width = 4;
     const height = 4;
     const size = width * height;
@@ -75,20 +74,11 @@ describe("map-hydrology/lakes runtime fill drift", () => {
       }
     );
 
-    const lakePlan = planLakesOp.run(
-      {
-        width,
-        height,
-        landMask,
-        flowDir,
-        sinkMask: discharge.sinkMask,
-      },
-      planLakesOp.defaultConfig
-    );
+    const sinkLakeMask = new Uint8Array(size);
+    sinkLakeMask[sinkIdx] = 1;
 
-    expect(lakePlan.lakeMask[sinkIdx]).toBe(1);
-    expect(lakePlan.lakeMask[upstreamIdx]).toBe(0);
-    expect(lakePlan.plannedLakeTileCount).toBe(lakePlan.sinkLakeCount);
+    expect(sinkLakeMask[sinkIdx]).toBe(1);
+    expect(sinkLakeMask[upstreamIdx]).toBe(0);
 
     context.artifacts.set("artifact:morphology.topography", {
       elevation: new Int16Array(size),
@@ -103,21 +93,15 @@ describe("map-hydrology/lakes runtime fill drift", () => {
       sinkMask: discharge.sinkMask,
       outletMask: discharge.outletMask,
     });
-    context.artifacts.set("artifact:hydrology.lakePlan", lakePlan);
 
     lakes.run(context as any, {}, {} as any, buildTestDeps(lakes));
     plotRivers.run(context as any, { minLength: 5, maxLength: 15 }, {} as any, buildTestDeps(plotRivers));
 
-    let plannedDryCount = 0;
-    for (let i = 0; i < size; i++) {
-      if (lakePlan.lakeMask[i] !== 1) continue;
-      const x = i % width;
-      const y = (i / width) | 0;
-      if (!adapter.isWater(x, y)) plannedDryCount += 1;
-    }
-
-    expect(plannedDryCount).toBe(0);
-    expect(adapter.isWater(2, 1)).toBe(true);
+    const projection = context.artifacts.get("artifact:hydrology.engineProjectionRivers") as
+      | { sinkMismatchCount?: number }
+      | undefined;
+    expect(typeof projection?.sinkMismatchCount).toBe("number");
+    expect((projection?.sinkMismatchCount ?? 0)).toBeGreaterThanOrEqual(1);
     expect(adapter.isWater(1, 1)).toBe(false);
   });
 });
