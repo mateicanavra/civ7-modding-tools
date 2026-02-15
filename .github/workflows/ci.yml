@@ -100,6 +100,9 @@ jobs:
       - name: Strict adapter boundary
         run: bun run lint:adapter-boundary
 
+      - name: Architecture cutover scans
+        run: bun run test:architecture-cutover
+
       - name: Strict domain refactor guardrails (full profile required)
         run: REFRACTOR_DOMAINS="foundation,morphology,hydrology,ecology,placement,narrative" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL=1 bun run lint:domain-refactor-guardrails
 

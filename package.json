@@ -17,6 +17,7 @@
     "lint": "turbo run lint",
     "test": "bun run test:vitest && bun run test:mapgen && bun run --cwd mods/mod-swooper-maps test",
     "test:ci": "bun run test:vitest && bun run --cwd packages/civ7-adapter build && bun run --cwd packages/mapgen-core build && bun run --cwd packages/mapgen-core test && bun run --cwd mods/mod-swooper-maps test",
+    "test:architecture-cutover": "bun run --cwd mods/mod-swooper-maps test -- test/foundation/no-op-calls-op-tectonics.test.ts && bun run --cwd mods/mod-swooper-maps test -- test/pipeline/no-dual-contract-paths.test.ts && bun run --cwd mods/mod-swooper-maps test -- test/pipeline/no-shim-surfaces.test.ts && bun run --cwd mods/mod-swooper-maps test -- test/pipeline/foundation-topology-lock.test.ts",
     "pretest:vitest": "turbo run build --filter=./packages/** && turbo run build:studio-recipes --filter=mod-swooper-maps",
     "test:vitest": "vitest run",
     "test:ui": "vitest --ui",
