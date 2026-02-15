@@ -158,6 +158,19 @@ export function readI16Grid(runDir: string, layer: VizManifestV1["layers"][numbe
   return { values: arr, width: layer.dims.width, height: layer.dims.height };
 }
 
+export function readF32Grid(runDir: string, layer: VizManifestV1["layers"][number]): {
+  values: Float32Array;
+  width: number;
+  height: number;
+} {
+  if (!layer.dims) throw new Error(`Layer "${layer.dataTypeKey}" missing dims.`);
+  const relPath = layer.field?.data?.path;
+  if (!relPath) throw new Error(`Layer "${layer.dataTypeKey}" missing field.data.path.`);
+  const buf = readBinaryView(runDir, relPath);
+  const arr = new Float32Array(buf.buffer, buf.byteOffset, Math.floor(buf.byteLength / 4));
+  return { values: arr, width: layer.dims.width, height: layer.dims.height };
+}
+
 export function hammingU8(a: Uint8Array, b: Uint8Array): number {
   if (a.length !== b.length) throw new Error(`Hamming length mismatch: ${a.length} vs ${b.length}`);
   let diff = 0;

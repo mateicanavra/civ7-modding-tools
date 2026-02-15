@@ -7,6 +7,16 @@ import ScoreVegetationRainforestContract from "./vegetation-score-rainforest/con
 import ScoreVegetationTaigaContract from "./vegetation-score-taiga/contract.js";
 import ScoreVegetationSavannaWoodlandContract from "./vegetation-score-savanna-woodland/contract.js";
 import ScoreVegetationSagebrushSteppeContract from "./vegetation-score-sagebrush-steppe/contract.js";
+import ScoreWetMangroveContract from "./wet-score-mangrove/contract.js";
+import ScoreWetMarshContract from "./wet-score-marsh/contract.js";
+import ScoreWetOasisContract from "./wet-score-oasis/contract.js";
+import ScoreWetTundraBogContract from "./wet-score-tundra-bog/contract.js";
+import ScoreWetWateringHoleContract from "./wet-score-watering-hole/contract.js";
+import ScoreAtollContract from "./reef-score-atoll/contract.js";
+import ScoreColdReefContract from "./reef-score-cold-reef/contract.js";
+import ScoreLotusContract from "./reef-score-lotus/contract.js";
+import ScoreReefContract from "./reef-score-reef/contract.js";
+import ScoreIceContract from "./ice-score-ice/contract.js";
 import FeaturesApplyContract from "./features-apply/contract.js";
 import PedologyClassifyContract from "./pedology-classify/contract.js";
 
@@ -40,6 +50,16 @@ export const contracts = {
   scoreVegetationTaiga: ScoreVegetationTaigaContract,
   scoreVegetationSavannaWoodland: ScoreVegetationSavannaWoodlandContract,
   scoreVegetationSagebrushSteppe: ScoreVegetationSagebrushSteppeContract,
+  scoreWetMarsh: ScoreWetMarshContract,
+  scoreWetTundraBog: ScoreWetTundraBogContract,
+  scoreWetMangrove: ScoreWetMangroveContract,
+  scoreWetOasis: ScoreWetOasisContract,
+  scoreWetWateringHole: ScoreWetWateringHoleContract,
+  scoreReef: ScoreReefContract,
+  scoreColdReef: ScoreColdReefContract,
+  scoreReefAtoll: ScoreAtollContract,
+  scoreReefLotus: ScoreLotusContract,
+  scoreIce: ScoreIceContract,
 
   planPlotEffects: PlanPlotEffectsContract,
 
@@ -68,6 +88,16 @@ export {
   ScoreVegetationTaigaContract,
   ScoreVegetationSavannaWoodlandContract,
   ScoreVegetationSagebrushSteppeContract,
+  ScoreWetMangroveContract,
+  ScoreWetMarshContract,
+  ScoreWetOasisContract,
+  ScoreWetTundraBogContract,
+  ScoreWetWateringHoleContract,
+  ScoreAtollContract,
+  ScoreColdReefContract,
+  ScoreLotusContract,
+  ScoreReefContract,
+  ScoreIceContract,
   FeaturesApplyContract,
   PedologyClassifyContract,
 

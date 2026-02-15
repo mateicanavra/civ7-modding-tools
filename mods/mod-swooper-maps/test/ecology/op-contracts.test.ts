@@ -292,6 +292,144 @@ describe("ecology op contract surfaces", () => {
     }
   });
 
+  it("wet/reef/ice score ops validate output", () => {
+    const width = 2;
+    const height = 2;
+    const size = width * height;
+
+    const expectScore01 = (score01: Float32Array) => {
+      expect(score01.length).toBe(size);
+      for (let i = 0; i < size; i++) {
+        const score = score01[i];
+        expect(Number.isFinite(score)).toBe(true);
+        expect(score).toBeGreaterThanOrEqual(0);
+        expect(score).toBeLessThanOrEqual(1);
+      }
+    };
+
+    {
+      const landMask = new Uint8Array(size).fill(1);
+      const nearRiverMask = new Uint8Array(size).fill(1);
+      const isolatedRiverMask = new Uint8Array(size).fill(1);
+      const coastalLandMask = new Uint8Array(size).fill(1);
+      const water01 = new Float32Array(size).fill(0.7);
+      const fertility01 = new Float32Array(size).fill(0.4);
+      const surfaceTemperature = new Float32Array(size).fill(18);
+      const aridityIndex = new Float32Array(size).fill(0.5);
+      const freezeIndex = new Float32Array(size).fill(0.6);
+
+      const wetScoreOps = [
+        {
+          op: ecology.ops.scoreWetMarsh,
+          input: {
+            width,
+            height,
+            landMask,
+            nearRiverMask,
+            water01,
+            fertility01,
+            surfaceTemperature,
+            aridityIndex,
+          },
+        },
+        {
+          op: ecology.ops.scoreWetTundraBog,
+          input: {
+            width,
+            height,
+            landMask,
+            nearRiverMask,
+            water01,
+            fertility01,
+            surfaceTemperature,
+            freezeIndex,
+          },
+        },
+        {
+          op: ecology.ops.scoreWetMangrove,
+          input: {
+            width,
+            height,
+            landMask,
+            coastalLandMask,
+            water01,
+            fertility01,
+            surfaceTemperature,
+            aridityIndex,
+          },
+        },
+        {
+          op: ecology.ops.scoreWetOasis,
+          input: { width, height, landMask, isolatedRiverMask, water01, aridityIndex, surfaceTemperature },
+        },
+        {
+          op: ecology.ops.scoreWetWateringHole,
+          input: {
+            width,
+            height,
+            landMask,
+            isolatedRiverMask,
+            water01,
+            fertility01,
+            aridityIndex,
+            surfaceTemperature,
+          },
+        },
+      ] as const;
+
+      for (const { op, input } of wetScoreOps) {
+        const selection = normalizeOpSelectionOrThrow(op, { strategy: "default", config: {} });
+        const result = op.run(input, selection);
+        expectScore01(result.score01);
+      }
+    }
+
+    {
+      const landMask = new Uint8Array(size).fill(0);
+      const surfaceTemperatureWarm = new Float32Array(size).fill(24);
+      const surfaceTemperatureCold = new Float32Array(size).fill(12);
+      const bathymetry = new Int16Array(size).fill(-120);
+
+      const reefScoreOps = [
+        {
+          op: ecology.ops.scoreReef,
+          input: { width, height, landMask, surfaceTemperature: surfaceTemperatureWarm, bathymetry },
+        },
+        {
+          op: ecology.ops.scoreColdReef,
+          input: { width, height, landMask, surfaceTemperature: surfaceTemperatureCold, bathymetry },
+        },
+        {
+          op: ecology.ops.scoreReefAtoll,
+          input: { width, height, landMask, surfaceTemperature: surfaceTemperatureWarm, bathymetry },
+        },
+        {
+          op: ecology.ops.scoreReefLotus,
+          input: { width, height, landMask, surfaceTemperature: surfaceTemperatureWarm, bathymetry },
+        },
+      ] as const;
+
+      for (const { op, input } of reefScoreOps) {
+        const selection = normalizeOpSelectionOrThrow(op, { strategy: "default", config: {} });
+        const result = op.run(input, selection);
+        expectScore01(result.score01);
+      }
+    }
+
+    {
+      const landMask = new Uint8Array(size).fill(1);
+      const surfaceTemperature = new Float32Array(size).fill(-8);
+      const elevation = new Int16Array(size).fill(3000);
+      const freezeIndex = new Float32Array(size).fill(0.8);
+      const selection = normalizeOpSelectionOrThrow(ecology.ops.scoreIce, { strategy: "default", config: {} });
+      const result = ecology.ops.scoreIce.run(
+        { width, height, landMask, surfaceTemperature, elevation, freezeIndex },
+        selection
+      );
+      expectScore01(result.score01);
+    }
+  });
+
   it("planWetPlacementMarsh validates output", () => {
     const width = 2;
     const height = 2;
