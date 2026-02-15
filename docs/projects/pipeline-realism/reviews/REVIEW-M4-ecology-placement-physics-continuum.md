@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/prr-epp-s3-lakes-deterministic
+
+### Quick Take
+- Deterministic lake-plan authority replaced random engine lake generation.
+
+### High-Leverage Issues
+- Upstream expansion mutates lake mask in-pass and can violate hop semantics.
+
+### PR Comment Context
+- PR #1261 has one unresolved algorithmic correctness review thread.
+- PR #1261: feat(map-hydrology): cut over lakes to deterministic hydrology plan (https://github.com/mateicanavra/civ7-modding-tools/pull/1261)
+
+### Fix Now (Recommended)
+- Use frontier/snapshot expansion to avoid in-pass mutation effects.
+
+### Defer / Follow-up
+- Add property tests for hop-distance invariants.
+
+### Needs Discussion
+- Keep nonzero upstream expansion vs sink-only posture.
+
+### Cross-cutting Risks
+- Order-coupled expansion can produce non-physical lake growth.
+- Runtime-vs-viz mismatch analysis: observed: runtime lake growth can diverge from intended planning semantics. Gameplay/runtime truth remains authoritative when conflicts exist.
