@@ -73,3 +73,36 @@
   - inlined plan-lakes schemas directly inside `defineOp(...)`
   - removed `additionalProperties` options from plan-lakes contract
   - replaced empty default strategy config with explicit physical control (`maxUpstreamSteps`).
+
+## Regression Follow-up (2026-02-15, S3b lakes regression fix)
+
+### Diagnosis (over-placement + runtime dry planned lakes)
+- Deterministic lake planning defaulted to `maxUpstreamSteps: 1` in `plan-lakes` contract, which expands lake plans one drainage hop upstream from each sink.
+- In low-relief or convergent routing patches this over-plans non-sink tiles (planned lake footprint > sink footprint).
+- During runtime, `plotRivers` executes `validateAndFixTerrain()`, and engine-like validation can revert some non-sink stamped lake tiles back to land.
+- Net effect: both reported symptoms are explained by the same root:
+  1. over-placement in planning (too many planned lake tiles),
+  2. non-filled runtime lakes (subset of planned tiles dry after validation).
+
+### Call/data path trace used
+- `hydrology-hydrography/rivers.ts` computes `flowDir` (`computeFlowDir -> selectFlowReceiver`), then calls:
+  - `accumulateDischarge` to derive `sinkMask`,
+  - `planLakes` with `sinkMask + flowDir` to derive `lakePlan`.
+- `map-hydrology/lakes.ts` stamps `lakePlan.lakeMask` to `TERRAIN_COAST`.
+- `map-hydrology/plotRivers.ts` runs `modelRivers -> validateAndFixTerrain -> defineNamedRivers` and then cache refresh.
+- This confirms the runtime validation phase is downstream of deterministic stamping and can expose over-planned tiles as dry.
+
+### Patch applied
+- Changed `mods/mod-swooper-maps/src/domain/hydrology/ops/plan-lakes/contract.ts`:
+  - `maxUpstreamSteps` default `1 -> 0` (sink-only by default).
+
+### Regression tests added/updated
+- Updated `mods/mod-swooper-maps/test/hydrology-plan-lakes.test.ts`:
+  - new case asserting default config plans sink-only and does not include direct upstream tiles.
+- Added `mods/mod-swooper-maps/test/map-hydrology/lakes-runtime-fill-drift.test.ts`:
+  - reproduces an engine-like validation pass that drops a non-sink over-placed lake tile,
+  - asserts that under default planning there are zero dry planned lakes after `lakes` + `plot-rivers`.
+
+### Focused test run (pass)
+- `bun run --cwd mods/mod-swooper-maps test test/hydrology-plan-lakes.test.ts test/map-hydrology/lakes-store-water-data.test.ts test/map-hydrology/lakes-area-recalc-resources.test.ts test/map-hydrology/lakes-runtime-fill-drift.test.ts test/map-hydrology/plot-rivers-post-refresh.test.ts`
+- Result: `7 passed, 0 failed`.

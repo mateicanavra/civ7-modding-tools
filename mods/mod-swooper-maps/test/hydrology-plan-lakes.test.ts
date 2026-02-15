@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 
 import { defaultStrategy as accumulateDischarge } from "../src/domain/hydrology/ops/accumulate-discharge/strategies/default.js";
 import { defaultStrategy as planLakes } from "../src/domain/hydrology/ops/plan-lakes/strategies/default.js";
+import planLakesOp from "../src/domain/hydrology/ops/plan-lakes/index.js";
 
 describe("hydrology/plan-lakes (default strategy)", () => {
   it("marks every sink tile as a planned lake tile deterministically", () => {
@@ -77,6 +78,51 @@ describe("hydrology/plan-lakes (default strategy)", () => {
 
     expect(lakePlan.lakeMask[4]).toBe(1);
     expect(lakePlan.lakeMask[5]).toBe(0);
+  });
+
+  it("defaults to sink-only planning so direct upstream tiles are not over-placed", () => {
+    const width = 4;
+    const height = 4;
+    const size = width * height;
+    const sinkIdx = 6;
+    const upstreamIdx = 5;
+
+    const landMask = new Uint8Array(size).fill(1);
+    const flowDir = new Int32Array(size).fill(sinkIdx);
+    flowDir[sinkIdx] = -1;
+
+    const discharge = accumulateDischarge.run(
+      {
+        width,
+        height,
+        landMask,
+        flowDir,
+        rainfall: new Uint8Array(size).fill(100),
+        humidity: new Uint8Array(size).fill(100),
+      },
+      {
+        runoffScale: 1,
+        infiltrationFraction: 0.15,
+        humidityDampening: 0.25,
+        minRunoff: 0,
+      }
+    );
+
+    const lakePlan = planLakesOp.run(
+      {
+        width,
+        height,
+        landMask,
+        flowDir,
+        sinkMask: discharge.sinkMask,
+      },
+      planLakesOp.defaultConfig
+    );
+
+    expect(lakePlan.sinkLakeCount).toBe(1);
+    expect(lakePlan.plannedLakeTileCount).toBe(1);
+    expect(lakePlan.lakeMask[sinkIdx]).toBe(1);
+    expect(lakePlan.lakeMask[upstreamIdx]).toBe(0);
   });
 
   it("expands one hop per upstream step using snapshot semantics", () => {
