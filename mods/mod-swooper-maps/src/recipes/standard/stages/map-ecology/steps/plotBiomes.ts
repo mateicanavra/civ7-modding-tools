@@ -4,6 +4,7 @@ import * as ecology from "@mapgen/domain/ecology";
 import PlotBiomesStepContract from "./plotBiomes.contract.js";
 import { clampToByte } from "./plot-biomes/helpers/apply.js";
 import { resolveEngineBiomeIds } from "./plot-biomes/helpers/engine-bindings.js";
+import { buildEngineBiomeIdVizCategories } from "./plot-biomes/viz.js";
 
 const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
@@ -17,6 +18,10 @@ export default createStep(PlotBiomesStepContract, {
       context.adapter,
       config.bindings
     );
+    const biomeIdCategories = buildEngineBiomeIdVizCategories({
+      land: engineBindings,
+      marine: marineBiome,
+    });
 
     const biomeField = context.fields.biomeId;
     const temperatureField = context.fields.temperature;
@@ -55,6 +60,7 @@ export default createStep(PlotBiomesStepContract, {
         label: "Biome Id (Engine)",
         group: GROUP_MAP_ECOLOGY,
         palette: "categorical",
+        categories: biomeIdCategories,
       }),
     });
     context.viz?.dumpGrid(context.trace, {

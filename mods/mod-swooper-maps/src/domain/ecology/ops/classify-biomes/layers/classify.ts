@@ -50,11 +50,31 @@ export function classifyBiomesFromFields(args: {
     const freezeIndex = args.freezeIndex[i] ?? 0;
     const energy01 = clamp01((temperature - energyMin) / energyRange);
 
-    const tempZone = temperatureZoneOf(temperature, args.config.temperature);
+    const aridityShift = aridityShiftForIndex(aridity, args.config.aridity.moistureShiftThresholds);
     const moistureZone = shiftMoistureZone(
       moistureZoneOf(moisture, [dry, semiArid, subhumid, humidThreshold]),
-      aridityShiftForIndex(aridity, args.config.aridity.moistureShiftThresholds)
+      aridityShift
     );
+
+    const tropicalThreshold = args.config.temperature.tropicalThreshold;
+    const transitionBandC = 1.25;
+
+    let tempZone = temperatureZoneOf(temperature, args.config.temperature);
+    if (
+      (tempZone === "temperate" || tempZone === "tropical") &&
+      Math.abs(temperature - tropicalThreshold) <= transitionBandC
+    ) {
+      // Soft transition: use a stronger x-varying wetness signal (derived from rainfall + humidity)
+      // to prevent row-perfect biome cutoffs near the tropical threshold.
+      const transitionDenom = Math.max(1e-6, humidThreshold - subhumid);
+      const wetness01 = clamp01((moisture - subhumid) / transitionDenom);
+      const wetnessShiftRaw = (wetness01 - 0.55) * 2.0;
+      const wetnessShiftC = Math.max(-1, Math.min(1, wetnessShiftRaw)); // [-1C..+1C]
+      const wetnessShiftScaleC = 1.4;
+      const effectiveThreshold = tropicalThreshold - wetnessShiftC * wetnessShiftScaleC;
+      tempZone = temperature >= effectiveThreshold ? "tropical" : "temperate";
+    }
+
     const symbol = biomeSymbolForZones(tempZone, moistureZone);
     biomeIndex[i] = BIOME_SYMBOL_TO_INDEX[symbol]!;
 

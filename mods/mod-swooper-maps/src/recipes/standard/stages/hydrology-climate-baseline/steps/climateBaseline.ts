@@ -218,7 +218,14 @@ export default createStep(ClimateBaselineStepContract, {
             ...config.computeThermalState,
             config: {
               ...config.computeThermalState.config,
-              baseTemperatureC: config.computeThermalState.config.baseTemperatureC + temperatureDeltaC,
+              // Temperature knobs should not simply warm/cool the whole world uniformly (that erases tundra/snow).
+              // Instead, bias the baseline modestly and put most of the adjustment into the equator-to-pole contrast.
+              baseTemperatureC: config.computeThermalState.config.baseTemperatureC + temperatureDeltaC * 0.5,
+              insolationScaleC: clampNumber(
+                config.computeThermalState.config.insolationScaleC + temperatureDeltaC * 2,
+                0,
+                80
+              ),
             },
           }
         : config.computeThermalState;
