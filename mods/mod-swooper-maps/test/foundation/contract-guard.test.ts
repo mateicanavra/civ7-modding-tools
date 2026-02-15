@@ -146,16 +146,35 @@ describe("foundation contract guardrails", () => {
     const stageFile = path.join(repoRoot, "src/recipes/standard/stages/foundation/index.ts");
     const text = readFileSync(stageFile, "utf8");
 
-    expect(text).not.toContain("const mantleOverrideValues = (advanced?.mantleForcing ?? {}) as");
-    expect(text).not.toContain("const budgetsOverrideValues = (advanced?.budgets ?? {}) as");
-    expect(text).not.toContain("const meshOverrideValues = (advanced?.mesh ?? {}) as");
-    expect(text).not.toContain("typeof mantleOverrideValues.");
-    expect(text).not.toContain("typeof budgetsOverrideValues.");
-    expect(text).not.toContain("typeof meshOverrideValues.");
-    expect(text).not.toContain("...(typeof lithosphereOverrides === \"object\" ? lithosphereOverrides : {})");
-    expect(text).not.toContain("FOUNDATION_STUDIO_STEP_CONFIG_IDS");
-    expect(text).not.toContain("__studioUiMetaSentinelPath");
-    expect(text).not.toContain("advancedRecord[stepId]");
+    const bannedExactFragments = [
+      "const mantleOverrideValues = (advanced?.mantleForcing ?? {}) as",
+      "const budgetsOverrideValues = (advanced?.budgets ?? {}) as",
+      "const meshOverrideValues = (advanced?.mesh ?? {}) as",
+      "typeof mantleOverrideValues.",
+      "typeof budgetsOverrideValues.",
+      "typeof meshOverrideValues.",
+      "FOUNDATION_STUDIO_STEP_CONFIG_IDS",
+      "__studioUiMetaSentinelPath",
+      "advancedRecord[stepId]",
+      "FOUNDATION_STEP_IDS",
+    ] as const;
+
+    for (const fragment of bannedExactFragments) {
+      expect(text).not.toContain(fragment);
+    }
+
+    const bannedStructuralPatterns = [
+      // Reintroduced cast-merge over advanced bags, e.g. `(advanced?.foo ?? {}) as ...`.
+      /\(\s*advanced\?\.[^)]*\?\?\s*\{\}\s*\)\s+as\s+/,
+      // Reintroduced spread fallback object merge branch.
+      /\.\.\.\s*\(\s*typeof\s+[^)]+===\s*['"]object['"]\s*\?\s*[^:]+:\s*\{\}\s*\)/,
+      // Reintroduced dynamic sentinel passthrough path.
+      /\badvancedRecord\s*\[\s*stepId\s*\]/,
+    ] as const;
+
+    for (const pattern of bannedStructuralPatterns) {
+      expect(text).not.toMatch(pattern);
+    }
   });
 
   it("keeps tectonics step on decomposed op chain (no mega-op binding)", () => {
@@ -171,6 +190,122 @@ describe("foundation contract guardrails", () => {
     expect(tectonicsStepContract).toContain("computeTectonicsCurrent");
     expect(tectonicsStepContract).toContain("computeTracerAdvection");
     expect(tectonicsStepContract).toContain("computeTectonicProvenance");
+  });
+
+  it("does not expose legacy computeTectonicHistory through foundation domain ops surfaces", () => {
+    const repoRoot = path.resolve(import.meta.dir, "../..");
+    const contractsFile = readFileSync(path.join(repoRoot, "src/domain/foundation/ops/contracts.ts"), "utf8");
+    const implementationsFile = readFileSync(path.join(repoRoot, "src/domain/foundation/ops/index.ts"), "utf8");
+
+    expect(contractsFile).not.toMatch(/\bcomputeTectonicHistory\b/);
+    expect(contractsFile).not.toContain("./compute-tectonic-history/contract.js");
+
+    expect(implementationsFile).not.toMatch(/\bcomputeTectonicHistory\b/);
+    expect(implementationsFile).not.toContain("./compute-tectonic-history/index.js");
+  });
+
+  it("keeps decomposed tectonics ops off legacy compute-tectonic-history internals", () => {
+    const repoRoot = path.resolve(import.meta.dir, "../..");
+    const decomposedOpFiles = [
+      "src/domain/foundation/ops/compute-era-plate-membership/contract.ts",
+      "src/domain/foundation/ops/compute-era-plate-membership/strategies/default.ts",
+      "src/domain/foundation/ops/compute-era-tectonic-fields/contract.ts",
+      "src/domain/foundation/ops/compute-era-tectonic-fields/strategies/default.ts",
+      "src/domain/foundation/ops/compute-hotspot-events/contract.ts",
+      "src/domain/foundation/ops/compute-hotspot-events/strategies/default.ts",
+      "src/domain/foundation/ops/compute-segment-events/contract.ts",
+      "src/domain/foundation/ops/compute-segment-events/strategies/default.ts",
+      "src/domain/foundation/ops/compute-tectonic-history-rollups/contract.ts",
+      "src/domain/foundation/ops/compute-tectonic-history-rollups/strategies/default.ts",
+      "src/domain/foundation/ops/compute-tectonics-current/contract.ts",
+      "src/domain/foundation/ops/compute-tectonics-current/strategies/default.ts",
+      "src/domain/foundation/ops/compute-tracer-advection/contract.ts",
+      "src/domain/foundation/ops/compute-tracer-advection/strategies/default.ts",
+      "src/domain/foundation/ops/compute-tectonic-provenance/contract.ts",
+      "src/domain/foundation/ops/compute-tectonic-provenance/strategies/default.ts",
+    ] as const;
+
+    for (const relativeFile of decomposedOpFiles) {
+      const text = readFileSync(path.join(repoRoot, relativeFile), "utf8");
+      expect(text).not.toContain("compute-tectonic-history/lib/");
+      expect(text).not.toContain("compute-tectonic-history/contract.js");
+    }
+  });
+
+  it("keeps decomposed tectonics strategy imports local to op rules/modules", () => {
+    const repoRoot = path.resolve(import.meta.dir, "../..");
+    const strategyFiles = [
+      "src/domain/foundation/ops/compute-era-plate-membership/strategies/default.ts",
+      "src/domain/foundation/ops/compute-era-tectonic-fields/strategies/default.ts",
+      "src/domain/foundation/ops/compute-hotspot-events/strategies/default.ts",
+      "src/domain/foundation/ops/compute-segment-events/strategies/default.ts",
+      "src/domain/foundation/ops/compute-tectonic-history-rollups/strategies/default.ts",
+      "src/domain/foundation/ops/compute-tectonics-current/strategies/default.ts",
+      "src/domain/foundation/ops/compute-tracer-advection/strategies/default.ts",
+      "src/domain/foundation/ops/compute-tectonic-provenance/strategies/default.ts",
+    ] as const;
+    const allowedImportSources = new Set(["@swooper/mapgen-core/authoring", "../contract.js"]);
+
+    for (const relativeFile of strategyFiles) {
+      const text = readFileSync(path.join(repoRoot, relativeFile), "utf8");
+      expect(text).not.toContain("domain/foundation/lib/tectonics/");
+      expect(text).not.toContain("lib/tectonics/");
+      expect(text).not.toContain("compute-tectonic-history/lib/");
+      expect(text).not.toContain("compute-tectonic-history/contract.js");
+
+      const importSources = text
+        .split(/\r?\n/)
+        .map((line) => line.match(/^\s*import(?:\s+type)?\s+.*\sfrom\s+["']([^"']+)["'];?/))
+        .filter((match): match is RegExpMatchArray => Boolean(match))
+        .map((match) => match[1]);
+
+      expect(importSources.length).toBeGreaterThan(0);
+      expect(importSources.some((source) => source.startsWith("../rules/"))).toBe(true);
+
+      for (const source of importSources) {
+        const isLocalRulesImport = source.startsWith("../rules/");
+        const isAllowedImport = isLocalRulesImport || allowedImportSources.has(source);
+        expect(isAllowedImport).toBe(true);
+      }
+    }
+  });
+
+  it("keeps decomposed tectonics op rules free of lib/tectonics re-export shims", () => {
+    const repoRoot = path.resolve(import.meta.dir, "../..");
+    const rulesFiles = [
+      "src/domain/foundation/ops/compute-era-plate-membership/rules/index.ts",
+      "src/domain/foundation/ops/compute-era-tectonic-fields/rules/index.ts",
+      "src/domain/foundation/ops/compute-hotspot-events/rules/index.ts",
+      "src/domain/foundation/ops/compute-segment-events/rules/index.ts",
+      "src/domain/foundation/ops/compute-tectonic-history-rollups/rules/index.ts",
+      "src/domain/foundation/ops/compute-tectonics-current/rules/index.ts",
+      "src/domain/foundation/ops/compute-tracer-advection/rules/index.ts",
+      "src/domain/foundation/ops/compute-tectonic-provenance/rules/index.ts",
+    ] as const;
+
+    const forbiddenReExportPattern =
+      /^\s*export\s+\{[^}]+\}\s+from\s+["'][^"']*lib\/tectonics\/[^"']+["'];?/m;
+
+    for (const relativeFile of rulesFiles) {
+      const text = readFileSync(path.join(repoRoot, relativeFile), "utf8");
+      expect(text).not.toMatch(forbiddenReExportPattern);
+    }
+  });
+
+  it("keeps foundation tectonics consumers off compute-tectonic-history contract imports", () => {
+    const repoRoot = path.resolve(import.meta.dir, "../..");
+    const files = [
+      "src/domain/foundation/ops/compute-crust-evolution/contract.ts",
+      "src/domain/foundation/ops/compute-plates-tensors/contract.ts",
+      "src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts",
+      "src/domain/foundation/lib/require.ts",
+    ] as const;
+
+    for (const relativeFile of files) {
+      const text = readFileSync(path.join(repoRoot, relativeFile), "utf8");
+      expect(text).not.toContain("compute-tectonic-history/contract.js");
+      expect(text).toContain("tectonics/schemas.js");
+    }
   });
 
   it("publishes maximal foundation artifact ids via contracts", () => {

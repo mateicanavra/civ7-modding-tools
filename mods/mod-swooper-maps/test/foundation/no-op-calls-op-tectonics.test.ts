@@ -6,7 +6,8 @@ import path from "node:path";
 type OpCallViolation = {
   file: string;
   line: number;
-  importPath: string;
+  rule: string;
+  excerpt: string;
 };
 
 function countLines(input: string, end: number): number {
@@ -14,7 +15,7 @@ function countLines(input: string, end: number): number {
 }
 
 describe("foundation no-op-calls-op guardrails", () => {
-  it("forbids foundation op runtime imports from sibling op implementations", () => {
+  it("forbids op-level orchestration surfaces in foundation op runtimes", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const opsRoot = path.join(repoRoot, "src/domain/foundation/ops");
     const opDirs = readdirSync(opsRoot).filter((entry) => {
@@ -33,23 +34,55 @@ describe("foundation no-op-calls-op guardrails", () => {
 
     expect(opIndexFiles.length).toBeGreaterThan(0);
 
-    const opImportPattern = /from\s+["'](\.\.\/[^"']+\/index\.js)["']/g;
+    const bannedImportPatterns: Array<{ rule: string; pattern: RegExp }> = [
+      {
+        rule: "sibling op runtime import",
+        pattern: /from\s+["'](\.\.\/[^"']+\/index\.js)["']/g,
+      },
+      {
+        rule: "domain ops barrel import",
+        pattern: /from\s+["'](@mapgen\/domain\/[^"']+\/ops(?:\/index\.js)?)["']/g,
+      },
+    ];
+    const bannedLocalPatterns: Array<{ rule: string; pattern: RegExp }> = [
+      {
+        rule: "ops.bind orchestration",
+        pattern: /\bops\.bind\(/g,
+      },
+      {
+        rule: "runValidated orchestration",
+        pattern: /\brunValidated\(/g,
+      },
+    ];
     const violations: OpCallViolation[] = [];
 
     for (const file of opIndexFiles) {
       const text = readFileSync(file, "utf8");
-      opImportPattern.lastIndex = 0;
-      for (const match of text.matchAll(opImportPattern)) {
-        const importPath = match[1] ?? "";
-        if (!importPath.startsWith("../")) {
-          continue;
+
+      for (const banned of bannedImportPatterns) {
+        banned.pattern.lastIndex = 0;
+        for (const match of text.matchAll(banned.pattern)) {
+          const index = match.index ?? 0;
+          violations.push({
+            file,
+            line: countLines(text, index),
+            rule: banned.rule,
+            excerpt: (match[1] ?? match[0] ?? "").toString(),
+          });
         }
-        const index = match.index ?? 0;
-        violations.push({
-          file,
-          line: countLines(text, index),
-          importPath,
-        });
+      }
+
+      for (const banned of bannedLocalPatterns) {
+        banned.pattern.lastIndex = 0;
+        for (const match of text.matchAll(banned.pattern)) {
+          const index = match.index ?? 0;
+          violations.push({
+            file,
+            line: countLines(text, index),
+            rule: banned.rule,
+            excerpt: (match[0] ?? "").toString(),
+          });
+        }
       }
     }
 
