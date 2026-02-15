@@ -220,9 +220,8 @@ function sanitizeDiscoveryCatalog(input: DiscoveryCatalogEntry[] | undefined): D
     const discoveryVisualType = entry?.discoveryVisualType;
     const discoveryActivationType = entry?.discoveryActivationType;
     if (!Number.isFinite(discoveryVisualType) || !Number.isFinite(discoveryActivationType)) continue;
-    const visual = (discoveryVisualType as number) | 0;
-    const activation = (discoveryActivationType as number) | 0;
-    if (visual < 0 || activation < 0) continue;
+    const visual = Math.trunc(discoveryVisualType as number) >>> 0;
+    const activation = Math.trunc(discoveryActivationType as number) >>> 0;
     const key = `${visual}:${activation}`;
     if (unique.has(key)) continue;
     unique.add(key);
