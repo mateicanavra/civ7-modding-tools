@@ -43,3 +43,4 @@
 - [2026-02-15T04:56:00Z] T26 correction pass: removed legacy `wondersPlusOne` compatibility path and removed uncontrolled discovery fallback/hash path; targeted tests green on T26 fix branch.
 - [2026-02-15T05:07:00Z] Submission under 50-PR cap completed via direct PR creation for 21 additional fix branches (plus existing T01 fix PR), with 5 low-risk no-action tasks marked `omitted (stack PR cap at 50)`: T04, T05, T06, T07, T09.
 - [2026-02-15T05:07:00Z] Recorded PR outputs at `continuation-created-prs.tsv`; updated review/milestone traceability with final fix PR URLs and cap omissions; out-of-scope drift check remains clean.
+- [2026-02-15T05:12:00Z] Continuation-created worktrees for T24/T25/T26/T27 removed with `git worktree remove --force` (submodule-aware cleanup).
