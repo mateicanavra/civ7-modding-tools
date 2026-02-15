@@ -16,6 +16,7 @@ const BiomesStepContract = defineStep({
     requires: [
       hydrologyClimateBaselineArtifacts.climateField,
       hydrologyClimateRefineArtifacts.cryosphere,
+      hydrologyClimateRefineArtifacts.climateIndices,
       morphologyArtifacts.topography,
       hydrologyHydrographyArtifacts.hydrography,
     ],
