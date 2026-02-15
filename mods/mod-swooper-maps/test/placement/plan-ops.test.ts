@@ -3,23 +3,86 @@ import { describe, expect, it } from "bun:test";
 import placementDomain from "../../src/domain/placement/ops.js";
 import { runOpValidated } from "../support/compiler-helpers.js";
 
-const { planFloodplains, planStarts, planWonders } = placementDomain.ops;
+const { planDiscoveries, planFloodplains, planNaturalWonders, planStarts, planWonders } = placementDomain.ops;
 
 describe("placement plan operations", () => {
-  it("plans wonders with plus-one default", () => {
+  it("plans wonders from map-size defaults without bonus inflation", () => {
     const result = runOpValidated(planWonders, { mapInfo: { NumNaturalWonders: 2 } }, {
       strategy: "default",
       config: {},
     });
-    expect(result.wondersCount).toBe(3);
+    expect(result.wondersCount).toBe(2);
   });
 
-  it("plans wonders without plus-one when disabled", () => {
-    const result = runOpValidated(planWonders, { mapInfo: { NumNaturalWonders: 2 } }, {
+  it("rejects legacy wondersPlusOne config", () => {
+    expect(() =>
+      runOpValidated(planWonders, { mapInfo: { NumNaturalWonders: 2 } }, {
+        strategy: "default",
+        config: { wondersPlusOne: true },
+      })
+    ).toThrow();
+  });
+
+  it("plans zero wonders when map-size default is absent", () => {
+    const result = runOpValidated(planWonders, { mapInfo: {} }, {
       strategy: "default",
-      config: { wondersPlusOne: false },
+      config: {},
     });
-    expect(result.wondersCount).toBe(2);
+    expect(result.wondersCount).toBe(0);
+  });
+
+  it("plans deterministic natural wonder placements from physical fields", () => {
+    const width = 4;
+    const height = 3;
+    const size = width * height;
+    const result = runOpValidated(planNaturalWonders, {
+      width,
+      height,
+      wondersCount: 2,
+      landMask: new Uint8Array(size).fill(1),
+      elevation: Int16Array.from([5, 20, 30, 40, 10, 100, 70, 20, 0, 10, 15, 60]),
+      aridityIndex: new Float32Array(size).fill(0.3),
+      riverClass: new Uint8Array(size),
+      lakeMask: new Uint8Array(size),
+      featureCatalog: [
+        { featureType: 1001, direction: 0 },
+        { featureType: 1002, direction: 1 },
+      ],
+    }, {
+      strategy: "default",
+      config: { minSpacingTiles: 1 },
+    });
+
+    expect(result.targetCount).toBe(2);
+    expect(result.plannedCount).toBe(2);
+    expect(result.placements.length).toBe(2);
+    expect(result.placements[0]?.featureType).toBe(1001);
+    expect(result.placements[1]?.featureType).toBe(1002);
+  });
+
+  it("plans deterministic discovery placements from physical fields", () => {
+    const width = 5;
+    const height = 4;
+    const size = width * height;
+    const result = runOpValidated(planDiscoveries, {
+      width,
+      height,
+      landMask: new Uint8Array(size).fill(1),
+      elevation: Int16Array.from(Array.from({ length: size }, (_, i) => (i % width) * 10)),
+      aridityIndex: new Float32Array(size).fill(0.4),
+      riverClass: new Uint8Array(size),
+      lakeMask: new Uint8Array(size),
+      discoveryVisualType: 11,
+      discoveryActivationType: 22,
+    }, {
+      strategy: "default",
+      config: { densityPer100Tiles: 10, minSpacingTiles: 1 },
+    });
+
+    expect(result.plannedCount).toBeGreaterThan(0);
+    expect(result.placements.length).toBe(result.plannedCount);
+    expect(result.placements[0]?.discoveryVisualType).toBe(11);
+    expect(result.placements[0]?.discoveryActivationType).toBe(22);
   });
 
   it("plans floodplains respecting min/max", () => {

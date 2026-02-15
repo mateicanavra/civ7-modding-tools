@@ -445,7 +445,7 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
   },
   placement: {
     "derive-placement-inputs": {
-      wonders: { strategy: "default", config: { wondersPlusOne: true } },
+      wonders: { strategy: "default", config: {} },
       floodplains: { strategy: "default", config: { minLength: 4, maxLength: 10 } },
       starts: { strategy: "default", config: { overrides: {} } },
     },
