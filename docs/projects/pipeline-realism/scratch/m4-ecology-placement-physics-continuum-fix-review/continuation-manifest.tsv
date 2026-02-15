@@ -1,0 +1,20 @@
+task	workBranch	classification	existingFixBranch	commitDelta	workPr	workPrUrl	unresolvedThreads	revalidation
+M4-T04	codex/MAMBO-m3-005-plan-reefs-deterministic	No actionable fix-now	agent-TOMMY-M4-T04-fix-mambo-m3-005-plan-reefs-deterministic-42c50e	0	1226	https://github.com/mateicanavra/civ7-modding-tools/pull/1226	0	n/a
+M4-T05	codex/MAMBO-m3-006-plan-wetlands-deterministic	No actionable fix-now	agent-TOMMY-M4-T05-fix-mambo-m3-006-plan-wetlands-deterministic-284a7e	0	1227	https://github.com/mateicanavra/civ7-modding-tools/pull/1227	0	n/a
+M4-T06	codex/MAMBO-m3-007-plan-vegetation-deterministic	No actionable fix-now	agent-TOMMY-M4-T06-fix-mambo-m3-007-plan-vegetation-determinist-33fa9e	0	1228	https://github.com/mateicanavra/civ7-modding-tools/pull/1228	0	n/a
+M4-T07	codex/MAMBO-m3-008-stamping-strict-features-apply	No actionable fix-now	agent-TOMMY-M4-T07-fix-mambo-m3-008-stamping-strict-features-ap-5cbbf9	0	1229	https://github.com/mateicanavra/civ7-modding-tools/pull/1229	1	n/a
+M4-T09	codex/MAMBO-m3-010-post-cutover-cleanup	No actionable fix-now	agent-TOMMY-M4-T09-fix-mambo-m3-010-post-cutover-cleanup-5fefd4	0	1231	https://github.com/mateicanavra/civ7-modding-tools/pull/1231	0	n/a
+M4-T10	codex/MAMBO-m3-011-canonical-docs-sweep	No actionable fix-now	agent-TOMMY-M4-T10-fix-mambo-m3-011-canonical-docs-sweep-f6feb2	0	1232	https://github.com/mateicanavra/civ7-modding-tools/pull/1232	0	n/a
+M4-T11	codex/MAMBO-m3-012-fix-biomes-stripes	Needs discussion	agent-TOMMY-M4-T11-fix-mambo-m3-012-fix-biomes-stripes-faece2	0	1233	https://github.com/mateicanavra/civ7-modding-tools/pull/1233	1	n/a
+M4-T12	codex/MAMBO-m3-014-lakes-not-filled	Already tracked/superseded	agent-TOMMY-M4-T12-fix-mambo-m3-014-lakes-not-filled-993ca5	0	1234	https://github.com/mateicanavra/civ7-modding-tools/pull/1234	0	n/a
+M4-T14	codex/M3-015-hydrology-effectiveMoisture-soils	No actionable fix-now	agent-TOMMY-M4-T14-fix-m3-015-hydrology-effectivemoisture-soils-69ea1b	0	1236	https://github.com/mateicanavra/civ7-modding-tools/pull/1236	0	n/a
+M4-T15	codex/default-config-intent-tuning	Already tracked/superseded	agent-TOMMY-M4-T15-fix-default-config-intent-tuning-384ba2	0	1237	https://github.com/mateicanavra/civ7-modding-tools/pull/1237	0	n/a
+M4-T16	codex/MAMBO-lakes-resources-waterfill-rootcause	No actionable fix-now	agent-TOMMY-M4-T16-fix-mambo-lakes-resources-waterfill-rootcaus-693afa	0	1238	https://github.com/mateicanavra/civ7-modding-tools/pull/1238	0	n/a
+M4-T17	codex/MAMBO-elevation-terrain-parity-audit	No actionable fix-now	agent-TOMMY-M4-T17-fix-mambo-elevation-terrain-parity-audit-06489e	0	1239	https://github.com/mateicanavra/civ7-modding-tools/pull/1239	0	n/a
+M4-T19	codex/MAMBO-elevation-post-hydrology-lifecycle	No actionable fix-now	agent-TOMMY-M4-T19-fix-mambo-elevation-post-hydrology-lifecycle-2f0228	0	1241	https://github.com/mateicanavra/civ7-modding-tools/pull/1241	0	n/a
+M4-T21	codex/prr-epp-s1-drift-observability	No actionable fix-now	agent-TOMMY-M4-T21-fix-prr-epp-s1-drift-observability-60cf6d	0	1259	https://github.com/mateicanavra/civ7-modding-tools/pull/1259	0	n/a
+M4-T22	codex/prr-epp-s2-ecology-physics-cutover	Already tracked/superseded	agent-TOMMY-M4-T22-fix-prr-epp-s2-ecology-physics-cutover-38049d	0	1260	https://github.com/mateicanavra/civ7-modding-tools/pull/1260	1	n/a
+M4-T24	codex/prr-epp-s3b-lakes-regression-fix	Fix now	(create)	-	1264	https://github.com/mateicanavra/civ7-modding-tools/pull/1264	0	inherited-fixed-from-snapshot
+M4-T25	codex/prr-epp-s4-resources-deterministic	No actionable fix-now	(create)	-	1265	https://github.com/mateicanavra/civ7-modding-tools/pull/1265	0	n/a
+M4-T26	codex/prr-epp-s5-placement-randomness-zero	Fix now	(create)	-	1266	https://github.com/mateicanavra/civ7-modding-tools/pull/1266	2	wondersPlusOne:missing,discoveryDefault:hardcoded
+M4-T27	codex/prr-epp-s6-hardening-docs-tests	Needs discussion	(create)	-	1267	https://github.com/mateicanavra/civ7-modding-tools/pull/1267	0	n/a

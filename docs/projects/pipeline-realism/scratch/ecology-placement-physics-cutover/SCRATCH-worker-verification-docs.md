@@ -6,11 +6,11 @@
 - Focus: Determinism/replay metrics gates, no-legacy scans, docs+ADR finalization.
 
 ## Working Checklist
-- [ ] Add seed matrix and earth metrics tests.
-- [ ] Extend deterministic replay and parity tests.
-- [ ] Extend static scan for scoped random/fudge bans.
-- [ ] Update docs/system + project spec/plan docs.
-- [ ] Add ADR for physics-first ecology+placement cutover.
+- [x] Add seed matrix and earth metrics tests.
+- [x] Extend deterministic replay and parity tests.
+- [x] Extend static scan for scoped random/fudge bans.
+- [x] Update docs/system + project spec/plan docs.
+- [x] Add ADR for physics-first ecology+placement cutover.
 
 ## Decision Log
 - None yet.
@@ -57,3 +57,30 @@
 - `lakes-area-recalc-resources.test.ts`: replaced `generateResources` override with water-aware `canHaveResource`, passed deterministic `resources` plan targeting the lake tile, and asserted stamped resource call + `resourcesPlaced/resourcesCount` while preserving lake-water ordering checks.
 - `placement-does-not-call-generate-snow.test.ts`: passed deterministic `resources` plan and added assertion that placement does **not** call `adapter.generateResources`.
 - Goal of these changes: ensure tests validate deterministic stamping behavior and guard against regressions back to legacy runtime resource generation.
+
+## Worker Verification Update (2026-02-15) — S6 hardening in progress
+
+### Code-policy hardening
+- Removed legacy generator API surface for scoped placement randomness:
+  - deleted `addNaturalWonders`, `generateResources`, `generateDiscoveries` from `EngineAdapter` contract and implementations.
+  - removed corresponding civ7 adapter imports of legacy base-standard generator modules.
+- Added fail-hard parity gates at contract boundaries:
+  - `map-hydrology/lakes` now throws if planned-lake tiles are dry in engine projection.
+  - `map-ecology/plot-biomes` and `placement/placement` remain telemetry-first while post-hydrology authoritative land-mask truth is finalized.
+
+### Test-policy hardening
+- Extended static enforcement in `test/ecology/no-fudging-static-scan.test.ts`:
+  - now scans hydrology + placement + civ7-adapter sources for RNG/fudge tokens and legacy generator module/call usage.
+- Updated placement tests to align with removed legacy call ledgers and deterministic stamp-only assertions.
+
+### Docs/ADR sweep in progress
+- Updated architecture/vision/testing/spec-plan docs to codify physics-truth authority and fail-hard drift policy.
+- Added `docs/system/mods/swooper-maps/adrs/adr-003-physics-truth-projection-boundary.md` and linked it from ADR index.
+
+### New metrics coverage (2026-02-15)
+- Added diagnostics helper:
+  - `src/dev/diagnostics/extract-earth-metrics.ts`
+- Added pipeline metric tests:
+  - `test/pipeline/seed-matrix-stats.test.ts`
+  - `test/pipeline/earth-metrics.test.ts`
+- These tests validate deterministic metric stability across canonical seeds and broad non-degenerate earth-like envelopes (land/lake/river/biome diversity).

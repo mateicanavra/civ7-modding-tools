@@ -1,0 +1,10 @@
+# continuation safety check 2026-02-15T03:49:58Z
+/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-TOMMY-M4-T01-fix-mambo-m3-002-stage-split-earth-system-fi-a47102|agent-TOMMY-M4-T01-fix-mambo-m3-002-stage-split-earth-system-fi-a47102|dirty_files:0|rebase:no
+/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-TOMMY-M4-T02-fix-mambo-m3-003-scorelayers-artifact-and-sc-9d3358|agent-TOMMY-M4-T02-fix-mambo-m3-003-scorelayers-artifact-and-sc-9d3358|dirty_files:0|rebase:no
+/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-TOMMY-M4-T03-fix-mambo-m3-004-plan-ice-deterministic-6f0890|agent-TOMMY-M4-T03-fix-mambo-m3-004-plan-ice-deterministic-6f0890|dirty_files:0|rebase:no
+/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-TOMMY-M4-T08-fix-mambo-m3-009-cleanup-delete-legacy-chanc-912363|agent-TOMMY-M4-T08-fix-mambo-m3-009-cleanup-delete-legacy-chanc-912363|dirty_files:0|rebase:no
+/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-TOMMY-M4-T13-fix-mambo-m3-013-bio-lat-cutoff-2ab14f|agent-TOMMY-M4-T13-fix-mambo-m3-013-bio-lat-cutoff-2ab14f|dirty_files:0|rebase:no
+/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-TOMMY-M4-T18-fix-mambo-resources-stamping-rootcause-01732c|agent-TOMMY-M4-T18-fix-mambo-resources-stamping-rootcause-01732c|dirty_files:0|rebase:no
+/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-TOMMY-M4-T20-fix-prr-epp-s0-plan-bootstrap-888878|agent-TOMMY-M4-T20-fix-prr-epp-s0-plan-bootstrap-888878|dirty_files:0|rebase:no
+/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-TOMMY-M4-T23-fix-prr-epp-s3-lakes-deterministic-2ad056|agent-TOMMY-M4-T23-fix-prr-epp-s3-lakes-deterministic-2ad056|dirty_files:0|rebase:no
+/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-TOMMY-m4-fix-bootstrap|agent-TOMMY-m4-fix-bootstrap|dirty_files:1|rebase:no

@@ -113,6 +113,12 @@ export default createStep(LakesStepContract, {
         sinkMismatchShare: Number((sinkMismatchCount / Math.max(1, width * height)).toFixed(4)),
       }));
 
+      if (sinkMismatchCount > 0) {
+        throw new Error(
+          `[SWOOPER_MOD] map-hydrology/lakes parity drift: ${sinkMismatchCount} planned lake tiles are not water in engine projection.`
+        );
+      }
+
       context.viz?.dumpGrid(context.trace, {
         dataTypeKey: "map.hydrology.lakes.engineLakeMask",
         spaceId: TILE_SPACE_ID,

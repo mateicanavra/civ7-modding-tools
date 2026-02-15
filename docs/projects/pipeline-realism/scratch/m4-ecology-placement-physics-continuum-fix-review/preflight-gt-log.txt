@@ -1,0 +1,551 @@
+◉ agent-TOMMY-m4-review-bootstrap (current) 
+│ 57 minutes ago
+│ 
+│ PR #1295 (Draft) docs(review): consolidate M4 ecology continuum loop outputs
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1295
+│ 
+│ 5eac99f9c - docs(review): close orchestrator scratchpad loop
+│ 48d9287ef - docs(review): finalize M4 loop consolidation and triage
+│ 5cb4e06b4 - docs(review): bootstrap M4 continuum loop artifacts
+│
+◯ codex/prr-epp-s6-hardening-docs-tests 
+│ 2 hours ago
+│ 
+│ PR #1267 (Ready to merge as stack) feat(pipeline-realism): add ecology-placement-physics cutover plan and implementation
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1267
+│ Last submitted version: v1
+│ 
+│ c55febd8a - docs(scratch): mark S6 completion in orchestrator ledger
+│ 95c82d3b9 - chore(pipeline): harden physics-truth placement and drift guards
+│
+◯ codex/prr-epp-s5-placement-randomness-zero 
+│ 2 hours ago
+│ 
+│ PR #1266 (Ready to merge as stack) feat(placement): replace random wonders/discoveries with deterministic stamping
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1266
+│ Last submitted version: v1
+│ 
+│ 449100906 - feat(placement): deterministically stamp wonders and discoveries
+│
+◯ codex/prr-epp-s4-resources-deterministic 
+│ 2 hours ago
+│ 
+│ PR #1265 (Ready to merge as stack) feat(placement): implement deterministic resource planning and stamping
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1265
+│ Last submitted version: v1
+│ 
+│ ba30fabe1 - feat(placement): deterministically stamp resources from pipeline plans
+│
+◯ codex/prr-epp-s3b-lakes-regression-fix 
+│ 3 hours ago
+│ 
+│ PR #1264 (Ready to merge as stack) fix(hydrology): change default maxUpstreamSteps to 0 to prevent lake over-placement
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1264
+│ Last submitted version: v1
+│ 
+│ dd09d6c6d - fix(map-hydrology): default lake planning to sink-only
+│
+◯ codex/prr-epp-s3-lakes-deterministic 
+│ 4 hours ago
+│ 
+│ PR #1261 (Ready to merge as stack) feat(map-hydrology): cut over lakes to deterministic hydrology plan
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1261
+│ Last submitted version: v1
+│ 
+│ e42ac109d - feat(map-hydrology): cut over lakes to deterministic hydrology plan
+│
+◯ codex/prr-epp-s2-ecology-physics-cutover 
+│ 4 hours ago
+│ 
+│ PR #1260 (Ready to merge as stack) feat(ecology): enforce deterministic physics-first planners
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1260
+│ 
+│ 581aea351 - feat(ecology): enforce deterministic physics-first planners
+│
+◯ codex/prr-epp-s1-drift-observability 
+│ 5 hours ago
+│ 
+│ PR #1259 (Ready to merge as stack) feat(map): add observe-first parity diagnostics across projection stages
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1259
+│ 
+│ c03c163b7 - feat(map): add observe-first parity diagnostics across projection stages
+│
+◯ codex/prr-epp-s0-plan-bootstrap 
+│ 5 hours ago
+│ 
+│ PR #1258 (Ready to merge as stack) docs(plan): bootstrap ecology placement physics cutover s0
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1258
+│ 
+│ ee42d1e08 - docs(plan): bootstrap ecology placement physics cutover s0
+│
+◯ codex/MAMBO-elevation-post-hydrology-lifecycle 
+│ 6 hours ago
+│ 
+│ PR #1241 (Ready to merge as stack) fix(hydrology): refresh area/water caches after river generation
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1241
+│ 
+│ 346e88c4b - docs(spike): capture ecology placement runtime divergence report
+│ 0966e3387 - fix(map-hydrology): refresh area and water caches after river modeling Align post-river pipeline with cache/topology responsibilities when map-ecology runs before placement finalization. Adds a focused regression test for plot-rivers cache refresh ordering and water-cache visibility.
+│
+◯ codex/MAMBO-resources-stamping-rootcause 
+│ 6 hours ago
+│ 
+│ PR #1240 (Ready to merge as stack) fix(placement): restamp landmass regions before resource generation
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1240
+│ Last submitted version: v2
+│ 
+│ 8523dddac - fix(placement): restamp landmass regions before resources
+│
+◯ codex/MAMBO-elevation-terrain-parity-audit 
+│ 7 hours ago
+│ 
+│ PR #1239 (Ready to merge as stack) perf(map-morphology): optimize buildElevation to avoid unnecessary terrain restoration
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1239
+│ Last submitted version: v2
+│ 
+│ b1451c374 - fix(map-morphology): preserve buildElevation relief when no drift
+│
+◯ codex/MAMBO-lakes-resources-waterfill-rootcause 
+│ 7 hours ago
+│ 
+│ PR #1238 (Ready to merge as stack) fix(hydrology): recalculate areas after lake generation to preserve water tiles
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1238
+│ Last submitted version: v2
+│ 
+│ 062b3153b - fix(map-hydrology): recalc areas after lake projection Align lakes staging with Civ7 base invariant by rebuilding areas immediately after generateLakes before water cache sync. Adds regression coverage proving storeWaterData-only is insufficient for downstream rivers/placement resource eligibility.
+│
+◯ codex/default-config-intent-tuning 
+│ 8 hours ago
+│ 
+│ PR #1237 (Ready to merge as stack) feat(climate): tune map configs for more realistic hydrology and biomes
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1237
+│ Last submitted version: v2
+│ 
+│ 4e08608fd - feat(config): tune default map profiles for intended biome outcomes
+│
+◯ codex/M3-015-hydrology-effectiveMoisture-soils 
+│ 4 days ago
+│ 
+│ PR #1236 (Ready to merge as stack) refactor(ecology): use Hydrology effectiveMoisture instead of local derivation
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1236
+│ Last submitted version: v3
+│ 
+│ 7c0da3e89 - docs(orchestrator): record M3-015 completion
+│ 20cc264dc - test(ecology): realign biomes tests to effectiveMoisture contract
+│ d12b64899 - chore(presets): drop biome noise/riparian knobs
+│ ba364ca19 - fix(ecology): remove biome moisture noise config
+│ 625d17d55 - feat(hydrology): publish effectiveMoisture index
+│
+◯ codex/MAMBO-m3-013-bio-lat-cutoff 
+│ 4 days ago
+│ 
+│ PR #1235 (Ready to merge as stack) fix(ecology): smooth tropical-temperate biome transitions to prevent latitude cutoffs
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1235
+│ Last submitted version: v3
+│ 
+│ 237239f8f - test(ecology): refresh baseline artifact fingerprints
+│ a9311d383 - fix(ecology): soften tropical wetness threshold
+│ 0be9d48df - chore(viz): stable categories for engine layers
+│ b66c22957 - fix(ecology): reduce rainforest latitude banding
+│ e67d1e4d0 - fix(hydrology): restore cold poles in thermal state
+│
+◯ codex/MAMBO-m3-014-lakes-not-filled 
+│ 4 days ago
+│ 
+│ PR #1234 (Ready to merge as stack) fix(hydrology): call storeWaterData after generateLakes to update water tables
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1234
+│ Last submitted version: v1
+│ 
+│ b14902dd9 - test(map-hydrology): cover storeWaterData after lakes
+│ 9b3e187e2 - fix(map-hydrology): resync water caches after generateLakes
+│
+◯ codex/MAMBO-m3-012-fix-biomes-stripes 
+│ 5 days ago
+│ 
+│ PR #1233 (Ready to merge as stack) fix(ecology): fix biomes horizontal stripe banding
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1233
+│ Last submitted version: v2
+│ 
+│ 7a204eacf - docs(pipeline-realism): close M3-012
+│ 7b1706933 - feat(ecology): classify biomes from climate indices
+│ 51913fd81 - fix(ecology): consume hydrology indices for biomes
+│ 3fcb9242a - docs(orchestrator): advance M3 pointer to M3-012
+│
+◯ codex/MAMBO-m3-011-canonical-docs-sweep 
+│ 5 days ago
+│ 
+│ PR #1232 (Ready to merge as stack) docs(ecology): add descriptions to plot effects configuration schemas
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1232
+│ Last submitted version: v5
+│ 
+│ 684cac71a - docs(ecology): document plot-effects scoring configs
+│
+◯ codex/MAMBO-m3-010-post-cutover-cleanup 
+│ 5 days ago
+│ 
+│ PR #1231 (Ready to merge as stack) docs(pipeline-realism): add post-cutover cleanup and bugfix issues
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1231
+│ Last submitted version: v3 (remote at v4, need get)
+│ 
+│ c1bce1697 - docs(pipeline-realism): update ORCH plan for M3-010
+│ c1a130efe - docs(pipeline-realism): add M3-010..012 issue rails
+│
+◯ codex/MAMBO-m3-009-cleanup-delete-legacy-chance 
+│ 5 days ago
+│ 
+│ PR #1230 (Ready to merge as stack) refactor(ecology): delete legacy chance and multiplier paths
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1230
+│ Last submitted version: v6
+│ 
+│ 21bbfbe12 - docs(pipeline-realism): close M3-009
+│ 04f9fbc62 - fix(ecology): repair earthlike plotEffects config JSON
+│ 806c56702 - feat(ecology): split plot-effects scores from planner
+│ 69f1458ff - docs(pipeline-realism): mark M3-010 issue as TBD
+│ 0adb67032 - docs(pipeline-realism): advance M3 ecology pointer to M3-010
+│ 878db1c0c - chore(ecology): remove unused plot-effects score op stub
+│ cc1ccf7e2 - test(ecology): update baseline fixtures and add no-fudging scan
+│ dcf004a31 - chore(ecology): remove manual additionalProperties in biome noise schema
+│ b40af6cf5 - feat(ecology): deterministic plot-effects coverage selection,Replace rollPercent/chance gates with deterministic top-coverage selection (seeded tie-break only) and rename config keys to coveragePct.
+│ 3a263264d - docs(pipeline-realism): advance M3 ecology pointer
+│
+◯ codex/MAMBO-m3-008-stamping-strict-features-apply 
+│ 5 days ago
+│ 
+│ PR #1229 (Ready to merge as stack) refactor(ecology): enforce strict feature stamping with no probabilistic gating
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1229
+│ Last submitted version: v1
+│ 
+│ 5b2fab0a1 - fix(ecology): reject non-unit weights in features-apply
+│ 042ed1405 - test(ecology): gate strict features stamping
+│ 46f600fc6 - feat(ecology): make features-apply stamping strict
+│ 1c85ff3e3 - docs(pipeline-realism): advance M3 ecology pointer
+│
+◯ codex/MAMBO-m3-007-plan-vegetation-deterministic 
+│ 5 days ago
+│ 
+│ PR #1228 (Ready to merge as stack) docs(pipeline-realism): update M3 execution plan for vegetation deterministic planning
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1228
+│ Last submitted version: v4
+│ 
+│ a2b673a0e - docs(pipeline-realism): advance M3 ecology pointer to M3-008
+│ 210abd664 - test(ecology): align guardrails and op contract coverage for vegetation
+│ 4b8c19d72 - test(ecology): update plan/apply pipeline for M3 vegetation
+│ d43ed9c43 - test(ecology): cover deterministic vegetation planning
+│ 016e9b1f7 - feat(ecology): plan vegetation deterministically from score layers
+│ 4bde11b18 - docs(pipeline-realism): advance M3 ecology pointer
+│ f4118e7ce - docs(pipeline-realism): add slice gates and closure notes
+│
+◯ codex/MAMBO-m3-006-plan-wetlands-deterministic 
+│ 5 days ago
+│ 
+│ PR #1227 (Ready to merge as stack) refactor(ecology): implement deterministic wetlands planning with score-based joint resolver
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1227
+│ Last submitted version: v2
+│ 
+│ cf7e08fd5 - docs(pipeline-realism): advance M3 ecology pointer
+│ dccb7acbb - chore(ecology): migrate map configs to ecology-wetlands stage
+│ 8555b8f64 - feat(ecology): plan wetlands deterministically from score layers
+│
+◯ codex/MAMBO-m3-005-plan-reefs-deterministic 
+│ 5 days ago
+│ 
+│ PR #1226 (Ready to merge as stack) feat(ecology): implement deterministic reef family planning
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1226
+│ Last submitted version: v4
+│ 
+│ 69b1fa839 - fix(ecology): avoid wetlands config conflicts in reefs slice
+│ 5af2a4425 - fix(mod-swooper-maps): migrate TS map configs to split ecology stages
+│ c22b38f09 - docs(pipeline-realism): advance M3 ecology pointer
+│ 32957b5a7 - feat(ecology): deterministic reef-family reef planning
+│
+◯ codex/MAMBO-m3-004-plan-ice-deterministic 
+│ 5 days ago
+│ 
+│ PR #1225 (Ready to merge as stack) refactor(ecology): implement deterministic ice planning with score-based approach
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1225
+│ Last submitted version: v2
+│ 
+│ 521045dbd - docs(ecology): describe planIce minScore01
+│ 9a7c0e8ba - docs(pipeline-realism): advance M3 ecology pointer
+│ ca312b2c0 - feat(ecology): make ice planning deterministic over score layers
+│ a3d040c8f - feat(ecology): scaffold ecology-ice plan-ice stage
+│
+◯ codex/MAMBO-m3-003-scorelayers-artifact-and-score-ops 
+│ 5 days ago
+│ 
+│ PR #1224 (Ready to merge as stack) feat(ecology): add score layer operations for wetlands, reefs, and ice features
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1224
+│ Last submitted version: v2
+│ 
+│ a71febf9d - docs(pipeline-realism): update M3 ecology ORCH invariants
+│ 54b8c5f97 - refactor(mod-swooper-maps): rename vegetation score step keys to score*
+│ 9e50dbe51 - fix(mod-swooper-maps): align earthlike presets with ecology stage split
+│ 2890c836b - chore(mod-swooper-maps): tighten ecology artifact schemas to typed arrays
+│ 986cec57d - refactor(mod-swooper-maps): rename vegetation score op keys
+│ b2bdfad14 - fix(mod-swooper-maps): migrate earthlike ecology preset to split stages
+│ 91a63be6e - refactor(ecology): remove redundant additionalProperties flags
+│ b7f915a70 - docs(pipeline-realism): update M3-003 orch plan invariants
+│ b18962064 - refactor(recipe): remove ecology-features-score public/compile
+│ 5693d1094 - chore(diag): enable scoreLayers dump/diff
+│ b7fd60ac8 - feat(recipe): populate scoreLayers for all feature keys
+│ bcb9c324d - feat(ecology): add wet/reef/ice score ops
+│ 717da76a3 - feat(recipe): add ecology-features-score score layers step
+│ a9bca3b08 - feat(ecology): add scoreLayers + occupancy base artifacts
+│
+◯ codex/MAMBO-m3-002-stage-split-earth-system-first 
+│ 5 days ago
+│ 
+│ PR #1223 (Ready to merge) refactor(ecology): split earth system stages and integrate biome edge refinement
+│ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1223
+│ Last submitted version: v5
+│ 
+│ 958d3861e - refactor(recipe): remove M3 stage public/compile aliasing
+│ 6b08f0c7e - refactor(recipe): forward ecology-vegetation step config
+│ 441318380 - refactor(recipe): simplify stage authoring declarations
+│ 4de550fa2 - docs(pipeline-realism): advance M3 orch pointer
+│ 6471a7f7a - chore(ecology): delete legacy ecology stage
+│ fafb6763f - feat(recipe): add M3 earth-system ecology stages
+│ f6fb069e8 - feat(ecology): fold biome edge refinement into classifyBiomes
+│ b443f5c73 - docs(pipeline-realism): mark M3-001 verified
+│ 69ff74a64 - docs(pipeline-realism): add M3 ecology execution orch plan
+│
+│  ◯ codex/prr-m4-s06-test-rewrite-architecture-scans 
+│  │ 22 minutes ago
+│  │ 
+│  │ 9f7cfdfc6 - docs(m4): log post-cut architecture guardrail pass
+│  │ 34e456830 - refactor(foundation): remove compile sentinel passthrough paths
+│  │ bd9f0087a - test(guardrails): add S06 architecture scan suite Add structural architecture tests for no-op-calls-op, no-dual-contract-paths, no-shim-surfaces, and foundation topology lock under mods/mod-swooper-maps test roots. Wire scans into package scripts (test:architecture-cutover) and the architecture-strict-core CI job, and append S06 verification evidence to pipeline-realism scratch logs. Known debt is intentionally not remediated in this slice: no-op-calls-op currently fails on existing foundation op-to-op runtime imports (compute-tectonic-history -> compute-tectonic-segments/compute-plate-motion). Refs: LOCAL-TBD-PR-M4-005 (S06).
+│  │
+│  ◯ codex/prr-m4-s05-ci-strict-core-gates 
+│  │ 22 minutes ago
+│  │ 
+│  │ 72edaac27 - feat(ci): add strict core architecture gate Add an architecture-strict-core CI job that runs lint, adapter-boundary, strict full-profile domain guardrails, and check under strict env variables for M4 S05. Harden domain guardrail execution with DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL and align strict stage-root mappings to current hydrology topology while treating narrative as stage-rootless in this stack. Log S05 gate command outputs under pipeline-realism scratch evidence for LOCAL-TBD-PR-M4-005.
+│  │
+│  ◯ codex/prr-m4-s03-tectonics-op-decomposition 
+│  │ 22 minutes ago
+│  │ 
+│  │ ddf490455 - docs(m4): refresh S03 verification evidence
+│  │
+│  ◯ codex/prr-m4-s02-contract-freeze-dead-knobs (needs restack)
+│  │ 22 minutes ago
+│  │ 
+│  │ 4def49fbe - refactor(foundation): freeze S02 contracts and remove dead knobs Implements M4-001 contract-surface cleanup for foundation: removes inert/unused knobs and required-but-unused inputs, updates stage surfaces/config fixtures/tests, and enforces no peer-op runtime calls in compute-tectonic-history via local deterministic kernels.\n\nEvidence and gate outputs are recorded in docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-A-core-spine.md.
+│  │
+│  ◯ codex/agent-ORCH-foundation-domain-axe-execution 
+│  │ 22 minutes ago
+│  │ 
+│  │ PR #1263 (Ready to merge as stack) docs(m4): harden foundation execution pack and reviewer gates
+│  │ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1263
+│  │ Last submitted version: v1 (local changes, need submit)
+│  │ 
+│  │ 54b5238db - docs(m4): record post-restack stack position
+│  │ 0f868f8b9 - docs(m4): rewrite IG-1 packet for no-rebase integration
+│  │ f019efc97 - docs(m4): refresh S06 tip after foundation sentinel cut
+│  │ d41b3d695 - docs(m4): record foundation sentinel remediation checkpoint
+│  │ 47c0aad46 - docs(m4): enforce docs-first worker architecture anchor
+│  │ d36f2b0ad - docs(m4): log pre-IG1 alignment and gate refresh
+│  │ d5bcead35 - docs(m4): record slice commits and pre-IG1 status
+│  │
+│  ◯ codex/agent-ORCH-foundation-domain-axe-spike 
+│  │ 5 hours ago
+│  │ 
+│  │ PR #1262 (Ready to merge as stack) docs(spike): integrate foundation domain axe research Create the full foundation-domain-axe spike artifact set in the orchestrator branch: plan, master scratch integration, six agent scratchpads, and the integrated spike report. Includes YAML parseability
+│  │ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1262
+│  │ Last submitted version: v1
+│  │ 
+│  │ cead6a3a5 - docs(spike): integrate foundation domain axe research Create the full foundation-domain-axe spike artifact set in the orchestrator branch: plan, master scratch integration, six agent scratchpads, and the integrated spike report. Includes YAML parseability addenda for path-heavy evidence sections across scratch and final docs to improve human/agent scanning and structured search. Context: pipeline-realism foundation modeling investigation and no-shim/no-legacy cutover planning.
+│  │
+│  ◯ agent-SWANKO-PRR-s124-c01-fix-diag-analyze-mountains-guard 
+│  │ 5 hours ago
+│  │ 
+│  │ PR #1257 (Ready to merge as stack) fix(diagnostics): make mountain summary optional when layers are absent
+│  │ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1257
+│  │ Last submitted version: v5
+│  │ 
+│  │ 104901183 - fix(mod-swooper-maps): align PRR smoke fixtures with current contracts Update failing PRR regression fixtures and smoke assertions to match current foundation/morphology/ecology contracts, and fix docs lint anchors used by check gates.\n\nValidation run in wt-agent-SWANKO-prr-stack-validation:\n- bun run build\n- bun run lint\n- bun run check\n- bun run test\n- bun run --cwd mods/mod-swooper-maps deploy\n- bun run deploy:mods
+│  │ 224a6bf70 - chore(prr): log final verification test failures
+│  │ 1b80ec091 - docs(prr): link PR for PRR-s124-c01 fix
+│  │ f263663e7 - docs(prr): record fix branch for PRR-s124-c01
+│  │ a9b8af73d - fix(diag): tolerate dumps without mountain layers (PRR-s124-c01)
+│  │
+│  ◯ agent-SWANKO-PRR-s120-c01-fix-era-plateMotion-recompute 
+│  │ 5 hours ago
+│  │ 
+│  │ PR #1256 (Ready to merge as stack) fix(foundation): recompute plateMotion per era in tectonic history
+│  │ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1256
+│  │ Last submitted version: v3
+│  │ 
+│  │ d5e7c313c - docs(prr): link PR for PRR-s120-c01 fix
+│  │ a825414ea - docs(prr): record fix branch for PRR-s120-c01
+│  │ c36dc8f9e - fix(foundation): recompute plateMotion per era in tectonic history (PRR-s120-c01)
+│  │
+│  ◯ agent-SWANKO-PRR-s119-c01-fix-pass-plateMotion 
+│  │ 5 hours ago
+│  │ 
+│  │ PR #1255 (Ready to merge as stack) fix(foundation): update computeTectonicHistory call sites to pass plateMotion
+│  │ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1255
+│  │ Last submitted version: v3
+│  │ 
+│  │ 02c8491a3 - docs(prr): link PR for PRR-s119-c01 fix
+│  │ a65e07817 - docs(prr): record fix branch for PRR-s119-c01
+│  │ 12beab143 - fix(foundation): pass plateMotion to computeTectonicHistory callers (PRR-s119-c01)
+│  │
+│  ◯ agent-SWANKO-PRR-s118-c01-fix-studio-artifacts-preflight 
+│  │ 5 hours ago
+│  │ 
+│  │ PR #1254 (Ready to merge as stack) fix(preflight): expand studio recipe artifact checks to include all outputs
+│  │ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1254
+│  │ Last submitted version: v3
+│  │ 
+│  │ cbb2027a9 - docs(prr): link PR for PRR-s118-c01 fix
+│  │ 443297a46 - docs(prr): record fix branch for PRR-s118-c01
+│  │ 24886c86f - fix(preflight): require full studio recipe artifacts set (PRR-s118-c01)
+│  │
+│  ◯ agent-SWANKO-PRR-s115-c01-fix-hill-cap-floor 
+│  │ 5 hours ago
+│  │ 
+│  │ PR #1253 (Ready to merge as stack) fix(morphology): floor hill cap to enforce max fraction (PRR-s115-c01)
+│  │ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1253
+│  │ Last submitted version: v4
+│  │ 
+│  │ 01a1ffcd1 - chore(prr): log failing test run (post PRR-s115-c01)
+│  │ 94f3fb919 - docs(prr): link PR for PRR-s115-c01 fix
+│  │ 5aaad2124 - docs(prr): record fix branch for PRR-s115-c01
+│  │ 46731a468 - fix(morphology): floor hill cap to enforce max fraction (PRR-s115-c01)
+│  │
+│  ◯ agent-SWANKO-PRR-s113-c01-fix-mountainThreshold-candidates 
+│  │ 5 hours ago
+│  │ 
+│  │ PR #1252 (Ready to merge as stack) fix(morphology): honor mountainThreshold in ridge planning (PRR-s113-c01)
+│  │ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1252
+│  │ Last submitted version: v3
+│  │ 
+│  │ 610ac9123 - docs(prr): link PR for PRR-s113-c01 fix
+│  │ d4d65be94 - docs(prr): record fix branch for PRR-s113-c01
+│  │ d986bbc83 - fix(morphology): honor mountainThreshold in ridge planning (PRR-s113-c01)
+│  │
+│  ◯ agent-SWANKO-PRR-s112-c01-fix-driverStrength-proportional 
+│  │ 5 hours ago
+│  │ 
+│  │ PR #1251 (Ready to merge as stack) fix(mountains): restore proportional driverStrength scaling
+│  │ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1251
+│  │ Last submitted version: v3
+│  │ 
+│  │ 286a59528 - docs(prr): link PR for PRR-s112-c01 fix
+│  │ 97e812623 - docs(prr): record fix branch for PRR-s112-c01
+│  │ cbac0fe46 - fix(morphology): scale mountains by driverStrength (PRR-s112-c01)
+│  │
+│  ◯ agent-SWANKO-PRR-s108-c01-fix-plateau-seeding 
+│  │ 5 hours ago
+│  │ 
+│  │ PR #1250 (Ready to merge as stack) fix(morphology): add plateau seeding for flat belt regions
+│  │ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1250
+│  │ Last submitted version: v3
+│  │ 
+│  │ ef8f8cb27 - docs(prr): link PR for PRR-s108-c01 fix
+│  │ fe07725d9 - docs(prr): record fix branch for PRR-s108-c01
+│  │ cc3b8f97a - fix(morphology): add deterministic plateau seeding PRR-s108-c01
+│  │
+│  ◯ agent-SWANKO-PRR-s101-c01-fix-crust-thickness-evolution 
+│  │ 5 hours ago
+│  │ 
+│  │ PR #1249 (Ready to merge as stack) fix(foundation): implement crust thickness evolution based on maturity
+│  │ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1249
+│  │ Last submitted version: v3
+│  │ 
+│  │ cd7ea30e6 - docs(prr): link PR for PRR-s101-c01 fix
+│  │ c5d5ee0c6 - docs(prr): record fix branch for PRR-s101-c01
+│  │ 90dfa5d4f - fix(foundation): evolve crust thickness from maturity PRR-s101-c01
+│  │
+│  ◯ agent-SWANKO-PRR-s98-c01-fix-era-fields-dijkstra 
+│  │ 5 hours ago
+│  │ 
+│  │ PR #1248 (Ready to merge as stack) fix(tectonic-history): replace FIFO queue with Dijkstra for correct era field distances
+│  │ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1248
+│  │ Last submitted version: v3
+│  │ 
+│  │ 55bd28dc5 - docs(prr): link PR for PRR-s98-c01 fix
+│  │ 18ca25117 - docs(prr): record fix branch for PRR-s98-c01
+│  │ 6dd72c0db - fix(foundation): use Dijkstra for era field diffusion PRR-s98-c01
+│  │
+│  ◯ agent-SWANKO-PRR-s97-c01-fix-polarity-bootstrap-oceanic-only 
+│  │ 5 hours ago
+│  │ 
+│  │ PR #1247 (Ready to merge as stack) fix(foundation): restrict polarity bootstrap to oceanic-oceanic convergence
+│  │ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1247
+│  │ Last submitted version: v3
+│  │ 
+│  │ 3bfa92557 - docs(prr): link PR for PRR-s97-c01 fix
+│  │ 144d865e1 - docs(prr): record fix branch for PRR-s97-c01
+│  │ de808b8b0 - fix(foundation): avoid polarity bootstrap for continental collisions PRR-s97-c01
+│  │
+│  ◯ agent-SWANKO-PRR-s94-c01-fix-sea-level-constraints-first 
+│  │ 5 hours ago
+│  │ 
+│  │ PR #1246 (Ready to merge as stack) fix(morphology): prioritize constraint satisfaction in sea level selection
+│  │ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1246
+│  │ Last submitted version: v3
+│  │ 
+│  │ 1c3003125 - docs(prr): link PR for PRR-s94-c01 fix
+│  │ 0300b00f8 - docs(prr): record fix branch for PRR-s94-c01
+│  │ 86def40b2 - fix(morphology): prefer sea-level constraint satisfaction PRR-s94-c01
+│  │
+│  ◯ agent-SWANKO-PRR-s93-c01-fix-round-clampint-knobs 
+│  │ 5 hours ago
+│  │ 
+│  │ PR #1245 (Ready to merge as stack) fix(plate-motion): round fractional knobs before clampInt to avoid silent truncation
+│  │ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1245
+│  │ Last submitted version: v3
+│  │ 
+│  │ 709d1fed3 - docs(prr): link PR for PRR-s93-c01 fix
+│  │ e61483792 - docs(prr): record fix branch for PRR-s93-c01
+│  │ 0a88c61de - fix(foundation): round plate motion int knobs PRR-s93-c01
+│  │
+│  ◯ agent-SWANKO-PRR-s11-c01-fix-belt-influence-distance-contract 
+│  │ 5 hours ago
+│  │ 
+│  │ PR #1244 (Ready to merge as stack) docs(pipeline-realism): update belt influence distance contract description
+│  │ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1244
+│  │ Last submitted version: v3
+│  │ 
+│  │ 819e952eb - docs(prr): link PR for PRR-s11-c01 fix
+│  │ a33a714cd - docs(prr): record fix branch for PRR-s11-c01
+│  │ 63d540e65 - docs(foundation): clarify beltInfluenceDistance semantics PRR-s11-c01
+│  │
+│  ◯ agent-SWANKO-PRR-s10-c01-fix-cap-reset-threshold-era-max 
+│  │ 5 hours ago
+│  │ 
+│  │ PR #1243 (Ready to merge as stack) fix(foundation): cap reset threshold to era max in tectonic history
+│  │ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1243
+│  │ Last submitted version: v3
+│  │ 
+│  │ c1872452b - docs(prr): link PR for PRR-s10-c01 fix
+│  │ df190abeb - docs(prr): record fix branch for PRR-s10-c01
+│  │ 872852e9a - fix(foundation): cap reset threshold to era maxima PRR-s10-c01
+│  │
+│  ◯ agent-SWANKO-PRR-ledger-review-full-chain 
+│  │ 6 hours ago
+│  │ 
+│  │ PR #1242 (Ready to merge as stack) docs(pipeline-realism): add full-chain revalidation of PR review threads
+│  │ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1242
+│  │ Last submitted version: v3
+│  │ 
+│  │ 34b78224a - docs(prr): add fix commit column to revalidation manifest
+│  │ c07f73b6a - docs(prr): add SWANKO full-chain revalidation manifest
+│  │ 3caeab59f - docs(prr): add SWANKO fix-loop plan and scratchpads
+│  │
+│  ◯ codex/prr-stack-pr-comments-ledger 
+│  │ 5 days ago
+│  │ 
+│  │ PR #1201 (Ready to merge) docs(pipeline-realism): capture PRR stack review comments
+│  │ https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1201
+│  │ Last submitted version: v3
+│  │ 
+│  │ 0d97d6a14 - docs(pipeline-realism): capture PRR stack review comments
+│  │
+├──┘
+◯ main 
+│ 5 days ago
+│ 
+│ 7b51e18ae - docs(pipeline-realism): start M3 ecology packet (#1222)
+│

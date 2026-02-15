@@ -1,0 +1,24 @@
+# Out-of-scope SHA baselines
+# timestamp: 2026-02-15T02:51:49Z
+agent-SWANKO-PRR-ledger-review-full-chain 34b78224aad5a0a7721bf9f4d6455fee5b6b1444
+agent-SWANKO-PRR-s10-c01-fix-cap-reset-threshold-era-max c1872452b9c4066cb48dcf65b39ede9b1992591f
+agent-SWANKO-PRR-s101-c01-fix-crust-thickness-evolution cd7ea30e6f9cfc2c4ed6d1ec029eb6b1e228f480
+agent-SWANKO-PRR-s108-c01-fix-plateau-seeding ef8f8cb270ca9a3c42523550fba5c9d654dd5b9b
+agent-SWANKO-PRR-s11-c01-fix-belt-influence-distance-contract 819e952ebec7164583a997eeba18cef28f7ac9bc
+agent-SWANKO-PRR-s112-c01-fix-driverStrength-proportional 286a595284c2229b6d9cddd1f5b56083631d49d8
+agent-SWANKO-PRR-s113-c01-fix-mountainThreshold-candidates 610ac9123b16a06ee904c5ce48c60895fa07d7cd
+agent-SWANKO-PRR-s115-c01-fix-hill-cap-floor 01a1ffcd1977269ff04a73e6f6d95ca8f80b910e
+agent-SWANKO-PRR-s118-c01-fix-studio-artifacts-preflight cbb2027a97e8d7dded7d48433232a205d7d6d02f
+agent-SWANKO-PRR-s119-c01-fix-pass-plateMotion 02c8491a3dcdfbb648706abc4ace9755a15af6af
+agent-SWANKO-PRR-s120-c01-fix-era-plateMotion-recompute d5e7c313cdc9a137c7c4bc0602a5e15086fd1dc2
+agent-SWANKO-PRR-s124-c01-fix-diag-analyze-mountains-guard 1049011836a3ebed8a424aa5507d4ab9787d36b3
+agent-SWANKO-PRR-s93-c01-fix-round-clampint-knobs 709d1fed3bff2d1495e6d6ec8bc3c5bf7ca8f1d4
+agent-SWANKO-PRR-s94-c01-fix-sea-level-constraints-first 1c30031252c4480c73fced3a863e3e67c9bd090b
+agent-SWANKO-PRR-s97-c01-fix-polarity-bootstrap-oceanic-only 3bfa925570968e03e326c2a510d032baae275bbd
+agent-SWANKO-PRR-s98-c01-fix-era-fields-dijkstra 55bd28dc5855db7a091db41758415321ab4d1bc3
+codex/agent-ORCH-foundation-domain-axe-execution 54b5238db14cf63b23e0aaca5d04756ced2fd8ee
+codex/agent-ORCH-foundation-domain-axe-spike cead6a3a5bbd3351e39581eb24b2f24a6ec3686a
+codex/prr-m4-s02-contract-freeze-dead-knobs 4def49fbed35bd990717d4f2282323a1db352bfe
+codex/prr-m4-s03-tectonics-op-decomposition ddf490455939b572a8d89e97eb05cf203d0a8d11
+codex/prr-m4-s05-ci-strict-core-gates 72edaac275ffed6d66ba8ec294b808c00a934d7f
+codex/prr-m4-s06-test-rewrite-architecture-scans 9f7cfdfc6705ea44f9ea33041144264e33e1f9d1
