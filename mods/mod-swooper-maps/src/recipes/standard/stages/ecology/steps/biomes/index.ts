@@ -74,7 +74,11 @@ export default createStep(BiomesStepContract, {
         label: "Biome Index",
         group: GROUP_BIOMES,
         palette: "categorical",
-        categories: BIOME_INDEX_VIZ_CATEGORIES,
+        categories: BIOME_INDEX_VIZ_CATEGORIES.map((category) => ({
+          value: category.value,
+          label: category.label,
+          color: [...category.color] as [number, number, number, number],
+        })),
       }),
     });
     context.viz?.dumpGrid(context.trace, {
