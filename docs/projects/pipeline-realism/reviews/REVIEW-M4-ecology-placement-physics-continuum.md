@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/MAMBO-m3-006-plan-wetlands-deterministic
+
+### Quick Take
+- Wetlands planning moved to deterministic score-layer flow successfully.
+
+### High-Leverage Issues
+- No blocking branch-local defect confirmed in this pass.
+
+### PR Comment Context
+- PR #1227 has no unresolved inline reviewer findings.
+- PR #1227: refactor(ecology): implement deterministic wetlands planning with score-based joint resolver (https://github.com/mateicanavra/civ7-modding-tools/pull/1227)
+
+### Fix Now (Recommended)
+- None immediate.
+
+### Defer / Follow-up
+- Add compatibility checks for retired strategy/config surfaces.
+
+### Needs Discussion
+- Whether retired wetland strategy variants should hard-fail if referenced.
+
+### Cross-cutting Risks
+- Large deletion slices can hide niche behavior regressions.
+- Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
