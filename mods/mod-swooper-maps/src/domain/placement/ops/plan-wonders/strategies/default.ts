@@ -2,15 +2,12 @@ import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import PlanWondersContract from "../contract.js";
 export const defaultStrategy = createStrategy(PlanWondersContract, "default", {
-  run: (input, config) => {
+  run: (input) => {
     const mapInfo = input.mapInfo;
-    const wondersPlusOne = config.wondersPlusOne;
-    let wondersCount = 1;
+    let wondersCount = 0;
 
     if (mapInfo && typeof mapInfo.NumNaturalWonders === "number") {
-      wondersCount = wondersPlusOne
-        ? Math.max(mapInfo.NumNaturalWonders + 1, mapInfo.NumNaturalWonders)
-        : mapInfo.NumNaturalWonders;
+      wondersCount = Math.max(0, Math.round(mapInfo.NumNaturalWonders));
     }
 
     return { wondersCount };

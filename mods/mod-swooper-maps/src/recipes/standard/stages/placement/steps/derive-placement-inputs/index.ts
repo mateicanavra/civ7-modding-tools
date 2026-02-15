@@ -5,9 +5,16 @@ import { buildPlacementInputs } from "./inputs.js";
 import { placementArtifacts } from "../../artifacts.js";
 
 export default createStep(DerivePlacementInputsContract, {
-  artifacts: implementArtifacts([placementArtifacts.placementInputs, placementArtifacts.resourcePlan], {
+  artifacts: implementArtifacts([
+    placementArtifacts.placementInputs,
+    placementArtifacts.resourcePlan,
+    placementArtifacts.naturalWonderPlan,
+    placementArtifacts.discoveryPlan,
+  ], {
     placementInputs: {},
     resourcePlan: {},
+    naturalWonderPlan: {},
+    discoveryPlan: {},
   }),
   run: (context, config, ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
@@ -25,5 +32,7 @@ export default createStep(DerivePlacementInputsContract, {
     });
     deps.artifacts.placementInputs.publish(context, inputs);
     deps.artifacts.resourcePlan.publish(context, inputs.resources);
+    deps.artifacts.naturalWonderPlan.publish(context, inputs.naturalWonderPlan);
+    deps.artifacts.discoveryPlan.publish(context, inputs.discoveryPlan);
   },
 });

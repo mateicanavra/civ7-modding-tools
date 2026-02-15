@@ -9,6 +9,8 @@ import placement from "@mapgen/domain/placement";
 export const PlacementConfigSchema = Type.Object(
   {
     wonders: placement.ops.planWonders.config,
+    naturalWonders: placement.ops.planNaturalWonders.config,
+    discoveries: placement.ops.planDiscoveries.config,
     floodplains: placement.ops.planFloodplains.config,
     resources: placement.ops.planResources.config,
     starts: placement.ops.planStarts.config,

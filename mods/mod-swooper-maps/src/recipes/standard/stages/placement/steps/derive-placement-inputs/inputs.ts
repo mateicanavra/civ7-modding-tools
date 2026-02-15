@@ -46,6 +46,36 @@ export function buildPlacementInputs(
   };
   const startsPlan = ops.starts({ baseStarts }, config.starts);
   const wondersPlan = ops.wonders({ mapInfo: runtime.mapInfo }, config.wonders);
+  const naturalWonderCatalog = context.adapter.getNaturalWonderCatalog();
+  const defaultDiscoveryPlacement = context.adapter.getDefaultDiscoveryPlacement();
+  const naturalWonderPlan = ops.naturalWonders(
+    {
+      width,
+      height,
+      wondersCount: wondersPlan.wondersCount,
+      landMask: physical.topography.landMask,
+      elevation: context.buffers.heightfield.elevation,
+      aridityIndex: physical.biomeClassification.aridityIndex,
+      riverClass: physical.hydrography.riverClass,
+      lakeMask: physical.lakePlan.lakeMask,
+      featureCatalog: naturalWonderCatalog,
+    },
+    config.naturalWonders
+  );
+  const discoveryPlan = ops.discoveries(
+    {
+      width,
+      height,
+      landMask: physical.topography.landMask,
+      elevation: context.buffers.heightfield.elevation,
+      aridityIndex: physical.biomeClassification.aridityIndex,
+      riverClass: physical.hydrography.riverClass,
+      lakeMask: physical.lakePlan.lakeMask,
+      discoveryVisualType: defaultDiscoveryPlacement.discoveryVisualType,
+      discoveryActivationType: defaultDiscoveryPlacement.discoveryActivationType,
+    },
+    config.discoveries
+  );
   const floodplainsPlan = ops.floodplains({}, config.floodplains);
   const resourcesPlan = ops.resources(
     {
@@ -66,6 +96,8 @@ export function buildPlacementInputs(
     mapInfo: runtime.mapInfo,
     starts: startsPlan,
     wonders: wondersPlan,
+    naturalWonderPlan,
+    discoveryPlan,
     floodplains: floodplainsPlan,
     resources: resourcesPlan,
     placementConfig: config,

@@ -74,6 +74,38 @@
   - removed `additionalProperties` options from plan-lakes contract
   - replaced empty default strategy config with explicit physical control (`maxUpstreamSteps`).
 
+## Investigation Note (2026-02-15) — Reported Gameplay Regression
+
+Symptoms from runtime playtesting:
+- Lakes appear across large interior continental areas.
+- Many stamped lakes do not stay water-filled in actual gameplay.
+
+Top hypotheses from dedicated lake investigation:
+1. **Sink mask over-classification (high confidence):**
+   - `accumulate-discharge` marks sinks whenever `flowDir < 0`, and `flowDir` can be `-1` on flats/plateaus/edge-like topologies.
+   - `plan-lakes` currently promotes these sinks directly to `lakeMask`, so false sinks become false lakes.
+2. **Over-expansion from upstream growth (medium-high confidence):**
+   - `plan-lakes` default `maxUpstreamSteps = 1` grows each sink into neighbors, compounding bad sink seeds.
+3. **Engine post-pass undoing stamped water (high confidence):**
+   - `plotRivers.ts` still runs `modelRivers` + `validateAndFixTerrain` after lake stamping.
+   - That pass can flip stamped lake terrain back to land before final cached water state settles.
+
+Evidence anchors:
+- `mods/mod-swooper-maps/src/domain/hydrology/ops/accumulate-discharge/strategies/default.ts`
+- `packages/mapgen-core/src/lib/grid/flow-routing.ts`
+- `mods/mod-swooper-maps/src/domain/hydrology/ops/plan-lakes/strategies/default.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/plotRivers.ts`
+
+Fast validation checks:
+1. Compare `artifact:hydrology.hydrography.sinkMask` to `artifact:hydrology.lakePlan.lakeMask`; if near-identical and broad, sink classification is too permissive.
+2. Compare `artifact:hydrology.lakePlan` vs `artifact:hydrology.engineProjectionLakes`; large mismatch indicates engine post-pass reclassification.
+3. Temporarily bypass `validateAndFixTerrain` in river projection and confirm whether stamped lakes remain water-filled.
+
+Recommended dedicated fix slice:
+- Tighten sink eligibility before lake planning (basin-low criteria/discharge threshold).
+- Gate upstream expansion by hydrologic support, not just fixed step count.
+- Ensure final stamped lake mask is authoritative after any engine terrain validation pass.
+
 ## Regression Follow-up (2026-02-15, S3b lakes regression fix)
 
 ### Diagnosis (over-placement + runtime dry planned lakes)
