@@ -28,14 +28,15 @@ export const defaultStrategy = createStrategy(PlanLakesContract, "default", {
     // Deterministic basin fill: expand upstream from sink tiles by a bounded number of drainage hops.
     const maxUpstreamSteps = Math.max(0, config.maxUpstreamSteps | 0);
     for (let step = 0; step < maxUpstreamSteps; step++) {
+      const previousMask = lakeMask.slice();
       let changed = false;
       for (let i = 0; i < size; i++) {
         if (input.landMask[i] !== 1) continue;
-        if (lakeMask[i] === 1) continue;
+        if (previousMask[i] === 1) continue;
 
         const receiver = input.flowDir[i] ?? -1;
         if (receiver < 0 || receiver >= size) continue;
-        if ((lakeMask[receiver] ?? 0) !== 1) continue;
+        if ((previousMask[receiver] ?? 0) !== 1) continue;
         lakeMask[i] = 1;
         changed = true;
       }

@@ -78,4 +78,36 @@ describe("hydrology/plan-lakes (default strategy)", () => {
     expect(lakePlan.lakeMask[4]).toBe(1);
     expect(lakePlan.lakeMask[5]).toBe(0);
   });
+
+  it("expands one hop per upstream step using snapshot semantics", () => {
+    const width = 5;
+    const height = 1;
+    const landMask = new Uint8Array([1, 1, 1, 1, 1]);
+    const sinkMask = new Uint8Array([1, 0, 0, 0, 0]);
+    const flowDir = new Int32Array([-1, 0, 1, 2, 3]);
+
+    const outOneStep = planLakes.run(
+      {
+        width,
+        height,
+        landMask,
+        flowDir,
+        sinkMask,
+      },
+      { maxUpstreamSteps: 1 }
+    );
+    expect(Array.from(outOneStep.lakeMask)).toEqual([1, 1, 0, 0, 0]);
+
+    const outTwoSteps = planLakes.run(
+      {
+        width,
+        height,
+        landMask,
+        flowDir,
+        sinkMask,
+      },
+      { maxUpstreamSteps: 2 }
+    );
+    expect(Array.from(outTwoSteps.lakeMask)).toEqual([1, 1, 1, 0, 0]);
+  });
 });
