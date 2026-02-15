@@ -227,7 +227,7 @@ runtime_snapshot_post_foundation_sentinel_cut:
       state: committed
     S06:
       branch: codex/prr-m4-s06-test-rewrite-architecture-scans
-      head: 11ec9525d
+      head: e443c45a6
       state: committed
       note: foundation_compile_sentinel_passthrough_removed
 
