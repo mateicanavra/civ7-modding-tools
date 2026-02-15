@@ -204,3 +204,19 @@ foundation_sentinel_remediation_decisions:
     decision: treat_wrong_worktree_worker_outputs_as_invalid_until_replayed_on_target_branch
     enforcement: orchestrator_revalidates_on_target_worktree_before_acceptance
 ```
+
+## 2026-02-15 — Restack alignment decision
+```yaml
+restack_alignment_decision:
+  - id: M4-D-036
+    decision: restack_execution_stack_now_and_continue_from_restacked_heads
+    commands:
+      - gt sync --no-restack
+      - gt restack
+    resulting_heads:
+      ORCH: 0f868f8b9
+      S02: 4def49fbe
+      S03: ddf490455
+      S05: 72edaac27
+      S06: 9f7cfdfc6
+```

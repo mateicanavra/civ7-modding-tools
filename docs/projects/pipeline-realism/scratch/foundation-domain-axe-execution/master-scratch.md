@@ -373,3 +373,27 @@ orchestrator_status:
   pending_before_S04:
     - IG1_ecology_merge_reanchor_checkpoint
 ```
+
+## Checkpoint 12 — Stack Restack Complete (2026-02-15)
+```yaml
+restack_run:
+  command_sequence:
+    - gt sync --no-restack
+    - gt restack
+  result: success
+  stack_heads:
+    ORCH: 0f868f8b9
+    S02: 4def49fbe
+    S03: ddf490455
+    S05: 72edaac27
+    S06: 9f7cfdfc6
+  ancestry_validation:
+    ORCH_to_S02: ok
+    S02_to_S03: ok
+    S03_to_S05: ok
+    S05_to_S06: ok
+
+plan_position:
+  current_phase: pre_S04_hard_integration_gate_IG1
+  next_required_action: ecology_integration_checkpoint
+```
