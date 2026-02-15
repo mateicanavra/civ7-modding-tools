@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/default-config-intent-tuning
+
+### Quick Take
+- Preset tuning aligns to intent but changes are very broad in one slice.
+
+### High-Leverage Issues
+- Large multi-domain parameter churn lacks attached quantitative acceptance evidence.
+
+### PR Comment Context
+- PR #1237 has no unresolved human inline review threads.
+- PR #1237: feat(climate): tune map configs for more realistic hydrology and biomes (https://github.com/mateicanavra/civ7-modding-tools/pull/1237)
+
+### Fix Now (Recommended)
+- Gate acceptance on seed-matrix diagnostics and metric deltas.
+
+### Defer / Follow-up
+- Split future tuning into smaller profile-focused changes.
+
+### Needs Discussion
+- How much tuning breadth is acceptable per branch for reviewability.
+
+### Cross-cutting Risks
+- Debug/rollback complexity rises sharply with broad tuning bundles.
+- Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
