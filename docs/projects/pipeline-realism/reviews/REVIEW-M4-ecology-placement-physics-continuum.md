@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/MAMBO-m3-008-stamping-strict-features-apply
+
+### Quick Take
+- Strict feature stamping posture is aligned with no-probabilistic-gating goals.
+
+### High-Leverage Issues
+- Smoke test timeout signature is incompatible with Bun test API.
+
+### PR Comment Context
+- PR #1229 has unresolved P1 feedback on test signature correctness.
+- PR #1229: refactor(ecology): enforce strict feature stamping with no probabilistic gating (https://github.com/mateicanavra/civ7-modding-tools/pull/1229)
+
+### Fix Now (Recommended)
+- Fix Bun timeout usage and keep strict stamping guardrails active.
+
+### Defer / Follow-up
+- Add lint/check guard against unsupported test options signatures.
+
+### Needs Discussion
+- None beyond framework-correctness discipline.
+
+### Cross-cutting Risks
+- Broken smoke tests can hide real runtime regressions.
+- Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
