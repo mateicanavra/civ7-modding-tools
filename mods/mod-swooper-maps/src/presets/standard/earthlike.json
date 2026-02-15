@@ -509,10 +509,6 @@
               ],
               "vegetationPenalty": 0
             },
-            "freeze": {
-              "minTemperature": -10,
-              "maxTemperature": 3
-            },
             "vegetation": {
               "base": 0.72,
               "moistureWeight": 0.88,
