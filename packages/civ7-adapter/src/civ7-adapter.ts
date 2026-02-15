@@ -8,12 +8,14 @@
 /// <reference types="@civ7/types" />
 
 import type {
+  DiscoveryPlacementDefaults,
   EngineAdapter,
   FeatureData,
   LandmassIdName,
   MapInfo,
   MapInitParams,
   MapSizeId,
+  NaturalWonderCatalogEntry,
   PlotTagName,
   VoronoiUtils,
 } from "./types.js";
@@ -244,6 +246,21 @@ export class Civ7Adapter implements EngineAdapter {
     return TerrainBuilder.canHaveFeature(x, y, featureType);
   }
 
+  canHaveFeatureParam(x: number, y: number, featureData: FeatureData): boolean {
+    const tb = TerrainBuilder as unknown as {
+      canHaveFeatureParam?: (
+        x: number,
+        y: number,
+        featureType: number,
+        featureData: FeatureData
+      ) => boolean;
+    };
+    if (typeof tb.canHaveFeatureParam !== "function") {
+      return this.canHaveFeature(x, y, featureData.Feature);
+    }
+    return tb.canHaveFeatureParam(x, y, featureData.Feature, featureData);
+  }
+
   getResourceType(x: number, y: number): number {
     return GameplayMap.getResourceType(x, y);
   }
@@ -450,6 +467,92 @@ export class Civ7Adapter implements EngineAdapter {
   }
 
   // === PLACEMENT ===
+
+  stampNaturalWonder(
+    x: number,
+    y: number,
+    featureType: number,
+    direction: number,
+    elevation?: number
+  ): boolean {
+    const resolvedElevation = Number.isFinite(elevation)
+      ? (elevation as number)
+      : GameplayMap.getElevation(x, y);
+    const featureParam: FeatureData = {
+      Feature: featureType,
+      Direction: direction,
+      Elevation: resolvedElevation,
+    };
+    if (!this.canHaveFeatureParam(x, y, featureParam)) return false;
+    TerrainBuilder.setFeatureType(x, y, featureParam);
+    this.recordPlacementEffect();
+    return true;
+  }
+
+  stampDiscovery(
+    x: number,
+    y: number,
+    discoveryVisualType: number,
+    discoveryActivationType: number
+  ): boolean {
+    const mapConstructibles = (
+      globalThis as typeof globalThis & {
+        MapConstructibles?: {
+          addDiscovery?: (
+            x: number,
+            y: number,
+            discoveryVisualType: number,
+            discoveryActivationType: number
+          ) => boolean;
+        };
+      }
+    ).MapConstructibles;
+    if (!mapConstructibles?.addDiscovery) {
+      throw new Error("[Adapter] MapConstructibles.addDiscovery is unavailable.");
+    }
+    const placed = mapConstructibles.addDiscovery(
+      x,
+      y,
+      discoveryVisualType,
+      discoveryActivationType
+    );
+    if (placed) this.recordPlacementEffect();
+    return Boolean(placed);
+  }
+
+  getNaturalWonderCatalog(): NaturalWonderCatalogEntry[] {
+    const table = GameInfo?.Feature_NaturalWonders;
+    if (!table) return [];
+    const catalog: NaturalWonderCatalogEntry[] = [];
+    for (const row of table) {
+      const featureType = typeof row?.$hash === "number" ? row.$hash : -1;
+      if (featureType < 0) continue;
+      const direction = typeof row?.Direction === "number" ? row.Direction : 0;
+      catalog.push({ featureType, direction });
+    }
+    catalog.sort((a, b) => a.featureType - b.featureType);
+    return catalog;
+  }
+
+  getDefaultDiscoveryPlacement(): DiscoveryPlacementDefaults {
+    const discoveryVisualType = (globalThis as Record<string, unknown>).DiscoveryVisualTypes as
+      | Record<string, number>
+      | undefined;
+    const discoveryActivationType = (globalThis as Record<string, unknown>).DiscoveryActivationTypes as
+      | Record<string, number>
+      | undefined;
+    const visual = discoveryVisualType?.IMPROVEMENT_CAVE;
+    const activation = discoveryActivationType?.BASIC;
+    if (typeof visual !== "number" || typeof activation !== "number") {
+      throw new Error(
+        "[Adapter] DiscoveryVisualTypes/DiscoveryActivationTypes defaults are unavailable."
+      );
+    }
+    return {
+      discoveryVisualType: visual,
+      discoveryActivationType: activation,
+    };
+  }
 
   addNaturalWonders(width: number, height: number, numWonders: number): void {
     civ7AddNaturalWonders(width, height, numWonders);
