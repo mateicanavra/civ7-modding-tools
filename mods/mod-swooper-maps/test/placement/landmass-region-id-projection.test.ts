@@ -67,8 +67,6 @@ describe("placement landmass region projection", () => {
     expect(firstStart).toBeGreaterThan(firstProjection);
     expect(firstStart).toBeGreaterThan(firstResourceStamp);
     expect(adapter.calls.setResourceType.length).toBeGreaterThan(0);
-    expect(adapter.calls.addNaturalWonders.length).toBe(0);
-    expect(adapter.calls.generateDiscoveries.length).toBe(0);
 
     const allowed = new Set([
       adapter.getLandmassId("WEST"),

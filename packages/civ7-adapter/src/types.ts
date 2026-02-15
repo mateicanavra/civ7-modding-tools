@@ -432,22 +432,10 @@ export interface EngineAdapter {
   getDefaultDiscoveryPlacement(): DiscoveryPlacementDefaults;
 
   /**
-   * Add natural wonders to the map
-   * Wraps /base-standard/maps/natural-wonder-generator.js addNaturalWonders()
-   */
-  addNaturalWonders(width: number, height: number, numWonders: number): void;
-
-  /**
    * Generate snow terrain
    * Wraps /base-standard/maps/snow-generator.js generateSnow()
    */
   generateSnow(width: number, height: number): void;
-
-  /**
-   * Generate resources on the map
-   * Wraps /base-standard/maps/resource-generator.js generateResources()
-   */
-  generateResources(width: number, height: number): void;
 
   /**
    * Assign starting positions for players
@@ -468,12 +456,6 @@ export interface EngineAdapter {
    * (Civ7: StartPositioner.setStartPosition)
    */
   setStartPosition(plotIndex: number, playerId: number): void;
-
-  /**
-   * Generate discoveries on the map (post-starts)
-   * Wraps /base-standard/maps/discovery-generator.js generateDiscoveries()
-   */
-  generateDiscoveries(width: number, height: number, startPositions: number[]): void;
 
   /**
    * Assign advanced start regions

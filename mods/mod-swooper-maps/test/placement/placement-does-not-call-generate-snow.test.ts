@@ -91,9 +91,6 @@ describe("placement", () => {
     });
 
     expect(adapter.calls.generateSnow.length).toBe(0);
-    expect(adapter.calls.addNaturalWonders.length).toBe(0);
-    expect(adapter.calls.generateDiscoveries.length).toBe(0);
-    expect(adapter.calls.generateResources.length).toBe(0);
     expect(adapter.calls.stampNaturalWonder.length).toBe(1);
     expect(adapter.calls.stampDiscovery.length).toBe(1);
     expect(outputs.naturalWondersCount).toBe(1);
@@ -181,8 +178,6 @@ describe("placement", () => {
       publishOutputs: (outputs) => placementRuntime.placementOutputs.publish(context, outputs),
     });
 
-    expect(adapter.calls.addNaturalWonders.length).toBe(0);
-    expect(adapter.calls.generateDiscoveries.length).toBe(0);
     expect(adapter.calls.stampNaturalWonder.length).toBe(0);
     expect(adapter.calls.stampDiscovery.length).toBe(1);
     expect(outputs.naturalWondersCount).toBe(0);
