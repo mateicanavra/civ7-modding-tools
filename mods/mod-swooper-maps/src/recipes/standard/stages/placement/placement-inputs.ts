@@ -5,6 +5,7 @@ export const PlacementInputsConfigSchema = Type.Object(
   {
     wonders: placement.ops.planWonders.config,
     floodplains: placement.ops.planFloodplains.config,
+    resources: placement.ops.planResources.config,
     starts: placement.ops.planStarts.config,
   },
   { additionalProperties: false }
@@ -16,6 +17,7 @@ export const PlacementInputsV1Schema = Type.Object(
     starts: placement.ops.planStarts["output"],
     wonders: placement.ops.planWonders["output"],
     floodplains: placement.ops.planFloodplains["output"],
+    resources: placement.ops.planResources["output"],
     placementConfig: PlacementInputsConfigSchema,
   },
   { additionalProperties: false }
