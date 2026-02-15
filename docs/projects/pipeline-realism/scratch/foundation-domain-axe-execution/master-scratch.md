@@ -260,3 +260,62 @@ remaining_before_IG1:
 next_orchestrator_action:
   - advance_agent_A_to_S03_on_child_branch
 ```
+
+## Checkpoint 9 — Pre-IG1 Alignment + Gate Refresh (2026-02-15)
+```yaml
+slice_commit_status:
+  S02:
+    branch: codex/prr-m4-s02-contract-freeze-dead-knobs
+    commit: 9b65ae462
+    verification: pass
+  S03:
+    branch: codex/prr-m4-s03-tectonics-op-decomposition
+    commit: 8a596087a
+    verification: pass
+  S05:
+    branch: codex/prr-m4-s05-ci-strict-core-gates
+    commit: 5b066753a
+    verification: pass_with_external_debt
+  S06:
+    branch: codex/prr-m4-s06-test-rewrite-architecture-scans
+    commit: 6cee8de01
+    verification: pass_with_external_debt
+
+stack_alignment_refresh:
+  action: gt_move_no_rebase
+  command: gt move --source codex/prr-m4-s05-ci-strict-core-gates --onto codex/prr-m4-s03-tectonics-op-decomposition
+  result:
+    - codex/prr-m4-s05-ci-strict-core-gates now parents to codex/prr-m4-s03-tectonics-op-decomposition
+    - codex/prr-m4-s06-test-rewrite-architecture-scans now parents to codex/prr-m4-s05-ci-strict-core-gates
+
+pre_ig1_gate_matrix:
+  G0_build: pass
+  G0_lint: pass
+  G1_adapter_boundary: pass
+  G1_full_domain_guardrails: fail_external_ecology_debt
+  G1_check: pass
+  G2_no_op_calls_op: pass
+  G2_no_dual_contract_paths: pass
+  G2_no_shim_surfaces: pass
+  G2_foundation_topology_lock: pass
+  failure_scope:
+    domain: ecology
+    class: canonical_op_module_file_completeness
+
+agent_status_snapshot:
+  agent_A_core_spine: complete_for_pre_IG1
+  agent_D_guardrails: complete_for_pre_IG1
+  agent_I_integration: active
+  orchestrator: active
+
+orchestrator_status:
+  at_integration_point: true
+  IG1_entry_readiness:
+    S02: true
+    S03: true
+    S05: true
+    S06: true
+  blocking_items_before_S04:
+    - IG1_ecology_merge_and_reanchor
+    - resolve_or_accept_external_ecology_guardrail_debt_at_checkpoint
+```

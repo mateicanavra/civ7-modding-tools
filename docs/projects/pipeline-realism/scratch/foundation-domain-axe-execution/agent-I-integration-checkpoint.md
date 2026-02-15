@@ -75,3 +75,59 @@ evidence_paths:
   - path: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/ig-1-checkpoint-packet-template.md
   - path: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/stack-ledger.md
 ```
+
+## 2026-02-15 IG-1 entry refresh (post-restack)
+```yaml
+slice_commit_snapshot:
+  S02:
+    branch: codex/prr-m4-s02-contract-freeze-dead-knobs
+    commit: 9b65ae462
+    state: committed
+  S03:
+    branch: codex/prr-m4-s03-tectonics-op-decomposition
+    commit: 8a596087a
+    state: committed
+  S05:
+    branch: codex/prr-m4-s05-ci-strict-core-gates
+    commit: 5b066753a
+    state: committed
+  S06:
+    branch: codex/prr-m4-s06-test-rewrite-architecture-scans
+    commit: 6cee8de01
+    state: committed
+
+pre_ig1_gate_summary:
+  G0_build: pass
+  G0_lint: pass
+  G1_adapter_boundary: pass
+  G1_full_domain_guardrails: fail_external_ecology_debt
+  G1_check: pass
+  G2_no_op_calls_op: pass
+  G2_no_dual_contract_paths: pass
+  G2_no_shim_surfaces: pass
+  G2_foundation_topology_lock: pass
+
+checkpoint_readiness:
+  at_integration_point: true
+  S04_unblocked: false
+  required_next_actions:
+    - merge_ecology_stack
+    - evaluate_pr_count_threshold_and_collapse_if_gte_45
+    - reanchor_execution_stack
+    - run_GI_1_matrix_on_integrated_base
+```
+
+## Proposed target
+- `IG-1` is decision-complete and execution-safe: merged base validated, policy applied, user sign-off recorded, and `S04` unblocked.
+
+## Changes landed
+- Added IG-1 entry packet refresh with current S02/S03/S05/S06 commit snapshot.
+- Recorded pre-IG1 gate matrix results from aligned stack state.
+- Confirmed orchestrator is at the mandatory integration checkpoint before `S04`.
+
+## Open risks
+- Full-profile domain guardrails remain red due pre-existing ecology canonical-module debt until ecology merge/remediation is applied.
+- Shared recipe/diagnostics files may conflict during ecology merge and require a dedicated conflict-fix slice before `S04`.
+
+## Decision asks
+- none
