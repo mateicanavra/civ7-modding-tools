@@ -332,29 +332,29 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
   "ecology-ice": {
     knobs: {},
     "plan-ice": {
-      planIce: { strategy: "default", config: { minScore01: 0.62 } }, // Minimal polar ice
+      planIce: { strategy: "default", config: {} }, // Minimal polar ice
     },
   },
   "ecology-reefs": {
     knobs: {},
     "plan-reefs": {
-      planReefs: { strategy: "shipping-lanes", config: { minScore01: 0.48 } }, // Island chain reef patterns
+      planReefs: { strategy: "shipping-lanes", config: {} }, // Island chain reef patterns
     },
   },
   "ecology-wetlands": {
     knobs: {},
     "plan-wetlands": {
-      planWetlands: { strategy: "default", config: { minScore01: 0.5 } },
+      planWetlands: { strategy: "default", config: {} },
     },
   },
   "ecology-vegetation": {
     knobs: {},
     "plan-vegetation": {
-      planVegetation: { strategy: "default", config: { minScore01: 0.12 } },
+      planVegetation: { strategy: "default", config: {} },
     },
   },
   "map-ecology": {
-    biomes: {
+    "plot-biomes": {
       bindings: {
         snow: "BIOME_TUNDRA",
         tundra: "BIOME_TUNDRA",
@@ -367,7 +367,7 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
         marine: "BIOME_MARINE",
       },
     },
-    plotEffects: {
+    "plot-effects": {
       scoreSnow: {
         strategy: "default",
         config: {
@@ -450,7 +450,7 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
         },
       },
     },
-    featuresApply: {
+    "features-apply": {
       apply: { strategy: "default", config: { maxPerTile: 1 } },
     },
   },

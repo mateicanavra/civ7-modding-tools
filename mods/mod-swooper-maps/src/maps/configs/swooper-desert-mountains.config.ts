@@ -320,29 +320,29 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
   "ecology-ice": {
     knobs: {},
     "plan-ice": {
-      planIce: { strategy: "continentality", config: { minScore01: 0.55 } },
+      planIce: { strategy: "continentality", config: {} },
     },
   },
   "ecology-reefs": {
     knobs: {},
     "plan-reefs": {
-      planReefs: { strategy: "default", config: { minScore01: 0.55 } },
+      planReefs: { strategy: "default", config: {} },
     },
   },
   "ecology-wetlands": {
     knobs: {},
     "plan-wetlands": {
-      planWetlands: { strategy: "default", config: { minScore01: 0.62 } },
+      planWetlands: { strategy: "default", config: {} },
     },
   },
   "ecology-vegetation": {
     knobs: {},
     "plan-vegetation": {
-      planVegetation: { strategy: "default", config: { minScore01: 0.2 } },
+      planVegetation: { strategy: "default", config: {} },
     },
   },
   "map-ecology": {
-    biomes: {
+    "plot-biomes": {
       bindings: {
         snow: "BIOME_TUNDRA",
         tundra: "BIOME_TUNDRA",
@@ -355,7 +355,7 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
         marine: "BIOME_MARINE",
       },
     },
-    plotEffects: {
+    "plot-effects": {
       scoreSnow: {
         strategy: "default",
         config: {
@@ -439,7 +439,7 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
         },
       },
     },
-    featuresApply: {
+    "features-apply": {
       apply: { strategy: "default", config: { maxPerTile: 1 } },
     },
   },

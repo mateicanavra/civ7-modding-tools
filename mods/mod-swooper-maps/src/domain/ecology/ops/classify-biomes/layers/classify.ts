@@ -87,7 +87,7 @@ export function classifyBiomesFromFields(args: {
       energy01,
       freezeIndex,
       aridityIndex: aridity,
-      aridityPenalty: args.config.aridity.vegetationPenalty,
+      aridityStressWeight: args.config.aridity.vegetationPenalty,
       fertility01: args.fertility[i] ?? 0,
       soilType: args.soilType[i] ?? 0,
     });
