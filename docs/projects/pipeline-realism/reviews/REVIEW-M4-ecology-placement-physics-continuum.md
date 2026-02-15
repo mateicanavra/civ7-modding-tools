@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/prr-epp-s3b-lakes-regression-fix
+
+### Quick Take
+- Default sink-only setting mitigates lake over-placement regression.
+
+### High-Leverage Issues
+- Latent algorithmic bug remains reachable when nonzero upstream steps are enabled.
+
+### PR Comment Context
+- PR #1264 has no unresolved threads, but latent risk remains.
+- PR #1264: fix(hydrology): change default maxUpstreamSteps to 0 to prevent lake over-placement (https://github.com/mateicanavra/civ7-modding-tools/pull/1264)
+
+### Fix Now (Recommended)
+- Patch nonzero expansion semantics before enabling beyond default.
+
+### Defer / Follow-up
+- Document maxUpstreamSteps as constrained or experimental.
+
+### Needs Discussion
+- Deprecate knob vs keep with fixed semantics.
+
+### Cross-cutting Risks
+- Default-only mitigation can hide unresolved root-cause paths.
+- Runtime-vs-viz mismatch analysis: observed: mitigation reduces mismatch by constraining behavior. Gameplay/runtime truth remains authoritative when conflicts exist.
