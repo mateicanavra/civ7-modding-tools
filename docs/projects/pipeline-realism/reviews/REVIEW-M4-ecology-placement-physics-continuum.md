@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/MAMBO-m3-012-fix-biomes-stripes
+
+### Quick Take
+- Stripe banding remediation and hydrology-index consumption are directionally strong.
+
+### High-Leverage Issues
+- Legacy biome tuning knobs risk becoming silent no-ops after classifier shift.
+
+### PR Comment Context
+- PR #1233 has unresolved P2 feedback on tuning compatibility semantics.
+- PR #1233: fix(ecology): fix biomes horizontal stripe banding (https://github.com/mateicanavra/civ7-modding-tools/pull/1233)
+
+### Fix Now (Recommended)
+- Map/deprecate legacy tuning knobs explicitly with clear failure modes.
+
+### Defer / Follow-up
+- Add migration docs/tests for affected knob ownership.
+
+### Needs Discussion
+- Intentional architecture shift vs accidental loss of tunability.
+
+### Cross-cutting Risks
+- Silent knob no-ops erode trust in configuration surfaces.
+- Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
