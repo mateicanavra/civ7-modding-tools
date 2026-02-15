@@ -2,10 +2,6 @@ import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 
 export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
   foundation: {
-    version: 1,
-    profiles: {
-      resolutionProfile: "ultra",
-    },
     knobs: {
       plateCount: 32,
       plateActivity: 0.5,

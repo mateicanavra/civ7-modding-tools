@@ -9,10 +9,6 @@ import type { StandardRecipeConfig } from "../../../recipes/standard/recipe.js";
  */
 export const realismEarthlikeConfig: StandardRecipeConfig = {
   foundation: {
-    version: 1,
-    profiles: {
-      resolutionProfile: "balanced",
-    },
     knobs: { plateCount: 28, plateActivity: 0.5 },
   },
   "morphology-coasts": { knobs: { seaLevel: "water-heavy", coastRuggedness: "normal", shelfWidth: "narrow" } },

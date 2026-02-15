@@ -5,10 +5,6 @@ import type { StandardRecipeConfig } from "../../../recipes/standard/recipe.js";
  */
 export const realismOldErosionConfig: StandardRecipeConfig = {
   foundation: {
-    version: 1,
-    profiles: {
-      resolutionProfile: "balanced",
-    },
     knobs: { plateCount: 28, plateActivity: 0.25 },
   },
   "morphology-coasts": { knobs: { seaLevel: "earthlike", coastRuggedness: "smooth", shelfWidth: "normal" } },
