@@ -517,23 +517,6 @@ const DEFAULT_PROFILES = {
   resolutionProfile: "balanced",
 } as const;
 
-const FOUNDATION_STEP_IDS = [
-  "mesh",
-  "mantle-potential",
-  "mantle-forcing",
-  "crust",
-  "plate-graph",
-  "plate-motion",
-  "tectonics",
-  "crust-evolution",
-  "projection",
-  "plate-topology",
-] as const;
-
-// Studio-only sentinel mode uses per-step config objects under `advanced.<stepId>`. This should not
-// trigger for the physics-first `advanced` surface (which includes `advanced.mesh`).
-const FOUNDATION_STUDIO_STEP_CONFIG_IDS = FOUNDATION_STEP_IDS.filter((id) => id.includes("-"));
-
 export default createStage({
   id: "foundation",
   knobsSchema,
@@ -545,23 +528,7 @@ export default createStage({
     knobs: Static<typeof knobsSchema>;
     config: FoundationStageCompileConfig;
   }) => {
-    const advanced = config.advanced as Record<string, unknown> | undefined;
-    if (advanced && typeof advanced === "object") {
-      // Avoid colliding with `advanced.mesh` (physics), which is not a per-step config override.
-      const hasSentinel = FOUNDATION_STUDIO_STEP_CONFIG_IDS.some((stepId) =>
-        Object.prototype.hasOwnProperty.call(advanced, stepId)
-      );
-      if (hasSentinel) {
-        return Object.fromEntries(FOUNDATION_STEP_IDS.map((stepId) => [stepId, advanced[stepId]]));
-      }
-    }
-
-    const profileSentinel =
-      (config.profiles as Record<string, unknown> | undefined)?.__studioUiMetaSentinelPath;
-    if (Array.isArray(profileSentinel)) {
-      return Object.fromEntries(FOUNDATION_STEP_IDS.map((stepId) => [stepId, config.profiles]));
-    }
-
+    const advanced = config.advanced;
     const profiles = config.profiles ?? DEFAULT_PROFILES;
     const defaults = FOUNDATION_PROFILE_DEFAULTS[profiles.resolutionProfile];
     const plateCount = clampInt(
@@ -570,93 +537,60 @@ export default createStage({
       256
     );
 
-    const lithosphereOverrides =
-      advanced && typeof advanced === "object" && "lithosphere" in advanced
-        ? (advanced as { lithosphere?: Record<string, unknown> }).lithosphere ?? {}
-        : {};
+    const lithosphere = advanced?.lithosphere;
+    const mantleForcingOverrides = advanced?.mantleForcing;
+    const budgetsOverrides = advanced?.budgets;
+    const meshOverrides = advanced?.mesh;
 
-    const mantleOverrides =
-      advanced && typeof advanced === "object" && "mantleForcing" in advanced
-        ? (advanced as { mantleForcing?: Record<string, unknown> }).mantleForcing ?? {}
-        : {};
-    const mantleOverrideValues = mantleOverrides as {
-      plumeCount?: unknown;
-      downwellingCount?: unknown;
-      lengthScale01?: unknown;
-      potentialAmplitude01?: unknown;
-    };
+    const mantleLengthScale01 = mantleForcingOverrides?.lengthScale01;
     const mantleLengthScale =
-      typeof mantleOverrideValues.lengthScale01 === "number"
-        ? clamp01(mantleOverrideValues.lengthScale01)
+      mantleLengthScale01 !== undefined
+        ? clamp01(mantleLengthScale01)
         : undefined;
     const mantleRadius =
       mantleLengthScale !== undefined
         ? lerp(MANTLE_RADIUS_RANGE.min, MANTLE_RADIUS_RANGE.max, mantleLengthScale)
         : defaults.mantle.radius;
+
+    const mantlePotentialAmplitude01 = mantleForcingOverrides?.potentialAmplitude01;
     const mantleAmplitudeScale =
-      typeof mantleOverrideValues.potentialAmplitude01 === "number"
+      mantlePotentialAmplitude01 !== undefined
         ? lerp(
             MANTLE_AMPLITUDE_RANGE.min,
             MANTLE_AMPLITUDE_RANGE.max,
-            clamp01(mantleOverrideValues.potentialAmplitude01)
+            clamp01(mantlePotentialAmplitude01)
           )
         : defaults.mantle.amplitudeScale;
     const mantlePlumeCount = clampInt(
-      typeof mantleOverrideValues.plumeCount === "number"
-        ? mantleOverrideValues.plumeCount
-        : defaults.mantle.plumeCount,
+      mantleForcingOverrides?.plumeCount ?? defaults.mantle.plumeCount,
       2,
       16
     );
     const mantleDownwellingCount = clampInt(
-      typeof mantleOverrideValues.downwellingCount === "number"
-        ? mantleOverrideValues.downwellingCount
-        : defaults.mantle.downwellingCount,
+      mantleForcingOverrides?.downwellingCount ?? defaults.mantle.downwellingCount,
       2,
       16
     );
 
-    const budgetsOverrides =
-      advanced && typeof advanced === "object" && "budgets" in advanced
-        ? (advanced as { budgets?: Record<string, unknown> }).budgets ?? {}
-        : {};
-    const budgetsOverrideValues = budgetsOverrides as { eraCount?: unknown };
     const eraCount = clampInt(
-      typeof budgetsOverrideValues.eraCount === "number"
-        ? budgetsOverrideValues.eraCount
-        : COMMON_TECTONIC_HISTORY.eraWeights.length,
+      budgetsOverrides?.eraCount ?? COMMON_TECTONIC_HISTORY.eraWeights.length,
       5,
       8
     );
     const eraWeights = deriveEraWeights({ eraCount });
     const driftStepsByEra = (() => {
       const base = deriveDriftStepsByEra({ eraCount });
-      const driftOverride =
-        advanced &&
-        typeof advanced === "object" &&
-        "tectonics" in advanced &&
-        (advanced as { tectonics?: unknown }).tectonics &&
-        typeof (advanced as { tectonics?: unknown }).tectonics === "object" &&
-        "history" in ((advanced as { tectonics?: unknown }).tectonics as Record<string, unknown>) &&
-        (((advanced as { tectonics?: unknown }).tectonics as { history?: unknown }).history as Record<string, unknown> | undefined)
-          ?.driftStepsByEra;
+      const driftOverride = advanced?.tectonics?.history?.driftStepsByEra;
       return normalizeDriftStepsByEra({ eraCount, raw: driftOverride }) ?? base;
     })();
 
-    const meshOverrides =
-      advanced && typeof advanced === "object" && "mesh" in advanced ? (advanced as { mesh?: Record<string, unknown> }).mesh ?? {} : {};
-    const meshOverrideValues = meshOverrides as { cellsPerPlate?: unknown; relaxationSteps?: unknown };
     const meshCellsPerPlate = clampInt(
-      typeof meshOverrideValues.cellsPerPlate === "number"
-        ? meshOverrideValues.cellsPerPlate
-        : defaults.mesh.cellsPerPlate,
+      meshOverrides?.cellsPerPlate ?? defaults.mesh.cellsPerPlate,
       1,
       32
     );
     const meshRelaxationSteps = clampInt(
-      typeof meshOverrideValues.relaxationSteps === "number"
-        ? meshOverrideValues.relaxationSteps
-        : defaults.mesh.relaxationSteps,
+      meshOverrides?.relaxationSteps ?? defaults.mesh.relaxationSteps,
       0,
       50
     );
@@ -701,7 +635,7 @@ export default createStage({
           strategy: "default",
           config: {
             ...defaults.crust,
-            ...(typeof lithosphereOverrides === "object" ? lithosphereOverrides : {}),
+            ...(lithosphere ?? {}),
           },
         },
       },

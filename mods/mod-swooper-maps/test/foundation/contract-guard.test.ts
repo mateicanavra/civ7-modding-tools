@@ -141,6 +141,23 @@ describe("foundation contract guardrails", () => {
     expect(tectonicHistoryContract).not.toContain("segments: FoundationTectonicSegmentsSchema");
   });
 
+  it("keeps foundation advanced override lowering typed (no runtime cast-merge path)", () => {
+    const repoRoot = path.resolve(import.meta.dir, "../..");
+    const stageFile = path.join(repoRoot, "src/recipes/standard/stages/foundation/index.ts");
+    const text = readFileSync(stageFile, "utf8");
+
+    expect(text).not.toContain("const mantleOverrideValues = (advanced?.mantleForcing ?? {}) as");
+    expect(text).not.toContain("const budgetsOverrideValues = (advanced?.budgets ?? {}) as");
+    expect(text).not.toContain("const meshOverrideValues = (advanced?.mesh ?? {}) as");
+    expect(text).not.toContain("typeof mantleOverrideValues.");
+    expect(text).not.toContain("typeof budgetsOverrideValues.");
+    expect(text).not.toContain("typeof meshOverrideValues.");
+    expect(text).not.toContain("...(typeof lithosphereOverrides === \"object\" ? lithosphereOverrides : {})");
+    expect(text).not.toContain("FOUNDATION_STUDIO_STEP_CONFIG_IDS");
+    expect(text).not.toContain("__studioUiMetaSentinelPath");
+    expect(text).not.toContain("advancedRecord[stepId]");
+  });
+
   it("keeps tectonics step on decomposed op chain (no mega-op binding)", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const tectonicsStepContract = readFileSync(
