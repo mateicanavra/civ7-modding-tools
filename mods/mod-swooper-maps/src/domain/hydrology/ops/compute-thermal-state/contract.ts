@@ -57,14 +57,14 @@ const ComputeThermalStateDefaultStrategySchema = Type.Object(
   {
     /** Global baseline temperature at sea level and mid-insolation. */
     baseTemperatureC: Type.Number({
-      default: 14,
+      default: 9,
       minimum: -40,
       maximum: 60,
       description: "Global baseline temperature at sea level and mid-insolation.",
     }),
     /** Temperature delta contributed by insolation forcing. */
     insolationScaleC: Type.Number({
-      default: 28,
+      default: 47,
       minimum: 0,
       maximum: 80,
       description: "Temperature delta contributed by insolation forcing.",

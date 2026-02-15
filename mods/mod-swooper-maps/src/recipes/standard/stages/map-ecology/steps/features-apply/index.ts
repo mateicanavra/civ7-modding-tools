@@ -4,6 +4,7 @@ import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
 import FeaturesApplyStepContract from "./contract.js";
 import { reifyFeatureField } from "../features/apply.js";
 import { resolveFeatureKeyLookups } from "../features/feature-keys.js";
+import { buildFeatureTypeVizCategories } from "./viz.js";
 
 const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
@@ -86,16 +87,18 @@ export default createStep(FeaturesApplyStepContract, {
     }
     if (applied > 0) {
       reifyFeatureField(context);
+      const featureTypeCategories = buildFeatureTypeVizCategories(context.adapter);
       context.viz?.dumpGrid(context.trace, {
         dataTypeKey: "map.ecology.featureType",
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "i16",
         values: context.fields.featureType,
-      meta: defineVizMeta("map.ecology.featureType", {
+        meta: defineVizMeta("map.ecology.featureType", {
           label: "Feature Type (Engine)",
           group: GROUP_MAP_ECOLOGY,
           palette: "categorical",
+          categories: featureTypeCategories,
         }),
       });
       context.adapter.validateAndFixTerrain();
