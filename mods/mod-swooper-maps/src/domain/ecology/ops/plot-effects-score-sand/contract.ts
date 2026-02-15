@@ -18,12 +18,37 @@ const BiomeSymbolSchema = Type.Union(
 );
 
 const PlotEffectsScoreSandConfigSchema = Type.Object({
-  minAridity: Type.Number({ default: 0.55, minimum: 0, maximum: 1 }),
-  minTemperature: Type.Number({ default: 18 }),
-  maxFreeze: Type.Number({ default: 0.25, minimum: 0, maximum: 1 }),
-  maxVegetation: Type.Number({ default: 0.2, minimum: 0, maximum: 1 }),
-  maxMoisture: Type.Number({ default: 90, minimum: 0 }),
-  allowedBiomes: Type.Array(BiomeSymbolSchema, { default: ["desert", "temperateDry"] }),
+  minAridity: Type.Number({
+    default: 0.55,
+    minimum: 0,
+    maximum: 1,
+    description: "Sand is eligible when aridityIndex >= minAridity (0..1).",
+  }),
+  minTemperature: Type.Number({
+    default: 18,
+    description: "Sand is eligible when surfaceTemperature >= minTemperature (C).",
+  }),
+  maxFreeze: Type.Number({
+    default: 0.25,
+    minimum: 0,
+    maximum: 1,
+    description: "Sand is eligible when freezeIndex <= maxFreeze (0..1).",
+  }),
+  maxVegetation: Type.Number({
+    default: 0.2,
+    minimum: 0,
+    maximum: 1,
+    description: "Sand is eligible when vegetationDensity <= maxVegetation (0..1).",
+  }),
+  maxMoisture: Type.Number({
+    default: 90,
+    minimum: 0,
+    description: "Sand is eligible when effectiveMoisture <= maxMoisture.",
+  }),
+  allowedBiomes: Type.Array(BiomeSymbolSchema, {
+    default: ["desert", "temperateDry"],
+    description: "Biome symbols allowed to emit sand plot effects (allowlist).",
+  }),
 });
 
 const PlotEffectsScoreSandContract = defineOp({
@@ -56,4 +81,3 @@ const PlotEffectsScoreSandContract = defineOp({
 });
 
 export default PlotEffectsScoreSandContract;
-

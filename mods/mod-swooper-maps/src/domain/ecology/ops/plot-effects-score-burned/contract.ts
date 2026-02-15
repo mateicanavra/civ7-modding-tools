@@ -18,12 +18,37 @@ const BiomeSymbolSchema = Type.Union(
 );
 
 const PlotEffectsScoreBurnedConfigSchema = Type.Object({
-  minAridity: Type.Number({ default: 0.45, minimum: 0, maximum: 1 }),
-  minTemperature: Type.Number({ default: 20 }),
-  maxFreeze: Type.Number({ default: 0.2, minimum: 0, maximum: 1 }),
-  maxVegetation: Type.Number({ default: 0.35, minimum: 0, maximum: 1 }),
-  maxMoisture: Type.Number({ default: 110, minimum: 0 }),
-  allowedBiomes: Type.Array(BiomeSymbolSchema, { default: ["temperateDry", "tropicalSeasonal"] }),
+  minAridity: Type.Number({
+    default: 0.45,
+    minimum: 0,
+    maximum: 1,
+    description: "Burned is eligible when aridityIndex >= minAridity (0..1).",
+  }),
+  minTemperature: Type.Number({
+    default: 20,
+    description: "Burned is eligible when surfaceTemperature >= minTemperature (C).",
+  }),
+  maxFreeze: Type.Number({
+    default: 0.2,
+    minimum: 0,
+    maximum: 1,
+    description: "Burned is eligible when freezeIndex <= maxFreeze (0..1).",
+  }),
+  maxVegetation: Type.Number({
+    default: 0.35,
+    minimum: 0,
+    maximum: 1,
+    description: "Burned is eligible when vegetationDensity <= maxVegetation (0..1).",
+  }),
+  maxMoisture: Type.Number({
+    default: 110,
+    minimum: 0,
+    description: "Burned is eligible when effectiveMoisture <= maxMoisture.",
+  }),
+  allowedBiomes: Type.Array(BiomeSymbolSchema, {
+    default: ["temperateDry", "tropicalSeasonal"],
+    description: "Biome symbols allowed to emit burned plot effects (allowlist).",
+  }),
 });
 
 const PlotEffectsScoreBurnedContract = defineOp({
@@ -56,4 +81,3 @@ const PlotEffectsScoreBurnedContract = defineOp({
 });
 
 export default PlotEffectsScoreBurnedContract;
-

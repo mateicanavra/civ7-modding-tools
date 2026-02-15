@@ -10,20 +10,54 @@ const SnowElevationStrategySchema = Type.Union(
 );
 
 const PlotEffectsScoreSnowConfigSchema = Type.Object({
-  maxTemperature: Type.Number({ default: 4 }),
-  maxAridity: Type.Number({ default: 0.9, minimum: 0, maximum: 1 }),
-  freezeWeight: Type.Number({ default: 1, minimum: 0 }),
-  elevationWeight: Type.Number({ default: 1, minimum: 0 }),
-  moistureWeight: Type.Number({ default: 1, minimum: 0 }),
-  scoreNormalization: Type.Number({ default: 3, minimum: 0.0001 }),
-  scoreBias: Type.Number({ default: 0 }),
+  maxTemperature: Type.Number({
+    default: 4,
+    description: "Snow is eligible when surfaceTemperature <= maxTemperature (C).",
+  }),
+  maxAridity: Type.Number({
+    default: 0.9,
+    minimum: 0,
+    maximum: 1,
+    description: "Snow is eligible when aridityIndex <= maxAridity (0..1).",
+  }),
+  freezeWeight: Type.Number({
+    default: 1,
+    minimum: 0,
+    description: "Weight of freezeIndex contribution to the raw snow suitability score.",
+  }),
+  elevationWeight: Type.Number({
+    default: 1,
+    minimum: 0,
+    description: "Weight of elevation contribution to the raw snow suitability score.",
+  }),
+  moistureWeight: Type.Number({
+    default: 1,
+    minimum: 0,
+    description: "Weight of effectiveMoisture contribution to the raw snow suitability score.",
+  }),
+  scoreNormalization: Type.Number({
+    default: 3,
+    minimum: 0.0001,
+    description: "Divisor for raw score normalization before clamping to 0..1.",
+  }),
+  scoreBias: Type.Number({ default: 0, description: "Additive bias applied to the raw snow score." }),
   elevationStrategy: SnowElevationStrategySchema,
-  elevationMin: Type.Number({ default: 200 }),
-  elevationMax: Type.Number({ default: 2400 }),
-  elevationPercentileMin: Type.Number({ default: 0.7, minimum: 0, maximum: 1 }),
-  elevationPercentileMax: Type.Number({ default: 0.98, minimum: 0, maximum: 1 }),
-  moistureMin: Type.Number({ default: 40, minimum: 0 }),
-  moistureMax: Type.Number({ default: 160, minimum: 0 }),
+  elevationMin: Type.Number({ default: 200, description: "Minimum elevation used for elevation normalization (m)." }),
+  elevationMax: Type.Number({ default: 2400, description: "Maximum elevation used for elevation normalization (m)." }),
+  elevationPercentileMin: Type.Number({
+    default: 0.7,
+    minimum: 0,
+    maximum: 1,
+    description: "Minimum land elevation percentile used when elevationStrategy is percentile (0..1).",
+  }),
+  elevationPercentileMax: Type.Number({
+    default: 0.98,
+    minimum: 0,
+    maximum: 1,
+    description: "Maximum land elevation percentile used when elevationStrategy is percentile (0..1).",
+  }),
+  moistureMin: Type.Number({ default: 40, minimum: 0, description: "Minimum effectiveMoisture used for normalization." }),
+  moistureMax: Type.Number({ default: 160, minimum: 0, description: "Maximum effectiveMoisture used for normalization." }),
 });
 
 const PlotEffectsScoreSnowContract = defineOp({
@@ -51,4 +85,3 @@ const PlotEffectsScoreSnowContract = defineOp({
 });
 
 export default PlotEffectsScoreSnowContract;
-
