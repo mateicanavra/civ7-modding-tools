@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/MAMBO-elevation-post-hydrology-lifecycle
+
+### Quick Take
+- Post-river area/water refresh correctly restores lifecycle ordering.
+
+### High-Leverage Issues
+- No blocking branch-local defect confirmed in this pass.
+
+### PR Comment Context
+- PR #1241 has no unresolved human inline review threads.
+- PR #1241: fix(hydrology): refresh area/water caches after river generation (https://github.com/mateicanavra/civ7-modding-tools/pull/1241)
+
+### Fix Now (Recommended)
+- None immediate.
+
+### Defer / Follow-up
+- Convert spike diagnostics into enforceable parity gates.
+
+### Needs Discussion
+- Formal lifecycle invariant scope across map-hydrology and map-ecology.
+
+### Cross-cutting Risks
+- Parity divergence remains possible without hard gates.
+- Runtime-vs-viz mismatch analysis: observed: branch mitigates a known runtime-vs-viz/lifecycle mismatch. Gameplay/runtime truth remains authoritative when conflicts exist.
