@@ -17,3 +17,7 @@
 ## Integration Log
 - Kickoff: milestone doc `docs/projects/pipeline-realism/milestones/M4-ecology-placement-physics-continuum.md`, review doc `docs/projects/pipeline-realism/reviews/REVIEW-M4-ecology-placement-physics-continuum.md`, parsed tasks `27`.
 - Preflight complete: `gt ls`, `gt log`, and `git branch --all --list 'codex/*'` captured; task->branch map validated (`ALL_27_UNIQUE_BRANCHES_FOUND`).
+- Worker wave complete: accepted handoffs from `worker-eco-core` (`T01..T13`), `worker-hydro-bridge` (`T14..T19`), `worker-epp-continuum` (`T20..T27`), and `worker-crosscut-risk` (systemic risks).
+- Execution pivot (documented): `gt ss --draft`/`gt modify` intermittently stalled; maintained Graphite insertion semantics (`gt create --insert`) and used `git + gh` submit path for deterministic completion of `T01..T27` review PR creation.
+- Consolidation complete: shared review doc rebuilt with 27 parseable `## REVIEW <workBranch>` entries and milestone traceability updated with 27 `reviewBranch` + `reviewPR` records.
+- Closeout tasks: capture cross-cutting risk themes in `triage.md`, clean TOMMY review worktrees, run final verification, and publish final status.
