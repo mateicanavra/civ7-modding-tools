@@ -558,9 +558,10 @@ describe("ecology op contract surfaces", () => {
       {
         width,
         height,
-        landMask: new Uint8Array(size).fill(1),
-        surfaceTemperature: new Float32Array(size).fill(-20),
-        elevation: new Int16Array(size).fill(3000),
+        seed: 1337,
+        score01: new Float32Array(size).fill(1),
+        featureIndex: new Uint16Array(size),
+        reserved: new Uint8Array(size),
       },
       selection
     );
@@ -573,15 +574,16 @@ describe("ecology op contract surfaces", () => {
     const size = width * height;
     const selection = normalizeOpSelectionOrThrow(ecology.ops.planIce, {
       strategy: "continentality",
-      config: { alpineThreshold: 1200 },
+      config: {},
     });
     const result = ecology.ops.planIce.run(
       {
         width,
         height,
-        landMask: new Uint8Array(size).fill(1),
-        surfaceTemperature: new Float32Array(size).fill(-5),
-        elevation: new Int16Array(size).fill(1500),
+        seed: 1337,
+        score01: new Float32Array(size).fill(1),
+        featureIndex: new Uint16Array(size),
+        reserved: new Uint8Array(size),
       },
       selection
     );
