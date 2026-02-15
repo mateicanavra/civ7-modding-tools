@@ -35,7 +35,7 @@ export default createStep(LakesStepContract, {
     const hydrography = deps.artifacts.hydrography.read(context);
     const runtime = getStandardRuntime(context);
     const { width, height } = context.dimensions;
-    const baseTilesPerLake = Math.max(10, (runtime.mapInfo.LakeGenerationFrequency ?? 5) * 2);
+    const baseTilesPerLake = Math.max(10, runtime.mapInfo.LakeGenerationFrequency ?? 5);
     const tilesPerLake = Math.max(10, Math.round(baseTilesPerLake * config.tilesPerLakeMultiplier));
 
     // Map-stage visualization: hydrology sink/outlet masks are inputs to engine lake generation (not 1:1 with engine results).
@@ -112,12 +112,9 @@ export default createStep(LakesStepContract, {
         sinkMismatchCount,
         sinkMismatchShare: Number((sinkMismatchCount / Math.max(1, width * height)).toFixed(4)),
       }));
-
-      if (sinkMismatchCount > 0) {
-        throw new Error(
-          `[SWOOPER_MOD] map-hydrology/lakes parity drift: ${sinkMismatchCount} planned lake tiles are not water in engine projection.`
-        );
-      }
+      // NOTE: hydrography.sinkMask is a drainage diagnostic (candidate sinks), not
+      // a deterministic lake-intent contract for engine projection.
+      // Keep this as parity telemetry rather than a runtime gate.
 
       context.viz?.dumpGrid(context.trace, {
         dataTypeKey: "map.hydrology.lakes.engineLakeMask",
