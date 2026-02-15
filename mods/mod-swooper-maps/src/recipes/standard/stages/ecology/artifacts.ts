@@ -130,6 +130,11 @@ export const ecologyArtifacts = {
     id: "artifact:ecology.occupancy.ice",
     schema: OccupancyArtifactSchema,
   }),
+  occupancyReefs: defineArtifact({
+    name: "occupancyReefs",
+    id: "artifact:ecology.occupancy.reefs",
+    schema: OccupancyArtifactSchema,
+  }),
   featureIntentsVegetation: defineArtifact({
     name: "featureIntentsVegetation",
     id: "artifact:ecology.featureIntents.vegetation",

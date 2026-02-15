@@ -104,7 +104,6 @@ describe("features plan/apply pipeline", () => {
         strategy: "default",
         config: {},
       }),
-      reefs: normalizeOpSelectionOrThrow(ecology.ops.planReefs, { strategy: "default", config: {} }),
       wetPlacementMarsh: normalizeOpSelectionOrThrow(ecology.ops.planWetPlacementMarsh, {
         strategy: "disabled",
         config: {},
@@ -132,6 +131,13 @@ describe("features plan/apply pipeline", () => {
     // M3-004 moves ice intents into the dedicated `ecology-ice/plan-ice` stage. For this unit test,
     // explicitly publish an empty list so the apply step has a complete artifact surface.
     implementArtifacts([ecologyArtifacts.featureIntentsIce], { featureIntentsIce: {} }).featureIntentsIce.publish(
+      ctx,
+      []
+    );
+
+    // M3-005 moves reef intents into the dedicated `ecology-reefs/plan-reefs` stage. For this unit test,
+    // explicitly publish an empty list so the apply step has a complete artifact surface.
+    implementArtifacts([ecologyArtifacts.featureIntentsReefs], { featureIntentsReefs: {} }).featureIntentsReefs.publish(
       ctx,
       []
     );
