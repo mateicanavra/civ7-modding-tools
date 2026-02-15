@@ -13,6 +13,8 @@ import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 import type { PlacementOutputsV1 } from "../../placement-outputs.js";
 
 type PlanFloodplainsOutput = Static<typeof placement.ops.planFloodplains["output"]>;
+type PlanDiscoveriesOutput = Static<typeof placement.ops.planDiscoveries["output"]>;
+type PlanNaturalWondersOutput = Static<typeof placement.ops.planNaturalWonders["output"]>;
 type PlanResourcesOutput = Static<typeof placement.ops.planResources["output"]>;
 type PlanStartsOutput = Static<typeof placement.ops.planStarts["output"]>;
 type PlanWondersOutput = Static<typeof placement.ops.planWonders["output"]>;
@@ -31,6 +33,8 @@ type ApplyPlacementArgs = {
   context: ExtendedMapContext;
   starts: DeepReadonly<PlanStartsOutput>;
   wonders: DeepReadonly<PlanWondersOutput>;
+  naturalWonderPlan: DeepReadonly<PlanNaturalWondersOutput>;
+  discoveryPlan: DeepReadonly<PlanDiscoveriesOutput>;
   floodplains: DeepReadonly<PlanFloodplainsOutput>;
   resources: DeepReadonly<PlanResourcesOutput>;
   landmassRegionSlotByTile: DeepReadonly<LandmassRegionSlotByTile>;
@@ -62,6 +66,8 @@ export function applyPlacementPlan({
   context,
   starts,
   wonders,
+  naturalWonderPlan,
+  discoveryPlan,
   floodplains,
   resources,
   landmassRegionSlotByTile,
@@ -81,10 +87,35 @@ export function applyPlacementPlan({
 
   logTerrainStats(trace, adapter, width, height, "Initial");
 
+  let wondersPlanned = 0;
+  let wondersPlaced = 0;
+  let wondersError: string | undefined;
   try {
-    adapter.addNaturalWonders(width, height, wonders.wondersCount);
+    const stamping = stampNaturalWondersFromPlan({
+      adapter,
+      width,
+      height,
+      wonders: naturalWonderPlan,
+    });
+    wondersPlanned = stamping.plannedCount;
+    wondersPlaced = stamping.placedCount;
+    emit({
+      type: "placement.wonders.stamped",
+      plannedCount: stamping.plannedCount,
+      placedCount: stamping.placedCount,
+      skippedOutOfBoundsCount: stamping.skippedOutOfBoundsCount,
+      rejectedCount: stamping.rejectedCount,
+    });
+    if ((wonders.wondersCount | 0) !== wondersPlanned) {
+      emit({
+        type: "placement.wonders.planMismatch",
+        requestedCount: wonders.wondersCount,
+        plannedCount: wondersPlanned,
+      });
+    }
   } catch (err) {
-    emit({ type: "placement.wonders.error", error: err instanceof Error ? err.message : String(err) });
+    wondersError = err instanceof Error ? err.message : String(err);
+    emit({ type: "placement.wonders.error", error: wondersError });
   }
 
   try {
@@ -210,13 +241,30 @@ export function applyPlacementPlan({
     throw err;
   }
 
+  let discoveriesPlanned = 0;
+  let discoveriesPlaced = 0;
+  let discoveriesError: string | undefined;
   try {
-    adapter.generateDiscoveries(width, height, startPositions);
-    emit({ type: "placement.discoveries.applied" });
+    const stamping = stampDiscoveriesFromPlan({
+      adapter,
+      width,
+      height,
+      discoveries: discoveryPlan,
+    });
+    discoveriesPlanned = stamping.plannedCount;
+    discoveriesPlaced = stamping.placedCount;
+    emit({
+      type: "placement.discoveries.stamped",
+      plannedCount: stamping.plannedCount,
+      placedCount: stamping.placedCount,
+      skippedOutOfBoundsCount: stamping.skippedOutOfBoundsCount,
+      rejectedCount: stamping.rejectedCount,
+    });
   } catch (err) {
+    discoveriesError = err instanceof Error ? err.message : String(err);
     emit({
       type: "placement.discoveries.error",
-      error: err instanceof Error ? err.message : String(err),
+      error: discoveriesError,
     });
   }
 
@@ -283,39 +331,166 @@ export function applyPlacementPlan({
     });
   }
 
+  const startsAssigned = startPositions.filter((pos) => Number.isFinite(pos) && pos >= 0).length;
   publishEngineState({
     width,
     height,
     slotByTile: new Uint8Array(slotByTile),
     engineLandMask,
     slotCounts,
-    startsAssigned: startPositions.filter((pos) => Number.isFinite(pos) && pos >= 0).length,
+    startsAssigned,
     resourcesAttempted,
     resourcesPlaced,
     ...(resourcesError != null ? { resourcesError } : {}),
     waterDriftCount,
+    wondersPlanned,
+    wondersPlaced,
+    ...(wondersError != null ? { wondersError } : {}),
+    discoveriesPlanned,
+    discoveriesPlaced,
+    ...(discoveriesError != null ? { discoveriesError } : {}),
   });
 
   emit({
     type: "placement.parity",
     slotCounts,
+    wondersPlanned,
+    wondersPlaced,
+    wondersError: wondersError ?? null,
     resourcesAttempted,
     resourcesPlaced,
     resourcesError: resourcesError ?? null,
+    discoveriesPlanned,
+    discoveriesPlaced,
+    discoveriesError: discoveriesError ?? null,
     waterDriftCount,
   });
 
-  const startsAssigned = startPositions.filter((pos) => Number.isFinite(pos) && pos >= 0).length;
   const outputs: PlacementOutputsV1 = {
-    naturalWondersCount: wonders.wondersCount,
+    naturalWondersCount: wondersPlaced,
     floodplainsCount: 0,
     snowTilesCount: 0,
     resourcesCount: resourcesPlaced,
     startsAssigned,
-    discoveriesCount: 0,
+    discoveriesCount: discoveriesPlaced,
   };
 
   return publishOutputs(outputs);
+}
+
+type StampNaturalWondersFromPlanArgs = {
+  adapter: ExtendedMapContext["adapter"];
+  width: number;
+  height: number;
+  wonders: DeepReadonly<PlanNaturalWondersOutput>;
+};
+
+type NaturalWonderStampingStats = {
+  plannedCount: number;
+  placedCount: number;
+  skippedOutOfBoundsCount: number;
+  rejectedCount: number;
+};
+
+function stampNaturalWondersFromPlan({
+  adapter,
+  width,
+  height,
+  wonders,
+}: StampNaturalWondersFromPlanArgs): NaturalWonderStampingStats {
+  if ((wonders.width | 0) !== (width | 0) || (wonders.height | 0) !== (height | 0)) {
+    throw new Error(
+      `[Placement] Natural wonder plan dimensions ${wonders.width}x${wonders.height} do not match map ${width}x${height}.`
+    );
+  }
+
+  let placedCount = 0;
+  let skippedOutOfBoundsCount = 0;
+  let rejectedCount = 0;
+
+  for (const placementPlan of wonders.placements) {
+    const plotIndex = placementPlan.plotIndex | 0;
+    if (plotIndex < 0 || plotIndex >= width * height) {
+      skippedOutOfBoundsCount += 1;
+      continue;
+    }
+
+    const y = (plotIndex / width) | 0;
+    const x = plotIndex - y * width;
+    const placed = adapter.stampNaturalWonder(
+      x,
+      y,
+      placementPlan.featureType | 0,
+      placementPlan.direction | 0,
+      Number.isFinite(placementPlan.elevation) ? placementPlan.elevation : undefined
+    );
+    if (placed) placedCount += 1;
+    else rejectedCount += 1;
+  }
+
+  return {
+    plannedCount: wonders.placements.length,
+    placedCount,
+    skippedOutOfBoundsCount,
+    rejectedCount,
+  };
+}
+
+type StampDiscoveriesFromPlanArgs = {
+  adapter: ExtendedMapContext["adapter"];
+  width: number;
+  height: number;
+  discoveries: DeepReadonly<PlanDiscoveriesOutput>;
+};
+
+type DiscoveryStampingStats = {
+  plannedCount: number;
+  placedCount: number;
+  skippedOutOfBoundsCount: number;
+  rejectedCount: number;
+};
+
+function stampDiscoveriesFromPlan({
+  adapter,
+  width,
+  height,
+  discoveries,
+}: StampDiscoveriesFromPlanArgs): DiscoveryStampingStats {
+  if ((discoveries.width | 0) !== (width | 0) || (discoveries.height | 0) !== (height | 0)) {
+    throw new Error(
+      `[Placement] Discovery plan dimensions ${discoveries.width}x${discoveries.height} do not match map ${width}x${height}.`
+    );
+  }
+
+  let placedCount = 0;
+  let skippedOutOfBoundsCount = 0;
+  let rejectedCount = 0;
+
+  for (const placementPlan of discoveries.placements) {
+    const plotIndex = placementPlan.plotIndex | 0;
+    if (plotIndex < 0 || plotIndex >= width * height) {
+      skippedOutOfBoundsCount += 1;
+      continue;
+    }
+
+    const y = (plotIndex / width) | 0;
+    const x = plotIndex - y * width;
+    const placed = adapter.stampDiscovery(
+      x,
+      y,
+      placementPlan.discoveryVisualType | 0,
+      placementPlan.discoveryActivationType | 0
+    );
+    if (placed) placedCount += 1;
+    else rejectedCount += 1;
+  }
+
+  return {
+    plannedCount: discoveries.placements.length,
+    placedCount,
+    skippedOutOfBoundsCount,
+    rejectedCount,
+  };
 }
 
 type StampResourcesFromPlanArgs = {

@@ -116,3 +116,84 @@
   - Result: fail (pre-existing branch issue outside owned files)
   - Error:
     - `derive-placement-inputs` contract schema collision (`schema already defines key "wonders" (declare it only via contract.ops)`) from `mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/derive-placement-inputs/contract.ts`.
+
+## S5 deterministic wonder/discovery stamping cutover — implementation update (2026-02-14)
+
+### Files edited (owned scope)
+- `packages/civ7-adapter/src/types.ts`
+- `packages/civ7-adapter/src/civ7-adapter.ts`
+- `packages/civ7-adapter/src/mock-adapter.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/apply.ts`
+
+### Decisions and outcomes
+- Added explicit deterministic adapter primitives on `EngineAdapter`:
+  - `stampNaturalWonder(x, y, featureType, direction, elevation?) => boolean`
+  - `stampDiscovery(x, y, discoveryVisualType, discoveryActivationType) => boolean`
+- Kept adapter implementation thin (engine-call wrappers only):
+  - Civ7 adapter natural wonders use `TerrainBuilder.canHaveFeatureParam` (when available) + `TerrainBuilder.setFeatureType`.
+  - Civ7 adapter discoveries use `MapConstructibles.addDiscovery`.
+- Updated `MockAdapter` to fully implement new interface methods and call telemetry:
+  - Added `calls.stampNaturalWonder` and `calls.stampDiscovery` ledgers.
+  - Added concrete `stampNaturalWonder(...)`/`stampDiscovery(...)` behavior and reset cleanup.
+- Removed active random engine generation calls from placement apply:
+  - removed `adapter.addNaturalWonders(...)`
+  - removed `adapter.generateDiscoveries(...)`
+- Placement apply now requires explicit deterministic plans (`naturalWonderPlan`, `discoveryPlan`) and stamps via adapter primitives with deterministic iteration (no fallback paths).
+- Updated placement counts/parity to reflect actual stamped outcomes:
+  - outputs now use `naturalWondersCount = wondersPlaced` and `discoveriesCount = discoveriesPlaced`.
+  - parity event now emits planned/placed/error counts for wonders and discoveries.
+  - engine-state publish payload now includes wonders/discoveries planned/placed/error fields (cast pending schema wiring).
+
+### Validation results
+- `bun run --cwd packages/civ7-adapter check` ✅ pass
+- `bun run --cwd mods/mod-swooper-maps check` ✅ pass (previous in-flight missing-args wiring is now resolved in branch state as of 2026-02-15).
+
+## S5 architecture + execution audit (2026-02-15)
+
+### Scope audited
+- `mods/mod-swooper-maps/src/domain/placement/**`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/placement/**`
+- `packages/civ7-adapter/src/**`
+- Placement tests under `mods/mod-swooper-maps/test/placement/**` plus hydrology placement-order guard test.
+
+### Architecture conformance outcomes
+- Contract-first conventions are intact:
+  - New ops are defined via `defineOp` contracts in:
+    - `plan-natural-wonders/contract.ts`
+    - `plan-discoveries/contract.ts`
+  - Step contracts remain contract-owned and op-wired via `defineStep({ ops: ... })` in `derive-placement-inputs/contract.ts`.
+- Schema posture is compliant:
+  - No stage-level public compile wrappers were introduced.
+  - No re-authored op config wrappers were added for S5; step config uses op-bound config schemas (`placement.ops.*.config`).
+  - Artifact schemas for new plans use direct op output schemas (`placement.ops.planNaturalWonders.output`, `placement.ops.planDiscoveries.output`).
+- Adapter boundary is consistent:
+  - Deterministic placement methods exist in `EngineAdapter` and both adapter implementations:
+    - `stampNaturalWonder`
+    - `stampDiscovery`
+    - `getNaturalWonderCatalog`
+    - `getDefaultDiscoveryPlacement`
+
+### Active-path randomness audit (placement apply)
+- Verified zero active source callsites for legacy RNG-heavy placement generators in `mods/mod-swooper-maps/src`:
+  - `addNaturalWonders(`
+  - `generateResources(`
+  - `generateDiscoveries(`
+- Placement apply now stamps plans directly in:
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/apply.ts`
+  - Uses `adapter.stampNaturalWonder(...)`, `adapter.stampDiscovery(...)`, and deterministic resource stamping (`setResourceType`/`canHaveResource`).
+
+### Test hardening added in this pass
+- Updated:
+  - `mods/mod-swooper-maps/test/placement/placement-does-not-call-generate-snow.test.ts`
+- Added assertion coverage for real stamped counts vs planned counts:
+  - New test: `reports stamped wonder/discovery counts (not planned counts)`.
+  - Uses rejected/out-of-bounds wonder/discovery placements to prove outputs report actual placed counts:
+    - `outputs.naturalWondersCount` reflects successful stamps only.
+    - `outputs.discoveriesCount` reflects successful stamps only.
+
+### Validation commands (2026-02-15)
+- `bun run --cwd packages/mapgen-core build` ✅
+- `bun run --cwd packages/civ7-adapter check` ✅
+- `bun run --cwd mods/mod-swooper-maps check` ✅
+- `bun run --cwd mods/mod-swooper-maps test -- test/placement/plan-ops.test.ts test/placement/placement-does-not-call-generate-snow.test.ts test/placement/landmass-region-id-projection.test.ts test/placement/resources-landmass-region-restamp.test.ts test/map-hydrology/lakes-area-recalc-resources.test.ts` ✅
+  - Result: `12 pass / 0 fail`.
