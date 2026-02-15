@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/MAMBO-m3-009-cleanup-delete-legacy-chance
+
+### Quick Take
+- Chance/multiplier cleanup materially advances deterministic ecology flow.
+
+### High-Leverage Issues
+- Runtime path still throws on viz key gaps and schema strictness was loosened.
+
+### PR Comment Context
+- PR #1230 has unresolved P1/P2 review feedback and explicit follow-up pressure.
+- PR #1230: refactor(ecology): delete legacy chance and multiplier paths (https://github.com/mateicanavra/civ7-modding-tools/pull/1230)
+
+### Fix Now (Recommended)
+- Make viz mapping non-throwing in runtime and restore strict schema unknown-key rejection.
+
+### Defer / Follow-up
+- Add tests for unknown plot effects and unknown schema keys.
+
+### Needs Discussion
+- Hard separation of gameplay authority from visualization metadata completeness.
+
+### Cross-cutting Risks
+- Viz metadata gaps can become runtime blockers against gameplay truth.
+- Runtime-vs-viz mismatch analysis: observed: viz category lookup can abort valid runtime behavior. Gameplay/runtime truth remains authoritative when conflicts exist.
