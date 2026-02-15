@@ -557,6 +557,18 @@ s06_foundation_runtime_merge_removal:
 #### Decision asks
 - none
 
+#### Post-cut verification addendum
+```yaml
+post_cut_architecture_tests:
+  command: bun run --cwd mods/mod-swooper-maps test -- test/foundation/no-op-calls-op-tectonics.test.ts test/pipeline/no-dual-contract-paths.test.ts test/pipeline/no-shim-surfaces.test.ts test/pipeline/foundation-topology-lock.test.ts
+  result: pass
+  assertions:
+    - no_op_calls_op_guard: pass
+    - no_dual_contract_paths_guard: pass
+    - no_shim_surfaces_guard: pass
+    - foundation_topology_lock_guard: pass
+```
+
 ### 2026-02-15 — S06 follow-up hard cut (sentinel passthrough removal)
 
 #### Proposed target
