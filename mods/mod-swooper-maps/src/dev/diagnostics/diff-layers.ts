@@ -22,12 +22,14 @@ function pickComparablePairs(args: {
   const rowsA = listLayers(manifestA, { prefix: args.prefix, dataTypeKey: args.dataTypeKey });
   const rowsB = listLayers(manifestB, { prefix: args.prefix, dataTypeKey: args.dataTypeKey });
 
-  // Use latest layer per (dataTypeKey, stepId, variantKey) is already included; listLayers sorts by stepIndex.
-  const byKeyB = new Map(rowsB.map((r: any) => [`${r.dataTypeKey}::${r.stepId}::${r.variantKey ?? ""}`, r] as const));
+  // Pair by `path` too: a single (dataTypeKey, stepId, variantKey) can be dumped in multiple
+  // representations (e.g. different roles), and collapsing would yield false diffs.
+  const keyOf = (r: any): string =>
+    `${r.dataTypeKey}::${r.stepId}::${r.variantKey ?? ""}::${r.path ?? ""}`;
+  const byKeyB = new Map(rowsB.map((r: any) => [keyOf(r), r] as const));
   const out: Array<[any, any]> = [];
   for (const rA of rowsA) {
-    const key = `${rA.dataTypeKey}::${rA.stepId}::${rA.variantKey ?? ""}`;
-    const rB = byKeyB.get(key);
+    const rB = byKeyB.get(keyOf(rA));
     if (rB) out.push([rA, rB]);
   }
   return out;
