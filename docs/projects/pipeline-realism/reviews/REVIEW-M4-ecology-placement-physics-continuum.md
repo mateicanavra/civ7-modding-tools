@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/prr-epp-s1-drift-observability
+
+### Quick Take
+- Observe-first parity diagnostics are wired across key projection stages.
+
+### High-Leverage Issues
+- No blocking branch-local defect confirmed in this pass.
+
+### PR Comment Context
+- PR #1259 has no unresolved review threads.
+- PR #1259: feat(map): add observe-first parity diagnostics across projection stages (https://github.com/mateicanavra/civ7-modding-tools/pull/1259)
+
+### Fix Now (Recommended)
+- None immediate.
+
+### Defer / Follow-up
+- Tighten fail-hard thresholds as hardening progresses.
+
+### Needs Discussion
+- Signal-to-noise targets for parity diagnostics in CI.
+
+### Cross-cutting Risks
+- Telemetry volume can dilute critical regressions without curation.
+- Runtime-vs-viz mismatch analysis: observed: mismatch channels are intentionally surfaced. Gameplay/runtime truth remains authoritative when conflicts exist.
