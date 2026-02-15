@@ -34,4 +34,4 @@ Canonical milestone source is the M4 context packet for the ecology continuum re
 
 ## Review Traceability
 - M4-T01 reviewBranch: `agent-TOMMY-M4-T01-review-MAMBO-m3-002-stage-split-earth-system--a47102` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1268
-- M4-T21 reviewBranch: `agent-TOMMY-M4-T21-review-prr-epp-s1-drift-observability-60cf6d` reviewPR: pending
+- M4-T21 reviewBranch: `agent-TOMMY-M4-T21-review-prr-epp-s1-drift-observability-60cf6d` reviewPR: https://github.com/mateicanavra/civ7-modding-tools/pull/1288
