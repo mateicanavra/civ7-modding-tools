@@ -50,6 +50,14 @@ flowchart LR
 - Support multiple world styles (Pangea, Continents, Archipelago) without rewriting core logic.
 - Emit useful metadata (plate id, boundary type, orogeny strength) for future systems: climate, biomes, rivers, cultures.
 
+## Current Non-Negotiables (Physics-First Runtime)
+
+- Ecology and placement decisions are deterministic for a given seed/config.
+- No random generator authority remains in active placement paths (resources, natural wonders, discoveries).
+- Hydrology lake planning is sink-driven by default (no upstream expansion by default).
+- Engine projection is downstream evidence only; pipeline artifacts remain the source of truth.
+- Drift between pipeline truth and engine truth at contract boundaries is instrumented everywhere and fail-hard where authoritative comparisons are finalized (currently lake-plan projection).
+
 ---
 
 ## System Overview

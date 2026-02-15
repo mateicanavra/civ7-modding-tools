@@ -2,7 +2,7 @@
 
 ## Program Metadata
 - Program branch root: `codex/prr-ecology-placement-physics-cutover`
-- Current branch: `codex/prr-epp-s5-placement-randomness-zero`
+- Current branch: `codex/prr-epp-s6-hardening-docs-tests`
 - Scope lock: `Ecology+Placement first`
 - Drift policy lock: `Observe first`
 - Local safety lock: do not touch `mods/mod-swooper-maps/src/domain/morphology/ops/compute-sea-level/rules/index.ts`
@@ -15,8 +15,9 @@
 | S2 | codex/prr-epp-s2-ecology-physics-cutover | Worker A | completed |  | Physics-surface cutover and no-fudge/RNG purge committed (`581aea351`) |
 | S3 | codex/prr-epp-s3-lakes-deterministic | Worker B | completed |  | Deterministic hydrology lake plan + map-hydrology stamping committed (`e42ac109d`) |
 | S4 | codex/prr-epp-s4-resources-deterministic | Worker C | completed |  | Deterministic resource planner + adapter/stamping cutover committed (`a5541b8f8`) |
-| S5 | codex/prr-epp-s5-placement-randomness-zero | Worker C | in_progress |  | Deterministic wonder/discovery planners + adapter stamping cutover in progress |
-| S6 | codex/prr-epp-s6-hardening-docs-tests | Worker E + Orchestrator | pending |  | |
+| S5 | codex/prr-epp-s5-placement-randomness-zero | Worker C | completed |  | Deterministic wonder/discovery planners + adapter stamping cutover committed (`77686c94b`) |
+| S5b | codex/prr-epp-s5b-lakes-regression-fix | Worker B | completed |  | Dedicated lake regression fix committed (`671b4a30b`) |
+| S6 | codex/prr-epp-s6-hardening-docs-tests | Worker E + Orchestrator | completed |  | Hardening/docs/tests + legacy API removal + drift guard policy committed (`8d13d0293`) |
 
 ## Handoff Checklist Template
 - [ ] Branch exists and is tracked with correct parent.
@@ -44,6 +45,10 @@
   - no local duplicated shared grid/math helpers in domain ops (promote to `mapgen-core` first);
   - no legacy compatibility fallback paths in placement apply.
 - S5 currently removes active `addNaturalWonders`/`generateDiscoveries` calls from placement apply and replaces them with deterministic stamping from planner artifacts.
+- S5 is complete and committed (`77686c94b`) with deterministic wonder/discovery stamping and adapter contract updates.
+- S5b dedicated lake regression fix is complete and committed (`671b4a30b`):
+  - plan-lakes defaults to sink-only (`maxUpstreamSteps=0`);
+  - added runtime fill-drift regression coverage.
 
 ## Authoring Guardrails (enforced for active workers)
 - For new domain ops, inline `input`/`output`/`strategies` schemas directly inside `defineOp(...)` (no detached `*Schema` wrapper constants for this program’s new ops).

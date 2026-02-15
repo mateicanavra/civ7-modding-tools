@@ -30,19 +30,12 @@ import { VoronoiUtils as CivVoronoiUtils } from "/base-standard/scripts/kd-tree.
 // Vanilla Civ7 biomes/features live in feature-biome-generator.js
 // @ts-ignore - resolved only at Civ7 runtime
 import { designateBiomes as civ7DesignateBiomes, addFeatures as civ7AddFeatures } from "/base-standard/maps/feature-biome-generator.js";
-// Placement modules
-// @ts-ignore - resolved only at Civ7 runtime
-import { addNaturalWonders as civ7AddNaturalWonders } from "/base-standard/maps/natural-wonder-generator.js";
 // @ts-ignore - resolved only at Civ7 runtime
 import { generateSnow as civ7GenerateSnow } from "/base-standard/maps/snow-generator.js";
-// @ts-ignore - resolved only at Civ7 runtime
-import { generateResources as civ7GenerateResources } from "/base-standard/maps/resource-generator.js";
 // @ts-ignore - resolved only at Civ7 runtime
 import { assignStartPositions as civ7AssignStartPositions, chooseStartSectors as civ7ChooseStartSectors } from "/base-standard/maps/assign-starting-plots.js";
 // @ts-ignore - resolved only at Civ7 runtime
 import { needHumanNearEquator as civ7NeedHumanNearEquator } from "/base-standard/maps/map-utilities.js";
-// @ts-ignore - resolved only at Civ7 runtime
-import { generateDiscoveries as civ7GenerateDiscoveries } from "/base-standard/maps/discovery-generator.js";
 // @ts-ignore - resolved only at Civ7 runtime
 import { assignAdvancedStartRegions as civ7AssignAdvancedStartRegions } from "/base-standard/maps/assign-advanced-start-region.js";
 // Elevation terrain generator (lakes/coasts)
@@ -554,18 +547,8 @@ export class Civ7Adapter implements EngineAdapter {
     };
   }
 
-  addNaturalWonders(width: number, height: number, numWonders: number): void {
-    civ7AddNaturalWonders(width, height, numWonders);
-    this.recordPlacementEffect();
-  }
-
   generateSnow(width: number, height: number): void {
     civ7GenerateSnow(width, height);
-    this.recordPlacementEffect();
-  }
-
-  generateResources(width: number, height: number): void {
-    civ7GenerateResources(width, height);
     this.recordPlacementEffect();
   }
 
@@ -616,11 +599,6 @@ export class Civ7Adapter implements EngineAdapter {
 
   needHumanNearEquator(): boolean {
     return civ7NeedHumanNearEquator();
-  }
-
-  generateDiscoveries(width: number, height: number, startPositions: number[]): void {
-    civ7GenerateDiscoveries(width, height, startPositions);
-    this.recordPlacementEffect();
   }
 
   assignAdvancedStartRegions(): void {
