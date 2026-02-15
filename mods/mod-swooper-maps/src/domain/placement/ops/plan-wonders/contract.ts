@@ -17,7 +17,13 @@ const PlanWondersContract = defineOp({
     wondersCount: Type.Integer({ minimum: 0 }),
   }),
   strategies: {
-    default: Type.Object({}),
+    default: Type.Object({
+      wondersPlusOne: Type.Optional(
+        Type.Boolean({
+          description: "Deprecated compatibility knob retained for legacy config acceptance.",
+        })
+      ),
+    }),
   },
 });
 

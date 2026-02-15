@@ -20,6 +20,7 @@ import type {
   VoronoiUtils,
 } from "./types.js";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
+import { resolveDefaultDiscoveryPlacement } from "./discovery-defaults.js";
 
 // Import from /base-standard/... — these are external Civ7 runtime paths
 // resolved by the game's module loader, not TypeScript
@@ -541,17 +542,27 @@ export class Civ7Adapter implements EngineAdapter {
     const discoveryActivationType = (globalThis as Record<string, unknown>).DiscoveryActivationTypes as
       | Record<string, number>
       | undefined;
-    const visual = discoveryVisualType?.IMPROVEMENT_CAVE;
-    const activation = discoveryActivationType?.BASIC;
-    if (typeof visual !== "number" || typeof activation !== "number") {
+    const configuration = (globalThis as Record<string, unknown>).Configuration as
+      | { getGameValue?: (key: string) => unknown }
+      | undefined;
+    const database = (globalThis as Record<string, unknown>).Database as
+      | { makeHash?: (value: string) => number }
+      | undefined;
+
+    const defaults = resolveDefaultDiscoveryPlacement({
+      discoveryVisualTypes: discoveryVisualType,
+      discoveryActivationTypes: discoveryActivationType,
+      discoverySiftingImprovements: GameInfo?.DiscoverySiftingImprovements,
+      activeSiftingType: configuration?.getGameValue?.("DiscoverySiftingType"),
+      makeHash: database?.makeHash,
+    });
+
+    if (defaults == null) {
       throw new Error(
-        "[Adapter] DiscoveryVisualTypes/DiscoveryActivationTypes defaults are unavailable."
+        "[Adapter] Discovery placement defaults are unavailable from DiscoverySiftingImprovements or fallback constants."
       );
     }
-    return {
-      discoveryVisualType: visual,
-      discoveryActivationType: activation,
-    };
+    return defaults;
   }
 
   addNaturalWonders(width: number, height: number, numWonders: number): void {
