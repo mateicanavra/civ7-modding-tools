@@ -40,3 +40,6 @@
 - [2026-02-15T04:13:58Z] Closed remaining queue: T26 code fix committed with targeted tests passing; T24 validated as inherited snapshot/frontier fix with hydrology test evidence; disposition receipts committed for all remaining non-code tasks.
 - [2026-02-15T04:13:58Z] Consolidated docs started: REVIEW-M4 blocks augmented with per-branch Fix Loop Status; milestone Fix Traceability regenerated from final status ledger; triage updated with T11/T27 decision prompts.
 - [2026-02-15T04:13:58Z] PR-limit guard applied: keep total stack PR submissions under 50; fold low-risk branch only if projected submissions exceed limit.
+- [2026-02-15T04:56:00Z] T26 correction pass: removed legacy `wondersPlusOne` compatibility path and removed uncontrolled discovery fallback/hash path; targeted tests green on T26 fix branch.
+- [2026-02-15T05:07:00Z] Submission under 50-PR cap completed via direct PR creation for 21 additional fix branches (plus existing T01 fix PR), with 5 low-risk no-action tasks marked `omitted (stack PR cap at 50)`: T04, T05, T06, T07, T09.
+- [2026-02-15T05:07:00Z] Recorded PR outputs at `continuation-created-prs.tsv`; updated review/milestone traceability with final fix PR URLs and cap omissions; out-of-scope drift check remains clean.
