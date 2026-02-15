@@ -24,12 +24,6 @@ import PlanIceContract from "./features-plan-ice/contract.js";
 import PlanPlotEffectsContract from "./plan-plot-effects/contract.js";
 import PlanReefsContract from "./features-plan-reefs/contract.js";
 
-import PlanWetPlacementMangroveContract from "./plan-wet-placement-mangrove/contract.js";
-import PlanWetPlacementMarshContract from "./plan-wet-placement-marsh/contract.js";
-import PlanWetPlacementOasisContract from "./plan-wet-placement-oasis/contract.js";
-import PlanWetPlacementTundraBogContract from "./plan-wet-placement-tundra-bog/contract.js";
-import PlanWetPlacementWateringHoleContract from "./plan-wet-placement-watering-hole/contract.js";
-
 import PlanWetlandsContract from "./features-plan-wetlands/contract.js";
 import RefineBiomeEdgesContract from "./refine-biome-edges/contract.js";
 import ResourcePlanBasinsContract from "./resource-plan-basins/contract.js";
@@ -62,12 +56,6 @@ export const contracts = {
   scoreIce: ScoreIceContract,
 
   planPlotEffects: PlanPlotEffectsContract,
-
-  planWetPlacementMarsh: PlanWetPlacementMarshContract,
-  planWetPlacementTundraBog: PlanWetPlacementTundraBogContract,
-  planWetPlacementMangrove: PlanWetPlacementMangroveContract,
-  planWetPlacementOasis: PlanWetPlacementOasisContract,
-  planWetPlacementWateringHole: PlanWetPlacementWateringHoleContract,
 
   planWetlands: PlanWetlandsContract,
   planReefs: PlanReefsContract,
@@ -104,12 +92,6 @@ export {
   PlanIceContract,
   PlanPlotEffectsContract,
   PlanReefsContract,
-
-  PlanWetPlacementMangroveContract,
-  PlanWetPlacementMarshContract,
-  PlanWetPlacementOasisContract,
-  PlanWetPlacementTundraBogContract,
-  PlanWetPlacementWateringHoleContract,
 
   PlanWetlandsContract,
   RefineBiomeEdgesContract,

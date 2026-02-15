@@ -558,19 +558,21 @@
         }
       }
     },
+    "ecology-wetlands": {
+      "knobs": {},
+      "plan-wetlands": {
+        "planWetlands": {
+          "strategy": "default",
+          "config": {
+            "minScore01": 0.55
+          }
+        }
+      }
+    },
     "ecology-vegetation": {
       "knobs": {},
       "features-plan": {
-        "vegetation": { "minScoreThreshold": 0.15 },
-        "wetlands": {
-          "strategy": "delta-focused",
-          "config": {
-            "moistureThreshold": 0.93,
-            "fertilityThreshold": 0.35,
-            "moistureNormalization": 230,
-            "maxElevation": 1200
-          }
-        }
+        "vegetation": { "minScoreThreshold": 0.15 }
       }
     },
     "map-morphology": {

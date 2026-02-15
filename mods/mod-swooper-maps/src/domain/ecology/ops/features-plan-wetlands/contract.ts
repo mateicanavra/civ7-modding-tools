@@ -7,27 +7,36 @@ const PlanWetlandsContract = defineOp({
   input: Type.Object({
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
-    landMask: TypedArraySchemas.u8({ description: "Land mask (1 = land, 0 = water)." }),
-    effectiveMoisture: TypedArraySchemas.f32({ description: "Effective moisture per tile." }),
-    surfaceTemperature: TypedArraySchemas.f32({ description: "Surface temperature (C)." }),
-    fertility: TypedArraySchemas.f32({ description: "Fertility overlay (0..1)." }),
-    elevation: TypedArraySchemas.i16({ description: "Elevation in meters." }),
+    seed: Type.Integer({ minimum: 0 }),
+
+    scoreMarsh01: TypedArraySchemas.f32({ description: "Marsh suitability score per tile (0..1)." }),
+    scoreTundraBog01: TypedArraySchemas.f32({
+      description: "Tundra bog suitability score per tile (0..1).",
+    }),
+    scoreMangrove01: TypedArraySchemas.f32({ description: "Mangrove suitability score per tile (0..1)." }),
+    scoreOasis01: TypedArraySchemas.f32({ description: "Oasis suitability score per tile (0..1)." }),
+    scoreWateringHole01: TypedArraySchemas.f32({
+      description: "Watering hole suitability score per tile (0..1).",
+    }),
+
+    featureIndex: TypedArraySchemas.u16({
+      description: "0 = unoccupied, otherwise 1 + FEATURE_KEY_INDEX",
+    }),
+    reserved: TypedArraySchemas.u8({
+      description: "0 = tile can be claimed, 1 = permanently blocked",
+    }),
   }),
   output: Type.Object({
     placements: Type.Array(FeaturePlacementSchema),
   }),
   strategies: {
     default: Type.Object({
-      moistureThreshold: Type.Number({ minimum: 0, maximum: 2, default: 0.75 }),
-      fertilityThreshold: Type.Number({ minimum: 0, maximum: 1, default: 0.35 }),
-      moistureNormalization: Type.Number({ minimum: 1, default: 230 }),
-      maxElevation: Type.Integer({ default: 1200 }),
-    }),
-    "delta-focused": Type.Object({
-      moistureThreshold: Type.Number({ minimum: 0, maximum: 2, default: 0.75 }),
-      fertilityThreshold: Type.Number({ minimum: 0, maximum: 1, default: 0.35 }),
-      moistureNormalization: Type.Number({ minimum: 1, default: 230 }),
-      maxElevation: Type.Integer({ default: 1200 }),
+      minScore01: Type.Number({
+        description: "Minimum suitability score (0..1) required to place the feature.",
+        default: 0.55,
+        minimum: 0,
+        maximum: 1,
+      }),
     }),
   },
 });

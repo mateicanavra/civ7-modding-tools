@@ -29,13 +29,16 @@ describe("ecology defaults regression", () => {
       {
         width: 1,
         height: 1,
-        landMask: new Uint8Array([1]),
-        effectiveMoisture: new Float32Array([120]),
-        surfaceTemperature: new Float32Array([15]),
-        fertility: new Float32Array([0.1]),
-        elevation: new Int16Array([0]),
+        seed: 0,
+        scoreMarsh01: new Float32Array([0.2]),
+        scoreTundraBog01: new Float32Array([0]),
+        scoreMangrove01: new Float32Array([0]),
+        scoreOasis01: new Float32Array([0]),
+        scoreWateringHole01: new Float32Array([0]),
+        featureIndex: new Uint16Array([0]),
+        reserved: new Uint8Array([0]),
       },
-      { strategy: "default", config: {} }
+      { strategy: "default", config: { minScore01: 0.55 } }
     );
 
     expect(result.placements).toHaveLength(0);
