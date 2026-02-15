@@ -19,14 +19,8 @@ mock.module("/base-standard/maps/feature-biome-generator.js", () => ({
   designateBiomes: () => {},
   addFeatures: () => {},
 }));
-mock.module("/base-standard/maps/natural-wonder-generator.js", () => ({
-  addNaturalWonders: () => {},
-}));
 mock.module("/base-standard/maps/snow-generator.js", () => ({
   generateSnow: () => {},
-}));
-mock.module("/base-standard/maps/resource-generator.js", () => ({
-  generateResources: () => {},
 }));
 mock.module("/base-standard/maps/assign-starting-plots.js", () => ({
   assignStartPositions: () => [],
@@ -34,9 +28,6 @@ mock.module("/base-standard/maps/assign-starting-plots.js", () => ({
 }));
 mock.module("/base-standard/maps/map-utilities.js", () => ({
   needHumanNearEquator: () => false,
-}));
-mock.module("/base-standard/maps/discovery-generator.js", () => ({
-  generateDiscoveries: () => {},
 }));
 mock.module("/base-standard/maps/assign-advanced-start-region.js", () => ({
   assignAdvancedStartRegions: () => {},
