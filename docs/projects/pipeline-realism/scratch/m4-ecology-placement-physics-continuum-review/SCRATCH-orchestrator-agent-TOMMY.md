@@ -20,4 +20,6 @@
 - Worker wave complete: accepted handoffs from `worker-eco-core` (`T01..T13`), `worker-hydro-bridge` (`T14..T19`), `worker-epp-continuum` (`T20..T27`), and `worker-crosscut-risk` (systemic risks).
 - Execution pivot (documented): `gt ss --draft`/`gt modify` intermittently stalled; maintained Graphite insertion semantics (`gt create --insert`) and used `git + gh` submit path for deterministic completion of `T01..T27` review PR creation.
 - Consolidation complete: shared review doc rebuilt with 27 parseable `## REVIEW <workBranch>` entries and milestone traceability updated with 27 `reviewBranch` + `reviewPR` records.
-- Closeout tasks: capture cross-cutting risk themes in `triage.md`, clean TOMMY review worktrees, run final verification, and publish final status.
+- Cross-cutting capture complete: added 5 systemic `Follow-up (M4-review)` items to `docs/projects/pipeline-realism/triage.md`.
+- Worktree hygiene complete: removed all TOMMY-created milestone review worktrees (`wt-agent-TOMMY-M4-T*`) after PR creation.
+- Publishing complete: pushed `agent-TOMMY-m4-review-bootstrap` and opened draft PR #1295 for consolidated docs/triage/scratchpad updates.
