@@ -32,7 +32,7 @@ const PlanLakesContract = defineOp({
       maxUpstreamSteps: Type.Integer({
         minimum: 0,
         maximum: 8,
-        default: 1,
+        default: 0,
         description:
           "How many upstream drainage hops to include from sink tiles when expanding planned lakes.",
       }),
