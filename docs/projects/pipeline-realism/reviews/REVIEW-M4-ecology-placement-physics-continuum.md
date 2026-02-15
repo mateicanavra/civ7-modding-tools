@@ -41,3 +41,28 @@ This document is append-only for milestone task reviews. Each entry must use:
 ### Cross-cutting Risks
 - Silent config fallback can poison downstream parity baselines.
 - Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
+
+## REVIEW codex/MAMBO-m3-011-canonical-docs-sweep
+
+### Quick Take
+- Canonical docs/contracts coverage improved for ecology plot-effects surfaces.
+
+### High-Leverage Issues
+- No blocking branch-local defect confirmed in this pass.
+
+### PR Comment Context
+- PR #1232 has no unresolved inline reviewer findings.
+- PR #1232: docs(ecology): add descriptions to plot effects configuration schemas (https://github.com/mateicanavra/civ7-modding-tools/pull/1232)
+
+### Fix Now (Recommended)
+- None immediate.
+
+### Defer / Follow-up
+- Automate schema-reference generation to reduce drift.
+
+### Needs Discussion
+- None.
+
+### Cross-cutting Risks
+- Docs-only changes can drift without behavioral conformance checks.
+- Runtime-vs-viz mismatch analysis: none observed. Gameplay/runtime truth remains authoritative when conflicts exist.
