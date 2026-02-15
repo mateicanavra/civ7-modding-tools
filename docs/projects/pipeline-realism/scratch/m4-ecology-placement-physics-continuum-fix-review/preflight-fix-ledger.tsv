@@ -1,0 +1,27 @@
+codex/MAMBO-m3-002-stage-split-earth-system-first	Add explicit legacy-to-new stage key migration or hard error path.
+codex/MAMBO-m3-003-scorelayers-artifact-and-score-ops	Remove blanket deep-ocean reservation from shared occupancy base.
+codex/MAMBO-m3-004-plan-ice-deterministic	Align seed schema with derived seed behavior across planners.
+codex/MAMBO-m3-005-plan-reefs-deterministic	None immediate.
+codex/MAMBO-m3-006-plan-wetlands-deterministic	None immediate.
+codex/MAMBO-m3-007-plan-vegetation-deterministic	None immediate.
+codex/MAMBO-m3-008-stamping-strict-features-apply	Fix Bun timeout usage and keep strict stamping guardrails active.
+codex/MAMBO-m3-009-cleanup-delete-legacy-chance	Make viz mapping non-throwing in runtime and restore strict schema unknown-key rejection.
+codex/MAMBO-m3-010-post-cutover-cleanup	None code-level.
+codex/MAMBO-m3-011-canonical-docs-sweep	None immediate.
+codex/MAMBO-m3-012-fix-biomes-stripes	Map/deprecate legacy tuning knobs explicitly with clear failure modes.
+codex/MAMBO-m3-014-lakes-not-filled	None immediate.
+codex/MAMBO-m3-013-bio-lat-cutoff	Build category metadata from observed/runtime feature IDs.
+codex/M3-015-hydrology-effectiveMoisture-soils	Re-tighten unknown-key validation or add explicit rejection tests.
+codex/default-config-intent-tuning	Gate acceptance on seed-matrix diagnostics and metric deltas.
+codex/MAMBO-lakes-resources-waterfill-rootcause	None immediate.
+codex/MAMBO-elevation-terrain-parity-audit	Add stale-cache false-negative test and harden drift guard.
+codex/MAMBO-resources-stamping-rootcause	Make restamp failure fatal or explicitly skip downstream generation.
+codex/MAMBO-elevation-post-hydrology-lifecycle	None immediate.
+codex/prr-epp-s0-plan-bootstrap	Convert canonical plan/scratch references to repo-relative paths.
+codex/prr-epp-s1-drift-observability	None immediate.
+codex/prr-epp-s2-ecology-physics-cutover	Restore compatibility mapping or complete all config migrations in same slice.
+codex/prr-epp-s3-lakes-deterministic	Use frontier/snapshot expansion to avoid in-pass mutation effects.
+codex/prr-epp-s3b-lakes-regression-fix	Patch nonzero expansion semantics before enabling beyond default.
+codex/prr-epp-s4-resources-deterministic	None immediate.
+codex/prr-epp-s5-placement-randomness-zero	Fix config key migration/compat and ensure discovery defaults reflect active runtime mapping.
+codex/prr-epp-s6-hardening-docs-tests	Optionally lock maxUpstreamSteps to sink-only until algorithmic fix lands.

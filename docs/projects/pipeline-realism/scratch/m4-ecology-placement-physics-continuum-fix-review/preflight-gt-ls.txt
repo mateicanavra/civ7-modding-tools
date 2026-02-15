@@ -1,0 +1,52 @@
+◉    agent-TOMMY-m4-review-bootstrap
+◯    codex/prr-epp-s6-hardening-docs-tests
+◯    codex/prr-epp-s5-placement-randomness-zero
+◯    codex/prr-epp-s4-resources-deterministic
+◯    codex/prr-epp-s3b-lakes-regression-fix
+◯    codex/prr-epp-s3-lakes-deterministic
+◯    codex/prr-epp-s2-ecology-physics-cutover
+◯    codex/prr-epp-s1-drift-observability
+◯    codex/prr-epp-s0-plan-bootstrap
+◯    codex/MAMBO-elevation-post-hydrology-lifecycle
+◯    codex/MAMBO-resources-stamping-rootcause
+◯    codex/MAMBO-elevation-terrain-parity-audit
+◯    codex/MAMBO-lakes-resources-waterfill-rootcause
+◯    codex/default-config-intent-tuning
+◯    codex/M3-015-hydrology-effectiveMoisture-soils
+◯    codex/MAMBO-m3-013-bio-lat-cutoff
+◯    codex/MAMBO-m3-014-lakes-not-filled
+◯    codex/MAMBO-m3-012-fix-biomes-stripes
+◯    codex/MAMBO-m3-011-canonical-docs-sweep
+◯    codex/MAMBO-m3-010-post-cutover-cleanup
+◯    codex/MAMBO-m3-009-cleanup-delete-legacy-chance
+◯    codex/MAMBO-m3-008-stamping-strict-features-apply
+◯    codex/MAMBO-m3-007-plan-vegetation-deterministic
+◯    codex/MAMBO-m3-006-plan-wetlands-deterministic
+◯    codex/MAMBO-m3-005-plan-reefs-deterministic
+◯    codex/MAMBO-m3-004-plan-ice-deterministic
+◯    codex/MAMBO-m3-003-scorelayers-artifact-and-score-ops
+◯    codex/MAMBO-m3-002-stage-split-earth-system-first
+│ ◯  codex/prr-m4-s06-test-rewrite-architecture-scans
+│ ◯  codex/prr-m4-s05-ci-strict-core-gates
+│ ◯  codex/prr-m4-s03-tectonics-op-decomposition
+│ ◯  codex/prr-m4-s02-contract-freeze-dead-knobs (needs restack)
+│ ◯  codex/agent-ORCH-foundation-domain-axe-execution
+│ ◯  codex/agent-ORCH-foundation-domain-axe-spike
+│ ◯  agent-SWANKO-PRR-s124-c01-fix-diag-analyze-mountains-guard
+│ ◯  agent-SWANKO-PRR-s120-c01-fix-era-plateMotion-recompute
+│ ◯  agent-SWANKO-PRR-s119-c01-fix-pass-plateMotion
+│ ◯  agent-SWANKO-PRR-s118-c01-fix-studio-artifacts-preflight
+│ ◯  agent-SWANKO-PRR-s115-c01-fix-hill-cap-floor
+│ ◯  agent-SWANKO-PRR-s113-c01-fix-mountainThreshold-candidates
+│ ◯  agent-SWANKO-PRR-s112-c01-fix-driverStrength-proportional
+│ ◯  agent-SWANKO-PRR-s108-c01-fix-plateau-seeding
+│ ◯  agent-SWANKO-PRR-s101-c01-fix-crust-thickness-evolution
+│ ◯  agent-SWANKO-PRR-s98-c01-fix-era-fields-dijkstra
+│ ◯  agent-SWANKO-PRR-s97-c01-fix-polarity-bootstrap-oceanic-only
+│ ◯  agent-SWANKO-PRR-s94-c01-fix-sea-level-constraints-first
+│ ◯  agent-SWANKO-PRR-s93-c01-fix-round-clampint-knobs
+│ ◯  agent-SWANKO-PRR-s11-c01-fix-belt-influence-distance-contract
+│ ◯  agent-SWANKO-PRR-s10-c01-fix-cap-reset-threshold-era-max
+│ ◯  agent-SWANKO-PRR-ledger-review-full-chain
+│ ◯  codex/prr-stack-pr-comments-ledger
+◯─┘  main
