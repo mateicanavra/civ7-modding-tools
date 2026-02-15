@@ -4,10 +4,8 @@ import { TemperatureSchema } from "./rules/temperature.schema.js";
 import { MoistureSchema } from "./rules/moisture.schema.js";
 import { AriditySchema } from "./rules/aridity.schema.js";
 import { VegetationSchema } from "./rules/vegetation.schema.js";
-import { NoiseSchema } from "./rules/noise.schema.js";
-import { RiparianSchema } from "./rules/riparian.schema.js";
 
-/** Biome classification parameters for temperature, moisture, vegetation, and riparian moisture. */
+/** Biome classification parameters for temperature, moisture, aridity, vegetation, and edge refinement. */
 
 const EdgeRefineSchema = Type.Object(
   {
@@ -48,8 +46,10 @@ const BiomeClassificationContract = defineOp({
   input: Type.Object({
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
-    rainfall: TypedArraySchemas.u8({ description: "Rainfall per tile (0..255)." }),
-    humidity: TypedArraySchemas.u8({ description: "Humidity per tile (0..255)." }),
+    effectiveMoisture: TypedArraySchemas.f32({
+      description:
+        "Effective moisture advisory index per tile (from Hydrology climate indices; do not re-derive from rainfall/humidity locally).",
+    }),
     surfaceTemperatureC: TypedArraySchemas.f32({
       description:
         "Surface temperature proxy (C) per tile (from Hydrology climate indices; do not recompute from latitude).",
@@ -62,16 +62,17 @@ const BiomeClassificationContract = defineOp({
       description: "Freeze persistence index (0..1) per tile (from Hydrology climate indices).",
     }),
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
-    riverClass: TypedArraySchemas.u8({
-      description: "Hydrology river class per tile (0=none, 1=minor, 2=major).",
-    }),
+    soilType: TypedArraySchemas.u8({ description: "Soil type palette index per tile (from Ecology soils artifact)." }),
+    fertility: TypedArraySchemas.f32({ description: "Fertility per tile (0..1) (from Ecology soils artifact)." }),
   }),
   output: Type.Object({
     biomeIndex: TypedArraySchemas.u8({ description: "Biome symbol indices per tile." }),
     vegetationDensity: TypedArraySchemas.f32({
       description: "Vegetation density per tile (0..1).",
     }),
-    effectiveMoisture: TypedArraySchemas.f32({ description: "Effective moisture per tile." }),
+    effectiveMoisture: TypedArraySchemas.f32({
+      description: "Effective moisture per tile (forwarded from Hydrology climate indices).",
+    }),
     surfaceTemperature: TypedArraySchemas.f32({
       description: "Surface temperature per tile (C).",
     }),
@@ -83,22 +84,18 @@ const BiomeClassificationContract = defineOp({
       {
         /** Temperature model knobs (degrees C, lapse rate, thresholds). */
         temperature: TemperatureSchema,
-        /** Moisture model knobs (thresholds, humidity weight, bias). */
+        /** Moisture model knobs (thresholds only; no local effective-moisture derivation). */
         moisture: MoistureSchema,
         /** Aridity knobs (used to shift moisture zones + vegetation penalty). */
         aridity: AriditySchema,
-        /** Vegetation density model knobs (0..1 weights). */
+        /** Vegetation density model knobs (0..1 weights, soil modifiers). */
         vegetation: VegetationSchema,
-        /** Noise settings for moisture variation. */
-        noise: NoiseSchema,
-        /** Moisture bonuses near hydrology rivers. */
-        riparian: RiparianSchema,
         /** Deterministic biome edge refinement applied after classification. */
         edgeRefine: Type.Optional(EdgeRefineSchema),
       },
       {
         description:
-          "Biome classification parameters for temperature, moisture, vegetation, and riparian moisture.",
+          "Biome classification parameters for temperature, moisture, aridity, vegetation, and edge refinement.",
       }
     ),
   },

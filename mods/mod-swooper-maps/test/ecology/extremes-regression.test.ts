@@ -10,15 +10,15 @@ describe("ecology defaults regression", () => {
       {
         width: 2,
         height: 1,
-        rainfall: new Uint8Array([0, 0]),
-        humidity: new Uint8Array([0, 0]),
+        effectiveMoisture: new Float32Array([0, 0]),
         surfaceTemperatureC: new Float32Array([20, 0]),
         aridityIndex: new Float32Array([0, 0]),
         freezeIndex: new Float32Array([0, 0]),
         landMask: new Uint8Array([0, 0]),
-        riverClass: new Uint8Array([0, 0]),
+        soilType: new Uint8Array([0, 0]),
+        fertility: new Float32Array([0, 0]),
       },
-      { strategy: "default", config: { riparian: {} } }
+      ecology.ops.classifyBiomes.defaultConfig
     );
 
     expect(result.surfaceTemperature[0]).toBeGreaterThan(result.surfaceTemperature[1]);

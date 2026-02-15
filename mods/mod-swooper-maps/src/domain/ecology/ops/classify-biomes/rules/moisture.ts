@@ -11,19 +11,3 @@ export function moistureZoneOf(
   if (value < thresholds[3]!) return "humid";
   return "perhumid";
 }
-
-/**
- * Computes effective moisture with humidity weighting, overlays, and noise.
- */
-export function computeEffectiveMoisture(params: {
-  rainfall: number;
-  humidity: number;
-  bias: number;
-  humidityWeight: number;
-  moistureBonus: number;
-  noise: number;
-  noiseScale: number;
-}): number {
-  const { rainfall, humidity, bias, humidityWeight, moistureBonus, noise, noiseScale } = params;
-  return rainfall + humidityWeight * humidity + bias + moistureBonus + noise * noiseScale;
-}
