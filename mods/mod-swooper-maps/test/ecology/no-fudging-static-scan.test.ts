@@ -128,4 +128,39 @@ describe("M3 no-fudging posture (static scan)", () => {
 
     expect(findings.length, formatFindings(findings)).toBe(0);
   });
+
+  it("keeps hydrology+placement execution paths free of RNG and legacy generator calls", () => {
+    const testDir = path.dirname(fileURLToPath(import.meta.url));
+    const repoRoot = path.resolve(testDir, "..", "..");
+    const workspaceRoot = path.resolve(repoRoot, "..", "..");
+
+    const roots = [
+      path.join(repoRoot, "src", "domain", "hydrology", "ops", "plan-lakes"),
+      path.join(repoRoot, "src", "domain", "placement"),
+      path.join(repoRoot, "src", "recipes", "standard", "stages", "map-hydrology", "steps"),
+      path.join(repoRoot, "src", "recipes", "standard", "stages", "placement"),
+      path.join(workspaceRoot, "packages", "civ7-adapter", "src"),
+    ] as const;
+
+    const exts = [".ts"] as const;
+    const patterns = [
+      { name: "createLabelRng", re: /\bcreateLabelRng\b/u },
+      { name: "rngCall", re: /\brng\s*\(/u },
+      { name: "rollPercent", re: /\brollPercent\b/u },
+      { name: "coverageChance", re: /\bcoverageChance\b/u },
+      { name: "legacy.addNaturalWonders", re: /\baddNaturalWonders\s*\(/u },
+      { name: "legacy.generateResources", re: /\bgenerateResources\s*\(/u },
+      { name: "legacy.generateDiscoveries", re: /\bgenerateDiscoveries\s*\(/u },
+      { name: "legacy.naturalWonderModule", re: /natural-wonder-generator\.js/u },
+      { name: "legacy.resourceModule", re: /resource-generator\.js/u },
+      { name: "legacy.discoveryModule", re: /discovery-generator\.js/u },
+    ] as const;
+
+    const files = roots
+      .flatMap((root) => walkFiles(root, exts))
+      .filter((abs) => !abs.endsWith(path.join("packages", "civ7-adapter", "src", "mock-adapter.ts")));
+    const findings = files.flatMap((abs) => scanFile(abs, workspaceRoot, patterns));
+
+    expect(findings.length, formatFindings(findings)).toBe(0);
+  });
 });
