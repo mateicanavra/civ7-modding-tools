@@ -2,13 +2,13 @@
 
 ## Breadcrumbs
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-MAMBO-M3-ecology-physics-first`
-- Branch: `codex/MAMBO-m3-008-stamping-strict-features-apply` (parent: `codex/MAMBO-m3-007-plan-vegetation-deterministic`; base: `main`)
-- Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`, M3-006 `#1227`, M3-007 `#1228`
+- Branch: `codex/MAMBO-m3-010-post-cutover-cleanup` (parent: `codex/MAMBO-m3-009-cleanup-delete-legacy-chance`; base: `main`)
+- Draft PRs: M3-002 `#1223`, M3-003 `#1224`, M3-004 `#1225`, M3-005 `#1226`, M3-006 `#1227`, M3-007 `#1228`, M3-008 `#1229`, M3-009 `#1230`, M3-010 `#1231`
 - Packet: `docs/projects/pipeline-realism/resources/packets/PACKET-M3-ecology-physics-first/`
   - Authority order: `VISION.md` -> `TOPOLOGY.md` -> `CONTRACTS.md` -> `DECISIONS.md`
-- Current issue: `docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M3-008-projection-stamping-strictness-features-apply-must-not-drop-or-randomly-gate.md`
+- Current issue: M3-010 post-cutover cleanup (draft PR `#1231`; issue doc TBD)
 
-## Slice Checklist (M3-001..009)
+## Slice Checklist (M3-001..012)
 - [x] M3-001 Packet harden: topology/contracts/gates (verification-only unless drift)
 - [x] M3-002 Stage split: earth-system-first truth stages + recipe wiring cutover
 - [x] M3-003 ScoreLayers: schema + independent per-feature score ops + base occupancy
@@ -16,14 +16,17 @@
 - [x] M3-005 Deterministic planning: reefs (consume scoreLayers + occupancy; add missing reef-family features)
 - [x] M3-006 Deterministic planning: wetlands (joint resolver; no disabled strategies)
 - [x] M3-007 Deterministic planning: vegetation (joint resolver over score layers)
-- [ ] M3-008 Projection strictness: stamping must not drop placements or randomly gate (add gates)
-- [ ] M3-009 Cleanup: delete chance/multiplier paths; update tests + viz inventories (and enforce explicit viz palettes)
+- [x] M3-008 Projection strictness: stamping must not drop placements or randomly gate (add gates)
+- [x] M3-009 Cleanup: delete chance/multiplier paths; update tests + viz inventories (and enforce explicit viz palettes)
+- [ ] M3-010 Post-cutover cleanup: plot-effects score ops split + stable viz categories + preset sync
+- [ ] M3-011 Canonical docs sweep: ecology config reference + directional intent
+- [ ] M3-012 Bugfix: biomes horizontal stripe banding (and ensure biomes inputs are correctly wired)
 
 Future slices (post M3-009):
-- [ ] M3-010 Post-cutover cleanup (dedicated cleanup slice; after M3-009)
 - [ ] M3-011 Canonical docs sweep (dedicated docs sweep; after M3-010)
+- [ ] M3-012 Biomes banding fix (after M3-011)
 
-Current pointer: **M3-008**
+Current pointer: **M3-010**
 
 ## Gates Checklist (Hard, Forward-Only)
 - [ ] No legacy shims/dual paths/wrappers
@@ -81,3 +84,35 @@ Current pointer: **M3-008**
   - static scan: remaining `rollPercent|chance|multiplier` hits only in `plan-plot-effects` + a `noise.schema.ts` docstring
   - `bun run build` PASS
   - `timeout 20s bun run dev:mapgen-studio` reached Vite READY (exit `124` OK)
+
+### M3-008 (Stamping Strictness) DONE
+- Draft PR: `#1229`
+- Key behavior: `map-ecology/features-apply` is strict stamping (no RNG, no chance/weight gating, no silent drops). Unknown features and any rejected placements fail loudly with a rejection report.
+- Gates (local):
+  - `bun --cwd mods/mod-swooper-maps test test/ecology` PASS
+  - `diag:dump` rerun + `diag:diff` mismatches `0` (runId `b391a4d0...`, label `m3-stamp`)
+  - static scan: no `rollPercent|chance|createLabelRng(` in `ops/features-apply`
+  - `bun run build` PASS
+  - `timeout 20s bun run dev:mapgen-studio` reached Vite READY (exit `124` OK)
+
+### M3-009 (No-Fudging Cleanup) DONE
+- Draft PR: `#1230`
+- Key behavior:
+  - `plot-effects` is deterministic top-coverage selection (seeded tie-break only).
+  - Ecology baseline fixtures track viz keys and M3 truth artifacts.
+- Gates (local):
+  - `bun --cwd mods/mod-swooper-maps test test/ecology` PASS
+  - `diag:dump` rerun + `diag:diff` mismatches `0` (runId `cc5296195...`, labels `m3-stamp-a`/`m3-stamp-b`)
+  - static scan: `0` hits in `mods/mod-swooper-maps/src/domain/ecology` for `rollPercent|coverageChance|chance|multiplier` (also gated by `no-fudging-static-scan` test)
+  - `bun run --cwd packages/civ7-adapter build` PASS
+  - `bun run --cwd packages/mapgen-viz build` PASS
+  - `bun run --cwd packages/mapgen-core build` PASS
+  - `bun run build` PASS
+  - `timeout 20s bun run dev:mapgen-studio` reached Vite READY (exit `124` OK)
+
+### M3-010 (Post-Cutover Cleanup) IN PROGRESS
+- Draft PR: `#1231`
+- Key behavior (target):
+  - Plot effects follow the M3 posture: separate compute score ops (`ecology/plot-effects/score/snow|sand|burned`) and a planner op consuming those scores.
+  - `map.ecology.plotEffects.plotEffect` categorical viz declares explicit, stable categories/colors (no Studio auto palette).
+  - Default preset/config stays in sync with the new step op surface (`scoreSnow|scoreSand|scoreBurned|plotEffects`).
