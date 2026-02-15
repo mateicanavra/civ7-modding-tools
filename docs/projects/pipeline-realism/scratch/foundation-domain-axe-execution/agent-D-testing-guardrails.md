@@ -359,3 +359,397 @@ s06_status:
 ```
 
 S06 result posture: structural architecture scan infrastructure is landed and wired; remaining failures are pre-existing debt now surfaced by the new no-op-calls-op gate.
+
+### 2026-02-15 — Execution hotspot remediation (strict step-orchestrates hardening)
+
+#### Findings
+- Legacy aggregate op surface remained exposed in Foundation domain ops registries (`contracts.ts` + `ops/index.ts`) even after tectonics orchestration moved to step runtime.
+- Existing guardrails passed without catching this regression class, so reintroduction risk stayed non-zero.
+
+```yaml
+architecture_findings:
+  - id: FND-ARCH-001
+    severity: high
+    rule: strict-step-orchestrates
+    violation:
+      summary: "Legacy aggregate tectonic-history op remained publicly wired in Foundation domain ops surfaces."
+      files:
+        - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/contracts.ts
+        - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/index.ts
+    remediation:
+      - "Removed computeTectonicHistory from foundation ops contracts registry."
+      - "Removed computeTectonicHistory implementation wiring/export from foundation ops index surface."
+      - "Added test guard in contract-guard suite to forbid re-exposure."
+      - "Added lint guard in domain-refactor script for foundation contracts/index surfaces."
+```
+
+```yaml
+verification_runs:
+  - command: bun run --cwd mods/mod-swooper-maps test -- test/foundation/no-op-calls-op-tectonics.test.ts test/foundation/contract-guard.test.ts
+    exit_code: 0
+    result: pass
+    notes:
+      - "All foundation guardrail tests passed with new no-legacy-op-surface assertion."
+  - command: REFRACTOR_DOMAINS="foundation" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full bun run lint:domain-refactor-guardrails
+    exit_code: 0
+    result: pass
+    notes:
+      - "Foundation full-profile guardrail scan passed with added legacy-op-surface lint check."
+  - command: bun run --cwd mods/mod-swooper-maps check
+    exit_code: 0
+    result: pass
+    notes:
+      - "Typecheck passed after removing legacy aggregate op from foundation domain ops registries."
+```
+
+## Proposed target
+- Foundation tectonics remains single-path: step owns orchestration, focused ops remain callable, aggregate legacy op is not publicly exposed through domain surfaces.
+- Guardrails explicitly block reintroduction of legacy aggregate op surface in both tests and lint scans.
+
+## Changes landed
+- Updated `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/contracts.ts` to remove `computeTectonicHistory` registry exposure.
+- Updated `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/index.ts` to remove `computeTectonicHistory` implementation/export wiring.
+- Updated `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/foundation/contract-guard.test.ts` with explicit no-legacy-surface assertions.
+- Updated `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/scripts/lint/lint-domain-refactor-guardrails.sh` with a foundation-specific legacy aggregate-op scan.
+
+## Open risks
+- Direct file-level imports of `compute-tectonic-history/index.ts` in older non-guardrail tests still exist and can fail if those suites are run without migration to decomposed ops/step orchestration.
+- Full multi-domain guardrail profile may still fail on unrelated pre-existing debt outside the foundation scope.
+
+## Decision asks
+- none
+
+### 2026-02-15 — m11 tectonic segments/history test rewrite (decomposed chain)
+
+```yaml
+rewrite_scope:
+  target_test:
+    path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-history.test.ts
+    objective:
+      - remove_direct_computeTectonicHistory_run_usage
+      - assert_through_decomposed_tectonics_op_chain
+  architecture_alignment:
+    source_pattern: computeTectonicHistory.run(...)
+    replacement_chain:
+      - computeEraPlateMembership.run
+      - computePlateMotion.run
+      - computeTectonicSegments.run
+      - computeSegmentEvents.run
+      - computeHotspotEvents.run
+      - computeEraTectonicFields.run
+      - computeTectonicHistoryRollups.run
+    preserved_intent:
+      - deterministic_history_rollup_behavior
+      - invalid_eraCount_contract_rejection
+  assertion_update:
+    invalid_eraCount_error:
+      old: "[Foundation] compute-tectonic-history expects eraCount within 5..8."
+      new: "[Foundation] compute-era-plate-membership expects eraCount within 5..8."
+
+verification_runs:
+  - command: bun run --cwd mods/mod-swooper-maps test -- test/foundation/m11-tectonic-segments-history.test.ts test/foundation/m11-tectonic-events.test.ts test/foundation/no-op-calls-op-tectonics.test.ts test/foundation/contract-guard.test.ts
+    exit_code: 0
+    result: pass
+    summary:
+      files: 4
+      tests: 22
+      passed: 22
+      failed: 0
+```
+
+## Proposed target
+- Foundation history tests assert through the decomposed tectonics contract path only, with no direct dependency on the deprecated aggregate tectonic-history op runtime.
+
+## Changes landed
+- Rewrote `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-history.test.ts` to remove `computeTectonicHistory.run` and use decomposed ops helper flow for history assertions.
+- Updated the invalid era-count expectation to contract behavior from `compute-era-plate-membership`.
+- Executed and verified related foundation tests and guardrails in one run (22/22 passing).
+
+## Open risks
+- The rewritten helper intentionally mirrors tectonics-step decomposition logic inside test code; future sequencing changes in step runtime may require synchronized helper updates to avoid drift.
+
+## Decision asks
+- none
+
+### 2026-02-15 — Foundation ops thin-wrapper audit (post strategy extraction)
+
+```yaml
+audit_scope:
+  focus: foundation_decomposed_tectonics_chain_ops
+  files_audited:
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/index.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/index.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/index.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/index.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/index.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/index.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/index.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/index.ts
+
+findings:
+  - id: FND-THIN-WRAPPER-001
+    severity: medium
+    summary: "Decomposed chain ops still used inline default run blocks in op index files after logic extraction to shared lib modules."
+    impact: "Index files mixed op registration and strategy behavior, increasing wrapper drift risk and reducing strategy-module clarity."
+    fix: "Extracted explicit strategies/default.ts + strategies/index.ts modules and rewired op index files to strategy imports only."
+
+verification_evidence:
+  strategy_modules_created:
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/strategies/default.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/strategies/default.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/strategies/default.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/strategies/default.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/strategies/default.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/strategies/default.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/strategies/default.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/strategies/default.ts
+  architecture_checks:
+    - check: no_inline_run_in_chain_op_indexes
+      command: rg -n "run:\\s*\\(" <chain op index files>
+      result: pass
+      note: "No inline run implementations remain in audited decomposed-chain op index files."
+    - check: explicit_strategy_wiring_in_chain_op_indexes
+      command: rg -n "defaultStrategy|from \"./strategies/index.js\"" <chain op index files>
+      result: pass
+    - check: no_step_or_stage_imports_of_op_strategies_rules
+      command: rg -n "ops/.*/(strategies|rules)/|\\./strategies/|\\./rules/" mods/mod-swooper-maps/src/recipes/standard/stages/foundation
+      result: pass
+
+command_runs:
+  - command: bun run --cwd mods/mod-swooper-maps check
+    exit_code: 0
+    result: pass
+  - command: bun run --cwd mods/mod-swooper-maps test -- test/foundation/m11-tectonic-events.test.ts test/foundation/m11-tectonic-segments-history.test.ts test/foundation/no-op-calls-op-tectonics.test.ts test/foundation/contract-guard.test.ts
+    exit_code: 0
+    result: pass
+    summary:
+      files: 4
+      tests: 22
+      passed: 22
+      failed: 0
+  - command: REFRACTOR_DOMAINS="foundation" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full bun run lint:domain-refactor-guardrails
+    exit_code: 0
+    result: pass
+```
+
+## Proposed target
+- Foundation decomposed tectonics ops keep behavior in explicit strategy modules, while op `index.ts` files remain registration-only.
+- Foundation stage/step surfaces remain orchestration boundaries without strategy/rule deep imports.
+
+## Changes landed
+- Added explicit strategy modules (`strategies/default.ts`, `strategies/index.ts`) for eight decomposed tectonics chain ops.
+- Rewrote the corresponding op `index.ts` files to import and register `defaultStrategy` only.
+- Verified no stage/step anti-patterns were introduced and all targeted checks/tests pass.
+
+## Open risks
+- `compute-plate-motion` and `compute-tectonic-segments` still keep substantial inline algorithm bodies in `index.ts`; this is intentional (not thin-wrapper), but if full canonical module-shape parity is required later, they can be migrated to strategy modules in a dedicated slice.
+
+## Decision asks
+- none
+
+### 2026-02-15 — Foundation helper de-dup regression cleanup (execution worktree)
+
+```yaml
+helper_dedup_scope:
+  worktree: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+  branch: codex/prr-m4-s06-test-rewrite-architecture-scans
+  objective:
+    - remove_locally_recreated_math_helpers_from_decomposed_tectonics_modules
+    - route_usage_through_canonical_math_or_shared_utils_only
+
+remediation:
+  canonicalization:
+    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/shared.ts
+      changes:
+        - clampByte now delegates to @swooper/mapgen-core/lib/math clampU8 (with legacy edge-case handling preserved)
+        - clamp01 now delegates to @swooper/mapgen-core/lib/math clamp01 (with finite guard preserved)
+        - clampInt8 now delegates to @swooper/mapgen-core/lib/math clampInt (with legacy edge-case handling preserved)
+        - removed local addClampedByte helper
+    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/rollups.ts
+      changes:
+        - replaced addClampedByte accumulation calls with clampByte(sum + value) saturation
+    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/era-tectonics-kernels.ts
+      changes:
+        - removed locally recreated clampByte/clampInt8/normalizeToInt8 helper bodies
+        - imported canonical shared helpers from ./shared.js
+        - replaced residual hypot2 helper use with Math.hypot
+    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/shared.ts
+      changes:
+        - removed addClampedByte re-export
+
+  guardrails:
+    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/scripts/lint/lint-domain-refactor-guardrails.sh
+      changes:
+        - added foundation rule blocking redefinition of clampByte/addClampedByte/clamp01/clampInt8/normalizeToInt8 inside decomposed tectonics strategy/history-lib modules
+
+verification_runs:
+  - command: bun run --cwd mods/mod-swooper-maps check
+    exit_code: 0
+    result: pass
+  - command: REFRACTOR_DOMAINS="foundation" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full bun run lint:domain-refactor-guardrails
+    exit_code: 0
+    result: pass
+  - command: bun run --cwd mods/mod-swooper-maps test -- test/foundation/m11-tectonic-events.test.ts test/foundation/m11-tectonic-segments-history.test.ts test/foundation/no-op-calls-op-tectonics.test.ts test/foundation/contract-guard.test.ts
+    exit_code: 0
+    result: pass
+    summary:
+      files: 4
+      tests: 24
+      passed: 24
+      failed: 0
+  - command: rg helper redefinition probe across decomposed strategies/history-lib modules
+    exit_code: 0
+    result: pass
+    output: unexpected_helper_definitions=false
+```
+
+## Proposed target
+- Foundation decomposed tectonics paths consume canonical helper utilities without reauthoring math helpers in strategy/history-lib modules.
+- Shared helper behavior remains stable while duplicate local helper bodies are removed.
+
+## Changes landed
+- Eliminated duplicate helper bodies from decomposed tectonics history kernels and removed redundant `addClampedByte` helper usage.
+- Routed helper logic through canonical `@swooper/mapgen-core` math utilities via foundation shared utilities.
+- Added a foundation guardrail lint rule to block reintroduction of these helper redefinitions in decomposed strategy/history-lib modules.
+
+## Open risks
+- Other legacy foundation ops outside the decomposed tectonics strategy/history-lib scope still contain older local clamp helpers and were intentionally left untouched in this ownership slice.
+
+## Decision asks
+- none
+
+### 2026-02-15 — Foundation hotspot helper dedup second pass
+
+```yaml
+second_pass_scope:
+  objective:
+    - remove_remaining_local_clamp_helper_reimplementations_in_foundation_hotspot_files
+    - standardize_on_core_math_or_foundation_shared_tectonics_helpers
+  targeted_hotspots:
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/shared.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-motion/index.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/era-tectonics-kernels.ts
+
+changes:
+  canonical_import_replacements:
+    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-motion/index.ts
+      updates:
+        - removed local clampByte helper declaration
+        - switched byte quantization to @swooper/mapgen-core/lib/math clampU8 with finite guard
+    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-segments/index.ts
+      updates:
+        - removed local clampByte/clampInt8/clamp01/normalizeToInt8/hypot2 helper declarations
+        - imported clamp01 from @swooper/mapgen-core/lib/math
+        - imported clampByte + normalizeToInt8 from foundation shared tectonics helper module
+        - replaced hypot2 call with Math.hypot
+    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts
+      updates:
+        - removed local clamp01 helper declaration
+        - imported clamp01 from @swooper/mapgen-core/lib/math
+    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts
+      updates:
+        - removed local clampByte/clampInt8 helper declarations
+        - imported clampByte + clampInt8 from foundation shared tectonics helper module
+
+  guardrail_updates:
+    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/scripts/lint/lint-domain-refactor-guardrails.sh
+      updates:
+        - added hotspot-specific scan that fails if clampByte/addClampedByte/clamp01/clampInt8/normalizeToInt8 are redeclared in targeted hotspot op files
+
+post_sweep_state:
+  helper_declarations_remaining_in_targeted_files:
+    - file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/shared.ts
+      declaration_status: expected_canonical_foundation_shared_helper_surface
+  helper_declarations_removed_from_other_targeted_hotspots: true
+
+verification_runs:
+  - command: bun run --cwd mods/mod-swooper-maps check
+    exit_code: 0
+    result: pass
+  - command: REFRACTOR_DOMAINS="foundation" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full bun run lint:domain-refactor-guardrails
+    exit_code: 0
+    result: pass
+  - command: bun run --cwd mods/mod-swooper-maps test -- test/foundation/m11-tectonic-events.test.ts test/foundation/m11-tectonic-segments-history.test.ts test/foundation/no-op-calls-op-tectonics.test.ts test/foundation/contract-guard.test.ts
+    exit_code: 0
+    result: pass
+    summary:
+      files: 4
+      tests: 24
+      passed: 24
+      failed: 0
+```
+
+## Proposed target
+- Foundation hotspot ops avoid local clamp helper reimplementations and consume canonical core/shared helper utilities.
+- `foundation/lib/tectonics/shared.ts` remains the only hotspot-level local adapter surface for byte/int8 normalization semantics.
+
+## Changes landed
+- Removed remaining local clamp helper declarations from `compute-plate-motion`, `compute-tectonic-segments`, `compute-plate-graph`, and `compute-plates-tensors/lib/project-plates`.
+- Rewired those sites to `@swooper/mapgen-core/lib/math` and foundation shared tectonics helpers.
+- Expanded foundation guardrails to detect future helper redeclarations in explicit hotspot files.
+
+## Open risks
+- Non-hotspot foundation files outside this targeted sweep may still contain legacy clamp helper declarations and were intentionally left out of this pass.
+
+## Decision asks
+- none
+
+### 2026-02-15 — Docs-first gate attestation (group B tectonics ownership)
+
+```yaml
+docs_anchor:
+  gate: mandatory_docs_first
+  status: complete_before_code_edits
+  docs_read:
+    - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+      line_span: "1-383"
+      evidence_lines:
+        - "24-27"
+        - "73"
+        - "136-139"
+        - "283-287"
+        - "312-315"
+    - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/mods/swooper-maps/architecture.md
+      line_span: "1-73"
+      evidence_lines:
+        - "15"
+        - "19-20"
+        - "56-64"
+    - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/architecture.md
+      line_span: "1-22"
+      evidence_lines:
+        - "11-18"
+  canonical_examples:
+    - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/packages/mapgen-core/src/authoring/stage.ts
+      evidence_lines:
+        - "89-100"
+        - "140-156"
+    - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/packages/mapgen-core/src/authoring/op/create.ts
+      evidence_lines:
+        - "27-30"
+        - "80-95"
+        - "106-115"
+  architecture_constraints_applied:
+    - steps_call_ops_ops_do_not_call_steps
+    - strategies_internal_to_ops_with_stable_contracts
+    - rules_internal_to_ops_not_step-callable
+    - compile_first_no_runtime_canonicalization_drift
+  anti_pattern_attestation:
+    no_peer_op_orchestration_inside_op_runtime: true
+    no_strategy_imports_from_shared_tectonics_for_group_b_ops: true
+```
+
+## Proposed target
+- Group B tectonics ops move decomposed tectonics behavior into op-local `rules/` modules, and strategies consume only op-local rules to preserve strict op ownership.
+
+## Changes landed
+- Added docs-first + canonical-example architecture attestation for this ownership slice before source edits.
+
+## Open risks
+- none
+
+## Decision asks
+- none
