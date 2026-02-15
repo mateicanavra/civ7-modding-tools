@@ -351,6 +351,7 @@ incident:
 landed_fix:
   branch: codex/prr-m4-s06-test-rewrite-architecture-scans
   commit: 11ec9525d
+  tip_after_scratch_update: e443c45a6
   files:
     - mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
     - mods/mod-swooper-maps/test/foundation/contract-guard.test.ts
