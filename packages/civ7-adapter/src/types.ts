@@ -260,6 +260,9 @@ export interface EngineAdapter {
 
   // === RESOURCE READS/WRITES ===
 
+  /** Sentinel value for "no resource". */
+  readonly NO_RESOURCE: number;
+
   /** Get resource type ID (-1 when no resource is present). */
   getResourceType(x: number, y: number): number;
 
@@ -268,6 +271,12 @@ export interface EngineAdapter {
 
   /** Validate resource placement for a tile/resource combination. */
   canHaveResource(x: number, y: number, resourceType: number): boolean;
+
+  /**
+   * Runtime-discovered resource type IDs that are valid placement candidates.
+   * Must be deterministic (stable ordering for identical runtime state).
+   */
+  getPlaceableResourceTypes(): number[];
 
   // === PLOT EFFECTS ===
 

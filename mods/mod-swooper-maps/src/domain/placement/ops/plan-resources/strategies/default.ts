@@ -10,6 +10,16 @@ type Candidate = {
   preferredTypeOffset: number;
 };
 
+function sanitizeCandidateResourceTypes(values: number[], noResourceSentinel: number): number[] {
+  return Array.from(
+    new Set(
+      values
+        .map((value) => value | 0)
+        .filter((value) => Number.isFinite(value) && value >= 0 && value !== noResourceSentinel)
+    )
+  ).sort((a, b) => a - b);
+}
+
 export const defaultStrategy = createStrategy(PlanResourcesContract, "default", {
   run: (input, config) => {
     const width = input.width | 0;
@@ -37,9 +47,20 @@ export const defaultStrategy = createStrategy(PlanResourcesContract, "default", 
       throw new Error("[Placement] Invalid lakeMask for placement/plan-resources.");
     }
 
-    const candidateResourceTypes = Array.from(
-      new Set((config.candidateResourceTypes ?? []).map((value) => value | 0).filter((value) => value >= 0))
+    const noResourceSentinel = Number.isFinite(input.noResourceSentinel)
+      ? (input.noResourceSentinel as number) | 0
+      : -1;
+    const runtimeCandidateResourceTypes = sanitizeCandidateResourceTypes(
+      input.runtimeCandidateResourceTypes ?? [],
+      noResourceSentinel
     );
+    const configuredCandidateResourceTypes = sanitizeCandidateResourceTypes(
+      config.candidateResourceTypes ?? [],
+      noResourceSentinel
+    );
+    const candidateResourceTypes = runtimeCandidateResourceTypes.length > 0
+      ? runtimeCandidateResourceTypes
+      : configuredCandidateResourceTypes;
     if (candidateResourceTypes.length === 0) {
       return {
         width,

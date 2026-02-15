@@ -191,6 +191,22 @@ const DEFAULT_DISCOVERY_PLACEMENT: DiscoveryPlacementDefaults = {
   discoveryActivationType: 0,
 };
 
+const DEFAULT_NO_RESOURCE = -1;
+const DEFAULT_RESOURCE_TYPE_CATALOG: number[] = Array.from({ length: 24 }, (_, index) => index);
+
+function sanitizeResourceTypeCatalog(input: number[] | undefined, noResource: number): number[] {
+  const source = Array.isArray(input) ? input : DEFAULT_RESOURCE_TYPE_CATALOG;
+  const unique = new Set<number>();
+  for (const value of source) {
+    if (!Number.isFinite(value)) continue;
+    const normalized = value | 0;
+    if (normalized < 0) continue;
+    if (normalized === noResource) continue;
+    unique.add(normalized);
+  }
+  return Array.from(unique).sort((a, b) => a - b);
+}
+
 export interface MockAdapterConfig {
   width?: number;
   height?: number;
@@ -224,6 +240,10 @@ export interface MockAdapterConfig {
   canHaveFeature?: (x: number, y: number, featureType: number) => boolean;
   /** Optional resource validation hook for tests (return false to reject placement). */
   canHaveResource?: (x: number, y: number, resourceType: number) => boolean;
+  /** Sentinel used to represent "no resource". */
+  noResourceSentinel?: number;
+  /** Runtime resource candidate catalog returned by getPlaceableResourceTypes. */
+  resourceTypeCatalog?: number[];
   /** Natural wonder feature catalog used by deterministic planners. */
   naturalWonderCatalog?: NaturalWonderCatalogEntry[];
   /** Default discovery visual/activation types used by deterministic planners. */
@@ -261,6 +281,8 @@ export class MockAdapter implements EngineAdapter {
   private landmassIds: Record<LandmassIdName, number>;
   private canHaveFeatureFn?: (x: number, y: number, featureType: number) => boolean;
   private canHaveResourceFn?: (x: number, y: number, resourceType: number) => boolean;
+  private noResourceSentinel: number;
+  private resourceTypeCatalog: number[];
   private naturalWonderCatalog: NaturalWonderCatalogEntry[];
   private defaultDiscoveryPlacement: DiscoveryPlacementDefaults;
   private plotEffectTypes: Array<{ id: number; name: string; tags: Set<string> }>;
@@ -311,6 +333,13 @@ export class MockAdapter implements EngineAdapter {
     this.height = config.height ?? 80;
     this.mapSizeId = config.mapSizeId ?? 0;
     this.mapInfo = config.mapInfo ?? null;
+    this.noResourceSentinel = Number.isFinite(config.noResourceSentinel)
+      ? (config.noResourceSentinel as number) | 0
+      : DEFAULT_NO_RESOURCE;
+    this.resourceTypeCatalog = sanitizeResourceTypeCatalog(
+      config.resourceTypeCatalog,
+      this.noResourceSentinel
+    );
     const size = this.width * this.height;
 
     this.terrainTypes = new Uint8Array(size).fill(config.defaultTerrainType ?? 0);
@@ -318,7 +347,7 @@ export class MockAdapter implements EngineAdapter {
     this.rainfall = new Uint8Array(size).fill(config.defaultRainfall ?? 50);
     this.temperature = new Uint8Array(size).fill(config.defaultTemperature ?? 15);
     this.features = new Int16Array(size).fill(-1);
-    this.resources = new Int16Array(size).fill(-1);
+    this.resources = new Int16Array(size).fill(this.noResourceSentinel);
     this.biomes = new Uint8Array(size).fill(config.defaultBiomeType ?? 0);
     this.waterMask = new Uint8Array(size);
     this.mountainMask = new Uint8Array(size);
@@ -542,25 +571,36 @@ export class MockAdapter implements EngineAdapter {
     return this.canHaveFeature(x, y, featureData.Feature);
   }
 
+  get NO_RESOURCE(): number {
+    return this.noResourceSentinel;
+  }
+
   getResourceType(x: number, y: number): number {
     return this.resources[this.idx(x, y)];
   }
 
   setResourceType(x: number, y: number, resourceType: number): void {
     const i = this.idx(x, y);
-    const prev = this.resources[i];
+    const prev = this.resources[i] ?? this.NO_RESOURCE;
     this.resources[i] = resourceType;
     this.calls.setResourceType.push({ x, y, resourceType });
-    if (prev < 0 && resourceType >= 0) this.resourcesPlaced += 1;
-    if (prev >= 0 && resourceType < 0) this.resourcesPlaced = Math.max(0, this.resourcesPlaced - 1);
+    const hadResource = prev !== this.NO_RESOURCE;
+    const hasResource = resourceType !== this.NO_RESOURCE;
+    if (!hadResource && hasResource) this.resourcesPlaced += 1;
+    if (hadResource && !hasResource) this.resourcesPlaced = Math.max(0, this.resourcesPlaced - 1);
     this.recordPlacementEffect();
   }
 
   canHaveResource(x: number, y: number, resourceType: number): boolean {
+    if ((resourceType | 0) === (this.NO_RESOURCE | 0)) return false;
     if (this.canHaveResourceFn) {
       return this.canHaveResourceFn(x, y, resourceType);
     }
-    return resourceType >= 0;
+    return true;
+  }
+
+  getPlaceableResourceTypes(): number[] {
+    return [...this.resourceTypeCatalog];
   }
 
   // === PLOT EFFECTS ===
@@ -902,12 +942,20 @@ export class MockAdapter implements EngineAdapter {
 
   /** Reset all data to defaults */
   reset(config: MockAdapterConfig = {}): void {
+    if (Number.isFinite(config.noResourceSentinel)) {
+      this.noResourceSentinel = (config.noResourceSentinel as number) | 0;
+    }
+    this.resourceTypeCatalog = sanitizeResourceTypeCatalog(
+      config.resourceTypeCatalog ?? this.resourceTypeCatalog,
+      this.noResourceSentinel
+    );
+
     this.terrainTypes.fill(config.defaultTerrainType ?? 0);
     this.elevations.fill(config.defaultElevation ?? 100);
     this.rainfall.fill(config.defaultRainfall ?? 50);
     this.temperature.fill(config.defaultTemperature ?? 15);
     this.features.fill(-1);
-    this.resources.fill(-1);
+    this.resources.fill(this.NO_RESOURCE);
     this.biomes.fill(config.defaultBiomeType ?? 0);
     this.waterMask.fill(0);
     this.mountainMask.fill(0);

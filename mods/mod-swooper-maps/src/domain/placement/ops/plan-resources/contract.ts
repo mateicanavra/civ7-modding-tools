@@ -6,6 +6,14 @@ const PlanResourcesContract = defineOp({
   input: Type.Object({
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
+    noResourceSentinel: Type.Integer({
+      description: "Adapter-level sentinel used to represent an empty resource slot.",
+    }),
+    runtimeCandidateResourceTypes: Type.Array(Type.Integer(), {
+      description:
+        "Runtime-discovered resource candidates from the engine adapter (deterministic ordering).",
+      default: [],
+    }),
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
     fertility: TypedArraySchemas.f32({ description: "Pedology fertility field (0..1)." }),
     effectiveMoisture: TypedArraySchemas.f32({
