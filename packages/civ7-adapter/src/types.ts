@@ -245,6 +245,17 @@ export interface EngineAdapter {
   /** Validate feature placement */
   canHaveFeature(x: number, y: number, featureType: number): boolean;
 
+  // === RESOURCE READS/WRITES ===
+
+  /** Get resource type ID (-1 when no resource is present). */
+  getResourceType(x: number, y: number): number;
+
+  /** Set resource type for a tile. */
+  setResourceType(x: number, y: number, resourceType: number): void;
+
+  /** Validate resource placement for a tile/resource combination. */
+  canHaveResource(x: number, y: number, resourceType: number): boolean;
+
   // === PLOT EFFECTS ===
 
   /**
