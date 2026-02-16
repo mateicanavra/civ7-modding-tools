@@ -9,6 +9,27 @@ base_parent: codex/agent-ORCH-foundation-domain-axe-spike
 stack_anchor: agent-SWANKO-PRR-s124-c01-fix-diag-analyze-mountains-guard
 ```
 
+## M4 second leg (S07–S09)
+
+```yaml
+starting_tip_branch: codex/agent-ORCH-m4-reanchor-docs
+starting_tip_pr: 1343
+second_leg_plan:
+  S07:
+    issue: LOCAL-TBD-PR-M4-004
+    goal: hard-cut map-facing Foundation projection artifacts to artifact:map.foundation* with no dual publish
+  S08:
+    issue: LOCAL-TBD-PR-M4-006
+    goal: config taxonomy redesign + preset retuning (earthlike explicitly)
+  S09:
+    issue: LOCAL-TBD-PR-M4-006
+    goal: docs/comments/schema parity + legacy token purge + final CI/Studio verification
+orchestrator_runbook: docs/projects/pipeline-realism/scratch/ORCH-PLAN-M4-second-leg.md
+search_rails:
+  narsil_mcp: required_for_semantic_search
+  hybrid_search: forbidden__crashes_server
+```
+
 ## Integration Ledger
 - Checkpoint 0: execution worktree + plan scratch created.
 
