@@ -33,7 +33,8 @@ related_to: [LOCAL-TBD-PR-M4-002, LOCAL-TBD-PR-M4-003]
 ## Testing / Verification
 - `bun run lint`
 - `bun run lint:adapter-boundary`
-- `REFRACTOR_DOMAINS="foundation,morphology,hydrology,ecology,placement,narrative" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full bun run lint:domain-refactor-guardrails`
+- `DOMAIN_REFACTOR_GUARDRAILS_PROFILE=boundary bun run lint:domain-refactor-guardrails` (auto-detect all ops-backed domains)
+- `REFRACTOR_DOMAINS="foundation" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full bun run lint:domain-refactor-guardrails` (strict profile scoped to Foundation)
 - `bun run check`
 - `bun run test:architecture-cutover`
 - `bun run --cwd mods/mod-swooper-maps build:studio-recipes`
