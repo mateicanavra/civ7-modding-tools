@@ -432,6 +432,18 @@ export interface EngineAdapter {
   ): boolean;
 
   /**
+   * Run Civ7's official resource generator.
+   * Wraps /base-standard/maps/resource-generator.js generateResources().
+   *
+   * Returns an observed/counted number of placed resources for placement outputs.
+   */
+  generateOfficialResources(
+    width: number,
+    height: number,
+    minMarineResourceTypesOverride?: number
+  ): number;
+
+  /**
    * Run Civ7's official discovery generator.
    * Wraps /base-standard/maps/discovery-generator.js generateDiscoveries().
    *

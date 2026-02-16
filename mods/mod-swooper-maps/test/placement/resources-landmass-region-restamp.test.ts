@@ -9,31 +9,29 @@ import { getStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { applyPlacementPlan } from "../../src/recipes/standard/stages/placement/steps/placement/apply.js";
 
 class RegionSensitiveResourceAdapter extends MockAdapter {
-  private regionByTile: Uint8Array;
-
-  constructor(config: ConstructorParameters<typeof MockAdapter>[0]) {
-    super(config);
-    this.regionByTile = new Uint8Array(Math.max(0, this.width * this.height));
-    this.regionByTile.fill(this.getLandmassId("NONE"));
-  }
-
-  private idx2(x: number, y: number): number {
-    return y * this.width + x;
-  }
+  readonly callOrder: string[] = [];
 
   override setLandmassRegionId(x: number, y: number, regionId: number): void {
+    this.callOrder.push("setLandmassRegionId");
     super.setLandmassRegionId(x, y, regionId);
-    this.regionByTile[this.idx2(x, y)] = regionId & 0xff;
   }
 
   override validateAndFixTerrain(): void {
     // Simulate engine normalization that can clear custom projection ids.
-    this.regionByTile.fill(this.getLandmassId("NONE"));
+    for (let y = 0; y < this.height; y++) {
+      for (let x = 0; x < this.width; x++) {
+        super.setLandmassRegionId(x, y, this.getLandmassId("NONE"));
+      }
+    }
   }
 
-  override canHaveResource(x: number, y: number, resourceType: number): boolean {
-    const none = this.getLandmassId("NONE");
-    return this.regionByTile[this.idx2(x, y)] !== none && super.canHaveResource(x, y, resourceType);
+  override generateOfficialResources(
+    width: number,
+    height: number,
+    minMarineResourceTypesOverride?: number
+  ): number {
+    this.callOrder.push("generateOfficialResources");
+    return super.generateOfficialResources(width, height, minMarineResourceTypesOverride);
   }
 }
 
@@ -46,15 +44,44 @@ class RestampFailingAdapter extends RegionSensitiveResourceAdapter {
   }
 }
 
-class PlannedTileIneligibleAdapter extends MockAdapter {
-  override canHaveResource(x: number, y: number, resourceType: number): boolean {
-    if (x === 0 && y === 0) return false;
-    return super.canHaveResource(x, y, resourceType);
-  }
+function buildPlacementInputs(
+  adapter: MockAdapter,
+  width: number,
+  height: number,
+  seed: number
+) {
+  const context = createExtendedMapContext(
+    { width, height },
+    adapter,
+    {
+      seed,
+      dimensions: { width, height },
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    }
+  );
+  const runtime = getStandardRuntime(context);
+  const starts = placement.ops.planStarts.run(
+    {
+      baseStarts: {
+        playersLandmass1: runtime.playersLandmass1,
+        playersLandmass2: runtime.playersLandmass2,
+        startSectorRows: runtime.startSectorRows,
+        startSectorCols: runtime.startSectorCols,
+        startSectors: runtime.startSectors,
+      },
+    },
+    placement.ops.planStarts.defaultConfig
+  );
+  const wonders = placement.ops.planWonders.run(
+    { mapInfo: runtime.mapInfo },
+    placement.ops.planWonders.defaultConfig
+  );
+  const floodplains = placement.ops.planFloodplains.run({}, placement.ops.planFloodplains.defaultConfig);
+  return { context, starts, wonders, floodplains };
 }
 
 describe("placement resources landmass-region restamp", () => {
-  it("re-stamps landmass regions immediately before resources so placement survives terrain validation", () => {
+  it("re-stamps landmass regions before official resource generation", () => {
     const width = 10;
     const height = 6;
     const seed = 4242;
@@ -77,200 +104,10 @@ describe("placement resources landmass-region restamp", () => {
       mapSizeId: 1,
       rng: createLabelRng(seed),
       defaultTerrainType: FLAT_TERRAIN,
+      officialResourcesPlacedCount: 1,
     });
 
-    const env = {
-      seed,
-      dimensions: { width, height },
-      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    };
-    const context = createExtendedMapContext({ width, height }, adapter, env);
-
-    // Simulate projection step output pre-populating engine ids before placement apply.
-    const west = adapter.getLandmassId("WEST");
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        adapter.setLandmassRegionId(x, y, west);
-      }
-    }
-
-    const runtime = getStandardRuntime(context);
-    const starts = placement.ops.planStarts.run(
-      {
-        baseStarts: {
-          playersLandmass1: runtime.playersLandmass1,
-          playersLandmass2: runtime.playersLandmass2,
-          startSectorRows: runtime.startSectorRows,
-          startSectorCols: runtime.startSectorCols,
-          startSectors: runtime.startSectors,
-        },
-      },
-      placement.ops.planStarts.defaultConfig
-    );
-    const wonders = placement.ops.planWonders.run(
-      { mapInfo: runtime.mapInfo },
-      placement.ops.planWonders.defaultConfig
-    );
-    const floodplains = placement.ops.planFloodplains.run({}, placement.ops.planFloodplains.defaultConfig);
-    const resources = {
-      width,
-      height,
-      candidateResourceTypes: [7],
-      targetCount: 1,
-      plannedCount: 1,
-      placements: [
-        {
-          plotIndex: 0,
-          preferredResourceType: 7,
-          preferredTypeOffset: 0,
-          priority: 1,
-        },
-      ],
-    };
-
-    const outputs = applyPlacementPlan({
-      context,
-      starts,
-      wonders,
-      naturalWonderPlan: {
-        width,
-        height,
-        wondersCount: 0,
-        targetCount: 0,
-        plannedCount: 0,
-        placements: [],
-      },
-      discoveryPlan: {
-        width,
-        height,
-        candidateDiscoveries: [],
-        targetCount: 0,
-        plannedCount: 0,
-        placements: [],
-      },
-      floodplains,
-      resources,
-      landmassRegionSlotByTile: { slotByTile: new Uint8Array(width * height).fill(1) },
-      publishOutputs: (outputs) => outputs,
-    });
-
-    expect(adapter.calls.setResourceType).toEqual([{ x: 0, y: 0, resourceType: 7 }]);
-    expect(adapter.resourcesPlaced).toBe(1);
-    expect(outputs.resourcesCount).toBe(1);
-  });
-
-  it("aborts placement before resource generation when region restamp fails", () => {
-    const width = 4;
-    const height = 4;
-    const seed = 99;
-    const mapInfo = {
-      GridWidth: width,
-      GridHeight: height,
-      MinLatitude: -60,
-      MaxLatitude: 60,
-      PlayersLandmass1: 1,
-      PlayersLandmass2: 1,
-      StartSectorRows: 1,
-      StartSectorCols: 1,
-      NumNaturalWonders: 0,
-    };
-
-    const adapter = new RestampFailingAdapter({
-      width,
-      height,
-      mapInfo,
-      mapSizeId: 1,
-      rng: createLabelRng(seed),
-      defaultTerrainType: FLAT_TERRAIN,
-    });
-
-    const env = {
-      seed,
-      dimensions: { width, height },
-      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    };
-    const context = createExtendedMapContext({ width, height }, adapter, env);
-    const runtime = getStandardRuntime(context);
-    const starts = placement.ops.planStarts.run(
-      {
-        baseStarts: {
-          playersLandmass1: runtime.playersLandmass1,
-          playersLandmass2: runtime.playersLandmass2,
-          startSectorRows: runtime.startSectorRows,
-          startSectorCols: runtime.startSectorCols,
-          startSectors: runtime.startSectors,
-        },
-      },
-      placement.ops.planStarts.defaultConfig
-    );
-    const wonders = placement.ops.planWonders.run(
-      { mapInfo: runtime.mapInfo },
-      placement.ops.planWonders.defaultConfig
-    );
-    const floodplains = placement.ops.planFloodplains.run({}, placement.ops.planFloodplains.defaultConfig);
-
-    expect(() =>
-      applyPlacementPlan({
-        context,
-        starts,
-        wonders,
-        floodplains,
-        landmassRegionSlotByTile: { slotByTile: new Uint8Array(width * height).fill(1) },
-        publishOutputs: (outputs) => outputs,
-      })
-    ).toThrow(/restamp failed/i);
-
-    expect(adapter.resourcesPlaced).toBe(0);
-  });
-
-  it("deterministically rescues ineligible planned resource tiles by relocating to the next eligible empty tile", () => {
-    const width = 4;
-    const height = 4;
-    const seed = 31415;
-    const mapInfo = {
-      GridWidth: width,
-      GridHeight: height,
-      MinLatitude: -60,
-      MaxLatitude: 60,
-      PlayersLandmass1: 1,
-      PlayersLandmass2: 1,
-      StartSectorRows: 1,
-      StartSectorCols: 1,
-      NumNaturalWonders: 0,
-    };
-
-    const adapter = new PlannedTileIneligibleAdapter({
-      width,
-      height,
-      mapInfo,
-      mapSizeId: 1,
-      rng: createLabelRng(seed),
-      defaultTerrainType: FLAT_TERRAIN,
-    });
-    const context = createExtendedMapContext({ width, height }, adapter, {
-      seed,
-      dimensions: { width, height },
-      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    });
-
-    const runtime = getStandardRuntime(context);
-    const starts = placement.ops.planStarts.run(
-      {
-        baseStarts: {
-          playersLandmass1: runtime.playersLandmass1,
-          playersLandmass2: runtime.playersLandmass2,
-          startSectorRows: runtime.startSectorRows,
-          startSectorCols: runtime.startSectorCols,
-          startSectors: runtime.startSectors,
-        },
-      },
-      placement.ops.planStarts.defaultConfig
-    );
-    const wonders = placement.ops.planWonders.run(
-      { mapInfo: runtime.mapInfo },
-      placement.ops.planWonders.defaultConfig
-    );
-    const floodplains = placement.ops.planFloodplains.run({}, placement.ops.planFloodplains.defaultConfig);
+    const { context, starts, wonders, floodplains } = buildPlacementInputs(adapter, width, height, seed);
 
     const outputs = applyPlacementPlan({
       context,
@@ -308,14 +145,137 @@ describe("placement resources landmass-region restamp", () => {
           },
         ],
       },
-      landmassRegionSlotByTile: {
-        slotByTile: new Uint8Array(width * height).fill(1),
-      },
+      landmassRegionSlotByTile: { slotByTile: new Uint8Array(width * height).fill(1) },
       publishOutputs: (placementOutputs) => placementOutputs,
     });
 
-    expect(adapter.resourcesPlaced).toBe(1);
+    const firstRestamp = adapter.callOrder.indexOf("setLandmassRegionId");
+    const firstOfficialResourceGeneration = adapter.callOrder.indexOf("generateOfficialResources");
+    expect(firstRestamp).toBeGreaterThanOrEqual(0);
+    expect(firstOfficialResourceGeneration).toBeGreaterThan(firstRestamp);
+    expect(adapter.calls.generateOfficialResources).toEqual([
+      { width, height, minMarineResourceTypesOverride: undefined },
+    ]);
+    expect(adapter.calls.setResourceType.length).toBe(0);
     expect(outputs.resourcesCount).toBe(1);
-    expect(adapter.calls.setResourceType).toEqual([{ x: 1, y: 0, resourceType: 7 }]);
+  });
+
+  it("aborts placement before resource generation when region restamp fails", () => {
+    const width = 4;
+    const height = 4;
+    const seed = 99;
+    const mapInfo = {
+      GridWidth: width,
+      GridHeight: height,
+      MinLatitude: -60,
+      MaxLatitude: 60,
+      PlayersLandmass1: 1,
+      PlayersLandmass2: 1,
+      StartSectorRows: 1,
+      StartSectorCols: 1,
+      NumNaturalWonders: 0,
+    };
+
+    const adapter = new RestampFailingAdapter({
+      width,
+      height,
+      mapInfo,
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
+      defaultTerrainType: FLAT_TERRAIN,
+    });
+
+    const { context, starts, wonders, floodplains } = buildPlacementInputs(adapter, width, height, seed);
+
+    expect(() =>
+      applyPlacementPlan({
+        context,
+        starts,
+        wonders,
+        floodplains,
+        landmassRegionSlotByTile: { slotByTile: new Uint8Array(width * height).fill(1) },
+        publishOutputs: (placementOutputs) => placementOutputs,
+      })
+    ).toThrow(/restamp failed/i);
+
+    expect(adapter.calls.generateOfficialResources.length).toBe(0);
+    expect(adapter.calls.recalculateFertility).toBe(0);
+    expect(adapter.calls.assignAdvancedStartRegions).toBe(0);
+  });
+
+  it("fails hard when official resource generation throws", () => {
+    const width = 4;
+    const height = 4;
+    const seed = 31415;
+    const mapInfo = {
+      GridWidth: width,
+      GridHeight: height,
+      MinLatitude: -60,
+      MaxLatitude: 60,
+      PlayersLandmass1: 1,
+      PlayersLandmass2: 1,
+      StartSectorRows: 1,
+      StartSectorCols: 1,
+      NumNaturalWonders: 0,
+    };
+
+    const adapter = new MockAdapter({
+      width,
+      height,
+      mapInfo,
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
+      defaultTerrainType: FLAT_TERRAIN,
+    });
+    adapter.generateOfficialResources = () => {
+      throw new Error("forced official resource failure");
+    };
+
+    const { context, starts, wonders, floodplains } = buildPlacementInputs(adapter, width, height, seed);
+
+    expect(() =>
+      applyPlacementPlan({
+        context,
+        starts,
+        wonders,
+        naturalWonderPlan: {
+          width,
+          height,
+          wondersCount: 0,
+          targetCount: 0,
+          plannedCount: 0,
+          placements: [],
+        },
+        discoveryPlan: {
+          width,
+          height,
+          candidateDiscoveries: [],
+          targetCount: 0,
+          plannedCount: 0,
+          placements: [],
+        },
+        floodplains,
+        resources: {
+          width,
+          height,
+          candidateResourceTypes: [7],
+          targetCount: 1,
+          plannedCount: 1,
+          placements: [
+            {
+              plotIndex: 0,
+              preferredResourceType: 7,
+              preferredTypeOffset: 0,
+              priority: 1,
+            },
+          ],
+        },
+        landmassRegionSlotByTile: { slotByTile: new Uint8Array(width * height).fill(1) },
+        publishOutputs: (placementOutputs) => placementOutputs,
+      })
+    ).toThrow(/placement\.resources failed/i);
+
+    expect(adapter.calls.recalculateFertility).toBe(0);
+    expect(adapter.calls.assignAdvancedStartRegions).toBe(0);
   });
 });

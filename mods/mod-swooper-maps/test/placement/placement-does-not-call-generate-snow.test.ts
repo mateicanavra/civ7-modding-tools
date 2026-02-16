@@ -103,6 +103,12 @@ describe("placement", () => {
     expect(adapter.calls.generateSnow.length).toBe(0);
     expect(adapter.calls.stampNaturalWonder.length).toBe(1);
     expect(adapter.calls.stampDiscovery.length).toBe(0);
+    expect(adapter.calls.generateOfficialResources.length).toBe(1);
+    expect(adapter.calls.generateOfficialResources[0]).toMatchObject({
+      width: 4,
+      height: 4,
+    });
+    expect(adapter.calls.setResourceType.length).toBe(0);
     expect(adapter.calls.generateOfficialDiscoveries.length).toBe(1);
     expect(adapter.calls.generateOfficialDiscoveries[0]).toMatchObject({
       width: 4,
@@ -396,6 +402,7 @@ describe("placement", () => {
 
     expect(adapter.calls.stampNaturalWonder.length).toBe(0);
     expect(adapter.calls.stampDiscovery.length).toBe(0);
+    expect(adapter.calls.generateOfficialResources.length).toBe(0);
     expect(adapter.calls.generateOfficialDiscoveries.length).toBe(0);
     expect(adapter.calls.setStartPosition.length).toBe(0);
     expect(adapter.calls.setResourceType.length).toBe(0);

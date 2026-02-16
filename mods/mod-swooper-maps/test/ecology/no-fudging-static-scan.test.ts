@@ -163,6 +163,8 @@ describe("M3 no-fudging posture (static scan)", () => {
     const allowedAdapterLegacyPatterns = new Set([
       "legacy.generateDiscoveries",
       "legacy.discoveryModule",
+      "legacy.generateResources",
+      "legacy.resourceModule",
     ]);
     const filteredFindings = findings.filter((finding) => {
       const isAdapterFile = finding.file.startsWith(path.join("packages", "civ7-adapter", "src"));

@@ -80,7 +80,7 @@ class AreaSensitiveLakeAdapter extends MockAdapter {
 }
 
 describe("map-hydrology lakes area/water ordering", () => {
-  it("keeps lake tiles water-filled across rivers + placement and preserves deterministic resource stamping", () => {
+  it("keeps lake tiles water-filled across rivers + placement and uses official resource generation", () => {
     const width = 4;
     const height = 4;
     const seed = 1234;
@@ -109,6 +109,7 @@ describe("map-hydrology lakes area/water ordering", () => {
       mapSizeId: 1,
       rng: createLabelRng(seed),
       defaultTerrainType: FLAT_TERRAIN,
+      officialResourcesPlacedCount: 1,
     });
     const context = createExtendedMapContext({ width, height }, adapter, env);
 
@@ -193,8 +194,10 @@ describe("map-hydrology lakes area/water ordering", () => {
       publishOutputs: (outputs) => outputs,
     });
 
-    expect(adapter.calls.setResourceType).toEqual([{ x: 1, y: 1, resourceType: 3 }]);
-    expect(adapter.resourcesPlaced).toBe(1);
+    expect(adapter.calls.generateOfficialResources).toEqual([
+      { width, height, minMarineResourceTypesOverride: undefined },
+    ]);
+    expect(adapter.calls.setResourceType.length).toBe(0);
     expect(outputs.resourcesCount).toBe(1);
     expect(adapter.isWater(1, 1)).toBe(true);
   });

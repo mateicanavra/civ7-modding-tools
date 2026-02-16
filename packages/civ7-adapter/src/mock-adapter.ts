@@ -279,6 +279,11 @@ export interface MockAdapterConfig {
    * Defaults to 0.
    */
   officialDiscoveriesPlacedCount?: number;
+  /**
+   * Simulated successful placements returned by generateOfficialResources().
+   * Defaults to 0.
+   */
+  officialResourcesPlacedCount?: number;
 }
 
 /**
@@ -318,6 +323,7 @@ export class MockAdapter implements EngineAdapter {
   private plotEffectsByIndex: Map<number, Set<number>>;
   private readonly effectEvidence = new Set<string>();
   private officialDiscoveriesPlacedCount: number;
+  private officialResourcesPlacedCount: number;
   private coastTerrainId: number;
   private oceanTerrainId: number;
   private mountainTerrainId: number;
@@ -345,6 +351,11 @@ export class MockAdapter implements EngineAdapter {
       height: number;
       startPositions: number[];
       polarMargin: number;
+    }>;
+    generateOfficialResources: Array<{
+      width: number;
+      height: number;
+      minMarineResourceTypesOverride?: number;
     }>;
     generateSnow: Array<{ width: number; height: number }>;
     setResourceType: Array<{ x: number; y: number; resourceType: number }>;
@@ -411,6 +422,9 @@ export class MockAdapter implements EngineAdapter {
     this.officialDiscoveriesPlacedCount = Number.isFinite(config.officialDiscoveriesPlacedCount)
       ? Math.max(0, Math.trunc(config.officialDiscoveriesPlacedCount as number))
       : 0;
+    this.officialResourcesPlacedCount = Number.isFinite(config.officialResourcesPlacedCount)
+      ? Math.max(0, Math.trunc(config.officialResourcesPlacedCount as number))
+      : 0;
 
     this.coastTerrainId = this.getTerrainTypeIndex("TERRAIN_COAST");
     this.oceanTerrainId = this.getTerrainTypeIndex("TERRAIN_OCEAN");
@@ -422,6 +436,7 @@ export class MockAdapter implements EngineAdapter {
       stampNaturalWonder: [],
       stampDiscovery: [],
       generateOfficialDiscoveries: [],
+      generateOfficialResources: [],
       generateSnow: [],
       setResourceType: [],
       generateLakes: [],
@@ -906,6 +921,25 @@ export class MockAdapter implements EngineAdapter {
     return this.officialDiscoveriesPlacedCount;
   }
 
+  generateOfficialResources(
+    width: number,
+    height: number,
+    minMarineResourceTypesOverride?: number
+  ): number {
+    const resolvedMinMarineResourceTypesOverride = Number.isFinite(minMarineResourceTypesOverride)
+      ? Math.max(0, Math.trunc(minMarineResourceTypesOverride as number))
+      : undefined;
+    this.calls.generateOfficialResources.push({
+      width,
+      height,
+      minMarineResourceTypesOverride: resolvedMinMarineResourceTypesOverride,
+    });
+    const placedCount = this.officialResourcesPlacedCount;
+    this.resourcesPlaced += placedCount;
+    this.recordPlacementEffect();
+    return placedCount;
+  }
+
   getNaturalWonderCatalog(): NaturalWonderCatalogEntry[] {
     return this.naturalWonderCatalog.map((entry) => ({
       featureType: entry.featureType,
@@ -1031,6 +1065,7 @@ export class MockAdapter implements EngineAdapter {
     this.calls.stampNaturalWonder.length = 0;
     this.calls.stampDiscovery.length = 0;
     this.calls.generateOfficialDiscoveries.length = 0;
+    this.calls.generateOfficialResources.length = 0;
     this.calls.generateSnow.length = 0;
     this.calls.setResourceType.length = 0;
     this.calls.generateLakes.length = 0;
@@ -1065,6 +1100,9 @@ export class MockAdapter implements EngineAdapter {
     this.officialDiscoveriesPlacedCount = Number.isFinite(config.officialDiscoveriesPlacedCount)
       ? Math.max(0, Math.trunc(config.officialDiscoveriesPlacedCount as number))
       : this.officialDiscoveriesPlacedCount;
+    this.officialResourcesPlacedCount = Number.isFinite(config.officialResourcesPlacedCount)
+      ? Math.max(0, Math.trunc(config.officialResourcesPlacedCount as number))
+      : this.officialResourcesPlacedCount;
     this.plotEffectsByIndex.clear();
 
     this.coastTerrainId = this.getTerrainTypeIndex("TERRAIN_COAST");
