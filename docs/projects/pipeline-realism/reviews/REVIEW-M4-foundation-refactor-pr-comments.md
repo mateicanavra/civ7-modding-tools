@@ -11,7 +11,7 @@ Dispositions:
 ## Fix-now queue (ranked)
 
 ### P1
-- PR #1336 — `c2810006397` — Seed-matrix stats should use realized engine lake mask (not sink candidates). **Status:** fixed in `codex/agent-ORCH-m4-reanchor-docs`.
+- PR #1336 — `c2810006397` — Seed-matrix stats should use realized lake coverage (not sink candidates). **Status:** fixed in `codex/agent-ORCH-m4-reanchor-docs` (includes making `engineProjectionLakes.lakeMask` lakes-only, not “all water”).
 - PR #1331 — `c2808726105` — Guardrails script glob `-g "*/index.ts"` misses nested op indexes. **Status:** fixed in `codex/agent-ORCH-m4-reanchor-docs`.
 - PR #1338 — `c2810146061` — Placement should read discovery/natural-wonder catalogs from the active adapter. **Status:** fixed in `codex/agent-ORCH-m4-reanchor-docs`.
 - PR #1263 — `c2808102562` — Lane split scan should include `artifact:foundation.tileToCellIndex`. **Status:** fixed in `codex/agent-ORCH-m4-reanchor-docs`.
@@ -71,7 +71,7 @@ These are treated as automation noise and are not reproduced verbatim below unle
 ### Disposition table
 | Comment | Disposition | Notes |
 |---|---|---|
-| c2810006397 | `fix_now` | Updated test to read `hydrologyHydrographyArtifacts.engineProjectionLakes.lakeMask` instead of `hydrography.sinkMask` in `codex/agent-ORCH-m4-reanchor-docs`. |
+| c2810006397 | `fix_now` | Updated test to read `hydrologyHydrographyArtifacts.engineProjectionLakes.lakeMask` instead of `hydrography.sinkMask`, and updated map-hydrology lakes projection to publish a lakes-only mask (delta water on prior land). |
 
 ---
 
@@ -478,4 +478,3 @@ These are treated as automation noise and are not reproduced verbatim below unle
 | Comment | Disposition | Notes |
 |---|---|---|
 | (none) | `superseded` | No reviewer feedback to action. |
-
