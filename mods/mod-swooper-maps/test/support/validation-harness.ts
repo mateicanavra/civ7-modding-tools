@@ -1,6 +1,7 @@
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import { sha256Hex, stableStringify } from "@swooper/mapgen-core";
 
+import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
 import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
 
 export type ArtifactFingerprintEntry = {
@@ -47,8 +48,8 @@ export const M1_TIER1_ARTIFACT_IDS = [
   foundationArtifacts.crust.id,
   foundationArtifacts.tectonicHistory.id,
   foundationArtifacts.tectonicProvenance.id,
-  foundationArtifacts.tectonicHistoryTiles.id,
-  foundationArtifacts.tectonicProvenanceTiles.id,
+  mapArtifacts.foundationTectonicHistoryTiles.id,
+  mapArtifacts.foundationTectonicProvenanceTiles.id,
 ] as const;
 
 function hashView(view: ArrayBufferView): { type: string; length: number; byteLength: number; sha256: string } {

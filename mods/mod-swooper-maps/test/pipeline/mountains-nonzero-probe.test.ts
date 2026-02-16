@@ -8,7 +8,7 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
+import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 import planRidges from "../../src/domain/morphology/ops/plan-ridges/index.js";
 import planFoothills from "../../src/domain/morphology/ops/plan-foothills/index.js";
@@ -125,7 +125,7 @@ describe("pipeline: mountains nonzero canonical probe (earthlike)", () => {
     const topography = context.artifacts.get(morphologyArtifacts.topography.id) as any;
     const belts = context.artifacts.get(morphologyArtifacts.beltDrivers.id) as any;
     const volcanoes = context.artifacts.get(morphologyArtifacts.volcanoes.id) as any;
-    const historyTiles = context.artifacts.get(foundationArtifacts.tectonicHistoryTiles.id) as any;
+    const historyTiles = context.artifacts.get(mapArtifacts.foundationTectonicHistoryTiles.id) as any;
 
     const size = PROBE_WIDTH * PROBE_HEIGHT;
     expect(topography?.landMask).toBeInstanceOf(Uint8Array);

@@ -68,12 +68,12 @@ FOUNDATION provides the following artifact dependency tags (all `artifact:*`).
 - `artifact:foundation.tectonicProvenance`
 - `artifact:foundation.tectonics`
 
-**Projection artifacts (tile space or derived from tile projections)**
-- `artifact:foundation.tileToCellIndex`
-- `artifact:foundation.crustTiles`
-- `artifact:foundation.tectonicHistoryTiles`
-- `artifact:foundation.tectonicProvenanceTiles`
-- `artifact:foundation.plates`
+**Projection artifacts (map-facing; tile space or derived from tile projections)**
+- `artifact:map.foundationTileToCellIndex`
+- `artifact:map.foundationCrustTiles`
+- `artifact:map.foundationTectonicHistoryTiles`
+- `artifact:map.foundationTectonicProvenanceTiles`
+- `artifact:map.foundationPlates`
 - `artifact:foundation.plateTopology`
 
 **Ground truth anchors**
@@ -253,7 +253,7 @@ Key fields (all u8 per mesh cell; `0..255`):
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/index.ts` (`computeTectonicsCurrent`)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts` (`projectPlatesFromModel`, `baseUplift = tectonics.cumulativeUplift ?? tectonics.upliftPotential`)
 
-### `artifact:foundation.tileToCellIndex` (projection; tile space → mesh cell index)
+### `artifact:map.foundationTileToCellIndex` (projection; tile space → mesh cell index)
 
 Per-tile nearest mesh cell index. This is the canonical cross-walk used to sample mesh-space truth into tile-space projections.
 
@@ -261,7 +261,7 @@ Per-tile nearest mesh cell index. This is the canonical cross-walk used to sampl
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/contract.ts` (output `tileToCellIndex` description)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts` (`tileToCellIndex`)
 
-### `artifact:foundation.crustTiles` (projection; tile space)
+### `artifact:map.foundationCrustTiles` (projection; tile space)
 
 Per-tile crust drivers sampled via `tileToCellIndex`.
 
@@ -269,7 +269,7 @@ Per-tile crust drivers sampled via `tileToCellIndex`.
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/contract.ts` (`CrustTilesSchema`)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts` (crust sampling loop)
 
-### `artifact:foundation.tectonicHistoryTiles` (projection; tile space)
+### `artifact:map.foundationTectonicHistoryTiles` (projection; tile space)
 
 Tile-space projection of per-era tectonic history fields and rollups. This is the primary Morphology-era driver surface.
 
@@ -282,7 +282,7 @@ Shape highlights:
 - `docs/projects/pipeline-realism/resources/spec/sections/history-and-provenance.md` (mesh truth → projection posture)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (`FoundationTectonicHistoryTilesArtifactSchema`)
 
-### `artifact:foundation.tectonicProvenanceTiles` (projection; tile space)
+### `artifact:map.foundationTectonicProvenanceTiles` (projection; tile space)
 
 Tile-space projection of provenance/tracer scalars (origin era/plate, drift distance, last boundary signals).
 
@@ -296,7 +296,7 @@ Shape highlights:
 - `docs/projects/pipeline-realism/resources/spec/sections/history-and-provenance.md` (mesh truth → projection posture)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (`FoundationTectonicProvenanceTilesArtifactSchema`)
 
-### `artifact:foundation.plates` (projection; tile space)
+### `artifact:map.foundationPlates` (projection; tile space)
 
 Per-tile plate/tensor fields used by tile-based consumers (notably today’s Morphology stage).
 
@@ -407,7 +407,7 @@ In the standard recipe, the `foundation` stage runs these steps (in order):
 ### Downstream consumption (today)
 
 Downstream domains in the standard recipe primarily consume **tile projections**:
-- Morphology reads `artifact:foundation.plates` and `artifact:foundation.crustTiles`
+- Morphology reads `artifact:map.foundationPlates` and `artifact:map.foundationCrustTiles`
 
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.ts` (`deps.artifacts.foundationPlates.read`, `deps.artifacts.foundationCrustTiles.read`)
@@ -430,10 +430,9 @@ This is the minimal drift worth calling out in a domain reference:
 
 Marking these explicitly avoids “silent drift” in canonical docs.
 
-1. Should `artifact:foundation.plateTopology` be a **mesh-space truth** product derived from `foundation.plateGraph + foundation.mesh` (rather than tile-derived from `foundation.plates.id`)?
-2. Is `artifact:foundation.plates` intended to remain a **Foundation-owned** projection, or should it be moved to an adapter/projection layer outside the Foundation domain?
-3. Is the effective invariant “tectonic history uses exactly 3 eras” a deliberate contract, or should validation be relaxed to match `FoundationTectonicHistorySchema` (`eraCount <= 8`)?
-4. Which downstream domain(s) should consume `artifact:foundation.tectonicHistory` (if any), and what is the minimal cross-domain contract for “age of orogeny” vs “recent activity”?
+1. Should `artifact:foundation.plateTopology` be a **mesh-space truth** product derived from `foundation.plateGraph + foundation.mesh` (rather than tile-derived from plate tensors)?
+2. Is the effective invariant “tectonic history uses exactly 3 eras” a deliberate contract, or should validation be relaxed to match `FoundationTectonicHistorySchema` (`eraCount <= 8`)?
+3. Which downstream domain(s) should consume `artifact:foundation.tectonicHistory` (if any), and what is the minimal cross-domain contract for “age of orogeny” vs “recent activity”?
 
 ## Ground truth anchors
 

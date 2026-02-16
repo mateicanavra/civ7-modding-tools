@@ -2,6 +2,7 @@ import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import foundation from "@mapgen/domain/foundation";
 
 import { foundationArtifacts } from "../artifacts.js";
+import { mapArtifacts } from "../../../map-artifacts.js";
 
 const ProjectionStepContract = defineStep({
   id: "projection",
@@ -19,11 +20,11 @@ const ProjectionStepContract = defineStep({
       foundationArtifacts.tectonicProvenance,
     ],
     provides: [
-      foundationArtifacts.plates,
-      foundationArtifacts.tileToCellIndex,
-      foundationArtifacts.crustTiles,
-      foundationArtifacts.tectonicHistoryTiles,
-      foundationArtifacts.tectonicProvenanceTiles,
+      mapArtifacts.foundationPlates,
+      mapArtifacts.foundationTileToCellIndex,
+      mapArtifacts.foundationCrustTiles,
+      mapArtifacts.foundationTectonicHistoryTiles,
+      mapArtifacts.foundationTectonicProvenanceTiles,
     ],
   },
   ops: {

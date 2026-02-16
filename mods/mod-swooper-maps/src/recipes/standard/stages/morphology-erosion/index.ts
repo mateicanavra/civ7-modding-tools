@@ -41,6 +41,6 @@ export default createStage({
   id: "morphology-erosion",
   knobsSchema,
   public: publicSchema,
-  compile: ({ config }: { config: MorphologyErosionStageConfig }) => config.advanced ?? {},
+  compile: ({ config }: { config: MorphologyErosionStageConfig }) => (config.advanced ? config.advanced : {}),
   steps: [geomorphology],
 } as const);

@@ -131,7 +131,7 @@ describe("map-hydrology lakes area/water ordering", () => {
     lakes.run(context as any, { tilesPerLakeMultiplier: 1 }, {} as any, buildTestDeps(lakes));
     plotRivers.run(context as any, { minLength: 5, maxLength: 15 }, {} as any, buildTestDeps(plotRivers));
 
-    expect(adapter.callOrder.slice(0, 3)).toEqual(["generateLakes", "recalculateAreas", "storeWaterData"]);
+    expect(adapter.callOrder.slice(0, 3)).toEqual(["storeWaterData", "generateLakes", "recalculateAreas"]);
     expect(adapter.isWater(1, 1)).toBe(true);
 
     const runtime = getStandardRuntime(context);

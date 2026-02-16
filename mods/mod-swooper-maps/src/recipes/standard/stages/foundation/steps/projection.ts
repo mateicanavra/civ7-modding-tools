@@ -1,6 +1,6 @@
 import { computeSampleStep, defineVizMeta, dumpVectorFieldVariants, renderAsciiGrid } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { foundationArtifacts } from "../artifacts.js";
+import { mapArtifacts } from "../../../map-artifacts.js";
 import ProjectionStepContract from "./projection.contract.js";
 import {
   validateCrustTilesArtifact,
@@ -27,11 +27,11 @@ const TILE_SPACE_ID = "tile.hexOddR" as const;
 export default createStep(ProjectionStepContract, {
   artifacts: implementArtifacts(
     [
-      foundationArtifacts.plates,
-      foundationArtifacts.tileToCellIndex,
-      foundationArtifacts.crustTiles,
-      foundationArtifacts.tectonicHistoryTiles,
-      foundationArtifacts.tectonicProvenanceTiles,
+      mapArtifacts.foundationPlates,
+      mapArtifacts.foundationTileToCellIndex,
+      mapArtifacts.foundationCrustTiles,
+      mapArtifacts.foundationTectonicHistoryTiles,
+      mapArtifacts.foundationTectonicProvenanceTiles,
     ],
     {
       foundationPlates: {

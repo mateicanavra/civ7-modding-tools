@@ -1,7 +1,7 @@
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import morphology from "@mapgen/domain/morphology";
 
-import { foundationArtifacts } from "../../foundation/artifacts.js";
+import { mapArtifacts } from "../../../map-artifacts.js";
 import { morphologyArtifacts } from "../../morphology/artifacts.js";
 
 /**
@@ -12,7 +12,7 @@ const VolcanoesStepContract = defineStep({
   phase: "morphology",
   requires: [],
   artifacts: {
-    requires: [foundationArtifacts.plates, morphologyArtifacts.topography],
+    requires: [mapArtifacts.foundationPlates, morphologyArtifacts.topography],
     provides: [morphologyArtifacts.volcanoes],
   },
   provides: [],

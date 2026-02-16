@@ -43,6 +43,6 @@ export default createStage({
   id: "morphology-features",
   knobsSchema,
   public: publicSchema,
-  compile: ({ config }: { config: MorphologyFeaturesStageConfig }) => config.advanced ?? {},
+  compile: ({ config }: { config: MorphologyFeaturesStageConfig }) => (config.advanced ? config.advanced : {}),
   steps: [islands, volcanoes, landmasses],
 } as const);
