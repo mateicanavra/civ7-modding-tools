@@ -33,7 +33,7 @@ Current implementation still publishes the projection tensors as `artifact:found
 - [ ] Morphology contract rewires are explicitly enumerated.
 
 ## Testing / Verification
-- `rg -n "artifact:foundation\.(plates|crustTiles|tectonicHistoryTiles|tectonicProvenanceTiles)" mods/mod-swooper-maps/src/recipes/standard/stages`
+- `rg -n "artifact:foundation\.(plates|crustTiles|tectonicHistoryTiles|tectonicProvenanceTiles|tileToCellIndex)" mods/mod-swooper-maps/src/recipes/standard/stages`
 - `rg -n "artifact:map\." mods/mod-swooper-maps/src/recipes/standard`
 - `rg -n "dual publish|no-dual|lane split" docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-C-lane-and-downstream.md`
 - Planned compile check command: `bun run --cwd mods/mod-swooper-maps check`

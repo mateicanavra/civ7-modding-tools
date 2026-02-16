@@ -24,7 +24,8 @@ Two-pass workflow:
 ## Phase 0: Preflight + Isolation
 1. Confirm clean state in primary (ignored for all work, but sanity-check done): `git status --short --branch`, `gt ls`, `git worktree list`.
 2. Create isolated worktree on `codex/prr-stack-pr-comments-ledger`:
-   - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-SWANKO-prr-stack-pr-comments-ledger`
+   - Worktree root: `$WORKTREES_ROOT`
+   - Worktree: `$WORKTREES_ROOT/wt-agent-SWANKO-prr-stack-pr-comments-ledger`
 3. In isolated worktree:
    - `gt sync --no-restack`
    - `bun install`
@@ -35,9 +36,9 @@ Directory:
 - `docs/projects/pipeline-realism/scratch/agent-SWANKO-prr-fix-loop/`
 
 Files:
-- `PLAN-agent-SWANKO-prr-fix-loop-2026-02-14.md` (this file)
-- `SCRATCH-review-pass.md`
-- `SCRATCH-fix-pass.md`
+- `plan-agent-swanko-prr-fix-loop-2026-02-14.md` (this file)
+- `scratch-review-pass.md`
+- `scratch-fix-pass.md`
 
 Rule:
 - Update scratchpads continuously while executing.
@@ -59,7 +60,7 @@ Rule:
 7. Update canonical review doc with:
    - A dated section: `Full-chain Revalidation (2026-02-14, agent-SWANKO)`
    - Full manifest table + classifications + evidence notes.
-8. Log command/results continuously in `SCRATCH-review-pass.md`.
+8. Log command/results continuously in `scratch-review-pass.md`.
 9. Commit + submit review branch PR:
    - `gt submit --stack --draft --ai`
 
@@ -74,7 +75,7 @@ Rule:
    - `fixBranch`, commit SHA, PR URL, status `fixed`
 6. If blocked mid-item:
    - Set to `needs clarification` in canonical review doc and stop implementation for that item.
-7. Log implementation notes/commands in `SCRATCH-fix-pass.md`.
+7. Log implementation notes/commands in `scratch-fix-pass.md`.
 8. Commit + submit stack updates after each slice:
    - `gt submit --stack --draft --ai`
 

@@ -221,12 +221,12 @@ next_actions:
 ```yaml
 checkpoint:
   id: IG-1
-  status: pending
+  status: complete
   preconditions:
     packet_template: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/ig-1-checkpoint-packet-template.md
-    ecology_merge_ready: false
-    pr_threshold_verified: false
-    reanchor_complete: false
+    ecology_merge_ready: true
+    pr_threshold_verified: true
+    reanchor_complete: true
   execution_plan:
     slices_in_scope: [S02, S03, S05, S06]
     required_outputs:
@@ -234,9 +234,9 @@ checkpoint:
       - GI-1 command logs
       - user sign-off record
   outcome_placeholders:
-    entry_criteria: pending
-    GI-1 verification: pending
-    user_sign_off: pending
+    entry_criteria: pass
+    GI-1 verification: pass
+    user_sign_off: recorded
 ```
 ```
 

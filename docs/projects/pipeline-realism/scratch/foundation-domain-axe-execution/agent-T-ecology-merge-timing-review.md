@@ -3,6 +3,8 @@
 ## Ownership
 - Decide whether ecology stack should be merged into the M4 execution stack now or integrated later.
 
+> Re-anchor (2026-02-16): ecology is already integrated on the current stack tip. Treat this document as historical rationale + a post-merge verification checklist, not as an instruction to perform a new merge.
+
 ## Plan
 1. Inspect current stack topology and branch divergence.
 2. Measure likely file overlap/conflict surfaces between ecology stack and planned M4 execution surfaces.
@@ -31,24 +33,17 @@
 - The planned M4 slices (foundation boundaries, lane split, guardrail rewrites, config/docs cleanup) still live in parallel directories; merging now lets the foundation docs reference deterministic ecology behavior before the lane cutover finishes, rather than letting them drift.
 
 ## Recommendation
-- Merge the ecology stack into the Foundation M4 execution branch now.
-- Rationale: low file-level conflict, deterministic ecology behavior is already baked through `s5`, and early merge lets the foundation doc/guardrail surfaces (which rely on the new recipe/topology contracts) align with the running code rather than chasing a future rebase. Delaying would only defer inevitable rebase work once the foundation branch hits `LOCAL-TBD-PR-M4-004`/`-M4-005` lock gates and may require reapplying stage topology expectations.
+- Ecology stack is already integrated; do not rerun a merge/rebase cycle.
+- Rationale (still valid): low file-level conflict and early integration prevents docs/guardrails from drifting away from the deterministic ecology base.
 
 ## Risks (severity)
 - High: New deterministic ecology behavior might expose regressions once the foundation guardrail suite (lint:domain-refactor-guardrails, CI/test:ci, `mods/mod-swooper-maps` tests) runs on the merged base; mitigation is to run the listed verification commands immediately after rebasing.
 - Medium: Foundation documentation and issue packs are still stabilizing; merging now means we must confirm the doc references (topology, lane split, stage names) match the combined code, but these docs are intentionally referencing the same artifacts listed in the milestone and stack ledger so the merge actually clarifies them.
 - Low: There’s a small chance `mods/mod-swooper-maps` test fixtures need retuning after the merge; the diff overlap already highlights the two files to inspect.
 
-## Merge triggers (preconditions)
-1. `codex/prr-epp-s5-placement-randomness-zero` (tip of the ecology stack) remains green and is marked “Ready to merge as stack” (PR #1260–1262 history shows readiness).
-2. Foundation M4 branch has at least the planning docs + guardrail slices in place (per the milestone and stack ledger) so the merged ecology change has a target to latch onto; hitting `LOCAL-TBD-PR-M4-001`/`-M4-005` gating commits satisfies this.
-3. The verification suite (`bun run build`, `bun run lint`, `bun run test:ci`, `bun run lint:domain-refactor-guardrails`, plus the `mods/mod-swooper-maps` smoke tests) passes on the rebased foundation branch.
-
-## Playbook
-1. `gt checkout codex/prr-epp-s5-placement-randomness-zero` and rebase it onto `codex/agent-ORCH-foundation-domain-axe-execution`. This brings the latest deterministic ecology slice directly into the foundation worktree.
-2. Run the mandated verification commands from the M4 milestone (`bun run build`, `bun run lint`, `bun run test:ci`, `bun run lint:domain-refactor-guardrails`, plus the `mods/mod-swooper-maps` smoke tests) to detect any cross-domain regressions.
-3. Update the foundation issue/stack docs (e.g., `stack-ledger.md`, `master-scratch.md`, `decision-log.md`) with the merge note so downstream slices know ecology is now part of the base.
-4. Submit/push the rebased ecology branch as part of the M4 stack (db53c57b9 already records the docs hardening, so the next commit can record the merge and retarget any remaining guardrail work).
+## Post-merge verification checklist
+1. Run the mandated verification commands from the M4 milestone (`bun run build`, `bun run lint`, `bun run test:ci`, `bun run lint:domain-refactor-guardrails`, plus focused `mods/mod-swooper-maps` smoke tests) to detect cross-domain regressions.
+2. Ensure the foundation issue/stack docs (e.g., `stack-ledger.md`, `master-scratch.md`, `decision-log.md`) reflect the integrated state and do not reference missing merge scripts.
 
 ## Evidence
 evidence_paths:

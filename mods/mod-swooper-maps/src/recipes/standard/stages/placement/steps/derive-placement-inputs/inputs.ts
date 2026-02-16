@@ -1,7 +1,6 @@
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import type { DiscoveryCatalogEntry } from "@civ7/adapter";
-import { DISCOVERY_CATALOG, NATURAL_WONDER_CATALOG } from "@civ7/adapter";
 import type { PlacementInputsV1 } from "../../placement-inputs.js";
 import { getStandardRuntime } from "../../../../runtime.js";
 
@@ -65,8 +64,8 @@ export function buildPlacementInputs(
     };
   }
 ): PlacementInputsV1 {
-  const runtime = getStandardRuntime(context);
-  const { width, height } = context.dimensions;
+    const runtime = getStandardRuntime(context);
+    const { width, height } = context.dimensions;
   const baseStarts = {
     playersLandmass1: runtime.playersLandmass1,
     playersLandmass2: runtime.playersLandmass2,
@@ -74,15 +73,15 @@ export function buildPlacementInputs(
     startSectorCols: runtime.startSectorCols,
     startSectors: runtime.startSectors,
   };
-  const startsPlan = ops.starts({ baseStarts }, config.starts);
-  const wondersPlan = ops.wonders({ mapInfo: runtime.mapInfo }, config.wonders);
-  const naturalWonderCatalog = NATURAL_WONDER_CATALOG;
-  const discoveryCatalog = sanitizeDiscoveryCandidates(DISCOVERY_CATALOG);
-  const noResourceSentinel = context.adapter.NO_RESOURCE | 0;
-  const candidateResourceTypes = sanitizeResourceCandidates(
-    context.adapter.getPlaceableResourceTypes(),
-    noResourceSentinel
-  );
+    const startsPlan = ops.starts({ baseStarts }, config.starts);
+    const wondersPlan = ops.wonders({ mapInfo: runtime.mapInfo }, config.wonders);
+    const naturalWonderCatalog = context.adapter.getNaturalWonderCatalog();
+    const discoveryCatalog = sanitizeDiscoveryCandidates(context.adapter.getDiscoveryCatalog());
+    const noResourceSentinel = context.adapter.NO_RESOURCE | 0;
+    const candidateResourceTypes = sanitizeResourceCandidates(
+      context.adapter.getPlaceableResourceTypes(),
+      noResourceSentinel
+    );
   const naturalWonderPlan = ops.naturalWonders(
     {
       width,

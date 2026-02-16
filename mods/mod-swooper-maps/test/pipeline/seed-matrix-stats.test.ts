@@ -39,19 +39,24 @@ function runMetrics(seed: number, width: number, height: number) {
   const hydrography = context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
     | { riverClass?: Uint8Array; sinkMask?: Uint8Array }
     | undefined;
+  const engineProjectionLakes = context.artifacts.get(hydrologyHydrographyArtifacts.engineProjectionLakes.id) as
+    | { lakeMask?: Uint8Array }
+    | undefined;
   const classification = context.artifacts.get(ecologyArtifacts.biomeClassification.id) as
     | { biomeIndex?: Uint8Array }
     | undefined;
   if (!(topography?.landMask instanceof Uint8Array)) throw new Error("Missing topography.landMask.");
   if (!(hydrography?.riverClass instanceof Uint8Array)) throw new Error("Missing hydrography.riverClass.");
   if (!(hydrography?.sinkMask instanceof Uint8Array)) throw new Error("Missing hydrography.sinkMask.");
+  if (!(engineProjectionLakes?.lakeMask instanceof Uint8Array))
+    throw new Error("Missing engineProjectionLakes.lakeMask.");
   if (!(classification?.biomeIndex instanceof Uint8Array)) throw new Error("Missing biomeClassification.biomeIndex.");
 
   return computeEarthMetrics({
     width,
     height,
     landMask: topography.landMask,
-    lakeMask: hydrography.sinkMask,
+    lakeMask: engineProjectionLakes.lakeMask,
     riverClass: hydrography.riverClass,
     biomeIndex: classification.biomeIndex,
   });

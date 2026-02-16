@@ -78,7 +78,14 @@ core_invariants:
 
 ```yaml
 stack_tip_to_trunk:
+  - codex/agent-E-placement-discoveries-wonders-fix
+  - codex/agent-D-placement-discovery-owned-catalog
+  - codex/agent-C-baseline-check-test-fixes
+  - codex/agent-B-placement-s2-verification-docs
+  - codex/agent-A-placement-s1-runtime-hardening
+  - codex/prr-m4-s06e-earthlike-studio-typegen-fix
   - codex/prr-m4-s06d-foundation-scratch-audit-ledger
+  - codex/spike-ecology-placement-regression
   - codex/prr-m4-s06c-foundation-guardrails-hardening
   - codex/prr-m4-s06b-foundation-tectonics-local-rules
   - codex/prr-m4-s06a-foundation-knobs-surface
@@ -98,16 +105,7 @@ stack_tip_to_trunk:
 ## Drift / underspec / missing tooling (must not be ignored)
 
 ### IG-1 scripts referenced but missing in-repo
-Multiple scratch artifacts mention:
-- `./scripts/verify-ecology-merge.sh`
-- `./scripts/check-pr-threshold.sh --min 45`
-- `./scripts/reanchor-stack.sh --verify`
-
-But these scripts are **not present** in the repo today.
-
-Required resolution before treating IG-1 as executable:
-1. Either implement these scripts (committed, reviewed), **or**
-2. Rewrite IG-1 docs to a concrete command checklist that uses existing tooling (`gt`, `git`, `bun run ...`).
+Resolved: IG-1 docs now use a concrete command checklist (Graphite + `bun run ...`) instead of referencing repo-local scripts, and IG-1 is marked complete. Any future “integration checkpoint” work must follow the same posture: no hidden scripts; evidence captured in scratch artifacts.
 
 ### Local-only commits on the stack tip
 The active branch is ahead of `origin/...` by 3 commits. This means:
@@ -181,13 +179,12 @@ session_phase_map:
     name: post_merge_restack_integration_hygiene
     signal: "dedicated restack agent; integration worktree rename; restack evidence logged"
   - phase: 6
-    name: ongoing_pre_s04_gate
-    signal: "IG-1 is the explicit stop before S04; proceed only after gate is executable and green"
+    name: post_ig1_forward_execution
+    signal: "IG-1 complete; proceed with lane split (S07) + config/preset/docs parity (S08/S09)"
 ```
 
 ## Immediate next actions (orchestrator)
 
-1. Decide how to resolve the IG-1 missing-script drift (scripts vs checklist rewrite), then do it once, cleanly.
-2. Submit/push the stack tip so remote state matches local (otherwise reviews and agent context drift).
-3. Run IG-1 on the integrated base (post-ecology merge), capture evidence, and only then unblock `S04`.
-
+1. Keep operating off the true stack tip (`gt log short`) and avoid topology drift.
+2. Treat lane split (M4-004 / S07) as the next major execution slice; prepare an inventory + verification suite before cutting code.
+3. Enforce Studio/typegen and architecture cutover scans as always-on gates (`build:studio-recipes`, `test:architecture-cutover`).

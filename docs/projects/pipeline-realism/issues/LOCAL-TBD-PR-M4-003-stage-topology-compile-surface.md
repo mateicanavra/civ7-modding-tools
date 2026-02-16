@@ -1,6 +1,6 @@
 id: LOCAL-TBD-PR-M4-003
 title: stage topology + compile surface
-state: planned
+state: landed
 priority: 1
 estimate: 16
 project: pipeline-realism
@@ -16,38 +16,28 @@ related_to: [LOCAL-TBD-PR-M4-005]
 
 <!-- SECTION SCOPE [SYNC] -->
 ## TL;DR
-- Apply the locked 3-stage Foundation topology and remove compile-surface dual-path/inert fields so stage contracts are explicit and single-path.
+- Lock and verify the **current** Standard recipe stage topology + compile surface (single-path; no sentinels/shims), so downstream lane-split work can proceed without topology drift.
 
-Current runtime still executes the single `foundation` stage, and the 3-stage IDs exist only as planned targets. This issue locks the sequencing and signal expectations for the `S04` stage-split slice so that planners and execution slices are aligned before implementation lands.
+This issue is intentionally **forward-only**: the recipe topology and compile surface have already evolved during M4 execution (ecology already integrated; topology lock tests exist). The work remaining under M4 should treat this doc as the “rails” for what is now locked, and any future topology change must update the lock + verification in the same slice.
 
 ## Deliverables
-- Stage split plan for:
-  - `foundation-substrate-kinematics`
-  - `foundation-tectonics-history`
-  - `foundation-projection`
-- Explicit milestone/gate punchlist tying the planned IDs to the pending `S04` slice and the eventually gated `S07` lane split.
-- Step relocation map and stage-ordering contract.
-- Compile surface cleanup list removing sentinel branches and inert stage fields.
-- Full step-id/stage-id break impact matrix for config/tests/diagnostics/traces.
+- Canonical locked stage ordering (Standard recipe) and enforcement hook:
+  - `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
+  - `mods/mod-swooper-maps/test/pipeline/foundation-topology-lock.test.ts`
+- Compile surface “single-path” contract (no sentinel fallback branches; no legacy stage aliases).
+- Break-impact inventory for stage/step ID churn: config keys, diagnostics, traces/viz keys.
 
 ## Acceptance Criteria
-- [ ] 3-stage topology is explicitly mapped with ordered steps and dependencies, and the `S04` slice is the first gate toward landing those IDs.
-- [ ] Stage compile sentinel path removal is represented as mandatory cutover work.
-- [ ] Inert stage compile fields are marked for deletion in the same cutover posture.
-- [ ] Break-impact inventory includes recipe config keys, full step IDs, and trace/viz implications.
-- [ ] Viz/tracing migration checks are owned here with executable churn checks (`stageId`/`stepId` churn allowed, semantic identities stable).
+- [ ] The locked Standard stage topology is represented as a single authoritative list and is enforced by a test that runs in CI (`test:architecture-cutover`).
+- [ ] No legacy stage aliases are permitted in the Standard recipe.
+- [ ] Compile surface is single-path: legacy/sentinel fallback branches are not present in stage compile.
+- [ ] Viz/tracing churn policy is explicit: `stageId`/`stepId` churn is allowed; semantic identities remain stable.
 
 ## Testing / Verification
-- `rg -n "foundation-substrate-kinematics|foundation-tectonics-history|foundation-projection" docs/projects/pipeline-realism/milestones/M4-foundation-domain-axe-cutover.md docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M4-003-stage-topology-compile-surface.md`
-- `rg -n "sentinel|dual-path|step-id|stage-id" docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-B-stage-topology.md`
-- `bun run --cwd packages/mapgen-core build`
-- `bun run --cwd packages/mapgen-viz build`
-- `bun run --cwd apps/mapgen-studio build`
-- `bun run --cwd mods/mod-swooper-maps test test/pipeline/viz-emissions.test.ts`
-- `bun run --cwd mods/mod-swooper-maps test test/morphology/tracing-observability-smoke.test.ts`
-- `rg -n "mod-swooper-maps\\.standard\\.foundation\\.|stageId\\s*===\\s*\"foundation\"" apps/mapgen-studio/src mods/mod-swooper-maps/src/dev mods/mod-swooper-maps/test`
-- `node -e "const fs=require('node:fs');const m=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));const stages=[...new Set(m.steps.map(s=>s.stepId.split('.').at(-2)))];console.log(JSON.stringify(stages,null,2));" <postRunDir>/manifest.json`
-- `node -e "const fs=require('node:fs');const m=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));const bad=m.layers.filter(l=>/(foundation-substrate-kinematics|foundation-tectonics-history|foundation-projection)/.test(l.dataTypeKey));console.log(JSON.stringify({badCount:bad.length,bad},null,2));if(bad.length)process.exit(1);" <postRunDir>/manifest.json`
+- `bun run test:architecture-cutover`
+- `bun run --cwd mods/mod-swooper-maps test test/pipeline/foundation-topology-lock.test.ts`
+- `bun run --cwd mods/mod-swooper-maps test test/pipeline/no-dual-contract-paths.test.ts`
+- `bun run --cwd mods/mod-swooper-maps test test/pipeline/no-shim-surfaces.test.ts`
 
 ## Dependencies / Notes
 - Blocked by: `LOCAL-TBD-PR-M4-002`
