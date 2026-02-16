@@ -47,87 +47,67 @@ The authoring surface MUST NOT allow:
 - direct authoring of boundary regime labels per cell/tile.
 
 Budgets are **author-controlled only as simulation resolution / time-horizon inputs**. In particular:
-- `eraCount` MAY be authored under `foundation.advanced.budgets` as the primary time-horizon control (1–8).
+- Time-horizon / resolution budgets are not currently part of the public Foundation authoring surface in the M4 cutover.
 - Budgets MUST remain physics-first (resolution/time) and MUST NOT become output sculpting (e.g., “target land%”, “painted belts”).
 
-Other internal iteration counts (solver passes, smoothing iterations, etc.) remain fixed by the target architecture / profiles and validated by D09r unless explicitly promoted to the authoring surface as a physics-first resolution control.
+Other internal iteration counts (solver passes, smoothing iterations, etc.) remain fixed by the target architecture / internal defaults and validated by D09r unless explicitly promoted to the authoring surface as a physics-first resolution control.
 
 Normative budgets and invariants:
 - `docs/projects/pipeline-realism/resources/spec/budgets.md`
 - `docs/projects/pipeline-realism/resources/spec/sections/history-and-provenance.md`
 - `docs/projects/pipeline-realism/resources/spec/sections/plate-motion.md`
 
-## Authoring Surface Schema (Foundation; v1)
+## Authoring Surface Schema (Foundation; current)
 
-The Foundation stage authoring surface SHALL be a closed object with the following top-level keys:
+In the current standard recipe contract, the Foundation stage config is a **closed object** with:
+- `knobs` (semantic, stable scalars), and
+- optional per-step override objects keyed by step id (e.g. `mesh`, `mantle-potential`, `crust`, `projection`, ...).
 
-```ts
-type FoundationAuthoringSurfaceV1 = {
-  version: 1;
+There is no `version` or `profiles` envelope in the runtime contract.
 
-  // Profiles are the default-facing UX. Profiles MUST compile into
-  // deterministic internal constants and per-step configs.
-  profiles: {
-    resolutionProfile: "coarse" | "balanced" | "fine" | "ultra";
-    lithosphereProfile: "maximal-basaltic-lid-v1";
-    mantleProfile: "maximal-potential-v1";
-  };
+The authoritative schema is generated from the stage/step contracts and published via:
+- `mods/mod-swooper-maps/dist/recipes/standard.schema.json` (referenced by shipped map configs via `$schema`).
 
-  // Semantic knobs are the stable, studio-friendly scalars.
-  // They MUST remain physics-first (initial conditions), not output sculpting.
-  knobs: {
-    plateCount: number;      // integer >= 2; discretization preference only; dimension-scaled internally
-    plateActivity: number;   // scalar in [0..1]; scales coupling/interaction intensity (does not author velocity)
-  };
+Example (minimal, knobs-first):
 
-  // Advanced knobs are permitted only for physics inputs/initial conditions.
-  // Derived constants MUST NOT be exposed here.
-  advanced?: {
-    // Budgets are simulation resolution/time-horizon controls.
-    // They MUST remain physics-first and MUST NOT encode output sculpting.
-    budgets?: {
-      eraCount?: number;               // integer in [1..8]
-    };
+```jsonc
+{
+  "foundation": {
+    "knobs": { "plateCount": 28, "plateActivity": 0.7 }
+  }
+}
+```
 
-    mantleForcing?: {
-      potentialMode?: "default";
-      potentialAmplitude01?: number;     // [0..1]
-      plumeCount?: number;              // integer >= 0
-      downwellingCount?: number;        // integer >= 0
-      lengthScale01?: number;           // [0..1] spectrum/coherence selector
-    };
+Example (step-level override; use sparingly):
 
-    lithosphere?: {
-      yieldStrength01?: number;         // [0..1] baseline strength scale (units doc defines anchors)
-      mantleCoupling01?: number;        // [0..1] coupling scale (maps to stress>strength gating)
-      riftWeakening01?: number;         // [0..1] weakening scale when rifts form
-    };
-  };
-};
+```jsonc
+{
+  "foundation": {
+    "knobs": { "plateCount": 28, "plateActivity": 0.7 },
+    "mesh": {
+      "computeMesh": {
+        "strategy": "default",
+        "config": { "plateCount": 28 }
+      }
+    }
+  }
+}
 ```
 
 Schema rules:
-- `version` MUST be present and MUST equal `1`.
-- `profiles` MUST be present and MUST be one of the allowed enum values.
-- `knobs` MUST be present.
-- `advanced` MAY be present; any `advanced.*` key not listed above MUST be a validation error.
-- Any derived values (e.g., per-plate velocities, regime labels, belt masks, reference areas, internal multipliers, dimension-derived constants) MUST NOT appear in the authoring surface.
+- Unknown keys are validation errors; only the stage’s `knobs` plus known step ids are accepted.
+- Prefer `knobs` for author-facing tuning; step overrides are internal tuning and must remain physics-first (no output sculpting fields).
 
-## Compilation Rules (Stage → Internal → Steps)
+## Compilation Rules (Stage → Steps)
 
-### Stage boundary
-
-The Foundation stage contract SHALL provide:
-- `surfaceSchema` validating `FoundationAuthoringSurfaceV1` (closed),
-- `toInternal({ env, stageConfig })` that deterministically returns:
-  - `knobs` (derived tuning values used by step normalize hooks),
-  - `rawSteps` (per-step config objects).
-
-This MUST follow the authoring-time model in `docs/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md`.
+At compile time, the recipe compiler:
+- validates stage config against the generated schema,
+- applies deterministic defaults,
+- and passes each step its config subtree (plus a `knobs` object used by normalize-time transforms).
 
 ### Deterministic derivation rules
 
-`toInternal(...)` SHALL:
+Compilation and runtime transforms SHALL:
 - derive all internal constants only from `{ env, stageConfig }`,
 - perform any dimensional scaling deterministically (no floating nondeterminism beyond the repo’s determinism posture),
 - and never consult ambient randomness (all randomness MUST be an explicit function of `seed` via a label RNG).
@@ -149,13 +129,9 @@ The following mapping MUST hold (layer ids are `dataTypeKey` values emitted by s
 
 | Authoring knob/profile | Primary “did it change?” layer(s) | Secondary sanity layers |
 |---|---|---|
-| `profiles.resolutionProfile` | `foundation.mesh.sites`, `foundation.mesh.edges` | `foundation.tileToCellIndex`, `foundation.plateGraph.cellToPlate` |
 | `knobs.plateCount` | `foundation.plateGraph.cellToPlate`, `foundation.plates.tilePlateId` | `foundation.plateGraph.plateSeeds`, `foundation.plateTopology.neighbors` |
 | `knobs.plateActivity` | `foundation.plates.tileMovement`, `foundation.plates.tileBoundaryCloseness` | `foundation.tectonics.upliftPotential`, `foundation.tectonics.shearStress` |
-| `profiles.lithosphereProfile` | `foundation.crust.*` (truth) + `foundation.crustTiles.*` | `foundation.mantle.forcing` (projected) |
-| `profiles.mantleProfile` | `foundation.mantle.potential`, `foundation.mantle.forcing` | `foundation.plates.partition`, `foundation.plates.boundary.regime` |
-| `advanced.mantleForcing.*` | `foundation.mantle.potential`, `foundation.mantle.forcing` | `foundation.events.boundary` |
-| `advanced.lithosphere.*` | `foundation.crust.strength`, `foundation.events.boundary` | `foundation.belts.orogenyPotential` |
+| `mesh.computeMesh.config.*` | `foundation.mesh.sites`, `foundation.mesh.edges` | `foundation.tileToCellIndex`, `foundation.plateGraph.cellToPlate` |
 
 If new Foundation steps are introduced in the Pipeline Realism stack, they SHALL:
 - emit layers using stable `dataTypeKey` naming consistent with the above taxonomy, and
