@@ -274,6 +274,11 @@ export interface MockAdapterConfig {
   discoveryCatalog?: DiscoveryCatalogEntry[];
   /** Plot effect types and tag sets for getPlotEffectTypesContainingTags. */
   plotEffectTypes?: MockPlotEffectType[];
+  /**
+   * Simulated successful placements returned by generateOfficialDiscoveries().
+   * Defaults to 0.
+   */
+  officialDiscoveriesPlacedCount?: number;
 }
 
 /**
@@ -312,6 +317,7 @@ export class MockAdapter implements EngineAdapter {
   private plotEffectTypes: Array<{ id: number; name: string; tags: Set<string> }>;
   private plotEffectsByIndex: Map<number, Set<number>>;
   private readonly effectEvidence = new Set<string>();
+  private officialDiscoveriesPlacedCount: number;
   private coastTerrainId: number;
   private oceanTerrainId: number;
   private mountainTerrainId: number;
@@ -333,6 +339,12 @@ export class MockAdapter implements EngineAdapter {
       y: number;
       discoveryVisualType: number;
       discoveryActivationType: number;
+    }>;
+    generateOfficialDiscoveries: Array<{
+      width: number;
+      height: number;
+      startPositions: number[];
+      polarMargin: number;
     }>;
     generateSnow: Array<{ width: number; height: number }>;
     setResourceType: Array<{ x: number; y: number; resourceType: number }>;
@@ -396,6 +408,9 @@ export class MockAdapter implements EngineAdapter {
       tags: new Set(entry.tags.map((tag) => tag.toUpperCase())),
     }));
     this.plotEffectsByIndex = new Map();
+    this.officialDiscoveriesPlacedCount = Number.isFinite(config.officialDiscoveriesPlacedCount)
+      ? Math.max(0, Math.trunc(config.officialDiscoveriesPlacedCount as number))
+      : 0;
 
     this.coastTerrainId = this.getTerrainTypeIndex("TERRAIN_COAST");
     this.oceanTerrainId = this.getTerrainTypeIndex("TERRAIN_OCEAN");
@@ -406,6 +421,7 @@ export class MockAdapter implements EngineAdapter {
       addFeatures: [],
       stampNaturalWonder: [],
       stampDiscovery: [],
+      generateOfficialDiscoveries: [],
       generateSnow: [],
       setResourceType: [],
       generateLakes: [],
@@ -869,6 +885,27 @@ export class MockAdapter implements EngineAdapter {
     return true;
   }
 
+  generateOfficialDiscoveries(
+    width: number,
+    height: number,
+    startPositions: ReadonlyArray<number>,
+    polarMargin: number
+  ): number {
+    const resolvedStartPositions = (Array.isArray(startPositions) ? startPositions : [])
+      .filter((value) => Number.isFinite(value) && value >= 0)
+      .map((value) => Math.trunc(value));
+    const resolvedPolarMargin = Number.isFinite(polarMargin) ? Math.max(0, Math.trunc(polarMargin)) : 0;
+
+    this.calls.generateOfficialDiscoveries.push({
+      width,
+      height,
+      startPositions: resolvedStartPositions,
+      polarMargin: resolvedPolarMargin,
+    });
+    this.recordPlacementEffect();
+    return this.officialDiscoveriesPlacedCount;
+  }
+
   getNaturalWonderCatalog(): NaturalWonderCatalogEntry[] {
     return this.naturalWonderCatalog.map((entry) => ({
       featureType: entry.featureType,
@@ -993,6 +1030,7 @@ export class MockAdapter implements EngineAdapter {
     this.calls.addFeatures.length = 0;
     this.calls.stampNaturalWonder.length = 0;
     this.calls.stampDiscovery.length = 0;
+    this.calls.generateOfficialDiscoveries.length = 0;
     this.calls.generateSnow.length = 0;
     this.calls.setResourceType.length = 0;
     this.calls.generateLakes.length = 0;
@@ -1024,6 +1062,9 @@ export class MockAdapter implements EngineAdapter {
       name: entry.name,
       tags: new Set(entry.tags.map((tag) => tag.toUpperCase())),
     }));
+    this.officialDiscoveriesPlacedCount = Number.isFinite(config.officialDiscoveriesPlacedCount)
+      ? Math.max(0, Math.trunc(config.officialDiscoveriesPlacedCount as number))
+      : this.officialDiscoveriesPlacedCount;
     this.plotEffectsByIndex.clear();
 
     this.coastTerrainId = this.getTerrainTypeIndex("TERRAIN_COAST");

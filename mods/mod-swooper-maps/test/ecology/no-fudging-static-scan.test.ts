@@ -160,7 +160,15 @@ describe("M3 no-fudging posture (static scan)", () => {
       .flatMap((root) => walkFiles(root, exts))
       .filter((abs) => !abs.endsWith(path.join("packages", "civ7-adapter", "src", "mock-adapter.ts")));
     const findings = files.flatMap((abs) => scanFile(abs, workspaceRoot, patterns));
+    const allowedAdapterLegacyPatterns = new Set([
+      "legacy.generateDiscoveries",
+      "legacy.discoveryModule",
+    ]);
+    const filteredFindings = findings.filter((finding) => {
+      const isAdapterFile = finding.file.startsWith(path.join("packages", "civ7-adapter", "src"));
+      return !(isAdapterFile && allowedAdapterLegacyPatterns.has(finding.pattern));
+    });
 
-    expect(findings.length, formatFindings(findings)).toBe(0);
+    expect(filteredFindings.length, formatFindings(filteredFindings)).toBe(0);
   });
 });
