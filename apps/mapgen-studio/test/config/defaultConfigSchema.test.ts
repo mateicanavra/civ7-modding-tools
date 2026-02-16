@@ -48,9 +48,9 @@ describe("Studio default config", () => {
   });
 
   it("matches the authored swooper-earthlike posture (prevents accidental skeleton defaults)", () => {
-    expect(STANDARD_RECIPE_CONFIG.foundation.knobs.plateCount).toBe(18);
+    expect(STANDARD_RECIPE_CONFIG.foundation.knobs.plateCount).toBe(28);
     expect(STANDARD_RECIPE_CONFIG.foundation.knobs.plateActivity).toBe(0.7);
-    expect(STANDARD_RECIPE_CONFIG.foundation.mesh.computeMesh.config.plateCount).toBe(18);
+    expect(STANDARD_RECIPE_CONFIG.foundation.mesh.computeMesh.config.plateCount).toBe(28);
     expect(STANDARD_RECIPE_CONFIG.foundation).not.toHaveProperty("version");
     expect(STANDARD_RECIPE_CONFIG.foundation).not.toHaveProperty("profiles");
     expect(STANDARD_RECIPE_CONFIG.foundation).not.toHaveProperty("advanced");
