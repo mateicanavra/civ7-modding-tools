@@ -11,7 +11,7 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 - Follow-up (M4-review): Standardize deterministic seed signedness across planner contracts and validators to avoid rejecting valid derived seeds.
 - Follow-up (M4-review): Add CI guardrails for Bun test API compatibility (timeout/signature patterns) so framework drift cannot silently disable milestone smoke gates.
 - Follow-up (M4-review-loop): Stabilize full-profile domain guardrails (hydrology step-id config posture and ecology module-shape/JSDoc baseline debt) so second-leg review failures are branch-local and actionable.
-- Follow-up (M4-review-loop): Split no-legacy token scans into canonical-contract scope vs historical/scratch scope (or quarantine archival docs) so M4-006 denylist checks are signal-bearing and do not fail on intentional history references.
+- Follow-up (M4-review-loop): Decide whether to narrow the informational `TODO|legacy|shim|dual|shadow` scan to exclude archival trees (for reviewer signal), while keeping the denylist-based no-legacy scan as the required enforcement gate.
 
 - Follow-up (M1-011): Event engine updates provenance but does not mutate `foundation.crust`; decide on a crust-mutation artifact or allow event-driven crust updates to satisfy the “material change” requirement.
 

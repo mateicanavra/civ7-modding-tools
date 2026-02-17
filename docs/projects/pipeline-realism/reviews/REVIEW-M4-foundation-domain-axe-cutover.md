@@ -61,3 +61,29 @@ This document records milestone-loop review findings for active M4 second-leg br
 
 ### Cross-cutting Risks
 - Current no-legacy token scan scope (`docs/projects/pipeline-realism docs/system/libs/mapgen ...`) includes historical scratch/spec/tutorial content, so it can fail even when runtime/code contracts are clean; this reduces gate signal unless scan scope is tightened or S09 cleanup is comprehensive.
+
+## REVIEW codex/prr-m4-s09-docs-comments-schema-legacy-purge
+
+### Quick Take
+- S09 brings docs/spec/tutorial text into parity with the current Foundation and map-hydrology contract surfaces (knobs-first, no legacy profile envelope).
+- The no-legacy M4 denylist scan is now explicit and maintainable via `scripts/lint/no-legacy-m4-foundation-tokens.txt`, and the hard scan passes.
+- No branch-local correctness issues were found; verification matrix for M4-006 remains green.
+
+### High-Leverage Issues
+- No branch-local high-severity defects identified in this pass.
+
+### PR Comment Context
+- No review threads (open or resolved) were present on PR `#1347`.
+- Issue comments are Graphite stack automation + Railway preview bot only.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- Keep the denylist token file curated as Foundation contracts evolve so the hard no-legacy scan remains precise and low-noise.
+
+### Needs Discussion
+- None.
+
+### Cross-cutting Risks
+- The informational broad token scan remains intentionally noisy because it traverses historical/archived documentation; treat it as discovery context, while the denylist scan is the enforcement gate.
