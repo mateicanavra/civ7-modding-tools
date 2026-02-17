@@ -33,3 +33,13 @@
 - 2026-02-17: Reviewed #1257 (agent-SWANKO-PRR-s124-c01-fix-diag-analyze-mountains-guard); unresolved=0, resolved=0; verification: bun run --cwd mods/mod-swooper-maps check: FAIL.
 - 2026-02-17: Reviewed #1262 (codex/agent-ORCH-foundation-domain-axe-spike); unresolved=0, resolved=0; verification: docs-only; no runtime check run.
 - 2026-02-17: Reviewed #1263 (codex/agent-ORCH-foundation-domain-axe-execution); unresolved=0, resolved=2; verification: docs-only; no runtime check run.
+
+## Reusable Review Axes (apply to every PR)
+1. Contract integrity: truth vs projection boundaries and artifact-id ownership are not blurred.
+2. Topology discipline: steps orchestrate; ops do not orchestrate peer ops.
+3. Shim/dual-path posture: no legacy+new dual publish or hidden compatibility shims in final state.
+4. Verification posture: changed behavior has direct test/lint/guardrail evidence.
+5. Docs-contract parity: docs/spec/tutorials reflect real runtime/config surfaces.
+6. PR feedback closure: unresolved comment threads are either fixed or explicitly deferred.
+7. Stack safety: restacks preserve behavior and do not silently regress parent invariants.
+- PR #1325 codex/prr-m4-s02-contract-freeze-dead-knobs: review appended; verification=FAIL; unresolvedThreads=0
