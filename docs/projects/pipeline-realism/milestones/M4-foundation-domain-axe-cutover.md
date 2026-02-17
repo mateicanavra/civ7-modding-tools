@@ -157,6 +157,7 @@ issues:
 - M4-review-loop (2026-02-17): reviewBranch `codex/prr-m4-s07-lane-split-map-artifacts-rewire` reviewPR https://github.com/mateicanavra/civ7-modding-tools/pull/1344 outcome: no-action
 - [ ] [`LOCAL-TBD-PR-M4-005`](../issues/LOCAL-TBD-PR-M4-005-guardrails-test-rewrite.md) Guardrails + Test Rewrite
 - [ ] [`LOCAL-TBD-PR-M4-006`](../issues/LOCAL-TBD-PR-M4-006-config-redesign-preset-retuning-docs-cleanup.md) Config Redesign + Preset Retuning + Docs Cleanup
+- M4-review-loop (2026-02-17): reviewBranch `codex/prr-m4-s08-config-redesign-preset-retune` reviewPR https://github.com/mateicanavra/civ7-modding-tools/pull/1346 outcome: no-action (docs/token cleanup deferred to S09)
 - [ ] [`LOCAL-TBD-PR-M4-007`](../issues/LOCAL-TBD-PR-M4-007-earthlike-studio-typegen-fix.md) Earthlike Studio Typegen + Preset Schema Fix
 
 ## Sequencing & Parallelization Plan

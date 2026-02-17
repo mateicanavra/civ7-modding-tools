@@ -18,11 +18,12 @@
 - [x] Confirm scope mapping
 - [x] Initialize review artifacts
 - [x] Review #1344 (`S07`)
-- [ ] Review #1346 (`S08`)
+- [x] Review #1346 (`S08`)
 - [ ] Review #1347 (`S09`)
-- [ ] Update milestone traceability
+- [x] Update milestone traceability
 - [ ] Final handoff summary
 
 ## Progress Log
 - 2026-02-17: Started on branch `codex/prr-m4-s07-lane-split-map-artifacts-rewire` in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-IGNEZ-m4-s07-review`.
 - 2026-02-17: Completed review for `#1344` (`codex/prr-m4-s07-lane-split-map-artifacts-rewire`); no fix-now code findings. Logged one cross-cutting risk follow-up in `triage.md`.
+- 2026-02-17: Completed review for `#1346` (`codex/prr-m4-s08-config-redesign-preset-retune`); no fix-now code findings. Logged no-legacy scan signal-risk follow-up in `triage.md` and added milestone traceability note.
