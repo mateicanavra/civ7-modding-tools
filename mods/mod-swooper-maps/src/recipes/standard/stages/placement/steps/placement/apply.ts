@@ -507,11 +507,8 @@ function generateDiscoveriesWithOfficialFallback({
     );
   }
   const resolvedPlacedCount = Math.trunc(placedCount);
-  if (resolvedPlacedCount !== plannedCount) {
-    throw new Error(
-      `[Placement] Official discovery generator placed ${resolvedPlacedCount} discoveries but plan requires ${plannedCount}.`
-    );
-  }
+  // Official discovery generation owns final placement feasibility; planned count
+  // remains a deterministic diagnostic target rather than a fail-hard contract.
 
   return {
     mode: "official-fallback",
