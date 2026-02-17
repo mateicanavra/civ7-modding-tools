@@ -49,4 +49,4 @@
 - PR #1329 codex/prr-m4-s06a-foundation-knobs-surface: review appended; verification=FAIL; unresolvedThreads=0
 - PR #1330 codex/prr-m4-s06b-foundation-tectonics-local-rules: review appended; verification=FAIL; unresolvedThreads=0
 - PR #1331 codex/prr-m4-s06c-foundation-guardrails-hardening: review appended; verification=FAIL; unresolvedThreads=0
-- PR #1337 codex/spike-ecology-placement-regression: review appended; verification=FAIL; unresolvedThreads=0
+- PR #1332 codex/prr-m4-s06d-foundation-scratch-audit-ledger: review appended; verification=FAIL; unresolvedThreads=0

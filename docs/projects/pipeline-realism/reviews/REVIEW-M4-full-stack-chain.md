@@ -690,15 +690,15 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 ### Cross-cutting Risks
 - Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
 
-## REVIEW codex/spike-ecology-placement-regression
+## REVIEW codex/prr-m4-s06d-foundation-scratch-audit-ledger
 
 ### Quick Take
-- Reviewed PR #1337 (https://github.com/mateicanavra/civ7-modding-tools/pull/1337).
-- Churn profile: +4844 / -104 across 46 files files.
-- Verification signal: bun run test:ci: FAIL.
+- Reviewed PR #1332 (https://github.com/mateicanavra/civ7-modding-tools/pull/1332).
+- Churn profile: +193 / -0 across 1 files files.
+- Verification signal: bun run lint:mapgen-docs: FAIL.
 
 ### High-Leverage Issues
-- Verification gate failed for this branch (bun run test:ci: FAIL).
+- Verification gate failed for this branch (bun run lint:mapgen-docs: FAIL).
 
 ### PR Comment Context
 - Comment volume: comments=2, reviews=0.
@@ -709,7 +709,7 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 - Re-run and stabilize the failing verification gate for this branch before merge.
 
 ### Defer / Follow-up
-- Add a focused post-merge regression sweep for high-churn slices that failed local verification in this pass.
+- Continue normal monitoring for this slice after stack merge.
 
 ### Needs Discussion
 - None.
