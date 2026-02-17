@@ -689,3 +689,30 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
+
+## REVIEW codex/spike-ecology-placement-regression
+
+### Quick Take
+- Reviewed PR #1337 (https://github.com/mateicanavra/civ7-modding-tools/pull/1337).
+- Churn profile: +4844 / -104 across 46 files files.
+- Verification signal: bun run test:ci: FAIL.
+
+### High-Leverage Issues
+- Verification gate failed for this branch (bun run test:ci: FAIL).
+
+### PR Comment Context
+- Comment volume: comments=2, reviews=0.
+- Review threads: unresolved=0, resolved=0.
+- Automation/non-substantive chatter excluded from issue ranking.
+
+### Fix Now (Recommended)
+- Re-run and stabilize the failing verification gate for this branch before merge.
+
+### Defer / Follow-up
+- Add a focused post-merge regression sweep for high-churn slices that failed local verification in this pass.
+
+### Needs Discussion
+- None.
+
+### Cross-cutting Risks
+- Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
