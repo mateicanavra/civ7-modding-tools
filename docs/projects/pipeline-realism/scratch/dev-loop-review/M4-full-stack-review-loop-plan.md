@@ -63,3 +63,4 @@
 - PR #1345 codex/prr-m4-s07-orch-plan-second-leg: review appended; verification=PASS; unresolvedThreads=0
 - PR #1346 codex/prr-m4-s08-config-redesign-preset-retune: review appended; verification=PASS; unresolvedThreads=0
 - PR #1347 codex/prr-m4-s09-docs-comments-schema-legacy-purge: review appended; verification=PASS; unresolvedThreads=0
+- PR #1348 codex/prr-pr-comments-discovery-count-enforcement: review appended; verification=FAIL; unresolvedThreads=1

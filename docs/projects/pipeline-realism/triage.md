@@ -65,3 +65,4 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 ## Backlog
 
 - (empty)
+- M4-review-loop: PR #1348 (codex/prr-pr-comments-discovery-count-enforcement) has unresolved review thread(s)=1; requires explicit disposition before merge.

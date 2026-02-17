@@ -1067,3 +1067,33 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
+
+## REVIEW codex/prr-pr-comments-discovery-count-enforcement
+
+### Quick Take
+- Reviewed PR #1348 (https://github.com/mateicanavra/civ7-modding-tools/pull/1348).
+- Churn profile: +10 / -2 across 1 files files.
+- Verification signal: bun run test:ci: FAIL.
+
+### High-Leverage Issues
+- Verification gate failed for this branch (bun run test:ci: FAIL).
+- PR has unresolved review threads: 1; closure rationale is missing in current state.
+
+### PR Comment Context
+- Comment volume: comments=2, reviews=1.
+- Review threads: unresolved=1, resolved=0.
+- Automation/non-substantive chatter excluded from issue ranking.
+
+### Fix Now (Recommended)
+- Re-run and stabilize the failing verification gate for this branch before merge.
+- Resolve or explicitly disposition unresolved review thread(s) before merge.
+
+### Defer / Follow-up
+- Continue normal monitoring for this slice after stack merge.
+
+### Needs Discussion
+- None.
+
+### Cross-cutting Risks
+- Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
+- Review-discussion risk: unresolved threads can leave acceptance ambiguous across stacked slices.
