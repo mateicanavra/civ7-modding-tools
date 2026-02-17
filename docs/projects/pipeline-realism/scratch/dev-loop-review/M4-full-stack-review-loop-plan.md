@@ -24,3 +24,4 @@
 - 2026-02-17: Reviewed #1248 (agent-SWANKO-PRR-s98-c01-fix-era-fields-dijkstra); unresolved=0, resolved=0; verification: bun run --cwd mods/mod-swooper-maps check: FAIL.
 - 2026-02-17: Reviewed #1249 (agent-SWANKO-PRR-s101-c01-fix-crust-thickness-evolution); unresolved=0, resolved=0; verification: bun run --cwd mods/mod-swooper-maps check: FAIL.
 - 2026-02-17: Reviewed #1250 (agent-SWANKO-PRR-s108-c01-fix-plateau-seeding); unresolved=0, resolved=1; verification: bun run --cwd mods/mod-swooper-maps check: FAIL.
+- 2026-02-17: Reviewed #1251 (agent-SWANKO-PRR-s112-c01-fix-driverStrength-proportional); unresolved=0, resolved=0; verification: bun run --cwd mods/mod-swooper-maps check: FAIL.
