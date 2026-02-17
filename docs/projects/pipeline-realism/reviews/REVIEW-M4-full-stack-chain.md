@@ -85,6 +85,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 ### Cross-cutting Risks
 - Repeated restacks across the chain can hide branch-local regressions without focused probes.
 
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
+
 ## REVIEW agent-SWANKO-PRR-s11-c01-fix-belt-influence-distance-contract
 
 ### Quick Take
@@ -110,6 +114,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Repeated restacks across the chain can hide branch-local regressions without focused probes.
+
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
 
 ## REVIEW agent-SWANKO-PRR-s93-c01-fix-round-clampint-knobs
 
@@ -137,6 +145,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 ### Cross-cutting Risks
 - Repeated restacks across the chain can hide branch-local regressions without focused probes.
 
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
+
 ## REVIEW agent-SWANKO-PRR-s94-c01-fix-sea-level-constraints-first
 
 ### Quick Take
@@ -162,6 +174,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Repeated restacks across the chain can hide branch-local regressions without focused probes.
+
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
 
 ## REVIEW agent-SWANKO-PRR-s97-c01-fix-polarity-bootstrap-oceanic-only
 
@@ -189,6 +205,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 ### Cross-cutting Risks
 - Repeated restacks across the chain can hide branch-local regressions without focused probes.
 
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
+
 ## REVIEW agent-SWANKO-PRR-s98-c01-fix-era-fields-dijkstra
 
 ### Quick Take
@@ -214,6 +234,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Repeated restacks across the chain can hide branch-local regressions without focused probes.
+
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
 
 ## REVIEW agent-SWANKO-PRR-s101-c01-fix-crust-thickness-evolution
 
@@ -241,6 +265,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 ### Cross-cutting Risks
 - Repeated restacks across the chain can hide branch-local regressions without focused probes.
 
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
+
 ## REVIEW agent-SWANKO-PRR-s108-c01-fix-plateau-seeding
 
 ### Quick Take
@@ -266,6 +294,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Repeated restacks across the chain can hide branch-local regressions without focused probes.
+
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
 
 ## REVIEW agent-SWANKO-PRR-s112-c01-fix-driverStrength-proportional
 
@@ -293,6 +325,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 ### Cross-cutting Risks
 - Repeated restacks across the chain can hide branch-local regressions without focused probes.
 
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
+
 ## REVIEW agent-SWANKO-PRR-s113-c01-fix-mountainThreshold-candidates
 
 ### Quick Take
@@ -318,6 +354,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Repeated restacks across the chain can hide branch-local regressions without focused probes.
+
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
 
 ## REVIEW agent-SWANKO-PRR-s115-c01-fix-hill-cap-floor
 
@@ -345,6 +385,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 ### Cross-cutting Risks
 - Repeated restacks across the chain can hide branch-local regressions without focused probes.
 
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
+
 ## REVIEW agent-SWANKO-PRR-s118-c01-fix-studio-artifacts-preflight
 
 ### Quick Take
@@ -370,6 +414,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Repeated restacks across the chain can hide branch-local regressions without focused probes.
+
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
 
 ## REVIEW agent-SWANKO-PRR-s119-c01-fix-pass-plateMotion
 
@@ -397,6 +445,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 ### Cross-cutting Risks
 - Repeated restacks across the chain can hide branch-local regressions without focused probes.
 
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
+
 ## REVIEW agent-SWANKO-PRR-s120-c01-fix-era-plateMotion-recompute
 
 ### Quick Take
@@ -423,6 +475,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 ### Cross-cutting Risks
 - Repeated restacks across the chain can hide branch-local regressions without focused probes.
 
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
+
 ## REVIEW agent-SWANKO-PRR-s124-c01-fix-diag-analyze-mountains-guard
 
 ### Quick Take
@@ -448,6 +504,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Repeated restacks across the chain can hide branch-local regressions without focused probes.
+
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
 
 ## REVIEW codex/agent-ORCH-foundation-domain-axe-spike
 
@@ -528,6 +588,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 ### Cross-cutting Risks
 - Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
 
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
+
 ## REVIEW codex/prr-m4-s03-tectonics-op-decomposition
 
 ### Quick Take
@@ -554,6 +618,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
+
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
 
 ## REVIEW codex/prr-m4-s05-ci-strict-core-gates
 
@@ -582,6 +650,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 ### Cross-cutting Risks
 - Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
 
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
+
 ## REVIEW codex/prr-m4-s06-test-rewrite-architecture-scans
 
 ### Quick Take
@@ -608,6 +680,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
+
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
 
 ## REVIEW codex/prr-m4-s06a-foundation-knobs-surface
 
@@ -636,6 +712,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 ### Cross-cutting Risks
 - Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
 
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
+
 ## REVIEW codex/prr-m4-s06b-foundation-tectonics-local-rules
 
 ### Quick Take
@@ -662,6 +742,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
+
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
 
 ## REVIEW codex/prr-m4-s06c-foundation-guardrails-hardening
 
@@ -690,6 +774,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 ### Cross-cutting Risks
 - Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
 
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
+
 ## REVIEW codex/prr-m4-s06d-foundation-scratch-audit-ledger
 
 ### Quick Take
@@ -716,6 +804,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
+
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run lint:mapgen-docs` => PASS.
+- Outcome: resolved-no-change.
 
 ## REVIEW codex/prr-m4-s06e-earthlike-studio-typegen-fix
 
@@ -744,6 +836,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 ### Cross-cutting Risks
 - Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
 
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.
+
 ## REVIEW codex/agent-A-placement-s1-runtime-hardening
 
 ### Quick Take
@@ -771,6 +867,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 ### Cross-cutting Risks
 - Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
 
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run test:ci` => FAIL.
+- Outcome: deferred (no backport). Failure is pre-cutover `mapgen-studio` D08r foundation schema expectation drift on this intermediate branch; descendant branches `codex/prr-m4-s08-config-redesign-preset-retune`, `codex/prr-m4-s09-docs-comments-schema-legacy-purge`, and `codex/prr-pr-comments-discovery-count-enforcement` pass `bun run test:ci`.
+
 ## REVIEW codex/agent-B-placement-s2-verification-docs
 
 ### Quick Take
@@ -797,6 +897,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
+
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run test:ci` => FAIL.
+- Outcome: deferred (no backport). Failure is pre-cutover `mapgen-studio` D08r foundation schema expectation drift on this intermediate branch; descendant branches `codex/prr-m4-s08-config-redesign-preset-retune`, `codex/prr-m4-s09-docs-comments-schema-legacy-purge`, and `codex/prr-pr-comments-discovery-count-enforcement` pass `bun run test:ci`.
 
 ## REVIEW codex/agent-C-baseline-check-test-fixes
 
@@ -960,6 +1064,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 ### Cross-cutting Risks
 - Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
 
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run test:ci` => FAIL.
+- Outcome: deferred (no backport). Failure is isolated to `test/map-hydrology/lakes-area-recalc-resources.test.ts` on this intermediate branch; descendant branches `codex/prr-m4-s08-config-redesign-preset-retune`, `codex/prr-m4-s09-docs-comments-schema-legacy-purge`, and `codex/prr-pr-comments-discovery-count-enforcement` pass `bun run test:ci`.
+
 ## REVIEW codex/prr-m4-s07-lane-split-map-artifacts-rewire
 
 ### Quick Take
@@ -986,6 +1094,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
+
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run test:architecture-cutover` => PASS.
+- Outcome: resolved-no-change.
 
 ## REVIEW codex/prr-m4-s07-orch-plan-second-leg
 
@@ -1098,6 +1210,10 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 - Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
 - Review-discussion risk: unresolved threads can leave acceptance ambiguous across stacked slices.
 
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run test:ci` => PASS.
+- Outcome: fixed-in-branch and discussion-closed. Follow-up commit `b1951721b` keeps official discovery count mismatches diagnostic-only (no hard abort), and previously unresolved review thread `PRRT_kwDOOOKvrc5u5nDJ` was resolved with rationale in https://github.com/mateicanavra/civ7-modding-tools/pull/1348#issuecomment-3912716285.
+
 ## REVIEW codex/spike-ecology-placement-regression
 
 ### Quick Take
@@ -1124,3 +1240,6 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
+### Stabilization Fix Pass (2026-02-17)
+- Gate rerun: `bun run --cwd packages/civ7-adapter build && bun run --cwd mods/mod-swooper-maps check` => PASS.
+- Outcome: resolved-no-change; earlier FAIL signal was caused by stale `@civ7/adapter` build artifacts in the temporary review worktree.

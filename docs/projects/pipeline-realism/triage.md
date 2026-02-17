@@ -12,6 +12,8 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 - Follow-up (M4-review): Add CI guardrails for Bun test API compatibility (timeout/signature patterns) so framework drift cannot silently disable milestone smoke gates.
 - Follow-up (M4-review-loop): Stabilize full-profile domain guardrails (hydrology step-id config posture and ecology module-shape/JSDoc baseline debt) so second-leg review failures are branch-local and actionable.
 - Follow-up (M4-review-loop): Decide whether to narrow the informational `TODO|legacy|shim|dual|shadow` scan to exclude archival trees (for reviewer signal), while keeping the denylist-based no-legacy scan as the required enforcement gate.
+- Follow-up (M4-fix-loop): Add a deterministic preflight note/check for `bun run --cwd packages/civ7-adapter build` before branch-local `bun run --cwd mods/mod-swooper-maps check` in temporary dev-loop worktrees to avoid stale artifact false failures.
+- Closed (M4-fix-loop, 2026-02-17): PR #1348 (`codex/prr-pr-comments-discovery-count-enforcement`) unresolved review thread risk is resolved with explicit rationale comment; no open review-thread blocker remains.
 
 - Follow-up (M1-011): Event engine updates provenance but does not mutate `foundation.crust`; decide on a crust-mutation artifact or allow event-driven crust updates to satisfy the “material change” requirement.
 
@@ -65,4 +67,3 @@ Unsequenced follow-ups and “we should do this later” work discovered while r
 ## Backlog
 
 - (empty)
-- M4-review-loop: PR #1348 (codex/prr-pr-comments-discovery-count-enforcement) has unresolved review thread(s)=1; requires explicit disposition before merge.
