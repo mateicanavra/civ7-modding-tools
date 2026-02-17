@@ -15,3 +15,4 @@
 
 ## Progress Log
 - 2026-02-17: Reviewed `#1201` (`codex/prr-stack-pr-comments-ledger`) in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-IGNEZ-stack-pr-1201-review`; docs-only, no fix-now findings.
+- 2026-02-17: Reviewed #1242 (agent-SWANKO-PRR-ledger-review-full-chain); unresolved=0, resolved=2; verification: docs-only; no runtime check run.

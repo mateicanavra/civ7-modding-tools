@@ -32,3 +32,29 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Large review-ledger docs can become stale quickly unless ownership/process for updates stays explicit.
+
+## REVIEW agent-SWANKO-PRR-ledger-review-full-chain
+
+### Quick Take
+- Reviewed PR #1242 (https://github.com/mateicanavra/civ7-modding-tools/pull/1242).
+- Churn profile: +178 / -0 across 4 files.
+- Verification signal: docs-only; no runtime check run.
+
+### High-Leverage Issues
+- No branch-local high-severity defect identified in this pass.
+
+### PR Comment Context
+- Review threads: unresolved=0, resolved=2.
+- No unresolved review threads; automation chatter (if present) treated as non-actionable.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- None beyond normal post-merge monitoring.
+
+### Needs Discussion
+- None.
+
+### Cross-cutting Risks
+- Documentation-led review records can drift from implementation unless periodically reconciled.
