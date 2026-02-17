@@ -56,3 +56,4 @@
 - PR #1336 codex/agent-C-baseline-check-test-fixes: review appended; verification=PASS; unresolvedThreads=0
 - PR #1338 codex/agent-D-placement-discovery-owned-catalog: review appended; verification=PASS; unresolvedThreads=0
 - PR #1340 codex/agent-E-placement-discoveries-wonders-fix: review appended; verification=PASS; unresolvedThreads=0
+- PR #1341 codex/agent-F-discovery-official-fallback: review appended; verification=PASS; unresolvedThreads=0
