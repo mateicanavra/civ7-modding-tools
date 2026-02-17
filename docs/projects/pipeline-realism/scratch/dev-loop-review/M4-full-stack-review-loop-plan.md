@@ -51,3 +51,4 @@
 - PR #1331 codex/prr-m4-s06c-foundation-guardrails-hardening: review appended; verification=FAIL; unresolvedThreads=0
 - PR #1332 codex/prr-m4-s06d-foundation-scratch-audit-ledger: review appended; verification=FAIL; unresolvedThreads=0
 - PR #1333 codex/prr-m4-s06e-earthlike-studio-typegen-fix: review appended; verification=FAIL; unresolvedThreads=0
+- PR #1334 codex/agent-A-placement-s1-runtime-hardening: review appended; verification=FAIL; unresolvedThreads=0
