@@ -90,5 +90,5 @@ On `codex/prr-pr-comments-discovery-count-enforcement`:
 - [x] PR #1348 review-thread risk closed with explicit rationale.
 - [x] Triage updated: closed resolved thread risk, retained true deferrals, and added artifact-preflight follow-up.
 - [x] Milestone updated with fix-pass traceability lines.
-- [ ] Submit stack after docs commit.
-- [ ] Remove temporary IGNEZ worktree(s) and re-check clean states.
+- [x] Submit stack after docs commit.
+- [x] Remove temporary IGNEZ worktree(s) and re-check clean states.
