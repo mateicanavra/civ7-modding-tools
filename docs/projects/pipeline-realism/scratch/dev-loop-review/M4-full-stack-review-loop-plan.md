@@ -1,0 +1,17 @@
+# M4 Full-Stack Review Loop Plan (Agent IGNEZ)
+
+## Canonical Context
+- Milestone intent anchor: `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/pipeline-realism/milestones/M4-foundation-domain-axe-cutover.md`
+- Parsed milestone tasks: `7` (`LOCAL-TBD-PR-M4-001..007`)
+- Full stack review scope: PRs `#1201` through `#1348` in current Graphite chain (42 PR branches).
+
+## Repeated Review Rubric (Applied Per PR)
+1. Contract and architecture alignment (`truth-vs-projection`, no shims/dual paths, step/op boundaries).
+2. Behavioral risk and regression potential in changed runtime paths.
+3. Verification signal quality (tests/lints/check commands relevant to slice).
+4. Docs/schema/comment parity with current contracts.
+5. PR thread status (unresolved/rejected/accepted review concerns).
+6. Fix-now vs defer classification and cross-cutting risk extraction.
+
+## Progress Log
+- 2026-02-17: Reviewed `#1201` (`codex/prr-stack-pr-comments-ledger`) in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-IGNEZ-stack-pr-1201-review`; docs-only, no fix-now findings.
