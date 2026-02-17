@@ -58,3 +58,4 @@
 - PR #1340 codex/agent-E-placement-discoveries-wonders-fix: review appended; verification=PASS; unresolvedThreads=0
 - PR #1341 codex/agent-F-discovery-official-fallback: review appended; verification=PASS; unresolvedThreads=0
 - PR #1342 codex/agent-H-resource-official-primary: review appended; verification=PASS; unresolvedThreads=0
+- PR #1343 codex/agent-ORCH-m4-reanchor-docs: review appended; verification=FAIL; unresolvedThreads=0
