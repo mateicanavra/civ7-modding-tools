@@ -136,3 +136,29 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Repeated restacks across the chain can hide branch-local regressions without focused probes.
+
+## REVIEW agent-SWANKO-PRR-s94-c01-fix-sea-level-constraints-first
+
+### Quick Take
+- Reviewed PR #1246 (https://github.com/mateicanavra/civ7-modding-tools/pull/1246).
+- Churn profile: +17 / -10 across 3 files.
+- Verification signal: bun run --cwd mods/mod-swooper-maps check: FAIL.
+
+### High-Leverage Issues
+- No branch-local high-severity defect identified in this pass.
+
+### PR Comment Context
+- Review threads: unresolved=0, resolved=0.
+- No unresolved review threads; automation chatter (if present) treated as non-actionable.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- None beyond normal post-merge monitoring.
+
+### Needs Discussion
+- None.
+
+### Cross-cutting Risks
+- Repeated restacks across the chain can hide branch-local regressions without focused probes.
