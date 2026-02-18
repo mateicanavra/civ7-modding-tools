@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { implementArtifacts } from "@swooper/mapgen-core/authoring";
@@ -21,6 +21,7 @@ describe("placement", () => {
         StartSectorCols: 1,
         NumNaturalWonders: 1,
       },
+      officialDiscoveriesPlacedCount: 1,
     });
     const context = createExtendedMapContext({ width: 4, height: 4 }, adapter, { seed: 0 });
     const runtime = getStandardRuntime(context);
@@ -101,12 +102,18 @@ describe("placement", () => {
 
     expect(adapter.calls.generateSnow.length).toBe(0);
     expect(adapter.calls.stampNaturalWonder.length).toBe(1);
-    expect(adapter.calls.stampDiscovery.length).toBe(1);
+    expect(adapter.calls.stampDiscovery.length).toBe(0);
+    expect(adapter.calls.generateOfficialDiscoveries.length).toBe(1);
+    expect(adapter.calls.generateOfficialDiscoveries[0]).toMatchObject({
+      width: 4,
+      height: 4,
+      polarMargin: 0,
+    });
     expect(outputs.naturalWondersCount).toBe(1);
     expect(outputs.discoveriesCount).toBe(1);
   });
 
-  it("preserves unsigned discovery ids when stamping plans", () => {
+  it("uses official discovery generation without relying on runtime discovery candidate lookups", () => {
     const adapter = createMockAdapter({
       width: 4,
       height: 4,
@@ -119,6 +126,7 @@ describe("placement", () => {
         StartSectorCols: 1,
         NumNaturalWonders: 0,
       },
+      officialDiscoveriesPlacedCount: 1,
     });
     const context = createExtendedMapContext({ width: 4, height: 4 }, adapter, { seed: 0 });
     const runtime = getStandardRuntime(context);
@@ -163,7 +171,7 @@ describe("placement", () => {
       discoveryPlan: {
         width: 4,
         height: 4,
-        candidateDiscoveries: [{ discoveryVisualType, discoveryActivationType }],
+        candidateDiscoveries: [],
         targetCount: 1,
         plannedCount: 1,
         placements: [
@@ -191,14 +199,106 @@ describe("placement", () => {
       publishOutputs: (published) => placementRuntime.placementOutputs.publish(context, published),
     });
 
-    expect(adapter.calls.stampDiscovery.length).toBe(1);
-    expect(adapter.calls.stampDiscovery[0]).toMatchObject({
-      x: 2,
-      y: 0,
-      discoveryVisualType,
-      discoveryActivationType,
+    expect(adapter.calls.stampDiscovery.length).toBe(0);
+    expect(adapter.calls.generateOfficialDiscoveries.length).toBe(1);
+    expect(adapter.calls.generateOfficialDiscoveries[0]?.startPositions.length ?? 0).toBeGreaterThan(0);
+    expect(adapter.calls.generateOfficialDiscoveries[0]).toMatchObject({
+      width: 4,
+      height: 4,
+      polarMargin: 0,
     });
     expect(outputs.discoveriesCount).toBe(1);
+  });
+
+  it("fails hard when official discovery generation throws", () => {
+    const adapter = createMockAdapter({
+      width: 4,
+      height: 4,
+      mapInfo: {
+        GridWidth: 4,
+        GridHeight: 4,
+        PlayersLandmass1: 1,
+        PlayersLandmass2: 1,
+        StartSectorRows: 1,
+        StartSectorCols: 1,
+        NumNaturalWonders: 0,
+      },
+    });
+    const discoverySpy = vi
+      .spyOn(adapter, "generateOfficialDiscoveries")
+      .mockImplementation(() => {
+        throw new Error("forced official discovery failure");
+      });
+    const context = createExtendedMapContext({ width: 4, height: 4 }, adapter, { seed: 0 });
+    const runtime = getStandardRuntime(context);
+    const baseStarts = {
+      playersLandmass1: runtime.playersLandmass1,
+      playersLandmass2: runtime.playersLandmass2,
+      startSectorRows: runtime.startSectorRows,
+      startSectorCols: runtime.startSectorCols,
+      startSectors: runtime.startSectors,
+    };
+    const starts = placement.ops.planStarts.run(
+      { baseStarts },
+      placement.ops.planStarts.defaultConfig
+    );
+    const wonders = placement.ops.planWonders.run(
+      { mapInfo: runtime.mapInfo },
+      placement.ops.planWonders.defaultConfig
+    );
+    const floodplains = placement.ops.planFloodplains.run(
+      {},
+      placement.ops.planFloodplains.defaultConfig
+    );
+
+    expect(() =>
+      applyPlacementPlan({
+        context,
+        starts,
+        wonders,
+        naturalWonderPlan: {
+          width: 4,
+          height: 4,
+          wondersCount: 0,
+          targetCount: 0,
+          plannedCount: 0,
+          placements: [],
+        },
+        discoveryPlan: {
+          width: 4,
+          height: 4,
+          candidateDiscoveries: [],
+          targetCount: 1,
+          plannedCount: 1,
+          placements: [
+            {
+              plotIndex: 2,
+              preferredDiscoveryVisualType: 0,
+              preferredDiscoveryActivationType: 0,
+              preferredDiscoveryOffset: 0,
+              priority: 1,
+            },
+          ],
+        },
+        floodplains,
+        resources: {
+          width: 4,
+          height: 4,
+          candidateResourceTypes: [1],
+          targetCount: 0,
+          plannedCount: 0,
+          placements: [],
+        },
+        landmassRegionSlotByTile: {
+          slotByTile: new Uint8Array(16).fill(1),
+        },
+        publishOutputs: (outputs) => outputs,
+      })
+    ).toThrow(/placement\.discoveries failed/i);
+
+    expect(discoverySpy).toHaveBeenCalledTimes(1);
+    expect(adapter.calls.recalculateFertility).toBe(0);
+    expect(adapter.calls.assignAdvancedStartRegions).toBe(0);
   });
 
   it("aborts placement when natural wonder stamping cannot fully satisfy the plan", () => {
@@ -296,7 +396,93 @@ describe("placement", () => {
 
     expect(adapter.calls.stampNaturalWonder.length).toBe(0);
     expect(adapter.calls.stampDiscovery.length).toBe(0);
+    expect(adapter.calls.generateOfficialDiscoveries.length).toBe(0);
     expect(adapter.calls.setStartPosition.length).toBe(0);
     expect(adapter.calls.setResourceType.length).toBe(0);
+  });
+
+  it("fails explicitly when natural wonder metadata is invalid", () => {
+    const adapter = createMockAdapter({
+      width: 4,
+      height: 4,
+      mapInfo: {
+        GridWidth: 4,
+        GridHeight: 4,
+        PlayersLandmass1: 1,
+        PlayersLandmass2: 1,
+        StartSectorRows: 1,
+        StartSectorCols: 1,
+        NumNaturalWonders: 1,
+      },
+    });
+    const context = createExtendedMapContext({ width: 4, height: 4 }, adapter, { seed: 0 });
+    const runtime = getStandardRuntime(context);
+    const starts = placement.ops.planStarts.run(
+      {
+        baseStarts: {
+          playersLandmass1: runtime.playersLandmass1,
+          playersLandmass2: runtime.playersLandmass2,
+          startSectorRows: runtime.startSectorRows,
+          startSectorCols: runtime.startSectorCols,
+          startSectors: runtime.startSectors,
+        },
+      },
+      placement.ops.planStarts.defaultConfig
+    );
+    const wonders = placement.ops.planWonders.run(
+      { mapInfo: runtime.mapInfo },
+      placement.ops.planWonders.defaultConfig
+    );
+    const floodplains = placement.ops.planFloodplains.run(
+      {},
+      placement.ops.planFloodplains.defaultConfig
+    );
+
+    expect(() =>
+      applyPlacementPlan({
+        context,
+        starts,
+        wonders,
+        naturalWonderPlan: {
+          width: 4,
+          height: 4,
+          wondersCount: 1,
+          targetCount: 1,
+          plannedCount: 1,
+          placements: [
+            {
+              plotIndex: 3,
+              featureType: Number.NaN,
+              direction: 0,
+              elevation: 100,
+              priority: 1,
+            },
+          ],
+        },
+        discoveryPlan: {
+          width: 4,
+          height: 4,
+          candidateDiscoveries: [],
+          targetCount: 0,
+          plannedCount: 0,
+          placements: [],
+        },
+        floodplains,
+        resources: {
+          width: 4,
+          height: 4,
+          candidateResourceTypes: [1],
+          targetCount: 0,
+          plannedCount: 0,
+          placements: [],
+        },
+        landmassRegionSlotByTile: {
+          slotByTile: new Uint8Array(16).fill(1),
+        },
+        publishOutputs: (outputs) => outputs,
+      })
+    ).toThrow(/invalid feature metadata/i);
+
+    expect(adapter.calls.generateOfficialDiscoveries.length).toBe(0);
   });
 });

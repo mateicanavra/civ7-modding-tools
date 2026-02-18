@@ -36,6 +36,8 @@ import { designateBiomes as civ7DesignateBiomes, addFeatures as civ7AddFeatures 
 // @ts-ignore - resolved only at Civ7 runtime
 import { generateSnow as civ7GenerateSnow } from "/base-standard/maps/snow-generator.js";
 // @ts-ignore - resolved only at Civ7 runtime
+import { generateDiscoveries as civ7GenerateDiscoveries } from "/base-standard/maps/discovery-generator.js";
+// @ts-ignore - resolved only at Civ7 runtime
 import { assignStartPositions as civ7AssignStartPositions, chooseStartSectors as civ7ChooseStartSectors } from "/base-standard/maps/assign-starting-plots.js";
 // @ts-ignore - resolved only at Civ7 runtime
 import { needHumanNearEquator as civ7NeedHumanNearEquator } from "/base-standard/maps/map-utilities.js";
@@ -523,6 +525,78 @@ export class Civ7Adapter implements EngineAdapter {
     );
     if (placed) this.recordPlacementEffect();
     return Boolean(placed);
+  }
+
+  generateOfficialDiscoveries(
+    width: number,
+    height: number,
+    startPositions: ReadonlyArray<number>,
+    polarMargin: number
+  ): number {
+    const resolvedWidth = Math.max(0, Math.trunc(width));
+    const resolvedHeight = Math.max(0, Math.trunc(height));
+    const resolvedStartPositions = (Array.isArray(startPositions) ? startPositions : [])
+      .filter((value) => Number.isFinite(value) && value >= 0)
+      .map((value) => Math.trunc(value));
+    const resolvedPolarMargin = Number.isFinite(polarMargin) ? Math.max(0, Math.trunc(polarMargin)) : 0;
+
+    const mapConstructibles = (
+      globalThis as typeof globalThis & {
+        MapConstructibles?: {
+          addDiscovery?: (
+            x: number,
+            y: number,
+            discoveryVisualType: number,
+            discoveryActivationType: number
+          ) => boolean;
+        };
+      }
+    ).MapConstructibles;
+    if (!mapConstructibles?.addDiscovery) {
+      throw new Error(
+        "[Adapter] MapConstructibles.addDiscovery is unavailable for official discovery generation."
+      );
+    }
+
+    let placedCount = 0;
+    const originalAddDiscovery = mapConstructibles.addDiscovery;
+    mapConstructibles.addDiscovery = (
+      x: number,
+      y: number,
+      discoveryVisualType: number,
+      discoveryActivationType: number
+    ): boolean => {
+      const placed = Boolean(
+        originalAddDiscovery.call(
+          mapConstructibles,
+          x,
+          y,
+          discoveryVisualType,
+          discoveryActivationType
+        )
+      );
+      if (placed) placedCount += 1;
+      return placed;
+    };
+
+    try {
+      civ7GenerateDiscoveries(
+        resolvedWidth,
+        resolvedHeight,
+        resolvedStartPositions,
+        resolvedPolarMargin
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(
+        `[Adapter] Official discovery generation failed (width=${resolvedWidth}, height=${resolvedHeight}, startPositions=${resolvedStartPositions.length}, polarMargin=${resolvedPolarMargin}): ${message}`
+      );
+    } finally {
+      mapConstructibles.addDiscovery = originalAddDiscovery;
+    }
+
+    this.recordPlacementEffect();
+    return placedCount;
   }
 
   getNaturalWonderCatalog(): NaturalWonderCatalogEntry[] {

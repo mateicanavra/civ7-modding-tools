@@ -224,22 +224,30 @@ export function applyPlacementPlan({
   emitStartSectorViz(context, slotByTile as Uint8Array, starts);
   emitStartPositionsViz(context, startPositions);
 
-  const discoveryStamping = runPlacementStep("placement.discoveries", emit, () =>
-    stampDiscoveriesFromPlan({
+  const discoveryPolarMargin = resolveDiscoveryPolarMargin(context);
+  const discoveryGeneration = runPlacementStep("placement.discoveries", emit, () =>
+    generateDiscoveriesWithOfficialFallback({
       adapter,
       width,
       height,
       discoveries: resolvedDiscoveryPlan,
+      startPositions,
+      polarMargin: discoveryPolarMargin,
     })
   );
-  const discoveriesPlanned = discoveryStamping.plannedCount;
-  const discoveriesPlaced = discoveryStamping.placedCount;
+  const discoveriesPlanned = discoveryGeneration.plannedCount;
+  const discoveriesPlaced = discoveryGeneration.placedCount;
+  emit({
+    type: "placement.discoveries.mode",
+    mode: discoveryGeneration.mode,
+    startPositionsCount: discoveryGeneration.startPositionsCount,
+    polarMargin: discoveryGeneration.polarMargin,
+  });
   emit({
     type: "placement.discoveries.stamped",
-    plannedCount: discoveryStamping.plannedCount,
-    placedCount: discoveryStamping.placedCount,
-    skippedOutOfBoundsCount: discoveryStamping.skippedOutOfBoundsCount,
-    rejectedCount: discoveryStamping.rejectedCount,
+    mode: discoveryGeneration.mode,
+    plannedCount: discoveryGeneration.plannedCount,
+    placedCount: discoveryGeneration.placedCount,
   });
 
   runPlacementStep("placement.fertility.recalculate", emit, () => {
@@ -380,10 +388,26 @@ function stampNaturalWondersFromPlan({
   let rejectedCount = 0;
 
   for (const placementPlan of wonders.placements) {
+    if (!Number.isFinite(placementPlan.plotIndex)) {
+      throw new Error(
+        `[Placement] Natural wonder placement has invalid plotIndex (${String(placementPlan.plotIndex)}).`
+      );
+    }
     const plotIndex = placementPlan.plotIndex | 0;
     if (plotIndex < 0 || plotIndex >= width * height) {
       skippedOutOfBoundsCount += 1;
       continue;
+    }
+
+    if (!Number.isFinite(placementPlan.featureType) || !Number.isFinite(placementPlan.direction)) {
+      throw new Error(
+        `[Placement] Natural wonder placement at plot ${plotIndex} has invalid feature metadata (featureType=${String(placementPlan.featureType)}, direction=${String(placementPlan.direction)}).`
+      );
+    }
+    if (placementPlan.elevation !== undefined && !Number.isFinite(placementPlan.elevation)) {
+      throw new Error(
+        `[Placement] Natural wonder placement at plot ${plotIndex} has invalid elevation (${String(placementPlan.elevation)}).`
+      );
     }
 
     const y = (plotIndex / width) | 0;
@@ -391,8 +415,8 @@ function stampNaturalWondersFromPlan({
     const placed = adapter.stampNaturalWonder(
       x,
       y,
-      placementPlan.featureType | 0,
-      placementPlan.direction | 0,
+      Math.trunc(placementPlan.featureType),
+      Math.trunc(placementPlan.direction),
       Number.isFinite(placementPlan.elevation) ? placementPlan.elevation : undefined
     );
     if (placed) placedCount += 1;
@@ -413,146 +437,74 @@ function stampNaturalWondersFromPlan({
   };
 }
 
-type StampDiscoveriesFromPlanArgs = {
+type GenerateDiscoveriesWithOfficialFallbackArgs = {
   adapter: ExtendedMapContext["adapter"];
   width: number;
   height: number;
   discoveries: DeepReadonly<PlanDiscoveriesOutput>;
+  startPositions: ReadonlyArray<number>;
+  polarMargin: number;
 };
 
-type DiscoveryStampingStats = {
+type OfficialDiscoveryGenerationStats = {
+  mode: "official-fallback";
   plannedCount: number;
   placedCount: number;
-  skippedOutOfBoundsCount: number;
-  rejectedCount: number;
+  startPositionsCount: number;
+  polarMargin: number;
 };
 
-type DiscoveryCandidate = {
-  discoveryVisualType: number;
-  discoveryActivationType: number;
-};
-
-function discoveryCandidateKey(candidate: DiscoveryCandidate): string {
-  return `${candidate.discoveryVisualType}:${candidate.discoveryActivationType}`;
+function resolveDiscoveryPolarMargin(context: ExtendedMapContext): number {
+  const globalPolarRows = (
+    globalThis as typeof globalThis & {
+      g_PolarWaterRows?: unknown;
+    }
+  ).g_PolarWaterRows;
+  if (Number.isFinite(globalPolarRows)) return Math.max(0, Math.trunc(globalPolarRows as number));
+  return 0;
 }
 
-function sanitizeDiscoveryCandidates(values: ReadonlyArray<DiscoveryCandidate>): DiscoveryCandidate[] {
-  const unique = new Set<string>();
-  const candidates: DiscoveryCandidate[] = [];
-  for (const raw of values) {
-    if (!Number.isFinite(raw?.discoveryVisualType) || !Number.isFinite(raw?.discoveryActivationType)) continue;
-    const discoveryVisualType = Math.trunc(raw.discoveryVisualType as number);
-    const discoveryActivationType = Math.trunc(raw.discoveryActivationType as number);
-    const candidate = { discoveryVisualType, discoveryActivationType };
-    const key = discoveryCandidateKey(candidate);
-    if (unique.has(key)) continue;
-    unique.add(key);
-    candidates.push(candidate);
-  }
-  return candidates;
+function sanitizeStartPositions(values: ReadonlyArray<number>): number[] {
+  return (Array.isArray(values) ? values : [])
+    .filter((value) => Number.isFinite(value) && value >= 0)
+    .map((value) => Math.trunc(value));
 }
 
-function rotateDiscoveryCandidates(
-  values: ReadonlyArray<DiscoveryCandidate>,
-  offset: number
-): DiscoveryCandidate[] {
-  if (values.length === 0) return [];
-  const length = values.length;
-  const start = ((offset % length) + length) % length;
-  const rotated: DiscoveryCandidate[] = [];
-  for (let i = 0; i < length; i++) {
-    rotated.push(values[(start + i) % length]!);
-  }
-  return rotated;
-}
-
-function stampDiscoveriesFromPlan({
+function generateDiscoveriesWithOfficialFallback({
   adapter,
   width,
   height,
   discoveries,
-}: StampDiscoveriesFromPlanArgs): DiscoveryStampingStats {
+  startPositions,
+  polarMargin,
+}: GenerateDiscoveriesWithOfficialFallbackArgs): OfficialDiscoveryGenerationStats {
   if ((discoveries.width | 0) !== (width | 0) || (discoveries.height | 0) !== (height | 0)) {
     throw new Error(
       `[Placement] Discovery plan dimensions ${discoveries.width}x${discoveries.height} do not match map ${width}x${height}.`
     );
   }
-  const plannedCount = discoveries.placements.length;
-  const declaredPlannedCount = Math.max(0, discoveries.plannedCount | 0);
-  const targetCount = Math.max(0, discoveries.targetCount | 0);
-  if (declaredPlannedCount !== plannedCount) {
+
+  const plannedCount = Math.max(0, discoveries.placements.length | 0);
+  const resolvedPolarMargin = Number.isFinite(polarMargin) ? Math.max(0, Math.trunc(polarMargin)) : 0;
+  const resolvedStartPositions = sanitizeStartPositions(startPositions);
+  const placedCount = adapter.generateOfficialDiscoveries(
+    width,
+    height,
+    resolvedStartPositions,
+    resolvedPolarMargin
+  );
+  if (!Number.isFinite(placedCount) || placedCount < 0) {
     throw new Error(
-      `[Placement] Discovery plan metadata mismatch (plannedCount=${declaredPlannedCount}, placements=${plannedCount}).`
-    );
-  }
-  if (plannedCount < targetCount) {
-    throw new Error(
-      `[Placement] Discovery plan cannot satisfy target count (target=${targetCount}, planned=${plannedCount}).`
-    );
-  }
-  const candidateDiscoveries = sanitizeDiscoveryCandidates(discoveries.candidateDiscoveries ?? []);
-  if (plannedCount > 0 && candidateDiscoveries.length === 0) {
-    throw new Error(
-      `[Placement] Discovery plan has no placeable candidate catalog entries (planned=${plannedCount}).`
-    );
-  }
-  const candidateSet = new Set(candidateDiscoveries.map(discoveryCandidateKey));
-
-  let placedCount = 0;
-  let skippedOutOfBoundsCount = 0;
-  let rejectedCount = 0;
-
-  for (const placementPlan of discoveries.placements) {
-    const plotIndex = placementPlan.plotIndex | 0;
-    if (plotIndex < 0 || plotIndex >= width * height) {
-      skippedOutOfBoundsCount += 1;
-      continue;
-    }
-
-    const y = (plotIndex / width) | 0;
-    const x = plotIndex - y * width;
-    const preferredDiscoveryOffset = placementPlan.preferredDiscoveryOffset | 0;
-    const orderedCandidates = rotateDiscoveryCandidates(
-      candidateDiscoveries,
-      preferredDiscoveryOffset
-    );
-    const preferredCandidate = {
-      discoveryVisualType: Math.trunc(placementPlan.preferredDiscoveryVisualType),
-      discoveryActivationType: Math.trunc(placementPlan.preferredDiscoveryActivationType),
-    };
-    if (!candidateSet.has(discoveryCandidateKey(preferredCandidate))) {
-      orderedCandidates.unshift(preferredCandidate);
-    }
-
-    let placed = false;
-    for (const candidate of orderedCandidates) {
-      if (
-        adapter.stampDiscovery(
-          x,
-          y,
-          candidate.discoveryVisualType,
-          candidate.discoveryActivationType
-        )
-      ) {
-        placed = true;
-        break;
-      }
-    }
-    if (placed) placedCount += 1;
-    else rejectedCount += 1;
-  }
-
-  if (placedCount !== plannedCount || skippedOutOfBoundsCount > 0 || rejectedCount > 0) {
-    throw new Error(
-      `[Placement] Failed to stamp all discoveries (placed ${placedCount}/${plannedCount}, target=${targetCount}, outOfBounds=${skippedOutOfBoundsCount}, rejected=${rejectedCount}).`
+      `[Placement] Official discovery generator returned invalid placed count (${String(placedCount)}).`
     );
   }
 
   return {
+    mode: "official-fallback",
     plannedCount,
-    placedCount,
-    skippedOutOfBoundsCount,
-    rejectedCount,
+    placedCount: Math.trunc(placedCount),
+    startPositionsCount: resolvedStartPositions.length,
+    polarMargin: resolvedPolarMargin,
   };
 }
 

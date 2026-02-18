@@ -431,6 +431,19 @@ export interface EngineAdapter {
     discoveryActivationType: number
   ): boolean;
 
+  /**
+   * Run Civ7's official discovery generator.
+   * Wraps /base-standard/maps/discovery-generator.js generateDiscoveries().
+   *
+   * Returns the number of successful discovery placements observed during generation.
+   */
+  generateOfficialDiscoveries(
+    width: number,
+    height: number,
+    startPositions: ReadonlyArray<number>,
+    polarMargin: number
+  ): number;
+
   /** Engine catalog of natural wonder feature definitions. */
   getNaturalWonderCatalog(): NaturalWonderCatalogEntry[];
 
