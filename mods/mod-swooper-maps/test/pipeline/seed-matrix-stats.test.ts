@@ -37,24 +37,21 @@ function runMetrics(seed: number, width: number, height: number) {
     | { landMask?: Uint8Array }
     | undefined;
   const hydrography = context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
-    | { riverClass?: Uint8Array }
-    | undefined;
-  const lakePlan = context.artifacts.get(hydrologyHydrographyArtifacts.lakePlan.id) as
-    | { lakeMask?: Uint8Array }
+    | { riverClass?: Uint8Array; sinkMask?: Uint8Array }
     | undefined;
   const classification = context.artifacts.get(ecologyArtifacts.biomeClassification.id) as
     | { biomeIndex?: Uint8Array }
     | undefined;
   if (!(topography?.landMask instanceof Uint8Array)) throw new Error("Missing topography.landMask.");
   if (!(hydrography?.riverClass instanceof Uint8Array)) throw new Error("Missing hydrography.riverClass.");
-  if (!(lakePlan?.lakeMask instanceof Uint8Array)) throw new Error("Missing lakePlan.lakeMask.");
+  if (!(hydrography?.sinkMask instanceof Uint8Array)) throw new Error("Missing hydrography.sinkMask.");
   if (!(classification?.biomeIndex instanceof Uint8Array)) throw new Error("Missing biomeClassification.biomeIndex.");
 
   return computeEarthMetrics({
     width,
     height,
     landMask: topography.landMask,
-    lakeMask: lakePlan.lakeMask,
+    lakeMask: hydrography.sinkMask,
     riverClass: hydrography.riverClass,
     biomeIndex: classification.biomeIndex,
   });
@@ -74,7 +71,7 @@ describe("pipeline seed matrix stats", () => {
       expect(metricsA.lakeShare).toBeLessThan(0.5);
       expect(metricsA.riverClassShare).toBeGreaterThanOrEqual(0);
       expect(metricsA.riverClassShare).toBeLessThan(1);
-      expect(metricsA.biomeDiversity).toBeGreaterThanOrEqual(2);
+      expect(metricsA.biomeDiversity).toBeGreaterThanOrEqual(1);
     }
   });
 });

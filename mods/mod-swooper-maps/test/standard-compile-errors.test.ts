@@ -16,10 +16,6 @@ const baseSettings = {
 };
 
 const foundationConfig = {
-  version: 1,
-  profiles: {
-    resolutionProfile: "balanced",
-  },
   knobs: { plateCount: 28, plateActivity: 0.5 },
 };
 
@@ -38,7 +34,7 @@ describe("standard recipe compile errors (ecology)", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
         foundation: foundationConfig,
-        ecology: {
+        "ecology-biomes": {
           extraField: {},
         },
       } as any)
@@ -46,7 +42,7 @@ describe("standard recipe compile errors (ecology)", () => {
 
     expect(
       err.errors.some(
-        (item) => item.code === "config.invalid" && item.path === "/config/ecology"
+        (item) => item.code === "config.invalid" && item.path === "/config/ecology-biomes/extraField"
       )
     ).toBe(true);
   });
@@ -55,7 +51,7 @@ describe("standard recipe compile errors (ecology)", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
         foundation: foundationConfig,
-        ecology: {
+        "ecology-biomes": {
           biomes: {
             classify: 123,
           },
@@ -65,7 +61,7 @@ describe("standard recipe compile errors (ecology)", () => {
 
     expect(
       err.errors.some(
-        (item) => item.code === "config.invalid" && item.path.includes("/config/ecology/biomes")
+        (item) => item.code === "config.invalid" && item.path.includes("/config/ecology-biomes/biomes")
       )
     ).toBe(true);
   });
@@ -91,7 +87,7 @@ describe("standard recipe compile errors (ecology)", () => {
 
   it("flags unknown step ids returned by ecology stage compile", () => {
     const brokenStage = createStage({
-      id: "ecology",
+      id: "ecology-pedology",
       knobsSchema: Type.Object({}, { additionalProperties: false, default: {} }),
       public: Type.Object(
         {
@@ -109,7 +105,7 @@ describe("standard recipe compile errors (ecology)", () => {
       compileRecipeConfig({
         env: baseSettings,
         recipe: { stages: [brokenStage] },
-        config: { ecology: { pedology: {} } },
+        config: { "ecology-pedology": { pedology: {} } },
         compileOpsById,
       })
     );

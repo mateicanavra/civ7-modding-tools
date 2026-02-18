@@ -101,6 +101,7 @@ The `map-ecology` stage:
 
 - Stage definitions (compile mapping, step list):
   - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-biomes/index.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/index.ts`
 - Ecology truth artifacts: `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/artifacts.ts`
 - Ecology domain op catalog (contracts + implementations):

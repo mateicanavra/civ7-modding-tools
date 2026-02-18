@@ -53,3 +53,4 @@
 - PR #1333 codex/prr-m4-s06e-earthlike-studio-typegen-fix: review appended; verification=FAIL; unresolvedThreads=0
 - PR #1334 codex/agent-A-placement-s1-runtime-hardening: review appended; verification=FAIL; unresolvedThreads=0
 - PR #1335 codex/agent-B-placement-s2-verification-docs: review appended; verification=FAIL; unresolvedThreads=0
+- PR #1336 codex/agent-C-baseline-check-test-fixes: review appended; verification=PASS; unresolvedThreads=0
