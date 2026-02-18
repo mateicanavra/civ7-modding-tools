@@ -635,3 +635,30 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
+
+## REVIEW codex/prr-m4-s06b-foundation-tectonics-local-rules
+
+### Quick Take
+- Reviewed PR #1330 (https://github.com/mateicanavra/civ7-modding-tools/pull/1330).
+- Churn profile: +3696 / -2738 across 71 files files.
+- Verification signal: bun run --cwd mods/mod-swooper-maps check: FAIL.
+
+### High-Leverage Issues
+- Verification gate failed for this branch (bun run --cwd mods/mod-swooper-maps check: FAIL).
+
+### PR Comment Context
+- Comment volume: comments=2, reviews=3.
+- Review threads: unresolved=0, resolved=2.
+- Automation/non-substantive chatter excluded from issue ranking.
+
+### Fix Now (Recommended)
+- Re-run and stabilize the failing verification gate for this branch before merge.
+
+### Defer / Follow-up
+- Add a focused post-merge regression sweep for high-churn slices that failed local verification in this pass.
+
+### Needs Discussion
+- None.
+
+### Cross-cutting Risks
+- Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.

@@ -1,10 +1,6 @@
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
-import {
-  DEFAULT_PLATE_MOTION_CONFIG,
-  DEFAULT_TECTONIC_SEGMENTS_CONFIG,
-} from "../../../../../domain/foundation/ops/compute-tectonic-history/lib/era-tectonics-kernels.js";
 import { foundationArtifacts } from "../artifacts.js";
 import TectonicsStepContract from "./tectonics.contract.js";
 import {
@@ -21,14 +17,6 @@ const GROUP_TECTONIC_HISTORY = "Foundation / Tectonic History";
 const WORLD_SPACE_ID = "world.xy" as const;
 const OROGENY_ERA_GAIN_MIN = 0.85;
 const OROGENY_ERA_GAIN_MAX = 1.15;
-const ERA_PLATE_MOTION_STRATEGY = {
-  strategy: "default",
-  config: DEFAULT_PLATE_MOTION_CONFIG,
-} as const;
-const ERA_TECTONIC_SEGMENTS_STRATEGY = {
-  strategy: "default",
-  config: DEFAULT_TECTONIC_SEGMENTS_CONFIG,
-} as const;
 
 const BOUNDARY_TYPE_CATEGORIES = [
   { value: 0, label: "None/Unknown", color: [107, 114, 128, 180] as [number, number, number, number] },
@@ -105,7 +93,7 @@ export default createStep(TectonicsStepContract, {
           mantleForcing,
           plateGraph: eraPlateGraph,
         },
-        ERA_PLATE_MOTION_STRATEGY
+        config.computePlateMotion
       ).plateMotion;
       const eraSegments = ops.computeTectonicSegments(
         {
@@ -114,7 +102,7 @@ export default createStep(TectonicsStepContract, {
           plateGraph: eraPlateGraph,
           plateMotion: eraPlateMotion,
         },
-        ERA_TECTONIC_SEGMENTS_STRATEGY
+        config.computeTectonicSegments
       ).segments;
 
       const segmentEvents = ops.computeSegmentEvents(

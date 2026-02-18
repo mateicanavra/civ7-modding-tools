@@ -1,5 +1,5 @@
 import { createOp, type Static } from "@swooper/mapgen-core/authoring";
-import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
+import { clamp01, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import { requireEnvDimensions } from "../../lib/normalize.js";
@@ -97,13 +97,6 @@ function computeCellResistance(strength: number): number {
   const s = crustStrengthNorm(strength);
   // Map 0..1 strength into a 1..5 resistance range (stronger lithosphere resists partitioning).
   return 1.0 + 4.0 * s;
-}
-
-function clamp01(value: number): number {
-  if (!Number.isFinite(value)) return 0;
-  if (value <= 0) return 0;
-  if (value >= 1) return 1;
-  return value;
 }
 
 function pickExtremeYCell(params: {
@@ -338,12 +331,12 @@ const computePlateGraph = createOp(ComputePlateGraphContract, {
         }
 
         const majorCount = Math.max(1, Math.floor(platesCount * 0.6));
-        const polarPolicy: Partial<PolarCapsConfig> = config.polarCaps ?? {};
-        const capFraction = clamp01(polarPolicy.capFraction ?? 0.1);
-        const microBandFraction = clamp01(polarPolicy.microplateBandFraction ?? 0.2);
-        const requestedMicroPerPole = Math.max(0, polarPolicy.microplatesPerPole ?? 0);
-        const microplatesMinPlateCount = Math.max(0, polarPolicy.microplatesMinPlateCount ?? 14);
-        const microplateMinAreaCells = Math.max(1, polarPolicy.microplateMinAreaCells ?? 8);
+        const polarPolicy: Partial<PolarCapsConfig> | undefined = config.polarCaps;
+        const capFraction = clamp01(polarPolicy?.capFraction ?? 0.1);
+        const microBandFraction = clamp01(polarPolicy?.microplateBandFraction ?? 0.2);
+        const requestedMicroPerPole = Math.max(0, polarPolicy?.microplatesPerPole ?? 0);
+        const microplatesMinPlateCount = Math.max(0, polarPolicy?.microplatesMinPlateCount ?? 14);
+        const microplateMinAreaCells = Math.max(1, polarPolicy?.microplateMinAreaCells ?? 8);
 
         let minSiteY = Number.POSITIVE_INFINITY;
         let maxSiteY = Number.NEGATIVE_INFINITY;

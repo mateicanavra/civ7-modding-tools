@@ -13,7 +13,6 @@ import computePlateGraph from "./compute-plate-graph/index.js";
 import computePlateMotion from "./compute-plate-motion/index.js";
 import computePlatesTensors from "./compute-plates-tensors/index.js";
 import computeSegmentEvents from "./compute-segment-events/index.js";
-import computeTectonicHistory from "./compute-tectonic-history/index.js";
 import computeTectonicHistoryRollups from "./compute-tectonic-history-rollups/index.js";
 import computeTectonicProvenance from "./compute-tectonic-provenance/index.js";
 import computeTectonicsCurrent from "./compute-tectonics-current/index.js";
@@ -37,7 +36,6 @@ const implementations = {
   computeTectonicsCurrent,
   computeTracerAdvection,
   computeTectonicProvenance,
-  computeTectonicHistory,
   computePlatesTensors,
 } as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
 
@@ -56,7 +54,6 @@ export {
   computePlateMotion,
   computePlatesTensors,
   computeSegmentEvents,
-  computeTectonicHistory,
   computeTectonicHistoryRollups,
   computeTectonicProvenance,
   computeTectonicsCurrent,

@@ -5,7 +5,7 @@ import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 import {
   FoundationTectonicEraFieldsInternalListSchema,
   TracerIndexByEraSchema,
-} from "../compute-tectonic-history/lib/internal-contract.js";
+} from "../../lib/tectonics/internal-contract.js";
 
 const ComputeTracerAdvectionContract = defineOp({
   kind: "compute",

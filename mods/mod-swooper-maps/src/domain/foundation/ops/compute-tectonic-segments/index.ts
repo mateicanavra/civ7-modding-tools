@@ -1,35 +1,11 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
-import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
+import { clamp01, wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
 import { BOUNDARY_TYPE } from "../../constants.js";
 import { requireCrust, requireMesh, requirePlateGraph, requirePlateMotion } from "../../lib/require.js";
+import { clampByte, normalizeToInt8 } from "../../lib/tectonics/shared.js";
 import type { FoundationPlateMotion } from "../compute-plate-motion/contract.js";
 import ComputeTectonicSegmentsContract from "./contract.js";
-
-function clampByte(value: number): number {
-  return Math.max(0, Math.min(255, Math.round(value))) | 0;
-}
-
-function clampInt8(value: number): number {
-  return Math.max(-127, Math.min(127, Math.round(value))) | 0;
-}
-
-function clamp01(value: number): number {
-  if (!Number.isFinite(value)) return 0;
-  if (value <= 0) return 0;
-  if (value >= 1) return 1;
-  return value;
-}
-
-function hypot2(x: number, y: number): number {
-  return Math.sqrt(x * x + y * y);
-}
-
-function normalizeToInt8(x: number, y: number): { u: number; v: number } {
-  const len = hypot2(x, y);
-  if (!Number.isFinite(len) || len <= 1e-9) return { u: 0, v: 0 };
-  return { u: clampInt8((x / len) * 127), v: clampInt8((y / len) * 127) };
-}
 
 function velocityAtPoint(params: {
   plateId: number;
@@ -127,7 +103,7 @@ const computeTectonicSegments = createOp(ComputeTectonicSegmentsContract, {
 
             const dx = wrapDeltaPeriodic(bx - ax, wrapWidth);
             const dy = by - ay;
-            const len = hypot2(dx, dy);
+            const len = Math.hypot(dx, dy);
             if (!Number.isFinite(len) || len <= 1e-9) continue;
 
             const nx = dx / len;

@@ -5,8 +5,12 @@ import type { FoundationMesh } from "../../compute-mesh/contract.js";
 import type { FoundationCrust } from "../../compute-crust/contract.js";
 import type { FoundationPlateGraph } from "../../compute-plate-graph/contract.js";
 import type { FoundationPlateMotion } from "../../compute-plate-motion/contract.js";
-import type { FoundationTectonicHistory, FoundationTectonics } from "../../compute-tectonic-history/contract.js";
-import type { FoundationTectonicProvenance } from "../contract.js";
+import { clampByte, clampInt8 } from "../../../lib/tectonics/shared.js";
+import type {
+  FoundationTectonicHistory,
+  FoundationTectonicProvenance,
+  FoundationTectonics,
+} from "../../../lib/tectonics/schemas.js";
 import { BOUNDARY_TYPE } from "../../../constants.js";
 
 function hexDistanceSq(
@@ -19,14 +23,6 @@ function hexDistanceSq(
   const dx = wrapAbsDeltaPeriodic(ax - bx, wrapWidth);
   const dy = ay - by;
   return dx * dx + dy * dy;
-}
-
-function clampByte(value: number): number {
-  return Math.max(0, Math.min(255, Math.round(value))) | 0;
-}
-
-function clampInt8(value: number): number {
-  return Math.max(-127, Math.min(127, Math.round(value))) | 0;
 }
 
 function computeHexWrappedDistanceField(

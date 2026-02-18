@@ -10,7 +10,6 @@ import ComputePlateGraphContract from "./compute-plate-graph/contract.js";
 import ComputePlateMotionContract from "./compute-plate-motion/contract.js";
 import ComputePlatesTensorsContract from "./compute-plates-tensors/contract.js";
 import ComputeSegmentEventsContract from "./compute-segment-events/contract.js";
-import ComputeTectonicHistoryContract from "./compute-tectonic-history/contract.js";
 import ComputeTectonicHistoryRollupsContract from "./compute-tectonic-history-rollups/contract.js";
 import ComputeTectonicProvenanceContract from "./compute-tectonic-provenance/contract.js";
 import ComputeTectonicsCurrentContract from "./compute-tectonics-current/contract.js";
@@ -34,7 +33,6 @@ export const contracts = {
   computeTectonicsCurrent: ComputeTectonicsCurrentContract,
   computeTracerAdvection: ComputeTracerAdvectionContract,
   computeTectonicProvenance: ComputeTectonicProvenanceContract,
-  computeTectonicHistory: ComputeTectonicHistoryContract,
   computePlatesTensors: ComputePlatesTensorsContract,
 } as const;
 
