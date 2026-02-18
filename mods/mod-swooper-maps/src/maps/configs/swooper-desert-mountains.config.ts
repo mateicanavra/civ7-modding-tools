@@ -2,10 +2,6 @@ import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 
 export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
   foundation: {
-    version: 1,
-    profiles: {
-      resolutionProfile: "coarse",
-    },
     knobs: {
       plateCount: 9,
       plateActivity: 0.5,

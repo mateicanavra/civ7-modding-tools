@@ -48,12 +48,6 @@ type _ComputeMeshEnvelopeFromStepSchemaConfigIsObject =
   _ComputeMeshEnvelopeFromStepSchemaConfig extends object ? true : false;
 const _computeMeshEnvelopeFromStepSchemaConfigIsObject: _ComputeMeshEnvelopeFromStepSchemaConfigIsObject = true;
 
-// Ensure the D08r authoring surface stays narrow/typed.
-type _FoundationProfiles = NonNullable<_FoundationConfig["profiles"]>;
-type _ResolutionProfile = _FoundationProfiles["resolutionProfile"];
-type _ResolutionProfileIsNarrow = string extends _ResolutionProfile ? false : true;
-const _resolutionProfileIsNarrow: _ResolutionProfileIsNarrow = true;
-
 type _FoundationKnobs = NonNullable<_FoundationConfig["knobs"]>;
 type _PlateCountKnob = _FoundationKnobs["plateCount"];
 type _PlateCountKnobIsNumber = Exclude<_PlateCountKnob, undefined> extends number ? true : false;
@@ -63,31 +57,13 @@ type _PlateActivityKnob = _FoundationKnobs["plateActivity"];
 type _PlateActivityKnobIsNumber = Exclude<_PlateActivityKnob, undefined> extends number ? true : false;
 const _plateActivityKnobIsNumber: _PlateActivityKnobIsNumber = true;
 
-type _FoundationAdvancedConfig = NonNullable<_FoundationConfig["advanced"]>;
-type _MantleForcingConfig = NonNullable<_FoundationAdvancedConfig["mantleForcing"]>;
-type _MantleForcingHasAmplitude = _MantleForcingConfig extends { potentialAmplitude01?: number } ? true : false;
-const _mantleForcingHasAmplitude: _MantleForcingHasAmplitude = true;
-
-type _LithosphereConfig = NonNullable<_FoundationAdvancedConfig["lithosphere"]>;
-type _LithosphereHasYieldStrength = _LithosphereConfig extends { yieldStrength01?: number } ? true : false;
-const _lithosphereHasYieldStrength: _LithosphereHasYieldStrength = true;
-
 createMap({
   id: "__type_test__",
   name: "__type_test__",
   recipe: standardRecipe,
   config: {
     foundation: {
-      version: 1,
-      profiles: {
-        resolutionProfile: "balanced",
-      },
       knobs: { plateCount: 28, plateActivity: 0.5 },
-      advanced: {
-        mantleForcing: {
-          potentialAmplitude01: 0.6,
-        },
-      },
     },
   },
 });

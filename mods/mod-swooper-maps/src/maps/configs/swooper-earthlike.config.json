@@ -1,29 +1,9 @@
 {
   "$schema": "../../../dist/recipes/standard.schema.json",
   "foundation": {
-    "version": 1,
-    "profiles": {
-      "resolutionProfile": "balanced"
-    },
     "knobs": {
       "plateCount": 28,
       "plateActivity": 0.5
-    },
-    "advanced": {
-      "budgets": {
-        "eraCount": 5
-      },
-      "tectonics": {
-        "history": {
-          "driftStepsByEra": [
-            12,
-            9,
-            6,
-            3,
-            1
-          ]
-        }
-      }
     }
   },
   "morphology-coasts": {
