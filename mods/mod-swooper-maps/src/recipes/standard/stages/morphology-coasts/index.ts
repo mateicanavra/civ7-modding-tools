@@ -50,6 +50,6 @@ export default createStage({
   id: "morphology-coasts",
   knobsSchema,
   public: publicSchema,
-  compile: ({ config }: { config: MorphologyCoastsStageConfig }) => config.advanced ?? {},
+  compile: ({ config }: { config: MorphologyCoastsStageConfig }) => (config.advanced ? config.advanced : {}),
   steps: [landmassPlates, ruggedCoasts],
 } as const);

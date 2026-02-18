@@ -215,14 +215,14 @@ export function deriveBeltDriversFromHistory(input: {
 
   const eraCount = Math.max(1, historyTiles.eraCount | 0);
   const perEra = historyTiles.perEra ?? [];
-  const rollups = historyTiles.rollups ?? {};
-  const upliftTotal = rollups.upliftTotal ?? new Uint8Array(size);
-  const collisionTotal = rollups.collisionTotal ?? new Uint8Array(size);
-  const subductionTotal = rollups.subductionTotal ?? new Uint8Array(size);
-  const upliftRecentFraction = rollups.upliftRecentFraction ?? new Uint8Array(size);
-  const collisionRecentFraction = rollups.collisionRecentFraction ?? new Uint8Array(size);
-  const subductionRecentFraction = rollups.subductionRecentFraction ?? new Uint8Array(size);
-  const lastActiveEra = rollups.lastActiveEra ?? new Uint8Array(size);
+  const rollups = historyTiles.rollups;
+  const upliftTotal = rollups?.upliftTotal ?? new Uint8Array(size);
+  const collisionTotal = rollups?.collisionTotal ?? new Uint8Array(size);
+  const subductionTotal = rollups?.subductionTotal ?? new Uint8Array(size);
+  const upliftRecentFraction = rollups?.upliftRecentFraction ?? new Uint8Array(size);
+  const collisionRecentFraction = rollups?.collisionRecentFraction ?? new Uint8Array(size);
+  const subductionRecentFraction = rollups?.subductionRecentFraction ?? new Uint8Array(size);
+  const lastActiveEra = rollups?.lastActiveEra ?? new Uint8Array(size);
   const originEra = provenanceTiles.originEra ?? new Uint8Array(size);
   const originPlateId = provenanceTiles.originPlateId ?? new Int16Array(size);
   const lastBoundaryType = provenanceTiles.lastBoundaryType ?? new Uint8Array(size);

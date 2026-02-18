@@ -8,6 +8,7 @@ import {
   StepRegistry,
   isDependencyTagSatisfied,
 } from "@swooper/mapgen-core/engine";
+import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
 import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
 import { hydrologyClimateBaselineArtifacts } from "../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts.js";
@@ -170,14 +171,14 @@ describe("pipeline artifacts", () => {
     expect(stepResults[0]?.error).toContain("did not satisfy declared provides");
   });
 
-  it("fails provides when a step claims artifact:foundation.tectonicHistoryTiles but does not publish it", () => {
+  it("fails provides when a step claims artifact:map.foundationTectonicHistoryTiles but does not publish it", () => {
     const adapter = createMockAdapter({ width: 4, height: 3, rng: () => 0 });
     const ctx = createExtendedMapContext(
       { width: 4, height: 3 },
       adapter,
       baseEnv
     );
-    const foundationContracts = implementArtifacts([foundationArtifacts.tectonicHistoryTiles], {
+    const foundationContracts = implementArtifacts([mapArtifacts.foundationTectonicHistoryTiles], {
       foundationTectonicHistoryTiles: {},
     });
 
@@ -185,7 +186,7 @@ describe("pipeline artifacts", () => {
     registry.registerTags([
       ...STANDARD_TAG_DEFINITIONS,
       {
-        id: foundationArtifacts.tectonicHistoryTiles.id,
+        id: mapArtifacts.foundationTectonicHistoryTiles.id,
         kind: "artifact",
         satisfies: foundationContracts.foundationTectonicHistoryTiles.satisfies,
       },
@@ -194,7 +195,7 @@ describe("pipeline artifacts", () => {
       id: "history-tiles",
       phase: "foundation",
       requires: [],
-      provides: [foundationArtifacts.tectonicHistoryTiles.id],
+      provides: [mapArtifacts.foundationTectonicHistoryTiles.id],
       run: (_context, _config) => {},
     });
 

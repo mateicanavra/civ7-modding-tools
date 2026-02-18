@@ -154,6 +154,7 @@ issues:
 - [ ] [`LOCAL-TBD-PR-M4-002`](../issues/LOCAL-TBD-PR-M4-002-foundation-ops-boundaries.md) Foundation Ops Boundaries
 - [ ] [`LOCAL-TBD-PR-M4-003`](../issues/LOCAL-TBD-PR-M4-003-stage-topology-compile-surface.md) Stage Topology + Compile Surface
 - [ ] [`LOCAL-TBD-PR-M4-004`](../issues/LOCAL-TBD-PR-M4-004-lane-split-downstream-rewire.md) Lane Split + Downstream Rewire
+- M4-review-loop (2026-02-17): reviewBranch `codex/prr-m4-s07-lane-split-map-artifacts-rewire` reviewPR https://github.com/mateicanavra/civ7-modding-tools/pull/1344 outcome: no-action
 - [ ] [`LOCAL-TBD-PR-M4-005`](../issues/LOCAL-TBD-PR-M4-005-guardrails-test-rewrite.md) Guardrails + Test Rewrite
 - [ ] [`LOCAL-TBD-PR-M4-006`](../issues/LOCAL-TBD-PR-M4-006-config-redesign-preset-retuning-docs-cleanup.md) Config Redesign + Preset Retuning + Docs Cleanup
 - [ ] [`LOCAL-TBD-PR-M4-007`](../issues/LOCAL-TBD-PR-M4-007-earthlike-studio-typegen-fix.md) Earthlike Studio Typegen + Preset Schema Fix

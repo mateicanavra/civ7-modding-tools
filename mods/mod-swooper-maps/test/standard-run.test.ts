@@ -6,6 +6,7 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import standardRecipe from "../src/recipes/standard/recipe.js";
 import type { StandardRecipeConfig } from "../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../src/recipes/standard/runtime.js";
+import { mapArtifacts } from "../src/recipes/standard/map-artifacts.js";
 import { foundationArtifacts } from "../src/recipes/standard/stages/foundation/artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
 import { computeRiverAdjacencyMaskFromRiverClass } from "../src/recipes/standard/stages/hydrology-hydrography/river-adjacency.js";
@@ -228,7 +229,7 @@ describe("standard recipe execution", () => {
     expect(landTiles).toBeGreaterThan(0);
     expect(nonVolcanoMountainTiles + hillTiles).toBeGreaterThan(0);
 
-    expect(context.artifacts.get(foundationArtifacts.plates.id)).toBeTruthy();
+    expect(context.artifacts.get(mapArtifacts.foundationPlates.id)).toBeTruthy();
     expect(context.artifacts.get(foundationArtifacts.plateTopology.id)).toBeTruthy();
     expect(context.artifacts.get(placementArtifacts.placementOutputs.id)).toBeTruthy();
   });

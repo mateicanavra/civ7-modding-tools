@@ -10,6 +10,7 @@ import {
   FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG,
   FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG,
 } from "@swooper/mapgen-core";
+import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
 import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
 import ProjectionStepContract from "../../src/recipes/standard/stages/foundation/steps/projection.contract.js";
 
@@ -308,15 +309,13 @@ describe("foundation contract guardrails", () => {
     }
   });
 
-  it("publishes maximal foundation artifact ids via contracts", () => {
+  it("publishes maximal foundation truth ids + map-facing projection ids via contracts", () => {
     expect(foundationArtifacts.mantlePotential.id).toBe(FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG);
     expect(foundationArtifacts.mantleForcing.id).toBe(FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG);
     expect(foundationArtifacts.plateMotion.id).toBe(FOUNDATION_PLATE_MOTION_ARTIFACT_TAG);
     expect(foundationArtifacts.tectonicProvenance.id).toBe(FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG);
-    expect(foundationArtifacts.tectonicHistoryTiles.id).toBe(FOUNDATION_TECTONIC_HISTORY_TILES_ARTIFACT_TAG);
-    expect(foundationArtifacts.tectonicProvenanceTiles.id).toBe(
-      FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG
-    );
+    expect(mapArtifacts.foundationTectonicHistoryTiles.id).toBe(FOUNDATION_TECTONIC_HISTORY_TILES_ARTIFACT_TAG);
+    expect(mapArtifacts.foundationTectonicProvenanceTiles.id).toBe(FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG);
   });
 
   it("requires tectonic provenance before projection", () => {

@@ -77,13 +77,13 @@ At the **domain op** level, Morphology ops are pure functions that require:
 - optional deterministic `rngSeed` passed as data (no ambient randomness inside ops)
 
 At the **standard recipe wiring** level, Morphology requires the following upstream Foundation artifacts:
-- `artifact:foundation.plates` (tile-space tectonic driver tensors)
-- `artifact:foundation.crustTiles` (tile-space crust driver tensors sampled from mesh truth)
+- `artifact:map.foundationPlates` (tile-space tectonic driver tensors)
+- `artifact:map.foundationCrustTiles` (tile-space crust driver tensors sampled from mesh truth)
 
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/morphology/ops/*/contract.ts` (`defineOp({ input: ... })` for each op)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts` (`LandmassPlatesStepContract.artifacts.requires`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (`foundationArtifacts.plates`, `foundationArtifacts.crustTiles`)
+- `mods/mod-swooper-maps/src/recipes/standard/map-artifacts.ts` (`mapArtifacts.foundationPlates`, `mapArtifacts.foundationCrustTiles`)
 - `mods/mod-swooper-maps/src/domain/morphology/ops/compute-base-topography/contract.ts` (input `crustBaseElevation` described as “projected from mesh crust truth”)
 
 ### Provides (artifacts + tags)
@@ -378,8 +378,8 @@ Hydrology and Ecology consume Morphology artifacts after `morphology-features` c
 Seeds the canonical Morphology buffers, publishes buffer handles, then derives coastline metrics (including the shelf mask) used for engine-facing coast projection.
 
 **Requires**
-- `artifact:foundation.plates`
-- `artifact:foundation.crustTiles`
+- `artifact:map.foundationPlates`
+- `artifact:map.foundationCrustTiles`
 
 **Provides**
 - `artifact:morphology.topography` (publish-once handle)

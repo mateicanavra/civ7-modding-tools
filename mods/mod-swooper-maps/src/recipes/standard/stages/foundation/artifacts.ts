@@ -1,18 +1,13 @@
 import { TypedArraySchemas, Type, defineArtifact } from "@swooper/mapgen-core/authoring";
 import {
   FOUNDATION_CRUST_ARTIFACT_TAG,
-  FOUNDATION_CRUST_TILES_ARTIFACT_TAG,
   FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG,
   FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG,
   FOUNDATION_MESH_ARTIFACT_TAG,
   FOUNDATION_PLATE_MOTION_ARTIFACT_TAG,
   FOUNDATION_PLATE_GRAPH_ARTIFACT_TAG,
-  FOUNDATION_PLATES_ARTIFACT_TAG,
-  FOUNDATION_TECTONIC_HISTORY_TILES_ARTIFACT_TAG,
   FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG,
-  FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG,
   FOUNDATION_TECTONICS_ARTIFACT_TAG,
-  FOUNDATION_TILE_TO_CELL_INDEX_ARTIFACT_TAG,
 } from "@swooper/mapgen-core";
 
 const FOUNDATION_TECTONIC_SEGMENTS_ARTIFACT_TAG = "artifact:foundation.tectonicSegments";
@@ -277,7 +272,7 @@ const FoundationTectonicProvenanceArtifactSchema = Type.Object(
 );
 
 /** Foundation plates artifact payload (tile-space plate tensors). */
-const FoundationPlatesArtifactSchema = Type.Object(
+export const FoundationPlatesArtifactSchema = Type.Object(
   {
     /** Plate id per tile. */
     id: TypedArraySchemas.i16({ description: "Plate id per tile." }),
@@ -521,13 +516,13 @@ const FoundationCrustArtifactSchema = Type.Object(
 );
 
 /** Nearest mesh cellIndex per tileIndex (canonical mesh→tile projection mapping). */
-const FoundationTileToCellIndexArtifactSchema = TypedArraySchemas.i32({
+export const FoundationTileToCellIndexArtifactSchema = TypedArraySchemas.i32({
   shape: null,
   description: "Nearest mesh cellIndex per tileIndex (canonical mesh→tile projection mapping).",
 });
 
 /** Foundation crust tiles artifact payload (tile-space crust driver tensors). */
-const FoundationCrustTilesArtifactSchema = Type.Object(
+export const FoundationCrustTilesArtifactSchema = Type.Object(
   {
     /** Crust type per tile (0=oceanic, 1=continental), sampled via tileToCellIndex. */
     type: TypedArraySchemas.u8({
@@ -642,7 +637,7 @@ const FoundationTectonicHistoryTilesRollupArtifactSchema = Type.Object(
 );
 
 /** Foundation tectonic history tiles artifact payload (tile-space era fields + rollups). */
-const FoundationTectonicHistoryTilesArtifactSchema = Type.Object(
+export const FoundationTectonicHistoryTilesArtifactSchema = Type.Object(
   {
     /** Schema major version. */
     version: Type.Integer({ minimum: 1, description: "Schema major version." }),
@@ -661,7 +656,7 @@ const FoundationTectonicHistoryTilesArtifactSchema = Type.Object(
 );
 
 /** Foundation tectonic provenance tiles artifact payload (tile-space provenance scalars). */
-const FoundationTectonicProvenanceTilesArtifactSchema = Type.Object(
+export const FoundationTectonicProvenanceTilesArtifactSchema = Type.Object(
   {
     /** Schema major version. */
     version: Type.Integer({ minimum: 1, description: "Schema major version." }),
@@ -767,26 +762,6 @@ export const foundationArtifacts = {
     id: FOUNDATION_PLATE_MOTION_ARTIFACT_TAG,
     schema: FoundationPlateMotionArtifactSchema,
   }),
-  tileToCellIndex: defineArtifact({
-    name: "foundationTileToCellIndex",
-    id: FOUNDATION_TILE_TO_CELL_INDEX_ARTIFACT_TAG,
-    schema: FoundationTileToCellIndexArtifactSchema,
-  }),
-  crustTiles: defineArtifact({
-    name: "foundationCrustTiles",
-    id: FOUNDATION_CRUST_TILES_ARTIFACT_TAG,
-    schema: FoundationCrustTilesArtifactSchema,
-  }),
-  tectonicHistoryTiles: defineArtifact({
-    name: "foundationTectonicHistoryTiles",
-    id: FOUNDATION_TECTONIC_HISTORY_TILES_ARTIFACT_TAG,
-    schema: FoundationTectonicHistoryTilesArtifactSchema,
-  }),
-  tectonicProvenanceTiles: defineArtifact({
-    name: "foundationTectonicProvenanceTiles",
-    id: FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG,
-    schema: FoundationTectonicProvenanceTilesArtifactSchema,
-  }),
   plateGraph: defineArtifact({
     name: "foundationPlateGraph",
     id: FOUNDATION_PLATE_GRAPH_ARTIFACT_TAG,
@@ -816,10 +791,5 @@ export const foundationArtifacts = {
     name: "foundationTectonics",
     id: FOUNDATION_TECTONICS_ARTIFACT_TAG,
     schema: FoundationTectonicsArtifactSchema,
-  }),
-  plates: defineArtifact({
-    name: "foundationPlates",
-    id: FOUNDATION_PLATES_ARTIFACT_TAG,
-    schema: FoundationPlatesArtifactSchema,
   }),
 } as const;

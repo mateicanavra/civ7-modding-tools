@@ -32,6 +32,6 @@ export default createStage({
   id: "morphology-routing",
   knobsSchema,
   public: publicSchema,
-  compile: ({ config }: { config: MorphologyRoutingStageConfig }) => config.advanced ?? {},
+  compile: ({ config }: { config: MorphologyRoutingStageConfig }) => (config.advanced ? config.advanced : {}),
   steps: [routing],
 } as const);

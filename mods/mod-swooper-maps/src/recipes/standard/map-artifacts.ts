@@ -1,4 +1,11 @@
 import { Type, TypedArraySchemas, defineArtifact } from "@swooper/mapgen-core/authoring";
+import {
+  FoundationCrustTilesArtifactSchema,
+  FoundationPlatesArtifactSchema,
+  FoundationTectonicHistoryTilesArtifactSchema,
+  FoundationTectonicProvenanceTilesArtifactSchema,
+  FoundationTileToCellIndexArtifactSchema,
+} from "./stages/foundation/artifacts.js";
 
 const ProjectionMetaArtifactSchema = Type.Object(
   {
@@ -57,6 +64,31 @@ export const mapArtifacts = {
     name: "projectionMeta",
     id: "artifact:map.projectionMeta",
     schema: ProjectionMetaArtifactSchema,
+  }),
+  foundationTileToCellIndex: defineArtifact({
+    name: "foundationTileToCellIndex",
+    id: "artifact:map.foundationTileToCellIndex",
+    schema: FoundationTileToCellIndexArtifactSchema,
+  }),
+  foundationCrustTiles: defineArtifact({
+    name: "foundationCrustTiles",
+    id: "artifact:map.foundationCrustTiles",
+    schema: FoundationCrustTilesArtifactSchema,
+  }),
+  foundationTectonicHistoryTiles: defineArtifact({
+    name: "foundationTectonicHistoryTiles",
+    id: "artifact:map.foundationTectonicHistoryTiles",
+    schema: FoundationTectonicHistoryTilesArtifactSchema,
+  }),
+  foundationTectonicProvenanceTiles: defineArtifact({
+    name: "foundationTectonicProvenanceTiles",
+    id: "artifact:map.foundationTectonicProvenanceTiles",
+    schema: FoundationTectonicProvenanceTilesArtifactSchema,
+  }),
+  foundationPlates: defineArtifact({
+    name: "foundationPlates",
+    id: "artifact:map.foundationPlates",
+    schema: FoundationPlatesArtifactSchema,
   }),
   landmassRegionSlotByTile: defineArtifact({
     name: "landmassRegionSlotByTile",

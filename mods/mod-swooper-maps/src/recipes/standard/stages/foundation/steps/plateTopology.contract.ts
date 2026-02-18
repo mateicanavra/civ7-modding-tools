@@ -1,6 +1,7 @@
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 
 import { foundationArtifacts } from "../artifacts.js";
+import { mapArtifacts } from "../../../map-artifacts.js";
 
 const PlateTopologyStepContract = defineStep({
   id: "plate-topology",
@@ -8,7 +9,7 @@ const PlateTopologyStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [foundationArtifacts.plates],
+    requires: [mapArtifacts.foundationPlates],
     provides: [foundationArtifacts.plateTopology],
   },
   ops: {},

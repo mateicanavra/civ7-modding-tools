@@ -59,3 +59,4 @@
 - PR #1341 codex/agent-F-discovery-official-fallback: review appended; verification=PASS; unresolvedThreads=0
 - PR #1342 codex/agent-H-resource-official-primary: review appended; verification=PASS; unresolvedThreads=0
 - PR #1343 codex/agent-ORCH-m4-reanchor-docs: review appended; verification=FAIL; unresolvedThreads=0
+- PR #1344 codex/prr-m4-s07-lane-split-map-artifacts-rewire: review appended; verification=FAIL; unresolvedThreads=0

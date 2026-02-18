@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
+import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
 import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
 import { M1_FOUNDATION_GATES } from "../support/foundation-invariants.js";
 
@@ -52,7 +53,7 @@ describe("foundation invariant gates", () => {
     const zeroes = new Uint8Array(size);
     const artifacts = new Map<string, unknown>([
       [
-        foundationArtifacts.tectonicHistoryTiles.id,
+        mapArtifacts.foundationTectonicHistoryTiles.id,
         {
           perEra: [
             {
@@ -80,7 +81,7 @@ describe("foundation invariant gates", () => {
         },
       ],
       [
-        foundationArtifacts.tectonicProvenanceTiles.id,
+        mapArtifacts.foundationTectonicProvenanceTiles.id,
         {
           originEra: new Uint8Array(size).fill(0),
           lastBoundaryEra: new Uint8Array(size).fill(255),

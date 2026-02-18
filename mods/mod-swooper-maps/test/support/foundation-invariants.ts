@@ -5,6 +5,7 @@ import { deriveStepSeed } from "@swooper/mapgen-core/lib/rng";
 import type { ValidationInvariant, ValidationInvariantContext } from "./validation-harness.js";
 import planFoothills from "../../src/domain/morphology/ops/plan-foothills/index.js";
 import planRidges from "../../src/domain/morphology/ops/plan-ridges/index.js";
+import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
 import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 import { deriveBeltDriversFromHistory } from "../../src/domain/morphology/ops/compute-belt-drivers/deriveFromHistory.js";
@@ -477,12 +478,12 @@ const eventProvenanceInvariant: ValidationInvariant = {
   check: (ctx) => {
     const historyTiles = requireArtifact<any>(
       ctx,
-      foundationArtifacts.tectonicHistoryTiles.id,
+      mapArtifacts.foundationTectonicHistoryTiles.id,
       "tectonicHistoryTiles"
     );
     const provenanceTiles = requireArtifact<any>(
       ctx,
-      foundationArtifacts.tectonicProvenanceTiles.id,
+      mapArtifacts.foundationTectonicProvenanceTiles.id,
       "tectonicProvenanceTiles"
     );
     if (!historyTiles || !provenanceTiles) {
@@ -587,12 +588,12 @@ const beltContinuityInvariant: ValidationInvariant = {
   check: (ctx) => {
     const historyTiles = requireArtifact<any>(
       ctx,
-      foundationArtifacts.tectonicHistoryTiles.id,
+      mapArtifacts.foundationTectonicHistoryTiles.id,
       "tectonicHistoryTiles"
     );
     const provenanceTiles = requireArtifact<any>(
       ctx,
-      foundationArtifacts.tectonicProvenanceTiles.id,
+      mapArtifacts.foundationTectonicProvenanceTiles.id,
       "tectonicProvenanceTiles"
     );
     if (!historyTiles || !provenanceTiles) {
@@ -675,12 +676,12 @@ const morphologyDriverCorrelationInvariant: ValidationInvariant = {
   check: (ctx) => {
     const historyTiles = requireArtifact<any>(
       ctx,
-      foundationArtifacts.tectonicHistoryTiles.id,
+      mapArtifacts.foundationTectonicHistoryTiles.id,
       "tectonicHistoryTiles"
     );
     const provenanceTiles = requireArtifact<any>(
       ctx,
-      foundationArtifacts.tectonicProvenanceTiles.id,
+      mapArtifacts.foundationTectonicProvenanceTiles.id,
       "tectonicProvenanceTiles"
     );
     const topography = requireArtifact<any>(ctx, morphologyArtifacts.topography.id, "topography");
