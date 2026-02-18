@@ -55,3 +55,53 @@ jobs:
 
       - name: Test
         run: bun run test:ci
+
+  architecture-strict-core:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Guard against pnpm artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          if find . -name pnpm-lock.yaml -o -name pnpm-workspace.yaml | grep -q .; then
+            echo "pnpm artifacts detected (repo contract is Bun-only):"
+            find . -name pnpm-lock.yaml -o -name pnpm-workspace.yaml
+            exit 1
+          fi
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.x
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: ".bun-version"
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ hashFiles('bun.lock', 'turbo.json', 'packages/*/package.json', 'packages/plugins/*/package.json', 'apps/*/package.json') }}
+          restore-keys: |
+            turbo-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Strict lint
+        run: bun run lint
+
+      - name: Strict adapter boundary
+        run: bun run lint:adapter-boundary
+
+      - name: Strict domain refactor guardrails (full profile required)
+        run: REFRACTOR_DOMAINS="foundation,morphology,hydrology,ecology,placement,narrative" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL=1 bun run lint:domain-refactor-guardrails
+
+      - name: Strict check
+        run: REFRACTOR_DOMAINS="foundation,morphology,hydrology,ecology,placement,narrative" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL=1 bun run check

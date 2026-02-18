@@ -222,3 +222,101 @@ failure_detail:
 
 ## Decision asks
 - none
+
+### 2026-02-15 — /compact context-bridge ack + S05/S06 slice plan
+
+#### Compact context bridge
+- Stack C execution context is active on `codex/prr-m4-s05-ci-strict-core-gates` with clean worktree state.
+- Current CI runs `build/lint/test:ci` but does not provide a dedicated strict-core architecture gate job.
+- Strict full-profile guardrails currently contain stale stage-root expectations that can hard-fail required-domain runs.
+- Structural architecture scans for no-op-calls-op, dual paths, shim/shadow surfaces, and topology lock are not yet wired as one explicit architecture-cutover suite.
+
+#### Assumptions
+- S05 must land required strict-core CI enforcement using explicit commands (no implicit `check` expansion ambiguity).
+- No permissive fallback profile is acceptable for required domain-refactor guardrail execution (`DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full` only for strict-core gate path).
+- S06 should add deterministic structural tests that run in repo CI without introducing transitional shim allowances.
+- Branch-protection toggles are managed outside-repo; workflow job naming and command wiring in-repo are the enforceable contract here.
+
+#### Slice plan
+1. S05 (`codex/prr-m4-s05-ci-strict-core-gates`):
+   - add strict core CI job (`architecture-strict-core`) with required command set,
+   - enforce explicit strict profile invocation,
+   - remove/close permissive fallback behavior in guardrail execution path where it conflicts with required strict gate semantics,
+   - run S05 gate commands and record exact outputs.
+2. S06 (`codex/prr-m4-s06-test-rewrite-architecture-scans`) stacked on S05:
+   - add/upgrade structural tests for no-op-calls-op, no dual paths, no shim/shadow surfaces, topology lock,
+   - wire architecture scans into package scripts and CI path,
+   - run structural suite commands and record exact outputs.
+
+#### Verification plan
+- S05 gates:
+  - `bun run lint`
+  - `bun run lint:adapter-boundary`
+  - `REFRACTOR_DOMAINS="foundation,morphology,hydrology,ecology,placement,narrative" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full bun run lint:domain-refactor-guardrails`
+  - `bun run check`
+- S06 architecture scans:
+  - `bun run --cwd mods/mod-swooper-maps test -- test/foundation/no-op-calls-op-tectonics.test.ts`
+  - `bun run --cwd mods/mod-swooper-maps test -- test/pipeline/no-dual-contract-paths.test.ts`
+  - `bun run --cwd mods/mod-swooper-maps test -- test/pipeline/no-shim-surfaces.test.ts`
+  - `bun run --cwd mods/mod-swooper-maps test -- test/pipeline/foundation-topology-lock.test.ts`
+  - `bun run test:ci`
+
+```yaml
+evidence_paths:
+  planning_context:
+    - docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M4-005-guardrails-test-rewrite.md
+    - docs/projects/pipeline-realism/milestones/M4-foundation-domain-axe-cutover.md
+  s05_targets:
+    - .github/workflows/ci.yml
+    - package.json
+    - scripts/lint/lint-domain-refactor-guardrails.sh
+  s06_targets:
+    - mods/mod-swooper-maps/test/foundation/no-op-calls-op-tectonics.test.ts
+    - mods/mod-swooper-maps/test/pipeline/no-dual-contract-paths.test.ts
+    - mods/mod-swooper-maps/test/pipeline/no-shim-surfaces.test.ts
+    - mods/mod-swooper-maps/test/pipeline/foundation-topology-lock.test.ts
+    - mods/mod-swooper-maps/package.json
+  command_output_log:
+    - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-D-testing-guardrails.md
+```
+
+## Proposed target
+- Execute S05/S06 as strict no-shim enforcement slices: hard CI strict-core gate plus deterministic architecture scans wired into repeatable commands.
+
+## Changes landed
+- Added 2026-02-15 compact context bridge, assumptions, slice plan, verification plan, and evidence-path map for S05/S06 execution.
+
+## Open risks
+- If topology-lock expectation is ahead of currently landed stage topology, scan scope may need a narrow lock to current canonical IDs in this stack layer.
+- Strict full-profile domain guardrails may surface unrelated pre-existing debt that must be remediated or explicitly handed off with evidence.
+
+## Decision asks
+- none
+
+### 2026-02-15 — S05 execution evidence (post-implementation)
+
+```yaml
+s05_command_runs:
+  - command: bun run lint
+    exit_code: 0
+    output_log: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/evidence/agent-D/s05/01-bun-run-lint.log
+  - command: bun run lint:adapter-boundary
+    exit_code: 0
+    output_log: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/evidence/agent-D/s05/02-bun-run-lint-adapter-boundary.log
+  - command: REFRACTOR_DOMAINS="foundation,morphology,hydrology,ecology,placement,narrative" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL=1 bun run lint:domain-refactor-guardrails
+    exit_code: 1
+    output_log: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/evidence/agent-D/s05/03-bun-run-lint-domain-refactor-guardrails-full.log
+    failure_summary:
+      violation_groups: 20
+      notable_groups:
+        - runtime_config_merges_foundation
+        - runtime_config_merges_morphology
+        - hydrology_step_id_configs_in_maps
+        - ecology_jsdoc_and_module_shape_guardrails
+  - command: REFRACTOR_DOMAINS="foundation,morphology,hydrology,ecology,placement,narrative" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL=1 bun run check
+    exit_code: 1
+    output_log: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/evidence/agent-D/s05/04-bun-run-check-strict-env.log
+    failure_reason: check_fails_because_lint-domain-refactor-guardrails_fails_under_strict_full_profile
+```
+
+Verbatim outputs are captured in the referenced `output_log` files above.
