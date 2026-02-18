@@ -9,7 +9,6 @@
 
 import type {
   DiscoveryCatalogEntry,
-  DiscoveryPlacementDefaults,
   EngineAdapter,
   FeatureData,
   LandmassIdName,
@@ -22,7 +21,7 @@ import type {
 } from "./types.js";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
 import { NATURAL_WONDER_CATALOG } from "./manual-catalogs/natural-wonders.js";
-import { DEFAULT_DISCOVERY_PLACEMENT, DISCOVERY_CATALOG } from "./manual-catalogs/discoveries.js";
+import { DISCOVERY_CATALOG } from "./manual-catalogs/discoveries.js";
 import { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.js";
 
 // Import from /base-standard/... — these are external Civ7 runtime paths
@@ -532,10 +531,6 @@ export class Civ7Adapter implements EngineAdapter {
 
   getDiscoveryCatalog(): DiscoveryCatalogEntry[] {
     return DISCOVERY_CATALOG;
-  }
-
-  getDefaultDiscoveryPlacement(): DiscoveryPlacementDefaults {
-    return DEFAULT_DISCOVERY_PLACEMENT;
   }
 
   generateSnow(width: number, height: number): void {

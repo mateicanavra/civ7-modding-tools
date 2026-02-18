@@ -26,11 +26,6 @@ export interface DiscoveryCatalogEntry {
   discoveryActivationType: number;
 }
 
-export interface DiscoveryPlacementDefaults {
-  discoveryVisualType: number;
-  discoveryActivationType: number;
-}
-
 /**
  * Map dimensions
  */
@@ -441,11 +436,6 @@ export interface EngineAdapter {
 
   /** Adapter-owned discovery visual/activation catalog for deterministic planners. */
   getDiscoveryCatalog(): DiscoveryCatalogEntry[];
-
-  /**
-   * Static defaults for discovery placement when engine hashes are not available.
-   */
-  getDefaultDiscoveryPlacement(): DiscoveryPlacementDefaults;
 
   /**
    * Generate snow terrain

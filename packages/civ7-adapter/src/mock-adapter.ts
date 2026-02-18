@@ -7,7 +7,6 @@
 
 import type {
   DiscoveryCatalogEntry,
-  DiscoveryPlacementDefaults,
   EngineAdapter,
   FeatureData,
   LandmassIdName,
@@ -28,7 +27,6 @@ import {
   NO_RESOURCE as ADAPTER_NO_RESOURCE,
   PLACEABLE_RESOURCE_TYPE_IDS,
 } from "./resource-constants.js";
-import { DEFAULT_DISCOVERY_PLACEMENT } from "./manual-catalogs/discoveries.js";
 
 const DEFAULT_VORONOI_UTILS: VoronoiUtils = {
   createRandomSites(count: number, width: number, height: number): VoronoiSite[] {
@@ -220,9 +218,8 @@ function sanitizeDiscoveryCatalog(input: DiscoveryCatalogEntry[] | undefined): D
     const discoveryVisualType = entry?.discoveryVisualType;
     const discoveryActivationType = entry?.discoveryActivationType;
     if (!Number.isFinite(discoveryVisualType) || !Number.isFinite(discoveryActivationType)) continue;
-    const visual = (discoveryVisualType as number) | 0;
-    const activation = (discoveryActivationType as number) | 0;
-    if (visual < 0 || activation < 0) continue;
+    const visual = Math.trunc(discoveryVisualType as number) >>> 0;
+    const activation = Math.trunc(discoveryActivationType as number) >>> 0;
     const key = `${visual}:${activation}`;
     if (unique.has(key)) continue;
     unique.add(key);
@@ -884,10 +881,6 @@ export class MockAdapter implements EngineAdapter {
       discoveryVisualType: entry.discoveryVisualType,
       discoveryActivationType: entry.discoveryActivationType,
     }));
-  }
-
-  getDefaultDiscoveryPlacement(): DiscoveryPlacementDefaults {
-    return DEFAULT_DISCOVERY_PLACEMENT;
   }
 
   generateSnow(width: number, height: number): void {
