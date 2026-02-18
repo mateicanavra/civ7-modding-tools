@@ -100,7 +100,7 @@ The `map-ecology` stage:
 ## Ground truth anchors
 
 - Stage definitions (compile mapping, step list):
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/index.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-biomes/index.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/index.ts`
 - Ecology truth artifacts: `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/artifacts.ts`
 - Ecology domain op catalog (contracts + implementations):
@@ -109,7 +109,7 @@ The `map-ecology` stage:
 - Example step contracts (truth stage):
   - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/biomes/contract.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/pedology/contract.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/features-plan/contract.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-vegetation/steps/plan-vegetation/contract.ts`
 - Example step contracts (projection stage):
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/plotBiomes.contract.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/features-apply/contract.ts`
