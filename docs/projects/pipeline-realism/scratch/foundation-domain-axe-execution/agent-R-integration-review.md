@@ -110,3 +110,119 @@ updated_artifacts:
   - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/decision-log.md
   - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/master-scratch.md
 ```
+
+## Independent Review — 2026-02-15 (Foundation runtime-config-merge smell)
+
+### Review verdict
+- `fail` for this smell class.
+
+### Findings
+- [SEV-1] Foundation compile wiring still exposes runtime step-config passthrough via the `advanced` sentinel path. When a sentinel step id is present, compile returns raw per-step objects from `advancedRecord` instead of deriving typed step configs from schema-defined compile inputs.
+```yaml
+evidence_paths:
+  - path: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:533
+    why: comment documents studio-only per-step config mode under `advanced.<stepId>`
+  - path: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:550
+    why: compile casts `advanced` to `Record<string, unknown>` for raw key/value access
+  - path: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:552
+    why: sentinel detection uses raw property presence checks against step ids
+  - path: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:556
+    why: compile returns step configs directly from raw `advancedRecord[stepId]`
+```
+
+- [SEV-1] Foundation compile wiring still contains profile sentinel fallback (`__studioUiMetaSentinelPath`) that fans out `config.profiles` into all steps. This is a patchy runtime fallback branch, not strict schema-driven compile mapping.
+```yaml
+evidence_paths:
+  - path: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:561
+    why: compile checks non-schema sentinel metadata on `config.profiles`
+  - path: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:563
+    why: compile returns `config.profiles` unchanged as every step config payload
+```
+
+- [SEV-2] Compile input handling still relies on ad-hoc untyped casts (`Record<string, unknown>`) in decision branches that control output shape, leaving the wiring partially outside typed schema guarantees.
+```yaml
+evidence_paths:
+  - path: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:550
+    why: cast to `Record<string, unknown>` is required for control-path behavior
+  - path: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:561
+    why: `config.profiles` is cast to `Record<string, unknown>` to read sentinel metadata
+```
+
+### Verification commands
+```yaml
+commands:
+  - git status --short --branch
+  - git diff -- mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+  - nl -ba mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts | sed -n '520,780p'
+  - rg --files -g 'AGENTS.md' mods/mod-swooper-maps docs/projects/pipeline-realism
+  - cat mods/mod-swooper-maps/AGENTS.md
+  - cat mods/mod-swooper-maps/src/AGENTS.md
+  - rg -n "__studioUiMetaSentinelPath|Object\\.fromEntries|advancedRecord|as Record<string, unknown>|\\.{3}defaults\\.crust" mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+```
+
+## Proposed target
+- Remove both studio sentinel passthrough branches from `foundation` compile (`advanced.<stepId>` and `profiles.__studioUiMetaSentinelPath`) so compile always maps typed schema inputs (`profiles`, `advanced`, `knobs`) into explicit step configs.
+- Keep any studio-only authoring compatibility in a separate adapter path outside the production foundation compile wiring.
+
+## Changes landed
+- Added independent review findings for this smell class, with severity ordering and YAML evidence in this scratch doc.
+- Recorded verification commands used for this review pass.
+
+## Open risks
+- If sentinel passthrough branches remain, runtime/step config merge behavior can bypass compile-time guardrails and reintroduce non-deterministic shape drift during future stage refactors.
+
+## Decision asks
+- Decide whether to hard-delete the two sentinel passthrough branches in this slice or migrate them into a dedicated legacy adapter in a follow-up guardrail issue.
+
+## Final architecture verification pass — 2026-02-15
+
+```yaml
+docs_anchor:
+  - docs/system/mods/swooper-maps/architecture.md
+  - docs/system/libs/mapgen/architecture.md
+  - docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+```
+
+### Hard precondition
+```text
+$ cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && pwd && git rev-parse --abbrev-ref HEAD
+/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+codex/prr-m4-s06-test-rewrite-architecture-scans
+```
+
+### Verification findings
+- Verdict: `pass`.
+- Severity findings: none.
+- Sentinel passthrough branches removed: compile body is direct typed lowering from stage surface (`profiles`/`advanced`/`knobs`) to explicit step configs with no sentinel branch points (`mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:524`, `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:598`).
+- No compile bypass paths remain for `__studioUiMetaSentinelPath` / `advanced.<stepId>` / `advancedRecord[stepId]`: scan returned no matches.
+
+```text
+$ rg -n "FOUNDATION_STUDIO_STEP_CONFIG_IDS|__studioUiMetaSentinelPath|advancedRecord\[stepId\]" mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+(exit 1, no matches)
+```
+
+### Targeted verification commands
+```text
+$ bun run --cwd mods/mod-swooper-maps check
+$ tsc --noEmit
+(exit 0)
+
+$ bun run --cwd mods/mod-swooper-maps test test/foundation/contract-guard.test.ts test/standard-compile-errors.test.ts
+15 pass
+0 fail
+
+$ rg -n "FOUNDATION_STUDIO_STEP_CONFIG_IDS|__studioUiMetaSentinelPath|advancedRecord\[stepId\]" mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+(exit 1, no matches)
+```
+
+## Proposed target
+- Keep foundation compile as a single mapping boundary from stage-authoring inputs to step contracts, with no sentinel/degraded compatibility paths in production compile logic.
+
+## Changes landed
+- Executed final verification pass and appended this evidence-backed review entry.
+
+## Open risks
+- No critical regressions found in scope; residual risk is future reintroduction of dynamic bypass branches unless guard tests continue to block sentinel strings.
+
+## Decision asks
+- none

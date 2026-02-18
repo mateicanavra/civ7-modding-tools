@@ -502,3 +502,98 @@ s03_refresh_evidence:
 
 ## Decision asks
 - none
+
+### 2026-02-15 — S06 foundation compile runtime-merge removal (typed lowering)
+
+#### Proposed target
+- Remove ad-hoc runtime cast/merge patterns from Foundation compile lowering so advanced overrides are consumed as schema-typed config buckets (`lithosphere`, `mantleForcing`, `budgets`, `mesh`) instead of per-step runtime probing.
+- Add a focused foundation guardrail test that fails if cast-merge override patterns are reintroduced in Foundation stage wiring.
+
+#### Changes landed
+- Refactored Foundation compile lowering in `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`:
+  - Replaced casted override bags (`mantleOverrideValues`, `budgetsOverrideValues`, `meshOverrideValues`) with typed optional config buckets from `config.advanced`.
+  - Removed `typeof ... === "number"` probing for typed advanced fields and switched to typed nullish fallback flows.
+  - Kept clamp/default semantics intact while removing runtime-style cast/merge override plumbing.
+  - Removed the runtime object-type guard around lithosphere spread merge and now merge directly from typed `advanced.lithosphere`.
+- Added guardrail in `mods/mod-swooper-maps/test/foundation/contract-guard.test.ts`:
+  - New test: `keeps foundation advanced override lowering typed (no runtime cast-merge path)`.
+  - Asserts old cast/merge override idioms are absent from Foundation stage compile source.
+
+#### Verification command log (S06)
+```bash
+$ bun run --cwd mods/mod-swooper-maps check
+# result: PASS (tsc --noEmit, exit 0)
+
+$ bun run --cwd mods/mod-swooper-maps build
+# result: PASS (tsup build success, exit 0)
+
+$ bun run --cwd mods/mod-swooper-maps test test/foundation/contract-guard.test.ts test/standard-compile-errors.test.ts
+# result: PASS (15 pass, 0 fail)
+```
+
+```yaml
+s06_foundation_runtime_merge_removal:
+  branch: codex/prr-m4-s06-test-rewrite-architecture-scans
+  changed_paths:
+    - mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+    - mods/mod-swooper-maps/test/foundation/contract-guard.test.ts
+  evidence_paths:
+    typed_lowering:
+      - mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+    guardrail_test:
+      - mods/mod-swooper-maps/test/foundation/contract-guard.test.ts
+    scratch_log:
+      - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-A-core-spine.md
+  commands_run:
+    - bun run --cwd mods/mod-swooper-maps check
+    - bun run --cwd mods/mod-swooper-maps build
+    - bun run --cwd mods/mod-swooper-maps test test/foundation/contract-guard.test.ts test/standard-compile-errors.test.ts
+```
+
+#### Open risks
+- Studio sentinel compatibility path in Foundation compile still uses runtime sentinel forwarding behavior (`advanced.<stepId>` / profile sentinel); this slice only removed cast-merge override idioms for advanced runtime config lowering.
+- Existing compile behavior remains functionally equivalent by design, so this slice improves architecture hygiene/guarding but does not add new behavior-level assertions beyond targeted compile/guard tests.
+
+#### Decision asks
+- none
+
+#### Post-cut verification addendum
+```yaml
+post_cut_architecture_tests:
+  command: bun run --cwd mods/mod-swooper-maps test -- test/foundation/no-op-calls-op-tectonics.test.ts test/pipeline/no-dual-contract-paths.test.ts test/pipeline/no-shim-surfaces.test.ts test/pipeline/foundation-topology-lock.test.ts
+  result: pass
+  assertions:
+    - no_op_calls_op_guard: pass
+    - no_dual_contract_paths_guard: pass
+    - no_shim_surfaces_guard: pass
+    - foundation_topology_lock_guard: pass
+```
+
+### 2026-02-15 — S06 follow-up hard cut (sentinel passthrough removal)
+
+#### Proposed target
+- Hard-delete legacy sentinel passthrough branches from Foundation compile so stage compile always lowers typed `profiles` + `advanced` + `knobs` into explicit step configs.
+
+#### Changes landed
+- Removed `advanced.<stepId>` sentinel passthrough branch from `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`.
+- Removed `profiles.__studioUiMetaSentinelPath` fallback branch from `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`.
+- Removed sentinel scaffolding constants (`FOUNDATION_STEP_IDS` and `FOUNDATION_STUDIO_STEP_CONFIG_IDS`) from the same file.
+- Extended guard test in `mods/mod-swooper-maps/test/foundation/contract-guard.test.ts` to assert sentinel tokens cannot reappear.
+- Verified no sentinel tokens remain in production foundation stage source via ripgrep.
+
+```yaml
+s06_sentinel_hard_cut:
+  changed_paths:
+    - mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+    - mods/mod-swooper-maps/test/foundation/contract-guard.test.ts
+  verification_commands:
+    - bun run --cwd mods/mod-swooper-maps check
+    - bun run --cwd mods/mod-swooper-maps test test/foundation/contract-guard.test.ts test/standard-compile-errors.test.ts
+    - rg -n "FOUNDATION_STUDIO_STEP_CONFIG_IDS|__studioUiMetaSentinelPath|advancedRecord\\[stepId\\]" mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+```
+
+#### Open risks
+- None in the scoped smell class; compile bypass/sentinel paths are removed and guarded.
+
+#### Decision asks
+- none

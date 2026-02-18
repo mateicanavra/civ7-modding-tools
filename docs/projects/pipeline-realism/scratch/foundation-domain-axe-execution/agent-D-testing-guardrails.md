@@ -320,3 +320,42 @@ s05_command_runs:
 ```
 
 Verbatim outputs are captured in the referenced `output_log` files above.
+
+### 2026-02-15 — S06 execution evidence (restacked run)
+
+```yaml
+s06_command_runs:
+  - command: bun run --cwd mods/mod-swooper-maps test -- test/foundation/no-op-calls-op-tectonics.test.ts
+    exit_code: 1
+    output_log: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/evidence/agent-D/s06/01-no-op-calls-op-tectonics.log
+    failure_summary:
+      finding: foundation_op_runtime_imports_sibling_ops
+      hits:
+        - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts imports ../compute-tectonic-segments/index.js
+        - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts imports ../compute-plate-motion/index.js
+  - command: bun run --cwd mods/mod-swooper-maps test -- test/pipeline/no-dual-contract-paths.test.ts
+    exit_code: 0
+    output_log: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/evidence/agent-D/s06/02-no-dual-contract-paths.log
+  - command: bun run --cwd mods/mod-swooper-maps test -- test/pipeline/no-shim-surfaces.test.ts
+    exit_code: 0
+    output_log: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/evidence/agent-D/s06/03-no-shim-surfaces.log
+  - command: bun run --cwd mods/mod-swooper-maps test -- test/pipeline/foundation-topology-lock.test.ts
+    exit_code: 0
+    output_log: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/evidence/agent-D/s06/04-foundation-topology-lock.log
+  - command: bun run test:architecture-cutover
+    exit_code: 1
+    output_log: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/evidence/agent-D/s06/05-test-architecture-cutover.log
+    failure_reason: no-op-calls-op_guard_fails_on_existing_foundation_op_to_op_runtime_imports
+  - command: bun run test:ci
+    exit_code: 1
+    output_log: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/evidence/agent-D/s06/06-bun-run-test-ci.log
+    failure_reason: includes_new_no-op-calls-op_guard_which_detects_existing_runtime_op_to_op_calls
+
+s06_status:
+  infrastructure_and_scans_added: true
+  debt_cleanup_included_in_s06: false
+  known_blocker_surface:
+    - foundation/compute-tectonic-history_runtime_imports_of_other_ops
+```
+
+S06 result posture: structural architecture scan infrastructure is landed and wired; remaining failures are pre-existing debt now surfaced by the new no-op-calls-op gate.
