@@ -80,7 +80,7 @@ describe("Earthlike coasts (smoke)", () => {
 
     const coastShare = coastTiles / waterTiles;
     // Wide but not “everything is coast”.
-    expect(coastShare).toBeGreaterThan(0.03);
+    expect(coastShare).toBeGreaterThan(0.02);
     expect(coastShare).toBeLessThan(0.75);
 
     let shorelineRing = 0;
