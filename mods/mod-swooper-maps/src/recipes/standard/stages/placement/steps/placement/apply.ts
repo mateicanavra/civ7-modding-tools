@@ -490,7 +490,9 @@ function generateDiscoveriesWithOfficialFallback({
     );
   }
 
-  const plannedCount = Math.max(0, discoveries.placements.length | 0);
+  const plannedCount = Number.isFinite(discoveries.plannedCount)
+    ? Math.max(0, Math.trunc(discoveries.plannedCount))
+    : Math.max(0, discoveries.placements.length | 0);
   const resolvedPolarMargin = Number.isFinite(polarMargin) ? Math.max(0, Math.trunc(polarMargin)) : 0;
   const resolvedStartPositions = sanitizeStartPositions(startPositions);
   const placedCount = adapter.generateOfficialDiscoveries(
@@ -504,11 +506,14 @@ function generateDiscoveriesWithOfficialFallback({
       `[Placement] Official discovery generator returned invalid placed count (${String(placedCount)}).`
     );
   }
+  const resolvedPlacedCount = Math.trunc(placedCount);
+  // Official discovery generation owns final placement feasibility; planned count
+  // remains a deterministic diagnostic target rather than a fail-hard contract.
 
   return {
     mode: "official-fallback",
     plannedCount,
-    placedCount: Math.trunc(placedCount),
+    placedCount: resolvedPlacedCount,
     startPositionsCount: resolvedStartPositions.length,
     polarMargin: resolvedPolarMargin,
   };

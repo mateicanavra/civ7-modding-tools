@@ -155,10 +155,14 @@ issues:
 - [ ] [`LOCAL-TBD-PR-M4-003`](../issues/LOCAL-TBD-PR-M4-003-stage-topology-compile-surface.md) Stage Topology + Compile Surface
 - [ ] [`LOCAL-TBD-PR-M4-004`](../issues/LOCAL-TBD-PR-M4-004-lane-split-downstream-rewire.md) Lane Split + Downstream Rewire
 - M4-review-loop (2026-02-17): reviewBranch `codex/prr-m4-s07-lane-split-map-artifacts-rewire` reviewPR https://github.com/mateicanavra/civ7-modding-tools/pull/1344 outcome: no-action
+- M4-fix-loop (2026-02-17): reviewBranch `codex/prr-m4-s07-lane-split-map-artifacts-rewire` reviewPR https://github.com/mateicanavra/civ7-modding-tools/pull/1344 outcome: `bun run test:architecture-cutover` PASS
 - [ ] [`LOCAL-TBD-PR-M4-005`](../issues/LOCAL-TBD-PR-M4-005-guardrails-test-rewrite.md) Guardrails + Test Rewrite
 - [ ] [`LOCAL-TBD-PR-M4-006`](../issues/LOCAL-TBD-PR-M4-006-config-redesign-preset-retuning-docs-cleanup.md) Config Redesign + Preset Retuning + Docs Cleanup
 - M4-review-loop (2026-02-17): reviewBranch `codex/prr-m4-s08-config-redesign-preset-retune` reviewPR https://github.com/mateicanavra/civ7-modding-tools/pull/1346 outcome: no-action (docs/token cleanup deferred to S09)
 - M4-review-loop (2026-02-17): reviewBranch `codex/prr-m4-s09-docs-comments-schema-legacy-purge` reviewPR https://github.com/mateicanavra/civ7-modding-tools/pull/1347 outcome: no-action
+- M4-fix-loop (2026-02-17): reviewBranch `codex/prr-m4-s08-config-redesign-preset-retune` reviewPR https://github.com/mateicanavra/civ7-modding-tools/pull/1346 outcome: `bun run test:ci` PASS
+- M4-fix-loop (2026-02-17): reviewBranch `codex/prr-m4-s09-docs-comments-schema-legacy-purge` reviewPR https://github.com/mateicanavra/civ7-modding-tools/pull/1347 outcome: `bun run test:ci` PASS
+- M4-fix-loop (2026-02-17): reviewBranch `codex/prr-pr-comments-discovery-count-enforcement` reviewPR https://github.com/mateicanavra/civ7-modding-tools/pull/1348 outcome: `bun run test:ci` PASS, fix commit `b1951721b`, unresolved review thread resolved
 - [ ] [`LOCAL-TBD-PR-M4-007`](../issues/LOCAL-TBD-PR-M4-007-earthlike-studio-typegen-fix.md) Earthlike Studio Typegen + Preset Schema Fix
 
 ## Sequencing & Parallelization Plan
