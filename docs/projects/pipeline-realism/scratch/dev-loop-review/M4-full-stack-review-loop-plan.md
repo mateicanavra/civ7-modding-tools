@@ -18,3 +18,4 @@
 - 2026-02-17: Reviewed #1242 (agent-SWANKO-PRR-ledger-review-full-chain); unresolved=0, resolved=2; verification: docs-only; no runtime check run.
 - 2026-02-17: Reviewed #1243 (agent-SWANKO-PRR-s10-c01-fix-cap-reset-threshold-era-max); unresolved=0, resolved=0; verification: bun run --cwd mods/mod-swooper-maps check: FAIL.
 - 2026-02-17: Reviewed #1244 (agent-SWANKO-PRR-s11-c01-fix-belt-influence-distance-contract); unresolved=0, resolved=0; verification: bun run --cwd mods/mod-swooper-maps check: FAIL.
+- 2026-02-17: Reviewed #1245 (agent-SWANKO-PRR-s93-c01-fix-round-clampint-knobs); unresolved=0, resolved=0; verification: bun run --cwd mods/mod-swooper-maps check: FAIL.

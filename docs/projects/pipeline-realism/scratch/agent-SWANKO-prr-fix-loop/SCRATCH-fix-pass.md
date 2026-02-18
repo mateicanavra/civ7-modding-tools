@@ -28,3 +28,11 @@ Conventions:
   - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts`
 - Checks:
   - `bun run --cwd mods/mod-swooper-maps check` (pass)
+
+## PRR-s93-c01
+- Branch: `agent-SWANKO-PRR-s93-c01-fix-round-clampint-knobs`
+- Change: round `histogramBins` / `smoothingSteps` before `clampInt` to avoid silent truncation of authored fractional values.
+- Files:
+  - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-motion/index.ts`
+- Checks:
+  - `bun run --cwd mods/mod-swooper-maps check` (pass)
