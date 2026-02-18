@@ -20,3 +20,4 @@
 - 2026-02-17: Reviewed #1244 (agent-SWANKO-PRR-s11-c01-fix-belt-influence-distance-contract); unresolved=0, resolved=0; verification: bun run --cwd mods/mod-swooper-maps check: FAIL.
 - 2026-02-17: Reviewed #1245 (agent-SWANKO-PRR-s93-c01-fix-round-clampint-knobs); unresolved=0, resolved=0; verification: bun run --cwd mods/mod-swooper-maps check: FAIL.
 - 2026-02-17: Reviewed #1246 (agent-SWANKO-PRR-s94-c01-fix-sea-level-constraints-first); unresolved=0, resolved=0; verification: bun run --cwd mods/mod-swooper-maps check: FAIL.
+- 2026-02-17: Reviewed #1247 (agent-SWANKO-PRR-s97-c01-fix-polarity-bootstrap-oceanic-only); unresolved=0, resolved=0; verification: bun run --cwd mods/mod-swooper-maps check: FAIL.
