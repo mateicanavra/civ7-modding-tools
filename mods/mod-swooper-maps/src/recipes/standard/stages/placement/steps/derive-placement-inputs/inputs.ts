@@ -61,6 +61,7 @@ export function buildPlacementInputs(
   const noResourceSentinel = context.adapter.NO_RESOURCE | 0;
   let runtimeCandidateResourceTypes: number[] = [];
   try {
+    // Adapter controls this catalog; if unavailable, planner falls back to authored candidates.
     runtimeCandidateResourceTypes = sanitizeResourceCandidates(
       context.adapter.getPlaceableResourceTypes(),
       noResourceSentinel

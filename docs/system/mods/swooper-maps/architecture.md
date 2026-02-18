@@ -24,7 +24,8 @@ Current architecture for ecology, lakes, and placement is intentionally physics-
   - lake plan vs engine water mask mismatch is fail-hard,
   - biome/placement land-water drift is always emitted and remains a strict-candidate gate until a post-hydrology authoritative land mask artifact is finalized.
 
-Deterministic placement now stamps directly through adapter primitives (`setResourceType`, `stampNaturalWonder`, `stampDiscovery`) and records actual placed counts from engine acknowledgements.
+Deterministic placement now stamps directly through adapter primitives (`setResourceType`, `stampNaturalWonder`, `stampDiscovery`), records actual placed counts from engine acknowledgements, and treats partial stamping as a hard error (full-stamp-or-fail).
+Resource planning consumes runtime-discovered placeable resource candidates when available and falls back to authored candidate lists when runtime catalogs are unavailable.
 
 ## Current mod code pointers
 
