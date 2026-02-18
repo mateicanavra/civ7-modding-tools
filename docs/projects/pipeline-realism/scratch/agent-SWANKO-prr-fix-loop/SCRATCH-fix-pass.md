@@ -83,3 +83,9 @@ Conventions:
 - Change: restore proportional `driverStrength` scaling for mountain score output gate.
 - Checks: `bun run --cwd mods/mod-swooper-maps check` (pass)
 - PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1251 (draft)
+
+## 2026-02-14 PRR-s113-c01
+- Branch: `agent-SWANKO-PRR-s113-c01-fix-mountainThreshold-candidates`
+- Change: apply `config.mountainThreshold` when selecting ridge spines and expansions.
+- Checks: `bun run --cwd mods/mod-swooper-maps check` (pass)
+- PR: https://app.graphite.com/github/pr/mateicanavra/civ7-modding-tools/1252 (draft)
