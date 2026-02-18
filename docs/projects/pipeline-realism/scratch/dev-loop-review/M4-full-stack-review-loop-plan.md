@@ -23,3 +23,4 @@
 - 2026-02-17: Reviewed #1247 (agent-SWANKO-PRR-s97-c01-fix-polarity-bootstrap-oceanic-only); unresolved=0, resolved=0; verification: bun run --cwd mods/mod-swooper-maps check: FAIL.
 - 2026-02-17: Reviewed #1248 (agent-SWANKO-PRR-s98-c01-fix-era-fields-dijkstra); unresolved=0, resolved=0; verification: bun run --cwd mods/mod-swooper-maps check: FAIL.
 - 2026-02-17: Reviewed #1249 (agent-SWANKO-PRR-s101-c01-fix-crust-thickness-evolution); unresolved=0, resolved=0; verification: bun run --cwd mods/mod-swooper-maps check: FAIL.
+- 2026-02-17: Reviewed #1250 (agent-SWANKO-PRR-s108-c01-fix-plateau-seeding); unresolved=0, resolved=1; verification: bun run --cwd mods/mod-swooper-maps check: FAIL.
