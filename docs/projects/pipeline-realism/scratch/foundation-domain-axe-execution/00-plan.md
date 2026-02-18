@@ -99,12 +99,14 @@ gates:
 ## Execution Run Plan — 2026-02-15
 
 ### Objective
-Execute M4 implementation end-to-end using the existing hardened milestone/issue pack, with a mandatory integration checkpoint before `S04`.
+Historical record: execute M4 end-to-end using the hardened milestone/issue pack, with a mandatory integration checkpoint (`IG-1`) before downstream execution.
+
+> Re-anchor (2026-02-16): ecology is already integrated; IG-1 is complete; the next major “second leg” slice is S07 (lane split + downstream rewires). Any references to “S04” in this document are historical and should not be treated as an upcoming branch.
 
 ### Locked run decisions
-1. Run `S02/S03` and `S05/S06` in parallel before `S04`.
-2. Enforce a hard integration gate (`IG-1`) before unblocking `S04`.
-3. At `IG-1`, merge ecology stack first; if stack PR count is `>= 45`, collapse lower stack branches beneath the original starting anchor.
+1. Run `S02/S03` and `S05/S06` in parallel before the integration checkpoint.
+2. Enforce a hard integration gate (`IG-1`) before starting downstream lane-cut execution.
+3. At `IG-1`, confirm ecology integration is present; if stack PR count is `>= 45`, apply the collapse policy and re-anchor with Graphite.
 4. Reuse role-aligned agents where useful with explicit context bridging and compacted handoff.
 
 ### Immediate startup sequence
@@ -117,7 +119,7 @@ startup_sequence:
       - S03: codex/prr-m4-s03-tectonics-op-decomposition
       - S05: codex/prr-m4-s05-ci-strict-core-gates
       - S06: codex/prr-m4-s06-test-rewrite-architecture-scans
-  - hard_stop_for_IG1_before_S04
+  - hard_stop_for_IG1_before_lane_cut_execution
 ```
 
 ### Integration gate (`IG-1`) contract
@@ -130,7 +132,7 @@ integration_gate:
     - S05_green
     - S06_green
   required_actions:
-    - merge_ecology_stack
+    - confirm_ecology_integration_present
     - evaluate_pr_count_threshold_45
     - collapse_lower_stack_if_threshold_met
     - gt_sync_and_reanchor
@@ -163,9 +165,9 @@ sequence:
 ```yaml
 worker_startup_packet:
   required_paths:
-    repo_root: /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools
-    execution_worktree: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
-    scratch_root: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution
+    repo_root: $REPO_ROOT
+    execution_worktree: $WORKTREES_ROOT/wt-<execution-worktree>
+    scratch_root: $EXECUTION_WORKTREE/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution
   reject_conditions:
     - any_relative_path_in_worker_prompt_or_handoff
     - execution_worktree_path_mismatch

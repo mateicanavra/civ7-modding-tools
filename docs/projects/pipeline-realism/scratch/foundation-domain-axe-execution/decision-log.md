@@ -196,6 +196,16 @@ pre_ig1_alignment_and_gate_decisions:
     owner_issue: LOCAL-TBD-PR-M4-003
 ```
 
+## 2026-02-16 — Post-IG1 re-anchor (forward-only)
+```yaml
+post_ig1_reanchor_decisions:
+  - id: M4-D-052
+    decision: record_IG1_complete_and_advance_to_S07_as_next_major_slice
+    rationale: ecology is integrated and stage topology is now locked by tests; treat remaining work as forward-only (lane split + parity)
+    next_major_slice: S07
+    owner_issue: LOCAL-TBD-PR-M4-004
+```
+
 ## 2026-02-15 — Worker architecture-anchor governance decision
 ```yaml
 worker_governance_decision:

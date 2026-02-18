@@ -1,6 +1,6 @@
 id: LOCAL-TBD-PR-M4-005
 title: guardrails + test rewrite
-state: planned
+state: landed
 priority: 1
 estimate: 8
 project: pipeline-realism
@@ -16,7 +16,7 @@ related_to: [LOCAL-TBD-PR-M4-002, LOCAL-TBD-PR-M4-003]
 
 <!-- SECTION SCOPE [SYNC] -->
 ## TL;DR
-- Activate strict no-legacy architecture enforcement via CI + structural scans, and rewrite tests to prevent reintroduction of shims or dual paths.
+- Enforce strict no-legacy architecture via CI + structural scans, and keep tests strict enough to prevent reintroduction of shims/dual paths — including Studio/typegen verification for authored recipe surfaces.
 
 ## Deliverables
 - Required CI gate plan for G1/G2, plus explicit G5 handoff contract to M4-006.
@@ -35,6 +35,9 @@ related_to: [LOCAL-TBD-PR-M4-002, LOCAL-TBD-PR-M4-003]
 - `bun run lint:adapter-boundary`
 - `REFRACTOR_DOMAINS="foundation,morphology,hydrology,ecology,placement,narrative" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full bun run lint:domain-refactor-guardrails`
 - `bun run check`
+- `bun run test:architecture-cutover`
+- `bun run --cwd mods/mod-swooper-maps build:studio-recipes`
+- `bun run dev:mapgen-studio` (smoke: confirm Studio boots and typegen does not crash on the Standard recipe)
 - `rg -n "no-op-calls-op|no-dual|no-shim|topology" docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-D-testing-guardrails.md`
 
 ## Dependencies / Notes

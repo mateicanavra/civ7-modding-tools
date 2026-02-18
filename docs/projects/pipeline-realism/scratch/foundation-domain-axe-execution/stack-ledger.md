@@ -106,7 +106,7 @@ issue_slice_gate_map:
 
 ## Current state
 - M4 milestone and issue docs drafted.
-- Awaiting specialist agent integration pass before final hardening commit.
+- Ecology is already integrated; IG-1 is complete; stage topology + guardrail scaffolding is landed. Remaining work is forward execution (lane split + config/preset/docs parity).
 
 ## 2026-02-15 — Active execution run ledger
 ```yaml
@@ -138,16 +138,13 @@ active_run:
 ledger_update:
   checkpoint_id: IG-1
   template: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/ig-1-checkpoint-packet-template.md
-  ecology_merge_status: pending
-  pr_threshold_policy: awaiting_verification
-  reanchor_status: pending
-  verification_matrix: pending
-  user_sign_off: pending
+  ecology_merge_status: pass
+  pr_threshold_policy: verified
+  reanchor_status: pass
+  verification_matrix: pass
+  user_sign_off: recorded
   next_actions:
-    - run ./scripts/verify-ecology-merge.sh
-    - run ./scripts/check-pr-threshold.sh --min 45
-    - run ./scripts/reanchor-stack.sh --verify
-    - execute GI-1 verification commands per template
+    - proceed_with_S07_lane_split_planning_and_execution
 ```
 
 ## Active Slice Runtime Snapshot — 2026-02-15

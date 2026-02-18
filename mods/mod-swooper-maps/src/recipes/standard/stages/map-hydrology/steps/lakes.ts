@@ -65,6 +65,11 @@ export default createStep(LakesStepContract, {
       }),
     });
 
+    // Capture a pre-projection snapshot so we can isolate "new water on prior land" (lakes)
+    // instead of treating all existing water (ocean) as lake coverage.
+    context.adapter.storeWaterData();
+    const engineBefore = snapshotEngineHeightfield(context);
+
     context.adapter.generateLakes(width, height, tilesPerLake);
 
     // Keep area topology in sync with post-lake terrain edits before any downstream validation.
@@ -75,15 +80,17 @@ export default createStep(LakesStepContract, {
     // This ensures GameplayMap.isWater and downstream eligibility reads include new lakes.
     context.adapter.storeWaterData();
     const physics = context.buffers.heightfield;
-    const engine = snapshotEngineHeightfield(context);
-    if (engine) {
+    const engineAfter = snapshotEngineHeightfield(context);
+    if (engineBefore && engineAfter) {
       const lakeMask = new Uint8Array(width * height);
       const sinkMismatchMask = new Uint8Array(width * height);
       let sinkMismatchCount = 0;
       for (let i = 0; i < lakeMask.length; i++) {
-        const isWater = (engine.landMask[i] ?? 1) === 0;
-        lakeMask[i] = isWater ? 1 : 0;
-        if ((hydrography.sinkMask[i] ?? 0) === 1 && !isWater) {
+        const wasLand = (engineBefore.landMask[i] ?? 1) === 1;
+        const isWater = (engineAfter.landMask[i] ?? 1) === 0;
+        const becameWater = wasLand && isWater;
+        lakeMask[i] = becameWater ? 1 : 0;
+        if ((hydrography.sinkMask[i] ?? 0) === 1 && lakeMask[i] === 0) {
           sinkMismatchMask[i] = 1;
           sinkMismatchCount += 1;
         }
@@ -102,9 +109,9 @@ export default createStep(LakesStepContract, {
         stage: "map-hydrology/lakes",
         width,
         height,
-        landMask: engine.landMask,
-        terrain: engine.terrain,
-        elevation: engine.elevation,
+        landMask: engineAfter.landMask,
+        terrain: engineAfter.terrain,
+        elevation: engineAfter.elevation,
       });
 
       context.trace.event(() => ({
@@ -162,7 +169,7 @@ export default createStep(LakesStepContract, {
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
-        values: engine.landMask,
+        values: engineAfter.landMask,
         meta: defineVizMeta("debug.heightfield.landMask", {
           label: "Land Mask (Engine After Lakes)",
           group: GROUP_MAP_HYDROLOGY,

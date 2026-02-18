@@ -119,29 +119,27 @@ decision_attestation:
 - none
 
 ## Context bridge
-- IG-1 sits between the parallel S02/S03/S05/S06 workstreams and the S04 slice; the checkpoint must surface ecology merge readiness, PR-pressure policy compliance, and GI-1 verification before we unstop S04.
-- Integration slice plan: coordinate S02/S03 artifacts for merge readiness, pull in S05/S06 test hardening, confirm ecology merge steps, apply the `>=45` PR-count collapse policy, lock the re-anchor sync, then run GI-1 commands that gate the S04+ backlog slices.
+- IG-1 was the hard stop between parallel S02/S03/S05/S06 work and downstream execution. As of the current stack tip, ecology is already integrated and IG-1 is complete; the remaining work is forward-only (lane split + config/preset/docs parity).
 
 ### Assumptions
-- The ecology stack merge adds no new blockers once we re-anchor at the current `stack-anchor` reference.
-- The PR-count threshold is measurable from the upper stack repo history and can be enforced via the orchestrator merge script.
-- GI-1 verification only needs the commands documented in the GI-1 matrix below; additional gates would be handled post-IG-1.
+- The stack remains Graphite-managed and can be validated via `gt log short` + focused verification commands.
+- GI-1 verification is defined as an explicit command matrix (no hidden scripts).
 
 ### Verification matrix
 ```yaml
 verification_matrix:
   ecology_merge:
-    command: ./scripts/verify-ecology-merge.sh
-    success_criteria: merge_clean && no_conflicting_artifacts
+    command: gt log short
+    success_criteria: ecology_is_integrated && stack_is_consistent
   pr_threshold:
-    command: ./scripts/check-pr-threshold.sh --min 45
-    success_criteria: reported_pr_count >= 45
+    command: gt log | rg "PR #" | wc -l
+    success_criteria: pr_count_is_recorded_and_policy_applied_if_needed
   reanchor:
-    command: ./scripts/reanchor-stack.sh
-    success_criteria: tree_hash == anchor_hash_after_merge
+    command: gt sync --no-restack && gt log short
+    success_criteria: stack_tip_matches_expected && no_unexpected_restacks
   gi1_gate:
-    command: git log -1 && bun test --filter gi-1
-    success_criteria: exit_code == 0
+    command: bun run test:architecture-cutover && bun run --cwd mods/mod-swooper-maps build:studio-recipes
+    success_criteria: exit_code == 0 && studio_typegen_does_not_crash
 ```
 
 ### Evidence paths

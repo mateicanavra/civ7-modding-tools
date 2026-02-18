@@ -15,10 +15,17 @@ $SCRATCH = $PROJECT/scratch/foundation-domain-axe-execution
 
 This milestone converts the Foundation spike into implementation-ready slices and issue contracts, then executes the architectural cutover with no compatibility bridges in the end state.
 
-Current implementation still runs the single `foundation` stage and produces all projection artifacts under `artifact:foundation.*`; the locked 3-stage topology and lane split remain gated to the upcoming `S04` stage-split slice and the `S07` lane cutover slice. These docs now reflect the plan and gate sequencing instead of claiming the split is already reflected in the live recipe.
+Current stack tip already reflects the architecture-first cutover posture:
+1. Standard recipe stage topology is split and locked (see `bun run test:architecture-cutover`).
+2. Foundation stage is knobs-only and compile-surface sentinel/dual paths are removed.
+3. Strict core guardrails + structural scans are active in CI.
+
+What remains for the “second leg” is primarily the lane split + downstream rewires plus the final tuning/docs parity sweep:
+- Hard-cut map-facing projection ownership to `artifact:map.*` with full consumer rewires (M4-004).
+- Config redesign + preset retuning + docs/schema parity + legacy token purge (M4-006).
 
 Locked posture:
-1. 3-stage Foundation topology is mandatory.
+1. Standard stage topology is mandatory and locked by tests.
 2. Lane split is phased by slice, but final state has zero dual paths.
 3. Dead/inert knobs are removed now.
 4. Guardrails become strict early.
@@ -34,7 +41,7 @@ anchor_pass_2026_02_15:
       summary: test suites rewired off disabled compute-tectonic-history mega-op
     - id: ANCHOR-F002
       status: resolved
-      summary: issue docs now reflect that 3-stage topology is planned for S04 (not already landed)
+      summary: issue docs + tests now reflect the locked Standard stage topology (landed; enforced by architecture cutover scans)
     - id: ANCHOR-F003
       status: accepted_for_S07
       summary: lane split remains explicitly gated to S07 to avoid out-of-order churn
@@ -115,15 +122,15 @@ Canonical reference:
 issues:
   - id: LOCAL-TBD-PR-M4-001
     title: planning + contract freeze
-    status: planned
+    status: landed
     blocked_by: []
   - id: LOCAL-TBD-PR-M4-002
     title: foundation ops boundaries
-    status: planned
+    status: landed
     blocked_by: [LOCAL-TBD-PR-M4-001]
   - id: LOCAL-TBD-PR-M4-003
     title: stage topology + compile surface
-    status: planned
+    status: landed
     blocked_by: [LOCAL-TBD-PR-M4-002]
   - id: LOCAL-TBD-PR-M4-004
     title: lane split + downstream rewire
@@ -131,8 +138,12 @@ issues:
     blocked_by: [LOCAL-TBD-PR-M4-003, LOCAL-TBD-PR-M4-005]
   - id: LOCAL-TBD-PR-M4-005
     title: guardrails + test rewrite
-    status: planned
+    status: landed
     blocked_by: [LOCAL-TBD-PR-M4-001]
+  - id: LOCAL-TBD-PR-M4-007
+    title: earthlike studio typegen + preset schema fix
+    status: landed
+    blocked_by: []
   - id: LOCAL-TBD-PR-M4-006
     title: config redesign + preset retuning + docs cleanup
     status: planned
@@ -145,6 +156,7 @@ issues:
 - [ ] [`LOCAL-TBD-PR-M4-004`](../issues/LOCAL-TBD-PR-M4-004-lane-split-downstream-rewire.md) Lane Split + Downstream Rewire
 - [ ] [`LOCAL-TBD-PR-M4-005`](../issues/LOCAL-TBD-PR-M4-005-guardrails-test-rewrite.md) Guardrails + Test Rewrite
 - [ ] [`LOCAL-TBD-PR-M4-006`](../issues/LOCAL-TBD-PR-M4-006-config-redesign-preset-retuning-docs-cleanup.md) Config Redesign + Preset Retuning + Docs Cleanup
+- [ ] [`LOCAL-TBD-PR-M4-007`](../issues/LOCAL-TBD-PR-M4-007-earthlike-studio-typegen-fix.md) Earthlike Studio Typegen + Preset Schema Fix
 
 ## Sequencing & Parallelization Plan
 
@@ -162,7 +174,7 @@ stacks:
     slices:
       - S02: codex/prr-m4-s02-contract-freeze-dead-knobs
       - S03: codex/prr-m4-s03-tectonics-op-decomposition
-      - S04: codex/prr-m4-s04-stage-split-compile-cutover
+      - S06a: codex/prr-m4-s06a-foundation-knobs-surface
     issues:
       - LOCAL-TBD-PR-M4-002
       - LOCAL-TBD-PR-M4-003

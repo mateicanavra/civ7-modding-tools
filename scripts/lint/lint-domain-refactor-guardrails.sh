@@ -266,8 +266,8 @@ for domain in "${DOMAINS[@]}"; do
     run_rg "Engine imports in ops (${domain})" "from \"@swooper/mapgen-core/engine\"|from \"@mapgen/engine\"" -- "$ops_root"
     run_rg "Non-type engine imports in ops (${domain})" "import(?!\\s+type)\\s+.*from\\s+\"@swooper/mapgen-core/engine\"|import(?!\\s+type)\\s+.*from\\s+\"@mapgen/engine\"" -P -- "$ops_root"
     run_rg "Runtime config merges in ops (${domain})" "\\?\\?\\s*\\{\\}|\\bValue\\.Default\\(" -- "$ops_root"
-    run_rg "Op-calls-op runtime imports (${domain})" "from\\s+[\"']\\.\\./[^\"']+/index\\.js[\"']|from\\s+[\"']@mapgen/domain/[^\"']+/ops(?:/index\\.js)?[\"']" -P -g "*/index.ts" -- "$ops_root"
-    run_rg "Op orchestration bind/runValidated usage (${domain})" "\\bops\\.bind\\(|\\brunValidated\\(" -P -g "*/index.ts" -- "$ops_root"
+    run_rg "Op-calls-op runtime imports (${domain})" "from\\s+[\"']\\.\\./[^\"']+/index\\.js[\"']|from\\s+[\"']@mapgen/domain/[^\"']+/ops(?:/index\\.js)?[\"']" -P -g "**/index.ts" -- "$ops_root"
+    run_rg "Op orchestration bind/runValidated usage (${domain})" "\\bops\\.bind\\(|\\brunValidated\\(" -P -g "**/index.ts" -- "$ops_root"
     if [ ${#stage_roots[@]} -gt 0 ]; then
       run_rg "Literal dependency keys in requires (${domain})" "requires:\\s*\\[[^\\]]*['\\\"](artifact|field|effect):" -U -- "${stage_roots[@]}"
       run_rg "Literal dependency keys in provides (${domain})" "provides:\\s*\\[[^\\]]*['\\\"](artifact|field|effect):" -U -- "${stage_roots[@]}"
