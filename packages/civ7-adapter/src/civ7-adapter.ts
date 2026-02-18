@@ -21,6 +21,7 @@ import type {
 } from "./types.js";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
 import { resolveDefaultDiscoveryPlacement } from "./discovery-defaults.js";
+import { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.js";
 
 // Import from /base-standard/... — these are external Civ7 runtime paths
 // resolved by the game's module loader, not TypeScript
@@ -255,6 +256,10 @@ export class Civ7Adapter implements EngineAdapter {
     return tb.canHaveFeatureParam(x, y, featureData.Feature, featureData);
   }
 
+  get NO_RESOURCE(): number {
+    return NO_RESOURCE;
+  }
+
   getResourceType(x: number, y: number): number {
     return GameplayMap.getResourceType(x, y);
   }
@@ -273,6 +278,7 @@ export class Civ7Adapter implements EngineAdapter {
   }
 
   canHaveResource(x: number, y: number, resourceType: number): boolean {
+    if ((resourceType | 0) === (this.NO_RESOURCE | 0)) return false;
     const rb = (
       globalThis as typeof globalThis & {
         ResourceBuilder?: {
@@ -289,6 +295,10 @@ export class Civ7Adapter implements EngineAdapter {
       throw new Error("[Adapter] ResourceBuilder.canHaveResource is unavailable.");
     }
     return rb.canHaveResource(x, y, resourceType, false);
+  }
+
+  getPlaceableResourceTypes(): number[] {
+    return [...PLACEABLE_RESOURCE_TYPE_IDS];
   }
 
   // === PLOT EFFECTS ===

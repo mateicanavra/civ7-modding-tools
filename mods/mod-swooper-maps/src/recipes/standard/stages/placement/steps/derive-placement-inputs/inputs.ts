@@ -8,9 +8,19 @@ import DerivePlacementInputsContract from "./contract.js";
 type DerivePlacementInputsConfig = Static<typeof DerivePlacementInputsContract.schema>;
 type DerivePlacementInputsOps = StepRuntimeOps<NonNullable<typeof DerivePlacementInputsContract.ops>>;
 
-/**
- * Builds placement inputs from runtime map info and authored placement configs.
- */
+function sanitizeResourceCandidates(values: number[], noResourceSentinel: number): number[] {
+  const unique = new Set<number>();
+  for (const raw of values) {
+    if (!Number.isFinite(raw)) continue;
+    const value = raw | 0;
+    if (value < 0) continue;
+    if (value === (noResourceSentinel | 0)) continue;
+    unique.add(value);
+  }
+  return Array.from(unique).sort((a, b) => a - b);
+}
+
+/** Builds placement inputs from map info, authored config, and adapter-owned catalogs. */
 export function buildPlacementInputs(
   context: ExtendedMapContext,
   config: DerivePlacementInputsConfig,
@@ -48,6 +58,16 @@ export function buildPlacementInputs(
   const wondersPlan = ops.wonders({ mapInfo: runtime.mapInfo }, config.wonders);
   const naturalWonderCatalog = context.adapter.getNaturalWonderCatalog();
   const defaultDiscoveryPlacement = context.adapter.getDefaultDiscoveryPlacement();
+  const noResourceSentinel = context.adapter.NO_RESOURCE | 0;
+  let runtimeCandidateResourceTypes: number[] = [];
+  try {
+    runtimeCandidateResourceTypes = sanitizeResourceCandidates(
+      context.adapter.getPlaceableResourceTypes(),
+      noResourceSentinel
+    );
+  } catch {
+    runtimeCandidateResourceTypes = [];
+  }
   const naturalWonderPlan = ops.naturalWonders(
     {
       width,
@@ -81,6 +101,8 @@ export function buildPlacementInputs(
     {
       width,
       height,
+      noResourceSentinel,
+      runtimeCandidateResourceTypes,
       landMask: physical.topography.landMask,
       fertility: physical.pedology.fertility,
       effectiveMoisture: physical.biomeClassification.effectiveMoisture,

@@ -97,7 +97,7 @@ describe("placement", () => {
     expect(outputs.discoveriesCount).toBe(1);
   });
 
-  it("reports stamped wonder/discovery counts (not planned counts)", () => {
+  it("aborts placement when natural wonder stamping cannot fully satisfy the plan", () => {
     const adapter = createMockAdapter({
       width: 4,
       height: 4,
@@ -135,52 +135,51 @@ describe("placement", () => {
       placement.ops.planFloodplains.defaultConfig
     );
 
-    const placementRuntime = implementArtifacts([placementArtifacts.placementOutputs], {
-      placementOutputs: {},
-    });
-    const outputs = applyPlacementPlan({
-      context,
-      starts,
-      wonders,
-      naturalWonderPlan: {
-        width: 4,
-        height: 4,
-        wondersCount: 2,
-        targetCount: 2,
-        plannedCount: 2,
-        placements: [
-          { plotIndex: 99, featureType: 39, direction: 0, elevation: 100, priority: 1 },
-          { plotIndex: 1, featureType: 40, direction: 0, elevation: 100, priority: 1 },
-        ],
-      },
-      discoveryPlan: {
-        width: 4,
-        height: 4,
-        targetCount: 2,
-        plannedCount: 2,
-        placements: [
-          { plotIndex: 98, discoveryVisualType: 0, discoveryActivationType: 0, priority: 1 },
-          { plotIndex: 2, discoveryVisualType: 0, discoveryActivationType: 0, priority: 1 },
-        ],
-      },
-      floodplains,
-      resources: {
-        width: 4,
-        height: 4,
-        candidateResourceTypes: [1],
-        targetCount: 0,
-        plannedCount: 0,
-        placements: [],
-      },
-      landmassRegionSlotByTile: {
-        slotByTile: new Uint8Array(16).fill(1),
-      },
-      publishOutputs: (outputs) => placementRuntime.placementOutputs.publish(context, outputs),
-    });
+    expect(() =>
+      applyPlacementPlan({
+        context,
+        starts,
+        wonders,
+        naturalWonderPlan: {
+          width: 4,
+          height: 4,
+          wondersCount: 2,
+          targetCount: 2,
+          plannedCount: 2,
+          placements: [
+            { plotIndex: 99, featureType: 39, direction: 0, elevation: 100, priority: 1 },
+            { plotIndex: 1, featureType: 40, direction: 0, elevation: 100, priority: 1 },
+          ],
+        },
+        discoveryPlan: {
+          width: 4,
+          height: 4,
+          targetCount: 2,
+          plannedCount: 2,
+          placements: [
+            { plotIndex: 98, discoveryVisualType: 0, discoveryActivationType: 0, priority: 1 },
+            { plotIndex: 2, discoveryVisualType: 0, discoveryActivationType: 0, priority: 1 },
+          ],
+        },
+        floodplains,
+        resources: {
+          width: 4,
+          height: 4,
+          candidateResourceTypes: [1],
+          targetCount: 0,
+          plannedCount: 0,
+          placements: [],
+        },
+        landmassRegionSlotByTile: {
+          slotByTile: new Uint8Array(16).fill(1),
+        },
+        publishOutputs: (outputs) => outputs,
+      })
+    ).toThrow(/placement\.wonders failed/i);
 
     expect(adapter.calls.stampNaturalWonder.length).toBe(0);
-    expect(adapter.calls.stampDiscovery.length).toBe(1);
-    expect(outputs.naturalWondersCount).toBe(0);
-    expect(outputs.discoveriesCount).toBe(1);
+    expect(adapter.calls.stampDiscovery.length).toBe(0);
+    expect(adapter.calls.setStartPosition.length).toBe(0);
+    expect(adapter.calls.setResourceType.length).toBe(0);
   });
 });

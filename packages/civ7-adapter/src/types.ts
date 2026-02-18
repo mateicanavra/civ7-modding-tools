@@ -260,6 +260,9 @@ export interface EngineAdapter {
 
   // === RESOURCE READS/WRITES ===
 
+  /** Adapter-owned sentinel value for "no resource". */
+  readonly NO_RESOURCE: number;
+
   /** Get resource type ID (-1 when no resource is present). */
   getResourceType(x: number, y: number): number;
 
@@ -268,6 +271,9 @@ export interface EngineAdapter {
 
   /** Validate resource placement for a tile/resource combination. */
   canHaveResource(x: number, y: number, resourceType: number): boolean;
+
+  /** Adapter-owned placeable resource type catalog used by deterministic placement. */
+  getPlaceableResourceTypes(): number[];
 
   // === PLOT EFFECTS ===
 

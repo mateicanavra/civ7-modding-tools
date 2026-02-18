@@ -130,13 +130,26 @@ export default createStep(FeaturesApplyStepContract, {
       }),
     });
 
-    if (rejections.length > 0) {
-      const sample = rejections.slice(0, 12).map((r) => `(${r.x},${r.y}) ${r.feature} ${r.reason}`);
+    const hardRejections = rejections.filter((rejection) => rejection.reason !== "canHaveFeature=false");
+    if (hardRejections.length > 0) {
+      const sample = hardRejections
+        .slice(0, 12)
+        .map((rejection) => `(${rejection.x},${rejection.y}) ${rejection.feature} ${rejection.reason}`);
       throw new Error(
-        `features-apply rejected ${rejections.length}/${resolvedPlacements.length} placements; sample: ${sample.join(
+        `features-apply hard-rejected ${hardRejections.length}/${resolvedPlacements.length} placements; sample: ${sample.join(
           "; "
         )}`
       );
+    }
+
+    if (rejectedCanHaveFeature > 0) {
+      context.trace.event(() => ({
+        type: "map.ecology.features.rejections.soft",
+        reason: "canHaveFeature=false",
+        rejectedCanHaveFeature,
+        attempted: resolvedPlacements.length,
+        applied,
+      }));
     }
 
     const size = context.dimensions.width * context.dimensions.height;
