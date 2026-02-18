@@ -722,17 +722,53 @@ export default createStage({
         },
       },
       tectonics: {
+        computePlateMotion: {
+          strategy: "default",
+          config: COMMON_PLATE_MOTION,
+        },
         computeTectonicSegments: {
           strategy: "default",
           config: COMMON_TECTONIC_SEGMENTS,
         },
-        computeTectonicHistory: {
+        computeEraPlateMembership: {
           strategy: "default",
           config: {
-            ...COMMON_TECTONIC_HISTORY,
             eraWeights,
             driftStepsByEra,
           },
+        },
+        computeSegmentEvents: {
+          strategy: "default",
+          config: {},
+        },
+        computeHotspotEvents: {
+          strategy: "default",
+          config: {},
+        },
+        computeEraTectonicFields: {
+          strategy: "default",
+          config: {
+            beltInfluenceDistance: COMMON_TECTONIC_HISTORY.beltInfluenceDistance,
+            beltDecay: COMMON_TECTONIC_HISTORY.beltDecay,
+          },
+        },
+        computeTectonicHistoryRollups: {
+          strategy: "default",
+          config: {
+            activityThreshold: COMMON_TECTONIC_HISTORY.activityThreshold,
+          },
+        },
+        computeTectonicsCurrent: {
+          strategy: "default",
+          config: {},
+        },
+        computeTracerAdvection: {
+          strategy: "default",
+          config: {},
+        },
+        computeTectonicProvenance: {
+          strategy: "default",
+          config: {},
         },
       },
       "crust-evolution": {

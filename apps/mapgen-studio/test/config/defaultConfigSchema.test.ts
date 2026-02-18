@@ -84,8 +84,8 @@ describe("Studio default config", () => {
     expect(STANDARD_RECIPE_CONFIG.foundation.profiles.resolutionProfile).toBe("balanced");
     expect(STANDARD_RECIPE_CONFIG.foundation.knobs.plateCount).toBe(28);
     expect(STANDARD_RECIPE_CONFIG.foundation.knobs.plateActivity).toBe(0.5);
-    expect(STANDARD_RECIPE_CONFIG.foundation.profiles.lithosphereProfile).toBe("maximal-basaltic-lid-v1");
-    expect(STANDARD_RECIPE_CONFIG.foundation.profiles.mantleProfile).toBe("maximal-potential-v1");
+    expect(STANDARD_RECIPE_CONFIG.foundation.profiles).not.toHaveProperty("lithosphereProfile");
+    expect(STANDARD_RECIPE_CONFIG.foundation.profiles).not.toHaveProperty("mantleProfile");
   });
 
   it("exposes the D08r foundation authoring surface only (no derived-field keys)", () => {
@@ -118,8 +118,8 @@ describe("Studio default config", () => {
     const profiles = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "profiles"]);
     expectSchemaHasGsComments(profiles, "foundation.profiles");
     expectSchemaHasDescription(getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "profiles", "resolutionProfile"]), "foundation.profiles.resolutionProfile");
-    expectSchemaHasDescription(getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "profiles", "lithosphereProfile"]), "foundation.profiles.lithosphereProfile");
-    expectSchemaHasDescription(getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "profiles", "mantleProfile"]), "foundation.profiles.mantleProfile");
+    expect((profiles as { properties?: Record<string, unknown> }).properties ?? {}).not.toHaveProperty("lithosphereProfile");
+    expect((profiles as { properties?: Record<string, unknown> }).properties ?? {}).not.toHaveProperty("mantleProfile");
 
     const advanced = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "advanced"]);
     expectSchemaHasGsComments(advanced, "foundation.advanced");
@@ -131,13 +131,14 @@ describe("Studio default config", () => {
     expectSchemaHasGsComments(lithosphere, "foundation.advanced.lithosphere");
     expectSchemaHasGsComments(budgets, "foundation.advanced.budgets");
 
-    const mantleScalarProps = ["potentialMode", "potentialAmplitude01", "plumeCount", "downwellingCount", "lengthScale01"] as const;
+    const mantleScalarProps = ["potentialAmplitude01", "plumeCount", "downwellingCount", "lengthScale01"] as const;
     for (const key of mantleScalarProps) {
       expectSchemaHasDescription(
         getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["foundation", "advanced", "mantleForcing", key]),
         `foundation.advanced.mantleForcing.${key}`
       );
     }
+    expect((mantleForcing as { properties?: Record<string, unknown> }).properties ?? {}).not.toHaveProperty("potentialMode");
 
     const lithosphereScalarProps = ["yieldStrength01", "mantleCoupling01", "riftWeakening01"] as const;
     for (const key of lithosphereScalarProps) {

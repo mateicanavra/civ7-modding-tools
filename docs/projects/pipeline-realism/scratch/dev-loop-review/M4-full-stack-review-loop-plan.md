@@ -43,3 +43,4 @@
 6. PR feedback closure: unresolved comment threads are either fixed or explicitly deferred.
 7. Stack safety: restacks preserve behavior and do not silently regress parent invariants.
 - PR #1325 codex/prr-m4-s02-contract-freeze-dead-knobs: review appended; verification=FAIL; unresolvedThreads=0
+- PR #1326 codex/prr-m4-s03-tectonics-op-decomposition: review appended; verification=FAIL; unresolvedThreads=0
