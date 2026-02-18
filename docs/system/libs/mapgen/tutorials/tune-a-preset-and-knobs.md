@@ -48,16 +48,9 @@ Example curated preset object (realism/earthlike):
 ```ts
 export const realismEarthlikeConfig = {
   foundation: {
-    version: 1,
-    profiles: {
-      resolutionProfile: "balanced",
-      lithosphereProfile: "maximal-basaltic-lid-v1",
-      mantleProfile: "maximal-potential-v1",
-    },
     knobs: { plateCount: 28, plateActivity: 0.5 },
   },
-  "morphology-coasts": { knobs: { seaLevel: "earthlike", coastRuggedness: "normal", shelfWidth: "normal" } },
-  "morphology-routing": { knobs: {} },
+  "morphology-coasts": { knobs: { seaLevel: "water-heavy", coastRuggedness: "normal", shelfWidth: "narrow" } },
   "morphology-erosion": { knobs: { erosion: "normal" } },
   "morphology-features": { knobs: { volcanism: "normal" } },
   "hydrology-climate-baseline": {
@@ -99,25 +92,27 @@ Repeat until you’re satisfied with the semantic tuning.
 
 If knob tuning can’t express what you need:
 - identify the specific step you need to override (in the standard recipe stage you care about),
-- override only that step config subtree under `advanced`,
+- override only that step config subtree (stage-dependent; see below),
 - re-run with the same seed to validate the change.
 
-Concrete stage schema posture (Foundation, D08r authoring surface):
+Concrete stage schema posture (Foundation, current standard recipe):
 
 ```ts
 export default createStage({
   id: "foundation",
-  knobsSchema,
-  public: publicSchema,
-  compile: ({ config }) => buildFoundationDefaults(config.profiles.resolutionProfile),
-  steps: [mesh, crust, plateGraph, tectonics, projection, plateTopology],
+  knobsSchema: Type.Object({
+    plateCount: Type.Optional(FoundationPlateCountKnobSchema),
+    plateActivity: Type.Optional(FoundationPlateActivityKnobSchema),
+  }),
+  steps: [/* per-step contracts */],
 });
 ```
 
 Interpretation:
 - `foundation.knobs.*` expresses semantic, stable tuning.
-- `foundation.advanced.*` is restricted to physics inputs (mantle/lithosphere); it is **not** a per-step escape hatch.
-- Knobs apply as deterministic transforms (typically in `normalize`) over the profile baseline.
+- Foundation does **not** wrap step overrides under `advanced`; per-step overrides (when required) live directly under `foundation.<stepId>`.
+- Many other stages expose a single `advanced` object specifically for step-level override baselines (e.g. `morphology-coasts.advanced.<stepId>`).
+- Knobs apply as deterministic transforms (typically in `normalize`) over the defaulted baseline + any overrides.
 
 ## Verification
 
@@ -131,7 +126,10 @@ Interpretation:
 - Studio knob option enums (UI): `apps/mapgen-studio/src/ui/constants/options.ts`
 - Studio config defaulting from schema defaults: `apps/mapgen-studio/src/App.tsx`
 - Studio config overrides UI (On/Off + Form/JSON): `apps/mapgen-studio/src/ui/components/RecipePanel.tsx`
-- Stage knob schema examples (shape of `knobs` + `advanced`): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
+- Stage schema examples:
+  - knobs-only (Foundation): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
+  - advanced step overrides (Morphology-coasts): `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/index.ts`
+  - advanced step overrides (Map-hydrology): `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/index.ts`
 - Example knob application at normalize-time (reads `ctx.knobs`): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts`
 - Example knob multiplier tables (Foundation): `mods/mod-swooper-maps/src/domain/foundation/shared/knob-multipliers.ts`
 - Standard recipe config types: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`

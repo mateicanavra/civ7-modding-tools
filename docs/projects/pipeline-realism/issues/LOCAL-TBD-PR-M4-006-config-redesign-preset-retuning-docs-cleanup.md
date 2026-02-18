@@ -46,8 +46,8 @@ related_to: [LOCAL-TBD-PR-M4-002, LOCAL-TBD-PR-M4-003]
 - `bun run --cwd mods/mod-swooper-maps test test/pipeline/mountains-nonzero-probe.test.ts`
 - `bun run --cwd mods/mod-swooper-maps diag:dump -- 106 66 1337 --label m4-006-earthlike --configFile ./src/maps/configs/swooper-earthlike.config.json`
 - `bun run --cwd mods/mod-swooper-maps diag:analyze -- <runDir>`
-- `rg -n "TODO|legacy|shim|dual|shadow" docs/projects/pipeline-realism/resources/spec docs/projects/pipeline-realism/milestones docs/projects/pipeline-realism/issues docs/system/libs/mapgen`
-- `! rg -n "lithosphereProfile|mantleProfile|potentialMode|single-stage foundation|__studioUiMetaSentinelPath" docs/projects/pipeline-realism docs/system/libs/mapgen mods/mod-swooper-maps/src`
+- `rg -n "TODO|legacy|shim|dual|shadow" docs/projects/pipeline-realism/resources/spec docs/projects/pipeline-realism/milestones docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M4-* docs/system/libs/mapgen`
+- `! rg -n -f scripts/lint/no-legacy-m4-foundation-tokens.txt docs/projects/pipeline-realism/resources/spec docs/projects/pipeline-realism/milestones docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M4-* docs/system/libs/mapgen mods/mod-swooper-maps/src`
 - `rg -n "profile|knob|physics|earth-like" docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M4-006-config-redesign-preset-retuning-docs-cleanup.md docs/projects/pipeline-realism/milestones/M4-foundation-domain-axe-cutover.md`
 - `bun run --cwd mods/mod-swooper-maps check`
 

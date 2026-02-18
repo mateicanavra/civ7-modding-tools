@@ -1040,3 +1040,30 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.
+
+## REVIEW codex/prr-m4-s09-docs-comments-schema-legacy-purge
+
+### Quick Take
+- Reviewed PR #1347 (https://github.com/mateicanavra/civ7-modding-tools/pull/1347).
+- Churn profile: +102 / -97 across 10 files files.
+- Verification signal: bun run test:ci: PASS.
+
+### High-Leverage Issues
+- No high-severity defect found in branch-local diff review.
+
+### PR Comment Context
+- Comment volume: comments=2, reviews=0.
+- Review threads: unresolved=0, resolved=0.
+- Automation/non-substantive chatter excluded from issue ranking.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- Continue normal monitoring for this slice after stack merge.
+
+### Needs Discussion
+- None.
+
+### Cross-cutting Risks
+- Stack-wide risk: repeated restacks can mask branch-local regressions without targeted validation.

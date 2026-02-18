@@ -8,10 +8,6 @@ import { join } from "node:path";
 
 const BROWSER_TEST_RECIPE_CONFIG = {
   foundation: {
-    version: 1,
-    profiles: {
-      resolutionProfile: "balanced",
-    },
     knobs: {
       plateCount: 28,
       plateActivity: 0.8,
