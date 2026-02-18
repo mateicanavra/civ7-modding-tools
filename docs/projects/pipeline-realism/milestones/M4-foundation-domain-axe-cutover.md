@@ -222,3 +222,7 @@ prework_status:
 
 - This milestone is the canonical source for M4 sequencing and dependencies.
 - Issue docs are canonical for implementation detail and acceptance checks.
+
+## Full-stack review traceability
+- Full-stack review ledger: `docs/projects/pipeline-realism/reviews/REVIEW-M4-full-stack-chain.md`
+- Carried loop plan: `docs/projects/pipeline-realism/scratch/dev-loop-review/M4-full-stack-review-loop-plan.md`

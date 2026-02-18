@@ -76,35 +76,6 @@ function makeMantleForcing(
   } as const;
 }
 
-function makeSegments(params: {
-  regime: number;
-  polarity: number;
-  compression?: number;
-  extension?: number;
-  shear?: number;
-  volcanism?: number;
-  fracture?: number;
-  driftU?: number;
-  driftV?: number;
-}) {
-  return {
-    segmentCount: 1,
-    aCell: new Int32Array([0]),
-    bCell: new Int32Array([1]),
-    plateA: new Int16Array([0]),
-    plateB: new Int16Array([1]),
-    regime: new Uint8Array([params.regime]),
-    polarity: new Int8Array([params.polarity]),
-    compression: new Uint8Array([params.compression ?? 0]),
-    extension: new Uint8Array([params.extension ?? 0]),
-    shear: new Uint8Array([params.shear ?? 0]),
-    volcanism: new Uint8Array([params.volcanism ?? 0]),
-    fracture: new Uint8Array([params.fracture ?? 0]),
-    driftU: new Int8Array([params.driftU ?? 0]),
-    driftV: new Int8Array([params.driftV ?? 0]),
-  } as const;
-}
-
 describe("m11 tectonic events", () => {
   it("subduction events deterministically update boundary provenance", () => {
     const mesh = makeTwoCellMesh();
@@ -113,20 +84,13 @@ describe("m11 tectonic events", () => {
     const mantleForcing = makeMantleForcing(mesh.cellCount, [1, -1], [1, 1]);
     const plateGraph = makePlateGraph();
     const plateMotion = makePlateMotion(mesh.cellCount, plateGraph.plates.length);
-    const segments = makeSegments({
-      regime: BOUNDARY_TYPE.convergent,
-      polarity: -1,
-      compression: 210,
-      volcanism: 180,
-      fracture: 80,
-    });
 
     const a = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, plateMotion, segments },
+      { mesh, crust, mantleForcing, plateGraph, plateMotion },
       computeTectonicHistory.defaultConfig
     );
     const b = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, plateMotion, segments },
+      { mesh, crust, mantleForcing, plateGraph, plateMotion },
       computeTectonicHistory.defaultConfig
     );
 
@@ -145,16 +109,9 @@ describe("m11 tectonic events", () => {
     const mantleForcing = makeMantleForcing(mesh.cellCount, [-1, 1], [1, 1]);
     const plateGraph = makePlateGraph();
     const plateMotion = makePlateMotion(mesh.cellCount, plateGraph.plates.length);
-    const segments = makeSegments({
-      regime: BOUNDARY_TYPE.divergent,
-      polarity: 0,
-      extension: 255,
-      volcanism: 40,
-      fracture: 40,
-    });
 
     const history = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, plateMotion, segments },
+      { mesh, crust, mantleForcing, plateGraph, plateMotion },
       {
         ...computeTectonicHistory.defaultConfig,
         config: {
@@ -182,22 +139,13 @@ describe("m11 tectonic events", () => {
     const mantleForcing = makeMantleForcing(mesh.cellCount);
     const plateGraph = makePlateGraph();
     const plateMotion = makePlateMotion(mesh.cellCount, plateGraph.plates.length);
-    const segments = makeSegments({
-      regime: BOUNDARY_TYPE.convergent,
-      polarity: -1,
-      compression: 210,
-      volcanism: 180,
-      fracture: 80,
-      driftU: 127,
-      driftV: 0,
-    });
 
     const a = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, plateMotion, segments },
+      { mesh, crust, mantleForcing, plateGraph, plateMotion },
       computeTectonicHistory.defaultConfig
     );
     const b = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, plateMotion, segments },
+      { mesh, crust, mantleForcing, plateGraph, plateMotion },
       computeTectonicHistory.defaultConfig
     );
 

@@ -5,7 +5,6 @@ import { FoundationMantleForcingSchema } from "../compute-mantle-forcing/contrac
 import { FoundationMeshSchema } from "../compute-mesh/contract.js";
 import { FoundationPlateGraphSchema } from "../compute-plate-graph/contract.js";
 import { FoundationPlateMotionSchema } from "../compute-plate-motion/contract.js";
-import { FoundationTectonicSegmentsSchema } from "../compute-tectonic-segments/contract.js";
 
 const StrategySchema = Type.Object(
   {
@@ -203,7 +202,6 @@ const ComputeTectonicHistoryContract = defineOp({
       mantleForcing: FoundationMantleForcingSchema,
       plateGraph: FoundationPlateGraphSchema,
       plateMotion: FoundationPlateMotionSchema,
-      segments: FoundationTectonicSegmentsSchema,
     },
     { additionalProperties: false }
   ),

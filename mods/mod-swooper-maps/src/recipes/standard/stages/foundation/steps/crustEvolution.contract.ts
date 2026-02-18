@@ -14,7 +14,6 @@ const CrustEvolutionStepContract = defineStep({
       foundationArtifacts.crustInit,
       foundationArtifacts.tectonics,
       foundationArtifacts.tectonicHistory,
-      foundationArtifacts.tectonicProvenance,
     ],
     provides: [foundationArtifacts.crust],
   },
@@ -25,4 +24,3 @@ const CrustEvolutionStepContract = defineStep({
 });
 
 export default CrustEvolutionStepContract;
-

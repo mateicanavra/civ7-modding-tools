@@ -8,7 +8,6 @@ import computePlateGraph from "../../src/domain/foundation/ops/compute-plate-gra
 import computePlateMotion from "../../src/domain/foundation/ops/compute-plate-motion/index.js";
 import computePlatesTensors from "../../src/domain/foundation/ops/compute-plates-tensors/index.js";
 import computeTectonicHistory from "../../src/domain/foundation/ops/compute-tectonic-history/index.js";
-import computeTectonicSegments from "../../src/domain/foundation/ops/compute-tectonic-segments/index.js";
 import computeBaseTopography from "../../src/domain/morphology/ops/compute-base-topography/index.js";
 
 function quantile(sorted: number[], q: number): number {
@@ -52,12 +51,8 @@ describe("m11 morphology baseline consumes crust isostasy prior", () => {
       { strategy: "default", config: { plateCount: 16, referenceArea: 2400, plateScalePower: 0 } }
     ).plateGraph;
     const plateMotion = derivePlateMotion(mesh, plateGraph, 13);
-    const segments = computeTectonicSegments.run(
-      { mesh, crust, plateGraph, plateMotion },
-      computeTectonicSegments.defaultConfig
-    ).segments;
     const historyResult = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, plateMotion, segments },
+      { mesh, crust, mantleForcing, plateGraph, plateMotion },
       computeTectonicHistory.defaultConfig
     );
     const tectonicHistory = historyResult.tectonicHistory;

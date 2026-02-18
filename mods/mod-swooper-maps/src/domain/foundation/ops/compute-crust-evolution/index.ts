@@ -1,7 +1,7 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampU8 } from "@swooper/mapgen-core/lib/math";
 
-import { requireCrust, requireMesh, requireTectonicHistory, requireTectonicProvenance, requireTectonics } from "../../lib/require.js";
+import { requireCrust, requireMesh, requireTectonicHistory, requireTectonics } from "../../lib/require.js";
 import ComputeCrustEvolutionContract from "./contract.js";
 
 const MATURITY_CONTINENT_THRESHOLD = 0.55;
@@ -71,8 +71,6 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
           cellCount,
           "foundation/compute-crust-evolution"
         );
-        // Keep provenance as a hard input even if this strategy doesn't currently consume its fields.
-        requireTectonicProvenance(input.tectonicProvenance, cellCount, "foundation/compute-crust-evolution");
 
         const maturity = new Float32Array(cellCount);
         const thickness = new Float32Array(cellCount);
