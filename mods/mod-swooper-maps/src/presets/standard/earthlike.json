@@ -6,180 +6,180 @@
   "config": {
     "foundation": {
       "knobs": {
-        "plateCount": 18,
+        "plateCount": 28,
         "plateActivity": 0.7
       },
       "mesh": {
-        "computeMesh": {
-          "strategy": "default",
-          "config": {
-            "plateCount": 18,
-            "cellsPerPlate": 7,
-            "referenceArea": 6996,
-            "plateScalePower": 0.7,
-            "relaxationSteps": 2
-          }
-        }
-      },
-      "mantle-potential": {
-        "computeMantlePotential": {
-          "strategy": "default",
-          "config": {
-            "plumeCount": 10,
-            "downwellingCount": 3,
-            "plumeRadius": 0.28,
-            "downwellingRadius": 0.18,
-            "plumeAmplitude": 1,
-            "downwellingAmplitude": -1,
-            "smoothingIterations": 1,
-            "smoothingAlpha": 0.35,
-            "minSeparationScale": 0.85
-          }
-        }
-      },
-      "mantle-forcing": {
-        "computeMantleForcing": {
-          "strategy": "default",
-          "config": {
-            "velocityScale": 1,
-            "rotationScale": 0.2,
-            "stressNorm": 1,
-            "curvatureWeight": 0.35,
-            "upwellingThreshold": 0.35,
-            "downwellingThreshold": 0.35
-          }
-        }
-      },
-      "crust": {
-        "computeCrust": {
-          "strategy": "default",
-          "config": {
-            "basalticThickness01": 0.25,
-            "yieldStrength01": 0.55,
-            "mantleCoupling01": 0.6,
-            "riftWeakening01": 0.35
-          }
-        }
-      },
-      "plate-graph": {
-        "computePlateGraph": {
-          "strategy": "default",
-          "config": {
-            "plateCount": 8,
-            "referenceArea": 4000,
-            "plateScalePower": 0.5,
-            "polarCaps": {
-              "capFraction": 0.1,
-              "microplateBandFraction": 0.2,
-              "microplatesPerPole": 0,
-              "microplatesMinPlateCount": 14,
-              "microplateMinAreaCells": 8
+          "computeMesh": {
+            "strategy": "default",
+            "config": {
+              "plateCount": 28,
+              "cellsPerPlate": 7,
+              "referenceArea": 6996,
+              "plateScalePower": 0.7,
+              "relaxationSteps": 2
             }
           }
-        }
-      },
-      "plate-motion": {
-        "computePlateMotion": {
-          "strategy": "default",
-          "config": {
-            "omegaFactor": 1,
-            "plateRadiusMin": 1,
-            "residualNormScale": 1,
-            "p90NormScale": 1,
-            "histogramBins": 32,
-            "smoothingSteps": 0
-          }
-        }
-      },
-      "tectonics": {
-        "computePlateMotion": {
-          "strategy": "default",
-          "config": {
-            "omegaFactor": 1,
-            "plateRadiusMin": 1,
-            "residualNormScale": 1,
-            "p90NormScale": 1,
-            "histogramBins": 32,
-            "smoothingSteps": 0
+        },
+        "mantle-potential": {
+          "computeMantlePotential": {
+            "strategy": "default",
+            "config": {
+              "plumeCount": 10,
+              "downwellingCount": 3,
+              "plumeRadius": 0.28,
+              "downwellingRadius": 0.18,
+              "plumeAmplitude": 1,
+              "downwellingAmplitude": -1,
+              "smoothingIterations": 1,
+              "smoothingAlpha": 0.35,
+              "minSeparationScale": 0.85
+            }
           }
         },
-        "computeTectonicSegments": {
-          "strategy": "default",
-          "config": {
-            "intensityScale": 900,
-            "regimeMinIntensity": 4
+        "mantle-forcing": {
+          "computeMantleForcing": {
+            "strategy": "default",
+            "config": {
+              "velocityScale": 1,
+              "rotationScale": 0.2,
+              "stressNorm": 1,
+              "curvatureWeight": 0.35,
+              "upwellingThreshold": 0.35,
+              "downwellingThreshold": 0.35
+            }
           }
         },
-        "computeEraPlateMembership": {
-          "strategy": "default",
-          "config": {
-            "eraWeights": [
-              0.3,
-              0.25,
-              0.2,
-              0.15,
-              0.1
-            ],
-            "driftStepsByEra": [
-              12,
-              9,
-              6,
-              3,
-              1
-            ]
+        "crust": {
+          "computeCrust": {
+            "strategy": "default",
+            "config": {
+              "basalticThickness01": 0.25,
+              "yieldStrength01": 0.55,
+              "mantleCoupling01": 0.6,
+              "riftWeakening01": 0.35
+            }
           }
         },
-        "computeSegmentEvents": {
-          "strategy": "default",
-          "config": {}
-        },
-        "computeHotspotEvents": {
-          "strategy": "default",
-          "config": {}
-        },
-        "computeEraTectonicFields": {
-          "strategy": "default",
-          "config": {
-            "beltInfluenceDistance": 8,
-            "beltDecay": 0.55
+        "plate-graph": {
+          "computePlateGraph": {
+            "strategy": "default",
+            "config": {
+              "plateCount": 8,
+              "referenceArea": 4000,
+              "plateScalePower": 0.5,
+              "polarCaps": {
+                "capFraction": 0.1,
+                "microplateBandFraction": 0.2,
+                "microplatesPerPole": 0,
+                "microplatesMinPlateCount": 14,
+                "microplateMinAreaCells": 8
+              }
+            }
           }
         },
-        "computeTectonicHistoryRollups": {
-          "strategy": "default",
-          "config": {
-            "activityThreshold": 1
+        "plate-motion": {
+          "computePlateMotion": {
+            "strategy": "default",
+            "config": {
+              "omegaFactor": 1,
+              "plateRadiusMin": 1,
+              "residualNormScale": 1,
+              "p90NormScale": 1,
+              "histogramBins": 32,
+              "smoothingSteps": 0
+            }
           }
         },
-        "computeTectonicsCurrent": {
-          "strategy": "default",
-          "config": {}
-        },
-        "computeTracerAdvection": {
-          "strategy": "default",
-          "config": {}
-        },
-        "computeTectonicProvenance": {
-          "strategy": "default",
-          "config": {}
-        }
-      },
-      "crust-evolution": {
-        "computeCrustEvolution": {
-          "strategy": "default",
-          "config": {}
-        }
-      },
-      "projection": {
-        "computePlates": {
-          "strategy": "default",
-          "config": {
-            "boundaryInfluenceDistance": 7,
-            "boundaryDecay": 0.55,
-            "movementScale": 100,
-            "rotationScale": 100
+        "tectonics": {
+          "computePlateMotion": {
+            "strategy": "default",
+            "config": {
+              "omegaFactor": 1,
+              "plateRadiusMin": 1,
+              "residualNormScale": 1,
+              "p90NormScale": 1,
+              "histogramBins": 32,
+              "smoothingSteps": 0
+            }
+          },
+          "computeTectonicSegments": {
+            "strategy": "default",
+            "config": {
+              "intensityScale": 900,
+              "regimeMinIntensity": 4
+            }
+          },
+          "computeEraPlateMembership": {
+            "strategy": "default",
+            "config": {
+              "eraWeights": [
+                0.3,
+                0.25,
+                0.2,
+                0.15,
+                0.1
+              ],
+              "driftStepsByEra": [
+                12,
+                9,
+                6,
+                3,
+                1
+              ]
+            }
+          },
+          "computeSegmentEvents": {
+            "strategy": "default",
+            "config": {}
+          },
+          "computeHotspotEvents": {
+            "strategy": "default",
+            "config": {}
+          },
+          "computeEraTectonicFields": {
+            "strategy": "default",
+            "config": {
+              "beltInfluenceDistance": 8,
+              "beltDecay": 0.55
+            }
+          },
+          "computeTectonicHistoryRollups": {
+            "strategy": "default",
+            "config": {
+              "activityThreshold": 1
+            }
+          },
+          "computeTectonicsCurrent": {
+            "strategy": "default",
+            "config": {}
+          },
+          "computeTracerAdvection": {
+            "strategy": "default",
+            "config": {}
+          },
+          "computeTectonicProvenance": {
+            "strategy": "default",
+            "config": {}
           }
-        }
-      },
+        },
+        "crust-evolution": {
+          "computeCrustEvolution": {
+            "strategy": "default",
+            "config": {}
+          }
+        },
+        "projection": {
+          "computePlates": {
+            "strategy": "default",
+            "config": {
+              "boundaryInfluenceDistance": 7,
+              "boundaryDecay": 0.55,
+              "movementScale": 100,
+              "rotationScale": 100
+            }
+          }
+        },
       "plate-topology": {}
     },
     "morphology-coasts": {
@@ -236,7 +236,7 @@
               "targetWaterPercent": 63,
               "targetScalar": 1,
               "variance": 1.5,
-              "boundaryShareTarget": 0.08,
+              "boundaryShareTarget": 0.005,
               "continentalFraction": 0.39
             }
           },
@@ -485,13 +485,13 @@
         "computePrecipitation": {
           "strategy": "default",
           "config": {
-            "rainfallScale": 174,
-            "humidityExponent": 1.05,
-            "noiseAmplitude": 9,
-            "noiseScale": 0.16,
-            "waterGradient": {
-              "radius": 6,
-              "perRingBonus": 5,
+              "rainfallScale": 174,
+              "humidityExponent": 1.05,
+              "noiseAmplitude": 14,
+              "noiseScale": 0.16,
+              "waterGradient": {
+                "radius": 6,
+                "perRingBonus": 5,
               "lowlandBonus": 3,
               "lowlandElevationMax": 200
             },
@@ -700,7 +700,7 @@
               "moistureNormalizationPadding": 58
             },
             "edgeRefine": {
-              "radius": 2,
+              "radius": 3,
               "iterations": 2
             }
           }
@@ -886,7 +886,7 @@
     },
     "map-morphology": {
       "knobs": {
-        "orogeny": "normal"
+        "orogeny": "high"
       },
       "mountains": {
         "ridges": {
@@ -895,15 +895,15 @@
             "tectonicIntensity": 1,
             "driverSignalByteMin": 30,
             "driverExponent": 1,
-            "mountainMaxFraction": 0.07,
-            "hillMaxFraction": 0.18,
-            "mountainSpineFraction": 0.015,
-            "mountainSpineDilationSteps": 1,
+          "mountainMaxFraction": 0.1,
+          "hillMaxFraction": 0.18,
+          "mountainSpineFraction": 0.02,
+          "mountainSpineDilationSteps": 2,
             "oldBeltMountainScale": 0.4,
             "oldBeltHillScale": 1.1,
             "foothillMaxDistance": 2,
-            "mountainThreshold": 0.58,
-            "hillThreshold": 0.32,
+          "mountainThreshold": 0.47,
+          "hillThreshold": 0.27,
             "upliftWeight": 0.35,
             "fractalWeight": 0.15,
             "orogenyCollisionStressWeight": 0.6,
@@ -948,15 +948,15 @@
             "tectonicIntensity": 1,
             "driverSignalByteMin": 30,
             "driverExponent": 1,
-            "mountainMaxFraction": 0.07,
-            "hillMaxFraction": 0.18,
-            "mountainSpineFraction": 0.015,
-            "mountainSpineDilationSteps": 1,
+          "mountainMaxFraction": 0.1,
+          "hillMaxFraction": 0.18,
+          "mountainSpineFraction": 0.02,
+          "mountainSpineDilationSteps": 2,
             "oldBeltMountainScale": 0.4,
             "oldBeltHillScale": 1.1,
             "foothillMaxDistance": 2,
-            "mountainThreshold": 0.58,
-            "hillThreshold": 0.32,
+          "mountainThreshold": 0.47,
+          "hillThreshold": 0.27,
             "upliftWeight": 0.35,
             "fractalWeight": 0.15,
             "orogenyCollisionStressWeight": 0.6,
@@ -1006,12 +1006,14 @@
         "lakeiness": "normal",
         "riverDensity": "dense"
       },
-      "lakes": {
-        "tilesPerLakeMultiplier": 1
-      },
-      "plot-rivers": {
-        "minLength": 5,
-        "maxLength": 15
+      "advanced": {
+        "lakes": {
+          "tilesPerLakeMultiplier": 1
+        },
+        "plot-rivers": {
+          "minLength": 5,
+          "maxLength": 15
+        }
       }
     },
     "map-ecology": {

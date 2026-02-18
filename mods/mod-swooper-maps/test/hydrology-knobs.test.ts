@@ -99,7 +99,7 @@ describe("hydrology knobs compilation", () => {
     const compiled = standardRecipe.compileConfig(
       env,
       withFoundation({
-        "map-hydrology": { lakes: {} },
+        "map-hydrology": { advanced: { lakes: {} } },
       })
     );
     expect(compiled["map-hydrology"].lakes.tilesPerLakeMultiplier).toBe(1);
@@ -127,8 +127,10 @@ describe("hydrology knobs compilation", () => {
         },
         "map-hydrology": {
           knobs: { riverDensity: "dense", lakeiness: "many" },
-          lakes: { tilesPerLakeMultiplier: 2 },
-          "plot-rivers": { minLength: 11, maxLength: 11 },
+          advanced: {
+            lakes: { tilesPerLakeMultiplier: 2 },
+            "plot-rivers": { minLength: 11, maxLength: 11 },
+          },
         },
         "hydrology-climate-refine": {
           knobs: { dryness: "wet", temperature: "hot", cryosphere: "on" },
