@@ -47,8 +47,10 @@ Placement artifacts:
 - Provides `artifact:placementOutputs` (verification/debug surface)
 
 Runtime semantics:
-- Placement apply is fail-hard with full-stamp-or-fail behavior for deterministic wonder/discovery/resource plans.
-- Any metadata mismatch, out-of-bounds entry, rejected stamp, or partial stamping aborts the placement step.
+- Placement apply is fail-hard.
+- Natural wonders still use deterministic full-stamp-or-fail semantics.
+- Discoveries/resources run through official Civ generators; generator invocation failures and invalid placement metrics abort the placement step with explicit context.
+- Owned deterministic resource planning artifacts are retained for diagnostics/parity work but are non-primary at runtime and currently parity-incomplete for age/eligibility behavior.
 
 ## Key artifacts
 
@@ -75,7 +77,7 @@ These ops produce placement plans/inputs which are then applied in the placement
 Placement stage config is currently minimal:
 - placement inputs are derived from runtime config and placement ops,
 - resource/discovery planning consumes adapter-owned manual catalogs (`packages/civ7-adapter/src/manual-catalogs`) that are verified against the official tables via `scripts/placement/verify-manual-catalogs.ts`, so there are no runtime GameInfo/Database lookups for these catalogs,
-- then placement application runs deterministically given the plan inputs and map artifacts.
+- runtime apply uses official Civ generators for discovery/resources and deterministic stamping for natural wonders.
 
 ## Ground truth anchors
 

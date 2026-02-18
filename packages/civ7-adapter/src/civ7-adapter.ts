@@ -38,6 +38,8 @@ import { generateSnow as civ7GenerateSnow } from "/base-standard/maps/snow-gener
 // @ts-ignore - resolved only at Civ7 runtime
 import { generateDiscoveries as civ7GenerateDiscoveries } from "/base-standard/maps/discovery-generator.js";
 // @ts-ignore - resolved only at Civ7 runtime
+import * as civ7ResourceGeneratorModule from "/base-standard/maps/resource-generator.js";
+// @ts-ignore - resolved only at Civ7 runtime
 import { assignStartPositions as civ7AssignStartPositions, chooseStartSectors as civ7ChooseStartSectors } from "/base-standard/maps/assign-starting-plots.js";
 // @ts-ignore - resolved only at Civ7 runtime
 import { needHumanNearEquator as civ7NeedHumanNearEquator } from "/base-standard/maps/map-utilities.js";
@@ -66,6 +68,18 @@ export class Civ7Adapter implements EngineAdapter {
 
   private recordPlacementEffect(): void {
     this.recordEffect(ENGINE_EFFECT_TAGS.placementApplied);
+  }
+
+  private countPlacedResources(): number {
+    const noResource = this.NO_RESOURCE | 0;
+    let count = 0;
+    const { width, height } = this;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        if ((this.getResourceType(x, y) | 0) !== noResource) count += 1;
+      }
+    }
+    return count;
   }
 
   verifyEffect(effectId: string): boolean {
@@ -525,6 +539,82 @@ export class Civ7Adapter implements EngineAdapter {
     );
     if (placed) this.recordPlacementEffect();
     return Boolean(placed);
+  }
+
+  generateOfficialResources(
+    width: number,
+    height: number,
+    minMarineResourceTypesOverride?: number
+  ): number {
+    const resolvedWidth = Math.max(0, Math.trunc(width));
+    const resolvedHeight = Math.max(0, Math.trunc(height));
+    const resolvedMinMarineResourceTypesOverride = Number.isFinite(minMarineResourceTypesOverride)
+      ? Math.max(0, Math.trunc(minMarineResourceTypesOverride as number))
+      : undefined;
+
+    const resourceBuilder = (
+      globalThis as typeof globalThis & {
+        ResourceBuilder?: {
+          setResourceType?: (x: number, y: number, resourceType: number) => void;
+        };
+      }
+    ).ResourceBuilder;
+    if (!resourceBuilder?.setResourceType) {
+      throw new Error(
+        "[Adapter] ResourceBuilder.setResourceType is unavailable for official resource generation."
+      );
+    }
+
+    const officialResourceGenerator = (
+      civ7ResourceGeneratorModule as unknown as {
+        generateResources?: (
+          width: number,
+          height: number,
+          minMarineResourceTypesOverride?: number
+        ) => void;
+      }
+    ).generateResources;
+    if (typeof officialResourceGenerator !== "function") {
+      throw new Error("[Adapter] resource-generator.generateResources is unavailable.");
+    }
+
+    const noResource = this.NO_RESOURCE | 0;
+    const resourcesBefore = this.countPlacedResources();
+    let observedPlacedCount = 0;
+
+    const originalSetResourceType = resourceBuilder.setResourceType.bind(resourceBuilder);
+    resourceBuilder.setResourceType = (x: number, y: number, resourceType: number): void => {
+      const previous = this.getResourceType(x, y) | 0;
+      originalSetResourceType(x, y, resourceType);
+      const next = this.getResourceType(x, y) | 0;
+      if (previous === noResource && next !== noResource) observedPlacedCount += 1;
+    };
+
+    try {
+      if (resolvedMinMarineResourceTypesOverride === undefined) {
+        officialResourceGenerator(resolvedWidth, resolvedHeight);
+      } else {
+        officialResourceGenerator(
+          resolvedWidth,
+          resolvedHeight,
+          resolvedMinMarineResourceTypesOverride
+        );
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(
+        `[Adapter] Official resource generation failed (width=${resolvedWidth}, height=${resolvedHeight}, minMarineResourceTypesOverride=${String(resolvedMinMarineResourceTypesOverride)}): ${message}`
+      );
+    } finally {
+      resourceBuilder.setResourceType = originalSetResourceType;
+    }
+
+    const resourcesAfter = this.countPlacedResources();
+    const countedPlaced = Math.max(0, resourcesAfter - resourcesBefore);
+    const placedCount = Math.max(0, observedPlacedCount, countedPlaced);
+
+    this.recordPlacementEffect();
+    return placedCount;
   }
 
   generateOfficialDiscoveries(

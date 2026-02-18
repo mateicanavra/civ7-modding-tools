@@ -24,8 +24,12 @@ Current architecture for ecology, lakes, and placement is intentionally physics-
   - lake plan vs engine water mask mismatch is fail-hard,
   - biome/placement land-water drift is always emitted and remains a strict-candidate gate until a post-hydrology authoritative land mask artifact is finalized.
 
-Deterministic placement now stamps directly through adapter primitives (`setResourceType`, `stampNaturalWonder`, `stampDiscovery`), records actual placed counts from engine acknowledgements, and treats partial stamping as a hard error (full-stamp-or-fail).
-Resource/discovery planning now consumes adapter-owned explicit candidate catalogs (static symbols/constants resolved at the adapter boundary), with no runtime table/default lookups for planning semantics.
+Placement runtime now uses:
+- deterministic stamping for natural wonders,
+- official Civ discovery generation (`generateOfficialDiscoveries`),
+- official Civ resource generation (`generateOfficialResources`) as the primary resource path for age-valid eligibility behavior.
+
+Owned deterministic resource planning artifacts remain in-repo for diagnostics/parity work, but are non-primary at runtime and currently parity-incomplete for age/eligibility semantics.
 
 ## Current mod code pointers
 

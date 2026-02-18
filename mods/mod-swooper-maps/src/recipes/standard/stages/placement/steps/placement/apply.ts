@@ -185,22 +185,28 @@ export function applyPlacementPlan({
   });
 
   const resourcesAttempted = true;
-  const resourceStamping = runPlacementStep("placement.resources", emit, () =>
-    stampResourcesFromPlan({
+  // Runtime posture: resources are generated via official Civ path for age-valid
+  // eligibility behavior. Deterministic resource planning remains a non-primary
+  // artifact surface and is currently parity-incomplete by design.
+  const resourceGeneration = runPlacementStep("placement.resources", emit, () =>
+    generateResourcesWithOfficialPrimary({
       adapter,
       width,
       height,
       resources: resolvedResourcePlan,
     })
   );
-  const resourcesPlaced = resourceStamping.placedCount;
+  const resourcesPlaced = resourceGeneration.placedCount;
+  emit({
+    type: "placement.resources.mode",
+    mode: resourceGeneration.mode,
+    minMarineResourceTypesOverride: resourceGeneration.minMarineResourceTypesOverride ?? null,
+  });
   emit({
     type: "placement.resources.stamped",
-    plannedCount: resourceStamping.plannedCount,
-    placedCount: resourceStamping.placedCount,
-    skippedOccupiedCount: resourceStamping.skippedOccupiedCount,
-    skippedIneligibleCount: resourceStamping.skippedIneligibleCount,
-    skippedOutOfBoundsCount: resourceStamping.skippedOutOfBoundsCount,
+    mode: resourceGeneration.mode,
+    plannedCount: resourceGeneration.plannedCount,
+    placedCount: resourceGeneration.placedCount,
   });
 
   const startPositions: number[] = [];
@@ -508,57 +514,34 @@ function generateDiscoveriesWithOfficialFallback({
   };
 }
 
-type StampResourcesFromPlanArgs = {
+type GenerateResourcesWithOfficialPrimaryArgs = {
   adapter: ExtendedMapContext["adapter"];
   width: number;
   height: number;
   resources: DeepReadonly<PlanResourcesOutput>;
+  minMarineResourceTypesOverride?: number;
 };
 
-type ResourceStampingStats = {
+type OfficialResourceGenerationStats = {
+  mode: "official-primary";
   plannedCount: number;
   placedCount: number;
-  skippedOccupiedCount: number;
-  skippedIneligibleCount: number;
-  skippedOutOfBoundsCount: number;
+  minMarineResourceTypesOverride?: number;
 };
 
-type IneligibleResourcePlacement = {
-  preferredResourceType: number;
-  preferredTypeOffset: number;
-};
-
-function orderedResourceCandidatesForPlacement(
-  candidateResourceTypes: number[],
-  candidateTypeSet: Set<number>,
-  preferredTypeOffset: number,
-  preferredType: number,
-  noResourceSentinel: number
-): number[] {
-  const orderedCandidates = rotateCandidates(candidateResourceTypes, preferredTypeOffset);
-  if (
-    preferredType >= 0 &&
-    preferredType !== noResourceSentinel &&
-    !candidateTypeSet.has(preferredType)
-  ) {
-    orderedCandidates.unshift(preferredType);
-  }
-  return orderedCandidates;
-}
-
-function stampResourcesFromPlan({
+function generateResourcesWithOfficialPrimary({
   adapter,
   width,
   height,
   resources,
-}: StampResourcesFromPlanArgs): ResourceStampingStats {
+  minMarineResourceTypesOverride,
+}: GenerateResourcesWithOfficialPrimaryArgs): OfficialResourceGenerationStats {
   if ((resources.width | 0) !== (width | 0) || (resources.height | 0) !== (height | 0)) {
     throw new Error(
       `[Placement] Resource plan dimensions ${resources.width}x${resources.height} do not match map ${width}x${height}.`
     );
   }
 
-  const noResourceSentinel = adapter.NO_RESOURCE | 0;
   const plannedCount = resources.placements.length;
   const declaredPlannedCount = Math.max(0, resources.plannedCount | 0);
   const targetCount = Math.max(0, resources.targetCount | 0);
@@ -576,130 +559,37 @@ function stampResourcesFromPlan({
   const candidateResourceTypes = Array.from(
     new Set(
       resources.candidateResourceTypes
-        .map((value) => value | 0)
-        .filter((value) => Number.isFinite(value) && value >= 0 && value !== noResourceSentinel)
+        .filter((value) => Number.isFinite(value))
+        .map((value) => Math.trunc(value as number))
+        .filter((value) => value >= 0)
     )
-  ).sort((a, b) => a - b);
+  );
   if (plannedCount > 0 && candidateResourceTypes.length === 0) {
     throw new Error(
-      `[Placement] Resource plan has no placeable candidate types (planned=${plannedCount}, noResourceSentinel=${noResourceSentinel}).`
+      `[Placement] Resource plan has no candidate types for diagnostics (planned=${plannedCount}).`
     );
   }
-  const candidateTypeSet = new Set(candidateResourceTypes);
 
-  let placedCount = 0;
-  let skippedOccupiedCount = 0;
-  let skippedIneligibleCount = 0;
-  let skippedOutOfBoundsCount = 0;
-  const ineligiblePlacements: IneligibleResourcePlacement[] = [];
-
-  for (const placementPlan of resources.placements) {
-    const plotIndex = placementPlan.plotIndex | 0;
-    if (plotIndex < 0 || plotIndex >= width * height) {
-      skippedOutOfBoundsCount += 1;
-      continue;
-    }
-
-    const y = (plotIndex / width) | 0;
-    const x = plotIndex - y * width;
-
-    const existing = adapter.getResourceType(x, y) | 0;
-    if (existing !== noResourceSentinel) {
-      skippedOccupiedCount += 1;
-      continue;
-    }
-
-    const preferredType = placementPlan.preferredResourceType | 0;
-    const preferredOffset = placementPlan.preferredTypeOffset | 0;
-    const orderedCandidates = orderedResourceCandidatesForPlacement(
-      candidateResourceTypes,
-      candidateTypeSet,
-      preferredOffset,
-      preferredType,
-      noResourceSentinel
-    );
-
-    let stamped = false;
-    for (const resourceType of orderedCandidates) {
-      if (resourceType === noResourceSentinel) continue;
-      if (!adapter.canHaveResource(x, y, resourceType)) continue;
-      adapter.setResourceType(x, y, resourceType);
-      const stampedType = adapter.getResourceType(x, y) | 0;
-      if (stampedType !== noResourceSentinel) {
-        placedCount += 1;
-        stamped = true;
-        break;
-      }
-    }
-
-    if (!stamped) {
-      skippedIneligibleCount += 1;
-      ineligiblePlacements.push({
-        preferredResourceType: preferredType,
-        preferredTypeOffset: preferredOffset,
-      });
-    }
-  }
-
-  let rescuePlacedCount = 0;
-  if (ineligiblePlacements.length > 0 && skippedOccupiedCount === 0 && skippedOutOfBoundsCount === 0) {
-    for (const failedPlacement of ineligiblePlacements) {
-      let rescued = false;
-      const orderedCandidates = orderedResourceCandidatesForPlacement(
-        candidateResourceTypes,
-        candidateTypeSet,
-        failedPlacement.preferredTypeOffset,
-        failedPlacement.preferredResourceType,
-        noResourceSentinel
-      );
-
-      for (let plotIndex = 0; plotIndex < width * height && !rescued; plotIndex++) {
-        const y = (plotIndex / width) | 0;
-        const x = plotIndex - y * width;
-        const existing = adapter.getResourceType(x, y) | 0;
-        if (existing !== noResourceSentinel) continue;
-
-        for (const resourceType of orderedCandidates) {
-          if (resourceType === noResourceSentinel) continue;
-          if (!adapter.canHaveResource(x, y, resourceType)) continue;
-          adapter.setResourceType(x, y, resourceType);
-          const stampedType = adapter.getResourceType(x, y) | 0;
-          if (stampedType !== noResourceSentinel) {
-            placedCount += 1;
-            rescued = true;
-            rescuePlacedCount += 1;
-            skippedIneligibleCount = Math.max(0, skippedIneligibleCount - 1);
-            break;
-          }
-        }
-      }
-    }
-  }
-
-  if (placedCount !== plannedCount || skippedOccupiedCount > 0 || skippedIneligibleCount > 0 || skippedOutOfBoundsCount > 0) {
+  const resolvedMinMarineResourceTypesOverride = Number.isFinite(minMarineResourceTypesOverride)
+    ? Math.max(0, Math.trunc(minMarineResourceTypesOverride as number))
+    : undefined;
+  const placedCount = adapter.generateOfficialResources(
+    width,
+    height,
+    resolvedMinMarineResourceTypesOverride
+  );
+  if (!Number.isFinite(placedCount) || placedCount < 0) {
     throw new Error(
-      `[Placement] Failed to stamp all resources (placed ${placedCount}/${plannedCount}, target=${targetCount}, occupied=${skippedOccupiedCount}, ineligible=${skippedIneligibleCount}, rescued=${rescuePlacedCount}, outOfBounds=${skippedOutOfBoundsCount}, noResourceSentinel=${noResourceSentinel}).`
+      `[Placement] Official resource generator returned invalid placed count (placedCount=${String(placedCount)}, planned=${plannedCount}, target=${targetCount}, minMarineResourceTypesOverride=${String(resolvedMinMarineResourceTypesOverride)}).`
     );
   }
 
   return {
+    mode: "official-primary",
     plannedCount,
-    placedCount,
-    skippedOccupiedCount,
-    skippedIneligibleCount,
-    skippedOutOfBoundsCount,
+    placedCount: Math.trunc(placedCount),
+    minMarineResourceTypesOverride: resolvedMinMarineResourceTypesOverride,
   };
-}
-
-function rotateCandidates(values: number[], offset: number): number[] {
-  if (values.length === 0) return [];
-  const length = values.length;
-  const start = ((offset % length) + length) % length;
-  const rotated: number[] = [];
-  for (let i = 0; i < length; i++) {
-    rotated.push(values[(start + i) % length]!);
-  }
-  return rotated;
 }
 
 function applyLandmassRegionSlots(
