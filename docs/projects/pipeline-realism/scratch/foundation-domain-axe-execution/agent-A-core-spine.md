@@ -199,6 +199,62 @@ bun run --cwd mods/mod-swooper-maps test test/foundation/no-op-calls-op-tectonic
 ## Decision asks
 - none
 
+### 2026-02-15 — Group A ownership docs-first attestation (op-local tectonics rules)
+
+```yaml
+group_a_docs_first_attestation:
+  task_group:
+    - compute-era-plate-membership
+    - compute-segment-events
+    - compute-hotspot-events
+    - compute-tracer-advection
+  required_docs:
+    - path: docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+      line_span: "1-383"
+      evidence_lines:
+        - "25-27"
+        - "136-139"
+        - "145-149"
+        - "170"
+        - "210-212"
+        - "243-253"
+    - path: docs/system/mods/swooper-maps/architecture.md
+      line_span: "1-73"
+      evidence_lines:
+        - "15"
+        - "19-20"
+    - path: docs/system/libs/mapgen/architecture.md
+      line_span: "1-22"
+      evidence_lines:
+        - "14-18"
+  extracted_constraints:
+    op_local_rules_only:
+      attested: true
+      evidence:
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:27"
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:139"
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:243-253"
+    strategies_internal_to_ops:
+      attested: true
+      evidence:
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:26"
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:138"
+    domain_surface_import_posture:
+      attested: true
+      evidence:
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:145-149"
+      interpretation: "ops expose contract/router surfaces; strategy/rules remain internal implementation details"
+    no_shims_dual_paths:
+      attested: true
+      evidence:
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:170"
+    canonical_mapgen_router_ack:
+      attested: true
+      evidence:
+        - "docs/system/libs/mapgen/architecture.md:14-18"
+      interpretation: "treat this page as router and rely on canonical mapgen architecture/domain-modeling docs via linked replacements"
+```
+
 ### 2026-02-15 — Compact context bridge (/compact ack) + S02/S03 execution plan
 
 #### Compact context bridge
@@ -596,4 +652,264 @@ s06_sentinel_hard_cut:
 - None in the scoped smell class; compile bypass/sentinel paths are removed and guarded.
 
 #### Decision asks
+- none
+
+### 2026-02-15 — S05 hotspot pipeline-core modular decomposition (ownership slice)
+
+#### Proposed target
+- Decompose `compute-tectonic-history/lib/pipeline-core.ts` into coherent domain modules (`membership`, `events`, `fields`, `rollups`, `provenance`, `tracing`) while preserving all existing runtime contracts and behavior.
+- Keep op-level architecture boundaries intact: no step orchestration leakage into libs, no runtime config normalization, and no op-calls-op reintroduction.
+
+#### Changes landed
+- Split the former `pipeline-core.ts` monolith into focused library modules plus shared helpers and constants.
+- Replaced `pipeline-core.ts` with a thin compatibility export spine that re-exports the same public API surface.
+- Updated dependent foundation ops to import from the focused modules instead of the monolithic pipeline file.
+
+#### Verification command log (S05)
+```bash
+$ bun run --cwd mods/mod-swooper-maps check
+# result: PASS
+
+$ bun run --cwd mods/mod-swooper-maps lint -- src/domain/foundation/ops/compute-tectonic-history/lib src/domain/foundation/ops/compute-era-plate-membership/index.ts src/domain/foundation/ops/compute-segment-events/index.ts src/domain/foundation/ops/compute-hotspot-events/index.ts src/domain/foundation/ops/compute-era-tectonic-fields/index.ts src/domain/foundation/ops/compute-tectonic-history-rollups/index.ts src/domain/foundation/ops/compute-tectonics-current/index.ts src/domain/foundation/ops/compute-tracer-advection/index.ts src/domain/foundation/ops/compute-tectonic-provenance/index.ts
+# result: PASS
+
+$ bun run --cwd mods/mod-swooper-maps test test/foundation/m11-tectonic-events.test.ts test/foundation/m11-tectonic-segments-history.test.ts test/foundation/no-op-calls-op-tectonics.test.ts
+# result: FAIL (2 assertions in m11-tectonic-segments-history expect legacy compute-tectonic-history contract behavior; op is intentionally disabled in this branch)
+
+$ bun run --cwd mods/mod-swooper-maps test test/foundation/m11-tectonic-events.test.ts test/foundation/no-op-calls-op-tectonics.test.ts
+# result: PASS
+
+$ bun run --cwd mods/mod-swooper-maps test test/foundation/m11-tectonic-segments-polarity-bootstrap.test.ts
+# result: PASS
+```
+
+```yaml
+s05_hotspot_pipeline_core_decomposition:
+  ownership_root:
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib
+  module_split_paths:
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/constants.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/shared.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/membership.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/events.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/fields.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/rollups.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/tracing.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/provenance.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/segments.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts
+  dependent_op_import_updates:
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/index.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/index.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/index.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/index.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/index.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/index.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/index.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/index.ts
+  verification_paths:
+    - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-A-core-spine.md
+    - mods/mod-swooper-maps/test/foundation/m11-tectonic-events.test.ts
+    - mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-history.test.ts
+    - mods/mod-swooper-maps/test/foundation/m11-tectonic-segments-polarity-bootstrap.test.ts
+    - mods/mod-swooper-maps/test/foundation/no-op-calls-op-tectonics.test.ts
+```
+
+#### Open risks
+- `test/foundation/m11-tectonic-segments-history.test.ts` still contains assertions tied to legacy `compute-tectonic-history` runtime validation behavior and currently fails against the intentionally disabled op surface in this branch.
+
+#### Decision asks
+- none
+
+### 2026-02-15 — Docs-first gate attestation (mandatory)
+
+```yaml
+docs_attestation:
+  gate: mandatory_docs_first
+  status: complete
+  docs_read_in_full:
+    - path: docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+      line_span: "1-383"
+      evidence_lines:
+        - "64-65"
+        - "22"
+        - "25-27"
+        - "95-96"
+        - "136-139"
+        - "215-217"
+        - "257-260"
+        - "283-293"
+        - "313-315"
+        - "374"
+        - "382"
+    - path: docs/system/mods/swooper-maps/architecture.md
+      line_span: "1-73"
+      evidence_lines:
+        - "56-63"
+        - "20"
+    - path: docs/system/libs/mapgen/architecture.md
+      line_span: "1-22"
+      evidence_lines:
+        - "14-18"
+  applied_rules:
+    no_stage_runtime_merge_defaulting:
+      attested: true
+      evidence:
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:64-65"
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:283-287"
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:374"
+    no_manual_public_to_internal_schema_translation:
+      attested: true
+      evidence:
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:283-293"
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:379"
+      interpretation: "shape/default/canonical config work is compile-time normalize-driven, not runtime hand-translation in step/op run paths"
+    no_op_calls_op:
+      attested: true
+      evidence:
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:22"
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:215-217"
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:257-260"
+      interpretation: "multi-op orchestration is step-owned; ops remain single-contract execution units"
+    strategies_internal_to_ops:
+      attested: true
+      evidence:
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:26"
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:138"
+    rules_internal_to_ops:
+      attested: true
+      evidence:
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:27"
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:139"
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:382"
+    step_orchestrates_ops_only:
+      attested: true
+      evidence:
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:25"
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:95-96"
+        - "docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:313-315"
+        - "docs/system/mods/swooper-maps/architecture.md:56-63"
+  canonical_router_ack:
+    evidence:
+      - "docs/system/libs/mapgen/architecture.md:14-18"
+    applied: "used SPEC + canonical mapgen architecture/domain-modeling as governing guidance posture"
+```
+
+### 2026-02-15 — Secondary review: tectonics strategy-module extraction (on-disk baseline)
+
+```yaml
+secondary_reviewer_verification:
+  mode: reviewer_only
+  baseline: current_on_disk_no_rebase
+  scope_ops:
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance
+  structure_evidence:
+    index_wiring_only:
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/index.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/index.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/index.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/index.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/index.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/index.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/index.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/index.ts
+    strategy_modules_present:
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/strategies/default.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/strategies/index.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/strategies/default.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/strategies/index.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/strategies/default.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/strategies/index.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/strategies/default.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/strategies/index.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/strategies/default.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/strategies/index.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/strategies/default.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/strategies/index.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/strategies/default.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/strategies/index.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/strategies/default.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/strategies/index.ts
+  checks_run:
+    - command: bun run --cwd mods/mod-swooper-maps check
+      result: pass
+    - command: bun run --cwd mods/mod-swooper-maps test test/foundation/no-op-calls-op-tectonics.test.ts test/foundation/contract-guard.test.ts test/foundation/m11-tectonic-events.test.ts test/foundation/m11-tectonic-segments-polarity-bootstrap.test.ts
+      result: pass
+    - command: rg structural assertion (no run() in target index.ts + strategies/default.ts present + createStrategy present)
+      result: pass
+  findings:
+    count: 0
+    gaps: []
+```
+
+## Proposed target
+- Strategy-boundary extraction for the decomposed tectonics ops remains aligned with SPEC boundaries on the current on-disk baseline: index files are registration/wiring only and default behavior lives in op-local strategy modules.
+
+## Changes landed
+- No code changes made during this reviewer pass.
+- Added docs-first attestation and secondary-review evidence to this scratch file.
+
+## Open risks
+- This verification pass is scoped to structural boundaries and targeted foundation tests; it does not re-run legacy `m11-tectonic-segments-history` assertions that intentionally target disabled mega-op behavior on this branch.
+
+## Decision asks
+- none
+
+### 2026-02-15 — Cross-op contract-edge cleanup (tectonics shared schemas)
+
+```yaml
+cross_op_contract_edge_cleanup:
+  scope:
+    objective: remove remaining foundation cross-op imports from compute-tectonic-history contract
+    shared_surface: src/domain/foundation/lib/tectonics/schemas.js
+  changed_paths:
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust-evolution/contract.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/contract.ts
+    - mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts
+    - mods/mod-swooper-maps/src/domain/foundation/lib/require.ts
+    - mods/mod-swooper-maps/test/foundation/contract-guard.test.ts
+  import_edge_evidence:
+    no_remaining_compute_tectonic_history_contract_imports_in_foundation_domain:
+      command: rg -n "compute-tectonic-history/contract" mods/mod-swooper-maps/src/domain/foundation
+      result: no_matches
+    canonical_tectonics_schema_imports_present:
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust-evolution/contract.ts:6
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/contract.ts:12
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts:12
+      - mods/mod-swooper-maps/src/domain/foundation/lib/require.ts:11
+  guardrail_updates:
+    - test_file: mods/mod-swooper-maps/test/foundation/contract-guard.test.ts
+      test_name: keeps foundation tectonics consumers off compute-tectonic-history contract imports
+      assertions:
+        - no legacy contract edge: compute-tectonic-history/contract.js
+        - canonical shared import path: tectonics/schemas.js
+  verification:
+    - command: bun run --cwd mods/mod-swooper-maps check
+      result: pass
+    - command: bun run --cwd mods/mod-swooper-maps test test/foundation/contract-guard.test.ts test/foundation/no-op-calls-op-tectonics.test.ts test/foundation/tile-projection-materials.test.ts
+      result: pass
+    - command: bun run --cwd mods/mod-swooper-maps test test/foundation/contract-guard.test.ts test/foundation/no-op-calls-op-tectonics.test.ts test/foundation/tile-projection-materials.test.ts test/foundation/m11-projection-boundary-band.test.ts
+      result: fail_known_baseline
+      failure_reason: m11-projection-boundary-band still invokes disabled foundation/compute-tectonic-history mega-op in this branch
+```
+
+## Proposed target
+- Foundation consumers of tectonics history/current/provenance use canonical shared tectonics schemas/types (`foundation/lib/tectonics/schemas.js`) rather than cross-op contract imports.
+
+## Changes landed
+- Rewired targeted imports in crust evolution + plates tensors + shared require helpers to `lib/tectonics/schemas.js`.
+- Removed duplicate local tectonic provenance schema definition in `compute-plates-tensors/contract.ts` in favor of shared canonical schema.
+- Added a foundation guardrail test to prevent reintroduction of `compute-tectonic-history/contract.js` imports in these consumers.
+
+## Open risks
+- `test/foundation/m11-projection-boundary-band.test.ts` remains coupled to the disabled legacy mega-op (`foundation/compute-tectonic-history`) and fails on this branch baseline when included.
+
+## Decision asks
 - none

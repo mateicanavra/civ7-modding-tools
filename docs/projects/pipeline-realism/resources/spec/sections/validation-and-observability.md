@@ -197,7 +197,7 @@ Validation MUST NOT:
 
 For the ecology/hydrology/placement cutover:
 
-- `map-hydrology/lakes` is a runtime hard failure when any planned-lake tile is not water in engine projection (`sinkMismatchCount > 0`).
+- `map-hydrology/lakes` always emits sink-mismatch parity telemetry (`sinkMismatchCount`) but does not hard-fail runtime, because hydrology sink candidates are not a deterministic lake-intent contract for engine projection.
 - `map-ecology/plot-biomes` and `placement/placement` always emit parity diagnostics and remain strict-candidate gates until post-hydrology authoritative land-mask truth is formalized for those boundaries.
 
 These diagnostics are contract-truth telemetry, not visualization-only noise.

@@ -42,6 +42,82 @@ checkpoint_sources:
 ## Decision asks
 - none
 
+## 2026-02-15 — Foundation decomposed tectonics op-local-rules enforcement (architecture guardrail closeout)
+
+### Decision + evidence attestation
+```yaml
+decision_attestation:
+  date: 2026-02-15
+  scope: foundation decomposed tectonics ops (S03/S05 guardrail overlap)
+  decision:
+    summary: "Adopt strict op-local-rules ownership for decomposed tectonics ops."
+    policy:
+      shared_tectonics_allowed_only_for:
+        - types/schemas
+        - constants
+        - shared primitives
+      op_rules_must_own_real_implementation: true
+      forbid_reexport_shims_from_shared_tectonics_inside_op_rules: true
+      strategy_imports_must_be_local:
+        allowed:
+          - "@swooper/mapgen-core/authoring"
+          - "../contract.js"
+          - "../rules/*"
+        forbidden_examples:
+          - "../../../lib/require.js"
+          - "../../../lib/tectonics/*"
+          - "compute-tectonic-history/lib/*"
+
+  implementation_evidence:
+    localized_rule_implementations:
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/rules/index.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/rules/index.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/rules/index.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/rules/index.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/rules/index.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/rules/index.ts
+    strategy_rewires:
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/strategies/default.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/strategies/default.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/strategies/default.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/strategies/default.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/strategies/default.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/strategies/default.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/strategies/default.ts
+      - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/strategies/default.ts
+    guardrail_updates:
+      - mods/mod-swooper-maps/test/foundation/contract-guard.test.ts
+      - scripts/lint/lint-domain-refactor-guardrails.sh
+
+  verification:
+    - command: bun --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps check
+      result: pass
+    - command: cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full REFRACTOR_DOMAINS=foundation ./scripts/lint/lint-domain-refactor-guardrails.sh
+      result: pass
+    - command: bun --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps test test/foundation/contract-guard.test.ts test/foundation/no-op-calls-op-tectonics.test.ts test/foundation/m11-tectonic-events.test.ts test/foundation/m11-tectonic-segments-history.test.ts
+      result: pass (26 passed, 0 failed)
+```
+
+## Proposed target
+- Decomposed foundation tectonics strategies import only local op modules (`../rules/*` + `../contract.js`) and never deep-import shared tectonics or legacy mega-op internals.
+- Decomposed op rule modules contain owned implementation logic rather than forwarding shared tectonics helpers by re-export shim.
+- Guardrails fail immediately on regressions in strategy import boundaries and op-rule re-export shims.
+
+## Changes landed
+- Replaced shim-only rule files for hotspot events, segment events, and tracer advection with op-local implementations.
+- Rewired `compute-era-plate-membership` strategy to local rules and added local `require*` wrappers in its rules surface.
+- Converted remaining pass-through exports in `compute-era-tectonic-fields` and `compute-tectonic-provenance` rules into explicit local wrappers.
+- Extended contract/lint guardrails with:
+  - strategy-local import enforcement for decomposed tectonics ops
+  - explicit ban on `lib/tectonics` re-export shims inside decomposed op rules.
+
+## Open risks
+- Shared tectonics modules still exist for non-decomposed/legacy callers; follow-up cleanup may be needed to reduce duplicate logic once broader migration completes.
+- The checkpoint file now includes both prior shared-module direction and this stricter local-rules decision; this section should be treated as the superseding boundary policy for decomposed ops.
+
+## Decision asks
+- none
+
 ## Context bridge
 - IG-1 sits between the parallel S02/S03/S05/S06 workstreams and the S04 slice; the checkpoint must surface ecology merge readiness, PR-pressure policy compliance, and GI-1 verification before we unstop S04.
 - Integration slice plan: coordinate S02/S03 artifacts for merge readiness, pull in S05/S06 test hardening, confirm ecology merge steps, apply the `>=45` PR-count collapse policy, lock the re-anchor sync, then run GI-1 commands that gate the S04+ backlog slices.
@@ -128,6 +204,145 @@ checkpoint_readiness:
 ## Open risks
 - Full-profile domain guardrails remain red due pre-existing ecology canonical-module debt until ecology merge/remediation is applied.
 - Shared recipe/diagnostics files may conflict during ecology merge and require a dedicated conflict-fix slice before `S04`.
+
+## Decision asks
+- none
+
+## 2026-02-15 — Foundation hotspot boundary audit/remediation (architecture watcher)
+
+### Required docs (read before code edits)
+```yaml
+required_docs_read_pre_edit:
+  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+    anchors:
+      - "Steps call ops; ops never call steps."
+      - "Strategies/rules are op-internal; steps select through op config envelopes only."
+      - "Compile-first posture: normalization/defaulting belongs to normalize surfaces, not runtime cast/merge hacks."
+  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/mods/swooper-maps/architecture.md
+    anchors:
+      - "Swooper mod architecture doc is the mod router/context surface."
+      - "Canonical MapGen architecture docs are under docs/system/libs/mapgen/* replacements."
+  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/architecture.md
+    anchors:
+      - "Legacy router only; canonical replacements are explanation/reference docs."
+      - "Boundary decisions should follow explanation/ARCHITECTURE.md and explanation/DOMAIN-MODELING.md."
+```
+
+### Smell audit + remediation evidence
+```yaml
+smell_audit:
+  schema_imports_translation_hacks_across_boundaries:
+    status: fixed
+    before:
+      - decomposed foundation tectonics ops/contracts imported from compute-tectonic-history/lib/* and compute-tectonic-history/contract.js
+    remediation:
+      - added shared neutral module: mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/
+      - rewired decomposed contracts/strategies to import only foundation/lib/tectonics/*
+      - added contract guard test asserting no decomposed-op imports from compute-tectonic-history/(lib|contract)
+
+  giant_helper_function_wrapped_by_ops_without_clear_boundary:
+    status: mitigated
+    before:
+      - decomposed op strategies were thin wrappers over helper modules living inside legacy compute-tectonic-history op folder
+    remediation:
+      - moved helper implementations to foundation/lib/tectonics/*
+      - converted compute-tectonic-history/lib/{constants,shared,internal-contract,events,fields,membership,rollups,tracing,provenance}.ts into re-export shims to shared module
+
+  op_calls_op:
+    status: pass
+    evidence:
+      - test/foundation/no-op-calls-op-tectonics.test.ts passed
+
+  step_importing_rules_or_strategy_internals:
+    status: pass
+    evidence:
+      - foundation tectonics step remains bound through contract ops surface; no strategy/rules deep imports introduced
+
+  stage_compile_runtime_merge_defaulting:
+    status: pass
+    evidence:
+      - foundation-scoped full guardrails passed including cast-merge/sentinel checks on stage index
+
+  contracts_types_imported_from_wrong_boundaries:
+    status: fixed
+    remediation:
+      - extracted tectonic schemas/types to foundation/lib/tectonics/schemas.ts
+      - updated compute-tectonic-history/contract.ts to consume and re-export shared schemas/types
+```
+
+### Files changed (owned remediation set)
+```yaml
+changed_files:
+  - mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/index.ts
+  - mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/schemas.ts
+  - mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/constants.ts
+  - mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/shared.ts
+  - mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/internal-contract.ts
+  - mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/events.ts
+  - mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/fields.ts
+  - mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/membership.ts
+  - mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/rollups.ts
+  - mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/tracing.ts
+  - mods/mod-swooper-maps/src/domain/foundation/lib/tectonics/provenance.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/contract.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/strategies/default.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/contract.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/strategies/default.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/contract.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/strategies/default.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/contract.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/strategies/default.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/contract.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/strategies/default.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/contract.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/strategies/default.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/contract.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/strategies/default.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/contract.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/strategies/default.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/contract.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/constants.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/shared.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/internal-contract.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/events.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/fields.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/membership.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/rollups.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/tracing.ts
+  - mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/provenance.ts
+  - mods/mod-swooper-maps/test/foundation/contract-guard.test.ts
+  - scripts/lint/lint-domain-refactor-guardrails.sh
+```
+
+### Verification
+```yaml
+verification:
+  - command: bun --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps check
+    result: pass
+  - command: bun --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps test test/foundation/contract-guard.test.ts test/foundation/no-op-calls-op-tectonics.test.ts
+    result: pass (14 passed, 0 failed)
+  - command: bun --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps test test/foundation/m11-tectonic-events.test.ts
+    result: pass (3 passed, 0 failed)
+  - command: bun --cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps test test/foundation/m11-tectonic-segments-history.test.ts
+    result: pass (6 passed, 0 failed)
+  - command: cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails && DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full REFRACTOR_DOMAINS=foundation ./scripts/lint/lint-domain-refactor-guardrails.sh
+    result: pass
+```
+
+## Proposed target
+- Decomposed tectonics ops depend only on a neutral foundation shared tectonics surface, never on legacy compute-tectonic-history internals.
+- Shared tectonic schemas/types/helpers have one canonical home (`foundation/lib/tectonics`), with legacy-path shims only for compatibility.
+- Guardrails fail fast if decomposed ops regress back to cross-op legacy internals.
+
+## Changes landed
+- Added canonical shared tectonics module under `foundation/lib/tectonics` and rewired decomposed tectonics op contracts/strategies to it.
+- Extracted tectonic schemas/types into shared module and made `compute-tectonic-history/contract.ts` consume/re-export that shared source.
+- Replaced legacy `compute-tectonic-history/lib/*` helper bodies with thin shims pointing to shared module.
+- Added a new contract guard test + lint guardrail rule to block decomposed-op imports from `compute-tectonic-history/(lib|contract)`.
+
+## Open risks
+- Legacy consumers still importing through `compute-tectonic-history/lib/*` remain supported by shims; a later cleanup should remove shims once all callers are migrated.
+- `compute-crust-evolution`, `compute-plates-tensors`, and `foundation/lib/require.ts` still intentionally reference `compute-tectonic-history/contract` exports; full contract decoupling is a follow-up concern outside this hotspot slice.
 
 ## Decision asks
 - none

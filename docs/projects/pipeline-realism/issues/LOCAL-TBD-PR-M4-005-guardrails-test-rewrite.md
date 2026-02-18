@@ -72,3 +72,29 @@ files:
 ### Prework Findings (Complete)
 1. Existing CI gap analysis is complete in spike outputs; no additional discovery required before issue execution.
 2. Policy precedence is locked to strict no-shim for M4.
+
+### Anchor Pass Verification (2026-02-15)
+```yaml
+anchor_pass_2026_02_15:
+  findings_synced:
+    - ANCHOR-F001
+    - ANCHOR-F002
+    - ANCHOR-F004
+  structural_verification:
+    - test/foundation/no-op-calls-op-tectonics.test.ts: pass
+    - no_rule_reexport_shims_scan: pass
+    - foundation_stage_compile_scan: pass
+  command_verification:
+    - bun run --cwd mods/mod-swooper-maps check: pass
+    - bun run --cwd mods/mod-swooper-maps lint: pass
+    - REFRACTOR_DOMAINS=\"foundation\" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full bun run lint:domain-refactor-guardrails: pass
+  focused_suite:
+    - test/foundation/contract-guard.test.ts: pass
+    - test/foundation/no-op-calls-op-tectonics.test.ts: pass
+    - test/foundation/m11-tectonic-events.test.ts: pass
+    - test/foundation/m11-tectonic-segments-history.test.ts: pass
+    - test/foundation/tile-projection-materials.test.ts: pass
+    - test/m11-config-knobs-and-presets.test.ts: pass
+    - test/standard-recipe.test.ts: pass
+    - test/standard-compile-errors.test.ts: pass
+```

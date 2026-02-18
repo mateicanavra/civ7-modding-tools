@@ -30,6 +30,47 @@ stack_anchor: agent-SWANKO-PRR-s124-c01-fix-diag-analyze-mountains-guard
 ## Decision asks
 - none
 
+## Checkpoint 13 — Shared Tectonics Scope + Op-Local Rules Lock (2026-02-15)
+
+- Trigger: explicit anti-thrash pause request to justify `foundation/lib/tectonics` versus op-local rules.
+
+```yaml
+policy_lock:
+  shared_tectonics_allowed_only_for:
+    - cross_op_types
+    - cross_op_schemas
+    - cross_op_constants
+    - cross_op_primitives
+  forbidden:
+    - strategy_importing_op_logic_from_shared_as_primary_implementation
+    - rule_shims_that_only_re_export_from_shared
+  required:
+    - decomposed_tectonics_ops_have_local_rules_implementations
+    - strategy_imports_restricted_to_local_contract_and_local_rules
+```
+
+```yaml
+cleanup_results:
+  removed:
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib
+  verification:
+    - bun run --cwd mods/mod-swooper-maps check
+    - bun run --cwd mods/mod-swooper-maps lint
+    - REFRACTOR_DOMAINS="foundation" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full bun run lint:domain-refactor-guardrails
+    - bun run --cwd mods/mod-swooper-maps test -- test/foundation/contract-guard.test.ts test/foundation/no-op-calls-op-tectonics.test.ts test/foundation/m11-tectonic-events.test.ts test/foundation/m11-tectonic-segments-history.test.ts test/foundation/tile-projection-materials.test.ts test/m11-config-knobs-and-presets.test.ts test/standard-recipe.test.ts test/standard-compile-errors.test.ts
+  status: pass
+```
+
+```yaml
+workspace_hygiene_snapshot:
+  action: git_reset_to_unstage_everything
+  reason: remove_mm_noise_and_restore_single_dirty_state_view
+  status_after_reset:
+    modified_entries: 57
+    untracked_entries: 29
+    staged_entries: 0
+```
+
 ## Checkpoint 1 — Milestone + Issue Pack Drafted
 
 ```yaml
@@ -396,4 +437,201 @@ restack_run:
 plan_position:
   current_phase: pre_S04_hard_integration_gate_IG1
   next_required_action: ecology_integration_checkpoint
+```
+
+## 2026-02-15 Hotspot Remediation Pass (All M4 Implementation Changes)
+
+- Trigger: user-requested full-stack hotspot audit/remediation for all implementation work (`S02..S06`), not only latest edits.
+- Scope: architectural correctness first; fix deep boundary violations in highest-risk files.
+
+```yaml
+audit_scope:
+  base_branch: agent-SWANKO-PRR-s112-c01-fix-driverStrength-proportional
+  head_branch: codex/prr-m4-s06-test-rewrite-architecture-scans
+  hotspot_files:
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/era-tectonics-kernels.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.contract.ts
+  protocol:
+    - architecture docs first
+    - absolute paths only in worker instructions and scratch evidence
+    - no temporary bridges/shims
+    - step-orchestrates posture
+```
+
+### Orchestrator intent
+1. Capture concrete boundary violations with evidence.
+2. Land code fixes on hotspot files (not doc-only).
+3. Re-run structural tests and guardrails.
+4. Stop only at a stable, architecture-compliant checkpoint.
+
+## 2026-02-15 Directive Update - Architecture-First Stage Simplification
+
+- User directive locked:
+  - remove Foundation stage `public` schema
+  - remove Foundation stage `compile` function
+  - prefer knobs-only stage surface
+  - allow config/test breakage now; clean map configs/tests after architectural cut
+
+```yaml
+cutover:
+  file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
+  target_posture:
+    - createStage with inline knobs schema
+    - no stage-level schema translation
+    - no stage-level config merges/default routing
+  allowed_breakage:
+    - authored map configs
+    - compile/type tests that still assert D08r surface
+```
+
+### Architecture-first correction status
+
+```yaml
+current_state:
+  foundation_stage:
+    posture: knobs-only, framework-default internal schema
+    compile: removed
+    public_surface: removed
+  validation:
+    tsc: pass
+    eslint_mod: pass
+    foundation_guardrails_profile_full: pass
+    tests:
+      - test/m11-config-knobs-and-presets.test.ts
+      - test/standard-recipe.test.ts
+      - test/standard-compile-errors.test.ts
+      - test/foundation/contract-guard.test.ts
+      - test/foundation/no-op-calls-op-tectonics.test.ts
+      - test/foundation/m11-tectonic-events.test.ts
+    tests_status: pass
+```
+
+## Checkpoint 12 — Future Worker Startup Discipline Lock (2026-02-15)
+```yaml
+discipline_lock:
+  scope: all_future_workers_in_execution_worktree
+  execution_worktree_required: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+  startup_packet_required: true
+  startup_packet_fields:
+    - absolute_paths
+    - docs_anchor
+    - canonical_examples
+    - architecture_constraints_applied
+    - anti_pattern_attestation
+  anti_patterns_forbidden:
+    - stage_compile_runtime_merging
+    - manual_public_to_internal_schema_translation
+    - runtime_defaulting_inside_stage
+  handoff_verification_required:
+    - bun run --cwd mods/mod-swooper-maps check
+    - bun run --cwd mods/mod-swooper-maps lint
+    - REFRACTOR_DOMAINS="foundation" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full bun run lint:domain-refactor-guardrails
+    - bun run --cwd mods/mod-swooper-maps test -- test/foundation/contract-guard.test.ts test/foundation/no-op-calls-op-tectonics.test.ts test/foundation/m11-tectonic-events.test.ts test/m11-config-knobs-and-presets.test.ts test/standard-recipe.test.ts
+  acceptance_rule:
+    - reject_handoff_without_full_gate_logs
+    - reject_handoff_without_absolute_changed_file_inventory
+    - require_stack_ledger_and_decision_log_updates
+  oversight_owner: orchestrator
+```
+
+## Proposed target
+- Every future worker handoff is rejected unless startup discipline, anti-pattern attestation, and verification logs are complete.
+
+## Changes landed
+- Added Checkpoint 12 to lock startup packet fields, denylisted anti-patterns, and pre-handoff verification requirements.
+
+## Open risks
+- Existing in-flight workers launched before this checkpoint may need explicit replay under the new startup packet.
+
+## Decision asks
+- none
+
+## Checkpoint 13 — Anchoring Team Launch (2026-02-15)
+
+- Mode: architecture red-team + re-anchor planning.
+- Feature work: frozen pending red-team triage outcomes.
+
+```yaml
+checkpoint_13:
+  orchestrator_branch: codex/prr-m4-s06d-foundation-scratch-audit-ledger
+  orchestrator_worktree: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+  active_threads_target:
+    - AR1
+    - AR2
+    - RP1
+  stale_threads_policy:
+    handling: close_if_known_id_else_treat_as_already_closed
+    note: no_resumable_legacy_agent_ids_present_in_current_orchestrator_context
+  startup_packet:
+    requires_absolute_paths: true
+    requires_docs_attestation: true
+    required_docs:
+      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/mods/swooper-maps/architecture.md
+      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/architecture.md
+  planned_outputs:
+    - ranked_findings_pack
+    - p0_p1_fix_queue_before_IG1
+    - revised_execution_plan_post_anchor
+    - successor_handoff_bootstrap
+```
+
+## Checkpoint 14 — Anchor Pass Complete (2026-02-15)
+
+```yaml
+checkpoint_14_anchor_complete:
+  agents:
+    AR1: complete
+    AR2: complete
+    RP1: complete
+  mandatory_findings_resolution:
+    ANCHOR-F001: resolved
+    ANCHOR-F002: resolved
+    ANCHOR-F004: resolved
+  kept_with_rationale:
+    ANCHOR-F003: deferred_to_S07
+    ANCHOR-F005: temporary_guard_stub_with_deletion_trigger
+  verification:
+    structural: pass
+    project_checks: pass
+    focused_suite: pass
+  next_step:
+    - restack_top_branch_after_committing_anchor_artifacts
+    - proceed_to_IG1_integration_prep_using_RP1_plan
+```
+
+## Checkpoint 15 — Handoff Rewrite (2026-02-15)
+
+```yaml
+handoff_rewrite:
+  trigger: user_feedback_handoff_too_checklist_like_and_low_context
+  file:
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/HANDOFF-successor-orchestrator-m4-foundation.md
+  changes:
+    - replaced_checklist_only_structure_with_contextual_operator_briefing
+    - added_strategy_and_decision_posture_sections
+    - kept_yaml_for_enumerables_only
+  status: complete
+```
+
+## Checkpoint 16 — Integration Restack Agent Bootstrap (2026-02-15)
+
+```yaml
+cleanup_and_bootstrap:
+  closed_prior_agents:
+    - 019c5fba-8360-7693-bf46-1e908bbeaf98
+    - 019c5fba-84de-7740-af86-c5f539171317
+    - 019c5fba-8669-7411-9303-98d2cfdc53d5
+  removed_worktrees:
+    - /private/tmp/wt-m4-s03-baseline-check
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-agent-ORCH-foundation-domain-axe-execution
+    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s02-core
+  renamed_integration_worktree:
+    from: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
+    to: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
+  next_action: spawn_default_agent_RS1_for_post_ecology_restack
 ```
