@@ -117,6 +117,7 @@ export function applyPlacementPlan({
   const resolvedDiscoveryPlan: DeepReadonly<PlanDiscoveriesOutput> = discoveryPlan ?? {
     width,
     height,
+    candidateDiscoveries: [],
     targetCount: 0,
     plannedCount: 0,
     placements: [],
@@ -426,6 +427,45 @@ type DiscoveryStampingStats = {
   rejectedCount: number;
 };
 
+type DiscoveryCandidate = {
+  discoveryVisualType: number;
+  discoveryActivationType: number;
+};
+
+function discoveryCandidateKey(candidate: DiscoveryCandidate): string {
+  return `${candidate.discoveryVisualType}:${candidate.discoveryActivationType}`;
+}
+
+function sanitizeDiscoveryCandidates(values: ReadonlyArray<DiscoveryCandidate>): DiscoveryCandidate[] {
+  const unique = new Set<string>();
+  const candidates: DiscoveryCandidate[] = [];
+  for (const raw of values) {
+    if (!Number.isFinite(raw?.discoveryVisualType) || !Number.isFinite(raw?.discoveryActivationType)) continue;
+    const discoveryVisualType = Math.trunc(raw.discoveryVisualType as number);
+    const discoveryActivationType = Math.trunc(raw.discoveryActivationType as number);
+    const candidate = { discoveryVisualType, discoveryActivationType };
+    const key = discoveryCandidateKey(candidate);
+    if (unique.has(key)) continue;
+    unique.add(key);
+    candidates.push(candidate);
+  }
+  return candidates;
+}
+
+function rotateDiscoveryCandidates(
+  values: ReadonlyArray<DiscoveryCandidate>,
+  offset: number
+): DiscoveryCandidate[] {
+  if (values.length === 0) return [];
+  const length = values.length;
+  const start = ((offset % length) + length) % length;
+  const rotated: DiscoveryCandidate[] = [];
+  for (let i = 0; i < length; i++) {
+    rotated.push(values[(start + i) % length]!);
+  }
+  return rotated;
+}
+
 function stampDiscoveriesFromPlan({
   adapter,
   width,
@@ -450,6 +490,13 @@ function stampDiscoveriesFromPlan({
       `[Placement] Discovery plan cannot satisfy target count (target=${targetCount}, planned=${plannedCount}).`
     );
   }
+  const candidateDiscoveries = sanitizeDiscoveryCandidates(discoveries.candidateDiscoveries ?? []);
+  if (plannedCount > 0 && candidateDiscoveries.length === 0) {
+    throw new Error(
+      `[Placement] Discovery plan has no placeable candidate catalog entries (planned=${plannedCount}).`
+    );
+  }
+  const candidateSet = new Set(candidateDiscoveries.map(discoveryCandidateKey));
 
   let placedCount = 0;
   let skippedOutOfBoundsCount = 0;
@@ -464,12 +511,33 @@ function stampDiscoveriesFromPlan({
 
     const y = (plotIndex / width) | 0;
     const x = plotIndex - y * width;
-    const placed = adapter.stampDiscovery(
-      x,
-      y,
-      placementPlan.discoveryVisualType | 0,
-      placementPlan.discoveryActivationType | 0
+    const preferredDiscoveryOffset = placementPlan.preferredDiscoveryOffset | 0;
+    const orderedCandidates = rotateDiscoveryCandidates(
+      candidateDiscoveries,
+      preferredDiscoveryOffset
     );
+    const preferredCandidate = {
+      discoveryVisualType: Math.trunc(placementPlan.preferredDiscoveryVisualType),
+      discoveryActivationType: Math.trunc(placementPlan.preferredDiscoveryActivationType),
+    };
+    if (!candidateSet.has(discoveryCandidateKey(preferredCandidate))) {
+      orderedCandidates.unshift(preferredCandidate);
+    }
+
+    let placed = false;
+    for (const candidate of orderedCandidates) {
+      if (
+        adapter.stampDiscovery(
+          x,
+          y,
+          candidate.discoveryVisualType,
+          candidate.discoveryActivationType
+        )
+      ) {
+        placed = true;
+        break;
+      }
+    }
     if (placed) placedCount += 1;
     else rejectedCount += 1;
   }
@@ -502,6 +570,29 @@ type ResourceStampingStats = {
   skippedIneligibleCount: number;
   skippedOutOfBoundsCount: number;
 };
+
+type IneligibleResourcePlacement = {
+  preferredResourceType: number;
+  preferredTypeOffset: number;
+};
+
+function orderedResourceCandidatesForPlacement(
+  candidateResourceTypes: number[],
+  candidateTypeSet: Set<number>,
+  preferredTypeOffset: number,
+  preferredType: number,
+  noResourceSentinel: number
+): number[] {
+  const orderedCandidates = rotateCandidates(candidateResourceTypes, preferredTypeOffset);
+  if (
+    preferredType >= 0 &&
+    preferredType !== noResourceSentinel &&
+    !candidateTypeSet.has(preferredType)
+  ) {
+    orderedCandidates.unshift(preferredType);
+  }
+  return orderedCandidates;
+}
 
 function stampResourcesFromPlan({
   adapter,
@@ -548,6 +639,7 @@ function stampResourcesFromPlan({
   let skippedOccupiedCount = 0;
   let skippedIneligibleCount = 0;
   let skippedOutOfBoundsCount = 0;
+  const ineligiblePlacements: IneligibleResourcePlacement[] = [];
 
   for (const placementPlan of resources.placements) {
     const plotIndex = placementPlan.plotIndex | 0;
@@ -567,14 +659,13 @@ function stampResourcesFromPlan({
 
     const preferredType = placementPlan.preferredResourceType | 0;
     const preferredOffset = placementPlan.preferredTypeOffset | 0;
-    const orderedCandidates = rotateCandidates(candidateResourceTypes, preferredOffset);
-    if (
-      preferredType >= 0 &&
-      preferredType !== noResourceSentinel &&
-      !candidateTypeSet.has(preferredType)
-    ) {
-      orderedCandidates.unshift(preferredType);
-    }
+    const orderedCandidates = orderedResourceCandidatesForPlacement(
+      candidateResourceTypes,
+      candidateTypeSet,
+      preferredOffset,
+      preferredType,
+      noResourceSentinel
+    );
 
     let stamped = false;
     for (const resourceType of orderedCandidates) {
@@ -589,12 +680,53 @@ function stampResourcesFromPlan({
       }
     }
 
-    if (!stamped) skippedIneligibleCount += 1;
+    if (!stamped) {
+      skippedIneligibleCount += 1;
+      ineligiblePlacements.push({
+        preferredResourceType: preferredType,
+        preferredTypeOffset: preferredOffset,
+      });
+    }
+  }
+
+  let rescuePlacedCount = 0;
+  if (ineligiblePlacements.length > 0 && skippedOccupiedCount === 0 && skippedOutOfBoundsCount === 0) {
+    for (const failedPlacement of ineligiblePlacements) {
+      let rescued = false;
+      const orderedCandidates = orderedResourceCandidatesForPlacement(
+        candidateResourceTypes,
+        candidateTypeSet,
+        failedPlacement.preferredTypeOffset,
+        failedPlacement.preferredResourceType,
+        noResourceSentinel
+      );
+
+      for (let plotIndex = 0; plotIndex < width * height && !rescued; plotIndex++) {
+        const y = (plotIndex / width) | 0;
+        const x = plotIndex - y * width;
+        const existing = adapter.getResourceType(x, y) | 0;
+        if (existing !== noResourceSentinel) continue;
+
+        for (const resourceType of orderedCandidates) {
+          if (resourceType === noResourceSentinel) continue;
+          if (!adapter.canHaveResource(x, y, resourceType)) continue;
+          adapter.setResourceType(x, y, resourceType);
+          const stampedType = adapter.getResourceType(x, y) | 0;
+          if (stampedType !== noResourceSentinel) {
+            placedCount += 1;
+            rescued = true;
+            rescuePlacedCount += 1;
+            skippedIneligibleCount = Math.max(0, skippedIneligibleCount - 1);
+            break;
+          }
+        }
+      }
+    }
   }
 
   if (placedCount !== plannedCount || skippedOccupiedCount > 0 || skippedIneligibleCount > 0 || skippedOutOfBoundsCount > 0) {
     throw new Error(
-      `[Placement] Failed to stamp all resources (placed ${placedCount}/${plannedCount}, target=${targetCount}, occupied=${skippedOccupiedCount}, ineligible=${skippedIneligibleCount}, outOfBounds=${skippedOutOfBoundsCount}, noResourceSentinel=${noResourceSentinel}).`
+      `[Placement] Failed to stamp all resources (placed ${placedCount}/${plannedCount}, target=${targetCount}, occupied=${skippedOccupiedCount}, ineligible=${skippedIneligibleCount}, rescued=${rescuePlacedCount}, outOfBounds=${skippedOutOfBoundsCount}, noResourceSentinel=${noResourceSentinel}).`
     );
   }
 

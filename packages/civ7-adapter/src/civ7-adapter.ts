@@ -8,6 +8,7 @@
 /// <reference types="@civ7/types" />
 
 import type {
+  DiscoveryCatalogEntry,
   DiscoveryPlacementDefaults,
   EngineAdapter,
   FeatureData,
@@ -20,7 +21,8 @@ import type {
   VoronoiUtils,
 } from "./types.js";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
-import { resolveDefaultDiscoveryPlacement } from "./discovery-defaults.js";
+import { NATURAL_WONDER_CATALOG } from "./manual-catalogs/natural-wonders.js";
+import { DEFAULT_DISCOVERY_PLACEMENT, DISCOVERY_CATALOG } from "./manual-catalogs/discoveries.js";
 import { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.js";
 
 // Import from /base-standard/... — these are external Civ7 runtime paths
@@ -525,43 +527,15 @@ export class Civ7Adapter implements EngineAdapter {
   }
 
   getNaturalWonderCatalog(): NaturalWonderCatalogEntry[] {
-    const table = GameInfo?.Feature_NaturalWonders;
-    if (!table) return [];
-    const catalog: NaturalWonderCatalogEntry[] = [];
-    for (const row of table) {
-      const featureType = typeof row?.$hash === "number" ? row.$hash : -1;
-      if (featureType < 0) continue;
-      const direction = typeof row?.Direction === "number" ? row.Direction : 0;
-      catalog.push({ featureType, direction });
-    }
-    catalog.sort((a, b) => a.featureType - b.featureType);
-    return catalog;
+    return NATURAL_WONDER_CATALOG;
+  }
+
+  getDiscoveryCatalog(): DiscoveryCatalogEntry[] {
+    return DISCOVERY_CATALOG;
   }
 
   getDefaultDiscoveryPlacement(): DiscoveryPlacementDefaults {
-    const discoveryVisualType = (globalThis as Record<string, unknown>).DiscoveryVisualTypes as
-      | Record<string, number>
-      | undefined;
-    const discoveryActivationType = (globalThis as Record<string, unknown>).DiscoveryActivationTypes as
-      | Record<string, number>
-      | undefined;
-    const configuration = (globalThis as Record<string, unknown>).Configuration as
-      | { getGameValue?: (key: string) => unknown }
-      | undefined;
-
-    const defaults = resolveDefaultDiscoveryPlacement({
-      discoveryVisualTypes: discoveryVisualType,
-      discoveryActivationTypes: discoveryActivationType,
-      discoverySiftingImprovements: GameInfo?.DiscoverySiftingImprovements,
-      activeSiftingType: configuration?.getGameValue?.("DiscoverySiftingType"),
-    });
-
-    if (defaults == null) {
-      throw new Error(
-        "[Adapter] Discovery placement defaults are unavailable for active DiscoverySiftingType."
-      );
-    }
-    return defaults;
+    return DEFAULT_DISCOVERY_PLACEMENT;
   }
 
   generateSnow(width: number, height: number): void {

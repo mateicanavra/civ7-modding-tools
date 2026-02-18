@@ -21,6 +21,11 @@ export interface NaturalWonderCatalogEntry {
   direction: number;
 }
 
+export interface DiscoveryCatalogEntry {
+  discoveryVisualType: number;
+  discoveryActivationType: number;
+}
+
 export interface DiscoveryPlacementDefaults {
   discoveryVisualType: number;
   discoveryActivationType: number;
@@ -434,7 +439,12 @@ export interface EngineAdapter {
   /** Engine catalog of natural wonder feature definitions. */
   getNaturalWonderCatalog(): NaturalWonderCatalogEntry[];
 
-  /** Engine default discovery visual + activation types for deterministic stamping. */
+  /** Adapter-owned discovery visual/activation catalog for deterministic planners. */
+  getDiscoveryCatalog(): DiscoveryCatalogEntry[];
+
+  /**
+   * Static defaults for discovery placement when engine hashes are not available.
+   */
   getDefaultDiscoveryPlacement(): DiscoveryPlacementDefaults;
 
   /**

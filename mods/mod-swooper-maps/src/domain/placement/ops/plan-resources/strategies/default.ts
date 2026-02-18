@@ -50,17 +50,10 @@ export const defaultStrategy = createStrategy(PlanResourcesContract, "default", 
     const noResourceSentinel = Number.isFinite(input.noResourceSentinel)
       ? (input.noResourceSentinel as number) | 0
       : -1;
-    const runtimeCandidateResourceTypes = sanitizeCandidateResourceTypes(
-      input.runtimeCandidateResourceTypes ?? [],
+    const candidateResourceTypes = sanitizeCandidateResourceTypes(
+      input.candidateResourceTypes ?? [],
       noResourceSentinel
     );
-    const configuredCandidateResourceTypes = sanitizeCandidateResourceTypes(
-      config.candidateResourceTypes ?? [],
-      noResourceSentinel
-    );
-    const candidateResourceTypes = runtimeCandidateResourceTypes.length > 0
-      ? runtimeCandidateResourceTypes
-      : configuredCandidateResourceTypes;
     if (candidateResourceTypes.length === 0) {
       return {
         width,

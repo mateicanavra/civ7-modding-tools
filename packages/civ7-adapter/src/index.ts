@@ -28,10 +28,21 @@ export type {
   PlotTagName,
   LandmassIdName,
   VoronoiUtils,
+  DiscoveryCatalogEntry,
 } from "./types.js";
 export { ENGINE_EFFECT_TAGS } from "./effects.js";
 export type { EngineEffectTagId } from "./effects.js";
 export { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.js";
+export {
+  PLACEABLE_DISCOVERY_CATALOG_SYMBOLS,
+  resolvePlaceableDiscoveryCatalog,
+} from "./discovery-constants.js";
+export type { DiscoveryCatalogSymbol } from "./discovery-constants.js";
+export { NATURAL_WONDER_CATALOG } from "./manual-catalogs/natural-wonders.js";
+export {
+  DEFAULT_DISCOVERY_PLACEMENT,
+  DISCOVERY_CATALOG,
+} from "./manual-catalogs/discoveries.js";
 
 // Re-export mock adapter (safe to import anywhere)
 export { MockAdapter, createMockAdapter } from "./mock-adapter.js";
