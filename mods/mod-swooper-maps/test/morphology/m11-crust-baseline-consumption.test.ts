@@ -57,7 +57,7 @@ describe("m11 morphology baseline consumes crust isostasy prior", () => {
       computeTectonicSegments.defaultConfig
     ).segments;
     const historyResult = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, segments },
+      { mesh, crust, mantleForcing, plateGraph, plateMotion, segments },
       computeTectonicHistory.defaultConfig
     );
     const tectonicHistory = historyResult.tectonicHistory;

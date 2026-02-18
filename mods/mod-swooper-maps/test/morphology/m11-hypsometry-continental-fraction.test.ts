@@ -62,7 +62,7 @@ describe("m11 hypsometry: continentalFraction does not collapse water coverage",
     ).segments;
 
     const history = computeTectonicHistory.run(
-      { mesh, crust, mantleForcing, plateGraph, segments },
+      { mesh, crust, mantleForcing, plateGraph, plateMotion, segments },
       {
         ...computeTectonicHistory.defaultConfig,
         config: {
