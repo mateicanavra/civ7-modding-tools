@@ -396,3 +396,29 @@ Full-chain review ledger for the active Graphite stack (`#1201`..`#1348`) using 
 
 ### Cross-cutting Risks
 - Repeated restacks across the chain can hide branch-local regressions without focused probes.
+
+## REVIEW agent-SWANKO-PRR-s120-c01-fix-era-plateMotion-recompute
+
+### Quick Take
+- Reviewed PR #1256 (https://github.com/mateicanavra/civ7-modding-tools/pull/1256).
+- Churn profile: +33 / -6 across 4 files.
+- Verification signal: bun run --cwd mods/mod-swooper-maps check: FAIL.
+
+### High-Leverage Issues
+- No branch-local high-severity defect identified in this pass.
+
+### PR Comment Context
+- Review threads: unresolved=0, resolved=0.
+- No unresolved review threads; automation chatter (if present) treated as non-actionable.
+
+### Fix Now (Recommended)
+- None.
+
+### Defer / Follow-up
+- None beyond normal post-merge monitoring.
+
+### Needs Discussion
+- None.
+
+### Cross-cutting Risks
+- Repeated restacks across the chain can hide branch-local regressions without focused probes.

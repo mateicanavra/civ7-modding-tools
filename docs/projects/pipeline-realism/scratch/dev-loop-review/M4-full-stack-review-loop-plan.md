@@ -29,3 +29,4 @@
 - 2026-02-17: Reviewed #1253 (agent-SWANKO-PRR-s115-c01-fix-hill-cap-floor); unresolved=0, resolved=0; verification: bun run --cwd mods/mod-swooper-maps check: FAIL.
 - 2026-02-17: Reviewed #1254 (agent-SWANKO-PRR-s118-c01-fix-studio-artifacts-preflight); unresolved=0, resolved=0; verification: bun run --cwd mods/mod-swooper-maps check: FAIL.
 - 2026-02-17: Reviewed #1255 (agent-SWANKO-PRR-s119-c01-fix-pass-plateMotion); unresolved=0, resolved=0; verification: bun run --cwd mods/mod-swooper-maps check: FAIL.
+- 2026-02-17: Reviewed #1256 (agent-SWANKO-PRR-s120-c01-fix-era-plateMotion-recompute); unresolved=0, resolved=0; verification: bun run --cwd mods/mod-swooper-maps check: FAIL.
