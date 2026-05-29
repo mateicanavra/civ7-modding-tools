@@ -1,0 +1,58 @@
+# Policy Map
+
+## Official Resource Policy
+
+- Treat `.civ7/outputs/resources` as read-only official game-data evidence.
+- Do not hand-edit resource outputs.
+- When game data changes, update source modeling, tests, and generated outputs through documented scripts.
+- Do not infer repo architecture from resource file layout alone.
+
+## Generated Artifact Policy
+
+- `dist/`, `mod/`, generated manifests, and generated resource outputs are outputs.
+- Change source files and regenerate outputs through package scripts.
+- Generated output can be cited only for the generation run and artifact inspected.
+
+## Public Contract Policy
+
+Before changing public SDK exports, CLI commands/flags, plugin APIs, docs tutorials, mod entrypoints, or recipe config contracts:
+
+- identify consumers;
+- record expected compatibility or breakage;
+- update adjacent docs/tests;
+- run focused verification;
+- state whether the change is compatible, breaking, experimental, or internal.
+
+## MapGen Truth/Projection Policy
+
+- Truth stages publish deterministic domain artifacts and fields.
+- Projection/materialization stages write to Civ7 engine/mod surfaces.
+- If current behavior delegates to a Civ7 engine generator for a surface, document that as projection/materialization or telemetry until a controlling decision gives the pipeline deterministic ownership.
+- If the pipeline claims truth ownership, add deterministic artifacts and fail/verification gates that prove materialization matches.
+
+## Adapter Policy
+
+- Direct Civ7 engine imports and `base-standard` APIs belong behind the adapter or game-facing mod runtime.
+- Adapter methods should stay thin and stable.
+- MapGen algorithms and mod tuning do not move into the adapter.
+
+## Documentation Policy
+
+- Canonical evergreen docs live under `docs/`, `docs/system/**`, `docs/product/**`, and `docs/process/**`.
+- Project specs, reviews, phase notes, and handoffs live under `docs/projects/<project>/`.
+- Promote durable knowledge from project docs to canonical docs when it becomes stable.
+- Move superseded docs to archive rather than leaving stale authority in live paths.
+
+## Proof Policy
+
+Label evidence precisely:
+
+- typecheck/build;
+- unit/integration test;
+- generated XML/mod output;
+- doc lint;
+- local app/browser check;
+- in-game validation;
+- deployment/install verification.
+
+Do not collapse one proof class into another.
