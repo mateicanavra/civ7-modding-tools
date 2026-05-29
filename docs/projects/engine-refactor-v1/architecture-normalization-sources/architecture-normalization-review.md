@@ -1,6 +1,11 @@
+# Source Material Notice
+
+This document is preserved for provenance only. The active normalization
+authority is `../architecture-normalization-packet.md`.
+
 # MapGen Architecture Normalization Review
 
-Status: `active-draft`.
+Status: `source-material-only`.
 Branch: `codex/mapgen-architecture-normalization-review`.
 Date: `2026-05-29`.
 

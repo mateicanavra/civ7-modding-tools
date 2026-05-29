@@ -32,6 +32,26 @@ For MapGen, truth products and game projection are separate:
 - Adapter calls and official game generators are runtime materialization evidence. If current behavior delegates to them, classify that surface as projection/materialization until a controlling decision gives the pipeline deterministic ownership.
 - Diagnostics, parity captures, and generated mod files observe or serialize behavior. They do not define it.
 
+## Normalization Classification
+
+For MapGen architecture normalization, classify each concern before naming a
+stage or file move:
+
+- **Authoring surface:** public config, knobs, presets, Studio defaults, docs
+  examples, or SDK-facing schema.
+- **Truth surface:** deterministic domain artifacts, fields, or intent owned by
+  the pipeline.
+- **Projection surface:** engine-facing writes, adapter materialization,
+  parity diagnostics, or map artifacts derived from truth.
+- **Product/effect surface:** gameplay placement products such as wonders,
+  resources, starts, discoveries, or advanced starts.
+- **Presentation surface:** Studio grouping, debug navigation, visualization,
+  or trace display.
+
+Only the first four categories can justify recipe-level topology. Presentation
+needs should usually be solved with metadata or UI/SDK support instead of
+surfacing implementation seams as stages.
+
 ## Native Repo Shape First
 
 Prefer existing repo primitives:

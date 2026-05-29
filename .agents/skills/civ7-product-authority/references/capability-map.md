@@ -36,4 +36,9 @@ MapGen product/domain claims should distinguish:
 - map projection/materialization into Civ7;
 - diagnostics, parity capture, and generated-output proof.
 
+Recipe-stage topology is a product contract when it affects user config,
+presets, Studio surfaces, trace identity, stage enablement, or handoff
+artifacts. It is not a product contract merely because an implementation helper
+or variant name exists.
+
 If a domain claim cannot identify which row it belongs to, stop and record a decision before implementation.

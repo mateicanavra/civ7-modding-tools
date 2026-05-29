@@ -3,6 +3,11 @@
 These skills encode durable local operating guidance for Civ7 Modding Tools.
 They are not project status, migration notes, or chat carry-forward.
 
+For MapGen / Swooper Maps architecture normalization, the skills route agents
+to the accepted normalization packet and OpenSpec workstreams. They should
+shape how agents think about ownership, proof, sequencing, and refactor
+discipline; they should not duplicate the packet as a parallel spec.
+
 ## Skills
 
 | Skill | Use When |
@@ -17,5 +22,5 @@ They are not project status, migration notes, or chat carry-forward.
 - Load the smallest skill set that covers the work.
 - Keep `SKILL.md` files lean. Put deeper rules in `references/` and copy-forward templates in `assets/`.
 - Do not store temporary workstream state in these skills. Use `docs/projects/<project>/...` for project state and phase artifacts.
+- Use `openspec/` for implementation change records once a project slice becomes an OpenSpec workstream.
 - Update a skill only when durable authority changes.
-

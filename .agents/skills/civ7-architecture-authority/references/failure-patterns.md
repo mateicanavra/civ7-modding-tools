@@ -13,6 +13,9 @@ Open this file when work starts drifting or a patch is growing wrappers.
 | Proof inflation | Typecheck/build/XML output is claimed as in-game correctness | Label proof boundary and run stronger evidence when needed |
 | Guard appeasement | Code shape contorts to satisfy lint/type failures | Repair the boundary or enforcement model |
 | Hidden sub-pipeline | A single step delegates a long sequence with unmodeled dependencies | Expose contract steps or document as compatibility/materialization wrapper |
+| Variant becomes stage | Score vs intent, feature family, or helper variant names become stages without distinct authoring/input/handoff surfaces | Keep the distinction as steps/artifacts/ops until a real stage surface exists |
+| Studio surface leaks into recipe topology | A stage exists mainly for UI grouping, debug navigation, or map-dash presentation | Add presentation metadata or SDK/Studio support instead of changing recipe truth topology |
+| Input-size panic | A stage is created mainly to avoid a large operation input schema | Repair step input builders and op contracts; stage count is not the primary input-schema control |
 | Closure overclaim | Final status says done/safe/verified without exact evidence | Restate claim with implemented and verified boundaries |
 
 ## Smell Tests

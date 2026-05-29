@@ -5,6 +5,7 @@
 | Artifact | Owner | Purpose |
 |---|---|---|
 | Canonical docs and skills | Product/architecture authority | Durable rules and target shape |
+| OpenSpec config/specs/changes | Workstream owner | Downstream implementation control, validation, archive history |
 | Project spec/review | Active project | Time-bound objective, decisions, sequencing, findings |
 | Phase record | Workstream continuity | Current phase state and resumability |
 | Review disposition ledger | Workstream owner | Findings and repair status |
@@ -16,10 +17,12 @@
 ## Default Location
 
 ```text
-docs/projects/<project-slug>/workstream/<phase-id>/
+openspec/changes/<change-id>/
 ```
 
-Use this unless the active project already has a closer convention.
+Use this for implementation changes. Put phase continuity files under
+`openspec/changes/<change-id>/workstream/`. Use project-local paths only for
+project control records that have not yet become OpenSpec changes.
 
 ## Spec/Change Contract
 
@@ -56,6 +59,7 @@ Before committing:
 git status --short --branch
 gt status
 git diff --check
+bun run openspec:validate
 ```
 
 Use Graphite for branch and commit workflow in this repo.
@@ -75,4 +79,3 @@ A compaction-safe state includes:
 - next exact action.
 
 If this exists only in chat, the phase is not compaction-safe.
-

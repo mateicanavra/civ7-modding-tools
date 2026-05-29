@@ -23,6 +23,12 @@ The current engine originated as a monolithic JavaScript script and has been par
 
 This document is the **directional project brief** for **MAPS Engine Refactor v1**. It defines product-level goals and the milestone plan; feature-specific PRDs (config, pipeline, plates, etc.) remain canonical for their respective components and are linked from here.
 
+**Active normalization baseline:** architecture normalization decisions and
+migration sequencing are owned by
+[`architecture-normalization-packet.md`](./architecture-normalization-packet.md).
+Source review material is retained under
+[`architecture-normalization-sources/`](./architecture-normalization-sources/).
+
 ## 2. Goals & Non-Goals
 
 **Goals**

@@ -1,0 +1,61 @@
+schema: spec-driven
+context: |
+  This repository is Civ7 Modding Tools. OpenSpec is used for downstream
+  implementation change management over accepted product and architecture
+  authority. It does not define architecture authority by itself.
+
+  Current MapGen normalization authority:
+  - docs/projects/engine-refactor-v1/architecture-normalization-packet.md
+
+  The normalization packet is the active baseline for MapGen / Swooper Maps
+  architecture normalization until its implemented decisions are promoted into
+  evergreen docs, ADRs, or OpenSpec specs through completed workstreams.
+
+  Authority order:
+  - Direct current user decisions and repo instructions.
+  - Root/subtree AGENTS.md files and repo process docs.
+  - Accepted project baselines, especially the architecture normalization
+    packet for this workstream.
+  - Canonical docs and ADR/deferral records.
+  - OpenSpec changes/specs as implementation control records downstream of the
+    above authority.
+  - Current code, tests, generated outputs, and official resources as evidence.
+
+  Normalization frame:
+  - Recipe owns ordering.
+  - Truth stages and projection/materialization stages stay separate.
+  - Default stage config is flat: { knobs?, [stepId]?: stepConfig }.
+  - Ecology truth stages are ecology-pedology, ecology-biomes, and
+    ecology-features; map-ecology is projection only.
+  - map-* stages are valid only for projection/materialization/effects,
+    adapter writes, map artifacts, projection knobs, and parity evidence.
+  - Placement splits only at real product/effect contracts.
+  - Resources and discoveries require typed intent reconciliation.
+  - Import policy is scoped; broad bans wait until public surfaces exist.
+
+  OpenSpec validation is additive:
+  - openspec validate <change-id> --strict validates OpenSpec artifact shape.
+  - openspec validate --all --strict validates OpenSpec records.
+  - Validation does not prove source implementation, generated output, or
+    in-game behavior.
+rules:
+  proposal:
+    - Cite exact target authority refs, including the normalization packet section or promoted spec that controls the slice.
+    - Name dependencies with Requires and Enables parallel work entries.
+    - Name affected owners, forbidden owners, write set, stop conditions, consumer impact, and verification gates.
+    - Map each change to one bounded domino/workstream slice unless a controlling decision explicitly expands scope.
+    - Do not rediscover, soften, or redesign the accepted normalization packet.
+  specs:
+    - Specs and deltas are behavior or process requirements only; implementation detail belongs in design.md and tasks.md.
+    - Use SHALL or MUST for normative requirements.
+    - Every requirement needs at least one Scenario.
+    - Do not use OpenSpec specs as a replacement for the normalization packet until a completed workstream deliberately promotes a decision.
+  design:
+    - Stay inside accepted authority and the named workstream slice.
+    - Name stage, step, domain, recipe, adapter, projection, SDK, Studio, docs, and generated-output owners where relevant.
+    - Resolve target-shape decisions explicitly; do not leave only-if, maybe, fallback, temporary, compatibility, or optional language as implementation strategy.
+    - Include review lanes required before implementation starts.
+  tasks:
+    - Tasks must be implementation steps, not open design questions.
+    - Order tasks according to the packet dominoes unless the proposal records a source-backed exception.
+    - Include repo gates, downstream realignment, and OpenSpec validation before closure.

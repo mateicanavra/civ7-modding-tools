@@ -8,6 +8,7 @@
 - References provide depth without duplicating active project plans.
 - Assets are copy-forward templates, not hidden documentation.
 - The skill states that specs/OpenSpec artifacts are downstream of product and architecture authority.
+- The skill routes implementation changes to `openspec/changes/<change-id>/` and repo validation through `bun run openspec:validate`.
 - Failure patterns and ask/stop rules are explicit.
 
 ## Phase Readiness
@@ -48,9 +49,9 @@ Before close:
 - material findings are dispositioned;
 - accepted blockers are repaired;
 - focused gates ran and results are recorded;
+- OpenSpec validation ran for changed OpenSpec artifacts;
 - `git diff --check` passes;
 - downstream realignment is complete;
 - agent fleet state is complete;
 - repo and Graphite state are recorded;
 - repo is clean or dirty state is handed off in `next-packet.md`.
-
