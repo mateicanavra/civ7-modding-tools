@@ -66,9 +66,11 @@ const discoveryPairs = [
   ["IMPROVEMENT_WRECKAGE", "INVESTIGATION"],
 ];
 
+const toU32 = (value: number): number => value >>> 0;
+
 const expectedDiscoveryKeys = new Set(
   discoveryPairs.map(
-    ([improvement, activation]) => `${hashString(improvement)}:${hashString(activation)}`
+    ([improvement, activation]) => `${toU32(hashString(improvement))}:${toU32(hashString(activation))}`
   )
 );
 const actualDiscoveryKeys = new Set(

@@ -452,6 +452,13 @@ declare module "/base-standard/scripts/voronoi-region.js" {
 }
 
 declare module "/base-standard/scripts/kd-tree.js" {
+  export class kdTree<T> {
+    constructor(points: T[], distance: (a: T, b: T) => number, dimensions: string[]);
+    nearest(point: T, count: number): Array<[T, number]>;
+  }
+}
+
+declare module "/base-standard/scripts/voronoi-utils.js" {
   export interface RegionCell {
     x: number;
     y: number;
@@ -459,11 +466,6 @@ declare module "/base-standard/scripts/kd-tree.js" {
   }
 
   export type RegionCellPosGetter = (cell: RegionCell) => [number, number];
-
-  export class kdTree<T> {
-    constructor(points: T[], distance: (a: T, b: T) => number, dimensions: string[]);
-    nearest(point: T, count: number): Array<[T, number]>;
-  }
 
   export const VoronoiUtils: {
     assignCellsToRegions(

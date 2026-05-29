@@ -27,9 +27,9 @@ import { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.j
 // Import from /base-standard/... — these are external Civ7 runtime paths
 // resolved by the game's module loader, not TypeScript
 import "/base-standard/maps/map-globals.js";
-// Load Voronoi/kd-tree utilities so global VoronoiUtils is available for plate generation
+// Load Voronoi utilities for plate generation.
 // @ts-ignore - resolved only at Civ7 runtime
-import { VoronoiUtils as CivVoronoiUtils } from "/base-standard/scripts/kd-tree.js";
+import { VoronoiUtils as CivVoronoiUtils } from "/base-standard/scripts/voronoi-utils.js";
 // Vanilla Civ7 biomes/features live in feature-biome-generator.js
 // @ts-ignore - resolved only at Civ7 runtime
 import { designateBiomes as civ7DesignateBiomes, addFeatures as civ7AddFeatures } from "/base-standard/maps/feature-biome-generator.js";
