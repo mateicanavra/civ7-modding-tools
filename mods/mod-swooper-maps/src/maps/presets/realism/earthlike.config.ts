@@ -1,28 +1,15 @@
+import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import type { StandardRecipeConfig } from "../../../recipes/standard/recipe.js";
+import swooperEarthlikeConfigRaw from "../../configs/swooper-earthlike.config.json";
 
 /**
  * Preset: realism/earthlike
  *
  * Intended posture:
- * - Defaults-first realism baseline with light semantic tuning via knobs.
- * - Authors can further tune using stage knobs without editing step-level config trees.
+ * - Same authored posture as the shipped Swooper Earthlike map config.
+ * - Kept as a TypeScript import path for tests and legacy callers, not as a
+ *   second tuning source.
  */
-export const realismEarthlikeConfig: StandardRecipeConfig = {
-  foundation: {
-    knobs: { plateCount: 28, plateActivity: 0.5 },
-  },
-  "morphology-coasts": {
-    knobs: { seaLevel: "earthlike", coastRuggedness: "normal", shelfWidth: "normal" },
-  },
-  "morphology-erosion": { knobs: { erosion: "normal" } },
-  "morphology-features": { knobs: { volcanism: "normal", orogeny: "normal" } },
-  "hydrology-climate-baseline": {
-    knobs: { dryness: "dry", temperature: "temperate", seasonality: "normal", oceanCoupling: "earthlike" },
-  },
-  "hydrology-hydrography": { knobs: { riverDensity: "normal", lakeiness: "normal" } },
-  "hydrology-climate-refine": { knobs: { dryness: "dry", temperature: "temperate", cryosphere: "on" } },
-  "map-morphology": {},
-  "map-hydrology": {},
-  "map-elevation": {},
-  "map-rivers": {},
-};
+export const realismEarthlikeConfig = stripSchemaMetadataRoot(
+  swooperEarthlikeConfigRaw
+) as StandardRecipeConfig;

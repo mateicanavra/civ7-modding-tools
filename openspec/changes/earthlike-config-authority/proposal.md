@@ -2,9 +2,11 @@
 
 Swooper Earthlike has multiple first-party config sources that are not aligned:
 the shipped map JSON, standard Earthlike preset JSON, Studio default posture,
-and stale `realismEarthlikeConfig` test input. Some steps rely on implicit
-defaults, and duplicate authored values can be overwritten by stage knobs. That
-means tests and runtime can exercise different Earthlike behavior.
+and stale `realismEarthlikeConfig` test input. Some authored sources also carry
+internal projection or op config that should be produced by compilation from
+public knobs/stage schemas instead of being treated as public map posture. That
+means tests and runtime can exercise different Earthlike behavior or normalize
+the wrong config layer.
 
 ## Target Authority Refs
 
@@ -19,10 +21,12 @@ means tests and runtime can exercise different Earthlike behavior.
 
 - Align shipped Swooper Earthlike config, standard Earthlike preset, and Studio
   default Earthlike posture.
-- Make Earthlike step choices explicit where omitted defaults hide behavior.
+- Remove internal projection/op config from Earthlike authored posture where
+  compilation should own it.
 - Resolve stale `realismEarthlikeConfig` usage so tests do not exercise a weak
   legacy Earthlike path unless explicitly labeled as such.
-- Add parity tests that fail on unintended Earthlike config drift.
+- Use existing schema/config gates for source validity; compiler/SDK behavior
+  belongs in compiler-level tests, not one-off map parity assertions.
 
 ## Write Set
 
@@ -38,6 +42,8 @@ means tests and runtime can exercise different Earthlike behavior.
 - No generated-output hand edits.
 - No ecology, hydrology, or terrain tuning beyond explicit config-source
   authority alignment.
+- No moving internal projection/op envelopes into public Earthlike config.
+- No new brittle source-to-source parity tests for compiler-owned behavior.
 - No preserving a stale Earthlike path under an ambiguous name.
 
 ## Verification Gates

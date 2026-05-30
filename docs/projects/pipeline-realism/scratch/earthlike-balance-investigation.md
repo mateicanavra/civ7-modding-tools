@@ -34,6 +34,9 @@ Date: 2026-05-30
   are specified and write sets are disjoint.
 - Keep bridge/log evidence mechanical; no narrative diary entries in the
   FireTuner append-only log.
+- Do not use brittle one-off tests as balance proof. Compiler/config behavior
+  belongs in compiler, SDK, schema, or adapter contract gates; Earthlike product
+  balance belongs in multi-seed world/runtime telemetry.
 
 ## Active Team Lanes
 
@@ -53,9 +56,12 @@ Date: 2026-05-30
 
 - `codex-010` proves raw FireTuner restart and full 50/50 Swooper recipe
   execution, but it does not prove balance.
-- Swooper Earthlike map config and standard Earthlike preset currently diverge:
-  `foundation.projection.computePlates.config.boundaryInfluenceDistance` is `5`
-  in the shipped map config and `7` in the standard preset.
+- Swooper Earthlike map config and standard Earthlike preset diverged by
+  authoring internal projection config:
+  `foundation.projection.computePlates.config.boundaryInfluenceDistance` was
+  `5` in the shipped map config and `7` in the standard preset. That projection
+  envelope does not belong in public Earthlike posture; compilation should own
+  it from public knobs/stage schemas.
 - Current world-balance gates check vegetation family presence and broad shares,
   but they do not require product-visible mountain coverage, hill coverage,
   plains/pedology distribution, climate humidity bands, or per-family density
@@ -66,10 +72,10 @@ Date: 2026-05-30
 - Direct config-only probes lowering mountain thresholds and widening boundary
   influence did not fix low-mountain seeds consistently, which points to a
   deeper driver/scoring or upstream tectonic/topography signal issue.
-- The shipped Earthlike config is not fully explicit. Examples:
-  `hydrology-hydrography.lakes` relies on default `planLakes`, `map-hydrology`
-  relies on default `projectionReadback`, and several zero-config projection
-  and placement steps are omitted.
+- Earthlike config authority must not make internal projection/op defaults
+  explicit in public authored config. Public Earthlike posture should stay on
+  public knobs/stage schemas; compiled defaults and projection readback should
+  be verified as compiled output, not duplicated as map-source policy.
 - `maps/presets/realism/earthlike.config.ts` is a stale lightweight Earthlike
   source used by tests. It is not equivalent to the shipped Swooper Earthlike
   JSON/preset path and can hide failures under an "earthlike" name.
