@@ -42,6 +42,12 @@ export const MAP_PROJECTION_EFFECT_TAGS = {
   },
 } as const;
 
+export const PLACEMENT_PRODUCT_EFFECT_TAGS = {
+  placement: {
+    naturalWondersPlaced: "effect:placement.naturalWondersPlaced",
+  },
+} as const;
+
 export const CANONICAL_FIELD_AND_ENGINE_TAGS: ReadonlySet<string> = new Set([
   ...Object.values(FIELD_DEPENDENCY_TAGS.field),
   ...Object.values(STANDARD_ENGINE_EFFECT_TAGS.engine),
@@ -113,6 +119,11 @@ const EFFECT_OWNERS: Record<string, TagOwner> = {
     phase: "placement",
     stepId: "placement",
   },
+  [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.naturalWondersPlaced]: {
+    pkg: "mod-swooper-maps",
+    phase: "placement",
+    stepId: "place-natural-wonders",
+  },
   [STANDARD_ENGINE_EFFECT_TAGS.engine.riversModeled]: {
     pkg: "mod-swooper-maps",
     phase: "gameplay",
@@ -181,6 +192,17 @@ export const STANDARD_TAG_DEFINITIONS: readonly DependencyTagDefinition<Extended
     validateDemo: (demo) => isInt16Array(demo),
   },
   ...Object.values(MAP_PROJECTION_EFFECT_TAGS.map).map((id) => {
+    const definition: DependencyTagDefinition<ExtendedMapContext> = {
+      id,
+      kind: "effect",
+    };
+    const owner = EFFECT_OWNERS[id];
+    if (owner) {
+      definition.owner = owner;
+    }
+    return definition;
+  }),
+  ...Object.values(PLACEMENT_PRODUCT_EFFECT_TAGS.placement).map((id) => {
     const definition: DependencyTagDefinition<ExtendedMapContext> = {
       id,
       kind: "effect",

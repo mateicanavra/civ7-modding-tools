@@ -33,10 +33,25 @@ const PlacementEngineStateV1Schema = Type.Object(
     discoveriesError: Type.Optional(Type.String()),
     waterDriftCount: Type.Integer({
       minimum: 0,
-      description: "Mismatch count between physics landMask and engine landMask at placement completion.",
+      description:
+        "Mismatch count between physics landMask and engine landMask at placement completion.",
     }),
   },
   { additionalProperties: false }
+);
+
+const NaturalWonderPlacementArtifactSchema = Type.Object(
+  {
+    plannedCount: Type.Integer({ minimum: 0 }),
+    placedCount: Type.Integer({ minimum: 0 }),
+    skippedOutOfBoundsCount: Type.Integer({ minimum: 0 }),
+    rejectedCount: Type.Integer({ minimum: 0 }),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Verified natural-wonder stamping result. This is a product contract because failed or partial stamping aborts the placement pipeline.",
+  }
 );
 
 export const placementArtifacts = {
@@ -54,6 +69,11 @@ export const placementArtifacts = {
     name: "naturalWonderPlan",
     id: "artifact:placement.naturalWonderPlan",
     schema: placement.ops.planNaturalWonders.output,
+  }),
+  naturalWonderPlacement: defineArtifact({
+    name: "naturalWonderPlacement",
+    id: "artifact:placement.naturalWonderPlacement",
+    schema: NaturalWonderPlacementArtifactSchema,
   }),
   discoveryPlan: defineArtifact({
     name: "discoveryPlan",

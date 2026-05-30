@@ -12,12 +12,12 @@ import placement from "@mapgen/domain/placement";
 import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
 import type { PlacementOutputsV1 } from "../../placement-outputs.js";
 
-type PlanFloodplainsOutput = Static<typeof placement.ops.planFloodplains["output"]>;
-type PlanDiscoveriesOutput = Static<typeof placement.ops.planDiscoveries["output"]>;
-type PlanNaturalWondersOutput = Static<typeof placement.ops.planNaturalWonders["output"]>;
-type PlanResourcesOutput = Static<typeof placement.ops.planResources["output"]>;
-type PlanStartsOutput = Static<typeof placement.ops.planStarts["output"]>;
-type PlanWondersOutput = Static<typeof placement.ops.planWonders["output"]>;
+type PlanFloodplainsOutput = Static<(typeof placement.ops.planFloodplains)["output"]>;
+type PlanDiscoveriesOutput = Static<(typeof placement.ops.planDiscoveries)["output"]>;
+type PlanNaturalWondersOutput = Static<(typeof placement.ops.planNaturalWonders)["output"]>;
+type PlanResourcesOutput = Static<(typeof placement.ops.planResources)["output"]>;
+type PlanStartsOutput = Static<(typeof placement.ops.planStarts)["output"]>;
+type PlanWondersOutput = Static<(typeof placement.ops.planWonders)["output"]>;
 
 type LandmassRegionSlotByTile = Static<
   (typeof import("../../../../map-artifacts.js").mapArtifacts)["landmassRegionSlotByTile"]["schema"]
@@ -33,6 +33,7 @@ type ApplyPlacementArgs = {
   context: ExtendedMapContext;
   starts: DeepReadonly<PlanStartsOutput>;
   wonders: DeepReadonly<PlanWondersOutput>;
+  naturalWonderPlacement?: DeepReadonly<NaturalWonderStampingStats>;
   naturalWonderPlan: DeepReadonly<PlanNaturalWondersOutput>;
   discoveryPlan: DeepReadonly<PlanDiscoveriesOutput>;
   floodplains: DeepReadonly<PlanFloodplainsOutput>;
@@ -84,6 +85,7 @@ export function applyPlacementPlan({
   context,
   starts,
   wonders,
+  naturalWonderPlacement,
   naturalWonderPlan,
   discoveryPlan,
   floodplains,
@@ -133,21 +135,18 @@ export function applyPlacementPlan({
 
   logTerrainStats(trace, adapter, width, height, "Initial");
 
-  const wonderStamping = runPlacementStep("placement.wonders", emit, () => {
-    const stamping = stampNaturalWondersFromPlan({
-      adapter,
-      width,
-      height,
-      wonders: resolvedNaturalWonderPlan,
-    });
-    const requestedCount = Math.max(0, wonders.wondersCount | 0);
-    if (requestedCount !== (stamping.plannedCount | 0)) {
-      throw new Error(
-        `[Placement] Natural wonder planner could not meet requested count (requested ${requestedCount}, planned ${stamping.plannedCount}).`
-      );
-    }
-    return stamping;
-  });
+  const wonderStamping = naturalWonderPlacement
+    ? normalizeNaturalWonderStampingStats(naturalWonderPlacement)
+    : runPlacementStep("placement.wonders", emit, () => {
+        const stamping = stampNaturalWondersFromPlan({
+          adapter,
+          width,
+          height,
+          wonders: resolvedNaturalWonderPlan,
+          requestedCount: wonders.wondersCount,
+        });
+        return stamping;
+      });
   const wondersPlanned = wonderStamping.plannedCount;
   const wondersPlaced = wonderStamping.placedCount;
   emit({
@@ -278,7 +277,9 @@ export function applyPlacementPlan({
 
   const physics = context.buffers.heightfield;
   const engineSnapshot = snapshotEngineHeightfield(context);
-  const engineLandMask = engineSnapshot ? engineSnapshot.landMask : new Uint8Array(physics.landMask);
+  const engineLandMask = engineSnapshot
+    ? engineSnapshot.landMask
+    : new Uint8Array(physics.landMask);
   let waterDriftCount = 0;
   for (let i = 0; i < engineLandMask.length; i++) {
     if ((engineLandMask[i] ?? 0) !== (physics.landMask[i] ?? 0)) waterDriftCount += 1;
@@ -355,20 +356,29 @@ type StampNaturalWondersFromPlanArgs = {
   width: number;
   height: number;
   wonders: DeepReadonly<PlanNaturalWondersOutput>;
+  requestedCount?: number;
 };
 
-type NaturalWonderStampingStats = {
+export type NaturalWonderStampingStats = {
   plannedCount: number;
   placedCount: number;
   skippedOutOfBoundsCount: number;
   rejectedCount: number;
 };
 
-function stampNaturalWondersFromPlan({
+/**
+ * Stamps deterministic natural-wonder intent as its own placement product.
+ *
+ * Natural wonders have a concrete plan artifact and all-or-nothing materialized
+ * effect. Keeping that verification here lets the recipe expose a standalone
+ * step without duplicating Civ7 adapter policy in the domain planner.
+ */
+export function stampNaturalWondersFromPlan({
   adapter,
   width,
   height,
   wonders,
+  requestedCount,
 }: StampNaturalWondersFromPlanArgs): NaturalWonderStampingStats {
   if ((wonders.width | 0) !== (width | 0) || (wonders.height | 0) !== (height | 0)) {
     throw new Error(
@@ -386,6 +396,15 @@ function stampNaturalWondersFromPlan({
   if (plannedCount < targetCount) {
     throw new Error(
       `[Placement] Natural wonder plan cannot satisfy target count (target=${targetCount}, planned=${plannedCount}).`
+    );
+  }
+  const requested = Math.max(
+    0,
+    Number.isFinite(requestedCount) ? (requestedCount as number) | 0 : targetCount
+  );
+  if (requested !== plannedCount) {
+    throw new Error(
+      `[Placement] Natural wonder planner could not meet requested count (requested ${requested}, planned ${plannedCount}).`
     );
   }
 
@@ -435,6 +454,26 @@ function stampNaturalWondersFromPlan({
     );
   }
 
+  return {
+    plannedCount,
+    placedCount,
+    skippedOutOfBoundsCount,
+    rejectedCount,
+  };
+}
+
+function normalizeNaturalWonderStampingStats(
+  stats: DeepReadonly<NaturalWonderStampingStats>
+): NaturalWonderStampingStats {
+  const plannedCount = Math.max(0, stats.plannedCount | 0);
+  const placedCount = Math.max(0, stats.placedCount | 0);
+  const skippedOutOfBoundsCount = Math.max(0, stats.skippedOutOfBoundsCount | 0);
+  const rejectedCount = Math.max(0, stats.rejectedCount | 0);
+  if (placedCount !== plannedCount || skippedOutOfBoundsCount > 0 || rejectedCount > 0) {
+    throw new Error(
+      `[Placement] Natural wonder placement artifact is not fully satisfied (placed ${placedCount}/${plannedCount}, outOfBounds=${skippedOutOfBoundsCount}, rejected=${rejectedCount}).`
+    );
+  }
   return {
     plannedCount,
     placedCount,
@@ -493,7 +532,9 @@ function generateDiscoveriesWithOfficialFallback({
   const plannedCount = Number.isFinite(discoveries.plannedCount)
     ? Math.max(0, Math.trunc(discoveries.plannedCount))
     : Math.max(0, discoveries.placements.length | 0);
-  const resolvedPolarMargin = Number.isFinite(polarMargin) ? Math.max(0, Math.trunc(polarMargin)) : 0;
+  const resolvedPolarMargin = Number.isFinite(polarMargin)
+    ? Math.max(0, Math.trunc(polarMargin))
+    : 0;
   const resolvedStartPositions = sanitizeStartPositions(startPositions);
   const placedCount = adapter.generateOfficialDiscoveries(
     width,
@@ -627,11 +668,7 @@ type AssignStartPositionsArgs = {
   slotByTile: Uint8Array;
 };
 
-function assignStartPositions({
-  context,
-  starts,
-  slotByTile,
-}: AssignStartPositionsArgs): {
+function assignStartPositions({ context, starts, slotByTile }: AssignStartPositionsArgs): {
   positions: number[];
   assigned: number;
   primaryAssigned: number;
@@ -823,10 +860,7 @@ function buildStartSectorGrid(input: {
   return out;
 }
 
-function emitStartPositionsViz(
-  context: ExtendedMapContext,
-  startPositions: number[]
-): void {
+function emitStartPositionsViz(context: ExtendedMapContext, startPositions: number[]): void {
   if (!startPositions.length) return;
   const { width, height } = context.dimensions;
   const valid = startPositions
@@ -893,10 +927,7 @@ function emitStartPositionsViz(
   });
 }
 
-function collectCandidates(
-  slotByTile: Uint8Array,
-  slot: number | null
-): number[] {
+function collectCandidates(slotByTile: Uint8Array, slot: number | null): number[] {
   const candidates: number[] = [];
   for (let i = 0; i < slotByTile.length; i++) {
     const value = slotByTile[i] ?? 0;
@@ -924,7 +955,8 @@ function filterCandidatesBySectors(
     return candidates;
   }
 
-  const offset = sectors.length === sectorsPerRegion * 2 && region === "east" ? sectorsPerRegion : 0;
+  const offset =
+    sectors.length === sectorsPerRegion * 2 && region === "east" ? sectorsPerRegion : 0;
   const cellWidth = width / cols;
   const cellHeight = height / rows;
   const maxCol = Math.max(1, cols);
@@ -1021,12 +1053,7 @@ function minDistanceToSelection(
   return best;
 }
 
-function hexDistanceOddQ(
-  aIndex: number,
-  bIndex: number,
-  width: number,
-  _height: number
-): number {
+function hexDistanceOddQ(aIndex: number, bIndex: number, width: number, _height: number): number {
   const ay = (aIndex / width) | 0;
   const ax = aIndex - ay * width;
   const by = (bIndex / width) | 0;
