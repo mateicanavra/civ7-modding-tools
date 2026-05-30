@@ -11,7 +11,7 @@
 
 Policies are the guardrails that prevent MapGen docs and examples from drifting into multiple parallel architectures.
 
-Policies are *normative* (“Allowed / Disallowed”) and must be anchored to code/spec.
+Policies are _normative_ (“Allowed / Disallowed”) and must be anchored to code/spec.
 
 ## Audience
 
@@ -30,6 +30,7 @@ Canonical policies:
 - Config vs plan compilation: [`docs/system/libs/mapgen/policies/CONFIG-VS-PLAN-COMPILATION.md`](/system/libs/mapgen/policies/CONFIG-VS-PLAN-COMPILATION.md)
 - Truth vs projection: [`docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`](/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md)
 - Module shape: [`docs/system/libs/mapgen/policies/MODULE-SHAPE.md`](/system/libs/mapgen/policies/MODULE-SHAPE.md)
+- Normalization guardrails: [`docs/system/libs/mapgen/policies/NORMALIZATION-GUARDRAILS.md`](/system/libs/mapgen/policies/NORMALIZATION-GUARDRAILS.md)
 
 ## See also
 

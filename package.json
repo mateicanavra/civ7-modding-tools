@@ -6,7 +6,7 @@
   "packageManager": "bun@1.3.7",
   "scripts": {
     "build": "turbo run build",
-    "check": "turbo run check && bun run lint:domain-refactor-guardrails && bun run lint:mapgen-recipe-imports && bun run lint:mapgen-docs",
+    "check": "turbo run check && bun run lint:domain-refactor-guardrails && bun run lint:mapgen-recipe-imports && bun run lint:normalization-guardrails && bun run lint:mapgen-docs",
     "check-types": "turbo run check",
     "dev:cli": "bun run --filter @mateicanavra/civ7-cli dev",
     "dev:sdk": "bun run --filter @mateicanavra/civ7-sdk dev",
@@ -39,6 +39,7 @@
     "lint:adapter-boundary": "./scripts/lint/lint-adapter-boundary.sh",
     "lint:domain-refactor-guardrails": "./scripts/lint/lint-domain-refactor-guardrails.sh",
     "lint:mapgen-recipe-imports": "./scripts/lint/lint-mapgen-recipe-imports.sh",
+    "lint:normalization-guardrails": "node scripts/lint/lint-normalization-guardrails.mjs",
     "lint:domain-refactor-guardrails:strict-core": "REFRACTOR_DOMAINS=\"foundation,morphology,hydrology,ecology,placement,narrative\" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL=1 ./scripts/lint/lint-domain-refactor-guardrails.sh",
     "ci:architecture-strict-core": "bun run lint && bun run lint:adapter-boundary && bun run test:architecture-cutover && bun run lint:domain-refactor-guardrails && bun run check",
     "lint:adrs": "node scripts/lint/lint-doc-adrs.mjs",
