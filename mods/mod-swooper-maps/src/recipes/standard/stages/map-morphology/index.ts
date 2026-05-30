@@ -1,6 +1,12 @@
 import { Type, createStage, type Static } from "@swooper/mapgen-core/authoring";
-import { buildElevation, plotCoasts, plotContinents, plotMountains, plotVolcanoes } from "./steps/index.js";
-import { MorphologyOrogenyKnobSchema } from "@mapgen/domain/morphology/shared/knobs.js";
+import {
+  buildElevation,
+  plotCoasts,
+  plotContinents,
+  plotMountains,
+  plotVolcanoes,
+} from "./steps/index.js";
+import { MorphologyOrogenyKnobSchema } from "@mapgen/domain/morphology/config.js";
 
 const publicSchema = Type.Object(
   {

@@ -3,7 +3,7 @@ import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { foundationArtifacts } from "../artifacts.js";
 import MeshStepContract from "./mesh.contract.js";
 import { validateMeshArtifact, wrapFoundationValidateNoDims } from "./validation.js";
-import type { FoundationPlateCountKnob } from "@mapgen/domain/foundation/shared/knobs.js";
+import type { FoundationPlateCountKnob } from "@mapgen/domain/foundation/config.js";
 import { interleaveXY, segmentsFromMeshNeighbors } from "./viz.js";
 
 const GROUP_MESH = "Foundation / Mesh";
@@ -23,19 +23,23 @@ export default createStep(MeshStepContract, {
       config.computeMesh.strategy === "default" && override !== undefined
         ? {
             ...config.computeMesh,
-	            config: {
-	              ...config.computeMesh.config,
-	              plateCount: clampInt(override, 2, 256),
-	            },
-	          }
-	        : config.computeMesh;
+            config: {
+              ...config.computeMesh.config,
+              plateCount: clampInt(override, 2, 256),
+            },
+          }
+        : config.computeMesh;
 
     return { ...config, computeMesh };
   },
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;
     const stepId = `${MeshStepContract.phase}/${MeshStepContract.id}`;
-    const rngSeed = ctxRandom(context, ctxRandomLabel(stepId, "foundation/compute-mesh"), 2_147_483_647);
+    const rngSeed = ctxRandom(
+      context,
+      ctxRandomLabel(stepId, "foundation/compute-mesh"),
+      2_147_483_647
+    );
 
     const meshResult = ops.computeMesh(
       {

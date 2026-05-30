@@ -1,4 +1,10 @@
-import { ctxRandom, ctxRandomLabel, defineVizMeta, dumpScalarFieldVariants, writeClimateField } from "@swooper/mapgen-core";
+import {
+  ctxRandom,
+  ctxRandomLabel,
+  defineVizMeta,
+  dumpScalarFieldVariants,
+  writeClimateField,
+} from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import ClimateRefineStepContract from "./climateRefine.contract.js";
 import { hydrologyClimateRefineArtifacts } from "../artifacts.js";
@@ -6,12 +12,12 @@ import { computeRiverAdjacencyMaskFromRiverClass } from "../../hydrology-hydrogr
 import {
   HYDROLOGY_DRYNESS_WETNESS_SCALE,
   HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C,
-} from "@mapgen/domain/hydrology/shared/knob-multipliers.js";
+} from "@mapgen/domain/hydrology/config.js";
 import type {
   HydrologyCryosphereKnob,
   HydrologyDrynessKnob,
   HydrologyTemperatureKnob,
-} from "@mapgen/domain/hydrology/shared/knobs.js";
+} from "@mapgen/domain/hydrology/config.js";
 
 type ArtifactValidationIssue = Readonly<{ message: string }>;
 
@@ -46,7 +52,9 @@ function validateTypedArray(
     return;
   }
   if (expectedLength != null && value.length !== expectedLength) {
-    errors.push({ message: `Expected ${label} length ${expectedLength} (received ${value.length}).` });
+    errors.push({
+      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
+    });
   }
 }
 
@@ -62,7 +70,8 @@ export default createStep(ClimateRefineStepContract, {
         validate: (value, context) => {
           const errors: ArtifactValidationIssue[] = [];
           const size = expectedSize(context.dimensions.width, context.dimensions.height);
-          if (!isRecord(value)) return [{ message: "Missing hydrology climate indices artifact payload." }];
+          if (!isRecord(value))
+            return [{ message: "Missing hydrology climate indices artifact payload." }];
           const candidate = value as {
             surfaceTemperatureC?: unknown;
             effectiveMoisture?: unknown;
@@ -70,11 +79,35 @@ export default createStep(ClimateRefineStepContract, {
             aridityIndex?: unknown;
             freezeIndex?: unknown;
           };
-          validateTypedArray(errors, "climateIndices.surfaceTemperatureC", candidate.surfaceTemperatureC, Float32Array, size);
-          validateTypedArray(errors, "climateIndices.effectiveMoisture", candidate.effectiveMoisture, Float32Array, size);
+          validateTypedArray(
+            errors,
+            "climateIndices.surfaceTemperatureC",
+            candidate.surfaceTemperatureC,
+            Float32Array,
+            size
+          );
+          validateTypedArray(
+            errors,
+            "climateIndices.effectiveMoisture",
+            candidate.effectiveMoisture,
+            Float32Array,
+            size
+          );
           validateTypedArray(errors, "climateIndices.pet", candidate.pet, Float32Array, size);
-          validateTypedArray(errors, "climateIndices.aridityIndex", candidate.aridityIndex, Float32Array, size);
-          validateTypedArray(errors, "climateIndices.freezeIndex", candidate.freezeIndex, Float32Array, size);
+          validateTypedArray(
+            errors,
+            "climateIndices.aridityIndex",
+            candidate.aridityIndex,
+            Float32Array,
+            size
+          );
+          validateTypedArray(
+            errors,
+            "climateIndices.freezeIndex",
+            candidate.freezeIndex,
+            Float32Array,
+            size
+          );
           return errors;
         },
       },
@@ -82,10 +115,21 @@ export default createStep(ClimateRefineStepContract, {
         validate: (value, context) => {
           const errors: ArtifactValidationIssue[] = [];
           const size = expectedSize(context.dimensions.width, context.dimensions.height);
-          if (!isRecord(value)) return [{ message: "Missing hydrology cryosphere artifact payload." }];
-          const candidate = value as { snowCover?: unknown; seaIceCover?: unknown; albedo?: unknown };
+          if (!isRecord(value))
+            return [{ message: "Missing hydrology cryosphere artifact payload." }];
+          const candidate = value as {
+            snowCover?: unknown;
+            seaIceCover?: unknown;
+            albedo?: unknown;
+          };
           validateTypedArray(errors, "cryosphere.snowCover", candidate.snowCover, Uint8Array, size);
-          validateTypedArray(errors, "cryosphere.seaIceCover", candidate.seaIceCover, Uint8Array, size);
+          validateTypedArray(
+            errors,
+            "cryosphere.seaIceCover",
+            candidate.seaIceCover,
+            Uint8Array,
+            size
+          );
           validateTypedArray(errors, "cryosphere.albedo", candidate.albedo, Uint8Array, size);
           return errors;
         },
@@ -94,15 +138,34 @@ export default createStep(ClimateRefineStepContract, {
         validate: (value, context) => {
           const errors: ArtifactValidationIssue[] = [];
           const size = expectedSize(context.dimensions.width, context.dimensions.height);
-          if (!isRecord(value)) return [{ message: "Missing hydrology climate diagnostics artifact payload." }];
+          if (!isRecord(value))
+            return [{ message: "Missing hydrology climate diagnostics artifact payload." }];
           const candidate = value as {
             rainShadowIndex?: unknown;
             continentalityIndex?: unknown;
             convergenceIndex?: unknown;
           };
-          validateTypedArray(errors, "climateDiagnostics.rainShadowIndex", candidate.rainShadowIndex, Float32Array, size);
-          validateTypedArray(errors, "climateDiagnostics.continentalityIndex", candidate.continentalityIndex, Float32Array, size);
-          validateTypedArray(errors, "climateDiagnostics.convergenceIndex", candidate.convergenceIndex, Float32Array, size);
+          validateTypedArray(
+            errors,
+            "climateDiagnostics.rainShadowIndex",
+            candidate.rainShadowIndex,
+            Float32Array,
+            size
+          );
+          validateTypedArray(
+            errors,
+            "climateDiagnostics.continentalityIndex",
+            candidate.continentalityIndex,
+            Float32Array,
+            size
+          );
+          validateTypedArray(
+            errors,
+            "climateDiagnostics.convergenceIndex",
+            candidate.convergenceIndex,
+            Float32Array,
+            size
+          );
           return errors;
         },
       },
@@ -130,7 +193,10 @@ export default createStep(ClimateRefineStepContract, {
             // Temperature knobs should not simply warm/cool the whole world uniformly (that erases tundra/snow).
             // Instead, bias the baseline modestly and put most of the adjustment into the equator-to-pole contrast.
             baseTemperatureC: next.computeThermalState.config.baseTemperatureC + deltaC * 0.5,
-            insolationScaleC: Math.max(0, Math.min(80, next.computeThermalState.config.insolationScaleC + deltaC * 2)),
+            insolationScaleC: Math.max(
+              0,
+              Math.min(80, next.computeThermalState.config.insolationScaleC + deltaC * 2)
+            ),
           },
         };
       }
@@ -144,8 +210,12 @@ export default createStep(ClimateRefineStepContract, {
           ...cur,
           riverCorridor: {
             ...cur.riverCorridor,
-            lowlandAdjacencyBonus: Math.round(cur.riverCorridor.lowlandAdjacencyBonus * wetnessScale),
-            highlandAdjacencyBonus: Math.round(cur.riverCorridor.highlandAdjacencyBonus * wetnessScale),
+            lowlandAdjacencyBonus: Math.round(
+              cur.riverCorridor.lowlandAdjacencyBonus * wetnessScale
+            ),
+            highlandAdjacencyBonus: Math.round(
+              cur.riverCorridor.highlandAdjacencyBonus * wetnessScale
+            ),
           },
           lowBasin: {
             ...cur.lowBasin,
@@ -281,10 +351,14 @@ export default createStep(ClimateRefineStepContract, {
       const rainfall = refined.rainfall[i] ?? 0;
       const humidity = refined.humidity[i] ?? 0;
       const riparianBonus = riparianBonusByTile[i] ?? 0;
-      effectiveMoisture[i] = rainfall + EFFECTIVE_MOISTURE_HUMIDITY_WEIGHT * humidity + riparianBonus;
+      effectiveMoisture[i] =
+        rainfall + EFFECTIVE_MOISTURE_HUMIDITY_WEIGHT * humidity + riparianBonus;
     }
 
-    const forcing = ops.computeRadiativeForcing({ width, height, latitudeByRow }, config.computeRadiativeForcing);
+    const forcing = ops.computeRadiativeForcing(
+      { width, height, latitudeByRow },
+      config.computeRadiativeForcing
+    );
     const thermal = ops.computeThermalState(
       {
         width,
@@ -563,6 +637,5 @@ export default createStep(ClimateRefineStepContract, {
       continentalityIndex: diagnostics.continentalityIndex,
       convergenceIndex: diagnostics.convergenceIndex,
     });
-
   },
 });

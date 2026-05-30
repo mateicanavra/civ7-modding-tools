@@ -1,8 +1,6 @@
 import { Type, createStage } from "@swooper/mapgen-core/authoring";
 import { rivers } from "./steps/index.js";
-import {
-  HydrologyRiverDensityKnobSchema,
-} from "@mapgen/domain/hydrology/shared/knobs.js";
+import { HydrologyRiverDensityKnobSchema } from "@mapgen/domain/hydrology/config.js";
 
 const knobsSchema = Type.Object(
   {

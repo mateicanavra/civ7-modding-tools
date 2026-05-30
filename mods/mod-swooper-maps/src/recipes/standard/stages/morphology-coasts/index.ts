@@ -4,7 +4,7 @@ import {
   MorphologyCoastRuggednessKnobSchema,
   MorphologySeaLevelKnobSchema,
   MorphologyShelfWidthKnobSchema,
-} from "@mapgen/domain/morphology/shared/knobs.js";
+} from "@mapgen/domain/morphology/config.js";
 
 /**
  * Morphology-coasts knobs (seaLevel/coastRuggedness/shelfWidth).

@@ -7,8 +7,8 @@ import RiversStepContract from "./rivers.contract.js";
 import {
   HYDROLOGY_RIVER_DENSITY_MAJOR_PERCENTILE,
   HYDROLOGY_RIVER_DENSITY_MINOR_PERCENTILE,
-} from "@mapgen/domain/hydrology/shared/knob-multipliers.js";
-import type { HydrologyRiverDensityKnob } from "@mapgen/domain/hydrology/shared/knobs.js";
+} from "@mapgen/domain/hydrology/config.js";
+import type { HydrologyRiverDensityKnob } from "@mapgen/domain/hydrology/config.js";
 
 type ArtifactValidationIssue = Readonly<{ message: string }>;
 
@@ -62,7 +62,8 @@ function validateHydrography(value: unknown, dimensions: MapDimensions): Artifac
   validateTypedArray(errors, "hydrography.riverClass", candidate.riverClass, Uint8Array, size);
   validateTypedArray(errors, "hydrography.sinkMask", candidate.sinkMask, Uint8Array, size);
   validateTypedArray(errors, "hydrography.outletMask", candidate.outletMask, Uint8Array, size);
-  if (candidate.basinId != null) validateTypedArray(errors, "hydrography.basinId", candidate.basinId, Int32Array, size);
+  if (candidate.basinId != null)
+    validateTypedArray(errors, "hydrography.basinId", candidate.basinId, Int32Array, size);
   return errors;
 }
 

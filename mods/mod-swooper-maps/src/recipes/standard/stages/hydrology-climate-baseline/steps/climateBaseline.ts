@@ -28,13 +28,13 @@ import {
   HYDROLOGY_TEMPERATURE_BASE_TEMPERATURE_C,
   HYDROLOGY_WATER_GRADIENT_LOWLAND_BONUS_BASE,
   HYDROLOGY_WATER_GRADIENT_PER_RING_BONUS_BASE,
-} from "@mapgen/domain/hydrology/shared/knob-multipliers.js";
+} from "@mapgen/domain/hydrology/config.js";
 import type {
   HydrologyDrynessKnob,
   HydrologyOceanCouplingKnob,
   HydrologySeasonalityKnob,
   HydrologyTemperatureKnob,
-} from "@mapgen/domain/hydrology/shared/knobs.js";
+} from "@mapgen/domain/hydrology/config.js";
 
 type ArtifactValidationIssue = Readonly<{ message: string }>;
 type TypedArrayConstructor = { new (...args: unknown[]): { length: number } };
@@ -120,8 +120,20 @@ function validateClimateSeasonalityPayload(
     errors.push({ message: "Expected climateSeasonality.axialTiltDeg to be a finite number." });
   }
 
-  validateTypedArray(errors, "climateSeasonality.rainfallAmplitude", candidate.rainfallAmplitude, Uint8Array, size);
-  validateTypedArray(errors, "climateSeasonality.humidityAmplitude", candidate.humidityAmplitude, Uint8Array, size);
+  validateTypedArray(
+    errors,
+    "climateSeasonality.rainfallAmplitude",
+    candidate.rainfallAmplitude,
+    Uint8Array,
+    size
+  );
+  validateTypedArray(
+    errors,
+    "climateSeasonality.humidityAmplitude",
+    candidate.humidityAmplitude,
+    Uint8Array,
+    size
+  );
   return errors;
 }
 
@@ -193,8 +205,7 @@ export default createStep(ClimateBaselineStepContract, {
       HYDROLOGY_SEASONALITY_WIND_JET_STREAKS[seasonality] -
       HYDROLOGY_SEASONALITY_WIND_JET_STREAKS.normal;
     const varianceFactor =
-      HYDROLOGY_SEASONALITY_WIND_VARIANCE[seasonality] /
-      HYDROLOGY_SEASONALITY_WIND_VARIANCE.normal;
+      HYDROLOGY_SEASONALITY_WIND_VARIANCE[seasonality] / HYDROLOGY_SEASONALITY_WIND_VARIANCE.normal;
     const noiseAmplitudeFactor =
       HYDROLOGY_SEASONALITY_PRECIP_NOISE_AMPLITUDE[seasonality] /
       HYDROLOGY_SEASONALITY_PRECIP_NOISE_AMPLITUDE.normal;
@@ -210,7 +221,8 @@ export default createStep(ClimateBaselineStepContract, {
       HYDROLOGY_OCEAN_COUPLING_MOISTURE_TRANSPORT_ITERATIONS[oceanCoupling] -
       HYDROLOGY_OCEAN_COUPLING_MOISTURE_TRANSPORT_ITERATIONS.earthlike;
 
-    const clampNumber = (value: number, min: number, max: number): number => Math.max(min, Math.min(max, value));
+    const clampNumber = (value: number, min: number, max: number): number =>
+      Math.max(min, Math.min(max, value));
 
     const computeThermalState =
       config.computeThermalState.strategy === "default"
@@ -220,7 +232,8 @@ export default createStep(ClimateBaselineStepContract, {
               ...config.computeThermalState.config,
               // Temperature knobs should not simply warm/cool the whole world uniformly (that erases tundra/snow).
               // Instead, bias the baseline modestly and put most of the adjustment into the equator-to-pole contrast.
-              baseTemperatureC: config.computeThermalState.config.baseTemperatureC + temperatureDeltaC * 0.5,
+              baseTemperatureC:
+                config.computeThermalState.config.baseTemperatureC + temperatureDeltaC * 0.5,
               insolationScaleC: clampNumber(
                 config.computeThermalState.config.insolationScaleC + temperatureDeltaC * 2,
                 0,
@@ -238,10 +251,13 @@ export default createStep(ClimateBaselineStepContract, {
             ...config.computeAtmosphericCirculation.config,
             windJetStreaks: Math.max(
               0,
-              Math.round(config.computeAtmosphericCirculation.config.windJetStreaks + jetStreakDelta)
+              Math.round(
+                config.computeAtmosphericCirculation.config.windJetStreaks + jetStreakDelta
+              )
             ),
             windVariance: config.computeAtmosphericCirculation.config.windVariance * varianceFactor,
-            windJetStrength: config.computeAtmosphericCirculation.config.windJetStrength * jetStrengthFactor,
+            windJetStrength:
+              config.computeAtmosphericCirculation.config.windJetStrength * jetStrengthFactor,
           },
         };
       }
@@ -267,7 +283,11 @@ export default createStep(ClimateBaselineStepContract, {
               0,
               400
             ),
-            waveStrength: clampNumber(config.computeAtmosphericCirculation.config.waveStrength * varianceFactor, 0, 300),
+            waveStrength: clampNumber(
+              config.computeAtmosphericCirculation.config.waveStrength * varianceFactor,
+              0,
+              300
+            ),
           },
         };
       }
@@ -336,7 +356,10 @@ export default createStep(ClimateBaselineStepContract, {
           ...config.transportMoisture,
           config: {
             ...config.transportMoisture.config,
-            iterations: Math.max(0, Math.round(config.transportMoisture.config.iterations + transportIterationsDelta)),
+            iterations: Math.max(
+              0,
+              Math.round(config.transportMoisture.config.iterations + transportIterationsDelta)
+            ),
           },
         };
       }
@@ -346,7 +369,10 @@ export default createStep(ClimateBaselineStepContract, {
           ...config.transportMoisture,
           config: {
             ...config.transportMoisture.config,
-            iterations: Math.max(0, Math.round(config.transportMoisture.config.iterations + transportIterationsDelta)),
+            iterations: Math.max(
+              0,
+              Math.round(config.transportMoisture.config.iterations + transportIterationsDelta)
+            ),
           },
         };
       }
@@ -369,22 +395,42 @@ export default createStep(ClimateBaselineStepContract, {
           config: {
             ...config.computePrecipitation.config,
             rainfallScale: config.computePrecipitation.config.rainfallScale * wetnessScale,
-            noiseAmplitude: config.computePrecipitation.config.noiseAmplitude * noiseAmplitudeFactor,
+            noiseAmplitude:
+              config.computePrecipitation.config.noiseAmplitude * noiseAmplitudeFactor,
             waterGradient: {
               ...config.computePrecipitation.config.waterGradient,
-              radius: Math.max(1, Math.round(config.computePrecipitation.config.waterGradient.radius + waterGradientRadiusDelta)),
+              radius: Math.max(
+                1,
+                Math.round(
+                  config.computePrecipitation.config.waterGradient.radius + waterGradientRadiusDelta
+                )
+              ),
               perRingBonus: Math.max(
                 0,
-                Math.round((config.computePrecipitation.config.waterGradient.perRingBonus + perRingBonusDelta) * wetnessScale)
+                Math.round(
+                  (config.computePrecipitation.config.waterGradient.perRingBonus +
+                    perRingBonusDelta) *
+                    wetnessScale
+                )
               ),
-              lowlandBonus: Math.max(0, Math.round(config.computePrecipitation.config.waterGradient.lowlandBonus * wetnessScale)),
+              lowlandBonus: Math.max(
+                0,
+                Math.round(
+                  config.computePrecipitation.config.waterGradient.lowlandBonus * wetnessScale
+                )
+              ),
             },
             orographic: {
               ...config.computePrecipitation.config.orographic,
-              reductionBase: Math.max(0, Math.round(config.computePrecipitation.config.orographic.reductionBase / scaleDenom)),
+              reductionBase: Math.max(
+                0,
+                Math.round(config.computePrecipitation.config.orographic.reductionBase / scaleDenom)
+              ),
               reductionPerStep: Math.max(
                 0,
-                Math.round(config.computePrecipitation.config.orographic.reductionPerStep / scaleDenom)
+                Math.round(
+                  config.computePrecipitation.config.orographic.reductionPerStep / scaleDenom
+                )
               ),
             },
           },
@@ -397,15 +443,30 @@ export default createStep(ClimateBaselineStepContract, {
           config: {
             ...config.computePrecipitation.config,
             rainfallScale: config.computePrecipitation.config.rainfallScale * wetnessScale,
-            noiseAmplitude: config.computePrecipitation.config.noiseAmplitude * noiseAmplitudeFactor,
+            noiseAmplitude:
+              config.computePrecipitation.config.noiseAmplitude * noiseAmplitudeFactor,
             waterGradient: {
               ...config.computePrecipitation.config.waterGradient,
-              radius: Math.max(1, Math.round(config.computePrecipitation.config.waterGradient.radius + waterGradientRadiusDelta)),
+              radius: Math.max(
+                1,
+                Math.round(
+                  config.computePrecipitation.config.waterGradient.radius + waterGradientRadiusDelta
+                )
+              ),
               perRingBonus: Math.max(
                 0,
-                Math.round((config.computePrecipitation.config.waterGradient.perRingBonus + perRingBonusDelta) * wetnessScale)
+                Math.round(
+                  (config.computePrecipitation.config.waterGradient.perRingBonus +
+                    perRingBonusDelta) *
+                    wetnessScale
+                )
               ),
-              lowlandBonus: Math.max(0, Math.round(config.computePrecipitation.config.waterGradient.lowlandBonus * wetnessScale)),
+              lowlandBonus: Math.max(
+                0,
+                Math.round(
+                  config.computePrecipitation.config.waterGradient.lowlandBonus * wetnessScale
+                )
+              ),
             },
           },
         };
@@ -480,16 +541,14 @@ export default createStep(ClimateBaselineStepContract, {
       config.transportMoisture.strategy === "default" ||
       config.computePrecipitation.strategy === "default";
 
-    let oceanGeometry:
-      | {
-          basinId: Int32Array;
-          coastDistance: Uint16Array;
-          coastNormalU: Int8Array;
-          coastNormalV: Int8Array;
-          coastTangentU: Int8Array;
-          coastTangentV: Int8Array;
-        }
-      | null = null;
+    let oceanGeometry: {
+      basinId: Int32Array;
+      coastDistance: Uint16Array;
+      coastNormalU: Int8Array;
+      coastNormalV: Int8Array;
+      coastTangentU: Int8Array;
+      coastTangentV: Int8Array;
+    } | null = null;
 
     if (useCirculationV2) {
       oceanGeometry = ops.computeOceanGeometry(
@@ -699,7 +758,10 @@ export default createStep(ClimateBaselineStepContract, {
         dataTypeKey: "hydrology.current.divergence",
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
-        field: { format: "f32", values: estimateDivergenceOddQ(width, height, currentFx, currentFy) },
+        field: {
+          format: "f32",
+          values: estimateDivergenceOddQ(width, height, currentFx, currentFy),
+        },
         label: "Current Divergence (Proxy)",
         group: GROUP_CURRENT,
         palette: "continuous",

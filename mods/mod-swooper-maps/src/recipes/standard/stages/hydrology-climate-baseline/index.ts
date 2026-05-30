@@ -5,7 +5,7 @@ import {
   HydrologyOceanCouplingKnobSchema,
   HydrologySeasonalityKnobSchema,
   HydrologyTemperatureKnobSchema,
-} from "@mapgen/domain/hydrology/shared/knobs.js";
+} from "@mapgen/domain/hydrology/config.js";
 
 const knobsSchema = Type.Object(
   {

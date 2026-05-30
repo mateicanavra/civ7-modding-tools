@@ -19,19 +19,14 @@ import {
   MORPHOLOGY_OROGENY_HILL_THRESHOLD_DELTA,
   MORPHOLOGY_OROGENY_MOUNTAIN_THRESHOLD_DELTA,
   MORPHOLOGY_OROGENY_TECTONIC_INTENSITY_MULTIPLIER,
-} from "@mapgen/domain/morphology/shared/knob-multipliers.js";
-import type { MorphologyOrogenyKnob } from "@mapgen/domain/morphology/shared/knobs.js";
+} from "@mapgen/domain/morphology/config.js";
+import type { MorphologyOrogenyKnob } from "@mapgen/domain/morphology/config.js";
 
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
 const GROUP_BELT_DRIVERS = "Morphology / Belt Drivers";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
-function buildFractalArray(
-  width: number,
-  height: number,
-  seed: number,
-  grain: number
-): Int16Array {
+function buildFractalArray(width: number, height: number, seed: number, grain: number): Int16Array {
   const fractal = new Int16Array(width * height);
   const perlin = new PerlinNoise(seed | 0);
   const scale = 1 / Math.max(1, Math.round(grain));
@@ -50,7 +45,8 @@ export default createStep(PlotMountainsStepContract, {
   normalize: (config, ctx) => {
     const { orogeny } = ctx.knobs as Readonly<{ orogeny?: MorphologyOrogenyKnob }>;
     const multiplier = MORPHOLOGY_OROGENY_TECTONIC_INTENSITY_MULTIPLIER[orogeny ?? "normal"] ?? 1.0;
-    const mountainThresholdDelta = MORPHOLOGY_OROGENY_MOUNTAIN_THRESHOLD_DELTA[orogeny ?? "normal"] ?? 0;
+    const mountainThresholdDelta =
+      MORPHOLOGY_OROGENY_MOUNTAIN_THRESHOLD_DELTA[orogeny ?? "normal"] ?? 0;
     const hillThresholdDelta = MORPHOLOGY_OROGENY_HILL_THRESHOLD_DELTA[orogeny ?? "normal"] ?? 0;
 
     const ridgesSelection =
@@ -59,9 +55,18 @@ export default createStep(PlotMountainsStepContract, {
             ...config.ridges,
             config: {
               ...config.ridges.config,
-              tectonicIntensity: clampFinite(config.ridges.config.tectonicIntensity * multiplier, 0),
-              mountainThreshold: clampFinite(config.ridges.config.mountainThreshold + mountainThresholdDelta, 0),
-              hillThreshold: clampFinite(config.ridges.config.hillThreshold + hillThresholdDelta, 0),
+              tectonicIntensity: clampFinite(
+                config.ridges.config.tectonicIntensity * multiplier,
+                0
+              ),
+              mountainThreshold: clampFinite(
+                config.ridges.config.mountainThreshold + mountainThresholdDelta,
+                0
+              ),
+              hillThreshold: clampFinite(
+                config.ridges.config.hillThreshold + hillThresholdDelta,
+                0
+              ),
             },
           }
         : config.ridges;
@@ -72,12 +77,18 @@ export default createStep(PlotMountainsStepContract, {
             ...config.foothills,
             config: {
               ...config.foothills.config,
-              tectonicIntensity: clampFinite(config.foothills.config.tectonicIntensity * multiplier, 0),
+              tectonicIntensity: clampFinite(
+                config.foothills.config.tectonicIntensity * multiplier,
+                0
+              ),
               mountainThreshold: clampFinite(
                 config.foothills.config.mountainThreshold + mountainThresholdDelta,
                 0
               ),
-              hillThreshold: clampFinite(config.foothills.config.hillThreshold + hillThresholdDelta, 0),
+              hillThreshold: clampFinite(
+                config.foothills.config.hillThreshold + hillThresholdDelta,
+                0
+              ),
             },
           }
         : config.foothills;

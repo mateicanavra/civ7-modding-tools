@@ -8,10 +8,8 @@ import {
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clampInt } from "@swooper/mapgen-core/lib/math";
 import PlotRiversStepContract from "./plotRivers.contract.js";
-import {
-  HYDROLOGY_RIVER_DENSITY_LENGTH_BOUNDS,
-} from "@mapgen/domain/hydrology/shared/knob-multipliers.js";
-import type { HydrologyRiverDensityKnob } from "@mapgen/domain/hydrology/shared/knobs.js";
+import { HYDROLOGY_RIVER_DENSITY_LENGTH_BOUNDS } from "@mapgen/domain/hydrology/config.js";
+import type { HydrologyRiverDensityKnob } from "@mapgen/domain/hydrology/config.js";
 import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
 import { mapArtifacts } from "../../../map-artifacts.js";
 

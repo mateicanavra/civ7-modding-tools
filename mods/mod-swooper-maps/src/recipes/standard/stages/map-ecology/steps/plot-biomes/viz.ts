@@ -1,5 +1,4 @@
-import type { BiomeSymbol } from "@mapgen/domain/ecology";
-import { BIOME_SYMBOL_ORDER } from "@mapgen/domain/ecology/types.js";
+import { BIOME_SYMBOL_ORDER, type BiomeSymbol } from "@mapgen/domain/ecology";
 
 import { BIOME_INDEX_VIZ_CATEGORIES } from "../../../ecology/steps/biomes/viz.js";
 
@@ -47,7 +46,9 @@ export function buildEngineBiomeIdVizCategories(args: {
 
   const out: VizCategory[] = [];
   for (const [engineId, bucket] of byEngineId.entries()) {
-    const symbols = bucket.symbols.slice().sort((a, b) => BIOME_SYMBOL_ORDER.indexOf(a) - BIOME_SYMBOL_ORDER.indexOf(b));
+    const symbols = bucket.symbols
+      .slice()
+      .sort((a, b) => BIOME_SYMBOL_ORDER.indexOf(a) - BIOME_SYMBOL_ORDER.indexOf(b));
     const labelParts: string[] = [...symbols];
     if (bucket.marine) labelParts.push(MARINE_LABEL);
 
