@@ -54,6 +54,83 @@ const NaturalWonderPlacementArtifactSchema = Type.Object(
   }
 );
 
+const ResourcePlacementOutcomeSchema = Type.Object(
+  {
+    status: Type.Union([
+      Type.Literal("placed"),
+      Type.Literal("rejected"),
+      Type.Literal("mismatch"),
+    ]),
+    plotIndex: Type.Integer(),
+    x: Type.Integer(),
+    y: Type.Integer(),
+    resourceType: Type.Integer(),
+    observedResourceType: Type.Optional(Type.Integer()),
+    reason: Type.Optional(
+      Type.Union([
+        Type.Literal("out-of-bounds"),
+        Type.Literal("invalid-resource-type"),
+        Type.Literal("cannot-have-resource"),
+        Type.Literal("wrong-resource-type"),
+      ])
+    ),
+  },
+  { additionalProperties: false }
+);
+
+const DiscoveryPlacementOutcomeSchema = Type.Object(
+  {
+    status: Type.Union([Type.Literal("placed"), Type.Literal("rejected")]),
+    plotIndex: Type.Integer(),
+    x: Type.Integer(),
+    y: Type.Integer(),
+    discoveryVisualType: Type.Integer(),
+    discoveryActivationType: Type.Integer(),
+    reason: Type.Optional(
+      Type.Union([
+        Type.Literal("out-of-bounds"),
+        Type.Literal("invalid-discovery-type"),
+        Type.Literal("adapter-rejected"),
+      ])
+    ),
+  },
+  { additionalProperties: false }
+);
+
+const PlacementOutcomeSummarySchema = Type.Object(
+  {
+    plannedCount: Type.Integer({ minimum: 0 }),
+    placedCount: Type.Integer({ minimum: 0 }),
+    rejectedCount: Type.Integer({ minimum: 0 }),
+    mismatchCount: Type.Integer({ minimum: 0 }),
+  },
+  { additionalProperties: false }
+);
+
+const ResourcePlacementOutcomesArtifactSchema = Type.Object(
+  {
+    summary: PlacementOutcomeSummarySchema,
+    outcomes: Type.Array(ResourcePlacementOutcomeSchema),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Typed resource intent reconciliation. Rejections are allowed only with named reasons; mismatches are fail-hard.",
+  }
+);
+
+const DiscoveryPlacementOutcomesArtifactSchema = Type.Object(
+  {
+    summary: PlacementOutcomeSummarySchema,
+    outcomes: Type.Array(DiscoveryPlacementOutcomeSchema),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Typed discovery intent reconciliation. Rejections are allowed only with named reasons.",
+  }
+);
+
 export const placementArtifacts = {
   placementInputs: defineArtifact({
     name: "placementInputs",
@@ -74,6 +151,16 @@ export const placementArtifacts = {
     name: "naturalWonderPlacement",
     id: "artifact:placement.naturalWonderPlacement",
     schema: NaturalWonderPlacementArtifactSchema,
+  }),
+  resourcePlacementOutcomes: defineArtifact({
+    name: "resourcePlacementOutcomes",
+    id: "artifact:placement.resourcePlacementOutcomes",
+    schema: ResourcePlacementOutcomesArtifactSchema,
+  }),
+  discoveryPlacementOutcomes: defineArtifact({
+    name: "discoveryPlacementOutcomes",
+    id: "artifact:placement.discoveryPlacementOutcomes",
+    schema: DiscoveryPlacementOutcomesArtifactSchema,
   }),
   discoveryPlan: defineArtifact({
     name: "discoveryPlan",

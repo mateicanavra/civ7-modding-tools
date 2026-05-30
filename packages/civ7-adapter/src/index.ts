@@ -29,6 +29,13 @@ export type {
   LandmassIdName,
   VoronoiUtils,
   DiscoveryCatalogEntry,
+  ResourcePlacementIntent,
+  ResourcePlacementOutcome,
+  ResourcePlacementRejectionReason,
+  ResourcePlacementMismatchReason,
+  DiscoveryPlacementIntent,
+  DiscoveryPlacementOutcome,
+  DiscoveryPlacementRejectionReason,
 } from "./types.js";
 export { ENGINE_EFFECT_TAGS } from "./effects.js";
 export type { EngineEffectTagId } from "./effects.js";

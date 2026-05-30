@@ -15,10 +15,10 @@ Resource, discovery, start, and advanced-start work was intentionally not
 promoted in this slice. Resource and discovery planning already has plan
 artifacts, but projection still delegates feasibility to official Civ
 generators; typed outcomes and rejection reasons belong to
-`normalize-placement-reconciliation`. Start assignment feeds discovery
-generation in the same runtime sequence and has no independent downstream
-consumer yet. Advanced-start assignment remains an engine-side terminal effect
-without an artifact consumer.
+`normalize-placement-reconciliation` and are superseded there. Start assignment
+feeds discovery materialization in the same runtime sequence and has no
+independent downstream consumer yet. Advanced-start assignment remains an
+engine-side terminal effect without an artifact consumer.
 
 Maintenance operations remain transactional inside final placement:
 
@@ -26,7 +26,7 @@ Maintenance operations remain transactional inside final placement:
 - terrain validation
 - area recalculation
 - water cache storage
-- landmass-region restamping before official resource generation
+- landmass-region restamping before typed resource materialization
 - fertility recalculation
 
 Those operations are ordered engine maintenance required for the placement

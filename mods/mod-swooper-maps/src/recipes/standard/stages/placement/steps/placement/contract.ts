@@ -31,6 +31,8 @@ const PlacementStepContract = defineStep({
     provides: [
       placementArtifacts.placementOutputs,
       placementArtifacts.engineState,
+      placementArtifacts.resourcePlacementOutcomes,
+      placementArtifacts.discoveryPlacementOutcomes,
       mapArtifacts.placementEngineTerrainSnapshot,
     ],
   },

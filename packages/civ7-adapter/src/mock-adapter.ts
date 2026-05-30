@@ -7,6 +7,8 @@
 
 import type {
   DiscoveryCatalogEntry,
+  DiscoveryPlacementIntent,
+  DiscoveryPlacementOutcome,
   EngineAdapter,
   FeatureData,
   LakeProjectionResult,
@@ -16,6 +18,8 @@ import type {
   MapSizeId,
   NaturalWonderCatalogEntry,
   PlotTagName,
+  ResourcePlacementIntent,
+  ResourcePlacementOutcome,
   VoronoiBoundingBox,
   VoronoiCell,
   VoronoiDiagram,
@@ -664,6 +668,56 @@ export class MockAdapter implements EngineAdapter {
     return [...this.resourceTypeCatalog];
   }
 
+  placeResourceIntent(
+    width: number,
+    height: number,
+    intent: ResourcePlacementIntent
+  ): ResourcePlacementOutcome {
+    // Mirror the production adapter contract so recipe tests exercise typed
+    // reconciliation outcomes instead of a mock-only placement shortcut.
+    const resolvedWidth = Math.max(0, Math.trunc(width));
+    const resolvedHeight = Math.max(0, Math.trunc(height));
+    const plotIndex = Number.isFinite(intent.plotIndex) ? Math.trunc(intent.plotIndex) : -1;
+    const resourceType = Number.isFinite(intent.resourceType)
+      ? Math.trunc(intent.resourceType)
+      : this.NO_RESOURCE;
+    const y = resolvedWidth > 0 ? Math.trunc(plotIndex / resolvedWidth) : -1;
+    const x = resolvedWidth > 0 ? plotIndex - y * resolvedWidth : -1;
+
+    if (plotIndex < 0 || x < 0 || y < 0 || x >= resolvedWidth || y >= resolvedHeight) {
+      return { status: "rejected", plotIndex, x, y, resourceType, reason: "out-of-bounds" };
+    }
+    if (resourceType < 0 || resourceType === (this.NO_RESOURCE | 0)) {
+      return { status: "rejected", plotIndex, x, y, resourceType, reason: "invalid-resource-type" };
+    }
+    if (!this.canHaveResource(x, y, resourceType)) {
+      return {
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        resourceType,
+        reason: "cannot-have-resource",
+        observedResourceType: this.getResourceType(x, y),
+      };
+    }
+
+    this.setResourceType(x, y, resourceType);
+    const observedResourceType = this.getResourceType(x, y);
+    if ((observedResourceType | 0) !== (resourceType | 0)) {
+      return {
+        status: "mismatch",
+        plotIndex,
+        x,
+        y,
+        resourceType,
+        reason: "wrong-resource-type",
+        observedResourceType,
+      };
+    }
+    return { status: "placed", plotIndex, x, y, resourceType, observedResourceType };
+  }
+
   // === PLOT EFFECTS ===
 
   getPlotEffectTypesContainingTags(tags: string[]): number[] {
@@ -965,6 +1019,64 @@ export class MockAdapter implements EngineAdapter {
     });
     this.recordPlacementEffect();
     return true;
+  }
+
+  placeDiscoveryIntent(
+    width: number,
+    height: number,
+    intent: DiscoveryPlacementIntent
+  ): DiscoveryPlacementOutcome {
+    // Keep mock discovery behavior aligned with Civ7Adapter: placement success
+    // is explicit evidence, and rejection is a typed result the recipe can
+    // publish for review/debugging.
+    const resolvedWidth = Math.max(0, Math.trunc(width));
+    const resolvedHeight = Math.max(0, Math.trunc(height));
+    const plotIndex = Number.isFinite(intent.plotIndex) ? Math.trunc(intent.plotIndex) : -1;
+    const discoveryVisualType = Number.isFinite(intent.discoveryVisualType)
+      ? Math.trunc(intent.discoveryVisualType)
+      : -1;
+    const discoveryActivationType = Number.isFinite(intent.discoveryActivationType)
+      ? Math.trunc(intent.discoveryActivationType)
+      : -1;
+    const y = resolvedWidth > 0 ? Math.trunc(plotIndex / resolvedWidth) : -1;
+    const x = resolvedWidth > 0 ? plotIndex - y * resolvedWidth : -1;
+
+    if (plotIndex < 0 || x < 0 || y < 0 || x >= resolvedWidth || y >= resolvedHeight) {
+      return {
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        discoveryVisualType,
+        discoveryActivationType,
+        reason: "out-of-bounds",
+      };
+    }
+    if (discoveryVisualType < 0 || discoveryActivationType < 0) {
+      return {
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        discoveryVisualType,
+        discoveryActivationType,
+        reason: "invalid-discovery-type",
+      };
+    }
+
+    const placed = this.stampDiscovery(x, y, discoveryVisualType, discoveryActivationType);
+    if (!placed) {
+      return {
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        discoveryVisualType,
+        discoveryActivationType,
+        reason: "adapter-rejected",
+      };
+    }
+    return { status: "placed", plotIndex, x, y, discoveryVisualType, discoveryActivationType };
   }
 
   generateOfficialDiscoveries(

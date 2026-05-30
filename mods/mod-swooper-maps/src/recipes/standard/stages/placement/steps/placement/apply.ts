@@ -1,4 +1,10 @@
 import type { ExtendedMapContext, TraceScope } from "@swooper/mapgen-core";
+import type {
+  DiscoveryPlacementIntent,
+  DiscoveryPlacementOutcome,
+  ResourcePlacementIntent,
+  ResourcePlacementOutcome,
+} from "@civ7/adapter";
 import {
   HILL_TERRAIN,
   MOUNTAIN_TERRAIN,
@@ -28,6 +34,12 @@ type EngineTerrainSnapshot = Static<
 type PlacementEngineState = Static<
   (typeof import("../../artifacts.js").placementArtifacts)["engineState"]["schema"]
 >;
+type ResourcePlacementOutcomes = Static<
+  (typeof import("../../artifacts.js").placementArtifacts)["resourcePlacementOutcomes"]["schema"]
+>;
+type DiscoveryPlacementOutcomes = Static<
+  (typeof import("../../artifacts.js").placementArtifacts)["discoveryPlacementOutcomes"]["schema"]
+>;
 
 type ApplyPlacementArgs = {
   context: ExtendedMapContext;
@@ -41,6 +53,12 @@ type ApplyPlacementArgs = {
   landmassRegionSlotByTile: DeepReadonly<LandmassRegionSlotByTile>;
   publishOutputs: (outputs: PlacementOutputsV1) => DeepReadonly<PlacementOutputsV1>;
   publishEngineState?: (engineState: PlacementEngineState) => DeepReadonly<PlacementEngineState>;
+  publishResourcePlacementOutcomes?: (
+    outcomes: ResourcePlacementOutcomes
+  ) => DeepReadonly<ResourcePlacementOutcomes>;
+  publishDiscoveryPlacementOutcomes?: (
+    outcomes: DiscoveryPlacementOutcomes
+  ) => DeepReadonly<DiscoveryPlacementOutcomes>;
   publishEngineTerrainSnapshot?: (
     snapshot: EngineTerrainSnapshot
   ) => DeepReadonly<EngineTerrainSnapshot>;
@@ -93,6 +111,8 @@ export function applyPlacementPlan({
   landmassRegionSlotByTile,
   publishOutputs,
   publishEngineState = (engineState) => engineState,
+  publishResourcePlacementOutcomes = (outcomes) => outcomes,
+  publishDiscoveryPlacementOutcomes = (outcomes) => outcomes,
   publishEngineTerrainSnapshot = (snapshot) => snapshot,
 }: ApplyPlacementArgs): DeepReadonly<PlacementOutputsV1> {
   const { adapter, trace } = context;
@@ -184,28 +204,22 @@ export function applyPlacementPlan({
   });
 
   const resourcesAttempted = true;
-  // Runtime posture: resources are generated via official Civ path for age-valid
-  // eligibility behavior. Deterministic resource planning remains a non-primary
-  // artifact surface and is currently parity-incomplete by design.
-  const resourceGeneration = runPlacementStep("placement.resources", emit, () =>
-    generateResourcesWithOfficialPrimary({
+  const resourcePlacement = runPlacementStep("placement.resources", emit, () =>
+    placeResourcesWithTypedOutcomes({
       adapter,
       width,
       height,
       resources: resolvedResourcePlan,
     })
   );
-  const resourcesPlaced = resourceGeneration.placedCount;
-  emit({
-    type: "placement.resources.mode",
-    mode: resourceGeneration.mode,
-    minMarineResourceTypesOverride: resourceGeneration.minMarineResourceTypesOverride ?? null,
-  });
+  publishResourcePlacementOutcomes(resourcePlacement);
+  const resourcesPlaced = resourcePlacement.summary.placedCount;
   emit({
     type: "placement.resources.stamped",
-    mode: resourceGeneration.mode,
-    plannedCount: resourceGeneration.plannedCount,
-    placedCount: resourceGeneration.placedCount,
+    mode: "typed-intent",
+    plannedCount: resourcePlacement.summary.plannedCount,
+    placedCount: resourcePlacement.summary.placedCount,
+    rejectedCount: resourcePlacement.summary.rejectedCount,
   });
 
   const startPositions: number[] = [];
@@ -229,30 +243,23 @@ export function applyPlacementPlan({
   emitStartSectorViz(context, slotByTile as Uint8Array, starts);
   emitStartPositionsViz(context, startPositions);
 
-  const discoveryPolarMargin = resolveDiscoveryPolarMargin(context);
   const discoveryGeneration = runPlacementStep("placement.discoveries", emit, () =>
-    generateDiscoveriesWithOfficialFallback({
+    placeDiscoveriesWithTypedOutcomes({
       adapter,
       width,
       height,
       discoveries: resolvedDiscoveryPlan,
-      startPositions,
-      polarMargin: discoveryPolarMargin,
     })
   );
-  const discoveriesPlanned = discoveryGeneration.plannedCount;
-  const discoveriesPlaced = discoveryGeneration.placedCount;
-  emit({
-    type: "placement.discoveries.mode",
-    mode: discoveryGeneration.mode,
-    startPositionsCount: discoveryGeneration.startPositionsCount,
-    polarMargin: discoveryGeneration.polarMargin,
-  });
+  publishDiscoveryPlacementOutcomes(discoveryGeneration);
+  const discoveriesPlanned = discoveryGeneration.summary.plannedCount;
+  const discoveriesPlaced = discoveryGeneration.summary.placedCount;
   emit({
     type: "placement.discoveries.stamped",
-    mode: discoveryGeneration.mode,
-    plannedCount: discoveryGeneration.plannedCount,
-    placedCount: discoveryGeneration.placedCount,
+    mode: "typed-intent",
+    plannedCount: discoveryGeneration.summary.plannedCount,
+    placedCount: discoveryGeneration.summary.placedCount,
+    rejectedCount: discoveryGeneration.summary.rejectedCount,
   });
 
   runPlacementStep("placement.fertility.recalculate", emit, () => {
@@ -482,106 +489,114 @@ function normalizeNaturalWonderStampingStats(
   };
 }
 
-type GenerateDiscoveriesWithOfficialFallbackArgs = {
-  adapter: ExtendedMapContext["adapter"];
-  width: number;
-  height: number;
-  discoveries: DeepReadonly<PlanDiscoveriesOutput>;
-  startPositions: ReadonlyArray<number>;
-  polarMargin: number;
-};
-
-type OfficialDiscoveryGenerationStats = {
-  mode: "official-fallback";
-  plannedCount: number;
-  placedCount: number;
-  startPositionsCount: number;
-  polarMargin: number;
-};
-
-function resolveDiscoveryPolarMargin(context: ExtendedMapContext): number {
-  const globalPolarRows = (
-    globalThis as typeof globalThis & {
-      g_PolarWaterRows?: unknown;
-    }
-  ).g_PolarWaterRows;
-  if (Number.isFinite(globalPolarRows)) return Math.max(0, Math.trunc(globalPolarRows as number));
-  return 0;
-}
-
-function sanitizeStartPositions(values: ReadonlyArray<number>): number[] {
-  return (Array.isArray(values) ? values : [])
-    .filter((value) => Number.isFinite(value) && value >= 0)
-    .map((value) => Math.trunc(value));
-}
-
-function generateDiscoveriesWithOfficialFallback({
-  adapter,
-  width,
-  height,
-  discoveries,
-  startPositions,
-  polarMargin,
-}: GenerateDiscoveriesWithOfficialFallbackArgs): OfficialDiscoveryGenerationStats {
-  if ((discoveries.width | 0) !== (width | 0) || (discoveries.height | 0) !== (height | 0)) {
-    throw new Error(
-      `[Placement] Discovery plan dimensions ${discoveries.width}x${discoveries.height} do not match map ${width}x${height}.`
-    );
-  }
-
-  const plannedCount = Number.isFinite(discoveries.plannedCount)
-    ? Math.max(0, Math.trunc(discoveries.plannedCount))
-    : Math.max(0, discoveries.placements.length | 0);
-  const resolvedPolarMargin = Number.isFinite(polarMargin)
-    ? Math.max(0, Math.trunc(polarMargin))
-    : 0;
-  const resolvedStartPositions = sanitizeStartPositions(startPositions);
-  const placedCount = adapter.generateOfficialDiscoveries(
-    width,
-    height,
-    resolvedStartPositions,
-    resolvedPolarMargin
-  );
-  if (!Number.isFinite(placedCount) || placedCount < 0) {
-    throw new Error(
-      `[Placement] Official discovery generator returned invalid placed count (${String(placedCount)}).`
-    );
-  }
-  const resolvedPlacedCount = Math.trunc(placedCount);
-  // Official discovery generation owns final placement feasibility; planned count
-  // remains a deterministic diagnostic target rather than a fail-hard contract.
-
-  return {
-    mode: "official-fallback",
-    plannedCount,
-    placedCount: resolvedPlacedCount,
-    startPositionsCount: resolvedStartPositions.length,
-    polarMargin: resolvedPolarMargin,
-  };
-}
-
-type GenerateResourcesWithOfficialPrimaryArgs = {
+type PlaceResourcesWithTypedOutcomesArgs = {
   adapter: ExtendedMapContext["adapter"];
   width: number;
   height: number;
   resources: DeepReadonly<PlanResourcesOutput>;
-  minMarineResourceTypesOverride?: number;
 };
 
-type OfficialResourceGenerationStats = {
-  mode: "official-primary";
-  plannedCount: number;
-  placedCount: number;
-  minMarineResourceTypesOverride?: number;
-};
+const RESOURCE_REJECTION_REASONS = new Set<string>([
+  "out-of-bounds",
+  "invalid-resource-type",
+  "cannot-have-resource",
+]);
+const RESOURCE_MISMATCH_REASONS = new Set<string>(["wrong-resource-type"]);
+const DISCOVERY_REJECTION_REASONS = new Set<string>([
+  "out-of-bounds",
+  "invalid-discovery-type",
+  "adapter-rejected",
+]);
 
-function generateResourcesWithOfficialPrimary({
+function expectedTileForIntent(
+  width: number,
+  plotIndex: number
+): { plotIndex: number; x: number; y: number } {
+  const resolvedPlotIndex = Number.isFinite(plotIndex) ? Math.trunc(plotIndex) : -1;
+  const y = width > 0 ? Math.trunc(resolvedPlotIndex / width) : -1;
+  const x = width > 0 ? resolvedPlotIndex - y * width : -1;
+  return { plotIndex: resolvedPlotIndex, x, y };
+}
+
+function summarizeResourceOutcomes(
+  outcomes: readonly ResourcePlacementOutcome[]
+): ResourcePlacementOutcomes["summary"] {
+  let placedCount = 0;
+  let rejectedCount = 0;
+  let mismatchCount = 0;
+  for (const outcome of outcomes) {
+    if (outcome.status === "placed") placedCount += 1;
+    else if (outcome.status === "rejected") rejectedCount += 1;
+    else mismatchCount += 1;
+  }
+  return {
+    plannedCount: outcomes.length,
+    placedCount,
+    rejectedCount,
+    mismatchCount,
+  };
+}
+
+function assertResourceOutcomeMatchesIntent(
+  outcome: ResourcePlacementOutcome,
+  intent: ResourcePlacementIntent,
+  width: number
+): void {
+  const expected = expectedTileForIntent(width, intent.plotIndex);
+  const expectedResourceType = Number.isFinite(intent.resourceType)
+    ? Math.trunc(intent.resourceType)
+    : -1;
+  const status = (outcome as { status?: unknown }).status;
+
+  if (status !== "placed" && status !== "rejected" && status !== "mismatch") {
+    throw new Error(
+      `[Placement] Resource placement returned untyped outcome status (${String(status)}).`
+    );
+  }
+  if (
+    outcome.plotIndex !== expected.plotIndex ||
+    outcome.x !== expected.x ||
+    outcome.y !== expected.y ||
+    outcome.resourceType !== expectedResourceType
+  ) {
+    throw new Error(
+      `[Placement] Resource placement outcome location/type drifted from intent (intent=${expected.plotIndex}:${expectedResourceType}, outcome=${outcome.plotIndex}:${outcome.resourceType}).`
+    );
+  }
+  if (outcome.status === "rejected" && !RESOURCE_REJECTION_REASONS.has(outcome.reason)) {
+    throw new Error(
+      `[Placement] Resource placement returned an untyped rejection reason (${String(outcome.reason)}).`
+    );
+  }
+  if (outcome.status === "mismatch" && !RESOURCE_MISMATCH_REASONS.has(outcome.reason)) {
+    throw new Error(
+      `[Placement] Resource placement returned an untyped mismatch reason (${String(outcome.reason)}).`
+    );
+  }
+  if (
+    outcome.status === "placed" &&
+    (outcome.observedResourceType | 0) !== (expectedResourceType | 0)
+  ) {
+    throw new Error(
+      `[Placement] Resource placement reported placed but readback differed (${expectedResourceType}->${outcome.observedResourceType}).`
+    );
+  }
+}
+
+/**
+ * Materializes deterministic resource intent through the adapter and records
+ * typed per-tile outcomes. Typed engine rejection is acceptable; wrong-type
+ * readback is not, because that means projection no longer matches intent. The
+ * runtime checks here intentionally guard the whole outcome category: every
+ * returned outcome must match the planned location/type and carry a known
+ * rejection/mismatch reason when it is not placed.
+ */
+function placeResourcesWithTypedOutcomes({
   adapter,
   width,
   height,
   resources,
-  minMarineResourceTypesOverride,
-}: GenerateResourcesWithOfficialPrimaryArgs): OfficialResourceGenerationStats {
+}: PlaceResourcesWithTypedOutcomesArgs): ResourcePlacementOutcomes {
   if ((resources.width | 0) !== (width | 0) || (resources.height | 0) !== (height | 0)) {
     throw new Error(
       `[Placement] Resource plan dimensions ${resources.width}x${resources.height} do not match map ${width}x${height}.`
@@ -616,25 +631,146 @@ function generateResourcesWithOfficialPrimary({
     );
   }
 
-  const resolvedMinMarineResourceTypesOverride = Number.isFinite(minMarineResourceTypesOverride)
-    ? Math.max(0, Math.trunc(minMarineResourceTypesOverride as number))
-    : undefined;
-  const placedCount = adapter.generateOfficialResources(
-    width,
-    height,
-    resolvedMinMarineResourceTypesOverride
-  );
-  if (!Number.isFinite(placedCount) || placedCount < 0) {
+  const outcomes: ResourcePlacementOutcome[] = [];
+  for (const placement of resources.placements) {
+    const intent = {
+      plotIndex: placement.plotIndex,
+      resourceType: placement.preferredResourceType,
+    };
+    const outcome = adapter.placeResourceIntent(width, height, intent);
+    assertResourceOutcomeMatchesIntent(outcome, intent, width);
+    outcomes.push(outcome);
+  }
+
+  const mismatches = outcomes.filter((outcome) => outcome.status === "mismatch");
+  if (mismatches.length > 0) {
+    const sample = mismatches
+      .slice(0, 3)
+      .map(
+        (outcome) =>
+          `${outcome.plotIndex}:${outcome.resourceType}->${outcome.observedResourceType} (${outcome.reason})`
+      )
+      .join(", ");
     throw new Error(
-      `[Placement] Official resource generator returned invalid placed count (placedCount=${String(placedCount)}, planned=${plannedCount}, target=${targetCount}, minMarineResourceTypesOverride=${String(resolvedMinMarineResourceTypesOverride)}).`
+      `[Placement] Resource placement produced wrong-type readback for ${mismatches.length}/${outcomes.length} planned intents; sample: ${sample}.`
     );
   }
 
   return {
-    mode: "official-primary",
-    plannedCount,
-    placedCount: Math.trunc(placedCount),
-    minMarineResourceTypesOverride: resolvedMinMarineResourceTypesOverride,
+    summary: summarizeResourceOutcomes(outcomes),
+    outcomes,
+  };
+}
+
+type PlaceDiscoveriesWithTypedOutcomesArgs = {
+  adapter: ExtendedMapContext["adapter"];
+  width: number;
+  height: number;
+  discoveries: DeepReadonly<PlanDiscoveriesOutput>;
+};
+
+function summarizeDiscoveryOutcomes(
+  outcomes: readonly DiscoveryPlacementOutcome[]
+): DiscoveryPlacementOutcomes["summary"] {
+  let placedCount = 0;
+  let rejectedCount = 0;
+  for (const outcome of outcomes) {
+    if (outcome.status === "placed") placedCount += 1;
+    else rejectedCount += 1;
+  }
+  return {
+    plannedCount: outcomes.length,
+    placedCount,
+    rejectedCount,
+    mismatchCount: 0,
+  };
+}
+
+function assertDiscoveryOutcomeMatchesIntent(
+  outcome: DiscoveryPlacementOutcome,
+  intent: DiscoveryPlacementIntent,
+  width: number
+): void {
+  const expected = expectedTileForIntent(width, intent.plotIndex);
+  const expectedVisualType = Number.isFinite(intent.discoveryVisualType)
+    ? Math.trunc(intent.discoveryVisualType)
+    : -1;
+  const expectedActivationType = Number.isFinite(intent.discoveryActivationType)
+    ? Math.trunc(intent.discoveryActivationType)
+    : -1;
+  const status = (outcome as { status?: unknown }).status;
+
+  if (status !== "placed" && status !== "rejected") {
+    throw new Error(
+      `[Placement] Discovery placement returned untyped outcome status (${String(status)}).`
+    );
+  }
+  if (
+    outcome.plotIndex !== expected.plotIndex ||
+    outcome.x !== expected.x ||
+    outcome.y !== expected.y ||
+    outcome.discoveryVisualType !== expectedVisualType ||
+    outcome.discoveryActivationType !== expectedActivationType
+  ) {
+    throw new Error(
+      `[Placement] Discovery placement outcome location/type drifted from intent (intent=${expected.plotIndex}:${expectedVisualType}/${expectedActivationType}, outcome=${outcome.plotIndex}:${outcome.discoveryVisualType}/${outcome.discoveryActivationType}).`
+    );
+  }
+  if (outcome.status === "rejected" && !DISCOVERY_REJECTION_REASONS.has(outcome.reason)) {
+    throw new Error(
+      `[Placement] Discovery placement returned an untyped rejection reason (${String(outcome.reason)}).`
+    );
+  }
+}
+
+/**
+ * Materializes deterministic discovery intent through the adapter and records
+ * typed per-tile outcomes. The adapter cannot expose a richer Civ7 readback for
+ * discoveries yet, so the only accepted non-placement state is a named adapter
+ * rejection reason. As with resources, the recipe validates the whole outcome
+ * category rather than trusting any adapter object that happens to be returned.
+ */
+function placeDiscoveriesWithTypedOutcomes({
+  adapter,
+  width,
+  height,
+  discoveries,
+}: PlaceDiscoveriesWithTypedOutcomesArgs): DiscoveryPlacementOutcomes {
+  if ((discoveries.width | 0) !== (width | 0) || (discoveries.height | 0) !== (height | 0)) {
+    throw new Error(
+      `[Placement] Discovery plan dimensions ${discoveries.width}x${discoveries.height} do not match map ${width}x${height}.`
+    );
+  }
+
+  const plannedCount = discoveries.placements.length;
+  const declaredPlannedCount = Math.max(0, discoveries.plannedCount | 0);
+  const targetCount = Math.max(0, discoveries.targetCount | 0);
+  if (declaredPlannedCount !== plannedCount) {
+    throw new Error(
+      `[Placement] Discovery plan metadata mismatch (plannedCount=${declaredPlannedCount}, placements=${plannedCount}).`
+    );
+  }
+  if (plannedCount < targetCount) {
+    throw new Error(
+      `[Placement] Discovery plan cannot satisfy target count (target=${targetCount}, planned=${plannedCount}).`
+    );
+  }
+
+  const outcomes: DiscoveryPlacementOutcome[] = [];
+  for (const placement of discoveries.placements) {
+    const intent = {
+      plotIndex: placement.plotIndex,
+      discoveryVisualType: placement.preferredDiscoveryVisualType,
+      discoveryActivationType: placement.preferredDiscoveryActivationType,
+    };
+    const outcome = adapter.placeDiscoveryIntent(width, height, intent);
+    assertDiscoveryOutcomeMatchesIntent(outcome, intent, width);
+    outcomes.push(outcome);
+  }
+
+  return {
+    summary: summarizeDiscoveryOutcomes(outcomes),
+    outcomes,
   };
 }
 

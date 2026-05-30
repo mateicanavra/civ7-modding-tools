@@ -19,7 +19,7 @@ Relying on fragile upstream utilities risks recurrent breakage as the SDK evolve
 
 1. **Maintain our own stable `addPlotTags` implementation** (`mods/mod-swooper-maps/mod/maps/core/plot_tags.js`) and stop depending on the missing Civ7 helper.
 
-2. **Continue to consume official resources where they are stable**, but prefer an adapter layer for Civ7 utilities/files so updates require changing only one surface.
+2. **Keep Civ7 resource/discovery materialization behind the adapter**, so updates require changing only one surface and map recipes reconcile typed outcomes instead of consuming aggregate generator output as truth.
 
 3. **Fully own high-churn or critical helpers** (plot tagging, deterministic RNG access) while keeping adapters thin for stable SDK surfaces.
 
@@ -28,7 +28,7 @@ Relying on fragile upstream utilities risks recurrent breakage as the SDK evolve
 ### Benefits
 
 - Map orchestrator now uses our `addPlotTags`, removing a runtime failure point when Civ7 moves/removes helpers
-- Future Civ7 resource changes are isolated behind a small adapter surface instead of spread across layers
+- Future Civ7 resource/discovery changes are isolated behind a small adapter surface instead of spread across layers
 - Improved resilience and diagnosability
 
 ### Trade-offs

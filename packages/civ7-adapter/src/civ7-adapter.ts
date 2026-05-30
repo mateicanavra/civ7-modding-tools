@@ -9,6 +9,8 @@
 
 import type {
   DiscoveryCatalogEntry,
+  DiscoveryPlacementIntent,
+  DiscoveryPlacementOutcome,
   EngineAdapter,
   FeatureData,
   LakeProjectionResult,
@@ -18,6 +20,8 @@ import type {
   MapSizeId,
   NaturalWonderCatalogEntry,
   PlotTagName,
+  ResourcePlacementIntent,
+  ResourcePlacementOutcome,
   VoronoiUtils,
 } from "./types.js";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
@@ -324,6 +328,58 @@ export class Civ7Adapter implements EngineAdapter {
     return [...PLACEABLE_RESOURCE_TYPE_IDS];
   }
 
+  placeResourceIntent(
+    width: number,
+    height: number,
+    intent: ResourcePlacementIntent
+  ): ResourcePlacementOutcome {
+    // D4 placement reconciliation treats Civ7 feasibility as adapter-owned.
+    // The recipe supplies deterministic intent; this boundary translates it
+    // into an engine write plus readback evidence without falling back to the
+    // aggregate official resource generator.
+    const resolvedWidth = Math.max(0, Math.trunc(width));
+    const resolvedHeight = Math.max(0, Math.trunc(height));
+    const plotIndex = Number.isFinite(intent.plotIndex) ? Math.trunc(intent.plotIndex) : -1;
+    const resourceType = Number.isFinite(intent.resourceType)
+      ? Math.trunc(intent.resourceType)
+      : this.NO_RESOURCE;
+    const y = resolvedWidth > 0 ? Math.trunc(plotIndex / resolvedWidth) : -1;
+    const x = resolvedWidth > 0 ? plotIndex - y * resolvedWidth : -1;
+
+    if (plotIndex < 0 || x < 0 || y < 0 || x >= resolvedWidth || y >= resolvedHeight) {
+      return { status: "rejected", plotIndex, x, y, resourceType, reason: "out-of-bounds" };
+    }
+    if (resourceType < 0 || resourceType === (this.NO_RESOURCE | 0)) {
+      return { status: "rejected", plotIndex, x, y, resourceType, reason: "invalid-resource-type" };
+    }
+    if (!this.canHaveResource(x, y, resourceType)) {
+      return {
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        resourceType,
+        reason: "cannot-have-resource",
+        observedResourceType: this.getResourceType(x, y),
+      };
+    }
+
+    this.setResourceType(x, y, resourceType);
+    const observedResourceType = this.getResourceType(x, y);
+    if ((observedResourceType | 0) !== (resourceType | 0)) {
+      return {
+        status: "mismatch",
+        plotIndex,
+        x,
+        y,
+        resourceType,
+        reason: "wrong-resource-type",
+        observedResourceType,
+      };
+    }
+    return { status: "placed", plotIndex, x, y, resourceType, observedResourceType };
+  }
+
   // === PLOT EFFECTS ===
 
   getPlotEffectTypesContainingTags(tags: string[]): number[] {
@@ -624,6 +680,64 @@ export class Civ7Adapter implements EngineAdapter {
     );
     if (placed) this.recordPlacementEffect();
     return Boolean(placed);
+  }
+
+  placeDiscoveryIntent(
+    width: number,
+    height: number,
+    intent: DiscoveryPlacementIntent
+  ): DiscoveryPlacementOutcome {
+    // Discovery placement has no stable post-write readback, so the adapter
+    // exposes Civ7 acceptance/rejection as explicit reconciliation evidence
+    // instead of making the recipe infer success from generator counts.
+    const resolvedWidth = Math.max(0, Math.trunc(width));
+    const resolvedHeight = Math.max(0, Math.trunc(height));
+    const plotIndex = Number.isFinite(intent.plotIndex) ? Math.trunc(intent.plotIndex) : -1;
+    const discoveryVisualType = Number.isFinite(intent.discoveryVisualType)
+      ? Math.trunc(intent.discoveryVisualType)
+      : -1;
+    const discoveryActivationType = Number.isFinite(intent.discoveryActivationType)
+      ? Math.trunc(intent.discoveryActivationType)
+      : -1;
+    const y = resolvedWidth > 0 ? Math.trunc(plotIndex / resolvedWidth) : -1;
+    const x = resolvedWidth > 0 ? plotIndex - y * resolvedWidth : -1;
+
+    if (plotIndex < 0 || x < 0 || y < 0 || x >= resolvedWidth || y >= resolvedHeight) {
+      return {
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        discoveryVisualType,
+        discoveryActivationType,
+        reason: "out-of-bounds",
+      };
+    }
+    if (discoveryVisualType < 0 || discoveryActivationType < 0) {
+      return {
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        discoveryVisualType,
+        discoveryActivationType,
+        reason: "invalid-discovery-type",
+      };
+    }
+
+    const placed = this.stampDiscovery(x, y, discoveryVisualType, discoveryActivationType);
+    if (!placed) {
+      return {
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        discoveryVisualType,
+        discoveryActivationType,
+        reason: "adapter-rejected",
+      };
+    }
+    return { status: "placed", plotIndex, x, y, discoveryVisualType, discoveryActivationType };
   }
 
   generateOfficialResources(

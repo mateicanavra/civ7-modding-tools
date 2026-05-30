@@ -9,7 +9,7 @@ import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js
 import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 
 describe("placement landmass region projection", () => {
-  it("projects LandmassRegionId before official resource generation and starts using adapter constants", () => {
+  it("projects LandmassRegionId before typed resource materialization and starts using adapter constants", () => {
     const width = 20;
     const height = 12;
     const seed = 1337;
@@ -33,7 +33,13 @@ describe("placement landmass region projection", () => {
       },
     };
 
-    const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
+    const adapter = createMockAdapter({
+      width,
+      height,
+      mapInfo,
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
+    });
     const callOrder: string[] = [];
     const regionIds: number[] = [];
 
@@ -43,14 +49,10 @@ describe("placement landmass region projection", () => {
       regionIds.push(regionId);
       originalSetLandmassRegionId(x, y, regionId);
     };
-    const originalGenerateOfficialResources = adapter.generateOfficialResources.bind(adapter);
-    adapter.generateOfficialResources = (mapWidth, mapHeight, minMarineResourceTypesOverride) => {
-      callOrder.push("generateOfficialResources");
-      return originalGenerateOfficialResources(
-        mapWidth,
-        mapHeight,
-        minMarineResourceTypesOverride
-      );
+    const originalPlaceResourceIntent = adapter.placeResourceIntent.bind(adapter);
+    adapter.placeResourceIntent = (mapWidth, mapHeight, intent) => {
+      callOrder.push("placeResourceIntent");
+      return originalPlaceResourceIntent(mapWidth, mapHeight, intent);
     };
     const originalSetStartPosition = adapter.setStartPosition.bind(adapter);
     adapter.setStartPosition = (plotIndex, playerId) => {
@@ -63,14 +65,15 @@ describe("placement landmass region projection", () => {
     standardRecipe.run(context, env, realismEarthlikeConfig, { log: () => {} });
 
     const firstProjection = callOrder.indexOf("setLandmassRegionId");
-    const firstResourceGeneration = callOrder.indexOf("generateOfficialResources");
+    const firstResourceIntent = callOrder.indexOf("placeResourceIntent");
     const firstStart = callOrder.indexOf("setStartPosition");
 
     expect(firstProjection).toBeGreaterThanOrEqual(0);
-    expect(firstResourceGeneration).toBeGreaterThan(firstProjection);
+    expect(firstResourceIntent).toBeGreaterThan(firstProjection);
     expect(firstStart).toBeGreaterThan(firstProjection);
-    expect(firstStart).toBeGreaterThan(firstResourceGeneration);
-    expect(adapter.calls.generateOfficialResources.length).toBeGreaterThan(0);
+    expect(firstStart).toBeGreaterThan(firstResourceIntent);
+    expect(adapter.calls.generateOfficialResources.length).toBe(0);
+    expect(adapter.calls.setResourceType.length).toBeGreaterThan(0);
 
     const allowed = new Set([
       adapter.getLandmassId("WEST"),
