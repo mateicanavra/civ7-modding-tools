@@ -34,16 +34,23 @@ export function scoreTaigaSuitability(args: {
     const waterStress = args.waterStress01[i];
     const coldStress = args.coldStress01[i];
 
+    const coldHabitat = bandpass(coldStress, 0.35, 0.9, 0.12);
+    const biomassEvidence = 0.35 + 0.65 * biomass;
+
+    /**
+     * Taiga is cold forest, not failed temperate forest. Biome vegetation
+     * density already falls in cold regions, so cold stress must become habitat
+     * evidence here instead of applying the same penalty twice.
+     */
     const score =
-      biomass *
-      bandpass(energy, 0.1, 0.45, 0.1) *
-      bandpass(water, 0.25, 0.7, 0.1) *
-      (0.4 + 0.6 * coldStress) *
-      (1 - waterStress);
+      biomassEvidence *
+      bandpass(energy, 0.08, 0.5, 0.12) *
+      bandpass(water, 0.22, 0.78, 0.12) *
+      coldHabitat *
+      (1 - 0.75 * waterStress);
 
     score01[i] = clamp01(score);
   }
 
   return score01;
 }
-

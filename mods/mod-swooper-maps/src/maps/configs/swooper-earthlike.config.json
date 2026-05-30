@@ -982,7 +982,11 @@
       "planVegetation": {
         "strategy": "default",
         "config": {
-          "minConfidence01": 0.18
+          "forestMinConfidence01": 0.15,
+          "rainforestMinConfidence01": 0.24,
+          "taigaMinConfidence01": 0.08,
+          "savannaWoodlandMinConfidence01": 0.08,
+          "sagebrushSteppeMinConfidence01": 0.06
         }
       }
     },

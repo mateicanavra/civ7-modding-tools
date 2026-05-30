@@ -338,7 +338,13 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
     "plan-vegetation": {
       planVegetation: {
         strategy: "default",
-        config: { minConfidence01: 0.2 },
+        config: {
+          forestMinConfidence01: 0.14,
+          rainforestMinConfidence01: 0.24,
+          taigaMinConfidence01: 0.08,
+          savannaWoodlandMinConfidence01: 0.08,
+          sagebrushSteppeMinConfidence01: 0.06,
+        },
       },
     },
     "plan-plot-effects": {

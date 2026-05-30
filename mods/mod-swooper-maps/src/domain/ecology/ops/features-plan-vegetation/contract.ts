@@ -33,12 +33,40 @@ const PlanVegetationContract = defineOp({
   }),
   strategies: {
     default: Type.Object({
-      minConfidence01: Type.Number({
+      forestMinConfidence01: Type.Number({
         minimum: 0,
         maximum: 1,
-        default: 0.18,
+        default: 0.16,
         description:
-          "Family-local admission threshold: vegetation scores below this remain biome cover signal, not placement intent.",
+          "Forest admission threshold: lower-scoring temperate canopy signal remains biome cover, not feature intent.",
+      }),
+      rainforestMinConfidence01: Type.Number({
+        minimum: 0,
+        maximum: 1,
+        default: 0.22,
+        description:
+          "Rainforest admission threshold: keeps tropical closed-canopy intent from absorbing all warm wet land.",
+      }),
+      taigaMinConfidence01: Type.Number({
+        minimum: 0,
+        maximum: 1,
+        default: 0.12,
+        description:
+          "Taiga admission threshold: cold forest scores are lower-amplitude because cold stress is part of the habitat.",
+      }),
+      savannaWoodlandMinConfidence01: Type.Number({
+        minimum: 0,
+        maximum: 1,
+        default: 0.1,
+        description:
+          "Savanna woodland admission threshold: warm seasonal woodland is patchier than closed forest.",
+      }),
+      sagebrushSteppeMinConfidence01: Type.Number({
+        minimum: 0,
+        maximum: 1,
+        default: 0.08,
+        description:
+          "Sagebrush steppe admission threshold: semiarid open-cover scores are intentionally sparse and lower-amplitude.",
       }),
     }),
   },

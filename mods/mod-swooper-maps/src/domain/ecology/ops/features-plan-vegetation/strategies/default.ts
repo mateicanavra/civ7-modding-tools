@@ -48,7 +48,7 @@ export const defaultStrategy = createStrategy(PlanVegetationContract, "default",
       const savannaConfidence01 = confidenceFromScore01(savannaWoodland);
       const steppeConfidence01 = confidenceFromScore01(sagebrushSteppe);
 
-      const best = choosePhysicalCandidate([
+      const candidates = [
         {
           feature: "FEATURE_FOREST",
           confidence01: forestConfidence01,
@@ -79,9 +79,15 @@ export const defaultStrategy = createStrategy(PlanVegetationContract, "default",
           stress01: stressFromConfidence01(steppeConfidence01),
           tileIndex: i,
         },
-      ]);
+      ] as const;
+
+      // Each vegetation feature owns its own admission amplitude. Filtering
+      // before selection keeps rainforest from winning only because its score
+      // scale is naturally higher than cold or dry open-cover habitats.
+      const best = choosePhysicalCandidate(
+        candidates.filter((candidate) => admitVegetationIntent(candidate, config))
+      );
       if (best === null) continue;
-      if (!admitVegetationIntent(best, config)) continue;
 
       const x = i % width;
       const y = (i / width) | 0;

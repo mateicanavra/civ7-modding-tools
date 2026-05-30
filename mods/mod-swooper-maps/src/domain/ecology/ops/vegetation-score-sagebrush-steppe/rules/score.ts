@@ -32,15 +32,22 @@ export function scoreSagebrushSteppeSuitability(args: {
     const water = args.water01[i];
     const waterStress = args.waterStress01[i];
 
+    const dryHabitat = bandpass(waterStress, 0.45, 0.95, 0.12);
+    const openCover = bandpass(biomass, 0.02, 0.5, 0.12);
+
+    /**
+     * Sagebrush steppe is an open dry shrubland signal. Dryness and low
+     * biomass are part of the target habitat, so this score rewards semiarid
+     * stress instead of multiplying by a canopy-style biomass requirement.
+     */
     const score =
-      biomass *
       bandpass(energy, 0.35, 0.8, 0.12) *
       bandpass(water, 0.05, 0.35, 0.1) *
-      bandpass(waterStress, 0.45, 0.95, 0.1);
+      dryHabitat *
+      (0.45 + 0.55 * openCover);
 
     score01[i] = clamp01(score);
   }
 
   return score01;
 }
-
