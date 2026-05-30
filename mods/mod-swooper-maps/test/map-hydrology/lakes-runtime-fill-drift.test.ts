@@ -89,7 +89,7 @@ describe("map-hydrology/lakes runtime fill drift", () => {
       buildTestDeps(plotRivers)
     );
 
-    const projection = context.artifacts.get("artifact:hydrology.engineProjectionRivers") as
+    const projection = context.artifacts.get("artifact:map.hydrology.engineProjectionRivers") as
       | { sinkMismatchCount?: number }
       | undefined;
     expect(typeof projection?.sinkMismatchCount).toBe("number");

@@ -168,7 +168,7 @@ describe("map-hydrology/lakes", () => {
       lakes.run(context as any, { projectionReadback: true }, {} as any, buildTestDeps(lakes))
     ).not.toThrow();
 
-    const projection = context.artifacts.get("artifact:hydrology.engineProjectionLakes") as
+    const projection = context.artifacts.get("artifact:map.hydrology.engineProjectionLakes") as
       | { sinkMismatchCount: number }
       | undefined;
     expect(projection).toBeDefined();
