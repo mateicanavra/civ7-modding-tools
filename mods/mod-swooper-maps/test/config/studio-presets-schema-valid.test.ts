@@ -6,6 +6,17 @@ import { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
 import earthlikePresetRaw from "../../src/presets/standard/earthlike.json";
 
 describe("Studio built-in preset wrappers", () => {
+  it("rejects stale stage keys outside the config wrapper", () => {
+    expect(
+      isPresetWrapper({
+        id: "bad-wrapper",
+        label: "Bad Wrapper",
+        config: {},
+        "ecology-features": { knobs: {} },
+      })
+    ).toBe(false);
+  });
+
   it("stay schema-valid (prevents Studio preset drift)", () => {
     const preset: unknown = earthlikePresetRaw;
     expect(isPresetWrapper(preset)).toBe(true);

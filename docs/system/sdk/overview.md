@@ -19,6 +19,19 @@ This guide covers the following key areas:
 *   **Data Flow:** The process from user configuration to generated mod files.
 *   **Mod Definition Process:** The typical workflow for users defining mod elements.
 
+### Runtime Entry Points
+
+The SDK root (`@mateicanavra/civ7-sdk`) is the Node/Bun-safe authoring surface
+for XML mod builders, nodes, files, constants, presets, and `Mod` output. It
+must remain importable by build tools such as the playground and CLI without
+loading Civ7 engine globals.
+
+Civ7 map generation is exposed from the explicit subpath
+`@mateicanavra/civ7-sdk/mapgen`. That subpath owns `createMap(...)`, which is
+shared SDK functionality for all map mods, but it intentionally binds to the
+Civ7 runtime adapter and should only be imported by map files that execute
+inside the game map loader.
+
 ## 2. Architecture Overview
 
 ### Layered Approach

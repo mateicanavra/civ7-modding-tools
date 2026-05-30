@@ -33,6 +33,7 @@ describe("authoring preset schemas", () => {
     expect(isPresetWrapper({ config: [] })).toBe(false);
     expect(isPresetWrapper({ id: 42, config: {} })).toBe(false);
     expect(isPresetWrapper({ label: true, config: {} })).toBe(false);
+    expect(isPresetWrapper({ config: {}, "ecology-features": { knobs: {} } })).toBe(false);
   });
 
   it("exposes schema metadata", () => {

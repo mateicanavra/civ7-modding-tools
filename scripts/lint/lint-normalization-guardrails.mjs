@@ -219,6 +219,44 @@ function checkPlacementOutcomeContract() {
   if (missing.length > 0) addFailure("G8: placement typed outcome boundary", missing);
 }
 
+/**
+ * Keeps the SDK package split honest: general SDK authoring APIs are consumed
+ * by Node/Bun build tools, while `@mateicanavra/civ7-sdk/mapgen` is the
+ * explicit opt-in surface for Civ7 map runtime bindings. This catches the
+ * category that broke repo builds instead of only checking the playground.
+ */
+function checkSdkMapgenRuntimeEntrypoint() {
+  const hits = [];
+  const sdkRoot = repoPath("packages/sdk/src/index.ts");
+  const rootText = readText(sdkRoot);
+
+  if (/from\s+["']\.\/mapgen(?:\/index\.js)?["']/.test(rootText)) {
+    hits.push("packages/sdk/src/index.ts imports from ./mapgen");
+  }
+  if (/export\s+\*\s+from\s+["']\.\/mapgen(?:\/index\.js)?["']/.test(rootText)) {
+    hits.push("packages/sdk/src/index.ts exports ./mapgen");
+  }
+
+  const sdkSrc = repoPath("packages/sdk/src");
+  for (const file of walkFiles(sdkSrc, (candidate) => candidate.endsWith(".ts"))) {
+    const normalized = toRepoRelative(file);
+    if (normalized.startsWith("packages/sdk/src/mapgen/")) continue;
+    if (readText(file).includes("@civ7/adapter/civ7")) {
+      hits.push(`${normalized} imports @civ7/adapter/civ7 outside the mapgen runtime subpath`);
+    }
+  }
+
+  const coreSrc = repoPath("packages/mapgen-core/src");
+  for (const file of walkFiles(coreSrc, (candidate) => candidate.endsWith(".ts"))) {
+    const normalized = toRepoRelative(file);
+    if (readText(file).includes("@civ7/adapter/civ7")) {
+      hits.push(`${normalized} imports @civ7/adapter/civ7`);
+    }
+  }
+
+  if (hits.length > 0) addFailure("G11: SDK mapgen runtime entrypoint boundary", hits);
+}
+
 function runSelfTest() {
   const recipe = `
 import one from "./stages/one/index.js";
@@ -266,6 +304,10 @@ const stages = [one, two] as const;
     )
   ) {
     throw new Error("self-test failed: cross-step viz import rejection");
+  }
+  const rootImport = `export * from './mapgen';`;
+  if (!/export\s+\*\s+from\s+["']\.\/mapgen(?:\/index\.js)?["']/.test(rootImport)) {
+    throw new Error("self-test failed: SDK mapgen root export detection");
   }
   console.log("normalization guardrail self-test passed");
 }
@@ -315,6 +357,7 @@ checkNoRegex({
 });
 
 checkPlacementOutcomeContract();
+checkSdkMapgenRuntimeEntrypoint();
 
 checkNoRegex({
   id: "G9",
