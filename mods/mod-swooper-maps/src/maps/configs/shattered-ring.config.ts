@@ -121,51 +121,7 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
     },
   },
   "morphology-features": {
-    islands: {
-      islands: {
-        strategy: "default",
-        config: {
-          islands: {
-            fractalThresholdPercent: 92,
-            minDistFromLandRadius: 2,
-            baseIslandDenNearActive: 4,
-            baseIslandDenElse: 5,
-            hotspotSeedDenom: 2,
-            clusterMax: 3,
-            microcontinentChance: 0.1,
-          },
-        },
-      },
-    },
-    volcanoes: {
-      volcanoes: {
-        strategy: "default",
-        config: {
-          enabled: true,
-          baseDensity: 0.008333333333333333,
-          minSpacing: 3,
-          boundaryThreshold: 0.22,
-          boundaryWeight: 1.5,
-          convergentMultiplier: 3,
-          transformMultiplier: 1.1,
-          divergentMultiplier: 0.45,
-          hotspotWeight: 0.55,
-          shieldPenalty: 0.35,
-          randomJitter: 0.14,
-          minVolcanoes: 10,
-          maxVolcanoes: 45,
-        },
-      },
-    },
-    landmasses: {
-      landmasses: {
-        strategy: "default",
-        config: {},
-      },
-    },
-  },
-  "map-morphology": {
-    "plot-mountains": {
+    mountains: {
       ridges: {
         strategy: "default",
         config: {
@@ -211,6 +167,48 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
           hillInteriorFalloff: 0.2,
           hillUpliftWeight: 0.3,
         },
+      },
+    },
+    islands: {
+      islands: {
+        strategy: "default",
+        config: {
+          islands: {
+            fractalThresholdPercent: 92,
+            minDistFromLandRadius: 2,
+            baseIslandDenNearActive: 4,
+            baseIslandDenElse: 5,
+            hotspotSeedDenom: 2,
+            clusterMax: 3,
+            microcontinentChance: 0.1,
+          },
+        },
+      },
+    },
+    volcanoes: {
+      volcanoes: {
+        strategy: "default",
+        config: {
+          enabled: true,
+          baseDensity: 0.008333333333333333,
+          minSpacing: 3,
+          boundaryThreshold: 0.22,
+          boundaryWeight: 1.5,
+          convergentMultiplier: 3,
+          transformMultiplier: 1.1,
+          divergentMultiplier: 0.45,
+          hotspotWeight: 0.55,
+          shieldPenalty: 0.35,
+          randomJitter: 0.14,
+          minVolcanoes: 10,
+          maxVolcanoes: 45,
+        },
+      },
+    },
+    landmasses: {
+      landmasses: {
+        strategy: "default",
+        config: {},
       },
     },
   },

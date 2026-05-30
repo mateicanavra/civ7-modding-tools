@@ -14,7 +14,7 @@ import type {
   FoundationPlateFields,
   StoryOverlaySnapshot,
 } from "@swooper/mapgen-core";
-import type { StoryConfig } from "@mapgen/domain/config";
+import type { StoryConfig } from "@mapgen/domain/narrative/config.js";
 import { storyKey } from "@swooper/mapgen-core";
 import type { NarrativeMotifsOrogeny } from "@mapgen/domain/narrative/models.js";
 import { publishStoryOverlay, STORY_OVERLAY_KEYS } from "@mapgen/domain/narrative/overlays/index.js";

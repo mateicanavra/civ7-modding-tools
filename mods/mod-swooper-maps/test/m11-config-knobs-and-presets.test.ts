@@ -102,16 +102,7 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
         },
       },
       "morphology-features": {
-        knobs: { volcanism: "high" },
-        volcanoes: {
-          volcanoes: {
-            strategy: "default",
-            config: { baseDensity: 0.01, hotspotWeight: 0.12, convergentMultiplier: 2.4 },
-          },
-        },
-      },
-      "map-morphology": {
-        knobs: { orogeny: "high" },
+        knobs: { volcanism: "high", orogeny: "high" },
         mountains: {
           ridges: {
             strategy: "default",
@@ -122,7 +113,14 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
             config: { tectonicIntensity: 1.0, mountainThreshold: 0.6, hillThreshold: 0.35 },
           },
         },
+        volcanoes: {
+          volcanoes: {
+            strategy: "default",
+            config: { baseDensity: 0.01, hotspotWeight: 0.12, convergentMultiplier: 2.4 },
+          },
+        },
       },
+      "map-morphology": {},
     });
 
     // Foundation:
@@ -192,26 +190,26 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
       compiled["morphology-features"].volcanoes.volcanoes.config.convergentMultiplier
     ).toBeCloseTo(3.0, 6);
 
-    // - orogeny=high scales intensity and lowers thresholds.
+    // - orogeny=high scales Morphology truth planning before map projection.
     expect(
-      compiled["map-morphology"]["plot-mountains"].ridges.config.tectonicIntensity
+      compiled["morphology-features"].mountains.ridges.config.tectonicIntensity
     ).toBeCloseTo(1.25, 6);
     expect(
-      compiled["map-morphology"]["plot-mountains"].ridges.config.mountainThreshold
+      compiled["morphology-features"].mountains.ridges.config.mountainThreshold
     ).toBeCloseTo(0.55, 6);
-    expect(compiled["map-morphology"]["plot-mountains"].ridges.config.hillThreshold).toBeCloseTo(
+    expect(compiled["morphology-features"].mountains.ridges.config.hillThreshold).toBeCloseTo(
       0.32,
       6
     );
 
     // Both ops should receive the same knob transform (they share the knob envelope).
     expect(
-      compiled["map-morphology"]["plot-mountains"].foothills.config.tectonicIntensity
+      compiled["morphology-features"].mountains.foothills.config.tectonicIntensity
     ).toBeCloseTo(1.25, 6);
     expect(
-      compiled["map-morphology"]["plot-mountains"].foothills.config.mountainThreshold
+      compiled["morphology-features"].mountains.foothills.config.mountainThreshold
     ).toBeCloseTo(0.55, 6);
-    expect(compiled["map-morphology"]["plot-mountains"].foothills.config.hillThreshold).toBeCloseTo(
+    expect(compiled["morphology-features"].mountains.foothills.config.hillThreshold).toBeCloseTo(
       0.32,
       6
     );
@@ -225,5 +223,24 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
     const first = standardRecipe.compileConfig(env, config);
     const second = standardRecipe.compileConfig(env, config);
     expect(stableStringify(first.foundation)).toBe(stableStringify(second.foundation));
+  });
+
+  it("rejects divergent ridge/foothill mountain-family configs", () => {
+    expect(() =>
+      standardRecipe.compileConfig(env, {
+        "morphology-features": {
+          mountains: {
+            ridges: {
+              strategy: "default",
+              config: { tectonicIntensity: 1.0 },
+            },
+            foothills: {
+              strategy: "default",
+              config: { tectonicIntensity: 0.8 },
+            },
+          },
+        },
+      })
+    ).toThrow(/Mountain-family config requires identical ridge\/foothill config/);
   });
 });

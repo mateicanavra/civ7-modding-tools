@@ -368,15 +368,27 @@ Plans volcano placements driven by boundary and hotspot signals.
 - `mods/mod-swooper-maps/src/domain/morphology/ops/plan-volcanoes/contract.ts` (`PlanVolcanoesContract`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/volcanoes.ts` (building `volcanoMask` and `volcanoes[]` from the plan)
 
-#### `morphology/plan-ridges-and-foothills` → `{ mountainMask, hillMask, ... }`
+#### `morphology/plan-ridges` → `{ mountainMask, orogenyPotential, fracturePotential }`
 
-Plans ridge and foothill masks for mountainous terrain accents (used by `map-morphology` projection).
+Plans mountain ridge intent from belt-driver and topography truth. This op is
+kept separate from foothills so the recipe can expose each strategy contract
+without preserving the retired combined op as a compatibility lane.
 
 **Ground truth anchors**
 
-- `mods/mod-swooper-maps/src/domain/morphology/ops/plan-ridges-and-foothills/contract.ts` (`PlanRidgesAndFoothillsContract`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotMountains.contract.ts` (`PlotMountainsStepContract.ops.mountains`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotMountains.ts` (calling `ops.mountains` and applying terrain)
+- `mods/mod-swooper-maps/src/domain/morphology/ops/plan-ridges/contract.ts` (`PlanRidgesContract`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains.contract.ts` (`MountainsStepContract.ops.ridges`)
+
+#### `morphology/plan-foothills` → `{ hillMask }`
+
+Plans foothill intent from the ridge mask and the same belt-driver/topography
+fields. The shared mountain config family remains named because ridge and
+foothill classification must use one invariant terrain-classification posture.
+
+**Ground truth anchors**
+
+- `mods/mod-swooper-maps/src/domain/morphology/ops/plan-foothills/contract.ts` (`PlanFoothillsContract`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains.contract.ts` (`MountainsStepContract.ops.foothills`)
 
 ## Knobs & Normalization
 
@@ -391,7 +403,10 @@ Shared surfaces retained in this domain have explicit invariants:
 - `mods/mod-swooper-maps/src/domain/morphology/ops/mountains-shared/config.ts`
   owns the common mountain/foothill strategy schema because ridge and foothill
   planning must use one terrain-classification posture across
-  `plan-ridges`, `plan-foothills`, and `plan-ridges-and-foothills`.
+  `plan-ridges` and `plan-foothills`. The
+  `assertSameMountainFamilySelection` guard rejects divergent ridge/foothill
+  configs so this shared surface is an enforced family invariant, not a mixed
+  schema bucket that authors tune twice.
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/artifacts.ts`
   owns morphology truth artifact schemas because multiple morphology stages
   publish/consume the same tile-space truth handles and downstream projection
@@ -406,7 +421,7 @@ The standard recipe exposes six Morphology knobs that apply _after_ defaulted st
 - `shelfWidth` (morphology-coasts): scales shelf classifier distance caps (how wide shallow shelves can extend)
 - `erosion` (morphology-erosion): scales geomorphology rates (fluvial/diffusion/deposition)
 - `volcanism` (morphology-features): scales volcano planning weights/density
-- `orogeny` (map-morphology): scales mountain planning thresholds/intensity
+- `orogeny` (morphology-features): scales mountain planning thresholds/intensity
 
 **Ground truth anchors**
 
@@ -416,7 +431,7 @@ The standard recipe exposes six Morphology knobs that apply _after_ defaulted st
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/ruggedCoasts.ts` (`normalize` applying `MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER` and `MORPHOLOGY_SHELF_WIDTH_MULTIPLIER`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology.ts` (`normalize` applying `MORPHOLOGY_EROSION_RATE_MULTIPLIER`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/volcanoes.ts` (`normalize` applying volcanism multipliers)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotMountains.ts` (`normalize` applying orogeny multipliers/deltas)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains.ts` (`normalize` applying orogeny multipliers/deltas)
 
 ## Current Mapping (Standard Recipe)
 
@@ -503,20 +518,23 @@ Applies geomorphic relaxation / erosion, mutating the published topography/subst
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology.contract.ts` (`GeomorphologyStepContract.artifacts`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology.ts` (updating `heightfield.landMask` + `bathymetry` from `seaLevel`; mutating substrate)
 
-### `morphology-features` (`islands` → `volcanoes` → `landmasses`)
+### `morphology-features` (`islands` → `mountains` → `volcanoes` → `landmasses`)
 
-Applies landform accents (islands), publishes volcano intent, and publishes the landmass decomposition snapshot.
+Applies landform accents (islands), publishes mountain/foothill intent,
+publishes volcano intent, and publishes the landmass decomposition snapshot.
 
 **Requires / Provides**
 
 - `islands`: requires `foundation.plates` + `morphology.topography`; (no new artifacts)
+- `mountains`: requires `morphology.beltDrivers` + `morphology.topography`; provides `morphology.mountains`
 - `volcanoes`: requires `foundation.plates` + `morphology.topography`; provides `morphology.volcanoes`
 - `landmasses`: requires `morphology.topography`; provides `morphology.landmasses`
 
 **Ground truth anchors**
 
-- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/index.ts` (`steps: [islands, volcanoes, landmasses]`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/index.ts` (`steps: [islands, mountains, volcanoes, landmasses]`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/islands.contract.ts` (`IslandsStepContract`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains.contract.ts` (`MountainsStepContract`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/volcanoes.contract.ts` (`VolcanoesStepContract`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/landmasses.contract.ts` (`LandmassesStepContract`)
 

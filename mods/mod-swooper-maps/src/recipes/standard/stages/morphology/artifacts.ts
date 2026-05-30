@@ -144,6 +144,28 @@ const MorphologyVolcanoesArtifactSchema = Type.Object(
   }
 );
 
+const MorphologyMountainsArtifactSchema = Type.Object(
+  {
+    mountainMask: TypedArraySchemas.u8({
+      description: "Mask (1/0): Morphology truth intent for mountain terrain.",
+    }),
+    hillMask: TypedArraySchemas.u8({
+      description: "Mask (1/0): Morphology truth intent for hill terrain excluding mountain tiles.",
+    }),
+    orogenyPotential: TypedArraySchemas.u8({
+      description: "Orogeny suitability field used to explain mountain placement.",
+    }),
+    fracturePotential: TypedArraySchemas.u8({
+      description: "Fracture/rift suitability field used to explain hill and mountain placement.",
+    }),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Mountain and foothill terrain intent. Morphology owns this truth; map-morphology only projects it into engine terrain.",
+  }
+);
+
 const MorphologyBeltComponentSummarySchema = Type.Object(
   {
     id: Type.Integer({ minimum: 0, description: "Stable id within this belt-driver snapshot (1..n)." }),
@@ -252,6 +274,11 @@ export const morphologyArtifacts = {
     name: "volcanoes",
     id: "artifact:morphology.volcanoes",
     schema: MorphologyVolcanoesArtifactSchema,
+  }),
+  mountains: defineArtifact({
+    name: "mountains",
+    id: "artifact:morphology.mountains",
+    schema: MorphologyMountainsArtifactSchema,
   }),
   beltDrivers: defineArtifact({
     name: "beltDrivers",

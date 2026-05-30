@@ -1,6 +1,7 @@
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
-import type { Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
+import type { DeepReadonly, Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import type { DiscoveryCatalogEntry } from "@civ7/adapter";
+import placement from "@mapgen/domain/placement";
 import type { PlacementInputsV1 } from "../../placement-inputs.js";
 import { getStandardRuntime } from "../../../../runtime.js";
 
@@ -8,6 +9,16 @@ import DerivePlacementInputsContract from "./contract.js";
 
 type DerivePlacementInputsConfig = Static<typeof DerivePlacementInputsContract.schema>;
 type DerivePlacementInputsOps = StepRuntimeOps<NonNullable<typeof DerivePlacementInputsContract.ops>>;
+type PlanFloodplainsOutput = Static<typeof placement.ops.planFloodplains["output"]>;
+type PlanStartsOutput = Static<typeof placement.ops.planStarts["output"]>;
+type PlanWondersOutput = Static<typeof placement.ops.planWonders["output"]>;
+
+export type PlacementPlanBundle = {
+  artifact: DeepReadonly<PlacementInputsV1>;
+  starts: DeepReadonly<PlanStartsOutput>;
+  wonders: DeepReadonly<PlanWondersOutput>;
+  floodplains: DeepReadonly<PlanFloodplainsOutput>;
+};
 
 function sanitizeResourceCandidates(values: number[], noResourceSentinel: number): number[] {
   const unique = new Set<number>();
@@ -25,7 +36,12 @@ function sanitizeDiscoveryCandidates(values: DiscoveryCatalogEntry[]): Discovery
   const unique = new Set<string>();
   const candidates: DiscoveryCatalogEntry[] = [];
   for (const raw of values) {
-    if (!Number.isFinite(raw?.discoveryVisualType) || !Number.isFinite(raw?.discoveryActivationType)) continue;
+    if (
+      !Number.isFinite(raw?.discoveryVisualType) ||
+      !Number.isFinite(raw?.discoveryActivationType)
+    ) {
+      continue;
+    }
     const discoveryVisualType = Math.trunc(raw.discoveryVisualType as number);
     const discoveryActivationType = Math.trunc(raw.discoveryActivationType as number);
     const key = `${discoveryVisualType}:${discoveryActivationType}`;
@@ -64,8 +80,8 @@ export function buildPlacementInputs(
     };
   }
 ): PlacementInputsV1 {
-    const runtime = getStandardRuntime(context);
-    const { width, height } = context.dimensions;
+  const runtime = getStandardRuntime(context);
+  const { width, height } = context.dimensions;
   const baseStarts = {
     playersLandmass1: runtime.playersLandmass1,
     playersLandmass2: runtime.playersLandmass2,
@@ -73,15 +89,15 @@ export function buildPlacementInputs(
     startSectorCols: runtime.startSectorCols,
     startSectors: runtime.startSectors,
   };
-    const startsPlan = ops.starts({ baseStarts }, config.starts);
-    const wondersPlan = ops.wonders({ mapInfo: runtime.mapInfo }, config.wonders);
-    const naturalWonderCatalog = context.adapter.getNaturalWonderCatalog();
-    const discoveryCatalog = sanitizeDiscoveryCandidates(context.adapter.getDiscoveryCatalog());
-    const noResourceSentinel = context.adapter.NO_RESOURCE | 0;
-    const candidateResourceTypes = sanitizeResourceCandidates(
-      context.adapter.getPlaceableResourceTypes(),
-      noResourceSentinel
-    );
+  const startsPlan = ops.starts({ baseStarts }, config.starts);
+  const wondersPlan = ops.wonders({ mapInfo: runtime.mapInfo }, config.wonders);
+  const naturalWonderCatalog = context.adapter.getNaturalWonderCatalog();
+  const discoveryCatalog = sanitizeDiscoveryCandidates(context.adapter.getDiscoveryCatalog());
+  const noResourceSentinel = context.adapter.NO_RESOURCE | 0;
+  const candidateResourceTypes = sanitizeResourceCandidates(
+    context.adapter.getPlaceableResourceTypes(),
+    noResourceSentinel
+  );
   const naturalWonderPlan = ops.naturalWonders(
     {
       width,
@@ -136,5 +152,24 @@ export function buildPlacementInputs(
     floodplains: floodplainsPlan,
     resources: resourcesPlan,
     placementConfig: config,
+  };
+}
+
+/**
+ * Gives product steps a typed view of the derived placement input artifact.
+ *
+ * The derivation step owns this shape because it is the step that composes the
+ * authored config, map runtime, adapter catalogs, and physical fields into the
+ * placement input artifact. Product/effect steps consume that artifact through
+ * this owner instead of reaching into the terminal placement summary step.
+ */
+export function buildPlacementPlanInput(
+  derivedInputs: DeepReadonly<PlacementInputsV1>
+): PlacementPlanBundle {
+  return {
+    artifact: derivedInputs,
+    starts: derivedInputs.starts,
+    wonders: derivedInputs.wonders,
+    floodplains: derivedInputs.floodplains,
   };
 }

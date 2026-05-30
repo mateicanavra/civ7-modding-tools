@@ -11,7 +11,7 @@ import { getDims } from "@mapgen/domain/narrative/utils/dims.js";
 import { rand } from "@mapgen/domain/narrative/utils/rng.js";
 
 import type { ContinentalMarginsOptions } from "@mapgen/domain/narrative/tagging/types.js";
-import type { ContinentalMarginsConfig } from "@mapgen/domain/config";
+import type { ContinentalMarginsConfig } from "@mapgen/domain/narrative/tagging/config.js";
 
 export interface ContinentalMarginsResult {
   snapshot: StoryOverlaySnapshot;

@@ -7,6 +7,43 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 // Reuse mapgen-core’s TypeBox format shim to avoid Unicode regexes in Civ7’s V8 (built-in format validation is disabled).
 const typeboxFormatShim = join(__dirname, "../../packages/mapgen-core/src/shims/typebox-format.ts");
 const typeboxGuardEmitShim = join(__dirname, "../../packages/mapgen-core/src/shims/typebox-guard-emit.ts");
+const civ7TextEncoderBootstrap = `
+// Civ7's MapGeneration V8 does not expose Web TextEncoder. This bundle-level
+// bootstrap must run before bundled dependencies evaluate because TypeBox and
+// mapgen-core create TextEncoder instances during module initialization.
+if (typeof globalThis.TextEncoder === "undefined") {
+  globalThis.TextEncoder = class TextEncoder {
+    constructor() {
+      this.encoding = "utf-8";
+    }
+    encode(input = "") {
+      const bytes = [];
+      const value = String(input);
+      for (let i = 0; i < value.length; i++) {
+        let codePoint = value.codePointAt(i);
+        if (codePoint === undefined) continue;
+        if (codePoint > 0xffff) i++;
+        if (codePoint <= 0x7f) {
+          bytes.push(codePoint);
+        } else if (codePoint <= 0x7ff) {
+          bytes.push(0xc0 | (codePoint >> 6), 0x80 | (codePoint & 0x3f));
+        } else if (codePoint <= 0xffff) {
+          bytes.push(0xe0 | (codePoint >> 12), 0x80 | ((codePoint >> 6) & 0x3f), 0x80 | (codePoint & 0x3f));
+        } else {
+          bytes.push(0xf0 | (codePoint >> 18), 0x80 | ((codePoint >> 12) & 0x3f), 0x80 | ((codePoint >> 6) & 0x3f), 0x80 | (codePoint & 0x3f));
+        }
+      }
+      return new Uint8Array(bytes);
+    }
+    encodeInto(source, destination) {
+      const encoded = this.encode(source);
+      const writeLength = Math.min(encoded.length, destination.length);
+      for (let i = 0; i < writeLength; i++) destination[i] = encoded[i];
+      return { read: String(source).length, written: writeLength };
+    }
+  };
+}
+`;
 const typeboxFormatPlugin: Plugin = {
   name: "typebox-format-shim",
   setup(build) {
@@ -30,6 +67,10 @@ const typeboxFormatPlugin: Plugin = {
 };
 
 export default defineConfig({
+  banner: {
+    js: civ7TextEncoderBootstrap,
+  },
+
   // Entry points for mod maps
   entry: [
     "src/maps/swooper-desert-mountains.ts",
@@ -58,8 +99,10 @@ export default defineConfig({
   // These are resolved at runtime by the Civ7 game engine
   external: [/^\/base-standard\/.*/],
 
-  // Force bundling of our workspace packages
-  noExternal: ["@swooper/mapgen-core", "@civ7/adapter", "typebox"],
+  // Civ7 loads each generated map file as a self-contained game script. SDK/core/adapter
+  // authoring packages must be bundled into that script; only engine virtual modules may
+  // remain as imports for the game loader to resolve.
+  noExternal: ["@swooper/mapgen-core", "@civ7/adapter", "@mateicanavra/civ7-sdk", "typebox"],
 
   esbuildOptions(options) {
     // Shim TypeBox format registry so no Unicode-property regexes reach the game engine (built-in format validation disabled).

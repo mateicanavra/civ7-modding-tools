@@ -8,7 +8,7 @@ import { rand } from "@mapgen/domain/narrative/utils/rng.js";
 import { isWaterAt } from "@mapgen/domain/narrative/utils/water.js";
 
 import type { HotspotTrailsSummary } from "@mapgen/domain/narrative/tagging/types.js";
-import type { NarrativeHotspotTunables } from "@mapgen/domain/config";
+import type { NarrativeHotspotTunables } from "@mapgen/domain/narrative/tagging/config.js";
 
 export interface HotspotTrailsResult {
   summary: HotspotTrailsSummary;

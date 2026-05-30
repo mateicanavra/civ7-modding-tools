@@ -11,7 +11,7 @@
 
 import type { ExtendedMapContext, StoryOverlaySnapshot } from "@swooper/mapgen-core";
 import { publishStoryOverlay, STORY_OVERLAY_KEYS } from "@mapgen/domain/narrative/overlays/index.js";
-import type { CorridorsConfig } from "@mapgen/domain/config";
+import type { CorridorsConfig } from "@mapgen/domain/narrative/corridors/config.js";
 import {
   type NarrativeCorridors,
   type NarrativeMotifsHotspots,

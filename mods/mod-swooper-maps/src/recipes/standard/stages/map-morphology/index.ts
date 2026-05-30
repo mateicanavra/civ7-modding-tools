@@ -6,18 +6,9 @@ import {
   plotMountains,
   plotVolcanoes,
 } from "./steps/index.js";
-import { MorphologyOrogenyKnobSchema } from "@mapgen/domain/morphology/config.js";
 
 export default createStage({
   id: "map-morphology",
-  knobsSchema: Type.Object(
-    {
-      orogeny: Type.Optional(MorphologyOrogenyKnobSchema),
-    },
-    {
-      description:
-        "Map-morphology knobs (orogeny). Knobs apply after defaulted step config as deterministic transforms.",
-    }
-  ),
+  knobsSchema: Type.Object({}, { additionalProperties: false }),
   steps: [plotCoasts, plotContinents, plotMountains, plotVolcanoes, buildElevation],
 } as const);

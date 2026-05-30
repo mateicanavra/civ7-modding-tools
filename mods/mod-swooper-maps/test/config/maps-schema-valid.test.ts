@@ -61,4 +61,28 @@ describe("Shipped map configs", () => {
       ])
     );
   });
+
+  it("rejects morphology truth config under map projection stages", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+    const { errors } = normalizeStrict(
+      schema,
+      {
+        "map-morphology": {
+          knobs: { orogeny: "high" },
+          "plot-mountains": {
+            ridges: { strategy: "default" },
+          },
+        },
+      },
+      "/maps/map-projection-truth-config"
+    );
+
+    const errorPaths = errors.map((error) => error.path);
+    expect(errorPaths).toEqual(
+      expect.arrayContaining([
+        "/maps/map-projection-truth-config/map-morphology/knobs/orogeny",
+        "/maps/map-projection-truth-config/map-morphology/plot-mountains/ridges",
+      ])
+    );
+  });
 });

@@ -1,10 +1,10 @@
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
-import { buildPlacementPlanInput } from "../placement/inputs.js";
+import { buildPlacementPlanInput } from "../derive-placement-inputs/inputs.js";
 import {
   stampNaturalWondersFromPlan,
   type NaturalWonderStampingStats,
-} from "../placement/apply.js";
+} from "./materialize.js";
 import { placementArtifacts } from "../../artifacts.js";
 import PlaceNaturalWondersStepContract from "./contract.js";
 

@@ -40,6 +40,53 @@ const PlacementEngineStateV1Schema = Type.Object(
   { additionalProperties: false }
 );
 
+const PlacementSurfacePreparationSchema = Type.Object(
+  {
+    width: Type.Integer({ minimum: 1 }),
+    height: Type.Integer({ minimum: 1 }),
+    slotCounts: Type.Object(
+      {
+        none: Type.Integer({ minimum: 0 }),
+        west: Type.Integer({ minimum: 0 }),
+        east: Type.Integer({ minimum: 0 }),
+      },
+      { additionalProperties: false }
+    ),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Transactional placement preparation result. This exists so resource/start/discovery products depend on a named prepared engine surface instead of a broad placement monolith.",
+  }
+);
+
+const StartAssignmentArtifactSchema = Type.Object(
+  {
+    positions: Type.Array(Type.Integer()),
+    assigned: Type.Integer({ minimum: 0 }),
+    regionalAssigned: Type.Integer({ minimum: 0 }),
+    openPoolAssigned: Type.Integer({ minimum: 0 }),
+    openPoolUsed: Type.Boolean(),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Verified player start assignment produced by the starts product step. Regional and open-pool counts expose the single deterministic tier policy instead of fallback/recovery telemetry.",
+  }
+);
+
+const AdvancedStartAssignmentArtifactSchema = Type.Object(
+  {
+    fertilityRecalculated: Type.Boolean(),
+    advancedStartsAssigned: Type.Boolean(),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Engine-owned advanced-start assignment evidence after all placement products materialize.",
+  }
+);
+
 const NaturalWonderPlacementArtifactSchema = Type.Object(
   {
     plannedCount: Type.Integer({ minimum: 0 }),
@@ -152,6 +199,11 @@ export const placementArtifacts = {
     id: "artifact:placement.naturalWonderPlacement",
     schema: NaturalWonderPlacementArtifactSchema,
   }),
+  placementSurfacePreparation: defineArtifact({
+    name: "placementSurfacePreparation",
+    id: "artifact:placement.surfacePreparation",
+    schema: PlacementSurfacePreparationSchema,
+  }),
   resourcePlacementOutcomes: defineArtifact({
     name: "resourcePlacementOutcomes",
     id: "artifact:placement.resourcePlacementOutcomes",
@@ -161,6 +213,16 @@ export const placementArtifacts = {
     name: "discoveryPlacementOutcomes",
     id: "artifact:placement.discoveryPlacementOutcomes",
     schema: DiscoveryPlacementOutcomesArtifactSchema,
+  }),
+  startAssignment: defineArtifact({
+    name: "startAssignment",
+    id: "artifact:placement.startAssignment",
+    schema: StartAssignmentArtifactSchema,
+  }),
+  advancedStartAssignment: defineArtifact({
+    name: "advancedStartAssignment",
+    id: "artifact:placement.advancedStartAssignment",
+    schema: AdvancedStartAssignmentArtifactSchema,
   }),
   discoveryPlan: defineArtifact({
     name: "discoveryPlan",

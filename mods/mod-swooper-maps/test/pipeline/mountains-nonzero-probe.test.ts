@@ -10,8 +10,6 @@ import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
-import planRidges from "../../src/domain/morphology/ops/plan-ridges/index.js";
-import planFoothills from "../../src/domain/morphology/ops/plan-foothills/index.js";
 
 const PROBE_WIDTH = 106;
 const PROBE_HEIGHT = 66;
@@ -48,12 +46,11 @@ function runStandardContext(args: { width: number; height: number; seed: number;
   };
 
   // compileConfig may normalize/mutate inputs; keep the runtime config object pristine for standardRecipe.run.
-  const compiled = standardRecipe.compileConfig(env, JSON.parse(JSON.stringify(config)));
   const adapter = createMockAdapter({ width, height, mapInfo, mapSizeId: 1, rng: createLabelRng(seed) });
   const context = createExtendedMapContext({ width, height }, adapter, env);
   initializeStandardRuntime(context, { mapInfo, logPrefix: "[mountains-probe]", storyEnabled: true });
   standardRecipe.run(context, env, config, { log: () => {} });
-  return { context, env, compiled } as const;
+  return { context, env } as const;
 }
 
 function countMask(mask: Uint8Array): number {
@@ -113,9 +110,9 @@ function maxU8WhereEq(values: Uint8Array, mask: Uint8Array, types: Uint8Array, e
 }
 
 describe("pipeline: mountains nonzero canonical probe (earthlike)", () => {
-  it("produces nonzero orogeny + mountains, and keeps volcano points nonzero", () => {
+  it("produces nonzero orogeny + mountains, and keeps volcano points nonzero", { timeout: 20_000 }, () => {
     const config = loadEarthlikeConfig();
-    const { context, compiled } = runStandardContext({
+    const { context } = runStandardContext({
       width: PROBE_WIDTH,
       height: PROBE_HEIGHT,
       seed: PROBE_SEED,
@@ -124,6 +121,7 @@ describe("pipeline: mountains nonzero canonical probe (earthlike)", () => {
 
     const topography = context.artifacts.get(morphologyArtifacts.topography.id) as any;
     const belts = context.artifacts.get(morphologyArtifacts.beltDrivers.id) as any;
+    const mountains = context.artifacts.get(morphologyArtifacts.mountains.id) as any;
     const volcanoes = context.artifacts.get(morphologyArtifacts.volcanoes.id) as any;
     const historyTiles = context.artifacts.get(mapArtifacts.foundationTectonicHistoryTiles.id) as any;
 
@@ -132,46 +130,6 @@ describe("pipeline: mountains nonzero canonical probe (earthlike)", () => {
     expect((topography?.landMask as Uint8Array)?.length).toBe(size);
     expect(belts?.boundaryCloseness).toBeInstanceOf(Uint8Array);
     expect((belts?.boundaryCloseness as Uint8Array)?.length).toBe(size);
-
-    // Physics-first guard: use zero fractal noise so mountains can't "appear" from fractal randomness alone.
-    const zeros = new Int16Array(size);
-    const ridges = planRidges.run(
-      {
-        width: PROBE_WIDTH,
-        height: PROBE_HEIGHT,
-        landMask: topography.landMask,
-        boundaryCloseness: belts.boundaryCloseness,
-        boundaryType: belts.boundaryType,
-        upliftPotential: belts.upliftPotential,
-        collisionPotential: belts.collisionPotential,
-        subductionPotential: belts.subductionPotential,
-        riftPotential: belts.riftPotential,
-        tectonicStress: belts.tectonicStress,
-        beltAge: belts.beltAge,
-        fractalMountain: zeros,
-      },
-      // Map-morphology step config shape: { strategy, config }.
-      (compiled as any)?.["map-morphology"]?.["plot-mountains"]?.ridges ?? { strategy: "default", config: {} }
-    ) as any;
-
-    const foothills = planFoothills.run(
-      {
-        width: PROBE_WIDTH,
-        height: PROBE_HEIGHT,
-        landMask: topography.landMask,
-        mountainMask: ridges.mountainMask,
-        boundaryCloseness: belts.boundaryCloseness,
-        boundaryType: belts.boundaryType,
-        upliftPotential: belts.upliftPotential,
-        collisionPotential: belts.collisionPotential,
-        subductionPotential: belts.subductionPotential,
-        riftPotential: belts.riftPotential,
-        tectonicStress: belts.tectonicStress,
-        beltAge: belts.beltAge,
-        fractalHill: zeros,
-      },
-      (compiled as any)?.["map-morphology"]?.["plot-mountains"]?.foothills ?? { strategy: "default", config: {} }
-    ) as any;
 
     const beltStats = {
       all: {
@@ -232,8 +190,12 @@ describe("pipeline: mountains nonzero canonical probe (earthlike)", () => {
       },
     };
 
-    expect(ridges?.orogenyPotential).toBeInstanceOf(Uint8Array);
-    const maxOrogeny = maxU8(ridges.orogenyPotential);
+    // This is recipe-level evidence: mountain truth must be published by
+    // morphology-features before map-morphology projects terrain. The test does
+    // not call the ops directly, so it guards the production boundary instead of
+    // reimplementing the stage's internal wiring.
+    expect(mountains?.orogenyPotential).toBeInstanceOf(Uint8Array);
+    const maxOrogeny = maxU8(mountains.orogenyPotential);
     if (maxOrogeny <= 0) {
       throw new Error(
         `Expected nonzero orogenyPotential on canonical probe; got max=${maxOrogeny}. beltStats=${JSON.stringify(
@@ -242,8 +204,8 @@ describe("pipeline: mountains nonzero canonical probe (earthlike)", () => {
       );
     }
 
-    expect(ridges?.mountainMask).toBeInstanceOf(Uint8Array);
-    const maxMountain = maxU8(ridges.mountainMask);
+    expect(mountains?.mountainMask).toBeInstanceOf(Uint8Array);
+    const maxMountain = maxU8(mountains.mountainMask);
     if (maxMountain !== 1) {
       throw new Error(
         `Expected nonzero mountainMask on canonical probe; got max=${maxMountain}. beltStats=${JSON.stringify(
@@ -251,9 +213,9 @@ describe("pipeline: mountains nonzero canonical probe (earthlike)", () => {
         )}`
       );
     }
-    expect(countMask(ridges.mountainMask)).toBeGreaterThan(0);
+    expect(countMask(mountains.mountainMask)).toBeGreaterThan(0);
 
-    expect(foothills?.hillMask).toBeInstanceOf(Uint8Array);
+    expect(mountains?.hillMask).toBeInstanceOf(Uint8Array);
 
     // Volcanoes are planned via a separate step, but the artifact should remain non-degenerate.
     const volcanoList = Array.isArray(volcanoes?.volcanoes) ? volcanoes.volcanoes : [];

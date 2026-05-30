@@ -8,7 +8,7 @@ import { latitudeAbsDeg } from "@mapgen/domain/narrative/utils/latitude.js";
 import { isWaterAt } from "@mapgen/domain/narrative/utils/water.js";
 
 import type { RiftValleysSummary } from "@mapgen/domain/narrative/tagging/types.js";
-import type { StoryConfig } from "@mapgen/domain/config";
+import type { StoryConfig } from "@mapgen/domain/narrative/config.js";
 
 export interface RiftValleysResult {
   summary: RiftValleysSummary;
