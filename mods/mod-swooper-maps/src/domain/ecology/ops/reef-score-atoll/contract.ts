@@ -25,6 +25,7 @@ const ScoreAtollContract = defineOp({
       shallowDepthM: Type.Integer({ default: 0 }),
       deepDepthM: Type.Integer({ default: 100 }),
       minDistanceToCoast: Type.Integer({ default: 4, minimum: 0 }),
+      maxDistanceToCoast: Type.Integer({ default: 10, minimum: 0 }),
     }),
   },
 });

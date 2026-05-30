@@ -6,8 +6,19 @@ import {
   stressFromConfidence01,
   validateGridSize,
 } from "../../score-shared/index.js";
+import { isEngineCompatibleInternalBiome } from "../../../feature-engine-legality.js";
 import PlanVegetationContract from "../contract.js";
 import { admitVegetationIntent } from "../policies/index.js";
+
+function isEngineCompatibleVegetationSurface(
+  feature: string,
+  tileIndex: number,
+  flatLandMask: Uint8Array,
+  biomeIndex: Uint8Array
+): boolean {
+  if (flatLandMask[tileIndex] !== 1) return false;
+  return isEngineCompatibleInternalBiome(feature, biomeIndex[tileIndex] ?? 255);
+}
 
 export const defaultStrategy = createStrategy(PlanVegetationContract, "default", {
   run: (input, config) => {
@@ -23,10 +34,14 @@ export const defaultStrategy = createStrategy(PlanVegetationContract, "default",
         { label: "scoreSavannaWoodland01", arr: input.scoreSavannaWoodland01 as Float32Array },
         { label: "scoreSagebrushSteppe01", arr: input.scoreSagebrushSteppe01 as Float32Array },
         { label: "landMask", arr: input.landMask as Uint8Array },
+        { label: "flatLandMask", arr: input.flatLandMask as Uint8Array },
+        { label: "biomeIndex", arr: input.biomeIndex as Uint8Array },
         { label: "featureIndex", arr: input.featureIndex as Uint16Array },
         { label: "reserved", arr: input.reserved as Uint8Array },
       ],
     });
+    const flatLandMask = input.flatLandMask as Uint8Array;
+    const biomeIndex = input.biomeIndex as Uint8Array;
 
     const placements: Array<{ x: number; y: number; feature: string; weight?: number }> = [];
     void input.seed;
@@ -85,7 +100,11 @@ export const defaultStrategy = createStrategy(PlanVegetationContract, "default",
       // before selection keeps rainforest from winning only because its score
       // scale is naturally higher than cold or dry open-cover habitats.
       const best = choosePhysicalCandidate(
-        candidates.filter((candidate) => admitVegetationIntent(candidate, config))
+        candidates.filter(
+          (candidate) =>
+            isEngineCompatibleVegetationSurface(candidate.feature, i, flatLandMask, biomeIndex) &&
+            admitVegetationIntent(candidate, config)
+        )
       );
       if (best === null) continue;
 

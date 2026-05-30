@@ -168,17 +168,6 @@
           "config": {}
         }
       },
-      "projection": {
-        "computePlates": {
-          "strategy": "default",
-          "config": {
-            "boundaryInfluenceDistance": 5,
-            "boundaryDecay": 0.55,
-            "movementScale": 100,
-            "rotationScale": 100
-          }
-        }
-      },
       "plate-topology": {}
     },
     "morphology-coasts": {
@@ -898,8 +887,8 @@
           "config": {
             "tempColdMaxC": 10,
             "tempWarmMaxC": 20,
-            "minDepthM": 8,
-            "peakDepthM": 24,
+            "minDepthM": 0,
+            "peakDepthM": 5,
             "maxDepthM": 48,
             "minDistanceToCoast": 1,
             "maxDistanceToCoast": 8
@@ -1088,7 +1077,7 @@
           "boreal": "BIOME_TUNDRA",
           "temperateDry": "BIOME_PLAINS",
           "temperateHumid": "BIOME_GRASSLAND",
-          "tropicalSeasonal": "BIOME_GRASSLAND",
+          "tropicalSeasonal": "BIOME_PLAINS",
           "tropicalRainforest": "BIOME_TROPICAL",
           "desert": "BIOME_DESERT",
           "marine": "BIOME_MARINE"

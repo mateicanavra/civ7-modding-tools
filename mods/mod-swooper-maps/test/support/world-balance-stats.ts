@@ -5,10 +5,13 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
+import { hydrologyClimateRefineArtifacts } from "../../src/recipes/standard/stages/hydrology-climate-refine/artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
 import { mapHydrologyArtifacts } from "../../src/recipes/standard/stages/map-hydrology/artifacts.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 import { placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts.js";
+import { getEngineFeatureLegality } from "../../src/domain/ecology/feature-engine-legality.js";
+import { biomeSymbolFromIndex } from "../../src/domain/ecology/types.js";
 
 export type WorldBalanceStats = Readonly<{
   label: string;
@@ -18,6 +21,36 @@ export type WorldBalanceStats = Readonly<{
   preLakeLandTiles: number;
   postProjectionLandTiles: number;
   waterTiles: number;
+  plannedMountainTiles: number;
+  plannedMountainShareOfPreLakeLand: number;
+  plannedMountainComponentCount: number;
+  plannedLargestMountainComponentSize: number;
+  plannedHillTiles: number;
+  plannedHillShareOfPreLakeLand: number;
+  finalMountainTiles: number;
+  finalMountainShareOfPreLakeLand: number;
+  finalMountainComponentCount: number;
+  finalLargestMountainComponentSize: number;
+  finalHillTiles: number;
+  finalHillShareOfPreLakeLand: number;
+  finalFlatTiles: number;
+  finalFlatShareOfPreLakeLand: number;
+  plainsTiles: number;
+  plainsShareOfPreLakeLand: number;
+  meanAridity: number;
+  highAridityLandShare: number;
+  meanEffectiveMoisture: number;
+  meanFertility: number;
+  soilCounts: Readonly<Record<string, number>>;
+  biomeSymbolCounts: Readonly<Record<string, number>>;
+  meanVegetationDensity: number;
+  elevationP10: number;
+  elevationP50: number;
+  elevationP90: number;
+  elevationStdDev: number;
+  meanLocalRelief: number;
+  elevationByCoastDistance: readonly number[];
+  centralBulgeGradient: number;
   lakeTiles: number;
   lakeShareOfPreLakeLand: number;
   engineLakeTiles: number;
@@ -38,6 +71,8 @@ export type WorldBalanceStats = Readonly<{
   vegetationFeatureFamiliesPresent: number;
   invalidFeatureSurfaceCount: number;
   featureHabitatMismatchCounts: Readonly<Record<string, number>>;
+  featureAttemptCounts: Readonly<Record<string, number>>;
+  featureRejectCounts: Readonly<Record<string, number>>;
   featureCounts: Readonly<Record<string, number>>;
 }>;
 
@@ -82,7 +117,10 @@ const VEGETATION_FEATURES = new Set([
   "FEATURE_SAGEBRUSH_STEPPE",
 ]);
 
+const SOIL_NAMES = ["rocky", "sandy", "loam", "wet"] as const;
+
 type BiomeClassificationStatsInput = Readonly<{
+  biomeIndex: Uint8Array;
   vegetationDensity: Float32Array;
   effectiveMoisture: Float32Array;
   surfaceTemperature: Float32Array;
@@ -91,12 +129,56 @@ type BiomeClassificationStatsInput = Readonly<{
   treeLine01: Float32Array;
 }>;
 
+type MockAdapter = ReturnType<typeof createMockAdapter>;
+
 function countMask(mask: Uint8Array): number {
   let count = 0;
   for (const value of mask) {
     if (value === 1) count += 1;
   }
   return count;
+}
+
+function mean(values: readonly number[]): number {
+  if (values.length === 0) return 0;
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+function percentile(values: readonly number[], p: number): number {
+  if (values.length === 0) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const index = Math.min(sorted.length - 1, Math.max(0, Math.floor((sorted.length - 1) * p)));
+  return sorted[index] ?? 0;
+}
+
+function roundMetric(value: number): number {
+  return Number(value.toFixed(4));
+}
+
+function standardDeviation(values: readonly number[]): number {
+  if (values.length === 0) return 0;
+  const average = mean(values);
+  const variance = mean(values.map((value) => (value - average) ** 2));
+  return Math.sqrt(variance);
+}
+
+function computeMeanLocalRelief(
+  elevation: Int16Array,
+  landMask: Uint8Array,
+  width: number,
+  height: number
+): number {
+  let sum = 0;
+  let comparisons = 0;
+  for (let idx = 0; idx < landMask.length; idx++) {
+    if (landMask[idx] !== 1) continue;
+    for (const neighbor of hexOddRNeighbors(idx, width, height)) {
+      if (neighbor <= idx || landMask[neighbor] !== 1) continue;
+      sum += Math.abs((elevation[idx] ?? 0) - (elevation[neighbor] ?? 0));
+      comparisons += 1;
+    }
+  }
+  return comparisons === 0 ? 0 : sum / comparisons;
 }
 
 /**
@@ -187,23 +269,22 @@ function isFeatureHabitatMismatch(
   const moisture = classification.effectiveMoisture[idx] ?? 0;
   const aridity = classification.aridityIndex[idx] ?? 0;
   const vegetation = classification.vegetationDensity[idx] ?? 0;
-  const freeze = classification.freezeIndex[idx] ?? 0;
-  const treeLine = classification.treeLine01[idx] ?? 0;
+  const symbol = biomeSymbolFromIndex(classification.biomeIndex[idx] ?? 255);
 
   if (feature === "FEATURE_FOREST") {
-    return temp < -5 || temp > 30 || moisture < 45 || aridity > 0.82 || vegetation < 0.08;
+    return symbol !== "temperateHumid" || vegetation < 0.08;
   }
   if (feature === "FEATURE_RAINFOREST") {
-    return temp < 16 || moisture < 85 || aridity > 0.72 || vegetation < 0.18;
+    return symbol !== "tropicalRainforest" || temp < 16 || moisture < 85 || vegetation < 0.18;
   }
   if (feature === "FEATURE_TAIGA") {
-    return temp > 16 || freeze < 0.08 || moisture < 35;
+    return symbol !== "snow" && symbol !== "tundra" && symbol !== "boreal";
   }
   if (feature === "FEATURE_SAVANNA_WOODLAND") {
-    return temp < 12 || moisture < 35 || aridity < 0.12 || aridity > 0.9 || vegetation > 0.78;
+    return symbol !== "tropicalSeasonal" || temp < 12 || aridity > 0.9 || vegetation > 0.78;
   }
   if (feature === "FEATURE_SAGEBRUSH_STEPPE") {
-    return temp < -12 || temp > 32 || aridity < 0.2 || aridity > 0.95 || vegetation > 0.72;
+    return symbol !== "desert" || temp < -12 || temp > 32 || vegetation > 0.72;
   }
   return false;
 }
@@ -240,19 +321,46 @@ export function collectWorldBalanceStats(args: Readonly<{
     latitudeBounds: { topLatitude: mapInfo.MaxLatitude, bottomLatitude: mapInfo.MinLatitude },
   };
 
-  const adapter = createMockAdapter({
+  let adapter: MockAdapter;
+  adapter = createMockAdapter({
     width,
     height,
     mapInfo,
     mapSizeId: 1,
     rng: createLabelRng(seed),
+    canHaveFeature: (x, y, featureType) => {
+      const featureByType = Object.fromEntries(
+        FEATURE_KEYS.map((key) => [adapter.getFeatureTypeIndex(key), key])
+      );
+      const feature = featureByType[featureType];
+      if (!feature) return true;
+      const legality = getEngineFeatureLegality(feature);
+      if (!legality) return true;
+      const terrain = adapter.getTerrainType(x, y);
+      const biome = adapter.getBiomeType(x, y);
+      const isWater = adapter.isWater(x, y);
+      const expectedTerrain = adapter.getTerrainTypeIndex(legality.terrain);
+      const expectedBiome = adapter.getBiomeGlobal(legality.biome);
+      const waterExpected = legality.terrain === "TERRAIN_COAST" || legality.terrain === "TERRAIN_OCEAN";
+      return (
+        terrain === expectedTerrain &&
+        biome === expectedBiome &&
+        (waterExpected ? isWater : !isWater)
+      );
+    },
   });
   const context = createExtendedMapContext({ width, height }, adapter, env);
   initializeStandardRuntime(context, { mapInfo, logPrefix: "[world-balance]", storyEnabled: false });
   standardRecipe.run(context, env, args.config, { log: () => {} });
 
   const topography = context.artifacts.get(morphologyArtifacts.topography.id) as
-    | { landMask?: Uint8Array }
+    | { elevation?: Int16Array; landMask?: Uint8Array }
+    | undefined;
+  const mountains = context.artifacts.get(morphologyArtifacts.mountains.id) as
+    | { mountainMask?: Uint8Array; hillMask?: Uint8Array }
+    | undefined;
+  const coastlineMetrics = context.artifacts.get(morphologyArtifacts.coastlineMetrics.id) as
+    | { distanceToCoast?: Uint16Array }
     | undefined;
   const lakePlan = context.artifacts.get(hydrologyHydrographyArtifacts.lakePlan.id) as
     | { lakeMask?: Uint8Array }
@@ -263,16 +371,40 @@ export function collectWorldBalanceStats(args: Readonly<{
   const placementSurface = context.artifacts.get(placementArtifacts.placementSurfacePreparation.id) as
     | { finalLakeWaterDriftCount?: number; finalLakeClassificationDriftCount?: number }
     | undefined;
+  const climateIndices = context.artifacts.get(hydrologyClimateRefineArtifacts.climateIndices.id) as
+    | { aridityIndex?: Float32Array; effectiveMoisture?: Float32Array }
+    | undefined;
+  const pedology = context.artifacts.get(ecologyArtifacts.pedology.id) as
+    | { soilType?: Uint8Array; fertility?: Float32Array }
+    | undefined;
   const classification = context.artifacts.get(ecologyArtifacts.biomeClassification.id) as
     | Partial<BiomeClassificationStatsInput>
     | undefined;
-  if (!(topography?.landMask instanceof Uint8Array)) throw new Error("Missing topography.landMask.");
+  if (!(topography?.landMask instanceof Uint8Array) || !(topography.elevation instanceof Int16Array)) {
+    throw new Error("Missing topography fields.");
+  }
+  if (!(mountains?.mountainMask instanceof Uint8Array) || !(mountains.hillMask instanceof Uint8Array)) {
+    throw new Error("Missing morphology mountain fields.");
+  }
+  if (!(coastlineMetrics?.distanceToCoast instanceof Uint16Array)) {
+    throw new Error("Missing morphology coastline metrics.");
+  }
   if (!(lakePlan?.lakeMask instanceof Uint8Array)) throw new Error("Missing hydrology.lakePlan.");
   if (!(engineLakeProjection?.lakeMask instanceof Uint8Array)) {
     throw new Error("Missing map-hydrology engine lake projection.");
   }
   if (
+    !(climateIndices?.aridityIndex instanceof Float32Array) ||
+    !(climateIndices.effectiveMoisture instanceof Float32Array)
+  ) {
+    throw new Error("Missing hydrology climate indices.");
+  }
+  if (!(pedology?.soilType instanceof Uint8Array) || !(pedology.fertility instanceof Float32Array)) {
+    throw new Error("Missing ecology pedology fields.");
+  }
+  if (
     !(classification?.vegetationDensity instanceof Float32Array) ||
+    !(classification.biomeIndex instanceof Uint8Array) ||
     !(classification.effectiveMoisture instanceof Float32Array) ||
     !(classification.surfaceTemperature instanceof Float32Array) ||
     !(classification.aridityIndex instanceof Float32Array) ||
@@ -281,11 +413,34 @@ export function collectWorldBalanceStats(args: Readonly<{
   ) {
     throw new Error("Missing ecology biome classification fields.");
   }
+  const featureApplyDiagnostics = context.artifacts.get(ecologyArtifacts.featureApplyDiagnostics.id) as
+    | {
+        attemptedByFeature?: Record<string, number>;
+        rejectedCanHaveFeatureByFeature?: Record<string, number>;
+      }
+    | undefined;
 
   let waterTiles = 0;
   let postProjectionLandTiles = 0;
+  let finalMountainTiles = 0;
+  let finalHillTiles = 0;
+  let finalFlatTiles = 0;
+  let plainsTiles = 0;
   let lakeWaterDriftCount = 0;
   let invalidFeatureSurfaceCount = 0;
+  const finalMountainMask = new Uint8Array(width * height);
+  const landElevations: number[] = [];
+  const landAridity: number[] = [];
+  const landMoisture: number[] = [];
+  const landFertility: number[] = [];
+  const landVegetationDensity: number[] = [];
+  const elevationBins: number[][] = [[], [], [], [], []];
+  const soilCounts: Record<string, number> = Object.fromEntries(SOIL_NAMES.map((name) => [name, 0]));
+  const biomeSymbolCounts: Record<string, number> = {};
+  const mountainTerrain = adapter.getTerrainTypeIndex("TERRAIN_MOUNTAIN");
+  const hillTerrain = adapter.getTerrainTypeIndex("TERRAIN_HILL");
+  const flatTerrain = adapter.getTerrainTypeIndex("TERRAIN_FLAT");
+  const plainsBiome = adapter.getBiomeGlobal("BIOME_PLAINS");
   const featureCounts: Record<string, number> = Object.fromEntries(
     FEATURE_KEYS.map((key) => [key, 0])
   );
@@ -299,8 +454,37 @@ export function collectWorldBalanceStats(args: Readonly<{
     for (let x = 0; x < width; x++) {
       const idx = y * width + x;
       const isWater = adapter.isWater(x, y);
+      const terrain = adapter.getTerrainType(x, y);
       if (isWater) waterTiles += 1;
-      else postProjectionLandTiles += 1;
+      else {
+        postProjectionLandTiles += 1;
+        if (terrain === mountainTerrain) {
+          finalMountainTiles += 1;
+          finalMountainMask[idx] = 1;
+        }
+        if (terrain === hillTerrain) finalHillTiles += 1;
+        if (terrain === flatTerrain) finalFlatTiles += 1;
+        if (adapter.getBiomeType(x, y) === plainsBiome) plainsTiles += 1;
+      }
+      if (topography.landMask[idx] === 1) {
+        const elevation = topography.elevation[idx] ?? 0;
+        landElevations.push(elevation);
+        landAridity.push(climateIndices.aridityIndex[idx] ?? 0);
+        landMoisture.push(climateIndices.effectiveMoisture[idx] ?? 0);
+        landFertility.push(pedology.fertility[idx] ?? 0);
+        landVegetationDensity.push(classification.vegetationDensity[idx] ?? 0);
+        const soilName = SOIL_NAMES[pedology.soilType[idx] ?? 0] ?? "unknown";
+        soilCounts[soilName] = (soilCounts[soilName] ?? 0) + 1;
+        const biomeIndex = classification.biomeIndex?.[idx] ?? 255;
+        if (biomeIndex !== 255) {
+          const biomeSymbol = biomeSymbolFromIndex(biomeIndex);
+          biomeSymbolCounts[biomeSymbol] = (biomeSymbolCounts[biomeSymbol] ?? 0) + 1;
+        }
+
+        const distance = coastlineMetrics.distanceToCoast[idx] ?? 0;
+        const binIndex = distance <= 1 ? 0 : distance <= 3 ? 1 : distance <= 5 ? 2 : distance <= 8 ? 3 : 4;
+        elevationBins[binIndex]?.push(elevation);
+      }
       if (engineLakeProjection.lakeMask[idx] === 1 && !isWater) lakeWaterDriftCount += 1;
 
       const feature = adapter.getFeatureType(x, y);
@@ -308,11 +492,19 @@ export function collectWorldBalanceStats(args: Readonly<{
         const featureType = featureTypeByKey[key] ?? -1;
         if (featureType < 0 || feature !== featureType) continue;
         featureCounts[key] += 1;
-        if ((VEGETATION_FEATURES.has(key) || WETLAND_FEATURES.has(key)) && isWater) {
-          invalidFeatureSurfaceCount += 1;
-        }
-        if (REEF_FEATURES.has(key) && !isWater) {
-          invalidFeatureSurfaceCount += 1;
+        const legality = getEngineFeatureLegality(key);
+        if (legality) {
+          const expectedTerrain = adapter.getTerrainTypeIndex(legality.terrain);
+          const expectedBiome = adapter.getBiomeGlobal(legality.biome);
+          const expectedWater =
+            legality.terrain === "TERRAIN_COAST" || legality.terrain === "TERRAIN_OCEAN";
+          if (
+            terrain !== expectedTerrain ||
+            adapter.getBiomeType(x, y) !== expectedBiome ||
+            (expectedWater ? !isWater : isWater)
+          ) {
+            invalidFeatureSurfaceCount += 1;
+          }
         }
         if (isFeatureHabitatMismatch(key, idx, classification)) {
           featureHabitatMismatchCounts[key] += 1;
@@ -322,6 +514,10 @@ export function collectWorldBalanceStats(args: Readonly<{
   }
 
   const preLakeLandTiles = countMask(topography.landMask);
+  const plannedMountainTiles = countMask(mountains.mountainMask);
+  const plannedMountainComponents = computeMaskComponents(mountains.mountainMask, width, height);
+  const finalMountainComponents = computeMaskComponents(finalMountainMask, width, height);
+  const plannedHillTiles = countMask(mountains.hillMask);
   const lakeTiles = countMask(lakePlan.lakeMask);
   const engineLakeTiles = countMask(engineLakeProjection.lakeMask);
   const lakeComponents = computeMaskComponents(engineLakeProjection.lakeMask, width, height);
@@ -337,6 +533,11 @@ export function collectWorldBalanceStats(args: Readonly<{
       if (count > 0) vegetationFeatureFamiliesPresent += 1;
     }
   }
+  const elevationByCoastDistance = elevationBins.map((bin) => roundMetric(mean(bin)));
+  const centralBulgeGradient = roundMetric(
+    (elevationByCoastDistance[elevationByCoastDistance.length - 1] ?? 0) -
+      (elevationByCoastDistance[0] ?? 0)
+  );
 
   return {
     label: args.label,
@@ -346,6 +547,41 @@ export function collectWorldBalanceStats(args: Readonly<{
     preLakeLandTiles,
     postProjectionLandTiles,
     waterTiles,
+    plannedMountainTiles,
+    plannedMountainShareOfPreLakeLand: preLakeLandTiles === 0 ? 0 : plannedMountainTiles / preLakeLandTiles,
+    plannedMountainComponentCount: plannedMountainComponents.componentCount,
+    plannedLargestMountainComponentSize: plannedMountainComponents.largestComponentSize,
+    plannedHillTiles,
+    plannedHillShareOfPreLakeLand: preLakeLandTiles === 0 ? 0 : plannedHillTiles / preLakeLandTiles,
+    finalMountainTiles,
+    finalMountainShareOfPreLakeLand: preLakeLandTiles === 0 ? 0 : finalMountainTiles / preLakeLandTiles,
+    finalMountainComponentCount: finalMountainComponents.componentCount,
+    finalLargestMountainComponentSize: finalMountainComponents.largestComponentSize,
+    finalHillTiles,
+    finalHillShareOfPreLakeLand: preLakeLandTiles === 0 ? 0 : finalHillTiles / preLakeLandTiles,
+    finalFlatTiles,
+    finalFlatShareOfPreLakeLand: preLakeLandTiles === 0 ? 0 : finalFlatTiles / preLakeLandTiles,
+    plainsTiles,
+    plainsShareOfPreLakeLand: preLakeLandTiles === 0 ? 0 : plainsTiles / preLakeLandTiles,
+    meanAridity: roundMetric(mean(landAridity)),
+    highAridityLandShare:
+      preLakeLandTiles === 0
+        ? 0
+        : landAridity.filter((value) => value > 0.65).length / preLakeLandTiles,
+    meanEffectiveMoisture: roundMetric(mean(landMoisture)),
+    meanFertility: roundMetric(mean(landFertility)),
+    soilCounts,
+    biomeSymbolCounts,
+    meanVegetationDensity: roundMetric(mean(landVegetationDensity)),
+    elevationP10: percentile(landElevations, 0.1),
+    elevationP50: percentile(landElevations, 0.5),
+    elevationP90: percentile(landElevations, 0.9),
+    elevationStdDev: roundMetric(standardDeviation(landElevations)),
+    meanLocalRelief: roundMetric(
+      computeMeanLocalRelief(topography.elevation, topography.landMask, width, height)
+    ),
+    elevationByCoastDistance,
+    centralBulgeGradient,
     lakeTiles,
     lakeShareOfPreLakeLand: preLakeLandTiles === 0 ? 0 : lakeTiles / preLakeLandTiles,
     engineLakeTiles,
@@ -367,6 +603,8 @@ export function collectWorldBalanceStats(args: Readonly<{
     vegetationFeatureFamiliesPresent,
     invalidFeatureSurfaceCount,
     featureHabitatMismatchCounts,
+    featureAttemptCounts: featureApplyDiagnostics?.attemptedByFeature ?? {},
+    featureRejectCounts: featureApplyDiagnostics?.rejectedCanHaveFeatureByFeature ?? {},
     featureCounts,
   };
 }

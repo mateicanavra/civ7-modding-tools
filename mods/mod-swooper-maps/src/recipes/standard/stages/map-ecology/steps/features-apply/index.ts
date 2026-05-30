@@ -10,6 +10,10 @@ import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 const GROUP_MAP_ECOLOGY = "Map / Ecology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
+function incrementCount(counts: Record<string, number>, key: string): void {
+  counts[key] = (counts[key] ?? 0) + 1;
+}
+
 export default createStep(FeaturesApplyStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.featureApplyDiagnostics], {
     featureApplyDiagnostics: {},
@@ -54,9 +58,13 @@ export default createStep(FeaturesApplyStepContract, {
 
     const { width, height } = context.dimensions;
     const rejections: Array<{ x: number; y: number; feature: FeatureKey; reason: string }> = [];
+    const attemptedByFeature: Record<string, number> = {};
+    const appliedByFeature: Record<string, number> = {};
+    const rejectedCanHaveFeatureByFeature: Record<string, number> = {};
     let applied = 0;
 
     for (const placement of resolvedPlacements) {
+      incrementCount(attemptedByFeature, placement.feature);
       const x = placement.x | 0;
       const y = placement.y | 0;
       if (x < 0 || x >= width || y < 0 || y >= height) {
@@ -70,9 +78,11 @@ export default createStep(FeaturesApplyStepContract, {
       }
       if (!context.adapter.canHaveFeature(x, y, featureIndex)) {
         rejections.push({ x, y, feature: placement.feature, reason: "canHaveFeature=false" });
+        incrementCount(rejectedCanHaveFeatureByFeature, placement.feature);
         continue;
       }
       context.adapter.setFeatureType(x, y, { Feature: featureIndex, Direction: -1, Elevation: 0 });
+      incrementCount(appliedByFeature, placement.feature);
       applied += 1;
     }
 
@@ -103,8 +113,23 @@ export default createStep(FeaturesApplyStepContract, {
       rejectedCanHaveFeature,
       rejectedOutOfBounds,
       rejectedUnknownFeature,
+      attemptedByFeature,
+      appliedByFeature,
+      rejectedCanHaveFeatureByFeature,
       rejectionMask,
     });
+
+    console.log(
+      `[SWOOPER_MOD] FEATURE_APPLY_V1 ${JSON.stringify({
+        attempted: resolvedPlacements.length,
+        applied,
+        rejected: rejections.length,
+        rejectedCanHaveFeature,
+        attemptedByFeature,
+        appliedByFeature,
+        rejectedCanHaveFeatureByFeature,
+      })}`
+    );
 
     context.trace.event(() => ({
       type: "map.ecology.features.parity",
@@ -114,6 +139,9 @@ export default createStep(FeaturesApplyStepContract, {
       rejectedCanHaveFeature,
       rejectedOutOfBounds,
       rejectedUnknownFeature,
+      attemptedByFeature,
+      appliedByFeature,
+      rejectedCanHaveFeatureByFeature,
     }));
 
     context.viz?.dumpGrid(context.trace, {

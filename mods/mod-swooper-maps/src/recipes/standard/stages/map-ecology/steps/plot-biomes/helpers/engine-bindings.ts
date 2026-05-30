@@ -9,7 +9,7 @@ const DEFAULT_ENGINE_BINDINGS: Record<BiomeSymbol, string> = Object.freeze({
   boreal: "BIOME_TUNDRA",
   temperateDry: "BIOME_PLAINS",
   temperateHumid: "BIOME_GRASSLAND",
-  tropicalSeasonal: "BIOME_GRASSLAND",
+  tropicalSeasonal: "BIOME_PLAINS",
   tropicalRainforest: "BIOME_TROPICAL",
   desert: "BIOME_DESERT",
 });

@@ -744,10 +744,10 @@
             },
             "moisture": {
               "thresholds": [
-                64,
-                96,
-                132,
-                176
+                100,
+                140,
+                180,
+                225
               ]
             },
             "aridity": {
@@ -760,8 +760,8 @@
               "bias": 7,
               "normalization": 104,
               "moistureShiftThresholds": [
-                0.4,
-                0.64
+                0.34,
+                0.58
               ],
               "vegetationPenalty": 0.2
             },
@@ -783,7 +783,7 @@
         "vegetationSubstrate": {
           "strategy": "default",
           "config": {
-            "moistureNormalization": 230,
+            "moistureNormalization": 330,
             "temperatureMinC": -20,
             "temperatureMaxC": 40
           }
@@ -1078,7 +1078,7 @@
           "boreal": "BIOME_TUNDRA",
           "temperateDry": "BIOME_PLAINS",
           "temperateHumid": "BIOME_GRASSLAND",
-          "tropicalSeasonal": "BIOME_GRASSLAND",
+          "tropicalSeasonal": "BIOME_PLAINS",
           "tropicalRainforest": "BIOME_TROPICAL",
           "desert": "BIOME_DESERT",
           "marine": "BIOME_MARINE"

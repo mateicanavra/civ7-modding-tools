@@ -1,6 +1,5 @@
 import { Type, type TObject, type TSchema } from "typebox";
 
-import type { StageContractAny } from "@swooper/mapgen-core/authoring";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 
 type JsonObject = Record<string, unknown>;
@@ -19,6 +18,8 @@ export type CanonicalMapConfigEnvelope = Readonly<{
   logPrefix?: string;
   config: JsonObject;
 }>;
+
+export type CanonicalMapConfigWithRecipe = Readonly<{ config: JsonObject }>;
 
 export type ValidatedMapConfig = CanonicalMapConfigEnvelope &
   Readonly<{
@@ -65,6 +66,21 @@ export function mapLocalizationTag(id: string, field: "name" | "description"): s
   return `LOC_MAP_${id.toUpperCase().replace(/[^A-Z0-9]+/g, "_")}_${suffix}`;
 }
 
+/**
+ * Returns the recipe payload inside a shipped-map envelope.
+ *
+ * The envelope is the Swooper Maps product record: it carries Civ7-facing map
+ * identity, localization ordering, and save/deploy metadata. The nested config
+ * remains the standard recipe's authored public surface, so callers that need
+ * to run diagnostics or legacy preset aliases cross that boundary here instead
+ * of inferring wrapper shapes in each consumer.
+ */
+export function canonicalRecipeConfig<TConfig extends JsonObject = JsonObject>(
+  envelope: CanonicalMapConfigWithRecipe
+): TConfig {
+  return envelope.config as TConfig;
+}
+
 export function buildCanonicalMapConfigSchema(recipeConfigSchema: TSchema): TObject {
   return Type.Object(
     {
@@ -90,47 +106,14 @@ export function buildCanonicalMapConfigSchema(recipeConfigSchema: TSchema): TObj
   );
 }
 
-function assertCompleteStageStepSurface(args: {
-  stages: readonly StageContractAny[];
-  config: JsonObject;
-  label: string;
-  errors: string[];
-}): void {
-  const { stages, config, label, errors } = args;
-  for (const stage of stages) {
-    const stageValue = config[stage.id];
-    if (!assertPlainObject(stageValue, `${label}/config/${stage.id}`, errors)) continue;
-
-    for (const step of stage.steps) {
-      const stepId = step.contract.id;
-      const stepValue = stageValue[stepId];
-      if (!assertPlainObject(stepValue, `${label}/config/${stage.id}/${stepId}`, errors)) continue;
-
-      const ops = step.contract.ops;
-      if (!ops) continue;
-      for (const opKey of Object.keys(ops)) {
-        const opValue = stepValue[opKey];
-        if (!assertPlainObject(opValue, `${label}/config/${stage.id}/${stepId}/${opKey}`, errors)) {
-          continue;
-        }
-        if (typeof opValue.strategy !== "string" || opValue.strategy.length === 0) {
-          errors.push(`${label}/config/${stage.id}/${stepId}/${opKey}/strategy must be a concrete string`);
-        }
-        if (!assertPlainObject(opValue.config, `${label}/config/${stage.id}/${stepId}/${opKey}/config`, errors)) {
-          continue;
-        }
-      }
-    }
-  }
-}
-
 export function validateCanonicalMapConfig(args: {
   fileName: string;
   raw: unknown;
   recipeSchema: TSchema;
-  stages: readonly StageContractAny[];
+  stages: readonly unknown[];
 }): ValidatedMapConfig {
   const { fileName, raw, recipeSchema, stages } = args;
+  void stages;
   const label = `/maps/configs/${fileName}`;
   const errors: string[] = [];
   const fileStem = mapConfigFileStem(fileName);
@@ -191,7 +174,6 @@ export function validateCanonicalMapConfig(args: {
     const authorConfig = stripRootSchema(raw.config);
     const { errors: schemaErrors } = normalizeStrict(recipeSchema, authorConfig, `${label}/config`);
     errors.push(...schemaErrors.map((err) => `${err.path}: ${err.message}`));
-    assertCompleteStageStepSurface({ stages, config: authorConfig, label, errors });
   }
 
   if (errors.length > 0) {
@@ -208,4 +190,3 @@ export function validateCanonicalMapConfig(args: {
     localizationDescriptionTag: mapLocalizationTag(envelope.id, "description"),
   };
 }
-

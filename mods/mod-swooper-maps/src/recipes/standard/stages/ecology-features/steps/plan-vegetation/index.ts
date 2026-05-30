@@ -31,9 +31,27 @@ export default createStep(PlanVegetationStepContract, {
   ),
   run: (context, config, ops, deps) => {
     const prev = deps.artifacts.occupancyWetlands.read(context);
+    const classification = deps.artifacts.biomeClassification.read(context);
     const scoreLayers = deps.artifacts.scoreLayers.read(context);
+    const hydrography = deps.artifacts.hydrography.read(context);
     const topography = deps.artifacts.topography.read(context);
+    const lakePlan = deps.artifacts.lakePlan.read(context);
+    const mountains = deps.artifacts.mountains.read(context);
+    const volcanoes = deps.artifacts.volcanoes.read(context);
     const { width, height } = context.dimensions;
+    const size = Math.max(0, (width | 0) * (height | 0));
+    const flatLandMask = new Uint8Array(size);
+    for (let i = 0; i < size; i++) {
+      flatLandMask[i] =
+        topography.landMask[i] === 1 &&
+        hydrography.riverClass[i] === 0 &&
+        lakePlan.lakeMask[i] !== 1 &&
+        mountains.mountainMask[i] !== 1 &&
+        mountains.hillMask[i] !== 1 &&
+        volcanoes.volcanoMask[i] !== 1
+          ? 1
+          : 0;
+    }
 
     const seed = deriveStepSeed(context.env.seed, "ecology:planVegetation");
     const placements = ops.planVegetation(
@@ -47,6 +65,8 @@ export default createStep(PlanVegetationStepContract, {
         scoreSavannaWoodland01: scoreLayers.layers.FEATURE_SAVANNA_WOODLAND,
         scoreSagebrushSteppe01: scoreLayers.layers.FEATURE_SAGEBRUSH_STEPPE,
         landMask: topography.landMask,
+        flatLandMask,
+        biomeIndex: classification.biomeIndex,
         featureIndex: prev.featureIndex,
         reserved: prev.reserved,
       },
@@ -91,4 +111,3 @@ export default createStep(PlanVegetationStepContract, {
     });
   },
 });
-

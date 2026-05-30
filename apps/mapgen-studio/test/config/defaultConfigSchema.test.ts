@@ -70,13 +70,13 @@ describe("Studio default config", () => {
         "plate-motion",
         "tectonics",
         "crust-evolution",
-        "projection",
         "plate-topology",
       ])
     );
     expect(foundationProps).not.toHaveProperty("version");
     expect(foundationProps).not.toHaveProperty("profiles");
     expect(foundationProps).not.toHaveProperty("advanced");
+    expect(foundationProps).not.toHaveProperty("projection");
 
     const tectonicsProps =
       (foundationProps["tectonics"] as { properties?: Record<string, unknown> })?.properties ?? {};

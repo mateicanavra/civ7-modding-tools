@@ -1,8 +1,8 @@
 ## Why
 
 Swooper Earthlike has multiple first-party config sources that are not aligned:
-the shipped map JSON, standard Earthlike preset JSON, Studio default posture,
-and stale `realismEarthlikeConfig` test input. Some authored sources also carry
+the shipped map JSON, Studio default posture, and stale
+`realismEarthlikeConfig` test input. Some authored sources also carry
 internal projection or op config that should be produced by compilation from
 public knobs/stage schemas instead of being treated as public map posture. That
 means tests and runtime can exercise different Earthlike behavior or normalize
@@ -19,8 +19,8 @@ the wrong config layer.
 
 ## What Changes
 
-- Align shipped Swooper Earthlike config, standard Earthlike preset, and Studio
-  default Earthlike posture.
+- Align shipped Swooper Earthlike config, Studio default Earthlike posture, and
+  legacy realism callers.
 - Remove internal projection/op config from Earthlike authored posture where
   compilation should own it.
 - Resolve stale `realismEarthlikeConfig` usage so tests do not exercise a weak
@@ -31,7 +31,6 @@ the wrong config layer.
 ## Write Set
 
 - `mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json`
-- `mods/mod-swooper-maps/src/presets/standard/earthlike.json`
 - `mods/mod-swooper-maps/src/maps/presets/realism/earthlike.config.ts`
 - `apps/mapgen-studio/**` config default tests only if Studio posture is
   affected

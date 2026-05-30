@@ -37,7 +37,7 @@ export function computeUpliftBlend(params: {
   clusteringBias: number;
 }): number {
   const { upliftNorm, closenessNorm, interiorNoiseWeight, boundaryArcWeight, clusteringBias } = params;
-  const interiorBoost = clusteringBias * (1 - closenessNorm) * 0.2;
+  const interiorBoost = clusteringBias * upliftNorm * (1 - closenessNorm) * 0.2;
   return clamp(upliftNorm * (interiorNoiseWeight + closenessNorm * boundaryArcWeight) + interiorBoost, 0, 1);
 }
 

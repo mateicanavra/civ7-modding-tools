@@ -29,14 +29,13 @@ export const defaultStrategy = createStrategy(ScoreColdReefContract, "default", 
 
     for (let i = 0; i < size; i++) {
       if (input.landMask[i] !== 0) continue;
+      if (input.shelfMask[i] !== 1) continue;
       const distanceToCoast = input.distanceToCoast[i] ?? 0;
       if (distanceToCoast < minDistanceToCoast || distanceToCoast > maxDistanceToCoast) continue;
 
-      // Cold-water reefs are deeper shelf/edge habitats. The current Civ7
-      // bathymetry tensor is a coarse relative proxy rather than literal ocean
-      // meters, so config defaults target the deeper part of the available shelf
-      // band and bound distance from land instead of depending only on the
-      // shallow TERRAIN_COAST shelf mask used by map projection.
+      // Civ7 cold reefs are coast-terrain features. Swooper projects shelfMask
+      // water to TERRAIN_COAST, so the score must stay on that surface instead
+      // of open ocean where the real engine rejects cold reefs.
       const coldSuit = rampDown01(
         input.surfaceTemperature[i],
         config.tempColdMaxC,
@@ -44,7 +43,10 @@ export const defaultStrategy = createStrategy(ScoreColdReefContract, "default", 
       );
 
       const depth = Math.max(0, -(input.bathymetry[i] | 0));
-      const depthSuit = window01(depth, minDepthM, peakDepthM, maxDepthM);
+      const depthSuit =
+        minDepthM === 0 && depth === 0
+          ? rampDown01(depth, peakDepthM, maxDepthM)
+          : window01(depth, minDepthM, peakDepthM, maxDepthM);
 
       score01[i] = clamp01(coldSuit * depthSuit);
     }

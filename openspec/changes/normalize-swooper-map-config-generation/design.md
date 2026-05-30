@@ -18,8 +18,9 @@ surfaces repeat identity and drift independently.
 
 - Make `src/maps/configs/*.config.json` the only authored source for shipped
   map variants.
-- Encode each shipped map as a full JSON config envelope: metadata plus the
-  complete flat recipe config payload.
+- Encode each shipped map as a JSON config envelope: metadata plus the authored
+  flat recipe public config payload. Compiler-owned internals stay behind the
+  recipe compile boundary.
 - Generate every Civ7 and Studio projection from the canonical config
   directory.
 - Make Studio save and save-as operate on repo-backed config files.
@@ -42,7 +43,7 @@ This change has three review lanes with explicit handoffs.
   boundaries, and closure criteria. Receives evidence from all lanes and has
   final accountability for keeping this one integrated change coherent.
 - Config/Studio lane: owns the authoring flow, canonical JSON envelope, schema
-  descriptions, full-config validation, Studio repo-backed load/save/save-as,
+  descriptions, public-surface validation, Studio repo-backed load/save/save-as,
   and scratch/import/export disposition.
 - Generation/mod lane: owns build enumeration, generated entry modules, `tsup`
   integration, XML/modinfo/text generation, generated-artifact boundaries, and
@@ -52,7 +53,7 @@ Interfaces:
 
 - Config/Studio hands the generation lane a validated registry of map entries:
   id, display metadata, recipe id, sort order, latitude bounds, output file
-  stem, localization tags/text, and full recipe config.
+  stem, localization tags/text, and authored recipe config.
 - Generation/mod hands Studio the generated built-in config catalog and schema
   references; Studio does not scrape generated `mod/` output.
 - Both implementation lanes hand the OpenSpec owner tests, searches, generated
@@ -115,7 +116,7 @@ Required metadata:
   multi-recipe dispatch requires a separate recipe-dispatch requirement before
   implementation broadens this field.
 - `sortIndex`: Civ7 map selection order.
-- `config`: full flat recipe config payload.
+- `config`: authored flat recipe public config payload.
 
 Optional metadata:
 
@@ -124,16 +125,16 @@ Optional metadata:
 - future localization overrides only after a localization design requires
   multiple locales.
 
-### Shipped Configs Are Full Configs, Not Preset Overlays
+### Shipped Configs Are Canonical Configs, Not Preset Overlays
 
-Shipped map files are complete source configs. They are not partial overlays
-that depend on hidden recipe defaults to become meaningful. The implementation
-must provide a validation gate that compiles or materializes each shipped JSON
-file and proves every required stage/step/op strategy envelope and config value
-is concrete before generation emits Civ7 artifacts.
+Shipped map files are canonical source configs. They are not partial overlays
+that inherit from a separate Studio default or hidden preset. The implementation
+must provide a validation gate that compiles each shipped JSON file through the
+recipe public surface before generation emits Civ7 artifacts.
 
-Recipe compilation may still normalize and validate, but omitted strategy
-selection in a shipped map is a source-quality failure, not a generator feature.
+Recipe compilation owns defaulted and internal step config. Shipped configs do
+not duplicate engine plumbing such as Foundation projection config unless that
+step is intentionally promoted into the public authoring surface.
 
 ### JSON Is The Source; Schema And Generated Aids Carry Documentation
 
@@ -145,7 +146,7 @@ help come from:
 - generated JSON schemas with descriptions;
 - generated TypeScript types for tooling/tests;
 - docs that explain config fields and strategy envelopes;
-- validation tests that reject unknown or incomplete values.
+- validation tests that reject unknown values and source-schema drift.
 
 If an implementation later requires comment-preserving authoring, that is a
 separate authority decision because it would change the canonical source format
@@ -204,7 +205,7 @@ design because the browser cannot reliably do that.
 
 1. Add the canonical envelope schema and validation helpers.
 2. Convert every shipped map config to `.config.json` using the envelope.
-3. Add full-config completeness validation for shipped map configs.
+3. Add public-surface validation for shipped map configs.
 4. Add the map registry generator and generated entry-module/tsup integration.
 5. Generate or regenerate XML/modinfo/text/Studio catalog from the registry.
 6. Rewire Studio around repo-backed configs and explicit scratch state.
@@ -214,9 +215,9 @@ design because the browser cannot reliably do that.
 
 ## Risks / Trade-offs
 
-- Full JSON configs will be more verbose than partial presets. That verbosity
-  is intentional for shipped maps because it makes generated output
-  reproducible and reviewable.
+- Canonical JSON configs are more explicit than scratch presets. That
+  explicitness is intentional for shipped maps, while compiler-owned internals
+  remain generated by the recipe engine.
 - Studio repo writes need a local authority surface. This may require a small
   dev-server API even if the browser app otherwise remains static.
 - Generated entry modules add a source generation step. This is still simpler

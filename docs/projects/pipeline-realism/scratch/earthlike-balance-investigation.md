@@ -37,6 +37,9 @@ Date: 2026-05-30
 - Do not use brittle one-off tests as balance proof. Compiler/config behavior
   belongs in compiler, SDK, schema, or adapter contract gates; Earthlike product
   balance belongs in multi-seed world/runtime telemetry.
+- Treat all implemented feature families as core balance scope. Do not relax or
+  remove cold reefs, atolls, vegetation families, mountains, plains, or other
+  product-visible classes just because a narrower config pass is easier.
 
 ## Active Team Lanes
 
@@ -118,6 +121,21 @@ Date: 2026-05-30
 - Volcanoes can hide the ridge weakness because final terrain receives mountain
   tiles from volcano stamping even when planned non-volcano mountain belts are
   nearly absent.
+- Cold reef scoring had a zero-depth edge failure: coast-projected shelf water
+  can have `bathymetry = 0`, and the peaked depth window returned zero even
+  when `minDepthM` was authored as `0`. The scorer now admits zero-depth coast
+  shelf water when the authored minimum depth is zero.
+- Swooper Earthlike now produces cold reefs, atolls, forest, rainforest, taiga,
+  savanna woodland, and sagebrush steppe in the focused world-balance gate.
+- Shattered Ring needed drier authored biome/substrate posture after hydrology
+  changes; its previous moisture thresholds kept all land humid enough to erase
+  desert/sagebrush despite the product gate requiring dry vegetation.
+- Sundered Archipelago needed shallow cold-reef depth tuning; its cold shelf
+  candidates were mostly `0..5m` while the authored cold-reef window started at
+  `8m`.
+- FireTuner bridge evidence must stay mechanical. The current bridge request
+  `codex-balance-proof-1780184705` appended `Network.restartGame()` and
+  received ACK/RESULT entries in the shared append-only log.
 
 ## OpenSpec Changes
 

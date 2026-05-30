@@ -19,6 +19,15 @@ const PlanWetlandsContract = defineOp({
       description: "Watering hole suitability score per tile (0..1).",
     }),
 
+    flatLandMask: TypedArraySchemas.u8({
+      description:
+        "1 = land tile that will remain flat after terrain projection; 0 = water, hill, mountain, volcano, or lake.",
+    }),
+    biomeIndex: TypedArraySchemas.u8({
+      description:
+        "Internal biome classification index used to keep wetland intents on engine-compatible biome bindings.",
+    }),
+
     featureIndex: TypedArraySchemas.u16({
       description: "0 = unoccupied, otherwise 1 + FEATURE_KEY_INDEX",
     }),

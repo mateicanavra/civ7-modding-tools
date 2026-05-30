@@ -6,8 +6,19 @@ import {
   stressFromConfidence01,
   validateGridSize,
 } from "../../score-shared/index.js";
+import { isEngineCompatibleInternalBiome } from "../../../feature-engine-legality.js";
 import PlanWetlandsContract from "../contract.js";
 import { admitWetlandIntent } from "../policies/index.js";
+
+function isEngineCompatibleWetlandSurface(
+  feature: string,
+  tileIndex: number,
+  flatLandMask: Uint8Array,
+  biomeIndex: Uint8Array
+): boolean {
+  if (flatLandMask[tileIndex] !== 1) return false;
+  return isEngineCompatibleInternalBiome(feature, biomeIndex[tileIndex] ?? 255);
+}
 
 export const defaultStrategy = createStrategy(PlanWetlandsContract, "default", {
   run: (input, config) => {
@@ -22,10 +33,14 @@ export const defaultStrategy = createStrategy(PlanWetlandsContract, "default", {
         { label: "scoreMangrove01", arr: input.scoreMangrove01 as Float32Array },
         { label: "scoreOasis01", arr: input.scoreOasis01 as Float32Array },
         { label: "scoreWateringHole01", arr: input.scoreWateringHole01 as Float32Array },
+        { label: "flatLandMask", arr: input.flatLandMask as Uint8Array },
+        { label: "biomeIndex", arr: input.biomeIndex as Uint8Array },
         { label: "featureIndex", arr: input.featureIndex as Uint16Array },
         { label: "reserved", arr: input.reserved as Uint8Array },
       ],
     });
+    const flatLandMask = input.flatLandMask as Uint8Array;
+    const biomeIndex = input.biomeIndex as Uint8Array;
 
     const placements: Array<{ x: number; y: number; feature: string; weight?: number }> = [];
     void input.seed;
@@ -46,7 +61,7 @@ export const defaultStrategy = createStrategy(PlanWetlandsContract, "default", {
       const oasisConfidence01 = confidenceFromScore01(oasis);
       const wateringHoleConfidence01 = confidenceFromScore01(wateringHole);
 
-      const best = choosePhysicalCandidate([
+      const candidates = [
         {
           feature: "FEATURE_MARSH",
           confidence01: marshConfidence01,
@@ -77,7 +92,13 @@ export const defaultStrategy = createStrategy(PlanWetlandsContract, "default", {
           stress01: stressFromConfidence01(wateringHoleConfidence01),
           tileIndex: i,
         },
-      ]);
+      ] as const;
+
+      const best = choosePhysicalCandidate(
+        candidates.filter((candidate) =>
+          isEngineCompatibleWetlandSurface(candidate.feature, i, flatLandMask, biomeIndex)
+        )
+      );
       if (best === null) continue;
       if (!admitWetlandIntent(best, config)) continue;
 

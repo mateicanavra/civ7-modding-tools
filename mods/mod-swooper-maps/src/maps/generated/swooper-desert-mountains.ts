@@ -8,6 +8,7 @@
 import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
+import { canonicalRecipeConfig } from "../configs/canonical.js";
 import mapConfig from "../configs/swooper-desert-mountains.config.json";
 
 export default createMap({
@@ -19,5 +20,5 @@ export default createMap({
     "topLatitude": 40,
     "bottomLatitude": -40
   },
-  config: mapConfig.config as StandardRecipeConfig,
+  config: canonicalRecipeConfig<StandardRecipeConfig>(mapConfig),
 });

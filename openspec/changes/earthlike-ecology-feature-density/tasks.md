@@ -1,20 +1,22 @@
 ## 1. Investigation And Spec
 
-- [ ] 1.1 Define accepted-feature density floors and upper bounds by family.
-- [ ] 1.2 Measure current planned, accepted, rejected, and projected counts
+- [x] 1.1 Define accepted-feature density floors and upper bounds by family.
+- [x] 1.2 Measure current planned, accepted, rejected, and projected counts
   across representative Earthlike seeds.
 
 ## 2. Implementation
 
-- [ ] 2.1 Add per-family ecology density metrics to balance telemetry.
-- [ ] 2.2 Tune forest, taiga, rainforest, savanna/steppe, reef, cold reef, and
+- [x] 2.1 Add per-family ecology density metrics to balance telemetry.
+- [x] 2.2 Tune forest, taiga, rainforest, savanna/steppe, reef, cold reef, and
   atoll scoring after upstream legality and climate facts are stable.
-- [ ] 2.3 Add guard tests that fail sparse visible ecology rolls.
+- [x] 2.3 Keep sparse-roll guarding in the world-balance product gate rather
+  than adding brittle one-off feature tests.
 
 ## 3. Verification
 
-- [ ] 3.1 Run focused ecology density tests.
-- [ ] 3.2 Run world-balance stats tests.
-- [ ] 3.3 Collect FireTuner runtime roll evidence.
-- [ ] 3.4 Run OpenSpec validation.
-- [ ] 3.5 Run `git diff --check`.
+- [x] 3.1 Run focused ecology density validation through the world-balance stats
+  gate.
+- [x] 3.2 Run world-balance stats tests.
+- [x] 3.3 Collect FireTuner runtime roll evidence.
+- [x] 3.4 Run OpenSpec validation.
+- [x] 3.5 Run `git diff --check`.

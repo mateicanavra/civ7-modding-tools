@@ -2,12 +2,13 @@
 
 ### Requirement: Earthlike Config Authority Is Single-Posture
 
-Earthlike config authority SHALL keep shipped map, preset, and first-party test
-postures aligned unless a change records an intentional product distinction.
+Earthlike config authority SHALL keep the shipped map, Studio default, and
+first-party test postures aligned unless a change records an intentional
+product distinction.
 
 #### Scenario: Earthlike config sources are compared
-- **WHEN** Swooper Earthlike, standard Earthlike preset, Studio defaults, or
-  realism Earthlike test inputs are loaded
+- **WHEN** Swooper Earthlike, Studio defaults, or realism Earthlike test inputs
+  are loaded
 - **THEN** tests prove whether they share the same intended recipe posture
 - **AND** stale lightweight Earthlike configs cannot silently stand in for the
   shipped map configuration

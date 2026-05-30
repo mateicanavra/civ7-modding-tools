@@ -1,15 +1,13 @@
-import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import type { StandardRecipeConfig } from "../../../recipes/standard/recipe.js";
+import { canonicalRecipeConfig } from "../../configs/canonical.js";
 import swooperEarthlikeConfigRaw from "../../configs/swooper-earthlike.config.json";
 
 /**
  * Preset: realism/earthlike
  *
- * Intended posture:
- * - Same authored posture as the shipped Swooper Earthlike map config.
- * - Kept as a TypeScript import path for tests and legacy callers, not as a
- *   second tuning source.
+ * Legacy recipe-config alias for tooling that still asks for the old realism
+ * preset module. Swooper Earthlike is now the authored product record; this
+ * export deliberately reads that canonical map envelope so tuning remains in
+ * one JSON-backed Studio/save/deploy path.
  */
-export const realismEarthlikeConfig = stripSchemaMetadataRoot(
-  swooperEarthlikeConfigRaw
-) as StandardRecipeConfig;
+export const realismEarthlikeConfig = canonicalRecipeConfig<StandardRecipeConfig>(swooperEarthlikeConfigRaw);
