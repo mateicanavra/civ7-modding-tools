@@ -10,8 +10,8 @@
 
 /// <reference types="@civ7/types" />
 
-import { createMap } from "@swooper/mapgen-core/authoring/maps";
 import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
+import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { StandardRecipeConfig } from "../recipes/standard/recipe.js";
 import standardRecipe from "../recipes/standard/recipe.js";
 import swooperEarthlikeConfigRaw from "./configs/swooper-earthlike.config.json";

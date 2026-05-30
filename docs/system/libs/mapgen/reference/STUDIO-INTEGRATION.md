@@ -161,6 +161,11 @@ Worker seam + protocol:
 Recipe selection + artifacts boundary:
 - Runtime recipes (worker-side): `apps/mapgen-studio/src/browser-runner/recipeRuntime.ts`
 - Bundled recipe artifacts (UI schema + defaults + ui meta): `apps/mapgen-studio/src/recipes/catalog.ts`
+- Recipe artifacts source: `mod-swooper-maps` recipe source is compiled by
+  `bun run --cwd mods/mod-swooper-maps build:studio-recipes` into package
+  artifact entrypoints (`mod-swooper-maps/recipes/*-artifacts`). Studio imports
+  those first-class package artifacts; generated `dist/` files are build proof,
+  not editable product policy.
 - Worker creation boundary: `apps/mapgen-studio/src/features/browserRunner/workerClient.ts`
 
 Core SDK contracts this seam depends on:

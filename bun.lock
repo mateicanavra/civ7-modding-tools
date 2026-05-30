@@ -96,6 +96,7 @@
       "version": "0.1.0",
       "dependencies": {
         "@civ7/adapter": "workspace:*",
+        "@mateicanavra/civ7-sdk": "workspace:*",
         "@swooper/mapgen-core": "workspace:*",
         "@swooper/mapgen-viz": "workspace:*",
         "typebox": "^1.0.80",
@@ -248,10 +249,13 @@
       "name": "@mateicanavra/civ7-sdk",
       "version": "0.0.0",
       "dependencies": {
+        "@civ7/adapter": "workspace:*",
+        "@swooper/mapgen-core": "workspace:*",
         "jstoxml": "^7.0.1",
         "lodash-es": "^4.17.23",
       },
       "devDependencies": {
+        "@civ7/types": "workspace:*",
         "@types/jstoxml": "^5.0.0",
         "@types/lodash": "^4.17.23",
         "@types/node": "^22.14.0",

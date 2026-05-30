@@ -1,13 +1,9 @@
 /// <reference types="@civ7/types" />
 
-import "../../polyfills/text-encoder.js";
-
 import type { MapInfo, MapInitParams, MapSizeId } from "@civ7/adapter";
 import { createCiv7Adapter } from "@civ7/adapter/civ7";
-
-import { createExtendedMapContext, type ExtendedMapContext } from "../../core/types.js";
-import type { Env } from "../../engine/index.js";
-import type { RecipeModule } from "../types.js";
+import { createExtendedMapContext, type Env, type ExtendedMapContext } from "@swooper/mapgen-core";
+import type { RecipeModule } from "@swooper/mapgen-core/authoring";
 
 type RecipeConfigInputOfRecipe<TRecipe extends RecipeModule<any, any, any>> =
   TRecipe extends RecipeModule<any, infer TConfigInput, any> ? TConfigInput : never;
@@ -54,7 +50,10 @@ function resolveSeed(def: MapDefinition<any>): number {
   return seed;
 }
 
-function resolveLatitudeBounds(def: MapDefinition<any>, base: { topLatitude: number; bottomLatitude: number }): {
+function resolveLatitudeBounds(
+  def: MapDefinition<any>,
+  base: { topLatitude: number; bottomLatitude: number }
+): {
   topLatitude: number;
   bottomLatitude: number;
 } {
@@ -84,7 +83,10 @@ function resolveMapInfo(mapSizeId: MapSizeId): MapInfo {
   return mapInfo;
 }
 
-function resolveInitCapture(def: MapDefinition<any>, initParams: Partial<MapInitParams> | null | undefined): InitCapture {
+function resolveInitCapture(
+  def: MapDefinition<any>,
+  initParams: Partial<MapInitParams> | null | undefined
+): InitCapture {
   const mapSizeId: MapSizeId = initParams?.mapSize ?? GameplayMap.getMapSize();
   const mapInfo = resolveMapInfo(mapSizeId);
 
@@ -93,7 +95,12 @@ function resolveInitCapture(def: MapDefinition<any>, initParams: Partial<MapInit
   const baseTopLatitude = initParams?.topLatitude ?? mapInfo.MaxLatitude;
   const baseBottomLatitude = initParams?.bottomLatitude ?? mapInfo.MinLatitude;
 
-  if (typeof width !== "number" || !Number.isFinite(width) || typeof height !== "number" || !Number.isFinite(height)) {
+  if (
+    typeof width !== "number" ||
+    !Number.isFinite(width) ||
+    typeof height !== "number" ||
+    !Number.isFinite(height)
+  ) {
     throw new Error(
       `${def.logPrefix ?? "[SWOOPER_MOD]"} Missing map dimensions (width/height not provided by init params and not present in mapInfo).`
     );
