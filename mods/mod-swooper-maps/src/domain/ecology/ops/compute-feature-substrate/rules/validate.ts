@@ -3,6 +3,9 @@ type ComputeInputs = Readonly<{
   height: number;
   riverClass: Uint8Array;
   landMask: Uint8Array;
+  elevation: Int16Array;
+  discharge: Float32Array;
+  sinkMask: Uint8Array;
 }>;
 
 export function validateFeatureSubstrateInputs(input: ComputeInputs): number {
@@ -16,7 +19,15 @@ export function validateFeatureSubstrateInputs(input: ComputeInputs): number {
   if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
     throw new Error("[Ecology] Invalid landMask for compute-feature-substrate.");
   }
+  if (!(input.elevation instanceof Int16Array) || input.elevation.length !== size) {
+    throw new Error("[Ecology] Invalid elevation for compute-feature-substrate.");
+  }
+  if (!(input.discharge instanceof Float32Array) || input.discharge.length !== size) {
+    throw new Error("[Ecology] Invalid discharge for compute-feature-substrate.");
+  }
+  if (!(input.sinkMask instanceof Uint8Array) || input.sinkMask.length !== size) {
+    throw new Error("[Ecology] Invalid sinkMask for compute-feature-substrate.");
+  }
 
   return size;
 }
-

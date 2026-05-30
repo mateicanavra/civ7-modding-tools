@@ -11,7 +11,7 @@ export const defaultStrategy = createStrategy(ScoreWetWateringHoleContract, "def
       height: input.height,
       fields: [
         { label: "landMask", arr: input.landMask as Uint8Array },
-        { label: "isolatedRiverMask", arr: input.isolatedRiverMask as Uint8Array },
+        { label: "isolatedWaterPointMask", arr: input.isolatedWaterPointMask as Uint8Array },
         { label: "water01", arr: input.water01 as Float32Array },
         { label: "fertility01", arr: input.fertility01 as Float32Array },
         { label: "aridityIndex", arr: input.aridityIndex as Float32Array },
@@ -23,10 +23,12 @@ export const defaultStrategy = createStrategy(ScoreWetWateringHoleContract, "def
 
     for (let i = 0; i < size; i++) {
       if (input.landMask[i] === 0) continue;
-      if (input.isolatedRiverMask[i] === 0) continue;
+      if (input.isolatedWaterPointMask[i] === 0) continue;
 
+      // Watering holes share the arid water-source substrate with oases but
+      // stay drier and less fertile through their own scoring policy.
       const drySuit = rampUp01(input.aridityIndex[i], config.dryMin01, config.dryMax01);
-      const lowWaterSuit = rampUp01(1 - input.water01[i], config.lowWaterMin01, 1);
+      const waterSuit = rampUp01(input.water01[i], config.waterMin01, 1);
       const fertilitySuit = rampUp01(input.fertility01[i], config.fertilityMin01, 1);
       const warmSuit = rampUp01(
         input.surfaceTemperature[i],
@@ -34,10 +36,9 @@ export const defaultStrategy = createStrategy(ScoreWetWateringHoleContract, "def
         config.tempWarmEndC
       );
 
-      score01[i] = clamp01(drySuit * lowWaterSuit * fertilitySuit * warmSuit);
+      score01[i] = clamp01(drySuit * waterSuit * fertilitySuit * warmSuit);
     }
 
     return { score01 };
   },
 });
-

@@ -5,6 +5,7 @@ import {
   validateGridSize,
 } from "../../score-shared/index.js";
 import PlanIceContract from "../contract.js";
+import { admitIceIntent } from "../policies/index.js";
 
 export const defaultStrategy = createStrategy(PlanIceContract, "default", {
   run: (input, config) => {
@@ -29,7 +30,7 @@ export const defaultStrategy = createStrategy(PlanIceContract, "default", {
       if (input.featureIndex[i] !== 0) continue;
       const score = input.score01[i] ?? 0;
       const confidence01 = confidenceFromScore01(score);
-      if (confidence01 <= 0) continue;
+      if (!admitIceIntent({ confidence01 })) continue;
       const x = i % width;
       const y = (i / width) | 0;
       placements.push({ x, y, feature: "FEATURE_ICE" });

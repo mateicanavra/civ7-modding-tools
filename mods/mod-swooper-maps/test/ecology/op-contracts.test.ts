@@ -174,6 +174,10 @@ describe("ecology op contract surfaces", () => {
         height,
         riverClass: new Uint8Array(size),
         landMask: new Uint8Array(size).fill(1),
+        elevation: new Int16Array(size).fill(40),
+        seaLevel: 0,
+        discharge: new Float32Array(size),
+        sinkMask: new Uint8Array(size),
       },
       selection
     );
@@ -182,6 +186,13 @@ describe("ecology op contract surfaces", () => {
     expect(result.nearRiverMask.length).toBe(size);
     expect(result.isolatedRiverMask.length).toBe(size);
     expect(result.coastalLandMask.length).toBe(size);
+    expect(result.lowlandMask.length).toBe(size);
+    expect(result.floodplainMask.length).toBe(size);
+    expect(result.intertidalCoastMask.length).toBe(size);
+    expect(result.sinkBasinMask.length).toBe(size);
+    expect(result.hydromorphicMask.length).toBe(size);
+    expect(result.wellDrainedMask.length).toBe(size);
+    expect(result.isolatedWaterPointMask.length).toBe(size);
   });
 
   it("classifyBiomes validates output", () => {
@@ -304,9 +315,9 @@ describe("ecology op contract surfaces", () => {
 
     {
       const landMask = new Uint8Array(size).fill(1);
-      const nearRiverMask = new Uint8Array(size).fill(1);
-      const isolatedRiverMask = new Uint8Array(size).fill(1);
-      const coastalLandMask = new Uint8Array(size).fill(1);
+      const hydromorphicMask = new Uint8Array(size).fill(1);
+      const intertidalCoastMask = new Uint8Array(size).fill(1);
+      const isolatedWaterPointMask = new Uint8Array(size).fill(1);
       const water01 = new Float32Array(size).fill(0.7);
       const fertility01 = new Float32Array(size).fill(0.4);
       const surfaceTemperature = new Float32Array(size).fill(18);
@@ -320,7 +331,7 @@ describe("ecology op contract surfaces", () => {
             width,
             height,
             landMask,
-            nearRiverMask,
+            hydromorphicMask,
             water01,
             fertility01,
             surfaceTemperature,
@@ -333,7 +344,7 @@ describe("ecology op contract surfaces", () => {
             width,
             height,
             landMask,
-            nearRiverMask,
+            hydromorphicMask,
             water01,
             fertility01,
             surfaceTemperature,
@@ -346,7 +357,7 @@ describe("ecology op contract surfaces", () => {
             width,
             height,
             landMask,
-            coastalLandMask,
+            intertidalCoastMask,
             water01,
             fertility01,
             surfaceTemperature,
@@ -355,7 +366,7 @@ describe("ecology op contract surfaces", () => {
         },
         {
           op: ecology.ops.scoreWetOasis,
-          input: { width, height, landMask, isolatedRiverMask, water01, aridityIndex, surfaceTemperature },
+          input: { width, height, landMask, isolatedWaterPointMask, water01, aridityIndex, surfaceTemperature },
         },
         {
           op: ecology.ops.scoreWetWateringHole,
@@ -363,7 +374,7 @@ describe("ecology op contract surfaces", () => {
             width,
             height,
             landMask,
-            isolatedRiverMask,
+            isolatedWaterPointMask,
             water01,
             fertility01,
             aridityIndex,
@@ -384,23 +395,64 @@ describe("ecology op contract surfaces", () => {
       const surfaceTemperatureWarm = new Float32Array(size).fill(24);
       const surfaceTemperatureCold = new Float32Array(size).fill(12);
       const bathymetry = new Int16Array(size).fill(-120);
+      const shelfMask = new Uint8Array(size).fill(1);
+      const coastalWater = new Uint8Array(size).fill(1);
+      const distanceToCoast = new Uint16Array(size).fill(1);
+      const isolatedCoastalWater = new Uint8Array(size).fill(0);
+      const isolatedDistanceToCoast = new Uint16Array(size).fill(5);
 
       const reefScoreOps = [
         {
           op: ecology.ops.scoreReef,
-          input: { width, height, landMask, surfaceTemperature: surfaceTemperatureWarm, bathymetry },
+          input: {
+            width,
+            height,
+            landMask,
+            surfaceTemperature: surfaceTemperatureWarm,
+            bathymetry,
+            shelfMask,
+            coastalWater,
+            distanceToCoast,
+          },
         },
         {
           op: ecology.ops.scoreColdReef,
-          input: { width, height, landMask, surfaceTemperature: surfaceTemperatureCold, bathymetry },
+          input: {
+            width,
+            height,
+            landMask,
+            surfaceTemperature: surfaceTemperatureCold,
+            bathymetry,
+            shelfMask,
+            coastalWater,
+            distanceToCoast,
+          },
         },
         {
           op: ecology.ops.scoreReefAtoll,
-          input: { width, height, landMask, surfaceTemperature: surfaceTemperatureWarm, bathymetry },
+          input: {
+            width,
+            height,
+            landMask,
+            surfaceTemperature: surfaceTemperatureWarm,
+            bathymetry,
+            shelfMask,
+            coastalWater: isolatedCoastalWater,
+            distanceToCoast: isolatedDistanceToCoast,
+          },
         },
         {
           op: ecology.ops.scoreReefLotus,
-          input: { width, height, landMask, surfaceTemperature: surfaceTemperatureWarm, bathymetry },
+          input: {
+            width,
+            height,
+            landMask,
+            surfaceTemperature: surfaceTemperatureWarm,
+            bathymetry,
+            shelfMask,
+            coastalWater,
+            distanceToCoast,
+          },
         },
       ] as const;
 

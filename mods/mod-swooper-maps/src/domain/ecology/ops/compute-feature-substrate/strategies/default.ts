@@ -1,6 +1,7 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import ComputeFeatureSubstrateContract from "../contract.js";
+import { computeWetlandSubstrateMasks } from "../policies/index.js";
 import {
   computeCoastalLandMask,
   computeNavigableRiverMask,
@@ -15,12 +16,18 @@ export const defaultStrategy = createStrategy(ComputeFeatureSubstrateContract, "
       height: input.height,
       riverClass: input.riverClass as Uint8Array,
       landMask: input.landMask as Uint8Array,
+      elevation: input.elevation as Int16Array,
+      discharge: input.discharge as Float32Array,
+      sinkMask: input.sinkMask as Uint8Array,
     });
 
     const width = input.width | 0;
     const height = input.height | 0;
     const riverClass = input.riverClass as Uint8Array;
     const landMask = input.landMask as Uint8Array;
+    const elevation = input.elevation as Int16Array;
+    const discharge = input.discharge as Float32Array;
+    const sinkMask = input.sinkMask as Uint8Array;
 
     const navigableRiverMask = computeNavigableRiverMask({
       size,
@@ -49,7 +56,30 @@ export const defaultStrategy = createStrategy(ComputeFeatureSubstrateContract, "
       radius: config.coastalAdjacencyRadius,
     });
 
-    return { navigableRiverMask, nearRiverMask, isolatedRiverMask, coastalLandMask };
+    const wetlandSubstrate = computeWetlandSubstrateMasks({
+      width,
+      height,
+      landMask,
+      elevation,
+      seaLevel: input.seaLevel,
+      riverClass,
+      discharge,
+      sinkMask,
+      nearRiverMask,
+      isolatedRiverMask,
+      coastalLandMask,
+      nearRiverRadius: config.nearRiverRadius,
+      lowlandMaxElevationAboveSeaM: config.lowlandMaxElevationAboveSeaM,
+      intertidalMaxElevationAboveSeaM: config.intertidalMaxElevationAboveSeaM,
+      floodplainDischargeMin: config.floodplainDischargeMin,
+    });
+
+    return {
+      navigableRiverMask,
+      nearRiverMask,
+      isolatedRiverMask,
+      coastalLandMask,
+      ...wetlandSubstrate,
+    };
   },
 });
-

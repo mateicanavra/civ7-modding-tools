@@ -73,7 +73,3 @@ export function choosePhysicalCandidate<T extends string>(
   }
   return best;
 }
-
-export function confidenceBeatsStress(candidate: Readonly<{ confidence01: number; stress01: number }>): boolean {
-  return candidate.confidence01 > candidate.stress01;
-}

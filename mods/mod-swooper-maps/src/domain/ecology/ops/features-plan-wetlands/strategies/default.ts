@@ -7,6 +7,7 @@ import {
   validateGridSize,
 } from "../../score-shared/index.js";
 import PlanWetlandsContract from "../contract.js";
+import { admitWetlandIntent } from "../policies/index.js";
 
 export const defaultStrategy = createStrategy(PlanWetlandsContract, "default", {
   run: (input, config) => {
@@ -79,7 +80,7 @@ export const defaultStrategy = createStrategy(PlanWetlandsContract, "default", {
         },
       ]);
       if (best === null) continue;
-      if (best.confidence01 <= 0) continue;
+      if (!admitWetlandIntent(best)) continue;
 
       const x = i % width;
       const y = (i / width) | 0;

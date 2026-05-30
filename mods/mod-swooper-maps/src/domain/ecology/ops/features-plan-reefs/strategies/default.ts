@@ -7,6 +7,7 @@ import {
   validateGridSize,
 } from "../../score-shared/index.js";
 import PlanReefsContract from "../contract.js";
+import { admitReefIntent } from "../policies/index.js";
 
 export const defaultStrategy = createStrategy(PlanReefsContract, "default", {
   run: (input, config) => {
@@ -70,7 +71,7 @@ export const defaultStrategy = createStrategy(PlanReefsContract, "default", {
         },
       ]);
       if (best === null) continue;
-      if (best.confidence01 <= 0) continue;
+      if (!admitReefIntent(best)) continue;
 
       const x = i % width;
       const y = (i / width) | 0;

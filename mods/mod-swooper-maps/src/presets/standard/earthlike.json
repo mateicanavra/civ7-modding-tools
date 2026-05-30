@@ -826,7 +826,10 @@
             "navigableRiverClass": 2,
             "nearRiverRadius": 2,
             "isolatedRiverRadius": 1,
-            "coastalAdjacencyRadius": 1
+            "coastalAdjacencyRadius": 1,
+            "lowlandMaxElevationAboveSeaM": 160,
+            "intertidalMaxElevationAboveSeaM": 40,
+            "floodplainDischargeMin": 0
           }
         },
         "scoreForest": {
@@ -885,7 +888,7 @@
           "config": {
             "dryMin01": 0.6,
             "dryMax01": 0.95,
-            "lowWaterMin01": 0.55,
+            "waterMin01": 0.35,
             "tempWarmStartC": 20,
             "tempWarmEndC": 38
           }
@@ -895,7 +898,7 @@
           "config": {
             "dryMin01": 0.45,
             "dryMax01": 0.85,
-            "lowWaterMin01": 0.35,
+            "waterMin01": 0.25,
             "fertilityMin01": 0.1,
             "tempWarmStartC": 12,
             "tempWarmEndC": 32
@@ -904,10 +907,11 @@
         "scoreReef": {
           "strategy": "default",
           "config": {
-            "tempWarmStartC": 14,
+            "tempWarmStartC": 18,
             "tempWarmEndC": 28,
-            "shallowDepthM": 150,
-            "deepDepthM": 1200
+            "shallowDepthM": 0,
+            "deepDepthM": 120,
+            "maxDistanceToCoast": 3
           }
         },
         "scoreColdReef": {
@@ -915,8 +919,10 @@
           "config": {
             "tempColdMaxC": 10,
             "tempWarmMaxC": 20,
-            "shallowDepthM": 150,
-            "deepDepthM": 1200
+            "minDepthM": 45,
+            "peakDepthM": 300,
+            "maxDepthM": 1200,
+            "minDistanceToCoast": 1
           }
         },
         "scoreReefAtoll": {
@@ -924,8 +930,9 @@
           "config": {
             "tempWarmStartC": 18,
             "tempWarmEndC": 30,
-            "shallowDepthM": 80,
-            "deepDepthM": 500
+            "shallowDepthM": 0,
+            "deepDepthM": 100,
+            "minDistanceToCoast": 4
           }
         },
         "scoreReefLotus": {
@@ -933,8 +940,9 @@
           "config": {
             "tempWarmStartC": 16,
             "tempWarmEndC": 32,
-            "shallowDepthM": 40,
-            "deepDepthM": 350
+            "shallowDepthM": 0,
+            "deepDepthM": 40,
+            "maxDistanceToCoast": 2
           }
         },
         "scoreIce": {

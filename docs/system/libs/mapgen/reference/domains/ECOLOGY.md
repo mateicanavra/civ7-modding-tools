@@ -73,6 +73,8 @@ Ecology domain ops used by the standard recipe are split along the target archit
 - Feature intent planners (truth stage `ecology-features`):
   - Vegetation signals (compute) used by step-owned picking: `computeVegetationSubstrate`, `scoreVegetation*`
   - Other intent planners: `planWetlands`, `planReefs`, `planIce`
+  - Planner-local `policies/` files own score-to-intent admission for each feature family. Do not route
+    feature admission through generic `shared` helpers or projection code.
 - Plot effect planners (truth stage `ecology-features`):
   - `planPlotEffects`
 - Atomic per-feature placement planners (truth stage, disabled-by-default; see config posture):
@@ -90,6 +92,12 @@ Current posture in the standard recipe:
 - knobs are present but currently empty at the stage level.
 
 Key contract point: strategy config schemas stay with their owning op contracts or named op-family modules. The shared Ecology artifact surface is allowed because multiple truth and projection stages consume the same artifact invariants; it is not a dumping ground for strategy-owned config.
+
+Feature scoring and planning stay separate:
+- Score ops produce continuous physical suitability fields. A positive score is not itself a placement command.
+- Planner-local policies decide whether a suitability candidate is strong enough to become an intent.
+- Reef-family habitat eligibility is reef-owned: warm reefs use warm shallow near-coast shelf water, cold reefs use colder deeper shelf/edge water, atolls use isolated warm shallow banks, and `FEATURE_LOTUS` uses warm shallow near-land water.
+- Wetland-family habitat eligibility is wet-feature-owned through named substrate masks: marsh and tundra bog require hydromorphic substrate, mangrove requires intertidal coast, and oasis/watering-hole features require isolated lowland water-source substrate plus arid scoring.
 
 ## Engine projection notes (map-ecology)
 

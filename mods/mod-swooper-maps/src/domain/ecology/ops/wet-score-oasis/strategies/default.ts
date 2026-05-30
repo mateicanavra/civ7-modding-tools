@@ -11,7 +11,7 @@ export const defaultStrategy = createStrategy(ScoreWetOasisContract, "default", 
       height: input.height,
       fields: [
         { label: "landMask", arr: input.landMask as Uint8Array },
-        { label: "isolatedRiverMask", arr: input.isolatedRiverMask as Uint8Array },
+        { label: "isolatedWaterPointMask", arr: input.isolatedWaterPointMask as Uint8Array },
         { label: "water01", arr: input.water01 as Float32Array },
         { label: "aridityIndex", arr: input.aridityIndex as Float32Array },
         { label: "surfaceTemperature", arr: input.surfaceTemperature as Float32Array },
@@ -22,20 +22,21 @@ export const defaultStrategy = createStrategy(ScoreWetOasisContract, "default", 
 
     for (let i = 0; i < size; i++) {
       if (input.landMask[i] === 0) continue;
-      if (input.isolatedRiverMask[i] === 0) continue;
+      if (input.isolatedWaterPointMask[i] === 0) continue;
 
+      // Oases are arid local water-source features. This policy excludes broad
+      // floodplain wetlands and leaves lushness to climate/fertility scoring.
       const drySuit = rampUp01(input.aridityIndex[i], config.dryMin01, config.dryMax01);
-      const lowWaterSuit = rampUp01(1 - input.water01[i], config.lowWaterMin01, 1);
+      const waterSuit = rampUp01(input.water01[i], config.waterMin01, 1);
       const warmSuit = rampUp01(
         input.surfaceTemperature[i],
         config.tempWarmStartC,
         config.tempWarmEndC
       );
 
-      score01[i] = clamp01(drySuit * lowWaterSuit * warmSuit);
+      score01[i] = clamp01(drySuit * waterSuit * warmSuit);
     }
 
     return { score01 };
   },
 });
-

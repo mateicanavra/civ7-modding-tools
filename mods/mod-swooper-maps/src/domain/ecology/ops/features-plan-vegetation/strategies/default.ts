@@ -7,6 +7,7 @@ import {
   validateGridSize,
 } from "../../score-shared/index.js";
 import PlanVegetationContract from "../contract.js";
+import { admitVegetationIntent } from "../policies/index.js";
 
 export const defaultStrategy = createStrategy(PlanVegetationContract, "default", {
   run: (input, config) => {
@@ -81,7 +82,7 @@ export const defaultStrategy = createStrategy(PlanVegetationContract, "default",
         },
       ]);
       if (best === null) continue;
-      if (best.confidence01 <= 0) continue;
+      if (!admitVegetationIntent(best)) continue;
 
       const x = i % width;
       const y = (i / width) | 0;

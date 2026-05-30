@@ -7,7 +7,9 @@ const ScoreWetWateringHoleContract = defineOp({
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
     landMask: TypedArraySchemas.u8({ description: "Land mask (1 = land, 0 = water)." }),
-    isolatedRiverMask: TypedArraySchemas.u8({ description: "Mask (1/0): tiles near isolated rivers." }),
+    isolatedWaterPointMask: TypedArraySchemas.u8({
+      description: "Mask (1/0): isolated lowland water-source substrate.",
+    }),
     water01: TypedArraySchemas.f32({ description: "Water availability proxy (0..1)." }),
     fertility01: TypedArraySchemas.f32({ description: "Fertility proxy (0..1)." }),
     aridityIndex: TypedArraySchemas.f32({ description: "Aridity index (0..1)." }),
@@ -20,7 +22,7 @@ const ScoreWetWateringHoleContract = defineOp({
     default: Type.Object({
       dryMin01: Type.Number({ default: 0.45, minimum: 0, maximum: 1 }),
       dryMax01: Type.Number({ default: 0.85, minimum: 0, maximum: 1 }),
-      lowWaterMin01: Type.Number({ default: 0.35, minimum: 0, maximum: 1 }),
+      waterMin01: Type.Number({ default: 0.25, minimum: 0, maximum: 1 }),
       fertilityMin01: Type.Number({ default: 0.1, minimum: 0, maximum: 1 }),
       tempWarmStartC: Type.Number({ default: 12 }),
       tempWarmEndC: Type.Number({ default: 32 }),
@@ -29,4 +31,3 @@ const ScoreWetWateringHoleContract = defineOp({
 });
 
 export default ScoreWetWateringHoleContract;
-

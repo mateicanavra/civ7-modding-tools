@@ -11,6 +11,9 @@ const ScoreReefContract = defineOp({
     bathymetry: TypedArraySchemas.i16({
       description: "Bathymetry in meters (0 on land; <=0 in water; more negative is deeper).",
     }),
+    shelfMask: TypedArraySchemas.u8({ description: "Mask (1/0): water tile is on continental shelf." }),
+    coastalWater: TypedArraySchemas.u8({ description: "Mask (1/0): water tile is adjacent to land." }),
+    distanceToCoast: TypedArraySchemas.u16({ description: "Tile distance from nearest coast." }),
   }),
   output: Type.Object({
     score01: TypedArraySchemas.f32({ description: "Reef suitability score per tile (0..1)." }),
@@ -19,11 +22,11 @@ const ScoreReefContract = defineOp({
     default: Type.Object({
       tempWarmStartC: Type.Number({ default: 14 }),
       tempWarmEndC: Type.Number({ default: 28 }),
-      shallowDepthM: Type.Integer({ default: 150 }),
-      deepDepthM: Type.Integer({ default: 1200 }),
+      shallowDepthM: Type.Integer({ default: 0 }),
+      deepDepthM: Type.Integer({ default: 120 }),
+      maxDistanceToCoast: Type.Integer({ default: 3, minimum: 0 }),
     }),
   },
 });
 
 export default ScoreReefContract;
-

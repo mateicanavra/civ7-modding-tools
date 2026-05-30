@@ -71,6 +71,10 @@ export default createStep(ScoreLayersStepContract, {
         height,
         riverClass: hydrography.riverClass,
         landMask: topography.landMask,
+        elevation: topography.elevation,
+        seaLevel: topography.seaLevel,
+        discharge: hydrography.discharge,
+        sinkMask: hydrography.sinkMask,
       },
       config.featureSubstrate
     );
@@ -80,7 +84,7 @@ export default createStep(ScoreLayersStepContract, {
         width,
         height,
         landMask: topography.landMask,
-        nearRiverMask: featureSubstrate.nearRiverMask,
+        hydromorphicMask: featureSubstrate.hydromorphicMask,
         water01: vegetationSubstrate.water01,
         fertility01: vegetationSubstrate.fertility01,
         surfaceTemperature: classification.surfaceTemperature,
@@ -94,7 +98,7 @@ export default createStep(ScoreLayersStepContract, {
         width,
         height,
         landMask: topography.landMask,
-        nearRiverMask: featureSubstrate.nearRiverMask,
+        hydromorphicMask: featureSubstrate.hydromorphicMask,
         water01: vegetationSubstrate.water01,
         fertility01: vegetationSubstrate.fertility01,
         surfaceTemperature: classification.surfaceTemperature,
@@ -108,7 +112,7 @@ export default createStep(ScoreLayersStepContract, {
         width,
         height,
         landMask: topography.landMask,
-        coastalLandMask: featureSubstrate.coastalLandMask,
+        intertidalCoastMask: featureSubstrate.intertidalCoastMask,
         water01: vegetationSubstrate.water01,
         fertility01: vegetationSubstrate.fertility01,
         surfaceTemperature: classification.surfaceTemperature,
@@ -122,7 +126,7 @@ export default createStep(ScoreLayersStepContract, {
         width,
         height,
         landMask: topography.landMask,
-        isolatedRiverMask: featureSubstrate.isolatedRiverMask,
+        isolatedWaterPointMask: featureSubstrate.isolatedWaterPointMask,
         water01: vegetationSubstrate.water01,
         aridityIndex: classification.aridityIndex,
         surfaceTemperature: classification.surfaceTemperature,
@@ -135,7 +139,7 @@ export default createStep(ScoreLayersStepContract, {
         width,
         height,
         landMask: topography.landMask,
-        isolatedRiverMask: featureSubstrate.isolatedRiverMask,
+        isolatedWaterPointMask: featureSubstrate.isolatedWaterPointMask,
         water01: vegetationSubstrate.water01,
         fertility01: vegetationSubstrate.fertility01,
         aridityIndex: classification.aridityIndex,
@@ -151,6 +155,9 @@ export default createStep(ScoreLayersStepContract, {
         landMask: topography.landMask,
         surfaceTemperature: classification.surfaceTemperature,
         bathymetry: topography.bathymetry,
+        shelfMask: coastline.shelfMask,
+        coastalWater: coastline.coastalWater,
+        distanceToCoast: coastline.distanceToCoast,
       },
       config.scoreReef
     ).score01;
@@ -162,6 +169,9 @@ export default createStep(ScoreLayersStepContract, {
         landMask: topography.landMask,
         surfaceTemperature: classification.surfaceTemperature,
         bathymetry: topography.bathymetry,
+        shelfMask: coastline.shelfMask,
+        coastalWater: coastline.coastalWater,
+        distanceToCoast: coastline.distanceToCoast,
       },
       config.scoreColdReef
     ).score01;
@@ -173,6 +183,9 @@ export default createStep(ScoreLayersStepContract, {
         landMask: topography.landMask,
         surfaceTemperature: classification.surfaceTemperature,
         bathymetry: topography.bathymetry,
+        shelfMask: coastline.shelfMask,
+        coastalWater: coastline.coastalWater,
+        distanceToCoast: coastline.distanceToCoast,
       },
       config.scoreReefAtoll
     ).score01;
@@ -184,6 +197,9 @@ export default createStep(ScoreLayersStepContract, {
         landMask: topography.landMask,
         surfaceTemperature: classification.surfaceTemperature,
         bathymetry: topography.bathymetry,
+        shelfMask: coastline.shelfMask,
+        coastalWater: coastline.coastalWater,
+        distanceToCoast: coastline.distanceToCoast,
       },
       config.scoreReefLotus
     ).score01;
