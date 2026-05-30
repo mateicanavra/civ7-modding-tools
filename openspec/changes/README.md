@@ -25,6 +25,7 @@ Authority:
 | 7 | `normalize-placement-contracts` | D3, Domino 4 contract boundaries | `normalize-import-boundaries`, `normalize-projection-lakes` |
 | 8 | `normalize-placement-reconciliation` | D4, Domino 4 typed reconciliation | `normalize-placement-contracts` |
 | 9 | `normalize-guardrails-promotion` | Domino 5, G1-G9 | cleanup slices whose guards are enabled |
+| 10 | `normalize-swooper-map-config-generation` | Swooper Maps shipped-map config authority and generated map artifacts | `normalize-config-surface`, `normalize-core-studio-dx-boundaries`, `normalize-sdk-mapgen-runtime-entrypoint` |
 
 Parallelism:
 
@@ -36,6 +37,9 @@ Parallelism:
   contracts exist.
 - `normalize-guardrails-promotion` may enable individual guards incrementally,
   but each guard must cite the cleanup change that makes it pass.
+- `normalize-swooper-map-config-generation` is an integrated follow-on to D1:
+  it should start after the flat config surface is available, then can split
+  implementation into config/schema, generator, and Studio repo-save slices.
 
 ## Review Roles
 
