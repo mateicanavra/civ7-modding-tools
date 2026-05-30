@@ -1,0 +1,61 @@
+import { describe, expect, it } from "bun:test";
+import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
+
+import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
+import earthlikePresetRaw from "../../src/presets/standard/earthlike.json";
+import { SHATTERED_RING_CONFIG } from "../../src/maps/configs/shattered-ring.config.js";
+import { SUNDERED_ARCHIPELAGO_CONFIG } from "../../src/maps/configs/sundered-archipelago.config.js";
+import { SWOOPER_DESERT_MOUNTAINS_CONFIG } from "../../src/maps/configs/swooper-desert-mountains.config.js";
+import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
+
+function unwrapConfig(config: unknown): StandardRecipeConfig {
+  const unwrapped = stripSchemaMetadataRoot(structuredClone(config)) as
+    | StandardRecipeConfig
+    | { config: StandardRecipeConfig };
+  return "config" in unwrapped ? unwrapped.config : unwrapped;
+}
+
+const VEGETATION_THRESHOLDS = [
+  "forestMinConfidence01",
+  "rainforestMinConfidence01",
+  "taigaMinConfidence01",
+  "savannaWoodlandMinConfidence01",
+  "sagebrushSteppeMinConfidence01",
+] as const;
+
+const CASES = [
+  { label: "swooper-earthlike", config: unwrapConfig(swooperEarthlikeConfigRaw) },
+  { label: "standard-earthlike-preset", config: unwrapConfig(earthlikePresetRaw) },
+  { label: "shattered-ring", config: SHATTERED_RING_CONFIG },
+  { label: "sundered-archipelago", config: SUNDERED_ARCHIPELAGO_CONFIG },
+  { label: "desert-mountains", config: SWOOPER_DESERT_MOUNTAINS_CONFIG },
+] as const;
+
+describe("shipped map config identity", () => {
+  it("uses current feature-family planner strategies and explicit vegetation thresholds", () => {
+    for (const { label, config } of CASES) {
+      const features = config["ecology-features"];
+      expect(features, `${label} ecology-features`).toBeDefined();
+      const vegetation = features?.["plan-vegetation"]?.planVegetation;
+      expect(vegetation?.strategy, `${label} vegetation strategy`).toBe("default");
+      expect(vegetation?.config, `${label} vegetation config`).not.toHaveProperty("minConfidence01");
+      for (const key of VEGETATION_THRESHOLDS) {
+        const value = vegetation?.config?.[key];
+        expect(typeof value, `${label} ${key}`).toBe("number");
+        expect(value, `${label} ${key}`).toBeGreaterThanOrEqual(0);
+        expect(value, `${label} ${key}`).toBeLessThanOrEqual(0.45);
+      }
+
+      expect(features?.["plan-wetlands"]?.planWetlands?.strategy, `${label} wetlands strategy`).toBe(
+        "default"
+      );
+      expect(features?.["plan-ice"]?.planIce?.strategy, `${label} ice strategy`).toBe(
+        "continentality"
+      );
+      expect(
+        ["default", "shipping-lanes"].includes(features?.["plan-reefs"]?.planReefs?.strategy ?? ""),
+        `${label} reef strategy`
+      ).toBe(true);
+    }
+  });
+});

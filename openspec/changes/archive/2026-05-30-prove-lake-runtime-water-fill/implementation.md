@@ -18,10 +18,26 @@ Local official-resource scan found `MapSeaLevels` in the gameplay schema, but no
 - `bun run --cwd mods/mod-swooper-maps check`
 - `bun run openspec -- validate prove-lake-runtime-water-fill --strict`
 - `bun run openspec:validate`
-- `git diff --check`
-
-Pending for overall workstream closure:
-
 - `bun run build`
 - `bun run --cwd mods/mod-swooper-maps deploy`
-- Fresh Civ7/FireTuner MapGeneration runtime proof and bounded log evidence.
+- `git diff --check`
+
+## Runtime Proof
+
+Deployed map file:
+
+- `2026-05-30 14:34:51 -0400 /Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/swooper-earthlike.js`
+
+Fresh Civ7 map roll after the deploy:
+
+- `Scripting.log` mtime: `2026-05-30 14:48:08 -0400`.
+- MapGeneration context created at `2026-05-30 14:48:06`.
+- The run reached `[36/50] ok mod-swooper-maps.standard.map-hydrology.lakes`.
+- The run reached `[45/50] ok mod-swooper-maps.standard.placement.prepare-placement-surface`.
+- The run reached `[50/50] ok mod-swooper-maps.standard.placement.placement`.
+- The run ended with `Destroying Context -  MapGeneration`.
+
+Bounded sibling-log review after the deploy found no Swooper MapGeneration
+failure, `TextEncoder`, uncaught exception, or lake-runtime exception. The
+remaining log noise in the same window is base/DLC/UI/online-service noise
+outside this mod path, including another mod's UI import error.

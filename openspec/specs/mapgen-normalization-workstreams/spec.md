@@ -658,3 +658,92 @@ The MapGen normalization workstream SHALL encode Civ7 engine terrain materializa
 - **WHEN** map projection tests inspect the standard recipe
 - **THEN** they assert the relative order of lake projection, elevation building, and river modeling
 - **AND** the guard is not tailored to one map config or one seed
+
+### Requirement: Ecology Vegetation Families Remain Distinct Product Outcomes
+
+Ecology vegetation scoring and planning SHALL preserve distinct habitat
+outcomes for forest, rainforest, taiga, savanna woodland, and sagebrush steppe
+instead of collapsing all visible vegetation into the highest generic score.
+
+#### Scenario: A cold forest habitat is evaluated
+- **WHEN** taiga suitability is scored for cold land with enough moisture and
+  biomass to support boreal cover
+- **THEN** cold evidence is not counted as both required habitat and a
+  duplicate penalty that erases the score
+- **AND** the score can exceed the owning taiga planner admission policy
+
+#### Scenario: A dry shrub-steppe habitat is evaluated
+- **WHEN** sagebrush steppe suitability is scored for semiarid, well-drained
+  land with low-to-moderate biomass
+- **THEN** aridity evidence is not counted as both required habitat and a
+  duplicate penalty that erases the score
+- **AND** the score can exceed the owning sagebrush planner admission policy
+
+#### Scenario: Vegetation feature intents are selected
+- **WHEN** the vegetation planner evaluates forest, rainforest, taiga, savanna
+  woodland, and sagebrush candidates for a tile
+- **THEN** each candidate is filtered by its own owner-local admission policy
+- **AND** selection remains deterministic among admitted physical candidates
+- **AND** the planner does not emit fallback, quota, alias, or generic
+  vegetation placements
+
+#### Scenario: Shipped map identities are tested
+- **WHEN** shipped map configs and presets run through the standard recipe
+- **THEN** world-balance tests assert required vegetation-family presence and
+  density bands by map identity across seeds
+- **AND** aggregate vegetation counts alone are insufficient proof
+
+### Requirement: Lake Projection Is Proven At Runtime Lifecycle Boundaries
+
+MapGen lake projection SHALL prove that Hydrology lake intent remains visible
+as Civ7 water/lake runtime state after the engine terrain lifecycle, not only
+immediately after adapter terrain writes in tests.
+
+#### Scenario: A planned lake tile is projected
+- **WHEN** `map-hydrology/lakes` asks the Civ7 adapter to stamp a planned lake
+  tile
+- **THEN** projection diagnostics record terrain type, water state, lake state,
+  area evidence, and elevation evidence where the runtime exposes them
+- **AND** the diagnostic distinguishes terrain-write failure, water
+  classification failure, lake classification failure, and later drying
+
+#### Scenario: Later engine calls can rewrite terrain or water caches
+- **WHEN** elevation, river modeling, validation, placement preparation, or
+  cache refresh runs after lake projection
+- **THEN** a final lifecycle check compares accepted lake projection against
+  final runtime state
+- **AND** unexpected lake drying is reported as a bounded projection failure
+  rather than silently accepted
+
+#### Scenario: Sea-level behavior is suspected
+- **WHEN** official resources or runtime DB state show an active Civ7 sea-level
+  setup control
+- **THEN** a dedicated OpenSpec change defines how that control affects MapGen
+  water projection
+- **AND** this lake proof change does not bake in speculative sea-level logic
+
+### Requirement: World Balance Proof Covers Feature Families And Map Identity
+
+World-balance tests SHALL prove product-visible geography through standard
+recipe/runtime execution across shipped map identities and representative
+seeds.
+
+#### Scenario: Vegetation exists only as an aggregate
+- **WHEN** a generated map has rainforest or any vegetation but lacks required
+  forest, taiga, savanna, or sagebrush outcomes for its map identity
+- **THEN** world-balance tests fail with the missing family named
+- **AND** aggregate vegetation presence is not sufficient proof
+
+#### Scenario: Feature density is within broad budgets
+- **WHEN** shipped configs run through the standard recipe
+- **THEN** lake, wetland, reef-family, rainforest, and total vegetation metrics
+  stay within broad map-identity bands
+- **AND** rare required features may be asserted across N-of-M seeds instead
+  of every seed
+
+#### Scenario: Configs compile but drift from product identity
+- **WHEN** shipped map configs or presets use stale strategies, invalid current
+  properties, or values that contradict the map identity
+- **THEN** config identity tests fail even if schema validation passes
+- **AND** implementation updates configs/presets in the same workstream as
+  code changes

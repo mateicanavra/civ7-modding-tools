@@ -25,15 +25,23 @@ export default createStep(ScoreLayersStepContract, {
     const topography = deps.artifacts.topography.read(context);
     const coastline = deps.artifacts.coastlineMetrics.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);
+    const lakePlan = deps.artifacts.lakePlan.read(context);
 
     const { width, height } = context.dimensions;
     const size = Math.max(0, (width | 0) * (height | 0));
+    const ecologyLandMask = new Uint8Array(size);
+    for (let i = 0; i < size; i++) {
+      ecologyLandMask[i] = topography.landMask[i] === 1 && lakePlan.lakeMask[i] !== 1 ? 1 : 0;
+    }
 
+    // Ecology features consume post-Hydrology lake truth, not just Morphology's
+    // pre-lake land mask. Otherwise vegetation and wetland features can be
+    // planned on tiles that the player later sees as filled lake water.
     const vegetationSubstrate = ops.vegetationSubstrate(
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask: ecologyLandMask,
         effectiveMoisture: classification.effectiveMoisture,
         surfaceTemperature: classification.surfaceTemperature,
         aridityIndex: classification.aridityIndex,
@@ -45,23 +53,23 @@ export default createStep(ScoreLayersStepContract, {
     );
 
     const forestScore = ops.scoreForest(
-      { width, height, landMask: topography.landMask, ...vegetationSubstrate },
+      { width, height, landMask: ecologyLandMask, ...vegetationSubstrate },
       config.scoreForest
     ).score01;
     const rainforestScore = ops.scoreRainforest(
-      { width, height, landMask: topography.landMask, ...vegetationSubstrate },
+      { width, height, landMask: ecologyLandMask, ...vegetationSubstrate },
       config.scoreRainforest
     ).score01;
     const taigaScore = ops.scoreTaiga(
-      { width, height, landMask: topography.landMask, ...vegetationSubstrate },
+      { width, height, landMask: ecologyLandMask, ...vegetationSubstrate },
       config.scoreTaiga
     ).score01;
     const savannaWoodlandScore = ops.scoreSavannaWoodland(
-      { width, height, landMask: topography.landMask, ...vegetationSubstrate },
+      { width, height, landMask: ecologyLandMask, ...vegetationSubstrate },
       config.scoreSavannaWoodland
     ).score01;
     const sagebrushSteppeScore = ops.scoreSagebrushSteppe(
-      { width, height, landMask: topography.landMask, ...vegetationSubstrate },
+      { width, height, landMask: ecologyLandMask, ...vegetationSubstrate },
       config.scoreSagebrushSteppe
     ).score01;
 
@@ -70,7 +78,7 @@ export default createStep(ScoreLayersStepContract, {
         width,
         height,
         riverClass: hydrography.riverClass,
-        landMask: topography.landMask,
+        landMask: ecologyLandMask,
         elevation: topography.elevation,
         seaLevel: topography.seaLevel,
         discharge: hydrography.discharge,
@@ -83,7 +91,7 @@ export default createStep(ScoreLayersStepContract, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask: ecologyLandMask,
         hydromorphicMask: featureSubstrate.hydromorphicMask,
         water01: vegetationSubstrate.water01,
         fertility01: vegetationSubstrate.fertility01,
@@ -97,7 +105,7 @@ export default createStep(ScoreLayersStepContract, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask: ecologyLandMask,
         hydromorphicMask: featureSubstrate.hydromorphicMask,
         water01: vegetationSubstrate.water01,
         fertility01: vegetationSubstrate.fertility01,
@@ -111,7 +119,7 @@ export default createStep(ScoreLayersStepContract, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask: ecologyLandMask,
         intertidalCoastMask: featureSubstrate.intertidalCoastMask,
         water01: vegetationSubstrate.water01,
         fertility01: vegetationSubstrate.fertility01,
@@ -125,7 +133,7 @@ export default createStep(ScoreLayersStepContract, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask: ecologyLandMask,
         isolatedWaterPointMask: featureSubstrate.isolatedWaterPointMask,
         water01: vegetationSubstrate.water01,
         aridityIndex: classification.aridityIndex,
@@ -138,7 +146,7 @@ export default createStep(ScoreLayersStepContract, {
       {
         width,
         height,
-        landMask: topography.landMask,
+        landMask: ecologyLandMask,
         isolatedWaterPointMask: featureSubstrate.isolatedWaterPointMask,
         water01: vegetationSubstrate.water01,
         fertility01: vegetationSubstrate.fertility01,

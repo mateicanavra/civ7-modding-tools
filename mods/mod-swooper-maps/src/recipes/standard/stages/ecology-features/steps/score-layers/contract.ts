@@ -15,6 +15,7 @@ const ScoreLayersStepContract = defineStep({
       ecologyArtifacts.biomeClassification,
       ecologyArtifacts.pedology,
       hydrologyHydrographyArtifacts.hydrography,
+      hydrologyHydrographyArtifacts.lakePlan,
       morphologyArtifacts.topography,
       morphologyArtifacts.coastlineMetrics,
     ],

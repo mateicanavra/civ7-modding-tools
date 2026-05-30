@@ -33,6 +33,11 @@ export type WorldBalanceStats = Readonly<{
   wetlandShareOfPreLakeLand: number;
   reefFamilyTiles: number;
   reefFamilyShareOfWater: number;
+  vegetationFamilyTiles: number;
+  vegetationFamilyShareOfPreLakeLand: number;
+  vegetationFeatureFamiliesPresent: number;
+  invalidFeatureSurfaceCount: number;
+  featureHabitatMismatchCounts: Readonly<Record<string, number>>;
   featureCounts: Readonly<Record<string, number>>;
 }>;
 
@@ -68,6 +73,23 @@ const REEF_FEATURES = new Set([
   "FEATURE_ATOLL",
   "FEATURE_LOTUS",
 ]);
+
+const VEGETATION_FEATURES = new Set([
+  "FEATURE_FOREST",
+  "FEATURE_RAINFOREST",
+  "FEATURE_TAIGA",
+  "FEATURE_SAVANNA_WOODLAND",
+  "FEATURE_SAGEBRUSH_STEPPE",
+]);
+
+type BiomeClassificationStatsInput = Readonly<{
+  vegetationDensity: Float32Array;
+  effectiveMoisture: Float32Array;
+  surfaceTemperature: Float32Array;
+  aridityIndex: Float32Array;
+  freezeIndex: Float32Array;
+  treeLine01: Float32Array;
+}>;
 
 function countMask(mask: Uint8Array): number {
   let count = 0;
@@ -151,6 +173,42 @@ function computeMaskComponents(mask: Uint8Array, width: number, height: number):
 }
 
 /**
+ * Habitat gates are intentionally broad product checks, not copies of the
+ * scoring strategies. They catch categorical inversions like "taiga only scores
+ * in warm wet biomass" while leaving each feature op free to own detailed
+ * placement physics.
+ */
+function isFeatureHabitatMismatch(
+  feature: string,
+  idx: number,
+  classification: BiomeClassificationStatsInput
+): boolean {
+  const temp = classification.surfaceTemperature[idx] ?? 0;
+  const moisture = classification.effectiveMoisture[idx] ?? 0;
+  const aridity = classification.aridityIndex[idx] ?? 0;
+  const vegetation = classification.vegetationDensity[idx] ?? 0;
+  const freeze = classification.freezeIndex[idx] ?? 0;
+  const treeLine = classification.treeLine01[idx] ?? 0;
+
+  if (feature === "FEATURE_FOREST") {
+    return temp < -5 || temp > 30 || moisture < 45 || aridity > 0.82 || vegetation < 0.08;
+  }
+  if (feature === "FEATURE_RAINFOREST") {
+    return temp < 16 || moisture < 85 || aridity > 0.72 || vegetation < 0.18;
+  }
+  if (feature === "FEATURE_TAIGA") {
+    return temp > 16 || freeze < 0.08 || moisture < 35;
+  }
+  if (feature === "FEATURE_SAVANNA_WOODLAND") {
+    return temp < 12 || moisture < 35 || aridity < 0.12 || aridity > 0.9 || vegetation > 0.78;
+  }
+  if (feature === "FEATURE_SAGEBRUSH_STEPPE") {
+    return temp < -12 || temp > 32 || aridity < 0.2 || aridity > 0.95 || vegetation > 0.72;
+  }
+  return false;
+}
+
+/**
  * Runs the full standard recipe through the public recipe/runtime boundary so
  * world-balance tests exercise the same artifact chain and adapter projection
  * users see in a deployed map. The returned metrics intentionally describe
@@ -205,30 +263,60 @@ export function collectWorldBalanceStats(args: Readonly<{
   const placementSurface = context.artifacts.get(placementArtifacts.placementSurfacePreparation.id) as
     | { finalLakeWaterDriftCount?: number; finalLakeClassificationDriftCount?: number }
     | undefined;
-  const classification = context.artifacts.get(ecologyArtifacts.biomeClassification.id);
+  const classification = context.artifacts.get(ecologyArtifacts.biomeClassification.id) as
+    | Partial<BiomeClassificationStatsInput>
+    | undefined;
   if (!(topography?.landMask instanceof Uint8Array)) throw new Error("Missing topography.landMask.");
   if (!(lakePlan?.lakeMask instanceof Uint8Array)) throw new Error("Missing hydrology.lakePlan.");
   if (!(engineLakeProjection?.lakeMask instanceof Uint8Array)) {
     throw new Error("Missing map-hydrology engine lake projection.");
   }
-  if (classification == null) throw new Error("Missing ecology biome classification.");
+  if (
+    !(classification?.vegetationDensity instanceof Float32Array) ||
+    !(classification.effectiveMoisture instanceof Float32Array) ||
+    !(classification.surfaceTemperature instanceof Float32Array) ||
+    !(classification.aridityIndex instanceof Float32Array) ||
+    !(classification.freezeIndex instanceof Float32Array) ||
+    !(classification.treeLine01 instanceof Float32Array)
+  ) {
+    throw new Error("Missing ecology biome classification fields.");
+  }
 
   let waterTiles = 0;
   let postProjectionLandTiles = 0;
   let lakeWaterDriftCount = 0;
+  let invalidFeatureSurfaceCount = 0;
   const featureCounts: Record<string, number> = Object.fromEntries(
     FEATURE_KEYS.map((key) => [key, 0])
   );
+  const featureHabitatMismatchCounts: Record<string, number> = Object.fromEntries(
+    FEATURE_KEYS.map((key) => [key, 0])
+  );
+  const featureTypeByKey = Object.fromEntries(
+    FEATURE_KEYS.map((key) => [key, adapter.getFeatureTypeIndex(key)])
+  );
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
+      const idx = y * width + x;
       const isWater = adapter.isWater(x, y);
       if (isWater) waterTiles += 1;
       else postProjectionLandTiles += 1;
-      if (engineLakeProjection.lakeMask[y * width + x] === 1 && !isWater) lakeWaterDriftCount += 1;
+      if (engineLakeProjection.lakeMask[idx] === 1 && !isWater) lakeWaterDriftCount += 1;
 
       const feature = adapter.getFeatureType(x, y);
       for (const key of FEATURE_KEYS) {
-        if (feature === adapter.getFeatureTypeIndex(key)) featureCounts[key] += 1;
+        const featureType = featureTypeByKey[key] ?? -1;
+        if (featureType < 0 || feature !== featureType) continue;
+        featureCounts[key] += 1;
+        if ((VEGETATION_FEATURES.has(key) || WETLAND_FEATURES.has(key)) && isWater) {
+          invalidFeatureSurfaceCount += 1;
+        }
+        if (REEF_FEATURES.has(key) && !isWater) {
+          invalidFeatureSurfaceCount += 1;
+        }
+        if (isFeatureHabitatMismatch(key, idx, classification)) {
+          featureHabitatMismatchCounts[key] += 1;
+        }
       }
     }
   }
@@ -239,9 +327,15 @@ export function collectWorldBalanceStats(args: Readonly<{
   const lakeComponents = computeMaskComponents(engineLakeProjection.lakeMask, width, height);
   let wetlandTiles = 0;
   let reefFamilyTiles = 0;
+  let vegetationFamilyTiles = 0;
+  let vegetationFeatureFamiliesPresent = 0;
   for (const [feature, count] of Object.entries(featureCounts)) {
     if (WETLAND_FEATURES.has(feature)) wetlandTiles += count;
     if (REEF_FEATURES.has(feature)) reefFamilyTiles += count;
+    if (VEGETATION_FEATURES.has(feature)) {
+      vegetationFamilyTiles += count;
+      if (count > 0) vegetationFeatureFamiliesPresent += 1;
+    }
   }
 
   return {
@@ -267,6 +361,12 @@ export function collectWorldBalanceStats(args: Readonly<{
     wetlandShareOfPreLakeLand: preLakeLandTiles === 0 ? 0 : wetlandTiles / preLakeLandTiles,
     reefFamilyTiles,
     reefFamilyShareOfWater: waterTiles === 0 ? 0 : reefFamilyTiles / waterTiles,
+    vegetationFamilyTiles,
+    vegetationFamilyShareOfPreLakeLand:
+      preLakeLandTiles === 0 ? 0 : vegetationFamilyTiles / preLakeLandTiles,
+    vegetationFeatureFamiliesPresent,
+    invalidFeatureSurfaceCount,
+    featureHabitatMismatchCounts,
     featureCounts,
   };
 }
