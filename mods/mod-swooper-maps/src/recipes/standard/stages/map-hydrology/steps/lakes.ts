@@ -46,7 +46,18 @@ export default createStep(LakesStepContract, {
         width,
         height,
         lakeMask: projection.stampedLakeMask,
+        plannedLakeMask: projection.plannedLakeMask,
+        engineWaterMask: projection.engineWaterMask,
+        engineLakeMask: projection.engineLakeMask,
+        engineTerrain: projection.engineTerrain,
+        engineAreaId: projection.engineAreaId,
+        engineElevation: projection.engineElevation,
+        nonWaterMask: projection.nonWaterMask,
+        nonLakeMask: projection.nonLakeMask,
+        terrainMismatchMask: projection.terrainMismatchMask,
         sinkMismatchCount: projection.rejectedLakeTileCount,
+        nonLakeTileCount: projection.nonLakeTileCount,
+        terrainMismatchTileCount: projection.terrainMismatchTileCount,
       });
 
       deps.artifacts.hydrologyLakesEngineTerrainSnapshot.publish(context, {
@@ -63,6 +74,8 @@ export default createStep(LakesStepContract, {
         plannedLakeTileCount: projection.plannedLakeTileCount,
         stampedLakeTileCount: projection.stampedLakeTileCount,
         rejectedLakeTileCount: projection.rejectedLakeTileCount,
+        nonLakeTileCount: projection.nonLakeTileCount,
+        terrainMismatchTileCount: projection.terrainMismatchTileCount,
         rejectedLakeShare: Number(
           (projection.rejectedLakeTileCount / Math.max(1, projection.plannedLakeTileCount)).toFixed(
             4

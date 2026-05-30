@@ -160,6 +160,14 @@ export class Civ7Adapter implements EngineAdapter {
     return GameplayMap.isWater(x, y);
   }
 
+  isLake(x: number, y: number): boolean {
+    return GameplayMap.isLake(x, y);
+  }
+
+  getAreaId(x: number, y: number): number {
+    return GameplayMap.getAreaId(x, y);
+  }
+
   isMountain(x: number, y: number): boolean {
     if (typeof GameplayMap.isMountain === "function") {
       return GameplayMap.isMountain(x, y);
@@ -513,31 +521,65 @@ export class Civ7Adapter implements EngineAdapter {
     this.recalculateAreas();
     this.storeWaterData();
 
-    return this.readLakeProjection(width, height, lakeMask);
+    return this.readLakeProjection(width, height, lakeMask, lakeTerrain);
   }
 
   /**
    * Read back what the engine accepted so projection diagnostics remain evidence,
-   * not the source of lake truth.
+   * not the source of lake truth. Terrain, water, lake classification, area, and
+   * elevation are captured together because Civ7 updates those surfaces through
+   * separate caches and a visual lake failure can hide behind a simple water mask.
    */
   private readLakeProjection(
     width: number,
     height: number,
-    plannedLakeMask: Uint8Array
+    plannedLakeMask: Uint8Array,
+    lakeTerrain: number
   ): LakeProjectionResult {
     const size = Math.max(0, (width | 0) * (height | 0));
     const stampedLakeMask = new Uint8Array(size);
     const rejectedLakeMask = new Uint8Array(size);
+    const engineTerrain = new Int32Array(size);
+    const engineWaterMask = new Uint8Array(size);
+    const engineLakeMask = new Uint8Array(size);
+    const engineAreaId = new Int32Array(size);
+    const engineElevation = new Int16Array(size);
+    const terrainMismatchMask = new Uint8Array(size);
+    const nonWaterMask = new Uint8Array(size);
+    const nonLakeMask = new Uint8Array(size);
     let plannedLakeTileCount = 0;
     let stampedLakeTileCount = 0;
     let rejectedLakeTileCount = 0;
+    let terrainMismatchTileCount = 0;
+    let nonWaterTileCount = 0;
+    let nonLakeTileCount = 0;
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const idx = y * width + x;
+        const terrain = this.getTerrainType(x, y) | 0;
+        const isWater = this.isWater(x, y);
+        const isLake = this.isLake(x, y);
+        engineTerrain[idx] = terrain;
+        engineWaterMask[idx] = isWater ? 1 : 0;
+        engineLakeMask[idx] = isLake ? 1 : 0;
+        engineAreaId[idx] = this.getAreaId(x, y) | 0;
+        engineElevation[idx] = Math.max(-32768, Math.min(32767, this.getElevation(x, y) | 0));
         if (plannedLakeMask[idx] !== 1) continue;
         plannedLakeTileCount += 1;
-        if (this.isWater(x, y)) {
+        if (terrain !== lakeTerrain) {
+          terrainMismatchMask[idx] = 1;
+          terrainMismatchTileCount += 1;
+        }
+        if (!isWater) {
+          nonWaterMask[idx] = 1;
+          nonWaterTileCount += 1;
+        }
+        if (!isLake) {
+          nonLakeMask[idx] = 1;
+          nonLakeTileCount += 1;
+        }
+        if (isWater) {
           stampedLakeMask[idx] = 1;
           stampedLakeTileCount += 1;
         } else {
@@ -553,9 +595,20 @@ export class Civ7Adapter implements EngineAdapter {
       plannedLakeMask,
       stampedLakeMask,
       rejectedLakeMask,
+      engineTerrain,
+      engineWaterMask,
+      engineLakeMask,
+      engineAreaId,
+      engineElevation,
+      terrainMismatchMask,
+      nonWaterMask,
+      nonLakeMask,
       plannedLakeTileCount,
       stampedLakeTileCount,
       rejectedLakeTileCount,
+      terrainMismatchTileCount,
+      nonWaterTileCount,
+      nonLakeTileCount,
     };
   }
 

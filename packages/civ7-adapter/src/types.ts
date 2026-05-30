@@ -180,8 +180,10 @@ export interface MapInfo {
 /**
  * Adapter readback for deterministic lake projection.
  *
- * The planned mask is MapGen truth; stamped/rejected masks are engine evidence
- * used by projection diagnostics and should not replace the upstream plan.
+ * The planned mask is MapGen truth; readback fields are engine evidence used by
+ * projection diagnostics and final runtime proof. Water and lake classification
+ * are separate because Civ7 can render or cache water without classifying that
+ * tile as a lake, which is exactly the failure mode this contract must expose.
  */
 export interface LakeProjectionResult {
   width: number;
@@ -189,9 +191,20 @@ export interface LakeProjectionResult {
   plannedLakeMask: Uint8Array;
   stampedLakeMask: Uint8Array;
   rejectedLakeMask: Uint8Array;
+  engineTerrain: Int32Array;
+  engineWaterMask: Uint8Array;
+  engineLakeMask: Uint8Array;
+  engineAreaId: Int32Array;
+  engineElevation: Int16Array;
+  terrainMismatchMask: Uint8Array;
+  nonWaterMask: Uint8Array;
+  nonLakeMask: Uint8Array;
   plannedLakeTileCount: number;
   stampedLakeTileCount: number;
   rejectedLakeTileCount: number;
+  terrainMismatchTileCount: number;
+  nonWaterTileCount: number;
+  nonLakeTileCount: number;
 }
 
 // ============================================================================
@@ -297,6 +310,12 @@ export interface EngineAdapter {
 
   /** Check if tile is water */
   isWater(x: number, y: number): boolean;
+
+  /** Check whether Civ7 classifies the tile as lake water */
+  isLake(x: number, y: number): boolean;
+
+  /** Get Civ7's area id for water/land topology readback */
+  getAreaId(x: number, y: number): number;
 
   /** Check if tile is mountain */
   isMountain(x: number, y: number): boolean;
