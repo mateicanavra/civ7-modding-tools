@@ -1,3 +1,11 @@
+/**
+ * Stage-owned visualization geometry helpers for Foundation.
+ *
+ * Foundation emits debug layers from several steps that all describe the same
+ * plate/mesh coordinate systems. Keeping these converters on the stage surface
+ * makes that shared visualization contract explicit while avoiding a
+ * `steps/viz.ts` bucket that looks like private step implementation.
+ */
 export function interleaveXY(x: Float32Array, y: Float32Array): Float32Array {
   const n = Math.min(x.length, y.length);
   const out = new Float32Array(n * 2);

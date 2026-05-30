@@ -106,6 +106,22 @@ function resolveImport(importer, specifier) {
   return `${resolved}.ts`;
 }
 
+function stageStepsVizHub(normalizedPath) {
+  return normalizedPath.match(/src\/recipes\/standard\/stages\/([^/]+)\/steps\/viz\.ts$/);
+}
+
+function privateStepVizOwner(normalizedPath) {
+  return normalizedPath.match(
+    /src\/recipes\/standard\/stages\/([^/]+)\/steps\/([^/]+)\/viz\.ts$/
+  );
+}
+
+function isInsideStep(normalizedPath, stage, step) {
+  return normalizedPath.startsWith(
+    `mods/mod-swooper-maps/src/recipes/standard/stages/${stage}/steps/${step}/`
+  );
+}
+
 function checkSiblingStageStepImports() {
   const stageRoot = repoPath("mods/mod-swooper-maps/src/recipes/standard/stages");
   const hits = [];
@@ -125,6 +141,47 @@ function checkSiblingStageStepImports() {
     }
   }
   if (hits.length > 0) addFailure("G5: sibling stage step imports", hits);
+}
+
+/**
+ * Enforces the visualization ownership rule that came out of the biome repair:
+ * stable/shared stage visualization contracts are stage surfaces, while
+ * `steps/<step>/viz.ts` stays private to that step. This keeps debug contracts
+ * discoverable without turning `steps/` into a compatibility namespace.
+ */
+function checkVisualizationContractOwnership() {
+  const stageRoot = repoPath("mods/mod-swooper-maps/src/recipes/standard/stages");
+  const hits = [];
+
+  for (const file of walkFiles(stageRoot, (candidate) => candidate.endsWith(".ts"))) {
+    const importer = toRepoRelative(file);
+    if (stageStepsVizHub(importer)) {
+      hits.push(`${importer} is a shared steps/viz.ts hub; use stages/<stage>/viz.ts`);
+    }
+
+    for (const specifier of importSpecifiers(readText(file))) {
+      const resolved = resolveImport(file, specifier);
+      if (!resolved) continue;
+      const resolvedPath = toRepoRelative(resolved);
+
+      const hub = stageStepsVizHub(resolvedPath);
+      if (hub) {
+        hits.push(`${importer} imports shared steps/viz.ts via '${specifier}'`);
+        continue;
+      }
+
+      const privateOwner = privateStepVizOwner(resolvedPath);
+      if (!privateOwner) continue;
+      const [, stage, step] = privateOwner;
+      if (!isInsideStep(importer, stage, step)) {
+        hits.push(
+          `${importer} imports private step viz '${specifier}'; promote it to stages/${stage}/viz.ts`
+        );
+      }
+    }
+  }
+
+  if (hits.length > 0) addFailure("G10: visualization contract owner surfaces", hits);
 }
 
 function checkStandardRecipeDocs() {
@@ -183,6 +240,33 @@ const stages = [one, two] as const;
   if (importHits[0] !== "../other/steps/foo.js") {
     throw new Error("self-test failed: import specifier extraction");
   }
+  if (!stageStepsVizHub("mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/viz.ts")) {
+    throw new Error("self-test failed: steps/viz.ts hub detection");
+  }
+  const privateViz = privateStepVizOwner(
+    "mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/plot-biomes/viz.ts"
+  );
+  if (!privateViz || privateViz[1] !== "map-ecology" || privateViz[2] !== "plot-biomes") {
+    throw new Error("self-test failed: private step viz owner detection");
+  }
+  if (
+    !isInsideStep(
+      "mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/plot-biomes/index.ts",
+      "map-ecology",
+      "plot-biomes"
+    )
+  ) {
+    throw new Error("self-test failed: same-step viz import allowance");
+  }
+  if (
+    isInsideStep(
+      "mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/plot-effects/index.ts",
+      "map-ecology",
+      "plot-biomes"
+    )
+  ) {
+    throw new Error("self-test failed: cross-step viz import rejection");
+  }
   console.log("normalization guardrail self-test passed");
 }
 
@@ -217,6 +301,7 @@ checkNoRegex({
 });
 
 checkSiblingStageStepImports();
+checkVisualizationContractOwnership();
 checkStandardRecipeDocs();
 
 checkNoRegex({

@@ -4,7 +4,7 @@ import { clamp01 } from "@swooper/mapgen-core/lib/math";
 import BiomesStepContract from "./contract.js";
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import { validateBiomeClassificationArtifact } from "../../../ecology/artifact-validation.js";
-import { assertBiomeIndexVizCategoriesCoverSymbols, BIOME_INDEX_VIZ_CATEGORIES } from "./viz.js";
+import { assertBiomeIndexVizCategoriesCoverSymbols, BIOME_INDEX_VIZ_CATEGORIES } from "../../viz.js";
 
 const GROUP_BIOMES = "Ecology / Biomes";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
