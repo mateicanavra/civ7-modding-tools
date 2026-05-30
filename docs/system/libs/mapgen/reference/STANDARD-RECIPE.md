@@ -17,6 +17,23 @@ Define the canonical “standard recipe” contract as a reference point for:
 - domain boundaries,
 - and Studio’s default end-to-end run.
 
+## Normalization status
+
+Active MapGen / Swooper Maps normalization work is governed by
+`docs/projects/engine-refactor-v1/architecture-normalization-packet.md`.
+This reference records the current standard recipe surface, but parts of it are
+known to be transitional during the OpenSpec change train:
+
+- Config posture is being normalized to the packet's flat default stage surface
+  `{ knobs?, [stepId]?: stepConfig }`; persisted SDK-native `advanced` wrappers
+  are not the target shape.
+- Ecology, placement, lake projection, import boundaries, and guardrails are
+  updated by their respective `openspec/changes/normalize-*` slices.
+
+When this page conflicts with the normalization packet during that workstream,
+follow the packet and the controlling OpenSpec slice, then update this page in
+the topic slice that changes the underlying source.
+
 ## Scope + ownership
 
 The standard recipe is **content-owned** (not SDK-owned):
@@ -63,7 +80,9 @@ The standard recipe publishes:
 Config is stage-scoped and must be strict (`additionalProperties: false`).
 
 Stage-level posture:
-- “advanced” baseline configs exist for some stages, with knobs applied last as deterministic transforms.
+- Some current stages still expose transitional config wrappers. The
+  normalization target is the flat default stage surface named above; topic
+  slices are responsible for updating this reference when source contracts move.
 
 ## Domains + ops registry
 

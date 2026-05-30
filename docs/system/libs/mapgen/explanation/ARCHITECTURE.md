@@ -17,6 +17,13 @@ This is an explanation page; it does not redefine contracts. When you need “wh
 - [`docs/system/libs/mapgen/policies/POLICIES.md`](/system/libs/mapgen/policies/POLICIES.md)
 - [`docs/system/libs/mapgen/reference/REFERENCE.md`](/system/libs/mapgen/reference/REFERENCE.md)
 
+Normalization note: for active MapGen / Swooper Maps architecture
+normalization, `docs/projects/engine-refactor-v1/architecture-normalization-packet.md`
+owns the current D1-D5 and 0e decisions. Any older text on this page that
+mentions a persisted `advanced` stage-config surface, stale stage ids, or
+projection/truth ownership is implementation-drift context until the relevant
+OpenSpec slice updates the evergreen docs.
+
 ## System model (what MapGen is)
 
 MapGen is a deterministic pipeline system that produces:
@@ -41,7 +48,7 @@ Think of MapGen as these layers:
      - and implement `run()` (plus optional `normalize()`).
 3) **Stages**
    - author-facing grouping and config surface:
-     - knobs (semantic tuning) + advanced (deep overrides),
+     - knobs and stage/step config surfaces,
      - compile “surface config” → per-step config inputs.
 4) **Recipe**
    - composes stages/steps into a canonical pipeline for a given output posture (e.g. “standard”).

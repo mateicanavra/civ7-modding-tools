@@ -21,7 +21,7 @@ Scope: `packages/mapgen-core/**`
 
 ## Canonical Docs
 
-- Engine architecture & phases: `docs/system/libs/mapgen/architecture.md`
-- Design notes & invariants: `docs/system/libs/mapgen/design.md`
-- Foundation & climate concepts: `docs/system/libs/mapgen/foundation.md`, `docs/system/libs/mapgen/climate.md`
+- MapGen / Swooper Maps normalization baseline: `docs/projects/engine-refactor-v1/architecture-normalization-packet.md`; downstream implementation slices: `openspec/changes/README.md`.
+- Engine architecture & contracts: `docs/system/libs/mapgen/MAPGEN.md`
+- Design notes & invariants: `docs/system/libs/mapgen/explanation/ARCHITECTURE.md`, `docs/system/libs/mapgen/policies/POLICIES.md`
 - Testing overview: `docs/system/TESTING.md`

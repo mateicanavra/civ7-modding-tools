@@ -9,4 +9,5 @@ Scope: `packages/civ7-adapter/**`
 Tooling: use this package’s `bun` scripts for build/check (`bun run --cwd packages/civ7-adapter build`, `bun run --cwd packages/civ7-adapter check`).
 
 Docs:
-- `docs/system/libs/mapgen/architecture.md` (adapter boundary)
+- `docs/projects/engine-refactor-v1/architecture-normalization-packet.md` for MapGen / Swooper Maps truth/projection normalization.
+- `docs/system/libs/mapgen/MAPGEN.md` and `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md` for adapter-boundary context.
