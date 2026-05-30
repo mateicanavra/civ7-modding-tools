@@ -33,9 +33,10 @@ export const MAP_PROJECTION_EFFECT_TAGS = {
     mountainsPlotted: "effect:map.mountainsPlotted",
     volcanoesPlotted: "effect:map.volcanoesPlotted",
     landmassRegionsPlotted: "effect:map.landmassRegionsPlotted",
-    morphologyParityCaptured: "effect:map.morphologyParityCaptured",
+    lakesPlotted: "effect:map.lakesPlotted",
+    elevationParityCaptured: "effect:map.elevationParityCaptured",
     hydrologyLakesParityCaptured: "effect:map.hydrologyLakesParityCaptured",
-    hydrologyRiversParityCaptured: "effect:map.hydrologyRiversParityCaptured",
+    riversParityCaptured: "effect:map.riversParityCaptured",
     ecologyBiomesParityCaptured: "effect:map.ecologyBiomesParityCaptured",
     ecologyFeaturesParityCaptured: "effect:map.ecologyFeaturesParityCaptured",
     placementParityCaptured: "effect:map.placementParityCaptured",
@@ -94,7 +95,12 @@ const EFFECT_OWNERS: Record<string, TagOwner> = {
     phase: "gameplay",
     stepId: "plot-landmass-regions",
   },
-  [MAP_PROJECTION_EFFECT_TAGS.map.morphologyParityCaptured]: {
+  [MAP_PROJECTION_EFFECT_TAGS.map.lakesPlotted]: {
+    pkg: "mod-swooper-maps",
+    phase: "gameplay",
+    stepId: "lakes",
+  },
+  [MAP_PROJECTION_EFFECT_TAGS.map.elevationParityCaptured]: {
     pkg: "mod-swooper-maps",
     phase: "gameplay",
     stepId: "build-elevation",
@@ -104,7 +110,7 @@ const EFFECT_OWNERS: Record<string, TagOwner> = {
     phase: "gameplay",
     stepId: "lakes",
   },
-  [MAP_PROJECTION_EFFECT_TAGS.map.hydrologyRiversParityCaptured]: {
+  [MAP_PROJECTION_EFFECT_TAGS.map.riversParityCaptured]: {
     pkg: "mod-swooper-maps",
     phase: "gameplay",
     stepId: "plot-rivers",

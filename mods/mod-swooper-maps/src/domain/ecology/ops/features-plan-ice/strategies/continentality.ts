@@ -22,7 +22,6 @@ export const continentalityStrategy = createStrategy(PlanIceContract, "continent
     });
 
     const placements: Array<{ x: number; y: number; feature: string; weight?: number }> = [];
-    void config;
     void input.seed;
 
     for (let i = 0; i < size; i++) {
@@ -30,7 +29,7 @@ export const continentalityStrategy = createStrategy(PlanIceContract, "continent
       if (input.featureIndex[i] !== 0) continue;
       const score = input.score01[i] ?? 0;
       const confidence01 = confidenceFromScore01(score);
-      if (!admitIceIntent({ confidence01 })) continue;
+      if (!admitIceIntent({ confidence01 }, config)) continue;
       const x = i % width;
       const y = (i / width) | 0;
       placements.push({ x, y, feature: "FEATURE_ICE" });

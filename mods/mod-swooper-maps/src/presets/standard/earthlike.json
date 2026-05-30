@@ -730,7 +730,7 @@
     "ecology-pedology": {
       "pedology": {
         "classify": {
-          "strategy": "default",
+          "strategy": "coastal-shelf",
           "config": {
             "climateWeight": 1.3,
             "reliefWeight": 0.9,
@@ -824,12 +824,12 @@
           "strategy": "default",
           "config": {
             "navigableRiverClass": 2,
-            "nearRiverRadius": 2,
+            "nearRiverRadius": 1,
             "isolatedRiverRadius": 1,
             "coastalAdjacencyRadius": 1,
-            "lowlandMaxElevationAboveSeaM": 160,
-            "intertidalMaxElevationAboveSeaM": 40,
-            "floodplainDischargeMin": 0
+            "lowlandMaxElevationAboveSeaM": 120,
+            "intertidalMaxElevationAboveSeaM": 24,
+            "floodplainDischargeMin": 120
           }
         },
         "scoreForest": {
@@ -919,10 +919,11 @@
           "config": {
             "tempColdMaxC": 10,
             "tempWarmMaxC": 20,
-            "minDepthM": 45,
-            "peakDepthM": 300,
-            "maxDepthM": 1200,
-            "minDistanceToCoast": 1
+            "minDepthM": 8,
+            "peakDepthM": 24,
+            "maxDepthM": 48,
+            "minDistanceToCoast": 1,
+            "maxDistanceToCoast": 8
           }
         },
         "scoreReefAtoll": {
@@ -957,29 +958,38 @@
         }
       },
       "plan-ice": {
-        "planIce": {
-          "strategy": "continentality",
-          "config": {}
+      "planIce": {
+        "strategy": "continentality",
+        "config": {
+          "minConfidence01": 0.5
         }
-      },
-      "plan-reefs": {
-        "planReefs": {
-          "strategy": "default",
-          "config": {}
+      }
+    },
+    "plan-reefs": {
+      "planReefs": {
+        "strategy": "default",
+        "config": {
+          "minConfidence01": 0.55,
+          "stride": 2
         }
-      },
-      "plan-wetlands": {
-        "planWetlands": {
-          "strategy": "default",
-          "config": {}
+      }
+    },
+    "plan-wetlands": {
+      "planWetlands": {
+        "strategy": "default",
+        "config": {
+          "minConfidence01": 0.24
         }
-      },
-      "plan-vegetation": {
-        "planVegetation": {
-          "strategy": "default",
-          "config": {}
+      }
+    },
+    "plan-vegetation": {
+      "planVegetation": {
+        "strategy": "default",
+        "config": {
+          "minConfidence01": 0.18
         }
-      },
+      }
+    },
       "plan-plot-effects": {
         "scoreSnow": {
           "strategy": "default",
@@ -1068,20 +1078,24 @@
       },
       "knobs": {}
     },
-    "map-morphology": {
-      "plot-coasts": {},
-      "plot-continents": {},
-      "plot-volcanoes": {},
-      "build-elevation": {}
-    },
-    "map-hydrology": {
-      "knobs": {
-        "riverDensity": "dense"
+      "map-morphology": {
+        "plot-coasts": {},
+        "plot-continents": {},
+        "plot-volcanoes": {}
       },
-      "lakes": {},
-      "plot-rivers": {
-        "minLength": 5,
-        "maxLength": 15
+      "map-hydrology": {
+        "lakes": {}
+      },
+      "map-elevation": {
+        "build-elevation": {}
+      },
+      "map-rivers": {
+        "knobs": {
+          "riverDensity": "dense"
+        },
+        "plot-rivers": {
+          "minLength": 5,
+          "maxLength": 15
       }
     },
     "map-ecology": {

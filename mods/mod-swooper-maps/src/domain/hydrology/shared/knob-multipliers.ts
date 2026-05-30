@@ -84,15 +84,35 @@ export const HYDROLOGY_OROGRAPHIC_REDUCTION_PER_STEP = 6 as const;
 export const HYDROLOGY_WATER_GRADIENT_LOWLAND_BONUS_BASE = 2 as const;
 
 /**
- * Lakeiness now tunes Hydrology-owned intent, not Civ7's lake frequency.
- * Keeping the transform in sink/upstream terms preserves the invariant that
- * `map-hydrology` only projects a plan it did not author.
+ * Lakeiness tunes Hydrology-owned terminal-basin admission, not Civ7's lake
+ * frequency. Local routing creates many tiny one-tile sinks; each level admits
+ * only a small number of high-discharge basins and expands them one upstream
+ * hop so visible lakes read as basin features instead of circular sink noise.
  */
-export const HYDROLOGY_LAKEINESS_UPSTREAM_EXPANSION_STEPS = {
-  few: 0,
-  normal: 0,
-  many: 1,
-} as const satisfies Record<HydrologyLakeinessKnob, number>;
+export const HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY = {
+  few: {
+    sinkDischargePercentileMin: 0.97,
+    maxLakeLandFraction: 0.0015,
+    maxUpstreamSteps: 1,
+  },
+  normal: {
+    sinkDischargePercentileMin: 0.94,
+    maxLakeLandFraction: 0.003,
+    maxUpstreamSteps: 1,
+  },
+  many: {
+    sinkDischargePercentileMin: 0.9,
+    maxLakeLandFraction: 0.006,
+    maxUpstreamSteps: 1,
+  },
+} as const satisfies Record<
+  HydrologyLakeinessKnob,
+  Readonly<{
+    sinkDischargePercentileMin: number;
+    maxLakeLandFraction: number;
+    maxUpstreamSteps: number;
+  }>
+>;
 
 export const HYDROLOGY_RIVER_DENSITY_LENGTH_BOUNDS = {
   sparse: { minLength: 7, maxLength: 18 },

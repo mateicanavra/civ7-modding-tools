@@ -95,21 +95,6 @@ export const mapArtifacts = {
     id: "artifact:map.landmassRegionSlotByTile",
     schema: LandmassRegionSlotByTileArtifactSchema,
   }),
-  morphologyEngineTerrainSnapshot: defineArtifact({
-    name: "morphologyEngineTerrainSnapshot",
-    id: "artifact:map.morphologyEngineTerrainSnapshot",
-    schema: EngineTerrainSnapshotArtifactSchema,
-  }),
-  hydrologyLakesEngineTerrainSnapshot: defineArtifact({
-    name: "hydrologyLakesEngineTerrainSnapshot",
-    id: "artifact:map.hydrologyLakesEngineTerrainSnapshot",
-    schema: EngineTerrainSnapshotArtifactSchema,
-  }),
-  hydrologyRiversEngineTerrainSnapshot: defineArtifact({
-    name: "hydrologyRiversEngineTerrainSnapshot",
-    id: "artifact:map.hydrologyRiversEngineTerrainSnapshot",
-    schema: EngineTerrainSnapshotArtifactSchema,
-  }),
   placementEngineTerrainSnapshot: defineArtifact({
     name: "placementEngineTerrainSnapshot",
     id: "artifact:map.placementEngineTerrainSnapshot",

@@ -217,7 +217,7 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
       dryness: "dry",
       temperature: "hot",
       seasonality: "low",
-      oceanCoupling: "simple",
+      oceanCoupling: "earthlike",
     },
   },
   "hydrology-hydrography": {
@@ -234,6 +234,9 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
     },
   },
   "map-hydrology": {
+    lakes: {},
+  },
+  "map-rivers": {
     knobs: {
       riverDensity: "sparse",
     },
@@ -254,7 +257,7 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
     },
     "resource-basins": {
       plan: {
-        strategy: "default",
+        strategy: "mixed",
         config: {
           resources: [],
         },
@@ -317,25 +320,25 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
     "plan-ice": {
       planIce: {
         strategy: "continentality",
-        config: {},
+        config: { minConfidence01: 0.55 },
       },
     },
     "plan-reefs": {
       planReefs: {
         strategy: "default",
-        config: {},
+        config: { minConfidence01: 0.62, stride: 3 },
       },
     },
     "plan-wetlands": {
       planWetlands: {
         strategy: "default",
-        config: {},
+        config: { minConfidence01: 0.32 },
       },
     },
     "plan-vegetation": {
       planVegetation: {
         strategy: "default",
-        config: {},
+        config: { minConfidence01: 0.34 },
       },
     },
     "plan-plot-effects": {

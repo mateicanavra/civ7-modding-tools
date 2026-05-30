@@ -16,6 +16,9 @@ const PlanLakesContract = defineOp({
     flowDir: TypedArraySchemas.i32({
       description: "Steepest-descent receiver index per tile (or -1 for sinks/edges).",
     }),
+    discharge: TypedArraySchemas.f32({
+      description: "Accumulated drainage proxy per tile, used to admit only meaningful terminal basins.",
+    }),
     sinkMask: TypedArraySchemas.u8({
       description: "Hydrology sink mask (1=sink, 0=not sink), tile order.",
     }),
@@ -41,6 +44,20 @@ const PlanLakesContract = defineOp({
         default: 0,
         description:
           "How many upstream drainage hops to include from sink tiles when expanding planned lakes.",
+      }),
+      sinkDischargePercentileMin: Type.Number({
+        minimum: 0,
+        maximum: 1,
+        default: 0.78,
+        description:
+          "Minimum percentile among positive land-sink discharge values required for terminal-basin lake admission.",
+      }),
+      maxLakeLandFraction: Type.Number({
+        minimum: 0,
+        maximum: 1,
+        default: 0.06,
+        description:
+          "Maximum share of land tiles that may be admitted as primary sink lakes before upstream expansion.",
       }),
     }),
   },

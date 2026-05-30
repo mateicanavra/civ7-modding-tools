@@ -25,8 +25,38 @@ const PlanReefsContract = defineOp({
     placements: Type.Array(FeaturePlacementSchema),
   }),
   strategies: {
-    default: Type.Object({}),
-    "shipping-lanes": Type.Object({}),
+    default: Type.Object({
+      minConfidence01: Type.Number({
+        minimum: 0,
+        maximum: 1,
+        default: 0.55,
+        description:
+          "Family-local admission threshold: reef-family scores below this remain ocean habitat signal, not placement intent.",
+      }),
+      stride: Type.Integer({
+        minimum: 1,
+        maximum: 12,
+        default: 1,
+        description:
+          "Deterministic spacing stride for sparse reef-family intent; 1 keeps every admitted habitat tile.",
+      }),
+    }),
+    "shipping-lanes": Type.Object({
+      minConfidence01: Type.Number({
+        minimum: 0,
+        maximum: 1,
+        default: 0.55,
+        description:
+          "Family-local admission threshold before the shipping-lane stripe policy is applied.",
+      }),
+      stride: Type.Integer({
+        minimum: 1,
+        maximum: 12,
+        default: 5,
+        description:
+          "Deterministic lane spacing stride for oceanic reef-family intent.",
+      }),
+    }),
   },
 });
 

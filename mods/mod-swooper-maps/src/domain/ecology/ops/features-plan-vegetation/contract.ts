@@ -32,7 +32,15 @@ const PlanVegetationContract = defineOp({
     placements: Type.Array(FeaturePlacementSchema),
   }),
   strategies: {
-    default: Type.Object({}),
+    default: Type.Object({
+      minConfidence01: Type.Number({
+        minimum: 0,
+        maximum: 1,
+        default: 0.18,
+        description:
+          "Family-local admission threshold: vegetation scores below this remain biome cover signal, not placement intent.",
+      }),
+    }),
   },
 });
 

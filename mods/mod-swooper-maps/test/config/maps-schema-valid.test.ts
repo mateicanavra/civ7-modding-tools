@@ -62,6 +62,28 @@ describe("Shipped map configs", () => {
     );
   });
 
+  it("rejects retired map-hydrology river config", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+    const { errors } = normalizeStrict(
+      schema,
+      {
+        "map-hydrology": {
+          knobs: { riverDensity: "dense" },
+          "plot-rivers": { minLength: 5 },
+        },
+      },
+      "/maps/legacy-map-hydrology-rivers"
+    );
+
+    const errorPaths = errors.map((error) => error.path);
+    expect(errorPaths).toEqual(
+      expect.arrayContaining([
+        "/maps/legacy-map-hydrology-rivers/map-hydrology/knobs/riverDensity",
+        "/maps/legacy-map-hydrology-rivers/map-hydrology/plot-rivers",
+      ])
+    );
+  });
+
   it("rejects morphology truth config under map projection stages", () => {
     const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
     const { errors } = normalizeStrict(

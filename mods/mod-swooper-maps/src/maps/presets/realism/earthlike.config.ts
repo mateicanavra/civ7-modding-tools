@@ -11,13 +11,18 @@ export const realismEarthlikeConfig: StandardRecipeConfig = {
   foundation: {
     knobs: { plateCount: 28, plateActivity: 0.5 },
   },
-  "morphology-coasts": { knobs: { seaLevel: "water-heavy", coastRuggedness: "normal", shelfWidth: "narrow" } },
+  "morphology-coasts": {
+    knobs: { seaLevel: "earthlike", coastRuggedness: "normal", shelfWidth: "normal" },
+  },
   "morphology-erosion": { knobs: { erosion: "normal" } },
   "morphology-features": { knobs: { volcanism: "normal", orogeny: "normal" } },
   "hydrology-climate-baseline": {
     knobs: { dryness: "dry", temperature: "temperate", seasonality: "normal", oceanCoupling: "earthlike" },
   },
-  "hydrology-hydrography": { knobs: { riverDensity: "normal" } },
+  "hydrology-hydrography": { knobs: { riverDensity: "normal", lakeiness: "normal" } },
   "hydrology-climate-refine": { knobs: { dryness: "dry", temperature: "temperate", cryosphere: "on" } },
   "map-morphology": {},
+  "map-hydrology": {},
+  "map-elevation": {},
+  "map-rivers": {},
 };

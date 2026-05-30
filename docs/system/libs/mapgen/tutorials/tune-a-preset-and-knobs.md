@@ -68,7 +68,7 @@ export const realismEarthlikeConfig = {
   "hydrology-climate-refine": {
     knobs: { dryness: "dry", temperature: "temperate", cryosphere: "on" },
   },
-  "map-morphology": { knobs: { orogeny: "normal" } },
+  "map-rivers": { knobs: { riverDensity: "normal" } },
 };
 ```
 
@@ -147,7 +147,7 @@ Interpretation:
 - Stage schema examples:
   - knobs-only (Foundation): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
   - flat step overrides (Morphology-coasts): `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/index.ts`
-  - flat step overrides (Map-hydrology): `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/index.ts`
+  - flat step overrides (Map-rivers): `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/index.ts`
 - Example knob application at normalize-time (reads `ctx.knobs`): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts`
 - Example knob multiplier tables (Foundation): `mods/mod-swooper-maps/src/domain/foundation/shared/knob-multipliers.ts`
 - Standard recipe config types: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`

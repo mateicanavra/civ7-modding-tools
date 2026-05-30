@@ -10,21 +10,20 @@ import { clampInt } from "@swooper/mapgen-core/lib/math";
 import PlotRiversStepContract from "./plotRivers.contract.js";
 import { HYDROLOGY_RIVER_DENSITY_LENGTH_BOUNDS } from "@mapgen/domain/hydrology/config.js";
 import type { HydrologyRiverDensityKnob } from "@mapgen/domain/hydrology/config.js";
-import { mapHydrologyArtifacts } from "../artifacts.js";
-import { mapArtifacts } from "../../../map-artifacts.js";
+import { mapRiversArtifacts } from "../artifacts.js";
 
-const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Engine)";
+const GROUP_MAP_RIVERS = "Map / Rivers (Engine)";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
 export default createStep(PlotRiversStepContract, {
   artifacts: implementArtifacts(
     [
-      mapHydrologyArtifacts.engineProjectionRivers,
-      mapArtifacts.hydrologyRiversEngineTerrainSnapshot,
+      mapRiversArtifacts.engineProjectionRivers,
+      mapRiversArtifacts.riversEngineTerrainSnapshot,
     ],
     {
       engineProjectionRivers: {},
-      hydrologyRiversEngineTerrainSnapshot: {},
+      riversEngineTerrainSnapshot: {},
     }
   ),
   normalize: (config, ctx) => {
@@ -52,26 +51,26 @@ export default createStep(PlotRiversStepContract, {
 
     // Map-stage visualization: hydrology river fields are inputs to engine river modeling (not 1:1 with engine results).
     context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "map.hydrology.rivers.riverClass",
+      dataTypeKey: "map.rivers.riverClass",
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
       values: hydrography.riverClass,
-      meta: defineVizMeta("map.hydrology.rivers.riverClass", {
+      meta: defineVizMeta("map.rivers.riverClass", {
         label: "River Class (Hydrology)",
-        group: GROUP_MAP_HYDROLOGY,
+        group: GROUP_MAP_RIVERS,
         palette: "categorical",
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "map.hydrology.rivers.discharge",
+      dataTypeKey: "map.rivers.discharge",
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "f32",
       values: hydrography.discharge,
-      meta: defineVizMeta("map.hydrology.rivers.discharge", {
+      meta: defineVizMeta("map.rivers.discharge", {
         label: "River Discharge (Hydrology)",
-        group: GROUP_MAP_HYDROLOGY,
+        group: GROUP_MAP_RIVERS,
         visibility: "debug",
       }),
     });
@@ -119,9 +118,9 @@ export default createStep(PlotRiversStepContract, {
     logStats("POST-VALIDATE");
     context.adapter.defineNamedRivers();
 
-    // map-ecology runs immediately after map-hydrology in this recipe.
-    // Refresh area/water caches after river + validation terrain edits so
-    // downstream engine checks read current topology.
+    // River modeling and validation can rewrite terrain after elevation. Refresh
+    // area and water caches here so ecology and placement read the final engine
+    // topology rather than the pre-river projection surface.
     context.adapter.recalculateAreas();
     context.adapter.storeWaterData();
 
@@ -158,8 +157,8 @@ export default createStep(PlotRiversStepContract, {
         riverMismatchCount,
       });
 
-      deps.artifacts.hydrologyRiversEngineTerrainSnapshot.publish(context, {
-        stage: "map-hydrology/plot-rivers",
+      deps.artifacts.riversEngineTerrainSnapshot.publish(context, {
+        stage: "map-rivers/plot-rivers",
         width,
         height,
         landMask: engine.landMask,
@@ -168,33 +167,33 @@ export default createStep(PlotRiversStepContract, {
       });
 
       context.trace.event(() => ({
-        type: "map.hydrology.rivers.parity",
+        type: "map.rivers.parity",
         riverMismatchCount,
         riverMismatchShare: Number((riverMismatchCount / Math.max(1, width * height)).toFixed(4)),
       }));
 
       context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "map.hydrology.rivers.engineRiverMask",
+        dataTypeKey: "map.rivers.engineRiverMask",
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
         values: riverMask,
-        meta: defineVizMeta("map.hydrology.rivers.engineRiverMask", {
+        meta: defineVizMeta("map.rivers.engineRiverMask", {
           label: "Navigable River Mask (Engine)",
-          group: GROUP_MAP_HYDROLOGY,
+          group: GROUP_MAP_RIVERS,
           palette: "categorical",
           role: "engine",
         }),
       });
       context.viz?.dumpGrid(context.trace, {
-        dataTypeKey: "map.hydrology.rivers.riverMismatchMask",
+        dataTypeKey: "map.rivers.riverMismatchMask",
         spaceId: TILE_SPACE_ID,
         dims: { width, height },
         format: "u8",
         values: riverMismatchMask,
-        meta: defineVizMeta("map.hydrology.rivers.riverMismatchMask", {
+        meta: defineVizMeta("map.rivers.riverMismatchMask", {
           label: "River Mismatch Mask",
-          group: GROUP_MAP_HYDROLOGY,
+          group: GROUP_MAP_RIVERS,
           palette: "categorical",
           visibility: "debug",
         }),
@@ -208,7 +207,7 @@ export default createStep(PlotRiversStepContract, {
         values: physics.landMask,
         meta: defineVizMeta("debug.heightfield.landMask", {
           label: "Land Mask (Physics Truth)",
-          group: GROUP_MAP_HYDROLOGY,
+          group: GROUP_MAP_RIVERS,
           palette: "categorical",
           role: "physics",
           visibility: "debug",
@@ -222,7 +221,7 @@ export default createStep(PlotRiversStepContract, {
         values: engine.landMask,
         meta: defineVizMeta("debug.heightfield.landMask", {
           label: "Land Mask (Engine After Rivers)",
-          group: GROUP_MAP_HYDROLOGY,
+          group: GROUP_MAP_RIVERS,
           palette: "categorical",
           role: "engine",
           visibility: "debug",

@@ -7,7 +7,7 @@ import {
 import { createStep } from "@swooper/mapgen-core/authoring";
 
 import PlotMountainsStepContract from "./plotMountains.contract.js";
-import { assertNoWaterDrift } from "./assertions.js";
+import { assertNoWaterDrift } from "../../../projection-policies/noWaterDrift.js";
 
 export default createStep(PlotMountainsStepContract, {
   run: (context, _config, _ops, deps) => {

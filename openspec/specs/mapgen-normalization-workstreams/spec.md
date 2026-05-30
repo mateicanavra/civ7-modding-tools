@@ -445,11 +445,12 @@ compatibility wrappers.
 Projection/readback artifacts SHALL be owned by the stage or product boundary
 that materializes or observes engine state, not by the upstream truth domain.
 
-#### Scenario: map-hydrology records engine readback
-- **WHEN** map-hydrology stamps lakes or models rivers and records observed
-  engine state
-- **THEN** the projection artifact ids use a `artifact:map.hydrology.*`
-  namespace
+#### Scenario: map projection stages record engine readback
+- **WHEN** map-hydrology stamps lakes or map-rivers models rivers and records
+  observed engine state
+- **THEN** the projection artifact ids use the owning map projection namespace
+  (`artifact:map.hydrology.*` for lake readback and `artifact:map.rivers.*`
+  for river readback)
 - **AND** Hydrology hydrography artifacts remain truth-only
 
 ### Requirement: map-* Stages Do Not Plan Domain Truth
@@ -486,3 +487,174 @@ config surfaces remain thin facades unless a shared invariant is documented.
 - **THEN** the schemas move to the owning concern or named family owner
 - **AND** the domain-root config file only aggregates or documents a concrete
   shared invariant with concrete consumers
+
+### Requirement: Ecology Feature Scores Become Sparse Intents
+
+Ecology feature-family planners SHALL convert continuous per-tile suitability
+scores into sparse feature intents through a documented planner admission
+policy while preserving feature-family-specific habitat rules.
+
+#### Scenario: A tile has only weak positive suitability
+- **WHEN** a feature score is positive but does not satisfy the owning
+  feature-family admission policy
+- **THEN** the planner does not emit a feature placement for that tile
+- **AND** the tile remains available for later feature families according to
+  the current occupancy chain
+
+#### Scenario: Feature families share the score-to-intent category
+- **WHEN** reef, wetland, vegetation, or ice planning consumes continuous
+  suitability scores and occupancy snapshots
+- **THEN** tests cover the shared weak-positive category rather than only one
+  named feature
+- **AND** each family owns a local policy instead of routing through generic
+  feature-planner shared machinery
+- **AND** those policies do not replace reef, wetland, vegetation, or ice
+  habitat physics
+
+#### Scenario: A planner evaluates a tile
+- **WHEN** a feature-family planner evaluates a candidate tile
+- **THEN** feature-family habitat eligibility is evaluated before the
+  family-local admission policy
+- **AND** occupancy/reservation claim and artifact publish happen after the
+  admitted feature intent is selected
+
+### Requirement: Reef Intent Planning Uses Reef-Specific Habitat Eligibility
+
+Reef-family feature planning SHALL apply reef-specific habitat eligibility
+rather than treating every shallow or temperature-suitable water tile as reef
+intent.
+
+#### Scenario: Broad water has weak reef structure
+- **WHEN** water tiles have broad positive temperature/depth suitability but no
+  reef-family habitat structure
+- **THEN** reef planning does not emit blanket reef placements
+
+#### Scenario: Reef-family features differ physically
+- **WHEN** warm reefs, cold reefs, atolls, or lotus features are planned
+- **THEN** each feature follows its named physical habitat rule
+- **AND** reef-family planner admission does not erase those distinctions
+
+#### Scenario: Atolls are evaluated
+- **WHEN** `FEATURE_ATOLL` is considered for a water tile
+- **THEN** the tile must satisfy isolated shallow-bank habitat rather than
+  generic reef or near-coast water habitat
+- **AND** atoll density is bounded by the same sparse-intent proof as other
+  reef-family features
+
+### Requirement: Wetland Intent Planning Uses Wetland-Specific Habitat Partitions
+
+Wetland-family feature planning SHALL distinguish hydromorphic, intertidal,
+cold-bog, and arid water-point habitats instead of treating broad near-river
+moisture as generic wetland intent.
+
+#### Scenario: Humid highland is near a river
+- **WHEN** a land tile is moist and river-adjacent but lacks wetland habitat
+  eligibility such as lowland, floodplain, waterlogged, or intertidal context
+- **THEN** marsh planning does not emit a marsh intent for that tile
+
+#### Scenario: Wetland-family features differ physically
+- **WHEN** marsh, tundra bog, mangrove, oasis, or watering-hole features are
+  planned
+- **THEN** each feature follows its named habitat partition
+- **AND** wetland-family planner admission does not erase those distinctions
+
+#### Scenario: Wetland substrate is shared
+- **WHEN** feature substrate publishes hydromorphic or well-drained eligibility
+- **THEN** the field names represent physical invariants with concrete wetland
+  and vegetation consumers
+- **AND** feature-specific wetland rules remain in owning wet feature ops
+
+### Requirement: Shipped Map World Balance Is Measured
+
+The MapGen normalization workstream SHALL verify shipped map identities through
+full standard-recipe world-balance stats that measure product-visible geography
+rather than isolated implementation details.
+
+#### Scenario: A shipped map config is generated
+
+- **WHEN** a shipped map identity is run through the public standard recipe and runtime
+- **THEN** the resulting stats include pre-lake land, projected water, planned
+  lake tiles, wetland tiles, reef-family tiles, and feature counts
+- **AND** tests assert ratios or presence properties appropriate to the map
+  identity instead of exact tile counts
+
+#### Scenario: Lakes are planned
+
+- **WHEN** Hydrology converts routing sinks into lake intent
+- **THEN** sink tiles are admitted by accumulated discharge and an explicit
+  lakeiness budget
+- **AND** `map-hydrology` only projects the Hydrology lake plan and records
+  engine acceptance or drift
+
+#### Scenario: Ecology feature scores become visible features
+
+- **WHEN** reef, wetland, vegetation, or ice planners convert score layers into
+  feature intents
+- **THEN** the score-to-intent policy is owned by the feature-family planner
+- **AND** configs may tune family-local admission policy for shipped map identity
+- **AND** feature-specific habitat physics remain in the owning score op or
+  strategy rather than a generic shared planner bucket
+
+#### Scenario: Hydrology artifacts are validated
+
+- **WHEN** Hydrology publishes climate or hydrography artifacts
+- **THEN** runtime typed-array/size validation is owned by the producing step
+  publication boundary or by generic MapGen-core artifact machinery
+- **AND** stage artifact registries remain schema/contract surfaces unless a
+  categorical artifact-module architecture is introduced for all in-kind stages
+- **AND** broad domain helper buckets do not become the default owner for
+  unrelated artifact payload validation
+
+#### Scenario: Engine sea-level behavior is investigated
+
+- **WHEN** official resources expose only schema/UI sea-level artifacts without
+  active map-script usage or adapter API
+- **THEN** MapGen does not add a compatibility layer or dedicated sea-level
+  OpenSpec change
+- **AND** MapGen `seaLevel` remains morphology truth while water-fill mismatch
+  remains projection/readback evidence
+
+### Requirement: Shipped Maps Reject Visual Lake Scatter
+
+The MapGen normalization workstream SHALL test player-visible lake shape and
+projection state for shipped map identities, not only aggregate lake area.
+
+#### Scenario: Lake area is split into isolated dots
+
+- **WHEN** a shipped map identity is run through the public standard recipe and runtime
+- **THEN** world-balance stats measure engine lake connected components,
+  one-tile lake share, largest lake component size, projection mismatch, and
+  water-fill drift
+- **AND** the proof rejects maps where acceptable lake area is mostly isolated
+  one-tile basins
+
+#### Scenario: Lake projection is accepted by the engine
+
+- **WHEN** Hydrology lake truth is projected by map-hydrology
+- **THEN** engine-accepted lake tiles remain water in adapter readback
+- **AND** rejected lake tiles stay within the shipped-map mismatch budget
+
+#### Scenario: Current strategy selections are available
+
+- **WHEN** a shipped map config has a named current strategy that better matches
+  the map identity than an older/simple selection
+- **THEN** the config selects the named strategy
+- **AND** broad replacement of every `default` selection is not required because
+  current advanced implementations may be registered as `default`
+
+### Requirement: Engine Terrain Materialization Order Is Explicit
+
+The MapGen normalization workstream SHALL encode Civ7 engine terrain materialization order in the standard recipe rather than hiding it in repair helpers or local compensation paths.
+
+#### Scenario: Static water exists before elevation shaping
+
+- **WHEN** the standard recipe projects gameplay terrain into the Civ7 engine
+- **THEN** static morphology terrain projection runs before lake projection
+- **AND** Hydrology lake projection runs before `TerrainBuilder.buildElevation()`
+- **AND** engine river modeling runs after `TerrainBuilder.buildElevation()`
+
+#### Scenario: Materialization order is guarded categorically
+
+- **WHEN** map projection tests inspect the standard recipe
+- **THEN** they assert the relative order of lake projection, elevation building, and river modeling
+- **AND** the guard is not tailored to one map config or one seed

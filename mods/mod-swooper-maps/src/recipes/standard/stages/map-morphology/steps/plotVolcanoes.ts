@@ -2,7 +2,7 @@ import type { FeatureData } from "@civ7/adapter";
 import { MOUNTAIN_TERRAIN, VOLCANO_FEATURE, defineVizMeta, logVolcanoSummary, xyFromIndex } from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import PlotVolcanoesStepContract from "./plotVolcanoes.contract.js";
-import { assertNoWaterDrift } from "./assertions.js";
+import { assertNoWaterDrift } from "../../../projection-policies/noWaterDrift.js";
 
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddR" as const;

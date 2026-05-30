@@ -6,10 +6,16 @@ import {
   dumpVectorFieldVariants,
   writeClimateField,
 } from "@swooper/mapgen-core";
-import type { MapDimensions } from "@civ7/adapter";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { estimateCurlZOddQ, estimateDivergenceOddQ } from "@swooper/mapgen-core/lib/grid";
-import { hydrologyClimateBaselineArtifacts } from "../artifacts.js";
+import {
+  hydrologyClimateBaselineArtifacts,
+} from "../artifacts.js";
+import {
+  validateClimateFieldArtifact,
+  validateClimateSeasonalityArtifact,
+  validateWindFieldArtifact,
+} from "./climateBaseline.validation.js";
 import ClimateBaselineStepContract from "./climateBaseline.contract.js";
 import {
   HYDROLOGY_DRYNESS_WETNESS_SCALE,
@@ -36,9 +42,6 @@ import type {
   HydrologyTemperatureKnob,
 } from "@mapgen/domain/hydrology/config.js";
 
-type ArtifactValidationIssue = Readonly<{ message: string }>;
-type TypedArrayConstructor = { new (...args: unknown[]): { length: number } };
-
 const GROUP_SEASONALITY = "Hydrology / Seasonality";
 const GROUP_CLIMATE = "Hydrology / Climate";
 const GROUP_WIND = "Hydrology / Wind";
@@ -46,95 +49,9 @@ const GROUP_CURRENT = "Hydrology / Currents";
 const GROUP_OCEAN = "Hydrology / Ocean";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function expectedSize(dimensions: MapDimensions): number {
-  return Math.max(0, (dimensions.width | 0) * (dimensions.height | 0));
-}
-
 function clampLatitudeDeg(latitudeDeg: number): number {
   if (!Number.isFinite(latitudeDeg)) return 0;
   return Math.max(-89.999, Math.min(89.999, latitudeDeg));
-}
-
-function validateTypedArray(
-  errors: ArtifactValidationIssue[],
-  label: string,
-  value: unknown,
-  ctor: TypedArrayConstructor,
-  expectedLength?: number
-): value is { length: number } {
-  if (!(value instanceof ctor)) {
-    errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
-    return false;
-  }
-  if (expectedLength != null && value.length !== expectedLength) {
-    errors.push({
-      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
-    });
-  }
-  return true;
-}
-
-function validateClimateFieldBuffer(
-  value: unknown,
-  dimensions: MapDimensions
-): ArtifactValidationIssue[] {
-  const errors: ArtifactValidationIssue[] = [];
-  if (!isRecord(value)) {
-    errors.push({ message: "Missing climate field buffer." });
-    return errors;
-  }
-  const size = expectedSize(dimensions);
-  const candidate = value as { rainfall?: unknown; humidity?: unknown };
-  validateTypedArray(errors, "climate.rainfall", candidate.rainfall, Uint8Array, size);
-  validateTypedArray(errors, "climate.humidity", candidate.humidity, Uint8Array, size);
-  return errors;
-}
-
-function validateClimateSeasonalityPayload(
-  value: unknown,
-  dimensions: MapDimensions
-): ArtifactValidationIssue[] {
-  const errors: ArtifactValidationIssue[] = [];
-  const size = expectedSize(dimensions);
-  if (!isRecord(value)) {
-    errors.push({ message: "Missing hydrology climate seasonality artifact payload." });
-    return errors;
-  }
-
-  const candidate = value as {
-    modeCount?: unknown;
-    axialTiltDeg?: unknown;
-    rainfallAmplitude?: unknown;
-    humidityAmplitude?: unknown;
-  };
-
-  const modeCount = candidate.modeCount;
-  if (modeCount !== 2 && modeCount !== 4) {
-    errors.push({ message: "Expected climateSeasonality.modeCount to be 2 or 4." });
-  }
-  if (typeof candidate.axialTiltDeg !== "number" || !Number.isFinite(candidate.axialTiltDeg)) {
-    errors.push({ message: "Expected climateSeasonality.axialTiltDeg to be a finite number." });
-  }
-
-  validateTypedArray(
-    errors,
-    "climateSeasonality.rainfallAmplitude",
-    candidate.rainfallAmplitude,
-    Uint8Array,
-    size
-  );
-  validateTypedArray(
-    errors,
-    "climateSeasonality.humidityAmplitude",
-    candidate.humidityAmplitude,
-    Uint8Array,
-    size
-  );
-  return errors;
 }
 
 function getSeasonPhases(modeCount: 2 | 4): readonly number[] {
@@ -151,30 +68,13 @@ export default createStep(ClimateBaselineStepContract, {
     ],
     {
       climateField: {
-        validate: (value, context) => validateClimateFieldBuffer(value, context.dimensions),
+        validate: (value, context) => validateClimateFieldArtifact(value, context.dimensions),
       },
       climateSeasonality: {
-        validate: (value, context) => validateClimateSeasonalityPayload(value, context.dimensions),
+        validate: (value, context) => validateClimateSeasonalityArtifact(value, context.dimensions),
       },
       windField: {
-        validate: (value, context) => {
-          const errors: ArtifactValidationIssue[] = [];
-          const size = expectedSize(context.dimensions);
-          if (!isRecord(value)) {
-            return [{ message: "Missing wind field artifact payload." }];
-          }
-          const candidate = value as {
-            windU?: unknown;
-            windV?: unknown;
-            currentU?: unknown;
-            currentV?: unknown;
-          };
-          validateTypedArray(errors, "wind.windU", candidate.windU, Int8Array, size);
-          validateTypedArray(errors, "wind.windV", candidate.windV, Int8Array, size);
-          validateTypedArray(errors, "wind.currentU", candidate.currentU, Int8Array, size);
-          validateTypedArray(errors, "wind.currentV", candidate.currentV, Int8Array, size);
-          return errors;
-        },
+        validate: (value, context) => validateWindFieldArtifact(value, context.dimensions),
       },
     }
   ),
@@ -521,7 +421,7 @@ export default createStep(ClimateBaselineStepContract, {
       2_147_483_647
     );
 
-    const size = expectedSize(context.dimensions);
+    const size = Math.max(0, width * height);
     const zeros = new Uint8Array(size);
 
     const modeCount = config.seasonality?.modeCount === 4 ? 4 : 2;

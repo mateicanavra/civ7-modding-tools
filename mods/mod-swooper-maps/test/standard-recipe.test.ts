@@ -36,6 +36,8 @@ describe("standard recipe composition", () => {
       "ecology-features",
       "map-morphology",
       "map-hydrology",
+      "map-elevation",
+      "map-rivers",
       "map-ecology",
       "placement",
     ];

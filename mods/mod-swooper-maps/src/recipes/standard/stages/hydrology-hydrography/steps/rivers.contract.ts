@@ -16,7 +16,7 @@ const RiversStepConfigSchema = Type.Object(
   {
     additionalProperties: false,
     description:
-      "Rivers step config. Controls hydrography projection thresholds; engine projection is handled in map-hydrology.",
+      "Rivers step config. Controls hydrography projection thresholds; engine projection is handled in map-rivers after elevation.",
   }
 );
 

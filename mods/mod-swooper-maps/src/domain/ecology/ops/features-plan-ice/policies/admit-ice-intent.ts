@@ -4,6 +4,12 @@
  * the ice feature family instead of making Ecology route through shared
  * feature-planner machinery.
  */
-export function admitIceIntent(candidate: Readonly<{ confidence01: number }>): boolean {
-  return candidate.confidence01 > 0.5;
+export function admitIceIntent(
+  candidate: Readonly<{ confidence01: number }>,
+  policy: Readonly<{ minConfidence01: number }>
+): boolean {
+  const minConfidence01 = Number.isFinite(policy.minConfidence01)
+    ? Math.max(0, Math.min(1, policy.minConfidence01))
+    : 1;
+  return candidate.confidence01 >= minConfidence01;
 }

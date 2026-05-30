@@ -5,7 +5,7 @@ import { COAST_TERRAIN, FLAT_TERRAIN, createExtendedMapContext } from "@swooper/
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import lakes from "../../src/recipes/standard/stages/map-hydrology/steps/lakes.js";
-import plotRivers from "../../src/recipes/standard/stages/map-hydrology/steps/plotRivers.js";
+import plotRivers from "../../src/recipes/standard/stages/map-rivers/steps/plotRivers.js";
 import { buildTestDeps } from "../support/step-deps.js";
 
 /**
@@ -89,7 +89,7 @@ describe("map-hydrology/lakes runtime fill drift", () => {
       buildTestDeps(plotRivers)
     );
 
-    const projection = context.artifacts.get("artifact:map.hydrology.engineProjectionRivers") as
+    const projection = context.artifacts.get("artifact:map.rivers.engineProjectionRivers") as
       | { sinkMismatchCount?: number }
       | undefined;
     expect(typeof projection?.sinkMismatchCount).toBe("number");
