@@ -83,6 +83,26 @@ describe("map stamping contract guardrails", () => {
     expect(contractText).toContain("MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt");
   });
 
+  it("keeps deterministic lake projection on the stampLakes adapter capability", () => {
+    const repoRoot = path.resolve(import.meta.dir, "../..");
+    const stagesRoot = path.join(repoRoot, "src/recipes/standard/stages");
+    const files = listFilesRecursive(stagesRoot).filter((file) => file.endsWith(".ts"));
+
+    const engineLakeGenerators = files.filter((file) => {
+      const text = readFileSync(file, "utf8");
+      return /adapter\.generateLakes\s*\(/.test(text);
+    });
+    const lakeStampers = files.filter((file) => {
+      const text = readFileSync(file, "utf8");
+      return /adapter\.stampLakes\s*\(/.test(text);
+    });
+
+    engineLakeGenerators.sort();
+    lakeStampers.sort();
+    expect(engineLakeGenerators).toEqual([]);
+    expect(lakeStampers).toEqual([path.join(stagesRoot, "map-hydrology/steps/lakes.ts")]);
+  });
+
   it("does not allow physics stage code to call engine elevation/cliff reads", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const physicsRoots = [

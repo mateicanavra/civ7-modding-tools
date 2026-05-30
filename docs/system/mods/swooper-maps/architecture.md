@@ -21,7 +21,7 @@ Current architecture for ecology, lakes, and placement is intentionally physics-
 - Pipeline artifacts are canonical truth (`hydrography`, `lakePlan`, biome/feature intents, resource/wonder/discovery plans).
 - Map and placement stages project those artifacts to engine state; they do not delegate generation authority to engine random generators.
 - Runtime parity is now treated as a contract boundary:
-  - lake plan vs engine water mask mismatch is fail-hard,
+  - lake plan vs engine water mask mismatch is emitted as projection evidence,
   - biome/placement land-water drift is always emitted and remains a strict-candidate gate until a post-hydrology authoritative land mask artifact is finalized.
 
 Placement runtime now uses:

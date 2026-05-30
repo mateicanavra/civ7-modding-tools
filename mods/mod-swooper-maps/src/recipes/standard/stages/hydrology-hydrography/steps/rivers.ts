@@ -53,6 +53,7 @@ function validateHydrography(value: unknown, dimensions: MapDimensions): Artifac
     runoff?: unknown;
     discharge?: unknown;
     riverClass?: unknown;
+    flowDir?: unknown;
     sinkMask?: unknown;
     outletMask?: unknown;
     basinId?: unknown;
@@ -60,6 +61,7 @@ function validateHydrography(value: unknown, dimensions: MapDimensions): Artifac
   validateTypedArray(errors, "hydrography.runoff", candidate.runoff, Float32Array, size);
   validateTypedArray(errors, "hydrography.discharge", candidate.discharge, Float32Array, size);
   validateTypedArray(errors, "hydrography.riverClass", candidate.riverClass, Uint8Array, size);
+  validateTypedArray(errors, "hydrography.flowDir", candidate.flowDir, Int32Array, size);
   validateTypedArray(errors, "hydrography.sinkMask", candidate.sinkMask, Uint8Array, size);
   validateTypedArray(errors, "hydrography.outletMask", candidate.outletMask, Uint8Array, size);
   if (candidate.basinId != null)
@@ -164,6 +166,7 @@ export default createStep(RiversStepContract, {
       runoff: discharge.runoff,
       discharge: discharge.discharge,
       riverClass: projected.riverClass,
+      flowDir,
       sinkMask: discharge.sinkMask,
       outletMask: discharge.outletMask,
     });

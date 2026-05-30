@@ -1,18 +1,14 @@
 import { Type, createStage } from "@swooper/mapgen-core/authoring";
-import {
-  HydrologyLakeinessKnobSchema,
-  HydrologyRiverDensityKnobSchema,
-} from "@mapgen/domain/hydrology/config.js";
+import { HydrologyRiverDensityKnobSchema } from "@mapgen/domain/hydrology/config.js";
 import { lakes, plotRivers } from "./steps/index.js";
 
 const knobsSchema = Type.Object(
   {
-    lakeiness: Type.Optional(HydrologyLakeinessKnobSchema),
     riverDensity: Type.Optional(HydrologyRiverDensityKnobSchema),
   },
   {
     description:
-      "Map-hydrology knobs (lakeiness/riverDensity). Knobs apply to engine projection only.",
+      "Map-hydrology knobs (riverDensity). Knobs apply to engine projection only.",
   }
 );
 

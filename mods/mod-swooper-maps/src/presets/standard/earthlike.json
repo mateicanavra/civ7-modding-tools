@@ -483,7 +483,8 @@
     },
     "hydrology-hydrography": {
       "knobs": {
-        "riverDensity": "dense"
+        "riverDensity": "dense",
+        "lakeiness": "normal"
       },
       "rivers": {
         "accumulateDischarge": {
@@ -975,12 +976,9 @@
     },
     "map-hydrology": {
       "knobs": {
-        "lakeiness": "normal",
         "riverDensity": "dense"
       },
-      "lakes": {
-        "tilesPerLakeMultiplier": 1
-      },
+      "lakes": {},
       "plot-rivers": {
         "minLength": 5,
         "maxLength": 15

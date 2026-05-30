@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
-import { MockAdapter } from "@civ7/adapter";
-import { COAST_TERRAIN, FLAT_TERRAIN, createExtendedMapContext } from "@swooper/mapgen-core";
+import { MockAdapter, type LakeProjectionResult } from "@civ7/adapter";
+import { FLAT_TERRAIN, createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import placement from "../../src/domain/placement/ops.js";
@@ -11,6 +11,14 @@ import plotRivers from "../../src/recipes/standard/stages/map-hydrology/steps/pl
 import { applyPlacementPlan } from "../../src/recipes/standard/stages/placement/steps/placement/apply.js";
 import { buildTestDeps } from "../support/step-deps.js";
 
+/**
+ * Area-sensitive adapter double.
+ *
+ * Lake stamping must refresh engine area and water caches before later map
+ * stages and placement ask Civ7 resource logic about marine placement. This
+ * double dries the stamped tile during validation if the adapter forgot the
+ * area refresh.
+ */
 class AreaSensitiveLakeAdapter extends MockAdapter {
   private cachedWater: Uint8Array;
   private lakeNeedsAreaRefresh = false;
@@ -41,11 +49,10 @@ class AreaSensitiveLakeAdapter extends MockAdapter {
     return this.cachedWater[this.idx2(x, y)] === 1;
   }
 
-  override generateLakes(width: number, height: number, tilesPerLake: number): void {
-    this.callOrder.push("generateLakes");
-    super.generateLakes(width, height, tilesPerLake);
-    this.setTerrainType(1, 1, COAST_TERRAIN);
+  override stampLakes(width: number, height: number, lakeMask: Uint8Array): LakeProjectionResult {
+    this.callOrder.push("stampLakes");
     this.lakeNeedsAreaRefresh = true;
+    return super.stampLakes(width, height, lakeMask);
   }
 
   override recalculateAreas(): void {
@@ -124,14 +131,33 @@ describe("map-hydrology lakes area/water ordering", () => {
       runoff: new Float32Array(size),
       discharge: new Float32Array(size),
       riverClass: new Uint8Array(size),
+      flowDir: new Int32Array(size).fill(-1),
       sinkMask: new Uint8Array(size),
       outletMask: new Uint8Array(size),
     });
+    const lakeMask = new Uint8Array(size);
+    lakeMask[1 + width] = 1;
+    context.artifacts.set("artifact:hydrology.lakePlan", {
+      width,
+      height,
+      lakeMask,
+      plannedLakeTileCount: 1,
+      sinkLakeCount: 1,
+    });
 
-    lakes.run(context as any, { tilesPerLakeMultiplier: 1 }, {} as any, buildTestDeps(lakes));
-    plotRivers.run(context as any, { minLength: 5, maxLength: 15 }, {} as any, buildTestDeps(plotRivers));
+    lakes.run(context as any, { projectionReadback: true }, {} as any, buildTestDeps(lakes));
+    plotRivers.run(
+      context as any,
+      { minLength: 5, maxLength: 15 },
+      {} as any,
+      buildTestDeps(plotRivers)
+    );
 
-    expect(adapter.callOrder.slice(0, 3)).toEqual(["storeWaterData", "generateLakes", "recalculateAreas"]);
+    expect(adapter.callOrder.slice(0, 3)).toEqual([
+      "stampLakes",
+      "recalculateAreas",
+      "storeWaterData",
+    ]);
     expect(adapter.isWater(1, 1)).toBe(true);
 
     const runtime = getStandardRuntime(context);

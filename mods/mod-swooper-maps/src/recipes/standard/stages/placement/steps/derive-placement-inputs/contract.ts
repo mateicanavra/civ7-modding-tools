@@ -9,6 +9,10 @@ import { morphologyArtifacts } from "../../../morphology/artifacts.js";
 
 /**
  * Builds the placement input artifact from runtime config and placement ops.
+ *
+ * Placement consumes Hydrology lake truth (`lakePlan`) rather than projection
+ * diagnostics so downstream planning does not inherit engine readback drift as
+ * source authority.
  */
 const DerivePlacementInputsContract = defineStep({
   id: "derive-placement-inputs",
@@ -22,7 +26,7 @@ const DerivePlacementInputsContract = defineStep({
     requires: [
       morphologyArtifacts.topography,
       hydrologyHydrographyArtifacts.hydrography,
-      hydrologyHydrographyArtifacts.engineProjectionLakes,
+      hydrologyHydrographyArtifacts.lakePlan,
       ecologyArtifacts.biomeClassification,
       ecologyArtifacts.pedology,
     ],

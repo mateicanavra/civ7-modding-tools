@@ -149,7 +149,7 @@ related_to: []
   - Ecology: biome classification fields, pedology (soilType/fertility), resource basins (plots/intensity), feature intents (vegetation/wetlands/reefs/ice).
   - Map/Gameplay: landmass region slots, engine terrain/feature/biome fields after map-morphology/map-ecology/map-hydrology/placement.
 - Engine-dependent / mock-sensitive inputs:
-  - `buildElevation`, `generateLakes`, `addNaturalWonders`, `generateResources`, `addFloodplains`, `generateSnow`, `storeWaterData`, and placement apply calls in the mock adapter are no-ops.
+  - `buildElevation`, `addNaturalWonders`, `generateResources`, `addFloodplains`, `generateSnow`, `storeWaterData`, and placement apply calls in the mock adapter are no-ops; `stampLakes` mutates terrain and reports readback.
   - `syncHeightfield` pulls from adapter; mock currently returns flat elevations unless we inject a fallback.
   - Plan: add explicit mock fallbacks where no-op yields empty/flat fields (with code comments noting non-1:1).
 - Doc gap: `docs/projects/mapgen-studio/VIZ-LAYER-CATALOG.md` not present in repo; need to decide whether to create/update a catalog file or document in issue+stage docs.
@@ -163,9 +163,9 @@ related_to: []
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotCoasts.ts` and `plotMountains.ts`/`plotVolcanoes.ts` write terrain/feature via adapter only (projection).
   - `packages/civ7-adapter/src/mock-adapter.ts` implements `buildElevation()` as **no‑op** and `expandCoasts()` as simple adjacency; therefore adapter‑only outputs are not trustworthy for viz in mock mode.
 - Map‑hydrology rivers/lakes are adapter calls in map‑hydrology:
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/plotRivers.ts` calls `adapter.modelRivers(...)` then `syncHeightfield(context)`.
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts` calls `adapter.generateLakes(...)`.
-  - `packages/civ7-adapter/src/mock-adapter.ts` `generateLakes()` is **no‑op**; `modelRivers()` is a best‑effort stub. This reinforces pipeline‑owned hydrography as the viz truth.
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/plotRivers.ts` calls `adapter.modelRivers(...)`.
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts` calls `adapter.stampLakes(...)` with `artifact:hydrology.lakePlan`.
+  - `packages/civ7-adapter/src/mock-adapter.ts` `stampLakes()` is a terrain-stamping/readback double; `modelRivers()` is a best-effort stub. This reinforces pipeline-owned hydrography as the viz truth.
 - Map‑ecology (biomes/features/effects) writes engine types only:
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/plotBiomes.ts` and `features/apply.ts` set engine biomes/features.
   - Mock adapter’s `designateBiomes()`/`addFeatures()` are no‑ops (only effect tags), so engine biomes/features aren’t a reliable source for viz in mock runs.
@@ -285,7 +285,7 @@ related_to: []
 
 **Should be pipeline‑owned (override OK)**
 - **Map‑morphology projection** (viz/mock): derive coasts/continents/mountains/volcano masks from `topography`, `coastlineMetrics`, `volcanoes`, and `plotMountains` plan output; avoid adapter‑only effects (engine is projection, not truth).
-- **Map‑hydrology projection** (viz/mock): derive rivers/lakes from hydrography + topography (e.g., riverClass, discharge) instead of `adapter.modelRivers`/`generateLakes`.
+- **Map‑hydrology projection** (viz/mock): derive rivers/lakes from hydrography + topography (e.g., riverClass, discharge, lakePlan) instead of `adapter.modelRivers` or engine lake generation.
 - **Map‑ecology projection** (viz/mock): drive biomes/features/plot‑effects from ecology artifacts + feature intents; do not depend on adapter in mock path.
   - **Plot coasts / terrain stamping**: OK to pipeline‑own for viz/mock (explicit user requirement); treat adapter as gameplay-only projection.
 
@@ -310,10 +310,10 @@ related_to: []
 - `map-morphology/steps/plotVolcanoes.ts` → adapter terrain + feature writes; uses `artifact:morphology.volcanoes`
 - `map-morphology/steps/buildElevation.ts` → adapter `buildElevation()` + `syncHeightfield` (adapter readback)
 - `map-hydrology/steps/plotRivers.ts` → adapter `modelRivers`; references `artifact:hydrology.hydrography` but doesn’t project from it
-- `map-hydrology/steps/lakes.ts` → adapter `generateLakes`
+- `map-hydrology/steps/lakes.ts` → adapter `stampLakes`
 - `map-ecology/steps/plotBiomes.ts` → adapter biome writes from `artifact:ecology.biomeClassification`
 - `placement/steps/placement/apply.ts` → adapter placement calls (wonders/resources/floodplains/starts/discoveries)
-- `packages/civ7-adapter/src/mock-adapter.ts` → no-ops for `buildElevation`, `generateLakes`, `storeWaterData`, `addNaturalWonders`, `generateResources`, `addFloodplains`, `generateDiscoveries`, `assignAdvancedStartRegions` (terrain/biome/feature writes *do* mutate mock arrays)
+- `packages/civ7-adapter/src/mock-adapter.ts` → no-ops for `buildElevation`, `storeWaterData`, `addNaturalWonders`, `generateResources`, `addFloodplains`, `generateDiscoveries`, `assignAdvancedStartRegions`; `stampLakes` mutates terrain and reports readback (terrain/biome/feature writes *do* mutate mock arrays)
 
 **Updated should/should-not**
 - **Override OK (viz/mock, pipeline-owned):**

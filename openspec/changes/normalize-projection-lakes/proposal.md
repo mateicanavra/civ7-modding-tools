@@ -26,8 +26,8 @@ or resource/discovery reconciliation.
   truth can be materialized and read back.
 - Audit `map-*` stages touched by this change against the projection-only
   rule.
-- Keep fail-hard parity gates after materialization/readback can prove the
-  planned mask.
+- Keep parity evidence scoped to materialization/readback; do not promote
+  projection diagnostics into Hydrology truth.
 
 ## Capabilities
 
@@ -78,6 +78,7 @@ None.
   - map-hydrology projection/readback tests;
   - placement no longer consumes lake projection diagnostics as truth;
   - no fail-hard parity before readback evidence exists;
+  - no `map-hydrology` calls to engine lake generation;
   - `bun run openspec -- validate normalize-projection-lakes --strict`;
   - `bun run openspec:validate`;
   - `git diff --check`.

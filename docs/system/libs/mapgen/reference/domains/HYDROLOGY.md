@@ -74,6 +74,7 @@ Hydrology domain ops are bound by step contracts. In the standard recipe, Hydrol
 - `computePrecipitation` (baseline + refine strategies)
 - `accumulateDischarge`
 - `projectRiverNetwork`
+- `planLakes`
 - `computeLandWaterBudget`
 - `computeClimateDiagnostics`
 - `computeCryosphereState`, `applyAlbedoFeedback`
@@ -83,9 +84,9 @@ Hydrology domain ops are bound by step contracts. In the standard recipe, Hydrol
 Author-facing control is primarily via stage knobs (compiled at stage compile time). In the standard recipe:
 
 - `hydrology-climate-baseline` knobs: `dryness`, `temperature`, `seasonality`, `oceanCoupling`
-- `hydrology-hydrography` knobs: `riverDensity` (projection thresholds for hydrography)
+- `hydrology-hydrography` knobs: `riverDensity` (projection thresholds for hydrography), `lakeiness` (sink-derived lake intent expansion)
 - `hydrology-climate-refine` knobs: `dryness`, `temperature`, `cryosphere`
-- `map-hydrology` knobs: `lakeiness`, `riverDensity` (engine projection only)
+- `map-hydrology` knobs: `riverDensity` (engine river projection only)
 
 Some steps also expose flat step config surfaces for explicit overrides (e.g., seasonality posture).
 
@@ -94,7 +95,7 @@ Some steps also expose flat step config surfaces for explicit overrides (e.g., s
 The `map-hydrology` stage:
 
 - is `phase: "gameplay"` (projection-only),
-- consumes Hydrology truth artifacts (hydrography) plus Morphology truth (topography),
+- consumes Hydrology truth artifacts (hydrography and lakePlan) plus Morphology truth (topography),
 - publishes effect tags like `effect:engine.riversModeled`,
 - and must not be treated as Hydrology truth.
 

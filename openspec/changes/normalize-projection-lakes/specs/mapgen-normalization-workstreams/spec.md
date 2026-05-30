@@ -11,17 +11,17 @@ before enabling fail-hard parity for Hydrology lake intent.
   already implemented and tested
 - **AND** the gate compares planned truth to observed projection evidence
 
-### Requirement: Engine Lake Generation Is Labeled Projection Until Replaced
+### Requirement: Engine Lake Generation Is Replaced By Stamping
 
-The lake projection change SHALL label engine-generated lake behavior as
-projection or diagnostic behavior until Hydrology intent is stamped and read
-back.
+The lake projection change SHALL stamp Hydrology lake intent through an
+adapter capability instead of calling Civ7 engine lake generation from the
+standard recipe.
 
-#### Scenario: map-hydrology still calls engine lake generation
-- **WHEN** engine lake generation remains in use during the migration
-- **THEN** docs and artifacts do not call that output deterministic Hydrology
-  truth
-- **AND** placement does not consume it as final lake intent
+#### Scenario: map-hydrology projects lake intent
+- **WHEN** `map-hydrology/lakes` materializes lakes
+- **THEN** it calls `stampLakes(...)` with `artifact:hydrology.lakePlan`
+- **AND** it does not call `generateLakes(...)`
+- **AND** rejected/stamped lake masks are recorded as projection evidence
 
 ### Requirement: Placement Lake Inputs Move After Lake Readback
 

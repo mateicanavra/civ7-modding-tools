@@ -9,6 +9,7 @@ import type {
   DiscoveryCatalogEntry,
   EngineAdapter,
   FeatureData,
+  LakeProjectionResult,
   LandmassIdName,
   MapInfo,
   MapInitParams,
@@ -34,8 +35,8 @@ const DEFAULT_VORONOI_UTILS: VoronoiUtils = {
     for (let id = 0; id < count; id++) {
       const seed1 = (id * 1664525 + 1013904223) >>> 0;
       const seed2 = (seed1 * 1664525 + 1013904223) >>> 0;
-      const x = (seed1 % 10000) / 10000 * width;
-      const y = (seed2 % 10000) / 10000 * height;
+      const x = ((seed1 % 10000) / 10000) * width;
+      const y = ((seed2 % 10000) / 10000) * height;
       sites.push({ x, y, voronoiId: id });
     }
     return sites;
@@ -210,14 +211,17 @@ function sanitizeResourceTypeCatalog(input: number[] | undefined, noResource: nu
   return Array.from(unique).sort((a, b) => a - b);
 }
 
-function sanitizeDiscoveryCatalog(input: DiscoveryCatalogEntry[] | undefined): DiscoveryCatalogEntry[] {
+function sanitizeDiscoveryCatalog(
+  input: DiscoveryCatalogEntry[] | undefined
+): DiscoveryCatalogEntry[] {
   const source = Array.isArray(input) ? input : DEFAULT_DISCOVERY_CATALOG;
   const unique = new Set<string>();
   const catalog: DiscoveryCatalogEntry[] = [];
   for (const entry of source) {
     const discoveryVisualType = entry?.discoveryVisualType;
     const discoveryActivationType = entry?.discoveryActivationType;
-    if (!Number.isFinite(discoveryVisualType) || !Number.isFinite(discoveryActivationType)) continue;
+    if (!Number.isFinite(discoveryVisualType) || !Number.isFinite(discoveryActivationType))
+      continue;
     const visual = Math.trunc(discoveryVisualType as number) >>> 0;
     const activation = Math.trunc(discoveryActivationType as number) >>> 0;
     const key = `${visual}:${activation}`;
@@ -360,6 +364,7 @@ export class MockAdapter implements EngineAdapter {
     generateSnow: Array<{ width: number; height: number }>;
     setResourceType: Array<{ x: number; y: number; resourceType: number }>;
     generateLakes: Array<{ width: number; height: number; tilesPerLake: number }>;
+    stampLakes: Array<{ width: number; height: number; lakeMask: Uint8Array }>;
     expandCoasts: Array<{ width: number; height: number }>;
     assignStartPositions: Array<{
       playersLandmass1: number;
@@ -408,10 +413,12 @@ export class MockAdapter implements EngineAdapter {
     this.landmassIds = { ...DEFAULT_LANDMASS_IDS, ...(config.landmassIds ?? {}) };
     this.canHaveFeatureFn = config.canHaveFeature;
     this.canHaveResourceFn = config.canHaveResource;
-    this.naturalWonderCatalog = (config.naturalWonderCatalog ?? DEFAULT_NATURAL_WONDER_CATALOG).map((entry) => ({
-      featureType: entry.featureType,
-      direction: entry.direction,
-    }));
+    this.naturalWonderCatalog = (config.naturalWonderCatalog ?? DEFAULT_NATURAL_WONDER_CATALOG).map(
+      (entry) => ({
+        featureType: entry.featureType,
+        direction: entry.direction,
+      })
+    );
     this.discoveryCatalog = sanitizeDiscoveryCatalog(config.discoveryCatalog);
     this.plotEffectTypes = (config.plotEffectTypes ?? DEFAULT_PLOT_EFFECT_TYPES).map((entry) => ({
       id: entry.id,
@@ -440,6 +447,7 @@ export class MockAdapter implements EngineAdapter {
       generateSnow: [],
       setResourceType: [],
       generateLakes: [],
+      stampLakes: [],
       expandCoasts: [],
       assignStartPositions: [],
       setStartPosition: [],
@@ -754,8 +762,8 @@ export class MockAdapter implements EngineAdapter {
 
     if (startX < 0) return;
 
-    const maxLen = Math.max(1, Math.min(this.height - startY, (_maxLength | 0) || this.height));
-    const minLen = Math.max(1, (_minLength | 0) || 1);
+    const maxLen = Math.max(1, Math.min(this.height - startY, _maxLength | 0 || this.height));
+    const minLen = Math.max(1, _minLength | 0 || 1);
     const length = Math.min(maxLen, minLen);
 
     for (let dy = 0; dy < length; dy++) {
@@ -778,6 +786,65 @@ export class MockAdapter implements EngineAdapter {
   generateLakes(width: number, height: number, tilesPerLake: number): void {
     this.calls.generateLakes.push({ width, height, tilesPerLake });
     // Mock: no-op
+  }
+
+  /**
+   * Test-double counterpart to the engine adapter lake projection boundary.
+   * It stamps requested lake terrain and reports readback masks so map-stage
+   * tests exercise the same plan/project/diagnose shape as runtime.
+   */
+  stampLakes(width: number, height: number, lakeMask: Uint8Array): LakeProjectionResult {
+    this.calls.stampLakes.push({ width, height, lakeMask });
+    const expectedSize = Math.max(0, (width | 0) * (height | 0));
+    if (lakeMask.length !== expectedSize) {
+      throw new Error(
+        `[MockAdapter] Invalid lake mask length for stampLakes (expected ${expectedSize}, got ${lakeMask.length}).`
+      );
+    }
+
+    let plannedLakeTileCount = 0;
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = y * width + x;
+        if (lakeMask[idx] !== 1) continue;
+        plannedLakeTileCount += 1;
+        this.terrainTypes[idx] = this.coastTerrainId & 0xff;
+      }
+    }
+
+    this.recalculateAreas();
+    this.storeWaterData();
+
+    const stampedLakeMask = new Uint8Array(expectedSize);
+    const rejectedLakeMask = new Uint8Array(expectedSize);
+    let stampedLakeTileCount = 0;
+    let rejectedLakeTileCount = 0;
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = y * width + x;
+        if (lakeMask[idx] !== 1) continue;
+        if (this.isWater(x, y)) {
+          stampedLakeMask[idx] = 1;
+          stampedLakeTileCount += 1;
+        } else {
+          rejectedLakeMask[idx] = 1;
+          rejectedLakeTileCount += 1;
+        }
+      }
+    }
+
+    return {
+      width,
+      height,
+      plannedLakeMask: lakeMask,
+      stampedLakeMask,
+      rejectedLakeMask,
+      plannedLakeTileCount,
+      stampedLakeTileCount,
+      rejectedLakeTileCount,
+    };
   }
 
   expandCoasts(width: number, height: number): void {
@@ -909,7 +976,9 @@ export class MockAdapter implements EngineAdapter {
     const resolvedStartPositions = (Array.isArray(startPositions) ? startPositions : [])
       .filter((value) => Number.isFinite(value) && value >= 0)
       .map((value) => Math.trunc(value));
-    const resolvedPolarMargin = Number.isFinite(polarMargin) ? Math.max(0, Math.trunc(polarMargin)) : 0;
+    const resolvedPolarMargin = Number.isFinite(polarMargin)
+      ? Math.max(0, Math.trunc(polarMargin))
+      : 0;
 
     this.calls.generateOfficialDiscoveries.push({
       width,
@@ -1069,6 +1138,7 @@ export class MockAdapter implements EngineAdapter {
     this.calls.generateSnow.length = 0;
     this.calls.setResourceType.length = 0;
     this.calls.generateLakes.length = 0;
+    this.calls.stampLakes.length = 0;
     this.calls.expandCoasts.length = 0;
     this.calls.assignStartPositions.length = 0;
     this.calls.setStartPosition.length = 0;
@@ -1084,7 +1154,9 @@ export class MockAdapter implements EngineAdapter {
     this.canHaveFeatureFn = config.canHaveFeature ?? this.canHaveFeatureFn;
     this.canHaveResourceFn = config.canHaveResource ?? this.canHaveResourceFn;
     this.naturalWonderCatalog = (
-      config.naturalWonderCatalog ?? this.naturalWonderCatalog ?? DEFAULT_NATURAL_WONDER_CATALOG
+      config.naturalWonderCatalog ??
+      this.naturalWonderCatalog ??
+      DEFAULT_NATURAL_WONDER_CATALOG
     ).map((entry) => ({
       featureType: entry.featureType,
       direction: entry.direction,

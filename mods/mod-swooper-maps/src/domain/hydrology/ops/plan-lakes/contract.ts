@@ -1,5 +1,11 @@
 import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
 
+/**
+ * Hydrology lake planning is the truth-side counterpart to engine lake stamping.
+ * The contract owns the typed inputs and strategy config so implementations can
+ * focus on deterministic intent instead of repeating validation already handled
+ * by the authoring/runtime boundary.
+ */
 const PlanLakesContract = defineOp({
   kind: "compute",
   id: "hydrology/plan-lakes",

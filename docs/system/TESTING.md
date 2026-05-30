@@ -55,7 +55,7 @@ Each app and package includes a minimal smoke test and a local `TESTING.md` desc
 For `mods/mod-swooper-maps`, CI/local validation should include:
 
 - Deterministic placement suite (`test/placement/**`) validating stamp-based resources/wonders/discoveries.
-- Hydrology regression suite (`test/map-hydrology/**`, `test/hydrology-plan-lakes.test.ts`) validating sink-driven lake planning and runtime fill parity.
+- Hydrology regression suite (`test/map-hydrology/**`, `test/hydrology/plan-lakes.test.ts`) validating sink-driven lake planning and runtime fill parity.
 - Static policy scans (`test/ecology/no-fudging-static-scan.test.ts`) enforcing no RNG/fudge constructs and no legacy generator call/module usage in scoped ecology/hydrology/placement surfaces.
 
 When these fail, treat them as architecture regressions rather than tuning noise.

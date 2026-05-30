@@ -56,7 +56,7 @@ flowchart LR
 - No random generator authority remains in active placement paths (resources, natural wonders, discoveries).
 - Hydrology lake planning is sink-driven by default (no upstream expansion by default).
 - Engine projection is downstream evidence only; pipeline artifacts remain the source of truth.
-- Drift between pipeline truth and engine truth at contract boundaries is instrumented everywhere and fail-hard where authoritative comparisons are finalized (currently lake-plan projection).
+- Drift between pipeline truth and engine truth at contract boundaries is instrumented everywhere and fail-hard only where authoritative comparisons are finalized.
 
 ---
 

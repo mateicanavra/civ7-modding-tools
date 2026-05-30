@@ -47,6 +47,7 @@ describe("hydrology knobs compilation", () => {
       "hydrology-climate-baseline": {
         knobs: { dryness: "wet", seasonality: "high", oceanCoupling: "earthlike" },
       },
+      "hydrology-hydrography": { knobs: { riverDensity: "dense", lakeiness: "many" } },
       "map-hydrology": { knobs: { riverDensity: "dense" } },
       "hydrology-climate-refine": { knobs: { dryness: "wet" } },
     } as const;
@@ -117,10 +118,12 @@ describe("hydrology knobs compilation", () => {
     const compiled = standardRecipe.compileConfig(
       env,
       withFoundation({
+        "hydrology-hydrography": { lakes: {} },
         "map-hydrology": { lakes: {} },
       })
     );
-    expect(compiled["map-hydrology"].lakes.tilesPerLakeMultiplier).toBe(1);
+    expect(compiled["hydrology-hydrography"].lakes.planLakes.config.maxUpstreamSteps).toBe(0);
+    expect(compiled["map-hydrology"].lakes.projectionReadback).toBe(true);
   });
 
   it("applies knobs as deterministic transforms over flat step config baselines", () => {
@@ -143,9 +146,27 @@ describe("hydrology knobs compilation", () => {
             },
           },
         },
-        "map-hydrology": {
+        "hydrology-hydrography": {
           knobs: { riverDensity: "dense", lakeiness: "many" },
-          lakes: { tilesPerLakeMultiplier: 2 },
+          lakes: {
+            planLakes: {
+              strategy: "default",
+              config: { maxUpstreamSteps: 0 },
+            },
+          },
+          rivers: {
+            projectRiverNetwork: {
+              strategy: "default",
+              config: {
+                minorPercentile: 0.85,
+                majorPercentile: 0.95,
+              },
+            },
+          },
+        },
+        "map-hydrology": {
+          knobs: { riverDensity: "dense" },
+          lakes: { projectionReadback: true },
           "plot-rivers": { minLength: 11, maxLength: 11 },
         },
         "hydrology-climate-refine": {
@@ -174,13 +195,20 @@ describe("hydrology knobs compilation", () => {
     );
 
     // Baseline values apply first (schema defaults + flat step config), then knobs transform them.
-    // - lakeiness=many multiplies tilesPerLakeMultiplier by 0.7 (more lakes).
-    expect(compiled["map-hydrology"].lakes.tilesPerLakeMultiplier).toBeCloseTo(1.4, 6);
+    // - lakeiness=many expands Hydrology lake intent one upstream hop from sink tiles.
+    expect(compiled["hydrology-hydrography"].lakes.planLakes.config.maxUpstreamSteps).toBe(1);
     // - dryness=wet scales rainfallScale by 1.15 (wetter climate).
     expect(
       compiled["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.config
         .rainfallScale
     ).toBeCloseTo(141.45, 6);
+    // - riverDensity=dense shifts Hydrology river projection percentiles down relative to normal.
+    expect(
+      compiled["hydrology-hydrography"].rivers.projectRiverNetwork.config.minorPercentile
+    ).toBeCloseTo(0.78, 6);
+    expect(
+      compiled["hydrology-hydrography"].rivers.projectRiverNetwork.config.majorPercentile
+    ).toBeCloseTo(0.91, 6);
     // - riverDensity=dense shifts length bounds down relative to normal.
     expect(compiled["map-hydrology"]["plot-rivers"].minLength).toBe(9);
     // Note: clamp enforces schema bounds and keeps maxLength >= minLength.

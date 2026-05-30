@@ -121,19 +121,18 @@ export type HydrologyRiverDensityKnob = Static<typeof HydrologyRiverDensityKnobS
  * Hydrology lakeiness knob (semantic intent).
  *
  * Meaning:
- * - Lake projection frequency bias (does not change discharge routing truth).
+ * - Lake intent expansion bias over already-derived hydrology sinks.
  *
  * Stage scope:
- * - Used by `hydrology-climate-baseline` only.
+ * - Used by `hydrology-hydrography` only.
  */
 export const HydrologyLakeinessKnobSchema = Type.Union(
   [Type.Literal("few"), Type.Literal("normal"), Type.Literal("many")],
   {
     default: "normal",
     description:
-      "Lake projection frequency preset (few/normal/many). Applies as a deterministic multiplier over lake projection frequency; routing/discharge truth is unchanged.",
+      "Lake intent preset (few/normal/many). Applies as a deterministic transform over sink-derived lake planning; engine projection remains downstream.",
   }
 );
 
 export type HydrologyLakeinessKnob = Static<typeof HydrologyLakeinessKnobSchema>;
-

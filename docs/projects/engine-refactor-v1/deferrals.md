@@ -52,17 +52,17 @@ Each deferral follows this structure:
 
 ---
 
-## DEF-020: Discharge-Driven Hydrography Stamping (Engine Projection vs. Hydrology Truth)
+## DEF-020: Discharge-Driven River Stamping (Engine Projection vs. Hydrology Truth)
 
 **Deferred:** 2026-01-17  
-**Trigger:** When the adapter/engine surface can accept explicit river/lake geometry (or when we add an `EngineAdapter` capability that can stamp hydrography derived from Hydrology artifacts).  
-**Context:** M9 makes Hydrology the canonical owner of hydrography via discharge + routing-derived artifacts. Civ7 adapter surfaces currently support only engine-driven river/lake generation (`modelRivers(...)`, `generateLakes(...)`) and do not expose explicit “set river network / set lake mask” stamping. To keep the pipeline green without lying about ownership, engine hydrography is treated as projection-only while downstream consumes Hydrology’s typed hydrography artifacts as truth.  
+**Trigger:** When the adapter/engine surface can accept explicit river geometry (or when we add an `EngineAdapter` capability that can stamp river hydrography derived from Hydrology artifacts).
+**Context:** M9 makes Hydrology the canonical owner of hydrography via discharge + routing-derived artifacts. Lake stamping/readback now exists via `EngineAdapter.stampLakes(...)`, and placement consumes `artifact:hydrology.lakePlan` as truth. River projection still relies on `modelRivers(...)`; explicit river-network stamping remains deferred.
 **Scope:**
-- Introduce an explicit `EngineAdapter` capability for stamping hydrography from Hydrology artifacts (rivers + lakes).
+- Introduce an explicit `EngineAdapter` capability for stamping river hydrography from Hydrology artifacts.
 - Implement the capability in Civ adapter and `MockAdapter` (so determinism + monotonicity can be tested engine-free).
-- Migrate Hydrology engine projection calls to the stamping capability and deprecate any reliance on `modelRivers(...)` / `generateLakes(...)` as truth-bearing mechanisms.  
+- Migrate Hydrology river projection calls to the stamping capability and deprecate any reliance on `modelRivers(...)` as a truth-bearing mechanism.
 **Impact:**
-- Engine rivers/lakes may not exactly reflect discharge-derived hydrography; this is an acknowledged projection limitation.
+- Engine rivers may not exactly reflect discharge-derived hydrography; this is an acknowledged projection limitation.
 - Downstream logic must treat Hydrology artifacts as canonical truth; engine surfaces remain compatibility/visualization.  
 
 ---
