@@ -87,10 +87,9 @@ Stage-level posture:
 
 - Wrapper-only `advanced` stage surfaces have been removed. Step overrides live
   at `<stageId>.<stepId>`.
-- `map-morphology` still uses `public + compile` as a genuine public transform
-  from public keys (`plotCoasts`, `plotContinents`, `mountains`,
-  `plotVolcanoes`, `buildElevation`) to kebab-case step ids. It is not a
-  wrapper-only compatibility surface.
+- `map-morphology` uses the same flat step-id surface as other standard stages:
+  `plot-coasts`, `plot-continents`, `plot-mountains`, `plot-volcanoes`, and
+  `build-elevation`.
 
 ## Domains + ops registry
 

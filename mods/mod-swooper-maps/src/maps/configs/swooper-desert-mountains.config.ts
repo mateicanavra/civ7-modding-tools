@@ -165,7 +165,7 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
     },
   },
   "map-morphology": {
-    mountains: {
+    "plot-mountains": {
       ridges: {
         strategy: "default",
         config: {

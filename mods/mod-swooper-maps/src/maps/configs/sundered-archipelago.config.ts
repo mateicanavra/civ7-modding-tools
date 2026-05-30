@@ -165,7 +165,7 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
     },
   },
   "map-morphology": {
-    mountains: {
+    "plot-mountains": {
       ridges: {
         strategy: "default",
         config: {

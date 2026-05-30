@@ -165,7 +165,7 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
     },
   },
   "map-morphology": {
-    mountains: {
+    "plot-mountains": {
       ridges: {
         strategy: "default",
         config: {

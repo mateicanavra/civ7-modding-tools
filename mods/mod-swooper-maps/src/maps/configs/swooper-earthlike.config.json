@@ -951,7 +951,7 @@
     "knobs": {
       "orogeny": "high"
     },
-    "mountains": {
+    "plot-mountains": {
       "ridges": {
         "strategy": "default",
         "config": {
@@ -1059,10 +1059,10 @@
         }
       }
     },
-    "plotCoasts": {},
-    "plotContinents": {},
-    "plotVolcanoes": {},
-    "buildElevation": {}
+    "plot-coasts": {},
+    "plot-continents": {},
+    "plot-volcanoes": {},
+    "build-elevation": {}
   },
   "map-hydrology": {
     "knobs": {

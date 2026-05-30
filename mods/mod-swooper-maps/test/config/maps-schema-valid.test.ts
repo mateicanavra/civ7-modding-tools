@@ -1,6 +1,7 @@
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { deriveRecipeConfigSchema, stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
+import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import { normalizeStrictOrThrow } from "../support/compiler-helpers";
 import { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
 
@@ -28,6 +29,36 @@ describe("Shipped map configs", () => {
       schema,
       SUNDERED_ARCHIPELAGO_CONFIG,
       "/maps/sundered-archipelago"
+    );
+  });
+
+  it("rejects legacy map-morphology alias keys", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+    const { errors } = normalizeStrict(
+      schema,
+      {
+        "map-morphology": {
+          plotCoasts: {},
+          plotContinents: {},
+          mountains: {},
+          volcanoes: {},
+          plotVolcanoes: {},
+          buildElevation: {},
+        },
+      },
+      "/maps/legacy-map-morphology"
+    );
+
+    const errorPaths = errors.map((error) => error.path);
+    expect(errorPaths).toEqual(
+      expect.arrayContaining([
+        "/maps/legacy-map-morphology/map-morphology/plotCoasts",
+        "/maps/legacy-map-morphology/map-morphology/plotContinents",
+        "/maps/legacy-map-morphology/map-morphology/mountains",
+        "/maps/legacy-map-morphology/map-morphology/volcanoes",
+        "/maps/legacy-map-morphology/map-morphology/plotVolcanoes",
+        "/maps/legacy-map-morphology/map-morphology/buildElevation",
+      ])
     );
   });
 });
