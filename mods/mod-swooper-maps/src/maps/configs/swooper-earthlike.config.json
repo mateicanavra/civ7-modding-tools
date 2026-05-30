@@ -983,10 +983,10 @@
         "strategy": "default",
         "config": {
           "forestMinConfidence01": 0.15,
-          "rainforestMinConfidence01": 0.24,
+          "rainforestMinConfidence01": 0.28,
           "taigaMinConfidence01": 0.08,
-          "savannaWoodlandMinConfidence01": 0.08,
-          "sagebrushSteppeMinConfidence01": 0.06
+          "savannaWoodlandMinConfidence01": 0.05,
+          "sagebrushSteppeMinConfidence01": 0.04
         }
       }
     },

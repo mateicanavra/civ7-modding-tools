@@ -23,6 +23,15 @@ const CASES = [
     config: unwrapConfig(swooperEarthlikeConfigRaw),
     wetlandMax: 0.08,
     reefMax: 0.04,
+    requiredFeatures: [
+      "FEATURE_FOREST",
+      "FEATURE_RAINFOREST",
+      "FEATURE_TAIGA",
+      "FEATURE_SAVANNA_WOODLAND",
+      "FEATURE_SAGEBRUSH_STEPPE",
+    ],
+    vegetationFamiliesMin: 5,
+    rainforestVegetationShareMax: 0.65,
     requireColdReefs: true,
     requireAtolls: true,
   },
@@ -31,6 +40,15 @@ const CASES = [
     config: unwrapConfig(earthlikePresetRaw),
     wetlandMax: 0.08,
     reefMax: 0.04,
+    requiredFeatures: [
+      "FEATURE_FOREST",
+      "FEATURE_RAINFOREST",
+      "FEATURE_TAIGA",
+      "FEATURE_SAVANNA_WOODLAND",
+      "FEATURE_SAGEBRUSH_STEPPE",
+    ],
+    vegetationFamiliesMin: 5,
+    rainforestVegetationShareMax: 0.65,
     requireColdReefs: true,
     requireAtolls: true,
   },
@@ -39,6 +57,13 @@ const CASES = [
     config: realismEarthlikeConfig,
     wetlandMax: 0.08,
     reefMax: 0.03,
+    requiredFeatures: [
+      "FEATURE_FOREST",
+      "FEATURE_RAINFOREST",
+      "FEATURE_SAVANNA_WOODLAND",
+      "FEATURE_SAGEBRUSH_STEPPE",
+    ],
+    vegetationFamiliesMin: 4,
     requireAtolls: true,
   },
   {
@@ -46,6 +71,8 @@ const CASES = [
     config: SHATTERED_RING_CONFIG,
     wetlandMax: 0.12,
     reefMax: 0.02,
+    requiredFeatures: ["FEATURE_FOREST", "FEATURE_RAINFOREST", "FEATURE_SAGEBRUSH_STEPPE"],
+    vegetationFamiliesMin: 3,
     requireAtolls: true,
   },
   {
@@ -53,6 +80,8 @@ const CASES = [
     config: SUNDERED_ARCHIPELAGO_CONFIG,
     wetlandMax: 0.22,
     reefMax: 0.02,
+    requiredFeatures: ["FEATURE_FOREST", "FEATURE_RAINFOREST", "FEATURE_MANGROVE"],
+    vegetationFamiliesMin: 2,
     requireColdReefs: true,
     requireAtolls: true,
   },
@@ -61,6 +90,8 @@ const CASES = [
     config: SWOOPER_DESERT_MOUNTAINS_CONFIG,
     wetlandMax: 0.08,
     reefMax: 0.03,
+    requiredFeatures: ["FEATURE_SAVANNA_WOODLAND", "FEATURE_SAGEBRUSH_STEPPE"],
+    vegetationFamiliesMin: 2,
     requireAtolls: true,
     rainforestMax: 20,
   },
@@ -112,6 +143,19 @@ describe("world balance stats", () => {
       if (caseData.requireAtolls) {
         expect(stats.featureCounts.FEATURE_ATOLL, `${caseData.label} atolls`).toBeGreaterThan(0);
       }
+      for (const feature of caseData.requiredFeatures) {
+        expect(stats.featureCounts[feature], `${caseData.label} ${feature}`).toBeGreaterThan(0);
+      }
+      expect(
+        stats.vegetationFeatureFamiliesPresent,
+        `${caseData.label} vegetation family count`
+      ).toBeGreaterThanOrEqual(caseData.vegetationFamiliesMin);
+      if ("rainforestVegetationShareMax" in caseData) {
+        expect(
+          stats.featureCounts.FEATURE_RAINFOREST / Math.max(1, stats.vegetationFamilyTiles),
+          `${caseData.label} rainforest share of vegetation`
+        ).toBeLessThanOrEqual(caseData.rainforestVegetationShareMax);
+      }
       if ("rainforestMax" in caseData) {
         expect(stats.featureCounts.FEATURE_RAINFOREST, `${caseData.label} rainforest`).toBeLessThanOrEqual(
           caseData.rainforestMax
@@ -143,6 +187,10 @@ describe("world balance stats", () => {
       expect(stats.vegetationFeatureFamiliesPresent, `${stats.label} vegetation families present`).toBeGreaterThanOrEqual(4);
       expect(stats.vegetationFamilyShareOfPreLakeLand, `${stats.label} vegetation share`).toBeGreaterThan(0.08);
       expect(stats.vegetationFamilyShareOfPreLakeLand, `${stats.label} vegetation share`).toBeLessThan(0.55);
+      expect(
+        stats.featureCounts.FEATURE_RAINFOREST / Math.max(1, stats.vegetationFamilyTiles),
+        `${stats.label} rainforest share of vegetation`
+      ).toBeLessThanOrEqual(0.7);
       expect(stats.featureCounts.FEATURE_RAINFOREST, `${stats.label} rainforest`).toBeLessThanOrEqual(
         Math.max(1, Math.floor(stats.preLakeLandTiles * 0.35))
       );
