@@ -15,6 +15,7 @@ discipline; they should not duplicate the packet as a parallel spec.
 | `civ7-architecture-authority` | Placing code, moving boundaries, changing MapGen stage/step/domain shape, separating core/mod/adapter/generated concerns, or reviewing architecture drift. |
 | `civ7-product-authority` | Deciding product/domain ownership, public SDK/CLI/mod behavior, official game-data authority, consumer contract claims, or proof boundaries. |
 | `civ7-open-spec-workstream` | Running a bounded spec/workstream phase from authority grounding through implementation, verification, downstream realignment, and handoff. |
+| `dra-structural-watcher` | Running or setting up a separate watcher DRA for OpenSpec workstreams: heartbeat/cron monitoring, NOTE-TO-DRA scans, correction logs, closure-drift checks, and branch/stack watcher passes without owning implementation. |
 
 ## Operating Rules
 
