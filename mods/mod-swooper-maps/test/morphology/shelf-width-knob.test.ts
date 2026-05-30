@@ -5,7 +5,7 @@ import { standardConfig } from "../support/standard-config.js";
 
 describe("morphology-coasts shelfWidth knob", () => {
   it("scales shelfMask distance caps deterministically in rugged-coasts normalize", () => {
-    const base = (standardConfig as any)["morphology-coasts"]?.advanced?.["rugged-coasts"];
+    const base = (standardConfig as any)["morphology-coasts"]?.["rugged-coasts"];
     expect(base).toBeTruthy();
 
     const shelfMask = {
@@ -20,13 +20,18 @@ describe("morphology-coasts shelfWidth knob", () => {
       },
     };
 
-    const wide = (ruggedCoasts as any).normalize({ ...base, shelfMask }, { knobs: { shelfWidth: "wide" } });
+    const wide = (ruggedCoasts as any).normalize(
+      { ...base, shelfMask },
+      { knobs: { shelfWidth: "wide" } }
+    );
     expect(wide.shelfMask.config.capTilesActive).toBe(3);
     expect(wide.shelfMask.config.capTilesPassive).toBe(5);
 
-    const narrow = (ruggedCoasts as any).normalize({ ...base, shelfMask }, { knobs: { shelfWidth: "narrow" } });
+    const narrow = (ruggedCoasts as any).normalize(
+      { ...base, shelfMask },
+      { knobs: { shelfWidth: "narrow" } }
+    );
     expect(narrow.shelfMask.config.capTilesActive).toBe(2);
     expect(narrow.shelfMask.config.capTilesPassive).toBe(3);
   });
 });
-

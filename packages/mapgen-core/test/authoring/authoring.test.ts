@@ -56,9 +56,7 @@ describe("authoring SDK", () => {
   });
 
   it("createStep accepts explicit empty schema", () => {
-    expect(() =>
-      createStep(makeContract("alpha"), { run: () => {} })
-    ).not.toThrow();
+    expect(() => createStep(makeContract("alpha"), { run: () => {} })).not.toThrow();
   });
 
   it("defineStep rejects non-kebab step ids", () => {
@@ -177,11 +175,16 @@ describe("authoring SDK", () => {
   });
 
   it("createStage computes surfaceSchema for internal stages", () => {
-    const step = createStep(makeContract("alpha"), { run: () => {} });
+    const stepSchema = Type.Object(
+      { value: Type.Number({ minimum: 1 }) },
+      { additionalProperties: false }
+    );
+    const step = createStep(makeContract("alpha", stepSchema), { run: () => {} });
     const stage = createStage({ id: "foundation", knobsSchema: EmptyKnobsSchema, steps: [step] });
     const props = (stage.surfaceSchema as any).properties as Record<string, unknown>;
     expect(props).toHaveProperty("knobs");
     expect(props).toHaveProperty("alpha");
+    expect((props.alpha as any).properties).toHaveProperty("value");
   });
 
   it("createStage supports public schema with compile mapping", () => {
@@ -292,9 +295,9 @@ describe("authoring SDK", () => {
 
   it("bindCompileOps throws when registry is missing an op id", () => {
     const decl = { trees: { id: "missing" } } as const;
-    expect(() =>
-      bindCompileOps(decl, {} as Record<string, DomainOpCompileAny>)
-    ).toThrow(/missing/i);
+    expect(() => bindCompileOps(decl, {} as Record<string, DomainOpCompileAny>)).toThrow(
+      /missing/i
+    );
   });
 
   it("createRecipe produces Recipe schema v2 (no instance ids)", () => {
@@ -491,6 +494,8 @@ describe("authoring SDK", () => {
     expect(() => runtimes.artifactFoo.publish(ctx, { value: 0 })).toThrow(ArtifactValidationError);
 
     runtimes.artifactFoo.publish(ctx, { value: 1 });
-    expect(() => runtimes.artifactFoo.publish(ctx, { value: 2 })).toThrow(ArtifactDoublePublishError);
+    expect(() => runtimes.artifactFoo.publish(ctx, { value: 2 })).toThrow(
+      ArtifactDoublePublishError
+    );
   });
 });

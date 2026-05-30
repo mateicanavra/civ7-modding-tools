@@ -13,6 +13,7 @@
 ## Purpose
 
 Define the canonical “standard recipe” contract as a reference point for:
+
 - pipeline composition,
 - domain boundaries,
 - and Studio’s default end-to-end run.
@@ -24,9 +25,9 @@ Active MapGen / Swooper Maps normalization work is governed by
 This reference records the current standard recipe surface, but parts of it are
 known to be transitional during the OpenSpec change train:
 
-- Config posture is being normalized to the packet's flat default stage surface
+- Config posture uses the packet's flat default stage surface
   `{ knobs?, [stepId]?: stepConfig }`; persisted SDK-native `advanced` wrappers
-  are not the target shape.
+  are rejected.
 - Ecology, placement, lake projection, import boundaries, and guardrails are
   updated by their respective `openspec/changes/normalize-*` slices.
 
@@ -52,23 +53,24 @@ The standard recipe is **content-owned** (not SDK-owned):
 
 The current stage order is:
 
-1) `foundation`
-2) `morphology-coasts`
-3) `morphology-routing`
-4) `morphology-erosion`
-5) `morphology-features`
-6) `hydrology-climate-baseline`
-7) `hydrology-hydrography`
-8) `hydrology-climate-refine`
-9) `ecology`
-10) `map-morphology`
-11) `map-hydrology`
-12) `map-ecology`
-13) `placement`
+1. `foundation`
+2. `morphology-coasts`
+3. `morphology-routing`
+4. `morphology-erosion`
+5. `morphology-features`
+6. `hydrology-climate-baseline`
+7. `hydrology-hydrography`
+8. `hydrology-climate-refine`
+9. `ecology`
+10. `map-morphology`
+11. `map-hydrology`
+12. `map-ecology`
+13. `placement`
 
 Note:
-- “foundation/morphology-*/hydrology/ecology” stages are primarily **truth** producers.
-- “map-*” and “placement” stages are primarily **projection** / engine-facing surfaces.
+
+- “foundation/morphology-\*/hydrology/ecology” stages are primarily **truth** producers.
+- “map-\*” and “placement” stages are primarily **projection** / engine-facing surfaces.
 
 ## Config surface (schema + posture)
 
@@ -80,9 +82,13 @@ The standard recipe publishes:
 Config is stage-scoped and must be strict (`additionalProperties: false`).
 
 Stage-level posture:
-- Some current stages still expose transitional config wrappers. The
-  normalization target is the flat default stage surface named above; topic
-  slices are responsible for updating this reference when source contracts move.
+
+- Wrapper-only `advanced` stage surfaces have been removed. Step overrides live
+  at `<stageId>.<stepId>`.
+- `map-morphology` still uses `public + compile` as a genuine public transform
+  from public keys (`plotCoasts`, `plotContinents`, `mountains`,
+  `plotVolcanoes`, `buildElevation`) to kebab-case step ids. It is not a
+  wrapper-only compatibility surface.
 
 ## Domains + ops registry
 
@@ -97,6 +103,7 @@ The standard recipe collects compile-time domain ops into a single registry:
 This registry is used during config compilation to bind op contracts to implementations by op id.
 
 Domain contract references:
+
 - [`docs/system/libs/mapgen/reference/domains/DOMAINS.md`](/system/libs/mapgen/reference/domains/DOMAINS.md)
 
 ## Ground truth anchors

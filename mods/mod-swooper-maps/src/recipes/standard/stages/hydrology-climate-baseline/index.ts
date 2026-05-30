@@ -22,7 +22,7 @@ const knobsSchema = Type.Object(
      *
      * Stage scope:
      * - Transforms baseline temperature regime and downstream evap/precip coupling inputs.
-     * - Must not implement “compat” behavior; use advanced config for exact numeric control.
+     * - Must not implement “compat” behavior; use flat step config for exact numeric control.
      */
     temperature: Type.Optional(HydrologyTemperatureKnobSchema),
     /**

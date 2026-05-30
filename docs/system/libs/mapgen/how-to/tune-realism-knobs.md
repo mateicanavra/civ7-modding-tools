@@ -1,7 +1,7 @@
 <toc>
   <item id="purpose" title="Purpose"/>
   <item id="audience" title="Audience"/>
-  <item id="mental-model" title="Mental model (knobs vs advanced)"/>
+  <item id="mental-model" title="Mental model (knobs vs step config)"/>
   <item id="checklist" title="Checklist"/>
   <item id="verification" title="Verification"/>
   <item id="anchors" title="Ground truth anchors"/>
@@ -16,6 +16,7 @@ Tune the “realism” posture of the standard recipe by changing **stage knobs*
 This is the intended **author surface** for “make the world more X” tuning.
 
 Routes to:
+
 - Recipe schema: [`docs/system/libs/mapgen/reference/RECIPE-SCHEMA.md`](/system/libs/mapgen/reference/RECIPE-SCHEMA.md)
 - Config compilation: [`docs/system/libs/mapgen/reference/CONFIG-COMPILATION.md`](/system/libs/mapgen/reference/CONFIG-COMPILATION.md)
 - Standard recipe reference: [`docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`](/system/libs/mapgen/reference/STANDARD-RECIPE.md)
@@ -25,32 +26,35 @@ Routes to:
 - Authors who want to tune outcomes without extending SDK internals.
 - Developers who need to keep knobs stable while changing implementations.
 
-## Mental model (knobs vs advanced)
+## Mental model (knobs vs step config)
 
 Each stage has a surface schema shaped like:
 
 - `knobs`: small semantic enums (author-friendly)
-- `advanced`: deep per-step config overrides (expert-only)
+- top-level step IDs: deep per-step config overrides (expert-only)
 
 Contract (stage-level posture):
-- `advanced` is the baseline (schema-defaulted + authored overrides).
+
+- Step config is the baseline (schema-defaulted + authored overrides).
 - `knobs` apply **last**, as deterministic transforms over that baseline.
-Foundation additionally exposes `profiles` in its public schema; profiles select the baseline defaults that `knobs` then refine.
+  Foundation additionally exposes `profiles` in its public schema; profiles select the baseline defaults that `knobs` then refine.
 
 ## Checklist
 
 ### 1) Start from an existing realism preset (recommended)
 
 Pick a preset config file and use it as your starting point:
+
 - `mods/mod-swooper-maps/src/maps/presets/realism/earthlike.config.ts`
 - `mods/mod-swooper-maps/src/maps/presets/realism/young-tectonics.config.ts`
 - `mods/mod-swooper-maps/src/maps/presets/realism/old-erosion.config.ts`
 
-### 2) Edit stage knob values (not advanced step config)
+### 2) Edit stage knob values (not step config)
 
 In your config object, change only stage `knobs` values (unless you have a specific reason to go deeper).
 
 Examples of common “realism” knob sets (see anchors for exact ranges and mapping):
+
 - `foundation.knobs.plateCount`: integer baseline (e.g., `20`–`36`)
 - `foundation.knobs.plateActivity`: scalar `0..1` (e.g., `0.25` calmer, `0.5` baseline, `0.75` more active)
 - `morphology-coasts.knobs.seaLevel`: `low | earthlike | high`
@@ -63,9 +67,11 @@ Examples of common “realism” knob sets (see anchors for exact ranges and map
 ### 3) Run in Studio to validate quickly
 
 Use Studio as the canonical “author feedback loop”:
+
 - `bun run dev:mapgen-studio`
 
 Then:
+
 - select `mod-swooper-maps/standard`,
 - apply your knob changes through the config UI (or by routing your preset into Studio in a future feature slice),
 - run with a fixed seed,
@@ -80,7 +86,7 @@ Then:
 ## Ground truth anchors
 
 - Preset configs (author surface): `mods/mod-swooper-maps/src/maps/presets/realism/earthlike.config.ts`
-- Foundation stage surface schema (knobs vs advanced, “knobs apply last” statement): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
+- Foundation stage surface schema (knobs plus step-id overrides, “knobs apply last” statement): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
 - Morphology erosion knob application (normalize-time multiplier): `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion/steps/geomorphology.ts`
 - Morphology erosion knob multipliers: `mods/mod-swooper-maps/src/domain/morphology/shared/knob-multipliers.ts`
 - Studio knob option enums (UI): `apps/mapgen-studio/src/ui/constants/options.ts`

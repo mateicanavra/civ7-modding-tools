@@ -9,7 +9,7 @@ export type StepOpUse<C extends OpContractAny = OpContractAny> = Readonly<{
   contract: C;
   /**
    * Optional per-step default strategy. This only affects the default config used when the author
-   * omits this op envelope entirely; the author can still override `strategy` via advanced config.
+   * omits this op envelope entirely; the author can still override `strategy` via step config.
    */
   defaultStrategy?: keyof C["strategies"] & string;
 }>;

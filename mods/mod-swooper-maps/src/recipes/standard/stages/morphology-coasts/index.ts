@@ -1,34 +1,10 @@
-import { Type, createStage, type Static } from "@swooper/mapgen-core/authoring";
+import { Type, createStage } from "@swooper/mapgen-core/authoring";
 import { landmassPlates, ruggedCoasts } from "./steps/index.js";
 import {
   MorphologyCoastRuggednessKnobSchema,
   MorphologySeaLevelKnobSchema,
   MorphologyShelfWidthKnobSchema,
 } from "@mapgen/domain/morphology/shared/knobs.js";
-
-/**
- * Advanced Morphology-coasts step config baseline. Knobs apply last as deterministic transforms over this baseline.
- */
-const publicSchema = Type.Object(
-  {
-    advanced: Type.Optional(
-      Type.Object(
-        {
-          "landmass-plates": Type.Optional(landmassPlates.contract.schema),
-          "rugged-coasts": Type.Optional(ruggedCoasts.contract.schema),
-        },
-        {
-          additionalProperties: false,
-          description:
-            "Advanced Morphology-coasts step config baseline. Knobs apply last as deterministic transforms over this baseline.",
-        }
-      )
-    ),
-  },
-  { additionalProperties: false }
-);
-
-type MorphologyCoastsStageConfig = Static<typeof publicSchema>;
 
 /**
  * Morphology-coasts knobs (seaLevel/coastRuggedness/shelfWidth).
@@ -49,7 +25,5 @@ const knobsSchema = Type.Object(
 export default createStage({
   id: "morphology-coasts",
   knobsSchema,
-  public: publicSchema,
-  compile: ({ config }: { config: MorphologyCoastsStageConfig }) => (config.advanced ? config.advanced : {}),
   steps: [landmassPlates, ruggedCoasts],
 } as const);

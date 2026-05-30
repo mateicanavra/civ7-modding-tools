@@ -13,10 +13,10 @@
 
 Learn the “author workflow” for changing map realism posture safely:
 
-1) start from a known preset config,
-2) adjust only **knobs** first (semantic, stable),
-3) validate quickly in Studio with deterministic runs,
-4) only then reach for advanced step config overrides.
+1. start from a known preset config,
+2. adjust only **knobs** first (semantic, stable),
+3. validate quickly in Studio with deterministic runs,
+4. only then reach for explicit step config overrides.
 
 ## What you’ll learn
 
@@ -38,6 +38,7 @@ Learn the “author workflow” for changing map realism posture safely:
 In Studio today, the pipeline config UI starts from **schema defaults** (not from a curated preset dropdown).
 
 This means “baseline preset” is effectively:
+
 - “whatever defaults the recipe config schema defines” (plus any schema defaulted enums)
 
 If you want a curated baseline that can be shared as code, authors can still write and maintain a “preset config object”
@@ -50,14 +51,23 @@ export const realismEarthlikeConfig = {
   foundation: {
     knobs: { plateCount: 28, plateActivity: 0.5 },
   },
-  "morphology-coasts": { knobs: { seaLevel: "water-heavy", coastRuggedness: "normal", shelfWidth: "narrow" } },
+  "morphology-coasts": {
+    knobs: { seaLevel: "water-heavy", coastRuggedness: "normal", shelfWidth: "narrow" },
+  },
   "morphology-erosion": { knobs: { erosion: "normal" } },
   "morphology-features": { knobs: { volcanism: "normal" } },
   "hydrology-climate-baseline": {
-    knobs: { dryness: "dry", temperature: "temperate", seasonality: "normal", oceanCoupling: "earthlike" },
+    knobs: {
+      dryness: "dry",
+      temperature: "temperate",
+      seasonality: "normal",
+      oceanCoupling: "earthlike",
+    },
   },
   "hydrology-hydrography": { knobs: { riverDensity: "normal" } },
-  "hydrology-climate-refine": { knobs: { dryness: "dry", temperature: "temperate", cryosphere: "on" } },
+  "hydrology-climate-refine": {
+    knobs: { dryness: "dry", temperature: "temperate", cryosphere: "on" },
+  },
   "map-morphology": { knobs: { orogeny: "normal" } },
 };
 ```
@@ -69,11 +79,13 @@ Source: `mods/mod-swooper-maps/src/maps/presets/realism/earthlike.config.ts`
 Pick one knob and change it by one step (avoid multiple simultaneous changes initially).
 
 Example targets:
+
 - more plates → increase `foundation.knobs.plateCount`
 - rougher coasts → increase `morphology-coasts.knobs.coastRuggedness`
 - wetter world → change `hydrology-*.knobs.dryness`
 
 In Studio:
+
 - ensure Mode is `Browser` (live run)
 - in the left panel, open **Config** and keep it switched **On** (overrides enabled)
 - use Form view for enums, or switch to JSON view to paste an entire “preset object”
@@ -81,6 +93,7 @@ In Studio:
 ### 3) Run and compare in Studio (fixed seed)
 
 In Studio:
+
 - select recipe: `mod-swooper-maps/standard`
 - set a fixed seed
 - apply your knob changes (via the config UI)
@@ -88,9 +101,10 @@ In Studio:
 
 Repeat until you’re satisfied with the semantic tuning.
 
-### 4) Escalate to advanced overrides only when necessary
+### 4) Escalate to step overrides only when necessary
 
 If knob tuning can’t express what you need:
+
 - identify the specific step you need to override (in the standard recipe stage you care about),
 - override only that step config subtree (stage-dependent; see below),
 - re-run with the same seed to validate the change.
@@ -104,14 +118,18 @@ export default createStage({
     plateCount: Type.Optional(FoundationPlateCountKnobSchema),
     plateActivity: Type.Optional(FoundationPlateActivityKnobSchema),
   }),
-  steps: [/* per-step contracts */],
+  steps: [
+    /* per-step contracts */
+  ],
 });
 ```
 
 Interpretation:
+
 - `foundation.knobs.*` expresses semantic, stable tuning.
-- Foundation does **not** wrap step overrides under `advanced`; per-step overrides (when required) live directly under `foundation.<stepId>`.
-- Many other stages expose a single `advanced` object specifically for step-level override baselines (e.g. `morphology-coasts.advanced.<stepId>`).
+- Standard recipe stages do **not** wrap step overrides under `advanced`; per-step overrides (when required) live directly under `<stageId>.<stepId>`.
+- Standard recipe stages expose step-level override baselines directly at the
+  stage root (for example, `morphology-coasts.<stepId>`).
 - Knobs apply as deterministic transforms (typically in `normalize`) over the defaulted baseline + any overrides.
 
 ## Verification
@@ -128,8 +146,8 @@ Interpretation:
 - Studio config overrides UI (On/Off + Form/JSON): `apps/mapgen-studio/src/ui/components/RecipePanel.tsx`
 - Stage schema examples:
   - knobs-only (Foundation): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
-  - advanced step overrides (Morphology-coasts): `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/index.ts`
-  - advanced step overrides (Map-hydrology): `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/index.ts`
+  - flat step overrides (Morphology-coasts): `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/index.ts`
+  - flat step overrides (Map-hydrology): `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/index.ts`
 - Example knob application at normalize-time (reads `ctx.knobs`): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts`
 - Example knob multiplier tables (Foundation): `mods/mod-swooper-maps/src/domain/foundation/shared/knob-multipliers.ts`
 - Standard recipe config types: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`

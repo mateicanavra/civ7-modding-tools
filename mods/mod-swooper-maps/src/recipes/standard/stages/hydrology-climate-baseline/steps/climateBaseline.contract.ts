@@ -11,12 +11,13 @@ import { morphologyArtifacts } from "../../morphology/artifacts.js";
  * canonical baseline climate + wind artifacts for downstream consumption.
  *
  * Configuration posture:
- * - No step-local config. All author-facing control flows through Hydrology knobs compiled at stage compile time.
+ * - Broad author-facing control flows through Hydrology knobs compiled at stage compile time.
+ * - Optional flat `climate-baseline.seasonality` step config is reserved for exact seasonality posture overrides.
  */
 const ClimateBaselineStepConfigSchema = Type.Object(
   {
     /**
-     * Advanced seasonality controls (optional).
+     * Seasonality controls (optional).
      *
      * Hydrology still exposes the broad `seasonality` knob, but these let authors override the exact internal
      * computation posture while keeping the public outputs stable (mean + amplitude only).
@@ -45,7 +46,7 @@ const ClimateBaselineStepConfigSchema = Type.Object(
         {
           additionalProperties: false,
           description:
-            "Advanced seasonality controls (optional). Explicit values override Hydrology knobs; missing values are derived from knobs.",
+            "Seasonality controls (optional). Explicit values override Hydrology knobs; missing values are derived from knobs.",
         }
       )
     ),
@@ -53,7 +54,7 @@ const ClimateBaselineStepConfigSchema = Type.Object(
   {
     additionalProperties: false,
     description:
-      "Climate baseline step config (advanced). Prefer Hydrology knobs for broad tuning; use this for explicit seasonality posture overrides.",
+      "Climate baseline step config. Prefer Hydrology knobs for broad tuning; use this for explicit seasonality posture overrides.",
   }
 );
 
