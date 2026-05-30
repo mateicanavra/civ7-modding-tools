@@ -257,6 +257,7 @@ for domain in "${DOMAINS[@]}"; do
   # Always-on checks (boundary profile): keep these pre-commit runnable.
   run_rg "Adapter/context crossing in ops (${domain})" "ExtendedMapContext|context\\.adapter|@civ7/adapter" -- "$ops_root"
   run_rg "Map projection/effect dependencies in ops (${domain})" "(artifact|effect):map\\." -P -- "$ops_root"
+  run_rg "Ops importing domain-root config facades (${domain})" "from\\s+[\"'](?:\\.\\./){2,}config\\.js[\"']" -P -- "$ops_root"
 
   if [ "$DOMAIN_REFACTOR_GUARDRAILS_PROFILE" = "full" ]; then
     run_rg "Domain entrypoint re-exports (${domain})" "^export\\s+\\*\\s+from\\s+\\\"@mapgen/domain/" -P -- \
@@ -411,6 +412,9 @@ for domain in "${DOMAINS[@]}"; do
   fi
   fi
 done
+
+run_rg "Milestone-prefixed recipe tag catalogs" "\\bM[0-9]+_[A-Z0-9_]*TAGS\\b|\\bM[0-9]+_CANONICAL_[A-Z0-9_]*\\b" -P -- \
+  "mods/mod-swooper-maps/src/recipes/standard"
 
 run_rg "Domain-refactor examples: Physics requires heightfield buffer" "(?s)PHYSICS[\\s\\S]*?requires:.*buffer:heightfield[\\s\\S]*?GAMEPLAY" -P -U -- \
   "docs/projects/engine-refactor-v1/resources/workflow/domain-refactor/examples"

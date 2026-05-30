@@ -117,9 +117,7 @@ describe("morphology contract guardrails", () => {
     for (const file of files) {
       const text = readFileSync(file, "utf8");
       const calls = Array.from(text.matchAll(/publishStoryOverlay\s*\([\s\S]{0,200}\)/g));
-      const publishesHotspots = calls.some((match) =>
-        /HOTSPOTS|["']hotspots["']/.test(match[0])
-      );
+      const publishesHotspots = calls.some((match) => /HOTSPOTS|["']hotspots["']/.test(match[0]));
       expect(publishesHotspots).toBe(false);
     }
   });
@@ -198,7 +196,9 @@ describe("morphology contract guardrails", () => {
     ];
 
     const stepFiles = roots.flatMap((root) =>
-      listFilesRecursive(root).filter((file) => file.endsWith(".ts") && !file.endsWith("contract.ts"))
+      listFilesRecursive(root).filter(
+        (file) => file.endsWith(".ts") && !file.endsWith("contract.ts")
+      )
     );
 
     expect(stepFiles.length).toBeGreaterThan(0);
@@ -345,15 +345,18 @@ describe("morphology contract guardrails", () => {
       mustRequire: "topography";
     }> = [
       {
-        file: path.join(repoRoot, "src/recipes/standard/stages/map-hydrology/steps/lakes.contract.ts"),
+        file: path.join(
+          repoRoot,
+          "src/recipes/standard/stages/map-hydrology/steps/lakes.contract.ts"
+        ),
         mustRequire: "topography",
       },
     ];
 
     for (const { file, mustRequire } of migratedContracts) {
       const text = readFileSync(file, "utf8");
-      expect(text).not.toContain("M4_EFFECT_TAGS.engine.coastlinesApplied");
-      expect(text).not.toContain("M4_EFFECT_TAGS.engine.landmassApplied");
+      expect(text).not.toContain("STANDARD_ENGINE_EFFECT_TAGS.engine.coastlinesApplied");
+      expect(text).not.toContain("STANDARD_ENGINE_EFFECT_TAGS.engine.landmassApplied");
 
       if (mustRequire === "topography") {
         expect(text).toContain("morphologyArtifacts.topography");

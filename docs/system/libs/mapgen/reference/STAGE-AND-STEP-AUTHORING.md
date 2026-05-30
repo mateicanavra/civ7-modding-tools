@@ -27,14 +27,14 @@ Representative example (dependency tags + artifact requirements; excerpt; see fu
 
 ```ts
 import { defineStep, Type } from "@swooper/mapgen-core/authoring";
-import { M4_EFFECT_TAGS, M10_EFFECT_TAGS } from "../../../tags.js";
+import { STANDARD_ENGINE_EFFECT_TAGS, MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
 import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
 
 export default defineStep({
   id: "plot-rivers",
   phase: "gameplay",
-  requires: [M10_EFFECT_TAGS.map.elevationBuilt],
-  provides: [M4_EFFECT_TAGS.engine.riversModeled],
+  requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
+  provides: [STANDARD_ENGINE_EFFECT_TAGS.engine.riversModeled],
   artifacts: { requires: [hydrologyHydrographyArtifacts.hydrography], provides: [] },
   schema: Type.Object({}),
 });

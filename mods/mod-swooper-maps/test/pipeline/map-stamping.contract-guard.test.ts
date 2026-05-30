@@ -3,7 +3,7 @@ import { describe, expect, it } from "bun:test";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
-import { M10_EFFECT_TAGS } from "../../src/recipes/standard/tags.js";
+import { MAP_PROJECTION_EFFECT_TAGS } from "../../src/recipes/standard/tags.js";
 
 function listFilesRecursive(rootDir: string): string[] {
   const out: string[] = [];
@@ -59,7 +59,7 @@ describe("map stamping contract guardrails", () => {
       const text = readFileSync(file, "utf8");
       expect(text).not.toContain("artifact:map.");
       expect(text).not.toContain("effect:map.");
-      expect(text).not.toContain("M10_EFFECT_TAGS.map");
+      expect(text).not.toContain("MAP_PROJECTION_EFFECT_TAGS.map");
     }
   });
 
@@ -80,7 +80,7 @@ describe("map stamping contract guardrails", () => {
       path.join(stagesRoot, "map-morphology/steps/buildElevation.contract.ts"),
       "utf8"
     );
-    expect(contractText).toContain("M10_EFFECT_TAGS.map.elevationBuilt");
+    expect(contractText).toContain("MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt");
   });
 
   it("does not allow physics stage code to call engine elevation/cliff reads", () => {
@@ -154,7 +154,7 @@ describe("map stamping contract guardrails", () => {
 
   it("uses the expected naming convention for map effects", () => {
     const effectPattern = /^effect:map\.[a-z][a-zA-Z0-9]*(Plotted|Built|ParityCaptured)$/;
-    const effects = Object.values(M10_EFFECT_TAGS.map);
+    const effects = Object.values(MAP_PROJECTION_EFFECT_TAGS.map);
 
     expect(effects.length).toBeGreaterThan(0);
     for (const effect of effects) {

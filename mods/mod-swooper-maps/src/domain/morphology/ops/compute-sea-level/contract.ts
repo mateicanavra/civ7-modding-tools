@@ -1,6 +1,6 @@
 import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
 
-import { HypsometryConfigSchema } from "../../config.js";
+import { HypsometryConfigSchema } from "./config.js";
 
 /**
  * Selects the sea level threshold based on hypsometry targets.
@@ -11,7 +11,9 @@ const ComputeSeaLevelContract = defineOp({
   input: Type.Object({
     width: Type.Integer({ minimum: 1, description: "Map width in tiles." }),
     height: Type.Integer({ minimum: 1, description: "Map height in tiles." }),
-    elevation: TypedArraySchemas.i16({ description: "Base elevation per tile (normalized units)." }),
+    elevation: TypedArraySchemas.i16({
+      description: "Base elevation per tile (normalized units).",
+    }),
     crustType: TypedArraySchemas.u8({
       description: "Crust type per tile (0=oceanic, 1=continental).",
     }),

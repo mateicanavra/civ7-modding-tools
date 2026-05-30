@@ -1,6 +1,6 @@
 import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
 
-import { MountainsConfigSchema } from "../../config.js";
+import { MountainsConfigSchema } from "../mountains-shared/config.js";
 
 /**
  * Plans ridge and foothill masks for mountainous terrain accents.
@@ -12,8 +12,12 @@ const PlanRidgesAndFoothillsContract = defineOp({
     width: Type.Integer({ minimum: 1, description: "Map width in tiles." }),
     height: Type.Integer({ minimum: 1, description: "Map height in tiles." }),
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
-    boundaryCloseness: TypedArraySchemas.u8({ description: "Boundary proximity per tile (0..255)." }),
-    boundaryType: TypedArraySchemas.u8({ description: "Boundary type per tile (1=conv,2=div,3=trans)." }),
+    boundaryCloseness: TypedArraySchemas.u8({
+      description: "Boundary proximity per tile (0..255).",
+    }),
+    boundaryType: TypedArraySchemas.u8({
+      description: "Boundary type per tile (1=conv,2=div,3=trans).",
+    }),
     upliftPotential: TypedArraySchemas.u8({ description: "Uplift potential per tile (0..255)." }),
     riftPotential: TypedArraySchemas.u8({ description: "Rift potential per tile (0..255)." }),
     tectonicStress: TypedArraySchemas.u8({ description: "Tectonic stress per tile (0..255)." }),
@@ -22,9 +26,12 @@ const PlanRidgesAndFoothillsContract = defineOp({
   }),
   output: Type.Object({
     mountainMask: TypedArraySchemas.u8({ description: "Mask (1/0): mountain tiles." }),
-    hillMask: TypedArraySchemas.u8({ description: "Mask (1/0): hill tiles (excluding mountains)." }),
+    hillMask: TypedArraySchemas.u8({
+      description: "Mask (1/0): hill tiles (excluding mountains).",
+    }),
     orogenyPotential: TypedArraySchemas.u8({
-      description: "Orogeny potential per tile (0..255). Diagnostic driver surface (physics-gated).",
+      description:
+        "Orogeny potential per tile (0..255). Diagnostic driver surface (physics-gated).",
     }),
     fracturePotential: TypedArraySchemas.u8({
       description: "Fracture proxy per tile (0..255). Diagnostic driver surface (physics-gated).",

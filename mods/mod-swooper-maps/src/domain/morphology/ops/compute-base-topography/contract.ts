@@ -1,6 +1,6 @@
 import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
 
-import { ReliefConfigSchema } from "../../config.js";
+import { ReliefConfigSchema } from "./config.js";
 
 /**
  * Converts crust isostasy baseline + tectonic potentials into the initial elevation field.
@@ -15,7 +15,8 @@ const ComputeBaseTopographyContract = defineOp({
     height: Type.Integer({ minimum: 1, description: "Map height in tiles." }),
     /** Isostatic base elevation proxy per tile (0..1), projected from mesh crust truth. */
     crustBaseElevation: TypedArraySchemas.f32({
-      description: "Isostatic base elevation proxy per tile (0..1), projected from mesh crust truth.",
+      description:
+        "Isostatic base elevation proxy per tile (0..1), projected from mesh crust truth.",
     }),
     /** Boundary proximity per tile (0..255). */
     boundaryCloseness: TypedArraySchemas.u8({

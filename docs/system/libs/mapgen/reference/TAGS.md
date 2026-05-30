@@ -16,6 +16,8 @@ Define the dependency tag system used to wire the pipeline and validate correctn
 - Every step has `requires` and `provides` dependency tags.
 - Tags must be validated against a registry.
 - Missing requirements or unknown tags are errors (unless compiled out).
+- Recipe tag catalog names describe their owner/surface, not the milestone that
+  introduced them.
 
 ## TagRegistry + validation
 
@@ -28,20 +30,22 @@ TagRegistry is responsible for:
 Representative example (canonical tag ids + registry registration; excerpt; see full file in anchors):
 
 ```ts
-export const M3_DEPENDENCY_TAGS = {
+export const FIELD_DEPENDENCY_TAGS = {
   field: {
     elevation: "field:elevation",
     rainfall: "field:rainfall",
   },
 } as const;
 
-export const M4_EFFECT_TAGS = {
+export const STANDARD_ENGINE_EFFECT_TAGS = {
   engine: {
     riversModeled: "effect:engine.riversModeled",
   },
 } as const;
 
-export function registerStandardTags(registry: { registerTags: (defs: readonly DependencyTagDefinition[]) => void }) {
+export function registerStandardTags(registry: {
+  registerTags: (defs: readonly DependencyTagDefinition[]) => void;
+}) {
   registry.registerTags(STANDARD_TAG_DEFINITIONS);
 }
 ```

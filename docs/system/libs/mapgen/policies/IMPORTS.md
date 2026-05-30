@@ -50,6 +50,10 @@ must stay on a named domain surface.
 | Domain internals                        | Relative imports within the same domain owner                                  | Policy only                  |
 | Tests                                   | Public surfaces by default; deep imports only for focused internals under test | Policy only                  |
 
+Domain `/config.js` surfaces are recipe-facing public facades. They should stay
+thin unless they intentionally own a shared invariant with concrete consumers.
+Op strategy schemas belong beside the owning op or named op family.
+
 ## Disallowed
 
 ### 1) Workspace-only aliases in canonical docs/examples

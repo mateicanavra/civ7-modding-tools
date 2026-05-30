@@ -14,6 +14,7 @@
 Add a new **step** to a recipe stage (target posture: step contracts + dependency tags + artifacts; no hidden coupling).
 
 This how-to is **recipe-level** (steps are authored/registered in a recipe). It routes to:
+
 - Step authoring contract reference: [`docs/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md`](/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md)
 - Tag registry reference: [`docs/system/libs/mapgen/reference/TAGS.md`](/system/libs/mapgen/reference/TAGS.md)
 - Artifact reference: [`docs/system/libs/mapgen/reference/ARTIFACTS.md`](/system/libs/mapgen/reference/ARTIFACTS.md)
@@ -64,6 +65,7 @@ const GeomorphologyStepContract = defineStep({
 ```
 
 Notes:
+
 - `morphologyArtifacts.*` is the stage-owned artifact contract module for this stage.
 - `morphology.ops.*` is the domain op contract surface consumed by the step.
 
@@ -71,14 +73,14 @@ Representative example (dependency tags; excerpt; see full file in anchors):
 
 ```ts
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
-import { M4_EFFECT_TAGS, M10_EFFECT_TAGS } from "../../../tags.js";
+import { STANDARD_ENGINE_EFFECT_TAGS, MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
 import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
 
 const PlotRiversStepContract = defineStep({
   id: "plot-rivers",
   phase: "gameplay",
-  requires: [M10_EFFECT_TAGS.map.elevationBuilt],
-  provides: [M4_EFFECT_TAGS.engine.riversModeled],
+  requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],
+  provides: [STANDARD_ENGINE_EFFECT_TAGS.engine.riversModeled],
   artifacts: {
     requires: [hydrologyHydrographyArtifacts.hydrography],
     provides: [],
@@ -157,6 +159,7 @@ export default createStage({
 ### 5) Update dependency tags if needed
 
 If your step introduces a new required/provided dependency tag:
+
 - Define it and register it in the tag registry (see: [`docs/system/libs/mapgen/how-to/add-a-new-tag.md`](/system/libs/mapgen/how-to/add-a-new-tag.md)).
 
 ## Verification

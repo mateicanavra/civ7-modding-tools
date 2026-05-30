@@ -14,6 +14,7 @@
 Add a new **dependency tag** for pipeline gating (target posture: all requires/provides go through a registry; no magic).
 
 Routes to:
+
 - Tag reference: [`docs/system/libs/mapgen/reference/TAGS.md`](/system/libs/mapgen/reference/TAGS.md)
 - Dependency id policy: [`docs/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md`](/system/libs/mapgen/policies/DEPENDENCY-IDS-AND-REGISTRIES.md)
 
@@ -41,7 +42,7 @@ Routes to:
 Representative example (tag id constants; excerpt; see full file in anchors):
 
 ```ts
-export const M10_EFFECT_TAGS = {
+export const MAP_PROJECTION_EFFECT_TAGS = {
   map: {
     elevationBuilt: "effect:map.elevationBuilt",
     mountainsPlotted: "effect:map.mountainsPlotted",
@@ -63,12 +64,20 @@ Representative example (registration + owner attribution; excerpt; see full file
 
 ```ts
 const EFFECT_OWNERS: Record<string, TagOwner> = {
-  [M10_EFFECT_TAGS.map.elevationBuilt]: { pkg: "mod-swooper-maps", phase: "gameplay", stepId: "build-elevation" },
-  [M10_EFFECT_TAGS.map.mountainsPlotted]: { pkg: "mod-swooper-maps", phase: "gameplay", stepId: "plot-mountains" },
+  [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt]: {
+    pkg: "mod-swooper-maps",
+    phase: "gameplay",
+    stepId: "build-elevation",
+  },
+  [MAP_PROJECTION_EFFECT_TAGS.map.mountainsPlotted]: {
+    pkg: "mod-swooper-maps",
+    phase: "gameplay",
+    stepId: "plot-mountains",
+  },
 };
 
 export const STANDARD_TAG_DEFINITIONS = [
-  ...Object.values(M10_EFFECT_TAGS.map).map((id) => {
+  ...Object.values(MAP_PROJECTION_EFFECT_TAGS.map).map((id) => {
     const definition: DependencyTagDefinition<ExtendedMapContext> = { id, kind: "effect" };
     const owner = EFFECT_OWNERS[id];
     if (owner) definition.owner = owner;
@@ -76,7 +85,9 @@ export const STANDARD_TAG_DEFINITIONS = [
   }),
 ] as const;
 
-export function registerStandardTags(registry: { registerTags: (defs: readonly DependencyTagDefinition[]) => void }) {
+export function registerStandardTags(registry: {
+  registerTags: (defs: readonly DependencyTagDefinition[]) => void;
+}) {
   registry.registerTags(STANDARD_TAG_DEFINITIONS);
 }
 ```

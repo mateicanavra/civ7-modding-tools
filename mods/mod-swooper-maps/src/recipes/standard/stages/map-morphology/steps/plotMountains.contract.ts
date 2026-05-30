@@ -1,14 +1,14 @@
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import morphology from "@mapgen/domain/morphology";
 
-import { M10_EFFECT_TAGS } from "../../../tags.js";
+import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
 import { morphologyArtifacts } from "../../morphology/artifacts.js";
 
 const PlotMountainsStepContract = defineStep({
   id: "plot-mountains",
   phase: "gameplay",
-  requires: [M10_EFFECT_TAGS.map.continentsPlotted],
-  provides: [M10_EFFECT_TAGS.map.mountainsPlotted],
+  requires: [MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted],
+  provides: [MAP_PROJECTION_EFFECT_TAGS.map.mountainsPlotted],
   artifacts: {
     requires: [morphologyArtifacts.beltDrivers, morphologyArtifacts.topography],
     provides: [],

@@ -1,7 +1,11 @@
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import { BiomeEngineBindingsSchema } from "@mapgen/domain/ecology";
 
-import { M3_DEPENDENCY_TAGS, M4_EFFECT_TAGS, M10_EFFECT_TAGS } from "../../../tags.js";
+import {
+  FIELD_DEPENDENCY_TAGS,
+  STANDARD_ENGINE_EFFECT_TAGS,
+  MAP_PROJECTION_EFFECT_TAGS,
+} from "../../../tags.js";
 import { ecologyArtifacts } from "../../ecology/artifacts.js";
 import { morphologyArtifacts } from "../../morphology/artifacts.js";
 
@@ -10,9 +14,9 @@ const PlotBiomesStepContract = defineStep({
   phase: "gameplay",
   requires: [],
   provides: [
-    M3_DEPENDENCY_TAGS.field.biomeId,
-    M4_EFFECT_TAGS.engine.biomesApplied,
-    M10_EFFECT_TAGS.map.ecologyBiomesParityCaptured,
+    FIELD_DEPENDENCY_TAGS.field.biomeId,
+    STANDARD_ENGINE_EFFECT_TAGS.engine.biomesApplied,
+    MAP_PROJECTION_EFFECT_TAGS.map.ecologyBiomesParityCaptured,
   ],
   artifacts: {
     requires: [ecologyArtifacts.biomeClassification, morphologyArtifacts.topography],

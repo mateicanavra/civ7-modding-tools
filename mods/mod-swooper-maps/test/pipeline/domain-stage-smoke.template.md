@@ -21,7 +21,7 @@ import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { normalizeStrictOrThrow } from "../support/compiler-helpers.js";
 
-import { M4_EFFECT_TAGS } from "../../src/recipes/standard/tags.js";
+import { STANDARD_ENGINE_EFFECT_TAGS } from "../../src/recipes/standard/tags.js";
 import { __STAGE__Artifacts } from "../../src/recipes/standard/stages/__STAGE__/artifacts.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
@@ -36,7 +36,11 @@ const env = {
 
 describe("__DOMAIN__ stage smoke", () => {
   it("runs __STAGE__ and satisfies key artifacts/effects", () => {
-    const adapter = createMockAdapter({ width: env.dimensions.width, height: env.dimensions.height, rng: () => 0 });
+    const adapter = createMockAdapter({
+      width: env.dimensions.width,
+      height: env.dimensions.height,
+      rng: () => 0,
+    });
     const ctx = createExtendedMapContext(env.dimensions, adapter, env);
     initializeStandardRuntime(ctx, env);
 
@@ -44,12 +48,13 @@ describe("__DOMAIN__ stage smoke", () => {
     expect(() => standardRecipe.run(ctx, env, config, { log: () => {} })).not.toThrow();
 
     expect(ctx.artifacts.get(__STAGE__Artifacts.__ARTIFACT_KEY__.id)).toBeTruthy();
-    expect(ctx.effects.has(M4_EFFECT_TAGS.engine.__EFFECT_KEY__)).toBe(true);
+    expect(ctx.effects.has(STANDARD_ENGINE_EFFECT_TAGS.engine.__EFFECT_KEY__)).toBe(true);
   });
 });
 ```
 
 Notes:
+
 - Use an existing map preset config (e.g. `mods/mod-swooper-maps/src/maps/swooper-earthlike.ts`) to avoid re-creating the full config inline.
 - For a smaller test, you can construct a minimal config that only exercises your domain, but it must still satisfy the recipe schema.
 - For a full reference, see `mods/mod-swooper-maps/test/standard-run.test.ts`.

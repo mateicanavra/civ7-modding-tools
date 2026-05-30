@@ -5,7 +5,7 @@ import { placementArtifacts } from "./stages/placement/artifacts.js";
 import type { PlacementInputsV1 } from "./stages/placement/placement-inputs.js";
 import type { PlacementOutputsV1 } from "./stages/placement/placement-outputs.js";
 
-export const M3_DEPENDENCY_TAGS = {
+export const FIELD_DEPENDENCY_TAGS = {
   field: {
     terrainType: "field:terrainType",
     elevation: "field:elevation",
@@ -15,7 +15,7 @@ export const M3_DEPENDENCY_TAGS = {
   },
 } as const;
 
-export const M4_EFFECT_TAGS = {
+export const STANDARD_ENGINE_EFFECT_TAGS = {
   engine: {
     riversModeled: "effect:engine.riversModeled",
     biomesApplied: ENGINE_EFFECT_TAGS.biomesApplied,
@@ -25,7 +25,7 @@ export const M4_EFFECT_TAGS = {
   },
 } as const;
 
-export const M10_EFFECT_TAGS = {
+export const MAP_PROJECTION_EFFECT_TAGS = {
   map: {
     coastsPlotted: "effect:map.coastsPlotted",
     continentsPlotted: "effect:map.continentsPlotted",
@@ -42,98 +42,98 @@ export const M10_EFFECT_TAGS = {
   },
 } as const;
 
-export const M3_CANONICAL_DEPENDENCY_TAGS: ReadonlySet<string> = new Set([
-  ...Object.values(M3_DEPENDENCY_TAGS.field),
-  ...Object.values(M4_EFFECT_TAGS.engine),
+export const CANONICAL_FIELD_AND_ENGINE_TAGS: ReadonlySet<string> = new Set([
+  ...Object.values(FIELD_DEPENDENCY_TAGS.field),
+  ...Object.values(STANDARD_ENGINE_EFFECT_TAGS.engine),
 ]);
 
 const VERIFIED_EFFECT_TAGS = new Set<string>([
-  M4_EFFECT_TAGS.engine.biomesApplied,
-  M4_EFFECT_TAGS.engine.placementApplied,
+  STANDARD_ENGINE_EFFECT_TAGS.engine.biomesApplied,
+  STANDARD_ENGINE_EFFECT_TAGS.engine.placementApplied,
 ]);
 
 const EFFECT_OWNERS: Record<string, TagOwner> = {
-  [M10_EFFECT_TAGS.map.coastsPlotted]: {
+  [MAP_PROJECTION_EFFECT_TAGS.map.coastsPlotted]: {
     pkg: "mod-swooper-maps",
     phase: "gameplay",
     stepId: "plot-coasts",
   },
-  [M10_EFFECT_TAGS.map.continentsPlotted]: {
+  [MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted]: {
     pkg: "mod-swooper-maps",
     phase: "gameplay",
     stepId: "plot-continents",
   },
-  [M10_EFFECT_TAGS.map.mountainsPlotted]: {
+  [MAP_PROJECTION_EFFECT_TAGS.map.mountainsPlotted]: {
     pkg: "mod-swooper-maps",
     phase: "gameplay",
     stepId: "plot-mountains",
   },
-  [M10_EFFECT_TAGS.map.volcanoesPlotted]: {
+  [MAP_PROJECTION_EFFECT_TAGS.map.volcanoesPlotted]: {
     pkg: "mod-swooper-maps",
     phase: "gameplay",
     stepId: "plot-volcanoes",
   },
-  [M10_EFFECT_TAGS.map.elevationBuilt]: {
+  [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt]: {
     pkg: "mod-swooper-maps",
     phase: "gameplay",
     stepId: "build-elevation",
   },
-  [M10_EFFECT_TAGS.map.landmassRegionsPlotted]: {
+  [MAP_PROJECTION_EFFECT_TAGS.map.landmassRegionsPlotted]: {
     pkg: "mod-swooper-maps",
     phase: "gameplay",
     stepId: "plot-landmass-regions",
   },
-  [M10_EFFECT_TAGS.map.morphologyParityCaptured]: {
+  [MAP_PROJECTION_EFFECT_TAGS.map.morphologyParityCaptured]: {
     pkg: "mod-swooper-maps",
     phase: "gameplay",
     stepId: "build-elevation",
   },
-  [M10_EFFECT_TAGS.map.hydrologyLakesParityCaptured]: {
+  [MAP_PROJECTION_EFFECT_TAGS.map.hydrologyLakesParityCaptured]: {
     pkg: "mod-swooper-maps",
     phase: "gameplay",
     stepId: "lakes",
   },
-  [M10_EFFECT_TAGS.map.hydrologyRiversParityCaptured]: {
+  [MAP_PROJECTION_EFFECT_TAGS.map.hydrologyRiversParityCaptured]: {
     pkg: "mod-swooper-maps",
     phase: "gameplay",
     stepId: "plot-rivers",
   },
-  [M10_EFFECT_TAGS.map.ecologyBiomesParityCaptured]: {
+  [MAP_PROJECTION_EFFECT_TAGS.map.ecologyBiomesParityCaptured]: {
     pkg: "mod-swooper-maps",
     phase: "gameplay",
     stepId: "plot-biomes",
   },
-  [M10_EFFECT_TAGS.map.ecologyFeaturesParityCaptured]: {
+  [MAP_PROJECTION_EFFECT_TAGS.map.ecologyFeaturesParityCaptured]: {
     pkg: "mod-swooper-maps",
     phase: "gameplay",
     stepId: "features-apply",
   },
-  [M10_EFFECT_TAGS.map.placementParityCaptured]: {
+  [MAP_PROJECTION_EFFECT_TAGS.map.placementParityCaptured]: {
     pkg: "mod-swooper-maps",
     phase: "placement",
     stepId: "placement",
   },
-  [M4_EFFECT_TAGS.engine.riversModeled]: {
+  [STANDARD_ENGINE_EFFECT_TAGS.engine.riversModeled]: {
     pkg: "mod-swooper-maps",
     phase: "gameplay",
     stepId: "plot-rivers",
   },
-  [M4_EFFECT_TAGS.engine.biomesApplied]: {
+  [STANDARD_ENGINE_EFFECT_TAGS.engine.biomesApplied]: {
     pkg: "mod-swooper-maps",
     phase: "gameplay",
     stepId: "plot-biomes",
   },
-  [M4_EFFECT_TAGS.engine.featuresApplied]: {
+  [STANDARD_ENGINE_EFFECT_TAGS.engine.featuresApplied]: {
     pkg: "mod-swooper-maps",
     phase: "gameplay",
     stepId: "features-apply",
   },
-  [M4_EFFECT_TAGS.engine.plotEffectsApplied]: {
+  [STANDARD_ENGINE_EFFECT_TAGS.engine.plotEffectsApplied]: {
     pkg: "mod-swooper-maps",
     phase: "gameplay",
     stepId: "plot-effects",
   },
-  [M4_EFFECT_TAGS.engine.placementApplied]: {
+  [STANDARD_ENGINE_EFFECT_TAGS.engine.placementApplied]: {
     pkg: "mod-swooper-maps",
     phase: "placement",
     stepId: "placement",
@@ -146,41 +146,41 @@ type SatisfactionState = {
 
 export const STANDARD_TAG_DEFINITIONS: readonly DependencyTagDefinition<ExtendedMapContext>[] = [
   {
-    id: M3_DEPENDENCY_TAGS.field.terrainType,
+    id: FIELD_DEPENDENCY_TAGS.field.terrainType,
     kind: "field",
     satisfies: (context) => isUint8Array(context.fields?.terrainType, getExpectedSize(context)),
     demo: new Uint8Array(0),
     validateDemo: (demo) => isUint8Array(demo),
   },
   {
-    id: M3_DEPENDENCY_TAGS.field.elevation,
+    id: FIELD_DEPENDENCY_TAGS.field.elevation,
     kind: "field",
     satisfies: (context) => isInt16Array(context.fields?.elevation, getExpectedSize(context)),
     demo: new Int16Array(0),
     validateDemo: (demo) => isInt16Array(demo),
   },
   {
-    id: M3_DEPENDENCY_TAGS.field.rainfall,
+    id: FIELD_DEPENDENCY_TAGS.field.rainfall,
     kind: "field",
     satisfies: (context) => isUint8Array(context.fields?.rainfall, getExpectedSize(context)),
     demo: new Uint8Array(0),
     validateDemo: (demo) => isUint8Array(demo),
   },
   {
-    id: M3_DEPENDENCY_TAGS.field.biomeId,
+    id: FIELD_DEPENDENCY_TAGS.field.biomeId,
     kind: "field",
     satisfies: (context) => isUint8Array(context.fields?.biomeId, getExpectedSize(context)),
     demo: new Uint8Array(0),
     validateDemo: (demo) => isUint8Array(demo),
   },
   {
-    id: M3_DEPENDENCY_TAGS.field.featureType,
+    id: FIELD_DEPENDENCY_TAGS.field.featureType,
     kind: "field",
     satisfies: (context) => isInt16Array(context.fields?.featureType, getExpectedSize(context)),
     demo: new Int16Array(0),
     validateDemo: (demo) => isInt16Array(demo),
   },
-  ...Object.values(M10_EFFECT_TAGS.map).map((id) => {
+  ...Object.values(MAP_PROJECTION_EFFECT_TAGS.map).map((id) => {
     const definition: DependencyTagDefinition<ExtendedMapContext> = {
       id,
       kind: "effect",
@@ -191,7 +191,7 @@ export const STANDARD_TAG_DEFINITIONS: readonly DependencyTagDefinition<Extended
     }
     return definition;
   }),
-  ...Object.values(M4_EFFECT_TAGS.engine).map((id) => {
+  ...Object.values(STANDARD_ENGINE_EFFECT_TAGS.engine).map((id) => {
     const definition: DependencyTagDefinition<ExtendedMapContext> = {
       id,
       kind: "effect",
@@ -201,7 +201,7 @@ export const STANDARD_TAG_DEFINITIONS: readonly DependencyTagDefinition<Extended
       definition.owner = owner;
     }
     if (VERIFIED_EFFECT_TAGS.has(id)) {
-      if (id === M4_EFFECT_TAGS.engine.placementApplied) {
+      if (id === STANDARD_ENGINE_EFFECT_TAGS.engine.placementApplied) {
         definition.satisfies = (context, state) => isPlacementOutputSatisfied(context, state);
       } else {
         definition.satisfies = (context) => context.adapter.verifyEffect(id);
@@ -217,8 +217,11 @@ export function registerStandardTags(registry: {
   registry.registerTags(STANDARD_TAG_DEFINITIONS);
 }
 
-function isPlacementOutputSatisfied(context: ExtendedMapContext, state: SatisfactionState): boolean {
-  if (!state.satisfied.has(M4_EFFECT_TAGS.engine.placementApplied)) return false;
+function isPlacementOutputSatisfied(
+  context: ExtendedMapContext,
+  state: SatisfactionState
+): boolean {
+  if (!state.satisfied.has(STANDARD_ENGINE_EFFECT_TAGS.engine.placementApplied)) return false;
 
   const outputs = context.artifacts.get(placementArtifacts.placementOutputs.id);
   if (!outputs || typeof outputs !== "object") return false;
