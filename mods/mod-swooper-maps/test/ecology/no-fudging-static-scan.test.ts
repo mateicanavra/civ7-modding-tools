@@ -73,11 +73,7 @@ describe("M3 no-fudging posture (static scan)", () => {
       path.join(repoRoot, "src", "recipes", "standard", "stages", "ecology"),
       path.join(repoRoot, "src", "recipes", "standard", "stages", "ecology-pedology"),
       path.join(repoRoot, "src", "recipes", "standard", "stages", "ecology-biomes"),
-      path.join(repoRoot, "src", "recipes", "standard", "stages", "ecology-features-score"),
-      path.join(repoRoot, "src", "recipes", "standard", "stages", "ecology-ice"),
-      path.join(repoRoot, "src", "recipes", "standard", "stages", "ecology-reefs"),
-      path.join(repoRoot, "src", "recipes", "standard", "stages", "ecology-wetlands"),
-      path.join(repoRoot, "src", "recipes", "standard", "stages", "ecology-vegetation"),
+      path.join(repoRoot, "src", "recipes", "standard", "stages", "ecology-features"),
       path.join(repoRoot, "src", "recipes", "standard", "stages", "map-ecology"),
     ] as const;
 

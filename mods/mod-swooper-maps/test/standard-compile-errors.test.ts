@@ -7,7 +7,7 @@ import {
 } from "@swooper/mapgen-core/compiler/recipe-compile";
 
 import standardRecipe, { compileOpsById } from "../src/recipes/standard/recipe.js";
-import { steps as ecologySteps } from "../src/recipes/standard/stages/ecology/steps/index.js";
+import pedologyStep from "../src/recipes/standard/stages/ecology-pedology/steps/pedology/index.js";
 
 const baseSettings = {
   seed: 42,
@@ -91,14 +91,14 @@ describe("standard recipe compile errors (ecology)", () => {
       knobsSchema: Type.Object({}, { additionalProperties: false, default: {} }),
       public: Type.Object(
         {
-          pedology: Type.Optional(ecologySteps.pedology.contract.schema),
+          pedology: Type.Optional(pedologyStep.contract.schema),
         },
         { additionalProperties: false, default: {} }
       ),
       compile: ({ config }) => ({
         "unknown-step": config.pedology,
       }),
-      steps: [ecologySteps.pedology],
+      steps: [pedologyStep],
     });
 
     const err = expectCompileError(() =>

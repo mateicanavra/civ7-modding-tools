@@ -12,11 +12,7 @@ import placementDomain from "@mapgen/domain/placement/ops";
 
 import ecologyPedology from "./stages/ecology-pedology/index.js";
 import ecologyBiomes from "./stages/ecology-biomes/index.js";
-import ecologyFeaturesScore from "./stages/ecology-features-score/index.js";
-import ecologyIce from "./stages/ecology-ice/index.js";
-import ecologyReefs from "./stages/ecology-reefs/index.js";
-import ecologyWetlands from "./stages/ecology-wetlands/index.js";
-import ecologyVegetation from "./stages/ecology-vegetation/index.js";
+import ecologyFeatures from "./stages/ecology-features/index.js";
 import foundation from "./stages/foundation/index.js";
 import hydrologyClimateBaseline from "./stages/hydrology-climate-baseline/index.js";
 import hydrologyClimateRefine from "./stages/hydrology-climate-refine/index.js";
@@ -43,11 +39,7 @@ const stages = [
   hydrologyClimateRefine,
   ecologyPedology,
   ecologyBiomes,
-  ecologyFeaturesScore,
-  ecologyIce,
-  ecologyReefs,
-  ecologyWetlands,
-  ecologyVegetation,
+  ecologyFeatures,
   mapMorphology,
   mapHydrology,
   mapEcology,

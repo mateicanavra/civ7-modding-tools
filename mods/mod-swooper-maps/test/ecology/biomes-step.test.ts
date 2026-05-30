@@ -5,7 +5,7 @@ import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { implementArtifacts } from "@swooper/mapgen-core/authoring";
 import ecology from "@mapgen/domain/ecology/ops";
 
-import biomesStep from "../../src/recipes/standard/stages/ecology/steps/biomes/index.js";
+import biomesStep from "../../src/recipes/standard/stages/ecology-biomes/steps/biomes/index.js";
 import plotBiomesStep from "../../src/recipes/standard/stages/map-ecology/steps/plotBiomes.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
 import { hydrologyClimateRefineArtifacts } from "../../src/recipes/standard/stages/hydrology-climate-refine/artifacts.js";
@@ -262,4 +262,3 @@ describe("biomes step", () => {
     expect(moistureBoosted[far]! - moistureBaseline[far]!).toBe(0);
   });
 });
-

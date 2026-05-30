@@ -64,7 +64,7 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
             plateBias: {
               threshold: 0.15,
               power: 1.3,
-              convergent: 3.0,
+              convergent: 3,
               transform: 0.2,
               divergent: 0.5,
               interior: 0.35,
@@ -104,7 +104,7 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
             fluvial: {
               rate: 0.08,
               m: 0.5,
-              n: 1.0,
+              n: 1,
             },
             diffusion: {
               rate: 0.12,
@@ -169,7 +169,6 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
       ridges: {
         strategy: "default",
         config: {
-          // Desert mountains: frequent peaks, strong rift relief, reduced erosion
           tectonicIntensity: 0.63,
           mountainThreshold: 0.64,
           hillThreshold: 0.36,
@@ -193,7 +192,6 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
       foothills: {
         strategy: "default",
         config: {
-          // Desert mountains: frequent peaks, strong rift relief, reduced erosion
           tectonicIntensity: 0.63,
           mountainThreshold: 0.64,
           hillThreshold: 0.36,
@@ -254,11 +252,22 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
           bedrockWeight: 0.6,
           fertilityCeiling: 0.95,
         },
-      }, // Dramatic mountain soils
+      },
     },
     "resource-basins": {
-      plan: { strategy: "default", config: { resources: [] } },
-      score: { strategy: "default", config: { minConfidence: 0.3, maxPerResource: 12 } },
+      plan: {
+        strategy: "default",
+        config: {
+          resources: [],
+        },
+      },
+      score: {
+        strategy: "default",
+        config: {
+          minConfidence: 0.3,
+          maxPerResource: 12,
+        },
+      },
     },
   },
   "ecology-biomes": {
@@ -279,7 +288,7 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
             tropicalThreshold: 25,
           },
           moisture: {
-            thresholds: [48, 78, 112, 160] as [number, number, number, number],
+            thresholds: [48, 78, 112, 160],
           },
           aridity: {
             temperatureMin: 2,
@@ -290,7 +299,7 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
             rainfallWeight: 0.95,
             bias: 24,
             normalization: 76,
-            moistureShiftThresholds: [0.38, 0.62] as [number, number],
+            moistureShiftThresholds: [0.38, 0.62],
             vegetationPenalty: 0.31,
           },
           vegetation: {
@@ -298,54 +307,44 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
             moistureWeight: 0.46,
             moistureNormalizationPadding: 40,
           },
-          edgeRefine: { radius: 1, iterations: 2 }, // Sharp desert/mountain transitions
+          edgeRefine: {
+            radius: 1,
+            iterations: 2,
+          },
         },
       },
     },
   },
-  "ecology-ice": {
-    knobs: {},
+  "ecology-features": {
     "plan-ice": {
-      planIce: { strategy: "continentality", config: {} },
-    },
-  },
-  "ecology-reefs": {
-    knobs: {},
-    "plan-reefs": {
-      planReefs: { strategy: "default", config: {} },
-    },
-  },
-  "ecology-wetlands": {
-    knobs: {},
-    "plan-wetlands": {
-      planWetlands: { strategy: "default", config: {} },
-    },
-  },
-  "ecology-vegetation": {
-    knobs: {},
-    "plan-vegetation": {
-      planVegetation: { strategy: "default", config: {} },
-    },
-  },
-  "map-ecology": {
-    "plot-biomes": {
-      bindings: {
-        snow: "BIOME_TUNDRA",
-        tundra: "BIOME_TUNDRA",
-        boreal: "BIOME_TUNDRA",
-        temperateDry: "BIOME_PLAINS",
-        temperateHumid: "BIOME_GRASSLAND",
-        tropicalSeasonal: "BIOME_GRASSLAND",
-        tropicalRainforest: "BIOME_TROPICAL",
-        desert: "BIOME_DESERT",
-        marine: "BIOME_MARINE",
+      planIce: {
+        strategy: "continentality",
+        config: {},
       },
     },
-    "plot-effects": {
+    "plan-reefs": {
+      planReefs: {
+        strategy: "default",
+        config: {},
+      },
+    },
+    "plan-wetlands": {
+      planWetlands: {
+        strategy: "default",
+        config: {},
+      },
+    },
+    "plan-vegetation": {
+      planVegetation: {
+        strategy: "default",
+        config: {},
+      },
+    },
+    "plan-plot-effects": {
       scoreSnow: {
         strategy: "default",
         config: {
-          elevationStrategy: "percentile" as const,
+          elevationStrategy: "percentile",
           elevationMin: 400,
           elevationMax: 3200,
           elevationPercentileMin: 0.85,
@@ -364,27 +363,23 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
       scoreSand: {
         strategy: "default",
         config: {
-          minAridity: 0.58, // Capture more arid tiles
-          minTemperature: 19, // Include cooler desert edges
+          minAridity: 0.58,
+          minTemperature: 19,
           maxFreeze: 0.2,
           maxVegetation: 0.15,
           maxMoisture: 70,
-          allowedBiomes: ["desert", "temperateDry"] as ["desert", "temperateDry"],
+          allowedBiomes: ["desert", "temperateDry"],
         },
       },
       scoreBurned: {
         strategy: "default",
         config: {
-          minAridity: 0.62, // Capture more tiles
+          minAridity: 0.62,
           minTemperature: 24,
           maxFreeze: 0.15,
           maxVegetation: 0.22,
           maxMoisture: 90,
-          allowedBiomes: ["desert", "temperateDry", "tropicalSeasonal"] as [
-            "desert",
-            "temperateDry",
-            "tropicalSeasonal",
-          ],
+          allowedBiomes: ["desert", "temperateDry", "tropicalSeasonal"],
         },
       },
       plotEffects: {
@@ -413,27 +408,62 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
             selector: {
               typeName: "PLOTEFFECT_SAND",
             },
-            coveragePct: 42, // Aggressive for desert world
+            coveragePct: 42,
           },
           burned: {
             enabled: true,
             selector: {
               typeName: "PLOTEFFECT_BURNED",
             },
-            coveragePct: 16, // More scorched earth
+            coveragePct: 16,
           },
         },
       },
     },
+    knobs: {},
+  },
+  "map-ecology": {
+    "plot-biomes": {
+      bindings: {
+        snow: "BIOME_TUNDRA",
+        tundra: "BIOME_TUNDRA",
+        boreal: "BIOME_TUNDRA",
+        temperateDry: "BIOME_PLAINS",
+        temperateHumid: "BIOME_GRASSLAND",
+        tropicalSeasonal: "BIOME_GRASSLAND",
+        tropicalRainforest: "BIOME_TROPICAL",
+        desert: "BIOME_DESERT",
+        marine: "BIOME_MARINE",
+      },
+    },
     "features-apply": {
-      apply: { strategy: "default", config: { maxPerTile: 1 } },
+      apply: {
+        strategy: "default",
+        config: {
+          maxPerTile: 1,
+        },
+      },
     },
   },
   placement: {
     "derive-placement-inputs": {
-      wonders: { strategy: "default", config: {} },
-      floodplains: { strategy: "default", config: { minLength: 4, maxLength: 10 } },
-      starts: { strategy: "default", config: { overrides: {} } },
+      wonders: {
+        strategy: "default",
+        config: {},
+      },
+      floodplains: {
+        strategy: "default",
+        config: {
+          minLength: 4,
+          maxLength: 10,
+        },
+      },
+      starts: {
+        strategy: "default",
+        config: {
+          overrides: {},
+        },
+      },
     },
     placement: {},
   },

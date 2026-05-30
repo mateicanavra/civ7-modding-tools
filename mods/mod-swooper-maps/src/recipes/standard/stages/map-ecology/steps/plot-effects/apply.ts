@@ -19,11 +19,15 @@ const resolvePlotEffectIndex = (
 };
 
 /**
- * Applies plot effect placements to the engine adapter.
+ * Applies preplanned plot effects to the engine adapter.
+ *
+ * The placement policy belongs to Ecology; this helper deliberately accepts a
+ * readonly artifact snapshot so map-ecology cannot mutate or reinterpret truth
+ * while projecting it into Civ7 runtime state.
  */
 export function applyPlotEffectPlacements(
   context: ExtendedMapContext,
-  placements: PlotEffectPlacement[]
+  placements: ReadonlyArray<PlotEffectPlacement>
 ): void {
   const resolved = new Map<PlotEffectKey, number>();
 

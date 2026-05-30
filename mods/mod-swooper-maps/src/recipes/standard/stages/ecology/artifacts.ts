@@ -1,4 +1,5 @@
 import { TypedArraySchemas, Type, defineArtifact, type Static } from "@swooper/mapgen-core/authoring";
+import type { PlotEffectKey } from "@mapgen/domain/ecology";
 
 export const BiomeClassificationArtifactSchema = Type.Object(
   {
@@ -98,6 +99,32 @@ export type FeaturePlacementIntent = Static<typeof FeaturePlacementIntentSchema>
 export const FeatureIntentsListArtifactSchema = Type.Array(FeaturePlacementIntentSchema);
 
 export type FeatureIntentsListArtifact = Static<typeof FeatureIntentsListArtifactSchema>;
+
+const PlotEffectKeyArtifactSchema = Type.Unsafe<PlotEffectKey>(
+  Type.String({
+    description: "Engine plot-effect key planned by Ecology and later projected by map-ecology.",
+    pattern: "^PLOTEFFECT_",
+  })
+);
+
+/**
+ * Plot effects are authored as ecology truth because snow/sand/burned placement is
+ * scored from biome, climate, and topography artifacts. The map-ecology stage only
+ * projects these intents into the adapter, so this artifact preserves the contract
+ * between planning and engine stamping without letting projection own the policy.
+ */
+export const PlotEffectPlacementIntentSchema = Type.Object(
+  {
+    x: Type.Integer({ minimum: 0 }),
+    y: Type.Integer({ minimum: 0 }),
+    plotEffect: PlotEffectKeyArtifactSchema,
+  },
+  { additionalProperties: false }
+);
+
+export const PlotEffectPlanArtifactSchema = Type.Array(PlotEffectPlacementIntentSchema);
+
+export type PlotEffectPlanArtifact = Static<typeof PlotEffectPlanArtifactSchema>;
 
 export const BiomeBindingsArtifactSchema = Type.Object(
   {
@@ -208,6 +235,11 @@ export const ecologyArtifacts = {
     name: "featureIntentsIce",
     id: "artifact:ecology.featureIntents.ice",
     schema: FeatureIntentsListArtifactSchema,
+  }),
+  plotEffectPlan: defineArtifact({
+    name: "plotEffectPlan",
+    id: "artifact:ecology.plotEffectPlan",
+    schema: PlotEffectPlanArtifactSchema,
   }),
   biomeBindings: defineArtifact({
     name: "biomeBindings",

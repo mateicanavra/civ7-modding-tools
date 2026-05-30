@@ -34,11 +34,7 @@ describe("map stamping contract guardrails", () => {
       path.join(repoRoot, "src/recipes/standard/stages/hydrology-climate-refine"),
       path.join(repoRoot, "src/recipes/standard/stages/ecology-pedology"),
       path.join(repoRoot, "src/recipes/standard/stages/ecology-biomes"),
-      path.join(repoRoot, "src/recipes/standard/stages/ecology-features-score"),
-      path.join(repoRoot, "src/recipes/standard/stages/ecology-ice"),
-      path.join(repoRoot, "src/recipes/standard/stages/ecology-reefs"),
-      path.join(repoRoot, "src/recipes/standard/stages/ecology-wetlands"),
-      path.join(repoRoot, "src/recipes/standard/stages/ecology-vegetation"),
+      path.join(repoRoot, "src/recipes/standard/stages/ecology-features"),
     ];
 
     const contractFiles = roots.flatMap((candidate) => {
@@ -116,11 +112,7 @@ describe("map stamping contract guardrails", () => {
       path.join(repoRoot, "src/recipes/standard/stages/hydrology-climate-refine"),
       path.join(repoRoot, "src/recipes/standard/stages/ecology-pedology"),
       path.join(repoRoot, "src/recipes/standard/stages/ecology-biomes"),
-      path.join(repoRoot, "src/recipes/standard/stages/ecology-features-score"),
-      path.join(repoRoot, "src/recipes/standard/stages/ecology-ice"),
-      path.join(repoRoot, "src/recipes/standard/stages/ecology-reefs"),
-      path.join(repoRoot, "src/recipes/standard/stages/ecology-wetlands"),
-      path.join(repoRoot, "src/recipes/standard/stages/ecology-vegetation"),
+      path.join(repoRoot, "src/recipes/standard/stages/ecology-features"),
     ];
 
     const files = physicsRoots.flatMap((candidate) => {

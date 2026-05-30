@@ -48,10 +48,10 @@ Hard-logic rules (no chance/penalty tuning):
 - `hydromorphicMask`: floodplain OR lowland sink basin OR intertidal coast.
 - `wellDrainedMask`: land and not hydromorphic.
 
-### 3) Wire the new habitat artifact in `ecology-features-score`
+### 3) Wire the new habitat artifact in `ecology-features`
 Files:
-- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features-score/steps/score-layers/contract.ts`
-- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features-score/steps/score-layers/index.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/score-layers/contract.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/score-layers/index.ts`
 
 Changes:
 - Feed new physical inputs into `computeFeatureSubstrate`.
@@ -66,7 +66,7 @@ Files:
 - `mods/mod-swooper-maps/src/domain/ecology/ops/wet-score-tundra-bog/strategies/default.ts`
 - `mods/mod-swooper-maps/src/domain/ecology/ops/wet-score-mangrove/contract.ts`
 - `mods/mod-swooper-maps/src/domain/ecology/ops/wet-score-mangrove/strategies/default.ts`
-- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features-score/steps/score-layers/index.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/score-layers/index.ts`
 
 Hard gates:
 - Marsh: require `hydromorphicMask == 1`.
@@ -81,10 +81,10 @@ Files:
 - `mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-wetlands/strategies/default.ts`
 - `mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-vegetation/contract.ts`
 - `mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-vegetation/strategies/default.ts`
-- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-wetlands/steps/plan-wetlands/contract.ts`
-- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-wetlands/steps/plan-wetlands/index.ts`
-- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-vegetation/steps/plan-vegetation/contract.ts`
-- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-vegetation/steps/plan-vegetation/index.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/plan-wetlands/contract.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/plan-wetlands/index.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/plan-vegetation/contract.ts`
+- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/plan-vegetation/index.ts`
 
 Planner input additions:
 - Wet planner consumes `hydromorphicMask`.

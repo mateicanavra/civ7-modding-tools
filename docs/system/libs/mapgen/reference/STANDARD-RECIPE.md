@@ -61,15 +61,17 @@ The current stage order is:
 6. `hydrology-climate-baseline`
 7. `hydrology-hydrography`
 8. `hydrology-climate-refine`
-9. `ecology`
-10. `map-morphology`
-11. `map-hydrology`
-12. `map-ecology`
-13. `placement`
+9. `ecology-pedology`
+10. `ecology-biomes`
+11. `ecology-features`
+12. `map-morphology`
+13. `map-hydrology`
+14. `map-ecology`
+15. `placement`
 
 Note:
 
-- “foundation/morphology-\*/hydrology/ecology” stages are primarily **truth** producers.
+- “foundation/morphology-\*/hydrology/ecology-\*” stages are primarily **truth** producers.
 - “map-\*” and “placement” stages are primarily **projection** / engine-facing surfaces.
 
 ## Config surface (schema + posture)
