@@ -12,6 +12,12 @@ export type ResolvedPreset = Readonly<{
   id: string;
   label: string;
   description?: string;
+  sourcePath?: string;
+  sortIndex?: number;
+  latitudeBounds?: Readonly<{
+    topLatitude: number;
+    bottomLatitude: number;
+  }>;
   config: unknown;
 }>;
 

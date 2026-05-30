@@ -2,10 +2,9 @@ import { describe, expect, it } from "bun:test";
 import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 
 import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
-import earthlikePresetRaw from "../../src/presets/standard/earthlike.json";
-import { SHATTERED_RING_CONFIG } from "../../src/maps/configs/shattered-ring.config.js";
-import { SUNDERED_ARCHIPELAGO_CONFIG } from "../../src/maps/configs/sundered-archipelago.config.js";
-import { SWOOPER_DESERT_MOUNTAINS_CONFIG } from "../../src/maps/configs/swooper-desert-mountains.config.js";
+import shatteredRingRaw from "../../src/maps/configs/shattered-ring.config.json";
+import sunderedArchipelagoRaw from "../../src/maps/configs/sundered-archipelago.config.json";
+import swooperDesertMountainsRaw from "../../src/maps/configs/swooper-desert-mountains.config.json";
 import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 
 function unwrapConfig(config: unknown): StandardRecipeConfig {
@@ -25,10 +24,9 @@ const VEGETATION_THRESHOLDS = [
 
 const CASES = [
   { label: "swooper-earthlike", config: unwrapConfig(swooperEarthlikeConfigRaw) },
-  { label: "standard-earthlike-preset", config: unwrapConfig(earthlikePresetRaw) },
-  { label: "shattered-ring", config: SHATTERED_RING_CONFIG },
-  { label: "sundered-archipelago", config: SUNDERED_ARCHIPELAGO_CONFIG },
-  { label: "desert-mountains", config: SWOOPER_DESERT_MOUNTAINS_CONFIG },
+  { label: "shattered-ring", config: unwrapConfig(shatteredRingRaw) },
+  { label: "sundered-archipelago", config: unwrapConfig(sunderedArchipelagoRaw) },
+  { label: "desert-mountains", config: unwrapConfig(swooperDesertMountainsRaw) },
 ] as const;
 
 describe("shipped map config identity", () => {

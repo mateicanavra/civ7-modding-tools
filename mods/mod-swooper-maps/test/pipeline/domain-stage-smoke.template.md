@@ -55,6 +55,6 @@ describe("__DOMAIN__ stage smoke", () => {
 
 Notes:
 
-- Use an existing map preset config (e.g. `mods/mod-swooper-maps/src/maps/swooper-earthlike.ts`) to avoid re-creating the full config inline.
+- Use an existing canonical map config (e.g. `mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json`) to avoid re-creating the full config inline.
 - For a smaller test, you can construct a minimal config that only exercises your domain, but it must still satisfy the recipe schema.
 - For a full reference, see `mods/mod-swooper-maps/test/standard-run.test.ts`.

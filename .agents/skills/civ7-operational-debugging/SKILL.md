@@ -26,6 +26,8 @@ files into source authority.
 - Reading Civ7 `Logs/` files after launching the game or loading a map/mod.
 - Using FireTuner to connect to a running Civ7 session, switch scripting
   states, restart a map, run autoplay, or inspect runtime JavaScript globals.
+- Appending instructions to the FireTuner bridge command log to restart the
+  running game or exercise runtime commands with agent-attributed audit output.
 - Comparing official resources in `.civ7/outputs/resources` to repo modeling or
   generated mod behavior.
 - Closing a claim that depends on build, deploy, log, or in-game evidence.
@@ -54,6 +56,9 @@ files into source authority.
 4. **Run the narrow gate.** Use the smallest command or inspection that
    exercises the named surface: package build, package deploy, root deploy,
    deployed file inspection, log scan, FireTuner command, or in-game run.
+   When using the FireTuner bridge append-only command log, include an
+   `AGENT=<agent-name>` field on the command line so the bridge can write
+   attributed audit entries for concurrent DRA runs.
 5. **Compare source to output.** If inspecting generated or deployed files,
    connect every claim back to source inputs and scripts. Generated output is
    evidence, not the edit surface.
@@ -84,6 +89,7 @@ files into source authority.
 <invariant name="logs-prove-observation-not-absence">A log line proves an observed event. A quiet log only proves no matching line was found in the searched window.</invariant>
 <invariant name="in-game-proof-requires-game-action">In-game proof requires launching Civ7 and exercising the relevant mod/map behavior, then tying the observation to logs or visible behavior from that run.</invariant>
 <invariant name="tuner-state-matters">FireTuner commands run against the selected Civ7 scripting state. Refresh states and choose `Tuner` for gameplay/runtime globals unless intentionally testing `App UI` globals.</invariant>
+<invariant name="firetuner-commands-are-agent-attributed">Every FireTuner bridge command appended by an agent includes an `AGENT=<agent-name>` field. Bridge scripts and Windows command wrappers must parse that field and include it in their audit log entries so parallel DRA teams can distinguish restarts and runtime probes.</invariant>
 <invariant name="resource-evidence-stays-separate">Official resources describe game data facts. Repo source decides how those facts become SDK, adapter, MapGen, CLI, or mod behavior.</invariant>
 <invariant name="proof-labels-are-mandatory">Close operational debugging by labeling each claim with the strongest evidence actually collected: built, generated, deployed, logged, in-game observed, or unresolved.</invariant>
 </invariants>

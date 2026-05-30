@@ -17,7 +17,7 @@ export type PresetStoreLoadResult = Readonly<{
   warning?: string;
 }>;
 
-export const STUDIO_PRESET_STORE_KEY = "mapgen-studio.presets";
+export const STUDIO_PRESET_STORE_KEY = "mapgen-studio.scratchConfigs";
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   if (value == null || typeof value !== "object" || Array.isArray(value)) return false;

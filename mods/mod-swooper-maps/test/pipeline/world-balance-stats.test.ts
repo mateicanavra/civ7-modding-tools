@@ -2,11 +2,10 @@ import { describe, expect, it } from "bun:test";
 import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 
 import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
-import earthlikePresetRaw from "../../src/presets/standard/earthlike.json";
 import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
-import { SHATTERED_RING_CONFIG } from "../../src/maps/configs/shattered-ring.config.js";
-import { SUNDERED_ARCHIPELAGO_CONFIG } from "../../src/maps/configs/sundered-archipelago.config.js";
-import { SWOOPER_DESERT_MOUNTAINS_CONFIG } from "../../src/maps/configs/swooper-desert-mountains.config.js";
+import shatteredRingRaw from "../../src/maps/configs/shattered-ring.config.json";
+import sunderedArchipelagoRaw from "../../src/maps/configs/sundered-archipelago.config.json";
+import swooperDesertMountainsRaw from "../../src/maps/configs/swooper-desert-mountains.config.json";
 import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import { collectWorldBalanceStats, type WorldBalanceStats } from "../support/world-balance-stats.js";
 
@@ -21,23 +20,6 @@ const CASES = [
   {
     label: "swooper-earthlike",
     config: unwrapConfig(swooperEarthlikeConfigRaw),
-    wetlandMax: 0.08,
-    reefMax: 0.04,
-    requiredFeatures: [
-      "FEATURE_FOREST",
-      "FEATURE_RAINFOREST",
-      "FEATURE_TAIGA",
-      "FEATURE_SAVANNA_WOODLAND",
-      "FEATURE_SAGEBRUSH_STEPPE",
-    ],
-    vegetationFamiliesMin: 5,
-    rainforestVegetationShareMax: 0.65,
-    requireColdReefs: true,
-    requireAtolls: true,
-  },
-  {
-    label: "standard-earthlike-preset",
-    config: unwrapConfig(earthlikePresetRaw),
     wetlandMax: 0.08,
     reefMax: 0.04,
     requiredFeatures: [
@@ -68,7 +50,7 @@ const CASES = [
   },
   {
     label: "shattered-ring",
-    config: SHATTERED_RING_CONFIG,
+    config: unwrapConfig(shatteredRingRaw),
     wetlandMax: 0.12,
     reefMax: 0.02,
     requiredFeatures: ["FEATURE_FOREST", "FEATURE_RAINFOREST", "FEATURE_SAGEBRUSH_STEPPE"],
@@ -77,7 +59,7 @@ const CASES = [
   },
   {
     label: "sundered-archipelago",
-    config: SUNDERED_ARCHIPELAGO_CONFIG,
+    config: unwrapConfig(sunderedArchipelagoRaw),
     wetlandMax: 0.22,
     reefMax: 0.02,
     requiredFeatures: ["FEATURE_FOREST", "FEATURE_RAINFOREST", "FEATURE_MANGROVE"],
@@ -87,7 +69,7 @@ const CASES = [
   },
   {
     label: "desert-mountains",
-    config: SWOOPER_DESERT_MOUNTAINS_CONFIG,
+    config: unwrapConfig(swooperDesertMountainsRaw),
     wetlandMax: 0.08,
     reefMax: 0.03,
     requiredFeatures: ["FEATURE_SAVANNA_WOODLAND", "FEATURE_SAGEBRUSH_STEPPE"],

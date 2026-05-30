@@ -69,8 +69,8 @@ export function PresetSaveDialog(props: PresetSaveDialogProps) {
     <AlertDialog open={open} onOpenChange={(next) => (!next ? onCancel() : undefined)} lightMode={lightMode}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Save Preset</AlertDialogTitle>
-          <AlertDialogDescription>Choose a name for this preset.</AlertDialogDescription>
+          <AlertDialogTitle>Save Config</AlertDialogTitle>
+          <AlertDialogDescription>Choose a name for this config.</AlertDialogDescription>
         </AlertDialogHeader>
         <div className="mt-3 space-y-2">
           <div>
@@ -79,7 +79,7 @@ export function PresetSaveDialog(props: PresetSaveDialogProps) {
               lightMode={lightMode}
               value={label}
               onChange={(e) => setLabel(e.target.value)}
-              placeholder="Preset label"
+              placeholder="Config name"
             />
           </div>
           <div>

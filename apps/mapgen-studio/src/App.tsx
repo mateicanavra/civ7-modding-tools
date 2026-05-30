@@ -60,6 +60,7 @@ import {
   findRecipeArtifacts,
   getRecipeArtifacts,
   STUDIO_RECIPE_OPTIONS,
+  type BuiltInPreset,
   type StudioRecipeUiMeta,
 } from "./recipes/catalog";
 import { getOverlaySuggestions } from "./recipes/overlaySuggestions";
@@ -79,6 +80,64 @@ function randomU32(): number {
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function toConfigId(label: string): string {
+  const id = label
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return id || `map-config-${Date.now()}`;
+}
+
+async function saveRepoBackedConfig(args: {
+  id: string;
+  name: string;
+  description?: string;
+  sourcePath?: string;
+  sortIndex: number;
+  latitudeBounds?: Readonly<{
+    topLatitude: number;
+    bottomLatitude: number;
+  }>;
+  config: unknown;
+}): Promise<
+  | { ok: true; path?: string; deploy?: { command?: string }; restart?: { requestId?: string } }
+  | { ok: false; error: string; saved?: boolean; deployed?: boolean; path?: string }
+> {
+  const envelope = {
+    $schema: "../../../dist/recipes/standard-map-config.schema.json",
+    id: args.id,
+    name: args.name,
+    description: args.description ?? "",
+    recipe: "standard",
+    sortIndex: args.sortIndex,
+    ...(args.latitudeBounds ? { latitudeBounds: args.latitudeBounds } : {}),
+    config: args.config,
+  };
+  try {
+    const res = await fetch("/api/map-configs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: args.id, sourcePath: args.sourcePath, envelope }),
+    });
+    const body = (await res.json().catch(() => null)) as {
+      ok?: boolean;
+      error?: string;
+      path?: string;
+      saved?: boolean;
+      deployed?: boolean;
+      deploy?: { command?: string };
+      restart?: { requestId?: string };
+    } | null;
+    if (!res.ok || !body?.ok) {
+      return { ok: false, error: body?.error ?? `HTTP ${res.status}`, saved: body?.saved, deployed: body?.deployed, path: body?.path };
+    }
+    return { ok: true, path: body.path, deploy: body.deploy, restart: body.restart };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Repo config save failed" };
+  }
 }
 
 function isNumericPathSegment(segment: string): boolean {
@@ -170,6 +229,53 @@ type PresetApplyResult = Readonly<{
   errors: ReadonlyArray<{ path: string; message: string }>;
 }>;
 
+type AppliedPresetSnapshot = Readonly<{
+  key: PresetKey;
+  config: unknown;
+}>;
+
+function mergeBuiltInPresets(
+  base: ReadonlyArray<BuiltInPreset>,
+  overrides: Readonly<Record<string, BuiltInPreset>>
+): ReadonlyArray<BuiltInPreset> {
+  const overrideIds = new Set(Object.keys(overrides));
+  if (overrideIds.size === 0) return base;
+  const merged = base.map((preset) => {
+    const override = overrides[preset.id];
+    if (!override) return preset;
+    overrideIds.delete(preset.id);
+    return override;
+  });
+  for (const id of overrideIds) {
+    const override = overrides[id];
+    if (override) merged.push(override);
+  }
+  return merged;
+}
+
+function toRepoBackedPreset(args: {
+  id: string;
+  label: string;
+  description?: string;
+  sourcePath?: string;
+  sortIndex?: number;
+  latitudeBounds?: Readonly<{
+    topLatitude: number;
+    bottomLatitude: number;
+  }>;
+  config: unknown;
+}): BuiltInPreset {
+  return {
+    id: args.id,
+    label: args.label,
+    description: args.description,
+    sourcePath: args.sourcePath,
+    sortIndex: args.sortIndex,
+    latitudeBounds: args.latitudeBounds,
+    config: args.config,
+  };
+}
+
 function applyPresetConfig(args: {
   schema: TSchema;
   uiMeta: StudioRecipeUiMeta;
@@ -257,16 +363,26 @@ function AppContent(props: AppContentProps) {
   });
   const [pendingImport, setPendingImport] = useState<StudioPresetExportFileV1 | null>(null);
   const importInputRef = useRef<HTMLInputElement | null>(null);
-  const lastPresetKeyRef = useRef<PresetKey>("none");
+  const lastAppliedPresetRef = useRef<AppliedPresetSnapshot | null>(null);
+  const [repoBackedPresetOverridesByRecipe, setRepoBackedPresetOverridesByRecipe] = useState<
+    Record<string, Record<string, BuiltInPreset>>
+  >({});
 
   const overlaySuggestions = useMemo(() => getOverlaySuggestions(recipeSettings.recipe), [recipeSettings.recipe]);
   const overlaySelection = overlaySuggestions.find((opt) => opt.id === overlaySelectionId) ?? null;
   const overlayDataTypeKey = overlaySelection?.overlayDataTypeKey ?? null;
 
   const recipeArtifacts = useMemo(() => getRecipeArtifacts(recipeSettings.recipe), [recipeSettings.recipe]);
+  const builtInPresets = useMemo(
+    () => mergeBuiltInPresets(
+      recipeArtifacts.studioBuiltInPresets ?? [],
+      repoBackedPresetOverridesByRecipe[recipeSettings.recipe] ?? {}
+    ),
+    [recipeArtifacts.studioBuiltInPresets, recipeSettings.recipe, repoBackedPresetOverridesByRecipe]
+  );
   const { options: presetOptions, resolvePreset, actions: presetActions, loadWarning } = usePresets({
     recipeId: recipeSettings.recipe,
-    builtIns: recipeArtifacts.studioBuiltInPresets ?? [],
+    builtIns: builtInPresets,
   });
   const isLocalPresetSelected = parsePresetKey(recipeSettings.preset).kind === "local";
   const [pipelineConfig, setPipelineConfig] = useState<PipelineConfig>(() => {
@@ -277,6 +393,7 @@ function AppContent(props: AppContentProps) {
   const [lastRunSnapshot, setLastRunSnapshot] = useState<LastRunSnapshot | null>(null);
 
   useEffect(() => {
+    if (parsePresetKey(recipeSettings.preset).kind !== "none") return;
     const base = buildDefaultConfig(
       recipeArtifacts.configSchema,
       recipeArtifacts.uiMeta,
@@ -285,14 +402,21 @@ function AppContent(props: AppContentProps) {
     setPipelineConfig(base);
     setOverridesDisabled(false);
     setLastRunSnapshot(null);
-  }, [recipeArtifacts.configSchema, recipeArtifacts.uiMeta, recipeArtifacts.defaultConfig]);
+    lastAppliedPresetRef.current = null;
+  }, [
+    recipeArtifacts.configSchema,
+    recipeArtifacts.defaultConfig,
+    recipeArtifacts.uiMeta,
+    recipeSettings.preset,
+  ]);
 
   useEffect(() => {
     const nextKey = recipeSettings.preset as PresetKey;
-    if (nextKey === lastPresetKeyRef.current) return;
-    lastPresetKeyRef.current = nextKey;
     const parsed = parsePresetKey(nextKey);
-    if (parsed.kind === "none") return;
+    if (parsed.kind === "none") {
+      lastAppliedPresetRef.current = null;
+      return;
+    }
     const resolved = resolvePreset(nextKey);
     if (!resolved) {
       toast("Preset not found", { variant: "error" });
@@ -302,6 +426,8 @@ function AppContent(props: AppContentProps) {
       });
       return;
     }
+    const lastApplied = lastAppliedPresetRef.current;
+    if (lastApplied?.key === nextKey && lastApplied.config === resolved.config) return;
     const applied = applyPresetConfig({
       schema: recipeArtifacts.configSchema,
       uiMeta: recipeArtifacts.uiMeta,
@@ -318,6 +444,7 @@ function AppContent(props: AppContentProps) {
       return;
     }
     setPipelineConfig(applied.value);
+    lastAppliedPresetRef.current = { key: nextKey, config: resolved.config };
   }, [
     resolvePreset,
     recipeArtifacts.configSchema,
@@ -670,40 +797,120 @@ function AppContent(props: AppContentProps) {
     setSaveDialogState((prev) => ({ ...prev, open: false }));
   }, []);
 
+  const rememberRepoBackedConfig = useCallback((recipeId: string, preset: BuiltInPreset) => {
+    setRepoBackedPresetOverridesByRecipe((prev) => ({
+      ...prev,
+      [recipeId]: {
+        ...(prev[recipeId] ?? {}),
+        [preset.id]: preset,
+      },
+    }));
+  }, []);
+
   const handleSaveDialogConfirm = useCallback(
-    (args: { label: string; description?: string }) => {
+    async (args: { label: string; description?: string }) => {
       const sanitized = stripSchemaMetadataRoot(pipelineConfig);
-      const result = presetActions.saveAsNew({
-        recipeId: recipeSettings.recipe,
-        label: args.label,
+      const resolved = resolvePreset(recipeSettings.preset as PresetKey);
+      const id = toConfigId(args.label);
+      const sortIndex = (resolved?.sortIndex ?? 900) + 1000;
+      const latitudeBounds = resolved?.latitudeBounds;
+      const result = await saveRepoBackedConfig({
+        id,
+        name: args.label,
         description: args.description,
+        sortIndex,
+        latitudeBounds,
         config: sanitized,
       });
-      if (result.persistenceError) {
-        toast(`Preset saved but could not persist: ${result.persistenceError}`, { variant: "error" });
-      } else {
-        toast("Preset saved", { variant: "success" });
+      if (result.ok || result.saved) {
+        rememberRepoBackedConfig(
+          recipeSettings.recipe,
+          toRepoBackedPreset({
+            id,
+            label: args.label,
+            description: args.description,
+            sourcePath: result.path ?? `mods/mod-swooper-maps/src/maps/configs/${id}.config.json`,
+            sortIndex,
+            latitudeBounds,
+            config: sanitized,
+          })
+        );
+        setRecipeSettings((prev) => ({ ...prev, preset: `builtin:${id}` }));
+        lastAppliedPresetRef.current = { key: `builtin:${id}`, config: sanitized };
+        setPipelineConfig(sanitized as PipelineConfig);
       }
-      setRecipeSettings((prev) => ({ ...prev, preset: `local:${result.preset.id}` }));
+      if (!result.ok) {
+        toast(
+          result.saved && result.deployed
+            ? `Config saved and deployed from ${result.path ?? `${id}.config.json`} but Civ7 restart request failed: ${result.error}`
+            : result.saved
+              ? `Config saved to ${result.path ?? `${id}.config.json`} but deploy failed: ${result.error}`
+              : `Config save failed: ${result.error}`,
+          { variant: "error" },
+        );
+      } else {
+        toast(`Config saved, deployed, and restart requested from ${result.path ?? `${id}.config.json`}`, { variant: "success" });
+      }
       setSaveDialogState({ open: false, label: "", description: "" });
     },
-    [pipelineConfig, presetActions, recipeSettings.recipe, toast]
+    [pipelineConfig, recipeSettings.preset, recipeSettings.recipe, rememberRepoBackedConfig, resolvePreset, toast]
   );
 
   const handleSaveAsNew = useCallback(() => {
     const resolved = resolvePreset(recipeSettings.preset as PresetKey);
-    const suggested = resolved ? `Copy of ${resolved.label}` : "New Preset";
+    const suggested = resolved ? `Copy of ${resolved.label}` : "New Config";
     openSaveDialog({ label: suggested, description: resolved?.description });
   }, [openSaveDialog, recipeSettings.preset, resolvePreset]);
 
-  const handleSaveToCurrent = useCallback(() => {
+  const handleSaveToCurrent = useCallback(async () => {
     const parsed = parsePresetKey(recipeSettings.preset);
-    if (parsed.kind !== "local") {
-      handleSaveAsNew();
-      toast("Save to Current requires a local preset. Save as new instead.", { variant: "info" });
+    const resolved = resolvePreset(recipeSettings.preset as PresetKey);
+    const sanitized = stripSchemaMetadataRoot(pipelineConfig);
+    if (parsed.kind === "builtin" && resolved) {
+      const result = await saveRepoBackedConfig({
+        id: resolved.id,
+        name: resolved.label,
+        description: resolved.description,
+        sourcePath: resolved.sourcePath,
+        sortIndex: resolved.sortIndex ?? 500,
+        latitudeBounds: resolved.latitudeBounds,
+        config: sanitized,
+      });
+      if (result.ok || result.saved) {
+        rememberRepoBackedConfig(
+          recipeSettings.recipe,
+          toRepoBackedPreset({
+            id: resolved.id,
+            label: resolved.label,
+            description: resolved.description,
+            sourcePath: result.path ?? resolved.sourcePath,
+            sortIndex: resolved.sortIndex,
+            latitudeBounds: resolved.latitudeBounds,
+            config: sanitized,
+          })
+        );
+        lastAppliedPresetRef.current = { key: recipeSettings.preset as PresetKey, config: sanitized };
+        setPipelineConfig(sanitized as PipelineConfig);
+      }
+      if (!result.ok) {
+        toast(
+          result.saved && result.deployed
+            ? `Config saved and deployed from ${result.path ?? resolved.sourcePath ?? resolved.id} but Civ7 restart request failed: ${result.error}`
+            : result.saved
+              ? `Config saved to ${result.path ?? resolved.sourcePath ?? resolved.id} but deploy failed: ${result.error}`
+              : `Config save failed: ${result.error}`,
+          { variant: "error" },
+        );
+      } else {
+        toast(`Config saved, deployed, and restart requested from ${result.path ?? resolved.sourcePath ?? resolved.id}`, { variant: "success" });
+      }
       return;
     }
-    const sanitized = stripSchemaMetadataRoot(pipelineConfig);
+    if (parsed.kind !== "local") {
+      handleSaveAsNew();
+      toast("Save to Current requires a repo config or scratch config. Save as new instead.", { variant: "info" });
+      return;
+    }
     const result = presetActions.saveToCurrent({
       recipeId: recipeSettings.recipe,
       presetId: parsed.id,
@@ -714,16 +921,16 @@ function AppContent(props: AppContentProps) {
       return;
     }
     if (result.persistenceError) {
-      toast(`Preset updated but could not persist: ${result.persistenceError}`, { variant: "error" });
+      toast(`Scratch config updated but could not persist: ${result.persistenceError}`, { variant: "error" });
     } else {
-      toast("Preset updated", { variant: "success" });
+      toast("Scratch config updated", { variant: "success" });
     }
-  }, [handleSaveAsNew, pipelineConfig, presetActions, recipeSettings.preset, recipeSettings.recipe, toast]);
+  }, [handleSaveAsNew, pipelineConfig, presetActions, recipeSettings.preset, recipeSettings.recipe, rememberRepoBackedConfig, resolvePreset, toast]);
 
   const handleDeletePreset = useCallback(() => {
     const parsed = parsePresetKey(recipeSettings.preset);
     if (parsed.kind !== "local") {
-      toast("Select a local preset to delete.", { variant: "info" });
+      toast("Select a scratch config to delete.", { variant: "info" });
       return;
     }
     const result = presetActions.deleteLocal({
@@ -731,9 +938,9 @@ function AppContent(props: AppContentProps) {
       presetId: parsed.id,
     });
     if (result.persistenceError) {
-      toast(`Preset deleted but could not persist: ${result.persistenceError}`, { variant: "error" });
+      toast(`Scratch config deleted but could not persist: ${result.persistenceError}`, { variant: "error" });
     } else {
-      toast("Preset deleted", { variant: "success" });
+      toast("Scratch config deleted", { variant: "success" });
     }
     if (result.deleted) {
       setRecipeSettings((prev) => ({ ...prev, preset: "none" }));

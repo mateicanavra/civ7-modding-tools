@@ -1,6 +1,7 @@
 import { defineConfig } from "tsup";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
+import { readdirSync } from "node:fs";
 import type { Plugin } from "esbuild";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
@@ -71,13 +72,13 @@ export default defineConfig({
     js: civ7TextEncoderBootstrap,
   },
 
-  // Entry points for mod maps
-  entry: [
-    "src/maps/swooper-desert-mountains.ts",
-    "src/maps/swooper-earthlike.ts",
-    "src/maps/shattered-ring.ts",
-    "src/maps/sundered-archipelago.ts",
-  ],
+  // Generated from canonical src/maps/configs/*.config.json by `bun run gen:maps`.
+  entry: Object.fromEntries(
+    readdirSync(join(__dirname, "src/maps/generated"))
+    .filter((file) => file.endsWith(".ts"))
+    .sort()
+      .map((file) => [file.replace(/\.ts$/, ""), `src/maps/generated/${file}`])
+  ),
 
   // Output directly to the structure the .modinfo expects
   outDir: "mod/maps",

@@ -64,11 +64,11 @@ export function usePresets(args: {
     const base: SelectOption[] = [{ value: "none", label: "None" }];
     const builtInOptions = builtIns.map((preset) => ({
       value: `builtin:${preset.id}`,
-      label: `Built-in / ${preset.label}`,
+      label: `Config / ${preset.label}`,
     }));
     const localOptions = localPresets.map((preset) => ({
       value: `local:${preset.id}`,
-      label: `Local / ${preset.label}`,
+      label: `Scratch / ${preset.label}`,
     }));
     return [...base, ...builtInOptions, ...localOptions];
   }, [builtIns, localPresets]);
@@ -78,7 +78,16 @@ export function usePresets(args: {
     if (parsed.kind === "builtin") {
       const preset = builtIns.find((p) => p.id === parsed.id);
       return preset
-        ? { source: "builtin", id: preset.id, label: preset.label, description: preset.description, config: preset.config }
+        ? {
+            source: "builtin",
+            id: preset.id,
+            label: preset.label,
+            description: preset.description,
+            sourcePath: preset.sourcePath,
+            sortIndex: preset.sortIndex,
+            latitudeBounds: preset.latitudeBounds,
+            config: preset.config,
+          }
         : null;
     }
     if (parsed.kind === "local") {
