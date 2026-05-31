@@ -19,8 +19,8 @@ import {
   getCiv7MapSummary,
   getCiv7PlayableStatus,
   getCiv7PlayerSummary,
-  getCiv7SetupMapRows,
   getCiv7UnitSummary,
+  ensureCiv7SetupMapRowVisible,
   runCiv7SinglePlayerFromSetup,
   restartCiv7GameAndBegin,
   snapshotFile,
@@ -57,6 +57,16 @@ function stableHash(value: unknown): string {
 }
 
 type ScriptingLogProof = FreshLogMarkerProof;
+
+class RunInGameHttpError extends Error {
+  constructor(
+    readonly statusCode: number,
+    message: string,
+    readonly details?: unknown
+  ) {
+    super(message);
+  }
+}
 
 async function deploySwooperMaps(repoRoot: string): Promise<{
   command: string;
@@ -513,14 +523,35 @@ export default defineConfig(({ command }) => ({
                 throw err;
               }
               let rowProof;
+              let rowVisibility;
               let start;
               let logProof: ScriptingLogProof | undefined;
               try {
-                rowProof = await getCiv7SetupMapRows(
-                  { file: materialized.mapScript, limit: 20 },
+                rowVisibility = await ensureCiv7SetupMapRowVisible(
+                  {
+                    file: materialized.mapScript,
+                    limit: 20,
+                    reloadIfMissing: requestedMode === "disposable" ? "exit-to-shell" : "none",
+                    waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
+                    pollIntervalMs: 1_000,
+                  },
                   { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS },
+                  { approved: true, reason: "Studio Run in Game setup row reload", disposableSession: true },
                 );
-                if (rowProof.rows.length === 0) throw new Error(`Civ7 setup cannot see ${materialized.mapScript}`);
+                rowProof = rowVisibility.final;
+                if (rowProof.rows.length === 0) {
+                  throw new RunInGameHttpError(409, `Civ7 setup cannot see ${materialized.mapScript}`, {
+                    code: "setup-map-row-not-visible",
+                    reloadRequired: true,
+                    reloadBoundary: requestedMode === "disposable" ? "process-restart-required" : "setup-row-missing",
+                    reloadAttempted: rowVisibility.refreshed,
+                    mapScript: materialized.mapScript,
+                    materialization: {
+                      mode: requestedMode,
+                      path: materialized.path,
+                    },
+                  });
+                }
                 start = await runCiv7SinglePlayerFromSetup(
                   {
                     mapScript: materialized.mapScript,
@@ -542,7 +573,11 @@ export default defineConfig(({ command }) => ({
                   rejectPattern: /\b(?:TextEncoder|Uncaught|Exception|Error)\b/i,
                 });
               } finally {
-                await materialized.cleanup();
+                try {
+                  await materialized.cleanup();
+                } finally {
+                  await regenerateSwooperMapArtifacts(repoRoot);
+                }
               }
               writeJson(res, 200, {
                 ok: true,
@@ -556,6 +591,7 @@ export default defineConfig(({ command }) => ({
                 },
                 deploy,
                 rowProof,
+                rowVisibility,
                 start,
                 logProof,
               });
@@ -568,7 +604,9 @@ export default defineConfig(({ command }) => ({
             await nextRun;
           } catch (err) {
             const error = err instanceof Error ? err.message : "Run in Game failed";
-            writeJson(res, 500, { ok: false, error });
+            const statusCode = err instanceof RunInGameHttpError ? err.statusCode : 500;
+            const details = err instanceof RunInGameHttpError ? err.details : undefined;
+            writeJson(res, statusCode, { ok: false, error, ...(details === undefined ? {} : { details }) });
           }
         });
         server.middlewares.use("/api/map-configs", async (req, res, next) => {

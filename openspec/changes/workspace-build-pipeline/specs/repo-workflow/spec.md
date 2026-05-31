@@ -67,3 +67,10 @@ that depend on generated files or built workspace declarations.
 - **WHEN** a developer runs the root architecture cutover test command
 - **THEN** the focused Swooper Maps tests run through a package-local test task
 - **AND** Turbo builds dependency packages before that focused test task starts
+
+#### Scenario: Swooper Maps deploy builds workspace dependencies
+- **WHEN** Studio or a developer deploys the Swooper Maps mod
+- **THEN** the deploy script builds the workspace packages that feed the mod and
+  CLI deploy command through Turbo before the mod-local build/deploy step
+- **AND** request-id-sensitive generated map source is regenerated clean after
+  Studio Run in Game proof collection

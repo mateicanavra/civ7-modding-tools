@@ -25,7 +25,8 @@ and bounded setup options through package-owned App UI setup wrappers.
 #### Scenario: Setup is applied from shell
 - **WHEN** a caller provides map script, map size, and seed with approval
 - **THEN** the boundary validates visible setup domains
-- **AND** it writes setup through App UI setup/configuration APIs
+- **AND** it writes setup through both App UI `Configuration` and
+  `GameSetup` parameter APIs where Civ exposes both surfaces
 - **AND** it reads back the requested values before reporting success
 
 #### Scenario: Setup mutation is not replayed automatically

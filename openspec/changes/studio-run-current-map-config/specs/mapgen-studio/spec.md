@@ -47,5 +47,7 @@ current-config launch success.
 
 #### Scenario: Reload semantics are not hidden
 - **WHEN** a newly materialized row is not visible to Civ setup
-- **THEN** Studio reports the row visibility/reload boundary failure
+- **THEN** Studio uses direct-control's approved shell/App UI reload path
+- **AND** if the row is still missing after that refresh, Studio reports the
+  row visibility/reload boundary failure with a reload-required error
 - **AND** it does not silently fall back to restart-only behavior

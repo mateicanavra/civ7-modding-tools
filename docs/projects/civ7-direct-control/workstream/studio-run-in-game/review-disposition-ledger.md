@@ -16,8 +16,9 @@
 
 ## Current Blockers
 
-- Live Civ tuner socket currently times out on LSQ. This blocks live mutation
-  proof but not source-backed contracts, mock tests, or OpenSpec implementation.
+- None for durable existing-row or disposable `studio-current` Run in Game.
+  Earlier LSQ timeouts were resolved by a Civ process restart; the disposable
+  setup-row boundary was resolved by package-owned shell/App UI reload.
 - The broad `mod-swooper-maps#test` suite has unrelated morphology/ecology
   failures on this stack; the Studio Run in Game verifier uses focused Swooper
   tests for the lane it owns.

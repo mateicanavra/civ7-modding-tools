@@ -17,6 +17,7 @@ import {
   executeCiv7Command,
   executeCiv7AppUiCommand,
   executeCiv7TunerCommand,
+  ensureCiv7SetupMapRowVisible,
   getCiv7GameInfoRows,
   getCiv7MapGrid,
   getCiv7MapSummary,
@@ -378,7 +379,49 @@ describe("Civ7 direct control", () => {
       expect(start.verified).toBe(true);
       expect(start.mapSummary?.map.randomSeed).toEqual({ ok: true, value: 222 });
       expect(server.received.some((message) => message.includes("Configuration.editMap()"))).toBe(true);
+      expect(server.received.some((message) => message.includes('setSetupParameter("Map"'))).toBe(true);
+      expect(server.received.some((message) => message.includes('setSetupParameter("MapSize"'))).toBe(true);
+      expect(server.received.some((message) => message.includes('setSetupParameter("MapRandomSeed"'))).toBe(true);
       expect(server.received.some((message) => message.includes("Network.hostGame"))).toBe(true);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("refreshes setup map rows from a running game when a deployed row is not yet visible", async () => {
+    const server = await startTunerServer({
+      initialInShell: false,
+      hiddenMapScript: "{swooper-maps}/maps/studio-current.js",
+      revealHiddenMapRowOnShellExit: true,
+    });
+    try {
+      const { port } = server.address();
+      const result = await ensureCiv7SetupMapRowVisible(
+        {
+          file: "{swooper-maps}/maps/studio-current.js",
+          reloadIfMissing: "exit-to-shell",
+          waitTimeoutMs: 1_000,
+          pollIntervalMs: 10,
+        },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test setup row reload", disposableSession: true },
+      );
+
+      expect(result.initial.rows).toHaveLength(0);
+      expect(result.final.rows).toEqual([
+        expect.objectContaining({
+          source: "setup-domain",
+          file: "{swooper-maps}/maps/studio-current.js",
+        }),
+        expect.objectContaining({
+          source: "config-db",
+          file: "{swooper-maps}/maps/studio-current.js",
+        }),
+      ]);
+      expect(result.refreshed).toBe(true);
+      expect(result.verified).toBe(true);
+      expect(server.received).toContain(`CMD:65535:engine.call("exitToMainMenu")`);
+      expect(server.received).toContain("CMD:65535:UI.reloadUI()");
     } finally {
       await server.close();
     }
@@ -643,6 +686,8 @@ async function startTunerServer(options: {
   initialInShell?: boolean;
   closeOnSetupMutation?: boolean;
   postStartSeedOverride?: number;
+  hiddenMapScript?: string;
+  revealHiddenMapRowOnShellExit?: boolean;
 } = {}) {
   const received: string[] = [];
   let loadingState = 6;
@@ -656,7 +701,8 @@ async function startTunerServer(options: {
   let setupMapSeed = 111;
   let setupGameSeed = 112;
   let setupRevision = 19;
-  const setupRows = [
+  let hiddenMapRowVisible = false;
+  const visibleSetupRows = () => [
     {
       Domain: "StandardMaps",
       File: "{swooper-maps}/maps/swooper-earthlike.js",
@@ -665,6 +711,56 @@ async function startTunerServer(options: {
       Description: "LOC_MAP_SWOOPER_EARTHLIKE_DESCRIPTION",
       SortIndex: 501,
     },
+    ...(hiddenMapRowVisible && options.hiddenMapScript
+      ? [
+          {
+            Domain: "StandardMaps",
+            File: options.hiddenMapScript,
+            Value: options.hiddenMapScript,
+            Name: "LOC_MAP_STUDIO_CURRENT_NAME",
+            Description: "LOC_MAP_STUDIO_CURRENT_DESCRIPTION",
+            SortIndex: 9999,
+          },
+        ]
+      : []),
+  ];
+  const visibleMapRows = () => [
+    {
+      source: "setup-domain",
+      file: "{swooper-maps}/maps/swooper-earthlike.js",
+      value: "{swooper-maps}/maps/swooper-earthlike.js",
+      name: "LOC_MAP_SWOOPER_EARTHLIKE_NAME",
+      sortIndex: 501,
+    },
+    {
+      source: "config-db",
+      domain: "StandardMaps",
+      file: "{swooper-maps}/maps/swooper-earthlike.js",
+      value: "{swooper-maps}/maps/swooper-earthlike.js",
+      name: "LOC_MAP_SWOOPER_EARTHLIKE_NAME",
+      description: "LOC_MAP_SWOOPER_EARTHLIKE_DESCRIPTION",
+      sortIndex: 501,
+    },
+    ...(hiddenMapRowVisible && options.hiddenMapScript
+      ? [
+          {
+            source: "setup-domain",
+            file: options.hiddenMapScript,
+            value: options.hiddenMapScript,
+            name: "LOC_MAP_STUDIO_CURRENT_NAME",
+            sortIndex: 9999,
+          },
+          {
+            source: "config-db",
+            domain: "StandardMaps",
+            file: options.hiddenMapScript,
+            value: options.hiddenMapScript,
+            name: "LOC_MAP_STUDIO_CURRENT_NAME",
+            description: "LOC_MAP_STUDIO_CURRENT_DESCRIPTION",
+            sortIndex: 9999,
+          },
+        ]
+      : []),
   ];
   const setupSnapshot = () => ({
     phase: inShell ? "shell" : loadingState === 8 ? "running-game" : "loading",
@@ -683,7 +779,7 @@ async function startTunerServer(options: {
           id: "Map",
           exists: true,
           value: setupMapScript,
-          possibleValues: setupRows,
+          possibleValues: visibleSetupRows(),
         },
         {
           id: "MapSize",
@@ -702,24 +798,7 @@ async function startTunerServer(options: {
       name: "LOC_MAP_SWOOPER_EARTHLIKE_NAME",
       sortIndex: 501,
     },
-    mapRows: [
-      {
-        source: "setup-domain",
-        file: "{swooper-maps}/maps/swooper-earthlike.js",
-        value: "{swooper-maps}/maps/swooper-earthlike.js",
-        name: "LOC_MAP_SWOOPER_EARTHLIKE_NAME",
-        sortIndex: 501,
-      },
-      {
-        source: "config-db",
-        domain: "StandardMaps",
-        file: "{swooper-maps}/maps/swooper-earthlike.js",
-        value: "{swooper-maps}/maps/swooper-earthlike.js",
-        name: "LOC_MAP_SWOOPER_EARTHLIKE_NAME",
-        description: "LOC_MAP_SWOOPER_EARTHLIKE_DESCRIPTION",
-        sortIndex: 501,
-      },
-    ],
+    mapRows: visibleMapRows(),
     config: {
       mapScript: { ok: true, value: setupMapScript },
       mapSize: { ok: true, value: setupMapSize },
@@ -745,6 +824,9 @@ async function startTunerServer(options: {
         } else if (frame.message === 'CMD:65535:engine.call("exitToMainMenu")') {
           inShell = true;
           loadingState = 8;
+          if (options.revealHiddenMapRowOnShellExit) hiddenMapRowVisible = true;
+          socket.write(encodeResponse(frame.listenerId, ["null"]));
+        } else if (frame.message === "CMD:65535:UI.reloadUI()") {
           socket.write(encodeResponse(frame.listenerId, ["null"]));
         } else if (frame.message === "CMD:65535:UI.notifyUIReady()") {
           loadingState = 8;
@@ -779,14 +861,18 @@ async function startTunerServer(options: {
           loadingState = 6;
           socket.write(encodeResponse(frame.listenerId, ['{"ok":true,"serverType":0}']));
         } else if (frame.message.includes("const rows = readSetupMapRows")) {
+          const requestedFile = frame.message.includes('"file":"{swooper-maps}/maps/studio-current.js"')
+            ? "{swooper-maps}/maps/studio-current.js"
+            : frame.message.includes('"file":"{swooper-maps}/maps/swooper-earthlike.js"')
+              ? "{swooper-maps}/maps/swooper-earthlike.js"
+              : undefined;
+          const rows = setupSnapshot().mapRows.filter((row) => !requestedFile || row.file === requestedFile);
           socket.write(
             encodeResponse(frame.listenerId, [
               JSON.stringify({
-                rows: setupSnapshot().mapRows,
+                rows,
                 limit: 100,
-                matchedFile: frame.message.includes('"file":"{swooper-maps}/maps/swooper-earthlike.js"')
-                  ? "{swooper-maps}/maps/swooper-earthlike.js"
-                  : undefined,
+                matchedFile: requestedFile,
               }),
             ]),
           );

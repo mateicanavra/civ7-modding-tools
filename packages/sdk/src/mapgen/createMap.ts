@@ -181,9 +181,7 @@ export function createMap<const TRecipe extends RecipeModule<ExtendedMapContext,
 
     const prefix = def.logPrefix ?? "[SWOOPER_MOD]";
     console.log(
-      prefix,
-      "[mapgen-proof]",
-      JSON.stringify({
+      `${prefix} [mapgen-proof] ${JSON.stringify({
         mapId: def.id,
         sourceConfigId: def.sourceConfigId ?? def.id,
         requestId: def.requestId ?? null,
@@ -192,7 +190,7 @@ export function createMap<const TRecipe extends RecipeModule<ExtendedMapContext,
         seed,
         mapSize: captured.mapSizeId,
         dimensions: { width, height },
-      })
+      })}`
     );
     try {
       def.recipe.run(context, env, def.config, {

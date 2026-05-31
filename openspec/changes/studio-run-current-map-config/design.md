@@ -46,8 +46,17 @@ Reload semantics are an explicit proof field. Exact-current-config claims are
 not green until the ledger identifies the minimum proven boundary:
 `hot-deploy`, `shell-reload`, or `process-restart`.
 
+Fresh live evidence on 2026-05-31 showed an existing repo-backed Swooper map
+row is visible and launchable after deploy. A newly introduced
+`studio-current` row was not visible before leaving the running game, but it
+became setup-visible after direct-control returned App UI to shell/main-menu
+and ran `UI.reloadUI()`. Studio uses that package-owned reload proof before
+claiming disposable exact-current-config launch.
+
 ## Failure Semantics
 
 Partial failures return structured phase flags: `materialized`, `deployed`,
 `rowVerified`, `setupApplied`, `started`, `postStartVerified`, and
-`logProofVerified`.
+`logProofVerified`. Row visibility failures after shell/App UI reload still
+return a reload-required error so Studio can explain that the generated row
+exists on disk but is not yet selectable by Civ setup.

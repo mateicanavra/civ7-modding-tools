@@ -17,7 +17,8 @@
 - Affected issue/milestone artifacts: none found in this repo phase; work is
   tracked through OpenSpec/workstream artifacts.
 - Affected canonical docs: no evergreen docs promoted yet. The runtime proof
-  boundary remains project-scoped until live setup/start evidence is available.
+  boundary remains project-scoped until these contracts are accepted as stable
+  product behavior.
 - Affected tests/guards/scripts:
   - `bun run verify:studio-run-in-game`
   - `bun run verify:studio-run-in-game:live`
@@ -43,7 +44,8 @@
 | Studio live runtime sync | Runtime reads stay observational and outside `pipelineConfig`. | patched | `apps/mapgen-studio/vite.config.ts`; `apps/mapgen-studio/src/App.tsx`; `studio-live-civ7-map-sync` validates. | Mapgen Studio | Studio polls live Civ state. |
 | Swooper exact-config proof metadata | Runtime proof needs request/config/envelope hash evidence. | patched | SDK `[mapgen-proof]` log payload and generated map metadata. | Swooper Maps / SDK | Studio deploys or runs a generated map. |
 | Build/test ordering | Developers should not remember package build order. | patched | `package.json`, `turbo.json`, `workspace-build-pipeline`; `bun run verify:studio-run-in-game` passes. | Repo tooling | Direct-control/Studio/Swooper changes. |
-| Live setup/start proof | Required acceptance evidence is still missing because Civ listener times out on `LSQ:`. | blocked | `live-proof-ledger.md`; `bun run verify:studio-run-in-game:live -- --timeout-ms 5000` fails at health with no mutation. | runtime/operator | Civ tuner socket recovers or process restarts. |
+| Live setup/start proof | Required acceptance evidence passed after Civ process restart for an existing setup-visible Swooper row. | patched | `live-proof-ledger.md`; read-only and mutating `verify:studio-run-in-game:live` proofs passed; Studio durable endpoint proof passed. | runtime/operator | Existing repo-backed Run in Game launch. |
+| Disposable row reload boundary | Newly introduced `studio-current` rows deploy to disk but are not visible until App UI returns to shell/main menu and reloads. | patched | `studio-disposable-setup-reload`; `live-proof-ledger.md`; Studio disposable endpoint proof passed with request id `studio-run-in-game-mpuegkpw-1x6o`. | Studio/direct-control | Unsaved current-config launch. |
 | Broad Swooper suite | Existing unrelated morphology/ecology failures remain outside this lane. | deferred | `phase-record.md` records focused verifier scope. | Swooper morphology/ecology owners | Separate morphology/ecology stack cleanup. |
 
 ## Required Closure Statement
@@ -60,13 +62,12 @@
     source/tests, Studio source/tests, SDK map proof logging, and Swooper map
     generation metadata.
 - No-patch rationale:
-  - No evergreen docs promotion yet because the most important runtime claim,
-    full setup/start from live Civ shell/running-game state, is not live-proven.
+  - Evergreen docs promotion waits until the project-scoped proof is accepted
+    as stable behavior.
 - Blocked/deferred items:
-  - Live mutation proof and reload semantics are blocked by the Civ tuner
-    socket timing out on `LSQ:`.
+  - Broad Swooper morphology/ecology suite health is deferred to the owning
+    morphology/ecology stack.
   - Broad Swooper morphology/ecology suite health is deferred to the owning
     morphology/ecology stack.
 - Exact next downstream action:
-  - Recover or restart Civ so `LSQ:` responds, then run the live mutating proof
-    command from `next-packet.md` and update the proof ledger with the result.
+  - Commit the proof repair and docs, then restack descendants.

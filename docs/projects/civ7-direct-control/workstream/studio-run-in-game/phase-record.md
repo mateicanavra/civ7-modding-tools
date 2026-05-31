@@ -8,9 +8,8 @@
 - Branch/Graphite stack: `codex/studio-run-in-game-workstream` on top of
   `codex/morphology-terrain-handoff-reference`
 - Started: 2026-05-31
-- Status: paused-handoff; source/mock implementation and Studio lane
-  verification complete; repeatable live proof gate added; live proof currently
-  blocked by LSQ timeout
+- Status: implementation/live proof complete for existing repo-backed Swooper
+  rows and disposable `studio-current` rows through direct-control shell reload
 
 ## Objective
 
@@ -71,7 +70,7 @@
   get direct-control setup/start contracts; live sync becomes observational.
 - Downstream assumptions: seed is applied through Civ setup and verified against
   `GameplayMap.getRandomSeed`; newly generated/changed map rows may require
-  shell reload or full process restart until evidence proves hot deploy.
+  package-owned shell/App UI reload before setup sees them.
 
 ## Acceptance Criteria
 
@@ -96,20 +95,24 @@
 
 - Spec/proposal: created under `openspec/changes/direct-control-new-game-setup`,
   `openspec/changes/studio-run-current-map-config`, and
-  `openspec/changes/studio-live-civ7-map-sync`, plus
+  `openspec/changes/studio-live-civ7-map-sync`,
+  `openspec/changes/studio-disposable-setup-reload`, plus
   `openspec/changes/workspace-build-pipeline`.
 - Tasks: source/mock implementation complete for direct-control setup, Studio
   Run in Game, live read endpoints, Swooper proof metadata, Turbo lane
-  verification, and a root live-proof gate. Live mutation proof tasks remain
-  gated by LSQ recovery.
-- Validation status: all four OpenSpec changes pass strict validation.
+  verification, and a root live-proof gate. Live mutation proof passed after
+  Civ process restart for an existing setup-visible Swooper row; disposable
+  `studio-current` proof passed after direct-control shell/App UI reload made
+  the deployed row visible.
+- Validation status: all five Studio Run in Game OpenSpec changes pass strict
+  validation.
 
 ## Review
 
 - Review lanes: peer technical, OpenSpec readiness, adversarial/proof,
   developer/product, player/LLM-agent, cleanup.
-- Blocking findings: live LSQ timeout blocks runtime proof; setup/start cannot
-  be marked live-proven yet.
+- Blocking findings: none for existing repo-backed map rows or disposable
+  `studio-current` rows in the proven shell reload path.
 - Accepted findings repaired: OpenSpec contracts now cover the discovery
   agents' P1/P2 findings. Build-pipeline review found root check was already
   graph-safe; root tests and the Studio lane verifier now use Turbo graph
@@ -133,11 +136,11 @@
 
 - Completed tasks: branch opened; phase packet started; discovery reports
   collected; OpenSpec changes drafted; source/mock implementation completed;
-  Turbo build/check/test lane verified.
-- Remaining tasks: live setup proof after tuner socket recovers and evergreen
-  docs promotion after proof succeeds.
-- Stop conditions triggered: live proof paused because Civ tuner socket is
-  listening but not responding to LSQ.
+  Turbo build/check/test lane verified; live setup/start, Studio durable Run in
+  Game, and Studio disposable Run in Game proof completed.
+- Remaining tasks: evergreen docs promotion can happen in a follow-up once
+  these project-scoped runtime contracts are accepted as stable.
+- Stop conditions triggered: none for this phase.
 
 ## Verification
 
@@ -149,19 +152,26 @@
   `bun run --cwd mods/mod-swooper-maps test -- test/standard-run.test.ts`,
   `bunx turbo run test --filter=mapgen-studio`, and
   `bun run verify:studio-run-in-game`,
-  `bun run verify:studio-run-in-game:live -- --timeout-ms 3000`.
-- Results: stack is linear with this branch at top; Turbo dry-runs show Swooper
-  check/test/focused architecture tests build SDK/adapter/mapgen dependencies;
-  Studio lane verifier is green; all four OpenSpec changes pass strict
-  validation. The live proof command is wired and ran read-only, but currently
-  fails at health because Civ times out waiting for `LSQ:`.
-- Skipped gates and rationale: live setup/start proof is blocked by LSQ
-  timeout. The broad `mod-swooper-maps#test` suite remains red in unrelated
-  morphology/ecology lanes, so the Studio lane verifier uses focused Swooper
-  tests for map config/runtime import/canonical recipe execution.
-- Evidence boundary: setup/start from shell and reload semantics are not yet
-  live-proven in this phase; repeated LSQ timeout is recorded in
-  `live-proof-ledger.md`.
+  `bun run verify:studio-run-in-game:live -- --timeout-ms 3000`,
+  `bun run verify:studio-run-in-game:live -- --timeout-ms 5000`,
+  `bun run verify:studio-run-in-game:live -- --mutate --map-script '{swooper-maps}/maps/swooper-earthlike.js' --map-size MAPSIZE_STANDARD --seed 753190005 --game-seed 753190000 --from-running-game exit-to-shell --timeout-ms 10000 --wait-timeout-ms 180000 --poll-interval-ms 2000`,
+  and Studio endpoint probes for live status/snapshot/entities/GameInfo plus
+  durable Run in Game seed `753190006`, and disposable Run in Game seed
+  `753190008`.
+- Results: Turbo dry-runs show Swooper check/test/focused architecture tests
+  build SDK/adapter/mapgen dependencies; Studio lane verifier is green; all
+  four OpenSpec changes pass strict validation. After Civ process restart,
+  read-only health passed, mutating setup/start passed, Studio durable Run in
+  Game passed with fresh Swooper log/hash proof, and Studio disposable Run in
+  Game passed after shell/App UI reload made the deployed `studio-current` row
+  visible.
+- Skipped gates and rationale: broad `mod-swooper-maps#test` remains red in
+  unrelated morphology/ecology lanes, so the Studio lane verifier uses focused
+  Swooper tests for map config/runtime import/canonical recipe execution.
+- Evidence boundary: existing repo-backed rows and disposable `studio-current`
+  rows are live-proven through direct control. Full macOS process restart is
+  not part of the proven path and remains unnecessary unless a future Civ
+  version breaks shell/App UI reload visibility.
 
 ## Realignment
 
@@ -169,15 +179,15 @@
   updated for setup/start, Studio run, live sync, and build pipeline.
 - Tests/guards updated: direct-control mock tests, Studio Vitest script/test,
   focused Swooper map-runtime tests, and Turbo task graph.
-- Deferrals/triage updated: live proof remains recorded in
-  `live-proof-ledger.md`.
+- Deferrals/triage updated: broad Swooper morphology/ecology suite failures
+  remain outside this lane.
 - Downstream realignment ledger: `downstream-realignment-ledger.md`.
 
 ## Next Action
 
-- Exact next step: recover or restart the Civ tuner listener, then re-run
-  `bun run verify:studio-run-in-game:live -- --mutate --map-script <file> --map-size <size> --seed <seed> --from-running-game exit-to-shell`.
-- First files to edit: none before live proof unless verification finds a
+- Exact next step: commit the live-proof repairs and docs, then restack
+  descendants.
+- First files to edit: none before commit unless verification finds a
   regression.
-- Stop condition: direct control cannot set setup parameters/start from shell,
-  or Civ requires full process restart/reload for changed map rows.
+- Stop condition: verification finds a regression in the direct-control
+  setup/start or Studio Run in Game path.

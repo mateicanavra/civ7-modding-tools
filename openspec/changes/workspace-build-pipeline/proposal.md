@@ -17,6 +17,9 @@ output in `dist/mapgen/index.d.ts` has not been rebuilt yet.
   making that lane depend on unrelated broad morphology/ecology suite health.
 - Add package-specific Turbo task dependencies and outputs where package checks
   need their own generated/build outputs first.
+- Build Swooper Maps deploy dependencies through Turbo before the mod-local
+  build, so Studio Run in Game deploys cannot copy stale SDK/adapter/CLI
+  outputs.
 - Add a Studio `check` script so Turbo can type-check Studio without requiring a
   full Vite bundle every time.
 - Add package-local Vitest scripts for projects previously covered only by the

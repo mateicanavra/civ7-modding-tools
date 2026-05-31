@@ -11,7 +11,9 @@ Begin/GameStarted for gameplay-read postconditions.
   for frontend map script rows, distinct from Tuner `GameInfo.Maps` map-size
   rows.
 - `prepareCiv7SinglePlayerSetup(input, options, approval)`: validate active
-  setup domains, write bounded setup parameters, and read back exact values.
+  setup domains, write bounded setup parameters through both `Configuration`
+  and `GameSetup` parameter APIs where Civ exposes both surfaces, and read back
+  exact values.
 - `startPreparedCiv7SinglePlayerGame(input, options, approval)`: verify expected
   setup, start through one package-owned primitive, wait for Begin/GameStarted,
   and optionally wait for Tuner readiness.
@@ -60,5 +62,11 @@ New setup errors include `setup-api-unavailable`, `setup-phase-invalid`,
 
 ## Live Evidence Boundary
 
-Source evidence supports the API shape. Studio dependence on mutating wrappers
-requires fresh live evidence once the Civ socket responds to LSQ again.
+Live evidence on 2026-05-31 proves setup/start from a running game through
+direct control after writing both `Configuration` and `GameSetup` values. A
+`Configuration`-only write changed `Configuration.getMap()` but failed setup
+readback because `GameSetup` still selected the default Continents row.
+
+Disposable `studio-current` evidence on the same date proves newly deployed
+setup rows can require a shell/main-menu transition before Civ setup sees them.
+The setup-row visibility helper owns that reload sequence for callers.

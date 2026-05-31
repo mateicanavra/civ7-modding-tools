@@ -13,6 +13,9 @@
   lane verifier.
 - [x] 1.8 Add a separate live runtime proof command that defaults to read-only
   LSQ/setup probes and requires explicit mutation flags for setup/start.
+- [x] 1.9 Update Swooper Maps deploy so Studio Run in Game deployments build
+  workspace dependencies through Turbo before the request-id-sensitive mod
+  build/deploy step.
 
 ## 2. Verification
 
@@ -21,4 +24,6 @@
 - [x] 2.1 Run `bun run verify:studio-run-in-game`.
 - [x] 2.2 Run `bun run openspec -- validate workspace-build-pipeline --strict`.
 - [x] 2.3 Run `bun run verify:studio-run-in-game:live -- --timeout-ms 3000`
-  and record the current LSQ blocker without attempting mutation.
+  and record the initial LSQ blocker without attempting mutation.
+- [x] 2.4 Re-run `bun run verify:studio-run-in-game` after disposable setup
+  reload implementation.

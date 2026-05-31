@@ -12,6 +12,8 @@ export const CIV7_TUNER_APP_UI_STATE_NAME = "App UI";
 export const CIV7_TUNER_STATE_NAME = "Tuner";
 export const CIV7_RESTART_COMMAND = "Network.restartGame()";
 export const CIV7_BEGIN_GAME_COMMAND = "UI.notifyUIReady()";
+export const CIV7_EXIT_TO_MAIN_MENU_COMMAND = 'engine.call("exitToMainMenu")';
+export const CIV7_RELOAD_UI_COMMAND = "UI.reloadUI()";
 export const CIV7_UI_LOADING_STATES = {
   NotStarted: 0,
   WaitingForGameplayData: 1,
@@ -598,6 +600,25 @@ export type Civ7SetupMapRowsResult = Readonly<{
   rows: ReadonlyArray<Civ7SetupMapRow>;
   limit: number;
   matchedFile?: string;
+}>;
+
+export type Civ7SetupMapRowVisibilityInput = Readonly<{
+  file: string;
+  limit?: number;
+  reloadIfMissing?: "none" | "exit-to-shell";
+  waitTimeoutMs?: number;
+  pollIntervalMs?: number;
+}>;
+
+export type Civ7SetupMapRowVisibilityResult = Readonly<{
+  initial: Civ7SetupMapRowsResult;
+  final: Civ7SetupMapRowsResult;
+  shellBefore?: Civ7SetupSnapshotResult;
+  shellAfter?: Civ7SetupSnapshotResult;
+  shellExit?: Civ7CommandResult;
+  reload?: Civ7CommandResult;
+  refreshed: boolean;
+  verified: boolean;
 }>;
 
 export type Civ7SetupOptionValue = string | number | boolean;
@@ -1589,6 +1610,55 @@ export async function getCiv7SetupMapRows(
   return jsonPayloadFromCommandResult<Civ7SetupMapRowsResult>(result, "Civ7 setup map rows");
 }
 
+export async function ensureCiv7SetupMapRowVisible(
+  input: Civ7SetupMapRowVisibilityInput,
+  options: Civ7DirectControlOptions = {},
+  approval?: Civ7ActionApproval,
+): Promise<Civ7SetupMapRowVisibilityResult> {
+  validateMapScript(input.file);
+  const limit = boundedInteger(input.limit ?? 100, 1, 1_000, "limit");
+  const rowInput = { file: input.file, limit };
+  const initial = await getCiv7SetupMapRows(rowInput, options);
+  if (initial.rows.length > 0 || input.reloadIfMissing !== "exit-to-shell") {
+    return {
+      initial,
+      final: initial,
+      refreshed: false,
+      verified: initial.rows.length > 0,
+    };
+  }
+
+  if (!approval) {
+    throw new Civ7DirectControlError("command-failed", "Explicit approval is required before refreshing Civ7 setup map rows");
+  }
+  assertApproved(approval, "refreshing Civ7 setup map rows");
+  const waitTimeoutMs = input.waitTimeoutMs ?? options.timeoutMs ?? 30_000;
+  const pollIntervalMs = input.pollIntervalMs ?? 1_000;
+  const shellBefore = await getCiv7SetupSnapshot(options).catch(() => undefined);
+  const shellExit = shellBefore?.snapshot.phase === "shell"
+    ? undefined
+    : await executeCiv7AppUiCommand({
+        ...options,
+        command: CIV7_EXIT_TO_MAIN_MENU_COMMAND,
+      });
+  const shellAfter = await waitForCiv7SetupPhase("shell", options, { waitTimeoutMs, pollIntervalMs });
+  const reload = await executeCiv7AppUiCommand({
+    ...options,
+    command: CIV7_RELOAD_UI_COMMAND,
+  });
+  const final = await waitForCiv7SetupMapRows(rowInput, options, { waitTimeoutMs, pollIntervalMs });
+  return {
+    initial,
+    final,
+    shellBefore,
+    shellAfter,
+    shellExit,
+    reload,
+    refreshed: true,
+    verified: final.rows.length > 0,
+  };
+}
+
 export async function prepareCiv7SinglePlayerSetup(
   input: Civ7SinglePlayerSetupInput,
   options: Civ7DirectControlOptions = {},
@@ -1752,7 +1822,7 @@ export async function runCiv7SinglePlayerFromSetup(
     }
     shellExit = await executeCiv7AppUiCommand({
       ...options,
-      command: 'engine.call("exitToMainMenu")',
+      command: CIV7_EXIT_TO_MAIN_MENU_COMMAND,
     });
     await waitForCiv7SetupPhase("shell", options, {
       waitTimeoutMs: input.waitTimeoutMs ?? 120_000,
@@ -2447,12 +2517,12 @@ function buildAppUiSnapshotCommand(): string {
         isLoggedIn: probe(() => Network.isLoggedIn()),
       },
       autoplay: {
-        isActive: Autoplay.isActive,
-        turns: Autoplay.turns,
-        isPaused: Autoplay.isPaused,
-        isPausedOrPending: Autoplay.isPausedOrPending,
-        observeAsPlayer: Autoplay.observeAsPlayer,
-        returnAsPlayer: Autoplay.returnAsPlayer,
+        isActive: probe(() => typeof Autoplay !== "undefined" ? Autoplay.isActive : false).value ?? false,
+        turns: probe(() => typeof Autoplay !== "undefined" ? Autoplay.turns : 0).value ?? 0,
+        isPaused: probe(() => typeof Autoplay !== "undefined" ? Autoplay.isPaused : false).value ?? false,
+        isPausedOrPending: probe(() => typeof Autoplay !== "undefined" ? Autoplay.isPausedOrPending : false).value ?? false,
+        observeAsPlayer: probe(() => typeof Autoplay !== "undefined" ? Autoplay.observeAsPlayer : -1).value ?? -1,
+        returnAsPlayer: probe(() => typeof Autoplay !== "undefined" ? Autoplay.returnAsPlayer : -1).value ?? -1,
       },
       game: {
         turn: Game.turn,
@@ -2854,17 +2924,26 @@ function buildPrepareSinglePlayerSetupCommand(input: Civ7SinglePlayerSetupInput)
     const input = ${jsLiteral(input)};
     const before = readSetupSnapshot();
     const applied = {};
+    const setSetupParameter = (id, value) => {
+      if (typeof GameSetup !== "undefined" && GameSetup && typeof GameSetup.setGameParameterValue === "function") {
+        GameSetup.setGameParameterValue(id, value);
+      }
+    };
     const editMap = Configuration.editMap();
     const editGame = Configuration.editGame();
     if (!editMap || !editGame) throw new Error("Configuration edit APIs are unavailable");
     editMap.setScript(input.mapScript);
+    setSetupParameter("Map", input.mapScript);
     applied.Map = input.mapScript;
     editMap.setMapSize(input.mapSize);
+    setSetupParameter("MapSize", input.mapSize);
     applied.MapSize = input.mapSize;
     editMap.setMapSeed(input.seed);
+    setSetupParameter("MapRandomSeed", input.seed);
     applied.MapRandomSeed = input.seed;
     if (input.gameSeed !== undefined) {
       editGame.setGameSeed(input.gameSeed);
+      setSetupParameter("GameRandomSeed", input.gameSeed);
       applied.GameRandomSeed = input.gameSeed;
     }
     if (input.playerCount !== undefined && typeof editMap.setMaxMajorPlayers === "function") {
@@ -3658,6 +3737,22 @@ async function waitForCiv7SetupPhase(
     `Timed out waiting for Civ7 setup phase ${phase}`,
     { details: last },
   );
+}
+
+async function waitForCiv7SetupMapRows(
+  input: Required<Pick<Civ7SetupMapRowsInput, "file" | "limit">>,
+  options: Civ7DirectControlOptions,
+  wait: { waitTimeoutMs: number; pollIntervalMs: number },
+): Promise<Civ7SetupMapRowsResult> {
+  const startedAt = Date.now();
+  let last = await getCiv7SetupMapRows(input, options);
+  if (last.rows.length > 0) return last;
+  while (Date.now() - startedAt <= wait.waitTimeoutMs) {
+    await sleep(wait.pollIntervalMs);
+    last = await getCiv7SetupMapRows(input, options);
+    if (last.rows.length > 0) return last;
+  }
+  return last;
 }
 
 function assertApproved(approval: Civ7ActionApproval, action: string): void {

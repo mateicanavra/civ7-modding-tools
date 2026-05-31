@@ -6,9 +6,8 @@
 - Phase: studio-run-in-game
 - Branch/Graphite stack: `codex/studio-run-in-game-workstream`
 - Last implementation commit:
-  `dfa03ab01 test(civ7): add live Studio run-in-game proof gate`
-- Repo state: closure/handoff artifacts pending commit at packet creation;
-  stack linear and restacked.
+  live-proof repair commit pending
+- Repo state: live-proof repairs/docs pending commit at packet update.
 
 ## Authority
 
@@ -50,7 +49,18 @@
   - `bun run verify:studio-run-in-game` passed.
   - `bun run openspec:validate` passed.
   - `git diff --check` passed.
-  - Read-only live gate reproduced the `LSQ:` blocker without mutation.
+  - Read-only live gate passed after Civ process restart.
+  - Mutating live setup/start proof passed from a running game using
+    `{swooper-maps}/maps/swooper-earthlike.js`, `MAPSIZE_STANDARD`, and seed
+    `753190005`.
+  - Studio live status/snapshot/entities/GameInfo endpoints passed.
+  - Studio durable Run in Game passed with request id
+    `studio-run-in-game-mpudxem8-1jz5`, seed `753190006`, setup row count `2`,
+    and fresh Swooper request/config/envelope hash markers.
+  - Studio disposable Run in Game passed with request id
+    `studio-run-in-game-mpuegkpw-1x6o`, seed `753190008`, setup row count `2`,
+    and fresh Swooper request/config/envelope hash markers after shell/App UI
+    reload made `studio-current` visible.
 - Closed findings:
   - All accepted source/spec/build findings listed in
     `review-disposition-ledger.md` are repaired except the live runtime proof
@@ -59,22 +69,18 @@
 ## What Is Open
 
 - Remaining tasks:
-  - Run mutating live setup/start proof.
-  - Record setup snapshot, map row proof, setup readback, Tuner health, map
-    seed/dimension proof, Swooper log/hash proof, and reload semantics.
-  - Promote evergreen docs only after live proof succeeds.
+  - Commit this proof repair/docs slice and restack descendants.
+  - Promote evergreen docs after product wording accepts the project-scoped
+    direct-control proof as stable behavior.
 - Open findings:
-  - Live setup/start parity not proven.
-  - Reload semantics not proven.
+  - None for Studio Run in Game direct-control paths.
 - Blockers:
-  - Civ listens on port `4318` but does not answer `LSQ:`.
-  - Visual inspection shows the game is alive in a running match, so the issue
-    is the tuner listener/API path, not a fully frozen game.
+  - None for existing repo-backed rows or disposable `studio-current`.
 - Dirty/uncommitted files:
   - Closure/handoff artifacts pending commit at packet creation.
 - Failing gates:
-  - `bun run verify:studio-run-in-game:live -- --timeout-ms 5000` fails at
-    health with `Timed out waiting for Civ7 tuner response to LSQ:`.
+  - None for the proven paths. Earlier LSQ failures remain recorded as runtime
+    freeze evidence.
 - Deferred items:
   - Broad Swooper morphology/ecology suite failures, owned by separate stacks.
 
@@ -87,12 +93,11 @@
   commits.
 - Latest evidence: this packet, closure checklist, downstream ledger, live
   proof ledger.
-- Open findings: live proof blocker only.
+- Open findings: none for this phase.
 - Running/stale status: no active agents.
 - Integration owner: Codex.
 - Continue/stop instruction:
-  - Continue only when Civ `LSQ:` health recovers, or after a deliberate Civ
-    process restart/reload intended to recover the tuner listener.
+  - Continue with commit/restack.
 
 ## Downstream State
 
@@ -101,14 +106,15 @@
   - Studio can read live runtime summaries observationally.
   - Developers can run a one-command source/mock verifier.
   - Developers can run a repeatable live proof command.
+  - Disposable Studio current-config launch can run through `studio-current`
+    after direct-control shell/App UI reload.
 - Changes blocked:
-  - Claiming end-to-end live setup/start parity.
-  - Claiming hot deploy/shell reload/process restart semantics.
-  - Promoting user-facing evergreen docs as fully live-proven.
+  - None for this project-scoped phase.
 - Artifacts realigned:
   - OpenSpec, workstream docs, package scripts, Turbo graph.
 - Artifacts still needing realignment:
-  - Evergreen docs after live proof.
+  - Evergreen docs after this project-scoped proof is accepted as stable
+    product behavior.
 - Downstream realignment ledger: `downstream-realignment-ledger.md`
 
 ## Resume Instructions
@@ -118,14 +124,12 @@
    - `gt ls --stack`
    - `lsof -nP -iTCP:4318 -sTCP:LISTEN`
    - `docs/projects/civ7-direct-control/workstream/studio-run-in-game/live-proof-ledger.md`
-2. Then run:
-   - `bun run verify:studio-run-in-game:live -- --timeout-ms 5000`
+2. Then run verification:
+   - `bun run verify:studio-run-in-game`
+   - `bun run openspec:validate`
+   - `git diff --check`
 3. Then do:
-   - If health passes, run the mutating proof with concrete map inputs:
-     `bun run verify:studio-run-in-game:live -- --mutate --map-script <file> --map-size <size> --seed <seed> --from-running-game exit-to-shell`
-   - Update `live-proof-ledger.md`, `phase-record.md`, and this packet with
-     the result.
+   - Commit this slice through Graphite.
+   - Restack descendants with `gt restack --upstack`.
 4. Stop if:
-   - `LSQ:` still times out after a deliberate Civ listener recovery attempt,
-     or the mutating proof reaches a source-contract failure that requires code
-     changes.
+   - Verification finds a regression in the durable-row path.
