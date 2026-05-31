@@ -130,6 +130,7 @@ export default createStep(PlateMotionStepContract, {
         label: "Plate Motion (Vectors)",
         group: GROUP_PLATE_MOTION,
         role: "vector",
+        visibility: "debug",
         palette: "continuous",
       }),
     });

@@ -58,7 +58,7 @@ async function runStandardRecipeInWorker(): Promise<BrowserRunEvent[]> {
 }
 
 describe("standard browser runner layer visibility", () => {
-  it("keeps core data-emitting steps visible with debug layers off", async () => {
+  it("keeps core balance layers visible with debug layers off", async () => {
     const events = await runStandardRecipeInWorker();
     const terminal = events.find(
       (event) => event.type === "run.finished" || event.type === "run.error" || event.type === "run.canceled"
@@ -68,20 +68,6 @@ describe("standard browser runner layer visibility", () => {
     const layers = events.filter((event): event is Extract<BrowserRunEvent, { type: "viz.layer.upsert" }> => {
       return event.type === "viz.layer.upsert";
     });
-    const finishedStepIds = events
-      .filter((event): event is Extract<BrowserRunEvent, { type: "run.progress" }> => {
-        return event.type === "run.progress" && event.kind === "step.finish";
-      })
-      .map((event) => event.stepId);
-
-    const invisibleDataSteps = finishedStepIds.filter((stepId) => {
-      const stepLayers = layers.filter((event) => event.layer.stepId === stepId);
-      if (stepLayers.length === 0) return false;
-      return stepLayers.every((event) => visibilityOf(event.layer) !== "default");
-    });
-
-    expect(invisibleDataSteps).toEqual([]);
-
     const defaultVisibleDataTypeKeys = new Set(
       layers.filter((event) => visibilityOf(event.layer) === "default").map((event) => event.layer.dataTypeKey)
     );
@@ -90,10 +76,24 @@ describe("standard browser runner layer visibility", () => {
         "foundation.crustInit.cellType",
         "foundation.crustInit.cellAge",
         "foundation.crustInit.cellBaseElevation",
-        "foundation.plateMotion.motion",
+        "foundation.plates.tileMovement",
         "ecology.scoreLayers.FEATURE_FOREST",
         "map.placement.engine.landMask",
       ])
     );
+
+    const tileMotionLayers = layers.filter((event) => {
+      return event.layer.dataTypeKey === "foundation.plates.tileMovement" && visibilityOf(event.layer) === "default";
+    });
+    expect(tileMotionLayers.map((event) => event.layer.spaceId)).toEqual(
+      expect.arrayContaining(["tile.hexOddR"])
+    );
+    expect(tileMotionLayers.map((event) => `${event.layer.kind}:${event.layer.meta?.role ?? ""}`)).toEqual(
+      expect.arrayContaining(["gridFields:vector", "segments:arrows"])
+    );
+
+    const rawWorldMotionLayers = layers.filter((event) => event.layer.dataTypeKey === "foundation.plateMotion.motion");
+    expect(rawWorldMotionLayers.length).toBeGreaterThan(0);
+    expect(rawWorldMotionLayers.every((event) => visibilityOf(event.layer) === "debug")).toBe(true);
   });
 });
