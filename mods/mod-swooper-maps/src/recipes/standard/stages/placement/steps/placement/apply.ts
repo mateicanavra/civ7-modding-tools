@@ -128,7 +128,6 @@ export function applyPlacementPlan({
         group: GROUP_GAMEPLAY,
         palette: "categorical",
         role: "engine",
-        visibility: "debug",
       }),
     });
   }

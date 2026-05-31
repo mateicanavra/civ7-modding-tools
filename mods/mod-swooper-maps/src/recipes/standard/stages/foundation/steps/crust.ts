@@ -40,7 +40,6 @@ export default createStep(CrustStepContract, {
       meta: defineVizMeta("foundation.crustInit.cellType", {
         label: "Crust Cell Type (Init)",
         group: GROUP_CRUST,
-        visibility: "debug",
       }),
     });
     context.viz?.dumpPoints(context.trace, {
@@ -52,7 +51,6 @@ export default createStep(CrustStepContract, {
       meta: defineVizMeta("foundation.crustInit.cellAge", {
         label: "Crust Cell Age (Init)",
         group: GROUP_CRUST,
-        visibility: "debug",
       }),
     });
     context.viz?.dumpPoints(context.trace, {
@@ -64,7 +62,6 @@ export default createStep(CrustStepContract, {
       meta: defineVizMeta("foundation.crustInit.cellBaseElevation", {
         label: "Crust Cell Base Elevation (Init)",
         group: GROUP_CRUST,
-        visibility: "debug",
       }),
     });
   },
