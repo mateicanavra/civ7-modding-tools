@@ -4,7 +4,9 @@ import type { ExtendedMapContext } from "@mapgen/core/types.js";
 
 import {
   RESERVED_STAGE_KEY,
+  type StageAuthoringModel,
   type StageContract,
+  type StageContractAny,
   type StageDef,
   type StageToInternalResult,
 } from "./types.js";
@@ -88,6 +90,46 @@ function buildPublicSurfaceSchema(publicSchema: TObject, knobsSchema: TObject): 
   );
 }
 
+function buildStageAuthoringModel(args: {
+  stageId: string;
+  steps: readonly Readonly<{
+    contract: Readonly<{
+      id: string;
+    }>;
+  }>[];
+  surfaceSchema: TObject;
+  publicSchema?: TObject | undefined;
+}): StageAuthoringModel {
+  const publicProps = args.publicSchema ? objectProperties(args.publicSchema) : null;
+  const focusPathsByStepId = Object.fromEntries(
+    args.steps
+      .filter((step) => step.contract.id !== RESERVED_STAGE_KEY)
+      .map((step) => [
+        step.contract.id,
+        publicProps === null
+          ? [step.contract.id]
+          : Object.prototype.hasOwnProperty.call(publicProps, step.contract.id)
+            ? [step.contract.id]
+            : [],
+      ])
+  );
+  return {
+    stageId: args.stageId,
+    config: {
+      layer: args.publicSchema ? "semantic-public-config" : "internal-step-config",
+      schema: args.surfaceSchema,
+      focusPathsByStepId,
+    },
+    runtime: {
+      steps: args.steps
+        .filter((step) => step.contract.id !== RESERVED_STAGE_KEY)
+        .map((step) => ({
+          stepId: step.contract.id,
+        })),
+    },
+  };
+}
+
 type StepsArray<TContext extends ExtendedMapContext> = readonly Readonly<{
   contract: Readonly<{
     id: string;
@@ -142,6 +184,12 @@ export function createStage(def: any): any {
   const surfaceSchema = def.public
     ? buildPublicSurfaceSchema(def.public, def.knobsSchema)
     : buildInternalAsPublicSurfaceSchema(def.steps, def.knobsSchema);
+  const authoring = buildStageAuthoringModel({
+    stageId: def.id,
+    steps: def.steps,
+    surfaceSchema,
+    publicSchema: def.public,
+  });
 
   const toInternal = ({
     env,
@@ -161,5 +209,11 @@ export function createStage(def: any): any {
     return { knobs: resolvedKnobs, rawSteps };
   };
 
-  return { ...(def as any), surfaceSchema, toInternal };
+  return { ...(def as any), surfaceSchema, authoring, toInternal };
+}
+
+export function deriveStageAuthoringModel<TStage extends Pick<StageContractAny, "authoring">>(
+  stage: TStage
+): TStage["authoring"] {
+  return stage.authoring;
 }

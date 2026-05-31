@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 
-import { STANDARD_RECIPE_CONFIG, STANDARD_RECIPE_CONFIG_SCHEMA } from "mod-swooper-maps/recipes/standard-artifacts";
+import {
+  STANDARD_RECIPE_CONFIG,
+  STANDARD_RECIPE_CONFIG_SCHEMA,
+  studioRecipeUiMeta as STANDARD_RECIPE_UI_META,
+} from "mod-swooper-maps/recipes/standard-artifacts";
 
 function getSchemaAtPath(schema: unknown, path: readonly string[]): unknown {
   let current: any = schema as any;
@@ -52,6 +56,75 @@ describe("Studio default config", () => {
     expect(STANDARD_RECIPE_CONFIG.foundation).not.toHaveProperty("profiles");
     expect(STANDARD_RECIPE_CONFIG.foundation).not.toHaveProperty("advanced");
     expect(STANDARD_RECIPE_CONFIG.foundation).not.toHaveProperty("projection");
+  });
+
+  it("exposes semantic Morphology authoring keys instead of internal op envelopes", () => {
+    const expected: Record<string, readonly string[]> = {
+      "morphology-coasts": [
+        "knobs",
+        "substrate",
+        "relief",
+        "waterCoverage",
+        "continents",
+        "coastlineShape",
+        "shelf",
+      ],
+      "morphology-routing": ["knobs"],
+      "morphology-erosion": ["knobs", "geomorphicCycle"],
+      "morphology-features": ["knobs", "islandChains", "mountainRanges", "volcanoes"],
+    };
+
+    for (const [stageId, expectedKeys] of Object.entries(expected)) {
+      const schemaProps =
+        (getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [stageId]) as {
+          properties?: Record<string, unknown>;
+        }).properties ?? {};
+      expect(Object.keys(schemaProps).sort()).toEqual([...expectedKeys].sort());
+      expect(JSON.stringify(schemaProps)).not.toContain("\"strategy\"");
+      expect(JSON.stringify(schemaProps)).not.toContain("\"config\"");
+
+      const config = (STANDARD_RECIPE_CONFIG as Record<string, Record<string, unknown>>)[stageId] ?? {};
+      for (const key of Object.keys(config)) {
+        expect(expectedKeys).toContain(key);
+      }
+    }
+  });
+
+  it("keeps Morphology runtime steps visible even when public config keys are semantic", () => {
+    const expectedSteps: Record<string, readonly string[]> = {
+      "morphology-coasts": ["landmass-plates", "rugged-coasts"],
+      "morphology-routing": ["routing"],
+      "morphology-erosion": ["geomorphology"],
+      "morphology-features": ["islands", "mountains", "volcanoes", "landmasses"],
+    };
+
+    const publicKeysByStage: Record<string, readonly string[]> = {
+      "morphology-coasts": [
+        "substrate",
+        "relief",
+        "waterCoverage",
+        "continents",
+        "coastlineShape",
+        "shelf",
+      ],
+      "morphology-routing": [],
+      "morphology-erosion": ["geomorphicCycle"],
+      "morphology-features": ["islandChains", "mountainRanges", "volcanoes"],
+    };
+
+    for (const [stageId, stepIds] of Object.entries(expectedSteps)) {
+      const stage = STANDARD_RECIPE_UI_META.stages.find((entry) => entry.stageId === stageId);
+      expect(stage?.steps.map((step) => step.stepId)).toEqual(stepIds);
+
+      const publicKeys = publicKeysByStage[stageId] ?? [];
+      for (const step of stage?.steps ?? []) {
+        const [focusKey, ...rest] = step.configFocusPathWithinStage;
+        expect(rest).toEqual([]);
+        if (focusKey) {
+          expect(publicKeys).toContain(focusKey);
+        }
+      }
+    }
   });
 
   it("exposes the split foundation authoring surface (no legacy advanced/profile fields)", () => {

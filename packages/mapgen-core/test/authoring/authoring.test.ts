@@ -19,6 +19,7 @@ import {
   defineArtifact,
   defineOp,
   defineStep,
+  deriveRecipeConfigSchema,
   implementArtifacts,
   runtimeOp,
 } from "@mapgen/authoring/index.js";
@@ -189,9 +190,11 @@ describe("authoring SDK", () => {
 
   it("createStage supports public schema with compile mapping", () => {
     const step = createStep(makeContract("alpha"), { run: () => {} });
+    const beta = createStep(makeContract("beta"), { run: () => {} });
     const publicSchema = Type.Object(
       {
         climate: Type.Number(),
+        beta: Type.Object({}, { additionalProperties: false }),
       },
       { additionalProperties: false, default: {} }
     );
@@ -200,15 +203,74 @@ describe("authoring SDK", () => {
       knobsSchema: EmptyKnobsSchema,
       public: publicSchema,
       compile: ({ config }) => ({ alpha: { value: config.climate } }),
-      steps: [step],
+      steps: [step, beta],
     });
     const props = (stage.surfaceSchema as any).properties as Record<string, unknown>;
     expect(props).toHaveProperty("knobs");
     expect(props).toHaveProperty("climate");
     expect(props).not.toHaveProperty("alpha");
+    expect(stage.authoring.config.layer).toBe("semantic-public-config");
+    expect(stage.authoring.config.schema).toBe(stage.surfaceSchema);
+    expect(stage.authoring.config.focusPathsByStepId).toEqual({
+      alpha: [],
+      beta: ["beta"],
+    });
+    expect(stage.authoring.runtime.steps).toEqual([
+      { stepId: "alpha" },
+      { stepId: "beta" },
+    ]);
 
     const internal = stage.toInternal({ env: {}, stageConfig: { knobs: {}, climate: 2 } });
     expect(internal.rawSteps).toEqual({ alpha: { value: 2 } });
+  });
+
+  it("derives recipe schemas from explicit stage public surfaces, not internal op envelopes", () => {
+    const op = defineOp({
+      kind: "compute",
+      id: "test/op/private-envelope",
+      input: Type.Object({}, { additionalProperties: false }),
+      output: Type.Object({}, { additionalProperties: false }),
+      strategies: {
+        default: Type.Object(
+          { internalRate: Type.Number({ default: 1 }) },
+          { additionalProperties: false, default: {} }
+        ),
+      },
+    } as const);
+    const step = createStep(
+      defineStep({
+        id: "internal-step",
+        phase: "foundation",
+        requires: [],
+        provides: [],
+        ops: { privateOp: op },
+        schema: Type.Object({}, { additionalProperties: false }),
+      }),
+      { run: () => {} }
+    );
+    const stage = createStage({
+      id: "foundation",
+      knobsSchema: EmptyKnobsSchema,
+      public: Type.Object(
+        { productRate: Type.Number({ default: 1 }) },
+        { additionalProperties: false, default: {} }
+      ),
+      compile: ({ config }) => ({
+        "internal-step": {
+          privateOp: { strategy: "default", config: { internalRate: config.productRate } },
+        },
+      }),
+      steps: [step],
+    });
+
+    const stageProps = ((deriveRecipeConfigSchema([stage]) as any).properties.foundation as any)
+      .properties as Record<string, unknown>;
+
+    expect(stageProps).toHaveProperty("knobs");
+    expect(stageProps).toHaveProperty("productRate");
+    expect(stageProps).not.toHaveProperty("internal-step");
+    expect(JSON.stringify(stageProps)).not.toContain("privateOp");
+    expect(JSON.stringify(stageProps)).not.toContain("strategy");
   });
 
   it("createStage rejects reserved knobs key in steps or public schema", () => {

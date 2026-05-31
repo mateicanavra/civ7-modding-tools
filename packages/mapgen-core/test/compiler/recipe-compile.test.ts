@@ -97,6 +97,78 @@ describe("compileRecipeConfig", () => {
     });
   });
 
+  it("compiles public stage config into internal step op envelopes", () => {
+    const op = defineOp({
+      kind: "plan",
+      id: "test/public-boundary-op",
+      input: Type.Object({}, { additionalProperties: false }),
+      output: Type.Object({}, { additionalProperties: false }),
+      strategies: {
+        default: Type.Object(
+          { internalRate: Type.Number({ default: 1 }) },
+          { additionalProperties: false, default: {} }
+        ),
+      },
+    } as const);
+
+    const stage = {
+      id: "stage",
+      surfaceSchema: Type.Object(
+        {
+          knobs: Type.Optional(Type.Object({}, { additionalProperties: false, default: {} })),
+          productRate: Type.Optional(Type.Number({ default: 2 })),
+        },
+        { additionalProperties: false, default: {} }
+      ),
+      toInternal: ({ stageConfig }: { stageConfig: { productRate?: number } }) => ({
+        knobs: {},
+        rawSteps: {
+          alpha: {
+            terrain: {
+              strategy: "default",
+              config: { internalRate: stageConfig.productRate ?? 2 },
+            },
+          },
+        },
+      }),
+      steps: [
+        {
+          contract: {
+            id: "alpha",
+            schema: Type.Object(
+              { terrain: op.config },
+              { additionalProperties: false, default: {} }
+            ),
+            ops: { terrain: op },
+          },
+        },
+      ],
+    };
+
+    const result = compileRecipeConfig({
+      env: {},
+      recipe: { stages: [stage] },
+      config: { stage: { productRate: 4 } },
+      compileOpsById: {
+        [op.id]: {
+          id: op.id,
+          normalize: (envelope: unknown) => envelope,
+        } as DomainOpCompileAny,
+      },
+    });
+
+    expect(result).toEqual({
+      stage: {
+        alpha: {
+          terrain: {
+            strategy: "default",
+            config: { internalRate: 4 },
+          },
+        },
+      },
+    });
+  });
+
   it("rejects unknown step ids returned by stage compilation", () => {
     const stage = {
       id: "stage",

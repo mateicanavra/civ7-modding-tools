@@ -1,3 +1,13 @@
 export * from "./shared/knobs.js";
 export * from "./shared/knob-multipliers.js";
+export { ReliefConfigSchema } from "./ops/compute-base-topography/config.js";
+export { CoastConfigSchema } from "./ops/compute-coastline-metrics/config.js";
+export { GeomorphicCycleConfigSchema } from "./ops/compute-geomorphic-cycle/config.js";
+export { HypsometryConfigSchema } from "./ops/compute-sea-level/config.js";
+export { IslandChainsConfigSchema, IslandsConfigSchema } from "./ops/plan-island-chains/config.js";
+export { MountainsConfigSchema } from "./ops/mountains-shared/config.js";
+export { SubstrateConfigSchema } from "./ops/compute-substrate/contract.js";
+export { LandmaskConfigSchema } from "./ops/compute-landmask/contract.js";
+export { ShelfMaskConfigSchema } from "./ops/compute-shelf-mask/contract.js";
+export { VolcanoesConfigSchema } from "./ops/plan-volcanoes/config.js";
 export { assertSameMountainFamilySelection } from "./ops/mountains-shared/config.js";

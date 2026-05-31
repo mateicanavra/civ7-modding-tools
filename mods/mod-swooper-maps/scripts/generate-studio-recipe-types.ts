@@ -7,8 +7,10 @@ import type { TObject, TSchema } from "typebox";
 import {
   derivePresetLabel,
   deriveRecipeConfigSchema,
+  deriveStageAuthoringModel,
   stripSchemaMetadataRoot,
   type RecipePresetDefinitionV1,
+  type StageAuthoringModel,
 } from "@swooper/mapgen-core/authoring";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import { validateCanonicalMapConfig } from "../src/maps/configs/canonical.js";
@@ -33,12 +35,6 @@ function isPlainObject(value: unknown): value is JsonObject {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }
 
-function typeboxObjectProperties(schema: unknown): Record<string, unknown> {
-  if (!schema || typeof schema !== "object") return {};
-  const props = (schema as { properties?: unknown }).properties;
-  return isPlainObject(props) ? props : {};
-}
-
 function stableJson(value: unknown): JsonObject {
   const text = JSON.stringify(value);
   if (!text) throw new Error("schema is not JSON-serializable");
@@ -53,6 +49,7 @@ type StageLike = Readonly<{
   steps: readonly Readonly<{ contract: Readonly<{ id: string; schema: TSchema }> }>[];
   public?: TObject;
   surfaceSchema: TObject;
+  authoring: StageAuthoringModel;
   toInternal: (args: { env: unknown; stageConfig: unknown }) => { rawSteps: Record<string, unknown> };
 }>;
 
@@ -101,21 +98,7 @@ function deriveStageStepConfigFocusMap(args: {
   stage: StageLike;
 }): Readonly<Record<string, readonly string[]>> {
   const { stage } = args;
-  const stepIds = stage.steps.map((s) => s.contract.id);
-
-  if (!stage.public) {
-    return Object.fromEntries(stepIds.map((stepId) => [stepId, [stepId]])) as Record<
-      string,
-      readonly string[]
-    >;
-  }
-
-  const publicProps = typeboxObjectProperties(stage.public);
-  return Object.fromEntries(
-    stepIds
-      .filter((stepId) => Object.prototype.hasOwnProperty.call(publicProps, stepId))
-      .map((stepId) => [stepId, [stepId]])
-  ) as Record<string, readonly string[]>;
+  return deriveStageAuthoringModel(stage).config.focusPathsByStepId;
 }
 
 function readPresetWrapper(args: {
@@ -299,22 +282,20 @@ function deriveStudioRecipeUiMeta(args: {
       const stageId = stage.id;
       const stageLabel = STAGE_LABEL_OVERRIDES[stageId] ?? formatKebabIdLabel(stageId);
       const stepFocus = deriveStageStepConfigFocusMap({ namespace, recipeId, stage });
+      const authoring = deriveStageAuthoringModel(stage);
       return {
         stageId,
         stageLabel,
-        steps: stage.steps.flatMap((s) => {
-          const stepId = s.contract.id;
-          const configFocusPathWithinStage = stepFocus[stepId];
-          if (!configFocusPathWithinStage) {
-            return [];
-          }
+        steps: authoring.runtime.steps.map((s) => {
+          const stepId = s.stepId;
+          const configFocusPathWithinStage = stepFocus[stepId] ?? [];
           const stepLabel = STEP_LABEL_OVERRIDES[stepId] ?? formatKebabIdLabel(stepId);
-          return [{
+          return {
             stepId,
             stepLabel,
             fullStepId: `${namespace}.${recipeId}.${stageId}.${stepId}`,
             configFocusPathWithinStage,
-          }];
+          };
         }),
       };
     }),

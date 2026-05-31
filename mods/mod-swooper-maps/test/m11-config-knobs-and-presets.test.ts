@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { stableStringify } from "@swooper/mapgen-core";
 import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
+import { RecipeCompileError } from "@swooper/mapgen-core/compiler/recipe-compile";
 
 import standardRecipe, { STANDARD_STAGES } from "../src/recipes/standard/recipe.js";
 
@@ -58,67 +59,39 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
       },
       "morphology-coasts": {
         knobs: { seaLevel: "water-heavy", coastRuggedness: "rugged" },
-        "landmass-plates": {
-          seaLevel: { strategy: "default", config: { targetWaterPercent: 60 } },
-        },
-        "rugged-coasts": {
-          coastlines: {
-            strategy: "default",
-            config: {
-              coast: {
-                plateBias: {
-                  threshold: 0.4,
-                  power: 1.4,
-                  convergent: 2.2,
-                  transform: 0.3,
-                  divergent: -0.3,
-                  interior: 0.5,
-                  bayWeight: 1.0,
-                  bayNoiseBonus: 0.6,
-                  fjordWeight: 0.7,
-                },
-                bay: { noiseGateAdd: 0, rollDenActive: 4, rollDenDefault: 5 },
-                fjord: { baseDenom: 12, activeBonus: 1, passiveBonus: 2 },
-              },
-            },
+        waterCoverage: { targetWaterPercent: 60 },
+        coastlineShape: {
+          plateBias: {
+            threshold: 0.4,
+            power: 1.4,
+            convergent: 2.2,
+            transform: 0.3,
+            divergent: -0.3,
+            interior: 0.5,
+            bayWeight: 1.0,
+            bayNoiseBonus: 0.6,
+            fjordWeight: 0.7,
           },
+          bay: { noiseGateAdd: 0, rollDenActive: 4, rollDenDefault: 5 },
+          fjord: { baseDenom: 12, activeBonus: 1, passiveBonus: 2 },
         },
       },
       "morphology-erosion": {
         knobs: { erosion: "high" },
-        geomorphology: {
+        geomorphicCycle: {
           geomorphology: {
-            strategy: "default",
-            config: {
-              geomorphology: {
-                fluvial: { rate: 0.2, m: 0.5, n: 1.0 },
-                diffusion: { rate: 0.2, talus: 0.5 },
-                deposition: { rate: 0.1 },
-                eras: 2,
-              },
-              worldAge: "mature",
-            },
+            fluvial: { rate: 0.2, m: 0.5, n: 1.0 },
+            diffusion: { rate: 0.2, talus: 0.5 },
+            deposition: { rate: 0.1 },
+            eras: 2,
           },
+          worldAge: "mature",
         },
       },
       "morphology-features": {
         knobs: { volcanism: "high", orogeny: "high" },
-        mountains: {
-          ridges: {
-            strategy: "default",
-            config: { tectonicIntensity: 1.0, mountainThreshold: 0.6, hillThreshold: 0.35 },
-          },
-          foothills: {
-            strategy: "default",
-            config: { tectonicIntensity: 1.0, mountainThreshold: 0.6, hillThreshold: 0.35 },
-          },
-        },
-        volcanoes: {
-          volcanoes: {
-            strategy: "default",
-            config: { baseDensity: 0.01, hotspotWeight: 0.12, convergentMultiplier: 2.4 },
-          },
-        },
+        mountainRanges: { tectonicIntensity: 1.0, mountainThreshold: 0.6, hillThreshold: 0.35 },
+        volcanoes: { baseDensity: 0.01, hotspotWeight: 0.12, convergentMultiplier: 2.4 },
       },
       "map-morphology": {},
     });
@@ -225,7 +198,7 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
     expect(stableStringify(first.foundation)).toBe(stableStringify(second.foundation));
   });
 
-  it("rejects divergent ridge/foothill mountain-family configs", () => {
+  it("rejects stale internal ridge/foothill mountain-family config on the public surface", () => {
     expect(() =>
       standardRecipe.compileConfig(env, {
         "morphology-features": {
@@ -241,6 +214,6 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
           },
         },
       })
-    ).toThrow(/Mountain-family config requires identical ridge\/foothill config/);
+    ).toThrow(RecipeCompileError);
   });
 });

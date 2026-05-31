@@ -1,6 +1,6 @@
 import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
 
-const LandmaskConfigSchema = Type.Object(
+export const LandmaskConfigSchema = Type.Object(
   {
     continentPotentialGrain: Type.Integer({
       default: 4,

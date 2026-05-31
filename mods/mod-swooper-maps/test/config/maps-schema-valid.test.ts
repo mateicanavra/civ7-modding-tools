@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
-import { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
+import standardRecipe, { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
 import {
   validateCanonicalMapConfig,
   type CanonicalMapConfigEnvelope,
@@ -20,6 +20,47 @@ const shippedMapConfigs = [
   ["swooper-earthlike.config.json", swooperEarthlikeConfig],
 ] as const satisfies readonly (readonly [string, CanonicalMapConfigEnvelope])[];
 
+const MORPHOLOGY_PUBLIC_KEYS: Record<string, readonly string[]> = {
+  "morphology-coasts": [
+    "knobs",
+    "substrate",
+    "relief",
+    "waterCoverage",
+    "continents",
+    "coastlineShape",
+    "shelf",
+  ],
+  "morphology-routing": ["knobs"],
+  "morphology-erosion": ["knobs", "geomorphicCycle"],
+  "morphology-features": ["knobs", "islandChains", "mountainRanges", "volcanoes"],
+};
+
+const MORPHOLOGY_INTERNAL_STAGE_KEYS = [
+  "landmass-plates",
+  "rugged-coasts",
+  "routing",
+  "geomorphology",
+  "islands",
+  "mountains",
+  "landmasses",
+];
+
+function stageProps(schema: unknown, stageId: string): Record<string, unknown> {
+  const stage = (schema as { properties?: Record<string, { properties?: Record<string, unknown> }> })
+    .properties?.[stageId];
+  return stage?.properties ?? {};
+}
+
+function hasRawOpEnvelope(value: unknown): boolean {
+  if (!value || typeof value !== "object") return false;
+  if (Array.isArray(value)) return value.some(hasRawOpEnvelope);
+  const obj = value as Record<string, unknown>;
+  if (Object.prototype.hasOwnProperty.call(obj, "strategy") && Object.prototype.hasOwnProperty.call(obj, "config")) {
+    return true;
+  }
+  return Object.values(obj).some(hasRawOpEnvelope);
+}
+
 describe("Shipped map configs", () => {
   it("stay canonical, complete, and schema-valid (prevents Civ pipeline compile failures)", () => {
     const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
@@ -33,6 +74,52 @@ describe("Shipped map configs", () => {
       });
       expect(validated.id).toBe(fileName.replace(/\.config\.json$/, ""));
     }
+  });
+
+  it("exposes Morphology public schema keys instead of internal step/op envelope paths", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+
+    for (const [stageId, expectedKeys] of Object.entries(MORPHOLOGY_PUBLIC_KEYS)) {
+      const props = stageProps(schema, stageId);
+      expect(Object.keys(props).sort()).toEqual([...expectedKeys].sort());
+      for (const internalKey of MORPHOLOGY_INTERNAL_STAGE_KEYS) {
+        expect(props).not.toHaveProperty(internalKey);
+      }
+      expect(JSON.stringify(props)).not.toContain("\"strategy\"");
+      expect(JSON.stringify(props)).not.toContain("\"config\"");
+    }
+  });
+
+  it("keeps shipped Morphology configs on the semantic public surface", () => {
+    for (const [, raw] of shippedMapConfigs) {
+      for (const [stageId, expectedKeys] of Object.entries(MORPHOLOGY_PUBLIC_KEYS)) {
+        const stageConfig = (raw.config as Record<string, Record<string, unknown>>)[stageId] ?? {};
+        for (const key of Object.keys(stageConfig)) {
+          expect(expectedKeys).toContain(key);
+        }
+        expect(hasRawOpEnvelope(stageConfig)).toBe(false);
+      }
+    }
+  });
+
+  it("compiles public Morphology config to internal executable step/op envelopes", () => {
+    const compiled = standardRecipe.compileConfig(
+      {
+        seed: 123,
+        dimensions: { width: 80, height: 60 },
+        latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+      },
+      swooperEarthlikeConfig.config
+    ) as any;
+
+    expect(compiled["morphology-coasts"]["landmass-plates"].seaLevel.strategy).toBe("default");
+    expect(compiled["morphology-coasts"]["rugged-coasts"].coastlines.strategy).toBe("default");
+    expect(compiled["morphology-routing"].routing.routing.strategy).toBe("default");
+    expect(compiled["morphology-erosion"].geomorphology.geomorphology.strategy).toBe("default");
+    expect(compiled["morphology-features"].islands.islands.strategy).toBe("default");
+    expect(compiled["morphology-features"].mountains.ridges.strategy).toBe("default");
+    expect(compiled["morphology-features"].mountains.foothills.strategy).toBe("default");
+    expect(compiled["morphology-features"].volcanoes.volcanoes.strategy).toBe("default");
   });
 
   it("rejects legacy map-morphology alias keys", () => {
