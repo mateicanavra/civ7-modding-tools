@@ -30,8 +30,8 @@ Every agent prompt should include:
 
 ## Evidence Wave Examples
 
-- Session-method extractor: derives workflow primitives from transcript and
-  durable records.
+For a domain workstream, the standing evidence lanes are:
+
 - Corpus researcher: enumerates official/local entities, action surfaces, and
   uncertainty.
 - Physical expectation researcher: proposes ranges and evidence strength.
@@ -40,6 +40,10 @@ Every agent prompt should include:
 - Stats/proof designer: identifies deterministic gates and runtime telemetry.
 - Future-use stress tester: checks that the method applies beyond the seed
   domain.
+
+(One-off bootstrap lane, used only when authoring or revising this skill itself:
+a session-method extractor that derives workflow primitives from a prior
+transcript and durable records. Not a standing lane for domain workstreams.)
 
 ## Review Lanes
 
