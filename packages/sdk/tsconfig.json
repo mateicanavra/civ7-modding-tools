@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "baseUrl": ".",
     "strict": false,
     "noImplicitAny": false,
     "declaration": true,
@@ -9,10 +10,15 @@
     "rootDir": "src",
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "paths": {
+      "@civ7/adapter": ["../civ7-adapter/dist/index.d.ts"],
+      "@civ7/adapter/civ7": ["../civ7-adapter/dist/civ7-adapter.d.ts"],
+      "@swooper/mapgen-core": ["../mapgen-core/dist/index.d.ts"],
+      "@swooper/mapgen-core/authoring": ["../mapgen-core/dist/authoring/index.d.ts"]
+    },
     "noEmit": false,
     "composite": false,
     "incremental": false
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "../civ7-types/index.d.ts"]
 }
-
