@@ -9,7 +9,7 @@
   `codex/morphology-terrain-handoff-reference`
 - Started: 2026-05-31
 - Status: source/mock implementation and Studio lane verification complete;
-  live proof currently blocked by LSQ timeout
+  repeatable live proof gate added; live proof currently blocked by LSQ timeout
 
 ## Objective
 
@@ -98,8 +98,9 @@
   `openspec/changes/studio-live-civ7-map-sync`, plus
   `openspec/changes/workspace-build-pipeline`.
 - Tasks: source/mock implementation complete for direct-control setup, Studio
-  Run in Game, live read endpoints, Swooper proof metadata, and Turbo lane
-  verification. Live mutation proof tasks remain gated by LSQ recovery.
+  Run in Game, live read endpoints, Swooper proof metadata, Turbo lane
+  verification, and a root live-proof gate. Live mutation proof tasks remain
+  gated by LSQ recovery.
 - Validation status: all four OpenSpec changes pass strict validation.
 
 ## Review
@@ -111,7 +112,8 @@
 - Accepted findings repaired: OpenSpec contracts now cover the discovery
   agents' P1/P2 findings. Build-pipeline review found root check was already
   graph-safe; root tests and the Studio lane verifier now use Turbo graph
-  ordering.
+  ordering. Runtime proof now has a repeatable root command instead of ad hoc
+  socket probes.
 - Rejected/invalidated/waived/deferred findings: none yet.
 
 ## Agent Fleet State
@@ -145,17 +147,20 @@
   `bunx turbo run test:architecture-cutover --filter=mod-swooper-maps --dry=json`,
   `bun run --cwd mods/mod-swooper-maps test -- test/standard-run.test.ts`,
   `bunx turbo run test --filter=mapgen-studio`, and
-  `bun run verify:studio-run-in-game`.
+  `bun run verify:studio-run-in-game`,
+  `bun run verify:studio-run-in-game:live -- --timeout-ms 3000`.
 - Results: stack is linear with this branch at top; Turbo dry-runs show Swooper
   check/test/focused architecture tests build SDK/adapter/mapgen dependencies;
   Studio lane verifier is green; all four OpenSpec changes pass strict
-  validation.
+  validation. The live proof command is wired and ran read-only, but currently
+  fails at health because Civ times out waiting for `LSQ:`.
 - Skipped gates and rationale: live setup/start proof is blocked by LSQ
   timeout. The broad `mod-swooper-maps#test` suite remains red in unrelated
   morphology/ecology lanes, so the Studio lane verifier uses focused Swooper
   tests for map config/runtime import/canonical recipe execution.
 - Evidence boundary: setup/start from shell and reload semantics are not yet
-  live-proven in this phase; LSQ timeout is recorded in `live-proof-ledger.md`.
+  live-proven in this phase; repeated LSQ timeout is recorded in
+  `live-proof-ledger.md`.
 
 ## Realignment
 
@@ -169,7 +174,8 @@
 
 ## Next Action
 
-- Exact next step: commit/stack cleanup, then re-run live setup/start proof
+- Exact next step: commit/stack cleanup, then re-run
+  `bun run verify:studio-run-in-game:live -- --mutate --map-script <file> --map-size <size> --seed <seed> --from-running-game exit-to-shell`
   once LSQ recovers.
 - First files to edit: none before live proof unless verification finds a
   regression.

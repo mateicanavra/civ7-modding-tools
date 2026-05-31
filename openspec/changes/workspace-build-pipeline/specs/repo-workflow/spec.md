@@ -23,6 +23,29 @@ task graph.
 - **AND** Vitest projects previously covered by the root Vitest config remain
   covered by package-local test scripts
 
+### Requirement: Repo Provides Explicit Live Runtime Proof Gate
+
+The repository SHALL expose a separate root command for Studio Run in Game live
+runtime proof that does not run as part of default CI.
+
+#### Scenario: Developer checks live readiness without mutation
+- **WHEN** a developer runs the live proof command without mutation flags
+- **THEN** the command checks direct-control health through `LSQ:`
+- **AND** it attempts setup snapshot and optional map row reads only after
+  health succeeds
+- **AND** it emits structured proof output with a proof id, stage list, and
+  failure stage
+- **AND** no setup/start mutation is attempted
+
+#### Scenario: Developer explicitly runs setup/start proof
+- **WHEN** a developer runs the live proof command with mutation approval flags
+- **THEN** the command requires map script, map size, and setup seed inputs
+- **AND** it calls `@civ7/direct-control` setup/start wrappers rather than raw
+  socket commands
+- **AND** it records whether preparation, start, and post-start verification
+  succeeded
+- **AND** failed live readiness does not replay mutating commands
+
 ### Requirement: Package Checks Do Not Rely On Stale Generated Dependencies
 
 The Turbo graph SHALL encode generated/build prerequisites for package checks

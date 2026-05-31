@@ -21,6 +21,10 @@ output in `dist/mapgen/index.d.ts` has not been rebuilt yet.
   full Vite bundle every time.
 - Add package-local Vitest scripts for projects previously covered only by the
   root Vitest project config.
+- Add a separate live-proof command for the Studio Run in Game lane so runtime
+  evidence is collected through a repeatable gate instead of ad hoc socket
+  probes. This command is intentionally outside the default CI verifier because
+  it depends on a running Civ7 process.
 
 ## Requires
 
@@ -34,8 +38,10 @@ output in `dist/mapgen/index.d.ts` has not been rebuilt yet.
 - `apps/mapgen-studio/package.json`
 - `mods/mod-swooper-maps/package.json`
 - `packages/config/package.json`
+- `scripts/civ7-direct-control/**`
 
 ## Verification Gates
 
 - `bun run verify:studio-run-in-game`
+- `bun run verify:studio-run-in-game:live -- --timeout-ms 3000`
 - OpenSpec validation.

@@ -7,6 +7,31 @@ this ledger for observations that depend on a running Civ7 instance.
 
 ## Entries
 
+### 2026-05-31 Repeatable Live Gate Still Blocked At LSQ
+
+- Proof id: `studio-run-in-game-live-proof-mpud0vii-1jhd`
+- Status: failed / blocker for live mutation proof.
+- Operator: Codex.
+- Branch: `codex/studio-run-in-game-workstream`.
+- Command:
+  `bun run verify:studio-run-in-game:live -- --timeout-ms 3000`.
+- Mode: read-only.
+- Mutation attempted: false.
+- Evidence:
+  - `lsof -nP -iTCP:4318 -sTCP:LISTEN` still shows `Civilizat` listening on
+    `*:4318`.
+  - The live proof command reached the health stage and returned
+    `all-hosts-unavailable`.
+  - The nested socket error was `Timed out waiting for Civ7 tuner response to
+    LSQ:` for `127.0.0.1`.
+  - Because health failed, the command did not attempt setup snapshot, map row,
+    prepare, start, or return-to-shell mutations.
+- Mutation replay count: 0.
+- Verdict: the live proof process is now repeatable, but the setup/start parity
+  claim remains unproven until Civ responds to `LSQ:` and the same command can
+  advance through setup snapshot, map row proof, prepare/start, Tuner health,
+  map summary, and Swooper log/hash proof.
+
 ### 2026-05-31 LSQ Timeout After Return-To-Shell Probe
 
 - Proof id: `studio-run-in-game-lsq-timeout-2026-05-31`

@@ -11,6 +11,8 @@
   package-local focused script.
 - [x] 1.7 Add a focused Swooper Maps Studio Run in Game test task for the
   lane verifier.
+- [x] 1.8 Add a separate live runtime proof command that defaults to read-only
+  LSQ/setup probes and requires explicit mutation flags for setup/start.
 
 ## 2. Verification
 
@@ -18,3 +20,5 @@
   `mod-swooper-maps#test`.
 - [x] 2.1 Run `bun run verify:studio-run-in-game`.
 - [x] 2.2 Run `bun run openspec -- validate workspace-build-pipeline --strict`.
+- [x] 2.3 Run `bun run verify:studio-run-in-game:live -- --timeout-ms 3000`
+  and record the current LSQ blocker without attempting mutation.

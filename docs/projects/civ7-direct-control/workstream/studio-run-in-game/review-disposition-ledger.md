@@ -12,6 +12,7 @@
 | SRIG-P2-001 | P2 | `agent-live-sync.md` | Runtime sync must be observational and stored outside `pipelineConfig`. | Accepted. Covered by `studio-live-civ7-map-sync` store/safety tasks. |
 | SRIG-P2-002 | P2 | `agent-build-pipeline.md` | Root check was graph-safe, but root test/CI lanes hand-coded package order and could miss SDK declaration rebuilds before Swooper/Studio tests. | Accepted. Root test entrypoints now run through Turbo; Studio lane verifier has explicit build/check/test graph coverage and focused Swooper runtime tests. |
 | SRIG-P2-003 | P2 | verification | Canonical Swooper map envelopes were being passed to recipe execution helpers that expect the nested recipe config. | Accepted. Test/dev helpers now cross the envelope boundary through `canonicalRecipeConfig`. |
+| SRIG-P2-004 | P2 | verification | Live setup/start proof was still an ad hoc owner probe, making repeated LSQ failures harder to compare. | Accepted. Added `verify:studio-run-in-game:live`, a read-only-by-default live proof gate with explicit mutation flags and structured stage output. |
 
 ## Current Blockers
 
