@@ -49,7 +49,8 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
 - Use `bun` workspace scripts for build, type‑checks, lint, and tests unless a closer `AGENTS.md` says otherwise.
 - Prefer root `turbo`-orchestrated scripts (via `turbo run ...` / root `package.json` scripts) for cross-workspace workflows (apps, multi-package builds).
 - Use package scripts (`bun run --cwd <path> <script>`) for package-local tasks.
-- FireTuner bridge commands appended by agents must include `AGENT=<agent-name>`; bridge scripts and Windows command wrappers parse that field and include it in audit log entries for restart/runtime coordination.
+- Runtime Civ7 control belongs in `@civ7/direct-control`; agents should not
+  add alternate runtime transports or caller-local control scripts.
 
 ## Civ7 Resources
 

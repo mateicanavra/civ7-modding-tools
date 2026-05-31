@@ -53,9 +53,17 @@ This document orients AI agents and contributors to the `@civ7-modding/cli` pack
   - Flags: `--config`
   - Example: `civ7 data unzip default ./resources.zip ./resources`
 
-- **game restart**: Request a fresh Civ7 restart through the FireTuner bridge.
-  - Flags: `--agent`, `--bridge-log`, `--request-id`, `--wait`, `--timeout-ms`, `--json`, `--dry-run`
-  - Example: `civ7 game restart --agent Codex --wait`
+- **game restart**: Request a fresh Civ7 restart through the canonical direct
+  tuner-socket control package.
+  - Flags: `--agent`, `--host`, `--port`, `--state`, `--request-id`,
+    `--wait`, `--begin`, `--wait-tuner`, `--timeout-ms`, `--json`, `--dry-run`
+  - Example: `civ7 game restart --agent Codex --begin --wait-tuner`
+- **game exec**: Run a JavaScript command against a selected Civ7 tuner state
+  through the direct-control package.
+  - Example: `civ7 game exec "1+1" --json`
+- **game health**: Check direct-control readiness and list available tuner
+  states.
+  - Example: `civ7 game health --tuner --json`
 
 Tip: All commands support `--help` via oclif.
 Status-style commands (e.g., `git status`, `mod status`) also accept `--json` for machine-readable output.
@@ -103,7 +111,7 @@ Status-style commands (e.g., `git status`, `mod status`) also accept `--json` fo
 ### Code structure (key paths)
 
  - `src/base/` & `src/base/subtree/` — abstract oclif commands for git subtree flows (configure, import, push, pull, setup). Domain commands extend these to supply prefixes and defaults.
- - `src/commands/` — oclif commands grouped by topic: `data/` (crawl, explore, render, slice, zip, unzip), `docs/`, `game/` (running-session helpers such as FireTuner restart requests), `git/subtree/` for git subtree helpers, and `mod/` (`git/` hosts subtree operations like `clear`, `list`, `remove`, `update`, `setup`, `import`, `pull`, `push`, `status` with aliases `link:*`, and `manage/` for local utilities)
+ - `src/commands/` — oclif commands grouped by topic: `data/` (crawl, explore, render, slice, zip, unzip), `docs/`, `game/` (running-session helpers that call `@civ7/direct-control` for direct Civ7 control), `git/subtree/` for git subtree helpers, and `mod/` (`git/` hosts subtree operations like `clear`, `list`, `remove`, `update`, `setup`, `import`, `pull`, `push`, `status` with aliases `link:*`, and `manage/` for local utilities)
  - `src/utils/` — config/path resolution helpers; generic git helpers (configureRemote, importSubtree, pushSubtree, pullSubtree, logRemotePushConfig, findRemoteNameForSlug/requireRemoteNameForSlug, resolveBranch/requireBranch, isNonEmptyDir) live in `utils/git.ts` and centralize logging, argument defaults, and remote/branch inference for git operations
  - Subtree command classes expose only the flags they consume; `repoUrl` is required only for `update`, `import`, and `setup` flows, while `push`/`pull` rely on saved config.
  - `repoUrl` or missing `slug` values may be provided interactively when running subtree commands; a `prerun` hook prompts for them in a TTY if omitted.

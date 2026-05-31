@@ -45,8 +45,8 @@ for divergence.
 Runtime balance proof SHALL record repeated product-relevant map rolls, not only
 successful recipe execution.
 
-#### Scenario: FireTuner restart proof is collected
-- **WHEN** FireTuner submits `Network.restartGame()` for balance closure
+#### Scenario: Direct-control restart proof is collected
+- **WHEN** direct control submits `Network.restartGame()` for balance closure
 - **THEN** the evidence includes the submitted command timestamp, the bounded
   MapGeneration log window, recipe completion, Swooper error scan, and the
   balance telemetry for the generated map

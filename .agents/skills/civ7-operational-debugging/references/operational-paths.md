@@ -53,21 +53,17 @@ Common files to inspect:
 Always bound log reads to the action under review. Use file mtimes, a pre-run
 snapshot, or a timestamp marker in the notes before treating a line as current.
 
-## FireTuner Surfaces
+## Direct Tuner Surfaces
 
 | Surface | Location / Command |
 |---|---|
 | Default tuner port | `4318` |
 | macOS listener check | `lsof -nP -iTCP:4318` |
-| Parallels Windows VM metadata | `prlctl list --all --info` |
-| Parallels host bridge | `ifconfig bridge100` |
+| Direct health check | `civ7 game health --json` |
+| Direct command execution | `civ7 game exec "1+1" --json` |
+| Direct restart | `civ7 game restart --agent Codex --wait` |
 | Installed Civ7 tuner panels | `<Steam Civ7 install>/Base/Platforms/Windows/Config/TunerPanels/` |
-| Windows FireTuner bridge command log | `Z:\Sid Meier's Civilization VII Development Tools\Comms\civ7-firetuner-bridge.append-only.log` |
 
 The repo resource mirror may not contain installed-game `TunerPanels`. Prefer
 official resources in `.civ7/outputs/resources/` when present, and inspect the
 installed game path only as runtime/resource evidence.
-
-FireTuner bridge instructions appended to the Windows command log must include
-`AGENT=<agent-name>`. The bridge audit log must preserve that agent name for
-restart and runtime command entries.

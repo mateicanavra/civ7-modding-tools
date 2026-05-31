@@ -27,6 +27,11 @@ export default defineConfig({
       },
       {
         extends: true,
+        root: r('packages/civ7-direct-control'),
+        test: { name: 'civ7-direct-control' }
+      },
+      {
+        extends: true,
         root: r('packages/sdk'),
         test: { name: 'sdk' }
       },

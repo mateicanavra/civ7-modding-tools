@@ -19,6 +19,7 @@ packages/           # Core libraries
 ├── sdk/            # TypeScript SDK (@civ7/sdk)
 ├── cli/            # Command-line tools (@civ7/cli)
 ├── config/         # Shared configuration (@civ7/config)
+├── civ7-direct-control/ # Direct tuner-socket control API (@civ7/direct-control)
 └── plugins/        # Reusable plugins
     ├── plugin-files/   # Zip/unzip utilities
     ├── plugin-graph/   # XML graph crawling
@@ -46,6 +47,9 @@ mods/               # Colocated mods
 1. **Game resources** extracted via CLI (`civ7 unzip`) → `.civ7/outputs/`
 2. **SDK** consumes game constants and generates mod XML
 3. **Mods** build to `./mod/` directories for game installation
+4. **Direct control** sends developer commands to a running Civ7 tuner socket;
+   CLI, Studio, and future tools call `@civ7/direct-control` instead of owning
+   socket framing or runtime transport behavior locally.
 
 ## Component Documentation
 
