@@ -4,7 +4,8 @@
 // This is the default configuration for the map generation pipeline.
 //
 // Backend Engineers: This structure should match your pipeline schema.
-// Each stage contains knobs plus flat step-id config overrides.
+// Each stage contains knobs plus recipe-owned public config groups or internal
+// step-id config where a stage has no public surface.
 // ============================================================================
 
 import type { PipelineConfig } from "../types";
@@ -15,12 +16,6 @@ export const defaultConfig: PipelineConfig = {
   // Creates the base mesh, crust, and tectonic structure
   // ============================================================================
   foundation: {
-    version: 1,
-    profiles: {
-      resolutionProfile: "balanced",
-      lithosphereProfile: "maximal-basaltic-lid-v1",
-      mantleProfile: "maximal-potential-v1",
-    },
     knobs: {
       plateCount: 28,
       plateActivity: 0.5,

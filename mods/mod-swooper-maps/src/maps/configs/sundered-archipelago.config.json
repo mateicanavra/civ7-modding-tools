@@ -7,168 +7,85 @@
   "sortIndex": 503,
   "config": {
     "foundation": {
-      "mesh": {
-        "computeMesh": {
-          "strategy": "default",
-          "config": {
-            "plateCount": 42,
-            "cellsPerPlate": 2,
-            "referenceArea": 4000,
-            "plateScalePower": 0.5,
-            "relaxationSteps": 2,
-            "cellCount": 84
-          }
+      "meshResolution": {
+        "plateCount": 42,
+        "cellsPerPlate": 2,
+        "referenceArea": 4000,
+        "plateScalePower": 0.5,
+        "relaxationSteps": 2
+      },
+      "mantleSources": {
+        "plumeCount": 6,
+        "downwellingCount": 6,
+        "plumeRadius": 0.18,
+        "downwellingRadius": 0.18,
+        "plumeAmplitude": 1,
+        "downwellingAmplitude": -1,
+        "smoothingIterations": 2,
+        "smoothingAlpha": 0.35,
+        "minSeparationScale": 0.85
+      },
+      "mantleForcing": {
+        "velocityScale": 1,
+        "rotationScale": 0.2,
+        "stressNorm": 1,
+        "curvatureWeight": 0.35,
+        "upwellingThreshold": 0.35,
+        "downwellingThreshold": 0.35
+      },
+      "lithosphere": {
+        "basalticThickness01": 0.25,
+        "yieldStrength01": 0.55,
+        "mantleCoupling01": 0.6,
+        "riftWeakening01": 0.35
+      },
+      "platePartition": {
+        "plateCount": 42,
+        "referenceArea": 4000,
+        "plateScalePower": 0.5,
+        "polarCaps": {
+          "capFraction": 0.1,
+          "microplateBandFraction": 0.2,
+          "microplatesPerPole": 0,
+          "microplatesMinPlateCount": 14,
+          "microplateMinAreaCells": 8
         }
       },
-      "mantle-potential": {
-        "computeMantlePotential": {
-          "strategy": "default",
-          "config": {
-            "plumeCount": 6,
-            "downwellingCount": 6,
-            "plumeRadius": 0.18,
-            "downwellingRadius": 0.18,
-            "plumeAmplitude": 1,
-            "downwellingAmplitude": -1,
-            "smoothingIterations": 2,
-            "smoothingAlpha": 0.35,
-            "minSeparationScale": 0.85
-          }
-        }
+      "plateMotion": {
+        "omegaFactor": 1,
+        "plateRadiusMin": 1,
+        "residualNormScale": 1,
+        "p90NormScale": 1,
+        "histogramBins": 32,
+        "smoothingSteps": 0
       },
-      "mantle-forcing": {
-        "computeMantleForcing": {
-          "strategy": "default",
-          "config": {
-            "velocityScale": 1,
-            "rotationScale": 0.2,
-            "stressNorm": 1,
-            "curvatureWeight": 0.35,
-            "upwellingThreshold": 0.35,
-            "downwellingThreshold": 0.35
-          }
-        }
+      "tectonicSegmentation": {
+        "intensityScale": 900,
+        "regimeMinIntensity": 4
       },
-      "crust": {
-        "computeCrust": {
-          "strategy": "default",
-          "config": {
-            "basalticThickness01": 0.25,
-            "yieldStrength01": 0.55,
-            "mantleCoupling01": 0.6,
-            "riftWeakening01": 0.35
-          }
-        }
+      "tectonicEras": {
+        "eraWeights": [
+          0.3,
+          0.25,
+          0.2,
+          0.15,
+          0.1
+        ],
+        "driftStepsByEra": [
+          12,
+          9,
+          6,
+          3,
+          1
+        ]
       },
-      "plate-graph": {
-        "computePlateGraph": {
-          "strategy": "default",
-          "config": {
-            "plateCount": 42,
-            "referenceArea": 4000,
-            "plateScalePower": 0.5,
-            "polarCaps": {
-              "capFraction": 0.1,
-              "microplateBandFraction": 0.2,
-              "microplatesPerPole": 0,
-              "microplatesMinPlateCount": 14,
-              "microplateMinAreaCells": 8
-            }
-          }
-        }
+      "tectonicFields": {
+        "beltInfluenceDistance": 8,
+        "beltDecay": 0.55
       },
-      "plate-motion": {
-        "computePlateMotion": {
-          "strategy": "default",
-          "config": {
-            "omegaFactor": 1,
-            "plateRadiusMin": 1,
-            "residualNormScale": 1,
-            "p90NormScale": 1,
-            "histogramBins": 32,
-            "smoothingSteps": 0
-          }
-        }
-      },
-      "tectonics": {
-        "computePlateMotion": {
-          "strategy": "default",
-          "config": {
-            "omegaFactor": 1,
-            "plateRadiusMin": 1,
-            "residualNormScale": 1,
-            "p90NormScale": 1,
-            "histogramBins": 32,
-            "smoothingSteps": 0
-          }
-        },
-        "computeTectonicSegments": {
-          "strategy": "default",
-          "config": {
-            "intensityScale": 900,
-            "regimeMinIntensity": 4
-          }
-        },
-        "computeEraPlateMembership": {
-          "strategy": "default",
-          "config": {
-            "eraWeights": [
-              0.3,
-              0.25,
-              0.2,
-              0.15,
-              0.1
-            ],
-            "driftStepsByEra": [
-              12,
-              9,
-              6,
-              3,
-              1
-            ]
-          }
-        },
-        "computeSegmentEvents": {
-          "strategy": "default",
-          "config": {}
-        },
-        "computeHotspotEvents": {
-          "strategy": "default",
-          "config": {}
-        },
-        "computeEraTectonicFields": {
-          "strategy": "default",
-          "config": {
-            "beltInfluenceDistance": 8,
-            "beltDecay": 0.55
-          }
-        },
-        "computeTectonicHistoryRollups": {
-          "strategy": "default",
-          "config": {
-            "activityThreshold": 1
-          }
-        },
-        "computeTectonicsCurrent": {
-          "strategy": "default",
-          "config": {}
-        },
-        "computeTracerAdvection": {
-          "strategy": "default",
-          "config": {}
-        },
-        "computeTectonicProvenance": {
-          "strategy": "default",
-          "config": {}
-        }
-      },
-      "crust-evolution": {
-        "computeCrustEvolution": {
-          "strategy": "default",
-          "config": {}
-        }
-      },
-      "plate-topology": {}
+      "tectonicRollups": {
+        "activityThreshold": 1
+      }
     },
     "morphology-coasts": {
       "substrate": {

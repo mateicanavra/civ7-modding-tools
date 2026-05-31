@@ -11,7 +11,8 @@ const StrategySchema = Type.Object(
       default: 1,
       minimum: 0,
       maximum: 10,
-      description: "Scale factor applied to mantle mean speed when clamping angular velocity.",
+      description:
+        "Controls how mantle mean speed scales fitted plate angular velocity.",
     }),
     plateRadiusMin: Type.Number({
       default: 1,
@@ -23,7 +24,8 @@ const StrategySchema = Type.Object(
       default: 1,
       minimum: 0.01,
       maximum: 10,
-      description: "Scale factor applied to mean forcing speed when normalizing residual diagnostics.",
+      description:
+        "Controls mean-forcing normalization for residual diagnostics used to judge plate motion fit.",
     }),
     p90NormScale: Type.Number({
       default: 1,
@@ -41,7 +43,8 @@ const StrategySchema = Type.Object(
       default: 0,
       minimum: 0,
       maximum: 1,
-      description: "Fixed count of smoothing passes applied to the forcing field before fitting (0 or 1).",
+      description:
+        "Controls whether one smoothing pass is applied to the forcing field before plate motion fitting.",
     }),
   },
   { additionalProperties: false }

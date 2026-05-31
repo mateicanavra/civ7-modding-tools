@@ -9,37 +9,43 @@ const StrategySchema = Type.Object(
       default: 1,
       minimum: 0,
       maximum: 5,
-      description: "Scale factor applied to -grad(phi) when constructing the forcing velocity field.",
+      description:
+        "Controls the velocity strength applied to mantle-gradient forcing before plate motion fitting.",
     }),
     rotationScale: Type.Number({
       default: 0.2,
       minimum: 0,
       maximum: 2,
-      description: "Scale factor applied to the rot90(grad(phi)) shear component.",
+      description:
+        "Controls the rotational shear component mixed into the mantle forcing velocity field.",
     }),
     stressNorm: Type.Number({
       default: 1,
       minimum: 1e-3,
       maximum: 10,
-      description: "Normalization factor for stress proxy (grad + curvature).",
+      description:
+        "Sets the normalization factor for stress proxy values consumed by crust and tectonics.",
     }),
     curvatureWeight: Type.Number({
       default: 0.35,
       minimum: 0,
       maximum: 2,
-      description: "Weight for curvature (|laplacian|) contribution to stress.",
+      description:
+        "Controls how much curvature contributes to the mantle stress proxy.",
     }),
     upwellingThreshold: Type.Number({
       default: 0.35,
       minimum: 0,
       maximum: 1,
-      description: "Local-maximum threshold for upwelling classification.",
+      description:
+        "Sets the local-maximum threshold used to classify cells as upwelling sources.",
     }),
     downwellingThreshold: Type.Number({
       default: 0.35,
       minimum: 0,
       maximum: 1,
-      description: "Local-minimum threshold for downwelling classification.",
+      description:
+        "Sets the local-minimum threshold used to classify cells as downwelling sinks.",
     }),
   },
   { additionalProperties: false }

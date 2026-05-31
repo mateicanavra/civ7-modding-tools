@@ -12,6 +12,7 @@ import shatteredRingConfig from "../../src/maps/configs/shattered-ring.config.js
 import sunderedArchipelagoConfig from "../../src/maps/configs/sundered-archipelago.config.json";
 import swooperDesertMountainsConfig from "../../src/maps/configs/swooper-desert-mountains.config.json";
 import swooperEarthlikeConfig from "../../src/maps/configs/swooper-earthlike.config.json";
+import legacyFoundationCompiled from "../fixtures/legacy-foundation-compiled.json";
 
 const shippedMapConfigs = [
   ["shattered-ring.config.json", shatteredRingConfig],
@@ -19,6 +20,33 @@ const shippedMapConfigs = [
   ["swooper-desert-mountains.config.json", swooperDesertMountainsConfig],
   ["swooper-earthlike.config.json", swooperEarthlikeConfig],
 ] as const satisfies readonly (readonly [string, CanonicalMapConfigEnvelope])[];
+
+const FOUNDATION_PUBLIC_KEYS = [
+  "knobs",
+  "meshResolution",
+  "mantleSources",
+  "mantleForcing",
+  "lithosphere",
+  "platePartition",
+  "plateMotion",
+  "tectonicSegmentation",
+  "tectonicEras",
+  "tectonicFields",
+  "tectonicRollups",
+] as const;
+
+const FOUNDATION_INTERNAL_STAGE_KEYS = [
+  "mesh",
+  "mantle-potential",
+  "mantle-forcing",
+  "crust",
+  "plate-graph",
+  "plate-motion",
+  "tectonics",
+  "crust-evolution",
+  "projection",
+  "plate-topology",
+] as const;
 
 const MORPHOLOGY_PUBLIC_KEYS: Record<string, readonly string[]> = {
   "morphology-coasts": [
@@ -61,6 +89,40 @@ function hasRawOpEnvelope(value: unknown): boolean {
   return Object.values(obj).some(hasRawOpEnvelope);
 }
 
+function stable(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(stable);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([key, child]) => [key, stable(child)])
+    );
+  }
+  return value;
+}
+
+function collectMissingDescriptions(schema: unknown, path: string[] = []): string[] {
+  if (!schema || typeof schema !== "object") return [];
+  const node = schema as {
+    description?: unknown;
+    properties?: Record<string, unknown>;
+    items?: unknown;
+    anyOf?: unknown[];
+    oneOf?: unknown[];
+  };
+  const missing: string[] = [];
+  if (path.length > 0 && typeof node.description !== "string") missing.push(path.join("."));
+
+  for (const [key, child] of Object.entries(node.properties ?? {})) {
+    missing.push(...collectMissingDescriptions(child, [...path, key]));
+  }
+  if (node.items) missing.push(...collectMissingDescriptions(node.items, [...path, "items"]));
+  for (const variant of [...(node.anyOf ?? []), ...(node.oneOf ?? [])]) {
+    missing.push(...collectMissingDescriptions(variant, path));
+  }
+  return missing;
+}
+
 describe("Shipped map configs", () => {
   it("stay canonical, complete, and schema-valid (prevents Civ pipeline compile failures)", () => {
     const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
@@ -87,6 +149,44 @@ describe("Shipped map configs", () => {
       }
       expect(JSON.stringify(props)).not.toContain("\"strategy\"");
       expect(JSON.stringify(props)).not.toContain("\"config\"");
+    }
+  });
+
+  it("exposes Foundation public schema keys instead of internal step/op envelope paths", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+    const props = stageProps(schema, "foundation");
+
+    expect(Object.keys(props).sort()).toEqual([...FOUNDATION_PUBLIC_KEYS].sort());
+    for (const internalKey of FOUNDATION_INTERNAL_STAGE_KEYS) {
+      expect(props).not.toHaveProperty(internalKey);
+    }
+    const meshResolutionProps =
+      (props.meshResolution as { properties?: Record<string, unknown> }).properties ?? {};
+    expect(meshResolutionProps).not.toHaveProperty("cellCount");
+    expect(JSON.stringify(props)).not.toContain("\"strategy\"");
+    expect(JSON.stringify(props)).not.toContain("\"config\"");
+  });
+
+  it("documents every Foundation public schema field", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+    const props = stageProps(schema, "foundation");
+    const missing = Object.entries(props).flatMap(([key, child]) =>
+      collectMissingDescriptions(child, ["foundation", key])
+    );
+
+    expect(missing).toEqual([]);
+  });
+
+  it("keeps shipped Foundation configs on the semantic public surface", () => {
+    for (const [, raw] of shippedMapConfigs) {
+      const stageConfig = (raw.config as Record<string, Record<string, unknown>>).foundation ?? {};
+      for (const key of Object.keys(stageConfig)) {
+        expect(FOUNDATION_PUBLIC_KEYS).toContain(key as (typeof FOUNDATION_PUBLIC_KEYS)[number]);
+      }
+      for (const internalKey of FOUNDATION_INTERNAL_STAGE_KEYS) {
+        expect(stageConfig).not.toHaveProperty(internalKey);
+      }
+      expect(hasRawOpEnvelope(stageConfig)).toBe(false);
     }
   });
 
@@ -120,6 +220,47 @@ describe("Shipped map configs", () => {
     expect(compiled["morphology-features"].mountains.ridges.strategy).toBe("default");
     expect(compiled["morphology-features"].mountains.foothills.strategy).toBe("default");
     expect(compiled["morphology-features"].volcanoes.volcanoes.strategy).toBe("default");
+  });
+
+  it("compiles public Foundation config to internal executable step/op envelopes", () => {
+    const compiled = standardRecipe.compileConfig(
+      {
+        seed: 123,
+        dimensions: { width: 80, height: 60 },
+        latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+      },
+      swooperEarthlikeConfig.config
+    ) as any;
+
+    expect(compiled.foundation.mesh.computeMesh.strategy).toBe("default");
+    expect(compiled.foundation["mantle-potential"].computeMantlePotential.strategy).toBe(
+      "default"
+    );
+    expect(compiled.foundation["mantle-forcing"].computeMantleForcing.strategy).toBe("default");
+    expect(compiled.foundation.crust.computeCrust.strategy).toBe("default");
+    expect(compiled.foundation["plate-graph"].computePlateGraph.strategy).toBe("default");
+    expect(compiled.foundation["plate-motion"].computePlateMotion.strategy).toBe("default");
+    expect(compiled.foundation.tectonics.computeTectonicSegments.strategy).toBe("default");
+    expect(compiled.foundation.tectonics.computeEraPlateMembership.strategy).toBe("default");
+    expect(compiled.foundation.tectonics.computeEraTectonicFields.strategy).toBe("default");
+    expect(compiled.foundation.tectonics.computeTectonicHistoryRollups.strategy).toBe("default");
+    expect(compiled.foundation.projection.computePlates.strategy).toBe("default");
+    expect(compiled.foundation["plate-topology"]).toEqual({});
+  });
+
+  it("keeps migrated Foundation configs compiled-equivalent to the legacy shipped configs", () => {
+    const env = {
+      seed: 123,
+      dimensions: { width: 80, height: 60 },
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    };
+    const expected = legacyFoundationCompiled as Record<string, unknown>;
+
+    for (const [fileName, raw] of shippedMapConfigs) {
+      const id = fileName.replace(/\.config\.json$/, "");
+      const compiled = standardRecipe.compileConfig(env, raw.config) as any;
+      expect(stable(compiled.foundation)).toEqual(expected[id]);
+    }
   });
 
   it("rejects legacy map-morphology alias keys", () => {

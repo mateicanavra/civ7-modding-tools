@@ -127,46 +127,40 @@ describe("Studio default config", () => {
     }
   });
 
-  it("exposes the split foundation authoring surface (no legacy advanced/profile fields)", () => {
+  it("exposes semantic Foundation authoring keys instead of internal op envelopes", () => {
     const foundationSchema = (STANDARD_RECIPE_CONFIG_SCHEMA as { properties?: Record<string, unknown> }).properties
       ?.foundation;
     expect(foundationSchema).toBeTruthy();
     const foundationProps = (foundationSchema as { properties?: Record<string, unknown> }).properties ?? {};
-    expect(Object.keys(foundationProps)).toEqual(
-      expect.arrayContaining([
-        "knobs",
-        "mesh",
-        "mantle-potential",
-        "mantle-forcing",
-        "crust",
-        "plate-graph",
-        "plate-motion",
-        "tectonics",
-        "crust-evolution",
-        "plate-topology",
-      ])
-    );
+    expect(Object.keys(foundationProps).sort()).toEqual([
+      "knobs",
+      "lithosphere",
+      "mantleForcing",
+      "mantleSources",
+      "meshResolution",
+      "plateMotion",
+      "platePartition",
+      "tectonicEras",
+      "tectonicFields",
+      "tectonicRollups",
+      "tectonicSegmentation",
+    ].sort());
     expect(foundationProps).not.toHaveProperty("version");
     expect(foundationProps).not.toHaveProperty("profiles");
     expect(foundationProps).not.toHaveProperty("advanced");
     expect(foundationProps).not.toHaveProperty("projection");
-
-    const tectonicsProps =
-      (foundationProps["tectonics"] as { properties?: Record<string, unknown> })?.properties ?? {};
-    expect(Object.keys(tectonicsProps)).toEqual(
-      expect.arrayContaining([
-        "computePlateMotion",
-        "computeTectonicSegments",
-        "computeEraPlateMembership",
-        "computeEraTectonicFields",
-        "computeTectonicHistoryRollups",
-        "computeTectonicsCurrent",
-        "computeTracerAdvection",
-        "computeTectonicProvenance",
-        "computeHotspotEvents",
-        "computeSegmentEvents",
-      ])
-    );
+    expect(foundationProps).not.toHaveProperty("mesh");
+    expect(foundationProps).not.toHaveProperty("mantle-potential");
+    expect(foundationProps).not.toHaveProperty("mantle-forcing");
+    expect(foundationProps).not.toHaveProperty("crust");
+    expect(foundationProps).not.toHaveProperty("plate-graph");
+    expect(foundationProps).not.toHaveProperty("plate-motion");
+    expect(foundationProps).not.toHaveProperty("tectonics");
+    const meshResolutionProps =
+      (foundationProps.meshResolution as { properties?: Record<string, unknown> }).properties ?? {};
+    expect(meshResolutionProps).not.toHaveProperty("cellCount");
+    expect(JSON.stringify(foundationProps)).not.toContain("\"strategy\"");
+    expect(JSON.stringify(foundationProps)).not.toContain("\"config\"");
   });
 
   it("documents split Foundation controls with schema descriptions", () => {
@@ -183,16 +177,16 @@ describe("Studio default config", () => {
     expectSchemaHasDescription(
       getSchemaAtPath(
         STANDARD_RECIPE_CONFIG_SCHEMA,
-        ["foundation", "mantle-forcing", "computeMantleForcing", "config", "velocityScale"]
+        ["foundation", "mantleForcing", "velocityScale"]
       ),
-      "foundation.mantle-forcing.computeMantleForcing.config.velocityScale"
+      "foundation.mantleForcing.velocityScale"
     );
     expectSchemaHasDescription(
       getSchemaAtPath(
         STANDARD_RECIPE_CONFIG_SCHEMA,
-        ["foundation", "tectonics", "computeTectonicSegments", "config", "regimeMinIntensity"]
+        ["foundation", "tectonicSegmentation", "regimeMinIntensity"]
       ),
-      "foundation.tectonics.computeTectonicSegments.config.regimeMinIntensity"
+      "foundation.tectonicSegmentation.regimeMinIntensity"
     );
 
     const foundationNode = foundation as { properties?: Record<string, unknown>; gs?: unknown };

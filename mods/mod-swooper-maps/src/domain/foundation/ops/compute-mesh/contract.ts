@@ -49,11 +49,41 @@ const ComputeMeshContract = defineOp({
   strategies: {
     default: Type.Object(
       {
-        plateCount: Type.Integer({ default: 8, minimum: 2 }),
-        cellsPerPlate: Type.Integer({ default: 2, minimum: 1, maximum: 32 }),
-        referenceArea: Type.Integer({ default: 4000, minimum: 1 }),
-        plateScalePower: Type.Number({ default: 0.5, minimum: 0, maximum: 2 }),
-        relaxationSteps: Type.Integer({ default: 2, minimum: 0, maximum: 50 }),
+        plateCount: Type.Integer({
+          default: 8,
+          minimum: 2,
+          maximum: 256,
+          description:
+            "Controls the target tectonic plate count used to derive mesh cell density for this map.",
+        }),
+        cellsPerPlate: Type.Integer({
+          default: 2,
+          minimum: 1,
+          maximum: 32,
+          description:
+            "Controls mesh resolution by setting how many mesh cells are generated per normalized plate.",
+        }),
+        referenceArea: Type.Integer({
+          default: 4000,
+          minimum: 1,
+          maximum: 1_000_000,
+          description:
+            "Sets the map area used as the scaling baseline when mesh density adapts to map dimensions.",
+        }),
+        plateScalePower: Type.Number({
+          default: 0.5,
+          minimum: 0,
+          maximum: 2,
+          description:
+            "Controls how strongly map area changes affect normalized plate and mesh density.",
+        }),
+        relaxationSteps: Type.Integer({
+          default: 2,
+          minimum: 0,
+          maximum: 50,
+          description:
+            "Controls how many relaxation passes smooth generated mesh sites before downstream plate logic runs.",
+        }),
         cellCount: Type.Optional(
           Type.Integer({ minimum: 1, description: "Derived in normalization (do not author directly)." })
         ),
