@@ -8,8 +8,9 @@
 - Branch/Graphite stack: `codex/studio-run-in-game-workstream` on top of
   `codex/morphology-terrain-handoff-reference`
 - Started: 2026-05-31
-- Status: source/mock implementation and Studio lane verification complete;
-  repeatable live proof gate added; live proof currently blocked by LSQ timeout
+- Status: paused-handoff; source/mock implementation and Studio lane
+  verification complete; repeatable live proof gate added; live proof currently
+  blocked by LSQ timeout
 
 ## Objective
 
@@ -133,8 +134,8 @@
 - Completed tasks: branch opened; phase packet started; discovery reports
   collected; OpenSpec changes drafted; source/mock implementation completed;
   Turbo build/check/test lane verified.
-- Remaining tasks: live setup proof after tuner socket recovers, final docs
-  promotion/closure decisions, commit/stack cleanup.
+- Remaining tasks: live setup proof after tuner socket recovers and evergreen
+  docs promotion after proof succeeds.
 - Stop conditions triggered: live proof paused because Civ tuner socket is
   listening but not responding to LSQ.
 
@@ -170,13 +171,12 @@
   focused Swooper map-runtime tests, and Turbo task graph.
 - Deferrals/triage updated: live proof remains recorded in
   `live-proof-ledger.md`.
-- Downstream realignment ledger: pending.
+- Downstream realignment ledger: `downstream-realignment-ledger.md`.
 
 ## Next Action
 
-- Exact next step: commit/stack cleanup, then re-run
-  `bun run verify:studio-run-in-game:live -- --mutate --map-script <file> --map-size <size> --seed <seed> --from-running-game exit-to-shell`
-  once LSQ recovers.
+- Exact next step: recover or restart the Civ tuner listener, then re-run
+  `bun run verify:studio-run-in-game:live -- --mutate --map-script <file> --map-size <size> --seed <seed> --from-running-game exit-to-shell`.
 - First files to edit: none before live proof unless verification finds a
   regression.
 - Stop condition: direct control cannot set setup parameters/start from shell,

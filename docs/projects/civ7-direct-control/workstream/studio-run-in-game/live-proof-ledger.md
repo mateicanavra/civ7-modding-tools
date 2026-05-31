@@ -7,6 +7,33 @@ this ledger for observations that depend on a running Civ7 instance.
 
 ## Entries
 
+### 2026-05-31 Repeat Probe Across Local And Parallels Host IPs
+
+- Proof ids:
+  - `studio-run-in-game-live-proof-mpud4pk1-21ay`
+  - `studio-run-in-game-live-proof-mpud5o7e-6ka`
+  - `studio-run-in-game-live-proof-mpud5o7e-6jo`
+- Status: failed / blocker for live mutation proof.
+- Operator: Codex.
+- Branch: `codex/studio-run-in-game-workstream`.
+- Commands:
+  - `bun run verify:studio-run-in-game:live -- --timeout-ms 5000`
+  - `bun run verify:studio-run-in-game:live -- --host 10.211.55.2 --timeout-ms 5000`
+  - `bun run verify:studio-run-in-game:live -- --host 127.0.0.1 --timeout-ms 10000`
+- Mode: read-only.
+- Mutation attempted: false.
+- Evidence:
+  - Computer Use inspection showed Civ alive in a running game window.
+  - `lsof -nP -iTCP:4318` showed the Civ process listening on `*:4318`, with
+    accumulated closed/CLOSE_WAIT accepted socket descriptors.
+  - Health failed for `127.0.0.1` and `10.211.55.2` with
+    `Timed out waiting for Civ7 tuner response to LSQ:`.
+  - A 10 second local timeout did not recover a response.
+- Mutation replay count: 0.
+- Verdict: same blocker across local and Parallels host bindings. The listener
+  is accepting/holding TCP state, but the Civ tuner protocol path is not
+  answering `LSQ:`.
+
 ### 2026-05-31 Repeatable Live Gate Still Blocked At LSQ
 
 - Proof id: `studio-run-in-game-live-proof-mpud0vii-1jhd`
