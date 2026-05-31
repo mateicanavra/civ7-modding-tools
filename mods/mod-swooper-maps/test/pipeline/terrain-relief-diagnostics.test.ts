@@ -38,6 +38,9 @@ describe("terrain relief diagnostics", () => {
     });
 
     expect(stats.plannedRoughTerrainTiles).toBe(stats.plannedMountainTiles + stats.plannedHillTiles);
+    expect(stats.plannedHillTiles).toBe(
+      stats.plannedFoothillTiles + stats.plannedRoughLandHillTiles
+    );
     expect(stats.finalRoughTerrainTiles).toBe(stats.finalMountainTiles + stats.finalHillTiles);
     expect(stats.finalNonVolcanoRoughTerrainTiles).toBe(
       stats.finalNonVolcanoMountainTiles + stats.finalHillTiles
@@ -48,6 +51,14 @@ describe("terrain relief diagnostics", () => {
 
     expect(stats.plannedRoughTerrainShareOfPreLakeLand).toBeCloseTo(
       stats.plannedRoughTerrainTiles / stats.preLakeLandTiles,
+      8
+    );
+    expect(stats.plannedFoothillShareOfPreLakeLand).toBeCloseTo(
+      stats.plannedFoothillTiles / stats.preLakeLandTiles,
+      8
+    );
+    expect(stats.plannedRoughLandHillShareOfPreLakeLand).toBeCloseTo(
+      stats.plannedRoughLandHillTiles / stats.preLakeLandTiles,
       8
     );
     expect(stats.finalRoughTerrainShareOfPreLakeLand).toBeCloseTo(
@@ -96,5 +107,7 @@ describe("terrain relief diagnostics", () => {
     expect(stats.plannedMountainToHillRatio).toBeGreaterThanOrEqual(0);
     expect(stats.finalMountainToHillRatio).toBeGreaterThanOrEqual(0);
     expect(stats.finalNonVolcanoMountainToHillRatio).toBeGreaterThanOrEqual(0);
+    expect(stats.plannedMeanRoughnessPotential).toBeGreaterThanOrEqual(0);
+    expect(stats.plannedMeanRoughnessPotential).toBeLessThanOrEqual(255);
   });
 });

@@ -29,6 +29,11 @@ export type WorldBalanceStats = Readonly<{
   plannedHillShareOfPreLakeLand: number;
   plannedHillComponentCount: number;
   plannedLargestHillComponentSize: number;
+  plannedFoothillTiles: number;
+  plannedFoothillShareOfPreLakeLand: number;
+  plannedRoughLandHillTiles: number;
+  plannedRoughLandHillShareOfPreLakeLand: number;
+  plannedMeanRoughnessPotential: number;
   plannedRoughTerrainTiles: number;
   plannedRoughTerrainShareOfPreLakeLand: number;
   plannedMountainToHillRatio: number;
@@ -400,7 +405,13 @@ export function collectWorldBalanceStats(args: Readonly<{
     | { elevation?: Int16Array; landMask?: Uint8Array }
     | undefined;
   const mountains = context.artifacts.get(morphologyArtifacts.mountains.id) as
-    | { mountainMask?: Uint8Array; hillMask?: Uint8Array }
+    | {
+        mountainMask?: Uint8Array;
+        hillMask?: Uint8Array;
+        foothillMask?: Uint8Array;
+        roughLandMask?: Uint8Array;
+        roughnessPotential?: Uint8Array;
+      }
     | undefined;
   const volcanoes = context.artifacts.get(morphologyArtifacts.volcanoes.id) as
     | Partial<VolcanoStatsInput>
@@ -429,7 +440,13 @@ export function collectWorldBalanceStats(args: Readonly<{
   if (!(topography?.landMask instanceof Uint8Array) || !(topography.elevation instanceof Int16Array)) {
     throw new Error("Missing topography fields.");
   }
-  if (!(mountains?.mountainMask instanceof Uint8Array) || !(mountains.hillMask instanceof Uint8Array)) {
+  if (
+    !(mountains?.mountainMask instanceof Uint8Array) ||
+    !(mountains.hillMask instanceof Uint8Array) ||
+    !(mountains.foothillMask instanceof Uint8Array) ||
+    !(mountains.roughLandMask instanceof Uint8Array) ||
+    !(mountains.roughnessPotential instanceof Uint8Array)
+  ) {
     throw new Error("Missing morphology mountain fields.");
   }
   if (!(volcanoes?.volcanoMask instanceof Uint8Array) || !Array.isArray(volcanoes.volcanoes)) {
@@ -578,6 +595,12 @@ export function collectWorldBalanceStats(args: Readonly<{
   const plannedMountainComponents = computeMaskComponents(mountains.mountainMask, width, height);
   const finalMountainComponents = computeMaskComponents(finalMountainMask, width, height);
   const plannedHillTiles = countMask(mountains.hillMask);
+  const plannedFoothillTiles = countMask(mountains.foothillMask);
+  const plannedRoughLandHillTiles = countMask(mountains.roughLandMask);
+  const landRoughnessPotential: number[] = [];
+  for (let i = 0; i < mountains.roughnessPotential.length; i++) {
+    if (topography.landMask[i] === 1) landRoughnessPotential.push(mountains.roughnessPotential[i] ?? 0);
+  }
   const plannedHillComponents = computeMaskComponents(mountains.hillMask, width, height);
   const finalHillComponents = computeMaskComponents(finalHillMask, width, height);
   const plannedRoughTerrainTiles = plannedMountainTiles + plannedHillTiles;
@@ -630,6 +653,14 @@ export function collectWorldBalanceStats(args: Readonly<{
     plannedHillShareOfPreLakeLand: shareOf(plannedHillTiles, preLakeLandTiles),
     plannedHillComponentCount: plannedHillComponents.componentCount,
     plannedLargestHillComponentSize: plannedHillComponents.largestComponentSize,
+    plannedFoothillTiles,
+    plannedFoothillShareOfPreLakeLand: shareOf(plannedFoothillTiles, preLakeLandTiles),
+    plannedRoughLandHillTiles,
+    plannedRoughLandHillShareOfPreLakeLand: shareOf(
+      plannedRoughLandHillTiles,
+      preLakeLandTiles
+    ),
+    plannedMeanRoughnessPotential: roundMetric(mean(landRoughnessPotential)),
     plannedRoughTerrainTiles,
     plannedRoughTerrainShareOfPreLakeLand: shareOf(plannedRoughTerrainTiles, preLakeLandTiles),
     plannedMountainToHillRatio: safeRatio(plannedMountainTiles, plannedHillTiles),

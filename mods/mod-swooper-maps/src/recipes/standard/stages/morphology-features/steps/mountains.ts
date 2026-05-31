@@ -44,6 +44,7 @@ export default createStep(MountainsStepContract, {
   }),
   normalize: (config, ctx) => {
     assertSameMountainFamilySelection(config.ridges, config.foothills);
+    assertSameMountainFamilySelection(config.ridges, config.roughLands);
 
     const { orogeny } = ctx.knobs as Readonly<{ orogeny?: MorphologyOrogenyKnob }>;
     const multiplier = MORPHOLOGY_OROGENY_TECTONIC_INTENSITY_MULTIPLIER[orogeny ?? "normal"] ?? 1.0;
@@ -95,16 +96,47 @@ export default createStep(MountainsStepContract, {
           }
         : config.foothills;
 
-    return { ...config, ridges: ridgesSelection, foothills: foothillsSelection };
+    const roughLandsSelection =
+      config.roughLands.strategy === "default"
+        ? {
+            ...config.roughLands,
+            config: {
+              ...config.roughLands.config,
+              tectonicIntensity: clampFinite(
+                config.roughLands.config.tectonicIntensity * multiplier,
+                0
+              ),
+              mountainThreshold: clampFinite(
+                config.roughLands.config.mountainThreshold + mountainThresholdDelta,
+                0
+              ),
+              hillThreshold: clampFinite(
+                config.roughLands.config.hillThreshold + hillThresholdDelta,
+                0
+              ),
+            },
+          }
+        : config.roughLands;
+
+    return {
+      ...config,
+      ridges: ridgesSelection,
+      foothills: foothillsSelection,
+      roughLands: roughLandsSelection,
+    };
   },
   run: (context, config, ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const beltDrivers = deps.artifacts.beltDrivers.read(context);
+    const substrate = deps.artifacts.substrate.read(context);
+    const routing = deps.artifacts.routing.read(context);
+    const coastlineMetrics = deps.artifacts.coastlineMetrics.read(context);
     const { width, height } = context.dimensions;
     const baseSeed = deriveStepSeed(context.env.seed, "morphology:planMountains");
 
     const fractalMountain = buildFractalArray(width, height, baseSeed ^ 0x3d, 5);
     const fractalHill = buildFractalArray(width, height, baseSeed ^ 0x5f, 5);
+    const fractalRoughLand = buildFractalArray(width, height, baseSeed ^ 0xa7, 9);
 
     const ridges = ops.ridges(
       {
@@ -141,12 +173,44 @@ export default createStep(MountainsStepContract, {
       },
       config.foothills
     );
+    const roughLands = ops.roughLands(
+      {
+        width,
+        height,
+        landMask: topography.landMask,
+        mountainMask: ridges.mountainMask,
+        foothillMask: foothills.hillMask,
+        elevation: topography.elevation,
+        seaLevel: topography.seaLevel,
+        boundaryCloseness: beltDrivers.boundaryCloseness,
+        boundaryType: beltDrivers.boundaryType,
+        upliftPotential: beltDrivers.upliftPotential,
+        riftPotential: beltDrivers.riftPotential,
+        tectonicStress: beltDrivers.tectonicStress,
+        beltAge: beltDrivers.beltAge,
+        erodibilityK: substrate.erodibilityK,
+        sedimentDepth: substrate.sedimentDepth,
+        flowAccum: routing.flowAccum,
+        distanceToCoast: coastlineMetrics.distanceToCoast,
+        fractalRoughLand,
+      },
+      config.roughLands
+    );
+
+    const size = Math.max(0, (width | 0) * (height | 0));
+    const hillMask = new Uint8Array(size);
+    for (let i = 0; i < size; i++) {
+      hillMask[i] = foothills.hillMask[i] === 1 || roughLands.hillMask[i] === 1 ? 1 : 0;
+    }
 
     const plan = {
       mountainMask: ridges.mountainMask,
-      hillMask: foothills.hillMask,
+      hillMask,
+      foothillMask: foothills.hillMask,
+      roughLandMask: roughLands.hillMask,
       orogenyPotential: ridges.orogenyPotential,
       fracturePotential: ridges.fracturePotential,
+      roughnessPotential: roughLands.roughnessPotential,
     } as const;
 
     // Belt-driver diagnostics stay with the producing landmass-plates step.
@@ -181,6 +245,30 @@ export default createStep(MountainsStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.mountains.foothillMask",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: plan.foothillMask,
+      meta: defineVizMeta("morphology.mountains.foothillMask", {
+        label: "Foothill Mask (Planned)",
+        group: GROUP_MORPHOLOGY_FEATURES,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.mountains.roughLandMask",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: plan.roughLandMask,
+      meta: defineVizMeta("morphology.mountains.roughLandMask", {
+        label: "Rough-Land Hill Mask (Planned)",
+        group: GROUP_MORPHOLOGY_FEATURES,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "morphology.mountains.orogenyPotential",
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
@@ -204,23 +292,42 @@ export default createStep(MountainsStepContract, {
         visibility: "debug",
       }),
     });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.mountains.roughnessPotential",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: plan.roughnessPotential,
+      meta: defineVizMeta("morphology.mountains.roughnessPotential", {
+        label: "Rough-Land Potential (Planned)",
+        group: GROUP_MORPHOLOGY_FEATURES,
+        palette: "continuous",
+        visibility: "debug",
+      }),
+    });
 
     context.trace.event(() => {
       const size = Math.max(0, (width | 0) * (height | 0));
       let landTiles = 0;
       let mountainTiles = 0;
       let hillTiles = 0;
+      let foothillTiles = 0;
+      let roughLandHillTiles = 0;
       for (let i = 0; i < size; i++) {
         if (topography.landMask[i] !== 1) continue;
         landTiles += 1;
         if (plan.mountainMask[i] === 1) mountainTiles += 1;
         if (plan.hillMask[i] === 1) hillTiles += 1;
+        if (plan.foothillMask[i] === 1) foothillTiles += 1;
+        if (plan.roughLandMask[i] === 1) roughLandHillTiles += 1;
       }
       return {
         kind: "morphology.mountains.summary",
         landTiles,
         mountainTiles,
         hillTiles,
+        foothillTiles,
+        roughLandHillTiles,
       };
     });
     context.trace.event(() => {
@@ -233,14 +340,20 @@ export default createStep(MountainsStepContract, {
           const idx = y * width + x;
           const base = topography.landMask[idx] === 1 ? "." : "~";
           const overlay =
-            plan.mountainMask[idx] === 1 ? "M" : plan.hillMask[idx] === 1 ? "h" : undefined;
+            plan.mountainMask[idx] === 1
+              ? "M"
+              : plan.foothillMask[idx] === 1
+                ? "f"
+                : plan.roughLandMask[idx] === 1
+                  ? "r"
+                  : undefined;
           return { base, overlay };
         },
       });
       return {
         kind: "morphology.mountains.ascii.reliefMask",
         sampleStep,
-        legend: ".=land ~=water M=mountain h=hill",
+        legend: ".=land ~=water M=mountain f=foothill r=rough-land hill",
         rows,
       };
     });

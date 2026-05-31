@@ -14,6 +14,7 @@ import computeSubstrate from "./compute-substrate/index.js";
 import planIslandChains from "./plan-island-chains/index.js";
 import planFoothills from "./plan-foothills/index.js";
 import planRidges from "./plan-ridges/index.js";
+import planRoughLands from "./plan-rough-lands/index.js";
 import planVolcanoes from "./plan-volcanoes/index.js";
 
 const implementations = {
@@ -30,6 +31,7 @@ const implementations = {
   planIslandChains,
   planFoothills,
   planRidges,
+  planRoughLands,
   planVolcanoes,
 } as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
 
@@ -49,5 +51,6 @@ export {
   planIslandChains,
   planFoothills,
   planRidges,
+  planRoughLands,
   planVolcanoes,
 };
