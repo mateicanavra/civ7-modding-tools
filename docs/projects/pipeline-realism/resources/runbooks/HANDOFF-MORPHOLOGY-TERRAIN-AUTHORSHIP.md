@@ -26,6 +26,8 @@ The next workstream should invoke:
 - `civ7-architecture-authority` and `civ7-product-authority` before accepting
   new public controls, truth artifacts, or gameplay-facing outcomes.
 - `civ7-operational-debugging` for Studio, FireTuner, and runtime proof.
+- `@civ7/direct-control` for live game status, restart/begin, map inspection,
+  GameInfo rows, catalog/API inspection, and approved bounded actions.
 - Fresh peer agents only. Prompt them as peers with framed context, not as
   instruction dumps.
 
@@ -235,57 +237,21 @@ Use this as the starting framed objective, then let the next ERA refine it after
 re-checking branch state and current code:
 
 ```text
-Create a systematic Civ7 morphology/terrain authorship workstream using
-`civ7-systematic-workstream`, `framing-design`,
-`civ7-open-spec-workstream`, architecture/product authority, operational
-debugging, and framed peer-agent review. The future state is full,
-evidence-scoped control over Earthlike terrain morphology: terrain classes,
-relief structure, volcanoes, engine elevation/cliff readback, and downstream
-feature/resource implications are all explicitly owned, measured, and proved.
+Create a systematic Civ7 morphology/terrain authorship workstream using `civ7-systematic-workstream`, `framing-design`, `civ7-open-spec-workstream`, architecture/product authority, operational debugging, `@civ7/direct-control`, and framed peer-agent review. The future state is evidence-scoped control over Earthlike terrain morphology: terrain classes, relief structure, volcanoes, engine elevation/cliff readback, and downstream feature/resource implications are owned, measured, and proved.
 
-First isolate repo/Graphite/worktree state and diagnose the current failure
-before changing code. Treat the seed case as Swooper Earthlike flatness:
-mountains may now exist, but hills/rough land remain near-zero and broad
-continental interiors still read too flat. Use history/hotspot review, current
-stats, logs, and Narsil where available to separate root cause from config noise.
+First isolate repo/Graphite/worktree state and diagnose the current failure before changing code. Treat the seed case as Swooper Earthlike flatness: mountains may now exist, but hills/rough land remain near-zero and broad continental interiors still read too flat. Use history/hotspot review, current stats, logs, Narsil where available, and live direct-control inspection to separate root cause from config noise.
 
-Extract the complete canonical morphology corpus: Civ7 terrain types;
-terrain-linked official features/natural wonders; engine APIs and readback
-surfaces; Morphology truth artifacts; map projection stages; hydrology lake/river
-terrain mutation; and engine-only surfaces such as cliffs/elevation after
-`buildElevation()`. Record which surfaces are directly authorable, indirectly
-influenced, engine-owned/readback-only, or out of scope.
+Before runtime proof, inspect the latest `@civ7/direct-control` surface in the current stack. Use App UI APIs for lifecycle/status/restart/Begin Game/autoplay boundaries, and Tuner APIs after Begin for gameplay-ready map inspection: map summary, bounded plot/grid reads, visibility, actor summaries, `GameInfo` rows for Resources/Terrains/Biomes/Features, runtime API/catalog inspection, and validator-first actions only when approved. CLI/Studio routes should go through this package: `civ7 game status`, `map`, `gameinfo`, `catalog`, `inspect`, `autoplay`, `restart --begin --wait-tuner --json`, plus Studio civ7 status/map-summary/gameinfo endpoints. Use these tools early for live discovery and again for final proof; do not bypass them with stale FireTuner/manual commands.
 
-Predeclare Earthlike expected ranges before tuning. Research physical/ecological
-landform expectations for mountains, hills/foothills, rolling uplands,
-plateaus/shields, plains, coasts/shelves, lakes/rivers, volcanoes,
-cliffs/local relief, and flat-lowland basins. Translate those into Civ7-scaled
-expected bands: impassable ridge mountains must be narrower than real
-mountain-system area; hills/rough terrain must cover the broader
-eroded/uplifted landform footprint; cliffs must be proven by engine readback
-rather than claimed as Morphology truth.
+Extract the complete canonical morphology corpus: Civ7 terrain types; terrain-linked official features/natural wonders; engine APIs and readback surfaces; Morphology truth artifacts; map projection stages; hydrology lake/river terrain mutation; and engine-only surfaces such as cliffs/elevation after `buildElevation()`. Record which surfaces are directly authorable, indirectly influenced, engine-owned/readback-only, or out of scope.
 
-Design architecture-aligned operations and slices. Keep one causal strategy
-rooted in Foundation tectonic history/eras, crust/provenance, belt drivers,
-erosion, substrate, and hydrology. Remove manual output-control cruft, stale
-legacy knobs, noise-only fill, and projection-stage truth planning. Add or
-reshape dedicated Morphology ops where needed, especially for non-foothill
-hills/rolling uplands/plateaus/escarpments, while preserving map stages as
-projection/readback only.
+Predeclare Earthlike expected ranges before tuning. Research physical/ecological landform expectations for mountains, hills/foothills, rolling uplands, plateaus/shields, plains, coasts/shelves, lakes/rivers, volcanoes, cliffs/local relief, and flat-lowland basins. Translate those into Civ7-scaled expected bands: impassable ridge mountains must be narrower than real mountain-system area; hills/rough terrain must cover the broader eroded/uplifted footprint; cliffs must be proven by engine readback rather than claimed as Morphology truth.
 
-Implement as OpenSpec/Graphite slices with explicit write sets, review gates,
-and downstream realignment. Extend stats to compare planned and final terrain
-shares, hill/mountain component structure, local relief, slope/neighbor relief,
-shore-distance elevation profiles, engine elevation/cliff readback, volcano
-distribution by tectonic regime, and flatland/plains budgets across stable seed
-matrices.
+Design architecture-aligned operations and slices. Keep one causal strategy rooted in Foundation tectonic history/eras, crust/provenance, belt drivers, erosion, substrate, and hydrology. Remove manual output-control cruft, stale legacy knobs, noise-only fill, and projection-stage truth planning. Add or reshape dedicated Morphology ops where needed, especially for non-foothill hills/rolling uplands/plateaus/escarpments, while preserving map stages as projection/readback only.
 
-Prove locally with tests and stats, then prove runtime through the current
-canonical Studio/FireTuner restart path, recording exact branch, commit, restart
-command/API path, request id, log bounds, parsed terrain/elevation/cliff/readback
-payloads, and remaining proof boundaries. Close only with reviewed specs,
-repaired P1/P2 findings, accurate task/phase records, Graphite commit/submit
-boundaries separated, and a clean worktree.
+Implement as OpenSpec/Graphite slices with explicit write sets, review gates, and downstream realignment. Extend stats to compare planned and final terrain shares, hill/mountain component structure, local relief, slope/neighbor relief, shore-distance elevation profiles, engine elevation/cliff readback, volcano distribution by tectonic regime, and flatland/plains budgets across stable seed matrices.
+
+Prove locally with tests and stats, then prove runtime through the current canonical direct-control/Studio/FireTuner socket path, recording exact branch, commit, package/CLI/API path, request id, log bounds, parsed terrain/elevation/cliff/readback payloads, and remaining proof boundaries. Close only with reviewed specs, repaired P1/P2 findings, accurate task/phase records, separated Graphite commit/submit boundaries, and a clean worktree.
 ```
 
 ## Recommended Workstream Shape
