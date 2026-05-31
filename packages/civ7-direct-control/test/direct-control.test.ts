@@ -22,13 +22,18 @@ import {
   getCiv7MapSummary,
   getCiv7PlotSnapshot,
   getCiv7PlayableStatus,
+  getCiv7SetupMapRows,
+  getCiv7SetupSnapshot,
   getCiv7VisibilitySummary,
   getCiv7AppUiSnapshot,
   inspectCiv7RuntimeApi,
+  prepareCiv7SinglePlayerSetup,
   parseCiv7TunerFrame,
   queryCiv7TunerStates,
   requestCiv7UnitOperation,
   revealCiv7MapForPlayer,
+  runCiv7SinglePlayerFromSetup,
+  startPreparedCiv7SinglePlayerGame,
   restartCiv7GameAndBegin,
   restartCiv7Game,
   selectCiv7TunerState,
@@ -316,6 +321,142 @@ describe("Civ7 direct control", () => {
     }
   });
 
+  test("reads App UI setup snapshots and frontend map rows", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const snapshot = await getCiv7SetupSnapshot({
+        host: "127.0.0.1",
+        port,
+        timeoutMs: 1_000,
+      });
+      const rows = await getCiv7SetupMapRows(
+        { file: "{swooper-maps}/maps/swooper-earthlike.js" },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+      );
+
+      expect(snapshot.snapshot.phase).toBe("shell");
+      expect(snapshot.snapshot.selectedMapRow?.file).toBe("{swooper-maps}/maps/swooper-earthlike.js");
+      expect(snapshot.snapshot.setup.parameters.find((p) => p.id === "MapRandomSeed")?.value).toBe(111);
+      expect(rows.rows).toEqual([
+        expect.objectContaining({
+          source: "setup-domain",
+          file: "{swooper-maps}/maps/swooper-earthlike.js",
+        }),
+        expect.objectContaining({
+          source: "config-db",
+          file: "{swooper-maps}/maps/swooper-earthlike.js",
+        }),
+      ]);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("prepares and starts a single-player game through setup wrappers", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const expected = {
+        mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
+        mapSize: "MAPSIZE_SMALL",
+        seed: 222,
+        gameSeed: 223,
+      };
+      const prepare = await prepareCiv7SinglePlayerSetup(
+        expected,
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test setup preparation" },
+      );
+      const start = await startPreparedCiv7SinglePlayerGame(
+        { expected, waitForTuner: true, waitTimeoutMs: 5_000, pollIntervalMs: 10 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test prepared start" },
+      );
+
+      expect(prepare.verified).toBe(true);
+      expect(start.verified).toBe(true);
+      expect(start.mapSummary?.map.randomSeed).toEqual({ ok: true, value: 222 });
+      expect(server.received.some((message) => message.includes("Configuration.editMap()"))).toBe(true);
+      expect(server.received.some((message) => message.includes("Network.hostGame"))).toBe(true);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("orchestrates exit-to-shell, setup, and start without caller raw JS", async () => {
+    const server = await startTunerServer({ initialInShell: false });
+    try {
+      const { port } = server.address();
+      const result = await runCiv7SinglePlayerFromSetup(
+        {
+          mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
+          mapSize: "MAPSIZE_SMALL",
+          seed: 333,
+          fromRunningGame: "exit-to-shell",
+          waitForTuner: true,
+          waitTimeoutMs: 5_000,
+          pollIntervalMs: 10,
+        },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test run in game orchestration" },
+      );
+
+      expect(result.verified).toBe(true);
+      expect(result.shellExit?.output).toEqual(["null"]);
+      expect(server.received).toContain('CMD:65535:engine.call("exitToMainMenu")');
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("does not replay setup mutations after a socket close", async () => {
+    const server = await startTunerServer({ closeOnSetupMutation: true });
+    try {
+      const { port } = server.address();
+      await expect(
+        prepareCiv7SinglePlayerSetup(
+          {
+            mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
+            mapSize: "MAPSIZE_SMALL",
+            seed: 444,
+          },
+          { host: "127.0.0.1", port, timeoutMs: 1_000 },
+          { approved: true, reason: "test no replay on setup mutation" },
+        ),
+      ).rejects.toMatchObject({ code: "socket-closed" });
+      expect(server.received.filter((message) => message.includes("editMap.setScript")).length).toBe(1);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("rejects prepared starts when post-start runtime seed mismatches", async () => {
+    const server = await startTunerServer({ postStartSeedOverride: 999 });
+    try {
+      const { port } = server.address();
+      const expected = {
+        mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
+        mapSize: "MAPSIZE_SMALL",
+        seed: 222,
+      };
+      await prepareCiv7SinglePlayerSetup(
+        expected,
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test setup preparation before mismatch" },
+      );
+      await expect(
+        startPreparedCiv7SinglePlayerGame(
+          { expected, waitForTuner: true, waitTimeoutMs: 5_000, pollIntervalMs: 10 },
+          { host: "127.0.0.1", port, timeoutMs: 1_000 },
+          { approved: true, reason: "test seed mismatch" },
+        ),
+      ).rejects.toMatchObject({ code: "setup-seed-mismatch" });
+    } finally {
+      await server.close();
+    }
+  });
+
   test("validates and sends approved unit operations without replay", async () => {
     const server = await startTunerServer();
     try {
@@ -497,13 +638,95 @@ describe("Civ7 direct control", () => {
   });
 });
 
-async function startTunerServer(options: { restartOutput?: string } = {}) {
+async function startTunerServer(options: {
+  restartOutput?: string;
+  initialInShell?: boolean;
+  closeOnSetupMutation?: boolean;
+  postStartSeedOverride?: number;
+} = {}) {
   const received: string[] = [];
   let loadingState = 6;
+  let inShell = options.initialInShell ?? true;
   let revealedCount = 10;
   let autoplayActive = false;
   let autoplayPaused = false;
   let autoplayStopPendingReads = 0;
+  let setupMapScript = "{swooper-maps}/maps/swooper-earthlike.js";
+  let setupMapSize = "MAPSIZE_STANDARD";
+  let setupMapSeed = 111;
+  let setupGameSeed = 112;
+  let setupRevision = 19;
+  const setupRows = [
+    {
+      Domain: "StandardMaps",
+      File: "{swooper-maps}/maps/swooper-earthlike.js",
+      Value: "{swooper-maps}/maps/swooper-earthlike.js",
+      Name: "LOC_MAP_SWOOPER_EARTHLIKE_NAME",
+      Description: "LOC_MAP_SWOOPER_EARTHLIKE_DESCRIPTION",
+      SortIndex: 501,
+    },
+  ];
+  const setupSnapshot = () => ({
+    phase: inShell ? "shell" : loadingState === 8 ? "running-game" : "loading",
+    ui: {
+      inGame: { ok: true, value: !inShell },
+      inShell: { ok: true, value: inShell },
+      inLoading: { ok: true, value: loadingState !== 8 && !inShell },
+      loadingState: { ok: true, value: loadingState },
+      loadingStateName: loadingState === 8 ? "GameStarted" : "WaitingForUIReady",
+      canBeginGame: { ok: true, value: loadingState === 6 && !inShell },
+    },
+    setup: {
+      revision: { ok: true, value: setupRevision },
+      parameters: [
+        {
+          id: "Map",
+          exists: true,
+          value: setupMapScript,
+          possibleValues: setupRows,
+        },
+        {
+          id: "MapSize",
+          exists: true,
+          value: setupMapSize,
+          possibleValues: [{ value: "MAPSIZE_SMALL" }, { value: "MAPSIZE_STANDARD" }],
+        },
+        { id: "MapRandomSeed", exists: true, value: setupMapSeed, possibleValues: [] },
+        { id: "GameRandomSeed", exists: true, value: setupGameSeed, possibleValues: [] },
+      ],
+    },
+    selectedMapRow: {
+      source: "setup-domain",
+      file: setupMapScript,
+      value: setupMapScript,
+      name: "LOC_MAP_SWOOPER_EARTHLIKE_NAME",
+      sortIndex: 501,
+    },
+    mapRows: [
+      {
+        source: "setup-domain",
+        file: "{swooper-maps}/maps/swooper-earthlike.js",
+        value: "{swooper-maps}/maps/swooper-earthlike.js",
+        name: "LOC_MAP_SWOOPER_EARTHLIKE_NAME",
+        sortIndex: 501,
+      },
+      {
+        source: "config-db",
+        domain: "StandardMaps",
+        file: "{swooper-maps}/maps/swooper-earthlike.js",
+        value: "{swooper-maps}/maps/swooper-earthlike.js",
+        name: "LOC_MAP_SWOOPER_EARTHLIKE_NAME",
+        description: "LOC_MAP_SWOOPER_EARTHLIKE_DESCRIPTION",
+        sortIndex: 501,
+      },
+    ],
+    config: {
+      mapScript: { ok: true, value: setupMapScript },
+      mapSize: { ok: true, value: setupMapSize },
+      mapSeed: { ok: true, value: setupMapSeed },
+      gameSeed: { ok: true, value: setupGameSeed },
+    },
+  });
   const server = createServer((socket) => {
     let buffer = Buffer.alloc(0);
     socket.on("data", (chunk) => {
@@ -517,10 +740,58 @@ async function startTunerServer(options: { restartOutput?: string } = {}) {
           socket.write(encodeResponse(frame.listenerId, ["65535", "App UI", "1", "Tuner"]));
         } else if (frame.message === `CMD:65535:${CIV7_RESTART_COMMAND}`) {
           loadingState = 6;
+          inShell = false;
           socket.write(encodeResponse(frame.listenerId, [options.restartOutput ?? "true"]));
-        } else if (frame.message === "CMD:65535:UI.notifyUIReady()") {
+        } else if (frame.message === 'CMD:65535:engine.call("exitToMainMenu")') {
+          inShell = true;
           loadingState = 8;
           socket.write(encodeResponse(frame.listenerId, ["null"]));
+        } else if (frame.message === "CMD:65535:UI.notifyUIReady()") {
+          loadingState = 8;
+          inShell = false;
+          socket.write(encodeResponse(frame.listenerId, ["null"]));
+        } else if (frame.message.includes("editMap.setScript")) {
+          if (options.closeOnSetupMutation) {
+            socket.destroy();
+            continue;
+          }
+          setupMapScript = "{swooper-maps}/maps/swooper-earthlike.js";
+          setupMapSize = frame.message.includes('"mapSize":"MAPSIZE_SMALL"') ? "MAPSIZE_SMALL" : "MAPSIZE_STANDARD";
+          setupMapSeed = frame.message.includes('"seed":333') ? 333 : frame.message.includes('"seed":444') ? 444 : 222;
+          setupGameSeed = frame.message.includes('"gameSeed":223') ? 223 : setupGameSeed;
+          setupRevision += 1;
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({
+                before: setupSnapshot(),
+                after: setupSnapshot(),
+                applied: {
+                  Map: setupMapScript,
+                  MapSize: setupMapSize,
+                  MapRandomSeed: setupMapSeed,
+                  ...(setupGameSeed === 223 ? { GameRandomSeed: setupGameSeed } : {}),
+                },
+              }),
+            ]),
+          );
+        } else if (frame.message.includes("Network.hostGame")) {
+          inShell = false;
+          loadingState = 6;
+          socket.write(encodeResponse(frame.listenerId, ['{"ok":true,"serverType":0}']));
+        } else if (frame.message.includes("const rows = readSetupMapRows")) {
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({
+                rows: setupSnapshot().mapRows,
+                limit: 100,
+                matchedFile: frame.message.includes('"file":"{swooper-maps}/maps/swooper-earthlike.js"')
+                  ? "{swooper-maps}/maps/swooper-earthlike.js"
+                  : undefined,
+              }),
+            ]),
+          );
+        } else if (frame.message.includes("readSetupSnapshot")) {
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify({ snapshot: setupSnapshot() })]));
         } else if (frame.message.includes("Autoplay.setActive(true)")) {
           autoplayActive = true;
           autoplayPaused = frame.message.includes("Autoplay.setPause(true)");
@@ -565,9 +836,9 @@ async function startTunerServer(options: { restartOutput?: string } = {}) {
                   hash: { ok: true, value: 0 },
                 },
                 ui: {
-                  inGame: { ok: true, value: true },
-                  inShell: { ok: true, value: false },
-                  inLoading: { ok: true, value: loadingState !== 8 },
+                  inGame: { ok: true, value: !inShell },
+                  inShell: { ok: true, value: inShell },
+                  inLoading: { ok: true, value: loadingState !== 8 && !inShell },
                   loadingState: { ok: true, value: loadingState },
                   loadingStateName: loadingState === 8 ? "GameStarted" : "WaitingForUIReady",
                   canBeginGame: { ok: true, value: loadingState === 6 },
@@ -587,11 +858,11 @@ async function startTunerServer(options: { restartOutput?: string } = {}) {
                   numAliveHumans: { ok: true, value: 1 },
                 },
                 map: {
-                  width: { ok: true, value: 84 },
-                  height: { ok: true, value: 54 },
-                  plotCount: { ok: true, value: 4536 },
+                  width: { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 70 : 84 },
+                  height: { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 44 : 54 },
+                  plotCount: { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 3080 : 4536 },
                   mapSize: { ok: true, value: 0 },
-                  randomSeed: { ok: true, value: 1 },
+                  randomSeed: { ok: true, value: options.postStartSeedOverride ?? setupMapSeed },
                 },
               }),
             ]),
@@ -611,8 +882,8 @@ async function startTunerServer(options: { restartOutput?: string } = {}) {
                 },
                 turn: { ok: true, value: 1 },
                 turnDate: { ok: true, value: "4000 BCE" },
-                width: { ok: true, value: 84 },
-                height: { ok: true, value: 54 },
+                width: { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 70 : 84 },
+                height: { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 44 : 54 },
                 aliveIds: { ok: true, value: [0, 1] },
                 aliveHumanIds: { ok: true, value: [0] },
                 autoplayActive: { ok: true, value: false },
@@ -624,11 +895,11 @@ async function startTunerServer(options: { restartOutput?: string } = {}) {
             encodeResponse(frame.listenerId, [
               JSON.stringify({
                 map: {
-                  width: { ok: true, value: 84 },
-                  height: { ok: true, value: 54 },
-                  plotCount: { ok: true, value: 4536 },
+                  width: { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 70 : 84 },
+                  height: { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 44 : 54 },
+                  plotCount: { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 3080 : 4536 },
                   mapSize: { ok: true, value: 0 },
-                  randomSeed: { ok: true, value: 1 },
+                  randomSeed: { ok: true, value: options.postStartSeedOverride ?? setupMapSeed },
                 },
                 game: {
                   turn: { ok: true, value: 1 },

@@ -240,7 +240,7 @@ describe("standard recipe execution", () => {
     expect(signatureA).toBe(signatureB);
   });
 
-  it("yields more freeze persistence when temperature is cold vs hot (same seed)", () => {
+  it("lowers mean surface temperature when temperature is cold vs hot (same seed)", () => {
     const width = 24;
     const height = 18;
     const seed = 123;
@@ -268,7 +268,7 @@ describe("standard recipe execution", () => {
       },
     };
 
-    const runAndMeanFreezeIndex = (cfg: StandardRecipeConfig): number => {
+    const runAndMeanSurfaceTemperature = (cfg: StandardRecipeConfig): number => {
       const mapInfo = {
         GridWidth: width,
         GridHeight: height,
@@ -292,18 +292,18 @@ describe("standard recipe execution", () => {
       initializeStandardRuntime(context, { mapInfo, logPrefix: "[test]", storyEnabled: true });
       standardRecipe.run(context, env, cfg, { log: () => {} });
       const indices = context.artifacts.get(hydrologyClimateRefineArtifacts.climateIndices.id) as
-        | { freezeIndex?: Float32Array }
+        | { surfaceTemperatureC?: Float32Array }
         | undefined;
-      const freeze = indices?.freezeIndex;
-      if (!(freeze instanceof Float32Array)) throw new Error("Missing freezeIndex.");
+      const temperature = indices?.surfaceTemperatureC;
+      if (!(temperature instanceof Float32Array)) throw new Error("Missing surfaceTemperatureC.");
       let sum = 0;
-      for (let i = 0; i < freeze.length; i++) sum += freeze[i] ?? 0;
-      return sum / Math.max(1, freeze.length);
+      for (let i = 0; i < temperature.length; i++) sum += temperature[i] ?? 0;
+      return sum / Math.max(1, temperature.length);
     };
 
-    const meanCold = runAndMeanFreezeIndex(configCold);
-    const meanHot = runAndMeanFreezeIndex(configHot);
-    expect(meanCold).toBeGreaterThan(meanHot);
+    const meanCold = runAndMeanSurfaceTemperature(configCold);
+    const meanHot = runAndMeanSurfaceTemperature(configHot);
+    expect(meanCold).toBeLessThan(meanHot);
   });
 
 	  it("projects more river tiles when riverDensity is dense vs sparse (same seed)", () => {

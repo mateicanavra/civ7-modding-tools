@@ -25,7 +25,7 @@ async function runStandardRecipeInWorker(): Promise<BrowserRunEvent[]> {
     configurable: true,
   });
 
-  await import(`../../src/browser-runner/pipeline.worker.ts?standard-layer-visibility=${Date.now()}`);
+  await import("../../src/browser-runner/pipeline.worker.ts?standard-layer-visibility");
 
   if (typeof harness.onmessage !== "function") throw new Error("pipeline worker did not install onmessage");
 

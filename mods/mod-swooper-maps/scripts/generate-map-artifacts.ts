@@ -1,4 +1,5 @@
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -25,6 +26,35 @@ const distRecipesDir = resolve(pkgRoot, "dist/recipes");
 
 function stableJson(value: unknown): string {
   return `${JSON.stringify(value, null, 2)}\n`;
+}
+
+function canonicalize(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const key of Object.keys(value as Record<string, unknown>).sort()) {
+      out[key] = canonicalize((value as Record<string, unknown>)[key]);
+    }
+    return out;
+  }
+  return value;
+}
+
+function stableHash(value: unknown): string {
+  return createHash("sha256").update(JSON.stringify(canonicalize(value))).digest("hex");
+}
+
+function configHashFor(config: ValidatedMapConfig): string {
+  return stableHash(config.config);
+}
+
+function envelopeHashFor(config: ValidatedMapConfig, configHash: string): string {
+  return stableHash({
+    id: config.id,
+    recipe: config.recipe,
+    latitudeBounds: config.latitudeBounds ?? null,
+    configHash,
+  });
 }
 
 function xmlEscape(value: string): string {
@@ -67,10 +97,14 @@ async function loadRegistry(): Promise<ValidatedMapConfig[]> {
 }
 
 function renderMapEntry(config: ValidatedMapConfig): string {
+  const configHash = configHashFor(config);
+  const envelopeHash = envelopeHashFor(config, configHash);
+  const requestId = process.env.SWOOPER_STUDIO_RUN_ID;
   const latitudeBounds = config.latitudeBounds
     ? `\n  latitudeBounds: ${JSON.stringify(config.latitudeBounds, null, 2).replace(/\n/g, "\n  ")},`
     : "";
   const logPrefix = config.logPrefix ? `\n  logPrefix: ${JSON.stringify(config.logPrefix)},` : "";
+  const requestIdLine = requestId ? `\n  requestId: ${JSON.stringify(requestId)},` : "";
   return `/**
  * Generated from ../configs/${config.fileName}.
  * Do not edit by hand; re-run \`bun run gen:maps\`.
@@ -89,6 +123,9 @@ export default createMap({
   name: mapConfig.name,
   description: mapConfig.description,
   recipe: standardRecipe,${latitudeBounds}${logPrefix}
+  sourceConfigId: ${JSON.stringify(config.id)},
+  configHash: ${JSON.stringify(configHash)},
+  envelopeHash: ${JSON.stringify(envelopeHash)},${requestIdLine}
   config: canonicalRecipeConfig<StandardRecipeConfig>(mapConfig),
 });
 `;
@@ -190,6 +227,8 @@ function renderMapConfigsArtifact(configs: readonly ValidatedMapConfig[]): strin
     recipe: config.recipe,
     sortIndex: config.sortIndex,
     latitudeBounds: config.latitudeBounds,
+    configHash: configHashFor(config),
+    envelopeHash: envelopeHashFor(config, configHashFor(config)),
     sourcePath: `mods/mod-swooper-maps/src/maps/configs/${config.fileName}`,
     config: config.config,
   }));
@@ -211,6 +250,8 @@ export type StudioMapConfig = Readonly<{
   description: string;
   recipe: "standard";
   sortIndex: number;
+  configHash: string;
+  envelopeHash: string;
   latitudeBounds?: Readonly<{
     topLatitude: number;
     bottomLatitude: number;
