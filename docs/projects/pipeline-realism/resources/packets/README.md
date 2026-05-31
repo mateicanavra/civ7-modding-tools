@@ -7,3 +7,4 @@ This directory contains **source packets** (imported proposal docs + reconciliat
 - `realism-packet/`: reconciliation notes and positioning across sets + current code.
 - `m11-foundation-realism-spike/`: pointer to the recent Foundation realism spike source set (audit + guardrails).
 - `phase2-foundation-vertical-refactor/`: pointer to contract/migration posture docs.
+- `foundation-architecture-generative-pipeline/`: current Foundation architecture and generative-layer packet with downstream consumer map, structural problems, and OpenSpec-ready hardening slices.
