@@ -10,6 +10,9 @@ import {
   DEFAULT_CIV7_SCRIPTING_LOG,
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
   createCiv7ControlRequestId,
+  getCiv7GameInfoRows,
+  getCiv7MapSummary,
+  getCiv7PlayableStatus,
   restartCiv7GameAndBegin,
   snapshotFile,
   waitForFreshLogMarkers,
@@ -139,6 +142,12 @@ function assertRepoMapEnvelope(envelope: unknown, id: string): void {
   }
 }
 
+function writeJson(res: { statusCode: number; setHeader(name: string, value: string): void; end(body?: string): void }, statusCode: number, body: unknown): void {
+  res.statusCode = statusCode;
+  res.setHeader("Content-Type", "application/json");
+  res.end(JSON.stringify(body));
+}
+
 async function restoreRepoConfig(target: string, previous: string | null): Promise<void> {
   if (previous === null) {
     await rm(target, { force: true });
@@ -153,6 +162,50 @@ export default defineConfig(({ command }) => ({
     {
       name: "repo-backed-map-configs",
       configureServer(server) {
+        server.middlewares.use("/api/civ7/status", async (req, res, next) => {
+          if (req.method !== "GET") return next();
+          try {
+            const status = await getCiv7PlayableStatus({
+              timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS,
+            });
+            writeJson(res, 200, { ok: status.playable, status });
+          } catch (err) {
+            const error = err instanceof Error ? err.message : "Civ7 status request failed";
+            writeJson(res, 500, { ok: false, error });
+          }
+        });
+        server.middlewares.use("/api/civ7/map-summary", async (req, res, next) => {
+          if (req.method !== "GET") return next();
+          try {
+            const summary = await getCiv7MapSummary({
+              timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS,
+              includeAreaRegionCounts: true,
+            });
+            writeJson(res, 200, { ok: true, summary });
+          } catch (err) {
+            const error = err instanceof Error ? err.message : "Civ7 map summary request failed";
+            writeJson(res, 500, { ok: false, error });
+          }
+        });
+        server.middlewares.use("/api/civ7/gameinfo", async (req, res, next) => {
+          if (req.method !== "GET") return next();
+          try {
+            const url = new URL(req.url ?? "", "http://localhost");
+            const table = url.searchParams.get("table");
+            if (!table) throw new Error("Missing table query parameter");
+            const limit = Number(url.searchParams.get("limit") ?? "100");
+            const rows = await getCiv7GameInfoRows({
+              table,
+              limit,
+            }, {
+              timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS,
+            });
+            writeJson(res, 200, { ok: true, rows });
+          } catch (err) {
+            const error = err instanceof Error ? err.message : "Civ7 GameInfo request failed";
+            writeJson(res, 400, { ok: false, error });
+          }
+        });
         server.middlewares.use("/api/map-configs", async (req, res, next) => {
           if (req.method !== "POST") return next();
           try {
@@ -192,9 +245,7 @@ export default defineConfig(({ command }) => ({
               } catch (err) {
                 await restoreRepoConfig(target, previous);
                 const error = err instanceof Error ? err.message : "Deploy failed";
-                res.statusCode = 500;
-                res.setHeader("Content-Type", "application/json");
-                res.end(JSON.stringify({ ok: false, saved: false, path, error }));
+                writeJson(res, 500, { ok: false, saved: false, path, error });
                 return;
               }
               let restart;
@@ -202,16 +253,10 @@ export default defineConfig(({ command }) => ({
                 restart = await requestCiv7Restart({ verify: body.verifyRestart === true });
               } catch (err) {
                 const error = err instanceof Error ? err.message : "Civ7 restart request failed";
-                res.statusCode = 500;
-                res.setHeader("Content-Type", "application/json");
-                res.end(
-                  JSON.stringify({ ok: false, saved: true, deployed: true, path, deploy, error })
-                );
+                writeJson(res, 500, { ok: false, saved: true, deployed: true, path, deploy, error });
                 return;
               }
-              res.statusCode = 200;
-              res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify({ ok: true, path, deploy, restart }));
+              writeJson(res, 200, { ok: true, path, deploy, restart });
             };
             const nextRun = saveDeployRestartQueue.then(run, run);
             saveDeployRestartQueue = nextRun.then(
@@ -221,9 +266,7 @@ export default defineConfig(({ command }) => ({
             await nextRun;
           } catch (err) {
             const error = err instanceof Error ? err.message : "Save failed";
-            res.statusCode = 400;
-            res.setHeader("Content-Type", "application/json");
-            res.end(JSON.stringify({ ok: false, error }));
+            writeJson(res, 400, { ok: false, error });
           }
         });
       },

@@ -11,18 +11,30 @@ import {
   DEFAULT_CIV7_TUNER_PORT,
   checkCiv7DirectControlHealth,
   checkCiv7TunerHealth,
+  canStartCiv7UnitOperation,
+  configureCiv7Autoplay,
   encodeCiv7TunerRequest,
   executeCiv7Command,
   executeCiv7AppUiCommand,
   executeCiv7TunerCommand,
+  getCiv7GameInfoRows,
+  getCiv7MapGrid,
+  getCiv7MapSummary,
+  getCiv7PlotSnapshot,
+  getCiv7PlayableStatus,
+  getCiv7VisibilitySummary,
   getCiv7AppUiSnapshot,
   inspectCiv7RuntimeApi,
   parseCiv7TunerFrame,
   queryCiv7TunerStates,
+  requestCiv7UnitOperation,
+  revealCiv7MapForPlayer,
   restartCiv7GameAndBegin,
   restartCiv7Game,
   selectCiv7TunerState,
   snapshotFile,
+  startCiv7Autoplay,
+  stopCiv7Autoplay,
   waitForFreshLogMarkers,
 } from "../src/index";
 
@@ -191,6 +203,194 @@ describe("Civ7 direct control", () => {
     }
   });
 
+  test("reports playable status by composing App UI and Tuner readiness", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const status = await getCiv7PlayableStatus({
+        host: "127.0.0.1",
+        port,
+        timeoutMs: 1_000,
+      });
+
+      expect(status).toMatchObject({
+        playable: true,
+        readiness: "tuner-ready",
+        appUi: {
+          state: { id: "65535", name: "App UI" },
+        },
+        tuner: {
+          state: { id: "1", name: "Tuner" },
+          ready: true,
+        },
+      });
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("wraps bounded Tuner map and plot reads", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const summary = await getCiv7MapSummary({
+        host: "127.0.0.1",
+        port,
+        includeAreaRegionCounts: true,
+        timeoutMs: 1_000,
+      });
+      const plot = await getCiv7PlotSnapshot(
+        { x: 3, y: 4, playerId: 0, fields: ["terrain", "resource", "visibility"] },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+      );
+
+      expect(summary.map.width).toEqual({ ok: true, value: 84 });
+      expect(summary.areas?.areaIds).toEqual({ ok: true, value: [1, 2] });
+      expect(plot).toMatchObject({
+        state: { id: "1", name: "Tuner" },
+        location: { x: 3, y: 4, index: { ok: true, value: 339 } },
+        hiddenInfoPolicy: "visibility-filtered",
+        facts: {
+          terrain: { ok: true, value: 4 },
+          resource: { ok: true, value: -1 },
+        },
+      });
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("caps bounded map grid iteration before Civ-side traversal", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const grid = await getCiv7MapGrid(
+        {
+          bounds: { x: 0, y: 0, width: 10_000, height: 10_000 },
+          fields: ["terrain"],
+          maxPlots: 1,
+        },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+      );
+
+      expect(grid.plotCount).toBe(100_000_000);
+      expect(grid.omitted).toBe(99_999_999);
+      expect(server.received.some((message) => message.includes("break outer"))).toBe(true);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("wraps visibility, reveal, and GameInfo reads with contracts", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const visibility = await getCiv7VisibilitySummary({
+        playerId: 0,
+        bounds: { x: 0, y: 0, width: 2, height: 1 },
+        includeGrid: true,
+      }, {
+        host: "127.0.0.1",
+        port,
+        timeoutMs: 1_000,
+      });
+      const reveal = await revealCiv7MapForPlayer(
+        { playerId: 0 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, disposableSession: true, reason: "test disposable reveal proof" },
+      );
+      const resources = await getCiv7GameInfoRows(
+        { table: "Resources", limit: 2 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+      );
+
+      expect(visibility.numPlotsRevealed).toEqual({ ok: true, value: 10 });
+      expect(visibility.grid?.states).toHaveLength(2);
+      expect(reveal.classification).toBe("revealed");
+      expect(resources.rows).toEqual([{ ResourceType: "RESOURCE_COTTON" }]);
+      await expect(
+        getCiv7GameInfoRows({ table: "Resources;DROP" }, { host: "127.0.0.1", port, timeoutMs: 1_000 }),
+      ).rejects.toMatchObject({ code: "command-failed" });
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("validates and sends approved unit operations without replay", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const unitId = { owner: 0, id: 65536, type: 26 };
+      const validation = await canStartCiv7UnitOperation(
+        { unitId, operationType: "SKIP_TURN" },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+      );
+      const request = await requestCiv7UnitOperation(
+        { unitId, operationType: "SKIP_TURN" },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test unit operation request" },
+      );
+
+      expect(validation).toMatchObject({
+        family: "unit-operation",
+        operationType: "SKIP_TURN",
+        valid: true,
+      });
+      expect(request.sent).toBe(true);
+      expect(server.received.filter((message) => message.includes("return JSON.stringify(sendOperation")).length).toBe(1);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("requires approval for autoplay configure but allows explicit unbounded start", async () => {
+    await expect(
+      configureCiv7Autoplay({ turns: 1 }, undefined as never),
+    ).rejects.toMatchObject({ code: "command-failed" });
+
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const result = await startCiv7Autoplay(
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test explicit unbounded start" },
+      );
+
+      expect(result.verified).toBe(true);
+      expect(result.commands[0]?.output[0]).toContain('"isActive":true');
+      expect(server.received).toContain("LSQ:");
+      expect(server.received.some((message) => message.includes("Autoplay.setReturnAsPlayer(0)"))).toBe(true);
+      expect(server.received.some((message) => message.includes("Autoplay.setObserveAsPlayer(0)"))).toBe(true);
+      expect(server.received.some((message) => message.includes("Autoplay.setPause(false)"))).toBe(true);
+      expect(server.received.some((message) => message.includes("Autoplay.setActive(true)"))).toBe(true);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("waits for autoplay stop to settle and clears pause", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      await startCiv7Autoplay(
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test autoplay stop setup" },
+      );
+      const result = await stopCiv7Autoplay(
+        { host: "127.0.0.1", port, timeoutMs: 1_000, pollIntervalMs: 5, stabilityWindowMs: 5 },
+        { approved: true, reason: "test autoplay stop" },
+      );
+
+      expect(result.verified).toBe(true);
+      expect(result.commands[0]?.output[0]).toContain('"isActive":true');
+      expect(result.after.autoplay.isActive).toBe(false);
+      expect(result.after.autoplay.isPaused).toBe(true);
+      expect(server.received.some((message) => message.includes("Autoplay.setPause(true)"))).toBe(true);
+    } finally {
+      await server.close();
+    }
+  });
+
   test("can restart, begin, and wait for Tuner through one session", async () => {
     const server = await startTunerServer();
     try {
@@ -300,6 +500,10 @@ describe("Civ7 direct control", () => {
 async function startTunerServer(options: { restartOutput?: string } = {}) {
   const received: string[] = [];
   let loadingState = 6;
+  let revealedCount = 10;
+  let autoplayActive = false;
+  let autoplayPaused = false;
+  let autoplayStopPendingReads = 0;
   const server = createServer((socket) => {
     let buffer = Buffer.alloc(0);
     socket.on("data", (chunk) => {
@@ -317,7 +521,23 @@ async function startTunerServer(options: { restartOutput?: string } = {}) {
         } else if (frame.message === "CMD:65535:UI.notifyUIReady()") {
           loadingState = 8;
           socket.write(encodeResponse(frame.listenerId, ["null"]));
+        } else if (frame.message.includes("Autoplay.setActive(true)")) {
+          autoplayActive = true;
+          autoplayPaused = frame.message.includes("Autoplay.setPause(true)");
+          socket.write(encodeResponse(frame.listenerId, ['{"ok":true,"isActive":true,"turns":-1}']));
+        } else if (frame.message.includes("Autoplay.setActive(false)")) {
+          autoplayStopPendingReads = 1;
+          autoplayPaused = true;
+          socket.write(encodeResponse(frame.listenerId, ['{"ok":true,"isActive":true,"turns":-1,"isPaused":true,"isPausedOrPending":true}']));
         } else if (frame.message.includes("Network.isInSession")) {
+          const snapshotAutoplayActive = autoplayStopPendingReads > 0 ? true : autoplayActive;
+          const snapshotAutoplayPaused = autoplayStopPendingReads > 0 ? true : autoplayPaused;
+          if (autoplayStopPendingReads > 0) {
+            autoplayStopPendingReads -= 1;
+            if (autoplayStopPendingReads === 0) {
+              autoplayActive = false;
+            }
+          }
           socket.write(
             encodeResponse(frame.listenerId, [
               JSON.stringify({
@@ -330,10 +550,10 @@ async function startTunerServer(options: { restartOutput?: string } = {}) {
                   isLoggedIn: { ok: true, value: true },
                 },
                 autoplay: {
-                  isActive: false,
+                  isActive: snapshotAutoplayActive,
                   turns: -1,
-                  isPaused: false,
-                  isPausedOrPending: false,
+                  isPaused: snapshotAutoplayPaused,
+                  isPausedOrPending: snapshotAutoplayPaused,
                   observeAsPlayer: -1,
                   returnAsPlayer: -1,
                 },
@@ -396,6 +616,135 @@ async function startTunerServer(options: { restartOutput?: string } = {}) {
                 aliveIds: { ok: true, value: [0, 1] },
                 aliveHumanIds: { ok: true, value: [0] },
                 autoplayActive: { ok: true, value: false },
+              }),
+            ]),
+          );
+        } else if (frame.message.includes("MapRegions") && frame.message.includes("randomSeed")) {
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({
+                map: {
+                  width: { ok: true, value: 84 },
+                  height: { ok: true, value: 54 },
+                  plotCount: { ok: true, value: 4536 },
+                  mapSize: { ok: true, value: 0 },
+                  randomSeed: { ok: true, value: 1 },
+                },
+                game: {
+                  turn: { ok: true, value: 1 },
+                  age: { ok: true, value: 0 },
+                  maxTurns: { ok: true, value: 0 },
+                  turnDate: { ok: true, value: "4000 BCE" },
+                  hash: { ok: true, value: 0 },
+                },
+                areas: {
+                  areaIds: { ok: true, value: [1, 2] },
+                  regionIds: { ok: true, value: [7] },
+                  truncated: false,
+                },
+              }),
+            ]),
+          );
+        } else if (frame.message.includes("locationsFromBounds")) {
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({
+                bounds: { x: 0, y: 0, width: 10_000, height: 10_000 },
+                fields: ["terrain"],
+                plotCount: 100_000_000,
+                omitted: 99_999_999,
+                hiddenInfoPolicy: "not-player-scoped",
+                map: { width: { ok: true, value: 84 }, height: { ok: true, value: 54 } },
+                plots: [
+                  {
+                    location: { x: 0, y: 0, index: { ok: true, value: 0 } },
+                    hiddenInfoPolicy: "not-player-scoped",
+                    facts: { terrain: { ok: true, value: 4 } },
+                  },
+                ],
+              }),
+            ]),
+          );
+        } else if (frame.message.includes("readPlotSnapshot")) {
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({
+                location: { x: 3, y: 4, index: { ok: true, value: 339 } },
+                revealedState: { ok: true, value: 1 },
+                visible: { ok: true, value: true },
+                hiddenInfoPolicy: "visibility-filtered",
+                facts: {
+                  terrain: { ok: true, value: 4 },
+                  resource: { ok: true, value: -1 },
+                  revealedState: { ok: true, value: 1 },
+                  visible: { ok: true, value: true },
+                },
+              }),
+            ]),
+          );
+        } else if (frame.message === "CMD:1:Visibility.revealAllPlots(0)") {
+          revealedCount = 20;
+          socket.write(encodeResponse(frame.listenerId, ["true"]));
+        } else if (frame.message.includes("getPlotsRevealedCount")) {
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({
+                playerId: 0,
+                numPlotsRevealed: { ok: true, value: revealedCount },
+                numPlotsVisible: { ok: true, value: revealedCount },
+                counts: { "1": 2 },
+                grid: {
+                  bounds: { x: 0, y: 0, width: 2, height: 1 },
+                  plotCount: 2,
+                  omitted: 0,
+                  states: [
+                    { x: 0, y: 0, state: { ok: true, value: 1 }, visible: { ok: true, value: true } },
+                    { x: 1, y: 0, state: { ok: true, value: 1 }, visible: { ok: true, value: true } },
+                  ],
+                },
+              }),
+            ]),
+          );
+        } else if (frame.message.includes("GameInfo[input.table]")) {
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({
+                table: "Resources",
+                source: "GameInfo",
+                rows: [{ ResourceType: "RESOURCE_COTTON" }],
+                limit: 2,
+                offset: 0,
+                total: { ok: true, value: 1 },
+                omittedUnknown: false,
+              }),
+            ]),
+          );
+        } else if (frame.message.includes("return JSON.stringify(sendOperation")) {
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({
+                sent: true,
+                before: {
+                  family: "unit-operation",
+                  operationType: "SKIP_TURN",
+                  valid: true,
+                  result: { Success: true },
+                },
+                result: { accepted: true },
+              }),
+            ]),
+          );
+        } else if (frame.message.includes("return JSON.stringify(validateOperation")) {
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({
+                family: "unit-operation",
+                operationType: "SKIP_TURN",
+                enumValue: "SKIP_TURN",
+                target: { unitId: { owner: 0, id: 65536, type: 26 } },
+                args: undefined,
+                valid: true,
+                result: { Success: true },
               }),
             ]),
           );

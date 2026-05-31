@@ -70,6 +70,20 @@ This document tracks completed work and upcoming enhancements for the CLI and XM
     gameplay probes against `Game`, `GameplayMap`, and `Players`.
   - `civ7 game inspect` enumerates state-specific API roots and can return the
     package-maintained read-only `App UI` snapshot.
+- Civ7 first-class direct-control surface (Completed)
+  - `civ7 game status` composes App UI lifecycle status and Tuner gameplay
+    readiness.
+  - `civ7 game map` reads map summaries, individual plot snapshots, and bounded
+    map grids through package-owned wrappers.
+  - `civ7 game visibility` reads player visibility and gates disposable debug
+    reveal behind explicit approval flags.
+  - `civ7 game gameinfo` reads bounded `GameInfo` rows without arbitrary SQL.
+  - `civ7 game autoplay` wraps native Autoplay status/configure/start/stop.
+  - `civ7 game operation` validates and optionally sends Unit/City/Player
+    operations and commands using package-owned `canStart` and `sendRequest`
+    contracts.
+  - `civ7 game catalog` emits the TypeBox-backed capability catalog from static
+    wrappers and, when live Civ is available, runtime root/method inspection.
 
 ### Next up
 

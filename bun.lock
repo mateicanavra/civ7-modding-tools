@@ -124,6 +124,9 @@
     "packages/civ7-direct-control": {
       "name": "@civ7/direct-control",
       "version": "0.1.0",
+      "dependencies": {
+        "typebox": "^1.0.80",
+      },
       "devDependencies": {
         "@types/node": "^22.14.0",
         "rimraf": "^6.1.2",
