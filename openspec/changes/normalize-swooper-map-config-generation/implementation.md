@@ -20,8 +20,12 @@ Implemented:
 - `tsup` map bundle entries now come from generated entry modules.
 - Studio loads shipped maps as Configs, keeps local storage as Scratch, and uses
   a Vite dev-server write API for repo-backed Save and Save As. Successful
-  repo-backed saves run the Swooper Maps deploy script and append a named
-  FireTuner restart request for the running Civ7 session.
+  repo-backed saves run the Swooper Maps deploy script and then call
+  `civ7 game restart` to append and wait for a named FireTuner restart request
+  for the running Civ7 session.
+- Manual FireTuner restart requests are now available through
+  `bun run --filter @mateicanavra/civ7-cli dev -- game restart --agent <agent>`
+  while preserving the existing append-only bridge log protocol.
 - Legacy shipped TS map wrappers, shipped `.config.ts` files, duplicate standard
   built-in preset JSON, and legacy Studio `advanced` focus compatibility mapping
   were removed.
@@ -35,13 +39,17 @@ Local evidence:
 - `bun run --cwd mods/mod-swooper-maps build:studio-recipes`
 - `bun run --cwd mods/mod-swooper-maps build`
 - `bunx vitest run apps/mapgen-studio/test/presets/presetStore.test.ts apps/mapgen-studio/test/presets/importFlow.test.ts apps/mapgen-studio/test/config/defaultConfigSchema.test.ts`
+- `bun run --filter @mateicanavra/civ7-cli test -- test/utils/firetunerBridge.test.ts test/commands/game.restart.test.ts`
+- `bun run --filter @mateicanavra/civ7-cli check`
+- `bun run --filter @mateicanavra/civ7-cli build`
+- `bun run --cwd packages/cli dev -- game restart --agent Codex --dry-run --json`
 - `bun run --cwd apps/mapgen-studio build`
 - `bun run --cwd mods/mod-swooper-maps deploy`
 - Studio save API smoke against
   `mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json`
   returned `200`, ran `bun run --cwd mods/mod-swooper-maps deploy`, and
-  appended FireTuner restart requests including `studio-mpswts66-sgg` and
-  `studio-mpsx0njo-sgg`.
+  appended FireTuner restart requests including `studio-mpswts66-sgg`,
+  `studio-mpsx0njo-sgg`, and `studio-mptc5eme-f7e`.
 
 Runtime evidence:
 
@@ -74,6 +82,20 @@ Runtime evidence:
   was acknowledged and submitted at `2026-05-30T18:30:37`; Civ7 logs then
   showed fresh Swooper generation at `2026-05-30 18:31:29`, completing
   `[50/50] ok mod-swooper-maps.standard.placement.placement`.
+- CLI restart proof
+  `REQ codex-cli-wait-complete-1780205200 AGENT=Codex RUN Network.restartGame()`
+  returned `ok: true` after the bridge wrote `WINDOWS_SUBMITTED_AT
+  2026-05-31T01:22:57`.
+- Studio save API proof against
+  `mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json`
+  returned `200` after deploy and `civ7 game restart --wait --json`; the bridge
+  submitted
+  `REQ studio-mptc5eme-f7e AGENT=DRA-map-config-generation RUN Network.restartGame()`
+  with `WINDOWS_SUBMITTED_AT 2026-05-31T01:24:58`.
+- Deployed mod artifacts under
+  `~/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/`
+  had fresh `2026-05-31 01:24:53` to `2026-05-31 01:24:55` mtimes after the
+  Studio save API smoke.
 
 Scoped caveat:
 
@@ -85,3 +107,7 @@ Scoped caveat:
   `~/Parallels Tunnel/Sid Meier's Civilization VII Development Tools/Comms/`;
   the stale `/Volumes/[C] Windows 11` SMB mount entry is not the authoritative
   access path for this environment.
+- The `2026-05-31 01:24` Studio save smoke proves source save, build/deploy,
+  deployed file mtimes, and Windows FireTuner bridge submission. It does not add
+  a new fresh `Scripting.log` MapGeneration proof beyond the earlier runtime
+  evidence recorded above.

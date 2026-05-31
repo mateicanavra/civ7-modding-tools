@@ -110,7 +110,7 @@ async function saveRepoBackedConfig(args: {
     $schema: "../../../dist/recipes/standard-map-config.schema.json",
     id: args.id,
     name: args.name,
-    description: args.description ?? "",
+    description: args.description?.trim() || args.name,
     recipe: "standard",
     sortIndex: args.sortIndex,
     ...(args.latitudeBounds ? { latitudeBounds: args.latitudeBounds } : {}),

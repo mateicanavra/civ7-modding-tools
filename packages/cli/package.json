@@ -74,6 +74,9 @@
       "git:subtree": {
         "description": "Configure remotes, import repos, pull, push, setup and view status via git subtree"
       },
+      "game": {
+        "description": "Operate a running Civilization VII session through local tooling"
+      },
       "mod": {
         "description": "Manage Civilization VII mods"
       },
