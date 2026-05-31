@@ -27,12 +27,34 @@ export type WorldBalanceStats = Readonly<{
   plannedLargestMountainComponentSize: number;
   plannedHillTiles: number;
   plannedHillShareOfPreLakeLand: number;
+  plannedHillComponentCount: number;
+  plannedLargestHillComponentSize: number;
+  plannedRoughTerrainTiles: number;
+  plannedRoughTerrainShareOfPreLakeLand: number;
+  plannedMountainToHillRatio: number;
+  plannedVolcanoTiles: number;
+  plannedVolcanoShareOfPreLakeLand: number;
+  volcanoKindCounts: Readonly<Record<string, number>>;
   finalMountainTiles: number;
   finalMountainShareOfPreLakeLand: number;
   finalMountainComponentCount: number;
   finalLargestMountainComponentSize: number;
+  finalNonVolcanoMountainTiles: number;
+  finalNonVolcanoMountainShareOfPreLakeLand: number;
+  finalVolcanoMountainTiles: number;
+  volcanoFeatureTiles: number;
   finalHillTiles: number;
   finalHillShareOfPreLakeLand: number;
+  finalHillComponentCount: number;
+  finalLargestHillComponentSize: number;
+  finalRoughTerrainTiles: number;
+  finalRoughTerrainShareOfPreLakeLand: number;
+  finalNonVolcanoRoughTerrainTiles: number;
+  finalNonVolcanoRoughTerrainShareOfPreLakeLand: number;
+  finalMountainToHillRatio: number;
+  finalNonVolcanoMountainToHillRatio: number;
+  finalFlatToRoughRatio: number;
+  finalFlatToNonVolcanoRoughRatio: number;
   finalFlatTiles: number;
   finalFlatShareOfPreLakeLand: number;
   plainsTiles: number;
@@ -131,6 +153,19 @@ type BiomeClassificationStatsInput = Readonly<{
 
 type MockAdapter = ReturnType<typeof createMockAdapter>;
 
+type VolcanoKind = "subductionArc" | "rift" | "hotspot";
+
+type VolcanoStatsInput = Readonly<{
+  volcanoMask: Uint8Array;
+  volcanoes: ReadonlyArray<
+    Readonly<{
+      tileIndex: number;
+      kind: VolcanoKind;
+      strength01: number;
+    }>
+  >;
+}>;
+
 function countMask(mask: Uint8Array): number {
   let count = 0;
   for (const value of mask) {
@@ -153,6 +188,14 @@ function percentile(values: readonly number[], p: number): number {
 
 function roundMetric(value: number): number {
   return Number(value.toFixed(4));
+}
+
+function shareOf(count: number, total: number): number {
+  return total === 0 ? 0 : count / total;
+}
+
+function safeRatio(numerator: number, denominator: number): number {
+  return denominator === 0 ? 0 : roundMetric(numerator / denominator);
 }
 
 function standardDeviation(values: readonly number[]): number {
@@ -359,6 +402,9 @@ export function collectWorldBalanceStats(args: Readonly<{
   const mountains = context.artifacts.get(morphologyArtifacts.mountains.id) as
     | { mountainMask?: Uint8Array; hillMask?: Uint8Array }
     | undefined;
+  const volcanoes = context.artifacts.get(morphologyArtifacts.volcanoes.id) as
+    | Partial<VolcanoStatsInput>
+    | undefined;
   const coastlineMetrics = context.artifacts.get(morphologyArtifacts.coastlineMetrics.id) as
     | { distanceToCoast?: Uint16Array }
     | undefined;
@@ -385,6 +431,9 @@ export function collectWorldBalanceStats(args: Readonly<{
   }
   if (!(mountains?.mountainMask instanceof Uint8Array) || !(mountains.hillMask instanceof Uint8Array)) {
     throw new Error("Missing morphology mountain fields.");
+  }
+  if (!(volcanoes?.volcanoMask instanceof Uint8Array) || !Array.isArray(volcanoes.volcanoes)) {
+    throw new Error("Missing morphology volcano fields.");
   }
   if (!(coastlineMetrics?.distanceToCoast instanceof Uint16Array)) {
     throw new Error("Missing morphology coastline metrics.");
@@ -425,10 +474,13 @@ export function collectWorldBalanceStats(args: Readonly<{
   let finalMountainTiles = 0;
   let finalHillTiles = 0;
   let finalFlatTiles = 0;
+  let finalVolcanoMountainTiles = 0;
+  let volcanoFeatureTiles = 0;
   let plainsTiles = 0;
   let lakeWaterDriftCount = 0;
   let invalidFeatureSurfaceCount = 0;
   const finalMountainMask = new Uint8Array(width * height);
+  const finalHillMask = new Uint8Array(width * height);
   const landElevations: number[] = [];
   const landAridity: number[] = [];
   const landMoisture: number[] = [];
@@ -441,6 +493,7 @@ export function collectWorldBalanceStats(args: Readonly<{
   const hillTerrain = adapter.getTerrainTypeIndex("TERRAIN_HILL");
   const flatTerrain = adapter.getTerrainTypeIndex("TERRAIN_FLAT");
   const plainsBiome = adapter.getBiomeGlobal("BIOME_PLAINS");
+  const volcanoFeatureType = adapter.getFeatureTypeIndex("FEATURE_VOLCANO");
   const featureCounts: Record<string, number> = Object.fromEntries(
     FEATURE_KEYS.map((key) => [key, 0])
   );
@@ -455,6 +508,7 @@ export function collectWorldBalanceStats(args: Readonly<{
       const idx = y * width + x;
       const isWater = adapter.isWater(x, y);
       const terrain = adapter.getTerrainType(x, y);
+      const feature = adapter.getFeatureType(x, y);
       if (isWater) waterTiles += 1;
       else {
         postProjectionLandTiles += 1;
@@ -462,9 +516,16 @@ export function collectWorldBalanceStats(args: Readonly<{
           finalMountainTiles += 1;
           finalMountainMask[idx] = 1;
         }
-        if (terrain === hillTerrain) finalHillTiles += 1;
+        if (terrain === hillTerrain) {
+          finalHillTiles += 1;
+          finalHillMask[idx] = 1;
+        }
         if (terrain === flatTerrain) finalFlatTiles += 1;
         if (adapter.getBiomeType(x, y) === plainsBiome) plainsTiles += 1;
+      }
+      if (feature === volcanoFeatureType) {
+        volcanoFeatureTiles += 1;
+        if (!isWater && terrain === mountainTerrain) finalVolcanoMountainTiles += 1;
       }
       if (topography.landMask[idx] === 1) {
         const elevation = topography.elevation[idx] ?? 0;
@@ -487,7 +548,6 @@ export function collectWorldBalanceStats(args: Readonly<{
       }
       if (engineLakeProjection.lakeMask[idx] === 1 && !isWater) lakeWaterDriftCount += 1;
 
-      const feature = adapter.getFeatureType(x, y);
       for (const key of FEATURE_KEYS) {
         const featureType = featureTypeByKey[key] ?? -1;
         if (featureType < 0 || feature !== featureType) continue;
@@ -518,6 +578,21 @@ export function collectWorldBalanceStats(args: Readonly<{
   const plannedMountainComponents = computeMaskComponents(mountains.mountainMask, width, height);
   const finalMountainComponents = computeMaskComponents(finalMountainMask, width, height);
   const plannedHillTiles = countMask(mountains.hillMask);
+  const plannedHillComponents = computeMaskComponents(mountains.hillMask, width, height);
+  const finalHillComponents = computeMaskComponents(finalHillMask, width, height);
+  const plannedRoughTerrainTiles = plannedMountainTiles + plannedHillTiles;
+  const finalNonVolcanoMountainTiles = Math.max(0, finalMountainTiles - finalVolcanoMountainTiles);
+  const finalRoughTerrainTiles = finalMountainTiles + finalHillTiles;
+  const finalNonVolcanoRoughTerrainTiles = finalNonVolcanoMountainTiles + finalHillTiles;
+  const plannedVolcanoTiles = countMask(volcanoes.volcanoMask);
+  const volcanoKindCounts: Record<VolcanoKind, number> = {
+    subductionArc: 0,
+    rift: 0,
+    hotspot: 0,
+  };
+  for (const entry of volcanoes.volcanoes) {
+    volcanoKindCounts[entry.kind] += 1;
+  }
   const lakeTiles = countMask(lakePlan.lakeMask);
   const engineLakeTiles = countMask(engineLakeProjection.lakeMask);
   const lakeComponents = computeMaskComponents(engineLakeProjection.lakeMask, width, height);
@@ -552,17 +627,45 @@ export function collectWorldBalanceStats(args: Readonly<{
     plannedMountainComponentCount: plannedMountainComponents.componentCount,
     plannedLargestMountainComponentSize: plannedMountainComponents.largestComponentSize,
     plannedHillTiles,
-    plannedHillShareOfPreLakeLand: preLakeLandTiles === 0 ? 0 : plannedHillTiles / preLakeLandTiles,
+    plannedHillShareOfPreLakeLand: shareOf(plannedHillTiles, preLakeLandTiles),
+    plannedHillComponentCount: plannedHillComponents.componentCount,
+    plannedLargestHillComponentSize: plannedHillComponents.largestComponentSize,
+    plannedRoughTerrainTiles,
+    plannedRoughTerrainShareOfPreLakeLand: shareOf(plannedRoughTerrainTiles, preLakeLandTiles),
+    plannedMountainToHillRatio: safeRatio(plannedMountainTiles, plannedHillTiles),
+    plannedVolcanoTiles,
+    plannedVolcanoShareOfPreLakeLand: shareOf(plannedVolcanoTiles, preLakeLandTiles),
+    volcanoKindCounts,
     finalMountainTiles,
-    finalMountainShareOfPreLakeLand: preLakeLandTiles === 0 ? 0 : finalMountainTiles / preLakeLandTiles,
+    finalMountainShareOfPreLakeLand: shareOf(finalMountainTiles, preLakeLandTiles),
     finalMountainComponentCount: finalMountainComponents.componentCount,
     finalLargestMountainComponentSize: finalMountainComponents.largestComponentSize,
+    finalNonVolcanoMountainTiles,
+    finalNonVolcanoMountainShareOfPreLakeLand: shareOf(
+      finalNonVolcanoMountainTiles,
+      preLakeLandTiles
+    ),
+    finalVolcanoMountainTiles,
+    volcanoFeatureTiles,
     finalHillTiles,
-    finalHillShareOfPreLakeLand: preLakeLandTiles === 0 ? 0 : finalHillTiles / preLakeLandTiles,
+    finalHillShareOfPreLakeLand: shareOf(finalHillTiles, preLakeLandTiles),
+    finalHillComponentCount: finalHillComponents.componentCount,
+    finalLargestHillComponentSize: finalHillComponents.largestComponentSize,
+    finalRoughTerrainTiles,
+    finalRoughTerrainShareOfPreLakeLand: shareOf(finalRoughTerrainTiles, preLakeLandTiles),
+    finalNonVolcanoRoughTerrainTiles,
+    finalNonVolcanoRoughTerrainShareOfPreLakeLand: shareOf(
+      finalNonVolcanoRoughTerrainTiles,
+      preLakeLandTiles
+    ),
+    finalMountainToHillRatio: safeRatio(finalMountainTiles, finalHillTiles),
+    finalNonVolcanoMountainToHillRatio: safeRatio(finalNonVolcanoMountainTiles, finalHillTiles),
+    finalFlatToRoughRatio: safeRatio(finalFlatTiles, finalRoughTerrainTiles),
+    finalFlatToNonVolcanoRoughRatio: safeRatio(finalFlatTiles, finalNonVolcanoRoughTerrainTiles),
     finalFlatTiles,
-    finalFlatShareOfPreLakeLand: preLakeLandTiles === 0 ? 0 : finalFlatTiles / preLakeLandTiles,
+    finalFlatShareOfPreLakeLand: shareOf(finalFlatTiles, preLakeLandTiles),
     plainsTiles,
-    plainsShareOfPreLakeLand: preLakeLandTiles === 0 ? 0 : plainsTiles / preLakeLandTiles,
+    plainsShareOfPreLakeLand: shareOf(plainsTiles, preLakeLandTiles),
     meanAridity: roundMetric(mean(landAridity)),
     highAridityLandShare:
       preLakeLandTiles === 0
@@ -583,7 +686,7 @@ export function collectWorldBalanceStats(args: Readonly<{
     elevationByCoastDistance,
     centralBulgeGradient,
     lakeTiles,
-    lakeShareOfPreLakeLand: preLakeLandTiles === 0 ? 0 : lakeTiles / preLakeLandTiles,
+    lakeShareOfPreLakeLand: shareOf(lakeTiles, preLakeLandTiles),
     engineLakeTiles,
     lakeComponentCount: lakeComponents.componentCount,
     singleTileLakeCount: lakeComponents.singleTileCount,
