@@ -370,8 +370,10 @@ Norms:
   debug signals; do not silently plan from hidden information.
 - Treat native autoplay as a turn-runner and experiment clock, not a strategy
   policy engine.
-- Use `game watch --jsonl --human-aware` for passive human/agent observation;
-  it records HUD timing and stale-risk markers without sending operations.
+- Use `game watch --jsonl --human-aware --artifact watcher.jsonl` for passive
+  human/agent observation; it records HUD timing and stale-risk markers without
+  sending operations and leaves a durable JSONL trace for later skill/reference
+  extraction.
 - Treat official AI XML/SQL rows as load-time/static-mod levers until a safe
   live mutation contract is proven.
 - Use RHQ AI MOD as the baseline for static AI manipulation over autoplay, not

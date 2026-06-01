@@ -127,11 +127,12 @@ logs are used, include `logPath`, `mtime`, `startOffset`, and `endOffset`.
 ## Shortcut Candidates
 
 - `game probe-latency --count <n> --interval-ms <ms> --read-set status|app-ui|tuner|hud --jsonl`
-- `game watch --jsonl --human-aware --interval-ms 3000 --slow-ms 2000`
+- `game watch --jsonl --human-aware --interval-ms 3000 --slow-ms 2000
+  --artifact watcher.jsonl`
   is now the first passive watcher shortcut. It emits the observation schema
   above from the read-only notification HUD, can include the current ready-unit
-  view, and labels slow/stale-risk reads without claiming OS foreground
-  causality.
+  view, labels slow/stale-risk reads without claiming OS foreground causality,
+  and can append the same JSONL records to a durable artifact file.
 - `game wait --until tuner-ready|turn-change|blocker-clear --timeout-ms <ms>`
 - Common `--timing` JSON metadata on game commands.
 - Mutation stale guards such as `--max-read-age-ms`, `--quiesce-ms`, or

@@ -1,4 +1,6 @@
 import { setTimeout as sleep } from 'node:timers/promises';
+import { appendFile, mkdir } from 'node:fs/promises';
+import { dirname } from 'node:path';
 import { Command, Flags } from '@oclif/core';
 import {
   getCiv7PlayNotificationView,
@@ -13,6 +15,7 @@ export default class GameWatch extends Command {
 
   static examples = [
     '<%= config.bin %> game watch --count 5 --jsonl',
+    '<%= config.bin %> game watch --count 5 --artifact watcher.jsonl',
     '<%= config.bin %> game watch --count 0 --interval-ms 5000 --jsonl',
     '<%= config.bin %> game watch --include-ready-unit --count 3 --json',
   ];
@@ -57,6 +60,9 @@ export default class GameWatch extends Command {
       description: 'Mark observations at or above this duration as stale-risk reads',
       default: 5_000,
     }),
+    artifact: Flags.string({
+      description: 'Append JSONL observations to this file',
+    }),
     jsonl: Flags.boolean({
       description: 'Emit one JSON observation per line',
       default: false,
@@ -76,6 +82,7 @@ export default class GameWatch extends Command {
     while (total === 0 || index < total) {
       const observation = await this.readObservation(index + 1, flags);
       observations.push(observation);
+      if (flags.artifact) await appendObservation(flags.artifact, observation);
 
       if (flags.jsonl) this.log(JSON.stringify(observation));
       else if (!flags.json) this.log(formatObservation(observation));
@@ -203,6 +210,7 @@ type WatchFlags = Readonly<{
   'human-aware': boolean;
   'slow-ms': number;
   'stale-ms': number;
+  artifact?: string;
   jsonl: boolean;
   json: boolean;
 }>;
@@ -267,11 +275,17 @@ function buildCliShape(flags: WatchFlags): string {
     'game watch',
     `--count ${flags.count}`,
     `--interval-ms ${flags['interval-ms']}`,
+    flags.artifact ? `--artifact ${flags.artifact}` : '',
     flags['include-ready-unit'] ? '--include-ready-unit' : '',
     flags.jsonl ? '--jsonl' : '',
     flags.json ? '--json' : '',
   ].filter(Boolean);
   return parts.join(' ');
+}
+
+async function appendObservation(path: string, observation: WatchObservation): Promise<void> {
+  await mkdir(dirname(path), { recursive: true });
+  await appendFile(path, `${JSON.stringify(observation)}\n`, 'utf8');
 }
 
 function formatObservation(observation: WatchObservation): string {

@@ -1,5 +1,8 @@
 import { once } from 'node:events';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { type AddressInfo, createServer } from 'node:net';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayAssignWorker from '../../src/commands/game/play/assign-worker';
 import GamePlayAdvisorWarning from '../../src/commands/game/play/advisor-warning';
@@ -1004,6 +1007,40 @@ describe('game play commands', () => {
       expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
     } finally {
       log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('appends watch observations to an artifact file', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'ready-unit' });
+    const tempDir = await mkdtemp(join(tmpdir(), 'civ7-watch-'));
+    const artifact = join(tempDir, 'watcher.jsonl');
+    try {
+      const { port } = server.address();
+      await GameWatch.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--count',
+        '2',
+        '--interval-ms',
+        '1',
+        '--artifact',
+        artifact,
+        '--json',
+      ]);
+
+      const lines = (await readFile(artifact, 'utf8')).trim().split('\n');
+      expect(lines).toHaveLength(2);
+      expect(JSON.parse(lines[0])).toMatchObject({
+        schema: 'civ7-watcher-observation.v1',
+        ok: true,
+        stateRole: 'app-ui',
+      });
+      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
+    } finally {
+      await rm(tempDir, { force: true, recursive: true });
       await server.close();
     }
   });
