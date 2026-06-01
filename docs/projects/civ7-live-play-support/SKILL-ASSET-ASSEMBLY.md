@@ -214,6 +214,8 @@ Norms:
   animation may have changed the board.
 - Target plots, not target unit ids.
 - Validator success is not proof of tactical effect; require a postcondition.
+- `verification.status == "no-state-change"` means the action is unresolved,
+  not successful; re-read before trying the same target again.
 - Commanders are support and coordination units first. Do not treat them as
   default attackers without live evidence.
 

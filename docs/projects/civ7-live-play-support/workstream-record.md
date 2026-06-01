@@ -295,7 +295,9 @@ Review findings and disposition:
 - Finding: validator-success unit actions can still be tactical no-ops.
   Disposition: added `game play unit-target`, which resolves target actions
   through official right-click order and returns before/after probes so agents
-  can treat postconditions, not send plumbing, as proof.
+  can treat postconditions, not send plumbing, as proof. The result now includes
+  `verification.status`, so sent-but-unchanged actions are explicit
+  `no-state-change` postcondition misses rather than ambiguous command success.
 - Finding: stale combat coordinates are now the dominant play-quality risk
   during the active agent's wartime turns.
   Disposition: added an early-war stale-state tactical guard topic that combines

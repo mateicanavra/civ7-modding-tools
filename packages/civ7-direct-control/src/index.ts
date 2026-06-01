@@ -1022,6 +1022,7 @@ export type Civ7TurnCompletionStatusResult = Readonly<{
   hasSentTurnComplete: Civ7RuntimeProbe<boolean>;
   canEndTurn: Civ7RuntimeProbe<boolean>;
   blocker: Civ7RuntimeProbe<unknown>;
+  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
 }>;
 
 export type Civ7TurnCompletionActionResult = Readonly<{
@@ -1029,6 +1030,133 @@ export type Civ7TurnCompletionActionResult = Readonly<{
   after: Civ7TurnCompletionStatusResult;
   command: Civ7CommandResult;
   verified: boolean;
+}>;
+
+export type Civ7PlayDecisionHint = Readonly<{
+  category: string;
+  operationFamily?: Civ7OperationFamily | "app-ui-action";
+  operationType?: string;
+  argsShape?: string;
+  cli?: string;
+  requiredInputs: ReadonlyArray<Civ7PlayDecisionInput>;
+  commonActions: ReadonlyArray<Civ7PlayDecisionAction>;
+  confidence: "live-proof" | "official-ui" | "heuristic";
+  notes: ReadonlyArray<string>;
+}>;
+
+export type Civ7PlayDecisionInput = Readonly<{
+  name: string;
+  source: string;
+  required: boolean;
+  note?: string;
+}>;
+
+export type Civ7PlayDecisionAction = Readonly<{
+  label: string;
+  cli?: string;
+  operationFamily?: Civ7OperationFamily | "app-ui-action";
+  operationType?: string;
+  argsShape?: string;
+  when: string;
+}>;
+
+export type Civ7PlayNotificationSummary = Readonly<{
+  id: Civ7ComponentId | null;
+  type: unknown;
+  typeName: string | null;
+  groupType: unknown;
+  player: unknown;
+  summary: string | null;
+  message: string | null;
+  target: unknown;
+  location: unknown;
+  canUserDismiss: unknown;
+  expired: unknown;
+  dismissed: unknown;
+  isEndTurnBlocking: boolean;
+  decision: Civ7PlayDecisionHint;
+  details?: unknown;
+}>;
+
+export type Civ7PlayDecisionQueueItem = Readonly<{
+  notificationId: Civ7ComponentId | null;
+  isEndTurnBlocking: boolean;
+  typeName: string | null;
+  summary: string | null;
+  message: string | null;
+  target: unknown;
+  location: unknown;
+  player: unknown;
+  category: string;
+  operationFamily?: Civ7OperationFamily | "app-ui-action";
+  operationType?: string;
+  argsShape?: string;
+  cli?: string;
+  requiredInputs: ReadonlyArray<Civ7PlayDecisionInput>;
+  commonActions: ReadonlyArray<Civ7PlayDecisionAction>;
+  notes: ReadonlyArray<string>;
+  details?: unknown;
+}>;
+
+export type Civ7PlayNotificationViewResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  localPlayerId: number;
+  turn: Civ7RuntimeProbe<number>;
+  turnDate: Civ7RuntimeProbe<string>;
+  hasSentTurnComplete: Civ7RuntimeProbe<boolean>;
+  canEndTurn: Civ7RuntimeProbe<boolean>;
+  blocker: Civ7RuntimeProbe<unknown>;
+  blockingNotificationId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  selectedUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  selectedCityId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  notifications: ReadonlyArray<Civ7PlayNotificationSummary>;
+  decisions: ReadonlyArray<Civ7PlayDecisionHint>;
+  hud: Readonly<{
+    nextDecision: Civ7PlayDecisionQueueItem | null;
+    decisionQueue: ReadonlyArray<Civ7PlayDecisionQueueItem>;
+  }>;
+  limits: Readonly<{
+    maxNotifications: number;
+    truncated: boolean;
+  }>;
+}>;
+
+export type Civ7NotificationDismissInput = Readonly<{
+  notificationId: Civ7ComponentId;
+}>;
+
+export type Civ7NotificationDismissalSummary = Readonly<{
+  id: Civ7ComponentId | null;
+  exists: boolean;
+  type: unknown;
+  typeName: string | null;
+  summary: string | null;
+  message: string | null;
+  target: unknown;
+  location: unknown;
+  canUserDismiss: unknown;
+  expired: unknown;
+  dismissed: unknown;
+  blocksTurnAdvancement: Civ7RuntimeProbe<unknown>;
+  endTurnBlockingType: Civ7RuntimeProbe<unknown>;
+  isEndTurnBlocking: Civ7RuntimeProbe<boolean>;
+}>;
+
+export type Civ7NotificationDismissalResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  notificationId: Civ7ComponentId;
+  before: Civ7NotificationDismissalSummary;
+  after: Civ7NotificationDismissalSummary | null;
+  canDismiss: boolean;
+  sent: boolean;
+  result: unknown;
+  verified: boolean;
+  notes: ReadonlyArray<string>;
 }>;
 
 export type Civ7OperationFamily =
@@ -1073,6 +1201,141 @@ export type Civ7OperationRequestResult = Readonly<{
   after: Civ7OperationValidationResult;
   sent: boolean;
   verified: boolean;
+}>;
+
+export type Civ7UnitTargetActionInput = Readonly<{
+  unitId: Civ7ComponentId;
+  x: number;
+  y: number;
+}>;
+
+export type Civ7UnitTargetActionCandidate = Readonly<{
+  family: "unit-operation" | "unit-command";
+  operationType: string;
+  args: unknown;
+  valid: boolean;
+  result: unknown;
+  targetInReturnedPlots: boolean | null;
+  rejectedReason?: string;
+}>;
+
+export type Civ7UnitTargetActionResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  unitId: Civ7ComponentId;
+  target: Readonly<{ x: number; y: number; index: Civ7RuntimeProbe<number> }>;
+  beforeUnit: Civ7RuntimeProbe<unknown>;
+  beforeTargetUnits: Civ7RuntimeProbe<unknown>;
+  candidates: ReadonlyArray<Civ7UnitTargetActionCandidate>;
+  selected: Civ7UnitTargetActionCandidate | null;
+  sent: boolean;
+  sendResult?: unknown;
+  afterUnit?: Civ7RuntimeProbe<unknown>;
+  afterTargetUnits?: Civ7RuntimeProbe<unknown>;
+  verified?: boolean;
+  verification?: Readonly<{
+    status: "verified" | "no-state-change" | "not-sent";
+    unitChanged: boolean;
+    targetUnitsChanged: boolean;
+    reason: string;
+  }>;
+  notes: ReadonlyArray<string>;
+}>;
+
+export type Civ7ReadyUnitViewInput = Readonly<{
+  unitId?: Civ7ComponentId;
+  radius?: number;
+  maxOperations?: number;
+}>;
+
+export type Civ7ReadyUnitOperationCandidate = Readonly<{
+  family: "unit-operation" | "unit-command";
+  operationType: string;
+  enumValue: unknown;
+  valid: boolean;
+  result: unknown;
+}>;
+
+export type Civ7ReadyUnitNearbyPlot = Readonly<{
+  x: number;
+  y: number;
+  units: unknown;
+}>;
+
+export type Civ7ReadyUnitViewResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  localPlayerId: number;
+  requestedUnitId: Civ7ComponentId | null;
+  selectedUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  unitId: Civ7ComponentId | null;
+  unit: Civ7RuntimeProbe<unknown>;
+  legalOperations: ReadonlyArray<Civ7ReadyUnitOperationCandidate>;
+  nearby: Civ7RuntimeProbe<ReadonlyArray<Civ7ReadyUnitNearbyPlot>>;
+  notes: ReadonlyArray<string>;
+}>;
+
+export type Civ7ReadyCityViewInput = Readonly<{
+  cityId?: Civ7ComponentId;
+  maxOperations?: number;
+}>;
+
+export type Civ7ReadyCityOperationCandidate = Readonly<{
+  family: "city-operation" | "city-command";
+  operationType: string;
+  enumValue: unknown;
+  valid: boolean;
+  result: unknown;
+}>;
+
+export type Civ7ReadyCityProductionCandidate = Readonly<{
+  kind: "unit" | "constructible" | "project";
+  type: unknown;
+  typeName: string | null;
+  name: string | null;
+  args: unknown;
+  valid: boolean;
+  result: unknown;
+  placementPlots?: ReadonlyArray<unknown>;
+  cli: string;
+}>;
+
+export type Civ7ReadyCityTownFocusOption = Readonly<{
+  name: string | null;
+  description: string | null;
+  args: unknown;
+  valid: boolean;
+  result: unknown;
+  cli: string;
+}>;
+
+export type Civ7ReadyCityPopulationPlacement = Readonly<{
+  isReadyToPlacePopulation: Civ7RuntimeProbe<unknown>;
+  cityWorkerCap: Civ7RuntimeProbe<unknown>;
+  allPlacementInfo: Civ7RuntimeProbe<unknown>;
+  workablePlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
+  blockedPlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
+  cliHints: ReadonlyArray<string>;
+}>;
+
+export type Civ7ReadyCityViewResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  localPlayerId: number;
+  requestedCityId: Civ7ComponentId | null;
+  selectedCityId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  blockingCityId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  cityId: Civ7ComponentId | null;
+  city: Civ7RuntimeProbe<unknown>;
+  legalOperations: ReadonlyArray<Civ7ReadyCityOperationCandidate>;
+  productionCandidates: Civ7RuntimeProbe<ReadonlyArray<Civ7ReadyCityProductionCandidate>>;
+  townFocusOptions: Civ7RuntimeProbe<ReadonlyArray<Civ7ReadyCityTownFocusOption>>;
+  populationPlacement: Civ7RuntimeProbe<Civ7ReadyCityPopulationPlacement>;
+  notes: ReadonlyArray<string>;
 }>;
 
 export const Civ7CapabilityCatalogEntrySchema = Type.Object({
@@ -2548,6 +2811,40 @@ export async function getCiv7TurnCompletionStatus(
   return jsonPayloadFromCommandResult<Civ7TurnCompletionStatusResult>(result, "Civ7 turn completion status");
 }
 
+export async function getCiv7PlayNotificationView(
+  options: Civ7DirectControlOptions & { maxNotifications?: number } = {},
+): Promise<Civ7PlayNotificationViewResult> {
+  const result = await executeCiv7AppUiCommand({
+    ...options,
+    command: buildPlayNotificationViewCommand({ maxNotifications: options.maxNotifications }),
+  });
+  return jsonPayloadFromCommandResult<Civ7PlayNotificationViewResult>(result, "Civ7 play notification view");
+}
+
+export async function getCiv7NotificationDismissal(
+  input: Civ7NotificationDismissInput,
+  options: Civ7DirectControlOptions = {},
+): Promise<Civ7NotificationDismissalResult> {
+  const result = await executeCiv7AppUiCommand({
+    ...options,
+    command: buildNotificationDismissalCommand(input, { send: false }),
+  });
+  return jsonPayloadFromCommandResult<Civ7NotificationDismissalResult>(result, "Civ7 notification dismissal");
+}
+
+export async function requestCiv7NotificationDismissal(
+  input: Civ7NotificationDismissInput,
+  options: Civ7DirectControlOptions = {},
+  approval: Civ7ActionApproval,
+): Promise<Civ7NotificationDismissalResult> {
+  assertApproved(approval, "dismissing Civ7 notification");
+  const result = await executeCiv7AppUiCommand({
+    ...options,
+    command: buildNotificationDismissalCommand(input, { send: true }),
+  });
+  return jsonPayloadFromCommandResult<Civ7NotificationDismissalResult>(result, "Civ7 notification dismissal");
+}
+
 export async function sendCiv7TurnComplete(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
@@ -2655,6 +2952,59 @@ export async function requestCiv7PlayerOperation(
   approval: Civ7ActionApproval,
 ): Promise<Civ7OperationRequestResult> {
   return await requestCiv7Operation("player-operation", input, options, approval);
+}
+
+export async function getCiv7UnitTargetAction(
+  input: Civ7UnitTargetActionInput,
+  options: Civ7DirectControlOptions = {},
+): Promise<Civ7UnitTargetActionResult> {
+  const result = await executeCiv7TunerCommand({
+    ...options,
+    command: buildUnitTargetActionCommand(input, { send: false }),
+  });
+  return jsonPayloadFromCommandResult<Civ7UnitTargetActionResult>(result, "Civ7 unit target action");
+}
+
+export async function getCiv7ReadyUnitView(
+  input: Civ7ReadyUnitViewInput = {},
+  options: Civ7DirectControlOptions = {},
+): Promise<Civ7ReadyUnitViewResult> {
+  const result = await executeCiv7AppUiCommand({
+    ...options,
+    command: buildReadyUnitViewCommand({
+      ...input,
+      radius: boundedInteger(input.radius ?? 2, 0, 5, "radius"),
+      maxOperations: boundedInteger(input.maxOperations ?? 96, 1, 256, "maxOperations"),
+    }),
+  });
+  return jsonPayloadFromCommandResult<Civ7ReadyUnitViewResult>(result, "Civ7 ready unit view");
+}
+
+export async function getCiv7ReadyCityView(
+  input: Civ7ReadyCityViewInput = {},
+  options: Civ7DirectControlOptions = {},
+): Promise<Civ7ReadyCityViewResult> {
+  const result = await executeCiv7AppUiCommand({
+    ...options,
+    command: buildReadyCityViewCommand({
+      ...input,
+      maxOperations: boundedInteger(input.maxOperations ?? 96, 1, 256, "maxOperations"),
+    }),
+  });
+  return jsonPayloadFromCommandResult<Civ7ReadyCityViewResult>(result, "Civ7 ready city view");
+}
+
+export async function requestCiv7UnitTargetAction(
+  input: Civ7UnitTargetActionInput,
+  options: Civ7DirectControlOptions = {},
+  approval: Civ7ActionApproval,
+): Promise<Civ7UnitTargetActionResult> {
+  assertApproved(approval, "sending Civ7 unit target action");
+  const result = await executeCiv7TunerCommand({
+    ...options,
+    command: buildUnitTargetActionCommand(input, { send: true }),
+  });
+  return jsonPayloadFromCommandResult<Civ7UnitTargetActionResult>(result, "Civ7 unit target action");
 }
 
 export function createStaticCiv7CapabilityCatalog(): Civ7CapabilityCatalog {
@@ -4099,7 +4449,22 @@ function buildTurnCompletionStatusCommand(): string {
       blocker: probe(() => typeof Game !== "undefined" && Game.Notifications && typeof Game.Notifications.getEndTurnBlockingType === "function"
         ? Game.Notifications.getEndTurnBlockingType(GameContext.localPlayerID)
         : "unknown"),
+      firstReadyUnitId: probe(() => {
+        const id = UI?.Player?.getFirstReadyUnit?.();
+        if (!id || typeof id.owner !== "number" || typeof id.id !== "number") return null;
+        const out = { owner: id.owner, id: id.id };
+        if (typeof id.type === "number") out.type = id.type;
+        return out;
+      }),
     });
+  })()`;
+}
+
+function buildPlayNotificationViewCommand(options: { maxNotifications?: number } = {}): string {
+  const maxNotifications = options.maxNotifications ?? 25;
+  return `(() => {
+    ${playNotificationViewSource()}
+    return JSON.stringify(readPlayNotifications(${jsLiteral({ maxNotifications })}));
   })()`;
 }
 
@@ -4116,6 +4481,35 @@ function buildOperationRequestCommand(family: Civ7OperationFamily, input: Civ7Op
     return JSON.stringify(sendOperation(${jsLiteral(family)}, ${jsLiteral(input)}));
   })()`;
 }
+
+function buildUnitTargetActionCommand(input: Civ7UnitTargetActionInput, options: { send: boolean }): string {
+  return `(() => {
+    ${unitTargetActionSource()}
+    return JSON.stringify(readUnitTargetAction(${jsLiteral(input)}, ${jsLiteral(options)}));
+  })()`;
+}
+
+function buildReadyUnitViewCommand(input: Civ7ReadyUnitViewInput & { radius: number; maxOperations: number }): string {
+  return `(() => {
+    ${readyUnitViewSource()}
+    return JSON.stringify(readReadyUnitView(${jsLiteral(input)}));
+  })()`;
+}
+
+function buildReadyCityViewCommand(input: Civ7ReadyCityViewInput & { maxOperations: number }): string {
+  return `(() => {
+    ${readyCityViewSource()}
+    return JSON.stringify(readReadyCityView(${jsLiteral(input)}));
+  })()`;
+}
+
+function buildNotificationDismissalCommand(input: Civ7NotificationDismissInput, options: { send: boolean }): string {
+  return `(() => {
+    ${notificationDismissalSource()}
+    return JSON.stringify(readNotificationDismissal(${jsLiteral(input)}, ${jsLiteral(options)}));
+  })()`;
+}
+
 
 function probeHelperSource(): string {
   return `const probe = (fn) => {
@@ -4775,6 +5169,143 @@ function autoplaySetterSource(options: Civ7AutoplayOptions): string {
   return statements.join("\n    ");
 }
 
+function notificationDismissalSource(): string {
+  return `${probeHelperSource()}
+    const toComponentId = (value) => {
+      if (!value || typeof value !== "object") return null;
+      if (typeof value.owner !== "number" || typeof value.id !== "number") return null;
+      const out = { owner: value.owner, id: value.id };
+      if (typeof value.type === "number") out.type = value.type;
+      return out;
+    };
+    const componentKey = (value) => {
+      const id = toComponentId(value);
+      return id ? [id.owner, id.id, id.type ?? ""].join(":") : "";
+    };
+    const safeNotificationValue = (notification, key) => {
+      try {
+        const value = notification == null ? undefined : notification[key];
+        if (typeof value === "function") return value.call(notification);
+        return value === undefined ? null : value;
+      } catch (err) {
+        return { error: String(err) };
+      }
+    };
+    const summarize = (id) => {
+      const normalizedId = toComponentId(id);
+      const notification = normalizedId ? Game.Notifications.find(normalizedId) : null;
+      const type = (() => {
+        try {
+          return typeof Game.Notifications.getType === "function"
+            ? Game.Notifications.getType(normalizedId)
+            : notification?.Type ?? null;
+        } catch {
+          return notification?.Type ?? null;
+        }
+      })();
+      const typeName = (() => {
+        try {
+          return typeof Game.Notifications.getTypeName === "function"
+            ? Game.Notifications.getTypeName(type)
+            : null;
+        } catch {
+          return null;
+        }
+      })();
+      const endTurnBlockingType = probe(() => Game.Notifications.getEndTurnBlockingType(GameContext.localPlayerID));
+      const isEndTurnBlocking = probe(() => {
+        const blockerType = endTurnBlockingType.ok ? endTurnBlockingType.value : Game.Notifications.getEndTurnBlockingType(GameContext.localPlayerID);
+        const blockerId = Game.Notifications.findEndTurnBlocking(GameContext.localPlayerID, blockerType);
+        return componentKey(blockerId) === componentKey(normalizedId);
+      });
+      return {
+        id: normalizedId,
+        exists: notification != null,
+        type,
+        typeName,
+        summary: (() => {
+          try {
+            return typeof Game.Notifications.getSummary === "function"
+              ? Game.Notifications.getSummary(normalizedId) ?? null
+              : safeNotificationValue(notification, "Summary");
+          } catch {
+            return safeNotificationValue(notification, "Summary");
+          }
+        })(),
+        message: (() => {
+          try {
+            return typeof Game.Notifications.getMessage === "function"
+              ? Game.Notifications.getMessage(normalizedId) ?? null
+              : safeNotificationValue(notification, "Message");
+          } catch {
+            return safeNotificationValue(notification, "Message");
+          }
+        })(),
+        target: safeNotificationValue(notification, "Target"),
+        location: safeNotificationValue(notification, "Location"),
+        canUserDismiss: safeNotificationValue(notification, "CanUserDismiss"),
+        expired: safeNotificationValue(notification, "Expired"),
+        dismissed: safeNotificationValue(notification, "Dismissed"),
+        blocksTurnAdvancement: probe(() => typeof Game.Notifications.getBlocksTurnAdvancement === "function"
+          ? Game.Notifications.getBlocksTurnAdvancement(normalizedId)
+          : safeNotificationValue(notification, "BlocksTurnAdvancement")),
+        endTurnBlockingType,
+        isEndTurnBlocking,
+      };
+    };
+    const verifiedDismissed = (after) => {
+      if (after == null) return false;
+      if (after.exists === false) return true;
+      if (after.dismissed === true) return true;
+      return after.isEndTurnBlocking.ok === true && after.isEndTurnBlocking.value === false;
+    };
+    const readNotificationDismissal = (input, options) => {
+      const notificationId = input.notificationId;
+      const before = summarize(notificationId);
+      const canDismiss = before.exists === true && before.canUserDismiss === true;
+      const notes = [
+        "This is an App UI notification action, not a gameplay operation family.",
+        "Use it only for reviewed notifications whose official handler does not require a specialized operation."
+      ];
+      if (options.send !== true) {
+        return {
+          notificationId,
+          before,
+          after: null,
+          canDismiss,
+          sent: false,
+          result: null,
+          verified: false,
+          notes,
+        };
+      }
+      if (!canDismiss) {
+        return {
+          notificationId,
+          before,
+          after: before,
+          canDismiss,
+          sent: false,
+          result: null,
+          verified: false,
+          notes: notes.concat(["Notification was not dismissed because canUserDismiss was not true."]),
+        };
+      }
+      const result = Game.Notifications.dismiss(notificationId);
+      const after = summarize(notificationId);
+      return {
+        notificationId,
+        before,
+        after,
+        canDismiss,
+        sent: true,
+        result,
+        verified: verifiedDismissed(after),
+        notes,
+      };
+    };`;
+}
+
 function operationRouterSource(): string {
   return `const routerFor = (family) => {
       if (family === "unit-operation") return { router: Game.UnitOperations, enums: UnitOperationTypes, targetKey: "unitId" };
@@ -4836,6 +5367,625 @@ function operationRouterSource(): string {
       const target = input[meta.targetKey];
       const result = meta.router.sendRequest(target, before.enumValue, input.args ?? {});
       return { sent: true, before, result };
+    };`;
+}
+
+function unitTargetActionSource(): string {
+  return `${probeHelperSource()}
+    const toComponentId = (value) => {
+      if (!value || typeof value !== "object") return null;
+      if (typeof value.owner !== "number" || typeof value.id !== "number") return null;
+      const out = { owner: value.owner, id: value.id };
+      if (typeof value.type === "number") out.type = value.type;
+      return out;
+    };
+    const enumValueFor = (enums, operationType) => {
+      if (enums && Object.prototype.hasOwnProperty.call(enums, operationType)) return enums[operationType];
+      return operationType;
+    };
+    const successFromCanStart = (result) => {
+      if (result === true) return true;
+      if (result === false || result == null) return false;
+      if (typeof result === "object") {
+        if (result.Success !== undefined) return result.Success === true;
+        if (result.success !== undefined) return result.success === true;
+        if (result.canStart !== undefined) return result.canStart === true;
+      }
+      return Boolean(result);
+    };
+    const callCanStart = (router, target, operationType, args) => {
+      try {
+        return router.canStart(target, operationType, args ?? {}, false);
+      } catch (first) {
+        try {
+          return router.canStart(target, operationType, args ?? {});
+        } catch {
+          throw first;
+        }
+      }
+    };
+    const targetIndexFor = (x, y) => probe(() => {
+      if (typeof GameplayMap.getIndexFromLocation === "function") return GameplayMap.getIndexFromLocation({ x, y });
+      return GameplayMap.getIndexFromXY(x, y);
+    });
+    const resultContainsTarget = (result, targetIndex) => {
+      if (!targetIndex.ok || !result || typeof result !== "object" || !Array.isArray(result.Plots)) return null;
+      return result.Plots.includes(targetIndex.value);
+    };
+    const summarizeUnit = (unitId) => {
+      const unit = Units.get(unitId);
+      if (!unit) return null;
+      const movement = unit.Movement;
+      const combat = unit.Combat;
+      const health = unit.Health;
+      return {
+        id: toComponentId(unit.id ?? unitId),
+        owner: unit.owner ?? unitId.owner,
+        type: unit.type ?? null,
+        location: unit.location ?? null,
+        movementMovesRemaining: movement?.movementMovesRemaining ?? null,
+        movementTurnsRemaining: movement?.movementTurnsRemaining ?? null,
+        attacksRemaining: combat?.attacksRemaining ?? null,
+        rangedStrength: combat?.rangedStrength ?? null,
+        bombardStrength: combat?.bombardStrength ?? null,
+        meleeStrength: typeof combat?.getMeleeStrength === "function" ? combat.getMeleeStrength(false) : null,
+        damage: health?.damage ?? null,
+        hitPoints: health?.hitPoints ?? null,
+      };
+    };
+    const targetUnitsAt = (x, y) => {
+      const units = typeof MapUnits !== "undefined" && typeof MapUnits.getUnits === "function"
+        ? MapUnits.getUnits(x, y)
+        : [];
+      return Array.isArray(units) ? units.map((id) => toComponentId(id) ?? id) : units;
+    };
+    const moveModifiers = () => {
+      const attack = typeof UnitOperationMoveModifiers !== "undefined" ? UnitOperationMoveModifiers.ATTACK ?? 0 : 0;
+      const ignore = typeof UnitOperationMoveModifiers !== "undefined" ? UnitOperationMoveModifiers.MOVE_IGNORE_UNEXPLORED_DESTINATION ?? 0 : 0;
+      return attack + ignore;
+    };
+    const candidate = (family, operationType, args, target, targetIndex) => {
+      const router = family === "unit-command" ? Game.UnitCommands : Game.UnitOperations;
+      const enums = family === "unit-command" ? UnitCommandTypes : UnitOperationTypes;
+      const enumValue = enumValueFor(enums, operationType);
+      let result;
+      try {
+        result = callCanStart(router, target, enumValue, args);
+      } catch (err) {
+        return {
+          family,
+          operationType,
+          args,
+          valid: false,
+          result: { error: String(err) },
+          targetInReturnedPlots: null,
+          rejectedReason: "canStart threw",
+        };
+      }
+      const valid = successFromCanStart(result);
+      const targetInReturnedPlots = resultContainsTarget(result, targetIndex);
+      return {
+        family,
+        operationType,
+        args,
+        valid,
+        result,
+        targetInReturnedPlots,
+        ...(valid && targetInReturnedPlots === false ? { rejectedReason: "target not present in canStart returned Plots" } : {}),
+      };
+    };
+    const accepted = (entry) => entry.valid === true && entry.targetInReturnedPlots !== false;
+    const sendCandidate = (unitId, entry) => {
+      const router = entry.family === "unit-command" ? Game.UnitCommands : Game.UnitOperations;
+      const enums = entry.family === "unit-command" ? UnitCommandTypes : UnitOperationTypes;
+      const enumValue = enumValueFor(enums, entry.operationType);
+      return router.sendRequest(unitId, enumValue, entry.args ?? {});
+    };
+    const readUnitTargetAction = (input, options) => {
+      const unitId = input.unitId;
+      const targetIndex = targetIndexFor(input.x, input.y);
+      const target = { x: input.x, y: input.y, index: targetIndex };
+      const baseArgs = { X: input.x, Y: input.y };
+      const attackArgs = { ...baseArgs, Modifiers: moveModifiers() };
+      const candidates = [
+        candidate("unit-operation", "UNITOPERATION_NAVAL_ATTACK", attackArgs, unitId, targetIndex),
+        candidate("unit-operation", "UNITOPERATION_AIR_ATTACK", attackArgs, unitId, targetIndex),
+        candidate("unit-operation", "UNITOPERATION_RANGE_ATTACK", attackArgs, unitId, targetIndex),
+        candidate("unit-command", "UNITCOMMAND_ARMY_OVERRUN", baseArgs, unitId, targetIndex),
+        candidate("unit-operation", "UNITOPERATION_SWAP_UNITS", baseArgs, unitId, targetIndex),
+        candidate("unit-operation", "MOVE_TO", attackArgs, unitId, targetIndex),
+      ];
+      const selected = candidates.find(accepted) ?? null;
+      const beforeUnit = probe(() => summarizeUnit(unitId));
+      const beforeTargetUnits = probe(() => targetUnitsAt(input.x, input.y));
+      const out = {
+        unitId,
+        target,
+        beforeUnit,
+        beforeTargetUnits,
+        candidates,
+        selected,
+        sent: false,
+        notes: [
+          "Selection follows the official right-click WorldInput target order: naval, air, ranged, overrun, swap, then MOVE_TO.",
+          "Validator success is not enough by itself; compare before/after unit location, movement, attacks, and target units."
+        ],
+      };
+      if (options.send === true && selected) {
+        out.sendResult = sendCandidate(unitId, selected);
+        out.sent = true;
+        out.afterUnit = probe(() => summarizeUnit(unitId));
+        out.afterTargetUnits = probe(() => targetUnitsAt(input.x, input.y));
+        const unitChanged = JSON.stringify(out.beforeUnit) !== JSON.stringify(out.afterUnit);
+        const targetUnitsChanged = JSON.stringify(out.beforeTargetUnits) !== JSON.stringify(out.afterTargetUnits);
+        out.verified = unitChanged || targetUnitsChanged;
+        out.verification = {
+          status: out.verified ? "verified" : "no-state-change",
+          unitChanged,
+          targetUnitsChanged,
+          reason: out.verified
+            ? "unit or target-plot state changed after send"
+            : "send returned but unit and target-plot probes did not change; re-read before repeating",
+        };
+      } else {
+        out.verification = {
+          status: "not-sent",
+          unitChanged: false,
+          targetUnitsChanged: false,
+          reason: "read-only target resolution; use --send with an approval reason to mutate",
+        };
+      }
+      return out;
+    };`;
+}
+
+function readyUnitViewSource(): string {
+  return `${probeHelperSource()}
+    const toComponentId = (value) => {
+      if (!value || typeof value !== "object") return null;
+      if (typeof value.owner !== "number" || typeof value.id !== "number") return null;
+      const out = { owner: value.owner, id: value.id };
+      if (typeof value.type === "number") out.type = value.type;
+      return out;
+    };
+    const enumValueFor = (enums, operationType) => {
+      if (enums && Object.prototype.hasOwnProperty.call(enums, operationType)) return enums[operationType];
+      return operationType;
+    };
+    const successFromCanStart = (result) => {
+      if (result === true) return true;
+      if (result === false || result == null) return false;
+      if (typeof result === "object") {
+        if (result.Success !== undefined) return result.Success === true;
+        if (result.success !== undefined) return result.success === true;
+        if (result.canStart !== undefined) return result.canStart === true;
+      }
+      return Boolean(result);
+    };
+    const safeResult = (result) => {
+      try {
+        const json = JSON.stringify(result);
+        if (json.length > 4000) return { truncatedJson: json.slice(0, 4000), originalLength: json.length };
+        return JSON.parse(json);
+      } catch {
+        return String(result);
+      }
+    };
+    const callCanStart = (router, target, operationType) => {
+      try {
+        return router.canStart(target, operationType, {}, false);
+      } catch (first) {
+        try {
+          return router.canStart(target, operationType, {});
+        } catch {
+          try {
+            return router.canStart(target, operationType);
+          } catch {
+            throw first;
+          }
+        }
+      }
+    };
+    const summarizeUnit = (unitId) => {
+      const unit = Units.get(unitId);
+      if (!unit) return null;
+      const movement = unit.Movement;
+      const combat = unit.Combat;
+      const health = unit.Health;
+      const type = unit.type ?? null;
+      const typeDef = (() => {
+        try {
+          return type == null ? null : GameInfo.Units.lookup(type);
+        } catch {
+          return null;
+        }
+      })();
+      return {
+        id: toComponentId(unit.id ?? unitId),
+        owner: unit.owner ?? unitId.owner,
+        type,
+        typeName: typeDef?.UnitType ?? null,
+        name: typeof unit.getName === "function" ? unit.getName() : unit.name ?? typeDef?.Name ?? null,
+        location: unit.location ?? null,
+        movementMovesRemaining: movement?.movementMovesRemaining ?? null,
+        movementTurnsRemaining: movement?.movementTurnsRemaining ?? null,
+        attacksRemaining: combat?.attacksRemaining ?? null,
+        rangedStrength: combat?.rangedStrength ?? null,
+        bombardStrength: combat?.bombardStrength ?? null,
+        meleeStrength: typeof combat?.getMeleeStrength === "function" ? combat.getMeleeStrength(false) : null,
+        damage: health?.damage ?? null,
+        hitPoints: health?.hitPoints ?? null,
+        activity: unit.Activity?.activityType ?? unit.activityType ?? null,
+      };
+    };
+    const operationCandidates = (unitId, maxOperations) => {
+      const families = [
+        { family: "unit-operation", router: Game.UnitOperations, enums: typeof UnitOperationTypes !== "undefined" ? UnitOperationTypes : {} },
+        { family: "unit-command", router: Game.UnitCommands, enums: typeof UnitCommandTypes !== "undefined" ? UnitCommandTypes : {} },
+      ];
+      const out = [];
+      for (const entry of families) {
+        const keys = Object.keys(entry.enums ?? {}).sort().slice(0, maxOperations);
+        for (const operationType of keys) {
+          const enumValue = enumValueFor(entry.enums, operationType);
+          let result;
+          try {
+            result = callCanStart(entry.router, unitId, enumValue);
+          } catch {
+            continue;
+          }
+          const valid = successFromCanStart(result);
+          if (valid) {
+            out.push({
+              family: entry.family,
+              operationType,
+              enumValue,
+              valid,
+              result: safeResult(result),
+            });
+          }
+        }
+      }
+      return out;
+    };
+    const nearbyPlots = (unit, radius) => {
+      const location = unit?.location;
+      if (!location || typeof location.x !== "number" || typeof location.y !== "number") return [];
+      const plots = [];
+      for (let y = location.y - radius; y <= location.y + radius; y += 1) {
+        for (let x = location.x - radius; x <= location.x + radius; x += 1) {
+          let units = [];
+          try {
+            units = typeof MapUnits !== "undefined" && typeof MapUnits.getUnits === "function"
+              ? MapUnits.getUnits(x, y)
+              : [];
+          } catch {}
+          if (Array.isArray(units) && units.length > 0) {
+            plots.push({
+              x,
+              y,
+              units: units.map((id) => summarizeUnit(id) ?? toComponentId(id) ?? id),
+            });
+          }
+        }
+      }
+      return plots;
+    };
+    const readReadyUnitView = (input) => {
+      const selectedUnitId = probe(() => toComponentId(UI?.Player?.getHeadSelectedUnit?.()));
+      const firstReadyUnitId = probe(() => toComponentId(UI?.Player?.getFirstReadyUnit?.()));
+      const requestedUnitId = toComponentId(input.unitId);
+      const unitId = requestedUnitId
+        ?? (selectedUnitId.ok ? selectedUnitId.value : null)
+        ?? (firstReadyUnitId.ok ? firstReadyUnitId.value : null);
+      const unit = probe(() => unitId ? summarizeUnit(unitId) : null);
+      const unitValue = unit.ok ? unit.value : null;
+      return {
+        localPlayerId: GameContext.localPlayerID,
+        requestedUnitId,
+        selectedUnitId,
+        firstReadyUnitId,
+        unitId,
+        unit,
+        legalOperations: unitId ? operationCandidates(unitId, input.maxOperations) : [],
+        nearby: probe(() => nearbyPlots(unitValue, input.radius)),
+        notes: [
+          "Read-only ready-unit view. Use operation validation before any send.",
+          "For plot-target moves or attacks, use game play unit-target so the official right-click action order decides the operation.",
+          "For commanders, a legal PROMOTE/open action is not proof that a spendable promotion exists; inspect commander points before choosing promotion args."
+        ],
+      };
+    };`;
+}
+
+function readyCityViewSource(): string {
+  return `${probeHelperSource()}
+    ${runtimeObjectReaderSource()}
+    const toComponentId = (value) => {
+      if (!value || typeof value !== "object") return null;
+      if (typeof value.owner !== "number" || typeof value.id !== "number") return null;
+      const out = { owner: value.owner, id: value.id };
+      if (typeof value.type === "number") out.type = value.type;
+      return out;
+    };
+    const enumValueFor = (enums, operationType) => {
+      if (enums && Object.prototype.hasOwnProperty.call(enums, operationType)) return enums[operationType];
+      return operationType;
+    };
+    const successFromCanStart = (result) => {
+      if (result === true) return true;
+      if (result === false || result == null) return false;
+      if (typeof result === "object") {
+        if (result.Success !== undefined) return result.Success === true;
+        if (result.success !== undefined) return result.success === true;
+        if (result.canStart !== undefined) return result.canStart === true;
+      }
+      return Boolean(result);
+    };
+    const safeResult = (result) => {
+      try {
+        const json = JSON.stringify(result);
+        if (json.length > 4000) return { truncatedJson: json.slice(0, 4000), originalLength: json.length };
+        return JSON.parse(json);
+      } catch {
+        return String(result);
+      }
+    };
+    const callCanStart = (router, target, operationType) => {
+      try {
+        return router.canStart(target, operationType, {}, false);
+      } catch (first) {
+        try {
+          return router.canStart(target, operationType, {});
+        } catch {
+          try {
+            return router.canStart(target, operationType);
+          } catch {
+            throw first;
+          }
+        }
+      }
+    };
+    const summarizeBuildQueue = (city) => {
+      const buildQueue = city?.BuildQueue;
+      if (!buildQueue) return null;
+      return {
+        currentProductionTypeHash: readValue(buildQueue, ["currentProductionTypeHash", "productionTypeHash"], ["getCurrentProductionTypeHash"]),
+        previousProductionTypeHash: readValue(buildQueue, ["previousProductionTypeHash"], ["getPreviousProductionTypeHash"]),
+        productionProgress: readValue(buildQueue, ["productionProgress", "progress"], ["getProductionProgress"]),
+        turnsLeft: readValue(buildQueue, ["turnsLeft", "turnsRemaining"], ["getTurnsLeft", "getTurnsRemaining"]),
+      };
+    };
+    const summarizeCity = (cityId) => {
+      const city = Cities.get(cityId);
+      if (!city) return null;
+      const growth = city.Growth;
+      const yields = city.Yields;
+      const happiness = city.Happiness;
+      const workers = city.Workers;
+      return {
+        id: toComponentId(city.id ?? cityId),
+        owner: city.owner ?? cityId.owner,
+        name: typeof city.getName === "function" ? city.getName() : city.name ?? null,
+        location: city.location ?? null,
+        population: city.population ?? null,
+        isTown: city.isTown ?? null,
+        growth: growth
+          ? {
+              growthType: growth.growthType ?? null,
+              turnsUntilGrowth: growth.turnsUntilGrowth ?? null,
+              nextGrowthFoodThreshold: typeof growth.getNextGrowthFoodThreshold === "function" ? growth.getNextGrowthFoodThreshold() : null,
+            }
+          : null,
+        yields: yields
+          ? {
+              foodPerTurn: typeof yields.getNetYield === "function" && typeof YieldTypes !== "undefined" ? yields.getNetYield(YieldTypes.YIELD_FOOD) : null,
+              productionPerTurn: typeof yields.getNetYield === "function" && typeof YieldTypes !== "undefined" ? yields.getNetYield(YieldTypes.YIELD_PRODUCTION) : null,
+              goldPerTurn: typeof yields.getNetYield === "function" && typeof YieldTypes !== "undefined" ? yields.getNetYield(YieldTypes.YIELD_GOLD) : null,
+            }
+          : null,
+        happiness: happiness
+          ? {
+              netHappinessPerTurn: happiness.netHappinessPerTurn ?? null,
+              hasUnrest: happiness.hasUnrest ?? null,
+            }
+          : null,
+        workers: workers
+          ? {
+              cityWorkerCap: typeof workers.getCityWorkerCap === "function" ? workers.getCityWorkerCap() : null,
+            }
+          : null,
+        buildQueue: summarizeBuildQueue(city),
+      };
+    };
+    const plotFromIndex = (index) => {
+      try {
+        const location = GameplayMap.getLocationFromIndex(index);
+        return { index, x: location?.x ?? null, y: location?.y ?? null };
+      } catch (err) {
+        return { index, error: String(err) };
+      }
+    };
+    const productionCandidate = (kind, type, definition, args, result) => ({
+      kind,
+      type,
+      typeName: definition?.UnitType ?? definition?.ConstructibleType ?? definition?.ProjectType ?? null,
+      name: definition?.Name ?? null,
+      args,
+      valid: successFromCanStart(result),
+      result: safeResult(result),
+      ...(Array.isArray(result?.Plots) ? { placementPlots: result.Plots.map(plotFromIndex) } : {}),
+      cli: kind === "unit"
+        ? "game play build-production --city-id '<city-id>' --unit-type " + args.UnitType
+        : kind === "constructible"
+          ? "game play build-production --city-id '<city-id>' --constructible-type " + args.ConstructibleType + (Array.isArray(result?.Plots) && result.Plots.length > 0 ? " --x <x> --y <y>" : "")
+          : "game play build-production --city-id '<city-id>' --project-type " + args.ProjectType,
+    });
+    const isActionableProductionResult = (result) => {
+      if (!result || typeof result !== "object") return false;
+      return successFromCanStart(result)
+        || result.InQueue === true
+        || result.InProgress === true;
+    };
+    const readConstructibleCandidates = (city) => {
+      if (typeof Game?.CityOperations?.canStartQuery !== "function") return [];
+      const results = Game.CityOperations.canStartQuery(city.id, CityOperationTypes.BUILD, CityQueryType.Constructible) ?? [];
+      return results
+        .filter(({ result }) => isActionableProductionResult(result))
+        .map(({ index, result }) => productionCandidate(
+          "constructible",
+          index,
+          GameInfo.Constructibles.lookup(index),
+          { ConstructibleType: index },
+          result,
+        ));
+    };
+    const readUnitCandidates = (city) => {
+      if (typeof Game?.CityOperations?.canStartQuery !== "function") return [];
+      const results = Game.CityOperations.canStartQuery(city.id, CityOperationTypes.BUILD, CityQueryType.Unit) ?? [];
+      return results
+        .filter(({ result }) => isActionableProductionResult(result))
+        .map(({ index, result }) => productionCandidate(
+          "unit",
+          index,
+          GameInfo.Units.lookup(index),
+          { UnitType: index },
+          result,
+        ));
+    };
+    const readProjectCandidates = (city, maxOperations) => {
+      const out = [];
+      if (!GameInfo?.Projects || typeof GameInfo.Projects.forEach !== "function") return out;
+      GameInfo.Projects.forEach((project) => {
+        if (out.length >= maxOperations) return;
+        try {
+          if (project.CityOnly && city.isTown) return;
+          const args = { ProjectType: project.$index };
+          const result = Game.CityOperations.canStart(city.id, CityOperationTypes.BUILD, args, false);
+          if (result?.Requirements && result.Requirements?.FullFailure === true) return;
+          if (!isActionableProductionResult(result)) return;
+          out.push(productionCandidate("project", project.$index, project, args, result));
+        } catch {}
+      });
+      return out;
+    };
+    const readProductionCandidates = (cityId, maxOperations) => {
+      const city = Cities.get(cityId);
+      if (!city) return [];
+      return [
+        ...readConstructibleCandidates(city),
+        ...readUnitCandidates(city),
+        ...readProjectCandidates(city, maxOperations),
+      ].slice(0, maxOperations);
+    };
+    const townFocusOption = (name, description, args, result) => ({
+      name,
+      description,
+      args,
+      valid: successFromCanStart(result),
+      result: safeResult(result),
+      cli: "game play set-town-focus --city-id '<city-id>' --growth-type " + args.Type + " --project-type " + args.ProjectType,
+    });
+    const readTownFocusOptions = (cityId) => {
+      const out = [];
+      const city = Cities.get(cityId);
+      if (!city?.isTown) return out;
+      const expandArgs = { Type: GrowthTypes.EXPAND, ProjectType: ProjectTypes.NO_PROJECT, City: cityId.id };
+      out.push(townFocusOption("LOC_UI_FOOD_CHOOSER_FOCUS_GROWTH", "LOC_PROJECT_TOWN_FOOD_INCREASE_DESCRIPTION", expandArgs, { Success: true }));
+      const result = Game.CityCommands.canStart(cityId, CityCommandTypes.CHANGE_GROWTH_MODE, { Type: GrowthTypes.PROJECT }, false);
+      for (const projectType of result?.Projects ?? []) {
+        const projectInfo = GameInfo.Projects.lookup(projectType);
+        const args = { Type: GrowthTypes.PROJECT, ProjectType: projectInfo?.$hash ?? projectType, City: cityId.id };
+        const validation = Game.CityCommands.canStart(cityId, CityCommandTypes.CHANGE_GROWTH_MODE, args, false);
+        out.push(townFocusOption(projectInfo?.Name ?? null, projectInfo?.Description ?? null, args, validation));
+      }
+      return out;
+    };
+    const readPopulationPlacement = (cityId) => {
+      const city = Cities.get(cityId);
+      const allPlacementInfo = probe(() => city?.Workers?.GetAllPlacementInfo?.() ?? []);
+      const placementValue = allPlacementInfo.ok && Array.isArray(allPlacementInfo.value) ? allPlacementInfo.value : [];
+      return {
+        isReadyToPlacePopulation: probe(() => city?.Growth?.isReadyToPlacePopulation ?? null),
+        cityWorkerCap: probe(() => city?.Workers?.getCityWorkerCap?.() ?? null),
+        allPlacementInfo,
+        workablePlotIndexes: probe(() => placementValue.filter((info) => !info?.IsBlocked).map((info) => info?.PlotIndex)),
+        blockedPlotIndexes: probe(() => placementValue.filter((info) => info?.IsBlocked).map((info) => info?.PlotIndex)),
+        cliHints: [
+          "game play assign-worker --player-id <id> --location <plot-index>",
+          "game play expand-city --city-id '<city-id>' --x <x> --y <y>",
+          "Ready-city does not yet label each acquire-tile candidate by branch; use the live acquire-tile surface to decide assign-worker versus expand-city.",
+        ],
+      };
+    };
+    const operationCandidates = (cityId, maxOperations) => {
+      const families = [
+        { family: "city-operation", router: Game.CityOperations, enums: typeof CityOperationTypes !== "undefined" ? CityOperationTypes : {} },
+        { family: "city-command", router: Game.CityCommands, enums: typeof CityCommandTypes !== "undefined" ? CityCommandTypes : {} },
+      ];
+      const out = [];
+      for (const entry of families) {
+        const keys = Object.keys(entry.enums ?? {}).sort().slice(0, maxOperations);
+        for (const operationType of keys) {
+          const enumValue = enumValueFor(entry.enums, operationType);
+          let result;
+          try {
+            result = callCanStart(entry.router, cityId, enumValue);
+          } catch {
+            continue;
+          }
+          const valid = successFromCanStart(result);
+          if (valid) {
+            out.push({
+              family: entry.family,
+              operationType,
+              enumValue,
+              valid,
+              result: safeResult(result),
+            });
+          }
+        }
+      }
+      return out;
+    };
+    const blockingCityId = () => {
+      const blockerType = typeof Game?.Notifications?.getEndTurnBlockingType === "function"
+        ? Game.Notifications.getEndTurnBlockingType(GameContext.localPlayerID)
+        : null;
+      const notificationId = typeof Game?.Notifications?.findEndTurnBlocking === "function"
+        ? Game.Notifications.findEndTurnBlocking(GameContext.localPlayerID, blockerType)
+        : null;
+      const notification = notificationId ? Game.Notifications.find(notificationId) : null;
+      const target = toComponentId(notification?.Target);
+      if (target && Cities.get(target)) return target;
+      const selected = toComponentId(UI?.Player?.getHeadSelectedCity?.());
+      return selected && Cities.get(selected) ? selected : null;
+    };
+    const readReadyCityView = (input) => {
+      const requestedCityId = toComponentId(input.cityId);
+      const selectedCityId = probe(() => toComponentId(UI?.Player?.getHeadSelectedCity?.()));
+      const blockerCityId = probe(() => blockingCityId());
+      const cityId = requestedCityId
+        ?? (selectedCityId.ok ? selectedCityId.value : null)
+        ?? (blockerCityId.ok ? blockerCityId.value : null);
+      return {
+        localPlayerId: GameContext.localPlayerID,
+        requestedCityId,
+        selectedCityId,
+        blockingCityId: blockerCityId,
+        cityId,
+        city: probe(() => cityId ? summarizeCity(cityId) : null),
+        legalOperations: cityId ? operationCandidates(cityId, input.maxOperations) : [],
+        productionCandidates: probe(() => cityId ? readProductionCandidates(cityId, input.maxOperations) : []),
+        townFocusOptions: probe(() => cityId ? readTownFocusOptions(cityId) : []),
+        populationPlacement: probe(() => cityId ? readPopulationPlacement(cityId) : null),
+        notes: [
+          "Read-only ready-city view. Use operation validation before any production, growth, or expansion send.",
+          "This view intentionally does not choose production. Use live production chooser data, then game play build-production with exactly one item kind.",
+          "For NEW_POPULATION, acquire-tile mode decides worker assignment versus expansion purchase; do not infer that branch from static city data.",
+          "No-argument legal city operations are only closeout candidates; BUILD and CHANGE_GROWTH_MODE still need live item or focus args."
+        ],
+      };
     };`;
 }
 
@@ -5388,7 +6538,7 @@ function normalizeSinglePlayerSetupInput(input: Civ7SinglePlayerSetupInput): Civ
 
 function validateSetupSeed(value: unknown, label: string): number {
   const seed = assessCiv7SignedIntSeed(value);
-  if (!seed.ok) {
+  if (seed.ok === false) {
     const suffix = seed.reason === "not-integer"
       ? "must be an integer"
       : `must be an integer between ${seed.min} and ${seed.max}`;

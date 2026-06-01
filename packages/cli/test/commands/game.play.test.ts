@@ -1,6 +1,6 @@
 import { once } from 'node:events';
 import { type AddressInfo, createServer } from 'node:net';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import GamePlayAssignWorker from '../../src/commands/game/play/assign-worker';
 import GamePlayAdvisorWarning from '../../src/commands/game/play/advisor-warning';
 import GamePlayBuildProduction from '../../src/commands/game/play/build-production';
@@ -714,6 +714,46 @@ describe('game play commands', () => {
     }
   });
 
+  test('surfaces sent unit-target no-ops as postcondition misses', async () => {
+    const server = await startTunerServer({ unitTargetMode: 'no-op-after-send' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayUnitTarget.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayUnitTarget.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--unit-id',
+        '{"owner":0,"id":65536,"type":26}',
+        '--x',
+        '23',
+        '--y',
+        '33',
+        '--send',
+        '--reason',
+        'test postcondition miss',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: { sent: boolean; verified: boolean; verification: { status: string; reason: string } };
+      };
+      expect(payload.result.sent).toBe(true);
+      expect(payload.result.verified).toBe(false);
+      expect(payload.result.verification.status).toBe('no-state-change');
+      expect(payload.result.verification.reason).toMatch(/re-read before repeating/);
+      expect(server.received.some((message) => message.includes('"send":true'))).toBe(true);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('reads ready-unit tactical view without sending operations', async () => {
     const server = await startTunerServer();
     try {
@@ -756,6 +796,7 @@ describe('game play commands', () => {
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
   playNotificationMode?: 'town-focus' | 'stale-unit-command' | 'stale-informational';
+  unitTargetMode?: 'verified' | 'no-op-after-send';
 } = {}) {
   const received: string[] = [];
   let turnCompleteSent = false;
@@ -778,7 +819,7 @@ async function startTunerServer(options: {
             value: 673478009,
           })]));
         } else if (frame.message.includes('readUnitTargetAction')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(unitTargetAction(frame.message.includes('"send":true')))]));
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(unitTargetAction(frame.message.includes('"send":true'), options.unitTargetMode))]));
         } else if (frame.message.includes('readReadyUnitView')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(readyUnitView())]));
         } else if (frame.message.includes('readReadyCityView')) {
@@ -1112,13 +1153,16 @@ function playNotificationView(mode: 'town-focus' | 'stale-unit-command' | 'stale
   };
 }
 
-function unitTargetAction(send: boolean) {
+function unitTargetAction(send: boolean, mode: 'verified' | 'no-op-after-send' = 'verified') {
   const unitId = { owner: 0, id: 65536, type: 26 };
+  const beforeUnit = { ok: true, value: { id: unitId, location: { x: 22, y: 33 }, movementMovesRemaining: 2, attacksRemaining: 1 } };
+  const beforeTargetUnits = { ok: true, value: [{ owner: 62, id: 123, type: 26 }] };
+  const verified = send && mode === 'verified';
   return {
     unitId,
     target: { x: 23, y: 33, index: { ok: true, value: 1457 } },
-    beforeUnit: { ok: true, value: { id: unitId, location: { x: 22, y: 33 }, movementMovesRemaining: 2, attacksRemaining: 1 } },
-    beforeTargetUnits: { ok: true, value: [{ owner: 62, id: 123, type: 26 }] },
+    beforeUnit,
+    beforeTargetUnits,
     candidates: [
       {
         family: 'unit-operation',
@@ -1141,11 +1185,28 @@ function unitTargetAction(send: boolean) {
     ...(send
       ? {
           sendResult: { accepted: true },
-          afterUnit: { ok: true, value: { id: unitId, location: { x: 22, y: 33 }, movementMovesRemaining: 2, attacksRemaining: 0 } },
-          afterTargetUnits: { ok: true, value: [{ owner: 62, id: 123, type: 26 }] },
-          verified: true,
+          afterUnit: verified
+            ? { ok: true, value: { id: unitId, location: { x: 22, y: 33 }, movementMovesRemaining: 2, attacksRemaining: 0 } }
+            : beforeUnit,
+          afterTargetUnits: beforeTargetUnits,
+          verified,
+          verification: {
+            status: verified ? 'verified' : 'no-state-change',
+            unitChanged: verified,
+            targetUnitsChanged: false,
+            reason: verified
+              ? 'unit or target-plot state changed after send'
+              : 'send returned but unit and target-plot probes did not change; re-read before repeating',
+          },
         }
-      : {}),
+      : {
+          verification: {
+            status: 'not-sent',
+            unitChanged: false,
+            targetUnitsChanged: false,
+            reason: 'read-only target resolution; use --send with an approval reason to mutate',
+          },
+        }),
     notes: ['Selection follows the official right-click WorldInput target order.'],
   };
 }
