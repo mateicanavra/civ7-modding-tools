@@ -908,7 +908,7 @@ export default defineConfig(({ command }) => ({
         "**/mods/mod-swooper-maps/dist/**",
         "**/mods/mod-swooper-maps/mod/**",
         "**/mods/mod-swooper-maps/src/maps/generated/**",
-        "**/mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
+        "**/mods/mod-swooper-maps/src/maps/configs/*.config.json",
         "**/packages/*/dist/**",
         "**/packages/*/types/**",
       ],

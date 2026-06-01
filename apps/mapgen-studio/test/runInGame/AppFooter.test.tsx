@@ -208,4 +208,32 @@ describe("AppFooter Run in Game status", () => {
     expect(html).toContain("Stop Civ7 autoplay");
     expect(html).toContain("Auto");
   });
+
+  it("highlights live seed status when a proved live game is out of sync with Studio", () => {
+    const html = renderToStaticMarkup(
+      <AppFooter
+        status="ready"
+        lastRunSettings={recipeSettings}
+        lastGlobalSettings={worldSettings}
+        currentSettings={{ ...recipeSettings, seed: "456" }}
+        onSettingsChange={vi.fn()}
+        onRun={vi.fn()}
+        onRunInGame={vi.fn()}
+        onReroll={vi.fn()}
+        isRunning={false}
+        isRunInGameRunning={false}
+        isDirty={true}
+        lightMode={false}
+        liveRuntime={{ status: "ok", turn: 12, seed: 123 }}
+        liveGameStudioRelation="stale"
+        onSyncFromLiveGame={vi.fn()}
+        autoRunEnabled={false}
+        onAutoRunEnabledChange={vi.fn()}
+      />
+    );
+
+    expect(html).toContain("Sync Studio seed and config from the live game");
+    expect(html).toContain("border-orange-400");
+    expect(html).toContain("Seed 123");
+  });
 });

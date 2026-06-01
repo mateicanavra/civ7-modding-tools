@@ -11,6 +11,13 @@ import {
 } from "./storage";
 import { parsePresetKey, type PresetKey, type ResolvedPreset } from "./types";
 
+export type LivePreset = Readonly<{
+  id: string;
+  label: string;
+  description?: string;
+  config: unknown;
+}>;
+
 export type PresetActions = Readonly<{
   saveAsNew: (args: {
     recipeId: string;
@@ -51,8 +58,9 @@ function createLocalPresetId(existing: ReadonlyArray<LocalPresetV1>): string {
 export function usePresets(args: {
   recipeId: string;
   builtIns: ReadonlyArray<BuiltInPreset>;
+  livePresets?: ReadonlyArray<LivePreset>;
 }): UsePresetsResult {
-  const { recipeId, builtIns } = args;
+  const { recipeId, builtIns, livePresets = [] } = args;
   const [{ store, warning }, setStoreState] = useState(() => {
     const result = loadPresetStore();
     return { store: result.store, warning: result.warning };
@@ -70,8 +78,12 @@ export function usePresets(args: {
       value: `local:${preset.id}`,
       label: `Scratch / ${preset.label}`,
     }));
-    return [...base, ...builtInOptions, ...localOptions];
-  }, [builtIns, localPresets]);
+    const liveOptions = livePresets.map((preset) => ({
+      value: `live:${preset.id}`,
+      label: `Live / ${preset.label}`,
+    }));
+    return [...base, ...liveOptions, ...builtInOptions, ...localOptions];
+  }, [builtIns, livePresets, localPresets]);
 
   const resolvePreset = useCallback((key: PresetKey): ResolvedPreset | null => {
     const parsed = parsePresetKey(key);
@@ -96,8 +108,14 @@ export function usePresets(args: {
         ? { source: "local", id: preset.id, label: preset.label, description: preset.description, config: preset.config }
         : null;
     }
+    if (parsed.kind === "live") {
+      const preset = livePresets.find((p) => p.id === parsed.id);
+      return preset
+        ? { source: "live", id: preset.id, label: preset.label, description: preset.description, config: preset.config }
+        : null;
+    }
     return null;
-  }, [builtIns, localPresets]);
+  }, [builtIns, livePresets, localPresets]);
 
   const setStore = useCallback((next: StudioPresetStoreV1): string | undefined => {
     setStoreState((prev) => ({ store: next, warning: prev.warning }));

@@ -36,10 +36,13 @@ import { getCiv7MapSizePreset } from "./features/browserRunner/mapSizes";
 import {
   buildRunInGameClientSnapshot,
   buildRunInGameFingerprint,
+  buildRunInGameSourceSnapshot,
   parseRunInGameClientSnapshot,
+  parseRunInGameSourceSnapshot,
   relationForRunInGameOperation,
   type RunInGameClientSnapshot,
   type RunInGameCurrentRelation,
+  type RunInGameSourceSnapshot,
 } from "./features/runInGame/clientState";
 import {
   formatRunInGameDiagnostics,
@@ -75,6 +78,10 @@ import { resolveImportedPreset } from "./features/presets/importFlow";
 import { buildPresetExportFile, downloadPresetFile, parsePresetExportFile } from "./features/presets/importExport";
 import { parsePresetKey, type PresetKey } from "./features/presets/types";
 import { usePresets } from "./features/presets/usePresets";
+import {
+  loadStudioAuthoringState,
+  saveStudioAuthoringState,
+} from "./features/studioState/persistence";
 import {
   DEFAULT_STUDIO_RECIPE_ID,
   findRecipeArtifacts,
@@ -292,7 +299,10 @@ async function requestCiv7Autoplay(action: "start" | "stop"): Promise<{
 
 const RUN_IN_GAME_LAST_REQUEST_KEY = "mapgen-studio.runInGame.lastRequestId.v1";
 const RUN_IN_GAME_LAST_SNAPSHOT_KEY = "mapgen-studio.runInGame.lastSnapshot.v1";
+const RUN_IN_GAME_LAST_SOURCE_KEY = "mapgen-studio.runInGame.lastSource.v1";
 const MAP_CONFIG_SAVE_LAST_REQUEST_KEY = "mapgen-studio.mapConfigSave.lastRequestId.v1";
+const LIVE_GAME_PRESET_ID = "live-game";
+const LIVE_GAME_PRESET_KEY = `live:${LIVE_GAME_PRESET_ID}` as const;
 
 function isNumericPathSegment(segment: string): boolean {
   return /^[0-9]+$/.test(segment);
@@ -430,6 +440,15 @@ function toRepoBackedPreset(args: {
   };
 }
 
+function readStoredRunInGameSourceSnapshot(): RunInGameSourceSnapshot | null {
+  try {
+    if (typeof localStorage === "undefined") return null;
+    return parseRunInGameSourceSnapshot(localStorage.getItem(RUN_IN_GAME_LAST_SOURCE_KEY));
+  } catch {
+    return null;
+  }
+}
+
 function applyPresetConfig(args: {
   schema: TSchema;
   uiMeta: StudioRecipeUiMeta;
@@ -458,6 +477,22 @@ type LastRunSnapshot = {
   pipelineConfig: PipelineConfig;
 };
 
+function liveSourceMatchesStudio(args: {
+  source: RunInGameSourceSnapshot;
+  recipeSettings: RecipeSettings;
+  worldSettings: WorldSettings;
+  pipelineConfig: PipelineConfig;
+}): boolean {
+  return (
+    args.source.recipeSettings.recipe === args.recipeSettings.recipe &&
+    args.source.recipeSettings.seed === args.recipeSettings.seed &&
+    args.source.worldSettings.mapSize === args.worldSettings.mapSize &&
+    args.source.worldSettings.playerCount === args.worldSettings.playerCount &&
+    args.source.worldSettings.resources === args.worldSettings.resources &&
+    configsEqual(args.source.pipelineConfig, args.pipelineConfig)
+  );
+}
+
 type PresetErrorState = Readonly<{
   title: string;
   message: string;
@@ -474,6 +509,11 @@ function AppContent(props: AppContentProps) {
   const { toast } = useToast();
   const { themePreference, isLightMode, cyclePreference } = props;
   const theme = useMemo(() => createTheme(isLightMode), [isLightMode]);
+  const initialAuthoringStateRef = useRef<ReturnType<typeof loadStudioAuthoringState> | undefined>(undefined);
+  if (initialAuthoringStateRef.current === undefined) {
+    initialAuthoringStateRef.current = loadStudioAuthoringState();
+  }
+  const initialAuthoringState = initialAuthoringStateRef.current;
 
   const deckApiRef = useRef<DeckCanvasApi | null>(null);
   const [deckApiReadyTick, setDeckApiReadyTick] = useState(0);
@@ -497,14 +537,14 @@ function AppContent(props: AppContentProps) {
   const autoRunTimerRef = useRef<number | null>(null);
   const autoRunPendingRef = useRef(false);
 
-  const [worldSettings, setWorldSettings] = useState<WorldSettings>({
+  const [worldSettings, setWorldSettings] = useState<WorldSettings>(() => initialAuthoringState?.worldSettings ?? {
     mode: "browser",
     mapSize: "MAPSIZE_STANDARD",
     playerCount: 6,
     resources: "balanced",
   });
 
-  const [recipeSettings, setRecipeSettings] = useState<RecipeSettings>({
+  const [recipeSettings, setRecipeSettings] = useState<RecipeSettings>(() => initialAuthoringState?.recipeSettings ?? {
     recipe: DEFAULT_STUDIO_RECIPE_ID,
     preset: "none",
     seed: "123",
@@ -518,9 +558,15 @@ function AppContent(props: AppContentProps) {
   const [pendingImport, setPendingImport] = useState<StudioPresetExportFileV1 | null>(null);
   const importInputRef = useRef<HTMLInputElement | null>(null);
   const lastAppliedPresetRef = useRef<AppliedPresetSnapshot | null>(null);
+  const lastPresetKeyRef = useRef(recipeSettings.preset);
+  const lastRecipeIdRef = useRef(recipeSettings.recipe);
   const [repoBackedPresetOverridesByRecipe, setRepoBackedPresetOverridesByRecipe] = useState<
     Record<string, Record<string, BuiltInPreset>>
-  >({});
+  >(() => initialAuthoringState?.repoBackedPresetOverridesByRecipe ?? {});
+  const [lastRunInGameSource, setLastRunInGameSource] = useState<RunInGameSourceSnapshot | null>(() =>
+    readStoredRunInGameSourceSnapshot()
+  );
+  const [runInGameOperation, setRunInGameOperation] = useState<RunInGameOperationStatus | null>(null);
 
   const overlaySuggestions = useMemo(() => getOverlaySuggestions(recipeSettings.recipe), [recipeSettings.recipe]);
   const overlaySelection = overlaySuggestions.find((opt) => opt.id === overlaySelectionId) ?? null;
@@ -534,20 +580,56 @@ function AppContent(props: AppContentProps) {
     ),
     [recipeArtifacts.studioBuiltInPresets, recipeSettings.recipe, repoBackedPresetOverridesByRecipe]
   );
+  const provedRunInGameSource = useMemo(
+    () =>
+      lastRunInGameSource &&
+      runInGameOperation?.status === "complete" &&
+      runInGameOperation.requestId === lastRunInGameSource.requestId
+        ? lastRunInGameSource
+        : null,
+    [lastRunInGameSource, runInGameOperation]
+  );
+  const livePresets = useMemo(
+    () =>
+      lastRunInGameSource && lastRunInGameSource.recipeSettings.recipe === recipeSettings.recipe
+        ? [
+            {
+              id: LIVE_GAME_PRESET_ID,
+              label: lastRunInGameSource.materializationMode === "disposable"
+                ? "Live Game"
+                : lastRunInGameSource.selectedConfig?.label
+                  ? `Live Game (${lastRunInGameSource.selectedConfig.label})`
+                  : "Live Game",
+              description: provedRunInGameSource
+                ? "Config and seed last proved through Run in Game."
+                : "Config and seed from the last Studio Run in Game request.",
+              config: lastRunInGameSource.pipelineConfig,
+            },
+          ]
+        : [],
+    [lastRunInGameSource, provedRunInGameSource, recipeSettings.recipe]
+  );
   const { options: presetOptions, resolvePreset, actions: presetActions, loadWarning } = usePresets({
     recipeId: recipeSettings.recipe,
     builtIns: builtInPresets,
+    livePresets,
   });
   const isLocalPresetSelected = parsePresetKey(recipeSettings.preset).kind === "local";
   const [pipelineConfig, setPipelineConfig] = useState<PipelineConfig>(() => {
-    const artifacts = getRecipeArtifacts(DEFAULT_STUDIO_RECIPE_ID);
+    if (initialAuthoringState?.pipelineConfig) return initialAuthoringState.pipelineConfig;
+    const artifacts = recipeArtifacts;
     return buildDefaultConfig(artifacts.configSchema, artifacts.uiMeta, artifacts.defaultConfig);
   });
-  const [overridesDisabled, setOverridesDisabled] = useState(false);
+  const [overridesDisabled, setOverridesDisabled] = useState(() => initialAuthoringState?.overridesDisabled ?? false);
   const [lastRunSnapshot, setLastRunSnapshot] = useState<LastRunSnapshot | null>(null);
 
   useEffect(() => {
+    const previousPreset = lastPresetKeyRef.current;
+    const previousRecipe = lastRecipeIdRef.current;
+    lastPresetKeyRef.current = recipeSettings.preset;
+    lastRecipeIdRef.current = recipeSettings.recipe;
     if (parsePresetKey(recipeSettings.preset).kind !== "none") return;
+    if (previousPreset === recipeSettings.preset && previousRecipe === recipeSettings.recipe) return;
     const base = buildDefaultConfig(
       recipeArtifacts.configSchema,
       recipeArtifacts.uiMeta,
@@ -561,6 +643,7 @@ function AppContent(props: AppContentProps) {
     recipeArtifacts.configSchema,
     recipeArtifacts.defaultConfig,
     recipeArtifacts.uiMeta,
+    recipeSettings.recipe,
     recipeSettings.preset,
   ]);
 
@@ -612,6 +695,16 @@ function AppContent(props: AppContentProps) {
     toast(loadWarning, { variant: "info" });
   }, [loadWarning, toast]);
 
+  useEffect(() => {
+    saveStudioAuthoringState({
+      worldSettings,
+      recipeSettings,
+      pipelineConfig,
+      overridesDisabled,
+      repoBackedPresetOverridesByRecipe,
+    });
+  }, [overridesDisabled, pipelineConfig, recipeSettings, repoBackedPresetOverridesByRecipe, worldSettings]);
+
   const dumpLoader = useDumpLoader();
   const dumpAssetResolver = dumpLoader.state.status === "loaded" ? dumpLoader.state.reader : null;
   const dumpManifest = dumpLoader.state.status === "loaded" ? dumpLoader.state.manifest : null;
@@ -629,7 +722,6 @@ function AppContent(props: AppContentProps) {
   const browserRunning = browserRunner.state.running;
   const [localError, setLocalError] = useState<string | null>(null);
   const [saveDeployOperation, setSaveDeployOperation] = useState<MapConfigSaveDeployStatus | null>(null);
-  const [runInGameOperation, setRunInGameOperation] = useState<RunInGameOperationStatus | null>(null);
   const [runInGameSnapshot, setRunInGameSnapshot] = useState<RunInGameClientSnapshot | null>(null);
   const [lastSaveDeployConfig, setLastSaveDeployConfig] = useState<unknown>(null);
   const lastRunInGameToastRef = useRef<string | null>(null);
@@ -1429,6 +1521,47 @@ function AppContent(props: AppContentProps) {
     [runInGameCurrentFingerprint, runInGameOperation, runInGameSnapshot]
   );
 
+  const liveGameStudioRelation = useMemo<"current" | "stale" | "unknown">(() => {
+    if (liveRuntime.status !== "ok") return "unknown";
+    if (liveRuntime.seed !== undefined && String(liveRuntime.seed) !== recipeSettings.seed) return "stale";
+    if (!provedRunInGameSource) return "unknown";
+    if (
+      liveRuntime.seed !== undefined &&
+      String(liveRuntime.seed) !== provedRunInGameSource.recipeSettings.seed
+    ) {
+      return "unknown";
+    }
+    return liveSourceMatchesStudio({
+      source: provedRunInGameSource,
+      recipeSettings,
+      worldSettings,
+      pipelineConfig: stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig,
+    })
+      ? "current"
+      : "stale";
+  }, [liveRuntime.seed, liveRuntime.status, pipelineConfig, provedRunInGameSource, recipeSettings, worldSettings]);
+
+  const studioMatchesProvedLiveSource = useMemo(() => {
+    if (!provedRunInGameSource) return false;
+    return liveSourceMatchesStudio({
+      source: provedRunInGameSource,
+      recipeSettings,
+      worldSettings,
+      pipelineConfig: stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig,
+    });
+  }, [pipelineConfig, provedRunInGameSource, recipeSettings, worldSettings]);
+
+  const displayedPresetOptions = useMemo(
+    () => {
+      const relabelNoneAsLive =
+        studioMatchesProvedLiveSource && provedRunInGameSource?.materializationMode === "disposable";
+      return presetOptions
+        .filter((option) => !(relabelNoneAsLive && option.value === LIVE_GAME_PRESET_KEY))
+        .map((option) => (option.value === "none" && relabelNoneAsLive ? { ...option, label: "Live / Live Game" } : option));
+    },
+    [presetOptions, provedRunInGameSource?.materializationMode, studioMatchesProvedLiveSource]
+  );
+
   const refreshRunInGameStatus = useCallback(async (requestId: string) => {
     const result = await fetchRunInGameStatus(requestId);
     if (!("requestId" in result)) {
@@ -1558,6 +1691,16 @@ function AppContent(props: AppContentProps) {
     const sanitized = stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig;
     const resolved = resolvePreset(recipeSettings.preset as PresetKey);
     const mapSize = getCiv7MapSizePreset(worldSettings.mapSize);
+    const selectedConfig = resolved
+      ? {
+          id: resolved.id,
+          label: resolved.label,
+          description: resolved.description,
+          sourcePath: resolved.sourcePath,
+          sortIndex: resolved.sortIndex,
+          latitudeBounds: resolved.latitudeBounds,
+        }
+      : undefined;
     const result = await runCurrentConfigInGame({
       recipeId: "mod-swooper-maps/standard",
       seed: recipeSettings.seed,
@@ -1566,16 +1709,7 @@ function AppContent(props: AppContentProps) {
       resources: worldSettings.resources,
       materializationMode: runInGameMaterializationMode,
       restartCivProcess: options?.restartCivProcess,
-      selectedConfig: resolved
-        ? {
-            id: resolved.id,
-            label: resolved.label,
-            description: resolved.description,
-            sourcePath: resolved.sourcePath,
-            sortIndex: resolved.sortIndex,
-            latitudeBounds: resolved.latitudeBounds,
-          }
-        : undefined,
+      selectedConfig,
       config: sanitized,
     });
     if (!("requestId" in result)) {
@@ -1603,9 +1737,19 @@ function AppContent(props: AppContentProps) {
       materializationMode: runInGameMaterializationMode,
     });
     setRunInGameSnapshot(snapshot);
+    const sourceSnapshot = buildRunInGameSourceSnapshot({
+      requestId: result.requestId,
+      recipeSettings,
+      worldSettings,
+      pipelineConfig: sanitized,
+      materializationMode: runInGameMaterializationMode,
+      selectedConfig,
+    });
+    setLastRunInGameSource(sourceSnapshot);
     try {
       localStorage.setItem(RUN_IN_GAME_LAST_REQUEST_KEY, result.requestId);
       localStorage.setItem(RUN_IN_GAME_LAST_SNAPSHOT_KEY, JSON.stringify(snapshot));
+      localStorage.setItem(RUN_IN_GAME_LAST_SOURCE_KEY, JSON.stringify(sourceSnapshot));
     } catch {
       // Server status remains authoritative while the dev server is alive.
     }
@@ -1625,6 +1769,54 @@ function AppContent(props: AppContentProps) {
     worldSettings.playerCount,
     worldSettings.resources,
   ]);
+
+  const syncStudioFromLiveGame = useCallback(() => {
+    if (liveRuntime.status !== "ok") return;
+    if (browserRunning || runInGameRunning || saveDeployRunning) {
+      toast("Finish the current Studio operation before syncing from the live game.", { variant: "info" });
+      return;
+    }
+    if (!provedRunInGameSource) {
+      if (liveRuntime.seed === undefined) {
+        toast("Live game seed is unavailable; run the game through Studio to sync full config.", { variant: "error" });
+        return;
+      }
+      setRecipeSettings((prev) => ({ ...prev, seed: String(liveRuntime.seed) }));
+      toast("Studio seed synced from live game. Full config sync requires a proved Run in Game source.", {
+        variant: "info",
+      });
+      return;
+    }
+    const liveSeed = liveRuntime.seed === undefined ? provedRunInGameSource.recipeSettings.seed : String(liveRuntime.seed);
+    if (liveSeed !== provedRunInGameSource.recipeSettings.seed) {
+      toast("Live game seed no longer matches the last proved Studio run.", { variant: "error" });
+      return;
+    }
+    const durablePresetKey =
+      provedRunInGameSource.materializationMode === "durable" && provedRunInGameSource.selectedConfig?.id
+        ? (`builtin:${provedRunInGameSource.selectedConfig.id}` as PresetKey)
+        : null;
+    const nextPreset = durablePresetKey && resolvePreset(durablePresetKey) ? durablePresetKey : LIVE_GAME_PRESET_KEY;
+
+    lastAppliedPresetRef.current = {
+      key: nextPreset,
+      config: provedRunInGameSource.pipelineConfig,
+    };
+    setWorldSettings({
+      ...provedRunInGameSource.worldSettings,
+      mode: "browser",
+    });
+    setPipelineConfig(provedRunInGameSource.pipelineConfig);
+    setOverridesDisabled(false);
+    setRecipeSettings({
+      ...provedRunInGameSource.recipeSettings,
+      seed: liveSeed,
+      preset: nextPreset,
+    });
+    toast(nextPreset === LIVE_GAME_PRESET_KEY ? "Studio synced to live game config" : "Studio synced to live game preset", {
+      variant: "success",
+    });
+  }, [browserRunning, liveRuntime, provedRunInGameSource, resolvePreset, runInGameRunning, saveDeployRunning, toast]);
 
   const handleToggleAutoplay = useCallback(async () => {
     if (autoplayActionRunning || browserRunning || runInGameRunning || saveDeployRunning) return;
@@ -2235,7 +2427,7 @@ function AppContent(props: AppContentProps) {
         )
       }
       recipeOptions={recipeOptions}
-      presetOptions={presetOptions}
+      presetOptions={displayedPresetOptions}
       theme={theme}
       lightMode={isLightMode}
       selectedStep={selectedStageId}
@@ -2344,6 +2536,8 @@ function AppContent(props: AppContentProps) {
       isDirty={isDirty}
       lightMode={isLightMode}
       liveRuntime={liveRuntime}
+      liveGameStudioRelation={liveGameStudioRelation}
+      onSyncFromLiveGame={syncStudioFromLiveGame}
       onToggleAutoplay={handleToggleAutoplay}
       onToast={(message) => toast(message, { variant: "success" })}
       autoRunEnabled={autoRunEnabled}

@@ -14,6 +14,21 @@ export type RunInGameClientSnapshot = Readonly<{
   materializationMode: "durable" | "disposable";
 }>;
 
+export type RunInGameSourceSnapshot = Readonly<{
+  requestId: string;
+  createdAt: string;
+  recipeSettings: RecipeSettings;
+  worldSettings: WorldSettings;
+  pipelineConfig: PipelineConfig;
+  materializationMode: "durable" | "disposable";
+  selectedConfig?: {
+    id?: string;
+    label?: string;
+    description?: string;
+    sourcePath?: string;
+  };
+}>;
+
 export type RunInGameCurrentRelation = "current" | "stale" | "unknown";
 
 export function buildRunInGameFingerprint(args: {
@@ -56,6 +71,26 @@ export function buildRunInGameClientSnapshot(args: {
   };
 }
 
+export function buildRunInGameSourceSnapshot(args: {
+  requestId: string;
+  recipeSettings: RecipeSettings;
+  worldSettings: WorldSettings;
+  pipelineConfig: PipelineConfig;
+  materializationMode: "durable" | "disposable";
+  selectedConfig?: RunInGameSourceSnapshot["selectedConfig"];
+  now?: () => Date;
+}): RunInGameSourceSnapshot {
+  return {
+    requestId: args.requestId,
+    createdAt: (args.now ?? (() => new Date()))().toISOString(),
+    recipeSettings: args.recipeSettings,
+    worldSettings: args.worldSettings,
+    pipelineConfig: args.pipelineConfig,
+    materializationMode: args.materializationMode,
+    ...(args.selectedConfig === undefined ? {} : { selectedConfig: args.selectedConfig }),
+  };
+}
+
 export function relationForRunInGameOperation(args: {
   status?: RunInGameOperationStatus | null;
   snapshot?: RunInGameClientSnapshot | null;
@@ -64,6 +99,52 @@ export function relationForRunInGameOperation(args: {
   if (!args.status) return "unknown";
   if (!args.snapshot || args.snapshot.requestId !== args.status.requestId) return "unknown";
   return args.snapshot.fingerprint === args.currentFingerprint ? "current" : "stale";
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function parseRecipeSettings(value: unknown): RecipeSettings | null {
+  if (!isRecord(value)) return null;
+  if (typeof value.recipe !== "string" || typeof value.preset !== "string" || typeof value.seed !== "string") {
+    return null;
+  }
+  return {
+    recipe: value.recipe,
+    preset: value.preset,
+    seed: value.seed,
+  };
+}
+
+function parseWorldSettings(value: unknown): WorldSettings | null {
+  if (!isRecord(value)) return null;
+  if (
+    value.mode !== "browser" &&
+    value.mode !== "dump"
+  ) {
+    return null;
+  }
+  if (typeof value.mapSize !== "string" || typeof value.playerCount !== "number" || typeof value.resources !== "string") {
+    return null;
+  }
+  return {
+    mode: value.mode,
+    mapSize: value.mapSize as WorldSettings["mapSize"],
+    playerCount: value.playerCount,
+    resources: value.resources as WorldSettings["resources"],
+  };
+}
+
+function parseSelectedConfig(value: unknown): RunInGameSourceSnapshot["selectedConfig"] | undefined {
+  if (value === undefined) return undefined;
+  if (!isRecord(value)) return undefined;
+  return {
+    ...(typeof value.id === "string" ? { id: value.id } : {}),
+    ...(typeof value.label === "string" ? { label: value.label } : {}),
+    ...(typeof value.description === "string" ? { description: value.description } : {}),
+    ...(typeof value.sourcePath === "string" ? { sourcePath: value.sourcePath } : {}),
+  };
 }
 
 export function parseRunInGameClientSnapshot(value: string | null): RunInGameClientSnapshot | null {
@@ -85,6 +166,37 @@ export function parseRunInGameClientSnapshot(value: string | null): RunInGameCli
       return null;
     }
     return parsed as RunInGameClientSnapshot;
+  } catch {
+    return null;
+  }
+}
+
+export function parseRunInGameSourceSnapshot(value: string | null): RunInGameSourceSnapshot | null {
+  if (!value) return null;
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    if (!isRecord(parsed)) return null;
+    const recipeSettings = parseRecipeSettings(parsed.recipeSettings);
+    const worldSettings = parseWorldSettings(parsed.worldSettings);
+    if (
+      typeof parsed.requestId !== "string" ||
+      typeof parsed.createdAt !== "string" ||
+      !recipeSettings ||
+      !worldSettings ||
+      !isRecord(parsed.pipelineConfig) ||
+      (parsed.materializationMode !== "durable" && parsed.materializationMode !== "disposable")
+    ) {
+      return null;
+    }
+    return {
+      requestId: parsed.requestId,
+      createdAt: parsed.createdAt,
+      recipeSettings,
+      worldSettings,
+      pipelineConfig: parsed.pipelineConfig as PipelineConfig,
+      materializationMode: parsed.materializationMode,
+      ...(parsed.selectedConfig === undefined ? {} : { selectedConfig: parseSelectedConfig(parsed.selectedConfig) }),
+    };
   } catch {
     return null;
   }
