@@ -426,6 +426,11 @@ Residual objective gaps:
   guard: `game play rehydrate` composes live notifications with ready-unit state
   and optional expected turn/date/unit checks, so agents discard stale
   pre-restart assumptions before sending.
+- A multi-turn strategy and AI-levers topic now captures the architecture split
+  between external strategy runner, static AI/resource mods, native autoplay,
+  and possible telemetry-only JS bridge. It folds in play-style heuristics,
+  official AI schema/resource levers, and RHQ's Workshop/changelog claims as a
+  baseline for static AI manipulation over autoplay.
 - Remaining gaps are promotion/hardening work: richer ready-entity reads,
   stronger live postcondition polling, civic choice proof, acquire-tile
   candidate cataloging, and eventual promotion into canonical docs/skills.
@@ -437,6 +442,8 @@ Deferred items:
 - Prove ordinary non-town city-project production postconditions.
 - Improve acquire-tile candidate cataloging so future reads show whether each
   plot should use `assign-worker` or `expand-city`.
+- Specify the first strategy-runner dry run and the first fixed-seed AI
+  resource-mod A/B experiment before implementing multi-turn automation.
 - Promote stable topic docs into canonical docs and skill assets after review.
 
 Next Packet:

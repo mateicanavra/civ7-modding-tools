@@ -301,6 +301,43 @@ Norms:
 
 Promotion readiness: ready as an authority preface for every live-play skill.
 
+### Strategy Over Turns And AI Levers
+
+Source artifacts:
+
+- `topics/multi-turn-strategy-and-ai-levers.md`
+- `topics/early-game-decision-context.md`
+- `topics/early-war-tactical-stale-state-guard.md`
+- `topics/runtime-state-sources.md`
+- `topics/restart-rehydration.md`
+
+CLI shortcuts:
+
+- `game play rehydrate`
+- `game play notifications`
+- `game play ready-unit`
+- `game play ready-city`
+- `game play unit-target`
+- `game autoplay`
+
+Norms:
+
+- Put adaptive multi-turn strategy in an external runner over the live
+  direct-control/HUD surface first.
+- Treat native autoplay as a turn-runner and experiment clock, not a strategy
+  policy engine.
+- Treat official AI XML/SQL rows as load-time/static-mod levers until a safe
+  live mutation contract is proven.
+- Use RHQ-style AI mods as a baseline for static AI manipulation over autoplay,
+  not as proof that local SQLite edits or in-game JS should own player-side
+  strategy.
+- Encode strategy heuristics as conditional objectives with falsifiers:
+  defensive production under threat, ranged-first combat, wounded-unit
+  preservation, safe expansion, and clean App UI/autoplay handoff.
+
+Promotion readiness: reference-with-gap. Ready for strategy-runner design and
+A/B experiment specs, but not yet ready as an autonomous multi-turn skill.
+
 ### Current Online Context
 
 Source artifacts:
@@ -340,6 +377,7 @@ runtime and local official resource references.
 | `topics/unit-target-actions.md` | Tactical operation reference | Ready with postcondition warning |
 | `topics/early-war-tactical-stale-state-guard.md` | Tactical guard and advisory asset | Ready as guard; strategy stays advisory |
 | `topics/early-game-decision-context.md` | Strategy context asset | Advisory only |
+| `topics/multi-turn-strategy-and-ai-levers.md` | Strategy-over-turns architecture reference | Reference with gap |
 | `evidence-packs/current-online-play-context.md` | Current online context asset | Advisory only |
 | `evidence-packs/local-on-disk-read-surfaces.md` | Runtime-source authority evidence | Ready |
 | `evidence-packs/watcher-latency-observer-mode.md` | Watcher operating-mode asset | Ready |
@@ -376,6 +414,14 @@ and postcondition are proven:
   relationship effects before choosing a response.
 - `game play promote-unit`: read spendable promotion state and send a specific
   promotion only with live validator-backed args.
+- `game play strategic-snapshot`: compact objective/state read that includes
+  live blockers, ready entities, visible threats, production/diplomacy context,
+  current objective ledger, and stale-risk markers.
+- `game strategy run`: external workflow runner for validate-only and bounded
+  send loops over multiple turns, using `game autoplay` only after clean
+  App UI proof.
+- `game ai-experiment`: fixed-seed autoplay A/B harness for static AI/resource
+  mod changes.
 
 ## Do-Not-Promote Boundaries
 
