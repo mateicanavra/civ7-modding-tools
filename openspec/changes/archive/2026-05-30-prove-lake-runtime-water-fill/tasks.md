@@ -26,6 +26,6 @@
 - [x] 4.2 Run shipped-map world-balance stats with lake drift checks.
 - [x] 4.3 Run `bun run --cwd mods/mod-swooper-maps check`.
 - [x] 4.4 Run targeted and global OpenSpec validation.
-- [ ] 4.5 Run `bun run build`.
-- [ ] 4.6 Deploy and prove a fresh Civ7 MapGeneration run through FireTuner/logs.
+- [x] 4.5 Run `bun run build`.
+- [x] 4.6 Deploy and prove a fresh Civ7 MapGeneration run through FireTuner/logs.
 - [x] 4.7 Run `git diff --check`.

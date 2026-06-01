@@ -8,7 +8,7 @@ import { SHATTERED_RING_CONFIG } from "../../src/maps/configs/shattered-ring.con
 import { SUNDERED_ARCHIPELAGO_CONFIG } from "../../src/maps/configs/sundered-archipelago.config.js";
 import { SWOOPER_DESERT_MOUNTAINS_CONFIG } from "../../src/maps/configs/swooper-desert-mountains.config.js";
 import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
-import { collectWorldBalanceStats } from "../support/world-balance-stats.js";
+import { collectWorldBalanceStats, type WorldBalanceStats } from "../support/world-balance-stats.js";
 
 function unwrapConfig(config: unknown): StandardRecipeConfig {
   const unwrapped = stripSchemaMetadataRoot(structuredClone(config)) as
@@ -85,6 +85,10 @@ describe("world balance stats", () => {
         stats.finalLakeClassificationDriftCount,
         `${caseData.label} final lake classification drift`
       ).toBe(0);
+      expect(stats.invalidFeatureSurfaceCount, `${caseData.label} invalid feature surface`).toBe(0);
+      for (const [feature, count] of Object.entries(stats.featureHabitatMismatchCounts)) {
+        expect(count, `${caseData.label} ${feature} habitat mismatch`).toBe(0);
+      }
       expect(stats.lakeProjectionMismatchCount, `${caseData.label} rejected lake tiles`).toBeLessThanOrEqual(2);
       expect(stats.singleTileLakeShare, `${caseData.label} one-tile lake share`).toBeLessThanOrEqual(0.2);
       expect(stats.lakeComponentCount, `${caseData.label} lake component count`).toBeLessThanOrEqual(24);
@@ -114,5 +118,40 @@ describe("world balance stats", () => {
         );
       }
     }
+  });
+
+  it("keeps earthlike vegetation families visible across seed rolls", { timeout: 30_000 }, () => {
+    const seeds = [1018, 1, 2, 3, 42, 99, 1234, 7777];
+    const rolls: WorldBalanceStats[] = seeds.map((seed) =>
+      collectWorldBalanceStats({
+        label: `swooper-earthlike:${seed}`,
+        config: unwrapConfig(swooperEarthlikeConfigRaw),
+        seed,
+        width: 80,
+        height: 50,
+      })
+    );
+
+    const presentIn = (feature: keyof WorldBalanceStats["featureCounts"]): number =>
+      rolls.filter((stats) => stats.featureCounts[feature] > 0).length;
+
+    for (const stats of rolls) {
+      expect(stats.invalidFeatureSurfaceCount, `${stats.label} invalid feature surface`).toBe(0);
+      expect(stats.finalLakeWaterDriftCount, `${stats.label} final lake water drift`).toBe(0);
+      expect(stats.finalLakeClassificationDriftCount, `${stats.label} final lake classification drift`).toBe(0);
+      expect(stats.vegetationFamilyTiles, `${stats.label} vegetation-family tiles`).toBeGreaterThan(0);
+      expect(stats.vegetationFeatureFamiliesPresent, `${stats.label} vegetation families present`).toBeGreaterThanOrEqual(4);
+      expect(stats.vegetationFamilyShareOfPreLakeLand, `${stats.label} vegetation share`).toBeGreaterThan(0.08);
+      expect(stats.vegetationFamilyShareOfPreLakeLand, `${stats.label} vegetation share`).toBeLessThan(0.55);
+      expect(stats.featureCounts.FEATURE_RAINFOREST, `${stats.label} rainforest`).toBeLessThanOrEqual(
+        Math.max(1, Math.floor(stats.preLakeLandTiles * 0.35))
+      );
+    }
+
+    expect(presentIn("FEATURE_FOREST"), "forest seed presence").toBe(seeds.length);
+    expect(presentIn("FEATURE_RAINFOREST"), "rainforest seed presence").toBe(seeds.length);
+    expect(presentIn("FEATURE_TAIGA"), "taiga seed presence").toBe(seeds.length);
+    expect(presentIn("FEATURE_SAVANNA_WOODLAND"), "savanna seed presence").toBeGreaterThanOrEqual(6);
+    expect(presentIn("FEATURE_SAGEBRUSH_STEPPE"), "sagebrush seed presence").toBeGreaterThanOrEqual(6);
   });
 });
