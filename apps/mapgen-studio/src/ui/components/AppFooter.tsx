@@ -6,10 +6,15 @@ import { formatResourceMode } from '../utils';
 import type { RecipeSettings, WorldSettings, GenerationStatus } from '../types';
 import {
   formatRunInGamePhaseLabel,
+  runInGamePrimaryActionLabel,
   runInGameCanRetryStatus,
   type RunInGameOperationStatus,
 } from '../../features/runInGame/status';
 import type { RunInGameCurrentRelation } from '../../features/runInGame/clientState';
+import {
+  formatMapConfigSaveDeployPhaseLabel,
+  type MapConfigSaveDeployStatus,
+} from '../../features/mapConfigSave/status';
 export interface AppFooterProps {
   /** Current generation status */
   status: GenerationStatus;
@@ -35,6 +40,10 @@ export interface AppFooterProps {
   isRunning: boolean;
   /** Whether Civ7 Run in Game is currently running */
   isRunInGameRunning: boolean;
+  /** Whether config save/deploy is currently running */
+  isSaveDeployRunning?: boolean;
+  /** Current config save/deploy status */
+  saveDeployStatus?: MapConfigSaveDeployStatus | null;
   /** Request-correlated Civ7 Run in Game status */
   runInGameStatus?: RunInGameOperationStatus | null;
   /** Whether the recorded operation matches the current authored Studio state */
@@ -74,6 +83,8 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   onReroll,
   isRunning,
   isRunInGameRunning,
+  isSaveDeployRunning = false,
+  saveDeployStatus,
   runInGameStatus,
   runInGameCurrentRelation = "unknown",
   isDirty,
@@ -137,11 +148,17 @@ export const AppFooter: React.FC<AppFooterProps> = ({
         : isRunInGameRunning
           ? "bg-amber-400"
           : "bg-gray-400";
-  const runInGameButtonText = isRunInGameRunning
-    ? runInGamePhaseLabel
-    : runInGameStatus?.status === "failed" || runInGameStatus?.status === "blocked" || runInGameStatus?.status === "uncertain"
-      ? "Retry Run"
-      : "Run in Game";
+  const runInGameButtonText = runInGamePrimaryActionLabel(runInGameStatus, runInGameCurrentRelation);
+  const operationControlsDisabled = isRunning || isRunInGameRunning || isSaveDeployRunning;
+  const saveDeployLabel = saveDeployStatus ? formatMapConfigSaveDeployPhaseLabel(saveDeployStatus.phase) : null;
+  const saveDeployTitle = saveDeployStatus
+    ? [
+        `Save/Deploy: ${saveDeployLabel}`,
+        saveDeployStatus.requestId ? `Request: ${saveDeployStatus.requestId}` : null,
+        saveDeployStatus.path ? `Path: ${saveDeployStatus.path}` : null,
+        saveDeployStatus.error ? `Error: ${saveDeployStatus.error}` : null,
+      ].filter(Boolean).join("\n")
+    : "Config save/deploy status";
   const runInGameTitle = [
     runInGameStatus ? `Run in Game: ${runInGamePhaseLabel}` : "Run in Game: launch current config in Civ7",
     runInGameStatus?.requestId ? `Request: ${runInGameStatus.requestId}` : null,
@@ -250,6 +267,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           onChange={(e) => updateSetting('seed', e.target.value)}
           placeholder="Seed"
           title="Generation seed"
+          disabled={operationControlsDisabled}
           lightMode={lightMode}
           className="w-20 font-mono" />
 
@@ -259,7 +277,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           variant="outline"
           size="icon"
           onClick={onReroll}
-          disabled={isRunning}
+          disabled={operationControlsDisabled}
           title="Re-roll: New seed and run">
 
           <Dices className="w-3.5 h-3.5" />
@@ -270,7 +288,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           variant="outline"
           size="icon"
           onClick={() => onAutoRunEnabledChange(!autoRunEnabled)}
-          disabled={isRunning}
+          disabled={operationControlsDisabled}
           aria-pressed={autoRunEnabled}
           aria-label="Toggle auto-run: run current seed on config changes"
           title="Auto-run: run current seed on config changes"
@@ -280,6 +298,15 @@ export const AppFooter: React.FC<AppFooterProps> = ({
         </Button>
 
         {/* Run in Game button */}
+        {saveDeployStatus && saveDeployStatus.status !== "complete" ? (
+          <div
+            className={`hidden max-w-[150px] items-center gap-1.5 overflow-hidden text-[11px] font-medium ${textPrimary} lg:inline-flex`}
+            title={saveDeployTitle}>
+
+            <div className={`h-2 w-2 shrink-0 rounded-full ${saveDeployStatus.status === "failed" ? "bg-red-400" : "bg-amber-400"}`} />
+            <span className="truncate">{saveDeployLabel}</span>
+          </div>
+        ) : null}
         {runInGameStatus ? (
           <div
             className={`hidden max-w-[180px] items-center gap-1.5 overflow-hidden text-[11px] font-medium ${textPrimary} lg:inline-flex`}
@@ -316,7 +343,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
         ) : null}
         <Button
           onClick={onRunInGame}
-          disabled={isRunning || isRunInGameRunning}
+          disabled={operationControlsDisabled}
           variant="outline"
           title={runInGameTitle}
           className={isRunInGameRunning ? 'opacity-70 cursor-wait' : undefined}>
@@ -328,7 +355,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
         {/* Run button */}
         <Button
           onClick={onRun}
-          disabled={isRunning}
+          disabled={operationControlsDisabled}
           className={`
             ${isDirty ? 'ring-2 ring-orange-400/50 border-orange-400' : ''}
             ${isRunning ? 'opacity-70 cursor-wait' : ''}

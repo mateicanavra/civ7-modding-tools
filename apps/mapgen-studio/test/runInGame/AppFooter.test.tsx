@@ -87,6 +87,25 @@ describe("AppFooter Run in Game status", () => {
     expect(html).toContain("setup cannot see");
   });
 
+  it("renders restart-Civ recovery as the primary Run in Game action", () => {
+    const html = renderFooter({
+      ok: false,
+      requestId: "studio-run-in-game-restart-needed",
+      phase: "blocked",
+      status: "blocked",
+      startedAt: "2026-06-01T00:00:00.000Z",
+      updatedAt: "2026-06-01T00:00:01.000Z",
+      completedPhases: ["materializing", "deploying", "checking-civ7"],
+      error: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
+      details: {
+        code: "setup-map-row-not-visible",
+        reloadBoundary: "process-restart-required",
+      },
+    }, "current");
+
+    expect(html).toContain("Restart Civ &amp; Run");
+  });
+
   it("marks a previous operation stale when the authored Studio state has changed", () => {
     const html = renderFooter({
       ok: true,
@@ -100,5 +119,40 @@ describe("AppFooter Run in Game status", () => {
 
     expect(html).toContain("Stale");
     expect(html).toContain("Studio state: Stale");
+  });
+
+  it("renders save/deploy status separately and disables browser run controls", () => {
+    const html = renderToStaticMarkup(
+      <AppFooter
+        status="ready"
+        lastRunSettings={recipeSettings}
+        lastGlobalSettings={worldSettings}
+        currentSettings={recipeSettings}
+        onSettingsChange={vi.fn()}
+        onRun={vi.fn()}
+        onRunInGame={vi.fn()}
+        onReroll={vi.fn()}
+        isRunning={false}
+        isRunInGameRunning={false}
+        isSaveDeployRunning={true}
+        saveDeployStatus={{
+          ok: true,
+          requestId: "studio-save-deploy-test",
+          phase: "deploying",
+          status: "running",
+          startedAt: "2026-06-01T00:00:00.000Z",
+          updatedAt: "2026-06-01T00:00:01.000Z",
+          path: "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
+        }}
+        isDirty={false}
+        lightMode={false}
+        autoRunEnabled={false}
+        onAutoRunEnabledChange={vi.fn()}
+      />
+    );
+
+    expect(html).toContain("Save/Deploy: Deploying");
+    expect(html).toContain("studio-save-deploy-test");
+    expect(html).toContain("disabled");
   });
 });

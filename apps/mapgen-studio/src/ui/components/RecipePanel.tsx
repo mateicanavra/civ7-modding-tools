@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 // ============================================================================
 // RECIPE PANEL
 // ============================================================================
@@ -16,6 +16,10 @@ import {
   Play } from
 'lucide-react';
 import { SchemaConfigForm } from '../../features/configOverrides/SchemaConfigForm';
+import {
+  formatMapConfigSaveDeployPhaseLabel,
+  type MapConfigSaveDeployStatus,
+} from '../../features/mapConfigSave/status';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -77,6 +81,14 @@ export interface RecipePanelProps {
   canDeletePreset?: boolean;
   /** Whether generation is running */
   isRunning: boolean;
+  /** Whether generation is disabled by another Studio operation */
+  isRunDisabled?: boolean;
+  /** Whether config save/deploy is running */
+  isSaveDeployRunning?: boolean;
+  /** Current config save/deploy status */
+  saveDeployStatus?: MapConfigSaveDeployStatus | null;
+  /** Whether save actions are disabled by another Studio operation */
+  isSaveDisabled?: boolean;
   /** Whether settings have changed since last run */
   isDirty: boolean;
   /** Whether config overrides are disabled (optional controlled mode) */
@@ -115,6 +127,10 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   onDeletePreset,
   canDeletePreset = false,
   isRunning,
+  isRunDisabled = false,
+  isSaveDeployRunning = false,
+  saveDeployStatus,
+  isSaveDisabled = false,
   isDirty,
   overridesDisabled: overridesDisabledProp,
   onOverridesDisabledChange,
@@ -149,6 +165,14 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
     onConfigCollapsedChange?.(next);
     if (configCollapsedProp === undefined) setLocalConfigCollapsed(next);
   };
+  const saveActionDisabled = isSaveDisabled || isSaveDeployRunning;
+  const runActionDisabled = isRunning || isRunDisabled || isSaveDeployRunning;
+  const saveLabel = saveDeployStatus ? formatMapConfigSaveDeployPhaseLabel(saveDeployStatus.phase) : 'Save & Deploy Config';
+  const saveTitle = isSaveDeployRunning ? `Save & Deploy Config: ${saveLabel}` : saveActionDisabled ? 'Save unavailable while another operation is running' : 'Save & Deploy Config';
+
+  useEffect(() => {
+    if (saveActionDisabled) setShowSaveMenu(false);
+  }, [saveActionDisabled]);
   // ==========================================================================
   // Derived State
   // ==========================================================================
@@ -387,8 +411,8 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
           <div className="flex items-center gap-2">
             <Button
               onClick={onRun}
-              disabled={isRunning}
-              className={`flex-1 ${isDirty ? 'ring-2 ring-orange-400/50 border-orange-400' : ''} ${isRunning ? 'opacity-70 cursor-wait' : ''}`}>
+              disabled={runActionDisabled}
+              className={`flex-1 ${isDirty ? 'ring-2 ring-orange-400/50 border-orange-400' : ''} ${isRunning || isSaveDeployRunning ? 'opacity-70 cursor-wait' : ''}`}>
 
               <Play className="w-3.5 h-3.5" aria-hidden="true" />
               <span>{isRunning ? 'Running…' : 'Run'}</span>
@@ -398,12 +422,16 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => setShowSaveMenu(!showSaveMenu)}
-                aria-label="Save Config"
+                onClick={() => {
+                  if (saveActionDisabled) return;
+                  setShowSaveMenu(!showSaveMenu);
+                }}
+                disabled={saveActionDisabled}
+                aria-label="Save & Deploy Config"
                 aria-haspopup="menu"
                 aria-expanded={showSaveMenu}
-                title="Save Config"
-                className="h-8 w-8">
+                title={saveTitle}
+                className={`h-8 w-8 ${isSaveDeployRunning ? 'opacity-70 cursor-wait' : ''}`}>
 
                 <Save className="w-4 h-4" aria-hidden="true" />
               </Button>
@@ -427,7 +455,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                     }}
                     className={`w-full text-left px-3 py-2 text-[11px] ${textPrimary} ${hoverBg} rounded-t-lg`}>
 
-                      Save
+                      Save & Deploy
                     </button>
                     <button
                     type="button"
@@ -437,7 +465,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                     }}
                     className={`w-full text-left px-3 py-2 text-[11px] ${textPrimary} ${hoverBg} border-t ${borderSubtle}`}>
 
-                      Save As…
+                      Save & Deploy As…
                     </button>
                     <button
                     type="button"

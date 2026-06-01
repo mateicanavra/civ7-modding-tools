@@ -5,6 +5,8 @@ import {
   isRunInGameTerminalPhase,
   kindForRunInGamePhase,
   runInGameCanRetryStatus,
+  runInGamePrimaryActionLabel,
+  runInGameRequiresProcessRestart,
   type RunInGameOperationStatus,
 } from "../../src/features/runInGame/status";
 
@@ -19,6 +21,7 @@ describe("Run in Game status helpers", () => {
 
   it("formats compact phase labels for footer controls", () => {
     expect(formatRunInGamePhaseLabel("preparing-setup")).toBe("Preparing Setup");
+    expect(formatRunInGamePhaseLabel("restarting-civ")).toBe("Restarting Civ");
     expect(formatRunInGamePhaseLabel("waiting-for-proof")).toBe("Waiting for Proof");
   });
 
@@ -48,5 +51,26 @@ describe("Run in Game status helpers", () => {
     expect(diagnostics.indexOf('"completedPhases"')).toBeLessThan(diagnostics.indexOf('"details"'));
     expect(runInGameCanRetryStatus(status)).toBe(true);
     expect(runInGameCanRetryStatus({ ...status, phase: "complete", status: "complete", ok: true })).toBe(false);
+  });
+
+  it("marks process-restart recovery as an explicit Run in Game action", () => {
+    const status: RunInGameOperationStatus = {
+      ok: false,
+      requestId: "studio-run-in-game-reload",
+      phase: "blocked",
+      status: "blocked",
+      startedAt: "2026-06-01T00:00:00.000Z",
+      updatedAt: "2026-06-01T00:00:01.000Z",
+      completedPhases: ["materializing", "deploying", "checking-civ7"],
+      details: {
+        code: "setup-map-row-not-visible",
+        reloadBoundary: "process-restart-required",
+      },
+    };
+
+    expect(runInGameRequiresProcessRestart(status)).toBe(true);
+    expect(runInGamePrimaryActionLabel(status, "current")).toBe("Restart Civ & Run");
+    expect(runInGamePrimaryActionLabel({ ...status, details: { code: "other" } }, "current")).toBe("Retry Run");
+    expect(runInGamePrimaryActionLabel({ ...status, details: { code: "other" } }, "stale")).toBe("Run Current");
   });
 });

@@ -2,6 +2,7 @@ export const RUN_IN_GAME_PHASES = [
   "idle",
   "materializing",
   "deploying",
+  "restarting-civ",
   "checking-civ7",
   "reload-needed",
   "preparing-setup",
@@ -33,6 +34,7 @@ export type RunInGameRequestStatus = Readonly<{
   resources?: string;
   selectedConfigId?: string;
   materializationMode?: string;
+  restartCivProcess?: boolean;
 }>;
 
 export type RunInGameFailureDetails = Readonly<{
@@ -73,6 +75,7 @@ const TERMINAL_PHASES = new Set<RunInGamePhase>(["complete", "blocked", "failed"
 const RUNNING_PHASES = new Set<RunInGamePhase>([
   "materializing",
   "deploying",
+  "restarting-civ",
   "checking-civ7",
   "reload-needed",
   "preparing-setup",
@@ -101,6 +104,8 @@ export function formatRunInGamePhaseLabel(phase: RunInGamePhase): string {
       return "Materializing";
     case "deploying":
       return "Deploying";
+    case "restarting-civ":
+      return "Restarting Civ";
     case "checking-civ7":
       return "Checking Civ7";
     case "reload-needed":
@@ -125,6 +130,22 @@ export function formatRunInGamePhaseLabel(phase: RunInGamePhase): string {
 export function runInGameCanRetryStatus(status?: RunInGameOperationStatus | null): boolean {
   if (!status) return false;
   return status.status === "running" || status.status === "blocked" || status.status === "failed" || status.status === "uncertain";
+}
+
+export function runInGameRequiresProcessRestart(status?: RunInGameOperationStatus | null): boolean {
+  return status?.details?.reloadBoundary === "process-restart-required";
+}
+
+export function runInGamePrimaryActionLabel(
+  status?: RunInGameOperationStatus | null,
+  relation: "current" | "stale" | "unknown" = "unknown",
+): string {
+  if (status?.status === "running") return formatRunInGamePhaseLabel(status.phase);
+  if (status && runInGameRequiresProcessRestart(status)) return "Restart Civ & Run";
+  if (status?.status === "failed" || status?.status === "blocked" || status?.status === "uncertain") {
+    return relation === "stale" ? "Run Current" : "Retry Run";
+  }
+  return "Run in Game";
 }
 
 export function formatRunInGameDiagnostics(status: RunInGameOperationStatus): string {

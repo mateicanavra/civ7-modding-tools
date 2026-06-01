@@ -44,9 +44,15 @@ import {
 import {
   formatRunInGameDiagnostics,
   isRunInGameTerminalPhase,
+  runInGameRequiresProcessRestart,
   type RunInGameFailureDetails,
   type RunInGameOperationStatus,
 } from "./features/runInGame/status";
+import {
+  createMapConfigSaveDeployStatus,
+  updateMapConfigSaveDeployStatus,
+  type MapConfigSaveDeployStatus,
+} from "./features/mapConfigSave/status";
 import { DeckCanvas, type DeckCanvasApi } from "./features/viz/DeckCanvas";
 import { useVizState } from "./features/viz/useVizState";
 import {
@@ -106,6 +112,7 @@ function toConfigId(label: string): string {
 }
 
 async function saveRepoBackedConfig(args: {
+  requestId: string;
   id: string;
   name: string;
   description?: string;
@@ -116,9 +123,10 @@ async function saveRepoBackedConfig(args: {
     bottomLatitude: number;
   }>;
   config: unknown;
+  onStatus?: (status: MapConfigSaveDeployStatus) => void;
 }): Promise<
-  | { ok: true; path?: string; deploy?: { command?: string }; restart?: { requestId?: string } }
-  | { ok: false; error: string; saved?: boolean; deployed?: boolean; path?: string; restart?: { requestId?: string } }
+  | { ok: true; path?: string; deploy?: { command?: string } }
+  | { ok: false; error: string; saved?: boolean; deployed?: boolean; path?: string }
 > {
   const envelope = {
     $schema: "../../../dist/recipes/standard-map-config.schema.json",
@@ -134,23 +142,52 @@ async function saveRepoBackedConfig(args: {
     const res = await fetch("/api/map-configs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: args.id, sourcePath: args.sourcePath, envelope, restart: false }),
+      body: JSON.stringify({ requestId: args.requestId, id: args.id, sourcePath: args.sourcePath, envelope }),
     });
-    const body = (await res.json().catch(() => null)) as {
-      ok?: boolean;
-      error?: string;
-      path?: string;
-      saved?: boolean;
-      deployed?: boolean;
-      deploy?: { command?: string };
-      restart?: { requestId?: string };
-    } | null;
-    if (!res.ok || !body?.ok) {
-      return { ok: false, error: body?.error ?? `HTTP ${res.status}`, saved: body?.saved, deployed: body?.deployed, path: body?.path };
+    const body = (await res.json().catch(() => null)) as (Partial<MapConfigSaveDeployStatus> & { error?: string }) | null;
+    if (!res.ok || !body?.requestId) {
+      return { ok: false, error: body?.error ?? `HTTP ${res.status}`, path: body?.path };
     }
-    return { ok: true, path: body.path, deploy: body.deploy, restart: body.restart };
+    let status = body as MapConfigSaveDeployStatus;
+    args.onStatus?.(status);
+    while (status.status === "running") {
+      await delay(500);
+      const next = await fetchMapConfigSaveDeployStatus(status.requestId);
+      if (!("requestId" in next)) {
+        return { ok: false, error: next.error, saved: status.saved, deployed: status.deployed, path: status.path };
+      }
+      status = next;
+      args.onStatus?.(status);
+    }
+    if (!status.ok || status.status === "failed") {
+      return {
+        ok: false,
+        error: status.error ?? "Save/deploy failed",
+        saved: status.saved,
+        deployed: status.deployed,
+        path: status.path,
+      };
+    }
+    return { ok: true, path: status.path, deploy: status.deploy };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Repo config save failed" };
+  }
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+async function fetchMapConfigSaveDeployStatus(requestId: string): Promise<MapConfigSaveDeployStatus | { ok: false; error: string; statusCode?: number }> {
+  try {
+    const res = await fetch(`/api/map-configs/status?requestId=${encodeURIComponent(requestId)}`);
+    const body = (await res.json().catch(() => null)) as (Partial<MapConfigSaveDeployStatus> & { error?: string }) | null;
+    if (!res.ok || !body?.requestId) {
+      return { ok: false, error: body?.error ?? `HTTP ${res.status}`, statusCode: res.status };
+    }
+    return body as MapConfigSaveDeployStatus;
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Save/Deploy status unavailable" };
   }
 }
 
@@ -161,6 +198,7 @@ async function runCurrentConfigInGame(args: {
   playerCount: number;
   resources: string;
   materializationMode: "durable" | "disposable";
+  restartCivProcess?: boolean;
   selectedConfig?: {
     id?: string;
     label?: string;
@@ -188,6 +226,7 @@ async function runCurrentConfigInGame(args: {
         playerCount: args.playerCount,
         resources: args.resources,
         materialization: { mode: args.materializationMode },
+        ...(args.restartCivProcess ? { recovery: { restartCivProcess: true } } : {}),
         selectedConfig: args.selectedConfig,
         config: args.config,
       }),
@@ -224,6 +263,7 @@ async function fetchRunInGameStatus(requestId: string): Promise<RunInGameOperati
 
 const RUN_IN_GAME_LAST_REQUEST_KEY = "mapgen-studio.runInGame.lastRequestId.v1";
 const RUN_IN_GAME_LAST_SNAPSHOT_KEY = "mapgen-studio.runInGame.lastSnapshot.v1";
+const MAP_CONFIG_SAVE_LAST_REQUEST_KEY = "mapgen-studio.mapConfigSave.lastRequestId.v1";
 
 function isNumericPathSegment(segment: string): boolean {
   return /^[0-9]+$/.test(segment);
@@ -559,8 +599,10 @@ function AppContent(props: AppContentProps) {
 
   const browserRunning = browserRunner.state.running;
   const [localError, setLocalError] = useState<string | null>(null);
+  const [saveDeployOperation, setSaveDeployOperation] = useState<MapConfigSaveDeployStatus | null>(null);
   const [runInGameOperation, setRunInGameOperation] = useState<RunInGameOperationStatus | null>(null);
   const [runInGameSnapshot, setRunInGameSnapshot] = useState<RunInGameClientSnapshot | null>(null);
+  const [lastSaveDeployConfig, setLastSaveDeployConfig] = useState<unknown>(null);
   const lastRunInGameToastRef = useRef<string | null>(null);
   const [liveRuntime, setLiveRuntime] = useState<{
     status: "idle" | "ok" | "error";
@@ -571,6 +613,8 @@ function AppContent(props: AppContentProps) {
     updatedAt?: string;
     error?: string;
   }>({ status: "idle" });
+  const saveDeployRunning = saveDeployOperation?.status === "running";
+  const runInGameRunning = runInGameOperation?.status === "running";
 
   const viz = useVizState({
     enabled: worldSettings.mode === "browser" || worldSettings.mode === "dump",
@@ -882,6 +926,7 @@ function AppContent(props: AppContentProps) {
     if (!autoRunEnabled) return;
     if (worldSettings.mode !== "browser") return;
     if (overridesDisabled) return;
+    if (runInGameRunning || saveDeployRunning) return;
 
     if (browserRunning) {
       autoRunPendingRef.current = true;
@@ -907,6 +952,8 @@ function AppContent(props: AppContentProps) {
     lastRunSnapshot,
     overridesDisabled,
     pipelineConfig,
+    runInGameRunning,
+    saveDeployRunning,
     startBrowserRun,
     worldSettings.mode,
   ]);
@@ -916,12 +963,13 @@ function AppContent(props: AppContentProps) {
     if (worldSettings.mode !== "browser") return;
     if (overridesDisabled) return;
     if (browserRunning) return;
+    if (runInGameRunning || saveDeployRunning) return;
     if (!autoRunPendingRef.current) return;
 
     autoRunPendingRef.current = false;
     if (lastRunSnapshot && configsEqual(lastRunSnapshot.pipelineConfig, pipelineConfig)) return;
     startBrowserRun();
-  }, [autoRunEnabled, browserRunning, lastRunSnapshot, overridesDisabled, pipelineConfig, startBrowserRun, worldSettings.mode]);
+  }, [autoRunEnabled, browserRunning, lastRunSnapshot, overridesDisabled, pipelineConfig, runInGameRunning, saveDeployRunning, startBrowserRun, worldSettings.mode]);
 
   const openSaveDialog = useCallback((seed?: { label?: string; description?: string }) => {
     setSaveDialogState({
@@ -945,6 +993,64 @@ function AppContent(props: AppContentProps) {
     }));
   }, []);
 
+  const saveRepoBackedConfigWithState = useCallback(async (args: {
+    id: string;
+    name: string;
+    description?: string;
+    sourcePath?: string;
+    sortIndex: number;
+    latitudeBounds?: Readonly<{
+      topLatitude: number;
+      bottomLatitude: number;
+    }>;
+    config: unknown;
+  }) => {
+    if (browserRunning || runInGameRunning || saveDeployRunning) {
+      const reason = browserRunning
+        ? "Map generation is running"
+        : runInGameRunning
+          ? "Run in Game is running"
+          : "Save/deploy is already running";
+      return { ok: false as const, error: `${reason}; finish that operation before saving.`, saved: false, deployed: false };
+    }
+
+    const requestId = `studio-save-deploy-${Date.now().toString(36)}`;
+    const initial = createMapConfigSaveDeployStatus({ requestId, phase: "queued" });
+    setSaveDeployOperation(initial);
+
+    try {
+      localStorage.setItem(MAP_CONFIG_SAVE_LAST_REQUEST_KEY, requestId);
+    } catch {
+      // Server status remains authoritative while the dev server is alive.
+    }
+
+    const result = await saveRepoBackedConfig({
+      ...args,
+      requestId,
+      onStatus: (status) => {
+        setSaveDeployOperation((current) => current?.requestId === requestId ? status : current);
+        try {
+          localStorage.setItem(MAP_CONFIG_SAVE_LAST_REQUEST_KEY, status.requestId);
+        } catch {
+          // Server status remains authoritative while the dev server is alive.
+        }
+      },
+    });
+    setSaveDeployOperation((current) => {
+      if (!current || current.requestId !== requestId) return current;
+      if ("requestId" in current && current.status === "complete" && result.ok) return current;
+      return updateMapConfigSaveDeployStatus(current, {
+        phase: result.ok ? "complete" : "failed",
+        path: result.path,
+        saved: "saved" in result ? result.saved : result.ok,
+        deployed: "deployed" in result ? result.deployed : result.ok,
+        error: result.ok ? undefined : result.error,
+      });
+    });
+    if (result.ok) setLastSaveDeployConfig(stripSchemaMetadataRoot(args.config));
+    return result;
+  }, [browserRunning, runInGameRunning, saveDeployRunning]);
+
   const handleSaveDialogConfirm = useCallback(
     async (args: { label: string; description?: string }) => {
       const sanitized = stripSchemaMetadataRoot(pipelineConfig);
@@ -952,7 +1058,7 @@ function AppContent(props: AppContentProps) {
       const id = toConfigId(args.label);
       const sortIndex = (resolved?.sortIndex ?? 900) + 1000;
       const latitudeBounds = resolved?.latitudeBounds;
-      const result = await saveRepoBackedConfig({
+      const result = await saveRepoBackedConfigWithState({
         id,
         name: args.label,
         description: args.description,
@@ -991,7 +1097,7 @@ function AppContent(props: AppContentProps) {
       }
       setSaveDialogState({ open: false, label: "", description: "" });
     },
-    [pipelineConfig, recipeSettings.preset, recipeSettings.recipe, rememberRepoBackedConfig, resolvePreset, toast]
+    [pipelineConfig, recipeSettings.preset, recipeSettings.recipe, rememberRepoBackedConfig, resolvePreset, saveRepoBackedConfigWithState, toast]
   );
 
   const handleSaveAsNew = useCallback(() => {
@@ -1005,7 +1111,7 @@ function AppContent(props: AppContentProps) {
     const resolved = resolvePreset(recipeSettings.preset as PresetKey);
     const sanitized = stripSchemaMetadataRoot(pipelineConfig);
     if (parsed.kind === "builtin" && resolved) {
-      const result = await saveRepoBackedConfig({
+      const result = await saveRepoBackedConfigWithState({
         id: resolved.id,
         name: resolved.label,
         description: resolved.description,
@@ -1067,7 +1173,7 @@ function AppContent(props: AppContentProps) {
     const description = result.preset?.description ?? resolved?.description;
     const baseId = toConfigId(label);
     const id = builtInPresets.some((preset) => preset.id === baseId) ? `scratch-${baseId}` : baseId;
-    const repoResult = await saveRepoBackedConfig({
+    const repoResult = await saveRepoBackedConfigWithState({
       id,
       name: label,
       description,
@@ -1104,7 +1210,7 @@ function AppContent(props: AppContentProps) {
     } else {
       toast(`Config saved and deployed from ${repoResult.path ?? `${id}.config.json`}`, { variant: "success" });
     }
-  }, [builtInPresets, handleSaveAsNew, pipelineConfig, presetActions, recipeSettings.preset, recipeSettings.recipe, rememberRepoBackedConfig, resolvePreset, toast]);
+  }, [builtInPresets, handleSaveAsNew, pipelineConfig, presetActions, recipeSettings.preset, recipeSettings.recipe, rememberRepoBackedConfig, resolvePreset, saveRepoBackedConfigWithState, toast]);
 
   const handleDeletePreset = useCallback(() => {
     const parsed = parsePresetKey(recipeSettings.preset);
@@ -1225,18 +1331,26 @@ function AppContent(props: AppContentProps) {
   const cancelImportSwitch = useCallback(() => setPendingImport(null), []);
 
   const reroll = useCallback(() => {
+    if (runInGameRunning || saveDeployRunning) {
+      toast("Finish the current Studio operation before rerolling.", { variant: "info" });
+      return;
+    }
     const next = String(randomU32());
     setRecipeSettings((prev) => ({ ...prev, seed: next }));
     startBrowserRun({ seed: next });
-  }, [startBrowserRun]);
+  }, [runInGameRunning, saveDeployRunning, startBrowserRun, toast]);
 
   const triggerRun = useCallback(() => {
+    if (runInGameRunning || saveDeployRunning) {
+      toast("Finish the current Studio operation before running.", { variant: "info" });
+      return;
+    }
     if (worldSettings.mode === "dump") {
       void openDumpFolder();
       return;
     }
     startBrowserRun();
-  }, [openDumpFolder, startBrowserRun, worldSettings.mode]);
+  }, [openDumpFolder, runInGameRunning, saveDeployRunning, startBrowserRun, toast, worldSettings.mode]);
 
   const status: GenerationStatus = browserRunning ? "running" : error ? "error" : "ready";
 
@@ -1252,8 +1366,17 @@ function AppContent(props: AppContentProps) {
   const runInGameMaterializationMode = useMemo<"durable" | "disposable">(() => {
     const parsed = parsePresetKey(recipeSettings.preset);
     const resolved = resolvePreset(recipeSettings.preset as PresetKey);
-    return parsed.kind === "builtin" && resolved?.sourcePath && !isDirty ? "durable" : "disposable";
-  }, [isDirty, recipeSettings.preset, resolvePreset]);
+    const currentConfig = stripSchemaMetadataRoot(pipelineConfig);
+    const selectedConfigMatches = resolved?.config
+      ? configsEqual(stripSchemaMetadataRoot(resolved.config) as PipelineConfig, currentConfig as PipelineConfig)
+      : false;
+    const savedConfigMatches = lastSaveDeployConfig
+      ? configsEqual(stripSchemaMetadataRoot(lastSaveDeployConfig) as PipelineConfig, currentConfig as PipelineConfig)
+      : false;
+    return parsed.kind === "builtin" && resolved?.sourcePath && (selectedConfigMatches || savedConfigMatches)
+      ? "durable"
+      : "disposable";
+  }, [lastSaveDeployConfig, pipelineConfig, recipeSettings.preset, resolvePreset]);
 
   const runInGameCurrentFingerprint = useMemo(
     () => buildRunInGameFingerprint({
@@ -1273,8 +1396,6 @@ function AppContent(props: AppContentProps) {
     }),
     [runInGameCurrentFingerprint, runInGameOperation, runInGameSnapshot]
   );
-
-  const runInGameRunning = runInGameOperation?.status === "running";
 
   const refreshRunInGameStatus = useCallback(async (requestId: string) => {
     const result = await fetchRunInGameStatus(requestId);
@@ -1307,6 +1428,29 @@ function AppContent(props: AppContentProps) {
     }
   }, []);
 
+  const refreshMapConfigSaveDeployStatus = useCallback(async (requestId: string) => {
+    const result = await fetchMapConfigSaveDeployStatus(requestId);
+    if (!("requestId" in result)) {
+      setSaveDeployOperation((prev) => {
+        if (!prev || prev.requestId !== requestId) return prev;
+        return updateMapConfigSaveDeployStatus(prev, {
+          phase: "failed",
+          error: result.error,
+          details: {
+            code: result.statusCode === 404 ? "operation-status-missing" : "operation-status-unavailable",
+          },
+        });
+      });
+      return;
+    }
+    setSaveDeployOperation(result);
+    try {
+      localStorage.setItem(MAP_CONFIG_SAVE_LAST_REQUEST_KEY, result.requestId);
+    } catch {
+      // Server status remains authoritative while the dev server is alive.
+    }
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     let requestId: string | null = null;
@@ -1327,6 +1471,30 @@ function AppContent(props: AppContentProps) {
       cancelled = true;
     };
   }, [refreshRunInGameStatus]);
+
+  useEffect(() => {
+    let requestId: string | null = null;
+    try {
+      requestId = localStorage.getItem(MAP_CONFIG_SAVE_LAST_REQUEST_KEY);
+    } catch {
+      requestId = null;
+    }
+    if (!requestId) return undefined;
+    void refreshMapConfigSaveDeployStatus(requestId);
+    return undefined;
+  }, [refreshMapConfigSaveDeployStatus]);
+
+  useEffect(() => {
+    if (!saveDeployOperation || saveDeployOperation.status !== "running") return undefined;
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      if (!cancelled) void refreshMapConfigSaveDeployStatus(saveDeployOperation.requestId);
+    }, document.hidden ? 3000 : 1000);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [refreshMapConfigSaveDeployStatus, saveDeployOperation]);
 
   useEffect(() => {
     if (!runInGameOperation) return undefined;
@@ -1352,8 +1520,8 @@ function AppContent(props: AppContentProps) {
     };
   }, [refreshRunInGameStatus, runInGameOperation, toast]);
 
-  const handleRunInGame = useCallback(async () => {
-    if (runInGameRunning) return;
+  const handleRunInGame = useCallback(async (options?: { restartCivProcess?: boolean }) => {
+    if (runInGameRunning || saveDeployRunning) return;
     setLocalError(null);
     const sanitized = stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig;
     const resolved = resolvePreset(recipeSettings.preset as PresetKey);
@@ -1365,6 +1533,7 @@ function AppContent(props: AppContentProps) {
       playerCount: worldSettings.playerCount,
       resources: worldSettings.resources,
       materializationMode: runInGameMaterializationMode,
+      restartCivProcess: options?.restartCivProcess,
       selectedConfig: resolved
         ? {
             id: resolved.id,
@@ -1417,6 +1586,7 @@ function AppContent(props: AppContentProps) {
     resolvePreset,
     runInGameMaterializationMode,
     runInGameRunning,
+    saveDeployRunning,
     toast,
     worldSettings,
     worldSettings.mapSize,
@@ -2027,6 +2197,10 @@ function AppContent(props: AppContentProps) {
       onDeletePreset={handleDeletePreset}
       canDeletePreset={isLocalPresetSelected}
       isRunning={browserRunning}
+      isRunDisabled={runInGameRunning || saveDeployRunning}
+      isSaveDeployRunning={saveDeployRunning}
+      saveDeployStatus={saveDeployOperation}
+      isSaveDisabled={browserRunning || runInGameRunning || saveDeployRunning}
       isDirty={isDirty}
       overridesDisabled={overridesDisabled}
       onOverridesDisabledChange={setOverridesDisabled}
@@ -2095,7 +2269,9 @@ function AppContent(props: AppContentProps) {
       currentSettings={recipeSettings}
       onSettingsChange={setRecipeSettings}
       onRun={triggerRun}
-      onRunInGame={handleRunInGame}
+      onRunInGame={() => {
+        void handleRunInGame({ restartCivProcess: runInGameRequiresProcessRestart(runInGameOperation) });
+      }}
       onRunInGameRetryStatus={() => {
         if (runInGameOperation) void refreshRunInGameStatus(runInGameOperation.requestId);
       }}
@@ -2103,6 +2279,8 @@ function AppContent(props: AppContentProps) {
       onReroll={reroll}
       isRunning={browserRunning}
       isRunInGameRunning={runInGameRunning}
+      isSaveDeployRunning={saveDeployRunning}
+      saveDeployStatus={saveDeployOperation}
       runInGameStatus={runInGameOperation}
       runInGameCurrentRelation={runInGameCurrentRelation}
       isDirty={isDirty}
