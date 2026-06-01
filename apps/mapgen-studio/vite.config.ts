@@ -23,6 +23,8 @@ import {
   getCiv7UnitSummary,
   ensureCiv7SetupMapRowVisible,
   runCiv7SinglePlayerFromSetup,
+  startCiv7Autoplay,
+  stopCiv7Autoplay,
   snapshotFile,
   waitForFreshLogMarkers,
 } from "@civ7/direct-control";
@@ -455,6 +457,66 @@ export default defineConfig(({ command }) => ({
           } catch (err) {
             const error = err instanceof Error ? err.message : "Civ7 live GameInfo request failed";
             writeJson(res, 400, { ok: false, error });
+          }
+        });
+        server.middlewares.use("/api/civ7/autoplay", async (req, res, next) => {
+          if (req.method !== "POST") return next();
+          try {
+            const body = await readJsonBody<{ action?: unknown }>(req);
+            if (body.action !== "start" && body.action !== "stop") {
+              writeJson(res, 400, { ok: false, error: 'Autoplay action must be "start" or "stop"' });
+              return;
+            }
+            const activeRunInGame = runInGameOperations.findActive();
+            if (activeRunInGame) {
+              writeJson(res, 409, {
+                ok: false,
+                error: "Run in Game is running; wait for it to finish before changing autoplay.",
+                details: {
+                  code: "run-in-game-operation-active",
+                  activeRequestId: activeRunInGame.requestId,
+                  activePhase: activeRunInGame.phase,
+                },
+              });
+              return;
+            }
+            const activeSaveDeploy = saveDeployOperations.findActive();
+            if (activeSaveDeploy) {
+              writeJson(res, 409, {
+                ok: false,
+                error: "Save/Deploy is running; wait for it to finish before changing autoplay.",
+                details: {
+                  code: "save-deploy-operation-active",
+                  activeRequestId: activeSaveDeploy.requestId,
+                  activePhase: activeSaveDeploy.phase,
+                },
+              });
+              return;
+            }
+            const approval = {
+              approved: true as const,
+              reason: `Studio autoplay ${body.action}`,
+              disposableSession: true,
+            };
+            const options = {
+              timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS,
+              waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
+              pollIntervalMs: 1_000,
+            };
+            const result = body.action === "start"
+              ? await startCiv7Autoplay(options, approval)
+              : await stopCiv7Autoplay(options, approval);
+            writeJson(res, 200, {
+              ok: result.verified,
+              action: body.action,
+              autoplay: result.after.autoplay,
+              game: result.after.game,
+              gameContext: result.after.gameContext,
+              result,
+            });
+          } catch (err) {
+            const error = err instanceof Error ? err.message : "Civ7 autoplay request failed";
+            writeJson(res, 500, { ok: false, error });
           }
         });
         server.middlewares.use("/api/studio/server-info", async (req, res, next) => {
