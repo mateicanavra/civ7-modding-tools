@@ -7,7 +7,7 @@ import {
   validateGridSize,
 } from "../../score-shared/index.js";
 import PlanReefsContract from "../contract.js";
-import { admitReefIntent } from "../policies/index.js";
+import { admitReefIntent, admitReefStride } from "../policies/index.js";
 
 export const defaultStrategy = createStrategy(PlanReefsContract, "default", {
   run: (input, config) => {
@@ -27,7 +27,6 @@ export const defaultStrategy = createStrategy(PlanReefsContract, "default", {
     });
 
     const placements: Array<{ x: number; y: number; feature: string; weight?: number }> = [];
-    void config;
     void input.seed;
 
     for (let i = 0; i < size; i++) {
@@ -71,7 +70,8 @@ export const defaultStrategy = createStrategy(PlanReefsContract, "default", {
         },
       ]);
       if (best === null) continue;
-      if (!admitReefIntent(best)) continue;
+      if (!admitReefIntent(best, config)) continue;
+      if (!admitReefStride(best, config)) continue;
 
       const x = i % width;
       const y = (i / width) | 0;

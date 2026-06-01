@@ -20,8 +20,24 @@ const PlanIceContract = defineOp({
     placements: Type.Array(FeaturePlacementSchema),
   }),
   strategies: {
-    default: Type.Object({}),
-    continentality: Type.Object({}),
+    default: Type.Object({
+      minConfidence01: Type.Number({
+        minimum: 0,
+        maximum: 1,
+        default: 0.5,
+        description:
+          "Family-local admission threshold: freeze scores below this remain coldness signal, not ice intent.",
+      }),
+    }),
+    continentality: Type.Object({
+      minConfidence01: Type.Number({
+        minimum: 0,
+        maximum: 1,
+        default: 0.5,
+        description:
+          "Family-local admission threshold for the continentality-aware ice planner.",
+      }),
+    }),
   },
 });
 

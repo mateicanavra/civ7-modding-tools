@@ -42,10 +42,27 @@ Common files to inspect:
 - `Modding.log`: mod discovery, load, and package issues.
 - `Database.log`: XML database import and schema/data errors.
 - `Scripting.log`: map/runtime JavaScript errors and `console.log` output.
+- `UI.log`: UI JavaScript/module errors, including App UI tuner context issues.
 - `Game.log` and `GameCore.log`: game-flow and simulation signals.
 - `Engine.log` and `General.log`: startup/runtime context.
 - `Localization.log`: missing or malformed localization records.
+- `net_connection_debug.log`, `net_message_debug.log`, and
+  `net_transport_debug.log`: connection and network transport context.
 - `output.log`: broad process output when present.
 
 Always bound log reads to the action under review. Use file mtimes, a pre-run
 snapshot, or a timestamp marker in the notes before treating a line as current.
+
+## FireTuner Surfaces
+
+| Surface | Location / Command |
+|---|---|
+| Default tuner port | `4318` |
+| macOS listener check | `lsof -nP -iTCP:4318` |
+| Parallels Windows VM metadata | `prlctl list --all --info` |
+| Parallels host bridge | `ifconfig bridge100` |
+| Installed Civ7 tuner panels | `<Steam Civ7 install>/Base/Platforms/Windows/Config/TunerPanels/` |
+
+The repo resource mirror may not contain installed-game `TunerPanels`. Prefer
+official resources in `.civ7/outputs/resources/` when present, and inspect the
+installed game path only as runtime/resource evidence.

@@ -5,7 +5,7 @@
   <item id="artifacts" title="Key artifacts"/>
   <item id="ops" title="Ops surface"/>
   <item id="config" title="Config + knobs posture"/>
-  <item id="projection" title="Engine projection notes (map-hydrology)"/>
+  <item id="projection" title="Engine projection notes (map-hydrology / map-rivers)"/>
   <item id="anchors" title="Ground truth anchors"/>
   <item id="open-questions" title="Open questions"/>
 </toc>
@@ -22,7 +22,9 @@ Hydrology produces climate + water-cycle truth products for downstream consumpti
 - refined indices (aridity/freeze/etc) and optional cryosphere products,
   and related diagnostics.
 
-Hydrology also owns engine-facing projection steps (rivers/lakes) via `map-hydrology`, which are explicitly **projection-only**.
+Hydrology also feeds engine-facing projection steps, which are explicitly
+**projection-only**: `map-hydrology` stamps accepted lake water before engine
+elevation, and `map-rivers` models rivers after elevation.
 
 ## Stages (standard recipe)
 
@@ -35,6 +37,7 @@ Truth stages:
 Projection stage:
 
 - `map-hydrology`
+- `map-rivers`
 
 See: [`docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`](/system/libs/mapgen/reference/STANDARD-RECIPE.md).
 
@@ -86,18 +89,22 @@ Author-facing control is primarily via stage knobs (compiled at stage compile ti
 - `hydrology-climate-baseline` knobs: `dryness`, `temperature`, `seasonality`, `oceanCoupling`
 - `hydrology-hydrography` knobs: `riverDensity` (projection thresholds for hydrography), `lakeiness` (sink-derived lake intent expansion)
 - `hydrology-climate-refine` knobs: `dryness`, `temperature`, `cryosphere`
-- `map-hydrology` knobs: `riverDensity` (engine river projection only)
+- `map-rivers` knobs: `riverDensity` (engine river projection only)
 
 Some steps also expose flat step config surfaces for explicit overrides (e.g., seasonality posture).
 
-## Engine projection notes (map-hydrology)
+## Engine projection notes (map-hydrology / map-rivers)
 
 The `map-hydrology` stage:
 
 - is `phase: "gameplay"` (projection-only),
-- consumes Hydrology truth artifacts (hydrography and lakePlan) plus Morphology truth (topography),
-- publishes effect tags like `effect:engine.riversModeled`,
+- consumes Hydrology lake truth and projects static lake water before engine elevation,
 - and must not be treated as Hydrology truth.
+
+The `map-rivers` stage consumes Hydrology hydrography after `map-elevation` has
+built engine elevation, then publishes `effect:engine.riversModeled` and river
+readback evidence. This matches Civ7's terrain lifecycle: static water before
+elevation, rivers after elevation.
 
 ## Ground truth anchors
 
@@ -106,13 +113,14 @@ The `map-hydrology` stage:
   - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/index.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine/index.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/index.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/index.ts`
 - Step contracts (truth stages):
   - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/steps/climateBaseline.contract.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/steps/rivers.contract.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine/steps/climateRefine.contract.ts`
 - Step contracts (projection stage):
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.contract.ts`
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/plotRivers.contract.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts`
 - Tag registry (effect tags, current `field:*` deps): `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
 

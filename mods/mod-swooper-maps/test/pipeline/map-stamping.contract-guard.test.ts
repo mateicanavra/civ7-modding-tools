@@ -4,6 +4,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
 import { MAP_PROJECTION_EFFECT_TAGS } from "../../src/recipes/standard/tags.js";
+import standardRecipe, { STANDARD_STAGES } from "../../src/recipes/standard/recipe.js";
 
 function listFilesRecursive(rootDir: string): string[] {
   const out: string[] = [];
@@ -70,13 +71,29 @@ describe("map stamping contract guardrails", () => {
     });
 
     callers.sort();
-    expect(callers).toEqual([path.join(stagesRoot, "map-morphology/steps/buildElevation.ts")]);
+    expect(callers).toEqual([path.join(stagesRoot, "map-elevation/steps/buildElevation.ts")]);
 
     const contractText = readFileSync(
-      path.join(stagesRoot, "map-morphology/steps/buildElevation.contract.ts"),
+      path.join(stagesRoot, "map-elevation/steps/buildElevation.contract.ts"),
       "utf8"
     );
     expect(contractText).toContain("MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt");
+  });
+
+  it("keeps Civ7 terrain materialization order aligned with static water before elevation", () => {
+    const stepIds = standardRecipe.recipe.steps.map((step) => step.id);
+    const indexOfStep = (stage: string, step: string): number =>
+      stepIds.findIndex((id) => id.endsWith(`.${stage}.${step}`));
+
+    const lakes = indexOfStep("map-hydrology", "lakes");
+    const elevation = indexOfStep("map-elevation", "build-elevation");
+    const rivers = indexOfStep("map-rivers", "plot-rivers");
+
+    expect(lakes).toBeGreaterThan(-1);
+    expect(elevation).toBeGreaterThan(-1);
+    expect(rivers).toBeGreaterThan(-1);
+    expect(lakes).toBeLessThan(elevation);
+    expect(elevation).toBeLessThan(rivers);
   });
 
   it("keeps deterministic lake projection on the stampLakes adapter capability", () => {
@@ -97,6 +114,33 @@ describe("map stamping contract guardrails", () => {
     lakeStampers.sort();
     expect(engineLakeGenerators).toEqual([]);
     expect(lakeStampers).toEqual([path.join(stagesRoot, "map-hydrology/steps/lakes.ts")]);
+  });
+
+  it("only calls TerrainBuilder.modelRivers through the dedicated map-rivers step", () => {
+    const repoRoot = path.resolve(import.meta.dir, "../..");
+    const stagesRoot = path.join(repoRoot, "src/recipes/standard/stages");
+    const files = listFilesRecursive(stagesRoot).filter((file) => file.endsWith(".ts"));
+
+    const callers = files.filter((file) => {
+      const text = readFileSync(file, "utf8");
+      return /adapter\.modelRivers\s*\(/.test(text);
+    });
+
+    callers.sort();
+    expect(callers).toEqual([path.join(stagesRoot, "map-rivers/steps/plotRivers.ts")]);
+  });
+
+  it("does not add stage-shaped map helper directories outside the recipe stage list", () => {
+    const repoRoot = path.resolve(import.meta.dir, "../..");
+    const stagesRoot = path.join(repoRoot, "src/recipes/standard/stages");
+    const recipeStageIds = new Set(STANDARD_STAGES.map((stage) => stage.id));
+    const mapStageDirs = readdirSync(stagesRoot)
+      .filter((entry) => entry.startsWith("map-"))
+      .filter((entry) => statSync(path.join(stagesRoot, entry)).isDirectory());
+
+    for (const dir of mapStageDirs) {
+      expect(recipeStageIds.has(dir)).toBe(true);
+    }
   });
 
   it("does not allow physics stage code to call engine elevation/cliff reads", () => {

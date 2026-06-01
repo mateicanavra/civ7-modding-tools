@@ -1,6 +1,6 @@
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { defineVizMeta } from "@swooper/mapgen-core";
-import { HYDROLOGY_LAKEINESS_UPSTREAM_EXPANSION_STEPS } from "@mapgen/domain/hydrology/config.js";
+import { HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY } from "@mapgen/domain/hydrology/config.js";
 import type { HydrologyLakeinessKnob } from "@mapgen/domain/hydrology/config.js";
 
 import { hydrologyHydrographyArtifacts } from "../artifacts.js";
@@ -19,16 +19,18 @@ export default createStep(LakesStepContract, {
     };
     if (config.planLakes.strategy !== "default") return config;
 
-    const maxUpstreamSteps = Math.max(
-      config.planLakes.config.maxUpstreamSteps,
-      HYDROLOGY_LAKEINESS_UPSTREAM_EXPANSION_STEPS[lakeiness]
-    );
+    const policy = HYDROLOGY_LAKEINESS_TERMINAL_BASIN_POLICY[lakeiness];
 
     return {
       ...config,
       planLakes: {
         ...config.planLakes,
-        config: { ...config.planLakes.config, maxUpstreamSteps },
+        config: {
+          ...config.planLakes.config,
+          maxUpstreamSteps: policy.maxUpstreamSteps,
+          sinkDischargePercentileMin: policy.sinkDischargePercentileMin,
+          maxLakeLandFraction: policy.maxLakeLandFraction,
+        },
       },
     };
   },
@@ -44,6 +46,7 @@ export default createStep(LakesStepContract, {
         height,
         landMask: topography.landMask,
         flowDir: hydrography.flowDir,
+        discharge: hydrography.discharge,
         sinkMask: hydrography.sinkMask,
       },
       config.planLakes

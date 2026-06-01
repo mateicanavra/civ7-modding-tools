@@ -66,8 +66,10 @@ The current stage order is:
 11. `ecology-features`
 12. `map-morphology`
 13. `map-hydrology`
-14. `map-ecology`
-15. `placement`
+14. `map-elevation`
+15. `map-rivers`
+16. `map-ecology`
+17. `placement`
 
 Note:
 
@@ -88,8 +90,9 @@ Stage-level posture:
 - Wrapper-only `advanced` stage surfaces have been removed. Step overrides live
   at `<stageId>.<stepId>`.
 - `map-morphology` uses the same flat step-id surface as other standard stages:
-  `plot-coasts`, `plot-continents`, `plot-mountains`, `plot-volcanoes`, and
-  `build-elevation`.
+  `plot-coasts`, `plot-continents`, `plot-mountains`, and `plot-volcanoes`.
+- `map-hydrology` stamps static lake water before `map-elevation` builds engine
+  elevation; `map-rivers` models rivers after elevation is finalized.
 - Mountain/foothill strategy config belongs to
   `morphology-features.mountains`. The `map-morphology.plot-mountains` step is
   projection-only and rejects truth-planning knobs/config.

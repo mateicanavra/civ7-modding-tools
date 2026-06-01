@@ -22,10 +22,11 @@ const ScoreColdReefContract = defineOp({
     default: Type.Object({
       tempColdMaxC: Type.Number({ default: 10 }),
       tempWarmMaxC: Type.Number({ default: 20 }),
-      minDepthM: Type.Integer({ default: 45 }),
-      peakDepthM: Type.Integer({ default: 300 }),
-      maxDepthM: Type.Integer({ default: 1200 }),
+      minDepthM: Type.Integer({ default: 8 }),
+      peakDepthM: Type.Integer({ default: 24 }),
+      maxDepthM: Type.Integer({ default: 48 }),
       minDistanceToCoast: Type.Integer({ default: 1, minimum: 0 }),
+      maxDistanceToCoast: Type.Integer({ default: 8, minimum: 0 }),
     }),
   },
 });

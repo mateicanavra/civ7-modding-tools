@@ -56,4 +56,4 @@ The standard recipe often introduces explicit projection steps whose job is to:
 
 - Policy (contracts/invariants): `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
 - Foundation projection step (tile projections + viz emissions): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts`
-- Morphology no-water-drift invariant (assertion): `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/assertions.ts`
+- Map projection no-water-drift invariant (policy): `mods/mod-swooper-maps/src/recipes/standard/projection-policies/noWaterDrift.ts`

@@ -30,7 +30,15 @@ const PlanWetlandsContract = defineOp({
     placements: Type.Array(FeaturePlacementSchema),
   }),
   strategies: {
-    default: Type.Object({}),
+    default: Type.Object({
+      minConfidence01: Type.Number({
+        minimum: 0,
+        maximum: 1,
+        default: 0.24,
+        description:
+          "Family-local admission threshold: wetland scores below this remain substrate signal, not placement intent.",
+      }),
+    }),
   },
 });
 

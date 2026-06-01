@@ -10,8 +10,11 @@
 5. Inspect local generated output before inspecting deployed output.
 6. Inspect the deployed Mods directory only after the deploy command has run.
 7. Launch or use Civ7 only when the claim requires game load/runtime evidence.
-8. Read logs after the game action and bound findings to that run.
-9. Report claims with proof labels from `proof-boundaries.md`.
+8. Use FireTuner only when direct runtime iteration or introspection is needed;
+   see `firetuner-runtime.md` for connection, state, restart, and autoplay
+   rules.
+9. Read logs after the game action and bound findings to that run.
+10. Report claims with proof labels from `proof-boundaries.md`.
 
 ## Build And Generated Output Gate
 
@@ -42,7 +45,12 @@ Use when the question is "what did Civ7 report?"
 - Inspect `Database.log` for XML import failures.
 - Inspect `Scripting.log` for map/runtime JavaScript errors and diagnostic
   `console.log` output.
+- Inspect `UI.log` for UI-context JavaScript/module errors when FireTuner is in
+  `App UI` or when a visible UI path is involved.
 - Inspect `Localization.log` when text keys or localization files are involved.
+- Inspect `GameCore.log`, `Game.log`, `General.log`, `output.log`, and net logs
+  when the issue may be engine flow, simulation, process, or connection state
+  rather than map script execution.
 - Record searched files, search terms, and whether findings were current.
 
 ## In-Game Gate
@@ -54,3 +62,15 @@ Use when the claim depends on Civ7 executing behavior.
   relevant behavior.
 - Tie the observation to current logs or visible game behavior.
 - State the exact exercised path; do not generalize beyond it.
+
+## FireTuner Gate
+
+Use when the question is "what does the running Civ7 session expose or do?"
+
+- Verify Civ7 is listening on the tuner port before treating connection failure
+  as an app bug: `lsof -nP -iTCP:4318`.
+- Refresh scripting states after connecting and after game restarts.
+- Select `Tuner` for gameplay/runtime commands unless the command is known to be
+  UI-owned, such as `Network.restartGame()`.
+- Run the smallest direct console command needed.
+- Bound proof in `Scripting.log` or the relevant sibling log after the command.

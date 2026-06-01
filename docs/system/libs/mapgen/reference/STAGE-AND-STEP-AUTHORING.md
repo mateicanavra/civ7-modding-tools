@@ -85,5 +85,5 @@ The output is then strictly validated and normalized step-by-step by config comp
 - Step module creation: `packages/mapgen-core/src/authoring/step/create.ts`
 - Config compilation uses StageContractAny/StepModuleAny: `packages/mapgen-core/src/compiler/recipe-compile.ts`
 - Policy: schemas and validation: `docs/system/libs/mapgen/policies/SCHEMAS-AND-VALIDATION.md`
-- Example step contract (tags + artifacts): `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/plotRivers.contract.ts`
-- Example step module (createStep boundary): `mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/plotRivers.ts`
+- Example step contract (tags + artifacts): `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts`
+- Example step module (createStep boundary): `mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.ts`

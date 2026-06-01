@@ -1,0 +1,6 @@
+- [x] 1. Define the map terrain materialization stage/step order and update standard recipe topology.
+- [x] 2. Move or retarget build-elevation and plot-rivers so lake projection precedes elevation and elevation precedes rivers.
+- [x] 3. Update shipped map configs, presets, docs, and schema expectations for the new stage surface.
+- [x] 4. Add categorical ordering guards and adjust focused tests.
+- [x] 5. Run OpenSpec, focused tests, package check, repo build, deploy, and FireTuner/log runtime proof.
+- [x] 6. Archive the OpenSpec change and leave the Graphite worktree/root clean.

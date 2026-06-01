@@ -18,7 +18,9 @@ import hydrologyClimateBaseline from "./stages/hydrology-climate-baseline/index.
 import hydrologyClimateRefine from "./stages/hydrology-climate-refine/index.js";
 import hydrologyHydrography from "./stages/hydrology-hydrography/index.js";
 import mapEcology from "./stages/map-ecology/index.js";
+import mapElevation from "./stages/map-elevation/index.js";
 import mapHydrology from "./stages/map-hydrology/index.js";
+import mapRivers from "./stages/map-rivers/index.js";
 import morphologyCoasts from "./stages/morphology-coasts/index.js";
 import morphologyRouting from "./stages/morphology-routing/index.js";
 import morphologyErosion from "./stages/morphology-erosion/index.js";
@@ -42,6 +44,8 @@ const stages = [
   ecologyFeatures,
   mapMorphology,
   mapHydrology,
+  mapElevation,
+  mapRivers,
   mapEcology,
   placement,
 ] as const;

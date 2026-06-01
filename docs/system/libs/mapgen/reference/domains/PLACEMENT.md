@@ -37,7 +37,7 @@ See: [`docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`](/system/libs/mapge
 
 Placement requires (dependency tags):
 
-- `effect:engine.riversModeled` (from `map-hydrology`)
+- `effect:engine.riversModeled` (from `map-rivers`)
 - `effect:engine.featuresApplied` (from `map-ecology`)
 - `effect:map.landmassRegionsPlotted` (from `plot-landmass-regions`)
 - `effect:placement.naturalWondersPlaced` (from `place-natural-wonders`, required by final placement)

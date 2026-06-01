@@ -2,7 +2,6 @@ import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
 import LakesStepContract from "./lakes.contract.js";
 import { mapHydrologyArtifacts } from "../artifacts.js";
-import { mapArtifacts } from "../../../map-artifacts.js";
 
 const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
@@ -11,7 +10,7 @@ export default createStep(LakesStepContract, {
   artifacts: implementArtifacts(
     [
       mapHydrologyArtifacts.engineProjectionLakes,
-      mapArtifacts.hydrologyLakesEngineTerrainSnapshot,
+      mapHydrologyArtifacts.hydrologyLakesEngineTerrainSnapshot,
     ],
     {
       engineProjectionLakes: {},
@@ -47,9 +46,7 @@ export default createStep(LakesStepContract, {
         width,
         height,
         lakeMask: projection.stampedLakeMask,
-        riverMask: new Uint8Array(width * height),
         sinkMismatchCount: projection.rejectedLakeTileCount,
-        riverMismatchCount: 0,
       });
 
       deps.artifacts.hydrologyLakesEngineTerrainSnapshot.publish(context, {

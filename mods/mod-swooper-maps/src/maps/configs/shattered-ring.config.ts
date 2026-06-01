@@ -234,6 +234,9 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
     },
   },
   "map-hydrology": {
+    lakes: {},
+  },
+  "map-rivers": {
     knobs: {
       riverDensity: "dense",
     },
@@ -254,7 +257,7 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
     },
     "resource-basins": {
       plan: {
-        strategy: "default",
+        strategy: "mixed",
         config: {
           resources: [],
         },
@@ -316,26 +319,26 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
   "ecology-features": {
     "plan-ice": {
       planIce: {
-        strategy: "default",
-        config: {},
+        strategy: "continentality",
+        config: { minConfidence01: 0.5 },
       },
     },
     "plan-reefs": {
       planReefs: {
         strategy: "default",
-        config: {},
+        config: { minConfidence01: 0.58, stride: 2 },
       },
     },
     "plan-wetlands": {
       planWetlands: {
         strategy: "default",
-        config: {},
+        config: { minConfidence01: 0.28 },
       },
     },
     "plan-vegetation": {
       planVegetation: {
         strategy: "default",
-        config: {},
+        config: { minConfidence01: 0.2 },
       },
     },
     "plan-plot-effects": {

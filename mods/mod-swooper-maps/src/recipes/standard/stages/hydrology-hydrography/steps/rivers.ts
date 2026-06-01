@@ -1,8 +1,8 @@
-import type { MapDimensions } from "@civ7/adapter";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { selectFlowReceiver } from "@swooper/mapgen-core/lib/grid";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { hydrologyHydrographyArtifacts } from "../artifacts.js";
+import { validateHydrographyArtifact } from "./rivers.validation.js";
 import RiversStepContract from "./rivers.contract.js";
 import {
   HYDROLOGY_RIVER_DENSITY_MAJOR_PERCENTILE,
@@ -10,64 +10,8 @@ import {
 } from "@mapgen/domain/hydrology/config.js";
 import type { HydrologyRiverDensityKnob } from "@mapgen/domain/hydrology/config.js";
 
-type ArtifactValidationIssue = Readonly<{ message: string }>;
-
 const GROUP_HYDROGRAPHY = "Hydrology / Hydrography";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
-
-function expectedSize(dimensions: MapDimensions): number {
-  return Math.max(0, (dimensions.width | 0) * (dimensions.height | 0));
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function validateTypedArray(
-  errors: ArtifactValidationIssue[],
-  label: string,
-  value: unknown,
-  ctor: { new (...args: any[]): { length: number } },
-  expectedLength?: number
-): value is { length: number } {
-  if (!(value instanceof ctor)) {
-    errors.push({ message: `Expected ${label} to be ${ctor.name}.` });
-    return false;
-  }
-  if (expectedLength != null && value.length !== expectedLength) {
-    errors.push({
-      message: `Expected ${label} length ${expectedLength} (received ${value.length}).`,
-    });
-  }
-  return true;
-}
-
-function validateHydrography(value: unknown, dimensions: MapDimensions): ArtifactValidationIssue[] {
-  const errors: ArtifactValidationIssue[] = [];
-  const size = expectedSize(dimensions);
-  if (value === null || typeof value !== "object" || Array.isArray(value)) {
-    errors.push({ message: "Missing hydrology hydrography artifact payload." });
-    return errors;
-  }
-  const candidate = value as {
-    runoff?: unknown;
-    discharge?: unknown;
-    riverClass?: unknown;
-    flowDir?: unknown;
-    sinkMask?: unknown;
-    outletMask?: unknown;
-    basinId?: unknown;
-  };
-  validateTypedArray(errors, "hydrography.runoff", candidate.runoff, Float32Array, size);
-  validateTypedArray(errors, "hydrography.discharge", candidate.discharge, Float32Array, size);
-  validateTypedArray(errors, "hydrography.riverClass", candidate.riverClass, Uint8Array, size);
-  validateTypedArray(errors, "hydrography.flowDir", candidate.flowDir, Int32Array, size);
-  validateTypedArray(errors, "hydrography.sinkMask", candidate.sinkMask, Uint8Array, size);
-  validateTypedArray(errors, "hydrography.outletMask", candidate.outletMask, Uint8Array, size);
-  if (candidate.basinId != null)
-    validateTypedArray(errors, "hydrography.basinId", candidate.basinId, Int32Array, size);
-  return errors;
-}
 
 function computeFlowDir(options: {
   width: number;
@@ -92,7 +36,7 @@ function computeFlowDir(options: {
 export default createStep(RiversStepContract, {
   artifacts: implementArtifacts([hydrologyHydrographyArtifacts.hydrography], {
     hydrography: {
-      validate: (value, context) => validateHydrography(value, context.dimensions),
+      validate: (value, context) => validateHydrographyArtifact(value, context.dimensions),
     },
   }),
   normalize: (config, ctx) => {

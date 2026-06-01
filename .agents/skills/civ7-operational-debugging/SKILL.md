@@ -1,7 +1,7 @@
 ---
 name: civ7-operational-debugging
 description: |
-  Use in the Civ7 Modding Tools repo when debugging operational behavior across official resources, generated mod output, deployed Mods folders, Civ7 logs, build/deploy scripts, or in-game verification. Trigger phrases include "check the deployed mod", "inspect Civ7 logs", "did deploy copy this", "is this in-game verified", "what did the game load", "verify build deploy logs", "debug mod runtime", "compare resources to deployed output", and "what proof do we have from logs".
+  Use in the Civ7 Modding Tools repo when debugging operational behavior across official resources, generated mod output, deployed Mods folders, Civ7 logs, FireTuner, build/deploy scripts, or in-game verification. Trigger phrases include "check the deployed mod", "inspect Civ7 logs", "did deploy copy this", "is this in-game verified", "what did the game load", "verify build deploy logs", "debug mod runtime", "FireTuner", "restart from tuner", "autoplay", "compare resources to deployed output", and "what proof do we have from logs".
 ---
 
 # Civ7 Operational Debugging
@@ -24,6 +24,8 @@ files into source authority.
 - Checking whether `bun run --cwd mods/<mod-slug> build`, a package `deploy`
   script, or root `bun run deploy:mods` actually produced the expected files.
 - Reading Civ7 `Logs/` files after launching the game or loading a map/mod.
+- Using FireTuner to connect to a running Civ7 session, switch scripting
+  states, restart a map, run autoplay, or inspect runtime JavaScript globals.
 - Comparing official resources in `.civ7/outputs/resources` to repo modeling or
   generated mod behavior.
 - Closing a claim that depends on build, deploy, log, or in-game evidence.
@@ -51,7 +53,7 @@ files into source authority.
    resources.
 4. **Run the narrow gate.** Use the smallest command or inspection that
    exercises the named surface: package build, package deploy, root deploy,
-   deployed file inspection, log scan, or in-game run.
+   deployed file inspection, log scan, FireTuner command, or in-game run.
 5. **Compare source to output.** If inspecting generated or deployed files,
    connect every claim back to source inputs and scripts. Generated output is
    evidence, not the edit surface.
@@ -71,6 +73,7 @@ files into source authority.
 | Operational paths | `references/operational-paths.md` | Finding repo output, deployed Mods, logs, official resources, or scripts |
 | Proof boundaries | `references/proof-boundaries.md` | Closing claims from build, deploy, log, resource, or in-game evidence |
 | Debugging workflow | `references/debugging-workflow.md` | Running an end-to-end operational pass without overclaiming |
+| FireTuner runtime | `references/firetuner-runtime.md` | Connecting Civ7 FireTuner, choosing scripting states, restart/autoplay loops |
 
 ## Core Invariants
 
@@ -80,6 +83,7 @@ files into source authority.
 <invariant name="deploy-proves-copy-not-load">A successful deploy proves files were copied into the game data Mods directory. It does not prove Civ7 loaded or executed them.</invariant>
 <invariant name="logs-prove-observation-not-absence">A log line proves an observed event. A quiet log only proves no matching line was found in the searched window.</invariant>
 <invariant name="in-game-proof-requires-game-action">In-game proof requires launching Civ7 and exercising the relevant mod/map behavior, then tying the observation to logs or visible behavior from that run.</invariant>
+<invariant name="tuner-state-matters">FireTuner commands run against the selected Civ7 scripting state. Refresh states and choose `Tuner` for gameplay/runtime globals unless intentionally testing `App UI` globals.</invariant>
 <invariant name="resource-evidence-stays-separate">Official resources describe game data facts. Repo source decides how those facts become SDK, adapter, MapGen, CLI, or mod behavior.</invariant>
 <invariant name="proof-labels-are-mandatory">Close operational debugging by labeling each claim with the strongest evidence actually collected: built, generated, deployed, logged, in-game observed, or unresolved.</invariant>
 </invariants>

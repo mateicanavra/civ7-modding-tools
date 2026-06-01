@@ -57,18 +57,18 @@ MORPHOLOGY is **tile-first**: its canonical “truth” products are tile-indexe
 
 ### Projections
 
-“Map projection” steps (in `map-morphology`) apply Morphology truth into the engine adapter’s terrain/feature fields and are guarded by **no-water-drift** invariants: the engine surface must remain consistent with Morphology’s land/water truth.
+“Map projection” steps apply Morphology truth and downstream water intent into the engine adapter’s terrain/feature fields and are guarded by **no-water-drift** invariants: the engine surface must remain consistent with the projected land/water surface at that lifecycle point.
 
 **Invariants**
 
-- **Projections must not drift land/water classification.** After calling engine-facing helpers (`stampContinents`, `buildElevation`, or any engine-side terrain fixups), the adapter's `isWater(x,y)` must still match Morphology `topography.landMask`.
+- **Projections must not drift land/water classification.** After calling engine-facing helpers (`stampContinents`, `buildElevation`, or any engine-side terrain fixups), the adapter's `isWater(x,y)` must still match the expected projected land mask. Before lake projection this is Morphology `topography.landMask`; after lake projection it includes Hydrology lake intent as expected water.
 
 **Ground truth anchors**
 
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/assertions.ts` (`assertNoWaterDrift`)
+- `mods/mod-swooper-maps/src/recipes/standard/projection-policies/noWaterDrift.ts` (`assertNoWaterDrift`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotCoasts.ts` (stamps `TERRAIN_COAST` from `coastlineMetrics.coastalWater || coastlineMetrics.shelfMask`, guarded by `assertNoWaterDrift`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotContinents.ts` (`context.adapter.stampContinents`, `assertNoWaterDrift`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/buildElevation.ts` (`context.adapter.buildElevation`, `assertNoWaterDrift`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/buildElevation.ts` (`context.adapter.buildElevation`, `assertNoWaterDrift`)
 
 ## Contract
 
@@ -136,7 +136,7 @@ This section is a navigation aid: concrete file paths that back the contract cla
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotContinents.contract.ts` (`PlotContinentsStepContract.requires/provides`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotMountains.contract.ts` (`PlotMountainsStepContract.requires/provides`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotVolcanoes.contract.ts` (`PlotVolcanoesStepContract.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/buildElevation.contract.ts` (`BuildElevationStepContract.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/buildElevation.contract.ts` (`BuildElevationStepContract.requires/provides`)
 
 ### Value domains (enums / ranges)
 
@@ -557,7 +557,7 @@ Applies Morphology truth into the engine adapter (terrain/features), and emits e
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotContinents.contract.ts` (`PlotContinentsStepContract.requires/provides`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotMountains.contract.ts` (`PlotMountainsStepContract.requires/provides`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotVolcanoes.contract.ts` (`PlotVolcanoesStepContract.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/buildElevation.contract.ts` (`BuildElevationStepContract.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/buildElevation.contract.ts` (`BuildElevationStepContract.requires/provides`)
 
 ### Drift notes (only where it affects the contract surface)
 
@@ -610,6 +610,6 @@ This page contains many inline “Ground truth anchors” callouts. This section
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotContinents.contract.ts` (`PlotContinentsStepContract`)
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotMountains.contract.ts` (`PlotMountainsStepContract`)
   - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotVolcanoes.contract.ts` (`PlotVolcanoesStepContract`)
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/buildElevation.contract.ts` (`BuildElevationStepContract`)
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/buildElevation.contract.ts` (`BuildElevationStepContract`)
 
 - Policy (truth vs projection posture): `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`

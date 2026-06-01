@@ -4,9 +4,7 @@
 
 Define how OpenSpec operates in Civ7 Modding Tools while accepted product,
 architecture, and project-baseline documents remain the source of authority.
-
 ## Requirements
-
 ### Requirement: OpenSpec Is Downstream Of Accepted Authority
 
 OpenSpec SHALL be used only for implementation change management downstream of
@@ -76,3 +74,18 @@ be claimed as proof of code behavior, generated mod output, or in-game behavior.
 - **THEN** archiving may merge accepted deltas into `openspec/specs/`
 - **AND** the archive remains historical implementation evidence rather than a
   replacement for accepted product or architecture authority
+
+### Requirement: Operational Skills Capture Durable Debugging Process
+
+Repo-local operational skills SHALL capture reusable process, evidence
+locations, proof boundaries, and anti-patterns without storing task status or
+feature-specific incident notes.
+
+#### Scenario: A Civ7 runtime failure is debugged through logs
+- **WHEN** a repeated debugging process depends on source builds, deployed mod
+  files, and Civ7 logs
+- **THEN** a repo-local operational skill may document that evidence loop
+- **AND** the skill routes architecture, product, OpenSpec, and Graphite
+  authority to their existing owners
+- **AND** task-specific findings remain in specs, implementation records,
+  watcher notes, commits, or issue artifacts instead of the skill

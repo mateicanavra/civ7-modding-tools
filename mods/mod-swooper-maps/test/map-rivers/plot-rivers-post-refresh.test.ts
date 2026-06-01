@@ -4,7 +4,7 @@ import { MockAdapter } from "@civ7/adapter";
 import { COAST_TERRAIN, FLAT_TERRAIN, createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
-import plotRivers from "../../src/recipes/standard/stages/map-hydrology/steps/plotRivers.js";
+import plotRivers from "../../src/recipes/standard/stages/map-rivers/steps/plotRivers.js";
 import { buildTestDeps } from "../support/step-deps.js";
 
 class RiverCacheRefreshAdapter extends MockAdapter {
@@ -59,7 +59,7 @@ class RiverCacheRefreshAdapter extends MockAdapter {
   }
 }
 
-describe("map-hydrology/plot-rivers", () => {
+describe("map-rivers/plot-rivers", () => {
   it("rebuilds area/water caches after rivers so downstream checks read current topology", () => {
     const width = 5;
     const height = 4;
@@ -109,4 +109,3 @@ describe("map-hydrology/plot-rivers", () => {
     expect(adapter.isWater(2, 1)).toBe(true);
   });
 });
-

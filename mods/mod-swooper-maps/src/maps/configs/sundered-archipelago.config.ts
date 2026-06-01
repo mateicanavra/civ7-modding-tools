@@ -234,6 +234,9 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
     },
   },
   "map-hydrology": {
+    lakes: {},
+  },
+  "map-rivers": {
     knobs: {
       riverDensity: "dense",
     },
@@ -316,26 +319,26 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
   "ecology-features": {
     "plan-ice": {
       planIce: {
-        strategy: "default",
-        config: {},
+        strategy: "continentality",
+        config: { minConfidence01: 0.5 },
       },
     },
     "plan-reefs": {
       planReefs: {
         strategy: "shipping-lanes",
-        config: {},
+        config: { minConfidence01: 0.52, stride: 2 },
       },
     },
     "plan-wetlands": {
       planWetlands: {
         strategy: "default",
-        config: {},
+        config: { minConfidence01: 0.35 },
       },
     },
     "plan-vegetation": {
       planVegetation: {
         strategy: "default",
-        config: {},
+        config: { minConfidence01: 0.18 },
       },
     },
     "plan-plot-effects": {

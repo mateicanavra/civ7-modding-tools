@@ -28,7 +28,6 @@ export const defaultStrategy = createStrategy(PlanWetlandsContract, "default", {
     });
 
     const placements: Array<{ x: number; y: number; feature: string; weight?: number }> = [];
-    void config;
     void input.seed;
 
     for (let i = 0; i < size; i++) {
@@ -80,7 +79,7 @@ export const defaultStrategy = createStrategy(PlanWetlandsContract, "default", {
         },
       ]);
       if (best === null) continue;
-      if (!admitWetlandIntent(best)) continue;
+      if (!admitWetlandIntent(best, config)) continue;
 
       const x = i % width;
       const y = (i / width) | 0;

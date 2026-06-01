@@ -134,6 +134,7 @@ describe("M3 no-fudging posture (static scan)", () => {
       path.join(repoRoot, "src", "domain", "hydrology", "ops", "plan-lakes"),
       path.join(repoRoot, "src", "domain", "placement"),
       path.join(repoRoot, "src", "recipes", "standard", "stages", "map-hydrology", "steps"),
+      path.join(repoRoot, "src", "recipes", "standard", "stages", "map-rivers", "steps"),
       path.join(repoRoot, "src", "recipes", "standard", "stages", "placement"),
       path.join(workspaceRoot, "packages", "civ7-adapter", "src"),
     ] as const;

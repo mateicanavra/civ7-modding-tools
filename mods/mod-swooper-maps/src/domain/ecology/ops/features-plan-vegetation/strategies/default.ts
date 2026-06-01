@@ -29,7 +29,6 @@ export const defaultStrategy = createStrategy(PlanVegetationContract, "default",
     });
 
     const placements: Array<{ x: number; y: number; feature: string; weight?: number }> = [];
-    void config;
     void input.seed;
 
     for (let i = 0; i < size; i++) {
@@ -82,7 +81,7 @@ export const defaultStrategy = createStrategy(PlanVegetationContract, "default",
         },
       ]);
       if (best === null) continue;
-      if (!admitVegetationIntent(best)) continue;
+      if (!admitVegetationIntent(best, config)) continue;
 
       const x = i % width;
       const y = (i / width) | 0;
