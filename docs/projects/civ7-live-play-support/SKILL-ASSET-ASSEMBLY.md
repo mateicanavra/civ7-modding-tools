@@ -83,9 +83,11 @@ Source artifacts:
 - `topics/notification-decision-hud.md`
 - `topics/end-turn-blockers.md`
 - `topics/informational-notification-closeout.md`
+- `topics/play-priorities.md`
 
 CLI shortcuts:
 
+- `game play priorities`
 - `game play notifications`
 - `game play topics`
 - `game play end-turn`
@@ -414,6 +416,10 @@ Norms:
   loading project references. It is a read-only shortcut map, not a live
   validator, so it should point agents to the right HUD/ready-view/static
   reference before they act.
+- Use `game play priorities --json` as the first broad read when the active
+  state has both a HUD item and a ready entity. It materializes the current HUD,
+  ready unit/city, and local battlefield POIs into ranked next inspections; it
+  does not choose or send actions.
 - Treat official AI XML/SQL rows as load-time/static-mod levers until a safe
   live mutation contract is proven.
 - Use `game ai loaded-levers --json` before RHQ/static-AI comparisons to sample
@@ -480,6 +486,7 @@ runtime and local official resource references.
 | `topics/notification-decision-hud.md` | HUD/blocker skill reference | Ready |
 | `topics/end-turn-blockers.md` | HUD/blocker skill reference | Ready |
 | `topics/informational-notification-closeout.md` | HUD/blocker skill guardrail | Ready |
+| `topics/play-priorities.md` | Turn-priority dashboard reference | Ready as read-only surface |
 | `topics/progression-tree-targets.md` | Progression skill reference | Ready with tech-target proof note |
 | `topics/celebration-choice.md` | Progression/celebration choice reference | Ready with postcondition gap |
 | `topics/production-build-placement.md` | City production skill reference | Ready with city-project gap |

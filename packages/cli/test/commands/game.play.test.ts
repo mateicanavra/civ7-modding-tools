@@ -24,6 +24,7 @@ import GamePlayEndTurn from '../../src/commands/game/play/end-turn';
 import GamePlayExpandCity from '../../src/commands/game/play/expand-city';
 import GamePlayOperation from '../../src/commands/game/play/operation';
 import GamePlayNotifications from '../../src/commands/game/play/notifications';
+import GamePlayPriorities from '../../src/commands/game/play/priorities';
 import GamePlayPromotionReadiness from '../../src/commands/game/play/promotion-readiness';
 import GamePlayReadyCity from '../../src/commands/game/play/ready-city';
 import GamePlayReadyUnit from '../../src/commands/game/play/ready-unit';
@@ -742,6 +743,48 @@ describe('game play commands', () => {
       ]);
 
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test('reads play priorities without sending operations', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'ready-unit' });
+    try {
+      const { port } = server.address();
+      const writes: string[] = [];
+      const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
+      try {
+        await GamePlayPriorities.run([
+          '--host',
+          '127.0.0.1',
+          '--port',
+          String(port),
+          '--json',
+        ]);
+      } finally {
+        log.mockRestore();
+      }
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          priorities: Array<{ kind: string }>;
+          readyUnit: { legalOperationScope: string; legalNoTargetOperationCount: number } | null;
+          battlefield: { pointsOfInterest: unknown[] } | null;
+        };
+      };
+      expect(payload.view.readyUnit?.legalOperationScope).toBe('no-target');
+      expect(payload.view.readyUnit?.legalNoTargetOperationCount).toBeGreaterThan(0);
+      expect(payload.view.battlefield?.pointsOfInterest.length).toBeGreaterThan(0);
+      expect(payload.view.priorities.some((item) => item.kind === 'ready-unit')).toBe(true);
+      expect(payload.view.priorities.some((item) => item.kind.startsWith('battlefield:'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readReadyUnitView'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readBattlefieldScan'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       await server.close();

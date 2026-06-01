@@ -118,6 +118,7 @@ Outputs:
   - `topics/early-game-decision-context.md`
   - `topics/unit-target-actions.md`
   - `topics/notification-decision-hud.md`
+  - `topics/play-priorities.md`
   - `topics/ready-unit-commander-actions.md`
   - `topics/production-build-placement.md`
   - `topics/ready-city-decision-view.md`
@@ -651,6 +652,15 @@ Residual objective gaps:
   and `destination-analysis` flagged high endpoint and corridor pressure. The
   active play thread was notified to stage/screen rather than overextend just
   because direct movement validated.
+- Turn 118 exposed the need for a first turn-level priority dashboard: the HUD
+  reported `NOTIFICATION_UNIT_ATTACKED` for a Settler attacked by La Venta while
+  the ready unit was Ballista `{"owner":0,"id":1638414,"type":26}` at `(17,19)`.
+  Battlefield and destination reads showed a high-risk Settler at `(17,15)` and
+  a hot owner `9` city front at `(13,17)`, while Ballista target probes selected
+  `MOVE_TO` rather than ranged/bombard actions. Disposition:
+  `game play priorities` now composes HUD, ready-unit/city, and bounded
+  battlefield POIs into ranked read priorities, and `topics/play-priorities.md`
+  records the proof boundary.
 - Remaining gaps are promotion-send/hardening work: richer ready-entity reads,
   stronger live postcondition polling, civic choice proof, population-placement
   postconditions, visibility-filtered path/front analysis beyond the cheap

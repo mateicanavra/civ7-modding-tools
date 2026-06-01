@@ -39,23 +39,27 @@ This is the runtime counterpart to the RHQ/static-AI lane:
 
 Use these now during live play:
 
-1. `game watch --include-ready-unit --include-ready-city --jsonl`
+1. `game play priorities --json` materializes the current HUD, ready
+   unit/city, and local battlefield POIs into ranked next inspections. Use it
+   as the first broad read when a live state combines a HUD item and a ready
+   entity.
+2. `game watch --include-ready-unit --include-ready-city --jsonl`
    materializes the current blocker, next decision, ready unit/city, and
    freshness markers. `readyUnit.legalOperationScope` is `no-target`; zero
    no-target operations does not prove that plot movement or attack is
    impossible.
-2. `game play battlefield-scan --x <x> --y <y> --radius <n> --json` describes
+3. `game play battlefield-scan --x <x> --y <y> --radius <n> --json` describes
    local friendly and non-friendly units, cities, owner pressure, wounded
    friendlies, civilian exposure, and nearby fronts around an origin.
-3. `game play target-candidates --x <x> --y <y> --json` ranks opponent owners
+4. `game play target-candidates --x <x> --y <y> --json` ranks opponent owners
    and known city targets from a formation origin.
-4. `game play destination-analysis --from-x <x> --from-y <y> --to-x <x> --to-y <y> --json`
+5. `game play destination-analysis --from-x <x> --from-y <y> --to-x <x> --to-y <y> --json`
    samples endpoint and corridor pressure with explicit pathing limits.
-5. `game play civilian-route-triage` is not a command yet; load
+6. `game play civilian-route-triage` is not a command yet; load
    `civilian-route-triage.md` and compose `ready-unit`,
    `settlement-recommendations`, `battlefield-scan`, and
    `destination-analysis`.
-6. `game play unit-target --unit-id '<id>' --x <x> --y <y> --json` remains the
+7. `game play unit-target --unit-id '<id>' --x <x> --y <y> --json` remains the
    plot-action validator before any movement, ranged attack, naval attack,
    overrun, or swap send.
 

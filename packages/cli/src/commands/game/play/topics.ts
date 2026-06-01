@@ -69,10 +69,12 @@ const TOPICS: ReadonlyArray<Topic> = [
     proof: 'live-proved plus official UI/resource backing',
     references: [
       'docs/projects/civ7-live-play-support/topics/notification-decision-hud.md',
+      'docs/projects/civ7-live-play-support/topics/play-priorities.md',
       'docs/projects/civ7-live-play-support/topics/end-turn-blockers.md',
       'docs/projects/civ7-live-play-support/topics/informational-notification-closeout.md',
     ],
     commands: [
+      'game play priorities',
       'game play notifications',
       'game play end-turn',
       'game play dismiss-notification',
@@ -138,6 +140,7 @@ const TOPICS: ReadonlyArray<Topic> = [
     references: [
       'docs/projects/civ7-live-play-support/topics/battlefield-scan.md',
       'docs/projects/civ7-live-play-support/topics/destination-analysis.md',
+      'docs/projects/civ7-live-play-support/topics/play-priorities.md',
       'docs/projects/civ7-live-play-support/topics/tactical-lens-api-roadmap.md',
       'docs/projects/civ7-live-play-support/topics/civilian-route-triage.md',
       'docs/projects/civ7-live-play-support/topics/ready-unit-commander-actions.md',
@@ -146,6 +149,7 @@ const TOPICS: ReadonlyArray<Topic> = [
       'docs/projects/civ7-live-play-support/topics/unit-command-resettle-upgrade.md',
     ],
     commands: [
+      'game play priorities',
       'game play ready-unit',
       'game play battlefield-scan',
       'game play destination-analysis',
@@ -221,11 +225,13 @@ const TOPICS: ReadonlyArray<Topic> = [
       'docs/projects/civ7-live-play-support/topics/multi-turn-strategy-and-ai-levers.md',
       'docs/projects/civ7-live-play-support/topics/strategic-planning-snapshot.md',
       'docs/projects/civ7-live-play-support/topics/tactical-lens-api-roadmap.md',
+      'docs/projects/civ7-live-play-support/topics/play-priorities.md',
       'docs/projects/civ7-live-play-support/topics/battlefield-scan.md',
       'docs/projects/civ7-live-play-support/topics/destination-analysis.md',
       'docs/projects/civ7-live-play-support/topics/early-game-decision-context.md',
     ],
     commands: [
+      'game play priorities',
       'game play rehydrate',
       'game watch',
       'game autoplay',
