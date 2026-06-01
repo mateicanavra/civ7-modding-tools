@@ -1,19 +1,10 @@
 import { describe, expect, it } from "vitest";
-import {
-  deriveRecipeConfigSchema,
-  deriveStageAuthoringModel,
-  stripSchemaMetadataRoot,
-  type TSchema,
-} from "@swooper/mapgen-core/authoring";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import {
   STANDARD_RECIPE_CONFIG,
   STANDARD_RECIPE_CONFIG_SCHEMA,
   studioRecipeUiMeta as STANDARD_RECIPE_UI_META,
 } from "mod-swooper-maps/recipes/standard-artifacts";
-import { validateCanonicalMapConfig } from "../../../../mods/mod-swooper-maps/src/maps/configs/canonical.js";
-import swooperEarthlikeConfigRaw from "../../../../mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json";
-import { STANDARD_STAGES as SOURCE_STANDARD_STAGES } from "../../../../mods/mod-swooper-maps/src/recipes/standard/recipe";
 import { getRuntimeRecipe } from "../../src/browser-runner/recipeRuntime";
 import {
   DEFAULT_STUDIO_RECIPE_ID,
@@ -27,59 +18,6 @@ function isObject(value: unknown): value is Record<string, unknown> {
 
 function schemaProperties(schema: unknown): Record<string, unknown> {
   return isObject(schema) && isObject(schema.properties) ? schema.properties : {};
-}
-
-function stableJson(value: unknown): unknown {
-  const text = JSON.stringify(value);
-  if (!text) throw new Error("Value is not JSON-serializable");
-  return JSON.parse(text) as unknown;
-}
-
-function formatKebabIdLabel(id: string): string {
-  return id
-    .split("-")
-    .map((word) => (word ? word[0]!.toUpperCase() + word.slice(1) : word))
-    .join(" ");
-}
-
-const STAGE_LABEL_OVERRIDES: Record<string, string> = {
-  "morphology-coasts": "Morphology / Coasts",
-  "morphology-routing": "Morphology / Routing",
-  "morphology-erosion": "Morphology / Erosion",
-  "morphology-features": "Morphology / Features",
-  "map-morphology": "Map / Morphology",
-  "map-hydrology": "Map / Hydrology",
-  "map-ecology": "Map / Ecology",
-};
-
-const STEP_LABEL_OVERRIDES: Record<string, string> = {
-  "plate-graph": "Plate Graph",
-  "plate-topology": "Plate Topology",
-  "climate-baseline": "Climate Baseline",
-  "climate-refine": "Climate Refine",
-  "rugged-coasts": "Rugged Coasts",
-  "landmass-plates": "Landmass Plates",
-};
-
-function deriveSourceStudioUiMeta() {
-  return {
-    namespace: "mod-swooper-maps",
-    recipeId: "standard",
-    stages: SOURCE_STANDARD_STAGES.map((stage) => {
-      const stageId = stage.id;
-      const authoring = deriveStageAuthoringModel(stage);
-      return {
-        stageId,
-        stageLabel: STAGE_LABEL_OVERRIDES[stageId] ?? formatKebabIdLabel(stageId),
-        steps: authoring.runtime.steps.map((step) => ({
-          stepId: step.stepId,
-          stepLabel: STEP_LABEL_OVERRIDES[step.stepId] ?? formatKebabIdLabel(step.stepId),
-          fullStepId: `mod-swooper-maps.standard.${stageId}.${step.stepId}`,
-          configFocusPathWithinStage: authoring.config.focusPathsByStepId[step.stepId] ?? [],
-        })),
-      };
-    }),
-  };
 }
 
 function getConfigAtPath(config: unknown, path: readonly string[]): unknown {
@@ -116,27 +54,6 @@ function hasRawOpEnvelope(value: unknown): boolean {
 }
 
 describe("standard recipe generated artifact guardrails", () => {
-  it("keeps generated standard schema and defaults aligned with source stages", () => {
-    const sourceSchema = stableJson(deriveRecipeConfigSchema(SOURCE_STANDARD_STAGES as any)) as TSchema;
-    expect(STANDARD_RECIPE_CONFIG_SCHEMA).toEqual(sourceSchema);
-    expect(STANDARD_RECIPE_UI_META).toEqual(deriveSourceStudioUiMeta());
-
-    const standardDefaultPreset = validateCanonicalMapConfig({
-      fileName: "swooper-earthlike.config.json",
-      raw: swooperEarthlikeConfigRaw,
-      recipeSchema: sourceSchema,
-      stages: SOURCE_STANDARD_STAGES,
-    });
-    const { value, errors } = normalizeStrict<Record<string, unknown>>(
-      sourceSchema,
-      stripSchemaMetadataRoot(standardDefaultPreset.config),
-      "/standard/defaults"
-    );
-    expect(errors).toEqual([]);
-    expect(STANDARD_RECIPE_CONFIG).toEqual(stripSchemaMetadataRoot(value));
-    expect(hasRawOpEnvelope(STANDARD_RECIPE_CONFIG)).toBe(false);
-  });
-
   it("keeps Studio catalog and runtime entries on the same standard artifacts", () => {
     expect(DEFAULT_STUDIO_RECIPE_ID).toBe("mod-swooper-maps/standard");
 

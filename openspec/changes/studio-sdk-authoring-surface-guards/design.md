@@ -29,10 +29,14 @@ The guards use three layers:
    `deriveStageAuthoringModel(...)` so every standard stage is
    `semantic-public-config`, schema props are strict, and focus paths resolve to
    public schema paths or remain empty.
-2. **Generated Studio artifact guards.** Compare generated standard
-   schema/default/uiMeta artifacts against source-derived schema/defaults, then
-   validate built-in Studio map presets against the generated schema.
-3. **Generated map/SDK boundary guards.** Assert generated map entrypoints keep
+2. **Generated recipe artifact guards.** In the mod package, compare generated
+   standard schema/default/uiMeta artifacts against source-derived
+   schema/defaults.
+3. **Studio artifact consumption guards.** In Studio, prove the catalog and
+   runtime consume the same generated artifacts, focus paths point at generated
+   public schema/default paths, and built-in map presets validate against the
+   generated schema.
+4. **Generated map/SDK boundary guards.** Assert generated map entrypoints keep
    importing canonical source map config and pass
    `canonicalRecipeConfig<StandardRecipeConfig>(mapConfig)` into `createMap`.
    SDK-facing map definitions therefore consume public authoring config, not
@@ -55,9 +59,9 @@ values.
 
 - Guard tests must fail if any standard stage falls back to
   `internal-step-config`.
-- Guard tests must fail if generated Studio schema/default artifacts are stale
+- Guard tests must fail if generated schema/default artifacts are stale
   relative to source stage authoring models.
-- Guard tests must fail if Studio focus paths point to removed raw step/op
+- Studio guard tests must fail if focus paths point to removed raw step/op
   paths, `strategy`, or `config`.
 - Guard tests must fail if generated map entrypoints inline config or stop using
   canonical public config envelopes.
