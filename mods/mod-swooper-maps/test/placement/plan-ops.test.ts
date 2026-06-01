@@ -139,6 +139,43 @@ describe("placement plan operations", () => {
     }
   });
 
+  it("balances resource type assignment across the adapter candidate catalog", () => {
+    const width = 10;
+    const height = 10;
+    const size = width * height;
+    const result = runOpValidated(planResources, {
+      width,
+      height,
+      noResourceSentinel: 99,
+      candidateResourceTypes: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      landMask: new Uint8Array(size).fill(1),
+      fertility: new Float32Array(size).fill(0.8),
+      effectiveMoisture: new Float32Array(size).fill(0.6),
+      surfaceTemperature: new Float32Array(size).fill(18),
+      aridityIndex: new Float32Array(size).fill(0.4),
+      riverClass: new Uint8Array(size),
+      lakeMask: new Uint8Array(size),
+    }, {
+      strategy: "default",
+      config: {
+        candidateResourceTypes: [],
+        densityPer100Tiles: 25,
+        minSpacingTiles: 0,
+        maxPlacementsPerResourceShare: 1,
+      },
+    });
+
+    const placedTypes = result.placements.map((placement) => placement.preferredResourceType);
+    const uniqueTypes = new Set(placedTypes);
+    const perTypeCounts = result.candidateResourceTypes.map(
+      (resourceType) => placedTypes.filter((placedType) => placedType === resourceType).length
+    );
+
+    expect(result.plannedCount).toBe(25);
+    expect(uniqueTypes.size).toBe(result.candidateResourceTypes.length);
+    expect(Math.max(...perTypeCounts) - Math.min(...perTypeCounts)).toBeLessThanOrEqual(1);
+  });
+
   it("returns an empty plan when adapter candidate catalog is empty", () => {
     const width = 6;
     const height = 4;

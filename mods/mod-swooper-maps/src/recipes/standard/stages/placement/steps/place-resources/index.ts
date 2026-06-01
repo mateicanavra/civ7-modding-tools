@@ -1,7 +1,10 @@
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
 import { runPlacementProductStep } from "../product-runtime.js";
-import { placeResourcesWithTypedOutcomes } from "./materialize.js";
+import {
+  logResourcePlacementRuntimeTelemetry,
+  placeResourcesWithTypedOutcomes,
+} from "./materialize.js";
 import { placementArtifacts } from "../../artifacts.js";
 import PlaceResourcesStepContract from "./contract.js";
 
@@ -21,6 +24,7 @@ export default createStep(PlaceResourcesStepContract, {
     const outcomes = runPlacementProductStep("placement.resources", emit, () =>
       placeResourcesWithTypedOutcomes({ adapter: context.adapter, width, height, resources })
     );
+    logResourcePlacementRuntimeTelemetry(outcomes.summary, outcomes.assignment);
     deps.artifacts.resourcePlacementOutcomes.publish(context, outcomes);
   },
 });

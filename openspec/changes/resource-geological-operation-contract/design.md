@@ -112,14 +112,14 @@ resource placement intents.
 
 ## FireTuner Runtime-Proof Boundary
 
-The downstream resource-runtime-proof boundary remains the control record for final runtime proof. This contract
-slice does not claim runtime proof and does not restart the game.
+The `resource-runtime-proof` phase record owns final runtime proof. This
+contract slice does not claim runtime proof and does not restart the game.
 
 ## Follow-Up Repair Boundary
 
 This slice repairs stale terrestrial closure metadata in a follow-up branch
 because `codex/resource-terrestrial-operation-contract` was already locally
-committed clean at `292629dce` before this geological branch was opened.
+committed clean at `e4f99d9ef` before this geological branch was opened.
 
 ## Write Set
 

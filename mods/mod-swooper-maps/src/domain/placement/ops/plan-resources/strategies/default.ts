@@ -146,21 +146,12 @@ export const defaultStrategy = createStrategy(PlanResourcesContract, "default", 
       }
       if (tooClose) continue;
 
-      let chosenOffset = candidate.preferredTypeOffset;
-      let foundCappedType = false;
-      for (let shift = 0; shift < candidateResourceTypes.length; shift++) {
-        const offset = (candidate.preferredTypeOffset + shift) % candidateResourceTypes.length;
-        const type = candidateResourceTypes[offset]!;
-        const current = perTypeCounts.get(type) ?? 0;
-        if (current < maxPerType) {
-          chosenOffset = offset;
-          foundCappedType = true;
-          break;
-        }
-      }
-      if (!foundCappedType) {
-        chosenOffset = candidate.preferredTypeOffset;
-      }
+      const chosenOffset = chooseBalancedResourceOffset(
+        candidate.preferredTypeOffset,
+        candidateResourceTypes,
+        perTypeCounts,
+        maxPerType
+      );
 
       const preferredResourceType = candidateResourceTypes[chosenOffset]!;
       selected.push({
@@ -182,3 +173,42 @@ export const defaultStrategy = createStrategy(PlanResourcesContract, "default", 
     };
   },
 });
+
+function chooseBalancedResourceOffset(
+  preferredTypeOffset: number,
+  candidateResourceTypes: readonly number[],
+  perTypeCounts: ReadonlyMap<number, number>,
+  maxPerType: number
+): number {
+  let bestOffset = Math.max(0, Math.min(candidateResourceTypes.length - 1, preferredTypeOffset | 0));
+  let bestCount = Number.POSITIVE_INFINITY;
+  let bestDistance = Number.POSITIVE_INFINITY;
+
+  for (let shift = 0; shift < candidateResourceTypes.length; shift++) {
+    const offset = (preferredTypeOffset + shift) % candidateResourceTypes.length;
+    const type = candidateResourceTypes[offset]!;
+    const current = perTypeCounts.get(type) ?? 0;
+    const underCap = current < maxPerType;
+    const bestUnderCap = bestCount < maxPerType;
+    if (!underCap && bestUnderCap) continue;
+
+    const distance = circularOffsetDistance(preferredTypeOffset, offset, candidateResourceTypes.length);
+    if (
+      (underCap && !bestUnderCap) ||
+      current < bestCount ||
+      (current === bestCount && distance < bestDistance) ||
+      (current === bestCount && distance === bestDistance && offset < bestOffset)
+    ) {
+      bestOffset = offset;
+      bestCount = current;
+      bestDistance = distance;
+    }
+  }
+
+  return bestOffset;
+}
+
+function circularOffsetDistance(start: number, offset: number, length: number): number {
+  if (length <= 0) return 0;
+  return (offset - start + length) % length;
+}

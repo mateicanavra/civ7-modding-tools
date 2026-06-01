@@ -12,7 +12,8 @@ proxy visibility, warning-only proof, and the unverified runtime-id boundary.
   `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`
 - Branch: `codex/resource-terrestrial-operation-contract`
 - Parent slice: `codex/resource-cultivated-operation-contract`
-- Studio/API pair for this worktree: `http://127.0.0.1:5174/`
+- Source Studio/API pair observed for this source slice:
+  `http://127.0.0.1:5174/`
 
 ## Agent Review
 
@@ -40,7 +41,8 @@ proxy visibility, warning-only proof, and the unverified runtime-id boundary.
 
 ## FireTuner Runtime-Proof Boundary
 
-- The downstream resource-runtime-proof boundary remains in place and this slice acknowledges it.
+- Runtime-proof closure is owned by
+  `openspec/changes/resource-runtime-proof/workstream/phase-record.md`.
 - This contract slice does not claim runtime proof and does not restart the
   game.
 - Final runtime proof must verify the downstack restart branch/commit,
@@ -63,6 +65,6 @@ proxy visibility, warning-only proof, and the unverified runtime-id boundary.
 
 ## Closure State
 
-- Committed locally via Graphite at `292629dce` and worktree was clean before
+- Committed locally via Graphite at `e4f99d9ef` and worktree was clean before
   `codex/resource-geological-operation-contract` opened above it. External
   Graphite submission/PR delivery remains unclaimed until submitted.

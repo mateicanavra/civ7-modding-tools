@@ -14,8 +14,9 @@ runtime-id boundary.
 - Branch: `codex/resource-cultivated-operation-contract`
 - Parent slice: `codex/resource-aquatic-operation-contract`
 - Parent aquatic local commit:
-  `ad23eb663b53c4134e962d00781685b1998c4484`
-- Studio/API pair for this worktree: `http://127.0.0.1:5174/`
+  `10d683fb2cd9`
+- Source Studio/API pair observed for this source slice:
+  `http://127.0.0.1:5174/`
 
 ## Follow-Up Repair
 
@@ -46,7 +47,8 @@ runtime-id boundary.
 
 ## FireTuner Runtime-Proof Boundary
 
-- The downstream resource-runtime-proof boundary remains in place.
+- Runtime-proof closure is owned by
+  `openspec/changes/resource-runtime-proof/workstream/phase-record.md`.
 - This contract slice does not claim runtime proof and does not restart the
   game.
 - Final runtime proof still must integrate/restack on top of
@@ -69,7 +71,7 @@ runtime-id boundary.
 ## Closure State
 
 - Locally committed clean at
-  `3494d91ded3ca38471ad560daca184546994e7d6` on
+  `dee212efc405` on
   `codex/resource-cultivated-operation-contract`.
 - External Graphite submission/PR delivery is not claimed by this local closure
   record.
