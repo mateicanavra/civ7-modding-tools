@@ -76,6 +76,50 @@ const CASES = [
   },
 ] as const;
 
+function expectResourceDiagnostics(stats: WorldBalanceStats): void {
+  expect(stats.resourcePlannedCount, `${stats.label} resource plans`).toBeGreaterThan(0);
+  expect(stats.resourceUniquePlannedTypes, `${stats.label} planned resource variety`).toBeGreaterThanOrEqual(
+    Math.min(55, stats.resourcePlannedCount)
+  );
+  expect(stats.resourceUniquePlacedTypes, `${stats.label} placed resource variety`).toBeGreaterThanOrEqual(
+    Math.min(49, stats.resourcePlacedCount)
+  );
+  expect(
+    stats.resourcePlacedCountMaxByType - stats.resourcePlacedCountMinByType,
+    `${stats.label} placed resource spread`
+  ).toBeLessThanOrEqual(1);
+  expect(
+    stats.resourcePlacedCount + stats.resourceRejectedCount + stats.resourceMismatchCount,
+    `${stats.label} resource outcome total`
+  ).toBe(stats.resourcePlannedCount);
+  expect(
+    stats.resourceOutcomeCountsByResource.reduce((sum, entry) => sum + entry.plannedCount, 0),
+    `${stats.label} resource by-id planned total`
+  ).toBe(stats.resourcePlannedCount);
+  expect(
+    stats.resourceOutcomeCountsByResource.reduce(
+      (sum, entry) => sum + entry.placedCount + entry.rejectedCount + entry.mismatchCount,
+      0
+    ),
+    `${stats.label} resource by-id outcome total`
+  ).toBe(stats.resourcePlannedCount);
+  expect(
+    stats.resourceOutcomeCountsByReason.reduce((sum, entry) => sum + entry.count, 0),
+    `${stats.label} resource by-reason total`
+  ).toBe(stats.resourceRejectedCount + stats.resourceMismatchCount);
+
+  for (const entry of stats.resourceOutcomeCountsByResource) {
+    expect(
+      entry.placedCount + entry.rejectedCount + entry.mismatchCount,
+      `${stats.label} resource ${entry.resourceType} outcome total`
+    ).toBe(entry.plannedCount);
+    expect(
+      entry.reasons.reduce((sum, reason) => sum + reason.count, 0),
+      `${stats.label} resource ${entry.resourceType} reason total`
+    ).toBe(entry.rejectedCount + entry.mismatchCount);
+  }
+}
+
 describe("world balance stats", () => {
   it("keeps shipped map identities within product-visible geography budgets", { timeout: 30_000 }, () => {
     for (const caseData of CASES) {
@@ -86,6 +130,8 @@ describe("world balance stats", () => {
         width: 106,
         height: 66,
       });
+
+      expectResourceDiagnostics(stats);
 
       // Lakes should read as occasional inland basins, not a terrain-wide sink mask.
       expect(stats.lakeShareOfPreLakeLand, `${caseData.label} lake share`).toBeLessThanOrEqual(0.08);
@@ -143,7 +189,7 @@ describe("world balance stats", () => {
     }
   });
 
-  it("keeps earthlike vegetation families visible across seed rolls", { timeout: 30_000 }, () => {
+  it("keeps earthlike vegetation families visible across seed rolls", { timeout: 45_000 }, () => {
     const seeds = [1018, 1, 2, 3, 42, 99, 1234, 7777];
     const rolls: WorldBalanceStats[] = seeds.map((seed) =>
       collectWorldBalanceStats({
@@ -159,6 +205,7 @@ describe("world balance stats", () => {
       rolls.filter((stats) => stats.featureCounts[feature] > 0).length;
 
     for (const stats of rolls) {
+      expectResourceDiagnostics(stats);
       expect(stats.invalidFeatureSurfaceCount, `${stats.label} invalid feature surface`).toBe(0);
       expect(stats.finalLakeWaterDriftCount, `${stats.label} final lake water drift`).toBe(0);
       expect(stats.finalLakeClassificationDriftCount, `${stats.label} final lake classification drift`).toBe(0);

@@ -13,7 +13,8 @@ unverified runtime-id boundary.
   `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`
 - Branch: `codex/resource-geological-operation-contract`
 - Parent slice: `codex/resource-terrestrial-operation-contract`
-- Studio/API pair for this worktree: `http://127.0.0.1:5174/`
+- Source Studio/API pair observed for this source slice:
+  `http://127.0.0.1:5174/`
 
 ## Agent Review
 
@@ -48,11 +49,13 @@ unverified runtime-id boundary.
 
 ## FireTuner Runtime-Proof Boundary
 
-- The downstream resource-runtime-proof boundary remains in place.
+- Runtime-proof closure is owned by
+  `openspec/changes/resource-runtime-proof/workstream/phase-record.md`.
 - This contract slice does not claim runtime proof and does not restart the
   game.
-- Final runtime proof must use the acknowledged FireTuner socket/API restart
-  boundary recorded in the note after restacking/integration checks.
+- Final runtime proof must use the FireTuner socket/API restart boundary
+  recorded in `openspec/changes/resource-runtime-proof/workstream/phase-record.md`
+  after restacking/integration checks.
 
 ## Verification So Far
 
@@ -72,6 +75,6 @@ unverified runtime-id boundary.
 
 ## Closure State
 
-- Committed locally via Graphite at `9c64100ac` and worktree was clean before
+- Committed locally via Graphite at `7864f13bb` and worktree was clean before
   `codex/resource-group-plan-rollup` opened above it. External Graphite
   submission/PR delivery remains unclaimed until submitted.

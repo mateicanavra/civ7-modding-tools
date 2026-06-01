@@ -52,15 +52,14 @@ The output artifact records:
 
 ## FireTuner Runtime-Proof Boundary
 
-The downstream resource-runtime-proof boundary remains the control record for
-final runtime proof. This contract slice does not claim runtime proof and does
-not restart the game.
+The `resource-runtime-proof` phase record owns final runtime proof. This
+contract slice does not claim runtime proof and does not restart the game.
 
 ## Follow-Up Repair Boundary
 
 This slice repairs stale geological closure metadata in a follow-up branch
 because `codex/resource-geological-operation-contract` was already locally
-committed clean at `9c64100ac` before this rollup branch was opened.
+committed clean at `7864f13bb` before this rollup branch was opened.
 
 ## Write Set
 

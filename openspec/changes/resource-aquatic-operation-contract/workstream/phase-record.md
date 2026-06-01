@@ -12,7 +12,8 @@ unverified runtime-id boundary.
   `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-resource-distribution-workstream`
 - Branch: `codex/resource-aquatic-operation-contract`
 - Parent slice: `codex/resource-earthlike-expectations-artifact`
-- Studio/API pair for this worktree: `http://127.0.0.1:5174/`
+- Source Studio/API pair observed for this source slice:
+  `http://127.0.0.1:5174/`
 
 ## Agent Review
 
@@ -29,7 +30,8 @@ unverified runtime-id boundary.
 
 ## FireTuner Runtime-Proof Boundary
 
-- Acknowledged watcher note: the downstream resource-runtime-proof boundary.
+- Acknowledged runtime-proof boundary:
+  `openspec/changes/resource-runtime-proof/workstream/phase-record.md`.
 - Current downstack restart branch evidence:
   `codex/firetuner-socket-studio-restart` contains
   `bb39b3cf7 fix: submit Studio restarts through FireTuner socket`.
@@ -43,8 +45,8 @@ unverified runtime-id boundary.
   whether the downstack restart branch has advanced, integrate/restack the
   resource stack on top of it, use the FireTuner socket/API restart path, and
   record the exact branch/commit and restart command/path used.
-- The downstream resource-runtime-proof boundary remains in place until the final restacked/runtime-proof
-  boundary is recorded.
+- The runtime-proof phase record owns the final restacked/runtime-proof
+  boundary.
 
 ## Verification So Far
 
@@ -62,7 +64,7 @@ unverified runtime-id boundary.
 ## Closure State
 
 - Locally committed clean at
-  `ad23eb663b53c4134e962d00781685b1998c4484` on
+  `10d683fb2cd9` on
   `codex/resource-aquatic-operation-contract`.
 - External Graphite submission/PR delivery is not claimed by this local closure
   record.

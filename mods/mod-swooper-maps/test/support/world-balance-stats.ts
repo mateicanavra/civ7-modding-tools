@@ -1,4 +1,8 @@
-import { createMockAdapter } from "@civ7/adapter";
+import {
+  createMockAdapter,
+  type ResourcePlacementMismatchReason,
+  type ResourcePlacementRejectionReason,
+} from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
@@ -107,10 +111,30 @@ export type WorldBalanceStats = Readonly<{
   resourcePlacedCount: number;
   resourceRejectedCount: number;
   resourceMismatchCount: number;
+  resourceUniquePlannedTypes: number;
+  resourceUniquePlacedTypes: number;
+  resourcePlacedCountMinByType: number;
+  resourcePlacedCountMaxByType: number;
+  resourceOutcomeCountsByResource: readonly ResourceOutcomeResourceStats[];
+  resourceOutcomeCountsByReason: readonly ResourceOutcomeReasonStats[];
   resourcePlanTypeCounts: Readonly<Record<string, number>>;
   resourcePlacedTypeCounts: Readonly<Record<string, number>>;
   resourceRejectReasonCounts: Readonly<Record<string, number>>;
   finalResourceTypeCounts: Readonly<Record<string, number>>;
+}>;
+
+export type ResourceOutcomeReasonStats = Readonly<{
+  reason: ResourcePlacementRejectionReason | ResourcePlacementMismatchReason;
+  count: number;
+}>;
+
+export type ResourceOutcomeResourceStats = Readonly<{
+  resourceType: number;
+  plannedCount: number;
+  placedCount: number;
+  rejectedCount: number;
+  mismatchCount: number;
+  reasons: readonly ResourceOutcomeReasonStats[];
 }>;
 
 const FEATURE_KEYS = [
@@ -427,6 +451,8 @@ export function collectWorldBalanceStats(args: Readonly<{
           placedCount?: number;
           rejectedCount?: number;
           mismatchCount?: number;
+          byResource?: ResourceOutcomeResourceStats[];
+          byReason?: ResourceOutcomeReasonStats[];
         };
         outcomes?: ReadonlyArray<
           Readonly<{
@@ -500,6 +526,13 @@ export function collectWorldBalanceStats(args: Readonly<{
         rejectedCanHaveFeatureByFeature?: Record<string, number>;
       }
     | undefined;
+  if (!resourcePlacement.summary) {
+    throw new Error("Missing placement resource outcome summary.");
+  }
+  const resourceOutcomeCountsByResource = resourcePlacement.summary.byResource ?? [];
+  const resourcePlacedCounts = resourceOutcomeCountsByResource
+    .filter((entry) => entry.placedCount > 0)
+    .map((entry) => entry.placedCount);
 
   let waterTiles = 0;
   let postProjectionLandTiles = 0;
@@ -780,6 +813,14 @@ export function collectWorldBalanceStats(args: Readonly<{
     resourcePlacedCount: Math.max(0, resourcePlacement.summary?.placedCount ?? 0),
     resourceRejectedCount: Math.max(0, resourcePlacement.summary?.rejectedCount ?? 0),
     resourceMismatchCount: Math.max(0, resourcePlacement.summary?.mismatchCount ?? 0),
+    resourceUniquePlannedTypes: resourceOutcomeCountsByResource.filter((entry) => entry.plannedCount > 0)
+      .length,
+    resourceUniquePlacedTypes: resourceOutcomeCountsByResource.filter((entry) => entry.placedCount > 0)
+      .length,
+    resourcePlacedCountMinByType: resourcePlacedCounts.length === 0 ? 0 : Math.min(...resourcePlacedCounts),
+    resourcePlacedCountMaxByType: resourcePlacedCounts.length === 0 ? 0 : Math.max(...resourcePlacedCounts),
+    resourceOutcomeCountsByResource,
+    resourceOutcomeCountsByReason: resourcePlacement.summary.byReason ?? [],
     resourcePlanTypeCounts,
     resourcePlacedTypeCounts,
     resourceRejectReasonCounts,
