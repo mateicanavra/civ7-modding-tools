@@ -93,3 +93,55 @@
 - Local stats proof: diagnostic fail only.
 - Runtime proof: unresolved.
 - Product proof: unresolved.
+
+## Follow-Up Runtime Attempt After Stats Slice
+
+- Date: 2026-05-31.
+- Corrected worktree:
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-dra-morphology-direct-control-objective`.
+- Branch/head at the runtime attempt:
+  `codex/morphology-terrain-stats-readback@406ea9332` before the proof-boundary
+  branch was opened. Graphite later restacked this local commit; use the final
+  closure message for current stack hashes.
+- Direct-control source used: committed stack package, not the dirty Studio
+  worktree; `packages/civ7-direct-control` and CLI code last changed in the
+  local stack at `e5a952de4` before this morphology branch.
+- Background-team overlap check: `git fetch origin` found no newer committed
+  `packages/civ7-direct-control`, `packages/cli`, or Studio Civ7 endpoint
+  changes beyond the local stack surface.
+- Static package/CLI path:
+  `packages/cli/bin/run.js game catalog --static --json`.
+- Static result: parsed successfully with `source:"static"`,
+  `version:"direct-control-v1"`, and wrapper entries for restart/begin,
+  playable status, map summary, plot/grid snapshots, autoplay, validator-backed
+  operations, and `GameInfo` tables including `Resources`, `Terrains`,
+  `Biomes`, and `Features`.
+- Runtime CLI path:
+  `packages/cli/bin/run.js game status --json --timeout-ms 3000`.
+- Runtime status result: failed with
+  `Civ7DirectControlError: Timed out waiting for Civ7 tuner response to LSQ:`
+  and `Code: response-timeout`.
+- Runtime health path:
+  `packages/cli/bin/run.js game health --json --timeout-ms 3000`.
+- Runtime health parsed payload:
+  `{"ok":false,"health":{"ok":false,"status":"unavailable","error":{"code":"all-hosts-unavailable","details":[{"host":"127.0.0.1","error":"Timed out waiting for Civ7 tuner response to LSQ:"}],"name":"Civ7DirectControlError"}}}`.
+- Studio API path attempted:
+  `GET http://127.0.0.1:5173/api/civ7/status`.
+- Studio API result: `curl` timed out after `3004` ms with zero bytes received.
+- Request id: unavailable; the failed LSQ/status/health/Studio timeout paths did
+  not emit a direct-control request id.
+- Log bounds: no fresh Civ7 or FireTuner log region was captured because no
+  reachable socket response or Studio payload was obtained; no stale manual
+  FireTuner command was used.
+- Parsed terrain/elevation/cliff payloads: none.
+- Restart/begin decision: not run after read-only status/health showed the
+  socket unavailable, to avoid disrupting the parallel direct-control team with
+  an unprovable lifecycle mutation.
+- Remaining proof boundary: runtime proof still needs a reachable direct-control
+  socket, `restart --begin --wait-tuner --json`, bounded `map` and `gameinfo`
+  reads, and an engine cliff/elevation readback after `buildElevation()`.
+- Cliff boundary: current first-class `game map` fields include terrain,
+  biome, feature, resource, climate, hydrology, visibility, owner,
+  area/region, tags, city, and units; a first-class cliff-crossing field or an
+  approved bounded read-only `GameplayMap.isCliffCrossing` probe remains
+  required before claiming cliff proof.
