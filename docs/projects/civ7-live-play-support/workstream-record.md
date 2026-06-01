@@ -512,9 +512,9 @@ Residual objective gaps:
   commendations are both zero, so the norm is to treat PROMOTE as UI-open proof
   until `availablePromotions` carries validator-backed args.
 - Passive observer mode now has a first CLI surface: `game watch` polls the
-  read-only notification HUD, optionally composes the ready-unit view, and
-  emits or appends JSONL observations with duration and stale-risk labels for
-  human-aware watching.
+  read-only notification HUD, optionally composes the ready-unit and ready-city
+  views, and emits or appends JSONL observations with duration and stale-risk
+  labels for human-aware watching.
 - RHQ follow-up research refined the AI experiment candidates: add loaded
   `GameInfo` AI-row inspection before static mod comparisons, then summarize
   bounded autoplay with settlement, naval, air, repair, war, assault, raid, and
@@ -545,6 +545,17 @@ Residual objective gaps:
   `BehaviorTrees`, and 303 `TreeData` rows. Targeted `AiFavoredItems`
   spotlights found 7 `PSEUDOYIELD_NEW_CITY` rows and 0
   `PSEUDOYIELD_REPAIR_BONUS` rows in the current loaded policy substrate.
+- Turn 112 exposed why passive watch needs optional ready-city composition:
+  `NOTIFICATION_NEW_POPULATION` had no direct operation shortcut in the HUD,
+  but `game play ready-city --json` resolved blocking town
+  `{"owner":0,"id":262147,"type":1}` at `(20,20)`, proved
+  `workablePlotIndexes:[]`, and showed legal `city-command EXPAND` candidate
+  plots. Disposition: `game watch --include-ready-city` now appends a compact
+  ready-city projection to watcher observations so population and production
+  blockers can be triaged from the passive JSONL stream. A follow-up live smoke
+  after the blocker enum returned to `0` showed the old notification id still
+  visible while ready-city returned `cityId:null`; treat that as a stale
+  closeout boundary, not an active expansion proof.
 - Remaining gaps are promotion-send/hardening work: richer ready-entity reads,
   stronger live postcondition polling, civic choice proof, acquire-tile
   candidate cataloging, AI autoplay telemetry shortcuts, and eventual

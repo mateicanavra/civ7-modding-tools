@@ -4,6 +4,7 @@ import { dirname } from 'node:path';
 import { Command, Flags } from '@oclif/core';
 import {
   getCiv7PlayNotificationView,
+  getCiv7ReadyCityView,
   getCiv7ReadyUnitView,
 } from '@civ7/direct-control';
 
@@ -18,6 +19,7 @@ export default class GameWatch extends Command {
     '<%= config.bin %> game watch --count 5 --artifact watcher.jsonl',
     '<%= config.bin %> game watch --count 0 --interval-ms 5000 --jsonl',
     '<%= config.bin %> game watch --include-ready-unit --count 3 --json',
+    '<%= config.bin %> game watch --include-ready-city --count 3 --json',
   ];
 
   static flags = {
@@ -45,6 +47,10 @@ export default class GameWatch extends Command {
     }),
     'include-ready-unit': Flags.boolean({
       description: 'Also read the current ready-unit view when the HUD exposes a first-ready unit',
+      default: false,
+    }),
+    'include-ready-city': Flags.boolean({
+      description: 'Also read the selected or blocker-target city view for city/population blockers',
       default: false,
     }),
     'human-aware': Flags.boolean({
@@ -119,6 +125,15 @@ export default class GameWatch extends Command {
           timeoutMs: flags['timeout-ms'],
         })
         : null;
+      const readyCity = flags['include-ready-city']
+        ? await getCiv7ReadyCityView({
+          maxOperations: 96,
+        }, {
+          host: flags.host,
+          port: flags.port,
+          timeoutMs: flags['timeout-ms'],
+        })
+        : null;
       const durationMs = Math.round(performance.now() - start);
 
       return {
@@ -126,9 +141,7 @@ export default class GameWatch extends Command {
         index,
         mode: flags['human-aware'] ? 'human-turn-watch' : 'watch',
         risk: 'read',
-        wrapper: flags['include-ready-unit'] && firstReadyUnitId
-          ? 'getCiv7PlayNotificationView+getCiv7ReadyUnitView'
-          : 'getCiv7PlayNotificationView',
+        wrapper: buildWrapper(flags, firstReadyUnitId),
         cli: buildCliShape(flags),
         stateRole: 'app-ui',
         timeoutMs: flags['timeout-ms'],
@@ -150,13 +163,22 @@ export default class GameWatch extends Command {
         nextDecision: summarizeNextDecision(hud.hud?.nextDecision ?? null),
         notificationCount: hud.notifications.length,
         tunerReady: null,
-        responseBytes: Buffer.byteLength(JSON.stringify({ hud, readyUnit }), 'utf8'),
+        responseBytes: Buffer.byteLength(JSON.stringify({ hud, readyUnit, readyCity }), 'utf8'),
         readyUnit: readyUnit ? {
           unitId: readyUnit.unitId,
           unit: readyUnit.unit.ok ? readyUnit.unit.value : null,
           unitError: readyUnit.unit.ok ? null : readyUnit.unit.error,
           legalOperationCount: readyUnit.legalOperations.length,
           promotionReadiness: readyUnit.promotionReadiness,
+        } : null,
+        readyCity: readyCity ? {
+          cityId: readyCity.cityId,
+          city: readyCity.city.ok ? readyCity.city.value : null,
+          cityError: readyCity.city.ok ? null : readyCity.city.error,
+          legalOperationCount: readyCity.legalOperations.length,
+          productionCandidateCount: readyCity.productionCandidates.ok ? readyCity.productionCandidates.value.length : null,
+          townFocusOptionCount: readyCity.townFocusOptions.ok ? readyCity.townFocusOptions.value.length : null,
+          populationPlacement: readyCity.populationPlacement,
         } : null,
         notes: flags['human-aware']
           ? ['Observer read only; no OS foreground-focus causality claimed. Re-read before mutating after slow or stale-risk observations.']
@@ -193,6 +215,7 @@ export default class GameWatch extends Command {
         tunerReady: null,
         responseBytes: 0,
         readyUnit: null,
+        readyCity: null,
         notes: ['Read failed; after restart or reconnect, run game play rehydrate before mutating.'],
       };
     }
@@ -207,6 +230,7 @@ type WatchFlags = Readonly<{
   'timeout-ms': number;
   'max-notifications': number;
   'include-ready-unit': boolean;
+  'include-ready-city': boolean;
   'human-aware': boolean;
   'slow-ms': number;
   'stale-ms': number;
@@ -244,6 +268,7 @@ type WatchObservation = Readonly<{
   tunerReady: boolean | null;
   responseBytes: number;
   readyUnit: unknown;
+  readyCity: unknown;
   notes: ReadonlyArray<string>;
 }>;
 
@@ -270,6 +295,13 @@ function summarizeNextDecision(decision: Record<string, unknown> | null): Record
   };
 }
 
+function buildWrapper(flags: WatchFlags, firstReadyUnitId: unknown): string {
+  const wrappers = ['getCiv7PlayNotificationView'];
+  if (flags['include-ready-unit'] && firstReadyUnitId) wrappers.push('getCiv7ReadyUnitView');
+  if (flags['include-ready-city']) wrappers.push('getCiv7ReadyCityView');
+  return wrappers.join('+');
+}
+
 function buildCliShape(flags: WatchFlags): string {
   const parts = [
     'game watch',
@@ -277,6 +309,7 @@ function buildCliShape(flags: WatchFlags): string {
     `--interval-ms ${flags['interval-ms']}`,
     flags.artifact ? `--artifact ${flags.artifact}` : '',
     flags['include-ready-unit'] ? '--include-ready-unit' : '',
+    flags['include-ready-city'] ? '--include-ready-city' : '',
     flags.jsonl ? '--jsonl' : '',
     flags.json ? '--json' : '',
   ].filter(Boolean);

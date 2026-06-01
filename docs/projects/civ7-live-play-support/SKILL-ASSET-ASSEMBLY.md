@@ -376,7 +376,8 @@ Norms:
 - Use `game watch --jsonl --human-aware --artifact watcher.jsonl` for passive
   human/agent observation; it records HUD timing and stale-risk markers without
   sending operations and leaves a durable JSONL trace for later skill/reference
-  extraction.
+  extraction. Add `--include-ready-unit` for tactical queue context and
+  `--include-ready-city` for production, town-focus, and population blockers.
 - Use `game play topics --family <family>` as the categorical index before
   loading project references. It is a read-only shortcut map, not a live
   validator, so it should point agents to the right HUD/ready-view/static

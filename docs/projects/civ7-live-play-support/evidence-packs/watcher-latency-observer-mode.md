@@ -131,8 +131,10 @@ logs are used, include `logPath`, `mtime`, `startOffset`, and `endOffset`.
   --artifact watcher.jsonl`
   is now the first passive watcher shortcut. It emits the observation schema
   above from the read-only notification HUD, can include the current ready-unit
-  view, labels slow/stale-risk reads without claiming OS foreground causality,
-  and can append the same JSONL records to a durable artifact file.
+  view, can include the selected/blocking ready-city view for city and
+  population blockers, labels slow/stale-risk reads without claiming OS
+  foreground causality, and can append the same JSONL records to a durable
+  artifact file.
 - `game wait --until tuner-ready|turn-change|blocker-clear --timeout-ms <ms>`
 - Common `--timing` JSON metadata on game commands.
 - Mutation stale guards such as `--max-read-age-ms`, `--quiesce-ms`, or

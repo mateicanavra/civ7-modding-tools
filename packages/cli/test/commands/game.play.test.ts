@@ -1008,6 +1008,7 @@ describe('game play commands', () => {
         '--interval-ms',
         '1',
         '--include-ready-unit',
+        '--include-ready-city',
         '--jsonl',
       ]);
 
@@ -1015,17 +1016,22 @@ describe('game play commands', () => {
         ok: boolean;
         schema: string;
         mode: string;
+        wrapper: string;
         firstReadyUnitId: unknown;
         readyUnit: unknown;
+        readyCity: unknown;
       }>;
       expect(observations).toHaveLength(2);
       expect(observations[0].schema).toBe('civ7-watcher-observation.v1');
       expect(observations[0].mode).toBe('human-turn-watch');
+      expect(observations[0].wrapper).toBe('getCiv7PlayNotificationView+getCiv7ReadyUnitView+getCiv7ReadyCityView');
       expect(observations[0].ok).toBe(true);
       expect(observations[0].firstReadyUnitId).toEqual({ owner: 0, id: 458752, type: 26 });
       expect(observations[0].readyUnit).not.toBeNull();
+      expect(observations[0].readyCity).not.toBeNull();
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('readReadyUnitView'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readReadyCityView'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
     } finally {
       log.mockRestore();
