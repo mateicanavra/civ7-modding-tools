@@ -26,13 +26,16 @@
 - [x] 3.2 Make the browser action resumable after tab reload/fetch abort.
 - [x] 3.3 Preserve structured failure details and copyable diagnostics.
 - [x] 3.4 Add explicit recovery actions where the current phase supports them.
-- [ ] 3.5 Add middleware/UI tests for request validation, durable/disposable
+- [x] 3.5 Add middleware/UI tests for request validation, durable/disposable
   requests, row-missing `409`, failure cleanup, status resume, and no browser
   Run coupling.
-  - Covered now: shared operation status helpers, diagnostics serialization,
-    and footer rendering for running/failed states.
-  - Still bounded: extracted middleware unit tests for every HTTP branch. The
-    browser click proof covers the main disposable route.
+  - Covered now: extracted request-validation helpers for raw payload rejection
+    and durable/disposable normalization; operation-state helpers for active
+    de-dupe, failure cleanup/status, `409` blocked details, uncertainty, TTL,
+    and recovery actions; client snapshot helpers for status resume; footer
+    rendering for stale/completed state; browser click proof for the primary
+    disposable route.
+  - Still bounded: route-level Vite middleware tests for every HTTP branch.
 
 ## 4. Vite/Turbo Robustness
 
@@ -51,8 +54,8 @@
 - [ ] 5.4 Run live proof matrix when Civ is available: shell/menu,
   running-game, disposable, durable, and recovery after listener/LSQ failure.
   - Covered now: shell/menu read-only proof, Studio browser click disposable
-    launch, runtime Tuner readiness, seed/dimensions proof, log markers, and
-    browser reload resume.
+    launch, runtime Tuner readiness, seed/dimensions proof, log markers,
+    browser reload resume, and current/stale operation-state proof.
   - Still bounded: durable built-in launch and listener/LSQ live failure
     injection.
 - [x] 5.5 Update proof ledger, recovery guide, closure checklist, and final

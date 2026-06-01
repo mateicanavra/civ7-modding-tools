@@ -25,6 +25,16 @@ export type RunInGameMaterializationStatus = Readonly<{
   envelopeHash?: string;
 }>;
 
+export type RunInGameRequestStatus = Readonly<{
+  recipeId?: string;
+  seed?: number;
+  mapSize?: string;
+  playerCount?: number;
+  resources?: string;
+  selectedConfigId?: string;
+  materializationMode?: string;
+}>;
+
 export type RunInGameFailureDetails = Readonly<{
   failureClass?: string;
   code?: string;
@@ -47,7 +57,10 @@ export type RunInGameOperationStatus = Readonly<{
   status: RunInGameOperationKind;
   startedAt: string;
   updatedAt: string;
+  serverInstanceId?: string;
+  serverStartedAt?: string;
   completedPhases: ReadonlyArray<RunInGamePhase>;
+  request?: RunInGameRequestStatus;
   materialization?: RunInGameMaterializationStatus;
   error?: string;
   details?: RunInGameFailureDetails;
@@ -115,20 +128,23 @@ export function runInGameCanRetryStatus(status?: RunInGameOperationStatus | null
 }
 
 export function formatRunInGameDiagnostics(status: RunInGameOperationStatus): string {
-  return stableStringify({
+  return stableRunInGameStringify({
     requestId: status.requestId,
     phase: status.phase,
     status: status.status,
     startedAt: status.startedAt,
     updatedAt: status.updatedAt,
+    serverInstanceId: status.serverInstanceId,
+    serverStartedAt: status.serverStartedAt,
     completedPhases: status.completedPhases,
+    request: status.request,
     materialization: status.materialization,
     error: status.error,
     details: status.details,
   });
 }
 
-function stableStringify(value: unknown): string {
+export function stableRunInGameStringify(value: unknown): string {
   return JSON.stringify(canonicalize(value), null, 2);
 }
 
