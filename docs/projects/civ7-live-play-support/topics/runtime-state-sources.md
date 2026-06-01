@@ -85,6 +85,9 @@ For live play:
    not prove the current player/city/unit can choose it now.
 4. Treat autosaves as forensic evidence until a stable parser and freshness
    contract exist.
+5. Use `game local-data inspect --json` when the watcher needs a current
+   inventory of disk evidence. That command is intentionally read-only and
+   labels local data as catalog/forensic support, not live-turn authority.
 
 The durable direction is hybrid: build more local definition indexes to reduce
 expensive UI enumeration, while keeping the runtime HUD as the source of truth

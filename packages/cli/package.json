@@ -78,6 +78,12 @@
       "game": {
         "description": "Operate a running Civilization VII session through local tooling"
       },
+      "game:local-data": {
+        "description": "Inspect local Civ7 SQLite, save, and log evidence"
+      },
+      "game:play": {
+        "description": "Turn-by-turn live-play shortcuts over direct-control"
+      },
       "mod": {
         "description": "Manage Civilization VII mods"
       },

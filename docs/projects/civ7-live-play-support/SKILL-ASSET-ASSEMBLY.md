@@ -101,6 +101,28 @@ Promotion readiness: ready for a skill asset, with a required warning that
 diplomacy, narrative, production, population, progression, and unit blockers are
 not generic dismissal candidates.
 
+### Local Evidence Inventory
+
+Source artifacts:
+
+- `topics/runtime-state-sources.md`
+- `topics/local-catalog-enrichment.md`
+- `evidence-packs/local-on-disk-read-surfaces.md`
+
+CLI shortcut:
+
+- `game local-data inspect`
+
+Norms:
+
+- Use this command to inventory disk evidence and verify which SQLite, save, and
+  log files exist.
+- Treat its output as static catalog or forensic support.
+- Do not use local database existence as proof that a live action is legal.
+
+Promotion readiness: ready as a support asset for the live-play skill, paired
+with the runtime HUD authority warning.
+
 ### Progression And Choice Resolution
 
 Source artifacts:

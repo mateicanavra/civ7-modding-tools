@@ -102,6 +102,7 @@ Outputs:
   - `game play build-unit`
   - `game play ready-unit`
   - `game play unit-target`
+  - `game local-data inspect`
 - Evidence packs and topic/reference artifacts:
   - `SKILL-ASSET-ASSEMBLY.md`
   - `topics/end-turn-blockers.md`
