@@ -2,8 +2,8 @@ import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { defineVizMeta, snapshotEngineHeightfield } from "@swooper/mapgen-core";
 import { getStandardRuntime } from "../../../runtime.js";
 import LakesStepContract from "./lakes.contract.js";
-import { HYDROLOGY_LAKEINESS_TILES_PER_LAKE_MULTIPLIER } from "@mapgen/domain/hydrology/shared/knob-multipliers.js";
-import type { HydrologyLakeinessKnob } from "@mapgen/domain/hydrology/shared/knobs.js";
+import { HYDROLOGY_LAKEINESS_TILES_PER_LAKE_MULTIPLIER } from "@mapgen/domain/hydrology/config.js";
+import type { HydrologyLakeinessKnob } from "@mapgen/domain/hydrology/config.js";
 import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
 import { mapArtifacts } from "../../../map-artifacts.js";
 

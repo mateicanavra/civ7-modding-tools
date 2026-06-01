@@ -3,7 +3,7 @@ import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { foundationArtifacts } from "../artifacts.js";
 import PlateGraphStepContract from "./plateGraph.contract.js";
 import { validatePlateGraphArtifact, wrapFoundationValidateNoDims } from "./validation.js";
-import type { FoundationPlateCountKnob } from "@mapgen/domain/foundation/shared/knobs.js";
+import type { FoundationPlateCountKnob } from "@mapgen/domain/foundation/config.js";
 import { interleaveXY, pointsFromPlateSeeds } from "./viz.js";
 
 const GROUP_PLATE_GRAPH = "Foundation / Plate Graph";
@@ -23,12 +23,12 @@ export default createStep(PlateGraphStepContract, {
       config.computePlateGraph.strategy === "default" && override !== undefined
         ? {
             ...config.computePlateGraph,
-	            config: {
-	              ...config.computePlateGraph.config,
-	              plateCount: clampInt(override, 2, 256),
-	            },
-	          }
-	        : config.computePlateGraph;
+            config: {
+              ...config.computePlateGraph.config,
+              plateCount: clampInt(override, 2, 256),
+            },
+          }
+        : config.computePlateGraph;
 
     return { ...config, computePlateGraph };
   },
@@ -36,7 +36,11 @@ export default createStep(PlateGraphStepContract, {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const crust = deps.artifacts.foundationCrustInit.read(context);
     const stepId = `${PlateGraphStepContract.phase}/${PlateGraphStepContract.id}`;
-    const rngSeed = ctxRandom(context, ctxRandomLabel(stepId, "foundation/compute-plate-graph"), 2_147_483_647);
+    const rngSeed = ctxRandom(
+      context,
+      ctxRandomLabel(stepId, "foundation/compute-plate-graph"),
+      2_147_483_647
+    );
 
     const plateGraphResult = ops.computePlateGraph(
       {

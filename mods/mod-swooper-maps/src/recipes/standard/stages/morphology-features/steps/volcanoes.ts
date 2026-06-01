@@ -1,4 +1,9 @@
-import { computeSampleStep, defineVizMeta, renderAsciiGrid, xyFromIndex } from "@swooper/mapgen-core";
+import {
+  computeSampleStep,
+  defineVizMeta,
+  renderAsciiGrid,
+  xyFromIndex,
+} from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampFinite } from "@swooper/mapgen-core/lib/math";
 import VolcanoesStepContract from "./volcanoes.contract.js";
@@ -7,8 +12,8 @@ import {
   MORPHOLOGY_VOLCANISM_BASE_DENSITY_MULTIPLIER,
   MORPHOLOGY_VOLCANISM_CONVERGENT_MULTIPLIER_MULTIPLIER,
   MORPHOLOGY_VOLCANISM_HOTSPOT_WEIGHT_MULTIPLIER,
-} from "@mapgen/domain/morphology/shared/knob-multipliers.js";
-import type { MorphologyVolcanismKnob } from "@mapgen/domain/morphology/shared/knobs.js";
+} from "@mapgen/domain/morphology/config.js";
+import type { MorphologyVolcanismKnob } from "@mapgen/domain/morphology/config.js";
 
 type ArtifactValidationIssue = Readonly<{ message: string }>;
 type VolcanoKind = "subductionArc" | "rift" | "hotspot";
@@ -33,13 +38,17 @@ function validateVolcanoes(value: unknown): ArtifactValidationIssue[] {
   }
   for (const entry of candidate.volcanoes) {
     if (!isRecord(entry) || typeof entry.tileIndex !== "number" || entry.tileIndex < 0) {
-      return [{ message: "Expected volcanoes.volcanoes entries to include a non-negative tileIndex." }];
+      return [
+        { message: "Expected volcanoes.volcanoes entries to include a non-negative tileIndex." },
+      ];
     }
     if (entry.kind !== "subductionArc" && entry.kind !== "rift" && entry.kind !== "hotspot") {
       return [{ message: "Expected volcanoes.volcanoes entries to include a Phase 2 kind." }];
     }
     if (typeof entry.strength01 !== "number" || entry.strength01 < 0 || entry.strength01 > 1) {
-      return [{ message: "Expected volcanoes.volcanoes entries to include strength01 within [0,1]." }];
+      return [
+        { message: "Expected volcanoes.volcanoes entries to include strength01 within [0,1]." },
+      ];
     }
   }
   return [];
@@ -53,8 +62,10 @@ export default createStep(VolcanoesStepContract, {
   }),
   normalize: (config, ctx) => {
     const { volcanism } = ctx.knobs as Readonly<{ volcanism?: MorphologyVolcanismKnob }>;
-    const densityMultiplier = MORPHOLOGY_VOLCANISM_BASE_DENSITY_MULTIPLIER[volcanism ?? "normal"] ?? 1.0;
-    const hotspotMultiplier = MORPHOLOGY_VOLCANISM_HOTSPOT_WEIGHT_MULTIPLIER[volcanism ?? "normal"] ?? 1.0;
+    const densityMultiplier =
+      MORPHOLOGY_VOLCANISM_BASE_DENSITY_MULTIPLIER[volcanism ?? "normal"] ?? 1.0;
+    const hotspotMultiplier =
+      MORPHOLOGY_VOLCANISM_HOTSPOT_WEIGHT_MULTIPLIER[volcanism ?? "normal"] ?? 1.0;
     const convergentMultiplier =
       MORPHOLOGY_VOLCANISM_CONVERGENT_MULTIPLIER_MULTIPLIER[volcanism ?? "normal"] ?? 1.0;
 
@@ -65,8 +76,14 @@ export default createStep(VolcanoesStepContract, {
             config: {
               ...config.volcanoes.config,
               baseDensity: clampFinite(config.volcanoes.config.baseDensity * densityMultiplier, 0),
-              hotspotWeight: clampFinite(config.volcanoes.config.hotspotWeight * hotspotMultiplier, 0),
-              convergentMultiplier: clampFinite(config.volcanoes.config.convergentMultiplier * convergentMultiplier, 0),
+              hotspotWeight: clampFinite(
+                config.volcanoes.config.hotspotWeight * hotspotMultiplier,
+                0
+              ),
+              convergentMultiplier: clampFinite(
+                config.volcanoes.config.convergentMultiplier * convergentMultiplier,
+                0
+              ),
             },
           }
         : config.volcanoes;
@@ -97,7 +114,10 @@ export default createStep(VolcanoesStepContract, {
     const volcanoMask = new Uint8Array(size);
     const volcanoes = plan.volcanoes
       .map((entry) => entry.index | 0)
-      .filter((tileIndex) => tileIndex >= 0 && tileIndex < size && (topography.landMask[tileIndex] | 0) === 1)
+      .filter(
+        (tileIndex) =>
+          tileIndex >= 0 && tileIndex < size && (topography.landMask[tileIndex] | 0) === 1
+      )
       .sort((a, b) => a - b)
       .map((tileIndex) => {
         volcanoMask[tileIndex] = 1;

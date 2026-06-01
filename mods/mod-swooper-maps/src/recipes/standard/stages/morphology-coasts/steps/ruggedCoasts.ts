@@ -8,11 +8,11 @@ import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-
 import {
   MORPHOLOGY_COAST_RUGGEDNESS_MULTIPLIER,
   MORPHOLOGY_SHELF_WIDTH_MULTIPLIER,
-} from "@mapgen/domain/morphology/shared/knob-multipliers.js";
+} from "@mapgen/domain/morphology/config.js";
 import type {
   MorphologyCoastRuggednessKnob,
   MorphologyShelfWidthKnob,
-} from "@mapgen/domain/morphology/shared/knobs.js";
+} from "@mapgen/domain/morphology/config.js";
 
 type ArtifactValidationIssue = Readonly<{ message: string }>;
 
@@ -47,7 +47,10 @@ function validateTypedArray(
   return true;
 }
 
-function validateCoastlineMetrics(value: unknown, dimensions: MapDimensions): ArtifactValidationIssue[] {
+function validateCoastlineMetrics(
+  value: unknown,
+  dimensions: MapDimensions
+): ArtifactValidationIssue[] {
   const errors: ArtifactValidationIssue[] = [];
   if (!isRecord(value)) {
     errors.push({ message: "Missing coastline metrics." });
@@ -60,10 +63,28 @@ function validateCoastlineMetrics(value: unknown, dimensions: MapDimensions): Ar
     shelfMask?: unknown;
     distanceToCoast?: unknown;
   };
-  validateTypedArray(errors, "coastlineMetrics.coastalLand", candidate.coastalLand, Uint8Array, size);
-  validateTypedArray(errors, "coastlineMetrics.coastalWater", candidate.coastalWater, Uint8Array, size);
+  validateTypedArray(
+    errors,
+    "coastlineMetrics.coastalLand",
+    candidate.coastalLand,
+    Uint8Array,
+    size
+  );
+  validateTypedArray(
+    errors,
+    "coastlineMetrics.coastalWater",
+    candidate.coastalWater,
+    Uint8Array,
+    size
+  );
   validateTypedArray(errors, "coastlineMetrics.shelfMask", candidate.shelfMask, Uint8Array, size);
-  validateTypedArray(errors, "coastlineMetrics.distanceToCoast", candidate.distanceToCoast, Uint16Array, size);
+  validateTypedArray(
+    errors,
+    "coastlineMetrics.distanceToCoast",
+    candidate.distanceToCoast,
+    Uint16Array,
+    size
+  );
   return errors;
 }
 
@@ -124,9 +145,18 @@ export default createStep(RuggedCoastsStepContract, {
                 ...config.coastlines.config.coast,
                 plateBias: {
                   ...config.coastlines.config.coast.plateBias,
-                  bayWeight: clampFinite(config.coastlines.config.coast.plateBias.bayWeight * multiplier, 0),
-                  bayNoiseBonus: clampFinite(config.coastlines.config.coast.plateBias.bayNoiseBonus * multiplier, 0),
-                  fjordWeight: clampFinite(config.coastlines.config.coast.plateBias.fjordWeight * multiplier, 0),
+                  bayWeight: clampFinite(
+                    config.coastlines.config.coast.plateBias.bayWeight * multiplier,
+                    0
+                  ),
+                  bayNoiseBonus: clampFinite(
+                    config.coastlines.config.coast.plateBias.bayNoiseBonus * multiplier,
+                    0
+                  ),
+                  fjordWeight: clampFinite(
+                    config.coastlines.config.coast.plateBias.fjordWeight * multiplier,
+                    0
+                  ),
                 },
               },
             },
@@ -162,7 +192,10 @@ export default createStep(RuggedCoastsStepContract, {
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;
     const beltDrivers = deps.artifacts.beltDrivers.read(context);
-    const topography = deps.artifacts.topography.read(context) as { seaLevel?: number; bathymetry?: Int16Array };
+    const topography = deps.artifacts.topography.read(context) as {
+      seaLevel?: number;
+      bathymetry?: Int16Array;
+    };
     const heightfield = context.buffers.heightfield;
     const rngSeed = deriveStepSeed(context.env.seed, "morphology:computeCoastlineMetrics");
 
@@ -290,7 +323,10 @@ export default createStep(RuggedCoastsStepContract, {
     if (!(capTilesByTile instanceof Uint8Array) || capTilesByTile.length !== coastal.length) {
       throw new Error("Computed capTilesByTile missing or shape-mismatched.");
     }
-    if (!(nearshoreCandidateMask instanceof Uint8Array) || nearshoreCandidateMask.length !== coastal.length) {
+    if (
+      !(nearshoreCandidateMask instanceof Uint8Array) ||
+      nearshoreCandidateMask.length !== coastal.length
+    ) {
       throw new Error("Computed nearshoreCandidateMask missing or shape-mismatched.");
     }
     if (!(depthGateMask instanceof Uint8Array) || depthGateMask.length !== coastal.length) {
@@ -418,7 +454,8 @@ export default createStep(RuggedCoastsStepContract, {
       meta: defineVizMeta("morphology.shelf.activeMarginMask", {
         label: "Active Margin Mask",
         group: GROUP_SHELF,
-        description: "Tiles treated as active margins (convergent/transform with high boundary closeness).",
+        description:
+          "Tiles treated as active margins (convergent/transform with high boundary closeness).",
         role: "membership",
         palette: "categorical",
         categories: [
@@ -437,7 +474,8 @@ export default createStep(RuggedCoastsStepContract, {
       meta: defineVizMeta("morphology.shelf.capTiles", {
         label: "Shelf Distance Cap (Tiles)",
         group: GROUP_SHELF,
-        description: "Per-tile max distance to coast used by the shelf classifier (active margins narrower).",
+        description:
+          "Per-tile max distance to coast used by the shelf classifier (active margins narrower).",
         role: "membership",
         palette: "continuous",
       }),
@@ -453,7 +491,8 @@ export default createStep(RuggedCoastsStepContract, {
         label: "Nearshore Candidates",
         group: GROUP_SHELF,
         visibility: "debug",
-        description: "Water tiles within nearshoreDistance, used to sample bathymetry for shallowCutoff.",
+        description:
+          "Water tiles within nearshoreDistance, used to sample bathymetry for shallowCutoff.",
         role: "membership",
         palette: "categorical",
         categories: [
@@ -473,7 +512,8 @@ export default createStep(RuggedCoastsStepContract, {
         label: "Depth Gate (Shallow Enough)",
         group: GROUP_SHELF,
         visibility: "debug",
-        description: "Water tiles where bathymetry >= shallowCutoff (shallower than the selected cutoff).",
+        description:
+          "Water tiles where bathymetry >= shallowCutoff (shallower than the selected cutoff).",
         role: "membership",
         palette: "categorical",
         categories: [

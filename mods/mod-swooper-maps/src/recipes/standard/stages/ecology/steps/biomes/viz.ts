@@ -1,4 +1,4 @@
-import { BIOME_SYMBOL_ORDER } from "@mapgen/domain/ecology/types.js";
+import { BIOME_SYMBOL_ORDER } from "@mapgen/domain/ecology";
 
 // Stable, explicit categories/colors (no auto palette) for truth biomeIndex visualization.
 // Note: biomeIndex uses 255 as the water/unknown sentinel.
@@ -23,11 +23,12 @@ export function assertBiomeIndexVizCategoriesCoverSymbols(): void {
   const values = new Set(BIOME_INDEX_VIZ_CATEGORIES.map((c) => c.value));
   for (let i = 0; i <= maxSymbolValue; i++) {
     if (!values.has(i)) {
-      throw new Error(`BiomeIndex viz categories missing value=${i} (${BIOME_SYMBOL_ORDER[i] ?? "?"}).`);
+      throw new Error(
+        `BiomeIndex viz categories missing value=${i} (${BIOME_SYMBOL_ORDER[i] ?? "?"}).`
+      );
     }
   }
   if (!values.has(255)) {
     throw new Error("BiomeIndex viz categories missing sentinel value=255 (Water/Unknown).");
   }
 }
-

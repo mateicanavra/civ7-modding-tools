@@ -1,5 +1,8 @@
 import { Type, type Static } from "@swooper/mapgen-core/authoring";
 
+export * from "./shared/knobs.js";
+export * from "./shared/knob-multipliers.js";
+
 /**
  * Plate-aware weighting for bay/fjord odds based on boundary closeness.
  */

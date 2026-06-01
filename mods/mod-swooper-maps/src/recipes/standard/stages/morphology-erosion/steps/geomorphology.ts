@@ -1,10 +1,17 @@
-import { BYTE_SHADE_RAMP, computeSampleStep, defineVizMeta, dumpScalarFieldVariants, renderAsciiGrid, shadeByte } from "@swooper/mapgen-core";
+import {
+  BYTE_SHADE_RAMP,
+  computeSampleStep,
+  defineVizMeta,
+  dumpScalarFieldVariants,
+  renderAsciiGrid,
+  shadeByte,
+} from "@swooper/mapgen-core";
 import { createStep } from "@swooper/mapgen-core/authoring";
 import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
 
 import GeomorphologyStepContract from "./geomorphology.contract.js";
-import { MORPHOLOGY_EROSION_RATE_MULTIPLIER } from "@mapgen/domain/morphology/shared/knob-multipliers.js";
-import type { MorphologyErosionKnob } from "@mapgen/domain/morphology/shared/knobs.js";
+import { MORPHOLOGY_EROSION_RATE_MULTIPLIER } from "@mapgen/domain/morphology/config.js";
+import type { MorphologyErosionKnob } from "@mapgen/domain/morphology/config.js";
 
 const GROUP_GEOMORPHOLOGY = "Morphology / Geomorphology";
 const TILE_SPACE_ID = "tile.hexOddR" as const;
@@ -24,15 +31,24 @@ export default createStep(GeomorphologyStepContract, {
                 ...config.geomorphology.config.geomorphology,
                 fluvial: {
                   ...config.geomorphology.config.geomorphology.fluvial,
-                  rate: clampFinite(config.geomorphology.config.geomorphology.fluvial.rate * multiplier, 0),
+                  rate: clampFinite(
+                    config.geomorphology.config.geomorphology.fluvial.rate * multiplier,
+                    0
+                  ),
                 },
                 diffusion: {
                   ...config.geomorphology.config.geomorphology.diffusion,
-                  rate: clampFinite(config.geomorphology.config.geomorphology.diffusion.rate * multiplier, 0),
+                  rate: clampFinite(
+                    config.geomorphology.config.geomorphology.diffusion.rate * multiplier,
+                    0
+                  ),
                 },
                 deposition: {
                   ...config.geomorphology.config.geomorphology.deposition,
-                  rate: clampFinite(config.geomorphology.config.geomorphology.deposition.rate * multiplier, 0),
+                  rate: clampFinite(
+                    config.geomorphology.config.geomorphology.deposition.rate * multiplier,
+                    0
+                  ),
                 },
               },
             },

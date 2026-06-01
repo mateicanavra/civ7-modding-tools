@@ -1,10 +1,16 @@
-import { computeSampleStep, ctxRandom, ctxRandomLabel, defineVizMeta, renderAsciiGrid } from "@swooper/mapgen-core";
+import {
+  computeSampleStep,
+  ctxRandom,
+  ctxRandomLabel,
+  defineVizMeta,
+  renderAsciiGrid,
+} from "@swooper/mapgen-core";
 import type { MapDimensions } from "@civ7/adapter";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
 import LandmassPlatesStepContract from "./landmassPlates.contract.js";
-import { MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA } from "@mapgen/domain/morphology/shared/knob-multipliers.js";
-import type { MorphologySeaLevelKnob } from "@mapgen/domain/morphology/shared/knobs.js";
+import { MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA } from "@mapgen/domain/morphology/config.js";
+import type { MorphologySeaLevelKnob } from "@mapgen/domain/morphology/config.js";
 
 type ArtifactValidationIssue = Readonly<{ message: string }>;
 
@@ -40,7 +46,10 @@ function validateTypedArray(
   return true;
 }
 
-function validateHeightfieldBuffer(value: unknown, dimensions: MapDimensions): ArtifactValidationIssue[] {
+function validateHeightfieldBuffer(
+  value: unknown,
+  dimensions: MapDimensions
+): ArtifactValidationIssue[] {
   const errors: ArtifactValidationIssue[] = [];
   if (!isRecord(value)) {
     errors.push({ message: "Missing heightfield buffer." });
@@ -62,7 +71,10 @@ function validateHeightfieldBuffer(value: unknown, dimensions: MapDimensions): A
   return errors;
 }
 
-function validateSubstrateBuffer(value: unknown, dimensions: MapDimensions): ArtifactValidationIssue[] {
+function validateSubstrateBuffer(
+  value: unknown,
+  dimensions: MapDimensions
+): ArtifactValidationIssue[] {
   const errors: ArtifactValidationIssue[] = [];
   if (!isRecord(value)) {
     errors.push({ message: "Missing substrate buffer." });
@@ -71,11 +83,20 @@ function validateSubstrateBuffer(value: unknown, dimensions: MapDimensions): Art
   const size = expectedSize(dimensions);
   const candidate = value as { erodibilityK?: unknown; sedimentDepth?: unknown };
   validateTypedArray(errors, "substrate.erodibilityK", candidate.erodibilityK, Float32Array, size);
-  validateTypedArray(errors, "substrate.sedimentDepth", candidate.sedimentDepth, Float32Array, size);
+  validateTypedArray(
+    errors,
+    "substrate.sedimentDepth",
+    candidate.sedimentDepth,
+    Float32Array,
+    size
+  );
   return errors;
 }
 
-function validateBeltDriversBuffer(value: unknown, dimensions: MapDimensions): ArtifactValidationIssue[] {
+function validateBeltDriversBuffer(
+  value: unknown,
+  dimensions: MapDimensions
+): ArtifactValidationIssue[] {
   const errors: ArtifactValidationIssue[] = [];
   if (!isRecord(value)) {
     errors.push({ message: "Missing beltDrivers buffer." });
@@ -97,18 +118,60 @@ function validateBeltDriversBuffer(value: unknown, dimensions: MapDimensions): A
     beltNearestSeed?: unknown;
     beltComponents?: unknown;
   };
-  validateTypedArray(errors, "beltDrivers.boundaryCloseness", candidate.boundaryCloseness, Uint8Array, size);
+  validateTypedArray(
+    errors,
+    "beltDrivers.boundaryCloseness",
+    candidate.boundaryCloseness,
+    Uint8Array,
+    size
+  );
   validateTypedArray(errors, "beltDrivers.boundaryType", candidate.boundaryType, Uint8Array, size);
-  validateTypedArray(errors, "beltDrivers.upliftPotential", candidate.upliftPotential, Uint8Array, size);
-  validateTypedArray(errors, "beltDrivers.collisionPotential", candidate.collisionPotential, Uint8Array, size);
-  validateTypedArray(errors, "beltDrivers.subductionPotential", candidate.subductionPotential, Uint8Array, size);
-  validateTypedArray(errors, "beltDrivers.riftPotential", candidate.riftPotential, Uint8Array, size);
-  validateTypedArray(errors, "beltDrivers.tectonicStress", candidate.tectonicStress, Uint8Array, size);
+  validateTypedArray(
+    errors,
+    "beltDrivers.upliftPotential",
+    candidate.upliftPotential,
+    Uint8Array,
+    size
+  );
+  validateTypedArray(
+    errors,
+    "beltDrivers.collisionPotential",
+    candidate.collisionPotential,
+    Uint8Array,
+    size
+  );
+  validateTypedArray(
+    errors,
+    "beltDrivers.subductionPotential",
+    candidate.subductionPotential,
+    Uint8Array,
+    size
+  );
+  validateTypedArray(
+    errors,
+    "beltDrivers.riftPotential",
+    candidate.riftPotential,
+    Uint8Array,
+    size
+  );
+  validateTypedArray(
+    errors,
+    "beltDrivers.tectonicStress",
+    candidate.tectonicStress,
+    Uint8Array,
+    size
+  );
   validateTypedArray(errors, "beltDrivers.beltAge", candidate.beltAge, Uint8Array, size);
   validateTypedArray(errors, "beltDrivers.dominantEra", candidate.dominantEra, Uint8Array, size);
   validateTypedArray(errors, "beltDrivers.beltMask", candidate.beltMask, Uint8Array, size);
   validateTypedArray(errors, "beltDrivers.beltDistance", candidate.beltDistance, Uint8Array, size);
-  validateTypedArray(errors, "beltDrivers.beltNearestSeed", candidate.beltNearestSeed, Int32Array, size);
+  validateTypedArray(
+    errors,
+    "beltDrivers.beltNearestSeed",
+    candidate.beltNearestSeed,
+    Int32Array,
+    size
+  );
   if (!Array.isArray(candidate.beltComponents)) {
     errors.push({ message: "Expected beltDrivers.beltComponents to be an array." });
   }
@@ -167,7 +230,11 @@ export default createStep(LandmassPlatesStepContract, {
             ...config.seaLevel,
             config: {
               ...config.seaLevel.config,
-              targetWaterPercent: clampFinite((config.seaLevel.config.targetWaterPercent ?? 0) + delta, 0, 100),
+              targetWaterPercent: clampFinite(
+                (config.seaLevel.config.targetWaterPercent ?? 0) + delta,
+                0,
+                100
+              ),
             },
           }
         : config.seaLevel;
@@ -213,7 +280,11 @@ export default createStep(LandmassPlatesStepContract, {
         boundaryCloseness: beltDrivers.boundaryCloseness,
         upliftPotential: beltDrivers.upliftPotential,
         riftPotential: beltDrivers.riftPotential,
-        rngSeed: ctxRandom(context, ctxRandomLabel(stepId, "morphology/compute-base-topography"), 2_147_483_647),
+        rngSeed: ctxRandom(
+          context,
+          ctxRandomLabel(stepId, "morphology/compute-base-topography"),
+          2_147_483_647
+        ),
       },
       config.baseTopography
     );
@@ -226,7 +297,11 @@ export default createStep(LandmassPlatesStepContract, {
         crustType: crustTiles.type,
         boundaryCloseness: beltDrivers.boundaryCloseness,
         upliftPotential: beltDrivers.upliftPotential,
-        rngSeed: ctxRandom(context, ctxRandomLabel(stepId, "morphology/compute-sea-level"), 2_147_483_647),
+        rngSeed: ctxRandom(
+          context,
+          ctxRandomLabel(stepId, "morphology/compute-sea-level"),
+          2_147_483_647
+        ),
       },
       config.seaLevel
     );

@@ -1,4 +1,9 @@
-import { computeSampleStep, defineVizMeta, dumpVectorFieldVariants, renderAsciiGrid } from "@swooper/mapgen-core";
+import {
+  computeSampleStep,
+  defineVizMeta,
+  dumpVectorFieldVariants,
+  renderAsciiGrid,
+} from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { mapArtifacts } from "../../../map-artifacts.js";
 import ProjectionStepContract from "./projection.contract.js";
@@ -13,8 +18,8 @@ import {
 import {
   resolvePlateActivityBoundaryDelta,
   resolvePlateActivityKinematicsMultiplier,
-} from "@mapgen/domain/foundation/shared/knob-multipliers.js";
-import type { FoundationPlateActivityKnob } from "@mapgen/domain/foundation/shared/knobs.js";
+} from "@mapgen/domain/foundation/config.js";
+import type { FoundationPlateActivityKnob } from "@mapgen/domain/foundation/config.js";
 import { clampFinite, clampInt } from "@swooper/mapgen-core/lib/math";
 
 const GROUP_PLATES = "Foundation / Plates";
@@ -35,13 +40,16 @@ export default createStep(ProjectionStepContract, {
     ],
     {
       foundationPlates: {
-        validate: (value, context) => wrapFoundationValidate(value, context.dimensions, validatePlatesArtifact),
+        validate: (value, context) =>
+          wrapFoundationValidate(value, context.dimensions, validatePlatesArtifact),
       },
       foundationTileToCellIndex: {
-        validate: (value, context) => wrapFoundationValidate(value, context.dimensions, validateTileToCellIndexArtifact),
+        validate: (value, context) =>
+          wrapFoundationValidate(value, context.dimensions, validateTileToCellIndexArtifact),
       },
       foundationCrustTiles: {
-        validate: (value, context) => wrapFoundationValidate(value, context.dimensions, validateCrustTilesArtifact),
+        validate: (value, context) =>
+          wrapFoundationValidate(value, context.dimensions, validateCrustTilesArtifact),
       },
       foundationTectonicHistoryTiles: {
         validate: (value, context) =>
@@ -49,12 +57,18 @@ export default createStep(ProjectionStepContract, {
       },
       foundationTectonicProvenanceTiles: {
         validate: (value, context) =>
-          wrapFoundationValidate(value, context.dimensions, validateTectonicProvenanceTilesArtifact),
+          wrapFoundationValidate(
+            value,
+            context.dimensions,
+            validateTectonicProvenanceTilesArtifact
+          ),
       },
     }
   ),
   normalize: (config, ctx) => {
-    const { plateActivity } = ctx.knobs as Readonly<{ plateActivity?: FoundationPlateActivityKnob }>;
+    const { plateActivity } = ctx.knobs as Readonly<{
+      plateActivity?: FoundationPlateActivityKnob;
+    }>;
     const kinematicsMultiplier = resolvePlateActivityKinematicsMultiplier(plateActivity);
     const boundaryDelta = resolvePlateActivityBoundaryDelta(plateActivity);
 
@@ -62,17 +76,25 @@ export default createStep(ProjectionStepContract, {
       config.computePlates.strategy === "default"
         ? {
             ...config.computePlates,
-	            config: {
-	              ...config.computePlates.config,
-	              boundaryInfluenceDistance: clampInt(
-	                (config.computePlates.config.boundaryInfluenceDistance ?? 0) + boundaryDelta,
-	                1,
-	                32
-	              ),
-	              movementScale: clampFinite((config.computePlates.config.movementScale ?? 0) * kinematicsMultiplier, 1, 200),
-	              rotationScale: clampFinite((config.computePlates.config.rotationScale ?? 0) * kinematicsMultiplier, 1, 200),
-	            },
-	          }
+            config: {
+              ...config.computePlates.config,
+              boundaryInfluenceDistance: clampInt(
+                (config.computePlates.config.boundaryInfluenceDistance ?? 0) + boundaryDelta,
+                1,
+                32
+              ),
+              movementScale: clampFinite(
+                (config.computePlates.config.movementScale ?? 0) * kinematicsMultiplier,
+                1,
+                200
+              ),
+              rotationScale: clampFinite(
+                (config.computePlates.config.rotationScale ?? 0) * kinematicsMultiplier,
+                1,
+                200
+              ),
+            },
+          }
         : config.computePlates;
 
     return { ...config, computePlates };
@@ -105,8 +127,14 @@ export default createStep(ProjectionStepContract, {
     deps.artifacts.foundationPlates.publish(context, platesResult.plates);
     deps.artifacts.foundationTileToCellIndex.publish(context, platesResult.tileToCellIndex);
     deps.artifacts.foundationCrustTiles.publish(context, platesResult.crustTiles);
-    deps.artifacts.foundationTectonicHistoryTiles.publish(context, platesResult.tectonicHistoryTiles);
-    deps.artifacts.foundationTectonicProvenanceTiles.publish(context, platesResult.tectonicProvenanceTiles);
+    deps.artifacts.foundationTectonicHistoryTiles.publish(
+      context,
+      platesResult.tectonicHistoryTiles
+    );
+    deps.artifacts.foundationTectonicProvenanceTiles.publish(
+      context,
+      platesResult.tectonicProvenanceTiles
+    );
 
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "foundation.plates.tilePlateId",

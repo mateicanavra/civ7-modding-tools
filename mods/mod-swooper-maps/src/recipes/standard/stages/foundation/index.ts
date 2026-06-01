@@ -14,7 +14,7 @@ import {
 import {
   FoundationPlateActivityKnobSchema,
   FoundationPlateCountKnobSchema,
-} from "@mapgen/domain/foundation/shared/knobs.js";
+} from "@mapgen/domain/foundation/config.js";
 
 export default createStage({
   id: "foundation",
