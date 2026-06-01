@@ -87,10 +87,16 @@ Stage-level posture:
 
 - Wrapper-only `advanced` stage surfaces have been removed. Step overrides live
   at `<stageId>.<stepId>`.
-- `map-morphology` still uses `public + compile` as a genuine public transform
-  from public keys (`plotCoasts`, `plotContinents`, `mountains`,
-  `plotVolcanoes`, `buildElevation`) to kebab-case step ids. It is not a
-  wrapper-only compatibility surface.
+- `map-morphology` uses the same flat step-id surface as other standard stages:
+  `plot-coasts`, `plot-continents`, `plot-mountains`, `plot-volcanoes`, and
+  `build-elevation`.
+- Mountain/foothill strategy config belongs to
+  `morphology-features.mountains`. The `map-morphology.plot-mountains` step is
+  projection-only and rejects truth-planning knobs/config.
+- Placement is split by product/effect contract: natural wonders, surface
+  preparation, resources, starts, discoveries, advanced starts, and final
+  summary/evidence. The final `placement` step consumes product artifacts; it
+  does not rerun product materialization.
 
 ## Domains + ops registry
 

@@ -10,7 +10,7 @@ import { clampInt } from "@swooper/mapgen-core/lib/math";
 import PlotRiversStepContract from "./plotRivers.contract.js";
 import { HYDROLOGY_RIVER_DENSITY_LENGTH_BOUNDS } from "@mapgen/domain/hydrology/config.js";
 import type { HydrologyRiverDensityKnob } from "@mapgen/domain/hydrology/config.js";
-import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
+import { mapHydrologyArtifacts } from "../artifacts.js";
 import { mapArtifacts } from "../../../map-artifacts.js";
 
 const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Engine)";
@@ -19,7 +19,7 @@ const TILE_SPACE_ID = "tile.hexOddR" as const;
 export default createStep(PlotRiversStepContract, {
   artifacts: implementArtifacts(
     [
-      hydrologyHydrographyArtifacts.engineProjectionRivers,
+      mapHydrologyArtifacts.engineProjectionRivers,
       mapArtifacts.hydrologyRiversEngineTerrainSnapshot,
     ],
     {

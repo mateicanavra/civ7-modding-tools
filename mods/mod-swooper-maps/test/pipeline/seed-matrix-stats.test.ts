@@ -7,6 +7,7 @@ import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
+import { mapHydrologyArtifacts } from "../../src/recipes/standard/stages/map-hydrology/artifacts.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
 import { computeEarthMetrics } from "../../src/dev/diagnostics/extract-earth-metrics.js";
 import { standardConfig } from "../support/standard-config.js";
@@ -39,7 +40,7 @@ function runMetrics(seed: number, width: number, height: number) {
   const hydrography = context.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
     | { riverClass?: Uint8Array; sinkMask?: Uint8Array }
     | undefined;
-  const engineProjectionLakes = context.artifacts.get(hydrologyHydrographyArtifacts.engineProjectionLakes.id) as
+  const engineProjectionLakes = context.artifacts.get(mapHydrologyArtifacts.engineProjectionLakes.id) as
     | { lakeMask?: Uint8Array }
     | undefined;
   const classification = context.artifacts.get(ecologyArtifacts.biomeClassification.id) as

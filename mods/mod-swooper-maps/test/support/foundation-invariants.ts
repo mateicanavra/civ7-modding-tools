@@ -204,17 +204,17 @@ function resolveRuntimeMountainsOpConfig(
   ridges: { strategy: string; config: Record<string, unknown> };
   foothills: { strategy: string; config: Record<string, unknown> };
 } {
-  const fallbackRidges = planRidges.defaultConfig as { strategy?: string; config?: Record<string, unknown> };
-  const fallbackFoothills = planFoothills.defaultConfig as { strategy?: string; config?: Record<string, unknown> };
+  const defaultRidges = planRidges.defaultConfig as { strategy?: string; config?: Record<string, unknown> };
+  const defaultFoothills = planFoothills.defaultConfig as { strategy?: string; config?: Record<string, unknown> };
 
-  const fallbackResolved = {
+  const defaultResolved = {
     ridges: {
-      strategy: fallbackRidges?.strategy ?? "default",
-      config: fallbackRidges?.config ?? {},
+      strategy: defaultRidges?.strategy ?? "default",
+      config: defaultRidges?.config ?? {},
     },
     foothills: {
-      strategy: fallbackFoothills?.strategy ?? "default",
-      config: fallbackFoothills?.config ?? {},
+      strategy: defaultFoothills?.strategy ?? "default",
+      config: defaultFoothills?.config ?? {},
     },
   } as const;
 
@@ -225,7 +225,7 @@ function resolveRuntimeMountainsOpConfig(
         seed?: number;
       }
     | undefined;
-  if (!env?.dimensions?.width || !env?.dimensions?.height) return fallbackResolved;
+  if (!env?.dimensions?.width || !env?.dimensions?.height) return defaultResolved;
 
   // NOTE: The correlation gate should use the same compiled config that the recipe used at runtime,
   // not the op's static defaultConfig replay (thread #1092).
@@ -242,24 +242,24 @@ function resolveRuntimeMountainsOpConfig(
 
   try {
     const compiled = standardRecipe.compileConfig(env as any, standardConfig) as any;
-    const plot = compiled?.["map-morphology"]?.["plot-mountains"];
-    const ridges = plot?.ridges;
-    const foothills = plot?.foothills;
+    const mountains = compiled?.["morphology-features"]?.mountains;
+    const ridges = mountains?.ridges;
+    const foothills = mountains?.foothills;
     cachedMountainsOpConfig = {
       ridges: {
-        strategy: ridges?.strategy ?? fallbackResolved.ridges.strategy,
-        config: ridges?.config ?? fallbackResolved.ridges.config,
+        strategy: ridges?.strategy ?? defaultResolved.ridges.strategy,
+        config: ridges?.config ?? defaultResolved.ridges.config,
       },
       foothills: {
-        strategy: foothills?.strategy ?? fallbackResolved.foothills.strategy,
-        config: foothills?.config ?? fallbackResolved.foothills.config,
+        strategy: foothills?.strategy ?? defaultResolved.foothills.strategy,
+        config: foothills?.config ?? defaultResolved.foothills.config,
       },
     };
   } catch {
     cachedMountainsOpConfig = null;
   }
 
-  return cachedMountainsOpConfig ?? fallbackResolved;
+  return cachedMountainsOpConfig ?? defaultResolved;
 }
 
 const mantlePotentialInvariant: ValidationInvariant = {

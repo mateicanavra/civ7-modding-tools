@@ -45,6 +45,11 @@ export const MAP_PROJECTION_EFFECT_TAGS = {
 export const PLACEMENT_PRODUCT_EFFECT_TAGS = {
   placement: {
     naturalWondersPlaced: "effect:placement.naturalWondersPlaced",
+    surfacePrepared: "effect:placement.surfacePrepared",
+    resourcesPlaced: "effect:placement.resourcesPlaced",
+    startsAssigned: "effect:placement.startsAssigned",
+    discoveriesPlaced: "effect:placement.discoveriesPlaced",
+    advancedStartsAssigned: "effect:placement.advancedStartsAssigned",
   },
 } as const;
 
@@ -123,6 +128,31 @@ const EFFECT_OWNERS: Record<string, TagOwner> = {
     pkg: "mod-swooper-maps",
     phase: "placement",
     stepId: "place-natural-wonders",
+  },
+  [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.surfacePrepared]: {
+    pkg: "mod-swooper-maps",
+    phase: "placement",
+    stepId: "prepare-placement-surface",
+  },
+  [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.resourcesPlaced]: {
+    pkg: "mod-swooper-maps",
+    phase: "placement",
+    stepId: "place-resources",
+  },
+  [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.startsAssigned]: {
+    pkg: "mod-swooper-maps",
+    phase: "placement",
+    stepId: "assign-starts",
+  },
+  [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.discoveriesPlaced]: {
+    pkg: "mod-swooper-maps",
+    phase: "placement",
+    stepId: "place-discoveries",
+  },
+  [PLACEMENT_PRODUCT_EFFECT_TAGS.placement.advancedStartsAssigned]: {
+    pkg: "mod-swooper-maps",
+    phase: "placement",
+    stepId: "assign-advanced-starts",
   },
   [STANDARD_ENGINE_EFFECT_TAGS.engine.riversModeled]: {
     pkg: "mod-swooper-maps",

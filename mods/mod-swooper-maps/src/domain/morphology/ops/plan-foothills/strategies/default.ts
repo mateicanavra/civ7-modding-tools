@@ -194,30 +194,17 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
       const strongTransform = boundary === BOUNDARY_TYPE.transform && stressByte >= config.driverSignalByteMin;
       const strongBoundaryDeformation = strongConvergence || strongDivergence || strongTransform;
 
-      if (closeToMountains || (closeToBoundary && strongBoundaryDeformation)) {
+      const ridgeSkirt =
+        foothillMaxDistance > 0 && closeToMountains && score > 0;
+
+      if (ridgeSkirt || (closeToBoundary && strongBoundaryDeformation)) {
         candidates.push(i);
       }
     }
 
     const hillTargetRaw = Math.floor(landCount * hillMaxFraction) | 0;
     const hillCapacity = Math.max(0, landCount - mountainCount) | 0;
-    let hillTarget = Math.max(0, Math.min(candidates.length, hillCapacity, hillTargetRaw)) | 0;
-
-    // Robustness fallback: if thresholds/config changes yield zero candidates, still allow a thin
-    // foothill skirt adjacent to mountains (score>0, distance-gated). This preserves the intended
-    // "mountains imply foothills" relationship without reintroducing planet-wide hills.
-    if (hillTarget === 0 && hillTargetRaw > 0 && foothillMaxDistance > 0) {
-      for (let i = 0; i < size; i++) {
-        if (landMask[i] === 0) continue;
-        if (mountainMask[i] === 1) continue;
-        const score = hillScoreByTile[i] ?? 0;
-        if (!(score > 0)) continue;
-        const dist = distanceToMountains[i] ?? 255;
-        if (dist === 255 || dist > foothillMaxDistance) continue;
-        candidates.push(i);
-      }
-      hillTarget = Math.max(0, Math.min(candidates.length, hillCapacity, hillTargetRaw)) | 0;
-    }
+    const hillTarget = Math.max(0, Math.min(candidates.length, hillCapacity, hillTargetRaw)) | 0;
 
     candidates.sort((a, b) => {
       const sa = hillScoreByTile[a] ?? 0;

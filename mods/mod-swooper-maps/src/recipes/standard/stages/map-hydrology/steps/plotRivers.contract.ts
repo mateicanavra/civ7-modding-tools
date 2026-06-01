@@ -3,6 +3,7 @@ import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import { STANDARD_ENGINE_EFFECT_TAGS, MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
 import { mapArtifacts } from "../../../map-artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../hydrology-hydrography/artifacts.js";
+import { mapHydrologyArtifacts } from "../artifacts.js";
 
 const PlotRiversStepConfigSchema = Type.Object(
   {
@@ -42,7 +43,7 @@ const PlotRiversStepContract = defineStep({
   artifacts: {
     requires: [hydrologyHydrographyArtifacts.hydrography],
     provides: [
-      hydrologyHydrographyArtifacts.engineProjectionRivers,
+      mapHydrologyArtifacts.engineProjectionRivers,
       mapArtifacts.hydrologyRiversEngineTerrainSnapshot,
     ],
   },

@@ -121,50 +121,6 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
     },
   },
   "morphology-features": {
-    islands: {
-      islands: {
-        strategy: "default",
-        config: {
-          islands: {
-            fractalThresholdPercent: 82,
-            minDistFromLandRadius: 1,
-            baseIslandDenNearActive: 7,
-            baseIslandDenElse: 12,
-            hotspotSeedDenom: 1,
-            clusterMax: 6,
-            microcontinentChance: 0.2,
-          },
-        },
-      },
-    },
-    volcanoes: {
-      volcanoes: {
-        strategy: "default",
-        config: {
-          enabled: true,
-          baseDensity: 0.0125,
-          minSpacing: 2,
-          boundaryThreshold: 0.18,
-          boundaryWeight: 1.7,
-          convergentMultiplier: 3.4,
-          transformMultiplier: 1.4,
-          divergentMultiplier: 0.7,
-          hotspotWeight: 0.7,
-          shieldPenalty: 0.2,
-          randomJitter: 0.18,
-          minVolcanoes: 16,
-          maxVolcanoes: 70,
-        },
-      },
-    },
-    landmasses: {
-      landmasses: {
-        strategy: "default",
-        config: {},
-      },
-    },
-  },
-  "map-morphology": {
     mountains: {
       ridges: {
         strategy: "default",
@@ -211,6 +167,48 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
           hillInteriorFalloff: 0.25,
           hillUpliftWeight: 0.28,
         },
+      },
+    },
+    islands: {
+      islands: {
+        strategy: "default",
+        config: {
+          islands: {
+            fractalThresholdPercent: 82,
+            minDistFromLandRadius: 1,
+            baseIslandDenNearActive: 7,
+            baseIslandDenElse: 12,
+            hotspotSeedDenom: 1,
+            clusterMax: 6,
+            microcontinentChance: 0.2,
+          },
+        },
+      },
+    },
+    volcanoes: {
+      volcanoes: {
+        strategy: "default",
+        config: {
+          enabled: true,
+          baseDensity: 0.0125,
+          minSpacing: 2,
+          boundaryThreshold: 0.18,
+          boundaryWeight: 1.7,
+          convergentMultiplier: 3.4,
+          transformMultiplier: 1.4,
+          divergentMultiplier: 0.7,
+          hotspotWeight: 0.7,
+          shieldPenalty: 0.2,
+          randomJitter: 0.18,
+          minVolcanoes: 16,
+          maxVolcanoes: 70,
+        },
+      },
+    },
+    landmasses: {
+      landmasses: {
+        strategy: "default",
+        config: {},
       },
     },
   },

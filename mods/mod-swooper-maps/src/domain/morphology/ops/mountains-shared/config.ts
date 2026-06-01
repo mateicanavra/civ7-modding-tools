@@ -1,7 +1,13 @@
 import { Type, type Static } from "@swooper/mapgen-core/authoring";
 
 /**
- * Mountain and hill placement tuning driven by foundation physics.
+ * Mountain-family placement tuning driven by foundation physics.
+ *
+ * This intentionally remains one full family schema for both ridge and foothill
+ * ops. The invariant is that mountains and hills are two classes from one
+ * terrain-classification posture; authors must not tune a separate hill world
+ * beside a separate mountain world. The morphology-features step enforces equal
+ * ridge/foothill selections before applying semantic knobs.
  */
 export const MountainsConfigSchema = Type.Object({
   /**
@@ -395,3 +401,43 @@ export const MountainsConfigSchema = Type.Object({
 });
 
 export type MountainsConfig = Static<typeof MountainsConfigSchema>;
+
+type MountainFamilySelection = Readonly<{
+  strategy?: unknown;
+  config?: unknown;
+}>;
+
+function stableConfigString(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(stableConfigString).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.entries(value as Record<string, unknown>)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, item]) => `${JSON.stringify(key)}:${stableConfigString(item)}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+/**
+ * Enforces the mountain-family invariant at the stage boundary. Both ops accept
+ * the same family config schema because their thresholds and caps describe one
+ * terrain-classification policy; divergent per-op configs would recreate the
+ * mixed-owner bucket this shared surface is meant to avoid.
+ */
+export function assertSameMountainFamilySelection(
+  ridges: MountainFamilySelection,
+  foothills: MountainFamilySelection
+): void {
+  if (ridges.strategy !== foothills.strategy) {
+    throw new Error(
+      `[Morphology] Mountain-family config requires identical ridge/foothill strategies (ridges=${String(ridges.strategy)}, foothills=${String(foothills.strategy)}).`
+    );
+  }
+  const ridgeConfig = stableConfigString(ridges.config ?? {});
+  const foothillConfig = stableConfigString(foothills.config ?? {});
+  if (ridgeConfig !== foothillConfig) {
+    throw new Error(
+      "[Morphology] Mountain-family config requires identical ridge/foothill config; tune the shared terrain-classification posture once, not as divergent op-local worlds."
+    );
+  }
+}
