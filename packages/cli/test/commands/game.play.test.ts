@@ -22,6 +22,7 @@ import GamePlayDestinationAnalysis from '../../src/commands/game/play/destinatio
 import GamePlayDismissNotification from '../../src/commands/game/play/dismiss-notification';
 import GamePlayEndTurn from '../../src/commands/game/play/end-turn';
 import GamePlayExpandCity from '../../src/commands/game/play/expand-city';
+import GamePlayFrontSummary from '../../src/commands/game/play/front-summary';
 import GamePlayOperation from '../../src/commands/game/play/operation';
 import GamePlayNotifications from '../../src/commands/game/play/notifications';
 import GamePlayPriorities from '../../src/commands/game/play/priorities';
@@ -1056,6 +1057,50 @@ describe('game play commands', () => {
       expect(server.received.some((message) => message.includes('"origins":[{"x":18,"y":20}]'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
     } finally {
+      await server.close();
+    }
+  });
+
+  test('reads front summary without sending operations', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'ready-unit' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayFrontSummary.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayFrontSummary.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--x',
+        '18',
+        '--y',
+        '20',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          origin: { x: number; y: number } | null;
+          target: { x: number; y: number } | null;
+          summary: { posture: string; nextInspections: string[]; pressure: Array<{ source: string }> };
+        };
+      };
+      expect(payload.view.origin).toEqual({ x: 18, y: 20 });
+      expect(payload.view.target).toEqual({ x: 13, y: 17 });
+      expect(payload.view.summary.pressure.some((item) => item.source === 'battlefield')).toBe(true);
+      expect(payload.view.summary.pressure.some((item) => item.source === 'destination')).toBe(true);
+      expect(payload.view.summary.nextInspections.some((item) => item.includes('unit-target'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readTargetCandidates'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readBattlefieldScan'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readDestinationAnalysis'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
+    } finally {
+      log.mockRestore();
       await server.close();
     }
   });

@@ -255,6 +255,7 @@ founding-legality cataloging open.
 Source artifacts:
 
 - `topics/battlefield-scan.md`
+- `topics/front-summary.md`
 - `topics/destination-analysis.md`
 - `topics/civilian-route-triage.md`
 - `topics/ready-unit-commander-actions.md`
@@ -266,6 +267,7 @@ Source artifacts:
 CLI shortcuts:
 
 - `game play ready-unit`
+- `game play front-summary`
 - `game play battlefield-scan`
 - `game play destination-analysis`
 - `game play promotion-readiness`
@@ -282,6 +284,11 @@ Norms:
   background tactical lens before sequencing multiple unit moves. It summarizes
   local pressure and points of interest; it does not path, move, attack, or
   validate operations.
+- Use `game play front-summary --x <front-x> --y <front-y> --json` when the
+  agent needs a composed view of a siege line, defensive screen, or hot contact
+  area. It combines target candidates, local pressure, and endpoint/corridor
+  context into a posture plus next inspections; it does not choose or send
+  actions.
 - Use `game play destination-analysis --from-x <unit-x> --from-y <unit-y> --to-x <x> --to-y <y> --json`
   when the decision is whether an endpoint or approach deserves a move. It
   reports corridor and destination pressure; it does not prove reachability or
@@ -369,6 +376,7 @@ Source artifacts:
 - `topics/strategic-planning-snapshot.md`
 - `topics/tactical-lens-api-roadmap.md`
 - `topics/battlefield-scan.md`
+- `topics/front-summary.md`
 - `topics/destination-analysis.md`
 - `topics/target-candidates.md`
 - `topics/rhq-ai-mod-baseline.md`
@@ -388,6 +396,7 @@ CLI shortcuts:
 - `game play ready-city`
 - `game play settlement-recommendations`
 - `game play target-candidates`
+- `game play front-summary`
 - `game play battlefield-scan`
 - `game play destination-analysis`
 - `game ai loaded-levers`
@@ -498,6 +507,7 @@ runtime and local official resource references.
 | `topics/first-meet-diplomacy.md` | Diplomacy skill reference | Ready |
 | `topics/ready-unit-commander-actions.md` | Tactical guard and promotion-readiness reference | Ready as guard, not full combat planner |
 | `topics/battlefield-scan.md` | Tactical/strategic POI lens | Reference with pathing/visibility gaps |
+| `topics/front-summary.md` | Composed front/formation lens | Ready as read-only surface with pathing/visibility gaps |
 | `topics/destination-analysis.md` | Tactical endpoint/corridor pressure lens | Reference with pathing/visibility gaps |
 | `topics/civilian-route-triage.md` | Settler/civilian route read stack | Reference with pathing/founding gaps |
 | `topics/unit-target-actions.md` | Tactical operation reference | Ready with postcondition warning |

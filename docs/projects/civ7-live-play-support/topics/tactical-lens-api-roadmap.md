@@ -5,9 +5,9 @@ Status: `reference-with-gap`.
 Sources:
 
 - Live play support commands in this branch: `game play battlefield-scan`,
-  `game play destination-analysis`, `game play target-candidates`,
-  `game play ready-unit`, `game play ready-city`, `game watch`, and
-  `game play unit-target`.
+  `game play front-summary`, `game play destination-analysis`,
+  `game play target-candidates`, `game play ready-unit`,
+  `game play ready-city`, `game watch`, and `game play unit-target`.
 - `@civ7/direct-control` runtime reads for map, player, city, unit,
   visibility, GameInfo, and operation validation.
 - Official resources under `.civ7/outputs/resources`, especially AI schema,
@@ -53,13 +53,16 @@ Use these now during live play:
    friendlies, civilian exposure, and nearby fronts around an origin.
 4. `game play target-candidates --x <x> --y <y> --json` ranks opponent owners
    and known city targets from a formation origin.
-5. `game play destination-analysis --from-x <x> --from-y <y> --to-x <x> --to-y <y> --json`
+5. `game play front-summary --x <x> --y <y> --json` composes target
+   candidates, local pressure, and inferred or supplied endpoint pressure into
+   a front posture and next-inspection list.
+6. `game play destination-analysis --from-x <x> --from-y <y> --to-x <x> --to-y <y> --json`
    samples endpoint and corridor pressure with explicit pathing limits.
-6. `game play civilian-route-triage` is not a command yet; load
+7. `game play civilian-route-triage` is not a command yet; load
    `civilian-route-triage.md` and compose `ready-unit`,
    `settlement-recommendations`, `battlefield-scan`, and
    `destination-analysis`.
-7. `game play unit-target --unit-id '<id>' --x <x> --y <y> --json` remains the
+8. `game play unit-target --unit-id '<id>' --x <x> --y <y> --json` remains the
    plot-action validator before any movement, ranged attack, naval attack,
    overrun, or swap send.
 

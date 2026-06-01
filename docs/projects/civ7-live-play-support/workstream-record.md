@@ -130,6 +130,7 @@ Outputs:
   - `topics/strategic-planning-snapshot.md`
   - `topics/target-candidates.md`
   - `topics/battlefield-scan.md`
+  - `topics/front-summary.md`
   - `topics/destination-analysis.md`
   - `topics/civilian-route-triage.md`
   - `topics/tactical-lens-api-roadmap.md`
@@ -661,6 +662,15 @@ Residual objective gaps:
   `game play priorities` now composes HUD, ready-unit/city, and bounded
   battlefield POIs into ranked read priorities, and `topics/play-priorities.md`
   records the proof boundary.
+- Turn 120 exposed the next formation-level gap: the HUD still carried an
+  end-turn-blocking `NOTIFICATION_UNIT_ATTACKED` for a Galley at `(17,13)`,
+  while the ready unit had shifted to Ballista `{"owner":0,"id":1572876,"type":26}`
+  at `(15,21)`. The local read showed five non-friendly units within three
+  tiles, continued civilian risk for the Settler at `(18,16)`, owner pressure
+  near `(14,20)`, and the La Venta city front at `(13,17)`. Disposition:
+  `game play front-summary` now composes target candidates, battlefield scan,
+  and destination/corridor pressure into a read-only front posture and
+  next-inspection list.
 - Remaining gaps are promotion-send/hardening work: richer ready-entity reads,
   stronger live postcondition polling, civic choice proof, population-placement
   postconditions, visibility-filtered path/front analysis beyond the cheap
