@@ -22,6 +22,7 @@ export function parseRunInGameSetupRequest(body: {
   mapSize?: unknown;
   playerCount?: unknown;
   materialization?: { mode?: unknown };
+  recovery?: { restartCivProcess?: unknown };
   selectedConfig?: { id?: unknown };
   config?: unknown;
 }): {
@@ -30,6 +31,7 @@ export function parseRunInGameSetupRequest(body: {
   seed: number;
   mapSize: string;
   playerCount?: number;
+  restartCivProcess: boolean;
 } {
   assertNoRawControlFields(body);
   if (body.recipeId !== "mod-swooper-maps/standard") {
@@ -54,11 +56,13 @@ export function parseRunInGameSetupRequest(body: {
   if (playerCount !== undefined && (!Number.isInteger(playerCount) || playerCount < 1 || playerCount > 64)) {
     throw new Error("Run in Game playerCount must be an integer between 1 and 64");
   }
+  const restartCivProcess = body.recovery?.restartCivProcess === true;
   return {
     requestedMode,
     id,
     seed,
     mapSize,
+    restartCivProcess,
     ...(playerCount === undefined ? {} : { playerCount }),
   };
 }

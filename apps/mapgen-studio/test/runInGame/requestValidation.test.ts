@@ -40,6 +40,7 @@ describe("Run in Game request validation", () => {
       seed: 123,
       mapSize: "MAPSIZE_STANDARD",
       playerCount: 8,
+      restartCivProcess: false,
     });
   });
 
@@ -56,6 +57,21 @@ describe("Run in Game request validation", () => {
       id: "swooper-earthlike",
       seed: 123,
       mapSize: "MAPSIZE_HUGE",
+      restartCivProcess: false,
+    });
+  });
+
+  it("normalizes explicit process restart recovery without making it a save concern", () => {
+    expect(parseRunInGameSetupRequest({
+      recipeId: "mod-swooper-maps/standard",
+      seed: 123,
+      mapSize: "MAPSIZE_STANDARD",
+      recovery: { restartCivProcess: true },
+      config: { ok: true },
+    })).toMatchObject({
+      requestedMode: "disposable",
+      id: "studio-current",
+      restartCivProcess: true,
     });
   });
 

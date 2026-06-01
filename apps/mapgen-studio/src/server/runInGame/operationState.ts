@@ -170,6 +170,9 @@ export function recoveryActionsFor(state: Pick<RunInGameOperationStatus, "phase"
   if (state.details?.reloadRequired === true || state.phase === "reload-needed") {
     actions.push("exit-to-shell-and-continue");
   }
+  if (state.details?.reloadBoundary === "process-restart-required") {
+    actions.push("restart-civ-process-and-retry");
+  }
   return [...new Set(actions)];
 }
 

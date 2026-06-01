@@ -7,7 +7,6 @@ import { dirname, join, relative, resolve } from "node:path";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import {
-  CIV7_RESTART_COMMAND,
   Civ7DirectControlError,
   DEFAULT_CIV7_SCRIPTING_LOG,
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
@@ -19,14 +18,13 @@ import {
   getCiv7MapGrid,
   getCiv7MapSummary,
   getCiv7PlayableStatus,
+  getCiv7SetupSnapshot,
   getCiv7PlayerSummary,
   getCiv7UnitSummary,
   ensureCiv7SetupMapRowVisible,
   runCiv7SinglePlayerFromSetup,
-  restartCiv7GameAndBegin,
   snapshotFile,
   waitForFreshLogMarkers,
-  type FreshLogMarkerProof,
 } from "@civ7/direct-control";
 import {
   RunInGameHttpError,
@@ -34,21 +32,29 @@ import {
   type RunInGameOperationState,
 } from "./src/server/runInGame/operationState";
 import { parseRunInGameSetupRequest } from "./src/server/runInGame/requestValidation";
+import { buildSwooperMapsStudioDeployCommand } from "./src/server/mapConfigs/deploy";
+import { createMapConfigSaveDeployOperationStore } from "./src/server/mapConfigs/operationState";
+import { parseMapConfigSaveRequest } from "./src/server/mapConfigs/requestValidation";
 import type { RunInGamePhase, RunInGameRequestStatus } from "./src/features/runInGame/status";
 
 const execFileAsync = promisify(execFile);
 const DEPLOY_TIMEOUT_MS = 120_000;
 const SCRIPTING_LOG_WAIT_TIMEOUT_MS = 90_000;
 const MAX_DEPLOY_OUTPUT_CHARS = 8_000;
-const DIRECT_CONTROL_AGENT = "DRA-map-config-generation";
 const RUN_IN_GAME_OPERATION_TTL_MS = 30 * 60_000;
+const CIV7_STEAM_APP_ID = "1295660";
+const CIV7_PROCESS_RESTART_WAIT_TIMEOUT_MS = 180_000;
+const CIV7_PROCESS_RESTART_POLL_INTERVAL_MS = 2_000;
 const STUDIO_SERVER_STARTED_AT = new Date().toISOString();
 const STUDIO_SERVER_INSTANCE_ID = createCiv7ControlRequestId("studio-server");
 
-let saveDeployRestartQueue = Promise.resolve();
+let studioOperationQueue = Promise.resolve();
 const runInGameOperations = createRunInGameOperationStore({
   serverInstanceId: STUDIO_SERVER_INSTANCE_ID,
   serverStartedAt: STUDIO_SERVER_STARTED_AT,
+  ttlMs: RUN_IN_GAME_OPERATION_TTL_MS,
+});
+const saveDeployOperations = createMapConfigSaveDeployOperationStore({
   ttlMs: RUN_IN_GAME_OPERATION_TTL_MS,
 });
 
@@ -72,26 +78,98 @@ function stableHash(value: unknown): string {
   return createHash("sha256").update(JSON.stringify(canonicalize(value))).digest("hex");
 }
 
-type ScriptingLogProof = FreshLogMarkerProof;
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function restartCiv7ProcessViaSteam(): Promise<{
+  command: string;
+  quit: { command: string; stdout: string; stderr: string };
+  kill?: { command: string; stdout: string; stderr: string };
+  launch: { command: string; stdout: string; stderr: string };
+  setupPhase?: string;
+}> {
+  if (process.platform !== "darwin") {
+    throw new Error("Civ7 process restart from Studio is currently supported on macOS only");
+  }
+
+  const quitCommand = "osascript -e 'tell application id \"com.2k.civ7\" to quit'";
+  const quitResult = await execFileAsync("osascript", ["-e", 'tell application id "com.2k.civ7" to quit'], {
+    timeout: 10_000,
+    maxBuffer: 1024 * 1024,
+  }).catch((err: unknown) => {
+    if (err && typeof err === "object" && "stdout" in err && "stderr" in err) {
+      return { stdout: String((err as { stdout?: unknown }).stdout ?? ""), stderr: String((err as { stderr?: unknown }).stderr ?? "") };
+    }
+    throw err;
+  });
+
+  await sleep(5_000);
+
+  let killResult: { command: string; stdout: string; stderr: string } | undefined;
+  const stillRunning = await execFileAsync("pgrep", ["-f", "CivilizationVII.app/Contents/MacOS/CivilizationVII"], {
+    timeout: 5_000,
+    maxBuffer: 1024 * 1024,
+  }).then(
+    () => true,
+    () => false,
+  );
+  if (stillRunning) {
+    const killCommand = "pkill -f CivilizationVII.app/Contents/MacOS/CivilizationVII";
+    const { stdout, stderr } = await execFileAsync("pkill", ["-f", "CivilizationVII.app/Contents/MacOS/CivilizationVII"], {
+      timeout: 10_000,
+      maxBuffer: 1024 * 1024,
+    });
+    killResult = { command: killCommand, stdout: tail(stdout), stderr: tail(stderr) };
+    await sleep(3_000);
+  }
+
+  const launchCommand = `open steam://rungameid/${CIV7_STEAM_APP_ID}`;
+  const launch = await execFileAsync("open", [`steam://rungameid/${CIV7_STEAM_APP_ID}`], {
+    timeout: 10_000,
+    maxBuffer: 1024 * 1024,
+  });
+
+  const startedAt = Date.now();
+  let setupPhase: string | undefined;
+  while (Date.now() - startedAt <= CIV7_PROCESS_RESTART_WAIT_TIMEOUT_MS) {
+    try {
+      const snapshot = await getCiv7SetupSnapshot({ timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS });
+      setupPhase = snapshot.snapshot.phase;
+      if (setupPhase === "shell") break;
+    } catch {
+      // Civ is still starting.
+    }
+    await sleep(CIV7_PROCESS_RESTART_POLL_INTERVAL_MS);
+  }
+
+  if (setupPhase !== "shell") {
+    throw new Error(`Civ7 process restarted but setup shell was not ready within ${CIV7_PROCESS_RESTART_WAIT_TIMEOUT_MS}ms`);
+  }
+
+  return {
+    command: `${quitCommand} && ${launchCommand}`,
+    quit: { command: quitCommand, stdout: tail(quitResult.stdout), stderr: tail(quitResult.stderr) },
+    ...(killResult === undefined ? {} : { kill: killResult }),
+    launch: { command: launchCommand, stdout: tail(launch.stdout), stderr: tail(launch.stderr) },
+    setupPhase,
+  };
+}
 
 async function deploySwooperMaps(repoRoot: string): Promise<{
   command: string;
   stdout: string;
   stderr: string;
 }> {
-  const command = "bun run --cwd mods/mod-swooper-maps deploy";
-  const { stdout, stderr } = await execFileAsync(
-    "bun",
-    ["run", "--cwd", "mods/mod-swooper-maps", "deploy"],
-    {
-      cwd: repoRoot,
-      timeout: DEPLOY_TIMEOUT_MS,
-      maxBuffer: 16 * 1024 * 1024,
-      env: process.env,
-    }
-  );
+  const deploy = buildSwooperMapsStudioDeployCommand();
+  const { stdout, stderr } = await execFileAsync("bun", [...deploy.args], {
+    cwd: repoRoot,
+    timeout: DEPLOY_TIMEOUT_MS,
+    maxBuffer: 16 * 1024 * 1024,
+    env: deploy.env,
+  });
   return {
-    command,
+    command: deploy.command,
     stdout: tail(stdout),
     stderr: tail(stderr),
   };
@@ -102,19 +180,15 @@ async function deploySwooperMapsForRun(repoRoot: string, requestId: string): Pro
   stdout: string;
   stderr: string;
 }> {
-  const command = "SWOOPER_STUDIO_RUN_ID=<request> bun run --cwd mods/mod-swooper-maps deploy";
-  const { stdout, stderr } = await execFileAsync(
-    "bun",
-    ["run", "--cwd", "mods/mod-swooper-maps", "deploy"],
-    {
-      cwd: repoRoot,
-      timeout: DEPLOY_TIMEOUT_MS,
-      maxBuffer: 16 * 1024 * 1024,
-      env: { ...process.env, SWOOPER_STUDIO_RUN_ID: requestId },
-    }
-  );
+  const deploy = buildSwooperMapsStudioDeployCommand({ requestId });
+  const { stdout, stderr } = await execFileAsync("bun", [...deploy.args], {
+    cwd: repoRoot,
+    timeout: DEPLOY_TIMEOUT_MS,
+    maxBuffer: 16 * 1024 * 1024,
+    env: deploy.env,
+  });
   return {
-    command,
+    command: deploy.command,
     stdout: tail(stdout),
     stderr: tail(stderr),
   };
@@ -126,64 +200,6 @@ async function regenerateSwooperMapArtifacts(repoRoot: string): Promise<void> {
     timeout: DEPLOY_TIMEOUT_MS,
     maxBuffer: 16 * 1024 * 1024,
   });
-}
-
-const SWOOPER_MAP_GENERATION_MARKERS = [
-  "Creating Context -  MapGeneration",
-  "[SWOOPER_MOD] [recipe:standard] [50/50] ok mod-swooper-maps.standard.placement.placement",
-  "Destroying Context -  MapGeneration",
-] as const;
-
-async function requestCiv7Restart(options?: { verify?: boolean }): Promise<{
-  requestId: string;
-  agent: string;
-  command: string;
-  transport: "direct";
-  host: string;
-  port: number;
-  state: unknown;
-  output: ReadonlyArray<string>;
-  beginOutput?: ReadonlyArray<string>;
-  finalLoadingState?: string | null;
-  tunerReady?: boolean;
-  scriptingLog?: ScriptingLogProof;
-}> {
-  const requestId = createCiv7ControlRequestId("studio-socket");
-  const scriptingLogPath = process.env.CIV7_SCRIPTING_LOG ?? DEFAULT_CIV7_SCRIPTING_LOG;
-  const scriptingSnapshot = options?.verify
-    ? await snapshotFile(scriptingLogPath)
-    : undefined;
-  const response = await restartCiv7GameAndBegin({
-    waitForTuner: true,
-    timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS,
-    waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
-  });
-
-  const scriptingLog =
-    options?.verify && scriptingSnapshot
-      ? await waitForFreshLogMarkers({
-          logPath: scriptingLogPath,
-          snapshot: scriptingSnapshot,
-          markers: SWOOPER_MAP_GENERATION_MARKERS,
-          timeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
-          rejectPattern: /\b(?:TextEncoder|Uncaught|Exception|Error)\b/i,
-        })
-      : undefined;
-
-  return {
-    requestId,
-    agent: DIRECT_CONTROL_AGENT,
-    command: CIV7_RESTART_COMMAND,
-    transport: "direct",
-    host: response.restart.host,
-    port: response.restart.port,
-    state: response.restart.state,
-    output: response.restart.output,
-    beginOutput: response.begin?.output,
-    finalLoadingState: response.finalAppUi.snapshot.ui.loadingStateName,
-    tunerReady: response.tunerHealth?.ready,
-    scriptingLog,
-  };
 }
 
 function isNodeNotFound(err: unknown): boolean {
@@ -481,6 +497,7 @@ export default defineConfig(({ command }) => ({
               playerCount?: unknown;
               resources?: unknown;
               materialization?: { mode?: unknown };
+              recovery?: { restartCivProcess?: unknown };
               config?: unknown;
               selectedConfig?: {
                 id?: unknown;
@@ -493,7 +510,7 @@ export default defineConfig(({ command }) => ({
             }>(req);
             const parsedRequest = parseRunInGameSetupRequest(body);
             const selected = body.selectedConfig ?? {};
-            const { requestedMode, id, seed, mapSize, playerCount } = parsedRequest;
+            const { requestedMode, id, seed, mapSize, playerCount, restartCivProcess } = parsedRequest;
             const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
             const configHash = stableHash(body.config);
             const envelope = makeRepoMapEnvelope({
@@ -524,6 +541,19 @@ export default defineConfig(({ command }) => ({
               });
               return;
             }
+            const activeSaveDeploy = saveDeployOperations.findActive();
+            if (activeSaveDeploy) {
+              writeJson(res, 409, {
+                ok: false,
+                error: "Save/Deploy is running; wait for it to finish before Run in Game.",
+                details: {
+                  code: "save-deploy-operation-active",
+                  activeRequestId: activeSaveDeploy.requestId,
+                  activePhase: activeSaveDeploy.phase,
+                },
+              });
+              return;
+            }
             const requestId = createCiv7ControlRequestId("studio-run-in-game");
             const requestStatus: RunInGameRequestStatus = {
               recipeId: "mod-swooper-maps/standard",
@@ -533,6 +563,7 @@ export default defineConfig(({ command }) => ({
               ...(typeof body.resources === "string" ? { resources: body.resources } : {}),
               ...(typeof selected.id === "string" ? { selectedConfigId: selected.id } : {}),
               materializationMode: requestedMode,
+              ...(restartCivProcess ? { restartCivProcess } : {}),
             };
             const operation = runInGameOperations.create(requestId, requestStatus);
             const run = async () => {
@@ -568,6 +599,13 @@ export default defineConfig(({ command }) => ({
                 runInGameOperations.update(requestId, { phase, materialization });
                 let deploy;
                 deploy = await deploySwooperMapsForRun(repoRoot, requestId);
+
+                let processRestart;
+                if (restartCivProcess) {
+                  phase = "restarting-civ";
+                  runInGameOperations.update(requestId, { phase, materialization });
+                  processRestart = await restartCiv7ProcessViaSteam();
+                }
 
                 phase = "checking-civ7";
                 runInGameOperations.update(requestId, { phase, materialization });
@@ -643,6 +681,7 @@ export default defineConfig(({ command }) => ({
                   requestId,
                   materialization,
                   deploy,
+                  ...(processRestart === undefined ? {} : { processRestart }),
                   rowProof,
                   rowVisibility,
                   start,
@@ -658,8 +697,8 @@ export default defineConfig(({ command }) => ({
                 }
               }
             };
-            const nextRun = saveDeployRestartQueue.then(run, run);
-            saveDeployRestartQueue = nextRun.then(
+            const nextRun = studioOperationQueue.then(run, run);
+            studioOperationQueue = nextRun.then(
               () => undefined,
               () => undefined
             );
@@ -671,68 +710,106 @@ export default defineConfig(({ command }) => ({
             writeJson(res, statusCode, { ok: false, error, ...(details === undefined ? {} : { details }) });
           }
         });
+        server.middlewares.use("/api/map-configs/status", async (req, res, next) => {
+          if (req.method !== "GET") return next();
+          const url = new URL(req.url ?? "", "http://localhost");
+          const requestId = url.searchParams.get("requestId");
+          if (!requestId) {
+            writeJson(res, 400, { ok: false, error: "Missing requestId" });
+            return;
+          }
+          const status = saveDeployOperations.get(requestId);
+          if (!status) {
+            writeJson(res, 404, { ok: false, error: `Save/Deploy request not found: ${requestId}` });
+            return;
+          }
+          writeJson(res, 200, status);
+        });
         server.middlewares.use("/api/map-configs", async (req, res, next) => {
           if (req.method !== "POST") return next();
           try {
             const chunks: Buffer[] = [];
             for await (const chunk of req) chunks.push(Buffer.from(chunk));
-            const body = JSON.parse(Buffer.concat(chunks).toString("utf-8")) as {
-              id?: unknown;
-              sourcePath?: unknown;
-              envelope?: unknown;
-              verifyRestart?: unknown;
-              restart?: unknown;
-            };
-            if (typeof body.id !== "string" || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(body.id)) {
-              throw new Error("Map config id must be kebab-case");
+            const body = JSON.parse(Buffer.concat(chunks).toString("utf-8"));
+            const parsedRequest = parseMapConfigSaveRequest(body);
+            const activeRunInGame = runInGameOperations.findActive();
+            if (activeRunInGame) {
+              writeJson(res, 409, {
+                ok: false,
+                error: "Run in Game is running; wait for it to finish before Save/Deploy.",
+                details: {
+                  code: "run-in-game-operation-active",
+                  activeRequestId: activeRunInGame.requestId,
+                  activePhase: activeRunInGame.phase,
+                },
+              });
+              return;
             }
-            assertRepoMapEnvelope(body.envelope, body.id);
+            const activeSaveDeploy = saveDeployOperations.findActive();
+            if (activeSaveDeploy && activeSaveDeploy.requestId !== parsedRequest.requestId) {
+              writeJson(res, 409, {
+                ok: false,
+                error: "Save/Deploy is already running.",
+                details: {
+                  code: "save-deploy-operation-active",
+                  activeRequestId: activeSaveDeploy.requestId,
+                  activePhase: activeSaveDeploy.phase,
+                },
+              });
+              return;
+            }
+            if (activeSaveDeploy && activeSaveDeploy.requestId === parsedRequest.requestId) {
+              writeJson(res, 202, activeSaveDeploy);
+              return;
+            }
+            assertRepoMapEnvelope(parsedRequest.envelope, parsedRequest.id);
             const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
             const configRoot = resolve(repoRoot, "mods/mod-swooper-maps/src/maps/configs");
-            const target = body.sourcePath
-              ? resolve(repoRoot, String(body.sourcePath))
-              : resolve(configRoot, `${body.id}.config.json`);
+            const target = parsedRequest.sourcePath
+              ? resolve(repoRoot, parsedRequest.sourcePath)
+              : resolve(configRoot, `${parsedRequest.id}.config.json`);
             if (!target.startsWith(`${configRoot}/`) || !target.endsWith(".config.json")) {
               throw new Error(
                 "Map config writes must stay in mods/mod-swooper-maps/src/maps/configs"
               );
             }
             const path = relative(repoRoot, target);
+            const requestId = parsedRequest.requestId ?? createCiv7ControlRequestId("studio-save-deploy");
+            const operation = saveDeployOperations.create(requestId);
             const run = async () => {
-              const previous = await readFile(target, "utf8").catch((err: unknown) => {
-                if (isNodeNotFound(err)) return null;
-                throw err;
-              });
-              await mkdir(dirname(target), { recursive: true });
-              await writeFile(target, `${JSON.stringify(body.envelope, null, 2)}\n`);
-              let deploy;
+              let phase: "saving" | "deploying" = "saving";
+              let previous: string | null = null;
               try {
+                saveDeployOperations.update(requestId, { phase, path });
+                previous = await readFile(target, "utf8").catch((err: unknown) => {
+                  if (isNodeNotFound(err)) return null;
+                  throw err;
+                });
+                await mkdir(dirname(target), { recursive: true });
+                await writeFile(target, `${JSON.stringify(parsedRequest.envelope, null, 2)}\n`);
+                phase = "deploying";
+                saveDeployOperations.update(requestId, { phase, path, saved: true });
+                let deploy;
                 deploy = await deploySwooperMaps(repoRoot);
+                saveDeployOperations.complete(requestId, { path, saved: true, deployed: true, deploy });
               } catch (err) {
-                await restoreRepoConfig(target, previous);
                 const error = err instanceof Error ? err.message : "Deploy failed";
-                writeJson(res, 500, { ok: false, saved: false, path, error });
-                return;
-              }
-              let restart;
-              const restartRequested = body.restart === true || body.verifyRestart === true;
-              if (restartRequested) {
-                try {
-                  restart = await requestCiv7Restart({ verify: body.verifyRestart === true });
-                } catch (err) {
-                  const error = err instanceof Error ? err.message : "Civ7 restart request failed";
-                  writeJson(res, 500, { ok: false, saved: true, deployed: true, path, deploy, error });
-                  return;
+                if (phase === "deploying") {
+                  await restoreRepoConfig(target, previous);
                 }
+                saveDeployOperations.fail(requestId, phase, error, {
+                  path,
+                  saved: false,
+                  deployed: false,
+                });
               }
-              writeJson(res, 200, { ok: true, path, deploy, ...(restart ? { restart } : {}) });
             };
-            const nextRun = saveDeployRestartQueue.then(run, run);
-            saveDeployRestartQueue = nextRun.then(
+            const nextRun = studioOperationQueue.then(run, run);
+            studioOperationQueue = nextRun.then(
               () => undefined,
               () => undefined
             );
-            await nextRun;
+            writeJson(res, 202, operation);
           } catch (err) {
             const error = err instanceof Error ? err.message : "Save failed";
             writeJson(res, 400, { ok: false, error });
@@ -770,6 +847,8 @@ export default defineConfig(({ command }) => ({
         "**/mods/mod-swooper-maps/mod/**",
         "**/mods/mod-swooper-maps/src/maps/generated/**",
         "**/mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
+        "**/packages/*/dist/**",
+        "**/packages/*/types/**",
       ],
     },
   },

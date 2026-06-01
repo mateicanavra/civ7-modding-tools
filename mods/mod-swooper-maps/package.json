@@ -43,7 +43,8 @@
     "diag:list": "bun ./src/dev/diagnostics/list-layers.ts",
     "diag:diff": "bun ./src/dev/diagnostics/diff-layers.ts",
     "diag:trace": "bun ./src/dev/diagnostics/extract-trace.ts",
-    "deploy": "bunx turbo run build --filter=@civ7/adapter --filter=@swooper/mapgen-core --filter=@swooper/mapgen-viz --filter=@mateicanavra/civ7-sdk --filter=@mateicanavra/civ7-cli && bun run build && bun run --filter @mateicanavra/civ7-cli dev -- mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps"
+    "deploy": "bunx turbo run build --filter=@civ7/adapter --filter=@swooper/mapgen-core --filter=@swooper/mapgen-viz --filter=@mateicanavra/civ7-sdk --filter=@mateicanavra/civ7-cli && bun run build && bun run --filter @mateicanavra/civ7-cli dev -- mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps",
+    "deploy:studio": "bunx turbo run build --filter=@civ7/adapter --filter=@swooper/mapgen-core --filter=@swooper/mapgen-viz --filter=@mateicanavra/civ7-sdk --filter=@mateicanavra/civ7-cli && bun run build && bun run --filter @mateicanavra/civ7-cli dev -- mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps"
   },
   "dependencies": {
     "@swooper/mapgen-core": "workspace:*",
