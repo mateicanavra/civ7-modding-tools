@@ -1745,6 +1745,14 @@ async function startTunerServer(options: {
                       ],
                       commonActions: [
                         {
+                          label: "set town focus and close review",
+                          cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send --closeout --reason '<why this focus was selected>'",
+                          operationFamily: "sequence",
+                          operationType: "CHANGE_GROWTH_MODE then CONSIDER_TOWN_PROJECT",
+                          argsShape: "{ Type, ProjectType, City } then {}",
+                          when: "when the selected focus should be applied and the blocker closed as one caller workflow",
+                        },
+                        {
                           label: "set town focus",
                           cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type>",
                           operationFamily: "city-command",
@@ -1754,7 +1762,7 @@ async function startTunerServer(options: {
                         },
                       ],
                       confidence: "live-proof",
-                      notes: ["Town focus is not city-operation BUILD; closeout may require CONSIDER_TOWN_PROJECT."],
+                      notes: ["Town focus is not city-operation BUILD; use --closeout when one caller action should apply the focus and clear the review surface."],
                     },
                   },
                 ],
@@ -1772,6 +1780,14 @@ async function startTunerServer(options: {
                     ],
                     commonActions: [
                       {
+                        label: "set town focus and close review",
+                        cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send --closeout --reason '<why this focus was selected>'",
+                        operationFamily: "sequence",
+                        operationType: "CHANGE_GROWTH_MODE then CONSIDER_TOWN_PROJECT",
+                        argsShape: "{ Type, ProjectType, City } then {}",
+                        when: "when the selected focus should be applied and the blocker closed as one caller workflow",
+                      },
+                      {
                         label: "set town focus",
                         cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type>",
                         operationFamily: "city-command",
@@ -1781,7 +1797,7 @@ async function startTunerServer(options: {
                       },
                     ],
                     confidence: "live-proof",
-                    notes: ["Town focus is not city-operation BUILD; closeout may require CONSIDER_TOWN_PROJECT."],
+                    notes: ["Town focus is not city-operation BUILD; use --closeout when one caller action should apply the focus and clear the review surface."],
                   },
                 ],
                 hud: {
@@ -1804,7 +1820,7 @@ async function startTunerServer(options: {
                       { name: "ProjectType", source: "live town focus option", required: true },
                     ],
                     commonActions: [],
-                    notes: ["Town focus is not city-operation BUILD; closeout may require CONSIDER_TOWN_PROJECT."],
+                    notes: ["Town focus is not city-operation BUILD; use --closeout when one caller action should apply the focus and clear the review surface."],
                   },
                   decisionQueue: [
                     {
@@ -1826,7 +1842,7 @@ async function startTunerServer(options: {
                         { name: "ProjectType", source: "live town focus option", required: true },
                       ],
                       commonActions: [],
-                      notes: ["Town focus is not city-operation BUILD; closeout may require CONSIDER_TOWN_PROJECT."],
+                      notes: ["Town focus is not city-operation BUILD; use --closeout when one caller action should apply the focus and clear the review surface."],
                     },
                   ],
                 },

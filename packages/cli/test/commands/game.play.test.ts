@@ -587,6 +587,46 @@ describe('game play commands', () => {
     }
   });
 
+  test('buys attribute and closes assignment review as one caller workflow', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const writes: string[] = [];
+      const log = vi.spyOn(GamePlayBuyAttribute.prototype, 'log').mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
+      try {
+        await GamePlayBuyAttribute.run([
+          '--host',
+          '127.0.0.1',
+          '--port',
+          String(port),
+          '--player-id',
+          '0',
+          '--node',
+          '20',
+          '--send',
+          '--closeout',
+          '--reason',
+          'test attribute purchase closeout',
+          '--json',
+        ]);
+      } finally {
+        log.mockRestore();
+      }
+
+      const payload = JSON.parse(writes.join('')) as { ok: true; result: { mode: string; stepCount: number; verified: boolean } };
+      expect(payload.result.mode).toBe('send');
+      expect(payload.result.stepCount).toBe(2);
+      expect(payload.result.verified).toBe(true);
+      expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
+      expect(server.received.some((message) => message.includes('BUY_ATTRIBUTE_TREE_NODE'))).toBe(true);
+      expect(server.received.some((message) => message.includes('CONSIDER_ASSIGN_ATTRIBUTE'))).toBe(true);
+    } finally {
+      await server.close();
+    }
+  });
+
   test('wraps tradition swaps as CHANGE_TRADITION', async () => {
     const server = await startTunerServer();
     try {
@@ -609,6 +649,48 @@ describe('game play commands', () => {
       expect(server.received.some((message) => message.includes('"TraditionType":-331546976'))).toBe(true);
       expect(server.received.some((message) => message.includes('"Action":-1326475004'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test('changes tradition and closes assignment review as one caller workflow', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const writes: string[] = [];
+      const log = vi.spyOn(GamePlayChangeTradition.prototype, 'log').mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
+      try {
+        await GamePlayChangeTradition.run([
+          '--host',
+          '127.0.0.1',
+          '--port',
+          String(port),
+          '--player-id',
+          '0',
+          '--tradition-type',
+          '-331546976',
+          '--action',
+          '-1326475004',
+          '--send',
+          '--closeout',
+          '--reason',
+          'test tradition change closeout',
+          '--json',
+        ]);
+      } finally {
+        log.mockRestore();
+      }
+
+      const payload = JSON.parse(writes.join('')) as { ok: true; result: { mode: string; stepCount: number; verified: boolean } };
+      expect(payload.result.mode).toBe('send');
+      expect(payload.result.stepCount).toBe(2);
+      expect(payload.result.verified).toBe(true);
+      expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
+      expect(server.received.some((message) => message.includes('CHANGE_TRADITION'))).toBe(true);
+      expect(server.received.some((message) => message.includes('CONSIDER_ASSIGN_TRADITIONS'))).toBe(true);
     } finally {
       await server.close();
     }
@@ -680,6 +762,50 @@ describe('game play commands', () => {
       expect(server.received.some((message) => message.includes('"ProjectType":-548685232'))).toBe(true);
       expect(server.received.some((message) => message.includes('"City":131073'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test('sets town focus and closes town project review as one caller workflow', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const writes: string[] = [];
+      const log = vi.spyOn(GamePlaySetTownFocus.prototype, 'log').mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
+      try {
+        await GamePlaySetTownFocus.run([
+          '--host',
+          '127.0.0.1',
+          '--port',
+          String(port),
+          '--city-id',
+          '{"owner":0,"id":131073,"type":1}',
+          '--growth-type',
+          '-284569333',
+          '--project-type',
+          '-548685232',
+          '--send',
+          '--closeout',
+          '--reason',
+          'test town focus closeout',
+          '--json',
+        ]);
+      } finally {
+        log.mockRestore();
+      }
+
+      const payload = JSON.parse(writes.join('')) as { ok: true; result: { mode: string; stepCount: number; verified: boolean } };
+      expect(payload.result.mode).toBe('send');
+      expect(payload.result.stepCount).toBe(2);
+      expect(payload.result.verified).toBe(true);
+      expect(server.received.filter((message) => message.includes('sendOperation(')).length).toBe(2);
+      expect(server.received.some((message) => message.includes('sendOperation("city-command"'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation("city-operation"'))).toBe(true);
+      expect(server.received.some((message) => message.includes('CHANGE_GROWTH_MODE'))).toBe(true);
+      expect(server.received.some((message) => message.includes('CONSIDER_TOWN_PROJECT'))).toBe(true);
     } finally {
       await server.close();
     }
@@ -1921,6 +2047,14 @@ function playNotificationView(
           ],
           commonActions: [
             {
+              label: 'set town focus and close review',
+              cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send --closeout --reason '<why this focus was selected>'",
+              operationFamily: 'sequence',
+              operationType: 'CHANGE_GROWTH_MODE then CONSIDER_TOWN_PROJECT',
+              argsShape: '{ Type, ProjectType, City } then {}',
+              when: 'when the selected focus should be applied and the blocker closed as one caller workflow',
+            },
+            {
               label: 'set town focus',
               cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type>",
               operationFamily: 'city-command',
@@ -1930,7 +2064,7 @@ function playNotificationView(
             },
           ],
           confidence: 'live-proof',
-          notes: ['Town focus is not city-operation BUILD; closeout may require CONSIDER_TOWN_PROJECT.'],
+          notes: ['Town focus is not city-operation BUILD; use --closeout when one caller action should apply the focus and clear the review surface.'],
         },
       },
     ],
@@ -1948,6 +2082,14 @@ function playNotificationView(
         ],
         commonActions: [
           {
+            label: 'set town focus and close review',
+            cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send --closeout --reason '<why this focus was selected>'",
+            operationFamily: 'sequence',
+            operationType: 'CHANGE_GROWTH_MODE then CONSIDER_TOWN_PROJECT',
+            argsShape: '{ Type, ProjectType, City } then {}',
+            when: 'when the selected focus should be applied and the blocker closed as one caller workflow',
+          },
+          {
             label: 'set town focus',
             cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type>",
             operationFamily: 'city-command',
@@ -1957,7 +2099,7 @@ function playNotificationView(
           },
         ],
         confidence: 'live-proof',
-        notes: ['Town focus is not city-operation BUILD; closeout may require CONSIDER_TOWN_PROJECT.'],
+        notes: ['Town focus is not city-operation BUILD; use --closeout when one caller action should apply the focus and clear the review surface.'],
       },
     ],
     hud: {
@@ -1981,6 +2123,14 @@ function playNotificationView(
         ],
         commonActions: [
           {
+            label: 'set town focus and close review',
+            cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send --closeout --reason '<why this focus was selected>'",
+            operationFamily: 'sequence',
+            operationType: 'CHANGE_GROWTH_MODE then CONSIDER_TOWN_PROJECT',
+            argsShape: '{ Type, ProjectType, City } then {}',
+            when: 'when the selected focus should be applied and the blocker closed as one caller workflow',
+          },
+          {
             label: 'set town focus',
             cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type>",
             operationFamily: 'city-command',
@@ -1989,7 +2139,7 @@ function playNotificationView(
             when: 'after selecting the focus from live options',
           },
         ],
-        notes: ['Town focus is not city-operation BUILD; closeout may require CONSIDER_TOWN_PROJECT.'],
+        notes: ['Town focus is not city-operation BUILD; use --closeout when one caller action should apply the focus and clear the review surface.'],
       },
       decisionQueue: [
         {
@@ -2012,6 +2162,14 @@ function playNotificationView(
           ],
           commonActions: [
             {
+              label: 'set town focus and close review',
+              cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send --closeout --reason '<why this focus was selected>'",
+              operationFamily: 'sequence',
+              operationType: 'CHANGE_GROWTH_MODE then CONSIDER_TOWN_PROJECT',
+              argsShape: '{ Type, ProjectType, City } then {}',
+              when: 'when the selected focus should be applied and the blocker closed as one caller workflow',
+            },
+            {
               label: 'set town focus',
               cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type>",
               operationFamily: 'city-command',
@@ -2020,7 +2178,7 @@ function playNotificationView(
               when: 'after selecting the focus from live options',
             },
           ],
-          notes: ['Town focus is not city-operation BUILD; closeout may require CONSIDER_TOWN_PROJECT.'],
+          notes: ['Town focus is not city-operation BUILD; use --closeout when one caller action should apply the focus and clear the review surface.'],
         },
       ],
     },

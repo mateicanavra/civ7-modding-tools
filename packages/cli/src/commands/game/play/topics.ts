@@ -93,6 +93,7 @@ const TOPICS: ReadonlyArray<Topic> = [
     proof: 'live-proved with postcondition gaps called out per subfamily',
     references: [
       'docs/projects/civ7-live-play-support/topics/progression-tree-targets.md',
+      'docs/projects/civ7-live-play-support/topics/caller-level-closeout-workflows.md',
       'docs/projects/civ7-live-play-support/topics/celebration-choice.md',
       'docs/projects/civ7-live-play-support/topics/notification-decision-hud.md',
     ],
@@ -118,6 +119,7 @@ const TOPICS: ReadonlyArray<Topic> = [
     proof: 'live-proved for key operation shapes; candidate ranking remains advisory',
     references: [
       'docs/projects/civ7-live-play-support/topics/production-build-placement.md',
+      'docs/projects/civ7-live-play-support/topics/caller-level-closeout-workflows.md',
       'docs/projects/civ7-live-play-support/topics/ready-city-decision-view.md',
       'docs/projects/civ7-live-play-support/topics/population-placement-expansion.md',
       'docs/projects/civ7-live-play-support/topics/settlement-recommendations.md',

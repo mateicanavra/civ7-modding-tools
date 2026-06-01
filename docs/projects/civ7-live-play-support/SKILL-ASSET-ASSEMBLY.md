@@ -175,6 +175,7 @@ support.
 Source artifacts:
 
 - `topics/progression-tree-targets.md`
+- `topics/caller-level-closeout-workflows.md`
 - `topics/celebration-choice.md`
 - `topics/notification-decision-hud.md`
 - `topics/end-turn-blockers.md`
@@ -197,6 +198,9 @@ Norms:
 - Use runtime `ProgressionTreeNodeType` hashes, not row indexes or visible list
   positions.
 - Distinguish current-node operations from full-tree target-node operations.
+- Use `--closeout` on selected tradition and attribute changes when the caller
+  wants one approved workflow to apply the selection and clear the review
+  surface.
 - Send target-node closeout only when the live UI path or postcondition requires
   it.
 - Narrative `CLOSE` is an acknowledgement pattern only when the pending story
@@ -215,6 +219,7 @@ blocker proves the postcondition path.
 Source artifacts:
 
 - `topics/production-build-placement.md`
+- `topics/caller-level-closeout-workflows.md`
 - `topics/ready-city-decision-view.md`
 - `topics/population-placement-expansion.md`
 - `topics/runtime-state-sources.md`
@@ -238,6 +243,8 @@ Norms:
 - Placement-sensitive constructibles need `X` and `Y` when the validator or
   placement UI returns legal plots.
 - Town focus is not ordinary production; it uses `CHANGE_GROWTH_MODE`.
+- Use `game play set-town-focus --send --closeout` when the caller wants one
+  approved workflow to apply the selected focus and clear `CONSIDER_TOWN_PROJECT`.
 - `NEW_POPULATION` opens acquire-tile mode. Worker assignment uses
   `ASSIGN_WORKER { Location, Amount: 1 }` for already-workable plots; expansion
   purchase uses city-command `EXPAND { X, Y }` for expansion plots.
@@ -514,6 +521,7 @@ runtime and local official resource references.
 | `topics/informational-notification-closeout.md` | HUD/blocker skill guardrail | Ready |
 | `topics/play-priorities.md` | Turn-priority dashboard reference | Ready as read-only surface |
 | `topics/progression-tree-targets.md` | Progression skill reference | Ready with tech-target proof note |
+| `topics/caller-level-closeout-workflows.md` | One caller-level action over primary operation plus review closeout | Ready for traditions, attributes, and town focus |
 | `topics/celebration-choice.md` | Progression/celebration choice reference | Ready with postcondition gap |
 | `topics/production-build-placement.md` | City production skill reference | Ready with city-project gap |
 | `topics/ready-city-decision-view.md` | City blocker read surface | Ready |

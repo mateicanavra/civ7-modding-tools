@@ -5018,10 +5018,11 @@ function playNotificationViewSource(): string {
             requiredInput("ProjectType", "live town focus option", "Paired project enum for the selected focus."),
           ],
           [
-            action("set town focus", "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type>", "city-command", "CHANGE_GROWTH_MODE", "{ Type, ProjectType, City }", "after selecting the focus from live options"),
+            action("set town focus and close review", "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send --closeout --reason '<why this focus was selected>'", "sequence", "CHANGE_GROWTH_MODE then CONSIDER_TOWN_PROJECT", "{ Type, ProjectType, City } then {}", "when the selected focus should be applied and the blocker closed as one caller workflow"),
+            action("set town focus", "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type>", "city-command", "CHANGE_GROWTH_MODE", "{ Type, ProjectType, City }", "when only validation or a single focus operation is wanted"),
             action("close reviewed town project", "game play consider-town-project --city-id '<city-id>'", "city-operation", "CONSIDER_TOWN_PROJECT", "{}", "after the focus has already been set and the UI still needs closeout"),
           ],
-          ["Town focus is not city-operation BUILD; closeout may require CONSIDER_TOWN_PROJECT."],
+          ["Town focus is not city-operation BUILD; use --closeout when one caller action should apply the focus and clear the review surface."],
         );
       }
       if (stringIncludes(haystack, "CHOOSE_CITY_PRODUCTION") || stringIncludes(haystack, "PRODUCTION")) {
@@ -5182,10 +5183,11 @@ function playNotificationViewSource(): string {
             requiredInput("Action", "live tradition action", "Use the activate/deactivate action enum from the tradition UI."),
           ],
           [
-            action("change tradition", "game play change-tradition --player-id <id> --tradition-type <tradition-type> --action <action>", "player-operation", "CHANGE_TRADITION", "{ TraditionType, Action }", "when a specific tradition slot change is needed"),
+            action("change tradition and close review", "game play change-tradition --player-id <id> --tradition-type <tradition-type> --action <action> --send --closeout --reason '<why this tradition change was selected>'", "sequence", "CHANGE_TRADITION then CONSIDER_ASSIGN_TRADITIONS", "{ TraditionType, Action } then {}", "when a specific tradition slot change should be applied and the blocker closed as one caller workflow"),
+            action("change tradition", "game play change-tradition --player-id <id> --tradition-type <tradition-type> --action <action>", "player-operation", "CHANGE_TRADITION", "{ TraditionType, Action }", "when only validation or a single tradition operation is wanted"),
             action("close tradition review", "game play consider-traditions --player-id <id>", "player-operation", "CONSIDER_ASSIGN_TRADITIONS", "{}", "after valid assignments are already in place"),
           ],
-          ["Full slots may need deactivate, activate, then closeout."],
+          ["Full slots may need deactivate, activate, then closeout; use --closeout on the final selected change when one caller action should clear the review surface."],
         );
       }
       if (stringIncludes(haystack, "ATTRIBUTE")) {
@@ -5198,10 +5200,11 @@ function playNotificationViewSource(): string {
           "live-proof",
           [requiredInput("ProgressionTreeNodeType", "live attribute tree node", "Use the buyable attribute node id from the runtime tree.")],
           [
-            action("buy attribute node", "game play buy-attribute --player-id <id> --node <node>", "player-operation", "BUY_ATTRIBUTE_TREE_NODE", "{ ProgressionTreeNodeType }", "when a buyable node is selected"),
+            action("buy attribute and close review", "game play buy-attribute --player-id <id> --node <node> --send --closeout --reason '<why this attribute was selected>'", "sequence", "BUY_ATTRIBUTE_TREE_NODE then CONSIDER_ASSIGN_ATTRIBUTE", "{ ProgressionTreeNodeType } then {}", "when a buyable node should be purchased and the blocker closed as one caller workflow"),
+            action("buy attribute node", "game play buy-attribute --player-id <id> --node <node>", "player-operation", "BUY_ATTRIBUTE_TREE_NODE", "{ ProgressionTreeNodeType }", "when only validation or a single attribute operation is wanted"),
             action("close attribute review", "game play consider-attributes --player-id <id>", "player-operation", "CONSIDER_ASSIGN_ATTRIBUTE", "{}", "after no attribute purchase is needed or after buying"),
           ],
-          ["Close the review surface after buying the attribute node."],
+          ["Use --closeout when one caller action should buy the node and clear the review surface."],
         );
       }
       if (stringIncludes(haystack, "ADVISOR") || stringIncludes(haystack, "WARNING")) {
