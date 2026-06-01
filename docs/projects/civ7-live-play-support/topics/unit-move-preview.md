@@ -27,6 +27,49 @@ The official UI uses runtime movement preview APIs:
 The official right-click action order remains the target-action baseline:
 naval, air, ranged, overrun, swap, then `MOVE_TO`.
 
+## Destination Queue Question
+
+Movement preview and movement execution are not the same requirement. The
+play agent needs both:
+
+- current-turn move execution: send a move/target operation to a reachable
+  destination and verify the unit's resulting location, movement, activity, or
+  ready-queue state;
+- queued multi-turn destination: set the same kind of future destination a
+  human can set in the UI, then track the unit while it advances automatically
+  across later turns.
+
+`Units.getPathTo(unitId, destination)` and
+`Units.getQueuedOperationDestination(unitId)` prove that the UI exposes path
+preview and queued-destination state. They do not yet prove whether the
+mutating request for a destination beyond current movement range is identical
+to the current-turn `MOVE_TO` request or uses a separate queueing API. The next
+implementation pass should inspect the official move-to and world-input send
+path before naming the mutating command.
+
+The proposed mutation should therefore stay provisional:
+
+```bash
+bun packages/cli/bin/run.js game play set-unit-destination \
+  --unit-id '{"owner":0,"id":65536,"type":26}' \
+  --x 30 \
+  --y 24 \
+  --send \
+  --reason "move toward the Napoleon front while avoiding the exposed city edge"
+```
+
+The read lens should expose `queuedDestination` and, when a unit has one, a
+minimal in-motion HUD entry:
+
+- unit id, type, location, movement, damage, and attacks;
+- queued destination and path turns remaining when available;
+- `risk: "unknown" | "none-detected" | "risk-detected"`;
+- expandable risk reasons such as enemy proximity, wounded unit, exposed
+  civilian, hostile city zone, unseen/fogged path, or stale preview.
+
+This warning is advisory. A queued destination does not keep the unit safe; it
+only records intent and lets Civ7 continue movement later.
+
 ## Proposed Command
 
 ```bash
@@ -67,3 +110,6 @@ Move preview is planning evidence. It does not reserve a path and does not
 authorize a move. Before sending, the agent must re-read current unit state,
 validate the chosen operation, send through direct-control, and inspect the
 unit operation postcondition.
+
+For queued multi-turn destinations, also re-read every turn. The command may
+still be valid while the tactical situation has become unacceptable.
