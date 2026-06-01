@@ -250,9 +250,7 @@ export default createStep(ScoreLayersStepContract, {
         dims: { width, height },
         format: "f32",
         values: values as Float32Array,
-        meta: defineVizMeta(`ecology.scoreLayers.${featureKey}`, {
-          visibility: "debug",
-        }),
+        meta: defineVizMeta(`ecology.scoreLayers.${featureKey}`),
       });
     }
 

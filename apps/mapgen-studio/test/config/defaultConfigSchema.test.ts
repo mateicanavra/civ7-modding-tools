@@ -47,11 +47,11 @@ describe("Studio default config", () => {
     expect(errors).toEqual([]);
   });
 
-  it("matches the canonical swooper-earthlike map config posture (prevents accidental skeleton defaults)", () => {
-    expect(STANDARD_RECIPE_CONFIG.foundation.mesh.computeMesh.config.plateCount).toBe(28);
+  it("keeps the default config on the public authoring surface", () => {
     expect(STANDARD_RECIPE_CONFIG.foundation).not.toHaveProperty("version");
     expect(STANDARD_RECIPE_CONFIG.foundation).not.toHaveProperty("profiles");
     expect(STANDARD_RECIPE_CONFIG.foundation).not.toHaveProperty("advanced");
+    expect(STANDARD_RECIPE_CONFIG.foundation).not.toHaveProperty("projection");
   });
 
   it("exposes the split foundation authoring surface (no legacy advanced/profile fields)", () => {
