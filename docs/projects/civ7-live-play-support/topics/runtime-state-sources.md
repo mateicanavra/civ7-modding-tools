@@ -125,3 +125,10 @@ same pattern for restart continuity: it proves which live turn and ready entity
 the watcher is attached to before the agent resumes a stale plan. Future local
 data shortcuts should feed these HUD surfaces with labels and explanations, not
 bypass them.
+
+The evented decision-stream proposal keeps this same authority split. A topic
+stream or materialized view may reduce repeated reads and make notifications,
+ready entities, tactical POIs, and postconditions easier to subscribe to, but
+its live topics still originate from direct-control snapshots, validators, and
+postcondition reads until a stronger native runtime event source is proven. See
+`evented-decision-stream-baseline.md` for the experiment and falsifiers.

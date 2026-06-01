@@ -682,6 +682,18 @@ Residual objective gaps:
   `game play civilian-route-triage` now materializes that stack into a
   read-only `proceed-with-validation`, `hold-or-screen`,
   `reroute-or-stage`, or `inspect-candidate` label.
+- Turn 123 exposed queue-management and eventing gaps at the same time: the
+  HUD queue held a Lafayette diplomatic response blocker, non-blocking
+  informational reports such as volcano/great-work notifications, narrative
+  and culture choices, tradition review, and a command-units notice while the
+  ready-unit/front state continued to move. Disposition:
+  `game play notification-queue` now turns the live HUD queue into a read-only
+  schedule with guarded dispositions, and
+  `game play dismiss-notification-queue` bulk-clears eligible informational
+  App UI closeout candidates through the existing direct-control dismissal
+  wrapper. The evented-stream baseline was also reframed to use Effect
+  (`effect@3.21.2` as observed from npm on 2026-06-01) for
+  Stream/PubSub/Queue/reducer work rather than hand-rolled pub/sub.
 - Remaining gaps are promotion-send/hardening work: richer ready-entity reads,
   stronger live postcondition polling, civic choice proof, population-placement
   postconditions, visibility-filtered path/front analysis beyond the cheap

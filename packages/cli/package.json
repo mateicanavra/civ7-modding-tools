@@ -29,14 +29,15 @@
     "version": "oclif readme && git add README.md"
   },
   "dependencies": {
+    "@civ7/config": "workspace:*",
     "@civ7/direct-control": "workspace:*",
     "@civ7/plugin-files": "workspace:*",
-    "@civ7/plugin-graph": "workspace:*",
     "@civ7/plugin-git": "workspace:*",
+    "@civ7/plugin-graph": "workspace:*",
     "@civ7/plugin-mods": "workspace:*",
-    "@civ7/config": "workspace:*",
     "@oclif/core": "^4.8.0",
     "@oclif/plugin-help": "^6.2.37",
+    "effect": "3.21.2",
     "tslib": "^2.8.1"
   },
   "devDependencies": {

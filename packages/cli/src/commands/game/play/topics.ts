@@ -69,6 +69,7 @@ const TOPICS: ReadonlyArray<Topic> = [
     proof: 'live-proved plus official UI/resource backing',
     references: [
       'docs/projects/civ7-live-play-support/topics/notification-decision-hud.md',
+      'docs/projects/civ7-live-play-support/topics/notification-queue-scheduling.md',
       'docs/projects/civ7-live-play-support/topics/play-priorities.md',
       'docs/projects/civ7-live-play-support/topics/end-turn-blockers.md',
       'docs/projects/civ7-live-play-support/topics/informational-notification-closeout.md',
@@ -76,6 +77,8 @@ const TOPICS: ReadonlyArray<Topic> = [
     commands: [
       'game play priorities',
       'game play notifications',
+      'game play notification-queue',
+      'game play dismiss-notification-queue',
       'game play end-turn',
       'game play dismiss-notification',
       'game play advisor-warning',
@@ -180,6 +183,8 @@ const TOPICS: ReadonlyArray<Topic> = [
       'game play respond-diplomacy',
       'game play respond-first-meet',
       'game play notifications',
+      'game play notification-queue',
+      'game play dismiss-notification-queue',
     ],
     loadWhen: 'when the HUD reports diplomatic action, diplomatic response, first meet, grievance, or relationship pressure',
     boundary: 'grievance reports can be informational; first-meet and action responses are real player operations',
@@ -219,6 +224,26 @@ const TOPICS: ReadonlyArray<Topic> = [
     ],
     loadWhen: 'after restart, compacted context, tuner failure, human input, slow reads, or passive watcher handoff',
     boundary: 'prior thread state is only an expectation after restart; live rehydrate/watch output is the authority',
+  },
+  {
+    family: 'evented-stream',
+    aliases: ['pubsub', 'subscription', 'stream', 'materialized-view', 'events'],
+    purpose: 'Design semantic watcher topics and latest decision views so agents can subscribe instead of manually reconciling repeated reads.',
+    proof: 'active design; implementation experiment required',
+    references: [
+      'docs/projects/civ7-live-play-support/topics/evented-decision-stream-baseline.md',
+      'docs/projects/civ7-live-play-support/topics/runtime-state-sources.md',
+      'docs/projects/civ7-live-play-support/evidence-packs/watcher-latency-observer-mode.md',
+      'docs/projects/civ7-live-play-support/topics/tactical-lens-api-roadmap.md',
+    ],
+    commands: [
+      'game watch',
+      'future: game play stream',
+      'future: game play view',
+      'game play priorities',
+    ],
+    loadWhen: 'when deciding whether pub/sub, JSONL replay, latest-view cache, or direct snapshot polling should own watcher state',
+    boundary: 'streams may reduce reconciliation; direct-control snapshots and validators remain live authority until stronger runtime events are proven',
   },
   {
     family: 'strategy',

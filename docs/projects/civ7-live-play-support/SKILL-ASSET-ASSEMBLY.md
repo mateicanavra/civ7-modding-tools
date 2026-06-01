@@ -35,16 +35,19 @@ For future skill conversion, load source material in this order:
 
 1. `topics/runtime-state-sources.md` for authority order and the SQLite/live
    runtime boundary.
-2. `topics/local-catalog-enrichment.md` for static catalog enrichment and local
+2. `topics/evented-decision-stream-baseline.md` when the question is whether
+   watcher state should be subscribed to, cached, replayed, or hotswapped away
+   from repeated CLI polling.
+3. `topics/local-catalog-enrichment.md` for static catalog enrichment and local
    shortcut boundaries.
-3. `topics/restart-rehydration.md` when a restart, reconnect, or stale active
+4. `topics/restart-rehydration.md` when a restart, reconnect, or stale active
    thread state is possible.
-4. `topics/notification-decision-hud.md` and `topics/end-turn-blockers.md` for
+5. `topics/notification-decision-hud.md` and `topics/end-turn-blockers.md` for
    the turn-blocker control loop.
-5. The domain reference matching the blocker family: progression, production,
+6. The domain reference matching the blocker family: progression, production,
    diplomacy, unit targeting, or informational closeout.
-6. Evidence packs only when the source reference needs provenance detail.
-7. Strategy context last, and only as advisory decision support.
+7. Evidence packs only when the source reference needs provenance detail.
+8. Strategy context last, and only as advisory decision support.
 
 Do not import `workstream-record.md` into a reusable skill except as historical
 context during authoring. It contains thread ids, branch state, and next-packet
@@ -81,6 +84,7 @@ are uneven. Skill promotion should normalize them into these categories:
 Source artifacts:
 
 - `topics/notification-decision-hud.md`
+- `topics/notification-queue-scheduling.md`
 - `topics/end-turn-blockers.md`
 - `topics/informational-notification-closeout.md`
 - `topics/play-priorities.md`
@@ -89,6 +93,8 @@ CLI shortcuts:
 
 - `game play priorities`
 - `game play notifications`
+- `game play notification-queue`
+- `game play dismiss-notification-queue`
 - `game play topics`
 - `game play end-turn`
 - `game play dismiss-notification`
@@ -97,6 +103,12 @@ CLI shortcuts:
 Norms:
 
 - Always read the HUD before resolving a blocker.
+- Use `game play notification-queue` when multiple notifications need ordered
+  review, especially when informational reports may matter tactically but
+  should not monopolize the play loop.
+- Use `game play dismiss-notification-queue` to bulk-clear eligible
+  informational closeout candidates after review; it excludes operation-bearing
+  and unclassified notifications.
 - Prefer the specialized operation family over notification dismissal.
 - Treat reviewed default-handler notices as dismissible only after the HUD and
   official handler evidence show no real decision surface remains.
@@ -496,6 +508,7 @@ runtime and local official resource references.
 | Topic | Candidate destination | Promotion state |
 | --- | --- | --- |
 | `topics/notification-decision-hud.md` | HUD/blocker skill reference | Ready |
+| `topics/notification-queue-scheduling.md` | Bulk queue read, scheduling, and informational closeout reference | Ready with bulk-dismiss surface |
 | `topics/end-turn-blockers.md` | HUD/blocker skill reference | Ready |
 | `topics/informational-notification-closeout.md` | HUD/blocker skill guardrail | Ready |
 | `topics/play-priorities.md` | Turn-priority dashboard reference | Ready as read-only surface |
@@ -520,6 +533,7 @@ runtime and local official resource references.
 | `topics/multi-turn-strategy-and-ai-levers.md` | Strategy-over-turns architecture reference | Reference with gap |
 | `topics/strategic-planning-snapshot.md` | Short-horizon strategy snapshot contract | Reference with gap |
 | `topics/tactical-lens-api-roadmap.md` | Higher-level tactical lens/API roadmap | Reference with gap |
+| `topics/evented-decision-stream-baseline.md` | Pub/sub and materialized-view baseline design | Active design; experiment required |
 | `topics/target-candidates.md` | Siege target shortlist reference | Reference with visibility/pathing gaps |
 | `topics/rhq-ai-mod-baseline.md` | Static AI/autoplay comparison baseline | Advisory reference |
 | `evidence-packs/current-online-play-context.md` | Current online context asset | Advisory only |
@@ -544,6 +558,8 @@ commands, load conditions, and authority boundaries:
 - `runtime-sources`: direct-control versus local SQLite/resource authority.
 - `restart-watch`: rehydration, observer mode, latency, and passive JSONL
   watch.
+- `evented-stream`: semantic play topics, event envelopes, materialized views,
+  and the criteria for replacing repeated polling with a subscriber interface.
 - `strategy`: short-horizon objectives, autoplay boundaries, and external
   runner framing.
 - `rhq-ai`: RHQ/static-AI comparator, loaded-row verification, and bounded
@@ -570,6 +586,13 @@ forensic/history layer must keep explicit read bounds and must not be treated as
 current legality. This split is the reason agents should poll direct-control
 for decisions while still using local SQLite/resource indexes to avoid noisy UI
 exploration.
+
+The evented decision-stream design is the next materialized-view candidate. It
+keeps the same authority split, but uses Effect streams, queues, pub/sub, and
+scoped resources to publish semantic topics and latest-state views for
+subscribers. It should start as a parallel Effect/JSONL reducer experiment over
+the current `game watch` reads, not as a new live transport or a claim that
+local disk can replace direct-control.
 
 ## Open Shortcut Candidates
 
@@ -602,6 +625,11 @@ and postcondition are proven:
   response affordability context once the live relationship APIs are proven.
 - `game probe-latency`: focused latency sampler with connect/LSQ/CMD timing
   breakdowns beyond the coarse `game watch` duration marker.
+- `game play stream`: subscribe to semantic play topics such as blockers,
+  ready units, battlefield POIs, civilian routes, validators, and watcher
+  health after the evented baseline proves replay and invalidation.
+- `game play view`: read the latest materialized decision view with freshness
+  leases and source keys from the watcher reducer.
 - `game strategy run`: external workflow runner for validate-only and bounded
   send loops over multiple turns, using `game autoplay` only after clean
   App UI proof.

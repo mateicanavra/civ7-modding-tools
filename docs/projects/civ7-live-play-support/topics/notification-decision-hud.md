@@ -26,6 +26,9 @@ The HUD has two layers:
 
 The full `notifications` array remains available for debugging raw facts such
 as notification id, type name, target, location, dismissal state, and message.
+`game play notification-queue` builds on the same HUD queue when the agent needs
+an ordered bulk read and guarded action schedule rather than a raw notification
+dump.
 
 ## What The HUD Should Materialize
 
@@ -64,6 +67,14 @@ after any mutation or human input.
 | Attribute review | attribute `ProgressionTreeNodeType` | `game play buy-attribute`; then `game play consider-attributes` |
 | Advisor warning | notification ComponentID as `Target` | `game play advisor-warning` |
 | Unit command | selected or first ready unit; sometimes target plot | `game play ready-unit`, then `game play unit-target` for plot actions or generic unit operation validation |
+
+For queue management, use `game play notification-queue --json` before manually
+walking several notifications. It can schedule reviewed informational closeout
+candidates, known operation-family items, and ready-unit inspections, but it
+does not bulk-dismiss or send operations. Use
+`game play dismiss-notification-queue --send --reason <reason>` when the queue
+contains eligible informational App UI closeout candidates that have been
+reviewed at the needed tactical/strategic level.
 
 ## Official Evidence
 

@@ -34,6 +34,9 @@ This is the runtime counterpart to the RHQ/static-AI lane:
 - RHQ-style mods change the loaded policy substrate for native AI and autoplay.
 - Direct-control tactical lenses help the player-side runner read the current
   board, frame objectives, validate actions, and revise after postconditions.
+- The evented decision-stream lane can make those lenses cheaper to consume by
+  publishing semantic topic updates and latest views, but it must preserve the
+  same read-only, freshness, and validator boundaries.
 
 ## Current Usable Lenses
 
@@ -100,6 +103,8 @@ The next layer should prioritize these read-only commands:
 | `game play route-analysis` | origin, destination, unit id, corridor width | hazards, unknowns, blockers, friendly screens, proof label | Separates route safety from exact Civ7 pathfinding. |
 | `game play civilian-route` | civilian unit id, destination, radius | visible threats, safer alternatives, escort/context notes | Turns the civilian triage topic into a reusable read-only command. |
 | `game play tactical-plan` | focus unit/city/bounds, turn horizon | status, actors, map window, legal-action probes, risks, missing inputs | Supports short-horizon runner dry runs without sending actions. |
+| `game play stream` | topic filters, replay cursor, freshness policy | semantic events for blockers, ready entities, POIs, routes, validators, watcher health | Lets agents subscribe to derived tactical facts without manual reconciliation. |
+| `game play view` | optional focus/topic filters | latest materialized decision view with source keys and freshness leases | Lets an agent read one current state cache instead of rerunning every lens. |
 
 Names can change, but the command contracts should preserve the same split:
 bounded read, explicit hidden-info policy, proof label, and no mutation.
@@ -153,6 +158,14 @@ Only after the validate-only loop gives complete, fresh, validator-backed
 decisions should a one-turn send loop be tested. Autoplay can advance clean
 turns, but it should not be treated as a strategy API.
 
+For multi-turn supervision, prefer an evented materialized view before a full
+strategy runner. The runner should subscribe to `play.blocker`,
+`play.ready-unit`, `play.ready-city`, `play.battlefield-poi`,
+`play.civilian-route`, `play.validator`, and `play.postcondition` topics, then
+propose actions from those fresh views. If the stream cannot replay into the
+same latest view or cannot invalidate after sends, keep using direct snapshot
+commands.
+
 ## Open Questions
 
 - Is there a native API for reachable plots, movement costs, road/river/zone
@@ -166,3 +179,5 @@ turns, but it should not be treated as a strategy API.
 - Can static AI profile mods and bounded autoplay telemetry provide a stable
   baseline for judging whether external runner choices are better than native
   autoplay?
+- Does an evented watcher reducer materially reduce redundant reads and stale
+  reconciliation, or is a latest-snapshot cache enough?
