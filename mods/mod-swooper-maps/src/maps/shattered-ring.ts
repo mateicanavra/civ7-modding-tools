@@ -12,7 +12,7 @@
 
 /// <reference types="@civ7/types" />
 
-import { createMap } from "@swooper/mapgen-core/authoring/maps";
+import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import standardRecipe from "../recipes/standard/recipe.js";
 import { SHATTERED_RING_CONFIG } from "./configs/shattered-ring.config.js";
 

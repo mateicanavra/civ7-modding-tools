@@ -10,7 +10,7 @@
 
 /// <reference types="@civ7/types" />
 
-import { createMap } from "@swooper/mapgen-core/authoring/maps";
+import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import standardRecipe from "../recipes/standard/recipe.js";
 import { SWOOPER_DESERT_MOUNTAINS_CONFIG } from "./configs/swooper-desert-mountains.config.js";
 

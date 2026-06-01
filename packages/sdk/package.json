@@ -12,11 +12,16 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./mapgen": {
+      "types": "./dist/mapgen/index.d.ts",
+      "import": "./dist/mapgen/index.js",
+      "require": "./dist/mapgen/index.cjs"
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts",
-    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "build": "tsup src/index.ts src/mapgen/index.ts --format esm,cjs --dts",
+    "dev": "tsup src/index.ts src/mapgen/index.ts --format esm,cjs --dts --watch",
     "test": "vitest run --project sdk",
     "lint": "eslint .",
     "check": "tsc -p tsconfig.json --noEmit",
@@ -24,6 +29,8 @@
     "prepublishOnly": "bun run build"
   },
   "dependencies": {
+    "@civ7/adapter": "workspace:*",
+    "@swooper/mapgen-core": "workspace:*",
     "jstoxml": "^7.0.1",
     "lodash-es": "^4.17.23"
   },
@@ -34,7 +41,8 @@
     "@types/node": "^22.14.0",
     "eslint": "^9.39.2",
     "@types/lodash": "^4.17.23",
-    "@types/jstoxml": "^5.0.0"
+    "@types/jstoxml": "^5.0.0",
+    "@civ7/types": "workspace:*"
   },
   "engines": {
     "node": ">=22.14.0"

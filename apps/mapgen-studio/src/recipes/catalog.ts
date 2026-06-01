@@ -62,8 +62,10 @@ function makeRecipeId(namespace: string, recipeId: string): StudioRecipeId {
   return `${namespace}/${recipeId}`;
 }
 
-// This is a bundled catalog for the current Studio build. Studio's engine code
-// only depends on the generic `RecipeArtifacts` interface, not on any one recipe.
+// This is a bundled catalog for the current Studio build. Recipe schema/default
+// contracts are generated from recipe package source by `build:studio-recipes`
+// and exported as first-class package artifacts; Studio does not treat `dist/`
+// or generated output as editable policy.
 import {
   STANDARD_RECIPE_CONFIG as swooperStandardDefaultConfig,
   STANDARD_RECIPE_CONFIG_SCHEMA as swooperStandardConfigSchema,

@@ -1,6 +1,6 @@
 /// <reference types="@civ7/types" />
 
-import { createMap } from "@swooper/mapgen-core/authoring/maps";
+import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { Static } from "@swooper/mapgen-core/authoring";
 import foundationDomain from "@mapgen/domain/foundation";
 import standardRecipe, { type StandardRecipeConfig } from "../../recipes/standard/recipe.js";
@@ -42,8 +42,11 @@ const _computeMeshConfigFromOpIsObject: _ComputeMeshConfigFromOpIsObject = true;
 type _MeshStep = Extract<(typeof foundationStage.steps)[number], { contract: { id: "mesh" } }>;
 type _MeshStepRuntimeConfig = Static<_MeshStep["contract"]["schema"]>;
 type _ComputeMeshEnvelopeFromStepSchema = _MeshStepRuntimeConfig["computeMesh"];
-type _ComputeMeshEnvelopeFromStepSchemaConfig =
-  _ComputeMeshEnvelopeFromStepSchema extends { config: infer C } ? C : never;
+type _ComputeMeshEnvelopeFromStepSchemaConfig = _ComputeMeshEnvelopeFromStepSchema extends {
+  config: infer C;
+}
+  ? C
+  : never;
 type _ComputeMeshEnvelopeFromStepSchemaConfigIsObject =
   _ComputeMeshEnvelopeFromStepSchemaConfig extends object ? true : false;
 const _computeMeshEnvelopeFromStepSchemaConfigIsObject: _ComputeMeshEnvelopeFromStepSchemaConfigIsObject = true;
@@ -54,7 +57,8 @@ type _PlateCountKnobIsNumber = Exclude<_PlateCountKnob, undefined> extends numbe
 const _plateCountKnobIsNumber: _PlateCountKnobIsNumber = true;
 
 type _PlateActivityKnob = _FoundationKnobs["plateActivity"];
-type _PlateActivityKnobIsNumber = Exclude<_PlateActivityKnob, undefined> extends number ? true : false;
+type _PlateActivityKnobIsNumber =
+  Exclude<_PlateActivityKnob, undefined> extends number ? true : false;
 const _plateActivityKnobIsNumber: _PlateActivityKnobIsNumber = true;
 
 createMap({
