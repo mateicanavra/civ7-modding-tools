@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bolt, Clipboard, Clock, Dices, MonitorPlay, Play, Radio, RotateCw } from 'lucide-react';
+import { Bolt, Bot, Clipboard, Clock, Dices, MonitorPlay, Play, Radio, RotateCw, Square } from 'lucide-react';
 import { Button, Input } from './ui';
 import { MAP_SIZE_SHORT, LAYOUT } from '../constants';
 import { formatResourceMode } from '../utils';
@@ -59,9 +59,14 @@ export interface AppFooterProps {
     seed?: number;
     readiness?: string;
     autoplayActive?: boolean;
+    autoplayPaused?: boolean;
     updatedAt?: string;
     error?: string;
   };
+  /** Whether a Civ7 autoplay start/stop request is in flight */
+  isAutoplayActionRunning?: boolean;
+  /** Callback to start or stop Civ7 native autoplay */
+  onToggleAutoplay?: () => void;
   /** Toast function for notifications */
   onToast?: (message: string) => void;
   /** When enabled, config changes auto-run the current seed */
@@ -90,6 +95,8 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   isDirty,
   lightMode,
   liveRuntime,
+  isAutoplayActionRunning = false,
+  onToggleAutoplay,
   onToast,
   autoRunEnabled,
   onAutoRunEnabledChange
@@ -150,6 +157,15 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           : "bg-gray-400";
   const runInGameButtonText = runInGamePrimaryActionLabel(runInGameStatus, runInGameCurrentRelation);
   const operationControlsDisabled = isRunning || isRunInGameRunning || isSaveDeployRunning;
+  const autoplayControlDisabled = operationControlsDisabled || isAutoplayActionRunning || liveRuntime?.status !== "ok" || !onToggleAutoplay;
+  const autoplayButtonText = isAutoplayActionRunning
+    ? "Autoplay..."
+    : liveRuntime?.autoplayActive
+      ? "Stop Auto"
+      : "Start Auto";
+  const autoplayTitle = liveRuntime?.autoplayActive
+    ? `Stop Civ7 autoplay${liveRuntime.autoplayPaused ? " (paused)" : ""}`
+    : "Start Civ7 autoplay";
   const saveDeployLabel = saveDeployStatus ? formatMapConfigSaveDeployPhaseLabel(saveDeployStatus.phase) : null;
   const saveDeployTitle = saveDeployStatus
     ? [
@@ -236,7 +252,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
 
       {/* Live Civ7 Panel */}
       <div
-        className={`h-10 inline-flex min-w-0 max-w-[300px] items-center gap-2 px-3 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}
+        className={`h-10 inline-flex min-w-0 max-w-[420px] items-center gap-2 px-3 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}
         title={liveRuntime?.readiness ?? liveRuntime?.error ?? "Civ7 live runtime status"}>
 
         <Radio className={`w-3.5 h-3.5 ${textMuted}`} />
@@ -249,6 +265,17 @@ export const AppFooter: React.FC<AppFooterProps> = ({
             Auto
           </span>
         ) : null}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onToggleAutoplay}
+          disabled={autoplayControlDisabled}
+          title={autoplayTitle}
+          className={`h-7 px-2 text-[11px] ${liveRuntime?.autoplayActive ? "border-amber-400/60 text-amber-500" : ""}`}>
+
+          {liveRuntime?.autoplayActive ? <Square className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
+          <span>{autoplayButtonText}</span>
+        </Button>
       </div>
 
       {/* Run Controls Panel */}

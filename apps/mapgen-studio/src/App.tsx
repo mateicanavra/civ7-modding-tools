@@ -261,6 +261,35 @@ async function fetchRunInGameStatus(requestId: string): Promise<RunInGameOperati
   }
 }
 
+async function requestCiv7Autoplay(action: "start" | "stop"): Promise<{
+  ok: boolean;
+  action?: "start" | "stop";
+  autoplay?: { isActive?: boolean; isPaused?: boolean; isPausedOrPending?: boolean };
+  game?: { turn?: { ok?: boolean; value?: number } };
+  error?: string;
+}> {
+  try {
+    const res = await fetch("/api/civ7/autoplay", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action }),
+    });
+    const body = (await res.json().catch(() => null)) as {
+      ok?: boolean;
+      action?: "start" | "stop";
+      autoplay?: { isActive?: boolean; isPaused?: boolean; isPausedOrPending?: boolean };
+      game?: { turn?: { ok?: boolean; value?: number } };
+      error?: string;
+    } | null;
+    if (!res.ok || !body?.ok) {
+      return { ok: false, error: body?.error ?? `HTTP ${res.status}` };
+    }
+    return { ok: true, action: body.action, autoplay: body.autoplay, game: body.game };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Civ7 autoplay request failed" };
+  }
+}
+
 const RUN_IN_GAME_LAST_REQUEST_KEY = "mapgen-studio.runInGame.lastRequestId.v1";
 const RUN_IN_GAME_LAST_SNAPSHOT_KEY = "mapgen-studio.runInGame.lastSnapshot.v1";
 const MAP_CONFIG_SAVE_LAST_REQUEST_KEY = "mapgen-studio.mapConfigSave.lastRequestId.v1";
@@ -610,9 +639,11 @@ function AppContent(props: AppContentProps) {
     seed?: number;
     readiness?: string;
     autoplayActive?: boolean;
+    autoplayPaused?: boolean;
     updatedAt?: string;
     error?: string;
   }>({ status: "idle" });
+  const [autoplayActionRunning, setAutoplayActionRunning] = useState(false);
   const saveDeployRunning = saveDeployOperation?.status === "running";
   const runInGameRunning = runInGameOperation?.status === "running";
 
@@ -684,6 +715,7 @@ function AppContent(props: AppContentProps) {
           seed,
           readiness,
           autoplayActive: body.autoplay?.autoplay?.isActive,
+          autoplayPaused: body.autoplay?.autoplay?.isPaused,
           updatedAt: body.observedAt,
           error: body.ok ? undefined : body.status?.error ?? body.mapSummary?.error,
         });
@@ -1594,6 +1626,31 @@ function AppContent(props: AppContentProps) {
     worldSettings.resources,
   ]);
 
+  const handleToggleAutoplay = useCallback(async () => {
+    if (autoplayActionRunning || browserRunning || runInGameRunning || saveDeployRunning) return;
+    const action = liveRuntime.autoplayActive ? "stop" : "start";
+    setAutoplayActionRunning(true);
+    try {
+      const result = await requestCiv7Autoplay(action);
+      if (!result.ok) {
+        toast(`Autoplay ${action} failed: ${result.error ?? "unknown error"}`, { variant: "error" });
+        return;
+      }
+      setLiveRuntime((current) => ({
+        ...current,
+        status: "ok",
+        autoplayActive: result.autoplay?.isActive ?? action === "start",
+        autoplayPaused: result.autoplay?.isPaused,
+        turn: result.game?.turn?.ok ? result.game.turn.value : current.turn,
+        updatedAt: new Date().toISOString(),
+        error: undefined,
+      }));
+      toast(action === "start" ? "Civ7 autoplay started" : "Civ7 autoplay stopped", { variant: "success" });
+    } finally {
+      setAutoplayActionRunning(false);
+    }
+  }, [autoplayActionRunning, browserRunning, liveRuntime.autoplayActive, runInGameRunning, saveDeployRunning, toast]);
+
   const copyRunInGameDiagnostics = useCallback(async () => {
     if (!runInGameOperation) return;
     try {
@@ -2280,12 +2337,14 @@ function AppContent(props: AppContentProps) {
       isRunning={browserRunning}
       isRunInGameRunning={runInGameRunning}
       isSaveDeployRunning={saveDeployRunning}
+      isAutoplayActionRunning={autoplayActionRunning}
       saveDeployStatus={saveDeployOperation}
       runInGameStatus={runInGameOperation}
       runInGameCurrentRelation={runInGameCurrentRelation}
       isDirty={isDirty}
       lightMode={isLightMode}
       liveRuntime={liveRuntime}
+      onToggleAutoplay={handleToggleAutoplay}
       onToast={(message) => toast(message, { variant: "success" })}
       autoRunEnabled={autoRunEnabled}
       onAutoRunEnabledChange={setAutoRunEnabled}
