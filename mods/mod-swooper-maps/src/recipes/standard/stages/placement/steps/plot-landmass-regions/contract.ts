@@ -1,6 +1,6 @@
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 
-import { M10_EFFECT_TAGS } from "../../../../tags.js";
+import { MAP_PROJECTION_EFFECT_TAGS } from "../../../../tags.js";
 import { mapArtifacts } from "../../../../map-artifacts.js";
 import { morphologyArtifacts } from "../../../morphology/artifacts.js";
 
@@ -8,7 +8,7 @@ const PlotLandmassRegionsStepContract = defineStep({
   id: "plot-landmass-regions",
   phase: "gameplay",
   requires: [],
-  provides: [M10_EFFECT_TAGS.map.landmassRegionsPlotted],
+  provides: [MAP_PROJECTION_EFFECT_TAGS.map.landmassRegionsPlotted],
   artifacts: {
     requires: [morphologyArtifacts.topography, morphologyArtifacts.landmasses],
     provides: [mapArtifacts.projectionMeta, mapArtifacts.landmassRegionSlotByTile],

@@ -1,6 +1,10 @@
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import ecology from "@mapgen/domain/ecology";
-import { M3_DEPENDENCY_TAGS, M4_EFFECT_TAGS, M10_EFFECT_TAGS } from "../../../../tags.js";
+import {
+  FIELD_DEPENDENCY_TAGS,
+  STANDARD_ENGINE_EFFECT_TAGS,
+  MAP_PROJECTION_EFFECT_TAGS,
+} from "../../../../tags.js";
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 
 const FeaturesApplyStepContract = defineStep({
@@ -8,9 +12,9 @@ const FeaturesApplyStepContract = defineStep({
   phase: "gameplay",
   requires: [],
   provides: [
-    M3_DEPENDENCY_TAGS.field.featureType,
-    M4_EFFECT_TAGS.engine.featuresApplied,
-    M10_EFFECT_TAGS.map.ecologyFeaturesParityCaptured,
+    FIELD_DEPENDENCY_TAGS.field.featureType,
+    STANDARD_ENGINE_EFFECT_TAGS.engine.featuresApplied,
+    MAP_PROJECTION_EFFECT_TAGS.map.ecologyFeaturesParityCaptured,
   ],
   artifacts: {
     requires: [

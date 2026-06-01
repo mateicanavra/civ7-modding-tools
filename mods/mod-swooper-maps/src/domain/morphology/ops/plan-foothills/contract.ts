@@ -1,6 +1,6 @@
 import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
 
-import { MountainsConfigSchema } from "../../config.js";
+import { MountainsConfigSchema } from "../mountains-shared/config.js";
 
 /**
  * Plans foothill (hill) masks adjacent to ridges/mountain corridors.
@@ -15,12 +15,22 @@ const PlanFoothillsContract = defineOp({
     width: Type.Integer({ minimum: 1, description: "Map width in tiles." }),
     height: Type.Integer({ minimum: 1, description: "Map height in tiles." }),
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
-    mountainMask: TypedArraySchemas.u8({ description: "Mask (1/0): mountain tiles to exclude from hills." }),
-    boundaryCloseness: TypedArraySchemas.u8({ description: "Boundary proximity per tile (0..255)." }),
-    boundaryType: TypedArraySchemas.u8({ description: "Boundary type per tile (BOUNDARY_TYPE values)." }),
+    mountainMask: TypedArraySchemas.u8({
+      description: "Mask (1/0): mountain tiles to exclude from hills.",
+    }),
+    boundaryCloseness: TypedArraySchemas.u8({
+      description: "Boundary proximity per tile (0..255).",
+    }),
+    boundaryType: TypedArraySchemas.u8({
+      description: "Boundary type per tile (BOUNDARY_TYPE values).",
+    }),
     upliftPotential: TypedArraySchemas.u8({ description: "Uplift potential per tile (0..255)." }),
-    collisionPotential: TypedArraySchemas.u8({ description: "Collision-driven uplift potential per tile (0..255)." }),
-    subductionPotential: TypedArraySchemas.u8({ description: "Subduction-driven uplift potential per tile (0..255)." }),
+    collisionPotential: TypedArraySchemas.u8({
+      description: "Collision-driven uplift potential per tile (0..255).",
+    }),
+    subductionPotential: TypedArraySchemas.u8({
+      description: "Subduction-driven uplift potential per tile (0..255).",
+    }),
     riftPotential: TypedArraySchemas.u8({ description: "Rift potential per tile (0..255)." }),
     tectonicStress: TypedArraySchemas.u8({ description: "Tectonic stress per tile (0..255)." }),
     beltAge: TypedArraySchemas.u8({
@@ -29,7 +39,9 @@ const PlanFoothillsContract = defineOp({
     fractalHill: TypedArraySchemas.i16({ description: "Fractal noise for hill scores." }),
   }),
   output: Type.Object({
-    hillMask: TypedArraySchemas.u8({ description: "Mask (1/0): hill tiles (excluding mountains)." }),
+    hillMask: TypedArraySchemas.u8({
+      description: "Mask (1/0): hill tiles (excluding mountains).",
+    }),
   }),
   strategies: {
     default: MountainsConfigSchema,

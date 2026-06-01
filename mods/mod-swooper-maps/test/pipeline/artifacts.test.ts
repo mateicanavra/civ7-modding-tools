@@ -12,7 +12,10 @@ import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
 import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
 import { hydrologyClimateBaselineArtifacts } from "../../src/recipes/standard/stages/hydrology-climate-baseline/artifacts.js";
-import { M3_DEPENDENCY_TAGS, STANDARD_TAG_DEFINITIONS } from "../../src/recipes/standard/tags.js";
+import {
+  FIELD_DEPENDENCY_TAGS,
+  STANDARD_TAG_DEFINITIONS,
+} from "../../src/recipes/standard/tags.js";
 
 const baseEnv = {
   seed: 0,
@@ -40,11 +43,7 @@ function compilePlan<TContext>(
 describe("pipeline artifacts", () => {
   it("treats artifact:climateField as unsatisfied until published", () => {
     const adapter = createMockAdapter({ width: 4, height: 3, rng: () => 0 });
-    const ctx = createExtendedMapContext(
-      { width: 4, height: 3 },
-      adapter,
-      baseEnv
-    );
+    const ctx = createExtendedMapContext({ width: 4, height: 3 }, adapter, baseEnv);
     const climateArtifacts = implementArtifacts([hydrologyClimateBaselineArtifacts.climateField], {
       climateField: {},
     });
@@ -61,51 +60,63 @@ describe("pipeline artifacts", () => {
     const tagRegistry = registry.getTagRegistry();
 
     expect(
-      isDependencyTagSatisfied(hydrologyClimateBaselineArtifacts.climateField.id, ctx, {
-        satisfied: new Set(),
-      }, tagRegistry)
+      isDependencyTagSatisfied(
+        hydrologyClimateBaselineArtifacts.climateField.id,
+        ctx,
+        {
+          satisfied: new Set(),
+        },
+        tagRegistry
+      )
     ).toBe(false);
 
     climateArtifacts.climateField.publish(ctx, ctx.buffers.climate);
 
     expect(
-      isDependencyTagSatisfied(hydrologyClimateBaselineArtifacts.climateField.id, ctx, {
-        satisfied: new Set([hydrologyClimateBaselineArtifacts.climateField.id]),
-      }, tagRegistry)
+      isDependencyTagSatisfied(
+        hydrologyClimateBaselineArtifacts.climateField.id,
+        ctx,
+        {
+          satisfied: new Set([hydrologyClimateBaselineArtifacts.climateField.id]),
+        },
+        tagRegistry
+      )
     ).toBe(true);
   });
 
   it("treats preallocated field buffers as unsatisfied until provided", () => {
     const adapter = createMockAdapter({ width: 4, height: 3, rng: () => 0 });
-    const ctx = createExtendedMapContext(
-      { width: 4, height: 3 },
-      adapter,
-      baseEnv
-    );
+    const ctx = createExtendedMapContext({ width: 4, height: 3 }, adapter, baseEnv);
     const registry = new StepRegistry<typeof ctx>();
     registry.registerTags(STANDARD_TAG_DEFINITIONS);
     const tagRegistry = registry.getTagRegistry();
 
     expect(
-      isDependencyTagSatisfied(M3_DEPENDENCY_TAGS.field.terrainType, ctx, {
-        satisfied: new Set(),
-      }, tagRegistry)
+      isDependencyTagSatisfied(
+        FIELD_DEPENDENCY_TAGS.field.terrainType,
+        ctx,
+        {
+          satisfied: new Set(),
+        },
+        tagRegistry
+      )
     ).toBe(false);
 
     expect(
-      isDependencyTagSatisfied(M3_DEPENDENCY_TAGS.field.terrainType, ctx, {
-        satisfied: new Set([M3_DEPENDENCY_TAGS.field.terrainType]),
-      }, tagRegistry)
+      isDependencyTagSatisfied(
+        FIELD_DEPENDENCY_TAGS.field.terrainType,
+        ctx,
+        {
+          satisfied: new Set([FIELD_DEPENDENCY_TAGS.field.terrainType]),
+        },
+        tagRegistry
+      )
     ).toBe(true);
   });
 
   it("fails provides when a step claims artifact:climateField but does not publish it", () => {
     const adapter = createMockAdapter({ width: 4, height: 3, rng: () => 0 });
-    const ctx = createExtendedMapContext(
-      { width: 4, height: 3 },
-      adapter,
-      baseEnv
-    );
+    const ctx = createExtendedMapContext({ width: 4, height: 3 }, adapter, baseEnv);
     const climateArtifacts = implementArtifacts([hydrologyClimateBaselineArtifacts.climateField], {
       climateField: {},
     });
@@ -137,11 +148,7 @@ describe("pipeline artifacts", () => {
 
   it("fails provides when a step claims artifact:foundation.mantlePotential but does not publish it", () => {
     const adapter = createMockAdapter({ width: 4, height: 3, rng: () => 0 });
-    const ctx = createExtendedMapContext(
-      { width: 4, height: 3 },
-      adapter,
-      baseEnv
-    );
+    const ctx = createExtendedMapContext({ width: 4, height: 3 }, adapter, baseEnv);
     const foundationContracts = implementArtifacts([foundationArtifacts.mantlePotential], {
       foundationMantlePotential: {},
     });
@@ -173,11 +180,7 @@ describe("pipeline artifacts", () => {
 
   it("fails provides when a step claims artifact:map.foundationTectonicHistoryTiles but does not publish it", () => {
     const adapter = createMockAdapter({ width: 4, height: 3, rng: () => 0 });
-    const ctx = createExtendedMapContext(
-      { width: 4, height: 3 },
-      adapter,
-      baseEnv
-    );
+    const ctx = createExtendedMapContext({ width: 4, height: 3 }, adapter, baseEnv);
     const foundationContracts = implementArtifacts([mapArtifacts.foundationTectonicHistoryTiles], {
       foundationTectonicHistoryTiles: {},
     });
@@ -209,11 +212,7 @@ describe("pipeline artifacts", () => {
 
   it("accepts provides when a step publishes artifact:hydrology.hydrography", () => {
     const adapter = createMockAdapter({ width: 4, height: 3, rng: () => 0 });
-    const ctx = createExtendedMapContext(
-      { width: 4, height: 3 },
-      adapter,
-      baseEnv
-    );
+    const ctx = createExtendedMapContext({ width: 4, height: 3 }, adapter, baseEnv);
     const hydrographyArtifacts = implementArtifacts([hydrologyHydrographyArtifacts.hydrography], {
       hydrography: {},
     });
@@ -250,7 +249,13 @@ describe("pipeline artifacts", () => {
 
     expect(stepResults[0]?.success).toBe(true);
     const hydro = ctx.artifacts.get(hydrologyHydrographyArtifacts.hydrography.id) as
-      | { runoff?: unknown; discharge?: unknown; riverClass?: unknown; sinkMask?: unknown; outletMask?: unknown }
+      | {
+          runoff?: unknown;
+          discharge?: unknown;
+          riverClass?: unknown;
+          sinkMask?: unknown;
+          outletMask?: unknown;
+        }
       | undefined;
     expect(hydro?.runoff).toBeInstanceOf(Float32Array);
     expect(hydro?.discharge).toBeInstanceOf(Float32Array);

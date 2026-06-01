@@ -1,13 +1,13 @@
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 
-import { M10_EFFECT_TAGS } from "../../../tags.js";
+import { MAP_PROJECTION_EFFECT_TAGS } from "../../../tags.js";
 import { morphologyArtifacts } from "../../morphology/artifacts.js";
 
 const PlotContinentsStepContract = defineStep({
   id: "plot-continents",
   phase: "gameplay",
-  requires: [M10_EFFECT_TAGS.map.coastsPlotted],
-  provides: [M10_EFFECT_TAGS.map.continentsPlotted],
+  requires: [MAP_PROJECTION_EFFECT_TAGS.map.coastsPlotted],
+  provides: [MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted],
   artifacts: {
     requires: [morphologyArtifacts.topography],
     provides: [],

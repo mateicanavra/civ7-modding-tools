@@ -1,16 +1,6 @@
 import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
 
-import { GeomorphologyConfigSchema, WorldAgeSchema } from "../../config.js";
-
-const GeomorphicCycleConfigSchema = Type.Object(
-  {
-    geomorphology: GeomorphologyConfigSchema,
-    worldAge: WorldAgeSchema,
-  },
-  {
-    description: "Geomorphic relaxation configuration by world age.",
-  }
-);
+import { GeomorphicCycleConfigSchema } from "./config.js";
 
 /**
  * Computes elevation and sediment deltas for a geomorphic relaxation pass.
