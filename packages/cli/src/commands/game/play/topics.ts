@@ -220,6 +220,7 @@ const TOPICS: ReadonlyArray<Topic> = [
       'game watch',
       'game autoplay',
       'game play settlement-recommendations',
+      'game play target-candidates',
     ],
     loadWhen: 'when setting a 5-10 turn posture, comparing against autoplay, or deciding what the next inspection should be',
     boundary: 'strategy snapshots rank what to inspect; they never bypass live blocker reads, validators, or postconditions',

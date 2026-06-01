@@ -568,6 +568,14 @@ Residual objective gaps:
   external direct-control runner for adaptive player strategy. The most useful
   next materializations are strategic snapshots, target-candidate ranking, and
   formation/settler-siege snapshots.
+- Turn 113 exposed the next strategy-materialization need: the active agent had
+  to inspect opponent settlements and choose a first conquest target from
+  distance, apparent strength, and approach. `game play target-candidates` now
+  wraps that read-only pattern as a named shortcut. It ranks runtime target
+  owners from a supplied formation origin and labels the result as planning
+  support, not movement/combat authority. Live context at implementation time
+  favored independent owner `9` near `(13,17)` as the first staging conquest,
+  with Napoleon northwest as a later major-civ target.
 - Remaining gaps are promotion-send/hardening work: richer ready-entity reads,
   stronger live postcondition polling, civic choice proof, population-placement
   postconditions, AI autoplay telemetry shortcuts, and eventual promotion into
@@ -581,6 +589,9 @@ Deferred items:
 - Add a population-placement postcondition helper so sends report whether
   `Growth.isReadyToPlacePopulation` cleared and the city worker/plot state
   changed as expected.
+- Add visibility/pathing and diplomacy context to target-candidate ranking so
+  future siege plans can distinguish public knowledge, debug summaries, and
+  unwanted multi-front war risk.
 - Specify the first strategy-runner dry run and the first fixed-seed AI
   resource-mod A/B experiment before implementing multi-turn automation.
 - Promote stable topic docs into canonical docs and skill assets after review.

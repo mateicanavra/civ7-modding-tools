@@ -33,6 +33,7 @@ import GamePlaySetCultureTarget from '../../src/commands/game/play/set-culture-t
 import GamePlaySetTechTarget from '../../src/commands/game/play/set-tech-target';
 import GamePlaySetTownFocus from '../../src/commands/game/play/set-town-focus';
 import GamePlaySettlementRecommendations from '../../src/commands/game/play/settlement-recommendations';
+import GamePlayTargetCandidates from '../../src/commands/game/play/target-candidates';
 import GamePlayTopics from '../../src/commands/game/play/topics';
 import GamePlayUnitTarget from '../../src/commands/game/play/unit-target';
 import GamePlayUpgradeUnit from '../../src/commands/game/play/upgrade-unit';
@@ -990,6 +991,30 @@ describe('game play commands', () => {
     }
   });
 
+  test('reads target candidates without sending operations', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      await GamePlayTargetCandidates.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--x',
+        '18',
+        '--y',
+        '20',
+        '--json',
+      ]);
+
+      expect(server.received.some((message) => message.includes('readTargetCandidates'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"origins":[{"x":18,"y":20}]'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
   test('watches live play as JSONL without sending operations', async () => {
     const server = await startTunerServer({ playNotificationMode: 'ready-unit' });
     const writes: string[] = [];
@@ -1107,6 +1132,8 @@ async function startTunerServer(options: {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(readyCityView())]));
         } else if (frame.message.includes('readSettlementRecommendations')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(settlementRecommendationsView())]));
+        } else if (frame.message.includes('readTargetCandidates')) {
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(targetCandidatesView())]));
         } else if (frame.message.includes('readNotificationDismissal')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(notificationDismissal(frame.message.includes('"send":true')))]));
         } else if (frame.message.includes('hasSentTurnComplete')) {
@@ -1724,6 +1751,54 @@ function settlementRecommendationsView() {
       },
     ],
     notes: ['Read-only settlement recommendation view. It wraps the official settlement lens API.'],
+  };
+}
+
+function targetCandidatesView() {
+  return {
+    localPlayerId: 0,
+    playerId: 0,
+    origins: [{ x: 18, y: 20 }],
+    unitRadius: 4,
+    hiddenInfoPolicy: 'runtime-debug-summary; may include non-visible cities or units until paired with visibility reads',
+    candidates: [
+      {
+        owner: 9,
+        leaderName: { ok: true, value: 'Independent Power' },
+        civilizationName: { ok: true, value: 'Independent' },
+        isHuman: { ok: true, value: false },
+        cityCount: 1,
+        unitCount: 4,
+        nearestCity: {
+          id: { owner: 9, id: 589824, type: 1 },
+          owner: 9,
+          name: 'Independent City',
+          location: { x: 13, y: 17 },
+          population: 3,
+          isTown: false,
+        },
+        nearestDistance: 5,
+        nearbyUnits: [
+          {
+            id: { owner: 9, id: 196608, type: 26 },
+            owner: 9,
+            typeName: 'UNIT_WARRIOR',
+            location: { x: 13, y: 16 },
+            damage: 0,
+            strength: 20,
+          },
+        ],
+        nearbyUnitCount: 4,
+        apparentStrength: 42,
+        approach: {
+          nearestOrigin: { x: 18, y: 20 },
+          routeHint: 'near-low-density',
+          notes: ['Distance is a cheap grid heuristic for target ranking, not a pathfinder result.'],
+        },
+        reasons: ['nearest target distance 5', 'single known city target', 'low nearby unit density'],
+      },
+    ],
+    notes: ['Read-only strategic target shortlist. It ranks opponents; it does not choose or send war, movement, or attack operations.'],
   };
 }
 

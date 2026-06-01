@@ -1410,6 +1410,47 @@ export type Civ7SettlementRecommendationResult = Readonly<{
   notes: ReadonlyArray<string>;
 }>;
 
+export type Civ7TargetCandidatesInput = Readonly<{
+  playerId?: number;
+  origins?: ReadonlyArray<Readonly<{ x: number; y: number }>>;
+  maxCandidates?: number;
+  maxPlayers?: number;
+  unitRadius?: number;
+}>;
+
+export type Civ7TargetCandidate = Readonly<{
+  owner: number;
+  leaderName: Civ7RuntimeProbe<unknown>;
+  civilizationName: Civ7RuntimeProbe<unknown>;
+  isHuman: Civ7RuntimeProbe<unknown>;
+  cityCount: number;
+  unitCount: number;
+  nearestCity: unknown;
+  nearestDistance: number | null;
+  nearbyUnits: unknown;
+  nearbyUnitCount: number;
+  apparentStrength: number;
+  approach: Readonly<{
+    nearestOrigin: Readonly<{ x: number; y: number }> | null;
+    routeHint: string;
+    notes: ReadonlyArray<string>;
+  }>;
+  reasons: ReadonlyArray<string>;
+}>;
+
+export type Civ7TargetCandidatesResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  localPlayerId: number;
+  playerId: number;
+  origins: ReadonlyArray<Readonly<{ x: number; y: number }>>;
+  unitRadius: number;
+  hiddenInfoPolicy: string;
+  candidates: ReadonlyArray<Civ7TargetCandidate>;
+  notes: ReadonlyArray<string>;
+}>;
+
 export const Civ7CapabilityCatalogEntrySchema = Type.Object({
   id: Type.String(),
   name: Type.String(),
@@ -3080,6 +3121,23 @@ export async function getCiv7SettlementRecommendations(
   return jsonPayloadFromCommandResult<Civ7SettlementRecommendationResult>(result, "Civ7 settlement recommendations");
 }
 
+export async function getCiv7TargetCandidates(
+  input: Civ7TargetCandidatesInput = {},
+  options: Civ7DirectControlOptions = {},
+): Promise<Civ7TargetCandidatesResult> {
+  if (input.playerId !== undefined) validatePlayerId(input.playerId);
+  const result = await executeCiv7AppUiCommand({
+    ...options,
+    command: buildTargetCandidatesCommand({
+      ...input,
+      maxCandidates: boundedInteger(input.maxCandidates ?? 8, 1, 64, "maxCandidates"),
+      maxPlayers: boundedInteger(input.maxPlayers ?? 32, 1, 128, "maxPlayers"),
+      unitRadius: boundedInteger(input.unitRadius ?? 4, 0, 16, "unitRadius"),
+    }),
+  });
+  return jsonPayloadFromCommandResult<Civ7TargetCandidatesResult>(result, "Civ7 target candidates");
+}
+
 export async function requestCiv7UnitTargetAction(
   input: Civ7UnitTargetActionInput,
   options: Civ7DirectControlOptions = {},
@@ -4596,6 +4654,13 @@ function buildSettlementRecommendationsCommand(input: Civ7SettlementRecommendati
   })()`;
 }
 
+function buildTargetCandidatesCommand(input: Civ7TargetCandidatesInput & { maxCandidates: number; maxPlayers: number; unitRadius: number }): string {
+  return `(() => {
+    ${targetCandidatesSource()}
+    return JSON.stringify(readTargetCandidates(${jsLiteral(input)}));
+  })()`;
+}
+
 function buildNotificationDismissalCommand(input: Civ7NotificationDismissInput, options: { send: boolean }): string {
   return `(() => {
     ${notificationDismissalSource()}
@@ -5741,6 +5806,228 @@ function settlementRecommendationsSource(): string {
     };`;
 }
 
+function targetCandidatesSource(): string {
+  return `${probeHelperSource()}
+    ${runtimeObjectReaderSource()}
+    const toComponentId = (value) => {
+      if (!value || typeof value !== "object") return null;
+      const owner = Number(value.owner ?? value.Owner ?? value.player ?? value.Player);
+      const id = Number(value.id ?? value.ID);
+      const type = Number(value.type ?? value.Type);
+      if (!Number.isFinite(owner) || !Number.isFinite(id) || !Number.isFinite(type)) return null;
+      return { owner, id, type };
+    };
+    const toLocation = (value) => {
+      if (!value) return null;
+      const x = Number(value.x ?? value.X);
+      const y = Number(value.y ?? value.Y);
+      if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+      return { x, y };
+    };
+    const distance = (a, b) => {
+      if (!a || !b) return null;
+      return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
+    };
+    const bestDistance = (location, origins) => {
+      let best = null;
+      let nearestOrigin = null;
+      for (const origin of origins) {
+        const value = distance(location, origin);
+        if (value == null) continue;
+        if (best == null || value < best) {
+          best = value;
+          nearestOrigin = origin;
+        }
+      }
+      return { distance: best, nearestOrigin };
+    };
+    const unitStrength = (unit) => {
+      const definition = (() => {
+        try {
+          return unit?.type == null ? null : GameInfo?.Units?.lookup?.(unit.type);
+        } catch {
+          return null;
+        }
+      })();
+      const values = [
+        Number(definition?.Combat),
+        Number(definition?.RangedCombat),
+        Number(definition?.Bombard),
+        Number(definition?.AntiAirCombat),
+        Number(definition?.BaseMoves),
+      ].filter(Number.isFinite);
+      const best = values.length > 0 ? Math.max(...values) : 1;
+      const damage = Number(unit?.damage ?? 0);
+      return Math.max(0, best * Math.max(0.1, (100 - damage) / 100));
+    };
+    const summarizeUnit = (unitId) => {
+      const unit = Units.get(unitId);
+      if (!unit) return null;
+      const location = toLocation(unit.location ?? unit.getLocation?.());
+      return {
+        id: toComponentId(unit.id ?? unitId) ?? unitId,
+        owner: Number(unit.owner ?? unit.player ?? unit.getOwner?.()),
+        type: unit.type ?? unit.getType?.(),
+        typeName: (() => {
+          try {
+            return GameInfo?.Units?.lookup?.(unit.type)?.UnitType ?? null;
+          } catch {
+            return null;
+          }
+        })(),
+        location,
+        damage: unit.damage ?? null,
+        strength: unitStrength(unit),
+      };
+    };
+    const summarizeCity = (cityId) => {
+      const city = Cities.get(cityId);
+      if (!city) return null;
+      const location = toLocation(city.location ?? city.getLocation?.());
+      return {
+        id: toComponentId(city.id ?? cityId) ?? cityId,
+        owner: Number(city.owner ?? city.player ?? city.getOwner?.()),
+        name: typeof city.getName === "function" ? city.getName() : city.name ?? null,
+        location,
+        population: city.population ?? null,
+        isTown: city.isTown ?? null,
+      };
+    };
+    const collectLocalOrigins = (playerId) => {
+      const out = [];
+      try {
+        for (const unit of Players.get(playerId)?.Units?.getUnits?.() ?? []) {
+          const location = toLocation(unit.location);
+          if (!location) continue;
+          const definition = GameInfo?.Units?.lookup?.(unit.type);
+          const unitType = String(definition?.UnitType ?? "").toUpperCase();
+          if (unitType.includes("BALLISTA") || unitType.includes("ARCHER") || unitType.includes("SLINGER") || unitType.includes("COMMANDER") || unitType.includes("WARRIOR") || unitType.includes("SPEARMAN")) out.push(location);
+        }
+      } catch {}
+      try {
+        for (const city of Players.get(playerId)?.Cities?.getCities?.() ?? []) {
+          const location = toLocation(city.location);
+          if (location) out.push(location);
+        }
+      } catch {}
+      return out.slice(0, 12);
+    };
+    const ownerUnits = (owner) => {
+      try {
+        return (Players.Units.get(owner).getUnitIds() ?? []).map(summarizeUnit).filter(Boolean);
+      } catch {
+        return [];
+      }
+    };
+    const ownerCities = (owner) => {
+      try {
+        return (Players.Cities.get(owner).getCityIds() ?? []).map(summarizeCity).filter(Boolean);
+      } catch {
+        return [];
+      }
+    };
+    const routeHint = (distanceValue, unitCount, cityCount) => {
+      if (distanceValue == null) return "unknown";
+      if (distanceValue <= 6 && unitCount <= 6) return "near-low-density";
+      if (distanceValue <= 10) return "near";
+      if (cityCount > 2 && unitCount > 8) return "major-front";
+      return "longer-approach";
+    };
+    const candidateFor = (owner, input, origins) => {
+      const player = Players.get(owner);
+      const cities = ownerCities(owner);
+      const units = ownerUnits(owner);
+      if (cities.length === 0 && units.length === 0) return null;
+      const nearest = cities.reduce((best, city) => {
+        const score = bestDistance(city.location, origins);
+        if (!best || (score.distance != null && (best.distance == null || score.distance < best.distance))) return { city, ...score };
+        return best;
+      }, null);
+      const fallback = !nearest && units.length > 0
+        ? units.reduce((best, unit) => {
+          const score = bestDistance(unit.location, origins);
+          if (!best || (score.distance != null && (best.distance == null || score.distance < best.distance))) return { city: null, unit, ...score };
+          return best;
+        }, null)
+        : null;
+      const target = nearest ?? fallback;
+      const targetLocation = target?.city?.location ?? target?.unit?.location ?? null;
+      const nearbyUnits = targetLocation
+        ? units.filter((unit) => {
+          const value = distance(unit.location, targetLocation);
+          return value != null && value <= input.unitRadius;
+        })
+        : [];
+      const apparentStrength = nearbyUnits.reduce((sum, unit) => sum + (Number(unit.strength) || 0), 0);
+      const reasons = [];
+      if (target?.distance != null) reasons.push("nearest target distance " + target.distance);
+      if (cities.length === 1) reasons.push("single known city target");
+      if (nearbyUnits.length <= 4) reasons.push("low nearby unit density");
+      if (nearbyUnits.length > 8) reasons.push("high nearby unit density");
+      return {
+        owner,
+        leaderName: probe(() => readValue(player, ["leaderName", "name"], ["getLeaderName", "getName"])),
+        civilizationName: probe(() => readValue(player, ["civilizationName", "civilizationType"], ["getCivilizationName", "getCivilizationType"])),
+        isHuman: probe(() => readValue(player, ["isHuman"], ["isHuman"])),
+        cityCount: cities.length,
+        unitCount: units.length,
+        nearestCity: target?.city ?? null,
+        nearestDistance: target?.distance ?? null,
+        nearbyUnits: nearbyUnits.slice(0, 12),
+        nearbyUnitCount: nearbyUnits.length,
+        apparentStrength: Math.round(apparentStrength * 10) / 10,
+        approach: {
+          nearestOrigin: target?.nearestOrigin ?? null,
+          routeHint: routeHint(target?.distance ?? null, nearbyUnits.length, cities.length),
+          notes: [
+            "Distance is a cheap grid heuristic for target ranking, not a pathfinder result.",
+            "Use map/visibility and unit-target validation before moving or attacking.",
+          ],
+        },
+        reasons,
+      };
+    };
+    const readTargetCandidates = (input) => {
+      const localPlayerId = GameContext.localPlayerID;
+      const playerId = Number.isInteger(input.playerId) ? input.playerId : localPlayerId;
+      const requestedOrigins = Array.isArray(input.origins) ? input.origins.map(toLocation).filter(Boolean) : [];
+      const origins = requestedOrigins.length > 0 ? requestedOrigins : collectLocalOrigins(playerId);
+      const aliveIds = (() => {
+        try {
+          return Players.getAliveIds();
+        } catch {
+          return [];
+        }
+      })();
+      const candidates = aliveIds
+        .filter((owner) => owner !== playerId)
+        .slice(0, input.maxPlayers)
+        .map((owner) => candidateFor(owner, input, origins))
+        .filter(Boolean)
+        .sort((a, b) => {
+          const da = a.nearestDistance ?? 9999;
+          const db = b.nearestDistance ?? 9999;
+          if (da !== db) return da - db;
+          if (a.nearbyUnitCount !== b.nearbyUnitCount) return a.nearbyUnitCount - b.nearbyUnitCount;
+          return a.apparentStrength - b.apparentStrength;
+        })
+        .slice(0, input.maxCandidates);
+      return {
+        localPlayerId,
+        playerId,
+        origins,
+        unitRadius: input.unitRadius,
+        hiddenInfoPolicy: "runtime-debug-summary; may include non-visible cities or units until paired with visibility reads",
+        candidates,
+        notes: [
+          "Read-only strategic target shortlist. It ranks opponents; it does not choose or send war, movement, or attack operations.",
+          "Treat candidate ranking as planning support. Re-read map/visibility, ready-unit, and unit-target before any tactical send.",
+          "Use --x/--y from the current siege stack or intended formation when you want the distance ranking to reflect a specific front.",
+        ],
+      };
+    };`;
+}
+
 function readyUnitViewSource(): string {
   return `${probeHelperSource()}
     const toComponentId = (value) => {
@@ -6471,6 +6758,18 @@ const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> 
     provenance: ["Autoplay"],
     wrapper: "configureCiv7Autoplay|startCiv7Autoplay|stopCiv7Autoplay",
     confidence: "source",
+  },
+  {
+    id: "wrapper.target-candidates",
+    name: "Target Candidates",
+    role: "app-ui",
+    kind: "read-wrapper",
+    owner: "@civ7/direct-control",
+    risk: "read",
+    provenance: ["Players", "Cities", "Units", "GameInfo"],
+    wrapper: "getCiv7TargetCandidates",
+    confidence: "runtime",
+    description: "Ranks candidate opponent targets from runtime city/unit summaries and a supplied formation origin.",
   },
   {
     id: "wrapper.operations",

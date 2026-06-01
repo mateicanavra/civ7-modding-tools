@@ -63,15 +63,17 @@ bun packages/cli/bin/run.js game play ready-city --json
 bun packages/cli/bin/run.js game status --json
 bun packages/cli/bin/run.js game map --summary --json
 bun packages/cli/bin/run.js game visibility --player-id 0 --bounds x,y,w,h --json
+bun packages/cli/bin/run.js game play target-candidates --x <front-x> --y <front-y> --json
 bun packages/cli/bin/run.js game gameinfo --table LegacyPaths --json
 ```
 
 Direct-control already has read wrappers for map summary, plot/grid snapshots,
 player summaries, unit summaries, city summaries, visibility summaries,
-GameInfo rows, notifications, ready-unit, ready-city, and restart rehydration.
-Those are sufficient for a first planning snapshot around the local player and
-visible board. The missing first-class pieces are a victory/legacy progress
-read and a diplomacy/relationship read shaped like the official UI.
+GameInfo rows, notifications, ready-unit, ready-city, target candidates, and
+restart rehydration. Those are sufficient for a first planning snapshot around
+the local player and visible board. The missing first-class pieces are a
+victory/legacy progress read and a diplomacy/relationship read shaped like the
+official UI.
 
 ## Official Evidence
 
@@ -203,7 +205,7 @@ diplomacy relationship data.
   to the static diplomacy action cost tables.
 - Settlement recommendation wrapper that records whether it is using the
   current selected settler, a supplied coordinate, or debug context.
-- A compact rival comparison schema that separates met/public facts from
-  developer-only all-player reads.
+- Visibility-filtered target-candidate ranking that separates met/public facts
+  from developer-only all-player reads.
 - A validator-backed strategy-runner dry run that records proposed actions and
   missing inputs without sending.

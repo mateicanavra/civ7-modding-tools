@@ -344,6 +344,7 @@ Source artifacts:
 
 - `topics/multi-turn-strategy-and-ai-levers.md`
 - `topics/strategic-planning-snapshot.md`
+- `topics/target-candidates.md`
 - `topics/rhq-ai-mod-baseline.md`
 - `topics/early-game-decision-context.md`
 - `topics/early-war-tactical-stale-state-guard.md`
@@ -360,6 +361,7 @@ CLI shortcuts:
 - `game play promotion-readiness`
 - `game play ready-city`
 - `game play settlement-recommendations`
+- `game play target-candidates`
 - `game ai loaded-levers`
 - `game play unit-target`
 - `game autoplay`
@@ -393,6 +395,10 @@ Norms:
   allowed operations, AI favored items, unit priorities, pseudo-yields,
   behavior-tree rows, and strategy rows. This proves loaded rows, not native AI
   behavior.
+- Use `game play target-candidates --x <front-x> --y <front-y> --json` before
+  choosing a siege direction. It ranks opponent owners from the current
+  formation origin; it does not declare war, path units, or prove tactical
+  attack legality.
 - Use RHQ AI MOD as the baseline for static AI manipulation over autoplay, not
   as proof that local SQLite edits or in-game JS should own player-side
   strategy. RHQ's public changelog maps to official AI tables and behavior-tree
@@ -453,6 +459,7 @@ runtime and local official resource references.
 | `topics/early-game-decision-context.md` | Strategy context asset | Advisory only |
 | `topics/multi-turn-strategy-and-ai-levers.md` | Strategy-over-turns architecture reference | Reference with gap |
 | `topics/strategic-planning-snapshot.md` | Short-horizon strategy snapshot contract | Reference with gap |
+| `topics/target-candidates.md` | Siege target shortlist reference | Reference with visibility/pathing gaps |
 | `topics/rhq-ai-mod-baseline.md` | Static AI/autoplay comparison baseline | Advisory reference |
 | `evidence-packs/current-online-play-context.md` | Current online context asset | Advisory only |
 | `evidence-packs/local-on-disk-read-surfaces.md` | Runtime-source authority evidence | Ready |
@@ -524,9 +531,6 @@ and postcondition are proven:
   live blockers, ready entities, visible threats, production/diplomacy context,
   met-civ comparison, victory/legacy progress, current objective ledger, and
   stale-risk markers.
-- `game play target-candidates`: rank visible/met rival targets by distance,
-  approach terrain, sea exposure, visible settlement count, visible army/navy,
-  and whether the current siege stack can approach without exposing Settlers.
 - `game play formation-snapshot`: materialize Settler clusters, escort units,
   Ballistas, wounded units, and next safe advance/founding candidates so a
   slow-siege policy has concrete inputs instead of isolated ready-unit reads.
