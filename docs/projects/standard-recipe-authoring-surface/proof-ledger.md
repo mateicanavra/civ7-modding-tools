@@ -46,3 +46,22 @@
 | OpenSpec validation | `bun run openspec -- validate foundation-authoring-surface-alignment --strict` | Passed. |
 | Package TypeScript check | `bun run check` in `mods/mod-swooper-maps` | Fails only on existing unresolved `@mateicanavra/civ7-sdk/mapgen` imports in generated maps and one type test; new Foundation optional-ops errors were repaired. |
 | Runtime proof | direct-control/Studio runtime | Not run. The slice claims shipped-config compile equivalence, schema/default proof, and artifact regeneration only; it does not claim new generated-map behavior. |
+
+## 2026-05-31: Morphology Authoring Surface Alignment Slice
+
+| evidence | command or source | result |
+| --- | --- | --- |
+| Graphite isolation | `gt create codex/morphology-authoring-surface-alignment --no-interactive` | New slice branch above `codex/foundation-authoring-surface-alignment`. Primary worktree was detached at the foundation head for Narsil indexing. |
+| Narsil status | `list_repos`; avoided `hybrid_search` | Narsil MCP was responsive and indexed the primary Civ7 checkout. No restart was needed for this slice. |
+| Public schema boundary | `bun test test/config/maps-schema-valid.test.ts test/standard-compile-errors.test.ts` in `mods/mod-swooper-maps` | Morphology stages expose semantic public keys only, with no raw `{ strategy, config }` public envelope; legacy Morphology step/op envelope config and out-of-range public numeric controls fail strict validation. |
+| Public documentation and ranges | `bun run scripts/report-standard-authoring-surface.ts --format=summary` | Morphology reports: `morphology-coasts` raw `0`, docs `0/0`, numeric `59/59`; `morphology-routing` raw `0`, docs `0/0`, numeric `0/0`; `morphology-erosion` raw `0`, docs `0/0`, numeric `6/6`; `morphology-features` raw `0`, docs `0/0`, numeric `67/67`. |
+| Compile mapping | `maps-schema-valid.test.ts` Morphology compile assertion | Public Morphology groups compile to internal executable step/op envelopes with default strategies for coasts, routing, erosion, islands, mountain family, volcanoes, and landmasses. |
+| Stable compiled-config equivalence | `mods/mod-swooper-maps/test/fixtures/legacy-morphology-compiled.json`; `maps-schema-valid.test.ts` stable comparison | Checked-in golden fixture was generated before Morphology schema edits by compiling shipped Morphology configs with `seed=123`, `dimensions=80x60`, and `latitudeBounds=60/-60`; current shipped configs compile to the same stable Morphology objects. |
+| Generated artifact regeneration | `bun run build:studio-recipes` in `mods/mod-swooper-maps` | Regenerated standard recipe/browser recipe dist outputs, Studio recipe type artifacts, and source map artifacts; no tracked generated source artifacts changed because this slice changes schema metadata, not config values. |
+| Studio schema/default proof | `bun test test/config/defaultConfigSchema.test.ts` in `apps/mapgen-studio` | Passed 7 tests / 108 expects. Studio default config validates; generated standard schema exposes only semantic Morphology keys, documented/range-bounded public fields, and author-facing stage descriptions. |
+| Shipped configs and presets | `bun test test/config/maps-schema-valid.test.ts test/config/presets-schema-valid.test.ts test/config/studio-presets-schema-valid.test.ts test/standard-compile-errors.test.ts test/m11-config-knobs-and-presets.test.ts` in `mods/mod-swooper-maps` | Passed 28 tests / 313 expects. |
+| OpenSpec validation | `bun run openspec -- validate morphology-authoring-surface-alignment --strict` | Passed. |
+| Peer-agent review | Implementation/schema peer and OpenSpec/proof peer | P1/P2 findings accepted and repaired; see `review-disposition-ledger.md`. |
+| Package TypeScript check | `bun run check` in `mods/mod-swooper-maps` | Still fails only on existing unresolved `@mateicanavra/civ7-sdk/mapgen` imports in generated maps and one type test; no new Morphology type errors were reported. |
+| Whitespace check | `git diff --check` | Passed. |
+| Runtime proof | direct-control/Studio runtime | Not run. The slice claims schema/default proof and shipped-config compile equivalence only; it does not claim new generated-map behavior. |

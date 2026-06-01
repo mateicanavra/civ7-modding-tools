@@ -27,3 +27,12 @@
 | OpenSpec/proof peer | P2 | Deferred profile-collapse work lacked owner, authority, trigger, and proof boundary. | Accepted. Design now names the workstream owner, authority basis, re-entry trigger, and non-claim of final product optimality proof. |
 | OpenSpec/proof peer | P2 | OpenSpec forbidden-key scenario omitted legacy `crust-evolution`. | Accepted. Added `crust-evolution` to the forbidden internal Foundation keys scenario. |
 | implementation peer | P2 | Compile-equivalence test depended on an untracked fixture. | Accepted. The legacy compiled Foundation fixture is part of the slice write set and will be staged with the tests. |
+
+## 2026-05-31: Morphology Authoring Surface Alignment Slice
+
+| reviewer | priority | finding | disposition |
+| --- | --- | --- | --- |
+| OpenSpec/proof peer | P2 | Morphology proof and review ledgers did not yet record closure evidence. | Accepted. Added the Morphology proof section with exact commands/results, ledger counts, fixture provenance, Studio artifact proof, OpenSpec validation, peer review disposition, TypeScript residual risk, and explicit runtime non-proof. |
+| OpenSpec/proof peer | P2 | OpenSpec tasks did not explicitly require Studio recipe artifact regeneration even though Studio tests consume generated artifacts. | Accepted. Updated tasks to require artifact regeneration and recorded `bun run build:studio-recipes` in the proof ledger. |
+| implementation peer | P2 | `volcanoes.maxVolcanoes` documentation said all nonpositive values disable the cap, while the schema accepted only down to `-1`. | Accepted. Clarified the accepted nonpositive sentinel range and broadened the lower bound to `-1000` while preserving a finite authoring range. |
+| implementation peer | P2 | Morphology public stage descriptions still used internal `step/op` or `envelope` vocabulary. | Accepted. Reworded public stage descriptions to author-facing map semantics and added generated/source schema guards against `step/op`, `envelope`, or `internal` wording in Morphology public stage descriptions. |

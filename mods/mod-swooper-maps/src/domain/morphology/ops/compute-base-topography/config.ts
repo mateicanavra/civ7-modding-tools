@@ -21,51 +21,65 @@ export const ReliefConfigSchema = Type.Object({
   }),
   /** Blend factor for smoothing crust edges (0..1). */
   crustEdgeBlend: Type.Number({
-    description: "Blend factor for smoothing crust edges (0..1).",
+    description: "Controls blend factor for smoothing crust edges before terrain relief is published (0..1).",
     default: 0.45,
     minimum: 0,
     maximum: 1,
   }),
   /** Amplitude of base noise injected into crust elevations (0..1). */
   crustNoiseAmplitude: Type.Number({
-    description: "Amplitude of base noise injected into crust elevations (0..1).",
+    description: "Controls amplitude of base noise injected into crust elevations for map relief variation (0..1).",
     default: 0.1,
     minimum: 0,
     maximum: 1,
   }),
   /** Baseline elevation for continental crust (normalized units). */
   continentalHeight: Type.Number({
-    description: "Baseline elevation for continental crust (normalized units).",
+    description: "Controls baseline map elevation for continental crust in normalized relief units.",
     default: 0.32,
+    minimum: -2,
+    maximum: 2,
   }),
   /** Baseline elevation for oceanic crust (normalized units). */
   oceanicHeight: Type.Number({
-    description: "Baseline elevation for oceanic crust (normalized units).",
+    description: "Controls baseline map elevation for oceanic crust in normalized relief units.",
     default: -0.55,
+    minimum: -2,
+    maximum: 2,
   }),
   /** Tectonic weighting used while shaping base topography. */
   tectonics: Type.Object({
     interiorNoiseWeight: Type.Number({
-      description: "Blend factor for plate-interior noise.",
+      description: "Controls plate-interior terrain noise weight in base topography.",
       default: 0.5,
       minimum: 0,
+      maximum: 10,
     }),
     boundaryArcWeight: Type.Number({
-      description: "Multiplier for convergent boundary uplift arcs.",
+      description: "Controls convergent boundary uplift arc weight in base terrain relief.",
       default: 0.55,
       minimum: 0,
+      maximum: 10,
     }),
     boundaryArcNoiseWeight: Type.Number({
-      description: "Raggedness injected into boundary arcs.",
+      description: "Controls raggedness injected into tectonic boundary arcs.",
       default: 0.2,
       minimum: 0,
+      maximum: 10,
     }),
     fractalGrain: Type.Number({
-      description: "Grain of tectonic fractal noise (higher = finer).",
+      description: "Controls grain of tectonic fractal noise in terrain relief (higher = finer).",
       default: 4,
       minimum: 1,
+      maximum: 64,
     }),
+  }, {
+    additionalProperties: false,
+    description: "Controls how Foundation tectonic signals become base terrain relief.",
   }),
+}, {
+  additionalProperties: false,
+  description: "Relief controls for translating Foundation crust and tectonic signals into map terrain elevation.",
 });
 
 export type ReliefConfig = Static<typeof ReliefConfigSchema>;

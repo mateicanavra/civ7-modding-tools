@@ -15,9 +15,10 @@ export const MountainsConfigSchema = Type.Object({
    * Primary dial for overall mountain prevalence across the map.
    */
   tectonicIntensity: Type.Number({
-    description: "Global scale for tectonic effects; primary dial for overall mountain prevalence.",
+    description: "Controls global tectonic effects and overall mountain terrain prevalence.",
     default: 1.0,
     minimum: 0,
+    maximum: 10,
   }),
   /**
    * Minimum driver byte (0..255) required for mountains/hills to form.
@@ -27,7 +28,7 @@ export const MountainsConfigSchema = Type.Object({
    */
   driverSignalByteMin: Type.Number({
     description:
-      "Minimum driver byte (0..255) required for mountains/hills to form. Mirrors the determinism gate's driver-signal threshold.",
+      "Controls minimum driver byte required for mountain/hill terrain to form (0..255).",
     default: 30,
     minimum: 0,
     maximum: 255,
@@ -40,9 +41,10 @@ export const MountainsConfigSchema = Type.Object({
    */
   driverExponent: Type.Number({
     description:
-      "Nonlinear shaping applied after driverSignalByteMin; >1 concentrates mountains into strongest corridors, <1 spreads them wider.",
+      "Controls nonlinear shaping after driverSignalByteMin; >1 concentrates mountain terrain into strongest corridors.",
     default: 1.0,
     minimum: 0.01,
+    maximum: 10,
   }),
   /**
    * Hard cap on mountain tile coverage, expressed as a fraction of *land* tiles (0..1).
@@ -52,7 +54,7 @@ export const MountainsConfigSchema = Type.Object({
    * plateaus, basins, and lowlands.
    */
   mountainMaxFraction: Type.Number({
-    description: "Hard cap on mountain coverage as a fraction of land tiles (0..1).",
+    description: "Controls hard cap on mountain terrain coverage as a fraction of land tiles (0..1).",
     default: 0.07,
     minimum: 0,
     maximum: 1,
@@ -65,7 +67,7 @@ export const MountainsConfigSchema = Type.Object({
    * fields exist, while still allowing active margins to be rugged.
    */
   hillMaxFraction: Type.Number({
-    description: "Hard cap on hill coverage as a fraction of land tiles (0..1).",
+    description: "Controls hard cap on hill terrain coverage as a fraction of land tiles (0..1).",
     default: 0.18,
     minimum: 0,
     maximum: 1,
@@ -77,7 +79,7 @@ export const MountainsConfigSchema = Type.Object({
    * Keeping spines sparse prevents blocky mountain blobs when the underlying driver fields are broad.
    */
   mountainSpineFraction: Type.Number({
-    description: "Target fraction of land tiles used as ridge spines (0..1).",
+    description: "Controls target fraction of land tiles used as mountain ridge spines (0..1).",
     default: 0.015,
     minimum: 0,
     maximum: 1,
@@ -89,7 +91,7 @@ export const MountainsConfigSchema = Type.Object({
    */
   mountainSpineDilationSteps: Type.Integer({
     description:
-      "Expansion radius (hex steps) around ridge spines to form the final mountain mask.",
+      "Controls expansion radius around ridge spines to form the final mountain terrain mask.",
     default: 1,
     minimum: 0,
     maximum: 6,
@@ -101,7 +103,7 @@ export const MountainsConfigSchema = Type.Object({
    * This is a proxy for erosion + isostatic adjustment over time.
    */
   oldBeltMountainScale: Type.Number({
-    description: "Scale applied to mountain scoring in old belts (0..1).",
+    description: "Controls mountain terrain scoring scale in old belts (0..1).",
     default: 0.4,
     minimum: 0,
     maximum: 1,
@@ -112,7 +114,7 @@ export const MountainsConfigSchema = Type.Object({
    * Old belts can remain rugged but should transition from mountains to hills.
    */
   oldBeltHillScale: Type.Number({
-    description: "Scale applied to hill scoring in old belts (0..2).",
+    description: "Controls hill terrain scoring scale in old belts (0..2).",
     default: 1.1,
     minimum: 0,
     maximum: 2,
@@ -123,7 +125,7 @@ export const MountainsConfigSchema = Type.Object({
    * Foothills should be adjacent to ridges, not a planet-wide fill.
    */
   foothillMaxDistance: Type.Integer({
-    description: "Maximum foothill extent (hex steps) away from mountains.",
+    description: "Controls maximum foothill terrain extent away from mountains.",
     default: 2,
     minimum: 0,
     maximum: 12,
@@ -131,28 +133,32 @@ export const MountainsConfigSchema = Type.Object({
   /** Score threshold for promoting a tile to a mountain; lower values allow more peaks. */
   mountainThreshold: Type.Number({
     description:
-      "Score threshold for promoting a tile to a mountain; lower values allow more peaks.",
+      "Controls score threshold for promoting a map tile to mountain terrain.",
     default: 0.58,
     minimum: 0,
+    maximum: 10,
   }),
   /** Score threshold for assigning hills; lower values increase hill coverage. */
   hillThreshold: Type.Number({
-    description: "Score threshold for assigning hills; lower values increase hill coverage.",
+    description: "Controls score threshold for assigning hill terrain.",
     default: 0.32,
     minimum: 0,
+    maximum: 10,
   }),
   /** Weight applied to uplift potential; keeps mountains aligned with convergent zones. */
   upliftWeight: Type.Number({
     description:
-      "Weight applied to uplift potential; keeps mountains aligned with convergent zones.",
+      "Controls uplift potential weight that keeps mountain terrain aligned with convergent zones.",
     default: 0.35,
     minimum: 0,
+    maximum: 10,
   }),
   /** Weight applied to fractal noise to introduce natural variation in ranges. */
   fractalWeight: Type.Number({
-    description: "Weight applied to fractal noise to introduce natural variation in ranges.",
+    description: "Controls fractal noise weight used to vary mountain ranges.",
     default: 0.15,
     minimum: 0,
+    maximum: 10,
   }),
 
   /**
@@ -162,61 +168,71 @@ export const MountainsConfigSchema = Type.Object({
    * boundary regime + stress/uplift/rift signals.
    */
   orogenyCollisionStressWeight: Type.Number({
-    description: "Stress contribution to collision orogeny potential (unitless weight).",
+    description: "Controls stress contribution to collision orogeny terrain potential.",
     default: 0.6,
     minimum: 0,
+    maximum: 10,
   }),
   orogenyCollisionUpliftWeight: Type.Number({
-    description: "Uplift contribution to collision orogeny potential (unitless weight).",
+    description: "Controls uplift contribution to collision orogeny terrain potential.",
     default: 0.4,
     minimum: 0,
+    maximum: 10,
   }),
   orogenyTransformStressWeight: Type.Number({
     description:
-      "Stress contribution to transform/transpressional orogeny potential (unitless weight).",
+      "Controls stress contribution to transform/transpressional orogeny terrain potential.",
     default: 0.4,
     minimum: 0,
+    maximum: 10,
   }),
   orogenyDivergentRiftWeight: Type.Number({
     description:
-      "Rift contribution to divergent (rift-shoulder) orogeny potential (unitless weight).",
+      "Controls rift contribution to divergent rift-shoulder terrain potential.",
     default: 0.55,
     minimum: 0,
+    maximum: 10,
   }),
   orogenyDivergentStressWeight: Type.Number({
     description:
-      "Stress contribution to divergent (rift-shoulder) orogeny potential (unitless weight).",
+      "Controls stress contribution to divergent rift-shoulder terrain potential.",
     default: 0.15,
     minimum: 0,
+    maximum: 10,
   }),
 
   /** Diagnostic fracture surface weights (physics decomposition). */
   fractureBoundaryWeight: Type.Number({
-    description: "Boundary closeness contribution to fracture proxy (unitless weight).",
+    description: "Controls boundary closeness contribution to terrain fracture proxy.",
     default: 0.7,
     minimum: 0,
+    maximum: 10,
   }),
   fractureStressWeight: Type.Number({
-    description: "Stress contribution to fracture proxy (unitless weight).",
+    description: "Controls stress contribution to terrain fracture proxy.",
     default: 0.2,
     minimum: 0,
+    maximum: 10,
   }),
   fractureRiftWeight: Type.Number({
-    description: "Rift contribution to fracture proxy (unitless weight).",
+    description: "Controls rift contribution to terrain fracture proxy.",
     default: 0.1,
     minimum: 0,
+    maximum: 10,
   }),
 
   /** Stress/uplift mix used specifically for mountain scoring in collision regimes. */
   mountainCollisionStressWeight: Type.Number({
-    description: "Stress contribution to mountain scoring in collision regimes (unitless weight).",
+    description: "Controls stress contribution to mountain terrain scoring in collision regimes.",
     default: 0.5,
     minimum: 0,
+    maximum: 10,
   }),
   mountainCollisionUpliftWeight: Type.Number({
-    description: "Uplift contribution to mountain scoring in collision regimes (unitless weight).",
+    description: "Controls uplift contribution to mountain terrain scoring in collision regimes.",
     default: 0.5,
     minimum: 0,
+    maximum: 10,
   }),
   /**
    * Subduction-driven uplift contribution to mountain scoring (unitless weight).
@@ -225,9 +241,10 @@ export const MountainsConfigSchema = Type.Object({
    * collision belts, so this should typically be lower than collision uplift weights.
    */
   mountainSubductionUpliftWeight: Type.Number({
-    description: "Subduction-driven uplift contribution to mountain scoring (unitless weight).",
+    description: "Controls subduction-driven uplift contribution to mountain terrain scoring.",
     default: 0.25,
     minimum: 0,
+    maximum: 10,
   }),
   /**
    * Interior uplift factor (0..1+) applied only when driverStrength is nonzero.
@@ -236,32 +253,36 @@ export const MountainsConfigSchema = Type.Object({
    */
   mountainInteriorUpliftScale: Type.Number({
     description:
-      "Interior uplift factor applied when driverStrength is nonzero; keeps mountains tied to driver corridors.",
+      "Controls interior uplift factor applied when driverStrength keeps mountains tied to driver corridors.",
     default: 0.25,
     minimum: 0,
+    maximum: 10,
   }),
   /** Scale factor for fractal modulation of mountain scoring (unitless). */
   mountainFractalScale: Type.Number({
-    description: "Scale factor for fractal modulation of mountain scoring (unitless).",
+    description: "Controls fractal modulation scale for mountain terrain scoring.",
     default: 0.3,
     minimum: 0,
+    maximum: 10,
   }),
   /** Base term used when blending convergence bonus with fractal modulation (unitless). */
   mountainConvergenceFractalBase: Type.Number({
-    description: "Base term for convergence-bonus blend (unitless).",
+    description: "Controls base term for convergence-bonus terrain blend.",
     default: 0.6,
     minimum: 0,
+    maximum: 10,
   }),
   /** Fractal span used when blending convergence bonus with fractal modulation (unitless). */
   mountainConvergenceFractalSpan: Type.Number({
-    description: "Fractal span for convergence-bonus blend (unitless).",
+    description: "Controls fractal span for convergence-bonus terrain blend.",
     default: 0.4,
     minimum: 0,
+    maximum: 10,
   }),
   /** Depression severity along divergent boundaries (0..1); higher values carve deeper rifts. */
   riftDepth: Type.Number({
     description:
-      "Depression severity along divergent boundaries (0..1); higher values carve deeper rifts.",
+      "Controls depression severity along divergent boundaries; higher values carve deeper terrain rifts.",
     default: 0.2,
     minimum: 0,
     maximum: 1,
@@ -269,9 +290,10 @@ export const MountainsConfigSchema = Type.Object({
   /** Additional weight from plate-boundary closeness that pulls mountains toward margins. */
   boundaryWeight: Type.Number({
     description:
-      "Additional weight from plate-boundary closeness that pulls mountains toward margins.",
+      "Controls plate-boundary closeness weight that pulls mountain terrain toward margins.",
     default: 1.0,
     minimum: 0,
+    maximum: 10,
   }),
   /**
    * Boundary-closeness gate (0..0.99).
@@ -282,7 +304,7 @@ export const MountainsConfigSchema = Type.Object({
    */
   boundaryGate: Type.Number({
     description:
-      "Boundary-closeness gate (0..0.99). Set to 0 for more interior variety; raise it to concentrate mountains along margins.",
+      "Controls boundary-closeness gate for concentrating mountain terrain along margins (0..0.99).",
     default: 0.1,
     minimum: 0,
     maximum: 0.99,
@@ -290,9 +312,10 @@ export const MountainsConfigSchema = Type.Object({
   /** Exponent controlling how quickly boundary influence decays with distance (>=0.25). */
   boundaryExponent: Type.Number({
     description:
-      "Exponent controlling how quickly boundary influence decays with distance (>=0.25).",
+      "Controls how quickly boundary influence decays with distance for mountain terrain.",
     default: 1.6,
     minimum: 0.25,
+    maximum: 10,
   }),
   /**
    * Penalty applied to deep interior tiles to keep high terrain near tectonic action.
@@ -301,60 +324,69 @@ export const MountainsConfigSchema = Type.Object({
    */
   interiorPenaltyWeight: Type.Number({
     description:
-      "Penalty applied to deep interior tiles to keep high terrain near tectonic action (higher = fewer interior peaks).",
+      "Controls deep-interior terrain penalty to keep high terrain near tectonic action.",
     default: 0.0,
     minimum: 0,
+    maximum: 10,
   }),
   /** Extra additive weight for convergent tiles, creating dominant orogeny ridges. */
   convergenceBonus: Type.Number({
-    description: "Extra additive weight for convergent tiles, creating dominant orogeny ridges.",
+    description: "Controls additive weight for convergent tiles, creating dominant orogeny ridges.",
     default: 1.0,
     minimum: 0,
+    maximum: 10,
   }),
   /** Penalty multiplier for transform boundaries to soften shearing ridges. */
   transformPenalty: Type.Number({
-    description: "Penalty multiplier for transform boundaries to soften shearing ridges.",
+    description: "Controls penalty multiplier for transform boundaries to soften shearing ridges.",
     default: 0.6,
     minimum: 0,
+    maximum: 10,
   }),
   /** Penalty multiplier applied along divergent boundaries before riftDepth is carved. */
   riftPenalty: Type.Number({
     description:
-      "Penalty multiplier applied along divergent boundaries before riftDepth is carved.",
+      "Controls penalty multiplier along divergent boundaries before riftDepth is carved.",
     default: 1.0,
     minimum: 0,
+    maximum: 10,
   }),
   /** Hill weight contributed by boundary closeness, forming foothill skirts near margins. */
   hillBoundaryWeight: Type.Number({
     description:
-      "Hill weight contributed by boundary closeness, forming foothill skirts near margins.",
+      "Controls hill terrain weight contributed by boundary closeness near margins.",
     default: 0.35,
     minimum: 0,
+    maximum: 10,
   }),
   /** Hill bonus added beside rift valleys, creating uplifted shoulders. */
   hillRiftBonus: Type.Number({
-    description: "Hill bonus added beside rift valleys, creating uplifted shoulders.",
+    description: "Controls hill terrain bonus beside rift valleys and uplifted shoulders.",
     default: 0.25,
     minimum: 0,
+    maximum: 10,
   }),
   /** Foothill extent base used for hill skirts (unitless). */
   hillFoothillBase: Type.Number({
-    description: "Foothill extent base used for hill skirts (unitless).",
+    description: "Controls foothill terrain extent base used for hill skirts.",
     default: 0.5,
     minimum: 0,
+    maximum: 10,
   }),
   /** Foothill extent gain from fractal modulation (unitless). */
   hillFoothillFractalGain: Type.Number({
-    description: "Foothill extent gain from fractal modulation (unitless).",
+    description: "Controls foothill extent gain from fractal terrain modulation.",
     default: 0.5,
     minimum: 0,
+    maximum: 10,
   }),
   /** Extra foothill weight on convergent tiles to smooth transitions into mountain ranges. */
   hillConvergentFoothill: Type.Number({
     description:
-      "Extra foothill weight on convergent tiles to smooth transitions into mountain ranges.",
+      "Controls extra foothill terrain weight on convergent tiles to smooth mountain transitions.",
     default: 0.35,
     minimum: 0,
+    maximum: 10,
   }),
   /**
    * Penalty for hills deep inside plates; higher values keep hills near tectonic features.
@@ -363,41 +395,50 @@ export const MountainsConfigSchema = Type.Object({
    */
   hillInteriorFalloff: Type.Number({
     description:
-      "Penalty for hills deep inside plates; scales with distance from boundaries (higher = fewer interior hills).",
+      "Controls penalty for hill terrain deep inside plates as distance from boundaries increases.",
     default: 0.1,
     minimum: 0,
+    maximum: 10,
   }),
   /** Residual uplift contribution applied to hills so basins and foothills stay balanced. */
   hillUpliftWeight: Type.Number({
     description:
-      "Residual uplift contribution applied to hills so basins and foothills stay balanced.",
+      "Controls residual uplift contribution applied to hills so basins and foothills stay balanced.",
     default: 0.2,
     minimum: 0,
+    maximum: 10,
   }),
   /** Scale factor for fractal modulation of hill scoring (unitless). */
   hillFractalScale: Type.Number({
-    description: "Scale factor for fractal modulation of hill scoring (unitless).",
+    description: "Controls fractal modulation scale for hill terrain scoring.",
     default: 0.8,
     minimum: 0,
+    maximum: 10,
   }),
   /** Scale factor for uplift contribution to hill scoring (unitless). */
   hillUpliftScale: Type.Number({
-    description: "Scale factor for uplift contribution to hill scoring (unitless).",
+    description: "Controls uplift contribution scale for hill terrain scoring.",
     default: 0.3,
     minimum: 0,
+    maximum: 10,
   }),
   /** Scale factor for rift-shoulder hill bonuses (unitless). */
   hillRiftBonusScale: Type.Number({
-    description: "Scale factor for rift-shoulder hill bonuses (unitless).",
+    description: "Controls rift-shoulder bonus scale for hill terrain scoring.",
     default: 0.5,
     minimum: 0,
+    maximum: 10,
   }),
   /** Scale factor for rift depth suppression in hill scoring (unitless). */
   hillRiftDepthScale: Type.Number({
-    description: "Scale factor for rift depth suppression in hill scoring (unitless).",
+    description: "Controls rift depth suppression scale for hill terrain scoring.",
     default: 0.5,
     minimum: 0,
+    maximum: 10,
   }),
+}, {
+  additionalProperties: false,
+  description: "Mountain-range controls for shared ridge, foothill, rough-land terrain classification.",
 });
 
 export type MountainsConfig = Static<typeof MountainsConfigSchema>;

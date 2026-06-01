@@ -13,8 +13,9 @@ const knobsSchema = Type.Object(
     erosion: Type.Optional(MorphologyErosionKnobSchema),
   },
   {
+    additionalProperties: false,
     description:
-      "Morphology-erosion knobs (erosion). Knobs apply after defaulted step config as deterministic transforms.",
+      "Morphology-erosion controls for terrain erosion posture applied as deterministic transforms.",
   }
 );
 
@@ -28,7 +29,7 @@ export default createStage({
     {
       additionalProperties: false,
       description:
-        "Morphology geomorphic-cycle controls. Public config compiles to the internal erosion step/op envelope.",
+        "Morphology geomorphic-cycle controls for fluvial incision, diffusion, deposition, and world-age erosion posture.",
     }
   ),
   steps: [geomorphology],
