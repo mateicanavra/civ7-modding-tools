@@ -27,6 +27,105 @@ export interface DiscoveryCatalogEntry {
 }
 
 /**
+ * Named resource rejection reasons keep placement reconciliation auditable.
+ * MapGen owns the deterministic intent; the adapter owns Civ7 feasibility and
+ * readback evidence instead of hiding drift behind aggregate generator counts.
+ */
+export type ResourcePlacementRejectionReason =
+  | "out-of-bounds"
+  | "invalid-resource-type"
+  | "cannot-have-resource";
+
+export type ResourcePlacementMismatchReason = "wrong-resource-type";
+
+/**
+ * A single deterministic resource request from the map recipe to the engine
+ * adapter. It is intentionally plot-index based because recipe artifacts use
+ * tile-linear plans before adapter materialization converts to x/y.
+ */
+export interface ResourcePlacementIntent {
+  plotIndex: number;
+  resourceType: number;
+}
+
+/**
+ * Resource reconciliation result for one planned intent. Rejections are normal
+ * engine feasibility outcomes; mismatches mean the adapter accepted the intent
+ * but the engine readback disagreed, which callers should treat as fail-hard.
+ */
+export type ResourcePlacementOutcome =
+  | {
+      status: "placed";
+      plotIndex: number;
+      x: number;
+      y: number;
+      resourceType: number;
+      observedResourceType: number;
+    }
+  | {
+      status: "rejected";
+      plotIndex: number;
+      x: number;
+      y: number;
+      resourceType: number;
+      reason: ResourcePlacementRejectionReason;
+      observedResourceType?: number;
+    }
+  | {
+      status: "mismatch";
+      plotIndex: number;
+      x: number;
+      y: number;
+      resourceType: number;
+      reason: ResourcePlacementMismatchReason;
+      observedResourceType: number;
+    };
+
+/**
+ * Named discovery rejection reasons mirror resource reconciliation without
+ * pretending Civ7 exposes resource-like discovery readback.
+ */
+export type DiscoveryPlacementRejectionReason =
+  | "out-of-bounds"
+  | "invalid-discovery-type"
+  | "adapter-rejected";
+
+/**
+ * A single deterministic discovery request from placement planning. Visual and
+ * activation ids stay paired so the adapter can materialize the exact catalog
+ * entry selected by the planner.
+ */
+export interface DiscoveryPlacementIntent {
+  plotIndex: number;
+  discoveryVisualType: number;
+  discoveryActivationType: number;
+}
+
+/**
+ * Discovery reconciliation result for one planned intent. The adapter can only
+ * confirm placement or expose a named rejection, so there is no discovery
+ * mismatch state until Civ7 offers richer readback.
+ */
+export type DiscoveryPlacementOutcome =
+  | {
+      status: "placed";
+      plotIndex: number;
+      x: number;
+      y: number;
+      discoveryVisualType: number;
+      discoveryActivationType: number;
+    }
+  | {
+      status: "rejected";
+      plotIndex: number;
+      x: number;
+      y: number;
+      discoveryVisualType: number;
+      discoveryActivationType: number;
+      reason: DiscoveryPlacementRejectionReason;
+    };
+
+/**
  * Map dimensions
  */
 export interface MapDimensions {
@@ -292,6 +391,17 @@ export interface EngineAdapter {
   /** Adapter-owned placeable resource type catalog used by deterministic placement. */
   getPlaceableResourceTypes(): number[];
 
+  /**
+   * Materialize one planned resource intent and report a typed per-tile outcome.
+   * This keeps Civ7 feasibility/readback at the adapter boundary while letting
+   * MapGen reconcile deterministic intent without count-equality gates.
+   */
+  placeResourceIntent(
+    width: number,
+    height: number,
+    intent: ResourcePlacementIntent
+  ): ResourcePlacementOutcome;
+
   // === PLOT EFFECTS ===
 
   /**
@@ -454,6 +564,18 @@ export interface EngineAdapter {
     discoveryVisualType: number,
     discoveryActivationType: number
   ): boolean;
+
+  /**
+   * Materialize one planned discovery intent and report a typed per-tile outcome.
+   * Discovery placement has no stable engine readback equivalent to resources,
+   * so the adapter is the boundary that converts Civ7 acceptance into named
+   * reconciliation evidence.
+   */
+  placeDiscoveryIntent(
+    width: number,
+    height: number,
+    intent: DiscoveryPlacementIntent
+  ): DiscoveryPlacementOutcome;
 
   /**
    * Run Civ7's official resource generator.

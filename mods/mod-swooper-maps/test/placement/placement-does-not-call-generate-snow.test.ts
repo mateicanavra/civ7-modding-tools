@@ -1,495 +1,295 @@
-import { describe, it, expect, vi } from "vitest";
-import { createMockAdapter } from "@civ7/adapter";
+import { describe, expect, it } from "bun:test";
+
+import {
+  MockAdapter,
+  createMockAdapter,
+  type DiscoveryPlacementIntent,
+  type DiscoveryPlacementOutcome,
+  type MapInfo,
+  type ResourcePlacementIntent,
+  type ResourcePlacementOutcome,
+} from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
-import { implementArtifacts } from "@swooper/mapgen-core/authoring";
-import placement from "../../src/domain/placement/ops.js";
-import { getStandardRuntime } from "../../src/recipes/standard/runtime.js";
+import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
+
+import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
+import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts.js";
-import { applyPlacementPlan } from "../../src/recipes/standard/stages/placement/steps/placement/apply.js";
+import { standardConfig } from "../support/standard-config.js";
 
-describe("placement", () => {
-  it("does not call adapter.generateSnow", () => {
-    const adapter = createMockAdapter({
-      width: 4,
-      height: 4,
-      mapInfo: {
-        GridWidth: 4,
-        GridHeight: 4,
-        PlayersLandmass1: 1,
-        PlayersLandmass2: 1,
-        StartSectorRows: 1,
-        StartSectorCols: 1,
-        NumNaturalWonders: 1,
-      },
-      officialDiscoveriesPlacedCount: 1,
+type PlacementRecipeHarnessOptions = {
+  adapter?: MockAdapter;
+  config?: StandardRecipeConfig;
+  mapInfo?: MapInfo;
+  seed?: number;
+  width?: number;
+  height?: number;
+};
+
+/**
+ * Runs D4 placement reconciliation through the standard recipe instead of
+ * calling placement internals directly. The contract under review is the
+ * recipe-published intent/outcome artifact plus adapter materialization effect,
+ * so the guard must observe the same boundary that shipped maps exercise.
+ */
+function runStandardPlacementRecipe({
+  adapter,
+  config = standardConfig,
+  mapInfo,
+  seed = 1337,
+  width = 20,
+  height = 12,
+}: PlacementRecipeHarnessOptions = {}) {
+  const resolvedMapInfo = {
+    GridWidth: width,
+    GridHeight: height,
+    MinLatitude: -60,
+    MaxLatitude: 60,
+    PlayersLandmass1: 1,
+    PlayersLandmass2: 1,
+    StartSectorRows: 1,
+    StartSectorCols: 1,
+    NumNaturalWonders: 0,
+    ...mapInfo,
+  };
+  const env = {
+    seed,
+    dimensions: { width, height },
+    latitudeBounds: {
+      topLatitude: resolvedMapInfo.MaxLatitude ?? 60,
+      bottomLatitude: resolvedMapInfo.MinLatitude ?? -60,
+    },
+  };
+  const resolvedAdapter =
+    adapter ??
+    createMockAdapter({
+      width,
+      height,
+      mapInfo: resolvedMapInfo,
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
     });
-    const context = createExtendedMapContext({ width: 4, height: 4 }, adapter, { seed: 0 });
-    const runtime = getStandardRuntime(context);
-    const baseStarts = {
-      playersLandmass1: runtime.playersLandmass1,
-      playersLandmass2: runtime.playersLandmass2,
-      startSectorRows: runtime.startSectorRows,
-      startSectorCols: runtime.startSectorCols,
-      startSectors: runtime.startSectors,
+  const context = createExtendedMapContext({ width, height }, resolvedAdapter, env);
+
+  initializeStandardRuntime(context, {
+    mapInfo: resolvedMapInfo,
+    logPrefix: "[test]",
+    storyEnabled: true,
+  });
+  standardRecipe.run(context, env, config, { log: () => {} });
+
+  return { adapter: resolvedAdapter, context };
+}
+
+function readResourceOutcomes(context: ReturnType<typeof runStandardPlacementRecipe>["context"]) {
+  return context.artifacts.get(placementArtifacts.resourcePlacementOutcomes.id) as
+    | {
+        summary: {
+          plannedCount: number;
+          placedCount: number;
+          rejectedCount: number;
+          mismatchCount: number;
+        };
+      }
+    | undefined;
+}
+
+function readDiscoveryOutcomes(context: ReturnType<typeof runStandardPlacementRecipe>["context"]) {
+  return context.artifacts.get(placementArtifacts.discoveryPlacementOutcomes.id) as
+    | {
+        summary: {
+          plannedCount: number;
+          placedCount: number;
+          rejectedCount: number;
+          mismatchCount: number;
+        };
+      }
+    | undefined;
+}
+
+class RejectingDiscoveryAdapter extends MockAdapter {
+  override stampDiscovery(
+    x: number,
+    y: number,
+    discoveryVisualType: number,
+    discoveryActivationType: number
+  ): boolean {
+    this.calls.stampDiscovery.push({ x, y, discoveryVisualType, discoveryActivationType });
+    return false;
+  }
+}
+
+class MismatchingResourceAdapter extends MockAdapter {
+  override placeResourceIntent(
+    width: number,
+    height: number,
+    intent: ResourcePlacementIntent
+  ): ResourcePlacementOutcome {
+    const outcome = super.placeResourceIntent(width, height, intent);
+    if (outcome.status !== "placed") return outcome;
+    return {
+      ...outcome,
+      status: "mismatch",
+      reason: "wrong-resource-type",
+      observedResourceType: outcome.resourceType + 1,
     };
+  }
+}
 
-    const starts = placement.ops.planStarts.run(
-      { baseStarts },
-      placement.ops.planStarts.defaultConfig
-    );
-    const wonders = placement.ops.planWonders.run(
-      { mapInfo: runtime.mapInfo },
-      placement.ops.planWonders.defaultConfig
-    );
-    const floodplains = placement.ops.planFloodplains.run(
-      {},
-      placement.ops.planFloodplains.defaultConfig
-    );
-    const resources = {
-      width: 4,
-      height: 4,
-      candidateResourceTypes: [1],
-      targetCount: 1,
-      plannedCount: 1,
-      placements: [
-        {
-          plotIndex: 0,
-          preferredResourceType: 1,
-          preferredTypeOffset: 0,
-          priority: 1,
-        },
-      ],
+class UntypedResourceRejectionAdapter extends MockAdapter {
+  override placeResourceIntent(
+    width: number,
+    height: number,
+    intent: ResourcePlacementIntent
+  ): ResourcePlacementOutcome {
+    const outcome = super.placeResourceIntent(width, height, intent);
+    if (outcome.status !== "placed") return outcome;
+    return {
+      status: "rejected",
+      plotIndex: outcome.plotIndex,
+      x: outcome.x,
+      y: outcome.y,
+      resourceType: outcome.resourceType,
+      observedResourceType: outcome.observedResourceType,
+    } as ResourcePlacementOutcome;
+  }
+}
+
+class MislocatedDiscoveryAdapter extends MockAdapter {
+  override placeDiscoveryIntent(
+    width: number,
+    height: number,
+    intent: DiscoveryPlacementIntent
+  ): DiscoveryPlacementOutcome {
+    const outcome = super.placeDiscoveryIntent(width, height, intent);
+    if (outcome.status !== "placed") return outcome;
+    return {
+      ...outcome,
+      plotIndex: outcome.plotIndex + 1,
+      x: outcome.x + 1,
     };
+  }
+}
 
-    const placementRuntime = implementArtifacts([placementArtifacts.placementOutputs], {
-      placementOutputs: {},
-    });
-    const outputs = applyPlacementPlan({
-      context,
-      starts,
-      wonders,
-      naturalWonderPlan: {
-        width: 4,
-        height: 4,
-        wondersCount: 1,
-        targetCount: 1,
-        plannedCount: 1,
-        placements: [{ plotIndex: 1, featureType: 39, direction: 0, elevation: 100, priority: 1 }],
-      },
-      discoveryPlan: {
-        width: 4,
-        height: 4,
-        candidateDiscoveries: [{ discoveryVisualType: 0, discoveryActivationType: 0 }],
-        targetCount: 1,
-        plannedCount: 1,
-        placements: [
-          {
-            plotIndex: 2,
-            preferredDiscoveryVisualType: 0,
-            preferredDiscoveryActivationType: 0,
-            preferredDiscoveryOffset: 0,
-            priority: 1,
-          },
-        ],
-      },
-      floodplains,
-      resources,
-      landmassRegionSlotByTile: {
-        slotByTile: new Uint8Array(16).fill(1),
-      },
-      publishOutputs: (outputs) => placementRuntime.placementOutputs.publish(context, outputs),
-    });
+describe("placement reconciliation", () => {
+  it("materializes resources and discoveries through typed adapter intents", () => {
+    const { adapter, context } = runStandardPlacementRecipe();
+
+    const resourceOutcomes = readResourceOutcomes(context);
+    const discoveryOutcomes = readDiscoveryOutcomes(context);
 
     expect(adapter.calls.generateSnow.length).toBe(0);
-    expect(adapter.calls.stampNaturalWonder.length).toBe(1);
-    expect(adapter.calls.stampDiscovery.length).toBe(0);
-    expect(adapter.calls.generateOfficialResources.length).toBe(1);
-    expect(adapter.calls.generateOfficialResources[0]).toMatchObject({
-      width: 4,
-      height: 4,
+    expect(adapter.calls.generateOfficialResources.length).toBe(0);
+    expect(adapter.calls.generateOfficialDiscoveries.length).toBe(0);
+    expect(resourceOutcomes?.summary.plannedCount).toBeGreaterThan(0);
+    expect(discoveryOutcomes?.summary.plannedCount).toBeGreaterThan(0);
+    expect(adapter.calls.setResourceType.length).toBe(resourceOutcomes?.summary.placedCount);
+    expect(adapter.calls.stampDiscovery.length).toBe(discoveryOutcomes?.summary.placedCount);
+  });
+
+  it("records typed resource rejections without falling back to official generation", () => {
+    const width = 20;
+    const height = 12;
+    const seed = 1441;
+    const adapter = createMockAdapter({
+      width,
+      height,
+      mapInfo: { GridWidth: width, GridHeight: height },
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
+      canHaveResource: () => false,
     });
+
+    const { context } = runStandardPlacementRecipe({ adapter, seed, width, height });
+    const resourceOutcomes = readResourceOutcomes(context);
+
+    expect(adapter.calls.generateOfficialResources.length).toBe(0);
     expect(adapter.calls.setResourceType.length).toBe(0);
-    expect(adapter.calls.generateOfficialDiscoveries.length).toBe(1);
-    expect(adapter.calls.generateOfficialDiscoveries[0]).toMatchObject({
-      width: 4,
-      height: 4,
-      polarMargin: 0,
-    });
-    expect(outputs.naturalWondersCount).toBe(1);
-    expect(outputs.discoveriesCount).toBe(1);
+    expect(resourceOutcomes?.summary.plannedCount).toBeGreaterThan(0);
+    expect(resourceOutcomes?.summary.placedCount).toBe(0);
+    expect(resourceOutcomes?.summary.rejectedCount).toBe(resourceOutcomes?.summary.plannedCount);
+    expect(resourceOutcomes?.summary.mismatchCount).toBe(0);
   });
 
-  it("uses official discovery generation without relying on runtime discovery candidate lookups", () => {
-    const adapter = createMockAdapter({
-      width: 4,
-      height: 4,
-      mapInfo: {
-        GridWidth: 4,
-        GridHeight: 4,
-        PlayersLandmass1: 1,
-        PlayersLandmass2: 1,
-        StartSectorRows: 1,
-        StartSectorCols: 1,
-        NumNaturalWonders: 0,
-      },
-      officialDiscoveriesPlacedCount: 1,
-    });
-    const context = createExtendedMapContext({ width: 4, height: 4 }, adapter, { seed: 0 });
-    const runtime = getStandardRuntime(context);
-    const baseStarts = {
-      playersLandmass1: runtime.playersLandmass1,
-      playersLandmass2: runtime.playersLandmass2,
-      startSectorRows: runtime.startSectorRows,
-      startSectorCols: runtime.startSectorCols,
-      startSectors: runtime.startSectors,
-    };
-
-    const starts = placement.ops.planStarts.run(
-      { baseStarts },
-      placement.ops.planStarts.defaultConfig
-    );
-    const wonders = placement.ops.planWonders.run(
-      { mapInfo: runtime.mapInfo },
-      placement.ops.planWonders.defaultConfig
-    );
-    const floodplains = placement.ops.planFloodplains.run(
-      {},
-      placement.ops.planFloodplains.defaultConfig
-    );
-    const placementRuntime = implementArtifacts([placementArtifacts.placementOutputs], {
-      placementOutputs: {},
-    });
-    const discoveryVisualType = 2687284451;
-    const discoveryActivationType = 2398750021;
-
-    const outputs = applyPlacementPlan({
-      context,
-      starts,
-      wonders,
-      naturalWonderPlan: {
-        width: 4,
-        height: 4,
-        wondersCount: 0,
-        targetCount: 0,
-        plannedCount: 0,
-        placements: [],
-      },
-      discoveryPlan: {
-        width: 4,
-        height: 4,
-        candidateDiscoveries: [],
-        targetCount: 1,
-        plannedCount: 1,
-        placements: [
-          {
-            plotIndex: 2,
-            preferredDiscoveryVisualType: discoveryVisualType,
-            preferredDiscoveryActivationType: discoveryActivationType,
-            preferredDiscoveryOffset: 0,
-            priority: 1,
-          },
-        ],
-      },
-      floodplains,
-      resources: {
-        width: 4,
-        height: 4,
-        candidateResourceTypes: [1],
-        targetCount: 0,
-        plannedCount: 0,
-        placements: [],
-      },
-      landmassRegionSlotByTile: {
-        slotByTile: new Uint8Array(16).fill(1),
-      },
-      publishOutputs: (published) => placementRuntime.placementOutputs.publish(context, published),
+  it("records typed discovery rejections without falling back to official generation", () => {
+    const width = 20;
+    const height = 12;
+    const seed = 1551;
+    const adapter = new RejectingDiscoveryAdapter({
+      width,
+      height,
+      mapInfo: { GridWidth: width, GridHeight: height },
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
     });
 
-    expect(adapter.calls.stampDiscovery.length).toBe(0);
-    expect(adapter.calls.generateOfficialDiscoveries.length).toBe(1);
-    expect(adapter.calls.generateOfficialDiscoveries[0]?.startPositions.length ?? 0).toBeGreaterThan(0);
-    expect(adapter.calls.generateOfficialDiscoveries[0]).toMatchObject({
-      width: 4,
-      height: 4,
-      polarMargin: 0,
-    });
-    expect(outputs.discoveriesCount).toBe(1);
+    const { context } = runStandardPlacementRecipe({ adapter, seed, width, height });
+    const discoveryOutcomes = readDiscoveryOutcomes(context);
+
+    expect(adapter.calls.generateOfficialDiscoveries.length).toBe(0);
+    expect(discoveryOutcomes?.summary.plannedCount).toBeGreaterThan(0);
+    expect(discoveryOutcomes?.summary.placedCount).toBe(0);
+    expect(discoveryOutcomes?.summary.rejectedCount).toBe(discoveryOutcomes?.summary.plannedCount);
+    expect(discoveryOutcomes?.summary.mismatchCount).toBe(0);
   });
 
-  it("fails hard when official discovery generation throws", () => {
-    const adapter = createMockAdapter({
-      width: 4,
-      height: 4,
-      mapInfo: {
-        GridWidth: 4,
-        GridHeight: 4,
-        PlayersLandmass1: 1,
-        PlayersLandmass2: 1,
-        StartSectorRows: 1,
-        StartSectorCols: 1,
-        NumNaturalWonders: 0,
-      },
+  it("fails hard when resource readback contradicts typed intent", () => {
+    const width = 20;
+    const height = 12;
+    const seed = 1661;
+    const adapter = new MismatchingResourceAdapter({
+      width,
+      height,
+      mapInfo: { GridWidth: width, GridHeight: height },
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
     });
-    const discoverySpy = vi
-      .spyOn(adapter, "generateOfficialDiscoveries")
-      .mockImplementation(() => {
-        throw new Error("forced official discovery failure");
-      });
-    const context = createExtendedMapContext({ width: 4, height: 4 }, adapter, { seed: 0 });
-    const runtime = getStandardRuntime(context);
-    const baseStarts = {
-      playersLandmass1: runtime.playersLandmass1,
-      playersLandmass2: runtime.playersLandmass2,
-      startSectorRows: runtime.startSectorRows,
-      startSectorCols: runtime.startSectorCols,
-      startSectors: runtime.startSectors,
-    };
-    const starts = placement.ops.planStarts.run(
-      { baseStarts },
-      placement.ops.planStarts.defaultConfig
-    );
-    const wonders = placement.ops.planWonders.run(
-      { mapInfo: runtime.mapInfo },
-      placement.ops.planWonders.defaultConfig
-    );
-    const floodplains = placement.ops.planFloodplains.run(
-      {},
-      placement.ops.planFloodplains.defaultConfig
-    );
 
-    expect(() =>
-      applyPlacementPlan({
-        context,
-        starts,
-        wonders,
-        naturalWonderPlan: {
-          width: 4,
-          height: 4,
-          wondersCount: 0,
-          targetCount: 0,
-          plannedCount: 0,
-          placements: [],
-        },
-        discoveryPlan: {
-          width: 4,
-          height: 4,
-          candidateDiscoveries: [],
-          targetCount: 1,
-          plannedCount: 1,
-          placements: [
-            {
-              plotIndex: 2,
-              preferredDiscoveryVisualType: 0,
-              preferredDiscoveryActivationType: 0,
-              preferredDiscoveryOffset: 0,
-              priority: 1,
-            },
-          ],
-        },
-        floodplains,
-        resources: {
-          width: 4,
-          height: 4,
-          candidateResourceTypes: [1],
-          targetCount: 0,
-          plannedCount: 0,
-          placements: [],
-        },
-        landmassRegionSlotByTile: {
-          slotByTile: new Uint8Array(16).fill(1),
-        },
-        publishOutputs: (outputs) => outputs,
-      })
-    ).toThrow(/placement\.discoveries failed/i);
-
-    expect(discoverySpy).toHaveBeenCalledTimes(1);
+    expect(() => runStandardPlacementRecipe({ adapter, seed, width, height })).toThrow(
+      /placement\.resources failed/i
+    );
+    expect(adapter.calls.generateOfficialResources.length).toBe(0);
     expect(adapter.calls.recalculateFertility).toBe(0);
     expect(adapter.calls.assignAdvancedStartRegions).toBe(0);
   });
 
-  it("aborts placement when natural wonder stamping cannot fully satisfy the plan", () => {
-    const adapter = createMockAdapter({
-      width: 4,
-      height: 4,
-      mapInfo: {
-        GridWidth: 4,
-        GridHeight: 4,
-        PlayersLandmass1: 1,
-        PlayersLandmass2: 1,
-        StartSectorRows: 1,
-        StartSectorCols: 1,
-        NumNaturalWonders: 2,
-      },
-      canHaveFeature: () => false,
+  it("fails hard when resource outcomes omit typed rejection reasons", () => {
+    const width = 20;
+    const height = 12;
+    const seed = 1771;
+    const adapter = new UntypedResourceRejectionAdapter({
+      width,
+      height,
+      mapInfo: { GridWidth: width, GridHeight: height },
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
     });
-    const context = createExtendedMapContext({ width: 4, height: 4 }, adapter, { seed: 0 });
-    const runtime = getStandardRuntime(context);
-    const baseStarts = {
-      playersLandmass1: runtime.playersLandmass1,
-      playersLandmass2: runtime.playersLandmass2,
-      startSectorRows: runtime.startSectorRows,
-      startSectorCols: runtime.startSectorCols,
-      startSectors: runtime.startSectors,
-    };
 
-    const starts = placement.ops.planStarts.run(
-      { baseStarts },
-      placement.ops.planStarts.defaultConfig
+    expect(() => runStandardPlacementRecipe({ adapter, seed, width, height })).toThrow(
+      /untyped rejection reason/i
     );
-    const wonders = placement.ops.planWonders.run(
-      { mapInfo: runtime.mapInfo },
-      placement.ops.planWonders.defaultConfig
-    );
-    const floodplains = placement.ops.planFloodplains.run(
-      {},
-      placement.ops.planFloodplains.defaultConfig
-    );
-
-    expect(() =>
-      applyPlacementPlan({
-        context,
-        starts,
-        wonders,
-        naturalWonderPlan: {
-          width: 4,
-          height: 4,
-          wondersCount: 2,
-          targetCount: 2,
-          plannedCount: 2,
-          placements: [
-            { plotIndex: 99, featureType: 39, direction: 0, elevation: 100, priority: 1 },
-            { plotIndex: 1, featureType: 40, direction: 0, elevation: 100, priority: 1 },
-          ],
-        },
-        discoveryPlan: {
-          width: 4,
-          height: 4,
-          candidateDiscoveries: [{ discoveryVisualType: 0, discoveryActivationType: 0 }],
-          targetCount: 2,
-          plannedCount: 2,
-          placements: [
-            {
-              plotIndex: 98,
-              preferredDiscoveryVisualType: 0,
-              preferredDiscoveryActivationType: 0,
-              preferredDiscoveryOffset: 0,
-              priority: 1,
-            },
-            {
-              plotIndex: 2,
-              preferredDiscoveryVisualType: 0,
-              preferredDiscoveryActivationType: 0,
-              preferredDiscoveryOffset: 0,
-              priority: 1,
-            },
-          ],
-        },
-        floodplains,
-        resources: {
-          width: 4,
-          height: 4,
-          candidateResourceTypes: [1],
-          targetCount: 0,
-          plannedCount: 0,
-          placements: [],
-        },
-        landmassRegionSlotByTile: {
-          slotByTile: new Uint8Array(16).fill(1),
-        },
-        publishOutputs: (outputs) => outputs,
-      })
-    ).toThrow(/placement\.wonders failed/i);
-
-    expect(adapter.calls.stampNaturalWonder.length).toBe(0);
-    expect(adapter.calls.stampDiscovery.length).toBe(0);
     expect(adapter.calls.generateOfficialResources.length).toBe(0);
-    expect(adapter.calls.generateOfficialDiscoveries.length).toBe(0);
-    expect(adapter.calls.setStartPosition.length).toBe(0);
-    expect(adapter.calls.setResourceType.length).toBe(0);
+    expect(adapter.calls.recalculateFertility).toBe(0);
+    expect(adapter.calls.assignAdvancedStartRegions).toBe(0);
   });
 
-  it("fails explicitly when natural wonder metadata is invalid", () => {
-    const adapter = createMockAdapter({
-      width: 4,
-      height: 4,
-      mapInfo: {
-        GridWidth: 4,
-        GridHeight: 4,
-        PlayersLandmass1: 1,
-        PlayersLandmass2: 1,
-        StartSectorRows: 1,
-        StartSectorCols: 1,
-        NumNaturalWonders: 1,
-      },
+  it("fails hard when discovery outcomes drift from typed intent location", () => {
+    const width = 20;
+    const height = 12;
+    const seed = 1881;
+    const adapter = new MislocatedDiscoveryAdapter({
+      width,
+      height,
+      mapInfo: { GridWidth: width, GridHeight: height },
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
     });
-    const context = createExtendedMapContext({ width: 4, height: 4 }, adapter, { seed: 0 });
-    const runtime = getStandardRuntime(context);
-    const starts = placement.ops.planStarts.run(
-      {
-        baseStarts: {
-          playersLandmass1: runtime.playersLandmass1,
-          playersLandmass2: runtime.playersLandmass2,
-          startSectorRows: runtime.startSectorRows,
-          startSectorCols: runtime.startSectorCols,
-          startSectors: runtime.startSectors,
-        },
-      },
-      placement.ops.planStarts.defaultConfig
-    );
-    const wonders = placement.ops.planWonders.run(
-      { mapInfo: runtime.mapInfo },
-      placement.ops.planWonders.defaultConfig
-    );
-    const floodplains = placement.ops.planFloodplains.run(
-      {},
-      placement.ops.planFloodplains.defaultConfig
-    );
 
-    expect(() =>
-      applyPlacementPlan({
-        context,
-        starts,
-        wonders,
-        naturalWonderPlan: {
-          width: 4,
-          height: 4,
-          wondersCount: 1,
-          targetCount: 1,
-          plannedCount: 1,
-          placements: [
-            {
-              plotIndex: 3,
-              featureType: Number.NaN,
-              direction: 0,
-              elevation: 100,
-              priority: 1,
-            },
-          ],
-        },
-        discoveryPlan: {
-          width: 4,
-          height: 4,
-          candidateDiscoveries: [],
-          targetCount: 0,
-          plannedCount: 0,
-          placements: [],
-        },
-        floodplains,
-        resources: {
-          width: 4,
-          height: 4,
-          candidateResourceTypes: [1],
-          targetCount: 0,
-          plannedCount: 0,
-          placements: [],
-        },
-        landmassRegionSlotByTile: {
-          slotByTile: new Uint8Array(16).fill(1),
-        },
-        publishOutputs: (outputs) => outputs,
-      })
-    ).toThrow(/invalid feature metadata/i);
-
+    expect(() => runStandardPlacementRecipe({ adapter, seed, width, height })).toThrow(
+      /outcome location\/type drifted/i
+    );
     expect(adapter.calls.generateOfficialDiscoveries.length).toBe(0);
+    expect(adapter.calls.recalculateFertility).toBe(0);
+    expect(adapter.calls.assignAdvancedStartRegions).toBe(0);
   });
 });

@@ -4,23 +4,22 @@ import { MockAdapter, type LakeProjectionResult } from "@civ7/adapter";
 import { FLAT_TERRAIN, createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
-import placement from "../../src/domain/placement/ops.js";
-import { getStandardRuntime } from "../../src/recipes/standard/runtime.js";
-import lakes from "../../src/recipes/standard/stages/map-hydrology/steps/lakes.js";
-import plotRivers from "../../src/recipes/standard/stages/map-hydrology/steps/plotRivers.js";
-import { applyPlacementPlan } from "../../src/recipes/standard/stages/placement/steps/placement/apply.js";
-import { buildTestDeps } from "../support/step-deps.js";
+import standardRecipe from "../../src/recipes/standard/recipe.js";
+import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
+import { placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts.js";
+import { standardConfig } from "../support/standard-config.js";
 
 /**
  * Area-sensitive adapter double.
  *
- * Lake stamping must refresh engine area and water caches before later map
- * stages and placement ask Civ7 resource logic about marine placement. This
- * double dries the stamped tile during validation if the adapter forgot the
- * area refresh.
+ * Civ7 resource feasibility depends on refreshed area/water caches after lake
+ * and river terrain edits. This double makes that ordering observable through
+ * the public recipe run instead of seeding step artifacts or invoking placement
+ * internals directly.
  */
 class AreaSensitiveLakeAdapter extends MockAdapter {
   private cachedWater: Uint8Array;
+  private cacheBackedWaterReads = false;
   private lakeNeedsAreaRefresh = false;
   readonly callOrder: string[] = [];
 
@@ -38,19 +37,22 @@ class AreaSensitiveLakeAdapter extends MockAdapter {
     const ocean = this.getTerrainTypeIndex("TERRAIN_OCEAN");
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
-        const t = this.getTerrainType(x, y) | 0;
-        this.cachedWater[this.idx2(x, y)] = t === coast || t === ocean ? 1 : 0;
+        const terrain = this.getTerrainType(x, y) | 0;
+        this.cachedWater[this.idx2(x, y)] = terrain === coast || terrain === ocean ? 1 : 0;
       }
     }
   }
 
   override isWater(x: number, y: number): boolean {
-    // Simulate engine cache-backed water reads.
+    // Simulate engine cache-backed water reads; cache freshness is the contract
+    // this regression protects.
+    if (!this.cacheBackedWaterReads) return super.isWater(x, y);
     return this.cachedWater[this.idx2(x, y)] === 1;
   }
 
   override stampLakes(width: number, height: number, lakeMask: Uint8Array): LakeProjectionResult {
     this.callOrder.push("stampLakes");
+    this.cacheBackedWaterReads = true;
     this.lakeNeedsAreaRefresh = true;
     return super.stampLakes(width, height, lakeMask);
   }
@@ -62,7 +64,8 @@ class AreaSensitiveLakeAdapter extends MockAdapter {
 
   override validateAndFixTerrain(): void {
     this.callOrder.push("validateAndFixTerrain");
-    // Simulate the engine normalizing stale post-lake terrain if areas were not rebuilt.
+    // If lake stamping did not refresh areas before later validation, model the
+    // kind of stale-cache normalization that previously dried projected lakes.
     if (this.lakeNeedsAreaRefresh) {
       this.setTerrainType(1, 1, FLAT_TERRAIN);
     }
@@ -81,15 +84,20 @@ class AreaSensitiveLakeAdapter extends MockAdapter {
     this.callOrder.push("defineNamedRivers");
   }
 
-  override canHaveResource(x: number, y: number, resourceType: number): boolean {
-    return this.isWater(x, y) && super.canHaveResource(x, y, resourceType);
+  override placeResourceIntent(
+    width: number,
+    height: number,
+    intent: Parameters<MockAdapter["placeResourceIntent"]>[2]
+  ): ReturnType<MockAdapter["placeResourceIntent"]> {
+    this.callOrder.push("placeResourceIntent");
+    return super.placeResourceIntent(width, height, intent);
   }
 }
 
 describe("map-hydrology lakes area/water ordering", () => {
-  it("keeps lake tiles water-filled across rivers + placement and uses official resource generation", () => {
-    const width = 4;
-    const height = 4;
+  it("refreshes water caches before recipe-level typed resource materialization", () => {
+    const width = 20;
+    const height = 12;
     const seed = 1234;
     const mapInfo = {
       GridWidth: width,
@@ -116,115 +124,33 @@ describe("map-hydrology lakes area/water ordering", () => {
       mapSizeId: 1,
       rng: createLabelRng(seed),
       defaultTerrainType: FLAT_TERRAIN,
-      officialResourcesPlacedCount: 1,
     });
     const context = createExtendedMapContext({ width, height }, adapter, env);
 
-    const size = width * height;
-    context.artifacts.set("artifact:morphology.topography", {
-      elevation: new Int16Array(size),
-      seaLevel: 0,
-      landMask: new Uint8Array(size).fill(1),
-      bathymetry: new Int16Array(size),
+    initializeStandardRuntime(context, {
+      mapInfo,
+      logPrefix: "[test]",
+      storyEnabled: true,
     });
-    context.artifacts.set("artifact:hydrology.hydrography", {
-      runoff: new Float32Array(size),
-      discharge: new Float32Array(size),
-      riverClass: new Uint8Array(size),
-      flowDir: new Int32Array(size).fill(-1),
-      sinkMask: new Uint8Array(size),
-      outletMask: new Uint8Array(size),
-    });
-    const lakeMask = new Uint8Array(size);
-    lakeMask[1 + width] = 1;
-    context.artifacts.set("artifact:hydrology.lakePlan", {
-      width,
-      height,
-      lakeMask,
-      plannedLakeTileCount: 1,
-      sinkLakeCount: 1,
-    });
+    standardRecipe.run(context, env, standardConfig, { log: () => {} });
 
-    lakes.run(context as any, { projectionReadback: true }, {} as any, buildTestDeps(lakes));
-    plotRivers.run(
-      context as any,
-      { minLength: 5, maxLength: 15 },
-      {} as any,
-      buildTestDeps(plotRivers)
+    const firstLakeStamp = adapter.callOrder.indexOf("stampLakes");
+    const firstAreaRefreshAfterLakes = adapter.callOrder.findIndex(
+      (call, index) => index > firstLakeStamp && call === "recalculateAreas"
     );
-
-    expect(adapter.callOrder.slice(0, 3)).toEqual([
-      "stampLakes",
-      "recalculateAreas",
-      "storeWaterData",
-    ]);
-    expect(adapter.isWater(1, 1)).toBe(true);
-
-    const runtime = getStandardRuntime(context);
-    const starts = placement.ops.planStarts.run(
-      {
-        baseStarts: {
-          playersLandmass1: runtime.playersLandmass1,
-          playersLandmass2: runtime.playersLandmass2,
-          startSectorRows: runtime.startSectorRows,
-          startSectorCols: runtime.startSectorCols,
-          startSectors: runtime.startSectors,
-        },
-      },
-      placement.ops.planStarts.defaultConfig
+    const firstWaterRefreshAfterLakes = adapter.callOrder.findIndex(
+      (call, index) => index > firstAreaRefreshAfterLakes && call === "storeWaterData"
     );
-    const wonders = placement.ops.planWonders.run(
-      { mapInfo: runtime.mapInfo },
-      placement.ops.planWonders.defaultConfig
-    );
-    const floodplains = placement.ops.planFloodplains.run({}, placement.ops.planFloodplains.defaultConfig);
-    const resources = {
-      width,
-      height,
-      candidateResourceTypes: [3],
-      targetCount: 1,
-      plannedCount: 1,
-      placements: [
-        {
-          plotIndex: 1 + width,
-          preferredResourceType: 3,
-          preferredTypeOffset: 0,
-          priority: 1,
-        },
-      ],
-    };
+    const firstResourceIntent = adapter.callOrder.indexOf("placeResourceIntent");
+    const resourceOutcomes = context.artifacts.get(
+      placementArtifacts.resourcePlacementOutcomes.id
+    ) as { summary?: { plannedCount?: number } } | undefined;
 
-    const outputs = applyPlacementPlan({
-      context,
-      starts,
-      wonders,
-      naturalWonderPlan: {
-        width,
-        height,
-        wondersCount: 0,
-        targetCount: 0,
-        plannedCount: 0,
-        placements: [],
-      },
-      discoveryPlan: {
-        width,
-        height,
-        candidateDiscoveries: [],
-        targetCount: 0,
-        plannedCount: 0,
-        placements: [],
-      },
-      floodplains,
-      resources,
-      landmassRegionSlotByTile: { slotByTile: new Uint8Array(size).fill(1) },
-      publishOutputs: (outputs) => outputs,
-    });
-
-    expect(adapter.calls.generateOfficialResources).toEqual([
-      { width, height, minMarineResourceTypesOverride: undefined },
-    ]);
-    expect(adapter.calls.setResourceType.length).toBe(0);
-    expect(outputs.resourcesCount).toBe(1);
-    expect(adapter.isWater(1, 1)).toBe(true);
+    expect(firstLakeStamp).toBeGreaterThanOrEqual(0);
+    expect(firstAreaRefreshAfterLakes).toBeGreaterThan(firstLakeStamp);
+    expect(firstWaterRefreshAfterLakes).toBeGreaterThan(firstAreaRefreshAfterLakes);
+    expect(firstResourceIntent).toBeGreaterThan(firstWaterRefreshAfterLakes);
+    expect(resourceOutcomes?.summary?.plannedCount ?? 0).toBeGreaterThan(0);
+    expect(adapter.calls.generateOfficialResources.length).toBe(0);
   });
 });

@@ -14,6 +14,7 @@
 ## Purpose
 
 Placement is legacy naming for the **Gameplay** domain’s “placement phase”: the pipeline boundary where “map content” becomes “gameplay outcomes”:
+
 - assign starts,
 - place wonders/resources/discoveries,
 - and publish placement outputs for verification and debugging.
@@ -21,11 +22,13 @@ Placement is legacy naming for the **Gameplay** domain’s “placement phase”
 Placement is intentionally **projection/engine-facing**: it depends on prior projection steps (engine rivers/features) and uses engine adapters to apply gameplay outcomes.
 
 Target posture: Gameplay absorbs Placement. See:
+
 - [`docs/system/libs/mapgen/reference/domains/GAMEPLAY.md`](/system/libs/mapgen/reference/domains/GAMEPLAY.md)
 
 ## Stages (standard recipe)
 
 Standard recipe stage(s):
+
 - `placement`
 
 See: [`docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`](/system/libs/mapgen/reference/STANDARD-RECIPE.md).
@@ -33,16 +36,19 @@ See: [`docs/system/libs/mapgen/reference/STANDARD-RECIPE.md`](/system/libs/mapge
 ## Contract (requires/provides)
 
 Placement requires (dependency tags):
+
 - `effect:engine.riversModeled` (from `map-hydrology`)
 - `effect:engine.featuresApplied` (from `map-ecology`)
 - `effect:map.landmassRegionsPlotted` (from `plot-landmass-regions`)
 - `effect:placement.naturalWondersPlaced` (from `place-natural-wonders`, required by final placement)
 
 Placement provides:
+
 - `effect:placement.naturalWondersPlaced` (natural-wonder product boundary)
 - `effect:engine.placementApplied` (verified effect tag)
 
 Placement artifacts:
+
 - Provides `artifact:placementInputs` (derived from config + placement ops)
 - Provides deterministic plan artifacts: `artifact:placement.resourcePlan`, `artifact:placement.naturalWonderPlan`, `artifact:placement.discoveryPlan`
 - Provides `artifact:placement.naturalWonderPlacement` after all planned natural wonders stamp successfully
@@ -50,23 +56,27 @@ Placement artifacts:
 - Provides `artifact:placementOutputs` (verification/debug surface)
 
 Runtime semantics:
+
 - Placement apply is fail-hard.
 - Natural wonders use deterministic full-stamp-or-fail semantics in their own product/effect step.
-- Discoveries/resources run through official Civ generators; generator invocation failures and invalid placement metrics abort the placement step with explicit context.
-- Owned deterministic resource planning artifacts are retained for diagnostics/parity work but are non-primary at runtime and currently parity-incomplete for age/eligibility behavior.
+- Resources and discoveries are deterministic plan artifacts materialized through typed adapter intent APIs.
+- Resource/discovery placement publishes typed outcome artifacts; typed rejections are auditable, resource readback mismatches are fail-hard, and aggregate official-generator count equality is not a contract gate.
 - Terrain validation, area recalculation, water cache storage, landmass-region restamping, and fertility recalculation remain transactional inside final placement because no independent consumer currently exists.
 
 ## Key artifacts
 
 Placement artifacts are authored by the standard recipe:
+
 - `mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts.ts`
 
 Placement also depends on gameplay-owned projection artifacts:
+
 - `mods/mod-swooper-maps/src/recipes/standard/map-artifacts.ts`
 
 ## Ops surface
 
 Placement domain ops used by the standard recipe:
+
 - `planWonders`
 - `planFloodplains`
 - `planNaturalWonders`
@@ -79,14 +89,16 @@ These ops produce placement plans/inputs which are then applied in the placement
 Natural-wonder placement is the first promoted product boundary: the plan
 artifact is materialized by `place-natural-wonders`, and final placement
 requires its effect/artifact before continuing. Resource and discovery
-reconciliation remains intentionally deferred to the D4 typed-outcome slice.
+reconciliation remains in final placement but publishes typed outcomes instead
+of treating official generator output as accepted truth.
 
 ## Config posture
 
 Placement stage config is currently minimal:
+
 - placement inputs are derived from runtime config and placement ops,
 - resource/discovery planning consumes adapter-owned manual catalogs (`packages/civ7-adapter/src/manual-catalogs`) that are verified against the official tables via `scripts/placement/verify-manual-catalogs.ts`, so there are no runtime GameInfo/Database lookups for these catalogs,
-- runtime apply uses official Civ generators for discovery/resources and deterministic stamping for natural wonders.
+- runtime apply uses typed adapter intent materialization for discovery/resources and deterministic stamping for natural wonders.
 
 ## Ground truth anchors
 

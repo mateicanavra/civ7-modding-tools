@@ -10,11 +10,15 @@ export default createStep(PlacementStepContract, {
     [
       placementArtifacts.placementOutputs,
       placementArtifacts.engineState,
+      placementArtifacts.resourcePlacementOutcomes,
+      placementArtifacts.discoveryPlacementOutcomes,
       mapArtifacts.placementEngineTerrainSnapshot,
     ],
     {
       placementOutputs: {},
       engineState: {},
+      resourcePlacementOutcomes: {},
+      discoveryPlacementOutcomes: {},
       placementEngineTerrainSnapshot: {},
     }
   ),
@@ -39,6 +43,10 @@ export default createStep(PlacementStepContract, {
       landmassRegionSlotByTile,
       publishOutputs: (outputs) => deps.artifacts.placementOutputs.publish(context, outputs),
       publishEngineState: (engineState) => deps.artifacts.engineState.publish(context, engineState),
+      publishResourcePlacementOutcomes: (outcomes) =>
+        deps.artifacts.resourcePlacementOutcomes.publish(context, outcomes),
+      publishDiscoveryPlacementOutcomes: (outcomes) =>
+        deps.artifacts.discoveryPlacementOutcomes.publish(context, outcomes),
       publishEngineTerrainSnapshot: (snapshot) =>
         deps.artifacts.placementEngineTerrainSnapshot.publish(context, snapshot),
     });

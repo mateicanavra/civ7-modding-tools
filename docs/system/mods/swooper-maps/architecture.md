@@ -4,6 +4,7 @@ This page documents the Swooper Maps mod’s own architecture.
 It is **not** canonical MapGen SDK documentation.
 
 Canonical MapGen docs:
+
 - `docs/system/libs/mapgen/MAPGEN.md`
 - `docs/system/libs/mapgen/reference/REFERENCE.md`
 - `docs/system/libs/mapgen/explanation/ARCHITECTURE.md`
@@ -25,11 +26,16 @@ Current architecture for ecology, lakes, and placement is intentionally physics-
   - biome/placement land-water drift is always emitted and remains a strict-candidate gate until a post-hydrology authoritative land mask artifact is finalized.
 
 Placement runtime now uses:
-- deterministic stamping for natural wonders,
-- official Civ discovery generation (`generateOfficialDiscoveries`),
-- official Civ resource generation (`generateOfficialResources`) as the primary resource path for age-valid eligibility behavior.
 
-Owned deterministic resource planning artifacts remain in-repo for diagnostics/parity work, but are non-primary at runtime and currently parity-incomplete for age/eligibility semantics.
+- deterministic stamping for natural wonders,
+- deterministic resource/discovery plans materialized through typed adapter intent APIs,
+- typed per-placement outcome artifacts for resource/discovery reconciliation.
+
+The adapter, not a downstream mod-specific generator path, owns Civ7 feasibility
+checks and effect materialization. Resource rejections are accepted only when
+typed by the adapter; resource readback mismatches are fail-hard drift evidence.
+Discovery materialization records typed acceptance/rejection because Civ7 does
+not expose resource-like discovery readback.
 
 ## Current mod code pointers
 
@@ -46,6 +52,7 @@ Owned deterministic resource planning artifacts remain in-repo for diagnostics/p
 This section is retained as historical context and is not used by the current mod code pointers above.
 
 Example (minimal runnable pipeline):
+
 ```ts
 import standardRecipe from "./recipes/standard/recipe.js";
 import { applyMapInitData } from "./maps/_runtime/map-init.js";
