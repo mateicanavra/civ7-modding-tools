@@ -25,6 +25,12 @@ export type BuiltInPreset = Readonly<{
   id: string;
   label: string;
   description?: string;
+  sourcePath?: string;
+  sortIndex?: number;
+  latitudeBounds?: Readonly<{
+    topLatitude: number;
+    bottomLatitude: number;
+  }>;
   config: unknown;
 }>;
 
@@ -69,9 +75,9 @@ function makeRecipeId(namespace: string, recipeId: string): StudioRecipeId {
 import {
   STANDARD_RECIPE_CONFIG as swooperStandardDefaultConfig,
   STANDARD_RECIPE_CONFIG_SCHEMA as swooperStandardConfigSchema,
-  studioBuiltInPresets as swooperStandardBuiltInPresets,
   studioRecipeUiMeta as swooperStandardUiMeta,
 } from "mod-swooper-maps/recipes/standard-artifacts";
+import { standardMapConfigs as swooperStandardMapConfigs } from "mod-swooper-maps/recipes/standard-map-configs";
 import {
   BROWSER_TEST_RECIPE_CONFIG as swooperBrowserTestDefaultConfig,
   BROWSER_TEST_RECIPE_CONFIG_SCHEMA as swooperBrowserTestConfigSchema,
@@ -86,7 +92,7 @@ export const STUDIO_RECIPE_ARTIFACTS: readonly RecipeArtifacts[] = [
     configSchema: swooperStandardConfigSchema,
     defaultConfig: swooperStandardDefaultConfig,
     uiMeta: swooperStandardUiMeta,
-    studioBuiltInPresets: swooperStandardBuiltInPresets,
+    studioBuiltInPresets: swooperStandardMapConfigs,
   },
   {
     id: makeRecipeId("mod-swooper-maps", "browser-test"),

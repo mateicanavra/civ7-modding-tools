@@ -244,12 +244,12 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
             <span
               className={`text-[10px] font-medium uppercase tracking-wider w-14 shrink-0 ${textMuted}`}>
 
-              Preset
+              Config
             </span>
             <Select
               value={settings.preset}
               onChange={(e) => updateSetting('preset', e.target.value)}
-              aria-label="Preset"
+              aria-label="Config"
               options={presetOptions.map((opt) => ({
                 value: opt.value,
                 label: opt.label
@@ -399,10 +399,10 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                 variant="outline"
                 size="icon"
                 onClick={() => setShowSaveMenu(!showSaveMenu)}
-                aria-label="Save Preset"
+                aria-label="Save Config"
                 aria-haspopup="menu"
                 aria-expanded={showSaveMenu}
-                title="Save Preset"
+                title="Save Config"
                 className="h-8 w-8">
 
                 <Save className="w-4 h-4" aria-hidden="true" />
@@ -413,7 +413,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                   <button
                   type="button"
                   className="fixed inset-0 z-40"
-                  aria-label="Close Save Preset Menu"
+                  aria-label="Close Save Config Menu"
                   onClick={() => setShowSaveMenu(false)} />
 
                   <div
@@ -427,7 +427,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                     }}
                     className={`w-full text-left px-3 py-2 text-[11px] ${textPrimary} ${hoverBg} rounded-t-lg`}>
 
-                      Save to Current
+                      Save
                     </button>
                     <button
                     type="button"
@@ -437,7 +437,7 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                     }}
                     className={`w-full text-left px-3 py-2 text-[11px] ${textPrimary} ${hoverBg} border-t ${borderSubtle}`}>
 
-                      Save as New…
+                      Save As…
                     </button>
                     <button
                     type="button"
@@ -468,12 +468,12 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
                     }}
                     className={`w-full text-left px-3 py-2 text-[11px] text-red-600 ${hoverBg} rounded-b-lg border-t ${borderSubtle}`}>
 
-                        Delete Preset
+                        Delete Scratch
                       </button>
                     }
                     {!canDeletePreset &&
                     <div className={`w-full text-left px-3 py-2 text-[11px] ${textMuted} rounded-b-lg border-t ${borderSubtle}`}>
-                        Delete Preset (Local Only)
+                        Delete Scratch
                       </div>
                     }
                   </div>

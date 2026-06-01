@@ -20,11 +20,16 @@
     "./recipes/standard-artifacts": {
       "types": "./dist/recipes/standard-artifacts.d.ts",
       "import": "./dist/recipes/standard-artifacts.js"
+    },
+    "./recipes/standard-map-configs": {
+      "types": "./dist/recipes/standard-map-configs.d.ts",
+      "import": "./dist/recipes/standard-map-configs.js"
     }
   },
   "scripts": {
-    "build": "tsup",
-    "build:studio-recipes": "tsup --config tsup.studio-recipes.config.ts && bun run gen:studio-recipes-types",
+    "build": "bun run gen:maps && tsup",
+    "build:studio-recipes": "tsup --config tsup.studio-recipes.config.ts && bun run gen:studio-recipes-types && bun run gen:maps",
+    "gen:maps": "bun ./scripts/generate-map-artifacts.ts",
     "gen:studio-recipes-types": "bun ./scripts/generate-studio-recipe-types.ts",
     "lint": "eslint .",
     "check": "tsc --noEmit",

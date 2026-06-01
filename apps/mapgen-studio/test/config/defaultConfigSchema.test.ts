@@ -47,9 +47,7 @@ describe("Studio default config", () => {
     expect(errors).toEqual([]);
   });
 
-  it("matches the authored swooper-earthlike posture (prevents accidental skeleton defaults)", () => {
-    expect(STANDARD_RECIPE_CONFIG.foundation.knobs.plateCount).toBe(28);
-    expect(STANDARD_RECIPE_CONFIG.foundation.knobs.plateActivity).toBe(0.7);
+  it("matches the canonical swooper-earthlike map config posture (prevents accidental skeleton defaults)", () => {
     expect(STANDARD_RECIPE_CONFIG.foundation.mesh.computeMesh.config.plateCount).toBe(28);
     expect(STANDARD_RECIPE_CONFIG.foundation).not.toHaveProperty("version");
     expect(STANDARD_RECIPE_CONFIG.foundation).not.toHaveProperty("profiles");

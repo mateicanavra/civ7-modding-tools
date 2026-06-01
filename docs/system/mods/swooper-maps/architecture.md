@@ -13,7 +13,18 @@ Canonical MapGen docs:
 
 ## Overview
 
-This mod uses **explicit overrides + recipe selection** so variants can share one codebase while choosing configuration and step enablement explicitly (no preset composition in the TS runtime).
+This mod uses **canonical JSON map configs + recipe selection** so shipped
+variants share one codebase while keeping each selectable world's identity and
+full recipe config in one source file.
+
+Shipped map variants are authored only as
+`mods/mod-swooper-maps/src/maps/configs/*.config.json`. Each file contains the
+map id, display name, description, recipe id, sort order, optional latitude
+bounds, and the full flat standard-recipe config payload. `bun run --cwd
+mods/mod-swooper-maps gen:maps` validates that directory and generates the
+per-map entry modules plus Civ7 map rows, modinfo imports, localization rows,
+and the Studio built-in config catalog. Do not hand-author shipped map wrappers
+or shipped `.config.ts` files.
 
 ## Physics-Truth Cutover (Ecology + Placement)
 
@@ -40,7 +51,8 @@ not expose resource-like discovery readback.
 
 ## Current mod code pointers
 
-- Map definitions: `mods/mod-swooper-maps/src/maps/*`
+- Map config authority: `mods/mod-swooper-maps/src/maps/configs/*.config.json`
+- Generated map entry sources: `mods/mod-swooper-maps/src/maps/generated/*`
 - Recipes: `mods/mod-swooper-maps/src/recipes/*`
 
 ## Legacy TypeScript Architecture (M6)

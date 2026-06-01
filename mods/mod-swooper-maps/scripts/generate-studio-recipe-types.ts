@@ -11,6 +11,7 @@ import {
   type RecipePresetDefinitionV1,
 } from "@swooper/mapgen-core/authoring";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
+import { validateCanonicalMapConfig } from "../src/maps/configs/canonical.js";
 
 type JsonObject = Record<string, unknown>;
 type BuiltInPreset = Readonly<{
@@ -20,7 +21,6 @@ type BuiltInPreset = Readonly<{
   config: unknown;
 }>;
 
-const SENTINEL_KEY = "__studioUiMetaSentinelPath";
 const PRESET_WRAPPER_KEYS = new Set(["$schema", "id", "label", "description", "config"]);
 
 function assertPlainObject(value: unknown, label: string): asserts value is JsonObject {
@@ -39,46 +39,6 @@ function stableJson(value: unknown): JsonObject {
   const parsed = JSON.parse(text) as unknown;
   assertPlainObject(parsed, "schema");
   return parsed;
-}
-
-function makeSentinel(path: readonly string[]): Record<string, unknown> {
-  return { [SENTINEL_KEY]: Array.from(path) };
-}
-
-function findSentinelPaths(value: unknown): readonly (readonly string[])[] {
-  const found: string[][] = [];
-  const seen = new Set<unknown>();
-
-  function walk(node: unknown, depth: number): void {
-    if (!node || typeof node !== "object") return;
-    if (seen.has(node)) return;
-    seen.add(node);
-
-    if (isPlainObject(node)) {
-      const maybe = node[SENTINEL_KEY];
-      if (Array.isArray(maybe) && maybe.every((v) => typeof v === "string")) {
-        found.push(maybe.slice());
-      }
-      if (depth <= 0) return;
-      for (const v of Object.values(node)) walk(v, depth - 1);
-      return;
-    }
-
-    if (Array.isArray(node)) {
-      if (depth <= 0) return;
-      for (const v of node) walk(v, depth - 1);
-    }
-  }
-
-  walk(value, 6);
-  return found;
-}
-
-function assertSingleSentinelPath(input: { label: string; value: unknown }): readonly string[] {
-  const found = findSentinelPaths(input.value);
-  if (found.length === 1) return found[0] ?? [];
-  if (found.length === 0) throw new Error(`${input.label} did not forward any sentinel value`);
-  throw new Error(`${input.label} forwarded multiple sentinel values (ambiguous mapping)`);
 }
 
 type StageLike = Readonly<{
@@ -117,12 +77,6 @@ function setAtPath(root: Record<string, unknown>, path: readonly string[]): void
   }
 }
 
-function typeboxObjectProperties(schema: unknown): Record<string, unknown> {
-  if (!schema || typeof schema !== "object") return {};
-  const props = (schema as { properties?: unknown }).properties;
-  return isPlainObject(props) ? props : {};
-}
-
 function buildDefaultsSkeleton(uiMeta: StudioRecipeUiMeta): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const stage of uiMeta.stages) {
@@ -150,77 +104,9 @@ function deriveStageStepConfigFocusMap(args: {
     >;
   }
 
-  const publicProps = typeboxObjectProperties(stage.public);
-  const publicKeys = Object.keys(publicProps);
-  const advancedProps = typeboxObjectProperties(publicProps.advanced);
-  const advancedStepIds = stepIds.filter((stepId) =>
-    Object.prototype.hasOwnProperty.call(advancedProps, stepId)
+  throw new Error(
+    `[recipe:${args.namespace}.${args.recipeId}] stage("${stage.id}") has a custom public surface; Studio config focus must be explicitly redesigned instead of using legacy compatibility mapping`
   );
-
-  // If `advanced` is a full step-config map (advanced.<stepId> for every step), we can map
-  // all steps directly to `advanced.<stepId>`. This is used by stages whose only public
-  // surface is `advanced` (e.g. morphology-coasts).
-  if (publicKeys.includes("advanced") && advancedStepIds.length === stepIds.length) {
-    const advanced: Record<string, unknown> = Object.fromEntries(
-      stepIds.map((stepId) => [stepId, makeSentinel(["advanced", stepId])])
-    );
-    const { rawSteps } = stage.toInternal({
-      env: {},
-      stageConfig: { knobs: {}, advanced },
-    });
-
-    const mapping: Record<string, readonly string[]> = {};
-    for (const stepId of stepIds) {
-      if (!(stepId in rawSteps)) {
-        throw new Error(
-          `[recipe:${args.namespace}.${args.recipeId}] stage("${stage.id}") missing rawSteps["${stepId}"] when probing advanced mapping`
-        );
-      }
-      const path = assertSingleSentinelPath({
-        label: `[recipe:${args.namespace}.${args.recipeId}] stage("${stage.id}") step("${stepId}")`,
-        value: rawSteps[stepId],
-      });
-      if (path.join(".") !== ["advanced", stepId].join(".")) {
-        throw new Error(
-          `[recipe:${args.namespace}.${args.recipeId}] stage("${stage.id}") advanced mapping produced unexpected focus path for step("${stepId}"): ${JSON.stringify(
-            path
-          )}`
-        );
-      }
-      mapping[stepId] = path;
-    }
-    return mapping;
-  }
-
-  const stageConfig: Record<string, unknown> = { knobs: {} };
-  for (const key of publicKeys) stageConfig[key] = makeSentinel([key]);
-
-  const { rawSteps } = stage.toInternal({ env: {}, stageConfig });
-
-  const mapping: Record<string, readonly string[]> = {};
-  for (const stepId of stepIds) {
-    if (!(stepId in rawSteps)) {
-      throw new Error(
-        `[recipe:${args.namespace}.${args.recipeId}] stage("${stage.id}") missing rawSteps["${stepId}"] when probing public-key mapping`
-      );
-    }
-    mapping[stepId] = assertSingleSentinelPath({
-      label: `[recipe:${args.namespace}.${args.recipeId}] stage("${stage.id}") step("${stepId}")`,
-      value: rawSteps[stepId],
-    });
-  }
-
-  // Some stages expose an `advanced` surface that configures only a subset of steps.
-  // In that case, we focus those steps directly under `advanced.<stepId>`, and fall back
-  // to the stage-level mapping (usually `profiles`) for the rest.
-  if (publicKeys.includes("advanced") && advancedStepIds.length > 0) {
-    // Intentionally schema-driven: `advanced.<stepId>` may be compiled into a derived step config
-    // (so a sentinel value won't necessarily survive through `toInternal`), but the Studio editor
-    // still needs to focus the relevant subtree for that step.
-    for (const stepId of advancedStepIds) mapping[stepId] = ["advanced", stepId];
-  }
-
-  return mapping;
 }
 
 function readPresetWrapper(args: {
@@ -619,7 +505,13 @@ const standardUiMeta = deriveStudioRecipeUiMeta({
 });
 const standardDefaultPresetPath = resolve(pkgRoot, "src", "maps", "configs", "swooper-earthlike.config.json");
 const standardDefaultPresetRaw = JSON.parse(await readFile(standardDefaultPresetPath, "utf-8")) as unknown;
-const standardDefaultPresetClean = stripSchemaMetadataRoot(standardDefaultPresetRaw);
+const standardDefaultMapConfig = validateCanonicalMapConfig({
+  fileName: "swooper-earthlike.config.json",
+  raw: standardDefaultPresetRaw,
+  recipeSchema: standardSchema,
+  stages: standardMod.STANDARD_STAGES,
+});
+const standardDefaultPresetClean = stripSchemaMetadataRoot(standardDefaultMapConfig.config);
 const { value: standardDefaults, errors: standardDefaultsErrors } = normalizeStrict<Record<string, unknown>>(
   standardSchema,
   standardDefaultPresetClean,
@@ -635,11 +527,7 @@ if (standardDefaultsErrors.length > 0) {
   );
 }
 const standardDefaultsClean = stripSchemaMetadataRoot(standardDefaults);
-const standardBuiltInPresets = await loadBuiltInPresets({
-  pkgRoot,
-  recipeId: "standard",
-  schema: standardSchema,
-});
+const standardBuiltInPresets: ReadonlyArray<BuiltInPreset> = [];
 
 await writeFile(
   resolve(pkgRoot, "dist", "recipes", "standard.schema.json"),
@@ -706,15 +594,18 @@ async function validateStandardMapConfigPresets(): Promise<void> {
     if (!ent.name.endsWith(".config.json")) continue;
     const abs = resolve(dir, ent.name);
     const raw = JSON.parse(await readFile(abs, "utf-8")) as unknown;
-    const sanitized = stripSchemaMetadataRoot(raw);
-    const res = normalizeStrict<Record<string, unknown>>(standardSchema, sanitized, `/preset/${ent.name}`);
-    if (res.errors.length > 0) {
-      errors.push(
-        ...res.errors.map((e) => ({
-          path: `${ent.name}${e.path.startsWith("/") ? "" : "/"}${e.path}`,
-          message: e.message,
-        }))
-      );
+    try {
+      validateCanonicalMapConfig({
+        fileName: ent.name,
+        raw,
+        recipeSchema: standardSchema,
+        stages: standardMod.STANDARD_STAGES,
+      });
+    } catch (err) {
+      errors.push({
+        path: ent.name,
+        message: err instanceof Error ? err.message : "Invalid canonical map config",
+      });
     }
   }
 

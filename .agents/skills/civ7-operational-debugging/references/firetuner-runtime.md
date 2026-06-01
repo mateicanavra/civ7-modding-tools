@@ -37,6 +37,19 @@ the running game did, but source changes still belong in the repo.
 Use direct commands in the console; old Civ6 tuner panels are not reliable
 authority for Civ7 even when some still open.
 
+When driving FireTuner through the append-only bridge command log, every
+instruction must carry an agent identifier:
+
+```text
+AGENT=DRA-map-config-generation COMMAND=Network.restartGame()
+```
+
+Bridge scripts and Windows command wrappers must parse
+`AGENT[=:][ \t]*([A-Za-z0-9_.-]+)` from each appended instruction and include
+the captured agent name in audit output. If the field is missing, the bridge
+should log `AGENT=unknown` and reject restart commands unless a human explicitly
+overrides that guard.
+
 Restart the current setup with a fresh seed when restart is enabled:
 
 ```js

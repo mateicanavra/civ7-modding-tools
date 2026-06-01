@@ -1,28 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Database>
 	<Maps>
-		<!-- Base variant - Classic preset -->
 		<Row
 			File="{swooper-maps}/maps/swooper-desert-mountains.js"
 			Name="LOC_MAP_SWOOPER_DESERT_MOUNTAINS_NAME"
 			Description="LOC_MAP_SWOOPER_DESERT_MOUNTAINS_DESCRIPTION"
 			SortIndex="500"
 		/>
-		<!-- Earthlike variant - Realistic Earth analogue -->
 		<Row
 			File="{swooper-maps}/maps/swooper-earthlike.js"
 			Name="LOC_MAP_SWOOPER_EARTHLIKE_NAME"
 			Description="LOC_MAP_SWOOPER_EARTHLIKE_DESCRIPTION"
 			SortIndex="501"
 		/>
-		<!-- Shattered Ring - Post-impact crater world -->
 		<Row
 			File="{swooper-maps}/maps/shattered-ring.js"
 			Name="LOC_MAP_SHATTERED_RING_NAME"
 			Description="LOC_MAP_SHATTERED_RING_DESCRIPTION"
 			SortIndex="502"
 		/>
-		<!-- Sundered Archipelago - Volcanic island chains -->
 		<Row
 			File="{swooper-maps}/maps/sundered-archipelago.js"
 			Name="LOC_MAP_SUNDERED_ARCHIPELAGO_NAME"

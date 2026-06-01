@@ -1,30 +1,29 @@
 import { describe, expect, it } from "vitest";
 
-import { deriveRecipeConfigSchema, isPresetWrapper, stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
+import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
 import { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
-import earthlikePresetRaw from "../../src/presets/standard/earthlike.json";
+import {
+  validateCanonicalMapConfig,
+  type CanonicalMapConfigEnvelope,
+} from "../../src/maps/configs/canonical";
 
-describe("Studio built-in preset wrappers", () => {
-  it("rejects stale stage keys outside the config wrapper", () => {
-    expect(
-      isPresetWrapper({
-        id: "bad-wrapper",
-        label: "Bad Wrapper",
-        config: {},
-        "ecology-features": { knobs: {} },
-      })
-    ).toBe(false);
-  });
+import earthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 
-  it("stay schema-valid (prevents Studio preset drift)", () => {
-    const preset: unknown = earthlikePresetRaw;
-    expect(isPresetWrapper(preset)).toBe(true);
-    if (!isPresetWrapper(preset)) throw new Error("Invalid preset wrapper");
-
+describe("Studio built-in map configs", () => {
+  it("load from canonical shipped map configs instead of duplicate preset wrappers", () => {
     const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
-    const sanitized = stripSchemaMetadataRoot(preset.config);
-    const { errors } = normalizeStrict<Record<string, unknown>>(schema, sanitized, "/presets/standard/earthlike");
+    const validated = validateCanonicalMapConfig({
+      fileName: "swooper-earthlike.config.json",
+      raw: earthlikeConfigRaw as CanonicalMapConfigEnvelope,
+      recipeSchema: schema,
+      stages: STANDARD_STAGES,
+    });
+    const { errors } = normalizeStrict<Record<string, unknown>>(
+      schema,
+      validated.config,
+      "/maps/configs/swooper-earthlike"
+    );
     expect(errors).toEqual([]);
   });
 });

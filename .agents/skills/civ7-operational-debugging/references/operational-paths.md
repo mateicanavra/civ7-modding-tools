@@ -62,7 +62,12 @@ snapshot, or a timestamp marker in the notes before treating a line as current.
 | Parallels Windows VM metadata | `prlctl list --all --info` |
 | Parallels host bridge | `ifconfig bridge100` |
 | Installed Civ7 tuner panels | `<Steam Civ7 install>/Base/Platforms/Windows/Config/TunerPanels/` |
+| Windows FireTuner bridge command log | `Z:\Sid Meier's Civilization VII Development Tools\Comms\civ7-firetuner-bridge.append-only.log` |
 
 The repo resource mirror may not contain installed-game `TunerPanels`. Prefer
 official resources in `.civ7/outputs/resources/` when present, and inspect the
 installed game path only as runtime/resource evidence.
+
+FireTuner bridge instructions appended to the Windows command log must include
+`AGENT=<agent-name>`. The bridge audit log must preserve that agent name for
+restart and runtime command entries.

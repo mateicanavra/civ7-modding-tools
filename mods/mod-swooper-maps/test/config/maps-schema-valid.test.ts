@@ -1,35 +1,38 @@
 import { describe, expect, it } from "vitest";
 
-import { deriveRecipeConfigSchema, stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
+import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
 import { normalizeStrict } from "@swooper/mapgen-core/compiler/normalize";
-import { normalizeStrictOrThrow } from "../support/compiler-helpers";
 import { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
+import {
+  validateCanonicalMapConfig,
+  type CanonicalMapConfigEnvelope,
+} from "../../src/maps/configs/canonical";
 
-import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
-import { SWOOPER_DESERT_MOUNTAINS_CONFIG } from "../../src/maps/configs/swooper-desert-mountains.config";
-import { SHATTERED_RING_CONFIG } from "../../src/maps/configs/shattered-ring.config";
-import { SUNDERED_ARCHIPELAGO_CONFIG } from "../../src/maps/configs/sundered-archipelago.config";
+import shatteredRingConfig from "../../src/maps/configs/shattered-ring.config.json";
+import sunderedArchipelagoConfig from "../../src/maps/configs/sundered-archipelago.config.json";
+import swooperDesertMountainsConfig from "../../src/maps/configs/swooper-desert-mountains.config.json";
+import swooperEarthlikeConfig from "../../src/maps/configs/swooper-earthlike.config.json";
+
+const shippedMapConfigs = [
+  ["shattered-ring.config.json", shatteredRingConfig],
+  ["sundered-archipelago.config.json", sunderedArchipelagoConfig],
+  ["swooper-desert-mountains.config.json", swooperDesertMountainsConfig],
+  ["swooper-earthlike.config.json", swooperEarthlikeConfig],
+] as const satisfies readonly (readonly [string, CanonicalMapConfigEnvelope])[];
 
 describe("Shipped map configs", () => {
-  it("stay schema-valid (prevents Civ pipeline compile failures)", () => {
+  it("stay canonical, complete, and schema-valid (prevents Civ pipeline compile failures)", () => {
     const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
 
-    normalizeStrictOrThrow(
-      schema,
-      stripSchemaMetadataRoot(swooperEarthlikeConfigRaw),
-      "/maps/swooper-earthlike"
-    );
-    normalizeStrictOrThrow(
-      schema,
-      SWOOPER_DESERT_MOUNTAINS_CONFIG,
-      "/maps/swooper-desert-mountains"
-    );
-    normalizeStrictOrThrow(schema, SHATTERED_RING_CONFIG, "/maps/shattered-ring");
-    normalizeStrictOrThrow(
-      schema,
-      SUNDERED_ARCHIPELAGO_CONFIG,
-      "/maps/sundered-archipelago"
-    );
+    for (const [fileName, raw] of shippedMapConfigs) {
+      const validated = validateCanonicalMapConfig({
+        fileName,
+        raw,
+        recipeSchema: schema,
+        stages: STANDARD_STAGES,
+      });
+      expect(validated.id).toBe(fileName.replace(/\.config\.json$/, ""));
+    }
   });
 
   it("rejects legacy map-morphology alias keys", () => {
