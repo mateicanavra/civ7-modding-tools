@@ -171,17 +171,6 @@
           "config": {}
         }
       },
-      "projection": {
-        "computePlates": {
-          "strategy": "default",
-          "config": {
-            "boundaryInfluenceDistance": 6,
-            "boundaryDecay": 0.55,
-            "movementScale": 108,
-            "rotationScale": 108
-          }
-        }
-      },
       "plate-topology": {}
     },
     "morphology-coasts": {

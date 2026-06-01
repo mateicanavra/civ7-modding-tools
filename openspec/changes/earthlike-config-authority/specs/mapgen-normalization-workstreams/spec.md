@@ -12,9 +12,10 @@ postures aligned unless a change records an intentional product distinction.
 - **AND** stale lightweight Earthlike configs cannot silently stand in for the
   shipped map configuration
 
-#### Scenario: Earthlike defaults affect balance behavior
-- **WHEN** a step default affects lakes, projection, terrain, ecology, or
-  placement balance proof
-- **THEN** the shipped Earthlike config records the intended value explicitly
-- **AND** duplicate authored values that are overwritten by knobs are removed or
-  aligned
+#### Scenario: Internal projection config appears in Earthlike posture
+- **WHEN** a projection or op envelope is produced from compilation defaults or
+  knob normalization
+- **THEN** Earthlike authored config does not record that internal envelope as
+  public map posture
+- **AND** tests verify the compiled output without requiring the source config
+  to duplicate internal projection details
