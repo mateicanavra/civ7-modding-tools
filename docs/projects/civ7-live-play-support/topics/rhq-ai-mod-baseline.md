@@ -57,6 +57,30 @@ These are author claims from the Workshop page, not locally verified RHQ source
 proof. Treat them as a research baseline to compare against official resource
 surfaces and future downloaded mod files.
 
+## Public Status Caveats
+
+The public Steam state observed on June 1, 2026 is contradictory. The item page
+still exposes the RHQ AI MOD title, description, subscribers, changelog entries,
+and recent author comments, but Steam also displays removal/incompatibility
+warnings. Treat the page as a source for author claims and changelog history,
+not proof that the mod is currently installable or loaded in a local game.
+
+Recent author notes also describe limits that matter for our baseline:
+
+- v3.1 still had partial air-operation caveats: Air Patrol could fire once per
+  civ early in Modern, and some civs might still build zero bombers.
+- Comments around late May 2026 describe over-war behavior as a recent issue
+  the author believed was solved, plus possible Steam update delivery problems
+  that may require unsubscribe/resubscribe.
+- User comments report mixed behavior: improved armies/play in some games, but
+  also concerns about no ships, over-aggression, idle units, hard alliances, and
+  defensive city-states. These are anecdotes, not validated behavior.
+
+For our work, this means RHQ is a comparator, not an authority. The durable
+measurement is bounded autoplay telemetry: settlement distance, city-founding
+cadence, naval production/use, air recruitment/use, repairs, war declarations,
+city attacks, raids, and independent/city-state attacks.
+
 ## Official Surfaces That Match The Claims
 
 The official gameplay schema has tables that match RHQ's claimed levers:

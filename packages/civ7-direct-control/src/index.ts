@@ -1338,6 +1338,51 @@ export type Civ7ReadyCityViewResult = Readonly<{
   notes: ReadonlyArray<string>;
 }>;
 
+export type Civ7SettlementRecommendationInput = Readonly<{
+  playerId?: number;
+  locations?: ReadonlyArray<Readonly<{ x: number; y: number }>>;
+  count?: number;
+  includeSettlers?: boolean;
+  includeCities?: boolean;
+}>;
+
+export type Civ7SettlementRecommendationFactor = Readonly<{
+  positive: boolean;
+  title: string | null;
+  description: string | null;
+}>;
+
+export type Civ7SettlementRecommendationOrigin = Readonly<{
+  kind: "requested" | "settler" | "city";
+  location: Readonly<{ x: number; y: number }>;
+  plotIndex: Civ7RuntimeProbe<number>;
+  unitId?: Civ7ComponentId;
+  cityId?: Civ7ComponentId;
+  name?: string | null;
+}>;
+
+export type Civ7SettlementRecommendation = Readonly<{
+  origin: Civ7SettlementRecommendationOrigin;
+  suggestions: Civ7RuntimeProbe<ReadonlyArray<Readonly<{
+    location: Readonly<{ x: number; y: number }> | null;
+    plotIndex: Civ7RuntimeProbe<number>;
+    factors: ReadonlyArray<Civ7SettlementRecommendationFactor>;
+  }>>>;
+}>;
+
+export type Civ7SettlementRecommendationResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  localPlayerId: number;
+  playerId: number;
+  count: number;
+  requestedLocations: ReadonlyArray<Readonly<{ x: number; y: number }>>;
+  origins: ReadonlyArray<Civ7SettlementRecommendationOrigin>;
+  recommendations: ReadonlyArray<Civ7SettlementRecommendation>;
+  notes: ReadonlyArray<string>;
+}>;
+
 export const Civ7CapabilityCatalogEntrySchema = Type.Object({
   id: Type.String(),
   name: Type.String(),
@@ -2994,6 +3039,20 @@ export async function getCiv7ReadyCityView(
   return jsonPayloadFromCommandResult<Civ7ReadyCityViewResult>(result, "Civ7 ready city view");
 }
 
+export async function getCiv7SettlementRecommendations(
+  input: Civ7SettlementRecommendationInput = {},
+  options: Civ7DirectControlOptions = {},
+): Promise<Civ7SettlementRecommendationResult> {
+  const result = await executeCiv7AppUiCommand({
+    ...options,
+    command: buildSettlementRecommendationsCommand({
+      ...input,
+      count: boundedInteger(input.count ?? 5, 1, 12, "count"),
+    }),
+  });
+  return jsonPayloadFromCommandResult<Civ7SettlementRecommendationResult>(result, "Civ7 settlement recommendations");
+}
+
 export async function requestCiv7UnitTargetAction(
   input: Civ7UnitTargetActionInput,
   options: Civ7DirectControlOptions = {},
@@ -4503,6 +4562,13 @@ function buildReadyCityViewCommand(input: Civ7ReadyCityViewInput & { maxOperatio
   })()`;
 }
 
+function buildSettlementRecommendationsCommand(input: Civ7SettlementRecommendationInput & { count: number }): string {
+  return `(() => {
+    ${settlementRecommendationsSource()}
+    return JSON.stringify(readSettlementRecommendations(${jsLiteral(input)}));
+  })()`;
+}
+
 function buildNotificationDismissalCommand(input: Civ7NotificationDismissInput, options: { send: boolean }): string {
   return `(() => {
     ${notificationDismissalSource()}
@@ -4799,7 +4865,10 @@ function playNotificationViewSource(): string {
         || stringIncludes(haystack, "VOLCANO_ACTIVE")
         || stringIncludes(haystack, "VOLCANO_INACTIVE")
         || stringIncludes(haystack, "VOLCANO_ERUPTS")
-        || stringIncludes(haystack, "RIVER_FLOODS")) {
+        || stringIncludes(haystack, "RIVER_FLOODS")
+        || stringIncludes(haystack, "STORM_ARRIVED")
+        || stringIncludes(haystack, "STORM_MOVED")
+        || stringIncludes(haystack, "STORM_DISSIPATED")) {
         return hint(
           "informational-notification",
           "app-ui-action",
@@ -5551,6 +5620,97 @@ function unitTargetActionSource(): string {
         };
       }
       return out;
+    };`;
+}
+
+function settlementRecommendationsSource(): string {
+  return `${probeHelperSource()}
+    const toComponentId = (value) => {
+      if (!value) return null;
+      const owner = Number(value.owner ?? value.Owner ?? value.player ?? value.Player);
+      const id = Number(value.id ?? value.ID);
+      const type = Number(value.type ?? value.Type);
+      if (!Number.isFinite(owner) || !Number.isFinite(id) || !Number.isFinite(type)) return null;
+      return { owner, id, type };
+    };
+    const toLocation = (value) => {
+      if (!value) return null;
+      const x = Number(value.x ?? value.X);
+      const y = Number(value.y ?? value.Y);
+      if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+      return { x, y };
+    };
+    const plotIndexFor = (location) => probe(() => GameplayMap.getIndexFromLocation(location));
+    const factorSummary = (factor) => ({
+      positive: !!factor?.positive,
+      title: factor?.title ?? null,
+      description: factor?.description ?? null,
+    });
+    const suggestionSummary = (suggestion) => {
+      const location = toLocation(suggestion?.location);
+      return {
+        location,
+        plotIndex: location ? plotIndexFor(location) : { ok: false, error: "missing suggestion location" },
+        factors: Array.isArray(suggestion?.factors)
+          ? suggestion.factors.map(factorSummary).sort((a, b) => a.positive && !b.positive ? -1 : 1)
+          : [],
+      };
+    };
+    const requestedOrigins = (locations) => Array.isArray(locations)
+      ? locations.map(toLocation).filter(Boolean).map((location) => ({
+        kind: "requested",
+        location,
+        plotIndex: plotIndexFor(location),
+      }))
+      : [];
+    const settlerOrigins = (player, includeSettlers) => {
+      if (includeSettlers === false) return [];
+      const units = player?.Units?.getUnits?.() ?? [];
+      return units.filter((unit) => GameInfo.Units.lookup(unit.type)?.FoundCity).map((unit) => ({
+        kind: "settler",
+        location: unit.location,
+        plotIndex: plotIndexFor(unit.location),
+        unitId: toComponentId(unit.id),
+        name: GameInfo.Units.lookup(unit.type)?.UnitType ?? null,
+      }));
+    };
+    const cityOrigins = (player, includeCities) => {
+      if (includeCities === false) return [];
+      const cities = player?.Cities?.getCities?.() ?? [];
+      return cities.map((city) => ({
+        kind: "city",
+        location: city.location,
+        plotIndex: plotIndexFor(city.location),
+        cityId: toComponentId(city.id),
+        name: city.name ?? null,
+      }));
+    };
+    const readSettlementRecommendations = (input) => {
+      const localPlayerId = GameContext.localPlayerID;
+      const playerId = Number.isInteger(input.playerId) ? input.playerId : localPlayerId;
+      const player = Players.get(playerId);
+      const count = Number.isInteger(input.count) ? input.count : 5;
+      const requested = requestedOrigins(input.locations);
+      const origins = requested.length > 0
+        ? requested
+        : [...settlerOrigins(player, input.includeSettlers), ...cityOrigins(player, input.includeCities)];
+      const recommendations = origins.map((origin) => ({
+        origin,
+        suggestions: probe(() => (player?.AI?.getBestSettleLocationsForSettler?.(count, origin.location) ?? []).map(suggestionSummary)),
+      }));
+      return {
+        localPlayerId,
+        playerId,
+        count,
+        requestedLocations: Array.isArray(input.locations) ? input.locations.map(toLocation).filter(Boolean) : [],
+        origins,
+        recommendations,
+        notes: [
+          "Read-only settlement recommendation view. It wraps the official settlement lens API, not a city-founding operation.",
+          "Recommendations are local-player AI advice for ranking candidate plots; use unit-target/ready-unit validation before moving a Settler.",
+          "Official settlement lens seeds recommendations from Settler and city origins; pass --x/--y to focus one live Settler or formation."
+        ],
+      };
     };`;
 }
 
@@ -6802,6 +6962,9 @@ function isTurnCompletionFallbackInformationalType(typeName: string): boolean {
     || typeName === "NOTIFICATION_RIVER_FLOODS_SEV0"
     || typeName === "NOTIFICATION_RIVER_FLOODS_SEV1"
     || typeName === "NOTIFICATION_RIVER_FLOODS_SEV2"
+    || typeName === "NOTIFICATION_STORM_ARRIVED"
+    || typeName === "NOTIFICATION_STORM_MOVED"
+    || typeName === "NOTIFICATION_STORM_DISSIPATED"
     || typeName === "NOTIFICATION_VOLCANO_ACTIVE"
     || typeName === "NOTIFICATION_VOLCANO_INACTIVE"
     || typeName === "NOTIFICATION_VOLCANO_ERUPTS_SEV0"

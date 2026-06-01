@@ -97,12 +97,13 @@ Notable handler evidence:
 - `NOTIFICATION_WONDER_COMPLETED`, `NOTIFICATION_WONDER_FAILED`,
   `NOTIFICATION_UNIT_ATTACKED`, `NOTIFICATION_DISTRICT_ATTACKED`, and
   natural-disaster reports such as `NOTIFICATION_RIVER_FLOODS_SEV0/1/2`,
-  `NOTIFICATION_VOLCANO_ACTIVE`, `NOTIFICATION_VOLCANO_INACTIVE`, and
-  `NOTIFICATION_VOLCANO_ERUPTS_SEV0/1/2` are not registered to specialized
-  handlers in `notification-handlers.js`; they fall through to
-  `DefaultHandler`. Default activation only looks at a valid plot, so guarded
-  `Game.Notifications.dismiss` is the practical closeout after the report is
-  reviewed and no specialized blocker remains.
+  `NOTIFICATION_STORM_ARRIVED`, `NOTIFICATION_STORM_MOVED`,
+  `NOTIFICATION_STORM_DISSIPATED`, `NOTIFICATION_VOLCANO_ACTIVE`,
+  `NOTIFICATION_VOLCANO_INACTIVE`, and `NOTIFICATION_VOLCANO_ERUPTS_SEV0/1/2`
+  are not registered to specialized handlers in `notification-handlers.js`;
+  they fall through to `DefaultHandler`. Default activation only looks at a
+  valid plot, so guarded `Game.Notifications.dismiss` is the practical closeout
+  after the report is reviewed and no specialized blocker remains.
 
 ## Current Narrative Lesson
 

@@ -486,6 +486,21 @@ Residual objective gaps:
   `unit-command UNITCOMMAND_RESETTLE { X, Y }`; `upgrade-unit` sends
   `unit-command UNITCOMMAND_UPGRADE {}`. The wrappers prevent family/args
   mistakes, but richer postcondition polling remains open.
+- Turn 102-104 added two expansion/support improvements. Storm-arrival,
+  storm-moved, and storm-dissipated reports now follow the same reviewed
+  natural-disaster closeout path as flood and volcano reports. `game play
+  settlement-recommendations` wraps the official settlement lens API as a
+  read-only expansion planning shortcut, so agents can compare candidate sites
+  before moving Settlers through the unit validator path.
+- The unit-target topic now records why `MOVE_TO` plus `no-state-change` is
+  unresolved rather than successful: adjacent enemy plots may require the
+  official war-confirmation callback path, and naval moves may need queued
+  destination/path probes beyond the current unit/target summaries.
+- The RHQ AI MOD baseline now records public status caveats observed on June 1,
+  2026: the Steam page still exposes author claims/changelogs but also showed
+  removal/incompatibility warnings, so RHQ should be treated as an experimental
+  comparator measured by bounded autoplay telemetry, not as canonical current
+  behavior.
 - Remaining gaps are promotion/hardening work: richer ready-entity reads,
   stronger live postcondition polling, civic choice proof, acquire-tile
   candidate cataloging, and eventual promotion into canonical docs/skills.

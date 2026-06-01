@@ -228,11 +228,16 @@ Norms:
 - Targetless `NEW_POPULATION` notifications should still start with
   `ready-city`; it mirrors the official handler by scanning owned cities for
   `Growth.isReadyToPlacePopulation`.
+- Settlement recommendations are a separate read-only planning surface:
+  `game play settlement-recommendations` wraps the official settlement lens API
+  and should inform where to move Settlers, not replace live movement/founding
+  validation.
 
 Promotion readiness: ready for production item-kind and constructible placement
-guidance. `ready-city` is ready as a read-only support asset, and population
-placement now has both proven branch shortcuts. Keep tile ranking and better
-candidate cataloging open.
+guidance. `ready-city` is ready as a read-only support asset, population
+placement now has both proven branch shortcuts, and settlement recommendations
+are ready as a read-only expansion-planning shortcut. Keep richer route safety
+and founding-legality cataloging open.
 
 ### Tactical Unit Control
 
@@ -339,6 +344,7 @@ CLI shortcuts:
 - `game play notifications`
 - `game play ready-unit`
 - `game play ready-city`
+- `game play settlement-recommendations`
 - `game play unit-target`
 - `game autoplay`
 
@@ -403,6 +409,7 @@ runtime and local official resource references.
 | `topics/production-build-placement.md` | City production skill reference | Ready with city-project gap |
 | `topics/ready-city-decision-view.md` | City blocker read surface | Ready |
 | `topics/population-placement-expansion.md` | Population placement branch reference | Ready with candidate-cataloging gap |
+| `topics/settlement-recommendations.md` | Expansion planning reference | Ready as read-only planning surface |
 | `topics/runtime-state-sources.md` | Authority preface asset | Ready |
 | `topics/local-catalog-enrichment.md` | Static catalog enrichment asset | Ready |
 | `topics/first-meet-diplomacy.md` | Diplomacy skill reference | Ready |

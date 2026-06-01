@@ -72,6 +72,20 @@ action-specific state change:
 Immediate reads can race animations or queued pathing. Poll briefly before
 declaring a no-op.
 
+Two live caveats matter for interpretation:
+
+- Adjacent enemy land targets can need the official war-confirmation route.
+  `WorldInput.checkDeclareWarAt` calls
+  `Players.get(unit.owner).Diplomacy.willMoveStartWar(...)` and then runs a
+  post-declaration callback. The target shortcut does not prove that dialog
+  path was satisfied, so a `MOVE_TO` candidate against a hostile plot is not
+  enough without a postcondition.
+- Naval reposition can validate through `MOVE_TO` while the UI tracks desired
+  destination/path state separately from the unit summary we currently compare.
+  Until the shortcut reads stable queued-destination fields, a naval
+  `no-state-change` should be treated as unresolved evidence, not as a
+  successful screen move.
+
 ## CLI Shortcut
 
 `game play unit-target` is the play-facing shortcut for this family. It is

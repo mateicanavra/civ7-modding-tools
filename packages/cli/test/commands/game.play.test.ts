@@ -28,6 +28,7 @@ import GamePlayRespondFirstMeet from '../../src/commands/game/play/respond-first
 import GamePlaySetCultureTarget from '../../src/commands/game/play/set-culture-target';
 import GamePlaySetTechTarget from '../../src/commands/game/play/set-tech-target';
 import GamePlaySetTownFocus from '../../src/commands/game/play/set-town-focus';
+import GamePlaySettlementRecommendations from '../../src/commands/game/play/settlement-recommendations';
 import GamePlayUnitTarget from '../../src/commands/game/play/unit-target';
 import GamePlayUpgradeUnit from '../../src/commands/game/play/upgrade-unit';
 
@@ -908,6 +909,30 @@ describe('game play commands', () => {
       await server.close();
     }
   });
+
+  test('reads settlement recommendations without sending operations', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      await GamePlaySettlementRecommendations.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--x',
+        '15',
+        '--y',
+        '23',
+        '--json',
+      ]);
+
+      expect(server.received.some((message) => message.includes('readSettlementRecommendations'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"locations":[{"x":15,"y":23}]'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
 });
 
 async function startTunerServer(options: {
@@ -941,6 +966,8 @@ async function startTunerServer(options: {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(readyUnitView())]));
         } else if (frame.message.includes('readReadyCityView')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(readyCityView())]));
+        } else if (frame.message.includes('readSettlementRecommendations')) {
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(settlementRecommendationsView())]));
         } else if (frame.message.includes('readNotificationDismissal')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(notificationDismissal(frame.message.includes('"send":true')))]));
         } else if (frame.message.includes('hasSentTurnComplete')) {
@@ -1462,6 +1489,48 @@ function readyCityView() {
       },
     },
     notes: ['Read-only ready-city view. This view intentionally does not choose production.'],
+  };
+}
+
+function settlementRecommendationsView() {
+  return {
+    localPlayerId: 0,
+    playerId: 0,
+    count: 5,
+    requestedLocations: [{ x: 15, y: 23 }],
+    origins: [
+      {
+        kind: 'requested',
+        location: { x: 15, y: 23 },
+        plotIndex: { ok: true, value: 1927 },
+      },
+    ],
+    recommendations: [
+      {
+        origin: {
+          kind: 'requested',
+          location: { x: 15, y: 23 },
+          plotIndex: { ok: true, value: 1927 },
+        },
+        suggestions: {
+          ok: true,
+          value: [
+            {
+              location: { x: 20, y: 20 },
+              plotIndex: { ok: true, value: 1660 },
+              factors: [
+                {
+                  positive: true,
+                  title: 'LOC_SETTLEMENT_RECOMMENDATION_TOTAL_YIELD',
+                  description: 'LOC_SETTLEMENT_RECOMMENDATION_GOOD_TOTAL_YIELD',
+                },
+              ],
+            },
+          ],
+        },
+      },
+    ],
+    notes: ['Read-only settlement recommendation view. It wraps the official settlement lens API.'],
   };
 }
 

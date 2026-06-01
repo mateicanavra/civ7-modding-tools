@@ -83,13 +83,24 @@ blocking notice after the unit queue cleared:
 }
 ```
 
+On turn 102, autoplay stopped on `NOTIFICATION_STORM_ARRIVED` after a
+significant blizzard damaged tiles and removed population. Turn 104 later
+showed `NOTIFICATION_STORM_DISSIPATED` after the storm made its final move. The
+notifications carried plot locations and were user-dismissible, but the App UI
+handler table did not attach a specialized choice or operation surface to the
+storm reports. Treat the storm-arrived, storm-moved, and storm-dissipated
+families like flood and volcano reports: inspect the location and summary for
+tactical implications, then close the reviewed report through App UI dismissal
+when no other blocker remains.
+
 Official handler evidence:
 
 - `notification.xml` defines `NOTIFICATION_UNIT_ATTACKED`,
   `NOTIFICATION_DISTRICT_ATTACKED`, `NOTIFICATION_RIVER_FLOODS_SEV0/1/2`,
-  `NOTIFICATION_VOLCANO_ACTIVE`, `NOTIFICATION_VOLCANO_INACTIVE`, and
-  `NOTIFICATION_VOLCANO_ERUPTS_SEV0/1/2` as expiring, non-auto-notify report
-  notifications.
+  `NOTIFICATION_STORM_ARRIVED`, `NOTIFICATION_STORM_MOVED`,
+  `NOTIFICATION_STORM_DISSIPATED`, `NOTIFICATION_VOLCANO_ACTIVE`,
+  `NOTIFICATION_VOLCANO_INACTIVE`, and `NOTIFICATION_VOLCANO_ERUPTS_SEV0/1/2`
+  as expiring, non-auto-notify report notifications.
 - `notification-handlers.js` does not register specialized handlers for these
   report families, so they use `DefaultHandler`.
 - `DefaultHandler.activate` only looks at a valid plot when one exists. It does
