@@ -9,6 +9,7 @@
     "normalize": "bun run scripts/update-code-blocks.ts",
     "check": "tsc -p tsconfig.json --noEmit",
     "check:ts": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --config ../../vitest.config.ts --project docs",
     "check:links": "bun run scripts/broken-links-pages-only.ts",
     "validate": "bun run scripts/validate-docs.ts && bun run scripts/broken-links-pages-only.ts",
     "fix:duplicate-h1": "bun run scripts/remove-duplicate-h1.ts",

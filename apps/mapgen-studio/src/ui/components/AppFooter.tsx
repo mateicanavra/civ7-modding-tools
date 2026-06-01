@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bolt, Clock, Dices, Play } from 'lucide-react';
+import { Bolt, Clock, Dices, MonitorPlay, Play, Radio } from 'lucide-react';
 import { Button, Input } from './ui';
 import { MAP_SIZE_SHORT, LAYOUT } from '../constants';
 import { formatResourceMode } from '../utils';
@@ -17,14 +17,28 @@ export interface AppFooterProps {
   onSettingsChange: (settings: RecipeSettings) => void;
   /** Callback to start a generation run */
   onRun: () => void;
+  /** Callback to launch the current map config in Civ7 */
+  onRunInGame: () => void;
   /** Callback to reroll (new seed + run) */
   onReroll: () => void;
   /** Whether generation is currently running */
   isRunning: boolean;
+  /** Whether Civ7 Run in Game is currently running */
+  isRunInGameRunning: boolean;
   /** Whether current settings differ from last run */
   isDirty: boolean;
   /** Light mode flag for styling */
   lightMode: boolean;
+  /** Read-only live Civ7 runtime status */
+  liveRuntime?: {
+    status: "idle" | "ok" | "error";
+    turn?: number;
+    seed?: number;
+    readiness?: string;
+    autoplayActive?: boolean;
+    updatedAt?: string;
+    error?: string;
+  };
   /** Toast function for notifications */
   onToast?: (message: string) => void;
   /** When enabled, config changes auto-run the current seed */
@@ -40,10 +54,13 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   currentSettings,
   onSettingsChange,
   onRun,
+  onRunInGame,
   onReroll,
   isRunning,
+  isRunInGameRunning,
   isDirty,
   lightMode,
+  liveRuntime,
   onToast,
   autoRunEnabled,
   onAutoRunEnabledChange
@@ -73,6 +90,14 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   const displaySize =
   MAP_SIZE_SHORT[lastGlobalSettings.mapSize] || lastGlobalSettings.mapSize;
   const displayResources = formatResourceMode(lastGlobalSettings.resources);
+  const liveDotClass =
+    liveRuntime?.status === "ok" ? "bg-emerald-400" : liveRuntime?.status === "error" ? "bg-red-400" : "bg-gray-400";
+  const liveText =
+    liveRuntime?.status === "ok"
+      ? `Turn ${liveRuntime.turn ?? "?"} · Seed ${liveRuntime.seed ?? "?"}`
+      : liveRuntime?.status === "error"
+        ? liveRuntime.error ?? "Live unavailable"
+        : "Live idle";
   const updateSetting = <K extends keyof RecipeSettings,>(
   key: K,
   value: RecipeSettings[K]) =>
@@ -141,6 +166,23 @@ export const AppFooter: React.FC<AppFooterProps> = ({
         </div>
       </div>
 
+      {/* Live Civ7 Panel */}
+      <div
+        className={`h-10 inline-flex min-w-0 max-w-[300px] items-center gap-2 px-3 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}
+        title={liveRuntime?.readiness ?? liveRuntime?.error ?? "Civ7 live runtime status"}>
+
+        <Radio className={`w-3.5 h-3.5 ${textMuted}`} />
+        <div className={`w-2 h-2 shrink-0 rounded-full ${liveDotClass}`} />
+        <span className={`truncate text-[11px] font-medium ${textPrimary}`}>
+          {liveText}
+        </span>
+        {liveRuntime?.autoplayActive ? (
+          <span className="shrink-0 rounded border border-amber-400/40 px-1.5 py-0.5 text-[10px] text-amber-500">
+            Auto
+          </span>
+        ) : null}
+      </div>
+
       {/* Run Controls Panel */}
       <div
         className={`h-10 inline-flex items-center gap-2 px-3 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}>
@@ -184,6 +226,18 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           className={autoRunEnabled ? "ring-2 ring-orange-400/50 border-orange-400 text-orange-500" : undefined}>
 
           <Bolt className="w-3.5 h-3.5" />
+        </Button>
+
+        {/* Run in Game button */}
+        <Button
+          onClick={onRunInGame}
+          disabled={isRunning || isRunInGameRunning}
+          variant="outline"
+          title="Run in Game: launch current config in Civ7"
+          className={isRunInGameRunning ? 'opacity-70 cursor-wait' : undefined}>
+
+          <MonitorPlay className="w-3.5 h-3.5" />
+          <span>{isRunInGameRunning ? 'Launching...' : 'Run in Game'}</span>
         </Button>
 
         {/* Run button */}

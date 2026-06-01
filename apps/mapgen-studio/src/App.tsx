@@ -140,6 +140,57 @@ async function saveRepoBackedConfig(args: {
   }
 }
 
+async function runCurrentConfigInGame(args: {
+  recipeId: string;
+  seed: string;
+  mapSize: string;
+  playerCount: number;
+  resources: string;
+  materializationMode: "durable" | "disposable";
+  selectedConfig?: {
+    id?: string;
+    label?: string;
+    description?: string;
+    sourcePath?: string;
+    sortIndex?: number;
+    latitudeBounds?: Readonly<{
+      topLatitude: number;
+      bottomLatitude: number;
+    }>;
+  };
+  config: unknown;
+}): Promise<
+  | {
+      ok: true;
+      requestId?: string;
+      materialization?: { mode?: string; path?: string; mapScript?: string; configHash?: string };
+      start?: unknown;
+    }
+  | { ok: false; error: string }
+> {
+  try {
+    const res = await fetch("/api/civ7/run-in-game", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        recipeId: args.recipeId,
+        seed: args.seed,
+        mapSize: args.mapSize,
+        playerCount: args.playerCount,
+        resources: args.resources,
+        materialization: { mode: args.materializationMode },
+        selectedConfig: args.selectedConfig,
+        config: args.config,
+      }),
+    });
+    const body = (await res.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+    if (!res.ok || !body?.ok) return { ok: false, error: body?.error ?? `HTTP ${res.status}` };
+    return body as { ok: true; requestId?: string; materialization?: { mode?: string; path?: string; mapScript?: string; configHash?: string }; start?: unknown };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Run in Game failed" };
+  }
+}
+
 function isNumericPathSegment(segment: string): boolean {
   return /^[0-9]+$/.test(segment);
 }
@@ -474,6 +525,16 @@ function AppContent(props: AppContentProps) {
 
   const browserRunning = browserRunner.state.running;
   const [localError, setLocalError] = useState<string | null>(null);
+  const [runInGameRunning, setRunInGameRunning] = useState(false);
+  const [liveRuntime, setLiveRuntime] = useState<{
+    status: "idle" | "ok" | "error";
+    turn?: number;
+    seed?: number;
+    readiness?: string;
+    autoplayActive?: boolean;
+    updatedAt?: string;
+    error?: string;
+  }>({ status: "idle" });
 
   const viz = useVizState({
     enabled: worldSettings.mode === "browser" || worldSettings.mode === "dump",
@@ -523,6 +584,46 @@ function AppContent(props: AppContentProps) {
     localError ??
     (worldSettings.mode === "browser" ? browserRunner.state.error : null) ??
     (dumpLoader.state.status === "error" ? dumpLoader.state.message : null);
+
+  useEffect(() => {
+    let cancelled = false;
+    let timer: number | null = null;
+    const poll = async () => {
+      try {
+        const res = await fetch("/api/civ7/live/status");
+        const body = (await res.json().catch(() => null)) as any;
+        if (cancelled) return;
+        if (!res.ok || !body) throw new Error(body?.error ?? `HTTP ${res.status}`);
+        const mapSummary = body.mapSummary?.map ? body.mapSummary : null;
+        const turn = body.mapSummary?.game?.turn?.ok ? body.mapSummary.game.turn.value : undefined;
+        const seed = mapSummary?.map?.randomSeed?.ok ? mapSummary.map.randomSeed.value : undefined;
+        setLiveRuntime({
+          status: body.ok ? "ok" : "error",
+          turn,
+          seed,
+          readiness: body.status?.readiness,
+          autoplayActive: body.autoplay?.autoplay?.isActive,
+          updatedAt: body.observedAt,
+          error: body.ok ? undefined : body.status?.error ?? body.mapSummary?.error,
+        });
+      } catch (err) {
+        if (!cancelled) {
+          setLiveRuntime({
+            status: "error",
+            error: err instanceof Error ? err.message : "Live status unavailable",
+            updatedAt: new Date().toISOString(),
+          });
+        }
+      } finally {
+        if (!cancelled) timer = window.setTimeout(poll, document.hidden ? 5000 : 3000);
+      }
+    };
+    timer = window.setTimeout(poll, 250);
+    return () => {
+      cancelled = true;
+      if (timer !== null) window.clearTimeout(timer);
+    };
+  }, []);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -1110,6 +1211,54 @@ function AppContent(props: AppContentProps) {
       !configsEqual(lastRunSnapshot.pipelineConfig, pipelineConfig)
     );
   }, [lastRunSnapshot, pipelineConfig, recipeSettings, worldSettings]);
+
+  const handleRunInGame = useCallback(async () => {
+    if (runInGameRunning) return;
+    setRunInGameRunning(true);
+    setLocalError(null);
+    const sanitized = stripSchemaMetadataRoot(pipelineConfig);
+    const resolved = resolvePreset(recipeSettings.preset as PresetKey);
+    const parsed = parsePresetKey(recipeSettings.preset);
+    const materializationMode =
+      parsed.kind === "builtin" && resolved?.sourcePath && !isDirty ? "durable" : "disposable";
+    const mapSize = getCiv7MapSizePreset(worldSettings.mapSize);
+    const result = await runCurrentConfigInGame({
+      recipeId: "mod-swooper-maps/standard",
+      seed: recipeSettings.seed,
+      mapSize: mapSize.id,
+      playerCount: worldSettings.playerCount,
+      resources: worldSettings.resources,
+      materializationMode,
+      selectedConfig: resolved
+        ? {
+            id: resolved.id,
+            label: resolved.label,
+            description: resolved.description,
+            sourcePath: resolved.sourcePath,
+            sortIndex: resolved.sortIndex,
+            latitudeBounds: resolved.latitudeBounds,
+          }
+        : undefined,
+      config: sanitized,
+    });
+    setRunInGameRunning(false);
+    if (!result.ok) {
+      toast(`Run in Game failed: ${result.error}`, { variant: "error" });
+      return;
+    }
+    toast(`Run in Game requested: ${result.materialization?.mapScript ?? result.requestId ?? "Civ7"}`, { variant: "success" });
+  }, [
+    isDirty,
+    pipelineConfig,
+    recipeSettings.preset,
+    recipeSettings.seed,
+    resolvePreset,
+    runInGameRunning,
+    toast,
+    worldSettings.mapSize,
+    worldSettings.playerCount,
+    worldSettings.resources,
+  ]);
 
   const dataTypeModel = viz.dataTypeModel;
   const dataTypeOptions: DataTypeOption[] = useMemo(() => {
@@ -1772,10 +1921,13 @@ function AppContent(props: AppContentProps) {
       currentSettings={recipeSettings}
       onSettingsChange={setRecipeSettings}
       onRun={triggerRun}
+      onRunInGame={handleRunInGame}
       onReroll={reroll}
       isRunning={browserRunning}
+      isRunInGameRunning={runInGameRunning}
       isDirty={isDirty}
       lightMode={isLightMode}
+      liveRuntime={liveRuntime}
       onToast={(message) => toast(message, { variant: "success" })}
       autoRunEnabled={autoRunEnabled}
       onAutoRunEnabledChange={setAutoRunEnabled}

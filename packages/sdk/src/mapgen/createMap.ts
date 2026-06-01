@@ -21,6 +21,10 @@ export type MapDefinition<TRecipe extends RecipeModule<ExtendedMapContext, any, 
   description?: string;
   latitudeBounds?: MapLatitudeBounds;
   logPrefix?: string;
+  sourceConfigId?: string;
+  configHash?: string;
+  envelopeHash?: string;
+  requestId?: string;
   seed?: number;
 }>;
 
@@ -176,6 +180,18 @@ export function createMap<const TRecipe extends RecipeModule<ExtendedMapContext,
     const context = createExtendedMapContext({ width, height }, adapter, env);
 
     const prefix = def.logPrefix ?? "[SWOOPER_MOD]";
+    console.log(
+      `${prefix} [mapgen-proof] ${JSON.stringify({
+        mapId: def.id,
+        sourceConfigId: def.sourceConfigId ?? def.id,
+        requestId: def.requestId ?? null,
+        configHash: def.configHash ?? null,
+        envelopeHash: def.envelopeHash ?? null,
+        seed,
+        mapSize: captured.mapSizeId,
+        dimensions: { width, height },
+      })}`
+    );
     try {
       def.recipe.run(context, env, def.config, {
         log: (message) => console.log(prefix, message),

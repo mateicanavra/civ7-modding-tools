@@ -12,6 +12,8 @@ export const CIV7_TUNER_APP_UI_STATE_NAME = "App UI";
 export const CIV7_TUNER_STATE_NAME = "Tuner";
 export const CIV7_RESTART_COMMAND = "Network.restartGame()";
 export const CIV7_BEGIN_GAME_COMMAND = "UI.notifyUIReady()";
+export const CIV7_EXIT_TO_MAIN_MENU_COMMAND = 'engine.call("exitToMainMenu")';
+export const CIV7_RELOAD_UI_COMMAND = "UI.reloadUI()";
 export const CIV7_UI_LOADING_STATES = {
   NotStarted: 0,
   WaitingForGameplayData: 1,
@@ -26,6 +28,8 @@ export const CIV7_UI_LOADING_STATES = {
 } as const;
 export const DEFAULT_CIV7_APP_UI_API_ROOTS = [
   "Network",
+  "Configuration",
+  "GameSetup",
   "Autoplay",
   "Game",
   "UI",
@@ -44,6 +48,8 @@ export const DEFAULT_CIV7_TUNER_API_ROOTS = [
 ] as const;
 export const DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS = [
   "Network",
+  "Configuration",
+  "GameSetup",
   "Autoplay",
   "Game",
   "UI",
@@ -86,6 +92,12 @@ export const DEFAULT_CIV7_GAMEINFO_TABLES = [
   "PlayerOperations",
   "Maps",
   "MapSizes",
+] as const;
+export const DEFAULT_CIV7_SETUP_PARAMETER_IDS = [
+  "Map",
+  "MapSize",
+  "MapRandomSeed",
+  "GameRandomSeed",
 ] as const;
 export const DEFAULT_CIV7_MAP_GRID_MAX_PLOTS = 512;
 export const HARD_CIV7_MAP_GRID_MAX_PLOTS = 10_000;
@@ -527,6 +539,142 @@ export type Civ7GameInfoRowsResult = Readonly<{
   primaryKeys?: Civ7RuntimeProbe<unknown>;
 }>;
 
+export type Civ7SetupPhase = "shell" | "running-game" | "loading" | "begin-ready" | "unavailable";
+
+export type Civ7SetupParameterValue = string | number | boolean | null;
+
+export type Civ7SetupMapRow = Readonly<{
+  source: "setup-domain" | "config-db";
+  domain?: string;
+  file: string;
+  value?: string;
+  name?: string;
+  description?: string;
+  sortIndex?: number;
+}>;
+
+export type Civ7SetupParameterSnapshot = Readonly<{
+  id: string;
+  exists: boolean;
+  hidden?: boolean;
+  readOnly?: boolean;
+  invalidReason?: number | string | null;
+  value?: Civ7SetupParameterValue;
+  rawValue?: unknown;
+  possibleValues?: ReadonlyArray<unknown>;
+}>;
+
+export type Civ7SetupSnapshot = Readonly<{
+  phase: Civ7SetupPhase;
+  ui: Pick<Civ7AppUiSnapshot["ui"], "inGame" | "inShell" | "inLoading" | "loadingState" | "loadingStateName" | "canBeginGame">;
+  setup: Readonly<{
+    revision: Civ7RuntimeProbe<number>;
+    parameters: ReadonlyArray<Civ7SetupParameterSnapshot>;
+  }>;
+  selectedMapRow?: Civ7SetupMapRow;
+  mapRows: ReadonlyArray<Civ7SetupMapRow>;
+  config: Readonly<{
+    mapScript: Civ7RuntimeProbe<string>;
+    mapSize: Civ7RuntimeProbe<string>;
+    mapSeed: Civ7RuntimeProbe<number>;
+    gameSeed: Civ7RuntimeProbe<number>;
+  }>;
+}>;
+
+export type Civ7SetupSnapshotResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  snapshot: Civ7SetupSnapshot;
+}>;
+
+export type Civ7SetupMapRowsInput = Readonly<{
+  file?: string;
+  limit?: number;
+}>;
+
+export type Civ7SetupMapRowsResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  rows: ReadonlyArray<Civ7SetupMapRow>;
+  limit: number;
+  matchedFile?: string;
+}>;
+
+export type Civ7SetupMapRowVisibilityInput = Readonly<{
+  file: string;
+  limit?: number;
+  reloadIfMissing?: "none" | "exit-to-shell";
+  waitTimeoutMs?: number;
+  pollIntervalMs?: number;
+}>;
+
+export type Civ7SetupMapRowVisibilityResult = Readonly<{
+  initial: Civ7SetupMapRowsResult;
+  final: Civ7SetupMapRowsResult;
+  shellBefore?: Civ7SetupSnapshotResult;
+  shellAfter?: Civ7SetupSnapshotResult;
+  shellExit?: Civ7CommandResult;
+  reload?: Civ7CommandResult;
+  refreshed: boolean;
+  verified: boolean;
+}>;
+
+export type Civ7SetupOptionValue = string | number | boolean;
+
+export type Civ7SinglePlayerSetupInput = Readonly<{
+  mapScript: string;
+  mapSize: string;
+  seed: number;
+  gameSeed?: number;
+  playerCount?: number;
+  options?: Readonly<Record<string, Civ7SetupOptionValue>>;
+  requireShell?: boolean;
+}>;
+
+export type Civ7PreparedSetupResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  before: Civ7SetupSnapshotResult;
+  after: Civ7SetupSnapshotResult;
+  command: Civ7CommandResult;
+  applied: Readonly<Record<string, Civ7SetupOptionValue>>;
+  verified: boolean;
+}>;
+
+export type Civ7PreparedStartInput = Readonly<{
+  expected: Civ7SinglePlayerSetupInput;
+  waitForTuner?: boolean;
+  waitTimeoutMs?: number;
+  pollIntervalMs?: number;
+}>;
+
+export type Civ7SinglePlayerStartResult = Readonly<{
+  command: Civ7CommandResult;
+  before: Civ7SetupSnapshotResult;
+  finalAppUi: Civ7AppUiSnapshotResult;
+  tunerHealth?: Civ7TunerHealthResult;
+  mapSummary?: Civ7MapSummaryResult;
+  observations: ReadonlyArray<Civ7AppUiSnapshot>;
+  verified: boolean;
+}>;
+
+export type Civ7SinglePlayerRunInput = Civ7SinglePlayerSetupInput & Readonly<{
+  fromRunningGame?: "reject" | "exit-to-shell";
+  waitForTuner?: boolean;
+  waitTimeoutMs?: number;
+  pollIntervalMs?: number;
+}>;
+
+export type Civ7SinglePlayerRunResult = Readonly<{
+  shellExit?: Civ7CommandResult;
+  prepare: Civ7PreparedSetupResult;
+  start: Civ7SinglePlayerStartResult;
+  verified: boolean;
+}>;
+
 export type Civ7RootInspectionInput = Readonly<{
   state?: Civ7TunerStateSelection;
   roots: ReadonlyArray<string>;
@@ -731,7 +879,17 @@ export type Civ7DirectControlErrorCode =
   | "no-hosts"
   | "all-hosts-unavailable"
   | "command-failed"
-  | "log-timeout";
+  | "log-timeout"
+  | "setup-api-unavailable"
+  | "setup-phase-invalid"
+  | "setup-map-row-missing"
+  | "setup-parameter-invalid"
+  | "setup-apply-timeout"
+  | "setup-readback-mismatch"
+  | "setup-start-timeout"
+  | "setup-seed-mismatch"
+  | "setup-map-size-mismatch"
+  | "setup-config-proof-missing";
 
 export class Civ7DirectControlError extends Error {
   readonly code: Civ7DirectControlErrorCode;
@@ -1429,6 +1587,271 @@ export async function getCiv7GameInfoRows(
   return jsonPayloadFromCommandResult<Civ7GameInfoRowsResult>(result, "Civ7 GameInfo rows");
 }
 
+export async function getCiv7SetupSnapshot(
+  options: Civ7DirectControlOptions = {},
+): Promise<Civ7SetupSnapshotResult> {
+  const result = await executeCiv7AppUiCommand({
+    ...options,
+    command: buildSetupSnapshotCommand(),
+  });
+  return jsonPayloadFromCommandResult<Civ7SetupSnapshotResult>(result, "Civ7 setup snapshot");
+}
+
+export async function getCiv7SetupMapRows(
+  input: Civ7SetupMapRowsInput = {},
+  options: Civ7DirectControlOptions = {},
+): Promise<Civ7SetupMapRowsResult> {
+  if (input.file !== undefined) validateMapScript(input.file);
+  const limit = boundedInteger(input.limit ?? 100, 1, 1_000, "limit");
+  const result = await executeCiv7AppUiCommand({
+    ...options,
+    command: buildSetupMapRowsCommand({ ...input, limit }),
+  });
+  return jsonPayloadFromCommandResult<Civ7SetupMapRowsResult>(result, "Civ7 setup map rows");
+}
+
+export async function ensureCiv7SetupMapRowVisible(
+  input: Civ7SetupMapRowVisibilityInput,
+  options: Civ7DirectControlOptions = {},
+  approval?: Civ7ActionApproval,
+): Promise<Civ7SetupMapRowVisibilityResult> {
+  validateMapScript(input.file);
+  const limit = boundedInteger(input.limit ?? 100, 1, 1_000, "limit");
+  const rowInput = { file: input.file, limit };
+  const initial = await getCiv7SetupMapRows(rowInput, options);
+  if (initial.rows.length > 0 || input.reloadIfMissing !== "exit-to-shell") {
+    return {
+      initial,
+      final: initial,
+      refreshed: false,
+      verified: initial.rows.length > 0,
+    };
+  }
+
+  if (!approval) {
+    throw new Civ7DirectControlError("command-failed", "Explicit approval is required before refreshing Civ7 setup map rows");
+  }
+  assertApproved(approval, "refreshing Civ7 setup map rows");
+  const waitTimeoutMs = input.waitTimeoutMs ?? options.timeoutMs ?? 30_000;
+  const pollIntervalMs = input.pollIntervalMs ?? 1_000;
+  const shellBefore = await getCiv7SetupSnapshot(options).catch(() => undefined);
+  const shellExit = shellBefore?.snapshot.phase === "shell"
+    ? undefined
+    : await executeCiv7AppUiCommand({
+        ...options,
+        command: CIV7_EXIT_TO_MAIN_MENU_COMMAND,
+      });
+  const shellAfter = await waitForCiv7SetupPhase("shell", options, { waitTimeoutMs, pollIntervalMs });
+  const reload = await executeCiv7AppUiCommand({
+    ...options,
+    command: CIV7_RELOAD_UI_COMMAND,
+  });
+  const final = await waitForCiv7SetupMapRows(rowInput, options, { waitTimeoutMs, pollIntervalMs });
+  return {
+    initial,
+    final,
+    shellBefore,
+    shellAfter,
+    shellExit,
+    reload,
+    refreshed: true,
+    verified: final.rows.length > 0,
+  };
+}
+
+export async function prepareCiv7SinglePlayerSetup(
+  input: Civ7SinglePlayerSetupInput,
+  options: Civ7DirectControlOptions = {},
+  approval: Civ7ActionApproval,
+): Promise<Civ7PreparedSetupResult> {
+  assertApproved(approval, "preparing a Civ7 single-player setup");
+  const normalized = normalizeSinglePlayerSetupInput(input);
+  const before = await getCiv7SetupSnapshot(options);
+  if (normalized.requireShell !== false && before.snapshot.phase !== "shell") {
+    throw new Civ7DirectControlError(
+      "setup-phase-invalid",
+      `Civ7 setup requires shell/main-menu phase; observed ${before.snapshot.phase}`,
+      { details: before },
+    );
+  }
+
+  const rowProof = findSetupMapRow(before.snapshot, normalized.mapScript);
+  if (!rowProof) {
+    throw new Civ7DirectControlError(
+      "setup-map-row-missing",
+      `Civ7 setup map row is not visible for ${normalized.mapScript}`,
+      { details: before.snapshot.mapRows },
+    );
+  }
+
+  const command = await executeCiv7AppUiCommand({
+    ...options,
+    command: buildPrepareSinglePlayerSetupCommand(normalized),
+  });
+  const payload = jsonPayloadFromCommandResult<{
+    before: Civ7SetupSnapshot;
+    after: Civ7SetupSnapshot;
+    applied: Record<string, Civ7SetupOptionValue>;
+  }>(command, "Civ7 setup preparation");
+  const after = {
+    host: command.host,
+    port: command.port,
+    state: command.state,
+    snapshot: payload.after,
+  };
+  assertPreparedSetupMatches(normalized, after.snapshot);
+  return {
+    host: command.host,
+    port: command.port,
+    state: command.state,
+    before,
+    after,
+    command,
+    applied: payload.applied,
+    verified: true,
+  };
+}
+
+export async function startPreparedCiv7SinglePlayerGame(
+  input: Civ7PreparedStartInput,
+  options: Civ7DirectControlOptions = {},
+  approval: Civ7ActionApproval,
+): Promise<Civ7SinglePlayerStartResult> {
+  assertApproved(approval, "starting a prepared Civ7 single-player game");
+  const expected = normalizeSinglePlayerSetupInput(input.expected);
+  const before = await getCiv7SetupSnapshot(options);
+  assertPreparedSetupMatches(expected, before.snapshot);
+
+  const waitTimeoutMs = input.waitTimeoutMs ?? options.timeoutMs ?? 120_000;
+  const pollIntervalMs = input.pollIntervalMs ?? 1_000;
+  const session = new Civ7DirectControlSession(options);
+  const observations: Civ7AppUiSnapshot[] = [];
+  try {
+    const command = await session.executeCommand({
+      state: { role: "app-ui" },
+      command: buildStartPreparedSinglePlayerCommand(),
+      timeoutMs: options.timeoutMs,
+    });
+    const startPayload = jsonPayloadFromCommandResult<{ ok: unknown }>(command, "Civ7 prepared single-player start");
+    if (startPayload.ok === false) {
+      throw new Civ7DirectControlError("command-failed", "Civ7 Network.hostGame returned false", {
+        details: { command, startPayload },
+      });
+    }
+
+    let finalAppUi: Civ7AppUiSnapshotResult | undefined;
+    const startedAt = Date.now();
+    while (Date.now() - startedAt <= waitTimeoutMs) {
+      try {
+        const snapshotResult = appUiSnapshotFromCommandResult(
+          await executeSessionCommandWithReconnect(session, {
+            state: { role: "app-ui" },
+            command: buildAppUiSnapshotCommand(),
+            timeoutMs: options.timeoutMs,
+          }),
+        );
+        observations.push(snapshotResult.snapshot);
+        const loadingState = probeValue(snapshotResult.snapshot.ui.loadingState);
+        if (isCiv7BeginReadyLoadingState(loadingState)) {
+          await executeSessionCommandWithReconnect(session, {
+            state: { role: "app-ui" },
+            command: CIV7_BEGIN_GAME_COMMAND,
+            timeoutMs: options.timeoutMs,
+          }, 1).catch(() => undefined);
+        }
+        if (
+          loadingState === CIV7_UI_LOADING_STATES.GameStarted &&
+          snapshotResult.snapshot.ui.inGame.ok &&
+          snapshotResult.snapshot.ui.inGame.value
+        ) {
+          finalAppUi = snapshotResult;
+          break;
+        }
+      } catch {
+        await session.close();
+      }
+      await sleep(pollIntervalMs);
+    }
+
+    if (!finalAppUi) {
+      throw new Civ7DirectControlError(
+        "setup-start-timeout",
+        `Timed out waiting for Civ7 to start prepared single-player game after ${waitTimeoutMs}ms`,
+        { details: { before, observations } },
+      );
+    }
+
+    const tunerHealth = input.waitForTuner
+      ? await waitForCiv7TunerReadyWithSession(session, { timeoutMs: options.timeoutMs, waitTimeoutMs, pollIntervalMs })
+      : undefined;
+    const mapSummary = input.waitForTuner
+      ? await getCiv7MapSummary({ ...options, timeoutMs: options.timeoutMs })
+      : undefined;
+    if (mapSummary) assertPostStartMatches(expected, mapSummary);
+
+    return {
+      command,
+      before,
+      finalAppUi,
+      tunerHealth,
+      mapSummary,
+      observations,
+      verified: mapSummary ? true : finalAppUi.snapshot.ui.inGame.ok && finalAppUi.snapshot.ui.inGame.value,
+    };
+  } finally {
+    await session.close();
+  }
+}
+
+export async function runCiv7SinglePlayerFromSetup(
+  input: Civ7SinglePlayerRunInput,
+  options: Civ7DirectControlOptions = {},
+  approval: Civ7ActionApproval,
+): Promise<Civ7SinglePlayerRunResult> {
+  assertApproved(approval, "running Civ7 single-player from setup");
+  const normalized = normalizeSinglePlayerSetupInput(input);
+  let shellExit: Civ7CommandResult | undefined;
+  const initial = await getCiv7SetupSnapshot(options);
+  if (initial.snapshot.phase !== "shell") {
+    if (input.fromRunningGame !== "exit-to-shell") {
+      throw new Civ7DirectControlError(
+        "setup-phase-invalid",
+        `Civ7 is ${initial.snapshot.phase}; pass fromRunningGame: "exit-to-shell" to leave the current game`,
+        { details: initial },
+      );
+    }
+    shellExit = await executeCiv7AppUiCommand({
+      ...options,
+      command: CIV7_EXIT_TO_MAIN_MENU_COMMAND,
+    });
+    await waitForCiv7SetupPhase("shell", options, {
+      waitTimeoutMs: input.waitTimeoutMs ?? 120_000,
+      pollIntervalMs: input.pollIntervalMs ?? 1_000,
+    });
+  }
+  const prepare = await prepareCiv7SinglePlayerSetup(
+    { ...normalized, requireShell: true },
+    options,
+    approval,
+  );
+  const start = await startPreparedCiv7SinglePlayerGame(
+    {
+      expected: normalized,
+      waitForTuner: input.waitForTuner,
+      waitTimeoutMs: input.waitTimeoutMs,
+      pollIntervalMs: input.pollIntervalMs,
+    },
+    options,
+    approval,
+  );
+  return {
+    shellExit,
+    prepare,
+    start,
+    verified: prepare.verified && start.verified,
+  };
+}
+
 export async function inspectCiv7Root(
   input: Civ7RootInspectionInput,
   options: Civ7DirectControlOptions = {},
@@ -2094,12 +2517,12 @@ function buildAppUiSnapshotCommand(): string {
         isLoggedIn: probe(() => Network.isLoggedIn()),
       },
       autoplay: {
-        isActive: Autoplay.isActive,
-        turns: Autoplay.turns,
-        isPaused: Autoplay.isPaused,
-        isPausedOrPending: Autoplay.isPausedOrPending,
-        observeAsPlayer: Autoplay.observeAsPlayer,
-        returnAsPlayer: Autoplay.returnAsPlayer,
+        isActive: probe(() => typeof Autoplay !== "undefined" ? Autoplay.isActive : false).value ?? false,
+        turns: probe(() => typeof Autoplay !== "undefined" ? Autoplay.turns : 0).value ?? 0,
+        isPaused: probe(() => typeof Autoplay !== "undefined" ? Autoplay.isPaused : false).value ?? false,
+        isPausedOrPending: probe(() => typeof Autoplay !== "undefined" ? Autoplay.isPausedOrPending : false).value ?? false,
+        observeAsPlayer: probe(() => typeof Autoplay !== "undefined" ? Autoplay.observeAsPlayer : -1).value ?? -1,
+        returnAsPlayer: probe(() => typeof Autoplay !== "undefined" ? Autoplay.returnAsPlayer : -1).value ?? -1,
       },
       game: {
         turn: Game.turn,
@@ -2475,6 +2898,232 @@ function buildGameInfoRowsCommand(input: Civ7GameInfoRowsInput & {
   })()`;
 }
 
+function buildSetupSnapshotCommand(): string {
+  return `(() => {
+    ${setupSnapshotScriptSource()}
+    return JSON.stringify({ snapshot: readSetupSnapshot() });
+  })()`;
+}
+
+function buildSetupMapRowsCommand(input: Civ7SetupMapRowsInput & { limit: number }): string {
+  return `(() => {
+    ${setupSnapshotScriptSource()}
+    const input = ${jsLiteral(input)};
+    const rows = readSetupMapRows(input.file).slice(0, input.limit);
+    return JSON.stringify({
+      rows,
+      limit: input.limit,
+      ...(input.file ? { matchedFile: input.file } : {}),
+    });
+  })()`;
+}
+
+function buildPrepareSinglePlayerSetupCommand(input: Civ7SinglePlayerSetupInput): string {
+  return `(() => {
+    ${setupSnapshotScriptSource()}
+    const input = ${jsLiteral(input)};
+    const before = readSetupSnapshot();
+    const applied = {};
+    const setSetupParameter = (id, value) => {
+      if (typeof GameSetup !== "undefined" && GameSetup && typeof GameSetup.setGameParameterValue === "function") {
+        GameSetup.setGameParameterValue(id, value);
+      }
+    };
+    const editMap = Configuration.editMap();
+    const editGame = Configuration.editGame();
+    if (!editMap || !editGame) throw new Error("Configuration edit APIs are unavailable");
+    editMap.setScript(input.mapScript);
+    setSetupParameter("Map", input.mapScript);
+    applied.Map = input.mapScript;
+    editMap.setMapSize(input.mapSize);
+    setSetupParameter("MapSize", input.mapSize);
+    applied.MapSize = input.mapSize;
+    editMap.setMapSeed(input.seed);
+    setSetupParameter("MapRandomSeed", input.seed);
+    applied.MapRandomSeed = input.seed;
+    if (input.gameSeed !== undefined) {
+      editGame.setGameSeed(input.gameSeed);
+      setSetupParameter("GameRandomSeed", input.gameSeed);
+      applied.GameRandomSeed = input.gameSeed;
+    }
+    if (input.playerCount !== undefined && typeof editMap.setMaxMajorPlayers === "function") {
+      editMap.setMaxMajorPlayers(input.playerCount);
+      applied.MaxMajorPlayers = input.playerCount;
+    }
+    for (const [key, value] of Object.entries(input.options ?? {})) {
+      GameSetup.setGameParameterValue(key, value);
+      applied[key] = value;
+    }
+    const after = readSetupSnapshot();
+    return JSON.stringify({ before, after, applied });
+  })()`;
+}
+
+function buildStartPreparedSinglePlayerCommand(): string {
+  return `(() => {
+    const serverType = typeof ServerType !== "undefined" && ServerType && ServerType.SERVER_TYPE_NONE !== undefined
+      ? ServerType.SERVER_TYPE_NONE
+      : 0;
+    return JSON.stringify({
+      ok: Network.hostGame(serverType),
+      serverType,
+    });
+  })()`;
+}
+
+function setupSnapshotScriptSource(): string {
+  return `${probeHelperSource()}
+    const plain = (value) => {
+      if (value == null) return value;
+      if (typeof value !== "object") return value;
+      try {
+        return JSON.parse(JSON.stringify(value));
+      } catch {
+        const out = {};
+        for (const key of Object.getOwnPropertyNames(value)) {
+          try {
+            const next = value[key];
+            if (typeof next !== "function") out[key] = next;
+          } catch {}
+        }
+        return out;
+      }
+    };
+    const scalarValue = (value) => {
+      if (value == null) return value;
+      if (typeof value !== "object") return value;
+      if (value.value !== undefined) return value.value;
+      if (value.Value !== undefined) return value.Value;
+      if (value.file !== undefined) return value.file;
+      if (value.File !== undefined) return value.File;
+      if (value.name !== undefined && typeof value.name !== "object") return value.name;
+      if (value.Name !== undefined && typeof value.Name !== "object") return value.Name;
+      return plain(value);
+    };
+    const rowFile = (row) => {
+      if (row == null || typeof row !== "object") return typeof row === "string" ? row : undefined;
+      return row.File ?? row.file ?? row.Value ?? row.value;
+    };
+    const mapRowFrom = (source, row) => {
+      const file = rowFile(row);
+      if (typeof file !== "string" || file.length === 0) return null;
+      return {
+        source,
+        domain: row.Domain ?? row.domain,
+        file,
+        value: row.Value ?? row.value,
+        name: row.Name ?? row.name,
+        description: row.Description ?? row.description,
+        sortIndex: row.SortIndex ?? row.sortIndex,
+      };
+    };
+    const uniqueRows = (rows) => {
+      const seen = new Set();
+      const out = [];
+      for (const row of rows) {
+        if (!row || seen.has(row.source + ":" + row.file)) continue;
+        seen.add(row.source + ":" + row.file);
+        out.push(row);
+      }
+      return out;
+    };
+    const readParameter = (id) => {
+      const parameter = typeof GameSetup !== "undefined" && GameSetup && typeof GameSetup.findGameParameter === "function"
+        ? GameSetup.findGameParameter(id)
+        : undefined;
+      if (!parameter) return { id, exists: false };
+      const possibleValues = parameter.domain && Array.isArray(parameter.domain.possibleValues)
+        ? parameter.domain.possibleValues.map(plain)
+        : [];
+      return {
+        id,
+        exists: true,
+        hidden: parameter.hidden,
+        readOnly: parameter.readOnly,
+        invalidReason: parameter.invalidReason ?? null,
+        value: scalarValue(parameter.value),
+        rawValue: plain(parameter.value),
+        possibleValues,
+      };
+    };
+    const readSetupMapRows = (file) => {
+      const rows = [];
+      const mapParameter = readParameter("Map");
+      for (const value of mapParameter.possibleValues ?? []) {
+        const row = mapRowFrom("setup-domain", value);
+        if (row && (!file || row.file === file || row.value === file)) rows.push(row);
+      }
+      try {
+        if (typeof Database !== "undefined" && Database && typeof Database.query === "function") {
+          const dbRows = Array.from(Database.query("config", "SELECT Domain, File, Name, Description, SortIndex FROM Maps"));
+          for (const value of dbRows) {
+            const row = mapRowFrom("config-db", value);
+            if (row && (!file || row.file === file || row.value === file)) rows.push(row);
+          }
+        }
+      } catch {}
+      return uniqueRows(rows);
+    };
+    const readUi = () => {
+      const loadingState = probe(() => UI.getGameLoadingState());
+      return {
+        inGame: probe(() => UI.isInGame()),
+        inShell: probe(() => UI.isInShell()),
+        inLoading: probe(() => UI.isInLoading()),
+        loadingState,
+        loadingStateName: (() => {
+          try {
+            const state = UI.getGameLoadingState();
+            return typeof UIGameLoadingState !== "undefined"
+              ? Object.entries(UIGameLoadingState).find(([, value]) => value === state)?.[0] ?? null
+              : null;
+          } catch {
+            return null;
+          }
+        })(),
+        canBeginGame: probe(() => {
+          const state = UI.getGameLoadingState();
+          return typeof UIGameLoadingState !== "undefined" &&
+            (state === UIGameLoadingState.WaitingForUIReady || state === UIGameLoadingState.WaitingToStart);
+        }),
+      };
+    };
+    const phaseFromUi = (ui) => {
+      if (ui.canBeginGame.ok && ui.canBeginGame.value === true) return "begin-ready";
+      if (ui.inLoading.ok && ui.inLoading.value === true) return "loading";
+      if (ui.inShell.ok && ui.inShell.value === true) return "shell";
+      if (ui.inGame.ok && ui.inGame.value === true) return "running-game";
+      return "unavailable";
+    };
+    const readSetupSnapshot = () => {
+      const ui = readUi();
+      const parameterIds = ${jsLiteral(DEFAULT_CIV7_SETUP_PARAMETER_IDS)};
+      const parameters = parameterIds.map(readParameter);
+      const mapParam = parameters.find((parameter) => parameter.id === "Map");
+      const selectedFile = typeof mapParam?.value === "string" ? mapParam.value : undefined;
+      const mapRows = readSetupMapRows();
+      const selectedMapRow = selectedFile
+        ? mapRows.find((row) => row.file === selectedFile || row.value === selectedFile)
+        : undefined;
+      return {
+        phase: phaseFromUi(ui),
+        ui,
+        setup: {
+          revision: probe(() => GameSetup.currentRevision),
+          parameters,
+        },
+        ...(selectedMapRow ? { selectedMapRow } : {}),
+        mapRows,
+        config: {
+          mapScript: probe(() => Configuration.getMap().script),
+          mapSize: probe(() => Configuration.getMap().mapSize),
+          mapSeed: probe(() => Configuration.getMap().mapSeed),
+          gameSeed: probe(() => Configuration.getGame().gameSeed),
+        },
+      };
+    };`;
+}
+
 function buildBoundedRootInspectionCommand(input: Civ7RootInspectionInput & {
   roots: ReadonlyArray<string>;
   maxRoots: number;
@@ -2820,6 +3469,30 @@ const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> 
     confidence: "runtime",
   },
   {
+    id: "wrapper.setup-snapshot",
+    name: "Setup Snapshot",
+    role: "app-ui",
+    kind: "read-wrapper",
+    owner: "@civ7/direct-control",
+    risk: "read",
+    provenance: ["Configuration", "GameSetup", "Database", "studio-run-in-game"],
+    wrapper: "getCiv7SetupSnapshot|getCiv7SetupMapRows",
+    confidence: "runtime",
+    description: "Reads Civ7 setup phase, setup parameters, and frontend map-script row visibility.",
+  },
+  {
+    id: "wrapper.setup-start",
+    name: "Single-player Setup and Start",
+    role: "app-ui",
+    kind: "action-wrapper",
+    owner: "@civ7/direct-control",
+    risk: "high",
+    provenance: ["Configuration.editMap", "Network.hostGame", "studio-run-in-game"],
+    wrapper: "prepareCiv7SinglePlayerSetup|startPreparedCiv7SinglePlayerGame|runCiv7SinglePlayerFromSetup",
+    confidence: "source",
+    description: "Applies map script, map size, and map seed through App UI setup APIs, then starts a prepared single-player game.",
+  },
+  {
     id: "wrapper.map-summary",
     name: "Map Summary",
     role: "tuner",
@@ -2940,6 +3613,146 @@ function validateIdentifier(value: string, label: string): string {
     throw new Civ7DirectControlError("command-failed", `${label} must be a simple identifier`);
   }
   return value;
+}
+
+function validateMapScript(value: string): string {
+  if (!value.trim() || value.length > 512 || /[\0\r\n]/.test(value)) {
+    throw new Civ7DirectControlError("setup-parameter-invalid", "mapScript must be a non-empty single-line string");
+  }
+  return value;
+}
+
+function normalizeSinglePlayerSetupInput(input: Civ7SinglePlayerSetupInput): Civ7SinglePlayerSetupInput {
+  validateMapScript(input.mapScript);
+  if (!/^MAPSIZE_[A-Z0-9_]+$/.test(input.mapSize)) {
+    throw new Civ7DirectControlError("setup-parameter-invalid", "mapSize must be a Civ7 MAPSIZE_* value");
+  }
+  if (!Number.isInteger(input.seed)) {
+    throw new Civ7DirectControlError("setup-parameter-invalid", "seed must be an integer");
+  }
+  if (input.gameSeed !== undefined && !Number.isInteger(input.gameSeed)) {
+    throw new Civ7DirectControlError("setup-parameter-invalid", "gameSeed must be an integer");
+  }
+  if (input.playerCount !== undefined) boundedInteger(input.playerCount, 1, 64, "playerCount");
+  const options: Record<string, Civ7SetupOptionValue> = {};
+  for (const [key, value] of Object.entries(input.options ?? {})) {
+    validateIdentifier(key, "setup option id");
+    if (!["string", "number", "boolean"].includes(typeof value)) {
+      throw new Civ7DirectControlError("setup-parameter-invalid", `Unsupported setup option value for ${key}`);
+    }
+    options[key] = value;
+  }
+  return {
+    ...input,
+    mapScript: input.mapScript,
+    mapSize: input.mapSize,
+    seed: input.seed,
+    options,
+  };
+}
+
+function findSetupParameter(snapshot: Civ7SetupSnapshot, id: string): Civ7SetupParameterSnapshot | undefined {
+  return snapshot.setup.parameters.find((parameter) => parameter.id === id);
+}
+
+function setupParameterValue(snapshot: Civ7SetupSnapshot, id: string): Civ7SetupParameterValue | undefined {
+  return findSetupParameter(snapshot, id)?.value;
+}
+
+function findSetupMapRow(snapshot: Civ7SetupSnapshot, file: string): Civ7SetupMapRow | undefined {
+  return snapshot.mapRows.find((row) => row.file === file || row.value === file);
+}
+
+function assertPreparedSetupMatches(input: Civ7SinglePlayerSetupInput, snapshot: Civ7SetupSnapshot): void {
+  const mapRow = findSetupMapRow(snapshot, input.mapScript);
+  if (!mapRow) {
+    throw new Civ7DirectControlError(
+      "setup-map-row-missing",
+      `Civ7 setup map row did not read back for ${input.mapScript}`,
+      { details: snapshot.mapRows },
+    );
+  }
+  const script = setupParameterValue(snapshot, "Map");
+  const mapSize = setupParameterValue(snapshot, "MapSize");
+  const mapSeed = setupParameterValue(snapshot, "MapRandomSeed");
+  const gameSeed = setupParameterValue(snapshot, "GameRandomSeed");
+  if (script !== input.mapScript) {
+    throw new Civ7DirectControlError("setup-readback-mismatch", `Civ7 setup Map readback mismatch: ${String(script)}`, {
+      details: { expected: input.mapScript, actual: script, snapshot },
+    });
+  }
+  if (mapSize !== input.mapSize) {
+    throw new Civ7DirectControlError("setup-readback-mismatch", `Civ7 setup MapSize readback mismatch: ${String(mapSize)}`, {
+      details: { expected: input.mapSize, actual: mapSize, snapshot },
+    });
+  }
+  if (Number(mapSeed) !== input.seed) {
+    throw new Civ7DirectControlError("setup-readback-mismatch", `Civ7 setup MapRandomSeed readback mismatch: ${String(mapSeed)}`, {
+      details: { expected: input.seed, actual: mapSeed, snapshot },
+    });
+  }
+  if (input.gameSeed !== undefined && Number(gameSeed) !== input.gameSeed) {
+    throw new Civ7DirectControlError("setup-readback-mismatch", `Civ7 setup GameRandomSeed readback mismatch: ${String(gameSeed)}`, {
+      details: { expected: input.gameSeed, actual: gameSeed, snapshot },
+    });
+  }
+  for (const [key, expected] of Object.entries(input.options ?? {})) {
+    const actual = setupParameterValue(snapshot, key);
+    if (actual !== undefined && actual !== expected) {
+      throw new Civ7DirectControlError("setup-readback-mismatch", `Civ7 setup ${key} readback mismatch: ${String(actual)}`, {
+        details: { expected, actual, snapshot },
+      });
+    }
+  }
+}
+
+function assertPostStartMatches(input: Civ7SinglePlayerSetupInput, summary: Civ7MapSummaryResult): void {
+  const seed = probeValue(summary.map.randomSeed);
+  if (seed !== undefined && seed !== input.seed) {
+    throw new Civ7DirectControlError("setup-seed-mismatch", `Civ7 runtime map seed ${seed} did not match ${input.seed}`, {
+      details: { input, summary },
+    });
+  }
+}
+
+async function waitForCiv7SetupPhase(
+  phase: Civ7SetupPhase,
+  options: Civ7DirectControlOptions,
+  wait: { waitTimeoutMs: number; pollIntervalMs: number },
+): Promise<Civ7SetupSnapshotResult> {
+  const startedAt = Date.now();
+  let last: Civ7SetupSnapshotResult | undefined;
+  while (Date.now() - startedAt <= wait.waitTimeoutMs) {
+    try {
+      const snapshot = await getCiv7SetupSnapshot(options);
+      last = snapshot;
+      if (snapshot.snapshot.phase === phase) return snapshot;
+    } catch {
+      // Keep polling during shell transitions; callers get timeout details below.
+    }
+    await sleep(wait.pollIntervalMs);
+  }
+  throw new Civ7DirectControlError(
+    "setup-phase-invalid",
+    `Timed out waiting for Civ7 setup phase ${phase}`,
+    { details: last },
+  );
+}
+
+async function waitForCiv7SetupMapRows(
+  input: Required<Pick<Civ7SetupMapRowsInput, "file" | "limit">>,
+  options: Civ7DirectControlOptions,
+  wait: { waitTimeoutMs: number; pollIntervalMs: number },
+): Promise<Civ7SetupMapRowsResult> {
+  const startedAt = Date.now();
+  let last = await getCiv7SetupMapRows(input, options);
+  if (last.rows.length > 0) return last;
+  while (Date.now() - startedAt <= wait.waitTimeoutMs) {
+    await sleep(wait.pollIntervalMs);
+    last = await getCiv7SetupMapRows(input, options);
+    if (last.rows.length > 0) return last;
+  }
+  return last;
 }
 
 function assertApproved(approval: Civ7ActionApproval, action: string): void {

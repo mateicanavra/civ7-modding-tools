@@ -4,10 +4,10 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
-import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
+import { canonicalRecipeConfig, isPlainObject as isCanonicalMapConfigObject } from "../../maps/configs/canonical.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
 import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
@@ -87,7 +87,11 @@ async function main(): Promise<void> {
     },
   } as const;
 
-  const baseConfig = stripSchemaMetadataRoot(loadConfig(flags));
+  const loadedConfig = loadConfig(flags);
+  const baseConfig =
+    isCanonicalMapConfigObject(loadedConfig) && isCanonicalMapConfigObject(loadedConfig.config)
+      ? canonicalRecipeConfig(loadedConfig)
+      : loadedConfig;
   const override = loadOverride(flags);
   const merged =
     override && isPlainObject(baseConfig) && isPlainObject(override) ? mergeDeep(baseConfig, override) : baseConfig;
@@ -118,4 +122,3 @@ main().catch((err) => {
   console.error(err);
   process.exitCode = 1;
 });
-

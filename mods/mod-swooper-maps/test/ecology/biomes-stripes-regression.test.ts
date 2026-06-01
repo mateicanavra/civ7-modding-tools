@@ -2,9 +2,9 @@ import { describe, expect, it } from "bun:test";
 
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
-import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
+import { canonicalRecipeConfig } from "../../src/maps/configs/canonical.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
@@ -50,7 +50,7 @@ describe("biomes stripes regression (M3-012)", () => {
     const ctx = createExtendedMapContext({ width, height }, adapter, env);
     initializeStandardRuntime(ctx, { mapInfo, logPrefix: "[test]", storyEnabled: true });
 
-    const config = stripSchemaMetadataRoot(swooperEarthlikeConfigRaw);
+    const config = canonicalRecipeConfig(swooperEarthlikeConfigRaw);
     standardRecipe.run(ctx, env, config, { log: () => {} });
 
     const classification = ctx.artifacts.get(ecologyArtifacts.biomeClassification.id) as

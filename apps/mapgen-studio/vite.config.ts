@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 import { promisify } from "node:util";
@@ -10,9 +11,17 @@ import {
   DEFAULT_CIV7_SCRIPTING_LOG,
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
   createCiv7ControlRequestId,
+  getCiv7AppUiSnapshot,
+  getCiv7AutoplayStatus,
+  getCiv7CitySummary,
   getCiv7GameInfoRows,
+  getCiv7MapGrid,
   getCiv7MapSummary,
   getCiv7PlayableStatus,
+  getCiv7PlayerSummary,
+  getCiv7UnitSummary,
+  ensureCiv7SetupMapRowVisible,
+  runCiv7SinglePlayerFromSetup,
   restartCiv7GameAndBegin,
   snapshotFile,
   waitForFreshLogMarkers,
@@ -31,7 +40,33 @@ function tail(value: string): string {
   return value.length > MAX_DEPLOY_OUTPUT_CHARS ? value.slice(-MAX_DEPLOY_OUTPUT_CHARS) : value;
 }
 
+function canonicalize(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const key of Object.keys(value as Record<string, unknown>).sort()) {
+      out[key] = canonicalize((value as Record<string, unknown>)[key]);
+    }
+    return out;
+  }
+  return value;
+}
+
+function stableHash(value: unknown): string {
+  return createHash("sha256").update(JSON.stringify(canonicalize(value))).digest("hex");
+}
+
 type ScriptingLogProof = FreshLogMarkerProof;
+
+class RunInGameHttpError extends Error {
+  constructor(
+    readonly statusCode: number,
+    message: string,
+    readonly details?: unknown
+  ) {
+    super(message);
+  }
+}
 
 async function deploySwooperMaps(repoRoot: string): Promise<{
   command: string;
@@ -46,6 +81,7 @@ async function deploySwooperMaps(repoRoot: string): Promise<{
       cwd: repoRoot,
       timeout: DEPLOY_TIMEOUT_MS,
       maxBuffer: 16 * 1024 * 1024,
+      env: process.env,
     }
   );
   return {
@@ -53,6 +89,37 @@ async function deploySwooperMaps(repoRoot: string): Promise<{
     stdout: tail(stdout),
     stderr: tail(stderr),
   };
+}
+
+async function deploySwooperMapsForRun(repoRoot: string, requestId: string): Promise<{
+  command: string;
+  stdout: string;
+  stderr: string;
+}> {
+  const command = "SWOOPER_STUDIO_RUN_ID=<request> bun run --cwd mods/mod-swooper-maps deploy";
+  const { stdout, stderr } = await execFileAsync(
+    "bun",
+    ["run", "--cwd", "mods/mod-swooper-maps", "deploy"],
+    {
+      cwd: repoRoot,
+      timeout: DEPLOY_TIMEOUT_MS,
+      maxBuffer: 16 * 1024 * 1024,
+      env: { ...process.env, SWOOPER_STUDIO_RUN_ID: requestId },
+    }
+  );
+  return {
+    command,
+    stdout: tail(stdout),
+    stderr: tail(stderr),
+  };
+}
+
+async function regenerateSwooperMapArtifacts(repoRoot: string): Promise<void> {
+  await execFileAsync("bun", ["run", "--cwd", "mods/mod-swooper-maps", "gen:maps"], {
+    cwd: repoRoot,
+    timeout: DEPLOY_TIMEOUT_MS,
+    maxBuffer: 16 * 1024 * 1024,
+  });
 }
 
 const SWOOPER_MAP_GENERATION_MARKERS = [
@@ -142,6 +209,88 @@ function assertRepoMapEnvelope(envelope: unknown, id: string): void {
   }
 }
 
+function assertNoRawControlFields(value: unknown): void {
+  if (!value || typeof value !== "object") return;
+  const stack = [value as Record<string, unknown>];
+  while (stack.length) {
+    const next = stack.pop()!;
+    for (const [key, child] of Object.entries(next)) {
+      if (/^(?:command|script|javascript|rawJs|rawCommand)$/i.test(key)) {
+        throw new Error("Run in Game request must not include raw control commands");
+      }
+      if (child && typeof child === "object" && !Array.isArray(child)) {
+        stack.push(child as Record<string, unknown>);
+      }
+    }
+  }
+}
+
+async function readJsonBody<T>(req: AsyncIterable<Uint8Array>): Promise<T> {
+  const chunks: Buffer[] = [];
+  for await (const chunk of req) chunks.push(Buffer.from(chunk));
+  return JSON.parse(Buffer.concat(chunks).toString("utf-8")) as T;
+}
+
+function mapScriptForConfigId(id: string): string {
+  return `{swooper-maps}/maps/${id}.js`;
+}
+
+function makeRepoMapEnvelope(args: {
+  id: string;
+  name: string;
+  description?: string;
+  sortIndex: number;
+  latitudeBounds?: unknown;
+  config: unknown;
+}): Record<string, unknown> {
+  return {
+    $schema: "../../../dist/recipes/standard-map-config.schema.json",
+    id: args.id,
+    name: args.name,
+    description: args.description?.trim() || args.name,
+    recipe: "standard",
+    sortIndex: args.sortIndex,
+    ...(args.latitudeBounds ? { latitudeBounds: args.latitudeBounds } : {}),
+    config: args.config,
+  };
+}
+
+async function materializeRunInGameConfig(args: {
+  repoRoot: string;
+  id: string;
+  sourcePath?: string;
+  envelope: Record<string, unknown>;
+  mode: "durable" | "disposable";
+}): Promise<{
+  path: string;
+  mapScript: string;
+  cleanup: () => Promise<void>;
+}> {
+  const configRoot = resolve(args.repoRoot, "mods/mod-swooper-maps/src/maps/configs");
+  const target = args.sourcePath
+    ? resolve(args.repoRoot, args.sourcePath)
+    : resolve(configRoot, `${args.id}.config.json`);
+  if (!target.startsWith(`${configRoot}/`) || !target.endsWith(".config.json")) {
+    throw new Error("Map config writes must stay in mods/mod-swooper-maps/src/maps/configs");
+  }
+  const path = relative(args.repoRoot, target);
+  const previous = await readFile(target, "utf8").catch((err: unknown) => {
+    if (isNodeNotFound(err)) return null;
+    throw err;
+  });
+  await mkdir(dirname(target), { recursive: true });
+  await writeFile(target, `${JSON.stringify(args.envelope, null, 2)}\n`);
+  return {
+    path,
+    mapScript: mapScriptForConfigId(args.id),
+    cleanup: async () => {
+      if (args.mode !== "disposable") return;
+      await restoreRepoConfig(target, previous);
+      await regenerateSwooperMapArtifacts(args.repoRoot);
+    },
+  };
+}
+
 function writeJson(res: { statusCode: number; setHeader(name: string, value: string): void; end(body?: string): void }, statusCode: number, body: unknown): void {
   res.statusCode = statusCode;
   res.setHeader("Content-Type", "application/json");
@@ -204,6 +353,260 @@ export default defineConfig(({ command }) => ({
           } catch (err) {
             const error = err instanceof Error ? err.message : "Civ7 GameInfo request failed";
             writeJson(res, 400, { ok: false, error });
+          }
+        });
+        server.middlewares.use("/api/civ7/live/status", async (req, res, next) => {
+          if (req.method !== "GET") return next();
+          try {
+            const [status, appUi, mapSummary, autoplay] = await Promise.allSettled([
+              getCiv7PlayableStatus({ timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS }),
+              getCiv7AppUiSnapshot({ timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS }),
+              getCiv7MapSummary({ timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS, includeAreaRegionCounts: false }),
+              getCiv7AutoplayStatus({ timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS }),
+            ]);
+            writeJson(res, 200, {
+              ok: status.status === "fulfilled" && status.value.playable,
+              observedAt: new Date().toISOString(),
+              status: status.status === "fulfilled" ? status.value : { error: String(status.reason) },
+              appUi: appUi.status === "fulfilled" ? appUi.value : { error: String(appUi.reason) },
+              mapSummary: mapSummary.status === "fulfilled" ? mapSummary.value : { error: String(mapSummary.reason) },
+              autoplay: autoplay.status === "fulfilled" ? autoplay.value : { error: String(autoplay.reason) },
+            });
+          } catch (err) {
+            const error = err instanceof Error ? err.message : "Civ7 live status request failed";
+            writeJson(res, 500, { ok: false, error });
+          }
+        });
+        server.middlewares.use("/api/civ7/live/snapshot", async (req, res, next) => {
+          if (req.method !== "GET") return next();
+          try {
+            const url = new URL(req.url ?? "", "http://localhost");
+            const bounds = {
+              x: Number(url.searchParams.get("x") ?? "0"),
+              y: Number(url.searchParams.get("y") ?? "0"),
+              width: Number(url.searchParams.get("width") ?? "24"),
+              height: Number(url.searchParams.get("height") ?? "18"),
+            };
+            const fields = (url.searchParams.get("fields") ?? "terrain,biome,feature,resource,visibility,owner")
+              .split(",")
+              .map((field) => field.trim())
+              .filter(Boolean) as Parameters<typeof getCiv7MapGrid>[0]["fields"];
+            const playerIdParam = url.searchParams.get("playerId");
+            const maxPlots = Math.min(512, Math.max(1, Number(url.searchParams.get("maxPlots") ?? "512")));
+            const grid = await getCiv7MapGrid({
+              bounds,
+              fields,
+              maxPlots,
+              ...(playerIdParam === null ? {} : { playerId: Number(playerIdParam) }),
+            }, {
+              timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS,
+            });
+            writeJson(res, 200, { ok: true, observedAt: new Date().toISOString(), grid });
+          } catch (err) {
+            const error = err instanceof Error ? err.message : "Civ7 live snapshot request failed";
+            writeJson(res, 400, { ok: false, error });
+          }
+        });
+        server.middlewares.use("/api/civ7/live/entities", async (req, res, next) => {
+          if (req.method !== "GET") return next();
+          try {
+            const url = new URL(req.url ?? "", "http://localhost");
+            const playerIdParam = url.searchParams.get("playerId");
+            const maxItems = Math.min(128, Math.max(1, Number(url.searchParams.get("maxItems") ?? "128")));
+            const playerId = playerIdParam === null ? undefined : Number(playerIdParam);
+            const [players, units, cities] = await Promise.all([
+              getCiv7PlayerSummary({ ...(playerId === undefined ? {} : { playerIds: [playerId] }), maxItems }, { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS }),
+              getCiv7UnitSummary({ ...(playerId === undefined ? {} : { playerId }), maxItems }, { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS }),
+              getCiv7CitySummary({ ...(playerId === undefined ? {} : { playerId }), maxItems }, { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS }),
+            ]);
+            writeJson(res, 200, { ok: true, observedAt: new Date().toISOString(), players, units, cities });
+          } catch (err) {
+            const error = err instanceof Error ? err.message : "Civ7 live entities request failed";
+            writeJson(res, 400, { ok: false, error });
+          }
+        });
+        server.middlewares.use("/api/civ7/live/gameinfo", async (req, res, next) => {
+          if (req.method !== "GET") return next();
+          try {
+            const url = new URL(req.url ?? "", "http://localhost");
+            const tables = (url.searchParams.get("tables") ?? "Terrains,Biomes,Features,Resources,Maps,MapSizes")
+              .split(",")
+              .map((table) => table.trim())
+              .filter(Boolean)
+              .slice(0, 8);
+            const limit = Math.min(200, Math.max(1, Number(url.searchParams.get("limit") ?? "100")));
+            const rows = await Promise.all(
+              tables.map(async (table) => [table, await getCiv7GameInfoRows({ table, limit }, { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS })] as const),
+            );
+            writeJson(res, 200, { ok: true, observedAt: new Date().toISOString(), tables: Object.fromEntries(rows) });
+          } catch (err) {
+            const error = err instanceof Error ? err.message : "Civ7 live GameInfo request failed";
+            writeJson(res, 400, { ok: false, error });
+          }
+        });
+        server.middlewares.use("/api/civ7/run-in-game", async (req, res, next) => {
+          if (req.method !== "POST") return next();
+          try {
+            const body = await readJsonBody<{
+              recipeId?: unknown;
+              seed?: unknown;
+              mapSize?: unknown;
+              playerCount?: unknown;
+              resources?: unknown;
+              materialization?: { mode?: unknown };
+              config?: unknown;
+              selectedConfig?: {
+                id?: unknown;
+                label?: unknown;
+                description?: unknown;
+                sourcePath?: unknown;
+                sortIndex?: unknown;
+                latitudeBounds?: unknown;
+              };
+            }>(req);
+            assertNoRawControlFields(body);
+            if (body.recipeId !== "mod-swooper-maps/standard") {
+              throw new Error("Run in Game currently supports only mod-swooper-maps/standard");
+            }
+            if (!body.config || typeof body.config !== "object" || Array.isArray(body.config)) {
+              throw new Error("Run in Game requires a sanitized config object");
+            }
+            const selected = body.selectedConfig ?? {};
+            const requestedMode = body.materialization?.mode === "durable" ? "durable" : "disposable";
+            const id = requestedMode === "disposable"
+              ? "studio-current"
+              : typeof selected.id === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(selected.id)
+                ? selected.id
+                : "studio-current";
+            if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) throw new Error("Run in Game map config id must be kebab-case");
+            const seed = Number(body.seed);
+            if (!Number.isInteger(seed)) throw new Error("Run in Game seed must be an integer");
+            const mapSize = typeof body.mapSize === "string" ? body.mapSize : "MAPSIZE_STANDARD";
+            if (!/^MAPSIZE_[A-Z0-9_]+$/.test(mapSize)) throw new Error("Run in Game mapSize must be a Civ7 MAPSIZE_* value");
+            const playerCount = body.playerCount === undefined ? undefined : Number(body.playerCount);
+            if (playerCount !== undefined && (!Number.isInteger(playerCount) || playerCount < 1 || playerCount > 64)) {
+              throw new Error("Run in Game playerCount must be an integer between 1 and 64");
+            }
+            const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
+            const configHash = stableHash(body.config);
+            const envelope = makeRepoMapEnvelope({
+              id,
+              name: typeof selected.label === "string" ? selected.label : id,
+              description: typeof selected.description === "string" ? selected.description : undefined,
+              sortIndex: typeof selected.sortIndex === "number" ? selected.sortIndex : requestedMode === "disposable" ? 9999 : 900,
+              latitudeBounds: selected.latitudeBounds,
+              config: body.config,
+            });
+            assertRepoMapEnvelope(envelope, id);
+            const envelopeHash = stableHash({
+              id,
+              recipe: "standard",
+              latitudeBounds: selected.latitudeBounds ?? null,
+              configHash,
+            });
+            const requestId = createCiv7ControlRequestId("studio-run-in-game");
+            const run = async () => {
+              const materialized = await materializeRunInGameConfig({
+                repoRoot,
+                id,
+                sourcePath: requestedMode === "durable" && typeof selected.sourcePath === "string" ? selected.sourcePath : undefined,
+                envelope,
+                mode: requestedMode,
+              });
+              const scriptingLogPath = process.env.CIV7_SCRIPTING_LOG ?? DEFAULT_CIV7_SCRIPTING_LOG;
+              const scriptingSnapshot = await snapshotFile(scriptingLogPath);
+              let deploy;
+              try {
+                deploy = await deploySwooperMapsForRun(repoRoot, requestId);
+              } catch (err) {
+                await materialized.cleanup();
+                throw err;
+              }
+              let rowProof;
+              let rowVisibility;
+              let start;
+              let logProof: ScriptingLogProof | undefined;
+              try {
+                rowVisibility = await ensureCiv7SetupMapRowVisible(
+                  {
+                    file: materialized.mapScript,
+                    limit: 20,
+                    reloadIfMissing: requestedMode === "disposable" ? "exit-to-shell" : "none",
+                    waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
+                    pollIntervalMs: 1_000,
+                  },
+                  { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS },
+                  { approved: true, reason: "Studio Run in Game setup row reload", disposableSession: true },
+                );
+                rowProof = rowVisibility.final;
+                if (rowProof.rows.length === 0) {
+                  throw new RunInGameHttpError(409, `Civ7 setup cannot see ${materialized.mapScript}`, {
+                    code: "setup-map-row-not-visible",
+                    reloadRequired: true,
+                    reloadBoundary: requestedMode === "disposable" ? "process-restart-required" : "setup-row-missing",
+                    reloadAttempted: rowVisibility.refreshed,
+                    mapScript: materialized.mapScript,
+                    materialization: {
+                      mode: requestedMode,
+                      path: materialized.path,
+                    },
+                  });
+                }
+                start = await runCiv7SinglePlayerFromSetup(
+                  {
+                    mapScript: materialized.mapScript,
+                    mapSize,
+                    seed,
+                    ...(playerCount === undefined ? {} : { playerCount }),
+                    fromRunningGame: "exit-to-shell",
+                    waitForTuner: true,
+                    waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
+                  },
+                  { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS },
+                  { approved: true, reason: "Studio Run in Game", disposableSession: true },
+                );
+                logProof = await waitForFreshLogMarkers({
+                  logPath: scriptingLogPath,
+                  snapshot: scriptingSnapshot,
+                  markers: ["[mapgen-proof]", requestId, configHash, envelopeHash],
+                  timeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
+                  rejectPattern: /\b(?:TextEncoder|Uncaught|Exception|Error)\b/i,
+                });
+              } finally {
+                try {
+                  await materialized.cleanup();
+                } finally {
+                  await regenerateSwooperMapArtifacts(repoRoot);
+                }
+              }
+              writeJson(res, 200, {
+                ok: true,
+                requestId,
+                materialization: {
+                  mode: requestedMode,
+                  path: materialized.path,
+                  mapScript: materialized.mapScript,
+                  configHash,
+                  envelopeHash,
+                },
+                deploy,
+                rowProof,
+                rowVisibility,
+                start,
+                logProof,
+              });
+            };
+            const nextRun = saveDeployRestartQueue.then(run, run);
+            saveDeployRestartQueue = nextRun.then(
+              () => undefined,
+              () => undefined
+            );
+            await nextRun;
+          } catch (err) {
+            const error = err instanceof Error ? err.message : "Run in Game failed";
+            const statusCode = err instanceof RunInGameHttpError ? err.statusCode : 500;
+            const details = err instanceof RunInGameHttpError ? err.details : undefined;
+            writeJson(res, statusCode, { ok: false, error, ...(details === undefined ? {} : { details }) });
           }
         });
         server.middlewares.use("/api/map-configs", async (req, res, next) => {

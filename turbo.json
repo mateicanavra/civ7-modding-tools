@@ -7,7 +7,7 @@
     },
     "build:studio-recipes": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**", "mod/**", "src/maps/generated/**"]
     },
     "deploy": {
       "dependsOn": ["build"],
@@ -23,9 +23,23 @@
       "dependsOn": ["^build", "mod-swooper-maps#build:studio-recipes"],
       "outputs": ["dist/**", "types/**", "example-generated-mod/**", "mod/**"]
     },
+    "mapgen-studio#check": {
+      "dependsOn": ["^build", "mod-swooper-maps#build:studio-recipes"],
+      "outputs": []
+    },
+    "mapgen-studio#test": {
+      "dependsOn": ["^build", "mod-swooper-maps#build:studio-recipes"],
+      "outputs": []
+    },
+    "mod-swooper-maps#check": {
+      "dependsOn": ["^build", "build"],
+      "outputs": []
+    },
     "check": { "dependsOn": ["^build", "^check"], "outputs": [] },
     "lint": {},
-    "test": { "dependsOn": ["^build"] },
+    "test": { "dependsOn": ["^build"], "outputs": [] },
+    "test:studio-run-in-game": { "dependsOn": ["^build"], "outputs": [] },
+    "test:architecture-cutover": { "dependsOn": ["^build"], "outputs": [] },
     "clean": {}
   }
 }
