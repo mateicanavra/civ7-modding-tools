@@ -148,3 +148,21 @@
 | Package build/check | `bun run --cwd packages/mapgen-core build`; `bun run --cwd packages/mapgen-core check` | Passed. |
 | Package TypeScript check | `bun run --cwd mods/mod-swooper-maps check` | Still fails only on existing unresolved `@mateicanavra/civ7-sdk/mapgen` imports in generated maps and one type inference test; no new Placement type errors were reported before those module-resolution failures. |
 | Runtime proof | direct-control/Studio runtime | Not run. The slice claims schema/default proof, placement operation coverage, and shipped-config compile equivalence only; it does not claim new generated-map behavior. |
+
+## 2026-06-01: Studio/SDK Authoring Surface Guards Slice
+
+| evidence | command or source | result |
+| --- | --- | --- |
+| Graphite isolation | `gt create --no-interactive --no-ai codex/studio-sdk-authoring-surface-guards` | New guard-hardening branch above `codex/placement-authoring-surface-alignment`. |
+| Narsil status | Primary checkout detached to Placement head; restarted `com.rawr.narsil-mcp-civ7`; used `list_repos` and `get_file`; avoided `hybrid_search` | Narsil was responsive and indexed the primary checkout. Branch-local proof used direct file reads/tests until the primary checkout is moved to this slice head after commit. |
+| Stale identity test repair | `bun test mods/mod-swooper-maps/test/config/shipped-map-identity.test.ts` | Passed 1 test / 108 expects. The test now asserts public shipped configs expose semantic Ecology feature authoring, while compiled internal planners preserve the tuned vegetation, wetland, ice, and reef strategy configs. |
+| Source authoring surface guards | `bun test mods/mod-swooper-maps/test/config/standard-authoring-surface-guards.test.ts` | Passed 2 tests / 248 expects. All 17 standard stages use `semantic-public-config`, recursive public object schemas are strict, approved public keys match source, no public raw `{ strategy, config }`, and focus paths do not point at raw envelope keys. |
+| Generated map/SDK boundary guards | `standard-authoring-surface-guards.test.ts` | Generated map entrypoints match canonical config ids, import `../configs/<id>.config.json`, call exactly `canonicalRecipeConfig<StandardRecipeConfig>(mapConfig)` as the SDK `createMap` config expression, record exact recomputed source `configHash`/`envelopeHash`, and do not inline raw placement configs or strategy/config envelopes. |
+| Studio artifact guards | `bun test apps/mapgen-studio/test/config/standardRecipeArtifactGuards.test.ts` | Passed 4 tests / 155 expects. Generated standard schema and UI metadata match source recipe stages, generated default config matches normalized `swooper-earthlike.config.json`, catalog/runtime entries share the same generated artifacts, UI focus paths land on public schema/default paths, and built-in presets validate without raw envelopes. |
+| Shipped config, preset, Studio, and guard suite | `bun test mods/mod-swooper-maps/test/config/maps-schema-valid.test.ts mods/mod-swooper-maps/test/config/presets-schema-valid.test.ts mods/mod-swooper-maps/test/config/studio-presets-schema-valid.test.ts mods/mod-swooper-maps/test/config/shipped-map-identity.test.ts mods/mod-swooper-maps/test/config/standard-authoring-surface-guards.test.ts apps/mapgen-studio/test/config/defaultConfigSchema.test.ts apps/mapgen-studio/test/config/standardRecipeArtifactGuards.test.ts` | Passed 69 tests / 1981 expects after accepted P2 repairs. |
+| OpenSpec validation | `bun run openspec -- validate studio-sdk-authoring-surface-guards --strict` | Passed. |
+| Package TypeScript check | `bun run --cwd apps/mapgen-studio check` | Passed. |
+| Package build/check | `bun run --cwd packages/mapgen-core build`; `bun run --cwd packages/mapgen-core check` | Passed. |
+| Package TypeScript check | `bun run --cwd mods/mod-swooper-maps check` | Still fails only on existing unresolved `@mateicanavra/civ7-sdk/mapgen` imports in generated maps and one type inference test; this guard slice did not add new mod type-check failures before those module-resolution failures. |
+| Whitespace check | `git diff --check` | Passed. |
+| Runtime proof | direct-control/Studio runtime | Not run. This guard slice changes tests/OpenSpec/docs only and claims generated artifact/config boundary proof, not generated-map behavior changes. |

@@ -67,7 +67,7 @@ public config boundary OpenSpec work.
   truth-stage settings.
 - [x] Placement cleanup slice for product-facing placement controls and internal
   planner parameters.
-- [ ] Shared SDK/Studio guard-hardening slice for cross-cutting raw-envelope
+- [x] Shared SDK/Studio guard-hardening slice for cross-cutting raw-envelope
   leakage checks that remain after each behavior slice has completed its own
   generated artifact, shipped config, preset, and Studio proof.
 
@@ -110,7 +110,7 @@ public config boundary OpenSpec work.
    - Include shipped config/preset migration, generated artifact updates,
      Studio/default/schema proof, compile determinism, and focused placement
      output proof.
-8. `studio-sdk-guard-hardening`
+8. `studio-sdk-authoring-surface-guards`
    - Add cross-cutting generated schema/default/uiMeta guard tests and SDK/Studio
      assertions after behavior slices have already migrated their own consumers.
 
