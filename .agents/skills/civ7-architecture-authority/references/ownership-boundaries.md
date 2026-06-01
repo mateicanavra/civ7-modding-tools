@@ -1,0 +1,149 @@
+# Ownership Boundaries
+
+Use this reference when placing a symbol, file, helper, generated artifact, doc, test, or runtime call.
+
+## SDK
+
+Owns:
+
+- public TypeScript mod authoring APIs;
+- builders, nodes, XML file abstractions, localizations, and mod output contracts;
+- SDK constants and type-level ergonomics for mod authors.
+
+Does not own:
+
+- CLI command UX;
+- MapGen pipeline internals;
+- Civ7 engine runtime calls;
+- generated `dist/` output as editable source;
+- official resource extraction mechanics.
+
+## CLI
+
+Owns:
+
+- user-facing commands, flags, help, command errors, and command orchestration;
+- config/root resolution for command execution;
+- integration of plugin workflows into command I/O.
+
+Does not own:
+
+- reusable graph/file/git/mod logic that belongs in plugin packages;
+- SDK builder semantics;
+- game runtime adapter calls;
+- generated resources or generated docs as source.
+
+## Plugin Libraries
+
+Own:
+
+- reusable pure mechanics such as files, graph crawling/rendering, git helpers, and mod management primitives.
+
+Do not own:
+
+- CLI argument parsing and command UX;
+- SDK domain concepts unless the plugin is explicitly SDK-facing;
+- package-specific side effects unless named by the plugin contract.
+
+## Config Package
+
+Owns:
+
+- workspace config schema, parsing, validation, and path resolution shared across tools.
+
+Does not own:
+
+- command-specific policy;
+- package-specific defaults that belong to the package or mod;
+- generated artifact content.
+
+## Civ7 Types
+
+Owns:
+
+- type definitions for Civ7 runtime scripting and engine globals.
+
+Does not own:
+
+- runtime adapter implementation;
+- MapGen or SDK behavior;
+- generated mod output.
+
+## Civ7 Adapter
+
+Owns:
+
+- direct imports of Civ7 engine globals and `base-standard` APIs;
+- translation from engine/runtime APIs into stable adapter methods.
+
+Does not own:
+
+- MapGen algorithms or recipe semantics;
+- mod tuning/content decisions;
+- pure SDK XML generation logic.
+
+## MapGen Core
+
+Owns:
+
+- pure procedural generation logic;
+- recipes, stage/step authoring, config compilation, plan/execution contracts;
+- domains, ops, artifacts, fields, diagnostics, determinism, and tracing.
+
+Does not own:
+
+- direct Civ7 engine imports;
+- game-facing bootstrap files;
+- generated mod output;
+- MapGen Studio UI;
+- mod-specific content/tuning unless expressed as a source recipe contract.
+
+## MapGen Viz And Apps
+
+Own:
+
+- visualization contract types, viewers, workers, streaming/dump protocols, and UI behavior.
+
+Do not own:
+
+- MapGen generation truth;
+- game runtime projection;
+- generated mod artifacts.
+
+## Swooper Maps Mod
+
+Owns:
+
+- game-facing mod integration, map entrypoints, mod package scripts, source recipe content, and Civ7 deployment output generation.
+
+Does not own:
+
+- pure core algorithms that should be reusable;
+- adapter internals;
+- hand-edited `mod/` output.
+
+## Official Resources
+
+Own:
+
+- external game-data facts used as evidence and fixtures.
+
+Do not own:
+
+- repo architecture;
+- SDK public API names;
+- MapGen stage topology;
+- generated-output edit authority.
+
+## Docs
+
+Own:
+
+- durable architecture, product, process, testing, ADR, deferral, and project-control records.
+
+Do not own:
+
+- executable behavior unless paired with source/tests;
+- volatile chat status in canonical docs;
+- project scratch as evergreen authority.
+
