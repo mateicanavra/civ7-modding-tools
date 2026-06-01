@@ -960,6 +960,51 @@ describe('game play commands', () => {
     }
   });
 
+  test('classifies invalid-target diplomatic agenda notices as informational closeouts', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'diplomatic-report' });
+    try {
+      const { port } = server.address();
+      const writes: string[] = [];
+      const log = vi.spyOn(GamePlayNotifications.prototype, 'log').mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
+      try {
+        await GamePlayNotifications.run([
+          '--host',
+          '127.0.0.1',
+          '--port',
+          String(port),
+          '--json',
+        ]);
+      } finally {
+        log.mockRestore();
+      }
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          hud: {
+            nextDecision: {
+              category: string;
+              operationFamily: string;
+              operationType: string;
+              cli: string;
+              notes: string[];
+            };
+          };
+        };
+      };
+      expect(payload.view.hud.nextDecision.category).toBe('informational-notification');
+      expect(payload.view.hud.nextDecision.operationFamily).toBe('app-ui-action');
+      expect(payload.view.hud.nextDecision.operationType).toBe('Game.Notifications.dismiss');
+      expect(payload.view.hud.nextDecision.cli).toBe('game play dismiss-notification');
+      expect(payload.view.hud.nextDecision.notes.join(' ')).toContain('do not send RESPOND_DIPLOMATIC_ACTION');
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
   test('reads play priorities without sending operations', async () => {
     const server = await startTunerServer({ playNotificationMode: 'ready-unit' });
     try {
@@ -1694,7 +1739,7 @@ describe('game play commands', () => {
 
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
-  playNotificationMode?: 'town-focus' | 'stale-unit-command' | 'stale-informational' | 'ready-unit' | 'mixed-queue';
+  playNotificationMode?: 'town-focus' | 'stale-unit-command' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue';
   unitTargetMode?: 'verified' | 'no-op-after-send';
 } = {}) {
   const received: string[] = [];
@@ -1760,7 +1805,7 @@ async function startTunerServer(options: {
 }
 
 function playNotificationView(
-  mode: 'town-focus' | 'stale-unit-command' | 'stale-informational' | 'ready-unit' | 'mixed-queue' = 'town-focus',
+  mode: 'town-focus' | 'stale-unit-command' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' = 'town-focus',
 ) {
   if (mode === 'mixed-queue') {
     const diplomacyDecision = {
@@ -2023,6 +2068,86 @@ function playNotificationView(
             message: informationalNotification.message,
             target: informationalNotification.target,
             location: informationalNotification.location,
+            ...informationalDecision,
+          },
+        ],
+      },
+      limits: { maxNotifications: 25, truncated: false },
+    };
+  }
+  if (mode === 'diplomatic-report') {
+    const informationalDecision = {
+      category: 'informational-notification',
+      operationFamily: 'app-ui-action',
+      operationType: 'Game.Notifications.dismiss',
+      argsShape: '{ notificationId }',
+      cli: 'game play dismiss-notification',
+      requiredInputs: [
+        { name: 'Notification', source: 'notification ComponentID', required: true },
+      ],
+      commonActions: [
+        {
+          label: 'dismiss reviewed diplomatic relationship notice',
+          cli: "game play dismiss-notification --target '<notification-id>' --send --reason '<why this relationship/agenda report was reviewed>'",
+          operationFamily: 'app-ui-action',
+          operationType: 'Game.Notifications.dismiss',
+          argsShape: '{ notificationId }',
+          when: 'after reviewing the relationship/agenda context and confirming the notification target is not a valid diplomatic action id',
+        },
+      ],
+      confidence: 'official-ui',
+      notes: ['Agenda and relationship reports can arrive as NOTIFICATION_DIPLOMATIC_ACTION with an invalid target; do not send RESPOND_DIPLOMATIC_ACTION without a valid action id.'],
+    };
+    const notification = {
+      id: { owner: 0, id: 644, type: 20 },
+      type: 96575930,
+      typeName: 'NOTIFICATION_DIPLOMATIC_ACTION',
+      groupType: -1225125244,
+      summary: 'The Agenda of Genghis Khan has changed your Relationship.',
+      message: 'The Agenda of Genghis Khan has changed your Relationship.',
+      target: { owner: -1, id: -1, type: 0 },
+      location: { x: 19, y: 26 },
+      canUserDismiss: true,
+      expired: false,
+      dismissed: false,
+      isEndTurnBlocking: true,
+      decision: informationalDecision,
+    };
+    return {
+      localPlayerId: 0,
+      turn: { ok: true, value: 133 },
+      turnDate: { ok: true, value: '960 BCE' },
+      hasSentTurnComplete: { ok: true, value: false },
+      canEndTurn: { ok: true, value: false },
+      blocker: { ok: true, value: 0 },
+      blockingNotificationId: { ok: true, value: notification.id },
+      selectedUnitId: { ok: true, value: null },
+      selectedCityId: { ok: true, value: null },
+      firstReadyUnitId: { ok: true, value: { owner: 0, id: 1572876, type: 26 } },
+      notifications: [notification],
+      decisions: [informationalDecision],
+      hud: {
+        nextDecision: {
+          notificationId: notification.id,
+          isEndTurnBlocking: true,
+          typeName: notification.typeName,
+          summary: notification.summary,
+          message: notification.message,
+          target: notification.target,
+          location: notification.location,
+          player: null,
+          ...informationalDecision,
+        },
+        decisionQueue: [
+          {
+            notificationId: notification.id,
+            isEndTurnBlocking: true,
+            typeName: notification.typeName,
+            summary: notification.summary,
+            message: notification.message,
+            target: notification.target,
+            location: notification.location,
+            player: null,
             ...informationalDecision,
           },
         ],

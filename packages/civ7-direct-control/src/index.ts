@@ -4867,6 +4867,13 @@ function playNotificationViewSource(): string {
       confidence,
       notes,
     });
+    const isValidComponentId = (value) => {
+      try {
+        return !!(value && typeof ComponentID !== "undefined" && ComponentID.isValid(value));
+      } catch {
+        return false;
+      }
+    };
     const firstMeetDetailsFor = (notification, typeName) => {
       if (!stringIncludes(typeName, "PLAYER_MET") && !stringIncludes(typeName, "FIRST_MEET")) return undefined;
       const player1 = GameContext.localPlayerID;
@@ -5106,6 +5113,26 @@ function playNotificationViewSource(): string {
             action("dismiss reviewed diplomatic completion", "game play dismiss-notification --target '<notification-id>' --send --reason '<why this diplomatic completion was reviewed>'", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after confirming the notification only reports a completed low-severity diplomatic action"),
           ],
           ["The official notification train does not register a specialized handler for NOTIFICATION_DIPLOMATIC_ACTION_LOW; it falls through to the default notification handler, so closeout is App UI dismissal after review."],
+        );
+      }
+      if (stringIncludes(typeName, "DIPLOMATIC_ACTION")
+        && !stringIncludes(typeName, "DIPLOMATIC_RESPONSE_REQUIRED")
+        && !stringIncludes(typeName, "DIPLOMATIC_ACTION_WARNING")
+        && !stringIncludes(typeName, "DIPLOMATIC_ACTION_ESPIONAGE")
+        && !isValidComponentId(notification?.Target)
+        && (stringIncludes(haystack, "RELATIONSHIP") || stringIncludes(haystack, "AGENDA"))) {
+        return hint(
+          "informational-notification",
+          "app-ui-action",
+          "Game.Notifications.dismiss",
+          "{ notificationId }",
+          "game play dismiss-notification",
+          "official-ui",
+          [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not a diplomatic action response id.")],
+          [
+            action("dismiss reviewed diplomatic relationship notice", "game play dismiss-notification --target '<notification-id>' --send --reason '<why this relationship/agenda report was reviewed>'", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after reviewing the relationship/agenda context and confirming the notification target is not a valid diplomatic action id"),
+          ],
+          ["Agenda and relationship reports can arrive as NOTIFICATION_DIPLOMATIC_ACTION with an invalid target. Review the report for strategy, then use App UI dismissal; do not send RESPOND_DIPLOMATIC_ACTION without a valid action id."],
         );
       }
       if (stringIncludes(haystack, "UNIT_ATTACKED")

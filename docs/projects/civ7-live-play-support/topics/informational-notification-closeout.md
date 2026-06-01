@@ -56,6 +56,33 @@ This is diplomatic information, not a diplomatic response operation. Review the
 summary because it explains relationship and Influence context, then use
 App UI dismissal when the live notification is still user-dismissible.
 
+On turn 133, the live HUD showed another diplomatic report-style blocker:
+
+```json
+{
+  "typeName": "NOTIFICATION_DIPLOMATIC_ACTION",
+  "summary": "The Agenda of Genghis Khan has changed your Relationship.",
+  "message": "The Agenda of Genghis Khan has changed your Relationship.",
+  "target": { "owner": -1, "id": -1, "type": 0 },
+  "location": { "x": 19, "y": 26 },
+  "canUserDismiss": true
+}
+```
+
+Official handler evidence:
+
+- `notification-handlers.js` registers `NOTIFICATION_DIPLOMATIC_ACTION` to
+  `InvestigateDiplomaticAction`.
+- `InvestigateDiplomaticAction.activate` only selects and raises a diplomatic
+  action panel when the notification `Target` is a valid ComponentID.
+- The live agenda/relationship notice had the invalid target sentinel, so it
+  did not carry a usable diplomatic action id.
+
+This is still strategically relevant information: it may change how urgently
+to prepare for a leader or whether diplomacy is deteriorating. But it is not
+`RESPOND_DIPLOMATIC_ACTION`; review the report, then close it through App UI
+dismissal when it remains user-dismissible.
+
 On turn 57, the live HUD showed `NOTIFICATION_UNIT_ATTACKED` as an end-turn
 blocking notice even though the App UI blocker enum had returned to `0` and
 there were no ready units:
