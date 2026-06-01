@@ -11,6 +11,7 @@ import ComputeSubstrateContract from "./compute-substrate/contract.js";
 import PlanIslandChainsContract from "./plan-island-chains/contract.js";
 import PlanFoothillsContract from "./plan-foothills/contract.js";
 import PlanRidgesContract from "./plan-ridges/contract.js";
+import PlanRoughLandsContract from "./plan-rough-lands/contract.js";
 import PlanVolcanoesContract from "./plan-volcanoes/contract.js";
 
 export const contracts = {
@@ -27,6 +28,7 @@ export const contracts = {
   planIslandChains: PlanIslandChainsContract,
   planFoothills: PlanFoothillsContract,
   planRidges: PlanRidgesContract,
+  planRoughLands: PlanRoughLandsContract,
   planVolcanoes: PlanVolcanoesContract,
 } as const;
 

@@ -10,7 +10,7 @@ import {
 
 /**
  * Morphology-features owns landform intent before map projection. Volcanism
- * tunes volcano intent; orogeny tunes ridge/foothill intent before
+ * tunes volcano intent; orogeny tunes ridge/foothill/rough-land intent before
  * map-morphology stamps terrain.
  */
 const knobsSchema = Type.Object(
@@ -53,6 +53,7 @@ export default createStage({
     mountains: {
       ridges: defaultEnvelope(config.mountainRanges),
       foothills: defaultEnvelope(config.mountainRanges),
+      roughLands: defaultEnvelope(config.mountainRanges),
     },
     volcanoes: {
       volcanoes: defaultEnvelope(config.volcanoes),
