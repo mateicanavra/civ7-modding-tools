@@ -5,7 +5,8 @@ export const ShelfMaskConfigSchema = Type.Object(
     nearshoreDistance: Type.Integer({
       default: 3,
       minimum: 0,
-      description: "Candidate nearshore water distance cap (tiles) used to sample bathymetry for the shallow cutoff.",
+      maximum: 64,
+      description: "Controls candidate nearshore water distance cap used to sample shelf bathymetry.",
     }),
     shallowQuantile: Type.Number({
       default: 0.7,
@@ -19,22 +20,25 @@ export const ShelfMaskConfigSchema = Type.Object(
       minimum: 0,
       maximum: 1,
       description:
-        "Boundary closeness threshold (0..1) for treating convergent/transform margins as active for shelf narrowing.",
+        "Controls boundary closeness threshold for treating convergent/transform margins as active for shelf narrowing.",
     }),
     capTilesActive: Type.Integer({
       default: 2,
       minimum: 0,
-      description: "Max distance to coast (tiles) for shelf classification near active margins.",
+      maximum: 64,
+      description: "Controls max distance to coast for shelf classification near active margins.",
     }),
     capTilesPassive: Type.Integer({
       default: 4,
       minimum: 0,
-      description: "Max distance to coast (tiles) for shelf classification away from active margins.",
+      maximum: 64,
+      description: "Controls max distance to coast for shelf classification away from active margins.",
     }),
     capTilesMax: Type.Integer({
       default: 8,
       minimum: 0,
-      description: "Hard clamp on the per-tile distance cap (tiles).",
+      maximum: 64,
+      description: "Controls hard clamp on the per-tile shelf distance cap.",
     }),
   },
   {

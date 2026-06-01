@@ -45,6 +45,74 @@ function expectSchemaHasDescription(schema: unknown, label: string) {
   expect((node.description as string).trim().length, `${label} description must be non-empty`).toBeGreaterThan(0);
 }
 
+function collectMissingDescriptions(schema: unknown, path: string[] = []): string[] {
+  if (!schema || typeof schema !== "object") return [];
+  const node = schema as {
+    const?: unknown;
+    description?: unknown;
+    properties?: Record<string, unknown>;
+    items?: unknown;
+    anyOf?: unknown[];
+    oneOf?: unknown[];
+  };
+  const missing: string[] = [];
+  const literalVariant = Object.prototype.hasOwnProperty.call(node, "const") && !node.properties && !node.items;
+  if (path.length > 0 && !literalVariant && typeof node.description !== "string") {
+    missing.push(path.join("."));
+  }
+
+  for (const [key, child] of Object.entries(node.properties ?? {})) {
+    missing.push(...collectMissingDescriptions(child, [...path, key]));
+  }
+  if (node.items) missing.push(...collectMissingDescriptions(node.items, [...path, "items"]));
+  for (const variant of [...(node.anyOf ?? []), ...(node.oneOf ?? [])]) {
+    missing.push(...collectMissingDescriptions(variant, path));
+  }
+  return missing;
+}
+
+function collectNumericLeavesMissingRange(schema: unknown, path: string[] = []): string[] {
+  if (!schema || typeof schema !== "object") return [];
+  const node = schema as {
+    const?: unknown;
+    type?: unknown;
+    minimum?: unknown;
+    maximum?: unknown;
+    properties?: Record<string, unknown>;
+    items?: unknown;
+    anyOf?: unknown[];
+    oneOf?: unknown[];
+  };
+  const missing: string[] = [];
+  const literalVariant = Object.prototype.hasOwnProperty.call(node, "const") && !node.properties && !node.items;
+  if (
+    !literalVariant &&
+    (node.type === "number" || node.type === "integer") &&
+    (typeof node.minimum !== "number" || typeof node.maximum !== "number")
+  ) {
+    missing.push(path.join("."));
+  }
+
+  for (const [key, child] of Object.entries(node.properties ?? {})) {
+    missing.push(...collectNumericLeavesMissingRange(child, [...path, key]));
+  }
+  if (node.items) missing.push(...collectNumericLeavesMissingRange(node.items, [...path, "items"]));
+  for (const variant of [...(node.anyOf ?? []), ...(node.oneOf ?? [])]) {
+    missing.push(...collectNumericLeavesMissingRange(variant, path));
+  }
+  return missing;
+}
+
+function expectPublicStageDescription(schema: unknown, stageId: string): void {
+  const stage = (schema as { properties?: Record<string, { description?: unknown }> }).properties?.[
+    stageId
+  ];
+  expect(typeof stage?.description, `${stageId} must define description`).toBe("string");
+  expect(stage?.description, `${stageId} description must stay author-facing`).not.toMatch(
+    /(step\/op|envelope|internal)/i
+  );
+}
+
 describe("Studio default config", () => {
   it("validates against the standard recipe schema (prevents UI drift)", () => {
     const { errors } = normalizeStrict<Record<string, unknown>>(STANDARD_RECIPE_CONFIG_SCHEMA, STANDARD_RECIPE_CONFIG, "/defaultConfig");
@@ -86,6 +154,32 @@ describe("Studio default config", () => {
       const config = (STANDARD_RECIPE_CONFIG as Record<string, Record<string, unknown>>)[stageId] ?? {};
       for (const key of Object.keys(config)) {
         expect(expectedKeys).toContain(key);
+      }
+    }
+  });
+
+  it("exposes documented and range-bounded Morphology public controls to Studio", () => {
+    const expected: Record<string, readonly string[]> = {
+      "morphology-coasts": [
+        "knobs",
+        "substrate",
+        "relief",
+        "waterCoverage",
+        "continents",
+        "coastlineShape",
+        "shelf",
+      ],
+      "morphology-routing": ["knobs"],
+      "morphology-erosion": ["knobs", "geomorphicCycle"],
+      "morphology-features": ["knobs", "islandChains", "mountainRanges", "volcanoes"],
+    };
+
+    for (const [stageId, publicKeys] of Object.entries(expected)) {
+      expectPublicStageDescription(STANDARD_RECIPE_CONFIG_SCHEMA, stageId);
+      for (const key of publicKeys) {
+        const schema = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [stageId, key]);
+        expect(collectMissingDescriptions(schema, [stageId, key])).toEqual([]);
+        expect(collectNumericLeavesMissingRange(schema, [stageId, key])).toEqual([]);
       }
     }
   });

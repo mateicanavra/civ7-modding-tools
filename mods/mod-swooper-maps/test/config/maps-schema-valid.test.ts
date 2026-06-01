@@ -13,6 +13,7 @@ import sunderedArchipelagoConfig from "../../src/maps/configs/sundered-archipela
 import swooperDesertMountainsConfig from "../../src/maps/configs/swooper-desert-mountains.config.json";
 import swooperEarthlikeConfig from "../../src/maps/configs/swooper-earthlike.config.json";
 import legacyFoundationCompiled from "../fixtures/legacy-foundation-compiled.json";
+import legacyMorphologyCompiled from "../fixtures/legacy-morphology-compiled.json";
 
 const shippedMapConfigs = [
   ["shattered-ring.config.json", shatteredRingConfig],
@@ -63,6 +64,13 @@ const MORPHOLOGY_PUBLIC_KEYS: Record<string, readonly string[]> = {
   "morphology-features": ["knobs", "islandChains", "mountainRanges", "volcanoes"],
 };
 
+const MORPHOLOGY_STAGE_IDS = [
+  "morphology-coasts",
+  "morphology-routing",
+  "morphology-erosion",
+  "morphology-features",
+] as const;
+
 const MORPHOLOGY_INTERNAL_STAGE_KEYS = [
   "landmass-plates",
   "rugged-coasts",
@@ -104,6 +112,7 @@ function stable(value: unknown): unknown {
 function collectMissingDescriptions(schema: unknown, path: string[] = []): string[] {
   if (!schema || typeof schema !== "object") return [];
   const node = schema as {
+    const?: unknown;
     description?: unknown;
     properties?: Record<string, unknown>;
     items?: unknown;
@@ -111,7 +120,10 @@ function collectMissingDescriptions(schema: unknown, path: string[] = []): strin
     oneOf?: unknown[];
   };
   const missing: string[] = [];
-  if (path.length > 0 && typeof node.description !== "string") missing.push(path.join("."));
+  const literalVariant = Object.prototype.hasOwnProperty.call(node, "const") && !node.properties && !node.items;
+  if (path.length > 0 && !literalVariant && typeof node.description !== "string") {
+    missing.push(path.join("."));
+  }
 
   for (const [key, child] of Object.entries(node.properties ?? {})) {
     missing.push(...collectMissingDescriptions(child, [...path, key]));
@@ -121,6 +133,48 @@ function collectMissingDescriptions(schema: unknown, path: string[] = []): strin
     missing.push(...collectMissingDescriptions(variant, path));
   }
   return missing;
+}
+
+function collectNumericLeavesMissingRange(schema: unknown, path: string[] = []): string[] {
+  if (!schema || typeof schema !== "object") return [];
+  const node = schema as {
+    const?: unknown;
+    type?: unknown;
+    minimum?: unknown;
+    maximum?: unknown;
+    properties?: Record<string, unknown>;
+    items?: unknown;
+    anyOf?: unknown[];
+    oneOf?: unknown[];
+  };
+  const missing: string[] = [];
+  const literalVariant = Object.prototype.hasOwnProperty.call(node, "const") && !node.properties && !node.items;
+  if (
+    !literalVariant &&
+    (node.type === "number" || node.type === "integer") &&
+    (typeof node.minimum !== "number" || typeof node.maximum !== "number")
+  ) {
+    missing.push(path.join("."));
+  }
+
+  for (const [key, child] of Object.entries(node.properties ?? {})) {
+    missing.push(...collectNumericLeavesMissingRange(child, [...path, key]));
+  }
+  if (node.items) missing.push(...collectNumericLeavesMissingRange(node.items, [...path, "items"]));
+  for (const variant of [...(node.anyOf ?? []), ...(node.oneOf ?? [])]) {
+    missing.push(...collectNumericLeavesMissingRange(variant, path));
+  }
+  return missing;
+}
+
+function expectPublicStageDescription(schema: unknown, stageId: string): void {
+  const stage = (schema as { properties?: Record<string, { description?: unknown }> }).properties?.[
+    stageId
+  ];
+  expect(typeof stage?.description, `${stageId} must define description`).toBe("string");
+  expect(stage?.description, `${stageId} description must stay author-facing`).not.toMatch(
+    /(step\/op|envelope|internal)/i
+  );
 }
 
 describe("Shipped map configs", () => {
@@ -149,6 +203,20 @@ describe("Shipped map configs", () => {
       }
       expect(JSON.stringify(props)).not.toContain("\"strategy\"");
       expect(JSON.stringify(props)).not.toContain("\"config\"");
+    }
+  });
+
+  it("documents and range-bounds every Morphology public numeric field", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+
+    for (const [stageId, expectedKeys] of Object.entries(MORPHOLOGY_PUBLIC_KEYS)) {
+      expectPublicStageDescription(schema, stageId);
+      const props = stageProps(schema, stageId);
+      for (const key of expectedKeys) {
+        const child = props[key];
+        expect(collectMissingDescriptions(child, [stageId, key])).toEqual([]);
+        expect(collectNumericLeavesMissingRange(child, [stageId, key])).toEqual([]);
+      }
     }
   });
 
@@ -260,6 +328,24 @@ describe("Shipped map configs", () => {
       const id = fileName.replace(/\.config\.json$/, "");
       const compiled = standardRecipe.compileConfig(env, raw.config) as any;
       expect(stable(compiled.foundation)).toEqual(expected[id]);
+    }
+  });
+
+  it("keeps Morphology configs compiled-equivalent while schema docs and ranges tighten", () => {
+    const env = {
+      seed: 123,
+      dimensions: { width: 80, height: 60 },
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    };
+    const expected = legacyMorphologyCompiled as Record<string, unknown>;
+
+    for (const [fileName, raw] of shippedMapConfigs) {
+      const id = fileName.replace(/\.config\.json$/, "");
+      const compiled = standardRecipe.compileConfig(env, raw.config) as any;
+      const morphologyCompiled = Object.fromEntries(
+        MORPHOLOGY_STAGE_IDS.map((stageId) => [stageId, compiled[stageId]])
+      );
+      expect(stable(morphologyCompiled)).toEqual(expected[id]);
     }
   });
 

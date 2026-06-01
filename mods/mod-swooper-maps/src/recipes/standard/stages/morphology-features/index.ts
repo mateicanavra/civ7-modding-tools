@@ -19,8 +19,9 @@ const knobsSchema = Type.Object(
     volcanism: Type.Optional(MorphologyVolcanismKnobSchema),
   },
   {
+    additionalProperties: false,
     description:
-      "Morphology-features knobs (volcanism). Knobs apply after defaulted step config as deterministic transforms.",
+      "Morphology-features controls for orogeny and volcanism applied as deterministic transforms.",
   }
 );
 
@@ -33,7 +34,7 @@ const publicSchema = Type.Object(
   {
     additionalProperties: false,
     description:
-      "Morphology landform intent controls. Public keys compile to internal island, mountain-family, volcano, and landmass step/op config.",
+      "Morphology landform intent controls for island chains, mountain ranges, volcanoes, and landmass summaries.",
   }
 );
 

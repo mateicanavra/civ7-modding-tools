@@ -17,7 +17,7 @@ export const MorphologySeaLevelKnobSchema = Type.Union(
   {
     default: "earthlike",
     description:
-      "Sea level posture (land-heavy/earthlike/water-heavy). Applies as a deterministic delta to hypsometry targets (targetWaterPercent).",
+      "Controls map water coverage posture (land-heavy/earthlike/water-heavy) by applying a deterministic delta to hypsometry targets.",
   }
 );
 
@@ -40,7 +40,7 @@ export const MorphologyErosionKnobSchema = Type.Union(
   {
     default: "normal",
     description:
-      "Erosion posture (low/normal/high). Applies as a deterministic multiplier over geomorphology rates (no presence-gating).",
+      "Controls terrain erosion posture (low/normal/high) by applying a deterministic multiplier over geomorphology rates.",
   }
 );
 
@@ -63,7 +63,7 @@ export const MorphologyCoastRuggednessKnobSchema = Type.Union(
   {
     default: "normal",
     description:
-      "Coastline ruggedness posture (smooth/normal/rugged). Applies as deterministic multipliers over bay/fjord carving parameters.",
+      "Controls coastline shape posture (smooth/normal/rugged) by applying deterministic multipliers over bay/fjord carving parameters.",
   }
 );
 
@@ -86,7 +86,7 @@ export const MorphologyShelfWidthKnobSchema = Type.Union(
   {
     default: "normal",
     description:
-      "Shelf width posture (narrow/normal/wide). Applies as deterministic multipliers over shelf classifier distance caps.",
+      "Controls coastal shelf width posture (narrow/normal/wide) by applying deterministic multipliers over shelf classifier distance caps.",
   }
 );
 
@@ -109,7 +109,7 @@ export const MorphologyVolcanismKnobSchema = Type.Union(
   {
     default: "normal",
     description:
-      "Volcanism posture (low/normal/high). Applies as deterministic transforms over volcano plan weights/density.",
+      "Controls map volcano feature posture (low/normal/high) by applying deterministic transforms over volcano plan weights and density.",
   }
 );
 
@@ -132,7 +132,7 @@ export const MorphologyOrogenyKnobSchema = Type.Union(
   {
     default: "normal",
     description:
-      "Orogeny posture (low/normal/high). Applies as deterministic transforms over mountain planning thresholds/intensity.",
+      "Controls mountain terrain posture (low/normal/high) by applying deterministic transforms over mountain planning thresholds and intensity.",
   }
 );
 

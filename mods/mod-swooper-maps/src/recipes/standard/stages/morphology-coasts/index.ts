@@ -23,8 +23,9 @@ const knobsSchema = Type.Object(
     shelfWidth: Type.Optional(MorphologyShelfWidthKnobSchema),
   },
   {
+    additionalProperties: false,
     description:
-      "Morphology-coasts knobs (seaLevel/coastRuggedness/shelfWidth). Knobs apply after defaulted step config as deterministic transforms.",
+      "Morphology-coasts controls for sea level, coast ruggedness, and shelf width applied as deterministic transforms.",
   }
 );
 
@@ -38,8 +39,9 @@ const publicSchema = Type.Object(
     shelf: Type.Optional(ShelfMaskConfigSchema),
   },
   {
+    additionalProperties: false,
     description:
-      "Morphology coast and land/sea shaping controls. Public keys are semantic authoring inputs; stage compilation lowers them to internal morphology step/op config.",
+      "Morphology coast and land/sea shaping controls for substrate, relief, water coverage, continents, coastline shape, and shelf width.",
   }
 );
 

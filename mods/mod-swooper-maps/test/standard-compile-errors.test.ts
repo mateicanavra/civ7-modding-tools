@@ -126,6 +126,51 @@ describe("standard recipe compile errors (ecology)", () => {
     ).toBe(true);
   });
 
+  it("rejects legacy Morphology step/op envelope config", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
+        "morphology-coasts": {
+          "landmass-plates": {
+            seaLevel: {
+              strategy: "default",
+              config: {},
+            },
+          },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path.includes("/config/morphology-coasts/landmass-plates")
+      )
+    ).toBe(true);
+  });
+
+  it("rejects out-of-range Morphology public numeric controls", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
+        "morphology-features": {
+          volcanoes: {
+            baseDensity: 2,
+          },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path.includes("/config/morphology-features/volcanoes/baseDensity")
+      )
+    ).toBe(true);
+  });
+
   it("flags unknown step ids returned by ecology stage compile", () => {
     const brokenStage = createStage({
       id: "ecology-pedology",

@@ -6,7 +6,10 @@ import { routing } from "./steps/index.js";
  */
 const knobsSchema = Type.Object(
   {},
-  { additionalProperties: false, description: "Morphology-routing knobs." }
+  {
+    additionalProperties: false,
+    description: "Morphology-routing has no authored routing controls today.",
+  }
 );
 
 export default createStage({

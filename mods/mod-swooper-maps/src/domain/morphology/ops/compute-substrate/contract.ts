@@ -3,64 +3,93 @@ import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authorin
 export const SubstrateConfigSchema = Type.Object(
   {
     continentalBaseErodibility: Type.Number({
-      description: "Baseline erodibility for continental crust tiles.",
+      description: "Controls baseline erodibility for continental crust tiles used by terrain incision.",
       default: 0.45,
+      minimum: 0,
+      maximum: 1,
     }),
     oceanicBaseErodibility: Type.Number({
-      description: "Baseline erodibility for oceanic crust tiles.",
+      description: "Controls baseline erodibility for oceanic crust tiles used by terrain incision.",
       default: 0.35,
+      minimum: 0,
+      maximum: 1,
     }),
     continentalBaseSediment: Type.Number({
-      description: "Baseline sediment depth proxy for continental crust tiles.",
+      description: "Controls baseline sediment depth proxy for continental crust tiles.",
       default: 0.15,
+      minimum: 0,
+      maximum: 1,
     }),
     oceanicBaseSediment: Type.Number({
-      description: "Baseline sediment depth proxy for oceanic crust tiles.",
+      description: "Controls baseline sediment depth proxy for oceanic crust tiles.",
       default: 0.25,
+      minimum: 0,
+      maximum: 1,
     }),
     ageErodibilityReduction: Type.Number({
-      description: "Multiplier applied to crust age (0..1) when reducing erodibility.",
+      description: "Controls how strongly crust age reduces erodibility in terrain substrates (0..1).",
       default: 0.25,
+      minimum: 0,
+      maximum: 1,
     }),
     ageSedimentBoost: Type.Number({
-      description: "Multiplier applied to crust age (0..1) when raising sediment depth.",
+      description: "Controls how strongly crust age raises sediment depth in terrain substrates (0..1).",
       default: 0.15,
+      minimum: 0,
+      maximum: 1,
     }),
     upliftErodibilityBoost: Type.Number({
-      description: "Multiplier applied to uplift potential when raising erodibility.",
+      description: "Controls uplift-driven erodibility boost for rugged terrain substrates.",
       default: 0.3,
+      minimum: 0,
+      maximum: 4,
     }),
     riftSedimentBoost: Type.Number({
-      description: "Multiplier applied to rift potential when raising sediment depth.",
+      description: "Controls rift-driven sediment depth boost for terrain substrates.",
       default: 0.2,
+      minimum: 0,
+      maximum: 4,
     }),
     convergentBoundaryErodibilityBoost: Type.Number({
-      description: "Multiplier applied to boundary closeness (0..1) when boundaryType is convergent.",
+      description: "Controls convergent-boundary erodibility boost from boundary closeness (0..1).",
       default: 0.12,
+      minimum: 0,
+      maximum: 4,
     }),
     divergentBoundaryErodibilityBoost: Type.Number({
-      description: "Multiplier applied to boundary closeness (0..1) when boundaryType is divergent.",
+      description: "Controls divergent-boundary erodibility boost from boundary closeness (0..1).",
       default: 0.18,
+      minimum: 0,
+      maximum: 4,
     }),
     transformBoundaryErodibilityBoost: Type.Number({
-      description: "Multiplier applied to boundary closeness (0..1) when boundaryType is transform.",
+      description: "Controls transform-boundary erodibility boost from boundary closeness (0..1).",
       default: 0.08,
+      minimum: 0,
+      maximum: 4,
     }),
     convergentBoundarySedimentBoost: Type.Number({
-      description: "Multiplier applied to boundary closeness (0..1) when boundaryType is convergent.",
+      description: "Controls convergent-boundary sediment boost from boundary closeness (0..1).",
       default: 0.05,
+      minimum: 0,
+      maximum: 4,
     }),
     divergentBoundarySedimentBoost: Type.Number({
-      description: "Multiplier applied to boundary closeness (0..1) when boundaryType is divergent.",
+      description: "Controls divergent-boundary sediment boost from boundary closeness (0..1).",
       default: 0.1,
+      minimum: 0,
+      maximum: 4,
     }),
     transformBoundarySedimentBoost: Type.Number({
-      description: "Multiplier applied to boundary closeness (0..1) when boundaryType is transform.",
+      description: "Controls transform-boundary sediment boost from boundary closeness (0..1).",
       default: 0.03,
+      minimum: 0,
+      maximum: 4,
     }),
   },
   {
-    description: "Tuning for substrate erodibility and sediment baselines.",
+    additionalProperties: false,
+    description: "Substrate controls for terrain erodibility and sediment baselines.",
   }
 );
 

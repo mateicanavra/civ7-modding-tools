@@ -18,7 +18,7 @@ export const HypsometryConfigSchema = Type.Object({
    */
   targetScalar: Type.Number({
     description:
-      "Multiplier applied after targetWaterPercent (typically 0.75-1.25). Values are clamped to 0.25-1.75.",
+      "Controls map water coverage by multiplying targetWaterPercent after the base sea-level posture is chosen.",
     default: 1,
     minimum: 0.25,
     maximum: 1.75,
@@ -35,7 +35,7 @@ export const HypsometryConfigSchema = Type.Object({
    * The solver lowers threshold in 5-point steps until boundary share meets this target.
    */
   boundaryShareTarget: Type.Number({
-    description: "Soft backstop on the share of land inside the boundary closeness band (0..1).",
+    description: "Controls the minimum share of land allowed inside the boundary closeness band (0..1).",
     default: 0.15,
     minimum: 0,
     maximum: 1,
@@ -49,6 +49,9 @@ export const HypsometryConfigSchema = Type.Object({
       maximum: 1,
     })
   ),
+}, {
+  additionalProperties: false,
+  description: "Water coverage controls used to choose sea level from terrain hypsometry.",
 });
 
 export type HypsometryConfig = Static<typeof HypsometryConfigSchema>;
