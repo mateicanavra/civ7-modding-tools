@@ -267,7 +267,7 @@ export default createStep(ProjectionStepContract, {
       dims: { width, height },
       u: { format: "i8", values: platesResult.plates.movementU },
       v: { format: "i8", values: platesResult.plates.movementV },
-      label: "Plate Movement",
+      label: "Plate Motion",
       group: GROUP_PLATES,
       palette: "continuous",
       magnitude: { debugOnly: true },
