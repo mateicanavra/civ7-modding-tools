@@ -1,12 +1,21 @@
 import { describe, expect, it } from "bun:test";
 
-import { MockAdapter } from "@civ7/adapter";
-import { COAST_TERRAIN, FLAT_TERRAIN, createExtendedMapContext } from "@swooper/mapgen-core";
+import { MockAdapter, type LakeProjectionResult } from "@civ7/adapter";
+import { FLAT_TERRAIN, createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import lakes from "../../src/recipes/standard/stages/map-hydrology/steps/lakes.js";
 import { buildTestDeps } from "../support/step-deps.js";
 
+type TestContext = ReturnType<typeof createExtendedMapContext>;
+
+/**
+ * Cache-backed adapter double.
+ *
+ * The real engine can answer water queries from cached topology, so this double
+ * makes lake stamping fail unless the adapter boundary refreshes water data
+ * after terrain mutation.
+ */
 class CachedWaterAdapter extends MockAdapter {
   private cachedWater: Uint8Array;
   readonly callOrder: string[] = [];
@@ -21,183 +30,178 @@ class CachedWaterAdapter extends MockAdapter {
   }
 
   override isWater(x: number, y: number): boolean {
-    // Simulate Civ engine behavior: water can be backed by cached water tables,
-    // not recomputed automatically from terrain edits.
     return this.cachedWater[this.idx2(x, y)] === 1;
   }
 
-  override generateLakes(width: number, height: number, tilesPerLake: number): void {
-    this.callOrder.push("generateLakes");
-    super.generateLakes(width, height, tilesPerLake);
+  override stampLakes(width: number, height: number, lakeMask: Uint8Array): LakeProjectionResult {
+    this.callOrder.push("stampLakes");
+    return super.stampLakes(width, height, lakeMask);
+  }
 
-    // Simulate engine lake generation: set terrain to COAST for a lake tile, but
-    // do NOT update the cached water tables.
-    this.setTerrainType(1, 1, COAST_TERRAIN);
+  override recalculateAreas(): void {
+    this.callOrder.push("recalculateAreas");
   }
 
   override storeWaterData(): void {
     this.callOrder.push("storeWaterData");
 
-    // Recompute cached water tables from plotted terrain.
     const coast = this.getTerrainTypeIndex("TERRAIN_COAST");
     const ocean = this.getTerrainTypeIndex("TERRAIN_OCEAN");
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
-        const t = this.getTerrainType(x, y) | 0;
-        this.cachedWater[this.idx2(x, y)] = t === coast || t === ocean ? 1 : 0;
+        const terrain = this.getTerrainType(x, y) | 0;
+        this.cachedWater[this.idx2(x, y)] = terrain === coast || terrain === ocean ? 1 : 0;
       }
     }
   }
 }
 
+/**
+ * Readback-rejecting adapter double.
+ *
+ * This keeps the test focused on the projection contract: `map-hydrology/lakes`
+ * records rejections as diagnostics and does not turn engine disagreement into
+ * Hydrology truth or a runtime throw.
+ */
+class RejectingLakeAdapter extends MockAdapter {
+  override stampLakes(width: number, height: number, lakeMask: Uint8Array): LakeProjectionResult {
+    this.calls.stampLakes.push({ width, height, lakeMask });
+    const size = width * height;
+    const rejectedLakeMask = new Uint8Array(size);
+    let plannedLakeTileCount = 0;
+    for (let i = 0; i < size; i++) {
+      if (lakeMask[i] !== 1) continue;
+      rejectedLakeMask[i] = 1;
+      plannedLakeTileCount += 1;
+    }
+    return {
+      width,
+      height,
+      plannedLakeMask: lakeMask,
+      stampedLakeMask: new Uint8Array(size),
+      rejectedLakeMask,
+      plannedLakeTileCount,
+      stampedLakeTileCount: 0,
+      rejectedLakeTileCount: plannedLakeTileCount,
+    };
+  }
+}
+
+function createContext(adapter: MockAdapter, width: number, height: number, seed: number): TestContext {
+  return createExtendedMapContext(
+    { width, height },
+    adapter,
+    {
+      seed,
+      dimensions: { width, height },
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    }
+  );
+}
+
+function seedLakePlan(context: TestContext, lakeMask: Uint8Array): void {
+  const { width, height } = context.dimensions;
+  const size = width * height;
+  context.artifacts.set("artifact:morphology.topography", {
+    elevation: new Int16Array(size),
+    seaLevel: 0,
+    landMask: new Uint8Array(size).fill(1),
+    bathymetry: new Int16Array(size),
+  });
+  context.artifacts.set("artifact:hydrology.lakePlan", {
+    width,
+    height,
+    lakeMask,
+    plannedLakeTileCount: lakeMask.reduce((count, value) => count + (value === 1 ? 1 : 0), 0),
+    sinkLakeCount: lakeMask.reduce((count, value) => count + (value === 1 ? 1 : 0), 0),
+  });
+}
+
 describe("map-hydrology/lakes", () => {
-  it("calls storeWaterData after generateLakes so cached water tables reflect new lakes", () => {
+  it("refreshes engine water caches after stamping planned lakes", () => {
     const width = 4;
     const height = 3;
     const seed = 1234;
-    const mapInfo = {
-      GridWidth: width,
-      GridHeight: height,
-      MinLatitude: -60,
-      MaxLatitude: 60,
-      LakeGenerationFrequency: 5,
-    };
-    const env = {
-      seed,
-      dimensions: { width, height },
-      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    };
-
     const adapter = new CachedWaterAdapter({
       width,
       height,
-      mapInfo,
+      mapInfo: { GridWidth: width, GridHeight: height, MinLatitude: -60, MaxLatitude: 60 },
       mapSizeId: 1,
       rng: createLabelRng(seed),
       defaultTerrainType: FLAT_TERRAIN,
     });
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createContext(adapter, width, height, seed);
+    const lakeMask = new Uint8Array(width * height);
+    lakeMask[1 + width] = 1;
+    seedLakePlan(context, lakeMask);
 
-    const size = width * height;
-    context.artifacts.set("artifact:morphology.topography", {
-      elevation: new Int16Array(size),
-      seaLevel: 0,
-      landMask: new Uint8Array(size).fill(1),
-      bathymetry: new Int16Array(size),
-    });
-    context.artifacts.set("artifact:hydrology.hydrography", {
-      runoff: new Float32Array(size),
-      discharge: new Float32Array(size),
-      riverClass: new Uint8Array(size),
-      sinkMask: new Uint8Array(size),
-      outletMask: new Uint8Array(size),
-    });
-
-    // Before running the step: cached water tables say "land".
     expect(adapter.isWater(1, 1)).toBe(false);
 
-    lakes.run(context as any, { tilesPerLakeMultiplier: 1 }, {} as any, buildTestDeps(lakes));
+    lakes.run(context as any, { projectionReadback: true }, {} as any, buildTestDeps(lakes));
 
-    expect(adapter.callOrder.slice(-2)).toEqual(["generateLakes", "storeWaterData"]);
-    // After storeWaterData: cached water tables reflect the new lake tile.
+    expect(adapter.callOrder.slice(-3)).toEqual([
+      "stampLakes",
+      "recalculateAreas",
+      "storeWaterData",
+    ]);
     expect(adapter.isWater(1, 1)).toBe(true);
   });
 
-  it("keeps sink mismatch as diagnostics (no runtime throw)", () => {
+  it("records projection rejection as diagnostics without throwing", () => {
     const width = 4;
     const height = 3;
     const seed = 4321;
-    const mapInfo = {
-      GridWidth: width,
-      GridHeight: height,
-      MinLatitude: -60,
-      MaxLatitude: 60,
-      LakeGenerationFrequency: 5,
-    };
-    const env = {
-      seed,
-      dimensions: { width, height },
-      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    };
-
-    const adapter = new CachedWaterAdapter({
+    const adapter = new RejectingLakeAdapter({
       width,
       height,
-      mapInfo,
+      mapInfo: { GridWidth: width, GridHeight: height, MinLatitude: -60, MaxLatitude: 60 },
       mapSizeId: 1,
       rng: createLabelRng(seed),
       defaultTerrainType: FLAT_TERRAIN,
     });
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createContext(adapter, width, height, seed);
+    const lakeMask = new Uint8Array(width * height);
+    lakeMask[1 + width] = 1;
+    seedLakePlan(context, lakeMask);
 
-    const size = width * height;
-    context.artifacts.set("artifact:morphology.topography", {
-      elevation: new Int16Array(size),
-      seaLevel: 0,
-      landMask: new Uint8Array(size).fill(1),
-      bathymetry: new Int16Array(size),
-    });
-    context.artifacts.set("artifact:hydrology.hydrography", {
-      runoff: new Float32Array(size),
-      discharge: new Float32Array(size),
-      riverClass: new Uint8Array(size),
-      sinkMask: new Uint8Array(size).fill(1),
-      outletMask: new Uint8Array(size),
-    });
-
-    expect(() => lakes.run(context as any, { tilesPerLakeMultiplier: 1 }, {} as any, buildTestDeps(lakes))).not.toThrow();
+    expect(() =>
+      lakes.run(context as any, { projectionReadback: true }, {} as any, buildTestDeps(lakes))
+    ).not.toThrow();
 
     const projection = context.artifacts.get("artifact:hydrology.engineProjectionLakes") as
       | { sinkMismatchCount: number }
       | undefined;
     expect(projection).toBeDefined();
-    expect(projection?.sinkMismatchCount ?? 0).toBeGreaterThan(0);
+    expect(projection?.sinkMismatchCount ?? 0).toBe(1);
   });
 
-  it("uses map info lake frequency directly so default projection does not over-seed lakes", () => {
-    const width = 84;
-    const height = 54;
+  it("stamps the Hydrology lake plan directly instead of calling engine lake generation", () => {
+    const width = 6;
+    const height = 5;
     const seed = 9876;
-    const mapInfo = {
-      GridWidth: width,
-      GridHeight: height,
-      MinLatitude: -60,
-      MaxLatitude: 60,
-      LakeGenerationFrequency: 25,
-    };
-    const env = {
-      seed,
-      dimensions: { width, height },
-      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    };
-
     const adapter = new CachedWaterAdapter({
       width,
       height,
-      mapInfo,
+      mapInfo: {
+        GridWidth: width,
+        GridHeight: height,
+        MinLatitude: -60,
+        MaxLatitude: 60,
+        LakeGenerationFrequency: 25,
+      },
       mapSizeId: 1,
       rng: createLabelRng(seed),
       defaultTerrainType: FLAT_TERRAIN,
     });
-    const context = createExtendedMapContext({ width, height }, adapter, env);
+    const context = createContext(adapter, width, height, seed);
+    const lakeMask = new Uint8Array(width * height);
+    lakeMask[2 + width] = 1;
+    lakeMask[3 + width] = 1;
+    seedLakePlan(context, lakeMask);
 
-    const size = width * height;
-    context.artifacts.set("artifact:morphology.topography", {
-      elevation: new Int16Array(size),
-      seaLevel: 0,
-      landMask: new Uint8Array(size).fill(1),
-      bathymetry: new Int16Array(size),
-    });
-    context.artifacts.set("artifact:hydrology.hydrography", {
-      runoff: new Float32Array(size),
-      discharge: new Float32Array(size),
-      riverClass: new Uint8Array(size),
-      sinkMask: new Uint8Array(size),
-      outletMask: new Uint8Array(size),
-    });
+    lakes.run(context as any, { projectionReadback: false }, {} as any, buildTestDeps(lakes));
 
-    lakes.run(context as any, { tilesPerLakeMultiplier: 1 }, {} as any, buildTestDeps(lakes));
-
-    expect(adapter.calls.generateLakes.at(-1)?.tilesPerLake).toBe(25);
+    expect(adapter.calls.generateLakes).toEqual([]);
+    expect(adapter.calls.stampLakes.at(-1)?.lakeMask).toBe(lakeMask);
   });
 });

@@ -70,14 +70,14 @@ The standard recipe uses these adapter members (directly or via `createExtendedM
 - `setStartPosition(plotIndex, playerId)`
 - `validateAndFixTerrain()`, `recalculateAreas()`, `stampContinents()`, `buildElevation()`
 - `modelRivers(minLen,maxLen,navigableTerrain)`, `defineNamedRivers()`, `storeWaterData()`
-- `generateLakes(width,height,tilesPerLake)`, `expandCoasts(width,height)`
+- `generateLakes(width,height,tilesPerLake)`, `stampLakes(width,height,lakeMask)`, `expandCoasts(width,height)`
 - `addNaturalWonders(width,height,numWonders)`, `generateResources(width,height)`, `generateDiscoveries(width,height,startPositions)`
 - `addFloodplains(minLen,maxLen)`, `recalculateFertility()`, `assignAdvancedStartRegions()`
 - `verifyEffect(effectId)`
 
 **Direct callsites by stage (standard recipe):**
 - `map-morphology`: `buildElevation`, `expandCoasts`, `getFeatureTypeIndex`, `isWater`, `recalculateAreas`, `setFeatureType`, `setTerrainType`, `stampContinents`, `validateAndFixTerrain`
-- `map-hydrology`: `defineNamedRivers`, `generateLakes`, `getTerrainType`, `isWater`, `modelRivers`, `validateAndFixTerrain`
+- `map-hydrology`: `defineNamedRivers`, `getTerrainType`, `isWater`, `modelRivers`, `stampLakes`, `validateAndFixTerrain`
 - `map-ecology`: `addPlotEffect`, `canHaveFeature`, `getBiomeGlobal`, `getFeatureType`, `getFeatureTypeIndex`, `getPlotEffectTypeIndex`, `recalculateAreas`, `setBiomeType`, `setFeatureType`, `validateAndFixTerrain`
 - `placement`: `addFloodplains`, `addNaturalWonders`, `assignAdvancedStartRegions`, `generateDiscoveries`, `generateResources`, `getLandmassId`, `getTerrainType`, `isWater`, `recalculateAreas`, `recalculateFertility`, `setLandmassRegionId`, `setStartPosition`, `storeWaterData`, `validateAndFixTerrain`
 
@@ -149,8 +149,8 @@ These currently wrap Civ7 engine algorithms (TerrainBuilder/AreaBuilder/base-sta
   - `buildElevation()`
 - Rivers / water bookkeeping:
   - `modelRivers(...)`, `defineNamedRivers()`, `storeWaterData()`
-- Coast/lake generators:
-  - `generateLakes(...)`, `expandCoasts(...)`
+- Coast/lake projection:
+  - `stampLakes(...)`, `expandCoasts(...)`
 - Placement & content generators:
   - `addNaturalWonders(...)`, `generateResources(...)`, `generateDiscoveries(...)`
   - `addFloodplains(...)`, `recalculateFertility()`, `assignAdvancedStartRegions()`

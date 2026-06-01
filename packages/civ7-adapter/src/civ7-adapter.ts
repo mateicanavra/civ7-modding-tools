@@ -11,6 +11,7 @@ import type {
   DiscoveryCatalogEntry,
   EngineAdapter,
   FeatureData,
+  LakeProjectionResult,
   LandmassIdName,
   MapInfo,
   MapInitParams,
@@ -32,6 +33,7 @@ import "/base-standard/maps/map-globals.js";
 import { VoronoiUtils as CivVoronoiUtils } from "/base-standard/scripts/voronoi-utils.js";
 // Vanilla Civ7 biomes/features live in feature-biome-generator.js
 // @ts-ignore - resolved only at Civ7 runtime
+// prettier-ignore
 import { designateBiomes as civ7DesignateBiomes, addFeatures as civ7AddFeatures } from "/base-standard/maps/feature-biome-generator.js";
 // @ts-ignore - resolved only at Civ7 runtime
 import { generateSnow as civ7GenerateSnow } from "/base-standard/maps/snow-generator.js";
@@ -40,6 +42,7 @@ import { generateDiscoveries as civ7GenerateDiscoveries } from "/base-standard/m
 // @ts-ignore - resolved only at Civ7 runtime
 import * as civ7ResourceGeneratorModule from "/base-standard/maps/resource-generator.js";
 // @ts-ignore - resolved only at Civ7 runtime
+// prettier-ignore
 import { assignStartPositions as civ7AssignStartPositions, chooseStartSectors as civ7ChooseStartSectors } from "/base-standard/maps/assign-starting-plots.js";
 // @ts-ignore - resolved only at Civ7 runtime
 import { needHumanNearEquator as civ7NeedHumanNearEquator } from "/base-standard/maps/map-utilities.js";
@@ -47,6 +50,7 @@ import { needHumanNearEquator as civ7NeedHumanNearEquator } from "/base-standard
 import { assignAdvancedStartRegions as civ7AssignAdvancedStartRegions } from "/base-standard/maps/assign-advanced-start-region.js";
 // Elevation terrain generator (lakes/coasts)
 // @ts-ignore - resolved only at Civ7 runtime
+// prettier-ignore
 import { generateLakes as civ7GenerateLakes, expandCoasts as civ7ExpandCoasts } from "/base-standard/maps/elevation-terrain-generator.js";
 
 /**
@@ -284,7 +288,9 @@ export class Civ7Adapter implements EngineAdapter {
   setResourceType(x: number, y: number, resourceType: number): void {
     const rb = (
       globalThis as typeof globalThis & {
-        ResourceBuilder?: { setResourceType?: (x: number, y: number, resourceType: number) => void };
+        ResourceBuilder?: {
+          setResourceType?: (x: number, y: number, resourceType: number) => void;
+        };
       }
     ).ResourceBuilder;
     if (!rb?.setResourceType) {
@@ -336,9 +342,10 @@ export class Civ7Adapter implements EngineAdapter {
       ? name.toUpperCase()
       : `PLOTEFFECT_${name.toUpperCase()}`;
 
-    const effect = plotEffects.find((entry) => entry.PlotEffectType === effectType) as
-      | { Index?: number; $index?: number }
-      | null;
+    const effect = plotEffects.find((entry) => entry.PlotEffectType === effectType) as {
+      Index?: number;
+      $index?: number;
+    } | null;
 
     if (typeof effect?.Index === "number") return effect.Index;
     if (typeof effect?.$index === "number") return effect.$index;
@@ -419,6 +426,83 @@ export class Civ7Adapter implements EngineAdapter {
     civ7GenerateLakes(width, height, tilesPerLake);
   }
 
+  /**
+   * Materialize MapGen's lake intent through Civ7 terrain APIs.
+   *
+   * The engine boundary refreshes area and water caches immediately after
+   * stamping because downstream Civ7 checks often read cached topology rather
+   * than raw terrain edits.
+   */
+  stampLakes(width: number, height: number, lakeMask: Uint8Array): LakeProjectionResult {
+    const expectedSize = Math.max(0, (width | 0) * (height | 0));
+    if (lakeMask.length !== expectedSize) {
+      throw new Error(
+        `[Civ7Adapter] Invalid lake mask length for stampLakes (expected ${expectedSize}, got ${lakeMask.length}).`
+      );
+    }
+
+    const lakeTerrain = this.getTerrainTypeIndex("TERRAIN_COAST");
+    if (lakeTerrain < 0) {
+      throw new Error("[Civ7Adapter] Cannot stamp lakes: TERRAIN_COAST terrain id is unavailable.");
+    }
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = y * width + x;
+        if (lakeMask[idx] !== 1) continue;
+        this.setTerrainType(x, y, lakeTerrain);
+      }
+    }
+
+    this.recalculateAreas();
+    this.storeWaterData();
+
+    return this.readLakeProjection(width, height, lakeMask);
+  }
+
+  /**
+   * Read back what the engine accepted so projection diagnostics remain evidence,
+   * not the source of lake truth.
+   */
+  private readLakeProjection(
+    width: number,
+    height: number,
+    plannedLakeMask: Uint8Array
+  ): LakeProjectionResult {
+    const size = Math.max(0, (width | 0) * (height | 0));
+    const stampedLakeMask = new Uint8Array(size);
+    const rejectedLakeMask = new Uint8Array(size);
+    let plannedLakeTileCount = 0;
+    let stampedLakeTileCount = 0;
+    let rejectedLakeTileCount = 0;
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = y * width + x;
+        if (plannedLakeMask[idx] !== 1) continue;
+        plannedLakeTileCount += 1;
+        if (this.isWater(x, y)) {
+          stampedLakeMask[idx] = 1;
+          stampedLakeTileCount += 1;
+        } else {
+          rejectedLakeMask[idx] = 1;
+          rejectedLakeTileCount += 1;
+        }
+      }
+    }
+
+    return {
+      width,
+      height,
+      plannedLakeMask,
+      stampedLakeMask,
+      rejectedLakeMask,
+      plannedLakeTileCount,
+      stampedLakeTileCount,
+      rejectedLakeTileCount,
+    };
+  }
+
   expandCoasts(width: number, height: number): void {
     civ7ExpandCoasts(width, height);
   }
@@ -470,9 +554,10 @@ export class Civ7Adapter implements EngineAdapter {
     if (!features) return -1;
 
     // Use the find method from GameInfoTable interface
-    const feature = features.find((f) => f.FeatureType === name) as
-      | { Index?: number; $index?: number }
-      | null;
+    const feature = features.find((f) => f.FeatureType === name) as {
+      Index?: number;
+      $index?: number;
+    } | null;
 
     if (typeof feature?.Index === "number") return feature.Index;
     if (typeof feature?.$index === "number") return feature.$index;
@@ -628,7 +713,9 @@ export class Civ7Adapter implements EngineAdapter {
     const resolvedStartPositions = (Array.isArray(startPositions) ? startPositions : [])
       .filter((value) => Number.isFinite(value) && value >= 0)
       .map((value) => Math.trunc(value));
-    const resolvedPolarMargin = Number.isFinite(polarMargin) ? Math.max(0, Math.trunc(polarMargin)) : 0;
+    const resolvedPolarMargin = Number.isFinite(polarMargin)
+      ? Math.max(0, Math.trunc(polarMargin))
+      : 0;
 
     const mapConstructibles = (
       globalThis as typeof globalThis & {
@@ -767,11 +854,14 @@ export class Civ7Adapter implements EngineAdapter {
 
   recalculateFertility(): void {
     // FertilityBuilder may not exist in all engine versions
-    const fb = (globalThis as unknown as { FertilityBuilder?: { recalculate?: () => void } }).FertilityBuilder;
+    const fb = (globalThis as unknown as { FertilityBuilder?: { recalculate?: () => void } })
+      .FertilityBuilder;
     if (fb && typeof fb.recalculate === "function") {
       fb.recalculate();
     } else {
-      console.log("[Civ7Adapter] FertilityBuilder not available - fertility will be calculated by engine defaults");
+      console.log(
+        "[Civ7Adapter] FertilityBuilder not available - fertility will be calculated by engine defaults"
+      );
     }
     this.recordPlacementEffect();
   }

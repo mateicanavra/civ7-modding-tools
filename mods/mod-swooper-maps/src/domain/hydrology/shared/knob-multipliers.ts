@@ -83,10 +83,15 @@ export const HYDROLOGY_OROGRAPHIC_REDUCTION_BASE = 8 as const;
 export const HYDROLOGY_OROGRAPHIC_REDUCTION_PER_STEP = 6 as const;
 export const HYDROLOGY_WATER_GRADIENT_LOWLAND_BONUS_BASE = 2 as const;
 
-export const HYDROLOGY_LAKEINESS_TILES_PER_LAKE_MULTIPLIER = {
-  few: 1.5,
-  normal: 1.0,
-  many: 0.7,
+/**
+ * Lakeiness now tunes Hydrology-owned intent, not Civ7's lake frequency.
+ * Keeping the transform in sink/upstream terms preserves the invariant that
+ * `map-hydrology` only projects a plan it did not author.
+ */
+export const HYDROLOGY_LAKEINESS_UPSTREAM_EXPANSION_STEPS = {
+  few: 0,
+  normal: 0,
+  many: 1,
 } as const satisfies Record<HydrologyLakeinessKnob, number>;
 
 export const HYDROLOGY_RIVER_DENSITY_LENGTH_BOUNDS = {

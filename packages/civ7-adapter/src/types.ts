@@ -78,6 +78,23 @@ export interface MapInfo {
   [key: string]: unknown;
 }
 
+/**
+ * Adapter readback for deterministic lake projection.
+ *
+ * The planned mask is MapGen truth; stamped/rejected masks are engine evidence
+ * used by projection diagnostics and should not replace the upstream plan.
+ */
+export interface LakeProjectionResult {
+  width: number;
+  height: number;
+  plannedLakeMask: Uint8Array;
+  stampedLakeMask: Uint8Array;
+  rejectedLakeMask: Uint8Array;
+  plannedLakeTileCount: number;
+  stampedLakeTileCount: number;
+  rejectedLakeTileCount: number;
+}
+
 // ============================================================================
 // Voronoi Utilities (foundation dependency)
 // ============================================================================
@@ -357,6 +374,13 @@ export interface EngineAdapter {
 
   /** Generate lakes (wraps Civ7 base-standard elevation terrain generator) */
   generateLakes(width: number, height: number, tilesPerLake: number): void;
+
+  /**
+   * Stamp a deterministic lake plan and read back engine water acceptance.
+   *
+   * MapGen owns the plan; the adapter owns engine terrain mutation and cache refresh.
+   */
+  stampLakes(width: number, height: number, lakeMask: Uint8Array): LakeProjectionResult;
 
   /** Expand coasts (wraps Civ7 base-standard elevation terrain generator) */
   expandCoasts(width: number, height: number): void;

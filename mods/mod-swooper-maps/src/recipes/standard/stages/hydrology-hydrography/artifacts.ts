@@ -20,17 +20,24 @@ export const HydrologyHydrographyArtifactSchema = Type.Object(
     riverClass: TypedArraySchemas.u8({
       description: "River class per tile (0=none, 1=minor, 2=major).",
     }),
+    /** Steepest-descent receiver index per tile, used by downstream Hydrology lake planning. */
+    flowDir: TypedArraySchemas.i32({
+      description: "Steepest-descent receiver index per tile (or -1 for sinks/edges).",
+    }),
     /** Routing sinks: candidate endorheic basins / internal drainage endpoints. */
     sinkMask: TypedArraySchemas.u8({
       description: "Mask (1/0): land tiles that are routing sinks (candidate endorheic basins).",
     }),
     /** Routing outlets: land tiles that drain to ocean/edges (land→water/out-of-bounds). */
     outletMask: TypedArraySchemas.u8({
-      description: "Mask (1/0): land tiles that drain directly to ocean/edges (land→water/out-of-bounds).",
+      description:
+        "Mask (1/0): land tiles that drain directly to ocean/edges (land→water/out-of-bounds).",
     }),
     /** Optional basin identifier per tile (or -1 when unassigned). */
     basinId: Type.Optional(
-      TypedArraySchemas.i32({ description: "Optional basin identifier per tile (or -1 when unassigned)." })
+      TypedArraySchemas.i32({
+        description: "Optional basin identifier per tile (or -1 when unassigned).",
+      })
     ),
   },
   {
@@ -45,7 +52,8 @@ export const HydrologyEngineProjectionArtifactSchema = Type.Object(
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
     lakeMask: TypedArraySchemas.u8({
-      description: "Engine water mask attributable to map-hydrology projection (1=water, 0=land).",
+      description:
+        "Engine-accepted lake mask attributable to map-hydrology projection (1=accepted lake, 0=not accepted).",
     }),
     riverMask: TypedArraySchemas.u8({
       description:
@@ -69,11 +77,39 @@ export const HydrologyEngineProjectionArtifactSchema = Type.Object(
   }
 );
 
+export const HydrologyLakePlanArtifactSchema = Type.Object(
+  {
+    width: Type.Integer({ minimum: 1 }),
+    height: Type.Integer({ minimum: 1 }),
+    lakeMask: TypedArraySchemas.u8({
+      description: "Deterministic Hydrology lake intent mask (1=planned lake, 0=not planned).",
+    }),
+    plannedLakeTileCount: Type.Integer({
+      minimum: 0,
+      description: "Count of tiles marked as planned lakes.",
+    }),
+    sinkLakeCount: Type.Integer({
+      minimum: 0,
+      description: "Count of hydrography sink tiles mapped to lake tiles.",
+    }),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Hydrology-owned deterministic lake intent plan consumed by map-hydrology projection and placement.",
+  }
+);
+
 export const hydrologyHydrographyArtifacts = {
   hydrography: defineArtifact({
     name: "hydrography",
     id: "artifact:hydrology.hydrography",
     schema: HydrologyHydrographyArtifactSchema,
+  }),
+  lakePlan: defineArtifact({
+    name: "lakePlan",
+    id: "artifact:hydrology.lakePlan",
+    schema: HydrologyLakePlanArtifactSchema,
   }),
   engineProjectionLakes: defineArtifact({
     name: "engineProjectionLakes",
