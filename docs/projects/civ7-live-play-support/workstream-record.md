@@ -130,6 +130,7 @@ Outputs:
   - `topics/target-candidates.md`
   - `topics/battlefield-scan.md`
   - `topics/destination-analysis.md`
+  - `topics/civilian-route-triage.md`
   - `topics/rhq-ai-mod-baseline.md`
   - `evidence-packs/current-online-play-context.md`
   - `evidence-packs/agent-evidence-summary.md`
@@ -617,6 +618,21 @@ Residual objective gaps:
   civilian-route risk for the friendly Settler near `(17,14)`. This supports
   the lens as heads-up context before movement, not as proof that any specific
   unit can reach or safely occupy the endpoint.
+- A later turn-116 read showed the ready unit had become the Settler at
+  `(17,13)` with valid `MOVE_TO`, while scans still reported civilian exposure:
+  non-friendly naval pressure at `(15,13)`, a scout near `(13,14)`, and the
+  independent city/front at `(13,17)`. `settlement-recommendations --x 17 --y 13`
+  returned distant official sites such as `(26,9)`, `(27,30)`, and `(23,38)`;
+  `destination-analysis --from-x 17 --from-y 13 --to-x 20 --to-y 20` still
+  reported civilian-route risk. This became `topics/civilian-route-triage.md`:
+  a read-stack that separates good settlement sites, safe near-term movement,
+  and fresh movement validation.
+- A concurrent explorer check explained a watcher ambiguity from an earlier
+  Ballista read: `readyUnit.legalOperationCount: 0` in `game watch` was only the
+  no-target ready-unit candidate count, not proof that the Ballista had no plot
+  move or attack. `game watch` now emits `legalOperationScope: "no-target"` and
+  `legalNoTargetOperationCount` so agents know when to follow up with
+  `game play unit-target` for target-arg operations.
 - Remaining gaps are promotion-send/hardening work: richer ready-entity reads,
   stronger live postcondition polling, civic choice proof, population-placement
   postconditions, visibility-filtered path/front analysis beyond the cheap

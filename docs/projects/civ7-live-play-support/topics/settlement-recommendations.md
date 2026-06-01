@@ -14,6 +14,11 @@ ranking advice. It does not prove that a Settler can reach or found a city this
 turn, and it does not account for every live escort or war-risk choice the
 agent may make.
 
+For exposed civilians, load `civilian-route-triage.md` before moving. It
+combines `ready-unit`, this recommendation surface, `battlefield-scan`, and
+`destination-analysis` so the agent can distinguish good settlement sites from
+safe near-term movement.
+
 ## Official Surface
 
 The official settlement lens in

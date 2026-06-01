@@ -33,6 +33,12 @@ The view returns:
 
 It does not send operations.
 
+`game watch --include-ready-unit` summarizes this same surface. Its
+`readyUnit.legalNoTargetOperationCount` is intentionally scoped to no-target
+operations. A count of zero does not prove that the unit cannot move or attack;
+plot-target actions still need `game play unit-target` with `{ X, Y }` target
+args.
+
 For promotion-only checks, use:
 
 ```bash

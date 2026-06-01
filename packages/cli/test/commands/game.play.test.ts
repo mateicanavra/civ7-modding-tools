@@ -1105,7 +1105,11 @@ describe('game play commands', () => {
         mode: string;
         wrapper: string;
         firstReadyUnitId: unknown;
-        readyUnit: unknown;
+        readyUnit: {
+          legalOperationScope: string;
+          legalNoTargetOperationCount: number;
+          legalOperationCount: number;
+        } | null;
         readyCity: unknown;
       }>;
       expect(observations).toHaveLength(2);
@@ -1115,6 +1119,8 @@ describe('game play commands', () => {
       expect(observations[0].ok).toBe(true);
       expect(observations[0].firstReadyUnitId).toEqual({ owner: 0, id: 458752, type: 26 });
       expect(observations[0].readyUnit).not.toBeNull();
+      expect(observations[0].readyUnit?.legalOperationScope).toBe('no-target');
+      expect(observations[0].readyUnit?.legalNoTargetOperationCount).toBe(observations[0].readyUnit?.legalOperationCount);
       expect(observations[0].readyCity).not.toBeNull();
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('readReadyUnitView'))).toBe(true);

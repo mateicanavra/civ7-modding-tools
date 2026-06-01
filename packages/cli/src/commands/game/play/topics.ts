@@ -116,6 +116,7 @@ const TOPICS: ReadonlyArray<Topic> = [
       'docs/projects/civ7-live-play-support/topics/ready-city-decision-view.md',
       'docs/projects/civ7-live-play-support/topics/population-placement-expansion.md',
       'docs/projects/civ7-live-play-support/topics/settlement-recommendations.md',
+      'docs/projects/civ7-live-play-support/topics/civilian-route-triage.md',
     ],
     commands: [
       'game play ready-city',
@@ -137,6 +138,7 @@ const TOPICS: ReadonlyArray<Topic> = [
     references: [
       'docs/projects/civ7-live-play-support/topics/battlefield-scan.md',
       'docs/projects/civ7-live-play-support/topics/destination-analysis.md',
+      'docs/projects/civ7-live-play-support/topics/civilian-route-triage.md',
       'docs/projects/civ7-live-play-support/topics/ready-unit-commander-actions.md',
       'docs/projects/civ7-live-play-support/topics/unit-target-actions.md',
       'docs/projects/civ7-live-play-support/topics/early-war-tactical-stale-state-guard.md',

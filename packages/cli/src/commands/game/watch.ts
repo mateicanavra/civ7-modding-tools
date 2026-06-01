@@ -168,6 +168,8 @@ export default class GameWatch extends Command {
           unitId: readyUnit.unitId,
           unit: readyUnit.unit.ok ? readyUnit.unit.value : null,
           unitError: readyUnit.unit.ok ? null : readyUnit.unit.error,
+          legalOperationScope: 'no-target',
+          legalNoTargetOperationCount: readyUnit.legalOperations.length,
           legalOperationCount: readyUnit.legalOperations.length,
           promotionReadiness: readyUnit.promotionReadiness,
         } : null,

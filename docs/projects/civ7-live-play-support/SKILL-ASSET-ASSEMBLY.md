@@ -237,12 +237,16 @@ Norms:
   `game play settlement-recommendations` wraps the official settlement lens API
   and should inform where to move Settlers, not replace live movement/founding
   validation.
+- Civilian route triage composes `ready-unit`, settlement recommendations,
+  battlefield scan, and destination analysis so a legal Settler move is not
+  mistaken for a supported Settler move.
 
 Promotion readiness: ready for production item-kind and constructible placement
 guidance. `ready-city` is ready as a read-only support asset, population
 placement now has both proven branch shortcuts, and settlement recommendations
-are ready as a read-only expansion-planning shortcut. Keep richer route safety
-and founding-legality cataloging open.
+are ready as a read-only expansion-planning shortcut. Civilian route triage is
+ready as a read-stack; keep terrain-aware pathing, escort scoring, and
+founding-legality cataloging open.
 
 ### Tactical Unit Control
 
@@ -250,6 +254,7 @@ Source artifacts:
 
 - `topics/battlefield-scan.md`
 - `topics/destination-analysis.md`
+- `topics/civilian-route-triage.md`
 - `topics/ready-unit-commander-actions.md`
 - `topics/unit-target-actions.md`
 - `topics/early-war-tactical-stale-state-guard.md`
@@ -279,6 +284,10 @@ Norms:
   when the decision is whether an endpoint or approach deserves a move. It
   reports corridor and destination pressure; it does not prove reachability or
   reserve a route.
+- For civilians, run the civilian route triage read stack before treating
+  `MOVE_TO` as a good idea. Settlement recommendations rank sites; battlefield
+  and destination reads explain whether the current board makes a route worth
+  pursuing.
 - Target plots, not target unit ids.
 - Validator success is not proof of tactical effect; require a postcondition.
 - `verification.status == "no-state-change"` means the action is unresolved,
@@ -478,6 +487,7 @@ runtime and local official resource references.
 | `topics/ready-unit-commander-actions.md` | Tactical guard and promotion-readiness reference | Ready as guard, not full combat planner |
 | `topics/battlefield-scan.md` | Tactical/strategic POI lens | Reference with pathing/visibility gaps |
 | `topics/destination-analysis.md` | Tactical endpoint/corridor pressure lens | Reference with pathing/visibility gaps |
+| `topics/civilian-route-triage.md` | Settler/civilian route read stack | Reference with pathing/founding gaps |
 | `topics/unit-target-actions.md` | Tactical operation reference | Ready with postcondition warning |
 | `topics/unit-command-resettle-upgrade.md` | Unit command shape reference | Ready with postcondition gap |
 | `topics/early-war-tactical-stale-state-guard.md` | Tactical guard and advisory asset | Ready as guard; strategy stays advisory |

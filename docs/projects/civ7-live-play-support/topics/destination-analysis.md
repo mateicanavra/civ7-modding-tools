@@ -71,6 +71,11 @@ Good uses:
 3. Comparing two staging plots before committing a formation.
 4. Deciding whether to inspect a plot, unit target, or nearby city next.
 
+When the moving unit is a civilian, use `civilian-route-triage.md` as the
+parent workflow. Destination analysis answers one route question; civilian
+triage decides how to combine that answer with settlement recommendations,
+escort reads, and fresh unit validation.
+
 Bad uses:
 
 1. Declaring a route safe.
