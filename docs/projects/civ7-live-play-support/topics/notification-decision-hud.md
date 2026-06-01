@@ -55,6 +55,7 @@ after any mutation or human input.
 | Population placement | chosen plot `Location` for workable tiles, or city target plus `X`/`Y` for expansion tiles | `game play assign-worker` for workable tiles; `game play expand-city` for expansion purchase |
 | Town focus | city target, growth `Type`, paired `ProjectType` | `game play set-town-focus`; then `game play consider-town-project` if closeout is still needed |
 | Production choice | city target, exactly one build item kind, and placement `X`/`Y` when constructible validation returns legal plots | `game play build-production`; `game play build-unit` remains a unit-specific shortcut |
+| Resource assignment | resource allocation screen state, available resources, settlement slots | no proven assignment shortcut yet; inspect the official resource-allocation surface |
 | Diplomacy response | diplomatic action `ID` and chosen response `Type` | `game play respond-diplomacy` |
 | First-meet diplomacy | local player id, met player id from `notification.Player`/`details.player2`, first-meet response `Type` | `game play respond-first-meet` |
 | Informational notification | notification ComponentID; handler evidence that no specialized decision surface is required | `game play dismiss-notification` after review |
@@ -82,6 +83,10 @@ Notable handler evidence:
 - `NOTIFICATION_CHOOSE_CITY_PRODUCTION` and
   `NOTIFICATION_CHOOSE_TOWN_PROJECT` require a valid city target before opening
   their production/town-focus surfaces.
+- `NOTIFICATION_ASSIGN_NEW_RESOURCES` is registered to `AssignNewResources`,
+  whose activation opens `screen-resource-allocation`. Treat it as a real
+  resource-allocation decision surface. Do not close it as a default-handler
+  report until assignment or closeout behavior is proven.
 - Narrative blockers route to `ChooseNarrativeDirection`; the narrative screen
   sends `CHOOSE_NARRATIVE_STORY_DIRECTION` with
   `{ TargetType: answerKey, Target: targetStoryId, Action: Activate }`.
@@ -94,6 +99,14 @@ Notable handler evidence:
   `details.kind == "first-meet-diplomacy"` payload when the live notification
   carries the met player id, including validated greeting args and a neutral
   `recommendedCli`.
+- `NOTIFICATION_DIPLOMATIC_ACTION_LOW` reports a completed low-severity
+  diplomatic action. The official notification handler file registers
+  `NOTIFICATION_DIPLOMATIC_ACTION` and
+  `NOTIFICATION_DIPLOMATIC_ACTION_WARNING` with
+  `InvestigateDiplomaticAction`, but does not register
+  `NOTIFICATION_DIPLOMATIC_ACTION_LOW`; it therefore falls through to the
+  default handler. Treat it as reviewed informational closeout after reading
+  the message, not as `RESPOND_DIPLOMATIC_ACTION`.
 - `NOTIFICATION_WONDER_COMPLETED`, `NOTIFICATION_WONDER_FAILED`,
   `NOTIFICATION_UNIT_ATTACKED`, `NOTIFICATION_DISTRICT_ATTACKED`, and
   natural-disaster reports such as `NOTIFICATION_RIVER_FLOODS_SEV0/1/2`,
@@ -142,3 +155,22 @@ constructibles need the same second-stage args the official UI sends: `X` and
 `Y` paired with `ConstructibleType`. Keep `game play build-unit` available for
 unit-only flows, but use `game play build-production` for new production
 guidance because it makes the item kind and placement requirement explicit.
+
+## Turn 115 Diplomatic Completion Lesson
+
+On turn 115, the live HUD surfaced
+`NOTIFICATION_DIPLOMATIC_ACTION_LOW` for a completed Cultural Exchange with
+Lafayette as an end-turn blocker. The official handler evidence above makes the
+correct closeout path narrow:
+
+```bash
+bun packages/cli/bin/run.js game play dismiss-notification \
+  --target '{"owner":0,"id":522,"type":20}' \
+  --send \
+  --reason 'reviewed completed Cultural Exchange with Lafayette'
+```
+
+Use the current notification id from a fresh HUD read; the example id is
+turn-specific. This remains an explicit reviewed dismissal because completed
+diplomatic-action reports can matter strategically even when they do not expose
+a response operation.

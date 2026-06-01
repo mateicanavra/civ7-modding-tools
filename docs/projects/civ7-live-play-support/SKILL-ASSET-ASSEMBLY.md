@@ -248,6 +248,7 @@ and founding-legality cataloging open.
 
 Source artifacts:
 
+- `topics/battlefield-scan.md`
 - `topics/ready-unit-commander-actions.md`
 - `topics/unit-target-actions.md`
 - `topics/early-war-tactical-stale-state-guard.md`
@@ -257,6 +258,7 @@ Source artifacts:
 CLI shortcuts:
 
 - `game play ready-unit`
+- `game play battlefield-scan`
 - `game play promotion-readiness`
 - `game play unit-target`
 - `game play resettle-unit`
@@ -267,6 +269,10 @@ Norms:
 
 - Re-read before every tactical mutation when human input, latency, or combat
   animation may have changed the board.
+- Use `game play battlefield-scan --x <front-x> --y <front-y> --json` as a
+  background tactical lens before sequencing multiple unit moves. It summarizes
+  local pressure and points of interest; it does not path, move, attack, or
+  validate operations.
 - Target plots, not target unit ids.
 - Validator success is not proof of tactical effect; require a postcondition.
 - `verification.status == "no-state-change"` means the action is unresolved,
@@ -344,6 +350,7 @@ Source artifacts:
 
 - `topics/multi-turn-strategy-and-ai-levers.md`
 - `topics/strategic-planning-snapshot.md`
+- `topics/battlefield-scan.md`
 - `topics/target-candidates.md`
 - `topics/rhq-ai-mod-baseline.md`
 - `topics/early-game-decision-context.md`
@@ -362,6 +369,7 @@ CLI shortcuts:
 - `game play ready-city`
 - `game play settlement-recommendations`
 - `game play target-candidates`
+- `game play battlefield-scan`
 - `game ai loaded-levers`
 - `game play unit-target`
 - `game autoplay`
@@ -399,6 +407,9 @@ Norms:
   choosing a siege direction. It ranks opponent owners from the current
   formation origin; it does not declare war, path units, or prove tactical
   attack legality.
+- Use `game play battlefield-scan --x <front-x> --y <front-y> --json` when the
+  agent needs a wider tactical view of a front, city, stack, or destination.
+  Treat its POIs as inspection priorities, not as strategy or movement orders.
 - Use RHQ AI MOD as the baseline for static AI manipulation over autoplay, not
   as proof that local SQLite edits or in-game JS should own player-side
   strategy. RHQ's public changelog maps to official AI tables and behavior-tree
@@ -453,6 +464,7 @@ runtime and local official resource references.
 | `topics/local-catalog-enrichment.md` | Static catalog enrichment asset | Ready |
 | `topics/first-meet-diplomacy.md` | Diplomacy skill reference | Ready |
 | `topics/ready-unit-commander-actions.md` | Tactical guard and promotion-readiness reference | Ready as guard, not full combat planner |
+| `topics/battlefield-scan.md` | Tactical/strategic POI lens | Reference with pathing/visibility gaps |
 | `topics/unit-target-actions.md` | Tactical operation reference | Ready with postcondition warning |
 | `topics/unit-command-resettle-upgrade.md` | Unit command shape reference | Ready with postcondition gap |
 | `topics/early-war-tactical-stale-state-guard.md` | Tactical guard and advisory asset | Ready as guard; strategy stays advisory |
@@ -477,8 +489,8 @@ commands, load conditions, and authority boundaries:
   traditions.
 - `cities`: production, town focus, population placement, expansion, and
   settlement planning.
-- `tactics`: ready units, target actions, commanders, promotions, upgrades, and
-  resettlement.
+- `tactics`: battlefield scans, ready units, target actions, commanders,
+  promotions, upgrades, and resettlement.
 - `diplomacy`: first-meet and diplomatic action responses.
 - `runtime-sources`: direct-control versus local SQLite/resource authority.
 - `restart-watch`: rehydration, observer mode, latency, and passive JSONL

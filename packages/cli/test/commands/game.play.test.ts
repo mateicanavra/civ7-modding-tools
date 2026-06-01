@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayAssignWorker from '../../src/commands/game/play/assign-worker';
 import GamePlayAdvisorWarning from '../../src/commands/game/play/advisor-warning';
+import GamePlayBattlefieldScan from '../../src/commands/game/play/battlefield-scan';
 import GamePlayBuildProduction from '../../src/commands/game/play/build-production';
 import GamePlayBuildUnit from '../../src/commands/game/play/build-unit';
 import GamePlayBuyAttribute from '../../src/commands/game/play/buy-attribute';
@@ -1015,6 +1016,33 @@ describe('game play commands', () => {
     }
   });
 
+  test('reads battlefield scan without sending operations', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      await GamePlayBattlefieldScan.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--x',
+        '17',
+        '--y',
+        '20',
+        '--radius',
+        '8',
+        '--json',
+      ]);
+
+      expect(server.received.some((message) => message.includes('readBattlefieldScan'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"origins":[{"x":17,"y":20}]'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"radius":8'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
   test('watches live play as JSONL without sending operations', async () => {
     const server = await startTunerServer({ playNotificationMode: 'ready-unit' });
     const writes: string[] = [];
@@ -1134,6 +1162,8 @@ async function startTunerServer(options: {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(settlementRecommendationsView())]));
         } else if (frame.message.includes('readTargetCandidates')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(targetCandidatesView())]));
+        } else if (frame.message.includes('readBattlefieldScan')) {
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(battlefieldScanView())]));
         } else if (frame.message.includes('readNotificationDismissal')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(notificationDismissal(frame.message.includes('"send":true')))]));
         } else if (frame.message.includes('hasSentTurnComplete')) {
@@ -1799,6 +1829,104 @@ function targetCandidatesView() {
       },
     ],
     notes: ['Read-only strategic target shortlist. It ranks opponents; it does not choose or send war, movement, or attack operations.'],
+  };
+}
+
+function battlefieldScanView() {
+  const friendlyUnit = {
+    id: { owner: 0, id: 458752, type: 26 },
+    owner: 0,
+    stance: 'friendly',
+    type: 111,
+    typeName: 'UNIT_SLINGER',
+    role: 'ranged',
+    location: { x: 17, y: 20 },
+    distance: 0,
+    nearestOrigin: { x: 17, y: 20 },
+    damage: 36,
+    wounded: true,
+    strength: 9.6,
+    movementMovesRemaining: 2,
+    attacksRemaining: 1,
+  };
+  const opponentUnit = {
+    id: { owner: 9, id: 196608, type: 26 },
+    owner: 9,
+    stance: 'other',
+    type: 222,
+    typeName: 'UNIT_WARRIOR',
+    role: 'melee',
+    location: { x: 13, y: 17 },
+    distance: 4,
+    nearestOrigin: { x: 17, y: 20 },
+    damage: 0,
+    wounded: false,
+    strength: 20,
+    movementMovesRemaining: 2,
+    attacksRemaining: 1,
+  };
+  const city = {
+    id: { owner: 9, id: 589824, type: 1 },
+    owner: 9,
+    stance: 'other',
+    name: 'Independent City',
+    location: { x: 13, y: 17 },
+    distance: 4,
+    nearestOrigin: { x: 17, y: 20 },
+    population: 3,
+    isTown: false,
+  };
+  return {
+    localPlayerId: 0,
+    playerId: 0,
+    origins: [{ x: 17, y: 20 }],
+    radius: 8,
+    hiddenInfoPolicy: 'runtime-debug-summary; may include non-visible units or cities until paired with visibility/map reads',
+    units: [friendlyUnit, opponentUnit],
+    cities: [city],
+    owners: [
+      {
+        owner: 0,
+        stance: 'friendly',
+        leaderName: { ok: true, value: 'Player' },
+        civilizationName: { ok: true, value: 'Assyria' },
+        unitCount: 1,
+        cityCount: 0,
+        roles: { ranged: 1 },
+        apparentStrength: 9.6,
+        nearestUnit: friendlyUnit,
+        nearestCity: null,
+      },
+      {
+        owner: 9,
+        stance: 'other',
+        leaderName: { ok: true, value: 'Independent Power' },
+        civilizationName: { ok: true, value: 'Independent' },
+        unitCount: 1,
+        cityCount: 1,
+        roles: { melee: 1 },
+        apparentStrength: 20,
+        nearestUnit: opponentUnit,
+        nearestCity: city,
+      },
+    ],
+    pointsOfInterest: [
+      {
+        kind: 'wounded-friendly',
+        severity: 'medium',
+        location: friendlyUnit.location,
+        summary: 'friendly wounded unit near scan origin',
+        units: [friendlyUnit],
+      },
+      {
+        kind: 'city-front',
+        severity: 'medium',
+        location: city.location,
+        summary: 'nearest non-friendly city in scan radius',
+        cities: [city],
+      },
+    ],
+    notes: ['Read-only battlefield lens for tactical orientation. It does not path, move, attack, declare war, or validate operations.'],
   };
 }
 

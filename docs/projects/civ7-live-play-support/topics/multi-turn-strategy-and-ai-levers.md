@@ -74,10 +74,20 @@ Important local anchors:
 - `.civ7/outputs/resources/Base/modules/age-modern/data/AI_Modern.xml`
 - `.civ7/outputs/resources/Base/Assets/schema/gameplay/01_GameplaySchema.sql`
 
-Treat these as load-time/mod-resource levers until proven otherwise. A row
-loaded through a mod can bias native AI. A row changed in a local SQLite copy
-or guessed live database surface does not prove the current native solver will
-consult the changed value.
+Treat these as load-time/mod-resource levers until proven otherwise. Base and
+age `.modinfo` files load the AI XML/SQL resources through `UpdateDatabase`
+actions, so before-game or age-load mods can plausibly change these rows. A row
+changed in a local SQLite copy or guessed live database surface does not prove
+the current native solver will consult the changed value.
+
+The June 1 local AI-surface pass found no shipped JavaScript API comparable to
+`Game.PlayerOperations` or `Game.CityOperations` for mutating AI tables,
+behavior trees, strategies, or pseudo-yields live. Script-adjacent fields such
+as `AiOperationDefs.TargetScript`, `StrategyConditions.ConditionFunction`,
+`AiEvents`, and `TriggeredBehaviorTrees` appear engine-owned from current
+evidence. Without an explicit reload/mutation API, live changes to graph-like
+policy data such as `BehaviorTreeNodes`, `AiOperationDefs`, or
+`StrategyConditions` should be treated as unsafe and unproven.
 
 ## RHQ Baseline
 
@@ -153,6 +163,12 @@ Prefer a hybrid architecture:
 This split lets static mods improve native AI behavior while keeping adaptive
 multi-turn strategy in the surface that already has live validation and
 postcondition proof.
+
+Higher-level tactical reads belong in the external runner lane. Commands such
+as `game play battlefield-scan` and `game play target-candidates` should give
+the runner wider lenses over fronts, pressure, points of interest, and target
+owners while leaving strategy selection, movement, and combat sends to explicit
+validator-backed steps.
 
 ## Experiments
 

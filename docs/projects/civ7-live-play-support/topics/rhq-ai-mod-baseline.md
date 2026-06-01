@@ -8,12 +8,20 @@ Sources:
 - Change notes: `https://steamcommunity.com/sharedfiles/filedetails/changelog/3507042742`
 - Historical CivFanatics mirror:
   `https://forums.civfanatics.com/resources/rhq-artificially-intelligent-ai-mod.31881/`
+- Civ7 third-party mods support caveat:
+  `https://support.civilization.com/hc/en-us/articles/44037954953235-Civilization-VII-Third-Party-Party-Mods-FAQ`
 
 ## Frame
 
 RHQ AI MOD is useful because it shows what a serious Civ7 AI-improvement mod
 can change inside the game's static AI/resource layer. It is not the same kind
 of tool as the direct-control play agent.
+
+Treat RHQ as a community AI benchmark, not engine truth or Firaxis/2K-supported
+policy. Civ VII third-party mods are community-created and are not a support
+contract for game behavior. That matters because our direct-control runner must
+still prove current loaded rows and live outcomes instead of assuming the mod's
+claims are active in the local session.
 
 Use RHQ as the baseline for native AI manipulation over autoplay:
 
@@ -64,9 +72,15 @@ surfaces and future downloaded mod files.
 The public Steam state observed on June 1, 2026 is contradictory. The item page
 still exposes the RHQ AI MOD title, description, file size, subscriber count,
 posted date, May 31 update date, changelog entries, and recent author comments,
-but Steam also displays removal and Civ VII incompatibility warnings. Treat the
-page as a source for author claims and changelog history, not proof that the mod
-is currently installable or loaded in a local game.
+but Steam also displays removal and Civ VII incompatibility warnings, while API
+metadata may still report the item as not banned. Treat the page as a source for
+author claims and changelog history, not proof that the mod is currently
+installable or loaded in a local game.
+
+No local Workshop payload for item `3507042742` was found during the June 1
+watcher pass. The exact current v3.x/v3.1 source diff therefore remains
+unverified until the mod files are downloaded or inspected from an
+author-published source.
 
 The CivFanatics mirror is useful for lineage and older compatibility notes, but
 it appears stale relative to the Steam v3.x/Test of Time branch. It should not
@@ -129,6 +143,13 @@ Official XML resources use those tables in exactly the categories RHQ names:
   `.civ7/outputs/resources/Base/modules/age-exploration/data/AI_Exploration.xml`,
   and `.civ7/outputs/resources/Base/modules/age-modern/data/AI_Modern.xml`;
 - age-specific victory/legacy strategies in each age's `victories.xml`.
+- DLC leader/civ overlays such as
+  `.civ7/outputs/resources/Base/DLC/napoleon/modules/data/AI_Base.xml`,
+  `.civ7/outputs/resources/Base/DLC/great-britain/modules/data/AI.xml`, and
+  `.civ7/outputs/resources/Base/DLC/shawnee-tecumseh/modules/data/AI_Base.xml`
+  define the same bias families for leaders/civs: yield, pseudo-yield, budget,
+  tag, unit, government, constructible, settlement-plot, and diplomatic-action
+  lists.
 
 The Antiquity victory resources show how strategy rows become behavior bias:
 the expansion strategy uses conditions such as city count, conquered cities,
@@ -172,6 +193,9 @@ freshness or latency.
   system.
 - Treat community claims as advisory until the actual mod files are inspected
   or the behavior is reproduced locally.
+- Separate vanilla, RHQ-loaded, and local direct-control-runner observations.
+  Do not compare the runner against "AI behavior" without recording which
+  static policy substrate was loaded.
 
 ## Experiment Seeds
 

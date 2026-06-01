@@ -1451,6 +1451,31 @@ export type Civ7TargetCandidatesResult = Readonly<{
   notes: ReadonlyArray<string>;
 }>;
 
+export type Civ7BattlefieldScanInput = Readonly<{
+  playerId?: number;
+  origins?: ReadonlyArray<Readonly<{ x: number; y: number }>>;
+  radius?: number;
+  maxPlayers?: number;
+  maxUnits?: number;
+  maxCities?: number;
+}>;
+
+export type Civ7BattlefieldScanResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  localPlayerId: number;
+  playerId: number;
+  origins: ReadonlyArray<Readonly<{ x: number; y: number }>>;
+  radius: number;
+  hiddenInfoPolicy: string;
+  units: unknown;
+  cities: unknown;
+  owners: unknown;
+  pointsOfInterest: unknown;
+  notes: ReadonlyArray<string>;
+}>;
+
 export const Civ7CapabilityCatalogEntrySchema = Type.Object({
   id: Type.String(),
   name: Type.String(),
@@ -3138,6 +3163,24 @@ export async function getCiv7TargetCandidates(
   return jsonPayloadFromCommandResult<Civ7TargetCandidatesResult>(result, "Civ7 target candidates");
 }
 
+export async function getCiv7BattlefieldScan(
+  input: Civ7BattlefieldScanInput = {},
+  options: Civ7DirectControlOptions = {},
+): Promise<Civ7BattlefieldScanResult> {
+  if (input.playerId !== undefined) validatePlayerId(input.playerId);
+  const result = await executeCiv7AppUiCommand({
+    ...options,
+    command: buildBattlefieldScanCommand({
+      ...input,
+      radius: boundedInteger(input.radius ?? 8, 1, 32, "radius"),
+      maxPlayers: boundedInteger(input.maxPlayers ?? 32, 1, 128, "maxPlayers"),
+      maxUnits: boundedInteger(input.maxUnits ?? 80, 1, 256, "maxUnits"),
+      maxCities: boundedInteger(input.maxCities ?? 32, 1, 128, "maxCities"),
+    }),
+  });
+  return jsonPayloadFromCommandResult<Civ7BattlefieldScanResult>(result, "Civ7 battlefield scan");
+}
+
 export async function requestCiv7UnitTargetAction(
   input: Civ7UnitTargetActionInput,
   options: Civ7DirectControlOptions = {},
@@ -4661,6 +4704,13 @@ function buildTargetCandidatesCommand(input: Civ7TargetCandidatesInput & { maxCa
   })()`;
 }
 
+function buildBattlefieldScanCommand(input: Civ7BattlefieldScanInput & { radius: number; maxPlayers: number; maxUnits: number; maxCities: number }): string {
+  return `(() => {
+    ${battlefieldScanSource()}
+    return JSON.stringify(readBattlefieldScan(${jsLiteral(input)}));
+  })()`;
+}
+
 function buildNotificationDismissalCommand(input: Civ7NotificationDismissInput, options: { send: boolean }): string {
   return `(() => {
     ${notificationDismissalSource()}
@@ -4874,6 +4924,24 @@ function playNotificationViewSource(): string {
           ["The notification opens acquire-tile mode; the clicked plot determines whether worker assignment or expansion fires. Re-read candidates before choosing either branch."],
         );
       }
+      if (stringIncludes(haystack, "ASSIGN_NEW_RESOURCES") || stringIncludes(haystack, "RESOURCE ASSIGNMENTS")) {
+        return hint(
+          "resource-assignment",
+          undefined,
+          undefined,
+          "screen-resource-allocation",
+          undefined,
+          "official-ui",
+          [
+            requiredInput("Resource allocation screen", "official notification handler", "The handler opens screen-resource-allocation; current wrapper support is inspection-only."),
+            requiredInput("Available resources and settlement slots", "resource allocation UI or future dedicated read", "Do not dismiss this blocker as an informational report until assignment/closeout behavior is proven."),
+          ],
+          [
+            action("inspect materialized notifications", "game play notifications --json", undefined, undefined, undefined, "before deciding whether a resource-assignment shortcut exists"),
+          ],
+          ["NOTIFICATION_ASSIGN_NEW_RESOURCES opens the official resource allocation screen. No validator-backed resource assignment shortcut is proven yet, so treat this as a real decision surface."],
+        );
+      }
       if (stringIncludes(haystack, "TOWN_PROJECT")) {
         return hint(
           "town-focus",
@@ -4950,6 +5018,21 @@ function playNotificationViewSource(): string {
             action("validate diplomacy response", "game play respond-diplomacy --player-id <id> --action-id <action-id> --response-type <response-type>", "player-operation", "RESPOND_DIPLOMATIC_ACTION", "{ ID, Type }", "after reading the action id and desired response type"),
           ],
           ["Use the diplomatic action id and response type from the live notification."],
+        );
+      }
+      if (stringIncludes(haystack, "DIPLOMATIC_ACTION_LOW")) {
+        return hint(
+          "informational-notification",
+          "app-ui-action",
+          "Game.Notifications.dismiss",
+          "{ notificationId }",
+          "game play dismiss-notification",
+          "official-ui",
+          [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not a diplomatic action response id.")],
+          [
+            action("dismiss reviewed diplomatic completion", "game play dismiss-notification --target '<notification-id>' --send --reason '<why this diplomatic completion was reviewed>'", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after confirming the notification only reports a completed low-severity diplomatic action"),
+          ],
+          ["The official notification train does not register a specialized handler for NOTIFICATION_DIPLOMATIC_ACTION_LOW; it falls through to the default notification handler, so closeout is App UI dismissal after review."],
         );
       }
       if (stringIncludes(haystack, "UNIT_ATTACKED")
@@ -6028,6 +6111,280 @@ function targetCandidatesSource(): string {
     };`;
 }
 
+function battlefieldScanSource(): string {
+  return `${probeHelperSource()}
+    ${runtimeObjectReaderSource()}
+    const toComponentId = (value) => {
+      if (!value || typeof value !== "object") return null;
+      const owner = Number(value.owner ?? value.Owner ?? value.player ?? value.Player);
+      const id = Number(value.id ?? value.ID);
+      const type = Number(value.type ?? value.Type);
+      if (!Number.isFinite(owner) || !Number.isFinite(id) || !Number.isFinite(type)) return null;
+      return { owner, id, type };
+    };
+    const toLocation = (value) => {
+      if (!value) return null;
+      const x = Number(value.x ?? value.X);
+      const y = Number(value.y ?? value.Y);
+      if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+      return { x, y };
+    };
+    const distance = (a, b) => {
+      if (!a || !b) return null;
+      return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
+    };
+    const nearestOrigin = (location, origins) => {
+      let best = null;
+      let origin = null;
+      for (const candidate of origins) {
+        const value = distance(location, candidate);
+        if (value == null) continue;
+        if (best == null || value < best) {
+          best = value;
+          origin = candidate;
+        }
+      }
+      return { distance: best, origin };
+    };
+    const roleForUnit = (unitType, definition) => {
+      const name = String(unitType ?? "").toUpperCase();
+      if (name.includes("SETTLER") || name.includes("MIGRANT") || name.includes("MERCHANT")) return "civilian";
+      if (name.includes("COMMANDER") || name.includes("TURTANU")) return "commander";
+      if (name.includes("BALLISTA") || name.includes("CATAPULT") || name.includes("SIEGE")) return "siege";
+      if (Number(definition?.Bombard) > 0) return "siege";
+      if (name.includes("ARCHER") || name.includes("SLINGER") || name.includes("CROSSBOW")) return "ranged";
+      if (Number(definition?.RangedCombat) > 0) return "ranged";
+      if (name.includes("SHIP") || name.includes("GALLEY") || name.includes("NAVAL")) return "naval";
+      if (name.includes("AIR") || name.includes("BOMBER") || name.includes("FIGHTER")) return "air";
+      if (name.includes("WARRIOR") || name.includes("SPEARMAN") || name.includes("INFANTRY") || name.includes("CAVALRY")) return "melee";
+      if (Number(definition?.Combat) > 0) return "melee";
+      return "unknown";
+    };
+    const unitStrength = (unit, definition) => {
+      const values = [
+        Number(definition?.Combat),
+        Number(definition?.RangedCombat),
+        Number(definition?.Bombard),
+        Number(definition?.AntiAirCombat),
+      ].filter((value) => Number.isFinite(value) && value > 0);
+      const best = values.length > 0 ? Math.max(...values) : 1;
+      const damage = Number(unit?.damage ?? 0);
+      return Math.max(0, best * Math.max(0.1, (100 - damage) / 100));
+    };
+    const summarizeUnit = (unitId, playerId, origins, radius) => {
+      const unit = Units.get(unitId);
+      if (!unit) return null;
+      const location = toLocation(unit.location ?? unit.getLocation?.());
+      if (!location) return null;
+      const proximity = nearestOrigin(location, origins);
+      if (proximity.distance == null || proximity.distance > radius) return null;
+      const owner = Number(unit.owner ?? unit.player ?? unit.getOwner?.());
+      const type = unit.type ?? unit.getType?.();
+      const definition = (() => {
+        try {
+          return type == null ? null : GameInfo?.Units?.lookup?.(type);
+        } catch {
+          return null;
+        }
+      })();
+      const typeName = definition?.UnitType ?? null;
+      const damage = Number(unit.damage ?? 0);
+      return {
+        id: toComponentId(unit.id ?? unitId) ?? unitId,
+        owner,
+        stance: owner === playerId ? "friendly" : "other",
+        type,
+        typeName,
+        role: roleForUnit(typeName, definition),
+        location,
+        distance: proximity.distance,
+        nearestOrigin: proximity.origin,
+        damage,
+        wounded: damage > 0,
+        strength: Math.round(unitStrength(unit, definition) * 10) / 10,
+        movementMovesRemaining: unit.movementMovesRemaining ?? unit.MovementMovesRemaining ?? null,
+        attacksRemaining: unit.attacksRemaining ?? unit.AttacksRemaining ?? null,
+      };
+    };
+    const summarizeCity = (cityId, playerId, origins, radius) => {
+      const city = Cities.get(cityId);
+      if (!city) return null;
+      const location = toLocation(city.location ?? city.getLocation?.());
+      if (!location) return null;
+      const proximity = nearestOrigin(location, origins);
+      if (proximity.distance == null || proximity.distance > radius) return null;
+      const owner = Number(city.owner ?? city.player ?? city.getOwner?.());
+      return {
+        id: toComponentId(city.id ?? cityId) ?? cityId,
+        owner,
+        stance: owner === playerId ? "friendly" : "other",
+        name: typeof city.getName === "function" ? city.getName() : city.name ?? null,
+        location,
+        distance: proximity.distance,
+        nearestOrigin: proximity.origin,
+        population: city.population ?? null,
+        isTown: city.isTown ?? null,
+      };
+    };
+    const collectOrigins = (input, playerId) => {
+      const requested = Array.isArray(input.origins) ? input.origins.map(toLocation).filter(Boolean) : [];
+      if (requested.length > 0) return requested;
+      const out = [];
+      try {
+        const ready = UI?.Player?.getFirstReadyUnit?.();
+        const unit = ready ? Units.get(ready) : null;
+        const location = toLocation(unit?.location ?? unit?.getLocation?.());
+        if (location) out.push(location);
+      } catch {}
+      try {
+        const selected = UI?.Player?.getHeadSelectedUnit?.();
+        const unit = selected ? Units.get(selected) : null;
+        const location = toLocation(unit?.location ?? unit?.getLocation?.());
+        if (location) out.push(location);
+      } catch {}
+      try {
+        for (const city of Players.get(playerId)?.Cities?.getCities?.() ?? []) {
+          const location = toLocation(city.location ?? city.getLocation?.());
+          if (location) out.push(location);
+          if (out.length >= 3) break;
+        }
+      } catch {}
+      return out.slice(0, 6);
+    };
+    const collectOwnerUnits = (owner, playerId, origins, radius) => {
+      try {
+        return (Players.Units.get(owner).getUnitIds() ?? [])
+          .map((id) => summarizeUnit(id, playerId, origins, radius))
+          .filter(Boolean);
+      } catch {
+        return [];
+      }
+    };
+    const collectOwnerCities = (owner, playerId, origins, radius) => {
+      try {
+        return (Players.Cities.get(owner).getCityIds() ?? [])
+          .map((id) => summarizeCity(id, playerId, origins, radius))
+          .filter(Boolean);
+      } catch {
+        return [];
+      }
+    };
+    const ownerSummary = (owner, playerId, units, cities) => {
+      const roles = {};
+      for (const unit of units) roles[unit.role] = (roles[unit.role] ?? 0) + 1;
+      const strength = units.reduce((sum, unit) => sum + (Number(unit.strength) || 0), 0);
+      const nearestUnit = units.reduce((best, unit) => !best || unit.distance < best.distance ? unit : best, null);
+      const nearestCity = cities.reduce((best, city) => !best || city.distance < best.distance ? city : best, null);
+      return {
+        owner,
+        stance: owner === playerId ? "friendly" : "other",
+        leaderName: probe(() => readValue(Players.get(owner), ["leaderName", "name"], ["getLeaderName", "getName"])),
+        civilizationName: probe(() => readValue(Players.get(owner), ["civilizationName", "civilizationType"], ["getCivilizationName", "getCivilizationType"])),
+        unitCount: units.length,
+        cityCount: cities.length,
+        roles,
+        apparentStrength: Math.round(strength * 10) / 10,
+        nearestUnit,
+        nearestCity,
+      };
+    };
+    const makePointsOfInterest = (playerId, units, cities, owners) => {
+      const points = [];
+      const otherUnits = units.filter((unit) => unit.owner !== playerId);
+      const friendlyUnits = units.filter((unit) => unit.owner === playerId);
+      const closeOther = otherUnits.filter((unit) => unit.distance <= 3);
+      if (closeOther.length > 0) points.push({
+        kind: "nearby-opponents",
+        severity: closeOther.length >= 4 ? "high" : "medium",
+        location: closeOther[0].location,
+        summary: closeOther.length + " non-friendly units within 3 tiles of an origin",
+        units: closeOther.slice(0, 8),
+      });
+      const woundedFriendly = friendlyUnits.filter((unit) => unit.wounded).sort((a, b) => b.damage - a.damage);
+      if (woundedFriendly.length > 0) points.push({
+        kind: "wounded-friendly",
+        severity: woundedFriendly[0].damage >= 50 ? "high" : "medium",
+        location: woundedFriendly[0].location,
+        summary: "friendly wounded unit near scan origin",
+        units: woundedFriendly.slice(0, 6),
+      });
+      const exposedCivilian = friendlyUnits.filter((unit) => unit.role === "civilian" && otherUnits.some((enemy) => distance(unit.location, enemy.location) <= 4));
+      if (exposedCivilian.length > 0) points.push({
+        kind: "civilian-risk",
+        severity: "high",
+        location: exposedCivilian[0].location,
+        summary: "friendly civilian has non-friendly unit within 4 tiles",
+        units: exposedCivilian.slice(0, 4),
+      });
+      const otherCities = cities.filter((city) => city.owner !== playerId).sort((a, b) => a.distance - b.distance);
+      if (otherCities.length > 0) points.push({
+        kind: "city-front",
+        severity: otherCities[0].distance <= 6 ? "medium" : "low",
+        location: otherCities[0].location,
+        summary: "nearest non-friendly city in scan radius",
+        cities: otherCities.slice(0, 4),
+      });
+      const strongestOther = owners.filter((owner) => owner.owner !== playerId).sort((a, b) => b.apparentStrength - a.apparentStrength)[0];
+      if (strongestOther && strongestOther.apparentStrength > 0) points.push({
+        kind: "owner-pressure",
+        severity: strongestOther.apparentStrength >= 60 ? "high" : "medium",
+        location: strongestOther.nearestUnit?.location ?? strongestOther.nearestCity?.location ?? null,
+        summary: "strongest non-friendly owner pressure in scan radius",
+        owner: strongestOther,
+      });
+      return points;
+    };
+    const readBattlefieldScan = (input) => {
+      const localPlayerId = GameContext.localPlayerID;
+      const playerId = Number.isInteger(input.playerId) ? input.playerId : localPlayerId;
+      const radius = Number.isInteger(input.radius) ? input.radius : 8;
+      const origins = collectOrigins(input, playerId);
+      const aliveIds = (() => {
+        try {
+          return Players.getAliveIds();
+        } catch {
+          return [];
+        }
+      })().slice(0, input.maxPlayers);
+      const allUnits = [];
+      const allCities = [];
+      const owners = [];
+      for (const owner of aliveIds) {
+        const units = collectOwnerUnits(owner, playerId, origins, radius);
+        const cities = collectOwnerCities(owner, playerId, origins, radius);
+        if (units.length === 0 && cities.length === 0) continue;
+        allUnits.push(...units);
+        allCities.push(...cities);
+        owners.push(ownerSummary(owner, playerId, units, cities));
+      }
+      allUnits.sort((a, b) => a.distance - b.distance || b.strength - a.strength);
+      allCities.sort((a, b) => a.distance - b.distance);
+      owners.sort((a, b) => {
+        if (a.stance !== b.stance) return a.stance === "friendly" ? -1 : 1;
+        return b.apparentStrength - a.apparentStrength;
+      });
+      const limitedUnits = allUnits.slice(0, input.maxUnits);
+      const limitedCities = allCities.slice(0, input.maxCities);
+      const pointsOfInterest = makePointsOfInterest(playerId, limitedUnits, limitedCities, owners);
+      return {
+        localPlayerId,
+        playerId,
+        origins,
+        radius,
+        hiddenInfoPolicy: "runtime-debug-summary; may include non-visible units or cities until paired with visibility/map reads",
+        units: limitedUnits,
+        cities: limitedCities,
+        owners,
+        pointsOfInterest,
+        notes: [
+          "Read-only battlefield lens for tactical orientation. It does not path, move, attack, declare war, or validate operations.",
+          "Distances are cheap grid-radius heuristics, not terrain pathfinding. Use unit-target and movement validators before sends.",
+          "Use explicit --x/--y origins for the current front, formation, city, or intended destination so POIs are scoped to the decision at hand.",
+        ],
+      };
+    };`;
+}
+
 function readyUnitViewSource(): string {
   return `${probeHelperSource()}
     const toComponentId = (value) => {
@@ -6770,6 +7127,18 @@ const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> 
     wrapper: "getCiv7TargetCandidates",
     confidence: "runtime",
     description: "Ranks candidate opponent targets from runtime city/unit summaries and a supplied formation origin.",
+  },
+  {
+    id: "wrapper.battlefield-scan",
+    name: "Battlefield Scan",
+    role: "app-ui",
+    kind: "read-wrapper",
+    owner: "@civ7/direct-control",
+    risk: "read",
+    provenance: ["Players", "Cities", "Units", "GameInfo"],
+    wrapper: "getCiv7BattlefieldScan",
+    confidence: "runtime",
+    description: "Summarizes nearby units, cities, owner pressure, and tactical points of interest around supplied origins.",
   },
   {
     id: "wrapper.operations",

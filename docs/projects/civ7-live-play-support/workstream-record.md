@@ -104,6 +104,9 @@ Outputs:
   - `game play ready-unit`
   - `game play promotion-readiness`
   - `game play unit-target`
+  - `game play settlement-recommendations`
+  - `game play target-candidates`
+  - `game play battlefield-scan`
   - `game watch`
   - `game play topics`
   - `game ai loaded-levers`
@@ -121,7 +124,10 @@ Outputs:
   - `topics/progression-tree-targets.md`
   - `topics/celebration-choice.md`
   - `topics/runtime-state-sources.md`
+  - `topics/settlement-recommendations.md`
   - `topics/strategic-planning-snapshot.md`
+  - `topics/target-candidates.md`
+  - `topics/battlefield-scan.md`
   - `topics/rhq-ai-mod-baseline.md`
   - `evidence-packs/current-online-play-context.md`
   - `evidence-packs/agent-evidence-summary.md`
@@ -576,10 +582,28 @@ Residual objective gaps:
   support, not movement/combat authority. Live context at implementation time
   favored independent owner `9` near `(13,17)` as the first staging conquest,
   with Napoleon northwest as a later major-civ target.
+- Turn 115 and the ongoing campaign frame exposed a broader tactical-lens gap:
+  per-unit legal operations are too narrow for military planning and
+  advancement. `game play battlefield-scan` now materializes a read-only radius
+  scan around a front, formation, city, or destination. It summarizes nearby
+  units, cities, owner pressure, wounded friendly units, civilian risk, and
+  city/front POIs. It is deliberately not pathfinding, strategy selection,
+  movement, attack, or war authority; it should guide which ready-unit,
+  target-candidate, path, or validator read comes next.
+- Live smoke on turn 115 with
+  `game play battlefield-scan --x 17 --y 20 --radius 8 --json` succeeded. It
+  found the friendly formation around `(17,20)`, the independent city front at
+  `(13,17)`, a civilian-risk POI for the friendly Settler near `(17,14)`, and
+  owner-pressure from nearby independent units around `(12,20)`.
+- The same turn exposed `NOTIFICATION_ASSIGN_NEW_RESOURCES` as the current
+  blocker. Official UI handler evidence shows it opens
+  `screen-resource-allocation`, so the HUD now classifies it as
+  `resource-assignment` instead of an unknown generic blocker. No
+  validator-backed resource assignment shortcut is proven yet.
 - Remaining gaps are promotion-send/hardening work: richer ready-entity reads,
   stronger live postcondition polling, civic choice proof, population-placement
-  postconditions, AI autoplay telemetry shortcuts, and eventual promotion into
-  canonical docs/skills.
+  postconditions, visibility-filtered path/front analysis, AI autoplay
+  telemetry shortcuts, and eventual promotion into canonical docs/skills.
 
 Deferred items:
 
@@ -592,6 +616,9 @@ Deferred items:
 - Add visibility/pathing and diplomacy context to target-candidate ranking so
   future siege plans can distinguish public knowledge, debug summaries, and
   unwanted multi-front war risk.
+- Add terrain-aware destination/path analysis so battlefield scans can separate
+  cheap proximity, visible reachable movement, road/river constraints, and
+  validator-backed unit-specific movement options.
 - Specify the first strategy-runner dry run and the first fixed-seed AI
   resource-mod A/B experiment before implementing multi-turn automation.
 - Promote stable topic docs into canonical docs and skill assets after review.

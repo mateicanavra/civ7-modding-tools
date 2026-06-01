@@ -135,6 +135,7 @@ const TOPICS: ReadonlyArray<Topic> = [
     purpose: 'Control ready units with stale-state guards, validator-backed target actions, and commander/promotion caution.',
     proof: 'live-proved for read views and several command shapes; combat outcomes require fresh postconditions',
     references: [
+      'docs/projects/civ7-live-play-support/topics/battlefield-scan.md',
       'docs/projects/civ7-live-play-support/topics/ready-unit-commander-actions.md',
       'docs/projects/civ7-live-play-support/topics/unit-target-actions.md',
       'docs/projects/civ7-live-play-support/topics/early-war-tactical-stale-state-guard.md',
@@ -142,6 +143,7 @@ const TOPICS: ReadonlyArray<Topic> = [
     ],
     commands: [
       'game play ready-unit',
+      'game play battlefield-scan',
       'game play promotion-readiness',
       'game play unit-target',
       'game play operation',
@@ -213,6 +215,7 @@ const TOPICS: ReadonlyArray<Topic> = [
     references: [
       'docs/projects/civ7-live-play-support/topics/multi-turn-strategy-and-ai-levers.md',
       'docs/projects/civ7-live-play-support/topics/strategic-planning-snapshot.md',
+      'docs/projects/civ7-live-play-support/topics/battlefield-scan.md',
       'docs/projects/civ7-live-play-support/topics/early-game-decision-context.md',
     ],
     commands: [
@@ -221,6 +224,7 @@ const TOPICS: ReadonlyArray<Topic> = [
       'game autoplay',
       'game play settlement-recommendations',
       'game play target-candidates',
+      'game play battlefield-scan',
     ],
     loadWhen: 'when setting a 5-10 turn posture, comparing against autoplay, or deciding what the next inspection should be',
     boundary: 'strategy snapshots rank what to inspect; they never bypass live blocker reads, validators, or postconditions',
