@@ -143,6 +143,7 @@ const TOPICS: ReadonlyArray<Topic> = [
     proof: 'live-proved for read views and several command shapes; combat outcomes require fresh postconditions',
     references: [
       'docs/projects/civ7-live-play-support/topics/battlefield-scan.md',
+      'docs/projects/civ7-live-play-support/topics/formation-snapshot.md',
       'docs/projects/civ7-live-play-support/topics/front-summary.md',
       'docs/projects/civ7-live-play-support/topics/destination-analysis.md',
       'docs/projects/civ7-live-play-support/topics/play-priorities.md',
@@ -155,6 +156,7 @@ const TOPICS: ReadonlyArray<Topic> = [
     ],
     commands: [
       'game play priorities',
+      'game play formation-snapshot',
       'game play front-summary',
       'game play civilian-route-triage',
       'game play ready-unit',

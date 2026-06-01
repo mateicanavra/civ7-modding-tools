@@ -24,6 +24,7 @@ import GamePlayDismissNotificationQueue from '../../src/commands/game/play/dismi
 import GamePlayDismissNotification from '../../src/commands/game/play/dismiss-notification';
 import GamePlayEndTurn from '../../src/commands/game/play/end-turn';
 import GamePlayExpandCity from '../../src/commands/game/play/expand-city';
+import GamePlayFormationSnapshot from '../../src/commands/game/play/formation-snapshot';
 import GamePlayFrontSummary from '../../src/commands/game/play/front-summary';
 import GamePlayOperation from '../../src/commands/game/play/operation';
 import GamePlayNotificationQueue from '../../src/commands/game/play/notification-queue';
@@ -1298,6 +1299,52 @@ describe('game play commands', () => {
     }
   });
 
+  test('reads formation snapshot without sending operations', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'ready-unit' });
+    try {
+      const { port } = server.address();
+      const writes: string[] = [];
+      const log = vi.spyOn(GamePlayFormationSnapshot.prototype, 'log').mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
+      try {
+        await GamePlayFormationSnapshot.run([
+          '--host',
+          '127.0.0.1',
+          '--port',
+          String(port),
+          '--json',
+        ]);
+      } finally {
+        log.mockRestore();
+      }
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          formation: {
+            posture: string;
+            civilians: unknown[];
+            screens: unknown[];
+            threats: unknown[];
+            nextInspections: string[];
+          };
+        };
+      };
+      expect(payload.view.formation.posture).toBe('screen-civilian');
+      expect(payload.view.formation.civilians).toHaveLength(1);
+      expect(payload.view.formation.screens.length).toBeGreaterThan(0);
+      expect(payload.view.formation.threats.length).toBeGreaterThan(0);
+      expect(payload.view.formation.nextInspections).toContain('game play civilian-route-triage --x 16 --y 18 --json');
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readReadyUnitView'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readBattlefieldScan'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
   test('reads destination analysis without sending operations', async () => {
     const server = await startTunerServer();
     try {
@@ -2315,6 +2362,22 @@ function battlefieldScanView() {
     movementMovesRemaining: 2,
     attacksRemaining: 1,
   };
+  const civilianUnit = {
+    id: { owner: 0, id: 1441800, type: 26 },
+    owner: 0,
+    stance: 'friendly',
+    type: 333,
+    typeName: 'UNIT_SETTLER',
+    role: 'civilian',
+    location: { x: 16, y: 18 },
+    distance: 1,
+    nearestOrigin: { x: 17, y: 20 },
+    damage: 0,
+    wounded: false,
+    strength: 1,
+    movementMovesRemaining: 2,
+    attacksRemaining: 0,
+  };
   const opponentUnit = {
     id: { owner: 9, id: 196608, type: 26 },
     owner: 9,
@@ -2348,7 +2411,7 @@ function battlefieldScanView() {
     origins: [{ x: 17, y: 20 }],
     radius: 8,
     hiddenInfoPolicy: 'runtime-debug-summary; may include non-visible units or cities until paired with visibility/map reads',
-    units: [friendlyUnit, opponentUnit],
+    units: [friendlyUnit, civilianUnit, opponentUnit],
     cities: [city],
     owners: [
       {
@@ -2356,10 +2419,10 @@ function battlefieldScanView() {
         stance: 'friendly',
         leaderName: { ok: true, value: 'Player' },
         civilizationName: { ok: true, value: 'Assyria' },
-        unitCount: 1,
+        unitCount: 2,
         cityCount: 0,
-        roles: { ranged: 1 },
-        apparentStrength: 9.6,
+        roles: { ranged: 1, civilian: 1 },
+        apparentStrength: 10.6,
         nearestUnit: friendlyUnit,
         nearestCity: null,
       },
@@ -2383,6 +2446,13 @@ function battlefieldScanView() {
         location: friendlyUnit.location,
         summary: 'friendly wounded unit near scan origin',
         units: [friendlyUnit],
+      },
+      {
+        kind: 'civilian-risk',
+        severity: 'high',
+        location: civilianUnit.location,
+        summary: 'friendly civilian has non-friendly unit within 4 tiles',
+        units: [civilianUnit],
       },
       {
         kind: 'city-front',

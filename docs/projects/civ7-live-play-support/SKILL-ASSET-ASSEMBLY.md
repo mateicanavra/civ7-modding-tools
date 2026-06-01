@@ -413,6 +413,7 @@ CLI shortcuts:
 - `game play target-candidates`
 - `game play front-summary`
 - `game play battlefield-scan`
+- `game play formation-snapshot`
 - `game play destination-analysis`
 - `game ai loaded-levers`
 - `game play unit-target`
@@ -523,6 +524,7 @@ runtime and local official resource references.
 | `topics/first-meet-diplomacy.md` | Diplomacy skill reference | Ready |
 | `topics/ready-unit-commander-actions.md` | Tactical guard and promotion-readiness reference | Ready as guard, not full combat planner |
 | `topics/battlefield-scan.md` | Tactical/strategic POI lens | Reference with pathing/visibility gaps |
+| `topics/formation-snapshot.md` | Formation, escort, and civilian-screen read surface | Ready as read-only surface with pathing/visibility gaps |
 | `topics/front-summary.md` | Composed front/formation lens | Ready as read-only surface with pathing/visibility gaps |
 | `topics/destination-analysis.md` | Tactical endpoint/corridor pressure lens | Reference with pathing/visibility gaps |
 | `topics/civilian-route-triage.md` | Settler/civilian route read surface | Ready as read-only surface with pathing/founding gaps |
@@ -615,9 +617,6 @@ and postcondition are proven:
   live blockers, ready entities, visible threats, production/diplomacy context,
   met-civ comparison, victory/legacy progress, current objective ledger, and
   stale-risk markers.
-- `game play formation-snapshot`: materialize Settler clusters, escort units,
-  Ballistas, wounded units, and next safe advance/founding candidates so a
-  slow-siege policy has concrete inputs instead of isolated ready-unit reads.
 - `game victory`: read static and live victory/legacy path context, including
   thresholds, current progress when discoverable, next milestone deltas, and
   hidden-info labels.

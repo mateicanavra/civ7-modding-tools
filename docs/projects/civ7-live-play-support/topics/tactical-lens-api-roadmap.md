@@ -5,7 +5,8 @@ Status: `reference-with-gap`.
 Sources:
 
 - Live play support commands in this branch: `game play battlefield-scan`,
-  `game play front-summary`, `game play destination-analysis`,
+  `game play formation-snapshot`, `game play front-summary`,
+  `game play destination-analysis`,
   `game play target-candidates`, `game play ready-unit`,
   `game play ready-city`, `game watch`, and `game play unit-target`.
 - `@civ7/direct-control` runtime reads for map, player, city, unit,
@@ -54,17 +55,21 @@ Use these now during live play:
 3. `game play battlefield-scan --x <x> --y <y> --radius <n> --json` describes
    local friendly and non-friendly units, cities, owner pressure, wounded
    friendlies, civilian exposure, and nearby fronts around an origin.
-4. `game play target-candidates --x <x> --y <y> --json` ranks opponent owners
+4. `game play formation-snapshot --x <x> --y <y> --json` composes a ready-unit
+   origin with local civilians, friendly screens, non-friendly threats, and
+   next inspections. Use it when the tactical question is whether a unit should
+   screen, hold, or validate a concrete move around a civilian cluster.
+5. `game play target-candidates --x <x> --y <y> --json` ranks opponent owners
    and known city targets from a formation origin.
-5. `game play front-summary --x <x> --y <y> --json` composes target
+6. `game play front-summary --x <x> --y <y> --json` composes target
    candidates, local pressure, and inferred or supplied endpoint pressure into
    a front posture and next-inspection list.
-6. `game play destination-analysis --from-x <x> --from-y <y> --to-x <x> --to-y <y> --json`
+7. `game play destination-analysis --from-x <x> --from-y <y> --to-x <x> --to-y <y> --json`
    samples endpoint and corridor pressure with explicit pathing limits.
-7. `game play civilian-route-triage --x <x> --y <y> --json` composes
+8. `game play civilian-route-triage --x <x> --y <y> --json` composes
    ready-unit, settlement recommendation, battlefield, and destination reads
    into a proof-labeled civilian movement triage.
-8. `game play unit-target --unit-id '<id>' --x <x> --y <y> --json` remains the
+9. `game play unit-target --unit-id '<id>' --x <x> --y <y> --json` remains the
    plot-action validator before any movement, ranged attack, naval attack,
    overrun, or swap send.
 
