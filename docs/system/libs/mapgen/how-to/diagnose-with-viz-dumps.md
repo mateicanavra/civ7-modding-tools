@@ -110,7 +110,7 @@ If Foundation layers change but landmask doesn’t, the problem is usually one o
 - Shared dump readers and helpers:
   - `mods/mod-swooper-maps/src/dev/diagnostics/shared.ts`
 - Trace + viz observer wiring:
-  - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/viz.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/viz.ts`
 
 ## Notes + footguns
 

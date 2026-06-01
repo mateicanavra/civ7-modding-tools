@@ -1,6 +1,7 @@
 <toc>
   <item id="purpose" title="Purpose"/>
   <item id="contract" title="Contract (what must stay stable)"/>
+  <item id="ownership" title="Stage and step ownership"/>
   <item id="canon" title="Canonical implementation doc"/>
   <item id="anchors" title="Ground truth anchors"/>
 </toc>
@@ -28,6 +29,30 @@ Define the canonical visualization contract and route readers to the single cano
 Hard rule:
 - There must be **exactly one** canonical deck.gl visualization doc. Do not fork competing viz architecture pages.
 
+## Stage and step ownership
+
+Visualization code has two different ownership shapes:
+
+```text
+stages/<stage>/viz.ts
+  Stage/phase visualization contracts that are stable, shared by multiple
+  steps, or consumed outside the owner stage.
+
+stages/<stage>/steps/<step>/viz.ts
+  Step-private visualization helpers used only by that step.
+```
+
+This keeps debug surfaces predictable without turning `steps/` into a public
+namespace. If a second step or another stage needs a helper, promote it to the
+owner stage's `viz.ts` and delete any wrapper at the old private path.
+
+Forbidden shapes:
+
+- `stages/<stage>/steps/viz.ts` shared hubs.
+- importing `stages/<stage>/steps/<step>/viz.ts` outside that step directory.
+- broad shared visualization buckets without a named invariant and concrete
+  consumers.
+
 ## Canonical implementation doc
 
 - [`docs/system/libs/mapgen/pipeline-visualization-deckgl.md`](/system/libs/mapgen/pipeline-visualization-deckgl.md)
@@ -37,3 +62,5 @@ Hard rule:
 - Canonical deck.gl viz doc: `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
 - Viz manifest contract types: `packages/mapgen-viz/src/index.ts`
 - Viz dump sink (mod-owned): `mods/mod-swooper-maps/src/dev/viz/dump.ts`
+- Standard-recipe stage/step ownership guard:
+  `scripts/lint/lint-normalization-guardrails.mjs`

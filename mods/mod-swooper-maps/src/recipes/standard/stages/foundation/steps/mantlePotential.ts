@@ -3,7 +3,7 @@ import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { foundationArtifacts } from "../artifacts.js";
 import MantlePotentialStepContract from "./mantlePotential.contract.js";
 import { validateMantlePotentialArtifact, wrapFoundationValidateNoDims } from "./validation.js";
-import { interleaveXY } from "./viz.js";
+import { interleaveXY } from "../viz.js";
 
 const GROUP_MANTLE = "Foundation / Mantle";
 

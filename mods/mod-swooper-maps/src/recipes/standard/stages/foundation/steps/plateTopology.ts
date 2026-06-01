@@ -5,7 +5,7 @@ import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { foundationArtifacts } from "../artifacts.js";
 import PlateTopologyStepContract from "./plateTopology.contract.js";
 import { validatePlateTopologyArtifact, wrapFoundationValidateNoDims } from "./validation.js";
-import { pointsFromTileCentroids, segmentsFromTileTopologyNeighbors } from "./viz.js";
+import { pointsFromTileCentroids, segmentsFromTileTopologyNeighbors } from "../viz.js";
 
 const GROUP_PLATE_TOPOLOGY = "Foundation / Plate Topology";
 

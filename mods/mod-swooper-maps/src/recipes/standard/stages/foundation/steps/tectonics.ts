@@ -10,7 +10,7 @@ import {
   validateTectonicsArtifact,
   wrapFoundationValidateNoDims,
 } from "./validation.js";
-import { interleaveXY, segmentsFromCellPairs } from "./viz.js";
+import { interleaveXY, segmentsFromCellPairs } from "../viz.js";
 
 const GROUP_TECTONICS = "Foundation / Tectonics";
 const GROUP_TECTONIC_HISTORY = "Foundation / Tectonic History";
