@@ -1,12 +1,19 @@
+# Source Material Notice
+
+Status: `source-material-only`.
+
+This document is preserved for provenance only. The active normalization
+authority is `../architecture-normalization-packet.md`.
+
 # MapGen / Swooper Maps — Architecture Normalization Review (independent)
 
 > Independent second-pass review, produced without anchoring on the Codex pass
-> (`docs/projects/engine-refactor-v1/architecture-normalization-review.md`, commit
+> (`architecture-normalization-review.md`, commit
 > `375ca51df`). The Codex review was read only *after* this team formed its own
 > conclusions, for the comparison in Part 4.
 >
 > Status: source material for the consolidated refactoring packet
-> (`architecture-normalization-packet.md`). Retained for provenance.
+> (`../architecture-normalization-packet.md`). Retained for provenance.
 
 ## Part 1 — The intended architecture (where it's written, what it says)
 

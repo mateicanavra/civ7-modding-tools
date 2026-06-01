@@ -10,6 +10,11 @@ description: |
 
 Use this skill before and during structural changes in Civ7 Modding Tools. It keeps agents aligned to the repo's durable ownership model: controlling docs and accepted project baselines route authority, packages own distinct concerns, generated artifacts are outputs, official game resources are evidence, and current code is implementation evidence rather than target architecture.
 
+For MapGen / Swooper Maps normalization work, the active baseline is
+`docs/projects/engine-refactor-v1/architecture-normalization-packet.md`. This
+skill frames implementation against that packet; it should not restate it as a
+second spec.
+
 This skill is not a task list and does not replace the active project plan. It is the architecture guardrail layer for code and docs changes.
 
 ## When To Use
@@ -31,7 +36,7 @@ This skill is not a task list and does not replace the active project plan. It i
 
 1. **Ground repo state.** Check branch, Graphite stack, dirty files, and relevant `AGENTS.md` routers.
 2. **Resolve authority.** Read `references/source-map.md` and the controlling docs or accepted project baseline for the affected owner.
-3. **Classify the concern.** Name whether each concern belongs to SDK, CLI, plugin library, config, Civ7 types, adapter, MapGen core, MapGen viz, app runtime, Swooper Maps mod, generated output, docs, or official resource evidence.
+3. **Classify the concern.** Name whether each concern belongs to SDK, CLI, plugin library, config, Civ7 types, adapter, MapGen core, MapGen viz, app runtime, Swooper Maps mod, generated output, docs, OpenSpec change management, or official resource evidence.
 4. **Name forbidden owners.** State where the concern must not live.
 5. **Design before editing.** For structural work, write the intended owner/import/export/file shape and verification gates before code.
 6. **Implement the bounded slice.** Move by authority, not by current containers.
@@ -67,6 +72,9 @@ This skill is not a task list and does not replace the active project plan. It i
 <invariant name="truth-and-projection-separate">MapGen truth products and game-engine projection/materialization are separate concerns. If current behavior delegates a surface to the engine, do not describe it as deterministic pipeline truth without a controlling decision.</invariant>
 <invariant name="recipe-owns-ordering">MapGen recipes own stage order and enablement. Independent stage lists or docs must be checked against live recipe authority.</invariant>
 <invariant name="steps-have-explicit-contracts">Steps should expose explicit config, dependencies, artifacts/effects, and verification boundaries instead of hidden sub-pipelines.</invariant>
+<invariant name="stage-needs-stage-surface">Promote a stage only for a real authoring, input/handoff, placement, enablement, trace, helper-ownership, or projection surface. Do not promote for implementation variants, Studio grouping, debug navigation, or plausible future knobs alone.</invariant>
+<invariant name="flat-stage-config-default">The default stage config surface is flat: `{ knobs?, [stepId]?: stepConfig }`. Persisted SDK-native `advanced` wrappers require a real surface transform, not boilerplate unwrap compiles.</invariant>
+<invariant name="map-stages-project">`map-*` stages are projection/materialization/effects lanes. They do not own upstream truth, scoring, planning, or Studio-only grouping.</invariant>
 <invariant name="no-dumping-ground">`shared`, `common`, `utils`, `internal`, `support`, and broad barrels are not owners. Cross-owner support needs a named invariant and concrete consumers.</invariant>
 <invariant name="tooling-enforces-not-designs">Lint/type/test failures identify mismatch. They do not design the target shape.</invariant>
 <invariant name="proof-is-observation">Doc lint, unit tests, generated XML, local mod builds, and in-game checks each prove only the boundary they actually exercised.</invariant>
@@ -80,6 +88,8 @@ This skill is not a task list and does not replace the active project plan. It i
 - Treating old docs, archived project notes, or stale stage ids as current architecture.
 - Creating a `shared` folder before naming the real owner.
 - Using official game-resource shape as a reason to leak adapter/runtime concerns into SDK or MapGen core.
+- Splitting stages because variants or helper families exist rather than because the recipe needs separate stage-level surfaces.
+- Keeping `map-ecology` or other `map-*` stages for Studio grouping when SDK/Studio metadata would satisfy presentation needs.
 - Claiming in-game correctness from TypeScript checks alone.
 
 ## Quick Start

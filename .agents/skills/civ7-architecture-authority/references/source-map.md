@@ -11,6 +11,8 @@ Use this order when sources conflict:
 3. Accepted project baseline artifacts when they explicitly declare the active target for the work:
    - project specs, consolidated packets, decision packets, and review-disposition records under `docs/projects/<project>/`
    - accepted project-local deferrals and triage records
+   - for MapGen / Swooper Maps normalization:
+     `docs/projects/engine-refactor-v1/architecture-normalization-packet.md`
 4. Canonical evergreen docs:
    - `docs/PRODUCT.md`
    - `docs/SYSTEM.md`
@@ -30,7 +32,9 @@ Use this order when sources conflict:
 7. Active project notes and review artifacts under `docs/projects/<project>/`, after classifying whether they are accepted baseline, review evidence, or scratch.
 8. Current source code, tests, and generated outputs as implementation evidence.
 9. Official game resources in `.civ7/outputs/resources` as game-data evidence.
-10. External examples, community notes, old branches, archived docs, and chat/session summaries as discovery material only.
+10. OpenSpec artifacts under `openspec/` as downstream change-management
+    records unless a completed promotion explicitly makes a spec canonical.
+11. External examples, community notes, old branches, archived docs, and chat/session summaries as discovery material only.
 
 ## Re-Grounding Procedure
 
@@ -55,4 +59,5 @@ These cannot support architecture claims until re-grounded:
 
 - Current code can reveal behavior, debt, and migration scope. It does not automatically define target ownership.
 - Official resources are external facts. The repo still owns how it models, adapts, exposes, and validates those facts.
+- OpenSpec tracks implementation movement toward accepted authority. It does not soften architecture decisions or replace the controlling packet by being easier to validate.
 - If the repo lacks a durable answer, record the decision or deferral in the appropriate docs rather than encoding the uncertainty as a fallback.

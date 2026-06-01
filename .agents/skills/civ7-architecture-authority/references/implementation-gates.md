@@ -13,6 +13,7 @@ Do not start structural implementation until these are explicit:
 | Owner | Owning package/mod/app/doc boundary |
 | Forbidden owners | Boundaries that must not receive the concern |
 | Target shape | Files, exports, imports, generated outputs, and docs to change |
+| Normalization role | Whether each changed surface is authoring, truth, projection, product/effect, presentation, or OpenSpec change management |
 | Write set | Paths this slice may touch |
 | Consumer impact | SDK/API/CLI/mod/docs consumers affected |
 | Verification | Focused commands and evidence labels matching the claim |
@@ -25,6 +26,7 @@ Select only the lanes needed for the risk:
 - Authority routing: are the right accepted baselines, docs, and `AGENTS.md` files controlling the change?
 - Package boundary: are imports/exports placed under the correct owner?
 - MapGen truth/projection: are truth products separate from engine materialization?
+- Stage promotion: does every new or preserved stage have a real recipe-level authoring, input/handoff, placement, enablement, trace, helper-ownership, or projection surface?
 - Generated-output hygiene: are outputs regenerated rather than edited?
 - Consumer contract: are SDK/CLI/mod/docs users affected and tested?
 - Verification claim: does each gate prove only what is claimed?

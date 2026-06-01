@@ -9,7 +9,7 @@ Before selecting work:
 ```bash
 git status --short --branch
 gt status
-gt ls --show-untracked --all
+bun run openspec -- list
 ```
 
 Then identify:
@@ -19,7 +19,8 @@ Then identify:
 - controlling authority docs and skills;
 - current code/tests/generated outputs the phase touches;
 - prerequisites and downstream work depending on the phase;
-- phase artifact path.
+- phase artifact path;
+- OpenSpec validation baseline when an `openspec/` change is involved.
 
 ## Phase Selection
 
@@ -56,6 +57,8 @@ Use review lanes from `team-and-review-lanes.md`. Accepted P1/P2 findings block 
 - Do not hand-edit generated outputs.
 - Do not preserve stale behavior through fallbacks unless explicitly authorized.
 - Run focused checks as soon as the slice is testable.
+- Use `bun run openspec -- validate <change-id> --strict` for change-shape
+  validation and `bun run openspec:validate` for all OpenSpec records.
 
 ## Verification
 
@@ -91,4 +94,3 @@ Close only when:
 - downstream realignment is recorded;
 - repo/Graphite state is clean or explicitly handed off;
 - no stale running agents remain.
-

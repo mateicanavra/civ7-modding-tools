@@ -23,10 +23,19 @@ Before changing public SDK exports, CLI commands/flags, plugin APIs, docs tutori
 - run focused verification;
 - state whether the change is compatible, breaking, experimental, or internal.
 
+For MapGen recipe config, the default accepted stage surface is flat:
+`{ knobs?, [stepId]?: stepConfig }`. Treat persisted `advanced.<stepId>` as a
+migration concern unless a controlling decision names a genuine public surface
+transform.
+
 ## MapGen Truth/Projection Policy
 
 - Truth stages publish deterministic domain artifacts and fields.
 - Projection/materialization stages write to Civ7 engine/mod surfaces.
+- `map-*` stages are product-visible only as projection/materialization,
+  effects, adapter writes, map artifacts, projection knobs, or parity evidence.
+  Studio grouping and debug navigation are presentation needs, not truth-stage
+  ownership.
 - If current behavior delegates to a Civ7 engine generator for a surface, document that as projection/materialization or telemetry until a controlling decision gives the pipeline deterministic ownership.
 - If the pipeline claims truth ownership, add deterministic artifacts and fail/verification gates that prove materialization matches.
 

@@ -11,6 +11,8 @@ Use this order when sources conflict:
 3. Accepted project baseline artifacts when they explicitly declare the active target for the work:
    - project specs, consolidated packets, decision packets, and review-disposition records under `docs/projects/<project>/`
    - accepted project-local deferrals and triage records
+   - for MapGen / Swooper Maps normalization:
+     `docs/projects/engine-refactor-v1/architecture-normalization-packet.md`
 4. Canonical repo docs:
    - `docs/PRODUCT.md`
    - `docs/SYSTEM.md`
@@ -28,7 +30,9 @@ Use this order when sources conflict:
 9. Current package/mod/app source and tests for implementation behavior.
 10. Generated artifacts as proof of generation only.
 11. In-game validation as runtime behavior evidence for the exact mod/game setup checked.
-12. External examples, community knowledge, archived docs, and chat/session summaries as discovery material only.
+12. OpenSpec artifacts under `openspec/` as downstream change-management
+    records unless a completed promotion explicitly makes a spec canonical.
+13. External examples, community knowledge, archived docs, and chat/session summaries as discovery material only.
 
 ## Evidence Classes
 

@@ -20,7 +20,15 @@ It does not define architecture or product authority. It coordinates movement to
 
 ## Authority Order
 
-Use `references/source-map.md` to resolve active authority for every phase. This repo may use project-local specs under `docs/projects/<project>/` rather than an `openspec/` tree. If a future OpenSpec tree exists, treat OpenSpec artifacts as implementation/change-management records downstream of product and architecture authority.
+Use `references/source-map.md` to resolve active authority for every phase.
+This repo has an `openspec/` tree for implementation change management. Treat
+OpenSpec artifacts as downstream records that slice, validate, and archive
+work toward accepted product and architecture authority.
+
+For MapGen / Swooper Maps normalization, the controlling baseline remains
+`docs/projects/engine-refactor-v1/architecture-normalization-packet.md` unless
+a completed promotion explicitly moves a decision into evergreen docs, ADRs,
+or OpenSpec specs.
 
 ## When To Use
 
@@ -42,7 +50,7 @@ Use `references/source-map.md` to resolve active authority for every phase. This
 1. **Open the workstream.** Check Git/Graphite/worktree state, active project/spec artifacts, dirty files, authority docs, and relevant repo-local skills.
 2. **Select the next phase.** Derive a bounded phase from controlling authority and active project goals. Name prerequisites, enabled parallel work, stop conditions, and evidence.
 3. **Re-analyze current state.** Inspect code, tests, docs, generated outputs, and active project artifacts touched by the phase.
-4. **Define or repair the spec/change.** Create or update project-local phase artifacts under `docs/projects/<project>/workstream/<phase>/` unless a closer canonical path exists.
+4. **Define or repair the spec/change.** Create or update OpenSpec changes under `openspec/changes/<change-id>/` for implementation slices. Use project-local phase artifacts under `docs/projects/<project>/workstream/<phase>/` only when the slice is deliberately not an OpenSpec change yet.
 5. **Run pre-code review.** Review authority, product ownership, architecture boundaries, task readiness, shortcut language, testing, and sequencing.
 6. **Implement the phase.** Keep edits inside the phase write set and update task/state artifacts immediately when facts change.
 7. **Verify and repair.** Run focused gates, disposition findings, and repair accepted blockers.
@@ -76,6 +84,8 @@ Use `references/source-map.md` to resolve active authority for every phase. This
 <invariant name="owner-owns-continuity">The workstream owner owns synthesis, phase state, review disposition, proof claims, repo state, downstream realignment, and closure.</invariant>
 <invariant name="phase-is-full-loop">A phase includes analysis, spec/change definition, review, implementation, verification, realignment, and cleanup. Proposal-only or code-only work is incomplete.</invariant>
 <invariant name="spec-is-downstream">Project specs and OpenSpec-style artifacts express implementation movement toward authority. They cannot soften or replace product/architecture authority.</invariant>
+<invariant name="openspec-is-installed">Use the repo-local OpenSpec CLI via `bun run openspec -- ...` or `bun run openspec:validate`; do not rely on global installation for repo verification.</invariant>
+<invariant name="dominoes-control-sequence">For MapGen normalization, OpenSpec changes derive from the accepted packet dominoes unless a later accepted authority record changes the order.</invariant>
 <invariant name="no-shortcut-language">Fallback, shim, temporary, optional, dual path, compatibility lane, only-if-needed, and silent skip language blocks implementation until removed or explicitly authorized.</invariant>
 <invariant name="review-findings-are-control-inputs">Material reviewer findings require disposition. Accepted P1/P2 findings block dependent implementation until repaired.</invariant>
 <invariant name="realignment-is-required">Each phase must account for downstream docs, tests, specs, issue plans, generated-output assumptions, and future work.</invariant>
@@ -88,7 +98,7 @@ Use `references/source-map.md` to resolve active authority for every phase. This
 
 1. Read `references/source-map.md` and `references/phase-loop.md`.
 2. Load `civ7-product-authority` and/or `civ7-architecture-authority` as needed.
-3. Choose the project and phase artifact location.
+3. Choose the OpenSpec change id and workstream artifact location.
 4. Copy `assets/phase-record.md`.
 5. Define the spec/change and review lanes before code.
 6. Implement, verify, realign downstream work, commit, and close cleanly.
