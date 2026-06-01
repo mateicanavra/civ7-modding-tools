@@ -9,6 +9,7 @@ import {
   runInGameCanRetryStatus,
   type RunInGameOperationStatus,
 } from '../../features/runInGame/status';
+import type { RunInGameCurrentRelation } from '../../features/runInGame/clientState';
 export interface AppFooterProps {
   /** Current generation status */
   status: GenerationStatus;
@@ -36,6 +37,8 @@ export interface AppFooterProps {
   isRunInGameRunning: boolean;
   /** Request-correlated Civ7 Run in Game status */
   runInGameStatus?: RunInGameOperationStatus | null;
+  /** Whether the recorded operation matches the current authored Studio state */
+  runInGameCurrentRelation?: RunInGameCurrentRelation;
   /** Whether current settings differ from last run */
   isDirty: boolean;
   /** Light mode flag for styling */
@@ -72,6 +75,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   isRunning,
   isRunInGameRunning,
   runInGameStatus,
+  runInGameCurrentRelation = "unknown",
   isDirty,
   lightMode,
   liveRuntime,
@@ -115,8 +119,18 @@ export const AppFooter: React.FC<AppFooterProps> = ({
         ? liveRuntime.error ?? "Live unavailable"
         : "Live idle";
   const runInGamePhaseLabel = runInGameStatus ? formatRunInGamePhaseLabel(runInGameStatus.phase) : "Run in Game";
+  const runInGameStateLabel =
+    runInGameStatus && !isRunInGameRunning
+      ? runInGameCurrentRelation === "stale"
+        ? "Stale"
+        : runInGameCurrentRelation === "current"
+          ? "Current"
+          : "Previous"
+      : null;
   const runInGameDotClass =
-    runInGameStatus?.status === "complete"
+    runInGameCurrentRelation === "stale"
+      ? "bg-orange-400"
+      : runInGameStatus?.status === "complete"
       ? "bg-emerald-400"
       : runInGameStatus?.status === "failed" || runInGameStatus?.status === "blocked" || runInGameStatus?.status === "uncertain"
         ? "bg-red-400"
@@ -132,6 +146,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
     runInGameStatus ? `Run in Game: ${runInGamePhaseLabel}` : "Run in Game: launch current config in Civ7",
     runInGameStatus?.requestId ? `Request: ${runInGameStatus.requestId}` : null,
     runInGameStatus?.materialization?.mapScript ? `Map: ${runInGameStatus.materialization.mapScript}` : null,
+    runInGameStateLabel ? `Studio state: ${runInGameStateLabel}` : null,
     runInGameStatus?.error ? `Error: ${runInGameStatus.error}` : null,
   ].filter(Boolean).join("\n");
   const updateSetting = <K extends keyof RecipeSettings,>(
@@ -272,6 +287,11 @@ export const AppFooter: React.FC<AppFooterProps> = ({
 
             <div className={`h-2 w-2 shrink-0 rounded-full ${runInGameDotClass}`} />
             <span className="truncate">{runInGamePhaseLabel}</span>
+            {runInGameStateLabel ? (
+              <span className={`shrink-0 rounded border px-1 py-0.5 text-[10px] ${runInGameCurrentRelation === "stale" ? "border-orange-400/40 text-orange-500" : "border-gray-400/30 text-gray-400"}`}>
+                {runInGameStateLabel}
+              </span>
+            ) : null}
           </div>
         ) : null}
         {runInGameStatus && onRunInGameRetryStatus && runInGameCanRetryStatus(runInGameStatus) ? (

@@ -34,6 +34,14 @@ import { useBrowserRunner } from "./features/browserRunner/useBrowserRunner";
 import { capturePinnedSelection } from "./features/browserRunner/retention";
 import { getCiv7MapSizePreset } from "./features/browserRunner/mapSizes";
 import {
+  buildRunInGameClientSnapshot,
+  buildRunInGameFingerprint,
+  parseRunInGameClientSnapshot,
+  relationForRunInGameOperation,
+  type RunInGameClientSnapshot,
+  type RunInGameCurrentRelation,
+} from "./features/runInGame/clientState";
+import {
   formatRunInGameDiagnostics,
   isRunInGameTerminalPhase,
   type RunInGameFailureDetails,
@@ -110,7 +118,7 @@ async function saveRepoBackedConfig(args: {
   config: unknown;
 }): Promise<
   | { ok: true; path?: string; deploy?: { command?: string }; restart?: { requestId?: string } }
-  | { ok: false; error: string; saved?: boolean; deployed?: boolean; path?: string }
+  | { ok: false; error: string; saved?: boolean; deployed?: boolean; path?: string; restart?: { requestId?: string } }
 > {
   const envelope = {
     $schema: "../../../dist/recipes/standard-map-config.schema.json",
@@ -126,7 +134,7 @@ async function saveRepoBackedConfig(args: {
     const res = await fetch("/api/map-configs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: args.id, sourcePath: args.sourcePath, envelope }),
+      body: JSON.stringify({ id: args.id, sourcePath: args.sourcePath, envelope, restart: false }),
     });
     const body = (await res.json().catch(() => null)) as {
       ok?: boolean;
@@ -215,6 +223,7 @@ async function fetchRunInGameStatus(requestId: string): Promise<RunInGameOperati
 }
 
 const RUN_IN_GAME_LAST_REQUEST_KEY = "mapgen-studio.runInGame.lastRequestId.v1";
+const RUN_IN_GAME_LAST_SNAPSHOT_KEY = "mapgen-studio.runInGame.lastSnapshot.v1";
 
 function isNumericPathSegment(segment: string): boolean {
   return /^[0-9]+$/.test(segment);
@@ -551,6 +560,7 @@ function AppContent(props: AppContentProps) {
   const browserRunning = browserRunner.state.running;
   const [localError, setLocalError] = useState<string | null>(null);
   const [runInGameOperation, setRunInGameOperation] = useState<RunInGameOperationStatus | null>(null);
+  const [runInGameSnapshot, setRunInGameSnapshot] = useState<RunInGameClientSnapshot | null>(null);
   const lastRunInGameToastRef = useRef<string | null>(null);
   const [liveRuntime, setLiveRuntime] = useState<{
     status: "idle" | "ok" | "error";
@@ -970,14 +980,14 @@ function AppContent(props: AppContentProps) {
       if (!result.ok) {
         toast(
           result.saved && result.deployed
-            ? `Config saved and deployed from ${result.path ?? `${id}.config.json`} but Civ7 restart request failed: ${result.error}`
+            ? `Config saved and deployed from ${result.path ?? `${id}.config.json`} but post-save action failed: ${result.error}`
             : result.saved
               ? `Config saved to ${result.path ?? `${id}.config.json`} but deploy failed: ${result.error}`
               : `Config save failed: ${result.error}`,
           { variant: "error" },
         );
       } else {
-        toast(`Config saved, deployed, and restart requested from ${result.path ?? `${id}.config.json`}`, { variant: "success" });
+        toast(`Config saved and deployed from ${result.path ?? `${id}.config.json`}`, { variant: "success" });
       }
       setSaveDialogState({ open: false, label: "", description: "" });
     },
@@ -1023,14 +1033,14 @@ function AppContent(props: AppContentProps) {
       if (!result.ok) {
         toast(
           result.saved && result.deployed
-            ? `Config saved and deployed from ${result.path ?? resolved.sourcePath ?? resolved.id} but Civ7 restart request failed: ${result.error}`
+            ? `Config saved and deployed from ${result.path ?? resolved.sourcePath ?? resolved.id} but post-save action failed: ${result.error}`
             : result.saved
               ? `Config saved to ${result.path ?? resolved.sourcePath ?? resolved.id} but deploy failed: ${result.error}`
               : `Config save failed: ${result.error}`,
           { variant: "error" },
         );
       } else {
-        toast(`Config saved, deployed, and restart requested from ${result.path ?? resolved.sourcePath ?? resolved.id}`, { variant: "success" });
+        toast(`Config saved and deployed from ${result.path ?? resolved.sourcePath ?? resolved.id}`, { variant: "success" });
       }
       return;
     }
@@ -1085,14 +1095,14 @@ function AppContent(props: AppContentProps) {
     if (!repoResult.ok) {
       toast(
         repoResult.saved && repoResult.deployed
-          ? `Config saved and deployed from ${repoResult.path ?? `${id}.config.json`} but Civ7 restart request failed: ${repoResult.error}`
+          ? `Config saved and deployed from ${repoResult.path ?? `${id}.config.json`} but post-save action failed: ${repoResult.error}`
           : repoResult.saved
             ? `Config saved to ${repoResult.path ?? `${id}.config.json`} but deploy failed: ${repoResult.error}`
             : `Config save failed: ${repoResult.error}`,
         { variant: "error" },
       );
     } else {
-      toast(`Config saved, deployed, and restart requested from ${repoResult.path ?? `${id}.config.json`}`, { variant: "success" });
+      toast(`Config saved and deployed from ${repoResult.path ?? `${id}.config.json`}`, { variant: "success" });
     }
   }, [builtInPresets, handleSaveAsNew, pipelineConfig, presetActions, recipeSettings.preset, recipeSettings.recipe, rememberRepoBackedConfig, resolvePreset, toast]);
 
@@ -1239,6 +1249,31 @@ function AppContent(props: AppContentProps) {
     );
   }, [lastRunSnapshot, pipelineConfig, recipeSettings, worldSettings]);
 
+  const runInGameMaterializationMode = useMemo<"durable" | "disposable">(() => {
+    const parsed = parsePresetKey(recipeSettings.preset);
+    const resolved = resolvePreset(recipeSettings.preset as PresetKey);
+    return parsed.kind === "builtin" && resolved?.sourcePath && !isDirty ? "durable" : "disposable";
+  }, [isDirty, recipeSettings.preset, resolvePreset]);
+
+  const runInGameCurrentFingerprint = useMemo(
+    () => buildRunInGameFingerprint({
+      recipeSettings,
+      worldSettings,
+      pipelineConfig: stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig,
+      materializationMode: runInGameMaterializationMode,
+    }),
+    [pipelineConfig, recipeSettings, runInGameMaterializationMode, worldSettings]
+  );
+
+  const runInGameCurrentRelation = useMemo<RunInGameCurrentRelation>(
+    () => relationForRunInGameOperation({
+      status: runInGameOperation,
+      snapshot: runInGameSnapshot,
+      currentFingerprint: runInGameCurrentFingerprint,
+    }),
+    [runInGameCurrentFingerprint, runInGameOperation, runInGameSnapshot]
+  );
+
   const runInGameRunning = runInGameOperation?.status === "running";
 
   const refreshRunInGameStatus = useCallback(async (requestId: string) => {
@@ -1253,6 +1288,7 @@ function AppContent(props: AppContentProps) {
           status: "uncertain",
           updatedAt: new Date().toISOString(),
           error: result.error,
+          recoveryActions: ["copy-diagnostics", "retry-status", "retry-run"],
           details: {
             failureClass: "uncertain",
             code: result.statusCode === 404 ? "operation-status-missing" : "operation-status-unavailable",
@@ -1274,20 +1310,23 @@ function AppContent(props: AppContentProps) {
   useEffect(() => {
     let cancelled = false;
     let requestId: string | null = null;
+    let snapshot: RunInGameClientSnapshot | null = null;
     try {
       requestId = localStorage.getItem(RUN_IN_GAME_LAST_REQUEST_KEY);
+      snapshot = parseRunInGameClientSnapshot(localStorage.getItem(RUN_IN_GAME_LAST_SNAPSHOT_KEY));
     } catch {
       requestId = null;
+      snapshot = null;
     }
+    if (snapshot) setRunInGameSnapshot(snapshot);
     if (!requestId) return undefined;
-    void fetchRunInGameStatus(requestId).then((result) => {
-      if (cancelled || !("requestId" in result)) return;
-      setRunInGameOperation(result);
+    void refreshRunInGameStatus(requestId).then(() => {
+      if (cancelled) return;
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [refreshRunInGameStatus]);
 
   useEffect(() => {
     if (!runInGameOperation) return undefined;
@@ -1316,11 +1355,8 @@ function AppContent(props: AppContentProps) {
   const handleRunInGame = useCallback(async () => {
     if (runInGameRunning) return;
     setLocalError(null);
-    const sanitized = stripSchemaMetadataRoot(pipelineConfig);
+    const sanitized = stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig;
     const resolved = resolvePreset(recipeSettings.preset as PresetKey);
-    const parsed = parsePresetKey(recipeSettings.preset);
-    const materializationMode =
-      parsed.kind === "builtin" && resolved?.sourcePath && !isDirty ? "durable" : "disposable";
     const mapSize = getCiv7MapSizePreset(worldSettings.mapSize);
     const result = await runCurrentConfigInGame({
       recipeId: "mod-swooper-maps/standard",
@@ -1328,7 +1364,7 @@ function AppContent(props: AppContentProps) {
       mapSize: mapSize.id,
       playerCount: worldSettings.playerCount,
       resources: worldSettings.resources,
-      materializationMode,
+      materializationMode: runInGameMaterializationMode,
       selectedConfig: resolved
         ? {
             id: resolved.id,
@@ -1358,20 +1394,31 @@ function AppContent(props: AppContentProps) {
     }
     lastRunInGameToastRef.current = null;
     setRunInGameOperation(result);
+    const snapshot = buildRunInGameClientSnapshot({
+      requestId: result.requestId,
+      recipeSettings,
+      worldSettings,
+      pipelineConfig: sanitized,
+      materializationMode: runInGameMaterializationMode,
+    });
+    setRunInGameSnapshot(snapshot);
     try {
       localStorage.setItem(RUN_IN_GAME_LAST_REQUEST_KEY, result.requestId);
+      localStorage.setItem(RUN_IN_GAME_LAST_SNAPSHOT_KEY, JSON.stringify(snapshot));
     } catch {
       // Server status remains authoritative while the dev server is alive.
     }
     toast(`Run in Game started: ${result.materialization?.mapScript ?? result.requestId}`, { variant: "info" });
   }, [
-    isDirty,
     pipelineConfig,
     recipeSettings.preset,
+    recipeSettings,
     recipeSettings.seed,
     resolvePreset,
+    runInGameMaterializationMode,
     runInGameRunning,
     toast,
+    worldSettings,
     worldSettings.mapSize,
     worldSettings.playerCount,
     worldSettings.resources,
@@ -2057,6 +2104,7 @@ function AppContent(props: AppContentProps) {
       isRunning={browserRunning}
       isRunInGameRunning={runInGameRunning}
       runInGameStatus={runInGameOperation}
+      runInGameCurrentRelation={runInGameCurrentRelation}
       isDirty={isDirty}
       lightMode={isLightMode}
       liveRuntime={liveRuntime}
