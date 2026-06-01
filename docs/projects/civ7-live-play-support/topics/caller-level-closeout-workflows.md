@@ -20,11 +20,13 @@ important distinction is not "one socket message"; it is "one player decision
 with one approval reason, fresh validation, and explicit postcondition
 accounting."
 
-This matters for blockers like traditions, attributes, and town focus:
+This matters for blockers like tech, culture, traditions, attributes, and town
+focus:
 
-- The primary operation changes the selected policy, attribute, or focus.
+- The primary operation changes the selected tech, culture, policy, attribute,
+  or focus.
 - The closeout operation tells the game that the review surface has been
-  considered.
+  considered, or records the matching full-tree target node.
 - If the caller has to remember both operations manually, it wastes turns and
   creates stale-state risk between steps.
 
@@ -36,6 +38,10 @@ Use these when the selected action and the closeout should be handled together:
   sends `CHANGE_TRADITION` then `CONSIDER_ASSIGN_TRADITIONS`.
 - `game play buy-attribute --player-id <id> --node <node> --send --closeout --reason '<why>'`
   sends `BUY_ATTRIBUTE_TREE_NODE` then `CONSIDER_ASSIGN_ATTRIBUTE`.
+- `game play choose-tech --player-id <id> --node <node> --send --closeout --reason '<why>'`
+  sends `SET_TECH_TREE_NODE` then `SET_TECH_TREE_TARGET_NODE`.
+- `game play choose-culture --player-id <id> --node <node> --send --closeout --reason '<why>'`
+  sends `SET_CULTURE_TREE_NODE` then `SET_CULTURE_TREE_TARGET_NODE`.
 - `game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send --closeout --reason '<why>'`
   sends `CHANGE_GROWTH_MODE` then `CONSIDER_TOWN_PROJECT`.
 
@@ -45,6 +51,8 @@ or the primary change has already been applied:
 - `game play consider-traditions`
 - `game play consider-attributes`
 - `game play consider-town-project`
+- `game play set-tech-target`
+- `game play set-culture-target`
 
 ## Norms
 

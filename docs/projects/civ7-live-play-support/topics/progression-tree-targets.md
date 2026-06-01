@@ -1,0 +1,95 @@
+# Progression Tree Targets
+
+Status: `active-reference`.
+
+## Frame
+
+Technology and culture blockers use runtime `ProgressionTreeNodeType` values.
+Agents must use the node type hash from the live GameInfo/progression-tree data,
+not a visible row index, UI list position, or notification id.
+
+There are two related operation families:
+
+- Start current research:
+  - `SET_TECH_TREE_NODE { ProgressionTreeNodeType }`
+  - `SET_CULTURE_TREE_NODE { ProgressionTreeNodeType }`
+- Set a full-tree target:
+  - `SET_TECH_TREE_TARGET_NODE { ProgressionTreeNodeType }`
+  - `SET_CULTURE_TREE_TARGET_NODE { ProgressionTreeNodeType }`
+
+Use `game play choose-tech` and `game play choose-culture` first when the live
+chooser is asking for the next current node. Add `--closeout` when the caller
+intends one complete selection workflow and wants the CLI to also set the
+matching target node behind the scenes. Use `game play set-tech-target` or
+`game play set-culture-target` directly when the primary chooser operation was
+already sent, the full tree UI only needs a target, or a validated chooser
+operation leaves an expired tree notification blocking turn advance.
+
+## Official UI Evidence
+
+The tech and culture full-tree screens share the same pattern:
+
+1. Build `args = { ProgressionTreeNodeType: nodeIndex }`.
+2. Probe `SET_*_TREE_NODE`.
+3. If the local player already has a target, route to `onTarget*listItem`.
+4. Probe `SET_*_TREE_TARGET_NODE`.
+5. If `SET_*_TREE_NODE` also validates, send it first.
+6. Send `SET_*_TREE_TARGET_NODE`.
+
+Local anchors:
+
+- `.civ7/outputs/resources/Base/modules/base-standard/ui/tech-tree/screen-tech-tree.js`
+  uses `SET_TECH_TREE_NODE` and `SET_TECH_TREE_TARGET_NODE`.
+- `.civ7/outputs/resources/Base/modules/base-standard/ui/culture-tree/screen-culture-tree.js`
+  uses `SET_CULTURE_TREE_NODE` and `SET_CULTURE_TREE_TARGET_NODE`.
+- `.civ7/outputs/resources/Base/modules/base-standard/ui/tech-tree-chooser/screen-tech-tree-chooser.js`
+  clears the target with `SET_TECH_TREE_TARGET_NODE { ProgressionTreeNodeType:
+  NO_NODE }` after chooser selection.
+- `.civ7/outputs/resources/Base/modules/base-standard/ui/culture-tree-chooser/screen-culture-tree-chooser.js`
+  clears the target with `SET_CULTURE_TREE_TARGET_NODE { ProgressionTreeNodeType:
+  NO_NODE }` after chooser selection.
+
+## Live Proof
+
+The active play thread hit a turn-58 culture blocker where row index `224`
+validated but did not advance the turn. The blocker cleared only after using
+the actual runtime node hash:
+
+```json
+{ "ProgressionTreeNodeType": -1677668973 }
+```
+
+Both `SET_CULTURE_TREE_NODE` and `SET_CULTURE_TREE_TARGET_NODE` validated for
+that value, and the turn advanced afterward. The durable lesson is not that
+every culture choice needs both sends; it is that target-node closeout is an
+official path and must be available when the live postcondition proves
+choose-node alone was insufficient.
+
+## CLI Use
+
+Start current culture research and close the matching target-node surface as
+one caller-level workflow:
+
+```bash
+bun packages/cli/bin/run.js game play choose-culture \
+  --player-id 0 \
+  --node -1677668973 \
+  --send \
+  --closeout \
+  --reason "choose live culture node and set matching target" \
+  --json
+```
+
+Set only the culture target when the primary choice was already applied:
+
+```bash
+bun packages/cli/bin/run.js game play set-culture-target \
+  --player-id 0 \
+  --node -1677668973 \
+  --send \
+  --reason "set culture target from live tree node hash" \
+  --json
+```
+
+The same distinction applies to technology with `game play choose-tech
+--closeout` and `game play set-tech-target`.

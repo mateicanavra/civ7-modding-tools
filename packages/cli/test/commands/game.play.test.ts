@@ -308,6 +308,46 @@ describe('game play commands', () => {
     }
   });
 
+  test('chooses technology and sets target as one caller workflow', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const writes: string[] = [];
+      const log = vi.spyOn(GamePlayChooseTech.prototype, 'log').mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
+      try {
+        await GamePlayChooseTech.run([
+          '--host',
+          '127.0.0.1',
+          '--port',
+          String(port),
+          '--player-id',
+          '0',
+          '--node',
+          '-1255676052',
+          '--send',
+          '--closeout',
+          '--reason',
+          'test technology target closeout',
+          '--json',
+        ]);
+      } finally {
+        log.mockRestore();
+      }
+
+      const payload = JSON.parse(writes.join('')) as { ok: true; result: { mode: string; stepCount: number; verified: boolean } };
+      expect(payload.result.mode).toBe('send');
+      expect(payload.result.stepCount).toBe(2);
+      expect(payload.result.verified).toBe(true);
+      expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
+      expect(server.received.some((message) => message.includes('SET_TECH_TREE_NODE'))).toBe(true);
+      expect(server.received.some((message) => message.includes('SET_TECH_TREE_TARGET_NODE'))).toBe(true);
+    } finally {
+      await server.close();
+    }
+  });
+
   test('wraps growth worker assignment as ASSIGN_WORKER', async () => {
     const server = await startTunerServer();
     try {
@@ -473,6 +513,46 @@ describe('game play commands', () => {
       expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_TARGET_NODE'))).toBe(true);
       expect(server.received.some((message) => message.includes('"ProgressionTreeNodeType":-1677668973'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(true);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test('chooses culture and sets target as one caller workflow', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const writes: string[] = [];
+      const log = vi.spyOn(GamePlayChooseCulture.prototype, 'log').mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
+      try {
+        await GamePlayChooseCulture.run([
+          '--host',
+          '127.0.0.1',
+          '--port',
+          String(port),
+          '--player-id',
+          '0',
+          '--node',
+          '-1677668973',
+          '--send',
+          '--closeout',
+          '--reason',
+          'test culture target closeout',
+          '--json',
+        ]);
+      } finally {
+        log.mockRestore();
+      }
+
+      const payload = JSON.parse(writes.join('')) as { ok: true; result: { mode: string; stepCount: number; verified: boolean } };
+      expect(payload.result.mode).toBe('send');
+      expect(payload.result.stepCount).toBe(2);
+      expect(payload.result.verified).toBe(true);
+      expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
+      expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_NODE'))).toBe(true);
+      expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_TARGET_NODE'))).toBe(true);
     } finally {
       await server.close();
     }
