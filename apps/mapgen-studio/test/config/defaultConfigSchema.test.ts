@@ -6,6 +6,7 @@ import {
   STANDARD_RECIPE_CONFIG_SCHEMA,
   studioRecipeUiMeta as STANDARD_RECIPE_UI_META,
 } from "mod-swooper-maps/recipes/standard-artifacts";
+import { defaultConfig as SOURCE_UI_DEFAULT_CONFIG } from "../../src/ui/data/defaultConfig";
 
 function getSchemaAtPath(schema: unknown, path: readonly string[]): unknown {
   let current: any = schema as any;
@@ -103,6 +104,44 @@ function collectNumericLeavesMissingRange(schema: unknown, path: string[] = []):
   return missing;
 }
 
+function hasRawOpEnvelope(value: unknown): boolean {
+  if (!value || typeof value !== "object") return false;
+  if (Array.isArray(value)) return value.some(hasRawOpEnvelope);
+  const obj = value as Record<string, unknown>;
+  if (Object.prototype.hasOwnProperty.call(obj, "strategy") && Object.prototype.hasOwnProperty.call(obj, "config")) {
+    return true;
+  }
+  return Object.values(obj).some(hasRawOpEnvelope);
+}
+
+function collectDescriptionsMatching(
+  schema: unknown,
+  pattern: RegExp,
+  path: string[] = []
+): string[] {
+  if (!schema || typeof schema !== "object") return [];
+  const node = schema as {
+    description?: unknown;
+    properties?: Record<string, unknown>;
+    items?: unknown;
+    anyOf?: unknown[];
+    oneOf?: unknown[];
+  };
+  const matches: string[] = [];
+  if (typeof node.description === "string" && pattern.test(node.description)) {
+    matches.push(path.join("."));
+  }
+
+  for (const [key, child] of Object.entries(node.properties ?? {})) {
+    matches.push(...collectDescriptionsMatching(child, pattern, [...path, key]));
+  }
+  if (node.items) matches.push(...collectDescriptionsMatching(node.items, pattern, [...path, "items"]));
+  for (const variant of [...(node.anyOf ?? []), ...(node.oneOf ?? [])]) {
+    matches.push(...collectDescriptionsMatching(variant, pattern, path));
+  }
+  return matches;
+}
+
 function expectPublicStageDescription(schema: unknown, stageId: string): void {
   const stage = (schema as { properties?: Record<string, { description?: unknown }> }).properties?.[
     stageId
@@ -180,7 +219,135 @@ describe("Studio default config", () => {
         const schema = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [stageId, key]);
         expect(collectMissingDescriptions(schema, [stageId, key])).toEqual([]);
         expect(collectNumericLeavesMissingRange(schema, [stageId, key])).toEqual([]);
+        expect(collectDescriptionsMatching(schema, /\b(step\/op|envelope|internal|strategy)\b/i, [
+          stageId,
+          key,
+        ])).toEqual([]);
       }
+    }
+  });
+
+  it("exposes semantic Hydrology authoring keys instead of internal op envelopes", () => {
+    const expected: Record<string, readonly string[]> = {
+      "hydrology-climate-baseline": [
+        "knobs",
+        "seasonalCycle",
+        "solarForcing",
+        "thermalState",
+        "atmosphericCirculation",
+        "oceanCurrents",
+        "oceanGeometry",
+        "oceanThermalState",
+        "evaporation",
+        "moistureTransport",
+        "precipitation",
+      ],
+      "hydrology-hydrography": ["knobs", "runoff", "riverNetwork", "lakes"],
+      "hydrology-climate-refine": [
+        "knobs",
+        "precipitationRefinement",
+        "solarForcing",
+        "thermalState",
+        "albedoFeedback",
+        "cryosphereState",
+        "landWaterBudget",
+        "diagnostics",
+      ],
+    };
+
+    for (const [stageId, expectedKeys] of Object.entries(expected)) {
+      const schemaProps =
+        (getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [stageId]) as {
+          properties?: Record<string, unknown>;
+        }).properties ?? {};
+      expect(Object.keys(schemaProps).sort()).toEqual([...expectedKeys].sort());
+      expect(JSON.stringify(schemaProps)).not.toContain("\"strategy\"");
+      expect(JSON.stringify(schemaProps)).not.toContain("\"config\"");
+
+      const config = (STANDARD_RECIPE_CONFIG as Record<string, Record<string, unknown>>)[stageId] ?? {};
+      for (const key of Object.keys(config)) {
+        expect(expectedKeys).toContain(key);
+      }
+    }
+  });
+
+  it("exposes documented and range-bounded Hydrology public controls to Studio", () => {
+    const expected: Record<string, readonly string[]> = {
+      "hydrology-climate-baseline": [
+        "knobs",
+        "seasonalCycle",
+        "solarForcing",
+        "thermalState",
+        "atmosphericCirculation",
+        "oceanCurrents",
+        "oceanGeometry",
+        "oceanThermalState",
+        "evaporation",
+        "moistureTransport",
+        "precipitation",
+      ],
+      "hydrology-hydrography": ["knobs", "runoff", "riverNetwork", "lakes"],
+      "hydrology-climate-refine": [
+        "knobs",
+        "precipitationRefinement",
+        "solarForcing",
+        "thermalState",
+        "albedoFeedback",
+        "cryosphereState",
+        "landWaterBudget",
+        "diagnostics",
+      ],
+    };
+
+    for (const [stageId, publicKeys] of Object.entries(expected)) {
+      expectPublicStageDescription(STANDARD_RECIPE_CONFIG_SCHEMA, stageId);
+      for (const key of publicKeys) {
+        const schema = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [stageId, key]);
+        expect(collectMissingDescriptions(schema, [stageId, key])).toEqual([]);
+        expect(collectNumericLeavesMissingRange(schema, [stageId, key])).toEqual([]);
+        expect(collectDescriptionsMatching(schema, /\b(step|op|envelope|internal|strategy)\b/i, [
+          stageId,
+          key,
+        ])).toEqual([]);
+      }
+    }
+  });
+
+  it("keeps legacy Studio source defaults on the semantic Hydrology surface", () => {
+    const expected: Record<string, readonly string[]> = {
+      "hydrology-climate-baseline": [
+        "knobs",
+        "seasonalCycle",
+        "solarForcing",
+        "thermalState",
+        "atmosphericCirculation",
+        "oceanCurrents",
+        "oceanGeometry",
+        "oceanThermalState",
+        "evaporation",
+        "moistureTransport",
+        "precipitation",
+      ],
+      "hydrology-hydrography": ["knobs", "runoff", "riverNetwork", "lakes"],
+      "hydrology-climate-refine": [
+        "knobs",
+        "precipitationRefinement",
+        "solarForcing",
+        "thermalState",
+        "albedoFeedback",
+        "cryosphereState",
+        "landWaterBudget",
+        "diagnostics",
+      ],
+    };
+
+    for (const [stageId, expectedKeys] of Object.entries(expected)) {
+      const stageConfig = SOURCE_UI_DEFAULT_CONFIG[stageId] ?? {};
+      expect(Object.keys(stageConfig).sort()).toEqual([...expectedKeys].sort());
+      expect(stageConfig).not.toHaveProperty("climate-baseline");
+      expect(stageConfig).not.toHaveProperty("rivers");
+      expect(stageConfig).not.toHaveProperty("climate-refine");
+      expect(hasRawOpEnvelope(stageConfig)).toBe(false);
     }
   });
 
@@ -204,6 +371,53 @@ describe("Studio default config", () => {
       "morphology-routing": [],
       "morphology-erosion": ["geomorphicCycle"],
       "morphology-features": ["islandChains", "mountainRanges", "volcanoes"],
+    };
+
+    for (const [stageId, stepIds] of Object.entries(expectedSteps)) {
+      const stage = STANDARD_RECIPE_UI_META.stages.find((entry) => entry.stageId === stageId);
+      expect(stage?.steps.map((step) => step.stepId)).toEqual(stepIds);
+
+      const publicKeys = publicKeysByStage[stageId] ?? [];
+      for (const step of stage?.steps ?? []) {
+        const [focusKey, ...rest] = step.configFocusPathWithinStage;
+        expect(rest).toEqual([]);
+        if (focusKey) {
+          expect(publicKeys).toContain(focusKey);
+        }
+      }
+    }
+  });
+
+  it("keeps Hydrology runtime steps visible even when public config keys are semantic", () => {
+    const expectedSteps: Record<string, readonly string[]> = {
+      "hydrology-climate-baseline": ["climate-baseline"],
+      "hydrology-hydrography": ["rivers", "lakes"],
+      "hydrology-climate-refine": ["climate-refine"],
+    };
+
+    const publicKeysByStage: Record<string, readonly string[]> = {
+      "hydrology-climate-baseline": [
+        "seasonalCycle",
+        "solarForcing",
+        "thermalState",
+        "atmosphericCirculation",
+        "oceanCurrents",
+        "oceanGeometry",
+        "oceanThermalState",
+        "evaporation",
+        "moistureTransport",
+        "precipitation",
+      ],
+      "hydrology-hydrography": ["runoff", "riverNetwork", "lakes"],
+      "hydrology-climate-refine": [
+        "precipitationRefinement",
+        "solarForcing",
+        "thermalState",
+        "albedoFeedback",
+        "cryosphereState",
+        "landWaterBudget",
+        "diagnostics",
+      ],
     };
 
     for (const [stageId, stepIds] of Object.entries(expectedSteps)) {

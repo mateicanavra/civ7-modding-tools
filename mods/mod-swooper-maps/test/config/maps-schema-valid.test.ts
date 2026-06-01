@@ -13,6 +13,7 @@ import sunderedArchipelagoConfig from "../../src/maps/configs/sundered-archipela
 import swooperDesertMountainsConfig from "../../src/maps/configs/swooper-desert-mountains.config.json";
 import swooperEarthlikeConfig from "../../src/maps/configs/swooper-earthlike.config.json";
 import legacyFoundationCompiled from "../fixtures/legacy-foundation-compiled.json";
+import legacyHydrologyCompiled from "../fixtures/legacy-hydrology-compiled.json";
 import legacyMorphologyCompiled from "../fixtures/legacy-morphology-compiled.json";
 
 const shippedMapConfigs = [
@@ -80,6 +81,45 @@ const MORPHOLOGY_INTERNAL_STAGE_KEYS = [
   "mountains",
   "landmasses",
 ];
+
+const HYDROLOGY_PUBLIC_KEYS: Record<string, readonly string[]> = {
+  "hydrology-climate-baseline": [
+    "knobs",
+    "seasonalCycle",
+    "solarForcing",
+    "thermalState",
+    "atmosphericCirculation",
+    "oceanCurrents",
+    "oceanGeometry",
+    "oceanThermalState",
+    "evaporation",
+    "moistureTransport",
+    "precipitation",
+  ],
+  "hydrology-hydrography": ["knobs", "runoff", "riverNetwork", "lakes"],
+  "hydrology-climate-refine": [
+    "knobs",
+    "precipitationRefinement",
+    "solarForcing",
+    "thermalState",
+    "albedoFeedback",
+    "cryosphereState",
+    "landWaterBudget",
+    "diagnostics",
+  ],
+};
+
+const HYDROLOGY_STAGE_IDS = [
+  "hydrology-climate-baseline",
+  "hydrology-hydrography",
+  "hydrology-climate-refine",
+] as const;
+
+const HYDROLOGY_INTERNAL_STAGE_KEYS: Record<string, readonly string[]> = {
+  "hydrology-climate-baseline": ["climate-baseline"],
+  "hydrology-hydrography": ["rivers"],
+  "hydrology-climate-refine": ["climate-refine"],
+};
 
 function stageProps(schema: unknown, stageId: string): Record<string, unknown> {
   const stage = (schema as { properties?: Record<string, { properties?: Record<string, unknown> }> })
@@ -167,6 +207,34 @@ function collectNumericLeavesMissingRange(schema: unknown, path: string[] = []):
   return missing;
 }
 
+function collectDescriptionsMatching(
+  schema: unknown,
+  pattern: RegExp,
+  path: string[] = []
+): string[] {
+  if (!schema || typeof schema !== "object") return [];
+  const node = schema as {
+    description?: unknown;
+    properties?: Record<string, unknown>;
+    items?: unknown;
+    anyOf?: unknown[];
+    oneOf?: unknown[];
+  };
+  const matches: string[] = [];
+  if (typeof node.description === "string" && pattern.test(node.description)) {
+    matches.push(path.join("."));
+  }
+
+  for (const [key, child] of Object.entries(node.properties ?? {})) {
+    matches.push(...collectDescriptionsMatching(child, pattern, [...path, key]));
+  }
+  if (node.items) matches.push(...collectDescriptionsMatching(node.items, pattern, [...path, "items"]));
+  for (const variant of [...(node.anyOf ?? []), ...(node.oneOf ?? [])]) {
+    matches.push(...collectDescriptionsMatching(variant, pattern, path));
+  }
+  return matches;
+}
+
 function expectPublicStageDescription(schema: unknown, stageId: string): void {
   const stage = (schema as { properties?: Record<string, { description?: unknown }> }).properties?.[
     stageId
@@ -206,6 +274,20 @@ describe("Shipped map configs", () => {
     }
   });
 
+  it("exposes Hydrology public schema keys instead of internal step/op envelope paths", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+
+    for (const [stageId, expectedKeys] of Object.entries(HYDROLOGY_PUBLIC_KEYS)) {
+      const props = stageProps(schema, stageId);
+      expect(Object.keys(props).sort()).toEqual([...expectedKeys].sort());
+      for (const internalKey of HYDROLOGY_INTERNAL_STAGE_KEYS[stageId] ?? []) {
+        expect(props).not.toHaveProperty(internalKey);
+      }
+      expect(JSON.stringify(props)).not.toContain("\"strategy\"");
+      expect(JSON.stringify(props)).not.toContain("\"config\"");
+    }
+  });
+
   it("documents and range-bounds every Morphology public numeric field", () => {
     const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
 
@@ -216,6 +298,28 @@ describe("Shipped map configs", () => {
         const child = props[key];
         expect(collectMissingDescriptions(child, [stageId, key])).toEqual([]);
         expect(collectNumericLeavesMissingRange(child, [stageId, key])).toEqual([]);
+        expect(collectDescriptionsMatching(child, /\b(step\/op|envelope|internal|strategy)\b/i, [
+          stageId,
+          key,
+        ])).toEqual([]);
+      }
+    }
+  });
+
+  it("documents and range-bounds every Hydrology public numeric field", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+
+    for (const [stageId, expectedKeys] of Object.entries(HYDROLOGY_PUBLIC_KEYS)) {
+      expectPublicStageDescription(schema, stageId);
+      const props = stageProps(schema, stageId);
+      for (const key of expectedKeys) {
+        const child = props[key];
+        expect(collectMissingDescriptions(child, [stageId, key])).toEqual([]);
+        expect(collectNumericLeavesMissingRange(child, [stageId, key])).toEqual([]);
+        expect(collectDescriptionsMatching(child, /\b(step|op|envelope|internal|strategy)\b/i, [
+          stageId,
+          key,
+        ])).toEqual([]);
       }
     }
   });
@@ -270,6 +374,18 @@ describe("Shipped map configs", () => {
     }
   });
 
+  it("keeps shipped Hydrology configs on the semantic public surface", () => {
+    for (const [, raw] of shippedMapConfigs) {
+      for (const [stageId, expectedKeys] of Object.entries(HYDROLOGY_PUBLIC_KEYS)) {
+        const stageConfig = (raw.config as Record<string, Record<string, unknown>>)[stageId] ?? {};
+        for (const key of Object.keys(stageConfig)) {
+          expect(expectedKeys).toContain(key);
+        }
+        expect(hasRawOpEnvelope(stageConfig)).toBe(false);
+      }
+    }
+  });
+
   it("compiles public Morphology config to internal executable step/op envelopes", () => {
     const compiled = standardRecipe.compileConfig(
       {
@@ -288,6 +404,36 @@ describe("Shipped map configs", () => {
     expect(compiled["morphology-features"].mountains.ridges.strategy).toBe("default");
     expect(compiled["morphology-features"].mountains.foothills.strategy).toBe("default");
     expect(compiled["morphology-features"].volcanoes.volcanoes.strategy).toBe("default");
+  });
+
+  it("compiles public Hydrology config to internal executable step/op envelopes", () => {
+    const compiled = standardRecipe.compileConfig(
+      {
+        seed: 123,
+        dimensions: { width: 80, height: 60 },
+        latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+      },
+      swooperEarthlikeConfig.config
+    ) as any;
+
+    expect(compiled["hydrology-climate-baseline"]["climate-baseline"].computeRadiativeForcing.strategy).toBe(
+      "default"
+    );
+    expect(compiled["hydrology-climate-baseline"]["climate-baseline"].computeAtmosphericCirculation.strategy).toBe(
+      "default"
+    );
+    expect(compiled["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.strategy).toBe(
+      "default"
+    );
+    expect(compiled["hydrology-hydrography"].rivers.accumulateDischarge.strategy).toBe("default");
+    expect(compiled["hydrology-hydrography"].rivers.projectRiverNetwork.strategy).toBe("default");
+    expect(compiled["hydrology-hydrography"].lakes.planLakes.strategy).toBe("default");
+    expect(compiled["hydrology-climate-refine"]["climate-refine"].computePrecipitation.strategy).toBe(
+      "refine"
+    );
+    expect(compiled["hydrology-climate-refine"]["climate-refine"].computeCryosphereState.strategy).toBe(
+      "default"
+    );
   });
 
   it("compiles public Foundation config to internal executable step/op envelopes", () => {
@@ -346,6 +492,24 @@ describe("Shipped map configs", () => {
         MORPHOLOGY_STAGE_IDS.map((stageId) => [stageId, compiled[stageId]])
       );
       expect(stable(morphologyCompiled)).toEqual(expected[id]);
+    }
+  });
+
+  it("keeps Hydrology configs compiled-equivalent to the legacy shipped configs", () => {
+    const env = {
+      seed: 123,
+      dimensions: { width: 80, height: 60 },
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    };
+    const expected = legacyHydrologyCompiled as Record<string, unknown>;
+
+    for (const [fileName, raw] of shippedMapConfigs) {
+      const id = fileName.replace(/\.config\.json$/, "");
+      const compiled = standardRecipe.compileConfig(env, raw.config) as any;
+      const hydrologyCompiled = Object.fromEntries(
+        HYDROLOGY_STAGE_IDS.map((stageId) => [stageId, compiled[stageId]])
+      );
+      expect(stable(hydrologyCompiled)).toEqual(expected[id]);
     }
   });
 

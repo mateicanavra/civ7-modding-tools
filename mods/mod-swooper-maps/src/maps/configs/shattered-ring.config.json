@@ -266,236 +266,171 @@
       }
     },
     "hydrology-climate-baseline": {
-      "climate-baseline": {
-        "seasonality": {
-          "modeCount": 4,
-          "axialTiltDeg": 23.44
+      "seasonalCycle": {
+        "modeCount": 4,
+        "axialTiltDeg": 23.44
+      },
+      "solarForcing": {
+        "equatorInsolation": 1,
+        "poleInsolation": 0.25,
+        "latitudeExponent": 1.2
+      },
+      "thermalState": {
+        "baseTemperatureC": 9,
+        "insolationScaleC": 47,
+        "lapseRateCPerM": -0.0065,
+        "landCoolingC": 2,
+        "minC": -40,
+        "maxC": 50
+      },
+      "atmosphericCirculation": {
+        "maxSpeed": 110,
+        "zonalStrength": 90,
+        "meridionalStrength": 30,
+        "geostrophicStrength": 70,
+        "pressureNoiseScale": 18,
+        "pressureNoiseAmp": 68.75,
+        "waveStrength": 56.25,
+        "landHeatStrength": 20,
+        "mountainDeflectStrength": 18,
+        "smoothIters": 4
+      },
+      "oceanCurrents": {
+        "maxSpeed": 80,
+        "windStrength": 0.55,
+        "ekmanStrength": 0.35,
+        "gyreStrength": 26,
+        "coastStrength": 32,
+        "smoothIters": 3,
+        "projectionIters": 8
+      },
+      "oceanGeometry": {
+        "maxCoastDistance": 64,
+        "maxCoastVectorDistance": 10
+      },
+      "oceanThermalState": {
+        "equatorTempC": 28,
+        "poleTempC": -2,
+        "advectIters": 28,
+        "diffusion": 0.18,
+        "secondaryWeightMin": 0.25,
+        "seaIceThresholdC": -1
+      },
+      "evaporation": {
+        "oceanStrength": 1,
+        "landStrength": 0.2,
+        "minTempC": -10,
+        "maxTempC": 30
+      },
+      "moistureTransport": {
+        "iterations": 22,
+        "advection": 0.7,
+        "retention": 0.93,
+        "secondaryWeightMin": 0.2
+      },
+      "precipitation": {
+        "rainfallScale": 180,
+        "humidityExponent": 1,
+        "noiseAmplitude": 8,
+        "noiseScale": 0.12,
+        "waterGradient": {
+          "radius": 5,
+          "perRingBonus": 4,
+          "lowlandBonus": 2,
+          "lowlandElevationMax": 150
         },
-        "computeRadiativeForcing": {
-          "strategy": "default",
-          "config": {
-            "equatorInsolation": 1,
-            "poleInsolation": 0.25,
-            "latitudeExponent": 1.2
-          }
-        },
-        "computeThermalState": {
-          "strategy": "default",
-          "config": {
-            "baseTemperatureC": 9,
-            "insolationScaleC": 47,
-            "lapseRateCPerM": -0.0065,
-            "landCoolingC": 2,
-            "minC": -40,
-            "maxC": 50
-          }
-        },
-        "computeAtmosphericCirculation": {
-          "strategy": "default",
-          "config": {
-            "maxSpeed": 110,
-            "zonalStrength": 90,
-            "meridionalStrength": 30,
-            "geostrophicStrength": 70,
-            "pressureNoiseScale": 18,
-            "pressureNoiseAmp": 68.75,
-            "waveStrength": 56.25,
-            "landHeatStrength": 20,
-            "mountainDeflectStrength": 18,
-            "smoothIters": 4
-          }
-        },
-        "computeOceanSurfaceCurrents": {
-          "strategy": "default",
-          "config": {
-            "maxSpeed": 80,
-            "windStrength": 0.55,
-            "ekmanStrength": 0.35,
-            "gyreStrength": 26,
-            "coastStrength": 32,
-            "smoothIters": 3,
-            "projectionIters": 8
-          }
-        },
-        "computeOceanGeometry": {
-          "strategy": "default",
-          "config": {
-            "maxCoastDistance": 64,
-            "maxCoastVectorDistance": 10
-          }
-        },
-        "computeOceanThermalState": {
-          "strategy": "default",
-          "config": {
-            "equatorTempC": 28,
-            "poleTempC": -2,
-            "advectIters": 28,
-            "diffusion": 0.18,
-            "secondaryWeightMin": 0.25,
-            "seaIceThresholdC": -1
-          }
-        },
-        "computeEvaporationSources": {
-          "strategy": "default",
-          "config": {
-            "oceanStrength": 1,
-            "landStrength": 0.2,
-            "minTempC": -10,
-            "maxTempC": 30
-          }
-        },
-        "transportMoisture": {
-          "strategy": "default",
-          "config": {
-            "iterations": 22,
-            "advection": 0.7,
-            "retention": 0.93,
-            "secondaryWeightMin": 0.2
-          }
-        },
-        "computePrecipitation": {
-          "strategy": "default",
-          "config": {
-            "rainfallScale": 180,
-            "humidityExponent": 1,
-            "noiseAmplitude": 8,
-            "noiseScale": 0.12,
-            "waterGradient": {
-              "radius": 5,
-              "perRingBonus": 4,
-              "lowlandBonus": 2,
-              "lowlandElevationMax": 150
-            },
-            "upliftStrength": 22,
-            "convergenceStrength": 16
-          }
-        }
+        "upliftStrength": 22,
+        "convergenceStrength": 16
       }
     },
     "hydrology-hydrography": {
-      "rivers": {
-        "accumulateDischarge": {
-          "strategy": "default",
-          "config": {
-            "runoffScale": 1,
-            "infiltrationFraction": 0.15,
-            "humidityDampening": 0.25,
-            "minRunoff": 0
-          }
-        },
-        "projectRiverNetwork": {
-          "strategy": "default",
-          "config": {
-            "minorPercentile": 0.78,
-            "majorPercentile": 0.91,
-            "minMinorDischarge": 0,
-            "minMajorDischarge": 0
-          }
-        }
+      "runoff": {
+        "runoffScale": 1,
+        "infiltrationFraction": 0.15,
+        "humidityDampening": 0.25,
+        "minRunoff": 0
+      },
+      "riverNetwork": {
+        "minorPercentile": 0.78,
+        "majorPercentile": 0.91,
+        "minMinorDischarge": 0,
+        "minMajorDischarge": 0
       },
       "lakes": {
-        "planLakes": {
-          "strategy": "default",
-          "config": {
-            "maxUpstreamSteps": 1,
-            "sinkDischargePercentileMin": 0.94,
-            "maxLakeLandFraction": 0.003
-          }
-        }
+        "maxUpstreamSteps": 1,
+        "sinkDischargePercentileMin": 0.94,
+        "maxLakeLandFraction": 0.003
       }
     },
     "hydrology-climate-refine": {
-      "climate-refine": {
-        "computePrecipitation": {
-          "strategy": "refine",
-          "config": {
-            "riverCorridor": {
-              "adjacencyRadius": 1,
-              "lowlandAdjacencyBonus": 14,
-              "highlandAdjacencyBonus": 10,
-              "lowlandElevationMax": 250
-            },
-            "lowBasin": {
-              "radius": 2,
-              "delta": 6,
-              "elevationMax": 200,
-              "openThresholdM": 20
-            }
-          }
+      "precipitationRefinement": {
+        "riverCorridor": {
+          "adjacencyRadius": 1,
+          "lowlandAdjacencyBonus": 14,
+          "highlandAdjacencyBonus": 10,
+          "lowlandElevationMax": 250
         },
-        "computeRadiativeForcing": {
-          "strategy": "default",
-          "config": {
-            "equatorInsolation": 1,
-            "poleInsolation": 0.25,
-            "latitudeExponent": 1.2
-          }
-        },
-        "computeThermalState": {
-          "strategy": "default",
-          "config": {
-            "baseTemperatureC": 9,
-            "insolationScaleC": 47,
-            "lapseRateCPerM": -0.0065,
-            "landCoolingC": 2,
-            "minC": -40,
-            "maxC": 50
-          }
-        },
-        "applyAlbedoFeedback": {
-          "strategy": "default",
-          "config": {
-            "iterations": 4,
-            "snowCoolingC": 4,
-            "seaIceCoolingC": 6,
-            "minC": -60,
-            "maxC": 60,
-            "landSnowStartC": 0,
-            "landSnowFullC": -12,
-            "seaIceStartC": -1,
-            "seaIceFullC": -10,
-            "precipitationInfluence": 0.25
-          }
-        },
-        "computeCryosphereState": {
-          "strategy": "default",
-          "config": {
-            "landSnowStartC": 0,
-            "landSnowFullC": -12,
-            "seaIceStartC": -1,
-            "seaIceFullC": -10,
-            "freezeIndexStartC": 2,
-            "freezeIndexFullC": -12,
-            "precipitationInfluence": 0.25,
-            "permafrostStartFreezeIndex": 0.4,
-            "permafrostFullFreezeIndex": 0.8,
-            "meltStartC": 0,
-            "meltFullC": 10,
-            "groundIceSnowInfluence": 0.75,
-            "baseAlbedo": 30,
-            "snowAlbedoBoost": 140,
-            "seaIceAlbedoBoost": 180
-          }
-        },
-        "computeLandWaterBudget": {
-          "strategy": "default",
-          "config": {
-            "tMinC": 0,
-            "tMaxC": 35,
-            "petBase": 18,
-            "petTemperatureWeight": 75,
-            "humidityDampening": 0.55
-          }
-        },
-        "computeClimateDiagnostics": {
-          "strategy": "default",
-          "config": {
-            "barrierSteps": 4,
-            "barrierElevationM": 500,
-            "continentalityMaxDist": 12,
-            "convergenceNormalization": 64
-          }
+        "lowBasin": {
+          "radius": 2,
+          "delta": 6,
+          "elevationMax": 200,
+          "openThresholdM": 20
         }
+      },
+      "solarForcing": {
+        "equatorInsolation": 1,
+        "poleInsolation": 0.25,
+        "latitudeExponent": 1.2
+      },
+      "thermalState": {
+        "baseTemperatureC": 9,
+        "insolationScaleC": 47,
+        "lapseRateCPerM": -0.0065,
+        "landCoolingC": 2,
+        "minC": -40,
+        "maxC": 50
+      },
+      "albedoFeedback": {
+        "iterations": 4,
+        "snowCoolingC": 4,
+        "seaIceCoolingC": 6,
+        "minC": -60,
+        "maxC": 60,
+        "landSnowStartC": 0,
+        "landSnowFullC": -12,
+        "seaIceStartC": -1,
+        "seaIceFullC": -10,
+        "precipitationInfluence": 0.25
+      },
+      "cryosphereState": {
+        "landSnowStartC": 0,
+        "landSnowFullC": -12,
+        "seaIceStartC": -1,
+        "seaIceFullC": -10,
+        "freezeIndexStartC": 2,
+        "freezeIndexFullC": -12,
+        "precipitationInfluence": 0.25,
+        "permafrostStartFreezeIndex": 0.4,
+        "permafrostFullFreezeIndex": 0.8,
+        "meltStartC": 0,
+        "meltFullC": 10,
+        "groundIceSnowInfluence": 0.75,
+        "baseAlbedo": 30,
+        "snowAlbedoBoost": 140,
+        "seaIceAlbedoBoost": 180
+      },
+      "landWaterBudget": {
+        "tMinC": 0,
+        "tMaxC": 35,
+        "petBase": 18,
+        "petTemperatureWeight": 75,
+        "humidityDampening": 0.55
+      },
+      "diagnostics": {
+        "barrierSteps": 4,
+        "barrierElevationM": 500,
+        "continentalityMaxDist": 12,
+        "convergenceNormalization": 64
       }
     },
     "ecology-pedology": {

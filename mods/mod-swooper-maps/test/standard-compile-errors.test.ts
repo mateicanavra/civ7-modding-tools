@@ -171,6 +171,96 @@ describe("standard recipe compile errors (ecology)", () => {
     ).toBe(true);
   });
 
+  it("rejects legacy Hydrology step/op envelope config", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
+        "hydrology-climate-baseline": {
+          "climate-baseline": {
+            computeRadiativeForcing: {
+              strategy: "default",
+              config: {},
+            },
+          },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path.includes("/config/hydrology-climate-baseline/climate-baseline")
+      )
+    ).toBe(true);
+  });
+
+  it("rejects stale Hydrology public strategy selectors", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
+        "hydrology-climate-baseline": {
+          atmosphericCirculation: {
+            strategy: "latitude",
+          },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path.includes("/config/hydrology-climate-baseline/atmosphericCirculation/strategy")
+      )
+    ).toBe(true);
+  });
+
+  it("rejects legacy Hydrology nested hydrography op wrappers", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
+        "hydrology-hydrography": {
+          lakes: {
+            planLakes: {
+              strategy: "default",
+              config: {},
+            },
+          },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path.includes("/config/hydrology-hydrography/lakes/planLakes")
+      )
+    ).toBe(true);
+  });
+
+  it("rejects out-of-range Hydrology public numeric controls", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
+        "hydrology-climate-baseline": {
+          solarForcing: {
+            equatorInsolation: 3,
+          },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path.includes("/config/hydrology-climate-baseline/solarForcing/equatorInsolation")
+      )
+    ).toBe(true);
+  });
+
   it("flags unknown step ids returned by ecology stage compile", () => {
     const brokenStage = createStage({
       id: "ecology-pedology",

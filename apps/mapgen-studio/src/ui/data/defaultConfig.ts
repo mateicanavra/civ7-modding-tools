@@ -108,82 +108,190 @@ export const defaultConfig: PipelineConfig = {
       seasonality: "high",
       oceanCoupling: "earthlike",
     },
-    "climate-baseline": {
-      seasonality: {
-        axialTiltDeg: 29.44,
-        modeCount: 4,
+    seasonalCycle: {
+      modeCount: 4,
+      axialTiltDeg: 23,
+    },
+    solarForcing: {
+      equatorInsolation: 1.5,
+      poleInsolation: 0.22,
+      latitudeExponent: 1.2,
+    },
+    thermalState: {
+      baseTemperatureC: 8,
+      insolationScaleC: 50,
+      lapseRateCPerM: -0.0065,
+      landCoolingC: 3.2,
+      minC: -40,
+      maxC: 50,
+    },
+    atmosphericCirculation: {
+      maxSpeed: 160,
+      zonalStrength: 130,
+      meridionalStrength: 130,
+      geostrophicStrength: 170,
+      pressureNoiseScale: 20,
+      pressureNoiseAmp: 62,
+      waveStrength: 48,
+      landHeatStrength: 23,
+      mountainDeflectStrength: 22,
+      smoothIters: 5,
+    },
+    oceanCurrents: {
+      maxSpeed: 80,
+      windStrength: 0.58,
+      ekmanStrength: 0.38,
+      gyreStrength: 30,
+      coastStrength: 36,
+      smoothIters: 4,
+      projectionIters: 8,
+    },
+    oceanGeometry: {
+      maxCoastDistance: 64,
+      maxCoastVectorDistance: 10,
+    },
+    oceanThermalState: {
+      equatorTempC: 27,
+      poleTempC: -1,
+      advectIters: 30,
+      diffusion: 0.2,
+      secondaryWeightMin: 0.25,
+      seaIceThresholdC: -1,
+    },
+    evaporation: {
+      oceanStrength: 1,
+      landStrength: 0.2,
+      minTempC: -10,
+      maxTempC: 32,
+    },
+    moistureTransport: {
+      iterations: 26,
+      advection: 0.74,
+      retention: 0.91,
+      secondaryWeightMin: 0.2,
+    },
+    precipitation: {
+      rainfallScale: 174,
+      humidityExponent: 1.05,
+      noiseAmplitude: 14,
+      noiseScale: 0.16,
+      waterGradient: {
+        radius: 6,
+        perRingBonus: 5,
+        lowlandBonus: 3,
+        lowlandElevationMax: 200,
       },
-      computeAtmosphericCirculation: {
-        strategy: "earthlike",
-        config: {
-          maxSpeed: 110,
-          zonalStrength: 90,
-          meridionalStrength: 30,
-          geostrophicStrength: 70,
-          pressureNoiseScale: 18,
-          pressureNoiseAmp: 55,
-          waveStrength: 45,
-          landHeatStrength: 20,
-          mountainDeflectStrength: 18,
-          smoothIters: 4,
-        },
+      upliftStrength: 27,
+      convergenceStrength: 19,
+    },
+  },
+
+  // ============================================================================
+  // Hydrology Hydrography Stage
+  // Runoff, river classification, and lake intent
+  // ============================================================================
+  "hydrology-hydrography": {
+    knobs: {
+      riverDensity: "normal",
+      lakeiness: "many",
+    },
+    runoff: {
+      runoffScale: 1,
+      infiltrationFraction: 0.18,
+      humidityDampening: 0.22,
+      minRunoff: 0,
+    },
+    riverNetwork: {
+      minorPercentile: 0.78,
+      majorPercentile: 0.91,
+      minMinorDischarge: 0,
+      minMajorDischarge: 0,
+    },
+    lakes: {
+      maxUpstreamSteps: 2,
+      sinkDischargePercentileMin: 0.94,
+      maxLakeLandFraction: 0.07,
+    },
+  },
+
+  // ============================================================================
+  // Hydrology Climate Refine Stage
+  // Local precipitation, cryosphere, and diagnostics refinement
+  // ============================================================================
+  "hydrology-climate-refine": {
+    knobs: {
+      dryness: "mix",
+      temperature: "hot",
+      cryosphere: "on",
+    },
+    precipitationRefinement: {
+      riverCorridor: {
+        adjacencyRadius: 2,
+        lowlandAdjacencyBonus: 16,
+        highlandAdjacencyBonus: 12,
+        lowlandElevationMax: 280,
       },
-      computeOceanGeometry: {
-        strategy: "default",
-        config: {
-          maxCoastDistance: 64,
-          maxCoastVectorDistance: 10,
-        },
+      lowBasin: {
+        radius: 3,
+        delta: 8,
+        elevationMax: 220,
+        openThresholdM: 24,
       },
-      computeOceanSurfaceCurrents: {
-        strategy: "earthlike",
-        config: {
-          maxSpeed: 80,
-          windStrength: 0.55,
-          ekmanStrength: 0.35,
-          gyreStrength: 26,
-          coastStrength: 32,
-          smoothIters: 3,
-          projectionIters: 8,
-        },
-      },
-      computeOceanThermalState: {
-        strategy: "default",
-        config: {
-          equatorTempC: 28,
-          poleTempC: -2,
-          advectIters: 28,
-          diffusion: 0.18,
-          secondaryWeightMin: 0.25,
-          seaIceThresholdC: -1,
-        },
-      },
-      transportMoisture: {
-        strategy: "vector",
-        config: {
-          iterations: 42,
-          advection: 0.7,
-          retention: 0.93,
-          secondaryWeightMin: 0.2,
-        },
-      },
-      computePrecipitation: {
-        strategy: "vector",
-        config: {
-          rainfallScale: 180,
-          humidityExponent: 1,
-          noiseAmplitude: 6,
-          noiseScale: 0.12,
-          waterGradient: {
-            radius: 5,
-            perRingBonus: 4,
-            lowlandBonus: 2,
-            lowlandElevationMax: 150,
-          },
-          upliftStrength: 22,
-          convergenceStrength: 16,
-        },
-      },
+    },
+    solarForcing: {
+      equatorInsolation: 0.9,
+      poleInsolation: 0.1,
+      latitudeExponent: 1,
+    },
+    thermalState: {
+      baseTemperatureC: 9,
+      insolationScaleC: 50,
+      lapseRateCPerM: -0.0095,
+      landCoolingC: 0.32,
+      minC: -60,
+      maxC: 50,
+    },
+    albedoFeedback: {
+      iterations: 3,
+      snowCoolingC: 3,
+      seaIceCoolingC: 5,
+      minC: -60,
+      maxC: 60,
+      landSnowStartC: 0,
+      landSnowFullC: -30,
+      seaIceStartC: -0.1,
+      seaIceFullC: -60,
+      precipitationInfluence: 0.6,
+    },
+    cryosphereState: {
+      landSnowStartC: 1,
+      landSnowFullC: -12,
+      seaIceStartC: 0,
+      seaIceFullC: -10,
+      freezeIndexStartC: 2,
+      freezeIndexFullC: -12,
+      precipitationInfluence: 0.8,
+      permafrostStartFreezeIndex: 0.4,
+      permafrostFullFreezeIndex: 0.8,
+      meltStartC: 0,
+      meltFullC: 10,
+      groundIceSnowInfluence: 0.75,
+      baseAlbedo: 30,
+      snowAlbedoBoost: 180,
+      seaIceAlbedoBoost: 180,
+    },
+    landWaterBudget: {
+      tMinC: 0,
+      tMaxC: 36,
+      petBase: 19,
+      petTemperatureWeight: 82,
+      humidityDampening: 0.5,
+    },
+    diagnostics: {
+      barrierSteps: 2,
+      barrierElevationM: 1000,
+      continentalityMaxDist: 14,
+      convergenceNormalization: 78,
     },
   },
 

@@ -5,6 +5,7 @@ import {
   HydrologyDrynessKnobSchema,
   HydrologyTemperatureKnobSchema,
 } from "@mapgen/domain/hydrology/config.js";
+import { HydrologyClimateRefinePublicSchema } from "../hydrology-public-config.js";
 
 const knobsSchema = Type.Object(
   {
@@ -33,12 +34,27 @@ const knobsSchema = Type.Object(
   },
   {
     description:
-      "Hydrology climate-refine knobs (dryness/temperature/cryosphere). Knobs apply after defaulted step config as deterministic transforms.",
+      "Hydrology climate-refine knobs (dryness/temperature/cryosphere). Knobs apply after defaulted refinement controls as deterministic transforms.",
   }
 );
 
 export default createStage({
   id: "hydrology-climate-refine",
   knobsSchema,
+  public: HydrologyClimateRefinePublicSchema,
   steps: [climateRefine],
+  compile: ({ config }: { config: Record<string, unknown> }) => ({
+    "climate-refine": {
+      computePrecipitation: {
+        strategy: "refine",
+        config: config.precipitationRefinement ?? {},
+      },
+      computeRadiativeForcing: { strategy: "default", config: config.solarForcing ?? {} },
+      computeThermalState: { strategy: "default", config: config.thermalState ?? {} },
+      applyAlbedoFeedback: { strategy: "default", config: config.albedoFeedback ?? {} },
+      computeCryosphereState: { strategy: "default", config: config.cryosphereState ?? {} },
+      computeLandWaterBudget: { strategy: "default", config: config.landWaterBudget ?? {} },
+      computeClimateDiagnostics: { strategy: "default", config: config.diagnostics ?? {} },
+    },
+  }),
 } as const);
