@@ -18,7 +18,7 @@ const worldSettings: WorldSettings = {
   resources: "balanced",
 };
 
-function renderFooter(status: RunInGameOperationStatus) {
+function renderFooter(status: RunInGameOperationStatus, relation: "current" | "stale" | "unknown" = "unknown") {
   return renderToStaticMarkup(
     <AppFooter
       status="ready"
@@ -34,6 +34,7 @@ function renderFooter(status: RunInGameOperationStatus) {
       isRunning={false}
       isRunInGameRunning={status.status === "running"}
       runInGameStatus={status}
+      runInGameCurrentRelation={relation}
       isDirty={false}
       lightMode={false}
       liveRuntime={{ status: "ok", readiness: "shell" }}
@@ -84,5 +85,20 @@ describe("AppFooter Run in Game status", () => {
     expect(html).toContain("Refresh Run in Game status");
     expect(html).toContain("Retry Run");
     expect(html).toContain("setup cannot see");
+  });
+
+  it("marks a previous operation stale when the authored Studio state has changed", () => {
+    const html = renderFooter({
+      ok: true,
+      requestId: "studio-run-in-game-complete",
+      phase: "complete",
+      status: "complete",
+      startedAt: "2026-06-01T00:00:00.000Z",
+      updatedAt: "2026-06-01T00:00:01.000Z",
+      completedPhases: ["materializing", "deploying", "checking-civ7", "preparing-setup", "starting-game", "waiting-for-proof"],
+    }, "stale");
+
+    expect(html).toContain("Stale");
+    expect(html).toContain("Studio state: Stale");
   });
 });

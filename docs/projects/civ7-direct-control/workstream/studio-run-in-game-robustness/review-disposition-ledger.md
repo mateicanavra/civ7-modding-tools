@@ -31,9 +31,9 @@
 - Vite refresh from generated artifacts: addressed with server-side operation
   state plus watcher ignores for generated mod outputs touched by Run in Game.
   Browser proof showed the tab preserved and resumed operation status.
-- Active-operation de-dupe: not implemented beyond client-side disabling and
-  the existing serialized server queue. A stricter server `409
-  active-operation` policy remains a future hardening option.
+- Active-operation de-dupe: resolved for same-server operation state. The Vite
+  middleware returns the active operation with HTTP `202` and
+  `duplicateRequest: true` instead of queueing a second mutation.
 
 ### UX Recovery Surface
 
@@ -54,6 +54,7 @@
   and proof/test gaps are recorded here and in `proof-ledger.md` rather than
   reused from stale prior evidence.
 - Root verification: resolved. `bun run verify:studio-run-in-game` passes.
-- Browser/live proof: resolved for the shell/menu disposable click path and
-  same-server reload resume; bounded for stale listener, durable launch, and
-  injected connection-loss live recovery.
+- Browser/live proof: resolved for the shell/menu disposable click path,
+  current/stale operation-state rendering, and same-server reload resume;
+  bounded for stale listener, durable launch, and injected connection-loss live
+  recovery.

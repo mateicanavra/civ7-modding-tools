@@ -83,9 +83,12 @@ click proof used Chrome through Computer Use plus direct status endpoint reads.
 ### Bounded Evidence
 
 - The live proof covered shell/menu disposable launch and browser reload
-  resume. It did not intentionally reproduce a stale listener/LSQ failure,
-  connection loss during the live start mutation, or a durable built-in config
-  launch in this pass.
+  resume. The follow-up operation-state completion proof additionally covered
+  `Complete Current`, `Complete Stale`, missing-status `404`, active-operation
+  de-dupe tests, and structured request/failure helper tests.
+- It did not intentionally reproduce a stale listener/LSQ failure, connection
+  loss during the live start mutation, or a durable built-in config launch in
+  this pass.
 - Stale-listener and ambiguous socket failure handling remain covered by
   direct-control error/uncertainty paths and no-replay unit coverage, not by
   fresh live failure injection.
