@@ -155,4 +155,57 @@ describe("AppFooter Run in Game status", () => {
     expect(html).toContain("studio-save-deploy-test");
     expect(html).toContain("disabled");
   });
+
+  it("renders a Civ7 autoplay start button from live runtime status", () => {
+    const html = renderToStaticMarkup(
+      <AppFooter
+        status="ready"
+        lastRunSettings={recipeSettings}
+        lastGlobalSettings={worldSettings}
+        currentSettings={recipeSettings}
+        onSettingsChange={vi.fn()}
+        onRun={vi.fn()}
+        onRunInGame={vi.fn()}
+        onReroll={vi.fn()}
+        isRunning={false}
+        isRunInGameRunning={false}
+        isDirty={false}
+        lightMode={false}
+        liveRuntime={{ status: "ok", readiness: "ready", autoplayActive: false }}
+        onToggleAutoplay={vi.fn()}
+        autoRunEnabled={false}
+        onAutoRunEnabledChange={vi.fn()}
+      />
+    );
+
+    expect(html).toContain("Start Auto");
+    expect(html).toContain("Start Civ7 autoplay");
+  });
+
+  it("renders a Civ7 autoplay stop button when autoplay is active", () => {
+    const html = renderToStaticMarkup(
+      <AppFooter
+        status="ready"
+        lastRunSettings={recipeSettings}
+        lastGlobalSettings={worldSettings}
+        currentSettings={recipeSettings}
+        onSettingsChange={vi.fn()}
+        onRun={vi.fn()}
+        onRunInGame={vi.fn()}
+        onReroll={vi.fn()}
+        isRunning={false}
+        isRunInGameRunning={false}
+        isDirty={false}
+        lightMode={false}
+        liveRuntime={{ status: "ok", readiness: "ready", autoplayActive: true }}
+        onToggleAutoplay={vi.fn()}
+        autoRunEnabled={false}
+        onAutoRunEnabledChange={vi.fn()}
+      />
+    );
+
+    expect(html).toContain("Stop Auto");
+    expect(html).toContain("Stop Civ7 autoplay");
+    expect(html).toContain("Auto");
+  });
 });
