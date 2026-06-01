@@ -63,7 +63,7 @@ public config boundary OpenSpec work.
 - [x] Ecology and feature cleanup slice separating raw Ecology envelopes,
   stale selectors, empty execution ops, and plot-effect ids from semantic
   pedology/biome/feature controls.
-- [ ] Projection `map-*` audit for map materialization controls and misplaced
+- [x] Projection `map-*` audit for map materialization controls and misplaced
   truth-stage settings.
 - [ ] Placement cleanup slice for product-facing placement controls and internal
   planner parameters.
@@ -102,8 +102,9 @@ public config boundary OpenSpec work.
      proof for the changed ecology surface.
 6. `projection-authoring-surface-audit`
    - Ensure `map-*` stages expose only projection/materialization controls.
-   - Include shipped config, generated artifact, Studio, and runtime/projection
-     proof for every changed projection field.
+   - Include shipped config, generated artifact, Studio, compile-equivalence,
+     unknown-key, and runtime/projection proof when generated map behavior
+     intentionally changes.
 7. `placement-authoring-surface-alignment`
    - Separate placement product controls from planner/runtime internals.
    - Include shipped config/preset migration, generated artifact updates,

@@ -351,6 +351,93 @@ describe("standard recipe compile errors (ecology)", () => {
     ).toBe(true);
   });
 
+  it("rejects legacy Projection step/op envelope config", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
+        "map-ecology": {
+          "features-apply": {
+            apply: {
+              strategy: "default",
+              config: { maxPerTile: 1 },
+            },
+          },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path.includes("/config/map-ecology/features-apply")
+      )
+    ).toBe(true);
+  });
+
+  it("rejects out-of-range Projection public numeric controls", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
+        "map-rivers": {
+          riverProjection: {
+            minLength: 0,
+          },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path.includes("/config/map-rivers/riverProjection/minLength")
+      )
+    ).toBe(true);
+  });
+
+  it("rejects unknown Projection biome globals", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
+        "map-ecology": {
+          biomeBindings: {
+            tropicalSeasonal: "BIOME_NOT_REAL",
+          },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path.includes("/config/map-ecology/biomeBindings/tropicalSeasonal")
+      )
+    ).toBe(true);
+  });
+
+  it("rejects non-marine Projection marine binding", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
+        "map-ecology": {
+          biomeBindings: {
+            marine: "BIOME_DESERT",
+          },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path.includes("/config/map-ecology/biomeBindings/marine")
+      )
+    ).toBe(true);
+  });
+
   it("flags unknown step ids returned by ecology stage compile", () => {
     const brokenStage = createStage({
       id: "ecology-pedology",

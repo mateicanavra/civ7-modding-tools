@@ -38,8 +38,10 @@ const FeaturesApplyContract = defineOp({
       {
         maxPerTile: Type.Integer({
           minimum: 1,
+          maximum: 1,
           default: 1,
-          description: "Maximum number of features to apply per tile.",
+          description:
+            "Feature collision guard; Civ7 tiles receive one planned feature after merge validation.",
         }),
       },
       {

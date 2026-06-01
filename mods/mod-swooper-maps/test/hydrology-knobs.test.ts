@@ -121,7 +121,7 @@ describe("hydrology knobs compilation", () => {
       env,
       withFoundation({
         "hydrology-hydrography": { lakes: {} },
-        "map-hydrology": { lakes: {} },
+        "map-hydrology": {},
       })
     );
     expect(compiled["hydrology-hydrography"].lakes.planLakes.config).toEqual({
@@ -154,12 +154,10 @@ describe("hydrology knobs compilation", () => {
             majorPercentile: 0.95,
           },
         },
-        "map-hydrology": {
-          lakes: { projectionReadback: true },
-        },
+        "map-hydrology": {},
         "map-rivers": {
           knobs: { riverDensity: "dense" },
-          "plot-rivers": { minLength: 11, maxLength: 11 },
+          riverProjection: { minLength: 11, maxLength: 11 },
         },
         "hydrology-climate-refine": {
           knobs: { dryness: "wet", temperature: "hot", cryosphere: "on" },

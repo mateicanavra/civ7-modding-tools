@@ -706,44 +706,30 @@
       }
     },
     "map-hydrology": {
-      "lakes": {
-        "projectionReadback": true
-      },
       "knobs": {}
     },
     "map-rivers": {
       "knobs": {
         "riverDensity": "normal"
       },
-      "plot-rivers": {
+      "riverProjection": {
         "minLength": 3,
         "maxLength": 12
       }
     },
     "map-ecology": {
-      "plot-biomes": {
-        "bindings": {
-          "snow": "BIOME_TUNDRA",
-          "tundra": "BIOME_TUNDRA",
-          "boreal": "BIOME_TUNDRA",
-          "temperateDry": "BIOME_PLAINS",
-          "temperateHumid": "BIOME_GRASSLAND",
-          "tropicalSeasonal": "BIOME_PLAINS",
-          "tropicalRainforest": "BIOME_TROPICAL",
-          "desert": "BIOME_DESERT",
-          "marine": "BIOME_MARINE"
-        }
-      },
-      "features-apply": {
-        "apply": {
-          "strategy": "default",
-          "config": {
-            "maxPerTile": 1
-          }
-        }
-      },
       "knobs": {},
-      "plot-effects": {}
+      "biomeBindings": {
+        "snow": "BIOME_TUNDRA",
+        "tundra": "BIOME_TUNDRA",
+        "boreal": "BIOME_TUNDRA",
+        "temperateDry": "BIOME_PLAINS",
+        "temperateHumid": "BIOME_GRASSLAND",
+        "tropicalSeasonal": "BIOME_PLAINS",
+        "tropicalRainforest": "BIOME_TROPICAL",
+        "desert": "BIOME_DESERT",
+        "marine": "BIOME_MARINE"
+      }
     },
     "placement": {
       "derive-placement-inputs": {
@@ -859,15 +845,10 @@
       "knobs": {}
     },
     "map-morphology": {
-      "knobs": {},
-      "plot-coasts": {},
-      "plot-continents": {},
-      "plot-mountains": {},
-      "plot-volcanoes": {}
+      "knobs": {}
     },
     "map-elevation": {
-      "knobs": {},
-      "build-elevation": {}
+      "knobs": {}
     }
   }
 }

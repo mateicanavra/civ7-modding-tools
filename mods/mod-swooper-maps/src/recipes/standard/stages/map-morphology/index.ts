@@ -1,4 +1,8 @@
-import { Type, createStage } from "@swooper/mapgen-core/authoring";
+import { createStage } from "@swooper/mapgen-core/authoring";
+import {
+  MapMorphologyKnobsSchema,
+  MapMorphologyPublicSchema,
+} from "../map-projection-public-config.js";
 import {
   plotCoasts,
   plotContinents,
@@ -8,6 +12,13 @@ import {
 
 export default createStage({
   id: "map-morphology",
-  knobsSchema: Type.Object({}, { additionalProperties: false }),
+  knobsSchema: MapMorphologyKnobsSchema,
+  public: MapMorphologyPublicSchema,
+  compile: () => ({
+    "plot-coasts": {},
+    "plot-continents": {},
+    "plot-mountains": {},
+    "plot-volcanoes": {},
+  }),
   steps: [plotCoasts, plotContinents, plotMountains, plotVolcanoes],
 } as const);

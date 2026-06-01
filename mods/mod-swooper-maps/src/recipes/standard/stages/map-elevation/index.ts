@@ -1,4 +1,8 @@
-import { Type, createStage } from "@swooper/mapgen-core/authoring";
+import { createStage } from "@swooper/mapgen-core/authoring";
+import {
+  MapElevationKnobsSchema,
+  MapElevationPublicSchema,
+} from "../map-projection-public-config.js";
 import { buildElevation } from "./steps/index.js";
 
 /**
@@ -11,6 +15,10 @@ import { buildElevation } from "./steps/index.js";
  */
 export default createStage({
   id: "map-elevation",
-  knobsSchema: Type.Object({}, { additionalProperties: false }),
+  knobsSchema: MapElevationKnobsSchema,
+  public: MapElevationPublicSchema,
+  compile: () => ({
+    "build-elevation": {},
+  }),
   steps: [buildElevation],
 } as const);
