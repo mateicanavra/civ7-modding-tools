@@ -83,6 +83,8 @@ before choosing between tactical inspections.
   origin.
 - `game play battlefield-scan`: explains the local battlefield around an
   origin before committing to a target or a sequence of unit moves.
+- `game play destination-analysis`: narrows the question to one intended
+  endpoint and a cheap straight-line corridor before a movement sequence.
 
 The practical sequence for a campaign turn is:
 
@@ -90,7 +92,9 @@ The practical sequence for a campaign turn is:
 2. `game play battlefield-scan --x <front-x> --y <front-y> --json` to orient.
 3. `game play target-candidates --x <front-x> --y <front-y> --json` if choosing
    a target owner/city.
-4. `game play ready-unit --json` and `game play unit-target ... --json` for the
+4. `game play destination-analysis --from-x <unit-x> --from-y <unit-y> --to-x <x> --to-y <y> --json`
+   when the next question is endpoint or route pressure.
+5. `game play ready-unit --json` and `game play unit-target ... --json` for the
    actual unit action.
 
 ## Current Live Use
@@ -112,7 +116,8 @@ validation.
 
 ## Remaining Gaps
 
-- Terrain-aware path analysis is not implemented here; distance is a cheap grid
+- Destination/corridor pressure now has a first read-only lens, but
+  terrain-aware pathfinding is still not implemented; distance is a cheap grid
   heuristic.
 - Visibility filtering is not yet paired with every unit/city summary.
 - Zone-of-control, river crossings, embarkation, and road movement are not

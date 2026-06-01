@@ -65,16 +65,18 @@ bun packages/cli/bin/run.js game map --summary --json
 bun packages/cli/bin/run.js game visibility --player-id 0 --bounds x,y,w,h --json
 bun packages/cli/bin/run.js game play target-candidates --x <front-x> --y <front-y> --json
 bun packages/cli/bin/run.js game play battlefield-scan --x <front-x> --y <front-y> --radius 8 --json
+bun packages/cli/bin/run.js game play destination-analysis --from-x <unit-x> --from-y <unit-y> --to-x <x> --to-y <y> --json
 bun packages/cli/bin/run.js game gameinfo --table LegacyPaths --json
 ```
 
 Direct-control already has read wrappers for map summary, plot/grid snapshots,
 player summaries, unit summaries, city summaries, visibility summaries,
 GameInfo rows, notifications, ready-unit, ready-city, target candidates,
-battlefield scan, and restart rehydration. Those are sufficient for a first
-planning snapshot around the local player and visible board. The missing
-first-class pieces are a terrain-aware path/front read, a victory/legacy
-progress read, and a diplomacy/relationship read shaped like the official UI.
+battlefield scan, destination analysis, and restart rehydration. Those are
+sufficient for a first planning snapshot around the local player and visible
+board. The missing first-class pieces are a terrain-aware path/front read, a
+victory/legacy progress read, and a diplomacy/relationship read shaped like the
+official UI.
 
 ## Official Evidence
 

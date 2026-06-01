@@ -107,6 +107,7 @@ Outputs:
   - `game play settlement-recommendations`
   - `game play target-candidates`
   - `game play battlefield-scan`
+  - `game play destination-analysis`
   - `game watch`
   - `game play topics`
   - `game ai loaded-levers`
@@ -128,6 +129,7 @@ Outputs:
   - `topics/strategic-planning-snapshot.md`
   - `topics/target-candidates.md`
   - `topics/battlefield-scan.md`
+  - `topics/destination-analysis.md`
   - `topics/rhq-ai-mod-baseline.md`
   - `evidence-packs/current-online-play-context.md`
   - `evidence-packs/agent-evidence-summary.md`
@@ -600,10 +602,26 @@ Residual objective gaps:
   `screen-resource-allocation`, so the HUD now classifies it as
   `resource-assignment` instead of an unknown generic blocker. No
   validator-backed resource assignment shortcut is proven yet.
+- The follow-on tactical-lens slice adds `game play destination-analysis`, a
+  read-only endpoint and corridor-pressure lens. It takes an intended
+  destination, optionally takes an origin, samples a straight-line grid
+  corridor, and reports destination pressure, corridor contact, sampled plot
+  state, and POIs such as unsupported endpoints or civilian route risk. This is
+  deliberately a cheap deterministic inspection lens: it helps the active agent
+  decide what to inspect before moving, but it is not pathfinding, reachability
+  proof, movement authority, or strategy selection.
+- Live smoke on turn 116 with
+  `game play destination-analysis --from-x 20 --from-y 14 --to-x 13 --to-y 17 --corridor-radius 2 --destination-radius 4 --json`
+  succeeded. It found a high-pressure destination around the independent city
+  at `(13,17)`, corridor contact along the Galley-to-city line, and
+  civilian-route risk for the friendly Settler near `(17,14)`. This supports
+  the lens as heads-up context before movement, not as proof that any specific
+  unit can reach or safely occupy the endpoint.
 - Remaining gaps are promotion-send/hardening work: richer ready-entity reads,
   stronger live postcondition polling, civic choice proof, population-placement
-  postconditions, visibility-filtered path/front analysis, AI autoplay
-  telemetry shortcuts, and eventual promotion into canonical docs/skills.
+  postconditions, visibility-filtered path/front analysis beyond the cheap
+  destination lens, AI autoplay telemetry shortcuts, and eventual promotion
+  into canonical docs/skills.
 
 Deferred items:
 
@@ -616,9 +634,9 @@ Deferred items:
 - Add visibility/pathing and diplomacy context to target-candidate ranking so
   future siege plans can distinguish public knowledge, debug summaries, and
   unwanted multi-front war risk.
-- Add terrain-aware destination/path analysis so battlefield scans can separate
-  cheap proximity, visible reachable movement, road/river constraints, and
-  validator-backed unit-specific movement options.
+- Add terrain-aware destination/path analysis so `destination-analysis` can
+  separate cheap corridor pressure, visible reachable movement, road/river
+  constraints, and validator-backed unit-specific movement options.
 - Specify the first strategy-runner dry run and the first fixed-seed AI
   resource-mod A/B experiment before implementing multi-turn automation.
 - Promote stable topic docs into canonical docs and skill assets after review.

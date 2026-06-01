@@ -249,6 +249,7 @@ and founding-legality cataloging open.
 Source artifacts:
 
 - `topics/battlefield-scan.md`
+- `topics/destination-analysis.md`
 - `topics/ready-unit-commander-actions.md`
 - `topics/unit-target-actions.md`
 - `topics/early-war-tactical-stale-state-guard.md`
@@ -259,6 +260,7 @@ CLI shortcuts:
 
 - `game play ready-unit`
 - `game play battlefield-scan`
+- `game play destination-analysis`
 - `game play promotion-readiness`
 - `game play unit-target`
 - `game play resettle-unit`
@@ -273,6 +275,10 @@ Norms:
   background tactical lens before sequencing multiple unit moves. It summarizes
   local pressure and points of interest; it does not path, move, attack, or
   validate operations.
+- Use `game play destination-analysis --from-x <unit-x> --from-y <unit-y> --to-x <x> --to-y <y> --json`
+  when the decision is whether an endpoint or approach deserves a move. It
+  reports corridor and destination pressure; it does not prove reachability or
+  reserve a route.
 - Target plots, not target unit ids.
 - Validator success is not proof of tactical effect; require a postcondition.
 - `verification.status == "no-state-change"` means the action is unresolved,
@@ -351,6 +357,7 @@ Source artifacts:
 - `topics/multi-turn-strategy-and-ai-levers.md`
 - `topics/strategic-planning-snapshot.md`
 - `topics/battlefield-scan.md`
+- `topics/destination-analysis.md`
 - `topics/target-candidates.md`
 - `topics/rhq-ai-mod-baseline.md`
 - `topics/early-game-decision-context.md`
@@ -370,6 +377,7 @@ CLI shortcuts:
 - `game play settlement-recommendations`
 - `game play target-candidates`
 - `game play battlefield-scan`
+- `game play destination-analysis`
 - `game ai loaded-levers`
 - `game play unit-target`
 - `game autoplay`
@@ -410,6 +418,10 @@ Norms:
 - Use `game play battlefield-scan --x <front-x> --y <front-y> --json` when the
   agent needs a wider tactical view of a front, city, stack, or destination.
   Treat its POIs as inspection priorities, not as strategy or movement orders.
+- Use `game play destination-analysis --from-x <unit-x> --from-y <unit-y> --to-x <x> --to-y <y> --json`
+  when a short-horizon plan depends on whether an endpoint is worth pursuing.
+  Treat corridor and destination pressure as a reason to inspect or revise, not
+  as proof of reachability.
 - Use RHQ AI MOD as the baseline for static AI manipulation over autoplay, not
   as proof that local SQLite edits or in-game JS should own player-side
   strategy. RHQ's public changelog maps to official AI tables and behavior-tree
@@ -465,6 +477,7 @@ runtime and local official resource references.
 | `topics/first-meet-diplomacy.md` | Diplomacy skill reference | Ready |
 | `topics/ready-unit-commander-actions.md` | Tactical guard and promotion-readiness reference | Ready as guard, not full combat planner |
 | `topics/battlefield-scan.md` | Tactical/strategic POI lens | Reference with pathing/visibility gaps |
+| `topics/destination-analysis.md` | Tactical endpoint/corridor pressure lens | Reference with pathing/visibility gaps |
 | `topics/unit-target-actions.md` | Tactical operation reference | Ready with postcondition warning |
 | `topics/unit-command-resettle-upgrade.md` | Unit command shape reference | Ready with postcondition gap |
 | `topics/early-war-tactical-stale-state-guard.md` | Tactical guard and advisory asset | Ready as guard; strategy stays advisory |

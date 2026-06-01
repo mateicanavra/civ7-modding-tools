@@ -165,9 +165,10 @@ multi-turn strategy in the surface that already has live validation and
 postcondition proof.
 
 Higher-level tactical reads belong in the external runner lane. Commands such
-as `game play battlefield-scan` and `game play target-candidates` should give
-the runner wider lenses over fronts, pressure, points of interest, and target
-owners while leaving strategy selection, movement, and combat sends to explicit
+as `game play battlefield-scan`, `game play destination-analysis`, and
+`game play target-candidates` should give the runner wider lenses over fronts,
+endpoints, corridors, pressure, points of interest, and target owners while
+leaving strategy selection, movement, and combat sends to explicit
 validator-backed steps.
 
 ## Experiments

@@ -18,6 +18,7 @@ import GamePlayChooseTech from '../../src/commands/game/play/choose-tech';
 import GamePlayConsiderAttributes from '../../src/commands/game/play/consider-attributes';
 import GamePlayConsiderTownProject from '../../src/commands/game/play/consider-town-project';
 import GamePlayConsiderTraditions from '../../src/commands/game/play/consider-traditions';
+import GamePlayDestinationAnalysis from '../../src/commands/game/play/destination-analysis';
 import GamePlayDismissNotification from '../../src/commands/game/play/dismiss-notification';
 import GamePlayEndTurn from '../../src/commands/game/play/end-turn';
 import GamePlayExpandCity from '../../src/commands/game/play/expand-city';
@@ -1043,6 +1044,39 @@ describe('game play commands', () => {
     }
   });
 
+  test('reads destination analysis without sending operations', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      await GamePlayDestinationAnalysis.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--from-x',
+        '20',
+        '--from-y',
+        '14',
+        '--to-x',
+        '13',
+        '--to-y',
+        '17',
+        '--corridor-radius',
+        '2',
+        '--destination-radius',
+        '4',
+        '--json',
+      ]);
+
+      expect(server.received.some((message) => message.includes('readDestinationAnalysis'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"origin":{"x":20,"y":14}'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"destination":{"x":13,"y":17}'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
   test('watches live play as JSONL without sending operations', async () => {
     const server = await startTunerServer({ playNotificationMode: 'ready-unit' });
     const writes: string[] = [];
@@ -1162,6 +1196,8 @@ async function startTunerServer(options: {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(settlementRecommendationsView())]));
         } else if (frame.message.includes('readTargetCandidates')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(targetCandidatesView())]));
+        } else if (frame.message.includes('readDestinationAnalysis')) {
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(destinationAnalysisView())]));
         } else if (frame.message.includes('readBattlefieldScan')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(battlefieldScanView())]));
         } else if (frame.message.includes('readNotificationDismissal')) {
@@ -1927,6 +1963,79 @@ function battlefieldScanView() {
       },
     ],
     notes: ['Read-only battlefield lens for tactical orientation. It does not path, move, attack, declare war, or validate operations.'],
+  };
+}
+
+function destinationAnalysisView() {
+  const opponentUnit = {
+    id: { owner: 9, id: 196608, type: 26 },
+    owner: 9,
+    stance: 'other',
+    type: 222,
+    typeName: 'UNIT_WARRIOR',
+    role: 'melee',
+    location: { x: 13, y: 17 },
+    distance: 0,
+    nearestOrigin: { x: 13, y: 17 },
+    damage: 0,
+    wounded: false,
+    strength: 20,
+    movementMovesRemaining: 2,
+    attacksRemaining: 1,
+    corridorDistance: 0,
+    destinationDistance: 0,
+  };
+  const city = {
+    id: { owner: 9, id: 589824, type: 1 },
+    owner: 9,
+    stance: 'other',
+    name: 'Independent City',
+    location: { x: 13, y: 17 },
+    distance: 0,
+    nearestOrigin: { x: 13, y: 17 },
+    population: 3,
+    isTown: false,
+    destinationDistance: 0,
+  };
+  return {
+    localPlayerId: 0,
+    playerId: 0,
+    origin: { x: 20, y: 14 },
+    destination: { x: 13, y: 17 },
+    corridorRadius: 2,
+    destinationRadius: 4,
+    hiddenInfoPolicy: 'runtime-debug-summary; may include non-visible units, cities, or plot state until paired with visibility/map reads',
+    corridor: {
+      routeHint: 'straight-line-grid-corridor',
+      directGridDistance: 7,
+      sampleCount: 8,
+      sampledPlots: [
+        {
+          location: { x: 20, y: 14 },
+          valid: { ok: true, value: true },
+          water: { ok: true, value: true },
+        },
+      ],
+      units: [opponentUnit],
+      unitCount: 1,
+    },
+    destinationPressure: {
+      units: [opponentUnit],
+      unitCount: 1,
+      cities: [city],
+      cityCount: 1,
+      apparentOtherStrength: 20,
+    },
+    pointsOfInterest: [
+      {
+        kind: 'destination-pressure',
+        severity: 'medium',
+        location: opponentUnit.location,
+        summary: '1 non-friendly units near destination',
+        units: [opponentUnit],
+      },
+    ],
+    notes: ['Read-only destination lens for tactical planning. It does not move units, reserve paths, attack, or validate operations.'],
   };
 }
 
