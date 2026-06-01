@@ -44,13 +44,4 @@ export function createStrategy<
   return impl;
 }
 
-type StrategyConfigSchemaOf<T> = T extends { config: infer C extends TSchema } ? C : never;
-
-export type StrategySelection<
-  Strategies extends Record<string, { config: TSchema }>,
-> = {
-  [K in keyof Strategies & string]: Readonly<{
-    strategy: K;
-    config: Static<StrategyConfigSchemaOf<Strategies[K]>>;
-  }>;
-}[keyof Strategies & string];
+export type { StrategySelection } from "./types.js";

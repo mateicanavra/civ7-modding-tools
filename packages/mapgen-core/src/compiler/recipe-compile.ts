@@ -3,28 +3,11 @@ import type { TSchema } from "typebox";
 import type { DomainOpCompileAny } from "../authoring/bindings.js";
 import type { CompiledRecipeConfigOf, RecipeConfigInputOf } from "../authoring/types.js";
 import type { StepOpsDecl } from "../authoring/step/ops.js";
+import type { CompileErrorItem } from "./errors.js";
 import type { NormalizeCtx } from "./normalize.js";
 import { normalizeOpsTopLevel, normalizeStrict, prefillOpDefaults } from "./normalize.js";
 
-export type CompileErrorCode =
-  | "config.invalid"
-  | "stage.compile.failed"
-  | "stage.unknown-step-id"
-  | "op.config.invalid"
-  | "op.missing"
-  | "step.normalize.failed"
-  | "op.normalize.failed"
-  | "normalize.not.shape-preserving";
-
-export type CompileErrorItem = Readonly<{
-  code: CompileErrorCode;
-  path: string;
-  message: string;
-  stageId?: string;
-  stepId?: string;
-  opKey?: string;
-  opId?: string;
-}>;
+export type { CompileErrorCode, CompileErrorItem } from "./errors.js";
 
 export class RecipeCompileError extends Error {
   readonly errors: CompileErrorItem[];
