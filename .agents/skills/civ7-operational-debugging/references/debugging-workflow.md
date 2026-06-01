@@ -10,7 +10,7 @@
 5. Inspect local generated output before inspecting deployed output.
 6. Inspect the deployed Mods directory only after the deploy command has run.
 7. Launch or use Civ7 only when the claim requires game load/runtime evidence.
-8. Use FireTuner only when direct runtime iteration or introspection is needed;
+8. Use direct tuner control when runtime iteration or introspection is needed;
    see `firetuner-runtime.md` for connection, state, restart, and autoplay
    rules.
 9. Read logs after the game action and bound findings to that run.
@@ -45,8 +45,8 @@ Use when the question is "what did Civ7 report?"
 - Inspect `Database.log` for XML import failures.
 - Inspect `Scripting.log` for map/runtime JavaScript errors and diagnostic
   `console.log` output.
-- Inspect `UI.log` for UI-context JavaScript/module errors when FireTuner is in
-  `App UI` or when a visible UI path is involved.
+- Inspect `UI.log` for UI-context JavaScript/module errors when direct control
+  targets `App UI` or when a visible UI path is involved.
 - Inspect `Localization.log` when text keys or localization files are involved.
 - Inspect `GameCore.log`, `Game.log`, `General.log`, `output.log`, and net logs
   when the issue may be engine flow, simulation, process, or connection state
@@ -63,14 +63,19 @@ Use when the claim depends on Civ7 executing behavior.
 - Tie the observation to current logs or visible game behavior.
 - State the exact exercised path; do not generalize beyond it.
 
-## FireTuner Gate
+## Direct Tuner Gate
 
 Use when the question is "what does the running Civ7 session expose or do?"
 
 - Verify Civ7 is listening on the tuner port before treating connection failure
   as an app bug: `lsof -nP -iTCP:4318`.
-- Refresh scripting states after connecting and after game restarts.
-- Select `Tuner` for gameplay/runtime commands unless the command is known to be
-  UI-owned, such as `Network.restartGame()`.
-- Run the smallest direct console command needed.
+- Rediscover scripting states after connecting and after game restarts.
+- Select `App UI` for `Network.restartGame()` and the native Begin Game action
+  (`UI.notifyUIReady()`). Use `civ7 game restart --begin --wait-tuner` for the
+  proven restart loop.
+- Use `civ7 game health --tuner` when the question is whether the game is
+  actually running and the `Tuner` state can execute gameplay API probes. `LSQ:`
+  listing alone is not enough.
+- Run the smallest direct command needed, usually through `civ7 game exec` or
+  `@civ7/direct-control`.
 - Bound proof in `Scripting.log` or the relevant sibling log after the command.

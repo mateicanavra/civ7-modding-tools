@@ -55,6 +55,22 @@ This document tracks completed work and upcoming enhancements for the CLI and XM
   - `--port` selects port (default 3000, falls back if busy).
   - Use with `civ7 explore <seed> --serve` for local iteration.
 
+- Civ7 direct restart control (Completed)
+  - `civ7 game restart` now defaults to the direct Civ7 tuner socket through
+    `@civ7/direct-control`.
+  - Direct mode supports host, port, scripting state selection, readiness
+    waiting, JSON output, and dry-run validation.
+  - `--begin` follows the native load-screen action with `UI.notifyUIReady()`;
+    `--wait-tuner` waits for post-Begin gameplay API readiness in `Tuner`.
+- Civ7 direct runtime command surface (Completed)
+  - `civ7 game exec "<js>"` sends arbitrary JavaScript to the selected tuner
+    state through `@civ7/direct-control`.
+  - `civ7 game health` checks listener readiness and lists available states.
+  - `civ7 game health --tuner` checks whether `Tuner` can execute read-only
+    gameplay probes against `Game`, `GameplayMap`, and `Players`.
+  - `civ7 game inspect` enumerates state-specific API roots and can return the
+    package-maintained read-only `App UI` snapshot.
+
 ### Next up
 
 - Phase C — Complexity controls (crawler + viewer cross-cutting)
@@ -165,5 +181,3 @@ Notes
   - GameEffects normalization, attach-chains, layering/deletes, provenance, deterministic traversal.
   - Acceptance: deep graphs for Rome and Genghis, manifests include GameEffects sources, no dangling edges.
   - Visualization improvements are now tracked as tickets above.
-
-

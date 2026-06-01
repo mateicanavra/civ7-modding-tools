@@ -1,36 +1,26 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { execFile } from "node:child_process";
-import { mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
-import { homedir } from "node:os";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import {
-  FIRETUNER_RESTART_COMMAND,
-  createFireTunerRequestId,
-} from "../../packages/cli/src/utils/firetunerBridge";
-import {
-  DEFAULT_FIRETUNER_SOCKET_HOST,
-  DEFAULT_FIRETUNER_SOCKET_PORT,
-  DEFAULT_FIRETUNER_SOCKET_TIMEOUT_MS,
-  FIRETUNER_APP_UI_STATE_NAME,
-  runFireTunerSocketCommand,
-} from "../../packages/cli/src/utils/firetunerSocket";
+  CIV7_RESTART_COMMAND,
+  DEFAULT_CIV7_SCRIPTING_LOG,
+  DEFAULT_CIV7_TUNER_TIMEOUT_MS,
+  createCiv7ControlRequestId,
+  restartCiv7GameAndBegin,
+  snapshotFile,
+  waitForFreshLogMarkers,
+  type FreshLogMarkerProof,
+} from "@civ7/direct-control";
 
 const execFileAsync = promisify(execFile);
 const DEPLOY_TIMEOUT_MS = 120_000;
 const SCRIPTING_LOG_WAIT_TIMEOUT_MS = 90_000;
 const MAX_DEPLOY_OUTPUT_CHARS = 8_000;
-const FIRETUNER_AGENT = "DRA-map-config-generation";
-const DEFAULT_CIV7_SCRIPTING_LOG = join(
-  homedir(),
-  "Library",
-  "Application Support",
-  "Civilization VII",
-  "Logs",
-  "Scripting.log"
-);
+const DIRECT_CONTROL_AGENT = "DRA-map-config-generation";
 
 let saveDeployRestartQueue = Promise.resolve();
 
@@ -38,22 +28,7 @@ function tail(value: string): string {
   return value.length > MAX_DEPLOY_OUTPUT_CHARS ? value.slice(-MAX_DEPLOY_OUTPUT_CHARS) : value;
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-type ScriptingLogSnapshot = Readonly<{
-  exists: boolean;
-  size: number;
-  mtimeMs: number;
-}>;
-
-type ScriptingLogProof = Readonly<{
-  logPath: string;
-  observedAt: string;
-  startOffset: number;
-  matched: ReadonlyArray<string>;
-}>;
+type ScriptingLogProof = FreshLogMarkerProof;
 
 async function deploySwooperMaps(repoRoot: string): Promise<{
   command: string;
@@ -77,137 +52,62 @@ async function deploySwooperMaps(repoRoot: string): Promise<{
   };
 }
 
-async function snapshotScriptingLog(logPath: string): Promise<ScriptingLogSnapshot> {
-  const info = await stat(logPath).catch((err: unknown) => {
-    if (isNodeNotFound(err)) return null;
-    throw err;
-  });
-  return info
-    ? { exists: true, size: info.size, mtimeMs: info.mtimeMs }
-    : { exists: false, size: 0, mtimeMs: 0 };
-}
-
-function hasFreshMapGenerationProof(text: string): {
-  ok: boolean;
-  matched: string[];
-  error?: string;
-} {
-  const markers = [
-    "Creating Context -  MapGeneration",
-    "[SWOOPER_MOD] [recipe:standard] [50/50] ok mod-swooper-maps.standard.placement.placement",
-    "Destroying Context -  MapGeneration",
-  ];
-  const matched: string[] = [];
-  let cursor = 0;
-  for (const marker of markers) {
-    const next = text.indexOf(marker, cursor);
-    if (next < 0) return { ok: false, matched };
-    matched.push(marker);
-    cursor = next + marker.length;
-  }
-  const errorMatch = /\b(?:TextEncoder|Uncaught|Exception|Error)\b/i.exec(text);
-  if (errorMatch) {
-    return { ok: false, matched, error: `Scripting log contains ${errorMatch[0]}` };
-  }
-  return { ok: true, matched };
-}
-
-async function waitForFreshMapGeneration(args: {
-  logPath: string;
-  snapshot: ScriptingLogSnapshot;
-  timeoutMs: number;
-  pollIntervalMs?: number;
-}): Promise<ScriptingLogProof> {
-  const startedAt = Date.now();
-  const pollIntervalMs = args.pollIntervalMs ?? 1_000;
-  const startOffset = args.snapshot.size;
-  let lastError: string | undefined;
-
-  while (Date.now() - startedAt <= args.timeoutMs) {
-    const current = await snapshotScriptingLog(args.logPath);
-    if (current.exists && (current.size > startOffset || current.mtimeMs > args.snapshot.mtimeMs)) {
-      const fullText = await readFile(args.logPath, "utf8");
-      const newText = current.size >= startOffset ? fullText.slice(startOffset) : fullText;
-      const proof = hasFreshMapGenerationProof(newText);
-      if (proof.error) lastError = proof.error;
-      if (proof.ok) {
-        return {
-          logPath: args.logPath,
-          observedAt: new Date().toISOString(),
-          startOffset,
-          matched: proof.matched,
-        };
-      }
-    }
-    await sleep(pollIntervalMs);
-  }
-
-  throw new Error(
-    lastError ?? "Timed out waiting for fresh Civ7 MapGeneration completion in Scripting.log"
-  );
-}
+const SWOOPER_MAP_GENERATION_MARKERS = [
+  "Creating Context -  MapGeneration",
+  "[SWOOPER_MOD] [recipe:standard] [50/50] ok mod-swooper-maps.standard.placement.placement",
+  "Destroying Context -  MapGeneration",
+] as const;
 
 async function requestCiv7Restart(options?: { verify?: boolean }): Promise<{
   requestId: string;
   agent: string;
   command: string;
-  transport: "firetuner-socket";
+  transport: "direct";
   host: string;
   port: number;
   state: unknown;
   output: ReadonlyArray<string>;
+  beginOutput?: ReadonlyArray<string>;
+  finalLoadingState?: string | null;
+  tunerReady?: boolean;
   scriptingLog?: ScriptingLogProof;
 }> {
-  const requestId = createFireTunerRequestId("studio-socket");
-  const host = process.env.CIV7_FIRETUNER_HOST ?? DEFAULT_FIRETUNER_SOCKET_HOST;
-  const port = fireTunerSocketPort();
+  const requestId = createCiv7ControlRequestId("studio-socket");
   const scriptingLogPath = process.env.CIV7_SCRIPTING_LOG ?? DEFAULT_CIV7_SCRIPTING_LOG;
   const scriptingSnapshot = options?.verify
-    ? await snapshotScriptingLog(scriptingLogPath)
+    ? await snapshotFile(scriptingLogPath)
     : undefined;
-  const response = await runFireTunerSocketCommand({
-    host,
-    port,
-    stateName: FIRETUNER_APP_UI_STATE_NAME,
-    command: FIRETUNER_RESTART_COMMAND,
-    timeoutMs: DEFAULT_FIRETUNER_SOCKET_TIMEOUT_MS,
+  const response = await restartCiv7GameAndBegin({
+    waitForTuner: true,
+    timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS,
+    waitTimeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
   });
-
-  if (response.output[0] !== "true") {
-    throw new Error(
-      `FireTuner socket restart returned: ${response.output.join("\n") || "<empty>"}`
-    );
-  }
 
   const scriptingLog =
     options?.verify && scriptingSnapshot
-      ? await waitForFreshMapGeneration({
+      ? await waitForFreshLogMarkers({
           logPath: scriptingLogPath,
           snapshot: scriptingSnapshot,
+          markers: SWOOPER_MAP_GENERATION_MARKERS,
           timeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
+          rejectPattern: /\b(?:TextEncoder|Uncaught|Exception|Error)\b/i,
         })
       : undefined;
 
   return {
     requestId,
-    agent: FIRETUNER_AGENT,
-    command: FIRETUNER_RESTART_COMMAND,
-    transport: "firetuner-socket",
-    host: response.host,
-    port: response.port,
-    state: response.state,
-    output: response.output,
+    agent: DIRECT_CONTROL_AGENT,
+    command: CIV7_RESTART_COMMAND,
+    transport: "direct",
+    host: response.restart.host,
+    port: response.restart.port,
+    state: response.restart.state,
+    output: response.restart.output,
+    beginOutput: response.begin?.output,
+    finalLoadingState: response.finalAppUi.snapshot.ui.loadingStateName,
+    tunerReady: response.tunerHealth?.ready,
     scriptingLog,
   };
-}
-
-function fireTunerSocketPort(): number {
-  if (!process.env.CIV7_FIRETUNER_PORT) return DEFAULT_FIRETUNER_SOCKET_PORT;
-  const port = Number(process.env.CIV7_FIRETUNER_PORT);
-  if (!Number.isInteger(port) || port <= 0 || port > 65_535) {
-    throw new Error(`Invalid CIV7_FIRETUNER_PORT: ${process.env.CIV7_FIRETUNER_PORT}`);
-  }
-  return port;
 }
 
 function isNodeNotFound(err: unknown): boolean {

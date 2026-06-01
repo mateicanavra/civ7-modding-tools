@@ -10,7 +10,7 @@
 | Deploy command | Files were copied into `<game-data>/Mods/<mod-id>/` | Civ7 discovered, enabled, or executed the mod |
 | Deployed file inspection | The OS-level Mods directory contains specific files | The game used those files in a run |
 | Log lines | Civ7 emitted the observed message in the bounded log window | A missing message means the behavior is impossible |
-| FireTuner command result | The connected runtime accepted or rejected that direct command in the selected scripting state | Other scripting states expose the same globals or the UI panel path works |
+| Direct tuner command result | The connected runtime accepted or rejected that direct command in the selected scripting state | Other scripting states expose the same globals or the UI panel path works |
 | In-game observation | The exercised game path behaved as observed | Unexercised maps, settings, eras, or mod combinations behave the same |
 | Official resources | Current game data has the inspected shape | Repo SDK, adapter, MapGen, CLI, or mod policy |
 
@@ -22,7 +22,7 @@ Use these labels in final reports and handoffs:
 - `generated`: expected files exist in `mods/<mod-slug>/mod/`.
 - `deployed`: expected files exist in `<game-data>/Mods/<mod-id>/`.
 - `logged`: bounded Civ7 logs contain the named signal.
-- `tuner-exercised`: a direct FireTuner command ran in a named scripting state.
+- `tuner-exercised`: a direct tuner command ran in a named scripting state.
 - `in-game observed`: the relevant path was exercised inside Civ7.
 - `resource-backed`: official resources support the stated game-data fact.
 - `unresolved`: the available evidence does not prove the claim.

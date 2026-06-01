@@ -103,7 +103,7 @@ runStandardRecipe({ recipe: standardRecipe, init, overrides: {} });
 
 ## Operational Note
 
-Headless generation via an `InMemoryAdapter` proved impractical (the pipeline still depends on Civ VII engine globals such as `GameplayMap`, `TerrainBuilder`, `ResourceBuilder`, `FertilityBuilder`, `GameInfo`, etc.), so the stub adapter has been removed. For rapid iteration we instead rely on FireTuner-driven workflows to trigger map generation without restarting the client.
+Headless generation via an `InMemoryAdapter` proved impractical (the pipeline still depends on Civ VII engine globals such as `GameplayMap`, `TerrainBuilder`, `ResourceBuilder`, `FertilityBuilder`, `GameInfo`, etc.), so the stub adapter has been removed. For rapid iteration we use the repo-owned direct control package (`@civ7/direct-control`) to send tuner-socket commands such as `Network.restartGame()` and the native Begin Game action (`UI.notifyUIReady()`) to a running Civ7 client. FireTuner remains useful reference-client evidence, but it is no longer the default runtime control path for repo tooling.
 
 ## Legacy JS Architecture (Archived)
 

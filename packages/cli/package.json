@@ -29,6 +29,7 @@
     "version": "oclif readme && git add README.md"
   },
   "dependencies": {
+    "@civ7/direct-control": "workspace:*",
     "@civ7/plugin-files": "workspace:*",
     "@civ7/plugin-graph": "workspace:*",
     "@civ7/plugin-git": "workspace:*",

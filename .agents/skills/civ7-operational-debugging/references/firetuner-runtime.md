@@ -1,8 +1,8 @@
-# FireTuner Runtime
+# Civ7 Tuner Runtime
 
-Use FireTuner when the proof requires live Civ7 runtime behavior, JS globals,
-or fast in-game iteration. This is still an evidence surface: it can prove what
-the running game did, but source changes still belong in the repo.
+Use the Civ7 tuner socket when the proof requires live Civ7 runtime behavior,
+JS globals, or fast in-game iteration. Repo tooling should call
+`@civ7/direct-control`; FireTuner is reference-client evidence only.
 
 ## Connection
 
@@ -11,9 +11,12 @@ the running game did, but source changes still belong in the repo.
   `%LOCALAPPDATA%\Firaxis Games\Sid Meier's Civilization VII`; set
   `EnableTuner 1` without the leading semicolon.
 - The default tuner port is `4318`.
-- On this Mac + Parallels setup, FireTuner running in Windows should connect to
-  the Mac host through the Parallels shared-network host address. Verify rather
-  than memorizing:
+- The repo-owned direct path is local to the machine running Civ7:
+  `civ7 game restart`, `civ7 game exec`, `civ7 game health`, or package
+  callers of `@civ7/direct-control`.
+- If a Windows reference client is used manually, it connects to the Mac host
+  through the Parallels shared-network host address. Verify rather than
+  memorizing:
   - Mac side: `ifconfig bridge100` usually shows the host address, commonly
     `10.211.55.2`.
   - Windows VM side: `prlctl list --all --info` shows the guest address, commonly
@@ -21,42 +24,55 @@ the running game did, but source changes still belong in the repo.
   - If shared networking is not the path, try the Mac LAN IP from
     `ipconfig getifaddr en0`.
 - `127.0.0.1` inside Windows means the Windows VM, not the Mac Civ7 process.
+  `127.0.0.1` on the Mac means the local Civ7 tuner socket.
 
 ## Scripting States
 
-- After Civ7 starts, FireTuner may connect before states are populated. Use
-  `Connection -> Refresh Lua States`.
+- After Civ7 starts, a tuner client may connect before states are populated.
+  Direct tooling should query `LSQ:` again or call the package readiness helpers.
+  In FireTuner, use `Connection -> Refresh Lua States`.
 - The main menu may expose only `App UI`.
-- In-game sessions should expose both `App UI` and `Tuner`. Select `Tuner` for
-  gameplay/runtime globals such as `Autoplay`, `Game`, and map debugging unless
-  deliberately exercising UI-only globals.
+- In-game sessions should expose both `App UI` and `Tuner`. Treat them as
+  separate API surfaces. Current evidence places `Network.restartGame()` and
+  the native Begin Game action (`UI.notifyUIReady()`) on `App UI`; `Tuner` is
+  command-ready only after Begin Game and is the better canary for gameplay
+  globals such as `Game`, `GameplayMap`, and `Players`.
 - Refresh states again after leaving to main menu or starting/restarting a game.
 
 ## Fast Runtime Loops
 
-Use direct commands in the console; old Civ6 tuner panels are not reliable
-authority for Civ7 even when some still open.
+Use direct commands through `@civ7/direct-control`; old Civ6 tuner panels are
+not reliable authority for Civ7 even when some still open.
 
-When driving FireTuner through the append-only bridge command log, every
-instruction must carry an agent identifier:
+CLI restart example:
 
-```text
-AGENT=DRA-map-config-generation COMMAND=Network.restartGame()
+```bash
+civ7 game restart --agent Codex --begin --wait-tuner
 ```
 
-Bridge scripts and Windows command wrappers must parse
-`AGENT[=:][ \t]*([A-Za-z0-9_.-]+)` from each appended instruction and include
-the captured agent name in audit output. If the field is missing, the bridge
-should log `AGENT=unknown` and reject restart commands unless a human explicitly
-overrides that guard.
+Read-only direct command probes should use the package API or purpose-built
+scripts, not caller-local socket implementations.
 
 Restart the current setup with a fresh seed when restart is enabled:
 
-```js
-Network.restartGame()
+```bash
+civ7 game restart --agent Codex --begin --wait-tuner
 ```
 
-Run bounded autoplay from the gameplay/tuner context:
+Check whether the Tuner state can actually execute gameplay API probes:
+
+```bash
+civ7 game health --tuner --json
+```
+
+Run direct JavaScript:
+
+```bash
+civ7 game exec "1+1"
+```
+
+Run bounded autoplay from `App UI` unless a fresh probe proves a different
+state exposes the required `Autoplay` methods:
 
 ```js
 Autoplay.setTurns(5)

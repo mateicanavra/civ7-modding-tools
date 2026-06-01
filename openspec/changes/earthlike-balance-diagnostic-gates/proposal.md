@@ -35,7 +35,8 @@ before additional tuning changes can be specified and implemented.
 ## Requires
 
 - No behavior tuning in this slice.
-- Existing FireTuner bridge remains available for runtime restart proof.
+- Runtime restart proof uses repo-owned direct control through
+  `@civ7/direct-control`.
 
 ## Enables Parallel Work
 
@@ -49,7 +50,7 @@ before additional tuning changes can be specified and implemented.
 
 - No quota-based fallback placement.
 - No generated-output hand edits.
-- No claims that FireTuner restart proof equals balance proof.
+- No claims that restart proof equals balance proof.
 - No implementation tuning before the relevant downstream OpenSpec change
   exists.
 

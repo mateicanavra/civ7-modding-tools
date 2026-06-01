@@ -7,6 +7,7 @@
   "references": [
     { "path": "./packages/cli" },
     { "path": "./packages/config" },
+    { "path": "./packages/civ7-direct-control" },
     { "path": "./packages/sdk" },
     { "path": "./packages/plugins/plugin-files" },
     { "path": "./packages/plugins/plugin-graph" },
