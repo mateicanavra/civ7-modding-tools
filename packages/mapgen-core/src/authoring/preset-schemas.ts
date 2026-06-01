@@ -1,6 +1,7 @@
 import { Type, type Static } from "typebox";
 
 type JsonObject = Record<string, unknown>;
+const RECIPE_PRESET_DEFINITION_KEYS = new Set(["$schema", "id", "label", "description", "config"]);
 
 function isPlainObject(value: unknown): value is JsonObject {
   if (value == null || typeof value !== "object" || Array.isArray(value)) return false;
@@ -52,6 +53,12 @@ export function derivePresetLabel(id: string): string {
 
 export function isPresetWrapper(value: unknown): value is RecipePresetDefinitionV1 {
   if (!isPlainObject(value)) return false;
+  // Preset wrappers are authored files, not loose runtime payloads. Keeping
+  // wrapper keys strict makes topology migrations fail at the reusable contract
+  // boundary instead of only during Studio artifact generation.
+  for (const key of Object.keys(value)) {
+    if (!RECIPE_PRESET_DEFINITION_KEYS.has(key)) return false;
+  }
   if ("$schema" in value && typeof value.$schema !== "string") return false;
   if ("id" in value && typeof value.id !== "string") return false;
   if ("label" in value && typeof value.label !== "string") return false;
