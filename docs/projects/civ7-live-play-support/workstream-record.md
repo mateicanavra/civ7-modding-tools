@@ -275,6 +275,33 @@ Evidence:
   default-handler disaster reports as `informational-notification` so the HUD
   points to reviewed `game play dismiss-notification` closeout instead of a
   generic unknown operation.
+- Turn 100 after a human-side restart exposed another default-handler closeout:
+  `NOTIFICATION_GRIEVANCES_AGAINST_YOU` id
+  `{"owner":0,"id":459,"type":20}`. Live rehydration proved a turn mismatch
+  from expected turn `97` to live turn `100 / 1620 BCE`. Official handler
+  registration has specialized entries for ordinary diplomatic actions,
+  responses, relationship changes, war, and espionage, but not grievances
+  against you. A read-only dismissal probe showed the grievance notice was
+  user-dismissible and not a `RESPOND_DIPLOMATIC_ACTION` operation.
+  Disposition: classify grievance reports as reviewed informational closeout
+  while preserving the strategic relationship/Influence context in the summary.
+- Turn 101 exposed a targetless `NOTIFICATION_NEW_POPULATION` gap. The HUD
+  correctly classified the blocker, but `ready-city` initially returned no city
+  because the notification target and selected city were empty. Official
+  `NewPopulationHandler` does not rely on the target in that case; it scans the
+  local player's cities for `Growth.isReadyToPlacePopulation`. Disposition:
+  add the same fallback to `game play ready-city`. A live re-read resolved city
+  `{"owner":0,"id":131073,"type":1}`, returned workable plots `2623` and
+  `2708`, and validate-only `assign-worker --location 2708` succeeded.
+- Strategy-snapshot research refined the next read gaps: official XML gives
+  age legacy/victory thresholds and AI strategy hints, but live victory
+  progress, diplomacy relationships, Influence income/cost, and rival
+  comparison need first-class UI-equivalent direct-control wrappers before a
+  deterministic `game play strategic-snapshot` can be promoted.
+- Observer-mode research refined the watcher product shape: trust App UI first
+  after restart, re-prove Tuner with a canary before gameplay reads, and keep
+  passive human-turn watch at low-impact polling rather than broad map/entity
+  reads. Foreground focus remains an inference, not a proven OS-level signal.
 
 Review findings and disposition:
 
@@ -394,7 +421,9 @@ Residual objective gaps:
   norms for play agents.
 - A watcher-latency observer-mode evidence pack now captures low-impact polling,
   slow-read thresholds, restart recovery, and future timing instrumentation
-  candidates without overclaiming focus causality.
+  candidates without overclaiming focus causality. It now also records the
+  App UI first / Tuner canary restart discipline and the candidate
+  `game watch --jsonl --human-aware` product shape.
 - A first-meet diplomacy topic now captures `NOTIFICATION_PLAYER_MET` as a real
   greeting operation, including the conservative neutral-greeting norm and the
   new `game play respond-first-meet` shortcut. The notification HUD now carries
@@ -406,7 +435,7 @@ Residual objective gaps:
   without bypassing validators.
 - The informational-notification rules now include active/inactive volcano and
   river-flood report notices alongside volcano eruptions, unit attacks, district
-  attacks, and wonder reports.
+  attacks, district attacks, wonder reports, and grievance-against-you reports.
 - A production placement topic now captures the ordinary production `BUILD`
   item-kind split, the official placement-mode `X`/`Y` commit path, and the
   turn-78 Ancient Walls proof.
@@ -429,6 +458,8 @@ Residual objective gaps:
   town focus options, and population placement evidence without sending.
 - A population-placement topic and `game play expand-city` shortcut now capture
   the proven `NEW_POPULATION` expansion branch alongside `assign-worker`.
+  `ready-city` also now resolves targetless population blockers by mirroring the
+  official city scan fallback.
 - A current-online-context evidence pack now captures Test of Time / Update
   1.4.0 as advisory patch context and warns future agents not to promote older
   launch-era guides above live tooltips, local official rows, or validators.

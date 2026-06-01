@@ -4829,6 +4829,21 @@ function playNotificationViewSource(): string {
           ["Wonder completed/failed uses the default notification handler; the live target may be invalid, so activation only looks at a plot when one exists."],
         );
       }
+      if (stringIncludes(haystack, "GRIEVANCES_AGAINST_YOU")) {
+        return hint(
+          "informational-notification",
+          "app-ui-action",
+          "Game.Notifications.dismiss",
+          "{ notificationId }",
+          "game play dismiss-notification",
+          "official-ui",
+          [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not a diplomatic action id.")],
+          [
+            action("dismiss reviewed grievance notice", "game play dismiss-notification --target '<notification-id>' --send --reason '<why this grievance notice was reviewed>'", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after confirming the notification reports grievance/influence information and exposes no response operation"),
+          ],
+          ["Grievance-against-you reports can block the UI queue but are not RESPOND_DIPLOMATIC_ACTION choices; review the summary for strategic context, then use App UI dismissal if canUserDismiss is true."],
+        );
+      }
       if (stringIncludes(haystack, "NARRATIVE")) {
         return hint(
           "narrative-branch",
@@ -5948,6 +5963,15 @@ function readyCityViewSource(): string {
       }
       return out;
     };
+    const readyPopulationCityId = () => {
+      const player = Players.get(GameContext.localPlayerID);
+      const cityIds = player?.Cities?.getCityIds?.() ?? [];
+      for (const cityId of cityIds) {
+        const city = Cities.get(cityId);
+        if (city?.Growth?.isReadyToPlacePopulation) return toComponentId(city.id ?? cityId);
+      }
+      return null;
+    };
     const blockingCityId = () => {
       const blockerType = typeof Game?.Notifications?.getEndTurnBlockingType === "function"
         ? Game.Notifications.getEndTurnBlockingType(GameContext.localPlayerID)
@@ -5958,6 +5982,28 @@ function readyCityViewSource(): string {
       const notification = notificationId ? Game.Notifications.find(notificationId) : null;
       const target = toComponentId(notification?.Target);
       if (target && Cities.get(target)) return target;
+      const notificationType = (() => {
+        try {
+          return notificationId && typeof Game?.Notifications?.getType === "function"
+            ? Game.Notifications.getType(notificationId)
+            : notification?.Type ?? blockerType;
+        } catch {
+          return notification?.Type ?? blockerType;
+        }
+      })();
+      const typeName = (() => {
+        try {
+          return typeof Game?.Notifications?.getTypeName === "function"
+            ? Game.Notifications.getTypeName(notificationType)
+            : null;
+        } catch {
+          return null;
+        }
+      })();
+      if (String(typeName ?? "").toUpperCase().includes("NEW_POPULATION")) {
+        const populationCityId = readyPopulationCityId();
+        if (populationCityId && Cities.get(populationCityId)) return populationCityId;
+      }
       const selected = toComponentId(UI?.Player?.getHeadSelectedCity?.());
       return selected && Cities.get(selected) ? selected : null;
     };

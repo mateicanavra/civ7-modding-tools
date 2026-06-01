@@ -29,6 +29,33 @@ Official handler evidence:
   plot. The live wonder-completed notice had invalid target/location sentinels,
   so activation had no useful surface to open.
 
+On turn 100 after restart rehydration, the live HUD showed
+`NOTIFICATION_GRIEVANCES_AGAINST_YOU` as the current queue blocker:
+
+```json
+{
+  "summary": "Napoleon, Revolutionary sparked a diplomatic incident.[n]Cause: Revealed Espionage.[n]As a result, you gained 30[icon:YIELD_DIPLOMACY] Influence",
+  "message": "Grievance Against You",
+  "target": { "owner": -1, "id": -1, "type": 0 },
+  "location": { "x": 4, "y": 1 },
+  "canUserDismiss": true
+}
+```
+
+Official handler evidence:
+
+- `notification.xml` defines `NOTIFICATION_GRIEVANCES_AGAINST_YOU` as an
+  expiring high-severity notification.
+- `notification-handlers.js` registers specialized handlers for ordinary
+  diplomatic action, diplomatic response, relationship change, war, and
+  espionage notifications, but not for `NOTIFICATION_GRIEVANCES_AGAINST_YOU`.
+- A live dismissal probe reported `canDismiss:true`, `canUserDismiss:true`,
+  `blocksTurnAdvancement:false`, and `endTurnBlockingType:0`.
+
+This is diplomatic information, not a diplomatic response operation. Review the
+summary because it explains relationship and Influence context, then use
+App UI dismissal when the live notification is still user-dismissible.
+
 On turn 57, the live HUD showed `NOTIFICATION_UNIT_ATTACKED` as an end-turn
 blocking notice even though the App UI blocker enum had returned to `0` and
 there were no ready units:
@@ -88,6 +115,10 @@ Do not use this for advisor warnings, narrative choices, diplomacy responses,
 city production, town focus, population placement, or unit commands. Those
 families have specialized operation or UI surfaces, and dismissing them skips
 the decision rather than making it.
+
+Do not confuse grievance report closeout with `RESPOND_DIPLOMATIC_ACTION`.
+Response blockers carry a diplomatic action id and response enum; grievance
+reports carry only the notification id and summary text.
 
 ## Proof Boundary
 

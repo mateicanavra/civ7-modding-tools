@@ -100,6 +100,36 @@ settlement-cap increase, production, and military tags. These rows are static
 context for why a plan might prioritize expansion or defense; they do not prove
 current action legality.
 
+## Static Victory And Legacy Signals
+
+Use official XML as the rules/threshold layer and direct-control as the current
+state layer. The static rows can explain what progress is valuable over the
+next few turns, but they cannot prove our current score, relationship state, or
+legal operation.
+
+Useful static anchors:
+
+- Legacy classes split into Culture, Economic, Military, and Science across
+  `Base/modules/base-standard/data/gameplay.xml` and each age's
+  `data/gameplay.xml`.
+- Age victory rows live in:
+  `.civ7/outputs/resources/Base/modules/age-antiquity/data/victories.xml`,
+  `.civ7/outputs/resources/Base/modules/age-exploration/data/victories.xml`,
+  and `.civ7/outputs/resources/Base/modules/age-modern/data/victories.xml`.
+- Antiquity threshold examples: Culture `2/4/7`, Military `6/9/12`, Science
+  `3/6/10`, Economic `7/14/20`.
+- Exploration threshold examples: Science `1/3/5`, Military `4/8/12`, Culture
+  `6/9/12`, Economic `10/20/30`.
+- Modern threshold examples: Science `1/2/3`, Military `10/15/20`, Culture
+  `5/10/15`, Economic `150/300/500`.
+
+Strategy notes should convert those rows into reachable deltas. For example,
+"settle east with escort" is useful when Military/Expansion scoring and rival
+settlement counts make another settlement reachable; "build ranged defense" is
+useful when preserving the capital is a prerequisite for every path. A generic
+"play safely" note is too weak unless it names which milestone or blocker risk
+it is protecting.
+
 ## 5-10 Turn Use
 
 The planning note should be deliberately temporary. A good note has:
@@ -169,6 +199,8 @@ diplomacy relationship data.
 - First-class direct-control victory/legacy snapshot shaped from the official
   victory manager.
 - First-class diplomacy/relationship snapshot that follows public UI visibility.
+- Live treasury, Influence, and diplomacy-action affordability reads connected
+  to the static diplomacy action cost tables.
 - Settlement recommendation wrapper that records whether it is using the
   current selected settler, a supplied coordinate, or debug context.
 - A compact rival comparison schema that separates met/public facts from

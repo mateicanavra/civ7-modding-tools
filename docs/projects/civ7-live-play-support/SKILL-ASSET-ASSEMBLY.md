@@ -97,6 +97,9 @@ Norms:
 - Prefer the specialized operation family over notification dismissal.
 - Treat reviewed default-handler notices as dismissible only after the HUD and
   official handler evidence show no real decision surface remains.
+- Treat grievance-against-you notifications as reviewed informational
+  closeout, not as diplomacy responses. They carry notification context, not
+  `{ ID, Type }` response args.
 - Do not use force-end-turn as play-agent guidance.
 
 Promotion readiness: ready for a skill asset, with a required warning that
@@ -222,6 +225,9 @@ Norms:
 - `NEW_POPULATION` opens acquire-tile mode. Worker assignment uses
   `ASSIGN_WORKER { Location, Amount: 1 }` for already-workable plots; expansion
   purchase uses city-command `EXPAND { X, Y }` for expansion plots.
+- Targetless `NEW_POPULATION` notifications should still start with
+  `ready-city`; it mirrors the official handler by scanning owned cities for
+  `Growth.isReadyToPlacePopulation`.
 
 Promotion readiness: ready for production item-kind and constructible placement
 guidance. `ready-city` is ready as a read-only support asset, and population
@@ -342,6 +348,9 @@ Norms:
   direct-control/HUD surface first.
 - Use a 5-10 turn read-only strategy snapshot to decide what to inspect next,
   not to bypass blocker, ready-view, validator, or postcondition checks.
+- Compare live posture against official legacy/victory thresholds and
+  age-specific strategy hints, then choose objectives with reachable deltas
+  inside the horizon.
 - Compare to rival civs only through public/UI-equivalent or explicitly labeled
   debug signals; do not silently plan from hidden information.
 - Treat native autoplay as a turn-runner and experiment clock, not a strategy
@@ -449,6 +458,14 @@ and postcondition are proven:
   live blockers, ready entities, visible threats, production/diplomacy context,
   met-civ comparison, victory/legacy progress, current objective ledger, and
   stale-risk markers.
+- `game victory`: read static and live victory/legacy path context, including
+  thresholds, current progress when discoverable, next milestone deltas, and
+  hidden-info labels.
+- `game diplomacy`: read relationship, Influence, diplomatic action cost, and
+  response affordability context once the live relationship APIs are proven.
+- `game watch --jsonl --human-aware`: low-impact passive watcher that trusts
+  App UI first, re-proves Tuner after restart, and throttles during inferred
+  human play.
 - `game strategy run`: external workflow runner for validate-only and bounded
   send loops over multiple turns, using `game autoplay` only after clean
   App UI proof.
