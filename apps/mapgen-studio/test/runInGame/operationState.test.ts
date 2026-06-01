@@ -63,6 +63,20 @@ describe("Run in Game operation store", () => {
     expect(failed.recoveryActions).toContain("exit-to-shell-and-continue");
   });
 
+  it("surfaces process restart recovery when setup row reload requires a Civ process boundary", () => {
+    const { store } = createStore();
+    store.create("request-1");
+    const failed = store.fail("request-1", "checking-civ7", new RunInGameHttpError(409, "row missing", {
+      code: "setup-map-row-not-visible",
+      reloadRequired: true,
+      reloadBoundary: "process-restart-required",
+    }));
+
+    expect(failed.status).toBe("blocked");
+    expect(failed.recoveryActions).toContain("exit-to-shell-and-continue");
+    expect(failed.recoveryActions).toContain("restart-civ-process-and-retry");
+  });
+
   it("classifies socket uncertainty after start without replaying the mutation", () => {
     const { store } = createStore();
     store.create("request-1");
