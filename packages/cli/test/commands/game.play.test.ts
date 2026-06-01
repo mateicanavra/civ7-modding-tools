@@ -181,6 +181,34 @@ describe('game play commands', () => {
     }
   });
 
+  test('sends approved unit operations through direct-control once', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      await GamePlayOperation.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--family',
+        'unit',
+        '--type',
+        'SKIP_TURN',
+        '--unit-id',
+        '{"owner":0,"id":65536,"type":26}',
+        '--send',
+        '--reason',
+        'test approved unit queue operation',
+        '--json',
+      ]);
+
+      expect(server.received.some((message) => message.includes('sendOperation("unit-operation"'))).toBe(true);
+      expect(server.received.filter((message) => message.includes('return JSON.stringify(sendOperation'))).toHaveLength(1);
+    } finally {
+      await server.close();
+    }
+  });
+
   test('wraps advisor warning acknowledgement as an approved player operation', async () => {
     const server = await startTunerServer();
     try {
@@ -1833,7 +1861,14 @@ async function startTunerServer(options: {
         } else if (frame.message.includes('return JSON.stringify(validateOperation')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(operationValidation(frame.message))]));
         } else if (frame.message.includes('return JSON.stringify(sendOperation')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify({ sent: true })]));
+          const unitFamily = frame.message.includes('sendOperation("unit-operation"') || frame.message.includes('sendOperation("unit-command"');
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(unitFamily
+            ? {
+                sent: true,
+                beforePostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 65536, type: 26 }),
+                afterPostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 131072, type: 26 }),
+              }
+            : { sent: true })]));
         } else {
           socket.write(encodeResponse(frame.listenerId, ['null']));
         }
@@ -3136,6 +3171,25 @@ function operationValidation(message: string) {
     args: operationArgs(operationType, message),
     valid: true,
     result: { Success: true },
+  };
+}
+
+function unitOperationPostconditionSnapshot(firstReadyUnitId: { owner: number; id: number; type: number }) {
+  return {
+    unit: {
+      ok: true,
+      value: {
+        id: { owner: 0, id: 65536, type: 26 },
+        location: { x: 22, y: 33 },
+        movement: 2,
+        activity: 'UNIT_ACTIVITY_AWAKE',
+        damage: 0,
+        attacks: 1,
+      },
+    },
+    selectedUnitId: { ok: true, value: { owner: 0, id: 65536, type: 26 } },
+    firstReadyUnitId: { ok: true, value: firstReadyUnitId },
+    blocker: { ok: true, value: 0 },
   };
 }
 

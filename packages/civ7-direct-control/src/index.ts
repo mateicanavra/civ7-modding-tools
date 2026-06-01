@@ -1195,12 +1195,39 @@ export type Civ7OperationValidationResult = Readonly<{
   result: unknown;
 }>;
 
+export type Civ7UnitOperationPostconditionClassification =
+  | "not-sent"
+  | "queue-advanced"
+  | "selected-unit-changed"
+  | "activity-changed"
+  | "unit-state-changed"
+  | "blocker-changed"
+  | "validation-changed"
+  | "no-state-change";
+
+export type Civ7UnitOperationPostconditionSnapshot = Readonly<{
+  unit: Civ7RuntimeProbe<unknown>;
+  selectedUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  blocker: Civ7RuntimeProbe<unknown>;
+}>;
+
+export type Civ7UnitOperationPostcondition = Readonly<{
+  family: "unit-operation" | "unit-command";
+  operationType: string;
+  classification: Civ7UnitOperationPostconditionClassification;
+  before?: Civ7UnitOperationPostconditionSnapshot;
+  after?: Civ7UnitOperationPostconditionSnapshot;
+  reason: string;
+}>;
+
 export type Civ7OperationRequestResult = Readonly<{
   before: Civ7OperationValidationResult;
   command?: Civ7CommandResult;
   after: Civ7OperationValidationResult;
   sent: boolean;
   verified: boolean;
+  postcondition?: Civ7UnitOperationPostcondition;
 }>;
 
 export type Civ7UnitTargetActionInput = Readonly<{
@@ -5672,7 +5699,38 @@ function notificationDismissalSource(): string {
 }
 
 function operationRouterSource(): string {
-  return `const routerFor = (family) => {
+  return `${probeHelperSource()}
+    const toComponentId = (value) => {
+      if (!value || typeof value !== "object") return null;
+      if (typeof value.owner !== "number" || typeof value.id !== "number") return null;
+      const out = { owner: value.owner, id: value.id };
+      if (typeof value.type === "number") out.type = value.type;
+      return out;
+    };
+    const summarizeUnitForPostcondition = (unit) => {
+      if (!unit) return null;
+      const location = unit.location ?? unit.Location ?? null;
+      const movement = unit.Movement ?? unit.movement ?? unit.movementMovesRemaining ?? null;
+      const activity = unit.Activity ?? unit.activity ?? unit.currentActivity ?? null;
+      const damage = unit.Damage ?? unit.damage ?? null;
+      const attacks = unit.Attacks ?? unit.attacks ?? unit.attackCharges ?? null;
+      return {
+        id: toComponentId(unit.id ?? unit.ID ?? unit.UnitId ?? unit.unitId),
+        location,
+        movement,
+        activity,
+        damage,
+        attacks,
+      };
+    };
+    const readUnitPostconditionSnapshot = (input) => ({
+      unit: probe(() => summarizeUnitForPostcondition(globalThis.Units?.get?.(input.unitId))),
+      selectedUnitId: probe(() => toComponentId(globalThis.UI?.Player?.getHeadSelectedUnit?.())),
+      firstReadyUnitId: probe(() => toComponentId(globalThis.UI?.Player?.getFirstReadyUnit?.())),
+      blocker: probe(() => globalThis.Game?.Notifications?.getEndTurnBlockingType?.(globalThis.GameContext?.localPlayerID)),
+    });
+    const unitPostconditionEligible = (family) => family === "unit-operation" || family === "unit-command";
+    const routerFor = (family) => {
       if (family === "unit-operation") return { router: Game.UnitOperations, enums: UnitOperationTypes, targetKey: "unitId" };
       if (family === "unit-command") return { router: Game.UnitCommands, enums: UnitCommandTypes, targetKey: "unitId" };
       if (family === "city-operation") return { router: Game.CityOperations, enums: CityOperationTypes, targetKey: "cityId" };
@@ -5726,12 +5784,14 @@ function operationRouterSource(): string {
       };
     };
     const sendOperation = (family, input) => {
+      const beforePostcondition = unitPostconditionEligible(family) ? readUnitPostconditionSnapshot(input) : undefined;
       const before = validateOperation(family, input);
-      if (!before.valid) return { sent: false, before, result: null };
+      if (!before.valid) return { sent: false, before, result: null, beforePostcondition, afterPostcondition: beforePostcondition };
       const meta = routerFor(family);
       const target = input[meta.targetKey];
       const result = meta.router.sendRequest(target, before.enumValue, input.args ?? {});
-      return { sent: true, before, result };
+      const afterPostcondition = unitPostconditionEligible(family) ? readUnitPostconditionSnapshot(input) : undefined;
+      return { sent: true, before, result, beforePostcondition, afterPostcondition };
     };`;
 }
 
@@ -8293,21 +8353,134 @@ async function requestCiv7Operation(
   validateOperationInput(family, input);
   const before = await validateCiv7Operation(family, input, options);
   if (!before.valid) {
-    return { before, after: before, sent: false, verified: false };
+    return {
+      before,
+      after: before,
+      sent: false,
+      verified: false,
+      postcondition: unitOperationPostcondition(family, input, false, before, before, undefined, undefined),
+    };
   }
   const command = await executeCiv7TunerCommand({
     ...options,
     command: buildOperationRequestCommand(family, input),
   });
-  const sentPayload = jsonPayloadFromCommandResult<{ sent: boolean }>(command, "Civ7 operation request");
+  const sentPayload = jsonPayloadFromCommandResult<{
+    sent: boolean;
+    beforePostcondition?: Civ7UnitOperationPostconditionSnapshot;
+    afterPostcondition?: Civ7UnitOperationPostconditionSnapshot;
+  }>(command, "Civ7 operation request");
   const after = await validateCiv7Operation(family, input, options);
+  const sent = sentPayload.sent === true;
+  const postcondition = unitOperationPostcondition(
+    family,
+    input,
+    sent,
+    before,
+    after,
+    sentPayload.beforePostcondition,
+    sentPayload.afterPostcondition,
+  );
   return {
     before,
     command,
     after,
-    sent: sentPayload.sent === true,
-    verified: command.output.length > 0 && sentPayload.sent === true,
+    sent,
+    verified: postcondition ? postcondition.classification !== "not-sent" && postcondition.classification !== "no-state-change" : command.output.length > 0 && sent,
+    postcondition,
   };
+}
+
+function unitOperationPostcondition(
+  family: Civ7OperationFamily,
+  input: Civ7OperationInput,
+  sent: boolean,
+  before: Civ7OperationValidationResult,
+  after: Civ7OperationValidationResult,
+  beforeSnapshot: Civ7UnitOperationPostconditionSnapshot | undefined,
+  afterSnapshot: Civ7UnitOperationPostconditionSnapshot | undefined,
+): Civ7UnitOperationPostcondition | undefined {
+  if (family !== "unit-operation" && family !== "unit-command") return undefined;
+  const classification = classifyUnitOperationPostcondition(sent, before, after, beforeSnapshot, afterSnapshot);
+  return {
+    family,
+    operationType: input.operationType,
+    classification,
+    before: beforeSnapshot,
+    after: afterSnapshot,
+    reason: unitOperationPostconditionReason(classification),
+  };
+}
+
+function classifyUnitOperationPostcondition(
+  sent: boolean,
+  before: Civ7OperationValidationResult,
+  after: Civ7OperationValidationResult,
+  beforeSnapshot: Civ7UnitOperationPostconditionSnapshot | undefined,
+  afterSnapshot: Civ7UnitOperationPostconditionSnapshot | undefined,
+): Civ7UnitOperationPostconditionClassification {
+  if (!sent) return "not-sent";
+  if (probeValueChanged(beforeSnapshot?.firstReadyUnitId, afterSnapshot?.firstReadyUnitId)) return "queue-advanced";
+  if (probeValueChanged(beforeSnapshot?.selectedUnitId, afterSnapshot?.selectedUnitId)) return "selected-unit-changed";
+  if (probeFieldChanged(beforeSnapshot?.unit, afterSnapshot?.unit, "activity")) return "activity-changed";
+  if (probeValueChanged(beforeSnapshot?.unit, afterSnapshot?.unit)) return "unit-state-changed";
+  if (probeValueChanged(beforeSnapshot?.blocker, afterSnapshot?.blocker)) return "blocker-changed";
+  if (before.valid !== after.valid || stableJson(before.result) !== stableJson(after.result)) return "validation-changed";
+  return "no-state-change";
+}
+
+function unitOperationPostconditionReason(classification: Civ7UnitOperationPostconditionClassification): string {
+  switch (classification) {
+    case "not-sent":
+      return "The operation was not sent, so no unit-side postcondition can be verified.";
+    case "queue-advanced":
+      return "The first ready unit changed after the request, which shows the unit queue advanced.";
+    case "selected-unit-changed":
+      return "The selected unit changed after the request, which shows the game consumed the unit action.";
+    case "activity-changed":
+      return "The unit activity changed after the request.";
+    case "unit-state-changed":
+      return "The unit summary changed after the request.";
+    case "blocker-changed":
+      return "The end-turn blocker changed after the request.";
+    case "validation-changed":
+      return "The operation validation result changed after the request.";
+    case "no-state-change":
+      return "The request was sent, but no observed unit, queue, blocker, or validation state changed.";
+  }
+}
+
+function probeValueChanged(left: Civ7RuntimeProbe<unknown> | undefined, right: Civ7RuntimeProbe<unknown> | undefined): boolean {
+  if (!left || !right) return false;
+  if (left.ok !== right.ok) return true;
+  if (!left.ok || !right.ok) return stableJson(left) !== stableJson(right);
+  return stableJson(left.value) !== stableJson(right.value);
+}
+
+function probeFieldChanged(left: Civ7RuntimeProbe<unknown> | undefined, right: Civ7RuntimeProbe<unknown> | undefined, field: string): boolean {
+  if (!left?.ok || !right?.ok) return false;
+  if (!isRecord(left.value) || !isRecord(right.value)) return false;
+  return stableJson(left.value[field]) !== stableJson(right.value[field]);
+}
+
+function stableJson(value: unknown): string {
+  return JSON.stringify(value, Object.keys(flattenKeys(value)).sort()) ?? String(value);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function flattenKeys(value: unknown, keys: Record<string, true> = {}): Record<string, true> {
+  if (Array.isArray(value)) {
+    for (const item of value) flattenKeys(item, keys);
+  } else if (isRecord(value)) {
+    for (const [key, child] of Object.entries(value)) {
+      keys[key] = true;
+      flattenKeys(child, keys);
+    }
+  }
+  return keys;
 }
 
 function validateOperationInput(family: Civ7OperationFamily, input: Civ7OperationInput): void {

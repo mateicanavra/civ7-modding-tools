@@ -1225,6 +1225,12 @@ describe("Civ7 direct control", () => {
         valid: true,
       });
       expect(request.sent).toBe(true);
+      expect(request.verified).toBe(true);
+      expect(request.postcondition).toMatchObject({
+        family: "unit-operation",
+        operationType: "SKIP_TURN",
+        classification: "queue-advanced",
+      });
       expect(server.received.filter((message) => message.includes("return JSON.stringify(sendOperation")).length).toBe(1);
     } finally {
       await server.close();
@@ -2231,6 +2237,8 @@ async function startTunerServer(options: {
                   result: { Success: true },
                 },
                 result: { accepted: true },
+                beforePostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 65536, type: 26 }),
+                afterPostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 131072, type: 26 }),
               }),
             ]),
           );
@@ -2351,6 +2359,25 @@ function unitTargetAction(send: boolean, mode: "verified" | "no-op-after-send" =
           },
         }),
     notes: ["Selection follows the official right-click WorldInput target order."],
+  };
+}
+
+function unitOperationPostconditionSnapshot(firstReadyUnitId: { owner: number; id: number; type: number }) {
+  return {
+    unit: {
+      ok: true,
+      value: {
+        id: { owner: 0, id: 65536, type: 26 },
+        location: { x: 22, y: 33 },
+        movement: 2,
+        activity: "UNIT_ACTIVITY_AWAKE",
+        damage: 0,
+        attacks: 1,
+      },
+    },
+    selectedUnitId: { ok: true, value: { owner: 0, id: 65536, type: 26 } },
+    firstReadyUnitId: { ok: true, value: firstReadyUnitId },
+    blocker: { ok: true, value: 0 },
   };
 }
 
