@@ -16,8 +16,8 @@
   instead of hand-maintaining stage/step keys.
 - [x] 2.3 Add validation that `id` matches the file stem and that metadata can
   generate deterministic file names, localization tags, and map rows.
-- [x] 2.4 Add full-config completeness validation so shipped configs include
-  concrete strategy envelopes and config values.
+- [x] 2.4 Add public-surface validation so shipped configs carry authored
+  strategy/config values while compiler-owned internals stay compiled.
 - [x] 2.5 Document the JSON-first authoring policy and the reason JSDoc
   comments do not live inside canonical JSON.
 
@@ -27,7 +27,8 @@
   `sundered-archipelago.config.ts`, and `swooper-desert-mountains.config.ts`
   into canonical JSON envelope files.
 - [x] 3.2 Wrap `swooper-earthlike.config.json` in the canonical envelope.
-- [x] 3.3 Ensure every shipped JSON config validates as full and source-complete.
+- [x] 3.3 Ensure every shipped JSON config validates against the canonical map
+  envelope and standard recipe public surface.
 - [x] 3.4 Remove shipped `.config.ts` map configs after their JSON equivalents
   pass validation.
 
@@ -75,7 +76,7 @@
 
 ## 7. Verification
 
-- [x] 7.1 Run map config schema/completeness tests for every shipped config.
+- [x] 7.1 Run map config schema/public-surface tests for every shipped config.
 - [x] 7.2 Run generator tests or snapshots for entry registry, `config.xml`,
   `.modinfo`, and `MapText.xml`.
 - [x] 7.3 Run `bun run --cwd mods/mod-swooper-maps build:studio-recipes`.

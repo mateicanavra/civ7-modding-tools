@@ -17,19 +17,20 @@ latitude overrides, and recipe config payload.
   hardcoded `tsup` entry, XML row, modinfo import, localization row, or Studio
   preset payload becomes a second source of truth
 
-### Requirement: Shipped Map Configs Are Full Source Configs
+### Requirement: Shipped Map Configs Use Public Recipe Surface
 
-Canonical shipped map config files SHALL contain full recipe config payloads
-with concrete stage, step, op strategy, and config values required to generate
-the shipped map.
+Canonical shipped map config files SHALL contain the authored public recipe
+config payload required to generate the shipped map. The recipe compiler SHALL
+own defaulted and internal step config that is not part of the public authoring
+surface.
 
 #### Scenario: Generator consumes a shipped map config
 - **WHEN** the Swooper Maps generator reads a canonical shipped map config
 - **THEN** validation proves the file is schema-valid for its recipe
-- **AND** validation proves required strategy envelopes and config values are
-  concrete before generated Civ7 or Studio artifacts are emitted
-- **AND** missing shipped-map values are reported as source errors rather than
-  silently filled by hidden preset composition
+- **AND** validation proves authored public strategy envelopes and config values
+  are valid before generated Civ7 or Studio artifacts are emitted
+- **AND** compiler-owned internal values are produced by recipe compilation, not
+  duplicated into canonical map JSON
 
 ### Requirement: Swooper Map Artifacts Are Generated From The Config Registry
 

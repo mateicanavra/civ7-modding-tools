@@ -1,17 +1,14 @@
 import { describe, expect, it } from "bun:test";
-import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 
 import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 import shatteredRingRaw from "../../src/maps/configs/shattered-ring.config.json";
 import sunderedArchipelagoRaw from "../../src/maps/configs/sundered-archipelago.config.json";
 import swooperDesertMountainsRaw from "../../src/maps/configs/swooper-desert-mountains.config.json";
+import { canonicalRecipeConfig, type CanonicalMapConfigWithRecipe } from "../../src/maps/configs/canonical.js";
 import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 
-function unwrapConfig(config: unknown): StandardRecipeConfig {
-  const unwrapped = stripSchemaMetadataRoot(structuredClone(config)) as
-    | StandardRecipeConfig
-    | { config: StandardRecipeConfig };
-  return "config" in unwrapped ? unwrapped.config : unwrapped;
+function recipeConfig(config: CanonicalMapConfigWithRecipe): StandardRecipeConfig {
+  return canonicalRecipeConfig<StandardRecipeConfig>(config);
 }
 
 const VEGETATION_THRESHOLDS = [
@@ -23,10 +20,10 @@ const VEGETATION_THRESHOLDS = [
 ] as const;
 
 const CASES = [
-  { label: "swooper-earthlike", config: unwrapConfig(swooperEarthlikeConfigRaw) },
-  { label: "shattered-ring", config: unwrapConfig(shatteredRingRaw) },
-  { label: "sundered-archipelago", config: unwrapConfig(sunderedArchipelagoRaw) },
-  { label: "desert-mountains", config: unwrapConfig(swooperDesertMountainsRaw) },
+  { label: "swooper-earthlike", config: recipeConfig(swooperEarthlikeConfigRaw) },
+  { label: "shattered-ring", config: recipeConfig(shatteredRingRaw) },
+  { label: "sundered-archipelago", config: recipeConfig(sunderedArchipelagoRaw) },
+  { label: "desert-mountains", config: recipeConfig(swooperDesertMountainsRaw) },
 ] as const;
 
 describe("shipped map config identity", () => {

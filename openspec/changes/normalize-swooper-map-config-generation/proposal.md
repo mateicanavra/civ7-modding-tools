@@ -34,9 +34,10 @@ that directory.
 
 - Define one canonical JSON map config envelope under
   `mods/mod-swooper-maps/src/maps/configs/*.config.json`.
-- Require shipped map configs to be full source configs, not partial preset
-  overlays: every shipped map file carries metadata plus a complete recipe
-  config payload with concrete strategy envelopes and config values.
+- Require shipped map configs to be authoritative source configs, not partial
+  preset overlays: every shipped map file carries metadata plus the authored
+  public recipe config payload. Recipe compilation remains responsible for
+  defaulted/internal step config such as projection plumbing.
 - Convert all shipped map variants to canonical JSON files and remove shipped
   `.config.ts` variants.
 - Replace hand-written per-map TS wrappers and hardcoded build entries with a
@@ -95,8 +96,9 @@ that directory.
 - No TS config files for shipped map variants once canonical JSON is available.
 - No dual source of truth where map id/name/description/sort order is repeated
   in TS wrappers, `tsup`, XML, modinfo, text, and Studio payloads.
-- No partial shipped-map preset overlays that rely on hidden default/strategy
-  fill-in to become complete.
+- No duplicate shipped-map preset overlays. Canonical configs may omit
+  compiler-owned internal step config when the recipe public surface compiles
+  it deterministically.
 - No revival of persisted `advanced` config wrappers.
 
 ## Impact
@@ -104,8 +106,8 @@ that directory.
 - Affected owners:
   - Swooper Maps mod: canonical config files, generated map entry sources,
     package build scripts, XML/modinfo/text generation.
-  - MapGen core/authoring: config/schema validation and full-config
-    completeness checks if existing validation does not cover them.
+  - MapGen core/authoring: config/schema validation and public-surface
+    compilation checks if existing validation does not cover them.
   - MapGen Studio: repo-backed config catalog, load/save/save-as UX, scratch
     demotion, import/export naming.
   - SDK runtime: consumed by generated entry modules, but `createMap` behavior
@@ -130,14 +132,15 @@ that directory.
   - Civ7 map selection cannot be proven from generated per-map entry files;
   - Studio cannot write repo files without a dev-server/File-System-Access
     authority decision;
-  - a shipped config cannot be represented as full JSON without a schema or
-    authoring-contract gap;
+  - a shipped config cannot be represented as canonical JSON without a schema
+    or authoring-contract gap;
   - generated XML/modinfo/text cannot be reproduced deterministically from the
     canonical registry.
 - Verification gates:
   - `bun run openspec -- validate normalize-swooper-map-config-generation --strict`;
   - `bun run openspec:validate`;
-  - map config schema/completeness tests for every shipped config;
+  - map config schema and public-surface validation tests for every shipped
+    config;
   - generator tests or snapshots for entry-module registry, `config.xml`,
     `.modinfo`, and map localization rows;
   - `bun run --cwd mods/mod-swooper-maps build:studio-recipes`;

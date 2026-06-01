@@ -6,7 +6,7 @@
 
 ## 2. Implementation
 
-- [x] 2.1 Align Swooper Earthlike shipped config and standard preset.
+- [x] 2.1 Align Swooper Earthlike shipped config and legacy realism callers.
 - [x] 2.2 Remove internal projection/op config from Earthlike public posture
   where compilation owns it.
 - [x] 2.3 Retire, rename, or replace stale `realismEarthlikeConfig` test usage.

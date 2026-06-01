@@ -9,6 +9,9 @@ Implemented:
 
 - Canonical JSON map config envelope and validation helper in
   `mods/mod-swooper-maps/src/maps/configs/canonical.ts`.
+- Foundation projection config stays compiler-owned: canonical shipped configs
+  expose the public tectonic authoring surface, and the Foundation stage
+  compiles projection internally for runtime.
 - Full shipped configs for Swooper Earthlike, Swooper Desert Mountains,
   Shattered Ring, and Sundered Archipelago.
 - Registry generation in `mods/mod-swooper-maps/scripts/generate-map-artifacts.ts`
@@ -76,7 +79,7 @@ Scoped caveat:
 
 - `mods/mod-swooper-maps/test/pipeline/world-balance-stats.test.ts` is not a
   closure gate for this source-authority change and currently reports existing
-  world-balance sensitivity for some seeds after using source-complete compiled
+  world-balance sensitivity for some seeds after using compiled canonical map
   configs. Product world-shape tuning remains a separate balance lane.
 - The live Parallels bridge path is
   `~/Parallels Tunnel/Sid Meier's Civilization VII Development Tools/Comms/`;

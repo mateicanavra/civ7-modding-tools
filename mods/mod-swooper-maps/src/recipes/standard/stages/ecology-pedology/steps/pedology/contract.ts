@@ -10,7 +10,11 @@ const PedologyStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [morphologyArtifacts.topography, hydrologyClimateBaselineArtifacts.climateField],
+    requires: [
+      morphologyArtifacts.topography,
+      morphologyArtifacts.substrate,
+      hydrologyClimateBaselineArtifacts.climateField,
+    ],
     provides: [ecologyArtifacts.pedology],
   },
   ops: {

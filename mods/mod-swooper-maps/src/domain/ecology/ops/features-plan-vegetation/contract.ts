@@ -20,6 +20,14 @@ const PlanVegetationContract = defineOp({
     }),
 
     landMask: TypedArraySchemas.u8({ description: "1 = land, 0 = water." }),
+    flatLandMask: TypedArraySchemas.u8({
+      description:
+        "1 = land tile that will remain flat after terrain projection; 0 = water, hill, mountain, volcano, or lake.",
+    }),
+    biomeIndex: TypedArraySchemas.u8({
+      description:
+        "Internal biome classification index used to keep vegetation intents on engine-compatible biome bindings.",
+    }),
 
     featureIndex: TypedArraySchemas.u16({
       description: "0 = unoccupied, otherwise 1 + FEATURE_KEY_INDEX",

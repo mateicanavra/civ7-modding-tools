@@ -10,7 +10,7 @@ hydrology, and ecology dimensions that shape product-visible map quality.
 - **THEN** proof includes product-visible metrics for mountain coverage, hill
   coverage, terrain relief, continental elevation-profile shape,
   plains/soil/pedology distribution, humidity/aridity, vegetation-family
-  density, reef-family density, and atolls
+  density, reef-family density, cold reefs, and atolls
 - **AND** nonzero presence alone is insufficient for a terrain or feature class
   that must visibly define the map
 
@@ -36,7 +36,7 @@ for divergence.
 #### Scenario: Earthlike config is changed
 - **WHEN** any Earthlike recipe config source changes
 - **THEN** tests compare the intended shared posture across shipped map config,
-  standard preset config, and Studio default config
+  legacy realism callers, and Studio default config
 - **AND** any intentional divergence is named and verified rather than left as
   silent default drift
 

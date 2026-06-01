@@ -2,6 +2,7 @@ import { Type, defineStep } from "@swooper/mapgen-core/authoring";
 import ecology from "@mapgen/domain/ecology";
 
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
+import { hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts.js";
 import { morphologyArtifacts } from "../../../morphology/artifacts.js";
 
 const PlanVegetationStepContract = defineStep({
@@ -10,7 +11,16 @@ const PlanVegetationStepContract = defineStep({
   requires: [],
   provides: [],
   artifacts: {
-    requires: [ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyWetlands, morphologyArtifacts.topography],
+    requires: [
+      ecologyArtifacts.biomeClassification,
+      ecologyArtifacts.scoreLayers,
+      ecologyArtifacts.occupancyWetlands,
+      hydrologyHydrographyArtifacts.hydrography,
+      hydrologyHydrographyArtifacts.lakePlan,
+      morphologyArtifacts.topography,
+      morphologyArtifacts.mountains,
+      morphologyArtifacts.volcanoes,
+    ],
     provides: [ecologyArtifacts.featureIntentsVegetation, ecologyArtifacts.occupancyVegetation],
   },
   ops: {
@@ -26,4 +36,3 @@ const PlanVegetationStepContract = defineStep({
 });
 
 export default PlanVegetationStepContract;
-

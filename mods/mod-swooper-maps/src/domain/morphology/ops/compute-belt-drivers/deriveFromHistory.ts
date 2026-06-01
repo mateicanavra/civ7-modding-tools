@@ -475,10 +475,6 @@ export function deriveBeltDriversFromHistory(input: {
   const beltSeedMask = new Uint8Array(size);
   for (let i = 0; i < size; i++) {
     if (beltMask[i] !== 1) continue;
-    const boundary = boundaryTypeBlend[i] ?? BOUNDARY_TYPE.none;
-    const seeds = typeSeeds[boundary];
-    if (!seeds) continue;
-    if (seeds[i] !== 1) continue;
     beltSeedMask[i] = 1;
   }
   const { distance: beltDistance, nearestSeed: beltNearestSeed } = computeDistanceField(

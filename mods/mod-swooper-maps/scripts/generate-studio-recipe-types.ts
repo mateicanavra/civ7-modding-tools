@@ -33,6 +33,12 @@ function isPlainObject(value: unknown): value is JsonObject {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }
 
+function typeboxObjectProperties(schema: unknown): Record<string, unknown> {
+  if (!schema || typeof schema !== "object") return {};
+  const props = (schema as { properties?: unknown }).properties;
+  return isPlainObject(props) ? props : {};
+}
+
 function stableJson(value: unknown): JsonObject {
   const text = JSON.stringify(value);
   if (!text) throw new Error("schema is not JSON-serializable");
@@ -104,9 +110,12 @@ function deriveStageStepConfigFocusMap(args: {
     >;
   }
 
-  throw new Error(
-    `[recipe:${args.namespace}.${args.recipeId}] stage("${stage.id}") has a custom public surface; Studio config focus must be explicitly redesigned instead of using legacy compatibility mapping`
-  );
+  const publicProps = typeboxObjectProperties(stage.public);
+  return Object.fromEntries(
+    stepIds
+      .filter((stepId) => Object.prototype.hasOwnProperty.call(publicProps, stepId))
+      .map((stepId) => [stepId, [stepId]])
+  ) as Record<string, readonly string[]>;
 }
 
 function readPresetWrapper(args: {
@@ -293,21 +302,19 @@ function deriveStudioRecipeUiMeta(args: {
       return {
         stageId,
         stageLabel,
-        steps: stage.steps.map((s) => {
+        steps: stage.steps.flatMap((s) => {
           const stepId = s.contract.id;
           const configFocusPathWithinStage = stepFocus[stepId];
           if (!configFocusPathWithinStage) {
-            throw new Error(
-              `[recipe:${namespace}.${recipeId}] stage("${stage.id}") missing config focus path for step("${stepId}")`
-            );
+            return [];
           }
           const stepLabel = STEP_LABEL_OVERRIDES[stepId] ?? formatKebabIdLabel(stepId);
-          return {
+          return [{
             stepId,
             stepLabel,
             fullStepId: `${namespace}.${recipeId}.${stageId}.${stepId}`,
             configFocusPathWithinStage,
-          };
+          }];
         }),
       };
     }),

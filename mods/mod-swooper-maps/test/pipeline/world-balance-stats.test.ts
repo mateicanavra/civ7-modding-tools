@@ -1,25 +1,22 @@
 import { describe, expect, it } from "bun:test";
-import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 
 import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 import shatteredRingRaw from "../../src/maps/configs/shattered-ring.config.json";
 import sunderedArchipelagoRaw from "../../src/maps/configs/sundered-archipelago.config.json";
 import swooperDesertMountainsRaw from "../../src/maps/configs/swooper-desert-mountains.config.json";
+import { canonicalRecipeConfig, type CanonicalMapConfigWithRecipe } from "../../src/maps/configs/canonical.js";
 import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 import { collectWorldBalanceStats, type WorldBalanceStats } from "../support/world-balance-stats.js";
 
-function unwrapConfig(config: unknown): StandardRecipeConfig {
-  const unwrapped = stripSchemaMetadataRoot(structuredClone(config)) as
-    | StandardRecipeConfig
-    | { config: StandardRecipeConfig };
-  return "config" in unwrapped ? unwrapped.config : unwrapped;
+function recipeConfig(config: CanonicalMapConfigWithRecipe): StandardRecipeConfig {
+  return canonicalRecipeConfig<StandardRecipeConfig>(config);
 }
 
 const CASES = [
   {
     label: "swooper-earthlike",
-    config: unwrapConfig(swooperEarthlikeConfigRaw),
+    config: recipeConfig(swooperEarthlikeConfigRaw),
     wetlandMax: 0.08,
     reefMax: 0.04,
     requiredFeatures: [
@@ -50,7 +47,7 @@ const CASES = [
   },
   {
     label: "shattered-ring",
-    config: unwrapConfig(shatteredRingRaw),
+    config: recipeConfig(shatteredRingRaw),
     wetlandMax: 0.12,
     reefMax: 0.02,
     requiredFeatures: ["FEATURE_FOREST", "FEATURE_RAINFOREST", "FEATURE_SAGEBRUSH_STEPPE"],
@@ -59,7 +56,7 @@ const CASES = [
   },
   {
     label: "sundered-archipelago",
-    config: unwrapConfig(sunderedArchipelagoRaw),
+    config: recipeConfig(sunderedArchipelagoRaw),
     wetlandMax: 0.22,
     reefMax: 0.02,
     requiredFeatures: ["FEATURE_FOREST", "FEATURE_RAINFOREST", "FEATURE_MANGROVE"],
@@ -69,7 +66,7 @@ const CASES = [
   },
   {
     label: "desert-mountains",
-    config: unwrapConfig(swooperDesertMountainsRaw),
+    config: recipeConfig(swooperDesertMountainsRaw),
     wetlandMax: 0.08,
     reefMax: 0.03,
     requiredFeatures: ["FEATURE_SAVANNA_WOODLAND", "FEATURE_SAGEBRUSH_STEPPE"],
@@ -151,7 +148,7 @@ describe("world balance stats", () => {
     const rolls: WorldBalanceStats[] = seeds.map((seed) =>
       collectWorldBalanceStats({
         label: `swooper-earthlike:${seed}`,
-        config: unwrapConfig(swooperEarthlikeConfigRaw),
+        config: recipeConfig(swooperEarthlikeConfigRaw),
         seed,
         width: 80,
         height: 50,

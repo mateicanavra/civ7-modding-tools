@@ -161,6 +161,9 @@ export const FeatureApplyDiagnosticsArtifactSchema = Type.Object(
     rejectedCanHaveFeature: Type.Integer({ minimum: 0 }),
     rejectedOutOfBounds: Type.Integer({ minimum: 0 }),
     rejectedUnknownFeature: Type.Integer({ minimum: 0 }),
+    attemptedByFeature: Type.Record(Type.String(), Type.Integer({ minimum: 0 })),
+    appliedByFeature: Type.Record(Type.String(), Type.Integer({ minimum: 0 })),
+    rejectedCanHaveFeatureByFeature: Type.Record(Type.String(), Type.Integer({ minimum: 0 })),
     rejectionMask: TypedArraySchemas.u8({
       description: "Per-tile rejection mask (0=accepted/untouched, 1=rejected).",
     }),

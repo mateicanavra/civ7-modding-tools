@@ -43,4 +43,3 @@ export function scoreSavannaWoodlandSuitability(args: {
 
   return score01;
 }
-

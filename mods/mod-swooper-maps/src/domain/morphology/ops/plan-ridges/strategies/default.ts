@@ -90,6 +90,7 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
     const mountainMaxFraction = Math.max(0, Math.min(1, config.mountainMaxFraction));
     const mountainSpineFraction = Math.max(0, Math.min(1, config.mountainSpineFraction));
     const mountainThreshold = Math.max(0, config.mountainThreshold);
+    const mountainShoulderThreshold = mountainThreshold * 0.6;
     const dilationSteps = Math.max(0, Math.min(6, Math.round(config.mountainSpineDilationSteps))) | 0;
 
     let landCount = 0;
@@ -203,7 +204,7 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
           if (landMask[i] === 0) continue;
           if (mountainMask[i] === 1) continue;
           const score = mountainScoreByTile[i] ?? 0;
-          if (!(score >= mountainThreshold)) continue;
+          if (!(score >= mountainShoulderThreshold)) continue;
 
           const x = i % w;
           const y = Math.floor(i / w);
@@ -239,7 +240,7 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
           if (landMask[i] === 0) continue;
           if (mountainMask[i] === 1) continue;
           const score = mountainScoreByTile[i] ?? 0;
-          if (!(score >= mountainThreshold)) continue;
+          if (!(score >= mountainShoulderThreshold)) continue;
           remaining.push(i);
         }
         remaining.sort((a, b) => {

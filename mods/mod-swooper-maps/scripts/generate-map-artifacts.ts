@@ -81,6 +81,7 @@ function renderMapEntry(config: ValidatedMapConfig): string {
 import { createMap } from "@mateicanavra/civ7-sdk/mapgen";
 import type { StandardRecipeConfig } from "../../recipes/standard/recipe.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
+import { canonicalRecipeConfig } from "../configs/canonical.js";
 import mapConfig from "../configs/${config.fileName}";
 
 export default createMap({
@@ -88,7 +89,7 @@ export default createMap({
   name: mapConfig.name,
   description: mapConfig.description,
   recipe: standardRecipe,${latitudeBounds}${logPrefix}
-  config: mapConfig.config as StandardRecipeConfig,
+  config: canonicalRecipeConfig<StandardRecipeConfig>(mapConfig),
 });
 `;
 }
