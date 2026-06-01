@@ -176,6 +176,9 @@
         "capTilesMax": 8
       }
     },
+    "morphology-routing": {
+      "knobs": {}
+    },
     "morphology-erosion": {
       "knobs": {
         "erosion": "low"
@@ -203,6 +206,21 @@
       "knobs": {
         "orogeny": "high",
         "volcanism": "high"
+      },
+      "volcanoes": {
+        "enabled": true,
+        "baseDensity": 0.00625,
+        "minSpacing": 6,
+        "boundaryThreshold": 0.32,
+        "boundaryWeight": 1.35,
+        "convergentMultiplier": 3.3,
+        "transformMultiplier": 0.8,
+        "divergentMultiplier": 0.32,
+        "hotspotWeight": 0.32,
+        "shieldPenalty": 0.55,
+        "randomJitter": 0.04,
+        "minVolcanoes": 12,
+        "maxVolcanoes": 42
       },
       "islandChains": {
         "fractalThresholdPercent": 96,
@@ -262,21 +280,6 @@
         "hillUpliftScale": 0.7,
         "hillRiftBonusScale": 0.5,
         "hillRiftDepthScale": 0.5
-      },
-      "volcanoes": {
-        "enabled": true,
-        "baseDensity": 0.00625,
-        "minSpacing": 6,
-        "boundaryThreshold": 0.32,
-        "boundaryWeight": 1.35,
-        "convergentMultiplier": 3.3,
-        "transformMultiplier": 0.8,
-        "divergentMultiplier": 0.32,
-        "hotspotWeight": 0.32,
-        "shieldPenalty": 0.55,
-        "randomJitter": 0.04,
-        "minVolcanoes": 12,
-        "maxVolcanoes": 42
       }
     },
     "hydrology-climate-baseline": {
@@ -368,6 +371,11 @@
         "riverDensity": "normal",
         "lakeiness": "many"
       },
+      "lakes": {
+        "maxUpstreamSteps": 2,
+        "sinkDischargePercentileMin": 0.94,
+        "maxLakeLandFraction": 0.07
+      },
       "runoff": {
         "runoffScale": 1,
         "infiltrationFraction": 0.18,
@@ -379,11 +387,6 @@
         "majorPercentile": 0.91,
         "minMinorDischarge": 0,
         "minMajorDischarge": 0
-      },
-      "lakes": {
-        "maxUpstreamSteps": 2,
-        "sinkDischargePercentileMin": 0.94,
-        "maxLakeLandFraction": 0.07
       }
     },
     "hydrology-climate-refine": {
@@ -705,7 +708,13 @@
         }
       }
     },
+    "map-morphology": {
+      "knobs": {}
+    },
     "map-hydrology": {
+      "knobs": {}
+    },
+    "map-elevation": {
       "knobs": {}
     },
     "map-rivers": {
@@ -749,15 +758,6 @@
         "minSpacingTiles": 2,
         "maxPlacementsPerResourceShare": 0.3
       }
-    },
-    "morphology-routing": {
-      "knobs": {}
-    },
-    "map-morphology": {
-      "knobs": {}
-    },
-    "map-elevation": {
-      "knobs": {}
     }
   }
 }
