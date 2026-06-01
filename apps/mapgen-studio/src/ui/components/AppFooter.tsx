@@ -63,6 +63,10 @@ export interface AppFooterProps {
     updatedAt?: string;
     error?: string;
   };
+  /** Whether the current Studio config/seed matches the proved live game source. */
+  liveGameStudioRelation?: "current" | "stale" | "unknown";
+  /** Callback to apply the proved live game seed/config back into Studio. */
+  onSyncFromLiveGame?: () => void;
   /** Whether a Civ7 autoplay start/stop request is in flight */
   isAutoplayActionRunning?: boolean;
   /** Callback to start or stop Civ7 native autoplay */
@@ -95,6 +99,8 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   isDirty,
   lightMode,
   liveRuntime,
+  liveGameStudioRelation = "unknown",
+  onSyncFromLiveGame,
   isAutoplayActionRunning = false,
   onToggleAutoplay,
   onToast,
@@ -157,6 +163,14 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           : "bg-gray-400";
   const runInGameButtonText = runInGamePrimaryActionLabel(runInGameStatus, runInGameCurrentRelation);
   const operationControlsDisabled = isRunning || isRunInGameRunning || isSaveDeployRunning;
+  const liveSyncAvailable =
+    liveRuntime?.status === "ok" &&
+    liveGameStudioRelation === "stale" &&
+    Boolean(onSyncFromLiveGame) &&
+    !operationControlsDisabled;
+  const liveSyncTitle = liveSyncAvailable
+    ? "Sync Studio seed and config from the live game"
+    : liveRuntime?.readiness ?? liveRuntime?.error ?? "Civ7 live runtime status";
   const autoplayControlDisabled = operationControlsDisabled || isAutoplayActionRunning || liveRuntime?.status !== "ok" || !onToggleAutoplay;
   const autoplayButtonText = isAutoplayActionRunning
     ? "Autoplay..."
@@ -253,18 +267,30 @@ export const AppFooter: React.FC<AppFooterProps> = ({
       {/* Live Civ7 Panel */}
       <div
         className={`h-10 inline-flex min-w-0 max-w-[420px] items-center gap-2 px-3 rounded-lg border backdrop-blur-sm ${panelBg} ${panelBorder}`}
-        title={liveRuntime?.readiness ?? liveRuntime?.error ?? "Civ7 live runtime status"}>
+        title={liveSyncTitle}>
 
-        <Radio className={`w-3.5 h-3.5 ${textMuted}`} />
-        <div className={`w-2 h-2 shrink-0 rounded-full ${liveDotClass}`} />
-        <span className={`truncate text-[11px] font-medium ${textPrimary}`}>
-          {liveText}
-        </span>
-        {liveRuntime?.autoplayActive ? (
-          <span className="shrink-0 rounded border border-amber-400/40 px-1.5 py-0.5 text-[10px] text-amber-500">
-            Auto
+        <button
+          type="button"
+          onClick={onSyncFromLiveGame}
+          disabled={!liveSyncAvailable}
+          title={liveSyncTitle}
+          className={`inline-flex h-7 min-w-0 items-center gap-2 rounded border px-2 transition-colors ${
+            liveGameStudioRelation === "stale"
+              ? "border-orange-400 text-orange-500 ring-2 ring-orange-400/40"
+              : "border-transparent"
+          } ${liveSyncAvailable ? "cursor-pointer hover:bg-orange-400/10" : "cursor-default disabled:opacity-100"}`}>
+
+          <Radio className={`w-3.5 h-3.5 ${liveGameStudioRelation === "stale" ? "text-orange-500" : textMuted}`} />
+          <div className={`w-2 h-2 shrink-0 rounded-full ${liveDotClass}`} />
+          <span className={`truncate text-[11px] font-medium ${liveGameStudioRelation === "stale" ? "text-orange-500" : textPrimary}`}>
+            {liveText}
           </span>
-        ) : null}
+          {liveRuntime?.autoplayActive ? (
+            <span className="shrink-0 rounded border border-amber-400/40 px-1.5 py-0.5 text-[10px] text-amber-500">
+              Auto
+            </span>
+          ) : null}
+        </button>
         <Button
           variant="outline"
           size="sm"

@@ -1,11 +1,12 @@
-export type PresetKey = "none" | `builtin:${string}` | `local:${string}`;
+export type PresetKey = "none" | `builtin:${string}` | `local:${string}` | `live:${string}`;
 
-export type PresetSource = "builtin" | "local";
+export type PresetSource = "builtin" | "local" | "live";
 
 export type ParsedPresetKey =
   | { kind: "none" }
   | { kind: "builtin"; id: string }
-  | { kind: "local"; id: string };
+  | { kind: "local"; id: string }
+  | { kind: "live"; id: string };
 
 export type ResolvedPreset = Readonly<{
   source: PresetSource;
@@ -25,5 +26,6 @@ export function parsePresetKey(key: string): ParsedPresetKey {
   if (key === "none") return { kind: "none" };
   if (key.startsWith("builtin:")) return { kind: "builtin", id: key.slice("builtin:".length) };
   if (key.startsWith("local:")) return { kind: "local", id: key.slice("local:".length) };
+  if (key.startsWith("live:")) return { kind: "live", id: key.slice("live:".length) };
   return { kind: "none" };
 }

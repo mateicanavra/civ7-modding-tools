@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   buildRunInGameClientSnapshot,
   buildRunInGameFingerprint,
+  buildRunInGameSourceSnapshot,
   parseRunInGameClientSnapshot,
+  parseRunInGameSourceSnapshot,
   relationForRunInGameOperation,
 } from "../../src/features/runInGame/clientState";
 import type { RunInGameOperationStatus } from "../../src/features/runInGame/status";
@@ -109,5 +111,29 @@ describe("Run in Game client state", () => {
     }))).toMatchObject({ requestId: "request" });
     expect(parseRunInGameClientSnapshot('{"requestId":"request"}')).toBeNull();
     expect(parseRunInGameClientSnapshot("not json")).toBeNull();
+  });
+
+  it("round-trips the stored source snapshot used to sync Studio from a proved live game", () => {
+    const source = buildRunInGameSourceSnapshot({
+      requestId: status.requestId,
+      recipeSettings,
+      worldSettings,
+      pipelineConfig,
+      materializationMode: "disposable",
+      selectedConfig: {
+        id: "studio-current",
+        label: "Live Game",
+      },
+      now: () => new Date("2026-06-01T00:00:00.000Z"),
+    });
+
+    expect(parseRunInGameSourceSnapshot(JSON.stringify(source))).toEqual(source);
+    expect(parseRunInGameSourceSnapshot(JSON.stringify({
+      requestId: status.requestId,
+      createdAt: "2026-06-01T00:00:00.000Z",
+      recipeSettings,
+      worldSettings,
+      materializationMode: "disposable",
+    }))).toBeNull();
   });
 });
