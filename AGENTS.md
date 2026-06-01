@@ -58,6 +58,7 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
 ## Domain Routers
 
 - MapGen / Swooper Maps mod: `mods/mod-swooper-maps/AGENTS.md`, `docs/system/mods/swooper-maps/`, `docs/system/libs/mapgen/`.
+- MapGen / Swooper Maps architecture normalization: `docs/projects/engine-refactor-v1/architecture-normalization-packet.md` is the active project baseline; `openspec/changes/README.md` owns the downstream change train.
 - CLI & plugins: `packages/cli/AGENTS.md`, `packages/plugins/*/AGENTS.md`, `docs/system/cli/`.
 - SDK: `packages/sdk/AGENTS.md`, `docs/system/sdk/`.
 

@@ -24,6 +24,7 @@ Scope: `mods/mod-swooper-maps/**`
 
 ## Canonical Docs
 
-- Mod architecture & presets: `docs/system/mods/swooper-maps/architecture.md`
-- MapGen engine architecture/config: `docs/system/libs/mapgen/architecture.md`
+- MapGen / Swooper Maps normalization baseline: `docs/projects/engine-refactor-v1/architecture-normalization-packet.md`; downstream implementation slices: `openspec/changes/README.md`.
+- Mod architecture & presets: `docs/system/mods/swooper-maps/`
+- MapGen engine architecture/config: `docs/system/libs/mapgen/MAPGEN.md`
 - Testing overview: `docs/system/TESTING.md`

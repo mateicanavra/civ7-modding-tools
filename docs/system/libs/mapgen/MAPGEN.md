@@ -48,6 +48,13 @@ Each section routes to implemented pages and is the authoritative entrypoint for
 
 This doc spine is target-architecture-first (engine-refactor-v1), while remaining correct by making current drift explicit when needed.
 
+Active normalization work enters through
+`docs/projects/engine-refactor-v1/architecture-normalization-packet.md`.
+The packet supersedes older review, comparison, and debate artifacts for the
+MapGen / Swooper Maps normalization workstream. OpenSpec changes under
+`openspec/changes/` are downstream implementation slices, not competing
+architecture authority.
+
 Hard rules:
 - Do not guess contracts. If a claim can’t be anchored to code/spec, treat it as an open question.
 - Prefer published package entrypoints in docs/examples; avoid workspace-only aliases like `@mapgen/*`.
