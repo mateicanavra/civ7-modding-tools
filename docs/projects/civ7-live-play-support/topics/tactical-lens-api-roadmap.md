@@ -58,10 +58,9 @@ Use these now during live play:
    a front posture and next-inspection list.
 6. `game play destination-analysis --from-x <x> --from-y <y> --to-x <x> --to-y <y> --json`
    samples endpoint and corridor pressure with explicit pathing limits.
-7. `game play civilian-route-triage` is not a command yet; load
-   `civilian-route-triage.md` and compose `ready-unit`,
-   `settlement-recommendations`, `battlefield-scan`, and
-   `destination-analysis`.
+7. `game play civilian-route-triage --x <x> --y <y> --json` composes
+   ready-unit, settlement recommendation, battlefield, and destination reads
+   into a proof-labeled civilian movement triage.
 8. `game play unit-target --unit-id '<id>' --x <x> --y <y> --json` remains the
    plot-action validator before any movement, ranged attack, naval attack,
    overrun, or swap send.

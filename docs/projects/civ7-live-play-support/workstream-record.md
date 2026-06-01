@@ -671,6 +671,17 @@ Residual objective gaps:
   `game play front-summary` now composes target candidates, battlefield scan,
   and destination/corridor pressure into a read-only front posture and
   next-inspection list.
+- Turn 121 made the civilian route gap immediate: the live priority read showed
+  a ready Settler `{"owner":0,"id":1441800,"type":26}` at `(18,16)`, with
+  nearby non-friendly pressure around `(17,18)` and `(17,14)`, plus the La
+  Venta city front at `(13,17)`. A sidecar research pass confirmed the intended
+  proof boundary: settlement recommendations are advisory site ranking,
+  battlefield scan is tactical orientation, destination analysis is cheap
+  endpoint/corridor pressure, and `unit-target` plus postcondition reads remain
+  required before claiming movement success. Disposition:
+  `game play civilian-route-triage` now materializes that stack into a
+  read-only `proceed-with-validation`, `hold-or-screen`,
+  `reroute-or-stage`, or `inspect-candidate` label.
 - Remaining gaps are promotion-send/hardening work: richer ready-entity reads,
   stronger live postcondition polling, civic choice proof, population-placement
   postconditions, visibility-filtered path/front analysis beyond the cheap

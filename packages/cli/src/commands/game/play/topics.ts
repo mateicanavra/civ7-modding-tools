@@ -128,6 +128,7 @@ const TOPICS: ReadonlyArray<Topic> = [
       'game play assign-worker',
       'game play expand-city',
       'game play settlement-recommendations',
+      'game play civilian-route-triage',
     ],
     loadWhen: 'when production, town focus, new population, city expansion, or Settler route quality is the decision',
     boundary: 'settlement recommendations inform movement/founding; they do not replace live movement and operation validators',
@@ -152,6 +153,7 @@ const TOPICS: ReadonlyArray<Topic> = [
     commands: [
       'game play priorities',
       'game play front-summary',
+      'game play civilian-route-triage',
       'game play ready-unit',
       'game play battlefield-scan',
       'game play destination-analysis',

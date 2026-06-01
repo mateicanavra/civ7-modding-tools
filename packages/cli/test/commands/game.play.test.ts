@@ -11,6 +11,7 @@ import GamePlayBuildProduction from '../../src/commands/game/play/build-producti
 import GamePlayBuildUnit from '../../src/commands/game/play/build-unit';
 import GamePlayBuyAttribute from '../../src/commands/game/play/buy-attribute';
 import GamePlayChangeTradition from '../../src/commands/game/play/change-tradition';
+import GamePlayCivilianRouteTriage from '../../src/commands/game/play/civilian-route-triage';
 import GamePlayChooseCelebration from '../../src/commands/game/play/choose-celebration';
 import GamePlayChooseCulture from '../../src/commands/game/play/choose-culture';
 import GamePlayChooseNarrative from '../../src/commands/game/play/choose-narrative';
@@ -1033,6 +1034,50 @@ describe('game play commands', () => {
       expect(server.received.some((message) => message.includes('"locations":[{"x":15,"y":23}]'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
     } finally {
+      await server.close();
+    }
+  });
+
+  test('reads civilian route triage without sending operations', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'ready-unit' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayCivilianRouteTriage.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayCivilianRouteTriage.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--x',
+        '15',
+        '--y',
+        '23',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          origin: { x: number; y: number } | null;
+          destination: { x: number; y: number } | null;
+          triage: { status: string; nextInspections: string[]; reasons: string[] };
+        };
+      };
+      expect(payload.view.origin).toEqual({ x: 15, y: 23 });
+      expect(payload.view.destination).toEqual({ x: 20, y: 20 });
+      expect(payload.view.triage.status).toMatch(/hold|reroute|proceed|inspect/);
+      expect(payload.view.triage.nextInspections.some((item) => item.includes('unit-target'))).toBe(true);
+      expect(payload.view.triage.reasons.length).toBeGreaterThan(0);
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readSettlementRecommendations'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readBattlefieldScan'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readDestinationAnalysis'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
+    } finally {
+      log.mockRestore();
       await server.close();
     }
   });

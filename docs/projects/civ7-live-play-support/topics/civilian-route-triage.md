@@ -1,6 +1,6 @@
 # Civilian Route Triage
 
-Status: `reference-with-gap`.
+Status: `live-proved-read-surface`.
 
 ## Frame
 
@@ -15,15 +15,30 @@ considered, or when a route crosses a live front.
 
 ## Read Stack
 
-Start with live authority:
+Start with the composed command:
+
+```bash
+bun packages/cli/bin/run.js game play civilian-route-triage --json
+```
+
+Use explicit origins and destinations when the decision is about a known
+Settler position or candidate site:
+
+```bash
+bun packages/cli/bin/run.js game play civilian-route-triage \
+  --x <civilian-x> \
+  --y <civilian-y> \
+  --to-x <candidate-x> \
+  --to-y <candidate-y> \
+  --json
+```
+
+The command composes the same underlying reads that were previously run by
+hand:
 
 ```bash
 bun packages/cli/bin/run.js game play ready-unit --json
-```
 
-Then gather planning context:
-
-```bash
 bun packages/cli/bin/run.js game play settlement-recommendations \
   --x <civilian-x> \
   --y <civilian-y> \
@@ -52,6 +67,9 @@ Each read has a different job:
 - `battlefield-scan` identifies local civilian exposure and nearby pressure.
 - `destination-analysis` checks endpoint and corridor pressure for one
   candidate route, but still does not prove reachability.
+- `civilian-route-triage` ranks those facts into one proof label:
+  `proceed-with-validation`, `hold-or-screen`, `reroute-or-stage`, or
+  `inspect-candidate`.
 
 ## Decision Rule
 
@@ -63,12 +81,12 @@ The normal outcomes are:
 
 1. **Proceed with validation:** endpoint pressure is low, route pressure is
    low, and escort units are nearby enough to make the move plausible.
-2. **Hold or wait:** recommendations are good but local/corridor pressure is
+2. **Hold or screen:** recommendations are good but local/corridor pressure is
    high, the route has non-friendly contact, or the read is stale.
-3. **Re-route:** the best official site is too exposed, but a nearer defensive
-   staging point or alternate site has lower pressure.
-4. **Inspect escort first:** the civilian is exposed and a nearby Warrior,
-   Archer, Galley, or Commander decision should be resolved before moving it.
+3. **Reroute or stage:** the best official site is too exposed, but a nearer
+   defensive staging point or alternate site has lower pressure.
+4. **Inspect candidate:** the command did not have enough destination evidence;
+   run settlement recommendations or destination analysis before moving.
 
 ## Live Example
 
@@ -83,9 +101,16 @@ movement order. The next useful step is either to inspect/resolve escort units
 or run `destination-analysis` for a specific near-term endpoint, then re-read
 `ready-unit` before any send.
 
+On turn 121 / 1200 BCE, the live priority read showed a ready Settler
+`{"owner":0,"id":1441800,"type":26}` at `(18,16)`, with nearby non-friendly
+pressure around `(17,18)` and `(17,14)` and the La Venta city front still around
+`(13,17)`. That is exactly the `hold-or-screen` case: a legal move is not the
+same as a good route, and the next inspection should be battlefield pressure,
+settlement recommendations, and destination analysis before `unit-target`.
+
 ## Proof Boundary
 
-This topic does not add a new validator. It composes existing read-only
+This command does not add a new validator. It composes existing read-only
 surfaces so the agent can avoid civilian moves that are legal but poorly
 supported.
 
