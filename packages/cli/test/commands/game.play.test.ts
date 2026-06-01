@@ -32,6 +32,7 @@ import GamePlaySetTownFocus from '../../src/commands/game/play/set-town-focus';
 import GamePlaySettlementRecommendations from '../../src/commands/game/play/settlement-recommendations';
 import GamePlayUnitTarget from '../../src/commands/game/play/unit-target';
 import GamePlayUpgradeUnit from '../../src/commands/game/play/upgrade-unit';
+import GameWatch from '../../src/commands/game/watch';
 
 describe('game play commands', () => {
   test('checks end-turn status without sending turn complete', async () => {
@@ -960,6 +961,49 @@ describe('game play commands', () => {
       expect(server.received.some((message) => message.includes('"locations":[{"x":15,"y":23}]'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
     } finally {
+      await server.close();
+    }
+  });
+
+  test('watches live play as JSONL without sending operations', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'ready-unit' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GameWatch.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GameWatch.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--count',
+        '2',
+        '--interval-ms',
+        '1',
+        '--include-ready-unit',
+        '--jsonl',
+      ]);
+
+      const observations = writes.map((line) => JSON.parse(line)) as Array<{
+        ok: boolean;
+        schema: string;
+        mode: string;
+        firstReadyUnitId: unknown;
+        readyUnit: unknown;
+      }>;
+      expect(observations).toHaveLength(2);
+      expect(observations[0].schema).toBe('civ7-watcher-observation.v1');
+      expect(observations[0].mode).toBe('human-turn-watch');
+      expect(observations[0].ok).toBe(true);
+      expect(observations[0].firstReadyUnitId).toEqual({ owner: 0, id: 458752, type: 26 });
+      expect(observations[0].readyUnit).not.toBeNull();
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readReadyUnitView'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
+    } finally {
+      log.mockRestore();
       await server.close();
     }
   });

@@ -104,6 +104,7 @@ Outputs:
   - `game play ready-unit`
   - `game play promotion-readiness`
   - `game play unit-target`
+  - `game watch`
   - `game local-data inspect`
 - Evidence packs and topic/reference artifacts:
   - `SKILL-ASSET-ASSEMBLY.md`
@@ -508,6 +509,10 @@ Residual objective gaps:
   showed `PROMOTE` can be visible while stored promotion points and
   commendations are both zero, so the norm is to treat PROMOTE as UI-open proof
   until `availablePromotions` carries validator-backed args.
+- Passive observer mode now has a first CLI surface: `game watch` polls the
+  read-only notification HUD, optionally composes the ready-unit view, and
+  emits JSONL observations with duration and stale-risk labels for human-aware
+  watching.
 - RHQ follow-up research refined the AI experiment candidates: add loaded
   `GameInfo` AI-row inspection before static mod comparisons, then summarize
   bounded autoplay with settlement, naval, air, repair, war, assault, raid, and

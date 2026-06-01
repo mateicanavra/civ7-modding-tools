@@ -349,6 +349,7 @@ CLI shortcuts:
 
 - `game play rehydrate`
 - `game play notifications`
+- `game watch`
 - `game play ready-unit`
 - `game play promotion-readiness`
 - `game play ready-city`
@@ -369,6 +370,8 @@ Norms:
   debug signals; do not silently plan from hidden information.
 - Treat native autoplay as a turn-runner and experiment clock, not a strategy
   policy engine.
+- Use `game watch --jsonl --human-aware` for passive human/agent observation;
+  it records HUD timing and stale-risk markers without sending operations.
 - Treat official AI XML/SQL rows as load-time/static-mod levers until a safe
   live mutation contract is proven.
 - Use RHQ AI MOD as the baseline for static AI manipulation over autoplay, not
@@ -431,7 +434,7 @@ runtime and local official resource references.
 | `topics/rhq-ai-mod-baseline.md` | Static AI/autoplay comparison baseline | Advisory reference |
 | `evidence-packs/current-online-play-context.md` | Current online context asset | Advisory only |
 | `evidence-packs/local-on-disk-read-surfaces.md` | Runtime-source authority evidence | Ready |
-| `evidence-packs/watcher-latency-observer-mode.md` | Watcher operating-mode asset | Ready |
+| `evidence-packs/watcher-latency-observer-mode.md` | Watcher operating-mode asset | Ready with initial `game watch` shortcut |
 | `evidence-packs/agent-evidence-summary.md` | Proof ledger seed | Active draft |
 
 ## Materialized HUD Asset Shape
@@ -478,9 +481,8 @@ and postcondition are proven:
   hidden-info labels.
 - `game diplomacy`: read relationship, Influence, diplomatic action cost, and
   response affordability context once the live relationship APIs are proven.
-- `game watch --jsonl --human-aware`: low-impact passive watcher that trusts
-  App UI first, re-proves Tuner after restart, and throttles during inferred
-  human play.
+- `game probe-latency`: focused latency sampler with connect/LSQ/CMD timing
+  breakdowns beyond the coarse `game watch` duration marker.
 - `game strategy run`: external workflow runner for validate-only and bounded
   send loops over multiple turns, using `game autoplay` only after clean
   App UI proof.
