@@ -41,6 +41,14 @@ the current tuner state.
 | Diplomacy sessions | `.civ7/outputs/resources/Base/modules/base-standard/ui/diplomacy/diplomacy-manager.js:2955`; `:2978`; `:3004`; `:3918` | detect hidden diplomacy dialogs | `game play diplomacy-queue` | medium-high | manager access from tuner must be proven |
 | Popup sequencer and WatchOut queue | `.civ7/outputs/resources/Base/modules/base-standard/ui/popup-sequencer/popup-sequencer.js:11`; `:31`; `:61`; `watch-out-manager.js:15`; `:56`; `:127` | replace bespoke event queue tracking | `game play ui-popups` | medium | `userData` may be non-serializable |
 
+## Progression And Policy Affordances
+
+| Candidate | Official anchor | Helps | Proposed surface | Confidence | Risk |
+|---|---|---|---|---|---|
+| Tradition slot and candidate view | `.civ7/outputs/resources/Base/modules/base-standard/ui/policies/model-policies.chunk.js:100`; `.civ7/outputs/resources/Base/modules/base-standard/ui/policies/screen-policies.js:1031` | stop reconstructing active/unlocked policies from logs or static catalogs | existing `game play traditions`; send path remains `game play change-tradition --closeout` | high | full slots can need deactivate then activate; re-read after each mutation |
+| Tradition action enum values | `.civ7/outputs/resources/Base/modules/base-standard/ui/policies/screen-policies.js:1015`; `:1029` | provide exact activate/deactivate action args | `game play traditions --json` includes `actions` and per-tradition `actionHints` | high | `Game.PlayerOperations.canStart` can report broad success, so strategic choice still belongs to the agent |
+| Policy batch sequence | `.civ7/outputs/resources/Base/modules/base-standard/ui/policies/screen-policies.js:1008` | model multi-change operations without caller micromanagement | future `game play traditions apply --activate ... --deactivate ... --closeout` | medium-high | official UI itself sends one change at a time and waits for `TraditionChanged` |
+
 ## Map Intelligence Affordances
 
 | Candidate | Official anchor | Helps | Proposed surface | Confidence | Risk |

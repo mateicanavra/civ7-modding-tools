@@ -34,6 +34,10 @@ focus:
 
 Use these when the selected action and the closeout should be handled together:
 
+- `game play traditions --player-id <id> --json`
+  reads the current live active/unlocked/recent tradition packet, slot counts,
+  activate/deactivate enum values, and per-tradition action hints before any
+  mutation.
 - `game play change-tradition --player-id <id> --tradition-type <type> --action <action> --send --closeout --reason '<why>'`
   sends `CHANGE_TRADITION` then `CONSIDER_ASSIGN_TRADITIONS`.
 - `game play buy-attribute --player-id <id> --node <node> --send --closeout --reason '<why>'`
@@ -67,6 +71,10 @@ or the primary change has already been applied:
 - Keep category guidance advisory. The command gives the caller a safe
   workflow shape; it does not choose which tradition, attribute, or town focus
   is strategically correct.
+- For traditions, use `game play traditions` before choosing an action. The
+  official policy screen reads active/unlocked slots from the player `Culture`
+  object and uses `PlayerOperationParameters.Activate` or `Deactivate`; a
+  stale log-derived tradition id is not enough.
 
 ## Proof Boundary
 

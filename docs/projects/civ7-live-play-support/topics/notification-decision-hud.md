@@ -71,7 +71,7 @@ after any mutation or human input.
 | First-meet diplomacy | local player id, met player id from `notification.Player`/`details.player2`, first-meet response `Type` | `game play respond-first-meet` |
 | Informational notification | notification ComponentID; handler evidence that no specialized decision surface is required | `game play dismiss-notification` after review |
 | Narrative branch | story `Target`, option `TargetType`, activation `Action` | `game play choose-narrative` |
-| Tradition review | `TraditionType` and activate/deactivate `Action` | `game play change-tradition`; then `game play consider-traditions` |
+| Tradition review | active/unlocked tradition ids from `game play traditions`; chosen `TraditionType` and activate/deactivate `Action` | `game play traditions`; then `game play change-tradition`; then `game play consider-traditions` |
 | Attribute review | attribute `ProgressionTreeNodeType` | `game play buy-attribute`; then `game play consider-attributes` |
 | Advisor warning | notification ComponentID as `Target` | `game play advisor-warning` |
 | Unit command | selected or first ready unit; sometimes target plot | `game play ready-unit`, then `game play unit-target` for plot actions or generic unit operation validation |
@@ -109,6 +109,14 @@ Notable handler evidence:
 - Narrative blockers route to `ChooseNarrativeDirection`; the narrative screen
   sends `CHOOSE_NARRATIVE_STORY_DIRECTION` with
   `{ TargetType: answerKey, Target: targetStoryId, Action: Activate }`.
+- Tradition blockers should not be reconstructed from logs or static rows.
+  The live player `Culture` object exposes active, unlocked, and recent
+  traditions (`getActiveTraditions`, `getUnlockedTraditions`,
+  `getAllUnlockedTraditions`, `getRecentUnlockedTraditions`) and the official
+  policy screen sends `CHANGE_TRADITION` with
+  `{ TraditionType: policy.$index, Action: PlayerOperationParameters.Activate
+  | Deactivate }`. Use `game play traditions --json` to read the current
+  slot/candidate packet before any `change-tradition --send --closeout`.
 - Advisor warnings use `VIEWED_ADVISOR_WARNING` with the notification
   ComponentID as `Target`, not a generic notification dismissal.
 - `NOTIFICATION_PLAYER_MET` is a first-meet diplomacy decision. The official

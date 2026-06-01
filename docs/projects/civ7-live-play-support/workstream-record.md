@@ -696,6 +696,14 @@ Residual objective gaps:
   wrapper. The evented-stream baseline was also reframed to use Effect
   (`effect@3.21.2` as observed from npm on 2026-06-01) for
   Stream/PubSub/Queue/reducer work rather than hand-rolled pub/sub.
+- A later tradition blocker showed the play agent spending too much time
+  mining logs/autosaves for active policy state. Official UI code already
+  exposes the needed surface: the player `Culture` object reports
+  active/unlocked/recent traditions, while the policy screen sends
+  `CHANGE_TRADITION` with `PlayerOperationParameters.Activate` or
+  `Deactivate`. Disposition: `game play traditions` now returns a read-only
+  policy packet with slot counts, localized names/descriptions, action enum
+  values, per-tradition action hints, and recommended validation commands.
 - Remaining gaps are promotion-send/hardening work: richer ready-entity reads,
   stronger live postcondition polling, civic choice proof, population-placement
   postconditions, visibility-filtered path/front analysis beyond the cheap

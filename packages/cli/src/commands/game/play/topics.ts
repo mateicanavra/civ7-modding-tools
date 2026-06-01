@@ -105,6 +105,7 @@ const TOPICS: ReadonlyArray<Topic> = [
       'game play choose-celebration',
       'game play choose-narrative',
       'game play buy-attribute',
+      'game play traditions',
       'game play change-tradition',
       'game play consider-attributes',
       'game play consider-traditions',

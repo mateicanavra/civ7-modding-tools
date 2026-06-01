@@ -43,6 +43,7 @@ import GamePlaySetTownFocus from '../../src/commands/game/play/set-town-focus';
 import GamePlaySettlementRecommendations from '../../src/commands/game/play/settlement-recommendations';
 import GamePlayTargetCandidates from '../../src/commands/game/play/target-candidates';
 import GamePlayTopics from '../../src/commands/game/play/topics';
+import GamePlayTraditions from '../../src/commands/game/play/traditions';
 import GamePlayUnitTarget from '../../src/commands/game/play/unit-target';
 import GamePlayUpgradeUnit from '../../src/commands/game/play/upgrade-unit';
 import GameWatch from '../../src/commands/game/watch';
@@ -799,6 +800,51 @@ describe('game play commands', () => {
       expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
       expect(server.received.some((message) => message.includes('CHANGE_TRADITION'))).toBe(true);
       expect(server.received.some((message) => message.includes('CONSIDER_ASSIGN_TRADITIONS'))).toBe(true);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test('reads live tradition slots and action hints', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const writes: string[] = [];
+      const log = vi.spyOn(GamePlayTraditions.prototype, 'log').mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
+      try {
+        await GamePlayTraditions.run([
+          '--host',
+          '127.0.0.1',
+          '--port',
+          String(port),
+          '--player-id',
+          '0',
+          '--json',
+        ]);
+      } finally {
+        log.mockRestore();
+      }
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          slots: { active: number; available: number };
+          actions: { activate: number; deactivate: number };
+          active: Array<{ id: number; name: string }>;
+          available: Array<{ id: number; actionHints: Array<{ cli: string }> }>;
+          recommendedCli: string[];
+        };
+      };
+      expect(payload.view.slots.active).toBe(1);
+      expect(payload.view.slots.available).toBe(1);
+      expect(payload.view.actions.activate).toBe(-1326475004);
+      expect(payload.view.actions.deactivate).toBe(1318334332);
+      expect(payload.view.active[0].name).toBe('Honor');
+      expect(payload.view.available[0].actionHints[0].cli).toContain('game play change-tradition');
+      expect(payload.view.recommendedCli[0]).toContain('--tradition-type 90243567');
+      expect(server.received.some((message) => message.includes('readTraditionsView'))).toBe(true);
     } finally {
       await server.close();
     }
@@ -1847,6 +1893,8 @@ async function startTunerServer(options: {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(settlementRecommendationsView())]));
         } else if (frame.message.includes('readTargetCandidates')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(targetCandidatesView())]));
+        } else if (frame.message.includes('readTraditionsView')) {
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(traditionsView())]));
         } else if (frame.message.includes('readDestinationAnalysis')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(destinationAnalysisView())]));
         } else if (frame.message.includes('readBattlefieldScan')) {
@@ -2859,6 +2907,84 @@ function targetCandidatesView() {
       },
     ],
     notes: ['Read-only strategic target shortlist. It ranks opponents; it does not choose or send war, movement, or attack operations.'],
+  };
+}
+
+function traditionsView() {
+  const activate = -1326475004;
+  const deactivate = 1318334332;
+  const available = {
+    id: 90243567,
+    type: 'TRADITION_ORATORY',
+    name: 'Oratory',
+    description: 'Culture-facing policy.',
+    ageType: null,
+    cultureSlotType: null,
+    traitType: null,
+    isCrisis: false,
+    active: false,
+    unlocked: true,
+    recentUnlock: true,
+    actionHints: [
+      {
+        kind: 'activate',
+        action: activate,
+        operationType: 'CHANGE_TRADITION',
+        args: { TraditionType: 90243567, Action: activate },
+        validation: { ok: true, value: { Success: true } },
+        cli: `game play change-tradition --player-id 0 --tradition-type 90243567 --action ${activate}`,
+      },
+    ],
+  };
+  const active = {
+    id: -331546976,
+    type: 'TRADITION_HONOR',
+    name: 'Honor',
+    description: 'Combat-facing policy.',
+    ageType: null,
+    cultureSlotType: null,
+    traitType: null,
+    isCrisis: false,
+    active: true,
+    unlocked: true,
+    recentUnlock: false,
+    actionHints: [
+      {
+        kind: 'deactivate',
+        action: deactivate,
+        operationType: 'CHANGE_TRADITION',
+        args: { TraditionType: -331546976, Action: deactivate },
+        validation: { ok: true, value: { Success: true } },
+        cli: `game play change-tradition --player-id 0 --tradition-type -331546976 --action ${deactivate}`,
+      },
+    ],
+  };
+  return {
+    playerId: 0,
+    turn: { ok: true, value: 92 },
+    turnDate: { ok: true, value: '1780 BCE' },
+    governmentType: { ok: true, value: 101 },
+    government: {
+      type: 'GOVERNMENT_CHIEFDOM',
+      name: 'Chiefdom',
+    },
+    slots: {
+      total: { ok: true, value: 1 },
+      normal: { ok: true, value: 1 },
+      crisis: { ok: true, value: 0 },
+      active: 1,
+      unlocked: 2,
+      available: 1,
+      open: 0,
+    },
+    actions: { activate, deactivate },
+    active: [active],
+    available: [available],
+    recentUnlocks: [available],
+    traditions: [active, available],
+    recommendedCli: [available.actionHints[0].cli],
+    hiddenInfoPolicy: 'player-culture-runtime',
+    notes: ['Read-only traditions view; it does not send CHANGE_TRADITION or CONSIDER_ASSIGN_TRADITIONS.'],
   };
 }
 

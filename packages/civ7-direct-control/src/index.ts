@@ -637,6 +637,73 @@ export type Civ7PlayerSummaryResult = Readonly<{
   omitted: number;
 }>;
 
+export type Civ7TraditionActionKind = "activate" | "deactivate";
+
+export type Civ7TraditionAction = Readonly<{
+  kind: Civ7TraditionActionKind;
+  action: number | null;
+  operationType: "CHANGE_TRADITION";
+  args: Readonly<{
+    TraditionType: number;
+    Action: number | null;
+  }>;
+  validation: Civ7RuntimeProbe<unknown>;
+  cli: string;
+}>;
+
+export type Civ7TraditionSummary = Readonly<{
+  id: number;
+  type: string | null;
+  name: string | null;
+  description: string | null;
+  ageType: string | null;
+  cultureSlotType: string | null;
+  traitType: string | null;
+  isCrisis: boolean;
+  active: boolean;
+  unlocked: boolean;
+  recentUnlock: boolean;
+  actionHints: ReadonlyArray<Civ7TraditionAction>;
+}>;
+
+export type Civ7TraditionsViewInput = Readonly<{
+  playerId?: number;
+}>;
+
+export type Civ7TraditionsViewResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  playerId: number;
+  turn: Civ7RuntimeProbe<number>;
+  turnDate: Civ7RuntimeProbe<string>;
+  governmentType: Civ7RuntimeProbe<number>;
+  government: Readonly<{
+    type: string | null;
+    name: string | null;
+  }>;
+  slots: Readonly<{
+    total: Civ7RuntimeProbe<number>;
+    normal: Civ7RuntimeProbe<number>;
+    crisis: Civ7RuntimeProbe<number>;
+    active: number;
+    unlocked: number;
+    available: number;
+    open: number;
+  }>;
+  actions: Readonly<{
+    activate: number | null;
+    deactivate: number | null;
+  }>;
+  active: ReadonlyArray<Civ7TraditionSummary>;
+  available: ReadonlyArray<Civ7TraditionSummary>;
+  recentUnlocks: ReadonlyArray<Civ7TraditionSummary>;
+  traditions: ReadonlyArray<Civ7TraditionSummary>;
+  recommendedCli: ReadonlyArray<string>;
+  hiddenInfoPolicy: "player-culture-runtime";
+  notes: ReadonlyArray<string>;
+}>;
+
 export type Civ7UnitSummaryInput = Readonly<{
   playerIds?: ReadonlyArray<number>;
   unitIds?: ReadonlyArray<Civ7ComponentId>;
@@ -3230,6 +3297,18 @@ export async function getCiv7TargetCandidates(
   return jsonPayloadFromCommandResult<Civ7TargetCandidatesResult>(result, "Civ7 target candidates");
 }
 
+export async function getCiv7TraditionsView(
+  input: Civ7TraditionsViewInput = {},
+  options: Civ7DirectControlOptions = {},
+): Promise<Civ7TraditionsViewResult> {
+  if (input.playerId !== undefined) validatePlayerId(input.playerId);
+  const result = await executeCiv7AppUiCommand({
+    ...options,
+    command: buildTraditionsViewCommand(input),
+  });
+  return jsonPayloadFromCommandResult<Civ7TraditionsViewResult>(result, "Civ7 traditions view");
+}
+
 export async function getCiv7BattlefieldScan(
   input: Civ7BattlefieldScanInput = {},
   options: Civ7DirectControlOptions = {},
@@ -4792,6 +4871,13 @@ function buildTargetCandidatesCommand(input: Civ7TargetCandidatesInput & { maxCa
   })()`;
 }
 
+function buildTraditionsViewCommand(input: Civ7TraditionsViewInput): string {
+  return `(() => {
+    ${traditionsViewSource()}
+    return JSON.stringify(readTraditionsView(${jsLiteral(input)}));
+  })()`;
+}
+
 function buildBattlefieldScanCommand(input: Civ7BattlefieldScanInput & { radius: number; maxPlayers: number; maxUnits: number; maxCities: number }): string {
   return `(() => {
     ${battlefieldScanSource()}
@@ -4827,6 +4913,117 @@ function probeHelperSource(): string {
       } catch (err) {
         return { ok: false, error: String(err) };
       }
+    };`;
+}
+
+function traditionsViewSource(): string {
+  return `${probeHelperSource()}
+    const loc = (key) => {
+      if (key == null || key === "") return null;
+      try {
+        return typeof Locale !== "undefined" && Locale.compose ? Locale.compose(key) : String(key);
+      } catch {
+        return String(key);
+      }
+    };
+    const uniqueNumbers = (values) => Array.from(new Set((Array.isArray(values) ? values : []).filter((value) => Number.isFinite(value))));
+    const readTraditionsView = (input) => {
+      const playerId = input.playerId ?? GameContext.localPlayerID;
+      const player = Players.get(playerId);
+      if (!player || !player.Culture) {
+        throw new Error("Player culture is unavailable for player " + playerId);
+      }
+      const culture = player.Culture;
+      const activeIds = uniqueNumbers(probe(() => culture.getActiveTraditions()).value ?? []);
+      const unlockedIds = uniqueNumbers(probe(() => culture.getUnlockedTraditions()).value ?? []);
+      const allUnlockedIds = uniqueNumbers(probe(() => culture.getAllUnlockedTraditions()).value ?? unlockedIds);
+      const recentIds = uniqueNumbers(probe(() => culture.getRecentUnlockedTraditions()).value ?? probe(() => culture.getAllRecentUnlockedTraditions()).value ?? []);
+      const ids = uniqueNumbers([...allUnlockedIds, ...unlockedIds, ...activeIds, ...recentIds]);
+      const activate = typeof PlayerOperationParameters !== "undefined" ? PlayerOperationParameters.Activate : null;
+      const deactivate = typeof PlayerOperationParameters !== "undefined" ? PlayerOperationParameters.Deactivate : null;
+      const actionHint = (traditionId, kind, action) => {
+        const args = { TraditionType: traditionId, Action: action };
+        const validation = action == null
+          ? { ok: false, error: "PlayerOperationParameters." + (kind === "activate" ? "Activate" : "Deactivate") + " is unavailable" }
+          : probe(() => Game.PlayerOperations.canStart(playerId, PlayerOperationTypes.CHANGE_TRADITION, args, false));
+        return {
+          kind,
+          action,
+          operationType: "CHANGE_TRADITION",
+          args,
+          validation,
+          cli: "game play change-tradition --player-id " + playerId + " --tradition-type " + traditionId + " --action " + action,
+        };
+      };
+      const summarize = (id) => {
+        const definition = probe(() => GameInfo.Traditions.lookup(id)).value ?? null;
+        const active = activeIds.includes(id) || probe(() => culture.isTraditionActive(id)).value === true;
+        const unlocked = allUnlockedIds.includes(id) || unlockedIds.includes(id) || probe(() => culture.isTraditionUnlocked(id)).value === true;
+        const recentUnlock = recentIds.includes(id);
+        const actionHints = active
+          ? [actionHint(id, "deactivate", deactivate)]
+          : [actionHint(id, "activate", activate)];
+        return {
+          id,
+          type: definition?.TraditionType ?? null,
+          name: loc(definition?.Name ?? definition?.TraditionType ?? null),
+          description: loc(definition?.Description ?? null),
+          ageType: definition?.AgeType ?? null,
+          cultureSlotType: definition?.CultureSlotType ?? null,
+          traitType: definition?.TraitType ?? null,
+          isCrisis: definition?.IsCrisis === true,
+          active,
+          unlocked,
+          recentUnlock,
+          actionHints,
+        };
+      };
+      const traditions = ids.map(summarize);
+      const active = traditions.filter((tradition) => tradition.active);
+      const available = traditions.filter((tradition) => tradition.unlocked && !tradition.active);
+      const recentUnlocks = traditions.filter((tradition) => tradition.recentUnlock);
+      const totalSlots = probe(() => culture.getNumAllCultureSlots ? culture.getNumAllCultureSlots() : culture.numTraditionSlots ?? culture.getNumCultureSlots());
+      const normalSlots = probe(() => culture.numNormalTraditionSlots ?? culture.getNumCultureSlots());
+      const crisisSlots = probe(() => culture.numCrisisTraditionSlots ?? 0);
+      const governmentType = probe(() => culture.getGovernmentType());
+      const governmentDefinition = governmentType.ok ? probe(() => GameInfo.Governments.lookup(governmentType.value)).value ?? null : null;
+      const validationSuccess = (tradition) => tradition.actionHints[0]?.validation?.ok === true
+        && tradition.actionHints[0]?.validation?.value?.Success === true;
+      const recommendedCli = [
+        ...available.filter(validationSuccess).map((tradition) => tradition.actionHints[0]?.cli).filter(Boolean),
+        ...recentUnlocks.filter((tradition) => !tradition.active && validationSuccess(tradition)).map((tradition) => tradition.actionHints[0]?.cli).filter(Boolean),
+      ].slice(0, 8);
+      return {
+        playerId,
+        turn: probe(() => Game.turn),
+        turnDate: probe(() => Game.getTurnDate()),
+        governmentType,
+        government: {
+          type: governmentDefinition?.GovernmentType ?? null,
+          name: loc(governmentDefinition?.Name ?? governmentDefinition?.GovernmentType ?? null),
+        },
+        slots: {
+          total: totalSlots,
+          normal: normalSlots,
+          crisis: crisisSlots,
+          active: active.length,
+          unlocked: allUnlockedIds.length,
+          available: available.length,
+          open: Math.max(0, (totalSlots.ok && Number.isFinite(totalSlots.value) ? totalSlots.value : active.length) - active.length),
+        },
+        actions: { activate, deactivate },
+        active,
+        available,
+        recentUnlocks,
+        traditions,
+        recommendedCli,
+        hiddenInfoPolicy: "player-culture-runtime",
+        notes: [
+          "Read-only traditions view; it does not send CHANGE_TRADITION or CONSIDER_ASSIGN_TRADITIONS.",
+          "Use the exact TraditionType and Action values from actionHints, then validate with game play change-tradition before sending.",
+          "Full slots may require deactivating an existing tradition before activating a new one; re-read this view after each mutation.",
+        ],
+      };
     };`;
 }
 
