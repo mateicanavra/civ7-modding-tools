@@ -113,8 +113,20 @@
         "computeEraPlateMembership": {
           "strategy": "default",
           "config": {
-            "eraWeights": [0.3, 0.25, 0.2, 0.15, 0.1],
-            "driftStepsByEra": [12, 9, 6, 3, 1]
+            "eraWeights": [
+              0.3,
+              0.25,
+              0.2,
+              0.15,
+              0.1
+            ],
+            "driftStepsByEra": [
+              12,
+              9,
+              6,
+              3,
+              1
+            ]
           }
         },
         "computeSegmentEvents": {
@@ -653,7 +665,12 @@
               "tropicalThreshold": 20
             },
             "moisture": {
-              "thresholds": [95, 130, 170, 220]
+              "thresholds": [
+                95,
+                130,
+                170,
+                220
+              ]
             },
             "aridity": {
               "temperatureMin": 0,
@@ -664,7 +681,10 @@
               "rainfallWeight": 1.15,
               "bias": 3,
               "normalization": 112,
-              "moistureShiftThresholds": [0.37, 0.62],
+              "moistureShiftThresholds": [
+                0.37,
+                0.62
+              ],
               "vegetationPenalty": 0.22
             },
             "vegetation": {
@@ -681,7 +701,7 @@
       },
       "knobs": {}
     },
-    "ecology-features-score": {
+    "ecology-features": {
       "score-layers": {
         "vegetationSubstrate": {
           "strategy": "default",
@@ -819,40 +839,114 @@
           }
         }
       },
-      "knobs": {}
-    },
-    "ecology-ice": {
       "plan-ice": {
         "planIce": {
           "strategy": "continentality",
           "config": {}
         }
       },
-      "knobs": {}
-    },
-    "ecology-reefs": {
       "plan-reefs": {
         "planReefs": {
           "strategy": "default",
           "config": {}
         }
       },
-      "knobs": {}
-    },
-    "ecology-wetlands": {
       "plan-wetlands": {
         "planWetlands": {
           "strategy": "default",
           "config": {}
         }
       },
-      "knobs": {}
-    },
-    "ecology-vegetation": {
       "plan-vegetation": {
         "planVegetation": {
           "strategy": "default",
           "config": {}
+        }
+      },
+      "plan-plot-effects": {
+        "scoreSnow": {
+          "strategy": "default",
+          "config": {
+            "maxTemperature": 2,
+            "maxAridity": 0.82,
+            "freezeWeight": 1.05,
+            "elevationWeight": 0.9,
+            "moistureWeight": 0.7,
+            "scoreNormalization": 2.65,
+            "scoreBias": 0,
+            "elevationStrategy": "percentile",
+            "elevationMin": 220,
+            "elevationMax": 2800,
+            "elevationPercentileMin": 0.72,
+            "elevationPercentileMax": 0.98,
+            "moistureMin": 45,
+            "moistureMax": 170
+          }
+        },
+        "scoreSand": {
+          "strategy": "default",
+          "config": {
+            "minAridity": 0.5,
+            "minTemperature": 15,
+            "maxFreeze": 0.3,
+            "maxVegetation": 0.23,
+            "maxMoisture": 90,
+            "allowedBiomes": [
+              "desert",
+              "temperateDry"
+            ]
+          }
+        },
+        "scoreBurned": {
+          "strategy": "default",
+          "config": {
+            "minAridity": 0.52,
+            "minTemperature": 21,
+            "maxFreeze": 0.22,
+            "maxVegetation": 0.26,
+            "maxMoisture": 98,
+            "allowedBiomes": [
+              "temperateDry",
+              "tropicalSeasonal"
+            ]
+          }
+        },
+        "plotEffects": {
+          "strategy": "default",
+          "config": {
+            "snow": {
+              "enabled": true,
+              "selectors": {
+                "light": {
+                  "typeName": "PLOTEFFECT_SNOW_LIGHT_PERMANENT"
+                },
+                "medium": {
+                  "typeName": "PLOTEFFECT_SNOW_MEDIUM_PERMANENT"
+                },
+                "heavy": {
+                  "typeName": "PLOTEFFECT_SNOW_HEAVY_PERMANENT"
+                }
+              },
+              "coveragePct": 55,
+              "lightThreshold": 0.38,
+              "mediumThreshold": 0.62,
+              "heavyThreshold": 0.82
+            },
+            "sand": {
+              "enabled": true,
+              "selector": {
+                "typeName": "PLOTEFFECT_SAND"
+              },
+              "coveragePct": 24
+            },
+            "burned": {
+              "enabled": true,
+              "selector": {
+                "typeName": "PLOTEFFECT_BURNED"
+              },
+              "coveragePct": 6
+            }
+          }
         }
       },
       "knobs": {}
@@ -1006,86 +1100,6 @@
           }
         }
       },
-      "plot-effects": {
-        "scoreSnow": {
-          "strategy": "default",
-          "config": {
-            "maxTemperature": 2,
-            "maxAridity": 0.82,
-            "freezeWeight": 1.05,
-            "elevationWeight": 0.9,
-            "moistureWeight": 0.7,
-            "scoreNormalization": 2.65,
-            "scoreBias": 0,
-            "elevationStrategy": "percentile",
-            "elevationMin": 220,
-            "elevationMax": 2800,
-            "elevationPercentileMin": 0.72,
-            "elevationPercentileMax": 0.98,
-            "moistureMin": 45,
-            "moistureMax": 170
-          }
-        },
-        "scoreSand": {
-          "strategy": "default",
-          "config": {
-            "minAridity": 0.5,
-            "minTemperature": 15,
-            "maxFreeze": 0.3,
-            "maxVegetation": 0.23,
-            "maxMoisture": 90,
-            "allowedBiomes": ["desert", "temperateDry"]
-          }
-        },
-        "scoreBurned": {
-          "strategy": "default",
-          "config": {
-            "minAridity": 0.52,
-            "minTemperature": 21,
-            "maxFreeze": 0.22,
-            "maxVegetation": 0.26,
-            "maxMoisture": 98,
-            "allowedBiomes": ["temperateDry", "tropicalSeasonal"]
-          }
-        },
-        "plotEffects": {
-          "strategy": "default",
-          "config": {
-            "snow": {
-              "enabled": true,
-              "selectors": {
-                "light": {
-                  "typeName": "PLOTEFFECT_SNOW_LIGHT_PERMANENT"
-                },
-                "medium": {
-                  "typeName": "PLOTEFFECT_SNOW_MEDIUM_PERMANENT"
-                },
-                "heavy": {
-                  "typeName": "PLOTEFFECT_SNOW_HEAVY_PERMANENT"
-                }
-              },
-              "coveragePct": 55,
-              "lightThreshold": 0.38,
-              "mediumThreshold": 0.62,
-              "heavyThreshold": 0.82
-            },
-            "sand": {
-              "enabled": true,
-              "selector": {
-                "typeName": "PLOTEFFECT_SAND"
-              },
-              "coveragePct": 24
-            },
-            "burned": {
-              "enabled": true,
-              "selector": {
-                "typeName": "PLOTEFFECT_BURNED"
-              },
-              "coveragePct": 6
-            }
-          }
-        }
-      },
       "knobs": {}
     },
     "placement": {
@@ -1118,9 +1132,61 @@
           "strategy": "default",
           "config": {
             "candidateResourceTypes": [
-              0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
-              24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44,
-              45, 46, 47, 48, 49, 50, 51, 52, 53, 54
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48,
+              49,
+              50,
+              51,
+              52,
+              53,
+              54
             ],
             "densityPer100Tiles": 9,
             "minSpacingTiles": 2,

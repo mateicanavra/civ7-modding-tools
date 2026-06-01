@@ -4,12 +4,12 @@ import ecology from "@mapgen/domain/ecology/ops";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { implementArtifacts } from "@swooper/mapgen-core/authoring";
-import planWetlandsStep from "../../src/recipes/standard/stages/ecology-wetlands/steps/plan-wetlands/index.js";
+import planWetlandsStep from "../../src/recipes/standard/stages/ecology-features/steps/plan-wetlands/index.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 import { buildTestDeps } from "../support/step-deps.js";
 
-describe("ecology-wetlands plan-wetlands step", () => {
+describe("ecology-features plan-wetlands step", () => {
   it("publishes wetland intents and occupancy snapshot", () => {
     const width = 3;
     const height = 2;

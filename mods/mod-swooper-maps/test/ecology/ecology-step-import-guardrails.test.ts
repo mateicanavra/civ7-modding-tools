@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -232,15 +232,34 @@ describe("M2 guardrails: ecology steps must not deep-import ops implementations 
   it("enforces Gate G1/G2 for ecology and map-ecology step runtime code", () => {
     const modRoot = fileURLToPath(new URL("../..", import.meta.url));
     const repoRoot = path.resolve(modRoot, "..", "..");
-    const ecologyStepsDir = path.join(modRoot, "src/recipes/standard/stages/ecology/steps");
-    const mapEcologyStepsDir = path.join(modRoot, "src/recipes/standard/stages/map-ecology/steps");
+    const stepDirs = [
+      "src/recipes/standard/stages/ecology-pedology/steps",
+      "src/recipes/standard/stages/ecology-biomes/steps",
+      "src/recipes/standard/stages/ecology-features/steps",
+      "src/recipes/standard/stages/map-ecology/steps",
+    ].map((dir) => path.join(modRoot, dir));
 
-    const findings = [
-      ...scanStepDir(ecologyStepsDir, repoRoot),
-      ...scanStepDir(mapEcologyStepsDir, repoRoot),
-    ];
+    // The split truth stages are the architectural boundary; scan the whole
+    // category so a future feature family cannot bypass the guard by landing in
+    // a different stage directory.
+    const findings = stepDirs.flatMap((dir) => scanStepDir(dir, repoRoot));
 
     const message = findings.length === 0 ? "" : formatFindings(findings);
     expect(findings.length, message).toBe(0);
+  });
+
+  it("keeps retired wrapper and generic ecology step directories out of the active recipe topology", () => {
+    const modRoot = fileURLToPath(new URL("../..", import.meta.url));
+    const retiredStageDirs = [
+      "src/recipes/standard/stages/ecology/steps",
+      "src/recipes/standard/stages/ecology-features-score",
+      "src/recipes/standard/stages/ecology-ice",
+      "src/recipes/standard/stages/ecology-reefs",
+      "src/recipes/standard/stages/ecology-wetlands",
+      "src/recipes/standard/stages/ecology-vegetation",
+    ];
+
+    const present = retiredStageDirs.filter((dir) => existsSync(path.join(modRoot, dir)));
+    expect(present, `Retired ecology topology dirs still exist: ${present.join(", ")}`).toEqual([]);
   });
 });

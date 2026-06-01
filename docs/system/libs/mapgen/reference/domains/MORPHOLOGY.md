@@ -432,7 +432,7 @@ Hydrology and Ecology consume Morphology artifacts after `morphology-features` c
 
 - `mods/mod-swooper-maps/src/recipes/standard/recipe.ts` (`stages` ordering: `morphologyCoasts`, `morphologyRouting`, `morphologyErosion`, `morphologyFeatures`, `mapMorphology`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/steps/climateBaseline.contract.ts` (requires `morphologyArtifacts.topography`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/biomes/contract.ts` (requires `morphologyArtifacts.topography`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-biomes/steps/biomes/contract.ts` (requires `morphologyArtifacts.topography`)
 
 ### `morphology-coasts` (`landmass-plates` → `rugged-coasts`)
 

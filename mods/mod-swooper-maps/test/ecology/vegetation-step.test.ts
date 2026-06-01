@@ -4,13 +4,13 @@ import ecology from "@mapgen/domain/ecology/ops";
 import { createMockAdapter } from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { implementArtifacts } from "@swooper/mapgen-core/authoring";
-import planVegetationStep from "../../src/recipes/standard/stages/ecology-vegetation/steps/plan-vegetation/index.js";
+import planVegetationStep from "../../src/recipes/standard/stages/ecology-features/steps/plan-vegetation/index.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 import { buildTestDeps } from "../support/step-deps.js";
 
-describe("ecology-vegetation plan-vegetation step", () => {
+describe("ecology-features plan-vegetation step", () => {
   it("publishes vegetation intents and occupancy snapshot", () => {
     const width = 3;
     const height = 2;

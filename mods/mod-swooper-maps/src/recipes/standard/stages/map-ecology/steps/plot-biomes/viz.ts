@@ -1,6 +1,6 @@
 import { BIOME_SYMBOL_ORDER, type BiomeSymbol } from "@mapgen/domain/ecology";
 
-import { BIOME_INDEX_VIZ_CATEGORIES } from "../../../ecology/steps/biomes/viz.js";
+import { BIOME_INDEX_VIZ_CATEGORIES } from "../../../ecology-biomes/steps/biomes/viz.js";
 
 export type VizCategory = Readonly<{
   value: number;

@@ -1,7 +1,7 @@
 import { defineVizMeta, dumpScalarFieldVariants } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { ecologyArtifacts } from "../../artifacts.js";
-import { validatePedologyArtifact } from "../../artifact-validation.js";
+import { ecologyArtifacts } from "../../../ecology/artifacts.js";
+import { validatePedologyArtifact } from "../../../ecology/artifact-validation.js";
 import PedologyStepContract from "./contract.js";
 
 const GROUP_PEDOLOGY = "Ecology / Pedology";

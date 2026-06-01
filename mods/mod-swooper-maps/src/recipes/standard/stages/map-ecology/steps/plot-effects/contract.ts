@@ -1,28 +1,26 @@
 import { Type, defineStep } from "@swooper/mapgen-core/authoring";
-import ecology from "@mapgen/domain/ecology";
 
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
-import { morphologyArtifacts } from "../../../morphology/artifacts.js";
 import { STANDARD_ENGINE_EFFECT_TAGS } from "../../../../tags.js";
 
+/**
+ * Plot-effect projection contract.
+ *
+ * Planning moved upstream to `ecology-features/plan-plot-effects`; this map
+ * step only applies the published plan to Civ7 and emits projection viz.
+ */
 const PlotEffectsStepContract = defineStep({
   id: "plot-effects",
   phase: "gameplay",
   requires: [],
   provides: [STANDARD_ENGINE_EFFECT_TAGS.engine.plotEffectsApplied],
   artifacts: {
-    requires: [morphologyArtifacts.topography, ecologyArtifacts.biomeClassification],
-  },
-  ops: {
-    scoreSnow: ecology.ops.scorePlotEffectsSnow,
-    scoreSand: ecology.ops.scorePlotEffectsSand,
-    scoreBurned: ecology.ops.scorePlotEffectsBurned,
-    plotEffects: ecology.ops.planPlotEffects,
+    requires: [ecologyArtifacts.plotEffectPlan],
   },
   schema: Type.Object(
     {},
     {
-      description: "Configuration for climate-driven plot effects (snow, sand, burn).",
+      description: "Projection-only application for planned plot effects.",
     }
   ),
 });

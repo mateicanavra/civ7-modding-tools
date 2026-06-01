@@ -2,8 +2,8 @@ import { defineVizMeta, dumpScalarFieldVariants } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clamp01 } from "@swooper/mapgen-core/lib/math";
 import BiomesStepContract from "./contract.js";
-import { ecologyArtifacts } from "../../artifacts.js";
-import { validateBiomeClassificationArtifact } from "../../artifact-validation.js";
+import { ecologyArtifacts } from "../../../ecology/artifacts.js";
+import { validateBiomeClassificationArtifact } from "../../../ecology/artifact-validation.js";
 import { assertBiomeIndexVizCategoriesCoverSymbols, BIOME_INDEX_VIZ_CATEGORIES } from "./viz.js";
 
 const GROUP_BIOMES = "Ecology / Biomes";
