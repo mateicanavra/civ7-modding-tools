@@ -36,21 +36,25 @@ Placement requires (dependency tags):
 - `effect:engine.riversModeled` (from `map-hydrology`)
 - `effect:engine.featuresApplied` (from `map-ecology`)
 - `effect:map.landmassRegionsPlotted` (from `plot-landmass-regions`)
+- `effect:placement.naturalWondersPlaced` (from `place-natural-wonders`, required by final placement)
 
 Placement provides:
+- `effect:placement.naturalWondersPlaced` (natural-wonder product boundary)
 - `effect:engine.placementApplied` (verified effect tag)
 
 Placement artifacts:
 - Provides `artifact:placementInputs` (derived from config + placement ops)
 - Provides deterministic plan artifacts: `artifact:placement.resourcePlan`, `artifact:placement.naturalWonderPlan`, `artifact:placement.discoveryPlan`
-- Requires `artifact:placementInputs` and `artifact:map.landmassRegionSlotByTile` for final placement
+- Provides `artifact:placement.naturalWonderPlacement` after all planned natural wonders stamp successfully
+- Requires `artifact:placementInputs`, `artifact:placement.naturalWonderPlacement`, and `artifact:map.landmassRegionSlotByTile` for final placement
 - Provides `artifact:placementOutputs` (verification/debug surface)
 
 Runtime semantics:
 - Placement apply is fail-hard.
-- Natural wonders still use deterministic full-stamp-or-fail semantics.
+- Natural wonders use deterministic full-stamp-or-fail semantics in their own product/effect step.
 - Discoveries/resources run through official Civ generators; generator invocation failures and invalid placement metrics abort the placement step with explicit context.
 - Owned deterministic resource planning artifacts are retained for diagnostics/parity work but are non-primary at runtime and currently parity-incomplete for age/eligibility behavior.
+- Terrain validation, area recalculation, water cache storage, landmass-region restamping, and fertility recalculation remain transactional inside final placement because no independent consumer currently exists.
 
 ## Key artifacts
 
@@ -72,6 +76,11 @@ Placement domain ops used by the standard recipe:
 
 These ops produce placement plans/inputs which are then applied in the placement step.
 
+Natural-wonder placement is the first promoted product boundary: the plan
+artifact is materialized by `place-natural-wonders`, and final placement
+requires its effect/artifact before continuing. Resource and discovery
+reconciliation remains intentionally deferred to the D4 typed-outcome slice.
+
 ## Config posture
 
 Placement stage config is currently minimal:
@@ -86,6 +95,7 @@ Placement stage config is currently minimal:
 - Step contracts:
   - `mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/derive-placement-inputs/contract.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/plot-landmass-regions/contract.ts`
+  - `mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/place-natural-wonders/contract.ts`
   - `mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/contract.ts`
 - Placement artifacts: `mods/mod-swooper-maps/src/recipes/standard/stages/placement/artifacts.ts`
 - Projection artifacts (inputs): `mods/mod-swooper-maps/src/recipes/standard/map-artifacts.ts`
