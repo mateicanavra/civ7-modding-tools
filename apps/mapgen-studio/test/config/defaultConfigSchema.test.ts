@@ -48,6 +48,11 @@ function expectSchemaHasDescription(schema: unknown, label: string) {
 
 function collectMissingDescriptions(schema: unknown, path: string[] = []): string[] {
   if (!schema || typeof schema !== "object") return [];
+  if (Array.isArray(schema)) {
+    return schema.flatMap((item, index) =>
+      collectMissingDescriptions(item, [...path, String(index)])
+    );
+  }
   const node = schema as {
     const?: unknown;
     description?: unknown;
@@ -74,6 +79,11 @@ function collectMissingDescriptions(schema: unknown, path: string[] = []): strin
 
 function collectNumericLeavesMissingRange(schema: unknown, path: string[] = []): string[] {
   if (!schema || typeof schema !== "object") return [];
+  if (Array.isArray(schema)) {
+    return schema.flatMap((item, index) =>
+      collectNumericLeavesMissingRange(item, [...path, String(index)])
+    );
+  }
   const node = schema as {
     const?: unknown;
     type?: unknown;
@@ -120,6 +130,11 @@ function collectDescriptionsMatching(
   path: string[] = []
 ): string[] {
   if (!schema || typeof schema !== "object") return [];
+  if (Array.isArray(schema)) {
+    return schema.flatMap((item, index) =>
+      collectDescriptionsMatching(item, pattern, [...path, String(index)])
+    );
+  }
   const node = schema as {
     description?: unknown;
     properties?: Record<string, unknown>;
@@ -313,6 +328,84 @@ describe("Studio default config", () => {
     }
   });
 
+  it("exposes semantic Ecology authoring keys instead of internal op envelopes", () => {
+    const expected: Record<string, readonly string[]> = {
+      "ecology-pedology": [
+        "knobs",
+        "soilClassification",
+        "resourceBasinPlanning",
+        "resourceBasinScoring",
+      ],
+      "ecology-biomes": ["knobs", "biomeClassification"],
+      "ecology-features": [
+        "knobs",
+        "substrateScoring",
+        "wetlandScoring",
+        "reefScoring",
+        "iceScoring",
+        "icePlanning",
+        "reefPlanning",
+        "wetlandPlanning",
+        "vegetationPlanning",
+        "plotEffectScoring",
+        "plotEffectCoverage",
+      ],
+    };
+
+    for (const [stageId, expectedKeys] of Object.entries(expected)) {
+      const schemaProps =
+        (getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [stageId]) as {
+          properties?: Record<string, unknown>;
+        }).properties ?? {};
+      expect(Object.keys(schemaProps).sort()).toEqual([...expectedKeys].sort());
+      expect(JSON.stringify(schemaProps)).not.toContain("\"strategy\"");
+      expect(JSON.stringify(schemaProps)).not.toContain("\"config\"");
+
+      const config = (STANDARD_RECIPE_CONFIG as Record<string, Record<string, unknown>>)[stageId] ?? {};
+      for (const key of Object.keys(config)) {
+        expect(expectedKeys).toContain(key);
+      }
+    }
+  });
+
+  it("exposes documented and range-bounded Ecology public controls to Studio", () => {
+    const expected: Record<string, readonly string[]> = {
+      "ecology-pedology": [
+        "knobs",
+        "soilClassification",
+        "resourceBasinPlanning",
+        "resourceBasinScoring",
+      ],
+      "ecology-biomes": ["knobs", "biomeClassification"],
+      "ecology-features": [
+        "knobs",
+        "substrateScoring",
+        "wetlandScoring",
+        "reefScoring",
+        "iceScoring",
+        "icePlanning",
+        "reefPlanning",
+        "wetlandPlanning",
+        "vegetationPlanning",
+        "plotEffectScoring",
+        "plotEffectCoverage",
+      ],
+    };
+
+    for (const [stageId, publicKeys] of Object.entries(expected)) {
+      expectPublicStageDescription(STANDARD_RECIPE_CONFIG_SCHEMA, stageId);
+      for (const key of publicKeys) {
+        const schema = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, [stageId, key]);
+        expect(collectMissingDescriptions(schema, [stageId, key])).toEqual([]);
+        expect(collectNumericLeavesMissingRange(schema, [stageId, key])).toEqual([]);
+        expect(collectDescriptionsMatching(schema, /\b(step|op|envelope|internal|strategy)\b/i, [
+          stageId,
+          key,
+        ])).toEqual([]);
+      }
+    }
+  });
+
   it("keeps legacy Studio source defaults on the semantic Hydrology surface", () => {
     const expected: Record<string, readonly string[]> = {
       "hydrology-climate-baseline": [
@@ -347,6 +440,26 @@ describe("Studio default config", () => {
       expect(stageConfig).not.toHaveProperty("climate-baseline");
       expect(stageConfig).not.toHaveProperty("rivers");
       expect(stageConfig).not.toHaveProperty("climate-refine");
+      expect(hasRawOpEnvelope(stageConfig)).toBe(false);
+    }
+  });
+
+  it("keeps legacy Studio source defaults on the semantic Ecology surface", () => {
+    const expected: Record<string, readonly string[]> = {
+      "ecology-pedology": ["knobs"],
+      "ecology-biomes": ["knobs", "biomeClassification"],
+      "ecology-features": ["knobs"],
+    };
+
+    expect(SOURCE_UI_DEFAULT_CONFIG).not.toHaveProperty("ecology");
+    for (const [stageId, expectedKeys] of Object.entries(expected)) {
+      const stageConfig = SOURCE_UI_DEFAULT_CONFIG[stageId] ?? {};
+      expect(Object.keys(stageConfig).sort()).toEqual([...expectedKeys].sort());
+      expect(stageConfig).not.toHaveProperty("pedology");
+      expect(stageConfig).not.toHaveProperty("resource-basins");
+      expect(stageConfig).not.toHaveProperty("biomes");
+      expect(stageConfig).not.toHaveProperty("score-layers");
+      expect(stageConfig).not.toHaveProperty("plan-plot-effects");
       expect(hasRawOpEnvelope(stageConfig)).toBe(false);
     }
   });
@@ -431,6 +544,30 @@ describe("Studio default config", () => {
         if (focusKey) {
           expect(publicKeys).toContain(focusKey);
         }
+      }
+    }
+  });
+
+  it("keeps Ecology runtime steps visible even when public config keys are semantic", () => {
+    const expectedSteps: Record<string, readonly string[]> = {
+      "ecology-pedology": ["pedology", "resource-basins"],
+      "ecology-biomes": ["biomes"],
+      "ecology-features": [
+        "score-layers",
+        "plan-ice",
+        "plan-reefs",
+        "plan-wetlands",
+        "plan-vegetation",
+        "plan-plot-effects",
+      ],
+    };
+
+    for (const [stageId, stepIds] of Object.entries(expectedSteps)) {
+      const stage = STANDARD_RECIPE_UI_META.stages.find((entry) => entry.stageId === stageId);
+      expect(stage?.steps.map((step) => step.stepId)).toEqual(stepIds);
+
+      for (const step of stage?.steps ?? []) {
+        expect(step.configFocusPathWithinStage).toEqual([]);
       }
     }
   });

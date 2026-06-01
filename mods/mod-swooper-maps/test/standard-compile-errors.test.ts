@@ -47,7 +47,20 @@ describe("standard recipe compile errors (ecology)", () => {
     ).toBe(true);
   });
 
-  it("flags schema errors within ecology step configs", () => {
+  it("points legacy top-level Ecology configs at the current split stages", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
+        ecology: {},
+      } as any)
+    );
+
+    const legacyEcologyError = err.errors.find((item) => item.path === "/config/ecology");
+    expect(legacyEcologyError?.message).toContain("\"ecology-features\"");
+    expect(legacyEcologyError?.message).not.toContain("ecology-features-score");
+  });
+
+  it("rejects legacy Ecology step/op envelope config", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
         foundation: foundationConfig,
@@ -62,6 +75,83 @@ describe("standard recipe compile errors (ecology)", () => {
     expect(
       err.errors.some(
         (item) => item.code === "config.invalid" && item.path.includes("/config/ecology-biomes/biomes")
+      )
+    ).toBe(true);
+  });
+
+  it("rejects stale Ecology public strategy selectors", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
+        "ecology-pedology": {
+          soilClassification: {
+            strategy: "coastal-shelf",
+          },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path.includes("/config/ecology-pedology/soilClassification/strategy")
+      )
+    ).toBe(true);
+  });
+
+  it("rejects Ecology plot-effect engine selector leakage", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
+        "ecology-features": {
+          plotEffectCoverage: {
+            snow: {
+              selectors: {
+                light: { typeName: "PLOTEFFECT_SNOW_LIGHT_PERMANENT" },
+              },
+            },
+            sand: {
+              selector: { typeName: "PLOTEFFECT_SAND" },
+            },
+          },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path.includes("/config/ecology-features/plotEffectCoverage/snow/selectors")
+      )
+    ).toBe(true);
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path.includes("/config/ecology-features/plotEffectCoverage/sand/selector")
+      )
+    ).toBe(true);
+  });
+
+  it("rejects out-of-range Ecology public numeric controls", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
+        "ecology-features": {
+          wetlandPlanning: {
+            minConfidence01: 2,
+          },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path.includes("/config/ecology-features/wetlandPlanning/minConfidence01")
       )
     ).toBe(true);
   });

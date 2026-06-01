@@ -296,23 +296,34 @@ export const defaultConfig: PipelineConfig = {
   },
 
   // ============================================================================
-  // Ecology Stage
+  // Ecology Pedology Stage
+  // Soil and resource-basin truth
+  // ============================================================================
+  "ecology-pedology": {
+    knobs: {},
+  },
+
+  // ============================================================================
+  // Ecology Biomes Stage
   // Biome classification
   // ============================================================================
-  ecology: {
+  "ecology-biomes": {
     knobs: {},
-    biomes: {
-      classify: {
-        strategy: "default",
-        config: {
-          temperature: {
-            equator: 34,
-            pole: -22,
-            lapseRate: 7.5,
-          },
-        },
+    biomeClassification: {
+      temperature: {
+        equator: 34,
+        pole: -22,
+        lapseRate: 7.5,
       },
     },
+  },
+
+  // ============================================================================
+  // Ecology Features Stage
+  // Feature scoring and planning
+  // ============================================================================
+  "ecology-features": {
+    knobs: {},
   },
 };
 

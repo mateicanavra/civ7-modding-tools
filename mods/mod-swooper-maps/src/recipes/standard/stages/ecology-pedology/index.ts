@@ -1,4 +1,8 @@
 import { Type, createStage } from "@swooper/mapgen-core/authoring";
+import {
+  EcologyPedologyPublicSchema,
+  compileEcologyPedologyPublicConfig,
+} from "../ecology-public-config.js";
 import pedology from "./steps/pedology/index.js";
 import resourceBasins from "./steps/resource-basins/index.js";
 
@@ -9,6 +13,16 @@ import resourceBasins from "./steps/resource-basins/index.js";
  */
 export default createStage({
   id: "ecology-pedology",
-  knobsSchema: Type.Object({}),
+  knobsSchema: Type.Object(
+    {},
+    {
+      additionalProperties: false,
+      description:
+        "Ecology-pedology currently has no stage-level knobs; authoring control lives in soil and resource-basin groups.",
+    }
+  ),
+  public: EcologyPedologyPublicSchema,
   steps: [pedology, resourceBasins],
+  compile: ({ config }: { config: Record<string, unknown> }) =>
+    compileEcologyPedologyPublicConfig(config),
 } as const);

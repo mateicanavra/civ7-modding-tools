@@ -85,3 +85,23 @@
 | Package TypeScript check | `bun run check` in `mods/mod-swooper-maps` | Still fails only on existing unresolved `@mateicanavra/civ7-sdk/mapgen` imports in generated maps and one type test; new Hydrology schema-helper type errors were repaired. |
 | Whitespace check | `git diff --check` | Passed. |
 | Runtime proof | direct-control/Studio runtime | Not run. The slice claims schema/default proof, Hydrology-focused runtime tests, and shipped-config compile equivalence only; it does not claim new generated-map behavior. |
+
+## 2026-06-01: Ecology Authoring Surface Alignment Slice
+
+| evidence | command or source | result |
+| --- | --- | --- |
+| Graphite isolation | `gt create codex/ecology-authoring-surface-alignment --no-interactive` | New slice branch above `codex/hydrology-authoring-surface-alignment`. Primary worktree was detached at the Hydrology head for Narsil indexing before this branch was committed. |
+| Narsil status | `list_repos`; avoided `hybrid_search` | Narsil MCP was responsive and indexed the primary Civ7 checkout. No restart was needed during this slice. |
+| Public schema boundary | `bun test test/config/maps-schema-valid.test.ts test/standard-compile-errors.test.ts` in `mods/mod-swooper-maps` | Ecology stages expose semantic public keys only, with no raw `{ strategy, config }` public envelope; legacy Ecology step/op envelope config, stale public strategy selectors, plot-effect selector leakage, and out-of-range public numeric controls fail strict validation. |
+| Public documentation and ranges | `bun run scripts/report-standard-authoring-surface.ts --format=summary` | Ecology reports: `ecology-pedology` raw `0`, docs `0/0`, numeric `29/29`; `ecology-biomes` raw `0`, docs `0/0`, numeric `29/29`; `ecology-features` raw `0`, docs `0/0`, numeric `106/106`. |
+| Compile mapping | `maps-schema-valid.test.ts` Ecology compile assertion | Public Ecology groups compile to internal executable step/op envelopes with selected profile/default strategies for pedology, resource basins, biome classification, scoring, planning, and plot effects; recipe-owned plot-effect selectors are injected by compile. |
+| Shipped config migration | `mods/mod-swooper-maps/src/maps/configs/*.config.json`; `maps-schema-valid.test.ts` Ecology shipped-config assertion | Four shipped map configs migrated from raw Ecology envelopes to semantic public keys and validate without compatibility shims. |
+| Stable compiled-config equivalence | `mods/mod-swooper-maps/test/fixtures/legacy-ecology-compiled.json`; `maps-schema-valid.test.ts` stable comparison | Checked-in golden fixture was generated before Ecology migration by compiling shipped Ecology configs with `seed=123`, `dimensions=80x60`, and `latitudeBounds=60/-60`; current migrated shipped configs compile to the same stable Ecology objects. |
+| Generated artifact regeneration | `bun run build:studio-recipes` in `mods/mod-swooper-maps` | Regenerated standard recipe/browser recipe dist outputs, Studio recipe type artifacts, and four generated source map artifacts from migrated source configs. |
+| Studio schema/default proof | `bun test test/config/defaultConfigSchema.test.ts` in `apps/mapgen-studio` | Passed 15 tests / 369 expects. Studio default config validates; generated standard schema exposes semantic Ecology keys, documented/range-bounded public fields, runtime step focus paths with empty Ecology public focus paths, and the legacy source default helper stays on the semantic Ecology surface. |
+| Shipped configs, presets, and compile suite | `bun test test/config/maps-schema-valid.test.ts test/config/presets-schema-valid.test.ts test/config/studio-presets-schema-valid.test.ts test/standard-compile-errors.test.ts` in `mods/mod-swooper-maps` | Passed 42 tests / 723 expects. |
+| OpenSpec validation | `bun run openspec -- validate ecology-authoring-surface-alignment --strict` | Passed. |
+| Package TypeScript check | `bun run check` in `mods/mod-swooper-maps` | Still fails only on existing unresolved `@mateicanavra/civ7-sdk/mapgen` imports in generated maps and one type test; no new Ecology type errors were reported before those module-resolution failures. |
+| Package TypeScript check | `bun run check` in `packages/mapgen-core` | Passed after correcting the legacy Ecology split-stage diagnostic. |
+| Package TypeScript check | `bun run check` in `apps/mapgen-studio` | Passed. |
+| Runtime proof | direct-control/Studio runtime | Not run. The slice claims schema/default proof and shipped-config compile equivalence only; it does not claim new generated-map behavior. |

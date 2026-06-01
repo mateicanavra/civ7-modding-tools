@@ -54,14 +54,15 @@ public config boundary OpenSpec work.
   per-domain slice order.
 - [x] OpenSpec foundation slice:
   `openspec/changes/authoring-surface-corpus-and-taxonomy/`.
-- [ ] Foundation cleanup slice removing raw public step/op leakage while keeping
+- [x] Foundation cleanup slice removing raw public step/op leakage while keeping
   deterministic compile behavior and migrating/proving all touched consumers.
-- [ ] Morphology alignment slice for documentation, bounds, naming, and any
+- [x] Morphology alignment slice for documentation, bounds, naming, and any
   coupled semantic profile cleanup.
-- [ ] Hydrology cleanup slice separating true public knobs from internal
+- [x] Hydrology cleanup slice separating true public knobs from internal
   climate/hydrography strategy controls.
-- [ ] Ecology and feature cleanup slice separating biome/feature product
-  controls from scoring/planning internals.
+- [x] Ecology and feature cleanup slice separating raw Ecology envelopes,
+  stale selectors, empty execution ops, and plot-effect ids from semantic
+  pedology/biome/feature controls.
 - [ ] Projection `map-*` audit for map materialization controls and misplaced
   truth-stage settings.
 - [ ] Placement cleanup slice for product-facing placement controls and internal
@@ -92,8 +93,11 @@ public config boundary OpenSpec work.
    - Include config/preset migration, generated artifact updates, Studio proof,
      and compile/runtime evidence for behavior-changing fields.
 5. `ecology-authoring-surface-alignment`
-   - Collapse scoring/planning internals into semantic biome/feature profiles
-     where product-facing, and hide the rest.
+   - Replace raw pedology, biome, feature-scoring, feature-planning, and
+     plot-effect envelopes with semantic Ecology truth-stage groups.
+   - Collapse strategy selection into profiles, keep behavior-equivalent expert
+     scoring/planning controls where shipped maps depend on exact values, and
+     hide empty ops and selector ids.
    - Include generated artifact, shipped config, preset, Studio, and behavior
      proof for the changed ecology surface.
 6. `projection-authoring-surface-audit`

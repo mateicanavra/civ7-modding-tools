@@ -90,7 +90,7 @@ export function compileRecipeConfig<const TStages extends readonly StageContract
       stageKey === "ecology" &&
       declaredStageIds.has("ecology-pedology") &&
       declaredStageIds.has("ecology-biomes")
-        ? 'Unknown stage id "ecology"; use split ecology stages (for example: "ecology-pedology", "ecology-biomes", "ecology-features-score").'
+        ? 'Unknown stage id "ecology"; use split ecology stages (for example: "ecology-pedology", "ecology-biomes", "ecology-features").'
         : `Unknown stage id "${stageKey}"`;
     errors.push({
       code: "config.invalid",

@@ -1,0 +1,1424 @@
+{
+  "shattered-ring": {
+    "ecology-pedology": {
+      "pedology": {
+        "classify": {
+          "config": {
+            "bedrockWeight": 0.6,
+            "climateWeight": 1.2,
+            "fertilityCeiling": 0.95,
+            "reliefWeight": 0.8,
+            "sedimentWeight": 1.1
+          },
+          "strategy": "orogeny-boosted"
+        }
+      },
+      "resource-basins": {
+        "plan": {
+          "config": {
+            "resources": []
+          },
+          "strategy": "mixed"
+        },
+        "score": {
+          "config": {
+            "maxPerResource": 12,
+            "minConfidence": 0.3
+          },
+          "strategy": "default"
+        }
+      }
+    },
+    "ecology-biomes": {
+      "biomes": {
+        "classify": {
+          "config": {
+            "aridity": {
+              "bias": 7,
+              "humidityDampening": 0.42,
+              "moistureShiftThresholds": [
+                0.34,
+                0.58
+              ],
+              "normalization": 104,
+              "petBase": 21,
+              "petTemperatureWeight": 86,
+              "rainfallWeight": 1.08,
+              "temperatureMax": 36,
+              "temperatureMin": 0,
+              "vegetationPenalty": 0.2
+            },
+            "edgeRefine": {
+              "iterations": 2,
+              "radius": 1
+            },
+            "moisture": {
+              "thresholds": [
+                100,
+                140,
+                180,
+                225
+              ]
+            },
+            "temperature": {
+              "bias": 0.8,
+              "equator": 30,
+              "lapseRate": 7.3,
+              "midLatitude": 10,
+              "polarCutoff": -7,
+              "pole": -14,
+              "seaLevel": 0,
+              "tropicalThreshold": 22,
+              "tundraCutoff": 0
+            },
+            "vegetation": {
+              "base": 0.24,
+              "moistureNormalizationPadding": 50,
+              "moistureWeight": 0.62
+            }
+          },
+          "strategy": "default"
+        }
+      }
+    },
+    "ecology-features": {
+      "plan-ice": {
+        "planIce": {
+          "config": {
+            "minConfidence01": 0.5
+          },
+          "strategy": "continentality"
+        }
+      },
+      "plan-plot-effects": {
+        "plotEffects": {
+          "config": {
+            "burned": {
+              "coveragePct": 20,
+              "enabled": true,
+              "selector": {
+                "typeName": "PLOTEFFECT_BURNED"
+              }
+            },
+            "sand": {
+              "coveragePct": 14,
+              "enabled": true,
+              "selector": {
+                "typeName": "PLOTEFFECT_SAND"
+              }
+            },
+            "snow": {
+              "coveragePct": 55,
+              "enabled": true,
+              "heavyThreshold": 0.82,
+              "lightThreshold": 0.4,
+              "mediumThreshold": 0.65,
+              "selectors": {
+                "heavy": {
+                  "typeName": "PLOTEFFECT_SNOW_HEAVY_PERMANENT"
+                },
+                "light": {
+                  "typeName": "PLOTEFFECT_SNOW_LIGHT_PERMANENT"
+                },
+                "medium": {
+                  "typeName": "PLOTEFFECT_SNOW_MEDIUM_PERMANENT"
+                }
+              }
+            }
+          },
+          "strategy": "default"
+        },
+        "scoreBurned": {
+          "config": {
+            "allowedBiomes": [
+              "desert",
+              "temperateDry",
+              "tropicalSeasonal"
+            ],
+            "maxFreeze": 0.25,
+            "maxMoisture": 128,
+            "maxVegetation": 0.4,
+            "minAridity": 0.46,
+            "minTemperature": 17
+          },
+          "strategy": "default"
+        },
+        "scoreSand": {
+          "config": {
+            "allowedBiomes": [
+              "desert",
+              "temperateDry"
+            ],
+            "maxFreeze": 0.25,
+            "maxMoisture": 90,
+            "maxVegetation": 0.18,
+            "minAridity": 0.62,
+            "minTemperature": 20
+          },
+          "strategy": "default"
+        },
+        "scoreSnow": {
+          "config": {
+            "elevationMax": 3000,
+            "elevationMin": 250,
+            "elevationPercentileMax": 0.98,
+            "elevationPercentileMin": 0.78,
+            "elevationStrategy": "percentile",
+            "elevationWeight": 1,
+            "freezeWeight": 1,
+            "maxAridity": 0.85,
+            "maxTemperature": 4,
+            "moistureMax": 150,
+            "moistureMin": 40,
+            "moistureWeight": 0.6,
+            "scoreBias": 0,
+            "scoreNormalization": 2.7
+          },
+          "strategy": "default"
+        }
+      },
+      "plan-reefs": {
+        "planReefs": {
+          "config": {
+            "minConfidence01": 0.58,
+            "stride": 2
+          },
+          "strategy": "default"
+        }
+      },
+      "plan-vegetation": {
+        "planVegetation": {
+          "config": {
+            "forestMinConfidence01": 0.14,
+            "rainforestMinConfidence01": 0.24,
+            "sagebrushSteppeMinConfidence01": 0.06,
+            "savannaWoodlandMinConfidence01": 0.08,
+            "taigaMinConfidence01": 0.08
+          },
+          "strategy": "default"
+        }
+      },
+      "plan-wetlands": {
+        "planWetlands": {
+          "config": {
+            "minConfidence01": 0.28
+          },
+          "strategy": "default"
+        }
+      },
+      "score-layers": {
+        "featureSubstrate": {
+          "config": {
+            "coastalAdjacencyRadius": 1,
+            "floodplainDischargeMin": 0,
+            "intertidalMaxElevationAboveSeaM": 40,
+            "isolatedRiverRadius": 1,
+            "lowlandMaxElevationAboveSeaM": 160,
+            "navigableRiverClass": 2,
+            "nearRiverRadius": 2
+          },
+          "strategy": "default"
+        },
+        "scoreColdReef": {
+          "config": {
+            "maxDepthM": 48,
+            "maxDistanceToCoast": 8,
+            "minDepthM": 8,
+            "minDistanceToCoast": 1,
+            "peakDepthM": 24,
+            "tempColdMaxC": 10,
+            "tempWarmMaxC": 20
+          },
+          "strategy": "default"
+        },
+        "scoreForest": {
+          "config": {},
+          "strategy": "default"
+        },
+        "scoreIce": {
+          "config": {
+            "alpineElevationMaxM": 3400,
+            "alpineElevationMinM": 2200,
+            "alpineFreezeMin01": 0.55,
+            "seaTempColdC": -10,
+            "seaTempWarmC": -2
+          },
+          "strategy": "default"
+        },
+        "scoreRainforest": {
+          "config": {},
+          "strategy": "default"
+        },
+        "scoreReef": {
+          "config": {
+            "deepDepthM": 120,
+            "maxDistanceToCoast": 3,
+            "shallowDepthM": 0,
+            "tempWarmEndC": 28,
+            "tempWarmStartC": 14
+          },
+          "strategy": "default"
+        },
+        "scoreReefAtoll": {
+          "config": {
+            "deepDepthM": 100,
+            "maxDistanceToCoast": 10,
+            "minDistanceToCoast": 4,
+            "shallowDepthM": 0,
+            "tempWarmEndC": 30,
+            "tempWarmStartC": 18
+          },
+          "strategy": "default"
+        },
+        "scoreReefLotus": {
+          "config": {
+            "deepDepthM": 40,
+            "maxDistanceToCoast": 2,
+            "shallowDepthM": 0,
+            "tempWarmEndC": 32,
+            "tempWarmStartC": 16
+          },
+          "strategy": "default"
+        },
+        "scoreSagebrushSteppe": {
+          "config": {},
+          "strategy": "default"
+        },
+        "scoreSavannaWoodland": {
+          "config": {},
+          "strategy": "default"
+        },
+        "scoreTaiga": {
+          "config": {},
+          "strategy": "default"
+        },
+        "scoreWetMangrove": {
+          "config": {
+            "aridityMax01": 0.7,
+            "fertilityMin01": 0.15,
+            "tempWarmEndC": 30,
+            "tempWarmStartC": 18,
+            "waterMin01": 0.45
+          },
+          "strategy": "default"
+        },
+        "scoreWetMarsh": {
+          "config": {
+            "aridityMax01": 0.6,
+            "fertilityMin01": 0.2,
+            "tempMaxC": 24,
+            "tempMinC": -2,
+            "tempPeakC": 10,
+            "waterMin01": 0.55
+          },
+          "strategy": "default"
+        },
+        "scoreWetOasis": {
+          "config": {
+            "dryMax01": 0.95,
+            "dryMin01": 0.6,
+            "tempWarmEndC": 38,
+            "tempWarmStartC": 20,
+            "waterMin01": 0.35
+          },
+          "strategy": "default"
+        },
+        "scoreWetTundraBog": {
+          "config": {
+            "fertilityMin01": 0.1,
+            "freezeMin01": 0.55,
+            "tempColdMaxC": 4,
+            "tempWarmMaxC": 14,
+            "waterMin01": 0.55
+          },
+          "strategy": "default"
+        },
+        "scoreWetWateringHole": {
+          "config": {
+            "dryMax01": 0.85,
+            "dryMin01": 0.45,
+            "fertilityMin01": 0.1,
+            "tempWarmEndC": 32,
+            "tempWarmStartC": 12,
+            "waterMin01": 0.25
+          },
+          "strategy": "default"
+        },
+        "vegetationSubstrate": {
+          "config": {
+            "moistureNormalization": 330,
+            "temperatureMaxC": 40,
+            "temperatureMinC": -20
+          },
+          "strategy": "default"
+        }
+      }
+    }
+  },
+  "sundered-archipelago": {
+    "ecology-pedology": {
+      "pedology": {
+        "classify": {
+          "config": {
+            "bedrockWeight": 0.6,
+            "climateWeight": 1.2,
+            "fertilityCeiling": 0.95,
+            "reliefWeight": 0.8,
+            "sedimentWeight": 1.1
+          },
+          "strategy": "coastal-shelf"
+        }
+      },
+      "resource-basins": {
+        "plan": {
+          "config": {
+            "resources": []
+          },
+          "strategy": "hydro-fluvial"
+        },
+        "score": {
+          "config": {
+            "maxPerResource": 12,
+            "minConfidence": 0.3
+          },
+          "strategy": "default"
+        }
+      }
+    },
+    "ecology-biomes": {
+      "biomes": {
+        "classify": {
+          "config": {
+            "aridity": {
+              "bias": 2,
+              "humidityDampening": 0.52,
+              "moistureShiftThresholds": [
+                0.43,
+                0.66
+              ],
+              "normalization": 132,
+              "petBase": 22,
+              "petTemperatureWeight": 95,
+              "rainfallWeight": 1.08,
+              "temperatureMax": 37,
+              "temperatureMin": 2,
+              "vegetationPenalty": 0.14
+            },
+            "edgeRefine": {
+              "iterations": 2,
+              "radius": 1
+            },
+            "moisture": {
+              "thresholds": [
+                88,
+                120,
+                162,
+                210
+              ]
+            },
+            "temperature": {
+              "bias": 1.8,
+              "equator": 31,
+              "lapseRate": 6.7,
+              "midLatitude": 13,
+              "polarCutoff": -5,
+              "pole": -6,
+              "seaLevel": 0,
+              "tropicalThreshold": 24,
+              "tundraCutoff": 2
+            },
+            "vegetation": {
+              "base": 0.34,
+              "moistureNormalizationPadding": 64,
+              "moistureWeight": 0.66
+            }
+          },
+          "strategy": "default"
+        }
+      }
+    },
+    "ecology-features": {
+      "plan-ice": {
+        "planIce": {
+          "config": {
+            "minConfidence01": 0.5
+          },
+          "strategy": "continentality"
+        }
+      },
+      "plan-plot-effects": {
+        "plotEffects": {
+          "config": {
+            "burned": {
+              "coveragePct": 4,
+              "enabled": false,
+              "selector": {
+                "typeName": "PLOTEFFECT_BURNED"
+              }
+            },
+            "sand": {
+              "coveragePct": 5,
+              "enabled": false,
+              "selector": {
+                "typeName": "PLOTEFFECT_SAND"
+              }
+            },
+            "snow": {
+              "coveragePct": 28,
+              "enabled": true,
+              "heavyThreshold": 0.85,
+              "lightThreshold": 0.45,
+              "mediumThreshold": 0.7,
+              "selectors": {
+                "heavy": {
+                  "typeName": "PLOTEFFECT_SNOW_HEAVY_PERMANENT"
+                },
+                "light": {
+                  "typeName": "PLOTEFFECT_SNOW_LIGHT_PERMANENT"
+                },
+                "medium": {
+                  "typeName": "PLOTEFFECT_SNOW_MEDIUM_PERMANENT"
+                }
+              }
+            }
+          },
+          "strategy": "default"
+        },
+        "scoreBurned": {
+          "config": {
+            "allowedBiomes": [
+              "temperateDry",
+              "tropicalSeasonal"
+            ],
+            "maxFreeze": 0.15,
+            "maxMoisture": 90,
+            "maxVegetation": 0.15,
+            "minAridity": 0.65,
+            "minTemperature": 26
+          },
+          "strategy": "default"
+        },
+        "scoreSand": {
+          "config": {
+            "allowedBiomes": [
+              "desert",
+              "temperateDry"
+            ],
+            "maxFreeze": 0.2,
+            "maxMoisture": 70,
+            "maxVegetation": 0.1,
+            "minAridity": 0.7,
+            "minTemperature": 24
+          },
+          "strategy": "default"
+        },
+        "scoreSnow": {
+          "config": {
+            "elevationMax": 2600,
+            "elevationMin": 300,
+            "elevationPercentileMax": 0.98,
+            "elevationPercentileMin": 0.82,
+            "elevationStrategy": "percentile",
+            "elevationWeight": 0.8,
+            "freezeWeight": 0.9,
+            "maxAridity": 0.75,
+            "maxTemperature": 3,
+            "moistureMax": 180,
+            "moistureMin": 70,
+            "moistureWeight": 0.7,
+            "scoreBias": -0.1,
+            "scoreNormalization": 2.6
+          },
+          "strategy": "default"
+        }
+      },
+      "plan-reefs": {
+        "planReefs": {
+          "config": {
+            "minConfidence01": 0.52,
+            "stride": 2
+          },
+          "strategy": "shipping-lanes"
+        }
+      },
+      "plan-vegetation": {
+        "planVegetation": {
+          "config": {
+            "forestMinConfidence01": 0.16,
+            "rainforestMinConfidence01": 0.22,
+            "sagebrushSteppeMinConfidence01": 0.09,
+            "savannaWoodlandMinConfidence01": 0.08,
+            "taigaMinConfidence01": 0.12
+          },
+          "strategy": "default"
+        }
+      },
+      "plan-wetlands": {
+        "planWetlands": {
+          "config": {
+            "minConfidence01": 0.35
+          },
+          "strategy": "default"
+        }
+      },
+      "score-layers": {
+        "featureSubstrate": {
+          "config": {
+            "coastalAdjacencyRadius": 1,
+            "floodplainDischargeMin": 0,
+            "intertidalMaxElevationAboveSeaM": 40,
+            "isolatedRiverRadius": 1,
+            "lowlandMaxElevationAboveSeaM": 160,
+            "navigableRiverClass": 2,
+            "nearRiverRadius": 2
+          },
+          "strategy": "default"
+        },
+        "scoreColdReef": {
+          "config": {
+            "maxDepthM": 48,
+            "maxDistanceToCoast": 8,
+            "minDepthM": 0,
+            "minDistanceToCoast": 1,
+            "peakDepthM": 5,
+            "tempColdMaxC": 10,
+            "tempWarmMaxC": 20
+          },
+          "strategy": "default"
+        },
+        "scoreForest": {
+          "config": {},
+          "strategy": "default"
+        },
+        "scoreIce": {
+          "config": {
+            "alpineElevationMaxM": 3400,
+            "alpineElevationMinM": 2200,
+            "alpineFreezeMin01": 0.55,
+            "seaTempColdC": -10,
+            "seaTempWarmC": -2
+          },
+          "strategy": "default"
+        },
+        "scoreRainforest": {
+          "config": {},
+          "strategy": "default"
+        },
+        "scoreReef": {
+          "config": {
+            "deepDepthM": 120,
+            "maxDistanceToCoast": 3,
+            "shallowDepthM": 0,
+            "tempWarmEndC": 28,
+            "tempWarmStartC": 14
+          },
+          "strategy": "default"
+        },
+        "scoreReefAtoll": {
+          "config": {
+            "deepDepthM": 100,
+            "maxDistanceToCoast": 10,
+            "minDistanceToCoast": 4,
+            "shallowDepthM": 0,
+            "tempWarmEndC": 30,
+            "tempWarmStartC": 18
+          },
+          "strategy": "default"
+        },
+        "scoreReefLotus": {
+          "config": {
+            "deepDepthM": 40,
+            "maxDistanceToCoast": 2,
+            "shallowDepthM": 0,
+            "tempWarmEndC": 32,
+            "tempWarmStartC": 16
+          },
+          "strategy": "default"
+        },
+        "scoreSagebrushSteppe": {
+          "config": {},
+          "strategy": "default"
+        },
+        "scoreSavannaWoodland": {
+          "config": {},
+          "strategy": "default"
+        },
+        "scoreTaiga": {
+          "config": {},
+          "strategy": "default"
+        },
+        "scoreWetMangrove": {
+          "config": {
+            "aridityMax01": 0.7,
+            "fertilityMin01": 0.15,
+            "tempWarmEndC": 30,
+            "tempWarmStartC": 18,
+            "waterMin01": 0.45
+          },
+          "strategy": "default"
+        },
+        "scoreWetMarsh": {
+          "config": {
+            "aridityMax01": 0.6,
+            "fertilityMin01": 0.2,
+            "tempMaxC": 24,
+            "tempMinC": -2,
+            "tempPeakC": 10,
+            "waterMin01": 0.55
+          },
+          "strategy": "default"
+        },
+        "scoreWetOasis": {
+          "config": {
+            "dryMax01": 0.95,
+            "dryMin01": 0.6,
+            "tempWarmEndC": 38,
+            "tempWarmStartC": 20,
+            "waterMin01": 0.35
+          },
+          "strategy": "default"
+        },
+        "scoreWetTundraBog": {
+          "config": {
+            "fertilityMin01": 0.1,
+            "freezeMin01": 0.55,
+            "tempColdMaxC": 4,
+            "tempWarmMaxC": 14,
+            "waterMin01": 0.55
+          },
+          "strategy": "default"
+        },
+        "scoreWetWateringHole": {
+          "config": {
+            "dryMax01": 0.85,
+            "dryMin01": 0.45,
+            "fertilityMin01": 0.1,
+            "tempWarmEndC": 32,
+            "tempWarmStartC": 12,
+            "waterMin01": 0.25
+          },
+          "strategy": "default"
+        },
+        "vegetationSubstrate": {
+          "config": {
+            "moistureNormalization": 230,
+            "temperatureMaxC": 40,
+            "temperatureMinC": -20
+          },
+          "strategy": "default"
+        }
+      }
+    }
+  },
+  "swooper-desert-mountains": {
+    "ecology-pedology": {
+      "pedology": {
+        "classify": {
+          "config": {
+            "bedrockWeight": 0.6,
+            "climateWeight": 1.2,
+            "fertilityCeiling": 0.95,
+            "reliefWeight": 0.8,
+            "sedimentWeight": 1.1
+          },
+          "strategy": "orogeny-boosted"
+        }
+      },
+      "resource-basins": {
+        "plan": {
+          "config": {
+            "resources": []
+          },
+          "strategy": "mixed"
+        },
+        "score": {
+          "config": {
+            "maxPerResource": 12,
+            "minConfidence": 0.3
+          },
+          "strategy": "default"
+        }
+      }
+    },
+    "ecology-biomes": {
+      "biomes": {
+        "classify": {
+          "config": {
+            "aridity": {
+              "bias": 24,
+              "humidityDampening": 0.28,
+              "moistureShiftThresholds": [
+                0.38,
+                0.62
+              ],
+              "normalization": 76,
+              "petBase": 30,
+              "petTemperatureWeight": 122,
+              "rainfallWeight": 0.95,
+              "temperatureMax": 42,
+              "temperatureMin": 2,
+              "vegetationPenalty": 0.31
+            },
+            "edgeRefine": {
+              "iterations": 2,
+              "radius": 1
+            },
+            "moisture": {
+              "thresholds": [
+                48,
+                78,
+                112,
+                160
+              ]
+            },
+            "temperature": {
+              "bias": 2.2,
+              "equator": 35,
+              "lapseRate": 7.8,
+              "midLatitude": 11,
+              "polarCutoff": -8,
+              "pole": 8,
+              "seaLevel": 0,
+              "tropicalThreshold": 25,
+              "tundraCutoff": -2
+            },
+            "vegetation": {
+              "base": 0.09,
+              "moistureNormalizationPadding": 40,
+              "moistureWeight": 0.46
+            }
+          },
+          "strategy": "default"
+        }
+      }
+    },
+    "ecology-features": {
+      "plan-ice": {
+        "planIce": {
+          "config": {
+            "minConfidence01": 0.55
+          },
+          "strategy": "continentality"
+        }
+      },
+      "plan-plot-effects": {
+        "plotEffects": {
+          "config": {
+            "burned": {
+              "coveragePct": 16,
+              "enabled": true,
+              "selector": {
+                "typeName": "PLOTEFFECT_BURNED"
+              }
+            },
+            "sand": {
+              "coveragePct": 42,
+              "enabled": true,
+              "selector": {
+                "typeName": "PLOTEFFECT_SAND"
+              }
+            },
+            "snow": {
+              "coveragePct": 35,
+              "enabled": true,
+              "heavyThreshold": 0.85,
+              "lightThreshold": 0.5,
+              "mediumThreshold": 0.7,
+              "selectors": {
+                "heavy": {
+                  "typeName": "PLOTEFFECT_SNOW_HEAVY_PERMANENT"
+                },
+                "light": {
+                  "typeName": "PLOTEFFECT_SNOW_LIGHT_PERMANENT"
+                },
+                "medium": {
+                  "typeName": "PLOTEFFECT_SNOW_MEDIUM_PERMANENT"
+                }
+              }
+            }
+          },
+          "strategy": "default"
+        },
+        "scoreBurned": {
+          "config": {
+            "allowedBiomes": [
+              "desert",
+              "temperateDry",
+              "tropicalSeasonal"
+            ],
+            "maxFreeze": 0.15,
+            "maxMoisture": 90,
+            "maxVegetation": 0.22,
+            "minAridity": 0.62,
+            "minTemperature": 24
+          },
+          "strategy": "default"
+        },
+        "scoreSand": {
+          "config": {
+            "allowedBiomes": [
+              "desert",
+              "temperateDry"
+            ],
+            "maxFreeze": 0.2,
+            "maxMoisture": 70,
+            "maxVegetation": 0.15,
+            "minAridity": 0.58,
+            "minTemperature": 19
+          },
+          "strategy": "default"
+        },
+        "scoreSnow": {
+          "config": {
+            "elevationMax": 3200,
+            "elevationMin": 400,
+            "elevationPercentileMax": 0.99,
+            "elevationPercentileMin": 0.85,
+            "elevationStrategy": "percentile",
+            "elevationWeight": 1.2,
+            "freezeWeight": 1,
+            "maxAridity": 0.8,
+            "maxTemperature": 2,
+            "moistureMax": 120,
+            "moistureMin": 20,
+            "moistureWeight": 0.4,
+            "scoreBias": 0,
+            "scoreNormalization": 2.6
+          },
+          "strategy": "default"
+        }
+      },
+      "plan-reefs": {
+        "planReefs": {
+          "config": {
+            "minConfidence01": 0.62,
+            "stride": 3
+          },
+          "strategy": "default"
+        }
+      },
+      "plan-vegetation": {
+        "planVegetation": {
+          "config": {
+            "forestMinConfidence01": 0.22,
+            "rainforestMinConfidence01": 0.38,
+            "sagebrushSteppeMinConfidence01": 0.04,
+            "savannaWoodlandMinConfidence01": 0.1,
+            "taigaMinConfidence01": 0.12
+          },
+          "strategy": "default"
+        }
+      },
+      "plan-wetlands": {
+        "planWetlands": {
+          "config": {
+            "minConfidence01": 0.32
+          },
+          "strategy": "default"
+        }
+      },
+      "score-layers": {
+        "featureSubstrate": {
+          "config": {
+            "coastalAdjacencyRadius": 1,
+            "floodplainDischargeMin": 0,
+            "intertidalMaxElevationAboveSeaM": 40,
+            "isolatedRiverRadius": 1,
+            "lowlandMaxElevationAboveSeaM": 160,
+            "navigableRiverClass": 2,
+            "nearRiverRadius": 2
+          },
+          "strategy": "default"
+        },
+        "scoreColdReef": {
+          "config": {
+            "maxDepthM": 48,
+            "maxDistanceToCoast": 8,
+            "minDepthM": 8,
+            "minDistanceToCoast": 1,
+            "peakDepthM": 24,
+            "tempColdMaxC": 10,
+            "tempWarmMaxC": 20
+          },
+          "strategy": "default"
+        },
+        "scoreForest": {
+          "config": {},
+          "strategy": "default"
+        },
+        "scoreIce": {
+          "config": {
+            "alpineElevationMaxM": 3400,
+            "alpineElevationMinM": 2200,
+            "alpineFreezeMin01": 0.55,
+            "seaTempColdC": -10,
+            "seaTempWarmC": -2
+          },
+          "strategy": "default"
+        },
+        "scoreRainforest": {
+          "config": {},
+          "strategy": "default"
+        },
+        "scoreReef": {
+          "config": {
+            "deepDepthM": 120,
+            "maxDistanceToCoast": 3,
+            "shallowDepthM": 0,
+            "tempWarmEndC": 28,
+            "tempWarmStartC": 14
+          },
+          "strategy": "default"
+        },
+        "scoreReefAtoll": {
+          "config": {
+            "deepDepthM": 100,
+            "maxDistanceToCoast": 10,
+            "minDistanceToCoast": 4,
+            "shallowDepthM": 0,
+            "tempWarmEndC": 30,
+            "tempWarmStartC": 18
+          },
+          "strategy": "default"
+        },
+        "scoreReefLotus": {
+          "config": {
+            "deepDepthM": 40,
+            "maxDistanceToCoast": 2,
+            "shallowDepthM": 0,
+            "tempWarmEndC": 32,
+            "tempWarmStartC": 16
+          },
+          "strategy": "default"
+        },
+        "scoreSagebrushSteppe": {
+          "config": {},
+          "strategy": "default"
+        },
+        "scoreSavannaWoodland": {
+          "config": {},
+          "strategy": "default"
+        },
+        "scoreTaiga": {
+          "config": {},
+          "strategy": "default"
+        },
+        "scoreWetMangrove": {
+          "config": {
+            "aridityMax01": 0.7,
+            "fertilityMin01": 0.15,
+            "tempWarmEndC": 30,
+            "tempWarmStartC": 18,
+            "waterMin01": 0.45
+          },
+          "strategy": "default"
+        },
+        "scoreWetMarsh": {
+          "config": {
+            "aridityMax01": 0.6,
+            "fertilityMin01": 0.2,
+            "tempMaxC": 24,
+            "tempMinC": -2,
+            "tempPeakC": 10,
+            "waterMin01": 0.55
+          },
+          "strategy": "default"
+        },
+        "scoreWetOasis": {
+          "config": {
+            "dryMax01": 0.95,
+            "dryMin01": 0.6,
+            "tempWarmEndC": 38,
+            "tempWarmStartC": 20,
+            "waterMin01": 0.35
+          },
+          "strategy": "default"
+        },
+        "scoreWetTundraBog": {
+          "config": {
+            "fertilityMin01": 0.1,
+            "freezeMin01": 0.55,
+            "tempColdMaxC": 4,
+            "tempWarmMaxC": 14,
+            "waterMin01": 0.55
+          },
+          "strategy": "default"
+        },
+        "scoreWetWateringHole": {
+          "config": {
+            "dryMax01": 0.85,
+            "dryMin01": 0.45,
+            "fertilityMin01": 0.1,
+            "tempWarmEndC": 32,
+            "tempWarmStartC": 12,
+            "waterMin01": 0.25
+          },
+          "strategy": "default"
+        },
+        "vegetationSubstrate": {
+          "config": {
+            "moistureNormalization": 230,
+            "temperatureMaxC": 40,
+            "temperatureMinC": -20
+          },
+          "strategy": "default"
+        }
+      }
+    }
+  },
+  "swooper-earthlike": {
+    "ecology-pedology": {
+      "pedology": {
+        "classify": {
+          "config": {
+            "bedrockWeight": 0.7,
+            "climateWeight": 1.3,
+            "fertilityCeiling": 0.96,
+            "reliefWeight": 0.9,
+            "sedimentWeight": 1
+          },
+          "strategy": "coastal-shelf"
+        }
+      },
+      "resource-basins": {
+        "plan": {
+          "config": {
+            "resources": []
+          },
+          "strategy": "mixed"
+        },
+        "score": {
+          "config": {
+            "maxPerResource": 14,
+            "minConfidence": 0.32
+          },
+          "strategy": "default"
+        }
+      }
+    },
+    "ecology-biomes": {
+      "biomes": {
+        "classify": {
+          "config": {
+            "aridity": {
+              "bias": 3,
+              "humidityDampening": 0.46,
+              "moistureShiftThresholds": [
+                0.17,
+                0.62
+              ],
+              "normalization": 112,
+              "petBase": 19,
+              "petTemperatureWeight": 98,
+              "rainfallWeight": 1.15,
+              "temperatureMax": 45,
+              "temperatureMin": 0,
+              "vegetationPenalty": 0.85
+            },
+            "edgeRefine": {
+              "iterations": 3,
+              "radius": 1
+            },
+            "moisture": {
+              "thresholds": [
+                90,
+                190,
+                220,
+                255
+              ]
+            },
+            "temperature": {
+              "bias": 0.15,
+              "equator": 30,
+              "lapseRate": 7.1,
+              "midLatitude": 10,
+              "polarCutoff": -1,
+              "pole": -54,
+              "seaLevel": 200,
+              "tropicalThreshold": 30,
+              "tundraCutoff": 4
+            },
+            "vegetation": {
+              "base": 0.39,
+              "moistureNormalizationPadding": 38,
+              "moistureWeight": 0.63
+            }
+          },
+          "strategy": "default"
+        }
+      }
+    },
+    "ecology-features": {
+      "plan-ice": {
+        "planIce": {
+          "config": {
+            "minConfidence01": 0.5
+          },
+          "strategy": "continentality"
+        }
+      },
+      "plan-plot-effects": {
+        "plotEffects": {
+          "config": {
+            "burned": {
+              "coveragePct": 6,
+              "enabled": true,
+              "selector": {
+                "typeName": "PLOTEFFECT_BURNED"
+              }
+            },
+            "sand": {
+              "coveragePct": 24,
+              "enabled": true,
+              "selector": {
+                "typeName": "PLOTEFFECT_SAND"
+              }
+            },
+            "snow": {
+              "coveragePct": 55,
+              "enabled": true,
+              "heavyThreshold": 0.82,
+              "lightThreshold": 0.38,
+              "mediumThreshold": 0.62,
+              "selectors": {
+                "heavy": {
+                  "typeName": "PLOTEFFECT_SNOW_HEAVY_PERMANENT"
+                },
+                "light": {
+                  "typeName": "PLOTEFFECT_SNOW_LIGHT_PERMANENT"
+                },
+                "medium": {
+                  "typeName": "PLOTEFFECT_SNOW_MEDIUM_PERMANENT"
+                }
+              }
+            }
+          },
+          "strategy": "default"
+        },
+        "scoreBurned": {
+          "config": {
+            "allowedBiomes": [
+              "temperateDry",
+              "tropicalSeasonal"
+            ],
+            "maxFreeze": 0.22,
+            "maxMoisture": 98,
+            "maxVegetation": 0.26,
+            "minAridity": 0.52,
+            "minTemperature": 21
+          },
+          "strategy": "default"
+        },
+        "scoreSand": {
+          "config": {
+            "allowedBiomes": [
+              "desert",
+              "temperateDry"
+            ],
+            "maxFreeze": 0.3,
+            "maxMoisture": 90,
+            "maxVegetation": 0.23,
+            "minAridity": 0.5,
+            "minTemperature": 15
+          },
+          "strategy": "default"
+        },
+        "scoreSnow": {
+          "config": {
+            "elevationMax": 2800,
+            "elevationMin": 220,
+            "elevationPercentileMax": 0.98,
+            "elevationPercentileMin": 0.72,
+            "elevationStrategy": "percentile",
+            "elevationWeight": 0.9,
+            "freezeWeight": 1.05,
+            "maxAridity": 0.82,
+            "maxTemperature": 2,
+            "moistureMax": 170,
+            "moistureMin": 45,
+            "moistureWeight": 0.7,
+            "scoreBias": 0,
+            "scoreNormalization": 2.65
+          },
+          "strategy": "default"
+        }
+      },
+      "plan-reefs": {
+        "planReefs": {
+          "config": {
+            "minConfidence01": 0.55,
+            "stride": 2
+          },
+          "strategy": "default"
+        }
+      },
+      "plan-vegetation": {
+        "planVegetation": {
+          "config": {
+            "forestMinConfidence01": 0.02,
+            "rainforestMinConfidence01": 0.3,
+            "sagebrushSteppeMinConfidence01": 0,
+            "savannaWoodlandMinConfidence01": 0,
+            "taigaMinConfidence01": 0
+          },
+          "strategy": "default"
+        }
+      },
+      "plan-wetlands": {
+        "planWetlands": {
+          "config": {
+            "minConfidence01": 0.4
+          },
+          "strategy": "default"
+        }
+      },
+      "score-layers": {
+        "featureSubstrate": {
+          "config": {
+            "coastalAdjacencyRadius": 1,
+            "floodplainDischargeMin": 120,
+            "intertidalMaxElevationAboveSeaM": 24,
+            "isolatedRiverRadius": 1,
+            "lowlandMaxElevationAboveSeaM": 120,
+            "navigableRiverClass": 2,
+            "nearRiverRadius": 1
+          },
+          "strategy": "default"
+        },
+        "scoreColdReef": {
+          "config": {
+            "maxDepthM": 120,
+            "maxDistanceToCoast": 10,
+            "minDepthM": 0,
+            "minDistanceToCoast": 1,
+            "peakDepthM": 18,
+            "tempColdMaxC": 14,
+            "tempWarmMaxC": 24
+          },
+          "strategy": "default"
+        },
+        "scoreForest": {
+          "config": {},
+          "strategy": "default"
+        },
+        "scoreIce": {
+          "config": {
+            "alpineElevationMaxM": 3400,
+            "alpineElevationMinM": 2200,
+            "alpineFreezeMin01": 0.55,
+            "seaTempColdC": -10,
+            "seaTempWarmC": -2
+          },
+          "strategy": "default"
+        },
+        "scoreRainforest": {
+          "config": {},
+          "strategy": "default"
+        },
+        "scoreReef": {
+          "config": {
+            "deepDepthM": 120,
+            "maxDistanceToCoast": 3,
+            "shallowDepthM": 0,
+            "tempWarmEndC": 28,
+            "tempWarmStartC": 18
+          },
+          "strategy": "default"
+        },
+        "scoreReefAtoll": {
+          "config": {
+            "deepDepthM": 100,
+            "maxDistanceToCoast": 10,
+            "minDistanceToCoast": 4,
+            "shallowDepthM": 0,
+            "tempWarmEndC": 30,
+            "tempWarmStartC": 18
+          },
+          "strategy": "default"
+        },
+        "scoreReefLotus": {
+          "config": {
+            "deepDepthM": 40,
+            "maxDistanceToCoast": 2,
+            "shallowDepthM": 0,
+            "tempWarmEndC": 32,
+            "tempWarmStartC": 16
+          },
+          "strategy": "default"
+        },
+        "scoreSagebrushSteppe": {
+          "config": {},
+          "strategy": "default"
+        },
+        "scoreSavannaWoodland": {
+          "config": {},
+          "strategy": "default"
+        },
+        "scoreTaiga": {
+          "config": {},
+          "strategy": "default"
+        },
+        "scoreWetMangrove": {
+          "config": {
+            "aridityMax01": 0.7,
+            "fertilityMin01": 0.15,
+            "tempWarmEndC": 30,
+            "tempWarmStartC": 18,
+            "waterMin01": 0.45
+          },
+          "strategy": "default"
+        },
+        "scoreWetMarsh": {
+          "config": {
+            "aridityMax01": 0.6,
+            "fertilityMin01": 0.2,
+            "tempMaxC": 24,
+            "tempMinC": -2,
+            "tempPeakC": 10,
+            "waterMin01": 0.55
+          },
+          "strategy": "default"
+        },
+        "scoreWetOasis": {
+          "config": {
+            "dryMax01": 0.95,
+            "dryMin01": 0.6,
+            "tempWarmEndC": 38,
+            "tempWarmStartC": 20,
+            "waterMin01": 0.35
+          },
+          "strategy": "default"
+        },
+        "scoreWetTundraBog": {
+          "config": {
+            "fertilityMin01": 0.1,
+            "freezeMin01": 0.55,
+            "tempColdMaxC": 4,
+            "tempWarmMaxC": 14,
+            "waterMin01": 0.55
+          },
+          "strategy": "default"
+        },
+        "scoreWetWateringHole": {
+          "config": {
+            "dryMax01": 0.85,
+            "dryMin01": 0.45,
+            "fertilityMin01": 0.1,
+            "tempWarmEndC": 32,
+            "tempWarmStartC": 12,
+            "waterMin01": 0.25
+          },
+          "strategy": "default"
+        },
+        "vegetationSubstrate": {
+          "config": {
+            "moistureNormalization": 230,
+            "temperatureMaxC": 40,
+            "temperatureMinC": -20
+          },
+          "strategy": "default"
+        }
+      }
+    }
+  }
+}

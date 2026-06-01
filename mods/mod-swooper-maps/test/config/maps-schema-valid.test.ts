@@ -15,6 +15,7 @@ import swooperEarthlikeConfig from "../../src/maps/configs/swooper-earthlike.con
 import legacyFoundationCompiled from "../fixtures/legacy-foundation-compiled.json";
 import legacyHydrologyCompiled from "../fixtures/legacy-hydrology-compiled.json";
 import legacyMorphologyCompiled from "../fixtures/legacy-morphology-compiled.json";
+import legacyEcologyCompiled from "../fixtures/legacy-ecology-compiled.json";
 
 const shippedMapConfigs = [
   ["shattered-ring.config.json", shatteredRingConfig],
@@ -121,6 +122,48 @@ const HYDROLOGY_INTERNAL_STAGE_KEYS: Record<string, readonly string[]> = {
   "hydrology-climate-refine": ["climate-refine"],
 };
 
+const ECOLOGY_PUBLIC_KEYS: Record<string, readonly string[]> = {
+  "ecology-pedology": [
+    "knobs",
+    "soilClassification",
+    "resourceBasinPlanning",
+    "resourceBasinScoring",
+  ],
+  "ecology-biomes": ["knobs", "biomeClassification"],
+  "ecology-features": [
+    "knobs",
+    "substrateScoring",
+    "wetlandScoring",
+    "reefScoring",
+    "iceScoring",
+    "icePlanning",
+    "reefPlanning",
+    "wetlandPlanning",
+    "vegetationPlanning",
+    "plotEffectScoring",
+    "plotEffectCoverage",
+  ],
+};
+
+const ECOLOGY_STAGE_IDS = [
+  "ecology-pedology",
+  "ecology-biomes",
+  "ecology-features",
+] as const;
+
+const ECOLOGY_INTERNAL_STAGE_KEYS: Record<string, readonly string[]> = {
+  "ecology-pedology": ["pedology", "resource-basins"],
+  "ecology-biomes": ["biomes"],
+  "ecology-features": [
+    "score-layers",
+    "plan-ice",
+    "plan-reefs",
+    "plan-wetlands",
+    "plan-vegetation",
+    "plan-plot-effects",
+  ],
+};
+
 function stageProps(schema: unknown, stageId: string): Record<string, unknown> {
   const stage = (schema as { properties?: Record<string, { properties?: Record<string, unknown> }> })
     .properties?.[stageId];
@@ -151,6 +194,11 @@ function stable(value: unknown): unknown {
 
 function collectMissingDescriptions(schema: unknown, path: string[] = []): string[] {
   if (!schema || typeof schema !== "object") return [];
+  if (Array.isArray(schema)) {
+    return schema.flatMap((item, index) =>
+      collectMissingDescriptions(item, [...path, String(index)])
+    );
+  }
   const node = schema as {
     const?: unknown;
     description?: unknown;
@@ -177,6 +225,11 @@ function collectMissingDescriptions(schema: unknown, path: string[] = []): strin
 
 function collectNumericLeavesMissingRange(schema: unknown, path: string[] = []): string[] {
   if (!schema || typeof schema !== "object") return [];
+  if (Array.isArray(schema)) {
+    return schema.flatMap((item, index) =>
+      collectNumericLeavesMissingRange(item, [...path, String(index)])
+    );
+  }
   const node = schema as {
     const?: unknown;
     type?: unknown;
@@ -213,6 +266,11 @@ function collectDescriptionsMatching(
   path: string[] = []
 ): string[] {
   if (!schema || typeof schema !== "object") return [];
+  if (Array.isArray(schema)) {
+    return schema.flatMap((item, index) =>
+      collectDescriptionsMatching(item, pattern, [...path, String(index)])
+    );
+  }
   const node = schema as {
     description?: unknown;
     properties?: Record<string, unknown>;
@@ -288,6 +346,20 @@ describe("Shipped map configs", () => {
     }
   });
 
+  it("exposes Ecology public schema keys instead of internal step/op envelope paths", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+
+    for (const [stageId, expectedKeys] of Object.entries(ECOLOGY_PUBLIC_KEYS)) {
+      const props = stageProps(schema, stageId);
+      expect(Object.keys(props).sort()).toEqual([...expectedKeys].sort());
+      for (const internalKey of ECOLOGY_INTERNAL_STAGE_KEYS[stageId] ?? []) {
+        expect(props).not.toHaveProperty(internalKey);
+      }
+      expect(JSON.stringify(props)).not.toContain("\"strategy\"");
+      expect(JSON.stringify(props)).not.toContain("\"config\"");
+    }
+  });
+
   it("documents and range-bounds every Morphology public numeric field", () => {
     const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
 
@@ -310,6 +382,24 @@ describe("Shipped map configs", () => {
     const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
 
     for (const [stageId, expectedKeys] of Object.entries(HYDROLOGY_PUBLIC_KEYS)) {
+      expectPublicStageDescription(schema, stageId);
+      const props = stageProps(schema, stageId);
+      for (const key of expectedKeys) {
+        const child = props[key];
+        expect(collectMissingDescriptions(child, [stageId, key])).toEqual([]);
+        expect(collectNumericLeavesMissingRange(child, [stageId, key])).toEqual([]);
+        expect(collectDescriptionsMatching(child, /\b(step|op|envelope|internal|strategy)\b/i, [
+          stageId,
+          key,
+        ])).toEqual([]);
+      }
+    }
+  });
+
+  it("documents and range-bounds every Ecology public numeric field", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+
+    for (const [stageId, expectedKeys] of Object.entries(ECOLOGY_PUBLIC_KEYS)) {
       expectPublicStageDescription(schema, stageId);
       const props = stageProps(schema, stageId);
       for (const key of expectedKeys) {
@@ -386,6 +476,21 @@ describe("Shipped map configs", () => {
     }
   });
 
+  it("keeps shipped Ecology configs on the semantic public surface", () => {
+    for (const [, raw] of shippedMapConfigs) {
+      for (const [stageId, expectedKeys] of Object.entries(ECOLOGY_PUBLIC_KEYS)) {
+        const stageConfig = (raw.config as Record<string, Record<string, unknown>>)[stageId] ?? {};
+        for (const key of Object.keys(stageConfig)) {
+          expect(expectedKeys).toContain(key);
+        }
+        for (const internalKey of ECOLOGY_INTERNAL_STAGE_KEYS[stageId] ?? []) {
+          expect(stageConfig).not.toHaveProperty(internalKey);
+        }
+        expect(hasRawOpEnvelope(stageConfig)).toBe(false);
+      }
+    }
+  });
+
   it("compiles public Morphology config to internal executable step/op envelopes", () => {
     const compiled = standardRecipe.compileConfig(
       {
@@ -434,6 +539,56 @@ describe("Shipped map configs", () => {
     expect(compiled["hydrology-climate-refine"]["climate-refine"].computeCryosphereState.strategy).toBe(
       "default"
     );
+  });
+
+  it("compiles public Ecology config to internal executable step/op envelopes", () => {
+    const compiled = standardRecipe.compileConfig(
+      {
+        seed: 123,
+        dimensions: { width: 80, height: 60 },
+        latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+      },
+      swooperEarthlikeConfig.config
+    ) as any;
+
+    expect(compiled["ecology-pedology"].pedology.classify.strategy).toBe("coastal-shelf");
+    expect(compiled["ecology-pedology"]["resource-basins"].plan.strategy).toBe("mixed");
+    expect(compiled["ecology-pedology"]["resource-basins"].score.strategy).toBe("default");
+    expect(compiled["ecology-biomes"].biomes.classify.strategy).toBe("default");
+    expect(compiled["ecology-features"]["score-layers"].vegetationSubstrate.strategy).toBe(
+      "default"
+    );
+    expect(compiled["ecology-features"]["score-layers"].scoreForest.strategy).toBe("default");
+    expect(compiled["ecology-features"]["plan-ice"].planIce.strategy).toBe("continentality");
+    expect(compiled["ecology-features"]["plan-reefs"].planReefs.strategy).toBe("default");
+    expect(compiled["ecology-features"]["plan-wetlands"].planWetlands.strategy).toBe("default");
+    expect(compiled["ecology-features"]["plan-vegetation"].planVegetation.strategy).toBe(
+      "default"
+    );
+    expect(compiled["ecology-features"]["plan-plot-effects"].plotEffects.strategy).toBe("default");
+    expect(
+      compiled["ecology-features"]["plan-plot-effects"].plotEffects.config.snow.selectors.light
+        .typeName
+    ).toBe("PLOTEFFECT_SNOW_LIGHT_PERMANENT");
+
+    const profileOnlyCompiled = standardRecipe.compileConfig(
+      {
+        seed: 123,
+        dimensions: { width: 80, height: 60 },
+        latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+      },
+      {
+        "ecology-features": {
+          reefPlanning: {
+            profile: "shippingLanes",
+          },
+        },
+      } as any
+    ) as any;
+    expect(profileOnlyCompiled["ecology-features"]["plan-reefs"].planReefs.strategy).toBe(
+      "shipping-lanes"
+    );
+    expect(profileOnlyCompiled["ecology-features"]["plan-reefs"].planReefs.config.stride).toBe(5);
   });
 
   it("compiles public Foundation config to internal executable step/op envelopes", () => {
@@ -510,6 +665,24 @@ describe("Shipped map configs", () => {
         HYDROLOGY_STAGE_IDS.map((stageId) => [stageId, compiled[stageId]])
       );
       expect(stable(hydrologyCompiled)).toEqual(expected[id]);
+    }
+  });
+
+  it("keeps Ecology configs compiled-equivalent to the legacy shipped configs", () => {
+    const env = {
+      seed: 123,
+      dimensions: { width: 80, height: 60 },
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    };
+    const expected = legacyEcologyCompiled as Record<string, unknown>;
+
+    for (const [fileName, raw] of shippedMapConfigs) {
+      const id = fileName.replace(/\.config\.json$/, "");
+      const compiled = standardRecipe.compileConfig(env, raw.config) as any;
+      const ecologyCompiled = Object.fromEntries(
+        ECOLOGY_STAGE_IDS.map((stageId) => [stageId, compiled[stageId]])
+      );
+      expect(stable(ecologyCompiled)).toEqual(expected[id]);
     }
   });
 
