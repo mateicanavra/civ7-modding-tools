@@ -13,9 +13,9 @@ import type {
   StageOption,
   StepOption,
   DataTypeOption,
-  StepConfig } from
-'../types';
-import { formatStageName } from './formatting';
+  StepConfig,
+} from "../types";
+import { formatStageName } from "./formatting";
 
 /**
  * Deep clone a configuration object.
@@ -29,10 +29,7 @@ export function cloneConfig<T>(config: T): T {
  * Apply a config patch using shallow copies (efficient immutable update).
  * Only clones objects along the path, not the entire tree.
  */
-export function applyConfigPatch(
-config: PipelineConfig,
-patch: ConfigPatch)
-: PipelineConfig {
+export function applyConfigPatch(config: PipelineConfig, patch: ConfigPatch): PipelineConfig {
   const { path, value } = patch;
 
   if (path.length === 0) {
@@ -65,10 +62,10 @@ patch: ConfigPatch)
  * updateConfigValue(config, ['foundation', 'knobs', 'plateCount'], 28)
  */
 export function updateConfigValue(
-config: PipelineConfig,
-path: string[],
-value: ConfigValue)
-: PipelineConfig {
+  config: PipelineConfig,
+  path: string[],
+  value: ConfigValue
+): PipelineConfig {
   const newConfig = cloneConfig(config);
   let current: Record<string, unknown> = newConfig;
 
@@ -87,10 +84,7 @@ value: ConfigValue)
  * Get a nested value from a config object by path.
  * Returns undefined if path doesn't exist.
  */
-export function getConfigValue(
-config: PipelineConfig,
-path: string[])
-: ConfigValue | undefined {
+export function getConfigValue(config: PipelineConfig, path: string[]): ConfigValue | undefined {
   let current: unknown = config;
 
   for (const key of path) {
@@ -118,25 +112,19 @@ export function configsEqual(a: PipelineConfig, b: PipelineConfig): boolean {
 /**
  * Check if world settings are equal.
  */
-export function worldSettingsEqual(
-a: WorldSettings,
-b: WorldSettings)
-: boolean {
+export function worldSettingsEqual(a: WorldSettings, b: WorldSettings): boolean {
   return (
     a.mode === b.mode &&
     a.mapSize === b.mapSize &&
     a.playerCount === b.playerCount &&
-    a.resources === b.resources);
-
+    a.resources === b.resources
+  );
 }
 
 /**
  * Check if recipe settings are equal.
  */
-export function recipeSettingsEqual(
-a: RecipeSettings,
-b: RecipeSettings)
-: boolean {
+export function recipeSettingsEqual(a: RecipeSettings, b: RecipeSettings): boolean {
   return a.recipe === b.recipe && a.preset === b.preset && a.seed === b.seed;
 }
 
@@ -145,16 +133,16 @@ b: RecipeSettings)
  * Useful for applying presets.
  */
 export function mergeConfigs(
-base: PipelineConfig,
-override: Partial<PipelineConfig>)
-: PipelineConfig {
+  base: PipelineConfig,
+  override: Partial<PipelineConfig>
+): PipelineConfig {
   const result = cloneConfig(base);
 
   for (const [stageName, stageConfig] of Object.entries(override)) {
     if (stageConfig) {
       result[stageName] = {
         ...result[stageName],
-        ...stageConfig
+        ...stageConfig,
       };
     }
   }
@@ -174,7 +162,7 @@ export function deriveStagesFromConfig(config: PipelineConfig): StageOption[] {
   return Object.keys(config).map((stage, index) => ({
     value: stage,
     label: formatStageName(stage),
-    index
+    index,
   }));
 }
 
@@ -182,28 +170,18 @@ export function deriveStagesFromConfig(config: PipelineConfig): StageOption[] {
  * Derive step options from a specific stage in the config.
  * Use this to populate step selectors in controlled components.
  */
-export function deriveStepsFromStage(
-config: PipelineConfig,
-stageName: string)
-: StepOption[] {
-  const stageConfig = config[stageName] as
-  {advanced?: Record<string, Record<string, StepConfig>>;} |
-  undefined;
+export function deriveStepsFromStage(config: PipelineConfig, stageName: string): StepOption[] {
+  const stageConfig = config[stageName] as Record<string, StepConfig | unknown> | undefined;
 
-  if (!stageConfig?.advanced) return [];
+  if (!stageConfig) return [];
 
-  const steps: StepOption[] = [];
-  Object.entries(stageConfig.advanced).forEach(([category, stepsMap]) => {
-    Object.keys(stepsMap).forEach((stepName) => {
-      steps.push({
-        value: stepName,
-        label: stepName,
-        category
-      });
-    });
-  });
-
-  return steps;
+  return Object.keys(stageConfig)
+    .filter((key) => key !== "knobs")
+    .map((stepName) => ({
+      value: stepName,
+      label: stepName,
+      category: stageName,
+    }));
 }
 
 /**
@@ -211,10 +189,10 @@ stageName: string)
  * Returns only data types that match the step's category.
  */
 export function filterDataTypesForStep(
-allDataTypes: readonly DataTypeOption[],
-steps: StepOption[],
-selectedStep: string)
-: DataTypeOption[] {
+  allDataTypes: readonly DataTypeOption[],
+  steps: StepOption[],
+  selectedStep: string
+): DataTypeOption[] {
   const currentStepObj = steps.find((s) => s.value === selectedStep);
   const category = currentStepObj?.category;
 

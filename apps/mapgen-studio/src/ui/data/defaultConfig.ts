@@ -4,10 +4,10 @@
 // This is the default configuration for the map generation pipeline.
 //
 // Backend Engineers: This structure should match your pipeline schema.
-// Each stage contains knobs (high-level presets) and advanced step configs.
+// Each stage contains knobs plus flat step-id config overrides.
 // ============================================================================
 
-import type { PipelineConfig } from '../types';
+import type { PipelineConfig } from "../types";
 
 export const defaultConfig: PipelineConfig = {
   // ============================================================================
@@ -17,115 +17,109 @@ export const defaultConfig: PipelineConfig = {
   foundation: {
     version: 1,
     profiles: {
-      resolutionProfile: 'balanced',
-      lithosphereProfile: 'maximal-basaltic-lid-v1',
-      mantleProfile: 'maximal-potential-v1'
+      resolutionProfile: "balanced",
+      lithosphereProfile: "maximal-basaltic-lid-v1",
+      mantleProfile: "maximal-potential-v1",
     },
     knobs: {
       plateCount: 28,
-      plateActivity: 0.5
-    }
+      plateActivity: 0.5,
+    },
   },
 
   // ============================================================================
   // Morphology Coasts Stage
   // Landmass formation + coastline shaping
   // ============================================================================
-  'morphology-coasts': {
+  "morphology-coasts": {
     knobs: {
-      seaLevel: 'earthlike',
-      coastRuggedness: 'normal'
+      seaLevel: "earthlike",
+      coastRuggedness: "normal",
     },
-    advanced: {
-      'landmass-plates': {
-        substrate: {
-          strategy: 'default',
-          config: {
-            continentalBaseErodibility: 0.63,
-            oceanicBaseErodibility: 0.53,
-            continentalBaseSediment: 0.19,
-            oceanicBaseSediment: 0.29
-          }
+    "landmass-plates": {
+      substrate: {
+        strategy: "default",
+        config: {
+          continentalBaseErodibility: 0.63,
+          oceanicBaseErodibility: 0.53,
+          continentalBaseSediment: 0.19,
+          oceanicBaseSediment: 0.29,
         },
-        seaLevel: {
-          strategy: 'default',
-          config: {
-            targetWaterPercent: 63,
-            targetScalar: 1,
-            variance: 1.5
-          }
-        }
-      }
-    }
+      },
+      seaLevel: {
+        strategy: "default",
+        config: {
+          targetWaterPercent: 63,
+          targetScalar: 1,
+          variance: 1.5,
+        },
+      },
+    },
   },
 
   // ============================================================================
   // Morphology Routing Stage
   // Drainage routing truth
   // ============================================================================
-  'morphology-routing': {
-    advanced: {
+  "morphology-routing": {
+    routing: {
       routing: {
-        routing: {
-          strategy: 'default',
-          config: {}
-        }
-      }
-    }
+        strategy: "default",
+        config: {},
+      },
+    },
   },
 
   // Morphology Erosion Stage
   // Erosion and geomorphology
   // ============================================================================
-  'morphology-erosion': {
+  "morphology-erosion": {
     knobs: {
-      erosion: 'normal'
+      erosion: "normal",
     },
-    advanced: {
+    geomorphology: {
       geomorphology: {
-        geomorphology: {
-          strategy: 'default',
-          config: {
-            geomorphology: {
-              fluvial: { rate: 0.26, m: 0.5, n: 1 },
-              diffusion: { rate: 0.23, talus: 0.5 },
-              deposition: { rate: 0.11 },
-              eras: 3
-            },
-            worldAge: 'mature'
-          }
-        }
-      }
-    }
+        strategy: "default",
+        config: {
+          geomorphology: {
+            fluvial: { rate: 0.26, m: 0.5, n: 1 },
+            diffusion: { rate: 0.23, talus: 0.5 },
+            deposition: { rate: 0.11 },
+            eras: 3,
+          },
+          worldAge: "mature",
+        },
+      },
+    },
   },
 
   // ============================================================================
   // Morphology Features Stage
   // Islands, volcanism, landmass decomposition
   // ============================================================================
-  'morphology-features': {
+  "morphology-features": {
     knobs: {
-      volcanism: 'normal'
-    }
+      volcanism: "normal",
+    },
   },
 
   // Hydrology & Climate Baseline Stage
   // Climate simulation and water systems
   // ============================================================================
-  'hydrology-climate-baseline': {
+  "hydrology-climate-baseline": {
     knobs: {
-      dryness: 'mix',
-      temperature: 'hot',
-      seasonality: 'high',
-      oceanCoupling: 'earthlike'
+      dryness: "mix",
+      temperature: "hot",
+      seasonality: "high",
+      oceanCoupling: "earthlike",
     },
-    'climate-baseline': {
+    "climate-baseline": {
       seasonality: {
         axialTiltDeg: 29.44,
-        modeCount: 4
+        modeCount: 4,
       },
       computeAtmosphericCirculation: {
-        strategy: 'earthlike',
+        strategy: "earthlike",
         config: {
           maxSpeed: 110,
           zonalStrength: 90,
@@ -136,18 +130,18 @@ export const defaultConfig: PipelineConfig = {
           waveStrength: 45,
           landHeatStrength: 20,
           mountainDeflectStrength: 18,
-          smoothIters: 4
-        }
+          smoothIters: 4,
+        },
       },
       computeOceanGeometry: {
-        strategy: 'default',
+        strategy: "default",
         config: {
           maxCoastDistance: 64,
-          maxCoastVectorDistance: 10
-        }
+          maxCoastVectorDistance: 10,
+        },
       },
       computeOceanSurfaceCurrents: {
-        strategy: 'earthlike',
+        strategy: "earthlike",
         config: {
           maxSpeed: 80,
           windStrength: 0.55,
@@ -155,31 +149,31 @@ export const defaultConfig: PipelineConfig = {
           gyreStrength: 26,
           coastStrength: 32,
           smoothIters: 3,
-          projectionIters: 8
-        }
+          projectionIters: 8,
+        },
       },
       computeOceanThermalState: {
-        strategy: 'default',
+        strategy: "default",
         config: {
           equatorTempC: 28,
           poleTempC: -2,
           advectIters: 28,
           diffusion: 0.18,
           secondaryWeightMin: 0.25,
-          seaIceThresholdC: -1
-        }
+          seaIceThresholdC: -1,
+        },
       },
       transportMoisture: {
-        strategy: 'vector',
+        strategy: "vector",
         config: {
           iterations: 42,
           advection: 0.7,
           retention: 0.93,
-          secondaryWeightMin: 0.2
-        }
+          secondaryWeightMin: 0.2,
+        },
       },
       computePrecipitation: {
-        strategy: 'vector',
+        strategy: "vector",
         config: {
           rainfallScale: 180,
           humidityExponent: 1,
@@ -189,13 +183,13 @@ export const defaultConfig: PipelineConfig = {
             radius: 5,
             perRingBonus: 4,
             lowlandBonus: 2,
-            lowlandElevationMax: 150
+            lowlandElevationMax: 150,
           },
           upliftStrength: 22,
-          convergenceStrength: 16
-        }
-      }
-    }
+          convergenceStrength: 16,
+        },
+      },
+    },
   },
 
   // ============================================================================
@@ -206,17 +200,17 @@ export const defaultConfig: PipelineConfig = {
     knobs: {},
     biomes: {
       classify: {
-        strategy: 'default',
+        strategy: "default",
         config: {
           temperature: {
             equator: 34,
             pole: -22,
-            lapseRate: 7.5
-          }
-        }
-      }
-    }
-  }
+            lapseRate: 7.5,
+          },
+        },
+      },
+    },
+  },
 };
 
 /**

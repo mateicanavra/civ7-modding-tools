@@ -8,7 +8,6 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
     },
   },
   "morphology-coasts": {
-    "advanced": {
     "landmass-plates": {
       substrate: {
         strategy: "default",
@@ -95,20 +94,16 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
         },
       },
     },
-    }
   },
   "morphology-routing": {
-    "advanced": {
     routing: {
       routing: {
         strategy: "default",
         config: {},
       },
     },
-    }
   },
   "morphology-erosion": {
-    "advanced": {
     geomorphology: {
       geomorphology: {
         strategy: "default",
@@ -132,10 +127,8 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
         },
       },
     },
-    }
   },
   "morphology-features": {
-    "advanced": {
     islands: {
       islands: {
         strategy: "default",
@@ -180,7 +173,6 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
         config: {},
       },
     },
-    }
   },
   "map-morphology": {
     mountains: {
@@ -422,20 +414,20 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
                 typeName: "PLOTEFFECT_SNOW_HEAVY_PERMANENT",
               },
             },
-            coveragePct: 28,              // Reduced for tropical world
-            lightThreshold: 0.45,         // Higher threshold
+            coveragePct: 28, // Reduced for tropical world
+            lightThreshold: 0.45, // Higher threshold
             mediumThreshold: 0.7,
             heavyThreshold: 0.85,
           },
           sand: {
-            enabled: false,               // Tropical islands don't have desert sand
+            enabled: false, // Tropical islands don't have desert sand
             selector: {
               typeName: "PLOTEFFECT_SAND",
             },
             coveragePct: 5,
           },
           burned: {
-            enabled: false,               // Lush tropical - no scorched earth
+            enabled: false, // Lush tropical - no scorched earth
             selector: {
               typeName: "PLOTEFFECT_BURNED",
             },
@@ -456,4 +448,4 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
     },
     placement: {},
   },
-  };
+};

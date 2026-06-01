@@ -11,7 +11,7 @@
 // ============================================================================
 
 /** User's theme preference - 'system' follows OS setting */
-export type ThemePreference = 'system' | 'light' | 'dark';
+export type ThemePreference = "system" | "light" | "dark";
 
 /** Theme tokens for consistent styling across components */
 export interface Theme {
@@ -118,14 +118,14 @@ export interface WorldSettings {
   resources: ResourceMode;
 }
 
-export type WorldMode = 'browser' | 'dump';
+export type WorldMode = "browser" | "dump";
 export type MapSize =
-'MAPSIZE_TINY' |
-'MAPSIZE_SMALL' |
-'MAPSIZE_STANDARD' |
-'MAPSIZE_LARGE' |
-'MAPSIZE_HUGE';
-export type ResourceMode = 'balanced' | 'strategic';
+  | "MAPSIZE_TINY"
+  | "MAPSIZE_SMALL"
+  | "MAPSIZE_STANDARD"
+  | "MAPSIZE_LARGE"
+  | "MAPSIZE_HUGE";
+export type ResourceMode = "balanced" | "strategic";
 
 // ============================================================================
 // Recipe & Preset Types
@@ -158,10 +158,7 @@ export type ConfigPrimitive = string | number | boolean | null;
 /**
  * Recursive config value type - can be primitive, array, or nested object.
  */
-export type ConfigValue =
-ConfigPrimitive |
-ConfigValue[] |
-{[key: string]: ConfigValue;};
+export type ConfigValue = ConfigPrimitive | ConfigValue[] | { [key: string]: ConfigValue };
 
 /**
  * Configuration for a single pipeline step.
@@ -182,14 +179,12 @@ export interface StepConfig {
  *
  * Backend: Stages are executed in order. Each stage can have:
  * - knobs: High-level presets that map to multiple config values
- * - advanced: Detailed step-by-step configuration
+ * - top-level step-id keys: Detailed step-by-step configuration
  */
 export interface StageConfig {
   /** High-level knobs (semantic scalars or enums). */
   knobs?: Record<string, ConfigPrimitive>;
-  /** Advanced step configurations grouped by category */
-  advanced?: Record<string, StepConfig> | Record<string, Record<string, StepConfig>>;
-  /** Additional stage-specific groups */
+  /** Additional stage-specific step-id keys. */
   [key: string]: unknown;
 }
 
@@ -221,7 +216,7 @@ export interface ConfigPatch {
 // ============================================================================
 
 /** Current status of the generation process */
-export type GenerationStatus = 'ready' | 'running' | 'error';
+export type GenerationStatus = "ready" | "running" | "error";
 
 /**
  * Complete state for a generation run.

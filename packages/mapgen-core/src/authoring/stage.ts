@@ -52,12 +52,21 @@ function objectProperties(schema: TObject): Record<string, TSchema> {
   return props ?? {};
 }
 
-function buildInternalAsPublicSurfaceSchema(stepIds: readonly string[], knobsSchema: TObject): TObject {
+function buildInternalAsPublicSurfaceSchema(
+  steps: readonly Readonly<{
+    contract: Readonly<{
+      id: string;
+      schema: TSchema;
+    }>;
+  }>[],
+  knobsSchema: TObject
+): TObject {
   const properties: Record<string, TSchema> = {
     knobs: Type.Optional(knobsSchema),
   };
-  for (const stepId of stepIds) {
-    properties[stepId] = Type.Optional(Type.Unknown());
+  for (const step of steps) {
+    if (step.contract.id === RESERVED_STAGE_KEY) continue;
+    properties[step.contract.id] = Type.Optional(step.contract.schema);
   }
   return Type.Object(properties, { additionalProperties: false });
 }
@@ -132,10 +141,7 @@ export function createStage(def: any): any {
 
   const surfaceSchema = def.public
     ? buildPublicSurfaceSchema(def.public, def.knobsSchema)
-    : buildInternalAsPublicSurfaceSchema(
-        stepIds.filter((id: string) => id !== RESERVED_STAGE_KEY),
-        def.knobsSchema
-      );
+    : buildInternalAsPublicSurfaceSchema(def.steps, def.knobsSchema);
 
   const toInternal = ({
     env,
@@ -147,7 +153,7 @@ export function createStage(def: any): any {
     const { knobs, ...configPart } = stageConfig as Record<string, unknown>;
     const resolvedKnobs = applySchemaDefaults(def.knobsSchema, knobs);
     const rawSteps = def.public
-      ? (def as any).compile({ env, knobs: resolvedKnobs, config: configPart }) ?? {}
+      ? ((def as any).compile({ env, knobs: resolvedKnobs, config: configPart }) ?? {})
       : configPart;
     if (Object.prototype.hasOwnProperty.call(rawSteps, RESERVED_STAGE_KEY)) {
       throw new Error(`stage("${def.id}") compile returned reserved key "${RESERVED_STAGE_KEY}"`);

@@ -30,15 +30,23 @@ describe("hydrology knobs compilation", () => {
       })
     );
 
-    expect(compiledMissing["hydrology-climate-baseline"]).toEqual(compiledExplicit["hydrology-climate-baseline"]);
-    expect(compiledMissing["hydrology-hydrography"]).toEqual(compiledExplicit["hydrology-hydrography"]);
-    expect(compiledMissing["hydrology-climate-refine"]).toEqual(compiledExplicit["hydrology-climate-refine"]);
+    expect(compiledMissing["hydrology-climate-baseline"]).toEqual(
+      compiledExplicit["hydrology-climate-baseline"]
+    );
+    expect(compiledMissing["hydrology-hydrography"]).toEqual(
+      compiledExplicit["hydrology-hydrography"]
+    );
+    expect(compiledMissing["hydrology-climate-refine"]).toEqual(
+      compiledExplicit["hydrology-climate-refine"]
+    );
     expect(compiledMissing["map-hydrology"]).toEqual(compiledExplicit["map-hydrology"]);
   });
 
   it("is deterministic for identical knob inputs", () => {
     const input = {
-      "hydrology-climate-baseline": { knobs: { dryness: "wet", seasonality: "high", oceanCoupling: "earthlike" } },
+      "hydrology-climate-baseline": {
+        knobs: { dryness: "wet", seasonality: "high", oceanCoupling: "earthlike" },
+      },
       "map-hydrology": { knobs: { riverDensity: "dense" } },
       "hydrology-climate-refine": { knobs: { dryness: "wet" } },
     } as const;
@@ -66,14 +74,20 @@ describe("hydrology knobs compilation", () => {
       })
     );
 
-    const wetScale = wet["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.config.rainfallScale;
-    const dryScale = dry["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.config.rainfallScale;
+    const wetScale =
+      wet["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.config
+        .rainfallScale;
+    const dryScale =
+      dry["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.config
+        .rainfallScale;
     expect(wetScale).toBeGreaterThan(dryScale);
 
     const wetRiverBonus =
-      wet["hydrology-climate-refine"]["climate-refine"].computePrecipitation.config.riverCorridor.lowlandAdjacencyBonus;
+      wet["hydrology-climate-refine"]["climate-refine"].computePrecipitation.config.riverCorridor
+        .lowlandAdjacencyBonus;
     const dryRiverBonus =
-      dry["hydrology-climate-refine"]["climate-refine"].computePrecipitation.config.riverCorridor.lowlandAdjacencyBonus;
+      dry["hydrology-climate-refine"]["climate-refine"].computePrecipitation.config.riverCorridor
+        .lowlandAdjacencyBonus;
     expect(wetRiverBonus).toBeGreaterThan(dryRiverBonus);
   });
 
@@ -91,21 +105,25 @@ describe("hydrology knobs compilation", () => {
       withFoundation({ "map-hydrology": { knobs: { riverDensity: "dense" } } })
     );
 
-    expect(sparse["map-hydrology"]["plot-rivers"].minLength).toBeGreaterThan(normal["map-hydrology"]["plot-rivers"].minLength);
-    expect(normal["map-hydrology"]["plot-rivers"].minLength).toBeGreaterThan(dense["map-hydrology"]["plot-rivers"].minLength);
+    expect(sparse["map-hydrology"]["plot-rivers"].minLength).toBeGreaterThan(
+      normal["map-hydrology"]["plot-rivers"].minLength
+    );
+    expect(normal["map-hydrology"]["plot-rivers"].minLength).toBeGreaterThan(
+      dense["map-hydrology"]["plot-rivers"].minLength
+    );
   });
 
-  it("allows optional advanced step config in hydrology stages", () => {
+  it("allows optional flat step config in hydrology stages", () => {
     const compiled = standardRecipe.compileConfig(
       env,
       withFoundation({
-        "map-hydrology": { advanced: { lakes: {} } },
+        "map-hydrology": { lakes: {} },
       })
     );
     expect(compiled["map-hydrology"].lakes.tilesPerLakeMultiplier).toBe(1);
   });
 
-  it("applies knobs as deterministic transforms over advanced config baselines", () => {
+  it("applies knobs as deterministic transforms over flat step config baselines", () => {
     const compiled = standardRecipe.compileConfig(
       env,
       withFoundation({
@@ -127,10 +145,8 @@ describe("hydrology knobs compilation", () => {
         },
         "map-hydrology": {
           knobs: { riverDensity: "dense", lakeiness: "many" },
-          advanced: {
-            lakes: { tilesPerLakeMultiplier: 2 },
-            "plot-rivers": { minLength: 11, maxLength: 11 },
-          },
+          lakes: { tilesPerLakeMultiplier: 2 },
+          "plot-rivers": { minLength: 11, maxLength: 11 },
         },
         "hydrology-climate-refine": {
           knobs: { dryness: "wet", temperature: "hot", cryosphere: "on" },
@@ -157,21 +173,21 @@ describe("hydrology knobs compilation", () => {
       })
     );
 
-    // Baseline values apply first (schema defaults + advanced config), then knobs transform them.
+    // Baseline values apply first (schema defaults + flat step config), then knobs transform them.
     // - lakeiness=many multiplies tilesPerLakeMultiplier by 0.7 (more lakes).
     expect(compiled["map-hydrology"].lakes.tilesPerLakeMultiplier).toBeCloseTo(1.4, 6);
     // - dryness=wet scales rainfallScale by 1.15 (wetter climate).
-    expect(compiled["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.config.rainfallScale).toBeCloseTo(
-      141.45,
-      6
-    );
+    expect(
+      compiled["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.config
+        .rainfallScale
+    ).toBeCloseTo(141.45, 6);
     // - riverDensity=dense shifts length bounds down relative to normal.
     expect(compiled["map-hydrology"]["plot-rivers"].minLength).toBe(9);
     // Note: clamp enforces schema bounds and keeps maxLength >= minLength.
     expect(compiled["map-hydrology"]["plot-rivers"].maxLength).toBe(9);
     expect(
-      compiled["hydrology-climate-refine"]["climate-refine"].computePrecipitation.config.riverCorridor
-        .lowlandAdjacencyBonus
+      compiled["hydrology-climate-refine"]["climate-refine"].computePrecipitation.config
+        .riverCorridor.lowlandAdjacencyBonus
     ).toBe(51);
   });
 });

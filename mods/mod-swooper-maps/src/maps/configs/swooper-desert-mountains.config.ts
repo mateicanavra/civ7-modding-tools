@@ -8,7 +8,6 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
     },
   },
   "morphology-coasts": {
-    "advanced": {
     "landmass-plates": {
       substrate: {
         strategy: "default",
@@ -87,20 +86,16 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
         },
       },
     },
-    }
   },
   "morphology-routing": {
-    "advanced": {
     routing: {
       routing: {
         strategy: "default",
         config: {},
       },
     },
-    }
   },
   "morphology-erosion": {
-    "advanced": {
     geomorphology: {
       geomorphology: {
         strategy: "default",
@@ -124,10 +119,8 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
         },
       },
     },
-    }
   },
   "morphology-features": {
-    "advanced": {
     islands: {
       islands: {
         strategy: "default",
@@ -170,7 +163,6 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
         config: {},
       },
     },
-    }
   },
   "map-morphology": {
     mountains: {
@@ -181,8 +173,8 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
           tectonicIntensity: 0.63,
           mountainThreshold: 0.64,
           hillThreshold: 0.36,
-          upliftWeight: 0.20,
-          fractalWeight: 0.90,
+          upliftWeight: 0.2,
+          fractalWeight: 0.9,
           riftDepth: 0.45,
           boundaryWeight: 0.38,
           boundaryGate: 0.14,
@@ -205,8 +197,8 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
           tectonicIntensity: 0.63,
           mountainThreshold: 0.64,
           hillThreshold: 0.36,
-          upliftWeight: 0.20,
-          fractalWeight: 0.90,
+          upliftWeight: 0.2,
+          fractalWeight: 0.9,
           riftDepth: 0.45,
           boundaryWeight: 0.38,
           boundaryGate: 0.14,
@@ -421,14 +413,14 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
             selector: {
               typeName: "PLOTEFFECT_SAND",
             },
-            coveragePct: 42,       // Aggressive for desert world
+            coveragePct: 42, // Aggressive for desert world
           },
           burned: {
             enabled: true,
             selector: {
               typeName: "PLOTEFFECT_BURNED",
             },
-            coveragePct: 16,       // More scorched earth
+            coveragePct: 16, // More scorched earth
           },
         },
       },
@@ -445,4 +437,4 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
     },
     placement: {},
   },
-  };
+};

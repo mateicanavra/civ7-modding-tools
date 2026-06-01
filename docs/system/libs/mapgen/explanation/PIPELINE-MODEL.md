@@ -14,6 +14,7 @@
 Provide a high-signal mental model for how a MapGen pipeline run works end-to-end.
 
 For contractual details, route to:
+
 - [`docs/system/libs/mapgen/reference/REFERENCE.md`](/system/libs/mapgen/reference/REFERENCE.md)
 
 ## Mental model
@@ -28,13 +29,13 @@ A pipeline run is:
 
 ## Lifecycle (compile → plan → run)
 
-1) **Author config** (knobs + advanced overrides)
-2) **Compile config**:
+1. **Author config** (knobs + flat step-id overrides)
+2. **Compile config**:
    - strict validation against stage and step schemas
    - deterministic normalization (shape-preserving)
-3) **Compile plan**:
+3. **Compile plan**:
    - recipe ordering becomes a list of execution nodes (step id + config)
-4) **Run**:
+4. **Run**:
    - executor iterates nodes in order
    - requires/provides validated via tag registry
    - step executes and publishes artifacts / mutates buffers
@@ -51,6 +52,7 @@ The system uses tags to prevent “accidental ordering”: if a step’s prerequ
 ## Observability (trace + viz)
 
 Trace provides:
+
 - run-level start/finish,
 - step-level start/finish,
 - optional verbose step events (structured debug).

@@ -8,7 +8,6 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
     },
   },
   "morphology-coasts": {
-    "advanced": {
     "landmass-plates": {
       substrate: {
         strategy: "default",
@@ -93,20 +92,16 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
         },
       },
     },
-    }
   },
   "morphology-routing": {
-    "advanced": {
     routing: {
       routing: {
         strategy: "default",
         config: {},
       },
     },
-    }
   },
   "morphology-erosion": {
-    "advanced": {
     geomorphology: {
       geomorphology: {
         strategy: "default",
@@ -130,10 +125,8 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
         },
       },
     },
-    }
   },
   "morphology-features": {
-    "advanced": {
     islands: {
       islands: {
         strategy: "default",
@@ -178,7 +171,6 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
         config: {},
       },
     },
-    }
   },
   "map-morphology": {
     mountains: {
@@ -438,7 +430,7 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
             selector: {
               typeName: "PLOTEFFECT_BURNED",
             },
-            coveragePct: 20,       // More volcanic scorched earth
+            coveragePct: 20, // More volcanic scorched earth
           },
         },
       },
@@ -455,4 +447,4 @@ export const SHATTERED_RING_CONFIG: StandardRecipeConfig = {
     },
     placement: {},
   },
-  };
+};
