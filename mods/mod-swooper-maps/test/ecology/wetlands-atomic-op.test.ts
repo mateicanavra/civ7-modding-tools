@@ -1,7 +1,15 @@
 import { describe, expect, it } from "bun:test";
 import ecology from "@mapgen/domain/ecology/ops";
 
+import { BIOME_SYMBOL_TO_INDEX } from "../../src/domain/ecology/types.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
+
+function broadWetlandHabitatFields(size: number) {
+  return {
+    flatLandMask: new Uint8Array(size).fill(1),
+    biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid),
+  };
+}
 
 describe("planWetlands (joint resolver)", () => {
   it("selects the highest-scoring wet feature per tile and respects occupancy", () => {
@@ -31,6 +39,10 @@ describe("planWetlands (joint resolver)", () => {
     const featureIndex = new Uint16Array(size);
     const reserved = new Uint8Array(size);
     reserved[3] = 1;
+    const habitat = broadWetlandHabitatFields(size);
+    habitat.biomeIndex[1] = BIOME_SYMBOL_TO_INDEX.desert;
+    habitat.biomeIndex[2] = BIOME_SYMBOL_TO_INDEX.tundra;
+    habitat.biomeIndex[3] = BIOME_SYMBOL_TO_INDEX.tropicalRainforest;
 
     const result = ecology.ops.planWetlands.run(
       {
@@ -42,6 +54,7 @@ describe("planWetlands (joint resolver)", () => {
         scoreMangrove01,
         scoreOasis01,
         scoreWateringHole01,
+        ...habitat,
         featureIndex,
         reserved,
       },
@@ -72,6 +85,7 @@ describe("planWetlands (joint resolver)", () => {
       scoreMangrove01: new Float32Array(size).fill(1),
       scoreOasis01: new Float32Array(size).fill(1),
       scoreWateringHole01: new Float32Array(size).fill(1),
+      ...broadWetlandHabitatFields(size),
       featureIndex: new Uint16Array(size),
       reserved: new Uint8Array(size),
     } as const;

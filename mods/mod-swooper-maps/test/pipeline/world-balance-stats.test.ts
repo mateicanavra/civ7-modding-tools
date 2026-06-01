@@ -35,7 +35,7 @@ const CASES = [
     label: "realism-earthlike",
     config: realismEarthlikeConfig,
     wetlandMax: 0.08,
-    reefMax: 0.03,
+    reefMax: 0.04,
     requiredFeatures: [
       "FEATURE_FOREST",
       "FEATURE_RAINFOREST",

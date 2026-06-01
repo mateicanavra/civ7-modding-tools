@@ -1246,7 +1246,7 @@
       "plan-reefs": {
         "planReefs": {
           "config": {
-            "minConfidence01": 0.55,
+            "minConfidence01": 0.62,
             "stride": 2
           },
           "strategy": "default"
@@ -1256,7 +1256,7 @@
         "planVegetation": {
           "config": {
             "forestMinConfidence01": 0.02,
-            "rainforestMinConfidence01": 0.3,
+            "rainforestMinConfidence01": 0.28,
             "sagebrushSteppeMinConfidence01": 0,
             "savannaWoodlandMinConfidence01": 0,
             "taigaMinConfidence01": 0

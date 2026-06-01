@@ -4,10 +4,22 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import ecology from "@mapgen/domain/ecology/ops";
 
+import { BIOME_SYMBOL_TO_INDEX } from "../../src/domain/ecology/types.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 
 function f32(size: number, value: number): Float32Array {
   return new Float32Array(size).fill(value);
+}
+
+function broadVegetationHabitatFields(size: number) {
+  return {
+    flatLandMask: new Uint8Array(size).fill(1),
+    biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid),
+    surfaceTemperature: f32(size, 20),
+    effectiveMoisture: f32(size, 120),
+    aridityIndex: f32(size, 0.4),
+    vegetationDensity: f32(size, 0.35),
+  };
 }
 
 describe("ecology feature planner policies", () => {
@@ -42,6 +54,8 @@ describe("ecology feature planner policies", () => {
         scoreMangrove01: f32(size, weakPositive),
         scoreOasis01: f32(size, weakPositive),
         scoreWateringHole01: f32(size, weakPositive),
+        flatLandMask: new Uint8Array(size).fill(1),
+        biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid),
         featureIndex: new Uint16Array(size),
         reserved: new Uint8Array(size),
       },
@@ -59,6 +73,7 @@ describe("ecology feature planner policies", () => {
         scoreSavannaWoodland01: f32(size, weakPositive),
         scoreSagebrushSteppe01: f32(size, weakPositive),
         landMask: new Uint8Array(size).fill(1),
+        ...broadVegetationHabitatFields(size),
         featureIndex: new Uint16Array(size),
         reserved: new Uint8Array(size),
       },

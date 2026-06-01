@@ -934,7 +934,7 @@ describe("Shipped map configs", () => {
     }
   });
 
-  it("keeps Ecology configs compiled-equivalent to the legacy shipped configs", () => {
+  it("keeps Ecology configs compiled-equivalent after accepted peer-repair threshold updates", () => {
     const env = {
       seed: 123,
       dimensions: { width: 80, height: 60 },

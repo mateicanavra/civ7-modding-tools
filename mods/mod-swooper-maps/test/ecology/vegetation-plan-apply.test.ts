@@ -7,6 +7,8 @@ import { implementArtifacts } from "@swooper/mapgen-core/authoring";
 import planVegetationStep from "../../src/recipes/standard/stages/ecology-features/steps/plan-vegetation/index.js";
 import featuresApplyStep from "../../src/recipes/standard/stages/map-ecology/steps/features-apply/index.js";
 import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/artifacts.js";
+import { BIOME_SYMBOL_TO_INDEX } from "../../src/domain/ecology/types.js";
+import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
 import { buildTestDeps } from "../support/step-deps.js";
@@ -50,8 +52,26 @@ describe("plan-vegetation/apply pipeline", () => {
     layers.FEATURE_FOREST.fill(1);
 
     const stageArtifacts = implementArtifacts(
-      [ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyWetlands, morphologyArtifacts.topography],
-      { scoreLayers: {}, occupancyWetlands: {}, topography: {} }
+      [
+        ecologyArtifacts.scoreLayers,
+        ecologyArtifacts.occupancyWetlands,
+        ecologyArtifacts.biomeClassification,
+        hydrologyHydrographyArtifacts.hydrography,
+        hydrologyHydrographyArtifacts.lakePlan,
+        morphologyArtifacts.topography,
+        morphologyArtifacts.mountains,
+        morphologyArtifacts.volcanoes,
+      ],
+      {
+        scoreLayers: {},
+        occupancyWetlands: {},
+        biomeClassification: {},
+        hydrography: {},
+        lakePlan: {},
+        topography: {},
+        mountains: {},
+        volcanoes: {},
+      }
     );
 
     stageArtifacts.scoreLayers.publish(ctx, { width, height, layers });
@@ -61,11 +81,53 @@ describe("plan-vegetation/apply pipeline", () => {
       featureIndex: new Uint16Array(size),
       reserved: new Uint8Array(size),
     });
+    stageArtifacts.biomeClassification.publish(ctx, {
+      width,
+      height,
+      biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid),
+      vegetationDensity: new Float32Array(size).fill(0.4),
+      effectiveMoisture: new Float32Array(size).fill(120),
+      surfaceTemperature: new Float32Array(size).fill(20),
+      aridityIndex: new Float32Array(size).fill(0.4),
+      freezeIndex: new Float32Array(size),
+      groundIce01: new Float32Array(size),
+      permafrost01: new Float32Array(size),
+      meltPotential01: new Float32Array(size),
+      treeLine01: new Float32Array(size),
+    });
+    stageArtifacts.hydrography.publish(ctx, {
+      runoff: new Float32Array(size),
+      discharge: new Float32Array(size),
+      riverClass: new Uint8Array(size),
+      flowDir: new Int32Array(size).fill(-1),
+      sinkMask: new Uint8Array(size),
+      outletMask: new Uint8Array(size),
+    });
+    stageArtifacts.lakePlan.publish(ctx, {
+      width,
+      height,
+      lakeMask: new Uint8Array(size),
+      plannedLakeTileCount: 0,
+      sinkLakeCount: 0,
+    });
     stageArtifacts.topography.publish(ctx, {
       elevation: ctx.buffers.heightfield.elevation,
       seaLevel: 0,
       landMask: ctx.buffers.heightfield.landMask,
       bathymetry: new Int16Array(size),
+    });
+    stageArtifacts.mountains.publish(ctx, {
+      mountainMask: new Uint8Array(size),
+      hillMask: new Uint8Array(size),
+      foothillMask: new Uint8Array(size),
+      roughLandMask: new Uint8Array(size),
+      orogenyPotential: new Uint8Array(size),
+      fracturePotential: new Uint8Array(size),
+      roughnessPotential: new Uint8Array(size),
+    });
+    stageArtifacts.volcanoes.publish(ctx, {
+      volcanoMask: new Uint8Array(size),
+      volcanoes: [],
     });
 
     const planConfig = {
