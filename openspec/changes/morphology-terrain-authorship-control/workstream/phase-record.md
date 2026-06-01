@@ -16,30 +16,32 @@
 ## Status
 
 - Last updated: 2026-05-31.
-- Current gate: Gate 8, implementation slice opened after Gates 1-7 were
-  completed for state isolation, diagnosis, corpus, expectations, grouping,
-  and architecture translation.
-- Next gate: Gate 9, local validation for OpenSpec and any stats/proof slice
-  added above this record.
-- Blocked by: runtime proof is not available until a Civ7 tuner session is
-  reachable and cliff-crossing readback is first-class or bounded by an
-  approved read-only probe.
-- Stop condition: do not retune Earthlike terrain config before adding a
-  dedicated rough-land authoring surface or explicit stats gates.
+- Current gate: Gate 10, review/closure audit after the workstream,
+  stats/readback, rough-land owner, runtime-boundary, and live-readback slices.
+- Next gate: peer-agent P1/P2 review disposition and final local validation.
+- Remaining proof boundary: live direct-control/Studio readback works, including
+  bounded terrain/elevation/cliff reads, but the current live map was not
+  produced by a controlled restart/begin of this morphology branch. Product
+  proof therefore remains open for the target Swooper map.
+- Stop condition: do not retune Earthlike terrain config to mask relief
+  authorship. Terrain relief changes must stay rooted in Morphology ownership
+  and downstream ecology/resource failures must remain separate.
 
 ## Repo State
 
 - Worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-dra-morphology-direct-control-objective`
-- Branch: `codex/morphology-terrain-authorship-workstream`
-- Local commit: complete after the closure amend for this record; exact branch
-  head is reported from `git rev-parse HEAD` in the final closure message.
+- Branch: `codex/morphology-live-readback-boundary`
+- Local head at this audit: `d42f35fe5`
+  `docs(morphology): record live readback retry`.
 - Parent branch: `codex/agent-dra-morphology-direct-control-objective`
-- Parent commit: `63a077781`
-- Downstack direct-control implementation commit: `cd1e87fa3`
-- Downstack Studio design branch commit: `692a04081`
-- Dirty files and owner: this branch owns only the OpenSpec/workstream files
-  listed in the proposal and the adjacent normalization-workstream spec update.
+- Parent morphology stack: `83e130ead`, `24a17988f`, `6e4721791`,
+  `f6bef3685`.
+- Downstack direct-control implementation commit: `cd1e87fa3`.
+- Downstack Studio/direct-control commits in this stack: `3bf9b9d62`,
+  `dfa03ab01`, `fec2f4c07`.
+- Dirty files and owner: none at the start of this audit; any new edits in this
+  branch are proof/closure record repairs only.
 - Protected paths: generated `mod/**`, `dist/**`, lockfiles, active external
   direct-control worktrees, and Studio setup/live-sync implementation paths.
 
@@ -66,26 +68,34 @@
 
 ## Current Local Checks
 
-- `bun test test/pipeline/world-balance-stats.test.ts`: failed before this
-  branch due to `FEATURE_SAGEBRUSH_STEPPE` habitat mismatch, not due to new
-  work.
+- `bun test test/pipeline/terrain-relief-diagnostics.test.ts test/pipeline/terrain-relief-balance.test.ts`:
+  passed after the rough-land owner slice.
+- `bun test test/morphology/m11-mountains-physics-anchored.test.ts test/morphology/m12-mountains-present.test.ts`:
+  passed after the rough-land owner slice.
+- `bun test test/pipeline/world-balance-stats.test.ts`: still fails due to
+  `FEATURE_SAGEBRUSH_STEPPE` habitat mismatch and Rainforest seed-presence
+  gates. This is downstream ecology/features proof, not terrain-relief proof.
 - `bun test test/pipeline/mountains-nonzero-probe.test.ts`: failed before this
   branch because a stale helper passes the canonical map envelope to the
   recipe compiler.
-- `bun test test/morphology/m11-mountains-physics-anchored.test.ts test/morphology/m12-mountains-present.test.ts`:
-  passed before this branch.
-- `packages/cli/bin/run.js game status --json --timeout-ms 3000`: failed with
-  `response-timeout`, indicating no reachable/ready Civ7 tuner session.
 - `packages/cli/bin/run.js game catalog --static --json`: passed and confirmed
   committed direct-control wrappers and CLI routes.
+- `packages/cli/bin/run.js game status --json --timeout-ms 5000`,
+  `map --summary`, `gameinfo`, `visibility`, hidden bounded `map`, runtime
+  `catalog`, `inspect`, and read-only `exec` passed through
+  `@civ7/direct-control`.
+- Studio endpoints `/api/civ7/status`, `/api/civ7/map-summary`, and
+  `/api/civ7/gameinfo?table=Terrains&limit=10` returned live package-backed
+  payloads.
 
 ## Proof Labels
 
-- Local commit complete: yes after closure amend; exact branch head is reported
-  outside this self-referential record.
+- Local commit complete: yes through `d42f35fe5`; this closure-audit repair
+  branch will add another proof-record commit if needed.
 - Graphite submitted: no.
 - PR created/updated: no.
-- Local stats proof: partial diagnostic evidence only; expected bands are now
-  predeclared but not satisfied.
-- Runtime proof: unresolved.
+- Local stats proof: terrain-relief diagnostics pass; broad ecology/features
+  world-balance remains failing and separately tracked.
+- Runtime proof: live direct-control/Studio readback surface proved; target-map
+  product proof remains unresolved.
 - Product proof: unresolved.
