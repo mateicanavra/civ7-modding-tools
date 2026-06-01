@@ -10,14 +10,17 @@ import standardRecipe from "../../src/recipes/standard/recipe.js";
 import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 
 function recipeConfig(config: CanonicalMapConfigWithRecipe): StandardRecipeConfig {
-  return standardRecipe.compileConfig(
-    {
-      seed: 123,
-      dimensions: { width: 80, height: 60 },
-      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-    },
-    canonicalRecipeConfig<StandardRecipeConfig>(config)
-  ) as StandardRecipeConfig;
+  return canonicalRecipeConfig<StandardRecipeConfig>(config);
+}
+
+function hasRawOpEnvelope(value: unknown): boolean {
+  if (!value || typeof value !== "object") return false;
+  if (Array.isArray(value)) return value.some(hasRawOpEnvelope);
+  const obj = value as Record<string, unknown>;
+  if (Object.prototype.hasOwnProperty.call(obj, "strategy") && Object.prototype.hasOwnProperty.call(obj, "config")) {
+    return true;
+  }
+  return Object.values(obj).some(hasRawOpEnvelope);
 }
 
 function hasRawOpEnvelope(value: unknown): boolean {

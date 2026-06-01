@@ -45,6 +45,8 @@ behavior.
 - Add source-level standard-recipe guards proving every standard stage has an
   explicit semantic public authoring model and no generated/default consumer
   needs raw step/op authoring keys.
+- Add mod-owned generated recipe artifact guards proving generated standard
+  schema/default/uiMeta artifacts match source-derived schema/defaults.
 - Add Studio catalog/runtime guards proving Studio's UI artifacts and worker
   runtime consume the same generated standard schema/defaults.
 - Add focus-path guards proving generated Studio UI metadata points only at
@@ -65,6 +67,7 @@ standard-recipe internals without failing a focused guard.
 
 - OpenSpec strict validation.
 - Focused MapGen config guard tests.
+- Focused mod-owned generated recipe artifact guard tests.
 - Focused Studio config artifact tests.
 - Existing standard recipe config/preset/Studio validation suite.
 - `apps/mapgen-studio check`.
