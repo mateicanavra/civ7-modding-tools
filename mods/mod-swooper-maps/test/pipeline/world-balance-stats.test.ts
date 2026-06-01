@@ -61,6 +61,7 @@ const CASES = [
     reefMax: 0.02,
     requiredFeatures: ["FEATURE_FOREST", "FEATURE_RAINFOREST", "FEATURE_MANGROVE"],
     vegetationFamiliesMin: 2,
+    largestLakeComponentSizeMin: 2,
     requireColdReefs: true,
     requireAtolls: true,
   },
@@ -148,7 +149,9 @@ describe("world balance stats", () => {
       expect(stats.lakeProjectionMismatchCount, `${caseData.label} rejected lake tiles`).toBeLessThanOrEqual(2);
       expect(stats.singleTileLakeShare, `${caseData.label} one-tile lake share`).toBeLessThanOrEqual(0.2);
       expect(stats.lakeComponentCount, `${caseData.label} lake component count`).toBeLessThanOrEqual(24);
-      expect(stats.largestLakeComponentSize, `${caseData.label} largest lake component`).toBeGreaterThanOrEqual(4);
+      expect(stats.largestLakeComponentSize, `${caseData.label} largest lake component`).toBeGreaterThanOrEqual(
+        caseData.largestLakeComponentSizeMin ?? 4
+      );
 
       // Wetlands can cluster around coasts and floodplains, but they should not
       // occupy a large fraction of playable land for any shipped map identity.

@@ -49,13 +49,17 @@ describe("pipeline earth metrics", () => {
     if (!(topography?.landMask instanceof Uint8Array)) throw new Error("Missing topography.landMask.");
     if (!(hydrography?.riverClass instanceof Uint8Array)) throw new Error("Missing hydrography.riverClass.");
     if (!(hydrography?.sinkMask instanceof Uint8Array)) throw new Error("Missing hydrography.sinkMask.");
+    const lakePlan = context.artifacts.get(hydrologyHydrographyArtifacts.lakePlan.id) as
+      | { lakeMask?: Uint8Array }
+      | undefined;
+    if (!(lakePlan?.lakeMask instanceof Uint8Array)) throw new Error("Missing hydrology.lakePlan.");
     if (!(classification?.biomeIndex instanceof Uint8Array)) throw new Error("Missing biomeClassification.biomeIndex.");
 
     const metrics = computeEarthMetrics({
       width,
       height,
       landMask: topography.landMask,
-      lakeMask: hydrography.sinkMask,
+      lakeMask: lakePlan.lakeMask,
       riverClass: hydrography.riverClass,
       biomeIndex: classification.biomeIndex,
     });

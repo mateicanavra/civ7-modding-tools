@@ -13,9 +13,9 @@ import {
   MORPHOLOGY_OROGENY_HILL_THRESHOLD_DELTA,
   MORPHOLOGY_OROGENY_MOUNTAIN_THRESHOLD_DELTA,
   MORPHOLOGY_OROGENY_TECTONIC_INTENSITY_MULTIPLIER,
-  assertSameMountainFamilySelection,
 } from "@mapgen/domain/morphology/config.js";
 import type { MorphologyOrogenyKnob } from "@mapgen/domain/morphology/config.js";
+import { assertSameMountainFamilySelection } from "@mapgen/domain/morphology/ops";
 
 import { morphologyArtifacts } from "../../morphology/artifacts.js";
 import MountainsStepContract from "./mountains.contract.js";

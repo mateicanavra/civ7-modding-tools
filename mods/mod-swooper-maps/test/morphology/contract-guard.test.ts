@@ -4,6 +4,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
 import LandmassPlatesStepContract from "../../src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.js";
+import MountainsStepContract from "../../src/recipes/standard/stages/morphology-features/steps/mountains.contract.js";
 import PlotMountainsStepContract from "../../src/recipes/standard/stages/map-morphology/steps/plotMountains.contract.js";
 import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
@@ -266,7 +267,7 @@ describe("morphology contract guardrails", () => {
     );
     expect(landmassProvidedIds).toContain(morphologyArtifacts.beltDrivers.id);
 
-    const mountainsRequires = PlotMountainsStepContract.artifacts?.requires ?? [];
+    const mountainsRequires = MountainsStepContract.artifacts?.requires ?? [];
     const mountainRequiredIds = mountainsRequires.map((artifact: any) =>
       typeof artifact === "string" ? artifact : artifact.id
     );
@@ -357,10 +358,7 @@ describe("morphology contract guardrails", () => {
       const text = readFileSync(file, "utf8");
       expect(text).not.toContain("STANDARD_ENGINE_EFFECT_TAGS.engine.coastlinesApplied");
       expect(text).not.toContain("STANDARD_ENGINE_EFFECT_TAGS.engine.landmassApplied");
-
-      if (mustRequire === "topography") {
-        expect(text).toContain("morphologyArtifacts.topography");
-      }
+      expect(text).not.toContain("morphologyArtifacts.topography");
     }
   });
 });

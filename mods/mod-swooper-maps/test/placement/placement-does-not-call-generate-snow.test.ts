@@ -187,7 +187,7 @@ describe("placement reconciliation", () => {
     expect(adapter.calls.stampDiscovery.length).toBe(discoveryOutcomes?.summary.placedCount);
   });
 
-  it("records typed resource rejections without falling back to official generation", () => {
+  it("fails hard without falling back when no engine-legal resource assignment exists", () => {
     const width = 20;
     const height = 12;
     const seed = 1441;
@@ -200,15 +200,12 @@ describe("placement reconciliation", () => {
       canHaveResource: () => false,
     });
 
-    const { context } = runStandardPlacementRecipe({ adapter, seed, width, height });
-    const resourceOutcomes = readResourceOutcomes(context);
+    expect(() => runStandardPlacementRecipe({ adapter, seed, width, height })).toThrow(
+      /no engine-legal resource assignments/i
+    );
 
     expect(adapter.calls.generateOfficialResources.length).toBe(0);
     expect(adapter.calls.setResourceType.length).toBe(0);
-    expect(resourceOutcomes?.summary.plannedCount).toBeGreaterThan(0);
-    expect(resourceOutcomes?.summary.placedCount).toBe(0);
-    expect(resourceOutcomes?.summary.rejectedCount).toBe(resourceOutcomes?.summary.plannedCount);
-    expect(resourceOutcomes?.summary.mismatchCount).toBe(0);
   });
 
   it("records typed discovery rejections without falling back to official generation", () => {

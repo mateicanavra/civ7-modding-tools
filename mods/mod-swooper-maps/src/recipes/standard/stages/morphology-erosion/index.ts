@@ -1,9 +1,7 @@
 import { Type, createStage } from "@swooper/mapgen-core/authoring";
 import { geomorphology } from "./steps/index.js";
-import {
-  GeomorphicCycleConfigSchema,
-  MorphologyErosionKnobSchema,
-} from "@mapgen/domain/morphology/config.js";
+import { MorphologyErosionKnobSchema } from "@mapgen/domain/morphology/config.js";
+import { GeomorphicCycleConfigSchema } from "@mapgen/domain/morphology/ops";
 
 /**
  * Morphology-erosion knobs (erosion). Knobs apply after defaulted step config as deterministic transforms.

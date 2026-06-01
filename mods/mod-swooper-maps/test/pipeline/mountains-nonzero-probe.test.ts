@@ -6,6 +6,7 @@ import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
+import { canonicalRecipeConfig } from "../../src/maps/configs/canonical.js";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../src/recipes/standard/runtime.js";
 import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
@@ -19,9 +20,7 @@ function loadEarthlikeConfig(): StandardRecipeConfig {
   const raw = JSON.parse(
     readFileSync(new URL("../../src/maps/configs/swooper-earthlike.config.json", import.meta.url), "utf8")
   ) as Record<string, unknown>;
-  // The recipe schema is strict; `$schema` is editor metadata and not part of the runtime config surface.
-  delete (raw as any).$schema;
-  return raw as unknown as StandardRecipeConfig;
+  return structuredClone(canonicalRecipeConfig(raw as any)) as StandardRecipeConfig;
 }
 
 function runStandardContext(args: { width: number; height: number; seed: number; config: StandardRecipeConfig }) {

@@ -1,16 +1,18 @@
 import { Type, createStage } from "@swooper/mapgen-core/authoring";
 import { landmassPlates, ruggedCoasts } from "./steps/index.js";
 import {
-  CoastConfigSchema,
-  HypsometryConfigSchema,
-  LandmaskConfigSchema,
   MorphologyCoastRuggednessKnobSchema,
   MorphologySeaLevelKnobSchema,
   MorphologyShelfWidthKnobSchema,
+} from "@mapgen/domain/morphology/config.js";
+import {
+  CoastConfigSchema,
+  HypsometryConfigSchema,
+  LandmaskConfigSchema,
   ReliefConfigSchema,
   ShelfMaskConfigSchema,
   SubstrateConfigSchema,
-} from "@mapgen/domain/morphology/config.js";
+} from "@mapgen/domain/morphology/ops";
 
 /**
  * Morphology-coasts knobs (seaLevel/coastRuggedness/shelfWidth).
