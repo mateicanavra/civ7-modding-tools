@@ -5,6 +5,7 @@ import {
   PLACEMENT_PRODUCT_EFFECT_TAGS,
 } from "../../../../tags.js";
 import { mapArtifacts } from "../../../../map-artifacts.js";
+import { mapHydrologyArtifacts } from "../../../map-hydrology/artifacts.js";
 import { placementArtifacts } from "../../artifacts.js";
 
 /**
@@ -24,6 +25,7 @@ const PreparePlacementSurfaceStepContract = defineStep({
     requires: [
       placementArtifacts.placementInputs,
       placementArtifacts.naturalWonderPlacement,
+      mapHydrologyArtifacts.engineProjectionLakes,
       mapArtifacts.landmassRegionSlotByTile,
     ],
     provides: [placementArtifacts.placementSurfacePreparation],

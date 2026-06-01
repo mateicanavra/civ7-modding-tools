@@ -68,10 +68,12 @@ class RejectingLakeAdapter extends MockAdapter {
     this.calls.stampLakes.push({ width, height, lakeMask });
     const size = width * height;
     const rejectedLakeMask = new Uint8Array(size);
+    const nonLakeMask = new Uint8Array(size);
     let plannedLakeTileCount = 0;
     for (let i = 0; i < size; i++) {
       if (lakeMask[i] !== 1) continue;
       rejectedLakeMask[i] = 1;
+      nonLakeMask[i] = 1;
       plannedLakeTileCount += 1;
     }
     return {
@@ -80,9 +82,20 @@ class RejectingLakeAdapter extends MockAdapter {
       plannedLakeMask: lakeMask,
       stampedLakeMask: new Uint8Array(size),
       rejectedLakeMask,
+      engineTerrain: new Int32Array(size),
+      engineWaterMask: new Uint8Array(size),
+      engineLakeMask: new Uint8Array(size),
+      engineAreaId: new Int32Array(size),
+      engineElevation: new Int16Array(size),
+      terrainMismatchMask: new Uint8Array(size),
+      nonWaterMask: rejectedLakeMask,
+      nonLakeMask,
       plannedLakeTileCount,
       stampedLakeTileCount: 0,
       rejectedLakeTileCount: plannedLakeTileCount,
+      terrainMismatchTileCount: 0,
+      nonWaterTileCount: plannedLakeTileCount,
+      nonLakeTileCount: plannedLakeTileCount,
     };
   }
 }
@@ -145,6 +158,12 @@ describe("map-hydrology/lakes", () => {
       "storeWaterData",
     ]);
     expect(adapter.isWater(1, 1)).toBe(true);
+
+    const projection = context.artifacts.get("artifact:map.hydrology.engineProjectionLakes") as
+      | { nonLakeTileCount?: number; terrainMismatchTileCount?: number }
+      | undefined;
+    expect(projection?.nonLakeTileCount ?? -1).toBe(0);
+    expect(projection?.terrainMismatchTileCount ?? -1).toBe(0);
   });
 
   it("records projection rejection as diagnostics without throwing", () => {
@@ -169,10 +188,12 @@ describe("map-hydrology/lakes", () => {
     ).not.toThrow();
 
     const projection = context.artifacts.get("artifact:map.hydrology.engineProjectionLakes") as
-      | { sinkMismatchCount: number }
+      | { sinkMismatchCount: number; nonLakeTileCount?: number; terrainMismatchTileCount?: number }
       | undefined;
     expect(projection).toBeDefined();
     expect(projection?.sinkMismatchCount ?? 0).toBe(1);
+    expect(projection?.nonLakeTileCount ?? 0).toBe(1);
+    expect(projection?.terrainMismatchTileCount ?? 0).toBe(0);
   });
 
   it("stamps the Hydrology lake plan directly instead of calling engine lake generation", () => {

@@ -8,6 +8,7 @@ import { ecologyArtifacts } from "../../src/recipes/standard/stages/ecology/arti
 import { hydrologyHydrographyArtifacts } from "../../src/recipes/standard/stages/hydrology-hydrography/artifacts.js";
 import { mapHydrologyArtifacts } from "../../src/recipes/standard/stages/map-hydrology/artifacts.js";
 import { morphologyArtifacts } from "../../src/recipes/standard/stages/morphology/artifacts.js";
+import { placementArtifacts } from "../../src/recipes/standard/stages/placement/artifacts.js";
 
 export type WorldBalanceStats = Readonly<{
   label: string;
@@ -25,6 +26,8 @@ export type WorldBalanceStats = Readonly<{
   singleTileLakeShare: number;
   largestLakeComponentSize: number;
   lakeWaterDriftCount: number;
+  finalLakeWaterDriftCount: number;
+  finalLakeClassificationDriftCount: number;
   lakeProjectionMismatchCount: number;
   wetlandTiles: number;
   wetlandShareOfPreLakeLand: number;
@@ -199,6 +202,9 @@ export function collectWorldBalanceStats(args: Readonly<{
   const engineLakeProjection = context.artifacts.get(mapHydrologyArtifacts.engineProjectionLakes.id) as
     | { lakeMask?: Uint8Array; sinkMismatchCount?: number }
     | undefined;
+  const placementSurface = context.artifacts.get(placementArtifacts.placementSurfacePreparation.id) as
+    | { finalLakeWaterDriftCount?: number; finalLakeClassificationDriftCount?: number }
+    | undefined;
   const classification = context.artifacts.get(ecologyArtifacts.biomeClassification.id);
   if (!(topography?.landMask instanceof Uint8Array)) throw new Error("Missing topography.landMask.");
   if (!(lakePlan?.lakeMask instanceof Uint8Array)) throw new Error("Missing hydrology.lakePlan.");
@@ -254,6 +260,8 @@ export function collectWorldBalanceStats(args: Readonly<{
     singleTileLakeShare: engineLakeTiles === 0 ? 0 : lakeComponents.singleTileCount / engineLakeTiles,
     largestLakeComponentSize: lakeComponents.largestComponentSize,
     lakeWaterDriftCount,
+    finalLakeWaterDriftCount: placementSurface?.finalLakeWaterDriftCount ?? 0,
+    finalLakeClassificationDriftCount: placementSurface?.finalLakeClassificationDriftCount ?? 0,
     lakeProjectionMismatchCount: engineLakeProjection.sinkMismatchCount ?? 0,
     wetlandTiles,
     wetlandShareOfPreLakeLand: preLakeLandTiles === 0 ? 0 : wetlandTiles / preLakeLandTiles,

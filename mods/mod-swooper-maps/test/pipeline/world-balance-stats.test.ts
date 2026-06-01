@@ -80,6 +80,11 @@ describe("world balance stats", () => {
       // Lakes should read as occasional inland basins, not a terrain-wide sink mask.
       expect(stats.lakeShareOfPreLakeLand, `${caseData.label} lake share`).toBeLessThanOrEqual(0.08);
       expect(stats.lakeWaterDriftCount, `${caseData.label} lake water drift`).toBe(0);
+      expect(stats.finalLakeWaterDriftCount, `${caseData.label} final lake water drift`).toBe(0);
+      expect(
+        stats.finalLakeClassificationDriftCount,
+        `${caseData.label} final lake classification drift`
+      ).toBe(0);
       expect(stats.lakeProjectionMismatchCount, `${caseData.label} rejected lake tiles`).toBeLessThanOrEqual(2);
       expect(stats.singleTileLakeShare, `${caseData.label} one-tile lake share`).toBeLessThanOrEqual(0.2);
       expect(stats.lakeComponentCount, `${caseData.label} lake component count`).toBeLessThanOrEqual(24);

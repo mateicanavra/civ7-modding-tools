@@ -534,6 +534,16 @@ export class MockAdapter implements EngineAdapter {
     return terrain === this.coastTerrainId || terrain === this.oceanTerrainId;
   }
 
+  isLake(x: number, y: number): boolean {
+    // The mock has no engine area classifier, so coast terrain is its lake-classification evidence.
+    return this.terrainTypes[this.idx(x, y)] === this.coastTerrainId;
+  }
+
+  getAreaId(x: number, y: number): number {
+    // Stable coarse ids are enough for tests that need to prove area readback exists.
+    return this.isWater(x, y) ? 1 : 0;
+  }
+
   isMountain(x: number, y: number): boolean {
     const i = this.idx(x, y);
     if (this.mountainMask[i] === 1) return true;
@@ -872,14 +882,45 @@ export class MockAdapter implements EngineAdapter {
 
     const stampedLakeMask = new Uint8Array(expectedSize);
     const rejectedLakeMask = new Uint8Array(expectedSize);
+    const engineTerrain = new Int32Array(expectedSize);
+    const engineWaterMask = new Uint8Array(expectedSize);
+    const engineLakeMask = new Uint8Array(expectedSize);
+    const engineAreaId = new Int32Array(expectedSize);
+    const engineElevation = new Int16Array(expectedSize);
+    const terrainMismatchMask = new Uint8Array(expectedSize);
+    const nonWaterMask = new Uint8Array(expectedSize);
+    const nonLakeMask = new Uint8Array(expectedSize);
     let stampedLakeTileCount = 0;
     let rejectedLakeTileCount = 0;
+    let terrainMismatchTileCount = 0;
+    let nonWaterTileCount = 0;
+    let nonLakeTileCount = 0;
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const idx = y * width + x;
+        const terrain = this.getTerrainType(x, y) | 0;
+        const isWater = this.isWater(x, y);
+        const isLake = this.isLake(x, y);
+        engineTerrain[idx] = terrain;
+        engineWaterMask[idx] = isWater ? 1 : 0;
+        engineLakeMask[idx] = isLake ? 1 : 0;
+        engineAreaId[idx] = this.getAreaId(x, y) | 0;
+        engineElevation[idx] = Math.max(-32768, Math.min(32767, this.getElevation(x, y) | 0));
         if (lakeMask[idx] !== 1) continue;
-        if (this.isWater(x, y)) {
+        if (terrain !== this.coastTerrainId) {
+          terrainMismatchMask[idx] = 1;
+          terrainMismatchTileCount += 1;
+        }
+        if (!isWater) {
+          nonWaterMask[idx] = 1;
+          nonWaterTileCount += 1;
+        }
+        if (!isLake) {
+          nonLakeMask[idx] = 1;
+          nonLakeTileCount += 1;
+        }
+        if (isWater) {
           stampedLakeMask[idx] = 1;
           stampedLakeTileCount += 1;
         } else {
@@ -895,9 +936,20 @@ export class MockAdapter implements EngineAdapter {
       plannedLakeMask: lakeMask,
       stampedLakeMask,
       rejectedLakeMask,
+      engineTerrain,
+      engineWaterMask,
+      engineLakeMask,
+      engineAreaId,
+      engineElevation,
+      terrainMismatchMask,
+      nonWaterMask,
+      nonLakeMask,
       plannedLakeTileCount,
       stampedLakeTileCount,
       rejectedLakeTileCount,
+      terrainMismatchTileCount,
+      nonWaterTileCount,
+      nonLakeTileCount,
     };
   }
 

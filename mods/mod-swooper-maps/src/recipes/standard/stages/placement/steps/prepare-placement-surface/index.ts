@@ -5,6 +5,7 @@ import { normalizeNaturalWonderStampingStats } from "../place-natural-wonders/ma
 import { runPlacementProductStep } from "../product-runtime.js";
 import { logTerrainStats } from "../terrain-diagnostics.js";
 import { applyLandmassRegionSlots } from "./landmass-regions.js";
+import { readFinalLakeProjection } from "./lake-readback.js";
 import { placementArtifacts } from "../../artifacts.js";
 import PreparePlacementSurfaceStepContract from "./contract.js";
 
@@ -15,6 +16,7 @@ export default createStep(PreparePlacementSurfaceStepContract, {
   run: (context, _config, _ops, deps) => {
     const placementInputs = deps.artifacts.placementInputs.read(context);
     const naturalWonderPlacement = deps.artifacts.naturalWonderPlacement.read(context);
+    const engineProjectionLakes = deps.artifacts.engineProjectionLakes.read(context);
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
     const { floodplains } = buildPlacementPlanInput(placementInputs);
     const { adapter, trace } = context;
@@ -50,6 +52,13 @@ export default createStep(PreparePlacementSurfaceStepContract, {
       applyLandmassRegionSlots(adapter, width, height, slotByTile);
       emit({ type: "placement.landmassRegion.restamped" });
     });
+    const finalLakeReadback = readFinalLakeProjection(
+      adapter,
+      width,
+      height,
+      engineProjectionLakes.lakeMask
+    );
+    emit({ type: "placement.lakes.finalReadback", ...finalLakeReadback });
 
     const slotCounts = { none: 0, west: 0, east: 0 };
     for (let i = 0; i < slotByTile.length; i++) {
@@ -59,6 +68,11 @@ export default createStep(PreparePlacementSurfaceStepContract, {
       else slotCounts.none += 1;
     }
 
-    deps.artifacts.placementSurfacePreparation.publish(context, { width, height, slotCounts });
+    deps.artifacts.placementSurfacePreparation.publish(context, {
+      width,
+      height,
+      slotCounts,
+      ...finalLakeReadback,
+    });
   },
 });
