@@ -14,3 +14,16 @@
 | corpus peer | P2 | Runtime read-site coverage was too narrow. | Accepted. Runtime refs now include core recipe compile/run, standard runtime, Studio runtime recipe registry, Studio worker compile path, and SDK createMap. |
 | corpus peer | P2 | Array item schemas were omitted from field coverage. | Accepted. Schema flattening now traverses `items`, including array item object properties. |
 | corpus peer | P3 | Step handoff dependencies were not represented. | Accepted. Step rows now include phase, requires/provides tags, and artifact requires/provides. |
+
+## 2026-05-31: Foundation Authoring Surface Alignment Slice
+
+| reviewer | priority | finding | disposition |
+| --- | --- | --- | --- |
+| OpenSpec/proof peer | P1 | `foundation.meshResolution.cellCount` was still public even though the design treats it as derived. | Accepted. Foundation public schema omits `cellCount`, MapGen and Studio schema guards assert absence, and strict compile tests reject authored `foundation.meshResolution.cellCount`. |
+| OpenSpec/proof peer | P1 | Behavior-equivalence proof was temporary rather than durable. | Accepted. Added `mods/mod-swooper-maps/test/fixtures/legacy-foundation-compiled.json` from the pre-slice compiled Foundation output and a focused shipped-config equivalence test. |
+| implementation peer | P1 | Studio generated recipe artifacts were stale and still exposed `meshResolution.cellCount`. | Accepted. Regenerated artifacts with `bun run build:studio-recipes`; Studio default schema guard now passes with the explicit `cellCount` absence check. |
+| OpenSpec/proof peer | P2 | Foundation public documentation coverage was weaker than the spec/test claim. | Accepted. Strengthened Foundation TypeBox descriptions and added an exhaustive Foundation public-field description guard; ledger now reports `desc missing/weak=0/0`. |
+| OpenSpec/proof peer | P2 | Foundation proof/review ledgers did not record the behavior-slice gates. | Accepted. Added Foundation proof and review disposition sections with tests, artifact generation, equivalence fixture, OpenSpec validation, and runtime non-proof. |
+| OpenSpec/proof peer | P2 | Deferred profile-collapse work lacked owner, authority, trigger, and proof boundary. | Accepted. Design now names the workstream owner, authority basis, re-entry trigger, and non-claim of final product optimality proof. |
+| OpenSpec/proof peer | P2 | OpenSpec forbidden-key scenario omitted legacy `crust-evolution`. | Accepted. Added `crust-evolution` to the forbidden internal Foundation keys scenario. |
+| implementation peer | P2 | Compile-equivalence test depended on an untracked fixture. | Accepted. The legacy compiled Foundation fixture is part of the slice write set and will be staged with the tests. |

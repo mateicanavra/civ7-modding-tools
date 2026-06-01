@@ -13,13 +13,15 @@ const StrategySchema = Type.Object(
       default: 8,
       minimum: 1,
       maximum: 64,
-      description: "Base belt influence distance in mesh-neighbor steps.",
+      description:
+        "Controls how far tectonic belt influence spreads across mesh-neighbor steps.",
     }),
     beltDecay: Type.Number({
       default: 0.55,
       minimum: 0.01,
       maximum: 10,
-      description: "Exponential decay coefficient for belt influence per mesh-neighbor step.",
+      description:
+        "Controls the exponential decay rate for tectonic belt influence per mesh-neighbor step.",
     }),
   },
   { additionalProperties: false }

@@ -85,6 +85,47 @@ describe("standard recipe compile errors (ecology)", () => {
     ).toBe(true);
   });
 
+  it("rejects legacy Foundation step/op envelope config", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: {
+          mesh: {
+            computeMesh: {
+              strategy: "default",
+              config: { plateCount: 28 },
+            },
+          },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) => item.code === "config.invalid" && item.path.includes("/config/foundation/mesh")
+      )
+    ).toBe(true);
+  });
+
+  it("rejects derived Foundation mesh cellCount on the public surface", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: {
+          meshResolution: {
+            cellCount: 128,
+          },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path.includes("/config/foundation/meshResolution/cellCount")
+      )
+    ).toBe(true);
+  });
+
   it("flags unknown step ids returned by ecology stage compile", () => {
     const brokenStage = createStage({
       id: "ecology-pedology",

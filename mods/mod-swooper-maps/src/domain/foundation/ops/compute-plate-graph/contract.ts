@@ -15,6 +15,7 @@ const StrategySchema = Type.Object(
     referenceArea: Type.Integer({
       default: 4000,
       minimum: 1,
+      maximum: 1_000_000,
       description: "Reference map area (width*height) used for plateCount scaling.",
     }),
     plateScalePower: Type.Number({
@@ -30,7 +31,7 @@ const StrategySchema = Type.Object(
             default: 0.1,
             minimum: 0.02,
             maximum: 0.25,
-            description: "Fraction of mesh Y-span reserved as the locked polar cap in each hemisphere.",
+            description: "Controls the mesh Y-span fraction reserved as the locked polar cap in each hemisphere.",
           }),
           microplateBandFraction: Type.Number({
             default: 0.2,
@@ -57,7 +58,11 @@ const StrategySchema = Type.Object(
             description: "Minimum cell area for a polar microplate (sliver guardrail).",
           }),
         },
-        { additionalProperties: false }
+        {
+          additionalProperties: false,
+          description:
+            "Controls polar cap and polar microplate partition behavior for the generated plate graph.",
+        }
       )
     ),
   },

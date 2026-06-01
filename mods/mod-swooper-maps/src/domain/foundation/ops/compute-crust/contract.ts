@@ -23,7 +23,7 @@ const StrategySchema = Type.Object(
       default: 0.55,
       minimum: 0,
       maximum: 1,
-      description: "Yield strength scalar for the lithosphere (0..1).",
+      description: "Controls lithosphere yield strength before mantle coupling and rift weakening are applied.",
     }),
     /** Mantle coupling scalar (0..1) used to scale initial strength (mantle-coupled baseline). */
     mantleCoupling01: Type.Number({
@@ -37,7 +37,7 @@ const StrategySchema = Type.Object(
       default: 0.35,
       minimum: 0,
       maximum: 1,
-      description: "Rift weakening scalar (0..1). Reserved for event-driven weakening in later slices.",
+      description: "Controls how strongly rift contexts weaken crust strength in downstream tectonic shaping.",
     }),
   },
   { description: "Default strategy configuration for computing basaltic-lid crust truth + derived drivers." }

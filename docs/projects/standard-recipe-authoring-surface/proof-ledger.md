@@ -28,3 +28,21 @@
 | Unknown-key failure | Focused tests proving removed fields fail strict validation with clear errors. |
 | Studio proof | Generated schema/default/uiMeta assertions and, when needed, Studio form inspection. |
 | Runtime proof | `@civ7/direct-control` or Studio runtime proof only for behavior-changing slices. |
+
+## 2026-05-31: Foundation Authoring Surface Alignment Slice
+
+| evidence | command or source | result |
+| --- | --- | --- |
+| Graphite isolation | `gt create codex/foundation-authoring-surface-alignment --no-interactive` | New behavior-slice branch above `codex/standard-recipe-authoring-surface-workstream`. |
+| Public schema boundary | `bun test test/config/maps-schema-valid.test.ts ...` in `mods/mod-swooper-maps` | Foundation public schema exposes `knobs`, `meshResolution`, `mantleSources`, `mantleForcing`, `lithosphere`, `platePartition`, `plateMotion`, `tectonicSegmentation`, `tectonicEras`, `tectonicFields`, and `tectonicRollups`; no public raw `{ strategy, config }` envelope and no derived `meshResolution.cellCount`. |
+| Shipped config migration | `mods/mod-swooper-maps/src/maps/configs/*.config.json` plus `maps-schema-valid.test.ts` | Four shipped configs migrated to semantic Foundation groups and validate. |
+| Compile mapping | `maps-schema-valid.test.ts` Foundation compile assertion | Semantic Foundation groups compile to internal step/op envelopes with default strategies and default internal projection/topology behavior. |
+| Public documentation | `bun run scripts/report-standard-authoring-surface.ts --format=summary`; `maps-schema-valid.test.ts` Foundation description guard | Foundation reports `desc missing/weak=0/0`; every Foundation public schema field has a description. |
+| Unknown-key failure | `bun test test/standard-compile-errors.test.ts` | Legacy Foundation raw step/op envelope keys and derived `foundation.meshResolution.cellCount` fail strict validation with unknown-key errors. |
+| Studio schema/default proof | `bun test test/config/defaultConfigSchema.test.ts` in `apps/mapgen-studio` | Studio default config validates; generated standard schema exposes semantic Foundation keys and no raw envelope keys. |
+| Generated artifact regeneration | `bun run build:studio-recipes` in `mods/mod-swooper-maps` | Regenerated standard recipe/browser recipe dist outputs and four source map artifacts; tracked source artifact hash churn is from persisted config shape changes. |
+| Ledger refresh | `bun run scripts/report-standard-authoring-surface.ts --format=summary` | Foundation now reports `surface keys=knobs, meshResolution, mantleSources, mantleForcing, lithosphere, platePartition, plateMotion, tectonicSegmentation, tectonicEras, tectonicFields, tectonicRollups`, `fields=61`, `raw envelope rows=0`, `desc missing/weak=0/0`, `numeric bounded=47/47`. |
+| Stable compiled-config equivalence | `mods/mod-swooper-maps/test/fixtures/legacy-foundation-compiled.json`; `maps-schema-valid.test.ts` stable comparison | Checked-in golden fixture was generated from pre-slice commit `81dcd57bc` by compiling shipped Foundation configs with `seed=123`, `dimensions=80x60`, and `latitudeBounds=60/-60`; current migrated shipped configs compile to the same stable `compiled.foundation` objects. |
+| OpenSpec validation | `bun run openspec -- validate foundation-authoring-surface-alignment --strict` | Passed. |
+| Package TypeScript check | `bun run check` in `mods/mod-swooper-maps` | Fails only on existing unresolved `@mateicanavra/civ7-sdk/mapgen` imports in generated maps and one type test; new Foundation optional-ops errors were repaired. |
+| Runtime proof | direct-control/Studio runtime | Not run. The slice claims shipped-config compile equivalence, schema/default proof, and artifact regeneration only; it does not claim new generated-map behavior. |

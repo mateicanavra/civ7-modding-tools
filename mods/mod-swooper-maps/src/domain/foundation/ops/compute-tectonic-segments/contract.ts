@@ -11,13 +11,15 @@ const StrategySchema = Type.Object(
       default: 900,
       minimum: 1,
       maximum: 10_000,
-      description: "Scale factor applied to relative motion components to produce 0..255 segment intensities.",
+      description:
+        "Controls how strongly relative plate motion maps into 0..255 boundary segment intensities.",
     }),
     regimeMinIntensity: Type.Integer({
       default: 4,
       minimum: 0,
       maximum: 255,
-      description: "Minimum max-intensity required to classify a segment as a non-none regime.",
+      description:
+        "Sets the minimum boundary intensity required before a segment affects tectonic regime classification.",
     }),
   },
   { additionalProperties: false }
