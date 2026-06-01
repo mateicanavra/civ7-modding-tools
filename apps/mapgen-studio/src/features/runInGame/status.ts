@@ -1,0 +1,145 @@
+export const RUN_IN_GAME_PHASES = [
+  "idle",
+  "materializing",
+  "deploying",
+  "checking-civ7",
+  "reload-needed",
+  "preparing-setup",
+  "starting-game",
+  "waiting-for-proof",
+  "complete",
+  "blocked",
+  "failed",
+  "uncertain",
+] as const;
+
+export type RunInGamePhase = (typeof RUN_IN_GAME_PHASES)[number];
+
+export type RunInGameOperationKind = "idle" | "running" | "complete" | "blocked" | "failed" | "uncertain";
+
+export type RunInGameMaterializationStatus = Readonly<{
+  mode?: string;
+  path?: string;
+  mapScript?: string;
+  configHash?: string;
+  envelopeHash?: string;
+}>;
+
+export type RunInGameFailureDetails = Readonly<{
+  failureClass?: string;
+  code?: string;
+  phase?: RunInGamePhase;
+  mapScript?: string;
+  materialization?: RunInGameMaterializationStatus;
+  reloadRequired?: boolean;
+  reloadBoundary?: string;
+  reloadAttempted?: boolean;
+  completedPhases?: ReadonlyArray<RunInGamePhase>;
+  directControlCode?: string;
+  cause?: unknown;
+  [key: string]: unknown;
+}>;
+
+export type RunInGameOperationStatus = Readonly<{
+  ok: boolean;
+  requestId: string;
+  phase: RunInGamePhase;
+  status: RunInGameOperationKind;
+  startedAt: string;
+  updatedAt: string;
+  completedPhases: ReadonlyArray<RunInGamePhase>;
+  materialization?: RunInGameMaterializationStatus;
+  error?: string;
+  details?: RunInGameFailureDetails;
+  result?: unknown;
+  recoveryActions?: ReadonlyArray<string>;
+}>;
+
+const TERMINAL_PHASES = new Set<RunInGamePhase>(["complete", "blocked", "failed", "uncertain"]);
+
+const RUNNING_PHASES = new Set<RunInGamePhase>([
+  "materializing",
+  "deploying",
+  "checking-civ7",
+  "reload-needed",
+  "preparing-setup",
+  "starting-game",
+  "waiting-for-proof",
+]);
+
+export function isRunInGameTerminalPhase(phase: RunInGamePhase): boolean {
+  return TERMINAL_PHASES.has(phase);
+}
+
+export function kindForRunInGamePhase(phase: RunInGamePhase): RunInGameOperationKind {
+  if (phase === "idle") return "idle";
+  if (phase === "complete") return "complete";
+  if (phase === "blocked") return "blocked";
+  if (phase === "failed") return "failed";
+  if (phase === "uncertain") return "uncertain";
+  return RUNNING_PHASES.has(phase) ? "running" : "running";
+}
+
+export function formatRunInGamePhaseLabel(phase: RunInGamePhase): string {
+  switch (phase) {
+    case "idle":
+      return "Run in Game";
+    case "materializing":
+      return "Materializing";
+    case "deploying":
+      return "Deploying";
+    case "checking-civ7":
+      return "Checking Civ7";
+    case "reload-needed":
+      return "Reload Needed";
+    case "preparing-setup":
+      return "Preparing Setup";
+    case "starting-game":
+      return "Starting Game";
+    case "waiting-for-proof":
+      return "Waiting for Proof";
+    case "complete":
+      return "Complete";
+    case "blocked":
+      return "Blocked";
+    case "failed":
+      return "Failed";
+    case "uncertain":
+      return "Uncertain";
+  }
+}
+
+export function runInGameCanRetryStatus(status?: RunInGameOperationStatus | null): boolean {
+  if (!status) return false;
+  return status.status === "running" || status.status === "blocked" || status.status === "failed" || status.status === "uncertain";
+}
+
+export function formatRunInGameDiagnostics(status: RunInGameOperationStatus): string {
+  return stableStringify({
+    requestId: status.requestId,
+    phase: status.phase,
+    status: status.status,
+    startedAt: status.startedAt,
+    updatedAt: status.updatedAt,
+    completedPhases: status.completedPhases,
+    materialization: status.materialization,
+    error: status.error,
+    details: status.details,
+  });
+}
+
+function stableStringify(value: unknown): string {
+  return JSON.stringify(canonicalize(value), null, 2);
+}
+
+function canonicalize(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const key of Object.keys(value as Record<string, unknown>).sort()) {
+      out[key] = canonicalize((value as Record<string, unknown>)[key]);
+    }
+    return out;
+  }
+  return value;
+}

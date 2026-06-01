@@ -8,6 +8,7 @@ import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import {
   CIV7_RESTART_COMMAND,
+  Civ7DirectControlError,
   DEFAULT_CIV7_SCRIPTING_LOG,
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
   createCiv7ControlRequestId,
@@ -33,8 +34,52 @@ const DEPLOY_TIMEOUT_MS = 120_000;
 const SCRIPTING_LOG_WAIT_TIMEOUT_MS = 90_000;
 const MAX_DEPLOY_OUTPUT_CHARS = 8_000;
 const DIRECT_CONTROL_AGENT = "DRA-map-config-generation";
+const RUN_IN_GAME_OPERATION_TTL_MS = 30 * 60_000;
+const STUDIO_SERVER_STARTED_AT = new Date().toISOString();
+const STUDIO_SERVER_INSTANCE_ID = createCiv7ControlRequestId("studio-server");
 
 let saveDeployRestartQueue = Promise.resolve();
+
+type RunInGamePhase =
+  | "idle"
+  | "materializing"
+  | "deploying"
+  | "checking-civ7"
+  | "reload-needed"
+  | "preparing-setup"
+  | "starting-game"
+  | "waiting-for-proof"
+  | "complete"
+  | "blocked"
+  | "failed"
+  | "uncertain";
+
+type RunInGameStatusKind = "idle" | "running" | "complete" | "blocked" | "failed" | "uncertain";
+
+type RunInGameOperationState = {
+  ok: boolean;
+  requestId: string;
+  phase: RunInGamePhase;
+  status: RunInGameStatusKind;
+  startedAt: string;
+  updatedAt: string;
+  serverInstanceId: string;
+  serverStartedAt: string;
+  completedPhases: RunInGamePhase[];
+  materialization?: {
+    mode?: string;
+    path?: string;
+    mapScript?: string;
+    configHash?: string;
+    envelopeHash?: string;
+  };
+  error?: string;
+  details?: Record<string, unknown>;
+  result?: unknown;
+  recoveryActions: string[];
+};
+
+const runInGameOperations = new Map<string, RunInGameOperationState>();
 
 function tail(value: string): string {
   return value.length > MAX_DEPLOY_OUTPUT_CHARS ? value.slice(-MAX_DEPLOY_OUTPUT_CHARS) : value;
@@ -297,6 +342,170 @@ function writeJson(res: { statusCode: number; setHeader(name: string, value: str
   res.end(JSON.stringify(body));
 }
 
+function nowIso(): string {
+  return new Date().toISOString();
+}
+
+function statusForPhase(phase: RunInGamePhase): RunInGameStatusKind {
+  if (phase === "idle") return "idle";
+  if (phase === "complete") return "complete";
+  if (phase === "blocked") return "blocked";
+  if (phase === "failed") return "failed";
+  if (phase === "uncertain") return "uncertain";
+  return "running";
+}
+
+function recoveryActionsFor(state: Pick<RunInGameOperationState, "phase" | "status" | "details">): string[] {
+  const actions = ["copy-diagnostics"];
+  if (state.status === "running" || state.status === "blocked" || state.status === "failed" || state.status === "uncertain") {
+    actions.push("retry-status");
+  }
+  if (state.status === "failed" || state.status === "blocked" || state.status === "uncertain") {
+    actions.push("retry-run");
+  }
+  if (state.details?.reloadRequired === true || state.phase === "reload-needed") {
+    actions.push("exit-to-shell-and-continue");
+  }
+  return [...new Set(actions)];
+}
+
+function pruneRunInGameOperations(): void {
+  const cutoff = Date.now() - RUN_IN_GAME_OPERATION_TTL_MS;
+  for (const [requestId, state] of runInGameOperations) {
+    if (Date.parse(state.updatedAt) < cutoff) runInGameOperations.delete(requestId);
+  }
+}
+
+function createRunInGameOperation(requestId: string): RunInGameOperationState {
+  pruneRunInGameOperations();
+  const startedAt = nowIso();
+  const state: RunInGameOperationState = {
+    ok: true,
+    requestId,
+    phase: "materializing",
+    status: "running",
+    startedAt,
+    updatedAt: startedAt,
+    serverInstanceId: STUDIO_SERVER_INSTANCE_ID,
+    serverStartedAt: STUDIO_SERVER_STARTED_AT,
+    completedPhases: [],
+    recoveryActions: ["copy-diagnostics", "retry-status"],
+  };
+  runInGameOperations.set(requestId, state);
+  return state;
+}
+
+function updateRunInGameOperation(
+  requestId: string,
+  patch: Partial<Omit<RunInGameOperationState, "requestId" | "startedAt" | "serverInstanceId" | "serverStartedAt">>,
+): RunInGameOperationState {
+  const current = runInGameOperations.get(requestId);
+  if (!current) throw new Error(`Unknown Run in Game request id: ${requestId}`);
+  const phase = patch.phase ?? current.phase;
+  const completedPhases = [...current.completedPhases];
+  if (phase !== current.phase && current.status === "running" && !completedPhases.includes(current.phase)) {
+    completedPhases.push(current.phase);
+  }
+  const status = patch.status ?? statusForPhase(phase);
+  const next: RunInGameOperationState = {
+    ...current,
+    ...patch,
+    phase,
+    status,
+    completedPhases: patch.completedPhases ? [...patch.completedPhases] : completedPhases,
+    updatedAt: nowIso(),
+    recoveryActions: patch.recoveryActions ?? recoveryActionsFor({
+      phase,
+      status,
+      details: patch.details ?? current.details,
+    }),
+  };
+  runInGameOperations.set(requestId, next);
+  return next;
+}
+
+function completeRunInGameOperation(
+  requestId: string,
+  result: unknown,
+  materialization?: RunInGameOperationState["materialization"],
+): RunInGameOperationState {
+  return updateRunInGameOperation(requestId, {
+    ok: true,
+    phase: "complete",
+    status: "complete",
+    result,
+    materialization,
+    recoveryActions: ["copy-diagnostics"],
+  });
+}
+
+function failRunInGameOperation(
+  requestId: string,
+  phase: RunInGamePhase,
+  err: unknown,
+  materialization?: RunInGameOperationState["materialization"],
+): RunInGameOperationState {
+  const current = runInGameOperations.get(requestId);
+  const details = runInGameFailureDetails(err, phase, current, materialization);
+  const status = details.failureClass === "blocked"
+    ? "blocked"
+    : details.failureClass === "uncertain"
+      ? "uncertain"
+      : "failed";
+  return updateRunInGameOperation(requestId, {
+    ok: false,
+    phase: status,
+    status,
+    error: err instanceof Error ? err.message : String(err),
+    details,
+    materialization,
+  });
+}
+
+function runInGameFailureDetails(
+  err: unknown,
+  phase: RunInGamePhase,
+  state?: RunInGameOperationState,
+  materialization?: RunInGameOperationState["materialization"],
+): Record<string, unknown> {
+  const directControlCode = err instanceof Civ7DirectControlError ? err.code : undefined;
+  const httpDetails = err instanceof RunInGameHttpError && isRecord(err.details)
+    ? err.details
+    : {};
+  const failureClass = classifyRunInGameFailure(err, phase);
+  return {
+    ...httpDetails,
+    failureClass,
+    phase,
+    completedPhases: state?.completedPhases ?? [],
+    materialization: materialization ?? httpDetails.materialization,
+    directControlCode,
+    code: directControlCode ?? httpDetails.code,
+    cause: err instanceof Civ7DirectControlError ? cloneForJson(err.details) : undefined,
+  };
+}
+
+function classifyRunInGameFailure(err: unknown, phase: RunInGamePhase): "blocked" | "failed" | "uncertain" {
+  if (err instanceof RunInGameHttpError && err.statusCode === 409) return "blocked";
+  const code = err instanceof Civ7DirectControlError ? err.code : undefined;
+  if (
+    (phase === "starting-game" || phase === "waiting-for-proof") &&
+    (code === "response-timeout" || code === "socket-closed" || code === "connection-timeout" || code === "all-hosts-unavailable")
+  ) {
+    return "uncertain";
+  }
+  return "failed";
+}
+
+function cloneForJson(value: unknown): unknown {
+  if (value === undefined) return undefined;
+  return JSON.parse(JSON.stringify(value));
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
 async function restoreRepoConfig(target: string, previous: string | null): Promise<void> {
   if (previous === null) {
     await rm(target, { force: true });
@@ -364,10 +573,12 @@ export default defineConfig(({ command }) => ({
               getCiv7MapSummary({ timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS, includeAreaRegionCounts: false }),
               getCiv7AutoplayStatus({ timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS }),
             ]);
+            const playableStatus = status.status === "fulfilled" ? status.value : undefined;
             writeJson(res, 200, {
-              ok: status.status === "fulfilled" && status.value.playable,
+              ok: Boolean(playableStatus && playableStatus.readiness !== "unavailable"),
+              playable: playableStatus?.playable ?? false,
               observedAt: new Date().toISOString(),
-              status: status.status === "fulfilled" ? status.value : { error: String(status.reason) },
+              status: playableStatus ?? { error: String(status.reason) },
               appUi: appUi.status === "fulfilled" ? appUi.value : { error: String(appUi.reason) },
               mapSummary: mapSummary.status === "fulfilled" ? mapSummary.value : { error: String(mapSummary.reason) },
               autoplay: autoplay.status === "fulfilled" ? autoplay.value : { error: String(autoplay.reason) },
@@ -444,6 +655,37 @@ export default defineConfig(({ command }) => ({
             writeJson(res, 400, { ok: false, error });
           }
         });
+        server.middlewares.use("/api/studio/server-info", async (req, res, next) => {
+          if (req.method !== "GET") return next();
+          writeJson(res, 200, {
+            ok: true,
+            serverInstanceId: STUDIO_SERVER_INSTANCE_ID,
+            startedAt: STUDIO_SERVER_STARTED_AT,
+            runInGameApiVersion: 2,
+            viteCommand: command,
+          });
+        });
+        server.middlewares.use("/api/civ7/run-in-game/status", async (req, res, next) => {
+          if (req.method !== "GET") return next();
+          const url = new URL(req.url ?? "", "http://localhost");
+          const requestId = url.searchParams.get("requestId");
+          if (!requestId) {
+            writeJson(res, 400, { ok: false, error: "Missing requestId" });
+            return;
+          }
+          pruneRunInGameOperations();
+          const status = runInGameOperations.get(requestId);
+          if (!status) {
+            writeJson(res, 404, {
+              ok: false,
+              error: `Run in Game request not found: ${requestId}`,
+              serverInstanceId: STUDIO_SERVER_INSTANCE_ID,
+              serverStartedAt: STUDIO_SERVER_STARTED_AT,
+            });
+            return;
+          }
+          writeJson(res, 200, status);
+        });
         server.middlewares.use("/api/civ7/run-in-game", async (req, res, next) => {
           if (req.method !== "POST") return next();
           try {
@@ -505,29 +747,52 @@ export default defineConfig(({ command }) => ({
               configHash,
             });
             const requestId = createCiv7ControlRequestId("studio-run-in-game");
+            const operation = createRunInGameOperation(requestId);
             const run = async () => {
-              const materialized = await materializeRunInGameConfig({
-                repoRoot,
-                id,
-                sourcePath: requestedMode === "durable" && typeof selected.sourcePath === "string" ? selected.sourcePath : undefined,
-                envelope,
+              let materialized: Awaited<ReturnType<typeof materializeRunInGameConfig>> | undefined;
+              let materialization: RunInGameOperationState["materialization"] = {
                 mode: requestedMode,
-              });
-              const scriptingLogPath = process.env.CIV7_SCRIPTING_LOG ?? DEFAULT_CIV7_SCRIPTING_LOG;
-              const scriptingSnapshot = await snapshotFile(scriptingLogPath);
-              let deploy;
+                configHash,
+                envelopeHash,
+              };
+              let phase: RunInGamePhase = "materializing";
               try {
+                updateRunInGameOperation(requestId, { phase });
+                materialized = await materializeRunInGameConfig({
+                  repoRoot,
+                  id,
+                  sourcePath: requestedMode === "durable" && typeof selected.sourcePath === "string" ? selected.sourcePath : undefined,
+                  envelope,
+                  mode: requestedMode,
+                });
+                materialization = {
+                  mode: requestedMode,
+                  path: materialized.path,
+                  mapScript: materialized.mapScript,
+                  configHash,
+                  envelopeHash,
+                };
+                updateRunInGameOperation(requestId, { materialization });
+
+                const scriptingLogPath = process.env.CIV7_SCRIPTING_LOG ?? DEFAULT_CIV7_SCRIPTING_LOG;
+                const scriptingSnapshot = await snapshotFile(scriptingLogPath);
+
+                phase = "deploying";
+                updateRunInGameOperation(requestId, { phase, materialization });
+                let deploy;
                 deploy = await deploySwooperMapsForRun(repoRoot, requestId);
-              } catch (err) {
-                await materialized.cleanup();
-                throw err;
-              }
-              let rowProof;
-              let rowVisibility;
-              let start;
-              let logProof: ScriptingLogProof | undefined;
-              try {
-                rowVisibility = await ensureCiv7SetupMapRowVisible(
+
+                phase = "checking-civ7";
+                updateRunInGameOperation(requestId, { phase, materialization });
+                await getCiv7PlayableStatus({ timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS }).catch((err) => {
+                  throw new RunInGameHttpError(503, "Civ7 direct-control status is unavailable", {
+                    code: "direct-control-status-unavailable",
+                    cause: cloneForJson(err instanceof Civ7DirectControlError ? err.details : err),
+                    materialization,
+                  });
+                });
+
+                const rowVisibility = await ensureCiv7SetupMapRowVisible(
                   {
                     file: materialized.mapScript,
                     limit: 20,
@@ -538,7 +803,11 @@ export default defineConfig(({ command }) => ({
                   { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS },
                   { approved: true, reason: "Studio Run in Game setup row reload", disposableSession: true },
                 );
-                rowProof = rowVisibility.final;
+                if (rowVisibility.refreshed) {
+                  phase = "reload-needed";
+                  updateRunInGameOperation(requestId, { phase, materialization });
+                }
+                const rowProof = rowVisibility.final;
                 if (rowProof.rows.length === 0) {
                   throw new RunInGameHttpError(409, `Civ7 setup cannot see ${materialized.mapScript}`, {
                     code: "setup-map-row-not-visible",
@@ -552,7 +821,13 @@ export default defineConfig(({ command }) => ({
                     },
                   });
                 }
-                start = await runCiv7SinglePlayerFromSetup(
+
+                phase = "preparing-setup";
+                updateRunInGameOperation(requestId, { phase, materialization });
+
+                phase = "starting-game";
+                updateRunInGameOperation(requestId, { phase, materialization });
+                const start = await runCiv7SinglePlayerFromSetup(
                   {
                     mapScript: materialized.mapScript,
                     mapSize,
@@ -565,43 +840,43 @@ export default defineConfig(({ command }) => ({
                   { timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS },
                   { approved: true, reason: "Studio Run in Game", disposableSession: true },
                 );
-                logProof = await waitForFreshLogMarkers({
+
+                phase = "waiting-for-proof";
+                updateRunInGameOperation(requestId, { phase, materialization });
+                const logProof = await waitForFreshLogMarkers({
                   logPath: scriptingLogPath,
                   snapshot: scriptingSnapshot,
                   markers: ["[mapgen-proof]", requestId, configHash, envelopeHash],
                   timeoutMs: SCRIPTING_LOG_WAIT_TIMEOUT_MS,
                   rejectPattern: /\b(?:TextEncoder|Uncaught|Exception|Error)\b/i,
                 });
+
+                completeRunInGameOperation(requestId, {
+                  ok: true,
+                  requestId,
+                  materialization,
+                  deploy,
+                  rowProof,
+                  rowVisibility,
+                  start,
+                  logProof,
+                }, materialization);
+              } catch (err) {
+                failRunInGameOperation(requestId, phase, err, materialization);
               } finally {
                 try {
-                  await materialized.cleanup();
+                  await materialized?.cleanup();
                 } finally {
                   await regenerateSwooperMapArtifacts(repoRoot);
                 }
               }
-              writeJson(res, 200, {
-                ok: true,
-                requestId,
-                materialization: {
-                  mode: requestedMode,
-                  path: materialized.path,
-                  mapScript: materialized.mapScript,
-                  configHash,
-                  envelopeHash,
-                },
-                deploy,
-                rowProof,
-                rowVisibility,
-                start,
-                logProof,
-              });
             };
             const nextRun = saveDeployRestartQueue.then(run, run);
             saveDeployRestartQueue = nextRun.then(
               () => undefined,
               () => undefined
             );
-            await nextRun;
+            writeJson(res, 202, operation);
           } catch (err) {
             const error = err instanceof Error ? err.message : "Run in Game failed";
             const statusCode = err instanceof RunInGameHttpError ? err.statusCode : 500;
@@ -697,5 +972,14 @@ export default defineConfig(({ command }) => ({
   },
   server: {
     port: 5173,
+    strictPort: true,
+    watch: {
+      ignored: [
+        "**/mods/mod-swooper-maps/dist/**",
+        "**/mods/mod-swooper-maps/mod/**",
+        "**/mods/mod-swooper-maps/src/maps/generated/**",
+        "**/mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
+      ],
+    },
   },
 }));
