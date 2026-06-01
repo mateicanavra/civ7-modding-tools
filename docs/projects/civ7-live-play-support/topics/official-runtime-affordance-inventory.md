@@ -19,7 +19,7 @@ the current tuner state.
 | Candidate | Official anchor | Helps | Proposed surface | Confidence | Risk |
 |---|---|---|---|---|---|
 | Right-click combat/move resolver | `.civ7/outputs/resources/Base/modules/base-standard/ui/world-input/world-input.js:419` | distinguish attack, swap, overrun, and move targets | keep `unit-target` aligned with official order, including `Game.Combat.testAttackInto` and war preflight | high | war confirmation is UI-mediated |
-| Attack target plots from validators | `.civ7/outputs/resources/Base/modules/base-standard/ui/interface-modes/interface-mode-focused-attack-base.chunk.js:12`; `interface-mode-ranged-attack.js:37`; `interface-mode-naval-attack.js:36` | enumerate valid focused/ranged/naval/air targets | `game play unit-action-plots --unit-id ...` | high | low; validate serialization and plot membership |
+| Attack target plots from validators | `.civ7/outputs/resources/Base/modules/base-standard/ui/interface-modes/interface-mode-focused-attack-base.chunk.js:12`; `interface-mode-ranged-attack.js:37`; `interface-mode-naval-attack.js:36` | enumerate valid focused/ranged/naval/air targets before probing plots one by one | `game play unit targets --unit-id ...` or compatibility `game play unit-action-plots --unit-id ...` | high | low; validate serialization and plot membership |
 | Tactical movement overlay | `.civ7/outputs/resources/Base/modules/base-standard/ui/interface-modes/support-unit-map-decoration.chunk.js:119` | reachable movement, ZOC, targets, path preview | `game play unit-move-preview` or `tactical-lens --unit-id` | high | payload size and state availability |
 | Commander radius overlay | `.civ7/outputs/resources/Base/modules/base-standard/ui/interface-modes/support-unit-map-decoration.chunk.js:154` | formation safety and commander support | add command-radius plots to formation/tactical lenses | high | radius semantics need live smoke |
 | Army grouping modes | `.civ7/outputs/resources/Base/modules/base-standard/ui/interface-modes/interface-mode-add-to-army.js:36`; `interface-mode-remove-from-army.js:36`; `interface-mode-reinforce-army.js:36`; `interface-mode-commander-attack.js:36` | army add/remove/reinforce/commander actions | `game play army-action` wrappers over unit commands/operations | high | mutating commands need approval and postconditions |
@@ -56,13 +56,18 @@ the current tuner state.
 | Discovery POIs | `.civ7/outputs/resources/Base/modules/base-standard/ui/lenses/layer/discovery-layer.js:54` | discoverables and map POIs without broad scans | `game play discoveries --bounds ... --json` | high | revealed/wilderness/rural and `Constructible.Discovery` limited |
 | Lens/minimap orchestration | `.civ7/outputs/resources/Base/modules/core/ui/lenses/lens-manager.chunk.js:67`; `.civ7/outputs/resources/Base/modules/base-standard/ui/mini-map/panel-mini-map.js:730` | compose official map overlays | App UI lens activate/toggle-layer experiments | high | visual side effects; no separate strategic-view API found |
 
-## Known Gap: City And Economy
+## City, Economy, Trade, And Diplomacy Affordances
 
-Two background city/economy passes exhausted their budgets before producing a
-candidate table. Do not treat that lane as investigated. The next targeted
-search should focus on official UI functions for production picker population,
-constructible placement validation, population/worker assignment, town focus,
-yield summaries, settlement scoring, and map overlay activation.
+| Candidate | Official anchor | Helps | Proposed surface | Confidence | Risk |
+|---|---|---|---|---|---|
+| Production chooser summaries | `production-chooser-helpers.chunk.js`; `panel-production-chooser.js`; `building-placement-manager.js` | replace raw GameInfo row joins when choosing builds | `game play city production preview --city ...`; existing `build-production` remains send path | high | chooser models may be UI-stateful; validate item args before send |
+| Production validation query | `Game.CityOperations.canStartQuery(... BUILD, CityQueryType.Constructible|Unit)`; `Game.CityCommands.canStartQuery(... PURCHASE, ...)` | expose legal items, placement errors, and costs | `game play city production check` | high | placement-sensitive constructibles need `X`/`Y` |
+| Trade route projection | `trade-routes-model.js`; `trade-route-chooser.js`; `lenses/layer/trade-layer.js`; `Players.get(local).Trade.projectPossibleTradeRoutes()` | stop moving Merchants blindly | `game play trade routes`; `game play trade preview route` | high App UI | model can be async/null; route safety still needs tactical lens |
+| Settlement recommendations | `lenses/layer/settlement-recommendations-layer.js`; `lenses/lens/settler-lens.js`; `player.AI.getBestSettleLocationsForSettler(...)` | replace manual plot/yield/distance scans | existing `settlement-recommendations`; future `game play settle preview` | high | recommendation quality is advisory |
+| City growth and expansion | `place-population/model-place-population.js`; `plot-workers-manager.js`; `worker-yields-layer.js`; `city-growth-improvements-layer.js` | distinguish worker assignment from expansion purchase | `game play city growth`; existing `assign-worker` / `expand-city` | high | current population blocker decides exact branch |
+| Resource allocation | `resource-allocation/model-resource-allocation.chunk.js`; `resource-layer.js`; `PlayerOperationTypes.ASSIGN_RESOURCE` | replace manual resource origin/network checks | `game play resources`; future `resources assign` | medium-high | assignment postcondition not yet proved |
+| Diplomacy action and relationship views | `panel-player-diplomacy.js`; `panel-other-diplomacy.js`; `diplomacy-hub/panel-diplomacy-hub.js`; `DiplomacyManager.populateDiplomacyActions()` | separate real responses from reports and inspect available diplomatic actions | `game play diplomacy actions --target ...`; existing response commands remain send paths | high for reads | peace/deal sessions may need separate UI state |
+| Map lens overlays | existing `game map`, `game visibility`; resource/trade/settler lens layers | group map facts by official lens concepts | `game play map overlay --lens trade|settler|resources --bounds ...` | medium-high | hidden-info policy must be explicit |
 
 ## Design Rule
 

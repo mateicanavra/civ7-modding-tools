@@ -44,14 +44,19 @@ For future skill conversion, load source material in this order:
    thread state is possible.
 5. `topics/notification-decision-hud.md` and `topics/end-turn-blockers.md` for
    the turn-blocker control loop.
-6. The domain reference matching the blocker family: progression, production,
+6. `topics/command-surface-design.md` when promoting CLI ergonomics,
+   command-alias guidance, or topic/subcommand migration plans.
+7. The domain reference matching the blocker family: progression, production,
    diplomacy, unit targeting, or informational closeout.
-7. Evidence packs only when the source reference needs provenance detail.
-8. Strategy context last, and only as advisory decision support.
+8. Evidence packs only when the source reference needs provenance detail.
+9. Strategy context last, and only as advisory decision support.
 
 Do not import `workstream-record.md` into a reusable skill except as historical
 context during authoring. It contains thread ids, branch state, and next-packet
 workflow that are useful for handoff but misleading inside a general play skill.
+Likewise, use `agent-thread-ledger.md` only to manage active and completed
+research lanes during this project; do not promote thread lifecycle state into a
+general Civ7 play skill.
 
 ## Proof Classes
 

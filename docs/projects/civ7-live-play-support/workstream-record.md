@@ -114,6 +114,7 @@ Outputs:
   - `game local-data inspect`
 - Evidence packs and topic/reference artifacts:
   - `SKILL-ASSET-ASSEMBLY.md`
+  - `agent-thread-ledger.md`
   - `topics/end-turn-blockers.md`
   - `topics/early-game-decision-context.md`
   - `topics/unit-target-actions.md`
@@ -126,6 +127,7 @@ Outputs:
   - `topics/progression-tree-targets.md`
   - `topics/celebration-choice.md`
   - `topics/runtime-state-sources.md`
+  - `topics/command-surface-design.md`
   - `topics/settlement-recommendations.md`
   - `topics/strategic-planning-snapshot.md`
   - `topics/target-candidates.md`

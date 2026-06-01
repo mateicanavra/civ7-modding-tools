@@ -21,7 +21,7 @@ The official UI uses runtime movement preview APIs:
 - `Units.getReachableZonesOfControl(unitId, true)` for zone-of-control overlay.
 - `Units.getReachableTargets(unitId)` for target overlay.
 - `Units.getPathTo(unitId, destination)` for hover path preview, including
-  `plots` and `turns`.
+  `plots`, `turns`, and `obstacles` based on official UI usage.
 - `Units.getQueuedOperationDestination(unitId)` for existing queued movement.
 
 The official right-click action order remains the target-action baseline:
@@ -81,6 +81,17 @@ bun packages/cli/bin/run.js game play unit-move-preview \
 ```
 
 Defaults should select the current head-selected unit, then first ready unit.
+The command-surface design may later expose the same lens as:
+
+```bash
+bun packages/cli/bin/run.js game play unit preview move \
+  --unit unit:next \
+  --to 30,24 \
+  --json
+```
+
+Keep the current flat command compatible until aliases and tests prove the
+nested grammar.
 
 ## Response Contract
 
@@ -93,6 +104,8 @@ The useful response shape is:
 - reachable target plots;
 - queued destination, if any;
 - per-destination path preview when requested;
+- normalized path shape: `plots`, per-step locations, `turns`, `obstacles`,
+  and final ETA when available;
 - per-destination target/action candidates when requested;
 - confidence label: `runtime-preview` when backed by official preview APIs,
   `fallback-validator` when derived from bounded validator scans.

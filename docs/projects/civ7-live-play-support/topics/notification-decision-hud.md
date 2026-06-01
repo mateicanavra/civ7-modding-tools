@@ -30,6 +30,14 @@ as notification id, type name, target, location, dismissal state, and message.
 an ordered bulk read and guarded action schedule rather than a raw notification
 dump.
 
+For future evented support, prefer an Effect-backed stream/latest-view layer
+over a hand-rolled event bus. Civ7's UI scripts expose in-process notification
+events such as `NotificationAdded`, `NotificationDismissed`, and
+`NotificationActivated`, but the tuner boundary is still request/response until
+direct-control proves a durable subscription surface. The near-term design is a
+bulk snapshot plus conservative scheduling; a stream is an optimization only if
+it can replay into the same materialized HUD and invalidate after mutations.
+
 ## What The HUD Should Materialize
 
 The HUD should be a current decision surface, not a static data browser. Each
