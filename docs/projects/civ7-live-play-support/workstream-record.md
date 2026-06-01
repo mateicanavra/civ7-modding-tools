@@ -431,6 +431,11 @@ Residual objective gaps:
   and possible telemetry-only JS bridge. It folds in play-style heuristics,
   official AI schema/resource levers, and RHQ's Workshop/changelog claims as a
   baseline for static AI manipulation over autoplay.
+- A unit-command topic and two thin CLI wrappers now capture live-exercised
+  `RESETTLE` and `UPGRADE` shapes. `resettle-unit` sends
+  `unit-command UNITCOMMAND_RESETTLE { X, Y }`; `upgrade-unit` sends
+  `unit-command UNITCOMMAND_UPGRADE {}`. The wrappers prevent family/args
+  mistakes, but richer postcondition polling remains open.
 - Remaining gaps are promotion/hardening work: richer ready-entity reads,
   stronger live postcondition polling, civic choice proof, acquire-tile
   candidate cataloging, and eventual promotion into canonical docs/skills.

@@ -21,12 +21,14 @@ import GamePlayNotifications from '../../src/commands/game/play/notifications';
 import GamePlayReadyCity from '../../src/commands/game/play/ready-city';
 import GamePlayReadyUnit from '../../src/commands/game/play/ready-unit';
 import GamePlayRehydrate from '../../src/commands/game/play/rehydrate';
+import GamePlayResettleUnit from '../../src/commands/game/play/resettle-unit';
 import GamePlayRespondDiplomacy from '../../src/commands/game/play/respond-diplomacy';
 import GamePlayRespondFirstMeet from '../../src/commands/game/play/respond-first-meet';
 import GamePlaySetCultureTarget from '../../src/commands/game/play/set-culture-target';
 import GamePlaySetTechTarget from '../../src/commands/game/play/set-tech-target';
 import GamePlaySetTownFocus from '../../src/commands/game/play/set-town-focus';
 import GamePlayUnitTarget from '../../src/commands/game/play/unit-target';
+import GamePlayUpgradeUnit from '../../src/commands/game/play/upgrade-unit';
 
 describe('game play commands', () => {
   test('checks end-turn status without sending turn complete', async () => {
@@ -184,6 +186,58 @@ describe('game play commands', () => {
       expect(server.received.some((message) => message.includes('VIEWED_ADVISOR_WARNING'))).toBe(true);
       expect(server.received.some((message) => message.includes('"Target":{"owner":0,"id":12345,"type":99}'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(true);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test('wraps population resettle as a unit command with target coordinates', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      await GamePlayResettleUnit.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--unit-id',
+        '{"owner":0,"id":1703951,"type":26}',
+        '--x',
+        '17',
+        '--y',
+        '25',
+        '--json',
+      ]);
+
+      expect(server.received.some((message) => message.includes('validateOperation("unit-command"'))).toBe(true);
+      expect(server.received.some((message) => message.includes('UNITCOMMAND_RESETTLE'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"X":17'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"Y":25'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test('wraps unit upgrade as an approved unit command', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      await GamePlayUpgradeUnit.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--unit-id',
+        '{"owner":0,"id":1769488,"type":26}',
+        '--send',
+        '--reason',
+        'test approved unit upgrade',
+        '--json',
+      ]);
+
+      expect(server.received.some((message) => message.includes('UNITCOMMAND_UPGRADE'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation("unit-command"'))).toBe(true);
     } finally {
       await server.close();
     }
@@ -1440,7 +1494,9 @@ function turnCompletionStatus(sent: boolean, canEndTurnBefore = true) {
 }
 
 function operationValidation(message: string) {
-  const family = message.includes('validateOperation("city-command"') || message.includes('sendOperation("city-command"')
+  const family = message.includes('validateOperation("unit-command"') || message.includes('sendOperation("unit-command"')
+    ? 'unit-command'
+    : message.includes('validateOperation("city-command"') || message.includes('sendOperation("city-command"')
     ? 'city-command'
     : message.includes('validateOperation("city-operation"') || message.includes('sendOperation("city-operation"')
     ? 'city-operation'
@@ -1479,9 +1535,13 @@ function operationValidation(message: string) {
                             ? 'EXPAND'
                           : message.includes('ASSIGN_WORKER')
                             ? 'ASSIGN_WORKER'
-                            : message.includes('BUILD')
-                              ? 'BUILD'
-                              : 'SKIP_TURN';
+                            : message.includes('UNITCOMMAND_RESETTLE')
+                              ? 'UNITCOMMAND_RESETTLE'
+                              : message.includes('UNITCOMMAND_UPGRADE')
+                                ? 'UNITCOMMAND_UPGRADE'
+                                : message.includes('BUILD')
+                                  ? 'BUILD'
+                                  : 'SKIP_TURN';
   return {
     host: '127.0.0.1',
     port: 0,
@@ -1525,6 +1585,8 @@ function operationArgs(operationType: string, message = '') {
   if (operationType === 'CONSIDER_TOWN_PROJECT') return {};
   if (operationType === 'EXPAND') return { X: 16, Y: 19 };
   if (operationType === 'ASSIGN_WORKER') return { Location: 2543, Amount: 1 };
+  if (operationType === 'UNITCOMMAND_RESETTLE') return { X: 17, Y: 25 };
+  if (operationType === 'UNITCOMMAND_UPGRADE') return {};
   if (operationType === 'BUILD' && message.includes('ConstructibleType')) {
     return { ConstructibleType: 713967338, X: 22, Y: 31 };
   }

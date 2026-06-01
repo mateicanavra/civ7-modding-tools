@@ -229,12 +229,15 @@ Source artifacts:
 - `topics/ready-unit-commander-actions.md`
 - `topics/unit-target-actions.md`
 - `topics/early-war-tactical-stale-state-guard.md`
+- `topics/unit-command-resettle-upgrade.md`
 - `evidence-packs/watcher-latency-observer-mode.md`
 
 CLI shortcuts:
 
 - `game play ready-unit`
 - `game play unit-target`
+- `game play resettle-unit`
+- `game play upgrade-unit`
 - `game play operation`
 
 Norms:
@@ -247,6 +250,11 @@ Norms:
   not successful; re-read before trying the same target again.
 - Commanders are support and coordination units first. Do not treat them as
   default attackers without live evidence.
+- `RESETTLE` and `UPGRADE` are `unit-command` actions, not `unit-operation`
+  actions. Use the named wrappers or `game play operation --family unit-command`.
+- Unit-command sends still need board-state postconditions: resettle should
+  change unit/settlement population state; upgrade should change unit tier/type
+  and cost state.
 
 Promotion readiness: ready as a tactical guard asset. A richer combat-dry-run
 or tactical-snapshot shortcut should be added before this becomes a full combat
@@ -375,6 +383,7 @@ runtime and local official resource references.
 | `topics/first-meet-diplomacy.md` | Diplomacy skill reference | Ready |
 | `topics/ready-unit-commander-actions.md` | Tactical guard reference | Ready as guard, not full combat planner |
 | `topics/unit-target-actions.md` | Tactical operation reference | Ready with postcondition warning |
+| `topics/unit-command-resettle-upgrade.md` | Unit command shape reference | Ready with postcondition gap |
 | `topics/early-war-tactical-stale-state-guard.md` | Tactical guard and advisory asset | Ready as guard; strategy stays advisory |
 | `topics/early-game-decision-context.md` | Strategy context asset | Advisory only |
 | `topics/multi-turn-strategy-and-ai-levers.md` | Strategy-over-turns architecture reference | Reference with gap |
@@ -414,6 +423,10 @@ and postcondition are proven:
   relationship effects before choosing a response.
 - `game play promote-unit`: read spendable promotion state and send a specific
   promotion only with live validator-backed args.
+- `game play upgrade-preview`: read upgrade target, cost, resource/territory
+  failures, and projected combat delta before `game play upgrade-unit`.
+- `game play resettle-candidates`: read owned-district target candidates and
+  settlement/population consequences before `game play resettle-unit`.
 - `game play strategic-snapshot`: compact objective/state read that includes
   live blockers, ready entities, visible threats, production/diplomacy context,
   current objective ledger, and stale-risk markers.
