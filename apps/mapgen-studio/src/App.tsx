@@ -110,7 +110,7 @@ async function saveRepoBackedConfig(args: {
     $schema: "../../../dist/recipes/standard-map-config.schema.json",
     id: args.id,
     name: args.name,
-    description: args.description ?? "",
+    description: args.description?.trim() || args.name,
     recipe: "standard",
     sortIndex: args.sortIndex,
     ...(args.latitudeBounds ? { latitudeBounds: args.latitudeBounds } : {}),
@@ -922,10 +922,51 @@ function AppContent(props: AppContentProps) {
     }
     if (result.persistenceError) {
       toast(`Scratch config updated but could not persist: ${result.persistenceError}`, { variant: "error" });
-    } else {
-      toast("Scratch config updated", { variant: "success" });
+      return;
     }
-  }, [handleSaveAsNew, pipelineConfig, presetActions, recipeSettings.preset, recipeSettings.recipe, rememberRepoBackedConfig, resolvePreset, toast]);
+
+    const label = result.preset?.label ?? resolved?.label ?? "Scratch Config";
+    const description = result.preset?.description ?? resolved?.description;
+    const baseId = toConfigId(label);
+    const id = builtInPresets.some((preset) => preset.id === baseId) ? `scratch-${baseId}` : baseId;
+    const repoResult = await saveRepoBackedConfig({
+      id,
+      name: label,
+      description,
+      sortIndex: (resolved?.sortIndex ?? 900) + 1000,
+      latitudeBounds: resolved?.latitudeBounds,
+      config: sanitized,
+    });
+    if (repoResult.ok || repoResult.saved) {
+      rememberRepoBackedConfig(
+        recipeSettings.recipe,
+        toRepoBackedPreset({
+          id,
+          label,
+          description,
+          sourcePath: repoResult.path ?? `mods/mod-swooper-maps/src/maps/configs/${id}.config.json`,
+          sortIndex: (resolved?.sortIndex ?? 900) + 1000,
+          latitudeBounds: resolved?.latitudeBounds,
+          config: sanitized,
+        })
+      );
+      setRecipeSettings((prev) => ({ ...prev, preset: `builtin:${id}` }));
+      lastAppliedPresetRef.current = { key: `builtin:${id}`, config: sanitized };
+      setPipelineConfig(sanitized as PipelineConfig);
+    }
+    if (!repoResult.ok) {
+      toast(
+        repoResult.saved && repoResult.deployed
+          ? `Config saved and deployed from ${repoResult.path ?? `${id}.config.json`} but Civ7 restart request failed: ${repoResult.error}`
+          : repoResult.saved
+            ? `Config saved to ${repoResult.path ?? `${id}.config.json`} but deploy failed: ${repoResult.error}`
+            : `Config save failed: ${repoResult.error}`,
+        { variant: "error" },
+      );
+    } else {
+      toast(`Config saved, deployed, and restart requested from ${repoResult.path ?? `${id}.config.json`}`, { variant: "success" });
+    }
+  }, [builtInPresets, handleSaveAsNew, pipelineConfig, presetActions, recipeSettings.preset, recipeSettings.recipe, rememberRepoBackedConfig, resolvePreset, toast]);
 
   const handleDeletePreset = useCallback(() => {
     const parsed = parsePresetKey(recipeSettings.preset);

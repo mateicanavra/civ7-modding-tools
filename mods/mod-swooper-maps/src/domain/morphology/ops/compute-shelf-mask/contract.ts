@@ -1,6 +1,6 @@
 import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
 
-const ShelfMaskConfigSchema = Type.Object(
+export const ShelfMaskConfigSchema = Type.Object(
   {
     nearshoreDistance: Type.Integer({
       default: 3,

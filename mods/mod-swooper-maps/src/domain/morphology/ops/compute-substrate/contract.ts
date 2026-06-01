@@ -1,6 +1,6 @@
 import { Type, TypedArraySchemas, defineOp } from "@swooper/mapgen-core/authoring";
 
-const SubstrateConfigSchema = Type.Object(
+export const SubstrateConfigSchema = Type.Object(
   {
     continentalBaseErodibility: Type.Number({
       description: "Baseline erodibility for continental crust tiles.",

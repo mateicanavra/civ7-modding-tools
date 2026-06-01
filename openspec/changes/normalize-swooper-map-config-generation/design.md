@@ -201,6 +201,34 @@ implementations are a local dev-server write API or the browser File System
 Access API. A browser-only app silently writing repo paths is not a valid
 design because the browser cannot reliably do that.
 
+### FireTuner Restart Is A CLI-Owned Operation
+
+The append-only bridge log remains the protocol boundary with Windows-side
+FireTuner automation, but repo code should not duplicate request formatting in
+each caller. The CLI owns the Mac-side operation:
+
+```text
+civ7 game restart --agent <agent> [--bridge-log <path>] [--request-id <id>] [--wait] [--json]
+```
+
+The command appends exactly one bridge request:
+
+```text
+REQ <id> AGENT=<agent> RUN Network.restartGame()
+```
+
+It resolves the bridge log from `--bridge-log`, then
+`CIV7_FIRETUNER_BRIDGE_LOG`, then the Parallels shared-folder default. The
+Windows bridge remains responsible for focusing FireTuner, submitting the
+command, and writing `ACK`, `RESULT`, or `BLOCKED`. Civ7 logs remain the proof
+boundary for actual game reload behavior.
+
+Studio's dev-server save API calls this command after a successful deploy and
+uses `--wait --json` so a successful save can distinguish "restart request was
+submitted by Windows" from "restart request was only appended." Manual agent
+work uses the same command instead of hand-writing log lines, while the
+append-only log format remains supported for emergency/manual use.
+
 ## Migration Sequence
 
 1. Add the canonical envelope schema and validation helpers.
@@ -209,9 +237,11 @@ design because the browser cannot reliably do that.
 4. Add the map registry generator and generated entry-module/tsup integration.
 5. Generate or regenerate XML/modinfo/text/Studio catalog from the registry.
 6. Rewire Studio around repo-backed configs and explicit scratch state.
-7. Delete obsolete TS wrappers, shipped `.config.ts` files, duplicate Studio
+7. Add the CLI FireTuner restart command and route Studio save/deploy/restart
+   through it.
+8. Delete obsolete TS wrappers, shipped `.config.ts` files, duplicate Studio
    preset payloads, and stale `advanced` compatibility.
-8. Promote docs/tests so future shipped maps follow the JSON-only path.
+9. Promote docs/tests so future shipped maps follow the JSON-only path.
 
 ## Risks / Trade-offs
 

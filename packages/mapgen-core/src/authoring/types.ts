@@ -151,6 +151,27 @@ export type StageCompileFn<PublicSchema extends TObject, StepId extends string, 
   config: Static<PublicSchema>;
 }) => Partial<Record<StepId, unknown>>;
 
+export type StageAuthoringConfigLayer = "semantic-public-config" | "internal-step-config";
+
+export type StageAuthoringRuntimeStep<StepId extends string = string> = Readonly<{
+  stepId: StepId;
+}>;
+
+export type StageAuthoringModel<
+  StageId extends string = string,
+  StepId extends string = string,
+> = Readonly<{
+  stageId: StageId;
+  config: Readonly<{
+    layer: StageAuthoringConfigLayer;
+    schema: TObject;
+    focusPathsByStepId: Readonly<Partial<Record<StepId, readonly string[]>>>;
+  }>;
+  runtime: Readonly<{
+    steps: readonly StageAuthoringRuntimeStep<StepId>[];
+  }>;
+}>;
+
 type StageDefBase<
   Id extends string,
   TContext extends ExtendedMapContext,
@@ -209,6 +230,7 @@ export type StageContract<
 > = StageDef<Id, TContext, KnobsSchema, Knobs, TSteps, PublicSchema> &
   Readonly<{
     surfaceSchema: TObject;
+    authoring: StageAuthoringModel<Id, NonReservedStepIdOf<TSteps>>;
     toInternal: (args: { env: unknown; stageConfig: unknown }) => StageToInternalResult<
       NonReservedStepIdOf<TSteps>,
       Knobs

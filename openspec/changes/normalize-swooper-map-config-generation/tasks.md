@@ -60,6 +60,9 @@
   with no shipped-map authority.
 - [x] 5.6 Keep export/import as optional interchange actions, not primary
   source persistence.
+- [x] 5.7 Route repo-backed save restarts through the reusable
+  `civ7 game restart` command instead of duplicating FireTuner bridge append
+  logic in Studio.
 
 ## 6. Deletion And Realignment
 
@@ -88,3 +91,5 @@
   `bun run openspec -- validate normalize-swooper-map-config-generation --strict`.
 - [x] 7.8 Run `bun run openspec:validate`.
 - [x] 7.9 Run `git diff --check`.
+- [x] 7.10 Run focused CLI restart command tests and a `--dry-run` command
+  smoke before collecting live FireTuner bridge evidence.

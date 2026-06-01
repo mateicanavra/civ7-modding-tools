@@ -175,297 +175,181 @@
       "plate-topology": {}
     },
     "morphology-coasts": {
-      "landmass-plates": {
-        "substrate": {
-          "strategy": "default",
-          "config": {
-            "continentalBaseErodibility": 0.65,
-            "oceanicBaseErodibility": 0.55,
-            "continentalBaseSediment": 0.15,
-            "oceanicBaseSediment": 0.25,
-            "upliftErodibilityBoost": 0.3,
-            "riftSedimentBoost": 0.2,
-            "ageErodibilityReduction": 0.25,
-            "ageSedimentBoost": 0.15,
-            "convergentBoundaryErodibilityBoost": 0.12,
-            "divergentBoundaryErodibilityBoost": 0.18,
-            "transformBoundaryErodibilityBoost": 0.08,
-            "convergentBoundarySedimentBoost": 0.05,
-            "divergentBoundarySedimentBoost": 0.1,
-            "transformBoundarySedimentBoost": 0.03
-          }
-        },
-        "baseTopography": {
-          "strategy": "default",
-          "config": {
-            "boundaryBias": 0.18,
-            "clusteringBias": 0.35,
-            "crustEdgeBlend": 0.35,
-            "crustNoiseAmplitude": 0.14,
-            "continentalHeight": 0.52,
-            "oceanicHeight": -0.6,
-            "tectonics": {
-              "interiorNoiseWeight": 0.45,
-              "boundaryArcWeight": 0.5,
-              "boundaryArcNoiseWeight": 0.35,
-              "fractalGrain": 5
-            }
-          }
-        },
-        "seaLevel": {
-          "strategy": "default",
-          "config": {
-            "targetWaterPercent": 48,
-            "targetScalar": 1,
-            "variance": 0,
-            "boundaryShareTarget": 0.22,
-            "continentalFraction": 0.3
-          }
-        },
-        "landmask": {
-          "strategy": "default",
-          "config": {
-            "continentPotentialGrain": 8,
-            "continentPotentialBlurSteps": 3,
-            "keepLandComponentFraction": 0.985,
-            "cratonStepsPerEra": 2,
-            "cratonNucleationScale": 0.9,
-            "cratonDiffusion": 0.25,
-            "cratonAdvection": 0.15,
-            "cratonHalfSaturation": 0.35,
-            "cratonPotentialWeight": 0.12
-          }
-        },
-        "beltDrivers": {
-          "strategy": "default",
-          "config": {}
+      "substrate": {
+        "continentalBaseErodibility": 0.65,
+        "oceanicBaseErodibility": 0.55,
+        "continentalBaseSediment": 0.15,
+        "oceanicBaseSediment": 0.25,
+        "upliftErodibilityBoost": 0.3,
+        "riftSedimentBoost": 0.2,
+        "ageErodibilityReduction": 0.25,
+        "ageSedimentBoost": 0.15,
+        "convergentBoundaryErodibilityBoost": 0.12,
+        "divergentBoundaryErodibilityBoost": 0.18,
+        "transformBoundaryErodibilityBoost": 0.08,
+        "convergentBoundarySedimentBoost": 0.05,
+        "divergentBoundarySedimentBoost": 0.1,
+        "transformBoundarySedimentBoost": 0.03
+      },
+      "relief": {
+        "boundaryBias": 0.18,
+        "clusteringBias": 0.35,
+        "crustEdgeBlend": 0.35,
+        "crustNoiseAmplitude": 0.14,
+        "continentalHeight": 0.52,
+        "oceanicHeight": -0.6,
+        "tectonics": {
+          "interiorNoiseWeight": 0.45,
+          "boundaryArcWeight": 0.5,
+          "boundaryArcNoiseWeight": 0.35,
+          "fractalGrain": 5
         }
       },
-      "rugged-coasts": {
-        "coastlines": {
-          "strategy": "default",
-          "config": {
-            "coast": {
-              "plateBias": {
-                "threshold": 0.15,
-                "power": 1.3,
-                "convergent": 3,
-                "transform": 0.2,
-                "divergent": 0.5,
-                "interior": 0.35,
-                "bayWeight": 0.75,
-                "bayNoiseBonus": 0.1,
-                "fjordWeight": 0.8
-              },
-              "bay": {
-                "noiseGateAdd": 0,
-                "rollDenActive": 4,
-                "rollDenDefault": 5
-              },
-              "fjord": {
-                "baseDenom": 12,
-                "activeBonus": 1,
-                "passiveBonus": 2
-              }
-            }
-          }
+      "waterCoverage": {
+        "targetWaterPercent": 48,
+        "targetScalar": 1,
+        "variance": 0,
+        "boundaryShareTarget": 0.22,
+        "continentalFraction": 0.3
+      },
+      "continents": {
+        "continentPotentialGrain": 8,
+        "continentPotentialBlurSteps": 3,
+        "keepLandComponentFraction": 0.985,
+        "cratonStepsPerEra": 2,
+        "cratonNucleationScale": 0.9,
+        "cratonDiffusion": 0.25,
+        "cratonAdvection": 0.15,
+        "cratonHalfSaturation": 0.35,
+        "cratonPotentialWeight": 0.12
+      },
+      "coastlineShape": {
+        "plateBias": {
+          "threshold": 0.15,
+          "power": 1.3,
+          "convergent": 3,
+          "transform": 0.2,
+          "divergent": 0.5,
+          "interior": 0.35,
+          "bayWeight": 0.75,
+          "bayNoiseBonus": 0.1,
+          "fjordWeight": 0.8
         },
-        "shelfMask": {
-          "strategy": "default",
-          "config": {
-            "nearshoreDistance": 3,
-            "shallowQuantile": 0.7,
-            "activeClosenessThreshold": 0.45,
-            "capTilesActive": 2,
-            "capTilesPassive": 4,
-            "capTilesMax": 8
-          }
+        "bay": {
+          "noiseGateAdd": 0,
+          "rollDenActive": 4,
+          "rollDenDefault": 5
+        },
+        "fjord": {
+          "baseDenom": 12,
+          "activeBonus": 1,
+          "passiveBonus": 2
         }
+      },
+      "shelf": {
+        "nearshoreDistance": 3,
+        "shallowQuantile": 0.7,
+        "activeClosenessThreshold": 0.45,
+        "capTilesActive": 2,
+        "capTilesPassive": 4,
+        "capTilesMax": 8
       }
     },
-    "morphology-routing": {
-      "routing": {
-        "routing": {
-          "strategy": "default",
-          "config": {}
-        }
-      }
-    },
+    "morphology-routing": {},
     "morphology-erosion": {
-      "geomorphology": {
+      "geomorphicCycle": {
         "geomorphology": {
-          "strategy": "default",
-          "config": {
-            "geomorphology": {
-              "fluvial": {
-                "rate": 0.08,
-                "m": 0.5,
-                "n": 1
-              },
-              "diffusion": {
-                "rate": 0.12,
-                "talus": 0.45
-              },
-              "deposition": {
-                "rate": 0.07
-              },
-              "eras": 3
-            },
-            "worldAge": "old"
-          }
-        }
+          "fluvial": {
+            "rate": 0.08,
+            "m": 0.5,
+            "n": 1
+          },
+          "diffusion": {
+            "rate": 0.12,
+            "talus": 0.45
+          },
+          "deposition": {
+            "rate": 0.07
+          },
+          "eras": 3
+        },
+        "worldAge": "old"
       }
     },
     "morphology-features": {
-      "islands": {
-        "islands": {
-          "strategy": "default",
-          "config": {
-            "islands": {
-              "fractalThresholdPercent": 96,
-              "minDistFromLandRadius": 4,
-              "baseIslandDenNearActive": 2,
-              "baseIslandDenElse": 2,
-              "hotspotSeedDenom": 6,
-              "clusterMax": 1,
-              "microcontinentChance": 0
-            }
-          }
-        }
+      "islandChains": {
+        "fractalThresholdPercent": 96,
+        "minDistFromLandRadius": 4,
+        "baseIslandDenNearActive": 2,
+        "baseIslandDenElse": 2,
+        "hotspotSeedDenom": 6,
+        "clusterMax": 1,
+        "microcontinentChance": 0
       },
-      "mountains": {
-        "ridges": {
-          "strategy": "default",
-          "config": {
-            "tectonicIntensity": 0.63,
-            "mountainThreshold": 0.64,
-            "hillThreshold": 0.36,
-            "upliftWeight": 0.2,
-            "fractalWeight": 0.9,
-            "riftDepth": 0.45,
-            "boundaryWeight": 0.38,
-            "boundaryGate": 0.14,
-            "boundaryExponent": 1.1,
-            "interiorPenaltyWeight": 0.16,
-            "convergenceBonus": 0.6,
-            "transformPenalty": 0.55,
-            "riftPenalty": 0.65,
-            "hillBoundaryWeight": 0.22,
-            "hillRiftBonus": 0.5,
-            "hillConvergentFoothill": 0.36,
-            "hillInteriorFalloff": 0.2,
-            "hillUpliftWeight": 0.2,
-            "driverSignalByteMin": 30,
-            "driverExponent": 1,
-            "mountainMaxFraction": 0.07,
-            "hillMaxFraction": 0.18,
-            "mountainSpineFraction": 0.015,
-            "mountainSpineDilationSteps": 1,
-            "oldBeltMountainScale": 0.4,
-            "oldBeltHillScale": 1.1,
-            "foothillMaxDistance": 2,
-            "orogenyCollisionStressWeight": 0.6,
-            "orogenyCollisionUpliftWeight": 0.4,
-            "orogenyTransformStressWeight": 0.4,
-            "orogenyDivergentRiftWeight": 0.55,
-            "orogenyDivergentStressWeight": 0.15,
-            "fractureBoundaryWeight": 0.7,
-            "fractureStressWeight": 0.2,
-            "fractureRiftWeight": 0.1,
-            "mountainCollisionStressWeight": 0.5,
-            "mountainCollisionUpliftWeight": 0.5,
-            "mountainSubductionUpliftWeight": 0.25,
-            "mountainInteriorUpliftScale": 0.25,
-            "mountainFractalScale": 0.3,
-            "mountainConvergenceFractalBase": 0.6,
-            "mountainConvergenceFractalSpan": 0.4,
-            "hillFoothillBase": 0.5,
-            "hillFoothillFractalGain": 0.5,
-            "hillFractalScale": 0.8,
-            "hillUpliftScale": 0.3,
-            "hillRiftBonusScale": 0.5,
-            "hillRiftDepthScale": 0.5
-          }
-        },
-        "foothills": {
-          "strategy": "default",
-          "config": {
-            "tectonicIntensity": 0.63,
-            "mountainThreshold": 0.64,
-            "hillThreshold": 0.36,
-            "upliftWeight": 0.2,
-            "fractalWeight": 0.9,
-            "riftDepth": 0.45,
-            "boundaryWeight": 0.38,
-            "boundaryGate": 0.14,
-            "boundaryExponent": 1.1,
-            "interiorPenaltyWeight": 0.16,
-            "convergenceBonus": 0.6,
-            "transformPenalty": 0.55,
-            "riftPenalty": 0.65,
-            "hillBoundaryWeight": 0.22,
-            "hillRiftBonus": 0.5,
-            "hillConvergentFoothill": 0.36,
-            "hillInteriorFalloff": 0.2,
-            "hillUpliftWeight": 0.2,
-            "driverSignalByteMin": 30,
-            "driverExponent": 1,
-            "mountainMaxFraction": 0.07,
-            "hillMaxFraction": 0.18,
-            "mountainSpineFraction": 0.015,
-            "mountainSpineDilationSteps": 1,
-            "oldBeltMountainScale": 0.4,
-            "oldBeltHillScale": 1.1,
-            "foothillMaxDistance": 2,
-            "orogenyCollisionStressWeight": 0.6,
-            "orogenyCollisionUpliftWeight": 0.4,
-            "orogenyTransformStressWeight": 0.4,
-            "orogenyDivergentRiftWeight": 0.55,
-            "orogenyDivergentStressWeight": 0.15,
-            "fractureBoundaryWeight": 0.7,
-            "fractureStressWeight": 0.2,
-            "fractureRiftWeight": 0.1,
-            "mountainCollisionStressWeight": 0.5,
-            "mountainCollisionUpliftWeight": 0.5,
-            "mountainSubductionUpliftWeight": 0.25,
-            "mountainInteriorUpliftScale": 0.25,
-            "mountainFractalScale": 0.3,
-            "mountainConvergenceFractalBase": 0.6,
-            "mountainConvergenceFractalSpan": 0.4,
-            "hillFoothillBase": 0.5,
-            "hillFoothillFractalGain": 0.5,
-            "hillFractalScale": 0.8,
-            "hillUpliftScale": 0.3,
-            "hillRiftBonusScale": 0.5,
-            "hillRiftDepthScale": 0.5
-          }
-        }
+      "mountainRanges": {
+        "tectonicIntensity": 0.63,
+        "mountainThreshold": 0.64,
+        "hillThreshold": 0.36,
+        "upliftWeight": 0.2,
+        "fractalWeight": 0.9,
+        "riftDepth": 0.45,
+        "boundaryWeight": 0.38,
+        "boundaryGate": 0.14,
+        "boundaryExponent": 1.1,
+        "interiorPenaltyWeight": 0.16,
+        "convergenceBonus": 0.6,
+        "transformPenalty": 0.55,
+        "riftPenalty": 0.65,
+        "hillBoundaryWeight": 0.22,
+        "hillRiftBonus": 0.5,
+        "hillConvergentFoothill": 0.36,
+        "hillInteriorFalloff": 0.2,
+        "hillUpliftWeight": 0.2,
+        "driverSignalByteMin": 30,
+        "driverExponent": 1,
+        "mountainMaxFraction": 0.07,
+        "hillMaxFraction": 0.18,
+        "mountainSpineFraction": 0.015,
+        "mountainSpineDilationSteps": 1,
+        "oldBeltMountainScale": 0.4,
+        "oldBeltHillScale": 1.1,
+        "foothillMaxDistance": 2,
+        "orogenyCollisionStressWeight": 0.6,
+        "orogenyCollisionUpliftWeight": 0.4,
+        "orogenyTransformStressWeight": 0.4,
+        "orogenyDivergentRiftWeight": 0.55,
+        "orogenyDivergentStressWeight": 0.15,
+        "fractureBoundaryWeight": 0.7,
+        "fractureStressWeight": 0.2,
+        "fractureRiftWeight": 0.1,
+        "mountainCollisionStressWeight": 0.5,
+        "mountainCollisionUpliftWeight": 0.5,
+        "mountainSubductionUpliftWeight": 0.25,
+        "mountainInteriorUpliftScale": 0.25,
+        "mountainFractalScale": 0.3,
+        "mountainConvergenceFractalBase": 0.6,
+        "mountainConvergenceFractalSpan": 0.4,
+        "hillFoothillBase": 0.5,
+        "hillFoothillFractalGain": 0.5,
+        "hillFractalScale": 0.8,
+        "hillUpliftScale": 0.3,
+        "hillRiftBonusScale": 0.5,
+        "hillRiftDepthScale": 0.5
       },
       "volcanoes": {
-        "volcanoes": {
-          "strategy": "default",
-          "config": {
-            "enabled": true,
-            "baseDensity": 0.006,
-            "minSpacing": 5,
-            "boundaryThreshold": 0.32,
-            "boundaryWeight": 1.4,
-            "convergentMultiplier": 2.2,
-            "transformMultiplier": 0.7,
-            "divergentMultiplier": 0.2,
-            "hotspotWeight": 0.15,
-            "shieldPenalty": 0.3,
-            "randomJitter": 0.08,
-            "minVolcanoes": 6,
-            "maxVolcanoes": 18
-          }
-        }
-      },
-      "landmasses": {
-        "landmasses": {
-          "strategy": "default",
-          "config": {}
-        }
+        "enabled": true,
+        "baseDensity": 0.006,
+        "minSpacing": 5,
+        "boundaryThreshold": 0.32,
+        "boundaryWeight": 1.4,
+        "convergentMultiplier": 2.2,
+        "transformMultiplier": 0.7,
+        "divergentMultiplier": 0.2,
+        "hotspotWeight": 0.15,
+        "shieldPenalty": 0.3,
+        "randomJitter": 0.08,
+        "minVolcanoes": 6,
+        "maxVolcanoes": 18
       }
     },
     "hydrology-climate-baseline": {

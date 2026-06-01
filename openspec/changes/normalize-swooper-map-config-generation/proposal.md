@@ -51,6 +51,9 @@ that directory.
 - Rework Studio's save model so repo-backed configs can be loaded, edited,
   saved in place, and saved as sibling config files; browser-local storage is
   either removed or clearly demoted to scratch state.
+- Provide a repo CLI command for the FireTuner restart bridge so Studio saves
+  and manual agent restarts use one request format, one AGENT attribution path,
+  and one optional wait-for-Windows-result implementation.
 - Remove duplicate built-in preset payloads and stale `advanced` compatibility
   logic that only exists for obsolete persisted config shapes.
 

@@ -1,6 +1,6 @@
 export { createStep, createStepFor, defineStep } from "./step/index.js";
 export { defineArtifact, implementArtifacts } from "./artifact/index.js";
-export { createStage } from "./stage.js";
+export { createStage, deriveStageAuthoringModel } from "./stage.js";
 export { createRecipe } from "./recipe.js";
 export { deriveRecipeConfigSchema } from "./recipe-config-schema.js";
 export { stripSchemaMetadataRoot } from "./sanitize-config-root.js";
@@ -53,6 +53,9 @@ export type {
   RecipeModule,
   Stage,
   StageModule,
+  StageAuthoringConfigLayer,
+  StageAuthoringModel,
+  StageAuthoringRuntimeStep,
   StepDeps,
   Step,
   StepModule,
