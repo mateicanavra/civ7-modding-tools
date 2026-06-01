@@ -29,6 +29,21 @@
   - passed; required so generated map imports resolve current SDK dts.
 - `bun run --cwd mods/mod-swooper-maps check`
   - passed.
+- `bun run openspec -- validate morphology-rough-land-owner --strict`
+  - passed.
+- `bun run openspec:validate`
+  - passed, `30` items.
+- `git diff --check`
+  - passed.
+
+## Review Findings
+
+- Fresh peer review found no P1 issues for this slice.
+- Accepted P2 follow-up: add owner-local tests for `morphology/plan-rough-lands`
+  core invariants instead of relying only on pipeline-level relief accounting.
+- Accepted P2 follow-up: align the `fractalRoughLand` contract wording with the
+  strategy, where it contributes to rough-land scoring and clustering rather
+  than only breaking ties.
 
 ## Downstream Non-Closure
 
