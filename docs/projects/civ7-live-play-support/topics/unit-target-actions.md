@@ -110,6 +110,18 @@ repeating the same target blindly.
 Useful interpretation:
 
 - `verified`: at least one postcondition probe changed.
+- `verification.classification == "target-reached"`: a `MOVE_TO` landed on the
+  requested target tile.
+- `verification.classification == "path-shortfall"`: a `MOVE_TO` changed unit
+  state or location, but the unit did not reach the requested target tile. Treat
+  the action as a partial move; re-read before deciding whether the remaining
+  route is still safe and useful.
+- `verification.classification == "unit-state-changed"`: the acting unit
+  changed, usually by spending attacks/movement or taking damage, but the target
+  plot unit list did not change.
+- `verification.classification == "target-state-changed"`: the target plot unit
+  list changed after the send; this can prove a kill, displacement, or target
+  occupant change.
 - `verification.unitChanged`: the acting unit changed location, movement,
   attacks, health, or another summarized field.
 - `verification.targetUnitsChanged`: the target plot unit list changed.

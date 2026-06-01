@@ -1270,13 +1270,66 @@ describe('game play commands', () => {
 
       const payload = JSON.parse(writes.join('')) as {
         ok: true;
-        result: { sent: boolean; verified: boolean; verification: { status: string; reason: string } };
+        result: { sent: boolean; verified: boolean; verification: { status: string; classification: string; reason: string } };
       };
       expect(payload.result.sent).toBe(true);
       expect(payload.result.verified).toBe(false);
       expect(payload.result.verification.status).toBe('no-state-change');
+      expect(payload.result.verification.classification).toBe('no-state-change');
       expect(payload.result.verification.reason).toMatch(/re-read before repeating/);
       expect(server.received.some((message) => message.includes('"send":true'))).toBe(true);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('classifies sent MOVE_TO short landings as path shortfalls', async () => {
+    const server = await startTunerServer({ unitTargetMode: 'path-shortfall' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayUnitTarget.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayUnitTarget.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--unit-id',
+        '{"owner":0,"id":65536,"type":26}',
+        '--x',
+        '23',
+        '--y',
+        '33',
+        '--send',
+        '--reason',
+        'test movement path shortfall',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          verified: boolean;
+          verification: {
+            status: string;
+            classification: string;
+            destinationReached: boolean;
+            requestedLocation: { x: number; y: number };
+            landedLocation: { x: number; y: number };
+            reason: string;
+          };
+        };
+      };
+      expect(payload.result.verified).toBe(true);
+      expect(payload.result.verification.status).toBe('verified');
+      expect(payload.result.verification.classification).toBe('path-shortfall');
+      expect(payload.result.verification.destinationReached).toBe(false);
+      expect(payload.result.verification.requestedLocation).toEqual({ x: 23, y: 33 });
+      expect(payload.result.verification.landedLocation).toEqual({ x: 22, y: 34 });
+      expect(payload.result.verification.reason).toMatch(/landed short/);
     } finally {
       log.mockRestore();
       await server.close();
@@ -1740,7 +1793,7 @@ describe('game play commands', () => {
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
   playNotificationMode?: 'town-focus' | 'stale-unit-command' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue';
-  unitTargetMode?: 'verified' | 'no-op-after-send';
+  unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall';
 } = {}) {
   const received: string[] = [];
   let turnCompleteSent = false;
@@ -2409,57 +2462,77 @@ function playNotificationView(
   };
 }
 
-function unitTargetAction(send: boolean, mode: 'verified' | 'no-op-after-send' = 'verified') {
+function unitTargetAction(send: boolean, mode: 'verified' | 'no-op-after-send' | 'path-shortfall' = 'verified') {
   const unitId = { owner: 0, id: 65536, type: 26 };
   const beforeUnit = { ok: true, value: { id: unitId, location: { x: 22, y: 33 }, movementMovesRemaining: 2, attacksRemaining: 1 } };
   const beforeTargetUnits = { ok: true, value: [{ owner: 62, id: 123, type: 26 }] };
   const verified = send && mode === 'verified';
-  return {
-    unitId,
-    target: { x: 23, y: 33, index: { ok: true, value: 1457 } },
-    beforeUnit,
-    beforeTargetUnits,
-    candidates: [
-      {
+  const pathShortfall = send && mode === 'path-shortfall';
+  const selected = mode === 'path-shortfall'
+    ? {
+        family: 'unit-operation',
+        operationType: 'MOVE_TO',
+        args: { X: 23, Y: 33, Modifiers: 3 },
+        valid: true,
+        result: { Success: true, Plots: [1457] },
+        targetInReturnedPlots: true,
+      }
+    : {
         family: 'unit-operation',
         operationType: 'UNITOPERATION_RANGE_ATTACK',
         args: { X: 23, Y: 33, Modifiers: 3 },
         valid: true,
         result: { Success: true, Plots: [1457] },
         targetInReturnedPlots: true,
-      },
-    ],
-    selected: {
-      family: 'unit-operation',
-      operationType: 'UNITOPERATION_RANGE_ATTACK',
-      args: { X: 23, Y: 33, Modifiers: 3 },
-      valid: true,
-      result: { Success: true, Plots: [1457] },
-      targetInReturnedPlots: true,
-    },
+      };
+  return {
+    unitId,
+    target: { x: 23, y: 33, index: { ok: true, value: 1457 } },
+    beforeUnit,
+    beforeTargetUnits,
+    candidates: [selected],
+    selected,
     sent: send,
     ...(send
       ? {
           sendResult: { accepted: true },
-          afterUnit: verified
-            ? { ok: true, value: { id: unitId, location: { x: 22, y: 33 }, movementMovesRemaining: 2, attacksRemaining: 0 } }
+          afterUnit: verified || pathShortfall
+            ? {
+                ok: true,
+                value: {
+                  id: unitId,
+                  location: pathShortfall ? { x: 22, y: 34 } : { x: 22, y: 33 },
+                  movementMovesRemaining: pathShortfall ? 0 : 2,
+                  attacksRemaining: verified ? 0 : 1,
+                },
+              }
             : beforeUnit,
           afterTargetUnits: beforeTargetUnits,
-          verified,
+          verified: verified || pathShortfall,
           verification: {
-            status: verified ? 'verified' : 'no-state-change',
-            unitChanged: verified,
+            status: verified || pathShortfall ? 'verified' : 'no-state-change',
+            classification: pathShortfall ? 'path-shortfall' : verified ? 'unit-state-changed' : 'no-state-change',
+            unitChanged: verified || pathShortfall,
             targetUnitsChanged: false,
-            reason: verified
-              ? 'unit or target-plot state changed after send'
+            destinationReached: pathShortfall ? false : null,
+            requestedLocation: { x: 23, y: 33 },
+            landedLocation: pathShortfall ? { x: 22, y: 34 } : { x: 22, y: 33 },
+            reason: pathShortfall
+              ? 'unit moved, but landed short of the requested target tile; re-read before issuing a follow-up move'
+              : verified
+                ? 'unit state changed after send'
               : 'send returned but unit and target-plot probes did not change; re-read before repeating',
           },
         }
       : {
           verification: {
             status: 'not-sent',
+            classification: 'not-sent',
             unitChanged: false,
             targetUnitsChanged: false,
+            destinationReached: null,
+            requestedLocation: { x: 23, y: 33 },
+            landedLocation: { x: 22, y: 33 },
             reason: 'read-only target resolution; use --send with an approval reason to mutate',
           },
         }),

@@ -1236,8 +1236,12 @@ export type Civ7UnitTargetActionResult = Readonly<{
   verified?: boolean;
   verification?: Readonly<{
     status: "verified" | "no-state-change" | "not-sent";
+    classification: "target-reached" | "path-shortfall" | "unit-state-changed" | "target-state-changed" | "no-state-change" | "not-sent";
     unitChanged: boolean;
     targetUnitsChanged: boolean;
+    destinationReached: boolean | null;
+    requestedLocation: Civ7MapLocation;
+    landedLocation?: Civ7MapLocation | null;
     reason: string;
   }>;
   notes: ReadonlyArray<string>;
@@ -5800,6 +5804,14 @@ function unitTargetActionSource(): string {
         : [];
       return Array.isArray(units) ? units.map((id) => toComponentId(id) ?? id) : units;
     };
+    const probeValue = (probeResult) => probeResult && probeResult.ok === true ? probeResult.value : null;
+    const locationFromUnitProbe = (probeResult) => {
+      const unit = probeValue(probeResult);
+      const location = unit?.location;
+      if (!location || typeof location.x !== "number" || typeof location.y !== "number") return null;
+      return { x: location.x, y: location.y };
+    };
+    const sameLocation = (a, b) => !!(a && b && a.x === b.x && a.y === b.y);
     const moveModifiers = () => {
       const attack = typeof UnitOperationMoveModifiers !== "undefined" ? UnitOperationMoveModifiers.ATTACK ?? 0 : 0;
       const ignore = typeof UnitOperationMoveModifiers !== "undefined" ? UnitOperationMoveModifiers.MOVE_IGNORE_UNEXPLORED_DESTINATION ?? 0 : 0;
@@ -5879,20 +5891,48 @@ function unitTargetActionSource(): string {
         out.afterTargetUnits = probe(() => targetUnitsAt(input.x, input.y));
         const unitChanged = JSON.stringify(out.beforeUnit) !== JSON.stringify(out.afterUnit);
         const targetUnitsChanged = JSON.stringify(out.beforeTargetUnits) !== JSON.stringify(out.afterTargetUnits);
+        const requestedLocation = { x: input.x, y: input.y };
+        const beforeLocation = locationFromUnitProbe(out.beforeUnit);
+        const landedLocation = locationFromUnitProbe(out.afterUnit);
+        const destinationReached = landedLocation ? sameLocation(landedLocation, requestedLocation) : null;
+        const originChanged = beforeLocation && landedLocation ? !sameLocation(beforeLocation, landedLocation) : unitChanged;
+        const classification = !unitChanged && !targetUnitsChanged
+          ? "no-state-change"
+          : selected.operationType === "MOVE_TO" && destinationReached === true
+            ? "target-reached"
+            : selected.operationType === "MOVE_TO" && originChanged && destinationReached === false
+              ? "path-shortfall"
+              : targetUnitsChanged
+                ? "target-state-changed"
+                : "unit-state-changed";
         out.verified = unitChanged || targetUnitsChanged;
         out.verification = {
           status: out.verified ? "verified" : "no-state-change",
+          classification,
           unitChanged,
           targetUnitsChanged,
+          destinationReached,
+          requestedLocation,
+          landedLocation,
           reason: out.verified
-            ? "unit or target-plot state changed after send"
+            ? classification === "target-reached"
+              ? "unit reached the requested target tile"
+              : classification === "path-shortfall"
+                ? "unit moved, but landed short of the requested target tile; re-read before issuing a follow-up move"
+                : classification === "target-state-changed"
+                  ? "target-plot unit state changed after send"
+                  : "unit state changed after send"
             : "send returned but unit and target-plot probes did not change; re-read before repeating",
         };
       } else {
         out.verification = {
           status: "not-sent",
+          classification: "not-sent",
           unitChanged: false,
           targetUnitsChanged: false,
+          destinationReached: null,
+          requestedLocation: { x: input.x, y: input.y },
+          landedLocation: locationFromUnitProbe(beforeUnit),
           reason: "read-only target resolution; use --send with an approval reason to mutate",
         };
       }
