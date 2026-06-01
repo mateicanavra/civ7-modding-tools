@@ -16,43 +16,68 @@ response tiers over kitchen-sink envelopes.
 
 Keep these surfaces distinct:
 
-- operation result: what was requested, whether it was sent, whether it was
+- `operation`: what was requested, whether it was sent, whether it was
   verified, and the postcondition summary;
-- decision HUD: what needs attention now and the smallest set of inputs needed
+- `decisionHud`: what needs attention now and the smallest set of inputs needed
   to act;
-- tactical lens: read-only planning evidence such as movement, threats,
+- `tacticalLens`: read-only planning evidence such as movement, threats,
   destinations, fronts, and targets;
-- debug envelope: host, port, raw validation output, snapshots, and full
+- `debug`: host, port, raw validation output, snapshots, and full
   serialized evidence;
-- audit ledger: ordered attempts for batches, with validation, send, and
+- `audit`: ordered attempts for batches, with validation, send, and
   postcondition evidence per entry.
 
 An operation result can link to a tactical lens, but it should not embed the
 full lens unless requested.
+
+Every response should state `hiddenInfoPolicy`. Every mutating response should
+state `replaySafe: false` unless a future implementation proves idempotency.
 
 ## Response Tiers
 
 Default responses should be summary-first:
 
 - `ok`;
+- `contractVersion`;
+- `command` and `requestId`;
 - domain object id or selection context;
-- status/classification;
+- `outcome` or classification;
 - one sentence `summary`;
-- `nextAction` or `needs` when the caller must decide;
-- compact warnings;
-- stable expansion hints.
+- `next` or `needs` when the caller must decide;
+- compact `warnings`;
+- `omitted` entries for fields that require expansion.
 
 Expansion flags should be explicit and composable:
 
-- `--detail` for the most relevant supporting fields;
-- `--include-evidence` for validator/postcondition snippets;
-- `--include-raw` for raw direct-control payloads;
-- `--include-lens <name>` when a command can attach a related tactical lens;
-- `--format compact|json|pretty` where compact is agent-facing and json stays
-  machine-readable.
+- `--fields a,b,c` for focused fields inside the default tier;
+- `--expand hud,lens,operation,audit,debug,raw` for named sections;
+- `--debug` for probes, timing, truncation, selected state, and command
+  provenance;
+- `--raw` for the current full direct-control payload.
 
 Debug output remains available, but raw host/tuner/appui envelopes should move
-behind `--include-raw` or an equivalent debug mode for new commands.
+behind `--debug` or `--raw` for new commands.
+
+## Contract Vocabulary
+
+Use stable domain names instead of generic `result`:
+
+- `summary`: compact decision payload;
+- `decisionHud`: turn, local player, readiness, blockers, counts;
+- `tacticalLens`: focused read-only planning evidence;
+- `operation`: validator/request outcome for the requested action;
+- `audit`: before/after and postcondition evidence for mutations;
+- `debug`: unstable probes and implementation details;
+- `raw`: legacy/current full payload.
+
+Use `outcome` for operation state, with values such as `valid`, `invalid`,
+`sent`, `blocked`, `failed`, or `unknown`. Preserve Civ7 operation family
+strings such as `unit-operation`, `unit-command`, `city-operation`,
+`city-command`, and `player-operation`.
+
+Collections should report limits through `omitted` entries or `{ count,
+omitted }` summaries. Structured IDs stay structured: component ids remain
+`{ owner, id, type }`, and locations remain `{ x, y }`.
 
 ## Examples
 
@@ -62,29 +87,47 @@ should default to a compact result:
 ```json
 {
   "ok": true,
+  "contractVersion": "play-agent-v0",
+  "command": "game play operation",
+  "requestId": "req-...",
   "sent": true,
   "verified": true,
-  "classification": "queue-advanced",
-  "summary": "SKIP_TURN was sent and the ready-unit queue advanced.",
-  "warnings": []
+  "outcome": "sent",
+  "summary": {
+    "classification": "queue-advanced",
+    "message": "SKIP_TURN was sent and the ready-unit queue advanced."
+  },
+  "warnings": [],
+  "omitted": [
+    { "path": "audit", "reason": "not-expanded" },
+    { "path": "raw", "reason": "not-expanded" }
+  ],
+  "hiddenInfoPolicy": "visibility-filtered",
+  "replaySafe": false
 }
 ```
 
 `game play notifications` should default to the queue and next blocker, not all
 raw notification fields. Use `--detail` for required inputs and common actions,
-and `--include-raw` for the underlying notification records.
+or the new `--expand hud,operation` vocabulary when implemented. Use `--raw` for
+the underlying notification records.
 
 `game play unit-move-preview` should default to selected unit, movement range,
-queued destination, and top warnings. Use `--include-paths`,
-`--include-post-move-actions`, and `--include-raw` for larger payloads.
+queued destination, and top warnings. Use `--expand lens` for paths and
+post-move actions, and `--raw` for implementation payloads.
 
 `game play battlefield-scan` should default to points of interest and owner
-pressure summaries. Use `--detail` for units/cities and `--include-raw` for the
+pressure summaries. Use `--expand lens` for units/cities and `--raw` for the
 full scan inventory.
 
 `game play destination-analysis` should default to route risk and destination
-pressure. Use `--detail` for corridor samples and `--include-raw` for complete
+pressure. Use `--expand lens` for corridor samples and `--raw` for complete
 plot/unit/city evidence.
+
+`game play unit-target --send` should default to the selected action and
+postcondition classification. Use `--expand operation,audit` to inspect
+validator details, before/after location, target unit changes, and the exact
+reason why a move is `target-reached`, `path-shortfall`, or `no-state-change`.
 
 ## Compatibility Plan
 
@@ -94,6 +137,15 @@ it the default only when play-agent callers have moved to expansion flags.
 
 When converting a command, keep the raw fields reachable by flag and preserve
 postcondition/audit evidence for mutating operations.
+
+Suggested migration order:
+
+1. Add envelope helpers and tests for one read lens and one mutation.
+2. Keep current payloads behind `--raw`.
+3. Add `--expand` sections without changing default JSON.
+4. Move play-agent callers to compact defaults.
+5. Flip defaults only after tests prove `summary`, `warnings`, `omitted`,
+   `hiddenInfoPolicy`, and mutation `audit` are still available.
 
 ## Design Checks
 
