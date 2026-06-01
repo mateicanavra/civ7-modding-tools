@@ -65,7 +65,7 @@ public config boundary OpenSpec work.
   pedology/biome/feature controls.
 - [x] Projection `map-*` audit for map materialization controls and misplaced
   truth-stage settings.
-- [ ] Placement cleanup slice for product-facing placement controls and internal
+- [x] Placement cleanup slice for product-facing placement controls and internal
   planner parameters.
 - [ ] Shared SDK/Studio guard-hardening slice for cross-cutting raw-envelope
   leakage checks that remain after each behavior slice has completed its own

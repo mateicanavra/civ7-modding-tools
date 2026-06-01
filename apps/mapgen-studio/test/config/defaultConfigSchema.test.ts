@@ -467,6 +467,27 @@ describe("Studio default config", () => {
     }
   });
 
+  it("exposes semantic Placement authoring keys instead of runtime step/op envelopes", () => {
+    const expected = ["knobs", "naturalWonders", "discoveries", "floodplains", "resources"];
+    const schemaProps =
+      (getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["placement"]) as {
+        properties?: Record<string, unknown>;
+      }).properties ?? {};
+    expect(Object.keys(schemaProps).sort()).toEqual([...expected].sort());
+    expect(JSON.stringify(schemaProps)).not.toContain("\"strategy\"");
+    expect(JSON.stringify(schemaProps)).not.toContain("\"config\"");
+    expect(JSON.stringify(schemaProps)).not.toContain("derive-placement-inputs");
+    expect(JSON.stringify(schemaProps)).not.toContain("candidateResourceTypes");
+    expect(JSON.stringify(schemaProps)).not.toContain("startSectors");
+
+    const config =
+      (STANDARD_RECIPE_CONFIG as Record<string, Record<string, unknown>>).placement ?? {};
+    for (const key of Object.keys(config)) {
+      expect(expected).toContain(key);
+    }
+    expect(hasRawOpEnvelope(config)).toBe(false);
+  });
+
   it("exposes documented and bounded Projection public controls to Studio", () => {
     const expected: Record<string, readonly string[]> = {
       "map-morphology": ["knobs"],
@@ -488,6 +509,21 @@ describe("Studio default config", () => {
           key,
         ])).toEqual([]);
       }
+    }
+  });
+
+  it("exposes documented and bounded Placement public controls to Studio", () => {
+    const publicKeys = ["knobs", "naturalWonders", "discoveries", "floodplains", "resources"];
+
+    expectPublicStageDescription(STANDARD_RECIPE_CONFIG_SCHEMA, "placement");
+    for (const key of publicKeys) {
+      const schema = getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["placement", key]);
+      expect(collectMissingDescriptions(schema, ["placement", key])).toEqual([]);
+      expect(collectNumericLeavesMissingRange(schema, ["placement", key])).toEqual([]);
+      expect(collectDescriptionsMatching(schema, /\b(step|op|envelope|internal|strategy)\b/i, [
+        "placement",
+        key,
+      ])).toEqual([]);
     }
   });
 
@@ -698,6 +734,27 @@ describe("Studio default config", () => {
       for (const step of stage?.steps ?? []) {
         expect(step.configFocusPathWithinStage).toEqual([]);
       }
+    }
+  });
+
+  it("keeps Placement runtime steps visible even when public config keys are semantic", () => {
+    const expectedSteps = [
+      "derive-placement-inputs",
+      "plot-landmass-regions",
+      "place-natural-wonders",
+      "prepare-placement-surface",
+      "place-resources",
+      "assign-starts",
+      "place-discoveries",
+      "assign-advanced-starts",
+      "placement",
+    ];
+
+    const stage = STANDARD_RECIPE_UI_META.stages.find((entry) => entry.stageId === "placement");
+    expect(stage?.steps.map((step) => step.stepId)).toEqual(expectedSteps);
+
+    for (const step of stage?.steps ?? []) {
+      expect(step.configFocusPathWithinStage).toEqual([]);
     }
   });
 

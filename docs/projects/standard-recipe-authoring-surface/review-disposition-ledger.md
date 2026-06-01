@@ -64,3 +64,10 @@
 | OpenSpec/proof peer | P2 | The `tropicalSeasonal` schema default correction was not recorded as a non-shipped default change. | Accepted. Added compile/default assertions proving omitted `tropicalSeasonal` lowers to `BIOME_PLAINS`, recorded the correction in the design and proof ledger, and kept runtime proof explicitly unclaimed. |
 | OpenSpec/proof peer | P2 | Unknown-key proof omitted removed `map-elevation.build-elevation`. | Accepted. Added `map-elevation.build-elevation` to the raw Projection rejection fixture and asserted the unknown-key path. |
 | implementation/schema peer | P2 | Broader `shipped-map-identity.test.ts` currently expects internal ecology step envelopes from public shipped configs. | Deferred. This is outside the projection diff and appears to predate the slice, but it is now recorded as a broader config-identity suite blocker for the next guard-hardening/shared-consumer slice. Focused shipped config validation, compile equivalence, and Studio schema/default tests pass for Projection. |
+
+## 2026-06-01: Placement Authoring Surface Alignment Slice
+
+| reviewer | priority | finding | disposition |
+| --- | --- | --- | --- |
+| OpenSpec/proof peer | P2 | Placement was marked complete before peer-review disposition was recorded, and the OpenSpec task wording implied the commit id could already be recorded inside the pre-commit docs. | Accepted. Added this Placement review disposition section and clarified the OpenSpec closure task: docs record proof, review, branch boundary, residual risks, and runtime non-proof; the exact commit boundary is captured by the Graphite commit and final closeout after commit creation. |
+| OpenSpec/proof peer | P2 | Spec/proof wording said adapter resource candidates and runtime starts were injected by compile/defaulting, which conflated public-config omission, legacy internal defaults, and runtime step inputs. | Accepted. Reworded the OpenSpec and proof ledger to state that those fields are not public config, compile preserves legacy internal envelopes for deterministic equivalence, and execution obtains adapter resource catalogs and runtime start data from placement step inputs. |

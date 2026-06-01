@@ -711,113 +711,23 @@
       }
     },
     "placement": {
-      "derive-placement-inputs": {
-        "wonders": {
-          "strategy": "default",
-          "config": {}
-        },
-        "floodplains": {
-          "strategy": "default",
-          "config": {
-            "minLength": 4,
-            "maxLength": 10
-          }
-        },
-        "starts": {
-          "strategy": "default",
-          "config": {
-            "overrides": {
-              "startSectors": []
-            }
-          }
-        },
-        "naturalWonders": {
-          "strategy": "default",
-          "config": {
-            "minSpacingTiles": 6
-          }
-        },
-        "discoveries": {
-          "strategy": "default",
-          "config": {
-            "densityPer100Tiles": 3,
-            "minSpacingTiles": 3
-          }
-        },
-        "resources": {
-          "strategy": "default",
-          "config": {
-            "candidateResourceTypes": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17,
-              18,
-              19,
-              20,
-              21,
-              22,
-              23,
-              24,
-              25,
-              26,
-              27,
-              28,
-              29,
-              30,
-              31,
-              32,
-              33,
-              34,
-              35,
-              36,
-              37,
-              38,
-              39,
-              40,
-              41,
-              42,
-              43,
-              44,
-              45,
-              46,
-              47,
-              48,
-              49,
-              50,
-              51,
-              52,
-              53,
-              54
-            ],
-            "densityPer100Tiles": 9,
-            "minSpacingTiles": 2,
-            "maxPlacementsPerResourceShare": 0.3
-          }
-        }
+      "knobs": {},
+      "naturalWonders": {
+        "minSpacingTiles": 6
       },
-      "plot-landmass-regions": {},
-      "place-natural-wonders": {},
-      "prepare-placement-surface": {},
-      "place-resources": {},
-      "assign-starts": {},
-      "place-discoveries": {},
-      "assign-advanced-starts": {},
-      "placement": {}
+      "discoveries": {
+        "densityPer100Tiles": 3,
+        "minSpacingTiles": 3
+      },
+      "floodplains": {
+        "minLength": 4,
+        "maxLength": 10
+      },
+      "resources": {
+        "densityPer100Tiles": 9,
+        "minSpacingTiles": 2,
+        "maxPlacementsPerResourceShare": 0.3
+      }
     }
   }
 }

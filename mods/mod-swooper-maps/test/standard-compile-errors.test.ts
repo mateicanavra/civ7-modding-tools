@@ -438,6 +438,80 @@ describe("standard recipe compile errors (ecology)", () => {
     ).toBe(true);
   });
 
+  it("rejects legacy Placement step/op envelope config", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
+        placement: {
+          "derive-placement-inputs": {
+            resources: {
+              strategy: "default",
+              config: { candidateResourceTypes: [1, 2, 3], densityPer100Tiles: 9 },
+            },
+          },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path.includes("/config/placement/derive-placement-inputs")
+      )
+    ).toBe(true);
+  });
+
+  it("rejects Placement adapter catalog and runtime start leakage", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
+        placement: {
+          resources: {
+            candidateResourceTypes: [1, 2, 3],
+          },
+          starts: {
+            overrides: { startSectors: [] },
+          },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path.includes("/config/placement/resources/candidateResourceTypes")
+      )
+    ).toBe(true);
+    expect(
+      err.errors.some(
+        (item) => item.code === "config.invalid" && item.path.includes("/config/placement/starts")
+      )
+    ).toBe(true);
+  });
+
+  it("rejects out-of-range Placement public numeric controls", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
+        placement: {
+          resources: {
+            densityPer100Tiles: 75,
+          },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path.includes("/config/placement/resources/densityPer100Tiles")
+      )
+    ).toBe(true);
+  });
+
   it("flags unknown step ids returned by ecology stage compile", () => {
     const brokenStage = createStage({
       id: "ecology-pedology",

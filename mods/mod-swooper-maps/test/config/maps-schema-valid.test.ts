@@ -17,6 +17,7 @@ import legacyHydrologyCompiled from "../fixtures/legacy-hydrology-compiled.json"
 import legacyMorphologyCompiled from "../fixtures/legacy-morphology-compiled.json";
 import legacyEcologyCompiled from "../fixtures/legacy-ecology-compiled.json";
 import legacyProjectionCompiled from "../fixtures/legacy-projection-compiled.json";
+import legacyPlacementCompiled from "../fixtures/legacy-placement-compiled.json";
 
 const shippedMapConfigs = [
   ["shattered-ring.config.json", shatteredRingConfig],
@@ -188,6 +189,26 @@ const PROJECTION_INTERNAL_STAGE_KEYS: Record<string, readonly string[]> = {
   "map-rivers": ["plot-rivers"],
   "map-ecology": ["plot-biomes", "features-apply", "plot-effects"],
 };
+
+const PLACEMENT_PUBLIC_KEYS = [
+  "knobs",
+  "naturalWonders",
+  "discoveries",
+  "floodplains",
+  "resources",
+] as const;
+
+const PLACEMENT_INTERNAL_STAGE_KEYS = [
+  "derive-placement-inputs",
+  "plot-landmass-regions",
+  "place-natural-wonders",
+  "prepare-placement-surface",
+  "place-resources",
+  "assign-starts",
+  "place-discoveries",
+  "assign-advanced-starts",
+  "placement",
+] as const;
 
 function stageProps(schema: unknown, stageId: string): Record<string, unknown> {
   const stage = (schema as { properties?: Record<string, { properties?: Record<string, unknown> }> })
@@ -434,6 +455,20 @@ describe("Shipped map configs", () => {
     }
   });
 
+  it("exposes Placement public schema keys instead of runtime step/op envelope paths", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+    const props = stageProps(schema, "placement");
+
+    expect(Object.keys(props).sort()).toEqual([...PLACEMENT_PUBLIC_KEYS].sort());
+    for (const internalKey of PLACEMENT_INTERNAL_STAGE_KEYS) {
+      expect(props).not.toHaveProperty(internalKey);
+    }
+    expect(JSON.stringify(props)).not.toContain("\"strategy\"");
+    expect(JSON.stringify(props)).not.toContain("\"config\"");
+    expect(JSON.stringify(props)).not.toContain("candidateResourceTypes");
+    expect(JSON.stringify(props)).not.toContain("startSectors");
+  });
+
   it("documents and range-bounds every Morphology public numeric field", () => {
     const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
 
@@ -504,6 +539,22 @@ describe("Shipped map configs", () => {
           key,
         ])).toEqual([]);
       }
+    }
+  });
+
+  it("documents and bounds every Placement public field", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+
+    expectPublicStageDescription(schema, "placement");
+    const props = stageProps(schema, "placement");
+    for (const key of PLACEMENT_PUBLIC_KEYS) {
+      const child = props[key];
+      expect(collectMissingDescriptions(child, ["placement", key])).toEqual([]);
+      expect(collectNumericLeavesMissingRange(child, ["placement", key])).toEqual([]);
+      expect(collectDescriptionsMatching(child, /\b(step|op|envelope|internal|strategy)\b/i, [
+        "placement",
+        key,
+      ])).toEqual([]);
     }
   });
 
@@ -596,6 +647,21 @@ describe("Shipped map configs", () => {
         }
         expect(hasRawOpEnvelope(stageConfig)).toBe(false);
       }
+    }
+  });
+
+  it("keeps shipped Placement configs on the semantic public surface", () => {
+    for (const [, raw] of shippedMapConfigs) {
+      const stageConfig = (raw.config as Record<string, Record<string, unknown>>).placement ?? {};
+      for (const key of Object.keys(stageConfig)) {
+        expect(PLACEMENT_PUBLIC_KEYS).toContain(key as (typeof PLACEMENT_PUBLIC_KEYS)[number]);
+      }
+      for (const internalKey of PLACEMENT_INTERNAL_STAGE_KEYS) {
+        expect(stageConfig).not.toHaveProperty(internalKey);
+      }
+      expect(hasRawOpEnvelope(stageConfig)).toBe(false);
+      expect(JSON.stringify(stageConfig)).not.toContain("candidateResourceTypes");
+      expect(JSON.stringify(stageConfig)).not.toContain("startSectors");
     }
   });
 
@@ -744,6 +810,53 @@ describe("Shipped map configs", () => {
     );
   });
 
+  it("compiles public Placement config to internal executable step/op configs", () => {
+    const compiled = standardRecipe.compileConfig(
+      {
+        seed: 123,
+        dimensions: { width: 80, height: 60 },
+        latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+      },
+      swooperEarthlikeConfig.config
+    ) as any;
+
+    expect(compiled.placement["derive-placement-inputs"].wonders).toEqual({
+      strategy: "default",
+      config: {},
+    });
+    expect(compiled.placement["derive-placement-inputs"].naturalWonders).toEqual({
+      strategy: "default",
+      config: { minSpacingTiles: 6 },
+    });
+    expect(compiled.placement["derive-placement-inputs"].discoveries).toEqual({
+      strategy: "default",
+      config: { densityPer100Tiles: 3, minSpacingTiles: 3 },
+    });
+    expect(compiled.placement["derive-placement-inputs"].floodplains).toEqual({
+      strategy: "default",
+      config: { minLength: 4, maxLength: 10 },
+    });
+    expect(compiled.placement["derive-placement-inputs"].resources.strategy).toBe("default");
+    expect(compiled.placement["derive-placement-inputs"].resources.config).toEqual({
+      candidateResourceTypes: Array.from({ length: 55 }, (_, index) => index),
+      densityPer100Tiles: 9,
+      minSpacingTiles: 2,
+      maxPlacementsPerResourceShare: 0.3,
+    });
+    expect(compiled.placement["derive-placement-inputs"].starts).toEqual({
+      strategy: "default",
+      config: { overrides: { startSectors: [] } },
+    });
+    expect(compiled.placement["plot-landmass-regions"]).toEqual({});
+    expect(compiled.placement["place-natural-wonders"]).toEqual({});
+    expect(compiled.placement["prepare-placement-surface"]).toEqual({});
+    expect(compiled.placement["place-resources"]).toEqual({});
+    expect(compiled.placement["assign-starts"]).toEqual({});
+    expect(compiled.placement["place-discoveries"]).toEqual({});
+    expect(compiled.placement["assign-advanced-starts"]).toEqual({});
+    expect(compiled.placement.placement).toEqual({});
+  });
+
   it("compiles public Foundation config to internal executable step/op envelopes", () => {
     const compiled = standardRecipe.compileConfig(
       {
@@ -857,6 +970,21 @@ describe("Shipped map configs", () => {
     }
   });
 
+  it("keeps Placement configs compiled-equivalent to the legacy shipped configs", () => {
+    const env = {
+      seed: 123,
+      dimensions: { width: 80, height: 60 },
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    };
+    const expected = legacyPlacementCompiled as Record<string, unknown>;
+
+    for (const [fileName, raw] of shippedMapConfigs) {
+      const id = fileName.replace(/\.config\.json$/, "");
+      const compiled = standardRecipe.compileConfig(env, raw.config) as any;
+      expect({ placement: stable(compiled.placement) }).toEqual(expected[id]);
+    }
+  });
+
   it("rejects legacy map-morphology alias keys", () => {
     const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
     const { errors } = normalizeStrict(
@@ -927,6 +1055,78 @@ describe("Shipped map configs", () => {
         "/maps/raw-projection-config/map-ecology/plot-biomes",
         "/maps/raw-projection-config/map-ecology/features-apply",
         "/maps/raw-projection-config/map-ecology/plot-effects",
+      ])
+    );
+  });
+
+  it("rejects raw Placement step and op envelope config", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+    const { errors } = normalizeStrict(
+      schema,
+      {
+        placement: {
+          "derive-placement-inputs": {
+            resources: {
+              strategy: "default",
+              config: {
+                candidateResourceTypes: [1, 2, 3],
+                densityPer100Tiles: 9,
+              },
+            },
+            starts: {
+              strategy: "default",
+              config: { overrides: { startSectors: [] } },
+            },
+          },
+          "plot-landmass-regions": {},
+          "place-natural-wonders": {},
+          "prepare-placement-surface": {},
+          "place-resources": {},
+          "assign-starts": {},
+          "place-discoveries": {},
+          "assign-advanced-starts": {},
+        },
+      },
+      "/maps/raw-placement-config"
+    );
+
+    const errorPaths = errors.map((error) => error.path);
+    expect(errorPaths).toEqual(
+      expect.arrayContaining([
+        "/maps/raw-placement-config/placement/derive-placement-inputs",
+        "/maps/raw-placement-config/placement/plot-landmass-regions",
+        "/maps/raw-placement-config/placement/place-natural-wonders",
+        "/maps/raw-placement-config/placement/prepare-placement-surface",
+        "/maps/raw-placement-config/placement/place-resources",
+        "/maps/raw-placement-config/placement/assign-starts",
+        "/maps/raw-placement-config/placement/place-discoveries",
+        "/maps/raw-placement-config/placement/assign-advanced-starts",
+      ])
+    );
+  });
+
+  it("rejects Placement runtime/catalog owner leakage", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+    const { errors } = normalizeStrict(
+      schema,
+      {
+        placement: {
+          resources: {
+            candidateResourceTypes: [1, 2, 3],
+          },
+          starts: {
+            overrides: { startSectors: [] },
+          },
+        },
+      },
+      "/maps/placement-owner-leakage"
+    );
+
+    const errorPaths = errors.map((error) => error.path);
+    expect(errorPaths).toEqual(
+      expect.arrayContaining([
+        "/maps/placement-owner-leakage/placement/resources/candidateResourceTypes",
+        "/maps/placement-owner-leakage/placement/starts",
       ])
     );
   });
