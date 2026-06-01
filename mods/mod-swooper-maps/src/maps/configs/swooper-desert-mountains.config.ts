@@ -338,7 +338,13 @@ export const SWOOPER_DESERT_MOUNTAINS_CONFIG: StandardRecipeConfig = {
     "plan-vegetation": {
       planVegetation: {
         strategy: "default",
-        config: { minConfidence01: 0.34 },
+        config: {
+          forestMinConfidence01: 0.22,
+          rainforestMinConfidence01: 0.38,
+          taigaMinConfidence01: 0.12,
+          savannaWoodlandMinConfidence01: 0.1,
+          sagebrushSteppeMinConfidence01: 0.04,
+        },
       },
     },
     "plan-plot-effects": {

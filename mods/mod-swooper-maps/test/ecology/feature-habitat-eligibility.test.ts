@@ -40,7 +40,10 @@ describe("ecology feature habitat eligibility", () => {
         coastalWater,
         distanceToCoast,
       },
-      normalizeOpSelectionOrThrow(ecology.ops.scoreColdReef, { strategy: "default", config: {} })
+      normalizeOpSelectionOrThrow(ecology.ops.scoreColdReef, {
+        strategy: "default",
+        config: { minDepthM: 120, peakDepthM: 300, maxDepthM: 520 },
+      })
     ).score01;
     const abyssalColdReef = ecology.ops.scoreColdReef.run(
       {
@@ -117,5 +120,51 @@ describe("ecology feature habitat eligibility", () => {
     expect(mangrove[1]).toBeGreaterThan(0.2);
     expect(oasis[0]).toBe(0);
     expect(oasis[1]).toBeGreaterThan(0.05);
+  });
+
+  it("keeps cold and dry vegetation habitats from being double-penalized by shared biomass stress", () => {
+    const width = 2;
+    const height = 1;
+    const size = width * height;
+    const landMask = new Uint8Array(size).fill(1);
+    const fertility01 = new Float32Array(size).fill(0.6);
+
+    const taiga = ecology.ops.scoreVegetationTaiga.run(
+      {
+        width,
+        height,
+        landMask,
+        energy01: new Float32Array([0.28, 0.8]),
+        water01: new Float32Array([0.48, 0.48]),
+        waterStress01: new Float32Array([0.1, 0.1]),
+        coldStress01: new Float32Array([0.65, 0.05]),
+        biomass01: new Float32Array([0.12, 0.12]),
+        fertility01,
+      },
+      normalizeOpSelectionOrThrow(ecology.ops.scoreVegetationTaiga, { strategy: "default", config: {} })
+    ).score01;
+
+    const sagebrush = ecology.ops.scoreVegetationSagebrushSteppe.run(
+      {
+        width,
+        height,
+        landMask,
+        energy01: new Float32Array([0.55, 0.55]),
+        water01: new Float32Array([0.2, 0.8]),
+        waterStress01: new Float32Array([0.75, 0.05]),
+        coldStress01: new Float32Array(size),
+        biomass01: new Float32Array([0.12, 0.12]),
+        fertility01,
+      },
+      normalizeOpSelectionOrThrow(ecology.ops.scoreVegetationSagebrushSteppe, {
+        strategy: "default",
+        config: {},
+      })
+    ).score01;
+
+    expect(taiga[0]).toBeGreaterThan(0.1);
+    expect(taiga[1]).toBeLessThan(taiga[0]);
+    expect(sagebrush[0]).toBeGreaterThan(0.05);
+    expect(sagebrush[1]).toBe(0);
   });
 });

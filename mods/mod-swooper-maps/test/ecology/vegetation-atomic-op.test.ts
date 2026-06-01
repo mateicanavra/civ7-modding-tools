@@ -80,4 +80,53 @@ describe("planVegetation (joint resolver)", () => {
     const b = ecology.ops.planVegetation.run({ ...input, seed: 987654 }, selection);
     expect(b).toEqual(a);
   });
+
+  it("uses feature-local admission thresholds before choosing the vegetation candidate", () => {
+    const width = 1;
+    const height = 2;
+    const size = width * height;
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetation, {
+      strategy: "default",
+      config: {
+        forestMinConfidence01: 0.2,
+        rainforestMinConfidence01: 0.5,
+        taigaMinConfidence01: 0.1,
+        savannaWoodlandMinConfidence01: 0.1,
+        sagebrushSteppeMinConfidence01: 0.05,
+      },
+    });
+
+    const scoreForest01 = new Float32Array(size);
+    const scoreRainforest01 = new Float32Array(size);
+    const scoreTaiga01 = new Float32Array(size);
+    const scoreSavannaWoodland01 = new Float32Array(size);
+    const scoreSagebrushSteppe01 = new Float32Array(size);
+
+    scoreRainforest01[0] = 0.4;
+    scoreTaiga01[0] = 0.18;
+    scoreForest01[1] = 0.18;
+    scoreSagebrushSteppe01[1] = 0.07;
+
+    const result = ecology.ops.planVegetation.run(
+      {
+        width,
+        height,
+        seed: 1,
+        scoreForest01,
+        scoreRainforest01,
+        scoreTaiga01,
+        scoreSavannaWoodland01,
+        scoreSagebrushSteppe01,
+        landMask: new Uint8Array(size).fill(1),
+        featureIndex: new Uint16Array(size),
+        reserved: new Uint8Array(size),
+      },
+      selection
+    );
+
+    expect(result.placements).toEqual([
+      { x: 0, y: 0, feature: "FEATURE_TAIGA" },
+      { x: 0, y: 1, feature: "FEATURE_SAGEBRUSH_STEPPE" },
+    ]);
+  });
 });

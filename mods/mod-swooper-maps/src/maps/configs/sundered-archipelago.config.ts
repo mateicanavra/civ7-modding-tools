@@ -338,7 +338,13 @@ export const SUNDERED_ARCHIPELAGO_CONFIG: StandardRecipeConfig = {
     "plan-vegetation": {
       planVegetation: {
         strategy: "default",
-        config: { minConfidence01: 0.18 },
+        config: {
+          forestMinConfidence01: 0.16,
+          rainforestMinConfidence01: 0.22,
+          taigaMinConfidence01: 0.12,
+          savannaWoodlandMinConfidence01: 0.08,
+          sagebrushSteppeMinConfidence01: 0.09,
+        },
       },
     },
     "plan-plot-effects": {
