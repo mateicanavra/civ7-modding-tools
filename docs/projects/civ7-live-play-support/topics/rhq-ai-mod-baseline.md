@@ -91,6 +91,9 @@ The official gameplay schema has tables that match RHQ's claimed levers:
 - `AiOperationDefs` connects operation names to behavior trees, target types,
   war/coastal/unit requirements, target strength/distance gates, priority, and
   self-start behavior.
+- `AllowedOperations`, `AIUnitPrioritizedActions`, and `OpTeamRequirements`
+  connect those operations to eligible contexts, unit action priorities, and
+  team assembly constraints.
 - `BehaviorTrees`, `BehaviorTreeNodes`, and `TreeData` define named behavior
   trees, node ordering, and node data.
 - `Strategies`, `StrategyConditions`, `Strategy_Priorities`, and
@@ -157,6 +160,13 @@ freshness or latency.
 
 ## Experiment Seeds
 
+Before changing any static AI/resource lever, add a loaded-row read. A useful
+`game ai loaded-levers` shortcut would inspect runtime `GameInfo` rows for
+`AiOperationDefs`, `AllowedOperations`, `AiFavoredItems`,
+`AIUnitPrioritizedActions`, pseudo-yields, and the relevant behavior-tree
+assignments. That read would not prove behavior, but it would prove which AI
+policy substrate the current session loaded.
+
 - **Settlement pressure:** baseline versus a small `PSEUDOYIELD_NEW_CITY` or
   settlement-plot-evaluation change, measured by city count, settle distance,
   and settle quality by turn threshold.
@@ -164,6 +174,10 @@ freshness or latency.
   by damaged improvements/buildings repaired over bounded autoplay.
 - **Naval operation:** baseline versus one explicit operation/tree assignment
   change, measured by ships built, coastal attack attempts, and target quality.
+- **Autoplay telemetry:** summarize bounded runs in RHQ's vocabulary: city
+  count, settlement distance, ships built and used, aircraft built and used,
+  repairs, war declarations, city attacks, raids, and independent/city-state
+  attacks.
 - **External runner dry run:** no static mod; run 5 turns in validate-only mode
   and record whether the runner's proposed actions differ materially from
   native autoplay or manual play.

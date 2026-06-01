@@ -19,6 +19,7 @@ import GamePlayEndTurn from '../../src/commands/game/play/end-turn';
 import GamePlayExpandCity from '../../src/commands/game/play/expand-city';
 import GamePlayOperation from '../../src/commands/game/play/operation';
 import GamePlayNotifications from '../../src/commands/game/play/notifications';
+import GamePlayPromotionReadiness from '../../src/commands/game/play/promotion-readiness';
 import GamePlayReadyCity from '../../src/commands/game/play/ready-city';
 import GamePlayReadyUnit from '../../src/commands/game/play/ready-unit';
 import GamePlayRehydrate from '../../src/commands/game/play/rehydrate';
@@ -854,6 +855,35 @@ describe('game play commands', () => {
     }
   });
 
+  test('reads promotion readiness without sending promotion commands', async () => {
+    const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPromotionReadiness.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPromotionReadiness.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: { promotionReadiness: { ok: true; value: { canPurchase: boolean } } };
+      };
+      expect(payload.view.promotionReadiness.value.canPurchase).toBe(false);
+      expect(server.received.some((message) => message.includes('readReadyUnitView'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('materializes restart rehydration continuity without sending operations', async () => {
     const server = await startTunerServer({ playNotificationMode: 'ready-unit' });
     const writes: string[] = [];
@@ -1408,6 +1438,23 @@ function readyUnitView() {
         result: { Success: true },
       },
     ],
+    promotionReadiness: {
+      ok: true,
+      value: {
+        hasExperience: true,
+        canPromote: false,
+        promotionClass: 'PROMOTION_CLASS_LAND_COMMANDER',
+        level: 2,
+        experiencePoints: 19,
+        experienceToNextLevel: 45,
+        totalPromotionsEarned: 2,
+        storedPromotionPoints: 0,
+        storedCommendations: 0,
+        canPurchase: false,
+        availablePromotions: [],
+        notes: ['PROMOTE can open the commander promotion UI even when no points are spendable.'],
+      },
+    },
     nearby: {
       ok: true,
       value: [

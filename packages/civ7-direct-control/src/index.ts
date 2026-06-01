@@ -1263,6 +1263,29 @@ export type Civ7ReadyUnitNearbyPlot = Readonly<{
   units: unknown;
 }>;
 
+export type Civ7ReadyUnitPromotionReadiness = Readonly<{
+  hasExperience: boolean;
+  canPromote: unknown;
+  promotionClass: string | null;
+  level: unknown;
+  experiencePoints: unknown;
+  experienceToNextLevel: unknown;
+  totalPromotionsEarned: unknown;
+  storedPromotionPoints: unknown;
+  storedCommendations: unknown;
+  canPurchase: boolean;
+  availablePromotions: ReadonlyArray<Readonly<{
+    disciplineType: string;
+    promotionType: string;
+    name: string | null;
+    description: string | null;
+    commendation: boolean;
+    args: unknown;
+    validation: unknown;
+  }>>;
+  notes: ReadonlyArray<string>;
+}>;
+
 export type Civ7ReadyUnitViewResult = Readonly<{
   host: string;
   port: number;
@@ -1274,6 +1297,7 @@ export type Civ7ReadyUnitViewResult = Readonly<{
   unitId: Civ7ComponentId | null;
   unit: Civ7RuntimeProbe<unknown>;
   legalOperations: ReadonlyArray<Civ7ReadyUnitOperationCandidate>;
+  promotionReadiness: Civ7RuntimeProbe<Civ7ReadyUnitPromotionReadiness | null>;
   nearby: Civ7RuntimeProbe<ReadonlyArray<Civ7ReadyUnitNearbyPlot>>;
   notes: ReadonlyArray<string>;
 }>;
@@ -5846,6 +5870,83 @@ function readyUnitViewSource(): string {
       }
       return plots;
     };
+    const promotionReadiness = (unitId) => {
+      const unit = Units.get(unitId);
+      if (!unit) return null;
+      const experience = unit.Experience;
+      if (!experience) {
+        return {
+          hasExperience: false,
+          canPromote: null,
+          promotionClass: null,
+          level: null,
+          experiencePoints: null,
+          experienceToNextLevel: null,
+          totalPromotionsEarned: null,
+          storedPromotionPoints: null,
+          storedCommendations: null,
+          canPurchase: false,
+          availablePromotions: [],
+          notes: ["This unit has no Experience component, so promotion UI proof is not available."],
+        };
+      }
+      const unitDef = GameInfo.Units.lookup(unit.type);
+      const promotionClass = unitDef?.PromotionClass ?? null;
+      const storedPromotionPoints = experience.getStoredPromotionPoints ?? 0;
+      const storedCommendations = experience.getStoredCommendations ?? 0;
+      const availablePromotions = [];
+      if (promotionClass) {
+        GameInfo.UnitPromotionClassSets.forEach((classSet) => {
+          if (classSet.PromotionClassType !== promotionClass) return;
+          const disciplineType = classSet.UnitPromotionDisciplineType;
+          GameInfo.UnitPromotionDisciplineDetails.filter((detail) => detail.UnitPromotionDisciplineType === disciplineType)
+            .forEach((detail) => {
+              const promotion = GameInfo.UnitPromotions.lookup(detail.UnitPromotionType);
+              if (!promotion) return;
+              const alreadyEarned = !!experience.hasPromotion?.(disciplineType, promotion.UnitPromotionType);
+              if (alreadyEarned) return;
+              const canEarn = !!experience.canEarnPromotion?.(disciplineType, promotion.UnitPromotionType, false);
+              if (!experience.canPromote || !canEarn) return;
+              const args = {
+                PromotionType: Database.makeHash(promotion.UnitPromotionType),
+                PromotionDisciplineType: Database.makeHash(disciplineType),
+              };
+              let validation = null;
+              try {
+                validation = Game.UnitCommands.canStart(unit.id, UnitCommandTypes.PROMOTE, args, false);
+              } catch (err) {
+                validation = { error: String(err) };
+              }
+              availablePromotions.push({
+                disciplineType,
+                promotionType: promotion.UnitPromotionType,
+                name: promotion.Name ?? null,
+                description: promotion.Description ?? null,
+                commendation: !!promotion.Commendation,
+                args,
+                validation: safeResult(validation),
+              });
+            });
+        });
+      }
+      return {
+        hasExperience: true,
+        canPromote: experience.canPromote ?? null,
+        promotionClass,
+        level: experience.getLevel ?? null,
+        experiencePoints: experience.experiencePoints ?? null,
+        experienceToNextLevel: experience.experienceToNextLevel ?? null,
+        totalPromotionsEarned: experience.getTotalPromotionsEarned ?? null,
+        storedPromotionPoints,
+        storedCommendations,
+        canPurchase: storedPromotionPoints > 0 || storedCommendations > 0,
+        availablePromotions,
+        notes: [
+          "PROMOTE can open the commander promotion UI even when no points are spendable.",
+          "Spend only when stored promotion or commendation points are positive and an available promotion has validator-backed args.",
+        ],
+      };
+    };
     const readReadyUnitView = (input) => {
       const selectedUnitId = probe(() => toComponentId(UI?.Player?.getHeadSelectedUnit?.()));
       const firstReadyUnitId = probe(() => toComponentId(UI?.Player?.getFirstReadyUnit?.()));
@@ -5863,6 +5964,7 @@ function readyUnitViewSource(): string {
         unitId,
         unit,
         legalOperations: unitId ? operationCandidates(unitId, input.maxOperations) : [],
+        promotionReadiness: probe(() => unitId ? promotionReadiness(unitId) : null),
         nearby: probe(() => nearbyPlots(unitValue, input.radius)),
         notes: [
           "Read-only ready-unit view. Use operation validation before any send.",

@@ -102,6 +102,7 @@ Outputs:
   - `game play ready-city`
   - `game play build-unit`
   - `game play ready-unit`
+  - `game play promotion-readiness`
   - `game play unit-target`
   - `game local-data inspect`
 - Evidence packs and topic/reference artifacts:
@@ -501,9 +502,20 @@ Residual objective gaps:
   removal/incompatibility warnings, so RHQ should be treated as an experimental
   comparator measured by bounded autoplay telemetry, not as canonical current
   behavior.
-- Remaining gaps are promotion/hardening work: richer ready-entity reads,
+- Commander promotion readiness now has a read-only support path:
+  `ready-unit` reports the unit `Experience` slice, and
+  `game play promotion-readiness` extracts it directly. The live Turtanu proof
+  showed `PROMOTE` can be visible while stored promotion points and
+  commendations are both zero, so the norm is to treat PROMOTE as UI-open proof
+  until `availablePromotions` carries validator-backed args.
+- RHQ follow-up research refined the AI experiment candidates: add loaded
+  `GameInfo` AI-row inspection before static mod comparisons, then summarize
+  bounded autoplay with settlement, naval, air, repair, war, assault, raid, and
+  independent/city-state attack telemetry.
+- Remaining gaps are promotion-send/hardening work: richer ready-entity reads,
   stronger live postcondition polling, civic choice proof, acquire-tile
-  candidate cataloging, and eventual promotion into canonical docs/skills.
+  candidate cataloging, AI loaded-lever/telemetry shortcuts, and eventual
+  promotion into canonical docs/skills.
 
 Deferred items:
 

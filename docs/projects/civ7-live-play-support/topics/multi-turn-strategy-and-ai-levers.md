@@ -168,6 +168,16 @@ Run fixed-seed autoplay in baseline and modded sessions. Record loaded
 GameInfo rows, turn count, founded city count and location quality, production
 mix, military losses, repair behavior, and whether the expected outcome moved.
 
+Two shortcut surfaces would make this repeatable:
+
+- `game ai loaded-levers`: read the loaded runtime `GameInfo` rows for AI
+  operations, allowed operations, favored items, unit priorities,
+  pseudo-yields, and relevant behavior-tree assignments before an autoplay run.
+- `game ai autoplay-telemetry`: summarize bounded autoplay outcomes using the
+  same categories RHQ claims to improve: settlement cadence/distance, naval and
+  air unit production/use, repairs, war declarations, city assaults, cavalry
+  raids, and independent/city-state attacks.
+
 ### External Runner Dry Run
 
 Run a five-turn validate-only strategy loop:

@@ -252,6 +252,7 @@ Source artifacts:
 CLI shortcuts:
 
 - `game play ready-unit`
+- `game play promotion-readiness`
 - `game play unit-target`
 - `game play resettle-unit`
 - `game play upgrade-unit`
@@ -267,15 +268,21 @@ Norms:
   not successful; re-read before trying the same target again.
 - Commanders are support and coordination units first. Do not treat them as
   default attackers without live evidence.
+- Treat visible `PROMOTE` as a prompt to check `promotion-readiness`, not as
+  proof that a spend is available. Buy only when stored promotion or
+  commendation points are positive and an available promotion has
+  validator-backed args.
 - `RESETTLE` and `UPGRADE` are `unit-command` actions, not `unit-operation`
   actions. Use the named wrappers or `game play operation --family unit-command`.
 - Unit-command sends still need board-state postconditions: resettle should
   change unit/settlement population state; upgrade should change unit tier/type
   and cost state.
 
-Promotion readiness: ready as a tactical guard asset. A richer combat-dry-run
-or tactical-snapshot shortcut should be added before this becomes a full combat
-skill.
+Promotion readiness: ready as a tactical guard asset. The read-only
+`game play promotion-readiness` shortcut is promotable; a future mutating
+`game play promote-unit` wrapper still needs explicit send and postcondition
+proof. A richer combat-dry-run or tactical-snapshot shortcut should be added
+before this becomes a full combat skill.
 
 ### Diplomacy And First-Meet
 
@@ -343,6 +350,7 @@ CLI shortcuts:
 - `game play rehydrate`
 - `game play notifications`
 - `game play ready-unit`
+- `game play promotion-readiness`
 - `game play ready-city`
 - `game play settlement-recommendations`
 - `game play unit-target`
@@ -413,7 +421,7 @@ runtime and local official resource references.
 | `topics/runtime-state-sources.md` | Authority preface asset | Ready |
 | `topics/local-catalog-enrichment.md` | Static catalog enrichment asset | Ready |
 | `topics/first-meet-diplomacy.md` | Diplomacy skill reference | Ready |
-| `topics/ready-unit-commander-actions.md` | Tactical guard reference | Ready as guard, not full combat planner |
+| `topics/ready-unit-commander-actions.md` | Tactical guard and promotion-readiness reference | Ready as guard, not full combat planner |
 | `topics/unit-target-actions.md` | Tactical operation reference | Ready with postcondition warning |
 | `topics/unit-command-resettle-upgrade.md` | Unit command shape reference | Ready with postcondition gap |
 | `topics/early-war-tactical-stale-state-guard.md` | Tactical guard and advisory asset | Ready as guard; strategy stays advisory |
@@ -455,8 +463,8 @@ and postcondition are proven:
   expected postcondition without sending.
 - `game play diplomacy-options`: read available responses, cost, and likely
   relationship effects before choosing a response.
-- `game play promote-unit`: read spendable promotion state and send a specific
-  promotion only with live validator-backed args.
+- `game play promote-unit`: send a specific promotion only with live
+  `promotion-readiness.availablePromotions` args and postcondition proof.
 - `game play upgrade-preview`: read upgrade target, cost, resource/territory
   failures, and projected combat delta before `game play upgrade-unit`.
 - `game play resettle-candidates`: read owned-district target candidates and
@@ -476,8 +484,12 @@ and postcondition are proven:
 - `game strategy run`: external workflow runner for validate-only and bounded
   send loops over multiple turns, using `game autoplay` only after clean
   App UI proof.
-- `game ai-experiment`: fixed-seed autoplay A/B harness for static AI/resource
-  mod changes, with RHQ-style levers as the initial comparison vocabulary.
+- `game ai loaded-levers`: read loaded `GameInfo` AI rows such as
+  `AiOperationDefs`, `AllowedOperations`, `AiFavoredItems`, unit priorities,
+  and pseudo-yields before comparing static AI/resource experiments.
+- `game ai autoplay-telemetry`: fixed-seed bounded autoplay summary for city
+  count, settlement distance, ships, aircraft, repairs, war declarations, city
+  attacks, and raids, with RHQ-style levers as the comparison vocabulary.
 
 ## Do-Not-Promote Boundaries
 
@@ -485,7 +497,9 @@ Keep these out of normative skill steps until stronger proof exists:
 
 - Ordinary city-project production postconditions beyond the official item-kind
   args shape.
-- Commander promotion planning and promotion spend operations.
+- Commander promotion spend operations. Readiness proof is available through
+  `ready-unit` and `promotion-readiness`; mutation still needs a guarded
+  `promote-unit` wrapper and postcondition evidence.
 - Latency root-cause claims. Current evidence supports runtime-busy and
   stale-state risk, not a proven focus or OS-level cause.
 - Thread ids, branch names, and active-workstream handoff instructions.
