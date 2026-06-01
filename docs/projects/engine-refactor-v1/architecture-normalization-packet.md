@@ -35,14 +35,14 @@ The packet intentionally works at multiple levels:
 
 ## Decision Snapshot
 
-| Decision | Final call | Why it matters | First implementation consequence |
-| --- | --- | --- | --- |
-| D1 | Use flat default stage config: `{ knobs?, [stepId]?: stepConfig }`. No persisted SDK-native `advanced`. | Removes duplicate authoring shapes and settles the public config contract. | Migrate configs/docs/tests from `advanced.<stepId>` to top-level step ids; delete unwrap compiles. |
-| D2 | Lakes are Hydrology truth, but adapter materialization/readback comes before fail-hard parity. | Prevents engine projection from masquerading as physics truth while avoiding the prior brittle-gate revert. | Add lake stamping/readback, then `plan-lakes`, then projection, then placement input migration. |
-| D3 | Split placement at real product/effect contracts only. | Exposes hidden gameplay boundaries without manufacturing fake dependency chains. | Promote wonders/resources/starts/discoveries/advanced-starts as real contracts one boundary at a time. |
-| D4 | Resources/discoveries use typed intent reconciliation. No naive `placed === planned`. | Keeps deterministic intent without pretending all Civ7 legality is already ported. | Add per-tile placement outcomes and typed rejection reasons before gating. |
-| D5 | Ecology truth stages are `ecology-pedology`, `ecology-biomes`, and `ecology-features`; `map-ecology` is projection only. | Avoids both seven speculative feature-family wrappers and one overbroad ecology blob. | Fold feature-family wrappers with output-equivalence tests; dissolve stale `stages/ecology/` hub. |
-| 0e | Use a scoped import policy; enforce a narrow recipe deep-import guard first. | Makes module boundaries enforceable without broad-banning legitimate internal imports. | Remediate public surfaces, then turn on the first `src/recipes/**` guardrail. |
+| Decision | Final call                                                                                                               | Why it matters                                                                                              | First implementation consequence                                                                       |
+| -------- | ------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| D1       | Use flat default stage config: `{ knobs?, [stepId]?: stepConfig }`. No persisted SDK-native `advanced`.                  | Removes duplicate authoring shapes and settles the public config contract.                                  | Migrate configs/docs/tests from `advanced.<stepId>` to top-level step ids; delete unwrap compiles.     |
+| D2       | Lakes are Hydrology truth, but adapter materialization/readback comes before fail-hard parity.                           | Prevents engine projection from masquerading as physics truth while avoiding the prior brittle-gate revert. | Add lake stamping/readback, then `plan-lakes`, then projection, then placement input migration.        |
+| D3       | Split placement at real product/effect contracts only.                                                                   | Exposes hidden gameplay boundaries without manufacturing fake dependency chains.                            | Promote wonders/resources/starts/discoveries/advanced-starts as real contracts one boundary at a time. |
+| D4       | Resources/discoveries use typed intent reconciliation. No naive `placed === planned`.                                    | Keeps deterministic intent without pretending all Civ7 legality is already ported.                          | Add per-tile placement outcomes and typed rejection reasons before gating.                             |
+| D5       | Ecology truth stages are `ecology-pedology`, `ecology-biomes`, and `ecology-features`; `map-ecology` is projection only. | Avoids both seven speculative feature-family wrappers and one overbroad ecology blob.                       | Fold feature-family wrappers with output-equivalence tests; dissolve stale `stages/ecology/` hub.      |
+| 0e       | Use a scoped import policy; enforce a narrow recipe deep-import guard first.                                             | Makes module boundaries enforceable without broad-banning legitimate internal imports.                      | Remediate public surfaces, then turn on the first `src/recipes/**` guardrail.                          |
 
 ## Source Material
 
@@ -95,15 +95,15 @@ Known stale sources must not override this packet:
 
 MapGen is a deterministic pipeline with explicit ownership boundaries.
 
-| Layer | Owns | Must not own |
-| --- | --- | --- |
-| Domain | Pure algorithms, contract-first ops, strategies, rules, domain types, and reusable domain semantics. | Runtime context, recipe ordering, adapter calls, or stage orchestration. |
-| Step | Executable contract boundary: `requires`, `provides`, artifacts/effects, config schema, op binding, input building, and one bounded orchestration responsibility. | Heavy domain compute, sibling-stage internals, or hidden sub-pipelines. |
-| Stage | Authoring/config surface, knobs scope, stage id prefix, and local step composition. | Global ordering, truth authority, runtime topology, or compute. |
-| Recipe | Global stage/step order and enablement. | Hidden manifests, prose ordering, or `shouldRun`-style skips. |
-| Compilation | Validate and normalize authoring config into executable step/op config. | Side effects or engine state. |
-| Execution | Run the compiled plan with dependency gates, write-once artifacts, traces, and buffers. | Architecture design or compatibility shims. |
-| Projection / Runtime | Materialize truth artifacts into Civ7 engine state and verify effects. | Domain truth unless explicitly accepted as a projection limitation. |
+| Layer                | Owns                                                                                                                                                              | Must not own                                                             |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Domain               | Pure algorithms, contract-first ops, strategies, rules, domain types, and reusable domain semantics.                                                              | Runtime context, recipe ordering, adapter calls, or stage orchestration. |
+| Step                 | Executable contract boundary: `requires`, `provides`, artifacts/effects, config schema, op binding, input building, and one bounded orchestration responsibility. | Heavy domain compute, sibling-stage internals, or hidden sub-pipelines.  |
+| Stage                | Authoring/config surface, knobs scope, stage id prefix, and local step composition.                                                                               | Global ordering, truth authority, runtime topology, or compute.          |
+| Recipe               | Global stage/step order and enablement.                                                                                                                           | Hidden manifests, prose ordering, or `shouldRun`-style skips.            |
+| Compilation          | Validate and normalize authoring config into executable step/op config.                                                                                           | Side effects or engine state.                                            |
+| Execution            | Run the compiled plan with dependency gates, write-once artifacts, traces, and buffers.                                                                           | Architecture design or compatibility shims.                              |
+| Projection / Runtime | Materialize truth artifacts into Civ7 engine state and verify effects.                                                                                            | Domain truth unless explicitly accepted as a projection limitation.      |
 
 Two invariants dominate the refactor:
 
@@ -326,12 +326,12 @@ must be labeled projection diagnostics, not silent truth.
 
 **Decision:** normalize Ecology to the following recipe-level surfaces:
 
-| Stage | Purpose | Stage handoff |
-| --- | --- | --- |
-| `ecology-pedology` | Pedology and resource basin planning. Inputs are morphology topography plus baseline climate. | Soils/pedology and resource basins. |
-| `ecology-biomes` | Biome classification and any biome-edge refinement. Inputs are refined climate/cryosphere plus topography and pedology. | Biome classification. |
-| `ecology-features` | Feature substrate/score layers, feature family intent planning, occupancy cascade, and final feature intent merge. | Feature intents and final occupancy. |
-| `map-ecology` | Projection/materialization only: engine biome ids, feature type writes, plot effects, diagnostics/parity. | Engine-facing fields/effects and projection evidence. |
+| Stage              | Purpose                                                                                                                 | Stage handoff                                         |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `ecology-pedology` | Pedology and resource basin planning. Inputs are morphology topography plus baseline climate.                           | Soils/pedology and resource basins.                   |
+| `ecology-biomes`   | Biome classification and any biome-edge refinement. Inputs are refined climate/cryosphere plus topography and pedology. | Biome classification.                                 |
+| `ecology-features` | Feature substrate/score layers, feature family intent planning, occupancy cascade, and final feature intent merge.      | Feature intents and final occupancy.                  |
+| `map-ecology`      | Projection/materialization only: engine biome ids, feature type writes, plot effects, diagnostics/parity.               | Engine-facing fields/effects and projection evidence. |
 
 Do not keep the current seven truth stages as one wrapper per feature family
 without real stage surfaces. Do not collapse all truth into one broad
@@ -375,20 +375,20 @@ policy until matching public surfaces exist.
 
 ## Stage And Area Scorecard
 
-| Area | Verdict | What must change |
-| --- | --- | --- |
-| `foundation` | Clean reference | Preserve as the Shape A / contract-first reference. |
-| Morphology truth stages | Transitional | Delete unwrap-`advanced` boilerplate; move remaining heavy step logic into ops where needed. |
-| `map-morphology` | Transitional projection | Keep only projection/materialization concerns; clean up surface/key naming and milestone tags. |
-| Hydrology truth stages | Mostly aligned | Keep contract-first truth products; improve semantic tags where needed. |
-| `map-hydrology` lakes | Divergent | Add lake truth + adapter stamping/readback or keep engine lakes labeled projection limitation until then. |
-| Ecology truth | Divergent topology | Normalize to pedology, biomes, features; dissolve stale sibling `stages/ecology/` hub. |
-| `map-ecology` | Transitional projection | Keep projection-only; move any truth/scoring/planning work back upstream. |
-| Placement | Divergent | Split real product/effect boundaries; implement D4 typed reconciliation later. |
-| Core SDK purity | Divergent | Move Civ7-bound map authoring/runtime calls out of pure core. |
-| Studio config exports | DX mismatch | Make recipe config schema/defaults source-visible or first-class generated contracts. |
-| Recipe/domain catalogs | Divergent | Dissolve multi-owner catalogs and stale stage hubs into real owners or explicit shared surfaces. |
-| Routers / docs | Divergent until this cleanup | Route to this packet and later OpenSpec/evergreen authorities. |
+| Area                    | Verdict                      | What must change                                                                                          |
+| ----------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `foundation`            | Clean reference              | Preserve as the Shape A / contract-first reference.                                                       |
+| Morphology truth stages | Transitional                 | Delete unwrap-`advanced` boilerplate; move remaining heavy step logic into ops where needed.              |
+| `map-morphology`        | Transitional projection      | Keep only projection/materialization concerns; clean up surface/key naming and milestone tags.            |
+| Hydrology truth stages  | Mostly aligned               | Keep contract-first truth products; improve semantic tags where needed.                                   |
+| `map-hydrology` lakes   | Divergent                    | Add lake truth + adapter stamping/readback or keep engine lakes labeled projection limitation until then. |
+| Ecology truth           | Divergent topology           | Normalize to pedology, biomes, features; dissolve stale sibling `stages/ecology/` hub.                    |
+| `map-ecology`           | Transitional projection      | Keep projection-only; move any truth/scoring/planning work back upstream.                                 |
+| Placement               | Divergent                    | Split real product/effect boundaries; implement D4 typed reconciliation later.                            |
+| Core SDK purity         | Divergent                    | Move Civ7-bound map authoring/runtime calls out of pure core.                                             |
+| Studio config exports   | DX mismatch                  | Make recipe config schema/defaults source-visible or first-class generated contracts.                     |
+| Recipe/domain catalogs  | Divergent                    | Dissolve multi-owner catalogs and stale stage hubs into real owners or explicit shared surfaces.          |
+| Routers / docs          | Divergent until this cleanup | Route to this packet and later OpenSpec/evergreen authorities.                                            |
 
 ## Domino Sequence
 
@@ -530,17 +530,22 @@ bar main before the migration that makes them pass.
 
 ## Guardrails To Add After Cleanup
 
-| ID | Fails on | Enable after |
-| --- | --- | --- |
-| G1 | milestone-prefixed tag identifiers such as `M\d+_` in source | tag decomposition uses final names |
-| G2 | recipe-root or domain-root multi-owner catalogs that are not thin barrels or explicit shared surfaces | catalog/hub dissolution |
-| G3 | Civ7 adapter value imports, Civ globals, or Civ7 type refs inside pure `packages/mapgen-core` surfaces | core purity migration |
-| G4 | recipe deep imports outside sanctioned public domain surfaces | first import-policy remediation |
-| G5 | a stage importing a sibling stage's `steps/` | Ecology topology cleanup |
-| G6 | standard recipe docs stage list diverging from live recipe/stage source | recipe-doc reconciliation |
-| G7 | non-archive docs using superseded current-stage ids outside history/migration context | spec/doc naming cleanup |
-| G8 | broad steps growing hidden uncontracted sub-concerns | placement split |
-| G9 | boilerplate unwrap-`advanced` compiles reintroduced | D1 migration |
+**Promotion status:** implemented G1-G9 guard scope is now superseded by
+`docs/system/libs/mapgen/policies/NORMALIZATION-GUARDRAILS.md`. Keep this table
+as the packet source record; use the policy for current commands, proof
+boundaries, and the cleanup slice that enables each guard.
+
+| ID  | Fails on                                                                                               | Enable after                       |
+| --- | ------------------------------------------------------------------------------------------------------ | ---------------------------------- |
+| G1  | milestone-prefixed tag identifiers such as `M\d+_` in source                                           | tag decomposition uses final names |
+| G2  | recipe-root or domain-root multi-owner catalogs that are not thin barrels or explicit shared surfaces  | catalog/hub dissolution            |
+| G3  | Civ7 adapter value imports, Civ globals, or Civ7 type refs inside pure `packages/mapgen-core` surfaces | core purity migration              |
+| G4  | recipe deep imports outside sanctioned public domain surfaces                                          | first import-policy remediation    |
+| G5  | a stage importing a sibling stage's `steps/`                                                           | Ecology topology cleanup           |
+| G6  | standard recipe docs stage list diverging from live recipe/stage source                                | recipe-doc reconciliation          |
+| G7  | non-archive docs using superseded current-stage ids outside history/migration context                  | spec/doc naming cleanup            |
+| G8  | broad steps growing hidden uncontracted sub-concerns                                                   | placement split                    |
+| G9  | boilerplate unwrap-`advanced` compiles reintroduced                                                    | D1 migration                       |
 
 ## OpenSpec Handoff Notes
 
