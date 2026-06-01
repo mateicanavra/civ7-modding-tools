@@ -132,6 +132,13 @@ function resolveInitCapture(
   return { mapSizeId, mapInfo, params };
 }
 
+/**
+ * Registers a Civ7 map entrypoint against the game engine events while keeping
+ * map authors on the recipe public config contract. The tradeoff is explicit:
+ * this helper is reusable SDK authoring API, but it is runtime-bound and must
+ * only be imported from the SDK mapgen subpath by code that will execute inside
+ * the Civ7 map loader.
+ */
 export function createMap<const TRecipe extends RecipeModule<ExtendedMapContext, any, any>>(
   def: MapDefinitionInput<TRecipe>
 ): MapDefinition<TRecipe> {
