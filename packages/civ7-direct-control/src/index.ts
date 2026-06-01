@@ -1425,6 +1425,7 @@ export type Civ7TargetCandidate = Readonly<{
   isHuman: Civ7RuntimeProbe<unknown>;
   cityCount: number;
   unitCount: number;
+  cities: unknown;
   nearestCity: unknown;
   nearestDistance: number | null;
   nearbyUnits: unknown;
@@ -1432,7 +1433,14 @@ export type Civ7TargetCandidate = Readonly<{
   apparentStrength: number;
   approach: Readonly<{
     nearestOrigin: Readonly<{ x: number; y: number }> | null;
+    targetLocation: Readonly<{ x: number; y: number }> | null;
+    directGridDistance: number | null;
     routeHint: string;
+    routeKind: string;
+    originWater: Civ7RuntimeProbe<unknown> | null;
+    targetWater: Civ7RuntimeProbe<unknown> | null;
+    waterSampleCount: number;
+    landSampleCount: number;
     notes: ReadonlyArray<string>;
   }>;
   reasons: ReadonlyArray<string>;
@@ -5976,6 +5984,13 @@ function targetCandidatesSource(): string {
       if (!a || !b) return null;
       return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
     };
+    const callMap = (name, location) => {
+      const fn = typeof GameplayMap !== "undefined" ? GameplayMap[name] : undefined;
+      if (typeof fn !== "function") throw new Error("GameplayMap." + name + " is not a function");
+      return fn.call(GameplayMap, location.x, location.y);
+    };
+    const plotWater = (location) => location ? probe(() => callMap("isWater", location)) : null;
+    const probeBoolean = (value) => value && value.ok === true && typeof value.value === "boolean" ? value.value : null;
     const bestDistance = (location, origins) => {
       let best = null;
       let nearestOrigin = null;
@@ -5988,6 +6003,48 @@ function targetCandidatesSource(): string {
         }
       }
       return { distance: best, nearestOrigin };
+    };
+    const lineSamples = (from, to) => {
+      if (!from || !to) return [];
+      const direct = distance(from, to);
+      if (direct == null) return [];
+      const steps = Math.max(1, Math.min(12, direct));
+      const out = [];
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const x = Math.round(from.x + (to.x - from.x) * t);
+        const y = Math.round(from.y + (to.y - from.y) * t);
+        if (!out.some((item) => item.x === x && item.y === y)) out.push({ x, y });
+      }
+      return out;
+    };
+    const approachFor = (origin, targetLocation) => {
+      const samples = lineSamples(origin, targetLocation);
+      const waterSamples = samples.map(plotWater).filter(Boolean);
+      const waterValues = waterSamples.map(probeBoolean).filter((value) => value !== null);
+      const waterSampleCount = waterValues.filter(Boolean).length;
+      const landSampleCount = waterValues.filter((value) => value === false).length;
+      const originWater = plotWater(origin);
+      const targetWater = plotWater(targetLocation);
+      const originIsWater = probeBoolean(originWater);
+      const targetIsWater = probeBoolean(targetWater);
+      const routeKind = (() => {
+        if (!origin || !targetLocation) return "unknown";
+        if (originIsWater === true && targetIsWater === true) return "sea";
+        if (originIsWater === false && targetIsWater === false && waterSampleCount === 0) return "land";
+        if (originIsWater === false && targetIsWater === false && waterSampleCount > 0) return "mixed-or-coastal";
+        if (originIsWater === true || targetIsWater === true) return "coastal-amphibious";
+        return "unknown";
+      })();
+      return {
+        targetLocation: targetLocation ?? null,
+        directGridDistance: distance(origin, targetLocation),
+        routeKind,
+        originWater,
+        targetWater,
+        waterSampleCount,
+        landSampleCount,
+      };
     };
     const unitStrength = (unit) => {
       const definition = (() => {
@@ -6086,11 +6143,9 @@ function targetCandidatesSource(): string {
       const cities = ownerCities(owner);
       const units = ownerUnits(owner);
       if (cities.length === 0 && units.length === 0) return null;
-      const nearest = cities.reduce((best, city) => {
-        const score = bestDistance(city.location, origins);
-        if (!best || (score.distance != null && (best.distance == null || score.distance < best.distance))) return { city, ...score };
-        return best;
-      }, null);
+      const cityTargets = cities.map((city) => ({ city, ...bestDistance(city.location, origins) }))
+        .sort((a, b) => (a.distance ?? 9999) - (b.distance ?? 9999));
+      const nearest = cityTargets[0] ? { city: cityTargets[0].city, distance: cityTargets[0].distance, nearestOrigin: cityTargets[0].nearestOrigin } : null;
       const fallback = !nearest && units.length > 0
         ? units.reduce((best, unit) => {
           const score = bestDistance(unit.location, origins);
@@ -6100,6 +6155,7 @@ function targetCandidatesSource(): string {
         : null;
       const target = nearest ?? fallback;
       const targetLocation = target?.city?.location ?? target?.unit?.location ?? null;
+      const approach = approachFor(target?.nearestOrigin ?? null, targetLocation);
       const nearbyUnits = targetLocation
         ? units.filter((unit) => {
           const value = distance(unit.location, targetLocation);
@@ -6119,6 +6175,12 @@ function targetCandidatesSource(): string {
         isHuman: probe(() => readValue(player, ["isHuman"], ["isHuman"])),
         cityCount: cities.length,
         unitCount: units.length,
+        cities: cityTargets.slice(0, 12).map((target) => ({
+          ...target.city,
+          distance: target.distance,
+          nearestOrigin: target.nearestOrigin,
+          water: plotWater(target.city.location),
+        })),
         nearestCity: target?.city ?? null,
         nearestDistance: target?.distance ?? null,
         nearbyUnits: nearbyUnits.slice(0, 12),
@@ -6126,9 +6188,11 @@ function targetCandidatesSource(): string {
         apparentStrength: Math.round(apparentStrength * 10) / 10,
         approach: {
           nearestOrigin: target?.nearestOrigin ?? null,
+          ...approach,
           routeHint: routeHint(target?.distance ?? null, nearbyUnits.length, cities.length),
           notes: [
             "Distance is a cheap grid heuristic for target ranking, not a pathfinder result.",
+            "Route kind is sampled from endpoints and a straight grid line; it is not Civ pathfinding.",
             "Use map/visibility and unit-target validation before moving or attacking.",
           ],
         },

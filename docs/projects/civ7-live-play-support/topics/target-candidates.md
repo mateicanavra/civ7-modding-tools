@@ -32,11 +32,16 @@ The target-candidates view returns:
 
 - supplied or inferred origins;
 - candidate owner id, leader/civilization probes, city count, and unit count;
+- a bounded settlement list for that owner, with cheap grid distance, nearest
+  origin, and water probe per city;
 - nearest city to the origin and cheap grid distance;
 - nearby unit summaries plus unit density and best-effort strength estimate
   near the nearest city;
 - route hint such as `near-low-density`, `near`, `major-front`, or
   `longer-approach`;
+- route kind such as `land`, `sea`, `mixed-or-coastal`, or
+  `coastal-amphibious`, based on endpoint water probes and straight-line grid
+  samples;
 - reasons that explain the ranking.
 
 The ranking is intentionally explainable rather than clever. It favors nearer
@@ -48,6 +53,13 @@ Treat `nearbyUnits` as the primary detail and `apparentStrength` as a rough
 tie-breaker. Some runtime unit definitions do not expose clean combat fields
 through the current read, so the score is less authoritative than unit type,
 location, damage, and the later tactical validator.
+
+Treat `approach.routeKind` as a planning label, not a pathing result. A `land`
+label means the cheap sampled line did not cross water; `mixed-or-coastal`
+means a land-to-land target has water in the sampled line and needs a more
+careful route/corridor read; `sea` and `coastal-amphibious` indicate naval or
+coastal context. Terrain, roads, rivers, enemy zones, and embarkation legality
+still require follow-up reads and validators.
 
 ## Proof Boundary
 
@@ -89,13 +101,18 @@ read.
 - Treat independent or low-density nearby cities as staging targets, not
   automatically as final strategic goals.
 - Pair the target shortlist with fresh tactical reads before moving units.
+- Use the settlement list to understand whether the opponent is a one-city
+  staging target or a distributed front.
+- Use `approach.routeKind` to decide whether the next inspection should be
+  land staging, naval staging, or a destination/corridor pressure read.
 - Label hidden/debug facts in summaries and do not silently treat them as
   normal UI-visible knowledge.
 
 ## Remaining Gaps
 
 - Visibility-filtered target ranking that mirrors official UI knowledge.
-- Terrain/pathing and river/coast passability in the route hint.
+- Real terrain/pathing, river/coast passability, roads, zones of control, and
+  embarkation legality in the route hint.
 - Diplomacy and war-state context, including whether attacking the target opens
   an unwanted major-civ front.
 - Formation snapshot integration so the target ranking knows where Settlers,

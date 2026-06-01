@@ -73,8 +73,9 @@ export default class GamePlayTargetCandidates extends Command {
     this.log(`Hidden info policy: ${view.hiddenInfoPolicy}`);
     for (const candidate of view.candidates) {
       this.log(`- owner ${candidate.owner}: distance=${candidate.nearestDistance ?? '<unknown>'}; cities=${candidate.cityCount}; units=${candidate.unitCount}; nearby=${candidate.nearbyUnitCount}; strength=${candidate.apparentStrength}`);
-      this.log(`  civ=${formatProbe(candidate.civilizationName)} leader=${formatProbe(candidate.leaderName)} route=${candidate.approach.routeHint}`);
+      this.log(`  civ=${formatProbe(candidate.civilizationName)} leader=${formatProbe(candidate.leaderName)} route=${candidate.approach.routeHint} kind=${candidate.approach.routeKind ?? '<unknown>'}`);
       this.log(`  nearest=${formatValue(candidate.nearestCity)}`);
+      this.log(`  settlements=${formatValue(candidate.cities)}`);
       if (candidate.reasons.length > 0) this.log(`  reasons=${candidate.reasons.join('; ')}`);
     }
     for (const note of view.notes) this.log(`Note: ${note}`);

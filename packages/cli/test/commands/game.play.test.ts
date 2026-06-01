@@ -1332,6 +1332,10 @@ describe('game play commands', () => {
 
   test('reads target candidates without sending operations', async () => {
     const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayTargetCandidates.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
     try {
       const { port } = server.address();
       await GamePlayTargetCandidates.run([
@@ -1346,10 +1350,24 @@ describe('game play commands', () => {
         '--json',
       ]);
 
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          candidates: Array<{
+            cities: unknown[];
+            approach: { routeKind: string; waterSampleCount: number; landSampleCount: number };
+          }>;
+        };
+      };
+      expect(payload.view.candidates[0]?.cities).toHaveLength(2);
+      expect(payload.view.candidates[0]?.approach.routeKind).toBe('land');
+      expect(payload.view.candidates[0]?.approach.waterSampleCount).toBe(0);
+      expect(payload.view.candidates[0]?.approach.landSampleCount).toBeGreaterThan(0);
       expect(server.received.some((message) => message.includes('readTargetCandidates'))).toBe(true);
       expect(server.received.some((message) => message.includes('"origins":[{"x":18,"y":20}]'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
     } finally {
+      log.mockRestore();
       await server.close();
     }
   });
@@ -2470,6 +2488,30 @@ function targetCandidatesView() {
         isHuman: { ok: true, value: false },
         cityCount: 1,
         unitCount: 4,
+        cities: [
+          {
+            id: { owner: 9, id: 589824, type: 1 },
+            owner: 9,
+            name: 'Independent City',
+            location: { x: 13, y: 17 },
+            population: 3,
+            isTown: false,
+            distance: 5,
+            nearestOrigin: { x: 18, y: 20 },
+            water: { ok: true, value: false },
+          },
+          {
+            id: { owner: 9, id: 589825, type: 1 },
+            owner: 9,
+            name: 'Second Independent City',
+            location: { x: 11, y: 22 },
+            population: 2,
+            isTown: true,
+            distance: 7,
+            nearestOrigin: { x: 18, y: 20 },
+            water: { ok: true, value: false },
+          },
+        ],
         nearestCity: {
           id: { owner: 9, id: 589824, type: 1 },
           owner: 9,
@@ -2493,8 +2535,18 @@ function targetCandidatesView() {
         apparentStrength: 42,
         approach: {
           nearestOrigin: { x: 18, y: 20 },
+          targetLocation: { x: 13, y: 17 },
+          directGridDistance: 5,
           routeHint: 'near-low-density',
-          notes: ['Distance is a cheap grid heuristic for target ranking, not a pathfinder result.'],
+          routeKind: 'land',
+          originWater: { ok: true, value: false },
+          targetWater: { ok: true, value: false },
+          waterSampleCount: 0,
+          landSampleCount: 6,
+          notes: [
+            'Distance is a cheap grid heuristic for target ranking, not a pathfinder result.',
+            'Route kind is sampled from endpoints and a straight grid line; it is not Civ pathfinding.',
+          ],
         },
         reasons: ['nearest target distance 5', 'single known city target', 'low nearby unit density'],
       },
