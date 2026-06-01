@@ -7,6 +7,7 @@ import {
   validateGridSize,
 } from "../../score-shared/index.js";
 import { isEngineCompatibleInternalBiome } from "../../../feature-engine-legality.js";
+import { BIOME_SYMBOL_TO_INDEX } from "../../../types.js";
 import PlanVegetationContract from "../contract.js";
 import { admitVegetationIntent } from "../policies/index.js";
 
@@ -18,6 +19,58 @@ function isEngineCompatibleVegetationSurface(
 ): boolean {
   if (flatLandMask[tileIndex] !== 1) return false;
   return isEngineCompatibleInternalBiome(feature, biomeIndex[tileIndex] ?? 255);
+}
+
+function isBroadVegetationHabitat(
+  feature: string,
+  tileIndex: number,
+  fields: Readonly<{
+    biomeIndex: Uint8Array;
+    surfaceTemperature: Float32Array;
+    effectiveMoisture: Float32Array;
+    aridityIndex: Float32Array;
+    vegetationDensity: Float32Array;
+  }>
+): boolean {
+  const biome = fields.biomeIndex[tileIndex] ?? 255;
+  const temp = fields.surfaceTemperature[tileIndex] ?? 0;
+  const moisture = fields.effectiveMoisture[tileIndex] ?? 0;
+  const aridity = fields.aridityIndex[tileIndex] ?? 0;
+  const vegetation = fields.vegetationDensity[tileIndex] ?? 0;
+
+  switch (feature) {
+    case "FEATURE_FOREST":
+      return biome === BIOME_SYMBOL_TO_INDEX.temperateHumid && vegetation >= 0.08;
+    case "FEATURE_RAINFOREST":
+      return (
+        biome === BIOME_SYMBOL_TO_INDEX.tropicalRainforest &&
+        temp >= 16 &&
+        moisture >= 85 &&
+        vegetation >= 0.18
+      );
+    case "FEATURE_TAIGA":
+      return (
+        biome === BIOME_SYMBOL_TO_INDEX.snow ||
+        biome === BIOME_SYMBOL_TO_INDEX.tundra ||
+        biome === BIOME_SYMBOL_TO_INDEX.boreal
+      );
+    case "FEATURE_SAVANNA_WOODLAND":
+      return (
+        biome === BIOME_SYMBOL_TO_INDEX.tropicalSeasonal &&
+        temp >= 12 &&
+        aridity <= 0.9 &&
+        vegetation <= 0.78
+      );
+    case "FEATURE_SAGEBRUSH_STEPPE":
+      return (
+        biome === BIOME_SYMBOL_TO_INDEX.desert &&
+        temp >= -12 &&
+        temp <= 32 &&
+        vegetation <= 0.72
+      );
+    default:
+      return false;
+  }
 }
 
 export const defaultStrategy = createStrategy(PlanVegetationContract, "default", {
@@ -36,12 +89,23 @@ export const defaultStrategy = createStrategy(PlanVegetationContract, "default",
         { label: "landMask", arr: input.landMask as Uint8Array },
         { label: "flatLandMask", arr: input.flatLandMask as Uint8Array },
         { label: "biomeIndex", arr: input.biomeIndex as Uint8Array },
+        { label: "surfaceTemperature", arr: input.surfaceTemperature as Float32Array },
+        { label: "effectiveMoisture", arr: input.effectiveMoisture as Float32Array },
+        { label: "aridityIndex", arr: input.aridityIndex as Float32Array },
+        { label: "vegetationDensity", arr: input.vegetationDensity as Float32Array },
         { label: "featureIndex", arr: input.featureIndex as Uint16Array },
         { label: "reserved", arr: input.reserved as Uint8Array },
       ],
     });
     const flatLandMask = input.flatLandMask as Uint8Array;
     const biomeIndex = input.biomeIndex as Uint8Array;
+    const broadHabitatFields = {
+      biomeIndex,
+      surfaceTemperature: input.surfaceTemperature as Float32Array,
+      effectiveMoisture: input.effectiveMoisture as Float32Array,
+      aridityIndex: input.aridityIndex as Float32Array,
+      vegetationDensity: input.vegetationDensity as Float32Array,
+    };
 
     const placements: Array<{ x: number; y: number; feature: string; weight?: number }> = [];
     void input.seed;
@@ -103,6 +167,7 @@ export const defaultStrategy = createStrategy(PlanVegetationContract, "default",
         candidates.filter(
           (candidate) =>
             isEngineCompatibleVegetationSurface(candidate.feature, i, flatLandMask, biomeIndex) &&
+            isBroadVegetationHabitat(candidate.feature, i, broadHabitatFields) &&
             admitVegetationIntent(candidate, config)
         )
       );

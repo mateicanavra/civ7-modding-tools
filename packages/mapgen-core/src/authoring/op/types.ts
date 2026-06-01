@@ -1,7 +1,6 @@
 import type { Static, TSchema, TUnsafe } from "typebox";
 
 import type { NormalizeContext } from "@mapgen/engine/index.js";
-import type { StrategySelection } from "./strategy.js";
 
 // Allow ops with specific input/config types to flow through generic registries.
 type BivariantCallback<Args extends unknown[], Return> = {
@@ -9,6 +8,18 @@ type BivariantCallback<Args extends unknown[], Return> = {
 }["bivarianceHack"];
 
 type StrategiesLike = Readonly<Record<string, TSchema>>;
+type RuntimeStrategiesLike = Readonly<Record<string, { config: TSchema }>>;
+
+type StrategyConfigSchemaOf<T> = T extends { config: infer C extends TSchema } ? C : never;
+
+export type StrategyConfigSchemas = Readonly<Record<string, TSchema>>;
+
+export type StrategySelection<Strategies extends RuntimeStrategiesLike> = {
+  [K in keyof Strategies & string]: Readonly<{
+    strategy: K;
+    config: Static<StrategyConfigSchemaOf<Strategies[K]>>;
+  }>;
+}[keyof Strategies & string];
 
 export type OpContractLike = Readonly<{
   input: TSchema;
@@ -43,7 +54,7 @@ export type OpTypeBagOf<TContract extends OpContractLike> = OpTypeBag<
   TContract["strategies"]
 >;
 
-export type OpConfigSchema<Strategies extends Record<string, { config: TSchema }>> = TUnsafe<
+export type OpConfigSchema<Strategies extends RuntimeStrategiesLike> = TUnsafe<
   StrategySelection<Strategies>
 >;
 
@@ -69,7 +80,7 @@ export type DomainOpKind = "plan" | "compute" | "score" | "select";
 export type DomainOp<
   InputSchema extends TSchema,
   OutputSchema extends TSchema,
-  Strategies extends Record<string, { config: TSchema }>,
+  Strategies extends RuntimeStrategiesLike,
   Id extends string = string,
 > = Readonly<{
   kind: DomainOpKind;

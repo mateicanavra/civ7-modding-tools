@@ -3,7 +3,6 @@ import { REQUIREMENT } from "../constants";
 
 import { BaseNode } from "./BaseNode";
 import { ArgumentNode, TArgumentNode } from "./ArgumentNode";
-import { TModifierNode } from "./ModifierNode";
 
 export type TModifierRequirementNode = Pick<ModifierRequirementNode,
     "type" |
@@ -21,7 +20,7 @@ export class ModifierRequirementNode extends BaseNode<TModifierRequirementNode> 
         this.fill(payload);
     }
 
-    fill = (payload: Partial<TModifierNode> = {}) => {
+    fill = (payload: Partial<TModifierRequirementNode> = {}) => {
         for (const [key, value] of Object.entries(payload)) {
             if (this.hasOwnProperty(key)) {
                 this[key] = value;

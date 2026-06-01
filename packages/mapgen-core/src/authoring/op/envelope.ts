@@ -1,6 +1,6 @@
 import { Type, type TSchema } from "typebox";
 
-import type { StrategyConfigSchemas } from "./contract.js";
+import type { StrategyConfigSchemas } from "./types.js";
 import { buildDefaultConfigValue } from "./defaults.js";
 
 export type OpEnvelopeBuildResult = Readonly<{

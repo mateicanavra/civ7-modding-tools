@@ -1,16 +1,16 @@
-import { Type, createStage } from "@swooper/mapgen-core/authoring";
+import { createStage } from "@swooper/mapgen-core/authoring";
+import {
+  MapHydrologyKnobsSchema,
+  MapHydrologyPublicSchema,
+} from "../map-projection-public-config.js";
 import { lakes } from "./steps/index.js";
-
-const knobsSchema = Type.Object(
-  {},
-  {
-    description:
-      "Map-hydrology knobs. Static water projection currently uses step-level config only.",
-  }
-);
 
 export default createStage({
   id: "map-hydrology",
-  knobsSchema,
+  knobsSchema: MapHydrologyKnobsSchema,
+  public: MapHydrologyPublicSchema,
+  compile: () => ({
+    lakes: { projectionReadback: true },
+  }),
   steps: [lakes],
 } as const);

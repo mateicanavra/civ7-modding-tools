@@ -168,9 +168,73 @@ const PlacementOutcomeSummarySchema = Type.Object(
   { additionalProperties: false }
 );
 
+const ResourcePlacementReasonCountSchema = Type.Object(
+  {
+    reason: Type.Union([
+      Type.Literal("out-of-bounds"),
+      Type.Literal("invalid-resource-type"),
+      Type.Literal("cannot-have-resource"),
+      Type.Literal("wrong-resource-type"),
+    ]),
+    count: Type.Integer({ minimum: 0 }),
+  },
+  { additionalProperties: false }
+);
+
+const ResourcePlacementResourceSummarySchema = Type.Object(
+  {
+    resourceType: Type.Integer(),
+    plannedCount: Type.Integer({ minimum: 0 }),
+    placedCount: Type.Integer({ minimum: 0 }),
+    rejectedCount: Type.Integer({ minimum: 0 }),
+    mismatchCount: Type.Integer({ minimum: 0 }),
+    reasons: Type.Array(ResourcePlacementReasonCountSchema),
+  },
+  { additionalProperties: false }
+);
+
+const ResourcePlacementSummarySchema = Type.Object(
+  {
+    plannedCount: Type.Integer({ minimum: 0 }),
+    placedCount: Type.Integer({ minimum: 0 }),
+    rejectedCount: Type.Integer({ minimum: 0 }),
+    mismatchCount: Type.Integer({ minimum: 0 }),
+    byResource: Type.Array(ResourcePlacementResourceSummarySchema),
+    byReason: Type.Array(ResourcePlacementReasonCountSchema),
+  },
+  { additionalProperties: false }
+);
+
+const ResourceAssignmentResourceSummarySchema = Type.Object(
+  {
+    resourceType: Type.Integer(),
+    plannedCount: Type.Integer({ minimum: 0 }),
+    assignedCount: Type.Integer({ minimum: 0 }),
+    reassignedOutCount: Type.Integer({ minimum: 0 }),
+    reassignedInCount: Type.Integer({ minimum: 0 }),
+    unassignedCount: Type.Integer({ minimum: 0 }),
+  },
+  { additionalProperties: false }
+);
+
+const ResourceAssignmentSummarySchema = Type.Object(
+  {
+    requestedPlannedCount: Type.Integer({ minimum: 0 }),
+    assignedCount: Type.Integer({ minimum: 0 }),
+    reassignedCount: Type.Integer({ minimum: 0 }),
+    unassignedPreferredCount: Type.Integer({ minimum: 0 }),
+    candidateResourceTypes: Type.Array(Type.Integer({ minimum: 0 })),
+    legalCandidateResourceTypes: Type.Array(Type.Integer({ minimum: 0 })),
+    unassignableResourceTypes: Type.Array(Type.Integer({ minimum: 0 })),
+    byPreferredResource: Type.Array(ResourceAssignmentResourceSummarySchema),
+  },
+  { additionalProperties: false }
+);
+
 const ResourcePlacementOutcomesArtifactSchema = Type.Object(
   {
-    summary: PlacementOutcomeSummarySchema,
+    summary: ResourcePlacementSummarySchema,
+    assignment: ResourceAssignmentSummarySchema,
     outcomes: Type.Array(ResourcePlacementOutcomeSchema),
   },
   {

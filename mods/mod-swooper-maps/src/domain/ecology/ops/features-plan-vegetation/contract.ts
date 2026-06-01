@@ -28,6 +28,18 @@ const PlanVegetationContract = defineOp({
       description:
         "Internal biome classification index used to keep vegetation intents on engine-compatible biome bindings.",
     }),
+    surfaceTemperature: TypedArraySchemas.f32({
+      description: "Surface temperature per tile (C) used for broad feature habitat admission.",
+    }),
+    effectiveMoisture: TypedArraySchemas.f32({
+      description: "Effective moisture per tile used for broad feature habitat admission.",
+    }),
+    aridityIndex: TypedArraySchemas.f32({
+      description: "Aridity index per tile (0..1) used for broad feature habitat admission.",
+    }),
+    vegetationDensity: TypedArraySchemas.f32({
+      description: "Vegetation density per tile (0..1) used for broad feature habitat admission.",
+    }),
 
     featureIndex: TypedArraySchemas.u16({
       description: "0 = unoccupied, otherwise 1 + FEATURE_KEY_INDEX",

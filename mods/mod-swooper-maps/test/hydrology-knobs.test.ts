@@ -116,12 +116,12 @@ describe("hydrology knobs compilation", () => {
     );
   });
 
-  it("allows optional flat step config in hydrology stages", () => {
+  it("allows optional semantic public config in hydrology stages", () => {
     const compiled = standardRecipe.compileConfig(
       env,
       withFoundation({
         "hydrology-hydrography": { lakes: {} },
-        "map-hydrology": { lakes: {} },
+        "map-hydrology": {},
       })
     );
     expect(compiled["hydrology-hydrography"].lakes.planLakes.config).toEqual({
@@ -132,70 +132,47 @@ describe("hydrology knobs compilation", () => {
     expect(compiled["map-hydrology"].lakes.projectionReadback).toBe(true);
   });
 
-  it("applies knobs as deterministic transforms over flat step config baselines", () => {
+  it("applies knobs as deterministic transforms over semantic public config baselines", () => {
     const compiled = standardRecipe.compileConfig(
       env,
       withFoundation({
         "hydrology-climate-baseline": {
           knobs: { dryness: "wet", seasonality: "high", oceanCoupling: "off" },
-          "climate-baseline": {
-            computePrecipitation: {
-              strategy: "basic",
-              config: {
-                rainfallScale: 123,
-                humidityExponent: 1,
-                noiseAmplitude: 6,
-                noiseScale: 0.12,
-                waterGradient: {},
-                orographic: {},
-              },
-            },
+          precipitation: {
+            rainfallScale: 123,
+            humidityExponent: 1,
+            noiseAmplitude: 6,
+            noiseScale: 0.12,
+            waterGradient: {},
           },
         },
         "hydrology-hydrography": {
           knobs: { riverDensity: "dense", lakeiness: "many" },
-          lakes: {
-            planLakes: {
-              strategy: "default",
-              config: { maxUpstreamSteps: 0 },
-            },
-          },
-          rivers: {
-            projectRiverNetwork: {
-              strategy: "default",
-              config: {
-                minorPercentile: 0.85,
-                majorPercentile: 0.95,
-              },
-            },
+          lakes: { maxUpstreamSteps: 0 },
+          riverNetwork: {
+            minorPercentile: 0.85,
+            majorPercentile: 0.95,
           },
         },
-        "map-hydrology": {
-          lakes: { projectionReadback: true },
-        },
+        "map-hydrology": {},
         "map-rivers": {
           knobs: { riverDensity: "dense" },
-          "plot-rivers": { minLength: 11, maxLength: 11 },
+          riverProjection: { minLength: 11, maxLength: 11 },
         },
         "hydrology-climate-refine": {
           knobs: { dryness: "wet", temperature: "hot", cryosphere: "on" },
-          "climate-refine": {
-            computePrecipitation: {
-              strategy: "refine",
-              config: {
-                riverCorridor: {
-                  adjacencyRadius: 1,
-                  lowlandAdjacencyBonus: 44,
-                  highlandAdjacencyBonus: 10,
-                  lowlandElevationMax: 250,
-                },
-                lowBasin: {
-                  radius: 2,
-                  delta: 6,
-                  elevationMax: 200,
-                  openThresholdM: 20,
-                },
-              },
+          precipitationRefinement: {
+            riverCorridor: {
+              adjacencyRadius: 1,
+              lowlandAdjacencyBonus: 44,
+              highlandAdjacencyBonus: 10,
+              lowlandElevationMax: 250,
+            },
+            lowBasin: {
+              radius: 2,
+              delta: 6,
+              elevationMax: 200,
+              openThresholdM: 20,
             },
           },
         },

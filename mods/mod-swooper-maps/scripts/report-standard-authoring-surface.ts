@@ -7,7 +7,9 @@ interface SchemaLike {
   const?: Json;
   enum?: Json[];
   anyOf?: SchemaLike[];
-  items?: SchemaLike;
+  oneOf?: SchemaLike[];
+  allOf?: SchemaLike[];
+  items?: SchemaLike | SchemaLike[];
   required?: string[];
   properties?: Record<string, SchemaLike>;
   default?: Json;
@@ -191,18 +193,23 @@ function requiredOf(schema?: SchemaLike): Set<string> {
 
 function typeOf(schema?: SchemaLike): string {
   if (!schema) return "unknown";
-  if (schema.anyOf) return "union";
+  if (schema.anyOf || schema.oneOf || schema.allOf) return "union";
   if (schema.type) return schema.type;
   if (schema.const !== undefined) return "const";
   return "unknown";
+}
+
+function schemaVariants(schema?: SchemaLike): SchemaLike[] | undefined {
+  return schema?.anyOf ?? schema?.oneOf ?? schema?.allOf;
 }
 
 function enumValues(schema?: SchemaLike): Json[] | undefined {
   if (!schema) return undefined;
   if (schema.const !== undefined) return [schema.const];
   if (schema.enum) return schema.enum;
-  if (schema.anyOf) {
-    const values = schema.anyOf.flatMap((variant) => enumValues(variant) ?? []);
+  const variants = schemaVariants(schema);
+  if (variants) {
+    const values = variants.flatMap((variant) => enumValues(variant) ?? []);
     return values.length > 0 ? values : undefined;
   }
   return undefined;
@@ -223,15 +230,27 @@ function descriptionQuality(schema?: SchemaLike): "missing" | "weak" | "ok" {
 
 function isRawOpEnvelope(schema?: SchemaLike): boolean {
   if (!schema) return false;
-  const variants = schema.anyOf ?? [schema];
+  const variants = schemaVariants(schema) ?? [schema];
   return variants.some((variant) => Boolean(variant.properties?.strategy && variant.properties?.config));
 }
 
 function envelopeStrategies(schema?: SchemaLike): string[] {
   if (!schema) return [];
-  return (schema.anyOf ?? [schema])
+  return (schemaVariants(schema) ?? [schema])
     .map((variant) => variant.properties?.strategy?.const)
     .filter((value): value is string => typeof value === "string");
+}
+
+function variantPathSegment(variant: SchemaLike, index: number): string {
+  const profile = variant.properties?.profile?.const;
+  if (typeof profile === "string") return `profile:${profile}`;
+  const strategy = variant.properties?.strategy?.const;
+  if (typeof strategy === "string") return `strategy:${strategy}`;
+  return `variant:${index + 1}`;
+}
+
+function shouldTraverseVariant(variant: SchemaLike): boolean {
+  return variant.type === "object" || Boolean(variant.properties || variant.items);
 }
 
 function flattenSchema(
@@ -255,7 +274,7 @@ function flattenSchema(
       strategies: envelopeStrategies(schema),
     });
 
-    for (const variant of schema.anyOf ?? [schema]) {
+    for (const variant of schemaVariants(schema) ?? [schema]) {
       const strategy = variant.properties?.strategy?.const;
       const configSchema = variant.properties?.config;
       const requiredConfigKeys = requiredOf(configSchema);
@@ -276,6 +295,8 @@ function flattenSchema(
     return;
   }
 
+  const variants = schemaVariants(schema);
+
   const properties = propertiesOf(schema);
   rows.push({
     path: path.join("."),
@@ -291,18 +312,32 @@ function flattenSchema(
     strategies,
   });
 
+  const traversableVariants = variants?.filter(shouldTraverseVariant);
+  if (traversableVariants?.length) {
+    traversableVariants.forEach((variant, index) => {
+      flattenSchema(variant, [...path, "variants", variantPathSegment(variant, index)], rows, required, strategies);
+    });
+    return;
+  }
+
   const requiredKeys = requiredOf(schema);
   for (const [key, childSchema] of Object.entries(properties)) {
     flattenSchema(childSchema, [...path, key], rows, requiredKeys.has(key), strategies);
   }
 
   if (schema.items) {
-    flattenSchema(schema.items, [...path, "items"], rows, false, strategies);
+    if (Array.isArray(schema.items)) {
+      schema.items.forEach((itemSchema, index) => {
+        flattenSchema(itemSchema, [...path, "items", String(index)], rows, false, strategies);
+      });
+    } else {
+      flattenSchema(schema.items, [...path, "items"], rows, false, strategies);
+    }
   }
 }
 
 function variantForStrategy(schema: SchemaLike | undefined, strategy: string): SchemaLike | undefined {
-  return (schema?.anyOf ?? [schema]).find((variant) => variant?.properties?.strategy?.const === strategy);
+  return (schemaVariants(schema) ?? [schema]).find((variant) => variant?.properties?.strategy?.const === strategy);
 }
 
 function schemaAtPath(root: SchemaLike | undefined, pathSegments: string[]): SchemaLike | undefined {
@@ -316,12 +351,19 @@ function schemaAtPath(root: SchemaLike | undefined, pathSegments: string[]): Sch
       continue;
     }
     if (part === "config") {
-      const variant = schema?.anyOf?.[0] ?? schema;
+      const variant = schemaVariants(schema)?.[0] ?? schema;
       schema = variant?.properties?.config;
       continue;
     }
     if (part === "items") {
-      schema = schema?.items;
+      const items = schema?.items;
+      if (Array.isArray(items)) {
+        const itemIndex = Number(pathSegments[index + 1]);
+        schema = Number.isInteger(itemIndex) ? items[itemIndex] : items[0];
+        if (Number.isInteger(itemIndex)) index += 1;
+      } else {
+        schema = items;
+      }
       continue;
     }
     schema = schema?.properties?.[part];

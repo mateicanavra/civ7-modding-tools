@@ -73,8 +73,8 @@ weak.
 - `bun run openspec:validate`
 - Existing local stats/test state recorded without inflating proof claims.
 - Direct-control surface inspected through the package CLI/catalog/status
-  routes; live runtime proof remains unresolved until a game/tuner session is
-  reachable and cliff readback is first-class or bounded through an approved
-  read-only probe.
+  routes; target-map seed `1018` runtime proof is captured through the
+  package-backed setup/start verifier, Tuner map/GameInfo/visibility reads, and
+  a bounded read-only elevation/cliff aggregate probe.
 - Peer review P1/P2 findings recorded and dispositioned before closure.
 - `git diff --check`

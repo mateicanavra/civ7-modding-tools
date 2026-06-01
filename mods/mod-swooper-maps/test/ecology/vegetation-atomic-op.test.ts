@@ -1,7 +1,19 @@
 import { describe, expect, it } from "bun:test";
 import ecology from "@mapgen/domain/ecology/ops";
+import { BIOME_SYMBOL_TO_INDEX } from "../../src/domain/ecology/types.js";
 
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
+
+function broadHabitatFields(size: number) {
+  return {
+    flatLandMask: new Uint8Array(size).fill(1),
+    biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid),
+    surfaceTemperature: new Float32Array(size).fill(20),
+    effectiveMoisture: new Float32Array(size).fill(120),
+    aridityIndex: new Float32Array(size).fill(0.4),
+    vegetationDensity: new Float32Array(size).fill(0.35),
+  };
+}
 
 describe("planVegetation (joint resolver)", () => {
   it("selects the highest-scoring vegetation feature per land tile and respects occupancy", () => {
@@ -29,6 +41,16 @@ describe("planVegetation (joint resolver)", () => {
     scoreSagebrushSteppe01[3] = 1;
 
     const landMask = new Uint8Array(size).fill(1);
+    const habitat = broadHabitatFields(size);
+    habitat.biomeIndex[1] = BIOME_SYMBOL_TO_INDEX.boreal;
+    habitat.surfaceTemperature[1] = 2;
+    habitat.biomeIndex[2] = BIOME_SYMBOL_TO_INDEX.tropicalRainforest;
+    habitat.surfaceTemperature[2] = 25;
+    habitat.effectiveMoisture[2] = 120;
+    habitat.vegetationDensity[2] = 0.45;
+    habitat.biomeIndex[3] = BIOME_SYMBOL_TO_INDEX.desert;
+    habitat.surfaceTemperature[3] = 20;
+    habitat.vegetationDensity[3] = 0.2;
     const featureIndex = new Uint16Array(size);
     featureIndex[2] = 1;
     const reserved = new Uint8Array(size);
@@ -45,6 +67,7 @@ describe("planVegetation (joint resolver)", () => {
         scoreSavannaWoodland01,
         scoreSagebrushSteppe01,
         landMask,
+        ...habitat,
         featureIndex,
         reserved,
       },
@@ -72,6 +95,7 @@ describe("planVegetation (joint resolver)", () => {
       scoreSavannaWoodland01: new Float32Array(size).fill(1),
       scoreSagebrushSteppe01: new Float32Array(size).fill(1),
       landMask: new Uint8Array(size).fill(1),
+      ...broadHabitatFields(size),
       featureIndex: new Uint16Array(size),
       reserved: new Uint8Array(size),
     } as const;
@@ -83,7 +107,7 @@ describe("planVegetation (joint resolver)", () => {
 
   it("uses feature-local admission thresholds before choosing the vegetation candidate", () => {
     const width = 1;
-    const height = 2;
+    const height = 3;
     const size = width * height;
     const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetation, {
       strategy: "default",
@@ -103,9 +127,19 @@ describe("planVegetation (joint resolver)", () => {
     const scoreSagebrushSteppe01 = new Float32Array(size);
 
     scoreRainforest01[0] = 0.4;
-    scoreTaiga01[0] = 0.18;
-    scoreForest01[1] = 0.18;
-    scoreSagebrushSteppe01[1] = 0.07;
+    scoreTaiga01[1] = 0.18;
+    scoreForest01[2] = 0.18;
+    scoreSagebrushSteppe01[2] = 0.07;
+    const habitat = broadHabitatFields(size);
+    habitat.biomeIndex[0] = BIOME_SYMBOL_TO_INDEX.tropicalRainforest;
+    habitat.surfaceTemperature[0] = 25;
+    habitat.effectiveMoisture[0] = 120;
+    habitat.vegetationDensity[0] = 0.45;
+    habitat.biomeIndex[1] = BIOME_SYMBOL_TO_INDEX.boreal;
+    habitat.surfaceTemperature[1] = 0;
+    habitat.biomeIndex[2] = BIOME_SYMBOL_TO_INDEX.desert;
+    habitat.surfaceTemperature[2] = 18;
+    habitat.vegetationDensity[2] = 0.2;
 
     const result = ecology.ops.planVegetation.run(
       {
@@ -118,6 +152,7 @@ describe("planVegetation (joint resolver)", () => {
         scoreSavannaWoodland01,
         scoreSagebrushSteppe01,
         landMask: new Uint8Array(size).fill(1),
+        ...habitat,
         featureIndex: new Uint16Array(size),
         reserved: new Uint8Array(size),
       },
@@ -125,8 +160,51 @@ describe("planVegetation (joint resolver)", () => {
     );
 
     expect(result.placements).toEqual([
-      { x: 0, y: 0, feature: "FEATURE_TAIGA" },
-      { x: 0, y: 1, feature: "FEATURE_SAGEBRUSH_STEPPE" },
+      { x: 0, y: 1, feature: "FEATURE_TAIGA" },
+      { x: 0, y: 2, feature: "FEATURE_SAGEBRUSH_STEPPE" },
     ]);
+  });
+
+  it("rejects vegetation candidates outside the broad feature habitat envelope", () => {
+    const width = 1;
+    const height = 2;
+    const size = width * height;
+    const selection = normalizeOpSelectionOrThrow(ecology.ops.planVegetation, {
+      strategy: "default",
+      config: {
+        forestMinConfidence01: 0,
+        rainforestMinConfidence01: 0,
+        taigaMinConfidence01: 0,
+        savannaWoodlandMinConfidence01: 0,
+        sagebrushSteppeMinConfidence01: 0,
+      },
+    });
+
+    const scoreSagebrushSteppe01 = new Float32Array(size).fill(1);
+    const habitat = broadHabitatFields(size);
+    habitat.biomeIndex.fill(BIOME_SYMBOL_TO_INDEX.desert);
+    habitat.surfaceTemperature[0] = 38;
+    habitat.surfaceTemperature[1] = 22;
+    habitat.vegetationDensity.fill(0.2);
+
+    const result = ecology.ops.planVegetation.run(
+      {
+        width,
+        height,
+        seed: 1,
+        scoreForest01: new Float32Array(size),
+        scoreRainforest01: new Float32Array(size),
+        scoreTaiga01: new Float32Array(size),
+        scoreSavannaWoodland01: new Float32Array(size),
+        scoreSagebrushSteppe01,
+        landMask: new Uint8Array(size).fill(1),
+        ...habitat,
+        featureIndex: new Uint16Array(size),
+        reserved: new Uint8Array(size),
+      },
+      selection
+    );
+
+    expect(result.placements).toEqual([{ x: 0, y: 1, feature: "FEATURE_SAGEBRUSH_STEPPE" }]);
   });
 });

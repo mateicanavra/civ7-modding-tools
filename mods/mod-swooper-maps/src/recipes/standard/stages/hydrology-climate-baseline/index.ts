@@ -6,6 +6,7 @@ import {
   HydrologySeasonalityKnobSchema,
   HydrologyTemperatureKnobSchema,
 } from "@mapgen/domain/hydrology/config.js";
+import { HydrologyClimateBaselinePublicSchema } from "../hydrology-public-config.js";
 
 const knobsSchema = Type.Object(
   {
@@ -22,7 +23,7 @@ const knobsSchema = Type.Object(
      *
      * Stage scope:
      * - Transforms baseline temperature regime and downstream evap/precip coupling inputs.
-     * - Must not implement “compat” behavior; use flat step config for exact numeric control.
+     * - Must not implement “compat” behavior; use semantic public controls for exact numeric control.
      */
     temperature: Type.Optional(HydrologyTemperatureKnobSchema),
     /**
@@ -43,12 +44,30 @@ const knobsSchema = Type.Object(
   },
   {
     description:
-      "Hydrology climate-baseline knobs (dryness/temperature/seasonality/oceanCoupling). Knobs apply after defaulted step config as deterministic transforms.",
+      "Hydrology climate-baseline knobs (dryness/temperature/seasonality/oceanCoupling). Knobs apply after defaulted climate controls as deterministic transforms.",
   }
 );
 
 export default createStage({
   id: "hydrology-climate-baseline",
   knobsSchema,
+  public: HydrologyClimateBaselinePublicSchema,
   steps: [climateBaseline],
+  compile: ({ config }: { config: Record<string, unknown> }) => ({
+    "climate-baseline": {
+      seasonality: config.seasonalCycle ?? {},
+      computeRadiativeForcing: { strategy: "default", config: config.solarForcing ?? {} },
+      computeThermalState: { strategy: "default", config: config.thermalState ?? {} },
+      computeAtmosphericCirculation: {
+        strategy: "default",
+        config: config.atmosphericCirculation ?? {},
+      },
+      computeOceanSurfaceCurrents: { strategy: "default", config: config.oceanCurrents ?? {} },
+      computeOceanGeometry: { strategy: "default", config: config.oceanGeometry ?? {} },
+      computeOceanThermalState: { strategy: "default", config: config.oceanThermalState ?? {} },
+      computeEvaporationSources: { strategy: "default", config: config.evaporation ?? {} },
+      transportMoisture: { strategy: "default", config: config.moistureTransport ?? {} },
+      computePrecipitation: { strategy: "default", config: config.precipitation ?? {} },
+    },
+  }),
 } as const);

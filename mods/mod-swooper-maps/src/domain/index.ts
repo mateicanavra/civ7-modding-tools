@@ -4,3 +4,4 @@ export * as ecology from "@mapgen/domain/ecology/index.js";
 export * as placement from "@mapgen/domain/placement/index.js";
 export * as narrative from "@mapgen/domain/narrative/index.js";
 export * as foundation from "@mapgen/domain/foundation/index.js";
+export * as resources from "@mapgen/domain/resources/index.js";

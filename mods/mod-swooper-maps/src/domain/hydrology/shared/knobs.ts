@@ -34,7 +34,7 @@ export const HydrologyTemperatureKnobSchema = Type.Union(
   {
     default: "temperate",
     description:
-      "Global thermal preset (cold/temperate/hot). Used as a bias over the step’s default temperature regime; influences cryosphere and evap/precip behavior.",
+      "Global thermal preset (cold/temperate/hot). Used as a bias over the default temperature regime; influences cryosphere and evap/precip behavior.",
   }
 );
 

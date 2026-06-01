@@ -36,3 +36,50 @@
 | OpenSpec/proof peer | P2 | OpenSpec tasks did not explicitly require Studio recipe artifact regeneration even though Studio tests consume generated artifacts. | Accepted. Updated tasks to require artifact regeneration and recorded `bun run build:studio-recipes` in the proof ledger. |
 | implementation peer | P2 | `volcanoes.maxVolcanoes` documentation said all nonpositive values disable the cap, while the schema accepted only down to `-1`. | Accepted. Clarified the accepted nonpositive sentinel range and broadened the lower bound to `-1000` while preserving a finite authoring range. |
 | implementation peer | P2 | Morphology public stage descriptions still used internal `step/op` or `envelope` vocabulary. | Accepted. Reworded public stage descriptions to author-facing map semantics and added generated/source schema guards against `step/op`, `envelope`, or `internal` wording in Morphology public stage descriptions. |
+
+## 2026-05-31: Hydrology Authoring Surface Alignment Slice
+
+| reviewer | priority | finding | disposition |
+| --- | --- | --- | --- |
+| OpenSpec/proof peer | P1 | Hydrology closure proof and review disposition were not recorded before peer review. | Accepted. Added the Hydrology proof section with exact commands/results, ledger counts, fixture provenance, Studio artifact proof, OpenSpec validation, TypeScript residual risk, and explicit runtime non-proof; this review-disposition section records accepted findings before commit. |
+| OpenSpec/proof peer | P2 | Migration notes contradicted the intended `hydrology-hydrography.lakes` semantic public key by listing `lakes` among removed internal authoring keys. | Accepted. Clarified that `lakes` remains a semantic public group while legacy nested `lakes.planLakes.{strategy,config}` is removed, updated the OpenSpec scenario, and added a strict compile-error guard for the legacy nested wrapper. |
+| OpenSpec/proof peer | P2 | Hydrology documentation gates did not fully prove author-facing language quality. | Accepted. Normalized cloned Hydrology descriptions away from `strategy`, `internal`, and envelope vocabulary, and added MapGen plus Studio schema guards against `step/op`, `envelope`, `internal`, or `strategy` wording in Hydrology public field descriptions. |
+| implementation peer | P2 | Hydrology public knob descriptions still exposed `step config` vocabulary. | Accepted. Reworded Hydrology stage knob descriptions and the shared temperature knob description to author-facing climate/refinement-control language, expanded Hydrology-only description guards to catch plain `step` wording, and regenerated Studio recipe artifacts. |
+| implementation peer | P2 | `apps/mapgen-studio/src/ui/data/defaultConfig.ts` still exported stale Hydrology raw envelopes even though current Studio uses generated artifacts. | Accepted. Migrated the legacy source helper to semantic Hydrology baseline/hydrography/refine keys and added a Studio test guard so that helper cannot reintroduce Hydrology raw envelopes. |
+
+## 2026-06-01: Ecology Authoring Surface Alignment Slice
+
+| reviewer | priority | finding | disposition |
+| --- | --- | --- | --- |
+| OpenSpec/proof peer | P2 | Project docs marked the Ecology slice complete before peer review disposition and `git diff --check` closure were recorded. | Accepted. Added this Ecology review disposition section, completed the OpenSpec verification task after repair, and kept the project completion checkbox tied to the now-dispositioned slice. |
+| OpenSpec/proof peer | P2 | Project and taxonomy wording implied all Ecology scoring/planning internals would collapse into profiles, while the implemented design intentionally keeps expert scoring/planning controls and defers fuller profile collapse. | Accepted. Narrowed the project and taxonomy language to the actual accepted boundary: semantic truth-stage groups, profile-based strategy selection, behavior-equivalent expert scoring/planning controls, and hidden raw envelopes, empty ops, and selector ids. |
+| implementation peer | P2 | `reefPlanning.profile = "shippingLanes"` used the default reef-planning schema defaults, so profile-only authoring compiled to `stride: 1` instead of the `shipping-lanes` strategy default `stride: 5`. | Accepted. Ecology profile public schemas now use profile-specific strategy schemas, and the compile test asserts profile-only `shippingLanes` lowers to `shipping-lanes` with `stride: 5`. |
+| implementation peer | P2 | Legacy top-level `ecology` rejection still pointed authors at stale `ecology-features-score`. | Accepted. Updated the split-stage compile error to name `ecology-features` and added a regression test that rejects stale guidance. |
+
+## 2026-06-01: Projection Authoring Surface Alignment Slice
+
+| reviewer | priority | finding | disposition |
+| --- | --- | --- | --- |
+| OpenSpec/proof peer | P1 | `biomeBindings.marine` was exposed as a free six-way biome selector even though water tiles must stay `BIOME_MARINE`. | Accepted. Constrained `marine` to `Type.Literal("BIOME_MARINE")`, regenerated Studio artifacts, and added MapGen plus Studio schema tests proving `marine: "BIOME_DESERT"` fails strict validation. |
+| OpenSpec/proof peer | P2 | The `tropicalSeasonal` schema default correction was not recorded as a non-shipped default change. | Accepted. Added compile/default assertions proving omitted `tropicalSeasonal` lowers to `BIOME_PLAINS`, recorded the correction in the design and proof ledger, and kept runtime proof explicitly unclaimed. |
+| OpenSpec/proof peer | P2 | Unknown-key proof omitted removed `map-elevation.build-elevation`. | Accepted. Added `map-elevation.build-elevation` to the raw Projection rejection fixture and asserted the unknown-key path. |
+| implementation/schema peer | P2 | Broader `shipped-map-identity.test.ts` currently expects internal ecology step envelopes from public shipped configs. | Deferred. This is outside the projection diff and appears to predate the slice, but it is now recorded as a broader config-identity suite blocker for the next guard-hardening/shared-consumer slice. Focused shipped config validation, compile equivalence, and Studio schema/default tests pass for Projection. |
+
+## 2026-06-01: Placement Authoring Surface Alignment Slice
+
+| reviewer | priority | finding | disposition |
+| --- | --- | --- | --- |
+| OpenSpec/proof peer | P2 | Placement was marked complete before peer-review disposition was recorded, and the OpenSpec task wording implied the commit id could already be recorded inside the pre-commit docs. | Accepted. Added this Placement review disposition section and clarified the OpenSpec closure task: docs record proof, review, branch boundary, residual risks, and runtime non-proof; the exact commit boundary is captured by the Graphite commit and final closeout after commit creation. |
+| OpenSpec/proof peer | P2 | Spec/proof wording said adapter resource candidates and runtime starts were injected by compile/defaulting, which conflated public-config omission, legacy internal defaults, and runtime step inputs. | Accepted. Reworded the OpenSpec and proof ledger to state that those fields are not public config, compile preserves legacy internal envelopes for deterministic equivalence, and execution obtains adapter resource catalogs and runtime start data from placement step inputs. |
+
+## 2026-06-01: Studio/SDK Authoring Surface Guards Slice
+
+| reviewer | priority | finding | disposition |
+| --- | --- | --- | --- |
+| OpenSpec/proof peer | P2 | Generated-map guard did not fully enforce the OpenSpec no-inline requirement because raw envelopes with unquoted `strategy:`/`config:` object-literal keys could pass. | Accepted. The generated map guard now asserts the terminal SDK `createMap` config expression is exactly `canonicalRecipeConfig<StandardRecipeConfig>(mapConfig)`, allows only the SDK config property, and rejects unquoted `strategy:` leakage. |
+| OpenSpec/proof peer | P2 | `git diff --check` was a declared closure gate but was not recorded in the proof ledger. | Accepted. Added the whitespace check to the guard-slice proof ledger. |
+| OpenSpec/proof peer | P2 | The prior deferred `shipped-map-identity.test.ts` blocker was repaired in code but not dispositioned as repaired. | Accepted. This guard slice records the identity-test repair: public configs are asserted on semantic Ecology feature keys and compiled planner internals are asserted after deterministic compile. |
+| implementation/schema peer | P2 | Studio artifact guard compared generated artifacts to generated `dist` stages, so stale generated schema/UI metadata could self-validate. | Accepted. The Studio artifact guard now derives expected schema and UI metadata from source `mods/mod-swooper-maps/src/recipes/standard/recipe` stages and compares generated artifacts against that source-derived contract. |
+| implementation/schema peer | P2 | Studio UI metadata could omit stale stages/steps and still pass because the focus-path test only iterated generated UI metadata. | Accepted. Generated UI metadata must now equal source-derived stage/step/focus metadata before focus paths are checked against generated schema/defaults. |
+| implementation/schema peer | P2 | Raw-envelope leakage was not guarded through nested open public schema nodes. | Accepted. The source-stage guard now recursively fails every public object schema node whose `additionalProperties` is not `false`. |
+| implementation/schema peer | P2 | Generated map hash guards validated only hash shape, not identity. | Accepted. The generated map guard now recomputes expected `configHash` and `envelopeHash` from canonical source config JSON using the generator's stable canonicalization rules. |

@@ -13,7 +13,7 @@ describe("ecology feature habitat eligibility", () => {
     const cold = new Float32Array(size).fill(8);
     const shallow = new Int16Array(size).fill(-10);
     const coldReefDepth = new Int16Array(size).fill(-300);
-    const shelfMask = new Uint8Array(size).fill(1);
+    const shelfMask = new Uint8Array([1, 0, 1, 1]);
     const coastalWater = new Uint8Array([1, 0, 1, 1]);
     const distanceToCoast = new Uint16Array([1, 5, 1, 1]);
 

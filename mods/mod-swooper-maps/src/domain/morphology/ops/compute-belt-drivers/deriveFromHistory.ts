@@ -424,6 +424,7 @@ export function deriveBeltDriversFromHistory(input: {
 
   let nextComponentId = 1;
   const beltMask = new Uint8Array(size);
+  const beltSeedMask = new Uint8Array(size);
   const beltComponents: BeltComponentSummary[] = [];
 
   for (const boundaryType of [
@@ -460,7 +461,9 @@ export function deriveBeltDriversFromHistory(input: {
     for (const component of filtered.components) beltComponents.push(component);
     const filteredMask = filtered.mask;
     for (let i = 0; i < size; i++) {
-      if (filteredMask[i]) beltMask[i] = 1;
+      if (!filteredMask[i]) continue;
+      beltMask[i] = 1;
+      if (seeds?.[i] === 1 && (intensityBlend[i] ?? 0) > 0) beltSeedMask[i] = 1;
     }
   }
 
@@ -472,11 +475,6 @@ export function deriveBeltDriversFromHistory(input: {
   );
   // Seed diffusion from the high-intensity spine (not the entire beltMask), otherwise
   // beltDistance collapses to 0 across the belt and boundaryCloseness saturates everywhere.
-  const beltSeedMask = new Uint8Array(size);
-  for (let i = 0; i < size; i++) {
-    if (beltMask[i] !== 1) continue;
-    beltSeedMask[i] = 1;
-  }
   const { distance: beltDistance, nearestSeed: beltNearestSeed } = computeDistanceField(
     beltSeedMask,
     width,

@@ -25,11 +25,12 @@ Active MapGen / Swooper Maps normalization work is governed by
 This reference records the current standard recipe surface, but parts of it are
 known to be transitional during the OpenSpec change train:
 
-- Config posture uses the packet's flat default stage surface
-  `{ knobs?, [stepId]?: stepConfig }`; persisted SDK-native `advanced` wrappers
-  are rejected.
-- Ecology, placement, lake projection, import boundaries, and guardrails are
-  updated by their respective `openspec/changes/normalize-*` slices.
+- Config posture uses flat stage surfaces. Stages without a public transform use
+  `{ knobs?, [stepId]?: stepConfig }`; stages with an explicit public+compile
+  transform use `{ knobs?, [publicKey]?: publicConfig }`. Persisted SDK-native
+  `advanced` wrappers are rejected.
+- Import boundaries and guardrails are updated by their respective
+  `openspec/changes/normalize-*` slices.
 
 When this page conflicts with the normalization packet during that workstream,
 follow the packet and the controlling OpenSpec slice, then update this page in
@@ -89,17 +90,19 @@ Stage-level posture:
 
 - Wrapper-only `advanced` stage surfaces have been removed. Step overrides live
   at `<stageId>.<stepId>`.
-- `map-morphology` uses the same flat step-id surface as other standard stages:
-  `plot-coasts`, `plot-continents`, `plot-mountains`, and `plot-volcanoes`.
-- `map-hydrology` stamps static lake water before `map-elevation` builds engine
+- Projection `map-*` stages expose semantic projection/materialization controls
+  and compile empty runtime steps, readback, and fixed defaults internally.
+  `map-hydrology` stamps static lake water before `map-elevation` builds engine
   elevation; `map-rivers` models rivers after elevation is finalized.
 - Mountain/foothill strategy config belongs to
   `morphology-features.mountains`. The `map-morphology.plot-mountains` step is
   projection-only and rejects truth-planning knobs/config.
-- Placement is split by product/effect contract: natural wonders, surface
-  preparation, resources, starts, discoveries, advanced starts, and final
-  summary/evidence. The final `placement` step consumes product artifacts; it
-  does not rerun product materialization.
+- Placement exposes product-facing controls for natural wonders, discoveries,
+  floodplains, and resources, then compiles them into internal planner and
+  product/effect step config. Adapter resource catalogs and runtime start-sector
+  inputs are supplied by the run environment rather than authored map config.
+  The final `placement` step consumes product artifacts; it does not rerun
+  product materialization.
 
 ## Domains + ops registry
 

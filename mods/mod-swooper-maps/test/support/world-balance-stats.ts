@@ -1,5 +1,10 @@
-import { createMockAdapter } from "@civ7/adapter";
+import {
+  createMockAdapter,
+  type ResourcePlacementMismatchReason,
+  type ResourcePlacementRejectionReason,
+} from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
+import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import standardRecipe, { type StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
@@ -101,6 +106,35 @@ export type WorldBalanceStats = Readonly<{
   featureAttemptCounts: Readonly<Record<string, number>>;
   featureRejectCounts: Readonly<Record<string, number>>;
   featureCounts: Readonly<Record<string, number>>;
+  resourceTargetCount: number;
+  resourcePlannedCount: number;
+  resourcePlacedCount: number;
+  resourceRejectedCount: number;
+  resourceMismatchCount: number;
+  resourceUniquePlannedTypes: number;
+  resourceUniquePlacedTypes: number;
+  resourcePlacedCountMinByType: number;
+  resourcePlacedCountMaxByType: number;
+  resourceOutcomeCountsByResource: readonly ResourceOutcomeResourceStats[];
+  resourceOutcomeCountsByReason: readonly ResourceOutcomeReasonStats[];
+  resourcePlanTypeCounts: Readonly<Record<string, number>>;
+  resourcePlacedTypeCounts: Readonly<Record<string, number>>;
+  resourceRejectReasonCounts: Readonly<Record<string, number>>;
+  finalResourceTypeCounts: Readonly<Record<string, number>>;
+}>;
+
+export type ResourceOutcomeReasonStats = Readonly<{
+  reason: ResourcePlacementRejectionReason | ResourcePlacementMismatchReason;
+  count: number;
+}>;
+
+export type ResourceOutcomeResourceStats = Readonly<{
+  resourceType: number;
+  plannedCount: number;
+  placedCount: number;
+  rejectedCount: number;
+  mismatchCount: number;
+  reasons: readonly ResourceOutcomeReasonStats[];
 }>;
 
 const FEATURE_KEYS = [
@@ -203,6 +237,11 @@ function safeRatio(numerator: number, denominator: number): number {
   return denominator === 0 ? 0 : roundMetric(numerator / denominator);
 }
 
+function incrementCount(counts: Record<string, number>, key: string | number): void {
+  const normalizedKey = String(key);
+  counts[normalizedKey] = (counts[normalizedKey] ?? 0) + 1;
+}
+
 function standardDeviation(values: readonly number[]): number {
   if (values.length === 0) return 0;
   const average = mean(values);
@@ -220,7 +259,9 @@ function computeMeanLocalRelief(
   let comparisons = 0;
   for (let idx = 0; idx < landMask.length; idx++) {
     if (landMask[idx] !== 1) continue;
-    for (const neighbor of hexOddRNeighbors(idx, width, height)) {
+    const x = idx % width;
+    const y = (idx / width) | 0;
+    for (const neighbor of getHexNeighborIndicesOddQ(x, y, width, height)) {
       if (neighbor <= idx || landMask[neighbor] !== 1) continue;
       sum += Math.abs((elevation[idx] ?? 0) - (elevation[neighbor] ?? 0));
       comparisons += 1;
@@ -230,43 +271,9 @@ function computeMeanLocalRelief(
 }
 
 /**
- * Uses the same odd-row hex adjacency that map stages visualize so lake shape
- * metrics describe player-visible connected water bodies, not square-grid blobs.
- */
-function hexOddRNeighbors(index: number, width: number, height: number): number[] {
-  const x = index % width;
-  const y = (index / width) | 0;
-  const offsets =
-    y % 2 === 0
-      ? [
-          [1, 0],
-          [-1, 0],
-          [0, -1],
-          [-1, -1],
-          [0, 1],
-          [-1, 1],
-        ]
-      : [
-          [1, 0],
-          [-1, 0],
-          [1, -1],
-          [0, -1],
-          [1, 1],
-          [0, 1],
-        ];
-  const neighbors: number[] = [];
-  for (const [dx, dy] of offsets) {
-    const nx = x + dx;
-    const ny = y + dy;
-    if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
-    neighbors.push(ny * width + nx);
-  }
-  return neighbors;
-}
-
-/**
  * Connected-component metrics catch the failure mode where total lake area looks
- * acceptable but the map is covered in one-tile circular basins.
+ * acceptable but the map is covered in one-tile circular basins. The canonical
+ * odd-q, x-wrapping topology matches the Morphology generators.
  */
 function computeMaskComponents(mask: Uint8Array, width: number, height: number): {
   componentCount: number;
@@ -288,7 +295,9 @@ function computeMaskComponents(mask: Uint8Array, width: number, height: number):
     while (queue.length > 0) {
       const current = queue.pop()!;
       componentSize += 1;
-      for (const neighbor of hexOddRNeighbors(current, width, height)) {
+      const x = current % width;
+      const y = (current / width) | 0;
+      for (const neighbor of getHexNeighborIndicesOddQ(x, y, width, height)) {
         if (mask[neighbor] !== 1 || visited[neighbor] === 1) continue;
         visited[neighbor] = 1;
         queue.push(neighbor);
@@ -428,6 +437,32 @@ export function collectWorldBalanceStats(args: Readonly<{
   const placementSurface = context.artifacts.get(placementArtifacts.placementSurfacePreparation.id) as
     | { finalLakeWaterDriftCount?: number; finalLakeClassificationDriftCount?: number }
     | undefined;
+  const resourcePlan = context.artifacts.get(placementArtifacts.resourcePlan.id) as
+    | {
+        targetCount?: number;
+        plannedCount?: number;
+        placements?: ReadonlyArray<Readonly<{ preferredResourceType?: number }>>;
+      }
+    | undefined;
+  const resourcePlacement = context.artifacts.get(placementArtifacts.resourcePlacementOutcomes.id) as
+    | {
+        summary?: {
+          plannedCount?: number;
+          placedCount?: number;
+          rejectedCount?: number;
+          mismatchCount?: number;
+          byResource?: ResourceOutcomeResourceStats[];
+          byReason?: ResourceOutcomeReasonStats[];
+        };
+        outcomes?: ReadonlyArray<
+          Readonly<{
+            status?: "placed" | "rejected" | "mismatch";
+            resourceType?: number;
+            reason?: string;
+          }>
+        >;
+      }
+    | undefined;
   const climateIndices = context.artifacts.get(hydrologyClimateRefineArtifacts.climateIndices.id) as
     | { aridityIndex?: Float32Array; effectiveMoisture?: Float32Array }
     | undefined;
@@ -459,6 +494,12 @@ export function collectWorldBalanceStats(args: Readonly<{
   if (!(engineLakeProjection?.lakeMask instanceof Uint8Array)) {
     throw new Error("Missing map-hydrology engine lake projection.");
   }
+  if (!Array.isArray(resourcePlan?.placements)) {
+    throw new Error("Missing placement.resourcePlan.");
+  }
+  if (!Array.isArray(resourcePlacement?.outcomes)) {
+    throw new Error("Missing placement.resourcePlacementOutcomes.");
+  }
   if (
     !(climateIndices?.aridityIndex instanceof Float32Array) ||
     !(climateIndices.effectiveMoisture instanceof Float32Array)
@@ -485,6 +526,13 @@ export function collectWorldBalanceStats(args: Readonly<{
         rejectedCanHaveFeatureByFeature?: Record<string, number>;
       }
     | undefined;
+  if (!resourcePlacement.summary) {
+    throw new Error("Missing placement resource outcome summary.");
+  }
+  const resourceOutcomeCountsByResource = resourcePlacement.summary.byResource ?? [];
+  const resourcePlacedCounts = resourceOutcomeCountsByResource
+    .filter((entry) => entry.placedCount > 0)
+    .map((entry) => entry.placedCount);
 
   let waterTiles = 0;
   let postProjectionLandTiles = 0;
@@ -517,15 +565,22 @@ export function collectWorldBalanceStats(args: Readonly<{
   const featureHabitatMismatchCounts: Record<string, number> = Object.fromEntries(
     FEATURE_KEYS.map((key) => [key, 0])
   );
+  const resourcePlanTypeCounts: Record<string, number> = {};
+  const resourcePlacedTypeCounts: Record<string, number> = {};
+  const resourceRejectReasonCounts: Record<string, number> = {};
+  const finalResourceTypeCounts: Record<string, number> = {};
   const featureTypeByKey = Object.fromEntries(
     FEATURE_KEYS.map((key) => [key, adapter.getFeatureTypeIndex(key)])
   );
+  const noResource = adapter.NO_RESOURCE | 0;
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const idx = y * width + x;
       const isWater = adapter.isWater(x, y);
       const terrain = adapter.getTerrainType(x, y);
       const feature = adapter.getFeatureType(x, y);
+      const resource = adapter.getResourceType(x, y) | 0;
+      if (resource !== noResource) incrementCount(finalResourceTypeCounts, resource);
       if (isWater) waterTiles += 1;
       else {
         postProjectionLandTiles += 1;
@@ -587,6 +642,19 @@ export function collectWorldBalanceStats(args: Readonly<{
           featureHabitatMismatchCounts[key] += 1;
         }
       }
+    }
+  }
+  for (const placement of resourcePlan.placements) {
+    if (Number.isFinite(placement.preferredResourceType)) {
+      incrementCount(resourcePlanTypeCounts, placement.preferredResourceType as number);
+    }
+  }
+  for (const outcome of resourcePlacement.outcomes) {
+    if (outcome.status === "placed" && Number.isFinite(outcome.resourceType)) {
+      incrementCount(resourcePlacedTypeCounts, outcome.resourceType as number);
+    }
+    if (outcome.status === "rejected") {
+      incrementCount(resourceRejectReasonCounts, outcome.reason ?? "unknown");
     }
   }
 
@@ -740,5 +808,22 @@ export function collectWorldBalanceStats(args: Readonly<{
     featureAttemptCounts: featureApplyDiagnostics?.attemptedByFeature ?? {},
     featureRejectCounts: featureApplyDiagnostics?.rejectedCanHaveFeatureByFeature ?? {},
     featureCounts,
+    resourceTargetCount: Math.max(0, resourcePlan.targetCount ?? 0),
+    resourcePlannedCount: Math.max(0, resourcePlacement.summary?.plannedCount ?? 0),
+    resourcePlacedCount: Math.max(0, resourcePlacement.summary?.placedCount ?? 0),
+    resourceRejectedCount: Math.max(0, resourcePlacement.summary?.rejectedCount ?? 0),
+    resourceMismatchCount: Math.max(0, resourcePlacement.summary?.mismatchCount ?? 0),
+    resourceUniquePlannedTypes: resourceOutcomeCountsByResource.filter((entry) => entry.plannedCount > 0)
+      .length,
+    resourceUniquePlacedTypes: resourceOutcomeCountsByResource.filter((entry) => entry.placedCount > 0)
+      .length,
+    resourcePlacedCountMinByType: resourcePlacedCounts.length === 0 ? 0 : Math.min(...resourcePlacedCounts),
+    resourcePlacedCountMaxByType: resourcePlacedCounts.length === 0 ? 0 : Math.max(...resourcePlacedCounts),
+    resourceOutcomeCountsByResource,
+    resourceOutcomeCountsByReason: resourcePlacement.summary.byReason ?? [],
+    resourcePlanTypeCounts,
+    resourcePlacedTypeCounts,
+    resourceRejectReasonCounts,
+    finalResourceTypeCounts,
   };
 }

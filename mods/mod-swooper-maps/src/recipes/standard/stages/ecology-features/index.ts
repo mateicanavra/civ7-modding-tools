@@ -1,4 +1,8 @@
 import { Type, createStage } from "@swooper/mapgen-core/authoring";
+import {
+  EcologyFeaturesPublicSchema,
+  compileEcologyFeaturesPublicConfig,
+} from "../ecology-public-config.js";
 import { steps } from "./steps/index.js";
 
 /**
@@ -11,7 +15,15 @@ import { steps } from "./steps/index.js";
  */
 export default createStage({
   id: "ecology-features",
-  knobsSchema: Type.Object({}),
+  knobsSchema: Type.Object(
+    {},
+    {
+      additionalProperties: false,
+      description:
+        "Ecology-features currently has no stage-level knobs; authoring control lives in feature scoring and planning groups.",
+    }
+  ),
+  public: EcologyFeaturesPublicSchema,
   steps: [
     steps.scoreLayers,
     steps.planIce,
@@ -20,4 +32,6 @@ export default createStage({
     steps.planVegetation,
     steps.planPlotEffects,
   ],
+  compile: ({ config }: { config: Record<string, unknown> }) =>
+    compileEcologyFeaturesPublicConfig(config),
 } as const);

@@ -1,0 +1,186 @@
+{
+  "shattered-ring": {
+    "map-morphology": {
+      "plot-coasts": {},
+      "plot-continents": {},
+      "plot-mountains": {},
+      "plot-volcanoes": {}
+    },
+    "map-hydrology": {
+      "lakes": {
+        "projectionReadback": true
+      }
+    },
+    "map-elevation": {
+      "build-elevation": {}
+    },
+    "map-rivers": {
+      "plot-rivers": {
+        "maxLength": 12,
+        "minLength": 3
+      }
+    },
+    "map-ecology": {
+      "features-apply": {
+        "apply": {
+          "config": {
+            "maxPerTile": 1
+          },
+          "strategy": "default"
+        }
+      },
+      "plot-biomes": {
+        "bindings": {
+          "boreal": "BIOME_TUNDRA",
+          "desert": "BIOME_DESERT",
+          "marine": "BIOME_MARINE",
+          "snow": "BIOME_TUNDRA",
+          "temperateDry": "BIOME_PLAINS",
+          "temperateHumid": "BIOME_GRASSLAND",
+          "tropicalRainforest": "BIOME_TROPICAL",
+          "tropicalSeasonal": "BIOME_PLAINS",
+          "tundra": "BIOME_TUNDRA"
+        }
+      },
+      "plot-effects": {}
+    }
+  },
+  "sundered-archipelago": {
+    "map-morphology": {
+      "plot-coasts": {},
+      "plot-continents": {},
+      "plot-mountains": {},
+      "plot-volcanoes": {}
+    },
+    "map-hydrology": {
+      "lakes": {
+        "projectionReadback": true
+      }
+    },
+    "map-elevation": {
+      "build-elevation": {}
+    },
+    "map-rivers": {
+      "plot-rivers": {
+        "maxLength": 12,
+        "minLength": 3
+      }
+    },
+    "map-ecology": {
+      "features-apply": {
+        "apply": {
+          "config": {
+            "maxPerTile": 1
+          },
+          "strategy": "default"
+        }
+      },
+      "plot-biomes": {
+        "bindings": {
+          "boreal": "BIOME_TUNDRA",
+          "desert": "BIOME_DESERT",
+          "marine": "BIOME_MARINE",
+          "snow": "BIOME_TUNDRA",
+          "temperateDry": "BIOME_PLAINS",
+          "temperateHumid": "BIOME_GRASSLAND",
+          "tropicalRainforest": "BIOME_TROPICAL",
+          "tropicalSeasonal": "BIOME_PLAINS",
+          "tundra": "BIOME_TUNDRA"
+        }
+      },
+      "plot-effects": {}
+    }
+  },
+  "swooper-desert-mountains": {
+    "map-morphology": {
+      "plot-coasts": {},
+      "plot-continents": {},
+      "plot-mountains": {},
+      "plot-volcanoes": {}
+    },
+    "map-hydrology": {
+      "lakes": {
+        "projectionReadback": true
+      }
+    },
+    "map-elevation": {
+      "build-elevation": {}
+    },
+    "map-rivers": {
+      "plot-rivers": {
+        "maxLength": 18,
+        "minLength": 7
+      }
+    },
+    "map-ecology": {
+      "features-apply": {
+        "apply": {
+          "config": {
+            "maxPerTile": 1
+          },
+          "strategy": "default"
+        }
+      },
+      "plot-biomes": {
+        "bindings": {
+          "boreal": "BIOME_TUNDRA",
+          "desert": "BIOME_DESERT",
+          "marine": "BIOME_MARINE",
+          "snow": "BIOME_TUNDRA",
+          "temperateDry": "BIOME_PLAINS",
+          "temperateHumid": "BIOME_GRASSLAND",
+          "tropicalRainforest": "BIOME_TROPICAL",
+          "tropicalSeasonal": "BIOME_PLAINS",
+          "tundra": "BIOME_TUNDRA"
+        }
+      },
+      "plot-effects": {}
+    }
+  },
+  "swooper-earthlike": {
+    "map-morphology": {
+      "plot-coasts": {},
+      "plot-continents": {},
+      "plot-mountains": {},
+      "plot-volcanoes": {}
+    },
+    "map-hydrology": {
+      "lakes": {
+        "projectionReadback": true
+      }
+    },
+    "map-elevation": {
+      "build-elevation": {}
+    },
+    "map-rivers": {
+      "plot-rivers": {
+        "maxLength": 12,
+        "minLength": 3
+      }
+    },
+    "map-ecology": {
+      "features-apply": {
+        "apply": {
+          "config": {
+            "maxPerTile": 1
+          },
+          "strategy": "default"
+        }
+      },
+      "plot-biomes": {
+        "bindings": {
+          "boreal": "BIOME_TUNDRA",
+          "desert": "BIOME_DESERT",
+          "marine": "BIOME_MARINE",
+          "snow": "BIOME_TUNDRA",
+          "temperateDry": "BIOME_PLAINS",
+          "temperateHumid": "BIOME_GRASSLAND",
+          "tropicalRainforest": "BIOME_TROPICAL",
+          "tropicalSeasonal": "BIOME_PLAINS",
+          "tundra": "BIOME_TUNDRA"
+        }
+      },
+      "plot-effects": {}
+    }
+  }
+}

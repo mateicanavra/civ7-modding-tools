@@ -2,10 +2,10 @@ import type { Static, TSchema, TUnsafe } from "typebox";
 
 import { applySchemaConventions } from "../schema.js";
 
-import type { DomainOpKind, OpTypeBag } from "./types.js";
+import type { DomainOpKind, OpTypeBag, StrategyConfigSchemas } from "./types.js";
 import { buildOpEnvelopeSchema } from "./envelope.js";
 
-export type StrategyConfigSchemas = Readonly<Record<string, TSchema>>;
+export type { StrategyConfigSchemas } from "./types.js";
 
 type EnsureSchemaValues<T> = {
   readonly [K in keyof T]: T[K] extends TSchema ? T[K] : never;

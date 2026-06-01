@@ -57,8 +57,8 @@ describe("plot biomes viz meta (engine biomeId)", () => {
 
     // Default bindings intentionally collapse multiple symbols into single engine ids.
     expect(categoriesA.some((c) => c.label.includes("snow|tundra|boreal"))).toBe(true);
-    expect(categoriesA.some((c) => c.label.includes("temperateHumid|tropicalSeasonal"))).toBe(true);
+    expect(categoriesA.some((c) => c.label === "temperateHumid")).toBe(true);
+    expect(categoriesA.some((c) => c.label.includes("temperateDry|tropicalSeasonal"))).toBe(true);
     expect(categoriesA.some((c) => c.label.includes("marine"))).toBe(true);
   });
 });
-

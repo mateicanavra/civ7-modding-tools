@@ -1,4 +1,4 @@
-import { Type, createStage } from "@swooper/mapgen-core/authoring";
+import { createStage } from "@swooper/mapgen-core/authoring";
 import {
   assignAdvancedStarts,
   assignStarts,
@@ -10,6 +10,11 @@ import {
   plotLandmassRegions,
   preparePlacementSurface,
 } from "./steps/index.js";
+import {
+  PlacementKnobsSchema,
+  PlacementPublicSchema,
+  compilePlacementPublicConfig,
+} from "../placement-public-config.js";
 
 /**
  * Placement exposes each gameplay product as a step boundary. Surface
@@ -19,7 +24,8 @@ import {
  */
 export default createStage({
   id: "placement",
-  knobsSchema: Type.Object({}, { additionalProperties: false }),
+  knobsSchema: PlacementKnobsSchema,
+  public: PlacementPublicSchema,
   steps: [
     derivePlacementInputs,
     plotLandmassRegions,
@@ -31,4 +37,6 @@ export default createStage({
     assignAdvancedStarts,
     placement,
   ],
+  compile: ({ config }: { config: Record<string, unknown> }) =>
+    compilePlacementPublicConfig(config),
 } as const);

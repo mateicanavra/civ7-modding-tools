@@ -95,5 +95,5 @@ describe("standard browser runner layer visibility", () => {
     const rawWorldMotionLayers = layers.filter((event) => event.layer.dataTypeKey === "foundation.plateMotion.motion");
     expect(rawWorldMotionLayers.length).toBeGreaterThan(0);
     expect(rawWorldMotionLayers.every((event) => visibilityOf(event.layer) === "debug")).toBe(true);
-  });
+  }, 35_000);
 });

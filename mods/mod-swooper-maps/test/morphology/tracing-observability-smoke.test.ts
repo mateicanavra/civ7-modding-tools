@@ -38,8 +38,8 @@ describe("Morphology tracing (observability hardening smoke)", () => {
       full("morphology-erosion", "geomorphology"),
       full("morphology-coasts", "rugged-coasts"),
       full("morphology-features", "islands"),
+      full("morphology-features", "mountains"),
       full("morphology-features", "volcanoes"),
-      full("map-morphology", "plot-mountains"),
     ];
 
     const env = {

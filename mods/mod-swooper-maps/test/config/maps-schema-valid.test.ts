@@ -13,7 +13,11 @@ import sunderedArchipelagoConfig from "../../src/maps/configs/sundered-archipela
 import swooperDesertMountainsConfig from "../../src/maps/configs/swooper-desert-mountains.config.json";
 import swooperEarthlikeConfig from "../../src/maps/configs/swooper-earthlike.config.json";
 import legacyFoundationCompiled from "../fixtures/legacy-foundation-compiled.json";
+import legacyHydrologyCompiled from "../fixtures/legacy-hydrology-compiled.json";
 import legacyMorphologyCompiled from "../fixtures/legacy-morphology-compiled.json";
+import legacyEcologyCompiled from "../fixtures/legacy-ecology-compiled.json";
+import legacyProjectionCompiled from "../fixtures/legacy-projection-compiled.json";
+import legacyPlacementCompiled from "../fixtures/legacy-placement-compiled.json";
 
 const shippedMapConfigs = [
   ["shattered-ring.config.json", shatteredRingConfig],
@@ -81,6 +85,131 @@ const MORPHOLOGY_INTERNAL_STAGE_KEYS = [
   "landmasses",
 ];
 
+const HYDROLOGY_PUBLIC_KEYS: Record<string, readonly string[]> = {
+  "hydrology-climate-baseline": [
+    "knobs",
+    "seasonalCycle",
+    "solarForcing",
+    "thermalState",
+    "atmosphericCirculation",
+    "oceanCurrents",
+    "oceanGeometry",
+    "oceanThermalState",
+    "evaporation",
+    "moistureTransport",
+    "precipitation",
+  ],
+  "hydrology-hydrography": ["knobs", "runoff", "riverNetwork", "lakes"],
+  "hydrology-climate-refine": [
+    "knobs",
+    "precipitationRefinement",
+    "solarForcing",
+    "thermalState",
+    "albedoFeedback",
+    "cryosphereState",
+    "landWaterBudget",
+    "diagnostics",
+  ],
+};
+
+const HYDROLOGY_STAGE_IDS = [
+  "hydrology-climate-baseline",
+  "hydrology-hydrography",
+  "hydrology-climate-refine",
+] as const;
+
+const HYDROLOGY_INTERNAL_STAGE_KEYS: Record<string, readonly string[]> = {
+  "hydrology-climate-baseline": ["climate-baseline"],
+  "hydrology-hydrography": ["rivers"],
+  "hydrology-climate-refine": ["climate-refine"],
+};
+
+const ECOLOGY_PUBLIC_KEYS: Record<string, readonly string[]> = {
+  "ecology-pedology": [
+    "knobs",
+    "soilClassification",
+    "resourceBasinPlanning",
+    "resourceBasinScoring",
+  ],
+  "ecology-biomes": ["knobs", "biomeClassification"],
+  "ecology-features": [
+    "knobs",
+    "substrateScoring",
+    "wetlandScoring",
+    "reefScoring",
+    "iceScoring",
+    "icePlanning",
+    "reefPlanning",
+    "wetlandPlanning",
+    "vegetationPlanning",
+    "plotEffectScoring",
+    "plotEffectCoverage",
+  ],
+};
+
+const ECOLOGY_STAGE_IDS = [
+  "ecology-pedology",
+  "ecology-biomes",
+  "ecology-features",
+] as const;
+
+const ECOLOGY_INTERNAL_STAGE_KEYS: Record<string, readonly string[]> = {
+  "ecology-pedology": ["pedology", "resource-basins"],
+  "ecology-biomes": ["biomes"],
+  "ecology-features": [
+    "score-layers",
+    "plan-ice",
+    "plan-reefs",
+    "plan-wetlands",
+    "plan-vegetation",
+    "plan-plot-effects",
+  ],
+};
+
+const PROJECTION_PUBLIC_KEYS: Record<string, readonly string[]> = {
+  "map-morphology": ["knobs"],
+  "map-hydrology": ["knobs"],
+  "map-elevation": ["knobs"],
+  "map-rivers": ["knobs", "riverProjection"],
+  "map-ecology": ["knobs", "biomeBindings"],
+};
+
+const PROJECTION_STAGE_IDS = [
+  "map-morphology",
+  "map-hydrology",
+  "map-elevation",
+  "map-rivers",
+  "map-ecology",
+] as const;
+
+const PROJECTION_INTERNAL_STAGE_KEYS: Record<string, readonly string[]> = {
+  "map-morphology": ["plot-coasts", "plot-continents", "plot-mountains", "plot-volcanoes"],
+  "map-hydrology": ["lakes"],
+  "map-elevation": ["build-elevation"],
+  "map-rivers": ["plot-rivers"],
+  "map-ecology": ["plot-biomes", "features-apply", "plot-effects"],
+};
+
+const PLACEMENT_PUBLIC_KEYS = [
+  "knobs",
+  "naturalWonders",
+  "discoveries",
+  "floodplains",
+  "resources",
+] as const;
+
+const PLACEMENT_INTERNAL_STAGE_KEYS = [
+  "derive-placement-inputs",
+  "plot-landmass-regions",
+  "place-natural-wonders",
+  "prepare-placement-surface",
+  "place-resources",
+  "assign-starts",
+  "place-discoveries",
+  "assign-advanced-starts",
+  "placement",
+] as const;
+
 function stageProps(schema: unknown, stageId: string): Record<string, unknown> {
   const stage = (schema as { properties?: Record<string, { properties?: Record<string, unknown> }> })
     .properties?.[stageId];
@@ -111,6 +240,11 @@ function stable(value: unknown): unknown {
 
 function collectMissingDescriptions(schema: unknown, path: string[] = []): string[] {
   if (!schema || typeof schema !== "object") return [];
+  if (Array.isArray(schema)) {
+    return schema.flatMap((item, index) =>
+      collectMissingDescriptions(item, [...path, String(index)])
+    );
+  }
   const node = schema as {
     const?: unknown;
     description?: unknown;
@@ -137,6 +271,11 @@ function collectMissingDescriptions(schema: unknown, path: string[] = []): strin
 
 function collectNumericLeavesMissingRange(schema: unknown, path: string[] = []): string[] {
   if (!schema || typeof schema !== "object") return [];
+  if (Array.isArray(schema)) {
+    return schema.flatMap((item, index) =>
+      collectNumericLeavesMissingRange(item, [...path, String(index)])
+    );
+  }
   const node = schema as {
     const?: unknown;
     type?: unknown;
@@ -165,6 +304,74 @@ function collectNumericLeavesMissingRange(schema: unknown, path: string[] = []):
     missing.push(...collectNumericLeavesMissingRange(variant, path));
   }
   return missing;
+}
+
+function collectStringLeavesMissingEnum(schema: unknown, path: string[] = []): string[] {
+  if (!schema || typeof schema !== "object") return [];
+  if (Array.isArray(schema)) {
+    return schema.flatMap((item, index) => collectStringLeavesMissingEnum(item, [...path, String(index)]));
+  }
+  const node = schema as {
+    const?: unknown;
+    enum?: unknown;
+    type?: unknown;
+    properties?: Record<string, unknown>;
+    items?: unknown;
+    anyOf?: unknown[];
+    oneOf?: unknown[];
+  };
+  const missing: string[] = [];
+  const literalVariant = Object.prototype.hasOwnProperty.call(node, "const") && !node.properties && !node.items;
+  const enumValues = Array.isArray(node.enum) ? node.enum : null;
+  if (
+    !literalVariant &&
+    node.type === "string" &&
+    !(enumValues && enumValues.length > 0 && enumValues.every((value) => typeof value === "string"))
+  ) {
+    missing.push(path.join("."));
+  }
+
+  for (const [key, child] of Object.entries(node.properties ?? {})) {
+    missing.push(...collectStringLeavesMissingEnum(child, [...path, key]));
+  }
+  if (node.items) missing.push(...collectStringLeavesMissingEnum(node.items, [...path, "items"]));
+  for (const variant of [...(node.anyOf ?? []), ...(node.oneOf ?? [])]) {
+    missing.push(...collectStringLeavesMissingEnum(variant, path));
+  }
+  return missing;
+}
+
+function collectDescriptionsMatching(
+  schema: unknown,
+  pattern: RegExp,
+  path: string[] = []
+): string[] {
+  if (!schema || typeof schema !== "object") return [];
+  if (Array.isArray(schema)) {
+    return schema.flatMap((item, index) =>
+      collectDescriptionsMatching(item, pattern, [...path, String(index)])
+    );
+  }
+  const node = schema as {
+    description?: unknown;
+    properties?: Record<string, unknown>;
+    items?: unknown;
+    anyOf?: unknown[];
+    oneOf?: unknown[];
+  };
+  const matches: string[] = [];
+  if (typeof node.description === "string" && pattern.test(node.description)) {
+    matches.push(path.join("."));
+  }
+
+  for (const [key, child] of Object.entries(node.properties ?? {})) {
+    matches.push(...collectDescriptionsMatching(child, pattern, [...path, key]));
+  }
+  if (node.items) matches.push(...collectDescriptionsMatching(node.items, pattern, [...path, "items"]));
+  for (const variant of [...(node.anyOf ?? []), ...(node.oneOf ?? [])]) {
+    matches.push(...collectDescriptionsMatching(variant, pattern, path));
+  }
+  return matches;
 }
 
 function expectPublicStageDescription(schema: unknown, stageId: string): void {
@@ -206,6 +413,62 @@ describe("Shipped map configs", () => {
     }
   });
 
+  it("exposes Hydrology public schema keys instead of internal step/op envelope paths", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+
+    for (const [stageId, expectedKeys] of Object.entries(HYDROLOGY_PUBLIC_KEYS)) {
+      const props = stageProps(schema, stageId);
+      expect(Object.keys(props).sort()).toEqual([...expectedKeys].sort());
+      for (const internalKey of HYDROLOGY_INTERNAL_STAGE_KEYS[stageId] ?? []) {
+        expect(props).not.toHaveProperty(internalKey);
+      }
+      expect(JSON.stringify(props)).not.toContain("\"strategy\"");
+      expect(JSON.stringify(props)).not.toContain("\"config\"");
+    }
+  });
+
+  it("exposes Ecology public schema keys instead of internal step/op envelope paths", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+
+    for (const [stageId, expectedKeys] of Object.entries(ECOLOGY_PUBLIC_KEYS)) {
+      const props = stageProps(schema, stageId);
+      expect(Object.keys(props).sort()).toEqual([...expectedKeys].sort());
+      for (const internalKey of ECOLOGY_INTERNAL_STAGE_KEYS[stageId] ?? []) {
+        expect(props).not.toHaveProperty(internalKey);
+      }
+      expect(JSON.stringify(props)).not.toContain("\"strategy\"");
+      expect(JSON.stringify(props)).not.toContain("\"config\"");
+    }
+  });
+
+  it("exposes Projection public schema keys instead of runtime step/op envelope paths", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+
+    for (const [stageId, expectedKeys] of Object.entries(PROJECTION_PUBLIC_KEYS)) {
+      const props = stageProps(schema, stageId);
+      expect(Object.keys(props).sort()).toEqual([...expectedKeys].sort());
+      for (const internalKey of PROJECTION_INTERNAL_STAGE_KEYS[stageId] ?? []) {
+        expect(props).not.toHaveProperty(internalKey);
+      }
+      expect(JSON.stringify(props)).not.toContain("\"strategy\"");
+      expect(JSON.stringify(props)).not.toContain("\"config\"");
+    }
+  });
+
+  it("exposes Placement public schema keys instead of runtime step/op envelope paths", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+    const props = stageProps(schema, "placement");
+
+    expect(Object.keys(props).sort()).toEqual([...PLACEMENT_PUBLIC_KEYS].sort());
+    for (const internalKey of PLACEMENT_INTERNAL_STAGE_KEYS) {
+      expect(props).not.toHaveProperty(internalKey);
+    }
+    expect(JSON.stringify(props)).not.toContain("\"strategy\"");
+    expect(JSON.stringify(props)).not.toContain("\"config\"");
+    expect(JSON.stringify(props)).not.toContain("candidateResourceTypes");
+    expect(JSON.stringify(props)).not.toContain("startSectors");
+  });
+
   it("documents and range-bounds every Morphology public numeric field", () => {
     const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
 
@@ -216,7 +479,82 @@ describe("Shipped map configs", () => {
         const child = props[key];
         expect(collectMissingDescriptions(child, [stageId, key])).toEqual([]);
         expect(collectNumericLeavesMissingRange(child, [stageId, key])).toEqual([]);
+        expect(collectDescriptionsMatching(child, /\b(step\/op|envelope|internal|strategy)\b/i, [
+          stageId,
+          key,
+        ])).toEqual([]);
       }
+    }
+  });
+
+  it("documents and range-bounds every Hydrology public numeric field", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+
+    for (const [stageId, expectedKeys] of Object.entries(HYDROLOGY_PUBLIC_KEYS)) {
+      expectPublicStageDescription(schema, stageId);
+      const props = stageProps(schema, stageId);
+      for (const key of expectedKeys) {
+        const child = props[key];
+        expect(collectMissingDescriptions(child, [stageId, key])).toEqual([]);
+        expect(collectNumericLeavesMissingRange(child, [stageId, key])).toEqual([]);
+        expect(collectDescriptionsMatching(child, /\b(step|op|envelope|internal|strategy)\b/i, [
+          stageId,
+          key,
+        ])).toEqual([]);
+      }
+    }
+  });
+
+  it("documents and range-bounds every Ecology public numeric field", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+
+    for (const [stageId, expectedKeys] of Object.entries(ECOLOGY_PUBLIC_KEYS)) {
+      expectPublicStageDescription(schema, stageId);
+      const props = stageProps(schema, stageId);
+      for (const key of expectedKeys) {
+        const child = props[key];
+        expect(collectMissingDescriptions(child, [stageId, key])).toEqual([]);
+        expect(collectNumericLeavesMissingRange(child, [stageId, key])).toEqual([]);
+        expect(collectDescriptionsMatching(child, /\b(step|op|envelope|internal|strategy)\b/i, [
+          stageId,
+          key,
+        ])).toEqual([]);
+      }
+    }
+  });
+
+  it("documents and bounds every Projection public field", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+
+    for (const [stageId, expectedKeys] of Object.entries(PROJECTION_PUBLIC_KEYS)) {
+      expectPublicStageDescription(schema, stageId);
+      const props = stageProps(schema, stageId);
+      for (const key of expectedKeys) {
+        const child = props[key];
+        expect(collectMissingDescriptions(child, [stageId, key])).toEqual([]);
+        expect(collectNumericLeavesMissingRange(child, [stageId, key])).toEqual([]);
+        expect(collectStringLeavesMissingEnum(child, [stageId, key])).toEqual([]);
+        expect(collectDescriptionsMatching(child, /\b(step|op|envelope|internal|strategy)\b/i, [
+          stageId,
+          key,
+        ])).toEqual([]);
+      }
+    }
+  });
+
+  it("documents and bounds every Placement public field", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+
+    expectPublicStageDescription(schema, "placement");
+    const props = stageProps(schema, "placement");
+    for (const key of PLACEMENT_PUBLIC_KEYS) {
+      const child = props[key];
+      expect(collectMissingDescriptions(child, ["placement", key])).toEqual([]);
+      expect(collectNumericLeavesMissingRange(child, ["placement", key])).toEqual([]);
+      expect(collectDescriptionsMatching(child, /\b(step|op|envelope|internal|strategy)\b/i, [
+        "placement",
+        key,
+      ])).toEqual([]);
     }
   });
 
@@ -270,6 +608,63 @@ describe("Shipped map configs", () => {
     }
   });
 
+  it("keeps shipped Hydrology configs on the semantic public surface", () => {
+    for (const [, raw] of shippedMapConfigs) {
+      for (const [stageId, expectedKeys] of Object.entries(HYDROLOGY_PUBLIC_KEYS)) {
+        const stageConfig = (raw.config as Record<string, Record<string, unknown>>)[stageId] ?? {};
+        for (const key of Object.keys(stageConfig)) {
+          expect(expectedKeys).toContain(key);
+        }
+        expect(hasRawOpEnvelope(stageConfig)).toBe(false);
+      }
+    }
+  });
+
+  it("keeps shipped Ecology configs on the semantic public surface", () => {
+    for (const [, raw] of shippedMapConfigs) {
+      for (const [stageId, expectedKeys] of Object.entries(ECOLOGY_PUBLIC_KEYS)) {
+        const stageConfig = (raw.config as Record<string, Record<string, unknown>>)[stageId] ?? {};
+        for (const key of Object.keys(stageConfig)) {
+          expect(expectedKeys).toContain(key);
+        }
+        for (const internalKey of ECOLOGY_INTERNAL_STAGE_KEYS[stageId] ?? []) {
+          expect(stageConfig).not.toHaveProperty(internalKey);
+        }
+        expect(hasRawOpEnvelope(stageConfig)).toBe(false);
+      }
+    }
+  });
+
+  it("keeps shipped Projection configs on the semantic public surface", () => {
+    for (const [, raw] of shippedMapConfigs) {
+      for (const [stageId, expectedKeys] of Object.entries(PROJECTION_PUBLIC_KEYS)) {
+        const stageConfig = (raw.config as Record<string, Record<string, unknown>>)[stageId] ?? {};
+        for (const key of Object.keys(stageConfig)) {
+          expect(expectedKeys).toContain(key);
+        }
+        for (const internalKey of PROJECTION_INTERNAL_STAGE_KEYS[stageId] ?? []) {
+          expect(stageConfig).not.toHaveProperty(internalKey);
+        }
+        expect(hasRawOpEnvelope(stageConfig)).toBe(false);
+      }
+    }
+  });
+
+  it("keeps shipped Placement configs on the semantic public surface", () => {
+    for (const [, raw] of shippedMapConfigs) {
+      const stageConfig = (raw.config as Record<string, Record<string, unknown>>).placement ?? {};
+      for (const key of Object.keys(stageConfig)) {
+        expect(PLACEMENT_PUBLIC_KEYS).toContain(key as (typeof PLACEMENT_PUBLIC_KEYS)[number]);
+      }
+      for (const internalKey of PLACEMENT_INTERNAL_STAGE_KEYS) {
+        expect(stageConfig).not.toHaveProperty(internalKey);
+      }
+      expect(hasRawOpEnvelope(stageConfig)).toBe(false);
+      expect(JSON.stringify(stageConfig)).not.toContain("candidateResourceTypes");
+      expect(JSON.stringify(stageConfig)).not.toContain("startSectors");
+    }
+  });
+
   it("compiles public Morphology config to internal executable step/op envelopes", () => {
     const compiled = standardRecipe.compileConfig(
       {
@@ -288,6 +683,178 @@ describe("Shipped map configs", () => {
     expect(compiled["morphology-features"].mountains.ridges.strategy).toBe("default");
     expect(compiled["morphology-features"].mountains.foothills.strategy).toBe("default");
     expect(compiled["morphology-features"].volcanoes.volcanoes.strategy).toBe("default");
+  });
+
+  it("compiles public Hydrology config to internal executable step/op envelopes", () => {
+    const compiled = standardRecipe.compileConfig(
+      {
+        seed: 123,
+        dimensions: { width: 80, height: 60 },
+        latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+      },
+      swooperEarthlikeConfig.config
+    ) as any;
+
+    expect(compiled["hydrology-climate-baseline"]["climate-baseline"].computeRadiativeForcing.strategy).toBe(
+      "default"
+    );
+    expect(compiled["hydrology-climate-baseline"]["climate-baseline"].computeAtmosphericCirculation.strategy).toBe(
+      "default"
+    );
+    expect(compiled["hydrology-climate-baseline"]["climate-baseline"].computePrecipitation.strategy).toBe(
+      "default"
+    );
+    expect(compiled["hydrology-hydrography"].rivers.accumulateDischarge.strategy).toBe("default");
+    expect(compiled["hydrology-hydrography"].rivers.projectRiverNetwork.strategy).toBe("default");
+    expect(compiled["hydrology-hydrography"].lakes.planLakes.strategy).toBe("default");
+    expect(compiled["hydrology-climate-refine"]["climate-refine"].computePrecipitation.strategy).toBe(
+      "refine"
+    );
+    expect(compiled["hydrology-climate-refine"]["climate-refine"].computeCryosphereState.strategy).toBe(
+      "default"
+    );
+  });
+
+  it("compiles public Ecology config to internal executable step/op envelopes", () => {
+    const compiled = standardRecipe.compileConfig(
+      {
+        seed: 123,
+        dimensions: { width: 80, height: 60 },
+        latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+      },
+      swooperEarthlikeConfig.config
+    ) as any;
+
+    expect(compiled["ecology-pedology"].pedology.classify.strategy).toBe("coastal-shelf");
+    expect(compiled["ecology-pedology"]["resource-basins"].plan.strategy).toBe("mixed");
+    expect(compiled["ecology-pedology"]["resource-basins"].score.strategy).toBe("default");
+    expect(compiled["ecology-biomes"].biomes.classify.strategy).toBe("default");
+    expect(compiled["ecology-features"]["score-layers"].vegetationSubstrate.strategy).toBe(
+      "default"
+    );
+    expect(compiled["ecology-features"]["score-layers"].scoreForest.strategy).toBe("default");
+    expect(compiled["ecology-features"]["plan-ice"].planIce.strategy).toBe("continentality");
+    expect(compiled["ecology-features"]["plan-reefs"].planReefs.strategy).toBe("default");
+    expect(compiled["ecology-features"]["plan-wetlands"].planWetlands.strategy).toBe("default");
+    expect(compiled["ecology-features"]["plan-vegetation"].planVegetation.strategy).toBe(
+      "default"
+    );
+    expect(compiled["ecology-features"]["plan-plot-effects"].plotEffects.strategy).toBe("default");
+    expect(
+      compiled["ecology-features"]["plan-plot-effects"].plotEffects.config.snow.selectors.light
+        .typeName
+    ).toBe("PLOTEFFECT_SNOW_LIGHT_PERMANENT");
+
+    const profileOnlyCompiled = standardRecipe.compileConfig(
+      {
+        seed: 123,
+        dimensions: { width: 80, height: 60 },
+        latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+      },
+      {
+        "ecology-features": {
+          reefPlanning: {
+            profile: "shippingLanes",
+          },
+        },
+      } as any
+    ) as any;
+    expect(profileOnlyCompiled["ecology-features"]["plan-reefs"].planReefs.strategy).toBe(
+      "shipping-lanes"
+    );
+    expect(profileOnlyCompiled["ecology-features"]["plan-reefs"].planReefs.config.stride).toBe(5);
+  });
+
+  it("compiles public Projection config to internal executable step/op configs", () => {
+    const compiled = standardRecipe.compileConfig(
+      {
+        seed: 123,
+        dimensions: { width: 80, height: 60 },
+        latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+      },
+      swooperEarthlikeConfig.config
+    ) as any;
+
+    expect(compiled["map-morphology"]["plot-coasts"]).toEqual({});
+    expect(compiled["map-morphology"]["plot-continents"]).toEqual({});
+    expect(compiled["map-morphology"]["plot-mountains"]).toEqual({});
+    expect(compiled["map-morphology"]["plot-volcanoes"]).toEqual({});
+    expect(compiled["map-hydrology"].lakes.projectionReadback).toBe(true);
+    expect(compiled["map-elevation"]["build-elevation"]).toEqual({});
+    expect(compiled["map-rivers"]["plot-rivers"]).toEqual({ minLength: 3, maxLength: 12 });
+    expect(compiled["map-ecology"]["plot-biomes"].bindings.tropicalSeasonal).toBe("BIOME_PLAINS");
+    expect(compiled["map-ecology"]["plot-biomes"].bindings.marine).toBe("BIOME_MARINE");
+    expect(compiled["map-ecology"]["features-apply"].apply).toEqual({
+      strategy: "default",
+      config: { maxPerTile: 1 },
+    });
+    expect(compiled["map-ecology"]["plot-effects"]).toEqual({});
+
+    const defaultBindingsCompiled = standardRecipe.compileConfig(
+      {
+        seed: 123,
+        dimensions: { width: 80, height: 60 },
+        latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+      },
+      {
+        "map-ecology": {
+          biomeBindings: {},
+        },
+      } as any
+    ) as any;
+    expect(defaultBindingsCompiled["map-ecology"]["plot-biomes"].bindings.tropicalSeasonal).toBe(
+      "BIOME_PLAINS"
+    );
+    expect(defaultBindingsCompiled["map-ecology"]["plot-biomes"].bindings.marine).toBe(
+      "BIOME_MARINE"
+    );
+  });
+
+  it("compiles public Placement config to internal executable step/op configs", () => {
+    const compiled = standardRecipe.compileConfig(
+      {
+        seed: 123,
+        dimensions: { width: 80, height: 60 },
+        latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+      },
+      swooperEarthlikeConfig.config
+    ) as any;
+
+    expect(compiled.placement["derive-placement-inputs"].wonders).toEqual({
+      strategy: "default",
+      config: {},
+    });
+    expect(compiled.placement["derive-placement-inputs"].naturalWonders).toEqual({
+      strategy: "default",
+      config: { minSpacingTiles: 6 },
+    });
+    expect(compiled.placement["derive-placement-inputs"].discoveries).toEqual({
+      strategy: "default",
+      config: { densityPer100Tiles: 3, minSpacingTiles: 3 },
+    });
+    expect(compiled.placement["derive-placement-inputs"].floodplains).toEqual({
+      strategy: "default",
+      config: { minLength: 4, maxLength: 10 },
+    });
+    expect(compiled.placement["derive-placement-inputs"].resources.strategy).toBe("default");
+    expect(compiled.placement["derive-placement-inputs"].resources.config).toEqual({
+      candidateResourceTypes: Array.from({ length: 55 }, (_, index) => index),
+      densityPer100Tiles: 9,
+      minSpacingTiles: 2,
+      maxPlacementsPerResourceShare: 0.3,
+    });
+    expect(compiled.placement["derive-placement-inputs"].starts).toEqual({
+      strategy: "default",
+      config: { overrides: { startSectors: [] } },
+    });
+    expect(compiled.placement["plot-landmass-regions"]).toEqual({});
+    expect(compiled.placement["place-natural-wonders"]).toEqual({});
+    expect(compiled.placement["prepare-placement-surface"]).toEqual({});
+    expect(compiled.placement["place-resources"]).toEqual({});
+    expect(compiled.placement["assign-starts"]).toEqual({});
+    expect(compiled.placement["place-discoveries"]).toEqual({});
+    expect(compiled.placement["assign-advanced-starts"]).toEqual({});
+    expect(compiled.placement.placement).toEqual({});
   });
 
   it("compiles public Foundation config to internal executable step/op envelopes", () => {
@@ -349,12 +916,85 @@ describe("Shipped map configs", () => {
     }
   });
 
+  it("keeps Hydrology configs compiled-equivalent to the legacy shipped configs", () => {
+    const env = {
+      seed: 123,
+      dimensions: { width: 80, height: 60 },
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    };
+    const expected = legacyHydrologyCompiled as Record<string, unknown>;
+
+    for (const [fileName, raw] of shippedMapConfigs) {
+      const id = fileName.replace(/\.config\.json$/, "");
+      const compiled = standardRecipe.compileConfig(env, raw.config) as any;
+      const hydrologyCompiled = Object.fromEntries(
+        HYDROLOGY_STAGE_IDS.map((stageId) => [stageId, compiled[stageId]])
+      );
+      expect(stable(hydrologyCompiled)).toEqual(expected[id]);
+    }
+  });
+
+  it("keeps Ecology configs compiled-equivalent after accepted peer-repair threshold updates", () => {
+    const env = {
+      seed: 123,
+      dimensions: { width: 80, height: 60 },
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    };
+    const expected = legacyEcologyCompiled as Record<string, unknown>;
+
+    for (const [fileName, raw] of shippedMapConfigs) {
+      const id = fileName.replace(/\.config\.json$/, "");
+      const compiled = standardRecipe.compileConfig(env, raw.config) as any;
+      const ecologyCompiled = Object.fromEntries(
+        ECOLOGY_STAGE_IDS.map((stageId) => [stageId, compiled[stageId]])
+      );
+      expect(stable(ecologyCompiled)).toEqual(expected[id]);
+    }
+  });
+
+  it("keeps Projection configs compiled-equivalent to the legacy shipped configs", () => {
+    const env = {
+      seed: 123,
+      dimensions: { width: 80, height: 60 },
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    };
+    const expected = legacyProjectionCompiled as Record<string, unknown>;
+
+    for (const [fileName, raw] of shippedMapConfigs) {
+      const id = fileName.replace(/\.config\.json$/, "");
+      const compiled = standardRecipe.compileConfig(env, raw.config) as any;
+      const projectionCompiled = Object.fromEntries(
+        PROJECTION_STAGE_IDS.map((stageId) => [stageId, compiled[stageId]])
+      );
+      expect(stable(projectionCompiled)).toEqual(expected[id]);
+    }
+  });
+
+  it("keeps Placement configs compiled-equivalent to the legacy shipped configs", () => {
+    const env = {
+      seed: 123,
+      dimensions: { width: 80, height: 60 },
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    };
+    const expected = legacyPlacementCompiled as Record<string, unknown>;
+
+    for (const [fileName, raw] of shippedMapConfigs) {
+      const id = fileName.replace(/\.config\.json$/, "");
+      const compiled = standardRecipe.compileConfig(env, raw.config) as any;
+      expect({ placement: stable(compiled.placement) }).toEqual(expected[id]);
+    }
+  });
+
   it("rejects legacy map-morphology alias keys", () => {
     const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
     const { errors } = normalizeStrict(
       schema,
       {
         "map-morphology": {
+          "plot-coasts": {},
+          "plot-continents": {},
+          "plot-mountains": {},
+          "plot-volcanoes": {},
           plotCoasts: {},
           plotContinents: {},
           mountains: {},
@@ -371,11 +1011,142 @@ describe("Shipped map configs", () => {
       expect.arrayContaining([
         "/maps/legacy-map-morphology/map-morphology/plotCoasts",
         "/maps/legacy-map-morphology/map-morphology/plotContinents",
+        "/maps/legacy-map-morphology/map-morphology/plot-coasts",
+        "/maps/legacy-map-morphology/map-morphology/plot-continents",
+        "/maps/legacy-map-morphology/map-morphology/plot-mountains",
+        "/maps/legacy-map-morphology/map-morphology/plot-volcanoes",
         "/maps/legacy-map-morphology/map-morphology/mountains",
         "/maps/legacy-map-morphology/map-morphology/volcanoes",
         "/maps/legacy-map-morphology/map-morphology/plotVolcanoes",
         "/maps/legacy-map-morphology/map-morphology/buildElevation",
       ])
+    );
+  });
+
+  it("rejects raw Projection step and op envelope config", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+    const { errors } = normalizeStrict(
+      schema,
+      {
+        "map-hydrology": {
+          lakes: { projectionReadback: true },
+        },
+        "map-rivers": {
+          "plot-rivers": { minLength: 5, maxLength: 15 },
+        },
+        "map-elevation": {
+          "build-elevation": {},
+        },
+        "map-ecology": {
+          "plot-biomes": { bindings: { tropicalSeasonal: "BIOME_PLAINS" } },
+          "features-apply": { apply: { strategy: "default", config: { maxPerTile: 1 } } },
+          "plot-effects": {},
+        },
+      },
+      "/maps/raw-projection-config"
+    );
+
+    const errorPaths = errors.map((error) => error.path);
+    expect(errorPaths).toEqual(
+      expect.arrayContaining([
+        "/maps/raw-projection-config/map-hydrology/lakes",
+        "/maps/raw-projection-config/map-rivers/plot-rivers",
+        "/maps/raw-projection-config/map-elevation/build-elevation",
+        "/maps/raw-projection-config/map-ecology/plot-biomes",
+        "/maps/raw-projection-config/map-ecology/features-apply",
+        "/maps/raw-projection-config/map-ecology/plot-effects",
+      ])
+    );
+  });
+
+  it("rejects raw Placement step and op envelope config", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+    const { errors } = normalizeStrict(
+      schema,
+      {
+        placement: {
+          "derive-placement-inputs": {
+            resources: {
+              strategy: "default",
+              config: {
+                candidateResourceTypes: [1, 2, 3],
+                densityPer100Tiles: 9,
+              },
+            },
+            starts: {
+              strategy: "default",
+              config: { overrides: { startSectors: [] } },
+            },
+          },
+          "plot-landmass-regions": {},
+          "place-natural-wonders": {},
+          "prepare-placement-surface": {},
+          "place-resources": {},
+          "assign-starts": {},
+          "place-discoveries": {},
+          "assign-advanced-starts": {},
+        },
+      },
+      "/maps/raw-placement-config"
+    );
+
+    const errorPaths = errors.map((error) => error.path);
+    expect(errorPaths).toEqual(
+      expect.arrayContaining([
+        "/maps/raw-placement-config/placement/derive-placement-inputs",
+        "/maps/raw-placement-config/placement/plot-landmass-regions",
+        "/maps/raw-placement-config/placement/place-natural-wonders",
+        "/maps/raw-placement-config/placement/prepare-placement-surface",
+        "/maps/raw-placement-config/placement/place-resources",
+        "/maps/raw-placement-config/placement/assign-starts",
+        "/maps/raw-placement-config/placement/place-discoveries",
+        "/maps/raw-placement-config/placement/assign-advanced-starts",
+      ])
+    );
+  });
+
+  it("rejects Placement runtime/catalog owner leakage", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+    const { errors } = normalizeStrict(
+      schema,
+      {
+        placement: {
+          resources: {
+            candidateResourceTypes: [1, 2, 3],
+          },
+          starts: {
+            overrides: { startSectors: [] },
+          },
+        },
+      },
+      "/maps/placement-owner-leakage"
+    );
+
+    const errorPaths = errors.map((error) => error.path);
+    expect(errorPaths).toEqual(
+      expect.arrayContaining([
+        "/maps/placement-owner-leakage/placement/resources/candidateResourceTypes",
+        "/maps/placement-owner-leakage/placement/starts",
+      ])
+    );
+  });
+
+  it("rejects invalid Projection biome bindings", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+    const { errors } = normalizeStrict(
+      schema,
+      {
+        "map-ecology": {
+          biomeBindings: {
+            marine: "BIOME_DESERT",
+          },
+        },
+      },
+      "/maps/invalid-projection-biomes"
+    );
+
+    expect(errors.map((error) => error.path)).toEqual(
+      expect.arrayContaining(["/maps/invalid-projection-biomes/map-ecology/biomeBindings/marine"])
     );
   });
 
@@ -420,7 +1191,7 @@ describe("Shipped map configs", () => {
     expect(errorPaths).toEqual(
       expect.arrayContaining([
         "/maps/map-projection-truth-config/map-morphology/knobs/orogeny",
-        "/maps/map-projection-truth-config/map-morphology/plot-mountains/ridges",
+        "/maps/map-projection-truth-config/map-morphology/plot-mountains",
       ])
     );
   });

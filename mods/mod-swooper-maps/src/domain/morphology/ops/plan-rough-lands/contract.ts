@@ -45,7 +45,8 @@ const PlanRoughLandsContract = defineOp({
     flowAccum: TypedArraySchemas.f32({ description: "Drainage accumulation proxy." }),
     distanceToCoast: TypedArraySchemas.u16({ description: "Hex distance to nearest coast." }),
     fractalRoughLand: TypedArraySchemas.i16({
-      description: "Fractal texture used only to break ties and cluster rough-land patches.",
+      description:
+        "Fractal roughness texture used as a minor score term and clustering/tie-break signal for rough-land patches.",
     }),
   }),
   output: Type.Object({
