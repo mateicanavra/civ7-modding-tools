@@ -31,6 +31,15 @@ bun packages/cli/bin/run.js game play battlefield-scan \
   --json
 ```
 
+The equivalent compact coordinate form is:
+
+```bash
+bun packages/cli/bin/run.js game play battlefield-scan \
+  --origin 17,20 \
+  --radius 8 \
+  --json
+```
+
 Use `--x` and `--y` as the current front, selected stack, city, or destination
 under consideration. If no origin is supplied, the wrapper falls back to a small
 set of local ready/selected/city origins when available, but explicit origins

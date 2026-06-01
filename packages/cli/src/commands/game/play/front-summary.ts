@@ -6,7 +6,7 @@ import {
   getCiv7ReadyUnitView,
   getCiv7TargetCandidates,
 } from '@civ7/direct-control';
-import { buildDirectControlOptions } from '../../../utils/game-play-shared';
+import { buildDirectControlOptions, resolveCoordinateFlags } from '../../../utils/game-play-shared';
 
 type Location = Readonly<{ x: number; y: number }>;
 
@@ -37,6 +37,7 @@ export default class GamePlayFrontSummary extends Command {
     '<%= config.bin %> game play front-summary --json',
     '<%= config.bin %> game play front-summary --x 15 --y 21 --json',
     '<%= config.bin %> game play front-summary --x 15 --y 21 --to-x 13 --to-y 17 --json',
+    '<%= config.bin %> game play front-summary --origin 15,21 --destination 13,17 --json',
   ];
 
   static flags = {
@@ -57,6 +58,9 @@ export default class GamePlayFrontSummary extends Command {
       description: 'Formation, siege line, or ready-unit origin y coordinate',
       dependsOn: ['x'],
     }),
+    origin: Flags.string({
+      description: 'Formation, siege line, or ready-unit origin as x,y',
+    }),
     'to-x': Flags.integer({
       description: 'Optional intended target/front x coordinate. Defaults to the nearest target candidate city when available.',
       dependsOn: ['to-y'],
@@ -64,6 +68,17 @@ export default class GamePlayFrontSummary extends Command {
     'to-y': Flags.integer({
       description: 'Optional intended target/front y coordinate. Defaults to the nearest target candidate city when available.',
       dependsOn: ['to-x'],
+    }),
+    destination: Flags.string({
+      description: 'Optional intended target/front as x,y. Defaults to the nearest target candidate city when available.',
+    }),
+    'target-x': Flags.integer({
+      description: 'Alias for --to-x',
+      dependsOn: ['target-y'],
+    }),
+    'target-y': Flags.integer({
+      description: 'Alias for --to-y',
+      dependsOn: ['target-x'],
     }),
     radius: Flags.integer({
       description: 'Battlefield scan radius around the front origin',
@@ -120,7 +135,14 @@ export default class GamePlayFrontSummary extends Command {
       ...options,
       maxNotifications: 10,
     });
-    const requestedOrigin = flags.x === undefined || flags.y === undefined ? null : { x: flags.x, y: flags.y };
+    const requestedOrigin = resolveCoordinateFlags({
+      x: flags.x,
+      y: flags.y,
+      pair: flags.origin,
+      xFlag: 'x',
+      yFlag: 'y',
+      pairFlag: 'origin',
+    }) ?? null;
     const readyUnitId = probeValue(hud.firstReadyUnitId);
     const readyUnit = requestedOrigin || !readyUnitId
       ? null
@@ -134,7 +156,7 @@ export default class GamePlayFrontSummary extends Command {
       maxPlayers: flags['max-players'],
       unitRadius: flags['unit-radius'],
     }, options);
-    const requestedTarget = flags['to-x'] === undefined || flags['to-y'] === undefined ? null : { x: flags['to-x'], y: flags['to-y'] };
+    const requestedTarget = resolveFrontTarget(flags);
     const target = requestedTarget ?? getFirstCandidateCityLocation(targetCandidates.candidates);
     const battlefield = await getCiv7BattlefieldScan({
       playerId: flags['player-id'],
@@ -318,6 +340,28 @@ function getFirstCandidateCityLocation(candidates: ReadonlyArray<unknown>): Loca
     if (location) return location;
   }
   return null;
+}
+
+function resolveFrontTarget(flags: {
+  'to-x'?: number;
+  'to-y'?: number;
+  'target-x'?: number;
+  'target-y'?: number;
+  destination?: string;
+}): Location | null {
+  const hasTo = flags['to-x'] !== undefined || flags['to-y'] !== undefined;
+  const hasTarget = flags['target-x'] !== undefined || flags['target-y'] !== undefined;
+  if (hasTo && hasTarget) {
+    throw new Error('--target-x/--target-y cannot be combined with --to-x/--to-y');
+  }
+  return resolveCoordinateFlags({
+    x: hasTarget ? flags['target-x'] : flags['to-x'],
+    y: hasTarget ? flags['target-y'] : flags['to-y'],
+    pair: flags.destination,
+    xFlag: hasTarget ? 'target-x' : 'to-x',
+    yFlag: hasTarget ? 'target-y' : 'to-y',
+    pairFlag: 'destination',
+  }) ?? null;
 }
 
 function getReadyUnitLocation(readyUnit: Awaited<ReturnType<typeof getCiv7ReadyUnitView>> | null): Location | null {

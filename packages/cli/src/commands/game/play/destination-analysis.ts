@@ -1,6 +1,6 @@
 import { Command, Flags } from '@oclif/core';
 import { getCiv7DestinationAnalysis } from '@civ7/direct-control';
-import { buildDirectControlOptions } from '../../../utils/game-play-shared';
+import { buildDirectControlOptions, resolveCoordinateFlags } from '../../../utils/game-play-shared';
 
 export default class GamePlayDestinationAnalysis extends Command {
   static id = 'game play destination-analysis';
@@ -11,6 +11,7 @@ export default class GamePlayDestinationAnalysis extends Command {
   static examples = [
     '<%= config.bin %> game play destination-analysis --to-x 13 --to-y 17 --json',
     '<%= config.bin %> game play destination-analysis --from-x 20 --from-y 14 --to-x 13 --to-y 17 --corridor-radius 2 --json',
+    '<%= config.bin %> game play destination-analysis --origin 20,14 --destination 13,17 --json',
   ];
 
   static flags = {
@@ -31,15 +32,19 @@ export default class GamePlayDestinationAnalysis extends Command {
       description: 'Optional origin y coordinate. Defaults to the first ready or selected unit when omitted.',
       dependsOn: ['from-x'],
     }),
+    origin: Flags.string({
+      description: 'Optional origin as x,y. Defaults to the first ready or selected unit when omitted.',
+    }),
     'to-x': Flags.integer({
       description: 'Destination x coordinate',
-      required: true,
       dependsOn: ['to-y'],
     }),
     'to-y': Flags.integer({
       description: 'Destination y coordinate',
-      required: true,
       dependsOn: ['to-x'],
+    }),
+    destination: Flags.string({
+      description: 'Destination as x,y',
     }),
     'corridor-radius': Flags.integer({
       description: 'Grid radius around the straight-line corridor to inspect',
@@ -77,13 +82,28 @@ export default class GamePlayDestinationAnalysis extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayDestinationAnalysis);
-    const origin = flags['from-x'] === undefined || flags['from-y'] === undefined
-      ? undefined
-      : { x: flags['from-x'], y: flags['from-y'] };
+    const origin = resolveCoordinateFlags({
+      x: flags['from-x'],
+      y: flags['from-y'],
+      pair: flags.origin,
+      xFlag: 'from-x',
+      yFlag: 'from-y',
+      pairFlag: 'origin',
+    });
+    const destination = resolveCoordinateFlags({
+      x: flags['to-x'],
+      y: flags['to-y'],
+      pair: flags.destination,
+      xFlag: 'to-x',
+      yFlag: 'to-y',
+      pairFlag: 'destination',
+      required: true,
+    });
+    if (!destination) throw new Error('provide --destination or --to-x and --to-y');
     const view = await getCiv7DestinationAnalysis({
       playerId: flags['player-id'],
       origin,
-      destination: { x: flags['to-x'], y: flags['to-y'] },
+      destination,
       corridorRadius: flags['corridor-radius'],
       destinationRadius: flags['destination-radius'],
       maxPlayers: flags['max-players'],

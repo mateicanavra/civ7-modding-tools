@@ -32,10 +32,19 @@ bun packages/cli/bin/run.js game play destination-analysis \
   --json
 ```
 
+The compact coordinate form is:
+
+```bash
+bun packages/cli/bin/run.js game play destination-analysis \
+  --origin 20,14 \
+  --destination 13,17 \
+  --json
+```
+
 Use `--from-x` and `--from-y` for the unit, formation, city, or staging stack
 being considered. If they are omitted, the wrapper falls back to the first
-ready or selected unit when available. Always provide `--to-x` and `--to-y`
-because the destination is the decision being inspected.
+ready or selected unit when available. Always provide either `--destination` or
+`--to-x` and `--to-y` because the destination is the decision being inspected.
 
 ## Proof Boundary
 

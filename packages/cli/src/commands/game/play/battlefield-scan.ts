@@ -1,6 +1,6 @@
 import { Command, Flags } from '@oclif/core';
 import { getCiv7BattlefieldScan } from '@civ7/direct-control';
-import { buildDirectControlOptions } from '../../../utils/game-play-shared';
+import { buildDirectControlOptions, resolveCoordinateFlags } from '../../../utils/game-play-shared';
 
 export default class GamePlayBattlefieldScan extends Command {
   static id = 'game play battlefield-scan';
@@ -11,6 +11,7 @@ export default class GamePlayBattlefieldScan extends Command {
   static examples = [
     '<%= config.bin %> game play battlefield-scan --json',
     '<%= config.bin %> game play battlefield-scan --x 17 --y 20 --radius 8 --json',
+    '<%= config.bin %> game play battlefield-scan --origin 17,20 --radius 8 --json',
   ];
 
   static flags = {
@@ -30,6 +31,9 @@ export default class GamePlayBattlefieldScan extends Command {
     y: Flags.integer({
       description: 'Front, formation, city, or destination origin y coordinate',
       dependsOn: ['x'],
+    }),
+    origin: Flags.string({
+      description: 'Front, formation, city, or destination origin as x,y',
     }),
     radius: Flags.integer({
       description: 'Grid radius around each origin to scan',
@@ -61,7 +65,15 @@ export default class GamePlayBattlefieldScan extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayBattlefieldScan);
-    const origins = flags.x === undefined || flags.y === undefined ? undefined : [{ x: flags.x, y: flags.y }];
+    const origin = resolveCoordinateFlags({
+      x: flags.x,
+      y: flags.y,
+      pair: flags.origin,
+      xFlag: 'x',
+      yFlag: 'y',
+      pairFlag: 'origin',
+    });
+    const origins = origin ? [origin] : undefined;
     const view = await getCiv7BattlefieldScan({
       playerId: flags['player-id'],
       origins,

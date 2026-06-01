@@ -21,6 +21,14 @@ bun packages/cli/bin/run.js game play target-candidates \
   --json
 ```
 
+The compact coordinate form is:
+
+```bash
+bun packages/cli/bin/run.js game play target-candidates \
+  --origin 18,20 \
+  --json
+```
+
 Use `--x/--y` from the current siege stack, Settler screen, or ready unit. If no
 origin is supplied, the wrapper falls back to a small set of local combat-unit
 and city locations, which is useful for broad orientation but weaker for an

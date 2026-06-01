@@ -52,19 +52,20 @@ Use these now during live play:
    freshness markers. `readyUnit.legalOperationScope` is `no-target`; zero
    no-target operations does not prove that plot movement or attack is
    impossible.
-3. `game play battlefield-scan --x <x> --y <y> --radius <n> --json` describes
+3. `game play battlefield-scan --origin <x,y> --radius <n> --json` describes
    local friendly and non-friendly units, cities, owner pressure, wounded
-   friendlies, civilian exposure, and nearby fronts around an origin.
+   friendlies, civilian exposure, and nearby fronts around an origin. The
+   `--x <x> --y <y>` form remains available.
 4. `game play formation-snapshot --x <x> --y <y> --json` composes a ready-unit
    origin with local civilians, friendly screens, non-friendly threats, and
    next inspections. Use it when the tactical question is whether a unit should
    screen, hold, or validate a concrete move around a civilian cluster.
 5. `game play target-candidates --x <x> --y <y> --json` ranks opponent owners
    and known city targets from a formation origin.
-6. `game play front-summary --x <x> --y <y> --json` composes target
-   candidates, local pressure, and inferred or supplied endpoint pressure into
-   a front posture and next-inspection list.
-7. `game play destination-analysis --from-x <x> --from-y <y> --to-x <x> --to-y <y> --json`
+6. `game play front-summary --origin <x,y> --destination <x,y> --json` composes
+   target candidates, local pressure, and inferred or supplied endpoint pressure
+   into a front posture and next-inspection list.
+7. `game play destination-analysis --origin <x,y> --destination <x,y> --json`
    samples endpoint and corridor pressure with explicit pathing limits.
 8. `game play civilian-route-triage --x <x> --y <y> --json` composes
    ready-unit, settlement recommendation, battlefield, and destination reads

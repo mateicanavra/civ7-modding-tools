@@ -43,6 +43,18 @@ bun packages/cli/bin/run.js game play front-summary \
   --json
 ```
 
+The same read can use compact coordinate aliases:
+
+```bash
+bun packages/cli/bin/run.js game play front-summary \
+  --origin 15,21 \
+  --destination 13,17 \
+  --json
+```
+
+`--target-x` and `--target-y` are also accepted as aliases for `--to-x` and
+`--to-y` when the caller is thinking in target-front terms.
+
 Use explicit `--x/--y` for the formation, siege line, Settler screen, or ready
 unit being considered. If omitted, the command tries to infer an origin from
 the first ready unit.

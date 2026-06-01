@@ -1,6 +1,6 @@
 import { Command, Flags } from '@oclif/core';
 import { getCiv7TargetCandidates } from '@civ7/direct-control';
-import { buildDirectControlOptions } from '../../../utils/game-play-shared';
+import { buildDirectControlOptions, resolveCoordinateFlags } from '../../../utils/game-play-shared';
 
 export default class GamePlayTargetCandidates extends Command {
   static id = 'game play target-candidates';
@@ -11,6 +11,7 @@ export default class GamePlayTargetCandidates extends Command {
   static examples = [
     '<%= config.bin %> game play target-candidates --json',
     '<%= config.bin %> game play target-candidates --x 18 --y 20 --max-candidates 5 --json',
+    '<%= config.bin %> game play target-candidates --origin 18,20 --json',
   ];
 
   static flags = {
@@ -30,6 +31,9 @@ export default class GamePlayTargetCandidates extends Command {
     y: Flags.integer({
       description: 'Formation or siege origin y coordinate',
       dependsOn: ['x'],
+    }),
+    origin: Flags.string({
+      description: 'Formation or siege origin as x,y',
     }),
     'max-candidates': Flags.integer({
       description: 'Maximum target candidates to return',
@@ -55,7 +59,15 @@ export default class GamePlayTargetCandidates extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(GamePlayTargetCandidates);
-    const origins = flags.x === undefined || flags.y === undefined ? undefined : [{ x: flags.x, y: flags.y }];
+    const origin = resolveCoordinateFlags({
+      x: flags.x,
+      y: flags.y,
+      pair: flags.origin,
+      xFlag: 'x',
+      yFlag: 'y',
+      pairFlag: 'origin',
+    });
+    const origins = origin ? [origin] : undefined;
     const view = await getCiv7TargetCandidates({
       playerId: flags['player-id'],
       origins,

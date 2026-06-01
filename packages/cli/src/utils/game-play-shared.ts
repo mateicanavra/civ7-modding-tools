@@ -34,6 +34,8 @@ export type PlayOperationStep = Readonly<{
   input: Civ7OperationInput;
 }>;
 
+export type MapLocationFlag = Readonly<{ x: number; y: number }>;
+
 export function buildDirectControlOptions(flags: DirectControlFlagOptions): Civ7DirectControlOptions {
   return {
     host: flags.host,
@@ -69,6 +71,33 @@ export function parseJsonFlag<T>(value: string | undefined, flag: string): T {
 export function parseOptionalJsonFlag(value: string | undefined, flag: string): unknown {
   if (value === undefined) return undefined;
   return parseJsonFlag<unknown>(value, flag);
+}
+
+export function resolveCoordinateFlags(input: {
+  x?: number;
+  y?: number;
+  pair?: string;
+  xFlag: string;
+  yFlag: string;
+  pairFlag: string;
+  required?: boolean;
+}): MapLocationFlag | undefined {
+  const pair = input.pair;
+  const hasPair = pair !== undefined;
+  const hasX = input.x !== undefined;
+  const hasY = input.y !== undefined;
+  if (hasPair && (hasX || hasY)) {
+    throw new Error(`--${input.pairFlag} cannot be combined with --${input.xFlag}/--${input.yFlag}`);
+  }
+  if (pair !== undefined) return parseCoordinatePair(pair, input.pairFlag);
+  if (hasX !== hasY) {
+    throw new Error(`--${input.xFlag} and --${input.yFlag} must be provided together`);
+  }
+  if (hasX && hasY) return { x: input.x as number, y: input.y as number };
+  if (input.required) {
+    throw new Error(`provide --${input.pairFlag} or --${input.xFlag} and --${input.yFlag}`);
+  }
+  return undefined;
 }
 
 export function parseComponentId(value: string | undefined, flag: string): Civ7ComponentId {
@@ -167,4 +196,16 @@ function resultVerified(result: unknown): boolean {
     && typeof result === 'object'
     && 'verified' in result
     && (result as { verified?: unknown }).verified === true;
+}
+
+function parseCoordinatePair(value: string, flag: string): MapLocationFlag {
+  const parts = value.split(',').map((part) => part.trim());
+  if (parts.length !== 2) throw new Error(`--${flag} must be formatted as x,y`);
+  const [xRaw, yRaw] = parts;
+  const x = Number(xRaw);
+  const y = Number(yRaw);
+  if (!Number.isInteger(x) || !Number.isInteger(y)) {
+    throw new Error(`--${flag} must contain integer x,y coordinates`);
+  }
+  return { x, y };
 }
