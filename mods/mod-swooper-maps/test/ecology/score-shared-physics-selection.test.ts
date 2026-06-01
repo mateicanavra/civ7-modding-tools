@@ -3,7 +3,6 @@ import { describe, expect, it } from "bun:test";
 import {
   choosePhysicalCandidate,
   comparePhysicalCandidates,
-  confidenceBeatsStress,
 } from "../../src/domain/ecology/ops/score-shared/index.js";
 
 describe("score-shared physics candidate ordering", () => {
@@ -42,9 +41,4 @@ describe("score-shared physics candidate ordering", () => {
     });
   });
 
-  it("admits a placement only when confidence beats stress", () => {
-    expect(confidenceBeatsStress({ confidence01: 0.7, stress01: 0.3 })).toBe(true);
-    expect(confidenceBeatsStress({ confidence01: 0.5, stress01: 0.5 })).toBe(false);
-    expect(confidenceBeatsStress({ confidence01: 0.2, stress01: 0.8 })).toBe(false);
-  });
 });

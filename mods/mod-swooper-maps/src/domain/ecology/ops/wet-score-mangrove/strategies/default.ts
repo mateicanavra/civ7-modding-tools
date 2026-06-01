@@ -11,7 +11,7 @@ export const defaultStrategy = createStrategy(ScoreWetMangroveContract, "default
       height: input.height,
       fields: [
         { label: "landMask", arr: input.landMask as Uint8Array },
-        { label: "coastalLandMask", arr: input.coastalLandMask as Uint8Array },
+        { label: "intertidalCoastMask", arr: input.intertidalCoastMask as Uint8Array },
         { label: "water01", arr: input.water01 as Float32Array },
         { label: "fertility01", arr: input.fertility01 as Float32Array },
         { label: "surfaceTemperature", arr: input.surfaceTemperature as Float32Array },
@@ -23,8 +23,10 @@ export const defaultStrategy = createStrategy(ScoreWetMangroveContract, "default
 
     for (let i = 0; i < size; i++) {
       if (input.landMask[i] === 0) continue;
-      if (input.coastalLandMask[i] === 0) continue;
+      if (input.intertidalCoastMask[i] === 0) continue;
 
+      // Mangroves are warm intertidal coast features, not generic humid coastal
+      // vegetation. The substrate gate owns the tidal/low-coast proxy.
       const warmSuit = rampUp01(
         input.surfaceTemperature[i],
         config.tempWarmStartC,
@@ -40,4 +42,3 @@ export const defaultStrategy = createStrategy(ScoreWetMangroveContract, "default
     return { score01 };
   },
 });
-

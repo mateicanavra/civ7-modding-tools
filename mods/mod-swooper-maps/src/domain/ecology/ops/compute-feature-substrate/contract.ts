@@ -23,6 +23,21 @@ const FeatureSubstrateConfigSchema = Type.Object(
       default: 1,
       minimum: 0,
     }),
+    lowlandMaxElevationAboveSeaM: Type.Integer({
+      description: "Maximum land elevation above sea level treated as lowland wetland substrate.",
+      default: 160,
+      minimum: 0,
+    }),
+    intertidalMaxElevationAboveSeaM: Type.Integer({
+      description: "Maximum coastal land elevation above sea level treated as intertidal substrate.",
+      default: 40,
+      minimum: 0,
+    }),
+    floodplainDischargeMin: Type.Number({
+      description: "Minimum nearby discharge treated as meaningful floodplain water exchange.",
+      default: 0,
+      minimum: 0,
+    }),
   },
   {
     additionalProperties: false,
@@ -47,6 +62,18 @@ const ComputeFeatureSubstrateContract = defineOp({
       landMask: TypedArraySchemas.u8({
         description: "Land mask per tile (1=land, 0=water).",
       }),
+      elevation: TypedArraySchemas.i16({
+        description: "Elevation in meters, using the same datum as seaLevel.",
+      }),
+      seaLevel: Type.Number({
+        description: "Global sea-level datum in meters.",
+      }),
+      discharge: TypedArraySchemas.f32({
+        description: "Hydrology discharge proxy per tile.",
+      }),
+      sinkMask: TypedArraySchemas.u8({
+        description: "Mask (1/0): local drainage sink or depression.",
+      }),
     },
     { additionalProperties: false }
   ),
@@ -63,6 +90,27 @@ const ComputeFeatureSubstrateContract = defineOp({
     coastalLandMask: TypedArraySchemas.u8({
       description: "Mask (1/0): land tiles within coastalAdjacencyRadius of any water tile.",
     }),
+    lowlandMask: TypedArraySchemas.u8({
+      description: "Mask (1/0): land tiles close enough to sea level for wetland substrate.",
+    }),
+    floodplainMask: TypedArraySchemas.u8({
+      description: "Mask (1/0): lowland land with nearby meaningful river water exchange.",
+    }),
+    intertidalCoastMask: TypedArraySchemas.u8({
+      description: "Mask (1/0): low coastal land adjacent to water.",
+    }),
+    sinkBasinMask: TypedArraySchemas.u8({
+      description: "Mask (1/0): lowland drainage sinks/depressions.",
+    }),
+    hydromorphicMask: TypedArraySchemas.u8({
+      description: "Mask (1/0): floodplain, intertidal, or sink-basin wetland substrate.",
+    }),
+    wellDrainedMask: TypedArraySchemas.u8({
+      description: "Mask (1/0): land outside hydromorphic substrate.",
+    }),
+    isolatedWaterPointMask: TypedArraySchemas.u8({
+      description: "Mask (1/0): isolated lowland water-point substrate for arid wet features.",
+    }),
   }),
   strategies: {
     default: FeatureSubstrateConfigSchema,
@@ -70,4 +118,3 @@ const ComputeFeatureSubstrateContract = defineOp({
 });
 
 export default ComputeFeatureSubstrateContract;
-

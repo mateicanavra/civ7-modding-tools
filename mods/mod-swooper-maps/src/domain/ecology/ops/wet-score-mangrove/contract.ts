@@ -7,7 +7,9 @@ const ScoreWetMangroveContract = defineOp({
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
     landMask: TypedArraySchemas.u8({ description: "Land mask (1 = land, 0 = water)." }),
-    coastalLandMask: TypedArraySchemas.u8({ description: "Mask (1/0): land tiles adjacent to water." }),
+    intertidalCoastMask: TypedArraySchemas.u8({
+      description: "Mask (1/0): low coastal land adjacent to water.",
+    }),
     water01: TypedArraySchemas.f32({ description: "Water availability proxy (0..1)." }),
     fertility01: TypedArraySchemas.f32({ description: "Fertility proxy (0..1)." }),
     surfaceTemperature: TypedArraySchemas.f32({ description: "Surface temperature (C)." }),
@@ -28,4 +30,3 @@ const ScoreWetMangroveContract = defineOp({
 });
 
 export default ScoreWetMangroveContract;
-

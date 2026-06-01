@@ -11,7 +11,7 @@ export const defaultStrategy = createStrategy(ScoreWetMarshContract, "default", 
       height: input.height,
       fields: [
         { label: "landMask", arr: input.landMask as Uint8Array },
-        { label: "nearRiverMask", arr: input.nearRiverMask as Uint8Array },
+        { label: "hydromorphicMask", arr: input.hydromorphicMask as Uint8Array },
         { label: "water01", arr: input.water01 as Float32Array },
         { label: "fertility01", arr: input.fertility01 as Float32Array },
         { label: "surfaceTemperature", arr: input.surfaceTemperature as Float32Array },
@@ -23,8 +23,10 @@ export const defaultStrategy = createStrategy(ScoreWetMarshContract, "default", 
 
     for (let i = 0; i < size; i++) {
       if (input.landMask[i] === 0) continue;
-      if (input.nearRiverMask[i] === 0) continue;
+      if (input.hydromorphicMask[i] === 0) continue;
 
+      // Marshes are waterlogged landforms first and humid biomes second; this
+      // gate stops broad moisture from painting well-drained land as marsh.
       const waterSuit = rampUp01(input.water01[i], config.waterMin01, 1);
       const fertilitySuit = rampUp01(input.fertility01[i], config.fertilityMin01, 1);
       const tempSuit = window01(
@@ -41,4 +43,3 @@ export const defaultStrategy = createStrategy(ScoreWetMarshContract, "default", 
     return { score01 };
   },
 });
-

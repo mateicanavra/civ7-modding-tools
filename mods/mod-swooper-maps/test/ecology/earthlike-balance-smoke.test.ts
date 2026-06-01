@@ -75,16 +75,24 @@ describe("Earthlike ecology balance (smoke)", () => {
     const marshIdx = adapter.getFeatureTypeIndex("FEATURE_MARSH");
     const bogIdx = adapter.getFeatureTypeIndex("FEATURE_TUNDRA_BOG");
     const mangroveIdx = adapter.getFeatureTypeIndex("FEATURE_MANGROVE");
+    const reefIdx = adapter.getFeatureTypeIndex("FEATURE_REEF");
+    const coldReefIdx = adapter.getFeatureTypeIndex("FEATURE_COLD_REEF");
+    const atollIdx = adapter.getFeatureTypeIndex("FEATURE_ATOLL");
+    const lotusIdx = adapter.getFeatureTypeIndex("FEATURE_LOTUS");
 
+    let waterCount = 0;
     let forestCount = 0;
     let rainforestCount = 0;
     let taigaCount = 0;
     let savannaCount = 0;
     let steppeCount = 0;
     let wetlandCount = 0;
+    let reefFamilyCount = 0;
+    let atollCount = 0;
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
+        if (adapter.isWater(x, y)) waterCount++;
         const feature = adapter.getFeatureType(x, y);
         if (feature === forestIdx) forestCount++;
         if (feature === rainforestIdx) rainforestCount++;
@@ -92,6 +100,10 @@ describe("Earthlike ecology balance (smoke)", () => {
         if (feature === savannaIdx) savannaCount++;
         if (feature === steppeIdx) steppeCount++;
         if (feature === marshIdx || feature === bogIdx || feature === mangroveIdx) wetlandCount++;
+        if (feature === reefIdx || feature === coldReefIdx || feature === atollIdx || feature === lotusIdx) {
+          reefFamilyCount++;
+        }
+        if (feature === atollIdx) atollCount++;
       }
     }
 
@@ -102,6 +114,8 @@ describe("Earthlike ecology balance (smoke)", () => {
 
     expect(forestCount + rainforestCount + taigaCount + savannaCount + steppeCount + wetlandCount).toBeGreaterThan(0);
 
-    expect(wetlandCount).toBeLessThan(Math.max(1, Math.floor(landCount * 0.75)));
+    expect(wetlandCount).toBeLessThan(Math.max(1, Math.floor(landCount * 0.35)));
+    expect(reefFamilyCount).toBeLessThan(Math.max(1, Math.floor(waterCount * 0.35)));
+    expect(atollCount).toBeLessThan(Math.max(1, Math.floor(waterCount * 0.08)));
   });
 });
