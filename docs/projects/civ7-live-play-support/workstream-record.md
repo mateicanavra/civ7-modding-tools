@@ -262,6 +262,14 @@ Evidence:
   capture the authority split in `topics/local-catalog-enrichment.md`; use
   local DBs to enrich HUD labels and shortcuts, not to replace live runtime
   blockers, validators, or postcondition reads.
+- Turn 82 after the restart recovery exposed a reviewed natural-disaster report
+  blocker: `NOTIFICATION_VOLCANO_ACTIVE`, `canUserDismiss:true`, reported plot
+  `(6,27)`, no ready unit, and blocker enum `0`. Official resources define
+  active/inactive volcano and river flood notices as expiring, non-auto-notify
+  report notifications with no specialized handler. Disposition: classify these
+  default-handler disaster reports as `informational-notification` so the HUD
+  points to reviewed `game play dismiss-notification` closeout instead of a
+  generic unknown operation.
 
 Review findings and disposition:
 
@@ -389,6 +397,9 @@ Residual objective gaps:
   static support evidence rather than current live-turn authority, plus the
   candidate local-data and local-catalog shortcuts that can reduce UI polling
   without bypassing validators.
+- The informational-notification rules now include active/inactive volcano and
+  river-flood report notices alongside volcano eruptions, unit attacks, district
+  attacks, and wonder reports.
 - A production placement topic now captures the ordinary production `BUILD`
   item-kind split, the official placement-mode `X`/`Y` commit path, and the
   turn-78 Ancient Walls proof.

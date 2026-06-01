@@ -4127,6 +4127,541 @@ function probeHelperSource(): string {
     };`;
 }
 
+function playNotificationViewSource(): string {
+  return `${probeHelperSource()}
+    const toComponentId = (value) => {
+      if (!value || typeof value !== "object") return null;
+      if (typeof value.owner !== "number" || typeof value.id !== "number") return null;
+      const out = { owner: value.owner, id: value.id };
+      if (typeof value.type === "number") out.type = value.type;
+      return out;
+    };
+    const componentKey = (value) => {
+      const id = toComponentId(value);
+      return id ? [id.owner, id.id, id.type ?? ""].join(":") : "";
+    };
+    const pushUniqueId = (ids, id) => {
+      const normalized = toComponentId(id);
+      if (!normalized) return;
+      const key = componentKey(normalized);
+      if (!ids.some((existing) => componentKey(existing) === key)) ids.push(normalized);
+    };
+    const notificationIdsForPlayer = (playerId, maxNotifications) => {
+      const ids = [];
+      const filters = [undefined];
+      if (typeof IgnoreNotificationType !== "undefined" && IgnoreNotificationType) {
+        for (const key of Object.keys(IgnoreNotificationType)) filters.push(IgnoreNotificationType[key]);
+      }
+      for (const filter of filters) {
+        try {
+          const found = filter === undefined
+            ? Game.Notifications.getIdsForPlayer(playerId)
+            : Game.Notifications.getIdsForPlayer(playerId, filter);
+          if (Array.isArray(found)) {
+            for (const id of found) pushUniqueId(ids, id);
+          }
+        } catch {}
+      }
+      return ids.slice(0, maxNotifications);
+    };
+    const safeNotificationValue = (notification, key) => {
+      try {
+        const value = notification == null ? undefined : notification[key];
+        if (typeof value === "function") return value.call(notification);
+        return value === undefined ? null : value;
+      } catch (err) {
+        return { error: String(err) };
+      }
+    };
+    const stringIncludes = (value, needle) => String(value ?? "").toUpperCase().includes(needle);
+    const requiredInput = (name, source, note) => ({ name, source, required: true, note });
+    const optionalInput = (name, source, note) => ({ name, source, required: false, note });
+    const action = (label, cli, operationFamily, operationType, argsShape, when) => ({
+      label,
+      cli,
+      operationFamily,
+      operationType,
+      argsShape,
+      when,
+    });
+    const hint = (category, operationFamily, operationType, argsShape, cli, confidence, requiredInputs, commonActions, notes) => ({
+      category,
+      operationFamily,
+      operationType,
+      argsShape,
+      cli,
+      requiredInputs,
+      commonActions,
+      confidence,
+      notes,
+    });
+    const firstMeetDetailsFor = (notification, typeName) => {
+      if (!stringIncludes(typeName, "PLAYER_MET") && !stringIncludes(typeName, "FIRST_MEET")) return undefined;
+      const player1 = GameContext.localPlayerID;
+      const rawPlayer2 = safeNotificationValue(notification, "Player");
+      const player2 = Number.isFinite(Number(rawPlayer2)) ? Number(rawPlayer2) : null;
+      const otherPlayer = player2 == null ? null : probe(() => {
+        const player = Players.get(player2);
+        if (!player) return null;
+        const leader = GameInfo?.Leaders?.lookup?.(player.leaderType);
+        const civilization = GameInfo?.Civilizations?.lookup?.(player.civilizationType);
+        return {
+          id: player2,
+          name: player.name ?? null,
+          leaderType: player.leaderType ?? null,
+          leaderName: leader?.Name ?? leader?.LeaderType ?? null,
+          civilizationType: player.civilizationType ?? null,
+          civilizationName: civilization?.Name ?? civilization?.CivilizationType ?? null,
+        };
+      });
+      const responseRows = [
+        ["friendly", "PLAYER_REALATIONSHIP_FIRSTMEET_FRIENDLY"],
+        ["neutral", "PLAYER_REALATIONSHIP_FIRSTMEET_NEUTRAL"],
+        ["unfriendly", "PLAYER_REALATIONSHIP_FIRSTMEET_UNFRIENDLY"],
+      ];
+      const responses = responseRows.map(([response, key]) => {
+        const type = probe(() => (
+          (typeof DiplomacyPlayerFirstMeets !== "undefined" ? DiplomacyPlayerFirstMeets?.[key] : undefined)
+          ?? GameInfo?.Types?.lookup?.(key)?.Hash
+          ?? null
+        ));
+        const typeValue = type.ok ? type.value : null;
+        const costAndRelationship = Number.isFinite(Number(typeValue))
+          ? probe(() => Game.Diplomacy.getFirstMeetResponseCostAndRelDelta(typeValue))
+          : { ok: false, error: "first-meet response type unavailable" };
+        const args = Number.isFinite(Number(typeValue)) && player2 != null
+          ? { Player1: player1, Player2: player2, Type: typeValue }
+          : null;
+        const validation = args
+          ? probe(() => Game.PlayerOperations.canStart(
+            player1,
+            PlayerOperationTypes.RESPOND_DIPLOMATIC_FIRST_MEET,
+            args,
+            false,
+          ))
+          : { ok: false, error: "missing Player2 or Type" };
+        return {
+          response,
+          key,
+          type,
+          influenceCost: costAndRelationship.ok ? costAndRelationship.value?.[0] ?? null : null,
+          relationshipDelta: costAndRelationship.ok ? costAndRelationship.value?.[1] ?? null : null,
+          args,
+          validation,
+        };
+      });
+      return {
+        kind: "first-meet-diplomacy",
+        player1,
+        player2,
+        otherPlayer,
+        responses,
+        recommendedResponse: "neutral",
+        recommendedCli: player2 == null
+          ? null
+          : "game play respond-first-meet --player-id " + String(player1) + " --met-player-id " + String(player2) + " --response neutral",
+        note: "Neutral is the conservative default when Influence cost or payoff is not proven.",
+      };
+    };
+    const decisionHintFor = (notification, typeName, isBlocking) => {
+      const haystack = [
+        typeName,
+        notification?.Type,
+        notification?.GroupType,
+        notification?.Summary,
+        notification?.Message,
+      ].map((part) => String(part ?? "").toUpperCase()).join(" ");
+      if (stringIncludes(haystack, "CHOOSE_TECH")) {
+        return hint(
+          "technology-choice",
+          "player-operation",
+          "SET_TECH_TREE_NODE",
+          "{ ProgressionTreeNodeType }",
+          "game play choose-tech",
+          "live-proof",
+          [requiredInput("ProgressionTreeNodeType", "live tech chooser/tree node", "Use the runtime node type hash from GameInfo/progression tree data, not the row index or notification id.")],
+          [
+            action("validate tech choice", "game play choose-tech --player-id <id> --node <node>", "player-operation", "SET_TECH_TREE_NODE", "{ ProgressionTreeNodeType }", "after reading the candidate node"),
+            action("set tech target", "game play set-tech-target --player-id <id> --node <node>", "player-operation", "SET_TECH_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
+          ],
+          ["Read the live tech node id before sending; full-tree UI paths can target a node separately from starting current research."],
+        );
+      }
+      if (stringIncludes(haystack, "CHOOSE_CULTURE") || stringIncludes(haystack, "CULTURE_TREE")) {
+        return hint(
+          "culture-choice",
+          "player-operation",
+          "SET_CULTURE_TREE_NODE",
+          "{ ProgressionTreeNodeType }",
+          "game play choose-culture",
+          "live-proof",
+          [requiredInput("ProgressionTreeNodeType", "live culture chooser/tree node", "Use the runtime node type hash from GameInfo/progression tree data, not the row index or notification id.")],
+          [
+            action("validate culture choice", "game play choose-culture --player-id <id> --node <node>", "player-operation", "SET_CULTURE_TREE_NODE", "{ ProgressionTreeNodeType }", "after reading the candidate node"),
+            action("set culture target", "game play set-culture-target --player-id <id> --node <node>", "player-operation", "SET_CULTURE_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
+          ],
+          ["Some UI paths also set the culture target node; the turn-58 proof required the actual node hash plus target-node closeout."],
+        );
+      }
+      if (stringIncludes(haystack, "NEW_POPULATION")) {
+        return hint(
+          "population-placement",
+          undefined,
+          undefined,
+          "ASSIGN_WORKER { Location, Amount: 1 } or city-command EXPAND placement args",
+          undefined,
+          "official-ui",
+          [
+            requiredInput("Location", "chosen plot", "The plot choice determines worker assignment vs expansion."),
+            optionalInput("City", "notification target or selected city", "Needed when the branch is city expansion rather than worker reassignment."),
+          ],
+          [
+            action("assign worker to proven plot", "game play assign-worker --player-id <id> --location <plot-index>", "player-operation", "ASSIGN_WORKER", "{ Location, Amount: 1 }", "when the chosen tile is already workable"),
+            action("validate city expansion", "game play expand-city --city-id '<city-id>' --x <x> --y <y>", "city-command", "EXPAND", "{ X, Y }", "when the chosen tile is an expansion purchase"),
+          ],
+          ["The notification opens acquire-tile mode; the clicked plot determines whether worker assignment or expansion fires. Re-read candidates before choosing either branch."],
+        );
+      }
+      if (stringIncludes(haystack, "TOWN_PROJECT")) {
+        return hint(
+          "town-focus",
+          "city-command",
+          "CHANGE_GROWTH_MODE",
+          "{ Type, ProjectType, City }",
+          "game play set-town-focus",
+          "live-proof",
+          [
+            requiredInput("City", "notification target or selected city", "Use the city ComponentID, not only the numeric city id, for the CLI shortcut."),
+            requiredInput("Type", "live town focus option", "Growth mode enum from the town project UI."),
+            requiredInput("ProjectType", "live town focus option", "Paired project enum for the selected focus."),
+          ],
+          [
+            action("set town focus", "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type>", "city-command", "CHANGE_GROWTH_MODE", "{ Type, ProjectType, City }", "after selecting the focus from live options"),
+            action("close reviewed town project", "game play consider-town-project --city-id '<city-id>'", "city-operation", "CONSIDER_TOWN_PROJECT", "{}", "after the focus has already been set and the UI still needs closeout"),
+          ],
+          ["Town focus is not city-operation BUILD; closeout may require CONSIDER_TOWN_PROJECT."],
+        );
+      }
+      if (stringIncludes(haystack, "CHOOSE_CITY_PRODUCTION") || stringIncludes(haystack, "PRODUCTION")) {
+        return hint(
+          "production-choice",
+          "city-operation",
+          "BUILD",
+          "{ UnitType } or { ConstructibleType, X?, Y? } or { ProjectType }",
+          "game play build-production",
+          "live-proof",
+          [
+            requiredInput("City", "notification target or selected city", "Production choices are city-scoped."),
+            requiredInput("Build item type", "live production chooser", "Choose exactly one of UnitType, ConstructibleType, or ProjectType."),
+            optionalInput("Placement plot", "validator Plots or placement UI", "Required for constructibles when validation returns placement plots; send X/Y with the ConstructibleType."),
+          ],
+          [
+            action("validate production", "game play build-production --city-id '<city-id>' --unit-type <unit-type>", "city-operation", "BUILD", "{ UnitType }", "when the live choice is a unit"),
+            action("place constructible production", "game play build-production --city-id '<city-id>' --constructible-type <constructible-type> --x <x> --y <y>", "city-operation", "BUILD", "{ ConstructibleType, X, Y }", "when validator or placement UI returns legal placement plots"),
+            action("validate city project production", "game play build-production --city-id '<city-id>' --project-type <project-type>", "city-operation", "BUILD", "{ ProjectType }", "when the live choice is an ordinary city project, not town focus"),
+          ],
+          ["Use live chooser data to decide the item kind; constructible placement needs X/Y when the validator returns legal plots."],
+        );
+      }
+      if (stringIncludes(haystack, "PLAYER_MET") || stringIncludes(haystack, "FIRST_MEET")) {
+        return hint(
+          "first-meet-diplomacy",
+          "player-operation",
+          "RESPOND_DIPLOMATIC_FIRST_MEET",
+          "{ Player1, Player2, Type }",
+          "game play respond-first-meet",
+          "live-proof",
+          [
+            requiredInput("Player1", "local player id", "Usually the same value used as --player-id."),
+            requiredInput("Player2", "met player id", "Read this from the live first-meet notification or diplomacy panel."),
+            requiredInput("Type", "chosen first-meet greeting", "Use the first-meet response enum from the live UI, not ordinary Support/Accept/Reject diplomacy response enums."),
+          ],
+          [
+            action("send neutral first-meet greeting", "game play respond-first-meet --player-id <id> --met-player-id <other-player-id> --response neutral", "player-operation", "RESPOND_DIPLOMATIC_FIRST_MEET", "{ Player1, Player2, Type }", "after validating the greeting options from the live first-meet UI"),
+          ],
+          ["First-meet greetings are real player operations, not notification dismissals. Neutral is the conservative default when Influence cost or strategic payoff is not proven."],
+        );
+      }
+      if ((stringIncludes(haystack, "RESPOND") || stringIncludes(haystack, "RESPONSE")) && stringIncludes(haystack, "DIPLO")) {
+        return hint(
+          "diplomacy-response",
+          "player-operation",
+          "RESPOND_DIPLOMATIC_ACTION",
+          "{ ID, Type }",
+          "game play respond-diplomacy",
+          "live-proof",
+          [
+            requiredInput("ID", "live diplomatic action", "This is the diplomatic action id, not the notification ComponentID."),
+            requiredInput("Type", "chosen diplomatic response", "Use the response enum from the live action surface."),
+          ],
+          [
+            action("validate diplomacy response", "game play respond-diplomacy --player-id <id> --action-id <action-id> --response-type <response-type>", "player-operation", "RESPOND_DIPLOMATIC_ACTION", "{ ID, Type }", "after reading the action id and desired response type"),
+          ],
+          ["Use the diplomatic action id and response type from the live notification."],
+        );
+      }
+      if (stringIncludes(haystack, "UNIT_ATTACKED")
+        || stringIncludes(haystack, "DISTRICT_ATTACKED")
+        || stringIncludes(haystack, "VOLCANO_ACTIVE")
+        || stringIncludes(haystack, "VOLCANO_INACTIVE")
+        || stringIncludes(haystack, "VOLCANO_ERUPTS")
+        || stringIncludes(haystack, "RIVER_FLOODS")) {
+        return hint(
+          "informational-notification",
+          "app-ui-action",
+          "Game.Notifications.dismiss",
+          "{ notificationId }",
+          "game play dismiss-notification",
+          "official-ui",
+          [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not an operation target.")],
+          [
+            action("dismiss reviewed notification", "game play dismiss-notification --target '<notification-id>' --send --reason '<why this was reviewed>'", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after reviewing the reported attack/disaster location and confirming no specialized decision surface is required"),
+          ],
+          ["Attack and natural-disaster report notifications use the default notification handler; activation looks at the reported plot when present, while closeout is App UI dismissal after the report is reviewed."],
+        );
+      }
+      if (stringIncludes(haystack, "WONDER_COMPLETED") || stringIncludes(haystack, "WONDER_FAILED")) {
+        return hint(
+          "informational-notification",
+          "app-ui-action",
+          "Game.Notifications.dismiss",
+          "{ notificationId }",
+          "game play dismiss-notification",
+          "official-ui",
+          [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not an operation target.")],
+          [
+            action("dismiss reviewed notification", "game play dismiss-notification --target '<notification-id>' --send --reason '<why this was reviewed>'", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after confirming the notification only reports completed/failed wonder information"),
+          ],
+          ["Wonder completed/failed uses the default notification handler; the live target may be invalid, so activation only looks at a plot when one exists."],
+        );
+      }
+      if (stringIncludes(haystack, "NARRATIVE")) {
+        return hint(
+          "narrative-branch",
+          "player-operation",
+          "CHOOSE_NARRATIVE_STORY_DIRECTION",
+          "{ TargetType, Target, Action }",
+          "game play choose-narrative",
+          "live-proof",
+          [
+            requiredInput("Target", "notification target or story UI targetStoryId", "Usually the story ComponentID from the notification target."),
+            requiredInput("TargetType", "story option button", "If no story links exist, official UI uses CLOSE as the option key."),
+            requiredInput("Action", "story option activation", "Official narrative UI sends PlayerOperationParameters.Activate."),
+          ],
+          [
+            action("validate narrative choice", "game play choose-narrative --player-id <id> --target-type <target-type> --target '<target>' --action <action>", "player-operation", "CHOOSE_NARRATIVE_STORY_DIRECTION", "{ TargetType, Target, Action }", "after deriving option key and activation from the story UI"),
+          ],
+          ["Preserve target and action exactly from the story UI."],
+        );
+      }
+      if (stringIncludes(haystack, "TRADITION")) {
+        return hint(
+          "tradition-review",
+          "player-operation",
+          "CHANGE_TRADITION",
+          "{ TraditionType, Action } then CONSIDER_ASSIGN_TRADITIONS {}",
+          "game play change-tradition",
+          "live-proof",
+          [
+            requiredInput("TraditionType", "live tradition chooser", "Pick the tradition enum that is being activated or deactivated."),
+            requiredInput("Action", "live tradition action", "Use the activate/deactivate action enum from the tradition UI."),
+          ],
+          [
+            action("change tradition", "game play change-tradition --player-id <id> --tradition-type <tradition-type> --action <action>", "player-operation", "CHANGE_TRADITION", "{ TraditionType, Action }", "when a specific tradition slot change is needed"),
+            action("close tradition review", "game play consider-traditions --player-id <id>", "player-operation", "CONSIDER_ASSIGN_TRADITIONS", "{}", "after valid assignments are already in place"),
+          ],
+          ["Full slots may need deactivate, activate, then closeout."],
+        );
+      }
+      if (stringIncludes(haystack, "ATTRIBUTE")) {
+        return hint(
+          "attribute-review",
+          "player-operation",
+          "BUY_ATTRIBUTE_TREE_NODE",
+          "{ ProgressionTreeNodeType } then CONSIDER_ASSIGN_ATTRIBUTE {}",
+          "game play buy-attribute",
+          "live-proof",
+          [requiredInput("ProgressionTreeNodeType", "live attribute tree node", "Use the buyable attribute node id from the runtime tree.")],
+          [
+            action("buy attribute node", "game play buy-attribute --player-id <id> --node <node>", "player-operation", "BUY_ATTRIBUTE_TREE_NODE", "{ ProgressionTreeNodeType }", "when a buyable node is selected"),
+            action("close attribute review", "game play consider-attributes --player-id <id>", "player-operation", "CONSIDER_ASSIGN_ATTRIBUTE", "{}", "after no attribute purchase is needed or after buying"),
+          ],
+          ["Close the review surface after buying the attribute node."],
+        );
+      }
+      if (stringIncludes(haystack, "ADVISOR") || stringIncludes(haystack, "WARNING")) {
+        return hint(
+          "advisor-warning",
+          "player-operation",
+          "VIEWED_ADVISOR_WARNING",
+          "{ Target: notificationComponentId }",
+          "game play advisor-warning",
+          "live-proof",
+          [requiredInput("Target", "notification ComponentID", "Use the notification id itself as Target.")],
+          [
+            action("mark advisor warning viewed", "game play advisor-warning --player-id <id> --target '<notification-id>'", "player-operation", "VIEWED_ADVISOR_WARNING", "{ Target: notificationComponentId }", "when the warning has been inspected"),
+          ],
+          ["Do not use raw notification dismissal for advisor blockers."],
+        );
+      }
+      if (stringIncludes(haystack, "COMMAND_UNITS") || stringIncludes(haystack, "UNITS")) {
+        return hint(
+          "unit-command",
+          "unit-operation",
+          "SKIP_TURN",
+          "selected/ready unit id plus operation-specific args",
+          "game play operation --family unit",
+          "heuristic",
+          [
+            requiredInput("Unit", "selectedUnitId or firstReadyUnitId", "Use the ready unit, then inspect its legal operations before choosing."),
+            optionalInput("Target plot", "map coordinates", "Needed for move, attack, and other plot-target actions."),
+          ],
+          [
+            action("read ready-unit view", "game play ready-unit --json", undefined, undefined, "selected/first ready unit, legal operations, nearby occupied plots", "before choosing a unit operation"),
+            action("resolve plot target", "game play unit-target --unit-id '<unit-id>' --x <x> --y <y>", "unit-operation", undefined, "official right-click action order", "when choosing a move or attack target"),
+            action("validate generic unit operation", "game play operation --family unit --type <operation> --unit-id '<unit-id>' --args '<args>'", "unit-operation", "<operation>", "operation-specific args", "when the operation is not covered by a named shortcut"),
+          ],
+          ["Read the selected or first ready unit before choosing skip, automate, move, or promote."],
+        );
+      }
+      return hint(
+        isBlocking ? "blocking-notification" : "notification",
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        "heuristic",
+        [requiredInput("Notification handler evidence", "official UI handler or live runtime surface", "Unclassified notifications need handler inspection before sending operations.")],
+        [
+          action("inspect materialized notifications", "game play notifications --json", undefined, undefined, undefined, "before deciding whether this is a real blocker"),
+          action("validate generic operation", "game play operation --family <family> --type <type> --args '<args>'", undefined, undefined, "operation-specific args", "only after the official handler or live UI proves the operation"),
+        ],
+        ["No specialized shortcut is known; inspect official UI handler or use validate-only generic operation."],
+      );
+    };
+    const summarizeNotification = (id, blockingKey) => {
+      const notification = Game.Notifications.find(id);
+      const type = (() => {
+        try {
+          return typeof Game.Notifications.getType === "function"
+            ? Game.Notifications.getType(id)
+            : notification?.Type ?? null;
+        } catch {
+          return notification?.Type ?? null;
+        }
+      })();
+      const typeName = (() => {
+        try {
+          return typeof Game.Notifications.getTypeName === "function"
+            ? Game.Notifications.getTypeName(type)
+            : null;
+        } catch {
+          return null;
+        }
+      })();
+      const normalizedId = toComponentId(id);
+      const isEndTurnBlocking = normalizedId != null && componentKey(normalizedId) === blockingKey;
+      const summary = (() => {
+        try {
+          return typeof Game.Notifications.getSummary === "function"
+            ? Game.Notifications.getSummary(id) ?? null
+            : safeNotificationValue(notification, "Summary");
+        } catch {
+          return safeNotificationValue(notification, "Summary");
+        }
+      })();
+      const message = (() => {
+        try {
+          return typeof Game.Notifications.getMessage === "function"
+            ? Game.Notifications.getMessage(id) ?? null
+            : safeNotificationValue(notification, "Message");
+        } catch {
+          return safeNotificationValue(notification, "Message");
+        }
+      })();
+      return {
+        id: normalizedId,
+        type,
+        typeName,
+        groupType: safeNotificationValue(notification, "GroupType"),
+        player: safeNotificationValue(notification, "Player"),
+        summary,
+        message,
+        target: safeNotificationValue(notification, "Target"),
+        location: safeNotificationValue(notification, "Location"),
+        canUserDismiss: safeNotificationValue(notification, "CanUserDismiss"),
+        expired: safeNotificationValue(notification, "Expired"),
+        dismissed: safeNotificationValue(notification, "Dismissed"),
+        isEndTurnBlocking,
+        decision: decisionHintFor(notification, typeName, isEndTurnBlocking),
+        details: firstMeetDetailsFor(notification, typeName),
+      };
+    };
+    const readPlayNotifications = (input) => {
+      const maxNotifications = Math.max(1, Math.min(input.maxNotifications ?? 25, 100));
+      const localPlayerId = GameContext.localPlayerID;
+      const blocker = probe(() => Game.Notifications.getEndTurnBlockingType(localPlayerId));
+      const blockingNotificationId = probe(() => {
+        const blockerValue = blocker.ok ? blocker.value : Game.Notifications.getEndTurnBlockingType(localPlayerId);
+        const id = Game.Notifications.findEndTurnBlocking(localPlayerId, blockerValue);
+        return toComponentId(id);
+      });
+      const ids = notificationIdsForPlayer(localPlayerId, maxNotifications + 1);
+      if (blockingNotificationId.ok) pushUniqueId(ids, blockingNotificationId.value);
+      const truncated = ids.length > maxNotifications;
+      const selected = ids.slice(0, maxNotifications);
+      const blockingKey = blockingNotificationId.ok ? componentKey(blockingNotificationId.value) : "";
+      const notifications = selected.map((id) => summarizeNotification(id, blockingKey));
+      const decisions = [];
+      for (const notification of notifications) {
+        const key = JSON.stringify(notification.decision);
+        if (!decisions.some((existing) => JSON.stringify(existing) === key)) decisions.push(notification.decision);
+      }
+      const toDecisionQueueItem = (notification) => ({
+        notificationId: notification.id,
+        isEndTurnBlocking: notification.isEndTurnBlocking,
+        typeName: notification.typeName,
+        summary: notification.summary,
+        message: notification.message,
+        target: notification.target,
+        location: notification.location,
+        player: notification.player,
+        category: notification.decision.category,
+        operationFamily: notification.decision.operationFamily,
+        operationType: notification.decision.operationType,
+        argsShape: notification.decision.argsShape,
+        cli: notification.decision.cli,
+        requiredInputs: notification.decision.requiredInputs,
+        commonActions: notification.decision.commonActions,
+        notes: notification.decision.notes,
+        details: notification.details,
+      });
+      const decisionQueue = notifications
+        .slice()
+        .sort((left, right) => Number(right.isEndTurnBlocking) - Number(left.isEndTurnBlocking))
+        .map(toDecisionQueueItem);
+      return {
+        localPlayerId,
+        turn: probe(() => Game.turn),
+        turnDate: probe(() => Game.getTurnDate()),
+        hasSentTurnComplete: probe(() => GameContext.hasSentTurnComplete()),
+        canEndTurn: probe(() => typeof canEndTurn === "function" ? canEndTurn() : false),
+        blocker,
+        blockingNotificationId,
+        selectedUnitId: probe(() => toComponentId(UI?.Player?.getHeadSelectedUnit?.())),
+        selectedCityId: probe(() => toComponentId(UI?.Player?.getHeadSelectedCity?.())),
+        firstReadyUnitId: probe(() => toComponentId(UI?.Player?.getFirstReadyUnit?.())),
+        notifications,
+        decisions,
+        hud: {
+          nextDecision: decisionQueue[0] ?? null,
+          decisionQueue,
+        },
+        limits: { maxNotifications, truncated },
+      };
+    };`;
+}
+
 function runtimeObjectReaderSource(): string {
   return `const callMaybe = (value, key) => {
       const candidate = value == null ? undefined : value[key];
@@ -5035,6 +5570,49 @@ function assertApproved(approval: Civ7ActionApproval, action: string): void {
   if (!approval || approval.approved !== true || !approval.reason.trim()) {
     throw new Civ7DirectControlError("command-failed", `Explicit approval with a reason is required before ${action}`);
   }
+}
+
+function isTurnCompletionAllowed(
+  status: Civ7TurnCompletionStatusResult,
+  fallbackPreflight?: Civ7PlayNotificationViewResult,
+): boolean {
+  if (probeValue(status.canEndTurn) === true) return true;
+  const cleanFallbackState = probeValue(status.hasSentTurnComplete) === false
+    && probeValue(status.blocker) === 0
+    && probeValue(status.firstReadyUnitId) === null;
+  if (!cleanFallbackState) return false;
+  if (fallbackPreflight === undefined) return false;
+  const blockingNotifications = fallbackPreflight.notifications.filter((notification) => notification.isEndTurnBlocking);
+  return blockingNotifications.every((notification) => isTurnCompletionFallbackNotification(notification, status));
+}
+
+function isTurnCompletionFallbackNotification(
+  notification: Civ7PlayNotificationSummary,
+  status: Civ7TurnCompletionStatusResult,
+): boolean {
+  const typeName = String(notification.typeName ?? "").toUpperCase();
+  if (notification.decision.category === "unit-command" && typeName.includes("COMMAND_UNITS")) {
+    return probeValue(status.blocker) === 0 && probeValue(status.firstReadyUnitId) === null;
+  }
+  if (notification.decision.category === "informational-notification") {
+    return notification.canUserDismiss === true && isTurnCompletionFallbackInformationalType(typeName);
+  }
+  return false;
+}
+
+function isTurnCompletionFallbackInformationalType(typeName: string): boolean {
+  return typeName === "NOTIFICATION_UNIT_ATTACKED"
+    || typeName === "NOTIFICATION_DISTRICT_ATTACKED"
+    || typeName === "NOTIFICATION_RIVER_FLOODS_SEV0"
+    || typeName === "NOTIFICATION_RIVER_FLOODS_SEV1"
+    || typeName === "NOTIFICATION_RIVER_FLOODS_SEV2"
+    || typeName === "NOTIFICATION_VOLCANO_ACTIVE"
+    || typeName === "NOTIFICATION_VOLCANO_INACTIVE"
+    || typeName === "NOTIFICATION_VOLCANO_ERUPTS_SEV0"
+    || typeName === "NOTIFICATION_VOLCANO_ERUPTS_SEV1"
+    || typeName === "NOTIFICATION_VOLCANO_ERUPTS_SEV2"
+    || typeName === "NOTIFICATION_WONDER_COMPLETED"
+    || typeName === "NOTIFICATION_WONDER_FAILED";
 }
 
 function autoplayConfigMatches(status: Civ7AutoplayStatusResult, options: Civ7AutoplayOptions): boolean {
