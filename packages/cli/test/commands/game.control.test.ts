@@ -4,6 +4,10 @@ import { type AddressInfo, createServer } from 'node:net';
 import GameExec from '../../src/commands/game/exec';
 import GameHealth from '../../src/commands/game/health';
 import GameInspect from '../../src/commands/game/inspect';
+import GameStatus from '../../src/commands/game/status';
+import GameMap from '../../src/commands/game/map';
+import GameGameInfo from '../../src/commands/game/gameinfo';
+import GameOperation from '../../src/commands/game/operation';
 
 describe('game direct-control commands', () => {
   test('runs arbitrary JavaScript through the direct socket boundary', async () => {
@@ -78,6 +82,62 @@ describe('game direct-control commands', () => {
       ]);
 
       expect(server.received).toEqual(['LSQ:', expect.stringContaining('CMD:65535:(() =>')]);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test('reports composed playable status', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      await GameStatus.run(['--host', '127.0.0.1', '--port', String(port), '--json']);
+
+      expect(server.received).toEqual([
+        'LSQ:',
+        expect.stringContaining('CMD:65535:(() =>'),
+        'LSQ:',
+        expect.stringContaining('CMD:1:(() =>'),
+      ]);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test('reads bounded map and GameInfo surfaces', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      await GameMap.run(['--host', '127.0.0.1', '--port', String(port), '--plot', '3,4', '--player-id', '0', '--json']);
+      await GameGameInfo.run(['Resources', '--host', '127.0.0.1', '--port', String(port), '--limit', '2', '--json']);
+
+      expect(server.received.some((message) => message.includes('readPlotSnapshot'))).toBe(true);
+      expect(server.received.some((message) => message.includes('GameInfo[input.table]'))).toBe(true);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test('validates operation commands through the canonical package boundary', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      await GameOperation.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--family',
+        'unit-operation',
+        '--operation-type',
+        'SKIP_TURN',
+        '--unit-id',
+        '{"owner":0,"id":65536,"type":26}',
+        '--json',
+      ]);
+
+      expect(server.received.some((message) => message.includes('return JSON.stringify(validateOperation'))).toBe(true);
+      expect(server.received.some((message) => message.includes('return JSON.stringify(sendOperation'))).toBe(false);
     } finally {
       await server.close();
     }
@@ -176,6 +236,50 @@ async function startTunerServer() {
                 aliveIds: { ok: true, value: [0] },
                 aliveHumanIds: { ok: true, value: [0] },
                 autoplayActive: { ok: true, value: false },
+              }),
+            ])
+          );
+        } else if (frame.message.includes('readPlotSnapshot')) {
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({
+                location: { x: 3, y: 4, index: { ok: true, value: 339 } },
+                revealedState: { ok: true, value: 1 },
+                visible: { ok: true, value: true },
+                hiddenInfoPolicy: 'visibility-filtered',
+                facts: {
+                  terrain: { ok: true, value: 4 },
+                  resource: { ok: true, value: -1 },
+                  revealedState: { ok: true, value: 1 },
+                  visible: { ok: true, value: true },
+                },
+              }),
+            ])
+          );
+        } else if (frame.message.includes('GameInfo[input.table]')) {
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({
+                table: 'Resources',
+                source: 'GameInfo',
+                rows: [{ ResourceType: 'RESOURCE_COTTON' }],
+                limit: 2,
+                offset: 0,
+                total: { ok: true, value: 1 },
+                omittedUnknown: false,
+              }),
+            ])
+          );
+        } else if (frame.message.includes('return JSON.stringify(validateOperation')) {
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              JSON.stringify({
+                family: 'unit-operation',
+                operationType: 'SKIP_TURN',
+                enumValue: 'SKIP_TURN',
+                target: { unitId: { owner: 0, id: 65536, type: 26 } },
+                valid: true,
+                result: { Success: true },
               }),
             ])
           );

@@ -35,9 +35,17 @@ State APIs are not interchangeable.
 
 ```ts
 import {
+  canStartCiv7UnitOperation,
   executeCiv7AppUiCommand,
+  generateCiv7CapabilityCatalog,
   getCiv7AppUiSnapshot,
+  getCiv7GameInfoRows,
+  getCiv7MapSummary,
+  getCiv7PlayableStatus,
+  getCiv7PlotSnapshot,
+  getCiv7VisibilitySummary,
   inspectCiv7RuntimeApi,
+  requestCiv7UnitOperation,
   restartCiv7GameAndBegin,
   restartCiv7Game,
   waitForCiv7TunerReady,
@@ -55,23 +63,75 @@ const api = await inspectCiv7RuntimeApi({
   state: { role: "app-ui" },
   roots: ["Network", "Autoplay"],
 });
+
+const status = await getCiv7PlayableStatus();
+const map = await getCiv7MapSummary();
+const plot = await getCiv7PlotSnapshot({ x: 32, y: 33, playerId: 0 });
+const visibility = await getCiv7VisibilitySummary({ playerId: 0 });
+const resources = await getCiv7GameInfoRows({ table: "Resources", limit: 10 });
+const catalog = await generateCiv7CapabilityCatalog();
+
+const unitId = { owner: 0, id: 65536, type: 26 };
+const canSkip = await canStartCiv7UnitOperation({ unitId, operationType: "SKIP_TURN" });
+if (canSkip.valid) {
+  await requestCiv7UnitOperation(
+    { unitId, operationType: "SKIP_TURN" },
+    {},
+    { approved: true, reason: "disposable smoke test" },
+  );
+}
 ```
 
 `getCiv7AppUiSnapshot()` is read-only and covers the stable developer status
 surface: network/session status, autoplay properties, turn/date, UI loading
 state, local player ids, alive player ids, and map dimensions.
 
+First-class wrappers now cover:
+
+- readiness and lifecycle: `getCiv7PlayableStatus`, restart, Begin Game,
+  Tuner health, turn-complete status/actions;
+- map reads: summary, one-plot snapshots, bounded grids, visibility summaries,
+  player/unit/city summaries, and targeted `GameInfo` rows;
+- approved actions: Autoplay configure/start/stop, disposable reveal, and
+  validator-backed Unit/City/Player operation/command requests;
+- catalog/type support: TypeBox schema exports, static catalog generation,
+  runtime catalog generation, and official-resource capability scanning.
+
+Mutating wrappers require explicit approval. Replay is not automatic after a
+failed mutation, and reveal requires `disposableSession` approval.
+
+Autoplay start may omit `--turns`; the package sets native return/observe
+players when it can infer them and clears a prior pause before starting. Stop
+keeps native pause enabled, requests inactive autoplay, then waits for the
+return player and a stable turn number before reporting `verified: true`.
+
 ## CLI
 
 The CLI routes through this package:
 
 ```bash
+civ7 game status --json
 civ7 game health --json
 civ7 game exec "1+1" --state "App UI" --json
 civ7 game inspect --app-ui-snapshot --json
 civ7 game health --tuner --json
 civ7 game restart --begin --wait-tuner --json
+civ7 game map --summary --json
+civ7 game map --plot 32,33 --player-id 0 --json
+civ7 game visibility --player-id 0 --bounds 0,0,32,32 --json
+civ7 game gameinfo Resources --limit 50 --json
+civ7 game autoplay --action start --reason "unbounded smoke test" --json
+civ7 game autoplay --action start --turns 1 --reason "bounded smoke test" --json
+civ7 game autoplay --action stop --reason "stop smoke test" --json
+civ7 game operation --family unit-operation --operation-type SKIP_TURN --unit-id '{"owner":0,"id":65536,"type":26}' --json
+civ7 game catalog --json
 ```
+
+Studio dev-server endpoints also call this package directly:
+
+- `GET /api/civ7/status`
+- `GET /api/civ7/map-summary`
+- `GET /api/civ7/gameinfo?table=Resources&limit=50`
 
 ## Bridge Policy
 
