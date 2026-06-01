@@ -41,11 +41,11 @@ play agent needs both:
 
 `Units.getPathTo(unitId, destination)` and
 `Units.getQueuedOperationDestination(unitId)` prove that the UI exposes path
-preview and queued-destination state. They do not yet prove whether the
-mutating request for a destination beyond current movement range is identical
-to the current-turn `MOVE_TO` request or uses a separate queueing API. The next
-implementation pass should inspect the official move-to and world-input send
-path before naming the mutating command.
+preview and queued-destination state. See `unit-destination-queue.md` for the
+current official-resource read: the UI appears to set long-distance destinations
+through the same `MOVE_TO` operation, while reading queued path state through
+`Units.getQueuedOperationDestination`; live direct-control smoke is still needed
+before treating that as a proved mutating shortcut.
 
 The proposed mutation should therefore stay provisional:
 
