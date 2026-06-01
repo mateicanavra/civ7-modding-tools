@@ -37,12 +37,14 @@ For future skill conversion, load source material in this order:
    runtime boundary.
 2. `topics/local-catalog-enrichment.md` for static catalog enrichment and local
    shortcut boundaries.
-3. `topics/notification-decision-hud.md` and `topics/end-turn-blockers.md` for
+3. `topics/restart-rehydration.md` when a restart, reconnect, or stale active
+   thread state is possible.
+4. `topics/notification-decision-hud.md` and `topics/end-turn-blockers.md` for
    the turn-blocker control loop.
-4. The domain reference matching the blocker family: progression, production,
+5. The domain reference matching the blocker family: progression, production,
    diplomacy, unit targeting, or informational closeout.
-5. Evidence packs only when the source reference needs provenance detail.
-6. Strategy context last, and only as advisory decision support.
+6. Evidence packs only when the source reference needs provenance detail.
+7. Strategy context last, and only as advisory decision support.
 
 Do not import `workstream-record.md` into a reusable skill except as historical
 context during authoring. It contains thread ids, branch state, and next-packet
@@ -122,6 +124,33 @@ Norms:
 
 Promotion readiness: ready as a support asset for the live-play skill, paired
 with the runtime HUD authority warning.
+
+### Restart Rehydration
+
+Source artifacts:
+
+- `topics/restart-rehydration.md`
+- `topics/runtime-state-sources.md`
+- `topics/notification-decision-hud.md`
+
+CLI shortcut:
+
+- `game play rehydrate`
+
+Norms:
+
+- After restart, reconnect, or `undefined` runtime globals, treat the prior
+  active-agent turn as an expectation to check, not as authority.
+- Use `game play rehydrate --expected-turn <turn> --json` to materialize the
+  live turn/date, blocker HUD, ready-unit view, and continuity warnings.
+- If `snapshot.continuity.status == "mismatch"`, re-plan from the live snapshot
+  before any send.
+- SQLite/catalog data can enrich the snapshot later, but live direct-control
+  remains authority for current blockers, ready entities, validators, and
+  postconditions.
+
+Promotion readiness: ready as a restart/reconnect guard asset for active-play
+support.
 
 ### Progression And Choice Resolution
 

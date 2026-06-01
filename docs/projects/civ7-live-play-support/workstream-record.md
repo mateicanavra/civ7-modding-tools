@@ -422,6 +422,10 @@ Residual objective gaps:
 - A current-online-context evidence pack now captures Test of Time / Update
   1.4.0 as advisory patch context and warns future agents not to promote older
   launch-era guides above live tooltips, local official rows, or validators.
+- A restart-rehydration shortcut and topic now capture the restart/reconnect
+  guard: `game play rehydrate` composes live notifications with ready-unit state
+  and optional expected turn/date/unit checks, so agents discard stale
+  pre-restart assumptions before sending.
 - Remaining gaps are promotion/hardening work: richer ready-entity reads,
   stronger live postcondition polling, civic choice proof, acquire-tile
   candidate cataloging, and eventual promotion into canonical docs/skills.

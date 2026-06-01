@@ -20,6 +20,7 @@ import GamePlayOperation from '../../src/commands/game/play/operation';
 import GamePlayNotifications from '../../src/commands/game/play/notifications';
 import GamePlayReadyCity from '../../src/commands/game/play/ready-city';
 import GamePlayReadyUnit from '../../src/commands/game/play/ready-unit';
+import GamePlayRehydrate from '../../src/commands/game/play/rehydrate';
 import GamePlayRespondDiplomacy from '../../src/commands/game/play/respond-diplomacy';
 import GamePlayRespondFirstMeet from '../../src/commands/game/play/respond-first-meet';
 import GamePlaySetCultureTarget from '../../src/commands/game/play/set-culture-target';
@@ -773,6 +774,43 @@ describe('game play commands', () => {
     }
   });
 
+  test('materializes restart rehydration continuity without sending operations', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'ready-unit' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayRehydrate.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayRehydrate.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--expected-turn',
+        '97',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        snapshot: {
+          readyUnit: unknown;
+          continuity: { status: string; warnings: string[] };
+        };
+      };
+      expect(payload.snapshot.readyUnit).not.toBeNull();
+      expect(payload.snapshot.continuity.status).toBe('mismatch');
+      expect(payload.snapshot.continuity.warnings[0]).toMatch(/turn mismatch/);
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readReadyUnitView'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('reads ready-city decision view without sending operations', async () => {
     const server = await startTunerServer();
     try {
@@ -795,7 +833,7 @@ describe('game play commands', () => {
 
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
-  playNotificationMode?: 'town-focus' | 'stale-unit-command' | 'stale-informational';
+  playNotificationMode?: 'town-focus' | 'stale-unit-command' | 'stale-informational' | 'ready-unit';
   unitTargetMode?: 'verified' | 'no-op-after-send';
 } = {}) {
   const received: string[] = [];
@@ -852,7 +890,29 @@ async function startTunerServer(options: {
   };
 }
 
-function playNotificationView(mode: 'town-focus' | 'stale-unit-command' | 'stale-informational' = 'town-focus') {
+function playNotificationView(mode: 'town-focus' | 'stale-unit-command' | 'stale-informational' | 'ready-unit' = 'town-focus') {
+  if (mode === 'ready-unit') {
+    const unitId = { owner: 0, id: 458752, type: 26 };
+    return {
+      localPlayerId: 0,
+      turn: { ok: true, value: 80 },
+      turnDate: { ok: true, value: '2025 BCE' },
+      hasSentTurnComplete: { ok: true, value: false },
+      canEndTurn: { ok: true, value: false },
+      blocker: { ok: true, value: 0 },
+      blockingNotificationId: { ok: true, value: null },
+      selectedUnitId: { ok: true, value: null },
+      selectedCityId: { ok: true, value: null },
+      firstReadyUnitId: { ok: true, value: unitId },
+      notifications: [],
+      decisions: [],
+      hud: {
+        nextDecision: null,
+        decisionQueue: [],
+      },
+      limits: { maxNotifications: 25, truncated: false },
+    };
+  }
   if (mode === 'stale-informational') {
     const informationalDecision = {
       category: 'informational-notification',

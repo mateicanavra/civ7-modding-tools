@@ -79,6 +79,8 @@ For live play:
 
 1. Use `game play notifications`, `game play ready-unit`, and targeted
    direct-control reads for current blockers and required inputs.
+   After restart or reconnect, use `game play rehydrate` first to compose the
+   live HUD with ready-unit state and compare any expected turn/date/unit.
 2. Use local SQLite copies for enrichment: names, categories, definitions,
    costs, text, and cross-reference joins.
 3. Use validators before sends. A static DB row proves an item exists; it does
@@ -95,6 +97,15 @@ for the current decision and its legal operation args. See
 `local-catalog-enrichment.md` for the catalog/HUD split and candidate local
 shortcuts.
 
+## Reframe Trigger
+
+Revisit this authority split if local SQLite, saves, or another on-disk surface
+proves a stable freshness contract for the same live questions direct-control
+currently answers: blocker queue, selected entities, modal state, validators,
+placement plots, and post-send state. Until that proof exists, local disk
+evidence can enrich or audit live play, but it should not select or authorize a
+mutation.
+
 ## Materialized View Policy
 
 The useful materialized view is not a replacement database. It is a short-lived
@@ -109,5 +120,8 @@ decision cache built from live runtime reads, then enriched with local catalogs.
 
 The notification HUD is the first version of this pattern. It reads live
 blockers and required inputs, then presents the smallest useful "what decision
-am I blocked on?" surface to the play agent. Future local data shortcuts should
-feed that HUD with labels and explanations, not bypass it.
+am I blocked on?" surface to the play agent. `game play rehydrate` extends the
+same pattern for restart continuity: it proves which live turn and ready entity
+the watcher is attached to before the agent resumes a stale plan. Future local
+data shortcuts should feed these HUD surfaces with labels and explanations, not
+bypass them.
