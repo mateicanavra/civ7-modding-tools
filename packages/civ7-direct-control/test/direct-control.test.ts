@@ -235,6 +235,64 @@ describe("Civ7 direct control", () => {
     }
   });
 
+  test("classifies shell App UI health when gameplay globals are unavailable", async () => {
+    const server = await startTunerServer({
+      appUiOnlyStates: true,
+      appUiSnapshotWithoutGameplayGlobals: true,
+    });
+    try {
+      const { port } = server.address();
+      const status = await getCiv7PlayableStatus({
+        host: "127.0.0.1",
+        port,
+        timeoutMs: 1_000,
+      });
+
+      expect(status).toMatchObject({
+        playable: false,
+        readiness: "shell",
+        appUi: {
+          snapshot: {
+            game: {
+              turn: -1,
+              age: -1,
+            },
+            gameContext: {
+              localPlayerID: -1,
+            },
+            players: {
+              maxPlayers: 0,
+            },
+            ui: {
+              inShell: { ok: true, value: true },
+            },
+          },
+        },
+      });
+      expect(status.errors.join("\n")).toContain('Civ7 tuner state "Tuner" was not available');
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("does not treat a listed but unready Tuner state as playable", async () => {
+    const server = await startTunerServer({ tunerReady: false });
+    try {
+      const { port } = server.address();
+      const status = await getCiv7PlayableStatus({
+        host: "127.0.0.1",
+        port,
+        timeoutMs: 1_000,
+      });
+
+      expect(status.playable).toBe(false);
+      expect(status.readiness).toBe("shell");
+      expect(status.tuner?.ready).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
   test("wraps bounded Tuner map and plot reads", async () => {
     const server = await startTunerServer();
     try {
@@ -500,6 +558,33 @@ describe("Civ7 direct control", () => {
     }
   });
 
+  test("captures begin errors without replaying Begin Game", async () => {
+    const server = await startTunerServer({ closeOnBegin: true });
+    try {
+      const { port } = server.address();
+      const expected = {
+        mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
+        mapSize: "MAPSIZE_SMALL",
+        seed: 222,
+      };
+      await prepareCiv7SinglePlayerSetup(
+        expected,
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test setup preparation before begin failure" },
+      );
+      await expect(
+        startPreparedCiv7SinglePlayerGame(
+          { expected, waitForTuner: true, waitTimeoutMs: 1_500, pollIntervalMs: 10 },
+          { host: "127.0.0.1", port, timeoutMs: 500 },
+          { approved: true, reason: "test begin failure no replay" },
+        ),
+      ).rejects.toMatchObject({ code: "socket-closed" });
+      expect(server.received.filter((message) => message === "CMD:65535:UI.notifyUIReady()")).toHaveLength(1);
+    } finally {
+      await server.close();
+    }
+  });
+
   test("validates and sends approved unit operations without replay", async () => {
     const server = await startTunerServer();
     try {
@@ -685,9 +770,13 @@ async function startTunerServer(options: {
   restartOutput?: string;
   initialInShell?: boolean;
   closeOnSetupMutation?: boolean;
+  closeOnBegin?: boolean;
   postStartSeedOverride?: number;
   hiddenMapScript?: string;
   revealHiddenMapRowOnShellExit?: boolean;
+  appUiOnlyStates?: boolean;
+  appUiSnapshotWithoutGameplayGlobals?: boolean;
+  tunerReady?: boolean;
 } = {}) {
   const received: string[] = [];
   let loadingState = 6;
@@ -816,7 +905,7 @@ async function startTunerServer(options: {
         buffer = buffer.subarray(frame.bytesRead);
         received.push(frame.message);
         if (frame.message === "LSQ:") {
-          socket.write(encodeResponse(frame.listenerId, ["65535", "App UI", "1", "Tuner"]));
+          socket.write(encodeResponse(frame.listenerId, options.appUiOnlyStates ? ["65535", "App UI"] : ["65535", "App UI", "1", "Tuner"]));
         } else if (frame.message === `CMD:65535:${CIV7_RESTART_COMMAND}`) {
           loadingState = 6;
           inShell = false;
@@ -829,6 +918,10 @@ async function startTunerServer(options: {
         } else if (frame.message === "CMD:65535:UI.reloadUI()") {
           socket.write(encodeResponse(frame.listenerId, ["null"]));
         } else if (frame.message === "CMD:65535:UI.notifyUIReady()") {
+          if (options.closeOnBegin) {
+            socket.destroy();
+            continue;
+          }
           loadingState = 8;
           inShell = false;
           socket.write(encodeResponse(frame.listenerId, ["null"]));
@@ -897,7 +990,62 @@ async function startTunerServer(options: {
           }
           socket.write(
             encodeResponse(frame.listenerId, [
-              JSON.stringify({
+              JSON.stringify(options.appUiSnapshotWithoutGameplayGlobals
+                ? {
+                    network: {
+                      isInSession: { ok: true, value: false },
+                      numPlayers: { ok: true, value: 0 },
+                      hostPlayerId: { ok: true, value: -1 },
+                      isConnectedToNetwork: { ok: true, value: true },
+                      isAuthenticated: { ok: true, value: false },
+                      isLoggedIn: { ok: true, value: true },
+                    },
+                    autoplay: {
+                      isActive: false,
+                      turns: 0,
+                      isPaused: false,
+                      isPausedOrPending: false,
+                      observeAsPlayer: -1,
+                      returnAsPlayer: -1,
+                    },
+                    game: {
+                      turn: -1,
+                      age: -1,
+                      maxTurns: 0,
+                      turnDate: { ok: false, error: "ReferenceError: Game is not defined" },
+                      hash: { ok: false, error: "ReferenceError: Game is not defined" },
+                    },
+                    ui: {
+                      inGame: { ok: true, value: false },
+                      inShell: { ok: true, value: true },
+                      inLoading: { ok: true, value: false },
+                      loadingState: { ok: true, value: 8 },
+                      loadingStateName: "GameStarted",
+                      canBeginGame: { ok: true, value: false },
+                      canNotifyUIReady: "function",
+                      skipStartButton: { ok: true, value: false },
+                      automationActive: { ok: true, value: false },
+                    },
+                    gameContext: {
+                      localPlayerID: -1,
+                      localObserverID: -1,
+                      hasRequestedPause: { ok: false, error: "ReferenceError: GameContext is not defined" },
+                    },
+                    players: {
+                      maxPlayers: 0,
+                      aliveIds: { ok: false, error: "ReferenceError: Players is not defined" },
+                      aliveHumanIds: { ok: false, error: "ReferenceError: Players is not defined" },
+                      numAliveHumans: { ok: false, error: "ReferenceError: Players is not defined" },
+                    },
+                    map: {
+                      width: { ok: false, error: "ReferenceError: GameplayMap is not defined" },
+                      height: { ok: false, error: "ReferenceError: GameplayMap is not defined" },
+                      plotCount: { ok: false, error: "ReferenceError: GameplayMap is not defined" },
+                      mapSize: { ok: false, error: "ReferenceError: GameplayMap is not defined" },
+                      randomSeed: { ok: false, error: "ReferenceError: GameplayMap is not defined" },
+                    },
+                  }
+                : {
                 network: {
                   isInSession: { ok: true, value: true },
                   numPlayers: { ok: true, value: 1 },
@@ -927,7 +1075,7 @@ async function startTunerServer(options: {
                   inLoading: { ok: true, value: loadingState !== 8 && !inShell },
                   loadingState: { ok: true, value: loadingState },
                   loadingStateName: loadingState === 8 ? "GameStarted" : "WaitingForUIReady",
-                  canBeginGame: { ok: true, value: loadingState === 6 },
+                  canBeginGame: { ok: true, value: loadingState === 6 && !inShell },
                   canNotifyUIReady: "function",
                   skipStartButton: { ok: true, value: false },
                   automationActive: { ok: true, value: false },
@@ -954,24 +1102,25 @@ async function startTunerServer(options: {
             ]),
           );
         } else if (frame.message.includes("evalOk: 1 + 1")) {
+          const tunerReady = options.tunerReady !== false;
           socket.write(
             encodeResponse(frame.listenerId, [
               JSON.stringify({
                 evalOk: 2,
-                ready: true,
+                ready: tunerReady,
                 globals: {
-                  Game: "object",
+                  Game: tunerReady ? "object" : "undefined",
                   Autoplay: "object",
-                  GameplayMap: "object",
-                  Players: "object",
+                  GameplayMap: tunerReady ? "object" : "undefined",
+                  Players: tunerReady ? "object" : "undefined",
                   Network: "undefined",
                 },
                 turn: { ok: true, value: 1 },
                 turnDate: { ok: true, value: "4000 BCE" },
-                width: { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 70 : 84 },
-                height: { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 44 : 54 },
-                aliveIds: { ok: true, value: [0, 1] },
-                aliveHumanIds: { ok: true, value: [0] },
+                width: tunerReady ? { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 70 : 84 } : { ok: false, error: "GameplayMap unavailable" },
+                height: tunerReady ? { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 44 : 54 } : { ok: false, error: "GameplayMap unavailable" },
+                aliveIds: tunerReady ? { ok: true, value: [0, 1] } : { ok: false, error: "Players unavailable" },
+                aliveHumanIds: tunerReady ? { ok: true, value: [0] } : { ok: false, error: "Players unavailable" },
                 autoplayActive: { ok: true, value: false },
               }),
             ]),

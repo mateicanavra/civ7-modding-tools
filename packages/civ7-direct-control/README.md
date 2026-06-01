@@ -23,9 +23,10 @@ connection and reconnect only when Civ7 restarts the listener.
 
 State APIs are not interchangeable.
 
-- `App UI` is the default developer control state. Current live evidence shows
-  `Network.restartGame()`, `Autoplay`, `Game`, `UI`, `GameContext`, `Players`,
-  and `GameplayMap` are available there.
+- `App UI` is the default lifecycle/setup control state. It is valid at the
+  main menu/shell even when gameplay globals such as `Game`, `GameContext`,
+  `Players`, and `GameplayMap` are unavailable; callers must treat those as
+  conditional probes until App UI reports a running game.
 - `Tuner` is a separate state surface. It can appear in `LSQ:` before it is
   actually command-ready. After the native Begin Game action completes, current
   live evidence shows `Game`, `Autoplay`, `GameplayMap`, and `Players` are

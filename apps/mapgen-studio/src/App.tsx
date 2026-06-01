@@ -33,6 +33,12 @@ import { useDumpLoader } from "./features/dumpViewer/useDumpLoader";
 import { useBrowserRunner } from "./features/browserRunner/useBrowserRunner";
 import { capturePinnedSelection } from "./features/browserRunner/retention";
 import { getCiv7MapSizePreset } from "./features/browserRunner/mapSizes";
+import {
+  formatRunInGameDiagnostics,
+  isRunInGameTerminalPhase,
+  type RunInGameFailureDetails,
+  type RunInGameOperationStatus,
+} from "./features/runInGame/status";
 import { DeckCanvas, type DeckCanvasApi } from "./features/viz/DeckCanvas";
 import { useVizState } from "./features/viz/useVizState";
 import {
@@ -160,13 +166,8 @@ async function runCurrentConfigInGame(args: {
   };
   config: unknown;
 }): Promise<
-  | {
-      ok: true;
-      requestId?: string;
-      materialization?: { mode?: string; path?: string; mapScript?: string; configHash?: string };
-      start?: unknown;
-    }
-  | { ok: false; error: string }
+  | RunInGameOperationStatus
+  | { ok: false; error: string; details?: RunInGameFailureDetails; statusCode?: number }
 > {
   try {
     const res = await fetch("/api/civ7/run-in-game", {
@@ -183,13 +184,37 @@ async function runCurrentConfigInGame(args: {
         config: args.config,
       }),
     });
-    const body = (await res.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
-    if (!res.ok || !body?.ok) return { ok: false, error: body?.error ?? `HTTP ${res.status}` };
-    return body as { ok: true; requestId?: string; materialization?: { mode?: string; path?: string; mapScript?: string; configHash?: string }; start?: unknown };
+    const body = (await res.json().catch(() => null)) as
+      | (Partial<RunInGameOperationStatus> & { error?: string; details?: RunInGameFailureDetails })
+      | null;
+    if (!res.ok || !body?.requestId) {
+      return {
+        ok: false,
+        error: body?.error ?? `HTTP ${res.status}`,
+        details: body?.details,
+        statusCode: res.status,
+      };
+    }
+    return body as RunInGameOperationStatus;
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Run in Game failed" };
   }
 }
+
+async function fetchRunInGameStatus(requestId: string): Promise<RunInGameOperationStatus | { ok: false; error: string; statusCode?: number }> {
+  try {
+    const res = await fetch(`/api/civ7/run-in-game/status?requestId=${encodeURIComponent(requestId)}`);
+    const body = (await res.json().catch(() => null)) as (Partial<RunInGameOperationStatus> & { error?: string }) | null;
+    if (!res.ok || !body?.requestId) {
+      return { ok: false, error: body?.error ?? `HTTP ${res.status}`, statusCode: res.status };
+    }
+    return body as RunInGameOperationStatus;
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Run in Game status unavailable" };
+  }
+}
+
+const RUN_IN_GAME_LAST_REQUEST_KEY = "mapgen-studio.runInGame.lastRequestId.v1";
 
 function isNumericPathSegment(segment: string): boolean {
   return /^[0-9]+$/.test(segment);
@@ -525,7 +550,8 @@ function AppContent(props: AppContentProps) {
 
   const browserRunning = browserRunner.state.running;
   const [localError, setLocalError] = useState<string | null>(null);
-  const [runInGameRunning, setRunInGameRunning] = useState(false);
+  const [runInGameOperation, setRunInGameOperation] = useState<RunInGameOperationStatus | null>(null);
+  const lastRunInGameToastRef = useRef<string | null>(null);
   const [liveRuntime, setLiveRuntime] = useState<{
     status: "idle" | "ok" | "error";
     turn?: number;
@@ -597,11 +623,12 @@ function AppContent(props: AppContentProps) {
         const mapSummary = body.mapSummary?.map ? body.mapSummary : null;
         const turn = body.mapSummary?.game?.turn?.ok ? body.mapSummary.game.turn.value : undefined;
         const seed = mapSummary?.map?.randomSeed?.ok ? mapSummary.map.randomSeed.value : undefined;
+        const readiness = body.status?.readiness;
         setLiveRuntime({
           status: body.ok ? "ok" : "error",
           turn,
           seed,
-          readiness: body.status?.readiness,
+          readiness,
           autoplayActive: body.autoplay?.autoplay?.isActive,
           updatedAt: body.observedAt,
           error: body.ok ? undefined : body.status?.error ?? body.mapSummary?.error,
@@ -1212,9 +1239,82 @@ function AppContent(props: AppContentProps) {
     );
   }, [lastRunSnapshot, pipelineConfig, recipeSettings, worldSettings]);
 
+  const runInGameRunning = runInGameOperation?.status === "running";
+
+  const refreshRunInGameStatus = useCallback(async (requestId: string) => {
+    const result = await fetchRunInGameStatus(requestId);
+    if (!("requestId" in result)) {
+      setRunInGameOperation((prev) => {
+        if (!prev || prev.requestId !== requestId) return prev;
+        return {
+          ...prev,
+          ok: false,
+          phase: "uncertain",
+          status: "uncertain",
+          updatedAt: new Date().toISOString(),
+          error: result.error,
+          details: {
+            failureClass: "uncertain",
+            code: result.statusCode === 404 ? "operation-status-missing" : "operation-status-unavailable",
+            phase: "uncertain",
+            completedPhases: prev.completedPhases,
+          },
+        };
+      });
+      return;
+    }
+    setRunInGameOperation(result);
+    try {
+      localStorage.setItem(RUN_IN_GAME_LAST_REQUEST_KEY, result.requestId);
+    } catch {
+      // Server status remains authoritative while the dev server is alive.
+    }
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    let requestId: string | null = null;
+    try {
+      requestId = localStorage.getItem(RUN_IN_GAME_LAST_REQUEST_KEY);
+    } catch {
+      requestId = null;
+    }
+    if (!requestId) return undefined;
+    void fetchRunInGameStatus(requestId).then((result) => {
+      if (cancelled || !("requestId" in result)) return;
+      setRunInGameOperation(result);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!runInGameOperation) return undefined;
+    if (isRunInGameTerminalPhase(runInGameOperation.phase)) {
+      if (lastRunInGameToastRef.current !== runInGameOperation.requestId) {
+        lastRunInGameToastRef.current = runInGameOperation.requestId;
+        if (runInGameOperation.status === "complete") {
+          toast(`Run in Game complete: ${runInGameOperation.materialization?.mapScript ?? runInGameOperation.requestId}`, { variant: "success" });
+        } else if (runInGameOperation.status !== "running") {
+          toast(`Run in Game ${runInGameOperation.status}: ${runInGameOperation.error ?? runInGameOperation.requestId}`, { variant: "error" });
+        }
+      }
+      return undefined;
+    }
+
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      if (!cancelled) void refreshRunInGameStatus(runInGameOperation.requestId);
+    }, document.hidden ? 3000 : 1000);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [refreshRunInGameStatus, runInGameOperation, toast]);
+
   const handleRunInGame = useCallback(async () => {
     if (runInGameRunning) return;
-    setRunInGameRunning(true);
     setLocalError(null);
     const sanitized = stripSchemaMetadataRoot(pipelineConfig);
     const resolved = resolvePreset(recipeSettings.preset as PresetKey);
@@ -1241,12 +1341,29 @@ function AppContent(props: AppContentProps) {
         : undefined,
       config: sanitized,
     });
-    setRunInGameRunning(false);
-    if (!result.ok) {
+    if (!("requestId" in result)) {
       toast(`Run in Game failed: ${result.error}`, { variant: "error" });
+      setRunInGameOperation({
+        ok: false,
+        requestId: `studio-run-in-game-client-error-${Date.now()}`,
+        phase: "failed",
+        status: "failed",
+        startedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        completedPhases: [],
+        error: result.error,
+        details: result.details,
+      });
       return;
     }
-    toast(`Run in Game requested: ${result.materialization?.mapScript ?? result.requestId ?? "Civ7"}`, { variant: "success" });
+    lastRunInGameToastRef.current = null;
+    setRunInGameOperation(result);
+    try {
+      localStorage.setItem(RUN_IN_GAME_LAST_REQUEST_KEY, result.requestId);
+    } catch {
+      // Server status remains authoritative while the dev server is alive.
+    }
+    toast(`Run in Game started: ${result.materialization?.mapScript ?? result.requestId}`, { variant: "info" });
   }, [
     isDirty,
     pipelineConfig,
@@ -1259,6 +1376,16 @@ function AppContent(props: AppContentProps) {
     worldSettings.playerCount,
     worldSettings.resources,
   ]);
+
+  const copyRunInGameDiagnostics = useCallback(async () => {
+    if (!runInGameOperation) return;
+    try {
+      await navigator.clipboard.writeText(formatRunInGameDiagnostics(runInGameOperation));
+      toast("Run in Game diagnostics copied", { variant: "info" });
+    } catch (err) {
+      toast(`Could not copy diagnostics: ${err instanceof Error ? err.message : "clipboard unavailable"}`, { variant: "error" });
+    }
+  }, [runInGameOperation, toast]);
 
   const dataTypeModel = viz.dataTypeModel;
   const dataTypeOptions: DataTypeOption[] = useMemo(() => {
@@ -1922,9 +2049,14 @@ function AppContent(props: AppContentProps) {
       onSettingsChange={setRecipeSettings}
       onRun={triggerRun}
       onRunInGame={handleRunInGame}
+      onRunInGameRetryStatus={() => {
+        if (runInGameOperation) void refreshRunInGameStatus(runInGameOperation.requestId);
+      }}
+      onCopyRunInGameDiagnostics={copyRunInGameDiagnostics}
       onReroll={reroll}
       isRunning={browserRunning}
       isRunInGameRunning={runInGameRunning}
+      runInGameStatus={runInGameOperation}
       isDirty={isDirty}
       lightMode={isLightMode}
       liveRuntime={liveRuntime}
