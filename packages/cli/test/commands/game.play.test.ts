@@ -7,6 +7,7 @@ import GamePlayBuildProduction from '../../src/commands/game/play/build-producti
 import GamePlayBuildUnit from '../../src/commands/game/play/build-unit';
 import GamePlayBuyAttribute from '../../src/commands/game/play/buy-attribute';
 import GamePlayChangeTradition from '../../src/commands/game/play/change-tradition';
+import GamePlayChooseCelebration from '../../src/commands/game/play/choose-celebration';
 import GamePlayChooseCulture from '../../src/commands/game/play/choose-culture';
 import GamePlayChooseNarrative from '../../src/commands/game/play/choose-narrative';
 import GamePlayChooseTech from '../../src/commands/game/play/choose-tech';
@@ -404,6 +405,30 @@ describe('game play commands', () => {
 
       expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_NODE'))).toBe(true);
       expect(server.received.some((message) => message.includes('"ProgressionTreeNodeType":115'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test('wraps celebration choice as CHOOSE_GOLDEN_AGE', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      await GamePlayChooseCelebration.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--player-id',
+        '0',
+        '--golden-age-type',
+        '-340825966',
+        '--json',
+      ]);
+
+      expect(server.received.some((message) => message.includes('CHOOSE_GOLDEN_AGE'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"GoldenAgeType":-340825966'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       await server.close();
@@ -1513,35 +1538,37 @@ function operationValidation(message: string) {
           ? 'SET_CULTURE_TREE_NODE'
           : message.includes('SET_CULTURE_TREE_TARGET_NODE')
             ? 'SET_CULTURE_TREE_TARGET_NODE'
-            : message.includes('RESPOND_DIPLOMATIC_ACTION')
-          ? 'RESPOND_DIPLOMATIC_ACTION'
-          : message.includes('RESPOND_DIPLOMATIC_FIRST_MEET')
-            ? 'RESPOND_DIPLOMATIC_FIRST_MEET'
-            : message.includes('CHOOSE_NARRATIVE_STORY_DIRECTION')
-              ? 'CHOOSE_NARRATIVE_STORY_DIRECTION'
-              : message.includes('BUY_ATTRIBUTE_TREE_NODE')
-                ? 'BUY_ATTRIBUTE_TREE_NODE'
-                : message.includes('CHANGE_TRADITION')
-                  ? 'CHANGE_TRADITION'
-                  : message.includes('CONSIDER_ASSIGN_ATTRIBUTE')
-                    ? 'CONSIDER_ASSIGN_ATTRIBUTE'
-                    : message.includes('CONSIDER_ASSIGN_TRADITIONS')
-                      ? 'CONSIDER_ASSIGN_TRADITIONS'
-                      : message.includes('CHANGE_GROWTH_MODE')
-                        ? 'CHANGE_GROWTH_MODE'
-                        : message.includes('CONSIDER_TOWN_PROJECT')
-                          ? 'CONSIDER_TOWN_PROJECT'
-                          : message.includes('EXPAND')
-                            ? 'EXPAND'
-                          : message.includes('ASSIGN_WORKER')
-                            ? 'ASSIGN_WORKER'
-                            : message.includes('UNITCOMMAND_RESETTLE')
-                              ? 'UNITCOMMAND_RESETTLE'
-                              : message.includes('UNITCOMMAND_UPGRADE')
-                                ? 'UNITCOMMAND_UPGRADE'
-                                : message.includes('BUILD')
-                                  ? 'BUILD'
-                                  : 'SKIP_TURN';
+            : message.includes('CHOOSE_GOLDEN_AGE')
+              ? 'CHOOSE_GOLDEN_AGE'
+              : message.includes('RESPOND_DIPLOMATIC_ACTION')
+                ? 'RESPOND_DIPLOMATIC_ACTION'
+                : message.includes('RESPOND_DIPLOMATIC_FIRST_MEET')
+                  ? 'RESPOND_DIPLOMATIC_FIRST_MEET'
+                  : message.includes('CHOOSE_NARRATIVE_STORY_DIRECTION')
+                    ? 'CHOOSE_NARRATIVE_STORY_DIRECTION'
+                    : message.includes('BUY_ATTRIBUTE_TREE_NODE')
+                      ? 'BUY_ATTRIBUTE_TREE_NODE'
+                      : message.includes('CHANGE_TRADITION')
+                        ? 'CHANGE_TRADITION'
+                        : message.includes('CONSIDER_ASSIGN_ATTRIBUTE')
+                          ? 'CONSIDER_ASSIGN_ATTRIBUTE'
+                          : message.includes('CONSIDER_ASSIGN_TRADITIONS')
+                            ? 'CONSIDER_ASSIGN_TRADITIONS'
+                            : message.includes('CHANGE_GROWTH_MODE')
+                              ? 'CHANGE_GROWTH_MODE'
+                              : message.includes('CONSIDER_TOWN_PROJECT')
+                                ? 'CONSIDER_TOWN_PROJECT'
+                                : message.includes('EXPAND')
+                                  ? 'EXPAND'
+                                  : message.includes('ASSIGN_WORKER')
+                                    ? 'ASSIGN_WORKER'
+                                    : message.includes('UNITCOMMAND_RESETTLE')
+                                      ? 'UNITCOMMAND_RESETTLE'
+                                      : message.includes('UNITCOMMAND_UPGRADE')
+                                        ? 'UNITCOMMAND_UPGRADE'
+                                        : message.includes('BUILD')
+                                          ? 'BUILD'
+                                          : 'SKIP_TURN';
   return {
     host: '127.0.0.1',
     port: 0,
@@ -1568,6 +1595,7 @@ function operationArgs(operationType: string, message = '') {
   if (operationType === 'SET_TECH_TREE_TARGET_NODE') return { ProgressionTreeNodeType: -1255676052 };
   if (operationType === 'SET_CULTURE_TREE_NODE') return { ProgressionTreeNodeType: 115 };
   if (operationType === 'SET_CULTURE_TREE_TARGET_NODE') return { ProgressionTreeNodeType: -1677668973 };
+  if (operationType === 'CHOOSE_GOLDEN_AGE') return { GoldenAgeType: -340825966 };
   if (operationType === 'RESPOND_DIPLOMATIC_ACTION') return { ID: 56, Type: -1907089594 };
   if (operationType === 'RESPOND_DIPLOMATIC_FIRST_MEET') return { Player1: 0, Player2: 2, Type: 673478009 };
   if (operationType === 'CHOOSE_NARRATIVE_STORY_DIRECTION') {

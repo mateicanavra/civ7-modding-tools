@@ -87,6 +87,7 @@ Outputs:
   - `game play set-tech-target`
   - `game play choose-culture`
   - `game play set-culture-target`
+  - `game play choose-celebration`
   - `game play respond-diplomacy`
   - `game play choose-narrative`
   - `game play buy-attribute`
@@ -114,7 +115,10 @@ Outputs:
   - `topics/ready-city-decision-view.md`
   - `topics/population-placement-expansion.md`
   - `topics/progression-tree-targets.md`
+  - `topics/celebration-choice.md`
   - `topics/runtime-state-sources.md`
+  - `topics/strategic-planning-snapshot.md`
+  - `topics/rhq-ai-mod-baseline.md`
   - `evidence-packs/current-online-play-context.md`
   - `evidence-packs/agent-evidence-summary.md`
 - Watcher notes sent to the active play thread when useful.
@@ -408,6 +412,12 @@ Residual objective gaps:
   turn-78 Ancient Walls proof.
 - A progression tree target topic now captures the current-node vs target-node
   operation split and the row-index-vs-node-hash failure mode.
+- A celebration-choice topic and `game play choose-celebration` shortcut now
+  capture the turn-98 `NOTIFICATION_CHOOSE_GOLDEN_AGE` blocker. Official UI
+  evidence shows the chooser sends `player-operation CHOOSE_GOLDEN_AGE`
+  with `{ GoldenAgeType: Database.makeHash(goldenAgeType) }`; the live culture
+  and wonder choices both validated, with culture recommended for the current
+  expansion/defense plan.
 - A runtime-state-sources topic now captures why local SQLite should enrich
   play support while direct-control remains the live blocker and validator
   authority, including the materialized-HUD source split.
@@ -431,6 +441,15 @@ Residual objective gaps:
   and possible telemetry-only JS bridge. It folds in play-style heuristics,
   official AI schema/resource levers, and RHQ's Workshop/changelog claims as a
   baseline for static AI manipulation over autoplay.
+- A strategic-planning snapshot topic now defines the read-only 5-10 turn
+  planning contract: compose live blocker/ready views with settlement posture,
+  met-civ comparison, and victory/legacy context, then expire the plan after
+  turn advance, restart, human input, mutation, or long-latency reads.
+- An RHQ AI MOD baseline topic now separates static AI/resource tuning from the
+  direct-control strategy runner. RHQ's public changelog maps to official AI
+  tables and behavior-tree surfaces, but actual RHQ mod files still need
+  source-level comparison before we treat any specific SQL/XML change as
+  verified implementation.
 - A unit-command topic and two thin CLI wrappers now capture live-exercised
   `RESETTLE` and `UPGRADE` shapes. `resettle-unit` sends
   `unit-command UNITCOMMAND_RESETTLE { X, Y }`; `upgrade-unit` sends

@@ -157,6 +157,7 @@ support.
 Source artifacts:
 
 - `topics/progression-tree-targets.md`
+- `topics/celebration-choice.md`
 - `topics/notification-decision-hud.md`
 - `topics/end-turn-blockers.md`
 
@@ -166,6 +167,7 @@ CLI shortcuts:
 - `game play set-tech-target`
 - `game play choose-culture`
 - `game play set-culture-target`
+- `game play choose-celebration`
 - `game play buy-attribute`
 - `game play consider-attributes`
 - `game play change-tradition`
@@ -181,10 +183,14 @@ Norms:
   it.
 - Narrative `CLOSE` is an acknowledgement pattern only when the pending story
   has no links.
+- `NOTIFICATION_CHOOSE_GOLDEN_AGE` is a celebration chooser, not a dismissal;
+  choose from live `GoldenAgeType` hashes with `CHOOSE_GOLDEN_AGE`.
 
 Promotion readiness: ready for culture target, traditions, attributes, and
-narrative acknowledgement guidance. Tech target remains official-UI-backed
-until a live tech-target blocker proves the postcondition path.
+narrative acknowledgement guidance. Celebration choice is official-UI-backed
+with live validator proof but still needs a post-send blocker-cleared
+postcondition. Tech target remains official-UI-backed until a live tech-target
+blocker proves the postcondition path.
 
 ### City Production And Population
 
@@ -314,6 +320,8 @@ Promotion readiness: ready as an authority preface for every live-play skill.
 Source artifacts:
 
 - `topics/multi-turn-strategy-and-ai-levers.md`
+- `topics/strategic-planning-snapshot.md`
+- `topics/rhq-ai-mod-baseline.md`
 - `topics/early-game-decision-context.md`
 - `topics/early-war-tactical-stale-state-guard.md`
 - `topics/runtime-state-sources.md`
@@ -332,19 +340,26 @@ Norms:
 
 - Put adaptive multi-turn strategy in an external runner over the live
   direct-control/HUD surface first.
+- Use a 5-10 turn read-only strategy snapshot to decide what to inspect next,
+  not to bypass blocker, ready-view, validator, or postcondition checks.
+- Compare to rival civs only through public/UI-equivalent or explicitly labeled
+  debug signals; do not silently plan from hidden information.
 - Treat native autoplay as a turn-runner and experiment clock, not a strategy
   policy engine.
 - Treat official AI XML/SQL rows as load-time/static-mod levers until a safe
   live mutation contract is proven.
-- Use RHQ-style AI mods as a baseline for static AI manipulation over autoplay,
-  not as proof that local SQLite edits or in-game JS should own player-side
-  strategy.
+- Use RHQ AI MOD as the baseline for static AI manipulation over autoplay, not
+  as proof that local SQLite edits or in-game JS should own player-side
+  strategy. RHQ's public changelog maps to official AI tables and behavior-tree
+  surfaces, but the actual mod files still need source-level comparison.
 - Encode strategy heuristics as conditional objectives with falsifiers:
   defensive production under threat, ranged-first combat, wounded-unit
   preservation, safe expansion, and clean App UI/autoplay handoff.
 
 Promotion readiness: reference-with-gap. Ready for strategy-runner design and
 A/B experiment specs, but not yet ready as an autonomous multi-turn skill.
+`strategic-planning-snapshot` is ready as a contract; the CLI shortcut should
+wait for first-class victory/legacy and diplomacy relationship reads.
 
 ### Current Online Context
 
@@ -375,6 +390,7 @@ runtime and local official resource references.
 | `topics/end-turn-blockers.md` | HUD/blocker skill reference | Ready |
 | `topics/informational-notification-closeout.md` | HUD/blocker skill guardrail | Ready |
 | `topics/progression-tree-targets.md` | Progression skill reference | Ready with tech-target proof note |
+| `topics/celebration-choice.md` | Progression/celebration choice reference | Ready with postcondition gap |
 | `topics/production-build-placement.md` | City production skill reference | Ready with city-project gap |
 | `topics/ready-city-decision-view.md` | City blocker read surface | Ready |
 | `topics/population-placement-expansion.md` | Population placement branch reference | Ready with candidate-cataloging gap |
@@ -387,6 +403,8 @@ runtime and local official resource references.
 | `topics/early-war-tactical-stale-state-guard.md` | Tactical guard and advisory asset | Ready as guard; strategy stays advisory |
 | `topics/early-game-decision-context.md` | Strategy context asset | Advisory only |
 | `topics/multi-turn-strategy-and-ai-levers.md` | Strategy-over-turns architecture reference | Reference with gap |
+| `topics/strategic-planning-snapshot.md` | Short-horizon strategy snapshot contract | Reference with gap |
+| `topics/rhq-ai-mod-baseline.md` | Static AI/autoplay comparison baseline | Advisory reference |
 | `evidence-packs/current-online-play-context.md` | Current online context asset | Advisory only |
 | `evidence-packs/local-on-disk-read-surfaces.md` | Runtime-source authority evidence | Ready |
 | `evidence-packs/watcher-latency-observer-mode.md` | Watcher operating-mode asset | Ready |
@@ -429,12 +447,13 @@ and postcondition are proven:
   settlement/population consequences before `game play resettle-unit`.
 - `game play strategic-snapshot`: compact objective/state read that includes
   live blockers, ready entities, visible threats, production/diplomacy context,
-  current objective ledger, and stale-risk markers.
+  met-civ comparison, victory/legacy progress, current objective ledger, and
+  stale-risk markers.
 - `game strategy run`: external workflow runner for validate-only and bounded
   send loops over multiple turns, using `game autoplay` only after clean
   App UI proof.
 - `game ai-experiment`: fixed-seed autoplay A/B harness for static AI/resource
-  mod changes.
+  mod changes, with RHQ-style levers as the initial comparison vocabulary.
 
 ## Do-Not-Promote Boundaries
 

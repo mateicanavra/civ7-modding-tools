@@ -100,6 +100,24 @@ not a replacement for the external strategy runner because it does not expose
 live tactical intent, action validation, postconditions, or adaptive objective
 revision for the player's current turn.
 
+The dedicated reference is `rhq-ai-mod-baseline.md`. Load it when designing
+static AI A/B experiments, evaluating live database mutation ideas, or comparing
+an external strategy runner against native autoplay behavior.
+
+## Short-Horizon Strategy Snapshot
+
+A multi-turn runner needs a read-only planning contract before it needs a new
+mutation shortcut. The dedicated reference is
+`strategic-planning-snapshot.md`.
+
+The snapshot horizon should stay short, usually 5-10 turns. It should compose
+the live HUD, ready-unit/city views, local settlement and unit posture,
+UI-equivalent rival comparison, and victory/legacy progress. Its job is to
+decide what the agent should inspect and what objectives are currently
+plausible. It must expire after turn advance, restart, human input, mutation,
+or long-latency reads, and it must never replace operation validators before
+send.
+
 ## Autoplay Boundary
 
 Native autoplay should be treated as a turn-runner. Official UI automation uses
