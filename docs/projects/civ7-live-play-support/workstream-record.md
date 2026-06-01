@@ -106,6 +106,7 @@ Outputs:
   - `game play unit-target`
   - `game watch`
   - `game play topics`
+  - `game ai loaded-levers`
   - `game local-data inspect`
 - Evidence packs and topic/reference artifacts:
   - `SKILL-ASSET-ASSEMBLY.md`
@@ -530,9 +531,23 @@ Residual objective gaps:
   runtime-sources, restart-watch, strategy, and RHQ/static AI to their reference
   docs, relevant CLI shortcuts, load conditions, and proof boundaries without
   touching the live game runtime.
+- The first static-AI comparison shortcut now exists as
+  `game ai loaded-levers`. It samples bounded runtime `GameInfo` rows for AI
+  operation definitions, allowed operations, operation teams, unit priorities,
+  favored items, pseudo-yields, behavior-tree rows, and strategy rows. The
+  command is intentionally read-only and records the proof boundary: loaded
+  rows prove the current policy substrate, not actual native AI behavior.
+- Live smoke on 2026-06-01 with
+  `game ai loaded-levers --family rhq --limit-per-table 2 --json` succeeded
+  against the current runtime. It found loaded totals for RHQ-relevant tables:
+  11 `AiOperationDefs`, 12 `AllowedOperations`, 4
+  `AIUnitPrioritizedActions`, 855 `AiFavoredItems`, 79 `PseudoYields`, 20
+  `BehaviorTrees`, and 303 `TreeData` rows. Targeted `AiFavoredItems`
+  spotlights found 7 `PSEUDOYIELD_NEW_CITY` rows and 0
+  `PSEUDOYIELD_REPAIR_BONUS` rows in the current loaded policy substrate.
 - Remaining gaps are promotion-send/hardening work: richer ready-entity reads,
   stronger live postcondition polling, civic choice proof, acquire-tile
-  candidate cataloging, AI loaded-lever/telemetry shortcuts, and eventual
+  candidate cataloging, AI autoplay telemetry shortcuts, and eventual
   promotion into canonical docs/skills.
 
 Deferred items:

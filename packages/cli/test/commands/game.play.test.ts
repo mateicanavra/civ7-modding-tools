@@ -759,7 +759,7 @@ describe('game play commands', () => {
       };
       expect(payload.topics).toHaveLength(1);
       expect(payload.topics[0].family).toBe('rhq-ai');
-      expect(payload.topics[0].commands).toContain('future: game ai loaded-levers');
+      expect(payload.topics[0].commands).toContain('game ai loaded-levers');
       expect(payload.topics[0].boundary).toMatch(/loaded GameInfo rows/);
     } finally {
       log.mockRestore();

@@ -7,6 +7,7 @@ import GameInspect from '../../src/commands/game/inspect';
 import GameStatus from '../../src/commands/game/status';
 import GameMap from '../../src/commands/game/map';
 import GameGameInfo from '../../src/commands/game/gameinfo';
+import GameAiLoadedLevers from '../../src/commands/game/ai/loaded-levers';
 import GameOperation from '../../src/commands/game/operation';
 
 describe('game direct-control commands', () => {
@@ -113,6 +114,32 @@ describe('game direct-control commands', () => {
 
       expect(server.received.some((message) => message.includes('readPlotSnapshot'))).toBe(true);
       expect(server.received.some((message) => message.includes('GameInfo[input.table]'))).toBe(true);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test('samples loaded AI levers through bounded GameInfo reads', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      await GameAiLoadedLevers.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--family',
+        'rhq',
+        '--limit-per-table',
+        '2',
+        '--json',
+      ]);
+
+      expect(server.received.some((message) => message.includes('"table":"AiOperationDefs"'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"table":"AllowedOperations"'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"table":"AiFavoredItems"'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"equals":"PSEUDOYIELD_NEW_CITY"'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation'))).toBe(false);
     } finally {
       await server.close();
     }
@@ -257,12 +284,13 @@ async function startTunerServer() {
             ])
           );
         } else if (frame.message.includes('GameInfo[input.table]')) {
+          const table = gameInfoTableFromCommand(frame.message) ?? 'Resources';
           socket.write(
             encodeResponse(frame.listenerId, [
               JSON.stringify({
-                table: 'Resources',
+                table,
                 source: 'GameInfo',
-                rows: [{ ResourceType: 'RESOURCE_COTTON' }],
+                rows: [sampleGameInfoRow(table)],
                 limit: 2,
                 offset: 0,
                 total: { ok: true, value: 1 },
@@ -348,4 +376,31 @@ function encodeResponse(listenerId: number, parts: string[]): Buffer {
   frame.writeUInt32LE(listenerId, 4);
   messageBytes.copy(frame, 8);
   return frame;
+}
+
+function gameInfoTableFromCommand(message: string): string | null {
+  return message.match(/"table":"([^"]+)"/)?.[1] ?? null;
+}
+
+function sampleGameInfoRow(table: string): Record<string, unknown> {
+  switch (table) {
+    case 'Resources':
+      return { ResourceType: 'RESOURCE_COTTON' };
+    case 'AiOperationDefs':
+      return { OperationName: 'NAVAL_CITY_ATTACK', BehaviorTree: 'Naval City Attack', TargetType: 'CITY' };
+    case 'AllowedOperations':
+      return { ListType: 'BaseOperations', OperationDef: 'NAVAL_CITY_ATTACK' };
+    case 'AIUnitPrioritizedActions':
+      return { UnitType: 'UNIT_BOMBER', OperationType: 'UNITOPERATION_AIR_ATTACK' };
+    case 'AiFavoredItems':
+      return { ListType: 'Test PseudoYield Biases', Item: 'PSEUDOYIELD_NEW_CITY', Value: 50 };
+    case 'PseudoYields':
+      return { PseudoYieldType: 'PSEUDOYIELD_REPAIR_BONUS', DefaultValue: 10000 };
+    case 'BehaviorTrees':
+      return { TreeName: 'Naval City Attack' };
+    case 'TreeData':
+      return { TreeName: 'Naval City Attack', NodeId: 1, Name: 'Create Units' };
+    default:
+      return { RowType: table };
+  }
 }

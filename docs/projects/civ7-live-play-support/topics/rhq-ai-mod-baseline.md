@@ -175,12 +175,12 @@ freshness or latency.
 
 ## Experiment Seeds
 
-Before changing any static AI/resource lever, add a loaded-row read. A useful
-`game ai loaded-levers` shortcut would inspect runtime `GameInfo` rows for
+Before changing any static AI/resource lever, run a loaded-row read.
+`game ai loaded-levers --json` samples runtime `GameInfo` rows for
 `AiOperationDefs`, `AllowedOperations`, `AiFavoredItems`,
-`AIUnitPrioritizedActions`, pseudo-yields, and the relevant behavior-tree
-assignments. That read would not prove behavior, but it would prove which AI
-policy substrate the current session loaded.
+`AIUnitPrioritizedActions`, pseudo-yields, behavior-tree rows, and strategy
+rows. That read does not prove behavior, but it proves which AI policy
+substrate the current session exposes.
 
 - **Settlement pressure:** baseline versus a small `PSEUDOYIELD_NEW_CITY` or
   settlement-plot-evaluation change, measured by city count, settle distance,

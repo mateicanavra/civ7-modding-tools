@@ -237,7 +237,7 @@ const TOPICS: ReadonlyArray<Topic> = [
     commands: [
       'game autoplay',
       'game watch',
-      'future: game ai loaded-levers',
+      'game ai loaded-levers',
       'future: game ai autoplay-telemetry',
     ],
     loadWhen: 'when comparing native autoplay/static AI mods with the external direct-control strategy runner',

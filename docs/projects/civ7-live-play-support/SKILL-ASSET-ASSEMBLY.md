@@ -356,6 +356,7 @@ CLI shortcuts:
 - `game play promotion-readiness`
 - `game play ready-city`
 - `game play settlement-recommendations`
+- `game ai loaded-levers`
 - `game play unit-target`
 - `game autoplay`
 
@@ -382,6 +383,11 @@ Norms:
   reference before they act.
 - Treat official AI XML/SQL rows as load-time/static-mod levers until a safe
   live mutation contract is proven.
+- Use `game ai loaded-levers --json` before RHQ/static-AI comparisons to sample
+  the current runtime `GameInfo` policy substrate: operation definitions,
+  allowed operations, AI favored items, unit priorities, pseudo-yields,
+  behavior-tree rows, and strategy rows. This proves loaded rows, not native AI
+  behavior.
 - Use RHQ AI MOD as the baseline for static AI manipulation over autoplay, not
   as proof that local SQLite edits or in-game JS should own player-side
   strategy. RHQ's public changelog maps to official AI tables and behavior-tree
@@ -523,9 +529,6 @@ and postcondition are proven:
 - `game strategy run`: external workflow runner for validate-only and bounded
   send loops over multiple turns, using `game autoplay` only after clean
   App UI proof.
-- `game ai loaded-levers`: read loaded `GameInfo` AI rows such as
-  `AiOperationDefs`, `AllowedOperations`, `AiFavoredItems`, unit priorities,
-  and pseudo-yields before comparing static AI/resource experiments.
 - `game ai autoplay-telemetry`: fixed-seed bounded autoplay summary for city
   count, settlement distance, ships, aircraft, repairs, war declarations, city
   attacks, and raids, with RHQ-style levers as the comparison vocabulary.
