@@ -229,6 +229,10 @@ Norms:
 - Targetless `NEW_POPULATION` notifications should still start with
   `ready-city`; it mirrors the official handler by scanning owned cities for
   `Growth.isReadyToPlacePopulation`.
+- `ready-city` exposes `populationPlacement.workablePlots` for the assignment
+  branch and `populationPlacement.expansionCandidates` for the expansion branch;
+  use those mapped coordinates and command hints before sending a population
+  placement shortcut.
 - Settlement recommendations are a separate read-only planning surface:
   `game play settlement-recommendations` wraps the official settlement lens API
   and should inform where to move Settlers, not replace live movement/founding
@@ -437,7 +441,7 @@ runtime and local official resource references.
 | `topics/celebration-choice.md` | Progression/celebration choice reference | Ready with postcondition gap |
 | `topics/production-build-placement.md` | City production skill reference | Ready with city-project gap |
 | `topics/ready-city-decision-view.md` | City blocker read surface | Ready |
-| `topics/population-placement-expansion.md` | Population placement branch reference | Ready with candidate-cataloging gap |
+| `topics/population-placement-expansion.md` | Population placement branch reference | Ready with postcondition/ranking gaps |
 | `topics/settlement-recommendations.md` | Expansion planning reference | Ready as read-only planning surface |
 | `topics/runtime-state-sources.md` | Authority preface asset | Ready |
 | `topics/local-catalog-enrichment.md` | Static catalog enrichment asset | Ready |
@@ -520,6 +524,12 @@ and postcondition are proven:
   live blockers, ready entities, visible threats, production/diplomacy context,
   met-civ comparison, victory/legacy progress, current objective ledger, and
   stale-risk markers.
+- `game play target-candidates`: rank visible/met rival targets by distance,
+  approach terrain, sea exposure, visible settlement count, visible army/navy,
+  and whether the current siege stack can approach without exposing Settlers.
+- `game play formation-snapshot`: materialize Settler clusters, escort units,
+  Ballistas, wounded units, and next safe advance/founding candidates so a
+  slow-siege policy has concrete inputs instead of isolated ready-unit reads.
 - `game victory`: read static and live victory/legacy path context, including
   thresholds, current progress when discoverable, next milestone deltas, and
   hidden-info labels.

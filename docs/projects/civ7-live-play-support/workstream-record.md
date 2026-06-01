@@ -556,18 +556,31 @@ Residual objective gaps:
   after the blocker enum returned to `0` showed the old notification id still
   visible while ready-city returned `cityId:null`; treat that as a stale
   closeout boundary, not an active expansion proof.
+- The same turn-112 population branch gap drove ready-city enrichment:
+  `populationPlacement.workablePlots` now materializes already-workable
+  assignment candidates, and `populationPlacement.expansionCandidates` maps
+  `EXPAND` result plots to map coordinates plus best-effort constructible
+  labels. This removes the manual plot-index conversion step from watcher
+  support notes while preserving the live validator as action authority.
+- Two read-only background lanes rechecked the RHQ/static-AI frame and the
+  playstyle-to-strategy frame. Both converged on the same split: use RHQ-style
+  AI/resource changes as an autoplay/static-policy comparator, and use an
+  external direct-control runner for adaptive player strategy. The most useful
+  next materializations are strategic snapshots, target-candidate ranking, and
+  formation/settler-siege snapshots.
 - Remaining gaps are promotion-send/hardening work: richer ready-entity reads,
-  stronger live postcondition polling, civic choice proof, acquire-tile
-  candidate cataloging, AI autoplay telemetry shortcuts, and eventual
-  promotion into canonical docs/skills.
+  stronger live postcondition polling, civic choice proof, population-placement
+  postconditions, AI autoplay telemetry shortcuts, and eventual promotion into
+  canonical docs/skills.
 
 Deferred items:
 
 - Prove whether any future civic surface differs from `game play
   choose-culture`.
 - Prove ordinary non-town city-project production postconditions.
-- Improve acquire-tile candidate cataloging so future reads show whether each
-  plot should use `assign-worker` or `expand-city`.
+- Add a population-placement postcondition helper so sends report whether
+  `Growth.isReadyToPlacePopulation` cleared and the city worker/plot state
+  changed as expected.
 - Specify the first strategy-runner dry run and the first fixed-seed AI
   resource-mod A/B experiment before implementing multi-turn automation.
 - Promote stable topic docs into canonical docs and skill assets after review.

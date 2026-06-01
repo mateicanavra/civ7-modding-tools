@@ -1641,7 +1641,44 @@ function readyCityView() {
         allPlacementInfo: { ok: true, value: [{ PlotIndex: 1457, IsBlocked: false }] },
         workablePlotIndexes: { ok: true, value: [1457] },
         blockedPlotIndexes: { ok: true, value: [] },
-        cliHints: ['game play assign-worker --player-id <id> --location <plot-index>'],
+        workablePlots: {
+          ok: true,
+          value: [
+            {
+              index: 1457,
+              x: 22,
+              y: 31,
+              isBlocked: false,
+              currentYields: [0, 1, 0, 0, 0, 0, 0],
+              nextYields: [0, 1, 0, 0, 0, 2, 0],
+              maintenance: null,
+              placementInfo: { PlotIndex: 1457, IsBlocked: false },
+              cli: 'game play assign-worker --player-id <id> --location 1457',
+            },
+          ],
+        },
+        expansionCandidates: {
+          ok: true,
+          value: [
+            {
+              index: 1458,
+              x: 23,
+              y: 31,
+              constructibleType: 713967338,
+              constructibleTypeName: 'BUILDING_WALLS',
+              constructibleName: 'LOC_BUILDING_WALLS_NAME',
+              cli: "game play expand-city --city-id '<city-id>' --x 23 --y 31",
+            },
+          ],
+        },
+        expansionResult: {
+          ok: true,
+          value: { Success: true, Plots: [1458], ConstructibleTypes: [713967338] },
+        },
+        cliHints: [
+          'game play assign-worker --player-id <id> --location <plot-index>',
+          "game play expand-city --city-id '<city-id>' --x <x> --y <y>",
+        ],
       },
     },
     notes: ['Read-only ready-city view. This view intentionally does not choose production.'],

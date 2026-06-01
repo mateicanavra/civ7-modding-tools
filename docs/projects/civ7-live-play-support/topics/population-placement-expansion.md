@@ -1,6 +1,6 @@
 # Population Placement And Expansion
 
-Status: `reference-with-gap`.
+Status: `promotable-reference`.
 
 ## Frame
 
@@ -16,6 +16,18 @@ Use `game play ready-city --json` or an equivalent live acquire-tile read before
 choosing either branch. Local resources can explain tile/improvement names, but
 only the live city state proves whether the chosen plot is workable or requires
 expansion.
+
+`ready-city` now exposes branch-specific candidate lists for this decision:
+
+- `populationPlacement.workablePlots` is the already-workable assignment branch.
+  Each candidate carries map coordinates where available, worker placement
+  details, yield fields exposed by `GetAllPlacementInfo()`, and the matching
+  `assign-worker` command shape.
+- `populationPlacement.expansionCandidates` is the tile-purchase branch. Each
+  candidate maps the `EXPAND` result's plot index to map coordinates and pairs
+  the same array position with `ConstructibleTypes` when the runtime returns
+  one. Constructible names are best-effort GameInfo enrichment; coordinates and
+  validator result remain the action authority.
 
 When the `NEW_POPULATION` notification target is empty, `ready-city` should
 still be the first read. Its fallback follows the official handler by scanning
@@ -84,7 +96,11 @@ already-workable branch on a different population blocker:
   "cityId": { "owner": 0, "id": 131073, "type": 1 },
   "populationPlacement": {
     "isReadyToPlacePopulation": true,
-    "workablePlotIndexes": [2623, 2708]
+    "workablePlotIndexes": [2623, 2708],
+    "workablePlots": [
+      { "index": 2623, "x": 19, "y": 31 },
+      { "index": 2708, "x": 20, "y": 32 }
+    ]
   },
   "validatedOperation": {
     "family": "player-operation",
@@ -113,8 +129,6 @@ path; it still needs a send/postcondition proof for this exact turn.
 
 ## Remaining Gaps
 
-- Better read-only acquire-tile cataloging: expose each candidate as
-  assign-worker versus expand-city with its exact required args.
 - Postcondition helper: after a send, report whether
   `Growth.isReadyToPlacePopulation` cleared and whether the city plot/workers
   state changed as expected.

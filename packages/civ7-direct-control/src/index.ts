@@ -1342,6 +1342,9 @@ export type Civ7ReadyCityPopulationPlacement = Readonly<{
   allPlacementInfo: Civ7RuntimeProbe<unknown>;
   workablePlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
   blockedPlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
+  workablePlots: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
+  expansionCandidates: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
+  expansionResult: Civ7RuntimeProbe<unknown>;
   cliHints: ReadonlyArray<string>;
 }>;
 
@@ -6083,6 +6086,22 @@ function readyCityViewSource(): string {
         return { index, error: String(err) };
       }
     };
+    const constructibleSummary = (constructibleType) => {
+      try {
+        const definition = constructibleType == null ? null : GameInfo?.Constructibles?.lookup?.(constructibleType);
+        return {
+          constructibleType: constructibleType ?? null,
+          constructibleTypeName: definition?.ConstructibleType ?? null,
+          constructibleName: definition?.Name ?? null,
+        };
+      } catch {
+        return {
+          constructibleType: constructibleType ?? null,
+          constructibleTypeName: null,
+          constructibleName: null,
+        };
+      }
+    };
     const productionCandidate = (kind, type, definition, args, result) => ({
       kind,
       type,
@@ -6182,16 +6201,51 @@ function readyCityViewSource(): string {
       const city = Cities.get(cityId);
       const allPlacementInfo = probe(() => city?.Workers?.GetAllPlacementInfo?.() ?? []);
       const placementValue = allPlacementInfo.ok && Array.isArray(allPlacementInfo.value) ? allPlacementInfo.value : [];
+      const expansionResult = probe(() => {
+        if (typeof Game?.CityCommands?.canStart !== "function") return null;
+        if (typeof CityCommandTypes === "undefined") return null;
+        return Game.CityCommands.canStart(cityId, CityCommandTypes.EXPAND, {}, false);
+      });
+      const summarizeWorkerPlot = (info) => {
+        const plotIndex = info?.PlotIndex;
+        return {
+          ...plotFromIndex(plotIndex),
+          isBlocked: info?.IsBlocked ?? null,
+          currentYields: info?.CurrentYields ?? null,
+          nextYields: info?.NextYields ?? null,
+          maintenance: info?.Maintenance ?? null,
+          placementInfo: safeResult(info),
+          cli: "game play assign-worker --player-id <id> --location " + plotIndex,
+        };
+      };
+      const expansionValue = expansionResult.ok && expansionResult.value && typeof expansionResult.value === "object"
+        ? expansionResult.value
+        : {};
+      const expansionPlots = Array.isArray(expansionValue?.Plots) ? expansionValue.Plots : [];
+      const expansionConstructibleTypes = Array.isArray(expansionValue?.ConstructibleTypes) ? expansionValue.ConstructibleTypes : [];
+      const expansionCandidatesValue = expansionPlots.map((plotIndex, index) => {
+        const plot = plotFromIndex(plotIndex);
+        return {
+          ...plot,
+          ...constructibleSummary(expansionConstructibleTypes[index]),
+          cli: plot.x == null || plot.y == null
+            ? "game play expand-city --city-id '<city-id>' --x <x> --y <y>"
+            : "game play expand-city --city-id '<city-id>' --x " + plot.x + " --y " + plot.y,
+        };
+      });
       return {
         isReadyToPlacePopulation: probe(() => city?.Growth?.isReadyToPlacePopulation ?? null),
         cityWorkerCap: probe(() => city?.Workers?.getCityWorkerCap?.() ?? null),
         allPlacementInfo,
         workablePlotIndexes: probe(() => placementValue.filter((info) => !info?.IsBlocked).map((info) => info?.PlotIndex)),
         blockedPlotIndexes: probe(() => placementValue.filter((info) => info?.IsBlocked).map((info) => info?.PlotIndex)),
+        workablePlots: probe(() => placementValue.filter((info) => !info?.IsBlocked).map(summarizeWorkerPlot)),
+        expansionCandidates: probe(() => expansionCandidatesValue),
+        expansionResult,
         cliHints: [
           "game play assign-worker --player-id <id> --location <plot-index>",
           "game play expand-city --city-id '<city-id>' --x <x> --y <y>",
-          "Ready-city does not yet label each acquire-tile candidate by branch; use the live acquire-tile surface to decide assign-worker versus expand-city.",
+          "For NEW_POPULATION, compare workablePlots against expansionCandidates; assign-worker and expand-city are different acquire-tile branches.",
         ],
       };
     };

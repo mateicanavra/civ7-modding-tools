@@ -42,7 +42,11 @@ It returns:
 - town focus options with `{ Type, ProjectType, City }` args for
   `game play set-town-focus`;
 - population placement evidence from `Growth.isReadyToPlacePopulation` and
-  `Workers.GetAllPlacementInfo()`.
+  `Workers.GetAllPlacementInfo()`;
+- `populationPlacement.workablePlots` for already-workable worker assignment
+  candidates and `populationPlacement.expansionCandidates` for `EXPAND`
+  purchase candidates, with map coordinates and best-effort constructible
+  labels when the runtime exposes them.
 
 ## Norms
 
@@ -57,8 +61,9 @@ It returns:
   only if the UI still needs closeout.
 - For population placement, use `game play assign-worker` for the
   already-workable-tile branch and `game play expand-city` for the expansion
-  purchase branch. The live city/acquire-tile read must decide which branch is
-  current.
+  purchase branch. The live city/acquire-tile read decides which branch is
+  current: prefer `workablePlots` for `ASSIGN_WORKER { Location }` and
+  `expansionCandidates` for `EXPAND { X, Y }`.
 
 ## Proof Boundaries
 
@@ -80,6 +85,12 @@ city `{"owner":0,"id":131073,"type":1}` by scanning for
 }`. This proves city resolution and validation shape, not tile-ranking
 correctness for all future turns.
 
+Turn 112 exposed the expansion half of the same read model: a town at `(20,20)`
+had `workablePlotIndexes:[]` while `EXPAND` validation returned purchasable
+plot indexes and constructible-type values. The direct-control view now maps
+that result into `expansionCandidates` so a watcher can send coordinates to the
+active agent without manually converting plot indexes.
+
 Official UI anchors:
 
 - `production-chooser-helpers.chunk.js` uses
@@ -97,7 +108,5 @@ Official UI anchors:
 
 Open gaps:
 
-- Better acquire-tile candidate cataloging that labels each plot as
-  assign-worker versus expand-city.
 - Production ranking or "best build" guidance.
 - Purchase mode, repair-all sends, and town upgrade purchase.
