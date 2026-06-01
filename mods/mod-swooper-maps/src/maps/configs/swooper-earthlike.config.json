@@ -637,7 +637,7 @@
       },
       "reefPlanning": {
         "profile": "default",
-        "minConfidence01": 0.55,
+        "minConfidence01": 0.62,
         "stride": 2
       },
       "wetlandPlanning": {
@@ -645,7 +645,7 @@
       },
       "vegetationPlanning": {
         "forestMinConfidence01": 0.02,
-        "rainforestMinConfidence01": 0.3,
+        "rainforestMinConfidence01": 0.28,
         "taigaMinConfidence01": 0,
         "savannaWoodlandMinConfidence01": 0,
         "sagebrushSteppeMinConfidence01": 0

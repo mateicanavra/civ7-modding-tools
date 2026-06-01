@@ -27,6 +27,10 @@ function expectComponentMetrics(
   }
 }
 
+function sumRecordValues(record: Readonly<Record<string, number>>): number {
+  return Object.values(record).reduce((sum, value) => sum + value, 0);
+}
+
 describe("terrain relief diagnostics", () => {
   it("separates planned hills, final hills, volcano mountains, and flat budgets", { timeout: 30_000 }, () => {
     const stats = collectWorldBalanceStats({
@@ -109,5 +113,16 @@ describe("terrain relief diagnostics", () => {
     expect(stats.finalNonVolcanoMountainToHillRatio).toBeGreaterThanOrEqual(0);
     expect(stats.plannedMeanRoughnessPotential).toBeGreaterThanOrEqual(0);
     expect(stats.plannedMeanRoughnessPotential).toBeLessThanOrEqual(255);
+
+    expect(stats.resourcePlannedCount).toBe(
+      stats.resourcePlacedCount + stats.resourceRejectedCount + stats.resourceMismatchCount
+    );
+    expect(stats.resourceTargetCount).toBeGreaterThan(0);
+    expect(stats.resourcePlannedCount).toBeGreaterThanOrEqual(stats.resourceTargetCount);
+    expect(stats.resourcePlacedCount).toBeGreaterThan(0);
+    expect(stats.resourceMismatchCount).toBe(0);
+    expect(sumRecordValues(stats.resourcePlanTypeCounts)).toBe(stats.resourcePlannedCount);
+    expect(sumRecordValues(stats.resourcePlacedTypeCounts)).toBe(stats.resourcePlacedCount);
+    expect(sumRecordValues(stats.finalResourceTypeCounts)).toBe(stats.resourcePlacedCount);
   });
 });

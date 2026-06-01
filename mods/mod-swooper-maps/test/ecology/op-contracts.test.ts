@@ -1,7 +1,19 @@
 import { describe, expect, it } from "bun:test";
 import ecology from "@mapgen/domain/ecology/ops";
 
+import { BIOME_SYMBOL_TO_INDEX } from "../../src/domain/ecology/types.js";
 import { normalizeOpSelectionOrThrow } from "../support/compiler-helpers.js";
+
+function broadVegetationHabitatFields(size: number) {
+  return {
+    flatLandMask: new Uint8Array(size).fill(1),
+    biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid),
+    surfaceTemperature: new Float32Array(size).fill(20),
+    effectiveMoisture: new Float32Array(size).fill(120),
+    aridityIndex: new Float32Array(size).fill(0.4),
+    vegetationDensity: new Float32Array(size).fill(0.35),
+  };
+}
 
 describe("ecology op contract surfaces", () => {
   it("classifyPedology validates output", () => {
@@ -495,6 +507,8 @@ describe("ecology op contract surfaces", () => {
         scoreMangrove01: new Float32Array(size).fill(1),
         scoreOasis01: new Float32Array(size).fill(1),
         scoreWateringHole01: new Float32Array(size).fill(1),
+        flatLandMask: new Uint8Array(size).fill(1),
+        biomeIndex: new Uint8Array(size).fill(BIOME_SYMBOL_TO_INDEX.temperateHumid),
         featureIndex: new Uint16Array(size),
         reserved: new Uint8Array(size),
       },
@@ -522,6 +536,7 @@ describe("ecology op contract surfaces", () => {
         scoreSavannaWoodland01: new Float32Array(size).fill(1),
         scoreSagebrushSteppe01: new Float32Array(size).fill(1),
         landMask: new Uint8Array(size).fill(1),
+        ...broadVegetationHabitatFields(size),
         featureIndex: new Uint16Array(size),
         reserved: new Uint8Array(size),
       },
