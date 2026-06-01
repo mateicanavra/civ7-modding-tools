@@ -171,6 +171,13 @@ endpoints, corridors, pressure, points of interest, and target owners while
 leaving strategy selection, movement, and combat sends to explicit
 validator-backed steps.
 
+The dedicated build-order reference is `tactical-lens-api-roadmap.md`. It
+separates the lenses that are usable now from candidate command families such
+as play priorities, actors, proximity scans, pressure maps, route analysis,
+civilian routes, and tactical-plan dry runs. Load it before turning a tactical
+need into a new command so the command stays bounded, read-only by default, and
+explicit about pathing and hidden-information limits.
+
 ## Experiments
 
 ### Static AI Bias A/B

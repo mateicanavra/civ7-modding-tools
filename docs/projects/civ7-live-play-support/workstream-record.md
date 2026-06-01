@@ -131,6 +131,7 @@ Outputs:
   - `topics/battlefield-scan.md`
   - `topics/destination-analysis.md`
   - `topics/civilian-route-triage.md`
+  - `topics/tactical-lens-api-roadmap.md`
   - `topics/rhq-ai-mod-baseline.md`
   - `evidence-packs/current-online-play-context.md`
   - `evidence-packs/agent-evidence-summary.md`
@@ -633,6 +634,23 @@ Residual objective gaps:
   move or attack. `game watch` now emits `legalOperationScope: "no-target"` and
   `legalNoTargetOperationCount` so agents know when to follow up with
   `game play unit-target` for target-arg operations.
+- Three read-only sidecars converged on the next tactical-lens layer. The RHQ
+  lane remains a static AI/resource-policy comparator; the local playstyle lane
+  favors a supervised runner with validator-first mutations; and the tactical
+  API lane recommends bounded read-only commands for priorities, actors,
+  proximity scans, pressure maps, route analysis, civilian routes, and
+  tactical-plan dry runs. Disposition: `topics/tactical-lens-api-roadmap.md`
+  now records the command build order, current usable lenses, hidden-info
+  boundary, and proof labels before this becomes implementation work.
+- A turn-117 watcher read showed the first ready unit as Warrior
+  `{"owner":0,"id":589830,"type":26}` at `(16,22)`, with zero no-target
+  operations in `game watch` but a valid `MOVE_TO` from `game play unit-target`
+  toward the independent city at `(13,17)`. Wider tactical reads changed the
+  interpretation: `battlefield-scan` showed a strong friendly siege cluster,
+  `target-candidates` kept owner `9` at `(13,17)` as the first city objective,
+  and `destination-analysis` flagged high endpoint and corridor pressure. The
+  active play thread was notified to stage/screen rather than overextend just
+  because direct movement validated.
 - Remaining gaps are promotion-send/hardening work: richer ready-entity reads,
   stronger live postcondition polling, civic choice proof, population-placement
   postconditions, visibility-filtered path/front analysis beyond the cheap

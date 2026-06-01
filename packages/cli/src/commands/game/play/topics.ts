@@ -138,6 +138,7 @@ const TOPICS: ReadonlyArray<Topic> = [
     references: [
       'docs/projects/civ7-live-play-support/topics/battlefield-scan.md',
       'docs/projects/civ7-live-play-support/topics/destination-analysis.md',
+      'docs/projects/civ7-live-play-support/topics/tactical-lens-api-roadmap.md',
       'docs/projects/civ7-live-play-support/topics/civilian-route-triage.md',
       'docs/projects/civ7-live-play-support/topics/ready-unit-commander-actions.md',
       'docs/projects/civ7-live-play-support/topics/unit-target-actions.md',
@@ -219,6 +220,7 @@ const TOPICS: ReadonlyArray<Topic> = [
     references: [
       'docs/projects/civ7-live-play-support/topics/multi-turn-strategy-and-ai-levers.md',
       'docs/projects/civ7-live-play-support/topics/strategic-planning-snapshot.md',
+      'docs/projects/civ7-live-play-support/topics/tactical-lens-api-roadmap.md',
       'docs/projects/civ7-live-play-support/topics/battlefield-scan.md',
       'docs/projects/civ7-live-play-support/topics/destination-analysis.md',
       'docs/projects/civ7-live-play-support/topics/early-game-decision-context.md',

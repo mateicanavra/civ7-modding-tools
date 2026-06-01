@@ -365,6 +365,7 @@ Source artifacts:
 
 - `topics/multi-turn-strategy-and-ai-levers.md`
 - `topics/strategic-planning-snapshot.md`
+- `topics/tactical-lens-api-roadmap.md`
 - `topics/battlefield-scan.md`
 - `topics/destination-analysis.md`
 - `topics/target-candidates.md`
@@ -431,6 +432,10 @@ Norms:
   when a short-horizon plan depends on whether an endpoint is worth pursuing.
   Treat corridor and destination pressure as a reason to inspect or revise, not
   as proof of reachability.
+- Treat `topics/tactical-lens-api-roadmap.md` as the build-order reference for
+  higher-level tactical APIs. It keeps the current usable lenses separate from
+  future command families such as play priorities, actors, proximity scans,
+  pressure maps, route analysis, civilian routes, and tactical-plan dry runs.
 - Use RHQ AI MOD as the baseline for static AI manipulation over autoplay, not
   as proof that local SQLite edits or in-game JS should own player-side
   strategy. RHQ's public changelog maps to official AI tables and behavior-tree
@@ -494,6 +499,7 @@ runtime and local official resource references.
 | `topics/early-game-decision-context.md` | Strategy context asset | Advisory only |
 | `topics/multi-turn-strategy-and-ai-levers.md` | Strategy-over-turns architecture reference | Reference with gap |
 | `topics/strategic-planning-snapshot.md` | Short-horizon strategy snapshot contract | Reference with gap |
+| `topics/tactical-lens-api-roadmap.md` | Higher-level tactical lens/API roadmap | Reference with gap |
 | `topics/target-candidates.md` | Siege target shortlist reference | Reference with visibility/pathing gaps |
 | `topics/rhq-ai-mod-baseline.md` | Static AI/autoplay comparison baseline | Advisory reference |
 | `evidence-packs/current-online-play-context.md` | Current online context asset | Advisory only |
