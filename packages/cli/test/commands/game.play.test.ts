@@ -33,6 +33,7 @@ import GamePlaySetCultureTarget from '../../src/commands/game/play/set-culture-t
 import GamePlaySetTechTarget from '../../src/commands/game/play/set-tech-target';
 import GamePlaySetTownFocus from '../../src/commands/game/play/set-town-focus';
 import GamePlaySettlementRecommendations from '../../src/commands/game/play/settlement-recommendations';
+import GamePlayTopics from '../../src/commands/game/play/topics';
 import GamePlayUnitTarget from '../../src/commands/game/play/unit-target';
 import GamePlayUpgradeUnit from '../../src/commands/game/play/upgrade-unit';
 import GameWatch from '../../src/commands/game/watch';
@@ -741,6 +742,27 @@ describe('game play commands', () => {
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       await server.close();
+    }
+  });
+
+  test('lists live-play topic shortcuts without touching the game runtime', async () => {
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayTopics.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      await GamePlayTopics.run(['--family', 'rhq-ai', '--json']);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        topics: Array<{ family: string; commands: string[]; boundary: string }>;
+      };
+      expect(payload.topics).toHaveLength(1);
+      expect(payload.topics[0].family).toBe('rhq-ai');
+      expect(payload.topics[0].commands).toContain('future: game ai loaded-levers');
+      expect(payload.topics[0].boundary).toMatch(/loaded GameInfo rows/);
+    } finally {
+      log.mockRestore();
     }
   });
 

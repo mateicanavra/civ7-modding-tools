@@ -6,6 +6,8 @@ Sources:
 
 - Steam Workshop: `https://steamcommunity.com/sharedfiles/filedetails/?id=3507042742`
 - Change notes: `https://steamcommunity.com/sharedfiles/filedetails/changelog/3507042742`
+- Historical CivFanatics mirror:
+  `https://forums.civfanatics.com/resources/rhq-artificially-intelligent-ai-mod.31881/`
 
 ## Frame
 
@@ -60,10 +62,15 @@ surfaces and future downloaded mod files.
 ## Public Status Caveats
 
 The public Steam state observed on June 1, 2026 is contradictory. The item page
-still exposes the RHQ AI MOD title, description, subscribers, changelog entries,
-and recent author comments, but Steam also displays removal/incompatibility
-warnings. Treat the page as a source for author claims and changelog history,
-not proof that the mod is currently installable or loaded in a local game.
+still exposes the RHQ AI MOD title, description, file size, subscriber count,
+posted date, May 31 update date, changelog entries, and recent author comments,
+but Steam also displays removal and Civ VII incompatibility warnings. Treat the
+page as a source for author claims and changelog history, not proof that the mod
+is currently installable or loaded in a local game.
+
+The CivFanatics mirror is useful for lineage and older compatibility notes, but
+it appears stale relative to the Steam v3.x/Test of Time branch. It should not
+be used as proof of current v3.x implementation details.
 
 Recent author notes also describe limits that matter for our baseline:
 
@@ -75,11 +82,19 @@ Recent author notes also describe limits that matter for our baseline:
 - User comments report mixed behavior: improved armies/play in some games, but
   also concerns about no ships, over-aggression, idle units, hard alliances, and
   defensive city-states. These are anecdotes, not validated behavior.
+- Older mirror notes describe AI-mod compatibility conflicts, including the
+  practical support norm that only one AI-overhaul mod should usually be active
+  while testing behavior.
 
 For our work, this means RHQ is a comparator, not an authority. The durable
 measurement is bounded autoplay telemetry: settlement distance, city-founding
 cadence, naval production/use, air recruitment/use, repairs, war declarations,
 city attacks, raids, and independent/city-state attacks.
+
+Support norm: if a local run claims RHQ is installed but behavior or files look
+stale, first verify Workshop delivery before analyzing game behavior. Refresh
+the subscription, restart Steam and Civ VII, ensure only one AI-overhaul mod is
+active, and then verify the loaded rows or downloaded files.
 
 ## Official Surfaces That Match The Claims
 

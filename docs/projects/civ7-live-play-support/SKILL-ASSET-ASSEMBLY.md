@@ -87,6 +87,7 @@ Source artifacts:
 CLI shortcuts:
 
 - `game play notifications`
+- `game play topics`
 - `game play end-turn`
 - `game play dismiss-notification`
 - `game play advisor-warning`
@@ -347,6 +348,7 @@ Source artifacts:
 
 CLI shortcuts:
 
+- `game play topics`
 - `game play rehydrate`
 - `game play notifications`
 - `game watch`
@@ -374,12 +376,19 @@ Norms:
   human/agent observation; it records HUD timing and stale-risk markers without
   sending operations and leaves a durable JSONL trace for later skill/reference
   extraction.
+- Use `game play topics --family <family>` as the categorical index before
+  loading project references. It is a read-only shortcut map, not a live
+  validator, so it should point agents to the right HUD/ready-view/static
+  reference before they act.
 - Treat official AI XML/SQL rows as load-time/static-mod levers until a safe
   live mutation contract is proven.
 - Use RHQ AI MOD as the baseline for static AI manipulation over autoplay, not
   as proof that local SQLite edits or in-game JS should own player-side
   strategy. RHQ's public changelog maps to official AI tables and behavior-tree
-  surfaces, but the actual mod files still need source-level comparison.
+  surfaces, but the actual mod files still need source-level comparison. Its
+  Steam Workshop page currently carries visible metadata plus removed and
+  incompatibility warnings, so local support must verify Workshop delivery and
+  loaded rows before attributing behavior to RHQ.
 - Encode strategy heuristics as conditional objectives with falsifiers:
   defensive production under threat, ranged-first combat, wounded-unit
   preservation, safe expansion, and clean App UI/autoplay handoff.
@@ -438,6 +447,32 @@ runtime and local official resource references.
 | `evidence-packs/local-on-disk-read-surfaces.md` | Runtime-source authority evidence | Ready |
 | `evidence-packs/watcher-latency-observer-mode.md` | Watcher operating-mode asset | Ready with initial `game watch` shortcut |
 | `evidence-packs/agent-evidence-summary.md` | Proof ledger seed | Active draft |
+
+## CLI Topic Index
+
+`game play topics` is the first categorical shortcut for the skill assembly.
+It gives active agents a compact map from decision family to references,
+commands, load conditions, and authority boundaries:
+
+- `blockers`: HUD, notification, informational closeout, and end-turn surfaces.
+- `progression`: tech, culture, celebration, narrative, attributes, and
+  traditions.
+- `cities`: production, town focus, population placement, expansion, and
+  settlement planning.
+- `tactics`: ready units, target actions, commanders, promotions, upgrades, and
+  resettlement.
+- `diplomacy`: first-meet and diplomatic action responses.
+- `runtime-sources`: direct-control versus local SQLite/resource authority.
+- `restart-watch`: rehydration, observer mode, latency, and passive JSONL
+  watch.
+- `strategy`: short-horizon objectives, autoplay boundaries, and external
+  runner framing.
+- `rhq-ai`: RHQ/static-AI comparator, loaded-row verification, and bounded
+  autoplay telemetry.
+
+The command deliberately does not read Civ7 or send operations. Its job is to
+reduce lookup friction and prevent agents from loading the wrong reference
+family under time pressure.
 
 ## Materialized HUD Asset Shape
 

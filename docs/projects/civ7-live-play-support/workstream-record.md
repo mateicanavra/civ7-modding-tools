@@ -105,6 +105,7 @@ Outputs:
   - `game play promotion-readiness`
   - `game play unit-target`
   - `game watch`
+  - `game play topics`
   - `game local-data inspect`
 - Evidence packs and topic/reference artifacts:
   - `SKILL-ASSET-ASSEMBLY.md`
@@ -517,6 +518,18 @@ Residual objective gaps:
   `GameInfo` AI-row inspection before static mod comparisons, then summarize
   bounded autoplay with settlement, naval, air, repair, war, assault, raid, and
   independent/city-state attack telemetry.
+- The Steam Workshop RHQ link was re-checked as a source-status item. It still
+  exposes current title/description/changelog/comment metadata, but also shows
+  removal and Civ VII incompatibility warnings; the CivFanatics mirror is useful
+  lineage but stale relative to Steam v3.x. Disposition: keep RHQ as an
+  advisory comparator, add Workshop refresh/one-AI-mod verification as support
+  norms, and require loaded-row or downloaded-file proof before attributing
+  local behavior to RHQ.
+- A categorical CLI index now exists as `game play topics`. It maps play
+  families such as blockers, progression, cities, tactics, diplomacy,
+  runtime-sources, restart-watch, strategy, and RHQ/static AI to their reference
+  docs, relevant CLI shortcuts, load conditions, and proof boundaries without
+  touching the live game runtime.
 - Remaining gaps are promotion-send/hardening work: richer ready-entity reads,
   stronger live postcondition polling, civic choice proof, acquire-tile
   candidate cataloging, AI loaded-lever/telemetry shortcuts, and eventual
