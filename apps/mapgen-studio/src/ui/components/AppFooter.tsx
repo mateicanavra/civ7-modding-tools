@@ -1,9 +1,14 @@
 import React from 'react';
-import { Bolt, Clock, Dices, MonitorPlay, Play, Radio } from 'lucide-react';
+import { Bolt, Clipboard, Clock, Dices, MonitorPlay, Play, Radio, RotateCw } from 'lucide-react';
 import { Button, Input } from './ui';
 import { MAP_SIZE_SHORT, LAYOUT } from '../constants';
 import { formatResourceMode } from '../utils';
 import type { RecipeSettings, WorldSettings, GenerationStatus } from '../types';
+import {
+  formatRunInGamePhaseLabel,
+  runInGameCanRetryStatus,
+  type RunInGameOperationStatus,
+} from '../../features/runInGame/status';
 export interface AppFooterProps {
   /** Current generation status */
   status: GenerationStatus;
@@ -19,12 +24,18 @@ export interface AppFooterProps {
   onRun: () => void;
   /** Callback to launch the current map config in Civ7 */
   onRunInGame: () => void;
+  /** Callback to refresh the current Civ7 Run in Game operation status */
+  onRunInGameRetryStatus?: () => void;
+  /** Callback to copy current Civ7 Run in Game diagnostics */
+  onCopyRunInGameDiagnostics?: () => void;
   /** Callback to reroll (new seed + run) */
   onReroll: () => void;
   /** Whether generation is currently running */
   isRunning: boolean;
   /** Whether Civ7 Run in Game is currently running */
   isRunInGameRunning: boolean;
+  /** Request-correlated Civ7 Run in Game status */
+  runInGameStatus?: RunInGameOperationStatus | null;
   /** Whether current settings differ from last run */
   isDirty: boolean;
   /** Light mode flag for styling */
@@ -55,9 +66,12 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   onSettingsChange,
   onRun,
   onRunInGame,
+  onRunInGameRetryStatus,
+  onCopyRunInGameDiagnostics,
   onReroll,
   isRunning,
   isRunInGameRunning,
+  runInGameStatus,
   isDirty,
   lightMode,
   liveRuntime,
@@ -94,10 +108,32 @@ export const AppFooter: React.FC<AppFooterProps> = ({
     liveRuntime?.status === "ok" ? "bg-emerald-400" : liveRuntime?.status === "error" ? "bg-red-400" : "bg-gray-400";
   const liveText =
     liveRuntime?.status === "ok"
-      ? `Turn ${liveRuntime.turn ?? "?"} · Seed ${liveRuntime.seed ?? "?"}`
+      ? liveRuntime.turn !== undefined || liveRuntime.seed !== undefined
+        ? `Turn ${liveRuntime.turn ?? "?"} · Seed ${liveRuntime.seed ?? "?"}`
+        : liveRuntime.readiness ?? "Civ7 ready"
       : liveRuntime?.status === "error"
         ? liveRuntime.error ?? "Live unavailable"
         : "Live idle";
+  const runInGamePhaseLabel = runInGameStatus ? formatRunInGamePhaseLabel(runInGameStatus.phase) : "Run in Game";
+  const runInGameDotClass =
+    runInGameStatus?.status === "complete"
+      ? "bg-emerald-400"
+      : runInGameStatus?.status === "failed" || runInGameStatus?.status === "blocked" || runInGameStatus?.status === "uncertain"
+        ? "bg-red-400"
+        : isRunInGameRunning
+          ? "bg-amber-400"
+          : "bg-gray-400";
+  const runInGameButtonText = isRunInGameRunning
+    ? runInGamePhaseLabel
+    : runInGameStatus?.status === "failed" || runInGameStatus?.status === "blocked" || runInGameStatus?.status === "uncertain"
+      ? "Retry Run"
+      : "Run in Game";
+  const runInGameTitle = [
+    runInGameStatus ? `Run in Game: ${runInGamePhaseLabel}` : "Run in Game: launch current config in Civ7",
+    runInGameStatus?.requestId ? `Request: ${runInGameStatus.requestId}` : null,
+    runInGameStatus?.materialization?.mapScript ? `Map: ${runInGameStatus.materialization.mapScript}` : null,
+    runInGameStatus?.error ? `Error: ${runInGameStatus.error}` : null,
+  ].filter(Boolean).join("\n");
   const updateSetting = <K extends keyof RecipeSettings,>(
   key: K,
   value: RecipeSettings[K]) =>
@@ -229,15 +265,44 @@ export const AppFooter: React.FC<AppFooterProps> = ({
         </Button>
 
         {/* Run in Game button */}
+        {runInGameStatus ? (
+          <div
+            className={`hidden max-w-[180px] items-center gap-1.5 overflow-hidden text-[11px] font-medium ${textPrimary} lg:inline-flex`}
+            title={runInGameTitle}>
+
+            <div className={`h-2 w-2 shrink-0 rounded-full ${runInGameDotClass}`} />
+            <span className="truncate">{runInGamePhaseLabel}</span>
+          </div>
+        ) : null}
+        {runInGameStatus && onRunInGameRetryStatus && runInGameCanRetryStatus(runInGameStatus) ? (
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={onRunInGameRetryStatus}
+            title="Refresh Run in Game status">
+
+            <RotateCw className="w-3.5 h-3.5" />
+          </Button>
+        ) : null}
+        {runInGameStatus && onCopyRunInGameDiagnostics ? (
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={onCopyRunInGameDiagnostics}
+            title="Copy Run in Game diagnostics">
+
+            <Clipboard className="w-3.5 h-3.5" />
+          </Button>
+        ) : null}
         <Button
           onClick={onRunInGame}
           disabled={isRunning || isRunInGameRunning}
           variant="outline"
-          title="Run in Game: launch current config in Civ7"
+          title={runInGameTitle}
           className={isRunInGameRunning ? 'opacity-70 cursor-wait' : undefined}>
 
           <MonitorPlay className="w-3.5 h-3.5" />
-          <span>{isRunInGameRunning ? 'Launching...' : 'Run in Game'}</span>
+          <span>{runInGameButtonText}</span>
         </Button>
 
         {/* Run button */}

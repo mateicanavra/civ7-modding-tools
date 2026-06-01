@@ -653,6 +653,9 @@ export type Civ7PreparedStartInput = Readonly<{
 
 export type Civ7SinglePlayerStartResult = Readonly<{
   command: Civ7CommandResult;
+  begin?: Civ7CommandResult;
+  beginAttempted: boolean;
+  beginError?: string;
   before: Civ7SetupSnapshotResult;
   finalAppUi: Civ7AppUiSnapshotResult;
   tunerHealth?: Civ7TunerHealthResult;
@@ -1303,7 +1306,8 @@ export async function restartCiv7GameAndBegin(options: Civ7DirectControlOptions 
           finalAppUi = snapshotResult;
           break;
         }
-      } catch {
+      } catch (err) {
+        if (beginError) throw err;
         await session.close();
       }
       await sleep(pollIntervalMs);
@@ -1739,6 +1743,9 @@ export async function startPreparedCiv7SinglePlayerGame(
       });
     }
 
+    let begin: Civ7CommandResult | undefined;
+    let beginAttempted = false;
+    let beginError: string | undefined;
     let finalAppUi: Civ7AppUiSnapshotResult | undefined;
     const startedAt = Date.now();
     while (Date.now() - startedAt <= waitTimeoutMs) {
@@ -1752,12 +1759,18 @@ export async function startPreparedCiv7SinglePlayerGame(
         );
         observations.push(snapshotResult.snapshot);
         const loadingState = probeValue(snapshotResult.snapshot.ui.loadingState);
-        if (isCiv7BeginReadyLoadingState(loadingState)) {
-          await executeSessionCommandWithReconnect(session, {
-            state: { role: "app-ui" },
-            command: CIV7_BEGIN_GAME_COMMAND,
-            timeoutMs: options.timeoutMs,
-          }, 1).catch(() => undefined);
+        if (!beginAttempted && isCiv7BeginReadyLoadingState(loadingState)) {
+          beginAttempted = true;
+          try {
+            begin = await executeSessionCommandWithReconnect(session, {
+              state: { role: "app-ui" },
+              command: CIV7_BEGIN_GAME_COMMAND,
+              timeoutMs: options.timeoutMs,
+            }, 1);
+          } catch (err) {
+            beginError = errorMessage(err);
+            throw err;
+          }
         }
         if (
           loadingState === CIV7_UI_LOADING_STATES.GameStarted &&
@@ -1767,7 +1780,8 @@ export async function startPreparedCiv7SinglePlayerGame(
           finalAppUi = snapshotResult;
           break;
         }
-      } catch {
+      } catch (err) {
+        if (beginError) throw err;
         await session.close();
       }
       await sleep(pollIntervalMs);
@@ -1777,7 +1791,7 @@ export async function startPreparedCiv7SinglePlayerGame(
       throw new Civ7DirectControlError(
         "setup-start-timeout",
         `Timed out waiting for Civ7 to start prepared single-player game after ${waitTimeoutMs}ms`,
-        { details: { before, observations } },
+        { details: { before, observations, beginAttempted, beginError } },
       );
     }
 
@@ -1791,6 +1805,9 @@ export async function startPreparedCiv7SinglePlayerGame(
 
     return {
       command,
+      begin,
+      beginAttempted,
+      beginError,
       before,
       finalAppUi,
       tunerHealth,
@@ -2500,6 +2517,7 @@ function buildRuntimeApiInspectionCommand(roots: ReadonlyArray<string>): string 
 
 function buildAppUiSnapshotCommand(): string {
   return `(() => {
+    const g = globalThis;
     const probe = (fn) => {
       try {
         return { ok: true, value: fn() };
@@ -2507,68 +2525,72 @@ function buildAppUiSnapshotCommand(): string {
         return { ok: false, error: String(err) };
       }
     };
+    const probeValueOr = (fallback, fn) => {
+      const result = probe(fn);
+      return result.ok ? result.value : fallback;
+    };
     return JSON.stringify({
       network: {
-        isInSession: probe(() => Network.isInSession),
-        numPlayers: probe(() => Network.getNumPlayers()),
-        hostPlayerId: probe(() => Network.getHostPlayerId()),
-        isConnectedToNetwork: probe(() => Network.isConnectedToNetwork()),
-        isAuthenticated: probe(() => Network.isAuthenticated()),
-        isLoggedIn: probe(() => Network.isLoggedIn()),
+        isInSession: probe(() => g.Network.isInSession),
+        numPlayers: probe(() => g.Network.getNumPlayers()),
+        hostPlayerId: probe(() => g.Network.getHostPlayerId()),
+        isConnectedToNetwork: probe(() => g.Network.isConnectedToNetwork()),
+        isAuthenticated: probe(() => g.Network.isAuthenticated()),
+        isLoggedIn: probe(() => g.Network.isLoggedIn()),
       },
       autoplay: {
-        isActive: probe(() => typeof Autoplay !== "undefined" ? Autoplay.isActive : false).value ?? false,
-        turns: probe(() => typeof Autoplay !== "undefined" ? Autoplay.turns : 0).value ?? 0,
-        isPaused: probe(() => typeof Autoplay !== "undefined" ? Autoplay.isPaused : false).value ?? false,
-        isPausedOrPending: probe(() => typeof Autoplay !== "undefined" ? Autoplay.isPausedOrPending : false).value ?? false,
-        observeAsPlayer: probe(() => typeof Autoplay !== "undefined" ? Autoplay.observeAsPlayer : -1).value ?? -1,
-        returnAsPlayer: probe(() => typeof Autoplay !== "undefined" ? Autoplay.returnAsPlayer : -1).value ?? -1,
+        isActive: probeValueOr(false, () => typeof g.Autoplay !== "undefined" ? g.Autoplay.isActive : false),
+        turns: probeValueOr(0, () => typeof g.Autoplay !== "undefined" ? g.Autoplay.turns : 0),
+        isPaused: probeValueOr(false, () => typeof g.Autoplay !== "undefined" ? g.Autoplay.isPaused : false),
+        isPausedOrPending: probeValueOr(false, () => typeof g.Autoplay !== "undefined" ? g.Autoplay.isPausedOrPending : false),
+        observeAsPlayer: probeValueOr(-1, () => typeof g.Autoplay !== "undefined" ? g.Autoplay.observeAsPlayer : -1),
+        returnAsPlayer: probeValueOr(-1, () => typeof g.Autoplay !== "undefined" ? g.Autoplay.returnAsPlayer : -1),
       },
       game: {
-        turn: Game.turn,
-        age: Game.age,
-        maxTurns: Game.maxTurns,
-        turnDate: probe(() => Game.getTurnDate()),
-        hash: probe(() => Game.getHash()),
+        turn: probeValueOr(-1, () => g.Game.turn),
+        age: probeValueOr(-1, () => g.Game.age),
+        maxTurns: probeValueOr(0, () => g.Game.maxTurns),
+        turnDate: probe(() => g.Game.getTurnDate()),
+        hash: probe(() => g.Game.getHash()),
       },
       ui: {
-        inGame: probe(() => UI.isInGame()),
-        inShell: probe(() => UI.isInShell()),
-        inLoading: probe(() => UI.isInLoading()),
-        loadingState: probe(() => UI.getGameLoadingState()),
+        inGame: probe(() => g.UI.isInGame()),
+        inShell: probe(() => g.UI.isInShell()),
+        inLoading: probe(() => g.UI.isInLoading()),
+        loadingState: probe(() => g.UI.getGameLoadingState()),
         loadingStateName: (() => {
           try {
-            const state = UI.getGameLoadingState();
-            return Object.entries(UIGameLoadingState).find(([, value]) => value === state)?.[0] ?? null;
+            const state = g.UI.getGameLoadingState();
+            return Object.entries(g.UIGameLoadingState).find(([, value]) => value === state)?.[0] ?? null;
           } catch {
             return null;
           }
         })(),
         canBeginGame: probe(() => {
-          const state = UI.getGameLoadingState();
-          return state === UIGameLoadingState.WaitingForUIReady || state === UIGameLoadingState.WaitingToStart;
+          const state = g.UI.getGameLoadingState();
+          return state === g.UIGameLoadingState.WaitingForUIReady || state === g.UIGameLoadingState.WaitingToStart;
         }),
-        canNotifyUIReady: typeof UI.notifyUIReady,
-        skipStartButton: probe(() => Configuration.getGame().skipStartButton),
-        automationActive: probe(() => typeof Automation !== "undefined" ? Automation.isActive : false),
+        canNotifyUIReady: typeof g.UI?.notifyUIReady,
+        skipStartButton: probe(() => g.Configuration.getGame().skipStartButton),
+        automationActive: probe(() => typeof g.Automation !== "undefined" ? g.Automation.isActive : false),
       },
       gameContext: {
-        localPlayerID: GameContext.localPlayerID,
-        localObserverID: GameContext.localObserverID,
-        hasRequestedPause: probe(() => GameContext.hasRequestedPause()),
+        localPlayerID: probeValueOr(-1, () => g.GameContext.localPlayerID),
+        localObserverID: probeValueOr(-1, () => g.GameContext.localObserverID),
+        hasRequestedPause: probe(() => g.GameContext.hasRequestedPause()),
       },
       players: {
-        maxPlayers: Players.maxPlayers,
-        aliveIds: probe(() => Players.getAliveIds()),
-        aliveHumanIds: probe(() => Players.getAliveHumanIds()),
-        numAliveHumans: probe(() => Players.getNumAliveHumans()),
+        maxPlayers: probeValueOr(0, () => g.Players.maxPlayers),
+        aliveIds: probe(() => g.Players.getAliveIds()),
+        aliveHumanIds: probe(() => g.Players.getAliveHumanIds()),
+        numAliveHumans: probe(() => g.Players.getNumAliveHumans()),
       },
       map: {
-        width: probe(() => GameplayMap.getGridWidth()),
-        height: probe(() => GameplayMap.getGridHeight()),
-        plotCount: probe(() => GameplayMap.getPlotCount()),
-        mapSize: probe(() => GameplayMap.getMapSize()),
-        randomSeed: probe(() => GameplayMap.getRandomSeed()),
+        width: probe(() => g.GameplayMap.getGridWidth()),
+        height: probe(() => g.GameplayMap.getGridHeight()),
+        plotCount: probe(() => g.GameplayMap.getPlotCount()),
+        mapSize: probe(() => g.GameplayMap.getMapSize()),
+        randomSeed: probe(() => g.GameplayMap.getRandomSeed()),
       },
     });
   })()`;

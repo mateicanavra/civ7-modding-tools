@@ -6,10 +6,18 @@ import shatteredRingRaw from "../../src/maps/configs/shattered-ring.config.json"
 import sunderedArchipelagoRaw from "../../src/maps/configs/sundered-archipelago.config.json";
 import swooperDesertMountainsRaw from "../../src/maps/configs/swooper-desert-mountains.config.json";
 import { canonicalRecipeConfig, type CanonicalMapConfigWithRecipe } from "../../src/maps/configs/canonical.js";
+import standardRecipe from "../../src/recipes/standard/recipe.js";
 import type { StandardRecipeConfig } from "../../src/recipes/standard/recipe.js";
 
 function recipeConfig(config: CanonicalMapConfigWithRecipe): StandardRecipeConfig {
-  return canonicalRecipeConfig<StandardRecipeConfig>(config);
+  return standardRecipe.compileConfig(
+    {
+      seed: 123,
+      dimensions: { width: 80, height: 60 },
+      latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+    },
+    canonicalRecipeConfig<StandardRecipeConfig>(config)
+  ) as StandardRecipeConfig;
 }
 
 function hasRawOpEnvelope(value: unknown): boolean {
