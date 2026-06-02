@@ -5977,6 +5977,116 @@ function playNotificationViewSource(): string {
         ],
       };
     };
+    const cultureChoiceDetailsFor = (notification, typeName, notificationId) => {
+      if (!stringIncludes(typeName, "CHOOSE_CULTURE")) return undefined;
+      const localPlayerId = GameContext.localPlayerID;
+      const currentResearching = probe(() => {
+        const culture = Players.get(localPlayerId)?.Culture;
+        const activeTree = culture?.getActiveTree?.();
+        if (activeTree == null) return null;
+        const tree = Game.ProgressionTrees.getTree(localPlayerId, activeTree);
+        const activeNodeIndex = tree?.activeNodeIndex;
+        return Number.isFinite(Number(activeNodeIndex)) && activeNodeIndex >= 0
+          ? tree?.nodes?.[activeNodeIndex]?.nodeType ?? null
+          : null;
+      });
+      const targetNode = probe(() => Players.get(localPlayerId)?.Culture?.getTargetNode?.() ?? null);
+      const availableNodeTypes = probe(() => Players.get(localPlayerId)?.Culture?.getAllAvailableNodeTypes?.() ?? []);
+      const options = [];
+      const nodeRows = availableNodeTypes.ok && Array.isArray(availableNodeTypes.value)
+        ? availableNodeTypes.value
+        : [];
+      for (const row of nodeRows) {
+        const numericNodeType = Number(row?.type ?? row?.nodeType ?? row);
+        if (!Number.isFinite(numericNodeType)) continue;
+        const nodeDef = probe(() => GameInfo.ProgressionTreeNodes.lookup(numericNodeType));
+        const node = probe(() => Game.ProgressionTrees.getNode(localPlayerId, numericNodeType));
+        const def = nodeDef.ok ? nodeDef.value : null;
+        const nodeValue = node.ok ? node.value : null;
+        const treeType = def?.ProgressionTree ?? nodeValue?.treeType ?? null;
+        const treeDef = treeType == null
+          ? { ok: false, error: "culture node does not include ProgressionTree" }
+          : probe(() => GameInfo.ProgressionTrees.lookup(treeType));
+        const tree = treeDef.ok ? treeDef.value : null;
+        const args = { ProgressionTreeNodeType: numericNodeType };
+        const chooseValidation = probe(() => Game.PlayerOperations.canStart(
+          localPlayerId,
+          PlayerOperationTypes.SET_CULTURE_TREE_NODE,
+          args,
+          false,
+        ));
+        const targetValidation = probe(() => Game.PlayerOperations.canStart(
+          localPlayerId,
+          PlayerOperationTypes.SET_CULTURE_TREE_TARGET_NODE,
+          args,
+          false,
+        ));
+        const chooseEnabled = chooseValidation.ok && successFromCanStart(chooseValidation.value);
+        const targetEnabled = targetValidation.ok && successFromCanStart(targetValidation.value);
+        const turns = probe(() => Players.get(localPlayerId)?.Culture?.getTurnsForNode?.(numericNodeType) ?? null);
+        const cost = probe(() => Players.get(localPlayerId)?.Culture?.getNodeCost?.(numericNodeType) ?? null);
+        const canEverUnlock = probe(() => Game.ProgressionTrees.canEverUnlock(localPlayerId, numericNodeType));
+        options.push({
+          nodeType: numericNodeType,
+          nodeTypeName: def?.ProgressionTreeNodeType ?? null,
+          name: loc(def?.Name ?? def?.ProgressionTreeNodeType ?? null),
+          description: loc(def?.Description ?? null),
+          icon: def?.IconString ?? null,
+          treeType,
+          treeTypeName: tree?.ProgressionTreeType ?? null,
+          treeName: loc(tree?.Name ?? tree?.ProgressionTreeType ?? null),
+          ageType: tree?.AgeType ?? null,
+          depth: nodeValue?.depth ?? nodeValue?.treeDepth ?? null,
+          state: nodeValue?.state ?? null,
+          progress: nodeValue?.progress ?? null,
+          maxDepth: nodeValue?.maxDepth ?? null,
+          cost,
+          turns,
+          canEverUnlock,
+          chooseEnabled,
+          targetEnabled,
+          disabled: !chooseEnabled,
+          chooseValidation,
+          targetValidation,
+          cli: chooseEnabled
+            ? "game play choose-culture --player-id " + String(localPlayerId)
+              + " --node " + String(numericNodeType)
+              + " --send --closeout --reason '<why this culture node was selected>'"
+            : null,
+          validateCli: "game play choose-culture --player-id " + String(localPlayerId)
+            + " --node " + String(numericNodeType) + " --json",
+          targetCli: targetEnabled
+            ? "game play set-culture-target --player-id " + String(localPlayerId)
+              + " --node " + String(numericNodeType)
+              + " --send --reason '<why this culture target was selected>'"
+            : null,
+        });
+      }
+      const enabledOptions = options.filter((option) => option.chooseEnabled);
+      enabledOptions.sort((left, right) => {
+        const leftDepth = Number.isFinite(Number(left.depth)) ? Number(left.depth) : 999;
+        const rightDepth = Number.isFinite(Number(right.depth)) ? Number(right.depth) : 999;
+        if (leftDepth !== rightDepth) return leftDepth - rightDepth;
+        return String(left.name ?? left.nodeTypeName ?? left.nodeType).localeCompare(String(right.name ?? right.nodeTypeName ?? right.nodeType));
+      });
+      const disabledOptions = options.filter((option) => !option.chooseEnabled);
+      return {
+        kind: "culture-choice-options",
+        notificationId,
+        localPlayerId,
+        source: "Players.Culture.getAllAvailableNodeTypes + Game.ProgressionTrees + PlayerOperations.canStart",
+        currentResearching,
+        targetNode,
+        availableNodeTypes,
+        options,
+        enabledOptions,
+        disabledOptions,
+        notes: [
+          "Options are read from the official culture chooser available-node list and validated through local-player SET_CULTURE_TREE_NODE and SET_CULTURE_TREE_TARGET_NODE checks.",
+          "Use an enabled option's cli for one caller-level choose-and-target workflow; use validateCli when strategy needs inspection before sending.",
+        ],
+      };
+    };
     const unitCommandDetailsFor = (notification, typeName, notificationId) => {
       if (!stringIncludes(typeName, "COMMAND_UNITS")) return undefined;
       const selectedUnitId = probe(() => toComponentId(UI?.Player?.getHeadSelectedUnit?.()));
@@ -6068,6 +6178,7 @@ function playNotificationViewSource(): string {
       return firstMeetDetailsFor(notification, typeName)
         ?? diplomacyResponseDetailsFor(notification, typeName, notificationId)
         ?? technologyChoiceDetailsFor(notification, typeName, notificationId)
+        ?? cultureChoiceDetailsFor(notification, typeName, notificationId)
         ?? unitCommandDetailsFor(notification, typeName, notificationId);
     };
     const decisionHintFor = (notification, typeName, isBlocking) => {
@@ -6106,10 +6217,11 @@ function playNotificationViewSource(): string {
           [requiredInput("ProgressionTreeNodeType", "live culture chooser/tree node", "Use the runtime node type hash from GameInfo/progression tree data, not the row index or notification id.")],
           [
             action("choose culture and set target", "game play choose-culture --player-id <id> --node <node> --send --closeout --reason '<why this node was selected>'", "sequence", "SET_CULTURE_TREE_NODE then SET_CULTURE_TREE_TARGET_NODE", "{ ProgressionTreeNodeType } then { ProgressionTreeNodeType }", "when one caller action should start culture and close the target-node surface"),
+            action("read culture options", "game play choose-culture --options --json", undefined, undefined, "enabled culture nodes with validation and ready send templates", "before choosing a culture node"),
             action("validate culture choice", "game play choose-culture --player-id <id> --node <node>", "player-operation", "SET_CULTURE_TREE_NODE", "{ ProgressionTreeNodeType }", "after reading the candidate node"),
             action("set culture target", "game play set-culture-target --player-id <id> --node <node>", "player-operation", "SET_CULTURE_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
           ],
-          ["Some UI paths also set the culture target node; the turn-58 proof required the actual node hash plus target-node closeout, so use --closeout for one caller-level selection."],
+          ["Read options from the live culture chooser before sending; some UI paths also set the culture target node, so use --closeout for one caller-level selection."],
         );
       }
       if (stringIncludes(haystack, "NEW_POPULATION")) {

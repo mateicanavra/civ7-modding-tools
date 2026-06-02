@@ -26,12 +26,14 @@ already sent, the full tree UI only needs a target, or a validated chooser
 operation leaves an expired tree notification blocking turn advance.
 
 For technology blockers, read `game play choose-tech --options --json` before
-sending if the node id is not already proven. The option surface is populated
-from `GameInfo.ProgressionTrees`, `Game.ProgressionTrees`, and official
-`PlayerOperations.canStart` checks for both `SET_TECH_TREE_NODE` and
-`SET_TECH_TREE_TARGET_NODE`. Enabled options include ready-to-send
-`choose-tech --send --closeout` templates; disabled options are evidence, not
-safe sends.
+sending if the node id is not already proven. For culture blockers, read
+`game play choose-culture --options --json` first for the same reason. The tech
+surface is populated from `GameInfo.ProgressionTrees`,
+`Game.ProgressionTrees`, and official `PlayerOperations.canStart` checks; the
+culture surface is populated from the official
+`Players.Culture.getAllAvailableNodeTypes()` chooser list plus the same
+validator checks. Enabled options include ready-to-send `--send --closeout`
+templates; disabled options are evidence, not safe sends.
 
 ## Official UI Evidence
 

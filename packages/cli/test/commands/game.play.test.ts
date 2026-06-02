@@ -629,6 +629,59 @@ describe('game play commands', () => {
     }
   });
 
+  test('reads culture choice options without requiring a node', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'culture-choice' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayChooseCulture.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayChooseCulture.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--options',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          enabledOptionCount: number;
+          disabledOptionCount: number;
+          omitted: Array<{ path: string; reason: string }>;
+          surfaces: Array<{
+            kind: string;
+            enabledOptions: Array<{ nodeType: number; name: string; chooseCli: string | null; turns: number | null; cost: number | null }>;
+            options?: unknown;
+            disabledOptions?: unknown;
+          }>;
+          details?: unknown;
+        };
+      };
+      expect(payload.result.enabledOptionCount).toBe(2);
+      expect(payload.result.disabledOptionCount).toBe(1);
+      expect(payload.result.details).toBeUndefined();
+      expect(payload.result.surfaces[0].kind).toBe('culture-choice-options');
+      expect(payload.result.surfaces[0].options).toBeUndefined();
+      expect(payload.result.surfaces[0].disabledOptions).toBeUndefined();
+      const ekklesia = payload.result.surfaces[0].enabledOptions.find((option) => option.nodeType === -869902342);
+      expect(ekklesia?.name).toBe('Ekklesia');
+      expect(ekklesia?.chooseCli).toContain('game play choose-culture --player-id 0 --node -869902342 --send --closeout');
+      expect(ekklesia?.turns).toBe(4);
+      expect(ekklesia?.cost).toBe(105);
+      expect(payload.result.omitted.map((item) => item.path)).toContain('details[].options');
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+      expect(server.received.some((message) => message.includes('sendRequest('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('wraps celebration choice as CHOOSE_GOLDEN_AGE', async () => {
     const server = await startTunerServer();
     try {
@@ -967,6 +1020,55 @@ describe('game play commands', () => {
       expect(masonry?.chooseValidation.value?.Success).toBe(true);
       expect(masonry?.cli).toContain('game play choose-tech --player-id 0 --node -1255676052 --send --closeout');
       expect(details?.disabledOptions[0].name).toBe('Agriculture');
+      expect(details?.disabledOptions[0].cli).toBeNull();
+      expect(payload.view.hud.nextDecision.details).toBeDefined();
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('materializes culture choice options from the notification HUD', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'culture-choice' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayNotifications.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayNotifications.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          notifications: Array<{
+            details?: {
+              kind: string;
+              availableNodeTypes: { ok: boolean; value?: number[] };
+              enabledOptions: Array<{ nodeType: number; name: string; cli: string | null; chooseValidation: { ok: boolean; value?: { Success?: boolean } } }>;
+              disabledOptions: Array<{ nodeType: number; name: string; cli: string | null }>;
+              playerCulture?: unknown;
+            };
+          }>;
+          hud: { nextDecision: { details?: unknown } };
+        };
+      };
+      const details = payload.view.notifications[0].details;
+      expect(details?.kind).toBe('culture-choice-options');
+      expect(details?.playerCulture).toBeUndefined();
+      expect(details?.availableNodeTypes.value).toContain(-869902342);
+      expect(details?.enabledOptions.map((option) => option.name).sort()).toEqual(['Discipline', 'Ekklesia']);
+      const ekklesia = details?.enabledOptions.find((option) => option.nodeType === -869902342);
+      expect(ekklesia?.chooseValidation.value?.Success).toBe(true);
+      expect(ekklesia?.cli).toContain('game play choose-culture --player-id 0 --node -869902342 --send --closeout');
+      expect(details?.disabledOptions[0].name).toBe('Mysticism');
       expect(details?.disabledOptions[0].cli).toBeNull();
       expect(payload.view.hud.nextDecision.details).toBeDefined();
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
@@ -1710,6 +1812,41 @@ describe('game play commands', () => {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:technology-choice');
       expect(top.command).toBe('game play choose-tech --options --json');
+      expect(payload.next).toBe(top.command);
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('surfaces culture options command in compact priorities', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'culture-choice' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPriorities.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+        '--compact',
+        '--no-battlefield',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        next: string | null;
+        priorities: Array<{ kind: string; command?: string; reason: string }>;
+      };
+      const top = payload.priorities[0];
+      expect(top.kind).toBe('hud:culture-choice');
+      expect(top.command).toBe('game play choose-culture --options --json');
       expect(payload.next).toBe(top.command);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
@@ -2933,7 +3070,7 @@ function expectOwnerOnlyContactLabels(values: readonly string[]): void {
 
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
-  playNotificationMode?: 'town-focus' | 'tech-choice' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
+  playNotificationMode?: 'town-focus' | 'tech-choice' | 'culture-choice' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
   notificationDismissalMode?: 'verified' | 'stale-nonblocking';
 } = {}) {
@@ -3034,7 +3171,7 @@ async function startTunerServer(options: {
 }
 
 function playNotificationView(
-  mode: 'town-focus' | 'tech-choice' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
+  mode: 'town-focus' | 'tech-choice' | 'culture-choice' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
   diplomacyCloseoutObserved = false,
 ) {
   if (mode === 'runtime-error') {
@@ -3531,6 +3668,141 @@ function playNotificationView(
             location: notification.location,
             details: notification.details,
             ...technologyDecision,
+          },
+        ],
+      },
+      limits: { maxNotifications: 25, truncated: false },
+    };
+  }
+  if (mode === 'culture-choice') {
+    const cultureDecision = {
+      category: 'culture-choice',
+      operationFamily: 'player-operation',
+      operationType: 'SET_CULTURE_TREE_NODE',
+      argsShape: '{ ProgressionTreeNodeType }',
+      cli: 'game play choose-culture',
+      requiredInputs: [
+        {
+          name: 'ProgressionTreeNodeType',
+          source: 'live culture chooser/tree node',
+          required: true,
+          note: 'Use the runtime node type hash from GameInfo/progression tree data, not the row index or notification id.',
+        },
+      ],
+      commonActions: [
+        {
+          label: 'read culture options',
+          cli: 'game play choose-culture --options --json',
+          argsShape: 'enabled culture nodes with validation and ready send templates',
+          when: 'before choosing a culture node',
+        },
+      ],
+      confidence: 'live-proof',
+      notes: ['Read options from the live culture chooser before sending; do not infer node ids from examples.'],
+    };
+    const notificationId = { owner: 0, id: 62, type: 20 };
+    const optionRows = [
+      { nodeType: -869902342, nodeTypeName: 'NODE_CIVIC_AQ_GREECE_EKKLESIA', name: 'Ekklesia', depth: 1, state: 2, turns: 4, cost: 105, enabled: true },
+      { nodeType: -1404789184, nodeTypeName: 'NODE_CIVIC_AQ_MAIN_DISCIPLINE', name: 'Discipline', depth: 1, state: 2, turns: 3, cost: 80, enabled: true },
+      { nodeType: 1643868894, nodeTypeName: 'NODE_CIVIC_AQ_MAIN_MYSTICISM', name: 'Mysticism', depth: 0, state: 5, turns: 1, cost: 0, enabled: false },
+    ];
+    const options = optionRows.map((row) => ({
+      nodeType: row.nodeType,
+      nodeTypeName: row.nodeTypeName,
+      name: row.name,
+      description: null,
+      icon: null,
+      treeType: row.nodeType === -869902342 ? -122334455 : -153498201,
+      treeTypeName: row.nodeType === -869902342 ? 'TREE_CIVICS_AQ_GREECE' : 'TREE_CIVICS_AQ_MAIN',
+      treeName: row.nodeType === -869902342 ? 'Greece' : 'Civics',
+      ageType: 'AGE_ANTIQUITY',
+      depth: row.depth,
+      state: row.state,
+      progress: row.nodeType === -869902342 ? 22 : 0,
+      maxDepth: row.nodeType === -869902342 ? 2 : 1,
+      cost: { ok: true, value: row.cost },
+      turns: { ok: true, value: row.turns },
+      canEverUnlock: { ok: true, value: { isLocked: false } },
+      chooseEnabled: row.enabled,
+      targetEnabled: row.enabled,
+      disabled: !row.enabled,
+      chooseValidation: { ok: true, value: { Success: row.enabled } },
+      targetValidation: { ok: true, value: { Success: row.enabled } },
+      cli: row.enabled
+        ? `game play choose-culture --player-id 0 --node ${row.nodeType} --send --closeout --reason '<why this culture node was selected>'`
+        : null,
+      validateCli: `game play choose-culture --player-id 0 --node ${row.nodeType} --json`,
+      targetCli: row.enabled
+        ? `game play set-culture-target --player-id 0 --node ${row.nodeType} --send --reason '<why this culture target was selected>'`
+        : null,
+    }));
+    const details = {
+      kind: 'culture-choice-options',
+      notificationId,
+      localPlayerId: 0,
+      source: 'Players.Culture.getAllAvailableNodeTypes + Game.ProgressionTrees + PlayerOperations.canStart',
+      currentResearching: { ok: true, value: null },
+      targetNode: { ok: true, value: null },
+      availableNodeTypes: { ok: true, value: optionRows.map((row) => row.nodeType) },
+      options,
+      enabledOptions: options.filter((option) => option.chooseEnabled),
+      disabledOptions: options.filter((option) => !option.chooseEnabled),
+      notes: [
+        'Static fixture mirrors the CLI/HUD contract emitted by the App UI source-backed culture choice materializer.',
+      ],
+    };
+    const notification = {
+      id: notificationId,
+      type: -789,
+      typeName: 'NOTIFICATION_CHOOSE_CULTURE_NODE',
+      groupType: null,
+      summary: 'Choose a Civic',
+      message: 'Choose a new Civic to begin studying.',
+      target: { owner: -1, id: -1, type: 0 },
+      location: null,
+      canUserDismiss: false,
+      expired: false,
+      dismissed: false,
+      isEndTurnBlocking: true,
+      decision: cultureDecision,
+      details,
+    };
+    return {
+      localPlayerId: 0,
+      turn: { ok: true, value: 19 },
+      turnDate: { ok: true, value: '3550 BCE' },
+      hasSentTurnComplete: { ok: true, value: false },
+      canEndTurn: { ok: true, value: false },
+      blocker: { ok: true, value: -869902342 },
+      blockingNotificationId: { ok: true, value: notificationId },
+      selectedUnitId: { ok: true, value: null },
+      selectedCityId: { ok: true, value: null },
+      firstReadyUnitId: { ok: true, value: null },
+      notifications: [notification],
+      decisions: [cultureDecision],
+      hud: {
+        nextDecision: {
+          notificationId: notification.id,
+          isEndTurnBlocking: true,
+          typeName: notification.typeName,
+          summary: notification.summary,
+          message: notification.message,
+          target: notification.target,
+          location: notification.location,
+          details: notification.details,
+          ...cultureDecision,
+        },
+        decisionQueue: [
+          {
+            notificationId: notification.id,
+            isEndTurnBlocking: true,
+            typeName: notification.typeName,
+            summary: notification.summary,
+            message: notification.message,
+            target: notification.target,
+            location: notification.location,
+            details: notification.details,
+            ...cultureDecision,
           },
         ],
       },

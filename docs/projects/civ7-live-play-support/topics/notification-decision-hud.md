@@ -62,7 +62,7 @@ after any mutation or human input.
 | Family | Required live inputs | Common safe action |
 | --- | --- | --- |
 | Technology choice | runtime `ProgressionTreeNodeType` hash from the live tech chooser/tree; use `game play choose-tech --options --json` when the node is not already proven | `game play choose-tech`; `game play set-tech-target` when the full tree targets a node |
-| Culture choice | runtime `ProgressionTreeNodeType` hash from the live culture chooser/tree | `game play choose-culture`; `game play set-culture-target` when the full tree targets a node |
+| Culture choice | runtime `ProgressionTreeNodeType` hash from the live culture chooser/tree; use `game play choose-culture --options --json` when the node is not already proven | `game play choose-culture`; `game play set-culture-target` when the full tree targets a node |
 | Population placement | chosen plot `Location` for workable tiles, or city target plus `X`/`Y` for expansion tiles | `game play assign-worker` for workable tiles; `game play expand-city` for expansion purchase |
 | Town focus | city target, growth `Type`, paired `ProjectType` | `game play set-town-focus`; then `game play consider-town-project` if closeout is still needed |
 | Production choice | city target, exactly one build item kind, and placement `X`/`Y` when constructible validation returns legal plots | `game play build-production`; `game play build-unit` remains a unit-specific shortcut |
