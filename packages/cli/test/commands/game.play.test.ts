@@ -44,6 +44,7 @@ import GamePlaySettlementRecommendations from '../../src/commands/game/play/sett
 import GamePlayTargetCandidates from '../../src/commands/game/play/target-candidates';
 import GamePlayTopics from '../../src/commands/game/play/topics';
 import GamePlayTraditions from '../../src/commands/game/play/traditions';
+import GamePlayUnitMovePreview from '../../src/commands/game/play/unit-move-preview';
 import GamePlayUnitTarget from '../../src/commands/game/play/unit-target';
 import GamePlayUpgradeUnit from '../../src/commands/game/play/upgrade-unit';
 import GameWatch from '../../src/commands/game/watch';
@@ -1574,6 +1575,50 @@ describe('game play commands', () => {
     }
   });
 
+  test('reads official unit move preview with neutral relationship policy', async () => {
+    const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayUnitMovePreview.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayUnitMovePreview.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--unit-id',
+        '{"owner":0,"id":65536,"type":26}',
+        '--destination',
+        '25,35',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          requestedDestination: { x: number; y: number };
+          reachableMovement: { ok: true; value: ReadonlyArray<unknown> };
+          queuedDestination: { ok: true; value: { x: number; y: number } };
+          relationshipPolicy: { unprovenLabel: string; guidance: string };
+        };
+      };
+      expect(payload.view.requestedDestination).toEqual({ x: 25, y: 35 });
+      expect(payload.view.reachableMovement.value.length).toBeGreaterThan(0);
+      expect(payload.view.queuedDestination.value).toEqual({ x: 25, y: 35 });
+      expect(payload.view.relationshipPolicy.unprovenLabel).toBe('relationship-unproven');
+      expect(payload.view.relationshipPolicy.guidance).toMatch(/does not prove whether other owners are hostile/);
+      expect(server.received.some((message) => message.includes('readUnitMovePreview'))).toBe(true);
+      expect(server.received.some((message) => message.includes('getReachableMovement'))).toBe(true);
+      expect(server.received.some((message) => message.includes('getQueuedOperationDestination'))).toBe(true);
+      expect(server.received.some((message) => message.includes('getPathTo'))).toBe(true);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('reads promotion readiness without sending promotion commands', async () => {
     const server = await startTunerServer();
     const writes: string[] = [];
@@ -2036,6 +2081,8 @@ async function startTunerServer(options: {
             ? 'delayed-observed'
             : options.unitTargetMode;
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(unitTargetAction(send, mode))]));
+        } else if (frame.message.includes('readUnitMovePreview')) {
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(unitMovePreviewView())]));
         } else if (frame.message.includes('readReadyUnitView')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(readyUnitView())]));
         } else if (frame.message.includes('readReadyCityView')) {
@@ -2775,6 +2822,73 @@ function unitTargetAction(send: boolean, mode: 'verified' | 'no-op-after-send' |
           },
         }),
     notes: ['Selection follows the official right-click WorldInput target order.'],
+  };
+}
+
+function unitMovePreviewView() {
+  const unitId = { owner: 0, id: 65536, type: 26 };
+  return {
+    localPlayerId: 0,
+    requestedUnitId: unitId,
+    selectedUnitId: { ok: true, value: unitId },
+    firstReadyUnitId: { ok: true, value: unitId },
+    unitId,
+    unit: {
+      ok: true,
+      value: {
+        id: unitId,
+        owner: 0,
+        type: 222,
+        typeName: 'UNIT_GALLEY',
+        location: { x: 24, y: 35 },
+        movementMovesRemaining: 2,
+        attacksRemaining: 1,
+        damage: 0,
+      },
+    },
+    reachableMovement: {
+      ok: true,
+      value: [
+        { index: 2964, x: 24, y: 35 },
+        { index: 2965, x: 25, y: 35 },
+      ],
+    },
+    reachableZonesOfControl: { ok: true, value: [] },
+    reachableTargets: { ok: true, value: [[{ index: 2966, x: 26, y: 35 }]] },
+    queuedDestination: { ok: true, value: { x: 25, y: 35 } },
+    queuedPath: {
+      ok: true,
+      value: {
+        plots: [
+          { index: 2964, x: 24, y: 35 },
+          { index: 2965, x: 25, y: 35 },
+        ],
+        plotCount: 2,
+        turns: 1,
+        obstacles: [],
+        rawKeys: ['obstacles', 'plots', 'turns'],
+      },
+    },
+    requestedDestination: { x: 25, y: 35 },
+    requestedPath: {
+      ok: true,
+      value: {
+        plots: [
+          { index: 2964, x: 24, y: 35 },
+          { index: 2965, x: 25, y: 35 },
+        ],
+        plotCount: 2,
+        turns: 1,
+        obstacles: [],
+        rawKeys: ['obstacles', 'plots', 'turns'],
+      },
+    },
+    relationshipPolicy: {
+      source: 'owner-only',
+      unprovenLabel: 'relationship-unproven',
+      guidance: 'This movement preview does not prove whether other owners are hostile, allied, neutral, suzerained, or war targets. Use neutral labels unless an official relationship, team, diplomacy, independent-power, or war-state API supplies that proof.',
+    },
+    notes: ['Read-only official movement preview. It does not send MOVE_TO, reserve a path, or prove tactical safety.'],
   };
 }
 

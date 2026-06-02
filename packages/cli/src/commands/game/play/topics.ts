@@ -170,7 +170,7 @@ const TOPICS: ReadonlyArray<Topic> = [
       'game play front-summary',
       'game play civilian-route-triage',
       'game play ready-unit',
-      'future: game play unit-move-preview',
+      'game play unit-move-preview',
       'future: game play unit-analysis',
       'game play battlefield-scan',
       'game play destination-analysis',

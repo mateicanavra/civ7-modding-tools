@@ -1,6 +1,6 @@
 # Unit Move Preview
 
-Status: `reference-with-gap`.
+Status: `implemented-read-lens-with-mutation-gap`.
 
 ## Frame
 
@@ -64,19 +64,23 @@ minimal in-motion HUD entry:
 - unit id, type, location, movement, damage, and attacks;
 - queued destination and path turns remaining when available;
 - `risk: "unknown" | "none-detected" | "risk-detected"`;
-- expandable risk reasons such as enemy proximity, wounded unit, exposed
-  civilian, hostile city zone, unseen/fogged path, or stale preview.
+- expandable risk reasons such as other-owner contact, wounded unit, exposed
+  civilian, relationship-unproven city/contact zone, unseen/fogged path, or
+  stale preview.
+
+Do not label a contact as enemy or hostile from this lens alone. Those labels
+need official relationship, war-state, team, diplomacy, or independent-power
+evidence.
 
 This warning is advisory. A queued destination does not keep the unit safe; it
 only records intent and lets Civ7 continue movement later.
 
-## Proposed Command
+## CLI Surface
 
 ```bash
 civ7 game play unit-move-preview \
   --unit-id '{"owner":0,"id":65536,"type":26}' \
-  --include-paths \
-  --include-post-move-actions \
+  --destination 30,24 \
   --json
 ```
 
@@ -92,6 +96,20 @@ civ7 game play unit preview move \
 
 Keep the current flat command compatible until aliases and tests prove the
 nested grammar.
+
+This command is read-only. It exposes official preview facts:
+
+- `reachableMovement` from `Units.getReachableMovement`;
+- `reachableZonesOfControl` from `Units.getReachableZonesOfControl`;
+- `reachableTargets` from `Units.getReachableTargets`;
+- `queuedDestination` from `Units.getQueuedOperationDestination`;
+- `queuedPath` and `requestedPath` from `Units.getPathTo`.
+
+It also returns `relationshipPolicy`, because this lens does not prove whether
+another owner is hostile, allied, neutral, suzerained, or a war target. Use
+neutral labels such as `other-owner contact`, `non-friendly pressure`, or
+`relationship-unproven` unless an official relationship API supplies that
+proof.
 
 ## Response Contract
 
