@@ -3399,7 +3399,7 @@ describe('game play commands', () => {
       expect(payload.view.results).toHaveLength(1);
       expect(payload.view.results[0].sent).toBe(true);
       expect(payload.view.results[0].verified).toBe(true);
-      expect(sendServer.received.filter((message) => message.includes('readNotificationDismissal')).length).toBe(1);
+      expect(sendServer.received.filter((message) => message.includes('readNotificationDismissal')).length).toBeGreaterThan(1);
       expect(sendServer.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       await sendServer.close();
@@ -4417,6 +4417,7 @@ async function startTunerServer(options: {
   let narrativeChoiceSent = false;
   let technologyChoiceSent = false;
   let diplomacyCloseoutObserved = false;
+  let notificationDismissalSent = false;
   const server = createServer((socket) => {
     let buffer = Buffer.alloc(0);
     socket.on('data', (chunk) => {
@@ -4482,9 +4483,12 @@ async function startTunerServer(options: {
         } else if (frame.message.includes('readBattlefieldScan')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(battlefieldScanView())]));
         } else if (frame.message.includes('readNotificationDismissal')) {
+          const send = frame.message.includes('"send":true');
+          if (send) notificationDismissalSent = true;
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(notificationDismissal(
-            frame.message.includes('"send":true'),
+            send,
             options.notificationDismissalMode ?? 'verified',
+            notificationDismissalSent && !send,
           ))]));
         } else if (frame.message.includes('hasSentTurnComplete')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(turnCompletionStatus(turnCompleteSent, options.canEndTurnBefore ?? true))]));
@@ -7478,7 +7482,7 @@ function destinationAnalysisView() {
   };
 }
 
-function notificationDismissal(send: boolean, mode: 'verified' | 'stale-nonblocking' = 'verified') {
+function notificationDismissal(send: boolean, mode: 'verified' | 'stale-nonblocking' = 'verified', settled = false) {
   const notificationId = { owner: 0, id: 113, type: 20 };
   const isStaleNonblocking = mode === 'stale-nonblocking';
   const before = {
@@ -7507,29 +7511,29 @@ function notificationDismissal(send: boolean, mode: 'verified' | 'stale-nonblock
     notificationTrainFirstId: { ok: true, value: notificationId },
     isNotificationTrainFront: { ok: true, value: true },
   };
-  const after = send
-    ? isStaleNonblocking
-      ? before
-      : {
-          ...before,
-          dismissed: true,
-          blocksTurnAdvancement: { ok: true, value: false },
-          endTurnBlockingType: { ok: true, value: 0 },
-          isEndTurnBlocking: { ok: true, value: false },
-          engineQueueCount: { ok: true, value: 0 },
-          engineQueueContains: { ok: true, value: false },
-          engineQueueFirstId: { ok: true, value: null },
-          isEngineQueueFront: { ok: true, value: false },
-          notificationTrainCount: { ok: true, value: 0 },
-          notificationTrainContains: { ok: true, value: false },
-          notificationTrainFirstId: { ok: true, value: null },
-          isNotificationTrainFront: { ok: true, value: false },
-        }
-    : null;
+  const dismissed = isStaleNonblocking
+    ? before
+    : {
+        ...before,
+        exists: false,
+        dismissed: true,
+        blocksTurnAdvancement: { ok: true, value: false },
+        endTurnBlockingType: { ok: true, value: 0 },
+        isEndTurnBlocking: { ok: true, value: false },
+        engineQueueCount: { ok: true, value: 0 },
+        engineQueueContains: { ok: true, value: false },
+        engineQueueFirstId: { ok: true, value: null },
+        isEngineQueueFront: { ok: true, value: false },
+        notificationTrainCount: { ok: true, value: 0 },
+        notificationTrainContains: { ok: true, value: false },
+        notificationTrainFirstId: { ok: true, value: null },
+        isNotificationTrainFront: { ok: true, value: false },
+      };
+  const current = settled && !send ? dismissed : before;
   return {
     notificationId,
-    before,
-    after,
+    before: current,
+    after: send ? before : null,
     canDismiss: true,
     sent: send,
     closeoutPath: send
@@ -7562,18 +7566,13 @@ function notificationDismissal(send: boolean, mode: 'verified' | 'stale-nonblock
               },
         }
       : null,
-    verificationAttempts: send
-      ? [
-          before,
-          after,
-        ]
-      : [],
-    verified: send && !isStaleNonblocking,
+    verificationAttempts: send ? [before] : [],
+    verified: false,
     notes: [
       'This is an App UI notification action, not a gameplay operation family.',
       'Send mode records both official actor routes: notification-train manager dismissal and the visible panel close-control dismissal when that route is available for this item.',
       'Verification is identity-based: disappeared, dismissed, removed from the engine queue or notification train, or moved off a front position it occupied before send. Non-blocking status alone is not proof.',
-      'Verification attempts are repeated synchronous identity reads with a short settle spin inside one App UI eval; they are not an event-loop subscription.',
+      'The embedded App UI action records immediate route evidence. The direct-control wrapper performs final verification across separate App UI reads so frame-driven queues can advance.',
     ],
   };
 }

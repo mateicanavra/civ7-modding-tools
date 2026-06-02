@@ -3414,9 +3414,11 @@ export async function requestCiv7NotificationDismissal(
   assertApproved(approval, "dismissing Civ7 notification");
   const result = await executeCiv7AppUiCommand({
     ...options,
-    command: buildNotificationDismissalCommand(input, { send: true }),
+    command: buildNotificationDismissalCommand(input, { send: true, verificationAttempts: 1 }),
   });
-  return jsonPayloadFromCommandResult<Civ7NotificationDismissalResult>(result, "Civ7 notification dismissal");
+  const initial = jsonPayloadFromCommandResult<Civ7NotificationDismissalResult>(result, "Civ7 notification dismissal");
+  if (initial.verified || !initial.sent || initial.before.exists === false) return initial;
+  return await waitForCiv7NotificationDismissal(input, options, initial);
 }
 
 export async function sendCiv7TurnComplete(
@@ -7951,7 +7953,7 @@ function notificationDismissalSource(): string {
         "Use it only for reviewed notifications whose official handler does not require a specialized operation.",
         "Send mode records both official actor routes: notification-train manager dismissal and the visible panel close-control dismissal when that route is available for this item.",
         "Verification is identity-based: disappeared, dismissed, removed from the engine queue or notification train, or moved off a front position it occupied before send. Non-blocking status alone is not proof.",
-        "Verification attempts are repeated synchronous identity reads with a short settle spin inside one App UI eval; they are not an event-loop subscription."
+        "The embedded App UI action records immediate route evidence. The direct-control wrapper performs final verification across separate App UI reads so frame-driven queues can advance."
       ];
       if (options.send !== true) {
         return {
@@ -11124,6 +11126,67 @@ function isTurnCompletionFallbackNotification(
   if (notification.decision.category === "informational-notification") {
     return notification.canUserDismiss === true && isTurnCompletionFallbackInformationalType(typeName);
   }
+  return false;
+}
+
+const DEFAULT_CIV7_NOTIFICATION_DISMISSAL_WAIT_MS = 2_000;
+const DEFAULT_CIV7_NOTIFICATION_DISMISSAL_POLL_MS = 250;
+
+async function waitForCiv7NotificationDismissal(
+  input: Civ7NotificationDismissInput,
+  options: Civ7DirectControlOptions,
+  initial: Civ7NotificationDismissalResult,
+): Promise<Civ7NotificationDismissalResult> {
+  const timeoutMs = Math.min(
+    Math.max(options.timeoutMs ?? DEFAULT_CIV7_NOTIFICATION_DISMISSAL_WAIT_MS, 1_000),
+    DEFAULT_CIV7_NOTIFICATION_DISMISSAL_WAIT_MS,
+  );
+  const verificationAttempts = [...(initial.verificationAttempts ?? [])];
+  const startedAt = Date.now();
+  let after = initial.after ?? initial.before;
+  while (Date.now() - startedAt <= timeoutMs) {
+    await sleep(DEFAULT_CIV7_NOTIFICATION_DISMISSAL_POLL_MS);
+    const current = await getCiv7NotificationDismissal(input, options);
+    after = current.before;
+    verificationAttempts.push(after);
+    if (notificationDismissalVerified(initial.before, after)) {
+      return {
+        ...initial,
+        after,
+        verificationAttempts,
+        verified: true,
+        notes: appendNote(
+          initial.notes,
+          "Dismissal verification yielded between App UI reads so frame-driven notification/display queues could advance before the final identity check.",
+        ),
+      };
+    }
+  }
+  return {
+    ...initial,
+    after,
+    verificationAttempts,
+    verified: false,
+    notes: appendNote(
+      initial.notes,
+      "Dismissal verification yielded between App UI reads, but the target notification was still present/front/queued by the final identity check.",
+    ),
+  };
+}
+
+function notificationDismissalVerified(
+  before: Civ7NotificationDismissalSummary,
+  after: Civ7NotificationDismissalSummary | null,
+): boolean {
+  if (after == null) return false;
+  if (after.exists === false) return true;
+  if (after.dismissed === true) return true;
+  if (probeValue(after.engineQueueContains) === false) return true;
+  if (probeValue(after.notificationTrainContains) === false) return true;
+  const wasEngineFront = probeValue(before.isEngineQueueFront) === true;
+  if (wasEngineFront && probeValue(after.isEngineQueueFront) === false) return true;
+  const wasTrainFront = probeValue(before.isNotificationTrainFront) === true;
+  if (wasTrainFront && probeValue(after.isNotificationTrainFront) === false) return true;
   return false;
 }
 

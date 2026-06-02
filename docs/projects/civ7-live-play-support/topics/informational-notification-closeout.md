@@ -161,6 +161,12 @@ Official handler evidence:
   before falling back to manager removal.
 - The notification panel's close control calls `Game.Notifications.dismiss`
   when there is no different active end-turn-blocking notification.
+- Official UI queue reconciliation is frame-driven. `DisplayQueueManager`
+  registers its update loop on `engine.on("UpdateFrame", ...)`, and
+  notification train updates are event/playback driven. A dismissal command
+  should therefore send the official actor route once, then verify identity
+  state across separate App UI reads so the UI frame/update loop can advance.
+  Synchronous in-eval spin reads are not queue-settling proof.
 
 ## Norm
 

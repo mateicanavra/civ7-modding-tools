@@ -359,7 +359,11 @@ describe("Civ7 direct control", () => {
           isEndTurnBlocking: { ok: true, value: false },
         },
       });
-      expect(server.received.filter((message) => message.includes("readNotificationDismissal"))).toHaveLength(2);
+      expect(request.verificationAttempts?.length).toBeGreaterThan(1);
+      const dismissalReads = server.received.filter((message) => message.includes("readNotificationDismissal"));
+      expect(dismissalReads.length).toBeGreaterThan(2);
+      expect(dismissalReads.filter((message) => message.includes('"send":true'))).toHaveLength(1);
+      expect(dismissalReads.filter((message) => message.includes('"send":false')).length).toBeGreaterThan(1);
     } finally {
       await server.close();
     }
@@ -1505,6 +1509,7 @@ async function startTunerServer(options: {
   let setupPlayerDifficulty = "DIFFICULTY_PRINCE";
   let setupRevision = 19;
   let hiddenMapRowVisible = false;
+  let notificationDismissalSent = false;
   const visibleSetupRows = () => [
     {
       Domain: "StandardMaps",
@@ -1878,7 +1883,9 @@ async function startTunerServer(options: {
         } else if (frame.message.includes("readReadyCityView")) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(readyCityView())]));
         } else if (frame.message.includes("readNotificationDismissal")) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(notificationDismissal(frame.message.includes('"send":true')))]));
+          const send = frame.message.includes('"send":true');
+          if (send) notificationDismissalSent = true;
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(notificationDismissal(send, notificationDismissalSent && !send))]));
         } else if (frame.message.includes("Network.isInSession")) {
           const snapshotAutoplayActive = autoplayStopPendingReads > 0 ? true : autoplayActive;
           const snapshotAutoplayPaused = autoplayStopPendingReads > 0 ? true : autoplayPaused;
@@ -2524,9 +2531,9 @@ function readyCityView() {
   };
 }
 
-function notificationDismissal(send: boolean) {
+function notificationDismissal(send: boolean, settled = false) {
   const notificationId = { owner: 0, id: 113, type: 20 };
-  const summary = {
+  const present = {
     id: notificationId,
     exists: true,
     type: 2091697919,
@@ -2537,19 +2544,60 @@ function notificationDismissal(send: boolean) {
     location: { x: -9999, y: -9999 },
     canUserDismiss: true,
     expired: false,
-    dismissed: send,
-    blocksTurnAdvancement: { ok: true, value: !send },
-    endTurnBlockingType: { ok: true, value: send ? 0 : 2091697919 },
-    isEndTurnBlocking: { ok: true, value: !send },
+    dismissed: false,
+    blocksTurnAdvancement: { ok: true, value: true },
+    endTurnBlockingType: { ok: true, value: 2091697919 },
+    isEndTurnBlocking: { ok: true, value: true },
+    engineQueueCount: { ok: true, value: 1 },
+    engineQueueContains: { ok: true, value: true },
+    engineQueueFirstId: { ok: true, value: notificationId },
+    isEngineQueueFront: { ok: true, value: true },
+    notificationTrainCount: { ok: true, value: 1 },
+    notificationTrainContains: { ok: true, value: true },
+    notificationTrainFirstId: { ok: true, value: notificationId },
+    isNotificationTrainFront: { ok: true, value: true },
+  };
+  const cleared = {
+    ...present,
+    exists: false,
+    dismissed: true,
+    blocksTurnAdvancement: { ok: true, value: false },
+    endTurnBlockingType: { ok: true, value: 0 },
+    isEndTurnBlocking: { ok: true, value: false },
+    engineQueueCount: { ok: true, value: 0 },
+    engineQueueContains: { ok: true, value: false },
+    engineQueueFirstId: { ok: true, value: null },
+    isEngineQueueFront: { ok: true, value: false },
+    notificationTrainCount: { ok: true, value: 0 },
+    notificationTrainContains: { ok: true, value: false },
+    notificationTrainFirstId: { ok: true, value: null },
+    isNotificationTrainFront: { ok: true, value: false },
   };
   return {
     notificationId,
-    before: { ...summary, dismissed: false, isEndTurnBlocking: { ok: true, value: true } },
-    after: send ? summary : null,
+    before: settled ? cleared : present,
+    after: send ? present : null,
     canDismiss: true,
     sent: send,
-    result: send ? true : null,
-    verified: send,
+    result: send
+      ? {
+          notificationTrainManager: {
+            ok: true,
+            attempted: true,
+            available: true,
+            path: "NotificationModel.manager.dismiss",
+          },
+          panelCloseControl: {
+            ok: false,
+            attempted: false,
+            available: false,
+            path: "Game.Notifications.dismiss",
+            reason: "official panel close control does not dismiss the active end-turn blocker",
+          },
+        }
+      : null,
+    verificationAttempts: send ? [present] : [],
+    verified: false,
     notes: ["This is an App UI notification action, not a gameplay operation family."],
   };
 }
