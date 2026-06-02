@@ -4,7 +4,6 @@ import { join } from 'node:path';
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayBattlefieldScan from '../../src/commands/game/play/battlefield-scan';
 import GamePlayCivilianRouteTriage from '../../src/commands/game/play/civilian-route-triage';
-import GamePlayConsiderTownProject from '../../src/commands/game/play/consider-town-project';
 import GamePlayDestinationAnalysis from '../../src/commands/game/play/destination-analysis';
 import GamePlayDismissNotificationQueue from '../../src/commands/game/play/dismiss-notification-queue';
 import GamePlayDismissNotification from '../../src/commands/game/play/dismiss-notification';
@@ -18,7 +17,6 @@ import GamePlayPromotionReadiness from '../../src/commands/game/play/promotion-r
 import GamePlayReadyCity from '../../src/commands/game/play/ready-city';
 import GamePlayReadyUnit from '../../src/commands/game/play/ready-unit';
 import GamePlayRehydrate from '../../src/commands/game/play/rehydrate';
-import GamePlaySetTownFocus from '../../src/commands/game/play/set-town-focus';
 import GamePlaySettlementRecommendations from '../../src/commands/game/play/settlement-recommendations';
 import GamePlayTargetCandidates from '../../src/commands/game/play/target-candidates';
 import GamePlayTopics from '../../src/commands/game/play/topics';
@@ -510,101 +508,6 @@ describe('game play commands', () => {
       expect(server.received.some((message) => message.includes('getHistoricalLegacyPointCountForTeam'))).toBe(true);
     } finally {
       log.mockRestore();
-      await server.close();
-    }
-  });
-
-  test('wraps town focus as city-command CHANGE_GROWTH_MODE', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlaySetTownFocus.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--city-id',
-        '{"owner":0,"id":131073,"type":1}',
-        '--growth-type',
-        '-284569333',
-        '--project-type',
-        '-548685232',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('validateOperation("city-command"'))).toBe(true);
-      expect(server.received.some((message) => message.includes('CHANGE_GROWTH_MODE'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"Type":-284569333'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"ProjectType":-548685232'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"City":131073'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('sets town focus and closes town project review as one caller workflow', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      const writes: string[] = [];
-      const log = vi.spyOn(GamePlaySetTownFocus.prototype, 'log').mockImplementation((message?: string) => {
-        if (message) writes.push(message);
-      });
-      try {
-        await GamePlaySetTownFocus.run([
-          '--host',
-          '127.0.0.1',
-          '--port',
-          String(port),
-          '--city-id',
-          '{"owner":0,"id":131073,"type":1}',
-          '--growth-type',
-          '-284569333',
-          '--project-type',
-          '-548685232',
-          '--send',
-          '--closeout',
-          '--reason',
-          'test town focus closeout',
-          '--json',
-        ]);
-      } finally {
-        log.mockRestore();
-      }
-
-      const payload = JSON.parse(writes.join('')) as { ok: true; result: { mode: string; stepCount: number; verified: boolean } };
-      expect(payload.result.mode).toBe('send');
-      expect(payload.result.stepCount).toBe(2);
-      expect(payload.result.verified).toBe(true);
-      expect(server.received.filter((message) => message.includes('sendOperation(')).length).toBe(2);
-      expect(server.received.some((message) => message.includes('sendOperation("city-command"'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation("city-operation"'))).toBe(true);
-      expect(server.received.some((message) => message.includes('CHANGE_GROWTH_MODE'))).toBe(true);
-      expect(server.received.some((message) => message.includes('CONSIDER_TOWN_PROJECT'))).toBe(true);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('wraps town project review closeout as CONSIDER_TOWN_PROJECT', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlayConsiderTownProject.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--city-id',
-        '{"owner":0,"id":131073,"type":1}',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('validateOperation("city-operation"'))).toBe(true);
-      expect(server.received.some((message) => message.includes('CONSIDER_TOWN_PROJECT'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
-    } finally {
       await server.close();
     }
   });
@@ -6311,8 +6214,6 @@ function operationArgs(operationType: string) {
   if (operationType === 'CHOOSE_GOLDEN_AGE') return { GoldenAgeType: -340825966 };
   if (operationType === 'CHANGE_GOVERNMENT') return { GovernmentType: 0, Action: -1326475004 };
   if (operationType === 'RESPOND_DIPLOMATIC_FIRST_MEET') return { Player1: 0, Player2: 2, Type: 673478009 };
-  if (operationType === 'CHANGE_GROWTH_MODE') return { Type: -284569333, ProjectType: -548685232, City: 131073 };
-  if (operationType === 'CONSIDER_TOWN_PROJECT') return {};
   if (operationType === 'UNITCOMMAND_RESETTLE') return { X: 17, Y: 25 };
   if (operationType === 'UNITCOMMAND_UPGRADE') return {};
   return undefined;
