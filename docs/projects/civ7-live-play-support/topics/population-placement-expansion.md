@@ -137,8 +137,8 @@ path; it still needs a send/postcondition proof for this exact turn.
 ## Postcondition Contract
 
 For `assign-worker --send` and `expand-city --send`, treat the operation as
-proved only when `populationPostcondition.classification` is not
-`no-state-change`.
+proved only when `populationPostcondition.classification` is neither
+`not-sent` nor `no-state-change`.
 
 Useful classifications:
 

@@ -6095,7 +6095,7 @@ function operationRouterSource(): string {
       const cityIds = player?.Cities?.getCityIds?.() ?? [];
       for (const cityId of cityIds) {
         const city = globalThis.Cities?.get?.(cityId);
-        if (city?.Growth?.isReadyToPlacePopulation) return toComponentId(city.id ?? cityId);
+        if (city?.Growth?.isReadyToPlacePopulation) return toComponentId(city.id ?? cityId) ?? cityId;
       }
       return null;
     };

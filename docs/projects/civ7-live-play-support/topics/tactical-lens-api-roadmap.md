@@ -172,6 +172,18 @@ propose actions from those fresh views. If the stream cannot replay into the
 same latest view or cannot invalidate after sends, keep using direct snapshot
 commands.
 
+## Relationship Authority Criterion
+
+Treat owner ids as insufficient for tactical threat labels. Current battlefield
+and destination lenses reduce owner relation to friendly versus other; that is
+safe only for neutral wording like `non-friendly`. Before any lens labels units
+or cities as enemy, hostile, opponent, allied, neutral, suzerained, or
+war-targeted, prove the relationship through official App UI, Tuner,
+diplomacy, team, independent-power, or war-state APIs and include the proof
+source in the response. This criterion should outrank queued-destination work
+when an active tactical decision depends on whether a nearby owner is actually
+a threat.
+
 ## Open Questions
 
 - Is there a native API for reachable plots, movement costs, road/river/zone
