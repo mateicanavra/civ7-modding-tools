@@ -365,8 +365,8 @@ function buildPriorities(input: {
       priority: 10,
       kind: 'clean-read',
       summary: 'no HUD, ready-unit, ready-city, or battlefield priority surfaced',
-      reason: 'Fresh clean reads can support end-turn or autoplay only after a final blocker check.',
-      command: 'game play end-turn --json',
+      reason: 'Fresh clean reads can use the guarded end-turn command; it rechecks blockers before sending.',
+      command: "game play end-turn --send --reason 'clean read: no HUD, ready-unit, ready-city, or battlefield priority surfaced' --json",
     });
   }
 

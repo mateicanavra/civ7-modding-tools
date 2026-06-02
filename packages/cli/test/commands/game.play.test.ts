@@ -2497,6 +2497,43 @@ describe('game play commands', () => {
     }
   });
 
+  test('surfaces guarded end-turn send in compact clean-read priorities', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'clean-read' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPriorities.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+        '--compact',
+        '--no-battlefield',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        next: string | null;
+        priorities: Array<{ kind: string; command?: string; reason: string }>;
+      };
+      const top = payload.priorities[0];
+      expect(top.kind).toBe('clean-read');
+      expect(top.command).toContain('game play end-turn --send');
+      expect(top.command).toContain("--reason 'clean read: no HUD, ready-unit, ready-city, or battlefield priority surfaced'");
+      expect(payload.next).toBe(top.command);
+      expect(top.reason).toContain('rechecks blockers before sending');
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendTurnComplete'))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('surfaces unit-command reconciliation command in compact priorities', async () => {
     const server = await startTunerServer({ playNotificationMode: 'stale-unit-command' });
     const writes: string[] = [];
@@ -4251,7 +4288,7 @@ function expectOwnerOnlyContactLabels(values: readonly string[]): void {
 
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
-  playNotificationMode?: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
+  playNotificationMode?: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'clean-read' | 'stale-diplomacy' | 'runtime-error';
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
   notificationDismissalMode?: 'verified' | 'stale-nonblocking';
   productionPostconditionMode?: 'cleared' | 'blocker-still-live';
@@ -4303,7 +4340,9 @@ async function startTunerServer(options: {
         } else if (frame.message.includes('readReadyUnitView')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(readyUnitView())]));
         } else if (frame.message.includes('readReadyCityView')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(readyCityView())]));
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(
+            options.playNotificationMode === 'clean-read' ? cleanReadyCityView() : readyCityView(),
+          )]));
         } else if (frame.message.includes('readSettlementRecommendations')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(settlementRecommendationsView())]));
         } else if (frame.message.includes('readTargetCandidates')) {
@@ -4370,7 +4409,7 @@ async function startTunerServer(options: {
 }
 
 function playNotificationView(
-  mode: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
+  mode: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'clean-read' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
   diplomacyCloseoutObserved = false,
 ) {
   if (mode === 'runtime-error') {
@@ -4383,6 +4422,27 @@ function playNotificationView(
       canEndTurn: { ok: true, value: false },
       blocker: gameError,
       blockingNotificationId: gameError,
+      selectedUnitId: { ok: true, value: null },
+      selectedCityId: { ok: true, value: null },
+      firstReadyUnitId: { ok: true, value: null },
+      notifications: [],
+      decisions: [],
+      hud: {
+        nextDecision: null,
+        decisionQueue: [],
+      },
+      limits: { maxNotifications: 25, truncated: false },
+    };
+  }
+  if (mode === 'clean-read') {
+    return {
+      localPlayerId: 0,
+      turn: { ok: true, value: 6 },
+      turnDate: { ok: true, value: '3875 BCE' },
+      hasSentTurnComplete: { ok: true, value: false },
+      canEndTurn: { ok: true, value: false },
+      blocker: { ok: true, value: 0 },
+      blockingNotificationId: { ok: true, value: null },
       selectedUnitId: { ok: true, value: null },
       selectedCityId: { ok: true, value: null },
       firstReadyUnitId: { ok: true, value: null },
@@ -6750,6 +6810,22 @@ function readyCityView() {
       },
     },
     notes: ['Read-only ready-city view. This view intentionally does not choose production.'],
+  };
+}
+
+function cleanReadyCityView() {
+  return {
+    localPlayerId: 0,
+    requestedCityId: null,
+    selectedCityId: { ok: true, value: null },
+    blockingCityId: { ok: true, value: null },
+    cityId: null,
+    city: { ok: true, value: null },
+    legalOperations: [],
+    productionCandidates: { ok: true, value: [] },
+    townFocusOptions: { ok: true, value: [] },
+    populationPlacement: { ok: true, value: null },
+    notes: ['No ready city in clean-read fixture.'],
   };
 }
 
