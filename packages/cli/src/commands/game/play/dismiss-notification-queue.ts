@@ -181,16 +181,22 @@ function isBulkDismissalCandidate(item: Civ7PlayDecisionQueueItem): item is Civ7
   return item.notificationId != null
     && item.category === 'informational-notification'
     && item.operationFamily === 'app-ui-action'
-    && item.operationType === 'Game.Notifications.dismiss';
+    && item.operationType === 'Game.Notifications.dismiss'
+    && !isFrontUnitLostReport(item);
 }
 
 function exclusionReason(item: Civ7PlayDecisionQueueItem): string {
   if (!item.notificationId) return 'missing notification id';
+  if (isFrontUnitLostReport(item)) return 'front unit-loss reports require exact reviewed dismissal proof, not bulk dismissal';
   if (item.category === 'unit-command') return 'unit command requires ready-unit inspection';
   if (item.operationFamily && item.operationFamily !== 'app-ui-action') return 'gameplay operation requires live inputs and validator-backed command';
   if (item.category === 'notification' || item.category === 'blocking-notification') return 'unclassified notification needs handler evidence first';
   if (item.category === 'informational-notification') return 'informational item is not exposed as App UI dismissal by the live HUD';
   return 'not an informational closeout candidate';
+}
+
+function isFrontUnitLostReport(item: Civ7PlayDecisionQueueItem): boolean {
+  return item.isEndTurnBlocking === true && item.typeName === 'NOTIFICATION_UNIT_LOST';
 }
 
 function formatProbe<T>(probe: { ok: true; value: T } | { ok: false; error: string }): string {

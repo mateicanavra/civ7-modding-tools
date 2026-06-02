@@ -185,6 +185,31 @@ describe('game play commands', () => {
     }
   });
 
+  test('blocks end-turn fallback for still-front unit-lost reports', async () => {
+    const server = await startTunerServer({
+      canEndTurnBefore: false,
+      playNotificationMode: 'unit-lost-report',
+    });
+    try {
+      const { port } = server.address();
+      await expect(GamePlayEndTurn.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--send',
+        '--reason',
+        'test blocked unit-lost report end-turn',
+        '--json',
+      ])).rejects.toThrow(/blocked by current game state/);
+
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received).not.toContain('CMD:65535:GameContext.sendTurnComplete()');
+    } finally {
+      await server.close();
+    }
+  });
+
   test('validates friendlier operation family aliases without sending', async () => {
     const server = await startTunerServer();
     try {
@@ -683,6 +708,10 @@ describe('game play commands', () => {
 
   test('wraps placement-sensitive constructible production as BUILD with coordinates', async () => {
     const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayBuildProduction.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
     try {
       const { port } = server.address();
       await GamePlayBuildProduction.run([
@@ -704,12 +733,30 @@ describe('game play commands', () => {
         '--json',
       ]);
 
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          sent: boolean;
+          verified: boolean;
+          productionPostcondition: { classification: string };
+          payload: { ui: { cityActivation: { ok: boolean }; interfaceClose: { ok: boolean } } };
+        };
+      };
+      expect(payload.result.sent).toBe(true);
+      expect(payload.result.verified).toBe(true);
+      expect(payload.result.productionPostcondition.classification).toBe('production-choice-cleared');
+      expect(payload.result.payload.ui.cityActivation.ok).toBe(true);
+      expect(payload.result.payload.ui.interfaceClose.ok).toBe(true);
       expect(server.received.some((message) => message.includes('BUILD'))).toBe(true);
       expect(server.received.some((message) => message.includes('"ConstructibleType":713967338'))).toBe(true);
       expect(server.received.some((message) => message.includes('"X":22'))).toBe(true);
       expect(server.received.some((message) => message.includes('"Y":31'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation("city-operation"'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readProductionChoice'))).toBe(true);
+      expect(server.received.some((message) => message.includes('UI?.Player?.selectCity'))).toBe(true);
+      expect(server.received.some((message) => message.includes('InterfaceMode?.switchToDefault'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation("city-operation"'))).toBe(false);
     } finally {
+      log.mockRestore();
       await server.close();
     }
   });
@@ -3072,6 +3119,43 @@ describe('game play commands', () => {
     }
   });
 
+  test('routes unit-lost reports to reviewed dismissal in compact priorities', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'unit-lost-report' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPriorities.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+        '--compact',
+        '--no-battlefield',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        next: string | null;
+        priorities: Array<{ kind: string; command?: string; reason: string }>;
+      };
+      const top = payload.priorities[0];
+      expect(top.kind).toBe('hud:informational-notification');
+      expect(top.command).toContain('game play dismiss-notification');
+      expect(top.command).toContain("--target '{\"owner\":0,\"id\":34,\"type\":20}'");
+      expect(top.command).toContain('<reviewed: notification-unit-lost>');
+      expect(payload.next).toBe(top.command);
+      expect(top.command).not.toMatch(/enemy|hostile|opponent/i);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('routes diplomatic action reports without response options to reviewed dismissal in compact priorities', async () => {
     const server = await startTunerServer({ playNotificationMode: 'diplomatic-action-report' });
     const writes: string[] = [];
@@ -3406,6 +3490,86 @@ describe('game play commands', () => {
     }
   });
 
+  test('excludes front unit-lost reports from bulk dismissal', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'unit-lost-report' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayDismissNotificationQueue.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayDismissNotificationQueue.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          eligibleCount: number;
+          selectedCount: number;
+          excluded: Array<{ typeName: string | null; reason: string }>;
+          results: unknown[];
+        };
+      };
+      expect(payload.view.eligibleCount).toBe(0);
+      expect(payload.view.selectedCount).toBe(0);
+      expect(payload.view.results).toHaveLength(0);
+      expect(payload.view.excluded).toHaveLength(1);
+      expect(payload.view.excluded[0]).toMatchObject({
+        typeName: 'NOTIFICATION_UNIT_LOST',
+        reason: 'front unit-loss reports require exact reviewed dismissal proof, not bulk dismissal',
+      });
+      expect(server.received.some((message) => message.includes('readNotificationDismissal'))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('schedules unit-lost reports as reviewed dismissal candidates', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'unit-lost-report' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayNotificationQueue.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayNotificationQueue.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          schedule: Array<{
+            disposition: string;
+            typeName: string;
+            command: string | null;
+            safeToBatch: boolean;
+          }>;
+        };
+      };
+      const step = payload.view.schedule[0];
+      expect(step.disposition).toBe('reviewed-dismissal-candidate');
+      expect(step.typeName).toBe('NOTIFICATION_UNIT_LOST');
+      expect(step.command).toContain("game play dismiss-notification --target '{\"owner\":0,\"id\":34,\"type\":20}'");
+      expect(step.command).toContain('<reviewed: notification-unit-lost>');
+      expect(step.command).not.toMatch(/enemy|hostile|opponent/i);
+      expect(step.safeToBatch).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('dismisses reviewed notifications only with explicit approval reason', async () => {
     await expect(GamePlayDismissNotification.run([
       '--target',
@@ -3518,6 +3682,104 @@ describe('game play commands', () => {
         isEngineQueueFront: { ok: true, value: true },
         notificationTrainContains: { ok: true, value: true },
         isNotificationTrainFront: { ok: true, value: true },
+      });
+      expect(payload.result.verificationAttempts.length).toBeGreaterThan(1);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('does not verify dismissal from train absence while engine queue still fronts the target', async () => {
+    const server = await startTunerServer({ notificationDismissalMode: 'engine-front-train-absent' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayDismissNotification.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayDismissNotification.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--target',
+        '{"owner":0,"id":113,"type":20}',
+        '--send',
+        '--reason',
+        'reviewed unit lost report',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          sent: boolean;
+          verified: boolean;
+          after: {
+            engineQueueContains: { ok: boolean; value: boolean };
+            isEngineQueueFront: { ok: boolean; value: boolean };
+            notificationTrainContains: { ok: boolean; value: boolean };
+            isNotificationTrainFront: { ok: boolean; value: boolean };
+          };
+          verificationAttempts: unknown[];
+        };
+      };
+      expect(payload.result.sent).toBe(true);
+      expect(payload.result.verified).toBe(false);
+      expect(payload.result.after).toMatchObject({
+        engineQueueContains: { ok: true, value: true },
+        isEngineQueueFront: { ok: true, value: true },
+        notificationTrainContains: { ok: true, value: false },
+        isNotificationTrainFront: { ok: true, value: false },
+      });
+      expect(payload.result.verificationAttempts.length).toBeGreaterThan(1);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('does not verify dismissal from dismissed flag while engine queue still fronts the target', async () => {
+    const server = await startTunerServer({ notificationDismissalMode: 'engine-front-dismissed' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayDismissNotification.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayDismissNotification.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--target',
+        '{"owner":0,"id":113,"type":20}',
+        '--send',
+        '--reason',
+        'reviewed dismissed flag with stale engine-front report',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          sent: boolean;
+          verified: boolean;
+          after: {
+            dismissed: boolean;
+            engineQueueContains: { ok: boolean; value: boolean };
+            isEngineQueueFront: { ok: boolean; value: boolean };
+          };
+          verificationAttempts: unknown[];
+        };
+      };
+      expect(payload.result.sent).toBe(true);
+      expect(payload.result.verified).toBe(false);
+      expect(payload.result.after).toMatchObject({
+        dismissed: true,
+        engineQueueContains: { ok: true, value: true },
+        isEngineQueueFront: { ok: true, value: true },
       });
       expect(payload.result.verificationAttempts.length).toBeGreaterThan(1);
     } finally {
@@ -4404,9 +4666,9 @@ function expectOwnerOnlyContactLabels(values: readonly string[]): void {
 
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
-  playNotificationMode?: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'clean-read' | 'stale-diplomacy' | 'runtime-error';
+  playNotificationMode?: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'unit-lost-report' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'clean-read' | 'stale-diplomacy' | 'runtime-error';
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
-  notificationDismissalMode?: 'verified' | 'stale-nonblocking';
+  notificationDismissalMode?: 'verified' | 'stale-nonblocking' | 'engine-front-train-absent' | 'engine-front-dismissed';
   productionPostconditionMode?: 'cleared' | 'blocker-still-live';
   narrativeChoiceMode?: 'panel-cleared' | 'panel-cleared-blocker-live' | 'stale';
   technologyChoiceMode?: 'cleared' | 'sticky' | 'state-changed';
@@ -4418,6 +4680,7 @@ async function startTunerServer(options: {
   let technologyChoiceSent = false;
   let diplomacyCloseoutObserved = false;
   let notificationDismissalSent = false;
+  let productionChoiceSent = false;
   const server = createServer((socket) => {
     let buffer = Buffer.alloc(0);
     socket.on('data', (chunk) => {
@@ -4490,6 +4753,14 @@ async function startTunerServer(options: {
             options.notificationDismissalMode ?? 'verified',
             notificationDismissalSent && !send,
           ))]));
+        } else if (frame.message.includes('readProductionChoice')) {
+          const send = frame.message.includes('"send":true');
+          if (send) productionChoiceSent = true;
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(productionChoicePayload(
+            send,
+            options.productionPostconditionMode ?? 'cleared',
+            productionChoiceSent && !send,
+          ))]));
         } else if (frame.message.includes('hasSentTurnComplete')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(turnCompletionStatus(turnCompleteSent, options.canEndTurnBefore ?? true))]));
         } else if (frame.message === 'CMD:65535:GameContext.sendTurnComplete()') {
@@ -4542,7 +4813,7 @@ async function startTunerServer(options: {
 }
 
 function playNotificationView(
-  mode: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'clean-read' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
+  mode: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'unit-lost-report' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'clean-read' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
   diplomacyCloseoutObserved = false,
   technologyStateChanged = false,
 ) {
@@ -5930,6 +6201,84 @@ function playNotificationView(
       selectedUnitId: { ok: true, value: null },
       selectedCityId: { ok: true, value: null },
       firstReadyUnitId: { ok: true, value: null },
+      notifications: [informationalNotification],
+      decisions: [informationalDecision],
+      hud: {
+        nextDecision: {
+          notificationId: informationalNotification.id,
+          isEndTurnBlocking: true,
+          typeName: informationalNotification.typeName,
+          summary: informationalNotification.summary,
+          message: informationalNotification.message,
+          target: informationalNotification.target,
+          location: informationalNotification.location,
+          ...informationalDecision,
+        },
+        decisionQueue: [
+          {
+            notificationId: informationalNotification.id,
+            isEndTurnBlocking: true,
+            typeName: informationalNotification.typeName,
+            summary: informationalNotification.summary,
+            message: informationalNotification.message,
+            target: informationalNotification.target,
+            location: informationalNotification.location,
+            ...informationalDecision,
+          },
+        ],
+      },
+      limits: { maxNotifications: 25, truncated: false },
+    };
+  }
+  if (mode === 'unit-lost-report') {
+    const informationalDecision = {
+      category: 'informational-notification',
+      operationFamily: 'app-ui-action',
+      operationType: 'Game.Notifications.dismiss',
+      argsShape: '{ notificationId }',
+      cli: 'game play dismiss-notification',
+      requiredInputs: [
+        { name: 'Notification', source: 'notification ComponentID', required: true },
+      ],
+      commonActions: [
+        {
+          label: 'dismiss reviewed notification',
+          cli: "game play dismiss-notification --target '<notification-id>' --send --reason '<why this was reviewed>'",
+          operationFamily: 'app-ui-action',
+          operationType: 'Game.Notifications.dismiss',
+          argsShape: '{ notificationId }',
+          when: 'after reviewing the report',
+        },
+      ],
+      confidence: 'official-ui',
+      notes: ['Default-handler unit-loss report; review before closeout.'],
+    };
+    const informationalNotification = {
+      id: { owner: 0, id: 34, type: 20 },
+      type: -2086317464,
+      typeName: 'NOTIFICATION_UNIT_LOST',
+      groupType: null,
+      summary: 'While defending, your Scout was destroyed by a Warrior from Samarkand (44 damage)!',
+      message: 'Unit Lost',
+      target: { owner: -1, id: -1, type: 0 },
+      location: { x: 5, y: 18 },
+      canUserDismiss: true,
+      expired: false,
+      dismissed: false,
+      isEndTurnBlocking: true,
+      decision: informationalDecision,
+    };
+    return {
+      localPlayerId: 0,
+      turn: { ok: true, value: 19 },
+      turnDate: { ok: true, value: '3550 BCE' },
+      hasSentTurnComplete: { ok: true, value: false },
+      canEndTurn: { ok: true, value: false },
+      blocker: { ok: true, value: 0 },
+      blockingNotificationId: { ok: true, value: informationalNotification.id },
+      selectedUnitId: { ok: true, value: null },
+      selectedCityId: { ok: true, value: null },
+      firstReadyUnitId: { ok: true, value: { owner: 0, id: 458754, type: 26 } },
       notifications: [informationalNotification],
       decisions: [informationalDecision],
       hud: {
@@ -7482,9 +7831,10 @@ function destinationAnalysisView() {
   };
 }
 
-function notificationDismissal(send: boolean, mode: 'verified' | 'stale-nonblocking' = 'verified', settled = false) {
+function notificationDismissal(send: boolean, mode: 'verified' | 'stale-nonblocking' | 'engine-front-train-absent' | 'engine-front-dismissed' = 'verified', settled = false) {
   const notificationId = { owner: 0, id: 113, type: 20 };
   const isStaleNonblocking = mode === 'stale-nonblocking';
+  const isEngineFrontTrainAbsent = mode === 'engine-front-train-absent';
   const before = {
     id: notificationId,
     exists: true,
@@ -7506,13 +7856,15 @@ function notificationDismissal(send: boolean, mode: 'verified' | 'stale-nonblock
     engineQueueContains: { ok: true, value: true },
     engineQueueFirstId: { ok: true, value: notificationId },
     isEngineQueueFront: { ok: true, value: true },
-    notificationTrainCount: { ok: true, value: 1 },
-    notificationTrainContains: { ok: true, value: true },
-    notificationTrainFirstId: { ok: true, value: notificationId },
-    isNotificationTrainFront: { ok: true, value: true },
+    notificationTrainCount: { ok: true, value: isEngineFrontTrainAbsent ? 0 : 1 },
+    notificationTrainContains: { ok: true, value: !isEngineFrontTrainAbsent },
+    notificationTrainFirstId: { ok: true, value: isEngineFrontTrainAbsent ? null : notificationId },
+    isNotificationTrainFront: { ok: true, value: !isEngineFrontTrainAbsent },
   };
   const dismissed = isStaleNonblocking
     ? before
+    : isEngineFrontTrainAbsent
+      ? before
     : {
         ...before,
         exists: false,
@@ -7529,7 +7881,15 @@ function notificationDismissal(send: boolean, mode: 'verified' | 'stale-nonblock
         notificationTrainFirstId: { ok: true, value: null },
         isNotificationTrainFront: { ok: true, value: false },
       };
-  const current = settled && !send ? dismissed : before;
+  const engineFrontDismissed = {
+    ...before,
+    dismissed: true,
+  };
+  const current = settled && !send
+    ? mode === 'engine-front-dismissed'
+      ? engineFrontDismissed
+      : dismissed
+    : before;
   return {
     notificationId,
     before: current,
@@ -7809,6 +8169,31 @@ function productionPostconditionSnapshot(
       ok: true,
       value: mode === 'blocker-still-live' || phase === 'before' ? notification : null,
     },
+  };
+}
+
+function productionChoicePayload(
+  send: boolean,
+  mode: 'cleared' | 'blocker-still-live',
+  settled = false,
+) {
+  const cityId = { owner: 0, id: 65536, type: 25 };
+  const before = productionPostconditionSnapshot('before', mode);
+  const after = productionPostconditionSnapshot(settled || send ? 'after' : 'before', mode);
+  return {
+    cityId,
+    args: { UnitType: 1558890441 },
+    beforeValidation: { ok: true, value: { Success: true } },
+    afterValidation: { ok: true, value: { Success: true } },
+    sent: send,
+    sendResult: send ? { ok: true, value: true } : { ok: false, skipped: true, reason: 'send not requested' },
+    beforeProductionPostcondition: before,
+    afterProductionPostcondition: after,
+    ui: {
+      cityActivation: send ? { ok: true, value: { selectedCityId: cityId } } : { ok: false, skipped: true, reason: 'read-only production choice status' },
+      interfaceClose: send ? { ok: true, value: { selectedCityId: null, interfaceMode: 'INTERFACEMODE_DEFAULT' } } : { ok: false, skipped: true, reason: 'send not requested' },
+    },
+    notes: ['This mirrors the official production chooser path.'],
   };
 }
 

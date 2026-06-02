@@ -165,7 +165,8 @@ Notable handler evidence:
   not `respond-diplomacy`.
 - `NOTIFICATION_WONDER_COMPLETED`, `NOTIFICATION_WONDER_FAILED`,
   `NOTIFICATION_LEGACY_COMPLETED`,
-  `NOTIFICATION_UNIT_ATTACKED`, `NOTIFICATION_DISTRICT_ATTACKED`, and
+  `NOTIFICATION_UNIT_ATTACKED`, `NOTIFICATION_UNIT_LOST`,
+  `NOTIFICATION_DISTRICT_ATTACKED`, and
   natural-disaster reports such as `NOTIFICATION_RIVER_FLOODS_SEV0/1/2`,
   `NOTIFICATION_STORM_ARRIVED`, `NOTIFICATION_STORM_MOVED`,
   `NOTIFICATION_STORM_DISSIPATED`, `NOTIFICATION_VOLCANO_ACTIVE`,
@@ -174,6 +175,9 @@ Notable handler evidence:
   they fall through to `DefaultHandler`. Default activation only looks at a
   valid plot, so guarded `Game.Notifications.dismiss` is the practical closeout
   after the report is reviewed and no specialized blocker remains.
+- `NOTIFICATION_UNIT_LOST` is reviewed through the same dismissal surface, but
+  it is not cleared by notification-train absence alone. If the engine queue
+  still fronts the exact notification id, the blocker is still live.
 - `NOTIFICATION_LEGACY_COMPLETED` should be reviewed as score/reward context
   before closeout. Use `game play progress-dashboard --compact --json` when the
   report should be compared against local legacy path progress, then dismiss the

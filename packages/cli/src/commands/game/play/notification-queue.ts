@@ -123,6 +123,7 @@ function buildQueueStep(item: Civ7PlayDecisionQueueItem, originalStep: number): 
   const command = commandFor(item, disposition);
   const requiredInputs = item.requiredInputs.filter((input) => input.required);
   const isDismissalCandidate = disposition === 'reviewed-dismissal-candidate';
+  const safeToBatch = isDismissalCandidate && isBatchSafeDismissalCandidate(item);
   const guardrails = guardrailsFor(item, disposition, requiredInputs);
   return {
     step: originalStep,
@@ -140,7 +141,7 @@ function buildQueueStep(item: Civ7PlayDecisionQueueItem, originalStep: number): 
     operationType: item.operationType,
     requiredInputs,
     command,
-    safeToBatch: isDismissalCandidate,
+    safeToBatch,
     reason: reasonFor(item, disposition),
     guardrails: isDismissalCandidate
       ? [
@@ -159,6 +160,12 @@ function dispositionFor(item: Civ7PlayDecisionQueueItem): QueueDisposition {
   if (item.operationFamily || item.cli) return 'operate-with-live-inputs';
   if (item.category === 'notification' || item.category === 'blocking-notification') return 'inspect-handler';
   return 'review-only';
+}
+
+function isBatchSafeDismissalCandidate(item: Civ7PlayDecisionQueueItem): boolean {
+  if (!item.isEndTurnBlocking) return true;
+  if (item.typeName === 'NOTIFICATION_UNIT_LOST') return false;
+  return true;
 }
 
 function commandFor(item: Civ7PlayDecisionQueueItem, disposition: QueueDisposition): string | null {

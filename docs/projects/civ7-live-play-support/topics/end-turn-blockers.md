@@ -170,6 +170,12 @@ and summary before ending; for legacy-completed reports, compare against
 unclear. The fallback means the report is not itself a
 remaining gameplay choice once blocker enum and readiness are clean.
 
+`NOTIFICATION_UNIT_LOST` is also a reviewed default-handler report, but it is
+not raw end-turn fallback eligible while the exact notification remains
+engine-queue front. Dismiss it through `game play dismiss-notification` and
+trust only identity-based proof that the target disappeared, was dismissed, or
+moved off the engine queue front.
+
 ## CLI Shortcuts Added
 
 The first CLI shortcut family lives under `civ7 game play`:

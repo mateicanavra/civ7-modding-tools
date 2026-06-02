@@ -44,6 +44,7 @@ import {
   prepareCiv7SinglePlayerSetup,
   parseCiv7TunerFrame,
   planCiv7MapGridReadBounds,
+  requestCiv7ProductionChoice,
   queryCiv7TunerStates,
   requestCiv7UnitOperation,
   requestCiv7UnitTargetAction,
@@ -364,6 +365,55 @@ describe("Civ7 direct control", () => {
       expect(dismissalReads.length).toBeGreaterThan(2);
       expect(dismissalReads.filter((message) => message.includes('"send":true'))).toHaveLength(1);
       expect(dismissalReads.filter((message) => message.includes('"send":false')).length).toBeGreaterThan(1);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("does not verify dismissal from train absence while engine queue still fronts the target", async () => {
+    const server = await startTunerServer({ notificationDismissalMode: "engine-front-train-absent" });
+    try {
+      const { port } = server.address();
+      const notificationId = { owner: 0, id: 113, type: 20 };
+      const request = await requestCiv7NotificationDismissal(
+        { notificationId },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test stale engine-front notification dismissal" },
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(false);
+      expect(request.after).toMatchObject({
+        engineQueueContains: { ok: true, value: true },
+        isEngineQueueFront: { ok: true, value: true },
+        notificationTrainContains: { ok: true, value: false },
+        isNotificationTrainFront: { ok: true, value: false },
+      });
+      expect(request.verificationAttempts?.length).toBeGreaterThan(1);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("does not verify dismissal from dismissed flag while engine queue still fronts the target", async () => {
+    const server = await startTunerServer({ notificationDismissalMode: "engine-front-dismissed" });
+    try {
+      const { port } = server.address();
+      const notificationId = { owner: 0, id: 113, type: 20 };
+      const request = await requestCiv7NotificationDismissal(
+        { notificationId },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test dismissed flag with stale engine-front notification" },
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(false);
+      expect(request.after).toMatchObject({
+        dismissed: true,
+        engineQueueContains: { ok: true, value: true },
+        isEngineQueueFront: { ok: true, value: true },
+      });
+      expect(request.verificationAttempts?.length).toBeGreaterThan(1);
     } finally {
       await server.close();
     }
@@ -1256,6 +1306,34 @@ describe("Civ7 direct control", () => {
     }
   });
 
+  test("requests production choices through the official App UI production path", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const cityId = { owner: 0, id: 65536, type: 1 };
+      const request = await requestCiv7ProductionChoice(
+        { cityId, args: { ConstructibleType: 713967338, X: 22, Y: 31 } },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test official production choice" },
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(true);
+      expect(request.productionPostcondition).toMatchObject({
+        classification: "production-choice-cleared",
+        blockerStillLive: false,
+      });
+      expect(request.payload?.ui?.cityActivation).toMatchObject({ ok: true });
+      expect(request.payload?.ui?.interfaceClose).toMatchObject({ ok: true });
+      expect(server.received.some((message) => message.includes("readProductionChoice"))).toBe(true);
+      expect(server.received.some((message) => message.includes("UI?.Player?.selectCity"))).toBe(true);
+      expect(server.received.some((message) => message.includes("InterfaceMode?.switchToDefault"))).toBe(true);
+      expect(server.received.some((message) => message.includes("return JSON.stringify(sendOperation"))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
   test("requires approval for autoplay configure but allows explicit unbounded start", async () => {
     await expect(
       configureCiv7Autoplay({ turns: 1 }, undefined as never),
@@ -1490,6 +1568,7 @@ async function startTunerServer(options: {
   tunerReady?: boolean;
   mapSummaryHashes?: ReadonlyArray<number>;
   unitTargetMode?: "verified" | "no-op-after-send";
+  notificationDismissalMode?: "verified" | "engine-front-train-absent" | "engine-front-dismissed";
 } = {}) {
   const received: string[] = [];
   let loadingState = 6;
@@ -1510,6 +1589,7 @@ async function startTunerServer(options: {
   let setupRevision = 19;
   let hiddenMapRowVisible = false;
   let notificationDismissalSent = false;
+  let productionChoiceSent = false;
   const visibleSetupRows = () => [
     {
       Domain: "StandardMaps",
@@ -1885,7 +1965,15 @@ async function startTunerServer(options: {
         } else if (frame.message.includes("readNotificationDismissal")) {
           const send = frame.message.includes('"send":true');
           if (send) notificationDismissalSent = true;
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(notificationDismissal(send, notificationDismissalSent && !send))]));
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(notificationDismissal(
+            send,
+            notificationDismissalSent && !send,
+            options.notificationDismissalMode ?? "verified",
+          ))]));
+        } else if (frame.message.includes("readProductionChoice")) {
+          const send = frame.message.includes('"send":true');
+          if (send) productionChoiceSent = true;
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(productionChoicePayload(send, productionChoiceSent && !send))]));
         } else if (frame.message.includes("Network.isInSession")) {
           const snapshotAutoplayActive = autoplayStopPendingReads > 0 ? true : autoplayActive;
           const snapshotAutoplayPaused = autoplayStopPendingReads > 0 ? true : autoplayPaused;
@@ -2531,8 +2619,13 @@ function readyCityView() {
   };
 }
 
-function notificationDismissal(send: boolean, settled = false) {
+function notificationDismissal(
+  send: boolean,
+  settled = false,
+  mode: "verified" | "engine-front-train-absent" | "engine-front-dismissed" = "verified",
+) {
   const notificationId = { owner: 0, id: 113, type: 20 };
+  const trainAbsent = mode === "engine-front-train-absent";
   const present = {
     id: notificationId,
     exists: true,
@@ -2552,10 +2645,10 @@ function notificationDismissal(send: boolean, settled = false) {
     engineQueueContains: { ok: true, value: true },
     engineQueueFirstId: { ok: true, value: notificationId },
     isEngineQueueFront: { ok: true, value: true },
-    notificationTrainCount: { ok: true, value: 1 },
-    notificationTrainContains: { ok: true, value: true },
-    notificationTrainFirstId: { ok: true, value: notificationId },
-    isNotificationTrainFront: { ok: true, value: true },
+    notificationTrainCount: { ok: true, value: trainAbsent ? 0 : 1 },
+    notificationTrainContains: { ok: true, value: !trainAbsent },
+    notificationTrainFirstId: { ok: true, value: trainAbsent ? null : notificationId },
+    isNotificationTrainFront: { ok: true, value: !trainAbsent },
   };
   const cleared = {
     ...present,
@@ -2573,9 +2666,20 @@ function notificationDismissal(send: boolean, settled = false) {
     notificationTrainFirstId: { ok: true, value: null },
     isNotificationTrainFront: { ok: true, value: false },
   };
+  const engineFrontDismissed = {
+    ...present,
+    dismissed: true,
+  };
+  const current = mode === "engine-front-train-absent"
+    ? present
+    : mode === "engine-front-dismissed"
+      ? engineFrontDismissed
+      : settled
+        ? cleared
+        : present;
   return {
     notificationId,
-    before: settled ? cleared : present,
+    before: current,
     after: send ? present : null,
     canDismiss: true,
     sent: send,
@@ -2599,6 +2703,73 @@ function notificationDismissal(send: boolean, settled = false) {
     verificationAttempts: send ? [present] : [],
     verified: false,
     notes: ["This is an App UI notification action, not a gameplay operation family."],
+  };
+}
+
+function productionChoicePayload(send: boolean, settled = false) {
+  const cityId = { owner: 0, id: 65536, type: 1 };
+  const before = productionPostconditionSnapshot("before", "cleared");
+  const after = productionPostconditionSnapshot(settled || send ? "after" : "before", "cleared");
+  return {
+    cityId,
+    args: { ConstructibleType: 713967338, X: 22, Y: 31 },
+    beforeValidation: { ok: true, value: { Success: true } },
+    afterValidation: { ok: true, value: { Success: true } },
+    sent: send,
+    sendResult: send ? { ok: true, value: true } : { ok: false, skipped: true, reason: "send not requested" },
+    beforeProductionPostcondition: before,
+    afterProductionPostcondition: after,
+    ui: {
+      cityActivation: send ? { ok: true, value: { selectedCityId: cityId } } : { ok: false, skipped: true, reason: "read-only production choice status" },
+      interfaceClose: send ? { ok: true, value: { selectedCityId: null, interfaceMode: "INTERFACEMODE_DEFAULT" } } : { ok: false, skipped: true, reason: "send not requested" },
+    },
+    notes: ["This mirrors the official production chooser path."],
+  };
+}
+
+function productionPostconditionSnapshot(
+  phase: "before" | "after",
+  mode: "cleared" | "blocker-still-live",
+) {
+  const cityId = { owner: 0, id: 65536, type: 1 };
+  const notification = {
+    id: { owner: 0, id: 6, type: 20 },
+    type: 1090224621,
+    typeName: "NOTIFICATION_CHOOSE_CITY_PRODUCTION",
+    target: cityId,
+    matchesCity: true,
+    canUserDismiss: false,
+    expired: true,
+    dismissed: false,
+  };
+  return {
+    cityId,
+    city: {
+      ok: true,
+      value: {
+        id: cityId,
+        population: 3,
+        isTown: false,
+        location: { x: 26, y: 36 },
+      },
+    },
+    buildQueue: {
+      ok: true,
+      value: {
+        currentProductionTypeHash: phase === "before" ? 713967338 : 1558890441,
+        previousProductionTypeHash: 0,
+        productionProgress: phase === "before" ? 12 : 0,
+        turnsLeftForRequestedItem: phase === "before" ? -1 : 4,
+        queueLength: 1,
+      },
+    },
+    selectedCityId: { ok: true, value: phase === "before" ? cityId : null },
+    blocker: { ok: true, value: mode === "cleared" && phase === "after" ? 0 : 1090224621 },
+    canEndTurn: { ok: true, value: mode === "cleared" && phase === "after" },
+    blockingProductionNotification: {
+      ok: true,
+      value: mode === "blocker-still-live" || phase === "before" ? notification : null,
+    },
   };
 }
 
