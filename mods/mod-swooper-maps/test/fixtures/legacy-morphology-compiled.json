@@ -109,14 +109,6 @@
         }
       }
     },
-    "morphology-routing": {
-      "routing": {
-        "routing": {
-          "config": {},
-          "strategy": "default"
-        }
-      }
-    },
     "morphology-erosion": {
       "geomorphology": {
         "geomorphology": {
@@ -202,6 +194,7 @@
             "mountainMaxFraction": 0.07,
             "mountainSpineDilationSteps": 1,
             "mountainSpineFraction": 0.015,
+            "mountainSpineMinDistance": 0,
             "mountainSubductionUpliftWeight": 0.25,
             "mountainThreshold": 0.5,
             "oldBeltHillScale": 1.1,
@@ -255,6 +248,7 @@
             "mountainMaxFraction": 0.07,
             "mountainSpineDilationSteps": 1,
             "mountainSpineFraction": 0.015,
+            "mountainSpineMinDistance": 0,
             "mountainSubductionUpliftWeight": 0.25,
             "mountainThreshold": 0.5,
             "oldBeltHillScale": 1.1,
@@ -308,6 +302,7 @@
             "mountainMaxFraction": 0.07,
             "mountainSpineDilationSteps": 1,
             "mountainSpineFraction": 0.015,
+            "mountainSpineMinDistance": 0,
             "mountainSubductionUpliftWeight": 0.25,
             "mountainThreshold": 0.5,
             "oldBeltHillScale": 1.1,
@@ -343,6 +338,14 @@
             "shieldPenalty": 0.35,
             "transformMultiplier": 1.1
           },
+          "strategy": "default"
+        }
+      }
+    },
+    "morphology-routing": {
+      "routing": {
+        "routing": {
+          "config": {},
           "strategy": "default"
         }
       }
@@ -458,14 +461,6 @@
         }
       }
     },
-    "morphology-routing": {
-      "routing": {
-        "routing": {
-          "config": {},
-          "strategy": "default"
-        }
-      }
-    },
     "morphology-erosion": {
       "geomorphology": {
         "geomorphology": {
@@ -551,6 +546,7 @@
             "mountainMaxFraction": 0.07,
             "mountainSpineDilationSteps": 1,
             "mountainSpineFraction": 0.015,
+            "mountainSpineMinDistance": 0,
             "mountainSubductionUpliftWeight": 0.25,
             "mountainThreshold": 0.6,
             "oldBeltHillScale": 1.1,
@@ -604,6 +600,7 @@
             "mountainMaxFraction": 0.07,
             "mountainSpineDilationSteps": 1,
             "mountainSpineFraction": 0.015,
+            "mountainSpineMinDistance": 0,
             "mountainSubductionUpliftWeight": 0.25,
             "mountainThreshold": 0.6,
             "oldBeltHillScale": 1.1,
@@ -657,6 +654,7 @@
             "mountainMaxFraction": 0.07,
             "mountainSpineDilationSteps": 1,
             "mountainSpineFraction": 0.015,
+            "mountainSpineMinDistance": 0,
             "mountainSubductionUpliftWeight": 0.25,
             "mountainThreshold": 0.6,
             "oldBeltHillScale": 1.1,
@@ -692,6 +690,14 @@
             "shieldPenalty": 0.2,
             "transformMultiplier": 1.4
           },
+          "strategy": "default"
+        }
+      }
+    },
+    "morphology-routing": {
+      "routing": {
+        "routing": {
+          "config": {},
           "strategy": "default"
         }
       }
@@ -807,14 +813,6 @@
         }
       }
     },
-    "morphology-routing": {
-      "routing": {
-        "routing": {
-          "config": {},
-          "strategy": "default"
-        }
-      }
-    },
     "morphology-erosion": {
       "geomorphology": {
         "geomorphology": {
@@ -900,6 +898,7 @@
             "mountainMaxFraction": 0.07,
             "mountainSpineDilationSteps": 1,
             "mountainSpineFraction": 0.015,
+            "mountainSpineMinDistance": 0,
             "mountainSubductionUpliftWeight": 0.25,
             "mountainThreshold": 0.64,
             "oldBeltHillScale": 1.1,
@@ -953,6 +952,7 @@
             "mountainMaxFraction": 0.07,
             "mountainSpineDilationSteps": 1,
             "mountainSpineFraction": 0.015,
+            "mountainSpineMinDistance": 0,
             "mountainSubductionUpliftWeight": 0.25,
             "mountainThreshold": 0.64,
             "oldBeltHillScale": 1.1,
@@ -1006,6 +1006,7 @@
             "mountainMaxFraction": 0.07,
             "mountainSpineDilationSteps": 1,
             "mountainSpineFraction": 0.015,
+            "mountainSpineMinDistance": 0,
             "mountainSubductionUpliftWeight": 0.25,
             "mountainThreshold": 0.64,
             "oldBeltHillScale": 1.1,
@@ -1041,6 +1042,14 @@
             "shieldPenalty": 0.3,
             "transformMultiplier": 0.7
           },
+          "strategy": "default"
+        }
+      }
+    },
+    "morphology-routing": {
+      "routing": {
+        "routing": {
+          "config": {},
           "strategy": "default"
         }
       }
@@ -1146,20 +1155,12 @@
         "shelfMask": {
           "config": {
             "activeClosenessThreshold": 0.45,
-            "capTilesActive": 2,
-            "capTilesMax": 8,
-            "capTilesPassive": 4,
-            "nearshoreDistance": 3,
-            "shallowQuantile": 0.7
+            "capTilesActive": 5,
+            "capTilesMax": 14,
+            "capTilesPassive": 13,
+            "nearshoreDistance": 8,
+            "shallowQuantile": 0.45
           },
-          "strategy": "default"
-        }
-      }
-    },
-    "morphology-routing": {
-      "routing": {
-        "routing": {
-          "config": {},
           "strategy": "default"
         }
       }
@@ -1215,160 +1216,163 @@
       "mountains": {
         "foothills": {
           "config": {
-            "boundaryExponent": 1.6,
-            "boundaryGate": 0.1,
+            "boundaryExponent": 1.72,
+            "boundaryGate": 0.04,
             "boundaryWeight": 1,
             "convergenceBonus": 1,
-            "driverExponent": 0.1,
-            "driverSignalByteMin": 30,
-            "foothillMaxDistance": 3,
-            "fractalWeight": 0.25,
+            "driverExponent": 1.05,
+            "driverSignalByteMin": 18,
+            "foothillMaxDistance": 4,
+            "fractalWeight": 0.38,
             "fractureBoundaryWeight": 0.7,
-            "fractureRiftWeight": 0.1,
-            "fractureStressWeight": 0.2,
-            "hillBoundaryWeight": 0.35,
-            "hillConvergentFoothill": 0.35,
-            "hillFoothillBase": 0.5,
-            "hillFoothillFractalGain": 0.5,
-            "hillFractalScale": 0.3,
-            "hillInteriorFalloff": 0,
-            "hillMaxFraction": 0.18,
-            "hillRiftBonus": 0.25,
-            "hillRiftBonusScale": 0.5,
-            "hillRiftDepthScale": 0.5,
-            "hillThreshold": 0.09,
-            "hillUpliftScale": 0.7,
-            "hillUpliftWeight": 0.2,
-            "interiorPenaltyWeight": 0,
-            "mountainCollisionStressWeight": 0.5,
-            "mountainCollisionUpliftWeight": 0.5,
-            "mountainConvergenceFractalBase": 0.6,
-            "mountainConvergenceFractalSpan": 0.4,
-            "mountainFractalScale": 0.3,
-            "mountainInteriorUpliftScale": 0.25,
-            "mountainMaxFraction": 0.1,
-            "mountainSpineDilationSteps": 2,
-            "mountainSpineFraction": 0.08,
-            "mountainSubductionUpliftWeight": 0.25,
-            "mountainThreshold": 0.37,
-            "oldBeltHillScale": 1.1,
-            "oldBeltMountainScale": 0.4,
+            "fractureRiftWeight": 0.14,
+            "fractureStressWeight": 0.26,
+            "hillBoundaryWeight": 0.46,
+            "hillConvergentFoothill": 0.48,
+            "hillFoothillBase": 0.58,
+            "hillFoothillFractalGain": 0.9,
+            "hillFractalScale": 0.9,
+            "hillInteriorFalloff": 0.24,
+            "hillMaxFraction": 0.27,
+            "hillRiftBonus": 0.34,
+            "hillRiftBonusScale": 0.66,
+            "hillRiftDepthScale": 0.42,
+            "hillThreshold": 0.15,
+            "hillUpliftScale": 0.58,
+            "hillUpliftWeight": 0.3,
+            "interiorPenaltyWeight": 0.26,
+            "mountainCollisionStressWeight": 0.58,
+            "mountainCollisionUpliftWeight": 0.6,
+            "mountainConvergenceFractalBase": 0.52,
+            "mountainConvergenceFractalSpan": 0.48,
+            "mountainFractalScale": 0.46,
+            "mountainInteriorUpliftScale": 0.16,
+            "mountainMaxFraction": 0.085,
+            "mountainSpineDilationSteps": 1,
+            "mountainSpineFraction": 0.065,
+            "mountainSpineMinDistance": 2,
+            "mountainSubductionUpliftWeight": 0.36,
+            "mountainThreshold": 0.23000000000000004,
+            "oldBeltHillScale": 1.16,
+            "oldBeltMountainScale": 0.66,
             "orogenyCollisionStressWeight": 0.7,
-            "orogenyCollisionUpliftWeight": 0.4,
+            "orogenyCollisionUpliftWeight": 0.5,
             "orogenyDivergentRiftWeight": 0.55,
             "orogenyDivergentStressWeight": 0.15,
             "orogenyTransformStressWeight": 0.4,
             "riftDepth": 0.2,
             "riftPenalty": 1,
-            "tectonicIntensity": 2.125,
-            "transformPenalty": 0.6,
-            "upliftWeight": 0.35
+            "tectonicIntensity": 2.0625,
+            "transformPenalty": 0.68,
+            "upliftWeight": 0.42
           },
           "strategy": "default"
         },
         "ridges": {
           "config": {
-            "boundaryExponent": 1.6,
-            "boundaryGate": 0.1,
+            "boundaryExponent": 1.72,
+            "boundaryGate": 0.04,
             "boundaryWeight": 1,
             "convergenceBonus": 1,
-            "driverExponent": 0.1,
-            "driverSignalByteMin": 30,
-            "foothillMaxDistance": 3,
-            "fractalWeight": 0.25,
+            "driverExponent": 1.05,
+            "driverSignalByteMin": 18,
+            "foothillMaxDistance": 4,
+            "fractalWeight": 0.38,
             "fractureBoundaryWeight": 0.7,
-            "fractureRiftWeight": 0.1,
-            "fractureStressWeight": 0.2,
-            "hillBoundaryWeight": 0.35,
-            "hillConvergentFoothill": 0.35,
-            "hillFoothillBase": 0.5,
-            "hillFoothillFractalGain": 0.5,
-            "hillFractalScale": 0.3,
-            "hillInteriorFalloff": 0,
-            "hillMaxFraction": 0.18,
-            "hillRiftBonus": 0.25,
-            "hillRiftBonusScale": 0.5,
-            "hillRiftDepthScale": 0.5,
-            "hillThreshold": 0.09,
-            "hillUpliftScale": 0.7,
-            "hillUpliftWeight": 0.2,
-            "interiorPenaltyWeight": 0,
-            "mountainCollisionStressWeight": 0.5,
-            "mountainCollisionUpliftWeight": 0.5,
-            "mountainConvergenceFractalBase": 0.6,
-            "mountainConvergenceFractalSpan": 0.4,
-            "mountainFractalScale": 0.3,
-            "mountainInteriorUpliftScale": 0.25,
-            "mountainMaxFraction": 0.1,
-            "mountainSpineDilationSteps": 2,
-            "mountainSpineFraction": 0.08,
-            "mountainSubductionUpliftWeight": 0.25,
-            "mountainThreshold": 0.37,
-            "oldBeltHillScale": 1.1,
-            "oldBeltMountainScale": 0.4,
+            "fractureRiftWeight": 0.14,
+            "fractureStressWeight": 0.26,
+            "hillBoundaryWeight": 0.46,
+            "hillConvergentFoothill": 0.48,
+            "hillFoothillBase": 0.58,
+            "hillFoothillFractalGain": 0.9,
+            "hillFractalScale": 0.9,
+            "hillInteriorFalloff": 0.24,
+            "hillMaxFraction": 0.27,
+            "hillRiftBonus": 0.34,
+            "hillRiftBonusScale": 0.66,
+            "hillRiftDepthScale": 0.42,
+            "hillThreshold": 0.15,
+            "hillUpliftScale": 0.58,
+            "hillUpliftWeight": 0.3,
+            "interiorPenaltyWeight": 0.26,
+            "mountainCollisionStressWeight": 0.58,
+            "mountainCollisionUpliftWeight": 0.6,
+            "mountainConvergenceFractalBase": 0.52,
+            "mountainConvergenceFractalSpan": 0.48,
+            "mountainFractalScale": 0.46,
+            "mountainInteriorUpliftScale": 0.16,
+            "mountainMaxFraction": 0.085,
+            "mountainSpineDilationSteps": 1,
+            "mountainSpineFraction": 0.065,
+            "mountainSpineMinDistance": 2,
+            "mountainSubductionUpliftWeight": 0.36,
+            "mountainThreshold": 0.23000000000000004,
+            "oldBeltHillScale": 1.16,
+            "oldBeltMountainScale": 0.66,
             "orogenyCollisionStressWeight": 0.7,
-            "orogenyCollisionUpliftWeight": 0.4,
+            "orogenyCollisionUpliftWeight": 0.5,
             "orogenyDivergentRiftWeight": 0.55,
             "orogenyDivergentStressWeight": 0.15,
             "orogenyTransformStressWeight": 0.4,
             "riftDepth": 0.2,
             "riftPenalty": 1,
-            "tectonicIntensity": 2.125,
-            "transformPenalty": 0.6,
-            "upliftWeight": 0.35
+            "tectonicIntensity": 2.0625,
+            "transformPenalty": 0.68,
+            "upliftWeight": 0.42
           },
           "strategy": "default"
         },
         "roughLands": {
           "config": {
-            "boundaryExponent": 1.6,
-            "boundaryGate": 0.1,
+            "boundaryExponent": 1.72,
+            "boundaryGate": 0.04,
             "boundaryWeight": 1,
             "convergenceBonus": 1,
-            "driverExponent": 0.1,
-            "driverSignalByteMin": 30,
-            "foothillMaxDistance": 3,
-            "fractalWeight": 0.25,
+            "driverExponent": 1.05,
+            "driverSignalByteMin": 18,
+            "foothillMaxDistance": 4,
+            "fractalWeight": 0.38,
             "fractureBoundaryWeight": 0.7,
-            "fractureRiftWeight": 0.1,
-            "fractureStressWeight": 0.2,
-            "hillBoundaryWeight": 0.35,
-            "hillConvergentFoothill": 0.35,
-            "hillFoothillBase": 0.5,
-            "hillFoothillFractalGain": 0.5,
-            "hillFractalScale": 0.3,
-            "hillInteriorFalloff": 0,
-            "hillMaxFraction": 0.18,
-            "hillRiftBonus": 0.25,
-            "hillRiftBonusScale": 0.5,
-            "hillRiftDepthScale": 0.5,
-            "hillThreshold": 0.09,
-            "hillUpliftScale": 0.7,
-            "hillUpliftWeight": 0.2,
-            "interiorPenaltyWeight": 0,
-            "mountainCollisionStressWeight": 0.5,
-            "mountainCollisionUpliftWeight": 0.5,
-            "mountainConvergenceFractalBase": 0.6,
-            "mountainConvergenceFractalSpan": 0.4,
-            "mountainFractalScale": 0.3,
-            "mountainInteriorUpliftScale": 0.25,
-            "mountainMaxFraction": 0.1,
-            "mountainSpineDilationSteps": 2,
-            "mountainSpineFraction": 0.08,
-            "mountainSubductionUpliftWeight": 0.25,
-            "mountainThreshold": 0.37,
-            "oldBeltHillScale": 1.1,
-            "oldBeltMountainScale": 0.4,
+            "fractureRiftWeight": 0.14,
+            "fractureStressWeight": 0.26,
+            "hillBoundaryWeight": 0.46,
+            "hillConvergentFoothill": 0.48,
+            "hillFoothillBase": 0.58,
+            "hillFoothillFractalGain": 0.9,
+            "hillFractalScale": 0.9,
+            "hillInteriorFalloff": 0.24,
+            "hillMaxFraction": 0.27,
+            "hillRiftBonus": 0.34,
+            "hillRiftBonusScale": 0.66,
+            "hillRiftDepthScale": 0.42,
+            "hillThreshold": 0.15,
+            "hillUpliftScale": 0.58,
+            "hillUpliftWeight": 0.3,
+            "interiorPenaltyWeight": 0.26,
+            "mountainCollisionStressWeight": 0.58,
+            "mountainCollisionUpliftWeight": 0.6,
+            "mountainConvergenceFractalBase": 0.52,
+            "mountainConvergenceFractalSpan": 0.48,
+            "mountainFractalScale": 0.46,
+            "mountainInteriorUpliftScale": 0.16,
+            "mountainMaxFraction": 0.085,
+            "mountainSpineDilationSteps": 1,
+            "mountainSpineFraction": 0.065,
+            "mountainSpineMinDistance": 2,
+            "mountainSubductionUpliftWeight": 0.36,
+            "mountainThreshold": 0.23000000000000004,
+            "oldBeltHillScale": 1.16,
+            "oldBeltMountainScale": 0.66,
             "orogenyCollisionStressWeight": 0.7,
-            "orogenyCollisionUpliftWeight": 0.4,
+            "orogenyCollisionUpliftWeight": 0.5,
             "orogenyDivergentRiftWeight": 0.55,
             "orogenyDivergentStressWeight": 0.15,
             "orogenyTransformStressWeight": 0.4,
             "riftDepth": 0.2,
             "riftPenalty": 1,
-            "tectonicIntensity": 2.125,
-            "transformPenalty": 0.6,
-            "upliftWeight": 0.35
+            "tectonicIntensity": 2.0625,
+            "transformPenalty": 0.68,
+            "upliftWeight": 0.42
           },
           "strategy": "default"
         }
@@ -1390,6 +1394,14 @@
             "shieldPenalty": 0.55,
             "transformMultiplier": 0.8
           },
+          "strategy": "default"
+        }
+      }
+    },
+    "morphology-routing": {
+      "routing": {
+        "routing": {
+          "config": {},
           "strategy": "default"
         }
       }

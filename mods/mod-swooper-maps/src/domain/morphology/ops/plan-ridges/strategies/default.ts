@@ -71,6 +71,39 @@ function validateRidgesInputs(input: PlanRidgesTypes["input"]): {
   };
 }
 
+function markSpineExclusion(params: {
+  exclusionMask: Uint8Array;
+  startIndex: number;
+  width: number;
+  height: number;
+  maxDistance: number;
+}): void {
+  const { exclusionMask, startIndex, width, height } = params;
+  const maxDistance = Math.max(0, Math.min(12, Math.round(params.maxDistance))) | 0;
+  const distance = new Uint8Array(exclusionMask.length);
+  distance.fill(255);
+  const queue = [startIndex];
+  distance[startIndex] = 0;
+  exclusionMask[startIndex] = 1;
+
+  let head = 0;
+  while (head < queue.length) {
+    const i = queue[head++]!;
+    const d = distance[i] ?? 255;
+    if (d >= maxDistance) continue;
+
+    const x = i % width;
+    const y = Math.floor(i / width);
+    forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
+      const ni = ny * width + nx;
+      if ((distance[ni] ?? 255) <= d + 1) return;
+      distance[ni] = (d + 1) as number;
+      exclusionMask[ni] = 1;
+      queue.push(ni);
+    });
+  }
+}
+
 export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
   run: (input, config) => {
     const { width, height } = input;
@@ -92,6 +125,7 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
     const mountainThreshold = Math.max(0, config.mountainThreshold);
     const mountainShoulderThreshold = mountainThreshold * 0.6;
     const dilationSteps = Math.max(0, Math.min(6, Math.round(config.mountainSpineDilationSteps))) | 0;
+    const spineMinDistance = Math.max(0, Math.min(12, Math.round(config.mountainSpineMinDistance))) | 0;
 
     let landCount = 0;
     for (let i = 0; i < size; i++) if (landMask[i] === 1) landCount++;
@@ -190,12 +224,23 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
       // If the overall mountain cap is smaller, clamp spines to it.
       spineTarget = Math.min(spineTarget, mountainTarget);
 
-      for (let i = 0; i < spineTarget; i++) {
-        const idx = spineCandidates[i]!;
+      const spineExclusionMask = new Uint8Array(size);
+      let mountainCount = 0;
+      for (const idx of spineCandidates) {
+        if (mountainCount >= spineTarget) break;
+        if (spineMinDistance > 0 && spineExclusionMask[idx] === 1) continue;
         mountainMask[idx] = 1;
+        mountainCount++;
+        if (spineMinDistance > 0) {
+          markSpineExclusion({
+            exclusionMask: spineExclusionMask,
+            startIndex: idx,
+            width: w,
+            height: h,
+            maxDistance: spineMinDistance,
+          });
+        }
       }
-
-      let mountainCount = spineTarget;
 
       // 2) Expand around spines for limited ridge width, respecting the hard cap.
       for (let step = 0; step < dilationSteps && mountainCount < mountainTarget; step++) {
@@ -251,8 +296,18 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
         });
         for (const i of remaining) {
           if (mountainCount >= mountainTarget) break;
+          if (spineMinDistance > 0 && spineExclusionMask[i] === 1) continue;
           mountainMask[i] = 1;
           mountainCount++;
+          if (spineMinDistance > 0) {
+            markSpineExclusion({
+              exclusionMask: spineExclusionMask,
+              startIndex: i,
+              width: w,
+              height: h,
+              maxDistance: spineMinDistance,
+            });
+          }
         }
       }
     }

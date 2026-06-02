@@ -725,7 +725,7 @@ describe("Shipped map configs", () => {
       swooperEarthlikeConfig.config
     ) as any;
 
-    expect(compiled["ecology-pedology"].pedology.classify.strategy).toBe("coastal-shelf");
+    expect(compiled["ecology-pedology"].pedology.classify.strategy).toBe("orogeny-boosted");
     expect(compiled["ecology-pedology"]["resource-basins"].plan.strategy).toBe("mixed");
     expect(compiled["ecology-pedology"]["resource-basins"].score.strategy).toBe("default");
     expect(compiled["ecology-biomes"].biomes.classify.strategy).toBe("default");

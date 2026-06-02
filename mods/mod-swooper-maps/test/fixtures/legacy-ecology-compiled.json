@@ -1,34 +1,5 @@
 {
   "shattered-ring": {
-    "ecology-pedology": {
-      "pedology": {
-        "classify": {
-          "config": {
-            "bedrockWeight": 0.6,
-            "climateWeight": 1.2,
-            "fertilityCeiling": 0.95,
-            "reliefWeight": 0.8,
-            "sedimentWeight": 1.1
-          },
-          "strategy": "orogeny-boosted"
-        }
-      },
-      "resource-basins": {
-        "plan": {
-          "config": {
-            "resources": []
-          },
-          "strategy": "mixed"
-        },
-        "score": {
-          "config": {
-            "maxPerResource": 12,
-            "minConfidence": 0.3
-          },
-          "strategy": "default"
-        }
-      }
-    },
     "ecology-biomes": {
       "biomes": {
         "classify": {
@@ -353,9 +324,7 @@
           "strategy": "default"
         }
       }
-    }
-  },
-  "sundered-archipelago": {
+    },
     "ecology-pedology": {
       "pedology": {
         "classify": {
@@ -366,7 +335,7 @@
             "reliefWeight": 0.8,
             "sedimentWeight": 1.1
           },
-          "strategy": "coastal-shelf"
+          "strategy": "orogeny-boosted"
         }
       },
       "resource-basins": {
@@ -374,7 +343,7 @@
           "config": {
             "resources": []
           },
-          "strategy": "hydro-fluvial"
+          "strategy": "mixed"
         },
         "score": {
           "config": {
@@ -384,7 +353,9 @@
           "strategy": "default"
         }
       }
-    },
+    }
+  },
+  "sundered-archipelago": {
     "ecology-biomes": {
       "biomes": {
         "classify": {
@@ -708,9 +679,7 @@
           "strategy": "default"
         }
       }
-    }
-  },
-  "swooper-desert-mountains": {
+    },
     "ecology-pedology": {
       "pedology": {
         "classify": {
@@ -721,7 +690,7 @@
             "reliefWeight": 0.8,
             "sedimentWeight": 1.1
           },
-          "strategy": "orogeny-boosted"
+          "strategy": "coastal-shelf"
         }
       },
       "resource-basins": {
@@ -729,7 +698,7 @@
           "config": {
             "resources": []
           },
-          "strategy": "mixed"
+          "strategy": "hydro-fluvial"
         },
         "score": {
           "config": {
@@ -739,7 +708,9 @@
           "strategy": "default"
         }
       }
-    },
+    }
+  },
+  "swooper-desert-mountains": {
     "ecology-biomes": {
       "biomes": {
         "classify": {
@@ -1064,20 +1035,18 @@
           "strategy": "default"
         }
       }
-    }
-  },
-  "swooper-earthlike": {
+    },
     "ecology-pedology": {
       "pedology": {
         "classify": {
           "config": {
-            "bedrockWeight": 0.7,
-            "climateWeight": 1.3,
-            "fertilityCeiling": 0.96,
-            "reliefWeight": 0.9,
-            "sedimentWeight": 1
+            "bedrockWeight": 0.6,
+            "climateWeight": 1.2,
+            "fertilityCeiling": 0.95,
+            "reliefWeight": 0.8,
+            "sedimentWeight": 1.1
           },
-          "strategy": "coastal-shelf"
+          "strategy": "orogeny-boosted"
         }
       },
       "resource-basins": {
@@ -1089,31 +1058,33 @@
         },
         "score": {
           "config": {
-            "maxPerResource": 14,
-            "minConfidence": 0.32
+            "maxPerResource": 12,
+            "minConfidence": 0.3
           },
           "strategy": "default"
         }
       }
-    },
+    }
+  },
+  "swooper-earthlike": {
     "ecology-biomes": {
       "biomes": {
         "classify": {
           "config": {
             "aridity": {
-              "bias": 3,
-              "humidityDampening": 0.46,
+              "bias": 2,
+              "humidityDampening": 0.5,
               "moistureShiftThresholds": [
-                0.17,
-                0.62
+                0.2,
+                0.66
               ],
-              "normalization": 112,
+              "normalization": 118,
               "petBase": 19,
-              "petTemperatureWeight": 98,
-              "rainfallWeight": 1.15,
+              "petTemperatureWeight": 92,
+              "rainfallWeight": 1.08,
               "temperatureMax": 45,
               "temperatureMin": 0,
-              "vegetationPenalty": 0.85
+              "vegetationPenalty": 0.78
             },
             "edgeRefine": {
               "iterations": 3,
@@ -1122,9 +1093,9 @@
             "moisture": {
               "thresholds": [
                 90,
-                190,
-                220,
-                255
+                188,
+                228,
+                252
               ]
             },
             "temperature": {
@@ -1140,8 +1111,8 @@
             },
             "vegetation": {
               "base": 0.39,
-              "moistureNormalizationPadding": 38,
-              "moistureWeight": 0.63
+              "moistureNormalizationPadding": 48,
+              "moistureWeight": 0.72
             }
           },
           "strategy": "default"
@@ -1246,8 +1217,8 @@
       "plan-reefs": {
         "planReefs": {
           "config": {
-            "minConfidence01": 0.62,
-            "stride": 2
+            "minConfidence01": 0.84,
+            "stride": 4
           },
           "strategy": "default"
         }
@@ -1255,8 +1226,8 @@
       "plan-vegetation": {
         "planVegetation": {
           "config": {
-            "forestMinConfidence01": 0.02,
-            "rainforestMinConfidence01": 0.28,
+            "forestMinConfidence01": 0.04,
+            "rainforestMinConfidence01": 0.29,
             "sagebrushSteppeMinConfidence01": 0,
             "savannaWoodlandMinConfidence01": 0,
             "taigaMinConfidence01": 0
@@ -1267,7 +1238,7 @@
       "plan-wetlands": {
         "planWetlands": {
           "config": {
-            "minConfidence01": 0.4
+            "minConfidence01": 0.42
           },
           "strategy": "default"
         }
@@ -1276,12 +1247,12 @@
         "featureSubstrate": {
           "config": {
             "coastalAdjacencyRadius": 1,
-            "floodplainDischargeMin": 120,
-            "intertidalMaxElevationAboveSeaM": 24,
+            "floodplainDischargeMin": 96,
+            "intertidalMaxElevationAboveSeaM": 28,
             "isolatedRiverRadius": 1,
-            "lowlandMaxElevationAboveSeaM": 120,
+            "lowlandMaxElevationAboveSeaM": 150,
             "navigableRiverClass": 2,
-            "nearRiverRadius": 1
+            "nearRiverRadius": 2
           },
           "strategy": "default"
         },
@@ -1412,9 +1383,38 @@
         },
         "vegetationSubstrate": {
           "config": {
-            "moistureNormalization": 230,
-            "temperatureMaxC": 40,
-            "temperatureMinC": -20
+            "moistureNormalization": 238,
+            "temperatureMaxC": 42,
+            "temperatureMinC": -22
+          },
+          "strategy": "default"
+        }
+      }
+    },
+    "ecology-pedology": {
+      "pedology": {
+        "classify": {
+          "config": {
+            "bedrockWeight": 0.82,
+            "climateWeight": 1.25,
+            "fertilityCeiling": 0.95,
+            "reliefWeight": 1.18,
+            "sedimentWeight": 1
+          },
+          "strategy": "orogeny-boosted"
+        }
+      },
+      "resource-basins": {
+        "plan": {
+          "config": {
+            "resources": []
+          },
+          "strategy": "mixed"
+        },
+        "score": {
+          "config": {
+            "maxPerResource": 14,
+            "minConfidence": 0.32
           },
           "strategy": "default"
         }

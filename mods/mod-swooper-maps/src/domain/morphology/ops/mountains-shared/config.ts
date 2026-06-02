@@ -97,6 +97,19 @@ export const MountainsConfigSchema = Type.Object({
     maximum: 6,
   }),
   /**
+   * Minimum hex distance between selected ridge-spine seeds.
+   *
+   * This spreads mountain terrain across more distinct ranges without widening
+   * each range. A value of 0 preserves legacy greedy selection.
+   */
+  mountainSpineMinDistance: Type.Integer({
+    description:
+      "Controls minimum hex distance between selected ridge-spine seeds; higher values favor more separate ranges over denser single belts.",
+    default: 0,
+    minimum: 0,
+    maximum: 12,
+  }),
+  /**
    * Age-based relief attenuation for mountains (0..1).
    *
    * Old belts should preferentially degrade to hills rather than keeping sharp ridge masks forever.

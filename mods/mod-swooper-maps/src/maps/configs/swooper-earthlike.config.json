@@ -8,10 +8,10 @@
   "config": {
     "foundation": {
       "knobs": {
-        "plateActivity": 0.5
+        "plateActivity": 0.85
       },
       "meshResolution": {
-        "plateCount": 24,
+        "plateCount": 28,
         "cellsPerPlate": 13,
         "referenceArea": 4536,
         "plateScalePower": 0.8,
@@ -43,7 +43,7 @@
         "riftWeakening01": 0.35
       },
       "platePartition": {
-        "plateCount": 37,
+        "plateCount": 42,
         "referenceArea": 4536,
         "plateScalePower": 0.8,
         "polarCaps": {
@@ -94,7 +94,7 @@
       "knobs": {
         "seaLevel": "earthlike",
         "coastRuggedness": "normal",
-        "shelfWidth": "normal"
+        "shelfWidth": "wide"
       },
       "substrate": {
         "continentalBaseErodibility": 0.3,
@@ -168,12 +168,12 @@
         }
       },
       "shelf": {
-        "nearshoreDistance": 3,
-        "shallowQuantile": 0.7,
+        "nearshoreDistance": 8,
+        "shallowQuantile": 0.45,
         "activeClosenessThreshold": 0.45,
-        "capTilesActive": 2,
-        "capTilesPassive": 4,
-        "capTilesMax": 8
+        "capTilesActive": 4,
+        "capTilesPassive": 10,
+        "capTilesMax": 14
       }
     },
     "morphology-routing": {
@@ -232,54 +232,55 @@
         "microcontinentChance": 0.12
       },
       "mountainRanges": {
-        "tectonicIntensity": 1.7,
-        "driverSignalByteMin": 30,
-        "driverExponent": 0.1,
-        "mountainMaxFraction": 0.1,
-        "hillMaxFraction": 0.18,
-        "mountainSpineFraction": 0.08,
-        "mountainSpineDilationSteps": 2,
-        "oldBeltMountainScale": 0.4,
-        "oldBeltHillScale": 1.1,
-        "foothillMaxDistance": 3,
-        "mountainThreshold": 0.42,
-        "hillThreshold": 0.12,
-        "upliftWeight": 0.35,
-        "fractalWeight": 0.25,
+        "tectonicIntensity": 1.65,
+        "driverSignalByteMin": 18,
+        "driverExponent": 1.05,
+        "mountainMaxFraction": 0.085,
+        "hillMaxFraction": 0.27,
+        "mountainSpineFraction": 0.065,
+        "mountainSpineDilationSteps": 1,
+        "mountainSpineMinDistance": 2,
+        "oldBeltMountainScale": 0.66,
+        "oldBeltHillScale": 1.16,
+        "foothillMaxDistance": 4,
+        "mountainThreshold": 0.28,
+        "hillThreshold": 0.18,
+        "upliftWeight": 0.42,
+        "fractalWeight": 0.38,
         "orogenyCollisionStressWeight": 0.7,
-        "orogenyCollisionUpliftWeight": 0.4,
+        "orogenyCollisionUpliftWeight": 0.5,
         "orogenyTransformStressWeight": 0.4,
         "orogenyDivergentRiftWeight": 0.55,
         "orogenyDivergentStressWeight": 0.15,
         "fractureBoundaryWeight": 0.7,
-        "fractureStressWeight": 0.2,
-        "fractureRiftWeight": 0.1,
-        "mountainCollisionStressWeight": 0.5,
-        "mountainCollisionUpliftWeight": 0.5,
-        "mountainSubductionUpliftWeight": 0.25,
-        "mountainInteriorUpliftScale": 0.25,
-        "mountainFractalScale": 0.3,
-        "mountainConvergenceFractalBase": 0.6,
-        "mountainConvergenceFractalSpan": 0.4,
+        "fractureStressWeight": 0.26,
+        "fractureRiftWeight": 0.14,
+        "mountainCollisionStressWeight": 0.58,
+        "mountainCollisionUpliftWeight": 0.6,
+        "mountainSubductionUpliftWeight": 0.36,
+        "mountainInteriorUpliftScale": 0.16,
+        "mountainFractalScale": 0.46,
+        "mountainConvergenceFractalBase": 0.52,
+        "mountainConvergenceFractalSpan": 0.48,
         "riftDepth": 0.2,
         "boundaryWeight": 1,
-        "boundaryGate": 0.1,
-        "boundaryExponent": 1.6,
-        "interiorPenaltyWeight": 0,
+        "boundaryGate": 0.04,
+        "boundaryExponent": 1.72,
+        "interiorPenaltyWeight": 0.26,
         "convergenceBonus": 1,
-        "transformPenalty": 0.6,
+        "transformPenalty": 0.68,
         "riftPenalty": 1,
-        "hillBoundaryWeight": 0.35,
-        "hillRiftBonus": 0.25,
-        "hillFoothillBase": 0.5,
-        "hillFoothillFractalGain": 0.5,
-        "hillConvergentFoothill": 0.35,
-        "hillInteriorFalloff": 0,
-        "hillUpliftWeight": 0.2,
-        "hillFractalScale": 0.3,
-        "hillUpliftScale": 0.7,
-        "hillRiftBonusScale": 0.5,
-        "hillRiftDepthScale": 0.5
+        "hillBoundaryWeight": 0.46,
+        "hillRiftBonus": 0.34,
+        "hillFoothillBase": 0.58,
+        "hillFoothillFractalGain": 0.9,
+        "hillConvergentFoothill": 0.48,
+        "hillInteriorFalloff": 0.24,
+        "hillUpliftWeight": 0.3,
+        "hillFractalScale": 0.9,
+        "hillUpliftScale": 0.58,
+        "hillRiftBonusScale": 0.66,
+        "hillRiftDepthScale": 0.42
       }
     },
     "hydrology-climate-baseline": {
@@ -468,12 +469,12 @@
     "ecology-pedology": {
       "knobs": {},
       "soilClassification": {
-        "profile": "coastalShelf",
-        "climateWeight": 1.3,
-        "reliefWeight": 0.9,
+        "profile": "orogenyBoosted",
+        "climateWeight": 1.25,
+        "reliefWeight": 1.18,
         "sedimentWeight": 1,
-        "bedrockWeight": 0.7,
-        "fertilityCeiling": 0.96
+        "bedrockWeight": 0.82,
+        "fertilityCeiling": 0.95
       },
       "resourceBasinPlanning": {
         "profile": "mixed",
@@ -501,30 +502,30 @@
         "moisture": {
           "thresholds": [
             90,
-            190,
-            220,
-            255
+            188,
+            228,
+            252
           ]
         },
         "aridity": {
           "temperatureMin": 0,
           "temperatureMax": 45,
           "petBase": 19,
-          "petTemperatureWeight": 98,
-          "humidityDampening": 0.46,
-          "rainfallWeight": 1.15,
-          "bias": 3,
-          "normalization": 112,
+          "petTemperatureWeight": 92,
+          "humidityDampening": 0.5,
+          "rainfallWeight": 1.08,
+          "bias": 2,
+          "normalization": 118,
           "moistureShiftThresholds": [
-            0.17,
-            0.62
+            0.2,
+            0.66
           ],
-          "vegetationPenalty": 0.85
+          "vegetationPenalty": 0.78
         },
         "vegetation": {
           "base": 0.39,
-          "moistureWeight": 0.63,
-          "moistureNormalizationPadding": 38
+          "moistureWeight": 0.72,
+          "moistureNormalizationPadding": 48
         },
         "edgeRefine": {
           "radius": 1,
@@ -536,18 +537,18 @@
       "knobs": {},
       "substrateScoring": {
         "vegetationGrowth": {
-          "moistureNormalization": 230,
-          "temperatureMinC": -20,
-          "temperatureMaxC": 40
+          "moistureNormalization": 238,
+          "temperatureMinC": -22,
+          "temperatureMaxC": 42
         },
         "featureHabitats": {
           "navigableRiverClass": 2,
-          "nearRiverRadius": 1,
+          "nearRiverRadius": 2,
           "isolatedRiverRadius": 1,
           "coastalAdjacencyRadius": 1,
-          "lowlandMaxElevationAboveSeaM": 120,
-          "intertidalMaxElevationAboveSeaM": 24,
-          "floodplainDischargeMin": 120
+          "lowlandMaxElevationAboveSeaM": 150,
+          "intertidalMaxElevationAboveSeaM": 28,
+          "floodplainDischargeMin": 96
         }
       },
       "wetlandScoring": {
@@ -637,15 +638,15 @@
       },
       "reefPlanning": {
         "profile": "default",
-        "minConfidence01": 0.62,
-        "stride": 2
+        "minConfidence01": 0.84,
+        "stride": 4
       },
       "wetlandPlanning": {
-        "minConfidence01": 0.4
+        "minConfidence01": 0.42
       },
       "vegetationPlanning": {
-        "forestMinConfidence01": 0.02,
-        "rainforestMinConfidence01": 0.28,
+        "forestMinConfidence01": 0.04,
+        "rainforestMinConfidence01": 0.29,
         "taigaMinConfidence01": 0,
         "savannaWoodlandMinConfidence01": 0,
         "sagebrushSteppeMinConfidence01": 0
