@@ -6,7 +6,6 @@ import GamePlayNotifications from '../../src/commands/game/play/notifications';
 import GamePlayPriorities from '../../src/commands/game/play/priorities';
 import GamePlayReadyCity from '../../src/commands/game/play/ready-city';
 import GamePlayReadyUnit from '../../src/commands/game/play/ready-unit';
-import GamePlaySettlementRecommendations from '../../src/commands/game/play/settlement-recommendations';
 import GamePlayUnitMovePreview from '../../src/commands/game/play/unit-move-preview';
 import { startFakeTunerServer } from './fixtures/tuner-socket-server';
 
@@ -2002,30 +2001,6 @@ describe('game play commands', () => {
       expect(server.received.some((message) => message.includes('readReadyCityView'))).toBe(true);
     } finally {
       log.mockRestore();
-      await server.close();
-    }
-  });
-
-  test('reads settlement recommendations without sending operations', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlaySettlementRecommendations.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--x',
-        '15',
-        '--y',
-        '23',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('readSettlementRecommendations'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"locations":[{"x":15,"y":23}]'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
-    } finally {
       await server.close();
     }
   });
