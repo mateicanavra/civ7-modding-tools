@@ -6734,6 +6734,22 @@ function playNotificationViewSource(): string {
           ["Wonder completed/failed uses the default notification handler; the live target may be invalid, so activation only looks at a plot when one exists."],
         );
       }
+      if (stringIncludes(haystack, "LEGACY_COMPLETED")) {
+        return hint(
+          "informational-notification",
+          "app-ui-action",
+          "Game.Notifications.dismiss",
+          "{ notificationId }",
+          "game play dismiss-notification",
+          "official-ui",
+          [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not an operation target.")],
+          [
+            action("dismiss reviewed legacy completion report", "game play dismiss-notification --target '<notification-id>' --send --reason '<why this legacy completion report was reviewed>'", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after reviewing the completed legacy/triumph report for score context"),
+            action("read current legacy progress", "game play progress-dashboard --compact --json", "read-only", "progress-dashboard", "legacy path scores and age progress", "when the report should be compared with local-player progress before dismissal"),
+          ],
+          ["Runtime NOTIFICATION_LEGACY_COMPLETED reports completed legacy/triumph context. No specialized operation surface is proven; review the score context, then close through App UI dismissal when canUserDismiss is true."],
+        );
+      }
       if (stringIncludes(haystack, "GRIEVANCES_AGAINST_YOU")) {
         return hint(
           "informational-notification",
@@ -10583,7 +10599,8 @@ function isTurnCompletionFallbackInformationalType(typeName: string): boolean {
     || typeName === "NOTIFICATION_VOLCANO_ERUPTS_SEV1"
     || typeName === "NOTIFICATION_VOLCANO_ERUPTS_SEV2"
     || typeName === "NOTIFICATION_WONDER_COMPLETED"
-    || typeName === "NOTIFICATION_WONDER_FAILED";
+    || typeName === "NOTIFICATION_WONDER_FAILED"
+    || typeName === "NOTIFICATION_LEGACY_COMPLETED";
 }
 
 function autoplayConfigMatches(status: Civ7AutoplayStatusResult, options: Civ7AutoplayOptions): boolean {

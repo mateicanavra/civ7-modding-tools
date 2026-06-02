@@ -162,9 +162,12 @@ separate topic review:
 - `NOTIFICATION_VOLCANO_ERUPTS_SEV0/1/2`
 - `NOTIFICATION_WONDER_COMPLETED`
 - `NOTIFICATION_WONDER_FAILED`
+- `NOTIFICATION_LEGACY_COMPLETED`
 
 These can still matter tactically, so the agent should read the report location
-and summary before ending. The fallback means the report is not itself a
+and summary before ending; for legacy-completed reports, compare against
+`game play progress-dashboard --compact --json` if score/reward context is
+unclear. The fallback means the report is not itself a
 remaining gameplay choice once blocker enum and readiness are clean.
 
 ## CLI Shortcuts Added

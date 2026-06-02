@@ -149,6 +149,7 @@ Notable handler evidence:
   reviewed `game play dismiss-notification --target ... --send ...` closeout,
   not `respond-diplomacy`.
 - `NOTIFICATION_WONDER_COMPLETED`, `NOTIFICATION_WONDER_FAILED`,
+  `NOTIFICATION_LEGACY_COMPLETED`,
   `NOTIFICATION_UNIT_ATTACKED`, `NOTIFICATION_DISTRICT_ATTACKED`, and
   natural-disaster reports such as `NOTIFICATION_RIVER_FLOODS_SEV0/1/2`,
   `NOTIFICATION_STORM_ARRIVED`, `NOTIFICATION_STORM_MOVED`,
@@ -158,6 +159,10 @@ Notable handler evidence:
   they fall through to `DefaultHandler`. Default activation only looks at a
   valid plot, so guarded `Game.Notifications.dismiss` is the practical closeout
   after the report is reviewed and no specialized blocker remains.
+- `NOTIFICATION_LEGACY_COMPLETED` should be reviewed as score/reward context
+  before closeout. Use `game play progress-dashboard --compact --json` when the
+  report should be compared against local legacy path progress, then dismiss the
+  reviewed report through the same App UI notification closeout route.
 
 ## Current Narrative Lesson
 

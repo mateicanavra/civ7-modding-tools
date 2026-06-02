@@ -147,6 +147,11 @@ Official handler evidence:
   `NOTIFICATION_STORM_DISSIPATED`, `NOTIFICATION_VOLCANO_ACTIVE`,
   `NOTIFICATION_VOLCANO_INACTIVE`, and `NOTIFICATION_VOLCANO_ERUPTS_SEV0/1/2`
   as expiring, non-auto-notify report notifications.
+- Runtime can also emit `NOTIFICATION_LEGACY_COMPLETED` report notifications
+  when another player completes a legacy/triumph reward. Review these for score
+  context, compare with `game play progress-dashboard --compact --json` when
+  useful, then close them as reviewed informational reports if `canUserDismiss`
+  is true.
 - `notification-handlers.js` does not register specialized handlers for these
   report families, so they use `DefaultHandler`.
 - `DefaultHandler.activate` only looks at a valid plot when one exists. It does

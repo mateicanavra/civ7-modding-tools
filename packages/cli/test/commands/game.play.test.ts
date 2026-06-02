@@ -2644,6 +2644,44 @@ describe('game play commands', () => {
     }
   });
 
+  test('schedules legacy completion reports as reviewed dismissal candidates', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'legacy-completed' });
+    try {
+      const { port } = server.address();
+      const writes: string[] = [];
+      const log = vi.spyOn(GamePlayNotificationQueue.prototype, 'log').mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
+      try {
+        await GamePlayNotificationQueue.run([
+          '--host',
+          '127.0.0.1',
+          '--port',
+          String(port),
+          '--json',
+        ]);
+      } finally {
+        log.mockRestore();
+      }
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          schedule: Array<{ disposition: string; command: string | null; safeToBatch: boolean; typeName: string | null }>;
+        };
+      };
+      const step = payload.view.schedule[0];
+      expect(step.typeName).toBe('NOTIFICATION_LEGACY_COMPLETED');
+      expect(step.disposition).toBe('reviewed-dismissal-candidate');
+      expect(step.safeToBatch).toBe(true);
+      expect(step.command).toContain('dismiss-notification');
+      expect(step.command).toContain('<reviewed: notification-legacy-completed>');
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
   test('bulk dismisses only eligible informational queue items with approval', async () => {
     const dryRunServer = await startTunerServer({ playNotificationMode: 'mixed-queue' });
     try {
@@ -3715,7 +3753,7 @@ function expectOwnerOnlyContactLabels(values: readonly string[]): void {
 
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
-  playNotificationMode?: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
+  playNotificationMode?: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
   notificationDismissalMode?: 'verified' | 'stale-nonblocking';
   productionPostconditionMode?: 'cleared' | 'blocker-still-live';
@@ -3824,7 +3862,7 @@ async function startTunerServer(options: {
 }
 
 function playNotificationView(
-  mode: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
+  mode: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
   diplomacyCloseoutObserved = false,
 ) {
   if (mode === 'runtime-error') {
@@ -5005,6 +5043,83 @@ function playNotificationView(
             message: informationalNotification.message,
             target: informationalNotification.target,
             location: informationalNotification.location,
+            ...informationalDecision,
+          },
+        ],
+      },
+      limits: { maxNotifications: 25, truncated: false },
+    };
+  }
+  if (mode === 'legacy-completed') {
+    const informationalDecision = {
+      category: 'informational-notification',
+      operationFamily: 'app-ui-action',
+      operationType: 'Game.Notifications.dismiss',
+      argsShape: '{ notificationId }',
+      cli: 'game play dismiss-notification',
+      requiredInputs: [
+        { name: 'Notification', source: 'notification ComponentID', required: true },
+      ],
+      commonActions: [
+        {
+          label: 'dismiss reviewed legacy completion report',
+          cli: "game play dismiss-notification --target '<notification-id>' --send --reason '<why this legacy completion report was reviewed>'",
+          operationFamily: 'app-ui-action',
+          operationType: 'Game.Notifications.dismiss',
+          argsShape: '{ notificationId }',
+          when: 'after reviewing the completed legacy/triumph report for score context',
+        },
+        {
+          label: 'read current legacy progress',
+          cli: 'game play progress-dashboard --compact --json',
+          operationFamily: 'read-only',
+          operationType: 'progress-dashboard',
+          argsShape: 'legacy path scores and age progress',
+          when: 'when the report should be compared with local-player progress before dismissal',
+        },
+      ],
+      confidence: 'official-ui',
+      notes: ['Runtime legacy completion report; review score context before closeout.'],
+    };
+    const legacyNotification = {
+      id: { owner: 0, id: 77, type: 20 },
+      type: -667238339,
+      typeName: 'NOTIFICATION_LEGACY_COMPLETED',
+      groupType: null,
+      summary: 'An unmet Player has completed the Triumph "Yokol-kab".',
+      message: 'Triumph Completed',
+      target: { owner: -1, id: -1, type: 0 },
+      location: { x: -9999, y: -9999 },
+      canUserDismiss: true,
+      expired: false,
+      dismissed: false,
+      isEndTurnBlocking: false,
+      decision: informationalDecision,
+    };
+    return {
+      localPlayerId: 0,
+      turn: { ok: true, value: 1 },
+      turnDate: { ok: true, value: '4000 BCE' },
+      hasSentTurnComplete: { ok: true, value: false },
+      canEndTurn: { ok: true, value: false },
+      blocker: { ok: true, value: -513644209 },
+      blockingNotificationId: { ok: true, value: null },
+      selectedUnitId: { ok: true, value: null },
+      selectedCityId: { ok: true, value: null },
+      firstReadyUnitId: { ok: true, value: null },
+      notifications: [legacyNotification],
+      decisions: [informationalDecision],
+      hud: {
+        nextDecision: null,
+        decisionQueue: [
+          {
+            notificationId: legacyNotification.id,
+            isEndTurnBlocking: false,
+            typeName: legacyNotification.typeName,
+            summary: legacyNotification.summary,
+            message: legacyNotification.message,
+            target: legacyNotification.target,
+            location: legacyNotification.location,
             ...informationalDecision,
           },
         ],
