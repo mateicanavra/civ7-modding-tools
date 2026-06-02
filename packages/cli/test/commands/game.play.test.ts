@@ -1854,6 +1854,70 @@ describe('game play commands', () => {
     }
   });
 
+  test('classifies valid diplomatic action reports without response options as reviewed closeouts', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'diplomatic-action-report' });
+    try {
+      const { port } = server.address();
+      const writes: string[] = [];
+      const log = vi.spyOn(GamePlayNotifications.prototype, 'log').mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
+      try {
+        await GamePlayNotifications.run([
+          '--host',
+          '127.0.0.1',
+          '--port',
+          String(port),
+          '--json',
+        ]);
+      } finally {
+        log.mockRestore();
+      }
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          notifications: Array<{
+            target: { owner: number; id: number; type: number };
+            details?: {
+              kind: string;
+              classification: string;
+              actionId: number;
+              responseOptionCount: number;
+              enabledResponseOptionCount: number;
+            };
+          }>;
+          hud: {
+            nextDecision: {
+              category: string;
+              operationFamily: string;
+              operationType: string;
+              cli: string;
+              notes: string[];
+              details?: unknown;
+            };
+          };
+        };
+      };
+      const notification = payload.view.notifications[0];
+      expect(notification.target).toEqual({ owner: 2, id: 34, type: 34 });
+      expect(notification.details?.kind).toBe('diplomatic-action-report');
+      expect(notification.details?.classification).toBe('diplomatic-action-report-no-enabled-response-options');
+      expect(notification.details?.actionId).toBe(34);
+      expect(notification.details?.responseOptionCount).toBe(0);
+      expect(notification.details?.enabledResponseOptionCount).toBe(0);
+      expect(payload.view.hud.nextDecision.category).toBe('informational-notification');
+      expect(payload.view.hud.nextDecision.operationFamily).toBe('app-ui-action');
+      expect(payload.view.hud.nextDecision.operationType).toBe('Game.Notifications.dismiss');
+      expect(payload.view.hud.nextDecision.cli).toBe('game play dismiss-notification');
+      expect(payload.view.hud.nextDecision.notes.join(' ')).toContain('real diplomatic event id');
+      expect(payload.view.hud.nextDecision.notes.join(' ')).toContain('reviewed report closeout');
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
   test('reads play priorities without sending operations', async () => {
     const server = await startTunerServer({ playNotificationMode: 'ready-unit' });
     try {
@@ -2182,6 +2246,45 @@ describe('game play commands', () => {
       expect(top.command).toContain("<reviewed: notification-volcano-active>");
       expect(payload.next).toBe(top.command);
       expect(top.reason).toContain('live ComponentID');
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('routes diplomatic action reports without response options to reviewed dismissal in compact priorities', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'diplomatic-action-report' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPriorities.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+        '--compact',
+        '--no-battlefield',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        next: string | null;
+        priorities: Array<{ kind: string; command?: string; reason: string }>;
+      };
+      const top = payload.priorities[0];
+      expect(top.kind).toBe('hud:informational-notification');
+      expect(top.command).toContain('game play dismiss-notification');
+      expect(top.command).toContain("--target '{\"owner\":0,\"id\":118,\"type\":20}'");
+      expect(top.command).toContain('<reviewed: notification-diplomatic-action>');
+      expect(payload.next).toBe(top.command);
+      expect(top.reason).toContain('live ComponentID');
+      expect(top.command).not.toContain('respond-diplomacy');
+      expect(payload.next).not.toContain('respond-diplomacy');
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       log.mockRestore();
@@ -3375,7 +3478,7 @@ function expectOwnerOnlyContactLabels(values: readonly string[]): void {
 
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
-  playNotificationMode?: 'town-focus' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
+  playNotificationMode?: 'town-focus' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
   notificationDismissalMode?: 'verified' | 'stale-nonblocking';
 } = {}) {
@@ -3476,7 +3579,7 @@ async function startTunerServer(options: {
 }
 
 function playNotificationView(
-  mode: 'town-focus' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
+  mode: 'town-focus' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
   diplomacyCloseoutObserved = false,
 ) {
   if (mode === 'runtime-error') {
@@ -4546,6 +4649,119 @@ function playNotificationView(
             target: notification.target,
             location: notification.location,
             player: null,
+            ...informationalDecision,
+          },
+        ],
+      },
+      limits: { maxNotifications: 25, truncated: false },
+    };
+  }
+  if (mode === 'diplomatic-action-report') {
+    const notificationId = { owner: 0, id: 118, type: 20 };
+    const details = {
+      kind: 'diplomatic-action-report',
+      classification: 'diplomatic-action-report-no-enabled-response-options',
+      actionId: 34,
+      notificationId,
+      eventData: {
+        ok: true,
+        value: {
+          actionTypeName: 'DIPLOMACY_ACTION_LAND_CLAIM',
+          initialPlayer: 2,
+          targetPlayer: -1,
+          canOppose: true,
+          gameTurnStart: 36,
+          gameTurnEnd: 36,
+          responseType: 920806707,
+        },
+      },
+      responseData: { ok: true, value: { responseList: [] } },
+      responseOptionCount: 0,
+      enabledResponseOptionCount: 0,
+      options: [],
+      enabledOptions: [],
+      disabledOptions: [],
+      notes: [
+        'NOTIFICATION_DIPLOMATIC_ACTION uses the official InvestigateDiplomaticAction handler. Its target can be a real diplomatic event id, but that alone is not proof of a response-required operation.',
+        'When getResponseDataForUI(actionId).responseList is empty or no options validate, treat this as a reviewed diplomatic action report closeout, not RESPOND_DIPLOMATIC_ACTION.',
+      ],
+    };
+    const informationalDecision = {
+      category: 'informational-notification',
+      operationFamily: 'app-ui-action',
+      operationType: 'Game.Notifications.dismiss',
+      argsShape: '{ notificationId }',
+      cli: 'game play dismiss-notification',
+      requiredInputs: [
+        { name: 'Notification', source: 'notification ComponentID', required: true },
+      ],
+      commonActions: [
+        {
+          label: 'dismiss reviewed diplomatic action report',
+          cli: "game play dismiss-notification --target '<notification-id>' --send --reason '<why this diplomatic report was reviewed>'",
+          operationFamily: 'app-ui-action',
+          operationType: 'Game.Notifications.dismiss',
+          argsShape: '{ notificationId }',
+          when: 'after reviewing the event data/location and confirming getResponseDataForUI exposes no enabled response option',
+        },
+      ],
+      confidence: 'official-ui',
+      notes: ['NOTIFICATION_DIPLOMATIC_ACTION can point at a real diplomatic event id, but empty/no-enabled getResponseDataForUI options make it a reviewed report closeout rather than RESPOND_DIPLOMATIC_ACTION.'],
+    };
+    const notification = {
+      id: notificationId,
+      type: 96575930,
+      typeName: 'NOTIFICATION_DIPLOMATIC_ACTION',
+      groupType: -1225125244,
+      player: null,
+      summary: 'Another Civilization settled a new Town nearby.',
+      message: 'New Settlement Nearby',
+      target: { owner: 2, id: 34, type: 34 },
+      location: { x: 3, y: 46 },
+      canUserDismiss: true,
+      expired: false,
+      dismissed: false,
+      isEndTurnBlocking: true,
+      decision: informationalDecision,
+      details,
+    };
+    return {
+      localPlayerId: 0,
+      turn: { ok: true, value: 37 },
+      turnDate: { ok: true, value: '3100 BCE' },
+      hasSentTurnComplete: { ok: true, value: false },
+      canEndTurn: { ok: true, value: false },
+      blocker: { ok: true, value: 0 },
+      blockingNotificationId: { ok: true, value: notification.id },
+      selectedUnitId: { ok: true, value: null },
+      selectedCityId: { ok: true, value: null },
+      firstReadyUnitId: { ok: true, value: { owner: 0, id: 327682, type: 26 } },
+      notifications: [notification],
+      decisions: [informationalDecision],
+      hud: {
+        nextDecision: {
+          notificationId: notification.id,
+          isEndTurnBlocking: true,
+          typeName: notification.typeName,
+          summary: notification.summary,
+          message: notification.message,
+          target: notification.target,
+          location: notification.location,
+          player: notification.player,
+          details,
+          ...informationalDecision,
+        },
+        decisionQueue: [
+          {
+            notificationId: notification.id,
+            isEndTurnBlocking: true,
+            typeName: notification.typeName,
+            summary: notification.summary,
+            message: notification.message,
+            target: notification.target,
+            location: notification.location,
+            player: notification.player,
+            details,
             ...informationalDecision,
           },
         ],

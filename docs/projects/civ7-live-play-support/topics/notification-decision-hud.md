@@ -136,6 +136,14 @@ Notable handler evidence:
   `NOTIFICATION_DIPLOMATIC_ACTION_LOW`; it therefore falls through to the
   default handler. Treat it as reviewed informational closeout after reading
   the message, not as `RESPOND_DIPLOMATIC_ACTION`.
+- `NOTIFICATION_DIPLOMATIC_ACTION` can point at a real diplomatic event id
+  without being a response-required choice. The HUD should attach
+  `details.kind == "diplomatic-action-report"` with
+  `Game.Diplomacy.getDiplomaticEventData(actionId)` and
+  `Game.Diplomacy.getResponseDataForUI(actionId)` proof. If the response list
+  is empty or no response option validates, compact priorities should route to
+  reviewed `game play dismiss-notification --target ... --send ...` closeout,
+  not `respond-diplomacy`.
 - `NOTIFICATION_WONDER_COMPLETED`, `NOTIFICATION_WONDER_FAILED`,
   `NOTIFICATION_UNIT_ATTACKED`, `NOTIFICATION_DISTRICT_ATTACKED`, and
   natural-disaster reports such as `NOTIFICATION_RIVER_FLOODS_SEV0/1/2`,

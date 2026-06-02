@@ -5860,6 +5860,72 @@ function playNotificationViewSource(): string {
         ],
       };
     };
+    const diplomacyActionReportDetailsFor = (notification, typeName, notificationId) => {
+      if (!stringIncludes(typeName, "DIPLOMATIC_ACTION")) return undefined;
+      if (stringIncludes(typeName, "DIPLOMATIC_RESPONSE_REQUIRED")
+        || stringIncludes(typeName, "DIPLOMATIC_ACTION_LOW")
+        || stringIncludes(typeName, "DIPLOMATIC_ACTION_WARNING")
+        || stringIncludes(typeName, "DIPLOMATIC_ACTION_ESPIONAGE")) return undefined;
+      const target = safeNotificationValue(notification, "Target");
+      const actionId = target && typeof target === "object" && typeof target.id === "number" ? target.id : null;
+      const eventData = actionId == null
+        ? { ok: false, error: "notification target does not include a diplomatic action id" }
+        : probe(() => Game.Diplomacy.getDiplomaticEventData(actionId));
+      const responseData = actionId == null
+        ? { ok: false, error: "notification target does not include a diplomatic action id" }
+        : probe(() => Game.Diplomacy.getResponseDataForUI(actionId));
+      const responseList = responseData.ok && Array.isArray(responseData.value?.responseList)
+        ? responseData.value.responseList
+        : [];
+      const options = responseList.map((response) => {
+        const responseType = response?.responseType ?? null;
+        const args = actionId == null || responseType == null ? null : { ID: actionId, Type: responseType };
+        const validation = args
+          ? probe(() => Game.PlayerOperations.canStart(
+            GameContext.localPlayerID,
+            PlayerOperationTypes.RESPOND_DIPLOMATIC_ACTION,
+            args,
+            false,
+          ))
+          : { ok: false, error: "missing action id or response type" };
+        const enabled = validation.ok && (validation.value?.Success === true || validation.value?.canStart === true);
+        return {
+          responseType,
+          title: loc(response?.titleString ?? response?.name ?? response?.Title ?? null),
+          description: loc(response?.descriptionString ?? response?.Description ?? null),
+          cost: response?.cost ?? null,
+          enabled,
+          disabled: !enabled,
+          validation,
+          cli: enabled && actionId != null && responseType != null
+            ? "game play respond-diplomacy --action-id " + actionId
+              + " --response-type " + responseType
+              + (notificationId ? " --notification-id '" + JSON.stringify(notificationId) + "'" : "")
+              + " --send --reason '<why this response was selected>'"
+            : null,
+        };
+      });
+      const enabledOptions = options.filter((option) => option.enabled);
+      return {
+        kind: "diplomatic-action-report",
+        classification: enabledOptions.length > 0
+          ? "diplomatic-action-response-options-present"
+          : "diplomatic-action-report-no-enabled-response-options",
+        actionId,
+        notificationId,
+        eventData,
+        responseData,
+        responseOptionCount: responseList.length,
+        enabledResponseOptionCount: enabledOptions.length,
+        options,
+        enabledOptions,
+        disabledOptions: options.filter((option) => option.disabled),
+        notes: [
+          "NOTIFICATION_DIPLOMATIC_ACTION uses the official InvestigateDiplomaticAction handler. Its target can be a real diplomatic event id, but that alone is not proof of a response-required operation.",
+          "When getResponseDataForUI(actionId).responseList is empty or no options validate, treat this as a reviewed diplomatic action report closeout, not RESPOND_DIPLOMATIC_ACTION.",
+        ],
+      };
+    };
     const technologyChoiceDetailsFor = (notification, typeName, notificationId) => {
       if (!stringIncludes(typeName, "CHOOSE_TECH")) return undefined;
       const localPlayerId = GameContext.localPlayerID;
@@ -6344,6 +6410,7 @@ function playNotificationViewSource(): string {
     const detailsFor = (notification, typeName, notificationId) => {
       return firstMeetDetailsFor(notification, typeName)
         ?? diplomacyResponseDetailsFor(notification, typeName, notificationId)
+        ?? diplomacyActionReportDetailsFor(notification, typeName, notificationId)
         ?? technologyChoiceDetailsFor(notification, typeName, notificationId)
         ?? cultureChoiceDetailsFor(notification, typeName, notificationId)
         ?? celebrationChoiceDetailsFor(notification, typeName, notificationId)
@@ -6555,6 +6622,22 @@ function playNotificationViewSource(): string {
             action("dismiss reviewed diplomatic completion", "game play dismiss-notification --target '<notification-id>' --send --reason '<why this diplomatic completion was reviewed>'", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after confirming the notification only reports a completed low-severity diplomatic action"),
           ],
           ["The official notification train does not register a specialized handler for NOTIFICATION_DIPLOMATIC_ACTION_LOW; it falls through to the default notification handler, so closeout is App UI dismissal after review."],
+        );
+      }
+      const diplomaticActionReport = diplomacyActionReportDetailsFor(notification, typeName, null);
+      if (diplomaticActionReport?.classification === "diplomatic-action-report-no-enabled-response-options") {
+        return hint(
+          "informational-notification",
+          "app-ui-action",
+          "Game.Notifications.dismiss",
+          "{ notificationId }",
+          "game play dismiss-notification",
+          "official-ui",
+          [requiredInput("Notification", "notification ComponentID", "Use the live notification id; this is not a diplomatic response id.")],
+          [
+            action("dismiss reviewed diplomatic action report", "game play dismiss-notification --target '<notification-id>' --send --reason '<why this diplomatic report was reviewed>'", "app-ui-action", "Game.Notifications.dismiss", "{ notificationId }", "after reviewing the event data/location and confirming getResponseDataForUI exposes no enabled response option"),
+          ],
+          ["NOTIFICATION_DIPLOMATIC_ACTION can point at a real diplomatic event id, but empty/no-enabled getResponseDataForUI options make it a reviewed report closeout rather than RESPOND_DIPLOMATIC_ACTION."],
         );
       }
       if (stringIncludes(typeName, "DIPLOMATIC_ACTION")

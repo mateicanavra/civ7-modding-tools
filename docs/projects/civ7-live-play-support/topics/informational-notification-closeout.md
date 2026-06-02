@@ -83,6 +83,25 @@ to prepare for a leader or whether diplomacy is deteriorating. But it is not
 `RESPOND_DIPLOMATIC_ACTION`; review the report, then close it through App UI
 dismissal when it remains user-dismissible.
 
+On turn 37, `NOTIFICATION_DIPLOMATIC_ACTION` appeared as a new-settlement
+report with a valid diplomatic event target:
+
+```json
+{
+  "typeName": "NOTIFICATION_DIPLOMATIC_ACTION",
+  "summary": "Another Civilization settled a new Town nearby.",
+  "target": { "owner": 2, "id": 34, "type": 34 },
+  "canUserDismiss": true
+}
+```
+
+`Game.Diplomacy.getDiplomaticEventData(34)` identified a real
+`DIPLOMACY_ACTION_LAND_CLAIM` event, but
+`Game.Diplomacy.getResponseDataForUI(34).responseList` was empty. That means
+the target is not invalid, but it still is not an enabled
+`RESPOND_DIPLOMATIC_ACTION` choice. Treat this as a reviewed diplomatic action
+report closeout unless a future live read returns enabled response options.
+
 On turn 57, the live HUD showed `NOTIFICATION_UNIT_ATTACKED` as an end-turn
 blocking notice even though the App UI blocker enum had returned to `0` and
 there were no ready units:
