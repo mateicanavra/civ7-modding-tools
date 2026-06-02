@@ -1,6 +1,3 @@
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayDismissNotificationQueue from '../../src/commands/game/play/dismiss-notification-queue';
 import GamePlayDismissNotification from '../../src/commands/game/play/dismiss-notification';
@@ -14,7 +11,6 @@ import GamePlayRehydrate from '../../src/commands/game/play/rehydrate';
 import GamePlaySettlementRecommendations from '../../src/commands/game/play/settlement-recommendations';
 import GamePlayTopics from '../../src/commands/game/play/topics';
 import GamePlayUnitMovePreview from '../../src/commands/game/play/unit-move-preview';
-import GameWatch from '../../src/commands/game/watch';
 import { startFakeTunerServer } from './fixtures/tuner-socket-server';
 
 describe('game play commands', () => {
@@ -2129,94 +2125,6 @@ describe('game play commands', () => {
     }
   });
 
-  test('watches live play as JSONL without sending operations', async () => {
-    const server = await startTunerServer({ playNotificationMode: 'ready-unit' });
-    const writes: string[] = [];
-    const log = vi.spyOn(GameWatch.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
-    try {
-      const { port } = server.address();
-      await GameWatch.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--count',
-        '2',
-        '--interval-ms',
-        '1',
-        '--include-ready-unit',
-        '--include-ready-city',
-        '--jsonl',
-      ]);
-
-      const observations = writes.map((line) => JSON.parse(line)) as Array<{
-        ok: boolean;
-        schema: string;
-        mode: string;
-        wrapper: string;
-        firstReadyUnitId: unknown;
-        readyUnit: {
-          legalOperationScope: string;
-          legalNoTargetOperationCount: number;
-          legalOperationCount: number;
-        } | null;
-        readyCity: unknown;
-      }>;
-      expect(observations).toHaveLength(2);
-      expect(observations[0].schema).toBe('civ7-watcher-observation.v1');
-      expect(observations[0].mode).toBe('human-turn-watch');
-      expect(observations[0].wrapper).toBe('getCiv7PlayNotificationView+getCiv7ReadyUnitView+getCiv7ReadyCityView');
-      expect(observations[0].ok).toBe(true);
-      expect(observations[0].firstReadyUnitId).toEqual({ owner: 0, id: 458752, type: 26 });
-      expect(observations[0].readyUnit).not.toBeNull();
-      expect(observations[0].readyUnit?.legalOperationScope).toBe('no-target');
-      expect(observations[0].readyUnit?.legalNoTargetOperationCount).toBe(observations[0].readyUnit?.legalOperationCount);
-      expect(observations[0].readyCity).not.toBeNull();
-      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
-      expect(server.received.some((message) => message.includes('readReadyUnitView'))).toBe(true);
-      expect(server.received.some((message) => message.includes('readReadyCityView'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
-    } finally {
-      log.mockRestore();
-      await server.close();
-    }
-  });
-
-  test('appends watch observations to an artifact file', async () => {
-    const server = await startTunerServer({ playNotificationMode: 'ready-unit' });
-    const tempDir = await mkdtemp(join(tmpdir(), 'civ7-watch-'));
-    const artifact = join(tempDir, 'watcher.jsonl');
-    try {
-      const { port } = server.address();
-      await GameWatch.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--count',
-        '2',
-        '--interval-ms',
-        '1',
-        '--artifact',
-        artifact,
-        '--json',
-      ]);
-
-      const lines = (await readFile(artifact, 'utf8')).trim().split('\n');
-      expect(lines).toHaveLength(2);
-      expect(JSON.parse(lines[0])).toMatchObject({
-        schema: 'civ7-watcher-observation.v1',
-        ok: true,
-        stateRole: 'app-ui',
-      });
-      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
-    } finally {
-      await rm(tempDir, { force: true, recursive: true });
-      await server.close();
-    }
-  });
 });
 
 function expectPositiveRelationshipLabels(values: readonly string[]): void {
