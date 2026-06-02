@@ -3,12 +3,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayBattlefieldScan from '../../src/commands/game/play/battlefield-scan';
-import GamePlayBuyAttribute from '../../src/commands/game/play/buy-attribute';
-import GamePlayChangeTradition from '../../src/commands/game/play/change-tradition';
 import GamePlayCivilianRouteTriage from '../../src/commands/game/play/civilian-route-triage';
-import GamePlayConsiderAttributes from '../../src/commands/game/play/consider-attributes';
 import GamePlayConsiderTownProject from '../../src/commands/game/play/consider-town-project';
-import GamePlayConsiderTraditions from '../../src/commands/game/play/consider-traditions';
 import GamePlayDestinationAnalysis from '../../src/commands/game/play/destination-analysis';
 import GamePlayDismissNotificationQueue from '../../src/commands/game/play/dismiss-notification-queue';
 import GamePlayDismissNotification from '../../src/commands/game/play/dismiss-notification';
@@ -366,139 +362,6 @@ describe('game play commands', () => {
     }
   });
 
-  test('wraps attribute purchase as BUY_ATTRIBUTE_TREE_NODE', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlayBuyAttribute.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--player-id',
-        '0',
-        '--node',
-        '20',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('BUY_ATTRIBUTE_TREE_NODE'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"ProgressionTreeNodeType":20'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('buys attribute and closes assignment review as one caller workflow', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      const writes: string[] = [];
-      const log = vi.spyOn(GamePlayBuyAttribute.prototype, 'log').mockImplementation((message?: string) => {
-        if (message) writes.push(message);
-      });
-      try {
-        await GamePlayBuyAttribute.run([
-          '--host',
-          '127.0.0.1',
-          '--port',
-          String(port),
-          '--player-id',
-          '0',
-          '--node',
-          '20',
-          '--send',
-          '--closeout',
-          '--reason',
-          'test attribute purchase closeout',
-          '--json',
-        ]);
-      } finally {
-        log.mockRestore();
-      }
-
-      const payload = JSON.parse(writes.join('')) as { ok: true; result: { mode: string; stepCount: number; verified: boolean } };
-      expect(payload.result.mode).toBe('send');
-      expect(payload.result.stepCount).toBe(2);
-      expect(payload.result.verified).toBe(true);
-      expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
-      expect(server.received.some((message) => message.includes('BUY_ATTRIBUTE_TREE_NODE'))).toBe(true);
-      expect(server.received.some((message) => message.includes('CONSIDER_ASSIGN_ATTRIBUTE'))).toBe(true);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('wraps tradition swaps as CHANGE_TRADITION', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlayChangeTradition.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--player-id',
-        '0',
-        '--tradition-type',
-        '-331546976',
-        '--action',
-        '-1326475004',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('CHANGE_TRADITION'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"TraditionType":-331546976'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"Action":-1326475004'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('changes tradition and closes assignment review as one caller workflow', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      const writes: string[] = [];
-      const log = vi.spyOn(GamePlayChangeTradition.prototype, 'log').mockImplementation((message?: string) => {
-        if (message) writes.push(message);
-      });
-      try {
-        await GamePlayChangeTradition.run([
-          '--host',
-          '127.0.0.1',
-          '--port',
-          String(port),
-          '--player-id',
-          '0',
-          '--tradition-type',
-          '-331546976',
-          '--action',
-          '-1326475004',
-          '--send',
-          '--closeout',
-          '--reason',
-          'test tradition change closeout',
-          '--json',
-        ]);
-      } finally {
-        log.mockRestore();
-      }
-
-      const payload = JSON.parse(writes.join('')) as { ok: true; result: { mode: string; stepCount: number; verified: boolean } };
-      expect(payload.result.mode).toBe('send');
-      expect(payload.result.stepCount).toBe(2);
-      expect(payload.result.verified).toBe(true);
-      expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
-      expect(server.received.some((message) => message.includes('CHANGE_TRADITION'))).toBe(true);
-      expect(server.received.some((message) => message.includes('CONSIDER_ASSIGN_TRADITIONS'))).toBe(true);
-    } finally {
-      await server.close();
-    }
-  });
-
   test('reads live tradition slots and action hints', async () => {
     const server = await startTunerServer();
     try {
@@ -647,48 +510,6 @@ describe('game play commands', () => {
       expect(server.received.some((message) => message.includes('getHistoricalLegacyPointCountForTeam'))).toBe(true);
     } finally {
       log.mockRestore();
-      await server.close();
-    }
-  });
-
-  test('wraps attribute review closeout as CONSIDER_ASSIGN_ATTRIBUTE', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlayConsiderAttributes.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--player-id',
-        '0',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('CONSIDER_ASSIGN_ATTRIBUTE'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('wraps tradition review closeout as CONSIDER_ASSIGN_TRADITIONS', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlayConsiderTraditions.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--player-id',
-        '0',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('CONSIDER_ASSIGN_TRADITIONS'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
-    } finally {
       await server.close();
     }
   });
@@ -6490,10 +6311,6 @@ function operationArgs(operationType: string) {
   if (operationType === 'CHOOSE_GOLDEN_AGE') return { GoldenAgeType: -340825966 };
   if (operationType === 'CHANGE_GOVERNMENT') return { GovernmentType: 0, Action: -1326475004 };
   if (operationType === 'RESPOND_DIPLOMATIC_FIRST_MEET') return { Player1: 0, Player2: 2, Type: 673478009 };
-  if (operationType === 'BUY_ATTRIBUTE_TREE_NODE') return { ProgressionTreeNodeType: 20 };
-  if (operationType === 'CHANGE_TRADITION') return { TraditionType: -331546976, Action: -1326475004 };
-  if (operationType === 'CONSIDER_ASSIGN_ATTRIBUTE') return {};
-  if (operationType === 'CONSIDER_ASSIGN_TRADITIONS') return {};
   if (operationType === 'CHANGE_GROWTH_MODE') return { Type: -284569333, ProjectType: -548685232, City: 131073 };
   if (operationType === 'CONSIDER_TOWN_PROJECT') return {};
   if (operationType === 'UNITCOMMAND_RESETTLE') return { X: 17, Y: 25 };
