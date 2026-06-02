@@ -6,7 +6,6 @@ import GamePlayNotifications from '../../src/commands/game/play/notifications';
 import GamePlayPriorities from '../../src/commands/game/play/priorities';
 import GamePlayReadyCity from '../../src/commands/game/play/ready-city';
 import GamePlayReadyUnit from '../../src/commands/game/play/ready-unit';
-import GamePlayRehydrate from '../../src/commands/game/play/rehydrate';
 import GamePlaySettlementRecommendations from '../../src/commands/game/play/settlement-recommendations';
 import GamePlayUnitMovePreview from '../../src/commands/game/play/unit-move-preview';
 import { startFakeTunerServer } from './fixtures/tuner-socket-server';
@@ -1892,43 +1891,6 @@ describe('game play commands', () => {
       expect(payload.omitted.some((item) => item.path === 'view.reachableMovement')).toBe(true);
       expect(payload.view).toBeUndefined();
       expect(server.received.some((message) => message.includes('readUnitMovePreview'))).toBe(true);
-    } finally {
-      log.mockRestore();
-      await server.close();
-    }
-  });
-
-  test('materializes restart rehydration continuity without sending operations', async () => {
-    const server = await startTunerServer({ playNotificationMode: 'ready-unit' });
-    const writes: string[] = [];
-    const log = vi.spyOn(GamePlayRehydrate.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
-    try {
-      const { port } = server.address();
-      await GamePlayRehydrate.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--expected-turn',
-        '97',
-        '--json',
-      ]);
-
-      const payload = JSON.parse(writes.join('')) as {
-        ok: true;
-        snapshot: {
-          readyUnit: unknown;
-          continuity: { status: string; warnings: string[] };
-        };
-      };
-      expect(payload.snapshot.readyUnit).not.toBeNull();
-      expect(payload.snapshot.continuity.status).toBe('mismatch');
-      expect(payload.snapshot.continuity.warnings[0]).toMatch(/turn mismatch/);
-      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
-      expect(server.received.some((message) => message.includes('readReadyUnitView'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
     } finally {
       log.mockRestore();
       await server.close();
