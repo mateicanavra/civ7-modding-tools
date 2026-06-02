@@ -12,22 +12,28 @@ From that surface there are two proven branches:
   with `{ Location, Amount: 1 }`;
 - expansion purchase tile: `city-command EXPAND` with `{ X, Y }`.
 
-Use `game play ready-city --json` or an equivalent live acquire-tile read before
-choosing either branch. Local resources can explain tile/improvement names, but
-only the live city state proves whether the chosen plot is workable or requires
-expansion.
+Use `game play ready-city --compact --json` or the full
+`game play ready-city --json` before choosing either branch. Local resources can
+explain tile/improvement names, but only the live city state proves whether the
+chosen plot is workable or requires expansion.
 
 `ready-city` now exposes branch-specific candidate lists for this decision:
 
 - `populationPlacement.workablePlots` is the already-workable assignment branch.
   Each candidate carries map coordinates where available, worker placement
-  details, yield fields exposed by `GetAllPlacementInfo()`, and the matching
-  `assign-worker` command shape.
+  details, yield fields exposed by `GetAllPlacementInfo()`, named current/next
+  yield summaries, yield deltas, and the matching `assign-worker` command
+  shape. Named yield summaries are keyed by official `GameInfo.Yields`
+  `YieldType` ids such as `YIELD_FOOD` and `YIELD_DIPLOMACY`; use
+  `populationPlacement.yieldTypeOrder` as the proof for positional source
+  arrays.
 - `populationPlacement.expansionCandidates` is the tile-purchase branch. Each
   candidate maps the `EXPAND` result's plot index to map coordinates and pairs
   the same array position with `ConstructibleTypes` when the runtime returns
-  one. Constructible names are best-effort GameInfo enrichment; coordinates and
-  validator result remain the action authority.
+  one. It also includes best-effort map yield facts and terrain/resource labels
+  for comparison. Map yield facts use official `GameplayMap` plot-index calls
+  and are keyed by `YIELD_*` ids. Constructible names are best-effort GameInfo
+  enrichment; coordinates and validator result remain the action authority.
 
 When the `NEW_POPULATION` notification target is empty, `ready-city` should
 still be the first read. Its fallback follows the official handler by scanning
@@ -36,6 +42,12 @@ cannot resolve a city, stop and inspect the UI/runtime state instead of
 guessing a city id.
 
 ## CLI Surface
+
+For the compact candidate comparison:
+
+```bash
+civ7 game play ready-city --compact --json
+```
 
 For already-workable plots:
 
@@ -128,6 +140,10 @@ path; it still needs a send/postcondition proof for this exact turn.
   failed validator.
 - Treat tile-quality advice as advisory until current yields, happiness,
   growth needs, and placement candidates are live-read.
+- For expansion candidates, treat `plotFacts.yieldSummary` as current map yield
+  evidence plus constructible context, not as a guaranteed post-send city yield
+  delta. Check `plotFacts.yieldSource` when comparing candidate evidence, then
+  re-read after sending.
 
 ## Remaining Gaps
 

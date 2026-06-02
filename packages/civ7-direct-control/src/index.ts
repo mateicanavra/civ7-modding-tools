@@ -1288,6 +1288,66 @@ export type Civ7NotificationDismissalResult = Readonly<{
   notes: ReadonlyArray<string>;
 }>;
 
+export type Civ7DiplomacyResponseInput = Readonly<{
+  playerId: number;
+  actionId: number;
+  responseType: number;
+  notificationId?: Civ7ComponentId;
+  activateNotification?: boolean;
+  uiCloseout?: boolean;
+}>;
+
+export type Civ7DiplomacyResponseCommandPayload = Readonly<{
+  localPlayerId: number;
+  playerId: number;
+  actionId: number;
+  responseType: number;
+  args: Readonly<{ ID: number; Type: number }>;
+  notificationId: Civ7ComponentId | null;
+  discoveredNotification: unknown;
+  activated: boolean;
+  activationResult: unknown;
+  canStart: unknown;
+  sent: boolean;
+  sendResult: unknown;
+  uiCloseout: Readonly<{
+    requested: boolean;
+    acknowledgeStarted: unknown;
+    closeCurrentDiplomacyProject: unknown;
+    hide: unknown;
+  }>;
+  diplomacyState: Readonly<{
+    before: unknown;
+    after: unknown;
+  }>;
+  notes: ReadonlyArray<string>;
+}>;
+
+export type Civ7DiplomacyResponsePostconditionClassification =
+  | "not-sent"
+  | "turn-unblocked"
+  | "diplomacy-blocker-cleared"
+  | "blocking-notification-changed"
+  | "validation-changed"
+  | "no-state-change";
+
+export type Civ7DiplomacyResponsePostcondition = Readonly<{
+  classification: Civ7DiplomacyResponsePostconditionClassification;
+  reason: string;
+}>;
+
+export type Civ7DiplomacyResponseResult = Readonly<{
+  before: Civ7PlayNotificationViewResult;
+  beforeValidation: Civ7OperationValidationResult;
+  command?: Civ7CommandResult;
+  payload?: Civ7DiplomacyResponseCommandPayload;
+  after: Civ7PlayNotificationViewResult;
+  afterValidation: Civ7OperationValidationResult;
+  sent: boolean;
+  verified: boolean;
+  postcondition: Civ7DiplomacyResponsePostcondition;
+}>;
+
 export type Civ7OperationFamily =
   | "unit-operation"
   | "unit-command"
@@ -1564,6 +1624,7 @@ export type Civ7ReadyCityTownFocusOption = Readonly<{
 export type Civ7ReadyCityPopulationPlacement = Readonly<{
   isReadyToPlacePopulation: Civ7RuntimeProbe<unknown>;
   cityWorkerCap: Civ7RuntimeProbe<unknown>;
+  yieldTypeOrder: ReadonlyArray<string>;
   allPlacementInfo: Civ7RuntimeProbe<unknown>;
   workablePlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
   blockedPlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
@@ -3356,6 +3417,58 @@ export async function requestCiv7PlayerOperation(
   return await requestCiv7Operation("player-operation", input, options, approval);
 }
 
+export async function requestCiv7DiplomacyResponse(
+  input: Civ7DiplomacyResponseInput,
+  options: Civ7DirectControlOptions = {},
+  approval: Civ7ActionApproval,
+): Promise<Civ7DiplomacyResponseResult> {
+  assertApproved(approval, "responding to diplomatic action");
+  validatePlayerId(input.playerId);
+  if (!Number.isInteger(input.actionId)) throw new Civ7DirectControlError("command-failed", "actionId must be an integer");
+  if (!Number.isInteger(input.responseType)) throw new Civ7DirectControlError("command-failed", "responseType must be an integer");
+  const before = await getCiv7PlayNotificationView(options);
+  const playerId = before.localPlayerId;
+  const operationInput = {
+    playerId,
+    operationType: "RESPOND_DIPLOMATIC_ACTION",
+    args: { ID: input.actionId, Type: input.responseType },
+  };
+  const beforeValidation = await canStartCiv7PlayerOperation(operationInput, options);
+  if (!beforeValidation.valid) {
+    return {
+      before,
+      beforeValidation,
+      after: before,
+      afterValidation: beforeValidation,
+      sent: false,
+      verified: false,
+      postcondition: {
+        classification: "not-sent",
+        reason: "RESPOND_DIPLOMATIC_ACTION did not validate, so no diplomatic response was sent.",
+      },
+    };
+  }
+  const command = await executeCiv7AppUiCommand({
+    ...options,
+    command: buildDiplomacyResponseCloseoutCommand({ ...input, playerId }),
+  });
+  const payload = jsonPayloadFromCommandResult<Civ7DiplomacyResponseCommandPayload>(command, "Civ7 diplomacy response closeout");
+  const after = await waitForCiv7DiplomacyResponseAfter(input, options, before, beforeValidation);
+  const afterValidation = await canStartCiv7PlayerOperation(operationInput, options);
+  const postcondition = diplomacyResponsePostcondition(input, payload.sent === true, before, after, beforeValidation, afterValidation);
+  return {
+    before,
+    beforeValidation,
+    command,
+    payload,
+    after,
+    afterValidation,
+    sent: payload.sent === true,
+    verified: postcondition.classification !== "not-sent" && postcondition.classification !== "no-state-change",
+    postcondition,
+  };
+}
+
 export async function getCiv7UnitTargetAction(
   input: Civ7UnitTargetActionInput,
   options: Civ7DirectControlOptions = {},
@@ -5123,6 +5236,13 @@ function buildOperationRequestCommand(family: Civ7OperationFamily, input: Civ7Op
   })()`;
 }
 
+function buildDiplomacyResponseCloseoutCommand(input: Civ7DiplomacyResponseInput): string {
+  return `(() => {
+    ${diplomacyResponseCloseoutSource()}
+    return JSON.stringify(sendDiplomacyResponseCloseout(${jsLiteral(input)}));
+  })()`;
+}
+
 function buildUnitTargetActionCommand(input: Civ7UnitTargetActionInput, options: { send: boolean }): string {
   return `(() => {
     ${unitTargetActionSource()}
@@ -5519,6 +5639,14 @@ function playNotificationViewSource(): string {
       }
     };
     const stringIncludes = (value, needle) => String(value ?? "").toUpperCase().includes(needle);
+    const loc = (key) => {
+      if (key == null || key === "") return null;
+      try {
+        return typeof Locale !== "undefined" && Locale.compose ? Locale.compose(key) : String(key);
+      } catch {
+        return String(key);
+      }
+    };
     const requiredInput = (name, source, note) => ({ name, source, required: true, note });
     const optionalInput = (name, source, note) => ({ name, source, required: false, note });
     const action = (label, cli, operationFamily, operationType, argsShape, when) => ({
@@ -5614,6 +5742,67 @@ function playNotificationViewSource(): string {
           : "game play respond-first-meet --player-id " + String(player1) + " --met-player-id " + String(player2) + " --response neutral",
         note: "Neutral is the conservative default when Influence cost or payoff is not proven.",
       };
+    };
+    const diplomacyResponseDetailsFor = (notification, typeName, notificationId) => {
+      if (!stringIncludes(typeName, "DIPLOMATIC_RESPONSE_REQUIRED")) return undefined;
+      const target = safeNotificationValue(notification, "Target");
+      const actionId = target && typeof target === "object" && typeof target.id === "number" ? target.id : null;
+      const responseData = actionId == null
+        ? { ok: false, error: "notification target does not include a diplomatic action id" }
+        : probe(() => Game.Diplomacy.getResponseDataForUI(actionId));
+      const eventData = actionId == null
+        ? { ok: false, error: "notification target does not include a diplomatic action id" }
+        : probe(() => Game.Diplomacy.getDiplomaticEventData(actionId));
+      const responseList = responseData.ok && Array.isArray(responseData.value?.responseList)
+        ? responseData.value.responseList
+        : [];
+      const options = responseList.map((response) => {
+        const responseType = response?.responseType ?? null;
+        const args = actionId == null || responseType == null ? null : { ID: actionId, Type: responseType };
+        const validation = args
+          ? probe(() => Game.PlayerOperations.canStart(
+            GameContext.localPlayerID,
+            PlayerOperationTypes.RESPOND_DIPLOMATIC_ACTION,
+            args,
+            false,
+          ))
+          : { ok: false, error: "missing action id or response type" };
+        const enabled = validation.ok && (validation.value?.Success === true || validation.value?.canStart === true);
+        return {
+          responseType,
+          title: loc(response?.titleString ?? response?.name ?? response?.Title ?? null),
+          description: loc(response?.descriptionString ?? response?.Description ?? null),
+          cost: response?.cost ?? null,
+          icon: response?.icon ?? null,
+          enabled,
+          disabled: !enabled,
+          validation,
+          cli: enabled && actionId != null && responseType != null
+            ? "game play respond-diplomacy --action-id " + actionId
+              + " --response-type " + responseType
+              + (notificationId ? " --notification-id '" + JSON.stringify(notificationId) + "'" : "")
+              + " --send --reason '<why this response was selected>'"
+            : null,
+        };
+      });
+      return {
+        kind: "diplomacy-response-options",
+        actionId,
+        notificationId,
+        responseData,
+        eventData,
+        options,
+        enabledOptions: options.filter((option) => option.enabled),
+        disabledOptions: options.filter((option) => option.disabled),
+        notes: [
+          "Options mirror Game.Diplomacy.getResponseDataForUI(actionId).responseList and validate through the official local-player RESPOND_DIPLOMATIC_ACTION check.",
+          "Use a returned enabled option's cli as the single caller-level response; send mode performs UI closeout and notification postcondition checks.",
+        ],
+      };
+    };
+    const detailsFor = (notification, typeName, notificationId) => {
+      return firstMeetDetailsFor(notification, typeName)
+        ?? diplomacyResponseDetailsFor(notification, typeName, notificationId);
     };
     const decisionHintFor = (notification, typeName, isBlocking) => {
       const haystack = [
@@ -5765,12 +5954,13 @@ function playNotificationViewSource(): string {
           "live-proof",
           [
             requiredInput("ID", "live diplomatic action", "This is the diplomatic action id, not the notification ComponentID."),
-            requiredInput("Type", "chosen diplomatic response", "Use the response enum from the live action surface."),
+            requiredInput("Type", "chosen diplomatic response", "Use one enabled response option returned in notification details; do not infer enum values from stale notes."),
           ],
           [
-            action("validate diplomacy response", "game play respond-diplomacy --player-id <id> --action-id <action-id> --response-type <response-type>", "player-operation", "RESPOND_DIPLOMATIC_ACTION", "{ ID, Type }", "after reading the action id and desired response type"),
+            action("choose diplomacy response and close blocker", "game play respond-diplomacy --action-id <action-id> --response-type <response-type> --notification-id '<notification-id>' --send --reason '<why this response was selected>'", "player-operation", "RESPOND_DIPLOMATIC_ACTION", "{ ID, Type }", "after choosing one enabled response option from notification details"),
+            action("validate diplomacy response", "game play respond-diplomacy --action-id <action-id> --response-type <response-type>", "player-operation", "RESPOND_DIPLOMATIC_ACTION", "{ ID, Type }", "for dry-run validation only"),
           ],
-          ["Use the diplomatic action id and response type from the live notification."],
+          ["Use the enabled option list from the live notification details; send mode follows the official local-player response panel path and verifies notification/turn closeout."],
         );
       }
       if (stringIncludes(haystack, "DIPLOMATIC_ACTION_LOW")) {
@@ -6022,7 +6212,7 @@ function playNotificationViewSource(): string {
         dismissed: safeNotificationValue(notification, "Dismissed"),
         isEndTurnBlocking,
         decision: decisionHintFor(notification, typeName, isEndTurnBlocking),
-        details: firstMeetDetailsFor(notification, typeName),
+        details: detailsFor(notification, typeName, normalizedId),
       };
     };
     const readPlayNotifications = (input) => {
@@ -6201,6 +6391,134 @@ function autoplaySetterSource(options: Civ7AutoplayOptions): string {
   if (options.returnAsPlayer !== undefined) statements.push(`Autoplay.setReturnAsPlayer(${jsLiteral(options.returnAsPlayer)});`);
   if (options.pause !== undefined) statements.push(`Autoplay.setPause(${jsLiteral(options.pause)});`);
   return statements.join("\n    ");
+}
+
+function diplomacyResponseCloseoutSource(): string {
+  return `${probeHelperSource()}
+    const toComponentId = (value) => {
+      if (!value || typeof value !== "object") return null;
+      if (typeof value.owner !== "number" || typeof value.id !== "number") return null;
+      const out = { owner: value.owner, id: value.id };
+      if (typeof value.type === "number") out.type = value.type;
+      return out;
+    };
+    const safeCall = (label, fn) => {
+      try {
+        return { ok: true, value: fn() };
+      } catch (err) {
+        return { ok: false, error: label + ": " + String(err) };
+      }
+    };
+    const diplomacyManager = () => typeof DiplomacyManager === "undefined" ? null : DiplomacyManager;
+    const interfaceMode = () => typeof InterfaceMode === "undefined" ? null : InterfaceMode;
+    const leaderModelManager = () => typeof LeaderModelManager === "undefined" ? null : LeaderModelManager;
+    const readDiplomacyState = (input) => ({
+      currentProjectReactionDataActionID: diplomacyManager()?.currentProjectReactionData?.actionID ?? null,
+      currentProjectReactionRequestActionID: diplomacyManager()?.currentProjectReactionRequest?.actionID ?? null,
+      selectedActionID: diplomacyManager()?.selectedActionID ?? null,
+      isShowing: safeCall("DiplomacyManager.isShowing", () => diplomacyManager()?.isShowing?.()),
+      interfaceMode: safeCall("InterfaceMode.getCurrent", () => interfaceMode()?.getCurrent?.()),
+      responseData: safeCall("Game.Diplomacy.getResponseDataForUI", () => Game.Diplomacy.getResponseDataForUI(input.actionId)),
+      eventData: safeCall("Game.Diplomacy.getDiplomaticEventData", () => Game.Diplomacy.getDiplomaticEventData(input.actionId)),
+    });
+    const activateNotification = (notificationId) => {
+      if (!notificationId) return { ok: false, skipped: true, reason: "notificationId not provided" };
+      return safeCall("activate diplomacy response notification", () => {
+        const notification = Game.Notifications.find(notificationId);
+        if (!notification) return { found: false };
+        if (!notification.Target || notification.Target.id == null) return { found: true, target: notification.Target ?? null, activated: false };
+        const manager = diplomacyManager();
+        if (!manager) return { found: true, target: notification.Target, activated: false, reason: "DiplomacyManager unavailable" };
+        if (notification.Target.id != manager.currentProjectReactionData?.actionID && notification.Target.id != manager.currentProjectReactionRequest?.actionID) {
+          manager.currentProjectReactionData = Game.Diplomacy.getResponseDataForUI(notification.Target.id);
+          manager.addCurrentDiplomacyProject(manager.currentProjectReactionData);
+        }
+        return {
+          found: true,
+          target: notification.Target,
+          activated: true,
+          currentProjectReactionDataActionID: manager.currentProjectReactionData?.actionID ?? null,
+          currentProjectReactionRequestActionID: manager.currentProjectReactionRequest?.actionID ?? null,
+        };
+      });
+    };
+    const currentBlockingDiplomacyNotification = (input) => {
+      return safeCall("find current blocking diplomatic-response notification", () => {
+        const blockerType = Game.Notifications.getEndTurnBlockingType(GameContext.localPlayerID);
+        const id = Game.Notifications.findEndTurnBlocking(GameContext.localPlayerID, blockerType);
+        const notificationId = toComponentId(id);
+        const notification = notificationId ? Game.Notifications.find(notificationId) : null;
+        const type = notificationId && typeof Game.Notifications.getType === "function"
+          ? Game.Notifications.getType(notificationId)
+          : notification?.Type ?? null;
+        const typeName = typeof Game.Notifications.getTypeName === "function" ? Game.Notifications.getTypeName(type) : null;
+        const actionMatches = notification?.Target?.id === input.actionId;
+        return typeName === "NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED" && actionMatches ? notificationId : null;
+      });
+    };
+    const sendDiplomacyResponseCloseout = (input) => {
+      const localPlayerId = GameContext.localPlayerID;
+      const playerId = localPlayerId;
+      const args = { ID: input.actionId, Type: input.responseType };
+      const discoveredNotification = currentBlockingDiplomacyNotification(input);
+      const notificationId = toComponentId(input.notificationId) ?? (discoveredNotification.ok ? discoveredNotification.value : null);
+      const before = readDiplomacyState(input);
+      const activationResult = input.activateNotification === false ? { ok: false, skipped: true, reason: "activation disabled" } : activateNotification(notificationId);
+      const canStart = safeCall("Game.PlayerOperations.canStart", () => Game.PlayerOperations.canStart(
+        playerId,
+        PlayerOperationTypes.RESPOND_DIPLOMATIC_ACTION,
+        args,
+        false,
+      ));
+      let sent = false;
+      let sendResult = null;
+      if (canStart.ok && (canStart.value?.Success === true || canStart.value?.canStart === true)) {
+        sendResult = safeCall("Game.PlayerOperations.sendRequest", () => Game.PlayerOperations.sendRequest(
+          playerId,
+          PlayerOperationTypes.RESPOND_DIPLOMATIC_ACTION,
+          args,
+        ));
+        sent = sendResult.ok === true;
+      }
+      const shouldCloseout = input.uiCloseout !== false;
+      const acknowledgeStarted = shouldCloseout
+        ? safeCall("LeaderModelManager.beginAcknowledgePlayerSequence", () => leaderModelManager()?.beginAcknowledgePlayerSequence?.())
+        : { ok: false, skipped: true, reason: "ui closeout disabled" };
+      const closeCurrentDiplomacyProject = shouldCloseout
+        ? safeCall("DiplomacyManager.closeCurrentDiplomacyProject", () => diplomacyManager()?.closeCurrentDiplomacyProject?.(false))
+        : { ok: false, skipped: true, reason: "ui closeout disabled" };
+      const hide = shouldCloseout
+        ? safeCall("DiplomacyManager.hide", () => diplomacyManager()?.hide?.(false))
+        : { ok: false, skipped: true, reason: "ui closeout disabled" };
+      return {
+        localPlayerId,
+        playerId,
+        actionId: input.actionId,
+        responseType: input.responseType,
+        args,
+        notificationId,
+        discoveredNotification,
+        activated: activationResult.ok === true && activationResult.value?.activated === true,
+        activationResult,
+        canStart,
+        sent,
+        sendResult,
+        uiCloseout: {
+          requested: shouldCloseout,
+          acknowledgeStarted,
+          closeCurrentDiplomacyProject,
+          hide,
+        },
+        diplomacyState: {
+          before,
+          after: readDiplomacyState(input),
+        },
+        notes: [
+          "This follows the official response-panel path more closely than a raw player-operation send: optional notification activation, RESPOND_DIPLOMATIC_ACTION, leader acknowledgement, and diplomacy UI closeout.",
+          "If postcondition remains no-state-change, inspect notification expiry/target state before retrying another response."
+        ],
+      };
+    };`;
 }
 
 function notificationDismissalSource(): string {
@@ -8057,19 +8375,120 @@ function readyCityViewSource(): string {
         return { index, error: String(err) };
       }
     };
+    const loc = (key) => {
+      if (key == null || key === "") return null;
+      try {
+        return typeof Locale !== "undefined" && Locale.compose ? Locale.compose(key) : String(key);
+      } catch {
+        return String(key);
+      }
+    };
+    const lookupRow = (table, value) => {
+      try {
+        return value == null ? null : table?.lookup?.(value) ?? null;
+      } catch {
+        return null;
+      }
+    };
+    const readYieldTypeOrder = () => {
+      const order = [];
+      try {
+        const yieldsTable = GameInfo?.Yields;
+        if (!yieldsTable) return order;
+        if (typeof yieldsTable.length === "number") {
+          for (let index = 0; index < yieldsTable.length; index++) {
+            const definition = yieldsTable[index];
+            order.push(definition?.YieldType ?? ("YIELD_INDEX_" + index));
+          }
+          return order;
+        }
+        if (typeof yieldsTable[Symbol.iterator] === "function") {
+          let index = 0;
+          for (const definition of yieldsTable) {
+            order.push(definition?.YieldType ?? ("YIELD_INDEX_" + index));
+            index++;
+          }
+        }
+      } catch {}
+      return order;
+    };
+    const yieldTypeOrder = readYieldTypeOrder();
+    const yieldTypeAtIndex = (index) => yieldTypeOrder[index] ?? ("YIELD_INDEX_" + index);
+    const namedYields = (values) => {
+      if (!Array.isArray(values)) return null;
+      const out = {};
+      values.forEach((value, index) => {
+        out[yieldTypeAtIndex(index)] = value;
+      });
+      return out;
+    };
+    const yieldDelta = (current, next) => {
+      if (!Array.isArray(current) || !Array.isArray(next)) return null;
+      return namedYields(next.map((value, index) => value - (current[index] ?? 0)));
+    };
+    const namedYieldPairs = (values) => {
+      if (!Array.isArray(values)) return null;
+      const out = {};
+      for (const pair of values) {
+        if (!Array.isArray(pair)) continue;
+        const yieldHash = pair[0];
+        const yieldRow = lookupRow(GameInfo?.Yields, yieldHash);
+        out[yieldRow?.YieldType ?? String(yieldHash)] = pair[1];
+      }
+      return out;
+    };
+    const plotFacts = (plot, cityId) => {
+      if (plot.x == null || plot.y == null) return null;
+      const terrain = probe(() => GameplayMap.getTerrainType(plot.x, plot.y));
+      const feature = probe(() => GameplayMap.getFeatureType(plot.x, plot.y));
+      const resource = probe(() => GameplayMap.getResourceType(plot.x, plot.y));
+      const yieldSource = typeof GameplayMap?.getYieldsWithCity === "function" && cityId
+        ? "GameplayMap.getYieldsWithCity(plotIndex, cityId)"
+        : "GameplayMap.getYields(plotIndex, playerId)";
+      const yields = probe(() => {
+        if (plot.index == null) return [];
+        if (typeof GameplayMap?.getYieldsWithCity === "function" && cityId) {
+          return GameplayMap.getYieldsWithCity(plot.index, cityId);
+        }
+        const playerId = cityId?.owner ?? (typeof GameContext !== "undefined" ? GameContext.localPlayerID : null);
+        return GameplayMap.getYields(plot.index, playerId);
+      });
+      const terrainRow = terrain.ok ? lookupRow(GameInfo.Terrains, terrain.value) : null;
+      const featureRow = feature.ok ? lookupRow(GameInfo.Features, feature.value) : null;
+      const resourceRow = resource.ok ? lookupRow(GameInfo.Resources, resource.value) : null;
+      return {
+        terrain,
+        terrainType: terrainRow?.TerrainType ?? null,
+        terrainName: loc(terrainRow?.Name ?? terrainRow?.TerrainType ?? null),
+        feature,
+        featureType: featureRow?.FeatureType ?? null,
+        featureName: loc(featureRow?.Name ?? featureRow?.FeatureType ?? null),
+        resource,
+        resourceType: resourceRow?.ResourceType ?? null,
+        resourceName: loc(resourceRow?.Name ?? resourceRow?.ResourceType ?? null),
+        water: probe(() => GameplayMap.isWater(plot.x, plot.y)),
+        yields,
+        yieldSource,
+        yieldSummary: yields.ok ? namedYieldPairs(yields.value) : null,
+      };
+    };
     const constructibleSummary = (constructibleType) => {
       try {
         const definition = constructibleType == null ? null : GameInfo?.Constructibles?.lookup?.(constructibleType);
         return {
           constructibleType: constructibleType ?? null,
           constructibleTypeName: definition?.ConstructibleType ?? null,
-          constructibleName: definition?.Name ?? null,
+          constructibleName: loc(definition?.Name ?? null),
+          constructibleClass: definition?.ConstructibleClass ?? null,
+          constructibleDistrictType: definition?.DistrictType ?? null,
         };
       } catch {
         return {
           constructibleType: constructibleType ?? null,
           constructibleTypeName: null,
           constructibleName: null,
+          constructibleClass: null,
+          constructibleDistrictType: null,
         };
       }
     };
@@ -8184,6 +8603,9 @@ function readyCityViewSource(): string {
           isBlocked: info?.IsBlocked ?? null,
           currentYields: info?.CurrentYields ?? null,
           nextYields: info?.NextYields ?? null,
+          currentYieldSummary: namedYields(info?.CurrentYields),
+          nextYieldSummary: namedYields(info?.NextYields),
+          yieldDelta: yieldDelta(info?.CurrentYields, info?.NextYields),
           maintenance: info?.Maintenance ?? null,
           placementInfo: safeResult(info),
           cli: "game play assign-worker --player-id <id> --location " + plotIndex,
@@ -8199,6 +8621,7 @@ function readyCityViewSource(): string {
         return {
           ...plot,
           ...constructibleSummary(expansionConstructibleTypes[index]),
+          plotFacts: plotFacts(plot, cityId),
           cli: plot.x == null || plot.y == null
             ? "game play expand-city --city-id '<city-id>' --x <x> --y <y>"
             : "game play expand-city --city-id '<city-id>' --x " + plot.x + " --y " + plot.y,
@@ -8207,6 +8630,7 @@ function readyCityViewSource(): string {
       return {
         isReadyToPlacePopulation: probe(() => city?.Growth?.isReadyToPlacePopulation ?? null),
         cityWorkerCap: probe(() => city?.Workers?.getCityWorkerCap?.() ?? null),
+        yieldTypeOrder,
         allPlacementInfo,
         workablePlotIndexes: probe(() => placementValue.filter((info) => !info?.IsBlocked).map((info) => info?.PlotIndex)),
         blockedPlotIndexes: probe(() => placementValue.filter((info) => info?.IsBlocked).map((info) => info?.PlotIndex)),
@@ -9441,6 +9865,95 @@ function populationPlacementPostconditionReason(classification: Civ7PopulationPl
   }
 }
 
+async function waitForCiv7DiplomacyResponseAfter(
+  input: Civ7DiplomacyResponseInput,
+  options: Civ7DirectControlOptions,
+  before: Civ7PlayNotificationViewResult,
+  beforeValidation: Civ7OperationValidationResult,
+): Promise<Civ7PlayNotificationViewResult> {
+  const waitTimeoutMs = Math.min(Math.max(options.timeoutMs ?? 3_000, 1_000), 6_000);
+  const pollIntervalMs = 250;
+  const startedAt = Date.now();
+  let last = await getCiv7PlayNotificationView(options);
+  while (Date.now() - startedAt <= waitTimeoutMs) {
+    const candidate = diplomacyResponsePostcondition(input, true, before, last, beforeValidation, beforeValidation);
+    if (candidate.classification !== "no-state-change") return last;
+    await sleep(pollIntervalMs);
+    last = await getCiv7PlayNotificationView(options);
+  }
+  return last;
+}
+
+function diplomacyResponsePostcondition(
+  input: Civ7DiplomacyResponseInput,
+  sent: boolean,
+  before: Civ7PlayNotificationViewResult,
+  after: Civ7PlayNotificationViewResult,
+  beforeValidation: Civ7OperationValidationResult,
+  afterValidation: Civ7OperationValidationResult,
+): Civ7DiplomacyResponsePostcondition {
+  const classification = classifyDiplomacyResponsePostcondition(input, sent, before, after, beforeValidation, afterValidation);
+  return {
+    classification,
+    reason: diplomacyResponsePostconditionReason(classification),
+  };
+}
+
+function classifyDiplomacyResponsePostcondition(
+  input: Civ7DiplomacyResponseInput,
+  sent: boolean,
+  before: Civ7PlayNotificationViewResult,
+  after: Civ7PlayNotificationViewResult,
+  beforeValidation: Civ7OperationValidationResult,
+  afterValidation: Civ7OperationValidationResult,
+): Civ7DiplomacyResponsePostconditionClassification {
+  if (!sent) return "not-sent";
+  if (probeValue(after.canEndTurn) === true) return "turn-unblocked";
+  const beforeMatch = findDiplomacyResponseNotification(before, input);
+  const afterMatch = findDiplomacyResponseNotification(after, input);
+  if (beforeMatch && !afterMatch) return "diplomacy-blocker-cleared";
+  const beforeBlocking = probeValue(before.blockingNotificationId);
+  const afterBlocking = probeValue(after.blockingNotificationId);
+  if (!sameComponentId(beforeBlocking, afterBlocking)) return "blocking-notification-changed";
+  if (beforeValidation.valid !== afterValidation.valid || stableJson(beforeValidation.result) !== stableJson(afterValidation.result)) {
+    return "validation-changed";
+  }
+  return "no-state-change";
+}
+
+function diplomacyResponsePostconditionReason(classification: Civ7DiplomacyResponsePostconditionClassification): string {
+  switch (classification) {
+    case "not-sent":
+      return "The diplomacy response did not validate, so no operation was sent.";
+    case "turn-unblocked":
+      return "The response and UI closeout left the turn unblocked.";
+    case "diplomacy-blocker-cleared":
+      return "The matching diplomatic-response notification is no longer present as a blocking decision.";
+    case "blocking-notification-changed":
+      return "The end-turn blocking notification changed after the response closeout.";
+    case "validation-changed":
+      return "The response validator changed after the send, but the notification/turn state did not clearly clear.";
+    case "no-state-change":
+      return "The response was sent, but notification, turn-blocking, and validator state did not change; use stale-blocker diagnostics instead of repeating blindly.";
+  }
+}
+
+function findDiplomacyResponseNotification(
+  view: Civ7PlayNotificationViewResult,
+  input: Civ7DiplomacyResponseInput,
+): Civ7PlayNotificationSummary | undefined {
+  return view.notifications.find((notification) => {
+    const typeName = String(notification.typeName ?? "").toUpperCase();
+    if (typeName !== "NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED") return false;
+    return notificationActionId(notification) === input.actionId;
+  });
+}
+
+function notificationActionId(notification: Civ7PlayNotificationSummary): number | undefined {
+  if (!isRecord(notification.target)) return undefined;
+  return typeof notification.target.id === "number" ? notification.target.id : undefined;
+}
+
 function probeValueChanged(left: Civ7RuntimeProbe<unknown> | undefined, right: Civ7RuntimeProbe<unknown> | undefined): boolean {
   if (!left || !right) return false;
   if (left.ok !== right.ok) return true;
@@ -9465,6 +9978,11 @@ function locationFromUnitProbeValue(probe: Civ7RuntimeProbe<unknown> | undefined
 
 function sameMapLocation(left: Civ7MapLocation, right: Civ7MapLocation): boolean {
   return left.x === right.x && left.y === right.y;
+}
+
+function sameComponentId(left: Civ7ComponentId | null | undefined, right: Civ7ComponentId | null | undefined): boolean {
+  if (left == null || right == null) return left == null && right == null;
+  return left.owner === right.owner && left.id === right.id && left.type === right.type;
 }
 
 function stableJson(value: unknown): string {

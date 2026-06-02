@@ -14,6 +14,7 @@ The command is read-only by design:
 
 ```bash
 civ7 game play ready-city --json
+civ7 game play ready-city --compact --json
 ```
 
 For an explicit city:
@@ -47,6 +48,15 @@ It returns:
   candidates and `populationPlacement.expansionCandidates` for `EXPAND`
   purchase candidates, with map coordinates and best-effort constructible
   labels when the runtime exposes them.
+
+Use `--compact --json` when comparing population placement candidates during
+live play. It summarizes city state, assign-worker plots with named current and
+next yields, yield deltas, expansion candidates with constructible labels, map
+yield facts, terrain/resource labels, and the next candidate command. Yield
+summaries use official `GameInfo.Yields` `YieldType` ids such as `YIELD_FOOD`
+and `YIELD_DIPLOMACY`, with `populationPlacement.yieldTypeOrder` included as
+the positional-array proof. Plain `--json` keeps the full raw placement,
+production, town-focus, and validation payloads for debugging.
 
 ## Norms
 

@@ -727,6 +727,132 @@ describe('game play commands', () => {
     }
   });
 
+  test('validates diplomacy responses as a dry-run player operation', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      await GamePlayRespondDiplomacy.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--player-id',
+        '0',
+        '--action-id',
+        '8',
+        '--response-type',
+        '926305338',
+        '--json',
+      ]);
+
+      expect(server.received.some((message) => message.includes('validateOperation("player-operation"'))).toBe(true);
+      expect(server.received.some((message) => message.includes('RESPOND_DIPLOMATIC_ACTION'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendDiplomacyResponseCloseout'))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test('sends diplomacy responses through the App UI closeout path', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'stale-diplomacy' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayRespondDiplomacy.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayRespondDiplomacy.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--player-id',
+        '2',
+        '--action-id',
+        '8',
+        '--response-type',
+        '926305338',
+        '--notification-id',
+        '{"owner":0,"id":19,"type":20}',
+        '--send',
+        '--reason',
+        'test diplomacy response closeout',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          sent: boolean;
+          verified: boolean;
+          payload: { playerId: number; notificationId: { id: number }; uiCloseout: { requested: boolean } };
+          postcondition: { classification: string; reason: string };
+        };
+      };
+      expect(payload.result.sent).toBe(true);
+      expect(payload.result.verified).toBe(true);
+      expect(payload.result.payload.playerId).toBe(0);
+      expect(payload.result.payload.notificationId.id).toBe(19);
+      expect(payload.result.payload.uiCloseout.requested).toBe(true);
+      expect(payload.result.postcondition.classification).toBe('turn-unblocked');
+      expect(payload.result.postcondition.reason).toContain('turn unblocked');
+      expect(server.received.some((message) => message.includes('sendDiplomacyResponseCloseout'))).toBe(true);
+      expect(server.received.some((message) => message.includes('GameContext.localPlayerID'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('materializes diplomacy response options from the notification HUD', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'stale-diplomacy' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayNotifications.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayNotifications.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          notifications: Array<{
+            details?: {
+              kind: string;
+              actionId: number;
+              options: Array<{ title: string; responseType: number; enabled: boolean; disabled: boolean; cli: string | null }>;
+              enabledOptions: Array<{ responseType: number; cli: string | null }>;
+              disabledOptions: Array<{ responseType: number; cli: string | null }>;
+            };
+          }>;
+          hud: { nextDecision: { details?: unknown } };
+        };
+      };
+      const details = payload.view.notifications[0].details;
+      expect(details?.kind).toBe('diplomacy-response-options');
+      expect(details?.actionId).toBe(8);
+      expect(details?.options.map((option) => option.title)).toEqual(['Support', 'Accept', 'Reject']);
+      expect(details?.disabledOptions[0].responseType).toBe(-1907089594);
+      expect(details?.disabledOptions[0].cli).toBeNull();
+      expect(details?.enabledOptions.map((option) => option.responseType)).toEqual([926305338, -1200641623]);
+      expect(details?.enabledOptions[0].cli).toContain('game play respond-diplomacy --action-id 8 --response-type 926305338');
+      expect(details?.enabledOptions[0].cli).toContain("--notification-id '{\"owner\":0,\"id\":19,\"type\":20}'");
+      expect(payload.view.hud.nextDecision.details).toBeDefined();
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('wraps attribute purchase as BUY_ATTRIBUTE_TREE_NODE', async () => {
     const server = await startTunerServer();
     try {
@@ -1894,6 +2020,68 @@ describe('game play commands', () => {
     }
   });
 
+  test('emits compact ready-city population and expansion yield candidates', async () => {
+    const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayReadyCity.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayReadyCity.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--compact',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        contractVersion: string;
+        command: string;
+        summary: string;
+        city: { name: string; buildQueue: unknown };
+        populationPlacement: {
+          yieldTypeOrder: string[];
+          workablePlots: Array<{ yieldDelta: { YIELD_HAPPINESS: number; happiness?: number }; cli: string }>;
+          expansionCandidates: Array<{
+            constructibleName: string;
+            yieldSource: string;
+            yieldSummary: { YIELD_FOOD: number; YIELD_PRODUCTION: number; food?: number };
+            terrainName: string;
+            cli: string;
+          }>;
+        };
+        next: string;
+        warnings: string[];
+        omitted: Array<{ path: string }>;
+        view?: unknown;
+      };
+      expect(payload.contractVersion).toBe('play-agent-v0');
+      expect(payload.command).toBe('game play ready-city');
+      expect(payload.summary).toContain('Dur-Sharrukin');
+      expect(payload.populationPlacement.yieldTypeOrder).toContain('YIELD_DIPLOMACY');
+      expect(payload.populationPlacement.workablePlots[0].yieldDelta.YIELD_HAPPINESS).toBe(2);
+      expect(payload.populationPlacement.workablePlots[0].yieldDelta.happiness).toBeUndefined();
+      expect(payload.populationPlacement.workablePlots[0].cli).toContain('assign-worker');
+      expect(payload.populationPlacement.expansionCandidates[0].constructibleName).toBe('Walls');
+      expect(payload.populationPlacement.expansionCandidates[0].yieldSource).toBe('GameplayMap.getYieldsWithCity(plotIndex, cityId)');
+      expect(payload.populationPlacement.expansionCandidates[0].yieldSummary).toMatchObject({ YIELD_FOOD: 2, YIELD_PRODUCTION: 1 });
+      expect(payload.populationPlacement.expansionCandidates[0].yieldSummary.food).toBeUndefined();
+      expect(payload.populationPlacement.expansionCandidates[0].terrainName).toBe('Grassland');
+      expect(payload.next).toContain('assign-worker');
+      expect(payload.warnings.join(' ')).toContain('Read-only city dashboard');
+      expect(payload.omitted.some((item) => item.path === 'view.populationPlacement.allPlacementInfo')).toBe(true);
+      expect(payload.view).toBeUndefined();
+      expect(server.received.some((message) => message.includes('readReadyCityView'))).toBe(true);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('reads settlement recommendations without sending operations', async () => {
     const server = await startTunerServer();
     try {
@@ -2304,12 +2492,13 @@ function expectOwnerOnlyContactLabels(values: readonly string[]): void {
 
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
-  playNotificationMode?: 'town-focus' | 'stale-unit-command' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'runtime-error';
+  playNotificationMode?: 'town-focus' | 'stale-unit-command' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
 } = {}) {
   const received: string[] = [];
   let turnCompleteSent = false;
   let unitTargetSendObserved = false;
+  let diplomacyCloseoutObserved = false;
   const server = createServer((socket) => {
     let buffer = Buffer.alloc(0);
     socket.on('data', (chunk) => {
@@ -2322,7 +2511,10 @@ async function startTunerServer(options: {
         if (frame.message === 'LSQ:') {
           socket.write(encodeResponse(frame.listenerId, ['65535', 'App UI', '1', 'Tuner']));
         } else if (frame.message.includes('readPlayNotifications')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(playNotificationView(options.playNotificationMode))]));
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(playNotificationView(options.playNotificationMode, diplomacyCloseoutObserved))]));
+        } else if (frame.message.includes('sendDiplomacyResponseCloseout')) {
+          diplomacyCloseoutObserved = true;
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(diplomacyResponseCloseout())]));
         } else if (frame.message.includes('DiplomacyPlayerFirstMeets')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify({
             key: 'PLAYER_REALATIONSHIP_FIRSTMEET_NEUTRAL',
@@ -2397,7 +2589,8 @@ async function startTunerServer(options: {
 }
 
 function playNotificationView(
-  mode: 'town-focus' | 'stale-unit-command' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'runtime-error' = 'town-focus',
+  mode: 'town-focus' | 'stale-unit-command' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
+  diplomacyCloseoutObserved = false,
 ) {
   if (mode === 'runtime-error') {
     const gameError = { ok: false as const, error: 'ReferenceError: Game is not defined' };
@@ -2585,6 +2778,178 @@ function playNotificationView(
       hud: {
         nextDecision: queue[0],
         decisionQueue: queue,
+      },
+      limits: { maxNotifications: 25, truncated: false },
+    };
+  }
+  if (mode === 'stale-diplomacy') {
+    const diplomacyDecision = {
+      category: 'diplomacy-response',
+      operationFamily: 'player-operation',
+      operationType: 'RESPOND_DIPLOMATIC_ACTION',
+      argsShape: '{ ID, Type }',
+      cli: 'game play respond-diplomacy',
+      requiredInputs: [
+        { name: 'ID', source: 'live diplomatic action', required: true },
+        { name: 'Type', source: 'chosen diplomatic response', required: true },
+      ],
+      commonActions: [
+        {
+          label: 'choose diplomacy response',
+          cli: 'game play respond-diplomacy --action-id <action-id> --response-type <response-type>',
+          operationFamily: 'player-operation',
+          operationType: 'RESPOND_DIPLOMATIC_ACTION',
+          argsShape: '{ ID, Type }',
+          when: 'after reading the live panel response options',
+        },
+      ],
+      confidence: 'official-ui',
+      notes: ['Visible response panel option; send mode must verify the notification no longer blocks turn completion.'],
+    };
+    const notificationId = { owner: 0, id: 19, type: 20 };
+    const diplomacyResponseDetails = {
+      kind: 'diplomacy-response-options',
+      actionId: 8,
+      notificationId,
+      responseData: { ok: true, value: { responseList: [{ responseType: -1907089594 }, { responseType: 926305338 }, { responseType: -1200641623 }] } },
+      eventData: { ok: true, value: { responseType: -1907089594, support: 2 } },
+      options: [
+        {
+          responseType: -1907089594,
+          title: 'Support',
+          description: null,
+          cost: null,
+          icon: null,
+          enabled: false,
+          disabled: true,
+          validation: { ok: true, value: { Success: false, FailureReasons: ['already selected'] } },
+          cli: null,
+        },
+        {
+          responseType: 926305338,
+          title: 'Accept',
+          description: null,
+          cost: null,
+          icon: null,
+          enabled: true,
+          disabled: false,
+          validation: { ok: true, value: { Success: true } },
+          cli: "game play respond-diplomacy --action-id 8 --response-type 926305338 --notification-id '{\"owner\":0,\"id\":19,\"type\":20}' --send --reason '<why this response was selected>'",
+        },
+        {
+          responseType: -1200641623,
+          title: 'Reject',
+          description: null,
+          cost: null,
+          icon: null,
+          enabled: true,
+          disabled: false,
+          validation: { ok: true, value: { Success: true } },
+          cli: "game play respond-diplomacy --action-id 8 --response-type -1200641623 --notification-id '{\"owner\":0,\"id\":19,\"type\":20}' --send --reason '<why this response was selected>'",
+        },
+      ],
+      enabledOptions: [
+        {
+          responseType: 926305338,
+          title: 'Accept',
+          description: null,
+          cost: null,
+          icon: null,
+          enabled: true,
+          disabled: false,
+          validation: { ok: true, value: { Success: true } },
+          cli: "game play respond-diplomacy --action-id 8 --response-type 926305338 --notification-id '{\"owner\":0,\"id\":19,\"type\":20}' --send --reason '<why this response was selected>'",
+        },
+        {
+          responseType: -1200641623,
+          title: 'Reject',
+          description: null,
+          cost: null,
+          icon: null,
+          enabled: true,
+          disabled: false,
+          validation: { ok: true, value: { Success: true } },
+          cli: "game play respond-diplomacy --action-id 8 --response-type -1200641623 --notification-id '{\"owner\":0,\"id\":19,\"type\":20}' --send --reason '<why this response was selected>'",
+        },
+      ],
+      disabledOptions: [
+        {
+          responseType: -1907089594,
+          title: 'Support',
+          description: null,
+          cost: null,
+          icon: null,
+          enabled: false,
+          disabled: true,
+          validation: { ok: true, value: { Success: false, FailureReasons: ['already selected'] } },
+          cli: null,
+        },
+      ],
+      notes: [
+        'Static fixture mirrors the CLI/HUD contract emitted by the App UI source-backed getResponseDataForUI option materializer.',
+        'Use a returned enabled option as the single caller-level response; send mode performs UI closeout and notification postcondition checks.',
+      ],
+    };
+    const notification = {
+      id: notificationId,
+      type: 96575931,
+      typeName: 'NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED',
+      groupType: null,
+      summary: 'Trung Trac has started a Diplomatic Action with you.',
+      message: 'Respond to Diplomatic Action',
+      target: { owner: 2, id: 8, type: 34 },
+      location: { x: -9999, y: -9999 },
+      canUserDismiss: false,
+      expired: true,
+      dismissed: false,
+      isEndTurnBlocking: !diplomacyCloseoutObserved,
+      decision: diplomacyDecision,
+      details: diplomacyResponseDetails,
+    };
+    return {
+      localPlayerId: 0,
+      turn: { ok: true, value: 8 },
+      turnDate: { ok: true, value: '3825 BCE' },
+      hasSentTurnComplete: { ok: true, value: false },
+      canEndTurn: { ok: true, value: diplomacyCloseoutObserved },
+      blocker: { ok: true, value: 0 },
+      blockingNotificationId: { ok: true, value: diplomacyCloseoutObserved ? null : notification.id },
+      selectedUnitId: { ok: true, value: null },
+      selectedCityId: { ok: true, value: null },
+      firstReadyUnitId: { ok: true, value: null },
+      notifications: diplomacyCloseoutObserved ? [] : [notification],
+      decisions: diplomacyCloseoutObserved ? [] : [diplomacyDecision],
+      hud: {
+        nextDecision: diplomacyCloseoutObserved
+          ? null
+          : {
+              notificationId: notification.id,
+              isEndTurnBlocking: true,
+              typeName: notification.typeName,
+              summary: notification.summary,
+              message: notification.message,
+              target: notification.target,
+              location: notification.location,
+              player: null,
+              details: notification.details,
+              ...diplomacyDecision,
+            },
+        decisionQueue: diplomacyCloseoutObserved
+          ? []
+          : [
+              {
+                notificationId: notification.id,
+                isEndTurnBlocking: true,
+                typeName: notification.typeName,
+                summary: notification.summary,
+                message: notification.message,
+                target: notification.target,
+                location: notification.location,
+                player: null,
+                details: notification.details,
+                ...diplomacyDecision,
+              },
+            ],
       },
       limits: { maxNotifications: 25, truncated: false },
     };
@@ -3248,6 +3613,11 @@ function readyCityView() {
         name: 'Dur-Sharrukin',
         population: 4,
         isTown: true,
+        buildQueue: {
+          currentProductionTypeHash: 713967338,
+          productionProgress: 12,
+          turnsLeft: 3,
+        },
       },
     },
     legalOperations: [
@@ -3293,6 +3663,15 @@ function readyCityView() {
       value: {
         isReadyToPlacePopulation: { ok: true, value: true },
         cityWorkerCap: { ok: true, value: 4 },
+        yieldTypeOrder: [
+          'YIELD_FOOD',
+          'YIELD_PRODUCTION',
+          'YIELD_GOLD',
+          'YIELD_SCIENCE',
+          'YIELD_CULTURE',
+          'YIELD_HAPPINESS',
+          'YIELD_DIPLOMACY',
+        ],
         allPlacementInfo: { ok: true, value: [{ PlotIndex: 1457, IsBlocked: false }] },
         workablePlotIndexes: { ok: true, value: [1457] },
         blockedPlotIndexes: { ok: true, value: [] },
@@ -3306,6 +3685,33 @@ function readyCityView() {
               isBlocked: false,
               currentYields: [0, 1, 0, 0, 0, 0, 0],
               nextYields: [0, 1, 0, 0, 0, 2, 0],
+              currentYieldSummary: {
+                YIELD_FOOD: 0,
+                YIELD_PRODUCTION: 1,
+                YIELD_GOLD: 0,
+                YIELD_SCIENCE: 0,
+                YIELD_CULTURE: 0,
+                YIELD_HAPPINESS: 0,
+                YIELD_DIPLOMACY: 0,
+              },
+              nextYieldSummary: {
+                YIELD_FOOD: 0,
+                YIELD_PRODUCTION: 1,
+                YIELD_GOLD: 0,
+                YIELD_SCIENCE: 0,
+                YIELD_CULTURE: 0,
+                YIELD_HAPPINESS: 2,
+                YIELD_DIPLOMACY: 0,
+              },
+              yieldDelta: {
+                YIELD_FOOD: 0,
+                YIELD_PRODUCTION: 0,
+                YIELD_GOLD: 0,
+                YIELD_SCIENCE: 0,
+                YIELD_CULTURE: 0,
+                YIELD_HAPPINESS: 2,
+                YIELD_DIPLOMACY: 0,
+              },
               maintenance: null,
               placementInfo: { PlotIndex: 1457, IsBlocked: false },
               cli: 'game play assign-worker --player-id <id> --location 1457',
@@ -3321,7 +3727,24 @@ function readyCityView() {
               y: 31,
               constructibleType: 713967338,
               constructibleTypeName: 'BUILDING_WALLS',
-              constructibleName: 'LOC_BUILDING_WALLS_NAME',
+              constructibleName: 'Walls',
+              constructibleClass: 'BUILDING',
+              constructibleDistrictType: 'DISTRICT_URBAN',
+              plotFacts: {
+                terrainName: 'Grassland',
+                featureName: null,
+                resourceName: 'Clay',
+                yieldSource: 'GameplayMap.getYieldsWithCity(plotIndex, cityId)',
+                yieldSummary: {
+                  YIELD_FOOD: 2,
+                  YIELD_PRODUCTION: 1,
+                  YIELD_GOLD: 0,
+                  YIELD_SCIENCE: 0,
+                  YIELD_CULTURE: 0,
+                  YIELD_HAPPINESS: 0,
+                  YIELD_DIPLOMACY: 0,
+                },
+              },
               cli: "game play expand-city --city-id '<city-id>' --x 23 --y 31",
             },
           ],
@@ -3894,6 +4317,51 @@ function notificationDismissal(send: boolean) {
     result: send ? true : null,
     verified: send,
     notes: ['This is an App UI notification action, not a gameplay operation family.'],
+  };
+}
+
+function diplomacyResponseCloseout() {
+  const notificationId = { owner: 0, id: 19, type: 20 };
+  return {
+    localPlayerId: 0,
+    playerId: 0,
+    actionId: 8,
+    responseType: 926305338,
+    args: { ID: 8, Type: 926305338 },
+    notificationId,
+    discoveredNotification: { ok: true, value: notificationId },
+    activated: true,
+    activationResult: {
+      ok: true,
+      value: {
+        found: true,
+        target: { owner: 2, id: 8, type: 34 },
+        activated: true,
+        currentProjectReactionDataActionID: 8,
+      },
+    },
+    canStart: { ok: true, value: { Success: true } },
+    sent: true,
+    sendResult: { ok: true, value: true },
+    uiCloseout: {
+      requested: true,
+      acknowledgeStarted: { ok: true, value: undefined },
+      closeCurrentDiplomacyProject: { ok: true, value: undefined },
+      hide: { ok: true, value: undefined },
+    },
+    diplomacyState: {
+      before: {
+        currentProjectReactionDataActionID: 8,
+        currentProjectReactionRequestActionID: 8,
+        interfaceMode: { ok: true, value: 'INTERFACEMODE_DIPLOMACY_PROJECT_REACTION' },
+      },
+      after: {
+        currentProjectReactionDataActionID: null,
+        currentProjectReactionRequestActionID: null,
+        interfaceMode: { ok: true, value: 'INTERFACEMODE_DEFAULT' },
+      },
+    },
+    notes: ['This follows the official response-panel path more closely than a raw player-operation send.'],
   };
 }
 
