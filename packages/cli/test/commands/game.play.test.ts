@@ -2644,6 +2644,46 @@ describe('game play commands', () => {
     }
   });
 
+  test.each([
+    ['tech-choice', 'NOTIFICATION_CHOOSE_TECH', 'game play choose-tech --options --json'],
+    ['culture-choice', 'NOTIFICATION_CHOOSE_CULTURE_NODE', 'game play choose-culture --options --json'],
+    ['celebration-choice', 'NOTIFICATION_CHOOSE_GOLDEN_AGE', 'game play choose-celebration --options --json'],
+    ['government-choice', 'NOTIFICATION_CHOOSE_GOVERNMENT', 'game play choose-government --options --json'],
+  ] as const)('routes %s notification queue entries to compact option readers', async (playNotificationMode, typeName, command) => {
+    const server = await startTunerServer({ playNotificationMode });
+    try {
+      const { port } = server.address();
+      const writes: string[] = [];
+      const log = vi.spyOn(GamePlayNotificationQueue.prototype, 'log').mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
+      try {
+        await GamePlayNotificationQueue.run([
+          '--host',
+          '127.0.0.1',
+          '--port',
+          String(port),
+          '--json',
+        ]);
+      } finally {
+        log.mockRestore();
+      }
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          schedule: Array<{ typeName: string | null; command: string | null; disposition: string }>;
+        };
+      };
+      const step = payload.view.schedule.find((item) => item.typeName === typeName);
+      expect(step?.disposition).toBe('operate-with-live-inputs');
+      expect(step?.command).toBe(command);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
   test('schedules legacy completion reports as reviewed dismissal candidates', async () => {
     const server = await startTunerServer({ playNotificationMode: 'legacy-completed' });
     try {

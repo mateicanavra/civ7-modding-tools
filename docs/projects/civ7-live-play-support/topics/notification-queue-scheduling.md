@@ -53,6 +53,16 @@ Useful fields:
 - `schedule[].safeToBatch`: true only for reviewed informational App UI
   dismissal candidates.
 
+When the HUD has already materialized an option surface, queue scheduling should
+route to the compact option reader rather than a raw mutation wrapper:
+
+- `NOTIFICATION_CHOOSE_TECH` -> `game play choose-tech --options --json`
+- `NOTIFICATION_CHOOSE_CULTURE_NODE` -> `game play choose-culture --options --json`
+- `NOTIFICATION_CHOOSE_GOLDEN_AGE` -> `game play choose-celebration --options --json`
+- `NOTIFICATION_CHOOSE_GOVERNMENT` -> `game play choose-government --options --json`
+- production and population city blockers -> `game play ready-city --compact --json`
+- tradition review -> `game play traditions --compact --json`
+
 Bulk-dismiss output fields:
 
 - `eligibleCount`: number of queue items that can be dismissed in this pass.

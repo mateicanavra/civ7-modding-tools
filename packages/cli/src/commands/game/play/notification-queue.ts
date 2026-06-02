@@ -165,6 +165,10 @@ function commandFor(item: Civ7PlayDecisionQueueItem, disposition: QueueDispositi
   if (disposition === 'reviewed-dismissal-candidate' && item.notificationId) {
     return `game play dismiss-notification --target '${JSON.stringify(item.notificationId)}' --send --reason '<reviewed: ${reasonSlug(item)}>'`;
   }
+  const decisionCommand = commandFromDecision(item);
+  if (decisionCommand) return decisionCommand;
+  const detailCommand = commandFromDecisionDetails(item);
+  if (detailCommand) return detailCommand;
   if (disposition === 'inspect-ready-unit') {
     return 'game play ready-unit --json; game play unit-target --unit-id \'<unit-id>\' --x <x> --y <y> --json';
   }
@@ -218,6 +222,47 @@ function reasonSlug(item: Civ7PlayDecisionQueueItem): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
   return text || 'notification-reviewed';
+}
+
+function commandFromDecision(item: Civ7PlayDecisionQueueItem): string | null {
+  if (item.category === 'production-choice' || item.category === 'population-placement') {
+    return 'game play ready-city --compact --json';
+  }
+  if (item.category === 'tradition-review') {
+    return 'game play traditions --compact --json';
+  }
+  return null;
+}
+
+function commandFromDecisionDetails(item: Civ7PlayDecisionQueueItem): string | null {
+  const details = (item as { details?: unknown }).details;
+  if (!details || typeof details !== 'object') return null;
+  const record = details as Record<string, unknown>;
+  if (record.kind === 'technology-choice-options') {
+    return hasEnabledOptions(record) ? 'game play choose-tech --options --json' : null;
+  }
+  if (record.kind === 'culture-choice-options') {
+    return hasEnabledOptions(record) ? 'game play choose-culture --options --json' : null;
+  }
+  if (record.kind === 'celebration-choice-options') {
+    return hasEnabledOptions(record) ? 'game play choose-celebration --options --json' : null;
+  }
+  if (record.kind === 'government-choice-options') {
+    return hasEnabledOptions(record) ? 'game play choose-government --options --json' : null;
+  }
+  if (record.kind === 'unit-command-reconciliation' && record.staleReadyPointerSuspected === true) {
+    const candidate = asRecords(record.enabledCloseoutCandidates).find((entry) => typeof entry.cli === 'string' && entry.cli.length > 0);
+    return typeof candidate?.cli === 'string' ? candidate.cli : null;
+  }
+  return null;
+}
+
+function hasEnabledOptions(record: Record<string, unknown>): boolean {
+  return asRecords(record.enabledOptions).length > 0;
+}
+
+function asRecords(value: unknown): Array<Record<string, unknown>> {
+  return Array.isArray(value) ? value.filter((entry): entry is Record<string, unknown> => entry !== null && typeof entry === 'object') : [];
 }
 
 function formatProbe<T>(probe: { ok: true; value: T } | { ok: false; error: string }): string {
