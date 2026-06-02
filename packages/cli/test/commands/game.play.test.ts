@@ -6,8 +6,6 @@ import { join } from 'node:path';
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayAssignWorker from '../../src/commands/game/play/assign-worker';
 import GamePlayBattlefieldScan from '../../src/commands/game/play/battlefield-scan';
-import GamePlayBuildProduction from '../../src/commands/game/play/build-production';
-import GamePlayBuildUnit from '../../src/commands/game/play/build-unit';
 import GamePlayBuyAttribute from '../../src/commands/game/play/buy-attribute';
 import GamePlayChangeTradition from '../../src/commands/game/play/change-tradition';
 import GamePlayCivilianRouteTriage from '../../src/commands/game/play/civilian-route-triage';
@@ -268,151 +266,6 @@ describe('game play commands', () => {
       log.mockRestore();
       await server.close();
     }
-  });
-
-  test('wraps city unit production as BUILD with UnitType', async () => {
-    const server = await startTunerServer();
-    const writes: string[] = [];
-    const log = vi.spyOn(GamePlayBuildUnit.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
-    try {
-      const { port } = server.address();
-      await GamePlayBuildUnit.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--city-id',
-        '{"owner":0,"id":65536,"type":25}',
-        '--unit-type',
-        '1558890441',
-        '--send',
-        '--reason',
-        'test unit production',
-        '--json',
-      ]);
-
-      const payload = JSON.parse(writes.join('')) as { ok: true; result: { populationPostcondition?: unknown } };
-      expect(payload.result.populationPostcondition).toBeUndefined();
-      expect(server.received.some((message) => message.includes('BUILD'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"UnitType":1558890441'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation("city-operation"'))).toBe(true);
-    } finally {
-      log.mockRestore();
-      await server.close();
-    }
-  });
-
-  test('wraps placement-sensitive constructible production as BUILD with coordinates', async () => {
-    const server = await startTunerServer();
-    const writes: string[] = [];
-    const log = vi.spyOn(GamePlayBuildProduction.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
-    try {
-      const { port } = server.address();
-      await GamePlayBuildProduction.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--city-id',
-        '{"owner":0,"id":65536,"type":1}',
-        '--constructible-type',
-        '713967338',
-        '--x',
-        '22',
-        '--y',
-        '31',
-        '--send',
-        '--reason',
-        'test constructible production placement',
-        '--json',
-      ]);
-
-      const payload = JSON.parse(writes.join('')) as {
-        ok: true;
-        result: {
-          sent: boolean;
-          verified: boolean;
-          productionPostcondition: { classification: string };
-          payload: { ui: { cityActivation: { ok: boolean }; interfaceClose: { ok: boolean } } };
-        };
-      };
-      expect(payload.result.sent).toBe(true);
-      expect(payload.result.verified).toBe(true);
-      expect(payload.result.productionPostcondition.classification).toBe('production-choice-cleared');
-      expect(payload.result.payload.ui.cityActivation.ok).toBe(true);
-      expect(payload.result.payload.ui.interfaceClose.ok).toBe(true);
-      expect(server.received.some((message) => message.includes('BUILD'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"ConstructibleType":713967338'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"X":22'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"Y":31'))).toBe(true);
-      expect(server.received.some((message) => message.includes('readProductionChoice'))).toBe(true);
-      expect(server.received.some((message) => message.includes('UI?.Player?.selectCity'))).toBe(true);
-      expect(server.received.some((message) => message.includes('InterfaceMode?.switchToDefault'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation("city-operation"'))).toBe(false);
-    } finally {
-      log.mockRestore();
-      await server.close();
-    }
-  });
-
-  test('reports sticky production-choice blockers after BUILD sends', async () => {
-    const server = await startTunerServer({ productionPostconditionMode: 'blocker-still-live' });
-    const writes: string[] = [];
-    const log = vi.spyOn(GamePlayBuildProduction.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
-    try {
-      const { port } = server.address();
-      await GamePlayBuildProduction.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--city-id',
-        '{"owner":0,"id":65536,"type":25}',
-        '--unit-type',
-        '1558890441',
-        '--send',
-        '--reason',
-        'test production closeout',
-        '--json',
-      ]);
-
-      const payload = JSON.parse(writes.join('')) as {
-        ok: true;
-        result: {
-          verified: boolean;
-          productionPostcondition: {
-            classification: string;
-            productionStateChanged: boolean;
-            blockerStillLive: boolean;
-            reason: string;
-          };
-        };
-      };
-      expect(payload.result.verified).toBe(false);
-      expect(payload.result.productionPostcondition).toMatchObject({
-        classification: 'production-state-changed-blocker-still-live',
-        productionStateChanged: true,
-        blockerStillLive: true,
-      });
-      expect(payload.result.productionPostcondition.reason).toContain('production-choice notification still blocks');
-    } finally {
-      log.mockRestore();
-      await server.close();
-    }
-  });
-
-  test('requires exactly one production item kind', async () => {
-    await expect(GamePlayBuildProduction.run([
-      '--city-id',
-      '{"owner":0,"id":65536,"type":1}',
-      '--json',
-    ])).rejects.toThrow(/requires exactly one/);
   });
 
   test('materializes diplomacy response options from the notification HUD', async () => {
@@ -3583,13 +3436,11 @@ async function startTunerServer(options: {
   playNotificationMode?: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'unit-lost-report' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'first-meet' | 'ready-unit' | 'mixed-queue' | 'clean-read' | 'stale-diplomacy' | 'runtime-error';
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
   notificationDismissalMode?: 'verified' | 'stale-nonblocking' | 'engine-front-train-absent' | 'engine-front-dismissed';
-  productionPostconditionMode?: 'cleared' | 'blocker-still-live';
 } = {}) {
   const received: string[] = [];
   let turnCompleteSent = false;
   let unitTargetSendObserved = false;
   let notificationDismissalSent = false;
-  let productionChoiceSent = false;
   const server = createServer((socket) => {
     let buffer = Buffer.alloc(0);
     socket.on('data', (chunk) => {
@@ -3645,14 +3496,6 @@ async function startTunerServer(options: {
             options.notificationDismissalMode ?? 'verified',
             notificationDismissalSent && !send,
           ))]));
-        } else if (frame.message.includes('readProductionChoice')) {
-          const send = frame.message.includes('"send":true');
-          if (send) productionChoiceSent = true;
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(productionChoicePayload(
-            send,
-            options.productionPostconditionMode ?? 'cleared',
-            productionChoiceSent && !send,
-          ))]));
         } else if (frame.message.includes('hasSentTurnComplete')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(turnCompletionStatus(turnCompleteSent, options.canEndTurnBefore ?? true))]));
         } else if (frame.message === 'CMD:65535:GameContext.sendTurnComplete()') {
@@ -3664,7 +3507,6 @@ async function startTunerServer(options: {
           const unitFamily = frame.message.includes('sendOperation("unit-operation"') || frame.message.includes('sendOperation("unit-command"');
           const operationType = operationTypeFromMessage(frame.message);
           const populationFamily = operationType === 'ASSIGN_WORKER' || operationType === 'EXPAND';
-          const productionFamily = frame.message.includes('sendOperation("city-operation"') && operationType === 'BUILD';
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(unitFamily
             ? {
                 sent: true,
@@ -3677,12 +3519,6 @@ async function startTunerServer(options: {
                     beforePopulationPostcondition: populationPlacementPostconditionSnapshot(true),
                     afterPopulationPostcondition: populationPlacementPostconditionSnapshot(false),
                   }
-                : productionFamily
-                  ? {
-                      sent: true,
-                      beforeProductionPostcondition: productionPostconditionSnapshot('before', options.productionPostconditionMode ?? 'cleared'),
-                      afterProductionPostcondition: productionPostconditionSnapshot('after', options.productionPostconditionMode ?? 'cleared'),
-                    }
                 : { sent: true })]));
         } else {
           socket.write(encodeResponse(frame.listenerId, ['null']));
@@ -6954,7 +6790,7 @@ function operationValidation(message: string) {
     operationType,
     enumValue: operationType,
     target: operationTarget(family),
-    args: operationArgs(operationType, message),
+    args: operationArgs(operationType),
     valid: true,
     result: { Success: true },
   };
@@ -7007,84 +6843,13 @@ function populationPlacementPostconditionSnapshot(isReadyToPlacePopulation: bool
   };
 }
 
-function productionPostconditionSnapshot(
-  phase: 'before' | 'after',
-  mode: 'cleared' | 'blocker-still-live',
-) {
-  const cityId = { owner: 0, id: 65536, type: 25 };
-  const notification = {
-    id: { owner: 0, id: 6, type: 20 },
-    type: 1090224621,
-    typeName: 'NOTIFICATION_CHOOSE_CITY_PRODUCTION',
-    target: cityId,
-    matchesCity: true,
-    canUserDismiss: false,
-    expired: true,
-    dismissed: false,
-  };
-  return {
-    cityId,
-    city: {
-      ok: true,
-      value: {
-        id: cityId,
-        population: 3,
-        isTown: false,
-        location: { x: 26, y: 36 },
-      },
-    },
-    buildQueue: {
-      ok: true,
-      value: {
-        currentProductionTypeHash: phase === 'before' ? 713967338 : 1558890441,
-        previousProductionTypeHash: 0,
-        productionProgress: phase === 'before' ? 12 : 0,
-        turnsLeftForRequestedItem: phase === 'before' ? -1 : 4,
-        queueLength: 1,
-      },
-    },
-    selectedCityId: { ok: true, value: phase === 'before' ? cityId : null },
-    blocker: { ok: true, value: mode === 'cleared' && phase === 'after' ? 0 : 1090224621 },
-    canEndTurn: { ok: true, value: mode === 'cleared' && phase === 'after' },
-    blockingProductionNotification: {
-      ok: true,
-      value: mode === 'blocker-still-live' || phase === 'before' ? notification : null,
-    },
-  };
-}
-
-function productionChoicePayload(
-  send: boolean,
-  mode: 'cleared' | 'blocker-still-live',
-  settled = false,
-) {
-  const cityId = { owner: 0, id: 65536, type: 25 };
-  const before = productionPostconditionSnapshot('before', mode);
-  const after = productionPostconditionSnapshot(settled || send ? 'after' : 'before', mode);
-  return {
-    cityId,
-    args: { UnitType: 1558890441 },
-    beforeValidation: { ok: true, value: { Success: true } },
-    afterValidation: { ok: true, value: { Success: true } },
-    sent: send,
-    sendResult: send ? { ok: true, value: true } : { ok: false, skipped: true, reason: 'send not requested' },
-    beforeProductionPostcondition: before,
-    afterProductionPostcondition: after,
-    ui: {
-      cityActivation: send ? { ok: true, value: { selectedCityId: cityId } } : { ok: false, skipped: true, reason: 'read-only production choice status' },
-      interfaceClose: send ? { ok: true, value: { selectedCityId: null, interfaceMode: 'INTERFACEMODE_DEFAULT' } } : { ok: false, skipped: true, reason: 'send not requested' },
-    },
-    notes: ['This mirrors the official production chooser path.'],
-  };
-}
-
 function operationTarget(family: string) {
   if (family === 'player-operation') return { playerId: 0 };
   if (family === 'city-operation' || family === 'city-command') return { cityId: { owner: 0, id: 65536, type: 25 } };
   return { unitId: { owner: 0, id: 65536, type: 26 } };
 }
 
-function operationArgs(operationType: string, message = '') {
+function operationArgs(operationType: string) {
   if (operationType === 'VIEWED_ADVISOR_WARNING') return { Target: { owner: 0, id: 12345, type: 99 } };
   if (operationType === 'SET_TECH_TREE_NODE') return { ProgressionTreeNodeType: -1255676052 };
   if (operationType === 'SET_TECH_TREE_TARGET_NODE') return { ProgressionTreeNodeType: -1255676052 };
@@ -7103,11 +6868,6 @@ function operationArgs(operationType: string, message = '') {
   if (operationType === 'ASSIGN_WORKER') return { Location: 2543, Amount: 1 };
   if (operationType === 'UNITCOMMAND_RESETTLE') return { X: 17, Y: 25 };
   if (operationType === 'UNITCOMMAND_UPGRADE') return {};
-  if (operationType === 'BUILD' && message.includes('ConstructibleType')) {
-    return { ConstructibleType: 713967338, X: 22, Y: 31 };
-  }
-  if (operationType === 'BUILD' && message.includes('ProjectType')) return { ProjectType: 12345 };
-  if (operationType === 'BUILD') return { UnitType: 1558890441 };
   return undefined;
 }
 
