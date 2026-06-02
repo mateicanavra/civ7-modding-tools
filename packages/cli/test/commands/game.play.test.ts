@@ -404,8 +404,58 @@ describe('game play commands', () => {
     }
   });
 
+  test('reports population postconditions for sent worker assignments', async () => {
+    const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayAssignWorker.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayAssignWorker.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--player-id',
+        '0',
+        '--location',
+        '2543',
+        '--send',
+        '--reason',
+        'test population worker placement',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          verified: boolean;
+          populationPostcondition: {
+            classification: string;
+            readyCleared: boolean;
+            placementStateChanged: boolean;
+            reason: string;
+          };
+        };
+      };
+      expect(payload.result.verified).toBe(true);
+      expect(payload.result.populationPostcondition.classification).toBe('population-ready-cleared');
+      expect(payload.result.populationPostcondition.readyCleared).toBe(true);
+      expect(payload.result.populationPostcondition.placementStateChanged).toBe(true);
+      expect(payload.result.populationPostcondition.reason).toMatch(/Growth\.isReadyToPlacePopulation cleared/);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('wraps city unit production as BUILD with UnitType', async () => {
     const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayBuildUnit.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
     try {
       const { port } = server.address();
       await GamePlayBuildUnit.run([
@@ -423,10 +473,13 @@ describe('game play commands', () => {
         '--json',
       ]);
 
+      const payload = JSON.parse(writes.join('')) as { ok: true; result: { populationPostcondition?: unknown } };
+      expect(payload.result.populationPostcondition).toBeUndefined();
       expect(server.received.some((message) => message.includes('BUILD'))).toBe(true);
       expect(server.received.some((message) => message.includes('"UnitType":1558890441'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation("city-operation"'))).toBe(true);
     } finally {
+      log.mockRestore();
       await server.close();
     }
   });
@@ -1011,6 +1064,54 @@ describe('game play commands', () => {
       expect(server.received.some((message) => message.includes('"Y":19'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
+      await server.close();
+    }
+  });
+
+  test('reports population postconditions for sent city expansions', async () => {
+    const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayExpandCity.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayExpandCity.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--city-id',
+        '{"owner":0,"id":196610,"type":1}',
+        '--x',
+        '16',
+        '--y',
+        '19',
+        '--send',
+        '--reason',
+        'test population expansion placement',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          verified: boolean;
+          populationPostcondition: {
+            classification: string;
+            readyCleared: boolean;
+            placementStateChanged: boolean;
+            reason: string;
+          };
+        };
+      };
+      expect(payload.result.verified).toBe(true);
+      expect(payload.result.populationPostcondition.classification).toBe('population-ready-cleared');
+      expect(payload.result.populationPostcondition.readyCleared).toBe(true);
+      expect(payload.result.populationPostcondition.placementStateChanged).toBe(true);
+      expect(payload.result.populationPostcondition.reason).toMatch(/Growth\.isReadyToPlacePopulation cleared/);
+    } finally {
+      log.mockRestore();
       await server.close();
     }
   });
@@ -1960,13 +2061,21 @@ async function startTunerServer(options: {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(operationValidation(frame.message))]));
         } else if (frame.message.includes('return JSON.stringify(sendOperation')) {
           const unitFamily = frame.message.includes('sendOperation("unit-operation"') || frame.message.includes('sendOperation("unit-command"');
+          const operationType = operationTypeFromMessage(frame.message);
+          const populationFamily = operationType === 'ASSIGN_WORKER' || operationType === 'EXPAND';
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(unitFamily
             ? {
                 sent: true,
                 beforePostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 65536, type: 26 }),
                 afterPostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 131072, type: 26 }),
               }
-            : { sent: true })]));
+            : populationFamily
+              ? {
+                  sent: true,
+                  beforePopulationPostcondition: populationPlacementPostconditionSnapshot(true),
+                  afterPopulationPostcondition: populationPlacementPostconditionSnapshot(false),
+                }
+              : { sent: true })]));
         } else {
           socket.write(encodeResponse(frame.listenerId, ['null']));
         }
@@ -3297,47 +3406,7 @@ function operationValidation(message: string) {
     : message.includes('validateOperation("player-operation"') || message.includes('sendOperation("player-operation"')
       ? 'player-operation'
       : 'unit-operation';
-  const operationType = message.includes('VIEWED_ADVISOR_WARNING')
-    ? 'VIEWED_ADVISOR_WARNING'
-    : message.includes('SET_TECH_TREE_NODE')
-      ? 'SET_TECH_TREE_NODE'
-      : message.includes('SET_TECH_TREE_TARGET_NODE')
-        ? 'SET_TECH_TREE_TARGET_NODE'
-        : message.includes('SET_CULTURE_TREE_NODE')
-          ? 'SET_CULTURE_TREE_NODE'
-          : message.includes('SET_CULTURE_TREE_TARGET_NODE')
-            ? 'SET_CULTURE_TREE_TARGET_NODE'
-            : message.includes('CHOOSE_GOLDEN_AGE')
-              ? 'CHOOSE_GOLDEN_AGE'
-              : message.includes('RESPOND_DIPLOMATIC_ACTION')
-                ? 'RESPOND_DIPLOMATIC_ACTION'
-                : message.includes('RESPOND_DIPLOMATIC_FIRST_MEET')
-                  ? 'RESPOND_DIPLOMATIC_FIRST_MEET'
-                  : message.includes('CHOOSE_NARRATIVE_STORY_DIRECTION')
-                    ? 'CHOOSE_NARRATIVE_STORY_DIRECTION'
-                    : message.includes('BUY_ATTRIBUTE_TREE_NODE')
-                      ? 'BUY_ATTRIBUTE_TREE_NODE'
-                      : message.includes('CHANGE_TRADITION')
-                        ? 'CHANGE_TRADITION'
-                        : message.includes('CONSIDER_ASSIGN_ATTRIBUTE')
-                          ? 'CONSIDER_ASSIGN_ATTRIBUTE'
-                          : message.includes('CONSIDER_ASSIGN_TRADITIONS')
-                            ? 'CONSIDER_ASSIGN_TRADITIONS'
-                            : message.includes('CHANGE_GROWTH_MODE')
-                              ? 'CHANGE_GROWTH_MODE'
-                              : message.includes('CONSIDER_TOWN_PROJECT')
-                                ? 'CONSIDER_TOWN_PROJECT'
-                                : message.includes('EXPAND')
-                                  ? 'EXPAND'
-                                  : message.includes('ASSIGN_WORKER')
-                                    ? 'ASSIGN_WORKER'
-                                    : message.includes('UNITCOMMAND_RESETTLE')
-                                      ? 'UNITCOMMAND_RESETTLE'
-                                      : message.includes('UNITCOMMAND_UPGRADE')
-                                        ? 'UNITCOMMAND_UPGRADE'
-                                        : message.includes('BUILD')
-                                          ? 'BUILD'
-                                          : 'SKIP_TURN';
+  const operationType = operationTypeFromMessage(message);
   return {
     host: '127.0.0.1',
     port: 0,
@@ -3350,6 +3419,14 @@ function operationValidation(message: string) {
     valid: true,
     result: { Success: true },
   };
+}
+
+function operationTypeFromMessage(message: string) {
+  const validateIndex = message.lastIndexOf('validateOperation("');
+  const sendIndex = message.lastIndexOf('sendOperation("');
+  const callIndex = Math.max(validateIndex, sendIndex);
+  const callSource = callIndex >= 0 ? message.slice(callIndex) : message;
+  return callSource.match(/"operationType":"([^"]+)"/)?.[1] ?? 'SKIP_TURN';
 }
 
 function unitOperationPostconditionSnapshot(firstReadyUnitId: { owner: number; id: number; type: number }) {
@@ -3368,6 +3445,26 @@ function unitOperationPostconditionSnapshot(firstReadyUnitId: { owner: number; i
     selectedUnitId: { ok: true, value: { owner: 0, id: 65536, type: 26 } },
     firstReadyUnitId: { ok: true, value: firstReadyUnitId },
     blocker: { ok: true, value: 0 },
+  };
+}
+
+function populationPlacementPostconditionSnapshot(isReadyToPlacePopulation: boolean) {
+  return {
+    cityId: { owner: 0, id: 196610, type: 1 },
+    city: {
+      ok: true,
+      value: {
+        id: { owner: 0, id: 196610, type: 1 },
+        population: isReadyToPlacePopulation ? 4 : 5,
+        isTown: true,
+        location: { x: 20, y: 20 },
+      },
+    },
+    isReadyToPlacePopulation: { ok: true, value: isReadyToPlacePopulation },
+    cityWorkerCap: { ok: true, value: isReadyToPlacePopulation ? 4 : 5 },
+    workablePlotIndexes: { ok: true, value: isReadyToPlacePopulation ? [2543, 2544] : [2543, 2544, 2545] },
+    blockedPlotIndexes: { ok: true, value: isReadyToPlacePopulation ? [2545] : [] },
+    expansionPlotIndexes: { ok: true, value: isReadyToPlacePopulation ? [1660] : [1661] },
   };
 }
 

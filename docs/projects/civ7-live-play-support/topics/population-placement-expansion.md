@@ -58,7 +58,9 @@ civ7 game play expand-city \
 
 Both shortcuts validate by default. Add `--send --reason '<why this tile is the
 right live choice>'` only after the live candidate still matches the current
-city state.
+city state. Sent results now include `populationPostcondition`, which reports
+whether `Growth.isReadyToPlacePopulation` cleared and whether the city
+population-placement snapshot changed.
 
 ## Live Proof
 
@@ -129,8 +131,25 @@ path; it still needs a send/postcondition proof for this exact turn.
 
 ## Remaining Gaps
 
-- Postcondition helper: after a send, report whether
-  `Growth.isReadyToPlacePopulation` cleared and whether the city plot/workers
-  state changed as expected.
 - Tile ranking: still advisory because it depends on live yields, settlement
   role, happiness, threats, and patch-specific specialist economics.
+
+## Postcondition Contract
+
+For `assign-worker --send` and `expand-city --send`, treat the operation as
+proved only when `populationPostcondition.classification` is not
+`no-state-change`.
+
+Useful classifications:
+
+- `population-ready-cleared`: `Growth.isReadyToPlacePopulation` was true before
+  the send and false after it. This is the strongest local proof that the
+  population blocker was consumed.
+- `placement-state-changed`: city population, worker capacity, workable plots,
+  blocked plots, or expansion candidate plots changed, but readiness did not
+  clearly clear. Re-read `ready-city` before another placement operation.
+- `validation-changed`: the validator output changed after the send; re-read the
+  current blocker and city state.
+- `no-state-change`: the send returned but no observed city placement,
+  readiness, or validation state changed. Treat the action as unresolved and do
+  not repeat the same placement without a fresh read.

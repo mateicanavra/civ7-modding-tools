@@ -718,20 +718,23 @@ Residual objective gaps:
   enum resolution now accepts both official spellings, so target resolution,
   ready-unit operations, and generic operation sends share the same enum value
   when Civ7 exposes only one form in `UnitOperationTypes` or related enums.
+- The turn-112 population blocker left an open postcondition gap for
+  `ASSIGN_WORKER` and `EXPAND`: sends needed to prove more than validator
+  success. Disposition: generic operation sends now attach
+  `populationPostcondition` for those two branches, including before/after
+  `Growth.isReadyToPlacePopulation`, worker-cap, workable/blocked plot indexes,
+  expansion plot indexes, and a classification such as
+  `population-ready-cleared` or `no-state-change`.
 - Remaining gaps are promotion-send/hardening work: richer ready-entity reads,
-  queued destination/path evidence, civic choice proof, population-placement
-  postconditions, visibility-filtered path/front analysis beyond the cheap
-  destination lens, AI autoplay telemetry shortcuts, and eventual promotion
-  into canonical docs/skills.
+  queued destination/path evidence, civic choice proof, visibility-filtered
+  path/front analysis beyond the cheap destination lens, AI autoplay telemetry
+  shortcuts, and eventual promotion into canonical docs/skills.
 
 Deferred items:
 
 - Prove whether any future civic surface differs from `game play
   choose-culture`.
 - Prove ordinary non-town city-project production postconditions.
-- Add a population-placement postcondition helper so sends report whether
-  `Growth.isReadyToPlacePopulation` cleared and the city worker/plot state
-  changed as expected.
 - Add visibility/pathing and diplomacy context to target-candidate ranking so
   future siege plans can distinguish public knowledge, debug summaries, and
   unwanted multi-front war risk.
