@@ -38,7 +38,6 @@ import GamePlayReadyUnit from '../../src/commands/game/play/ready-unit';
 import GamePlayRehydrate from '../../src/commands/game/play/rehydrate';
 import GamePlayResettleUnit from '../../src/commands/game/play/resettle-unit';
 import GamePlayRespondDiplomacy from '../../src/commands/game/play/respond-diplomacy';
-import GamePlayRespondFirstMeet from '../../src/commands/game/play/respond-first-meet';
 import GamePlaySetCultureTarget from '../../src/commands/game/play/set-culture-target';
 import GamePlaySetTechTarget from '../../src/commands/game/play/set-tech-target';
 import GamePlaySetTownFocus from '../../src/commands/game/play/set-town-focus';
@@ -1251,130 +1250,6 @@ describe('game play commands', () => {
       expect(server.received.some((message) => message.includes('"Type":-1907089594'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
-      await server.close();
-    }
-  });
-
-  test('wraps first-meet diplomacy as RESPOND_DIPLOMATIC_FIRST_MEET', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlayRespondFirstMeet.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--player-id',
-        '0',
-        '--met-player-id',
-        '2',
-        '--response',
-        'neutral',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('RESPOND_DIPLOMATIC_FIRST_MEET'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"Player1":0'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"Player2":2'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"Type":673478009'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('reports first-meet notification postconditions after send', async () => {
-    const server = await startTunerServer({ playNotificationMode: 'first-meet' });
-    const writes: string[] = [];
-    const log = vi.spyOn(GamePlayRespondFirstMeet.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
-    try {
-      const { port } = server.address();
-      await GamePlayRespondFirstMeet.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--player-id',
-        '0',
-        '--met-player-id',
-        '2',
-        '--response',
-        'neutral',
-        '--send',
-        '--reason',
-        'test neutral first-meet response',
-        '--json',
-      ]);
-
-      const payload = JSON.parse(writes.join('')) as {
-        ok: true;
-        result: {
-          sent: boolean;
-          verified: boolean;
-          postcondition: { classification: string; verified: boolean; reason: string };
-        };
-      };
-      expect(payload.result.sent).toBe(true);
-      expect(payload.result.verified).toBe(true);
-      expect(payload.result.postcondition.verified).toBe(true);
-      expect(payload.result.postcondition.classification).toBe('first-meet-cleared');
-      expect(server.received.some((message) => message.includes('RESPOND_DIPLOMATIC_FIRST_MEET'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(true);
-      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
-    } finally {
-      log.mockRestore();
-      await server.close();
-    }
-  });
-
-  test('does not verify first-meet sends while the same blocker remains live', async () => {
-    const server = await startTunerServer({
-      playNotificationMode: 'first-meet',
-      firstMeetMode: 'sticky',
-    });
-    const writes: string[] = [];
-    const log = vi.spyOn(GamePlayRespondFirstMeet.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
-    try {
-      const { port } = server.address();
-      await GamePlayRespondFirstMeet.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--player-id',
-        '0',
-        '--met-player-id',
-        '2',
-        '--response',
-        'neutral',
-        '--send',
-        '--timeout-ms',
-        '1000',
-        '--reason',
-        'test sticky first-meet response',
-        '--json',
-      ]);
-
-      const payload = JSON.parse(writes.join('')) as {
-        ok: true;
-        result: {
-          sent: boolean;
-          verified: boolean;
-          postcondition: { classification: string; verified: boolean; reason: string };
-        };
-      };
-      expect(payload.result.sent).toBe(true);
-      expect(payload.result.verified).toBe(false);
-      expect(payload.result.postcondition.verified).toBe(false);
-      expect(payload.result.postcondition.classification).toBe('first-meet-sticky-blocker');
-      expect(payload.result.postcondition.reason).toContain('same first-meet notification still blocks');
-      expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(true);
-    } finally {
-      log.mockRestore();
       await server.close();
     }
   });
@@ -4961,7 +4836,6 @@ async function startTunerServer(options: {
   narrativeChoiceMode?: 'panel-cleared' | 'panel-cleared-blocker-live' | 'stale';
   technologyChoiceMode?: 'cleared' | 'sticky' | 'state-changed';
   cultureChoiceMode?: 'cleared' | 'sticky' | 'state-changed';
-  firstMeetMode?: 'cleared' | 'sticky';
 } = {}) {
   const received: string[] = [];
   let turnCompleteSent = false;
@@ -4969,7 +4843,6 @@ async function startTunerServer(options: {
   let narrativeChoiceSent = false;
   let technologyChoiceSent = false;
   let cultureChoiceSent = false;
-  let firstMeetSent = false;
   let diplomacyCloseoutObserved = false;
   let notificationDismissalSent = false;
   let productionChoiceSent = false;
@@ -4992,10 +4865,6 @@ async function startTunerServer(options: {
             : options.playNotificationMode === 'culture-choice'
             && cultureChoiceSent
             && (options.cultureChoiceMode ?? 'cleared') === 'cleared'
-            ? 'ready-unit'
-            : options.playNotificationMode === 'first-meet'
-            && firstMeetSent
-            && (options.firstMeetMode ?? 'cleared') === 'cleared'
             ? 'ready-unit'
             : options.playNotificationMode === 'narrative-choice-visible-panel'
             && narrativeChoiceSent
@@ -5085,9 +4954,6 @@ async function startTunerServer(options: {
           }
           if (operationType === 'SET_CULTURE_TREE_NODE' || operationType === 'SET_CULTURE_TREE_TARGET_NODE') {
             cultureChoiceSent = true;
-          }
-          if (operationType === 'RESPOND_DIPLOMATIC_FIRST_MEET') {
-            firstMeetSent = true;
           }
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(unitFamily
             ? {
