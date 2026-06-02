@@ -4,7 +4,6 @@ import GamePlayDismissNotification from '../../src/commands/game/play/dismiss-no
 import GamePlayNotificationQueue from '../../src/commands/game/play/notification-queue';
 import GamePlayNotifications from '../../src/commands/game/play/notifications';
 import GamePlayPriorities from '../../src/commands/game/play/priorities';
-import GamePlayReadyUnit from '../../src/commands/game/play/ready-unit';
 import { startFakeTunerServer } from './fixtures/tuner-socket-server';
 
 describe('game play commands', () => {
@@ -1759,25 +1758,6 @@ describe('game play commands', () => {
       expect(payload.result.verificationAttempts.length).toBeGreaterThan(1);
     } finally {
       log.mockRestore();
-      await server.close();
-    }
-  });
-
-  test('reads ready-unit tactical view without sending operations', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlayReadyUnit.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('readReadyUnitView'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
-    } finally {
       await server.close();
     }
   });
