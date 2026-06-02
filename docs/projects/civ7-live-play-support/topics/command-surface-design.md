@@ -12,8 +12,8 @@ subcommands around the domain model the play agent already uses.
 
 The consumer is an AI play agent under turn pressure. It needs to discover the
 next decision, preview legal choices, check validators, send approved actions,
-and inspect postconditions without remembering raw Civ7 operation-family names
-or writing component IDs by hand.
+and send the chosen action without remembering raw Civ7 operation-family names,
+manual closeout steps, or component-ID repair tricks.
 
 For live play, command examples should use `civ7 game ...`. Worktree-local
 `bun packages/cli/bin/run.js` calls are package-development tools, not the
@@ -53,9 +53,20 @@ and `player-operation` contracts.
 
 ## Compatibility Path
 
-Do not remove existing commands. Add wrappers or aliases first, and keep legacy
-payloads behind `--raw` or an explicit compatibility contract while compact
-play-agent output is introduced.
+Do not remove existing commands casually. Add wrappers only when they name a
+clearer domain action or compose official native primitives into one player
+decision. Do not add aliases as a substitute for fixing the command model, and
+do not preserve caller-visible closeout or fallback steps as the default play
+surface.
+
+Native control comes first: inspect official App UI handlers, GameInfo/runtime
+APIs, FireTuner/dev-tool resources, and relevant mod references before inventing
+repo orchestration. When Civ7 already has a state-machine primitive or manager
+for the screen, command, popup, or notification, the CLI should adapt that
+primitive rather than requiring the play agent to reconcile state manually.
+
+Keep legacy payloads behind `--raw` or an explicit compatibility contract while
+compact play-agent output is introduced.
 
 | Existing command | New play-agent path | Notes |
 | --- | --- | --- |
@@ -68,18 +79,21 @@ play-agent output is introduced.
 | `game play dismiss-notification-queue` | `game play notifications dismiss-reviewed` | Keep explicit reason and conservative categories. |
 | `game play ready-city` | `game play city show city:ready` | City-specific grammar should own production/growth/worker decisions. |
 | `game play build-production` | `game play city production send` | Add `preview` and `check` before send. |
-| `game play choose-tech` / `choose-culture` | `game play progress tech send` / `progress culture send` | Keep `--closeout` until progress grammar owns closeout. |
+| `game play choose-tech` / `choose-culture` | `game play progress tech send` / `progress culture send` | Tech send already owns the complete chooser workflow; culture still needs the same default-send contract. |
 | `game play civilian-route-triage` | `game play trade preview` or `game play unit preview route` by unit class | Route intent depends on whether the selected unit is a Merchant, Settler, or military unit. |
 
 ## Alias And Deprecation Policy
 
-- Add aliases in one slice, then teach `game play topics` to prefer the new
-  grammar.
+- Add aliases only when they are part of a domain-command migration, then teach
+  `game play topics` to prefer the new grammar.
 - Keep old commands for live-play continuity until the active play thread and
   tests use the new names.
 - Soft-deprecate only overloaded forms, not proven command behavior.
 - Every new wrapper should call the existing direct-control package; do not add
   caller-local runtime control.
+- Every mutation wrapper should be one forward player decision. If it needs a
+  second native operation or UI-manager call, that belongs inside the wrapper
+  and must be invisible to the normal caller path.
 - Tests should assert both the alias and the canonical command until migration
   is complete.
 
