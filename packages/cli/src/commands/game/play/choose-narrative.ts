@@ -1,12 +1,11 @@
 import { Command, Flags } from '@oclif/core';
-import { getCiv7PlayNotificationView } from '@civ7/direct-control';
+import { getCiv7PlayNotificationView, requestCiv7NarrativeChoice } from '@civ7/direct-control';
 import {
   buildApproval,
   buildDirectControlOptions,
   emitPlayResult,
   parseComponentId,
   requireSendReason,
-  sendPlayOperation,
   validatePlayOperation,
 } from '../../../utils/game-play-shared';
 
@@ -16,7 +15,7 @@ export default class GamePlayChooseNarrative extends Command {
   static id = 'game play choose-narrative';
   static summary = 'Validate or choose a narrative story direction';
   static description =
-    'Wraps player-operation CHOOSE_NARRATIVE_STORY_DIRECTION with the live story target, target type, and action.';
+    'Wraps player-operation CHOOSE_NARRATIVE_STORY_DIRECTION with the live story target, target type, action, and official narrative UI close handling.';
 
   static examples = [
     '<%= config.bin %> game play choose-narrative --options --json',
@@ -84,7 +83,7 @@ export default class GamePlayChooseNarrative extends Command {
         ],
         notes: [
           'Options come from the live notification HUD materializer, which mirrors official narrative popup buttons and validates CHOOSE_NARRATIVE_STORY_DIRECTION through PlayerOperations.',
-          'Use a returned enabled option cli as the single caller-level narrative choice or closeout.',
+          'Use a returned enabled option cli as the single caller-level narrative choice.',
         ],
       });
       return;
@@ -102,17 +101,23 @@ export default class GamePlayChooseNarrative extends Command {
       throw new Error('game play choose-narrative requires --action unless --options is used');
     }
     const reason = requireSendReason(flags.send, flags.reason, 'game play choose-narrative');
+    const target = parseComponentId(flags.target, 'target');
     const input = {
       operationType: CHOOSE_NARRATIVE_STORY_DIRECTION,
       playerId: flags['player-id'],
       args: {
         TargetType: flags['target-type'],
-        Target: parseComponentId(flags.target, 'target'),
+        Target: target,
         Action: flags.action,
       },
     };
     const result = flags.send
-      ? await sendPlayOperation('player-operation', input, options, buildApproval(reason))
+      ? await requestCiv7NarrativeChoice({
+          playerId: flags['player-id'],
+          targetType: flags['target-type'],
+          target,
+          action: flags.action,
+        }, options, buildApproval(reason))
       : await validatePlayOperation('player-operation', input, options);
 
     emitPlayResult(this.log.bind(this), flags.json, result);
