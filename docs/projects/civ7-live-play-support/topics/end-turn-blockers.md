@@ -125,6 +125,16 @@ production, town focus, diplomacy, narrative, advisor, or population blockers:
 the turn-58 culture bug showed that an expired notification can still mean the
 wrong enum or missing target operation was sent.
 
+Before relying on that fallback, read `game play notifications --json`. For
+`COMMAND_UNITS`, the HUD may include
+`details.kind: "unit-command-reconciliation"` with
+`enabledCloseoutCandidates`. Those candidates scan local-player units for a
+validator-backed no-target `SKIP_TURN` closeout, which is safer and more
+specific than ending the turn through a stale ready-unit pointer. Use those
+templates only as unit-command reconciliation; movement, attack, promotion,
+fortify, and automation still require their own ready-unit/unit-target or
+movement-preview evidence.
+
 The reviewed informational fallback is intentionally narrow. It applies only to
 user-dismissible, default-handler report notifications that already have a
 separate topic review:

@@ -5647,6 +5647,56 @@ function playNotificationViewSource(): string {
         return String(key);
       }
     };
+    const enumValueFor = (enums, operationType) => {
+      if (enums && Object.prototype.hasOwnProperty.call(enums, operationType)) return enums[operationType];
+      if (enums && typeof operationType === "string") {
+        const normalizedKeys = [
+          operationType.replace(/^UNITOPERATION_/, ""),
+          operationType.replace(/^UNITCOMMAND_/, ""),
+          operationType.replace(/^CITYOPERATION_/, ""),
+          operationType.replace(/^CITYCOMMAND_/, ""),
+          operationType.replace(/^PLAYEROPERATION_/, ""),
+        ];
+        for (const key of normalizedKeys) {
+          if (Object.prototype.hasOwnProperty.call(enums, key)) return enums[key];
+        }
+      }
+      return operationType;
+    };
+    const successFromCanStart = (result) => {
+      if (result === true) return true;
+      if (result === false || result == null) return false;
+      if (typeof result === "object") {
+        if (result.Success !== undefined) return result.Success === true;
+        if (result.success !== undefined) return result.success === true;
+        if (result.canStart !== undefined) return result.canStart === true;
+      }
+      return Boolean(result);
+    };
+    const safeUnitSummary = (unitId) => {
+      const unit = Units.get(unitId);
+      if (!unit) return null;
+      const type = unit.type ?? null;
+      const typeDef = (() => {
+        try {
+          return type == null ? null : GameInfo.Units.lookup(type);
+        } catch {
+          return null;
+        }
+      })();
+      return {
+        id: toComponentId(unit.id ?? unitId),
+        owner: unit.owner ?? unitId.owner ?? null,
+        type,
+        typeName: typeDef?.UnitType ?? null,
+        name: typeof unit.getName === "function" ? unit.getName() : unit.name ?? typeDef?.Name ?? null,
+        location: unit.location ?? null,
+        movementMovesRemaining: unit.Movement?.movementMovesRemaining ?? null,
+        movementTurnsRemaining: unit.Movement?.movementTurnsRemaining ?? null,
+        attacksRemaining: unit.Combat?.attacksRemaining ?? null,
+        activity: unit.Activity?.activityType ?? unit.activityType ?? null,
+      };
+    };
     const requiredInput = (name, source, note) => ({ name, source, required: true, note });
     const optionalInput = (name, source, note) => ({ name, source, required: false, note });
     const action = (label, cli, operationFamily, operationType, argsShape, when) => ({
@@ -5800,9 +5850,61 @@ function playNotificationViewSource(): string {
         ],
       };
     };
+    const unitCommandDetailsFor = (notification, typeName, notificationId) => {
+      if (!stringIncludes(typeName, "COMMAND_UNITS")) return undefined;
+      const selectedUnitId = probe(() => toComponentId(UI?.Player?.getHeadSelectedUnit?.()));
+      const firstReadyUnitId = probe(() => toComponentId(UI?.Player?.getFirstReadyUnit?.()));
+      const blocker = probe(() => typeof Game.Notifications.getEndTurnBlockingType === "function"
+        ? Game.Notifications.getEndTurnBlockingType(GameContext.localPlayerID)
+        : null);
+      const skipEnum = enumValueFor(typeof UnitOperationTypes !== "undefined" ? UnitOperationTypes : {}, "SKIP_TURN");
+      const unitIds = probe(() => {
+        const playerUnits = Players.Units.get(GameContext.localPlayerID);
+        return playerUnits?.getUnitIds?.() ?? [];
+      });
+      const units = unitIds.ok && Array.isArray(unitIds.value) ? unitIds.value : [];
+      const closeoutCandidates = units.map((unitId) => {
+        const normalizedUnitId = toComponentId(unitId);
+        if (!normalizedUnitId) return null;
+        const validation = probe(() => Game.UnitOperations.canStart(normalizedUnitId, skipEnum, {}, false));
+        const enabled = validation.ok && successFromCanStart(validation.value);
+        return {
+          unitId: normalizedUnitId,
+          unit: probe(() => safeUnitSummary(normalizedUnitId)),
+          operationFamily: "unit-operation",
+          operationType: "SKIP_TURN",
+          argsShape: "{}",
+          enabled,
+          validation,
+          cli: enabled
+            ? "game play operation --family unit --type SKIP_TURN --unit-id '"
+              + JSON.stringify(normalizedUnitId)
+              + "' --send --reason '<why this unit has no better operation this turn>'"
+            : null,
+        };
+      }).filter(Boolean);
+      return {
+        kind: "unit-command-reconciliation",
+        notificationId,
+        blocker,
+        selectedUnitId,
+        firstReadyUnitId,
+        unitScan: unitIds,
+        closeoutCandidates,
+        enabledCloseoutCandidates: closeoutCandidates.filter((candidate) => candidate.enabled),
+        staleReadyPointerSuspected: (selectedUnitId.ok ? selectedUnitId.value : null) == null
+          && (firstReadyUnitId.ok ? firstReadyUnitId.value : null) == null
+          && closeoutCandidates.some((candidate) => candidate.enabled),
+        notes: [
+          "COMMAND_UNITS can remain end-turn blocking even when the ready-unit pointer is null. This detail scans local-player units for validator-backed no-target SKIP_TURN closeouts.",
+          "Use these candidates only as unit-command reconciliation. Movement, attack, promotion, fortify, and automation still require ready-unit/unit-target/unit-move-preview evidence.",
+        ],
+      };
+    };
     const detailsFor = (notification, typeName, notificationId) => {
       return firstMeetDetailsFor(notification, typeName)
-        ?? diplomacyResponseDetailsFor(notification, typeName, notificationId);
+        ?? diplomacyResponseDetailsFor(notification, typeName, notificationId)
+        ?? unitCommandDetailsFor(notification, typeName, notificationId);
     };
     const decisionHintFor = (notification, typeName, isBlocking) => {
       const haystack = [

@@ -853,6 +853,50 @@ describe('game play commands', () => {
     }
   });
 
+  test('materializes stale command-units reconciliation candidates from the notification HUD', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'stale-unit-command' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayNotifications.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayNotifications.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          notifications: Array<{
+            details?: {
+              kind: string;
+              staleReadyPointerSuspected: boolean;
+              enabledCloseoutCandidates: Array<{ unitId: { owner: number; id: number; type: number }; operationType: string; cli: string | null }>;
+            };
+          }>;
+          hud: { nextDecision: { details?: unknown } };
+        };
+      };
+      const details = payload.view.notifications[0].details;
+      expect(details?.kind).toBe('unit-command-reconciliation');
+      expect(details?.staleReadyPointerSuspected).toBe(true);
+      expect(details?.enabledCloseoutCandidates).toHaveLength(1);
+      expect(details?.enabledCloseoutCandidates[0].unitId).toEqual({ owner: 0, id: 196609, type: 26 });
+      expect(details?.enabledCloseoutCandidates[0].operationType).toBe('SKIP_TURN');
+      expect(details?.enabledCloseoutCandidates[0].cli).toContain('game play operation --family unit --type SKIP_TURN');
+      expect(details?.enabledCloseoutCandidates[0].cli).toContain("--unit-id '{\"owner\":0,\"id\":196609,\"type\":26}'");
+      expect(payload.view.hud.nextDecision.details).toBeDefined();
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('wraps attribute purchase as BUY_ATTRIBUTE_TREE_NODE', async () => {
     const server = await startTunerServer();
     try {
@@ -3156,8 +3200,75 @@ function playNotificationView(
       confidence: 'heuristic',
       notes: ['Read the selected or first ready unit before choosing skip, automate, move, or promote.'],
     };
+    const commandUnitsNotificationId = { owner: 0, id: 88, type: 20 };
+    const closeoutUnitId = { owner: 0, id: 196609, type: 26 };
+    const commandUnitsDetails = {
+      kind: 'unit-command-reconciliation',
+      notificationId: commandUnitsNotificationId,
+      blocker: { ok: true, value: 0 },
+      selectedUnitId: { ok: true, value: null },
+      firstReadyUnitId: { ok: true, value: null },
+      unitScan: { ok: true, value: [closeoutUnitId] },
+      closeoutCandidates: [
+        {
+          unitId: closeoutUnitId,
+          unit: {
+            ok: true,
+            value: {
+              id: closeoutUnitId,
+              owner: 0,
+              type: 111,
+              typeName: 'UNIT_HOPLITE',
+              name: 'Hoplite',
+              location: { x: 20, y: 27 },
+              movementMovesRemaining: 0,
+              movementTurnsRemaining: 0,
+              attacksRemaining: 1,
+              activity: 'UNIT_ACTIVITY_AWAKE',
+            },
+          },
+          operationFamily: 'unit-operation',
+          operationType: 'SKIP_TURN',
+          argsShape: '{}',
+          enabled: true,
+          validation: { ok: true, value: { Success: true } },
+          cli: "game play operation --family unit --type SKIP_TURN --unit-id '{\"owner\":0,\"id\":196609,\"type\":26}' --send --reason '<why this unit has no better operation this turn>'",
+        },
+      ],
+      enabledCloseoutCandidates: [
+        {
+          unitId: closeoutUnitId,
+          unit: {
+            ok: true,
+            value: {
+              id: closeoutUnitId,
+              owner: 0,
+              type: 111,
+              typeName: 'UNIT_HOPLITE',
+              name: 'Hoplite',
+              location: { x: 20, y: 27 },
+              movementMovesRemaining: 0,
+              movementTurnsRemaining: 0,
+              attacksRemaining: 1,
+              activity: 'UNIT_ACTIVITY_AWAKE',
+            },
+          },
+          operationFamily: 'unit-operation',
+          operationType: 'SKIP_TURN',
+          argsShape: '{}',
+          enabled: true,
+          validation: { ok: true, value: { Success: true } },
+          cli: "game play operation --family unit --type SKIP_TURN --unit-id '{\"owner\":0,\"id\":196609,\"type\":26}' --send --reason '<why this unit has no better operation this turn>'",
+        },
+      ],
+      staleReadyPointerSuspected: true,
+      notes: [
+        'Static fixture mirrors the CLI/HUD contract emitted by the App UI source-backed COMMAND_UNITS reconciliation materializer.',
+        'Use these candidates only as unit-command reconciliation; movement, attack, promotion, fortify, and automation require their own validators.',
+      ],
+    };
     const commandUnitsNotification = {
-      id: { owner: 0, id: 88, type: 20 },
+      id: commandUnitsNotificationId,
       type: -28491459,
       typeName: 'NOTIFICATION_COMMAND_UNITS',
       groupType: null,
@@ -3170,6 +3281,7 @@ function playNotificationView(
       dismissed: false,
       isEndTurnBlocking: true,
       decision: commandUnitsDecision,
+      details: commandUnitsDetails,
     };
     return {
       localPlayerId: 0,
@@ -3193,6 +3305,7 @@ function playNotificationView(
           message: commandUnitsNotification.message,
           target: commandUnitsNotification.target,
           location: commandUnitsNotification.location,
+          details: commandUnitsNotification.details,
           ...commandUnitsDecision,
         },
         decisionQueue: [
@@ -3204,6 +3317,7 @@ function playNotificationView(
             message: commandUnitsNotification.message,
             target: commandUnitsNotification.target,
             location: commandUnitsNotification.location,
+            details: commandUnitsNotification.details,
             ...commandUnitsDecision,
           },
         ],
