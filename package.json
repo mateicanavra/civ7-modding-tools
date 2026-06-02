@@ -24,7 +24,7 @@
     "test": "turbo run test",
     "test:ci": "turbo run test",
     "test:cli": "turbo run test --filter=@mateicanavra/civ7-cli",
-    "test:cli:play": "turbo run build --filter=@mateicanavra/civ7-cli && bun run --cwd packages/cli test -- game.play.test.ts game.play.first-meet.test.ts",
+    "test:cli:play": "turbo run build --filter=@mateicanavra/civ7-cli && bun run --cwd packages/cli test -- game.play.test.ts game.play.first-meet.test.ts game.play.operation-wrappers.test.ts",
     "test:sdk": "turbo run test --filter=@mateicanavra/civ7-sdk",
     "test:architecture-cutover": "turbo run test:architecture-cutover --filter=mod-swooper-maps",
     "test:vitest": "vitest run",

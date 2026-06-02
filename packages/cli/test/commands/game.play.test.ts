@@ -5,7 +5,6 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, test, vi } from 'vitest';
 import GamePlayAssignWorker from '../../src/commands/game/play/assign-worker';
-import GamePlayAdvisorWarning from '../../src/commands/game/play/advisor-warning';
 import GamePlayBattlefieldScan from '../../src/commands/game/play/battlefield-scan';
 import GamePlayBuildProduction from '../../src/commands/game/play/build-production';
 import GamePlayBuildUnit from '../../src/commands/game/play/build-unit';
@@ -27,7 +26,6 @@ import GamePlayEndTurn from '../../src/commands/game/play/end-turn';
 import GamePlayExpandCity from '../../src/commands/game/play/expand-city';
 import GamePlayFormationSnapshot from '../../src/commands/game/play/formation-snapshot';
 import GamePlayFrontSummary from '../../src/commands/game/play/front-summary';
-import GamePlayOperation from '../../src/commands/game/play/operation';
 import GamePlayNotificationQueue from '../../src/commands/game/play/notification-queue';
 import GamePlayNotifications from '../../src/commands/game/play/notifications';
 import GamePlayPriorities from '../../src/commands/game/play/priorities';
@@ -36,7 +34,6 @@ import GamePlayPromotionReadiness from '../../src/commands/game/play/promotion-r
 import GamePlayReadyCity from '../../src/commands/game/play/ready-city';
 import GamePlayReadyUnit from '../../src/commands/game/play/ready-unit';
 import GamePlayRehydrate from '../../src/commands/game/play/rehydrate';
-import GamePlayResettleUnit from '../../src/commands/game/play/resettle-unit';
 import GamePlayRespondDiplomacy from '../../src/commands/game/play/respond-diplomacy';
 import GamePlaySetCultureTarget from '../../src/commands/game/play/set-culture-target';
 import GamePlaySetTechTarget from '../../src/commands/game/play/set-tech-target';
@@ -47,7 +44,6 @@ import GamePlayTopics from '../../src/commands/game/play/topics';
 import GamePlayTraditions from '../../src/commands/game/play/traditions';
 import GamePlayUnitMovePreview from '../../src/commands/game/play/unit-move-preview';
 import GamePlayUnitTarget from '../../src/commands/game/play/unit-target';
-import GamePlayUpgradeUnit from '../../src/commands/game/play/upgrade-unit';
 import GameWatch from '../../src/commands/game/watch';
 
 describe('game play commands', () => {
@@ -204,138 +200,6 @@ describe('game play commands', () => {
 
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received).not.toContain('CMD:65535:GameContext.sendTurnComplete()');
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('validates friendlier operation family aliases without sending', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlayOperation.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--family',
-        'unit',
-        '--type',
-        'SKIP_TURN',
-        '--unit-id',
-        '{"owner":0,"id":65536,"type":26}',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('validateOperation("unit-operation"'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('sends approved unit operations through direct-control once', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlayOperation.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--family',
-        'unit',
-        '--type',
-        'SKIP_TURN',
-        '--unit-id',
-        '{"owner":0,"id":65536,"type":26}',
-        '--send',
-        '--reason',
-        'test approved unit queue operation',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('sendOperation("unit-operation"'))).toBe(true);
-      expect(server.received.filter((message) => message.includes('return JSON.stringify(sendOperation'))).toHaveLength(1);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('wraps advisor warning acknowledgement as an approved player operation', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlayAdvisorWarning.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--player-id',
-        '0',
-        '--target',
-        '{"owner":0,"id":12345,"type":99}',
-        '--send',
-        '--reason',
-        'test advisor acknowledgement',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('VIEWED_ADVISOR_WARNING'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"Target":{"owner":0,"id":12345,"type":99}'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(true);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('wraps population resettle as a unit command with target coordinates', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlayResettleUnit.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--unit-id',
-        '{"owner":0,"id":1703951,"type":26}',
-        '--x',
-        '17',
-        '--y',
-        '25',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('validateOperation("unit-command"'))).toBe(true);
-      expect(server.received.some((message) => message.includes('UNITCOMMAND_RESETTLE'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"X":17'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"Y":25'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('wraps unit upgrade as an approved unit command', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlayUpgradeUnit.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--unit-id',
-        '{"owner":0,"id":1769488,"type":26}',
-        '--send',
-        '--reason',
-        'test approved unit upgrade',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('UNITCOMMAND_UPGRADE'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation("unit-command"'))).toBe(true);
     } finally {
       await server.close();
     }
