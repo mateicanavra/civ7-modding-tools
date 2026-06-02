@@ -51,6 +51,7 @@ UI guard and is not a safe default for automated play.
 | Diplomacy response | `RESPOND_DIPLOMATIC_ACTION` | `player-operation` | `{ ID: actionId, Type: responseType }` | live play thread turn 79 Farmers Market response |
 | First-meet diplomacy | `RESPOND_DIPLOMATIC_FIRST_MEET` | `player-operation` | `{ Player1, Player2, Type }` | official first-meet panel; live play thread turn 62 Genghis Khan greeting |
 | Narrative branch | `CHOOSE_NARRATIVE_STORY_DIRECTION` | `player-operation` | `{ TargetType, Target, Action }` | live play thread turn 79 story direction |
+| Government choice | `CHANGE_GOVERNMENT` | `player-operation` | `{ GovernmentType, Action: Activate }` | official government picker; use `game play choose-government --options --json` |
 | Attribute purchase | `BUY_ATTRIBUTE_TREE_NODE` | `player-operation` | `{ ProgressionTreeNodeType: node }` | live play thread turn 79 attribute choice |
 | Attribute review closeout | `CONSIDER_ASSIGN_ATTRIBUTE` | `player-operation` | `{}` | live play thread turn 79 attribute closeout |
 | Tradition swap | `CHANGE_TRADITION` | `player-operation` | `{ TraditionType, Action }` | live play thread turn 79 tradition swap |

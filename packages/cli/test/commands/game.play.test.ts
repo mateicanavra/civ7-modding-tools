@@ -14,6 +14,7 @@ import GamePlayChangeTradition from '../../src/commands/game/play/change-traditi
 import GamePlayCivilianRouteTriage from '../../src/commands/game/play/civilian-route-triage';
 import GamePlayChooseCelebration from '../../src/commands/game/play/choose-celebration';
 import GamePlayChooseCulture from '../../src/commands/game/play/choose-culture';
+import GamePlayChooseGovernment from '../../src/commands/game/play/choose-government';
 import GamePlayChooseNarrative from '../../src/commands/game/play/choose-narrative';
 import GamePlayChooseTech from '../../src/commands/game/play/choose-tech';
 import GamePlayConsiderAttributes from '../../src/commands/game/play/consider-attributes';
@@ -706,6 +707,83 @@ describe('game play commands', () => {
     }
   });
 
+  test('wraps government choice as CHANGE_GOVERNMENT', async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      await GamePlayChooseGovernment.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--player-id',
+        '0',
+        '--government-type',
+        '0',
+        '--json',
+      ]);
+
+      expect(server.received.some((message) => message.includes('CHANGE_GOVERNMENT'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"GovernmentType":0'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"Action":-1326475004'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test('reads government choice options without requiring a government type', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'government-choice' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayChooseGovernment.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayChooseGovernment.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--options',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          enabledOptionCount: number;
+          disabledOptionCount: number;
+          omitted: Array<{ path: string; reason: string }>;
+          surfaces: Array<{
+            kind: string;
+            enabledOptions: Array<{ governmentType: number; name: string; chooseCli: string | null; celebrationOptions: Array<{ name: string }> }>;
+            options?: unknown;
+            disabledOptions?: unknown;
+          }>;
+          details?: unknown;
+        };
+      };
+      expect(payload.result.enabledOptionCount).toBe(3);
+      expect(payload.result.disabledOptionCount).toBe(0);
+      expect(payload.result.details).toBeUndefined();
+      expect(payload.result.surfaces[0].kind).toBe('government-choice-options');
+      expect(payload.result.surfaces[0].options).toBeUndefined();
+      expect(payload.result.surfaces[0].disabledOptions).toBeUndefined();
+      const republic = payload.result.surfaces[0].enabledOptions.find((option) => option.governmentType === 0);
+      expect(republic?.name).toBe('Classical Republic');
+      expect(republic?.chooseCli).toContain('game play choose-government --player-id 0 --government-type 0 --action -1326475004 --send');
+      expect(republic?.celebrationOptions[0].name).toBe('Cultural Celebration');
+      expect(payload.result.omitted.map((item) => item.path)).toContain('details[].options');
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+      expect(server.received.some((message) => message.includes('sendRequest('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('wraps culture target as SET_CULTURE_TREE_TARGET_NODE', async () => {
     const server = await startTunerServer();
     try {
@@ -1070,6 +1148,54 @@ describe('game play commands', () => {
       expect(ekklesia?.cli).toContain('game play choose-culture --player-id 0 --node -869902342 --send --closeout');
       expect(details?.disabledOptions[0].name).toBe('Mysticism');
       expect(details?.disabledOptions[0].cli).toBeNull();
+      expect(payload.view.hud.nextDecision.details).toBeDefined();
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('materializes government choice options from the notification HUD', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'government-choice' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayNotifications.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayNotifications.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          notifications: Array<{
+            details?: {
+              kind: string;
+              action: number;
+              startingGovernments: { ok: boolean; value?: Array<{ GovernmentType: number }> };
+              enabledOptions: Array<{ governmentType: number; name: string; cli: string | null; validation: { ok: boolean; value?: { Success?: boolean } } }>;
+              disabledOptions: Array<{ governmentType: number; name: string; cli: string | null }>;
+            };
+          }>;
+          hud: { nextDecision: { details?: unknown } };
+        };
+      };
+      const details = payload.view.notifications[0].details;
+      expect(details?.kind).toBe('government-choice-options');
+      expect(details?.action).toBe(-1326475004);
+      expect(details?.startingGovernments.value?.length).toBe(3);
+      expect(details?.enabledOptions.map((option) => option.name)).toEqual(['Classical Republic', 'Despotism', 'Oligarchy']);
+      const republic = details?.enabledOptions.find((option) => option.governmentType === 0);
+      expect(republic?.validation.value?.Success).toBe(true);
+      expect(republic?.cli).toContain('game play choose-government --player-id 0 --government-type 0 --action -1326475004 --send');
+      expect(details?.disabledOptions).toEqual([]);
       expect(payload.view.hud.nextDecision.details).toBeDefined();
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
     } finally {
@@ -1847,6 +1973,41 @@ describe('game play commands', () => {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:culture-choice');
       expect(top.command).toBe('game play choose-culture --options --json');
+      expect(payload.next).toBe(top.command);
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('surfaces government options command in compact priorities', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'government-choice' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPriorities.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+        '--compact',
+        '--no-battlefield',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        next: string | null;
+        priorities: Array<{ kind: string; command?: string; reason: string }>;
+      };
+      const top = payload.priorities[0];
+      expect(top.kind).toBe('hud:government-choice');
+      expect(top.command).toBe('game play choose-government --options --json');
       expect(payload.next).toBe(top.command);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
@@ -3070,7 +3231,7 @@ function expectOwnerOnlyContactLabels(values: readonly string[]): void {
 
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
-  playNotificationMode?: 'town-focus' | 'tech-choice' | 'culture-choice' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
+  playNotificationMode?: 'town-focus' | 'tech-choice' | 'culture-choice' | 'government-choice' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
   notificationDismissalMode?: 'verified' | 'stale-nonblocking';
 } = {}) {
@@ -3171,7 +3332,7 @@ async function startTunerServer(options: {
 }
 
 function playNotificationView(
-  mode: 'town-focus' | 'tech-choice' | 'culture-choice' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
+  mode: 'town-focus' | 'tech-choice' | 'culture-choice' | 'government-choice' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
   diplomacyCloseoutObserved = false,
 ) {
   if (mode === 'runtime-error') {
@@ -3803,6 +3964,136 @@ function playNotificationView(
             location: notification.location,
             details: notification.details,
             ...cultureDecision,
+          },
+        ],
+      },
+      limits: { maxNotifications: 25, truncated: false },
+    };
+  }
+  if (mode === 'government-choice') {
+    const action = -1326475004;
+    const governmentDecision = {
+      category: 'government-choice',
+      operationFamily: 'player-operation',
+      operationType: 'CHANGE_GOVERNMENT',
+      argsShape: '{ GovernmentType, Action: Activate }',
+      cli: 'game play choose-government',
+      requiredInputs: [
+        {
+          name: 'GovernmentType',
+          source: 'live government picker option',
+          required: true,
+          note: 'Use the government index from choose-government --options, not the visible row position.',
+        },
+      ],
+      commonActions: [
+        {
+          label: 'read government options',
+          cli: 'game play choose-government --options --json',
+          argsShape: 'enabled starting governments with validation and ready send templates',
+          when: 'before choosing a government',
+        },
+      ],
+      confidence: 'official-ui',
+      notes: ['Read options from the live government picker before sending; the option surface includes celebration effects for context.'],
+    };
+    const notificationId = { owner: 0, id: 40, type: 20 };
+    const optionRows = [
+      { governmentType: 0, governmentTypeName: 'GOVERNMENT_CLASSICAL_REPUBLIC', name: 'Classical Republic', celebration: 'Cultural Celebration' },
+      { governmentType: 1, governmentTypeName: 'GOVERNMENT_DESPOTISM', name: 'Despotism', celebration: 'Military Celebration' },
+      { governmentType: 2, governmentTypeName: 'GOVERNMENT_OLIGARCHY', name: 'Oligarchy', celebration: 'Scientific Celebration' },
+    ];
+    const options = optionRows.map((row) => ({
+      governmentType: row.governmentType,
+      governmentTypeName: row.governmentTypeName,
+      name: row.name,
+      description: `${row.name} description`,
+      startingGovernmentType: row.governmentType,
+      action,
+      args: { GovernmentType: row.governmentType, Action: action },
+      celebrationOptions: [
+        {
+          goldenAgeType: row.governmentType + 100,
+          typeName: `GOLDEN_AGE_${row.governmentType}`,
+          name: row.celebration,
+          description: `${row.celebration} description`,
+          duration: 10,
+        },
+      ],
+      enabled: true,
+      disabled: false,
+      validation: { ok: true, value: { Success: true } },
+      cli: `game play choose-government --player-id 0 --government-type ${row.governmentType} --action ${action} --send --reason '<why this government was selected>'`,
+      validateCli: `game play choose-government --player-id 0 --government-type ${row.governmentType} --action ${action} --json`,
+    }));
+    const details = {
+      kind: 'government-choice-options',
+      notificationId,
+      localPlayerId: 0,
+      source: 'GameInfo.StartingGovernments + GameInfo.Governments + PlayerOperations.canStart',
+      currentGovernmentType: { ok: true, value: null },
+      startingGovernments: { ok: true, value: optionRows.map((row) => ({ GovernmentType: row.governmentType })) },
+      action,
+      goldenAgeDuration: { ok: true, value: 10 },
+      options,
+      enabledOptions: options,
+      disabledOptions: [],
+      notes: [
+        'Static fixture mirrors the CLI/HUD contract emitted by the App UI source-backed government choice materializer.',
+      ],
+    };
+    const notification = {
+      id: notificationId,
+      type: 111,
+      typeName: 'NOTIFICATION_CHOOSE_GOVERNMENT',
+      groupType: null,
+      summary: 'Choose a Government',
+      message: 'Choose a government.',
+      target: { owner: -1, id: -1, type: 0 },
+      location: null,
+      canUserDismiss: false,
+      expired: false,
+      dismissed: false,
+      isEndTurnBlocking: true,
+      decision: governmentDecision,
+      details,
+    };
+    return {
+      localPlayerId: 0,
+      turn: { ok: true, value: 10 },
+      turnDate: { ok: true, value: '3775 BCE' },
+      hasSentTurnComplete: { ok: true, value: false },
+      canEndTurn: { ok: true, value: false },
+      blocker: { ok: true, value: 0 },
+      blockingNotificationId: { ok: true, value: notificationId },
+      selectedUnitId: { ok: true, value: null },
+      selectedCityId: { ok: true, value: null },
+      firstReadyUnitId: { ok: true, value: null },
+      notifications: [notification],
+      decisions: [governmentDecision],
+      hud: {
+        nextDecision: {
+          notificationId: notification.id,
+          isEndTurnBlocking: true,
+          typeName: notification.typeName,
+          summary: notification.summary,
+          message: notification.message,
+          target: notification.target,
+          location: notification.location,
+          details: notification.details,
+          ...governmentDecision,
+        },
+        decisionQueue: [
+          {
+            notificationId: notification.id,
+            isEndTurnBlocking: true,
+            typeName: notification.typeName,
+            summary: notification.summary,
+            message: notification.message,
+            target: notification.target,
+            location: notification.location,
+            details: notification.details,
+            ...governmentDecision,
           },
         ],
       },
@@ -5460,6 +5751,7 @@ function operationArgs(operationType: string, message = '') {
   if (operationType === 'SET_CULTURE_TREE_NODE') return { ProgressionTreeNodeType: 115 };
   if (operationType === 'SET_CULTURE_TREE_TARGET_NODE') return { ProgressionTreeNodeType: -1677668973 };
   if (operationType === 'CHOOSE_GOLDEN_AGE') return { GoldenAgeType: -340825966 };
+  if (operationType === 'CHANGE_GOVERNMENT') return { GovernmentType: 0, Action: -1326475004 };
   if (operationType === 'RESPOND_DIPLOMATIC_ACTION') return { ID: 56, Type: -1907089594 };
   if (operationType === 'RESPOND_DIPLOMATIC_FIRST_MEET') return { Player1: 0, Player2: 2, Type: 673478009 };
   if (operationType === 'CHOOSE_NARRATIVE_STORY_DIRECTION') {

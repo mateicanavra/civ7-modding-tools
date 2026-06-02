@@ -6087,6 +6087,100 @@ function playNotificationViewSource(): string {
         ],
       };
     };
+    const governmentChoiceDetailsFor = (notification, typeName, notificationId) => {
+      if (!stringIncludes(typeName, "CHOOSE_GOVERNMENT")) return undefined;
+      const localPlayerId = GameContext.localPlayerID;
+      const activate = typeof PlayerOperationParameters !== "undefined" ? PlayerOperationParameters.Activate : null;
+      const currentGovernmentType = probe(() => Players.get(localPlayerId)?.Culture?.getGovernmentType?.() ?? null);
+      const goldenAgeDuration = probe(() => Players.get(localPlayerId)?.Happiness?.getGoldenAgeDuration?.() ?? null);
+      const options = [];
+      const startingGovernments = probe(() => {
+        const rows = [];
+        GameInfo.StartingGovernments.forEach((startingGovernmentDef) => rows.push(startingGovernmentDef));
+        return rows;
+      });
+      const startingRows = startingGovernments.ok && Array.isArray(startingGovernments.value)
+        ? startingGovernments.value
+        : [];
+      for (const startingGovernmentDef of startingRows) {
+        const governmentType = startingGovernmentDef?.GovernmentType ?? null;
+        const governmentDef = governmentType == null
+          ? null
+          : probe(() => GameInfo.Governments.lookup(governmentType)).value ?? null;
+        const governmentIndex = governmentDef?.$index ?? null;
+        const args = governmentIndex == null || activate == null
+          ? null
+          : { GovernmentType: governmentIndex, Action: activate };
+        const validation = args
+          ? probe(() => Game.PlayerOperations.canStart(
+            localPlayerId,
+            PlayerOperationTypes.CHANGE_GOVERNMENT,
+            args,
+            false,
+          ))
+          : { ok: false, error: "missing government type or activate action" };
+        const enabled = validation.ok && successFromCanStart(validation.value);
+        const celebrationTypes = governmentDef?.GovernmentType == null
+          ? { ok: false, error: "missing government definition" }
+          : probe(() => Game.Culture.GetCelebrationTypesForGovernment(governmentDef.GovernmentType));
+        const celebrationRows = celebrationTypes.ok && Array.isArray(celebrationTypes.value)
+          ? celebrationTypes.value.map((goldenAgeType) => {
+            const goldenAgeDef = probe(() => GameInfo.GoldenAges.lookup(goldenAgeType)).value ?? null;
+            return {
+              goldenAgeType,
+              typeName: goldenAgeDef?.GoldenAgeType ?? null,
+              name: loc(goldenAgeDef?.Name ?? goldenAgeDef?.GoldenAgeType ?? null),
+              description: loc(goldenAgeDef?.Description ?? null),
+              duration: goldenAgeDuration.ok ? goldenAgeDuration.value : null,
+            };
+          })
+          : [];
+        options.push({
+          governmentType: governmentIndex,
+          governmentTypeName: governmentDef?.GovernmentType ?? governmentType,
+          name: loc(governmentDef?.Name ?? governmentDef?.GovernmentType ?? governmentType),
+          description: loc(governmentDef?.Description ?? null),
+          startingGovernmentType: governmentType,
+          action: activate,
+          args,
+          celebrationOptions: celebrationRows,
+          enabled,
+          disabled: !enabled,
+          validation,
+          cli: enabled && governmentIndex != null && activate != null
+            ? "game play choose-government --player-id " + String(localPlayerId)
+              + " --government-type " + String(governmentIndex)
+              + " --action " + String(activate)
+              + " --send --reason '<why this government was selected>'"
+            : null,
+          validateCli: governmentIndex != null
+            ? "game play choose-government --player-id " + String(localPlayerId)
+              + " --government-type " + String(governmentIndex)
+              + (activate != null ? " --action " + String(activate) : "")
+              + " --json"
+            : null,
+        });
+      }
+      const enabledOptions = options.filter((option) => option.enabled);
+      const disabledOptions = options.filter((option) => option.disabled);
+      return {
+        kind: "government-choice-options",
+        notificationId,
+        localPlayerId,
+        source: "GameInfo.StartingGovernments + GameInfo.Governments + PlayerOperations.canStart",
+        currentGovernmentType,
+        startingGovernments,
+        action: activate,
+        goldenAgeDuration,
+        options,
+        enabledOptions,
+        disabledOptions,
+        notes: [
+          "Options mirror the official government picker and validate local-player CHANGE_GOVERNMENT with PlayerOperationParameters.Activate.",
+          "Celebration options are read for context; choosing a government is the single caller-level operation.",
+        ],
+      };
+    };
     const unitCommandDetailsFor = (notification, typeName, notificationId) => {
       if (!stringIncludes(typeName, "COMMAND_UNITS")) return undefined;
       const selectedUnitId = probe(() => toComponentId(UI?.Player?.getHeadSelectedUnit?.()));
@@ -6179,6 +6273,7 @@ function playNotificationViewSource(): string {
         ?? diplomacyResponseDetailsFor(notification, typeName, notificationId)
         ?? technologyChoiceDetailsFor(notification, typeName, notificationId)
         ?? cultureChoiceDetailsFor(notification, typeName, notificationId)
+        ?? governmentChoiceDetailsFor(notification, typeName, notificationId)
         ?? unitCommandDetailsFor(notification, typeName, notificationId);
     };
     const decisionHintFor = (notification, typeName, isBlocking) => {
@@ -6222,6 +6317,22 @@ function playNotificationViewSource(): string {
             action("set culture target", "game play set-culture-target --player-id <id> --node <node>", "player-operation", "SET_CULTURE_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
           ],
           ["Read options from the live culture chooser before sending; some UI paths also set the culture target node, so use --closeout for one caller-level selection."],
+        );
+      }
+      if (stringIncludes(haystack, "CHOOSE_GOVERNMENT")) {
+        return hint(
+          "government-choice",
+          "player-operation",
+          "CHANGE_GOVERNMENT",
+          "{ GovernmentType, Action: Activate }",
+          "game play choose-government",
+          "official-ui",
+          [requiredInput("GovernmentType", "live government picker option", "Use the government index from choose-government --options, not the visible row position.")],
+          [
+            action("read government options", "game play choose-government --options --json", undefined, undefined, "enabled starting governments with validation and ready send templates", "before choosing a government"),
+            action("choose government", "game play choose-government --player-id <id> --government-type <government-type> --action <action> --send --reason '<why this government was selected>'", "player-operation", "CHANGE_GOVERNMENT", "{ GovernmentType, Action: Activate }", "after reading the live government option"),
+          ],
+          ["Read options from the live government picker before sending; the option surface includes celebration effects for context."],
         );
       }
       if (stringIncludes(haystack, "NEW_POPULATION")) {

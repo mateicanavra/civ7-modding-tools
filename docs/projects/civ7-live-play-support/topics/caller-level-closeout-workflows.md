@@ -46,6 +46,9 @@ Use these when the selected action and the closeout should be handled together:
   sends `SET_TECH_TREE_NODE` then `SET_TECH_TREE_TARGET_NODE`.
 - `game play choose-culture --player-id <id> --node <node> --send --closeout --reason '<why>'`
   sends `SET_CULTURE_TREE_NODE` then `SET_CULTURE_TREE_TARGET_NODE`.
+- `game play choose-government --player-id <id> --government-type <government-type> --action <activate> --send --reason '<why>'`
+  sends `CHANGE_GOVERNMENT` with the exact government/action pair returned by
+  `choose-government --options`.
 - `game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send --closeout --reason '<why>'`
   sends `CHANGE_GROWTH_MODE` then `CONSIDER_TOWN_PROJECT`.
 

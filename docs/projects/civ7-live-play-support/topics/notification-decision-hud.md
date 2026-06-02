@@ -71,6 +71,7 @@ after any mutation or human input.
 | First-meet diplomacy | local player id, met player id from `notification.Player`/`details.player2`, first-meet response `Type` | `game play respond-first-meet` |
 | Informational notification | notification ComponentID; handler evidence that no specialized decision surface is required | exact `game play dismiss-notification --target ... --send ...` after review |
 | Narrative branch | story `Target`, option `TargetType`, activation `Action` | `game play choose-narrative` |
+| Government choice | live `GovernmentType` and activation `Action` from `game play choose-government --options --json` | `game play choose-government` |
 | Tradition review | active/unlocked tradition ids from `game play traditions`; chosen `TraditionType` and activate/deactivate `Action` | `game play traditions`; then `game play change-tradition`; then `game play consider-traditions` |
 | Attribute review | attribute `ProgressionTreeNodeType` | `game play buy-attribute`; then `game play consider-attributes` |
 | Advisor warning | notification ComponentID as `Target` | `game play advisor-warning` |

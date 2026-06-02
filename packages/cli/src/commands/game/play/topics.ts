@@ -88,7 +88,7 @@ const TOPICS: ReadonlyArray<Topic> = [
   },
   {
     family: 'progression',
-    aliases: ['culture', 'tech', 'traditions', 'attributes', 'narrative', 'celebration'],
+    aliases: ['culture', 'tech', 'government', 'traditions', 'attributes', 'narrative', 'celebration'],
     purpose: 'Choose or close progression, story, policy, attribute, and celebration decisions.',
     proof: 'live-proved with postcondition gaps called out per subfamily',
     references: [
@@ -104,6 +104,7 @@ const TOPICS: ReadonlyArray<Topic> = [
       'game play set-tech-target',
       'game play choose-culture',
       'game play set-culture-target',
+      'game play choose-government',
       'game play choose-celebration',
       'game play choose-narrative',
       'game play buy-attribute',
@@ -112,7 +113,7 @@ const TOPICS: ReadonlyArray<Topic> = [
       'game play consider-attributes',
       'game play consider-traditions',
     ],
-    loadWhen: 'when the HUD names tech, culture, celebration, narrative, attribute, or tradition blockers',
+    loadWhen: 'when the HUD names tech, culture, government, celebration, narrative, attribute, or tradition blockers',
     boundary: 'use runtime enum/hash values, not row indexes or visible list positions',
   },
   {
