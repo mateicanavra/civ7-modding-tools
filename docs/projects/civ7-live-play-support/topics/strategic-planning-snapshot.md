@@ -80,12 +80,13 @@ official UI.
 
 ## Official Evidence
 
-The official victory manager reads `Game.VictoryManager.getVictories()` and
-`getVictoryProgress()`, collects major alive players, filters public rival data
-to met players, the local player, or human players, and reads each player's
-legacy score with `player.LegacyPaths?.getScore(...)`. It also computes final
-milestone thresholds from `GameInfo.AgeProgressionMilestones` and score rows
-from historical legacy points.
+The official victory progress UI imports a module-local `VictoryManager`, reads
+its victory-enabled players, claimed victories, and progress rows, then filters
+public rival data to met players, the local player, or human players. Direct
+App UI eval does not currently expose that manager as a global, so the live
+`progress-dashboard` wrapper uses the official lower-level runtime APIs that
+are available: `GameInfo.LegacyPaths`, `player.LegacyPaths?.getScore(...)`,
+`GameInfo.AgeProgressionMilestones`, and `Game.AgeProgressManager`.
 
 The victory-points model sorts the processed score data by total age score and
 groups teams for display. That makes it the right model for "compare us to met

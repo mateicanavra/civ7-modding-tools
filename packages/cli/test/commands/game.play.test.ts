@@ -30,6 +30,7 @@ import GamePlayOperation from '../../src/commands/game/play/operation';
 import GamePlayNotificationQueue from '../../src/commands/game/play/notification-queue';
 import GamePlayNotifications from '../../src/commands/game/play/notifications';
 import GamePlayPriorities from '../../src/commands/game/play/priorities';
+import GamePlayProgressDashboard from '../../src/commands/game/play/progress-dashboard';
 import GamePlayPromotionReadiness from '../../src/commands/game/play/promotion-readiness';
 import GamePlayReadyCity from '../../src/commands/game/play/ready-city';
 import GamePlayReadyUnit from '../../src/commands/game/play/ready-unit';
@@ -900,6 +901,57 @@ describe('game play commands', () => {
       expect(payload.view.recommendedCli[0]).toContain('--tradition-type 90243567');
       expect(server.received.some((message) => message.includes('readTraditionsView'))).toBe(true);
     } finally {
+      await server.close();
+    }
+  });
+
+  test('emits compact progress dashboard from official runtime progress sources', async () => {
+    const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayProgressDashboard.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayProgressDashboard.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--compact',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        contractVersion: string;
+        command: string;
+        summary: string;
+        age: { ageType: string; ageProgressPercent: number };
+        legacyPaths: Array<{ classType: string; score: number; finalRequiredPathPoints: number; progressPercent: number; nextMilestone: string }>;
+        triumphs: { count: number };
+        proof: { sources: string[] };
+        warnings: string[];
+        omitted: Array<{ path: string }>;
+        view?: unknown;
+      };
+      expect(payload.contractVersion).toBe('play-agent-v0');
+      expect(payload.command).toBe('game play progress-dashboard');
+      expect(payload.summary).toContain('AGE_ANTIQUITY progress');
+      expect(payload.age.ageType).toBe('AGE_ANTIQUITY');
+      expect(payload.age.ageProgressPercent).toBe(2.1);
+      expect(payload.legacyPaths).toHaveLength(4);
+      expect(payload.legacyPaths.find((path) => path.classType === 'culture')?.nextMilestone).toContain('ANTIQUITY_CULTURE_MILESTONE_1');
+      expect(payload.legacyPaths.find((path) => path.classType === 'science')?.progressPercent).toBe(10);
+      expect(payload.triumphs.count).toBe(0);
+      expect(payload.proof.sources).toContain('player.LegacyPaths.getScore');
+      expect(payload.warnings.join(' ')).toContain('VictoryManager is module-local');
+      expect(payload.omitted.some((item) => item.path === 'view.legacyPaths[].milestones')).toBe(true);
+      expect(payload.view).toBeUndefined();
+      expect(server.received.some((message) => message.includes('readProgressDashboard'))).toBe(true);
+      expect(server.received.some((message) => message.includes('getHistoricalLegacyPointCountForTeam'))).toBe(true);
+    } finally {
+      log.mockRestore();
       await server.close();
     }
   });
@@ -2295,6 +2347,8 @@ async function startTunerServer(options: {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(targetCandidatesView())]));
         } else if (frame.message.includes('readTraditionsView')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(traditionsView())]));
+        } else if (frame.message.includes('readProgressDashboard')) {
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(progressDashboardView())]));
         } else if (frame.message.includes('readDestinationAnalysis')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(destinationAnalysisView())]));
         } else if (frame.message.includes('readBattlefieldScan')) {
@@ -3494,6 +3548,93 @@ function traditionsView() {
     recommendedCli: [available.actionHints[0].cli],
     hiddenInfoPolicy: 'player-culture-runtime',
     notes: ['Read-only traditions view; it does not send CHANGE_TRADITION or CONSIDER_ASSIGN_TRADITIONS.'],
+  };
+}
+
+function progressDashboardView() {
+  const milestone = (type: string, path: string, required: number, finalMilestone: boolean, complete = false) => ({
+    ageProgressionMilestoneType: type,
+    legacyPathType: path,
+    requiredPathPoints: required,
+    finalMilestone,
+    progressionPoints: { ok: true, value: finalMilestone ? 10 : 5 },
+    complete: { ok: true, value: complete },
+    reachedByScore: false,
+  });
+  const legacyPath = (
+    legacyPathType: string,
+    legacyPathClassType: string,
+    score: number,
+    finalRequiredPathPoints: number,
+    nextRequired: number,
+  ) => ({
+    legacyPathType,
+    legacyPathClassType,
+    ageType: 'AGE_ANTIQUITY',
+    name: legacyPathType.replace('LEGACY_PATH_ANTIQUITY_', 'Antiquity '),
+    description: null,
+    enabledByDefault: true,
+    enabledForPlayer: null,
+    score: { ok: true, value: score },
+    finalRequiredPathPoints,
+    nextMilestone: milestone(`${legacyPathType.replace('LEGACY_PATH_', '')}_MILESTONE_1`, legacyPathType, nextRequired, false),
+    milestones: [
+      milestone(`${legacyPathType.replace('LEGACY_PATH_', '')}_MILESTONE_1`, legacyPathType, nextRequired, false),
+      milestone(`${legacyPathType.replace('LEGACY_PATH_', '')}_MILESTONE_3`, legacyPathType, finalRequiredPathPoints, true),
+    ],
+  });
+  return {
+    localPlayerId: 0,
+    playerId: 0,
+    turn: { ok: true, value: 5 },
+    turnDate: { ok: true, value: '3900 BCE' },
+    age: {
+      hash: 2077444219,
+      ageType: 'AGE_ANTIQUITY',
+      name: 'Antiquity Age',
+      chronologyIndex: 0,
+      isFinalAge: { ok: true, value: false },
+      isSingleAge: { ok: true, value: false },
+      isExtendedGame: { ok: true, value: false },
+      isAgeOver: { ok: true, value: false },
+      currentAgeProgressionPoints: { ok: true, value: 3 },
+      maxAgeProgressionPoints: { ok: true, value: 140 },
+      primaryAgeProgression: { ok: true, value: -2084768148 },
+    },
+    player: {
+      team: 0,
+      historicalLegacyPointCountForTeam: { ok: true, value: 0 },
+    },
+    legacyPaths: [
+      legacyPath('LEGACY_PATH_ANTIQUITY_CULTURE', 'LEGACY_PATH_CLASS_CULTURE', 0, 7, 2),
+      legacyPath('LEGACY_PATH_ANTIQUITY_MILITARY', 'LEGACY_PATH_CLASS_MILITARY', 0, 12, 6),
+      legacyPath('LEGACY_PATH_ANTIQUITY_SCIENCE', 'LEGACY_PATH_CLASS_SCIENCE', 1, 10, 3),
+      legacyPath('LEGACY_PATH_ANTIQUITY_ECONOMIC', 'LEGACY_PATH_CLASS_ECONOMIC', 0, 20, 7),
+    ],
+    victories: {
+      rows: [
+        { victoryType: 'VICTORY_DOMINATION', victoryClassType: 'VICTORY_CLASS_DOMINATION', name: 'Domination', description: null },
+        { victoryType: 'VICTORY_SCORE', victoryClassType: 'VICTORY_CLASS_SCORE', name: 'Score', description: null },
+      ],
+    },
+    triumphs: {
+      count: 0,
+      rows: [],
+      source: 'runtime-gameinfo',
+    },
+    proof: {
+      victoryManagerGlobal: { ok: true, value: 'undefined' },
+      sources: [
+        'GameInfo.LegacyPaths',
+        'player.LegacyPaths.getScore',
+        'GameInfo.AgeProgressionMilestones',
+        'Game.AgeProgressManager',
+        'GameInfo.Victories',
+        'GameInfo.Triumphs',
+      ],
+    },
+    hiddenInfoPolicy: 'local-player-runtime-progress',
+    notes: ['Read-only progress dashboard; it does not choose technologies, civics, productions, policies, or victory strategy.'],
   };
 }
 

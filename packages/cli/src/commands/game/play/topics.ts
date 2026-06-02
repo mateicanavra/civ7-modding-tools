@@ -95,9 +95,11 @@ const TOPICS: ReadonlyArray<Topic> = [
       'docs/projects/civ7-live-play-support/topics/progression-tree-targets.md',
       'docs/projects/civ7-live-play-support/topics/caller-level-closeout-workflows.md',
       'docs/projects/civ7-live-play-support/topics/celebration-choice.md',
+      'docs/projects/civ7-live-play-support/topics/progress-dashboard.md',
       'docs/projects/civ7-live-play-support/topics/notification-decision-hud.md',
     ],
     commands: [
+      'game play progress-dashboard',
       'game play choose-tech',
       'game play set-tech-target',
       'game play choose-culture',
@@ -290,6 +292,7 @@ const TOPICS: ReadonlyArray<Topic> = [
     references: [
       'docs/projects/civ7-live-play-support/topics/multi-turn-strategy-and-ai-levers.md',
       'docs/projects/civ7-live-play-support/topics/strategic-planning-snapshot.md',
+      'docs/projects/civ7-live-play-support/topics/progress-dashboard.md',
       'docs/projects/civ7-live-play-support/topics/objective-planning-ledger.md',
       'docs/projects/civ7-live-play-support/topics/unit-destination-queue.md',
       'docs/projects/civ7-live-play-support/topics/play-agent-response-contract.md',
@@ -303,6 +306,7 @@ const TOPICS: ReadonlyArray<Topic> = [
     ],
     commands: [
       'game play priorities',
+      'game play progress-dashboard',
       'game play front-summary',
       'game play rehydrate',
       'game watch',
