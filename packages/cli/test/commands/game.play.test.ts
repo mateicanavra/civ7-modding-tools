@@ -2781,6 +2781,11 @@ describe('game play commands', () => {
         requestedDestination: { x: number; y: number };
         queuedDestination: { x: number; y: number } | null;
         reach: { movementPlotCount: number; targetPlotCount: number };
+        candidates: {
+          reachableMovement: Array<{ x: number; y: number; currentLocation: boolean; validateCli: string | null }>;
+          reachableTargets: Array<{ x: number; y: number; validateCli: string | null }>;
+          limit: number;
+        };
         paths: { requested: { plotCount?: number } | null; queued: { plotCount?: number } | null };
         next: string | null;
         warnings: string[];
@@ -2795,6 +2800,10 @@ describe('game play commands', () => {
       expect(payload.queuedDestination).toEqual({ x: 25, y: 35 });
       expect(payload.reach.movementPlotCount).toBeGreaterThan(0);
       expect(payload.reach.targetPlotCount).toBeGreaterThanOrEqual(0);
+      expect(payload.candidates.limit).toBe(12);
+      expect(payload.candidates.reachableMovement[0]).toMatchObject({ x: 25, y: 35, currentLocation: false });
+      expect(payload.candidates.reachableMovement[0].validateCli).toContain("game play unit-target --unit-id '{\"owner\":0,\"id\":65536,\"type\":26}' --x 25 --y 35 --json");
+      expect(payload.candidates.reachableTargets[0]).toMatchObject({ x: 26, y: 35 });
       expect(payload.paths.requested?.plotCount).toBeGreaterThan(0);
       expect(payload.paths.queued?.plotCount).toBeGreaterThan(0);
       expect(payload.next).toContain('game play unit-target');

@@ -105,6 +105,12 @@ function buildCompactView(view: UnitMovePreviewView): {
     zoneOfControlPlotCount: number;
     targetPlotCount: number;
   };
+  candidates: {
+    reachableMovement: Array<Record<string, unknown>>;
+    reachableTargets: Array<Record<string, unknown>>;
+    reachableZonesOfControl: Array<Record<string, unknown>>;
+    limit: number;
+  };
   paths: {
     requested: Record<string, unknown> | null;
     queued: Record<string, unknown> | null;
@@ -120,6 +126,10 @@ function buildCompactView(view: UnitMovePreviewView): {
   const requestedPath = compactPath(probeValue(view.requestedPath));
   const queuedPath = compactPath(probeValue(view.queuedPath));
   const requestedDestination = view.requestedDestination;
+  const candidateLimit = 12;
+  const movementCandidates = compactPlotCandidates(probeValue(view.reachableMovement), view.unitId, unit, candidateLimit);
+  const targetCandidates = compactPlotCandidates(probeValue(view.reachableTargets), view.unitId, unit, candidateLimit);
+  const zoneOfControlCandidates = compactPlotCandidates(probeValue(view.reachableZonesOfControl), view.unitId, unit, candidateLimit);
   const warnings = [
     view.relationshipPolicy.guidance,
     queuedDestination
@@ -146,6 +156,12 @@ function buildCompactView(view: UnitMovePreviewView): {
       zoneOfControlPlotCount: countPlots(probeValue(view.reachableZonesOfControl)),
       targetPlotCount: countPlots(probeValue(view.reachableTargets)),
     },
+    candidates: {
+      reachableMovement: movementCandidates,
+      reachableTargets: targetCandidates,
+      reachableZonesOfControl: zoneOfControlCandidates,
+      limit: candidateLimit,
+    },
     paths: {
       requested: requestedPath,
       queued: queuedPath,
@@ -155,9 +171,9 @@ function buildCompactView(view: UnitMovePreviewView): {
       : null,
     warnings,
     omitted: [
-      { path: 'view.reachableMovement', reason: 'use --json without --compact for reachable movement plots' },
-      { path: 'view.reachableZonesOfControl', reason: 'use --json without --compact for zone-of-control plots' },
-      { path: 'view.reachableTargets', reason: 'use --json without --compact for reachable target plots' },
+      { path: 'view.reachableMovement', reason: `compact includes up to ${candidateLimit} candidate rows; use --json without --compact for the full reachable movement plot list` },
+      { path: 'view.reachableZonesOfControl', reason: `compact includes up to ${candidateLimit} candidate rows; use --json without --compact for the full zone-of-control plot list` },
+      { path: 'view.reachableTargets', reason: `compact includes up to ${candidateLimit} candidate rows; use --json without --compact for the full reachable target plot list` },
       { path: 'view.requestedPath.plots', reason: 'use --json without --compact for path plot samples' },
       { path: 'view.queuedPath.plots', reason: 'use --json without --compact for queued path plot samples' },
     ],
@@ -202,6 +218,74 @@ function countPlots(value: unknown): number {
     if (Array.isArray(item)) return count + countPlots(item);
     return count + 1;
   }, 0);
+}
+
+function compactPlotCandidates(value: unknown, unitId: UnitMovePreviewView['unitId'], unit: Record<string, unknown> | null, limit: number): Array<Record<string, unknown>> {
+  const unitLocation = locationRecord(unit?.location);
+  return flattenPlots(value)
+    .sort((left, right) => {
+      const leftCurrent = sameLocation(left, unitLocation);
+      const rightCurrent = sameLocation(right, unitLocation);
+      if (leftCurrent !== rightCurrent) return leftCurrent ? 1 : -1;
+      const leftDistance = hexApproxDistance(left, unitLocation) ?? 999;
+      const rightDistance = hexApproxDistance(right, unitLocation) ?? 999;
+      if (leftDistance !== rightDistance) return leftDistance - rightDistance;
+      if ((left.y ?? 0) !== (right.y ?? 0)) return (left.y ?? 0) - (right.y ?? 0);
+      return (left.x ?? 0) - (right.x ?? 0);
+    })
+    .slice(0, limit)
+    .map((plot) => ({
+      index: plot.index ?? null,
+      x: plot.x,
+      y: plot.y,
+      currentLocation: sameLocation(plot, unitLocation),
+      distanceFromUnit: hexApproxDistance(plot, unitLocation),
+      validateCli: unitId && typeof plot.x === 'number' && typeof plot.y === 'number'
+        ? `game play unit-target --unit-id '${JSON.stringify(unitId)}' --x ${plot.x} --y ${plot.y} --json`
+        : null,
+    }));
+}
+
+function flattenPlots(value: unknown): Array<{ index?: number; x?: number; y?: number }> {
+  if (!Array.isArray(value)) return [];
+  const plots: Array<{ index?: number; x?: number; y?: number }> = [];
+  for (const item of value) {
+    if (Array.isArray(item)) {
+      plots.push(...flattenPlots(item));
+      continue;
+    }
+    if (!item || typeof item !== 'object') continue;
+    const record = item as Record<string, unknown>;
+    const x = Number(record.x);
+    const y = Number(record.y);
+    if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
+    const index = Number(record.index);
+    plots.push({
+      x,
+      y,
+      ...(Number.isFinite(index) ? { index } : {}),
+    });
+  }
+  return plots;
+}
+
+function locationRecord(value: unknown): { x?: number; y?: number } | null {
+  if (!value || typeof value !== 'object') return null;
+  const record = value as Record<string, unknown>;
+  const x = Number(record.x);
+  const y = Number(record.y);
+  return Number.isFinite(x) && Number.isFinite(y) ? { x, y } : null;
+}
+
+function sameLocation(left: { x?: number; y?: number } | null, right: { x?: number; y?: number } | null): boolean {
+  return Boolean(left && right && left.x === right.x && left.y === right.y);
+}
+
+function hexApproxDistance(left: { x?: number; y?: number } | null, right: { x?: number; y?: number } | null): number | null {
+  if (!left || !right || typeof left.x !== 'number' || typeof left.y !== 'number' || typeof right.x !== 'number' || typeof right.y !== 'number') {
+    return null;
+  }
+  return Math.max(Math.abs(left.x - right.x), Math.abs(left.y - right.y));
 }
 
 function formatLocation(location: unknown): string {

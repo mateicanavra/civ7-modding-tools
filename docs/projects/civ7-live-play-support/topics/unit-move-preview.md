@@ -114,10 +114,13 @@ proof.
 
 Use `--compact --json` for the play-agent movement dashboard. It returns the
 selected unit summary, requested and queued destinations, reachable movement /
-zone-of-control / target counts, compact requested and queued path summaries,
-the next validation command, warnings, omitted raw sections, `hiddenInfoPolicy`,
-and `relationshipProof`. Plain `--json` remains the full official preview
-payload for debugging path plots and overlay details.
+zone-of-control / target counts, up to 12 coordinate candidate rows for each
+official overlay, compact requested and queued path summaries, the next
+validation command, warnings, omitted raw sections, `hiddenInfoPolicy`, and
+`relationshipProof`. Candidate rows include `x`, `y`, approximate distance from
+the unit, whether the row is the current location, and a ready `unit-target`
+validation command. Plain `--json` remains the full official preview payload
+for debugging path plots and overlay details.
 
 The policy fields are intentionally explicit:
 
