@@ -18,14 +18,14 @@ considered, or when a route crosses a live front.
 Start with the composed command:
 
 ```bash
-bun packages/cli/bin/run.js game play civilian-route-triage --json
+civ7 game play civilian-route-triage --json
 ```
 
 Use explicit origins and destinations when the decision is about a known
 Settler position or candidate site:
 
 ```bash
-bun packages/cli/bin/run.js game play civilian-route-triage \
+civ7 game play civilian-route-triage \
   --x <civilian-x> \
   --y <civilian-y> \
   --to-x <candidate-x> \
@@ -37,20 +37,20 @@ The command composes the same underlying reads that were previously run by
 hand:
 
 ```bash
-bun packages/cli/bin/run.js game play ready-unit --json
+civ7 game play ready-unit --json
 
-bun packages/cli/bin/run.js game play settlement-recommendations \
+civ7 game play settlement-recommendations \
   --x <civilian-x> \
   --y <civilian-y> \
   --json
 
-bun packages/cli/bin/run.js game play battlefield-scan \
+civ7 game play battlefield-scan \
   --x <civilian-x> \
   --y <civilian-y> \
   --radius 5 \
   --json
 
-bun packages/cli/bin/run.js game play destination-analysis \
+civ7 game play destination-analysis \
   --from-x <civilian-x> \
   --from-y <civilian-y> \
   --to-x <candidate-x> \

@@ -10,13 +10,13 @@ the operation family.
 Use the read-only ready-unit view before mutating a unit blocker:
 
 ```bash
-bun packages/cli/bin/run.js game play ready-unit --json
+civ7 game play ready-unit --json
 ```
 
 For an explicit unit:
 
 ```bash
-bun packages/cli/bin/run.js game play ready-unit \
+civ7 game play ready-unit \
   --unit-id '{"owner":0,"id":458752,"type":26}' \
   --radius 2 \
   --json
@@ -42,7 +42,7 @@ args.
 For promotion-only checks, use:
 
 ```bash
-bun packages/cli/bin/run.js game play promotion-readiness --json
+civ7 game play promotion-readiness --json
 ```
 
 That shortcut extracts the unit summary, `promotionReadiness`, and whether a

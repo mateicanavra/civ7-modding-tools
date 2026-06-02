@@ -56,17 +56,17 @@ debug-only so planning advice does not quietly become omniscient.
 The CLI already exposes most building blocks:
 
 ```bash
-bun packages/cli/bin/run.js game play rehydrate --json
-bun packages/cli/bin/run.js game play notifications --json
-bun packages/cli/bin/run.js game play ready-unit --json
-bun packages/cli/bin/run.js game play ready-city --json
-bun packages/cli/bin/run.js game status --json
-bun packages/cli/bin/run.js game map --summary --json
-bun packages/cli/bin/run.js game visibility --player-id 0 --bounds x,y,w,h --json
-bun packages/cli/bin/run.js game play target-candidates --x <front-x> --y <front-y> --json
-bun packages/cli/bin/run.js game play battlefield-scan --x <front-x> --y <front-y> --radius 8 --json
-bun packages/cli/bin/run.js game play destination-analysis --from-x <unit-x> --from-y <unit-y> --to-x <x> --to-y <y> --json
-bun packages/cli/bin/run.js game gameinfo --table LegacyPaths --json
+civ7 game play rehydrate --json
+civ7 game play notifications --json
+civ7 game play ready-unit --json
+civ7 game play ready-city --json
+civ7 game status --json
+civ7 game map --summary --json
+civ7 game visibility --player-id 0 --bounds x,y,w,h --json
+civ7 game play target-candidates --x <front-x> --y <front-y> --json
+civ7 game play battlefield-scan --x <front-x> --y <front-y> --radius 8 --json
+civ7 game play destination-analysis --from-x <unit-x> --from-y <unit-y> --to-x <x> --to-y <y> --json
+civ7 game gameinfo --table LegacyPaths --json
 ```
 
 Direct-control already has read wrappers for map summary, plot/grid snapshots,

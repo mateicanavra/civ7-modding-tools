@@ -21,8 +21,8 @@ ready unit or supplied origin:
 ## Command
 
 ```bash
-bun packages/cli/bin/run.js game play formation-snapshot --json
-bun packages/cli/bin/run.js game play formation-snapshot --x 20 --y 18 --radius 6 --json
+civ7 game play formation-snapshot --json
+civ7 game play formation-snapshot --x 20 --y 18 --radius 6 --json
 ```
 
 Use the command when:
@@ -54,7 +54,7 @@ Treat `screen-civilian` as a hold/screen prompt, not as an automatic move. The
 next action should be a concrete validator read:
 
 ```bash
-bun packages/cli/bin/run.js game play unit-target \
+civ7 game play unit-target \
   --unit-id '<ready-unit-id>' \
   --x <screen-or-threat-x> \
   --y <screen-or-threat-y> \
@@ -64,7 +64,7 @@ bun packages/cli/bin/run.js game play unit-target \
 For Settler movement, pair the formation snapshot with:
 
 ```bash
-bun packages/cli/bin/run.js game play civilian-route-triage --x <settler-x> --y <settler-y> --json
+civ7 game play civilian-route-triage --x <settler-x> --y <settler-y> --json
 ```
 
 The formation snapshot answers "what would this unit leave exposed?" It does

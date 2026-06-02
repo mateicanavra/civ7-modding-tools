@@ -23,7 +23,7 @@ For resettling a population unit after the live acquire-tile view has identified
 the owned district target:
 
 ```bash
-bun packages/cli/bin/run.js game play resettle-unit \
+civ7 game play resettle-unit \
   --unit-id '{"owner":0,"id":1703951,"type":26}' \
   --x 17 \
   --y 25 \
@@ -34,7 +34,7 @@ For upgrading an eligible unit after the live ready-unit/action-panel read shows
 `UNITCOMMAND_UPGRADE` as valid:
 
 ```bash
-bun packages/cli/bin/run.js game play upgrade-unit \
+civ7 game play upgrade-unit \
   --unit-id '{"owner":0,"id":1769488,"type":26}' \
   --json
 ```
@@ -46,7 +46,7 @@ evidence still matches.
 The generic fallback remains:
 
 ```bash
-bun packages/cli/bin/run.js game play operation \
+civ7 game play operation \
   --family unit-command \
   --type UNITCOMMAND_UPGRADE \
   --unit-id '{"owner":0,"id":1769488,"type":26}' \

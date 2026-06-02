@@ -162,7 +162,7 @@ links, so the likely operation is acknowledgement:
 Validate before sending because the live pending story target can change:
 
 ```bash
-bun packages/cli/bin/run.js game play choose-narrative \
+civ7 game play choose-narrative \
   --player-id 0 \
   --target-type CLOSE \
   --target '{"owner":0,"id":37,"type":35}' \
@@ -191,7 +191,7 @@ Lafayette as an end-turn blocker. The official handler evidence above makes the
 correct closeout path narrow:
 
 ```bash
-bun packages/cli/bin/run.js game play dismiss-notification \
+civ7 game play dismiss-notification \
   --target '{"owner":0,"id":522,"type":20}' \
   --send \
   --reason 'reviewed completed Cultural Exchange with Lafayette'

@@ -142,7 +142,7 @@ informational, `canUserDismiss` is true, and any reported location has been
 reviewed for tactical implications:
 
 ```bash
-bun packages/cli/bin/run.js game play dismiss-notification \
+civ7 game play dismiss-notification \
   --target '{"owner":0,"id":337,"type":20}' \
   --send \
   --reason "reviewed unit-attacked notice after resolving unit readiness" \

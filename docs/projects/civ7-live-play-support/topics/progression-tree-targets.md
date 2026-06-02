@@ -71,7 +71,7 @@ Start current culture research and close the matching target-node surface as
 one caller-level workflow:
 
 ```bash
-bun packages/cli/bin/run.js game play choose-culture \
+civ7 game play choose-culture \
   --player-id 0 \
   --node -1677668973 \
   --send \
@@ -83,7 +83,7 @@ bun packages/cli/bin/run.js game play choose-culture \
 Set only the culture target when the primary choice was already applied:
 
 ```bash
-bun packages/cli/bin/run.js game play set-culture-target \
+civ7 game play set-culture-target \
   --player-id 0 \
   --node -1677668973 \
   --send \

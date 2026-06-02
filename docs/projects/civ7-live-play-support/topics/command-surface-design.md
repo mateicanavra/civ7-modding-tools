@@ -15,6 +15,11 @@ next decision, preview legal choices, check validators, send approved actions,
 and inspect postconditions without remembering raw Civ7 operation-family names
 or writing component IDs by hand.
 
+For live play, command examples should use `civ7 game ...`. Worktree-local
+`bun packages/cli/bin/run.js` calls are package-development tools, not the
+turn-execution surface, because they depend on generated `dist` output being
+fresh in that worktree.
+
 ## Domain Grammar
 
 Use domain nouns first, then phase verbs:

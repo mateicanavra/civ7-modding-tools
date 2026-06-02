@@ -24,18 +24,18 @@ should I inspect next?", not "what action should I send?"
 ## CLI
 
 ```bash
-bun packages/cli/bin/run.js game play front-summary --json
+civ7 game play front-summary --json
 ```
 
 Useful explicit-front variants:
 
 ```bash
-bun packages/cli/bin/run.js game play front-summary \
+civ7 game play front-summary \
   --x 15 \
   --y 21 \
   --json
 
-bun packages/cli/bin/run.js game play front-summary \
+civ7 game play front-summary \
   --x 15 \
   --y 21 \
   --to-x 13 \
@@ -46,7 +46,7 @@ bun packages/cli/bin/run.js game play front-summary \
 The same read can use compact coordinate aliases:
 
 ```bash
-bun packages/cli/bin/run.js game play front-summary \
+civ7 game play front-summary \
   --origin 15,21 \
   --destination 13,17 \
   --json

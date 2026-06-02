@@ -33,9 +33,9 @@ operation, so the bulk surface must classify before it acts.
 ## Command
 
 ```bash
-bun packages/cli/bin/run.js game play notification-queue --json
-bun packages/cli/bin/run.js game play dismiss-notification-queue --json
-bun packages/cli/bin/run.js game play dismiss-notification-queue \
+civ7 game play notification-queue --json
+civ7 game play dismiss-notification-queue --json
+civ7 game play dismiss-notification-queue \
   --send \
   --reason "reviewed informational queue reports" \
   --json

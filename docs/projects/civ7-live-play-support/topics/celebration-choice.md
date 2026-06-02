@@ -42,7 +42,7 @@ The operation family is therefore `player-operation`, the operation type is
 Validate a live celebration choice:
 
 ```bash
-bun packages/cli/bin/run.js game play choose-celebration \
+civ7 game play choose-celebration \
   --player-id 0 \
   --golden-age-type -340825966 \
   --json
@@ -51,7 +51,7 @@ bun packages/cli/bin/run.js game play choose-celebration \
 Send only after re-reading the live choices and choosing a reason:
 
 ```bash
-bun packages/cli/bin/run.js game play choose-celebration \
+civ7 game play choose-celebration \
   --player-id 0 \
   --golden-age-type -340825966 \
   --send \
@@ -62,7 +62,7 @@ bun packages/cli/bin/run.js game play choose-celebration \
 The generic fallback is:
 
 ```bash
-bun packages/cli/bin/run.js game play operation \
+civ7 game play operation \
   --family player \
   --type CHOOSE_GOLDEN_AGE \
   --player-id 0 \

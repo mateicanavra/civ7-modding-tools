@@ -22,14 +22,14 @@ a dashboard for "what should I inspect next?", not an action plan.
 ## CLI
 
 ```bash
-bun packages/cli/bin/run.js game play priorities --json
+civ7 game play priorities --json
 ```
 
 Useful variants:
 
 ```bash
-bun packages/cli/bin/run.js game play priorities --radius 6 --json
-bun packages/cli/bin/run.js game play priorities --no-battlefield --json
+civ7 game play priorities --radius 6 --json
+civ7 game play priorities --no-battlefield --json
 ```
 
 ## What It Ranks

@@ -29,6 +29,21 @@ The skill boundary should therefore be operational, not encyclopedic. A useful
 skill tells an agent what to read, which proof label it has, which shortcut is
 safe to try, and when to stop because the live inputs are missing.
 
+## Live CLI Routing
+
+For live play, use the globally linked development CLI:
+
+```bash
+civ7 game ...
+```
+
+Do not call `bun packages/cli/bin/run.js` from the support worktree during turn
+execution. That path depends on generated `dist/` files and has failed mid-turn
+when the worktree was not freshly built. Root Turbo and package-local commands
+are for building, testing, linking, or developing the CLI; they are not the live
+turn-control surface. If `civ7` does not expose an expected command, relink with
+`bun run link:cli` from the support worktree, then return to `civ7 game ...`.
+
 ## Loader Order
 
 For future skill conversion, load source material in this order:

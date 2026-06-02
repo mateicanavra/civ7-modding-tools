@@ -15,7 +15,7 @@ question. It ranks opponent owners from a supplied formation origin using live
 runtime city/unit summaries:
 
 ```bash
-bun packages/cli/bin/run.js game play target-candidates \
+civ7 game play target-candidates \
   --x 18 \
   --y 20 \
   --json
@@ -24,7 +24,7 @@ bun packages/cli/bin/run.js game play target-candidates \
 The compact coordinate form is:
 
 ```bash
-bun packages/cli/bin/run.js game play target-candidates \
+civ7 game play target-candidates \
   --origin 18,20 \
   --json
 ```

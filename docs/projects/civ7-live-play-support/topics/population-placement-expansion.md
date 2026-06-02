@@ -40,7 +40,7 @@ guessing a city id.
 For already-workable plots:
 
 ```bash
-bun packages/cli/bin/run.js game play assign-worker \
+civ7 game play assign-worker \
   --player-id 0 \
   --location <plot-index> \
   --json
@@ -49,7 +49,7 @@ bun packages/cli/bin/run.js game play assign-worker \
 For expansion purchase plots:
 
 ```bash
-bun packages/cli/bin/run.js game play expand-city \
+civ7 game play expand-city \
   --city-id '{"owner":0,"id":196610,"type":1}' \
   --x 16 \
   --y 19 \

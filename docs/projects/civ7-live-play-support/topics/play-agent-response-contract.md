@@ -12,6 +12,20 @@ be the default shape for every tactical read or operation send.
 This is an internal, controlled, early API. Prefer domain operations and stable
 response tiers over kitchen-sink envelopes.
 
+## Live CLI Entrypoint
+
+Live turn execution should call the globally linked development binary:
+
+```bash
+civ7 game ...
+```
+
+Do not use `bun packages/cli/bin/run.js` as the play-agent command surface. It
+is a package-development entrypoint that relies on generated `dist` modules and
+can disappear or go stale during active play. Build, test, and relink through
+root scripts such as `bun run build:cli`, `bun run test:cli:play`, and
+`bun run link:cli`; then execute live turns through `civ7 game ...`.
+
 ## Domain Split
 
 Keep these surfaces distinct:

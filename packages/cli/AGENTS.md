@@ -113,6 +113,9 @@ Status-style commands (e.g., `git status`, `mod status`) also accept `--json` fo
 - Local linking (optional): `bun run link:cli` (from repo root) to expose the
   `civ7` binary. This builds the CLI through Turborepo first, including oclif
   manifest generation, then registers the package `bin` entry globally.
+- Live Civ7 play should use the linked `civ7 game ...` command. Package-local
+  `node packages/cli/bin/run.js` is for development/debugging of this package,
+  not active turn execution.
 - Dev run:
   - Via bin: `node packages/cli/bin/run.js <command>`
   - Via scripts: `bun run --filter @mateicanavra/civ7-cli dev -- data:crawl --help`

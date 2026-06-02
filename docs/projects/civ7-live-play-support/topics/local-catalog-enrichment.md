@@ -78,7 +78,7 @@ pretending the disk files are current-turn validators.
 Example:
 
 ```bash
-bun packages/cli/bin/run.js game local-data inspect --json
+civ7 game local-data inspect --json
 ```
 
 ## Shortcut Candidates

@@ -43,7 +43,7 @@ factor.
 `game play settlement-recommendations` wraps the official lens API read-only:
 
 ```bash
-bun packages/cli/bin/run.js game play settlement-recommendations \
+civ7 game play settlement-recommendations \
   --x 15 \
   --y 23 \
   --count 5 \

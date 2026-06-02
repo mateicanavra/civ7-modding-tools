@@ -24,7 +24,7 @@ strategy and tactics:
 ## CLI
 
 ```bash
-bun packages/cli/bin/run.js game play battlefield-scan \
+civ7 game play battlefield-scan \
   --x 17 \
   --y 20 \
   --radius 8 \
@@ -34,7 +34,7 @@ bun packages/cli/bin/run.js game play battlefield-scan \
 The equivalent compact coordinate form is:
 
 ```bash
-bun packages/cli/bin/run.js game play battlefield-scan \
+civ7 game play battlefield-scan \
   --origin 17,20 \
   --radius 8 \
   --json
@@ -112,7 +112,7 @@ Turn 115 has a ready damaged Slinger near `(17,20)` after a diplomatic-completio
 blocker. A useful support read is:
 
 ```bash
-bun packages/cli/bin/run.js game play battlefield-scan \
+civ7 game play battlefield-scan \
   --x 17 \
   --y 20 \
   --radius 8 \

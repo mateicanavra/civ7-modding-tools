@@ -39,14 +39,14 @@ between the read and the send. The tactical frame is therefore:
 Before a unit mutation:
 
 ```bash
-bun packages/cli/bin/run.js game play notifications --json
-bun packages/cli/bin/run.js game play ready-unit --json
+civ7 game play notifications --json
+civ7 game play ready-unit --json
 ```
 
 For a concrete plot target:
 
 ```bash
-bun packages/cli/bin/run.js game play unit-target \
+civ7 game play unit-target \
   --unit-id '<current ready unit ComponentID>' \
   --x <current target x> \
   --y <current target y> \

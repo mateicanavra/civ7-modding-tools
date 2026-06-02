@@ -50,7 +50,7 @@ before treating that as a proved mutating shortcut.
 The proposed mutation should therefore stay provisional:
 
 ```bash
-bun packages/cli/bin/run.js game play set-unit-destination \
+civ7 game play set-unit-destination \
   --unit-id '{"owner":0,"id":65536,"type":26}' \
   --x 30 \
   --y 24 \
@@ -73,7 +73,7 @@ only records intent and lets Civ7 continue movement later.
 ## Proposed Command
 
 ```bash
-bun packages/cli/bin/run.js game play unit-move-preview \
+civ7 game play unit-move-preview \
   --unit-id '{"owner":0,"id":65536,"type":26}' \
   --include-paths \
   --include-post-move-actions \
@@ -84,7 +84,7 @@ Defaults should select the current head-selected unit, then first ready unit.
 The command-surface design may later expose the same lens as:
 
 ```bash
-bun packages/cli/bin/run.js game play unit preview move \
+civ7 game play unit preview move \
   --unit unit:next \
   --to 30,24 \
   --json

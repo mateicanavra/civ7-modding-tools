@@ -13,13 +13,13 @@ send city operations.
 The command is read-only by design:
 
 ```bash
-bun packages/cli/bin/run.js game play ready-city --json
+civ7 game play ready-city --json
 ```
 
 For an explicit city:
 
 ```bash
-bun packages/cli/bin/run.js game play ready-city \
+civ7 game play ready-city \
   --city-id '{"owner":0,"id":131073,"type":1}' \
   --json
 ```

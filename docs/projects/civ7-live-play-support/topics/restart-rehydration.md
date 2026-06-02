@@ -14,7 +14,7 @@ the live notification HUD with the current ready-unit view and optional
 continuity expectations:
 
 ```bash
-bun packages/cli/bin/run.js game play rehydrate --expected-turn <turn> --json
+civ7 game play rehydrate --expected-turn <turn> --json
 ```
 
 The command is deliberately a live runtime read. Local SQLite can label units,
@@ -66,7 +66,7 @@ When the active agent says the game restarted or live reads returned
 `undefined`, run:
 
 ```bash
-bun packages/cli/bin/run.js game play rehydrate \
+civ7 game play rehydrate \
   --expected-turn <last-known-turn> \
   --json
 ```

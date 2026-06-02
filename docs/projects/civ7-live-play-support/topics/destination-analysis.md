@@ -22,7 +22,7 @@ better questions to ask before movement:
 ## CLI
 
 ```bash
-bun packages/cli/bin/run.js game play destination-analysis \
+civ7 game play destination-analysis \
   --from-x 20 \
   --from-y 14 \
   --to-x 13 \
@@ -35,7 +35,7 @@ bun packages/cli/bin/run.js game play destination-analysis \
 The compact coordinate form is:
 
 ```bash
-bun packages/cli/bin/run.js game play destination-analysis \
+civ7 game play destination-analysis \
   --origin 20,14 \
   --destination 13,17 \
   --json
