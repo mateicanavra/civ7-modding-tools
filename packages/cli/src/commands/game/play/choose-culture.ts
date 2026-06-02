@@ -12,6 +12,7 @@ import {
 
 const SET_CULTURE_TREE_NODE = 'SET_CULTURE_TREE_NODE';
 const SET_CULTURE_TREE_TARGET_NODE = 'SET_CULTURE_TREE_TARGET_NODE';
+const PROGRESSION_TREE_NO_NODE = -1;
 
 export default class GamePlayChooseCulture extends Command {
   static id = 'game play choose-culture';
@@ -23,7 +24,7 @@ export default class GamePlayChooseCulture extends Command {
     '<%= config.bin %> game play choose-culture --options --json',
     '<%= config.bin %> game play choose-culture --player-id 0 --node 115 --json',
     '<%= config.bin %> game play choose-culture --player-id 0 --node 115 --send --reason "start Mysticism from live culture chooser" --json',
-    '<%= config.bin %> game play choose-culture --player-id 0 --node -1677668973 --send --closeout --reason "choose and target live Birtutu node" --json',
+    '<%= config.bin %> game play choose-culture --player-id 0 --node -1677668973 --send --closeout --reason "choose live Birtutu node and close chooser" --json',
   ];
 
   static flags = {
@@ -48,7 +49,7 @@ export default class GamePlayChooseCulture extends Command {
       default: false,
     }),
     closeout: Flags.boolean({
-      description: 'Also run SET_CULTURE_TREE_TARGET_NODE as part of the same caller-level workflow',
+      description: 'Also clear the chooser target node as part of the same caller-level workflow',
       default: false,
     }),
     reason: Flags.string({
@@ -84,7 +85,7 @@ export default class GamePlayChooseCulture extends Command {
         ],
         notes: [
           'Options come from the live notification HUD materializer, which validates SET_CULTURE_TREE_NODE and SET_CULTURE_TREE_TARGET_NODE through official PlayerOperations checks.',
-          'Use a returned enabled option cli for one caller-level choose-and-target workflow, or validate a specific node before sending.',
+          'Use a returned enabled option cli for one caller-level chooser closeout workflow, or validate a specific node before sending.',
         ],
       });
       return;
@@ -111,13 +112,13 @@ export default class GamePlayChooseCulture extends Command {
           input,
         },
         {
-          label: 'set culture target node',
+          label: 'clear culture chooser target',
           family: 'player-operation',
           input: {
             operationType: SET_CULTURE_TREE_TARGET_NODE,
             playerId: flags['player-id'],
             args: {
-              ProgressionTreeNodeType: flags.node,
+              ProgressionTreeNodeType: PROGRESSION_TREE_NO_NODE,
             },
           },
         },

@@ -453,6 +453,7 @@ describe('game play commands', () => {
       expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
       expect(server.received.some((message) => message.includes('SET_TECH_TREE_NODE'))).toBe(true);
       expect(server.received.some((message) => message.includes('SET_TECH_TREE_TARGET_NODE'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"ProgressionTreeNodeType":-1'))).toBe(true);
     } finally {
       await server.close();
     }
@@ -946,6 +947,7 @@ describe('game play commands', () => {
       expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
       expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_NODE'))).toBe(true);
       expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_TARGET_NODE'))).toBe(true);
+      expect(server.received.some((message) => message.includes('"ProgressionTreeNodeType":-1'))).toBe(true);
     } finally {
       await server.close();
     }

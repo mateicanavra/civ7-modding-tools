@@ -12,6 +12,7 @@ import {
 
 const SET_TECH_TREE_NODE = 'SET_TECH_TREE_NODE';
 const SET_TECH_TREE_TARGET_NODE = 'SET_TECH_TREE_TARGET_NODE';
+const PROGRESSION_TREE_NO_NODE = -1;
 
 export default class GamePlayChooseTech extends Command {
   static id = 'game play choose-tech';
@@ -23,7 +24,7 @@ export default class GamePlayChooseTech extends Command {
     '<%= config.bin %> game play choose-tech --options --json',
     '<%= config.bin %> game play choose-tech --player-id 0 --node -1255676052 --json',
     '<%= config.bin %> game play choose-tech --player-id 0 --node -1255676052 --send --reason "choose Masonry after advisor warning" --json',
-    '<%= config.bin %> game play choose-tech --player-id 0 --node -1255676052 --send --closeout --reason "choose and target live Masonry node" --json',
+    '<%= config.bin %> game play choose-tech --player-id 0 --node -1255676052 --send --closeout --reason "choose live Masonry node and close chooser" --json',
   ];
 
   static flags = {
@@ -48,7 +49,7 @@ export default class GamePlayChooseTech extends Command {
       default: false,
     }),
     closeout: Flags.boolean({
-      description: 'Also run SET_TECH_TREE_TARGET_NODE as part of the same caller-level workflow',
+      description: 'Also clear the chooser target node as part of the same caller-level workflow',
       default: false,
     }),
     reason: Flags.string({
@@ -85,7 +86,7 @@ export default class GamePlayChooseTech extends Command {
         ],
         notes: [
           'Options come from the live notification HUD materializer, which validates SET_TECH_TREE_NODE and SET_TECH_TREE_TARGET_NODE through official PlayerOperations checks.',
-          'Use a returned enabled option cli for one caller-level choose-and-target workflow, or validate a specific node before sending.',
+          'Use a returned enabled option cli for one caller-level chooser closeout workflow, or validate a specific node before sending.',
         ],
       });
       return;
@@ -112,13 +113,13 @@ export default class GamePlayChooseTech extends Command {
           input,
         },
         {
-          label: 'set technology target node',
+          label: 'clear technology chooser target',
           family: 'player-operation',
           input: {
             operationType: SET_TECH_TREE_TARGET_NODE,
             playerId: flags['player-id'],
             args: {
-              ProgressionTreeNodeType: flags.node,
+              ProgressionTreeNodeType: PROGRESSION_TREE_NO_NODE,
             },
           },
         },

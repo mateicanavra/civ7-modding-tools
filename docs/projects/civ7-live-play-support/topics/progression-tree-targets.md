@@ -35,6 +35,12 @@ culture surface is populated from the official
 validator checks. Enabled options include ready-to-send `--send --closeout`
 templates; disabled options are evidence, not safe sends.
 
+For chooser notifications, `--closeout` mirrors the official chooser screens:
+send the chosen `SET_*_TREE_NODE`, then clear the temporary chooser target with
+`SET_*_TREE_TARGET_NODE { ProgressionTreeNodeType: NO_NODE }`. Use
+`game play set-tech-target` or `game play set-culture-target` when the full tree
+should deliberately target a later node.
+
 ## Official UI Evidence
 
 The tech and culture full-tree screens share the same pattern:
@@ -54,7 +60,7 @@ Local anchors:
   uses `SET_CULTURE_TREE_NODE` and `SET_CULTURE_TREE_TARGET_NODE`.
 - `.civ7/outputs/resources/Base/modules/base-standard/ui/tech-tree-chooser/screen-tech-tree-chooser.js`
   clears the target with `SET_TECH_TREE_TARGET_NODE { ProgressionTreeNodeType:
-  NO_NODE }` after chooser selection.
+  NO_NODE }` after chooser selection; live enum probe: `NO_NODE = -1`.
 - `.civ7/outputs/resources/Base/modules/base-standard/ui/culture-tree-chooser/screen-culture-tree-chooser.js`
   clears the target with `SET_CULTURE_TREE_TARGET_NODE { ProgressionTreeNodeType:
   NO_NODE }` after chooser selection.
@@ -77,7 +83,7 @@ choose-node alone was insufficient.
 
 ## CLI Use
 
-Start current culture research and close the matching target-node surface as
+Start current culture research and close the matching chooser surface as
 one caller-level workflow:
 
 ```bash
@@ -102,4 +108,5 @@ civ7 game play set-culture-target \
 ```
 
 The same distinction applies to technology with `game play choose-tech
---closeout` and `game play set-tech-target`.
+--closeout` for chooser closeout and `game play set-tech-target` for deliberate
+full-tree target planning.
