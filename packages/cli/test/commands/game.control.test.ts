@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { once } from 'node:events';
 import { type AddressInfo, createServer } from 'node:net';
 import GameExec from '../../src/commands/game/exec';
@@ -45,6 +45,63 @@ describe('game direct-control commands', () => {
     } finally {
       await server.close();
     }
+  });
+
+  test('reports structured tuner socket diagnostics when disconnected', async () => {
+    const port = await findUnusedPort();
+    const writes: string[] = [];
+    const log = vi.spyOn(GameHealth.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      await GameHealth.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--timeout-ms',
+        '200',
+        '--tuner',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: boolean;
+        health: {
+          ready: boolean;
+          status: string;
+          host: string;
+          port: number;
+          error: { code?: string; message: string };
+          recoveryHints: string[];
+        };
+      };
+      expect(payload.ok).toBe(false);
+      expect(payload.health.ready).toBe(false);
+      expect(payload.health.status).toBe('unavailable');
+      expect(payload.health.host).toBe('127.0.0.1');
+      expect(payload.health.port).toBe(port);
+      expect(payload.health.error.code).toBe('all-hosts-unavailable');
+      expect(payload.health.error.message).toContain('Unable to reach Civ7 tuner socket');
+      expect(payload.health.recoveryHints.join(' ')).toContain(`lsof -nP -iTCP:${port}`);
+      expect(payload.health.recoveryHints.join(' ')).toContain('CIV7_TUNER_HOST');
+    } finally {
+      log.mockRestore();
+    }
+  });
+
+  test('reports tuner socket unavailability in non-json output', async () => {
+    const port = await findUnusedPort();
+
+    await expect(GameHealth.run([
+      '--host',
+      '127.0.0.1',
+      '--port',
+      String(port),
+      '--timeout-ms',
+      '200',
+      '--tuner',
+    ])).rejects.toThrow(/Civ7 tuner unavailable: Unable to reach Civ7 tuner socket/);
   });
 
   test('inspects runtime API roots in a selected state', async () => {
@@ -170,6 +227,15 @@ describe('game direct-control commands', () => {
     }
   });
 });
+
+async function findUnusedPort(): Promise<number> {
+  const server = createServer();
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const port = (server.address() as AddressInfo).port;
+  server.close();
+  await once(server, 'close');
+  return port;
+}
 
 async function startTunerServer() {
   const received: string[] = [];

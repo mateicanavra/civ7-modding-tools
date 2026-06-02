@@ -1,5 +1,9 @@
 import { Command, Flags } from '@oclif/core';
-import { checkCiv7DirectControlHealth, checkCiv7TunerHealth } from '@civ7/direct-control';
+import {
+  checkCiv7DirectControlHealth,
+  checkCiv7TunerHealth,
+  resolveCiv7DirectControlConfig,
+} from '@civ7/direct-control';
 
 export default class GameHealth extends Command {
   static id = 'game health';
@@ -40,10 +44,27 @@ export default class GameHealth extends Command {
   public async run(): Promise<void> {
     const { flags } = await this.parse(GameHealth);
     if (flags.tuner) {
-      const health = await checkCiv7TunerHealth({
+      const options = {
         host: flags.host,
         port: flags.port,
         timeoutMs: flags['timeout-ms'],
+      };
+      const health = await checkCiv7TunerHealth(options).catch((error: unknown) => {
+        const config = resolveCiv7DirectControlConfig(options);
+        return {
+          ready: false as const,
+          status: 'unavailable' as const,
+          host: config.hosts[0],
+          hosts: config.hosts,
+          port: config.port,
+          error: serializeError(error),
+          recoveryHints: [
+            `Check whether the tuner socket is listening: lsof -nP -iTCP:${config.port} -sTCP:LISTEN`,
+            'Verify Civilization VII is running with tuner support enabled; CivMods alone does not prove the socket is active.',
+            'If using a non-default endpoint, set CIV7_TUNER_HOST/CIV7_TUNER_HOSTS and CIV7_TUNER_PORT or pass --host/--port.',
+            'After restoring the socket, re-run civ7 game health --tuner --json before issuing gameplay commands.',
+          ],
+        };
       });
 
       if (flags.json) {
@@ -52,6 +73,9 @@ export default class GameHealth extends Command {
       }
 
       if (!health.ready) {
+        if ('error' in health) {
+          this.error(`Civ7 tuner unavailable: ${health.error.message}`, { exit: 1 });
+        }
         this.error('Civ7 Tuner state is reachable but gameplay APIs are not ready', { exit: 1 });
       }
 
@@ -84,4 +108,14 @@ export default class GameHealth extends Command {
       this.log(`Selected state: ${health.selectedState.name} (${health.selectedState.id})`);
     }
   }
+}
+
+function serializeError(error: unknown): { name: string; message: string; code?: string; details?: unknown } {
+  const record = error && typeof error === 'object' ? error as Record<string, unknown> : {};
+  return {
+    name: error instanceof Error ? error.name : 'Error',
+    message: error instanceof Error ? error.message : String(error),
+    code: typeof record.code === 'string' ? record.code : undefined,
+    details: record.details,
+  };
 }
