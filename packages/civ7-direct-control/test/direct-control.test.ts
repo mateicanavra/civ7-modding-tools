@@ -452,6 +452,48 @@ describe("Civ7 direct control", () => {
     }
   });
 
+  test("uses panel dismiss for expired non-user-dismissible stale front notifications when blocker enum is none", async () => {
+    const server = await startTunerServer({ notificationDismissalMode: "expired-engine-front-none-blocker" });
+    try {
+      const { port } = server.address();
+      const notificationId = { owner: 0, id: 113, type: 20 };
+      const plan = await getCiv7NotificationDismissal(
+        { notificationId },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+      );
+      const request = await requestCiv7NotificationDismissal(
+        { notificationId },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test expired stale front panel close control" },
+      );
+
+      expect(plan).toMatchObject({
+        canDismiss: true,
+        before: {
+          canUserDismiss: false,
+          expired: true,
+          endTurnBlockingType: { ok: true, value: 0 },
+          isEngineQueueFront: { ok: true, value: true },
+        },
+      });
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(true);
+      expect(request.result?.panelCloseControl).toMatchObject({
+        ok: true,
+        attempted: true,
+        available: true,
+        path: "Game.Notifications.dismiss",
+      });
+      expect(request.after).toMatchObject({
+        exists: false,
+        engineQueueContains: { ok: true, value: false },
+        isEngineQueueFront: { ok: true, value: false },
+      });
+    } finally {
+      await server.close();
+    }
+  });
+
   test("plans and sends unit target actions through official target order", async () => {
     const server = await startTunerServer();
     try {
@@ -1601,7 +1643,7 @@ async function startTunerServer(options: {
   tunerReady?: boolean;
   mapSummaryHashes?: ReadonlyArray<number>;
   unitTargetMode?: "verified" | "no-op-after-send";
-  notificationDismissalMode?: "verified" | "engine-front-train-absent" | "engine-front-dismissed" | "engine-front-none-blocker";
+  notificationDismissalMode?: "verified" | "engine-front-train-absent" | "engine-front-dismissed" | "engine-front-none-blocker" | "expired-engine-front-none-blocker";
 } = {}) {
   const received: string[] = [];
   let loadingState = 6;
@@ -2655,11 +2697,12 @@ function readyCityView() {
 function notificationDismissal(
   send: boolean,
   settled = false,
-  mode: "verified" | "engine-front-train-absent" | "engine-front-dismissed" | "engine-front-none-blocker" = "verified",
+  mode: "verified" | "engine-front-train-absent" | "engine-front-dismissed" | "engine-front-none-blocker" | "expired-engine-front-none-blocker" = "verified",
 ) {
   const notificationId = { owner: 0, id: 113, type: 20 };
   const trainAbsent = mode === "engine-front-train-absent";
-  const noneBlocker = mode === "engine-front-none-blocker";
+  const noneBlocker = mode === "engine-front-none-blocker" || mode === "expired-engine-front-none-blocker";
+  const expiredNonDismissible = mode === "expired-engine-front-none-blocker";
   const present = {
     id: notificationId,
     exists: true,
@@ -2669,8 +2712,8 @@ function notificationDismissal(
     message: "Wonder Completed",
     target: { owner: -1, id: -1, type: 0 },
     location: { x: -9999, y: -9999 },
-    canUserDismiss: true,
-    expired: false,
+    canUserDismiss: !expiredNonDismissible,
+    expired: expiredNonDismissible,
     dismissed: false,
     blocksTurnAdvancement: { ok: true, value: true },
     endTurnBlockingType: { ok: true, value: noneBlocker ? 0 : 2091697919 },

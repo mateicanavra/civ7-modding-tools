@@ -172,12 +172,21 @@ Official handler evidence:
   from the notification train. Notification-train absence alone is not
   dismissal proof; the closeout is only verified when the exact target
   disappears, is dismissed, or moves off the engine queue front.
+- Expired front notifications can also be stale engine-queue blockers. When
+  `Expired:true`, `CanUserDismiss:false`, and
+  `Game.Notifications.getEndTurnBlockingType(localPlayer) == NONE`, the desktop
+  panel close-control route may still call `Game.Notifications.dismiss`. The CLI
+  may attempt that route once with an explicit reason, but it is not successful
+  unless the same identity-based postcondition clears.
 
 ## Norm
 
 Use `game play dismiss-notification` only after confirming the notification is
-informational, `canUserDismiss` is true, and any reported location has been
-reviewed for tactical implications:
+informational or proven stale-expired, and any reported location has been
+reviewed for tactical implications. For ordinary report closeouts,
+`canUserDismiss` should be true; the narrow exception is an expired front
+notification with blocker enum `NONE` where the official desktop panel
+close-control path is the route under test:
 
 ```bash
 civ7 game play dismiss-notification \

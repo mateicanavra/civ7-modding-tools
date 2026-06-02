@@ -8231,11 +8231,17 @@ function notificationDismissalSource(): string {
     const readNotificationDismissal = (input, options) => {
       const notificationId = input.notificationId;
       const before = summarize(notificationId);
-      const canDismiss = before.exists === true && before.canUserDismiss === true;
+      const noneBlocker = globalThis.EndTurnBlockingTypes?.NONE ?? 0;
+      const blockerType = before.endTurnBlockingType?.ok === true ? before.endTurnBlockingType.value : null;
+      const canUseExpiredPanelCloseControl = before.exists === true
+        && before.expired === true
+        && blockerType === noneBlocker;
+      const canDismiss = before.exists === true && (before.canUserDismiss === true || canUseExpiredPanelCloseControl);
       const notes = [
         "This is an App UI notification action, not a gameplay operation family.",
         "Use it only for reviewed notifications whose official handler does not require a specialized operation.",
         "Send mode records both official actor routes: notification-train manager dismissal and the visible panel close-control dismissal when that route is available for this item.",
+        "Expired front notifications may use the desktop panel close-control route when Civ reports no typed end-turn blocker; success still requires identity-based disappearance or queue/front movement.",
         "Verification is identity-based: disappeared, dismissed, removed from the engine queue or notification train, or moved off a front position it occupied before send. Non-blocking status alone is not proof.",
         "The embedded App UI action records immediate route evidence. The direct-control wrapper performs final verification across separate App UI reads so frame-driven queues can advance."
       ];
