@@ -6087,6 +6087,79 @@ function playNotificationViewSource(): string {
         ],
       };
     };
+    const celebrationChoiceDetailsFor = (notification, typeName, notificationId) => {
+      if (!stringIncludes(typeName, "CHOOSE_GOLDEN_AGE")) return undefined;
+      const localPlayerId = GameContext.localPlayerID;
+      const player = probe(() => Players.get(localPlayerId));
+      const playerCulture = player.ok ? player.value?.Culture ?? null : null;
+      const currentGovernmentType = probe(() => playerCulture?.getGovernmentType?.() ?? null);
+      const goldenAgeDuration = probe(() => player.ok ? player.value?.Happiness?.getGoldenAgeDuration?.() ?? null : null);
+      const choices = probe(() => playerCulture?.getGoldenAgeChoices?.() ?? []);
+      const choiceRows = choices.ok && Array.isArray(choices.value) ? choices.value : [];
+      const options = [];
+      for (const choice of choiceRows) {
+        const goldenAgeDef = probe(() => GameInfo.GoldenAges.lookup(choice)).value ?? null;
+        const goldenAgeTypeName = goldenAgeDef?.GoldenAgeType ?? choice ?? null;
+        const goldenAgeHash = goldenAgeTypeName == null
+          ? { ok: false, error: "missing GoldenAgeType" }
+          : probe(() => Database.makeHash(goldenAgeTypeName));
+        const args = goldenAgeHash.ok && typeof goldenAgeHash.value === "number"
+          ? { GoldenAgeType: goldenAgeHash.value }
+          : null;
+        const validation = args
+          ? probe(() => Game.PlayerOperations.canStart(
+            localPlayerId,
+            PlayerOperationTypes.CHOOSE_GOLDEN_AGE,
+            args,
+            false,
+          ))
+          : { ok: false, error: "missing GoldenAgeType hash" };
+        const enabled = validation.ok && successFromCanStart(validation.value);
+        options.push({
+          goldenAgeType: args?.GoldenAgeType ?? null,
+          goldenAgeTypeName,
+          sourceChoice: choice,
+          name: loc(goldenAgeDef?.Name ?? goldenAgeTypeName),
+          description: loc(goldenAgeDef?.Description ?? null),
+          duration: goldenAgeDuration.ok ? goldenAgeDuration.value : null,
+          currentGovernmentType: currentGovernmentType.ok ? currentGovernmentType.value : null,
+          args,
+          enabled,
+          disabled: !enabled,
+          validation,
+          cli: enabled && args
+            ? "game play choose-celebration --player-id " + String(localPlayerId)
+              + " --golden-age-type " + String(args.GoldenAgeType)
+              + " --send --reason '<why this celebration was selected>'"
+            : null,
+          validateCli: args
+            ? "game play choose-celebration --player-id " + String(localPlayerId)
+              + " --golden-age-type " + String(args.GoldenAgeType)
+              + " --json"
+            : null,
+        });
+      }
+      const enabledOptions = options.filter((option) => option.enabled);
+      enabledOptions.sort((left, right) => String(left.name ?? left.goldenAgeTypeName ?? left.goldenAgeType)
+        .localeCompare(String(right.name ?? right.goldenAgeTypeName ?? right.goldenAgeType)));
+      const disabledOptions = options.filter((option) => option.disabled);
+      return {
+        kind: "celebration-choice-options",
+        notificationId,
+        localPlayerId,
+        source: "Players.Culture.getGoldenAgeChoices + GameInfo.GoldenAges + PlayerOperations.canStart",
+        currentGovernmentType,
+        goldenAgeDuration,
+        choices,
+        options,
+        enabledOptions,
+        disabledOptions,
+        notes: [
+          "Options mirror the official celebration chooser and validate local-player CHOOSE_GOLDEN_AGE with the hashed GoldenAgeType.",
+          "This surface is read-only and does not rank celebration choices; choose based on current strategy, then re-read blockers after sending.",
+        ],
+      };
+    };
     const governmentChoiceDetailsFor = (notification, typeName, notificationId) => {
       if (!stringIncludes(typeName, "CHOOSE_GOVERNMENT")) return undefined;
       const localPlayerId = GameContext.localPlayerID;
@@ -6273,6 +6346,7 @@ function playNotificationViewSource(): string {
         ?? diplomacyResponseDetailsFor(notification, typeName, notificationId)
         ?? technologyChoiceDetailsFor(notification, typeName, notificationId)
         ?? cultureChoiceDetailsFor(notification, typeName, notificationId)
+        ?? celebrationChoiceDetailsFor(notification, typeName, notificationId)
         ?? governmentChoiceDetailsFor(notification, typeName, notificationId)
         ?? unitCommandDetailsFor(notification, typeName, notificationId);
     };
@@ -6333,6 +6407,22 @@ function playNotificationViewSource(): string {
             action("choose government", "game play choose-government --player-id <id> --government-type <government-type> --action <action> --send --reason '<why this government was selected>'", "player-operation", "CHANGE_GOVERNMENT", "{ GovernmentType, Action: Activate }", "after reading the live government option"),
           ],
           ["Read options from the live government picker before sending; the option surface includes celebration effects for context."],
+        );
+      }
+      if (stringIncludes(haystack, "CHOOSE_GOLDEN_AGE")) {
+        return hint(
+          "celebration-choice",
+          "player-operation",
+          "CHOOSE_GOLDEN_AGE",
+          "{ GoldenAgeType }",
+          "game play choose-celebration",
+          "official-ui",
+          [requiredInput("GoldenAgeType", "live celebration chooser option", "Use the GoldenAgeType hash from choose-celebration --options, not old examples or visible row position.")],
+          [
+            action("read celebration options", "game play choose-celebration --options --json", undefined, undefined, "enabled celebration choices with validation and ready send templates", "before choosing a celebration"),
+            action("choose celebration", "game play choose-celebration --player-id <id> --golden-age-type <golden-age-type> --send --reason '<why this celebration was selected>'", "player-operation", "CHOOSE_GOLDEN_AGE", "{ GoldenAgeType }", "after reading the live celebration option"),
+          ],
+          ["Read options from the live celebration chooser before sending; this blocker is not dismissible and should not use notification dismissal."],
         );
       }
       if (stringIncludes(haystack, "NEW_POPULATION")) {

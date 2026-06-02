@@ -72,6 +72,7 @@ after any mutation or human input.
 | Informational notification | notification ComponentID; handler evidence that no specialized decision surface is required | exact `game play dismiss-notification --target ... --send ...` after review |
 | Narrative branch | story `Target`, option `TargetType`, activation `Action` | `game play choose-narrative` |
 | Government choice | live `GovernmentType` and activation `Action` from `game play choose-government --options --json` | `game play choose-government` |
+| Celebration choice | live `GoldenAgeType` hash from `game play choose-celebration --options --json` | `game play choose-celebration` |
 | Tradition review | active/unlocked tradition ids from `game play traditions`; chosen `TraditionType` and activate/deactivate `Action` | `game play traditions`; then `game play change-tradition`; then `game play consider-traditions` |
 | Attribute review | attribute `ProgressionTreeNodeType` | `game play buy-attribute`; then `game play consider-attributes` |
 | Advisor warning | notification ComponentID as `Target` | `game play advisor-warning` |

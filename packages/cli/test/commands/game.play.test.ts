@@ -707,6 +707,58 @@ describe('game play commands', () => {
     }
   });
 
+  test('reads celebration choice options without requiring a golden age type', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'celebration-choice' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayChooseCelebration.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayChooseCelebration.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--options',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          enabledOptionCount: number;
+          disabledOptionCount: number;
+          omitted: Array<{ path: string; reason: string }>;
+          surfaces: Array<{
+            kind: string;
+            enabledOptions: Array<{ goldenAgeType: number; name: string; chooseCli: string | null; duration: number }>;
+            options?: unknown;
+            disabledOptions?: unknown;
+          }>;
+          details?: unknown;
+        };
+      };
+      expect(payload.result.enabledOptionCount).toBe(2);
+      expect(payload.result.disabledOptionCount).toBe(0);
+      expect(payload.result.details).toBeUndefined();
+      expect(payload.result.surfaces[0].kind).toBe('celebration-choice-options');
+      expect(payload.result.surfaces[0].options).toBeUndefined();
+      expect(payload.result.surfaces[0].disabledOptions).toBeUndefined();
+      const culture = payload.result.surfaces[0].enabledOptions.find((option) => option.goldenAgeType === -340825966);
+      expect(culture?.name).toBe('Cultural Celebration');
+      expect(culture?.duration).toBe(10);
+      expect(culture?.chooseCli).toContain('game play choose-celebration --player-id 0 --golden-age-type -340825966 --send');
+      expect(payload.result.omitted.map((item) => item.path)).toContain('details[].options');
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+      expect(server.received.some((message) => message.includes('sendRequest('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('wraps government choice as CHANGE_GOVERNMENT', async () => {
     const server = await startTunerServer();
     try {
@@ -1148,6 +1200,54 @@ describe('game play commands', () => {
       expect(ekklesia?.cli).toContain('game play choose-culture --player-id 0 --node -869902342 --send --closeout');
       expect(details?.disabledOptions[0].name).toBe('Mysticism');
       expect(details?.disabledOptions[0].cli).toBeNull();
+      expect(payload.view.hud.nextDecision.details).toBeDefined();
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('materializes celebration choice options from the notification HUD', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'celebration-choice' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayNotifications.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayNotifications.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          notifications: Array<{
+            details?: {
+              kind: string;
+              goldenAgeDuration: { ok: boolean; value?: number };
+              choices: { ok: boolean; value?: string[] };
+              enabledOptions: Array<{ goldenAgeType: number; name: string; cli: string | null; validation: { ok: boolean; value?: { Success?: boolean } } }>;
+              disabledOptions: Array<{ goldenAgeType: number; name: string; cli: string | null }>;
+            };
+          }>;
+          hud: { nextDecision: { details?: unknown } };
+        };
+      };
+      const details = payload.view.notifications[0].details;
+      expect(details?.kind).toBe('celebration-choice-options');
+      expect(details?.goldenAgeDuration.value).toBe(10);
+      expect(details?.choices.value).toContain('GOLDEN_AGE_CLASSICAL_REPUBLIC_1');
+      expect(details?.enabledOptions.map((option) => option.name).sort()).toEqual(['Cultural Celebration', 'Wonder Production Celebration']);
+      const culture = details?.enabledOptions.find((option) => option.goldenAgeType === -340825966);
+      expect(culture?.validation.value?.Success).toBe(true);
+      expect(culture?.cli).toContain('game play choose-celebration --player-id 0 --golden-age-type -340825966 --send');
+      expect(details?.disabledOptions).toEqual([]);
       expect(payload.view.hud.nextDecision.details).toBeDefined();
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
     } finally {
@@ -1973,6 +2073,41 @@ describe('game play commands', () => {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:culture-choice');
       expect(top.command).toBe('game play choose-culture --options --json');
+      expect(payload.next).toBe(top.command);
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('surfaces celebration options command in compact priorities', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'celebration-choice' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPriorities.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+        '--compact',
+        '--no-battlefield',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        next: string | null;
+        priorities: Array<{ kind: string; command?: string; reason: string }>;
+      };
+      const top = payload.priorities[0];
+      expect(top.kind).toBe('hud:celebration-choice');
+      expect(top.command).toBe('game play choose-celebration --options --json');
       expect(payload.next).toBe(top.command);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
@@ -3231,7 +3366,7 @@ function expectOwnerOnlyContactLabels(values: readonly string[]): void {
 
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
-  playNotificationMode?: 'town-focus' | 'tech-choice' | 'culture-choice' | 'government-choice' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
+  playNotificationMode?: 'town-focus' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
   notificationDismissalMode?: 'verified' | 'stale-nonblocking';
 } = {}) {
@@ -3332,7 +3467,7 @@ async function startTunerServer(options: {
 }
 
 function playNotificationView(
-  mode: 'town-focus' | 'tech-choice' | 'culture-choice' | 'government-choice' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
+  mode: 'town-focus' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
   diplomacyCloseoutObserved = false,
 ) {
   if (mode === 'runtime-error') {
@@ -3964,6 +4099,135 @@ function playNotificationView(
             location: notification.location,
             details: notification.details,
             ...cultureDecision,
+          },
+        ],
+      },
+      limits: { maxNotifications: 25, truncated: false },
+    };
+  }
+  if (mode === 'celebration-choice') {
+    const celebrationDecision = {
+      category: 'celebration-choice',
+      operationFamily: 'player-operation',
+      operationType: 'CHOOSE_GOLDEN_AGE',
+      argsShape: '{ GoldenAgeType }',
+      cli: 'game play choose-celebration',
+      requiredInputs: [
+        {
+          name: 'GoldenAgeType',
+          source: 'live celebration chooser option',
+          required: true,
+          note: 'Use the GoldenAgeType hash from choose-celebration --options, not old examples or visible row position.',
+        },
+      ],
+      commonActions: [
+        {
+          label: 'read celebration options',
+          cli: 'game play choose-celebration --options --json',
+          argsShape: 'enabled celebration choices with validation and ready send templates',
+          when: 'before choosing a celebration',
+        },
+      ],
+      confidence: 'official-ui',
+      notes: ['Read options from the live celebration chooser before sending; this blocker is not dismissible.'],
+    };
+    const notificationId = { owner: 0, id: 110, type: 20 };
+    const optionRows = [
+      {
+        goldenAgeType: -340825966,
+        goldenAgeTypeName: 'GOLDEN_AGE_CLASSICAL_REPUBLIC_1',
+        name: 'Cultural Celebration',
+        description: '+20% Culture for 10 turns.',
+      },
+      {
+        goldenAgeType: 1923496232,
+        goldenAgeTypeName: 'GOLDEN_AGE_CLASSICAL_REPUBLIC_2',
+        name: 'Wonder Production Celebration',
+        description: '+15% Production toward Wonders for 10 turns.',
+      },
+    ];
+    const options = optionRows.map((row) => ({
+      goldenAgeType: row.goldenAgeType,
+      goldenAgeTypeName: row.goldenAgeTypeName,
+      sourceChoice: row.goldenAgeTypeName,
+      name: row.name,
+      description: row.description,
+      duration: 10,
+      currentGovernmentType: 0,
+      args: { GoldenAgeType: row.goldenAgeType },
+      enabled: true,
+      disabled: false,
+      validation: { ok: true, value: { Success: true } },
+      cli: `game play choose-celebration --player-id 0 --golden-age-type ${row.goldenAgeType} --send --reason '<why this celebration was selected>'`,
+      validateCli: `game play choose-celebration --player-id 0 --golden-age-type ${row.goldenAgeType} --json`,
+    }));
+    const details = {
+      kind: 'celebration-choice-options',
+      notificationId,
+      localPlayerId: 0,
+      source: 'Players.Culture.getGoldenAgeChoices + GameInfo.GoldenAges + PlayerOperations.canStart',
+      currentGovernmentType: { ok: true, value: 0 },
+      goldenAgeDuration: { ok: true, value: 10 },
+      choices: { ok: true, value: optionRows.map((row) => row.goldenAgeTypeName) },
+      options,
+      enabledOptions: options,
+      disabledOptions: [],
+      notes: [
+        'Static fixture mirrors the CLI/HUD contract emitted by the App UI source-backed celebration choice materializer.',
+      ],
+    };
+    const notification = {
+      id: notificationId,
+      type: -706533092,
+      typeName: 'NOTIFICATION_CHOOSE_GOLDEN_AGE',
+      groupType: null,
+      summary: 'Your people want to Celebrate this glorious time.',
+      message: 'Choose Celebration',
+      target: { owner: -1, id: -1, type: 0 },
+      location: null,
+      canUserDismiss: false,
+      expired: false,
+      dismissed: false,
+      isEndTurnBlocking: true,
+      decision: celebrationDecision,
+      details,
+    };
+    return {
+      localPlayerId: 0,
+      turn: { ok: true, value: 29 },
+      turnDate: { ok: true, value: '3300 BCE' },
+      hasSentTurnComplete: { ok: true, value: false },
+      canEndTurn: { ok: true, value: false },
+      blocker: { ok: true, value: 1783715360 },
+      blockingNotificationId: { ok: true, value: notificationId },
+      selectedUnitId: { ok: true, value: null },
+      selectedCityId: { ok: true, value: null },
+      firstReadyUnitId: { ok: true, value: null },
+      notifications: [notification],
+      decisions: [celebrationDecision],
+      hud: {
+        nextDecision: {
+          notificationId: notification.id,
+          isEndTurnBlocking: true,
+          typeName: notification.typeName,
+          summary: notification.summary,
+          message: notification.message,
+          target: notification.target,
+          location: notification.location,
+          details: notification.details,
+          ...celebrationDecision,
+        },
+        decisionQueue: [
+          {
+            notificationId: notification.id,
+            isEndTurnBlocking: true,
+            typeName: notification.typeName,
+            summary: notification.summary,
+            message: notification.message,
+            target: notification.target,
+            location: notification.location,
+            details: notification.details,
+            ...celebrationDecision,
           },
         ],
       },

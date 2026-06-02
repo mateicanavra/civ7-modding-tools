@@ -449,6 +449,10 @@ function commandFromDecisionDetails(nextDecision: { details?: unknown }): string
     const enabledOptions = asArray(record.enabledOptions);
     return enabledOptions.length > 0 ? 'game play choose-culture --options --json' : undefined;
   }
+  if (record.kind === 'celebration-choice-options') {
+    const enabledOptions = asArray(record.enabledOptions);
+    return enabledOptions.length > 0 ? 'game play choose-celebration --options --json' : undefined;
+  }
   if (record.kind === 'government-choice-options') {
     const enabledOptions = asArray(record.enabledOptions);
     return enabledOptions.length > 0 ? 'game play choose-government --options --json' : undefined;

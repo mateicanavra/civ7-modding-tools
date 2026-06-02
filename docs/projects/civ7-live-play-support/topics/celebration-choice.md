@@ -39,6 +39,17 @@ The operation family is therefore `player-operation`, the operation type is
 
 ## CLI Surface
 
+Read live celebration choices before choosing:
+
+```bash
+civ7 game play choose-celebration --options --json
+```
+
+The compact options output lists enabled `GoldenAgeType` hashes, names,
+descriptions, durations, validation status, and ready validate/send templates.
+Use `game play notifications --json` when raw option and validator evidence is
+needed.
+
 Validate a live celebration choice:
 
 ```bash
@@ -100,9 +111,5 @@ chosen only when a near-term wonder plan is already live.
 
 ## Remaining Gaps
 
-- Add a read-only `game play celebration-options` surface that lists current
-  choices with localized descriptions and hashes.
-- Add HUD classification so `NOTIFICATION_CHOOSE_GOLDEN_AGE` points directly to
-  `game play choose-celebration`.
 - Capture a live postcondition after send: blocker cleared, current celebration
   set, turns-left populated, and any policy-slot follow-up opened.
