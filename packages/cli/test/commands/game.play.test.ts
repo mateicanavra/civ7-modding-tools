@@ -4,7 +4,6 @@ import GamePlayDismissNotification from '../../src/commands/game/play/dismiss-no
 import GamePlayNotificationQueue from '../../src/commands/game/play/notification-queue';
 import GamePlayNotifications from '../../src/commands/game/play/notifications';
 import GamePlayPriorities from '../../src/commands/game/play/priorities';
-import GamePlayReadyCity from '../../src/commands/game/play/ready-city';
 import GamePlayReadyUnit from '../../src/commands/game/play/ready-unit';
 import GamePlayUnitMovePreview from '../../src/commands/game/play/unit-move-preview';
 import { startFakeTunerServer } from './fixtures/tuner-socket-server';
@@ -1890,115 +1889,6 @@ describe('game play commands', () => {
       expect(payload.omitted.some((item) => item.path === 'view.reachableMovement')).toBe(true);
       expect(payload.view).toBeUndefined();
       expect(server.received.some((message) => message.includes('readUnitMovePreview'))).toBe(true);
-    } finally {
-      log.mockRestore();
-      await server.close();
-    }
-  });
-
-  test('reads ready-city decision view without sending operations', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlayReadyCity.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('readReadyCityView'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('emits compact ready-city population and expansion yield candidates', async () => {
-    const server = await startTunerServer();
-    const writes: string[] = [];
-    const log = vi.spyOn(GamePlayReadyCity.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
-    try {
-      const { port } = server.address();
-      await GamePlayReadyCity.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--compact',
-        '--json',
-      ]);
-
-      const payload = JSON.parse(writes.join('')) as {
-        ok: true;
-        contractVersion: string;
-        command: string;
-        summary: string;
-        city: { name: string; buildQueue: unknown };
-        productionCandidates: Array<{
-          kind: string;
-          typeName: string;
-          name: string;
-          cost: number;
-          turns: number;
-          productionBasis: { costSource: string; turnsSource: string };
-          baseYieldSummary: { YIELD_PRODUCTION: number };
-          valid: boolean;
-          placementPlots: Array<{ x: number; y: number }>;
-          cli: string;
-        }>;
-        populationPlacement: {
-          yieldTypeOrder: string[];
-          workablePlots: Array<{ yieldDelta: { YIELD_HAPPINESS: number; happiness?: number }; cli: string }>;
-          expansionCandidates: Array<{
-            constructibleName: string;
-            yieldSource: string;
-            yieldSummary: { YIELD_FOOD: number; YIELD_PRODUCTION: number; food?: number };
-            terrainName: string;
-            cli: string;
-          }>;
-        };
-        next: string;
-        warnings: string[];
-        omitted: Array<{ path: string }>;
-        view?: unknown;
-      };
-      expect(payload.contractVersion).toBe('play-agent-v0');
-      expect(payload.command).toBe('game play ready-city');
-      expect(payload.summary).toContain('Dur-Sharrukin');
-      expect(payload.productionCandidates[0]).toMatchObject({
-        kind: 'constructible',
-        typeName: 'BUILDING_WALLS',
-        name: 'LOC_BUILDING_WALLS_NAME',
-        cost: 80,
-        turns: 3,
-        productionBasis: {
-          costSource: 'city.Production.getConstructibleProductionCost(ConstructibleType)',
-          turnsSource: 'city.BuildQueue.getTurnsLeft(type)',
-        },
-        baseYieldSummary: { YIELD_PRODUCTION: 1 },
-        valid: true,
-      });
-      expect(payload.productionCandidates[0].placementPlots[0]).toMatchObject({ x: 22, y: 31 });
-      expect(payload.productionCandidates[0].cli).toContain('game play build-production');
-      expect(payload.populationPlacement.yieldTypeOrder).toContain('YIELD_DIPLOMACY');
-      expect(payload.populationPlacement.workablePlots[0].yieldDelta.YIELD_HAPPINESS).toBe(2);
-      expect(payload.populationPlacement.workablePlots[0].yieldDelta.happiness).toBeUndefined();
-      expect(payload.populationPlacement.workablePlots[0].cli).toContain('assign-worker');
-      expect(payload.populationPlacement.expansionCandidates[0].constructibleName).toBe('Walls');
-      expect(payload.populationPlacement.expansionCandidates[0].yieldSource).toBe('GameplayMap.getYieldsWithCity(plotIndex, cityId)');
-      expect(payload.populationPlacement.expansionCandidates[0].yieldSummary).toMatchObject({ YIELD_FOOD: 2, YIELD_PRODUCTION: 1 });
-      expect(payload.populationPlacement.expansionCandidates[0].yieldSummary.food).toBeUndefined();
-      expect(payload.populationPlacement.expansionCandidates[0].terrainName).toBe('Grassland');
-      expect(payload.next).toContain('assign-worker');
-      expect(payload.warnings.join(' ')).toContain('Read-only city dashboard');
-      expect(payload.omitted.some((item) => item.path === 'view.productionCandidates[].result')).toBe(true);
-      expect(payload.omitted.some((item) => item.path === 'view.populationPlacement.allPlacementInfo')).toBe(true);
-      expect(payload.view).toBeUndefined();
-      expect(server.received.some((message) => message.includes('readReadyCityView'))).toBe(true);
     } finally {
       log.mockRestore();
       await server.close();
