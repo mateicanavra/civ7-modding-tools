@@ -1646,6 +1646,10 @@ export type Civ7ReadyCityProductionCandidate = Readonly<{
   typeName: string | null;
   name: string | null;
   args: unknown;
+  cost?: unknown;
+  turns?: unknown;
+  productionBasis?: unknown;
+  baseYieldSummary?: unknown;
   valid: boolean;
   result: unknown;
   placementPlots?: ReadonlyArray<unknown>;
@@ -9419,21 +9423,101 @@ function readyCityViewSource(): string {
         };
       }
     };
-    const productionCandidate = (kind, type, definition, args, result) => ({
-      kind,
-      type,
-      typeName: definition?.UnitType ?? definition?.ConstructibleType ?? definition?.ProjectType ?? null,
-      name: definition?.Name ?? null,
-      args,
-      valid: successFromCanStart(result),
-      result: safeResult(result),
-      ...(Array.isArray(result?.Plots) ? { placementPlots: result.Plots.map(plotFromIndex) } : {}),
-      cli: kind === "unit"
-        ? "game play build-production --city-id '<city-id>' --unit-type " + args.UnitType
-        : kind === "constructible"
-          ? "game play build-production --city-id '<city-id>' --constructible-type " + args.ConstructibleType + (Array.isArray(result?.Plots) && result.Plots.length > 0 ? " --x <x> --y <y>" : "")
-          : "game play build-production --city-id '<city-id>' --project-type " + args.ProjectType,
-    });
+    const constructibleBaseYieldSummary = (constructibleType) => {
+      const out = {};
+      try {
+        if (!GameInfo?.Constructible_YieldChanges) return out;
+        for (const yieldChange of GameInfo.Constructible_YieldChanges) {
+          if (yieldChange?.ConstructibleType !== constructibleType) continue;
+          out[yieldChange.YieldType ?? "YIELD_UNKNOWN"] = yieldChange.YieldChange ?? 0;
+        }
+      } catch {}
+      return out;
+    };
+    const productionBasis = (city, kind, definition, args, result) => {
+      const buildQueue = city?.BuildQueue;
+      const production = city?.Production;
+      const type = args?.UnitType ?? args?.ConstructibleType ?? args?.ProjectType ?? null;
+      const turns = (() => {
+        try {
+          return type == null || typeof buildQueue?.getTurnsLeft !== "function" ? null : buildQueue.getTurnsLeft(type);
+        } catch {
+          return null;
+        }
+      })();
+      if (kind === "constructible") {
+        const productionCost = (() => {
+          try {
+            return typeof production?.getConstructibleProductionCost === "function" ? production.getConstructibleProductionCost(args.ConstructibleType) : null;
+          } catch {
+            return null;
+          }
+        })();
+        const cost = productionCost ?? result?.Cost ?? definition?.Cost ?? null;
+        return {
+          cost,
+          turns,
+          showTurns: turns != null && turns > -1,
+          showCost: cost != null && cost > 0,
+          costSource: productionCost != null ? "city.Production.getConstructibleProductionCost(ConstructibleType)" : result?.Cost != null ? "CityOperations.canStart(...).Cost" : "GameInfo.Constructibles.Cost",
+          turnsSource: "city.BuildQueue.getTurnsLeft(type)",
+        };
+      }
+      if (kind === "unit") {
+        const cost = (() => {
+          try {
+            return typeof production?.getUnitProductionCost === "function" ? production.getUnitProductionCost(args.UnitType) : null;
+          } catch {
+            return null;
+          }
+        })();
+        return {
+          cost,
+          turns,
+          showTurns: turns != null && turns > -1,
+          showCost: cost != null && cost > 0,
+          costSource: "city.Production.getUnitProductionCost(UnitType)",
+          turnsSource: "city.BuildQueue.getTurnsLeft(type)",
+        };
+      }
+      const cost = (() => {
+        try {
+          return typeof production?.getProjectProductionCost === "function" ? production.getProjectProductionCost(args.ProjectType) : null;
+        } catch {
+          return null;
+        }
+      })();
+      return {
+        cost,
+        turns,
+        showTurns: turns != null && turns > -1,
+        showCost: cost != null && cost > 0,
+        costSource: "city.Production.getProjectProductionCost(ProjectType)",
+        turnsSource: "city.BuildQueue.getTurnsLeft(type)",
+      };
+    };
+    const productionCandidate = (city, kind, type, definition, args, result) => {
+      const basis = productionBasis(city, kind, definition, args, result);
+      return {
+        kind,
+        type,
+        typeName: definition?.UnitType ?? definition?.ConstructibleType ?? definition?.ProjectType ?? null,
+        name: definition?.Name ?? null,
+        args,
+        cost: basis.cost,
+        turns: basis.turns,
+        productionBasis: basis,
+        ...(kind === "constructible" ? { baseYieldSummary: constructibleBaseYieldSummary(definition?.ConstructibleType) } : {}),
+        valid: successFromCanStart(result),
+        result: safeResult(result),
+        ...(Array.isArray(result?.Plots) ? { placementPlots: result.Plots.map(plotFromIndex) } : {}),
+        cli: kind === "unit"
+          ? "game play build-production --city-id '<city-id>' --unit-type " + args.UnitType
+          : kind === "constructible"
+            ? "game play build-production --city-id '<city-id>' --constructible-type " + args.ConstructibleType + (Array.isArray(result?.Plots) && result.Plots.length > 0 ? " --x <x> --y <y>" : "")
+            : "game play build-production --city-id '<city-id>' --project-type " + args.ProjectType,
+      };
+    };
     const isActionableProductionResult = (result) => {
       if (!result || typeof result !== "object") return false;
       return successFromCanStart(result)
@@ -9446,6 +9530,7 @@ function readyCityViewSource(): string {
       return results
         .filter(({ result }) => isActionableProductionResult(result))
         .map(({ index, result }) => productionCandidate(
+          city,
           "constructible",
           index,
           GameInfo.Constructibles.lookup(index),
@@ -9459,6 +9544,7 @@ function readyCityViewSource(): string {
       return results
         .filter(({ result }) => isActionableProductionResult(result))
         .map(({ index, result }) => productionCandidate(
+          city,
           "unit",
           index,
           GameInfo.Units.lookup(index),
@@ -9477,7 +9563,7 @@ function readyCityViewSource(): string {
           const result = Game.CityOperations.canStart(city.id, CityOperationTypes.BUILD, args, false);
           if (result?.Requirements && result.Requirements?.FullFailure === true) return;
           if (!isActionableProductionResult(result)) return;
-          out.push(productionCandidate("project", project.$index, project, args, result));
+          out.push(productionCandidate(city, "project", project.$index, project, args, result));
         } catch {}
       });
       return out;

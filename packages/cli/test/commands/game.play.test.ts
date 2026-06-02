@@ -3242,6 +3242,10 @@ describe('game play commands', () => {
           kind: string;
           typeName: string;
           name: string;
+          cost: number;
+          turns: number;
+          productionBasis: { costSource: string; turnsSource: string };
+          baseYieldSummary: { YIELD_PRODUCTION: number };
           valid: boolean;
           placementPlots: Array<{ x: number; y: number }>;
           cli: string;
@@ -3269,6 +3273,13 @@ describe('game play commands', () => {
         kind: 'constructible',
         typeName: 'BUILDING_WALLS',
         name: 'LOC_BUILDING_WALLS_NAME',
+        cost: 80,
+        turns: 3,
+        productionBasis: {
+          costSource: 'city.Production.getConstructibleProductionCost(ConstructibleType)',
+          turnsSource: 'city.BuildQueue.getTurnsLeft(type)',
+        },
+        baseYieldSummary: { YIELD_PRODUCTION: 1 },
         valid: true,
       });
       expect(payload.productionCandidates[0].placementPlots[0]).toMatchObject({ x: 22, y: 31 });
@@ -5776,6 +5787,17 @@ function readyCityView() {
           typeName: 'BUILDING_WALLS',
           name: 'LOC_BUILDING_WALLS_NAME',
           args: { ConstructibleType: 713967338 },
+          cost: 80,
+          turns: 3,
+          productionBasis: {
+            cost: 80,
+            turns: 3,
+            showTurns: true,
+            showCost: true,
+            costSource: 'city.Production.getConstructibleProductionCost(ConstructibleType)',
+            turnsSource: 'city.BuildQueue.getTurnsLeft(type)',
+          },
+          baseYieldSummary: { YIELD_PRODUCTION: 1 },
           valid: true,
           result: { Success: true, Plots: [1457] },
           placementPlots: [{ index: 1457, x: 22, y: 31 }],

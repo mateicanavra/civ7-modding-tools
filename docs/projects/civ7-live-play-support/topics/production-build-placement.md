@@ -20,6 +20,22 @@ decision explicit. In send mode, read `productionPostcondition` before treating
 the choice as closed; a successful `BUILD` send is not by itself proof that the
 production-choice notification stopped blocking turn flow.
 
+For the read-only choice surface, prefer:
+
+```bash
+civ7 game play ready-city --compact --json
+```
+
+The compact `productionCandidates[]` rows expose source-backed `cost`, `turns`,
+`productionBasis`, and constructible `baseYieldSummary` fields. These are
+decision aids from official runtime/UI surfaces, not recommendations:
+constructible costs prefer `city.Production.getConstructibleProductionCost`,
+then validator `Cost` or `GameInfo.Constructibles.Cost`; unit/project costs
+come from `city.Production` helpers. Turns come from
+`city.BuildQueue.getTurnsLeft(type)` and should be treated as visible ETA only
+when `productionBasis.showTurns` is true; the official chooser also hides `-1`
+turn values.
+
 ## Official UI Evidence
 
 The production chooser maps item kinds into the operation args:
