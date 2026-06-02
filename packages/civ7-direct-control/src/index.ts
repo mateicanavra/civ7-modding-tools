@@ -3,6 +3,7 @@ import { homedir } from "node:os";
 import { basename, extname, join, resolve } from "node:path";
 import { Socket, createConnection } from "node:net";
 import { Type, type Static } from "typebox";
+import { Value } from "typebox/value";
 import {
   CIV7_SIGNED_INT_SEED_MAX,
   CIV7_SIGNED_INT_SEED_MIN,
@@ -342,11 +343,29 @@ export type Civ7TunerHealthResult = Readonly<{
   snapshot: Civ7TunerHealthSnapshot;
 }>;
 
-export type Civ7ComponentId = Readonly<{
-  owner: number;
-  id: number;
-  type?: number;
-}>;
+export const Civ7ComponentIdSchema = Type.Object(
+  {
+    owner: Type.Number(),
+    id: Type.Number(),
+    type: Type.Optional(Type.Number()),
+  },
+  { additionalProperties: false },
+);
+
+export type Civ7ComponentId = Static<typeof Civ7ComponentIdSchema>;
+
+export function isCiv7ComponentId(value: unknown): value is Civ7ComponentId {
+  return Value.Check(Civ7ComponentIdSchema, value);
+}
+
+export function assertCiv7ComponentId(value: unknown, label = "ComponentID"): Civ7ComponentId {
+  if (isCiv7ComponentId(value)) return value;
+  throw new Civ7DirectControlError(
+    "command-failed",
+    `${label} must be a Civ7 ComponentID object with numeric owner, id, and optional type`,
+    { details: { value } },
+  );
+}
 
 export type Civ7MapLocation = Readonly<{
   x: number;

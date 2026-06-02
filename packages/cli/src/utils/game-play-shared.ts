@@ -9,6 +9,7 @@ import {
   requestCiv7PlayerOperation,
   requestCiv7UnitCommand,
   requestCiv7UnitOperation,
+  assertCiv7ComponentId,
   type Civ7ActionApproval,
   type Civ7ComponentId,
   type Civ7DirectControlOptions,
@@ -101,7 +102,7 @@ export function resolveCoordinateFlags(input: {
 }
 
 export function parseComponentId(value: string | undefined, flag: string): Civ7ComponentId {
-  return parseJsonFlag<Civ7ComponentId>(value, flag);
+  return assertCiv7ComponentId(parseJsonFlag<unknown>(value, flag), `--${flag}`);
 }
 
 export function normalizeOperationFamily(family: PlayOperationFamilyAlias): Civ7OperationFamily {
