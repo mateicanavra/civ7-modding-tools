@@ -712,6 +712,12 @@ Residual objective gaps:
   exposes `verification.source`, `attempts`, and `observedAfterMs`. A remaining
   `no-state-change` means the bounded poll window also failed to prove unit or
   target-plot change.
+- Turn-137/138 front-line play exposed a resolver mismatch: `ready-unit` could
+  expose `RANGE_ATTACK` while `unit-target` tried the `UNITOPERATION_*` string
+  spelling and could fall through to movement. Disposition: runtime operation
+  enum resolution now accepts both official spellings, so target resolution,
+  ready-unit operations, and generic operation sends share the same enum value
+  when Civ7 exposes only one form in `UnitOperationTypes` or related enums.
 - Remaining gaps are promotion-send/hardening work: richer ready-entity reads,
   queued destination/path evidence, civic choice proof, population-placement
   postconditions, visibility-filtered path/front analysis beyond the cheap

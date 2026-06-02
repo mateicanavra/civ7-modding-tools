@@ -6071,6 +6071,18 @@ function operationRouterSource(): string {
     };
     const enumValueFor = (enums, operationType) => {
       if (enums && Object.prototype.hasOwnProperty.call(enums, operationType)) return enums[operationType];
+      if (enums && typeof operationType === "string") {
+        const normalizedKeys = [
+          operationType.replace(/^UNITOPERATION_/, ""),
+          operationType.replace(/^UNITCOMMAND_/, ""),
+          operationType.replace(/^CITYOPERATION_/, ""),
+          operationType.replace(/^CITYCOMMAND_/, ""),
+          operationType.replace(/^PLAYEROPERATION_/, ""),
+        ];
+        for (const key of normalizedKeys) {
+          if (Object.prototype.hasOwnProperty.call(enums, key)) return enums[key];
+        }
+      }
       return operationType;
     };
     const callCanStart = (router, target, enumValue, args) => {
@@ -6137,6 +6149,18 @@ function unitTargetActionSource(): string {
     };
     const enumValueFor = (enums, operationType) => {
       if (enums && Object.prototype.hasOwnProperty.call(enums, operationType)) return enums[operationType];
+      if (enums && typeof operationType === "string") {
+        const normalizedKeys = [
+          operationType.replace(/^UNITOPERATION_/, ""),
+          operationType.replace(/^UNITCOMMAND_/, ""),
+          operationType.replace(/^CITYOPERATION_/, ""),
+          operationType.replace(/^CITYCOMMAND_/, ""),
+          operationType.replace(/^PLAYEROPERATION_/, ""),
+        ];
+        for (const key of normalizedKeys) {
+          if (Object.prototype.hasOwnProperty.call(enums, key)) return enums[key];
+        }
+      }
       return operationType;
     };
     const successFromCanStart = (result) => {
@@ -7150,6 +7174,18 @@ function readyUnitViewSource(): string {
     };
     const enumValueFor = (enums, operationType) => {
       if (enums && Object.prototype.hasOwnProperty.call(enums, operationType)) return enums[operationType];
+      if (enums && typeof operationType === "string") {
+        const normalizedKeys = [
+          operationType.replace(/^UNITOPERATION_/, ""),
+          operationType.replace(/^UNITCOMMAND_/, ""),
+          operationType.replace(/^CITYOPERATION_/, ""),
+          operationType.replace(/^CITYCOMMAND_/, ""),
+          operationType.replace(/^PLAYEROPERATION_/, ""),
+        ];
+        for (const key of normalizedKeys) {
+          if (Object.prototype.hasOwnProperty.call(enums, key)) return enums[key];
+        }
+      }
       return operationType;
     };
     const successFromCanStart = (result) => {
@@ -7388,6 +7424,18 @@ function readyCityViewSource(): string {
     };
     const enumValueFor = (enums, operationType) => {
       if (enums && Object.prototype.hasOwnProperty.call(enums, operationType)) return enums[operationType];
+      if (enums && typeof operationType === "string") {
+        const normalizedKeys = [
+          operationType.replace(/^UNITOPERATION_/, ""),
+          operationType.replace(/^UNITCOMMAND_/, ""),
+          operationType.replace(/^CITYOPERATION_/, ""),
+          operationType.replace(/^CITYCOMMAND_/, ""),
+          operationType.replace(/^PLAYEROPERATION_/, ""),
+        ];
+        for (const key of normalizedKeys) {
+          if (Object.prototype.hasOwnProperty.call(enums, key)) return enums[key];
+        }
+      }
       return operationType;
     };
     const successFromCanStart = (result) => {

@@ -1311,6 +1311,7 @@ describe('game play commands', () => {
       ]);
 
       expect(server.received.some((message) => message.includes('readUnitTargetAction'))).toBe(true);
+      expect(server.received.some((message) => message.includes('operationType.replace(/^UNITOPERATION_/'))).toBe(true);
       expect(server.received.some((message) => message.includes('"send":true'))).toBe(false);
     } finally {
       await server.close();

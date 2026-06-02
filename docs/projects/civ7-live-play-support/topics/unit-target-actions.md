@@ -109,6 +109,13 @@ validated and sent, but the command did not prove a landed tactical action.
 Re-read the HUD/ready unit and choose a different proof path instead of
 repeating the same target blindly.
 
+The resolver also normalizes official enum spellings before validation. Civ7 UI
+code uses both string operation names such as `UNITOPERATION_RANGE_ATTACK` and
+enum keys such as `UnitOperationTypes.RANGE_ATTACK` for the same action family.
+If `game play ready-unit` exposes `RANGE_ATTACK` or `NAVAL_ATTACK`, `unit-target`
+should now resolve through the same enum value instead of falling through to
+`MOVE_TO` merely because the operation spelling differed.
+
 Useful interpretation:
 
 - `verified`: at least one postcondition probe changed.
