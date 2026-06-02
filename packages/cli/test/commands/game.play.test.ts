@@ -1,6 +1,4 @@
-import { once } from 'node:events';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
-import { type AddressInfo, createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, test, vi } from 'vitest';
@@ -35,6 +33,7 @@ import GamePlayTraditions from '../../src/commands/game/play/traditions';
 import GamePlayUnitMovePreview from '../../src/commands/game/play/unit-move-preview';
 import GamePlayUnitTarget from '../../src/commands/game/play/unit-target';
 import GameWatch from '../../src/commands/game/watch';
+import { startFakeTunerServer } from './fixtures/tuner-socket-server';
 
 describe('game play commands', () => {
   test('checks end-turn status without sending turn complete', async () => {
@@ -3437,104 +3436,99 @@ async function startTunerServer(options: {
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
   notificationDismissalMode?: 'verified' | 'stale-nonblocking' | 'engine-front-train-absent' | 'engine-front-dismissed';
 } = {}) {
-  const received: string[] = [];
   let turnCompleteSent = false;
   let unitTargetSendObserved = false;
   let notificationDismissalSent = false;
-  const server = createServer((socket) => {
-    let buffer = Buffer.alloc(0);
-    socket.on('data', (chunk) => {
-      buffer = Buffer.concat([buffer, chunk]);
-      for (;;) {
-        const frame = parseRequest(buffer);
-        if (!frame) return;
-        buffer = buffer.subarray(frame.bytesRead);
-        received.push(frame.message);
-        if (frame.message === 'LSQ:') {
-          socket.write(encodeResponse(frame.listenerId, ['65535', 'App UI', '1', 'Tuner']));
-        } else if (frame.message.includes('readPlayNotifications')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(playNotificationView(
-            options.playNotificationMode,
-          ))]));
-        } else if (frame.message.includes('DiplomacyPlayerFirstMeets')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify({
-            key: 'PLAYER_REALATIONSHIP_FIRSTMEET_NEUTRAL',
-            value: 673478009,
-          })]));
-        } else if (frame.message.includes('readUnitTargetAction')) {
-          const send = frame.message.includes('"send":true');
-          if (send) unitTargetSendObserved = true;
-          const mode = options.unitTargetMode === 'delayed-after-send' && unitTargetSendObserved && !send
-            ? 'delayed-observed'
-            : options.unitTargetMode;
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(unitTargetAction(send, mode))]));
-        } else if (frame.message.includes('readUnitMovePreview')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(unitMovePreviewView())]));
-        } else if (frame.message.includes('readReadyUnitView')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(readyUnitView())]));
-        } else if (frame.message.includes('readReadyCityView')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(
-            options.playNotificationMode === 'clean-read' ? cleanReadyCityView() : readyCityView(),
-          )]));
-        } else if (frame.message.includes('readSettlementRecommendations')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(settlementRecommendationsView())]));
-        } else if (frame.message.includes('readTargetCandidates')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(targetCandidatesView())]));
-        } else if (frame.message.includes('readTraditionsView')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(traditionsView())]));
-        } else if (frame.message.includes('readProgressDashboard')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(progressDashboardView())]));
-        } else if (frame.message.includes('readDestinationAnalysis')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(destinationAnalysisView())]));
-        } else if (frame.message.includes('readBattlefieldScan')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(battlefieldScanView())]));
-        } else if (frame.message.includes('readNotificationDismissal')) {
-          const send = frame.message.includes('"send":true');
-          if (send) notificationDismissalSent = true;
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(notificationDismissal(
-            send,
-            options.notificationDismissalMode ?? 'verified',
-            notificationDismissalSent && !send,
-          ))]));
-        } else if (frame.message.includes('hasSentTurnComplete')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(turnCompletionStatus(turnCompleteSent, options.canEndTurnBefore ?? true))]));
-        } else if (frame.message === 'CMD:65535:GameContext.sendTurnComplete()') {
-          turnCompleteSent = true;
-          socket.write(encodeResponse(frame.listenerId, ['true']));
-        } else if (frame.message.includes('return JSON.stringify(validateOperation')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(operationValidation(frame.message))]));
-        } else if (frame.message.includes('return JSON.stringify(sendOperation')) {
-          const unitFamily = frame.message.includes('sendOperation("unit-operation"') || frame.message.includes('sendOperation("unit-command"');
-          const operationType = operationTypeFromMessage(frame.message);
-          const populationFamily = operationType === 'ASSIGN_WORKER' || operationType === 'EXPAND';
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(unitFamily
+  return startFakeTunerServer({
+    handle({ message }) {
+      if (message.includes('readPlayNotifications')) {
+        return [JSON.stringify(playNotificationView(
+          options.playNotificationMode,
+        ))];
+      }
+      if (message.includes('DiplomacyPlayerFirstMeets')) {
+        return [JSON.stringify({
+          key: 'PLAYER_REALATIONSHIP_FIRSTMEET_NEUTRAL',
+          value: 673478009,
+        })];
+      }
+      if (message.includes('readUnitTargetAction')) {
+        const send = message.includes('"send":true');
+        if (send) unitTargetSendObserved = true;
+        const mode = options.unitTargetMode === 'delayed-after-send' && unitTargetSendObserved && !send
+          ? 'delayed-observed'
+          : options.unitTargetMode;
+        return [JSON.stringify(unitTargetAction(send, mode))];
+      }
+      if (message.includes('readUnitMovePreview')) {
+        return [JSON.stringify(unitMovePreviewView())];
+      }
+      if (message.includes('readReadyUnitView')) {
+        return [JSON.stringify(readyUnitView())];
+      }
+      if (message.includes('readReadyCityView')) {
+        return [JSON.stringify(
+          options.playNotificationMode === 'clean-read' ? cleanReadyCityView() : readyCityView(),
+        )];
+      }
+      if (message.includes('readSettlementRecommendations')) {
+        return [JSON.stringify(settlementRecommendationsView())];
+      }
+      if (message.includes('readTargetCandidates')) {
+        return [JSON.stringify(targetCandidatesView())];
+      }
+      if (message.includes('readTraditionsView')) {
+        return [JSON.stringify(traditionsView())];
+      }
+      if (message.includes('readProgressDashboard')) {
+        return [JSON.stringify(progressDashboardView())];
+      }
+      if (message.includes('readDestinationAnalysis')) {
+        return [JSON.stringify(destinationAnalysisView())];
+      }
+      if (message.includes('readBattlefieldScan')) {
+        return [JSON.stringify(battlefieldScanView())];
+      }
+      if (message.includes('readNotificationDismissal')) {
+        const send = message.includes('"send":true');
+        if (send) notificationDismissalSent = true;
+        return [JSON.stringify(notificationDismissal(
+          send,
+          options.notificationDismissalMode ?? 'verified',
+          notificationDismissalSent && !send,
+        ))];
+      }
+      if (message.includes('hasSentTurnComplete')) {
+        return [JSON.stringify(turnCompletionStatus(turnCompleteSent, options.canEndTurnBefore ?? true))];
+      }
+      if (message === 'CMD:65535:GameContext.sendTurnComplete()') {
+        turnCompleteSent = true;
+        return ['true'];
+      }
+      if (message.includes('return JSON.stringify(validateOperation')) {
+        return [JSON.stringify(operationValidation(message))];
+      }
+      if (message.includes('return JSON.stringify(sendOperation')) {
+        const unitFamily = message.includes('sendOperation("unit-operation"') || message.includes('sendOperation("unit-command"');
+        const operationType = operationTypeFromMessage(message);
+        const populationFamily = operationType === 'ASSIGN_WORKER' || operationType === 'EXPAND';
+        return [JSON.stringify(unitFamily
+          ? {
+              sent: true,
+              beforePostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 65536, type: 26 }),
+              afterPostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 131072, type: 26 }),
+            }
+          : populationFamily
             ? {
                 sent: true,
-                beforePostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 65536, type: 26 }),
-                afterPostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 131072, type: 26 }),
-                }
-              : populationFamily
-                ? {
-                    sent: true,
-                    beforePopulationPostcondition: populationPlacementPostconditionSnapshot(true),
-                    afterPopulationPostcondition: populationPlacementPostconditionSnapshot(false),
-                  }
-                : { sent: true })]));
-        } else {
-          socket.write(encodeResponse(frame.listenerId, ['null']));
-        }
+                beforePopulationPostcondition: populationPlacementPostconditionSnapshot(true),
+                afterPopulationPostcondition: populationPlacementPostconditionSnapshot(false),
+              }
+            : { sent: true })];
       }
-    });
-  });
-  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
-  return {
-    received,
-    address: () => server.address() as AddressInfo,
-    close: async () => {
-      server.close();
-      await once(server, 'close');
+      return undefined;
     },
-  };
+  });
 }
 
 function playNotificationView(
@@ -6869,31 +6863,4 @@ function operationArgs(operationType: string) {
   if (operationType === 'UNITCOMMAND_RESETTLE') return { X: 17, Y: 25 };
   if (operationType === 'UNITCOMMAND_UPGRADE') return {};
   return undefined;
-}
-
-function parseRequest(buffer: Buffer):
-  | {
-      listenerId: number;
-      message: string;
-      bytesRead: number;
-    }
-  | null {
-  if (buffer.length < 8) return null;
-  const messageLength = buffer.readUInt32LE(0);
-  const bytesRead = 8 + messageLength;
-  if (buffer.length < bytesRead) return null;
-  return {
-    listenerId: buffer.readUInt32LE(4),
-    message: buffer.subarray(8, bytesRead).toString('utf8').replace(/\0$/, ''),
-    bytesRead,
-  };
-}
-
-function encodeResponse(listenerId: number, parts: string[]): Buffer {
-  const messageBytes = Buffer.from(`${parts.join('\0')}\0`, 'utf8');
-  const frame = Buffer.alloc(8 + messageBytes.length);
-  frame.writeUInt32LE(messageBytes.length, 0);
-  frame.writeUInt32LE(listenerId, 4);
-  messageBytes.copy(frame, 8);
-  return frame;
 }
