@@ -1272,6 +1272,14 @@ export type Civ7NotificationDismissalSummary = Readonly<{
   blocksTurnAdvancement: Civ7RuntimeProbe<unknown>;
   endTurnBlockingType: Civ7RuntimeProbe<unknown>;
   isEndTurnBlocking: Civ7RuntimeProbe<boolean>;
+  engineQueueCount: Civ7RuntimeProbe<number>;
+  engineQueueContains: Civ7RuntimeProbe<boolean>;
+  engineQueueFirstId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  isEngineQueueFront: Civ7RuntimeProbe<boolean>;
+  notificationTrainCount: Civ7RuntimeProbe<number>;
+  notificationTrainContains: Civ7RuntimeProbe<boolean>;
+  notificationTrainFirstId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  isNotificationTrainFront: Civ7RuntimeProbe<boolean>;
 }>;
 
 export type Civ7NotificationDismissalResult = Readonly<{
@@ -1284,6 +1292,8 @@ export type Civ7NotificationDismissalResult = Readonly<{
   canDismiss: boolean;
   sent: boolean;
   result: unknown;
+  closeoutPath?: string | null;
+  verificationAttempts?: ReadonlyArray<Civ7NotificationDismissalSummary>;
   verified: boolean;
   notes: ReadonlyArray<string>;
 }>;
@@ -5319,7 +5329,7 @@ function buildDestinationAnalysisCommand(input: Civ7DestinationAnalysisInput & {
   })()`;
 }
 
-function buildNotificationDismissalCommand(input: Civ7NotificationDismissInput, options: { send: boolean }): string {
+function buildNotificationDismissalCommand(input: Civ7NotificationDismissInput, options: { send: boolean; verificationAttempts?: number }): string {
   return `(() => {
     ${notificationDismissalSource()}
     return JSON.stringify(readNotificationDismissal(${jsLiteral(input)}, ${jsLiteral(options)}));
@@ -6648,6 +6658,27 @@ function notificationDismissalSource(): string {
         return { error: String(err) };
       }
     };
+    const notificationTrainModel = () => typeof NotificationModel !== "undefined"
+      ? NotificationModel
+      : globalThis.NotificationModel;
+    const notificationTrainManager = () => notificationTrainModel()?.manager ?? null;
+    const notificationTrainQueueIds = () => {
+      const model = notificationTrainModel();
+      const manager = model?.manager;
+      const playerEntry = manager?.findPlayer?.(GameContext.localPlayerID);
+      if (!playerEntry || typeof playerEntry.getTypesBy !== "function") return [];
+      const queryBy = model?.QueryBy?.Priority ?? 2;
+      const entries = playerEntry.getTypesBy(queryBy, true) ?? [];
+      const ids = [];
+      for (const entry of entries) {
+        const notifications = entry?.notifications ?? [];
+        for (const id of notifications) {
+          const normalized = toComponentId(id);
+          if (normalized) ids.push(normalized);
+        }
+      }
+      return ids;
+    };
     const summarize = (id) => {
       const normalizedId = toComponentId(id);
       const notification = normalizedId ? Game.Notifications.find(normalizedId) : null;
@@ -6675,6 +6706,20 @@ function notificationDismissalSource(): string {
         const blockerId = Game.Notifications.findEndTurnBlocking(GameContext.localPlayerID, blockerType);
         return componentKey(blockerId) === componentKey(normalizedId);
       });
+      const engineQueueIds = probe(() => {
+        if (typeof Game.Notifications.getIdsForPlayer !== "function") return [];
+        const ids = Game.Notifications.getIdsForPlayer(GameContext.localPlayerID);
+        return Array.isArray(ids) ? ids.map((value) => toComponentId(value)).filter(Boolean) : [];
+      });
+      const engineIds = engineQueueIds.ok ? engineQueueIds.value : [];
+      const engineQueueFirstId = probe(() => engineIds.length > 0 ? engineIds[0] : null);
+      const engineQueueContains = probe(() => engineIds.some((value) => componentKey(value) === componentKey(normalizedId)));
+      const isEngineQueueFront = probe(() => componentKey(engineQueueFirstId.ok ? engineQueueFirstId.value : null) === componentKey(normalizedId));
+      const trainQueueIds = probe(() => notificationTrainQueueIds());
+      const trainIds = trainQueueIds.ok ? trainQueueIds.value : [];
+      const notificationTrainFirstId = probe(() => trainIds.length > 0 ? trainIds[0] : null);
+      const notificationTrainContains = probe(() => trainIds.some((value) => componentKey(value) === componentKey(normalizedId)));
+      const isNotificationTrainFront = probe(() => componentKey(notificationTrainFirstId.ok ? notificationTrainFirstId.value : null) === componentKey(normalizedId));
       return {
         id: normalizedId,
         exists: notification != null,
@@ -6708,13 +6753,72 @@ function notificationDismissalSource(): string {
           : safeNotificationValue(notification, "BlocksTurnAdvancement")),
         endTurnBlockingType,
         isEndTurnBlocking,
+        engineQueueCount: probe(() => engineIds.length),
+        engineQueueContains,
+        engineQueueFirstId,
+        isEngineQueueFront,
+        notificationTrainCount: probe(() => trainIds.length),
+        notificationTrainContains,
+        notificationTrainFirstId,
+        isNotificationTrainFront,
       };
     };
-    const verifiedDismissed = (after) => {
+    const verifiedDismissed = (before, after) => {
       if (after == null) return false;
       if (after.exists === false) return true;
       if (after.dismissed === true) return true;
-      return after.isEndTurnBlocking.ok === true && after.isEndTurnBlocking.value === false;
+      if (after.engineQueueContains?.ok === true && after.engineQueueContains.value === false) return true;
+      if (after.notificationTrainContains?.ok === true && after.notificationTrainContains.value === false) return true;
+      const wasEngineFront = before?.isEngineQueueFront?.ok === true && before.isEngineQueueFront.value === true;
+      if (wasEngineFront && after.isEngineQueueFront?.ok === true && after.isEngineQueueFront.value === false) return true;
+      const wasTrainFront = before?.isNotificationTrainFront?.ok === true && before.isNotificationTrainFront.value === true;
+      if (wasTrainFront && after.isNotificationTrainFront?.ok === true && after.isNotificationTrainFront.value === false) return true;
+      return false;
+    };
+    const notificationTrainManagerDismiss = (notificationId) => {
+      const manager = notificationTrainManager();
+      if (!manager) return { ok: false, attempted: false, available: false, reason: "NotificationModel.manager unavailable in this App UI eval scope" };
+      if (typeof manager.dismiss === "function") {
+        try {
+          const value = manager.dismiss(notificationId);
+          return { ok: true, attempted: true, available: true, path: "NotificationModel.manager.dismiss", value };
+        } catch (err) {
+          return { ok: false, attempted: true, available: true, path: "NotificationModel.manager.dismiss", error: String(err) };
+        }
+      }
+      if (typeof manager.onDismiss === "function") {
+        try {
+          const value = manager.onDismiss(notificationId);
+          return { ok: true, attempted: true, available: true, path: "NotificationModel.manager.onDismiss", value };
+        } catch (err) {
+          return { ok: false, attempted: true, available: true, path: "NotificationModel.manager.onDismiss", error: String(err) };
+        }
+      }
+      return { ok: false, attempted: false, available: false, reason: "NotificationModel.manager exposes no dismiss/onDismiss function" };
+    };
+    const panelCloseControlDismiss = (notificationId, before) => {
+      if (typeof Game.Notifications.dismiss !== "function") {
+        return { ok: false, attempted: false, available: false, reason: "Game.Notifications.dismiss unavailable in this App UI eval scope" };
+      }
+      if (before?.isEndTurnBlocking?.ok === true && before.isEndTurnBlocking.value === true) {
+        return { ok: false, attempted: false, available: false, path: "Game.Notifications.dismiss", reason: "official panel close control does not dismiss the active end-turn blocker" };
+      }
+      try {
+        return { ok: true, attempted: true, available: true, path: "Game.Notifications.dismiss", value: Game.Notifications.dismiss(notificationId) };
+      } catch (err) {
+        return { ok: false, attempted: true, available: true, path: "Game.Notifications.dismiss", error: String(err) };
+      }
+    };
+    const waitForDismissalVerification = (notificationId, before, attempts) => {
+      const out = [];
+      for (let index = 0; index < attempts; index += 1) {
+        const current = summarize(notificationId);
+        out.push(current);
+        if (verifiedDismissed(before, current)) break;
+        const waitUntil = Date.now() + 25;
+        while (Date.now() < waitUntil) {}
+      }
+      return out;
     };
     const readNotificationDismissal = (input, options) => {
       const notificationId = input.notificationId;
@@ -6722,7 +6826,10 @@ function notificationDismissalSource(): string {
       const canDismiss = before.exists === true && before.canUserDismiss === true;
       const notes = [
         "This is an App UI notification action, not a gameplay operation family.",
-        "Use it only for reviewed notifications whose official handler does not require a specialized operation."
+        "Use it only for reviewed notifications whose official handler does not require a specialized operation.",
+        "Send mode records both official actor routes: notification-train manager dismissal and the visible panel close-control dismissal when that route is available for this item.",
+        "Verification is identity-based: disappeared, dismissed, removed from the engine queue or notification train, or moved off a front position it occupied before send. Non-blocking status alone is not proof.",
+        "Verification attempts are repeated synchronous identity reads with a short settle spin inside one App UI eval; they are not an event-loop subscription."
       ];
       if (options.send !== true) {
         return {
@@ -6732,6 +6839,8 @@ function notificationDismissalSource(): string {
           canDismiss,
           sent: false,
           result: null,
+          closeoutPath: null,
+          verificationAttempts: [],
           verified: false,
           notes,
         };
@@ -6744,20 +6853,34 @@ function notificationDismissalSource(): string {
           canDismiss,
           sent: false,
           result: null,
+          closeoutPath: null,
+          verificationAttempts: [before],
           verified: false,
           notes: notes.concat(["Notification was not dismissed because canUserDismiss was not true."]),
         };
       }
-      const result = Game.Notifications.dismiss(notificationId);
-      const after = summarize(notificationId);
+      const managerResult = notificationTrainManagerDismiss(notificationId);
+      const panelCloseControlResult = panelCloseControlDismiss(notificationId, before);
+      const verificationAttempts = waitForDismissalVerification(notificationId, before, options.verificationAttempts ?? 3);
+      const after = verificationAttempts[verificationAttempts.length - 1] ?? summarize(notificationId);
+      const result = {
+        notificationTrainManager: managerResult,
+        panelCloseControl: panelCloseControlResult,
+      };
+      const closeoutPath = [managerResult, panelCloseControlResult]
+        .filter((value) => value?.attempted && value?.path)
+        .map((value) => value.path)
+        .join("+") || null;
       return {
         notificationId,
         before,
         after,
         canDismiss,
         sent: true,
+        closeoutPath,
         result,
-        verified: verifiedDismissed(after),
+        verificationAttempts,
+        verified: verifiedDismissed(before, after),
         notes,
       };
     };`;

@@ -132,6 +132,9 @@ Official handler evidence:
   report families, so they use `DefaultHandler`.
 - `DefaultHandler.activate` only looks at a valid plot when one exists. It does
   not send a player, city, or unit operation.
+- `DefaultHandler.dismiss` calls `NotificationModel.manager.onDismiss`, and
+  `NotificationModel.manager.dismiss` dispatches handler-specific dismissal
+  before falling back to manager removal.
 - The notification panel's close control calls `Game.Notifications.dismiss`
   when there is no different active end-turn-blocking notification.
 
@@ -161,9 +164,14 @@ reports carry only the notification id and summary text.
 ## Proof Boundary
 
 This shortcut proves an App UI notification closeout, not a gameplay operation.
-The useful proof is before/after notification state: the notification existed,
-was user-dismissible, was dismissed, and no longer remained the end-turn
-blocking notification.
+The useful proof is before/after notification identity and queue state, not the
+immediate boolean returned by a closeout call. The CLI executes the official
+notification-train manager closeout when available, records the visible panel
+close-control route when that route is available for the item, then rereads the
+notification state. Treat `verified:true` as proof that the notification
+disappeared, was marked dismissed, left the engine queue or notification train,
+or moved off a front position it occupied before send. `isEndTurnBlocking:
+false` by itself is not dismissal proof.
 
 For attack and disaster report families, dismissal is not a claim that the
 tactical problem is solved. It only closes the report after the agent has used

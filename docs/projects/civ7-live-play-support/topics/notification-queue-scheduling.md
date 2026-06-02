@@ -59,9 +59,12 @@ Bulk-dismiss output fields:
 - `selectedCount`: number selected under `--max-dismissals`.
 - `excluded[]`: queue items intentionally not dismissed and why.
 - `results[]`: direct-control dismissal results when `--send` is used.
-- `verified`: true only when every selected item returns a positive App UI
-  dismissal result; a completed command with `result: false` still requires a
-  fresh queue read.
+- `verified`: true only when every selected item verifies by post-dismissal
+  notification state. The per-item result records which closeout path ran; an
+  immediate closeout-route return value is route evidence, not proof. Dismissal
+  proof comes from repeated identity reads showing the notification disappeared,
+  was marked dismissed, left the engine queue or notification train, or moved
+  off a front position it occupied before send.
 
 ## Norm
 

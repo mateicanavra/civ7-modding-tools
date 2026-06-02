@@ -1710,6 +1710,10 @@ describe('game play commands', () => {
     ])).rejects.toThrow(/requires --reason/);
 
     const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayDismissNotification.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
     try {
       const { port } = server.address();
       await GamePlayDismissNotification.run([
@@ -1725,9 +1729,94 @@ describe('game play commands', () => {
         '--json',
       ]);
 
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          sent: boolean;
+          verified: boolean;
+          closeoutPath: string | null;
+          result: {
+            notificationTrainManager: { ok: boolean; attempted: boolean; path?: string };
+            panelCloseControl: { ok: boolean; attempted: boolean; reason?: string };
+          };
+          verificationAttempts: unknown[];
+        };
+      };
+      expect(payload.result.sent).toBe(true);
+      expect(payload.result.verified).toBe(true);
+      expect(payload.result.closeoutPath).toBe('NotificationModel.manager.dismiss');
+      expect(payload.result.result.notificationTrainManager.ok).toBe(true);
+      expect(payload.result.result.notificationTrainManager.attempted).toBe(true);
+      expect(payload.result.result.panelCloseControl.attempted).toBe(false);
+      expect(payload.result.result.panelCloseControl.reason).toMatch(/active end-turn blocker/);
+      expect(payload.result.verificationAttempts.length).toBeGreaterThan(1);
       expect(server.received.some((message) => message.includes('readNotificationDismissal'))).toBe(true);
       expect(server.received.some((message) => message.includes('"send":true'))).toBe(true);
+      expect(server.received.some((message) => message.includes('NotificationModel.manager'))).toBe(true);
     } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('does not verify dismissal from stale nonblocking front evidence', async () => {
+    const server = await startTunerServer({ notificationDismissalMode: 'stale-nonblocking' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayDismissNotification.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayDismissNotification.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--target',
+        '{"owner":0,"id":113,"type":20}',
+        '--send',
+        '--reason',
+        'reviewed culture tree reveal',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          sent: boolean;
+          verified: boolean;
+          result: {
+            notificationTrainManager: { ok: boolean; attempted: boolean };
+            panelCloseControl: { ok: boolean; attempted: boolean };
+          };
+          after: {
+            exists: boolean;
+            dismissed: boolean;
+            isEndTurnBlocking: { ok: boolean; value: boolean };
+            engineQueueContains: { ok: boolean; value: boolean };
+            isEngineQueueFront: { ok: boolean; value: boolean };
+            notificationTrainContains: { ok: boolean; value: boolean };
+            isNotificationTrainFront: { ok: boolean; value: boolean };
+          };
+          verificationAttempts: unknown[];
+        };
+      };
+      expect(payload.result.sent).toBe(true);
+      expect(payload.result.verified).toBe(false);
+      expect(payload.result.result.notificationTrainManager).toMatchObject({ ok: true, attempted: true });
+      expect(payload.result.result.panelCloseControl).toMatchObject({ ok: true, attempted: true });
+      expect(payload.result.after).toMatchObject({
+        exists: true,
+        dismissed: false,
+        isEndTurnBlocking: { ok: true, value: false },
+        engineQueueContains: { ok: true, value: true },
+        isEngineQueueFront: { ok: true, value: true },
+        notificationTrainContains: { ok: true, value: true },
+        isNotificationTrainFront: { ok: true, value: true },
+      });
+      expect(payload.result.verificationAttempts.length).toBeGreaterThan(1);
+    } finally {
+      log.mockRestore();
       await server.close();
     }
   });
@@ -2575,6 +2664,7 @@ async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
   playNotificationMode?: 'town-focus' | 'stale-unit-command' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
+  notificationDismissalMode?: 'verified' | 'stale-nonblocking';
 } = {}) {
   const received: string[] = [];
   let turnCompleteSent = false;
@@ -2627,7 +2717,10 @@ async function startTunerServer(options: {
         } else if (frame.message.includes('readBattlefieldScan')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(battlefieldScanView())]));
         } else if (frame.message.includes('readNotificationDismissal')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(notificationDismissal(frame.message.includes('"send":true')))]));
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(notificationDismissal(
+            frame.message.includes('"send":true'),
+            options.notificationDismissalMode ?? 'verified',
+          ))]));
         } else if (frame.message.includes('hasSentTurnComplete')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(turnCompletionStatus(turnCompleteSent, options.canEndTurnBefore ?? true))]));
         } else if (frame.message === 'CMD:65535:GameContext.sendTurnComplete()') {
@@ -4433,41 +4526,103 @@ function destinationAnalysisView() {
   };
 }
 
-function notificationDismissal(send: boolean) {
+function notificationDismissal(send: boolean, mode: 'verified' | 'stale-nonblocking' = 'verified') {
   const notificationId = { owner: 0, id: 113, type: 20 };
+  const isStaleNonblocking = mode === 'stale-nonblocking';
   const before = {
     id: notificationId,
     exists: true,
-    type: 2091697919,
-    typeName: 'NOTIFICATION_WONDER_COMPLETED',
-    summary: 'An unmet player has finished constructing the World Wonder Great Stele.',
-    message: 'Wonder Completed',
+    type: isStaleNonblocking ? -2117069996 : 2091697919,
+    typeName: isStaleNonblocking ? 'NOTIFICATION_CULTURE_TREE_REVEALED' : 'NOTIFICATION_WONDER_COMPLETED',
+    summary: isStaleNonblocking
+      ? 'A new culture tree has been revealed.'
+      : 'An unmet player has finished constructing the World Wonder Great Stele.',
+    message: isStaleNonblocking ? 'Culture Tree Revealed' : 'Wonder Completed',
     target: { owner: -1, id: -1, type: 0 },
     location: { x: -9999, y: -9999 },
     canUserDismiss: true,
     expired: false,
     dismissed: false,
-    blocksTurnAdvancement: { ok: true, value: true },
-    endTurnBlockingType: { ok: true, value: 2091697919 },
-    isEndTurnBlocking: { ok: true, value: true },
+    blocksTurnAdvancement: { ok: true, value: !isStaleNonblocking },
+    endTurnBlockingType: { ok: true, value: isStaleNonblocking ? 0 : 2091697919 },
+    isEndTurnBlocking: { ok: true, value: !isStaleNonblocking },
+    engineQueueCount: { ok: true, value: 1 },
+    engineQueueContains: { ok: true, value: true },
+    engineQueueFirstId: { ok: true, value: notificationId },
+    isEngineQueueFront: { ok: true, value: true },
+    notificationTrainCount: { ok: true, value: 1 },
+    notificationTrainContains: { ok: true, value: true },
+    notificationTrainFirstId: { ok: true, value: notificationId },
+    isNotificationTrainFront: { ok: true, value: true },
   };
-  return {
-    notificationId,
-    before,
-    after: send
-      ? {
+  const after = send
+    ? isStaleNonblocking
+      ? before
+      : {
           ...before,
           dismissed: true,
           blocksTurnAdvancement: { ok: true, value: false },
           endTurnBlockingType: { ok: true, value: 0 },
           isEndTurnBlocking: { ok: true, value: false },
+          engineQueueCount: { ok: true, value: 0 },
+          engineQueueContains: { ok: true, value: false },
+          engineQueueFirstId: { ok: true, value: null },
+          isEngineQueueFront: { ok: true, value: false },
+          notificationTrainCount: { ok: true, value: 0 },
+          notificationTrainContains: { ok: true, value: false },
+          notificationTrainFirstId: { ok: true, value: null },
+          isNotificationTrainFront: { ok: true, value: false },
         }
-      : null,
+    : null;
+  return {
+    notificationId,
+    before,
+    after,
     canDismiss: true,
     sent: send,
-    result: send ? true : null,
-    verified: send,
-    notes: ['This is an App UI notification action, not a gameplay operation family.'],
+    closeoutPath: send
+      ? isStaleNonblocking
+        ? 'NotificationModel.manager.dismiss+Game.Notifications.dismiss'
+        : 'NotificationModel.manager.dismiss'
+      : null,
+    result: send
+      ? {
+          notificationTrainManager: {
+            ok: true,
+            attempted: true,
+            available: true,
+            path: 'NotificationModel.manager.dismiss',
+          },
+          panelCloseControl: isStaleNonblocking
+            ? {
+                ok: true,
+                attempted: true,
+                available: true,
+                path: 'Game.Notifications.dismiss',
+                value: false,
+              }
+            : {
+                ok: false,
+                attempted: false,
+                available: false,
+                path: 'Game.Notifications.dismiss',
+                reason: 'official panel close control does not dismiss the active end-turn blocker',
+              },
+        }
+      : null,
+    verificationAttempts: send
+      ? [
+          before,
+          after,
+        ]
+      : [],
+    verified: send && !isStaleNonblocking,
+    notes: [
+      'This is an App UI notification action, not a gameplay operation family.',
+      'Send mode records both official actor routes: notification-train manager dismissal and the visible panel close-control dismissal when that route is available for this item.',
+      'Verification is identity-based: disappeared, dismissed, removed from the engine queue or notification train, or moved off a front position it occupied before send. Non-blocking status alone is not proof.',
+      'Verification attempts are repeated synchronous identity reads with a short settle spin inside one App UI eval; they are not an event-loop subscription.',
+    ],
   };
 }
 

@@ -119,13 +119,13 @@ export default class GamePlayDismissNotificationQueue extends Command {
       candidates: selected,
       excluded,
       results,
-      verified: flags.send ? results.every((result) => result.verified && result.result === true) : false,
+      verified: flags.send ? results.every((result) => result.verified) : false,
       notes: [
         flags.send
           ? 'Bulk dismissal sent only for eligible informational closeout candidates selected from a fresh HUD queue read.'
           : 'Dry run only. Add --send and --reason to dismiss eligible informational closeout candidates.',
         'Operation-bearing, unit-command, production, diplomacy, narrative, progression, population, and unclassified notifications are excluded.',
-        'A completed App UI call is not counted as aggregate verified unless each item returns a positive dismissal result.',
+        'A completed App UI call is not counted as aggregate verified unless each item proves dismissal from post-send notification identity/queue/front evidence.',
         'Re-read the queue after this command before making further decisions.',
       ],
     };
