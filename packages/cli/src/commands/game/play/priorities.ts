@@ -428,6 +428,9 @@ function asArray(value: unknown): Array<Record<string, unknown>> {
 }
 
 function commandFromDecision(nextDecision: Record<string, unknown>): string | undefined {
+  if (nextDecision.category === 'tradition-review') {
+    return 'game play traditions --compact --json';
+  }
   if (nextDecision.category === 'informational-notification' && nextDecision.operationFamily === 'app-ui-action') {
     const notificationId = nextDecision.notificationId;
     if (notificationId && typeof notificationId === 'object') {

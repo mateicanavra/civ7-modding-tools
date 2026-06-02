@@ -1526,6 +1526,62 @@ describe('game play commands', () => {
     }
   });
 
+  test('emits compact tradition option surface', async () => {
+    const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayTraditions.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayTraditions.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--player-id',
+        '0',
+        '--compact',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        command: string;
+        active: Array<{ id: number; name: string; sendCloseoutCli: string | null }>;
+        available: Array<{ id: number; name: string; validationSuccess: boolean; sendCloseoutCli: string | null; validateCli: string | null }>;
+        enabledAvailableCount: number;
+        disabledAvailableCount: number;
+        omitted: Array<{ path: string }>;
+        traditions?: unknown;
+      };
+      expect(payload.command).toBe('game play traditions');
+      expect(payload.traditions).toBeUndefined();
+      expect(payload.active[0]).toMatchObject({
+        id: -331546976,
+        name: 'Honor',
+        sendCloseoutCli: null,
+      });
+      expect(payload.available[0]).toMatchObject({
+        id: 90243567,
+        name: 'Oratory',
+        validationSuccess: true,
+      });
+      expect(payload.available[0].validateCli).toContain('game play change-tradition --player-id 0 --tradition-type 90243567 --action -1326475004 --json');
+      expect(payload.available[0].sendCloseoutCli).toContain('game play change-tradition --player-id 0 --tradition-type 90243567 --action -1326475004 --send --closeout');
+      expect(payload.enabledAvailableCount).toBe(1);
+      expect(payload.disabledAvailableCount).toBe(0);
+      expect(payload.omitted.map((item) => item.path)).toContain('view.traditions');
+      expect(payload.omitted.map((item) => item.path)).toContain('tradition.actionHints[].validation');
+      expect(server.received.some((message) => message.includes('readTraditionsView'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+      expect(server.received.some((message) => message.includes('sendRequest('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('emits compact progress dashboard from official runtime progress sources', async () => {
     const server = await startTunerServer();
     const writes: string[] = [];
@@ -2207,6 +2263,41 @@ describe('game play commands', () => {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:government-choice');
       expect(top.command).toBe('game play choose-government --options --json');
+      expect(payload.next).toBe(top.command);
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('surfaces tradition option reader in compact priorities', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'tradition-review' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPriorities.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+        '--compact',
+        '--no-battlefield',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        next: string | null;
+        priorities: Array<{ kind: string; command?: string; reason: string }>;
+      };
+      const top = payload.priorities[0];
+      expect(top.kind).toBe('hud:tradition-review');
+      expect(top.command).toBe('game play traditions --compact --json');
       expect(payload.next).toBe(top.command);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
@@ -3478,7 +3569,7 @@ function expectOwnerOnlyContactLabels(values: readonly string[]): void {
 
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
-  playNotificationMode?: 'town-focus' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
+  playNotificationMode?: 'town-focus' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
   notificationDismissalMode?: 'verified' | 'stale-nonblocking';
 } = {}) {
@@ -4470,6 +4561,94 @@ function playNotificationView(
             location: notification.location,
             details: notification.details,
             ...governmentDecision,
+          },
+        ],
+      },
+      limits: { maxNotifications: 25, truncated: false },
+    };
+  }
+  if (mode === 'tradition-review') {
+    const traditionDecision = {
+      category: 'tradition-review',
+      operationFamily: 'player-operation',
+      operationType: 'CHANGE_TRADITION',
+      argsShape: '{ TraditionType, Action } then CONSIDER_ASSIGN_TRADITIONS {}',
+      cli: 'game play traditions',
+      requiredInputs: [
+        {
+          name: 'TraditionType',
+          source: 'live tradition chooser',
+          required: true,
+          note: 'Pick the tradition enum that is being activated or deactivated.',
+        },
+        {
+          name: 'Action',
+          source: 'live tradition action',
+          required: true,
+          note: 'Use the activate/deactivate action enum from the tradition UI.',
+        },
+      ],
+      commonActions: [
+        {
+          label: 'read tradition options',
+          cli: 'game play traditions --compact --json',
+          argsShape: 'active and available traditions with action templates',
+          when: 'before choosing a tradition activation or deactivation',
+        },
+      ],
+      confidence: 'live-proof',
+      notes: ['Full slots may need deactivate, activate, then closeout; read the live tradition packet first.'],
+    };
+    const notificationId = { owner: 0, id: 92, type: 20 };
+    const notification = {
+      id: notificationId,
+      type: 12345,
+      typeName: 'NOTIFICATION_CONSIDER_TRADITIONS',
+      groupType: null,
+      summary: 'Review your Traditions',
+      message: 'A new Tradition slot or Tradition option is available.',
+      target: { owner: -1, id: -1, type: 0 },
+      location: null,
+      canUserDismiss: false,
+      expired: false,
+      dismissed: false,
+      isEndTurnBlocking: true,
+      decision: traditionDecision,
+    };
+    return {
+      localPlayerId: 0,
+      turn: { ok: true, value: 79 },
+      turnDate: { ok: true, value: '2050 BCE' },
+      hasSentTurnComplete: { ok: true, value: false },
+      canEndTurn: { ok: true, value: false },
+      blocker: { ok: true, value: 23669119 },
+      blockingNotificationId: { ok: true, value: notificationId },
+      selectedUnitId: { ok: true, value: null },
+      selectedCityId: { ok: true, value: null },
+      firstReadyUnitId: { ok: true, value: null },
+      notifications: [notification],
+      decisions: [traditionDecision],
+      hud: {
+        nextDecision: {
+          notificationId: notification.id,
+          isEndTurnBlocking: true,
+          typeName: notification.typeName,
+          summary: notification.summary,
+          message: notification.message,
+          target: notification.target,
+          location: notification.location,
+          ...traditionDecision,
+        },
+        decisionQueue: [
+          {
+            notificationId: notification.id,
+            isEndTurnBlocking: true,
+            typeName: notification.typeName,
+            summary: notification.summary,
+            message: notification.message,
+            target: notification.target,
+            location: notification.location,
+            ...traditionDecision,
           },
         ],
       },

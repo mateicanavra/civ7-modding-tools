@@ -6738,13 +6738,14 @@ function playNotificationViewSource(): string {
           "player-operation",
           "CHANGE_TRADITION",
           "{ TraditionType, Action } then CONSIDER_ASSIGN_TRADITIONS {}",
-          "game play change-tradition",
+          "game play traditions",
           "live-proof",
           [
             requiredInput("TraditionType", "live tradition chooser", "Pick the tradition enum that is being activated or deactivated."),
             requiredInput("Action", "live tradition action", "Use the activate/deactivate action enum from the tradition UI."),
           ],
           [
+            action("read tradition options", "game play traditions --compact --json", "read-only", "Players.Culture tradition slot/candidate packet", "active and available traditions with action templates", "before choosing a tradition activation or deactivation"),
             action("change tradition and close review", "game play change-tradition --player-id <id> --tradition-type <tradition-type> --action <action> --send --closeout --reason '<why this tradition change was selected>'", "sequence", "CHANGE_TRADITION then CONSIDER_ASSIGN_TRADITIONS", "{ TraditionType, Action } then {}", "when a specific tradition slot change should be applied and the blocker closed as one caller workflow"),
             action("change tradition", "game play change-tradition --player-id <id> --tradition-type <tradition-type> --action <action>", "player-operation", "CHANGE_TRADITION", "{ TraditionType, Action }", "when only validation or a single tradition operation is wanted"),
             action("close tradition review", "game play consider-traditions --player-id <id>", "player-operation", "CONSIDER_ASSIGN_TRADITIONS", "{}", "after valid assignments are already in place"),

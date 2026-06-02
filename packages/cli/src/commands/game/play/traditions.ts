@@ -27,6 +27,10 @@ export default class GamePlayTraditions extends Command {
       description: 'Socket timeout',
       default: 45_000,
     }),
+    compact: Flags.boolean({
+      description: 'In JSON mode, emit a compact option surface instead of the full traditions packet',
+      default: false,
+    }),
     json: Flags.boolean({
       description: 'Emit machine-readable JSON',
       default: false,
@@ -40,7 +44,7 @@ export default class GamePlayTraditions extends Command {
     }, buildDirectControlOptions(flags));
 
     if (flags.json) {
-      this.log(JSON.stringify({ ok: true, view }));
+      this.log(JSON.stringify(flags.compact ? buildCompactTraditionsView(view) : { ok: true, view }));
       return;
     }
 
@@ -61,6 +65,89 @@ export default class GamePlayTraditions extends Command {
     for (const command of view.recommendedCli) this.log(`Next: ${command}`);
     for (const note of view.notes) this.log(`Note: ${note}`);
   }
+}
+
+function buildCompactTraditionsView(view: Awaited<ReturnType<typeof getCiv7TraditionsView>>): {
+  ok: true;
+  contractVersion: 'play-agent-v0';
+  command: 'game play traditions';
+  playerId: number;
+  turn: unknown;
+  turnDate: unknown;
+  government: unknown;
+  slots: unknown;
+  actions: unknown;
+  active: Array<Record<string, unknown>>;
+  available: Array<Record<string, unknown>>;
+  recentUnlocks: Array<Record<string, unknown>>;
+  enabledAvailableCount: number;
+  disabledAvailableCount: number;
+  recommendedCli: ReadonlyArray<string>;
+  omitted: Array<{ path: string; reason: string }>;
+  hiddenInfoPolicy: unknown;
+  notes: ReadonlyArray<string>;
+} {
+  const active = view.active.map((tradition) => compactTraditionRow(tradition, { sendCloseout: false }));
+  const available = view.available.map((tradition) => compactTraditionRow(tradition, { sendCloseout: true }));
+  const recentUnlocks = view.recentUnlocks.map((tradition) => compactTraditionRow(tradition, { sendCloseout: true }));
+  return {
+    ok: true,
+    contractVersion: 'play-agent-v0',
+    command: 'game play traditions',
+    playerId: view.playerId,
+    turn: view.turn,
+    turnDate: view.turnDate,
+    government: view.government,
+    slots: view.slots,
+    actions: view.actions,
+    active,
+    available,
+    recentUnlocks,
+    enabledAvailableCount: available.filter((tradition) => tradition.validationSuccess === true).length,
+    disabledAvailableCount: available.filter((tradition) => tradition.validationSuccess !== true).length,
+    recommendedCli: view.recommendedCli,
+    omitted: [
+      { path: 'view.traditions', reason: 'use game play traditions --json for the full active/unlocked/recent tradition packet' },
+      { path: 'tradition.actionHints[].validation', reason: 'compact rows expose validationSuccess only; use the full packet for raw validation evidence' },
+      { path: 'tradition.description', reason: 'compact rows keep names and action templates; use the full packet for localized descriptions' },
+    ],
+    hiddenInfoPolicy: view.hiddenInfoPolicy,
+    notes: [
+      'Read-only compact tradition option surface. It does not choose or send CHANGE_TRADITION.',
+      'Use validateCli before mutation when proof matters; use sendCloseoutCli only after selecting a tradition for the review blocker.',
+      'If slots are full, deactivate an active tradition first, re-read, then activate the selected available tradition.',
+    ],
+  };
+}
+
+function compactTraditionRow(
+  tradition: Awaited<ReturnType<typeof getCiv7TraditionsView>>['traditions'][number],
+  options: { sendCloseout: boolean },
+): Record<string, unknown> {
+  const action = tradition.actionHints[0];
+  const validationSuccess = action?.validation?.ok === true
+    && (action.validation.value as { Success?: unknown } | undefined)?.Success === true;
+  return {
+    id: tradition.id,
+    type: tradition.type,
+    name: tradition.name,
+    ageType: tradition.ageType,
+    cultureSlotType: tradition.cultureSlotType,
+    traitType: tradition.traitType,
+    isCrisis: tradition.isCrisis,
+    active: tradition.active,
+    unlocked: tradition.unlocked,
+    recentUnlock: tradition.recentUnlock,
+    actionKind: action?.kind ?? null,
+    action: action?.action ?? null,
+    operationType: action?.operationType ?? null,
+    validationSuccess,
+    validateCli: action?.cli ? `${action.cli} --json` : null,
+    sendCli: action?.cli ? `${action.cli} --send --reason '<why this tradition change was selected>'` : null,
+    sendCloseoutCli: options.sendCloseout && action?.cli
+      ? `${action.cli} --send --closeout --reason '<why this tradition change was selected>'`
+      : null,
+  };
 }
 
 function formatTradition(tradition: {

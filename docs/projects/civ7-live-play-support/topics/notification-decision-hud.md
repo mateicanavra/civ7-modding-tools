@@ -73,7 +73,7 @@ after any mutation or human input.
 | Narrative branch | story `Target`, option `TargetType`, activation `Action` | `game play choose-narrative` |
 | Government choice | live `GovernmentType` and activation `Action` from `game play choose-government --options --json` | `game play choose-government` |
 | Celebration choice | live `GoldenAgeType` hash from `game play choose-celebration --options --json` | `game play choose-celebration` |
-| Tradition review | active/unlocked tradition ids from `game play traditions`; chosen `TraditionType` and activate/deactivate `Action` | `game play traditions`; then `game play change-tradition`; then `game play consider-traditions` |
+| Tradition review | active/unlocked tradition ids from `game play traditions --compact --json`; chosen `TraditionType` and activate/deactivate `Action` | `game play traditions --compact --json`; then selected `sendCloseoutCli` or `game play change-tradition`; then `game play consider-traditions` |
 | Attribute review | attribute `ProgressionTreeNodeType` | `game play buy-attribute`; then `game play consider-attributes` |
 | Advisor warning | notification ComponentID as `Target` | `game play advisor-warning` |
 | Unit command | selected or first ready unit; sometimes target plot | `game play ready-unit`, then `game play unit-target` for plot actions or generic unit operation validation |
@@ -119,6 +119,10 @@ Notable handler evidence:
   `{ TraditionType: policy.$index, Action: PlayerOperationParameters.Activate
   | Deactivate }`. Use `game play traditions --json` to read the current
   slot/candidate packet before any `change-tradition --send --closeout`.
+  Compact priorities should route tradition blockers to
+  `game play traditions --compact --json` so the caller sees active slots,
+  available traditions, validation status, and ready closeout templates before
+  selecting a tradition.
 - Advisor warnings use `VIEWED_ADVISOR_WARNING` with the notification
   ComponentID as `Target`, not a generic notification dismissal.
 - `NOTIFICATION_PLAYER_MET` is a first-meet diplomacy decision. The official
