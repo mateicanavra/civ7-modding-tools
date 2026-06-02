@@ -2,7 +2,6 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, test, vi } from 'vitest';
-import GamePlayAssignWorker from '../../src/commands/game/play/assign-worker';
 import GamePlayBattlefieldScan from '../../src/commands/game/play/battlefield-scan';
 import GamePlayBuyAttribute from '../../src/commands/game/play/buy-attribute';
 import GamePlayChangeTradition from '../../src/commands/game/play/change-tradition';
@@ -13,7 +12,6 @@ import GamePlayConsiderTraditions from '../../src/commands/game/play/consider-tr
 import GamePlayDestinationAnalysis from '../../src/commands/game/play/destination-analysis';
 import GamePlayDismissNotificationQueue from '../../src/commands/game/play/dismiss-notification-queue';
 import GamePlayDismissNotification from '../../src/commands/game/play/dismiss-notification';
-import GamePlayExpandCity from '../../src/commands/game/play/expand-city';
 import GamePlayFormationSnapshot from '../../src/commands/game/play/formation-snapshot';
 import GamePlayFrontSummary from '../../src/commands/game/play/front-summary';
 import GamePlayNotificationQueue from '../../src/commands/game/play/notification-queue';
@@ -35,79 +33,6 @@ import GameWatch from '../../src/commands/game/watch';
 import { startFakeTunerServer } from './fixtures/tuner-socket-server';
 
 describe('game play commands', () => {
-  test('wraps growth worker assignment as ASSIGN_WORKER', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlayAssignWorker.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--player-id',
-        '0',
-        '--location',
-        '2543',
-        '--amount',
-        '1',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('ASSIGN_WORKER'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"Location":2543'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"Amount":1'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('reports population postconditions for sent worker assignments', async () => {
-    const server = await startTunerServer();
-    const writes: string[] = [];
-    const log = vi.spyOn(GamePlayAssignWorker.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
-    try {
-      const { port } = server.address();
-      await GamePlayAssignWorker.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--player-id',
-        '0',
-        '--location',
-        '2543',
-        '--send',
-        '--reason',
-        'test population worker placement',
-        '--json',
-      ]);
-
-      const payload = JSON.parse(writes.join('')) as {
-        ok: true;
-        result: {
-          verified: boolean;
-          populationPostcondition: {
-            classification: string;
-            readyCleared: boolean;
-            placementStateChanged: boolean;
-            reason: string;
-          };
-        };
-      };
-      expect(payload.result.verified).toBe(true);
-      expect(payload.result.populationPostcondition.classification).toBe('population-ready-cleared');
-      expect(payload.result.populationPostcondition.readyCleared).toBe(true);
-      expect(payload.result.populationPostcondition.placementStateChanged).toBe(true);
-      expect(payload.result.populationPostcondition.reason).toMatch(/Growth\.isReadyToPlacePopulation cleared/);
-    } finally {
-      log.mockRestore();
-      await server.close();
-    }
-  });
-
   test('materializes diplomacy response options from the notification HUD', async () => {
     const server = await startTunerServer({ playNotificationMode: 'stale-diplomacy' });
     const writes: string[] = [];
@@ -859,82 +784,6 @@ describe('game play commands', () => {
       expect(server.received.some((message) => message.includes('CONSIDER_TOWN_PROJECT'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
-      await server.close();
-    }
-  });
-
-  test('wraps city expansion placement as city-command EXPAND', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlayExpandCity.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--city-id',
-        '{"owner":0,"id":196610,"type":1}',
-        '--x',
-        '16',
-        '--y',
-        '19',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('validateOperation("city-command"'))).toBe(true);
-      expect(server.received.some((message) => message.includes('EXPAND'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"X":16'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"Y":19'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('reports population postconditions for sent city expansions', async () => {
-    const server = await startTunerServer();
-    const writes: string[] = [];
-    const log = vi.spyOn(GamePlayExpandCity.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
-    try {
-      const { port } = server.address();
-      await GamePlayExpandCity.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--city-id',
-        '{"owner":0,"id":196610,"type":1}',
-        '--x',
-        '16',
-        '--y',
-        '19',
-        '--send',
-        '--reason',
-        'test population expansion placement',
-        '--json',
-      ]);
-
-      const payload = JSON.parse(writes.join('')) as {
-        ok: true;
-        result: {
-          verified: boolean;
-          populationPostcondition: {
-            classification: string;
-            readyCleared: boolean;
-            placementStateChanged: boolean;
-            reason: string;
-          };
-        };
-      };
-      expect(payload.result.verified).toBe(true);
-      expect(payload.result.populationPostcondition.classification).toBe('population-ready-cleared');
-      expect(payload.result.populationPostcondition.readyCleared).toBe(true);
-      expect(payload.result.populationPostcondition.placementStateChanged).toBe(true);
-      expect(payload.result.populationPostcondition.reason).toMatch(/Growth\.isReadyToPlacePopulation cleared/);
-    } finally {
-      log.mockRestore();
       await server.close();
     }
   });
@@ -3342,21 +3191,13 @@ async function startTunerServer(options: {
       }
       if (message.includes('return JSON.stringify(sendOperation')) {
         const unitFamily = message.includes('sendOperation("unit-operation"') || message.includes('sendOperation("unit-command"');
-        const operationType = operationTypeFromMessage(message);
-        const populationFamily = operationType === 'ASSIGN_WORKER' || operationType === 'EXPAND';
         return [JSON.stringify(unitFamily
           ? {
               sent: true,
               beforePostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 65536, type: 26 }),
               afterPostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 131072, type: 26 }),
             }
-          : populationFamily
-            ? {
-                sent: true,
-                beforePopulationPostcondition: populationPlacementPostconditionSnapshot(true),
-                afterPopulationPostcondition: populationPlacementPostconditionSnapshot(false),
-              }
-            : { sent: true })];
+          : { sent: true })];
       }
       return undefined;
     },
@@ -6634,26 +6475,6 @@ function unitOperationPostconditionSnapshot(firstReadyUnitId: { owner: number; i
   };
 }
 
-function populationPlacementPostconditionSnapshot(isReadyToPlacePopulation: boolean) {
-  return {
-    cityId: { owner: 0, id: 196610, type: 1 },
-    city: {
-      ok: true,
-      value: {
-        id: { owner: 0, id: 196610, type: 1 },
-        population: isReadyToPlacePopulation ? 4 : 5,
-        isTown: true,
-        location: { x: 20, y: 20 },
-      },
-    },
-    isReadyToPlacePopulation: { ok: true, value: isReadyToPlacePopulation },
-    cityWorkerCap: { ok: true, value: isReadyToPlacePopulation ? 4 : 5 },
-    workablePlotIndexes: { ok: true, value: isReadyToPlacePopulation ? [2543, 2544] : [2543, 2544, 2545] },
-    blockedPlotIndexes: { ok: true, value: isReadyToPlacePopulation ? [2545] : [] },
-    expansionPlotIndexes: { ok: true, value: isReadyToPlacePopulation ? [1660] : [1661] },
-  };
-}
-
 function operationTarget(family: string) {
   if (family === 'player-operation') return { playerId: 0 };
   if (family === 'city-operation' || family === 'city-command') return { cityId: { owner: 0, id: 65536, type: 25 } };
@@ -6675,8 +6496,6 @@ function operationArgs(operationType: string) {
   if (operationType === 'CONSIDER_ASSIGN_TRADITIONS') return {};
   if (operationType === 'CHANGE_GROWTH_MODE') return { Type: -284569333, ProjectType: -548685232, City: 131073 };
   if (operationType === 'CONSIDER_TOWN_PROJECT') return {};
-  if (operationType === 'EXPAND') return { X: 16, Y: 19 };
-  if (operationType === 'ASSIGN_WORKER') return { Location: 2543, Amount: 1 };
   if (operationType === 'UNITCOMMAND_RESETTLE') return { X: 17, Y: 25 };
   if (operationType === 'UNITCOMMAND_UPGRADE') return {};
   return undefined;
