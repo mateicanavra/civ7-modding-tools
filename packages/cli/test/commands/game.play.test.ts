@@ -29,7 +29,6 @@ import GamePlayPromotionReadiness from '../../src/commands/game/play/promotion-r
 import GamePlayReadyCity from '../../src/commands/game/play/ready-city';
 import GamePlayReadyUnit from '../../src/commands/game/play/ready-unit';
 import GamePlayRehydrate from '../../src/commands/game/play/rehydrate';
-import GamePlayRespondDiplomacy from '../../src/commands/game/play/respond-diplomacy';
 import GamePlaySetTownFocus from '../../src/commands/game/play/set-town-focus';
 import GamePlaySettlementRecommendations from '../../src/commands/game/play/settlement-recommendations';
 import GamePlayTargetCandidates from '../../src/commands/game/play/target-candidates';
@@ -414,111 +413,6 @@ describe('game play commands', () => {
       '{"owner":0,"id":65536,"type":1}',
       '--json',
     ])).rejects.toThrow(/requires exactly one/);
-  });
-
-  test('wraps diplomacy response as RESPOND_DIPLOMATIC_ACTION', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlayRespondDiplomacy.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--player-id',
-        '0',
-        '--action-id',
-        '56',
-        '--response-type',
-        '-1907089594',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('RESPOND_DIPLOMATIC_ACTION'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"ID":56'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"Type":-1907089594'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('validates diplomacy responses as a dry-run player operation', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlayRespondDiplomacy.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--player-id',
-        '0',
-        '--action-id',
-        '8',
-        '--response-type',
-        '926305338',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('validateOperation("player-operation"'))).toBe(true);
-      expect(server.received.some((message) => message.includes('RESPOND_DIPLOMATIC_ACTION'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendDiplomacyResponseCloseout'))).toBe(false);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('sends diplomacy responses through the App UI closeout path', async () => {
-    const server = await startTunerServer({ playNotificationMode: 'stale-diplomacy' });
-    const writes: string[] = [];
-    const log = vi.spyOn(GamePlayRespondDiplomacy.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
-    try {
-      const { port } = server.address();
-      await GamePlayRespondDiplomacy.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--player-id',
-        '2',
-        '--action-id',
-        '8',
-        '--response-type',
-        '926305338',
-        '--notification-id',
-        '{"owner":0,"id":19,"type":20}',
-        '--send',
-        '--reason',
-        'test diplomacy response closeout',
-        '--json',
-      ]);
-
-      const payload = JSON.parse(writes.join('')) as {
-        ok: true;
-        result: {
-          sent: boolean;
-          verified: boolean;
-          payload: { playerId: number; notificationId: { id: number }; uiCloseout: { requested: boolean } };
-          postcondition: { classification: string; reason: string };
-        };
-      };
-      expect(payload.result.sent).toBe(true);
-      expect(payload.result.verified).toBe(true);
-      expect(payload.result.payload.playerId).toBe(0);
-      expect(payload.result.payload.notificationId.id).toBe(19);
-      expect(payload.result.payload.uiCloseout.requested).toBe(true);
-      expect(payload.result.postcondition.classification).toBe('turn-unblocked');
-      expect(payload.result.postcondition.reason).toContain('turn unblocked');
-      expect(server.received.some((message) => message.includes('sendDiplomacyResponseCloseout'))).toBe(true);
-      expect(server.received.some((message) => message.includes('GameContext.localPlayerID'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(false);
-    } finally {
-      log.mockRestore();
-      await server.close();
-    }
   });
 
   test('materializes diplomacy response options from the notification HUD', async () => {
@@ -3694,7 +3588,6 @@ async function startTunerServer(options: {
   const received: string[] = [];
   let turnCompleteSent = false;
   let unitTargetSendObserved = false;
-  let diplomacyCloseoutObserved = false;
   let notificationDismissalSent = false;
   let productionChoiceSent = false;
   const server = createServer((socket) => {
@@ -3711,11 +3604,7 @@ async function startTunerServer(options: {
         } else if (frame.message.includes('readPlayNotifications')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(playNotificationView(
             options.playNotificationMode,
-            diplomacyCloseoutObserved,
           ))]));
-        } else if (frame.message.includes('sendDiplomacyResponseCloseout')) {
-          diplomacyCloseoutObserved = true;
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(diplomacyResponseCloseout())]));
         } else if (frame.message.includes('DiplomacyPlayerFirstMeets')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify({
             key: 'PLAYER_REALATIONSHIP_FIRSTMEET_NEUTRAL',
@@ -3814,7 +3703,6 @@ async function startTunerServer(options: {
 
 function playNotificationView(
   mode: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'unit-lost-report' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'first-meet' | 'ready-unit' | 'mixed-queue' | 'clean-read' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
-  diplomacyCloseoutObserved = false,
 ) {
   if (mode === 'runtime-error') {
     const gameError = { ok: false as const, error: 'ReferenceError: Game is not defined' };
@@ -4247,7 +4135,7 @@ function playNotificationView(
       canUserDismiss: false,
       expired: true,
       dismissed: false,
-      isEndTurnBlocking: !diplomacyCloseoutObserved,
+      isEndTurnBlocking: true,
       decision: diplomacyDecision,
       details: diplomacyResponseDetails,
     };
@@ -4256,45 +4144,41 @@ function playNotificationView(
       turn: { ok: true, value: 8 },
       turnDate: { ok: true, value: '3825 BCE' },
       hasSentTurnComplete: { ok: true, value: false },
-      canEndTurn: { ok: true, value: diplomacyCloseoutObserved },
+      canEndTurn: { ok: true, value: false },
       blocker: { ok: true, value: 0 },
-      blockingNotificationId: { ok: true, value: diplomacyCloseoutObserved ? null : notification.id },
+      blockingNotificationId: { ok: true, value: notification.id },
       selectedUnitId: { ok: true, value: null },
       selectedCityId: { ok: true, value: null },
       firstReadyUnitId: { ok: true, value: null },
-      notifications: diplomacyCloseoutObserved ? [] : [notification],
-      decisions: diplomacyCloseoutObserved ? [] : [diplomacyDecision],
+      notifications: [notification],
+      decisions: [diplomacyDecision],
       hud: {
-        nextDecision: diplomacyCloseoutObserved
-          ? null
-          : {
-              notificationId: notification.id,
-              isEndTurnBlocking: true,
-              typeName: notification.typeName,
-              summary: notification.summary,
-              message: notification.message,
-              target: notification.target,
-              location: notification.location,
-              player: null,
-              details: notification.details,
-              ...diplomacyDecision,
-            },
-        decisionQueue: diplomacyCloseoutObserved
-          ? []
-          : [
-              {
-                notificationId: notification.id,
-                isEndTurnBlocking: true,
-                typeName: notification.typeName,
-                summary: notification.summary,
-                message: notification.message,
-                target: notification.target,
-                location: notification.location,
-                player: null,
-                details: notification.details,
-                ...diplomacyDecision,
-              },
-            ],
+        nextDecision: {
+          notificationId: notification.id,
+          isEndTurnBlocking: true,
+          typeName: notification.typeName,
+          summary: notification.summary,
+          message: notification.message,
+          target: notification.target,
+          location: notification.location,
+          player: null,
+          details: notification.details,
+          ...diplomacyDecision,
+        },
+        decisionQueue: [
+          {
+            notificationId: notification.id,
+            isEndTurnBlocking: true,
+            typeName: notification.typeName,
+            summary: notification.summary,
+            message: notification.message,
+            target: notification.target,
+            location: notification.location,
+            player: null,
+            details: notification.details,
+            ...diplomacyDecision,
+          },
+        ],
       },
       limits: { maxNotifications: 25, truncated: false },
     };
@@ -7036,51 +6920,6 @@ function notificationDismissal(send: boolean, mode: 'verified' | 'stale-nonblock
   };
 }
 
-function diplomacyResponseCloseout() {
-  const notificationId = { owner: 0, id: 19, type: 20 };
-  return {
-    localPlayerId: 0,
-    playerId: 0,
-    actionId: 8,
-    responseType: 926305338,
-    args: { ID: 8, Type: 926305338 },
-    notificationId,
-    discoveredNotification: { ok: true, value: notificationId },
-    activated: true,
-    activationResult: {
-      ok: true,
-      value: {
-        found: true,
-        target: { owner: 2, id: 8, type: 34 },
-        activated: true,
-        currentProjectReactionDataActionID: 8,
-      },
-    },
-    canStart: { ok: true, value: { Success: true } },
-    sent: true,
-    sendResult: { ok: true, value: true },
-    uiCloseout: {
-      requested: true,
-      acknowledgeStarted: { ok: true, value: undefined },
-      closeCurrentDiplomacyProject: { ok: true, value: undefined },
-      hide: { ok: true, value: undefined },
-    },
-    diplomacyState: {
-      before: {
-        currentProjectReactionDataActionID: 8,
-        currentProjectReactionRequestActionID: 8,
-        interfaceMode: { ok: true, value: 'INTERFACEMODE_DIPLOMACY_PROJECT_REACTION' },
-      },
-      after: {
-        currentProjectReactionDataActionID: null,
-        currentProjectReactionRequestActionID: null,
-        interfaceMode: { ok: true, value: 'INTERFACEMODE_DEFAULT' },
-      },
-    },
-    notes: ['This follows the official response-panel path more closely than a raw player-operation send.'],
-  };
-}
-
 function turnCompletionStatus(sent: boolean, canEndTurnBefore = true) {
   return {
     host: '127.0.0.1',
@@ -7253,7 +7092,6 @@ function operationArgs(operationType: string, message = '') {
   if (operationType === 'SET_CULTURE_TREE_TARGET_NODE') return { ProgressionTreeNodeType: -1677668973 };
   if (operationType === 'CHOOSE_GOLDEN_AGE') return { GoldenAgeType: -340825966 };
   if (operationType === 'CHANGE_GOVERNMENT') return { GovernmentType: 0, Action: -1326475004 };
-  if (operationType === 'RESPOND_DIPLOMATIC_ACTION') return { ID: 56, Type: -1907089594 };
   if (operationType === 'RESPOND_DIPLOMATIC_FIRST_MEET') return { Player1: 0, Player2: 2, Type: 673478009 };
   if (operationType === 'BUY_ATTRIBUTE_TREE_NODE') return { ProgressionTreeNodeType: 20 };
   if (operationType === 'CHANGE_TRADITION') return { TraditionType: -331546976, Action: -1326475004 };
