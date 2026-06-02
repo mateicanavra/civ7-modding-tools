@@ -381,7 +381,8 @@ describe('game play commands', () => {
       expect(payload.result.surfaces[0].disabledOptions).toBeUndefined();
       const masonry = payload.result.surfaces[0].enabledOptions.find((option) => option.nodeType === -1255676052);
       expect(masonry?.name).toBe('Masonry');
-      expect(masonry?.chooseCli).toContain('game play choose-tech --player-id 0 --node -1255676052 --send --closeout');
+      expect(masonry?.chooseCli).toContain('game play choose-tech --player-id 0 --node -1255676052 --send');
+      expect(masonry?.chooseCli).not.toContain('--closeout');
       expect(masonry?.turns).toBe(2);
       expect(masonry?.cost).toBe(137);
       expect(payload.result.omitted.map((item) => item.path)).toContain('details[].options');
@@ -419,7 +420,7 @@ describe('game play commands', () => {
   });
 
   test('chooses technology and sets target as one caller workflow', async () => {
-    const server = await startTunerServer();
+    const server = await startTunerServer({ playNotificationMode: 'tech-choice' });
     try {
       const { port } = server.address();
       const writes: string[] = [];
@@ -437,24 +438,138 @@ describe('game play commands', () => {
           '--node',
           '-1255676052',
           '--send',
-          '--closeout',
           '--reason',
-          'test technology target closeout',
+          'test technology target selection',
           '--json',
         ]);
       } finally {
         log.mockRestore();
       }
 
-      const payload = JSON.parse(writes.join('')) as { ok: true; result: { mode: string; stepCount: number; verified: boolean } };
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          mode: string;
+          stepCount: number;
+          verified: boolean;
+          postcondition: { classification: string; verified: boolean };
+        };
+      };
       expect(payload.result.mode).toBe('send');
       expect(payload.result.stepCount).toBe(2);
       expect(payload.result.verified).toBe(true);
+      expect(payload.result.postcondition.classification).toBe('technology-choice-cleared');
+      expect(payload.result.postcondition.verified).toBe(true);
       expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
       expect(server.received.some((message) => message.includes('SET_TECH_TREE_NODE'))).toBe(true);
       expect(server.received.some((message) => message.includes('SET_TECH_TREE_TARGET_NODE'))).toBe(true);
       expect(server.received.some((message) => message.includes('"ProgressionTreeNodeType":-1'))).toBe(true);
     } finally {
+      await server.close();
+    }
+  });
+
+  test('reports sticky technology blockers after the chooser sequence returns', async () => {
+    const server = await startTunerServer({
+      playNotificationMode: 'tech-choice',
+      technologyChoiceMode: 'sticky',
+    });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayChooseTech.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayChooseTech.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--player-id',
+        '0',
+        '--node',
+        '-1255676052',
+        '--send',
+        '--timeout-ms',
+        '1000',
+        '--reason',
+        'test sticky technology target selection',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          mode: string;
+          stepCount: number;
+          verified: boolean;
+          postcondition: { classification: string; verified: boolean; reason: string };
+        };
+      };
+      expect(payload.result.mode).toBe('send');
+      expect(payload.result.stepCount).toBe(2);
+      expect(payload.result.verified).toBe(false);
+      expect(payload.result.postcondition.verified).toBe(false);
+      expect(payload.result.postcondition.classification).toBe('technology-choice-sticky-blocker');
+      expect(payload.result.postcondition.reason).toContain('same technology choice notification still blocks');
+      expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
+      expect(server.received.some((message) => message.includes('SET_TECH_TREE_NODE'))).toBe(true);
+      expect(server.received.some((message) => message.includes('SET_TECH_TREE_TARGET_NODE'))).toBe(true);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('reports technology state changes without treating a live blocker as cleared', async () => {
+    const server = await startTunerServer({
+      playNotificationMode: 'tech-choice',
+      technologyChoiceMode: 'state-changed',
+    });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayChooseTech.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayChooseTech.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--player-id',
+        '0',
+        '--node',
+        '-1255676052',
+        '--send',
+        '--timeout-ms',
+        '1000',
+        '--reason',
+        'test technology state changed but blocker persisted',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          mode: string;
+          stepCount: number;
+          verified: boolean;
+          postcondition: { classification: string; verified: boolean; reason: string };
+        };
+      };
+      expect(payload.result.mode).toBe('send');
+      expect(payload.result.stepCount).toBe(2);
+      expect(payload.result.verified).toBe(false);
+      expect(payload.result.postcondition.verified).toBe(false);
+      expect(payload.result.postcondition.classification).toBe('technology-state-changed-blocker-still-live');
+      expect(payload.result.postcondition.reason).toContain('state changed');
+      expect(payload.result.postcondition.reason).toContain('still blocks');
+      expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
+      expect(server.received.some((message) => message.includes('SET_TECH_TREE_NODE'))).toBe(true);
+      expect(server.received.some((message) => message.includes('SET_TECH_TREE_TARGET_NODE'))).toBe(true);
+    } finally {
+      log.mockRestore();
       await server.close();
     }
   });
@@ -1500,7 +1615,8 @@ describe('game play commands', () => {
       expect(details?.enabledOptions.map((option) => option.name).sort()).toEqual(['Masonry', 'Sailing']);
       const masonry = details?.enabledOptions.find((option) => option.nodeType === -1255676052);
       expect(masonry?.chooseValidation.value?.Success).toBe(true);
-      expect(masonry?.cli).toContain('game play choose-tech --player-id 0 --node -1255676052 --send --closeout');
+      expect(masonry?.cli).toContain('game play choose-tech --player-id 0 --node -1255676052 --send');
+      expect(masonry?.cli).not.toContain('--closeout');
       expect(details?.disabledOptions[0].name).toBe('Agriculture');
       expect(details?.disabledOptions[0].cli).toBeNull();
       expect(payload.view.hud.nextDecision.details).toBeDefined();
@@ -4293,11 +4409,13 @@ async function startTunerServer(options: {
   notificationDismissalMode?: 'verified' | 'stale-nonblocking';
   productionPostconditionMode?: 'cleared' | 'blocker-still-live';
   narrativeChoiceMode?: 'panel-cleared' | 'panel-cleared-blocker-live' | 'stale';
+  technologyChoiceMode?: 'cleared' | 'sticky' | 'state-changed';
 } = {}) {
   const received: string[] = [];
   let turnCompleteSent = false;
   let unitTargetSendObserved = false;
   let narrativeChoiceSent = false;
+  let technologyChoiceSent = false;
   let diplomacyCloseoutObserved = false;
   const server = createServer((socket) => {
     let buffer = Buffer.alloc(0);
@@ -4311,12 +4429,20 @@ async function startTunerServer(options: {
         if (frame.message === 'LSQ:') {
           socket.write(encodeResponse(frame.listenerId, ['65535', 'App UI', '1', 'Tuner']));
         } else if (frame.message.includes('readPlayNotifications')) {
-          const playMode = options.playNotificationMode === 'narrative-choice-visible-panel'
+          const playMode = options.playNotificationMode === 'tech-choice'
+            && technologyChoiceSent
+            && (options.technologyChoiceMode ?? 'cleared') === 'cleared'
+            ? 'ready-unit'
+            : options.playNotificationMode === 'narrative-choice-visible-panel'
             && narrativeChoiceSent
             && (options.narrativeChoiceMode ?? 'panel-cleared') === 'panel-cleared'
             ? 'ready-unit'
             : options.playNotificationMode;
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(playNotificationView(playMode, diplomacyCloseoutObserved))]));
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(playNotificationView(
+            playMode,
+            diplomacyCloseoutObserved,
+            technologyChoiceSent && options.technologyChoiceMode === 'state-changed',
+          ))]));
         } else if (frame.message.includes('sendDiplomacyResponseCloseout')) {
           diplomacyCloseoutObserved = true;
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(diplomacyResponseCloseout())]));
@@ -4372,6 +4498,9 @@ async function startTunerServer(options: {
           const operationType = operationTypeFromMessage(frame.message);
           const populationFamily = operationType === 'ASSIGN_WORKER' || operationType === 'EXPAND';
           const productionFamily = frame.message.includes('sendOperation("city-operation"') && operationType === 'BUILD';
+          if (operationType === 'SET_TECH_TREE_NODE' || operationType === 'SET_TECH_TREE_TARGET_NODE') {
+            technologyChoiceSent = true;
+          }
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(unitFamily
             ? {
                 sent: true,
@@ -4411,6 +4540,7 @@ async function startTunerServer(options: {
 function playNotificationView(
   mode: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'clean-read' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
   diplomacyCloseoutObserved = false,
+  technologyStateChanged = false,
 ) {
   if (mode === 'runtime-error') {
     const gameError = { ok: false as const, error: 'ReferenceError: Game is not defined' };
@@ -5160,7 +5290,7 @@ function playNotificationView(
       chooseValidation: { ok: true, value: { Success: row.enabled } },
       targetValidation: { ok: true, value: { Success: row.enabled } },
       cli: row.enabled
-        ? `game play choose-tech --player-id 0 --node ${row.nodeType} --send --closeout --reason '<why this technology was selected>'`
+        ? `game play choose-tech --player-id 0 --node ${row.nodeType} --send --reason '<why this technology was selected>'`
         : null,
       validateCli: `game play choose-tech --player-id 0 --node ${row.nodeType} --json`,
       targetCli: row.enabled
@@ -5172,8 +5302,8 @@ function playNotificationView(
       notificationId,
       localPlayerId: 0,
       source: 'GameInfo.ProgressionTrees + Game.ProgressionTrees + PlayerOperations.canStart',
-      currentResearching: { ok: true, value: null },
-      targetNode: { ok: true, value: null },
+      currentResearching: { ok: true, value: technologyStateChanged ? -1255676052 : null },
+      targetNode: { ok: true, value: technologyStateChanged ? -1 : null },
       techTrees: {
         ok: true,
         value: [{ treeType: -153498200, treeTypeName: 'TREE_TECHS_AQ', name: 'Technology', ageType: 'AGE_ANTIQUITY' }],

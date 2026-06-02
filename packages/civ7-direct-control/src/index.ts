@@ -6187,7 +6187,7 @@ function playNotificationViewSource(): string {
             cli: chooseEnabled
               ? "game play choose-tech --player-id " + String(localPlayerId)
                 + " --node " + String(numericNodeType)
-                + " --send --closeout --reason '<why this technology was selected>'"
+                + " --send --reason '<why this technology was selected>'"
               : null,
             validateCli: "game play choose-tech --player-id " + String(localPlayerId)
               + " --node " + String(numericNodeType) + " --json",
@@ -6220,7 +6220,7 @@ function playNotificationViewSource(): string {
         disabledOptions,
         notes: [
           "Options are read from official progression-tree structures and validated through local-player SET_TECH_TREE_NODE and SET_TECH_TREE_TARGET_NODE checks.",
-          "Use an enabled option's cli for one caller-level chooser closeout workflow; use validateCli when strategy needs inspection before sending.",
+          "Use an enabled option's cli for one caller-level technology selection; choose-tech send mode clears the chooser target internally.",
         ],
       };
     };
@@ -6866,11 +6866,11 @@ function playNotificationViewSource(): string {
           "live-proof",
           [requiredInput("ProgressionTreeNodeType", "live tech chooser/tree node", "Use the runtime node type hash from GameInfo/progression tree data, not the row index or notification id.")],
           [
-            action("choose tech and close chooser", "game play choose-tech --player-id <id> --node <node> --send --closeout --reason '<why this node was selected>'", "sequence", "SET_TECH_TREE_NODE then SET_TECH_TREE_TARGET_NODE", "{ ProgressionTreeNodeType: node } then { ProgressionTreeNodeType: NO_NODE }", "when one caller action should start research and close the chooser surface"),
+            action("choose tech", "game play choose-tech --player-id <id> --node <node> --send --reason '<why this node was selected>'", "sequence", "SET_TECH_TREE_NODE then SET_TECH_TREE_TARGET_NODE", "{ ProgressionTreeNodeType: node } then { ProgressionTreeNodeType: NO_NODE }", "when one caller action should start research and finish the chooser workflow"),
             action("validate tech choice", "game play choose-tech --player-id <id> --node <node>", "player-operation", "SET_TECH_TREE_NODE", "{ ProgressionTreeNodeType }", "after reading the candidate node"),
             action("set tech target", "game play set-tech-target --player-id <id> --node <node>", "player-operation", "SET_TECH_TREE_TARGET_NODE", "{ ProgressionTreeNodeType }", "when the full tree UI targets a node or choose-node alone leaves the blocker unresolved"),
           ],
-          ["Read the live tech node id before sending; full-tree UI paths can target a node separately from starting current research, while --closeout mirrors the chooser by clearing the temporary target."],
+          ["Read the live tech node id before sending; choose-tech send mode mirrors the chooser by clearing the temporary target internally."],
         );
       }
       if (stringIncludes(haystack, "CHOOSE_CULTURE") || stringIncludes(haystack, "CULTURE_TREE")) {

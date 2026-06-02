@@ -18,12 +18,13 @@ There are two related operation families:
   - `SET_CULTURE_TREE_TARGET_NODE { ProgressionTreeNodeType }`
 
 Use `game play choose-tech` and `game play choose-culture` first when the live
-chooser is asking for the next current node. Add `--closeout` when the caller
-intends one complete selection workflow and wants the CLI to also set the
-matching target node behind the scenes. Use `game play set-tech-target` or
-`game play set-culture-target` directly when the primary chooser operation was
-already sent, the full tree UI only needs a target, or a validated chooser
-operation leaves an expired tree notification blocking turn advance.
+chooser is asking for the next current node. `game play choose-tech --send`
+is one complete technology selection workflow: it starts the selected research
+node and clears the temporary chooser target behind the scenes. Use
+`game play set-tech-target` directly only when the full tree UI should
+deliberately target a later node or when diagnostics prove the primary chooser
+operation already applied. Culture still accepts `--closeout` for the same
+two-operation chooser workflow until it receives the same default-send contract.
 
 For technology blockers, read `game play choose-tech --options --json` before
 sending if the node id is not already proven. For culture blockers, read
@@ -32,14 +33,14 @@ surface is populated from `GameInfo.ProgressionTrees`,
 `Game.ProgressionTrees`, and official `PlayerOperations.canStart` checks; the
 culture surface is populated from the official
 `Players.Culture.getAllAvailableNodeTypes()` chooser list plus the same
-validator checks. Enabled options include ready-to-send `--send --closeout`
+validator checks. Enabled technology options include ready-to-send `--send`
 templates; disabled options are evidence, not safe sends.
 
-For chooser notifications, `--closeout` mirrors the official chooser screens:
-send the chosen `SET_*_TREE_NODE`, then clear the temporary chooser target with
-`SET_*_TREE_TARGET_NODE { ProgressionTreeNodeType: NO_NODE }`. Use
-`game play set-tech-target` or `game play set-culture-target` when the full tree
-should deliberately target a later node.
+For chooser notifications, the complete workflow mirrors the official chooser
+screens: send the chosen `SET_*_TREE_NODE`, then clear the temporary chooser
+target with `SET_*_TREE_TARGET_NODE { ProgressionTreeNodeType: NO_NODE }`. Use
+`game play set-tech-target` or `game play set-culture-target` only when the full
+tree should deliberately target a later node.
 
 ## Official UI Evidence
 
@@ -107,6 +108,6 @@ civ7 game play set-culture-target \
   --json
 ```
 
-The same distinction applies to technology with `game play choose-tech
---closeout` for chooser closeout and `game play set-tech-target` for deliberate
+The same distinction applies to technology with `game play choose-tech --send`
+for the complete chooser workflow and `game play set-tech-target` for deliberate
 full-tree target planning.

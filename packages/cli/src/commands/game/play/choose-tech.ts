@@ -24,7 +24,6 @@ export default class GamePlayChooseTech extends Command {
     '<%= config.bin %> game play choose-tech --options --json',
     '<%= config.bin %> game play choose-tech --player-id 0 --node -1255676052 --json',
     '<%= config.bin %> game play choose-tech --player-id 0 --node -1255676052 --send --reason "choose Masonry after advisor warning" --json',
-    '<%= config.bin %> game play choose-tech --player-id 0 --node -1255676052 --send --closeout --reason "choose live Masonry node and close chooser" --json',
   ];
 
   static flags = {
@@ -49,8 +48,9 @@ export default class GamePlayChooseTech extends Command {
       default: false,
     }),
     closeout: Flags.boolean({
-      description: 'Also clear the chooser target node as part of the same caller-level workflow',
+      description: 'Compatibility no-op; send mode already clears the chooser target as one caller-level workflow',
       default: false,
+      hidden: true,
     }),
     reason: Flags.string({
       description: 'Required approval reason for --send',
@@ -86,7 +86,7 @@ export default class GamePlayChooseTech extends Command {
         ],
         notes: [
           'Options come from the live notification HUD materializer, which validates SET_TECH_TREE_NODE and SET_TECH_TREE_TARGET_NODE through official PlayerOperations checks.',
-          'Use a returned enabled option cli for one caller-level chooser closeout workflow, or validate a specific node before sending.',
+          'Use a returned enabled option cli for one caller-level technology selection, or validate a specific node before sending.',
         ],
       });
       return;
@@ -105,7 +105,8 @@ export default class GamePlayChooseTech extends Command {
         ProgressionTreeNodeType: flags.node,
       },
     };
-    if (flags.closeout) {
+    if (flags.send || flags.closeout) {
+      const before = flags.send ? await getCiv7PlayNotificationView(options) : null;
       const result = await executePlayOperationSequence([
         {
           label: 'choose technology node',
@@ -124,6 +125,19 @@ export default class GamePlayChooseTech extends Command {
           },
         },
       ], options, { send: flags.send, reason });
+
+      if (flags.send && before) {
+        const after = await waitForTechnologyChoicePostcondition(before, options);
+        const postcondition = technologyChoicePostcondition(before, after);
+        emitPlayResult(this.log.bind(this), flags.json, {
+          ...result,
+          verified: result.verified === true && postcondition.verified,
+          before,
+          after,
+          postcondition,
+        });
+        return;
+      }
 
       emitPlayResult(this.log.bind(this), flags.json, result);
       return;
@@ -207,4 +221,111 @@ function probeValue(value: unknown): unknown {
     return probe.ok === true ? probe.value ?? null : null;
   }
   return value ?? null;
+}
+
+async function waitForTechnologyChoicePostcondition(
+  before: Awaited<ReturnType<typeof getCiv7PlayNotificationView>>,
+  options: ReturnType<typeof buildDirectControlOptions>,
+): Promise<Awaited<ReturnType<typeof getCiv7PlayNotificationView>>> {
+  const startedAt = Date.now();
+  const timeoutMs = Math.min(Math.max(options.timeoutMs ?? 3_000, 1_000), 6_000);
+  let last = await getCiv7PlayNotificationView(options);
+  while (Date.now() - startedAt <= timeoutMs) {
+    const postcondition = technologyChoicePostcondition(before, last);
+    if (postcondition.classification !== 'technology-choice-sticky-blocker') return last;
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    last = await getCiv7PlayNotificationView(options);
+  }
+  return last;
+}
+
+function technologyChoicePostcondition(
+  before: Awaited<ReturnType<typeof getCiv7PlayNotificationView>>,
+  after: Awaited<ReturnType<typeof getCiv7PlayNotificationView>>,
+): {
+  classification:
+    | 'turn-unblocked'
+    | 'technology-choice-cleared'
+    | 'technology-choice-transitioned'
+    | 'technology-state-changed-blocker-still-live'
+    | 'technology-choice-sticky-blocker';
+  verified: boolean;
+  reason: string;
+} {
+  if (probeValue(after.canEndTurn) === true) {
+    return {
+      classification: 'turn-unblocked',
+      verified: true,
+      reason: 'The technology choice workflow left the turn unblocked.',
+    };
+  }
+  const beforeBlocker = findTechnologyChoiceNotification(before);
+  const afterBlocker = findTechnologyChoiceNotification(after);
+  if (beforeBlocker && !afterBlocker) {
+    return {
+      classification: 'technology-choice-cleared',
+      verified: true,
+      reason: 'The end-turn-blocking technology choice notification is no longer present.',
+    };
+  }
+  if (beforeBlocker && afterBlocker && !sameNotificationId(beforeBlocker.id, afterBlocker.id)) {
+    return {
+      classification: 'technology-choice-transitioned',
+      verified: true,
+      reason: 'The end-turn-blocking technology choice notification changed after the selection.',
+    };
+  }
+  if (beforeBlocker && afterBlocker && technologyChoiceDetailsChanged(beforeBlocker.details, afterBlocker.details)) {
+    return {
+      classification: 'technology-state-changed-blocker-still-live',
+      verified: false,
+      reason: 'The technology state changed, but the same technology choice notification still blocks turn flow.',
+    };
+  }
+  return {
+    classification: 'technology-choice-sticky-blocker',
+    verified: false,
+    reason: 'The technology choice workflow returned, but the same technology choice notification still blocks turn flow.',
+  };
+}
+
+function findTechnologyChoiceNotification(
+  view: Awaited<ReturnType<typeof getCiv7PlayNotificationView>>,
+): { id?: unknown; details?: unknown } | null {
+  return view.notifications.find((notification) => {
+    const typeName = String(notification.typeName ?? '').toUpperCase();
+    return notification.isEndTurnBlocking === true && typeName.includes('CHOOSE_TECH');
+  }) ?? null;
+}
+
+function sameNotificationId(left: unknown, right: unknown): boolean {
+  if (!isRecord(left) || !isRecord(right)) return left == null && right == null;
+  return left.owner === right.owner && left.id === right.id && left.type === right.type;
+}
+
+function technologyChoiceDetailsChanged(left: unknown, right: unknown): boolean {
+  if (!isRecord(left) || !isRecord(right)) return false;
+  return stableJson(probeValue(left.currentResearching)) !== stableJson(probeValue(right.currentResearching))
+    || stableJson(probeValue(left.targetNode)) !== stableJson(probeValue(right.targetNode));
+}
+
+function stableJson(value: unknown): string {
+  return JSON.stringify(value, Object.keys(flattenKeys(value)).sort()) ?? String(value);
+}
+
+function flattenKeys(value: unknown, keys: Record<string, true> = {}): Record<string, true> {
+  if (Array.isArray(value)) {
+    for (const item of value) flattenKeys(item, keys);
+    return keys;
+  }
+  if (!isRecord(value)) return keys;
+  for (const [key, child] of Object.entries(value)) {
+    keys[key] = true;
+    flattenKeys(child, keys);
+  }
+  return keys;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
