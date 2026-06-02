@@ -292,12 +292,15 @@ function buildPriorities(input: {
   const nextDecision = input.hud.hud?.nextDecision;
   if (nextDecision) {
     const isBlocking = nextDecision.isEndTurnBlocking ? 100 : 70;
+    const detailCommand = commandFromDecisionDetails(nextDecision);
     items.push({
       priority: isBlocking,
       kind: `hud:${nextDecision.category}`,
       summary: nextDecision.summary ?? nextDecision.message ?? nextDecision.typeName ?? 'current HUD decision',
-      reason: 'HUD decisions are the shortest-lived live authority and should be resolved or consciously deferred before broad strategy.',
-      command: nextDecision.cli,
+      reason: detailCommand
+        ? 'HUD details expose a validator-backed operation candidate; use that exact command or consciously defer before broad strategy.'
+        : 'HUD decisions are the shortest-lived live authority and should be resolved or consciously deferred before broad strategy.',
+      command: detailCommand ?? nextDecision.cli,
       evidence: nextDecision,
     });
   }
@@ -410,6 +413,15 @@ function probeArrayLength(probe: { ok: true; value: unknown } | { ok: false; err
 
 function asArray(value: unknown): Array<Record<string, unknown>> {
   return Array.isArray(value) ? value.filter((item): item is Record<string, unknown> => item !== null && typeof item === 'object') : [];
+}
+
+function commandFromDecisionDetails(nextDecision: { details?: unknown }): string | undefined {
+  const details = nextDecision.details;
+  if (!details || typeof details !== 'object') return undefined;
+  const record = details as Record<string, unknown>;
+  if (record.kind !== 'unit-command-reconciliation') return undefined;
+  const candidate = asArray(record.enabledCloseoutCandidates).find((item) => typeof item.cli === 'string' && item.cli.length > 0);
+  return typeof candidate?.cli === 'string' ? candidate.cli : undefined;
 }
 
 function formatProbe<T>(probe: { ok: true; value: T } | { ok: false; error: string }): string {

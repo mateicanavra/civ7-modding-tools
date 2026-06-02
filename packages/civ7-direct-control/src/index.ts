@@ -6233,7 +6233,7 @@ function playNotificationViewSource(): string {
           "game play operation --family unit",
           "heuristic",
           [
-            requiredInput("Unit", "selectedUnitId or firstReadyUnitId", "Use the ready unit, then inspect its legal operations before choosing."),
+            requiredInput("Unit", "selectedUnitId, firstReadyUnitId, or unit-command-reconciliation details", "Use the ready unit when present; if the ready pointer is stale, use a validator-backed reconciliation candidate."),
             optionalInput("Target plot", "map coordinates", "Needed for move, attack, and other plot-target actions."),
           ],
           [
@@ -6241,7 +6241,10 @@ function playNotificationViewSource(): string {
             action("resolve plot target", "game play unit-target --unit-id '<unit-id>' --x <x> --y <y>", "unit-operation", undefined, "official right-click action order", "when choosing a move or attack target"),
             action("validate generic unit operation", "game play operation --family unit --type <operation> --unit-id '<unit-id>' --args '<args>'", "unit-operation", "<operation>", "operation-specific args", "when the operation is not covered by a named shortcut"),
           ],
-          ["Read the selected or first ready unit before choosing skip, automate, move, or promote."],
+          [
+            "Read the selected or first ready unit before choosing skip, automate, move, or promote.",
+            "If selectedUnitId and firstReadyUnitId are stale or null, notification details may expose validator-backed SKIP_TURN reconciliation candidates with exact unit ids.",
+          ],
         );
       }
       return hint(

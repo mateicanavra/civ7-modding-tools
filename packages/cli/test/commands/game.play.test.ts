@@ -1524,6 +1524,43 @@ describe('game play commands', () => {
     }
   });
 
+  test('surfaces unit-command reconciliation command in compact priorities', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'stale-unit-command' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPriorities.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+        '--compact',
+        '--no-battlefield',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        next: string | null;
+        priorities: Array<{ kind: string; command?: string; reason: string }>;
+      };
+      const top = payload.priorities[0];
+      expect(top.kind).toBe('hud:unit-command');
+      expect(top.command).toContain('game play operation --family unit --type SKIP_TURN');
+      expect(top.command).toContain("--unit-id '{\"owner\":0,\"id\":196609,\"type\":26}'");
+      expect(payload.next).toBe(top.command);
+      expect(top.reason).toContain('validator-backed operation candidate');
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('lists live-play topic shortcuts without touching the game runtime', async () => {
     const writes: string[] = [];
     const log = vi.spyOn(GamePlayTopics.prototype, 'log').mockImplementation((message?: string) => {
