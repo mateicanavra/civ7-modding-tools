@@ -80,6 +80,7 @@ function buildCompactView(view: ReadyCityView): {
   city: Record<string, unknown> | null;
   legalOperationCount: number;
   productionCandidateCount: number;
+  productionCandidates: Array<Record<string, unknown>>;
   townFocusOptionCount: number;
   populationPlacement: {
     isReadyToPlacePopulation: unknown;
@@ -96,7 +97,10 @@ function buildCompactView(view: ReadyCityView): {
   const populationPlacement = probeValue(view.populationPlacement);
   const workablePlots = compactWorkerPlots(probeArray(populationPlacement?.workablePlots));
   const expansionCandidates = compactExpansionCandidates(probeArray(populationPlacement?.expansionCandidates));
-  const next = stringField(workablePlots[0], 'cli') ?? stringField(expansionCandidates[0], 'cli');
+  const productionCandidates = compactProductionCandidates(probeArray(view.productionCandidates));
+  const next = stringField(workablePlots[0], 'cli')
+    ?? stringField(expansionCandidates[0], 'cli')
+    ?? stringField(productionCandidates[0], 'cli');
 
   return {
     ok: true,
@@ -109,6 +113,7 @@ function buildCompactView(view: ReadyCityView): {
     city,
     legalOperationCount: view.legalOperations.length,
     productionCandidateCount: probeArray(view.productionCandidates).length,
+    productionCandidates,
     townFocusOptionCount: probeArray(view.townFocusOptions).length,
     populationPlacement: populationPlacement
         ? {
@@ -125,7 +130,7 @@ function buildCompactView(view: ReadyCityView): {
       'Expansion candidate plot yields are map yield facts plus constructible context, not a post-send yield guarantee.',
     ],
     omitted: [
-      { path: 'view.productionCandidates', reason: 'use --json without --compact for all production candidates' },
+      { path: 'view.productionCandidates[].result', reason: 'compact rows expose valid/action/template fields; use --json without --compact for raw BUILD validation payloads' },
       { path: 'view.townFocusOptions', reason: 'use --json without --compact for all town focus options' },
       { path: 'view.populationPlacement.allPlacementInfo', reason: 'use --json without --compact for raw placement info' },
       { path: 'view.legalOperations[].result', reason: 'use --json without --compact for raw validation payloads' },
@@ -146,6 +151,19 @@ function compactCity(city: unknown): Record<string, unknown> | null {
     yields: value.yields,
     buildQueue: value.buildQueue,
   };
+}
+
+function compactProductionCandidates(values: ReadonlyArray<Record<string, unknown>>): Array<Record<string, unknown>> {
+  return values.map((candidate) => ({
+    kind: candidate.kind,
+    type: candidate.type,
+    typeName: candidate.typeName,
+    name: candidate.name,
+    args: candidate.args,
+    valid: candidate.valid,
+    placementPlots: candidate.placementPlots,
+    cli: candidate.cli,
+  }));
 }
 
 function compactWorkerPlots(values: ReadonlyArray<Record<string, unknown>>): Array<Record<string, unknown>> {

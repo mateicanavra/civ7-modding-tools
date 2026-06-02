@@ -2307,6 +2307,76 @@ describe('game play commands', () => {
     }
   });
 
+  test('surfaces ready-city compact view for production-choice blockers', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'production-choice' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPriorities.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+        '--compact',
+        '--no-battlefield',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        next: string | null;
+        priorities: Array<{ kind: string; command?: string; reason: string }>;
+      };
+      const top = payload.priorities[0];
+      expect(top.kind).toBe('hud:production-choice');
+      expect(top.command).toBe('game play ready-city --compact --json');
+      expect(payload.next).toBe(top.command);
+      expect(server.received.some((message) => message.includes('readReadyCityView'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('surfaces ready-city compact view for population-placement blockers', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'population-placement' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPriorities.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+        '--compact',
+        '--no-battlefield',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        next: string | null;
+        priorities: Array<{ kind: string; command?: string; reason: string }>;
+      };
+      const top = payload.priorities[0];
+      expect(top.kind).toBe('hud:population-placement');
+      expect(top.command).toBe('game play ready-city --compact --json');
+      expect(payload.next).toBe(top.command);
+      expect(server.received.some((message) => message.includes('readReadyCityView'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('surfaces exact informational dismissal command in compact priorities', async () => {
     const server = await startTunerServer({ playNotificationMode: 'stale-informational' });
     const writes: string[] = [];
@@ -3120,6 +3190,14 @@ describe('game play commands', () => {
         command: string;
         summary: string;
         city: { name: string; buildQueue: unknown };
+        productionCandidates: Array<{
+          kind: string;
+          typeName: string;
+          name: string;
+          valid: boolean;
+          placementPlots: Array<{ x: number; y: number }>;
+          cli: string;
+        }>;
         populationPlacement: {
           yieldTypeOrder: string[];
           workablePlots: Array<{ yieldDelta: { YIELD_HAPPINESS: number; happiness?: number }; cli: string }>;
@@ -3139,6 +3217,14 @@ describe('game play commands', () => {
       expect(payload.contractVersion).toBe('play-agent-v0');
       expect(payload.command).toBe('game play ready-city');
       expect(payload.summary).toContain('Dur-Sharrukin');
+      expect(payload.productionCandidates[0]).toMatchObject({
+        kind: 'constructible',
+        typeName: 'BUILDING_WALLS',
+        name: 'LOC_BUILDING_WALLS_NAME',
+        valid: true,
+      });
+      expect(payload.productionCandidates[0].placementPlots[0]).toMatchObject({ x: 22, y: 31 });
+      expect(payload.productionCandidates[0].cli).toContain('game play build-production');
       expect(payload.populationPlacement.yieldTypeOrder).toContain('YIELD_DIPLOMACY');
       expect(payload.populationPlacement.workablePlots[0].yieldDelta.YIELD_HAPPINESS).toBe(2);
       expect(payload.populationPlacement.workablePlots[0].yieldDelta.happiness).toBeUndefined();
@@ -3150,6 +3236,7 @@ describe('game play commands', () => {
       expect(payload.populationPlacement.expansionCandidates[0].terrainName).toBe('Grassland');
       expect(payload.next).toContain('assign-worker');
       expect(payload.warnings.join(' ')).toContain('Read-only city dashboard');
+      expect(payload.omitted.some((item) => item.path === 'view.productionCandidates[].result')).toBe(true);
       expect(payload.omitted.some((item) => item.path === 'view.populationPlacement.allPlacementInfo')).toBe(true);
       expect(payload.view).toBeUndefined();
       expect(server.received.some((message) => message.includes('readReadyCityView'))).toBe(true);
@@ -3569,7 +3656,7 @@ function expectOwnerOnlyContactLabels(values: readonly string[]): void {
 
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
-  playNotificationMode?: 'town-focus' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
+  playNotificationMode?: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
   notificationDismissalMode?: 'verified' | 'stale-nonblocking';
 } = {}) {
@@ -3670,7 +3757,7 @@ async function startTunerServer(options: {
 }
 
 function playNotificationView(
-  mode: 'town-focus' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
+  mode: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
   diplomacyCloseoutObserved = false,
 ) {
   if (mode === 'runtime-error') {
@@ -4031,6 +4118,109 @@ function playNotificationView(
                 ...diplomacyDecision,
               },
             ],
+      },
+      limits: { maxNotifications: 25, truncated: false },
+    };
+  }
+  if (mode === 'production-choice' || mode === 'population-placement') {
+    const production = mode === 'production-choice';
+    const decision = production
+      ? {
+          category: 'production-choice',
+          operationFamily: 'city-operation',
+          operationType: 'BUILD',
+          argsShape: '{ UnitType } or { ConstructibleType, X?, Y? } or { ProjectType }',
+          cli: 'game play ready-city',
+          requiredInputs: [
+            { name: 'City', source: 'notification target or selected city', required: true },
+            { name: 'Build item type', source: 'live production chooser', required: true },
+          ],
+          commonActions: [
+            {
+              label: 'read production candidates',
+              cli: 'game play ready-city --compact --json',
+              argsShape: 'city summary and validated production candidates',
+              when: 'before choosing a production item',
+            },
+          ],
+          confidence: 'live-proof',
+          notes: ['Use live chooser data to decide the item kind.'],
+        }
+      : {
+          category: 'population-placement',
+          operationFamily: undefined,
+          operationType: undefined,
+          argsShape: 'ASSIGN_WORKER { Location, Amount: 1 } or city-command EXPAND placement args',
+          cli: 'game play ready-city',
+          requiredInputs: [
+            { name: 'Location', source: 'chosen plot', required: true },
+            { name: 'City', source: 'notification target or selected city', required: false },
+          ],
+          commonActions: [
+            {
+              label: 'read city placement candidates',
+              cli: 'game play ready-city --compact --json',
+              argsShape: 'workable plots and expansion candidates',
+              when: 'before choosing assign-worker or expand-city',
+            },
+          ],
+          confidence: 'official-ui',
+          notes: ['Re-read candidates before choosing assign-worker or expand-city.'],
+        };
+    const notificationId = { owner: 0, id: production ? 71 : 72, type: 20 };
+    const notification = {
+      id: notificationId,
+      type: production ? -99801 : -99802,
+      typeName: production ? 'NOTIFICATION_CHOOSE_CITY_PRODUCTION' : 'NOTIFICATION_NEW_POPULATION',
+      groupType: null,
+      summary: production
+        ? 'Production has completed in this City. Choose what we shall produce next.'
+        : 'Your City is ready to claim and improve a new Rural tile, or assign a Specialist to a workable District.',
+      message: production ? 'Choose Production' : 'New Population',
+      target: { owner: 0, id: 131073, type: 1 },
+      location: null,
+      canUserDismiss: false,
+      expired: false,
+      dismissed: false,
+      isEndTurnBlocking: true,
+      decision,
+    };
+    return {
+      localPlayerId: 0,
+      turn: { ok: true, value: production ? 2 : 3 },
+      turnDate: { ok: true, value: production ? '3975 BCE' : '3950 BCE' },
+      hasSentTurnComplete: { ok: true, value: false },
+      canEndTurn: { ok: true, value: false },
+      blocker: { ok: true, value: production ? -513644209 : 0 },
+      blockingNotificationId: { ok: true, value: notificationId },
+      selectedUnitId: { ok: true, value: null },
+      selectedCityId: { ok: true, value: null },
+      firstReadyUnitId: { ok: true, value: null },
+      notifications: [notification],
+      decisions: [decision],
+      hud: {
+        nextDecision: {
+          notificationId: notification.id,
+          isEndTurnBlocking: true,
+          typeName: notification.typeName,
+          summary: notification.summary,
+          message: notification.message,
+          target: notification.target,
+          location: notification.location,
+          ...decision,
+        },
+        decisionQueue: [
+          {
+            notificationId: notification.id,
+            isEndTurnBlocking: true,
+            typeName: notification.typeName,
+            summary: notification.summary,
+            message: notification.message,
+            target: notification.target,
+            location: notification.location,
+            ...decision,
+          },
+        ],
       },
       limits: { maxNotifications: 25, truncated: false },
     };

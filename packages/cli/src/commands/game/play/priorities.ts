@@ -428,6 +428,9 @@ function asArray(value: unknown): Array<Record<string, unknown>> {
 }
 
 function commandFromDecision(nextDecision: Record<string, unknown>): string | undefined {
+  if (nextDecision.category === 'production-choice' || nextDecision.category === 'population-placement') {
+    return 'game play ready-city --compact --json';
+  }
   if (nextDecision.category === 'tradition-review') {
     return 'game play traditions --compact --json';
   }

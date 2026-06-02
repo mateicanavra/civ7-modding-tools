@@ -6498,13 +6498,14 @@ function playNotificationViewSource(): string {
           undefined,
           undefined,
           "ASSIGN_WORKER { Location, Amount: 1 } or city-command EXPAND placement args",
-          undefined,
+          "game play ready-city",
           "official-ui",
           [
             requiredInput("Location", "chosen plot", "The plot choice determines worker assignment vs expansion."),
             optionalInput("City", "notification target or selected city", "Needed when the branch is city expansion rather than worker reassignment."),
           ],
           [
+            action("read city placement candidates", "game play ready-city --compact --json", "read-only", "ready-city population placement packet", "workable plots and expansion candidates", "before choosing assign-worker or expand-city"),
             action("assign worker to proven plot", "game play assign-worker --player-id <id> --location <plot-index>", "player-operation", "ASSIGN_WORKER", "{ Location, Amount: 1 }", "when the chosen tile is already workable"),
             action("validate city expansion", "game play expand-city --city-id '<city-id>' --x <x> --y <y>", "city-command", "EXPAND", "{ X, Y }", "when the chosen tile is an expansion purchase"),
           ],
@@ -6556,7 +6557,7 @@ function playNotificationViewSource(): string {
           "city-operation",
           "BUILD",
           "{ UnitType } or { ConstructibleType, X?, Y? } or { ProjectType }",
-          "game play build-production",
+          "game play ready-city",
           "live-proof",
           [
             requiredInput("City", "notification target or selected city", "Production choices are city-scoped."),
@@ -6564,6 +6565,7 @@ function playNotificationViewSource(): string {
             optionalInput("Placement plot", "validator Plots or placement UI", "Required for constructibles when validation returns placement plots; send X/Y with the ConstructibleType."),
           ],
           [
+            action("read production candidates", "game play ready-city --compact --json", "read-only", "ready-city production candidate packet", "city summary and validated production candidates", "before choosing a production item"),
             action("validate production", "game play build-production --city-id '<city-id>' --unit-type <unit-type>", "city-operation", "BUILD", "{ UnitType }", "when the live choice is a unit"),
             action("place constructible production", "game play build-production --city-id '<city-id>' --constructible-type <constructible-type> --x <x> --y <y>", "city-operation", "BUILD", "{ ConstructibleType, X, Y }", "when validator or placement UI returns legal placement plots"),
             action("validate city project production", "game play build-production --city-id '<city-id>' --project-type <project-type>", "city-operation", "BUILD", "{ ProjectType }", "when the live choice is an ordinary city project, not town focus"),
