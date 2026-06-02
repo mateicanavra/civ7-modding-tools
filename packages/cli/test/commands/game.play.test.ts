@@ -1561,6 +1561,82 @@ describe('game play commands', () => {
     }
   });
 
+  test('classifies stale command-units with disabled candidates in compact priorities', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'stale-unit-command-disabled' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPriorities.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+        '--compact',
+        '--no-battlefield',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        next: string | null;
+        decisionHud: { hasSentTurnComplete?: unknown };
+        priorities: Array<{ kind: string; summary: string; command?: string; reason: string }>;
+      };
+      const top = payload.priorities[0];
+      expect(top.kind).toBe('hud:unit-command-stale-expired');
+      expect(top.summary).toContain('no ready unit');
+      expect(top.command).toContain('game play end-turn --send');
+      expect(payload.next).toBe(top.command);
+      expect(top.reason).toContain('normal end-turn path once');
+      expect(JSON.stringify(payload.decisionHud.hasSentTurnComplete)).toContain('false');
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('classifies stale command-units as pending after turn-complete was sent', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'stale-unit-command-pending' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPriorities.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+        '--compact',
+        '--no-battlefield',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        next: string | null;
+        decisionHud: { hasSentTurnComplete?: unknown };
+        priorities: Array<{ kind: string; summary: string; command?: string; reason: string }>;
+      };
+      const top = payload.priorities[0];
+      expect(top.kind).toBe('hud:unit-command-stale-expired');
+      expect(top.summary).toContain('turn-complete was sent');
+      expect(top.command).toContain('game watch --count 3');
+      expect(payload.next).toBe(top.command);
+      expect(top.reason).toContain('turn-complete is already sent');
+      expect(JSON.stringify(payload.decisionHud.hasSentTurnComplete)).toContain('true');
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('lists live-play topic shortcuts without touching the game runtime', async () => {
     const writes: string[] = [];
     const log = vi.spyOn(GamePlayTopics.prototype, 'log').mockImplementation((message?: string) => {
@@ -2662,7 +2738,7 @@ function expectOwnerOnlyContactLabels(values: readonly string[]): void {
 
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
-  playNotificationMode?: 'town-focus' | 'stale-unit-command' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
+  playNotificationMode?: 'town-focus' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
   notificationDismissalMode?: 'verified' | 'stale-nonblocking';
 } = {}) {
@@ -2763,7 +2839,7 @@ async function startTunerServer(options: {
 }
 
 function playNotificationView(
-  mode: 'town-focus' | 'stale-unit-command' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
+  mode: 'town-focus' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
   diplomacyCloseoutObserved = false,
 ) {
   if (mode === 'runtime-error') {
@@ -3308,7 +3384,9 @@ function playNotificationView(
       limits: { maxNotifications: 25, truncated: false },
     };
   }
-  if (mode === 'stale-unit-command') {
+  if (mode === 'stale-unit-command' || mode === 'stale-unit-command-disabled' || mode === 'stale-unit-command-pending') {
+    const hasEnabledCloseout = mode === 'stale-unit-command';
+    const hasSentTurnComplete = mode === 'stale-unit-command-pending';
     const commandUnitsDecision = {
       category: 'unit-command',
       operationFamily: 'unit-operation',
@@ -3331,67 +3409,73 @@ function playNotificationView(
       notes: ['Read the selected or first ready unit before choosing skip, automate, move, or promote.'],
     };
     const commandUnitsNotificationId = { owner: 0, id: 88, type: 20 };
-    const closeoutUnitId = { owner: 0, id: 196609, type: 26 };
+    const closeoutUnitIds = hasEnabledCloseout
+      ? [{ owner: 0, id: 196609, type: 26 }]
+      : [
+          { owner: 0, id: 131072, type: 26 },
+          { owner: 0, id: 196609, type: 26 },
+          { owner: 0, id: 262146, type: 26 },
+        ];
+    const closeoutCandidates = closeoutUnitIds.map((unitId, index) => {
+      const enabled = hasEnabledCloseout;
+      return {
+        unitId,
+        unit: {
+          ok: true,
+          value: {
+            id: unitId,
+            owner: 0,
+            type: index === 1 ? 111 : 77,
+            typeName: index === 1 ? 'UNIT_HOPLITE' : 'UNIT_SCOUT',
+            name: index === 1 ? 'Hoplite' : 'Scout',
+            location: index === 0 ? { x: 18, y: 30 } : index === 1 ? { x: 21, y: 26 } : { x: 16, y: 25 },
+            movementMovesRemaining: 0,
+            movementTurnsRemaining: 0,
+            attacksRemaining: index === 1 ? 1 : 0,
+            activity: index === 1 ? 'UNIT_ACTIVITY_FORTIFIED' : 'UNIT_ACTIVITY_AWAKE',
+          },
+        },
+        operationFamily: 'unit-operation',
+        operationType: 'SKIP_TURN',
+        argsShape: '{}',
+        enabled,
+        validation: enabled
+          ? { ok: true, value: { Success: true } }
+          : { ok: true, value: { Success: false, FailureReasons: ['no movement remaining'] } },
+        cli: enabled
+          ? `game play operation --family unit --type SKIP_TURN --unit-id '${JSON.stringify(unitId)}' --send --reason '<why this unit has no better operation this turn>'`
+          : null,
+      };
+    });
+    const enabledCloseoutCandidates = closeoutCandidates.filter((candidate) => candidate.enabled);
     const commandUnitsDetails = {
       kind: 'unit-command-reconciliation',
+      classification: hasEnabledCloseout ? 'unit-command-closeout-candidates' : 'unit-command-stale-expired',
       notificationId: commandUnitsNotificationId,
       blocker: { ok: true, value: 0 },
+      hasSentTurnComplete: { ok: true, value: hasSentTurnComplete },
       selectedUnitId: { ok: true, value: null },
       firstReadyUnitId: { ok: true, value: null },
-      unitScan: { ok: true, value: [closeoutUnitId] },
-      closeoutCandidates: [
-        {
-          unitId: closeoutUnitId,
-          unit: {
-            ok: true,
-            value: {
-              id: closeoutUnitId,
-              owner: 0,
-              type: 111,
-              typeName: 'UNIT_HOPLITE',
-              name: 'Hoplite',
-              location: { x: 20, y: 27 },
-              movementMovesRemaining: 0,
-              movementTurnsRemaining: 0,
-              attacksRemaining: 1,
-              activity: 'UNIT_ACTIVITY_AWAKE',
-            },
-          },
-          operationFamily: 'unit-operation',
-          operationType: 'SKIP_TURN',
-          argsShape: '{}',
-          enabled: true,
-          validation: { ok: true, value: { Success: true } },
-          cli: "game play operation --family unit --type SKIP_TURN --unit-id '{\"owner\":0,\"id\":196609,\"type\":26}' --send --reason '<why this unit has no better operation this turn>'",
-        },
-      ],
-      enabledCloseoutCandidates: [
-        {
-          unitId: closeoutUnitId,
-          unit: {
-            ok: true,
-            value: {
-              id: closeoutUnitId,
-              owner: 0,
-              type: 111,
-              typeName: 'UNIT_HOPLITE',
-              name: 'Hoplite',
-              location: { x: 20, y: 27 },
-              movementMovesRemaining: 0,
-              movementTurnsRemaining: 0,
-              attacksRemaining: 1,
-              activity: 'UNIT_ACTIVITY_AWAKE',
-            },
-          },
-          operationFamily: 'unit-operation',
-          operationType: 'SKIP_TURN',
-          argsShape: '{}',
-          enabled: true,
-          validation: { ok: true, value: { Success: true } },
-          cli: "game play operation --family unit --type SKIP_TURN --unit-id '{\"owner\":0,\"id\":196609,\"type\":26}' --send --reason '<why this unit has no better operation this turn>'",
-        },
-      ],
-      staleReadyPointerSuspected: true,
+      unitScan: { ok: true, value: closeoutUnitIds },
+      closeoutCandidates,
+      enabledCloseoutCandidates,
+      staleReadyPointerSuspected: hasEnabledCloseout,
+      staleExpiredWithoutEnabledCloseout: !hasEnabledCloseout,
+      repairCandidates: hasEnabledCloseout
+        ? []
+        : [
+            hasSentTurnComplete
+              ? {
+                  kind: 'wait-for-turn-advance',
+                  cli: 'game watch --count 3 --interval-ms 1000 --include-ready-unit --include-ready-city --jsonl',
+                  proof: 'GameContext.hasSentTurnComplete is already true; wait/watch instead of repeating unit operations.',
+                }
+              : {
+                  kind: 'send-turn-complete',
+                  cli: "game play end-turn --send --reason '<stale COMMAND_UNITS has no selected/ready unit and no enabled validator-backed unit closeout>' --json",
+                  proof: 'No selected/ready unit exists and every scanned unit closeout is disabled.',
+                },
+          ],
       notes: [
         'Static fixture mirrors the CLI/HUD contract emitted by the App UI source-backed COMMAND_UNITS reconciliation materializer.',
         'Use these candidates only as unit-command reconciliation; movement, attack, promotion, fortify, and automation require their own validators.',
@@ -3417,7 +3501,7 @@ function playNotificationView(
       localPlayerId: 0,
       turn: { ok: true, value: 80 },
       turnDate: { ok: true, value: '2025 BCE' },
-      hasSentTurnComplete: { ok: true, value: false },
+      hasSentTurnComplete: { ok: true, value: hasSentTurnComplete },
       canEndTurn: { ok: true, value: false },
       blocker: { ok: true, value: 0 },
       blockingNotificationId: { ok: true, value: commandUnitsNotification.id },

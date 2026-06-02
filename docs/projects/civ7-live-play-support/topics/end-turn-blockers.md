@@ -135,6 +135,14 @@ templates only as unit-command reconciliation; movement, attack, promotion,
 fortify, and automation still require their own ready-unit/unit-target or
 movement-preview evidence.
 
+If `COMMAND_UNITS` is expired, `selectedUnitId` and `firstReadyUnitId` are null,
+the blocker enum is `0`, and every scanned `SKIP_TURN` validator is disabled,
+the compact dashboard should classify `hud:unit-command-stale-expired` rather
+than offering a generic unit operation. When `GameContext.hasSentTurnComplete`
+is false, use the listed `game play end-turn --send ...` repair once. When it is
+already true, use the listed `game watch ...` command and wait for either turn
+advance or a new blocker; do not repeat unit operations blindly.
+
 The reviewed informational fallback is intentionally narrow. It applies only to
 user-dismissible, default-handler report notifications that already have a
 separate topic review:

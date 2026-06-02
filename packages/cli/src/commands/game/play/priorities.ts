@@ -24,6 +24,7 @@ type PriorityView = {
   turnDate: Probe;
   blocker: Probe;
   canEndTurn: Probe;
+  hasSentTurnComplete: Probe;
   firstReadyUnitId: Probe;
   selectedCityId: Probe;
   hud: unknown;
@@ -141,6 +142,7 @@ export default class GamePlayPriorities extends Command {
       turnDate: hud.turnDate,
       blocker: hud.blocker,
       canEndTurn: hud.canEndTurn,
+      hasSentTurnComplete: hud.hasSentTurnComplete,
       firstReadyUnitId: hud.firstReadyUnitId,
       selectedCityId: hud.selectedCityId,
       hud: hud.hud,
@@ -231,6 +233,7 @@ function buildCompactView(view: PriorityView): {
       turnDate: view.turnDate,
       blocker: view.blocker,
       canEndTurn: view.canEndTurn,
+      hasSentTurnComplete: view.hasSentTurnComplete,
       firstReadyUnitId: view.firstReadyUnitId,
       selectedCityId: view.selectedCityId,
       readyUnit: view.readyUnit
@@ -292,15 +295,21 @@ function buildPriorities(input: {
   const nextDecision = input.hud.hud?.nextDecision;
   if (nextDecision) {
     const isBlocking = nextDecision.isEndTurnBlocking ? 100 : 70;
+    const staleUnitCommand = staleUnitCommandPriority(nextDecision);
     const detailCommand = commandFromDecisionDetails(nextDecision);
+    const readyUnitCommand = nextDecision.category === 'unit-command' && input.readyUnit
+      ? 'game play ready-unit --json; game play unit-target --unit-id \'<unit-id>\' --x <x> --y <y> --json'
+      : undefined;
     items.push({
       priority: isBlocking,
-      kind: `hud:${nextDecision.category}`,
-      summary: nextDecision.summary ?? nextDecision.message ?? nextDecision.typeName ?? 'current HUD decision',
-      reason: detailCommand
+      kind: staleUnitCommand?.kind ?? `hud:${nextDecision.category}`,
+      summary: staleUnitCommand?.summary ?? nextDecision.summary ?? nextDecision.message ?? nextDecision.typeName ?? 'current HUD decision',
+      reason: staleUnitCommand?.reason ?? (detailCommand
         ? 'HUD details expose a validator-backed operation candidate; use that exact command or consciously defer before broad strategy.'
-        : 'HUD decisions are the shortest-lived live authority and should be resolved or consciously deferred before broad strategy.',
-      command: detailCommand ?? nextDecision.cli,
+        : readyUnitCommand
+          ? 'A ready unit exists; inspect the ready-unit and target surfaces instead of treating COMMAND_UNITS as stale reconciliation.'
+        : 'HUD decisions are the shortest-lived live authority and should be resolved or consciously deferred before broad strategy.'),
+      command: staleUnitCommand?.command ?? detailCommand ?? readyUnitCommand ?? nextDecision.cli,
       evidence: nextDecision,
     });
   }
@@ -420,8 +429,32 @@ function commandFromDecisionDetails(nextDecision: { details?: unknown }): string
   if (!details || typeof details !== 'object') return undefined;
   const record = details as Record<string, unknown>;
   if (record.kind !== 'unit-command-reconciliation') return undefined;
-  const candidate = asArray(record.enabledCloseoutCandidates).find((item) => typeof item.cli === 'string' && item.cli.length > 0);
-  return typeof candidate?.cli === 'string' ? candidate.cli : undefined;
+  if (record.staleReadyPointerSuspected === true) {
+    const candidate = asArray(record.enabledCloseoutCandidates).find((item) => typeof item.cli === 'string' && item.cli.length > 0);
+    if (typeof candidate?.cli === 'string') return candidate.cli;
+  }
+  const repair = asArray(record.repairCandidates).find((item) => typeof item.cli === 'string' && item.cli.length > 0);
+  return typeof repair?.cli === 'string' ? repair.cli : undefined;
+}
+
+function staleUnitCommandPriority(nextDecision: { details?: unknown }): Pick<PriorityItem, 'kind' | 'summary' | 'reason' | 'command'> | null {
+  const details = nextDecision.details;
+  if (!details || typeof details !== 'object') return null;
+  const record = details as Record<string, unknown>;
+  if (record.kind !== 'unit-command-reconciliation') return null;
+  if (record.staleExpiredWithoutEnabledCloseout !== true && record.classification !== 'unit-command-stale-expired') return null;
+  const repair = asArray(record.repairCandidates).find((item) => typeof item.cli === 'string' && item.cli.length > 0);
+  const hasSent = probeValue(record.hasSentTurnComplete as Probe<boolean>) === true;
+  return {
+    kind: 'hud:unit-command-stale-expired',
+    summary: hasSent
+      ? 'expired COMMAND_UNITS has no ready unit or enabled closeout after turn-complete was sent'
+      : 'expired COMMAND_UNITS has no ready unit or enabled unit closeout',
+    reason: hasSent
+      ? 'Official command-units activation has no selected/first-ready unit and every scanned unit closeout is disabled; turn-complete is already sent, so wait/watch for turn advance or a new blocker instead of repeating unit operations.'
+      : 'Official command-units activation has no selected/first-ready unit and every scanned unit closeout is disabled; use the normal end-turn path once, then verify the turn advances or a new blocker appears.',
+    command: typeof repair?.cli === 'string' ? repair.cli : undefined,
+  };
 }
 
 function formatProbe<T>(probe: { ok: true; value: T } | { ok: false; error: string }): string {

@@ -5864,9 +5864,13 @@ function playNotificationViewSource(): string {
       if (!stringIncludes(typeName, "COMMAND_UNITS")) return undefined;
       const selectedUnitId = probe(() => toComponentId(UI?.Player?.getHeadSelectedUnit?.()));
       const firstReadyUnitId = probe(() => toComponentId(UI?.Player?.getFirstReadyUnit?.()));
+      const hasSentTurnComplete = probe(() => typeof GameContext.hasSentTurnComplete === "function"
+        ? GameContext.hasSentTurnComplete()
+        : false);
       const blocker = probe(() => typeof Game.Notifications.getEndTurnBlockingType === "function"
         ? Game.Notifications.getEndTurnBlockingType(GameContext.localPlayerID)
         : null);
+      const expired = safeNotificationValue(notification, "Expired") === true;
       const skipEnum = enumValueFor(typeof UnitOperationTypes !== "undefined" ? UnitOperationTypes : {}, "SKIP_TURN");
       const unitIds = probe(() => {
         const playerUnits = Players.Units.get(GameContext.localPlayerID);
@@ -5893,20 +5897,52 @@ function playNotificationViewSource(): string {
             : null,
         };
       }).filter(Boolean);
+      const enabledCloseoutCandidates = closeoutCandidates.filter((candidate) => candidate.enabled);
+      const selectedMissing = (selectedUnitId.ok ? selectedUnitId.value : null) == null;
+      const firstReadyMissing = (firstReadyUnitId.ok ? firstReadyUnitId.value : null) == null;
+      const blockerLooksClean = blocker.ok && blocker.value === 0;
+      const staleExpiredWithoutEnabledCloseout = expired
+        && selectedMissing
+        && firstReadyMissing
+        && blockerLooksClean
+        && enabledCloseoutCandidates.length === 0;
+      const turnCompleteAlreadySent = hasSentTurnComplete.ok && hasSentTurnComplete.value === true;
+      const repairCandidates = staleExpiredWithoutEnabledCloseout
+        ? [
+            turnCompleteAlreadySent
+              ? {
+                  kind: "wait-for-turn-advance",
+                  cli: "game watch --count 3 --interval-ms 1000 --include-ready-unit --include-ready-city --jsonl",
+                  proof: "GameContext.hasSentTurnComplete is already true; do not repeat unit operations or turn-complete until a fresh watch shows whether the turn advanced or a new blocker appeared.",
+                }
+              : {
+                  kind: "send-turn-complete",
+                  cli: "game play end-turn --send --reason '<stale COMMAND_UNITS has no selected/ready unit and no enabled validator-backed unit closeout>' --json",
+                  proof: "Official COMMAND_UNITS activation selects the next ready unit; selectedUnitId and firstReadyUnitId are null, blocker enum is clean, and no validator-backed SKIP_TURN closeout remains.",
+                },
+          ]
+        : [];
       return {
         kind: "unit-command-reconciliation",
+        classification: staleExpiredWithoutEnabledCloseout
+          ? "unit-command-stale-expired"
+          : "unit-command-closeout-candidates",
         notificationId,
         blocker,
+        hasSentTurnComplete,
         selectedUnitId,
         firstReadyUnitId,
         unitScan: unitIds,
         closeoutCandidates,
-        enabledCloseoutCandidates: closeoutCandidates.filter((candidate) => candidate.enabled),
+        enabledCloseoutCandidates,
         staleReadyPointerSuspected: (selectedUnitId.ok ? selectedUnitId.value : null) == null
           && (firstReadyUnitId.ok ? firstReadyUnitId.value : null) == null
-          && closeoutCandidates.some((candidate) => candidate.enabled),
+          && enabledCloseoutCandidates.length > 0,
+        staleExpiredWithoutEnabledCloseout,
+        repairCandidates,
         notes: [
           "COMMAND_UNITS can remain end-turn blocking even when the ready-unit pointer is null. This detail scans local-player units for validator-backed no-target SKIP_TURN closeouts.",
+          "If COMMAND_UNITS is expired, no selected/ready unit exists, blocker enum is clean, and every scanned unit operation is disabled, treat it as stale UI state rather than a unit operation request.",
           "Use these candidates only as unit-command reconciliation. Movement, attack, promotion, fortify, and automation still require ready-unit/unit-target/unit-move-preview evidence.",
         ],
       };
