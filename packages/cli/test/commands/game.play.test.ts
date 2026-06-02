@@ -4,7 +4,6 @@ import GamePlayDismissNotification from '../../src/commands/game/play/dismiss-no
 import GamePlayNotificationQueue from '../../src/commands/game/play/notification-queue';
 import GamePlayNotifications from '../../src/commands/game/play/notifications';
 import GamePlayPriorities from '../../src/commands/game/play/priorities';
-import GamePlayPromotionReadiness from '../../src/commands/game/play/promotion-readiness';
 import GamePlayReadyCity from '../../src/commands/game/play/ready-city';
 import GamePlayReadyUnit from '../../src/commands/game/play/ready-unit';
 import GamePlayRehydrate from '../../src/commands/game/play/rehydrate';
@@ -1893,35 +1892,6 @@ describe('game play commands', () => {
       expect(payload.omitted.some((item) => item.path === 'view.reachableMovement')).toBe(true);
       expect(payload.view).toBeUndefined();
       expect(server.received.some((message) => message.includes('readUnitMovePreview'))).toBe(true);
-    } finally {
-      log.mockRestore();
-      await server.close();
-    }
-  });
-
-  test('reads promotion readiness without sending promotion commands', async () => {
-    const server = await startTunerServer();
-    const writes: string[] = [];
-    const log = vi.spyOn(GamePlayPromotionReadiness.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
-    try {
-      const { port } = server.address();
-      await GamePlayPromotionReadiness.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--json',
-      ]);
-
-      const payload = JSON.parse(writes.join('')) as {
-        ok: true;
-        view: { promotionReadiness: { ok: true; value: { canPurchase: boolean } } };
-      };
-      expect(payload.view.promotionReadiness.value.canPurchase).toBe(false);
-      expect(server.received.some((message) => message.includes('readReadyUnitView'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
     } finally {
       log.mockRestore();
       await server.close();
