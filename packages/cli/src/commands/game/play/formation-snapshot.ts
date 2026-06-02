@@ -174,11 +174,11 @@ function buildFormationSnapshot(input: {
   const units = asRecords(input.battlefield.units).map(toFormationUnit);
   const civilians = units.filter((unit) => unit.stance === 'friendly' && unit.role === 'civilian');
   const friendlies = units.filter((unit) => unit.stance === 'friendly' && unit.role !== 'civilian');
-  const opponents = units.filter((unit) => unit.stance !== 'friendly');
+  const otherOwnerContacts = units.filter((unit) => unit.stance !== 'friendly');
   const screens = friendlies.filter((unit) =>
     civilians.some((civilian) => civilian.location && unit.location && gridDistance(civilian.location, unit.location) <= input.screenRadius),
   );
-  const threats = opponents.filter((unit) =>
+  const threats = otherOwnerContacts.filter((unit) =>
     civilians.some((civilian) => civilian.location && unit.location && gridDistance(civilian.location, unit.location) <= input.threatRadius),
   );
   const poiReasons = pointReasons(input.battlefield.pointsOfInterest);
@@ -211,7 +211,11 @@ function postureFor(input: {
   if (!input.readyUnit) return 'inspect-ready-unit';
   if (input.civilians.length > 0 && input.threats.length > 0) return 'screen-civilian';
   if (input.civilians.length > 0 && input.screens.length === 0) return 'hold-ready-unit';
-  if (input.poiReasons.some((reason) => reason.includes('nearby-opponents') || reason.includes('owner-pressure'))) return 'stabilize-front';
+  if (input.poiReasons.some((reason) =>
+    reason.includes('nearby-other-owners')
+    || reason.includes('nearby-opponents')
+    || reason.includes('owner-pressure')
+  )) return 'stabilize-front';
   return 'advance-with-validation';
 }
 

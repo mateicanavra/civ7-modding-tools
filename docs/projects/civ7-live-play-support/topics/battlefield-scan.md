@@ -69,6 +69,12 @@ Before any mutation, re-read the ready unit/city view and use the relevant
 validator-backed shortcut such as `game play unit-target`, `game play operation`,
 or production/city commands.
 
+Relationship labels are deliberately not classified by this lens. The response
+now includes `relationshipLabelPolicy.relationshipSource: "not-classified"` and
+`relationshipProof: "none"` for non-player owners. Owner mismatch and proximity
+are contact evidence only; they are not proof that a unit, city, or owner is an
+enemy, hostile, an opponent, allied, neutral, suzerained, or a war target.
+
 ## Tactical Norm
 
 Use this scan when the agent is making a sequence of military moves or deciding
@@ -88,7 +94,7 @@ before choosing between tactical inspections.
 
 - `game play ready-unit`: tells what the current unit can legally do.
 - `game play unit-target`: resolves and validates a specific plot action.
-- `game play target-candidates`: ranks opponent owners/city targets from an
+- `game play target-candidates`: ranks other-owner city/contact targets from an
   origin.
 - `game play battlefield-scan`: explains the local battlefield around an
   origin before committing to a target or a sequence of unit moves.
@@ -131,7 +137,8 @@ validation.
 - Visibility filtering is not yet paired with every unit/city summary.
 - Zone-of-control, river crossings, embarkation, and road movement are not
   modeled.
-- Owner relation state is reduced to friendly versus other; future scans should
-  distinguish war, independent hostility, allied/friendly, and neutral rivals.
+- Owner relation state is explicitly unclassified for non-player owners; future
+  scans should add official relationship, team, diplomacy, independent-power, or
+  war-state proof before stronger labels are emitted.
 - Campaign-level summarization still needs a higher-order snapshot that
   composes battlefield scans across multiple fronts.

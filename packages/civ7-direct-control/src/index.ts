@@ -1459,7 +1459,8 @@ export type Civ7UnitMovePreviewResult = Readonly<{
   requestedDestination: Civ7MapLocation | null;
   requestedPath: Civ7RuntimeProbe<unknown>;
   relationshipPolicy: Readonly<{
-    source: "owner-only";
+    relationshipSource: "not-classified";
+    relationshipProof: "none";
     unprovenLabel: "relationship-unproven";
     guidance: string;
   }>;
@@ -1619,6 +1620,7 @@ export type Civ7TargetCandidatesResult = Readonly<{
   origins: ReadonlyArray<Readonly<{ x: number; y: number }>>;
   unitRadius: number;
   hiddenInfoPolicy: string;
+  relationshipLabelPolicy: unknown;
   candidates: ReadonlyArray<Civ7TargetCandidate>;
   notes: ReadonlyArray<string>;
 }>;
@@ -1641,6 +1643,7 @@ export type Civ7BattlefieldScanResult = Readonly<{
   origins: ReadonlyArray<Readonly<{ x: number; y: number }>>;
   radius: number;
   hiddenInfoPolicy: string;
+  relationshipLabelPolicy: unknown;
   units: unknown;
   cities: unknown;
   owners: unknown;
@@ -1670,6 +1673,7 @@ export type Civ7DestinationAnalysisResult = Readonly<{
   corridorRadius: number;
   destinationRadius: number;
   hiddenInfoPolicy: string;
+  relationshipLabelPolicy: unknown;
   corridor: unknown;
   destinationPressure: unknown;
   pointsOfInterest: unknown;
@@ -6585,6 +6589,12 @@ function settlementRecommendationsSource(): string {
 function targetCandidatesSource(): string {
   return `${probeHelperSource()}
     ${runtimeObjectReaderSource()}
+    const relationshipLabelPolicy = {
+      relationshipSource: "not-classified",
+      relationshipProof: "none",
+      unprovenLabel: "relationship-unproven",
+      guidance: "Target candidates rank other owners from runtime city/unit summaries. They do not prove enemy, hostile, opponent, allied, neutral, suzerained, or war-target status without official relationship, team, diplomacy, independent-power, or war-state evidence.",
+    };
     const toComponentId = (value) => {
       if (!value || typeof value !== "object") return null;
       const owner = Number(value.owner ?? value.Owner ?? value.player ?? value.Player);
@@ -6850,9 +6860,11 @@ function targetCandidatesSource(): string {
         origins,
         unitRadius: input.unitRadius,
         hiddenInfoPolicy: "runtime-debug-summary; may include non-visible cities or units until paired with visibility reads",
+        relationshipLabelPolicy,
         candidates,
         notes: [
-          "Read-only strategic target shortlist. It ranks opponents; it does not choose or send war, movement, or attack operations.",
+          "Read-only strategic target shortlist. It ranks other-owner contacts; it does not choose or send war, movement, or attack operations.",
+          "Relationship labels are not classified here. Treat other-owner candidates as relationship-unproven until an official relationship or operation validator proves more.",
           "Treat candidate ranking as planning support. Re-read map/visibility, ready-unit, and unit-target before any tactical send.",
           "Use --x/--y from the current siege stack or intended formation when you want the distance ranking to reflect a specific front.",
         ],
@@ -6863,6 +6875,12 @@ function targetCandidatesSource(): string {
 function battlefieldScanSource(): string {
   return `${probeHelperSource()}
     ${runtimeObjectReaderSource()}
+    const relationshipLabelPolicy = {
+      relationshipSource: "not-classified",
+      relationshipProof: "none",
+      unprovenLabel: "relationship-unproven",
+      guidance: "Battlefield scan can prove owner ids, proximity, role heuristics, and validator-independent pressure. It cannot prove enemy, hostile, opponent, allied, neutral, suzerained, or war-target status without official relationship, team, diplomacy, independent-power, or war-state evidence.",
+    };
     const toComponentId = (value) => {
       if (!value || typeof value !== "object") return null;
       const owner = Number(value.owner ?? value.Owner ?? value.player ?? value.Player);
@@ -6942,6 +6960,8 @@ function battlefieldScanSource(): string {
         id: toComponentId(unit.id ?? unitId) ?? unitId,
         owner,
         stance: owner === playerId ? "friendly" : "other",
+        relationshipProof: owner === playerId ? "self" : "none",
+        relationshipLabel: owner === playerId ? "friendly" : relationshipLabelPolicy.unprovenLabel,
         type,
         typeName,
         role: roleForUnit(typeName, definition),
@@ -6967,6 +6987,8 @@ function battlefieldScanSource(): string {
         id: toComponentId(city.id ?? cityId) ?? cityId,
         owner,
         stance: owner === playerId ? "friendly" : "other",
+        relationshipProof: owner === playerId ? "self" : "none",
+        relationshipLabel: owner === playerId ? "friendly" : relationshipLabelPolicy.unprovenLabel,
         name: typeof city.getName === "function" ? city.getName() : city.name ?? null,
         location,
         distance: proximity.distance,
@@ -7027,6 +7049,8 @@ function battlefieldScanSource(): string {
       return {
         owner,
         stance: owner === playerId ? "friendly" : "other",
+        relationshipProof: owner === playerId ? "self" : "none",
+        relationshipLabel: owner === playerId ? "friendly" : relationshipLabelPolicy.unprovenLabel,
         leaderName: probe(() => readValue(Players.get(owner), ["leaderName", "name"], ["getLeaderName", "getName"])),
         civilizationName: probe(() => readValue(Players.get(owner), ["civilizationName", "civilizationType"], ["getCivilizationName", "getCivilizationType"])),
         unitCount: units.length,
@@ -7043,7 +7067,7 @@ function battlefieldScanSource(): string {
       const friendlyUnits = units.filter((unit) => unit.owner === playerId);
       const closeOther = otherUnits.filter((unit) => unit.distance <= 3);
       if (closeOther.length > 0) points.push({
-        kind: "nearby-opponents",
+        kind: "nearby-other-owners",
         severity: closeOther.length >= 4 ? "high" : "medium",
         location: closeOther[0].location,
         summary: closeOther.length + " non-friendly units within 3 tiles of an origin",
@@ -7121,6 +7145,7 @@ function battlefieldScanSource(): string {
         origins,
         radius,
         hiddenInfoPolicy: "runtime-debug-summary; may include non-visible units or cities until paired with visibility/map reads",
+        relationshipLabelPolicy,
         units: limitedUnits,
         cities: limitedCities,
         owners,
@@ -7128,6 +7153,7 @@ function battlefieldScanSource(): string {
         notes: [
           "Read-only battlefield lens for tactical orientation. It does not path, move, attack, declare war, or validate operations.",
           "Distances are cheap grid-radius heuristics, not terrain pathfinding. Use unit-target and movement validators before sends.",
+          "Owner mismatch is contact evidence, not proof of enemy or hostile relationship. Use neutral relationship-unproven language unless official relationship APIs prove more.",
           "Use explicit --x/--y origins for the current front, formation, city, or intended destination so POIs are scoped to the decision at hand.",
         ],
       };
@@ -7274,6 +7300,7 @@ function destinationAnalysisSource(): string {
         corridorRadius: input.corridorRadius,
         destinationRadius: input.destinationRadius,
         hiddenInfoPolicy: "runtime-debug-summary; may include non-visible units, cities, or plot state until paired with visibility/map reads",
+        relationshipLabelPolicy: scan.relationshipLabelPolicy,
         corridor: {
           routeHint: origin ? "straight-line-grid-corridor" : "destination-only-no-origin",
           directGridDistance: origin ? distance(origin, destination) : null,
@@ -7293,7 +7320,8 @@ function destinationAnalysisSource(): string {
         notes: [
           "Read-only destination lens for tactical planning. It does not move units, reserve paths, attack, or validate operations.",
           "The corridor is a straight-line grid approximation, not Civ7 engine pathfinding. Use ready-unit, map/visibility, and movement validators before sends.",
-          "Use this lens to decide what needs inspection before movement: enemy pressure, exposed civilians, unsupported endpoints, and plot-state surprises.",
+          "Use this lens to decide what needs inspection before movement: other-owner contact, exposed civilians, unsupported endpoints, and plot-state surprises.",
+          "Relationship labels are not classified here. Treat owner/proximity pressure as relationship-unproven until official relationship or operation evidence proves more.",
         ],
       };
     };`;
@@ -7671,7 +7699,8 @@ function unitMovePreviewSource(): string {
         requestedDestination,
         requestedPath: probe(() => unitId && requestedDestination ? summarizePath(Units.getPathTo(unitId, requestedDestination), input.maxPathPlots) : null),
         relationshipPolicy: {
-          source: "owner-only",
+          relationshipSource: "not-classified",
+          relationshipProof: "none",
           unprovenLabel: "relationship-unproven",
           guidance: "This movement preview does not prove whether other owners are hostile, allied, neutral, suzerained, or war targets. Use neutral labels unless an official relationship, team, diplomacy, independent-power, or war-state API supplies that proof.",
         },
@@ -8201,7 +8230,7 @@ const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> 
     provenance: ["Players", "Cities", "Units", "GameInfo"],
     wrapper: "getCiv7TargetCandidates",
     confidence: "runtime",
-    description: "Ranks candidate opponent targets from runtime city/unit summaries and a supplied formation origin.",
+    description: "Ranks candidate other-owner contacts from runtime city/unit summaries and a supplied formation origin.",
   },
   {
     id: "wrapper.battlefield-scan",

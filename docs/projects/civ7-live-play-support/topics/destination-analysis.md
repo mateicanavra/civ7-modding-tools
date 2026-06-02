@@ -68,6 +68,13 @@ Before mutation, re-read `game play ready-unit`, inspect the relevant map or
 plot surface when visibility matters, and use validator-backed movement or
 target shortcuts where available.
 
+Relationship labels are deliberately not classified by this lens. The response
+includes `relationshipLabelPolicy.relationshipSource: "not-classified"` and
+`relationshipProof: "none"` for non-player owners. Use neutral labels such as
+`other-owner contact`, `non-friendly pressure`, or `relationship-unproven`
+unless official relationship, team, diplomacy, independent-power, or war-state
+evidence proves stronger status.
+
 ## Tactical Norm
 
 Use destination analysis when the question is "is this endpoint or approach
@@ -76,7 +83,7 @@ worth considering?" rather than "can this unit legally move there right now?"
 Good uses:
 
 1. Screening a Settler destination before moving the escort.
-2. Checking whether a Galley advance would arrive near enemy pressure.
+2. Checking whether a Galley advance would arrive near other-owner pressure.
 3. Comparing two staging plots before committing a formation.
 4. Deciding whether to inspect a plot, unit target, or nearby city next.
 
@@ -98,7 +105,7 @@ Bad uses:
   fronts, cities, or formations.
 - `game play destination-analysis`: focuses that picture on one intended
   endpoint and the straight-line corridor toward it.
-- `game play target-candidates`: ranks opponent owners and city fronts.
+- `game play target-candidates`: ranks other-owner contacts and city fronts.
 - `game play ready-unit`: identifies the current unit and its legal operation
   surface.
 - `game play unit-target` and `game play operation`: validate or send concrete
@@ -118,6 +125,7 @@ The practical sequence for movement-heavy turns is:
 - Visibility filtering is not paired with every unit, city, or sampled plot.
 - Movement validators for ordinary destination moves are not yet exposed as a
   first-class shortcut.
-- Relation state is still reduced to friendly versus other.
+- Relation state is explicitly unclassified for non-player owners until official
+  relationship proof is wired in.
 - Multi-destination comparison should be a later composition over this lens,
   not a reason to make this command choose strategy.

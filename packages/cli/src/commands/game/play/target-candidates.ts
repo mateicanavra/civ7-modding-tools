@@ -6,7 +6,7 @@ export default class GamePlayTargetCandidates extends Command {
   static id = 'game play target-candidates';
   static summary = 'Read strategic target candidates from live city and unit summaries';
   static description =
-    'Returns a read-only shortlist of opponent targets ranked from a supplied siege/formation origin. It is planning support, not a movement, diplomacy, or war operation.';
+    'Returns a read-only shortlist of other-owner contacts ranked from a supplied siege/formation origin. It is planning support, not relationship, movement, diplomacy, or war authority.';
 
   static examples = [
     '<%= config.bin %> game play target-candidates --json',

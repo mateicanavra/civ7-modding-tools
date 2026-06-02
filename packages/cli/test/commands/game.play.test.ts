@@ -1601,12 +1601,14 @@ describe('game play commands', () => {
           requestedDestination: { x: number; y: number };
           reachableMovement: { ok: true; value: ReadonlyArray<unknown> };
           queuedDestination: { ok: true; value: { x: number; y: number } };
-          relationshipPolicy: { unprovenLabel: string; guidance: string };
+          relationshipPolicy: { relationshipSource: string; relationshipProof: string; unprovenLabel: string; guidance: string };
         };
       };
       expect(payload.view.requestedDestination).toEqual({ x: 25, y: 35 });
       expect(payload.view.reachableMovement.value.length).toBeGreaterThan(0);
       expect(payload.view.queuedDestination.value).toEqual({ x: 25, y: 35 });
+      expect(payload.view.relationshipPolicy.relationshipSource).toBe('not-classified');
+      expect(payload.view.relationshipPolicy.relationshipProof).toBe('none');
       expect(payload.view.relationshipPolicy.unprovenLabel).toBe('relationship-unproven');
       expect(payload.view.relationshipPolicy.guidance).toMatch(/does not prove whether other owners are hostile/);
       expect(server.received.some((message) => message.includes('readUnitMovePreview'))).toBe(true);
@@ -1931,6 +1933,10 @@ describe('game play commands', () => {
 
   test('reads destination analysis without sending operations', async () => {
     const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayDestinationAnalysis.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
     try {
       const { port } = server.address();
       await GamePlayDestinationAnalysis.run([
@@ -1949,11 +1955,28 @@ describe('game play commands', () => {
         '--json',
       ]);
 
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          relationshipLabelPolicy: {
+            relationshipSource: string;
+            relationshipProof: string;
+            unprovenLabel: string;
+          };
+        };
+      };
+      expect(payload.view.relationshipLabelPolicy).toMatchObject({
+        relationshipSource: 'not-classified',
+        relationshipProof: 'none',
+        unprovenLabel: 'relationship-unproven',
+      });
       expect(server.received.some((message) => message.includes('readDestinationAnalysis'))).toBe(true);
+      expect(server.received.some((message) => message.includes('relationshipLabelPolicy: scan.relationshipLabelPolicy'))).toBe(true);
       expect(server.received.some((message) => message.includes('"origin":{"x":20,"y":14}'))).toBe(true);
       expect(server.received.some((message) => message.includes('"destination":{"x":13,"y":17}'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
     } finally {
+      log.mockRestore();
       await server.close();
     }
   });
@@ -2884,7 +2907,8 @@ function unitMovePreviewView() {
       },
     },
     relationshipPolicy: {
-      source: 'owner-only',
+      relationshipSource: 'not-classified',
+      relationshipProof: 'none',
       unprovenLabel: 'relationship-unproven',
       guidance: 'This movement preview does not prove whether other owners are hostile, allied, neutral, suzerained, or war targets. Use neutral labels unless an official relationship, team, diplomacy, independent-power, or war-state API supplies that proof.',
     },
@@ -3181,7 +3205,16 @@ function targetCandidatesView() {
         reasons: ['nearest target distance 5', 'single known city target', 'low nearby unit density'],
       },
     ],
-    notes: ['Read-only strategic target shortlist. It ranks opponents; it does not choose or send war, movement, or attack operations.'],
+    relationshipLabelPolicy: {
+      relationshipSource: 'not-classified',
+      relationshipProof: 'none',
+      unprovenLabel: 'relationship-unproven',
+      guidance: 'Target candidates rank other owners from runtime city/unit summaries. They do not prove enemy, hostile, opponent, allied, neutral, suzerained, or war-target status without official relationship, team, diplomacy, independent-power, or war-state evidence.',
+    },
+    notes: [
+      'Read-only strategic target shortlist. It ranks other-owner contacts; it does not choose or send war, movement, or attack operations.',
+      'Relationship labels are not classified here. Treat other-owner candidates as relationship-unproven until an official relationship or operation validator proves more.',
+    ],
   };
 }
 
@@ -3268,6 +3301,8 @@ function battlefieldScanView() {
     id: { owner: 0, id: 458752, type: 26 },
     owner: 0,
     stance: 'friendly',
+    relationshipProof: 'self',
+    relationshipLabel: 'friendly',
     type: 111,
     typeName: 'UNIT_SLINGER',
     role: 'ranged',
@@ -3284,6 +3319,8 @@ function battlefieldScanView() {
     id: { owner: 0, id: 1441800, type: 26 },
     owner: 0,
     stance: 'friendly',
+    relationshipProof: 'self',
+    relationshipLabel: 'friendly',
     type: 333,
     typeName: 'UNIT_SETTLER',
     role: 'civilian',
@@ -3300,6 +3337,8 @@ function battlefieldScanView() {
     id: { owner: 9, id: 196608, type: 26 },
     owner: 9,
     stance: 'other',
+    relationshipProof: 'none',
+    relationshipLabel: 'relationship-unproven',
     type: 222,
     typeName: 'UNIT_WARRIOR',
     role: 'melee',
@@ -3316,6 +3355,8 @@ function battlefieldScanView() {
     id: { owner: 9, id: 589824, type: 1 },
     owner: 9,
     stance: 'other',
+    relationshipProof: 'none',
+    relationshipLabel: 'relationship-unproven',
     name: 'Independent City',
     location: { x: 13, y: 17 },
     distance: 4,
@@ -3329,12 +3370,20 @@ function battlefieldScanView() {
     origins: [{ x: 17, y: 20 }],
     radius: 8,
     hiddenInfoPolicy: 'runtime-debug-summary; may include non-visible units or cities until paired with visibility/map reads',
+    relationshipLabelPolicy: {
+      relationshipSource: 'not-classified',
+      relationshipProof: 'none',
+      unprovenLabel: 'relationship-unproven',
+      guidance: 'Battlefield scan can prove owner ids, proximity, role heuristics, and validator-independent pressure. It cannot prove enemy, hostile, opponent, allied, neutral, suzerained, or war-target status without official relationship, team, diplomacy, independent-power, or war-state evidence.',
+    },
     units: [friendlyUnit, civilianUnit, opponentUnit],
     cities: [city],
     owners: [
       {
         owner: 0,
         stance: 'friendly',
+        relationshipProof: 'self',
+        relationshipLabel: 'friendly',
         leaderName: { ok: true, value: 'Player' },
         civilizationName: { ok: true, value: 'Assyria' },
         unitCount: 2,
@@ -3347,6 +3396,8 @@ function battlefieldScanView() {
       {
         owner: 9,
         stance: 'other',
+        relationshipProof: 'none',
+        relationshipLabel: 'relationship-unproven',
         leaderName: { ok: true, value: 'Independent Power' },
         civilizationName: { ok: true, value: 'Independent' },
         unitCount: 1,
@@ -3380,7 +3431,10 @@ function battlefieldScanView() {
         cities: [city],
       },
     ],
-    notes: ['Read-only battlefield lens for tactical orientation. It does not path, move, attack, declare war, or validate operations.'],
+    notes: [
+      'Read-only battlefield lens for tactical orientation. It does not path, move, attack, declare war, or validate operations.',
+      'Owner mismatch is contact evidence, not proof of enemy or hostile relationship. Use neutral relationship-unproven language unless official relationship APIs prove more.',
+    ],
   };
 }
 
@@ -3423,6 +3477,12 @@ function destinationAnalysisView() {
     corridorRadius: 2,
     destinationRadius: 4,
     hiddenInfoPolicy: 'runtime-debug-summary; may include non-visible units, cities, or plot state until paired with visibility/map reads',
+    relationshipLabelPolicy: {
+      relationshipSource: 'not-classified',
+      relationshipProof: 'none',
+      unprovenLabel: 'relationship-unproven',
+      guidance: 'Battlefield scan can prove owner ids, proximity, role heuristics, and validator-independent pressure. It cannot prove enemy, hostile, opponent, allied, neutral, suzerained, or war-target status without official relationship, team, diplomacy, independent-power, or war-state evidence.',
+    },
     corridor: {
       routeHint: 'straight-line-grid-corridor',
       directGridDistance: 7,

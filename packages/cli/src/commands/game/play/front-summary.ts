@@ -313,7 +313,9 @@ function postureFromPressure(
   destination: Awaited<ReturnType<typeof getCiv7DestinationAnalysis>> | null,
 ): string {
   if (pressure.some((item) => item.kind === 'civilian-risk' && item.severity === 'high')) return 'screen-civilians-before-advance';
-  if (pressure.some((item) => item.kind === 'nearby-opponents' && item.severity === 'high')) return 'stabilize-front-before-committing-siege';
+  if (pressure.some((item) => (item.kind === 'nearby-other-owners' || item.kind === 'nearby-opponents') && item.severity === 'high')) {
+    return 'stabilize-front-before-committing-siege';
+  }
   const destinationPressure = destination?.destinationPressure as { unitCount?: unknown; cityCount?: unknown } | undefined;
   if ((Number(destinationPressure?.unitCount) || 0) > 0 || (Number(destinationPressure?.cityCount) || 0) > 0) {
     return 'stage-before-entering-target-pressure';

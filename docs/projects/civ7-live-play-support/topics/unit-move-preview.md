@@ -111,6 +111,12 @@ neutral labels such as `other-owner contact`, `non-friendly pressure`, or
 `relationship-unproven` unless an official relationship API supplies that
 proof.
 
+The policy fields are intentionally explicit:
+
+- `relationshipSource: "not-classified"`;
+- `relationshipProof: "none"`;
+- `unprovenLabel: "relationship-unproven"`.
+
 ## Response Contract
 
 The useful response shape is:

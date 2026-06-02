@@ -11,8 +11,8 @@ army should stage toward an independent city, a nearby major civ, or a naval
 front.
 
 `game play target-candidates` is the first read-only materialization for that
-question. It ranks opponent owners from a supplied formation origin using live
-runtime city/unit summaries:
+question. It ranks other-owner contacts from a supplied formation origin using
+live runtime city/unit summaries:
 
 ```bash
 civ7 game play target-candidates \
@@ -66,8 +66,8 @@ Treat `approach.routeKind` as a planning label, not a pathing result. A `land`
 label means the cheap sampled line did not cross water; `mixed-or-coastal`
 means a land-to-land target has water in the sampled line and needs a more
 careful route/corridor read; `sea` and `coastal-amphibious` indicate naval or
-coastal context. Terrain, roads, rivers, enemy zones, and embarkation legality
-still require follow-up reads and validators.
+coastal context. Terrain, roads, rivers, relationship-unproven contact zones,
+and embarkation legality still require follow-up reads and validators.
 
 ## Proof Boundary
 
@@ -77,8 +77,16 @@ This is planning support, not action authority.
 - It does not move units.
 - It does not prove a path is passable.
 - It does not prove a ranged or melee target is legal.
+- It does not prove enemy, hostile, opponent, allied, neutral, suzerained, or
+  war-target status.
 - It may use runtime/debug city and unit summaries that include facts beyond
   normal UI visibility until paired with map/visibility reads.
+
+The response includes `relationshipLabelPolicy.relationshipSource:
+"not-classified"` and `relationshipProof: "none"` for non-player owners. Treat
+the shortlist as owner/proximity planning evidence until official relationship,
+team, diplomacy, independent-power, war-state, or operation-validator evidence
+proves more.
 
 After choosing a target, the agent still needs normal live-play discipline:
 `game play ready-unit`, `game map` or `game visibility`, `game play
@@ -121,7 +129,7 @@ read.
 - Visibility-filtered target ranking that mirrors official UI knowledge.
 - Real terrain/pathing, river/coast passability, roads, zones of control, and
   embarkation legality in the route hint.
-- Diplomacy and war-state context, including whether attacking the target opens
+- Diplomacy and war-state context, including whether attacking the contact opens
   an unwanted major-civ front.
 - Formation snapshot integration so the target ranking knows where Settlers,
   escorts, Ballistas, and wounded units currently are.
