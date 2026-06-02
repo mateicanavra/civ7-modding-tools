@@ -32,6 +32,12 @@ type FormationSnapshot = Readonly<{
   reasons: ReadonlyArray<string>;
   civilians: ReadonlyArray<FormationUnit>;
   screens: ReadonlyArray<FormationUnit>;
+  otherOwnerContacts: ReadonlyArray<FormationUnit>;
+  nearbyContacts: ReadonlyArray<FormationUnit>;
+  /**
+   * @deprecated Compatibility alias for older callers. Other-owner proximity
+   * does not prove threat/hostility without relationship or validator proof.
+   */
   threats: ReadonlyArray<FormationUnit>;
   nextInspections: ReadonlyArray<string>;
 }>;
@@ -77,11 +83,16 @@ export default class GamePlayFormationSnapshot extends Command {
       min: 1,
       max: 6,
     }),
-    'threat-radius': Flags.integer({
-      description: 'Maximum grid distance for other-owner units to count as immediate civilian contacts',
-      default: 4,
+    'contact-radius': Flags.integer({
+      description: 'Maximum grid distance for other-owner units to count as immediate civilian contacts. Defaults to 4.',
       min: 1,
       max: 8,
+    }),
+    'threat-radius': Flags.integer({
+      description: 'Deprecated compatibility alias for --contact-radius',
+      min: 1,
+      max: 8,
+      hidden: true,
     }),
     'max-units': Flags.integer({
       description: 'Maximum nearby unit summaries to return',
@@ -126,7 +137,7 @@ export default class GamePlayFormationSnapshot extends Command {
       readyUnit,
       battlefield,
       screenRadius: flags['screen-radius'],
-      threatRadius: flags['threat-radius'],
+      contactRadius: flags['contact-radius'] ?? flags['threat-radius'] ?? 4,
     });
     const view = {
       localPlayerId: hud.localPlayerId,
@@ -169,7 +180,7 @@ function buildFormationSnapshot(input: {
   readyUnit: Awaited<ReturnType<typeof getCiv7ReadyUnitView>> | null;
   battlefield: Awaited<ReturnType<typeof getCiv7BattlefieldScan>>;
   screenRadius: number;
-  threatRadius: number;
+  contactRadius: number;
 }): FormationSnapshot {
   const units = asRecords(input.battlefield.units).map(toFormationUnit);
   const civilians = units.filter((unit) => unit.stance === 'friendly' && unit.role === 'civilian');
@@ -178,38 +189,40 @@ function buildFormationSnapshot(input: {
   const screens = friendlies.filter((unit) =>
     civilians.some((civilian) => civilian.location && unit.location && gridDistance(civilian.location, unit.location) <= input.screenRadius),
   );
-  const threats = otherOwnerContacts.filter((unit) =>
-    civilians.some((civilian) => civilian.location && unit.location && gridDistance(civilian.location, unit.location) <= input.threatRadius),
+  const nearbyContacts = otherOwnerContacts.filter((unit) =>
+    civilians.some((civilian) => civilian.location && unit.location && gridDistance(civilian.location, unit.location) <= input.contactRadius),
   );
   const poiReasons = pointReasons(input.battlefield.pointsOfInterest);
   const ready = readyUnitSummary(input.readyUnit);
-  const posture = postureFor({ civilians, screens, threats, poiReasons, readyUnit: input.readyUnit });
+  const posture = postureFor({ civilians, screens, nearbyContacts, poiReasons, readyUnit: input.readyUnit });
   const originLabel = input.origin ? `(${input.origin.x},${input.origin.y})` : '<unknown origin>';
-  const headline = `${ready} formation at ${originLabel}: ${civilians.length} civilians, ${screens.length} local screens, ${threats.length} nearby threats`;
+  const headline = `${ready} formation at ${originLabel}: ${civilians.length} civilians, ${screens.length} local screens, ${nearbyContacts.length} nearby other-owner contacts`;
   return {
     posture,
     headline,
     reasons: uniqueStrings([
       ...poiReasons,
-      ...civilianThreatReasons(civilians, threats),
+      ...civilianContactReasons(civilians, nearbyContacts),
       ...screenReasons(civilians, screens),
     ]).slice(0, 10),
     civilians,
     screens,
-    threats,
-    nextInspections: nextInspectionCommands(input.origin, civilians, threats, posture),
+    otherOwnerContacts,
+    nearbyContacts,
+    threats: nearbyContacts,
+    nextInspections: nextInspectionCommands(input.origin, civilians, nearbyContacts, posture),
   };
 }
 
 function postureFor(input: {
   civilians: ReadonlyArray<FormationUnit>;
   screens: ReadonlyArray<FormationUnit>;
-  threats: ReadonlyArray<FormationUnit>;
+  nearbyContacts: ReadonlyArray<FormationUnit>;
   poiReasons: ReadonlyArray<string>;
   readyUnit: Awaited<ReturnType<typeof getCiv7ReadyUnitView>> | null;
 }): FormationPosture {
   if (!input.readyUnit) return 'inspect-ready-unit';
-  if (input.civilians.length > 0 && input.threats.length > 0) return 'screen-civilian';
+  if (input.civilians.length > 0 && input.nearbyContacts.length > 0) return 'screen-civilian';
   if (input.civilians.length > 0 && input.screens.length === 0) return 'hold-ready-unit';
   if (input.poiReasons.some((reason) =>
     reason.includes('nearby-other-owners')
@@ -241,11 +254,11 @@ function pointReasons(value: unknown): string[] {
   });
 }
 
-function civilianThreatReasons(civilians: ReadonlyArray<FormationUnit>, threats: ReadonlyArray<FormationUnit>): string[] {
-  if (civilians.length === 0 || threats.length === 0) return [];
+function civilianContactReasons(civilians: ReadonlyArray<FormationUnit>, nearbyContacts: ReadonlyArray<FormationUnit>): string[] {
+  if (civilians.length === 0 || nearbyContacts.length === 0) return [];
   return civilians.map((civilian) => {
     const location = civilian.location ? `(${civilian.location.x},${civilian.location.y})` : '<unknown>';
-    return `${civilian.typeName ?? 'civilian'} at ${location} has ${threats.length} other-owner units within contact radius`;
+    return `${civilian.typeName ?? 'civilian'} at ${location} has ${nearbyContacts.length} other-owner units within contact radius`;
   });
 }
 
@@ -258,17 +271,17 @@ function screenReasons(civilians: ReadonlyArray<FormationUnit>, screens: Readonl
 function nextInspectionCommands(
   origin: Location | null,
   civilians: ReadonlyArray<FormationUnit>,
-  threats: ReadonlyArray<FormationUnit>,
+  nearbyContacts: ReadonlyArray<FormationUnit>,
   posture: FormationPosture,
 ): string[] {
   const commands = ['game play priorities --json', 'game play ready-unit --json'];
   if (origin) commands.push(`game play battlefield-scan --x ${origin.x} --y ${origin.y} --json`);
   const civilian = civilians.find((unit) => unit.location);
   if (civilian?.location) commands.push(`game play civilian-route-triage --x ${civilian.location.x} --y ${civilian.location.y} --json`);
-  const threat = threats.find((unit) => unit.location);
-  if (threat?.location) commands.push(`game play battlefield-scan --x ${threat.location.x} --y ${threat.location.y} --json`);
+  const contact = nearbyContacts.find((unit) => unit.location);
+  if (contact?.location) commands.push(`game play battlefield-scan --x ${contact.location.x} --y ${contact.location.y} --json`);
   if (posture === 'screen-civilian' || posture === 'stabilize-front') {
-    commands.push("game play unit-target --unit-id '<unit-id>' --x <screen-or-threat-x> --y <screen-or-threat-y> --json");
+    commands.push("game play unit-target --unit-id '<unit-id>' --x <screen-or-contact-x> --y <screen-or-contact-y> --json");
   } else {
     commands.push("game play unit-target --unit-id '<unit-id>' --x <x> --y <y> --json");
   }

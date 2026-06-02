@@ -15,7 +15,7 @@ ready unit or supplied origin:
 - current ready unit and no-target operation count;
 - nearby civilians that may need protection;
 - friendly non-civilian units that are close enough to act as screens;
-- other-owner units close enough to pressure nearby civilians;
+- other-owner units close enough to create contact around nearby civilians;
 - battlefield POIs and next inspection commands.
 
 ## Command
@@ -39,12 +39,16 @@ The `formation` object has:
 
 - `posture`: `screen-civilian`, `hold-ready-unit`, `stabilize-front`,
   `advance-with-validation`, or `inspect-ready-unit`;
-- `headline`: compact count of civilians, local screens, and nearby threats;
+- `headline`: compact count of civilians, local screens, and nearby
+  other-owner contacts;
 - `reasons`: proof strings from battlefield POIs and formation geometry;
 - `civilians`: friendly civilian units in scan scope;
 - `screens`: friendly non-civilian units within `--screen-radius` of a
   civilian;
-- `threats`: other-owner units within `--threat-radius` of a civilian;
+- `otherOwnerContacts`: all other-owner units in scan scope;
+- `nearbyContacts`: other-owner units within `--contact-radius` of a civilian;
+- `threats`: deprecated compatibility alias for `nearbyContacts`; do not treat
+  this field name as proof of hostility, war state, or danger by itself;
 - `nextInspections`: commands to re-read priorities, battlefield, civilian
   route triage, and concrete `unit-target` validators.
 
@@ -56,8 +60,8 @@ next action should be a concrete validator read:
 ```bash
 civ7 game play unit-target \
   --unit-id '<ready-unit-id>' \
-  --x <screen-or-threat-x> \
-  --y <screen-or-threat-y> \
+  --x <screen-or-contact-x> \
+  --y <screen-or-contact-y> \
   --json
 ```
 
@@ -76,3 +80,8 @@ This command proves only a bounded runtime scan and derived local geometry.
 Distances are cheap grid heuristics. Hidden-info policy follows
 `battlefield-scan`. Operation legality and effect still require `unit-target`,
 operation validation, and postcondition reads.
+
+Other-owner contact is not relationship proof. Do not call a contact a threat,
+enemy, hostile unit, opponent, or war target unless an official
+relationship/team/diplomacy/war-state read or a concrete combat validator proves
+that stronger label.

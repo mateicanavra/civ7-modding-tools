@@ -151,7 +151,8 @@ These are strategy heuristics, not operation proof:
 - Preserve badly wounded Warriors unless the live combat preview shows a safe
   kill or favorable trade.
 - Use Slingers to remove relationship-proven ranged threats that can finish
-  wounded friendly units, then adjacent melee threats.
+  wounded friendly units, then adjacent relationship-proven melee threats or
+  validator-proven combat targets.
 - Keep melee/body-blocking units in front of ranged units.
 - Keep the Galley screening coastal access to the capital and town; do not chase
   if it opens a water approach.

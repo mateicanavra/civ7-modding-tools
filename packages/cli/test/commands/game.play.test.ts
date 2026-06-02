@@ -2063,8 +2063,11 @@ describe('game play commands', () => {
         view: {
           formation: {
             posture: string;
+            headline: string;
             civilians: unknown[];
             screens: unknown[];
+            otherOwnerContacts: unknown[];
+            nearbyContacts: unknown[];
             threats: unknown[];
             reasons: string[];
             nextInspections: string[];
@@ -2074,8 +2077,14 @@ describe('game play commands', () => {
       expect(payload.view.formation.posture).toBe('screen-civilian');
       expect(payload.view.formation.civilians).toHaveLength(1);
       expect(payload.view.formation.screens.length).toBeGreaterThan(0);
-      expect(payload.view.formation.threats.length).toBeGreaterThan(0);
-      expectPositiveRelationshipLabels(payload.view.formation.reasons);
+      expect(payload.view.formation.otherOwnerContacts.length).toBeGreaterThan(0);
+      expect(payload.view.formation.nearbyContacts.length).toBeGreaterThan(0);
+      expect(payload.view.formation.threats).toEqual(payload.view.formation.nearbyContacts);
+      expectOwnerOnlyContactLabels([
+        payload.view.formation.headline,
+        ...payload.view.formation.reasons,
+        ...payload.view.formation.nextInspections,
+      ]);
       expect(payload.view.formation.nextInspections).toContain('game play civilian-route-triage --x 16 --y 18 --json');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('readReadyUnitView'))).toBe(true);
@@ -2234,6 +2243,11 @@ function expectPositiveRelationshipLabels(values: readonly string[]): void {
   expect(text).not.toMatch(/\benemy\b/i);
   expect(text).not.toMatch(/\bhostile\b/i);
   expect(text).not.toMatch(/\bopponent\b/i);
+}
+
+function expectOwnerOnlyContactLabels(values: readonly string[]): void {
+  expectPositiveRelationshipLabels(values);
+  expect(values.join('\n')).not.toMatch(/\bthreats?\b/i);
 }
 
 async function startTunerServer(options: {
