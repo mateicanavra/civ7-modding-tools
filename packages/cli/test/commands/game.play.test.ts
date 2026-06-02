@@ -1283,6 +1283,102 @@ describe('game play commands', () => {
     }
   });
 
+  test('reports first-meet notification postconditions after send', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'first-meet' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayRespondFirstMeet.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayRespondFirstMeet.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--player-id',
+        '0',
+        '--met-player-id',
+        '2',
+        '--response',
+        'neutral',
+        '--send',
+        '--reason',
+        'test neutral first-meet response',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          sent: boolean;
+          verified: boolean;
+          postcondition: { classification: string; verified: boolean; reason: string };
+        };
+      };
+      expect(payload.result.sent).toBe(true);
+      expect(payload.result.verified).toBe(true);
+      expect(payload.result.postcondition.verified).toBe(true);
+      expect(payload.result.postcondition.classification).toBe('first-meet-cleared');
+      expect(server.received.some((message) => message.includes('RESPOND_DIPLOMATIC_FIRST_MEET'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(true);
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('does not verify first-meet sends while the same blocker remains live', async () => {
+    const server = await startTunerServer({
+      playNotificationMode: 'first-meet',
+      firstMeetMode: 'sticky',
+    });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayRespondFirstMeet.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayRespondFirstMeet.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--player-id',
+        '0',
+        '--met-player-id',
+        '2',
+        '--response',
+        'neutral',
+        '--send',
+        '--timeout-ms',
+        '1000',
+        '--reason',
+        'test sticky first-meet response',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          sent: boolean;
+          verified: boolean;
+          postcondition: { classification: string; verified: boolean; reason: string };
+        };
+      };
+      expect(payload.result.sent).toBe(true);
+      expect(payload.result.verified).toBe(false);
+      expect(payload.result.postcondition.verified).toBe(false);
+      expect(payload.result.postcondition.classification).toBe('first-meet-sticky-blocker');
+      expect(payload.result.postcondition.reason).toContain('same first-meet notification still blocks');
+      expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(true);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('wraps narrative story direction choice', async () => {
     const server = await startTunerServer();
     try {
@@ -4777,13 +4873,14 @@ function expectOwnerOnlyContactLabels(values: readonly string[]): void {
 
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
-  playNotificationMode?: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'unit-lost-report' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'clean-read' | 'stale-diplomacy' | 'runtime-error';
+  playNotificationMode?: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'unit-lost-report' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'first-meet' | 'ready-unit' | 'mixed-queue' | 'clean-read' | 'stale-diplomacy' | 'runtime-error';
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
   notificationDismissalMode?: 'verified' | 'stale-nonblocking' | 'engine-front-train-absent' | 'engine-front-dismissed';
   productionPostconditionMode?: 'cleared' | 'blocker-still-live';
   narrativeChoiceMode?: 'panel-cleared' | 'panel-cleared-blocker-live' | 'stale';
   technologyChoiceMode?: 'cleared' | 'sticky' | 'state-changed';
   cultureChoiceMode?: 'cleared' | 'sticky' | 'state-changed';
+  firstMeetMode?: 'cleared' | 'sticky';
 } = {}) {
   const received: string[] = [];
   let turnCompleteSent = false;
@@ -4791,6 +4888,7 @@ async function startTunerServer(options: {
   let narrativeChoiceSent = false;
   let technologyChoiceSent = false;
   let cultureChoiceSent = false;
+  let firstMeetSent = false;
   let diplomacyCloseoutObserved = false;
   let notificationDismissalSent = false;
   let productionChoiceSent = false;
@@ -4813,6 +4911,10 @@ async function startTunerServer(options: {
             : options.playNotificationMode === 'culture-choice'
             && cultureChoiceSent
             && (options.cultureChoiceMode ?? 'cleared') === 'cleared'
+            ? 'ready-unit'
+            : options.playNotificationMode === 'first-meet'
+            && firstMeetSent
+            && (options.firstMeetMode ?? 'cleared') === 'cleared'
             ? 'ready-unit'
             : options.playNotificationMode === 'narrative-choice-visible-panel'
             && narrativeChoiceSent
@@ -4903,6 +5005,9 @@ async function startTunerServer(options: {
           if (operationType === 'SET_CULTURE_TREE_NODE' || operationType === 'SET_CULTURE_TREE_TARGET_NODE') {
             cultureChoiceSent = true;
           }
+          if (operationType === 'RESPOND_DIPLOMATIC_FIRST_MEET') {
+            firstMeetSent = true;
+          }
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(unitFamily
             ? {
                 sent: true,
@@ -4940,7 +5045,7 @@ async function startTunerServer(options: {
 }
 
 function playNotificationView(
-  mode: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'unit-lost-report' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'clean-read' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
+  mode: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'unit-lost-report' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'first-meet' | 'ready-unit' | 'mixed-queue' | 'clean-read' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
   diplomacyCloseoutObserved = false,
   technologyStateChanged = false,
   cultureStateChanged = false,
@@ -4984,6 +5089,106 @@ function playNotificationView(
       hud: {
         nextDecision: null,
         decisionQueue: [],
+      },
+      limits: { maxNotifications: 25, truncated: false },
+    };
+  }
+  if (mode === 'first-meet') {
+    const decision = {
+      category: 'first-meet-diplomacy',
+      operationFamily: 'player-operation',
+      operationType: 'RESPOND_DIPLOMATIC_FIRST_MEET',
+      argsShape: '{ Player1, Player2, Type }',
+      cli: 'game play respond-first-meet',
+      requiredInputs: [
+        { name: 'Player1', source: 'local player id', required: true },
+        { name: 'Player2', source: 'met player id', required: true },
+        { name: 'Type', source: 'chosen first-meet greeting', required: true },
+      ],
+      commonActions: [
+        {
+          label: 'send neutral first-meet greeting',
+          cli: 'game play respond-first-meet --player-id 0 --met-player-id 2 --response neutral',
+          operationFamily: 'player-operation',
+          operationType: 'RESPOND_DIPLOMATIC_FIRST_MEET',
+          argsShape: '{ Player1, Player2, Type }',
+          when: 'after validating the greeting options from the live first-meet UI',
+        },
+      ],
+      notes: ['First-meet greetings are real player operations, not notification dismissals.'],
+      details: {
+        kind: 'first-meet-diplomacy',
+        player1: 0,
+        player2: 2,
+        responses: [
+          {
+            response: 'neutral',
+            type: { ok: true, value: 673478009 },
+            args: { Player1: 0, Player2: 2, Type: 673478009 },
+            validation: { ok: true, value: { Success: true } },
+          },
+        ],
+        recommendedResponse: 'neutral',
+        recommendedCli: 'game play respond-first-meet --player-id 0 --met-player-id 2 --response neutral',
+      },
+    };
+    const notification = {
+      id: { owner: 0, id: 44, type: 20 },
+      type: 44,
+      typeName: 'NOTIFICATION_PLAYER_MET',
+      groupType: null,
+      summary: 'You have met Ashoka, World Renouncer of Mauryan Empire.',
+      message: 'You have met a new Civilization',
+      target: { owner: -1, id: -1, type: 0 },
+      location: { x: 4, y: 2 },
+      player: 2,
+      canUserDismiss: false,
+      expired: false,
+      dismissed: false,
+      isEndTurnBlocking: true,
+      decision,
+      details: decision.details,
+    };
+    return {
+      localPlayerId: 0,
+      turn: { ok: true, value: 27 },
+      turnDate: { ok: true, value: '3350 BCE' },
+      hasSentTurnComplete: { ok: true, value: false },
+      canEndTurn: { ok: true, value: false },
+      blocker: { ok: true, value: 523279636 },
+      blockingNotificationId: { ok: true, value: notification.id },
+      selectedUnitId: { ok: true, value: null },
+      selectedCityId: { ok: true, value: null },
+      firstReadyUnitId: { ok: true, value: null },
+      notifications: [notification],
+      decisions: [decision],
+      hud: {
+        nextDecision: {
+          notificationId: notification.id,
+          isEndTurnBlocking: true,
+          typeName: notification.typeName,
+          summary: notification.summary,
+          message: notification.message,
+          target: notification.target,
+          location: notification.location,
+          player: notification.player,
+          details: notification.details,
+          ...decision,
+        },
+        decisionQueue: [
+          {
+            notificationId: notification.id,
+            isEndTurnBlocking: true,
+            typeName: notification.typeName,
+            summary: notification.summary,
+            message: notification.message,
+            target: notification.target,
+            location: notification.location,
+            player: notification.player,
+            details: notification.details,
+            ...decision,
+          },
+        ],
       },
       limits: { maxNotifications: 25, truncated: false },
     };
