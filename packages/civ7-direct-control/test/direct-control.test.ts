@@ -318,6 +318,9 @@ describe("Civ7 direct control", () => {
       });
       expect(view.decisions.some((decision) => decision.category === "town-focus")).toBe(true);
       expect(server.received.some((message) => message.includes("readPlayNotifications"))).toBe(true);
+      const notificationRead = server.received.find((message) => message.includes("readPlayNotifications")) ?? "";
+      expect(notificationRead).toContain("CHOOSE_AUTO_NARRATIVE_STORY_DIRECTION");
+      expect(notificationRead).toContain("getFirstPendingDiscoveryLastMetID");
     } finally {
       await server.close();
     }

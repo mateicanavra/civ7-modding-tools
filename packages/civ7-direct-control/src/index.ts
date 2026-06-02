@@ -5719,6 +5719,14 @@ function playNotificationViewSource(): string {
         return String(key);
       }
     };
+    const stylize = (text) => {
+      if (text == null || text === "") return null;
+      try {
+        return typeof Locale !== "undefined" && Locale.stylize ? Locale.stylize(text) : String(text);
+      } catch {
+        return String(text);
+      }
+    };
     const enumValueFor = (enums, operationType) => {
       if (enums && Object.prototype.hasOwnProperty.call(enums, operationType)) return enums[operationType];
       if (enums && typeof operationType === "string") {
@@ -6382,6 +6390,178 @@ function playNotificationViewSource(): string {
         ],
       };
     };
+    const narrativeChoiceDetailsFor = (notification, typeName, notificationId) => {
+      if (!stringIncludes(typeName, "CHOOSE_NARRATIVE_STORY_DIRECTION")
+        && !stringIncludes(typeName, "CHOOSE_DISCOVERY_STORY_DIRECTION")
+        && !stringIncludes(typeName, "CHOOSE_AUTO_NARRATIVE_STORY_DIRECTION")
+        && !stringIncludes(typeName, "CHOOSE_STORY_DIRECTION")) return undefined;
+      const localPlayerId = GameContext.localPlayerID;
+      const notificationOwner = toComponentId(notificationId)?.owner ?? localPlayerId;
+      const activate = typeof PlayerOperationParameters !== "undefined" ? PlayerOperationParameters.Activate : null;
+      const storyTextTypesAvailable = typeof StoryTextTypes !== "undefined";
+      const playerStories = probe(() => Players.get(notificationOwner)?.Stories ?? null);
+      const pendingStoryId = probe(() => playerStories.ok ? playerStories.value?.getFirstPendingMetId?.() ?? null : null);
+      const pendingDiscoveryStoryId = probe(() => playerStories.ok ? playerStories.value?.getFirstPendingDiscoveryLastMetID?.() ?? null : null);
+      const targetStoryIdSource = stringIncludes(typeName, "CHOOSE_DISCOVERY_STORY_DIRECTION")
+        ? (pendingDiscoveryStoryId.ok && pendingDiscoveryStoryId.value ? "Players.Stories.getFirstPendingDiscoveryLastMetID" : "Players.Stories.getFirstPendingMetId")
+        : "Players.Stories.getFirstPendingMetId";
+      const targetStoryId = targetStoryIdSource === "Players.Stories.getFirstPendingDiscoveryLastMetID" ? pendingDiscoveryStoryId : pendingStoryId;
+      const targetStory = probe(() => targetStoryId.ok && targetStoryId.value && playerStories.ok
+        ? playerStories.value?.find?.(targetStoryId.value) ?? null
+        : null);
+      const storyDef = probe(() => targetStory.ok && targetStory.value
+        ? GameInfo.NarrativeStories.lookup(targetStory.value.type)
+        : null);
+      const storyLinks = probe(() => storyDef.ok && storyDef.value
+        ? GameInfo.NarrativeStory_Links.filter((def) => def.FromNarrativeStoryType == storyDef.value.NarrativeStoryType)
+        : []);
+      const textFor = (target, toHash, textTypeName) => {
+        if (!playerStories.ok || !target || !storyTextTypesAvailable) return null;
+        const textType = StoryTextTypes[textTypeName];
+        if (textType == null) return null;
+        if (toHash == null) return stylize(playerStories.value?.determineNarrativeInjectionComponentId?.(target, textType));
+        return stylize(playerStories.value?.determineNarrativeInjection?.(target, toHash, textType));
+      };
+      const options = [];
+      const target = targetStoryId.ok ? targetStoryId.value : null;
+      const linkRows = storyLinks.ok && Array.isArray(storyLinks.value) ? storyLinks.value : [];
+      for (const link of linkRows) {
+        const linkDef = probe(() => GameInfo.NarrativeStories.lookup(link.ToNarrativeStoryType));
+        const toLinkDef = linkDef.ok ? linkDef.value : null;
+        if (!toLinkDef) continue;
+        const activation = String(toLinkDef.Activation ?? "").toUpperCase();
+        const requisiteOk = activation === "LINKED_REQUISITE"
+          ? probe(() => playerStories.ok ? playerStories.value?.determineRequisiteLink?.(toLinkDef.NarrativeStoryType) === true : false)
+          : { ok: true, value: true };
+        const activationEnabled = activation === "LINKED" || (activation === "LINKED_REQUISITE" && requisiteOk.ok && requisiteOk.value === true);
+        if (!activationEnabled) continue;
+        const canAfford = probe(() => toLinkDef.Cost === 0 || (playerStories.ok && playerStories.value?.canAfford?.(toLinkDef.NarrativeStoryType) === true));
+        const args = target && activate != null
+          ? { TargetType: link.ToNarrativeStoryType, Target: target, Action: activate }
+          : null;
+        const validation = args
+          ? probe(() => Game.PlayerOperations.canStart(
+            localPlayerId,
+            PlayerOperationTypes.CHOOSE_NARRATIVE_STORY_DIRECTION,
+            args,
+            false,
+          ))
+          : { ok: false, error: "missing target story id or activate action" };
+        const enabled = activationEnabled
+          && canAfford.ok
+          && canAfford.value === true
+          && validation.ok
+          && successFromCanStart(validation.value);
+        const targetJson = target ? JSON.stringify(target) : null;
+        options.push({
+          targetType: link.ToNarrativeStoryType,
+          targetTypeName: toLinkDef.NarrativeStoryType ?? link.ToNarrativeStoryType,
+          target,
+          action: activate,
+          activation,
+          name: textFor(target, toLinkDef.$hash ?? -1, "OPTION") ?? loc(toLinkDef.Name ?? toLinkDef.NarrativeStoryType ?? link.ToNarrativeStoryType),
+          reward: textFor(target, toLinkDef.$hash ?? -1, "REWARD"),
+          imperative: textFor(target, toLinkDef.$hash ?? -1, "IMPERATIVE"),
+          cost: toLinkDef.Cost ?? null,
+          canAfford,
+          args,
+          enabled,
+          disabled: !enabled,
+          validation,
+          cli: enabled && targetJson
+            ? "game play choose-narrative --player-id " + String(localPlayerId)
+              + " --target-type " + String(link.ToNarrativeStoryType)
+              + " --target '" + targetJson + "'"
+              + " --action " + String(activate)
+              + " --send --reason '<why this narrative option was selected>'"
+            : null,
+          validateCli: targetJson
+            ? "game play choose-narrative --player-id " + String(localPlayerId)
+              + " --target-type " + String(link.ToNarrativeStoryType)
+              + " --target '" + targetJson + "'"
+              + (activate != null ? " --action " + String(activate) : "")
+              + " --json"
+            : null,
+        });
+      }
+      if (options.length === 0 && target) {
+        const args = activate == null ? null : { TargetType: "CLOSE", Target: target, Action: activate };
+        const validation = args
+          ? probe(() => Game.PlayerOperations.canStart(
+            localPlayerId,
+            PlayerOperationTypes.CHOOSE_NARRATIVE_STORY_DIRECTION,
+            args,
+            false,
+          ))
+          : { ok: false, error: "missing activate action" };
+        const enabled = validation.ok && successFromCanStart(validation.value);
+        const targetJson = JSON.stringify(target);
+        options.push({
+          targetType: "CLOSE",
+          targetTypeName: "CLOSE",
+          target,
+          action: activate,
+          activation: "CLOSE",
+          name: loc("LOC_NARRATIVE_STORY_END_STORY_NAME") ?? "Close",
+          reward: textFor(target, null, "REWARD"),
+          imperative: null,
+          cost: 0,
+          canAfford: { ok: true, value: true },
+          args,
+          enabled,
+          disabled: !enabled,
+          validation,
+          cli: enabled
+            ? "game play choose-narrative --player-id " + String(localPlayerId)
+              + " --target-type CLOSE"
+              + " --target '" + targetJson + "'"
+              + " --action " + String(activate)
+              + " --send --reason '<why this narrative closeout was selected>'"
+            : null,
+          validateCli: "game play choose-narrative --player-id " + String(localPlayerId)
+            + " --target-type CLOSE"
+            + " --target '" + targetJson + "'"
+            + (activate != null ? " --action " + String(activate) : "")
+            + " --json",
+        });
+      }
+      const enabledOptions = options.filter((option) => option.enabled);
+      const disabledOptions = options.filter((option) => option.disabled);
+      const notificationTarget = safeNotificationValue(notification, "Target");
+      const reviewedCloseoutCli = !target && safeNotificationValue(notification, "CanUserDismiss") === true && notificationId
+        ? "game play dismiss-notification --target '" + JSON.stringify(notificationId) + "' --send --reason '<reviewed: narrative notification has no pending story>'"
+        : null;
+      const classification = target
+        ? (enabledOptions.length > 0 ? "narrative-choice-options" : "narrative-choice-no-enabled-options")
+        : "narrative-choice-no-pending-story";
+      return {
+        kind: "narrative-choice-options",
+        classification,
+        notificationId,
+        localPlayerId,
+        notificationOwner,
+        source: "Players.Stories pending story id + GameInfo.NarrativeStory_Links + PlayerOperations.canStart",
+        activateAction: activate,
+        targetStoryIdSource,
+        pendingStoryId,
+        pendingDiscoveryStoryId,
+        targetStoryId,
+        targetStory,
+        storyDef,
+        storyLinks,
+        notificationTarget,
+        options,
+        enabledOptions,
+        disabledOptions,
+        reviewedCloseoutCli,
+        notes: [
+          "Options mirror the official narrative popup buttons. The notification target can be invalid; the official UI derives the target story from Players.Stories.",
+          "Discovery notifications are checked against getFirstPendingDiscoveryLastMetID before the regular pending met story id.",
+          "When a real story has no linked choices, the official UI emits a CLOSE option with CHOOSE_NARRATIVE_STORY_DIRECTION.",
+          "If no pending story id exists, no narrative operation is materialized; close only through the reviewed notification dismissal route.",
+        ],
+      };
+    };
     const unitCommandDetailsFor = (notification, typeName, notificationId) => {
       if (!stringIncludes(typeName, "COMMAND_UNITS")) return undefined;
       const selectedUnitId = probe(() => toComponentId(UI?.Player?.getHeadSelectedUnit?.()));
@@ -6477,6 +6657,7 @@ function playNotificationViewSource(): string {
         ?? cultureChoiceDetailsFor(notification, typeName, notificationId)
         ?? celebrationChoiceDetailsFor(notification, typeName, notificationId)
         ?? governmentChoiceDetailsFor(notification, typeName, notificationId)
+        ?? narrativeChoiceDetailsFor(notification, typeName, notificationId)
         ?? unitCommandDetailsFor(notification, typeName, notificationId);
     };
     const decisionHintFor = (notification, typeName, isBlocking) => {
@@ -6793,9 +6974,9 @@ function playNotificationViewSource(): string {
           ["Grievance-against-you reports can block the UI queue but are not RESPOND_DIPLOMATIC_ACTION choices; review the summary for strategic context, then use App UI dismissal if canUserDismiss is true."],
         );
       }
-      if (stringIncludes(haystack, "NARRATIVE")) {
+      if (stringIncludes(haystack, "NARRATIVE") || stringIncludes(haystack, "DISCOVERY_STORY")) {
         return hint(
-          "narrative-branch",
+          "narrative-choice",
           "player-operation",
           "CHOOSE_NARRATIVE_STORY_DIRECTION",
           "{ TargetType, Target, Action }",
@@ -6807,9 +6988,10 @@ function playNotificationViewSource(): string {
             requiredInput("Action", "story option activation", "Official narrative UI sends PlayerOperationParameters.Activate."),
           ],
           [
-            action("validate narrative choice", "game play choose-narrative --player-id <id> --target-type <target-type> --target '<target>' --action <action>", "player-operation", "CHOOSE_NARRATIVE_STORY_DIRECTION", "{ TargetType, Target, Action }", "after deriving option key and activation from the story UI"),
+            action("read narrative options", "game play choose-narrative --options --json", undefined, undefined, "enabled narrative buttons with validation and ready send templates", "before choosing a narrative branch or closeout"),
+            action("validate narrative choice", "game play choose-narrative --player-id <id> --target-type <target-type> --target '<target>' --action <action>", "player-operation", "CHOOSE_NARRATIVE_STORY_DIRECTION", "{ TargetType, Target, Action }", "after reading the option key and activation from the story UI"),
           ],
-          ["Preserve target and action exactly from the story UI."],
+          ["Use the option reader before sending; the notification target can be invalid because official narrative UI derives the target story from Players.Stories. If no pending story id is present, treat it as a reviewed notification closeout, not a narrative operation."],
         );
       }
       if (stringIncludes(haystack, "TRADITION")) {

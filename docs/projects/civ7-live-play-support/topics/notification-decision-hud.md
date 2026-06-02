@@ -70,7 +70,7 @@ after any mutation or human input.
 | Diplomacy response | diplomatic action `ID` and chosen response `Type` | `game play respond-diplomacy` |
 | First-meet diplomacy | local player id, met player id from `notification.Player`/`details.player2`, first-meet response `Type` | `game play respond-first-meet` |
 | Informational notification | notification ComponentID; handler evidence that no specialized decision surface is required | exact `game play dismiss-notification --target ... --send ...` after review |
-| Narrative branch | story `Target`, option `TargetType`, activation `Action` | `game play choose-narrative` |
+| Narrative branch | story `Target`, option `TargetType`, activation `Action`; read `game play choose-narrative --options --json` when the story target or option key is not already proven | `game play choose-narrative --options --json`; then selected `game play choose-narrative` template |
 | Government choice | live `GovernmentType` and activation `Action` from `game play choose-government --options --json` | `game play choose-government` |
 | Celebration choice | live `GoldenAgeType` hash from `game play choose-celebration --options --json` | `game play choose-celebration` |
 | Tradition review | active/unlocked tradition ids from `game play traditions --compact --json`; chosen `TraditionType` and activate/deactivate `Action` | `game play traditions --compact --json`; then selected `sendCloseoutCli` or `game play change-tradition`; then `game play consider-traditions` |
@@ -108,9 +108,16 @@ Notable handler evidence:
   whose activation opens `screen-resource-allocation`. Treat it as a real
   resource-allocation decision surface. Do not close it as a default-handler
   report until assignment or closeout behavior is proven.
-- Narrative blockers route to `ChooseNarrativeDirection`; the narrative screen
-  sends `CHOOSE_NARRATIVE_STORY_DIRECTION` with
-  `{ TargetType: answerKey, Target: targetStoryId, Action: Activate }`.
+- Narrative, discovery, and auto-narrative blockers route to
+  `ChooseNarrativeDirection`; the official UI derives `targetStoryId` from
+  `Players.get(notification.owner).Stories` (`getFirstPendingMetId()`, with
+  discovery also checking `getFirstPendingDiscoveryLastMetID()`), builds buttons
+  from `GameInfo.NarrativeStory_Links`, and sends
+  `CHOOSE_NARRATIVE_STORY_DIRECTION` with `{ TargetType: answerKey, Target:
+  targetStoryId, Action: Activate }`. If a real pending story has no linked
+  choices, the official UI emits a `CLOSE` option. If no pending story id exists,
+  do not synthesize a narrative send; treat it as a reviewed stale notification
+  closeout.
 - Tradition blockers should not be reconstructed from logs or static rows.
   The live player `Culture` object exposes active, unlocked, and recent
   traditions (`getActiveTraditions`, `getUnlockedTraditions`,
@@ -191,8 +198,11 @@ civ7 game play choose-narrative \
 
 Avoid broad live enumeration of `GameInfo.NarrativeStories`. Use the bounded UI
 path instead: `Players.get(GameContext.localPlayerID).Stories.getFirstPendingMetId()`,
+`getFirstPendingDiscoveryLastMetID()` for discovery blockers when present,
 `Stories.find(target)`, `GameInfo.NarrativeStories.lookup(story.type)`, and a
-narrow `NarrativeStory_Links.filter` for that one story type.
+narrow `NarrativeStory_Links.filter` for that one story type. If both pending-id
+reads are empty, use the reviewed dismissal command surfaced by
+`game play choose-narrative --options --json`.
 
 Production blockers should use the production shortcut before falling back to a
 generic operation. Units use `UnitType`, constructibles use `ConstructibleType`,

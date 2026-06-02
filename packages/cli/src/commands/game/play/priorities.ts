@@ -308,7 +308,7 @@ function buildPriorities(input: {
       reason: staleUnitCommand?.reason ?? (decisionCommand
         ? 'HUD notification includes the live ComponentID; use the exact closeout command after reviewing the report context.'
         : detailCommand
-        ? 'HUD details expose a validator-backed operation candidate; use that exact command or consciously defer before broad strategy.'
+        ? detailCommandReason(detailCommand)
         : readyUnitCommand
           ? 'A ready unit exists; inspect the ready-unit and target surfaces instead of treating COMMAND_UNITS as stale reconciliation.'
         : 'HUD decisions are the shortest-lived live authority and should be resolved or consciously deferred before broad strategy.'),
@@ -427,6 +427,16 @@ function asArray(value: unknown): Array<Record<string, unknown>> {
   return Array.isArray(value) ? value.filter((item): item is Record<string, unknown> => item !== null && typeof item === 'object') : [];
 }
 
+function detailCommandReason(command: string): string {
+  if (command.includes('dismiss-notification')) {
+    return 'HUD details prove no live operation option is available; use the exact reviewed notification closeout command after reading the context.';
+  }
+  if (command.includes('--options')) {
+    return 'HUD details expose a live option surface; read the compact options before selecting a validated command.';
+  }
+  return 'HUD details expose a validator-backed operation candidate; use that exact command or consciously defer before broad strategy.';
+}
+
 function commandFromDecision(nextDecision: Record<string, unknown>): string | undefined {
   if (nextDecision.category === 'production-choice' || nextDecision.category === 'population-placement') {
     return 'game play ready-city --compact --json';
@@ -462,6 +472,13 @@ function commandFromDecisionDetails(nextDecision: { details?: unknown }): string
   if (record.kind === 'government-choice-options') {
     const enabledOptions = asArray(record.enabledOptions);
     return enabledOptions.length > 0 ? 'game play choose-government --options --json' : undefined;
+  }
+  if (record.kind === 'narrative-choice-options') {
+    const enabledOptions = asArray(record.enabledOptions);
+    if (enabledOptions.length > 0) return 'game play choose-narrative --options --json';
+    return typeof record.reviewedCloseoutCli === 'string' && record.reviewedCloseoutCli.length > 0
+      ? record.reviewedCloseoutCli
+      : 'game play choose-narrative --options --json';
   }
   if (record.kind !== 'unit-command-reconciliation') return undefined;
   if (record.staleReadyPointerSuspected === true) {

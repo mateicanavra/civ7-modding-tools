@@ -1038,6 +1038,101 @@ describe('game play commands', () => {
     }
   });
 
+  test('reads narrative choice options without requiring target inputs', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'narrative-choice' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayChooseNarrative.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayChooseNarrative.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--options',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          enabledOptionCount: number;
+          disabledOptionCount: number;
+          omitted: Array<{ path: string; reason: string }>;
+          surfaces: Array<{
+            kind: string;
+            targetStoryId: { owner: number; id: number; type: number } | null;
+            enabledOptions: Array<{ targetType: string; name: string; chooseCli: string | null; validateCli: string | null }>;
+            options?: unknown;
+            disabledOptions?: unknown;
+          }>;
+          details?: unknown;
+        };
+      };
+      expect(payload.result.enabledOptionCount).toBe(1);
+      expect(payload.result.disabledOptionCount).toBe(0);
+      expect(payload.result.details).toBeUndefined();
+      expect(payload.result.surfaces[0].kind).toBe('narrative-choice-options');
+      expect(payload.result.surfaces[0].options).toBeUndefined();
+      expect(payload.result.surfaces[0].disabledOptions).toBeUndefined();
+      expect(payload.result.surfaces[0].targetStoryId).toEqual({ owner: 0, id: 45, type: 35 });
+      expect(payload.result.surfaces[0].enabledOptions[0].targetType).toBe('CLOSE');
+      expect(payload.result.surfaces[0].enabledOptions[0].chooseCli).toContain('game play choose-narrative --player-id 0 --target-type CLOSE');
+      expect(payload.result.surfaces[0].enabledOptions[0].validateCli).toContain('--action -1326475004 --json');
+      expect(payload.result.omitted.map((item) => item.path)).toContain('details[].storyLinks');
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('reports empty narrative choices as reviewed notification closeouts', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'narrative-choice-empty' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayChooseNarrative.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayChooseNarrative.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--options',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          enabledOptionCount: number;
+          surfaces: Array<{
+            classification: string;
+            targetStoryId: unknown;
+            enabledOptions: unknown[];
+            reviewedCloseoutCli: string | null;
+          }>;
+        };
+      };
+      expect(payload.result.enabledOptionCount).toBe(0);
+      expect(payload.result.surfaces[0].classification).toBe('narrative-choice-no-pending-story');
+      expect(payload.result.surfaces[0].targetStoryId).toBeNull();
+      expect(payload.result.surfaces[0].enabledOptions).toEqual([]);
+      expect(payload.result.surfaces[0].reviewedCloseoutCli).toBe(
+        'game play dismiss-notification --target \'{"owner":0,"id":5,"type":20}\' --send --reason \'<reviewed: narrative notification has no pending story>\'',
+      );
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('validates diplomacy responses as a dry-run player operation', async () => {
     const server = await startTunerServer();
     try {
@@ -1345,6 +1440,56 @@ describe('game play commands', () => {
       const republic = details?.enabledOptions.find((option) => option.governmentType === 0);
       expect(republic?.validation.value?.Success).toBe(true);
       expect(republic?.cli).toContain('game play choose-government --player-id 0 --government-type 0 --action -1326475004 --send');
+      expect(details?.disabledOptions).toEqual([]);
+      expect(payload.view.hud.nextDecision.details).toBeDefined();
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('materializes narrative choice options from the notification HUD', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'narrative-choice' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayNotifications.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayNotifications.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          notifications: Array<{
+            target: { owner: number; id: number; type: number };
+            details?: {
+              kind: string;
+              targetStoryId: { ok: boolean; value?: { owner: number; id: number; type: number } };
+              storyLinks: { ok: boolean; value?: unknown[] };
+              enabledOptions: Array<{ targetType: string; cli: string | null; validation: { ok: boolean; value?: { Success?: boolean } } }>;
+              disabledOptions: Array<{ targetType: string; cli: string | null }>;
+            };
+          }>;
+          hud: { nextDecision: { details?: unknown } };
+        };
+      };
+      const notification = payload.view.notifications[0];
+      const details = notification.details;
+      expect(notification.target).toEqual({ owner: -1, id: -1, type: 0 });
+      expect(details?.kind).toBe('narrative-choice-options');
+      expect(details?.targetStoryId.value).toEqual({ owner: 0, id: 45, type: 35 });
+      expect(details?.storyLinks.value).toEqual([]);
+      expect(details?.enabledOptions[0].targetType).toBe('CLOSE');
+      expect(details?.enabledOptions[0].validation.value?.Success).toBe(true);
+      expect(details?.enabledOptions[0].cli).toContain('game play choose-narrative --player-id 0 --target-type CLOSE');
       expect(details?.disabledOptions).toEqual([]);
       expect(payload.view.hud.nextDecision.details).toBeDefined();
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
@@ -2322,6 +2467,77 @@ describe('game play commands', () => {
     }
   });
 
+  test('surfaces narrative options command in compact priorities', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'narrative-choice' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPriorities.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+        '--compact',
+        '--no-battlefield',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        next: string | null;
+        priorities: Array<{ kind: string; command?: string; reason: string }>;
+      };
+      const top = payload.priorities[0];
+      expect(top.kind).toBe('hud:narrative-choice');
+      expect(top.command).toBe('game play choose-narrative --options --json');
+      expect(payload.next).toBe(top.command);
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('surfaces reviewed closeout for empty narrative choices in compact priorities', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'narrative-choice-empty' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPriorities.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+        '--compact',
+        '--no-battlefield',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        next: string | null;
+        priorities: Array<{ kind: string; command?: string }>;
+      };
+      const top = payload.priorities[0];
+      expect(top.kind).toBe('hud:narrative-choice');
+      expect(top.command).toBe(
+        'game play dismiss-notification --target \'{"owner":0,"id":5,"type":20}\' --send --reason \'<reviewed: narrative notification has no pending story>\'',
+      );
+      expect(payload.next).toBe(top.command);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('surfaces tradition option reader in compact priorities', async () => {
     const server = await startTunerServer({ playNotificationMode: 'tradition-review' });
     const writes: string[] = [];
@@ -2651,6 +2867,7 @@ describe('game play commands', () => {
     ['culture-choice', 'NOTIFICATION_CHOOSE_CULTURE_NODE', 'game play choose-culture --options --json'],
     ['celebration-choice', 'NOTIFICATION_CHOOSE_GOLDEN_AGE', 'game play choose-celebration --options --json'],
     ['government-choice', 'NOTIFICATION_CHOOSE_GOVERNMENT', 'game play choose-government --options --json'],
+    ['narrative-choice', 'NOTIFICATION_CHOOSE_DISCOVERY_STORY_DIRECTION', 'game play choose-narrative --options --json'],
   ] as const)('routes %s notification queue entries to compact option readers', async (playNotificationMode, typeName, command) => {
     const server = await startTunerServer({ playNotificationMode });
     try {
@@ -3795,7 +4012,7 @@ function expectOwnerOnlyContactLabels(values: readonly string[]): void {
 
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
-  playNotificationMode?: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
+  playNotificationMode?: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
   notificationDismissalMode?: 'verified' | 'stale-nonblocking';
   productionPostconditionMode?: 'cleared' | 'blocker-still-live';
@@ -3904,7 +4121,7 @@ async function startTunerServer(options: {
 }
 
 function playNotificationView(
-  mode: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
+  mode: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
   diplomacyCloseoutObserved = false,
 ) {
   if (mode === 'runtime-error') {
@@ -4366,6 +4583,150 @@ function playNotificationView(
             target: notification.target,
             location: notification.location,
             ...decision,
+          },
+        ],
+      },
+      limits: { maxNotifications: 25, truncated: false },
+    };
+  }
+  if (mode === 'narrative-choice' || mode === 'narrative-choice-empty') {
+    const narrativeDecision = {
+      category: 'narrative-choice',
+      operationFamily: 'player-operation',
+      operationType: 'CHOOSE_NARRATIVE_STORY_DIRECTION',
+      argsShape: '{ TargetType, Target, Action }',
+      cli: 'game play choose-narrative',
+      requiredInputs: [
+        {
+          name: 'Target',
+          source: 'notification target or story UI targetStoryId',
+          required: true,
+          note: 'Usually the story ComponentID from the notification target.',
+        },
+        {
+          name: 'TargetType',
+          source: 'story option button',
+          required: true,
+          note: 'If no story links exist, official UI uses CLOSE as the option key.',
+        },
+        {
+          name: 'Action',
+          source: 'story option activation',
+          required: true,
+          note: 'Official narrative UI sends PlayerOperationParameters.Activate.',
+        },
+      ],
+      commonActions: [
+        {
+          label: 'read narrative options',
+          cli: 'game play choose-narrative --options --json',
+          argsShape: 'enabled narrative buttons with validation and ready send templates',
+          when: 'before choosing a narrative branch or closeout',
+        },
+      ],
+      confidence: 'live-proof',
+      notes: ['Use the option reader before sending; the notification target can be invalid because official narrative UI derives the target story from Players.Stories. If no pending story id is present, treat it as a reviewed notification closeout, not a narrative operation.'],
+    };
+    const notificationId = { owner: 0, id: 5, type: 20 };
+    const targetStoryId = { owner: 0, id: 45, type: 35 };
+    const options = [
+      {
+        targetType: 'CLOSE',
+        targetTypeName: 'CLOSE',
+        target: targetStoryId,
+        action: -1326475004,
+        activation: 'CLOSE',
+        name: 'Close',
+        reward: '+10 Gold',
+        imperative: null,
+        cost: 0,
+        canAfford: { ok: true, value: true },
+        args: { TargetType: 'CLOSE', Target: targetStoryId, Action: -1326475004 },
+        enabled: true,
+        disabled: false,
+        validation: { ok: true, value: { Success: true } },
+        cli: "game play choose-narrative --player-id 0 --target-type CLOSE --target '{\"owner\":0,\"id\":45,\"type\":35}' --action -1326475004 --send --reason '<why this narrative closeout was selected>'",
+        validateCli: "game play choose-narrative --player-id 0 --target-type CLOSE --target '{\"owner\":0,\"id\":45,\"type\":35}' --action -1326475004 --json",
+      },
+    ];
+    const hasPendingStory = mode === 'narrative-choice';
+    const surfacedOptions = hasPendingStory ? options : [];
+    const details = {
+      kind: 'narrative-choice-options',
+      classification: hasPendingStory ? 'narrative-choice-options' : 'narrative-choice-no-pending-story',
+      notificationId,
+      localPlayerId: 0,
+      notificationOwner: 0,
+      source: 'Players.Stories pending story id + GameInfo.NarrativeStory_Links + PlayerOperations.canStart',
+      activateAction: -1326475004,
+      targetStoryIdSource: 'Players.Stories.getFirstPendingDiscoveryLastMetID',
+      pendingStoryId: { ok: true, value: null },
+      pendingDiscoveryStoryId: { ok: true, value: hasPendingStory ? targetStoryId : null },
+      targetStoryId: { ok: true, value: hasPendingStory ? targetStoryId : null },
+      targetStory: { ok: true, value: hasPendingStory ? { id: 45, type: 'NARRATIVE_DISCOVERY_GOODY_HUT' } : null },
+      storyDef: { ok: true, value: hasPendingStory ? { NarrativeStoryType: 'NARRATIVE_DISCOVERY_GOODY_HUT', UIActivation: 'DISCOVERY' } : null },
+      storyLinks: { ok: true, value: [] },
+      notificationTarget: { owner: -1, id: -1, type: 0 },
+      options: surfacedOptions,
+      enabledOptions: surfacedOptions,
+      disabledOptions: [],
+      reviewedCloseoutCli: hasPendingStory ? null : "game play dismiss-notification --target '{\"owner\":0,\"id\":5,\"type\":20}' --send --reason '<reviewed: narrative notification has no pending story>'",
+      notes: [
+        'Static fixture mirrors the CLI/HUD contract emitted by the official story-model narrative choice materializer.',
+      ],
+    };
+    const notification = {
+      id: notificationId,
+      type: -2084516792,
+      typeName: 'NOTIFICATION_CHOOSE_DISCOVERY_STORY_DIRECTION',
+      groupType: null,
+      summary: 'Choose a selection from the Discovery.',
+      message: 'Discovery Choice',
+      target: { owner: -1, id: -1, type: 0 },
+      location: { x: -9999, y: -9999 },
+      canUserDismiss: true,
+      expired: false,
+      dismissed: false,
+      isEndTurnBlocking: true,
+      decision: narrativeDecision,
+      details,
+    };
+    return {
+      localPlayerId: 0,
+      turn: { ok: true, value: 6 },
+      turnDate: { ok: true, value: '3875 BCE' },
+      hasSentTurnComplete: { ok: true, value: false },
+      canEndTurn: { ok: true, value: false },
+      blocker: { ok: true, value: -2084516792 },
+      blockingNotificationId: { ok: true, value: notificationId },
+      selectedUnitId: { ok: true, value: null },
+      selectedCityId: { ok: true, value: null },
+      firstReadyUnitId: { ok: true, value: null },
+      notifications: [notification],
+      decisions: [narrativeDecision],
+      hud: {
+        nextDecision: {
+          notificationId: notification.id,
+          isEndTurnBlocking: true,
+          typeName: notification.typeName,
+          summary: notification.summary,
+          message: notification.message,
+          target: notification.target,
+          location: notification.location,
+          details: notification.details,
+          ...narrativeDecision,
+        },
+        decisionQueue: [
+          {
+            notificationId: notification.id,
+            isEndTurnBlocking: true,
+            typeName: notification.typeName,
+            summary: notification.summary,
+            message: notification.message,
+            target: notification.target,
+            location: notification.location,
+            details: notification.details,
+            ...narrativeDecision,
           },
         ],
       },

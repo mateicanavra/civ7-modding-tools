@@ -250,6 +250,12 @@ function commandFromDecisionDetails(item: Civ7PlayDecisionQueueItem): string | n
   if (record.kind === 'government-choice-options') {
     return hasEnabledOptions(record) ? 'game play choose-government --options --json' : null;
   }
+  if (record.kind === 'narrative-choice-options') {
+    if (hasEnabledOptions(record)) return 'game play choose-narrative --options --json';
+    return typeof record.reviewedCloseoutCli === 'string' && record.reviewedCloseoutCli.length > 0
+      ? record.reviewedCloseoutCli
+      : 'game play choose-narrative --options --json';
+  }
   if (record.kind === 'unit-command-reconciliation' && record.staleReadyPointerSuspected === true) {
     const candidate = asRecords(record.enabledCloseoutCandidates).find((entry) => typeof entry.cli === 'string' && entry.cli.length > 0);
     return typeof candidate?.cli === 'string' ? candidate.cli : null;
