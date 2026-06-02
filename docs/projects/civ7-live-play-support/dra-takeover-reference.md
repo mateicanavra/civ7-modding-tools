@@ -75,21 +75,19 @@ with limited context.
   Player reports `choose-culture --send --closeout` validated/sent, then a
   documented `set-culture-target` fallback was tried once, but the same culture
   blocker remained end-turn-blocking and `end-turn --send` failed.
-- Current worktree status includes this committed takeover reference plus one
-  inherited watcher edit after `5024a52bd`:
-  `packages/cli/src/commands/game/play/formation-snapshot.ts`.
-- That dirty watcher edit removes the deprecated `threats` JSON alias for
-  nearby contacts and stops treating `nearby-opponents` as a posture trigger.
-  It is uncommitted and ungated at takeover; do not assume it is complete.
+- The inherited formation-snapshot relationship cleanup has been carried
+  forward: the read surface uses neutral other-owner/contact vocabulary and
+  exposes explicit `relationship-unproven` policy metadata instead of `threat`
+  or `opponent` labels.
 - Latest player tail says the culture-choice blocker is the material hard stop
   and play is holding rather than brute-forcing more choices. The next support
   DRA should still reground live state with read-only CLI before patching.
 - Latest supervisor priority correction: do not let movement-preview polish
   displace the relationship/city-state/suzerain authority lane unless fresh
-  live evidence makes movement preview a material blocker. Concrete known risk:
-  `formation-snapshot.ts` exposes `threats: nearbyContacts`, and nearby posture
-  surfaces may still say `nearby-opponents` from owner/proximity evidence
-  without official relationship/team/war/suzerain proof.
+  live evidence makes movement preview a material blocker. Formation snapshot
+  now uses neutral contact vocabulary; keep auditing nearby posture surfaces for
+  any remaining relationship labels that outrun official relationship/team/war/
+  suzerain proof.
 
 ## Recent Trajectory
 
@@ -314,12 +312,12 @@ behavior, and keep repo state explicit.
   (`git diff --check HEAD~1..HEAD`, focused direct-control regression,
   direct-control check, `check:cli`), and play consumed the handoff safely.
 - Relationship/city-state/suzerain authority is the next higher-risk lane.
-  Known issue: `formation-snapshot.ts` returns `threats: nearbyContacts` even
-  though contacts are proximity/other-owner evidence, not hostility proof.
-- Audit `front-summary.ts` and formation posture for nearby labels like
-  `nearby-opponents`; either add official relationship/team/war/suzerain reads
-  or rename residual labels to neutral `other-owner` / `relationship-unproven`
-  style language.
+  Formation snapshot now returns neutral `otherOwnerContacts` /
+  `nearbyContacts` with explicit `relationship-unproven` policy metadata.
+- Continue auditing `front-summary.ts` and other tactical posture surfaces for
+  nearby labels like `nearby-opponents`; either add official relationship/team/
+  war/suzerain reads or rename residual labels to neutral `other-owner` /
+  `relationship-unproven` style language.
 - Movement preview remains a useful ergonomic improvement but should not outrank
   relationship-proof cleanup unless live play makes it the material blocker.
 
@@ -327,12 +325,11 @@ behavior, and keep repo state explicit.
 
 - Stop request landed after watcher had already edited
   `packages/cli/src/commands/game/play/formation-snapshot.ts`.
-- The dirty edit removes `threats: nearbyContacts` and drops
-  `nearby-opponents` from posture matching, but watcher has not committed or
-  run gates for that slice.
-- Inherit this as the next slice only after reading the file/tests/docs and
-  deciding whether removal is enough or whether an official
-  relationship/team/war/suzerain read is needed.
+- That inherited edit has since been superseded by the neutral formation
+  snapshot surface: no `threats` alias, no `nearby-opponents` posture trigger,
+  and explicit `relationship-unproven` policy metadata.
+- Do not reintroduce stronger relationship labels without official
+  relationship/team/war/suzerain evidence or validator proof.
 
 2026-06-02 02:04 EDT:
 
@@ -345,6 +342,6 @@ behavior, and keep repo state explicit.
 - Follow-on support must start with read-only live proof, then investigate the
   culture closeout owner. Do not mutate the player game from support, and do
   not advise repeated blind culture sends as progress.
-- The dirty `formation-snapshot.ts` relationship cleanup remains explicitly
-  owned after the live blocker lane: finish it with tests/docs or revert/
-  supersede it deliberately.
+- The inherited `formation-snapshot.ts` relationship cleanup is no longer dirty:
+  the surface is neutralized and documented. Continue relationship authority
+  cleanup in other tactical surfaces after live blockers are under control.

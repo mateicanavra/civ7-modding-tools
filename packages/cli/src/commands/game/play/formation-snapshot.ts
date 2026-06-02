@@ -26,8 +26,16 @@ type FormationUnit = Readonly<{
   evidence: unknown;
 }>;
 
+type FormationRelationshipLabelPolicy = Readonly<{
+  relationshipSource: 'not-classified';
+  relationshipProof: 'none';
+  unprovenLabel: 'relationship-unproven';
+  notes: ReadonlyArray<string>;
+}>;
+
 type FormationSnapshot = Readonly<{
   posture: FormationPosture;
+  relationshipLabelPolicy: FormationRelationshipLabelPolicy;
   headline: string;
   reasons: ReadonlyArray<string>;
   civilians: ReadonlyArray<FormationUnit>;
@@ -36,6 +44,16 @@ type FormationSnapshot = Readonly<{
   nearbyContacts: ReadonlyArray<FormationUnit>;
   nextInspections: ReadonlyArray<string>;
 }>;
+
+const FORMATION_RELATIONSHIP_LABEL_POLICY: FormationRelationshipLabelPolicy = {
+  relationshipSource: 'not-classified',
+  relationshipProof: 'none',
+  unprovenLabel: 'relationship-unproven',
+  notes: [
+    'Formation snapshot treats owner mismatch and proximity as contact evidence only.',
+    'Use official relationship/team/war/suzerain evidence or validator-backed operations before applying stronger relationship labels.',
+  ],
+};
 
 export default class GamePlayFormationSnapshot extends Command {
   static id = 'game play formation-snapshot';
@@ -83,12 +101,6 @@ export default class GamePlayFormationSnapshot extends Command {
       min: 1,
       max: 8,
     }),
-    'threat-radius': Flags.integer({
-      description: 'Deprecated compatibility alias for --contact-radius',
-      min: 1,
-      max: 8,
-      hidden: true,
-    }),
     'max-units': Flags.integer({
       description: 'Maximum nearby unit summaries to return',
       default: 96,
@@ -132,7 +144,7 @@ export default class GamePlayFormationSnapshot extends Command {
       readyUnit,
       battlefield,
       screenRadius: flags['screen-radius'],
-      contactRadius: flags['contact-radius'] ?? flags['threat-radius'] ?? 4,
+      contactRadius: flags['contact-radius'] ?? 4,
     });
     const view = {
       localPlayerId: hud.localPlayerId,
@@ -194,6 +206,7 @@ function buildFormationSnapshot(input: {
   const headline = `${ready} formation at ${originLabel}: ${civilians.length} civilians, ${screens.length} local screens, ${nearbyContacts.length} nearby other-owner contacts`;
   return {
     posture,
+    relationshipLabelPolicy: FORMATION_RELATIONSHIP_LABEL_POLICY,
     headline,
     reasons: uniqueStrings([
       ...poiReasons,

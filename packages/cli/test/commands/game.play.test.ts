@@ -4757,6 +4757,11 @@ describe('game play commands', () => {
         view: {
           formation: {
             posture: string;
+            relationshipLabelPolicy: {
+              relationshipSource: string;
+              relationshipProof: string;
+              unprovenLabel: string;
+            };
             headline: string;
             civilians: unknown[];
             screens: unknown[];
@@ -4768,6 +4773,11 @@ describe('game play commands', () => {
         };
       };
       expect(payload.view.formation.posture).toBe('screen-civilian');
+      expect(payload.view.formation.relationshipLabelPolicy).toMatchObject({
+        relationshipSource: 'not-classified',
+        relationshipProof: 'none',
+        unprovenLabel: 'relationship-unproven',
+      });
       expect(payload.view.formation.civilians).toHaveLength(1);
       expect(payload.view.formation.screens.length).toBeGreaterThan(0);
       expect(payload.view.formation.otherOwnerContacts.length).toBeGreaterThan(0);

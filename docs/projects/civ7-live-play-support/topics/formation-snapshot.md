@@ -39,6 +39,9 @@ The `formation` object has:
 
 - `posture`: `screen-civilian`, `hold-ready-unit`, `stabilize-front`,
   `advance-with-validation`, or `inspect-ready-unit`;
+- `relationshipLabelPolicy`: explicit policy metadata stating that formation
+  reads do not classify relationships and that other-owner contact remains
+  `relationship-unproven`;
 - `headline`: compact count of civilians, local screens, and nearby
   other-owner contacts;
 - `reasons`: proof strings from battlefield POIs and formation geometry;
@@ -79,7 +82,10 @@ Distances are cheap grid heuristics. Hidden-info policy follows
 `battlefield-scan`. Operation legality and effect still require `unit-target`,
 operation validation, and postcondition reads.
 
-Other-owner contact is not relationship proof. Do not call a contact a threat,
-enemy, hostile unit, opponent, or war target unless an official
-relationship/team/diplomacy/war-state read or a concrete combat validator proves
-that stronger label.
+Other-owner contact is not relationship proof. The command exposes
+`relationshipLabelPolicy.relationshipSource: "not-classified"`,
+`relationshipProof: "none"`, and
+`unprovenLabel: "relationship-unproven"`. Do not call a contact a threat,
+enemy, hostile unit, opponent, non-friendly unit, or war target unless an
+official relationship/team/diplomacy/war-state read or a concrete combat
+validator proves that stronger label.
