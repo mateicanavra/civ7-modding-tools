@@ -410,7 +410,7 @@ describe("Civ7 direct control", () => {
         unitChanged: false,
         targetUnitsChanged: false,
       });
-      expect(request.verification?.reason).toMatch(/re-read before repeating/);
+      expect(request.verification?.reason).toMatch(/re-read .* before repeating/);
     } finally {
       await server.close();
     }
@@ -481,6 +481,7 @@ describe("Civ7 direct control", () => {
         "game play expand-city --city-id '<city-id>' --x <x> --y <y>",
       );
       expect(server.received.some((message) => message.includes("readReadyCityView"))).toBe(true);
+      expect(server.received.some((message) => message.includes("toComponentId(city.id ?? cityId) ?? cityId"))).toBe(true);
       expect(server.received.some((message) => message.includes("sendRequest"))).toBe(false);
     } finally {
       await server.close();

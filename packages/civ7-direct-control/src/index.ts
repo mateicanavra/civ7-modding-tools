@@ -9280,7 +9280,7 @@ function readyCityViewSource(): string {
       const happiness = city.Happiness;
       const workers = city.Workers;
       return {
-        id: toComponentId(city.id ?? cityId),
+        id: toComponentId(city.id ?? cityId) ?? cityId,
         owner: city.owner ?? cityId.owner,
         name: typeof city.getName === "function" ? city.getName() : city.name ?? null,
         location: city.location ?? null,
@@ -9708,7 +9708,7 @@ function readyCityViewSource(): string {
       const cityIds = player?.Cities?.getCityIds?.() ?? [];
       for (const cityId of cityIds) {
         const city = Cities.get(cityId);
-        if (city?.Growth?.isReadyToPlacePopulation) return toComponentId(city.id ?? cityId);
+        if (city?.Growth?.isReadyToPlacePopulation) return toComponentId(city.id ?? cityId) ?? cityId;
       }
       return null;
     };
