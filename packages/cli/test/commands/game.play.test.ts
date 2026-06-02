@@ -1223,6 +1223,40 @@ describe('game play commands', () => {
     }
   });
 
+  test('does not treat partial HUD probe failures as clean end-turn proof', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'runtime-error' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPriorities.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+        '--no-battlefield',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          priorities: Array<{ kind: string; command?: string; evidence?: Array<{ field: string; error: string }> }>;
+        };
+      };
+      const runtimeError = payload.view.priorities.find((item) => item.kind === 'runtime-state-error');
+      expect(runtimeError?.command).toContain('game play rehydrate --json');
+      expect(runtimeError?.evidence?.some((item) => item.field === 'blocker' && item.error.includes('Game is not defined'))).toBe(true);
+      expect(payload.view.priorities.some((item) => item.kind === 'clean-read')).toBe(false);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('lists live-play topic shortcuts without touching the game runtime', async () => {
     const writes: string[] = [];
     const log = vi.spyOn(GamePlayTopics.prototype, 'log').mockImplementation((message?: string) => {
@@ -2073,7 +2107,7 @@ describe('game play commands', () => {
 
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
-  playNotificationMode?: 'town-focus' | 'stale-unit-command' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue';
+  playNotificationMode?: 'town-focus' | 'stale-unit-command' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'runtime-error';
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
 } = {}) {
   const received: string[] = [];
@@ -2164,8 +2198,30 @@ async function startTunerServer(options: {
 }
 
 function playNotificationView(
-  mode: 'town-focus' | 'stale-unit-command' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' = 'town-focus',
+  mode: 'town-focus' | 'stale-unit-command' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'runtime-error' = 'town-focus',
 ) {
+  if (mode === 'runtime-error') {
+    const gameError = { ok: false as const, error: 'ReferenceError: Game is not defined' };
+    return {
+      localPlayerId: 0,
+      turn: gameError,
+      turnDate: gameError,
+      hasSentTurnComplete: { ok: true, value: false },
+      canEndTurn: { ok: true, value: false },
+      blocker: gameError,
+      blockingNotificationId: gameError,
+      selectedUnitId: { ok: true, value: null },
+      selectedCityId: { ok: true, value: null },
+      firstReadyUnitId: { ok: true, value: null },
+      notifications: [],
+      decisions: [],
+      hud: {
+        nextDecision: null,
+        decisionQueue: [],
+      },
+      limits: { maxNotifications: 25, truncated: false },
+    };
+  }
   if (mode === 'mixed-queue') {
     const diplomacyDecision = {
       category: 'diplomacy-response',

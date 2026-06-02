@@ -160,6 +160,18 @@ function buildPriorities(input: {
   battlefield: Awaited<ReturnType<typeof getCiv7BattlefieldScan>> | null;
 }): PriorityItem[] {
   const items: PriorityItem[] = [];
+  const runtimeErrors = hudProbeErrors(input.hud);
+  if (runtimeErrors.length > 0) {
+    items.push({
+      priority: 95,
+      kind: 'runtime-state-error',
+      summary: 'core HUD probes failed; live blocker state is not proven clean',
+      reason: 'A missing turn, blocker, or blocking-notification probe means the App UI read is partial. Do not treat an empty notification queue as end-turn proof.',
+      command: 'game play rehydrate --json; game watch --count 1 --include-ready-unit --include-ready-city --jsonl',
+      evidence: runtimeErrors,
+    });
+  }
+
   const nextDecision = input.hud.hud?.nextDecision;
   if (nextDecision) {
     const isBlocking = nextDecision.isEndTurnBlocking ? 100 : 70;
@@ -227,6 +239,23 @@ function buildPriorities(input: {
   }
 
   return items.sort((a, b) => b.priority - a.priority);
+}
+
+function hudProbeErrors(hud: Awaited<ReturnType<typeof getCiv7PlayNotificationView>>): Array<{ field: string; error: string }> {
+  return [
+    ['turn', hud.turn],
+    ['turnDate', hud.turnDate],
+    ['blocker', hud.blocker],
+    ['blockingNotificationId', hud.blockingNotificationId],
+  ].flatMap(([field, probe]) =>
+    isProbeError(probe)
+      ? [{ field: String(field), error: probe.error }]
+      : [],
+  );
+}
+
+function isProbeError(probe: unknown): probe is { ok: false; error: string } {
+  return Boolean(probe && typeof probe === 'object' && 'ok' in probe && (probe as { ok?: unknown }).ok === false);
 }
 
 function getReadyUnitLocation(readyUnit: Awaited<ReturnType<typeof getCiv7ReadyUnitView>> | null): { x: number; y: number } | null {

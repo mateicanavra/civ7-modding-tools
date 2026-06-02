@@ -36,14 +36,17 @@ civ7 game play priorities --no-battlefield --json
 
 The priority list intentionally favors short-lived live authority:
 
-1. HUD decisions and blockers, especially end-turn-blocking notifications.
-2. Ready units, because they block turn flow and plot-target actions require
+1. Runtime-state errors, because failed turn/blocker probes mean the HUD is not
+   proven clean.
+2. HUD decisions and blockers, especially end-turn-blocking notifications.
+3. Ready units, because they block turn flow and plot-target actions require
    `unit-target` validation.
-3. Ready cities, because city blockers branch between production, town focus,
+4. Ready cities, because city blockers branch between production, town focus,
    population placement, expansion, and project closeout.
-4. Battlefield points of interest near the ready-unit origin, such as civilian
-   risk, wounded friendlies, nearby opponents, city fronts, and owner pressure.
-5. Clean-read fallback, which points back to end-turn only after final blocker
+5. Battlefield points of interest near the ready-unit origin, such as civilian
+   risk, wounded friendlies, other-owner contacts, city fronts, and owner
+   pressure.
+6. Clean-read fallback, which points back to end-turn only after final blocker
    checks.
 
 ## Live Turn-118 Evidence
@@ -83,6 +86,13 @@ Use it to decide the next inspection:
 
 Do not use it to skip validators, postcondition checks, or fresh re-reads after
 mutation, turn advance, restart, human input, or slow calls.
+
+If any core HUD probe fails, such as `turn`, `turnDate`, `blocker`, or
+`blockingNotificationId`, the dashboard must not emit the `clean-read`
+fallback. In that case it should surface `runtime-state-error` and route the
+agent to `game play rehydrate --json` or a fresh `game watch` read. An empty
+notification queue plus `ReferenceError: Game is not defined` is partial
+evidence, not proof that end-turn or autoplay is safe.
 
 ## Relationship To Other Lenses
 
