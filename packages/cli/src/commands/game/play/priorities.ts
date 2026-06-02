@@ -428,8 +428,11 @@ function asArray(value: unknown): Array<Record<string, unknown>> {
 }
 
 function detailCommandReason(command: string): string {
+  if (command.includes('dismiss-notification') && !command.includes('--send')) {
+    return 'HUD details prove no live operation option is available; inspect dismissal postcondition evidence before attempting any closeout.';
+  }
   if (command.includes('dismiss-notification')) {
-    return 'HUD details prove no live operation option is available; use the exact reviewed notification closeout command after reading the context.';
+    return 'HUD details expose a reviewed notification closeout candidate; it is only successful if the dismissal command reports verified:true.';
   }
   if (command.includes('--options')) {
     return 'HUD details expose a live option surface; read the compact options before selecting a validated command.';
@@ -476,8 +479,8 @@ function commandFromDecisionDetails(nextDecision: { details?: unknown }): string
   if (record.kind === 'narrative-choice-options') {
     const enabledOptions = asArray(record.enabledOptions);
     if (enabledOptions.length > 0) return 'game play choose-narrative --options --json';
-    return typeof record.reviewedCloseoutCli === 'string' && record.reviewedCloseoutCli.length > 0
-      ? record.reviewedCloseoutCli
+    return typeof record.dismissalDiagnosticCli === 'string' && record.dismissalDiagnosticCli.length > 0
+      ? record.dismissalDiagnosticCli
       : 'game play choose-narrative --options --json';
   }
   if (record.kind !== 'unit-command-reconciliation') return undefined;

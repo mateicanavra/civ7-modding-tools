@@ -252,8 +252,8 @@ function commandFromDecisionDetails(item: Civ7PlayDecisionQueueItem): string | n
   }
   if (record.kind === 'narrative-choice-options') {
     if (hasEnabledOptions(record)) return 'game play choose-narrative --options --json';
-    return typeof record.reviewedCloseoutCli === 'string' && record.reviewedCloseoutCli.length > 0
-      ? record.reviewedCloseoutCli
+    return typeof record.dismissalDiagnosticCli === 'string' && record.dismissalDiagnosticCli.length > 0
+      ? record.dismissalDiagnosticCli
       : 'game play choose-narrative --options --json';
   }
   if (record.kind === 'unit-command-reconciliation' && record.staleReadyPointerSuspected === true) {

@@ -6528,7 +6528,10 @@ function playNotificationViewSource(): string {
       const enabledOptions = options.filter((option) => option.enabled);
       const disabledOptions = options.filter((option) => option.disabled);
       const notificationTarget = safeNotificationValue(notification, "Target");
-      const reviewedCloseoutCli = !target && safeNotificationValue(notification, "CanUserDismiss") === true && notificationId
+      const dismissalDiagnosticCli = !target && safeNotificationValue(notification, "CanUserDismiss") === true && notificationId
+        ? "game play dismiss-notification --target '" + JSON.stringify(notificationId) + "' --json"
+        : null;
+      const unprovenDismissalCli = !target && safeNotificationValue(notification, "CanUserDismiss") === true && notificationId
         ? "game play dismiss-notification --target '" + JSON.stringify(notificationId) + "' --send --reason '<reviewed: narrative notification has no pending story>'"
         : null;
       const classification = target
@@ -6553,12 +6556,13 @@ function playNotificationViewSource(): string {
         options,
         enabledOptions,
         disabledOptions,
-        reviewedCloseoutCli,
+        dismissalDiagnosticCli,
+        unprovenDismissalCli,
         notes: [
           "Options mirror the official narrative popup buttons. The notification target can be invalid; the official UI derives the target story from Players.Stories.",
           "Discovery notifications are checked against getFirstPendingDiscoveryLastMetID before the regular pending met story id.",
           "When a real story has no linked choices, the official UI emits a CLOSE option with CHOOSE_NARRATIVE_STORY_DIRECTION.",
-          "If no pending story id exists, no narrative operation is materialized; close only through the reviewed notification dismissal route.",
+          "If no pending story id exists, no narrative operation is materialized. Notification dismissal is a separate closeout attempt and is only proven when its postcondition reports verified:true.",
         ],
       };
     };
@@ -6991,7 +6995,7 @@ function playNotificationViewSource(): string {
             action("read narrative options", "game play choose-narrative --options --json", undefined, undefined, "enabled narrative buttons with validation and ready send templates", "before choosing a narrative branch or closeout"),
             action("validate narrative choice", "game play choose-narrative --player-id <id> --target-type <target-type> --target '<target>' --action <action>", "player-operation", "CHOOSE_NARRATIVE_STORY_DIRECTION", "{ TargetType, Target, Action }", "after reading the option key and activation from the story UI"),
           ],
-          ["Use the option reader before sending; the notification target can be invalid because official narrative UI derives the target story from Players.Stories. If no pending story id is present, treat it as a reviewed notification closeout, not a narrative operation."],
+          ["Use the option reader before sending; the notification target can be invalid because official narrative UI derives the target story from Players.Stories. If no pending story id is present, do not synthesize a narrative operation; inspect dismissal postcondition evidence separately."],
         );
       }
       if (stringIncludes(haystack, "TRADITION")) {

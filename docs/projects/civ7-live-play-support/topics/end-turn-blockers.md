@@ -186,8 +186,9 @@ The first CLI shortcut family lives under `civ7 game play`:
 - `game play respond-first-meet`
 - `game play choose-narrative` (`--options --json` reads the official
   story-model option surface before selecting a branch or `CLOSE` closeout; if
-  no pending story id exists, use the surfaced reviewed notification closeout
-  instead of synthesizing a narrative payload)
+  no pending story id exists, inspect the surfaced dismissal diagnostic instead
+  of synthesizing a narrative payload, and require `verified:true` before
+  treating dismissal as a closeout)
 - `game play buy-attribute`
 - `game play consider-attributes`
 - `game play change-tradition`

@@ -1090,7 +1090,7 @@ describe('game play commands', () => {
     }
   });
 
-  test('reports empty narrative choices as reviewed notification closeouts', async () => {
+  test('reports empty narrative choices as unproven dismissal diagnostics', async () => {
     const server = await startTunerServer({ playNotificationMode: 'narrative-choice-empty' });
     const writes: string[] = [];
     const log = vi.spyOn(GamePlayChooseNarrative.prototype, 'log').mockImplementation((message?: string) => {
@@ -1115,7 +1115,8 @@ describe('game play commands', () => {
             classification: string;
             targetStoryId: unknown;
             enabledOptions: unknown[];
-            reviewedCloseoutCli: string | null;
+            dismissalDiagnosticCli: string | null;
+            unprovenDismissalCli: string | null;
           }>;
         };
       };
@@ -1123,7 +1124,10 @@ describe('game play commands', () => {
       expect(payload.result.surfaces[0].classification).toBe('narrative-choice-no-pending-story');
       expect(payload.result.surfaces[0].targetStoryId).toBeNull();
       expect(payload.result.surfaces[0].enabledOptions).toEqual([]);
-      expect(payload.result.surfaces[0].reviewedCloseoutCli).toBe(
+      expect(payload.result.surfaces[0].dismissalDiagnosticCli).toBe(
+        'game play dismiss-notification --target \'{"owner":0,"id":5,"type":20}\' --json',
+      );
+      expect(payload.result.surfaces[0].unprovenDismissalCli).toBe(
         'game play dismiss-notification --target \'{"owner":0,"id":5,"type":20}\' --send --reason \'<reviewed: narrative notification has no pending story>\'',
       );
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
@@ -2502,7 +2506,7 @@ describe('game play commands', () => {
     }
   });
 
-  test('surfaces reviewed closeout for empty narrative choices in compact priorities', async () => {
+  test('surfaces dismissal diagnostics for empty narrative choices in compact priorities', async () => {
     const server = await startTunerServer({ playNotificationMode: 'narrative-choice-empty' });
     const writes: string[] = [];
     const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
@@ -2527,9 +2531,7 @@ describe('game play commands', () => {
       };
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:narrative-choice');
-      expect(top.command).toBe(
-        'game play dismiss-notification --target \'{"owner":0,"id":5,"type":20}\' --send --reason \'<reviewed: narrative notification has no pending story>\'',
-      );
+      expect(top.command).toBe('game play dismiss-notification --target \'{"owner":0,"id":5,"type":20}\' --json');
       expect(payload.next).toBe(top.command);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
@@ -4625,7 +4627,7 @@ function playNotificationView(
         },
       ],
       confidence: 'live-proof',
-      notes: ['Use the option reader before sending; the notification target can be invalid because official narrative UI derives the target story from Players.Stories. If no pending story id is present, treat it as a reviewed notification closeout, not a narrative operation.'],
+      notes: ['Use the option reader before sending; the notification target can be invalid because official narrative UI derives the target story from Players.Stories. If no pending story id is present, do not synthesize a narrative operation; inspect dismissal postcondition evidence separately.'],
     };
     const notificationId = { owner: 0, id: 5, type: 20 };
     const targetStoryId = { owner: 0, id: 45, type: 35 };
@@ -4670,7 +4672,8 @@ function playNotificationView(
       options: surfacedOptions,
       enabledOptions: surfacedOptions,
       disabledOptions: [],
-      reviewedCloseoutCli: hasPendingStory ? null : "game play dismiss-notification --target '{\"owner\":0,\"id\":5,\"type\":20}' --send --reason '<reviewed: narrative notification has no pending story>'",
+      dismissalDiagnosticCli: hasPendingStory ? null : "game play dismiss-notification --target '{\"owner\":0,\"id\":5,\"type\":20}' --json",
+      unprovenDismissalCli: hasPendingStory ? null : "game play dismiss-notification --target '{\"owner\":0,\"id\":5,\"type\":20}' --send --reason '<reviewed: narrative notification has no pending story>'",
       notes: [
         'Static fixture mirrors the CLI/HUD contract emitted by the official story-model narrative choice materializer.',
       ],

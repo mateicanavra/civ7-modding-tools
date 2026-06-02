@@ -150,7 +150,8 @@ function compactNarrativeChoiceSurface(details: Record<string, unknown>): {
   enabledOptions: Array<Record<string, unknown>>;
   enabledOptionCount: number;
   disabledOptionCount: number;
-  reviewedCloseoutCli: unknown;
+  dismissalDiagnosticCli: unknown;
+  unprovenDismissalCli: unknown;
   notes: unknown;
 } {
   const enabledOptions = asArray(details.enabledOptions)
@@ -181,7 +182,8 @@ function compactNarrativeChoiceSurface(details: Record<string, unknown>): {
     enabledOptions,
     enabledOptionCount: enabledOptions.length,
     disabledOptionCount: asArray(details.disabledOptions).length,
-    reviewedCloseoutCli: typeof details.reviewedCloseoutCli === 'string' ? details.reviewedCloseoutCli : null,
+    dismissalDiagnosticCli: typeof details.dismissalDiagnosticCli === 'string' ? details.dismissalDiagnosticCli : null,
+    unprovenDismissalCli: typeof details.unprovenDismissalCli === 'string' ? details.unprovenDismissalCli : null,
     notes: asArray(details.notes),
   };
 }

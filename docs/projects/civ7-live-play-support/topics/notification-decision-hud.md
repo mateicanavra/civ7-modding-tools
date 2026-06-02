@@ -116,8 +116,9 @@ Notable handler evidence:
   `CHOOSE_NARRATIVE_STORY_DIRECTION` with `{ TargetType: answerKey, Target:
   targetStoryId, Action: Activate }`. If a real pending story has no linked
   choices, the official UI emits a `CLOSE` option. If no pending story id exists,
-  do not synthesize a narrative send; treat it as a reviewed stale notification
-  closeout.
+  do not synthesize a narrative send; inspect notification-dismissal
+  postcondition evidence separately and require `verified:true` before treating
+  dismissal as a closeout.
 - Tradition blockers should not be reconstructed from logs or static rows.
   The live player `Culture` object exposes active, unlocked, and recent
   traditions (`getActiveTraditions`, `getUnlockedTraditions`,
@@ -201,8 +202,10 @@ path instead: `Players.get(GameContext.localPlayerID).Stories.getFirstPendingMet
 `getFirstPendingDiscoveryLastMetID()` for discovery blockers when present,
 `Stories.find(target)`, `GameInfo.NarrativeStories.lookup(story.type)`, and a
 narrow `NarrativeStory_Links.filter` for that one story type. If both pending-id
-reads are empty, use the reviewed dismissal command surfaced by
-`game play choose-narrative --options --json`.
+reads are empty, `game play choose-narrative --options --json` should expose a
+read-only dismissal diagnostic plus an unproven send candidate. Only treat that
+send as successful if `game play dismiss-notification --send` reports
+`verified:true`.
 
 Production blockers should use the production shortcut before falling back to a
 generic operation. Units use `UnitType`, constructibles use `ConstructibleType`,
