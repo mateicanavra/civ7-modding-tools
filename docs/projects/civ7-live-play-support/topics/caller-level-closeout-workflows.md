@@ -44,7 +44,8 @@ Use these when the selected action should be handled as one native workflow:
 - `game play choose-tech --player-id <id> --node <node> --send --reason '<why>'`
   sends `SET_TECH_TREE_NODE` then `SET_TECH_TREE_TARGET_NODE`.
 - `game play choose-culture --player-id <id> --node <node> --send --closeout --reason '<why>'`
-  sends `SET_CULTURE_TREE_NODE` then `SET_CULTURE_TREE_TARGET_NODE`.
+  sends `SET_CULTURE_TREE_NODE` then `SET_CULTURE_TREE_TARGET_NODE`, then
+  re-reads the live culture-choice notification postcondition.
 - `game play choose-government --player-id <id> --government-type <government-type> --action <activate> --send --reason '<why>'`
   sends `CHANGE_GOVERNMENT` with the exact government/action pair returned by
   `choose-government --options`.
@@ -76,6 +77,10 @@ workflow is known:
 - Verification is command-internal proof of the repo-owned composition. It
   should surface a command-level failure when our composition did not advance
   the native state machine; it should not become a caller checklist.
+- Progression chooser commands must not treat successful runtime sends as
+  success if the same end-turn-blocking chooser notification remains live.
+  Report sticky or state-changed-live postconditions so agents stop and
+  diagnose instead of repeating blind sends.
 - Keep category guidance advisory. The command gives the caller a safe
   workflow shape; it does not choose which tradition, attribute, or town focus
   is strategically correct.

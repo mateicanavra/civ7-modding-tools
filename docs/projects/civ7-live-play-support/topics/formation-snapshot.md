@@ -47,8 +47,6 @@ The `formation` object has:
   civilian;
 - `otherOwnerContacts`: all other-owner units in scan scope;
 - `nearbyContacts`: other-owner units within `--contact-radius` of a civilian;
-- `threats`: deprecated compatibility alias for `nearbyContacts`; do not treat
-  this field name as proof of hostility, war state, or danger by itself;
 - `nextInspections`: commands to re-read priorities, battlefield, civilian
   route triage, and concrete `unit-target` validators.
 

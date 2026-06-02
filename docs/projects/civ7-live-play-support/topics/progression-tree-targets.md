@@ -38,9 +38,13 @@ templates; disabled options are evidence, not safe sends.
 
 For chooser notifications, the complete workflow mirrors the official chooser
 screens: send the chosen `SET_*_TREE_NODE`, then clear the temporary chooser
-target with `SET_*_TREE_TARGET_NODE { ProgressionTreeNodeType: NO_NODE }`. Use
+target with `SET_*_TREE_TARGET_NODE { ProgressionTreeNodeType: NO_NODE }`.
+That sequence is necessary but not proof by itself. The caller command must
+re-read the live notification state and report whether the blocker cleared,
+changed, unblocked the turn, or remained live after state changed. Use
 `game play set-tech-target` or `game play set-culture-target` only when the full
-tree should deliberately target a later node.
+tree should deliberately target a later node or when diagnostics already prove
+the primary chooser state was applied.
 
 ## Official UI Evidence
 
@@ -77,10 +81,13 @@ the actual runtime node hash:
 ```
 
 Both `SET_CULTURE_TREE_NODE` and `SET_CULTURE_TREE_TARGET_NODE` validated for
-that value, and the turn advanced afterward. The durable lesson is not that
-every culture choice needs both sends; it is that target-node closeout is an
-official path and must be available when the live postcondition proves
-choose-node alone was insufficient.
+that value, and the turn advanced afterward. A later turn-23 culture blocker
+proved the complementary boundary: the two-step culture sequence can return
+from the runtime while `NOTIFICATION_CHOOSE_CULTURE_NODE` remains
+end-turn-blocking. The durable lesson is not that every culture choice needs
+both sends; it is that target-node closeout is an official path, and the CLI
+must still verify the blocker postcondition before calling the workflow
+successful.
 
 ## CLI Use
 
@@ -96,6 +103,11 @@ civ7 game play choose-culture \
   --reason "choose live culture node and set matching target" \
   --json
 ```
+
+The JSON result includes a `postcondition` when sent with `--closeout`. Treat
+`culture-choice-sticky-blocker` and `culture-state-changed-blocker-still-live`
+as stop-and-diagnose outcomes, not as reasons to repeat `choose-culture` or
+`set-culture-target` blindly.
 
 Set only the culture target when the primary choice was already applied:
 

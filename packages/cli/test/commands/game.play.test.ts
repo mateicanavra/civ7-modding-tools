@@ -1075,7 +1075,7 @@ describe('game play commands', () => {
   });
 
   test('chooses culture and sets target as one caller workflow', async () => {
-    const server = await startTunerServer();
+    const server = await startTunerServer({ playNotificationMode: 'culture-choice' });
     try {
       const { port } = server.address();
       const writes: string[] = [];
@@ -1111,6 +1111,113 @@ describe('game play commands', () => {
       expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_TARGET_NODE'))).toBe(true);
       expect(server.received.some((message) => message.includes('"ProgressionTreeNodeType":-1'))).toBe(true);
     } finally {
+      await server.close();
+    }
+  });
+
+  test('reports sticky culture blockers after the chooser sequence returns', async () => {
+    const server = await startTunerServer({
+      playNotificationMode: 'culture-choice',
+      cultureChoiceMode: 'sticky',
+    });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayChooseCulture.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayChooseCulture.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--player-id',
+        '0',
+        '--node',
+        '-1404789184',
+        '--send',
+        '--closeout',
+        '--timeout-ms',
+        '1000',
+        '--reason',
+        'test sticky culture target selection',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          mode: string;
+          stepCount: number;
+          verified: boolean;
+          postcondition: { classification: string; verified: boolean; reason: string };
+        };
+      };
+      expect(payload.result.mode).toBe('send');
+      expect(payload.result.stepCount).toBe(2);
+      expect(payload.result.verified).toBe(false);
+      expect(payload.result.postcondition.verified).toBe(false);
+      expect(payload.result.postcondition.classification).toBe('culture-choice-sticky-blocker');
+      expect(payload.result.postcondition.reason).toContain('same culture choice notification still blocks');
+      expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
+      expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_NODE'))).toBe(true);
+      expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_TARGET_NODE'))).toBe(true);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('reports culture state changes without treating a live blocker as cleared', async () => {
+    const server = await startTunerServer({
+      playNotificationMode: 'culture-choice',
+      cultureChoiceMode: 'state-changed',
+    });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayChooseCulture.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayChooseCulture.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--player-id',
+        '0',
+        '--node',
+        '-1404789184',
+        '--send',
+        '--closeout',
+        '--timeout-ms',
+        '1000',
+        '--reason',
+        'test culture state changed but blocker persisted',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          mode: string;
+          stepCount: number;
+          verified: boolean;
+          postcondition: { classification: string; verified: boolean; reason: string };
+        };
+      };
+      expect(payload.result.mode).toBe('send');
+      expect(payload.result.stepCount).toBe(2);
+      expect(payload.result.verified).toBe(false);
+      expect(payload.result.postcondition.verified).toBe(false);
+      expect(payload.result.postcondition.classification).toBe('culture-state-changed-blocker-still-live');
+      expect(payload.result.postcondition.reason).toContain('state changed');
+      expect(payload.result.postcondition.reason).toContain('still blocks');
+      expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
+      expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_NODE'))).toBe(true);
+      expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_TARGET_NODE'))).toBe(true);
+    } finally {
+      log.mockRestore();
       await server.close();
     }
   });
@@ -4482,7 +4589,6 @@ describe('game play commands', () => {
             screens: unknown[];
             otherOwnerContacts: unknown[];
             nearbyContacts: unknown[];
-            threats: unknown[];
             reasons: string[];
             nextInspections: string[];
           };
@@ -4493,7 +4599,6 @@ describe('game play commands', () => {
       expect(payload.view.formation.screens.length).toBeGreaterThan(0);
       expect(payload.view.formation.otherOwnerContacts.length).toBeGreaterThan(0);
       expect(payload.view.formation.nearbyContacts.length).toBeGreaterThan(0);
-      expect(payload.view.formation.threats).toEqual(payload.view.formation.nearbyContacts);
       expectOwnerOnlyContactLabels([
         payload.view.formation.headline,
         ...payload.view.formation.reasons,
@@ -4672,12 +4777,14 @@ async function startTunerServer(options: {
   productionPostconditionMode?: 'cleared' | 'blocker-still-live';
   narrativeChoiceMode?: 'panel-cleared' | 'panel-cleared-blocker-live' | 'stale';
   technologyChoiceMode?: 'cleared' | 'sticky' | 'state-changed';
+  cultureChoiceMode?: 'cleared' | 'sticky' | 'state-changed';
 } = {}) {
   const received: string[] = [];
   let turnCompleteSent = false;
   let unitTargetSendObserved = false;
   let narrativeChoiceSent = false;
   let technologyChoiceSent = false;
+  let cultureChoiceSent = false;
   let diplomacyCloseoutObserved = false;
   let notificationDismissalSent = false;
   let productionChoiceSent = false;
@@ -4697,6 +4804,10 @@ async function startTunerServer(options: {
             && technologyChoiceSent
             && (options.technologyChoiceMode ?? 'cleared') === 'cleared'
             ? 'ready-unit'
+            : options.playNotificationMode === 'culture-choice'
+            && cultureChoiceSent
+            && (options.cultureChoiceMode ?? 'cleared') === 'cleared'
+            ? 'ready-unit'
             : options.playNotificationMode === 'narrative-choice-visible-panel'
             && narrativeChoiceSent
             && (options.narrativeChoiceMode ?? 'panel-cleared') === 'panel-cleared'
@@ -4706,6 +4817,7 @@ async function startTunerServer(options: {
             playMode,
             diplomacyCloseoutObserved,
             technologyChoiceSent && options.technologyChoiceMode === 'state-changed',
+            cultureChoiceSent && options.cultureChoiceMode === 'state-changed',
           ))]));
         } else if (frame.message.includes('sendDiplomacyResponseCloseout')) {
           diplomacyCloseoutObserved = true;
@@ -4776,6 +4888,9 @@ async function startTunerServer(options: {
           if (operationType === 'SET_TECH_TREE_NODE' || operationType === 'SET_TECH_TREE_TARGET_NODE') {
             technologyChoiceSent = true;
           }
+          if (operationType === 'SET_CULTURE_TREE_NODE' || operationType === 'SET_CULTURE_TREE_TARGET_NODE') {
+            cultureChoiceSent = true;
+          }
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(unitFamily
             ? {
                 sent: true,
@@ -4816,6 +4931,7 @@ function playNotificationView(
   mode: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'unit-lost-report' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'clean-read' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
   diplomacyCloseoutObserved = false,
   technologyStateChanged = false,
+  cultureStateChanged = false,
 ) {
   if (mode === 'runtime-error') {
     const gameError = { ok: false as const, error: 'ReferenceError: Game is not defined' };
@@ -5715,8 +5831,8 @@ function playNotificationView(
       notificationId,
       localPlayerId: 0,
       source: 'Players.Culture.getAllAvailableNodeTypes + Game.ProgressionTrees + PlayerOperations.canStart',
-      currentResearching: { ok: true, value: null },
-      targetNode: { ok: true, value: null },
+      currentResearching: { ok: true, value: cultureStateChanged ? -1404789184 : null },
+      targetNode: { ok: true, value: cultureStateChanged ? -1 : null },
       availableNodeTypes: { ok: true, value: optionRows.map((row) => row.nodeType) },
       options,
       enabledOptions: options.filter((option) => option.chooseEnabled),

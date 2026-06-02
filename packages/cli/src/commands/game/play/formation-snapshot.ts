@@ -34,11 +34,6 @@ type FormationSnapshot = Readonly<{
   screens: ReadonlyArray<FormationUnit>;
   otherOwnerContacts: ReadonlyArray<FormationUnit>;
   nearbyContacts: ReadonlyArray<FormationUnit>;
-  /**
-   * @deprecated Compatibility alias for older callers. Other-owner proximity
-   * does not prove threat/hostility without relationship or validator proof.
-   */
-  threats: ReadonlyArray<FormationUnit>;
   nextInspections: ReadonlyArray<string>;
 }>;
 
@@ -209,7 +204,6 @@ function buildFormationSnapshot(input: {
     screens,
     otherOwnerContacts,
     nearbyContacts,
-    threats: nearbyContacts,
     nextInspections: nextInspectionCommands(input.origin, civilians, nearbyContacts, posture),
   };
 }
@@ -226,7 +220,6 @@ function postureFor(input: {
   if (input.civilians.length > 0 && input.screens.length === 0) return 'hold-ready-unit';
   if (input.poiReasons.some((reason) =>
     reason.includes('nearby-other-owners')
-    || reason.includes('nearby-opponents')
     || reason.includes('owner-pressure')
   )) return 'stabilize-front';
   return 'advance-with-validation';
