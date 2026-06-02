@@ -126,6 +126,12 @@ raw notification fields. Use `--detail` for required inputs and common actions,
 or the new `--expand hud,operation` vocabulary when implemented. Use `--raw` for
 the underlying notification records.
 
+`game play priorities --compact --json` is the first additive compact contract
+for this family. Plain `--json` remains the compatibility payload; compact mode
+returns `contractVersion`, `summary`, `decisionHud`, top `priorities`, `next`,
+`warnings`, `omitted`, and `hiddenInfoPolicy` so play agents can decide what to
+inspect without scanning the full composed read.
+
 `game play unit-move-preview` should default to selected unit, movement range,
 queued destination, and top warnings. Use `--expand lens` for paths and
 post-move actions, and `--raw` for implementation payloads.

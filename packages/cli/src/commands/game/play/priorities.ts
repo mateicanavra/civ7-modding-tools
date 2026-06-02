@@ -16,6 +16,44 @@ type PriorityItem = {
   evidence?: unknown;
 };
 
+type Probe<T = unknown> = { ok: true; value: T } | { ok: false; error: string };
+
+type PriorityView = {
+  localPlayerId: unknown;
+  turn: Probe;
+  turnDate: Probe;
+  blocker: Probe;
+  canEndTurn: Probe;
+  firstReadyUnitId: Probe;
+  selectedCityId: Probe;
+  hud: unknown;
+  readyUnit: {
+    unitId: unknown;
+    unit: unknown;
+    legalOperationScope: string;
+    legalNoTargetOperationCount: number;
+    legalOperationCount: number;
+    promotionReadiness: unknown;
+  } | null;
+  readyCity: {
+    cityId: unknown;
+    city: unknown;
+    legalOperationCount: number;
+    productionCandidateCount: number;
+    townFocusOptionCount: number;
+    populationPlacement: unknown;
+  } | null;
+  battlefield: {
+    origins: unknown;
+    radius: unknown;
+    hiddenInfoPolicy: unknown;
+    pointsOfInterest: unknown;
+    owners: unknown;
+  } | null;
+  priorities: PriorityItem[];
+  notes: string[];
+};
+
 export default class GamePlayPriorities extends Command {
   static id = 'game play priorities';
   static summary = 'Read a turn-priority dashboard without sending operations';
@@ -24,6 +62,7 @@ export default class GamePlayPriorities extends Command {
 
   static examples = [
     '<%= config.bin %> game play priorities --json',
+    '<%= config.bin %> game play priorities --compact --json',
     '<%= config.bin %> game play priorities --radius 6 --json',
     '<%= config.bin %> game play priorities --no-battlefield',
   ];
@@ -61,6 +100,10 @@ export default class GamePlayPriorities extends Command {
       description: 'Skip battlefield scan and only read HUD plus ready entity views',
       default: false,
     }),
+    compact: Flags.boolean({
+      description: 'In JSON mode, emit a summary-first play-agent envelope instead of the full dashboard payload',
+      default: false,
+    }),
     json: Flags.boolean({
       description: 'Emit machine-readable JSON',
       default: false,
@@ -92,7 +135,7 @@ export default class GamePlayPriorities extends Command {
         }, options)
       : null;
     const priorities = buildPriorities({ hud, readyUnit, readyCity, battlefield });
-    const view = {
+    const view: PriorityView = {
       localPlayerId: hud.localPlayerId,
       turn: hud.turn,
       turnDate: hud.turnDate,
@@ -139,7 +182,7 @@ export default class GamePlayPriorities extends Command {
     };
 
     if (flags.json) {
-      this.log(JSON.stringify({ ok: true, view }));
+      this.log(JSON.stringify(flags.compact ? buildCompactView(view) : { ok: true, view }));
       return;
     }
 
@@ -151,6 +194,80 @@ export default class GamePlayPriorities extends Command {
       if (item.command) this.log(`  next: ${item.command}`);
     }
   }
+}
+
+function buildCompactView(view: PriorityView): {
+  ok: true;
+  contractVersion: 'play-agent-v0';
+  command: 'game play priorities';
+  summary: string;
+  decisionHud: Record<string, unknown>;
+  priorities: Array<Pick<PriorityItem, 'priority' | 'kind' | 'summary' | 'reason' | 'command'>>;
+  next: string | null;
+  warnings: string[];
+  omitted: Array<{ path: string; reason: string }>;
+  hiddenInfoPolicy: unknown;
+} {
+  const top = view.priorities[0] ?? null;
+  const runtimeError = view.priorities.find((item) => item.kind === 'runtime-state-error');
+  const warnings = [
+    runtimeError
+      ? 'Core HUD probes failed; rehydrate or watch before treating the turn as clean.'
+      : null,
+    view.battlefield
+      ? 'Battlefield scan is read-only planning evidence; validate and postcondition-check any mutation separately.'
+      : null,
+  ].filter((warning): warning is string => Boolean(warning));
+
+  return {
+    ok: true,
+    contractVersion: 'play-agent-v0',
+    command: 'game play priorities',
+    summary: top
+      ? `${top.kind}: ${top.summary}`
+      : 'no priorities surfaced',
+    decisionHud: {
+      turn: view.turn,
+      turnDate: view.turnDate,
+      blocker: view.blocker,
+      canEndTurn: view.canEndTurn,
+      firstReadyUnitId: view.firstReadyUnitId,
+      selectedCityId: view.selectedCityId,
+      readyUnit: view.readyUnit
+        ? {
+            unitId: view.readyUnit.unitId,
+            legalNoTargetOperationCount: view.readyUnit.legalNoTargetOperationCount,
+          }
+        : null,
+      readyCity: view.readyCity
+        ? {
+            cityId: view.readyCity.cityId,
+            legalOperationCount: view.readyCity.legalOperationCount,
+            populationPlacement: view.readyCity.populationPlacement,
+          }
+        : null,
+      battlefieldPoiCount: Array.isArray(view.battlefield?.pointsOfInterest)
+        ? view.battlefield.pointsOfInterest.length
+        : 0,
+    },
+    priorities: view.priorities.slice(0, 6).map(({ priority, kind, summary, reason, command }) => ({
+      priority,
+      kind,
+      summary,
+      reason,
+      command,
+    })),
+    next: top?.command ?? null,
+    warnings,
+    omitted: [
+      { path: 'view.hud', reason: 'use --json without --compact for full HUD details' },
+      { path: 'view.readyUnit.unit', reason: 'use --json without --compact or game play ready-unit --json for full unit details' },
+      { path: 'view.readyCity.city', reason: 'use --json without --compact or game play ready-city --json for full city details' },
+      { path: 'view.battlefield.pointsOfInterest[].evidence', reason: 'use --json without --compact or the listed tactical lens command for raw evidence' },
+      { path: 'priorities[].evidence', reason: 'use --json without --compact for raw priority evidence' },
+    ],
+    hiddenInfoPolicy: view.battlefield?.hiddenInfoPolicy ?? 'not-expanded',
+  };
 }
 
 function buildPriorities(input: {

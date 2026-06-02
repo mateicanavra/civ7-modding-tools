@@ -1257,6 +1257,51 @@ describe('game play commands', () => {
     }
   });
 
+  test('emits compact play priorities without raw evidence by request', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'runtime-error' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPriorities.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+        '--compact',
+        '--no-battlefield',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        contractVersion: string;
+        command: string;
+        summary: string;
+        next: string | null;
+        warnings: string[];
+        omitted: Array<{ path: string }>;
+        priorities: Array<{ kind: string; evidence?: unknown }>;
+        view?: unknown;
+      };
+      expect(payload.contractVersion).toBe('play-agent-v0');
+      expect(payload.command).toBe('game play priorities');
+      expect(payload.summary).toContain('runtime-state-error');
+      expect(payload.next).toContain('game play rehydrate --json');
+      expect(payload.warnings.join(' ')).toContain('Core HUD probes failed');
+      expect(payload.omitted.some((item) => item.path === 'priorities[].evidence')).toBe(true);
+      expect(payload.priorities.some((item) => item.kind === 'clean-read')).toBe(false);
+      expect(payload.priorities.every((item) => item.evidence === undefined)).toBe(true);
+      expect(payload.view).toBeUndefined();
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('lists live-play topic shortcuts without touching the game runtime', async () => {
     const writes: string[] = [];
     const log = vi.spyOn(GamePlayTopics.prototype, 'log').mockImplementation((message?: string) => {

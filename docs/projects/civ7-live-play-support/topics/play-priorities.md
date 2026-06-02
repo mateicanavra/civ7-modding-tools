@@ -28,9 +28,15 @@ civ7 game play priorities --json
 Useful variants:
 
 ```bash
+civ7 game play priorities --compact --json
 civ7 game play priorities --radius 6 --json
 civ7 game play priorities --no-battlefield --json
 ```
+
+Use `--compact --json` for the play-agent dashboard view. It returns the
+summary, compact decision HUD, top priorities, next command, warnings, omitted
+raw sections, and `hiddenInfoPolicy`. Use plain `--json` when debugging the
+full composed HUD, ready-unit, ready-city, battlefield, and priority evidence.
 
 ## What It Ranks
 
@@ -93,6 +99,10 @@ fallback. In that case it should surface `runtime-state-error` and route the
 agent to `game play rehydrate --json` or a fresh `game watch` read. An empty
 notification queue plus `ReferenceError: Game is not defined` is partial
 evidence, not proof that end-turn or autoplay is safe.
+
+The compact form preserves that safety boundary. If `--compact --json` returns
+`runtime-state-error`, treat `next` as the operational route and do not infer a
+clean turn from omitted raw sections.
 
 ## Relationship To Other Lenses
 
