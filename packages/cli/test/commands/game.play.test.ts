@@ -109,10 +109,35 @@ describe('game play commands', () => {
     }
   });
 
-  test('allows end-turn fallback for stale command-units after readiness is clean', async () => {
+  test('blocks raw end-turn fallback when stale command-units has a validator-backed closeout', async () => {
     const server = await startTunerServer({
       canEndTurnBefore: false,
       playNotificationMode: 'stale-unit-command',
+    });
+    try {
+      const { port } = server.address();
+      await expect(GamePlayEndTurn.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--send',
+        '--reason',
+        'test blocked because a unit closeout exists',
+        '--json',
+      ])).rejects.toThrow(/blocked by current game state/);
+
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received).not.toContain('CMD:65535:GameContext.sendTurnComplete()');
+    } finally {
+      await server.close();
+    }
+  });
+
+  test('allows end-turn fallback for stale command-units only when no closeout is enabled', async () => {
+    const server = await startTunerServer({
+      canEndTurnBefore: false,
+      playNotificationMode: 'stale-unit-command-disabled',
     });
     try {
       const { port } = server.address();
@@ -123,7 +148,7 @@ describe('game play commands', () => {
         String(port),
         '--send',
         '--reason',
-        'test approved clean unit queue end-turn',
+        'test approved stale expired command-units end-turn',
         '--json',
       ]);
 

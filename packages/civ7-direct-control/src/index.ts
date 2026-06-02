@@ -9799,12 +9799,24 @@ function isTurnCompletionFallbackNotification(
 ): boolean {
   const typeName = String(notification.typeName ?? "").toUpperCase();
   if (notification.decision.category === "unit-command" && typeName.includes("COMMAND_UNITS")) {
-    return probeValue(status.blocker) === 0 && probeValue(status.firstReadyUnitId) === null;
+    return probeValue(status.blocker) === 0
+      && probeValue(status.firstReadyUnitId) === null
+      && notificationDetailsProveStaleCommandUnits(notification.details);
   }
   if (notification.decision.category === "informational-notification") {
     return notification.canUserDismiss === true && isTurnCompletionFallbackInformationalType(typeName);
   }
   return false;
+}
+
+function notificationDetailsProveStaleCommandUnits(details: unknown): boolean {
+  if (!isRecord(details)) return false;
+  const enabledCloseoutCandidates = details.enabledCloseoutCandidates;
+  return details.kind === "unit-command-reconciliation"
+    && details.classification === "unit-command-stale-expired"
+    && details.staleExpiredWithoutEnabledCloseout === true
+    && Array.isArray(enabledCloseoutCandidates)
+    && enabledCloseoutCandidates.length === 0;
 }
 
 function isTurnCompletionFallbackInformationalType(typeName: string): boolean {

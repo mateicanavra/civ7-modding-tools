@@ -118,12 +118,14 @@ args prove otherwise.
 
 `COMMAND_UNITS` has a stale-closeout path. If the HUD still lists an
 end-turn-blocking `NOTIFICATION_COMMAND_UNITS` but `Game.Notifications` reports
-blocker `0`, `GameContext.hasSentTurnComplete()` is false, and
-`UI.Player.getFirstReadyUnit()` is null, the unit queue is clean enough for the
-guarded `game play end-turn` fallback. Do not apply that fallback to culture,
-production, town focus, diplomacy, narrative, advisor, or population blockers:
-the turn-58 culture bug showed that an expired notification can still mean the
-wrong enum or missing target operation was sent.
+blocker `0`, `GameContext.hasSentTurnComplete()` is false, and the unit-ready
+pointers are null, that is not enough by itself for the guarded
+`game play end-turn` fallback. The executable fallback requires the HUD
+reconciliation detail to classify the blocker as `unit-command-stale-expired`,
+with no enabled validator-backed unit closeout candidates. Do not apply that
+fallback to culture, production, town focus, diplomacy, narrative, advisor, or
+population blockers: the turn-58 culture bug showed that an expired
+notification can still mean the wrong enum or missing target operation was sent.
 
 Before relying on that fallback, read `game play notifications --json`. For
 `COMMAND_UNITS`, the HUD may include
