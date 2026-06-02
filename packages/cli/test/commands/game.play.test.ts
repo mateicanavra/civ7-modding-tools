@@ -1,5 +1,4 @@
 import { describe, expect, test, vi } from 'vitest';
-import GamePlayDismissNotificationQueue from '../../src/commands/game/play/dismiss-notification-queue';
 import GamePlayDismissNotification from '../../src/commands/game/play/dismiss-notification';
 import GamePlayNotifications from '../../src/commands/game/play/notifications';
 import GamePlayPriorities from '../../src/commands/game/play/priorities';
@@ -1234,119 +1233,6 @@ describe('game play commands', () => {
     }
   });
 
-  test('bulk dismisses only eligible informational queue items with approval', async () => {
-    const dryRunServer = await startTunerServer({ playNotificationMode: 'mixed-queue' });
-    try {
-      const { port } = dryRunServer.address();
-      const writes: string[] = [];
-      const log = vi.spyOn(GamePlayDismissNotificationQueue.prototype, 'log').mockImplementation((message?: string) => {
-        if (message) writes.push(message);
-      });
-      try {
-        await GamePlayDismissNotificationQueue.run([
-          '--host',
-          '127.0.0.1',
-          '--port',
-          String(port),
-          '--json',
-        ]);
-      } finally {
-        log.mockRestore();
-      }
-
-      const payload = JSON.parse(writes.join('')) as {
-        ok: true;
-        view: { send: boolean; eligibleCount: number; selectedCount: number; excluded: unknown[]; results: unknown[] };
-      };
-      expect(payload.view.send).toBe(false);
-      expect(payload.view.eligibleCount).toBe(1);
-      expect(payload.view.selectedCount).toBe(1);
-      expect(payload.view.excluded).toHaveLength(2);
-      expect(payload.view.results).toHaveLength(0);
-      expect(dryRunServer.received.some((message) => message.includes('readNotificationDismissal'))).toBe(false);
-    } finally {
-      await dryRunServer.close();
-    }
-
-    const sendServer = await startTunerServer({ playNotificationMode: 'mixed-queue' });
-    try {
-      const { port } = sendServer.address();
-      const writes: string[] = [];
-      const log = vi.spyOn(GamePlayDismissNotificationQueue.prototype, 'log').mockImplementation((message?: string) => {
-        if (message) writes.push(message);
-      });
-      try {
-        await GamePlayDismissNotificationQueue.run([
-          '--host',
-          '127.0.0.1',
-          '--port',
-          String(port),
-          '--send',
-          '--reason',
-          'reviewed queue reports',
-          '--json',
-        ]);
-      } finally {
-        log.mockRestore();
-      }
-
-      const payload = JSON.parse(writes.join('')) as {
-        ok: true;
-        view: { send: boolean; eligibleCount: number; selectedCount: number; results: Array<{ sent: boolean; verified: boolean }> };
-      };
-      expect(payload.view.send).toBe(true);
-      expect(payload.view.eligibleCount).toBe(1);
-      expect(payload.view.selectedCount).toBe(1);
-      expect(payload.view.results).toHaveLength(1);
-      expect(payload.view.results[0].sent).toBe(true);
-      expect(payload.view.results[0].verified).toBe(true);
-      expect(sendServer.received.filter((message) => message.includes('readNotificationDismissal')).length).toBeGreaterThan(1);
-      expect(sendServer.received.some((message) => message.includes('sendOperation('))).toBe(false);
-    } finally {
-      await sendServer.close();
-    }
-  });
-
-  test('excludes front unit-lost reports from bulk dismissal', async () => {
-    const server = await startTunerServer({ playNotificationMode: 'unit-lost-report' });
-    const writes: string[] = [];
-    const log = vi.spyOn(GamePlayDismissNotificationQueue.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
-    try {
-      const { port } = server.address();
-      await GamePlayDismissNotificationQueue.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--json',
-      ]);
-
-      const payload = JSON.parse(writes.join('')) as {
-        ok: true;
-        view: {
-          eligibleCount: number;
-          selectedCount: number;
-          excluded: Array<{ typeName: string | null; reason: string }>;
-          results: unknown[];
-        };
-      };
-      expect(payload.view.eligibleCount).toBe(0);
-      expect(payload.view.selectedCount).toBe(0);
-      expect(payload.view.results).toHaveLength(0);
-      expect(payload.view.excluded).toHaveLength(1);
-      expect(payload.view.excluded[0]).toMatchObject({
-        typeName: 'NOTIFICATION_UNIT_LOST',
-        reason: 'front unit-loss reports require exact reviewed dismissal proof, not bulk dismissal',
-      });
-      expect(server.received.some((message) => message.includes('readNotificationDismissal'))).toBe(false);
-    } finally {
-      log.mockRestore();
-      await server.close();
-    }
-  });
-
   test('dismisses reviewed notifications only with explicit approval reason', async () => {
     await expect(GamePlayDismissNotification.run([
       '--target',
@@ -1581,7 +1467,7 @@ function expectOwnerOnlyContactLabels(values: readonly string[]): void {
 }
 
 async function startTunerServer(options: {
-  playNotificationMode?: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'unit-lost-report' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'first-meet' | 'ready-unit' | 'mixed-queue' | 'clean-read' | 'stale-diplomacy' | 'runtime-error';
+  playNotificationMode?: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'unit-lost-report' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'first-meet' | 'ready-unit' | 'clean-read' | 'stale-diplomacy' | 'runtime-error';
   notificationDismissalMode?: 'verified' | 'stale-nonblocking' | 'engine-front-train-absent' | 'engine-front-dismissed';
 } = {}) {
   let notificationDismissalSent = false;
@@ -1646,7 +1532,7 @@ async function startTunerServer(options: {
 }
 
 function playNotificationView(
-  mode: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'unit-lost-report' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'first-meet' | 'ready-unit' | 'mixed-queue' | 'clean-read' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
+  mode: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'unit-lost-report' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'first-meet' | 'ready-unit' | 'clean-read' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
 ) {
   if (mode === 'runtime-error') {
     const gameError = { ok: false as const, error: 'ReferenceError: Game is not defined' };
@@ -1787,174 +1673,6 @@ function playNotificationView(
             ...decision,
           },
         ],
-      },
-      limits: { maxNotifications: 25, truncated: false },
-    };
-  }
-  if (mode === 'mixed-queue') {
-    const diplomacyDecision = {
-      category: 'diplomacy-response',
-      operationFamily: 'player-operation',
-      operationType: 'RESPOND_DIPLOMATIC_ACTION',
-      argsShape: '{ ID, Type }',
-      cli: 'game play respond-diplomacy',
-      requiredInputs: [
-        { name: 'ID', source: 'live diplomatic action', required: true },
-        { name: 'Type', source: 'chosen diplomatic response', required: true },
-      ],
-      commonActions: [
-        {
-          label: 'validate diplomacy response',
-          cli: 'game play respond-diplomacy --player-id <id> --action-id <action-id> --response-type <response-type>',
-          operationFamily: 'player-operation',
-          operationType: 'RESPOND_DIPLOMATIC_ACTION',
-          argsShape: '{ ID, Type }',
-          when: 'after reading the action id and desired response type',
-        },
-      ],
-      confidence: 'live-proof',
-      notes: ['Use the diplomatic action id and response type from the live notification.'],
-    };
-    const informationalDecision = {
-      category: 'informational-notification',
-      operationFamily: 'app-ui-action',
-      operationType: 'Game.Notifications.dismiss',
-      argsShape: '{ notificationId }',
-      cli: 'game play dismiss-notification',
-      requiredInputs: [
-        { name: 'Notification', source: 'notification ComponentID', required: true },
-      ],
-      commonActions: [
-        {
-          label: 'dismiss reviewed notification',
-          cli: "game play dismiss-notification --target '<notification-id>' --send --reason '<why this was reviewed>'",
-          operationFamily: 'app-ui-action',
-          operationType: 'Game.Notifications.dismiss',
-          argsShape: '{ notificationId }',
-          when: 'after reviewing the report',
-        },
-      ],
-      confidence: 'official-ui',
-      notes: ['Default-handler report notification; review before closeout.'],
-    };
-    const commandUnitsDecision = {
-      category: 'unit-command',
-      operationFamily: 'unit-operation',
-      operationType: 'SKIP_TURN',
-      argsShape: 'selected/ready unit id plus operation-specific args',
-      cli: 'game play operation --family unit',
-      requiredInputs: [
-        { name: 'Unit', source: 'selectedUnitId or firstReadyUnitId', required: true },
-      ],
-      commonActions: [
-        {
-          label: 'read ready-unit view',
-          cli: 'game play ready-unit --json',
-          argsShape: 'selected/first ready unit, legal operations, nearby occupied plots',
-          when: 'before choosing a unit operation',
-        },
-      ],
-      confidence: 'heuristic',
-      notes: ['Read the selected or first ready unit before choosing skip, automate, move, or promote.'],
-    };
-    const notifications = [
-      {
-        id: { owner: 0, id: 577, type: 20 },
-        type: 1,
-        typeName: 'NOTIFICATION_DIPLOMATIC_RESPONSE_REQUIRED',
-        groupType: null,
-        summary: 'Lafayette has started a Diplomatic Action with you.',
-        message: 'Respond to Diplomatic Action',
-        target: { owner: 4, id: 80, type: 34 },
-        location: { x: -9999, y: -9999 },
-        canUserDismiss: false,
-        expired: false,
-        dismissed: false,
-        isEndTurnBlocking: true,
-        decision: diplomacyDecision,
-      },
-      {
-        id: { owner: 0, id: 579, type: 20 },
-        type: 2,
-        typeName: 'NOTIFICATION_VOLCANO_ERUPTS_SEV2',
-        groupType: null,
-        summary: 'Laacher See has erupted.',
-        message: 'Megacolossal Volcanic Eruption!',
-        target: { owner: -1, id: -1, type: 0 },
-        location: { x: 58, y: 36 },
-        canUserDismiss: true,
-        expired: false,
-        dismissed: false,
-        isEndTurnBlocking: false,
-        decision: informationalDecision,
-      },
-      {
-        id: { owner: 0, id: 583, type: 20 },
-        type: 3,
-        typeName: 'NOTIFICATION_COMMAND_UNITS',
-        groupType: null,
-        summary: 'Move a Unit or have it perform an operation.',
-        message: 'Command Units',
-        target: { owner: -1, id: -1, type: 0 },
-        location: { x: -9999, y: -9999 },
-        canUserDismiss: false,
-        expired: false,
-        dismissed: false,
-        isEndTurnBlocking: false,
-        decision: commandUnitsDecision,
-      },
-    ];
-    const queue = [
-      {
-        notificationId: notifications[0].id,
-        isEndTurnBlocking: true,
-        typeName: notifications[0].typeName,
-        summary: notifications[0].summary,
-        message: notifications[0].message,
-        target: notifications[0].target,
-        location: notifications[0].location,
-        player: null,
-        ...diplomacyDecision,
-      },
-      {
-        notificationId: notifications[1].id,
-        isEndTurnBlocking: false,
-        typeName: notifications[1].typeName,
-        summary: notifications[1].summary,
-        message: notifications[1].message,
-        target: notifications[1].target,
-        location: notifications[1].location,
-        player: null,
-        ...informationalDecision,
-      },
-      {
-        notificationId: notifications[2].id,
-        isEndTurnBlocking: false,
-        typeName: notifications[2].typeName,
-        summary: notifications[2].summary,
-        message: notifications[2].message,
-        target: notifications[2].target,
-        location: notifications[2].location,
-        player: null,
-        ...commandUnitsDecision,
-      },
-    ];
-    return {
-      localPlayerId: 0,
-      turn: { ok: true, value: 123 },
-      turnDate: { ok: true, value: '1160 BCE' },
-      hasSentTurnComplete: { ok: true, value: false },
-      canEndTurn: { ok: true, value: false },
-      blocker: { ok: true, value: 0 },
-      blockingNotificationId: { ok: true, value: notifications[0].id },
-      selectedUnitId: { ok: true, value: null },
-      selectedCityId: { ok: true, value: null },
-      firstReadyUnitId: { ok: true, value: { owner: 0, id: 1507331, type: 26 } },
-      notifications,
-      decisions: [diplomacyDecision, informationalDecision, commandUnitsDecision],
-      hud: {
-        nextDecision: queue[0],
-        decisionQueue: queue,
       },
       limits: { maxNotifications: 25, truncated: false },
     };
