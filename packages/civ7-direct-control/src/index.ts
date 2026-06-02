@@ -5638,11 +5638,20 @@ function progressDashboardSource(): string {
 
 function playNotificationViewSource(): string {
   return `${probeHelperSource()}
+    const readNumericField = (value, lowerKey, upperKey) => {
+      if (!value || typeof value !== "object") return null;
+      if (typeof value[lowerKey] === "number") return value[lowerKey];
+      if (typeof value[upperKey] === "number") return value[upperKey];
+      return null;
+    };
     const toComponentId = (value) => {
       if (!value || typeof value !== "object") return null;
-      if (typeof value.owner !== "number" || typeof value.id !== "number") return null;
-      const out = { owner: value.owner, id: value.id };
-      if (typeof value.type === "number") out.type = value.type;
+      const owner = readNumericField(value, "owner", "Owner");
+      const id = readNumericField(value, "id", "ID");
+      if (owner == null || id == null) return null;
+      const out = { owner, id };
+      const type = readNumericField(value, "type", "Type");
+      if (type != null) out.type = type;
       return out;
     };
     const componentKey = (value) => {
@@ -7491,11 +7500,20 @@ function notificationDismissalSource(): string {
 
 function operationRouterSource(): string {
   return `${probeHelperSource()}
+    const readNumericField = (value, lowerKey, upperKey) => {
+      if (!value || typeof value !== "object") return null;
+      if (typeof value[lowerKey] === "number") return value[lowerKey];
+      if (typeof value[upperKey] === "number") return value[upperKey];
+      return null;
+    };
     const toComponentId = (value) => {
       if (!value || typeof value !== "object") return null;
-      if (typeof value.owner !== "number" || typeof value.id !== "number") return null;
-      const out = { owner: value.owner, id: value.id };
-      if (typeof value.type === "number") out.type = value.type;
+      const owner = readNumericField(value, "owner", "Owner");
+      const id = readNumericField(value, "id", "ID");
+      if (owner == null || id == null) return null;
+      const out = { owner, id };
+      const type = readNumericField(value, "type", "Type");
+      if (type != null) out.type = type;
       return out;
     };
     const summarizeUnitForPostcondition = (unit) => {
@@ -7526,7 +7544,7 @@ function operationRouterSource(): string {
       const cityIds = player?.Cities?.getCityIds?.() ?? [];
       for (const cityId of cityIds) {
         const city = globalThis.Cities?.get?.(cityId);
-        if (city?.Growth?.isReadyToPlacePopulation) return toComponentId(city.id ?? cityId) ?? cityId;
+        if (city?.Growth?.isReadyToPlacePopulation) return toComponentId(cityId);
       }
       return null;
     };
@@ -7550,7 +7568,8 @@ function operationRouterSource(): string {
       return {
         cityId,
         city: probe(() => city ? {
-          id: toComponentId(city.id ?? cityId),
+          id: toComponentId(cityId),
+          observedCityId: toComponentId(city.id),
           population: city.population ?? null,
           isTown: city.isTown ?? null,
           location: city.location ?? null,
@@ -7630,12 +7649,13 @@ function operationRouterSource(): string {
     };
     const productionPostconditionEligible = (family, input) => family === "city-operation" && input.operationType === "BUILD";
     const readProductionPostconditionSnapshot = (input) => {
-      const cityId = toComponentId(input.cityId) ?? input.cityId ?? null;
+      const cityId = toComponentId(input.cityId);
       const city = cityId ? globalThis.Cities?.get?.(cityId) : null;
       return {
         cityId,
         city: probe(() => city ? {
-          id: toComponentId(city.id ?? cityId),
+          id: toComponentId(cityId),
+          observedCityId: toComponentId(city.id),
           population: city.population ?? null,
           isTown: city.isTown ?? null,
           location: city.location ?? null,
@@ -8207,8 +8227,10 @@ function targetCandidatesSource(): string {
       const city = Cities.get(cityId);
       if (!city) return null;
       const location = toLocation(city.location ?? city.getLocation?.());
+      const normalizedCityId = toComponentId(cityId);
       return {
-        id: toComponentId(city.id ?? cityId) ?? cityId,
+        id: normalizedCityId,
+        observedCityId: toComponentId(city.id),
         owner: Number(city.owner ?? city.player ?? city.getOwner?.()),
         name: typeof city.getName === "function" ? city.getName() : city.name ?? null,
         location,
@@ -8471,8 +8493,10 @@ function battlefieldScanSource(): string {
       const proximity = nearestOrigin(location, origins);
       if (proximity.distance == null || proximity.distance > radius) return null;
       const owner = Number(city.owner ?? city.player ?? city.getOwner?.());
+      const normalizedCityId = toComponentId(cityId);
       return {
-        id: toComponentId(city.id ?? cityId) ?? cityId,
+        id: normalizedCityId,
+        observedCityId: toComponentId(city.id),
         owner,
         stance: owner === playerId ? "friendly" : "other",
         relationshipProof: owner === playerId ? "self" : "none",
@@ -9205,11 +9229,20 @@ function unitMovePreviewSource(): string {
 function readyCityViewSource(): string {
   return `${probeHelperSource()}
     ${runtimeObjectReaderSource()}
+    const readNumericField = (value, lowerKey, upperKey) => {
+      if (!value || typeof value !== "object") return null;
+      if (typeof value[lowerKey] === "number") return value[lowerKey];
+      if (typeof value[upperKey] === "number") return value[upperKey];
+      return null;
+    };
     const toComponentId = (value) => {
       if (!value || typeof value !== "object") return null;
-      if (typeof value.owner !== "number" || typeof value.id !== "number") return null;
-      const out = { owner: value.owner, id: value.id };
-      if (typeof value.type === "number") out.type = value.type;
+      const owner = readNumericField(value, "owner", "Owner");
+      const id = readNumericField(value, "id", "ID");
+      if (owner == null || id == null) return null;
+      const out = { owner, id };
+      const type = readNumericField(value, "type", "Type");
+      if (type != null) out.type = type;
       return out;
     };
     const enumValueFor = (enums, operationType) => {
@@ -9275,13 +9308,23 @@ function readyCityViewSource(): string {
     const summarizeCity = (cityId) => {
       const city = Cities.get(cityId);
       if (!city) return null;
+      const normalizedCityId = toComponentId(cityId);
+      const observedCityId = toComponentId(city.id);
       const growth = city.Growth;
       const yields = city.Yields;
       const happiness = city.Happiness;
       const workers = city.Workers;
       return {
-        id: toComponentId(city.id ?? cityId) ?? cityId,
-        owner: city.owner ?? cityId.owner,
+        id: normalizedCityId,
+        owner: city.owner ?? normalizedCityId?.owner ?? null,
+        identity: {
+          source: "Players.Cities.getCityIds",
+          ok: normalizedCityId != null,
+          observedCityId,
+          reason: normalizedCityId == null
+            ? "City id from Players.Cities.getCityIds did not normalize to a ComponentID."
+            : null,
+        },
         name: typeof city.getName === "function" ? city.getName() : city.name ?? null,
         location: city.location ?? null,
         population: city.population ?? null,
@@ -9708,7 +9751,7 @@ function readyCityViewSource(): string {
       const cityIds = player?.Cities?.getCityIds?.() ?? [];
       for (const cityId of cityIds) {
         const city = Cities.get(cityId);
-        if (city?.Growth?.isReadyToPlacePopulation) return toComponentId(city.id ?? cityId) ?? cityId;
+        if (city?.Growth?.isReadyToPlacePopulation) return toComponentId(cityId);
       }
       return null;
     };

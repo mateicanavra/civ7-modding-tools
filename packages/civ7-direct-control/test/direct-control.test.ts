@@ -464,6 +464,10 @@ describe("Civ7 direct control", () => {
           ok: true,
           value: {
             id: { owner: 0, id: 131073, type: 1 },
+            identity: {
+              source: "Players.Cities.getCityIds",
+              ok: true,
+            },
             name: "Dur-Sharrukin",
             isTown: true,
             population: 4,
@@ -481,7 +485,8 @@ describe("Civ7 direct control", () => {
         "game play expand-city --city-id '<city-id>' --x <x> --y <y>",
       );
       expect(server.received.some((message) => message.includes("readReadyCityView"))).toBe(true);
-      expect(server.received.some((message) => message.includes("toComponentId(city.id ?? cityId) ?? cityId"))).toBe(true);
+      expect(server.received.some((message) => message.includes('source: "Players.Cities.getCityIds"'))).toBe(true);
+      expect(server.received.some((message) => message.includes("toComponentId(city.id ?? cityId) ?? cityId"))).toBe(false);
       expect(server.received.some((message) => message.includes("sendRequest"))).toBe(false);
     } finally {
       await server.close();
@@ -2440,6 +2445,12 @@ function readyCityView() {
       value: {
         id: cityId,
         owner: 0,
+        identity: {
+          source: "Players.Cities.getCityIds",
+          ok: true,
+          observedCityId: cityId,
+          reason: null,
+        },
         name: "Dur-Sharrukin",
         location: { x: 22, y: 31 },
         population: 4,
