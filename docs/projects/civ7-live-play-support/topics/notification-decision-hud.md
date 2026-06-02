@@ -196,6 +196,10 @@ constructibles need the same second-stage args the official UI sends: `X` and
 `Y` paired with `ConstructibleType`. Keep `game play build-unit` available for
 unit-only flows, but use `game play build-production` for new production
 guidance because it makes the item kind and placement requirement explicit.
+After any send, treat `productionPostcondition` as the closeout proof. If the
+classification is `production-state-changed-blocker-still-live`, the build
+request affected city production but did not close the HUD blocker; inspect the
+notification/chooser closeout surface instead of re-sending the same build.
 
 ## Turn 115 Diplomatic Completion Lesson
 

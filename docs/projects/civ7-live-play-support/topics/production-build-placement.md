@@ -16,7 +16,9 @@ City production uses one operation family, but not one argument shape:
 Use `game play build-production` for ordinary production choices. Keep
 `game play build-unit` as a stable unit-specific shortcut, but prefer the
 broader command when building new guidance because it keeps the item-kind
-decision explicit.
+decision explicit. In send mode, read `productionPostcondition` before treating
+the choice as closed; a successful `BUILD` send is not by itself proof that the
+production-choice notification stopped blocking turn flow.
 
 ## Official UI Evidence
 
@@ -105,3 +107,22 @@ civ7 game play build-production \
 Project production still needs live proof for common IDs and postconditions.
 The operation shape has official UI support, but the tactical choice should
 come from the live production chooser.
+
+## Postcondition Contract
+
+`game play build-production --send --json` reports a production-specific
+postcondition for `city-operation BUILD`:
+
+- `production-choice-cleared`: no matching end-turn-blocking
+  production-choice notification remains for the city.
+- `production-state-changed`: observed city production state changed.
+- `production-state-changed-blocker-still-live`: the city production state
+  changed, but the same production-choice blocker is still live. Do not repeat
+  the same `BUILD` blindly; inspect notification/chooser closeout state.
+- `validation-changed`: the subsequent `BUILD` validator changed.
+- `no-state-change`: the request returned, but observed city production state
+  and blocker state did not change.
+
+This is a proof boundary, not strategy. A sticky production notification after
+state change is a closeout/notification problem; a clean production choice
+should clear the blocker or reveal a different blocker in the HUD.

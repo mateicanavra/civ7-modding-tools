@@ -1456,6 +1456,36 @@ export type Civ7OperationRequestResult = Readonly<{
   verified: boolean;
   postcondition?: Civ7UnitOperationPostcondition;
   populationPostcondition?: Civ7PopulationPlacementPostcondition;
+  productionPostcondition?: Civ7ProductionPostcondition;
+}>;
+
+export type Civ7ProductionPostconditionClassification =
+  | "not-sent"
+  | "production-choice-cleared"
+  | "production-state-changed"
+  | "production-state-changed-blocker-still-live"
+  | "validation-changed"
+  | "no-state-change";
+
+export type Civ7ProductionPostconditionSnapshot = Readonly<{
+  cityId: Civ7ComponentId | null;
+  city: Civ7RuntimeProbe<unknown>;
+  buildQueue: Civ7RuntimeProbe<unknown>;
+  selectedCityId: Civ7RuntimeProbe<Civ7ComponentId | null>;
+  blocker: Civ7RuntimeProbe<unknown>;
+  canEndTurn: Civ7RuntimeProbe<unknown>;
+  blockingProductionNotification: Civ7RuntimeProbe<unknown>;
+}>;
+
+export type Civ7ProductionPostcondition = Readonly<{
+  family: "city-operation";
+  operationType: "BUILD";
+  classification: Civ7ProductionPostconditionClassification;
+  before?: Civ7ProductionPostconditionSnapshot;
+  after?: Civ7ProductionPostconditionSnapshot;
+  productionStateChanged: boolean;
+  blockerStillLive: boolean;
+  reason: string;
 }>;
 
 export type Civ7UnitTargetActionInput = Readonly<{
@@ -7512,6 +7542,118 @@ function operationRouterSource(): string {
         expansionPlotIndexes: probe(() => Array.isArray(expansion?.Plots) ? expansion.Plots : []),
       };
     };
+    const componentKey = (value) => {
+      const id = toComponentId(value);
+      return id ? id.owner + ":" + id.id + ":" + (id.type ?? "") : "";
+    };
+    const notificationValue = (notification, names) => {
+      for (const name of names) {
+        if (notification && Object.prototype.hasOwnProperty.call(notification, name)) return notification[name];
+        const getter = "get" + name;
+        if (typeof notification?.[getter] === "function") {
+          try {
+            return notification[getter]();
+          } catch {}
+        }
+      }
+      return null;
+    };
+    const summarizeBuildQueue = (city, args) => {
+      const buildQueue = city?.BuildQueue;
+      if (!buildQueue) return null;
+      return {
+        currentProductionTypeHash: (() => {
+          try {
+            return typeof buildQueue.getCurrentProductionTypeHash === "function"
+              ? buildQueue.getCurrentProductionTypeHash()
+              : buildQueue.currentProductionTypeHash ?? buildQueue.productionTypeHash ?? null;
+          } catch {
+            return buildQueue.currentProductionTypeHash ?? buildQueue.productionTypeHash ?? null;
+          }
+        })(),
+        previousProductionTypeHash: (() => {
+          try {
+            return typeof buildQueue.getPreviousProductionTypeHash === "function"
+              ? buildQueue.getPreviousProductionTypeHash()
+              : buildQueue.previousProductionTypeHash ?? null;
+          } catch {
+            return buildQueue.previousProductionTypeHash ?? null;
+          }
+        })(),
+        productionProgress: (() => {
+          try {
+            return typeof buildQueue.getProductionProgress === "function"
+              ? buildQueue.getProductionProgress()
+              : buildQueue.productionProgress ?? buildQueue.progress ?? null;
+          } catch {
+            return buildQueue.productionProgress ?? buildQueue.progress ?? null;
+          }
+        })(),
+        turnsLeftForRequestedItem: (() => {
+          try {
+            const requestedType = args?.UnitType ?? args?.ConstructibleType ?? args?.ProjectType ?? null;
+            return requestedType == null || typeof buildQueue.getTurnsLeft !== "function"
+              ? null
+              : buildQueue.getTurnsLeft(requestedType);
+          } catch {
+            return null;
+          }
+        })(),
+        queueLength: (() => {
+          try {
+            return typeof buildQueue.getQueue === "function" ? buildQueue.getQueue()?.length ?? null : null;
+          } catch {
+            return null;
+          }
+        })(),
+      };
+    };
+    const productionPostconditionEligible = (family, input) => family === "city-operation" && input.operationType === "BUILD";
+    const readProductionPostconditionSnapshot = (input) => {
+      const cityId = toComponentId(input.cityId) ?? input.cityId ?? null;
+      const city = cityId ? globalThis.Cities?.get?.(cityId) : null;
+      return {
+        cityId,
+        city: probe(() => city ? {
+          id: toComponentId(city.id ?? cityId),
+          population: city.population ?? null,
+          isTown: city.isTown ?? null,
+          location: city.location ?? null,
+        } : null),
+        buildQueue: probe(() => summarizeBuildQueue(city, input.args ?? null)),
+        selectedCityId: probe(() => toComponentId(globalThis.UI?.Player?.getHeadSelectedCity?.())),
+        blocker: probe(() => globalThis.Game?.Notifications?.getEndTurnBlockingType?.(globalThis.GameContext?.localPlayerID)),
+        canEndTurn: probe(() => globalThis.Game?.TurnManager?.canEndTurn?.() ?? null),
+        blockingProductionNotification: probe(() => {
+          const notifications = globalThis.Game?.Notifications;
+          const localPlayerId = globalThis.GameContext?.localPlayerID;
+          if (!notifications || localPlayerId == null) return null;
+          const blockerType = typeof notifications.getEndTurnBlockingType === "function"
+            ? notifications.getEndTurnBlockingType(localPlayerId)
+            : null;
+          const blockerId = typeof notifications.findEndTurnBlocking === "function"
+            ? notifications.findEndTurnBlocking(localPlayerId, blockerType)
+            : null;
+          const id = toComponentId(blockerId);
+          if (!id) return null;
+          const notification = typeof notifications.find === "function" ? notifications.find(id) : null;
+          const type = typeof notifications.getType === "function" ? notifications.getType(id) : notificationValue(notification, ["Type", "type"]);
+          const typeName = typeof notifications.getTypeName === "function" ? notifications.getTypeName(type) : null;
+          const target = notificationValue(notification, ["Target", "target"]);
+          if (!String(typeName ?? "").includes("CHOOSE_CITY_PRODUCTION")) return null;
+          return {
+            id,
+            type,
+            typeName,
+            target,
+            matchesCity: cityId ? componentKey(target) === componentKey(cityId) : null,
+            canUserDismiss: notificationValue(notification, ["CanUserDismiss", "canUserDismiss"]),
+            expired: notificationValue(notification, ["Expired", "expired"]),
+            dismissed: notificationValue(notification, ["Dismissed", "dismissed"]),
+          };
+        }),
+      };
+    };
     const routerFor = (family) => {
       if (family === "unit-operation") return { router: Game.UnitOperations, enums: UnitOperationTypes, targetKey: "unitId" };
       if (family === "unit-command") return { router: Game.UnitCommands, enums: UnitCommandTypes, targetKey: "unitId" };
@@ -7581,6 +7723,7 @@ function operationRouterSource(): string {
       const beforePostcondition = unitPostconditionEligible(family) ? readUnitPostconditionSnapshot(input) : undefined;
       const populationCityId = populationPostconditionCityId(family, input);
       const beforePopulationPostcondition = populationCityId ? readPopulationPlacementPostconditionSnapshot(populationCityId) : undefined;
+      const beforeProductionPostcondition = productionPostconditionEligible(family, input) ? readProductionPostconditionSnapshot(input) : undefined;
       const before = validateOperation(family, input);
       if (!before.valid) return {
         sent: false,
@@ -7590,13 +7733,16 @@ function operationRouterSource(): string {
         afterPostcondition: beforePostcondition,
         beforePopulationPostcondition,
         afterPopulationPostcondition: beforePopulationPostcondition,
+        beforeProductionPostcondition,
+        afterProductionPostcondition: beforeProductionPostcondition,
       };
       const meta = routerFor(family);
       const target = input[meta.targetKey];
       const result = meta.router.sendRequest(target, before.enumValue, input.args ?? {});
       const afterPostcondition = unitPostconditionEligible(family) ? readUnitPostconditionSnapshot(input) : undefined;
       const afterPopulationPostcondition = populationCityId ? readPopulationPlacementPostconditionSnapshot(populationCityId) : undefined;
-      return { sent: true, before, result, beforePostcondition, afterPostcondition, beforePopulationPostcondition, afterPopulationPostcondition };
+      const afterProductionPostcondition = productionPostconditionEligible(family, input) ? readProductionPostconditionSnapshot(input) : undefined;
+      return { sent: true, before, result, beforePostcondition, afterPostcondition, beforePopulationPostcondition, afterPopulationPostcondition, beforeProductionPostcondition, afterProductionPostcondition };
     };`;
 }
 
@@ -10492,6 +10638,8 @@ async function requestCiv7Operation(
     afterPostcondition?: Civ7UnitOperationPostconditionSnapshot;
     beforePopulationPostcondition?: Civ7PopulationPlacementPostconditionSnapshot;
     afterPopulationPostcondition?: Civ7PopulationPlacementPostconditionSnapshot;
+    beforeProductionPostcondition?: Civ7ProductionPostconditionSnapshot;
+    afterProductionPostcondition?: Civ7ProductionPostconditionSnapshot;
   }>(command, "Civ7 operation request");
   const after = await validateCiv7Operation(family, input, options);
   const sent = sentPayload.sent === true;
@@ -10513,12 +10661,25 @@ async function requestCiv7Operation(
     sentPayload.beforePopulationPostcondition,
     sentPayload.afterPopulationPostcondition,
   );
+  const productionPostcondition = productionPostconditionFor(
+    family,
+    input,
+    sent,
+    before,
+    after,
+    sentPayload.beforeProductionPostcondition,
+    sentPayload.afterProductionPostcondition,
+  );
   const operationVerified =
     postcondition
       ? postcondition.classification !== "not-sent" && postcondition.classification !== "no-state-change"
       : populationPostcondition
         ? populationPostcondition.classification !== "not-sent" && populationPostcondition.classification !== "no-state-change"
-        : command.output.length > 0 && sent;
+        : productionPostcondition
+          ? productionPostcondition.classification !== "not-sent"
+            && productionPostcondition.classification !== "no-state-change"
+            && productionPostcondition.classification !== "production-state-changed-blocker-still-live"
+          : command.output.length > 0 && sent;
   return {
     before,
     command,
@@ -10527,6 +10688,7 @@ async function requestCiv7Operation(
     verified: operationVerified,
     postcondition,
     populationPostcondition,
+    productionPostcondition,
   };
 }
 
@@ -10655,6 +10817,80 @@ function populationPlacementPostconditionReason(classification: Civ7PopulationPl
       return "The operation validation result changed after the placement request.";
     case "no-state-change":
       return "The request was sent, but no observed population-placement, city, or validation state changed.";
+  }
+}
+
+function productionPostconditionFor(
+  family: Civ7OperationFamily,
+  input: Civ7OperationInput,
+  sent: boolean,
+  before: Civ7OperationValidationResult,
+  after: Civ7OperationValidationResult,
+  beforeSnapshot: Civ7ProductionPostconditionSnapshot | undefined,
+  afterSnapshot: Civ7ProductionPostconditionSnapshot | undefined,
+): Civ7ProductionPostcondition | undefined {
+  if (family !== "city-operation" || input.operationType !== "BUILD") return undefined;
+  const productionStateChanged = productionSnapshotChanged(beforeSnapshot, afterSnapshot);
+  const blockerStillLive = productionBlockerStillLive(afterSnapshot);
+  const classification = classifyProductionPostcondition(sent, before, after, productionStateChanged, blockerStillLive);
+  return {
+    family: "city-operation",
+    operationType: "BUILD",
+    classification,
+    before: beforeSnapshot,
+    after: afterSnapshot,
+    productionStateChanged,
+    blockerStillLive,
+    reason: productionPostconditionReason(classification),
+  };
+}
+
+function productionSnapshotChanged(
+  before: Civ7ProductionPostconditionSnapshot | undefined,
+  after: Civ7ProductionPostconditionSnapshot | undefined,
+): boolean {
+  if (!before || !after) return false;
+  return probeValueChanged(before.city, after.city)
+    || probeValueChanged(before.buildQueue, after.buildQueue)
+    || probeValueChanged(before.selectedCityId, after.selectedCityId);
+}
+
+function productionBlockerStillLive(snapshot: Civ7ProductionPostconditionSnapshot | undefined): boolean {
+  const value = snapshot ? probeValue(snapshot.blockingProductionNotification) : undefined;
+  if (!value || typeof value !== "object") return false;
+  const record = value as Record<string, unknown>;
+  return record.matchesCity !== false;
+}
+
+function classifyProductionPostcondition(
+  sent: boolean,
+  before: Civ7OperationValidationResult,
+  after: Civ7OperationValidationResult,
+  productionStateChanged: boolean,
+  blockerStillLive: boolean,
+): Civ7ProductionPostconditionClassification {
+  if (!sent) return "not-sent";
+  if (productionStateChanged && blockerStillLive) return "production-state-changed-blocker-still-live";
+  if (!blockerStillLive) return "production-choice-cleared";
+  if (productionStateChanged) return "production-state-changed";
+  if (before.valid !== after.valid || stableJson(before.result) !== stableJson(after.result)) return "validation-changed";
+  return "no-state-change";
+}
+
+function productionPostconditionReason(classification: Civ7ProductionPostconditionClassification): string {
+  switch (classification) {
+    case "not-sent":
+      return "The production request was not sent, so no production postcondition can be verified.";
+    case "production-choice-cleared":
+      return "The sent BUILD request no longer has a matching end-turn-blocking production-choice notification for the city.";
+    case "production-state-changed":
+      return "The sent BUILD request changed observed city production state.";
+    case "production-state-changed-blocker-still-live":
+      return "The sent BUILD request changed observed production state, but the matching production-choice notification still blocks turn flow; use notification/chooser closeout diagnostics rather than repeating BUILD blindly.";
+    case "validation-changed":
+      return "The sent BUILD request changed the subsequent BUILD validation result.";
+    case "no-state-change":
+      return "The sent BUILD request returned, but observed city production state and the production-choice blocker did not change.";
   }
 }
 

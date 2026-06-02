@@ -598,6 +598,54 @@ describe('game play commands', () => {
     }
   });
 
+  test('reports sticky production-choice blockers after BUILD sends', async () => {
+    const server = await startTunerServer({ productionPostconditionMode: 'blocker-still-live' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayBuildProduction.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayBuildProduction.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--city-id',
+        '{"owner":0,"id":65536,"type":25}',
+        '--unit-type',
+        '1558890441',
+        '--send',
+        '--reason',
+        'test production closeout',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          verified: boolean;
+          productionPostcondition: {
+            classification: string;
+            productionStateChanged: boolean;
+            blockerStillLive: boolean;
+            reason: string;
+          };
+        };
+      };
+      expect(payload.result.verified).toBe(false);
+      expect(payload.result.productionPostcondition).toMatchObject({
+        classification: 'production-state-changed-blocker-still-live',
+        productionStateChanged: true,
+        blockerStillLive: true,
+      });
+      expect(payload.result.productionPostcondition.reason).toContain('production-choice notification still blocks');
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('requires exactly one production item kind', async () => {
     await expect(GamePlayBuildProduction.run([
       '--city-id',
@@ -3659,6 +3707,7 @@ async function startTunerServer(options: {
   playNotificationMode?: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
   notificationDismissalMode?: 'verified' | 'stale-nonblocking';
+  productionPostconditionMode?: 'cleared' | 'blocker-still-live';
 } = {}) {
   const received: string[] = [];
   let turnCompleteSent = false;
@@ -3726,19 +3775,26 @@ async function startTunerServer(options: {
           const unitFamily = frame.message.includes('sendOperation("unit-operation"') || frame.message.includes('sendOperation("unit-command"');
           const operationType = operationTypeFromMessage(frame.message);
           const populationFamily = operationType === 'ASSIGN_WORKER' || operationType === 'EXPAND';
+          const productionFamily = frame.message.includes('sendOperation("city-operation"') && operationType === 'BUILD';
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(unitFamily
             ? {
                 sent: true,
                 beforePostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 65536, type: 26 }),
                 afterPostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 131072, type: 26 }),
-              }
-            : populationFamily
-              ? {
-                  sent: true,
-                  beforePopulationPostcondition: populationPlacementPostconditionSnapshot(true),
-                  afterPopulationPostcondition: populationPlacementPostconditionSnapshot(false),
                 }
-              : { sent: true })]));
+              : populationFamily
+                ? {
+                    sent: true,
+                    beforePopulationPostcondition: populationPlacementPostconditionSnapshot(true),
+                    afterPopulationPostcondition: populationPlacementPostconditionSnapshot(false),
+                  }
+                : productionFamily
+                  ? {
+                      sent: true,
+                      beforeProductionPostcondition: productionPostconditionSnapshot('before', options.productionPostconditionMode ?? 'cleared'),
+                      afterProductionPostcondition: productionPostconditionSnapshot('after', options.productionPostconditionMode ?? 'cleared'),
+                    }
+                : { sent: true })]));
         } else {
           socket.write(encodeResponse(frame.listenerId, ['null']));
         }
@@ -6593,6 +6649,52 @@ function populationPlacementPostconditionSnapshot(isReadyToPlacePopulation: bool
     workablePlotIndexes: { ok: true, value: isReadyToPlacePopulation ? [2543, 2544] : [2543, 2544, 2545] },
     blockedPlotIndexes: { ok: true, value: isReadyToPlacePopulation ? [2545] : [] },
     expansionPlotIndexes: { ok: true, value: isReadyToPlacePopulation ? [1660] : [1661] },
+  };
+}
+
+function productionPostconditionSnapshot(
+  phase: 'before' | 'after',
+  mode: 'cleared' | 'blocker-still-live',
+) {
+  const cityId = { owner: 0, id: 65536, type: 25 };
+  const notification = {
+    id: { owner: 0, id: 6, type: 20 },
+    type: 1090224621,
+    typeName: 'NOTIFICATION_CHOOSE_CITY_PRODUCTION',
+    target: cityId,
+    matchesCity: true,
+    canUserDismiss: false,
+    expired: true,
+    dismissed: false,
+  };
+  return {
+    cityId,
+    city: {
+      ok: true,
+      value: {
+        id: cityId,
+        population: 3,
+        isTown: false,
+        location: { x: 26, y: 36 },
+      },
+    },
+    buildQueue: {
+      ok: true,
+      value: {
+        currentProductionTypeHash: phase === 'before' ? 713967338 : 1558890441,
+        previousProductionTypeHash: 0,
+        productionProgress: phase === 'before' ? 12 : 0,
+        turnsLeftForRequestedItem: phase === 'before' ? -1 : 4,
+        queueLength: 1,
+      },
+    },
+    selectedCityId: { ok: true, value: phase === 'before' ? cityId : null },
+    blocker: { ok: true, value: mode === 'cleared' && phase === 'after' ? 0 : 1090224621 },
+    canEndTurn: { ok: true, value: mode === 'cleared' && phase === 'after' },
+    blockingProductionNotification: {
+      ok: true,
+      value: mode === 'blocker-still-live' || phase === 'before' ? notification : null,
+    },
   };
 }
 
