@@ -419,6 +419,39 @@ describe("Civ7 direct control", () => {
     }
   });
 
+  test("uses panel dismiss when blocker enum is none despite stale engine-front identity", async () => {
+    const server = await startTunerServer({ notificationDismissalMode: "engine-front-none-blocker" });
+    try {
+      const { port } = server.address();
+      const notificationId = { owner: 0, id: 113, type: 20 };
+      const request = await requestCiv7NotificationDismissal(
+        { notificationId },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test panel close control for none blocker enum" },
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(true);
+      expect(request.result?.panelCloseControl).toMatchObject({
+        ok: true,
+        attempted: true,
+        available: true,
+        path: "Game.Notifications.dismiss",
+      });
+      expect(request.before).toMatchObject({
+        endTurnBlockingType: { ok: true, value: 0 },
+        isEngineQueueFront: { ok: true, value: true },
+      });
+      expect(request.after).toMatchObject({
+        exists: false,
+        engineQueueContains: { ok: true, value: false },
+        isEngineQueueFront: { ok: true, value: false },
+      });
+    } finally {
+      await server.close();
+    }
+  });
+
   test("plans and sends unit target actions through official target order", async () => {
     const server = await startTunerServer();
     try {
@@ -1568,7 +1601,7 @@ async function startTunerServer(options: {
   tunerReady?: boolean;
   mapSummaryHashes?: ReadonlyArray<number>;
   unitTargetMode?: "verified" | "no-op-after-send";
-  notificationDismissalMode?: "verified" | "engine-front-train-absent" | "engine-front-dismissed";
+  notificationDismissalMode?: "verified" | "engine-front-train-absent" | "engine-front-dismissed" | "engine-front-none-blocker";
 } = {}) {
   const received: string[] = [];
   let loadingState = 6;
@@ -2622,10 +2655,11 @@ function readyCityView() {
 function notificationDismissal(
   send: boolean,
   settled = false,
-  mode: "verified" | "engine-front-train-absent" | "engine-front-dismissed" = "verified",
+  mode: "verified" | "engine-front-train-absent" | "engine-front-dismissed" | "engine-front-none-blocker" = "verified",
 ) {
   const notificationId = { owner: 0, id: 113, type: 20 };
   const trainAbsent = mode === "engine-front-train-absent";
+  const noneBlocker = mode === "engine-front-none-blocker";
   const present = {
     id: notificationId,
     exists: true,
@@ -2639,7 +2673,7 @@ function notificationDismissal(
     expired: false,
     dismissed: false,
     blocksTurnAdvancement: { ok: true, value: true },
-    endTurnBlockingType: { ok: true, value: 2091697919 },
+    endTurnBlockingType: { ok: true, value: noneBlocker ? 0 : 2091697919 },
     isEndTurnBlocking: { ok: true, value: true },
     engineQueueCount: { ok: true, value: 1 },
     engineQueueContains: { ok: true, value: true },
@@ -2691,13 +2725,21 @@ function notificationDismissal(
             available: true,
             path: "NotificationModel.manager.dismiss",
           },
-          panelCloseControl: {
-            ok: false,
-            attempted: false,
-            available: false,
-            path: "Game.Notifications.dismiss",
-            reason: "official panel close control does not dismiss the active end-turn blocker",
-          },
+          panelCloseControl: noneBlocker
+            ? {
+                ok: true,
+                attempted: true,
+                available: true,
+                path: "Game.Notifications.dismiss",
+                value: true,
+              }
+            : {
+                ok: false,
+                attempted: false,
+                available: false,
+                path: "Game.Notifications.dismiss",
+                reason: "official panel close control does not dismiss the active end-turn blocker",
+              },
         }
       : null,
     verificationAttempts: send ? [present] : [],

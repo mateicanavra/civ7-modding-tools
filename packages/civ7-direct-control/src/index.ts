@@ -8206,7 +8206,9 @@ function notificationDismissalSource(): string {
       if (typeof Game.Notifications.dismiss !== "function") {
         return { ok: false, attempted: false, available: false, reason: "Game.Notifications.dismiss unavailable in this App UI eval scope" };
       }
-      if (before?.isEndTurnBlocking?.ok === true && before.isEndTurnBlocking.value === true) {
+      const noneBlocker = globalThis.EndTurnBlockingTypes?.NONE ?? 0;
+      const blockingType = before?.endTurnBlockingType?.ok === true ? before.endTurnBlockingType.value : null;
+      if (blockingType != null && blockingType !== noneBlocker && before?.isEndTurnBlocking?.ok === true && before.isEndTurnBlocking.value === true) {
         return { ok: false, attempted: false, available: false, path: "Game.Notifications.dismiss", reason: "official panel close control does not dismiss the active end-turn blocker" };
       }
       try {
