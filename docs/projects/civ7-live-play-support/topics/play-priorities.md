@@ -84,7 +84,9 @@ a validator-backed mutation because it does not prove a chosen action.
 
 Use it to decide the next inspection:
 
-- `game play dismiss-notification` for reviewed informational closeouts;
+- exact `game play dismiss-notification --target ... --send ...` templates for
+  reviewed informational closeouts when the HUD includes the notification
+  ComponentID;
 - `game play ready-unit` and `game play unit-target` for unit actions;
 - `game play ready-city` for city blockers;
 - `game play battlefield-scan` or `game play destination-analysis` for tactical

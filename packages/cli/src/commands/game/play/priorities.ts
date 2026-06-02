@@ -296,6 +296,7 @@ function buildPriorities(input: {
   if (nextDecision) {
     const isBlocking = nextDecision.isEndTurnBlocking ? 100 : 70;
     const staleUnitCommand = staleUnitCommandPriority(nextDecision);
+    const decisionCommand = commandFromDecision(nextDecision);
     const detailCommand = commandFromDecisionDetails(nextDecision);
     const readyUnitCommand = nextDecision.category === 'unit-command' && input.readyUnit
       ? 'game play ready-unit --json; game play unit-target --unit-id \'<unit-id>\' --x <x> --y <y> --json'
@@ -304,12 +305,14 @@ function buildPriorities(input: {
       priority: isBlocking,
       kind: staleUnitCommand?.kind ?? `hud:${nextDecision.category}`,
       summary: staleUnitCommand?.summary ?? nextDecision.summary ?? nextDecision.message ?? nextDecision.typeName ?? 'current HUD decision',
-      reason: staleUnitCommand?.reason ?? (detailCommand
+      reason: staleUnitCommand?.reason ?? (decisionCommand
+        ? 'HUD notification includes the live ComponentID; use the exact closeout command after reviewing the report context.'
+        : detailCommand
         ? 'HUD details expose a validator-backed operation candidate; use that exact command or consciously defer before broad strategy.'
         : readyUnitCommand
           ? 'A ready unit exists; inspect the ready-unit and target surfaces instead of treating COMMAND_UNITS as stale reconciliation.'
         : 'HUD decisions are the shortest-lived live authority and should be resolved or consciously deferred before broad strategy.'),
-      command: staleUnitCommand?.command ?? detailCommand ?? readyUnitCommand ?? nextDecision.cli,
+      command: staleUnitCommand?.command ?? decisionCommand ?? detailCommand ?? readyUnitCommand ?? nextDecision.cli,
       evidence: nextDecision,
     });
   }
@@ -424,6 +427,16 @@ function asArray(value: unknown): Array<Record<string, unknown>> {
   return Array.isArray(value) ? value.filter((item): item is Record<string, unknown> => item !== null && typeof item === 'object') : [];
 }
 
+function commandFromDecision(nextDecision: Record<string, unknown>): string | undefined {
+  if (nextDecision.category === 'informational-notification' && nextDecision.operationFamily === 'app-ui-action') {
+    const notificationId = nextDecision.notificationId;
+    if (notificationId && typeof notificationId === 'object') {
+      return `game play dismiss-notification --target '${JSON.stringify(notificationId)}' --send --reason '<reviewed: ${reasonSlug(nextDecision)}>'`;
+    }
+  }
+  return undefined;
+}
+
 function commandFromDecisionDetails(nextDecision: { details?: unknown }): string | undefined {
   const details = nextDecision.details;
   if (!details || typeof details !== 'object') return undefined;
@@ -459,6 +472,14 @@ function staleUnitCommandPriority(nextDecision: { details?: unknown }): Pick<Pri
       : 'Official command-units activation has no selected/first-ready unit and every scanned unit closeout is disabled; use the normal end-turn path once, then verify the turn advances or a new blocker appears.',
     command: typeof repair?.cli === 'string' ? repair.cli : undefined,
   };
+}
+
+function reasonSlug(item: Record<string, unknown>): string {
+  const text = String(item.typeName ?? item.summary ?? item.category)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+  return text || 'notification-reviewed';
 }
 
 function formatProbe<T>(probe: { ok: true; value: T } | { ok: false; error: string }): string {

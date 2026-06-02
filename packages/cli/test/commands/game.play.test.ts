@@ -1719,6 +1719,43 @@ describe('game play commands', () => {
     }
   });
 
+  test('surfaces exact informational dismissal command in compact priorities', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'stale-informational' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPriorities.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+        '--compact',
+        '--no-battlefield',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        next: string | null;
+        priorities: Array<{ kind: string; command?: string; reason: string }>;
+      };
+      const top = payload.priorities[0];
+      expect(top.kind).toBe('hud:informational-notification');
+      expect(top.command).toContain('game play dismiss-notification');
+      expect(top.command).toContain("--target '{\"owner\":0,\"id\":89,\"type\":20}'");
+      expect(top.command).toContain("<reviewed: notification-volcano-active>");
+      expect(payload.next).toBe(top.command);
+      expect(top.reason).toContain('live ComponentID');
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('classifies stale command-units with disabled candidates in compact priorities', async () => {
     const server = await startTunerServer({ playNotificationMode: 'stale-unit-command-disabled' });
     const writes: string[] = [];

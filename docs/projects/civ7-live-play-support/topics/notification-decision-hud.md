@@ -69,7 +69,7 @@ after any mutation or human input.
 | Resource assignment | resource allocation screen state, available resources, settlement slots | no proven assignment shortcut yet; inspect the official resource-allocation surface |
 | Diplomacy response | diplomatic action `ID` and chosen response `Type` | `game play respond-diplomacy` |
 | First-meet diplomacy | local player id, met player id from `notification.Player`/`details.player2`, first-meet response `Type` | `game play respond-first-meet` |
-| Informational notification | notification ComponentID; handler evidence that no specialized decision surface is required | `game play dismiss-notification` after review |
+| Informational notification | notification ComponentID; handler evidence that no specialized decision surface is required | exact `game play dismiss-notification --target ... --send ...` after review |
 | Narrative branch | story `Target`, option `TargetType`, activation `Action` | `game play choose-narrative` |
 | Tradition review | active/unlocked tradition ids from `game play traditions`; chosen `TraditionType` and activate/deactivate `Action` | `game play traditions`; then `game play change-tradition`; then `game play consider-traditions` |
 | Attribute review | attribute `ProgressionTreeNodeType` | `game play buy-attribute`; then `game play consider-attributes` |
