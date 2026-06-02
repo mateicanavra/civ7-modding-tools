@@ -25,6 +25,14 @@ matching target node behind the scenes. Use `game play set-tech-target` or
 already sent, the full tree UI only needs a target, or a validated chooser
 operation leaves an expired tree notification blocking turn advance.
 
+For technology blockers, read `game play choose-tech --options --json` before
+sending if the node id is not already proven. The option surface is populated
+from `GameInfo.ProgressionTrees`, `Game.ProgressionTrees`, and official
+`PlayerOperations.canStart` checks for both `SET_TECH_TREE_NODE` and
+`SET_TECH_TREE_TARGET_NODE`. Enabled options include ready-to-send
+`choose-tech --send --closeout` templates; disabled options are evidence, not
+safe sends.
+
 ## Official UI Evidence
 
 The tech and culture full-tree screens share the same pattern:

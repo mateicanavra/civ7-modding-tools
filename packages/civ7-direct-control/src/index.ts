@@ -5860,6 +5860,123 @@ function playNotificationViewSource(): string {
         ],
       };
     };
+    const technologyChoiceDetailsFor = (notification, typeName, notificationId) => {
+      if (!stringIncludes(typeName, "CHOOSE_TECH")) return undefined;
+      const localPlayerId = GameContext.localPlayerID;
+      const techTrees = probe(() => {
+        const trees = [];
+        GameInfo.ProgressionTrees.forEach((tree) => {
+          if (!stringIncludes(tree?.ProgressionTreeType, "TREE_TECHS")) return;
+          const treeType = tree?.$hash ?? tree?.Hash ?? tree?.ProgressionTreeType;
+          trees.push({
+            treeType,
+            treeTypeName: tree?.ProgressionTreeType ?? null,
+            name: loc(tree?.Name ?? tree?.ProgressionTreeType ?? null),
+            ageType: tree?.AgeType ?? null,
+          });
+        });
+        return trees;
+      });
+      const currentResearching = probe(() => Players.get(localPlayerId)?.Techs?.getResearching?.() ?? null);
+      const targetNode = probe(() => Players.get(localPlayerId)?.Techs?.getTargetNode?.() ?? null);
+      const treeRows = techTrees.ok && Array.isArray(techTrees.value) ? techTrees.value : [];
+      const options = [];
+      for (const tree of treeRows) {
+        const structure = probe(() => Game.ProgressionTrees.getTreeStructure(tree.treeType));
+        const playerTree = probe(() => Game.ProgressionTrees.getTree(localPlayerId, tree.treeType));
+        const playerNodes = playerTree.ok && Array.isArray(playerTree.value?.nodes) ? playerTree.value.nodes : [];
+        const playerNodeByType = {};
+        for (const node of playerNodes) {
+          if (typeof node?.nodeType === "number") playerNodeByType[node.nodeType] = node;
+        }
+        const structureRows = structure.ok && Array.isArray(structure.value) ? structure.value : [];
+        for (const structureNode of structureRows) {
+          const nodeType = structureNode?.nodeType;
+          if (!Number.isFinite(Number(nodeType))) continue;
+          const numericNodeType = Number(nodeType);
+          const nodeDef = probe(() => GameInfo.ProgressionTreeNodes.lookup(numericNodeType));
+          const node = playerNodeByType[numericNodeType] ?? null;
+          const args = { ProgressionTreeNodeType: numericNodeType };
+          const chooseValidation = probe(() => Game.PlayerOperations.canStart(
+            localPlayerId,
+            PlayerOperationTypes.SET_TECH_TREE_NODE,
+            args,
+            false,
+          ));
+          const targetValidation = probe(() => Game.PlayerOperations.canStart(
+            localPlayerId,
+            PlayerOperationTypes.SET_TECH_TREE_TARGET_NODE,
+            args,
+            false,
+          ));
+          const chooseEnabled = chooseValidation.ok && successFromCanStart(chooseValidation.value);
+          const targetEnabled = targetValidation.ok && successFromCanStart(targetValidation.value);
+          const turns = probe(() => Players.get(localPlayerId)?.Techs?.getTurnsForNode?.(numericNodeType) ?? null);
+          const cost = probe(() => Players.get(localPlayerId)?.Techs?.getNodeCost?.(numericNodeType) ?? null);
+          const canEverUnlock = probe(() => Game.ProgressionTrees.canEverUnlock(localPlayerId, numericNodeType));
+          const def = nodeDef.ok ? nodeDef.value : null;
+          options.push({
+            nodeType: numericNodeType,
+            nodeTypeName: def?.ProgressionTreeNodeType ?? null,
+            name: loc(def?.Name ?? def?.ProgressionTreeNodeType ?? null),
+            description: loc(def?.Description ?? null),
+            icon: def?.IconString ?? null,
+            treeType: tree.treeType,
+            treeTypeName: tree.treeTypeName,
+            treeName: tree.name,
+            ageType: tree.ageType,
+            depth: structureNode?.treeDepth ?? node?.depth ?? null,
+            state: node?.state ?? null,
+            progress: node?.progress ?? null,
+            maxDepth: node?.maxDepth ?? null,
+            cost,
+            turns,
+            canEverUnlock,
+            chooseEnabled,
+            targetEnabled,
+            disabled: !chooseEnabled,
+            chooseValidation,
+            targetValidation,
+            cli: chooseEnabled
+              ? "game play choose-tech --player-id " + String(localPlayerId)
+                + " --node " + String(numericNodeType)
+                + " --send --closeout --reason '<why this technology was selected>'"
+              : null,
+            validateCli: "game play choose-tech --player-id " + String(localPlayerId)
+              + " --node " + String(numericNodeType) + " --json",
+            targetCli: targetEnabled
+              ? "game play set-tech-target --player-id " + String(localPlayerId)
+                + " --node " + String(numericNodeType)
+                + " --send --reason '<why this technology target was selected>'"
+              : null,
+          });
+        }
+      }
+      const enabledOptions = options.filter((option) => option.chooseEnabled);
+      enabledOptions.sort((left, right) => {
+        const leftDepth = Number.isFinite(Number(left.depth)) ? Number(left.depth) : 999;
+        const rightDepth = Number.isFinite(Number(right.depth)) ? Number(right.depth) : 999;
+        if (leftDepth !== rightDepth) return leftDepth - rightDepth;
+        return String(left.name ?? left.nodeTypeName ?? left.nodeType).localeCompare(String(right.name ?? right.nodeTypeName ?? right.nodeType));
+      });
+      const disabledOptions = options.filter((option) => !option.chooseEnabled);
+      return {
+        kind: "technology-choice-options",
+        notificationId,
+        localPlayerId,
+        source: "GameInfo.ProgressionTrees + Game.ProgressionTrees + PlayerOperations.canStart",
+        currentResearching,
+        targetNode,
+        techTrees,
+        options,
+        enabledOptions,
+        disabledOptions,
+        notes: [
+          "Options are read from official progression-tree structures and validated through local-player SET_TECH_TREE_NODE and SET_TECH_TREE_TARGET_NODE checks.",
+          "Use an enabled option's cli for one caller-level choose-and-target workflow; use validateCli when strategy needs inspection before sending.",
+        ],
+      };
+    };
     const unitCommandDetailsFor = (notification, typeName, notificationId) => {
       if (!stringIncludes(typeName, "COMMAND_UNITS")) return undefined;
       const selectedUnitId = probe(() => toComponentId(UI?.Player?.getHeadSelectedUnit?.()));
@@ -5950,6 +6067,7 @@ function playNotificationViewSource(): string {
     const detailsFor = (notification, typeName, notificationId) => {
       return firstMeetDetailsFor(notification, typeName)
         ?? diplomacyResponseDetailsFor(notification, typeName, notificationId)
+        ?? technologyChoiceDetailsFor(notification, typeName, notificationId)
         ?? unitCommandDetailsFor(notification, typeName, notificationId);
     };
     const decisionHintFor = (notification, typeName, isBlocking) => {

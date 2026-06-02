@@ -428,6 +428,10 @@ function commandFromDecisionDetails(nextDecision: { details?: unknown }): string
   const details = nextDecision.details;
   if (!details || typeof details !== 'object') return undefined;
   const record = details as Record<string, unknown>;
+  if (record.kind === 'technology-choice-options') {
+    const enabledOptions = asArray(record.enabledOptions);
+    return enabledOptions.length > 0 ? 'game play choose-tech --options --json' : undefined;
+  }
   if (record.kind !== 'unit-command-reconciliation') return undefined;
   if (record.staleReadyPointerSuspected === true) {
     const candidate = asArray(record.enabledCloseoutCandidates).find((item) => typeof item.cli === 'string' && item.cli.length > 0);

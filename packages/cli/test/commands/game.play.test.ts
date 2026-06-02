@@ -340,6 +340,59 @@ describe('game play commands', () => {
     }
   });
 
+  test('reads technology choice options without requiring a node', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'tech-choice' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayChooseTech.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayChooseTech.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--options',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          enabledOptionCount: number;
+          disabledOptionCount: number;
+          omitted: Array<{ path: string; reason: string }>;
+          surfaces: Array<{
+            kind: string;
+            enabledOptions: Array<{ nodeType: number; name: string; chooseCli: string | null; turns: number | null; cost: number | null }>;
+            options?: unknown;
+            disabledOptions?: unknown;
+          }>;
+          details?: unknown;
+        };
+      };
+      expect(payload.result.enabledOptionCount).toBe(2);
+      expect(payload.result.disabledOptionCount).toBe(1);
+      expect(payload.result.details).toBeUndefined();
+      expect(payload.result.surfaces[0].kind).toBe('technology-choice-options');
+      expect(payload.result.surfaces[0].options).toBeUndefined();
+      expect(payload.result.surfaces[0].disabledOptions).toBeUndefined();
+      const masonry = payload.result.surfaces[0].enabledOptions.find((option) => option.nodeType === -1255676052);
+      expect(masonry?.name).toBe('Masonry');
+      expect(masonry?.chooseCli).toContain('game play choose-tech --player-id 0 --node -1255676052 --send --closeout');
+      expect(masonry?.turns).toBe(2);
+      expect(masonry?.cost).toBe(137);
+      expect(payload.result.omitted.map((item) => item.path)).toContain('details[].options');
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+      expect(server.received.some((message) => message.includes('sendRequest('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('wraps technology target as SET_TECH_TREE_TARGET_NODE', async () => {
     const server = await startTunerServer();
     try {
@@ -870,6 +923,51 @@ describe('game play commands', () => {
       expect(details?.enabledOptions.map((option) => option.responseType)).toEqual([926305338, -1200641623]);
       expect(details?.enabledOptions[0].cli).toContain('game play respond-diplomacy --action-id 8 --response-type 926305338');
       expect(details?.enabledOptions[0].cli).toContain("--notification-id '{\"owner\":0,\"id\":19,\"type\":20}'");
+      expect(payload.view.hud.nextDecision.details).toBeDefined();
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('materializes technology choice options from the notification HUD', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'tech-choice' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayNotifications.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayNotifications.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          notifications: Array<{
+            details?: {
+              kind: string;
+              enabledOptions: Array<{ nodeType: number; name: string; cli: string | null; chooseValidation: { ok: boolean; value?: { Success?: boolean } } }>;
+              disabledOptions: Array<{ nodeType: number; name: string; cli: string | null }>;
+            };
+          }>;
+          hud: { nextDecision: { details?: unknown } };
+        };
+      };
+      const details = payload.view.notifications[0].details;
+      expect(details?.kind).toBe('technology-choice-options');
+      expect(details?.enabledOptions.map((option) => option.name).sort()).toEqual(['Masonry', 'Sailing']);
+      const masonry = details?.enabledOptions.find((option) => option.nodeType === -1255676052);
+      expect(masonry?.chooseValidation.value?.Success).toBe(true);
+      expect(masonry?.cli).toContain('game play choose-tech --player-id 0 --node -1255676052 --send --closeout');
+      expect(details?.disabledOptions[0].name).toBe('Agriculture');
+      expect(details?.disabledOptions[0].cli).toBeNull();
       expect(payload.view.hud.nextDecision.details).toBeDefined();
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
     } finally {
@@ -1578,6 +1676,41 @@ describe('game play commands', () => {
       expect(top.command).toContain("--unit-id '{\"owner\":0,\"id\":196609,\"type\":26}'");
       expect(payload.next).toBe(top.command);
       expect(top.reason).toContain('validator-backed operation candidate');
+      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('surfaces technology options command in compact priorities', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'tech-choice' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPriorities.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+        '--compact',
+        '--no-battlefield',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        next: string | null;
+        priorities: Array<{ kind: string; command?: string; reason: string }>;
+      };
+      const top = payload.priorities[0];
+      expect(top.kind).toBe('hud:technology-choice');
+      expect(top.command).toBe('game play choose-tech --options --json');
+      expect(payload.next).toBe(top.command);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
@@ -2763,7 +2896,7 @@ function expectOwnerOnlyContactLabels(values: readonly string[]): void {
 
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
-  playNotificationMode?: 'town-focus' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
+  playNotificationMode?: 'town-focus' | 'tech-choice' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
   notificationDismissalMode?: 'verified' | 'stale-nonblocking';
 } = {}) {
@@ -2864,7 +2997,7 @@ async function startTunerServer(options: {
 }
 
 function playNotificationView(
-  mode: 'town-focus' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
+  mode: 'town-focus' | 'tech-choice' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
   diplomacyCloseoutObserved = false,
 ) {
   if (mode === 'runtime-error') {
@@ -3225,6 +3358,144 @@ function playNotificationView(
                 ...diplomacyDecision,
               },
             ],
+      },
+      limits: { maxNotifications: 25, truncated: false },
+    };
+  }
+  if (mode === 'tech-choice') {
+    const technologyDecision = {
+      category: 'technology-choice',
+      operationFamily: 'player-operation',
+      operationType: 'SET_TECH_TREE_NODE',
+      argsShape: '{ ProgressionTreeNodeType }',
+      cli: 'game play choose-tech',
+      requiredInputs: [
+        {
+          name: 'ProgressionTreeNodeType',
+          source: 'live tech chooser/tree node',
+          required: true,
+          note: 'Use the runtime node type hash from GameInfo/progression tree data, not the row index or notification id.',
+        },
+      ],
+      commonActions: [
+        {
+          label: 'read technology options',
+          cli: 'game play choose-tech --options --json',
+          argsShape: 'enabled tech nodes with validation and ready send templates',
+          when: 'before choosing a technology node',
+        },
+      ],
+      confidence: 'live-proof',
+      notes: ['Read options from the live tech tree before sending; do not infer node ids from examples.'],
+    };
+    const notificationId = { owner: 0, id: 52, type: 20 };
+    const optionRows = [
+      { nodeType: -1255676052, nodeTypeName: 'NODE_TECH_AQ_MASONRY', name: 'Masonry', depth: 2, state: 3, turns: 2, cost: 137, enabled: true },
+      { nodeType: -1558948215, nodeTypeName: 'NODE_TECH_AQ_SAILING', name: 'Sailing', depth: 1, state: 2, turns: 5, cost: 77, enabled: true },
+      { nodeType: 510800721, nodeTypeName: 'NODE_TECH_AQ_AGRICULTURE', name: 'Agriculture', depth: 0, state: 5, turns: 1, cost: 0, enabled: false },
+    ];
+    const options = optionRows.map((row) => ({
+      nodeType: row.nodeType,
+      nodeTypeName: row.nodeTypeName,
+      name: row.name,
+      description: null,
+      icon: null,
+      treeType: -153498200,
+      treeTypeName: 'TREE_TECHS_AQ',
+      treeName: 'Technology',
+      ageType: 'AGE_ANTIQUITY',
+      depth: row.depth,
+      state: row.state,
+      progress: row.nodeType === -1255676052 ? 108 : 0,
+      maxDepth: row.nodeType === -1255676052 ? 2 : 1,
+      cost: { ok: true, value: row.cost },
+      turns: { ok: true, value: row.turns },
+      canEverUnlock: { ok: true, value: { isLocked: false } },
+      chooseEnabled: row.enabled,
+      targetEnabled: row.enabled,
+      disabled: !row.enabled,
+      chooseValidation: { ok: true, value: { Success: row.enabled } },
+      targetValidation: { ok: true, value: { Success: row.enabled } },
+      cli: row.enabled
+        ? `game play choose-tech --player-id 0 --node ${row.nodeType} --send --closeout --reason '<why this technology was selected>'`
+        : null,
+      validateCli: `game play choose-tech --player-id 0 --node ${row.nodeType} --json`,
+      targetCli: row.enabled
+        ? `game play set-tech-target --player-id 0 --node ${row.nodeType} --send --reason '<why this technology target was selected>'`
+        : null,
+    }));
+    const details = {
+      kind: 'technology-choice-options',
+      notificationId,
+      localPlayerId: 0,
+      source: 'GameInfo.ProgressionTrees + Game.ProgressionTrees + PlayerOperations.canStart',
+      currentResearching: { ok: true, value: null },
+      targetNode: { ok: true, value: null },
+      techTrees: {
+        ok: true,
+        value: [{ treeType: -153498200, treeTypeName: 'TREE_TECHS_AQ', name: 'Technology', ageType: 'AGE_ANTIQUITY' }],
+      },
+      options,
+      enabledOptions: options.filter((option) => option.chooseEnabled),
+      disabledOptions: options.filter((option) => !option.chooseEnabled),
+      notes: [
+        'Static fixture mirrors the CLI/HUD contract emitted by the App UI source-backed technology choice materializer.',
+      ],
+    };
+    const notification = {
+      id: notificationId,
+      type: -456,
+      typeName: 'NOTIFICATION_CHOOSE_TECH',
+      groupType: null,
+      summary: 'Choose a Technology',
+      message: 'Choose a new Technology to begin studying.',
+      target: { owner: -1, id: -1, type: 0 },
+      location: null,
+      canUserDismiss: false,
+      expired: false,
+      dismissed: false,
+      isEndTurnBlocking: true,
+      decision: technologyDecision,
+      details,
+    };
+    return {
+      localPlayerId: 0,
+      turn: { ok: true, value: 19 },
+      turnDate: { ok: true, value: '3550 BCE' },
+      hasSentTurnComplete: { ok: true, value: false },
+      canEndTurn: { ok: true, value: false },
+      blocker: { ok: true, value: -1255676052 },
+      blockingNotificationId: { ok: true, value: notificationId },
+      selectedUnitId: { ok: true, value: null },
+      selectedCityId: { ok: true, value: null },
+      firstReadyUnitId: { ok: true, value: null },
+      notifications: [notification],
+      decisions: [technologyDecision],
+      hud: {
+        nextDecision: {
+          notificationId: notification.id,
+          isEndTurnBlocking: true,
+          typeName: notification.typeName,
+          summary: notification.summary,
+          message: notification.message,
+          target: notification.target,
+          location: notification.location,
+          details: notification.details,
+          ...technologyDecision,
+        },
+        decisionQueue: [
+          {
+            notificationId: notification.id,
+            isEndTurnBlocking: true,
+            typeName: notification.typeName,
+            summary: notification.summary,
+            message: notification.message,
+            target: notification.target,
+            location: notification.location,
+            details: notification.details,
+            ...technologyDecision,
+          },
+        ],
       },
       limits: { maxNotifications: 25, truncated: false },
     };
