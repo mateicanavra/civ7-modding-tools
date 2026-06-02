@@ -13,7 +13,6 @@ import GamePlayConsiderTraditions from '../../src/commands/game/play/consider-tr
 import GamePlayDestinationAnalysis from '../../src/commands/game/play/destination-analysis';
 import GamePlayDismissNotificationQueue from '../../src/commands/game/play/dismiss-notification-queue';
 import GamePlayDismissNotification from '../../src/commands/game/play/dismiss-notification';
-import GamePlayEndTurn from '../../src/commands/game/play/end-turn';
 import GamePlayExpandCity from '../../src/commands/game/play/expand-city';
 import GamePlayFormationSnapshot from '../../src/commands/game/play/formation-snapshot';
 import GamePlayFrontSummary from '../../src/commands/game/play/front-summary';
@@ -36,164 +35,6 @@ import GameWatch from '../../src/commands/game/watch';
 import { startFakeTunerServer } from './fixtures/tuner-socket-server';
 
 describe('game play commands', () => {
-  test('checks end-turn status without sending turn complete', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlayEndTurn.run(['--host', '127.0.0.1', '--port', String(port), '--json']);
-
-      expect(server.received.some((message) => message.includes('canEndTurn'))).toBe(true);
-      expect(server.received).not.toContain('CMD:65535:GameContext.sendTurnComplete()');
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('sends end-turn only with explicit approval reason', async () => {
-    await expect(GamePlayEndTurn.run(['--send', '--json'])).rejects.toThrow(/requires --reason/);
-
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlayEndTurn.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--send',
-        '--reason',
-        'test approved end-turn',
-        '--json',
-      ]);
-
-      expect(server.received).toContain('CMD:65535:GameContext.sendTurnComplete()');
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('blocks end-turn when the HUD still has an end-turn blocking notification', async () => {
-    const server = await startTunerServer({ canEndTurnBefore: false });
-    try {
-      const { port } = server.address();
-      await expect(GamePlayEndTurn.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--send',
-        '--reason',
-        'test approved end-turn',
-        '--json',
-      ])).rejects.toThrow(/blocked by current game state/);
-
-      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
-      expect(server.received).not.toContain('CMD:65535:GameContext.sendTurnComplete()');
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('blocks raw end-turn fallback when stale command-units has a validator-backed closeout', async () => {
-    const server = await startTunerServer({
-      canEndTurnBefore: false,
-      playNotificationMode: 'stale-unit-command',
-    });
-    try {
-      const { port } = server.address();
-      await expect(GamePlayEndTurn.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--send',
-        '--reason',
-        'test blocked because a unit closeout exists',
-        '--json',
-      ])).rejects.toThrow(/blocked by current game state/);
-
-      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
-      expect(server.received).not.toContain('CMD:65535:GameContext.sendTurnComplete()');
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('allows end-turn fallback for stale command-units only when no closeout is enabled', async () => {
-    const server = await startTunerServer({
-      canEndTurnBefore: false,
-      playNotificationMode: 'stale-unit-command-disabled',
-    });
-    try {
-      const { port } = server.address();
-      await GamePlayEndTurn.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--send',
-        '--reason',
-        'test approved stale expired command-units end-turn',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
-      expect(server.received).toContain('CMD:65535:GameContext.sendTurnComplete()');
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('allows end-turn fallback for reviewed informational blockers after App UI enum is clean', async () => {
-    const server = await startTunerServer({
-      canEndTurnBefore: false,
-      playNotificationMode: 'stale-informational',
-    });
-    try {
-      const { port } = server.address();
-      await GamePlayEndTurn.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--send',
-        '--reason',
-        'test approved reviewed report end-turn',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
-      expect(server.received).toContain('CMD:65535:GameContext.sendTurnComplete()');
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('blocks end-turn fallback for still-front unit-lost reports', async () => {
-    const server = await startTunerServer({
-      canEndTurnBefore: false,
-      playNotificationMode: 'unit-lost-report',
-    });
-    try {
-      const { port } = server.address();
-      await expect(GamePlayEndTurn.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--send',
-        '--reason',
-        'test blocked unit-lost report end-turn',
-        '--json',
-      ])).rejects.toThrow(/blocked by current game state/);
-
-      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
-      expect(server.received).not.toContain('CMD:65535:GameContext.sendTurnComplete()');
-    } finally {
-      await server.close();
-    }
-  });
-
   test('wraps growth worker assignment as ASSIGN_WORKER', async () => {
     const server = await startTunerServer();
     try {
@@ -3431,12 +3272,10 @@ function expectOwnerOnlyContactLabels(values: readonly string[]): void {
 }
 
 async function startTunerServer(options: {
-  canEndTurnBefore?: boolean;
   playNotificationMode?: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'unit-lost-report' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'first-meet' | 'ready-unit' | 'mixed-queue' | 'clean-read' | 'stale-diplomacy' | 'runtime-error';
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
   notificationDismissalMode?: 'verified' | 'stale-nonblocking' | 'engine-front-train-absent' | 'engine-front-dismissed';
 } = {}) {
-  let turnCompleteSent = false;
   let unitTargetSendObserved = false;
   let notificationDismissalSent = false;
   return startFakeTunerServer({
@@ -3497,13 +3336,6 @@ async function startTunerServer(options: {
           options.notificationDismissalMode ?? 'verified',
           notificationDismissalSent && !send,
         ))];
-      }
-      if (message.includes('hasSentTurnComplete')) {
-        return [JSON.stringify(turnCompletionStatus(turnCompleteSent, options.canEndTurnBefore ?? true))];
-      }
-      if (message === 'CMD:65535:GameContext.sendTurnComplete()') {
-        turnCompleteSent = true;
-        return ['true'];
       }
       if (message.includes('return JSON.stringify(validateOperation')) {
         return [JSON.stringify(operationValidation(message))];
@@ -6747,21 +6579,6 @@ function notificationDismissal(send: boolean, mode: 'verified' | 'stale-nonblock
       'Verification is identity-based: disappeared, dismissed, removed from the engine queue or notification train, or moved off a front position it occupied before send. Non-blocking status alone is not proof.',
       'The embedded App UI action records immediate route evidence. The direct-control wrapper performs final verification across separate App UI reads so frame-driven queues can advance.',
     ],
-  };
-}
-
-function turnCompletionStatus(sent: boolean, canEndTurnBefore = true) {
-  return {
-    host: '127.0.0.1',
-    port: 0,
-    state: { id: '65535', name: 'App UI', role: 'app-ui' },
-    localPlayerId: 0,
-    turn: { ok: true, value: sent ? 2 : 1 },
-    turnDate: { ok: true, value: '4000 BCE' },
-    hasSentTurnComplete: { ok: true, value: sent },
-    canEndTurn: { ok: true, value: sent ? false : canEndTurnBefore },
-    blocker: { ok: true, value: 0 },
-    firstReadyUnitId: { ok: true, value: null },
   };
 }
 
