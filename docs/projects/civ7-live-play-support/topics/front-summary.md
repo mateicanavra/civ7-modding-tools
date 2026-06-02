@@ -85,7 +85,7 @@ Venta." A later priority read showed the ready unit had shifted to Ballista
 
 The front around `(15,21)` was not merely a one-unit question:
 
-- five non-friendly units were within three tiles of the Ballista;
+- five other-owner units were within three tiles of the Ballista;
 - the exposed Settler at `(18,16)` was still a high civilian-risk item;
 - La Venta's city front remained around `(13,17)`;
 - owner pressure clustered near `(14,20)`;

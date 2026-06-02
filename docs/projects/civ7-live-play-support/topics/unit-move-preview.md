@@ -81,6 +81,7 @@ only records intent and lets Civ7 continue movement later.
 civ7 game play unit-move-preview \
   --unit-id '{"owner":0,"id":65536,"type":26}' \
   --destination 30,24 \
+  --compact \
   --json
 ```
 
@@ -107,9 +108,16 @@ This command is read-only. It exposes official preview facts:
 
 It also returns `relationshipPolicy`, because this lens does not prove whether
 another owner is hostile, allied, neutral, suzerained, or a war target. Use
-neutral labels such as `other-owner contact`, `non-friendly pressure`, or
+neutral labels such as `other-owner contact`, `other-owner pressure`, or
 `relationship-unproven` unless an official relationship API supplies that
 proof.
+
+Use `--compact --json` for the play-agent movement dashboard. It returns the
+selected unit summary, requested and queued destinations, reachable movement /
+zone-of-control / target counts, compact requested and queued path summaries,
+the next validation command, warnings, omitted raw sections, `hiddenInfoPolicy`,
+and `relationshipProof`. Plain `--json` remains the full official preview
+payload for debugging path plots and overlay details.
 
 The policy fields are intentionally explicit:
 

@@ -13,13 +13,13 @@ the decision.
 The scan does not predefine strategy. It gives the play agent better inputs for
 strategy and tactics:
 
-- nearby friendly and non-friendly units;
+- nearby friendly and other-owner units;
 - nearby cities;
 - owner-level apparent pressure in the radius;
 - wounded friendly units;
 - civilian exposure;
-- nearest non-friendly city fronts;
-- strongest non-friendly owner pressure.
+- nearest relationship-unproven city fronts;
+- strongest other-owner pressure.
 
 ## CLI
 
@@ -81,7 +81,7 @@ Use this scan when the agent is making a sequence of military moves or deciding
 whether a settlement/front/destination is safe enough to pursue. The scan should
 answer:
 
-1. What non-friendly pressure is close to this origin?
+1. What other-owner pressure is close to this origin?
 2. Are any friendly units wounded or civilians exposed?
 3. Which owner is exerting the strongest local pressure?
 4. Is there a nearby city/front that changes the next inspection priority?

@@ -6593,7 +6593,7 @@ function targetCandidatesSource(): string {
       relationshipSource: "not-classified",
       relationshipProof: "none",
       unprovenLabel: "relationship-unproven",
-      guidance: "Target candidates rank other owners from runtime city/unit summaries. They do not prove enemy, hostile, opponent, allied, neutral, suzerained, or war-target status without official relationship, team, diplomacy, independent-power, or war-state evidence.",
+      guidance: "Target candidates rank other owners from runtime city/unit summaries. They do not classify relationship, alliance, neutrality, suzerain, or war-target status without official relationship, team, diplomacy, independent-power, or war-state evidence.",
     };
     const toComponentId = (value) => {
       if (!value || typeof value !== "object") return null;
@@ -6879,7 +6879,7 @@ function battlefieldScanSource(): string {
       relationshipSource: "not-classified",
       relationshipProof: "none",
       unprovenLabel: "relationship-unproven",
-      guidance: "Battlefield scan can prove owner ids, proximity, role heuristics, and validator-independent pressure. It cannot prove enemy, hostile, opponent, allied, neutral, suzerained, or war-target status without official relationship, team, diplomacy, independent-power, or war-state evidence.",
+      guidance: "Battlefield scan can prove owner ids, proximity, role heuristics, and validator-independent pressure. It cannot classify relationship, alliance, neutrality, suzerain, or war-target status without official relationship, team, diplomacy, independent-power, or war-state evidence.",
     };
     const toComponentId = (value) => {
       if (!value || typeof value !== "object") return null;
@@ -7070,7 +7070,7 @@ function battlefieldScanSource(): string {
         kind: "nearby-other-owners",
         severity: closeOther.length >= 4 ? "high" : "medium",
         location: closeOther[0].location,
-        summary: closeOther.length + " non-friendly units within 3 tiles of an origin",
+        summary: closeOther.length + " other-owner units within 3 tiles of an origin",
         units: closeOther.slice(0, 8),
       });
       const woundedFriendly = friendlyUnits.filter((unit) => unit.wounded).sort((a, b) => b.damage - a.damage);
@@ -7081,12 +7081,12 @@ function battlefieldScanSource(): string {
         summary: "friendly wounded unit near scan origin",
         units: woundedFriendly.slice(0, 6),
       });
-      const exposedCivilian = friendlyUnits.filter((unit) => unit.role === "civilian" && otherUnits.some((enemy) => distance(unit.location, enemy.location) <= 4));
+      const exposedCivilian = friendlyUnits.filter((unit) => unit.role === "civilian" && otherUnits.some((contact) => distance(unit.location, contact.location) <= 4));
       if (exposedCivilian.length > 0) points.push({
         kind: "civilian-risk",
         severity: "high",
         location: exposedCivilian[0].location,
-        summary: "friendly civilian has non-friendly unit within 4 tiles",
+        summary: "friendly civilian has other-owner contact within 4 tiles",
         units: exposedCivilian.slice(0, 4),
       });
       const otherCities = cities.filter((city) => city.owner !== playerId).sort((a, b) => a.distance - b.distance);
@@ -7094,7 +7094,7 @@ function battlefieldScanSource(): string {
         kind: "city-front",
         severity: otherCities[0].distance <= 6 ? "medium" : "low",
         location: otherCities[0].location,
-        summary: "nearest non-friendly city in scan radius",
+        summary: "nearest relationship-unproven city in scan radius",
         cities: otherCities.slice(0, 4),
       });
       const strongestOther = owners.filter((owner) => owner.owner !== playerId).sort((a, b) => b.apparentStrength - a.apparentStrength)[0];
@@ -7102,7 +7102,7 @@ function battlefieldScanSource(): string {
         kind: "owner-pressure",
         severity: strongestOther.apparentStrength >= 60 ? "high" : "medium",
         location: strongestOther.nearestUnit?.location ?? strongestOther.nearestCity?.location ?? null,
-        summary: "strongest non-friendly owner pressure in scan radius",
+        summary: "strongest other-owner pressure in scan radius",
         owner: strongestOther,
       });
       return points;
@@ -7153,7 +7153,7 @@ function battlefieldScanSource(): string {
         notes: [
           "Read-only battlefield lens for tactical orientation. It does not path, move, attack, declare war, or validate operations.",
           "Distances are cheap grid-radius heuristics, not terrain pathfinding. Use unit-target and movement validators before sends.",
-          "Owner mismatch is contact evidence, not proof of enemy or hostile relationship. Use neutral relationship-unproven language unless official relationship APIs prove more.",
+          "Owner mismatch is contact evidence, not relationship proof. Use neutral relationship-unproven language unless official relationship APIs prove more.",
           "Use explicit --x/--y origins for the current front, formation, city, or intended destination so POIs are scoped to the decision at hand.",
         ],
       };
@@ -7224,36 +7224,36 @@ function destinationAnalysisSource(): string {
         kind: "destination-pressure",
         severity: otherDestination.length >= 3 ? "high" : "medium",
         location: otherDestination[0].location,
-        summary: otherDestination.length + " non-friendly units near destination",
+        summary: otherDestination.length + " other-owner units near destination",
         units: otherDestination.slice(0, 8),
       });
       if (otherCorridor.length > 0) points.push({
         kind: "corridor-contact",
         severity: otherCorridor.length >= 4 ? "high" : "medium",
         location: otherCorridor[0].location,
-        summary: otherCorridor.length + " non-friendly units within corridor radius " + corridorRadius,
+        summary: otherCorridor.length + " other-owner units within corridor radius " + corridorRadius,
         units: otherCorridor.slice(0, 8),
       });
-      const nonFriendlyCities = destinationCities.filter((city) => city.owner !== playerId);
-      if (nonFriendlyCities.length > 0) points.push({
+      const otherOwnerCities = destinationCities.filter((city) => city.owner !== playerId);
+      if (otherOwnerCities.length > 0) points.push({
         kind: "destination-city-pressure",
-        severity: nonFriendlyCities[0].distance <= 3 ? "high" : "medium",
-        location: nonFriendlyCities[0].location,
-        summary: "non-friendly city near intended destination",
-        cities: nonFriendlyCities.slice(0, 4),
+        severity: otherOwnerCities[0].distance <= 3 ? "high" : "medium",
+        location: otherOwnerCities[0].location,
+        summary: "relationship-unproven city near intended destination",
+        cities: otherOwnerCities.slice(0, 4),
       });
-      if (friendlyDestination.length === 0 && (otherDestination.length > 0 || nonFriendlyCities.length > 0)) points.push({
+      if (friendlyDestination.length === 0 && (otherDestination.length > 0 || otherOwnerCities.length > 0)) points.push({
         kind: "unsupported-destination",
         severity: "medium",
-        location: otherDestination[0]?.location ?? nonFriendlyCities[0]?.location ?? null,
+        location: otherDestination[0]?.location ?? otherOwnerCities[0]?.location ?? null,
         summary: "destination pressure has no friendly unit already near the endpoint",
       });
-      const exposedCivilian = corridorUnits.filter((unit) => unit.owner === playerId && unit.role === "civilian" && otherCorridor.some((enemy) => distance(unit.location, enemy.location) <= 4));
+      const exposedCivilian = corridorUnits.filter((unit) => unit.owner === playerId && unit.role === "civilian" && otherCorridor.some((contact) => distance(unit.location, contact.location) <= 4));
       if (exposedCivilian.length > 0) points.push({
         kind: "civilian-route-risk",
         severity: "high",
         location: exposedCivilian[0].location,
-        summary: "friendly civilian in or near the corridor has non-friendly contact within 4 tiles",
+        summary: "friendly civilian in or near the corridor has other-owner contact within 4 tiles",
         units: exposedCivilian.slice(0, 4),
       });
       return points;
@@ -7702,13 +7702,13 @@ function unitMovePreviewSource(): string {
           relationshipSource: "not-classified",
           relationshipProof: "none",
           unprovenLabel: "relationship-unproven",
-          guidance: "This movement preview does not prove whether other owners are hostile, allied, neutral, suzerained, or war targets. Use neutral labels unless an official relationship, team, diplomacy, independent-power, or war-state API supplies that proof.",
+          guidance: "This movement preview does not classify other-owner relationships. Use neutral labels unless an official relationship, team, diplomacy, independent-power, or war-state API supplies that proof.",
         },
         notes: [
           "Read-only official movement preview. It does not send MOVE_TO, reserve a path, or prove tactical safety.",
           "Reachable movement, targets, zones of control, queued destination, and path data come from the same Units preview APIs used by the Civ7 UI when available.",
           "Operation validators and postconditions remain authoritative before and after any send.",
-          "Relationship labels are intentionally conservative: owner mismatch is contact evidence, not hostile/enemy proof."
+          "Relationship labels are intentionally conservative: owner mismatch is contact evidence, not relationship proof."
         ],
       };
     };`;

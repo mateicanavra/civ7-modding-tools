@@ -44,7 +44,8 @@ Candidate multi-turn objectives:
 
 These are conditional heuristics, not a universal opening. Reframe them when
 fresh live state shows a different bottleneck: happiness, settlement cap,
-economy, victory progress, diplomacy, or a change in enemy pressure.
+economy, victory progress, diplomacy, relationship-proven war evidence, or a
+change in other-owner pressure.
 
 ## Official AI Levers
 

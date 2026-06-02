@@ -59,8 +59,9 @@ Useful fields:
   when present: endpoint, next tile, plot count, turn count if exposed;
 - `risk`: `"unknown" | "none-detected" | "risk-detected"`;
 - `riskReasons`: short expandable reasons from battlefield and visibility
-  lenses, such as enemy proximity, wounded unit, civilian exposure, hostile city
-  zone, fogged path, water/embark edge, or stale preview;
+  lenses, such as other-owner contact, wounded unit, civilian exposure,
+  relationship-unproven city/contact zone, fogged path, water/embark edge, or
+  stale preview;
 - `recommendedRefresh`: usually `each-turn` for queued movement.
 
 ## Proposed Mutation

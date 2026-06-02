@@ -78,7 +78,7 @@ export default class GamePlayFormationSnapshot extends Command {
       max: 6,
     }),
     'threat-radius': Flags.integer({
-      description: 'Maximum grid distance for non-friendly units to count as immediate civilian threats',
+      description: 'Maximum grid distance for other-owner units to count as immediate civilian contacts',
       default: 4,
       min: 1,
       max: 8,
@@ -245,7 +245,7 @@ function civilianThreatReasons(civilians: ReadonlyArray<FormationUnit>, threats:
   if (civilians.length === 0 || threats.length === 0) return [];
   return civilians.map((civilian) => {
     const location = civilian.location ? `(${civilian.location.x},${civilian.location.y})` : '<unknown>';
-    return `${civilian.typeName ?? 'civilian'} at ${location} has ${threats.length} non-friendly units within threat radius`;
+    return `${civilian.typeName ?? 'civilian'} at ${location} has ${threats.length} other-owner units within contact radius`;
   });
 }
 

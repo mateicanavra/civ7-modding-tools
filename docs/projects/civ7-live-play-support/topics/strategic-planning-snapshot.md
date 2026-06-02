@@ -141,13 +141,13 @@ The planning note should be deliberately temporary. A good note has:
 
 - objective: one or two near-term goals, such as "settle east with escort" or
   "stabilize capital and build ranged defense";
-- assumptions: current blocker, visible enemy pressure, known rival city count,
-  settlement cap, and current production/civic/tech plan;
+- assumptions: current blocker, visible other-owner pressure, known rival city
+  count, settlement cap, and current production/civic/tech plan;
 - actions to seek: the kinds of blockers or unit moves the agent should look
   for, not commands to send blindly;
 - falsifiers: the live facts that should end or revise the plan, such as new
-  enemy pressure, no valid settle command, rival war declaration, blocked
-  production, or restart mismatch;
+  other-owner pressure, no valid settle command, rival war declaration, blocked
+  production, restart mismatch, or relationship-proven war evidence;
 - expiry: a turn number or "after next age/war/blocker change" condition.
 
 For the active turn-96/97 context, the extracted plan is:
@@ -156,7 +156,7 @@ For the active turn-96/97 context, the extracted plan is:
   settlements than leading known rivals;
 - pair Settler movement with Ballista/Warrior screening rather than holding all
   units in place;
-- keep capital production on ranged/defensive units while enemy pressure
+- keep capital production on ranged/defensive units while other-owner pressure
   remains nearby;
 - compare legacy/victory signals after the current blocker queue is clean, not
   while a live mutation is pending.

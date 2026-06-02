@@ -132,9 +132,11 @@ returns `contractVersion`, `summary`, `decisionHud`, top `priorities`, `next`,
 `warnings`, `omitted`, and `hiddenInfoPolicy` so play agents can decide what to
 inspect without scanning the full composed read.
 
-`game play unit-move-preview` should default to selected unit, movement range,
-queued destination, and top warnings. Use `--expand lens` for paths and
-post-move actions, and `--raw` for implementation payloads.
+`game play unit-move-preview --compact --json` is the additive compact movement
+contract. Plain `--json` remains the compatibility payload; compact mode returns
+selected unit summary, requested and queued destinations, reachable counts,
+requested/queued path summaries, `next`, `warnings`, `omitted`,
+`hiddenInfoPolicy`, and `relationshipProof`.
 
 `game play battlefield-scan` should default to points of interest and owner
 pressure summaries. Use `--expand lens` for units/cities and `--raw` for the

@@ -28,8 +28,8 @@ Keep the formation intact:
 - Ballistas and other siege units are the settlement breakers.
 - Turtanu should remain close enough to keep the siege/melee group coherent.
 - Archers should chip and cover, not become the front line.
-- Melee/cavalry should screen enemy contact and take capture opportunities
-  only after defenders and fortified districts are weakened.
+- Melee/cavalry should screen relationship-proven contact and take capture
+  opportunities only after defenders and fortified districts are weakened.
 - Magarru can exploit mobility, but should not pull the army apart before the
   settlement is ready to fall.
 
@@ -75,8 +75,9 @@ Fresh turn-134 scans from an origin around `(17,16)` showed:
   single unit forward.
 
 The practical instruction is: preserve the siege formation, use ranged/siege
-damage first when validators expose safe fire, keep screens between enemy units
-and siege, and capture only after the city/fortified district path is weakened.
+damage first when validators expose safe fire, keep screens between
+relationship-proven threats and siege, and capture only after the city/fortified
+district path is weakened.
 
 ## Provenance
 

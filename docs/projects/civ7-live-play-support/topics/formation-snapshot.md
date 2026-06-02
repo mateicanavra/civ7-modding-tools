@@ -15,7 +15,7 @@ ready unit or supplied origin:
 - current ready unit and no-target operation count;
 - nearby civilians that may need protection;
 - friendly non-civilian units that are close enough to act as screens;
-- non-friendly units close enough to threaten nearby civilians;
+- other-owner units close enough to pressure nearby civilians;
 - battlefield POIs and next inspection commands.
 
 ## Command
@@ -44,7 +44,7 @@ The `formation` object has:
 - `civilians`: friendly civilian units in scan scope;
 - `screens`: friendly non-civilian units within `--screen-radius` of a
   civilian;
-- `threats`: non-friendly units within `--threat-radius` of a civilian;
+- `threats`: other-owner units within `--threat-radius` of a civilian;
 - `nextInspections`: commands to re-read priorities, battlefield, civilian
   route triage, and concrete `unit-target` validators.
 
@@ -76,4 +76,3 @@ This command proves only a bounded runtime scan and derived local geometry.
 Distances are cheap grid heuristics. Hidden-info policy follows
 `battlefield-scan`. Operation legality and effect still require `unit-target`,
 operation validation, and postcondition reads.
-

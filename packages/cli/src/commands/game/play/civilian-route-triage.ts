@@ -225,10 +225,10 @@ function destinationPressureReasons(destination: Awaited<ReturnType<typeof getCi
   const pressure = destination?.destinationPressure as { unitCount?: unknown; cityCount?: unknown; apparentOtherStrength?: unknown } | undefined;
   const reasons: string[] = [];
   if (typeof pressure?.unitCount === 'number' && pressure.unitCount > 0) {
-    reasons.push(`${pressure.unitCount} non-friendly units near candidate destination`);
+    reasons.push(`${pressure.unitCount} other-owner units near candidate destination`);
   }
   if (typeof pressure?.cityCount === 'number' && pressure.cityCount > 0) {
-    reasons.push(`${pressure.cityCount} non-friendly cities near candidate destination`);
+    reasons.push(`${pressure.cityCount} relationship-unproven cities near candidate destination`);
   }
   if (typeof pressure?.apparentOtherStrength === 'number' && pressure.apparentOtherStrength > 0) {
     reasons.push(`apparent candidate pressure ${pressure.apparentOtherStrength}`);

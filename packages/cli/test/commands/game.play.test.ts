@@ -1689,11 +1689,68 @@ describe('game play commands', () => {
       expect(payload.view.relationshipPolicy.relationshipSource).toBe('not-classified');
       expect(payload.view.relationshipPolicy.relationshipProof).toBe('none');
       expect(payload.view.relationshipPolicy.unprovenLabel).toBe('relationship-unproven');
-      expect(payload.view.relationshipPolicy.guidance).toMatch(/does not prove whether other owners are hostile/);
+      expect(payload.view.relationshipPolicy.guidance).toMatch(/does not classify other-owner relationships/);
       expect(server.received.some((message) => message.includes('readUnitMovePreview'))).toBe(true);
       expect(server.received.some((message) => message.includes('getReachableMovement'))).toBe(true);
       expect(server.received.some((message) => message.includes('getQueuedOperationDestination'))).toBe(true);
       expect(server.received.some((message) => message.includes('getPathTo'))).toBe(true);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('emits compact official unit move preview by request', async () => {
+    const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayUnitMovePreview.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayUnitMovePreview.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--unit-id',
+        '{"owner":0,"id":65536,"type":26}',
+        '--destination',
+        '25,35',
+        '--compact',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        contractVersion: string;
+        command: string;
+        summary: string;
+        requestedDestination: { x: number; y: number };
+        queuedDestination: { x: number; y: number } | null;
+        reach: { movementPlotCount: number; targetPlotCount: number };
+        paths: { requested: { plotCount?: number } | null; queued: { plotCount?: number } | null };
+        next: string | null;
+        warnings: string[];
+        relationshipProof: string;
+        omitted: Array<{ path: string }>;
+        view?: unknown;
+      };
+      expect(payload.contractVersion).toBe('play-agent-v0');
+      expect(payload.command).toBe('game play unit-move-preview');
+      expect(payload.summary).toContain('UNIT_GALLEY');
+      expect(payload.requestedDestination).toEqual({ x: 25, y: 35 });
+      expect(payload.queuedDestination).toEqual({ x: 25, y: 35 });
+      expect(payload.reach.movementPlotCount).toBeGreaterThan(0);
+      expect(payload.reach.targetPlotCount).toBeGreaterThanOrEqual(0);
+      expect(payload.paths.requested?.plotCount).toBeGreaterThan(0);
+      expect(payload.paths.queued?.plotCount).toBeGreaterThan(0);
+      expect(payload.next).toContain('game play unit-target');
+      expect(payload.relationshipProof).toBe('none');
+      expect(payload.warnings.join(' ')).toContain('does not classify other-owner relationships');
+      expect(payload.omitted.some((item) => item.path === 'view.reachableMovement')).toBe(true);
+      expect(payload.view).toBeUndefined();
+      expect(server.received.some((message) => message.includes('readUnitMovePreview'))).toBe(true);
     } finally {
       log.mockRestore();
       await server.close();
@@ -1842,6 +1899,7 @@ describe('game play commands', () => {
       expect(payload.view.triage.status).toMatch(/hold|reroute|proceed|inspect/);
       expect(payload.view.triage.nextInspections.some((item) => item.includes('unit-target'))).toBe(true);
       expect(payload.view.triage.reasons.length).toBeGreaterThan(0);
+      expectPositiveRelationshipLabels(payload.view.triage.reasons);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('readSettlementRecommendations'))).toBe(true);
       expect(server.received.some((message) => message.includes('readBattlefieldScan'))).toBe(true);
@@ -1920,7 +1978,7 @@ describe('game play commands', () => {
         view: {
           origin: { x: number; y: number } | null;
           target: { x: number; y: number } | null;
-          summary: { posture: string; nextInspections: string[]; pressure: Array<{ source: string }> };
+          summary: { posture: string; nextInspections: string[]; pressure: Array<{ source: string; summary?: string }>; risks: string[] };
         };
       };
       expect(payload.view.origin).toEqual({ x: 18, y: 20 });
@@ -1928,6 +1986,10 @@ describe('game play commands', () => {
       expect(payload.view.summary.pressure.some((item) => item.source === 'battlefield')).toBe(true);
       expect(payload.view.summary.pressure.some((item) => item.source === 'destination')).toBe(true);
       expect(payload.view.summary.nextInspections.some((item) => item.includes('unit-target'))).toBe(true);
+      expectPositiveRelationshipLabels([
+        ...payload.view.summary.pressure.map((item) => item.summary ?? ''),
+        ...payload.view.summary.risks,
+      ]);
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('readTargetCandidates'))).toBe(true);
       expect(server.received.some((message) => message.includes('readBattlefieldScan'))).toBe(true);
@@ -1941,6 +2003,10 @@ describe('game play commands', () => {
 
   test('reads battlefield scan without sending operations', async () => {
     const server = await startTunerServer();
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayBattlefieldScan.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
     try {
       const { port } = server.address();
       await GamePlayBattlefieldScan.run([
@@ -1955,11 +2021,19 @@ describe('game play commands', () => {
         '--json',
       ]);
 
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          pointsOfInterest: Array<{ summary?: string; kind?: string }>;
+        };
+      };
+      expectPositiveRelationshipLabels(payload.view.pointsOfInterest.map((item) => `${item.kind ?? ''}: ${item.summary ?? ''}`));
       expect(server.received.some((message) => message.includes('readBattlefieldScan'))).toBe(true);
       expect(server.received.some((message) => message.includes('"origins":[{"x":17,"y":20}]'))).toBe(true);
       expect(server.received.some((message) => message.includes('"radius":8'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendRequest'))).toBe(false);
     } finally {
+      log.mockRestore();
       await server.close();
     }
   });
@@ -1992,6 +2066,7 @@ describe('game play commands', () => {
             civilians: unknown[];
             screens: unknown[];
             threats: unknown[];
+            reasons: string[];
             nextInspections: string[];
           };
         };
@@ -2000,6 +2075,7 @@ describe('game play commands', () => {
       expect(payload.view.formation.civilians).toHaveLength(1);
       expect(payload.view.formation.screens.length).toBeGreaterThan(0);
       expect(payload.view.formation.threats.length).toBeGreaterThan(0);
+      expectPositiveRelationshipLabels(payload.view.formation.reasons);
       expect(payload.view.formation.nextInspections).toContain('game play civilian-route-triage --x 16 --y 18 --json');
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('readReadyUnitView'))).toBe(true);
@@ -2042,6 +2118,7 @@ describe('game play commands', () => {
             relationshipProof: string;
             unprovenLabel: string;
           };
+          pointsOfInterest: Array<{ summary?: string; kind?: string }>;
         };
       };
       expect(payload.view.relationshipLabelPolicy).toMatchObject({
@@ -2049,6 +2126,7 @@ describe('game play commands', () => {
         relationshipProof: 'none',
         unprovenLabel: 'relationship-unproven',
       });
+      expectPositiveRelationshipLabels(payload.view.pointsOfInterest.map((item) => `${item.kind ?? ''}: ${item.summary ?? ''}`));
       expect(server.received.some((message) => message.includes('readDestinationAnalysis'))).toBe(true);
       expect(server.received.some((message) => message.includes('relationshipLabelPolicy: scan.relationshipLabelPolicy'))).toBe(true);
       expect(server.received.some((message) => message.includes('"origin":{"x":20,"y":14}'))).toBe(true);
@@ -2149,6 +2227,14 @@ describe('game play commands', () => {
     }
   });
 });
+
+function expectPositiveRelationshipLabels(values: readonly string[]): void {
+  const text = values.join('\n');
+  expect(text).not.toMatch(/\bnon-friendly\b/i);
+  expect(text).not.toMatch(/\benemy\b/i);
+  expect(text).not.toMatch(/\bhostile\b/i);
+  expect(text).not.toMatch(/\bopponent\b/i);
+}
 
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
@@ -3011,7 +3097,7 @@ function unitMovePreviewView() {
       relationshipSource: 'not-classified',
       relationshipProof: 'none',
       unprovenLabel: 'relationship-unproven',
-      guidance: 'This movement preview does not prove whether other owners are hostile, allied, neutral, suzerained, or war targets. Use neutral labels unless an official relationship, team, diplomacy, independent-power, or war-state API supplies that proof.',
+      guidance: 'This movement preview does not classify other-owner relationships. Use neutral labels unless an official relationship, team, diplomacy, independent-power, or war-state API supplies that proof.',
     },
     notes: ['Read-only official movement preview. It does not send MOVE_TO, reserve a path, or prove tactical safety.'],
   };
@@ -3310,7 +3396,7 @@ function targetCandidatesView() {
       relationshipSource: 'not-classified',
       relationshipProof: 'none',
       unprovenLabel: 'relationship-unproven',
-      guidance: 'Target candidates rank other owners from runtime city/unit summaries. They do not prove enemy, hostile, opponent, allied, neutral, suzerained, or war-target status without official relationship, team, diplomacy, independent-power, or war-state evidence.',
+      guidance: 'Target candidates rank other owners from runtime city/unit summaries. They do not classify relationship, alliance, neutrality, suzerain, or war-target status without official relationship, team, diplomacy, independent-power, or war-state evidence.',
     },
     notes: [
       'Read-only strategic target shortlist. It ranks other-owner contacts; it does not choose or send war, movement, or attack operations.',
@@ -3434,7 +3520,7 @@ function battlefieldScanView() {
     movementMovesRemaining: 2,
     attacksRemaining: 0,
   };
-  const opponentUnit = {
+  const otherOwnerUnit = {
     id: { owner: 9, id: 196608, type: 26 },
     owner: 9,
     stance: 'other',
@@ -3475,9 +3561,9 @@ function battlefieldScanView() {
       relationshipSource: 'not-classified',
       relationshipProof: 'none',
       unprovenLabel: 'relationship-unproven',
-      guidance: 'Battlefield scan can prove owner ids, proximity, role heuristics, and validator-independent pressure. It cannot prove enemy, hostile, opponent, allied, neutral, suzerained, or war-target status without official relationship, team, diplomacy, independent-power, or war-state evidence.',
+      guidance: 'Battlefield scan can prove owner ids, proximity, role heuristics, and validator-independent pressure. It cannot classify relationship, alliance, neutrality, suzerain, or war-target status without official relationship, team, diplomacy, independent-power, or war-state evidence.',
     },
-    units: [friendlyUnit, civilianUnit, opponentUnit],
+    units: [friendlyUnit, civilianUnit, otherOwnerUnit],
     cities: [city],
     owners: [
       {
@@ -3505,7 +3591,7 @@ function battlefieldScanView() {
         cityCount: 1,
         roles: { melee: 1 },
         apparentStrength: 20,
-        nearestUnit: opponentUnit,
+        nearestUnit: otherOwnerUnit,
         nearestCity: city,
       },
     ],
@@ -3521,26 +3607,26 @@ function battlefieldScanView() {
         kind: 'civilian-risk',
         severity: 'high',
         location: civilianUnit.location,
-        summary: 'friendly civilian has non-friendly unit within 4 tiles',
+        summary: 'friendly civilian has other-owner contact within 4 tiles',
         units: [civilianUnit],
       },
       {
         kind: 'city-front',
         severity: 'medium',
         location: city.location,
-        summary: 'nearest non-friendly city in scan radius',
+        summary: 'nearest relationship-unproven city in scan radius',
         cities: [city],
       },
     ],
     notes: [
       'Read-only battlefield lens for tactical orientation. It does not path, move, attack, declare war, or validate operations.',
-      'Owner mismatch is contact evidence, not proof of enemy or hostile relationship. Use neutral relationship-unproven language unless official relationship APIs prove more.',
+      'Owner mismatch is contact evidence, not relationship proof. Use neutral relationship-unproven language unless official relationship APIs prove more.',
     ],
   };
 }
 
 function destinationAnalysisView() {
-  const opponentUnit = {
+  const otherOwnerUnit = {
     id: { owner: 9, id: 196608, type: 26 },
     owner: 9,
     stance: 'other',
@@ -3582,7 +3668,7 @@ function destinationAnalysisView() {
       relationshipSource: 'not-classified',
       relationshipProof: 'none',
       unprovenLabel: 'relationship-unproven',
-      guidance: 'Battlefield scan can prove owner ids, proximity, role heuristics, and validator-independent pressure. It cannot prove enemy, hostile, opponent, allied, neutral, suzerained, or war-target status without official relationship, team, diplomacy, independent-power, or war-state evidence.',
+      guidance: 'Battlefield scan can prove owner ids, proximity, role heuristics, and validator-independent pressure. It cannot classify relationship, alliance, neutrality, suzerain, or war-target status without official relationship, team, diplomacy, independent-power, or war-state evidence.',
     },
     corridor: {
       routeHint: 'straight-line-grid-corridor',
@@ -3595,11 +3681,11 @@ function destinationAnalysisView() {
           water: { ok: true, value: true },
         },
       ],
-      units: [opponentUnit],
+      units: [otherOwnerUnit],
       unitCount: 1,
     },
     destinationPressure: {
-      units: [opponentUnit],
+      units: [otherOwnerUnit],
       unitCount: 1,
       cities: [city],
       cityCount: 1,
@@ -3609,9 +3695,9 @@ function destinationAnalysisView() {
       {
         kind: 'destination-pressure',
         severity: 'medium',
-        location: opponentUnit.location,
-        summary: '1 non-friendly units near destination',
-        units: [opponentUnit],
+        location: otherOwnerUnit.location,
+        summary: '1 other-owner units near destination',
+        units: [otherOwnerUnit],
       },
     ],
     notes: ['Read-only destination lens for tactical planning. It does not move units, reserve paths, attack, or validate operations.'],

@@ -13,8 +13,8 @@ lies along the intended approach before it spends a move.
 The lens does not choose a strategy or send orders. It gives the play agent
 better questions to ask before movement:
 
-- what non-friendly units are near the destination;
-- whether a non-friendly city projects pressure around the endpoint;
+- what other-owner units are near the destination;
+- whether a relationship-unproven city projects pressure around the endpoint;
 - whether friendly units already support the endpoint;
 - whether any corridor contact could expose a civilian or wounded unit;
 - which sampled plots along the straight-line corridor need closer map reads.
@@ -71,7 +71,7 @@ target shortcuts where available.
 Relationship labels are deliberately not classified by this lens. The response
 includes `relationshipLabelPolicy.relationshipSource: "not-classified"` and
 `relationshipProof: "none"` for non-player owners. Use neutral labels such as
-`other-owner contact`, `non-friendly pressure`, or `relationship-unproven`
+`other-owner contact`, `other-owner pressure`, or `relationship-unproven`
 unless official relationship, team, diplomacy, independent-power, or war-state
 evidence proves stronger status.
 

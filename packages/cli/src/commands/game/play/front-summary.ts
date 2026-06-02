@@ -282,10 +282,10 @@ function unsupportedDestinationRisks(destination: Awaited<ReturnType<typeof getC
   const destinationPressure = destination?.destinationPressure as { unitCount?: unknown; cityCount?: unknown; apparentOtherStrength?: unknown } | undefined;
   const risks: string[] = [];
   if (typeof destinationPressure?.unitCount === 'number' && destinationPressure.unitCount > 0) {
-    risks.push(`${destinationPressure.unitCount} non-friendly units near intended front`);
+    risks.push(`${destinationPressure.unitCount} other-owner units near intended front`);
   }
   if (typeof destinationPressure?.cityCount === 'number' && destinationPressure.cityCount > 0) {
-    risks.push(`${destinationPressure.cityCount} non-friendly cities near intended front`);
+    risks.push(`${destinationPressure.cityCount} relationship-unproven cities near intended front`);
   }
   if (typeof destinationPressure?.apparentOtherStrength === 'number' && destinationPressure.apparentOtherStrength > 0) {
     risks.push(`apparent destination pressure ${destinationPressure.apparentOtherStrength}`);

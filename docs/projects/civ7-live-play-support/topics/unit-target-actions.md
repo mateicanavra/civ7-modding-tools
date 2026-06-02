@@ -74,12 +74,12 @@ declaring a no-op.
 
 Two live caveats matter for interpretation:
 
-- Adjacent enemy land targets can need the official war-confirmation route.
+- Adjacent relationship-proven war targets can need the official war-confirmation route.
   `WorldInput.checkDeclareWarAt` calls
   `Players.get(unit.owner).Diplomacy.willMoveStartWar(...)` and then runs a
   post-declaration callback. The target shortcut does not prove that dialog
-  path was satisfied, so a `MOVE_TO` candidate against a hostile plot is not
-  enough without a postcondition.
+  path was satisfied, so a `MOVE_TO` candidate against an other-owner plot is
+  not enough without a postcondition.
 - Naval reposition can validate through `MOVE_TO` while the UI tracks desired
   destination/path state separately from the unit summary we currently compare.
   Until the shortcut reads stable queued-destination fields, a naval
@@ -150,8 +150,8 @@ These are strategy heuristics, not operation proof:
 
 - Preserve badly wounded Warriors unless the live combat preview shows a safe
   kill or favorable trade.
-- Use Slingers to remove enemy ranged units that can finish wounded friendly
-  units, then adjacent melee threats.
+- Use Slingers to remove relationship-proven ranged threats that can finish
+  wounded friendly units, then adjacent melee threats.
 - Keep melee/body-blocking units in front of ranged units.
 - Keep the Galley screening coastal access to the capital and town; do not chase
   if it opens a water approach.

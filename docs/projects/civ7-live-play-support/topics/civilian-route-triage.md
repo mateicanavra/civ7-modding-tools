@@ -82,7 +82,7 @@ The normal outcomes are:
 1. **Proceed with validation:** endpoint pressure is low, route pressure is
    low, and escort units are nearby enough to make the move plausible.
 2. **Hold or screen:** recommendations are good but local/corridor pressure is
-   high, the route has non-friendly contact, or the read is stale.
+   high, the route has other-owner contact, or the read is stale.
 3. **Reroute or stage:** the best official site is too exposed, but a nearer
    defensive staging point or alternate site has lower pressure.
 4. **Inspect candidate:** the command did not have enough destination evidence;
@@ -93,7 +93,7 @@ The normal outcomes are:
 On turn 116, the live Settler at `(17,13)` had valid movement operations, and
 the settlement lens recommended distant sites including `(26,9)`, `(27,30)`,
 and `(23,38)`. A battlefield scan around `(17,13)` still reported
-`civilian-risk`, with non-friendly naval pressure at `(15,13)`, another scout
+`civilian-risk`, with other-owner naval pressure at `(15,13)`, another scout
 near `(13,14)`, and the independent city front at `(13,17)`.
 
 That combination means the recommendation is useful for planning, but weak as a
@@ -102,7 +102,7 @@ or run `destination-analysis` for a specific near-term endpoint, then re-read
 `ready-unit` before any send.
 
 On turn 121 / 1200 BCE, the live priority read showed a ready Settler
-`{"owner":0,"id":1441800,"type":26}` at `(18,16)`, with nearby non-friendly
+`{"owner":0,"id":1441800,"type":26}` at `(18,16)`, with nearby other-owner
 pressure around `(17,18)` and `(17,14)` and the La Venta city front still around
 `(13,17)`. That is exactly the `hold-or-screen` case: a legal move is not the
 same as a good route, and the next inspection should be battlefield pressure,

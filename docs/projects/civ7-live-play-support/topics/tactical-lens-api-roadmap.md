@@ -53,15 +53,15 @@ Use these now during live play:
    no-target operations does not prove that plot movement or attack is
    impossible.
 3. `game play battlefield-scan --origin <x,y> --radius <n> --json` describes
-   local friendly and non-friendly units, cities, owner pressure, wounded
+   local friendly and other-owner units, cities, owner pressure, wounded
    friendlies, civilian exposure, and nearby fronts around an origin. The
    `--x <x> --y <y>` form remains available.
 4. `game play formation-snapshot --x <x> --y <y> --json` composes a ready-unit
-   origin with local civilians, friendly screens, non-friendly threats, and
+   origin with local civilians, friendly screens, other-owner contacts, and
    next inspections. Use it when the tactical question is whether a unit should
    screen, hold, or validate a concrete move around a civilian cluster.
-5. `game play target-candidates --x <x> --y <y> --json` ranks opponent owners
-   and known city targets from a formation origin.
+5. `game play target-candidates --x <x> --y <y> --json` ranks other-owner
+   contacts and known city targets from a formation origin.
 6. `game play front-summary --origin <x,y> --destination <x,y> --json` composes
    target candidates, local pressure, and inferred or supplied endpoint pressure
    into a front posture and next-inspection list.
@@ -103,7 +103,7 @@ The next layer should prioritize these read-only commands:
 | Command | Inputs | Output | Why it matters |
 | --- | --- | --- | --- |
 | `game play priorities` | optional focus, player id, max entities | ranked current decisions, blockers, ready entities, threats, missing reads | Gives the agent one turn dashboard before moving through individual commands. |
-| `game play actors` | player id, include units/cities/players, max items | bounded player/unit/city summaries with hidden-info label | Avoids ad hoc runtime scripts when choosing fronts or comparing opponents. |
+| `game play actors` | player id, include units/cities/players, max items | bounded player/unit/city summaries with hidden-info label | Avoids ad hoc runtime scripts when choosing fronts or comparing other-owner contacts. |
 | `game play proximity-scan` | center, radius, fields, player id | bounded plot/unit/city facts and counts around a point | Generalizes battlefield scans for non-combat terrain, resource, and city decisions. |
 | `game play pressure-map` | bounds, player id, visible-only flag | pressure-by-plot summaries with contributors and assumptions | Helps front planning, civilian safety, and siege staging. |
 | `game play route-analysis` | origin, destination, unit id, corridor width | hazards, unknowns, blockers, friendly screens, proof label | Separates route safety from exact Civ7 pathfinding. |
@@ -176,7 +176,8 @@ commands.
 
 Treat owner ids as insufficient for tactical threat labels. Current battlefield
 and destination lenses reduce owner relation to friendly versus other; that is
-safe only for neutral wording like `non-friendly`. Before any lens labels units
+safe only for neutral wording like `other-owner` or `relationship-unproven`.
+Before any lens labels units
 or cities as enemy, hostile, opponent, allied, neutral, suzerained, or
 war-targeted, prove the relationship through official App UI, Tuner,
 diplomacy, team, independent-power, or war-state APIs and include the proof
