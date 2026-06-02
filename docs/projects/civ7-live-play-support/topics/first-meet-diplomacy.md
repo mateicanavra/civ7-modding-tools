@@ -22,6 +22,8 @@ Use this sequence:
    `details.kind == "first-meet-diplomacy"` payload when present. It should
    expose `player1`, `player2`, the other leader/civilization labels, candidate
    greeting `args`, validator results, and a `recommendedCli`.
+   `game play notification-queue` and compact `game play priorities` promote
+   that `recommendedCli` as their top-level command when it is present.
 3. Prefer the neutral greeting when Influence cost or payoff is not proven.
    Static official data gives neutral `Amount="0"` and `InfCost="0"`; friendly
    and unfriendly cost Influence and intentionally move relationship state.

@@ -4,7 +4,10 @@ import {
   type Civ7PlayDecisionQueueItem,
   getCiv7PlayNotificationView,
 } from '@civ7/direct-control';
-import { buildDirectControlOptions } from '../../../utils/game-play-shared';
+import {
+  buildDirectControlOptions,
+  recommendedCliFromDecisionDetails,
+} from '../../../utils/game-play-shared';
 
 type QueueDisposition =
   | 'operate-with-live-inputs'
@@ -172,6 +175,8 @@ function commandFor(item: Civ7PlayDecisionQueueItem, disposition: QueueDispositi
   if (disposition === 'reviewed-dismissal-candidate' && item.notificationId) {
     return `game play dismiss-notification --target '${JSON.stringify(item.notificationId)}' --send --reason '<reviewed: ${reasonSlug(item)}>'`;
   }
+  const recommendedDetailCommand = recommendedCliFromDecisionDetails((item as { details?: unknown }).details);
+  if (recommendedDetailCommand) return recommendedDetailCommand;
   const decisionCommand = commandFromDecision(item);
   if (decisionCommand) return decisionCommand;
   const detailCommand = commandFromDecisionDetails(item);

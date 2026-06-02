@@ -2943,6 +2943,41 @@ describe('game play commands', () => {
     }
   });
 
+  test('surfaces exact recommended operation command in compact priorities', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'first-meet' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPriorities.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+        '--compact',
+        '--no-battlefield',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        next: string | null;
+        priorities: Array<{ kind: string; command?: string; reason: string }>;
+      };
+      const top = payload.priorities[0];
+      expect(top.kind).toBe('hud:first-meet-diplomacy');
+      expect(top.command).toBe('game play respond-first-meet --player-id 0 --met-player-id 2 --response neutral');
+      expect(payload.next).toBe(top.command);
+      expect(top.reason).toContain('validator-backed operation candidate');
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('surfaces technology options command in compact priorities', async () => {
     const server = await startTunerServer({ playNotificationMode: 'tech-choice' });
     const writes: string[] = [];
@@ -3542,6 +3577,42 @@ describe('game play commands', () => {
       expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
       expect(server.received.some((message) => message.includes('readNotificationDismissal'))).toBe(false);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test('schedules recommended operation commands from notification details', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'first-meet' });
+    try {
+      const { port } = server.address();
+      const writes: string[] = [];
+      const log = vi.spyOn(GamePlayNotificationQueue.prototype, 'log').mockImplementation((message?: string) => {
+        if (message) writes.push(message);
+      });
+      try {
+        await GamePlayNotificationQueue.run([
+          '--host',
+          '127.0.0.1',
+          '--port',
+          String(port),
+          '--json',
+        ]);
+      } finally {
+        log.mockRestore();
+      }
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        view: {
+          schedule: Array<{ category: string; command: string | null; disposition: string }>;
+        };
+      };
+      const step = payload.view.schedule[0];
+      expect(step.category).toBe('first-meet-diplomacy');
+      expect(step.disposition).toBe('operate-with-live-inputs');
+      expect(step.command).toBe('game play respond-first-meet --player-id 0 --met-player-id 2 --response neutral');
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
       await server.close();
     }

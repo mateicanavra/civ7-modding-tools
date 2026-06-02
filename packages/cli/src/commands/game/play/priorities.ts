@@ -5,7 +5,10 @@ import {
   getCiv7ReadyCityView,
   getCiv7ReadyUnitView,
 } from '@civ7/direct-control';
-import { buildDirectControlOptions } from '../../../utils/game-play-shared';
+import {
+  buildDirectControlOptions,
+  recommendedCliFromDecisionDetails,
+} from '../../../utils/game-play-shared';
 
 type PriorityItem = {
   priority: number;
@@ -296,6 +299,7 @@ function buildPriorities(input: {
   if (nextDecision) {
     const isBlocking = nextDecision.isEndTurnBlocking ? 100 : 70;
     const staleUnitCommand = staleUnitCommandPriority(nextDecision);
+    const recommendedDetailCommand = recommendedCliFromDecisionDetails((nextDecision as { details?: unknown }).details);
     const decisionCommand = commandFromDecision(nextDecision);
     const detailCommand = commandFromDecisionDetails(nextDecision);
     const readyUnitCommand = nextDecision.category === 'unit-command' && input.readyUnit
@@ -305,14 +309,16 @@ function buildPriorities(input: {
       priority: isBlocking,
       kind: staleUnitCommand?.kind ?? `hud:${nextDecision.category}`,
       summary: staleUnitCommand?.summary ?? nextDecision.summary ?? nextDecision.message ?? nextDecision.typeName ?? 'current HUD decision',
-      reason: staleUnitCommand?.reason ?? (decisionCommand
-        ? 'HUD notification includes the live ComponentID; use the exact closeout command after reviewing the report context.'
+      reason: staleUnitCommand?.reason ?? (recommendedDetailCommand
+          ? detailCommandReason(recommendedDetailCommand)
+        : decisionCommand
+          ? 'HUD notification includes the live ComponentID; use the exact closeout command after reviewing the report context.'
         : detailCommand
-        ? detailCommandReason(detailCommand)
+          ? detailCommandReason(detailCommand)
         : readyUnitCommand
           ? 'A ready unit exists; inspect the ready-unit and target surfaces instead of treating COMMAND_UNITS as stale reconciliation.'
         : 'HUD decisions are the shortest-lived live authority and should be resolved or consciously deferred before broad strategy.'),
-      command: staleUnitCommand?.command ?? decisionCommand ?? detailCommand ?? readyUnitCommand ?? nextDecision.cli,
+      command: staleUnitCommand?.command ?? recommendedDetailCommand ?? decisionCommand ?? detailCommand ?? readyUnitCommand ?? nextDecision.cli,
       evidence: nextDecision,
     });
   }

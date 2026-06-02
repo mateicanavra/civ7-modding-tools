@@ -177,6 +177,14 @@ export function emitPlayResult(log: (message?: string) => void, json: boolean, r
   log(JSON.stringify(result, null, 2));
 }
 
+export function recommendedCliFromDecisionDetails(details: unknown): string | undefined {
+  if (!details || typeof details !== 'object') return undefined;
+  const recommendedCli = (details as { recommendedCli?: unknown }).recommendedCli;
+  if (typeof recommendedCli !== 'string') return undefined;
+  const trimmed = recommendedCli.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
 function assertUnitInput(input: Civ7OperationInput): Civ7OperationInput & { unitId: Civ7ComponentId } {
   if (!('unitId' in input)) throw new Error('unit operation requires --unit-id');
   return input;
