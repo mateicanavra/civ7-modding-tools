@@ -1,6 +1,6 @@
 # Unit Operation Postconditions
 
-Status: `implemented-baseline-with-gap`.
+Status: `implemented-baseline`.
 
 ## Frame
 
@@ -16,8 +16,9 @@ unit, first ready unit, blocker, and a classification.
 
 ## Failure Modes
 
-- Immediate postcondition miss: a `unit-target` send returns before animation,
-  queued movement, or unit/path state becomes visible to the summary probe.
+- Latent postcondition: a `unit-target` send can return before animation,
+  queued movement, or unit/path state becomes visible to the summary probe. The
+  command now absorbs that latency with bounded polling before reporting a miss.
 - Naval movement ambiguity: the UI can track desired destination or path state
   separately from the unit summary, so a Galley may validate and send while
   current probes still report no state change.
@@ -44,14 +45,22 @@ A robust caller-level unit operation reports:
   `validation-changed`, `not-sent`, or `no-state-change`.
 
 The play agent should treat `no-state-change` as unresolved, not as permission
-to repeat the same send. Re-read the HUD and ready unit before trying another
-movement, alert, wait, or skip.
+to repeat the same send. For `game play unit-target --send`,
+`no-state-change` now means the immediate response and the bounded poll window
+both failed to observe unit or target-plot change. Re-read the HUD and ready
+unit before trying another movement, alert, wait, or skip.
+
+`unit-target --send` includes:
+
+- `verification.source`: `immediate` or `bounded-poll`;
+- `verification.attempts`: number of follow-up reads used by bounded polling;
+- `verification.observedAfterMs`: elapsed observation time before returning;
+- `verification.reason`: caller-facing interpretation of the postcondition.
 
 ## Next Implementation Work
 
-1. Extend `unit-target --send` with bounded short polling and any discoverable
-   desired/path destination fields so movement animation or queued naval state
-   does not collapse into plain `no-state-change`.
+1. Add discoverable desired/path destination fields so queued naval or
+   multi-turn movement can be distinguished from a true no-op.
 2. Add a named closeout command such as `game play unit-closeout
    --type SKIP_TURN|WAIT_FOR|ALERT|SLEEP` that wraps generic unit operations but
    requires queue or activity postconditions.

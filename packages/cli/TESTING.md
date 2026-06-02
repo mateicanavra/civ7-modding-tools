@@ -5,8 +5,19 @@ This package uses [Vitest](https://vitest.dev/) with the Node environment. Tests
 ## Running tests
 
 ```bash
-bun run --filter @mateicanavra/civ7-cli test
+bun run test:cli
 ```
+
+For the Civ7 live-play command suite:
+
+```bash
+bun run test:cli:play
+```
+
+Run these from the repo root. They go through Turborepo so compiled workspace
+dependencies, especially `@civ7/direct-control`, are built before the CLI tests
+import them. Package-local Vitest commands are only safe after the dependency
+graph has already been built.
 
 ## Current smoke tests
 

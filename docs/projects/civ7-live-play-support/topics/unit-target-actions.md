@@ -102,8 +102,10 @@ civ7 game play unit-target \
 
 With `--send --reason`, it sends the selected candidate and returns before/after
 unit and target-plot probes with a verification flag and a `verification`
-object. If `verification.status` is `no-state-change`, the operation may have
-validated and sent, but it should not be treated as a landed tactical action.
+object. If the immediate response reports `no-state-change`, the command now
+performs a short bounded follow-up poll before returning. If
+`verification.status` is still `no-state-change`, the operation may have
+validated and sent, but the command did not prove a landed tactical action.
 Re-read the HUD/ready unit and choose a different proof path instead of
 repeating the same target blindly.
 
@@ -126,7 +128,14 @@ Useful interpretation:
   attacks, health, or another summarized field.
 - `verification.targetUnitsChanged`: the target plot unit list changed.
 - `verification.status == "no-state-change"`: validator and send plumbing
-  succeeded, but the tactical board did not prove an effect.
+  succeeded, but neither the immediate response nor bounded polling proved an
+  effect.
+- `verification.source == "immediate"`: the first response was already
+  verified, not sent, or not eligible for bounded polling.
+- `verification.source == "bounded-poll"`: the command performed follow-up
+  reads after a sent `no-state-change` response.
+- `verification.attempts` and `verification.observedAfterMs`: bounded polling
+  evidence for how long the command waited before returning.
 
 ## Tactical Norms
 

@@ -32,12 +32,12 @@ bun run test
   ```
 - CLI:
   ```bash
-  bun run --filter @mateicanavra/civ7-cli build
+  bun run build:cli
   node packages/cli/bin/run.js --help
   ```
 - SDK:
   ```bash
-  bun run --filter @mateicanavra/civ7-sdk build
+  bun run build:sdk
   ```
 - Playground:
   ```bash
@@ -79,6 +79,27 @@ bun run test
 ## Publish readiness (Phase 9)
 - SDK: `bun pm pack --cwd packages/sdk` (validation only; do not commit `.tgz`)
 - CLI: `bun run link:cli && civ7 --help`
+
+## Package Validation
+
+Use root scripts for package validation so Turborepo builds workspace
+dependencies before running package tests:
+
+```bash
+bun run build:cli
+bun run test:cli
+bun run test:cli:play
+bun run check:cli
+```
+
+Avoid package-local CLI tests such as `bun run --cwd packages/cli test` unless
+the dependency graph has already been built. The CLI imports compiled workspace
+packages like `@civ7/direct-control`, so package-local tests can otherwise read
+stale `dist/` output.
+
+`bun run link:cli` follows the same rule: it builds `@mateicanavra/civ7-cli`
+through Turborepo first, including the oclif manifest generation in the package
+build, then registers the package binary as the global `civ7` command.
 
 ### Publishing via tags (CI)
 Prerequisite: In GitHub → Settings → Secrets and variables → Actions, add secrets `NPM_TOKEN_SDK` and `NPM_TOKEN_CLI` (publish tokens for GitHub Packages).

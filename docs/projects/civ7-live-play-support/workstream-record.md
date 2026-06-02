@@ -704,8 +704,16 @@ Residual objective gaps:
   `Deactivate`. Disposition: `game play traditions` now returns a read-only
   policy packet with slot counts, localized names/descriptions, action enum
   values, per-tradition action hints, and recommended validation commands.
+- Repeated tactical movement work exposed a verification-contract bug: callers
+  saw immediate `no-state-change` results after valid sends and then spent turn
+  context manually re-reading the same state. Disposition:
+  `game play unit-target --send` now performs bounded post-send polling after
+  an immediate `no-state-change`, returns delayed successes as verified, and
+  exposes `verification.source`, `attempts`, and `observedAfterMs`. A remaining
+  `no-state-change` means the bounded poll window also failed to prove unit or
+  target-plot change.
 - Remaining gaps are promotion-send/hardening work: richer ready-entity reads,
-  stronger live postcondition polling, civic choice proof, population-placement
+  queued destination/path evidence, civic choice proof, population-placement
   postconditions, visibility-filtered path/front analysis beyond the cheap
   destination lens, AI autoplay telemetry shortcuts, and eventual promotion
   into canonical docs/skills.

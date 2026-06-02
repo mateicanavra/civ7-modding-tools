@@ -1350,8 +1350,51 @@ describe('game play commands', () => {
       expect(payload.result.verified).toBe(false);
       expect(payload.result.verification.status).toBe('no-state-change');
       expect(payload.result.verification.classification).toBe('no-state-change');
-      expect(payload.result.verification.reason).toMatch(/re-read before repeating/);
+      expect(payload.result.verification.reason).toMatch(/re-read .*before repeating/);
       expect(server.received.some((message) => message.includes('"send":true'))).toBe(true);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('stabilizes delayed unit-target postconditions before returning', async () => {
+    const server = await startTunerServer({ unitTargetMode: 'delayed-after-send' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayUnitTarget.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayUnitTarget.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--unit-id',
+        '{"owner":0,"id":65536,"type":26}',
+        '--x',
+        '23',
+        '--y',
+        '33',
+        '--send',
+        '--reason',
+        'test delayed postcondition',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: { sent: boolean; verified: boolean; verification: { status: string; classification: string; source: string; attempts: number; reason: string } };
+      };
+      expect(payload.result.sent).toBe(true);
+      expect(payload.result.verified).toBe(true);
+      expect(payload.result.verification.status).toBe('verified');
+      expect(payload.result.verification.classification).toBe('unit-state-changed');
+      expect(payload.result.verification.source).toBe('bounded-poll');
+      expect(payload.result.verification.attempts).toBeGreaterThan(0);
+      expect(payload.result.verification.reason).toMatch(/bounded post-send polling/);
+      expect(server.received.filter((message) => message.includes('readUnitTargetAction')).length).toBeGreaterThan(1);
     } finally {
       log.mockRestore();
       await server.close();
@@ -1861,10 +1904,11 @@ describe('game play commands', () => {
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
   playNotificationMode?: 'town-focus' | 'stale-unit-command' | 'stale-informational' | 'diplomatic-report' | 'ready-unit' | 'mixed-queue';
-  unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall';
+  unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
 } = {}) {
   const received: string[] = [];
   let turnCompleteSent = false;
+  let unitTargetSendObserved = false;
   const server = createServer((socket) => {
     let buffer = Buffer.alloc(0);
     socket.on('data', (chunk) => {
@@ -1884,7 +1928,12 @@ async function startTunerServer(options: {
             value: 673478009,
           })]));
         } else if (frame.message.includes('readUnitTargetAction')) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(unitTargetAction(frame.message.includes('"send":true'), options.unitTargetMode))]));
+          const send = frame.message.includes('"send":true');
+          if (send) unitTargetSendObserved = true;
+          const mode = options.unitTargetMode === 'delayed-after-send' && unitTargetSendObserved && !send
+            ? 'delayed-observed'
+            : options.unitTargetMode;
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(unitTargetAction(send, mode))]));
         } else if (frame.message.includes('readReadyUnitView')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(readyUnitView())]));
         } else if (frame.message.includes('readReadyCityView')) {
@@ -2539,12 +2588,14 @@ function playNotificationView(
   };
 }
 
-function unitTargetAction(send: boolean, mode: 'verified' | 'no-op-after-send' | 'path-shortfall' = 'verified') {
+function unitTargetAction(send: boolean, mode: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send' | 'delayed-observed' = 'verified') {
   const unitId = { owner: 0, id: 65536, type: 26 };
   const beforeUnit = { ok: true, value: { id: unitId, location: { x: 22, y: 33 }, movementMovesRemaining: 2, attacksRemaining: 1 } };
+  const delayedObservedUnit = { ok: true, value: { id: unitId, location: { x: 22, y: 33 }, movementMovesRemaining: 2, attacksRemaining: 0 } };
   const beforeTargetUnits = { ok: true, value: [{ owner: 62, id: 123, type: 26 }] };
   const verified = send && mode === 'verified';
   const pathShortfall = send && mode === 'path-shortfall';
+  const delayedObserved = !send && mode === 'delayed-observed';
   const selected = mode === 'path-shortfall'
     ? {
         family: 'unit-operation',
@@ -2565,7 +2616,7 @@ function unitTargetAction(send: boolean, mode: 'verified' | 'no-op-after-send' |
   return {
     unitId,
     target: { x: 23, y: 33, index: { ok: true, value: 1457 } },
-    beforeUnit,
+    beforeUnit: delayedObserved ? delayedObservedUnit : beforeUnit,
     beforeTargetUnits,
     candidates: [selected],
     selected,

@@ -160,6 +160,8 @@ export const DEFAULT_CIV7_AUTOPLAY_WAIT_MS = 5_000;
 export const DEFAULT_CIV7_AUTOPLAY_STOP_WAIT_MS = 30_000;
 export const DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS = 250;
 export const DEFAULT_CIV7_AUTOPLAY_STOP_STABILITY_MS = 10_000;
+export const DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS = 1_500;
+export const DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS = 250;
 export const DEFAULT_CIV7_SCRIPTING_LOG = join(
   homedir(),
   "Library",
@@ -1336,6 +1338,9 @@ export type Civ7UnitTargetActionResult = Readonly<{
     destinationReached: boolean | null;
     requestedLocation: Civ7MapLocation;
     landedLocation?: Civ7MapLocation | null;
+    source?: "immediate" | "bounded-poll";
+    attempts?: number;
+    observedAfterMs?: number;
     reason: string;
   }>;
   notes: ReadonlyArray<string>;
@@ -3358,7 +3363,136 @@ export async function requestCiv7UnitTargetAction(
     ...options,
     command: buildUnitTargetActionCommand(input, { send: true }),
   });
-  return jsonPayloadFromCommandResult<Civ7UnitTargetActionResult>(result, "Civ7 unit target action");
+  const immediate = jsonPayloadFromCommandResult<Civ7UnitTargetActionResult>(result, "Civ7 unit target action");
+  return await stabilizeCiv7UnitTargetAction(input, options, immediate);
+}
+
+async function stabilizeCiv7UnitTargetAction(
+  input: Civ7UnitTargetActionInput,
+  options: Civ7DirectControlOptions,
+  immediate: Civ7UnitTargetActionResult,
+): Promise<Civ7UnitTargetActionResult> {
+  if (immediate.sent !== true || immediate.verification?.status !== "no-state-change") {
+    return withUnitTargetVerificationSource(immediate, "immediate", 0, 0);
+  }
+
+  const startedAt = Date.now();
+  let attempts = 0;
+  let last = immediate;
+  while (Date.now() - startedAt < DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS) {
+    const elapsed = Date.now() - startedAt;
+    await sleep(Math.min(
+      DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
+      Math.max(0, DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS - elapsed),
+    ));
+    attempts += 1;
+    const observed = await getCiv7UnitTargetAction(input, options);
+    const reconciled = reconcilePolledUnitTargetAction(immediate, observed, attempts, Date.now() - startedAt);
+    last = reconciled;
+    if (reconciled.verified === true) return reconciled;
+  }
+
+  return {
+    ...last,
+    verification: last.verification
+      ? {
+          ...last.verification,
+          source: "bounded-poll",
+          attempts,
+          observedAfterMs: Date.now() - startedAt,
+          reason: "Bounded verification polling observed no unit or target-plot change after send; re-read current HUD and ready unit before repeating.",
+        }
+      : last.verification,
+    notes: appendNote(last.notes, `Post-send verification polled ${attempts} time(s) for ${Date.now() - startedAt}ms before returning no-state-change.`),
+  };
+}
+
+function reconcilePolledUnitTargetAction(
+  immediate: Civ7UnitTargetActionResult,
+  observed: Civ7UnitTargetActionResult,
+  attempts: number,
+  observedAfterMs: number,
+): Civ7UnitTargetActionResult {
+  const unitChanged = stableJson(immediate.beforeUnit) !== stableJson(observed.beforeUnit);
+  const targetUnitsChanged = stableJson(immediate.beforeTargetUnits) !== stableJson(observed.beforeTargetUnits);
+  if (!unitChanged && !targetUnitsChanged) {
+    return withUnitTargetVerificationSource(immediate, "bounded-poll", attempts, observedAfterMs);
+  }
+
+  const requestedLocation = { x: immediate.target.x, y: immediate.target.y };
+  const beforeLocation = locationFromUnitProbeValue(immediate.beforeUnit);
+  const landedLocation = locationFromUnitProbeValue(observed.beforeUnit);
+  const destinationReached = landedLocation ? sameMapLocation(landedLocation, requestedLocation) : null;
+  const originChanged = beforeLocation && landedLocation ? !sameMapLocation(beforeLocation, landedLocation) : unitChanged;
+  const operationType = immediate.selected?.operationType;
+  const classification =
+    operationType === "MOVE_TO" && destinationReached === true
+      ? "target-reached"
+      : operationType === "MOVE_TO" && originChanged && destinationReached === false
+        ? "path-shortfall"
+        : targetUnitsChanged
+          ? "target-state-changed"
+          : "unit-state-changed";
+
+  return {
+    ...immediate,
+    afterUnit: observed.beforeUnit,
+    afterTargetUnits: observed.beforeTargetUnits,
+    verified: true,
+    verification: {
+      status: "verified",
+      classification,
+      unitChanged,
+      targetUnitsChanged,
+      destinationReached,
+      requestedLocation,
+      landedLocation,
+      source: "bounded-poll",
+      attempts,
+      observedAfterMs,
+      reason: unitTargetVerificationReason(classification),
+    },
+    notes: appendNote(immediate.notes, `Post-send verification stabilized after ${attempts} poll attempt(s) and ${observedAfterMs}ms.`),
+  };
+}
+
+function withUnitTargetVerificationSource(
+  result: Civ7UnitTargetActionResult,
+  source: "immediate" | "bounded-poll",
+  attempts: number,
+  observedAfterMs: number,
+): Civ7UnitTargetActionResult {
+  if (!result.verification) return result;
+  return {
+    ...result,
+    verification: {
+      ...result.verification,
+      source,
+      attempts,
+      observedAfterMs,
+    },
+  };
+}
+
+function unitTargetVerificationReason(classification: NonNullable<Civ7UnitTargetActionResult["verification"]>["classification"]): string {
+  switch (classification) {
+    case "target-reached":
+      return "unit reached the requested target tile after bounded post-send polling";
+    case "path-shortfall":
+      return "unit moved after bounded post-send polling, but landed short of the requested target tile; re-read before issuing a follow-up move";
+    case "target-state-changed":
+      return "target-plot unit state changed after bounded post-send polling";
+    case "unit-state-changed":
+      return "unit state changed after bounded post-send polling";
+    case "no-state-change":
+      return "bounded post-send polling did not observe a unit or target-plot change";
+    case "not-sent":
+      return "read-only target resolution; use --send with an approval reason to mutate";
+  }
+}
+
+function appendNote(notes: ReadonlyArray<string>, note: string): ReadonlyArray<string> {
+  return notes.includes(note) ? notes : [...notes, note];
 }
 
 export function createStaticCiv7CapabilityCatalog(): Civ7CapabilityCatalog {
@@ -8658,6 +8792,19 @@ function probeFieldChanged(left: Civ7RuntimeProbe<unknown> | undefined, right: C
   if (!left?.ok || !right?.ok) return false;
   if (!isRecord(left.value) || !isRecord(right.value)) return false;
   return stableJson(left.value[field]) !== stableJson(right.value[field]);
+}
+
+function locationFromUnitProbeValue(probe: Civ7RuntimeProbe<unknown> | undefined): Civ7MapLocation | null {
+  if (!probe?.ok || !isRecord(probe.value)) return null;
+  const location = probe.value.location;
+  if (!isRecord(location)) return null;
+  const x = location.x;
+  const y = location.y;
+  return typeof x === "number" && typeof y === "number" ? { x, y } : null;
+}
+
+function sameMapLocation(left: Civ7MapLocation, right: Civ7MapLocation): boolean {
+  return left.x === right.x && left.y === right.y;
 }
 
 function stableJson(value: unknown): string {
