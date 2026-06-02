@@ -44,6 +44,7 @@ import {
   prepareCiv7SinglePlayerSetup,
   parseCiv7TunerFrame,
   planCiv7MapGridReadBounds,
+  requestCiv7CultureChoiceCloseout,
   requestCiv7ProductionChoice,
   queryCiv7TunerStates,
   requestCiv7UnitOperation,
@@ -365,6 +366,39 @@ describe("Civ7 direct control", () => {
       expect(dismissalReads.length).toBeGreaterThan(2);
       expect(dismissalReads.filter((message) => message.includes('"send":true'))).toHaveLength(1);
       expect(dismissalReads.filter((message) => message.includes('"send":false')).length).toBeGreaterThan(1);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("reports culture App UI closeout sends without direct verification", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const request = await requestCiv7CultureChoiceCloseout(
+        {
+          playerId: 0,
+          node: -1404789184,
+          notificationId: { owner: 0, id: 62, type: 20 },
+        },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test culture App UI closeout" },
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request).not.toHaveProperty("verified");
+      expect(request.payload).toMatchObject({
+        notificationId: { owner: 0, id: 62, type: 20 },
+        canChoose: { ok: true, value: { Success: true } },
+        chooseResult: { ok: true, value: true },
+        canClearTarget: { ok: true, value: { Success: true } },
+        clearTargetResult: { ok: true, value: true },
+        sent: true,
+      });
+      const command = server.received.find((message) => message.includes("sendCultureChoiceCloseout")) ?? "";
+      expect(command).toContain("Game.Notifications.activate");
+      expect(command).toContain("SET_CULTURE_TREE_NODE");
+      expect(command).toContain("SET_CULTURE_TREE_TARGET_NODE");
     } finally {
       await server.close();
     }
@@ -2037,6 +2071,8 @@ async function startTunerServer(options: {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(readyUnitView())]));
         } else if (frame.message.includes("readReadyCityView")) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(readyCityView())]));
+        } else if (frame.message.includes("sendCultureChoiceCloseout")) {
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(cultureChoiceCloseout())]));
         } else if (frame.message.includes("readNotificationDismissal")) {
           const send = frame.message.includes('"send":true');
           if (send) notificationDismissalSent = true;
@@ -2691,6 +2727,34 @@ function readyCityView() {
       },
     },
     notes: ["Read-only ready-city view. This view intentionally does not choose production."],
+  };
+}
+
+function cultureChoiceCloseout() {
+  return {
+    localPlayerId: 0,
+    playerId: 0,
+    node: -1404789184,
+    notificationId: { owner: 0, id: 62, type: 20 },
+    beforeCulture: {
+      currentResearching: { ok: true, value: null },
+      targetNode: { ok: true, value: null },
+      availableNodeTypes: { ok: true, value: [-869902342, -1404789184, 1643868894] },
+    },
+    activationResult: { ok: true, value: true },
+    canChoose: { ok: true, value: { Success: true } },
+    chooseResult: { ok: true, value: true },
+    canClearTarget: { ok: true, value: { Success: true } },
+    clearTargetResult: { ok: true, value: true },
+    afterCulture: {
+      currentResearching: { ok: true, value: -1404789184 },
+      targetNode: { ok: true, value: -1 },
+      availableNodeTypes: { ok: true, value: [-869902342, -1404789184, 1643868894] },
+    },
+    sent: true,
+    notes: [
+      "This uses the App UI owner for culture chooser closeout; notification re-read remains the caller-level verifier.",
+    ],
   };
 }
 

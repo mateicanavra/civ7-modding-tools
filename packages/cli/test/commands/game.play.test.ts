@@ -1106,10 +1106,11 @@ describe('game play commands', () => {
       expect(payload.result.mode).toBe('send');
       expect(payload.result.stepCount).toBe(2);
       expect(payload.result.verified).toBe(true);
-      expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
+      expect(server.received.some((message) => message.includes('sendCultureChoiceCloseout'))).toBe(true);
+      expect(server.received.some((message) => message.includes('Game.Notifications.activate'))).toBe(true);
       expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_NODE'))).toBe(true);
       expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_TARGET_NODE'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"ProgressionTreeNodeType":-1'))).toBe(true);
+      expect(server.received.some((message) => message.includes('ProgressionTreeNodeTypes.NO_NODE'))).toBe(true);
     } finally {
       await server.close();
     }
@@ -1159,7 +1160,8 @@ describe('game play commands', () => {
       expect(payload.result.postcondition.verified).toBe(false);
       expect(payload.result.postcondition.classification).toBe('culture-choice-sticky-blocker');
       expect(payload.result.postcondition.reason).toContain('same culture choice notification still blocks');
-      expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
+      expect(server.received.some((message) => message.includes('sendCultureChoiceCloseout'))).toBe(true);
+      expect(server.received.some((message) => message.includes('Game.Notifications.activate'))).toBe(true);
       expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_NODE'))).toBe(true);
       expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_TARGET_NODE'))).toBe(true);
     } finally {
@@ -1213,7 +1215,8 @@ describe('game play commands', () => {
       expect(payload.result.postcondition.classification).toBe('culture-state-changed-blocker-still-live');
       expect(payload.result.postcondition.reason).toContain('state changed');
       expect(payload.result.postcondition.reason).toContain('still blocks');
-      expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
+      expect(server.received.some((message) => message.includes('sendCultureChoiceCloseout'))).toBe(true);
+      expect(server.received.some((message) => message.includes('Game.Notifications.activate'))).toBe(true);
       expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_NODE'))).toBe(true);
       expect(server.received.some((message) => message.includes('SET_CULTURE_TREE_TARGET_NODE'))).toBe(true);
     } finally {
@@ -4822,6 +4825,9 @@ async function startTunerServer(options: {
         } else if (frame.message.includes('sendDiplomacyResponseCloseout')) {
           diplomacyCloseoutObserved = true;
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(diplomacyResponseCloseout())]));
+        } else if (frame.message.includes('sendCultureChoiceCloseout')) {
+          cultureChoiceSent = true;
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(cultureChoiceCloseout())]));
         } else if (frame.message.includes('sendNarrativeChoice')) {
           narrativeChoiceSent = true;
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(narrativeChoicePayload(options.narrativeChoiceMode ?? 'panel-cleared'))]));
@@ -8095,6 +8101,34 @@ function diplomacyResponseCloseout() {
       },
     },
     notes: ['This follows the official response-panel path more closely than a raw player-operation send.'],
+  };
+}
+
+function cultureChoiceCloseout() {
+  return {
+    localPlayerId: 0,
+    playerId: 0,
+    node: -1404789184,
+    notificationId: { owner: 0, id: 62, type: 20 },
+    beforeCulture: {
+      currentResearching: { ok: true, value: null },
+      targetNode: { ok: true, value: null },
+      availableNodeTypes: { ok: true, value: [-869902342, -1404789184, 1643868894] },
+    },
+    activationResult: { ok: true, value: true },
+    canChoose: { ok: true, value: { Success: true } },
+    chooseResult: { ok: true, value: true },
+    canClearTarget: { ok: true, value: { Success: true } },
+    clearTargetResult: { ok: true, value: true },
+    afterCulture: {
+      currentResearching: { ok: true, value: -1404789184 },
+      targetNode: { ok: true, value: -1 },
+      availableNodeTypes: { ok: true, value: [-869902342, -1404789184, 1643868894] },
+    },
+    sent: true,
+    notes: [
+      'This uses the App UI owner for culture chooser closeout; notification re-read remains the caller-level verifier.',
+    ],
   };
 }
 
