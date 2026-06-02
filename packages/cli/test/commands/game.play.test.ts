@@ -11,7 +11,6 @@ import GamePlayBuildUnit from '../../src/commands/game/play/build-unit';
 import GamePlayBuyAttribute from '../../src/commands/game/play/buy-attribute';
 import GamePlayChangeTradition from '../../src/commands/game/play/change-tradition';
 import GamePlayCivilianRouteTriage from '../../src/commands/game/play/civilian-route-triage';
-import GamePlayChooseNarrative from '../../src/commands/game/play/choose-narrative';
 import GamePlayConsiderAttributes from '../../src/commands/game/play/consider-attributes';
 import GamePlayConsiderTownProject from '../../src/commands/game/play/consider-town-project';
 import GamePlayConsiderTraditions from '../../src/commands/game/play/consider-traditions';
@@ -440,338 +439,6 @@ describe('game play commands', () => {
       expect(server.received.some((message) => message.includes('"Type":-1907089594'))).toBe(true);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
-      await server.close();
-    }
-  });
-
-  test('wraps narrative story direction choice', async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await GamePlayChooseNarrative.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--player-id',
-        '0',
-        '--target-type',
-        'TOT_30001B',
-        '--target',
-        '{"owner":0,"id":45,"type":35}',
-        '--action',
-        '-1326475004',
-        '--json',
-      ]);
-
-      expect(server.received.some((message) => message.includes('CHOOSE_NARRATIVE_STORY_DIRECTION'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"TargetType":"TOT_30001B"'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"Target":{"owner":0,"id":45,"type":35}'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"Action":-1326475004'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test('chooses narrative direction as one native send plus UI close operation', async () => {
-    const server = await startTunerServer({ playNotificationMode: 'narrative-choice-visible-panel' });
-    const writes: string[] = [];
-    const log = vi.spyOn(GamePlayChooseNarrative.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
-    try {
-      const { port } = server.address();
-      await GamePlayChooseNarrative.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--player-id',
-        '0',
-        '--target-type',
-        'DISCOVERY_14001B',
-        '--target',
-        '{"owner":0,"id":25,"type":35}',
-        '--action',
-        '-1326475004',
-        '--send',
-        '--reason',
-        'choose production reward branch',
-        '--json',
-      ]);
-
-      const payload = JSON.parse(writes.join('')) as {
-        ok: true;
-        result: {
-          sent: boolean;
-          verified: boolean;
-          postcondition: { classification: string };
-          payload: { ui: { panelClose: unknown; popupClose: unknown } };
-        };
-      };
-      expect(payload.result.sent).toBe(true);
-      expect(payload.result.verified).toBe(true);
-      expect(payload.result.postcondition.classification).toBe('narrative-blocker-cleared');
-      expect(payload.result.payload.ui.panelClose).toEqual({ ok: true, value: { attempted: 1, results: [{ panelType: 'SMALL-NARRATIVE-EVENT', closed: true }] } });
-      expect(payload.result.payload.ui.popupClose).toEqual({ ok: true, value: { available: true } });
-      expect(server.received.some((message) => message.includes('sendNarrativeChoice'))).toBe(true);
-      expect(server.received.some((message) => message.includes('NarrativePopupManager.closePopup'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(false);
-    } finally {
-      log.mockRestore();
-      await server.close();
-    }
-  });
-
-  test('does not verify narrative sends when blocker and panel remain live', async () => {
-    const server = await startTunerServer({
-      playNotificationMode: 'narrative-choice-visible-panel',
-      narrativeChoiceMode: 'stale',
-    });
-    const writes: string[] = [];
-    const log = vi.spyOn(GamePlayChooseNarrative.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
-    try {
-      const { port } = server.address();
-      await GamePlayChooseNarrative.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--player-id',
-        '0',
-        '--target-type',
-        'DISCOVERY_14001C',
-        '--target',
-        '{"owner":0,"id":25,"type":35}',
-        '--action',
-        '-1326475004',
-        '--timeout-ms',
-        '1000',
-        '--send',
-        '--reason',
-        'choose happiness reward branch',
-        '--json',
-      ]);
-
-      const payload = JSON.parse(writes.join('')) as {
-        ok: true;
-        result: {
-          sent: boolean;
-          verified: boolean;
-          postcondition: { classification: string; reason: string };
-        };
-      };
-      expect(payload.result.sent).toBe(true);
-      expect(payload.result.verified).toBe(false);
-      expect(payload.result.postcondition.classification).toBe('no-state-change');
-      expect(payload.result.postcondition.reason).toContain('same narrative blocker remained live');
-      expect(server.received.some((message) => message.includes('sendNarrativeChoice'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(false);
-    } finally {
-      log.mockRestore();
-      await server.close();
-    }
-  });
-
-  test('does not verify narrative sends when panel closes but same blocker remains live', async () => {
-    const server = await startTunerServer({
-      playNotificationMode: 'narrative-choice-visible-panel',
-      narrativeChoiceMode: 'panel-cleared-blocker-live',
-    });
-    const writes: string[] = [];
-    const log = vi.spyOn(GamePlayChooseNarrative.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
-    try {
-      const { port } = server.address();
-      await GamePlayChooseNarrative.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--player-id',
-        '0',
-        '--target-type',
-        'DISCOVERY_14001C',
-        '--target',
-        '{"owner":0,"id":25,"type":35}',
-        '--action',
-        '-1326475004',
-        '--timeout-ms',
-        '1000',
-        '--send',
-        '--reason',
-        'choose happiness reward branch',
-        '--json',
-      ]);
-
-      const payload = JSON.parse(writes.join('')) as {
-        ok: true;
-        result: {
-          sent: boolean;
-          verified: boolean;
-          postcondition: { classification: string; reason: string };
-          payload: { ui: { after: { matchingPanelCount: number } } };
-        };
-      };
-      expect(payload.result.sent).toBe(true);
-      expect(payload.result.payload.ui.after.matchingPanelCount).toBe(0);
-      expect(payload.result.verified).toBe(false);
-      expect(payload.result.postcondition.classification).toBe('no-state-change');
-      expect(payload.result.postcondition.reason).toContain('same narrative blocker remained live');
-      expect(server.received.some((message) => message.includes('sendNarrativeChoice'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation("player-operation"'))).toBe(false);
-    } finally {
-      log.mockRestore();
-      await server.close();
-    }
-  });
-
-  test('reads narrative choice options without requiring target inputs', async () => {
-    const server = await startTunerServer({ playNotificationMode: 'narrative-choice' });
-    const writes: string[] = [];
-    const log = vi.spyOn(GamePlayChooseNarrative.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
-    try {
-      const { port } = server.address();
-      await GamePlayChooseNarrative.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--options',
-        '--json',
-      ]);
-
-      const payload = JSON.parse(writes.join('')) as {
-        ok: true;
-        result: {
-          enabledOptionCount: number;
-          disabledOptionCount: number;
-          omitted: Array<{ path: string; reason: string }>;
-          surfaces: Array<{
-            kind: string;
-            targetStoryId: { owner: number; id: number; type: number } | null;
-            enabledOptions: Array<{ targetType: string; name: string; chooseCli: string | null; validateCli: string | null }>;
-            options?: unknown;
-            disabledOptions?: unknown;
-          }>;
-          details?: unknown;
-        };
-      };
-      expect(payload.result.enabledOptionCount).toBe(1);
-      expect(payload.result.disabledOptionCount).toBe(0);
-      expect(payload.result.details).toBeUndefined();
-      expect(payload.result.surfaces[0].kind).toBe('narrative-choice-options');
-      expect(payload.result.surfaces[0].options).toBeUndefined();
-      expect(payload.result.surfaces[0].disabledOptions).toBeUndefined();
-      expect(payload.result.surfaces[0].targetStoryId).toEqual({ owner: 0, id: 45, type: 35 });
-      expect(payload.result.surfaces[0].enabledOptions[0].targetType).toBe('CLOSE');
-      expect(payload.result.surfaces[0].enabledOptions[0].chooseCli).toContain('game play choose-narrative --player-id 0 --target-type CLOSE');
-      expect(payload.result.surfaces[0].enabledOptions[0].validateCli).toContain('--action -1326475004 --json');
-      expect(payload.result.omitted.map((item) => item.path)).toContain('details[].storyLinks');
-      expect(server.received.some((message) => message.includes('readPlayNotifications'))).toBe(true);
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
-    } finally {
-      log.mockRestore();
-      await server.close();
-    }
-  });
-
-  test('reports empty narrative choices as unproven dismissal diagnostics', async () => {
-    const server = await startTunerServer({ playNotificationMode: 'narrative-choice-empty' });
-    const writes: string[] = [];
-    const log = vi.spyOn(GamePlayChooseNarrative.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
-    try {
-      const { port } = server.address();
-      await GamePlayChooseNarrative.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--options',
-        '--json',
-      ]);
-
-      const payload = JSON.parse(writes.join('')) as {
-        ok: true;
-        result: {
-          enabledOptionCount: number;
-          surfaces: Array<{
-            classification: string;
-            targetStoryId: unknown;
-            enabledOptions: unknown[];
-            dismissalDiagnosticCli: string | null;
-            unprovenDismissalCli: string | null;
-          }>;
-        };
-      };
-      expect(payload.result.enabledOptionCount).toBe(0);
-      expect(payload.result.surfaces[0].classification).toBe('narrative-choice-no-pending-story');
-      expect(payload.result.surfaces[0].targetStoryId).toBeNull();
-      expect(payload.result.surfaces[0].enabledOptions).toEqual([]);
-      expect(payload.result.surfaces[0].dismissalDiagnosticCli).toBe(
-        'game play dismiss-notification --target \'{"owner":0,"id":5,"type":20}\' --json',
-      );
-      expect(payload.result.surfaces[0].unprovenDismissalCli).toBe(
-        'game play dismiss-notification --target \'{"owner":0,"id":5,"type":20}\' --send --reason \'<reviewed: narrative notification has no pending story>\'',
-      );
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
-    } finally {
-      log.mockRestore();
-      await server.close();
-    }
-  });
-
-  test('reads visible narrative panel options when story model pending ids are empty', async () => {
-    const server = await startTunerServer({ playNotificationMode: 'narrative-choice-visible-panel' });
-    const writes: string[] = [];
-    const log = vi.spyOn(GamePlayChooseNarrative.prototype, 'log').mockImplementation((message?: string) => {
-      if (message) writes.push(message);
-    });
-    try {
-      const { port } = server.address();
-      await GamePlayChooseNarrative.run([
-        '--host',
-        '127.0.0.1',
-        '--port',
-        String(port),
-        '--options',
-        '--json',
-      ]);
-
-      const payload = JSON.parse(writes.join('')) as {
-        ok: true;
-        result: {
-          enabledOptionCount: number;
-          surfaces: Array<{
-            classification: string;
-            targetStoryId: unknown;
-            visiblePanelTargetStoryId: { owner: number; id: number; type: number } | null;
-            enabledOptions: Array<{ targetType: string; target: { owner: number; id: number; type: number }; chooseCli: string | null }>;
-            dismissalDiagnosticCli: string | null;
-          }>;
-        };
-      };
-      expect(payload.result.enabledOptionCount).toBe(2);
-      expect(payload.result.surfaces[0].classification).toBe('narrative-choice-options');
-      expect(payload.result.surfaces[0].targetStoryId).toBeNull();
-      expect(payload.result.surfaces[0].visiblePanelTargetStoryId).toEqual({ owner: 0, id: 25, type: 35 });
-      expect(payload.result.surfaces[0].enabledOptions.map((option) => option.targetType)).toEqual([
-        'DISCOVERY_14001B',
-        'DISCOVERY_14001C',
-      ]);
-      expect(payload.result.surfaces[0].enabledOptions[0].chooseCli).toContain("--target '{\"owner\":0,\"id\":25,\"type\":35}'");
-      expect(payload.result.surfaces[0].dismissalDiagnosticCli).toBeNull();
-      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
-    } finally {
-      log.mockRestore();
       await server.close();
     }
   });
@@ -4023,12 +3690,10 @@ async function startTunerServer(options: {
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
   notificationDismissalMode?: 'verified' | 'stale-nonblocking' | 'engine-front-train-absent' | 'engine-front-dismissed';
   productionPostconditionMode?: 'cleared' | 'blocker-still-live';
-  narrativeChoiceMode?: 'panel-cleared' | 'panel-cleared-blocker-live' | 'stale';
 } = {}) {
   const received: string[] = [];
   let turnCompleteSent = false;
   let unitTargetSendObserved = false;
-  let narrativeChoiceSent = false;
   let diplomacyCloseoutObserved = false;
   let notificationDismissalSent = false;
   let productionChoiceSent = false;
@@ -4044,21 +3709,13 @@ async function startTunerServer(options: {
         if (frame.message === 'LSQ:') {
           socket.write(encodeResponse(frame.listenerId, ['65535', 'App UI', '1', 'Tuner']));
         } else if (frame.message.includes('readPlayNotifications')) {
-          const playMode = options.playNotificationMode === 'narrative-choice-visible-panel'
-            && narrativeChoiceSent
-            && (options.narrativeChoiceMode ?? 'panel-cleared') === 'panel-cleared'
-            ? 'ready-unit'
-            : options.playNotificationMode;
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(playNotificationView(
-            playMode,
+            options.playNotificationMode,
             diplomacyCloseoutObserved,
           ))]));
         } else if (frame.message.includes('sendDiplomacyResponseCloseout')) {
           diplomacyCloseoutObserved = true;
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(diplomacyResponseCloseout())]));
-        } else if (frame.message.includes('sendNarrativeChoice')) {
-          narrativeChoiceSent = true;
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(narrativeChoicePayload(options.narrativeChoiceMode ?? 'panel-cleared'))]));
         } else if (frame.message.includes('DiplomacyPlayerFirstMeets')) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify({
             key: 'PLAYER_REALATIONSHIP_FIRSTMEET_NEUTRAL',
@@ -7424,63 +7081,6 @@ function diplomacyResponseCloseout() {
   };
 }
 
-function narrativeChoicePayload(mode: 'panel-cleared' | 'panel-cleared-blocker-live' | 'stale' = 'panel-cleared') {
-  const target = { owner: 0, id: 25, type: 35 };
-  const beforePanel = {
-    panelCount: 1,
-    panels: [
-      {
-        panelType: 'SMALL-NARRATIVE-EVENT',
-        componentType: 'SmallNarrativeEvent',
-        targetStoryId: target,
-        storyType: 'DISCOVERY',
-        choiceKeys: ['DISCOVERY_14001B', 'DISCOVERY_14001C'],
-      },
-    ],
-    matchingPanelCount: 1,
-    matchingPanels: [
-      {
-        panelType: 'SMALL-NARRATIVE-EVENT',
-        componentType: 'SmallNarrativeEvent',
-        targetStoryId: target,
-        storyType: 'DISCOVERY',
-        choiceKeys: ['DISCOVERY_14001B', 'DISCOVERY_14001C'],
-      },
-    ],
-    popupShowing: { ok: true, value: true },
-    currentNarrativeData: { ok: true, value: { storyID: 25, type: 2, playerID: 0 } },
-  };
-  const afterPanel = mode === 'stale'
-    ? beforePanel
-    : {
-        panelCount: 0,
-        panels: [],
-        matchingPanelCount: 0,
-        matchingPanels: [],
-        popupShowing: { ok: true, value: false },
-        currentNarrativeData: { ok: true, value: null },
-      };
-  return {
-    localPlayerId: 0,
-    playerId: 0,
-    args: { TargetType: 'DISCOVERY_14001B', Target: target, Action: -1326475004 },
-    canStart: { ok: true, value: { Success: true } },
-    sent: true,
-    sendResult: { ok: true, value: true },
-    ui: {
-      before: beforePanel,
-      after: afterPanel,
-      panelClose: mode === 'stale'
-        ? { ok: true, value: { attempted: 1, results: [{ panelType: 'SMALL-NARRATIVE-EVENT', closed: false }] } }
-        : { ok: true, value: { attempted: 1, results: [{ panelType: 'SMALL-NARRATIVE-EVENT', closed: true }] } },
-      popupClose: { ok: true, value: { available: true } },
-    },
-    notes: [
-      'This mirrors the official narrative button handler: CHOOSE_NARRATIVE_STORY_DIRECTION, NarrativePopupManager.closePopup, and visible narrative panel close.',
-    ],
-  };
-}
-
 function turnCompletionStatus(sent: boolean, canEndTurnBefore = true) {
   return {
     host: '127.0.0.1',
@@ -7655,13 +7255,6 @@ function operationArgs(operationType: string, message = '') {
   if (operationType === 'CHANGE_GOVERNMENT') return { GovernmentType: 0, Action: -1326475004 };
   if (operationType === 'RESPOND_DIPLOMATIC_ACTION') return { ID: 56, Type: -1907089594 };
   if (operationType === 'RESPOND_DIPLOMATIC_FIRST_MEET') return { Player1: 0, Player2: 2, Type: 673478009 };
-  if (operationType === 'CHOOSE_NARRATIVE_STORY_DIRECTION') {
-    return {
-      TargetType: 'TOT_30001B',
-      Target: { owner: 0, id: 45, type: 35 },
-      Action: -1326475004,
-    };
-  }
   if (operationType === 'BUY_ATTRIBUTE_TREE_NODE') return { ProgressionTreeNodeType: 20 };
   if (operationType === 'CHANGE_TRADITION') return { TraditionType: -331546976, Action: -1326475004 };
   if (operationType === 'CONSIDER_ASSIGN_ATTRIBUTE') return {};
