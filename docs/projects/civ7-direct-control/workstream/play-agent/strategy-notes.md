@@ -1,11 +1,53 @@
 # Play-Agent Strategic Advisory Notes (Active Loop Ledger)
 
-Date: 2026-06-02  
-Parent frame: `play-agent-output-contract.md`  
+Date: 2026-06-02
+Parent frame: `output-contract.md`
 Scope: tactical + strategic planning support for the active Civ7 AI play thread.
-Frame anchor: [play-agent-output-contract.md](/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/docs/projects/civ7-direct-control/workstream/play-agent-output-contract.md)
+Frame anchor: [output-contract.md](/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/docs/projects/civ7-direct-control/workstream/play-agent/output-contract.md)
 
 Status: **Live thread data captured, turn-window baseline established.**
+
+## Live update (Turn 3 / 3950 BCE, stale COMMAND_UNITS repair)
+
+- `civ7 game play notifications --json`, `notification-queue --json`, and `priorities --compact --json` now show `NOTIFICATION_COMMAND_UNITS` (`id 0`) as stale-expired hard blocker with null ready pointers.
+- `selectedUnitId`, `firstReadyUnitId`, `ready-unit`, and `ready-city` are all null/no-payload on this window.
+- Execution posture for this window: one validated command repair send (`game play end-turn --send --reason "stale COMMAND_UNITS has no selected/ready unit and no enabled validator-backed unit closeout"`) then immediate re-read chain.
+- Player-facing relay format for this window:
+  - `Turn 3 / 3950 BCE | hard blocker: COMMAND_UNITS stale-expired (id 0), null ready pointers | send one validated stale-repair end-turn closeout now + immediate notifications->queue->priorities->ready-unit->ready-city re-read | defer city/tech branches until concrete queue head returns | Medium`
+
+## Live update (Turn 4 / 3925 BCE, blocking discovery lane)
+
+- `civ7 game play notifications --json`, `notification-queue --json`, and `priorities --compact --json` now show `NOTIFICATION_CHOOSE_DISCOVERY_STORY_DIRECTION` (`id 4`) as single hard queue head with no concrete ready-unit/city payload.
+- `selectedUnitId`, `firstReadyUnitId`, `ready-unit`, and `ready-city` are all null/no-payload.
+- `notifications` exposes a handler-driven blocking posture (`category: blocking-notification`) with no in-view specialized shortcut.
+- Execution posture for this window: hold and inspect handler evidence first; execute only an explicit handler-backed closeout command/path after payload appears, then immediate re-read chain.
+- Player-facing relay format for this window:
+- Turn 4 / 3925 BCE | hard blocker: CHOOSE_DISCOVERY_STORY_DIRECTION (id 4), no concrete unit/city payload | hold and inspect blocking notification handler before any mutating action | re-read notifications -> queue -> priorities -> ready-unit -> ready-city after handler closeout | Medium
+
+## Live update (Turn 4 / 3925 BCE, recheck persistence)
+
+- Recheck confirms unchanged hard lock state: `NOTIFICATION_CHOOSE_DISCOVERY_STORY_DIRECTION` (`id 4`) still blocks, with no concrete `ready-unit`/`ready-city` payload.
+- `selectedUnitId`, `firstReadyUnitId` remain `null`; `canEndTurn` is still `false`.
+- Updated command posture:
+  - continue `handler-evidence` mode only,
+  - do not commit any unit/city/tech branch on this read,
+  - request explicit handler confirmation before closeout attempt and then re-read entire control chain.
+- 10–20 turn framing impact:
+  - Turns 4–8: hold and re-validate only.
+  - Turns 9–14: branch tests only if two clean reads show concrete queue + payload.
+  - Turns 15–20: full lane commitment only if handler-backed discovery closeout is exposed and remains stable.
+
+### Turn Notes (append here only when new game thread data arrives)
+
+- `Turn 4` | `Discovery blocker still hard and unresolved on recheck` | `Keep one clean hold cycle and handler evidence inspection; no branching` | `No explicit closeout command was exposed on repeated read` | `Medium` | `If posture still repeats next read, request explicit blocker confirmation before any speculative closeout`
+- `Turn 4` | `Discovery blocker still hard and unresolved on consecutive recheck #3` | `Hold handler-led evidence loop and escalate to explicit closeout confirmation` | `No concrete queue movement/payload after repeated rechecks` | `Medium` | `If handler confirmation does not appear, keep parity-watch hold until the active player confirms a safe closeout`
+- `Turn 4` | `Discovery lock persists on repeat recheck #4 with no payload` | `Continue parity-watch hold and do not open lane branches` | `No closeout command has been exposed for handler-safe execution` | `Medium` | `If still unresolved after next window, request a direct handler verification before any action`
+
+## Multi-turn advisory update (continuous lane plan)
+
+- `Turns 4–10`: do not branch; only revalidate blocker/ready state each read and keep handler-confirmation posture.
+- `Turns 11–14`: if two clean reads expose concrete handler-backed discovery closeout, test one follow-on closeout only.
+- `Turns 15–20`: commit one consistent lane (growth-first vs early pressure) only after sustained non-null queue + payload stability; otherwise remain in recovery hold.
 
 ## Active player message (first advisory)
 
@@ -118,6 +160,8 @@ can compare apples to apples.
 ### Turn Notes (append here only when new game thread data arrives)
 
 - `Turn 19` | `No visible turn/hash progression on recheck` | `Hold blocker-clear order and do not over-extend`; keep one validated action once blockers are cleared | `Notification accessor drift and 1-city fragility` | `Medium` | `Requery every 3-6 turns; if blockers remain >2 turns, shift to one-window reframe before commits`
+- `Turn 3` | `Stale COMMAND_UNITS lock at queue head, with null ready-unit and no city payload` | `Execute one explicit end-turn repair command with stale-command reason; re-read full loop immediately` | `Any unit/city branch is blind in this null-ready posture` | `Medium` | `Continue two-clean-read confirmation, and hold if stale posture repeats`
+- `Turn 4` | `Blocking notification CHOOSE_DISCOVERY_STORY_DIRECTION is hard queue head with no ready payload` | `Hold and inspect blocking-handler evidence, then execute only concrete handler closeout before branching` | `No handler-level unit/city command exists yet, so speculative branches would be blind` | `Medium` | `If payload remains absent after one more clean read, request explicit blocker-confirmation review before any lane branch`
 
 - `Turn 19 (Tuner verification)` | `Open blockers unchanged across two snapshots; no turn progression` | `Sequence blockers in locked order: choose civic → choose production → social policy → command unit; then resume outward scouting` | `Turn remains in forced setup debt with low tempo buffer` | `Medium-low (notification API is Tuner-only in this run)` | `If no progress after next 2 windows, pause map pressure and force one production lock per turn`
 - `Turn 19 (stability check)` | `Tuner signals still unchanged and no hash/turn movement` | `Keep one blocker per decision cycle: Civic -> Production -> Social Policy -> Units` | `Forced opener is still debt-heavy` | `Medium-low (no advancement and Game.Notifications queue unchanged)` | `Requery after 3 more windows; pivot to one-window risk-control plan if still static`
@@ -546,7 +590,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append here only when new game thread data arrives)
 
-- `Turn 20` | `No state movement this cycle and Command Units still the only hard gate` | `Hold a single unblock action loop: resolve `Command Units`, then immediately re-probe blockers and confirm no hidden UI blocker root mismatch` | `The blocker queue has become simple enough to run one disciplined clear-and-reprobe cycle every 1-3 turns` | `Medium` | `If Command Units remains blocked after a clean replay-safe clear attempt, pause and request direct UI confirmation for blocker state before any expansion` 
+- `Turn 20` | `No state movement this cycle and Command Units still the only hard gate` | `Hold a single unblock action loop: resolve `Command Units`, then immediately re-probe blockers and confirm no hidden UI blocker root mismatch` | `The blocker queue has become simple enough to run one disciplined clear-and-reprobe cycle every 1-3 turns` | `Medium` | `If Command Units remains blocked after a clean replay-safe clear attempt, pause and request direct UI confirmation for blocker state before any expansion`
 
 ### 10-20 Turn Strategic Pivot (Window A -> B Transition Checkpoint)
 
@@ -1140,7 +1184,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append here only when new game thread data arrives)
 
-- `Turn 22` | `Single hard gate persists after topology churn and partial turn advancement` | `Now run the gate-clear cycle immediately around `Command Units`; re-probe every 1-2 turns because runtime UI/date divergence is present` | `The game appears to have advanced in Tuner, but UI lag is masking it; only validated unblock path should be trusted` | `Medium` | `If `Command Units` clears, confirm with an additional Tuner revalidation and then enter controlled Window B execution lane sequencing` 
+- `Turn 22` | `Single hard gate persists after topology churn and partial turn advancement` | `Now run the gate-clear cycle immediately around `Command Units`; re-probe every 1-2 turns because runtime UI/date divergence is present` | `The game appears to have advanced in Tuner, but UI lag is masking it; only validated unblock path should be trusted` | `Medium` | `If `Command Units` clears, confirm with an additional Tuner revalidation and then enter controlled Window B execution lane sequencing`
 
 ### 10-20 Turn Strategic Pivot (Window B lock-to-release)
 
@@ -1231,7 +1275,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append here only when new game thread data arrives)
 
-- `Turn 22` | `Sustained stability without release` | `Hold the command-gate loop only; no non-gate expansion or production branches yet` | `The same lock remains the highest-certainty control constraint` | `Medium` | `If no blocker change after this revalidation, maintain strict two-step check (re-probe + optional UI confirmation if command action is ambiguous) before any branching` 
+- `Turn 22` | `Sustained stability without release` | `Hold the command-gate loop only; no non-gate expansion or production branches yet` | `The same lock remains the highest-certainty control constraint` | `Medium` | `If no blocker change after this revalidation, maintain strict two-step check (re-probe + optional UI confirmation if command action is ambiguous) before any branching`
 
 ### Snapshot: Turn 22 (Tuner revalidation #54)
 
@@ -1269,7 +1313,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append here only when new game thread data arrives)
 
-- `Turn 23` | `Turn and blocker topology advanced into new id set` | `Keep strict `Command Units` clear + immediate re-probe loop` | `The unlock condition is unchanged (`Command Units` still hard blocking); tactical branches remain premature` | `Medium` | `If `Command Units` remains unresolved after this cycle, maintain UI confirmation on command completion before any non-gate expansion` 
+- `Turn 23` | `Turn and blocker topology advanced into new id set` | `Keep strict `Command Units` clear + immediate re-probe loop` | `The unlock condition is unchanged (`Command Units` still hard blocking); tactical branches remain premature` | `Medium` | `If `Command Units` remains unresolved after this cycle, maintain UI confirmation on command completion before any non-gate expansion`
 
 ### 10-20 Turn Framing Update (Window B→C transition check)
 
@@ -1295,7 +1339,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append here only when new game thread data arrives)
 
-- `Turn 23` | `Hold persists into #56` | `Keep strict `Command Units` clear + immediate re-probe only` | `No unlock yet; command-stage latency remains the only meaningful constraint` | `Medium` | `If repeated holds continue, request confirmation that `Command Units` action has truly drained before trying any non-gate branch` 
+- `Turn 23` | `Hold persists into #56` | `Keep strict `Command Units` clear + immediate re-probe only` | `No unlock yet; command-stage latency remains the only meaningful constraint` | `Medium` | `If repeated holds continue, request confirmation that `Command Units` action has truly drained before trying any non-gate branch`
 
 ### Snapshot: Turn 23 (Tuner revalidation #57)
 
@@ -1313,7 +1357,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append here only when new game thread data arrives)
 
-- `Turn 23` | `Root signal corrected while gate remains active` | `Continue strict `Command Units` clear + immediate re-probe loop; no non-gate branching yet` | `The blocking constraint is unchanged, but visibility on the blocker root improved` | `Medium` | `Treat this as signal hygiene and proceed with one command-clear attempt only, then confirm post-action in next revalidation` 
+- `Turn 23` | `Root signal corrected while gate remains active` | `Continue strict `Command Units` clear + immediate re-probe loop; no non-gate branching yet` | `The blocking constraint is unchanged, but visibility on the blocker root improved` | `Medium` | `Treat this as signal hygiene and proceed with one command-clear attempt only, then confirm post-action in next revalidation`
 
 ### Snapshot: Turn 23 (Tuner revalidation #58)
 
@@ -1331,7 +1375,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append here only when new game thread data arrives)
 
-- `Turn 23` | `Another checkpoint confirms single-gate hold` | `Keep one explicit `Command Units` clear + immediate re-probe; do not expand non-gate actions` | `The interaction gate remains the only high-confidence control constraint` | `Medium` | `If this persists, perform a final confirmation of command completion and then proceed only when `Command Units` has drained` 
+- `Turn 23` | `Another checkpoint confirms single-gate hold` | `Keep one explicit `Command Units` clear + immediate re-probe; do not expand non-gate actions` | `The interaction gate remains the only high-confidence control constraint` | `Medium` | `If this persists, perform a final confirmation of command completion and then proceed only when `Command Units` has drained`
 
 ### Snapshot: Turn 23 (Tuner revalidation #59)
 
@@ -1349,7 +1393,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append here only when new game thread data arrives)
 
-- `Turn 23` | `Persistent command-gate lock continues` | `Hold strict `Command Units` clear + immediate re-probe sequence only` | `No progression or topology change, so non-gate sequencing remains high-variance` | `Medium` | `If this persists through next 2 checkpoints, request explicit confirmation that the command path has cleared before any branching` 
+- `Turn 23` | `Persistent command-gate lock continues` | `Hold strict `Command Units` clear + immediate re-probe sequence only` | `No progression or topology change, so non-gate sequencing remains high-variance` | `Medium` | `If this persists through next 2 checkpoints, request explicit confirmation that the command path has cleared before any branching`
 
 ### Snapshot: Turn 24 (Tuner revalidation #60)
 
@@ -1373,7 +1417,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append for player thread)
 
-- `Turn 24` | `Turn 24 with new blocker topology: 3 hard gates persist` | `Resolve `Command Units` and both `Respond to Diplomatic Action` blockers first, then immediate re-probe; then test only one production/scout branch per turn` | `The unlock frontier is now a small diplomacy-command cluster, not yet a production/military decision window` | `Medium` | `If 87/88 persist after two revalidations, request direct UI confirmation that diplomatic response commands are actually selectable before branching` 
+- `Turn 24` | `Turn 24 with new blocker topology: 3 hard gates persist` | `Resolve `Command Units` and both `Respond to Diplomatic Action` blockers first, then immediate re-probe; then test only one production/scout branch per turn` | `The unlock frontier is now a small diplomacy-command cluster, not yet a production/military decision window` | `Medium` | `If 87/88 persist after two revalidations, request direct UI confirmation that diplomatic response commands are actually selectable before branching`
 
 ### Multi-turn strategic framing update (turn 24)
 
@@ -1433,7 +1477,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append for player thread)
 
-- `Turn 24` | `Two-gate blocker lock is stable through revalidation #62` | `Keep strict 1-at-a-time resolve loop: `Choose Production` first or `Command Units` if UI exposes it as cheaper path, then recheck` | `Repeated confirmation means this is a structural setup gate, not noise` | `Medium` | `If this exact pair persists for two more checkpoints, request explicit UI confirmation before any speculative action` 
+- `Turn 24` | `Two-gate blocker lock is stable through revalidation #62` | `Keep strict 1-at-a-time resolve loop: `Choose Production` first or `Command Units` if UI exposes it as cheaper path, then recheck` | `Repeated confirmation means this is a structural setup gate, not noise` | `Medium` | `If this exact pair persists for two more checkpoints, request explicit UI confirmation before any speculative action`
 
 ### 10–20 Turn Handoff Adjustment
 
@@ -1459,7 +1503,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append for player thread)
 
-- `Turn 24` | `No movement at revalidation #63` | `Hold strict two-gate cleanup: one validated action + one re-probe only` | `Three checks in a row show the same setup block; speculative actions still unsafe` | `Medium` | `If this exact pair holds for 2 more checkpoints, request explicit UI-level confirmation for both remaining actions before changing play lane` 
+- `Turn 24` | `No movement at revalidation #63` | `Hold strict two-gate cleanup: one validated action + one re-probe only` | `Three checks in a row show the same setup block; speculative actions still unsafe` | `Medium` | `If this exact pair holds for 2 more checkpoints, request explicit UI-level confirmation for both remaining actions before changing play lane`
 
 ### 10–20 Turn Framing Note
 
@@ -1484,7 +1528,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append for player thread)
 
-- `Turn 24` | `Revalidation #64 confirms a hard two-gate hold` | `Continue strict one-action, one-reprobe loop and avoid speculative non-gate sequencing` | `Four checks with no topology movement indicate structural lock, not transient UI drift` | `Medium` | `If the same gate set holds on #65 and #66, escalate with explicit UI confirmation and do not widen lane commitments until both hard blockers are cleared` 
+- `Turn 24` | `Revalidation #64 confirms a hard two-gate hold` | `Continue strict one-action, one-reprobe loop and avoid speculative non-gate sequencing` | `Four checks with no topology movement indicate structural lock, not transient UI drift` | `Medium` | `If the same gate set holds on #65 and #66, escalate with explicit UI confirmation and do not widen lane commitments until both hard blockers are cleared`
 
 ### 10–20 Turn Continuation (no-go lane rule)
 
@@ -1509,7 +1553,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append for player thread)
 
-- `Turn 24` | `Revalidation #65 is another clean hold` | `Hold strict two-gate cleanup with one validated command and immediate re-probe` | `The queue has stabilized into a structural sequencing lock; expanding scope now carries high non-recoverable risk` | `Medium` | `If this hold repeats on two more checkpoints, pause non-gate planning and require explicit player-level confirmation of both action pathways before any lane expansion` 
+- `Turn 24` | `Revalidation #65 is another clean hold` | `Hold strict two-gate cleanup with one validated command and immediate re-probe` | `The queue has stabilized into a structural sequencing lock; expanding scope now carries high non-recoverable risk` | `Medium` | `If this hold repeats on two more checkpoints, pause non-gate planning and require explicit player-level confirmation of both action pathways before any lane expansion`
 
 ### 10–20 Turn Continuation (stability trigger)
 
@@ -1536,7 +1580,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append for player thread)
 
-- `Turn 24` | `Revalidation #66 confirms continued hard hold` | `Stick to a tight blocker-clear cadence (1 valid action, 1 re-probe) and no branch actions` | `Five consecutive stable checks without any gate resolution implies durable sequencing lock` | `Medium` | `If this persists through #67 and #68, request explicit UI-level confirmation and do not shift from unblock lane until both hard blockers clear twice in a row` 
+- `Turn 24` | `Revalidation #66 confirms continued hard hold` | `Stick to a tight blocker-clear cadence (1 valid action, 1 re-probe) and no branch actions` | `Five consecutive stable checks without any gate resolution implies durable sequencing lock` | `Medium` | `If this persists through #67 and #68, request explicit UI-level confirmation and do not shift from unblock lane until both hard blockers clear twice in a row`
 
 ### 10–20 Turn Strategic Continuation
 
@@ -1559,7 +1603,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append for player thread)
 
-- `Turn 24` | `Revalidation #67 confirms six consecutive holds` | `No new blockers and no turn movement; keep blocker-cleanup-only mode` | `Persistently structural lock; lane expansion now strongly discouraged` | `Medium` | `If this holds through #68 and #69, escalate by requesting explicit UI validation that both hard blockers are truly actionable before any branching` 
+- `Turn 24` | `Revalidation #67 confirms six consecutive holds` | `No new blockers and no turn movement; keep blocker-cleanup-only mode` | `Persistently structural lock; lane expansion now strongly discouraged` | `Medium` | `If this holds through #68 and #69, escalate by requesting explicit UI validation that both hard blockers are truly actionable before any branching`
 
 ### 10–20 Turn Strategic Continuation (durable-lock protocol)
 
@@ -1583,7 +1627,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append for player thread)
 
-- `Turn 24` | `Revalidation #68 confirms prolonged structural hold` | `Maintain one-action cleanup lane only; keep one re-probe and no branch expansion` | `The same two hard blockers are still present after prolonged no-move window` | `Medium` | `If #69 and #70 remain identical, request explicit UI confirmation of both blocker resolutions before relaxing constraints` 
+- `Turn 24` | `Revalidation #68 confirms prolonged structural hold` | `Maintain one-action cleanup lane only; keep one re-probe and no branch expansion` | `The same two hard blockers are still present after prolonged no-move window` | `Medium` | `If #69 and #70 remain identical, request explicit UI confirmation of both blocker resolutions before relaxing constraints`
 
 ### 10–20 Turn Strategic Continuation (high-confidence hold)
 
@@ -1606,7 +1650,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append for player thread)
 
-- `Turn 24` | `Revalidation #69 confirms sustained dual-block hold` | `Keep strict unblock-only cadence: one validated action, one re-probe; no branch actions` | `A seven-check hold suggests the lock is durable, not transient` | `Medium` | `If this holds through #70 and #71, require explicit UI-level confirmation on blocker resolution sequence before any non-gate plans` 
+- `Turn 24` | `Revalidation #69 confirms sustained dual-block hold` | `Keep strict unblock-only cadence: one validated action, one re-probe; no branch actions` | `A seven-check hold suggests the lock is durable, not transient` | `Medium` | `If this holds through #70 and #71, require explicit UI-level confirmation on blocker resolution sequence before any non-gate plans`
 
 ### 10–20 Turn Strategic Continuation (durable hold protocol)
 
@@ -1629,7 +1673,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append for player thread)
 
-- `Turn 24` | `Revalidation #70 confirms durable hold` | `Keep strict one-action cleanup lane; do not branch` | `Eight checks with identical topology indicate durable sequencing bottleneck` | `Medium` | `If #71 and #72 remain unchanged, pause all non-gate planning and require explicit UI confirmation before expanding decision scope` 
+- `Turn 24` | `Revalidation #70 confirms durable hold` | `Keep strict one-action cleanup lane; do not branch` | `Eight checks with identical topology indicate durable sequencing bottleneck` | `Medium` | `If #71 and #72 remain unchanged, pause all non-gate planning and require explicit UI confirmation before expanding decision scope`
 
 ### 10–20 Turn Strategic Continuation (lock persistence)
 
@@ -1652,7 +1696,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append for player thread)
 
-- `Turn 24` | `Revalidation #71 confirms sustained dual-block hold` | `Continue strict unblock-only cadence: one valid action + one re-probe` | `Nine checks with identical hard blockers still active means expansion remains high-risk` | `Medium` | `If this persists on #72 and #73, explicitly confirm blocker pathways in UI before changing priorities` 
+- `Turn 24` | `Revalidation #71 confirms sustained dual-block hold` | `Continue strict unblock-only cadence: one valid action + one re-probe` | `Nine checks with identical hard blockers still active means expansion remains high-risk` | `Medium` | `If this persists on #72 and #73, explicitly confirm blocker pathways in UI before changing priorities`
 
 ### 10–20 Turn Strategic Continuation
 
@@ -3328,7 +3372,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append for player thread)
 
-- `Turn 29` | `Ninth consecutive unchanged revalidation in the same two-gate lock` | `Keep a hard lock execution loop only: one gate attempt at a time with immediate checkpointing (`Command Units` first, then `Social Policies Available` if first clears)` | `After repeated checks, speculative actions only increase deadlock risk and opportunity cost` | `Medium` | `If either gate still unmoved by next checkpoint, suspend all non-gate attempts and complete a gate-by-gate actionability drill before resuming play` 
+- `Turn 29` | `Ninth consecutive unchanged revalidation in the same two-gate lock` | `Keep a hard lock execution loop only: one gate attempt at a time with immediate checkpointing (`Command Units` first, then `Social Policies Available` if first clears)` | `After repeated checks, speculative actions only increase deadlock risk and opportunity cost` | `Medium` | `If either gate still unmoved by next checkpoint, suspend all non-gate attempts and complete a gate-by-gate actionability drill before resuming play`
 
 ### 10–20 Turn Strategic Continuation (lock-constrained execution)
 
@@ -3482,7 +3526,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append for player thread)
 
-- `Turn 29` | `Lock narrowed to one remaining hard gate` | `Shift to single-lane unlock: validate + execute `Command Units` and re-probe immediately` | `The game is now one-step away from exiting lock and reactivating broader 10–20 planning` | `Medium` | `If `Command Units` is still blocked by UI path on the next attempt, perform one focused actionability drill on that gate before resuming scouting` 
+- `Turn 29` | `Lock narrowed to one remaining hard gate` | `Shift to single-lane unlock: validate + execute `Command Units` and re-probe immediately` | `The game is now one-step away from exiting lock and reactivating broader 10–20 planning` | `Medium` | `If `Command Units` is still blocked by UI path on the next attempt, perform one focused actionability drill on that gate before resuming scouting`
 
 ### 10–20 Turn Strategic Continuation (unlock release phase)
 
@@ -3506,7 +3550,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append for player thread)
 
-- `Turn 29` | `Single-gate lock persisted one more cycle` | `Keep to a one-action loop focused on clearing `Command Units`, then immediate checkpoint` | `The risk now is actionability friction, not gate branching complexity` | `Medium` | `If the gate remains unchanged, run one explicit `Command Units` actionability validation pass and only then decide whether to broaden` 
+- `Turn 29` | `Single-gate lock persisted one more cycle` | `Keep to a one-action loop focused on clearing `Command Units`, then immediate checkpoint` | `The risk now is actionability friction, not gate branching complexity` | `Medium` | `If the gate remains unchanged, run one explicit `Command Units` actionability validation pass and only then decide whether to broaden`
 
 ### 10–20 Turn Strategic Continuation (single-gate execution)
 
@@ -3827,7 +3871,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append for player thread)
 
-- `Turn 36` | `Critical unlock shift: command lane is now actionable` | `Execute one legal unit action (e.g., SKIP_TURN or equivalent valid command unit) then immediately recheck `END_TURN` and watch blockers` | `Lock edge was valid but open; the game is giving an explicit command-units signal and success on the probe` | `High` | `Do not skip the revalidation step: one successful unit command here likely gates subsequent turn progression` 
+- `Turn 36` | `Critical unlock shift: command lane is now actionable` | `Execute one legal unit action (e.g., SKIP_TURN or equivalent valid command unit) then immediately recheck `END_TURN` and watch blockers` | `Lock edge was valid but open; the game is giving an explicit command-units signal and success on the probe` | `High` | `Do not skip the revalidation step: one successful unit command here likely gates subsequent turn progression`
 
 ### 10–20 Turn Strategic Continuation (unlock transition protocol)
 
@@ -3859,7 +3903,7 @@ From now on, send one message per turn window when data lands:
 
 ### Turn Notes (append for player thread)
 
-- `Turn 36` | `Unlock has become operational, not closed` | `Perform one legal command-unit action only (SKIP_TURN or equivalent), then re-run `watch` and `END_TURN` immediately` | `The gate indicator and legal ops count now confirm the blocker is a command workflow step rather than a hard deadlock` | `High` | `Do not attempt broad branch planning yet: finish the unit-action loop to generate the next transition signal before scouting or expansion` 
+- `Turn 36` | `Unlock has become operational, not closed` | `Perform one legal command-unit action only (SKIP_TURN or equivalent), then re-run `watch` and `END_TURN` immediately` | `The gate indicator and legal ops count now confirm the blocker is a command workflow step rather than a hard deadlock` | `High` | `Do not attempt broad branch planning yet: finish the unit-action loop to generate the next transition signal before scouting or expansion`
 
 ### 10–20 Turn Strategic Continuation (gated unlock execution)
 
@@ -4607,3 +4651,2342 @@ No game-state progression can be validated yet; continue lock-recovery posture.
 - On first successful read, run: `rehydrate -> notifications -> notification-queue -> ready-unit --unit-id 131072 -> priorities`.
 - Clear the narrative branch if actionable, then immediately close culture/tradition blockers before tactical tempo calls.
 - Only after two consecutive stable reads post-unlock should mid-horizon expansion/force projection resume.
+## Snapshot: Turn 1 Re-grounding (4000 BCE) — Socket Recovery Pass #180
+
+- Reconnect succeeded after prolonged outage.
+- Game is currently at `turn 1`, `turnDate 4000 BCE`, `firstReadyUnitId: null`, `selectedUnitId: null`, `canEndTurn: false`.
+- Blocking queue still exposes:
+  - `NOTIFICATION_COMMAND_UNITS` (expired/stale): `id 0` (hard block)
+  - `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (non-blocking): `id 1` at city `id 65536`
+- `ready-unit --json` and `ready-city --json` are both empty/none with no legal operations.
+- `notification-queue` confirms stale `COMMAND_UNITS` as step-1 and production as step-2.
+- `priorities` classifies top priority as `hud:unit-command-stale-expired` with explicit repair candidate:
+  - `game play end-turn --send --reason '<stale COMMAND_UNITS has no selected/ready unit and no enabled validator-backed unit closeout>' --json`
+- `unit-target` probe at `{- `unit-target` probe on unit id `{"owner":0,"id":2,"type":26}` at `(0,0)` returned only invalid candidate actions (no movement/attack legal), `unitChanged=false`, and did not mutate state.
+
+### Strategic advisor note (first live horizon update after reconnect)
+- This looks like a UI/state desync mode where command lock remains on stale unit-command data with no executable closeout candidates.
+- Recommended immediate move sequence (non-spam, non-speculative):
+  1) send the stale repair closeout once: `game play end-turn --send --reason "stale COMMAND_UNITS has no selected/ready unit and no enabled validator-backed unit closeout"`
+  2) re-read `notifications -> notification-queue -> priorities` immediately after.
+  3) only then resolve city production (`NOTIFICATION_CHOOSE_CITY_PRODUCTION`) with a live chooser-based `build-production` payload.
+
+### 10–20 turn planning for the resumed session
+- Turn 1 priority is **stabilization**: clear stale end-turn blocker with one explicit closeout and verify turn progression before committing to mid-turn tactical probes.
+- Once the queue is stable for two reads, shift to a 10–20 turn lane:
+  - early game: one controlled scouting orientation and one secure build line,
+  - avoid expansion commitment until unit command/pathing surfaces are reliable and city production is locked,
+  - preserve tempo by handling blockers immediately and then revalidating every 1–2 turns.
+
+## Snapshot: Turn 2 (3975 BCE) — New Game Restart #181
+
+- The current playthrough is a fresh launch; keep the generic playbook and rule-based framing above. Treat all prior per-turn snapshot narratives as historical context only.
+- Latest verified read set is coherent:
+  - `status`: `turn 2`, `turnDate 3975 BCE`, `canEndTurn: false`.
+  - `blockingNotificationId`: `id 2` (`NOTIFICATION_CHOOSE_TECH`, hard blocker).
+  - `firstReadyUnitId`: `{"owner":0,"id":131072,"type":26}` (`UNIT_SCOUT`, `61,18`).
+  - `selectedUnitId`: `null`, `selectedCityId`: `null`.
+  - `notifications`: `CHOOSE_TECH`, `CHOOSE_CITY_PRODUCTION`, `COMMAND_UNITS`.
+  - `ready-unit --json`: Scout has valid no-target options including `SKIP_TURN`, `MOVE_TO`, `AUTOMATE_EXPLORE`, `ALERT`, etc.
+  - `ready-city --json`: empty pending manual city selection/chooser input.
+  - `priorities`: active lane moved to `hud:unit-command` with a live-ready-unit contract, not stale-unit-command repair.
+- Immediate advisory for this reset lane:
+  1) clear the current tech blocker with live chooser-backed `game play choose-tech --player-id 0 --node <node> --send --closeout --reason ...` (Pottery/Animal Husbandry/Sailing are valid entry options).
+  2) resolve city production with chooser-validated `game play build-production --city-id <id> ...`.
+  3) only then execute one movement-heavy scout action, after `game play unit-target --unit-id '<unit-id>' --x <x> --y <y> --json` validates action shape.
+- Strategic risk posture for turns 2–6:
+  - Goal is queue-first stabilization first, not map-harvesting opportunism.
+  - Keep scouting conservative until production and tech locks are proven.
+  - Use one validated command per turn to preserve low-risk recovery and reduce UI/API mismatch.
+- 10–20 turn horizon lane (Thread #181):
+  - Turns 2–6: clear blocker debt, lock a production cadence, and gather a single safe expansion vector.
+  - Turns 7–12: convert the scout lane into corridor intelligence and route safety checks before any non-defensive expansion.
+  - Turns 13–20: choose either sustain mode (growth + defense) or pressure mode only if queue and frontier safety remain stable for two consecutive reads.
+
+### Net-new turn row
+
+- `Turn 2` | `Thread restart confirmed; priorities shifted to tech + production lock` | `Clear tech blocker, then lock production, then one validated scout action` | `UI/runtime is now live but still partially selector-less, so conservative sequencing avoids desyncs` | `Medium` | `Re-read notifications/queue/priorities after each blocker action; if any remains unresolved after 2 windows, hold unit acceleration`
+
+## Snapshot: Turn 2 (3975 BCE) — Restart Revalidation #182
+
+- Current live read signature remains `turn 2`/`3975 BCE` in App UI, while Tuner reports `turn 3`/`3950 BCE`; this divergence is treated as an async turn-boundary transition window.
+- `hasSentTurnComplete: true` with `hasSentTurnComplete` reflected as `true` in `ready-unit/city`, `notifications`, and `priorities`.
+- `NOTIFICATION_COMMAND_UNITS` is still top and now classified as `unit-command-stale-expired`:
+  - `firstReadyUnitId` is `null` and no enabled closeout candidate exists for the scanned Scout (`UNIT_SCOUT` at `60,16`, `movementMovesRemaining: 0`).
+  - `repairCandidates` now point to passive wait flow: `game watch --count 3 --interval-ms 1000 --include-ready-unit --include-ready-city --jsonl`.
+- `NOTIFICATION_CHOOSE_CITY_PRODUCTION` and `NOTIFICATION_CHOOSE_TECH` are still present as non-expired/previously resolved blockers, but their execution still requires live chooser values.
+- `ready-unit --json` and `ready-city --json` remain empty for direct selection.
+- `priorities` confirms the safest immediate action is **wait-for-turn-advance/watch** and then re-check notifications once any new blocker signal arrives.
+
+### Advisory (single message lane)
+- Do not issue unit operations or speculative production/tech actions until a fresh watch shows either turn boundary movement or a fresh chooser-backed blocker set.
+- Next actions, in order, should be:
+  1. `game watch --count 3 --interval-ms 1000 --include-ready-unit --include-ready-city --jsonl` (or equivalent steady read)
+  2. if COMMAND_UNITS drops/changes: re-run `notifications`, `notification-queue`, `ready-unit`, and `ready-city`
+  3. when chooser-backed tech/production appears, execute one validated decision only, then re-evaluate before expanding.
+
+### 10–20 turn reset lane for Thread #182
+- Immediate goal (turn 2+): stabilize the async turn boundary and recover clean blocker sequencing.
+- Turns 2–6: single-command discipline; avoid scout movement while command lane is stale-expired.
+- Turns 7–12: once blockers are clean and turn progression is stable, execute one expansion-relevant scout move after successful target validation.
+- Turns 13–20: lock strategic posture based on whether early production and research locks are stable for two consecutive reads.
+
+- `Turn 2` | `UI/Tuner turn clock drift plus stale unit-command lock` | `Hold unit actions; prioritize `wait-for-turn-advance` and fresh-reconcile blocker reads` | `State indicates async boundary and explicit stale-lock classification; this avoids repeating invalid unit commands` | `Medium` | `If two consecutive watch cycles do not change blocker class or turn/date, keep on one-lane wait and skip non-lock commands`
+
+## Snapshot: Turn 3 (3950 BCE) — Population-Placement Lock #183
+
+- Thread has transitioned from stale unit-command recovery into an active growth-lock state.
+- Live read confirms:
+  - `status`: `turn 3`, `3950 BCE` (App UI and Tuner aligned now).
+  - `blockingNotificationId`: `id 3` (`NOTIFICATION_NEW_POPULATION`) and only one live queue step.
+  - `canEndTurn: false`, `hasSentTurnComplete: false`.
+  - `selectedUnitId: null`, `firstReadyUnitId: null`, `selectedCityId: null`.
+  - `notifications`: single `NOTIFICATION_NEW_POPULATION` with `canUserDismiss: false`, `isEndTurnBlocking: true`.
+  - `notification-queue`/`priorities`: confirms top priority `hud:population-placement`.
+  - `ready-unit --json` and `ready-city --json` continue to return no direct legal operations.
+  - `watch --json --include-ready-unit --include-ready-city` returns no stable selector/city payload but confirms population-placement as the next decision.
+- Interpretation:
+  - The game is in an explicit tile-placement fork: assign a valid adjacent workable tile as worker OR expand city onto a valid border tile.
+  - The safest path is to avoid unit moves while this branch is unresolved; no validated path for movement exists from current exposed state.
+
+### Advisory for the active player (single non-spam cadence)
+- Priority now is **resolve new population placement cleanly** before any scouting/tech/production extension:
+  1) read candidate plot candidates from the running UI chooser surface,
+  2) execute exactly one validated growth command (`assign-worker ...` or `expand-city ...`) and
+  3) re-run `notifications` + `notification-queue` immediately after, then continue the 10–20 turn frame.
+- If candidate legality is ambiguous from the exposed UI, pause and request chooser evidence first; do not force a guessy location.
+
+### 10–20 turn horizon reset (Thread #183)
+- Turns 3–6: close growth lock with one conservative placement (worker first if yield-safe, expansion only if defense-neutral).
+- Turns 7–12: with growth lock cleared, return to one validated scout action lane if unit selectors repopulate.
+- Turns 13–20: shift to either consolidation (growth+defense) or pressure mode based on whether growth/tech sequencing is stable for two consecutive read windows.
+
+- `Turn 3` | `Growth notification became sole hard blocker` | `Resolve `NOTIFICATION_NEW_POPULATION` via explicit plot validation first` | `Queue collapsed to one high-quality blocker; this is a cleaner recovery lane than earlier command desync` | `Medium` | `If no plot candidates appear for 2 reads, hold and request direct chooser read before any non-lock action`
+
+## Snapshot: Turn 3 (3950 BCE) — Population Lock Recheck #184
+
+- Recheck confirms no observable change since #183:
+  - `turn 3`, `3950 BCE` still; `canEndTurn: false`; `hasSentTurnComplete: false`.
+  - Single active end-turn blocker remains `NOTIFICATION_NEW_POPULATION` (`id 3`).
+  - `queueLength: 1`, `priority 100`, `kind: hud:population-placement`.
+  - `selectedUnitId`, `firstReadyUnitId`, `selectedCityId`, `ready-unit`, and `ready-city` remain empty for direct operations.
+  - `watch` still reports `populationPlacement: null` (no read-exposed candidate selected yet).
+- Interpretation: still in an acquire-tile growth fork, and the live system is withholding candidate payload until the chooser is explicitly read/declared.
+- No safe additional turn action can be validated without plot-level input.
+
+### Advisory for the active player
+- Keep one strict blocking lane:
+  - Wait for chooser-grounded tile exposure for `NOTIFICATION_NEW_POPULATION`, then resolve with one validated command (`assign-worker --location <plot-index>` or `expand-city --city-id ... --x ... --y ...`).
+  - Immediately re-read `notifications`, `notification-queue`, and `priorities` after executing the growth choice.
+- Do not force unit movement or further production/tech actions while this growth decision is unresolved; visibility of those branches is not trustworthy until this branch closes.
+
+### 10–20 turn lane adjustment (Thread #184)
+- Turns 3–6: complete growth lock with the lowest-risk worker placement unless defense value clearly favors expansion.
+- Turns 7–12: only after lock closure, resume scouting/terrain reading and confirm any expansion with one validated unit action.
+- Turns 13–20: if growth and unit surfaces stabilize for two consecutive reads, shift to a defined posture (defend growth or apply calibrated pressure) with concrete production/tech sequencing.
+
+- `Turn 3` | `No candidate-caster visibility change on recheck` | `Hold growth branch and await tile-level chooser exposure` | `Avoid desync-risk guesses; only act on explicit placement validation` | `Medium` | `If chooser never yields a valid tile payload by next 2 rechecks, request direct UI-state alignment before any non-validated growth attempt`
+
+## Snapshot: Turn 3 (3950 BCE) — Tuner Growth-Model Divergence #185
+
+- Additional runtime probe (`game exec` on `Tuner`) shows city growth internals currently report:
+  - `currentFood: 14`, `turnsUntilGrowth: 2`, `isReadyToExpand: false`, `isReadyToPlacePopulation: false`.
+- This conflicts with HUD-level blocker payload still surfacing `NOTIFICATION_NEW_POPULATION` as end-turn blocking at the same `turn 3`.
+- Net effect for the advisor lane:
+  - Keep blocker-first discipline but treat the growth notification as a front-end state signal that still needs one direct chooser-resolution read before any mutation.
+  - Do not infer growth completion or place-worker/expansion from Tuner scalar fields alone.
+
+- `Turn 3` | `Blocker payload is ready-state, but Tuner growth fields are not yet ready` | `Freeze non-lock actions until the UI exposes a concrete tile choice` | `State inconsistency could produce invalid commands if acted on blindly` | `Medium` | `Prioritize a chooser-backed `NOTIFICATION_NEW_POPULATION` read cycle, then execute one explicit tile claim/assignment command only with validation`
+
+### Snapshot: Turn 5 (new game run, growth branch unlocked)
+
+- Turn/Date: 5 / 3900 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `canEndTurn:false`, `hasSentTurnComplete:false`, `selectedUnitId:null`, `selectedCityId:null`
+- Active blocker queue: `NOTIFICATION_NEW_POPULATION` (id 5) is end-turn blocking; `NOTIFICATION_COMMAND_UNITS` remains queued but non-blocking.
+- Concrete evidence from `game watch` (ready-city payload):
+  - `readyCity: LOC_CITY_NAME_INCA1` at `61,18`, `population:3`, `isReadyToPlacePopulation:true`, `cityWorkerCap:0`
+  - `workablePlots: []` (no current worker placement options exposed)
+  - `expansionCandidates` exposed (all 8 candidate plots returned with `cli` hints):
+    - `61,19` `IMPROVEMENT_INCA_MOUNTAIN` (food +2)
+    - `62,18` `IMPROVEMENT_MINE` (prod +2)
+    - `60,17` `IMPROVEMENT_FARM` (prod +1, gold +1)
+    - `60,18` `IMPROVEMENT_CLAY_PIT` (food +1, prod +1)
+    - `60,19` `IMPROVEMENT_FARM` (food +1, prod +1)
+    - `62,17` `IMPROVEMENT_MINE_RESOURCE` (prod +2, gold +1, Silver)
+    - `62,16` `IMPROVEMENT_PASTURE` (prod +3, happy +1, Wool)
+    - `61,16` `IMPROVEMENT_INCA_MOUNTAIN` (food +1, prod +2)
+- Immediate command posture:
+  - `assign-worker` is currently unsupported by exposed data (`workablePlots` empty, no known valid worker location).
+  - `expand-city` is therefore the only supported safe branch for this blocker if choosing expansion is desired.
+  - Execute one growth command only after immediate re-read confirms the target plot still valid in the same turn window.
+- Confidence: high for observation integrity, medium for optimal plot pick due horizon uncertainty.
+
+### 10-20 Turn Strategic Cadence — Window A (Turns 1-6) re-grounded
+
+- Open strategy reset for this game run:
+  1. Resolve population expansion first with **validator-backed tile claim**.
+  2. Keep `COMMAND_UNITS` at low-risk hold state (SKIP_TURN on current scout is currently valid) until no blockers remain.
+  3. Re-establish core production lane immediately after growth: prioritize reliable growth->worker/production throughput before outward aggression.
+- Candidate operational sequence (next 10–20 turns):
+  - `Turns 5-7`: expand into strongest non-speculative build tile (likely `62,16` pasture if happiness headroom is needed, else `62,17` silver mine if gold/production is a better near-term bridge).
+  - `Turns 7-10`: complete city setup blockers, then convert growth to one stable production anchor and one map-reveal lane via scout movement.
+  - `Turns 11-14`: evaluate whether frontier can support a pressure lane or should consolidate economy-first.
+  - `Turns 15-18`: lock in your primary lane (growth/defense or growth/pressure) and keep one tempo reserve turn for blocker recursion.
+
+### Turn Notes (new game, append-only)
+
+- `Turn 5` | `Population growth is now explicit and actioned by concrete city tile data` | `Choose `expand-city` using an exposed candidate (no safe worker assignment yet), then re-read blocker queue` | `This is the first irreversible commitment in a fresh game; candidate visibility removes prior guess-risk` | `Medium` | `Re-check `ready-city`, `notification-queue`, and `watch` immediately after expand to verify `hasSentTurnComplete` and next blocker profile`
+
+### Snapshot: Turn 5 (3900 BCE) — post-growth blocker transition
+
+- Turn/Date: 5 / 3900 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `canEndTurn:false`, `hasSentTurnComplete:false`, `firstReadyUnitId=131072`, `selectedUnitId:null`, `selectedCityId:null`
+- Active blocking state:
+  - `NOTIFICATION_COMMAND_UNITS` is now the top end-turn blocker (priority 100).
+  - `NOTIFICATION_NEW_POPULATION` is now present but expired and non-blocking.
+- Evidence from live surfaces:
+  - `notification(s)`/`notification-queue` report queue length `2`; population message is now `expired:true`, `isEndTurnBlocking:false`.
+  - `ready-unit` exposes concrete ready unit:
+    - `UNIT_SCOUT` at `(60,16)` with legal no-target operations including `SKIP_TURN` (valid) and move/automation options.
+  - `ready-city` is currently null; no valid `ready-city` growth operation payload is exposed now.
+  - `priorities` shows explicit command lane: read `ready-unit`, then `unit-target` before any move/attack-like unit action.
+- Immediate play posture:
+  - Keep this a unit-lane closure turn; do not rely on prior growth plan until another explicit growth payload reappears.
+  - If no directional move intent is visible, send a validated `SKIP_TURN` on scout with explicit reason, then re-read blocker/notification queue.
+  - If moving/automation is chosen, validate through `unit-target` flow before mutation.
+- Confidence: high for blocker transition and current legal surface, medium for best tactical unit destination without a map-visibility plan.
+
+### Turn Notes (new game, append-only)
+
+- `Turn 5` | `Population blocker is no longer hard-blocking; command units is now the only end-turn blocker` | `Close unit lane first (at minimum, validated SKIP_TURN or a validated unit move) before resuming any growth/prod sequencing` | `The blocker handoff is a safety event: unit command can create irreversibility if target validation is assumed` | `Medium` | `Re-read `notifications`, `notification-queue`, `ready-unit`, and `priorities` immediately after the unit closeout`
+
+### 10-20 Turn Strategic Cadence — Window A reset (Turn 5 blocker handoff)
+
+- Updated 10–20 turn objective for this branch:
+  1. Turn 5: close `NOTIFICATION_COMMAND_UNITS` with minimal-risk validated action.
+  2. Turns 6–8: re-open city-growth lane and re-check expansion candidates only if chooser payload reappears.
+  3. Turns 9–14: establish one stable production + one scouting lane (no speculative expansion while blocker telemetry is unstable).
+  4. Turns 15–20: lock early lane choice (consolidate vs pressure) only after two consecutive reads with stable queue and same candidate set.
+
+- Decision rule for this window:
+  - If unit-blocker repeats in 2 consecutive windows, execute only read-then-send unit-reconciliation actions and pause any non-unit turn decisions until the queue proves movement.
+
+### Snapshot: Turn 1 (4000 BCE) — Natural Wonder discovery blocker
+
+- Turn/Date: 1 / 4000 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `inGame: false` in App UI loading state `WaitingForVisualization`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Active blocker: `NOTIFICATION_DISCOVER_NATURAL_WONDER` (`id 0`) is end-turn blocking and currently unresolved.
+- Queue/priority evidence:
+  - `notification-queue` reports `queueLength:1` with top priority `inspect-handler` for the natural wonder discovery event.
+  - `game watch` shows same top decision and `notificationCount:1` with `ready-unit:null`, `ready-city:null` at this instant.
+- Ready surfaces:
+  - `ready-unit` now exposes a concrete `UNIT_FOUNDER` at `(18,40)` with valid `FOUND_CITY`, `MOVE_TO`, and `SKIP_TURN` operations.
+  - `ready-city` still returns no city payload yet.
+- Interpretation:
+  - This is a fresh opener where the unknown-blocker type shifted from command handling to a one-off discovery acknowledgment.
+  - The immediate safe action is handler-aware unblock, while keeping unit action in reserve until the blocker is cleared.
+- Confidence: medium-high for blocker shape, medium for exact UI handler command because this is an unclassified event.
+
+### Turn Notes (new game, append-only)
+
+- `Turn 1` | `Natural Wonder discovered and appears as the sole hard blocker` | `Treat as an unclassified blocking-notification; avoid blanket dismissal and execute the handler-aware unblock flow before further operations` | `Unclassified blockers have higher schema drift risk than known unit/city commands` | `Medium` | `After unblock attempt, re-read `notifications`, `notification-queue`, and `ready-unit`; then execute one validated opener action (likely `FOUND_CITY` or safe move) if the founder remains ready`
+
+### 10–20 Turn Strategic Cadence — Window A reset (Turn 1 opening)
+
+- Updated opening lane:
+  1. Turn 1: resolve natural wonder discovery blocker with proper handler confirmation.
+  2. Turn 1–3: establish first durable city placement using `UNIT_FOUNDER` with explicit `FOUND_CITY` validation.
+  3. Turn 3–6: absorb initial scouting/tech setup only after founder command closes and turn-end blockers are confirmed clear.
+  4. Turn 7–14: anchor one growth or early tempo lane after at least one validated city placement and two stable queue reads.
+
+- Rule: if the unclassified discovery blocker repeats or queues with missing handler context twice, pause non-foundation actions and request explicit UI handler confirmation before any mutation.
+
+### Snapshot: Turn 1 (4000 BCE) — production-first opener with mixed blockers
+
+- Turn/Date: 1 / 4000 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `inGame:true`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Readiness surface consistency: `notification` state now shows three items in queue; top/end-turn blocker is `NOTIFICATION_CHOOSE_CITY_PRODUCTION` for city `0, id 65536` at `18,40`.
+- Active queue (`notification-queue`):
+  - `notificationCount: 3`
+  - Priority order (effective):
+    1. `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (end-turn blocking)
+    2. `NOTIFICATION_COMMAND_UNITS` (expired; non-blocking)
+    3. `NOTIFICATION_DISCOVER_NATURAL_WONDER` (non-blocking but unclassified)
+- `ready-unit`: null (no selected/first ready unit exposed in this read)
+- `ready-city`: city `LOC_CITY_NAME_SPAIN1` at `18,40`, `population:1`, `buildQueue.currentProductionTypeHash:-1`
+- `ready-city` production candidates (live chooser-backed):
+  - `UNIT_SCOUT` (`--unit-type 1`)
+  - `UNIT_WARRIOR` (`--unit-type 14`)
+  - Both currently validate `Requirements.MeetsRequirements: true` in this payload.
+- `ready-city` growth (`populationPlacement`) shows `isReadyToPlacePopulation:false`, `cityWorkerCap:0`, no workable plots, no expansion candidates.
+- `watch` confirms top decision is still production choice and retains the same city lock state.
+
+### Turn Notes (new game, append-only)
+
+- `Turn 1` | `Startup queue converged on production as the hard blocker; unclassified discovery remains but is no longer the gating action` | `Resolve `NOTIFICATION_CHOOSE_CITY_PRODUCTION` first from live chooser (`build-production --city-id 65536 --unit-type 1` or `...14`), then immediately re-read blockers` | `Opening turn is now a controlled, reversible path: production branch is explicit, while founder-availability is not exposed in this read` | `Medium` | `If production is misclicked or ambiguous, stop and re-run `ready-city` + `notifications` before any non-production unit action`
+
+### 10–20 Turn Strategic Cadence — Window A (Turn 1 opening reset)
+
+- Turn 1–3 tactical reset:
+  1. Clear `NOTIFICATION_CHOOSE_CITY_PRODUCTION` with one explicit, validated production item.
+  2. Then reconcile whether `NOTIFICATION_DISCOVER_NATURAL_WOUNDER` requires any explicit action (non-blocking now, monitor once per 1–2 reads).
+  3. Re-check `ready-unit` after city production closure; if a ready unit appears, move only via validated `unit-target` flow.
+- Turns 4–10:
+  - Keep growth lock low-risk; growth is not ready yet and no valid expansion tiles are exposed.
+  - Establish a stable scouting/protection lane after first turn production resolves.
+  - Avoid speculative expansion; prioritize production continuity and clean blocker state.
+- Turns 11–20:
+  - Branch on whether city growth and unit readiness stabilize within two consecutive reads: consolidation lane (more worker/worker-cap setup) versus early-pressure lane (scout-based corridor and military tempo).
+
+- Decision rule for this horizon:
+  - Never act on unclassified blocker without handler evidence; never choose a production item before live city chooser payload is confirmed for that turn.
+
+### Snapshot: Turn 1 (4000 BCE) — Natural Wonder hard block reasserted
+
+- Turn/Date: 1 / 4000 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `inGame:true`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Hard blocker state:
+  - `NOTIFICATION_DISCOVER_NATURAL_WONDER` is now the active **end-turn** blocker.
+  - `NOTIFICATION_CHOOSE_CITY_PRODUCTION` and `NOTIFICATION_COMMAND_UNITS` are both present but `expired:true` and currently non-blocking.
+- Queue context (`notification-queue`): `queueLength:3`
+  - Step 1: `NOTIFICATION_DISCOVER_NATURAL_WONDER` (priority 100, inspect-handler)
+  - Step 2: `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (priority 70, operate-with-live-inputs)
+  - Step 3: `NOTIFICATION_COMMAND_UNITS` (priority 65, inspect-ready-unit)
+- `notification` detail for unit-command confirms stale/expired class with no `ready` candidate in payload and explicit repair action:
+  - `repairCandidates: [ send-turn-complete --reason 'stale COMMAND_UNITS has no selected/ready unit and no enabled validator-backed unit closeout' ]`
+- `ready-unit --json`: no selected/ready unit exposed.
+- `ready-city --json`: no city payload exposed; no chooser candidate currently exposed here.
+- `watch`: top decision remains `NOTIFICATION_DISCOVER_NATURAL_WONDER`, `notificationCount:3`, with `ready-city` null and `ready-unit` null.
+- Interpretation:
+  - This is a fresh recovery oscillation where unclassified blocker governance takes priority over production/unit continuation.
+  - Avoid executing city production until natural-wonder handler evidence is resolved and the queue is de-stacked.
+- Confidence: medium-high for blocker topology, medium for immediate handler requirement because discovery notification remains unclassified.
+
+### Turn Notes (new game, append-only)
+
+- `Turn 1` | `Turn remains in natural-wonder handler lock with stale unit/production notifications now downgraded` | `Prioritize handler-aware unblocking of `NOTIFICATION_DISCOVER_NATURAL_WONDER`; do not force production/unit execution while it is end-turn blocking` | `The prior production-first lane is still useful, but the hard blocker has shifted and expired entries are not safe to treat as active constraints` | `Medium` | `Run `game play notifications --json` for handler evidence, then re-check `notification-queue` immediately before any `build-production` or `unit` command`
+
+### 10-20 Turn Strategic Cadence — Window A (Turn 1 opener reset)
+
+- Turn 1 immediate lane:
+  1. Resolve natural wonder blocker with handler-accurate action.
+  2. Re-read `notifications`, `notification-queue`, `ready-unit`, `ready-city`.
+  3. If blocker declassifies and queue stabilizes, resolve production candidate with one validated `build-production` item.
+  4. If unit command remains stale/expired after one recheck, use the explicit `send-turn-complete` repair once, then rehydrate reads before moving.
+- 1–10 turn guidance:
+  - Keep to one high-confidence action per read cycle.
+  - Do not issue movement/speculative growth actions until both production and unit surfaces are live again.
+  - Establish scouting cadence only after natural-wonder closure and production lock are both visibly confirmed.
+- 11–20 lane decision trigger:
+  - If after 2–3 stable reads blockers clear cleanly, branch to **consolidate** (worker cap, early city growth prep) or **pressure-lite** (scout probing only) lane.
+  - If recovery oscillates, continue handler-first stabilization and defer aggression planning.
+
+### Snapshot: Turn 1 (4000 BCE) — No-progress watch recheck
+
+- Turn/Date: 1 / 4000 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `inGame:true`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Blocker topology has stabilized on this read:
+  - `NOTIFICATION_DISCOVER_NATURAL_WONDER` remains **active hard blocker**.
+  - `NOTIFICATION_CHOOSE_CITY_PRODUCTION` and `NOTIFICATION_COMMAND_UNITS` remain `expired:true` / non-blocking in this cycle.
+- `notification-queue` stays at `queueLength:3`:
+  - `step 1` `NOTIFICATION_DISCOVER_NATURAL_WONDER` (hard)
+  - `step 2` `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (non-blocking)
+  - `step 3` `NOTIFICATION_COMMAND_UNITS` (non-blocking, stale-expired)
+- `ready-unit` still null; `ready-city` still null.
+- Unit staleness evidence remains consistent with `unit-command-stale-expired` + explicit repair candidate:
+  - `game play end-turn --send --reason '<stale COMMAND_UNITS has no selected/ready unit and no enabled validator-backed unit closeout>' --json`
+- `watch` confirms top decision remains `NOTIFICATION_DISCOVER_NATURAL_WONDER` and shows `notificationCount:3`, no exposed ready selectors.
+
+### Turn Notes (new game, append-only)
+
+- `Turn 1` | `Recovery loop with persistent natural-wonder hard block and stale side blockers` | `Do not act on city production yet; the only meaningful first step is handler-aware unblock of the discovery notification` | `Blocking state is coherent but partially stale in secondary channels, so forcing production now is likely to misalign` | `Medium` | `Send handler-safe unblock flow first, then re-read blockers; only if blocked queue de-ranks to production should `build-production` be attempted next`
+
+### 10–20 Turn Strategic Cadence — Window A (Turn 1 recovery guard)
+
+- 1–2 turn horizon: unblock `NOTIFICATION_DISCOVER_NATURAL_WONDER` and normalize queue ordering.
+- 3–5 turns (if blocker clears): execute exactly one validated production choice and then one validated scout/commander action only if `ready-unit` appears.
+- 6–10 turns (if both blockers recover): move from pure recovery into controlled opening lane (scout reconnaissance + tech/civic sequencing)
+- 11–20 turns: choose consolidation vs pressure lane only after two consecutive stable reads showing clean queue progress.
+
+- Guardrail: do not trust unclassified blocker payload as harmless when it remains end-turn blocking; continue one-command-per-read cadence until the sequence is explicit and stable.
+
+## Relauch Continuity Block: Turn 1 (4000 BCE) — natural-wonder-ledger recovery pass
+
+- Turn/Date: 1 / 4000 BCE
+- Turn hash: `0`
+- Readiness/loop evidence: `tuner-ready`, `inGame=true`, `notificationCount=3`, `game autoplay inactive`
+- Hard blocker: `NOTIFICATION_DISCOVER_NATURAL_WONDER` (isEndTurnBlocking=true, priority `blocking-notification`)
+- Secondary queue entries observed: `NOTIFICATION_CHOOSE_PRODUCTION` (non-blocking at present) + `NOTIFICATION_COMMAND_UNITS` (stale/expired)
+- Visibility notes: `ready-unit --json` and `ready-city --json` returned `null`; no selected unit or city in this snapshot window
+- Re-usable command stack kept: status -> autoplay -> map summary -> app-ui snapshot -> roots -> Tuner `Players` + `Game.Notifications` + targeted `operation` on-demand
+
+### Restart Objective (next 10–20 turns)
+
+1) **Turns 1–6 (Unblock + stabilize):**
+- Primary objective: clear `NOTIFICATION_DISCOVER_NATURAL_WONDER` before committing to non-blocking action sequences.
+- Execution rule: do not begin movement/expansion actions while hard blocker persists.
+- Expected check: if wonder path stalls across 2 windows, force a single `operation` audit pass on the top blocker and then `--send` only once preconditions are confirmed.
+
+2) **Turns 7–12 (Recover structure and tempo):**
+- After wonder de-stacks, immediately clear production/civics/policy decisions in fixed order if still present, then resume one-turn scouting progression.
+- Focus on map-value lane selection that is cheap to reverse (route recon, no-city-commit moves).
+- Verify queue and hash stability before each lane change.
+
+3) **Turns 13–20 (Build compounding advantage):**
+- Convert recovered setup turns into durable macro sequence: city growth + production unlock + safe frontier read-in.
+- Only escalate aggression after at least one full cycle of blocker-clean, city-production, and unit command evidence.
+- Maintain “one validated operation per window” discipline until replay-proof and queue-stable for 2 consecutive checks.
+
+### Next player-facing message (single-turn window cadence)
+
+- `Turn 1` | `Game relaunched; natural wonder discovery is the active end-turn blocker` | `Run blocker-first path only: resolve wonder, then re-test queue and only then do one blocker-clearing civic/production follow-up` | `Natural-wonder lock is hard and must clear before safe expansion` | `Medium` | `Recheck in 2–3 windows; if same blocker persists, pause all optional ops and request direct notification-root confirmation before non-blocking actions`
+
+### Reusable strategy notes to keep (applies beyond this restart)
+
+- The general command contract (`status`, `autoplay`, `map --summary`, `inspect`, Tuner `Players` + `Game.Notifications`) remains valid and should be repeated unchanged for comparability.
+- Keep conservative posture when top decision is hidden or stale: no speculative action when blockers are hard/opaque.
+- Preserve one-message-per-window cadence to avoid churn and keep actionable advice legible for the acting agent.
+
+## Live Revalidation: Turn 1 (4000 BCE) — blocker stack unchanged
+
+- Turn/Date: 1 / 4000 BCE (snapshot at 2026-06-02T03:05:08Z)
+- Turn hash: `0`
+- Readiness/health: `tuner-ready`, `app-ui` in `GameStarted`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Lock state: `NOTIFICATION_DISCOVER_NATURAL_WONDER` remains hard blocker (`notification-id 0`, type `NOTIFICATION_DISCOVER_NATURAL_WONDER`, category `blocking-notification`, summary: Torres del Paine)
+- Queue order (`notification-queue`): `1) wonder/blocking-handler, 2) city production expired, 3) command-units stale-expired`
+- Watch alignment: top decision remains the natural wonder blocker; `notificationCount=3`, `firstReadyUnitId=null`, `selectedUnitId=null`, `readyUnit=null`, `readyCity=null`
+- Stale side-channel behavior: `NOTIFICATION_COMMAND_UNITS` remains expired/non-blocking with `unit-command-stale-expired` and explicit repair route available via `end-turn --send --reason '<stale COMMAND_UNITS has no selected/ready unit and no enabled validator-backed unit closeout>'`
+
+### Immediate action protocol (next 3–6 turns)
+
+- Do nothing beyond blocker-aware unblocking in this window.
+- Use strict sequence if still blocked on natural wonder:
+  1. Re-run `game play notifications --json` + `game play notification-queue --json` (already complete this cycle; preserve cadence).
+  2. Re-open only after the official handler path is evidenced and run a single, validated unblock operation.
+  3. Re-read blockers/watch immediately.
+- Keep production/unit actions paused until the blocker de-ranks and a valid `ready-unit`/`ready-city` payload returns.
+
+### 10–20 Turn Strategic Cadence reset (post-recheck)
+
+- **Turns 1–4 (recovery consolidation):** hold one-window, handler-first discipline; queue must show wonder de-rank before any city/unit command.
+- **Turns 5–10 (controlled resume):** if the blocker clears, execute one validated production action then one validated unit-closeout/expansion action in separate windows.
+- **Turns 11–20 (lane pick):** once both city and unit selectors are stable for 2 consecutive windows, choose a lane:
+  - **Consolidation lane:** stabilize growth and safe city production,
+  - **Pressure-lite lane:** scout map edges with explicit movement validation only.
+
+### Turn Notes (new game, append-only)
+
+- `Turn 1` | `Live watch confirms natural-wonder handler-only hard lock with null ready selectors and stale unit side queue` | `Pause speculative movement/production; keep one validated unblock-at-a-time cadence and re-hydrate all three surfaces (watch, notifications, queue) after each attempt` | `The hard lock still governs end-turn legality; stale command-unit state remains non-blocking but unreliable for action choice` | `Medium` | `If hard lock persists for the next 2 windows, request explicit UI handler confirmation for notification `id 0` before any non-blocking candidate is attempted`
+
+### Direct message for active player thread (non-spam)
+
+- `Turn 1` remains hard-locked by `NOTIFICATION_DISCOVER_NATURAL_WONDER` (Torres del Paine) with `notificationCount=3`, while `ready-unit` and `ready-city` are still null. Recommended now: hold, resolve the wonder through handler-valid unblock flow only, then re-run `watch + notifications + notification-queue` before any `build-production` or unit action.
+
+## Live Revalidation: Turn 1 (4000 BCE) — continuity hold (no progression)
+
+- Turn/Date: 1 / 4000 BCE (snapshot at 2026-06-02T03:05:22Z)
+- Turn hash: `0`
+- Readiness/health: `tuner-ready`, `app-ui` in `GameStarted`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Top lock unchanged: `NOTIFICATION_DISCOVER_NATURAL_WONDER` (`id 0`) remains hard/blocking, with `notificationCount=3`
+- Queue unchanged: `NOTIFICATION_DISCOVER_NATURAL_WONDER` (step 1 hard), `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (step 2 non-blocking, expired), `NOTIFICATION_COMMAND_UNITS` (step 3 stale-expired/non-blocking)
+- Visibility unchanged: `selectedUnitId=null`, `firstReadyUnitId=null`, `readyUnit=null`, `readyCity=null`
+- Repair lane unchanged: stale `COMMAND_UNITS` still exposes only the `send-turn-complete` reconciliation candidate
+
+### Window-level direction
+
+- Keep hard-lock-first posture for this window: block all non-handled production/unit execution.
+- In next two windows:
+  1. Retry handler evidence from `game play notifications --json` and `game watch` only when any lock change is observed.
+  2. If the hard lock is still present, do not force speculative operations.
+  3. If a handler-confirmed unblock path appears, execute one validated unblock and immediately re-read queue/watch for second-window stability before next action.
+- Horizon check: `10–20` turn plan remains in **recovery lane reset** until unlock evidence appears; no lane commitment yet.
+
+### Turn Notes (new game, append-only)
+
+- `Turn 1` | `Second consecutive read confirms static recovery state` | `Continue blocker-first loop only; do not add unit/city action until ready selectors reappear` | `No additional data changed to justify irreversible sequencing` | `Medium` | `Escalate only if handler evidence for natural wonder appears; else keep queue/watch revalidation cadence`
+
+### Direct message for active player thread (non-spam)
+
+- `Turn 1` still has no forward unlock from the last window: hard wonder block remains top, ready selectors remain null, and unit-queue state is still stale non-blocking. Follow the same safe cadence: no speculative ops, clear only through handler-confirmed unblock flow, then immediately re-read blocker surfaces.
+
+## Live Revalidation: Turn 1 (4000 BCE) — static hold (third immediate probe)
+
+- Turn/Date: 1 / 4000 BCE (snapshot at 2026-06-02T03:05:35Z)
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `GameStarted`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Top lock unchanged: `NOTIFICATION_DISCOVER_NATURAL_WONDER` remains blocking (`id 0`)
+- Queue shape unchanged: 3 entries in `notification-queue`
+  - step 1: natural wonder hard blocker (`priority 100`, `inspect-handler`)
+  - step 2: choose city production (`priority 70`, expired/non-blocking)
+  - step 3: command-units (`priority 65`, stale-expired/non-blocking)
+- Ready probes unchanged: `ready-unit` and `ready-city` both null (`selectedUnitId=null`, `firstReadyUnitId=null`, no legal ops)
+- Command-units lane unchanged: `unit-command-stale-expired` with explicit `send-turn-complete` reconciliation hint only
+
+### Current control posture (next 3–6 turns)
+
+- Keep strict hold on handler-only resolution for the natural wonder; do not execute speculative city/unit actions.
+- Continue the same read-evidence loop each window: `watch` -> `notification-queue` -> `notifications` -> re-check.
+- Do one validated unblock attempt at most per cycle only after handler evidence is concrete.
+
+### Turn Notes (new game, append-only)
+
+- `Turn 1` | `Third probe confirms no queue/selection progression` | `Hold the recovery lane exactly as-is: no production, no unit movement, one validated unblock-at-a-time` | `The top blocker remains the only legal constraint on advancement; low-entropy state is safer than rushed irreversible actions` | `Medium` | `If this exact topology holds for one more cycle, escalate by requesting handler-level confirmation for the natural wonder blocker before any additional command attempt`
+
+### Direct message to active player thread (non-spam)
+
+- `Turn 1` is still fully stalled by `NOTIFICATION_DISCOVER_NATURAL_WONDER`; `ready-unit/city` stays null and queue state is unchanged. Keep the sequence tight: wait for handler validation, perform only that unblock path if proven, then immediately re-read `watch + notification-queue + notifications`.
+
+## Live Revalidation: Turn 1 (4000 BCE) — sustained hold (fourth probe)
+
+- Turn/Date: 1 / 4000 BCE (snapshot at 2026-06-02T03:05:47Z)
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `AppStarted`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Blocker topology unchanged for fourth consecutive read:
+  - `NOTIFICATION_DISCOVER_NATURAL_WONDER` remains hard/active (`id 0`, `blocking-notification`)
+  - `NOTIFICATION_CHOOSE_CITY_PRODUCTION` remains non-blocking/expired
+  - `NOTIFICATION_COMMAND_UNITS` remains non-blocking/stale-expired with no closeout candidates
+- `notificationCount=3`, `selectedUnitId=null`, `firstReadyUnitId=null`, `readyCity=null`, `readyUnit=null`
+- `notification-queue` unchanged (`queueLength:3`, same order and priorities)
+- `ready` probes confirm no legal moves/production payload is actionable in this state
+
+### Recommended loop for next 3–6 windows
+
+1. Keep one-step read cycle only: `watch` → `notification-queue` → `notifications` → re-read.
+2. Continue handler-aware resolution only for the natural wonder blocker.
+3. Defer all city-unit sequencing decisions until the top blocker is declassified and a ready selector appears.
+
+### Turn Notes (new game, append-only)
+
+- `Turn 1` | `Static hold persists; no new actionable surface after repeated fresh probes` | `Hold full blocker-first mode, no speculative production or unit movement` | `Hard top decision remains the only legal reason to wait; unit/city selectors are still suppressed` | `Medium` | `If this state persists beyond the next window, escalate by asking for explicit handler/notification-root confirmation before any unblock attempt`
+
+### Direct message for active player thread
+
+- `Turn 1` remains blocked with unchanged evidence (`notification-queue=3`, natural wonder hard lock, null ready-city/ready-unit). Follow the same sequence and do not move a scout/issue production until handler evidence on the wonder blocker is present and revalidated by immediate post-action reads.
+
+## Live Revalidation: Turn 1 (4000 BCE) — sustained hold (fifth probe)
+
+- Turn/Date: 1 / 4000 BCE (snapshot at 2026-06-02T03:05:59Z)
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `inGame:true`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Lock profile unchanged:
+  - Step 1 `NOTIFICATION_DISCOVER_NATURAL_WONDER` (hard blocker, `isEndTurnBlocking:true`)
+  - Step 2 `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (non-blocking, `expired:true`)
+  - Step 3 `NOTIFICATION_COMMAND_UNITS` (non-blocking, stale-expired)
+- Top decision remains `NOTIFICATION_DISCOVER_NATURAL_WONDER`; ready selectors remain absent (`readyUnit=null`, `readyCity=null`, `selectedUnitId=null`, `firstReadyUnitId=null`).
+- `watch`, `notifications`, `notification-queue`, and `map` confirm unchanged `turn=1`, `turnDate=4000 BCE`, `hash=0`.
+- Read-only command surface still reports `unit-command-stale-expired` and a stale closeout candidate only.
+
+### Turn Notes (new game, append-only)
+
+- `Turn 1` | `Fifth direct probe confirms no meaningful state change` | `Keep strict blocker-first posture; do not attempt production/unit action until handler-confirmed wonder closure and selector resurfacing` | `The same hard lock persists with suppressed ready lanes, so speculative actions remain high-risk and non-verifiable` | `Medium` | `If this remains unchanged for one more probe, ask for explicit handler confirmation and/or alternate unlock path before any non-watch operation`
+
+### 10–20 Turn Strategic Cadence (continuation)
+
+- Recovery gate remains active through this window: de-noise the opening with one validated unblock-at-a-time only.
+- Lane commitment (`consolidate` vs `pressure-lite`) remains deferred until both:
+  1. `NOTIFICATION_DISCOVER_NATURAL_WONDER` de-ranks from blocking position,
+  2. valid `ready-unit` or `ready-city` payload reappears for at least 1 consecutive stable re-read.
+
+### Direct message for active player thread (non-spam)
+
+- `Turn 1` is still unresolved by any fresh surface; natural-wonder remains hard blocker and ready selectors are null. Do not advance with production/unit actions. Keep re-reading `watch`, `notification-queue`, and `notifications` after each confirmed unblock attempt.
+
+## Live Revalidation: Turn 1 (4000 BCE) — sustained hold (sixth probe)
+
+- Turn/Date: 1 / 4000 BCE (snapshot at 2026-06-02T03:06:12Z)
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `AppUI in GameStarted`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Lock profile unchanged for sixth direct read:
+  - `NOTIFICATION_DISCOVER_NATURAL_WONDER` remains top hard blocker
+  - `NOTIFICATION_CHOOSE_CITY_PRODUCTION` and `NOTIFICATION_COMMAND_UNITS` remain non-blocking (`expired` / `stale-expired` respectively)
+- `notificationCount=3`; top `blockingNotificationId` still `id 0`
+- `ready-unit` and `ready-city` remain null; no legal unit/city action payload exposed
+- `notification-queue` order/priorities unchanged
+
+### Turn Notes (new game, append-only)
+
+- `Turn 1` | `Sixth probe still shows no queue or selection progress` | `Continue hard-lock-only recovery lane, with no scout/city actions until a handler-confirmed unblock path for wonder appears` | `Multiple cleanly fresh reads confirm static state and reduce the value of speculative sequencing` | `Medium` | `Hold this read-and-validate loop and escalate only to explicit natural-wonder handler confirmation before any unblock attempt that could change state`
+
+### Window guidance update
+
+- 10–20 turn planning remains in **recovery-first mode** until two conditions are met:
+  1) `NOTIFICATION_DISCOVER_NATURAL_WONDER` de-ranks from hard blocker,
+  2) `ready-unit` or `ready-city` surface becomes non-null and stable across two reads.
+- In this gate, prioritize clean evidence collection over action volume.
+
+### Direct message to active player thread
+
+- Turn 1 remains fully stalled and unchanged (`notification-queue=3`, `turn/hash stable`, no `ready-unit/ready-city`). Keep the same safe playbook: one validated blocker-closure attempt only when handler evidence appears, then immediate re-read of `watch + notifications + queue`.
+
+## New Game Launch Reset (Session Restart #2) — Turn 1 / 4000 BCE
+
+### Net-new game snapshot
+
+- Turn/Date: 1 / 4000 BCE
+- Turn hash: `0` (confirmed from current status/watch/notification reads)
+- Readiness: `tuner-ready`, `autoplay.isActive=false`
+- End-turn readiness: `canEndTurn=false`, `hasSentTurnComplete=false`
+- Top blocking notification: `NOTIFICATION_DISCOVER_NATURAL_WONDER` (`Torres del Paine`)
+- Queue state: `notification-queue` length `3` (`inspect-handler` for wonder, `production-choice`, `unit-command`)
+- Selection state: `selectedUnitId=null`, `firstReadyUnitId=null`, `selectedCityId` unavailable from surfaced state
+- Operational command posture: **do not execute speculative civ7 ops** until official handler evidence is surfaced for the wonder path
+
+### Net-new 10–20 turn sequence (session-specific)
+
+#### Window A (Turns 1–4): Stabilize the decision surface
+- Objective: validate natural wonder handler and unblock the first legal decision path.
+- What I will keep doing:
+  - Poll every 2–4 turn-meaningful snapshots in strict order: `watch -> notifications -> notification-queue -> ready-unit -> ready-city`.
+  - Read blocker evidence directly from official `notification`/`queue` handlers before any command.
+  - Preserve city production and unit actions as pending until selection/validator data is concrete.
+- Exit condition to move beyond this window: wonder handler evidence appears with a safe operation contract.
+- Risk: very high due to unclassified hard blocker; avoid irreversible actions.
+
+#### Window B (Turns 5–8): Controlled unlock
+- Objective: clear first blocker chain and re-enter normal opener sequencing.
+- Priority if wonder resolves: one validated non-branching operation per window (civic/production/social/unit as exposed by fresh runtime)
+- Priority if wonder persists: pivot to evidence-driven queue handling only; no speculative skip-moves.
+- Exit condition: at least one live `ready-*` selector and one non-blocking action executed with validation proof.
+
+#### Window C (Turns 9–14): Expand after proof
+- Objective: shift from blocker-only posture to map/value scouting and economy tempo.
+- Priorities: city growth or first production conversion, then one recon lane with safety; avoid frontier aggression without path confidence.
+
+#### Window D (Turns 15–20): Lane lock-in
+- Objective: choose durable strategic lane (settlement + expansion vs. military posture) using objective proof from map/queue snapshots.
+- If threat rises: lock defense-first; if map clears safely: push controlled expansion with one backup move per turn.
+
+### What still applies generically (keep)
+
+- Blocker-first sequencing remains mandatory.
+- Never execute commands from queue hints alone; require explicit Tuner/runtime validation.
+- Keep updates in one turn row and avoid multi-message noise.
+- Maintain `10–20` turn framing with correction checkpoints every 3–6 snapshots.
+
+### Turn note (append-ready)
+
+- `Turn 1` | `New session resumed after crash; hard blocker is unclassified natural wonder discovery` | `Hold operation posture, revalidate watcher chain, and wait for handler evidence before any production/unit execution` | `Hard blocker may mask legal action surface; prior data is not safely actionable yet` | `High` | `Recheck queue/notifications in 2–4 snapshots; if blocker does not resolve, request explicit handler-backed unblocking path before turning to expansion`
+
+### Message to active player thread
+
+- Net-new posture for this launch: stop speculative play for now and run a strict evidence pipeline (`notifications` + `notification-queue` + `ready-unit` + `ready-city`) until `NOTIFICATION_DISCOVER_NATURAL_WONDER` is legally handled, then execute only one validated action per window. This is a restart-safe guardrail; generic blocker-first and 10–20 turn planning framework remains active and unchanged.
+
+## Live Revalidation: Turn 1 (4000 BCE) — sustained hold (seventh probe)
+
+- Turn/Date: 1 / 4000 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `inGame:true`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Selection signal remains suppressed:
+  - `selectedUnitId=null`, `firstReadyUnitId=null`
+  - `selectedCityId=null`
+  - `readyUnit=null`, `readyCity=null`
+- Lock topology remains:
+  - `NOTIFICATION_DISCOVER_NATURAL_WONDER` (`id 0`) is still hard blocking (`decision: blocking-notification`)
+  - `NOTIFICATION_CHOOSE_CITY_PRODUCTION` remains non-blocking/expired
+  - `NOTIFICATION_COMMAND_UNITS` remains non-blocking/`unit-command-stale-expired`
+- `notification-queue` remains length `3` and retains the same priority order (`inspect-handler` -> `operate-with-live-inputs` -> `inspect-ready-unit`)
+- `game play notifications --json` still reports a `repairCandidates` path only for COMMAND_UNITS (`game play end-turn --send`) and does not open a direct production/unit action path while the wonder lock is unresolved.
+
+### 10–20 Turn Strategic Cadence correction
+
+- **Window A (Turns 1–4) is now extended** to **Turns 1–8** due to hard-lock persistence.
+- New gate condition to enter Window B remains unchanged: **handler-confirmed declassification of the natural wonder decision** and recovery of at least one stable `ready-*` lane.
+- Tactical posture until that gate: watcher-only discipline, one validated unlock attempt only when handler proof appears, then immediate post-op readback before any production/unit commitment.
+
+### Turn note (append-only)
+
+- `Turn 1` | `Seventh consecutive read confirms unchanged lock topology and no selector recovery` | `Hold strict blocker-first recovery lane; preserve one-at-a-time validation if lock evidence changes` | `No fresh legal decision surface for Scout/Production while wonder is unresolved` | `Medium` | `If top blocker remains after two additional probes, escalate to explicit handler-close confirmation on `NOTIFICATION_DISCOVER_NATURAL_WONDER` before issuing any further non-watch operations`
+
+### Direct message to active player thread (non-spam)
+
+- Turn 1 remains a hard static gate: the wonder blocker still blocks end-turn, and both unit/city selectors are null. Keep the same exact read loop and avoid production/unit sends until explicit handler proof arrives for notification `id 0`.
+
+## Live Revalidation: Turn 1 (4000 BCE) — sustained hold (eighth probe)
+
+- Turn/Date: 1 / 4000 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `inGame:true`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Blocker status remains locked:
+  - `NOTIFICATION_DISCOVER_NATURAL_WONDER` (`id 0`, blocking)
+  - `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (non-blocking, `expired:true`)
+  - `NOTIFICATION_COMMAND_UNITS` (non-blocking, `unit-command-stale-expired`)
+- Selector state still unavailable:
+  - `selectedUnitId=null`, `firstReadyUnitId=null`, `selectedCityId=null`, `readyUnit=null`, `readyCity=null`
+- `notification-queue` still length `3`, same ordering and priorities as previous windows.
+- `watch` confirms stable `turn=1`, `turnDate=4000 BCE`, `hash=0` after this probe.
+
+### Turn note (append-only)
+
+- `Turn 1` | `Eighth direct probe remains fully unchanged` | `Continue handler-only lock handling; do not attempt scout or production actions without handler confirmation of wonder closure` | `Persistent null ready selectors indicate the state is still not legally advanced` | `Medium` | `After this, still no change? then extend the recovery gate again; if lock persists across another 2 probes, escalate by requesting explicit handler-close confirmation and proof payload before any non-watch operations`
+
+### Window-level correction
+
+- `10–20` turn lane remains in **extended recovery mode**:
+  - Treat `Window A` as open-ended until `NOTIFICATION_DISCOVER_NATURAL_WONDER` de-ranks and one `ready-*` selector appears with actionability.
+  - Transition to Window B only after that gate is met and one post-clear revalidation cycle succeeds.
+
+### Direct message for active player thread (non-spam)
+
+- Turn 1 still shows no unlock progression: same hard natural-wonder blocker, same 3-item queue, no ready unit/city selectors, no legal city/unit payloads. Keep the same one-cycle evidence loop and handler-only posture; do not force production or movement commands until the wonder is legally resolved and selectors resurface.
+
+## Live Revalidation: Turn 1 (4000 BCE) — sustained hold (ninth probe)
+
+- Turn/Date: 1 / 4000 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `inGame:true`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Hard top blocker unchanged: `NOTIFICATION_DISCOVER_NATURAL_WONDER` (`id 0`, hard)
+- Secondary notifications remain non-actionable for immediate unlock:
+  - `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (expired, non-blocking)
+  - `NOTIFICATION_COMMAND_UNITS` (`unit-command-stale-expired`, no enabled closeout)
+- Selector recovery still absent: `selectedUnitId=null`, `firstReadyUnitId=null`, `selectedCityId=null`, `readyUnit=null`, `readyCity=null`
+- `notification-queue` still length `3`, same dispositions and priorities as prior window
+- No map/turn/hash progression in this fresh cycle.
+
+### Turn note (append-only)
+
+- `Turn 1` | `Ninth probe still static; no legal progression path surfaced` | `Maintain the same lock-only recovery loop and avoid any non-handled action attempts` | `Repeated absence of ready selectors means any speculative play has low verification value` | `Medium` | `Hold for one more pair of probes; if still unchanged, escalate to direct handler-close confirmation for natural wonder blocker before trying any next action`
+
+### Strategic horizon checkpoint (10–20 turns)
+
+- Keep `Window A` extended as an unresolved lock-resolution phase until:
+  1) top natural-wonder blocker de-ranks through handler proof, and
+  2) at least one `ready-unit`/`ready-city` lane is non-null and stable for one follow-up read.
+- Do not enter scouting/pressure sequencing until both are true; prioritize evidence integrity over tempo.
+
+## Live Revalidation: Turn 1 (4000 BCE) — recovery-to-production transition
+
+- Snapshot time: 2026-06-02 (post-rehydrate, second recovery validation)
+- Turn/Date: 1 / 4000 BCE, `hash=0`
+- Readiness: `tuner-ready`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Short transient issue observed: `civ7 game` surface briefly entered UI-loading during recovery (`WaitingForGameplayData` / `WaitingForGameCore`) and one `watch/notification/ready` command family failed with runtime module-load errors, then recovered to full `tuner-ready`.
+- Stable blocker profile after recovery:
+  - `NOTIFICATION_COMMAND_UNITS` (`id 0`) currently reads as end-turn blocking in notifications view (`isEndTurnBlocking:true`) with `unit-command-stale-expired` details and no enabled closeout candidates.
+  - `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (`id 1`) currently reads as non-blocking in this snapshot (`isEndTurnBlocking:false`, `expired:true`), city target at `{owner:0,id:65536,type:1}` and location `{x:26,y:36}`.
+- Selection state remains null: `selectedUnitId=null`, `firstReadyUnitId=null`, `selectedCityId=null`.
+- Economic snapshot: `cities=1`, `units=1`, `treasury=0` (via tuner exec), `tech` exists but progression not shown.
+- `blockingNotificationId` from App UI is `id 0` in the immediate snapshot.
+
+### Strategic interpretation
+
+- The initial natural-wonder block is no longer the active visible frontier after rehydrate; the active lane is now a **command-unit reconciliation blocker** with stale pointer + a concurrent city production decision.
+- Do not execute movement/scout actions while `selectedUnitId` and `firstReadyUnitId` remain null.
+- The first validated unfreezing action candidate is now to resolve the city-production decision if/when the live chooser provides a concrete unit/project/building item (not just queue metadata), then re-read all surfaces.
+
+### Turn note (append-only)
+
+- `Turn 1` | `Post-recovery shift: natural-wonder blocker removed from immediate sequence; stale COMMAND_UNITS still blocks before valid city-production closure` | `Prioritize stable unblock evidence and handle CHOOSE_PRODUCTION only when live chooser is concrete; keep unit-action attempts deferred until a ready-unit candidate appears` | `Transient game state churn + null ready selectors means high risk of mis-sending` | `Medium` | `If COMMAND_UNITS remains blocking after one production-clear attempt, request explicit validator proof for `send-turn-complete` path versus a true tactical move branch before forcing any unit operation`
+
+### 10–20 turn horizon correction
+
+- Entering turn-1 tactical execution should be in two-step order:
+  1. Resolve city production lock using explicit live picker proof (`build-production` path only).
+  2. Re-run full live read (`watch` / `notifications` / `notification-queue` / `ready-*`) and, only if `unit-command` still blocks with actionable candidates, pursue guarded unit reconciliation.
+- If this holds for two additional snapshots, extend `Window A` again as a recovery phase and defer broader scouting/pressure planning until both producer and unit selectors are materially stable.
+
+## Live Revalidation: Turn 2 (3975 BCE) — unlock re-baseline
+
+- Turn/Date: 2 / 3975 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Active blockers from authoritative App UI / notification queue:
+  - `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (`id 1`) is now the end-turn blocker.
+  - `NOTIFICATION_CHOOSE_TECH` (`id 2`) is non-blocking but live-available.
+  - `NOTIFICATION_COMMAND_UNITS` (`id 0`) remains non-blocking with stale-classic reconciliation metadata.
+- Selection surfaces are now materially different from earlier loops:
+  - `selectedUnitId=null`, `firstReadyUnitId={"owner":0,"id":131072,"type":26}` (a `UNIT_SCOUT` at `26,36`).
+  - `readyCity` is now available: `selectedCityId=null`, `blockingCityId={"owner":0,"id":65536,"type":1}` at `26,36`.
+- `ready-unit --json` shows legal unit operations including `MOVE_TO`, `SKIP_TURN`, `ALERT`, `EMBED_LOOKOUT`, `SLEEP`, `WAIT_FOR`.
+- `ready-city --json` exposes concrete production candidates for the city:
+  - `BUILDING_GRANARY` (`ConstructibleType 42`) with `placementPlot {x:26,y:36}`
+  - `UNIT_SCOUT` (`UnitType 1`)
+  - `UNIT_HOPLITE` (`UnitType 30`)
+- `ready-city` growth/status snapshot:
+  - city growth in `5` turns, queue shows previous production `UNIT_SCOUT` completed, 0 workers assigned in workable plots, blocked expansion context.
+- `notification-queue --json` remains 3-step and now lists production-choice as step 1 blocker, tech-choice step 2, unit-step 3.
+
+### Turn 2 Tactical interpretation
+
+- This is no longer a pure lock/recovery loop; the game is in a valid opener-resolution phase with concrete choices.
+- The cleanest legal execution path is:
+  1. Resolve `NOTIFICATION_CHOOSE_CITY_PRODUCTION` with a validated `build-production` choice (unit granary/scout/hoplite) using live chooser proof.
+  2. Re-read `watch -> notifications -> ready-unit/ready-city -> notification-queue`.
+  3. If `canEndTurn` still false, resolve tech and then unit skip/reposition sequence with the concrete ready unit.
+
+### Turn note (append-only)
+
+- `Turn 2` | `Recovered selection surfaces and concrete live candidates are now present` | `Prioritize city production unblock first (it is the top blocker), then confirm tech blocker with an enabled research node and finish with deterministic unit closeout` | `Turn moved to new strategic layer; stale null-ready posture is improving but multi-decisions are now stacked` | `Medium` | `After one production/tech/command sequence readback, if turn 2 still blocks, hold to the validated next-step sequence before committing any movement path`.
+
+### 10–20 turn horizon update
+
+- **Window A (Turns 1–4)**: ends here due valid blocker surface recovery.
+- **Window B (Turns 5–8)**: now starts with concrete opener sequencing:
+  - secure production queue and tech branch, then spend mobility budget on scout-led map reading rather than risked pushes.
+  - prefer city growth tempo and safe military coverage over expansion into unknown pressure without prior target proof.
+- **Window C (Turns 9–14)**: transition to frontier lane selection once one stable `unit` move plan and one production milestone are validated.
+
+### Direct advisory to active player thread (non-spam)
+
+- Turn 2 is actionable again: top lane is `production-choice` with live options (`Granary`, `Scout`, `Hoplite`) at `{x:26,y:36}` and a real ready scout (`id 131072`) with legal move ops. Resolve production first, then tech+unit in that order after each immediate re-validation.
+
+## Live Revalidation: Turn 2 (3975 BCE) — tech-first unblock lane
+
+- Snapshot time: 2026-06-02T??:??:??Z (post-observation probe)
+- Turn/Date: 2 / 3975 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Active blocker now: `NOTIFICATION_CHOOSE_TECH` (`id 2`) is end-turn blocking.
+- Other queued items:
+  - `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (`id 1`) non-blocking in this surface order.
+  - `NOTIFICATION_COMMAND_UNITS` (`id 0`) non-blocking with valid scout closeout candidate.
+- Ready selectors:
+  - `firstReadyUnitId={"owner":0,"id":131072,"type":26}` (`UNIT_SCOUT` at `26,36`)
+  - `selectedUnitId=null`, `selectedCityId=null`, `blockingCityId=null`
+- `ready-unit --json` confirms legal scout actions now exposed (`MOVE_TO`, `SKIP_TURN`, `ALERT`, `EMBED_LOOKOUT`, `SLEEP`, `WAIT_FOR`, plus command options).
+- `ready-city --json` is inert because city is no longer the top blocker on this pass; no closeout city selector is selected.
+- `notification-queue --json` order now: step1 **tech**, step2 production, step3 unit.
+- Tech surface explicitly includes enabled nodes:
+  - `NODE_TECH_AQ_POTTERY`, `NODE_TECH_AQ_ANIMAL_HUSBANDRY`, `NODE_TECH_AQ_SAILING` all enabled with `--send --closeout` clis,
+  - higher-depth techs are disabled/disabled-to-target until prerequisites open.
+- `watch` reflects blocker state transition (`technology-choice`) and still shows `turn=2`.
+
+### Tactical interpretation
+
+- This is the first robust opening in this session after transient recovery and stale-blocker cycles.
+- Immediate validated sequence:
+  1. Resolve **technology choice** using an enabled node from live tech options.
+  2. Re-run quick readback (`watch`, `notifications`, `notification-queue`, `ready-unit`).
+  3. Address city production in the next pass if still exposed and actionable.
+  4. Use scout closeout (`SKIP_TURN` on unit `131072`) only if no movement path improves frontier safety/value.
+
+### Strategic recommendation (10–20 turn horizon)
+
+- **Window B (Turns 5–8)** now enters active sequencing: choose one early tech path that maximizes immediate scouting reliability:
+  - **Sailing** if map pressure suggests coastal/sea leverage later;
+  - **Pottery** if you want near-term domestic scaling reliability;
+  - **Animal Husbandry** if first contact/food-pressure scouting indicates animal tiles and fast worker-econ payoffs soon.
+- Keep city growth safe: avoid overcommitting to unit spam before tech/prod cadence is stabilized.
+- Risk gate: until a tech and at least one production decision are confirmed, do not force scouting movement into unknown adjacency.
+
+### Turn 2 note (append-only)
+
+- `Turn 2` | `Blocker role finally clarified to tech-choice-first after prior recovery churn` | `Execute tech unblock first (Pottery / Animal Husbandry / Sailing), then revalidate production and unit options` | `The surface now supplies concrete options, so speculative play risk has dropped but still remains if command/state not fully re-read` | `Medium` | `If tech choice is sent and queue advances, keep same revalidation cadence; if blocker persists, verify selected node validity before retrying`.
+
+### Direct advisory to active player thread
+
+- Turn 2 has moved to a clear action lane: **resolve tech first**, then re-check production and scout action. Prefer a low-risk enabled tech (`Pottery`, `Animal Husbandry`, or `Sailing`) based on whether you want faster food/warfare economy or sea-readiness; avoid committing movement before the post-tech/prod re-read confirms no hidden blocker shift.
+
+## Live Revalidation: Turn 2 (3975 BCE) — blocker lane pivot to command-closeout
+
+- Snapshot time: 2026-06-02T03:10:00Z (post-observation probe)
+- Turn/Date: 2 / 3975 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Active blocker evidence stack (App UI + play notification family):
+  - `NOTIFICATION_COMMAND_UNITS` (`id 0`) is end-turn blocking.
+  - `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (`id 1`) is non-blocking (not currently end-turn gating).
+  - `NOTIFICATION_CHOOSE_TECH` (`id 2`) is non-blocking and still has live options.
+- `civ7 game play notification-queue --json` and `civ7 game watch --json` now agree on priority order:
+  - step 1: command-units
+  - step 2: production-choice
+  - step 3: technology-choice
+- Selection + live choice surfaces:
+  - `selectedUnitId=null`
+  - `firstReadyUnitId={"owner":0,"id":131072,"type":26}` (`UNIT_SCOUT` at `25,35`)
+  - `selectedCityId=null`, `readyCity=null`, `blockingCityId=null`
+  - `ready-unit --json`: valid operations include `MOVE_TO`, `SKIP_TURN`, `ALERT`, `EMBED_LOOKOUT`, `SLEEP`, `WAIT_FOR`.
+  - `ready-city --json`: no active legal city operation context because `id 1` is not the current blocker.
+
+### Tactical interpretation (fresh turn-2 lane)
+
+- This is now a two-tier legal sequence: clear the command-closeout first using a verified scout action, then re-read and only then consume production/tech branches.
+- The lowest-regret path is:
+  1. Run a unit operation on the concrete ready scout (prefer `SKIP_TURN` unless movement is explicitly validated against a target with strategic value).
+  2. Re-read `watch -> notifications -> notification-queue -> ready-unit`.
+  3. If blocker clears, resolve `NOTIFICATION_CHOOSE_CITY_PRODUCTION` next with a live chooser-backed concrete item.
+  4. Resolve tech with `NOTIFICATION_CHOOSE_TECH` only after the above settles.
+- Keep an explicit anti-speculation rule: do not accept unit movement as “done” if `watch`/`notifications` still reports `unit-command` blocking.
+
+### Generic strategic clauses that still hold (apply unchanged)
+
+- Never substitute guessed IDs for live values; every send path must have validator-backed proof from `ready-*`/`choose-*` or queue/notification details.
+- Keep command cadence conservative: one high-confidence action, full revalidation, then next action.
+- Preserve economy stability over tempo greed in turns 1–10 unless a clear path from scout recon justifies expansion.
+- Avoid irreversible production commitments while any top blocker is unresolved.
+- Do not force movement into unknown adjacency until at least one safe lane from the scout is proven with target validation.
+
+### Turn note (append-only)
+
+- `Turn 2` | `Blocker lane shifted again: unit-command now first gate while tech/production are advisory` | `Resolve command-closeout on the concrete scout id 131072 first; then revalidate before touching production or tech` | `This avoids wasted moves against stale sequencing and preserves read/write safety under fast blocker drift` | `Medium` | `If unit-closeout still does not clear, do not escalate to guessed movement/production; re-read both App UI and Tuner-facing details and resync before any non-closeout unit action`
+
+### 10–20 Turn horizon correction
+
+- `Window B` remains active, but its first objective becomes **turn-loop hardening** before expansion:
+  - `Turns 5–8`: command-closeout stabilization + one constrained production branch + one safe scouting commitment only after target validation.
+  - `Turns 9–14`: transition from cleanup to lane selection only once at least one production and one tech branch have successfully been locked in consecutive reads.
+  - `Turns 15–20`: decide between compact growth track (granary/food + early worker timing) and pressure-lite scouting/claim path.
+
+### Direct advisory to active player thread (non-spam)
+
+- Current play lane: end-turn blocker is `NOTIFICATION_COMMAND_UNITS` with real scout id `131072`; `CHOOSE_TECH` and `CHOOSE_CITY_PRODUCTION` are present but not gating this turn. Execute the scout closeout with confirmation-first discipline, then re-check. If closeout opens, proceed to production, then tech. Avoid speculative movement before revalidation.
+
+## Live Revalidation: Turn 2 (3975 BCE) — stale reconciliation lock after closeout attempt
+
+- Snapshot time: 2026-06-02T03:09:05Z (same observed cycle family)
+- Turn/Date surface split:
+  - `civ7 game status --json` (Tuner) reports `turn=3`, `turnDate=3950 BCE`, `hash=0`.
+  - `civ7 game watch --include-ready-unit --include-ready-city --json` (App UI) still reports `turn=2`, `turnDate=3975 BCE`, `hasSentTurnComplete` not shown in this call.
+  - This divergence strongly suggests reconciliation lag after a pending closeout signal rather than active, stable board progression.
+- Readiness: `tuner-ready`, `autoplay inactive`, `canEndTurn:false`.
+- Blocker state now:
+  - `NOTIFICATION_COMMAND_UNITS` (`id 0`) is still end-turn blocking.
+  - `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (`id 1`) remains non-blocking.
+  - `NOTIFICATION_CHOOSE_TECH` (`id 2`) non-blocking and currently reports all known tech choices as disabled in the immediate pass.
+- `civ7 game play ready-unit --json` and `ready-city --json` both return no current selected/ready context.
+- `civ7 game play notifications --json` confirms explicit reconciliation marker:
+  - `hasSentTurnComplete:true` at notification level.
+  - `unit-command` details classify as `unit-command-stale-expired`.
+  - `closeoutCandidates`: scout `id 131072` (`UNIT_SCOUT`) has `SKIP_TURN` candidate present but `enabled:false`.
+  - `enabledCloseoutCandidates:[]`.
+  - `repairCandidates` includes `wait-for-turn-advance` via `game watch --count 3 --interval-ms 1000 --include-ready-unit --include-ready-city --jsonl`.
+- `notification-queue --json` remains unchanged: step1 command-unit, step2 production, step3 tech.
+
+### Tactical interpretation
+
+- This is no longer a normal “pick-and-send” phase. We have a confirmed stale blocker class after an attempted command-closeout:
+  - no ready unit pointer,
+  - no executable closeout candidate,
+  - and explicit repair hint tied to a pending turn-complete transition.
+- A valid next move set is therefore: re-run a short multi-sample watch loop and only re-open the action ladder after the blocker class changes. Do not force any unit/city/tech mutation while this exact pattern persists.
+
+### Turn note (append-only)
+
+- `Turn 2` | `Command unit remains blocker, but closeout is now explicitly stale/disabled with hasSentTurnComplete=true` | `Hold all sends; run reconciliation watch loop and wait for either blocker reclassification or confirmed turn advancement` | `Cross-surface drift (App UI turn 2, Tuner turn 3) means action legality is not stable enough for a low-risk mutation` | `Medium-High` | `If this persists on next window, run one additional 3-sample watch and do not proceed until `closeoutCandidates` or a fresh firstReadyUnit appear`
+
+### 10–20 turn horizon correction
+
+- Keep `Window B` in a hardening sub-phase until reconciliation clears:
+  - `Turns 5–8`: blocker stabilization and read-surface convergence only; no speculative unit movement.
+  - `Turns 9–14`: re-enter scouting-expansion sequencing only after at least one enabled closeout (or validated production branch) is confirmed in two consecutive reads.
+  - `Turns 15–20`: preserve compact growth track and conditional lane split if and only if command/purchase branches are stable.
+- Corridor rule: only shift to pressure lanes when both blocker stack and `firstReadyUnitId` are stable across a clean post-wait recheck.
+
+### Direct advisory to active player thread (non-spam)
+
+- Active lane is **not** action-ready yet. `NOTIFICATION_COMMAND_UNITS` is the top blocker but closeout is currently stale/disabled, with `hasSentTurnComplete:true` and no valid ready-unit command payload. Continue with a constrained re-sync pass (`watch --count 3 --interval-ms 1000 --include-ready-unit --include-ready-city --jsonl`) and resume only when the queue/notification topology gives an enabled closeout or a fresh blocker reassignment.
+
+## Live Revalidation: Turn 3 (3950 BCE) — population placement front and queue realignment
+
+- Snapshot time: 2026-06-02T03:09:17Z
+- Turn/Date: 3 / 3950 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `autoplay inactive`, `canEndTurn:false`.
+- Top blocker stack:
+  - `NOTIFICATION_NEW_POPULATION` (`id 3`) is end-turn blocking and top of queue.
+  - `NOTIFICATION_COMMAND_UNITS` (`id 0`) is present but currently non-blocking.
+- `civ7 game play notification-queue --json` confirms two-step queue:
+  - step 1: `NOTIFICATION_NEW_POPULATION` (`id 3`), blocking
+  - step 2: `NOTIFICATION_COMMAND_UNITS` (`id 0`), non-blocking
+- Surface now has stable, concrete growth/progression payload:
+  - `watch --include-ready-unit --include-ready-city --json` and `ready-city --json` both expose `civ7` city context for `cityId 65536` at `x:26,y:36`.
+  - `ready-city` reports `populationPlacement.isReadyToPlacePopulation=true` and concrete acquisition candidates:
+    - `x26,y37` `IMPROVEMENT_WOODCUTTER`
+    - `x27,y36` `IMPROVEMENT_FARM`
+    - `x26,y35` `IMPROVEMENT_MINE`
+    - `x25,y35` `IMPROVEMENT_FARM`
+    - `x25,y36` `IMPROVEMENT_WOODCUTTER`
+    - `x25,y37` `IMPROVEMENT_MINE`
+  - `ready-city` also retains production branches (`Granary`, `Scout`, `Hoplite`) and city growth remaining `4` turns.
+  - `ready-unit` is valid for scout `id 131072` at `24,35` and still has non-target no-op options (`SKIP_TURN`, etc.), but this unit is not the top gate this cycle.
+- `civ7 game play notifications --json` no longer classifies `unit-command` as a stale-expired hard lock; it remains present as closeout context behind growth placement.
+
+### Tactical interpretation
+
+- The active sequencing lane has shifted from unit-closeout to growth placement, which is now the only meaningful end-turn unlock.
+- Queue shape is cleaner than prior drift cycles: a single high-certainty blocker (`NEW_POPULATION`) plus a secondary non-blocking command.
+- Immediate safe lane:
+  1. Resolve `NOTIFICATION_NEW_POPULATION` with an explicitly validated plot action:
+     - `assign-worker --location <plot-index>` when the tile is workable,
+     - or `expand-city --city-id 65536 --x <x> --y <y>` when pursuing acquisition.
+  2. Re-read `notifications -> watch -> ready-city` immediately after action.
+  3. If command queue persists blocked or stale, only then re-enter unit action sequencing after a second revalidation.
+- Do not proceed to movement/scouting before the growth placement branch is resolved, because the active lane is now deterministic and high-impact.
+
+### Turn 3 note (append-only)
+
+- `Turn 3` | `Top blocker moved to growth placement while unit closeout became non-blocking` | `Resolve `NOTIFICATION_NEW_POPULATION` first using a validated target branch, then re-read queue before any unit action` | `Cleaner queue topology lowers uncertainty, so speculative movement now has higher wasted-branch cost than blocker mis-synchronization` | `Medium` | `If population branch remains unresolved after one action/readback, validate candidate branches directly (`assign-worker` vs `expand-city`) before any second guess`
+
+### 10–20 turn horizon update
+
+- Keep `Window B` as follows:
+  - `Turns 5–8`: growth-lock hardening and growth branch confirmation (worker cap, tile yield, and queue cleanups).
+  - `Turns 9–14`: convert one stable pop placement decision into a production tempo lock (granary vs military opener) and then reopen scouting commitment.
+  - `Turns 15–20`: choose between compact growth-first lane (food/happiness + controlled expansion) and pressure lane only if growth action remains cost-efficient and stable.
+- New gating rule: do not shift to offense/scout pressure lanes until the growth blocker is resolved in two consecutive clean reads.
+
+### Direct advisory to active player thread (non-spam)
+
+- `Turn 3` gate is now actionable and bounded: `NOTIFICATION_NEW_POPULATION` is the end-turn blocker with explicit valid growth candidates. Finish that branch first (with chosen x/y action proof), re-read immediately, then continue with command + production only if the queue unlocks.
+
+## Live Revalidation: Turn 3 (3950 BCE) — growth-lock reconfirmed and worker-cap edge noted
+
+- Snapshot time: 2026-06-02T03:09:42Z
+- Turn/Date: 3 / 3950 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `autoplay inactive`, `canEndTurn:false`.
+- Top blocker stack now stable:
+  - `NOTIFICATION_NEW_POPULATION` (`id 3`) remains hard blocker.
+  - `NOTIFICATION_COMMAND_UNITS` (`id 0`) is present but non-blocking.
+- `civ7 game play notification-queue --json` confirms queue shape:
+  - step 1: `NOTIFICATION_NEW_POPULATION` (blocking)
+  - step 2: `NOTIFICATION_COMMAND_UNITS` (non-blocking)
+- Both `ready-city` and `watch` now provide richer growth payload around city `65536`:
+  - `isReadyToPlacePopulation:true`.
+  - `cityWorkerCap:0` and `workablePlots:[]` with `workablePlotIndexes:[]`.
+  - Expansion candidates available at:
+    - `(x:26,y:37)` woodcutter
+    - `(x:27,y:36)` farm
+    - `(x:26,y:35)` mine
+    - `(x:25,y:35)` farm
+    - `(x:25,y:36)` woodcutter
+    - `(x:25,y:37)` mine
+  - One blocked growth tile shown in `allPlacementInfo` at `(x:26,y:36)` (Plot 2690, currently blocked).
+- Strategic consequence of this snapshot: growth lane is not fully worker-assignable yet (`cityWorkerCap` is 0), so the practical choice set is acquisition-oriented (`expand-city`) unless/ until worker capacity becomes available.
+
+### Tactical interpretation
+
+- This is an end-turn unlock window, but not a unit-tactic window:
+  - `NOTIFICATION_NEW_POPULATION` must be resolved before any meaningful queue unfreezing.
+  - Since growth placement is the only blocking queue item and worker assign path is unavailable by snapshot, immediate focus is selecting the expansion tile with the best early-growth value.
+- Keep conservative sequencing:
+  1. Use validated `expand-city --city-id 65536 --x <x> --y <y>` for one chosen tile from candidates.
+  2. Re-run immediate `watch -> notifications -> ready-city` revalidation.
+  3. Only after queue unlocks, evaluate unit closeout (`ready-unit`/`notification`) and then any production choice.
+
+### Turn note (append-only)
+
+- `Turn 3` | `Growth blocker remains sole hard gate; worker capacity = 0 keeps the branch expansion-driven` | `Resolve population placement through a validated expand-city tile; hold NOTIFICATION_COMMAND_UNITS as secondary` | `Cleaner blocker topology reduces churn risk, but wrong tile choice carries long-term yield opportunity cost` | `Medium` | `After one growth command, re-read twice in sequence; if population still blocks, treat as branch-resolution confirmation issue before any non-gate action`
+
+### 10–20 turn horizon correction
+
+- Window B narrows for the next sequence:
+  - `Turns 5–8`: growth-resolution stability window; confirm one expansion/worker-cap branch, then resume scouting spend.
+  - `Turns 9–14`: re-baseline production tempo from growth decision (Granary vs unit starter) and lock one opener lane before pressure moves.
+  - `Turns 15–20`: choose lane between compact growth-first consolidation and controlled forward pressure based on scout safety and turn costs.
+- New gating rule: do not return to unit/scout movement prioritization until growth and queue unlocks are stable for one full readback cycle.
+
+### Direct advisory to active player thread (non-spam)
+
+- Recommended lane for this window: growth first, one validated acquisition tile now. Because `cityWorkerCap` is 0 and no worker plots are currently open, prioritize `expand-city` over `assign-worker`, then re-read immediately. Keep unit/movement commands for after the new growth blocker state clears.
+
+## Live Revalidation: Turn 3 (3950 BCE) — stale COMMAND_UNITS lock reasserted, growth becomes review-only
+
+- Snapshot time: 2026-06-02T03:09:59Z
+- Turn/Date: 3 / 3950 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `autoplay inactive`, `canEndTurn:false`.
+- Top blocker stack changed this probe:
+  - `NOTIFICATION_COMMAND_UNITS` (`id 0`) is now hard top blocker and expired.
+  - `NOTIFICATION_NEW_POPULATION` (`id 3`) is now non-blocking.
+- `civ7 game play notification-queue --json` confirms the shape:
+  - step 1: `NOTIFICATION_COMMAND_UNITS` blocking
+  - step 2: `NOTIFICATION_NEW_POPULATION` non-blocking
+- `watch` and `ready-*` now show a stale-reconciliation profile:
+  - `firstReadyUnitId=null`, `selectedUnitId=null`
+  - `ready-unit --json` has no unit context
+  - `ready-city --json` has no city context (`blockingCityId=null`, no candidates)
+  - `unit-command` details classify `unit-command-stale-expired` with:
+    - scanned candidate `UNIT_SCOUT` (`id 131072`) at `(24,34)`
+    - `SKIP_TURN` candidate exists but `enabled:false`
+    - `enabledCloseoutCandidates:[]`
+    - repair hint includes `game play end-turn --send --reason ...`.
+- This differs from prior turn where growth placement had been active; growth remains visible in earlier reads but is no longer the immediate hard blocker.
+
+### Tactical interpretation
+
+- The active lane is now a stale unit-closeout lock, not a movement/placement decision.
+- `COMMAND_UNITS` is still blocked because the UI has no selected/ready unit and no enabled closeout, despite a clean queue and legal movement stack.
+- Immediate safe action path is not a tactical move. It is reconciliation-first:
+  1. Hold unit commands/movement and do not infer a move/production action from stale context.
+  2. Use one reconciliation attempt (`game play end-turn --send ...`) only when the stale-expired proof condition matches.
+  3. Re-run `watch --count 2 --include-ready-unit --include-ready-city --json` and `notifications` immediately after.
+  4. Resume normal blocker resolution only when either `unit-command` remains actionable or a new concrete block replaces it.
+
+### Turn note (append-only)
+
+- `Turn 3` | `COMMAND_UNITS stale-expired now blocks hard while growth dropped to non-blocking` | `Treat this as a queue-repair state; do not execute movement/production until closeout state stabilizes` | `Turn exhibits fast blocker drift and null ready pointers, increasing mis-send risk` | `High` | `If no usable closeout appears after one `end-turn` repair attempt, run a short watch loop and re-log before any further tactical command`
+
+### 10–20 turn horizon correction
+
+- Window B remains, but this probe moves it into a recovery branch:
+  - `Turns 5–8`: stale-lock resolution phase (retries + readback, not expansion or scout pushes).
+  - `Turns 9–14`: re-open growth or production sequencing only after the lock resolves in two clean reads.
+  - `Turns 15–20`: decide growth or pressure lane only if this stale lock cycle does not recur.
+- Anti-regress gate: no new scouting routes, no unit movement, no production closeout unless the live closeout class is explicitly `enabled`.
+
+### Direct advisory to active player thread (non-spam)
+
+- Current turn is a lock-repair window: `NOTIFICATION_COMMAND_UNITS` is end-turn blocking with stale-expired classification and no enabled SKIP_TURN closeout. Do not attempt command-city-unit combos now; run reconciliation + re-read. Keep growth note as deferred context.
+
+## Live Revalidation: Turn 5 (3900 BCE) — command-units throughput lane restored
+
+- Snapshot time: 2026-06-02T03:10:35Z
+- Turn/Date: 5 / 3900 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `autoplay inactive`, `inGame=true`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Active blocker profile now:
+  - `NOTIFICATION_COMMAND_UNITS` (`id 0`) is end-turn blocking and hard.
+  - `NOTIFICATION_NEW_POPULATION` is not active in this lane.
+  - `notification-queue` and `watch` both show queue length `1` and a single open decision.
+- Selected/ready visibility:
+  - `selectedUnitId: null`, `firstReadyUnitId: {"owner":0,"id":131072,"type":26}` (`UNIT_SCOUT`).
+  - `selectedCityId: null`, `ready-city` context still null.
+  - Scout is currently at `{x:22, y:33}`.
+- Legal surface from `watch`/`ready-unit` remains safe and explicit:
+  - no ambiguity on command lane: `SKIP_TURN` is enabled and validator-confirmed.
+  - non-target operations available include `MOVE_TO`, `AUTOMATE_EXPLORE`, `SLEEP`, `WAIT_FOR`, etc.
+- Practical reading: this is a cleaner recovery state than the prior stale lock because an enabled closeout is present again and city decisions are not currently gating.
+
+### Direct advisory row
+
+- Turn 5 | Command-unit lane is now actionable in live queue | Use one validated Scout `SKIP_TURN` closeout now, then immediate re-read | This keeps the turn from drifting while avoiding movement/production guessing when queue is unit-gated | Medium | If the next re-read does not clear `NOTIFICATION_COMMAND_UNITS`, run one short watch loop and re-apply this same closeout-first rule before any expansion or combat move
+
+### 10–20 Turn Horizon Update (Window B continuation)
+
+- Turns 5–6: close command-units hard lock with strict replay-safe `SKIP_TURN` or validated move intent only.
+- Turns 7–10: after two clean re-reads and queue clear, restore growth-production sequencing with explicit city growth and production closure.
+- Turns 11–14: lock one expansion vector only if scouting and blocker signals remain stable and non-stale.
+- Turns 15–20: decide growth-first vs pressure lane based on the first stable candidate set after unlock.
+
+### Immediate non-spam guidance to active player thread
+
+- For this window, the actionable lane is only: one closeout operation on the ready Scout, then revalidation.
+- Defer multi-step map aggression, civic, and production commits until the blocker's post-closeout topology is confirmed in one additional observation pass.
+
+## Live Revalidation: Turn 6 (3875 BCE) — growth lock returns; city-first unblock lane
+
+- Snapshot time: 2026-06-02T03:11:17Z
+- Turn/Date: 6 / 3875 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Active blocker stack:
+  - `NOTIFICATION_NEW_POPULATION` (`id 4`) is hard and top blocker.
+  - `NOTIFICATION_COMMAND_UNITS` (`id 0`) is present as a secondary, non-blocking `inspect-ready-unit` step.
+- Readiness context:
+  - `selectedUnitId: null`, `selectedCityId: null`
+  - `firstReadyUnitId: {"owner":0,"id":131072,"type":26}` (`UNIT_SCOUT`) at `{x:22, y:33}`
+- Growth payload is concrete and actionable:
+  - city: `LOC_CITY_NAME_GREECE1` (`cityId 65536`) at `{x:26, y:36}`, `population:3`, `cityWorkerCap:0`
+  - `isReadyToPlacePopulation: true`
+  - `workablePlots: []`, `blockedPlotIndexes: [2690]` (growth is effectively expansion-only currently)
+  - expansion candidates exposed with CLI hints: `(26,37)` woodcutter, `(27,36)` farm, `(26,35)` mine, `(25,36)` woodcutter, `(25,37)` mine, `(26,34)` clay pit, `(25,34)` farm, `(24,35)` farm
+- Queue topology:
+  - `notification-queue`: length `2`, step order `NEW_POPULATION` (blocking) -> `COMMAND_UNITS` (non-blocking)
+- Practical interpretation: this is a productive unblock moment for growth lane, not a movement-first turn. Keep unit operations at low priority until growth choice commits.
+
+### Direct advisory row
+
+- `Turn 6` | `Growth blocker returned as the single actionable end-turn lane with concrete expansion candidates` | `Execute one validated population placement via the expand-city command` | `City can claim growth with exposed candidate set and cityWorkerCap is 0, so worker assignment is not currently viable` | `Medium` | `Re-read queue/notifications/ready-city immediately after placement; if NOTIFICATION_NEW_POPULATION persists, resolve with an alternate expansion candidate only after candidate revalidation`
+
+### Strategic horizon update (Window B continuation)
+
+- Turns 6–7: resolve `NOTIFICATION_NEW_POPULATION` through a concrete `expand-city` choice and avoid unrelated civic/tech/more unit commands in the same lane.
+- Turns 8–10: after the growth unlock clears, re-open unit closeout (`SKIP_TURN` is enabled on scout) only after fresh `ready-city`/`ready-unit` re-read.
+- Turns 11–14: branch on the city’s next expansion safety and yield profile before declaring pressure vs defense posture.
+- Turns 15–20: lock a single expansion/consolidation mode only if two consecutive reads show stable candidates and low-blocker churn.
+
+### Immediate one-message guidance for player thread
+
+- First action: one `NOTIFICATION_NEW_POPULATION` expansion commit from the listed candidates (avoid trying to force worker placement while `cityWorkerCap` remains 0).
+- After send: `civ7 game play notifications --json -> notification-queue -> ready-city -> ready-unit -> watch`.
+- Only if `NEW_POPULATION` clears, re-run the command lane with validated `SKIP_TURN` or movement target if still needed.
+
+## Live Revalidation: Turn 6 (3875 BCE) — growth lane stable, no turn change
+
+- Snapshot time: 2026-06-02T03:11:38Z
+- Turn/Date: 6 / 3875 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Blocker topology: unchanged from prior check-in,
+  - `NOTIFICATION_NEW_POPULATION` (`id 4`) remains hard top blocker,
+  - `NOTIFICATION_COMMAND_UNITS` (`id 0`) remains secondary and non-blocking.
+- Candidate surface remains concrete:
+  - `LOC_CITY_NAME_GREECE1` city `65536`, `cityWorkerCap:0`, `isReadyToPlacePopulation:true`.
+  - `workablePlots: []`, `blockedPlotIndexes: [2690]`.
+  - expansion candidates unchanged at `(26,37),(27,36),(26,35),(25,36),(25,37),(26,34),(25,34),(24,35)`.
+- `firstReadyUnitId` stays `UNIT_SCOUT (131072)` and `SKIP_TURN` remains enabled for this unit when explicitly sent.
+- No queue/candidate churn since last advisory window; this is a clean hold state with stable read evidence.
+
+### Direct advisory row
+
+- `Turn 6` | `State remains stable after a second watch; no blocker transition yet` | `Hold queue-first: execute one validated growth expansion once, then re-read` | `Stability allows low-regret continuation, but repeated execution attempts without re-read risk desync` | `Medium` | `If another rewatch remains identical, commit one `expand-city` only after confirming candidate availability in that read, then return to growth-cleared sequencing`
+
+### 10–20 Turn Horizon update
+
+- Turns 6–7 remain a stabilization lane: force a single expansion-resolution action and verify queue drop before scouting moves.
+- If `NEW_POPULATION` still blocks after the next action attempt, run one additional read and avoid touching command/production branches until growth resolves.
+- 10–20 turn mode stays growth-first unless the growth lane clears consistently across two reads, then lock the expansion path and move to scouting/projection decisions.
+
+## Live Revalidation: Turn 6 (3875 BCE) — relaunch holding pattern (turn unchanged)
+
+- Snapshot time: 2026-06-02T03:11:50Z
+- Turn/Date: 6 / 3875 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- State continuity check:
+  - `NOTIFICATION_NEW_POPULATION` (`id 4`) remains hard top blocker.
+  - `NOTIFICATION_COMMAND_UNITS` (`id 0`) remains secondary/non-blocking.
+  - `notification-queue` remains `2` with same order.
+  - `firstReadyUnitId`: `{"owner":0,"id":131072,"type":26}` still present.
+  - `cityWorkerCap:0`, `workablePlots:[]`, `blockedPlotIndexes:[2690]` unchanged.
+  - Expansion candidates unchanged from prior checks: `(26,37),(27,36),(26,35),(25,36),(25,37),(26,34),(25,34),(24,35)`.
+- Confidence: medium (stable hold with no observed turn progression; no new topological churn).
+
+### Relaunch turn note (append here only when new thread data arrives)
+
+- `Turn 6` | `Second hold-window sample confirms relaunch state is unchanged` | `Execute one validated expand-city choice from the current candidate set, then re-read notifications -> notification-queue -> ready-city -> ready-unit -> watch in one cycle` | `No new top-level progression means risk is now entirely in replay/desync; lock still bounded by a known, concrete growth action` | `Medium` | `If this remains unchanged on the next sample, repeat one validated expand-city candidate swap and delay all scouting/military/pressure branches`
+
+### 10–20 Turn strategy reset (relaunch lane)
+
+- Window objective remains **controlled growth-first reset** until blocker resolves:
+  1) keep the one-action rule and immediate revalidation cadence,
+  2) resolve growth placement when actionable,
+  3) only then return to command closeout and production lock,
+  4) unlock expansion corridor decisions only after two clean reads with changed blocker topology.
+- If no growth transition appears within two more checks, treat this as a stable stale-cycle watch band:
+  - force parity reconciliation (`watch --count 2 --include-ready-unit --include-ready-city --jsonl`),
+  - keep advisory scope to queue-lock and safe closeout candidates only.
+
+### Suggested direct message to active player thread (non-spam)
+
+- `Turn 6` still sits in the relaunch holding lane: `NOTIFICATION_NEW_POPULATION` is still the top lock with concrete growth candidates and no queue churn. Play only one validated `expand-city` action, revalidate immediately, and defer scouting/expansion pressure decisions until the growth blocker drops for two consecutive clean reads.
+
+## Live Revalidation: Turn 7 (3850 BCE) — cross-surface hold split (stale command lock)
+
+- Snapshot time: 2026-06-02T03:15:10Z
+- Turn/Date: 7 / 3850 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`, `blockingNotificationId:null`
+- Cross-surface blocker profile:
+  - App UI `notifications` reports `blocker:0`, `notifications:[]`, `queueLength:0` (no surfaced blockers).
+  - Tuner probe shows `notification id 5` (`type 20`, `NOTIFICATION_ASSIGN_NEW_RESOURCES`) with `block=true` and `ids=[5]`.
+  - `firstReadyUnitId` is `null` in App UI and Tuner-visible first-ready probe (`hasSelectedUnit:false`), so immediate command closeout is not directly actioned.
+- Growth/city context is now non-actionable via App UI `ready-city`/`ready-unit`:
+  - `ready-city --json`: no active blocking city context.
+  - `ready-unit --json`: no active unit context.
+- Progress command stack now behaves as:
+  - `civ7 game play priorities --compact --json` => `summary: clean-read`, `priority` recommends `game play end-turn --json` as the validated next check.
+  - `game play end-turn --json` confirms `canEndTurn:false`.
+
+### Relauch lane note (append here only when new thread data arrives)
+
+- `Turn 7` | `Runtime split now shows a Tuner-level stale command lock while App UI queue is empty` | `Use one explicit lock-repair pass (`game play end-turn --send --reason ...`) only if repair hint is still active, then re-read `notifications`, `notification-queue`, `ready-city`, and `ready-unit` as a single cycle` | `Blocker drift is now parity-oriented: queue metadata is sparse, so speculative growth/movement/prod commands would be high-risk` | `Medium` | `If no selected ready unit/city appears after repair and lock persists on the next sample, keep to read-loop only and do not force non-lock-close actions`
+
+### 10–20 Turn strategy reset (relaunch hold)
+
+- Hold strategy remains **queue-parity reset** until command lock is repaired:
+  1) prioritize lock-repair and evidence convergence across App UI + Tuner,
+  2) avoid city/production/scouting commands unless a concrete growth/city or command closeout lane reappears,
+  3) only once lock converges on two clean reads, restart Window B growth-then-scout sequencing.
+- If the lock persists for 2+ samples, pause speculative branching and keep cadence at `notifications -> notification-queue -> priorities -> end-turn` loops.
+
+### Suggested direct message to active player thread (non-spam)
+
+- `Turn 7` now has an App UI/Tuner parity split: visible queue is empty, but Tuner still reports a hard `NOTIFICATION_ASSIGN_NEW_RESOURCES` lock with no ready selector. Treat this as a reconciliation phase, avoid growth/scout pushes, and only resume normal sequencing after a clean lock-release readback.
+
+## Net-new Rebase Play Sequence: Turn 7 (3850 BCE) through Turn 20
+
+- Snapshot time: 2026-06-02T04:00:00Z (placeholder capture window, recheck before acting)
+- Strategic phase: relaunch parity repair and lock-parsed restart (no speculative expansion yet)
+
+### Window 1 — Recovery and parity lock repair (Turns 7–10)
+
+- Hard rule: do not execute any growth/military/prod command until both surfaces agree on an actionable queue branch.
+- Execute at most one command per read cycle:
+  1. `game play notifications --json`
+  2. `game play notification-queue --json`
+  3. `game play priorities --compact --json`
+  4. `game play ready-city --json`
+  5. `game play ready-unit --json`
+  6. If priorities/repair hint still points to end-turn parity and no ready context exists, run one `game play end-turn --send --reason "repair restart parity lock" --json`
+  7. Re-read `notifications` + `notification-queue` immediately
+- If `firstReadyUnitId` or `blockingNotificationId` becomes concrete, branch by priority in the same cycle and return to this file with a short append-only note.
+
+### Window 2 — Unlock conversion (Turns 11–15)
+
+- After two consecutive clean reads with changed blocker topology:
+  - If `NOTIFICATION_NEW_POPULATION` is active with candidates, consume one `expand-city` from the current set, then immediate revalidation.
+  - Else, if `NOTIFICATION_COMMAND_UNITS` remains hard and a valid closeout exists, run one low-variance closeout (prefer `SKIP_TURN`) and re-read.
+  - Else, remain in read-loop and do not force lane changes.
+- New anti-requirement: reject any action not backed by both queue source + ready source in the same read cycle.
+
+### Window 3 — Strategic lane choice (Turns 16–20)
+
+- Trigger to move to lane commitment: blocker remains converged on two reads with no null-ready resets.
+- Lane A (growth-first): one city expansion lock + stable city growth cadence before any scout pressure.
+- Lane B (pressure-lite): one scout route only if a non-stale command lane appears and the tile context remains stable.
+- If lock churn recurs (2+ windows), defer commitment and continue Window 1 pattern.
+
+### Single-message recommendation to active player
+
+- Current turn is still restart-repair state; message should be: `Turn 7 restart branch is in parity lock repair. No city/unit/scout action until App UI and Tuner both expose the same actionable queue + ready context. Run the non-speculative repair cycle once, re-read immediately, then either one `expand-city` or validated unit closeout only.`
+
+## Live Revalidation: Turn 8 (3825 BCE) — production gate regained, command lane still secondary
+
+- Snapshot time: 2026-06-02T04:20:10Z
+- Turn/Date: 8 / 3825 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Blocker topology (App UI):
+  - `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (`id 6`, type `NOTIFICATION_CHOOSE_CITY_PRODUCTION`) is hard top blocker.
+  - `NOTIFICATION_COMMAND_UNITS` (`id 7`) remains non-blocking.
+- Confirmation from `notification-queue`:
+  - Step 1: `production-choice` `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (blocking)
+  - Step 2: `unit-command` `NOTIFICATION_COMMAND_UNITS` (non-blocking, `SKIP_TURN` candidate exists)
+- `ready-city` and `priorities` evidence:
+  - City `LOC_CITY_NAME_GREECE1` (`id 65536`) has no growth placement now (`isReadyToPlacePopulation:false`, `cityWorkerCap:0`).
+  - `ready-city` candidates are concrete: `UNIT_SCOUT`, `UNIT_HOPLITE`, `BUILDING_GRANARY`.
+  - `game play priorities` confirms next action order: production-choice first, then ready-unit.
+  - `firstReadyUnitId` remains `196609` and `ready-unit` shows legal operations including `SKIP_TURN`.
+- Confidence: `medium` (high-confidence queue lock, medium-confidence candidate preference without wider diplomatic/warfare context).
+
+### Direct advisory row
+
+- `Turn 8` | `Turn advanced and queue re-converged on City Production as the hard lock` | `Use one validated build-production choice from the live candidates, then immediately re-read notifications -> notification-queue -> ready-city -> ready-unit` | `Growth pause is over for this turn; decision now shifts from recovery to opener commitment` | `Medium` | `If production choice does not clear lock in one clean read, pivot to the exact ready-city candidate proof line before any unit movement`
+
+### 10–20 Turn horizon correction
+
+- Turns 8–10 (re-baseline recovery): execute one production closeout and revalidate convergence; keep unit action at no-target closeout quality only if production lock clears.
+- Turns 11–14 (lane test): after production is stabilized, revisit whether scout pressure lane opens without overextending city command line.
+- Turns 15–20 (commitment): lock growth-control vs pressure-lite on two-read stability, with production throughput and unit safety as the gating condition.
+
+### Suggested direct message for active thread
+
+- `Turn 8 moved out of the stale parity split: hard blocker is now `NOTIFICATION_CHOOSE_CITY_PRODUCTION` on city 65536, with `NOTIFICATION_COMMAND_UNITS` secondary. Execute one city production decision now (candidate options visible: Scout/Hoplite/Granary), then revalidate immediately before any further move or secondary closeout.`
+
+## Live Revalidation: Turn 8 (3825 BCE) — parity warning: Tuner still exposes `NOTIFICATION_ASSIGN_NEW_RESOURCES` aliasing
+
+- Follow-up check time: 2026-06-02T04:24:40Z
+- Snapshot evidence added from `civ7 game exec ... --state Tuner --json`:
+  - ids: `[{"owner":0,"id":6,"type":20}, {"owner":0,"id":7,"type":20}]`
+  - Tuner `findEndTurnBlocking` returns `{"owner":0,"id":6,"type":20}`.
+  - `Game.Notifications` type labels for both entries are currently `NOTIFICATION_ASSIGN_NEW_RESOURCES`.
+  - App UI `notifications` still labels `id 6` as `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (hard) and `id 7` as `NOTIFICATION_COMMAND_UNITS` (non-blocking).
+- Implication: this is a label-resolution drift, not yet a structural blocker spread.
+
+### Follow-up advisory row (append-only)
+
+- `Turn 8` | `UI/Tuner names differ for the same notification ids (App UI separates production+command; Tuner aliases both to assign-resources)` | `Execute one validated city production closeout first, then re-read immediately` | `Production remains the decisive lane; command-unit actions are still secondary and should not lead this turn` | `Medium` | `If the aliasing persists for the next read and second lock does not clear, pause and explicitly request parity confirmation from the live player context before non-lock actions`
+
+### 10–20 Turn correction under drift condition
+
+- For this branch, keep `production-choice` as the only hard lane until aliasing/queue labels normalize on two reads.
+- After that convergence, run window reset:
+  - `Turns 8–10`: one validated production, one revalidation cycle, then decide whether to take one unit closeout.
+  - `Turns 11–14`: if lock resolves, finalize opener lane (military-first or growth-first) and commit no more than one scout projection.
+  - `Turns 15–20`: hold pressure commitment until blocker stack is stable across both App UI and Tuner labels.
+
+## Live Revalidation: Turn 8 (3825 BCE) — second stable sample, no structural turn movement
+
+- Check time: 2026-06-02T03:20:25Z
+- Turn/Date: 8 / 3825 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Confirmed blockers and drift:
+  - App UI still shows:
+    - hard `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (`id 6`)
+    - secondary `NOTIFICATION_COMMAND_UNITS` (`id 7`)
+  - Tuner still reports both ids with `NOTIFICATION_ASSIGN_NEW_RESOURCES`, with `block=true` for `id 6`.
+- `ready-city`/`ready-unit` remained actionably concrete (city 65536 + scout ready unit 196609), but no queue transition occurred from the prior sample.
+- Risk posture: no new tactical evidence to support route commits or move-based expansion; production lock is still the deterministic lane.
+
+### Follow-up advisory row
+
+- `Turn 8` | `Second same-turn sample shows no blocker topology change; only production-choice lock is actionable` | `Execute one validated production closeout from ready-city now, then re-read notifications/queue/ready to prove lock progression` | `Stability is useful for safety, but the duplicated aliasing requires lane confirmation from both App UI and Tuner before route commands` | `Medium` | `If production closeout fails to clear block, hold at revalidation + parity-confirmation mode; do not force scout movement until both lanes agree`
+
+### 10–20 horizon note
+
+- Keep `production-choice` as the hard lane through this stabilization window.
+- `Turns 8–10`: require two clean revalidation passes with identical App UI + Tuner read convergence before committing any pressure-lite unit move.
+- `Turns 11–14`: after production lock clears, run a controlled lane split test (`military-first` vs `growth-first`) with one chosen projection.
+- `Turns 15–20`: commit only on stable production rhythm and no aliasing drift for two reads.
+
+## Live Revalidation: Turn 8 (3825 BCE) — stale-command repair candidate and null ready pointers
+
+- Check time: 2026-06-02T03:20:25Z
+- Turn/Date: 8 / 3825 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`, `blockingNotificationId:id 6`
+- Updated blocker state:
+  - App UI: hard `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (`id 6`) + secondary `NOTIFICATION_COMMAND_UNITS` (`id 7`)
+  - `firstReadyUnitId: null`, `selectedUnitId: null`, no concrete unit context in App UI.
+  - `ready-city` still returns production candidates for city `65536` (`Scout`, `Hoplite`, `Granary`) with growth still not ready.
+  - Tuner export still aliases ids `6` and `7` as `NOTIFICATION_ASSIGN_NEW_RESOURCES` and keeps `id 6` as blocker.
+- Unit command lane is now `unit-command-stale-expired` with `staleExpiredWithoutEnabledCloseout:true`.
+- Repair path is explicit in runtime data: one `game play end-turn --send ...` candidate exists when stale unit closeout is empty.
+
+### Follow-up advisory row
+
+- `Turn 8` | `Stale command lock tightened and ready-unit pointer dropped to null; city production remains hard lock` | `Run one repair readback (`game play end-turn --send --reason "stale COMMAND_UNITS has no selected/ready unit and no enabled validator-backed unit closeout" --json`) then immediate notifications -> notification-queue -> ready-city -> ready-unit re-check` | `Production is still the hard decision, but unit actions are unsafe without repaired ready state` | `Medium-high` | `If repair does not reintroduce a concrete ready unit, continue repair-only cadence and defer all scouting/movement commands until both App UI and Tuner converge`
+
+### 10–20 turn correction under repair
+
+- `Turns 8–10`: treat this as repair-first: one production closeout attempt only after lock repair, then no more than one validating read cycle.
+- `Turns 11–14`: when/if both App UI and Tuner converge on non-null unit/city pointers, then test one lane (production-heavy opening vs recon-lite).
+- `Turns 15–20`: lock lane decision only after two consecutive clean convergence windows with an executable ready-city and a non-stale unit pointer.
+
+## Live Revalidation: Turn 8 (3825 BCE) — repair-attempt blocked, still no ready recovery
+
+- Check time: 2026-06-02T03:20:25Z
+- Turn/Date: 8 / 3825 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Blocker topology remains:
+  - App UI hard: `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (`id 6`)
+  - Secondary: `NOTIFICATION_COMMAND_UNITS` (`id 7`) as stale-expired
+- Ready context: still `selectedUnitId:null`, `firstReadyUnitId:null`, and `ready-unit` has no unit payload.
+- Tuner export remains aliasing (`NOTIFICATION_ASSIGN_NEW_RESOURCES` for both ids), with `id 6` blocker.
+- Action attempted: `game play end-turn --send --reason "stale COMMAND_UNITS ..." --json`
+  - Result: blocked (`Civ7 turn complete is blocked by current game state`).
+- Inference: repair helper remains suggested by introspection, but this exact send path is not currently executable in current surface state.
+
+### Follow-up advisory row
+
+- `Turn 8` | `Repair command is suggested by runtime but blocked by current game state` | `Do not re-send the same repair call in the same lane; continue `notifications -> notification-queue -> ready-city -> priorities` readback and wait for either production closeout eligibility or explicit ready-unit restoration` | `The game has entered a strict no-op window; unsafe blind retries can increase desync risk` | `Medium-high` | `Treat as parity lock and only execute one validated production command once ready-city and notification queue both show an executable branch`
+
+### 10–20 turn correction under block
+
+- `Turns 8–10`: keep the thread in read-only lock diagnosis mode; no blind repair resubmits and no unit movement.
+- `Turns 11–14`: once production path becomes executable, take exactly one production action and revalidate once.
+- `Turns 15–20`: commit to opener lane only if two complete reads confirm stable App UI + Tuner pointers with non-null ready data.
+
+## Live Revalidation: Turn 8 (3825 BCE) — current parity sample confirms stable no-op recovery
+
+- Check time: 2026-06-02T03:20:25Z
+- Turn/Date: 8 / 3825 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Blocking evidence:
+  - App UI: hard `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (`id 6`) leading; `NOTIFICATION_COMMAND_UNITS` (`id 7`) still stale with no enabled closeout.
+  - `notifications` and `notification-queue` topology unchanged from previous windows.
+  - `ready-city`: candidates remain concrete on city `LOC_CITY_NAME_GREECE1` (`UNIT_SCOUT`, `UNIT_HOPLITE`, `BUILDING_GRANARY`), growth not ready for placement/worker ops.
+  - `ready-unit`: null payload; `selectedUnitId:null`, `firstReadyUnitId:null`.
+- Priority view:
+  - `game play priorities` still reports production-choice as first lane.
+  - `progress-dashboard` still at `age 8/140` Antiquity with all legacy tracks at zero.
+- Command posture: stale repair remains present in runtime details (`staleExpiredWithoutEnabledCloseout:true`) and repair send is still not reattempted immediately.
+
+### Follow-up advisory row
+
+- `Turn 8` | `No queue/topology movement after prior repair-attempt window; unit ready context remains null` | `Remain in one-pass lock-repair loop, rechecking notifications/queue/ready-city/ready-unit every cycle` | `Production choice remains the only deterministic lane; unit lane still unsafe` | `Medium-high` | `If no queue movement or non-null ready pointer appears across the next two full samples, maintain conservative mode and request parity confirmation before any tactical expansion`
+
+### 10–20 horizon correction after latest sample
+
+- `Turns 8–10`: keep recovery mode; one validated production closeout at most, with immediate revalidation.
+- `Turns 11–14`: no branching until two consistent reads show queue/ready pointer stability.
+- `Turns 15–20`: commit a single lane (growth-first vs pressure-lite) only after two clean convergence windows; otherwise extend lock-safe recovery.
+
+## Live Revalidation: Turn 9 (3800 BCE) — blocker handoff to technology-choice
+
+- Check time: 2026-06-02T03:20:25Z
+- Turn/Date: 9 / 3800 BCE
+- Readiness: `tuner-ready`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Blocking state:
+  - hard: `NOTIFICATION_CHOOSE_TECH` (`id 8`) now first in queue
+  - secondary: `NOTIFICATION_COMMAND_UNITS` (`id 9`) with enabled SKIP_TURN closeout candidates
+  - `firstReadyUnitId`: `UNIT_SCOUT (131072)` in App UI (`ready-unit` now concrete)
+- `notification-queue` schedule now:
+  - step 1 technology-choice
+  - step 2 unit-command (`SKIP_TURN` candidates enabled for scouts `131072` / `196609`)
+- `ready-city` currently null (city chooser action not first lane anymore)
+- `priorities` now: `technology-choice -> ready-unit -> nearby tactical scans`
+- Tech options surface: `Animal Husbandry`, `Sailing`, `Writing` are enabled-closeout; `choose-tech` should be used as the immediate lane clear.
+- `progress-dashboard`: `Antiquity ageProgress 9/140`, all legacy tracks still at zero.
+- Tuner quick check around the transition returned empty `Game.Notifications` ids, so cross-surface parity remains important.
+
+### Follow-up advisory row
+
+- `Turn 9` | `App UI transitions from stalled production stack to hard technology-choice blocker, with unit closeout now enabled` | `Resolve one `choose-tech` closeout first, then re-read and take only one validated unit action if still safe` | `Tech debt moved to first lane, making production moves irrelevant this cycle` | `Medium` | `If tech blocker persists without transition across two reads, pause and request parity confirmation on App UI/Tuner naming/visibility before non-tech moves`
+
+### 10–20 horizon correction (new lane)
+
+- `Turns 9–10`: tech-first recovery — select one enabled node and close out with strict post-read.
+- `Turns 11–14`: once tech+unit lanes show stable non-null ids, choose lane branch:
+  - growth-first (timing research + safe micro) or
+  - pressure-lite (one scout route only).
+- `Turns 15–20`: commit only after two consistent reads of same queue order and no stale-closeout contradictions.
+
+### Live Revalidation: Turn 9 (3800 BCE, blocker inversion)
+
+- Check time: 2026-06-02T03:20:25Z
+- Turn/Date: 9 / 3800 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Priority snapshot:
+  - App UI hard blocker: `NOTIFICATION_COMMAND_UNITS` (`id 9`)
+  - App UI secondary: `NOTIFICATION_CHOOSE_TECH` (`id 8`)
+  - `notification-queue`: unit-command head (priority 100), then technology-choice (priority 70)
+  - `priorities`: top `hud:unit-command`
+  - `ready-unit`: concrete `UNIT_SCOUT (131072)` with `SKIP_TURN` available
+  - `ready-city`: null context
+- Constraint note: Tuner still aliases both IDs as `NOTIFICATION_ASSIGN_NEW_RESOURCES`, so cross-surface parity is still required before any multi-step tactical expansion.
+
+### Follow-up advisory row
+
+- `Turn 9` | `Intra-cycle parity check shows unit-command inversion has held: command-units is now hard blocker and tech-choice is secondary` | `Execute one validated unit closeout now and re-read before any follow-up action` | `The active window is now unit-command-first despite prior tech-first framing` | `Medium` | `If inversion repeats in next 2 reads, remain in lock-parity loop and request explicit UI parity confirmation before branching`
+
+### 10–20 correction after inversion
+
+- `Turns 9–10`: continue unit-command-first closure; one validated SKIP_TURN or movement closeout, immediate re-read.
+- `Turns 11–12`: once queue transitions, take one tech closeout if still enabled and revalidate same cycle.
+- `Turns 13–16`: choose exactly one controlled lane only after two stable reads:
+  - growth-lite branch (tech pacing + safe setup), or
+  - pressure-lite branch (single validated scout loop).
+- `Turns 17–20`: if queue inversion repeats across the two-read threshold, extend conservative lock-loop and avoid strategic commit until queue labels converge across App UI + Tuner again.
+
+### Live Revalidation: Turn 9 (3800 BCE, parity reflip)
+
+- Check time: 2026-06-02T03:20:25Z
+- Turn/Date: 9 / 3800 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `autoplay inactive`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- App UI order:
+  - hard blocker: `NOTIFICATION_CHOOSE_TECH` (`id 8`)
+  - secondary: `NOTIFICATION_COMMAND_UNITS` (`id 9`)
+  - `notification-queue`: tech-choice first (`priority 100`), unit-command second (`priority 65`)
+  - `priorities`: `hud:technology-choice` first
+  - `ready-unit`: `UNIT_SCOUT (131072)` at `(22,30)` with legal ops and `SKIP_TURN` enabled
+  - `ready-city`: no city payload
+- Cross-surface note: Tuner still aliases both IDs to `NOTIFICATION_ASSIGN_NEW_RESOURCES`, with blocker now reported on `id 8`.
+
+### Follow-up advisory row
+
+- `Turn 9` | `Intra-cycle reflip: blocker order returned to tech-first while unit lane stays secondary` | `Execute one enabled tech closeout now, then re-read queue/ready before any unit movement strategy` | `Live lanes are coherent again for a clean tech-first reset, but parity drift remains possible` | `Medium` | `If order flips again on next 2 reads, hold on tactical expansion and request direct parity confirmation`
+
+### 10–20 correction after reflip
+
+- `Turns 9–10`: execute one `choose-tech` closeout (`Animal Husbandry`, `Sailing`, or `Writing`) with post-send verification.
+- `Turns 11–12`: move into one validated unit closeout only after tech lane clears and queue confirms unit-command remains non-blocking secondary.
+- `Turns 13–16`: choose and hold one lane for two clean reads: growth-lite vs pressure-lite.
+- `Turns 17–20`: continue or defer strategic commitments based on two-cycle parity stability across App UI and Tuner blocker topology.
+
+### Live Revalidation: Turn 9 (3800 BCE, no inversion)
+
+- Check time: 2026-06-02T03:20:25Z
+- Turn/Date: 9 / 3800 BCE
+- Turn hash: `0`
+- Hard lane: `NOTIFICATION_CHOOSE_TECH` (`id 8`)
+- Secondary: `NOTIFICATION_COMMAND_UNITS` (`id 9`)
+- `notification-queue`: tech-first order holds (`priority 100` then `65`).
+- `priorities`: `hud:technology-choice`
+- `ready-unit`: `UNIT_SCOUT (131072)` at `(22,30)` with movement/skip-ready operations; `ready-city` remains empty
+- `Tuner`: blocker and both ids still alias to `NOTIFICATION_ASSIGN_NEW_RESOURCES`, but App UI and queue surface confirm tech-first execution this cycle.
+
+### Follow-up advisory row
+
+- `Turn 9` | `Second consecutive read confirms tech-first control lane remains authoritative` | `Execute one enabled technology closeout now, then re-read queue/ready before unit escalation` | `This read removes prior lane ambiguity and restores the planned tech-first execution order` | `Medium` | `If a future read flips again, use two-cycle parity hold and delay non-essential movement commands`
+
+### 10–20 correction after hold
+
+- `Turns 9–10`: complete one enabled `choose-tech` closeout with immediate post-action verification.
+- `Turns 11–12`: only if stable, run one validated unit closeout next (`SKIP_TURN` if no tactical gain to move).
+- `Turns 13–16`: continue one-lane hold and only choose growth-lite vs pressure-lite after two stable reads.
+- `Turns 17–20`: keep low-regret posture while cross-surface blocker naming remains noisy.
+
+### Live Revalidation: Turn 9 (3800 BCE continuation, stable hold)
+
+- Check time: 2026-06-02T03:20:25Z
+- Turn/Date: 9 / 3800 BCE, hash `0`
+- App UI: hard blocker still `NOTIFICATION_CHOOSE_TECH` (`id 8`), secondary `NOTIFICATION_COMMAND_UNITS` (`id 9`).
+- `notification-queue`: tech-first (`priority 100`) then unit-command (`priority 65`); `priorities` still `hud:technology-choice`.
+- `ready-unit`: still `UNIT_SCOUT (131072)` on `(22,30)`, command options available; `ready-city` still null.
+- Tuner aliasing remains unchanged (`NOTIFICATION_ASSIGN_NEW_RESOURCES` for both ids).
+- Active guidance unchanged: execute one validated tech closeout first, then immediate re-read; defer route/movement expansion until queue confirms a stable post-tech move lane.
+
+### Follow-up advisory row
+
+- `Turn 9` | `Hold sample confirms stable tech-first blocker ladder after prior volatility` | `Run one closeout tech command now (`Animal Husbandry` / `Sailing` / `Writing`) then re-check queue before unit actions` | `No new tactical branch is justified until a turn/queue transition is observed` | `Medium` | `If turn remains frozen after two more windows, continue strict parity loop and avoid speculative branching`
+
+### 10–20 correction for hold sample
+
+- `Turns 9–10`: single tech closeout with immediate post-send checks.
+- `Turns 11–12`: only then evaluate one unit closeout if still safe and sequence-valid.
+- `Turns 13–16`: keep a provisional one-lane plan and confirm two consistent reads before choosing growth-lite vs pressure-lite.
+- `Turns 17–20`: only commit deeper scouting/pressure if App UI + Tuner blocker semantics are coherent over successive windows.
+
+### Live Checkpoint (Turn 9 / 3800 BCE continuation, relaunch reset alignment)
+
+- Snapshot time: 2026-06-02T03:20:25Z
+- Turn/Date/Hash: `9 / 3800 BCE`, hash `0`
+- Active blocker lane (App UI):
+  - Hard: `NOTIFICATION_CHOOSE_TECH` (`id 8`)
+  - Secondary: `NOTIFICATION_COMMAND_UNITS` (`id 9`)
+- `firstReadyUnitId`: `UNIT_SCOUT (131072)` with legal closeouts; `ready-city`: null
+- Queue/priority shape: technology-choice (`100`) above unit-command (`65`) under `hud:technology-choice`
+- Cross-surface drift remains: Tuner aliasing still normalizes ids to `NOTIFICATION_ASSIGN_NEW_RESOURCES`, so App UI + queue remains the authoritative live lane source.
+- Recommandation for this relaunch window:
+  - run one validated tech closeout (`game play choose-tech --send --closeout ...`) only,
+  - immediate full re-read, then one validated unit follow-up only if still coherent.
+
+### 10–20 Turn sequencing update (relaunch window reset)
+
+- `Turns 9–10`: one clean tech closeout per cycle.
+- `Turns 11–12`: one validated unit closeout only if tech lane clears and queue confirms no inversion.
+- `Turns 13–16`: lock one provisional branch for two clean reads:
+  - growth-lite recovery (`tech + safe setup`) or
+  - pressure-lite (`single scout loop`) and no broader pressure.
+- `Turns 17–20`: if parity/noise persists, continue recovery hold with explicit parity probes; avoid speculative civic/expansion commits until two consecutive stable reads land.
+
+- Player-facing row: `Turn 9` | `Relaunch remains in tech-first hold after blocker transition and parity drift` | `Execute one closeout tech node, revalidate queue/ready immediately` | `Unit lane is usable but secondary and should remain follow-on only` | `Medium` | `If lane order flips again before verification, hold and request direct App UI + queue + priority confirmation`
+
+### Live Checkpoint (Turn 10 / 3775 BCE)
+
+- Snapshot time: 2026-06-02T03:21:11Z
+- Turn/Date/Hash: `10 / 3775 BCE`, hash `0`
+- App UI blocker stack:
+  - Hard: `NOTIFICATION_CHOOSE_CULTURE_NODE` (`id 11`, top priority)
+  - Non-blocking: `NOTIFICATION_CULTURE_TREE_REVEALED` (`id 10`), `NOTIFICATION_CHOOSE_GOVERNMENT` (`id 12`), `NOTIFICATION_TRADITIONS_AVAILABLE` (`id 13`), `NOTIFICATION_COMMAND_UNITS` (`id 9`)
+- `firstReadyUnitId`: `UNIT_SCOUT (131072)` (movement-capable, `SKIP_TURN` closeout available)
+- Queue/priorities: `hud:culture-choice` (`100`) -> `unit-command` (`65`); `ready-city` still null
+- Cross-surface drift remains: Tuner maps ids `9..13` to `NOTIFICATION_ASSIGN_NEW_RESOURCES`, blocker as `id 10`; App UI/queue shows `id 11` hard first and has actionable live options from `choose-culture --options --json`.
+- 10-turn outlook correction:
+  - 10–12: culture-first closeout execution (single action + re-read)
+  - 11–14: unit follow-up only if culture lane stays stable
+  - 15–20: branch commitment only after 2 clean reads and no inversion
+
+- Player-facing relay row:
+  - `Turn 10` | `Cultural tech lock became the hard blocker after turn advancement` | `Run one validated `choose-culture` closeout and immediate queue/ready recheck` | `Unit is now stable follow-up; keep queue-parity discipline in this drift window` | `Medium` | `If priority order flips, hold for one read cycle before any scouting or non-blocker execution`
+
+- Generic doctrine remains unchanged: blocker-first sequencing, one validated command per cycle, immediate revalidation, no speculative movement or civic expansion while unit/culture lock is still in transition.
+
+### Live Checkpoint (Turn 10 / 3775 BCE — unit-command hard blocker)
+
+- Check time: 2026-06-02T03:21:50Z
+- Turn/Date/Hash: `10 / 3775 BCE`, hash `0`
+- App UI blocker state changed from prior sample:
+  - Hard: `NOTIFICATION_COMMAND_UNITS` (`id 9`) with `blockingNotificationId` on `id 9`.
+  - Non-blocking: `NOTIFICATION_CULTURE_TREE_REVEALED` (`id 10`), `NOTIFICATION_CHOOSE_CULTURE_NODE` (`id 11`, `expired:true`), `NOTIFICATION_CHOOSE_GOVERNMENT` (`id 12`), `NOTIFICATION_TRADITIONS_AVAILABLE` (`id 13`).
+- Queue shape now: `unit-command` -> `culture-tree-revealed` -> `choose-culture` -> `choose-government` -> `traditions`.
+- `priorities`: `hud:unit-command` top, confirming readiness-driven command-first posture.
+- `ready-unit`: `UNIT_SCOUT (131072)` remains actionable; `SKIP_TURN` and movement operations available.
+- `ready-city`: still null.
+- Cross-surface drift unchanged: Tuner aliases all ids to `NOTIFICATION_ASSIGN_NEW_RESOURCES`, blocker `id 10`.
+- 10-turn outlook correction:
+  - 10–11: one validated unit closeout (prefer `SKIP_TURN`) + immediate re-read.
+  - 11–12: only proceed to follow-up civic/government actions after unit blocker clears on consecutive reads.
+  - 13–16 / 17–20: keep one-lane commitments only after two stable samples.
+
+- Player-facing relay:
+  - `Turn 10` | `Hard blocker pivoted back to COMMAND_UNITS; CHOOSE_CULTURE_NODE is now expired/non-blocking` | `Run one validated SKIP_TURN closeout now and re-read queue/notifications/ready` | `This is a concrete control-window correction that prevents speculative civic execution` | `Medium` | `Hold if inversion repeats until two consecutive stable unit-first reads show safe follow-up`
+
+### Live Checkpoint (Turn 10 / 3775 BCE — stale COMMAND_UNITS hold state)
+
+- Check time: 2026-06-02T03:25:19Z
+- Turn/Date/Hash: `10 / 3775 BCE`, hash `0`
+- Core lock evidence:
+  - `blocked by`: `NOTIFICATION_COMMAND_UNITS` (`id 9`) with `staleExpiredWithoutEnabledCloseout: true`
+  - `selectedUnitId: null`, `firstReadyUnitId: null`
+  - `ready-unit`: null
+  - `ready-city`: null
+  - `hasSentTurnComplete: true`
+  - `priorities`: `hud:unit-command-stale-expired` with explicit watch command (`game watch ...`)
+  - `notification-queue`: unit-command remains `priority 100`, followed by culture/gov/tradition entries at `priority 70`.
+- Generic doctrine preserved (still active):
+  - blocker-first sequencing
+  - one validated action per cycle
+  - immediate re-read
+  - no speculative movement/production while pointers are null or stale
+- Net-new tactical consequence:
+  - No immediate unit/civic mutation should be sent from this state.
+  - Use read-only stabilization window (`game watch --count 3 --interval-ms 1000 --include-ready-unit --include-ready-city --jsonl`) then re-run `notifications -> notification-queue -> priorities`.
+  - If stale status clears and an enabled closeout appears, resume prior `unit-command -> re-read` micro-cycle.
+
+### 10–20 strategic framework after stale hold
+
+- `Turns 10–12`: watch/read only, keep one-message cadence.
+- `Turns 13–14`: if stale lock remains, continue the same hold posture and request parity confirmation.
+- `Turns 15–16`: if lock clears, one validated closeout first (unit if unit-command is true first lane; otherwise the surfaced hard civic node), then re-read.
+- `Turns 17–20`: only after two stable non-null ready samples, branch into either growth-lite or pressure-lite.
+
+### Follow-up advisory row
+
+- `Turn 10` | `Lock moved from action window to stale-expired unit-command hold with no ready payload` | `Run the explicit watch command, then re-read notifications/queue/priorities before any command` | `This confirms a watch-state, not a move-state; forcing SKIP_TURN now risks no-op or invalid retries` | `High` | `If stale-expired persists for another 2 reads, extend recovery hold and do not branch into civic/unit operations`
+
+### Live Checkpoint (Turn 12 / 3725 BCE — concrete unit-command lane after stale stall)
+
+- Check time: 2026-06-02T03:29:10Z
+- Turn/Date/Hash: `12 / 3725 BCE`, `hash=0`
+- Active blocker now:
+  - `NOTIFICATION_COMMAND_UNITS` (`id 16`) hard and actionable (`staleExpiredWithoutEnabledCloseout: false`)
+  - `NOTIFICATION_NEW_POPULATION` (`id 15`) non-blocking follow-up
+- Read outputs:
+  - `firstReadyUnitId: UNIT_SCOUT (131072)` at `(24,30)`
+  - `selectedUnitId: null`
+  - `hasSentTurnComplete: false`
+  - `ready-unit`: concrete legal operations (`SKIP_TURN`, `MOVE_TO`, `AUTOMATE_EXPLORE`, `ALERT`, etc.) with validation
+  - `ready-city`: empty packet despite active population notification
+  - `notification-queue`: `unit-command` then `population-placement`
+  - `priorities`: `hud:unit-command` (with `ready-unit` follow-up and battlefield checks)
+- Tuner continues to expose alias-level noise on ids; execution authority remains App UI + queue + priorities + live target/placement commands before branching.
+
+### 10–20 strategic framework (post-turn12 reset)
+
+- **Turns 12–13 (bridge):** one command-unit closeout only; re-read full sequence immediately.
+- **Turns 14–16 (growth gate):** if population choice becomes concrete and validated, execute one city/place growth action; re-read immediately.
+- **Turns 17–20 (commit):** commit to growth-lite or pressure-lite only after two consistent reads with stable top-lane order and non-null actionable ready payloads.
+- If a new inversion appears before revalidation, hold to wait/read loop and avoid non-unit commitments.
+
+### Follow-up advisory row
+
+- `Turn 12` | `Unit closeout recovered from stale lock and is now actionable; growth remains secondary` | `Resolve one command-unit action first, then one pass of full re-read before any growth probe` | `This is the new active lane and supports safe closeout-first tempo preservation` | `Medium` | `If this lane becomes stale again, return to read/watch-only until ready pointers and priorities re-stabilize`
+
+## Live Checkpoint (Turn 12 / 3725 BCE)
+
+- State snapshot: turn hash remains `0` and `hasSentTurnComplete=false`; live queue shows `NOTIFICATION_COMMAND_UNITS (id 16)` above `NOTIFICATION_NEW_POPULATION (id 15)`.
+- Read certainty: concrete `firstReadyUnitId` present (`UNIT_SCOUT 131072` at `24,30`), `selectedUnitId=null`; `ready-unit` is now actionable.
+- Net-new 10–20 view:
+  - Turns `12–13`: one validated unit closeout + immediate re-read
+  - Turns `14–16`: one validated secondary lock clear if it surfaces as top gate
+  - Turns `17–18`: choose one branch after two clean reads (growth-lite vs pressure-lite)
+  - Turns `19–20`: commit only with non-stale two-window coherence
+- Player relay: prioritize blocker-first sequencing and keep one-command-per-cycle discipline; no speculative unit movement or civic expansion until queue and `ready-*` stay coherent on the next read.
+
+## Live Checkpoint (Turn 13 / 3700 BCE)
+
+- Check time: 2026-06-02 (current sample)
+- Turn/Date/Hash: `13 / 3700 BCE`, hash `0`
+- Active lock:
+  - `NOTIFICATION_VOLCANO_ACTIVE` (`id 17`) hard blocker (`isEndTurnBlocking=true`)
+  - `NOTIFICATION_COMMAND_UNITS` (`id 18`) non-blocking, stale-expired secondary
+  - `firstReadyUnitId: null`, `selectedUnitId: null`
+  - `hasSentTurnComplete: true`, `canEndTurn: false`
+- Decision evidence:
+  - `ready-unit` null payload (`legalOperations` empty)
+  - `ready-city` empty (`legalOperations` empty)
+  - `notification-queue`: step1 volcano reviewed-dismissal, step2 command-units inspect-ready-unit, step3 natural wonder info
+  - `priorities`: `hud:informational-notification` with `dismiss` command
+- Strategic correction:
+  - Keep immediate lane as reviewed-volcano closeout first.
+  - If unit lane remains stale after next two reads, stay in recovery-only mode.
+  - Resume any unit/civic progression only when a concrete non-stale ready payload appears and is stable across two reads.
+- Multi-turn 10–20 sequence:
+  - `13–14`: review-closeout then immediate parity re-read only.
+  - `15–16`: continue same hold unless a stable non-stale ready candidate appears.
+  - `17–20`: commit to growth-lite vs pressure-lite only if queue/ready coherence holds for consecutive windows; otherwise continue one-command recovery loop.
+- Player relay row:
+- `Turn 13` | `Hard blocker is now volcano; command-units is stale/null` | `Run reviewed notification dismiss on id 17, then re-read notifications -> notification-queue -> ready-unit -> ready-city -> priorities` | `Unit lane has no enabled closeout from this state` | `Medium` | `If stale-expired repeats on the next two reads, hold recovery mode and request parity escalation only with durable drift evidence`
+
+## Snapshot: Turn 15 (fresh relaunch verification)
+
+- Turn/Date: 15 / 3650 BCE
+- Hash: 0
+- Immediate blocker(s): `NOTIFICATION_CHOOSE_TECH` (hard), `NOTIFICATION_COMMAND_UNITS` (secondary)
+- Readiness state: `hasSentTurnComplete=false`, `canEndTurn=false`, `firstReadyUnitId=UNIT_SCOUT (196609)`
+- Confidence: medium (queue order and ready payload are coherent this sample)
+- Top focus: execute one verified tech closeout, then one unit closeout only if required by the next read.
+
+## Active play note (window 15)
+
+- What changed: the live relaunch thread advanced into a tech-first hard lock with no hash drift.
+- What to do now:
+  1. `game play choose-tech --options --json`
+  2. send one enabled tech closeout with `--closeout`
+  3. re-read `notifications -> notification-queue -> ready-unit -> ready-city -> priorities`
+  4. if command lane is still top and valid, execute one `SKIP_TURN` closeout and re-read immediately.
+- What to defer: avoid civic, production, and scouting commits until two consecutive clean reads show queue-order parity.
+- 10–20 turn pivot condition:
+  - Turns 15–16: tech unlock + unit repair loop.
+  - Turns 17–20: choose one stable lane (growth-lite or pressure-lite) only after non-inverted queue for two windows.
+
+## Turn Notes (live addendum)
+
+- `Turn 15` | `New relaunch lane has a concrete tech hard block with active scout ready state` | `Resolve tech first via validated closeout, then immediate unit closeout only if still valid` | `Keeps recovery deterministic while still consuming tempo` | `Medium` | `Escalate if blocker order oscillates for 2 full reads without hash/turn movement`
+
+## Snapshot: Turn 15 (live relaunch correction)
+
+- Turn/Date: 15 / 3650 BCE
+- Hash: 0
+- Hard blocker: `NOTIFICATION_CHOOSE_TECH` (`id 20`), `hasSentTurnComplete:false`, `canEndTurn:false`
+- Secondary unit lane: `NOTIFICATION_COMMAND_UNITS` (`id 21`) stale-expired, with `firstReadyUnitId: null`, `selectedUnitId: null`, no ready-unit payload.
+- Required move: one validated tech closeout (`Animal Husbandry` or `Writing`) only.
+- Post-check: immediately re-read `notifications -> notification-queue -> ready-unit -> ready-city -> priorities`.
+- Branch deferment: hold scouting/movement/production/civic branches until the unit lane is non-stale and a command closeout becomes enabled on two consecutive reads.
+
+### Turn Notes addendum
+
+- `Turn 15` | `Tech-first hard lock confirmed; unit lane now stale/null in App UI` | `Execute one closeout tech node with full reason and re-read immediately` | `The stale command lane means unit operations are not trustworthy in this state` | `Medium` | `Only after queue/ready stabilizes across two reads should pressure-lite scouting or production growth lanes be reintroduced`
+
+## Live rebootstrap update (Turn 1 / 4000 BCE)
+
+- Session context: new game launch after prior crash/reset. Treat all older blocker IDs as stale for this run.
+- Turn/Date: `1 / 4000 BCE`
+- Hash: `0`
+- Turn posture: playable, tuner-ready, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Turn blockers: `NOTIFICATION_COMMAND_UNITS` hard at queue head; legacy-completed items are non-blocking informational noise until handler review.
+- Top focus: founder command lane only (`UNIT_FOUNDER` first-ready at `65,31`) with movement-reachable tiles.
+- Immediate command rule:
+  - one validated unit action now (move candidate via `unit-target` or safe `SKIP_TURN` if no move value);
+  - immediate re-read of `notifications -> notification-queue -> ready-unit -> ready-city -> priorities`;
+  - no production/civic branch while `ready-city` is null and no city blocker lock is hard.
+- 10–20 tactical/strategic reset framing:
+  - **Turns 1–3 (Window A):** founder-command stabilization and proof cycle.
+  - **Turns 4–8 (Window B):** first growth/setup unlock only after hard-lane proof; do not force civic/culture/city actions.
+  - **Turns 9–14 (Window C):** branch-select test (consolidation vs pressure-lite) only after 2 stable reads.
+  - **Turns 15–20 (Window D):** commit to one lane only after non-inverting queue and concrete ready payloads persist.
+- Escalation trigger: if queue top flips or `firstReadyUnitId` becomes null with no progress for two consecutive reads, stop branching and request parity confirmation in next player message.
+
+## Live rebootstrap pivot (Turn 1 / 4000 BCE lock inversion)
+
+- Live window check (2026-06-02): `blocker: NOTIFICATION_LEGACY_COMPLETED (id 0)` is hard/first; `NOTIFICATION_COMMAND_UNITS (id 2)` is stale-expired with `firstReadyUnitId:null`.
+- `NOTIFICATION_CHOOSE_CITY_PRODUCTION (id 3)` remains visible but is non-blocking in this sample.
+- `ready-unit` / `ready-city` currently have no concrete action payloads.
+- Immediate advisory: treat this as a one-window lock inversion/review cycle; resolve or formally dismiss the blocking legacy notification first, then immediate parity re-read before any city or unit command.
+- 10–20 horizon update:
+  - **Turns 1–3:** legacy-notification resolution + repair loop only.
+  - **Turns 4–8:** resume one-command microloop only if queue head and ready pointers stabilize.
+  - **Turns 9–14:** branch test (growth-lite vs pressure-lite) only after two stable read windows.
+  - **Turns 15–20+:** commit only on stable non-inversion behavior; otherwise continue recovery mode and send escalation on repeated stale transitions.
+- Suggested relay row for active player:
+  - `Turn 1 / 4000 BCE | NOTIFICATION_LEGACY_COMPLETED is now hard blocker (id 0), command lane stale, no ready city/unit payloads | Resolve inspected legacy blocker first, then re-read full queue/ready chain before any closeout | Avoid acting on null-ready `COMMAND_UNITS` to prevent invalid unit ops | Medium`.
+
+## Snapshot: Turn 1 / 4000 BCE (stable blocking-notification hold)
+
+- `Turn/Date`: `1 / 4000 BCE` · `hash 0` · `canEndTurn:false` · `hasSentTurnComplete:false`
+- Blocker state: hard `NOTIFICATION_LEGACY_COMPLETED (id 0)` remains first and blocking.
+- Auxiliary lane states:
+  - `NOTIFICATION_COMMAND_UNITS (id 2)` stale-expired with null ready pointers.
+  - `NOTIFICATION_CHOOSE_CITY_PRODUCTION (id 3)` is non-blocking this read.
+  - `ready-unit`: null, `ready-city`: null.
+- Advisory row:
+  - `Turn 1 / 4000 BCE` | `Blocking legacy-notification remains hard; command-closedown is still stale/null` | `Resolve blocking legacy notifier first using handler-confirmed action, then immediate full re-read` | `No city or unit safe closeout is currently concrete` | `Medium` | `If this hold persists for 2 more reads, stay recovery-only and prevent speculative production/movement`
+
+### 10–20 turn recurrence plan (current relaunch)
+
+- **Turns 1–2:** hold and revalidate; no speculative unit/city move.
+- **Turns 3–6:** if blocker clears and queue becomes concrete, run exactly one validated closeout only.
+- **Turns 7–12:** run one lane test after two stable reads (growth-lite or pressure-lite).
+- **Turns 13–20:** commit one lane only with 2+ stable non-stale reads; otherwise continue conservative lock-loop and escalate parity confirmation.
+
+## Snapshot: Turn 1 / 4000 BCE (third hold read)
+
+- Turn/Date: `1 / 4000 BCE`
+- Hash: `0`
+- Turn posture: `canEndTurn:false`, `hasSentTurnComplete:false`
+- Current locks:
+  - Head blocker: `NOTIFICATION_LEGACY_COMPLETED (id 0)` hard/first.
+  - `NOTIFICATION_COMMAND_UNITS (id 2)` still stale-expired, null ready pointer (`staleExpiredWithoutEnabledCloseout:true`).
+  - `NOTIFICATION_CHOOSE_CITY_PRODUCTION (id 3)` non-blocking follow-on.
+  - `ready-unit`: null · `ready-city`: null.
+- Suggested player relay row:
+  - `Turn 1 / 4000 BCE | Hold confirmed (3rd read) with no blocker/queue progress | Keep blocking legacy notification as priority; no unit/city command this window | Command lane remains non-actionable and risks invalid closeout | Medium | If still unchanged on next read, continue repair loop and escalate parity-confirmation cadence before any branch`.
+
+### Hold horizon update (10–20)
+
+- Turns 1–3: lock review only.
+- Turns 4–6: if head blocker resolves and ready payload becomes concrete, one validated action only.
+- Turns 7–12: branch test only after two stable reads and queue consistency.
+- Turns 13–20: commit to growth-lite or pressure-lite only under sustained non-stale reads; else remain in recovery.
+
+## Snapshot: Turn 1 / 4000 BCE (fourth hold read)
+
+- Turn/Date: `1 / 4000 BCE`
+- Hash: `0`
+- State: `canEndTurn:false`, `hasSentTurnComplete:false`, `playable:true`.
+- Blockers confirmed unchanged:
+  - `NOTIFICATION_LEGACY_COMPLETED (id 0)` hard first.
+  - `NOTIFICATION_COMMAND_UNITS (id 2)` stale-expired (`firstReadyUnitId:null`, `selectedUnitId:null`, `staleExpiredWithoutEnabledCloseout:true`).
+  - `NOTIFICATION_CHOOSE_CITY_PRODUCTION (id 3)` non-blocking.
+  - `ready-unit`: null, `ready-city`: null.
+- Player row (current):
+  - `Turn 1 / 4000 BCE` | `Stable hold: blocking legacy remains hard and command-unit remains stale/null` | `Prioritize handler-confirmed blocking-notification resolve/read loop` | `No safe queue/ready closeout exists yet` | `Medium` | `If unchanged again, keep hold protocol and only escalate after another parity-confirm read`
+
+### 10–20 recovery turn cadence (active relaunch hold)
+
+- **Turns 1–3:** lock repair only.
+- **Turns 4–7:** single validated action only if blocker clears and queue/ready are non-null and stable.
+- **Turns 8–14:** branch test (growth-lite or pressure-lite) only after 2 consecutive stable windows.
+- **Turns 15–20:** commit one lane only under sustained non-inverted, non-stale evidence.
+
+### Snapshot: Turn 1 / 4000 BCE (Launch 2 re-entry hold)
+
+- Turn/Date: 1 / 4000 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `inGame=true`, `canEndTurn=false`, `hasSentTurnComplete=false`
+- Primary blocker(s): `NOTIFICATION_LEGACY_COMPLETED` (`id 0`, hard queue head), plus non-blocking `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (`id 3`) and stale `NOTIFICATION_COMMAND_UNITS` (`id 2`).
+- Immediate top focus: lock-safe legacy-closeout path; do not run city/unit growth before head-lock resolves.
+- Confidence: high on hold-state (state sampled repeatedly), medium on whether handler closeout has deterministic safe action without UI confirmation.
+
+### Data used for this row
+
+- `civ7 game status --json`
+- `civ7 game play notifications --json`
+- `civ7 game play notification-queue --json`
+- `civ7 game play priorities --compact --json`
+- `civ7 game play ready-unit --json`
+- `civ7 game play ready-city --json`
+
+### Turn Notes (append when next meaningful read lands)
+
+- `Turn 1` | `Re-launch relock remains unchanged for consecutive windows` | `Keep strict lock-first protocol and avoid all speculative civic, production, or movement actions while stale command/ready null persists` | `Avoids invalid closeout and keeps replay safety while launcher restart normalizes` | `Medium` | `If lock persists 2 more reads, add explicit command-window parity escalation note and continue one-step read-confirm cycle`
+
+- `Turn 1 / 4000 BCE` | `Net-new relaunch baseline is live but queue is still legacy-blocked` | `Use one-command repair attempts only, then re-read full queue/priority/ready chain; no lane branching` | `Legacy blocker inversion is now dominant after restart; one false branch risks state drift` | `Medium-high` | `Request official handler-confirmed legacy closeout before any unit/city branch; then gate next actions by two consecutive stable reads`
+
+### Snapshot: Turn 1 / 4000 BCE (hold re-confirm, turn-level parity)
+
+- Turn/Date: 1 / 4000 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `inGame=true`, `canEndTurn=false`, `hasSentTurnComplete=false`
+- Top blocker: `NOTIFICATION_LEGACY_COMPLETED` (`id 0`) hard queue head; `NOTIFICATION_COMMAND_UNITS` (`id 2`) stale-expired; `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (`id 3`) follow-on only.
+- Immediate focus: handler-first legacy closeout only; immediate one-command revalidation loop; no unit/city branch on null ready.
+- Confidence: medium (high repeatability across multiple reads, low branch certainty until handler-confirmed legacy closeout).
+
+### Data used for this row
+
+- `civ7 game status --json`
+- `civ7 game play notifications --json`
+- `civ7 game play notification-queue --json`
+- `civ7 game play priorities --compact --json`
+- `civ7 game play ready-unit --json`
+- `civ7 game play ready-city --json`
+
+### Turn Notes (append here only when new game thread data arrives)
+
+- `Turn 1 / 4000 BCE` | `Launcher relaunch remains in legacy lock hold across another parity read` | `Stay in handler-first lock-repair mode and avoid city/unit commitments while `firstReadyUnitId` is null` | `Avoids non-deterministic closeout under null-ready stale command-lane state` | `Medium` | `If two more clean reads do not unlock the queue head, switch to short escalation note with explicit blocker-head review before any speculative move`
+
+- `Turn 1 / 4000 BCE` | `Legacy blocker still outranks city-production and stale command lane after relaunch reset` | `Re-read exact chain after any attempted legacy action: `notifications -> notification-queue -> priorities -> ready-unit -> ready-city`` | `Stable lock state means only lock-safe operations preserve replay posture` | `Medium` | `Next 2 windows: one verified transition or continue conservative hold with zero branching`
+
+### Snapshot: Turn 1 / 4000 BCE (fifth hold read)
+
+- Turn/Date: 1 / 4000 BCE
+- Turn hash: `0`
+- Readiness: `tuner-ready`, `inGame=true`, `canEndTurn:false`, `hasSentTurnComplete:false`
+- Primary blocker(s):
+  - `NOTIFICATION_LEGACY_COMPLETED` (`id 0`) hard queue-head
+  - `NOTIFICATION_COMMAND_UNITS` (`id 2`) stale-expired, no concrete ready unit/city payload
+  - `NOTIFICATION_CHOOSE_CITY_PRODUCTION` (`id 3`) non-blocking follow-on
+- Immediate focus: continue legacy-head handler resolution + immediate full parity readback.
+- Confidence: medium (repetition confirmed, but no validated unlock path yet).
+
+### Data used for this row
+
+- `civ7 game status --json`
+- `civ7 game play notifications --json`
+- `civ7 game play notification-queue --json`
+- `civ7 game play priorities --compact --json`
+- `civ7 game play ready-unit --json`
+- `civ7 game play ready-city --json`
+
+### Turn Notes (append here only when new game thread data arrives)
+
+- `Turn 1 / 4000 BCE` | `Fifth consecutive hold read confirms legacy queue-head remains hard blocker` | `Hold legacy closeout-first and only run the parity chain; no unit/city branch until concrete payload appears` | `Avoids false command actions while both ready vectors stay null` | `Medium` | `If this holds again, maintain lock-safe recovery for the next 2 windows and trigger explicit blocker-head confirmation before any speculative branch`
+
+### Snapshot: Turn 1 / 4000 BCE (single-lane hold read)
+
+- Turn/Date: 1 / 4000 BCE
+- Hash: `0`
+- Readiness: `tuner-ready`, `inGame=true`, `canEndTurn=false`, `hasSentTurnComplete=false`
+- Active blocker: single hard lane `NOTIFICATION_LEGACY_COMPLETED` (`id 1`) at queue head.
+- Secondary lanes visible in prior reads (`NOTIFICATION_COMMAND_UNITS id 2`, `NOTIFICATION_CHOOSE_CITY_PRODUCTION id 3`) are not currently surfaced as queue-ready actions.
+- `ready-unit` and `ready-city` remain null/non-concrete.
+- Immediate focus: one-command lock-read cycle only: legacy handler evidence review then immediate re-read.
+- Confidence: medium (high immediate repeatability on blocker head and empty ready payloads).
+
+### Data used for this row
+
+- `civ7 game status --json`
+- `civ7 game play notifications --json`
+- `civ7 game play notification-queue --json`
+- `civ7 game play priorities --compact --json`
+- `civ7 game play ready-unit --json`
+- `civ7 game play ready-city --json`
+
+### Turn Notes (append here only when new game thread data arrives)
+
+- `Turn 1 / 4000 BCE` | `Single hard blocker queue now only legacy id 1; command/city lanes are fully latent` | `Do not branch; run handler-first legacy closeout path only` | `Speculative unit/city action remains unsafe while no concrete queue/ready payload exists` | `Medium` | `Hold and confirm this reduced-lane state for the next 2 reads before requesting explicit parity-escalation`
+
+## Live checkpoint addendum (Turn 2 / 3975 BCE — net-new relaunch lock-hold)
+
+- Check time: 2026-06-02T00:00:00Z
+- Turn/hash: `2 / 3975 BCE`, `hash 0`
+- Readiness: `tuner-ready` from app status; `canEndTurn:false`, `hasSentTurnComplete:false`
+- Snapshot evidence: `game play notifications --json`, `game play notification-queue --json`, `game play ready-unit --json`, `game play ready-city --json`, `game play priorities --compact --json`, `game play progress-dashboard --compact --json`
+- Blocking profile: live UI queue is empty in this sample (`queueLength: 0`) and `ready-unit`/`ready-city` are null/no payload, while `priorities` reports a clean-read fallback (no first ready lane).
+- Interpretation: fresh relaunch has a lock-hold/parity-null condition rather than a safe concrete blocker, so this is a hold window pending explicit queue materialization.
+- Recommendation now: keep one repair read cycle only (`notifications -> notification-queue -> priorities -> ready-unit -> ready-city`) before any mutating command.
+- Net risk: medium (no forward action evidence; stale/empty queue surface could conceal active lock requiring queue-handler review).
+- Next correction condition: if two consecutive reads still show null ready + no concrete blocker, escalate parity confirmation and keep all movement/city/civic branches paused.
+
+- Turn-row for active player cadence:
+  - `Turn 2` | `No concrete notification queue/ready payload surfaced` | `Hold parity loop; re-read full stack and wait for queue-head lock` | `Avoid speculative ops and stale IDs` | `Medium` | `Recheck after 1–2 reads; if unchanged, request explicit handler validation before branching`
+
+
+## Live checkpoint addendum (Turn 2 / 3975 BCE, concrete unit lane re-surfaced)
+
+- Check time: 2026-06-02
+- Turn/hash: `2 / 3975 BCE`, `hash 0`
+- Evidence set: `notifications`, `notification-queue`, `ready-unit`, `ready-city`, `priorities`, `status`
+- Top lane is now concrete again:
+  - hard blocker: `NOTIFICATION_COMMAND_UNITS (id 6)`
+  - queue order: `command-units -> choose-tech -> choose-city-production`
+  - `firstReadyUnitId`: `UNIT_SCOUT (131072)`
+  - `firstReadyUnitId`/`ready-unit` legality: SKIP/Move/Explore/Alert/Wait family are enabled
+  - `canEndTurn:false`, `hasSentTurnComplete:false`
+- Immediate plan: run one validator-backed unit closeout before any tech/city commits, then re-read full chain.
+- Next correction condition: if re-read still leaves command queue blocked but no concrete action, downgrade to repair parity and escalate for one-cycle confirmation.
+
+Turn-row (append-only)
+- `Turn 2` | `Command units became concrete again (`firstReadyUnitId` present, legal no-target ops); top queue is now actionable` | `Perform one validated unit closeout, then immediate readback` | `Avoid acting on tech/city while command lane is hard and first` | `Medium` | `If this does not shift queue head, hold and keep one-cycle revalidation`.
+
+## Turn-window refresh (10–20 horizon for this relaunch)
+
+- **Window A (Turns 2–4):** command-clear first, preserve a single safe closeout each read, no speculative production/governance action.
+- **Window B (Turns 5–8):** if command lane de-blocks and production/tech are now concrete, take one growth-safe civic/economic action with postcondition read.
+- **Window C (Turns 9–14):** choose between growth-lite vs pressure-lite only after two stable consecutive reads with non-inverted queue head.
+- **Window D (Turns 15–20):** execute lane commitment only under sustained readiness evidence; otherwise continue repair-confirm hold.
+
+
+## Live checkpoint addendum (Turn 2 / 3975 BCE, tech-first lane recovered)
+
+- Check time: 2026-06-02
+- Turn/hash: `2 / 3975 BCE`, `hash 0`
+- Queue/notification reality from this read:
+  - `blockingNotificationId: {owner:0,id:4,type:20}`
+  - `NOTIFICATION_CHOOSE_TECH` now hard/first with explicit enabled options;
+  - `NOTIFICATION_CHOOSE_CITY_PRODUCTION` and `NOTIFICATION_COMMAND_UNITS` are non-blocking follow-ons.
+- Unit status remains readable and concrete (`firstReadyUnitId: UNIT_SCOUT (131072)`, legal no-target ops present) but no longer priority blocker.
+- `ready-city` still not yet concrete on this cycle.
+
+Action for immediate cycle:
+- Run one validated `choose-tech --closeout` now (from `notifications` enabled options), then re-read full loop before any city/unit sequencing.
+
+Turn-row:
+- `Turn 2` | `Hard blocker rotated from unit to choose-tech; tech lane is now explicit and blocking` | `Take one validated technology closeout, then read queue/ready again` | `Unit and city lanes are concrete enough to observe but not hard this cycle` | `Medium` | `If queue head remains tech on next read, keep one-command tech-only lane until it clears`
+
+## Turn-window refresh (10–20 horizon)
+
+- Window A (Turns 2–4): tech-clear first; execute one validated `choose-tech` closeout only.
+- Window B (Turns 5–8): if tech lane advances and city/command remain concrete, run exactly one follow-on in the new hard lane.
+- Window C (Turns 9–14): hold branch test to growth-lite vs pressure-lite only under two consecutive stable reads.
+- Window D (Turns 15–20): commit to one lane only if no queue-head inversion and non-null ready payload persists.
+
+## Relaunch Reset Pivot: Turn 2 / 3975 BCE (2026-06-02)
+
+Current live posture is a **tech-first hard blocker** (`NOTIFICATION_CHOOSE_TECH`, id 4), with scout unit command and production as secondary follow-ons. Keep all non-generic doctrine intact; new action is narrow:
+
+- Execute exactly one tech closeout now (`choose-tech --node <enabledNodeHash> --send --closeout --reason ...`).
+- Re-read before any city or movement branch.
+- Keep `command-units` and `choose-city-production` as follow-ons until they surface as hard with concrete payloads.
+
+Immediate 10–20 horizon:
+- 2–4: tech-blocker repair loops only.
+- 5–8: one validated follow-on if the lane hardens with concrete inputs.
+- 9–12: probe one low-commit branch only after two stable reads.
+- 13–20: commit one lane only if continuity proof is clean across consecutive reads.
+
+Draft one-line relay:
+- `Turn 2 / 3975 BCE` | `Choose-tech is blocker` | `close tech once, re-read full loop, defer growth/pressure branches until lane stability returns` | `Medium`
+
+## Live re-entry pivot (Turn 2 / 3975 BCE, 2026-06-02)
+
+Live lane: `NOTIFICATION_CHOOSE_TECH` is hard with concrete choice payloads (`Pottery`, `Animal_Husbandry`, `Sailing` enabled).
+Queue secondaries: `NOTIFICATION_CHOOSE_CITY_PRODUCTION`, `NOTIFICATION_COMMAND_UNITS`.
+
+Execution sequence:
+1) resolve tech with validated `choose-tech --closeout` and explicit rationale.
+2) re-run `notifications -> notification-queue -> priorities -> ready-unit -> ready-city`.
+3) only advance to unit/city after queue/head is both hard+concrete and revalidated.
+
+Forecast lanes:
+- `2–4`: one-tech lock clear, no speculative branch.
+- `5–8`: one concrete follow-up if lane flips and payload stabilizes.
+- `9–12`: branch test after two consecutive stable reads.
+- `13–20`: commit to one lane under stable queue/ready conditions.
+
+## Live re-entry pivot (Turn 2 / 3975 BCE, null-ready hold)
+
+- Evidence (single-cycle): `notifications`, `notification-queue`, `ready-unit`, `ready-city`, `priorities`.
+- Hard blocker remains `NOTIFICATION_CHOOSE_TECH` (`id 4`).
+- Queue head remains tech-first (`id 4`), then city-production (`id 5`), then stale `id 6`.
+- `firstReadyUnitId` and `selectedUnitId` are now `null`.
+- `ready-unit`/`ready-city` currently contain no actionable payloads.
+
+Decision for this cycle:
+1) Do one validated `choose-tech --closeout` from enabled options (`Pottery` / `Animal_Husbandry` / `Sailing`) with an explicit reason.
+2) Immediate post-send readback: `notifications -> notification-queue -> priorities -> ready-unit -> ready-city`.
+3) Do not start city/scout/other branches while both ready payloads are null.
+4) If the same null-ready posture repeats on the next two reads, continue repair-confirm hold and only resume multi-step branching when queue/payloads stabilize.
+
+Turn-horizon refresh (relaunch)
+- **2–4**: tech-closeout lane only, one validated action.
+- **5–8**: only open follow-on if that follow-on is hard + concrete.
+- **9–12**: perform branch test only after two consecutive stable reads.
+- **13–20**: commit one lane (growth-lite or pressure-lite) only under sustained lane continuity.
+
+One-line relay for active player:
+`Turn 2 / 3975 BCE` | `tech lock is hard and stable, but scout/city payloads are null now` | `send one validated tech closeout + immediate re-read` | `avoid speculative moves while ready pointers are null` | `Medium`
+
+## Live re-entry pivot (Turn 2 / 3975 BCE, second null-ready hold sample)
+
+- Hard blocker remains `NOTIFICATION_CHOOSE_TECH` (`id 4`), no turn progression.
+- Queue remains: `CHOOSE_TECH -> CHOOSE_CITY_PRODUCTION -> COMMAND_UNITS`.
+- `firstReadyUnitId` and `selectedUnitId` still `null`.
+- `ready-unit` and `ready-city` remain null/no-op in this sample.
+
+Decision for this cycle:
+- execute one validated tech closeout (`choose-tech --closeout`) from current enabled options.
+- immediate full readback (`notifications -> notification-queue -> priorities -> ready-unit -> ready-city`).
+- defer city/scout actions until a non-null ready payload appears on the same read cycle.
+
+Horizon refresh:
+- Turns `2–4`: keep tech-lock only.
+- Turns `5–8`: one follow-on only if hard lane becomes concrete.
+- Turns `9–14`: branch test only after two stable non-stale reads.
+- Turns `15–20`: commit one lane only if queue/head + ready payload stability persists.
+
+Relay template:
+`Turn 2 / 3975 BCE` | `tech-first hard blocker persists while ready pointers are null` | `send one valid choose-tech closeout then immediate readback` | `suppress city/unit branches on empty ready payloads` | `Medium`
+
+## Live advisory checkpoint (Turn 2 / 3975 BCE — relaunch recovery hold)
+
+- Check time: 2026-06-02T07:41:04.630Z
+- `Live turn/hash`: `2 / 3975 BCE`, hash `0`.
+- Hard blocker: `NOTIFICATION_CHOOSE_TECH` (`id 4`) with queue shape `id 4 -> id 5 -> id 6`.
+- `selectedUnitId`: `null`; `firstReadyUnitId`: `null`.
+- `ready-unit`: null payload (no legal operations).
+- `ready-city`: null payload.
+- `priorities`: `hud:technology-choice`.
+- `NOTIFICATION_COMMAND_UNITS` is non-head stale-repair path and currently has no enabled closeout candidate, so unit actions must stay deferred.
+
+Update decision lane:
+- Immediate action: one validated tech closeout on enabled node (`Pottery`, `Animal_Husbandry`, `Sailing`) and immediate full re-read.
+- Avoid city expansion/scouting branches until a hard lane produces concrete ready payload.
+- If this same null/flat posture repeats on the next clean read, keep read-confirm hold and do not issue speculative closeouts.
+
+10–20 turn sequencing update (relaunch edition):
+- Turn band `2–4`: tech-lane recovery only.
+- Turn band `5–8`: one follow-up only when hard lane is concrete.
+- Turn band `9–14`: branch-lite check (`growth-lite` vs `pressure-lite`) only if two stable non-inverted reads.
+- Turn band `15–20`: commit only under stable queue/ready continuity.
+
+One-row relay for active thread:
+`Turn 2 / 3975 BCE` | `Restarted game holds on CHOOSE_TECH with null ready pointers` | `Execute one validated `choose-tech --closeout` and re-read all control lanes immediately` | `No safe city/unit branch until concrete non-stale payload exists` | `Medium`
+
+## Live advisory checkpoint (Turn 2 / 3975 BCE — second relaunch re-confirm)
+
+- Check time: 2026-06-02T07:48:00Z
+- `Live turn/hash`: `2 / 3975 BCE`, `hash 0`.
+- Hard head blocker remains `NOTIFICATION_CHOOSE_TECH` (`id 4`) with queue shape `id 4 -> id 5 -> id 6`.
+- `selectedUnitId` and `firstReadyUnitId` both `null` in this read.
+- `ready-unit` and `ready-city` remain non-actionable (no legal operations, no city candidate payload).
+- `priorities` still resolves to `hud:technology-choice`.
+- `command-units` is not head; stale recovery remains non-closeout and cannot be safely actioned.
+
+Strategic update:
+- Keep immediate action to one validated tech closeout (`choose-tech --send --closeout`) and then `notifications -> notification-queue -> priorities -> ready-unit -> ready-city` in that order.
+- Do not branch to city production or scouting while both ready payloads are null.
+- If this null/head hold repeats after this read, continue repair-read loop and escalate parity check before any speculative branch.
+
+10–20 turn planning adjustment:
+- `2–4`: hold to one clean tech closeout only.
+- `5–8`: move to one follow-on only if hard lane transitions and payload is concrete.
+- `9–14`: branch testing only after two clean non-inverted reads.
+- `15–20`: choose one lane only if continuity holds; otherwise maintain recovery/confirmation posture.
+
+One-row relay for active thread:
+`Turn 2 / 3975 BCE` | `State remains stable: CHOOSE_TECH hard + null-ready` | `Send one validated choose-tech closeout and immediate full re-read` | `Hold back city/unit moves until concrete non-stale payloads return` | `Medium`
+
+## Live checkpoint (Turn 2 / 3975 BCE, relaunch tech hold)
+
+- Turn/Date: 2 / 3975 BCE, hash 0.
+- Evidence: civ7 game status --json, civ7 game play priorities --compact --json, civ7 game play notifications --json, civ7 game play notification-queue --json, civ7 game play ready-unit --json, civ7 game play ready-city --json.
+- Immediate blocker: NOTIFICATION_CHOOSE_TECH (id 4) is hard and queue-head.
+- Queue order: id 4 (priority 100, tech) -> id 5 (priority 70, city production) -> id 6 (priority 65, command units).
+- Pointers/payloads: selectedUnitId null, firstReadyUnitId null, ready-unit empty legalOperations, ready-city no candidates.
+- Run rule for this window: send one validated tech closeout only, then re-read notifications -> notification-queue -> ready-unit -> ready-city -> priorities.
+- Branch posture: defer city/unit branches while both ready payloads are null.
+
+### Turn note added
+- Turn 2 | relaunch holds on hard tech lock with null ready pointers | run one validated closeout-tech and immediate re-read (choose-tech --closeout) | no actionable city/unit lane yet so holding | Medium | if unchanged on the next clean read, keep parity hold and request explicit lock confirmation before branches
+
+### 10–20 turn micro-horizon (net-new segment)
+- 2-4: enforce one-command tech repair mode only.
+- 5-8: run one follow-up only if head blocker becomes concrete.
+- 9-14: test one branch only after two stable reads.
+- 15-20: commit only with sustained queue/ready continuity; otherwise continue recovery-read mode.
+
+- `Turn 2` | `New launch confirmed (post-crash)` | `Hard gate is CHOOSE_TECH (id 4) with null ready-unit/city context on both read surfaces` | `Send one validated `choose-tech --send --closeout` now (Pottery / Animal_Husbandry / Sailing) and re-read `notifications -> notification-queue -> ready-unit -> ready-city -> priorities`; hold scouting/productivity branching until concrete payload exists` | `Medium` | `If no queue/ready movement for the next 2 clean reads, extend lock-repair loop and avoid speculative lane commits`
+
+- `Turn 1` | `App UI read path degraded (notifications/queue/priorities return GameContext/Game undefined); Tuner still active on Command Units blocker` | `Hold non-validated execution and run verification triad: status/autoplay/map summary, then re-check App UI command views until one concrete queue+ready payload returns` | `Use repair-safe lane only with native validator evidence` | `Medium` | `If this persists for 2 consecutive reads, request thread restart/re-sync of the control socket before any branching`
+
+- `Turn 4` | `Discovery choice blocker still unresolved after second clean recheck` | `Hold and keep handler-inspection loop only` | `No concrete closeout command exists in App UI/queue/read surfaces` | `Medium` | `If this persists through next turn probe, shift to explicit parity escalation before any branch or scout/city/tech action`
+
+## Turn Notes (append-only relaunch refresh)
+
+- `Turn 4 / 3925 BCE` | `Discovery lock persists on relaunch refresh and remains command-path unresolved` | `Keep strict handler-evidence hold; do not branch` | `No concrete ready-unit / ready-city payload and no explicit closeout surfaced` | `Medium` | `If this repeats on next read, request explicit blocker-verified closeout before any branch`
+
+- `Turn 4 / 3925 BCE` | `Discovery closeout evidence still absent on checkpoint #7` | `Keep strict handler-inspected hold and do not branch` | `Queue is single hard node, no enabled ready-unit/city payload` | `Medium` | `If this repeats on next clean read, request explicit handler-backed closeout confirmation before any lane recommendation`
+
+- `Turn 4 / 3925 BCE` | `Discovery blocker persists on checkpoint #8` | `Hold handler-evidence loop and keep no-branch posture` | `No concrete ready-unit/city payload and no closeout command is yet exposed` | `Medium` | `If this persists on next clean read, issue explicit handler-confirmed closeout request before any lane recommendation`
+
+- `Turn 4 / 3925 BCE` | `Discovery blocker persists on checkpoint #9` | `Hold handler-inspected lock posture` | `No concrete handler/evidence closeout for unit or city appears` | `Medium` | `Hold and request explicit handler-backed confirmation before any speculative branch`
+
+- `Turn 4 / 3925 BCE` | `Discovery blocker persists on checkpoint #10` | `Hold handler-evidence lock posture` | `No handler-confirmed closeout command or ready payload has appeared` | `Medium` | `Hold and explicitly request closeout confirmation before any branching recommendation`
+- `Turn 4 / 3925 BCE` | discovery handler lock persists on checkpoint #11 | maintain lock-safe hold and full confirm loop (`notifications -> notification-queue -> priorities -> ready-unit -> ready-city`) | no ready-unit/ready-city payload and no handler-verified closeout command; do not branch city/unit/tech | `Medium` | if recheck is still unchanged on next clean read, request explicit handler-confirmed closeout before any lane recommendation
+
+### 10–20 turn lens addendum (after #11)
+
+- `Turns 4–14`: recovery hold + revalidation only.
+- `Turns 15–18`: permit one lane trial only after two consecutive reads return concrete discovery closeout + stable queue/payload.
+- `Turns 19–20`: permit exactly one growth-first or pressure-first follow-on only if stable closeout repeats on a confirming read; otherwise maintain hold.
+- `Turn 4 / 3925 BCE` | discovery handler lock persists on checkpoint #12 | enforce lock-safe hold and strict revalidation chain (`notifications -> notification-queue -> priorities -> ready-unit -> ready-city`) | no ready-unit/ready-city payload and no handler-confirmed closeout command; do not branch city/unit/tech | `Medium` | if this posture repeats on the next clean read, request explicit handler-confirmed closeout before any speculative lane recommendation
+
+### 10–20 turn lens addendum (after #12)
+
+- `Turns 4–14`: recovery + revalidation only.
+- `Turns 15–18`: permit one lane trial only after two consecutive reads that expose stable, concrete discovery closeout + queue continuity.
+- `Turns 19–20`: permit one growth-first or pressure-first follow-on only if stable closeout repeats on a confirming read; otherwise continue hold.
+- `Turn 4 / 3925 BCE` | discovery handler lock persists on checkpoint #13 | continue strict handler-confirmation hold + full revalidation chain (`notifications -> notification-queue -> priorities -> ready-unit -> ready-city`) | no ready-unit/ready-city payload and no handler-verified closeout command; no city/unit/tech branch until confirmation | `Medium` | if this repeats on the next clean read, request explicit handler-confirmed closeout before any lane recommendation
+
+### 10–20 turn lens addendum (after #13)
+
+- `Turns 4–14`: full recovery + revalidation only.
+- `Turns 15–18`: allow one lane trial only after two consecutive reads with stable queue and concrete discovery closeout payload.
+- `Turns 19–20`: permit one growth-first or pressure-first follow-on only if stable closeout repeats on confirming read; otherwise remain in hold.
+- `Turn 4 / 3925 BCE` | discovery handler lock persists on checkpoint #14 | enforce lock-safe hold + strict revalidation chain (`notifications -> notification-queue -> priorities -> ready-unit -> ready-city`) | no ready-unit/ready-city payload and no handler-verified closeout command; suppress city/unit/tech branch | `Medium` | if unchanged on next clean read, request handler-confirmed closeout before any lane recommendation
+
+### 10–20 turn lens addendum (after #14)
+
+- `Turns 4–14`: continue recovery + validation-only posture.
+- `Turns 15–18`: one controlled lane trial only after two consecutive stable reads with concrete discovery closeout and queue continuity.
+- `Turns 19–20`: one growth-first or pressure-first follow-on only if stable closeout repeats on a confirming read; otherwise hold.
+- `Turn 4 / 3925 BCE` | discovery handler lock persists on checkpoint #15 | continue strict handler-confirmation hold + revalidation chain (`notifications -> notification-queue -> priorities -> ready-unit -> ready-city`) | no ready-unit/ready-city payload and no handler-verified closeout command; suppress city/unit/tech branch | `Medium` | if unchanged on next clean read, request explicit handler-confirmed closeout before any lane recommendation
+
+### 10–20 turn lens addendum (after #15)
+
+- `Turns 4–14`: continue recovery + validation-only posture.
+- `Turns 15–18`: one controlled lane trial only after two consecutive stable reads with concrete discovery closeout and queue continuity.
+- `Turns 19–20`: one growth-first or pressure-first follow-on only if stable closeout repeats on a confirming read; otherwise hold.
+- `Turn 4 / 3925 BCE` | discovery handler lock persists on checkpoint #16 | enforce lock-safe hold and strict revalidation chain (`notifications -> notification-queue -> priorities -> ready-unit -> ready-city`) | no ready-unit/ready-city payload and no handler-verified closeout command; suppress city/unit/tech branch | `Medium` | if unchanged on next clean read, request handler-confirmed closeout before any lane recommendation
+
+### 10–20 turn lens addendum (after #16)
+
+- `Turns 4–14`: continue recovery + validation-only posture.
+- `Turns 15–18`: one controlled lane trial only after two consecutive stable reads with concrete discovery closeout and queue continuity.
+- `Turns 19–20`: one growth-first or pressure-first follow-on only if stable closeout repeats on a confirming read; otherwise hold.
+- `Turn 4 / 3925 BCE` | discovery handler lock persists on checkpoint #17 | continue strict handler-confirmation hold and full revalidation chain (`notifications -> notification-queue -> priorities -> ready-unit -> ready-city`) | no ready-unit/ready-city payload and no handler-verified closeout command; suppress city/unit/tech branch | `Medium` | if unchanged on next clean read, request handler-confirmed closeout before any lane recommendation
+
+### 10–20 turn lens addendum (after #17)
+
+- `Turns 4–14`: continue recovery + validation-only posture.
+- `Turns 15–18`: one controlled lane trial only after two consecutive stable reads with concrete discovery closeout and queue continuity.
+- `Turns 19–20`: one growth-first or pressure-first follow-on only if stable closeout repeats on a confirming read; otherwise hold.
+- `Turn 4 / 3925 BCE` | discovery handler lock persists on checkpoint #18 | continue strict handler-confirmation hold and full revalidation chain (`notifications -> notification-queue -> priorities -> ready-unit -> ready-city`) | no ready-unit/ready-city payload and no handler-verified closeout command; suppress city/unit/tech branch | `Medium` | if unchanged on next clean read, request handler-confirmed closeout before any lane recommendation
+
+### 10–20 turn lens addendum (after #18)
+
+- `Turns 4–14`: continue recovery + validation-only posture.
+- `Turns 15–18`: one controlled lane trial only after two consecutive stable reads with concrete discovery closeout and queue continuity.
+- `Turns 19–20`: one growth-first or pressure-first follow-on only if stable closeout repeats on a confirming read; otherwise hold.
+- `Turn 4 / 3925 BCE` | discovery handler lock persists on checkpoint #19 | continue strict handler-confirmation hold and full revalidation chain (`notifications -> notification-queue -> priorities -> ready-unit -> ready-city`) | no ready-unit/ready-city payload and no handler-verified closeout command; suppress city/unit/tech branch | `Medium` | if unchanged on next clean read, request handler-confirmed closeout before any lane recommendation
+
+### 10–20 turn lens addendum (after #19)
+
+- `Turns 4–14`: continue recovery + validation-only posture.
+- `Turns 15–18`: one controlled lane trial only after two consecutive stable reads with concrete discovery closeout and queue continuity.
+- `Turns 19–20`: one growth-first or pressure-first follow-on only if stable closeout repeats on a confirming read; otherwise hold.
+- `Turn 4 / 3925 BCE` | live civ7 control socket unavailable on `127.0.0.1:4318` (`all-hosts-unavailable`) | hold prior check-in posture from checkpoint #19 without proposing lane changes; no fresh evidence to alter strategy | `Medium` | after socket recovery, re-run `notifications -> notification-queue -> priorities -> ready-unit -> ready-city` and only then update tactical guidance
+
+### 10–20 turn lens addendum (after #20)
+
+- `Turns 4–14`: hold and wait for reconnection/read validation; do not branch on stale data.
+- `Turns 15–18`: one lane trial only after two consecutive clean reads with concrete closeout payload and stable lock continuity.
+- `Turns 19–20`: one controlled follow-on only if closeout continuity persists after reconnection and confirmation;
+
+## Live update (relaunch reconnect, transport down)
+
+- `2026-06-02`: All gameplay control surfaces now return `Civ7DirectControlError: all-hosts-unavailable` at `127.0.0.1:4318` (status, notifications, notification-queue, priorities, ready-unit, ready-city).
+- Advisory state: strategy loop is **paused for transport**, not tactical replan. Preserve all generic doctrines that are transport-agnostic:
+  - blocker-first, one validated action per cycle, null-pointer conservatism, and two-clean-read confirmation before branching.
+- Active play-frame action:
+  - continue no-op reconnection watch only;
+  - resume with the bootstrap chain once socket returns;
+  - resume 10–20 turn sequencing only after concrete queue head + payload stability is observed.
+- Turn note:
+  - `Turn unknown (new launch reconnect window)` | `Socket unavailable on all control calls` | `Stop all speculative lane planning and hold reconnection cadence` | `Avoid false assumptions from empty/undefined payloads` | `High` | `Request fresh full read once tuner socket is reachable`
+
+- Multi-turn projection while offline:
+  - `Block A`: Reconnect-only hold.
+  - `Block B`: first two live reads with concrete queue/payload determine reset anchor.
+  - `Block C`: only after two confirmed clean reads, permit one controlled follow-on.
+  - `Block D`: commit lane only after payload continuity remains stable at least one confirming read beyond follow-on.
+
+## Live update (relaunch reconnect retry window)
+
+- `2026-06-02T03:55:14Z`: Repeated live recheck confirms CLI remains unreachable (`all-hosts-unavailable` on all play-control reads).
+- Thread-state rule for this window: no tactical updates, no branching, no lane-switches until a full successful payload read returns.
+- Turn-note row appended:
+  - `Turn unknown (relaunch reconnect #21)` | `Three consecutive retries failed to contact tuner socket` | `Keep strict reconnect hold and preserve handler/payload guardrails` | `Any new move would be ungrounded speculation` | `Medium` | `Resume first concrete read on successful socket recovery`
+
+Operational projection update:
+- `Reconnect-0`: freeze strategy advice and keep a clean retry rhythm.
+- `Reconnect-1`: first complete read defines new anchor + immediate queue/payload baseline.
+- `Reconnect-2`: enable one validated follow-on only after the same concrete payload holds.
+- `Reconnect-3`: commit only after an additional confirming read; otherwise revert to reconnection hold.
+
+## Live update (reconnect complete, actionable COMMAND_UNITS)
+
+- `2026-06-02`: socket recovered; live reads now available.
+- Confirmed active lock: `NOTIFICATION_COMMAND_UNITS` head, `id 4`, `isEndTurnBlocking:true`.
+- Read fields: `firstReadyUnitId=UNIT_SCOUT (131072)`, `selectedUnitId=null`, `queueLength=1` (`inspect-ready-unit`).
+- `ready-unit`: concrete and legal (`SKIP_TURN`, `MOVE_TO`, `EMBED_LOOKOUT`, etc.).
+- `ready-city`: `cityId:null`, `legalOperationCount:0`.
+
+Turn note:
+- `Turn 4 / 3925 BCE` | `COMMAND_UNITS is now concrete and actionable` | `issue one validated unit closeout (prefer SKIP_TURN), then re-read all chain` | `Hold city/civic/tech lanes until queue/payload becomes concrete and non-null` | `Medium` | `If lane remains, run one confirming read before any movement branch`
+
+Projection refresh:
+- `Block A (4–6)`: clear unit blocker only.
+- `Block B (7–10)`: one controlled follow-on only after confirming queue/payload stability.
+- `Block C (11–16)`: branch-lite growth/pressure decision only when new hard blocker and unit/city payload is concrete.
+- `Block D (17–20)`: commit one lane only with two confirming reads.
+
+## Live update (turn 5 / 3900 BCE: command blocker persists)
+
+- `2026-06-02`: transport is live and state is stable but blocked.
+- Confirmed read window:
+  - `turn 5 / 3900 BCE`, `hash 0`.
+  - Hard blocker still `NOTIFICATION_COMMAND_UNITS` (`id 4`) with `canEndTurn:false`.
+  - `firstReadyUnitId=UNIT_SCOUT (131072)` and `selectedUnitId=null`.
+  - `ready-unit` concrete legal operations remain available; `ready-city` remains null.
+
+Player-facing recommendation row:
+- `Turn 5 / 3900 BCE` | `COMMAND_UNITS still concrete (Scout ready at 8,22)` | `Send one validated closeout (SKIP_TURN unless scouting value from immediate evidence is clear)` | `No city/tech/civic expansion until command lane clears or pivots with concrete payload` | `Medium` | `Take one confirming re-read before any movement branch beyond skip`
+
+Projection update:
+- `Block A (5–8)`: continue single blocker-clear sequence.
+- `Block B (9–12)`: one follow-on move/safe-scout action only if state repeats cleanly.
+- `Block C (13–18)`: branch into growth/pressure if city/tech head appears with concrete payload.
+- `Block D (19–20)`: commit to one lane only when lane continuity is confirmed on a second clean read.
+
+## Live update (turn 6 / 3875 BCE: COMMAND_UNITS persists)
+
+- `2026-06-02T03:56:54Z`: transport stable and readable.
+- `turn 6 / 3875 BCE`, `hash 0`, `canEndTurn:false`, `hasSentTurnComplete:false`.
+- Hard blocker still `NOTIFICATION_COMMAND_UNITS` (`id 4`).
+- `firstReadyUnitId=UNIT_SCOUT (131072)`, `selectedUnitId=null`.
+- `ready-unit`: concrete (`SKIP_TURN` available).
+- `ready-city`: still non-actionable.
+
+Player-facing recommendation:
+- `Turn 6 / 3875 BCE` | `COMMAND_UNITS persists with concrete Scout` | `Execute one validated SKIP_TURN closeout` | `No city/tech/civic branches until command lane yields concrete follow-on` | `Medium` | `If unchanged on next read, keep single-blocker posture`
+
+Projection refresh:
+- `Block A (6–8)`: blocker-clear only.
+- `Block B (9–12)`: one controlled follow-on only after confirming read.
+- `Block C (13–16)`: branch-lite if command shifts to city/tech head.
+- `Block D (17–20)`: commit only after lane continuity repeats on confirming read.
