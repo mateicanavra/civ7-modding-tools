@@ -1,5 +1,5 @@
 import { Command, Flags } from '@oclif/core';
-import { getCiv7PlayNotificationView } from '@civ7/direct-control';
+import { getCiv7PlayNotificationView, requestCiv7TechnologyChoiceCloseout } from '@civ7/direct-control';
 import {
   buildApproval,
   buildDirectControlOptions,
@@ -107,31 +107,38 @@ export default class GamePlayChooseTech extends Command {
     };
     if (flags.send || flags.closeout) {
       const before = flags.send ? await getCiv7PlayNotificationView(options) : null;
-      const result = await executePlayOperationSequence([
-        {
-          label: 'choose technology node',
-          family: 'player-operation',
-          input,
-        },
-        {
-          label: 'clear technology chooser target',
-          family: 'player-operation',
-          input: {
-            operationType: SET_TECH_TREE_TARGET_NODE,
-            playerId: flags['player-id'],
-            args: {
-              ProgressionTreeNodeType: PROGRESSION_TREE_NO_NODE,
+      const result = flags.send
+        ? await technologyChoiceAppUiCloseoutResult({
+          playerId: flags['player-id'],
+          node: flags.node,
+          notificationId: before ? findTechnologyChoiceNotification(before)?.id : undefined,
+        }, options, reason)
+        : await executePlayOperationSequence([
+          {
+            label: 'choose technology node',
+            family: 'player-operation',
+            input,
+          },
+          {
+            label: 'clear technology chooser target',
+            family: 'player-operation',
+            input: {
+              operationType: SET_TECH_TREE_TARGET_NODE,
+              playerId: flags['player-id'],
+              args: {
+                ProgressionTreeNodeType: PROGRESSION_TREE_NO_NODE,
+              },
             },
           },
-        },
-      ], options, { send: flags.send, reason });
+        ], options, { send: flags.send, reason });
 
       if (flags.send && before) {
         const after = await waitForTechnologyChoicePostcondition(before, options);
         const postcondition = technologyChoicePostcondition(before, after);
+        const operationSent = closeoutOperationSent(result);
         emitPlayResult(this.log.bind(this), flags.json, {
           ...result,
-          verified: result.verified === true && postcondition.verified,
+          verified: operationSent && postcondition.verified,
           before,
           after,
           postcondition,
@@ -221,6 +228,49 @@ function probeValue(value: unknown): unknown {
     return probe.ok === true ? probe.value ?? null : null;
   }
   return value ?? null;
+}
+
+async function technologyChoiceAppUiCloseoutResult(
+  input: { playerId: number; node: number; notificationId?: unknown },
+  options: ReturnType<typeof buildDirectControlOptions>,
+  reason: string,
+) {
+  const result = await requestCiv7TechnologyChoiceCloseout({
+    playerId: input.playerId,
+    node: input.node,
+    notificationId: isComponentId(input.notificationId) ? input.notificationId : undefined,
+  }, options, buildApproval(reason));
+  const payload = isRecord(result.payload) ? result.payload : {};
+  return {
+    mode: 'send',
+    stepCount: 2,
+    operationSent: result.sent,
+    steps: [
+      {
+        label: 'choose technology node',
+        family: 'player-operation',
+        operationType: SET_TECH_TREE_NODE,
+        result: {
+          canStart: payload.canChoose ?? null,
+          send: payload.chooseResult ?? null,
+        },
+      },
+      {
+        label: 'clear technology chooser target',
+        family: 'player-operation',
+        operationType: SET_TECH_TREE_TARGET_NODE,
+        result: {
+          canStart: payload.canClearTarget ?? null,
+          send: payload.clearTargetResult ?? null,
+        },
+      },
+    ],
+    appUiCloseout: result,
+    notes: [
+      'Executed in App UI as the technology chooser owner: optional notification activation, technology node choice, then target-node closeout.',
+      'Postcondition verification still comes from the caller-level notification re-read.',
+    ],
+  };
 }
 
 async function waitForTechnologyChoicePostcondition(
@@ -324,6 +374,17 @@ function flattenKeys(value: unknown, keys: Record<string, true> = {}): Record<st
     flattenKeys(child, keys);
   }
   return keys;
+}
+
+function isComponentId(value: unknown): value is { owner: number; id: number; type?: number } {
+  return isRecord(value)
+    && typeof value.owner === 'number'
+    && typeof value.id === 'number'
+    && (value.type === undefined || typeof value.type === 'number');
+}
+
+function closeoutOperationSent(value: unknown): boolean {
+  return isRecord(value) && value.operationSent === true;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

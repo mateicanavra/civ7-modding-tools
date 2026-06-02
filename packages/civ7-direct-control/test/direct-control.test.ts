@@ -45,6 +45,7 @@ import {
   parseCiv7TunerFrame,
   planCiv7MapGridReadBounds,
   requestCiv7CultureChoiceCloseout,
+  requestCiv7TechnologyChoiceCloseout,
   requestCiv7ProductionChoice,
   queryCiv7TunerStates,
   requestCiv7UnitOperation,
@@ -399,6 +400,39 @@ describe("Civ7 direct control", () => {
       expect(command).toContain("Game.Notifications.activate");
       expect(command).toContain("SET_CULTURE_TREE_NODE");
       expect(command).toContain("SET_CULTURE_TREE_TARGET_NODE");
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("reports technology App UI closeout sends without direct verification", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server.address();
+      const request = await requestCiv7TechnologyChoiceCloseout(
+        {
+          playerId: 0,
+          node: -1255676052,
+          notificationId: { owner: 0, id: 52, type: 20 },
+        },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test technology App UI closeout" },
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request).not.toHaveProperty("verified");
+      expect(request.payload).toMatchObject({
+        notificationId: { owner: 0, id: 52, type: 20 },
+        canChoose: { ok: true, value: { Success: true } },
+        chooseResult: { ok: true, value: true },
+        canClearTarget: { ok: true, value: { Success: true } },
+        clearTargetResult: { ok: true, value: true },
+        sent: true,
+      });
+      const command = server.received.find((message) => message.includes("sendTechnologyChoiceCloseout")) ?? "";
+      expect(command).toContain("Game.Notifications.activate");
+      expect(command).toContain("SET_TECH_TREE_NODE");
+      expect(command).toContain("SET_TECH_TREE_TARGET_NODE");
     } finally {
       await server.close();
     }
@@ -2071,6 +2105,8 @@ async function startTunerServer(options: {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(readyUnitView())]));
         } else if (frame.message.includes("readReadyCityView")) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(readyCityView())]));
+        } else if (frame.message.includes("sendTechnologyChoiceCloseout")) {
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(technologyChoiceCloseout())]));
         } else if (frame.message.includes("sendCultureChoiceCloseout")) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(cultureChoiceCloseout())]));
         } else if (frame.message.includes("readNotificationDismissal")) {
@@ -2727,6 +2763,32 @@ function readyCityView() {
       },
     },
     notes: ["Read-only ready-city view. This view intentionally does not choose production."],
+  };
+}
+
+function technologyChoiceCloseout() {
+  return {
+    localPlayerId: 0,
+    playerId: 0,
+    node: -1255676052,
+    notificationId: { owner: 0, id: 52, type: 20 },
+    beforeTechnology: {
+      currentResearching: { ok: true, value: null },
+      targetNode: { ok: true, value: null },
+    },
+    activationResult: { ok: true, value: true },
+    canChoose: { ok: true, value: { Success: true } },
+    chooseResult: { ok: true, value: true },
+    canClearTarget: { ok: true, value: { Success: true } },
+    clearTargetResult: { ok: true, value: true },
+    afterTechnology: {
+      currentResearching: { ok: true, value: -1255676052 },
+      targetNode: { ok: true, value: -1 },
+    },
+    sent: true,
+    notes: [
+      "This uses the App UI owner for technology chooser closeout; notification re-read remains the caller-level verifier.",
+    ],
   };
 }
 

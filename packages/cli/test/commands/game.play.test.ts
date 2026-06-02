@@ -485,10 +485,11 @@ describe('game play commands', () => {
       expect(payload.result.verified).toBe(true);
       expect(payload.result.postcondition.classification).toBe('technology-choice-cleared');
       expect(payload.result.postcondition.verified).toBe(true);
-      expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
+      expect(server.received.some((message) => message.includes('sendTechnologyChoiceCloseout'))).toBe(true);
+      expect(server.received.some((message) => message.includes('Game.Notifications.activate'))).toBe(true);
       expect(server.received.some((message) => message.includes('SET_TECH_TREE_NODE'))).toBe(true);
       expect(server.received.some((message) => message.includes('SET_TECH_TREE_TARGET_NODE'))).toBe(true);
-      expect(server.received.some((message) => message.includes('"ProgressionTreeNodeType":-1'))).toBe(true);
+      expect(server.received.some((message) => message.includes('ProgressionTreeNodeTypes.NO_NODE'))).toBe(true);
     } finally {
       await server.close();
     }
@@ -537,7 +538,8 @@ describe('game play commands', () => {
       expect(payload.result.postcondition.verified).toBe(false);
       expect(payload.result.postcondition.classification).toBe('technology-choice-sticky-blocker');
       expect(payload.result.postcondition.reason).toContain('same technology choice notification still blocks');
-      expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
+      expect(server.received.some((message) => message.includes('sendTechnologyChoiceCloseout'))).toBe(true);
+      expect(server.received.some((message) => message.includes('Game.Notifications.activate'))).toBe(true);
       expect(server.received.some((message) => message.includes('SET_TECH_TREE_NODE'))).toBe(true);
       expect(server.received.some((message) => message.includes('SET_TECH_TREE_TARGET_NODE'))).toBe(true);
     } finally {
@@ -590,7 +592,8 @@ describe('game play commands', () => {
       expect(payload.result.postcondition.classification).toBe('technology-state-changed-blocker-still-live');
       expect(payload.result.postcondition.reason).toContain('state changed');
       expect(payload.result.postcondition.reason).toContain('still blocks');
-      expect(server.received.filter((message) => message.includes('sendOperation("player-operation"')).length).toBe(2);
+      expect(server.received.some((message) => message.includes('sendTechnologyChoiceCloseout'))).toBe(true);
+      expect(server.received.some((message) => message.includes('Game.Notifications.activate'))).toBe(true);
       expect(server.received.some((message) => message.includes('SET_TECH_TREE_NODE'))).toBe(true);
       expect(server.received.some((message) => message.includes('SET_TECH_TREE_TARGET_NODE'))).toBe(true);
     } finally {
@@ -4825,6 +4828,9 @@ async function startTunerServer(options: {
         } else if (frame.message.includes('sendDiplomacyResponseCloseout')) {
           diplomacyCloseoutObserved = true;
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(diplomacyResponseCloseout())]));
+        } else if (frame.message.includes('sendTechnologyChoiceCloseout')) {
+          technologyChoiceSent = true;
+          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(technologyChoiceCloseout())]));
         } else if (frame.message.includes('sendCultureChoiceCloseout')) {
           cultureChoiceSent = true;
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(cultureChoiceCloseout())]));
@@ -8101,6 +8107,32 @@ function diplomacyResponseCloseout() {
       },
     },
     notes: ['This follows the official response-panel path more closely than a raw player-operation send.'],
+  };
+}
+
+function technologyChoiceCloseout() {
+  return {
+    localPlayerId: 0,
+    playerId: 0,
+    node: -1255676052,
+    notificationId: { owner: 0, id: 52, type: 20 },
+    beforeTechnology: {
+      currentResearching: { ok: true, value: null },
+      targetNode: { ok: true, value: null },
+    },
+    activationResult: { ok: true, value: true },
+    canChoose: { ok: true, value: { Success: true } },
+    chooseResult: { ok: true, value: true },
+    canClearTarget: { ok: true, value: { Success: true } },
+    clearTargetResult: { ok: true, value: true },
+    afterTechnology: {
+      currentResearching: { ok: true, value: -1255676052 },
+      targetNode: { ok: true, value: -1 },
+    },
+    sent: true,
+    notes: [
+      'This uses the App UI owner for technology chooser closeout; notification re-read remains the caller-level verifier.',
+    ],
   };
 }
 

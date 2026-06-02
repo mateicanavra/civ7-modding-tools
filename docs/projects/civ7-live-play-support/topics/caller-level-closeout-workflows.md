@@ -42,7 +42,10 @@ Use these when the selected action should be handled as one native workflow:
 - `game play buy-attribute --player-id <id> --node <node> --send --closeout --reason '<why>'`
   sends `BUY_ATTRIBUTE_TREE_NODE` then `CONSIDER_ASSIGN_ATTRIBUTE`.
 - `game play choose-tech --player-id <id> --node <node> --send --reason '<why>'`
-  sends `SET_TECH_TREE_NODE` then `SET_TECH_TREE_TARGET_NODE`.
+  runs the App UI tech chooser owner route: activate the current
+  `NOTIFICATION_CHOOSE_TECH` when present, send `SET_TECH_TREE_NODE`, clear
+  with `SET_TECH_TREE_TARGET_NODE`, then re-read the live technology-choice
+  notification postcondition.
 - `game play choose-culture --player-id <id> --node <node> --send --closeout --reason '<why>'`
   runs the App UI culture chooser owner route: activate the current
   `NOTIFICATION_CHOOSE_CULTURE_NODE` when present, send
@@ -81,10 +84,10 @@ workflow is known:
   the native state machine; it should not become a caller checklist.
 - Progression chooser commands must not treat successful runtime sends as
   success if the same end-turn-blocking chooser notification remains live.
-  For culture, the direct-control App UI route only proves operation-send
-  evidence; the CLI's caller-level notification re-read owns final
-  `verified:true`. Report sticky or state-changed-live postconditions so agents
-  stop and diagnose instead of repeating blind sends.
+  For tech and culture, the direct-control App UI route only proves
+  operation-send evidence; the CLI's caller-level notification re-read owns
+  final `verified:true`. Report sticky or state-changed-live postconditions so
+  agents stop and diagnose instead of repeating blind sends.
 - Keep category guidance advisory. The command gives the caller a safe
   workflow shape; it does not choose which tradition, attribute, or town focus
   is strategically correct.

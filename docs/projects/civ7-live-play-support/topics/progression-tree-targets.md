@@ -39,12 +39,12 @@ templates; disabled options are evidence, not safe sends.
 For chooser notifications, the complete workflow mirrors the official chooser
 screens: send the chosen `SET_*_TREE_NODE`, then clear the temporary chooser
 target with `SET_*_TREE_TARGET_NODE { ProgressionTreeNodeType: NO_NODE }`.
-Culture closeout runs this through the App UI owner route: activate the current
-`NOTIFICATION_CHOOSE_CULTURE_NODE` when present, send the node choice, then
-clear the temporary chooser target. That sequence is necessary but not proof by
-itself. The caller command must re-read the live notification state and report
-whether the blocker cleared, changed, unblocked the turn, or remained live after
-state changed. Use `game play set-tech-target` or
+Technology and culture closeout run this through the App UI owner route:
+activate the current chooser notification when present, send the node choice,
+then clear the temporary chooser target. That sequence is necessary but not
+proof by itself. The caller command must re-read the live notification state and
+report whether the blocker cleared, changed, unblocked the turn, or remained
+live after state changed. Use `game play set-tech-target` or
 `game play set-culture-target` only when the full tree should deliberately
 target a later node or when diagnostics already prove the primary chooser state
 was applied.
@@ -94,6 +94,13 @@ durable lesson is not that every culture choice needs repeated sends; it is that
 target-node closeout is an official path, and the CLI must still verify the
 blocker postcondition before calling the workflow successful.
 
+The same owner boundary appeared immediately afterward for technology on turn
+23: `SET_TECH_TREE_NODE` changed current research to Writing while
+`NOTIFICATION_CHOOSE_TECH` stayed end-turn-blocking. `choose-tech --send` now
+uses the official App UI tech chooser owner route for the send/clear sequence,
+and still treats `technology-state-changed-blocker-still-live` as an unverified
+stop-and-diagnose result.
+
 ## CLI Use
 
 Start current culture research and close the matching chooser surface as
@@ -128,5 +135,6 @@ civ7 game play set-culture-target \
 ```
 
 The same distinction applies to technology with `game play choose-tech --send`
-for the complete chooser workflow and `game play set-tech-target` for deliberate
-full-tree target planning.
+for the complete App UI-owner chooser workflow and `game play set-tech-target`
+for deliberate full-tree target planning. Its JSON also reports `operationSent`
+separately from final `verified:true`.
