@@ -114,11 +114,15 @@ Notable handler evidence:
   discovery also checking `getFirstPendingDiscoveryLastMetID()`), builds buttons
   from `GameInfo.NarrativeStory_Links`, and sends
   `CHOOSE_NARRATIVE_STORY_DIRECTION` with `{ TargetType: answerKey, Target:
-  targetStoryId, Action: Activate }`. If a real pending story has no linked
-  choices, the official UI emits a `CLOSE` option. If no pending story id exists,
-  do not synthesize a narrative send; inspect notification-dismissal
-  postcondition evidence separately and require `verified:true` before treating
-  dismissal as a closeout.
+  targetStoryId, Action: Activate }`. If the official small narrative panel is
+  already visible, the target can also be read from
+  `small-narrative-event._component.targetStoryId` and choices from
+  `fxs-reward-button[small-narrative-choice-key]`; validate those exact
+  visible-panel args before send. If a real pending story has no linked choices,
+  the official UI emits a `CLOSE` option. If neither story model nor visible
+  panel exposes a target, do not synthesize a narrative send; inspect
+  notification-dismissal postcondition evidence separately and require
+  `verified:true` before treating dismissal as a closeout.
 - Tradition blockers should not be reconstructed from logs or static rows.
   The live player `Culture` object exposes active, unlocked, and recent
   traditions (`getActiveTraditions`, `getUnlockedTraditions`,
@@ -203,9 +207,10 @@ path instead: `Players.get(GameContext.localPlayerID).Stories.getFirstPendingMet
 `Stories.find(target)`, `GameInfo.NarrativeStories.lookup(story.type)`, and a
 narrow `NarrativeStory_Links.filter` for that one story type. If both pending-id
 reads are empty, `game play choose-narrative --options --json` should expose a
-read-only dismissal diagnostic plus an unproven send candidate. Only treat that
-send as successful if `game play dismiss-notification --send` reports
-`verified:true`.
+visible-panel option surface when the official popup is open. If no visible panel
+target exists either, it should expose a read-only dismissal diagnostic plus an
+unproven send candidate. Only treat that send as successful if
+`game play dismiss-notification --send` reports `verified:true`.
 
 Production blockers should use the production shortcut before falling back to a
 generic operation. Units use `UnitType`, constructibles use `ConstructibleType`,

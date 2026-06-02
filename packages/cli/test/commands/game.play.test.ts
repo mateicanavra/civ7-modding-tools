@@ -1137,6 +1137,53 @@ describe('game play commands', () => {
     }
   });
 
+  test('reads visible narrative panel options when story model pending ids are empty', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'narrative-choice-visible-panel' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayChooseNarrative.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayChooseNarrative.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--options',
+        '--json',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        result: {
+          enabledOptionCount: number;
+          surfaces: Array<{
+            classification: string;
+            targetStoryId: unknown;
+            visiblePanelTargetStoryId: { owner: number; id: number; type: number } | null;
+            enabledOptions: Array<{ targetType: string; target: { owner: number; id: number; type: number }; chooseCli: string | null }>;
+            dismissalDiagnosticCli: string | null;
+          }>;
+        };
+      };
+      expect(payload.result.enabledOptionCount).toBe(2);
+      expect(payload.result.surfaces[0].classification).toBe('narrative-choice-options');
+      expect(payload.result.surfaces[0].targetStoryId).toBeNull();
+      expect(payload.result.surfaces[0].visiblePanelTargetStoryId).toEqual({ owner: 0, id: 25, type: 35 });
+      expect(payload.result.surfaces[0].enabledOptions.map((option) => option.targetType)).toEqual([
+        'DISCOVERY_14001B',
+        'DISCOVERY_14001C',
+      ]);
+      expect(payload.result.surfaces[0].enabledOptions[0].chooseCli).toContain("--target '{\"owner\":0,\"id\":25,\"type\":35}'");
+      expect(payload.result.surfaces[0].dismissalDiagnosticCli).toBeNull();
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
   test('validates diplomacy responses as a dry-run player operation', async () => {
     const server = await startTunerServer();
     try {
@@ -2532,6 +2579,40 @@ describe('game play commands', () => {
       const top = payload.priorities[0];
       expect(top.kind).toBe('hud:narrative-choice');
       expect(top.command).toBe('game play dismiss-notification --target \'{"owner":0,"id":5,"type":20}\' --json');
+      expect(payload.next).toBe(top.command);
+      expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
+    } finally {
+      log.mockRestore();
+      await server.close();
+    }
+  });
+
+  test('surfaces narrative options for visible panel choices in compact priorities', async () => {
+    const server = await startTunerServer({ playNotificationMode: 'narrative-choice-visible-panel' });
+    const writes: string[] = [];
+    const log = vi.spyOn(GamePlayPriorities.prototype, 'log').mockImplementation((message?: string) => {
+      if (message) writes.push(message);
+    });
+    try {
+      const { port } = server.address();
+      await GamePlayPriorities.run([
+        '--host',
+        '127.0.0.1',
+        '--port',
+        String(port),
+        '--json',
+        '--compact',
+        '--no-battlefield',
+      ]);
+
+      const payload = JSON.parse(writes.join('')) as {
+        ok: true;
+        next: string | null;
+        priorities: Array<{ kind: string; command?: string }>;
+      };
+      const top = payload.priorities[0];
+      expect(top.kind).toBe('hud:narrative-choice');
+      expect(top.command).toBe('game play choose-narrative --options --json');
       expect(payload.next).toBe(top.command);
       expect(server.received.some((message) => message.includes('sendOperation('))).toBe(false);
     } finally {
@@ -4014,7 +4095,7 @@ function expectOwnerOnlyContactLabels(values: readonly string[]): void {
 
 async function startTunerServer(options: {
   canEndTurnBefore?: boolean;
-  playNotificationMode?: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
+  playNotificationMode?: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error';
   unitTargetMode?: 'verified' | 'no-op-after-send' | 'path-shortfall' | 'delayed-after-send';
   notificationDismissalMode?: 'verified' | 'stale-nonblocking';
   productionPostconditionMode?: 'cleared' | 'blocker-still-live';
@@ -4123,7 +4204,7 @@ async function startTunerServer(options: {
 }
 
 function playNotificationView(
-  mode: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
+  mode: 'town-focus' | 'production-choice' | 'population-placement' | 'tech-choice' | 'culture-choice' | 'celebration-choice' | 'government-choice' | 'narrative-choice' | 'narrative-choice-empty' | 'narrative-choice-visible-panel' | 'tradition-review' | 'stale-unit-command' | 'stale-unit-command-disabled' | 'stale-unit-command-pending' | 'stale-informational' | 'legacy-completed' | 'diplomatic-report' | 'diplomatic-action-report' | 'ready-unit' | 'mixed-queue' | 'stale-diplomacy' | 'runtime-error' = 'town-focus',
   diplomacyCloseoutObserved = false,
 ) {
   if (mode === 'runtime-error') {
@@ -4591,7 +4672,7 @@ function playNotificationView(
       limits: { maxNotifications: 25, truncated: false },
     };
   }
-  if (mode === 'narrative-choice' || mode === 'narrative-choice-empty') {
+  if (mode === 'narrative-choice' || mode === 'narrative-choice-empty' || mode === 'narrative-choice-visible-panel') {
     const narrativeDecision = {
       category: 'narrative-choice',
       operationFamily: 'player-operation',
@@ -4652,10 +4733,53 @@ function playNotificationView(
       },
     ];
     const hasPendingStory = mode === 'narrative-choice';
-    const surfacedOptions = hasPendingStory ? options : [];
+    const hasVisiblePanel = mode === 'narrative-choice-visible-panel';
+    const visibleTargetStoryId = { owner: 0, id: 25, type: 35 };
+    const visibleOptions = [
+      {
+        source: 'visible-small-narrative-event',
+        targetType: 'DISCOVERY_14001B',
+        targetTypeName: 'DISCOVERY_14001B',
+        target: visibleTargetStoryId,
+        action: -1326475004,
+        activation: 'VISIBLE_PANEL',
+        name: 'Find work for the soldiers.',
+        reward: '+15 Production to Washington, D.C..',
+        imperative: '',
+        cost: null,
+        canAfford: { ok: true, value: true },
+        args: { TargetType: 'DISCOVERY_14001B', Target: visibleTargetStoryId, Action: -1326475004 },
+        enabled: true,
+        disabled: false,
+        validation: { ok: true, value: { Success: true } },
+        cli: "game play choose-narrative --player-id 0 --target-type DISCOVERY_14001B --target '{\"owner\":0,\"id\":25,\"type\":35}' --action -1326475004 --send --reason '<why this visible narrative option was selected>'",
+        validateCli: "game play choose-narrative --player-id 0 --target-type DISCOVERY_14001B --target '{\"owner\":0,\"id\":25,\"type\":35}' --action -1326475004 --json",
+      },
+      {
+        source: 'visible-small-narrative-event',
+        targetType: 'DISCOVERY_14001C',
+        targetTypeName: 'DISCOVERY_14001C',
+        target: visibleTargetStoryId,
+        action: -1326475004,
+        activation: 'VISIBLE_PANEL',
+        name: 'Make plans to return home.',
+        reward: '+75 Happiness toward the next Celebration.',
+        imperative: '',
+        cost: null,
+        canAfford: { ok: true, value: true },
+        args: { TargetType: 'DISCOVERY_14001C', Target: visibleTargetStoryId, Action: -1326475004 },
+        enabled: true,
+        disabled: false,
+        validation: { ok: true, value: { Success: true } },
+        cli: "game play choose-narrative --player-id 0 --target-type DISCOVERY_14001C --target '{\"owner\":0,\"id\":25,\"type\":35}' --action -1326475004 --send --reason '<why this visible narrative option was selected>'",
+        validateCli: "game play choose-narrative --player-id 0 --target-type DISCOVERY_14001C --target '{\"owner\":0,\"id\":25,\"type\":35}' --action -1326475004 --json",
+      },
+    ];
+    const surfacedOptions = hasPendingStory ? options : hasVisiblePanel ? visibleOptions : [];
+    const hasMaterializedOptions = surfacedOptions.length > 0;
     const details = {
       kind: 'narrative-choice-options',
-      classification: hasPendingStory ? 'narrative-choice-options' : 'narrative-choice-no-pending-story',
+      classification: surfacedOptions.length > 0 ? 'narrative-choice-options' : 'narrative-choice-no-pending-story',
       notificationId,
       localPlayerId: 0,
       notificationOwner: 0,
@@ -4665,6 +4789,25 @@ function playNotificationView(
       pendingStoryId: { ok: true, value: null },
       pendingDiscoveryStoryId: { ok: true, value: hasPendingStory ? targetStoryId : null },
       targetStoryId: { ok: true, value: hasPendingStory ? targetStoryId : null },
+      visiblePanel: {
+        ok: true,
+        value: hasVisiblePanel
+          ? {
+              panelType: 'SMALL-NARRATIVE-EVENT',
+              componentType: 'SmallNarrativeEvent',
+              targetStoryId: visibleTargetStoryId,
+              storyType: 'DISCOVERY',
+              options: visibleOptions.map((option) => ({
+                targetType: option.targetType,
+                name: option.name,
+                reward: option.reward,
+                actionText: option.imperative,
+                icons: '[]',
+                storyType: 'LIGHT',
+              })),
+            }
+          : { panelType: null, componentType: null, targetStoryId: null, storyType: null, options: [] },
+      },
       targetStory: { ok: true, value: hasPendingStory ? { id: 45, type: 'NARRATIVE_DISCOVERY_GOODY_HUT' } : null },
       storyDef: { ok: true, value: hasPendingStory ? { NarrativeStoryType: 'NARRATIVE_DISCOVERY_GOODY_HUT', UIActivation: 'DISCOVERY' } : null },
       storyLinks: { ok: true, value: [] },
@@ -4672,8 +4815,8 @@ function playNotificationView(
       options: surfacedOptions,
       enabledOptions: surfacedOptions,
       disabledOptions: [],
-      dismissalDiagnosticCli: hasPendingStory ? null : "game play dismiss-notification --target '{\"owner\":0,\"id\":5,\"type\":20}' --json",
-      unprovenDismissalCli: hasPendingStory ? null : "game play dismiss-notification --target '{\"owner\":0,\"id\":5,\"type\":20}' --send --reason '<reviewed: narrative notification has no pending story>'",
+      dismissalDiagnosticCli: hasMaterializedOptions ? null : "game play dismiss-notification --target '{\"owner\":0,\"id\":5,\"type\":20}' --json",
+      unprovenDismissalCli: hasMaterializedOptions ? null : "game play dismiss-notification --target '{\"owner\":0,\"id\":5,\"type\":20}' --send --reason '<reviewed: narrative notification has no pending story>'",
       notes: [
         'Static fixture mirrors the CLI/HUD contract emitted by the official story-model narrative choice materializer.',
       ],

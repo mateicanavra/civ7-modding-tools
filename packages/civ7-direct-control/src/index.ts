@@ -6422,6 +6422,28 @@ function playNotificationViewSource(): string {
         if (toHash == null) return stylize(playerStories.value?.determineNarrativeInjectionComponentId?.(target, textType));
         return stylize(playerStories.value?.determineNarrativeInjection?.(target, toHash, textType));
       };
+      const visiblePanel = probe(() => {
+        const root = typeof document !== "undefined" ? document.querySelector?.("small-narrative-event") : null;
+        const component = root?._component ?? null;
+        const visibleTarget = toComponentId(component?.targetStoryId);
+        const buttons = typeof document !== "undefined"
+          ? Array.from(document.querySelectorAll?.("fxs-reward-button[small-narrative-choice-key]") ?? [])
+          : [];
+        return {
+          panelType: root?.tagName ?? null,
+          componentType: component?.constructor?.name ?? null,
+          targetStoryId: visibleTarget,
+          storyType: component?.storyType ?? null,
+          options: buttons.map((button) => ({
+            targetType: button.getAttribute("small-narrative-choice-key"),
+            name: button.getAttribute("main-text"),
+            reward: button.getAttribute("reward"),
+            actionText: button.getAttribute("action-text"),
+            icons: button.getAttribute("icons"),
+            storyType: button.getAttribute("story-type"),
+          })).filter((option) => option.targetType),
+        };
+      });
       const options = [];
       const target = targetStoryId.ok ? targetStoryId.value : null;
       const linkRows = storyLinks.ok && Array.isArray(storyLinks.value) ? storyLinks.value : [];
@@ -6525,18 +6547,67 @@ function playNotificationViewSource(): string {
             + " --json",
         });
       }
+      if (options.length === 0 && visiblePanel.ok && visiblePanel.value?.targetStoryId && Array.isArray(visiblePanel.value.options)) {
+        const visibleTarget = visiblePanel.value.targetStoryId;
+        const targetJson = JSON.stringify(visibleTarget);
+        for (const visibleOption of visiblePanel.value.options) {
+          if (!visibleOption.targetType) continue;
+          const args = activate == null ? null : { TargetType: visibleOption.targetType, Target: visibleTarget, Action: activate };
+          const validation = args
+            ? probe(() => Game.PlayerOperations.canStart(
+              localPlayerId,
+              PlayerOperationTypes.CHOOSE_NARRATIVE_STORY_DIRECTION,
+              args,
+              false,
+            ))
+            : { ok: false, error: "missing activate action" };
+          const enabled = validation.ok && successFromCanStart(validation.value);
+          options.push({
+            source: "visible-small-narrative-event",
+            targetType: visibleOption.targetType,
+            targetTypeName: visibleOption.targetType,
+            target: visibleTarget,
+            action: activate,
+            activation: "VISIBLE_PANEL",
+            name: stylize(visibleOption.name) ?? visibleOption.targetType,
+            reward: stylize(visibleOption.reward),
+            imperative: stylize(visibleOption.actionText),
+            cost: null,
+            canAfford: { ok: true, value: true },
+            args,
+            enabled,
+            disabled: !enabled,
+            validation,
+            cli: enabled
+              ? "game play choose-narrative --player-id " + String(localPlayerId)
+                + " --target-type " + String(visibleOption.targetType)
+                + " --target '" + targetJson + "'"
+                + " --action " + String(activate)
+                + " --send --reason '<why this visible narrative option was selected>'"
+              : null,
+            validateCli: "game play choose-narrative --player-id " + String(localPlayerId)
+              + " --target-type " + String(visibleOption.targetType)
+              + " --target '" + targetJson + "'"
+              + (activate != null ? " --action " + String(activate) : "")
+              + " --json",
+          });
+        }
+      }
       const enabledOptions = options.filter((option) => option.enabled);
       const disabledOptions = options.filter((option) => option.disabled);
       const notificationTarget = safeNotificationValue(notification, "Target");
-      const dismissalDiagnosticCli = !target && safeNotificationValue(notification, "CanUserDismiss") === true && notificationId
+      const hasEnabledOptions = enabledOptions.length > 0;
+      const dismissalDiagnosticCli = !hasEnabledOptions && !target && safeNotificationValue(notification, "CanUserDismiss") === true && notificationId
         ? "game play dismiss-notification --target '" + JSON.stringify(notificationId) + "' --json"
         : null;
-      const unprovenDismissalCli = !target && safeNotificationValue(notification, "CanUserDismiss") === true && notificationId
+      const unprovenDismissalCli = !hasEnabledOptions && !target && safeNotificationValue(notification, "CanUserDismiss") === true && notificationId
         ? "game play dismiss-notification --target '" + JSON.stringify(notificationId) + "' --send --reason '<reviewed: narrative notification has no pending story>'"
         : null;
-      const classification = target
-        ? (enabledOptions.length > 0 ? "narrative-choice-options" : "narrative-choice-no-enabled-options")
-        : "narrative-choice-no-pending-story";
+      const classification = hasEnabledOptions
+        ? "narrative-choice-options"
+        : target
+          ? "narrative-choice-no-enabled-options"
+          : "narrative-choice-no-pending-story";
       return {
         kind: "narrative-choice-options",
         classification,
@@ -6549,6 +6620,7 @@ function playNotificationViewSource(): string {
         pendingStoryId,
         pendingDiscoveryStoryId,
         targetStoryId,
+        visiblePanel,
         targetStory,
         storyDef,
         storyLinks,
@@ -6561,6 +6633,7 @@ function playNotificationViewSource(): string {
         notes: [
           "Options mirror the official narrative popup buttons. The notification target can be invalid; the official UI derives the target story from Players.Stories.",
           "Discovery notifications are checked against getFirstPendingDiscoveryLastMetID before the regular pending met story id.",
+          "When the official panel is already visible, options can be sourced from small-narrative-event._component.targetStoryId and fxs-reward-button choice keys, then validated through CHOOSE_NARRATIVE_STORY_DIRECTION.",
           "When a real story has no linked choices, the official UI emits a CLOSE option with CHOOSE_NARRATIVE_STORY_DIRECTION.",
           "If no pending story id exists, no narrative operation is materialized. Notification dismissal is a separate closeout attempt and is only proven when its postcondition reports verified:true.",
         ],

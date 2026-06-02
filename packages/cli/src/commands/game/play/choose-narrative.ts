@@ -147,6 +147,7 @@ function compactNarrativeChoiceSurface(details: Record<string, unknown>): {
   pendingStoryId: unknown;
   pendingDiscoveryStoryId: unknown;
   targetStoryId: unknown;
+  visiblePanelTargetStoryId: unknown;
   enabledOptions: Array<Record<string, unknown>>;
   enabledOptionCount: number;
   disabledOptionCount: number;
@@ -154,9 +155,14 @@ function compactNarrativeChoiceSurface(details: Record<string, unknown>): {
   unprovenDismissalCli: unknown;
   notes: unknown;
 } {
+  const visiblePanel = probeValue(details.visiblePanel);
+  const visiblePanelRecord = visiblePanel && typeof visiblePanel === 'object'
+    ? visiblePanel as Record<string, unknown>
+    : null;
   const enabledOptions = asArray(details.enabledOptions)
     .filter((option): option is Record<string, unknown> => Boolean(option && typeof option === 'object'))
     .map((option) => ({
+      source: option.source,
       targetType: option.targetType,
       targetTypeName: option.targetTypeName,
       target: option.target,
@@ -179,6 +185,7 @@ function compactNarrativeChoiceSurface(details: Record<string, unknown>): {
     pendingStoryId: probeValue(details.pendingStoryId),
     pendingDiscoveryStoryId: probeValue(details.pendingDiscoveryStoryId),
     targetStoryId: probeValue(details.targetStoryId),
+    visiblePanelTargetStoryId: probeValue(visiblePanelRecord?.targetStoryId),
     enabledOptions,
     enabledOptionCount: enabledOptions.length,
     disabledOptionCount: asArray(details.disabledOptions).length,
