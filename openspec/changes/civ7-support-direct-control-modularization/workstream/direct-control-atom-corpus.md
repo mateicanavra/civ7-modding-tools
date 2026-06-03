@@ -145,6 +145,16 @@ behavior, procedure schemas, telemetry, AI ingestion, hotseat runtime proof,
 CLI semantic projection, Effect/oRPC procedure-core work, or Task 2.9.4
 matrix-row acceptance.
 
+Map read type update: `src/play/map/types.ts` now also owns map summary, plot
+snapshot, map grid input/result, and full-map-grid chunk/input/result types
+while public facade type re-exports stay in `index.ts`. `src/play/map/reads.ts`
+consumes those map read types from the map owner and session types from
+`src/session/types.ts`. This is local package/type relocation proof only and
+does not change map read validation, hidden-info policy semantics, source
+strings, runtime behavior, visibility or GameInfo types, procedure schemas,
+telemetry, AI ingestion, hotseat runtime proof, CLI semantic projection,
+Effect/oRPC procedure-core work, or Task 2.9.4 matrix-row acceptance.
+
 Bounded root inspection update: `src/runtime/root-inspection.ts` now owns
 `inspectCiv7Root` and the generated bounded root inspection command while the
 public facade export stays in `index.ts` and injects command execution,
