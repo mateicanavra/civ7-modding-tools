@@ -52,7 +52,7 @@ import { technologyChoiceCloseoutSource } from "./play/progression/technology.js
 import { readyCityViewSource } from "./play/ready/city.js";
 import { unitMovePreviewSource } from "./play/ready/move-preview.js";
 import { readyUnitViewSource } from "./play/ready/unit.js";
-import { battlefieldScanSource } from "./play/tactical/battlefield.js";
+import { getCiv7BattlefieldScan as getCiv7BattlefieldScanFromModule } from "./play/tactical/battlefield.js";
 import { destinationAnalysisSource } from "./play/tactical/destination.js";
 import { getCiv7SettlementRecommendations as getCiv7SettlementRecommendationsFromModule } from "./play/tactical/settlement.js";
 import { getCiv7TargetCandidates as getCiv7TargetCandidatesFromModule } from "./play/tactical/target-candidates.js";
@@ -3863,18 +3863,13 @@ export async function getCiv7BattlefieldScan(
   input: Civ7BattlefieldScanInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7BattlefieldScanResult> {
-  if (input.playerId !== undefined) validatePlayerId(input.playerId);
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildBattlefieldScanCommand({
-      ...input,
-      radius: boundedInteger(input.radius ?? 8, 1, 32, "radius"),
-      maxPlayers: boundedInteger(input.maxPlayers ?? 32, 1, 128, "maxPlayers"),
-      maxUnits: boundedInteger(input.maxUnits ?? 80, 1, 256, "maxUnits"),
-      maxCities: boundedInteger(input.maxCities ?? 32, 1, 128, "maxCities"),
-    }),
+  return await getCiv7BattlefieldScanFromModule(input, options, {
+    validatePlayerId,
+    boundedInteger,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseBattlefieldScan: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7BattlefieldScanResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7BattlefieldScanResult>(result, "Civ7 battlefield scan");
 }
 
 export async function getCiv7DestinationAnalysis(
@@ -5548,13 +5543,6 @@ function buildReadyCityViewCommand(input: Civ7ReadyCityViewInput & { maxOperatio
   return `(() => {
     ${readyCityViewSource()}
     return JSON.stringify(readReadyCityView(${jsLiteral(input)}));
-  })()`;
-}
-
-function buildBattlefieldScanCommand(input: Civ7BattlefieldScanInput & { radius: number; maxPlayers: number; maxUnits: number; maxCities: number }): string {
-  return `(() => {
-    ${battlefieldScanSource()}
-    return JSON.stringify(readBattlefieldScan(${jsLiteral(input)}));
   })()`;
 }
 

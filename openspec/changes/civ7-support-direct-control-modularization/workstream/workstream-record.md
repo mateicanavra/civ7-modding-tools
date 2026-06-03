@@ -421,6 +421,14 @@ All future agent waves must be framed before delegation:
   source owner. `test/tactical-reads.test.ts` and the focused CLI tactical-read
   command suite remain the proof owners. This is local package/source
   relocation proof only, not runtime proof.
+- Direct-control battlefield scan wrapper slice: completed as the next
+  read-only tactical wrapper composition relocation. It moves only
+  `getCiv7BattlefieldScan` orchestration plus its command builder into
+  `src/play/tactical/battlefield.ts` while keeping the public facade export in
+  `index.ts` and preserving the existing embedded battlefield scan source
+  owner. `test/tactical-reads.test.ts` and the focused CLI tactical-read
+  command suite remain the proof owners. This is local package/source
+  relocation proof only, not runtime proof.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now
