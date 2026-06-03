@@ -58,6 +58,12 @@ import {
 } from "./runtime/tuner-health.js";
 import { getCiv7PlayableStatus as getCiv7PlayableStatusFromModule } from "./runtime/playable-status.js";
 import {
+  configureCiv7Autoplay as configureCiv7AutoplayFromModule,
+  getCiv7AutoplayStatus as getCiv7AutoplayStatusFromModule,
+  startCiv7Autoplay as startCiv7AutoplayFromModule,
+  stopCiv7Autoplay as stopCiv7AutoplayFromModule,
+} from "./play/autoplay.js";
+import {
   getCiv7TurnCompletionStatus as getCiv7TurnCompletionStatusFromModule,
   sendCiv7TurnComplete as sendCiv7TurnCompleteFromModule,
   sendCiv7TurnUnready as sendCiv7TurnUnreadyFromModule,
@@ -3313,91 +3319,46 @@ export async function inspectCiv7Root(
 export async function getCiv7AutoplayStatus(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7AutoplayStatusResult> {
-  const snapshot = await getCiv7AppUiSnapshot(options);
-  return {
-    host: snapshot.host,
-    port: snapshot.port,
-    state: snapshot.state,
-    autoplay: snapshot.snapshot.autoplay,
-    game: snapshot.snapshot.game,
-    gameContext: snapshot.snapshot.gameContext,
-  };
+  return await getCiv7AutoplayStatusFromModule(options, {
+    getAppUiSnapshot: getCiv7AppUiSnapshot,
+  });
 }
 
 export async function configureCiv7Autoplay(
   options: Civ7AutoplayOptions,
   approval: Civ7ActionApproval,
 ): Promise<Civ7AutoplayActionResult> {
-  assertApproved(approval, "configuring Civ7 autoplay");
-  const maxTurns = options.maxTurns ?? DEFAULT_CIV7_AUTOPLAY_MAX_TURNS;
-  if (options.turns !== undefined) boundedInteger(options.turns, 1, maxTurns, "turns");
-  if (options.observeAsPlayer !== undefined) validatePlayerId(options.observeAsPlayer);
-  if (options.returnAsPlayer !== undefined) validatePlayerId(options.returnAsPlayer);
-  const before = await getCiv7AutoplayStatus(options);
-  const command = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildConfigureAutoplayCommand(options),
-  });
-  const after = await waitForCiv7AutoplayStatus(options, (status) => autoplayConfigMatches(status, options));
-  return {
-    host: command.host,
-    port: command.port,
-    state: command.state,
-    before,
-    after,
-    commands: [command],
-    verified: autoplayConfigMatches(after, options),
-  };
+  return await configureCiv7AutoplayFromModule(options, approval, autoplayDependencies());
 }
 
 export async function startCiv7Autoplay(
   options: Civ7AutoplayOptions,
   approval: Civ7ActionApproval,
 ): Promise<Civ7AutoplayActionResult> {
-  assertApproved(approval, "starting Civ7 autoplay");
-  const maxTurns = options.maxTurns ?? DEFAULT_CIV7_AUTOPLAY_MAX_TURNS;
-  if (options.turns !== undefined) boundedInteger(options.turns, 1, maxTurns, "turns");
-  const before = await getCiv7AutoplayStatus(options);
-  const commandOptions = {
-    ...materializeAutoplayPlayerOptions(options, before),
-    pause: options.pause ?? false,
-  };
-  const command = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildStartAutoplayCommand(commandOptions),
-  });
-  const after = await waitForCiv7AutoplayStatus(options, (status) => status.autoplay.isActive === true);
-  return {
-    host: command.host,
-    port: command.port,
-    state: command.state,
-    before,
-    after,
-    commands: [command],
-    verified: after.autoplay.isActive === true,
-  };
+  return await startCiv7AutoplayFromModule(options, approval, autoplayDependencies());
 }
 
 export async function stopCiv7Autoplay(
   options: Civ7AutoplayOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7AutoplayActionResult> {
-  assertApproved(approval, "stopping Civ7 autoplay");
-  const before = await getCiv7AutoplayStatus(options);
-  const commandOptions = materializeAutoplayPlayerOptions(options, before);
-  const command = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildStopAutoplayCommand(commandOptions),
-  });
-  const stopProof = await waitForCiv7AutoplayStop(options, commandOptions.returnAsPlayer);
+  return await stopCiv7AutoplayFromModule(options, approval, autoplayDependencies());
+}
+
+function autoplayDependencies() {
   return {
-    host: command.host,
-    port: command.port,
-    state: command.state,
-    before,
-    after: stopProof.status,
-    commands: [command],
-    verified: stopProof.verified,
+    assertApproved,
+    boundedInteger,
+    defaultMaxTurns: DEFAULT_CIV7_AUTOPLAY_MAX_TURNS,
+    defaultPollIntervalMs: DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS,
+    defaultStopStabilityMs: DEFAULT_CIV7_AUTOPLAY_STOP_STABILITY_MS,
+    defaultStopWaitMs: DEFAULT_CIV7_AUTOPLAY_STOP_WAIT_MS,
+    defaultWaitMs: DEFAULT_CIV7_AUTOPLAY_WAIT_MS,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    getAppUiSnapshot: getCiv7AppUiSnapshot,
+    jsLiteral,
+    sleep,
+    validatePlayerId,
   };
 }
 
@@ -4558,36 +4519,6 @@ function setupSnapshotScriptSource(): string {
     };`;
 }
 
-function buildConfigureAutoplayCommand(options: Civ7AutoplayOptions): string {
-  return `(() => {
-    ${autoplaySetterSource(options)}
-    return JSON.stringify({ ok: true, isActive: Autoplay.isActive, turns: Autoplay.turns });
-  })()`;
-}
-
-function buildStartAutoplayCommand(options: Civ7AutoplayOptions): string {
-  return `(() => {
-    ${autoplaySetterSource(options)}
-    Autoplay.setActive(true);
-    return JSON.stringify({ ok: true, isActive: Autoplay.isActive, turns: Autoplay.turns });
-  })()`;
-}
-
-function buildStopAutoplayCommand(options: Civ7AutoplayOptions): string {
-  return `(() => {
-    ${autoplayRestoreSetterSource(options)}
-    Autoplay.setPause(true);
-    Autoplay.setActive(false);
-    return JSON.stringify({
-      ok: true,
-      isActive: Autoplay.isActive,
-      turns: Autoplay.turns,
-      isPaused: Autoplay.isPaused,
-      isPausedOrPending: Autoplay.isPausedOrPending
-    });
-  })()`;
-}
-
 function buildOperationValidationCommand(family: Civ7OperationFamily, input: Civ7OperationInput): string {
   return `(() => {
     ${operationRouterSource()}
@@ -4653,15 +4584,6 @@ function probeHelperSource(): string {
         return { ok: false, error: String(err) };
       }
     };`;
-}
-
-function autoplaySetterSource(options: Civ7AutoplayOptions): string {
-  const statements: string[] = [];
-  if (options.turns !== undefined) statements.push(`Autoplay.setTurns(${jsLiteral(options.turns)});`);
-  if (options.observeAsPlayer !== undefined) statements.push(`Autoplay.setObserveAsPlayer(${jsLiteral(options.observeAsPlayer)});`);
-  if (options.returnAsPlayer !== undefined) statements.push(`Autoplay.setReturnAsPlayer(${jsLiteral(options.returnAsPlayer)});`);
-  if (options.pause !== undefined) statements.push(`Autoplay.setPause(${jsLiteral(options.pause)});`);
-  return statements.join("\n    ");
 }
 
 function diplomacyResponseCloseoutSource(): string {
@@ -5508,103 +5430,6 @@ function assertApproved(approval: Civ7ActionApproval, action: string): void {
   if (!approval || approval.approved !== true || !approval.reason.trim()) {
     throw new Civ7DirectControlError("command-failed", `Explicit approval with a reason is required before ${action}`);
   }
-}
-
-function autoplayConfigMatches(status: Civ7AutoplayStatusResult, options: Civ7AutoplayOptions): boolean {
-  if (options.turns !== undefined && status.autoplay.turns !== options.turns) return false;
-  if (options.observeAsPlayer !== undefined && status.autoplay.observeAsPlayer !== options.observeAsPlayer) return false;
-  if (options.returnAsPlayer !== undefined && status.autoplay.returnAsPlayer !== options.returnAsPlayer) return false;
-  if (options.pause !== undefined && status.autoplay.isPaused !== options.pause) return false;
-  return true;
-}
-
-function materializeAutoplayPlayerOptions(
-  options: Civ7AutoplayOptions,
-  before: Civ7AutoplayStatusResult,
-): Civ7AutoplayOptions {
-  const returnAsPlayer = options.returnAsPlayer ?? inferAutoplayReturnPlayer(before);
-  const observeAsPlayer = options.observeAsPlayer ?? inferAutoplayObservePlayer(before, returnAsPlayer);
-  return {
-    ...options,
-    ...(returnAsPlayer === undefined ? {} : { returnAsPlayer }),
-    ...(observeAsPlayer === undefined ? {} : { observeAsPlayer }),
-  };
-}
-
-function inferAutoplayReturnPlayer(status: Civ7AutoplayStatusResult): number | undefined {
-  if (isConcretePlayerId(status.gameContext.localPlayerID)) return status.gameContext.localPlayerID;
-  if (isConcretePlayerId(status.autoplay.returnAsPlayer)) return status.autoplay.returnAsPlayer;
-  return undefined;
-}
-
-function inferAutoplayObservePlayer(status: Civ7AutoplayStatusResult, returnAsPlayer: number | undefined): number | undefined {
-  if (isConcretePlayerId(status.gameContext.localObserverID)) return status.gameContext.localObserverID;
-  return returnAsPlayer;
-}
-
-function isConcretePlayerId(value: number): boolean {
-  return Number.isInteger(value) && value >= 0 && value < 1_000;
-}
-
-function autoplayRestoreSetterSource(options: Civ7AutoplayOptions): string {
-  const statements: string[] = [];
-  if (options.returnAsPlayer !== undefined) statements.push(`Autoplay.setReturnAsPlayer(${jsLiteral(options.returnAsPlayer)});`);
-  if (options.observeAsPlayer !== undefined) statements.push(`Autoplay.setObserveAsPlayer(${jsLiteral(options.observeAsPlayer)});`);
-  return statements.join("\n    ");
-}
-
-function isAutoplayStopStatus(status: Civ7AutoplayStatusResult, returnAsPlayer: number | undefined): boolean {
-  if (status.autoplay.isActive !== false) return false;
-  if (returnAsPlayer !== undefined && status.gameContext.localPlayerID !== returnAsPlayer) return false;
-  return true;
-}
-
-async function waitForCiv7AutoplayStatus(
-  options: Civ7AutoplayPollOptions,
-  predicate: (status: Civ7AutoplayStatusResult) => boolean,
-): Promise<Civ7AutoplayStatusResult> {
-  const waitTimeoutMs = options.waitTimeoutMs ?? DEFAULT_CIV7_AUTOPLAY_WAIT_MS;
-  const pollIntervalMs = options.pollIntervalMs ?? DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS;
-  const startedAt = Date.now();
-  let lastStatus: Civ7AutoplayStatusResult | undefined;
-
-  while (Date.now() - startedAt <= waitTimeoutMs) {
-    const status = await getCiv7AutoplayStatus(options);
-    lastStatus = status;
-    if (predicate(status)) return status;
-    await sleep(pollIntervalMs);
-  }
-
-  if (lastStatus) return lastStatus;
-  return await getCiv7AutoplayStatus(options);
-}
-
-async function waitForCiv7AutoplayStop(
-  options: Civ7AutoplayPollOptions,
-  returnAsPlayer: number | undefined,
-): Promise<{ status: Civ7AutoplayStatusResult; verified: boolean }> {
-  const waitTimeoutMs = options.waitTimeoutMs ?? DEFAULT_CIV7_AUTOPLAY_STOP_WAIT_MS;
-  const pollIntervalMs = options.pollIntervalMs ?? DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS;
-  const stabilityWindowMs = options.stabilityWindowMs ?? DEFAULT_CIV7_AUTOPLAY_STOP_STABILITY_MS;
-  const startedAt = Date.now();
-  let lastStatus: Civ7AutoplayStatusResult | undefined;
-
-  while (Date.now() - startedAt <= waitTimeoutMs) {
-    const status = await getCiv7AutoplayStatus(options);
-    lastStatus = status;
-    if (isAutoplayStopStatus(status, returnAsPlayer)) {
-      await sleep(stabilityWindowMs);
-      const stableStatus = await getCiv7AutoplayStatus(options);
-      lastStatus = stableStatus;
-      if (isAutoplayStopStatus(stableStatus, returnAsPlayer) && stableStatus.game.turn === status.game.turn) {
-        return { status: stableStatus, verified: true };
-      }
-    }
-    await sleep(pollIntervalMs);
-  }
-
-  const status = lastStatus ?? await getCiv7AutoplayStatus(options);
-  return { status, verified: false };
 }
 
 async function validateCiv7Operation(

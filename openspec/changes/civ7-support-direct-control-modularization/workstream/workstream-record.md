@@ -711,6 +711,17 @@ All future agent waves must be framed before delegation:
   `test/ready-city-view.test.ts` and the focused CLI ready-city suite remain
   the proof owners. This is local package/source relocation proof only, not
   runtime proof.
+- Direct-control autoplay slice: completed as a narrow mutation-facing
+  autoplay wrapper/source relocation. It moves only `getCiv7AutoplayStatus`,
+  `configureCiv7Autoplay`, `startCiv7Autoplay`, `stopCiv7Autoplay`, autoplay
+  command builders, player inference, config matching, and wait/stop-settling
+  helpers into `src/play/autoplay.ts` while keeping public facade exports in
+  `index.ts`. The slice preserves approval-first configuration/start/stop,
+  bounded turns/player validation, explicit unbounded start behavior, native
+  pause-before-stop settling, command strings, and result shapes. This is local
+  package/source relocation proof only, not runtime proof; hotseat runtime
+  proof, AI ingestion, semantic CLI projection, telemetry, Effect/oRPC
+  procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now
