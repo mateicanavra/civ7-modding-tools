@@ -312,6 +312,15 @@ Compatibility matrix execution gate:
   test ergonomics, existing TypeBox coverage, runtime validation behavior,
   duplication cost, migration blast radius, and whether one schema technology
   can safely own internal service contracts plus AI/CLI semantic projections.
+  Report-only schema evaluation `019e8efd-a057-7263-83a9-828e49a07b70`
+  records the planning default as bounded hybrid: keep current TypeBox public
+  contracts in place until a consumer-backed schema slice proves replacement
+  value, and consider Effect Schema for new/refactored Effect-native
+  procedure-core, telemetry, and AI-ingestion contracts where decode/encode,
+  transformations, typed parse errors, Effect integration, or
+  machine-ingestion ergonomics materially help. Zod must not become a third
+  durable schema authority by drift; if oRPC needs Zod as an adapter layer, the
+  adapter boundary must be documented explicitly.
 - The hotseat/autoplay foundation is the dependency base for the AI-intelligence
   model. Product control assumes one Civ7 client, human and agent civs as
   hotseat human slots, mutation only when `GameContext.localPlayerID` is an

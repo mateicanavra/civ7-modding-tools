@@ -1685,3 +1685,18 @@ All future agent waves must be framed before delegation:
   `packages/civ7-control-orpc` source, procedure-core schemas, CLI semantic
   surface work, telemetry hooks, and Effect/Bun implementation planning remain
   pending before changing hierarchy/source shape.
+- TypeBox versus Effect Schema report disposition: report-only thread
+  `019e8efd-a057-7263-83a9-828e49a07b70` is accepted as planning evidence only.
+  The workstream adopts a bounded-hybrid planning default: keep current TypeBox
+  public contracts in place until a consumer-backed schema slice proves
+  replacement value; consider Effect Schema for new/refactored Effect-native
+  procedure-core, telemetry, and AI-ingestion contracts where decode/encode,
+  transformations, typed parse errors, Effect integration, or
+  machine-ingestion ergonomics materially help. Zod must not become a third
+  durable schema authority by drift; if oRPC needs it as an adapter layer, that
+  boundary must be explicit. Schema migration remains blocked on Task 2.9.4
+  matrix-row acceptance plus oRPC schema/procedure validation, error-shape
+  snapshot, encode/decode round trip, Bun runtime check, CLI semantic
+  projection test, and AI-ingestion contract fixture test. This does not
+  migrate schemas, add Effect Schema artifacts, import root-branch oRPC
+  experiment source, unblock 5.x/6.x work, or claim procedure-core readiness.

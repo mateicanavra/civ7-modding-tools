@@ -209,4 +209,5 @@ and in-game observations are not interchangeable.
   encode/decode, typed-error, oRPC compatibility, test ergonomics, existing
   TypeBox coverage, runtime validation, duplication cost, migration blast
   radius, and shared internal-service/AI/CLI semantic projection ownership
-  criteria
+  criteria; stop if Zod appears as an accidental third durable schema authority
+  instead of a documented oRPC adapter boundary

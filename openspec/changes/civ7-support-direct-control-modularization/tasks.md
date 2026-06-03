@@ -1003,6 +1003,18 @@ authority are recorded.
   - Do not convert existing TypeBox contracts or add Effect Schema artifacts
     until this disposition is recorded and Task 2.9.4 matrix-row acceptance is
     satisfied for the affected surface.
+  - Planning evidence from report-only thread
+    `019e8efd-a057-7263-83a9-828e49a07b70` is dispositioned as bounded hybrid:
+    keep current TypeBox public contracts until a consumer-backed schema slice
+    proves replacement value; consider Effect Schema for new/refactored
+    Effect-native procedure-core, telemetry, and AI-ingestion contracts where
+    decode/encode, transformations, typed parse errors, Effect integration, or
+    machine-ingestion ergonomics matter; document any Zod/oRPC adapter as an
+    adapter boundary rather than a third durable schema authority.
+  - Migration acceptance checks remain pending: oRPC schema/procedure
+    validation test, error-shape snapshot, encode/decode round trip, Bun
+    runtime check, CLI semantic projection test, and AI-ingestion contract
+    fixture test.
 - [ ] 6.3 Add approval gates, context, correlation IDs, and error shaping.
 - [ ] 6.4 Expose transport adapters only after procedure cores are testable.
 - [ ] 6.5 Plan Effect `Scope`/resource acquisition, streams/buffers, schedules,
