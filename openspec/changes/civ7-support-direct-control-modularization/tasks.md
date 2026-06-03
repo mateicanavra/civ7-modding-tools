@@ -106,12 +106,12 @@ runtime/direct-control claims.
   - [x] 4.2.7 Add map, visibility, reveal, and GameInfo package test coverage.
   - [x] 4.2.8 Add settlement, progression, and tactical read package test
         coverage.
-  - [ ] 4.2.9 Relocate remaining restack-retained broad-suite edge coverage
-    into owning package suites before source extraction: full-grid map identity
-    checks belong to the map read atom; resource/feature builder feasibility
-    and diagnostics belong to resource/feature builder readback atoms; log
-    rewrite marker cases belong to the proof/log support atom. These edge cases
-    remain in `direct-control.test.ts` only as a restack-speed fallback.
+  - [x] 4.2.9 Add setup/lifecycle package test coverage.
+  - [x] 4.2.10 Add autoplay and turn-completion package test coverage.
+  - [x] 4.2.11 Add runtime inspection and catalog/proof package test coverage.
+  - [ ] 4.2.12 Add restart/begin lifecycle package test coverage.
+  - [ ] 4.2.13 Add full-grid map identity and resource/feature builder
+    readback edge coverage to owning package suites before source extraction.
 - [ ] 4.3 Extract notification view/materialization atom.
 - [ ] 4.4 Extract notification dismissal/verification atom.
 - [ ] 4.5 Extract ready unit/city view atoms.
