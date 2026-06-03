@@ -8,7 +8,7 @@
   stashes, and proof state.
 - [ ] 1.5 Fill `workstream/cli-play-corpus.md` with every play command/test
   owner row.
-- [ ] 1.6 Fill `workstream/direct-control-atom-corpus.md` with every direct
+- [x] 1.6 Fill `workstream/direct-control-atom-corpus.md` with every direct
   control atom candidate.
 - [x] 1.7 Record reviewer/agent findings in
   `workstream/review-disposition-ledger.md`.
@@ -76,7 +76,7 @@ runtime/direct-control claims.
 
 ## 4. Direct-Control Atom Lane
 
-- [ ] 4.1 Define direct-control module boundaries and forbidden owners.
+- [x] 4.1 Define direct-control module boundaries and forbidden owners.
 - [ ] 4.2 Add or relocate focused direct-control package tests for each atom.
 - [ ] 4.3 Extract notification view/materialization atom.
 - [ ] 4.4 Extract notification dismissal/verification atom.
@@ -85,6 +85,10 @@ runtime/direct-control claims.
 - [ ] 4.7 Extract tactical/progression/destination/battlefield/target read
   atoms.
 - [ ] 4.8 Export stable types/constants only after module owners are defined.
+- [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
+  oRPC implementation; current support branch has no tracked
+  `.agents/skills/civ7-orpc-control-architecture` or
+  `packages/civ7-control-orpc` source.
 
 ## 5. Effect/oRPC Composition Lane
 
