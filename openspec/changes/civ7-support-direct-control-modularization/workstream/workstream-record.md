@@ -201,6 +201,14 @@ pending rows, not accepted rows: source owners, proof owners, schemas/tests,
 and several runtime or contract proof boundaries remain unassigned. Task 2.9.4
 therefore remains open, and dependent implementation stays blocked.
 
+Matrix acceptance backlog: `workstream/compatibility-matrix.md` now also
+records the row-by-row owner/proof assignments and proof evidence missing
+before acceptance. The backlog is intentionally not an implementation plan
+closure: hotseat runtime proof, semantic CLI envelopes, AI-ingestion contracts,
+debug/internal service boundaries, operation/proof telemetry contracts, and
+Effect/oRPC procedure cores remain pending until their rows have accepted
+owners, schemas/tests, proof boundaries, and stop-condition coverage.
+
 The action/proof vocabulary for future machine-ingestion and procedure-core
 surfaces is: strategy intent, candidate action, operation family, target, args,
 approval, validation result, send result, post-read, `requestId` or correlation

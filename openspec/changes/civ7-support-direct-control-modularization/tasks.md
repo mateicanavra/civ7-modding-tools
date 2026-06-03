@@ -99,6 +99,19 @@
         Draft rows are materialized in `workstream/compatibility-matrix.md`,
         but this task remains open until every row is honestly accepted with
         real source owners, proof owners, schemas/tests, and stop conditions.
+        The matrix also records a row-by-row acceptance backlog; those blockers
+        must be cleared per row before any dependent implementation lane can
+        consume that row as accepted.
+    - Current blockers: hotseat handoff still needs runtime source/proof
+      owners and live activation/rotation/restoration gates; semantic CLI still
+      needs envelope/schema/proof ownership and normal/debug separation tests;
+      AI ingestion still needs contract/schema/proof ownership and
+      source/freshness/evidence fixtures; debug/internal service output still
+      needs command/flag boundary ownership and tests; operation/proof
+      telemetry still needs contract/schema/proof ownership and explicit
+      outcome evidence fixtures; Effect/oRPC procedure cores still need
+      procedure/schema/proof ownership, TypeBox-vs-Effect-Schema disposition,
+      and procedure-core tests over stable atoms.
   - Compatibility proof classes must remain separate: target-thread evidence,
     repo docs, local tests, logs/database artifacts, official resources, live
     runtime proof, and in-game observations.
