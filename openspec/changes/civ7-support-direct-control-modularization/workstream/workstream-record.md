@@ -843,6 +843,19 @@ All future agent waves must be framed before delegation:
   ingestion, semantic CLI projection, Effect/oRPC procedure-core work, and
   Task 2.9.4 matrix-row acceptance remain pending. This is local
   package/source relocation proof only, not runtime/live-game proof.
+- Direct-control diplomacy closeout source slice: completed as a narrow
+  operation source relocation. It moves only the App UI diplomacy response
+  closeout command builder and embedded closeout source into
+  `src/play/operations/diplomacy-request.ts` while keeping public facade exports
+  in `index.ts`. The facade still injects approval, App UI execution,
+  notification reads, player-operation validation, payload parsing, and
+  serialization. This preserves optional notification activation,
+  RESPOND_DIPLOMATIC_ACTION send behavior, leader acknowledgement, diplomacy UI
+  closeout calls, focused diplomacy package/CLI proof, and existing
+  postcondition classification. Runtime/live-game proof, telemetry, AI
+  ingestion, semantic CLI projection, Effect/oRPC procedure-core work, and
+  Task 2.9.4 matrix-row acceptance remain pending. This is local
+  package/source relocation proof only, not runtime/live-game proof.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now

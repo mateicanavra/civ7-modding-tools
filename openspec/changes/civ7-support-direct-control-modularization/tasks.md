@@ -246,6 +246,13 @@ runtime/direct-control claims.
         proof for unit operations and population placement, and leaving
         telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.6.14 Extract diplomacy response closeout source owner while keeping
+        the public facade export surface in `index.ts`, preserving App UI
+        response-panel closeout source text, optional notification activation,
+        RESPOND_DIPLOMATIC_ACTION send behavior, UI closeout calls, focused
+        diplomacy package/CLI proof, and leaving runtime/live-game proof,
+        telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.
