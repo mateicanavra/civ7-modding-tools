@@ -1221,6 +1221,19 @@ All future agent waves must be framed before delegation:
   Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance remain
   pending. This is local package/type relocation proof only, not
   runtime/live-game proof.
+- Direct-control narrative choice types slice: completed as a narrow public
+  type ownership relocation. It moves narrative choice input, command payload,
+  and result public type ownership into
+  `src/play/operations/narrative-request.ts` and narrative choice postcondition
+  public type ownership into
+  `src/play/operations/narrative-postconditions.ts` while keeping public facade
+  type re-exports in `index.ts`. This preserves public type contracts and does
+  not change narrative source strings, wrapper orchestration, validation,
+  approval-first behavior, postcondition classification, or request semantics.
+  Public procedure schemas, operation/proof telemetry, hotseat runtime proof,
+  AI ingestion, CLI semantic projection, Effect/oRPC procedure-core work, and
+  Task 2.9.4 matrix-row acceptance remain pending. This is local package/type
+  relocation proof only, not runtime/live-game proof.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into

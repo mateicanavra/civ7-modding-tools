@@ -216,7 +216,12 @@ import {
   type Civ7UnitTargetActionInput,
   type Civ7UnitTargetActionResult,
 } from "./play/operations/unit-target-action.js";
-import { requestCiv7NarrativeChoice as requestCiv7NarrativeChoiceFromModule } from "./play/operations/narrative-request.js";
+import {
+  requestCiv7NarrativeChoice as requestCiv7NarrativeChoiceFromModule,
+  type Civ7NarrativeChoiceCommandPayload,
+  type Civ7NarrativeChoiceInput,
+  type Civ7NarrativeChoiceResult,
+} from "./play/operations/narrative-request.js";
 import {
   requestCiv7ProductionChoice as requestCiv7ProductionChoiceFromModule,
   type Civ7ProductionChoiceCommandPayload,
@@ -626,6 +631,15 @@ export type {
   Civ7DiplomacyResponsePostcondition,
   Civ7DiplomacyResponsePostconditionClassification,
 } from "./play/operations/diplomacy-postconditions.js";
+export type {
+  Civ7NarrativeChoiceCommandPayload,
+  Civ7NarrativeChoiceInput,
+  Civ7NarrativeChoiceResult,
+} from "./play/operations/narrative-request.js";
+export type {
+  Civ7NarrativeChoicePostcondition,
+  Civ7NarrativeChoicePostconditionClassification,
+} from "./play/operations/narrative-postconditions.js";
 
 export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 256;
@@ -787,54 +801,6 @@ export type Civ7SavedGameConfigurationListInput = Readonly<{
 export type Civ7SavedGameConfigurationListResult = Readonly<{
   directory: string;
   configurations: ReadonlyArray<Civ7SavedGameConfiguration>;
-}>;
-
-export type Civ7NarrativeChoiceInput = Readonly<{
-  playerId: number;
-  targetType: string;
-  target: Civ7ComponentId;
-  action: number;
-}>;
-
-export type Civ7NarrativeChoiceCommandPayload = Readonly<{
-  localPlayerId: number;
-  playerId: number;
-  args: Readonly<{ TargetType: string; Target: Civ7ComponentId; Action: number }>;
-  canStart: unknown;
-  sent: boolean;
-  sendResult: unknown;
-  ui: Readonly<{
-    before: unknown;
-    after: unknown;
-    panelClose: unknown;
-    popupClose: unknown;
-  }>;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7NarrativeChoicePostconditionClassification =
-  | "not-sent"
-  | "turn-unblocked"
-  | "narrative-blocker-cleared"
-  | "narrative-panel-cleared"
-  | "validation-changed"
-  | "no-state-change";
-
-export type Civ7NarrativeChoicePostcondition = Readonly<{
-  classification: Civ7NarrativeChoicePostconditionClassification;
-  reason: string;
-}>;
-
-export type Civ7NarrativeChoiceResult = Readonly<{
-  before: Civ7PlayNotificationViewResult;
-  beforeValidation: Civ7OperationValidationResult;
-  command?: Civ7CommandResult;
-  payload?: Civ7NarrativeChoiceCommandPayload;
-  after: Civ7PlayNotificationViewResult;
-  afterValidation: Civ7OperationValidationResult;
-  sent: boolean;
-  verified: boolean;
-  postcondition: Civ7NarrativeChoicePostcondition;
 }>;
 
 export type Civ7CapabilityCatalogOptions = Civ7DirectControlOptions & Readonly<{
