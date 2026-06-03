@@ -203,6 +203,18 @@ CLI semantic projection, Effect/oRPC procedure-core work, or Task 2.9.4
 matrix-row acceptance. Tactical, operation, ready, public procedure schema, and
 telemetry type ownership remain pending separate owner slices.
 
+Autoplay/turn type update: `src/play/autoplay.ts` now owns autoplay status,
+poll options, action options, and action result types, and
+`src/play/turn-completion.ts` now owns turn-completion status/action result
+types while public facade type re-exports stay in `index.ts`. This is local
+package/type relocation proof only and does not change autoplay command source,
+approval behavior, stop-settling/pause behavior, turn-completion command
+strings, stale notification fallback classification, runtime proof status,
+telemetry, AI ingestion, hotseat runtime proof, CLI semantic projection,
+Effect/oRPC procedure-core work, or Task 2.9.4 matrix-row acceptance. Tactical,
+operation, ready, public procedure schema, and telemetry type ownership remain
+pending separate owner slices.
+
 Bounded root inspection update: `src/runtime/root-inspection.ts` now owns
 `inspectCiv7Root` and the generated bounded root inspection command while the
 public facade export stays in `index.ts` and injects command execution,

@@ -143,11 +143,17 @@ import {
   getCiv7AutoplayStatus as getCiv7AutoplayStatusFromModule,
   startCiv7Autoplay as startCiv7AutoplayFromModule,
   stopCiv7Autoplay as stopCiv7AutoplayFromModule,
+  type Civ7AutoplayActionResult,
+  type Civ7AutoplayOptions,
+  type Civ7AutoplayPollOptions,
+  type Civ7AutoplayStatusResult,
 } from "./play/autoplay.js";
 import {
   getCiv7TurnCompletionStatus as getCiv7TurnCompletionStatusFromModule,
   sendCiv7TurnComplete as sendCiv7TurnCompleteFromModule,
   sendCiv7TurnUnready as sendCiv7TurnUnreadyFromModule,
+  type Civ7TurnCompletionActionResult,
+  type Civ7TurnCompletionStatusResult,
 } from "./play/turn-completion.js";
 import {
   getCiv7NotificationDismissal as getCiv7NotificationDismissalFromModule,
@@ -407,6 +413,16 @@ export {
   DEFAULT_CIV7_AUTOPLAY_STOP_WAIT_MS,
   DEFAULT_CIV7_AUTOPLAY_WAIT_MS,
 } from "./play/autoplay.js";
+export type {
+  Civ7AutoplayActionResult,
+  Civ7AutoplayOptions,
+  Civ7AutoplayPollOptions,
+  Civ7AutoplayStatusResult,
+} from "./play/autoplay.js";
+export type {
+  Civ7TurnCompletionActionResult,
+  Civ7TurnCompletionStatusResult,
+} from "./play/turn-completion.js";
 export {
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
@@ -699,59 +715,6 @@ export type Civ7SavedGameConfigurationListInput = Readonly<{
 export type Civ7SavedGameConfigurationListResult = Readonly<{
   directory: string;
   configurations: ReadonlyArray<Civ7SavedGameConfiguration>;
-}>;
-
-export type Civ7AutoplayStatusResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  autoplay: Civ7AppUiSnapshot["autoplay"];
-  game: Civ7AppUiSnapshot["game"];
-  gameContext: Civ7AppUiSnapshot["gameContext"];
-}>;
-
-export type Civ7AutoplayPollOptions = Civ7DirectControlOptions & Readonly<{
-  waitTimeoutMs?: number;
-  pollIntervalMs?: number;
-  stabilityWindowMs?: number;
-}>;
-
-export type Civ7AutoplayOptions = Civ7AutoplayPollOptions & Readonly<{
-  turns?: number;
-  observeAsPlayer?: number;
-  returnAsPlayer?: number;
-  pause?: boolean;
-  maxTurns?: number;
-}>;
-
-export type Civ7AutoplayActionResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  before: Civ7AutoplayStatusResult;
-  after: Civ7AutoplayStatusResult;
-  commands: ReadonlyArray<Civ7CommandResult>;
-  verified: boolean;
-}>;
-
-export type Civ7TurnCompletionStatusResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  turn: Civ7RuntimeProbe<number>;
-  turnDate: Civ7RuntimeProbe<string>;
-  hasSentTurnComplete: Civ7RuntimeProbe<boolean>;
-  canEndTurn: Civ7RuntimeProbe<boolean>;
-  blocker: Civ7RuntimeProbe<unknown>;
-  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-}>;
-
-export type Civ7TurnCompletionActionResult = Readonly<{
-  before: Civ7TurnCompletionStatusResult;
-  after: Civ7TurnCompletionStatusResult;
-  command: Civ7CommandResult;
-  verified: boolean;
 }>;
 
 export type Civ7PlayDecisionHint = Readonly<{
