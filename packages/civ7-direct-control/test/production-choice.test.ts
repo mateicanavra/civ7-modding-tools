@@ -87,9 +87,38 @@ describe("production choice requests", () => {
       await server.close();
     }
   });
+
+  test("reports sticky production-choice blockers after BUILD sends", async () => {
+    const server = await startProductionChoiceTunerServer({ productionPostconditionMode: "blocker-still-live" });
+    try {
+      const { port } = server.address();
+      const cityId = { owner: 0, id: 65536, type: 1 };
+      const request = await requestCiv7ProductionChoice(
+        { cityId, args: { ConstructibleType: 713967338, X: 22, Y: 31 } },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { approved: true, reason: "test sticky production blocker" }
+      );
+
+      expect(request.sent).toBe(true);
+      expect(request.verified).toBe(false);
+      expect(request.productionPostcondition).toMatchObject({
+        classification: "production-state-changed-blocker-still-live",
+        productionStateChanged: true,
+        blockerStillLive: true,
+      });
+      expect(request.productionPostcondition?.reason).toContain("production-choice notification still blocks");
+      expect(
+        request.payload?.afterProductionPostcondition?.blockingProductionNotification
+      ).toMatchObject({ ok: true });
+    } finally {
+      await server.close();
+    }
+  });
 });
 
-async function startProductionChoiceTunerServer(): Promise<FakeTunerServer> {
+async function startProductionChoiceTunerServer(options: {
+  productionPostconditionMode?: "cleared" | "blocker-still-live";
+} = {}): Promise<FakeTunerServer> {
   const received: string[] = [];
   const operationCalls: OperationCall[] = [];
   const productionChoiceCalls: ProductionChoiceCall[] = [];
@@ -129,7 +158,11 @@ async function startProductionChoiceTunerServer(): Promise<FakeTunerServer> {
             if (send) productionChoiceSent = true;
             socket.write(
               encodeResponse(frame.listenerId, [
-                JSON.stringify(productionChoicePayload(send, productionChoiceSent && !send)),
+                JSON.stringify(productionChoicePayload(
+                  send,
+                  options.productionPostconditionMode ?? "cleared",
+                  productionChoiceSent && !send,
+                )),
               ])
             );
           } else {
@@ -175,10 +208,14 @@ function parseProductionChoiceCall(message: string): ProductionChoiceCall | unde
   };
 }
 
-function productionChoicePayload(send: boolean, settled = false) {
+function productionChoicePayload(
+  send: boolean,
+  mode: "cleared" | "blocker-still-live",
+  settled = false,
+) {
   const cityId = { owner: 0, id: 65536, type: 1 };
-  const before = productionPostconditionSnapshot("before", "cleared");
-  const after = productionPostconditionSnapshot(settled || send ? "after" : "before", "cleared");
+  const before = productionPostconditionSnapshot("before", mode);
+  const after = productionPostconditionSnapshot(settled || send ? "after" : "before", mode);
   return {
     cityId,
     args: { ConstructibleType: 713967338, X: 22, Y: 31 },

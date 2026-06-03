@@ -330,6 +330,18 @@ All future agent waves must be framed before delegation:
   `src/play/operations/population-postconditions.ts`. Production
   postconditions plus wrapper-level request composition stay in `index.ts`;
   this is local package/source relocation proof only, not runtime proof.
+- Direct-control production postcondition helper slice: completed as the next
+  synchronous postcondition-helper relocation. It first expands
+  `test/production-choice.test.ts` to cover both
+  `production-choice-cleared` and
+  `production-state-changed-blocker-still-live`, then moves only
+  `productionPostconditionFor`, `productionSnapshotChanged`,
+  `productionBlockerStillLive`, `classifyProductionPostcondition`, and
+  `productionPostconditionReason` into
+  `src/play/operations/production-postconditions.ts`. The embedded
+  production-choice source owner and wrapper-level request composition stay in
+  place; this is local package/source relocation proof only, not runtime
+  proof.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now
