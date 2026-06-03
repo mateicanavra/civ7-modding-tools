@@ -2,10 +2,12 @@ import type {
   Civ7OperationFamily,
   Civ7OperationInput,
   Civ7OperationValidationResult,
+} from "./types";
+import type { Civ7RuntimeProbe } from "../../runtime/probe";
+import type {
   Civ7PopulationPlacementPostcondition,
   Civ7PopulationPlacementPostconditionClassification,
   Civ7PopulationPlacementPostconditionSnapshot,
-  Civ7RuntimeProbe,
 } from "../../index";
 
 export function populationPlacementPostcondition(

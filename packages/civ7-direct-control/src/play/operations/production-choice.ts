@@ -1,18 +1,21 @@
-import { Civ7DirectControlError } from "../../direct-control-error";
+import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { productionPostconditionFor } from "./production-postconditions.js";
 
 import type {
   Civ7ActionApproval,
-  Civ7ComponentId,
-  Civ7CommandResult,
-  Civ7DirectControlOptions,
   Civ7OperationInput,
   Civ7OperationValidationResult,
+} from "./types.js";
+
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import type {
+  Civ7CommandResult,
+  Civ7DirectControlOptions,
   Civ7ProductionChoiceCommandPayload,
   Civ7ProductionChoiceInput,
   Civ7ProductionChoiceResult,
   Civ7ProductionPostconditionSnapshot,
-} from "../../index";
+} from "../../index.js";
 
 function probeHelperSource(): string {
   return `const probe = (fn) => {

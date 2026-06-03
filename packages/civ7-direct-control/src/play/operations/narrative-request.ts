@@ -2,12 +2,15 @@ import { narrativeChoicePostcondition, waitForCiv7NarrativeChoiceAfter } from ".
 
 import type {
   Civ7ActionApproval,
+  Civ7OperationValidationResult,
+} from "./types.js";
+
+import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7NarrativeChoiceCommandPayload,
   Civ7NarrativeChoiceInput,
   Civ7NarrativeChoiceResult,
-  Civ7OperationValidationResult,
 } from "../../index.js";
 import type { Civ7PlayNotificationViewResult } from "../notifications/view.js";
 

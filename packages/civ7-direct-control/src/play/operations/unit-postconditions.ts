@@ -1,9 +1,11 @@
 import type {
-  Civ7ComponentId,
   Civ7OperationFamily,
   Civ7OperationInput,
   Civ7OperationValidationResult,
-  Civ7RuntimeProbe,
+} from "./types";
+import type { Civ7ComponentId } from "../../civ7-component-id";
+import type { Civ7RuntimeProbe } from "../../runtime/probe";
+import type {
   Civ7UnitOperationPostcondition,
   Civ7UnitOperationPostconditionClassification,
   Civ7UnitOperationPostconditionSnapshot,

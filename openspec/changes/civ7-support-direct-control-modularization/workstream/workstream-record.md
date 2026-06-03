@@ -1170,6 +1170,18 @@ All future agent waves must be framed before delegation:
   ingestion, semantic CLI projection, Effect/oRPC procedure-core work, and
   Task 2.9.4 matrix-row acceptance remain pending. This is local
   package/source relocation proof only, not runtime/live-game proof.
+- Direct-control shared operation primitive types slice: completed as a narrow
+  public type ownership relocation. It moves only operation family/target/input,
+  action approval, and operation validation result public types into
+  `src/play/operations/types.ts` while keeping public facade type re-exports in
+  `index.ts`. This preserves public type contracts and does not change
+  operation source strings, wrappers, validation, approval-first behavior,
+  postconditions, or request semantics. Operation request result, postcondition
+  payloads, production choice, diplomacy/narrative closeout, public procedure
+  schemas, operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
+  semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
+  matrix-row acceptance remain pending. This is local package/type relocation
+  proof only, not runtime/live-game proof.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into

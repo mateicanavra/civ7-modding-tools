@@ -2,12 +2,15 @@ import { diplomacyResponsePostcondition, waitForCiv7DiplomacyResponseAfter } fro
 
 import type {
   Civ7ActionApproval,
+  Civ7OperationValidationResult,
+} from "./types.js";
+
+import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7DiplomacyResponseCommandPayload,
   Civ7DiplomacyResponseInput,
   Civ7DiplomacyResponseResult,
-  Civ7OperationValidationResult,
 } from "../../index.js";
 import type { Civ7PlayNotificationViewResult } from "../notifications/view.js";
 

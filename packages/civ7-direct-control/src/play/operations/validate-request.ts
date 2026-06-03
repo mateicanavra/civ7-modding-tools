@@ -6,17 +6,20 @@ import { unitOperationPostcondition } from "./unit-postconditions.js";
 
 import type {
   Civ7ActionApproval,
-  Civ7CommandResult,
-  Civ7ComponentId,
-  Civ7DirectControlOptions,
   Civ7OperationFamily,
   Civ7OperationInput,
-  Civ7OperationRequestResult,
   Civ7OperationValidationResult,
+} from "./types.js";
+
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import type {
+  Civ7CommandResult,
+  Civ7DirectControlOptions,
+  Civ7OperationRequestResult,
   Civ7PopulationPlacementPostconditionSnapshot,
   Civ7ProductionPostconditionSnapshot,
   Civ7UnitOperationPostconditionSnapshot,
-} from "../../index";
+} from "../../index.js";
 
 type OperationRequestDependencies = Readonly<{
   assertApproved: (approval: Civ7ActionApproval, action: string) => void;

@@ -225,6 +225,11 @@ import {
   requestCiv7UnitCommand as requestCiv7UnitCommandFromModule,
   requestCiv7UnitOperation as requestCiv7UnitOperationFromModule,
 } from "./play/operations/validate-request.js";
+import type {
+  Civ7ActionApproval,
+  Civ7OperationInput,
+  Civ7OperationValidationResult,
+} from "./play/operations/types.js";
 import {
   DEFAULT_CIV7_GAMEINFO_LIMIT,
   DEFAULT_CIV7_GAMEINFO_TABLES,
@@ -570,6 +575,13 @@ export type {
   Civ7UnitTargetActionInput,
   Civ7UnitTargetActionResult,
 } from "./play/operations/unit-target-action.js";
+export type {
+  Civ7ActionApproval,
+  Civ7OperationFamily,
+  Civ7OperationInput,
+  Civ7OperationTarget,
+  Civ7OperationValidationResult,
+} from "./play/operations/types.js";
 
 export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 256;
@@ -839,42 +851,6 @@ export type Civ7NarrativeChoiceResult = Readonly<{
   sent: boolean;
   verified: boolean;
   postcondition: Civ7NarrativeChoicePostcondition;
-}>;
-
-export type Civ7OperationFamily =
-  | "unit-operation"
-  | "unit-command"
-  | "city-operation"
-  | "city-command"
-  | "player-operation";
-
-export type Civ7OperationTarget =
-  | Readonly<{ unitId: Civ7ComponentId }>
-  | Readonly<{ cityId: Civ7ComponentId }>
-  | Readonly<{ playerId: number }>;
-
-export type Civ7OperationInput = Civ7OperationTarget & Readonly<{
-  operationType: string;
-  args?: unknown;
-}>;
-
-export type Civ7ActionApproval = Readonly<{
-  approved: true;
-  reason: string;
-  disposableSession?: boolean;
-}>;
-
-export type Civ7OperationValidationResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  family: Civ7OperationFamily;
-  operationType: string;
-  enumValue: unknown;
-  target: Civ7OperationTarget;
-  args: unknown;
-  valid: boolean;
-  result: unknown;
 }>;
 
 export type Civ7UnitOperationPostconditionClassification =
