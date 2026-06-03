@@ -21,7 +21,6 @@ The CLI play corpus includes:
 - remaining monolith command owners:
   - `GamePlayNotifications`
   - `GamePlayPriorities`
-  - `GamePlayDismissNotification`
 - already extracted owner suites under `packages/cli/test/commands/game/play/**`;
 - adjacent package-local play suites such as production, narrative, culture,
   technology, first-meet, operation wrappers, end-turn, population placement,

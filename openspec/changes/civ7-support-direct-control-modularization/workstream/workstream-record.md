@@ -100,5 +100,7 @@ All future agent waves must be framed before delegation:
   boundaries; exact atom rows still need package-test and source-region proof
   before source edits.
 - Review-disposition ledger: agent/reviewer findings recorded.
-- Next implementation lane: blocked until corpus ledgers and fixture strategy
-  are filled.
+- Exact dismiss-notification CLI slice: completed as test-only extraction with
+  local fixture ownership and no runtime claim.
+- Next implementation lane: notification HUD materialization. It remains blocked
+  until that slice records its active single writer and named HUD fixture owner.
