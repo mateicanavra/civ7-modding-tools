@@ -1,5 +1,16 @@
 import { Civ7DirectControlError } from "../direct-control-error.js";
-import type { Civ7ActionApproval } from "../action-approval.js";
+import { assertApproved, type Civ7ActionApproval } from "../action-approval.js";
+import { jsonPayloadFromCommandResult } from "../session/command-result.js";
+import { executeCiv7AppUiCommand } from "../session/execute.js";
+import { jsLiteral } from "../runtime/command-serialization.js";
+import { probeHelperSource } from "../runtime/probe.js";
+import { boundedInteger } from "../validation.js";
+import {
+  CIV7_EXIT_TO_MAIN_MENU_COMMAND,
+  CIV7_RELOAD_UI_COMMAND,
+  DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS,
+  DEFAULT_CIV7_SETUP_PARAMETER_IDS,
+} from "./constants.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
@@ -116,7 +127,7 @@ export type SetupReadDependencies = Readonly<{
 
 export async function getCiv7SetupSnapshot(
   options: Civ7DirectControlOptions = {},
-  dependencies: SetupReadDependencies,
+  dependencies: SetupReadDependencies = defaultSetupReadDependencies,
 ): Promise<Civ7SetupSnapshotResult> {
   const result = await dependencies.executeAppUiCommand({
     ...options,
@@ -128,7 +139,7 @@ export async function getCiv7SetupSnapshot(
 export async function getCiv7SetupMapRows(
   input: Civ7SetupMapRowsInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: SetupReadDependencies,
+  dependencies: SetupReadDependencies = defaultSetupReadDependencies,
 ): Promise<Civ7SetupMapRowsResult> {
   if (input.file !== undefined) validateMapScript(input.file);
   const limit = dependencies.boundedInteger(input.limit ?? 100, 1, 1_000, "limit");
@@ -143,7 +154,7 @@ export async function ensureCiv7SetupMapRowVisible(
   input: Civ7SetupMapRowVisibilityInput,
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval | undefined,
-  dependencies: SetupReadDependencies,
+  dependencies: SetupReadDependencies = defaultSetupReadDependencies,
 ): Promise<Civ7SetupMapRowVisibilityResult> {
   validateMapScript(input.file);
   const limit = dependencies.boundedInteger(input.limit ?? 100, 1, 1_000, "limit");
@@ -435,7 +446,7 @@ export async function waitForCiv7SetupPhase(
   phase: Civ7SetupPhase,
   options: Civ7DirectControlOptions,
   wait: { waitTimeoutMs: number; pollIntervalMs: number },
-  dependencies: SetupReadDependencies,
+  dependencies: SetupReadDependencies = defaultSetupReadDependencies,
 ): Promise<Civ7SetupSnapshotResult> {
   const startedAt = Date.now();
   let last: Civ7SetupSnapshotResult | undefined;
@@ -476,3 +487,19 @@ async function waitForCiv7SetupMapRows(
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+export const defaultSetupReadDependencies: SetupReadDependencies = {
+  assertApproved,
+  boundedInteger,
+  executeAppUiCommand: executeCiv7AppUiCommand,
+  exitToMainMenuCommand: CIV7_EXIT_TO_MAIN_MENU_COMMAND,
+  jsLiteral,
+  parseSetupMapRows: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7SetupMapRowsResult>(result, label),
+  parseSetupSnapshot: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7SetupSnapshotResult>(result, label),
+  probeHelperSource,
+  playerSetupParameterIds: DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS,
+  reloadUiCommand: CIV7_RELOAD_UI_COMMAND,
+  setupParameterIds: DEFAULT_CIV7_SETUP_PARAMETER_IDS,
+};

@@ -226,6 +226,19 @@ proof, AI ingestion, semantic CLI projection, telemetry, hotseat runtime proof,
 Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance remain
 pending.
 
+Setup-read facade dependency update: `src/setup/reads.ts` now owns the default
+approval, App UI execution, parser, serializer, probe, setup constant, and
+bounds helper wiring for setup snapshot, setup map rows, setup map-row refresh,
+and setup-phase waits while public facade exports stay stable in `index.ts`.
+Setup prepare/start/run/restart lifecycle composition remains separate and still
+uses narrow injection seams until a named Effect/Bun resource/schedule/layer
+pass is accepted. This preserves setup source text, parse labels,
+approval-first refresh behavior, setup map-row polling, and
+`setup-phase-invalid` classification as local package/source relocation proof
+only; runtime/live-game proof, AI ingestion, semantic CLI projection, telemetry,
+hotseat runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
+matrix-row acceptance remain pending.
+
 Setup lifecycle type update: `src/setup/prepare.ts` now owns single-player
 setup input, setup option value, and prepared-setup result types;
 `src/setup/start.ts` owns prepared-start input and single-player start result

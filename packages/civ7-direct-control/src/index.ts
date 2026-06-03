@@ -97,6 +97,7 @@ import {
   type Civ7PlayableStatusResult,
 } from "./runtime/playable-status.js";
 import {
+  defaultSetupReadDependencies,
   ensureCiv7SetupMapRowVisible as ensureCiv7SetupMapRowVisibleFromModule,
   getCiv7SetupMapRows as getCiv7SetupMapRowsFromModule,
   getCiv7SetupSnapshot as getCiv7SetupSnapshotFromModule,
@@ -146,11 +147,8 @@ import {
 import {
   CIV7_BEGIN_GAME_COMMAND,
   CIV7_EXIT_TO_MAIN_MENU_COMMAND,
-  CIV7_RELOAD_UI_COMMAND,
   CIV7_RESTART_COMMAND,
   CIV7_UI_LOADING_STATES,
-  DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS,
-  DEFAULT_CIV7_SETUP_PARAMETER_IDS,
 } from "./setup/constants.js";
 import {
   configureCiv7Autoplay as configureCiv7AutoplayFromModule,
@@ -1143,38 +1141,26 @@ export async function getCiv7GameInfoRows(
 export async function getCiv7SetupSnapshot(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7SetupSnapshotResult> {
-  return await getCiv7SetupSnapshotFromModule(options, setupReadDependencies());
+  return await getCiv7SetupSnapshotFromModule(options);
 }
 
 export async function getCiv7SetupMapRows(
   input: Civ7SetupMapRowsInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7SetupMapRowsResult> {
-  return await getCiv7SetupMapRowsFromModule(input, options, setupReadDependencies());
+  return await getCiv7SetupMapRowsFromModule(input, options);
 }
 
 function setupReadDependencies() {
   return {
-    assertApproved,
-    boundedInteger,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    exitToMainMenuCommand: CIV7_EXIT_TO_MAIN_MENU_COMMAND,
-    jsLiteral,
+    ...defaultSetupReadDependencies,
     loadSavedGameConfiguration: loadCiv7SavedGameConfiguration,
-    parseSetupMapRows: (result: Civ7CommandResult, label: string) =>
-      jsonPayloadFromCommandResult<Civ7SetupMapRowsResult>(result, label),
     parseSetupPreparation: (result: Civ7CommandResult, label: string) =>
       jsonPayloadFromCommandResult<{
         before: Civ7SetupSnapshot;
         after: Civ7SetupSnapshot;
         applied: Record<string, Civ7SetupOptionValue>;
       }>(result, label),
-    parseSetupSnapshot: (result: Civ7CommandResult, label: string) =>
-      jsonPayloadFromCommandResult<Civ7SetupSnapshotResult>(result, label),
-    probeHelperSource,
-    playerSetupParameterIds: DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS,
-    reloadUiCommand: CIV7_RELOAD_UI_COMMAND,
-    setupParameterIds: DEFAULT_CIV7_SETUP_PARAMETER_IDS,
     validateIdentifier,
   } as const;
 }
@@ -1214,7 +1200,7 @@ function setupRunDependencies() {
       phase: Civ7SetupPhase,
       options: Civ7DirectControlOptions,
       wait: { waitTimeoutMs: number; pollIntervalMs: number },
-    ) => await waitForCiv7SetupPhaseFromModule(phase, options, wait, setupReadDependencies()),
+    ) => await waitForCiv7SetupPhaseFromModule(phase, options, wait),
   } as const;
 }
 
@@ -1258,7 +1244,7 @@ export async function ensureCiv7SetupMapRowVisible(
   options: Civ7DirectControlOptions = {},
   approval?: Civ7ActionApproval,
 ): Promise<Civ7SetupMapRowVisibilityResult> {
-  return await ensureCiv7SetupMapRowVisibleFromModule(input, options, approval, setupReadDependencies());
+  return await ensureCiv7SetupMapRowVisibleFromModule(input, options, approval);
 }
 
 export async function prepareCiv7SinglePlayerSetup(

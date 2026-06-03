@@ -1729,6 +1729,21 @@ All future agent waves must be framed before delegation:
   contracts, public procedure schemas, semantic CLI projection, AI ingestion,
   hotseat runtime proof, or Effect/oRPC procedure-core work. This is local
   package/source relocation proof only, not runtime/live-game proof.
+- Setup-read facade dependency cleanup: `src/setup/reads.ts` now imports
+  existing non-facade approval, App UI execution, command-result parser,
+  serializer, runtime probe helper, setup constants, and bounds helper owners
+  directly for setup snapshot, setup map rows, setup map-row refresh, and
+  setup-phase waits. The public facade exports remain stable, but `index.ts`
+  no longer assembles the default setup-read dependency object for those read
+  and refresh paths. Setup prepare/start/run/restart lifecycle composition stays
+  separate and still uses narrow dependency seams until a named Effect/Bun
+  resource/schedule/layer pass is accepted. This preserves setup source text,
+  parse labels, approval-first refresh behavior, setup map-row polling, and
+  `setup-phase-invalid` classification. This is local package/source relocation
+  proof only: it does not claim runtime/live-game proof, accept Task 2.9.4
+  matrix rows, or unblock telemetry, AI ingestion, semantic CLI projection,
+  hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
+  implementation.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into
