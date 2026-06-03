@@ -30,6 +30,11 @@ import {
   getCiv7NotificationDismissal as getCiv7NotificationDismissalFromModule,
   requestCiv7NotificationDismissal as requestCiv7NotificationDismissalFromModule,
 } from "./play/notifications/dismissal-request.js";
+import {
+  getCiv7MapGrid as getCiv7MapGridFromModule,
+  getCiv7MapSummary as getCiv7MapSummaryFromModule,
+  getCiv7PlotSnapshot as getCiv7PlotSnapshotFromModule,
+} from "./play/map/reads.js";
 import { requestCiv7DiplomacyResponse as requestCiv7DiplomacyResponseFromModule } from "./play/operations/diplomacy-request.js";
 import { notificationDismissalSource } from "./play/notifications/dismissal.js";
 import { waitForCiv7NotificationDismissal } from "./play/notifications/verification.js";
@@ -2630,45 +2635,69 @@ export async function getCiv7PlayableStatus(
 export async function getCiv7MapSummary(
   options: Civ7MapSummaryOptions = {},
 ): Promise<Civ7MapSummaryResult> {
-  const result = await executeCiv7Command({
-    ...options,
-    state: options.state ?? { role: "tuner" },
-    command: buildMapSummaryCommand({
-      includeAreaRegionCounts: options.includeAreaRegionCounts === true,
-      maxIds: options.maxIds ?? 512,
-    }),
+  return await getCiv7MapSummaryFromModule(options, {
+    executeCommand: executeCiv7Command,
+    executeTunerCommand: executeCiv7TunerCommand,
+    parseMapSummary: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7MapSummaryResult>(result, label),
+    parsePlotSnapshot: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7PlotSnapshotResult>(result, label),
+    parseMapGrid: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7MapGridResult>(result, label),
+    boundedInteger,
+    defaultMapGridMaxPlots: DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
+    hardMapGridMaxPlots: HARD_CIV7_MAP_GRID_MAX_PLOTS,
+    jsLiteral,
+    probeHelperSource,
+    validateMapBounds,
+    validateMapLocation,
   });
-  return jsonPayloadFromCommandResult<Civ7MapSummaryResult>(result, "Civ7 map summary");
 }
 
 export async function getCiv7PlotSnapshot(
   input: Civ7PlotSnapshotInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7PlotSnapshotResult> {
-  validateMapLocation(input);
-  const fields = normalizePlotFields(input.fields);
-  const result = await executeCiv7TunerCommand({
-    ...options,
-    command: buildPlotSnapshotCommand({ ...input, fields }),
+  return await getCiv7PlotSnapshotFromModule(input, options, {
+    executeCommand: executeCiv7Command,
+    executeTunerCommand: executeCiv7TunerCommand,
+    parseMapSummary: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7MapSummaryResult>(result, label),
+    parsePlotSnapshot: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7PlotSnapshotResult>(result, label),
+    parseMapGrid: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7MapGridResult>(result, label),
+    boundedInteger,
+    defaultMapGridMaxPlots: DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
+    hardMapGridMaxPlots: HARD_CIV7_MAP_GRID_MAX_PLOTS,
+    jsLiteral,
+    probeHelperSource,
+    validateMapBounds,
+    validateMapLocation,
   });
-  return jsonPayloadFromCommandResult<Civ7PlotSnapshotResult>(result, "Civ7 plot snapshot");
 }
 
 export async function getCiv7MapGrid(
   input: Civ7MapGridInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7MapGridResult> {
-  const maxPlots = boundedInteger(input.maxPlots ?? DEFAULT_CIV7_MAP_GRID_MAX_PLOTS, 1, HARD_CIV7_MAP_GRID_MAX_PLOTS, "maxPlots");
-  validateMapGridInput(input, maxPlots);
-  const result = await executeCiv7TunerCommand({
-    ...options,
-    command: buildMapGridCommand({
-      ...input,
-      fields: normalizePlotFields(input.fields),
-      maxPlots,
-    }),
+  return await getCiv7MapGridFromModule(input, options, {
+    executeCommand: executeCiv7Command,
+    executeTunerCommand: executeCiv7TunerCommand,
+    parseMapSummary: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7MapSummaryResult>(result, label),
+    parsePlotSnapshot: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7PlotSnapshotResult>(result, label),
+    parseMapGrid: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7MapGridResult>(result, label),
+    boundedInteger,
+    defaultMapGridMaxPlots: DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
+    hardMapGridMaxPlots: HARD_CIV7_MAP_GRID_MAX_PLOTS,
+    jsLiteral,
+    probeHelperSource,
+    validateMapBounds,
+    validateMapLocation,
   });
-  return jsonPayloadFromCommandResult<Civ7MapGridResult>(result, "Civ7 map grid");
 }
 
 export async function getCiv7ResourcePlacementFeasibility(
@@ -4419,87 +4448,6 @@ function buildTunerHealthCommand(): string {
   })()`;
 }
 
-function buildMapSummaryCommand(options: { includeAreaRegionCounts: boolean; maxIds: number }): string {
-  return `(() => {
-    ${probeHelperSource()}
-    const cap = ${jsLiteral(options.maxIds)};
-    const map = {
-      width: probe(() => GameplayMap.getGridWidth()),
-      height: probe(() => GameplayMap.getGridHeight()),
-      plotCount: probe(() => GameplayMap.getPlotCount()),
-      mapSize: probe(() => GameplayMap.getMapSize()),
-      randomSeed: probe(() => GameplayMap.getRandomSeed()),
-    };
-    const game = {
-      turn: probe(() => Game.turn),
-      age: probe(() => Game.age),
-      maxTurns: probe(() => Game.maxTurns),
-      turnDate: probe(() => Game.getTurnDate()),
-      hash: probe(() => Game.getHash()),
-    };
-    const limitIds = (probeResult) => {
-      if (!probeResult.ok || !Array.isArray(probeResult.value)) return probeResult;
-      return { ok: true, value: probeResult.value.slice(0, cap) };
-    };
-    const rawAreas = ${options.includeAreaRegionCounts}
-      ? {
-          areaIds: limitIds(probe(() => typeof MapAreas !== "undefined" ? MapAreas.getAreaIds() : [])),
-          regionIds: limitIds(probe(() => typeof MapRegions !== "undefined" ? MapRegions.getRegionIds() : [])),
-        }
-      : undefined;
-    const areas = rawAreas
-      ? {
-          ...rawAreas,
-          truncated:
-            (rawAreas.areaIds.ok && rawAreas.areaIds.value.length >= cap) ||
-            (rawAreas.regionIds.ok && rawAreas.regionIds.value.length >= cap),
-        }
-      : undefined;
-    return JSON.stringify({ map, game, ...(areas ? { areas } : {}) });
-  })()`;
-}
-
-function buildPlotSnapshotCommand(input: Civ7PlotSnapshotInput & { fields: ReadonlyArray<Civ7PlotSnapshotField> }): string {
-  return `(() => {
-    ${plotSnapshotScriptSource()}
-    return JSON.stringify(readPlotSnapshot(${jsLiteral(input)}));
-  })()`;
-}
-
-function buildMapGridCommand(input: Civ7MapGridInput & {
-  fields: ReadonlyArray<Civ7PlotSnapshotField>;
-  maxPlots: number;
-}): string {
-  return `(() => {
-    ${plotSnapshotScriptSource()}
-    const input = ${jsLiteral(input)};
-    const width = probe(() => GameplayMap.getGridWidth());
-    const height = probe(() => GameplayMap.getGridHeight());
-    const locationsFromBounds = (bounds, maxPlots) => {
-      const out = [];
-      outer: for (let y = bounds.y; y < bounds.y + bounds.height; y += 1) {
-        for (let x = bounds.x; x < bounds.x + bounds.width; x += 1) {
-          out.push({ x, y });
-          if (out.length >= maxPlots) break outer;
-        }
-      }
-      return out;
-    };
-    const maxPlots = input.maxPlots;
-    const requestedCount = input.locations ? input.locations.length : input.bounds.width * input.bounds.height;
-    const locations = input.locations ? input.locations.slice(0, maxPlots) : locationsFromBounds(input.bounds, maxPlots);
-    return JSON.stringify({
-      bounds: input.bounds,
-      fields: input.fields,
-      plotCount: requestedCount,
-      omitted: Math.max(0, requestedCount - locations.length),
-      hiddenInfoPolicy: input.playerId === undefined ? "not-player-scoped" : input.includeHidden ? "include-hidden" : "visibility-filtered",
-      map: { width, height },
-      plots: locations.map((location) => readPlotSnapshot({ ...input, ...location })),
-    });
-  })()`;
-}
-
 function buildResourcePlacementFeasibilityCommand(input: {
   cells: ReadonlyArray<Civ7ResourcePlacementFeasibilityCellInput & {
     requestedResourceTypeCount: number;
@@ -5411,92 +5359,6 @@ function runtimeObjectReaderSource(): string {
     };`;
 }
 
-function plotSnapshotScriptSource(): string {
-  return `${probeHelperSource()}
-    const callPlot = (name, x, y) => {
-      const fn = GameplayMap[name];
-      if (typeof fn !== "function") throw new Error("GameplayMap." + name + " is not a function");
-      try {
-        return fn.call(GameplayMap, x, y);
-      } catch (first) {
-        try {
-          return fn.call(GameplayMap, { x, y });
-        } catch {
-          throw first;
-        }
-      }
-    };
-    const safeMapCall = (name, x, y) => probe(() => callPlot(name, x, y));
-    const visibilityFor = (input) => {
-      if (input.playerId === undefined) return { policy: "not-player-scoped" };
-      const revealedState = probe(() => GameplayMap.getRevealedState(input.playerId, input.x, input.y));
-      const visible = probe(() => typeof Visibility !== "undefined" && typeof Visibility.isVisible === "function"
-        ? Visibility.isVisible(input.playerId, input.x, input.y)
-        : revealedState.ok && revealedState.value !== 0);
-      const includeFacts = input.includeHidden === true || (visible.ok && visible.value === true) || (revealedState.ok && revealedState.value !== 0);
-      return {
-        policy: input.includeHidden ? "include-hidden" : "visibility-filtered",
-        revealedState,
-        visible,
-        includeFacts,
-      };
-    };
-    const readPlotSnapshot = (input) => {
-      if (!GameplayMap.isValidXY(input.x, input.y)) {
-        return {
-          location: { x: input.x, y: input.y, index: { ok: false, error: "invalid location" } },
-          hiddenInfoPolicy: input.playerId === undefined ? "not-player-scoped" : input.includeHidden ? "include-hidden" : "visibility-filtered",
-          facts: {},
-        };
-      }
-      const visibility = visibilityFor(input);
-      const fields = input.fields ?? [];
-      const facts = {};
-      const include = visibility.policy === "not-player-scoped" || visibility.includeFacts === true;
-      const add = (key, value) => { facts[key] = value; };
-      if (include) {
-        if (fields.includes("terrain")) add("terrain", safeMapCall("getTerrainType", input.x, input.y));
-        if (fields.includes("biome")) add("biome", safeMapCall("getBiomeType", input.x, input.y));
-        if (fields.includes("feature")) add("feature", safeMapCall("getFeatureType", input.x, input.y));
-        if (fields.includes("resource")) add("resource", safeMapCall("getResourceType", input.x, input.y));
-        if (fields.includes("climate")) {
-          add("elevation", safeMapCall("getElevation", input.x, input.y));
-          add("rainfall", safeMapCall("getRainfall", input.x, input.y));
-          add("fertility", safeMapCall("getFertilityType", input.x, input.y));
-        }
-        if (fields.includes("hydrology")) {
-          add("riverType", safeMapCall("getRiverType", input.x, input.y));
-          add("water", safeMapCall("isWater", input.x, input.y));
-          add("lake", safeMapCall("isLake", input.x, input.y));
-        }
-        if (fields.includes("yields")) add("yields", safeMapCall("getYields", input.x, input.y));
-        if (fields.includes("owner")) {
-          add("owner", safeMapCall("getOwner", input.x, input.y));
-          add("ownerName", safeMapCall("getOwnerName", input.x, input.y));
-        }
-        if (fields.includes("areaRegion")) {
-          add("areaId", safeMapCall("getAreaId", input.x, input.y));
-          add("regionId", safeMapCall("getRegionId", input.x, input.y));
-          add("landmassId", safeMapCall("getLandmassId", input.x, input.y));
-        }
-        if (fields.includes("tags")) add("plotTag", safeMapCall("getPlotTag", input.x, input.y));
-        if (fields.includes("city")) add("city", probe(() => typeof MapCities !== "undefined" ? MapCities.getCity(input.x, input.y) : null));
-        if (fields.includes("units")) add("units", probe(() => typeof MapUnits !== "undefined" ? MapUnits.getUnits(input.x, input.y) : []));
-      }
-      if (fields.includes("visibility")) {
-        add("revealedState", visibility.revealedState ?? { ok: false, error: "playerId required" });
-        add("visible", visibility.visible ?? { ok: false, error: "playerId required" });
-      }
-      return {
-        location: { x: input.x, y: input.y, index: probe(() => GameplayMap.getIndexFromXY(input.x, input.y)) },
-        ...(visibility.revealedState ? { revealedState: visibility.revealedState } : {}),
-        ...(visibility.visible ? { visible: visibility.visible } : {}),
-        hiddenInfoPolicy: visibility.policy,
-        facts,
-      };
-    };`;
-}
-
 function autoplaySetterSource(options: Civ7AutoplayOptions): string {
   const statements: string[] = [];
   if (options.turns !== undefined) statements.push(`Autoplay.setTurns(${jsLiteral(options.turns)});`);
@@ -5755,22 +5617,6 @@ function narrativeChoiceRequestSource(): string {
     };`;
 }
 
-const ALL_CIV7_PLOT_FIELDS: ReadonlyArray<Civ7PlotSnapshotField> = [
-  "terrain",
-  "biome",
-  "feature",
-  "resource",
-  "climate",
-  "hydrology",
-  "yields",
-  "owner",
-  "visibility",
-  "areaRegion",
-  "tags",
-  "city",
-  "units",
-];
-
 const STATIC_CIV7_CAPABILITY_ENTRIES: ReadonlyArray<Civ7CapabilityCatalogEntry> = [
   {
     id: "wrapper.restart-begin",
@@ -5955,23 +5801,21 @@ function normalizePlotFields(fields: ReadonlyArray<Civ7PlotSnapshotField> | unde
   return Array.from(new Set(selected));
 }
 
-function validateMapGridInput(input: Civ7MapGridInput, maxPlots: number): void {
-  if (!input.bounds && !input.locations) {
-    throw new Civ7DirectControlError("command-failed", "Map grid reads require explicit bounds or locations");
-  }
-  if (input.bounds && input.locations) {
-    throw new Civ7DirectControlError("command-failed", "Map grid reads accept bounds or locations, not both");
-  }
-  if (input.bounds) validateMapBounds(input.bounds);
-  const locations = input.locations ?? [];
-  if (locations.length > HARD_CIV7_MAP_GRID_MAX_PLOTS) {
-    throw new Civ7DirectControlError(
-      "command-failed",
-      `Map grid location lists must not exceed ${HARD_CIV7_MAP_GRID_MAX_PLOTS} entries`,
-    );
-  }
-  for (const location of locations.slice(0, maxPlots)) validateMapLocation(location);
-}
+const ALL_CIV7_PLOT_FIELDS: ReadonlyArray<Civ7PlotSnapshotField> = [
+  "terrain",
+  "biome",
+  "feature",
+  "resource",
+  "climate",
+  "hydrology",
+  "yields",
+  "owner",
+  "visibility",
+  "areaRegion",
+  "tags",
+  "city",
+  "units",
+];
 
 function validateResourcePlacementFeasibilityInput(
   input: Civ7ResourcePlacementFeasibilityInput,

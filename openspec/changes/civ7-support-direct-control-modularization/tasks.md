@@ -202,6 +202,10 @@ runtime/direct-control claims.
       or semantic player-agent output.
   - [x] 4.10.1 Extract tuner frame encode/parse owner module behind the
         existing package facade.
+- [ ] 4.11 Extract map/visibility/GameInfo read atoms.
+  - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
+        wrapper/source owner while keeping the public facade export surface in
+        `index.ts`.
 
 ## 5. CLI Semantic Surface Lane
 

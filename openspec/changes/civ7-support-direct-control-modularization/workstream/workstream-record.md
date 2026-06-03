@@ -298,6 +298,15 @@ All future agent waves must be framed before delegation:
   the battlefield source owner because destination analysis composes the
   battlefield read policy. Wrapper/builder ownership stays in `index.ts`; this
   is source relocation proof only, not runtime proof.
+- Direct-control map read source/wrapper slice: completed as the first
+  map/visibility/GameInfo source relocation. It moves only
+  `getCiv7MapSummary`, `getCiv7PlotSnapshot`, and `getCiv7MapGrid`
+  orchestration plus their map summary, plot snapshot, bounded grid builders,
+  embedded plot snapshot source, field normalization, and bounded-grid input
+  validation into `src/play/map/reads.ts` while keeping public facade exports in
+  `index.ts`. Visibility summary, reveal mutation, GameInfo rows, setup map
+  rows, and player/unit/city summaries stay out of this slice. This is local
+  read-only package/source relocation proof only, not runtime proof.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.
