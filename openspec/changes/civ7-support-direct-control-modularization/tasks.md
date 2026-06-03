@@ -1038,7 +1038,7 @@ authority are recorded.
 - [ ] 7.1 For every test-only slice, run `git diff --check`, focused suite,
       adjacent monolith filter, `bun run check:cli`, `bun run test:cli:play`, and
       ownership scan.
-- [ ] 7.2 For every direct-control source slice, run direct-control
+- [x] 7.2 For every direct-control source slice, run direct-control
       tests/check/build plus focused CLI consumers.
 - [ ] 7.3 For every runtime-changing slice, attach real-game proof or explicit
       `pending-runtime-proof`.
@@ -1047,5 +1047,5 @@ authority are recorded.
       only through debug-owned surfaces.
 - [ ] 7.5 For every Effect/Bun source slice, prove resource cleanup, stream/error
       behavior, and API choice with focused package tests.
-- [ ] 7.6 Run `bun run openspec -- validate civ7-support-direct-control-modularization --strict`.
+- [x] 7.6 Run `bun run openspec -- validate civ7-support-direct-control-modularization --strict`.
 - [ ] 7.7 Run final downstream realignment and closure checklist.

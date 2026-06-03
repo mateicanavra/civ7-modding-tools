@@ -1700,3 +1700,19 @@ All future agent waves must be framed before delegation:
   projection test, and AI-ingestion contract fixture test. This does not
   migrate schemas, add Effect Schema artifacts, import root-branch oRPC
   experiment source, unblock 5.x/6.x work, or claim procedure-core readiness.
+- Direct-control source verification checkpoint: current stack top
+  `83aebdb45` on `codex/disposition-schema-evaluation-report` passed
+  `bun run --cwd packages/civ7-direct-control check`,
+  `bun run --cwd packages/civ7-direct-control test`,
+  `bun run --cwd packages/civ7-direct-control build`,
+  `bun run openspec -- validate civ7-support-direct-control-modularization --strict`,
+  `bun run resources:status`, `git diff --check`, `bun run check:cli`, and
+  `bun run test:cli:play`. Ownership/no-cycle scans found no executable
+  back-imports from `packages/civ7-direct-control/src` to `index.ts`, and
+  `packages/civ7-direct-control/src/index.ts` no longer owns embedded command
+  source builders or postcondition helper definitions. This closes only the
+  direct-control source-slice verification and OpenSpec validation checklist
+  items. Test-only slice closure, runtime proof labeling, CLI semantic/debug
+  output proof, Effect/Bun source proof, final downstream realignment, Task
+  2.9.4 matrix-row acceptance, telemetry, AI ingestion, schema migration, and
+  Effect/oRPC procedure-core work remain pending.
