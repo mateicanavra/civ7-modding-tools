@@ -2,16 +2,65 @@ import { Civ7DirectControlError } from "../../direct-control-error.js";
 
 import type {
   Civ7ActionApproval,
+} from "../../index.js";
+import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7RuntimeProbe,
-  Civ7UnitTargetActionInput,
-  Civ7UnitTargetActionResult,
-} from "../../index.js";
+  Civ7TunerState,
+} from "../../session/types.js";
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 import type { Civ7MapLocation } from "../map/types.js";
 
 export const DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS = 1_500;
 export const DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS = 250;
+
+export type Civ7UnitTargetActionInput = Readonly<{
+  unitId: Civ7ComponentId;
+  x: number;
+  y: number;
+}>;
+
+export type Civ7UnitTargetActionCandidate = Readonly<{
+  family: "unit-operation" | "unit-command";
+  operationType: string;
+  args: unknown;
+  valid: boolean;
+  result: unknown;
+  targetInReturnedPlots: boolean | null;
+  rejectedReason?: string;
+}>;
+
+export type Civ7UnitTargetActionResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  unitId: Civ7ComponentId;
+  target: Readonly<{ x: number; y: number; index: Civ7RuntimeProbe<number> }>;
+  beforeUnit: Civ7RuntimeProbe<unknown>;
+  beforeTargetUnits: Civ7RuntimeProbe<unknown>;
+  candidates: ReadonlyArray<Civ7UnitTargetActionCandidate>;
+  selected: Civ7UnitTargetActionCandidate | null;
+  sent: boolean;
+  sendResult?: unknown;
+  afterUnit?: Civ7RuntimeProbe<unknown>;
+  afterTargetUnits?: Civ7RuntimeProbe<unknown>;
+  verified?: boolean;
+  verification?: Readonly<{
+    status: "verified" | "no-state-change" | "not-sent";
+    classification: "target-reached" | "path-shortfall" | "unit-state-changed" | "target-state-changed" | "no-state-change" | "not-sent";
+    unitChanged: boolean;
+    targetUnitsChanged: boolean;
+    destinationReached: boolean | null;
+    requestedLocation: Civ7MapLocation;
+    landedLocation?: Civ7MapLocation | null;
+    source?: "immediate" | "bounded-poll";
+    attempts?: number;
+    observedAfterMs?: number;
+    reason: string;
+  }>;
+  notes: ReadonlyArray<string>;
+}>;
 
 type UnitTargetActionDependencies = Readonly<{
   assertApproved: (approval: Civ7ActionApproval, action: string) => void;

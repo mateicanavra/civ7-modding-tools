@@ -208,6 +208,8 @@ import {
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
   getCiv7UnitTargetAction as getCiv7UnitTargetActionFromModule,
   requestCiv7UnitTargetAction as requestCiv7UnitTargetActionFromModule,
+  type Civ7UnitTargetActionInput,
+  type Civ7UnitTargetActionResult,
 } from "./play/operations/unit-target-action.js";
 import { requestCiv7NarrativeChoice as requestCiv7NarrativeChoiceFromModule } from "./play/operations/narrative-request.js";
 import { requestCiv7ProductionChoice as requestCiv7ProductionChoiceFromModule } from "./play/operations/production-choice.js";
@@ -562,6 +564,11 @@ export type {
 export {
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
+} from "./play/operations/unit-target-action.js";
+export type {
+  Civ7UnitTargetActionCandidate,
+  Civ7UnitTargetActionInput,
+  Civ7UnitTargetActionResult,
 } from "./play/operations/unit-target-action.js";
 
 export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
@@ -987,53 +994,6 @@ export type Civ7ProductionChoiceCommandPayload = Readonly<{
 
 export type Civ7ProductionChoiceResult = Civ7OperationRequestResult & Readonly<{
   payload?: Civ7ProductionChoiceCommandPayload;
-}>;
-
-export type Civ7UnitTargetActionInput = Readonly<{
-  unitId: Civ7ComponentId;
-  x: number;
-  y: number;
-}>;
-
-export type Civ7UnitTargetActionCandidate = Readonly<{
-  family: "unit-operation" | "unit-command";
-  operationType: string;
-  args: unknown;
-  valid: boolean;
-  result: unknown;
-  targetInReturnedPlots: boolean | null;
-  rejectedReason?: string;
-}>;
-
-export type Civ7UnitTargetActionResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  unitId: Civ7ComponentId;
-  target: Readonly<{ x: number; y: number; index: Civ7RuntimeProbe<number> }>;
-  beforeUnit: Civ7RuntimeProbe<unknown>;
-  beforeTargetUnits: Civ7RuntimeProbe<unknown>;
-  candidates: ReadonlyArray<Civ7UnitTargetActionCandidate>;
-  selected: Civ7UnitTargetActionCandidate | null;
-  sent: boolean;
-  sendResult?: unknown;
-  afterUnit?: Civ7RuntimeProbe<unknown>;
-  afterTargetUnits?: Civ7RuntimeProbe<unknown>;
-  verified?: boolean;
-  verification?: Readonly<{
-    status: "verified" | "no-state-change" | "not-sent";
-    classification: "target-reached" | "path-shortfall" | "unit-state-changed" | "target-state-changed" | "no-state-change" | "not-sent";
-    unitChanged: boolean;
-    targetUnitsChanged: boolean;
-    destinationReached: boolean | null;
-    requestedLocation: Civ7MapLocation;
-    landedLocation?: Civ7MapLocation | null;
-    source?: "immediate" | "bounded-poll";
-    attempts?: number;
-    observedAfterMs?: number;
-    reason: string;
-  }>;
-  notes: ReadonlyArray<string>;
 }>;
 
 export type Civ7CapabilityCatalogOptions = Civ7DirectControlOptions & Readonly<{
