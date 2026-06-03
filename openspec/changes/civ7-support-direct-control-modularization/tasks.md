@@ -818,6 +818,13 @@ runtime/direct-control claims.
         strings, public procedure schemas, telemetry, hotseat runtime proof, AI
         ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.11.8 Prune map-read facade dependency injection by letting the map
+        read owner import existing non-facade executor/parser/validation/source
+        helpers directly, while keeping public facade exports stable,
+        preserving map summary, plot snapshot, and map grid behavior, and
+        leaving public procedure schemas, telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.12 Extract runtime inspection/catalog/proof atoms.
   - [x] 4.12.1 Extract runtime API inspection wrapper/source owner while keeping
         the public facade export surface in `index.ts`, classifying it as

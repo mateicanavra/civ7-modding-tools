@@ -1,10 +1,19 @@
 import { Civ7DirectControlError } from "../../direct-control-error.js";
+import { jsLiteral } from "../../runtime/command-serialization.js";
+import { probeHelperSource } from "../../runtime/probe.js";
+import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7Command, executeCiv7TunerCommand } from "../../session/execute.js";
 
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerStateSelection,
 } from "../../session/types.js";
+import { boundedInteger } from "../../validation.js";
+import {
+  DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
+  HARD_CIV7_MAP_GRID_MAX_PLOTS,
+} from "./constants.js";
 import type {
   Civ7MapBounds,
   Civ7MapGridInput,
@@ -16,6 +25,7 @@ import type {
   Civ7PlotSnapshotInput,
   Civ7PlotSnapshotResult,
 } from "./types.js";
+import { validateMapBounds, validateMapLocation } from "./validation.js";
 
 type MapReadDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
@@ -36,7 +46,7 @@ type MapReadDependencies = Readonly<{
 
 export async function getCiv7MapSummary(
   options: Civ7MapSummaryOptions = {},
-  dependencies: MapReadDependencies,
+  dependencies: MapReadDependencies = defaultMapReadDependencies,
 ): Promise<Civ7MapSummaryResult> {
   const result = await dependencies.executeCommand({
     ...options,
@@ -55,7 +65,7 @@ export async function getCiv7MapSummary(
 export async function getCiv7PlotSnapshot(
   input: Civ7PlotSnapshotInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: MapReadDependencies,
+  dependencies: MapReadDependencies = defaultMapReadDependencies,
 ): Promise<Civ7PlotSnapshotResult> {
   dependencies.validateMapLocation(input);
   const fields = normalizePlotFields(input.fields);
@@ -69,7 +79,7 @@ export async function getCiv7PlotSnapshot(
 export async function getCiv7MapGrid(
   input: Civ7MapGridInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: MapReadDependencies,
+  dependencies: MapReadDependencies = defaultMapReadDependencies,
 ): Promise<Civ7MapGridResult> {
   const maxPlots = dependencies.boundedInteger(
     input.maxPlots ?? dependencies.defaultMapGridMaxPlots,
@@ -309,3 +319,21 @@ const ALL_CIV7_PLOT_FIELDS: ReadonlyArray<Civ7PlotSnapshotField> = [
   "city",
   "units",
 ];
+
+const defaultMapReadDependencies: MapReadDependencies = {
+  boundedInteger,
+  defaultMapGridMaxPlots: DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
+  executeCommand: executeCiv7Command,
+  executeTunerCommand: executeCiv7TunerCommand,
+  hardMapGridMaxPlots: HARD_CIV7_MAP_GRID_MAX_PLOTS,
+  jsLiteral,
+  parseMapGrid: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7MapGridResult>(result, label),
+  parseMapSummary: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7MapSummaryResult>(result, label),
+  parsePlotSnapshot: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7PlotSnapshotResult>(result, label),
+  probeHelperSource,
+  validateMapBounds,
+  validateMapLocation,
+};

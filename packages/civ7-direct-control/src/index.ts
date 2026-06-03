@@ -902,69 +902,21 @@ export async function getCiv7PlayableStatus(
 export async function getCiv7MapSummary(
   options: Civ7MapSummaryOptions = {},
 ): Promise<Civ7MapSummaryResult> {
-  return await getCiv7MapSummaryFromModule(options, {
-    executeCommand: executeCiv7Command,
-    executeTunerCommand: executeCiv7TunerCommand,
-    parseMapSummary: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7MapSummaryResult>(result, label),
-    parsePlotSnapshot: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7PlotSnapshotResult>(result, label),
-    parseMapGrid: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7MapGridResult>(result, label),
-    boundedInteger,
-    defaultMapGridMaxPlots: DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
-    hardMapGridMaxPlots: HARD_CIV7_MAP_GRID_MAX_PLOTS,
-    jsLiteral,
-    probeHelperSource,
-    validateMapBounds,
-    validateMapLocation,
-  });
+  return await getCiv7MapSummaryFromModule(options);
 }
 
 export async function getCiv7PlotSnapshot(
   input: Civ7PlotSnapshotInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7PlotSnapshotResult> {
-  return await getCiv7PlotSnapshotFromModule(input, options, {
-    executeCommand: executeCiv7Command,
-    executeTunerCommand: executeCiv7TunerCommand,
-    parseMapSummary: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7MapSummaryResult>(result, label),
-    parsePlotSnapshot: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7PlotSnapshotResult>(result, label),
-    parseMapGrid: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7MapGridResult>(result, label),
-    boundedInteger,
-    defaultMapGridMaxPlots: DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
-    hardMapGridMaxPlots: HARD_CIV7_MAP_GRID_MAX_PLOTS,
-    jsLiteral,
-    probeHelperSource,
-    validateMapBounds,
-    validateMapLocation,
-  });
+  return await getCiv7PlotSnapshotFromModule(input, options);
 }
 
 export async function getCiv7MapGrid(
   input: Civ7MapGridInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7MapGridResult> {
-  return await getCiv7MapGridFromModule(input, options, {
-    executeCommand: executeCiv7Command,
-    executeTunerCommand: executeCiv7TunerCommand,
-    parseMapSummary: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7MapSummaryResult>(result, label),
-    parsePlotSnapshot: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7PlotSnapshotResult>(result, label),
-    parseMapGrid: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7MapGridResult>(result, label),
-    boundedInteger,
-    defaultMapGridMaxPlots: DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
-    hardMapGridMaxPlots: HARD_CIV7_MAP_GRID_MAX_PLOTS,
-    jsLiteral,
-    probeHelperSource,
-    validateMapBounds,
-    validateMapLocation,
-  });
+  return await getCiv7MapGridFromModule(input, options);
 }
 
 export async function getCiv7ResourcePlacementFeasibility(
