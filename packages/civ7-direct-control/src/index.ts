@@ -259,8 +259,16 @@ import {
   type Civ7TraditionsViewInput,
   type Civ7TraditionsViewResult,
 } from "./play/progression/reads.js";
-import { buildCultureChoiceCloseoutCommand } from "./play/progression/culture.js";
-import { buildTechnologyChoiceCloseoutCommand } from "./play/progression/technology.js";
+import {
+  buildCultureChoiceCloseoutCommand,
+  type Civ7CultureChoiceCloseoutInput,
+  type Civ7CultureChoiceCloseoutResult,
+} from "./play/progression/culture.js";
+import {
+  buildTechnologyChoiceCloseoutCommand,
+  type Civ7TechnologyChoiceCloseoutInput,
+  type Civ7TechnologyChoiceCloseoutResult,
+} from "./play/progression/technology.js";
 import {
   getCiv7ReadyCityView as getCiv7ReadyCityViewFromModule,
   type Civ7ReadyCityOperationCandidate,
@@ -457,6 +465,14 @@ export type {
   Civ7TraditionsViewInput,
   Civ7TraditionsViewResult,
 } from "./play/progression/reads.js";
+export type {
+  Civ7TechnologyChoiceCloseoutInput,
+  Civ7TechnologyChoiceCloseoutResult,
+} from "./play/progression/technology.js";
+export type {
+  Civ7CultureChoiceCloseoutInput,
+  Civ7CultureChoiceCloseoutResult,
+} from "./play/progression/culture.js";
 export type {
   Civ7FullMapGridIdentityCheck,
   Civ7FullMapGridInput,
@@ -816,38 +832,6 @@ export type Civ7NarrativeChoiceResult = Readonly<{
   sent: boolean;
   verified: boolean;
   postcondition: Civ7NarrativeChoicePostcondition;
-}>;
-
-export type Civ7TechnologyChoiceCloseoutInput = Readonly<{
-  playerId: number;
-  node: number;
-  notificationId?: Civ7ComponentId;
-  activateNotification?: boolean;
-}>;
-
-export type Civ7TechnologyChoiceCloseoutResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  command: Civ7CommandResult;
-  payload: unknown;
-  sent: boolean;
-}>;
-
-export type Civ7CultureChoiceCloseoutInput = Readonly<{
-  playerId: number;
-  node: number;
-  notificationId?: Civ7ComponentId;
-  activateNotification?: boolean;
-}>;
-
-export type Civ7CultureChoiceCloseoutResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  command: Civ7CommandResult;
-  payload: unknown;
-  sent: boolean;
 }>;
 
 export type Civ7OperationFamily =

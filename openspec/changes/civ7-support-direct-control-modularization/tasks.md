@@ -463,6 +463,13 @@ runtime/direct-control claims.
         schemas, operation/proof telemetry, hotseat runtime proof, AI ingestion,
         CLI semantic projection, Effect/oRPC procedure-core work, and Task
         2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.23 Extract progression chooser closeout type owners while keeping
+        public facade type re-exports in `index.ts`, preserving technology and
+        culture closeout input/result contracts while leaving
+        diplomacy/narrative closeout, operation, public procedure schemas,
+        operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
+        semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
       oRPC implementation; current support branch has no tracked
       `.agents/skills/civ7-orpc-control-architecture` or
