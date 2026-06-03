@@ -1774,6 +1774,20 @@ All future agent waves must be framed before delegation:
   2.9.4 matrix rows, or unblock telemetry, AI ingestion, semantic CLI
   projection, hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
   implementation.
+- Setup-run facade dependency cleanup: `src/setup/run.ts` now imports existing
+  non-facade setup read, setup prepare, prepared-start, App UI execution, setup
+  constants, approval, bounds, and setup option identifier validation owners
+  directly for `runCiv7SinglePlayerFromSetup`. The public facade export remains
+  stable, but `index.ts` no longer assembles the setup-run dependency object for
+  the direct run call. Restart/begin lifecycle composition stays separate and
+  still uses narrow injection seams for its higher-level orchestration. This
+  preserves approval-first run orchestration, active-game exit-to-shell guard,
+  exit-to-main-menu routing, shell wait, prepare/start chaining, verified result
+  shape, and no-replay package proof. This is local package/source relocation
+  proof only: it does not claim runtime/live-game proof, accept Task 2.9.4
+  matrix rows, or unblock telemetry, AI ingestion, semantic CLI projection,
+  hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
+  implementation.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into

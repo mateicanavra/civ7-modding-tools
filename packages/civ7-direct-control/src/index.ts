@@ -101,7 +101,6 @@ import {
   ensureCiv7SetupMapRowVisible as ensureCiv7SetupMapRowVisibleFromModule,
   getCiv7SetupMapRows as getCiv7SetupMapRowsFromModule,
   getCiv7SetupSnapshot as getCiv7SetupSnapshotFromModule,
-  waitForCiv7SetupPhase as waitForCiv7SetupPhaseFromModule,
   type Civ7PlayerSetupParameterSnapshot,
   type Civ7SetupMapRow,
   type Civ7SetupMapRowsInput,
@@ -110,7 +109,6 @@ import {
   type Civ7SetupMapRowVisibilityResult,
   type Civ7SetupParameterSnapshot,
   type Civ7SetupParameterValue,
-  type Civ7SetupPhase,
   type Civ7SetupSnapshot,
   type Civ7SetupSnapshotResult,
 } from "./setup/reads.js";
@@ -1165,24 +1163,6 @@ function setupReadDependencies() {
   } as const;
 }
 
-function setupRunDependencies() {
-  return {
-    assertApproved,
-    boundedInteger,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    exitToMainMenuCommand: CIV7_EXIT_TO_MAIN_MENU_COMMAND,
-    getSetupSnapshot: getCiv7SetupSnapshot,
-    prepareSetup: prepareCiv7SinglePlayerSetup,
-    startPreparedGame: startPreparedCiv7SinglePlayerGame,
-    validateIdentifier,
-    waitForSetupPhase: async (
-      phase: Civ7SetupPhase,
-      options: Civ7DirectControlOptions,
-      wait: { waitTimeoutMs: number; pollIntervalMs: number },
-    ) => await waitForCiv7SetupPhaseFromModule(phase, options, wait),
-  } as const;
-}
-
 export async function listCiv7SavedGameConfigurations(
   input: Civ7SavedGameConfigurationListInput = {},
 ): Promise<Civ7SavedGameConfigurationListResult> {
@@ -1217,7 +1197,6 @@ export async function loadCiv7SavedGameConfiguration(
     loaded: command.output.some((line) => line.includes('"ok":true')),
   };
 }
-
 export async function ensureCiv7SetupMapRowVisible(
   input: Civ7SetupMapRowVisibilityInput,
   options: Civ7DirectControlOptions = {},
@@ -1247,7 +1226,7 @@ export async function runCiv7SinglePlayerFromSetup(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7SinglePlayerRunResult> {
-  return await runCiv7SinglePlayerFromSetupFromModule(input, options, approval, setupRunDependencies());
+  return await runCiv7SinglePlayerFromSetupFromModule(input, options, approval);
 }
 
 export async function inspectCiv7Root(

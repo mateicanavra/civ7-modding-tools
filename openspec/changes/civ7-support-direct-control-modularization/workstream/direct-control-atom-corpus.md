@@ -266,6 +266,19 @@ ingestion, semantic CLI projection, telemetry, hotseat runtime proof,
 Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance remain
 pending.
 
+Setup-run facade dependency update: `src/setup/run.ts` now owns the default
+setup read, setup prepare, prepared-start, App UI execution, setup constants,
+approval, bounds, and setup option identifier validation wiring for
+`runCiv7SinglePlayerFromSetup` while the public facade export stays stable in
+`index.ts`. Restart/begin lifecycle composition remains separate and still
+uses narrow injection seams for its higher-level orchestration. This preserves
+approval-first run orchestration, active-game exit-to-shell guard,
+exit-to-main-menu routing, shell wait, prepare/start chaining, verified result
+shape, and no-replay package proof as local package/source relocation proof
+only; runtime/live-game proof, AI ingestion, semantic CLI projection,
+telemetry, hotseat runtime proof, Effect/oRPC procedure-core work, and Task
+2.9.4 matrix-row acceptance remain pending.
+
 Setup lifecycle type update: `src/setup/prepare.ts` now owns single-player
 setup input, setup option value, and prepared-setup result types;
 `src/setup/start.ts` owns prepared-start input and single-player start result

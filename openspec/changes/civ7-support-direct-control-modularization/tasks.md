@@ -1110,6 +1110,17 @@ runtime/direct-control claims.
         setup-run/restart lifecycle composition, runtime proof, hotseat runtime
         proof, AI ingestion, semantic CLI projection, telemetry, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.14.11 Prune setup-run facade dependency injection by letting
+        `src/setup/run.ts` import existing non-facade setup read, setup
+        prepare, prepared-start, App UI execution, setup constants, approval,
+        bounds, and setup option identifier validation owners directly, while
+        keeping public facade exports stable, preserving approval-first run
+        orchestration, active-game exit-to-shell guard, exit-to-main-menu
+        routing, shell wait, prepare/start chaining, verified result shape, and
+        no-replay package proof, and leaving restart/begin lifecycle
+        composition, runtime proof, hotseat runtime proof, AI ingestion,
+        semantic CLI projection, telemetry, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
 
 ## 5. CLI Semantic Surface Lane
 
