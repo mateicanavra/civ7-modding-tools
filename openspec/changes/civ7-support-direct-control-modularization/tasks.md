@@ -56,6 +56,25 @@
     used separate fresh `/goal` worktree threads with disjoint one-file write
     sets. The DRA passively inspected disk candidates and retained
     broad-suite/docs/commit ownership.
+- [ ] 2.8 Read and disposition the report-only hotseat/autoplay,
+      AI-intelligence, and synthesis peer waves before treating the
+      compatibility planning lane as closed.
+  - Pending peer report:
+    `019e8cbe-b9a2-7603-8fc6-ea9387fbbd3b` for AI-intelligence model
+    implications from thread `019e8b5a-f2ee-7ea2-96bc-8c07dc5ab6cc`.
+  - Pending peer report:
+    `019e8cbf-0138-75d1-9edc-0bda7d413dff` for hotseat/autoplay base
+    requirements from thread `019e86b7-b08b-72f3-8341-6c78a1285c93`.
+  - Pending peer report:
+    `019e8cbf-5805-7393-82e8-c83353aeac40` for synthesis mapping both target
+    threads onto this support OpenSpec.
+- [ ] 2.9 Define the hotseat/autoplay and AI-intelligence compatibility matrix:
+      semantic game state, decisions, blockers, action results, next-step
+      affordances, debug/internal service outputs, operation/proof telemetry,
+      and future procedure-core schema needs.
+- [ ] 2.10 Keep intelligence-layer code, transport-first oRPC, and live-game
+      proof claims out of the compatibility planning branch until the peer
+      reports are read and source/proof owners are assigned.
 
 Implementation tasks in sections 3-5 are blocked until the relevant corpus rows
 name the exact write set, fixture owner, validation commands,
@@ -218,6 +237,9 @@ runtime/direct-control claims.
       blockers, and next steps.
 - [ ] 5.4 Reduce large CLI JSON outputs by projecting direct-control service
       results into semantic game state, action results, and decision affordances.
+- [ ] 5.5 Ensure the semantic envelope model has a machine-ingestion contract for
+      the AI-intelligence strategy-data layer that is distinct from normal CLI
+      presentation strings and from debug-only raw diagnostics.
 
 ## 6. Effect/Bun And Effect/oRPC Composition Lane
 
@@ -232,6 +254,9 @@ runtime/direct-control claims.
       unless Node is the only practical or clearly better implementation.
 - [ ] 6.7 Keep the oclif CLI shell; do not replace it with Effect CLI unless a
       later accepted command-hierarchy spec explicitly authorizes that change.
+- [ ] 6.8 Ensure procedure-core schemas compose stable direct-control atoms for
+      both live hotseat/autoplay control and AI-intelligence data ingestion
+      before exposing transport adapters.
 
 ## 7. Verification And Closure
 

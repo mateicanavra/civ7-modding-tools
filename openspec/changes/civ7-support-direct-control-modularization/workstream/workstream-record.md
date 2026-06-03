@@ -85,6 +85,9 @@ titles, and parent reports to close the loop.
 | `019e8b69-465d-7a71-8ef1-1f75f96799c2`                                                | Extract direct-control seams                | framed `/goal` source candidate | completed, idle; disk worktree `fd1b` dirty at old parent                            | yes                                         | Accepted as a narrow source candidate only. DRA integrated tuner frame encode/parse ownership on current disk after ComponentID/error moved first and reran package gates. | Contributed `src/session/framing.ts` boundary for `Civ7TunerFrame`, `encodeCiv7TunerRequest`, and `parseCiv7TunerFrame`; broader session/config/reconnect and restart/setup loops stay pending.                                             |
 | `019e8b69-ae88-79f1-b5dd-dd530c2ea2bf`                                                | Identify read-only atoms                    | framed `/goal` report-only     | completed report read; later empty active turn observed; disk worktree `1044` clean  | yes                                         | Accepted as read-only planning evidence. No code candidate was integrated from this lane. Later refined finding supersedes its earlier ready-unit suggestion.             | Recommends `settlementRecommendationsSource` as the safest first read-only embedded-source relocation, followed by traditions, move-preview, progress dashboard, ready-unit, tactical reads, ready-city, and notification view last.                                    |
 | `019e8be1-db1e-7c80-ad37-471a48cd520f`                                                | Identify first postcondition-helper slice   | framed `/goal` report-only     | completed, reported up                                                               | yes                                         | Accepted as sequencing guidance only; no mutation authority.                                                                                                               | Recommends the first postcondition-helper move be the synchronous unit-operation classifier group (`unitOperationPostcondition`, `classifyUnitOperationPostcondition`, `unitOperationPostconditionReason`) into `src/play/operations/unit-postconditions.ts`; narrative/diplomacy waiters stay later because they pull in notification matching, polling, and App UI reader dependencies. |
+| `019e8cbe-b9a2-7603-8fc6-ea9387fbbd3b`                                                | AI-intelligence model implications          | report-only compatibility wave | launched by supervisor; not readable/discoverable in this session yet                | no                                          | Pending control input; do not close the compatibility lane from partial evidence.                                                                                        | Should map AI-intelligence thread `019e8b5a-f2ee-7ea2-96bc-8c07dc5ab6cc` onto direct-control atoms, semantic game state, strategy-data ingestion, telemetry, debug/internal output, and procedure-core needs.                                                           |
+| `019e8cbf-0138-75d1-9edc-0bda7d413dff`                                                | Hotseat/autoplay base requirements          | report-only compatibility wave | launched by supervisor; not readable/discoverable in this session yet                | no                                          | Pending control input; do not close the compatibility lane from partial evidence.                                                                                        | Should map hotseat/autoplay thread `019e86b7-b08b-72f3-8341-6c78a1285c93` onto live player-agent control requirements, approval gates, autoplay/turn semantics, operation closeout, and proof boundaries.                                                             |
+| `019e8cbf-5805-7393-82e8-c83353aeac40`                                                | AI/hotseat synthesis review                 | report-only compatibility wave | launched by supervisor; not readable/discoverable in this session yet                | no                                          | Pending control input; do not close the compatibility lane from partial evidence.                                                                                        | Should synthesize both target threads against this OpenSpec before command hierarchy, telemetry, Effect/oRPC procedure-core, or intelligence-layer implementation begins.                                                                                              |
 
 ## Parallelization Rule
 
@@ -130,6 +133,27 @@ layers, and concurrency around Effect affordances where they fit. Bun-native
 APIs should be preferred over Node APIs in new/refactored control code except
 where Node is the only practical or clearly superior implementation. This does
 not replace the existing oclif CLI shell with Effect CLI.
+
+## Hotseat And AI-Intelligence Compatibility Rule
+
+The direct-control atom lane must now plan for two first-class downstream
+consumers: live player-agent hotseat/autoplay control and the AI-intelligence
+strategy-data layer. The hotseat/autoplay thread
+`019e86b7-b08b-72f3-8341-6c78a1285c93` is the control foundation; the
+AI-intelligence model thread `019e8b5a-f2ee-7ea2-96bc-8c07dc5ab6cc` is the
+higher-level data consumer.
+
+Future CLI semantic envelopes, debug/internal service outputs, operation/proof
+telemetry, and Effect/oRPC procedure cores must support both without collapsing
+their surfaces together. Normal CLI play output remains player-agent semantic
+state and action affordances. Machine-ingestion contracts should be structured
+and stable, not presentation strings. Raw transport, session, closeout, and
+proof machinery remains internal service or explicit debug-owned output.
+
+This branch records the direction and pending inputs only. The peer report
+threads above must be read and dispositioned before the compatibility matrix is
+closed or used to justify command hierarchy rewrites, intelligence-layer code,
+telemetry source work, or transport/oRPC implementation.
 
 ## Agent Framing Protocol
 

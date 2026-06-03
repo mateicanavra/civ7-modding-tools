@@ -21,6 +21,15 @@ what action is safe or blocked. Transport/session details belong in the
 internal service or in an explicitly debugging-oriented CLI hierarchy, not in
 normal play-command output.
 
+The same atom and envelope work must serve two downstream control consumers:
+live player-agent hotseat/autoplay control and the higher-level
+AI-intelligence/strategy-data layer. The hotseat/autoplay thread
+`019e86b7-b08b-72f3-8341-6c78a1285c93` is the lower control foundation; the
+AI-intelligence model thread `019e8b5a-f2ee-7ea2-96bc-8c07dc5ab6cc` is the
+strategy-data consumer that should ingest semantic game state, decisions,
+action outcomes, blockers, and proof telemetry without depending on CLI
+presentation strings or raw service plumbing.
+
 Effect and Bun are target implementation primitives for new or rewritten
 control logic. Source lanes should plan resource acquisition/release, socket
 framing, buffering, streams, concurrency, error shaping, layers, and tests
@@ -201,7 +210,29 @@ Responsibilities:
 - coordinate with the oRPC authority lane so Effect/oRPC procedure cores compose
   direct-control atoms rather than becoming a transport-first rewrite.
 
-### Lane G: Review / Gate Lane
+### Lane G: Hotseat/Autoplay And AI-Intelligence Compatibility Planning
+
+Write set:
+
+- OpenSpec design/task/corpus artifacts first
+- no package source, CLI hierarchy, telemetry, or procedure-core implementation
+  until peer reports are read and the compatibility matrix is accepted
+
+Responsibilities:
+
+- disposition the report-only AI-intelligence, hotseat/autoplay, and synthesis
+  peer waves before treating their assumptions as planned;
+- define stable semantic state inputs for strategy/intelligence consumers,
+  including game phase, turn/player context, blockers, available decisions,
+  selected units/cities, map/visibility summaries, and operation outcomes;
+- define debug/internal service outputs separately from normal player-agent CLI
+  output and machine-ingestion surfaces;
+- identify operation/proof telemetry that future AI-intelligence consumers need
+  without exposing raw transport/session/proof JSON in normal play commands;
+- ensure Effect/oRPC procedure-core schemas support both local player-agent
+  hotseat control and strategy-data ingestion over stable direct-control atoms.
+
+### Lane H: Review / Gate Lane
 
 Write set:
 
@@ -234,14 +265,17 @@ Responsibilities:
    - operation validation/send/postconditions;
    - read-only tactical/progression/destination surfaces;
    - schemas/types/constants.
-6. Define CLI semantic player-agent envelopes and debug-only diagnostic
+6. Define hotseat/autoplay and AI-intelligence compatibility requirements over
+   direct-control atoms before command hierarchy, telemetry, or procedure-core
+   implementation begins.
+7. Define CLI semantic player-agent envelopes and debug-only diagnostic
    boundaries before changing the command hierarchy.
-7. Plan the Effect/Bun implementation model for direct-control atoms,
+8. Plan the Effect/Bun implementation model for direct-control atoms,
    procedure cores, and tests before source rewrites depend on Effect
    affordances.
-8. Import or explicitly cite the oRPC architecture skill/source authority from
+9. Import or explicitly cite the oRPC architecture skill/source authority from
    the relevant stack branches.
-9. Add Effect/oRPC procedure cores over stable atoms.
+10. Add Effect/oRPC procedure cores over stable atoms.
 
 The current support branch does not track
 `.agents/skills/civ7-orpc-control-architecture` or `packages/civ7-control-orpc`.
