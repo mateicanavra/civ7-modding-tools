@@ -500,6 +500,17 @@ All future agent waves must be framed before delegation:
   AI ingestion, CLI semantic projection, and Effect/oRPC procedure-core work
   stay out of this slice. This is local read-only package/source relocation
   proof only, not runtime proof.
+- Direct-control App UI snapshot facade dependency cleanup: completed as a
+  narrow owner-local dependency pruning slice. `src/runtime/app-ui-snapshot.ts`
+  now imports existing non-facade App UI command execution directly for the
+  default wrapper path while the public facade stays a call-through and
+  restart/setup lifecycle loops still reuse the same internal builder/parser
+  helpers. This preserves the generated snapshot command, parse label/result
+  shape, and debug/internal-only raw snapshot classification. It does not move
+  lifecycle orchestration, claim runtime/live-game proof, expose raw snapshots
+  as normal CLI output, or unblock telemetry, AI ingestion, semantic CLI
+  projection, hotseat runtime proof, schema/procedure-core work, Effect/oRPC
+  implementation, or Task 2.9.4 matrix-row acceptance.
 - Direct-control Tuner health source/wrapper slice: completed as a narrow
   runtime-status support relocation. It moves only `checkCiv7TunerHealth`, the
   generated Tuner health command, `tunerHealthFromCommandResult`, and the

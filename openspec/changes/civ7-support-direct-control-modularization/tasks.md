@@ -1061,6 +1061,14 @@ runtime/direct-control claims.
         official-resource scanner behavior, and leaving telemetry, AI
         ingestion, CLI semantic projection, hotseat runtime proof, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.16 Prune App UI snapshot facade dependency injection by letting
+        `src/runtime/app-ui-snapshot.ts` import existing non-facade App UI
+        command execution directly, while keeping public facade exports stable,
+        preserving the generated snapshot command, parse label/result shape,
+        lifecycle helper reuse of the builder/parser, debug/internal-only raw
+        snapshot classification, and leaving telemetry, AI ingestion, CLI
+        semantic projection, hotseat runtime proof, Effect/oRPC procedure-core
+        work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready

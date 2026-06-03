@@ -812,9 +812,7 @@ export async function inspectCiv7RuntimeApi(options: Civ7DirectControlOptions & 
 export async function getCiv7AppUiSnapshot(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7AppUiSnapshotResult> {
-  return await getCiv7AppUiSnapshotFromModule(options, {
-    executeAppUiCommand: executeCiv7AppUiCommand,
-  });
+  return await getCiv7AppUiSnapshotFromModule(options);
 }
 
 export async function beginCiv7Game(options: Civ7DirectControlOptions = {}): Promise<Civ7CommandResult> {
