@@ -1738,6 +1738,16 @@ All future agent waves must be framed before delegation:
   relationship-label policy, runtime/live-game proof, Task 2.9.4 matrix-row
   acceptance, telemetry, AI ingestion, CLI semantic projection, hotseat runtime
   proof, schema/procedure-core work, or Effect/oRPC implementation.
+- GameInfo-read facade dependency cleanup: `src/play/map/gameinfo.ts` now
+  imports existing non-facade executor, parser, serializer, probe, validation,
+  constants, and bounds helpers directly for GameInfo row reads. The public
+  facade in `src/index.ts` remains stable but no longer assembles that
+  dependency object. This is local package/source relocation proof only: it
+  does not change GameInfo table/filter validation, lookup/filter value
+  pass-through, limit/offset bounds, schema/primary-key options,
+  runtime/live-game proof, Task 2.9.4 matrix-row acceptance, telemetry, AI
+  ingestion, CLI semantic projection, hotseat runtime proof,
+  schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control source verification checkpoint: current stack top
   `83aebdb45` on `codex/disposition-schema-evaluation-report` passed
   `bun run --cwd packages/civ7-direct-control check`,

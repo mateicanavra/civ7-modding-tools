@@ -833,6 +833,15 @@ runtime/direct-control claims.
         public procedure schemas, telemetry, hotseat runtime proof, AI
         ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.11.10 Prune GameInfo read facade dependency injection by letting the
+        GameInfo owner import existing non-facade executor, parser, validation,
+        serializer, constant, and source-helper owners directly, while keeping
+        public facade exports stable, preserving GameInfo table/filter
+        validation, lookup/filter value pass-through, limit/offset bounds,
+        schema/primary-key options, and leaving public procedure schemas,
+        telemetry, hotseat runtime proof, AI ingestion, CLI semantic
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.12 Extract runtime inspection/catalog/proof atoms.
   - [x] 4.12.1 Extract runtime API inspection wrapper/source owner while keeping
         the public facade export surface in `index.ts`, classifying it as

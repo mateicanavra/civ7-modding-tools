@@ -1155,17 +1155,7 @@ export async function getCiv7GameInfoRows(
   input: Civ7GameInfoRowsInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7GameInfoRowsResult> {
-  return await getCiv7GameInfoRowsFromModule(input, options, {
-    executeTunerCommand: executeCiv7TunerCommand,
-    parseGameInfoRows: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7GameInfoRowsResult>(result, label),
-    boundedInteger,
-    defaultGameInfoLimit: DEFAULT_CIV7_GAMEINFO_LIMIT,
-    hardGameInfoLimit: HARD_CIV7_GAMEINFO_LIMIT,
-    jsLiteral,
-    probeHelperSource,
-    validateIdentifier,
-  });
+  return await getCiv7GameInfoRowsFromModule(input, options);
 }
 
 export async function getCiv7SetupSnapshot(
