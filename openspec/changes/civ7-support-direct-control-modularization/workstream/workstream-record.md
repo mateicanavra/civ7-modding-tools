@@ -720,6 +720,20 @@ All future agent waves must be framed before delegation:
   pending separate owner slices. This is local package/type relocation proof
   only, not runtime proof, AI/hotseat product-path support, or procedure-core
   readiness.
+- Direct-control progression read types slice: completed as a narrow public
+  type ownership relocation. It moves only traditions view input/action/summary
+  result types and progress dashboard input/legacy-path/result types into
+  `src/play/progression/reads.ts` while keeping facade type re-exports in
+  `index.ts` and replacing moved progression type imports with concrete
+  session/runtime-probe owner imports. This preserves public type contracts and
+  does not change traditions/progress dashboard source strings, command
+  serialization, parser labels, read-only/no-send behavior, runtime proof
+  status, telemetry, AI ingestion, hotseat runtime proof, CLI semantic
+  projection, Effect/oRPC procedure-core work, or Task 2.9.4 matrix-row
+  acceptance. Diplomacy/narrative closeout, tactical, operation, ready, public
+  procedure schema, and telemetry type ownership remain pending separate owner
+  slices. This is local package/type relocation proof only, not runtime proof,
+  AI/hotseat product-path support, or procedure-core readiness.
 - Direct-control turn-completion slice: completed as a narrow turn-completion
   source/wrapper relocation. It moves only `getCiv7TurnCompletionStatus`,
   `sendCiv7TurnComplete`, `sendCiv7TurnUnready`, the status command builder,

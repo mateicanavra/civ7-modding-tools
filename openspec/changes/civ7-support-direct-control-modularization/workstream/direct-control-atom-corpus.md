@@ -229,6 +229,17 @@ runtime proof, CLI semantic projection, Effect/oRPC procedure-core work, or Task
 operation, ready, public procedure schema, and telemetry type ownership remain
 pending separate owner slices.
 
+Progression read type update: `src/play/progression/reads.ts` now owns
+traditions view input/action/summary/result types and progress dashboard
+input/legacy-path/result types while public facade type re-exports stay in
+`index.ts`. This is local package/type relocation proof only and does not change
+traditions or progress dashboard source strings, command serialization, parser
+labels, read-only/no-send behavior, runtime proof status, telemetry, AI
+ingestion, hotseat runtime proof, CLI semantic projection, Effect/oRPC
+procedure-core work, or Task 2.9.4 matrix-row acceptance. Diplomacy/narrative
+closeout, tactical, operation, ready, public procedure schema, and telemetry
+type ownership remain pending separate owner slices.
+
 Bounded root inspection update: `src/runtime/root-inspection.ts` now owns
 `inspectCiv7Root` and the generated bounded root inspection command while the
 public facade export stays in `index.ts` and injects command execution,
