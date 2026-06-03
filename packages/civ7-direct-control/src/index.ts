@@ -4366,59 +4366,8 @@ function assertApproved(approval: Civ7ActionApproval, action: string): void {
   }
 }
 
-function probeValueChanged(left: Civ7RuntimeProbe<unknown> | undefined, right: Civ7RuntimeProbe<unknown> | undefined): boolean {
-  if (!left || !right) return false;
-  if (left.ok !== right.ok) return true;
-  if (!left.ok || !right.ok) return stableJson(left) !== stableJson(right);
-  return stableJson(left.value) !== stableJson(right.value);
-}
-
 function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | undefined {
   return probe.ok ? probe.value : undefined;
-}
-
-function probeFieldChanged(left: Civ7RuntimeProbe<unknown> | undefined, right: Civ7RuntimeProbe<unknown> | undefined, field: string): boolean {
-  if (!left?.ok || !right?.ok) return false;
-  if (!isRecord(left.value) || !isRecord(right.value)) return false;
-  return stableJson(left.value[field]) !== stableJson(right.value[field]);
-}
-
-function locationFromUnitProbeValue(probe: Civ7RuntimeProbe<unknown> | undefined): Civ7MapLocation | null {
-  if (!probe?.ok || !isRecord(probe.value)) return null;
-  const location = probe.value.location;
-  if (!isRecord(location)) return null;
-  const x = location.x;
-  const y = location.y;
-  return typeof x === "number" && typeof y === "number" ? { x, y } : null;
-}
-
-function sameMapLocation(left: Civ7MapLocation, right: Civ7MapLocation): boolean {
-  return left.x === right.x && left.y === right.y;
-}
-
-function sameComponentId(left: Civ7ComponentId | null | undefined, right: Civ7ComponentId | null | undefined): boolean {
-  if (left == null || right == null) return left == null && right == null;
-  return left.owner === right.owner && left.id === right.id && left.type === right.type;
-}
-
-function stableJson(value: unknown): string {
-  return JSON.stringify(value, Object.keys(flattenKeys(value)).sort()) ?? String(value);
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function flattenKeys(value: unknown, keys: Record<string, true> = {}): Record<string, true> {
-  if (Array.isArray(value)) {
-    for (const item of value) flattenKeys(item, keys);
-  } else if (isRecord(value)) {
-    for (const [key, child] of Object.entries(value)) {
-      keys[key] = true;
-      flattenKeys(child, keys);
-    }
-  }
-  return keys;
 }
 
 function jsLiteral(value: unknown): string {

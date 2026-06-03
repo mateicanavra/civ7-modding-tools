@@ -576,6 +576,17 @@ All future agent waves must be framed before delegation:
   Telemetry, AI ingestion, semantic CLI projection, Effect/oRPC procedure-core
   work, and Task 2.9.4 matrix-row acceptance remain pending. This is local
   package/source relocation proof only, not runtime/live-game proof.
+- Direct-control facade postcondition-helper cleanup slice: completed as a
+  narrow stale-helper prune after the specialized operation postcondition and
+  unit-target owners moved. It removes only dead private comparison helpers from
+  `index.ts` (`probeValueChanged`, `probeFieldChanged`,
+  `locationFromUnitProbeValue`, `sameMapLocation`, `sameComponentId`,
+  `stableJson`, `isRecord`, and `flattenKeys`) while preserving remaining
+  facade `jsLiteral`, `probeValue`, and `probeHelperSource` injection helpers. Shared
+  serializer/type ownership, runtime/live-game proof, telemetry, AI ingestion,
+  semantic CLI projection, Effect/oRPC procedure-core work, and Task 2.9.4
+  matrix-row acceptance remain pending. This is local package/source cleanup
+  proof only, not runtime/live-game proof.
 - Direct-control production-choice source slice: completed as the next
   operation action source relocation. It moves only the embedded production
   choice source into `src/play/operations/production-choice.ts`. The public

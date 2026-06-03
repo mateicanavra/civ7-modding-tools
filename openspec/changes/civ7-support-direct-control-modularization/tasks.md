@@ -283,6 +283,13 @@ runtime/direct-control claims.
         runtime/live-game proof, telemetry, AI ingestion, semantic CLI
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.6.18 Prune stale facade-local postcondition comparison helpers after
+        unit/population/production/narrative/diplomacy/unit-target owners
+        moved, preserving remaining facade serializer/probe-value/probe-helper
+        injection, package/CLI proof, and leaving shared serializer/type ownership,
+        runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.
