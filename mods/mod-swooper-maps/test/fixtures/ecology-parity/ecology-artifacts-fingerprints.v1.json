@@ -6,18 +6,18 @@
     "height": 20
   },
   "artifacts": {
-    "artifact:ecology.soils": "81e7e544939b26d80c5de0ced2c286da71bd5942fcbbfd362e3f942e5f403be6",
+    "artifact:ecology.soils": "c8f203f87af611e18902ed645543b68692dba6794c560e4dd78b5e9b511c599d",
     "artifact:ecology.resourceBasins": "f0955ebb31fb793be429702cbef7346c9ef395c901aed38dfc196ed473c3e709",
-    "artifact:ecology.biomeClassification": "dae9f5f7e8a5315a1424a74e4c01e67b527a203bea6b273025f3d5e6221efc37",
-    "artifact:ecology.scoreLayers": "aae8ea2cc18cccdb3d4acafaccaba0e38dc076718277d0380ce9854cb51e79f4",
-    "artifact:ecology.occupancy.base": "2552544871773337881eaa096aa9930ab4cc7fd082603c46e39cba72ebeeae35",
-    "artifact:ecology.occupancy.ice": "2552544871773337881eaa096aa9930ab4cc7fd082603c46e39cba72ebeeae35",
-    "artifact:ecology.occupancy.reefs": "8520874a2a67207e1acf320cd1e4e77cbb44e5b4efbb7a171f247719ef22096d",
-    "artifact:ecology.occupancy.wetlands": "e6d70d86dcfcceadc4f1ada05d7740e1212cdc9017ddf14ca365a5d64d020566",
-    "artifact:ecology.occupancy.vegetation": "0d7232a13ef7d2a955abde94d24aef9ee3b8ee2120b4c8264d056bb57fe12f30",
-    "artifact:ecology.featureIntents.vegetation": "2c583beb721c047f59ebdb7e10f01af767fe6ce4c96d500288e045efd5290469",
-    "artifact:ecology.featureIntents.wetlands": "f2c2b6b5f47222346fae43fa963cb2b79333483f281f304989450f091b82ebf9",
-    "artifact:ecology.featureIntents.reefs": "b97e2661afe43c5e34ea2df36c38f8deb1858b540c00752f9c0670a920a01255",
+    "artifact:ecology.biomeClassification": "9444e0fc39fe3806a95b9be232e894bd9a93a3679ecc9eea210611cad6ae67d8",
+    "artifact:ecology.scoreLayers": "f7ae6acb05c53fcc5ce2322a53d0f658f2524730edbe3ea2fb76f2d9cf9aaa02",
+    "artifact:ecology.occupancy.base": "5e61d797cb064e40c83a72962211b1f09bc62dafd9ec2bd704ec91be4426c679",
+    "artifact:ecology.occupancy.ice": "5e61d797cb064e40c83a72962211b1f09bc62dafd9ec2bd704ec91be4426c679",
+    "artifact:ecology.occupancy.reefs": "948c5a96b4363dc933708c5e1a802c20ef5d254887feba41d850aef708072fec",
+    "artifact:ecology.occupancy.wetlands": "a8b15d5becd36d9a47495518ba52b60c5ed79f6851bfece1ffe090a71b33a2ef",
+    "artifact:ecology.occupancy.vegetation": "46c267d40f376bd73c206bbe2be8ed7d1994636828ddb226b5c48fbbd37ffb6a",
+    "artifact:ecology.featureIntents.vegetation": "0006919344a4ed049ff7c10b2c587537ab7da0faf5b47adac2150650c9b3b45f",
+    "artifact:ecology.featureIntents.wetlands": "62e286499e6090674b885d0b4292d0588c71c0b5d73d60c029b62239c5ca6d9a",
+    "artifact:ecology.featureIntents.reefs": "14196875b29b5b152844ba3c2406e4b37d55c6f23e9ca8f8251bdbd7d059465b",
     "artifact:ecology.featureIntents.ice": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   }
 }

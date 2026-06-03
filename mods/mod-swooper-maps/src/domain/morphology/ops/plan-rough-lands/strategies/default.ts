@@ -144,6 +144,10 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
     const hillMask = new Uint8Array(size);
     const roughnessPotential = new Uint8Array(size);
     const roughScoreByTile = new Float32Array(size);
+    const roughLandMaxFraction = Math.max(0, Math.min(1, config.roughLandMaxFraction));
+    const roughLandInteriorScale = Math.max(0, config.roughLandInteriorScale);
+    const roughLandFractalFloor = Math.max(0, config.roughLandFractalFloor);
+    const roughLandFractalGain = Math.max(0, config.roughLandFractalGain);
 
     let landCount = 0;
     let mountainCount = 0;
@@ -212,16 +216,18 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
             ? rift
             : stress);
 
-      const score = clamp01(
-        (oldHighland * 0.95 +
-          rollingUpland * 0.75 +
-          riftShoulder * 0.7 +
-          plateau * 0.55 +
+      const interiorHighlandScore =
+        (oldHighland * 0.95 + rollingUpland * 0.75 + plateau * 0.55) * roughLandInteriorScale;
+      const marginReliefScore =
+        riftShoulder * 0.7 +
           escarpment * 0.65 +
           basinMargin * 0.4 +
-          boundaryShoulder * 0.45) *
+          boundaryShoulder * 0.45;
+
+      const score = clamp01(
+        (interiorHighlandScore + marginReliefScore) *
           Math.max(0, config.tectonicIntensity) *
-          (0.75 + fractal * 0.5)
+          (roughLandFractalFloor + fractal * roughLandFractalGain)
       );
       roughScoreByTile[i] = score;
       roughnessPotential[i] = encodeNormalizedToU8(score);
@@ -238,10 +244,12 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
     }
 
     const hillBudgetRaw = Math.floor(landCount * Math.max(0, Math.min(1, config.hillMaxFraction))) | 0;
+    const roughLandBudgetRaw =
+      roughLandMaxFraction > 0 ? Math.floor(landCount * roughLandMaxFraction) | 0 : hillBudgetRaw;
     const hillCapacity = Math.max(0, landCount - mountainCount - foothillCount) | 0;
     const roughTarget = Math.max(
       0,
-      Math.min(candidates.length, hillCapacity, hillBudgetRaw - foothillCount)
+      Math.min(candidates.length, hillCapacity, hillBudgetRaw - foothillCount, roughLandBudgetRaw)
     ) | 0;
 
     candidates.sort((a, b) => {

@@ -104,6 +104,10 @@ function markSpineExclusion(params: {
   }
 }
 
+function applyRangeEnvelope(closenessNorm: number, rangeEnvelopeScale: number): number {
+  return Math.max(0, Math.min(1, closenessNorm * Math.max(0.25, rangeEnvelopeScale)));
+}
+
 export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
   run: (input, config) => {
     const { width, height } = input;
@@ -121,11 +125,14 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
     const falloffExponent = config.boundaryExponent;
     const oldBeltMountainScale = Math.max(0, Math.min(1, config.oldBeltMountainScale));
     const mountainMaxFraction = Math.max(0, Math.min(1, config.mountainMaxFraction));
+    const mountainMinFraction = Math.max(0, Math.min(mountainMaxFraction, config.mountainMinFraction));
     const mountainSpineFraction = Math.max(0, Math.min(1, config.mountainSpineFraction));
     const mountainThreshold = Math.max(0, config.mountainThreshold);
-    const mountainShoulderThreshold = mountainThreshold * 0.6;
+    const mountainShoulderThreshold =
+      mountainThreshold * Math.max(0, Math.min(1, config.mountainShoulderThresholdScale));
     const dilationSteps = Math.max(0, Math.min(6, Math.round(config.mountainSpineDilationSteps))) | 0;
     const spineMinDistance = Math.max(0, Math.min(12, Math.round(config.mountainSpineMinDistance))) | 0;
+    const rangeEnvelopeScale = Math.max(0.25, Math.min(4, config.rangeEnvelopeScale));
 
     let landCount = 0;
     for (let i = 0; i < size; i++) if (landMask[i] === 1) landCount++;
@@ -133,7 +140,7 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
     for (let i = 0; i < size; i++) {
       if (landMask[i] === 0) continue;
 
-      const closenessNorm = boundaryCloseness[i] / 255;
+      const closenessNorm = applyRangeEnvelope(boundaryCloseness[i] / 255, rangeEnvelopeScale);
       const boundaryStrength = resolveBoundaryStrength(closenessNorm, boundaryGate, falloffExponent);
       // Diagnostics should remain continuous even when placement is gated.
       // The gate exists to prevent low-signal residual fields from producing mountains everywhere,
@@ -189,6 +196,7 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
     }
 
     const mountainTarget = Math.max(0, Math.min(landCount, Math.round(landCount * mountainMaxFraction))) | 0;
+    const mountainMinTarget = Math.max(0, Math.min(mountainTarget, Math.round(landCount * mountainMinFraction))) | 0;
     if (mountainTarget > 0) {
       // 1) Select ridge spines as local maxima of the mountain score.
       const spineCandidates: number[] = [];
@@ -308,6 +316,32 @@ export const defaultStrategy = createStrategy(PlanRidgesContract, "default", {
               maxDistance: spineMinDistance,
             });
           }
+        }
+      }
+
+      // Keep large Earthlike worlds from visually collapsing to a handful of peaks when the
+      // absolute threshold is too conservative for the current Foundation belt intensities.
+      // Scores remain physics-gated, so this cannot create noise-only mountain belts.
+      if (mountainCount < mountainMinTarget) {
+        const floorCandidates: number[] = [];
+        for (let i = 0; i < size; i++) {
+          if (landMask[i] === 0) continue;
+          if (mountainMask[i] === 1) continue;
+          const score = mountainScoreByTile[i] ?? 0;
+          if (!(score > 0)) continue;
+          floorCandidates.push(i);
+        }
+        floorCandidates.sort((a, b) => {
+          const sa = mountainScoreByTile[a] ?? 0;
+          const sb = mountainScoreByTile[b] ?? 0;
+          if (sb !== sa) return sb - sa;
+          return a - b;
+        });
+        for (const i of floorCandidates) {
+          if (mountainCount >= mountainMinTarget) break;
+          if (mountainMask[i] === 1) continue;
+          mountainMask[i] = 1;
+          mountainCount++;
         }
       }
     }
