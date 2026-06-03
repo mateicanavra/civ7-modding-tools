@@ -7,6 +7,7 @@ import {
   type Civ7ComponentId,
   isCiv7ComponentId,
 } from "./civ7-component-id.js";
+import { assertApproved, type Civ7ActionApproval } from "./action-approval.js";
 import { Civ7DirectControlError, type Civ7DirectControlErrorCode } from "./direct-control-error.js";
 import { discoverCiv7DirectControlEndpoint } from "./session/discovery.js";
 import {
@@ -259,7 +260,6 @@ import {
   type Civ7OperationRequestResult,
 } from "./play/operations/validate-request.js";
 import type {
-  Civ7ActionApproval,
   Civ7OperationInput,
   Civ7OperationValidationResult,
 } from "./play/operations/types.js";
@@ -630,6 +630,8 @@ export type {
 } from "./play/operations/unit-target-action.js";
 export type {
   Civ7ActionApproval,
+} from "./action-approval.js";
+export type {
   Civ7OperationFamily,
   Civ7OperationInput,
   Civ7OperationTarget,
@@ -2620,12 +2622,6 @@ async function waitForCiv7SetupRevisionAfter(
     "Timed out waiting for Civ7 saved configuration load to update setup state",
     { details: before },
   );
-}
-
-function assertApproved(approval: Civ7ActionApproval, action: string): void {
-  if (!approval || approval.approved !== true || !approval.reason.trim()) {
-    throw new Civ7DirectControlError("command-failed", `Explicit approval with a reason is required before ${action}`);
-  }
 }
 
 function jsLiteral(value: unknown): string {

@@ -1,5 +1,6 @@
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type { Civ7TunerState } from "../../session/types.js";
+export type { Civ7ActionApproval } from "../../action-approval.js";
 
 export type Civ7OperationFamily =
   | "unit-operation"
@@ -16,12 +17,6 @@ export type Civ7OperationTarget =
 export type Civ7OperationInput = Civ7OperationTarget & Readonly<{
   operationType: string;
   args?: unknown;
-}>;
-
-export type Civ7ActionApproval = Readonly<{
-  approved: true;
-  reason: string;
-  disposableSession?: boolean;
 }>;
 
 export type Civ7OperationValidationResult = Readonly<{

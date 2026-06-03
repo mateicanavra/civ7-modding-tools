@@ -1181,7 +1181,7 @@ All future agent waves must be framed before delegation:
   package/source relocation proof only, not runtime/live-game proof.
 - Direct-control shared operation primitive types slice: completed as a narrow
   public type ownership relocation. It moves only operation family/target/input,
-  action approval, and operation validation result public types into
+  and operation validation result public types into
   `src/play/operations/types.ts` while keeping public facade type re-exports in
   `index.ts`. This preserves public type contracts and does not change
   operation source strings, wrappers, validation, approval-first behavior,
@@ -1191,6 +1191,16 @@ All future agent waves must be framed before delegation:
   semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
   matrix-row acceptance remain pending. This is local package/type relocation
   proof only, not runtime/live-game proof.
+- Direct-control action approval primitive slice: completed as a narrow
+  primitive/helper ownership relocation. It moves `Civ7ActionApproval` and the
+  shared `assertApproved` helper into `src/action-approval.ts` while preserving
+  public facade type re-exports through `src/play/operations/types.ts`.
+  Focused unit-operation package proof now covers rejection before socket use
+  when an approval reason is blank. This preserves approval-first rejection
+  message/classification and does not define operation telemetry, AI ingestion,
+  semantic CLI projection, hotseat runtime proof, Effect/oRPC procedure-core
+  work, or Task 2.9.4 matrix-row acceptance. This is local package/source
+  relocation proof only, not runtime/live-game proof.
 - Direct-control operation result/postcondition types slice: completed as a
   narrow public type ownership relocation. It moves generic operation request
   result type ownership into `src/play/operations/validate-request.ts` and

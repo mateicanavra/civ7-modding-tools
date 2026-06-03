@@ -539,6 +539,13 @@ runtime/direct-control claims.
         hotseat runtime proof, AI ingestion, CLI semantic projection,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
+  - [x] 4.8.34 Extract action approval primitive/helper owner while preserving
+        the public `Civ7ActionApproval` type contract through facade re-exports,
+        approval-first rejection message/classification, and no socket use
+        before approval, and leaving procedure schemas, operation/proof
+        telemetry, hotseat runtime proof, AI ingestion, CLI semantic
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
       oRPC implementation; current support branch has no tracked
       `.agents/skills/civ7-orpc-control-architecture` or
