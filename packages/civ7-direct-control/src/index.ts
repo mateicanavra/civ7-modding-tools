@@ -211,7 +211,6 @@ import {
 } from "./play/summaries.js";
 import {
   requestCiv7DiplomacyResponse as requestCiv7DiplomacyResponseFromModule,
-  type Civ7DiplomacyResponseCommandPayload,
   type Civ7DiplomacyResponseInput,
   type Civ7DiplomacyResponseResult,
 } from "./play/operations/diplomacy-request.js";
@@ -1386,22 +1385,7 @@ export async function requestCiv7DiplomacyResponse(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7DiplomacyResponseResult> {
-  return await requestCiv7DiplomacyResponseFromModule(input, options, approval, {
-    assertApproved,
-    validatePlayerId,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    getPlayNotificationView: getCiv7PlayNotificationView,
-    canStartPlayerOperation: canStartCiv7PlayerOperation,
-    parseDiplomacyPayload: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7DiplomacyResponseCommandPayload>(result, label),
-    jsLiteral,
-    invalidActionIdError: () => {
-      throw new Civ7DirectControlError("command-failed", "actionId must be an integer");
-    },
-    invalidResponseTypeError: () => {
-      throw new Civ7DirectControlError("command-failed", "responseType must be an integer");
-    },
-  });
+  return await requestCiv7DiplomacyResponseFromModule(input, options, approval);
 }
 
 export async function requestCiv7NarrativeChoice(

@@ -1852,6 +1852,20 @@ All future agent waves must be framed before delegation:
   ingestion, semantic CLI projection, Effect/oRPC procedure-core work, and
   Task 2.9.4 matrix-row acceptance remain pending. This is local
   package/source relocation proof only, not runtime/live-game proof.
+- Diplomacy response facade dependency cleanup:
+  `src/play/operations/diplomacy-request.ts` now imports existing non-facade
+  approval, player validation, App UI execution, notification view,
+  player-operation validation, payload parser, serializer, and direct-control
+  error owners directly for `requestCiv7DiplomacyResponse`. The public facade
+  export remains stable, but `index.ts` no longer assembles the diplomacy
+  response dependency object. This preserves approval-first
+  RESPOND_DIPLOMATIC_ACTION orchestration, action/response integer validation,
+  validator-first no-send behavior, App UI closeout command serialization,
+  diplomacy postcondition classification, and package/CLI proof. This is local
+  package/source relocation proof only: it does not claim runtime/live-game
+  proof, accept Task 2.9.4 matrix rows, or unblock telemetry, AI ingestion,
+  semantic CLI projection, hotseat runtime proof, schema/procedure-core work,
+  or Effect/oRPC implementation.
 - Direct-control narrative choice source slice: completed as a narrow
   operation source relocation. It moves only the App UI narrative choice
   command builder and embedded source into

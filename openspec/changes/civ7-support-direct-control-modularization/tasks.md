@@ -381,6 +381,18 @@ runtime/direct-control claims.
         proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
         semantic CLI projection, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.6.23 Prune diplomacy response facade dependency injection by letting
+        `src/play/operations/diplomacy-request.ts` import existing non-facade
+        approval, player validation, App UI execution, notification view,
+        player-operation validation, payload parser, serializer, and
+        direct-control error owners directly, while keeping public facade
+        exports stable, preserving approval-first RESPOND_DIPLOMATIC_ACTION
+        orchestration, action/response integer validation, validator-first
+        no-send behavior, App UI closeout command serialization, diplomacy
+        postcondition classification, package/CLI proof, and leaving
+        runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.

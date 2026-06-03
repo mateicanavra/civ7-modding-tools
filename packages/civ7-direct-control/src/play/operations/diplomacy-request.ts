@@ -8,12 +8,22 @@ import type {
   Civ7OperationValidationResult,
 } from "./types.js";
 
+import { assertApproved } from "../../action-approval.js";
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import { Civ7DirectControlError } from "../../direct-control-error.js";
+import { jsLiteral } from "../../runtime/command-serialization.js";
+import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7AppUiCommand } from "../../session/execute.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
 } from "../../session/types.js";
-import type { Civ7PlayNotificationViewResult } from "../notifications/view.js";
+import { validatePlayerId } from "../../validation.js";
+import {
+  getCiv7PlayNotificationView,
+  type Civ7PlayNotificationViewResult,
+} from "../notifications/view.js";
+import { canStartCiv7PlayerOperation } from "./validate-request.js";
 
 export type Civ7DiplomacyResponseInput = Readonly<{
   playerId: number;
@@ -86,7 +96,7 @@ export async function requestCiv7DiplomacyResponse(
   input: Civ7DiplomacyResponseInput,
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
-  dependencies: DiplomacyResponseRequestDependencies,
+  dependencies: DiplomacyResponseRequestDependencies = defaultDiplomacyResponseRequestDependencies,
 ): Promise<Civ7DiplomacyResponseResult> {
   dependencies.assertApproved(approval, "responding to diplomatic action");
   dependencies.validatePlayerId(input.playerId);
@@ -149,6 +159,23 @@ export async function requestCiv7DiplomacyResponse(
     postcondition,
   };
 }
+
+const defaultDiplomacyResponseRequestDependencies: DiplomacyResponseRequestDependencies = {
+  assertApproved,
+  validatePlayerId,
+  executeAppUiCommand: executeCiv7AppUiCommand,
+  getPlayNotificationView: getCiv7PlayNotificationView,
+  canStartPlayerOperation: canStartCiv7PlayerOperation,
+  parseDiplomacyPayload: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7DiplomacyResponseCommandPayload>(result, label),
+  jsLiteral,
+  invalidActionIdError: () => {
+    throw new Civ7DirectControlError("command-failed", "actionId must be an integer");
+  },
+  invalidResponseTypeError: () => {
+    throw new Civ7DirectControlError("command-failed", "responseType must be an integer");
+  },
+};
 
 export function buildDiplomacyResponseCloseoutCommand(
   input: Civ7DiplomacyResponseInput,
