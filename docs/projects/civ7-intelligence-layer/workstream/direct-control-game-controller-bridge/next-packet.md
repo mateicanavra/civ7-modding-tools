@@ -5,11 +5,11 @@
 - Project: Civ7 Intelligence Layer
 - Phase: direct-control-game-controller-bridge
 - Branch/Graphite stack: `codex/investigate-civ7-intelligence-threads`
-- Last committed baseline before substrate correction:
-  `3ab5415cd docs(civ7): realign controller bridge baseline`
+- Latest commit:
+  `c7111b120 docs(civ7): align controller bridge substrate`
 - Repo state at handoff: one unrelated pre-existing dirty file,
-  `docs/projects/mapgen-studio/VIZ-SDK-V1.md`; phase-owned docs/specs contain
-  the current controller/substrate realignment.
+  `docs/projects/mapgen-studio/VIZ-SDK-V1.md`; phase-owned docs/specs are
+  committed through the controller/substrate realignment.
 
 ## Authority
 

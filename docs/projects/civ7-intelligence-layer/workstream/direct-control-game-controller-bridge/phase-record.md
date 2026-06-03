@@ -56,9 +56,8 @@
   stack; pre-existing dirty file `docs/projects/mapgen-studio/VIZ-SDK-V1.md`
   belongs outside this phase.
 - Dirty files and owner:
-  - phase-owned docs and OpenSpec files are owned by this workstream while
-    substrate corrections are being validated and committed;
   - unrelated pre-existing MapGen Studio doc remains untouched.
+  - no uncommitted phase-owned files remain after the substrate correction commit.
 - Current code evidence:
   - `packages/civ7-direct-control/src/index.ts` still builds raw JS command
     strings for map, plot, player, unit, city, visibility, GameInfo, operation
@@ -181,8 +180,9 @@
   - corrected controller API substrate from custom JSON envelope to in-process
     oRPC/Effect router behind a serialized App UI ingress adapter.
 - Remaining tasks:
-  - decide whether to start code implementation on this branch or hand off with
-    a next packet.
+  - implementation remains open in the OpenSpec task list: source controller mod,
+    direct-control client, parity probes, lifecycle proof, and disposable
+    approved-action proof.
 - Stop conditions triggered: none.
 
 ## Verification
@@ -223,11 +223,10 @@
 
 ## Next Action
 
-- Exact next step: commit the validated realignment, then implement the
-  controller mod/direct-control client slice on a follow-up branch or continue
-  this branch if selected. Implementation starts with shared controller
-  contract/envelope modules, game router/runtime/effect services, and the
-  direct-control invocation adapter.
+- Exact next step: implement the controller mod/direct-control client slice on a
+  follow-up branch or continue this branch if selected. Implementation starts
+  with shared controller contract/envelope modules, game router/runtime/effect
+  services, and the direct-control invocation adapter.
 - First files to inspect:
   - `docs/projects/civ7-intelligence-layer/SOLUTION-FRAME.md`
   - `docs/projects/civ7-intelligence-layer/actuation-path-map.md`
