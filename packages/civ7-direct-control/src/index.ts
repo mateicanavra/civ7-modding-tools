@@ -22,6 +22,7 @@ import {
   waitForCiv7DirectControl,
 } from "./session/health.js";
 import { jsLiteral } from "./runtime/command-serialization.js";
+import { boundedInteger, validateIdentifier, validatePlayerId } from "./validation.js";
 import { Civ7DirectControlSession } from "./session/session.js";
 import type {
   Civ7CommandResult,
@@ -2405,17 +2406,6 @@ function validateMapLocation(location: Civ7MapLocation): void {
   boundedInteger(location.y, 0, 1_000_000, "y");
 }
 
-function validatePlayerId(playerId: number): number {
-  return boundedInteger(playerId, 0, 1024, "playerId");
-}
-
-function boundedInteger(value: number, min: number, max: number, label: string): number {
-  if (!Number.isInteger(value) || value < min || value > max) {
-    throw new Civ7DirectControlError("command-failed", `${label} must be an integer between ${min} and ${max}`);
-  }
-  return value;
-}
-
 function requiredProbeNumber(probe: Civ7RuntimeProbe<number>, label: string): number {
   if (!probe.ok || !Number.isFinite(probe.value)) {
     throw new Civ7DirectControlError("command-failed", `${label} did not return a bounded number`);
@@ -2455,13 +2445,6 @@ function probeNumberOr(probe: Civ7RuntimeProbe<unknown>, fallback: number): numb
   if (!probe.ok) return fallback;
   const value = Number(probe.value);
   return Number.isFinite(value) ? value : fallback;
-}
-
-function validateIdentifier(value: string, label: string): string {
-  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(value)) {
-    throw new Civ7DirectControlError("command-failed", `${label} must be a simple identifier`);
-  }
-  return value;
 }
 
 async function readCiv7SavedGameConfiguration(path: string): Promise<Civ7SavedGameConfiguration> {

@@ -546,6 +546,13 @@ runtime/direct-control claims.
         telemetry, hotseat runtime proof, AI ingestion, CLI semantic
         projection, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.8.35 Extract generic validation primitive/helper owner while
+        preserving bounded integer, simple identifier, and player-id
+        validation message/classification semantics, and leaving map-specific
+        validation helpers, procedure schemas, operation/proof telemetry,
+        hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
       oRPC implementation; current support branch has no tracked
       `.agents/skills/civ7-orpc-control-architecture` or

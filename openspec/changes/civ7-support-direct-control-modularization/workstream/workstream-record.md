@@ -1211,6 +1211,16 @@ All future agent waves must be framed before delegation:
   semantic CLI projection, hotseat runtime proof, Effect/oRPC procedure-core
   work, or Task 2.9.4 matrix-row acceptance. This is local package/source
   relocation proof only, not runtime/live-game proof.
+- Direct-control generic validation primitive slice: completed as a narrow
+  primitive/helper ownership relocation. It moves only bounded integer, simple
+  identifier, and player-id validation helpers into `src/validation.ts` while
+  preserving message/classification semantics and existing facade dependency
+  injection. Focused package proof covers bounds rejection, identifier
+  rejection, and player-id range behavior. Map-specific validation helpers,
+  procedure schemas, operation/proof telemetry, AI ingestion, semantic CLI
+  projection, hotseat runtime proof, Effect/oRPC procedure-core work, and Task
+  2.9.4 matrix-row acceptance remain pending. This is local package/source
+  relocation proof only, not runtime/live-game proof.
 - Direct-control command-result parser slice: completed as a narrow session
   helper relocation. It moves the command-result JSON payload parser into
   `src/session/command-result.ts` while preserving host/port/state merge
