@@ -22,6 +22,7 @@ import {
   type Civ7TunerFrame,
 } from "./session/framing.js";
 import { notificationDismissalSource } from "./play/notifications/dismissal.js";
+import { waitForCiv7NotificationDismissal } from "./play/notifications/verification.js";
 import { playNotificationViewSource } from "./play/notifications/view.js";
 import { populationPlacementPostcondition } from "./play/operations/population-postconditions.js";
 import { productionChoiceRequestSource } from "./play/operations/production-choice.js";
@@ -3455,7 +3456,7 @@ export async function requestCiv7NotificationDismissal(
   });
   const initial = jsonPayloadFromCommandResult<Civ7NotificationDismissalResult>(result, "Civ7 notification dismissal");
   if (initial.verified || !initial.sent || initial.before.exists === false) return initial;
-  return await waitForCiv7NotificationDismissal(input, options, initial);
+  return await waitForCiv7NotificationDismissal(input, options, initial, getCiv7NotificationDismissal);
 }
 
 export async function sendCiv7TurnComplete(
@@ -7042,68 +7043,6 @@ function isTurnCompletionFallbackNotification(
   if (notification.decision.category === "informational-notification") {
     return notification.canUserDismiss === true && isTurnCompletionFallbackInformationalType(typeName);
   }
-  return false;
-}
-
-const DEFAULT_CIV7_NOTIFICATION_DISMISSAL_WAIT_MS = 2_000;
-const DEFAULT_CIV7_NOTIFICATION_DISMISSAL_POLL_MS = 250;
-
-async function waitForCiv7NotificationDismissal(
-  input: Civ7NotificationDismissInput,
-  options: Civ7DirectControlOptions,
-  initial: Civ7NotificationDismissalResult,
-): Promise<Civ7NotificationDismissalResult> {
-  const timeoutMs = Math.min(
-    Math.max(options.timeoutMs ?? DEFAULT_CIV7_NOTIFICATION_DISMISSAL_WAIT_MS, 1_000),
-    DEFAULT_CIV7_NOTIFICATION_DISMISSAL_WAIT_MS,
-  );
-  const verificationAttempts = [...(initial.verificationAttempts ?? [])];
-  const startedAt = Date.now();
-  let after = initial.after ?? initial.before;
-  while (Date.now() - startedAt <= timeoutMs) {
-    await sleep(DEFAULT_CIV7_NOTIFICATION_DISMISSAL_POLL_MS);
-    const current = await getCiv7NotificationDismissal(input, options);
-    after = current.before;
-    verificationAttempts.push(after);
-    if (notificationDismissalVerified(initial.before, after)) {
-      return {
-        ...initial,
-        after,
-        verificationAttempts,
-        verified: true,
-        notes: appendNote(
-          initial.notes,
-          "Dismissal verification yielded between App UI reads so frame-driven notification/display queues could advance before the final identity check.",
-        ),
-      };
-    }
-  }
-  return {
-    ...initial,
-    after,
-    verificationAttempts,
-    verified: false,
-    notes: appendNote(
-      initial.notes,
-      "Dismissal verification yielded between App UI reads, but the target notification was still present/front/queued by the final identity check.",
-    ),
-  };
-}
-
-function notificationDismissalVerified(
-  before: Civ7NotificationDismissalSummary,
-  after: Civ7NotificationDismissalSummary | null,
-): boolean {
-  if (after == null) return false;
-  if (after.exists === false) return true;
-  if (probeValue(after.isEngineQueueFront) === true) return false;
-  if (after.dismissed === true) return true;
-  if (probeValue(before.engineQueueContains) === true && probeValue(after.engineQueueContains) === false) return true;
-  if (probeValue(before.notificationTrainContains) === true && probeValue(after.notificationTrainContains) === false) return true;
-  const wasEngineFront = probeValue(before.isEngineQueueFront) === true;
-  if (wasEngineFront && probeValue(after.isEngineQueueFront) === false) return true;
-  const wasTrainFront = probeValue(before.isNotificationTrainFront) === true;
-  if (wasTrainFront && probeValue(after.isNotificationTrainFront) === false) return true;
   return false;
 }
 

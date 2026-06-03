@@ -342,6 +342,15 @@ All future agent waves must be framed before delegation:
   production-choice source owner and wrapper-level request composition stay in
   place; this is local package/source relocation proof only, not runtime
   proof.
+- Direct-control notification dismissal verification slice: completed as the
+  next notification helper relocation. It moves wrapper-level polling and
+  identity verification for dismissal settling into
+  `src/play/notifications/verification.ts` while keeping the embedded App UI
+  dismissal source owner and the public read/send wrappers in place.
+  `test/notification-dismissal.test.ts` remains the package-owned proof for
+  verified dismissal, stale engine-front rejection, and none-blocker panel
+  close paths. This is local package/source relocation proof only, not runtime
+  proof.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now

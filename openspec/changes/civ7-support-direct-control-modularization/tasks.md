@@ -115,9 +115,11 @@ runtime/direct-control claims.
 - [ ] 4.3 Extract notification view/materialization atom.
   - [x] 4.3.1 Extract notification view/materialization embedded source owner
         while keeping the public wrapper in the facade.
-- [ ] 4.4 Extract notification dismissal/verification atom.
+- [x] 4.4 Extract notification dismissal/verification atom.
   - [x] 4.4.1 Extract notification dismissal embedded source owner while
         keeping wrapper-level polling and verification helpers in the facade.
+  - [x] 4.4.2 Extract notification dismissal verification helper owner while
+        keeping the public wrapper in the facade.
 - [x] 4.5 Extract ready unit/city view atoms.
   - [x] 4.5.1 Extract unit move preview embedded source owner while keeping
         the public wrapper in the facade.
