@@ -34,7 +34,10 @@ import {
 } from "./session/constants.js";
 import { resolveCiv7DirectControlConfig } from "./session/config.js";
 import { openCiv7TunerSocket } from "./session/socket.js";
-import { selectCiv7TunerState } from "./session/state.js";
+import {
+  selectCiv7TunerState,
+  tunerStatesFromParts,
+} from "./session/state.js";
 import {
   DEFAULT_CIV7_SCRIPTING_LOG,
   snapshotFile,
@@ -2959,14 +2962,6 @@ function jsLiteral(value: unknown): string {
     throw new Civ7DirectControlError("command-failed", "Cannot serialize Civ7 command input");
   }
   return json;
-}
-
-function tunerStatesFromParts(parts: ReadonlyArray<string>): Civ7TunerState[] {
-  const states: Civ7TunerState[] = [];
-  for (let i = 0; i + 1 < parts.length; i += 2) {
-    states.push({ id: parts[i] ?? "", name: parts[i + 1] ?? "" });
-  }
-  return states;
 }
 
 async function waitForCiv7TunerReadyWithSession(

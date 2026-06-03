@@ -16,6 +16,7 @@ import {
 } from "../src/index";
 import { discoverCiv7DirectControlEndpoint } from "../src/session/discovery";
 import { openCiv7TunerSocket } from "../src/session/socket";
+import { tunerStatesFromParts } from "../src/session/state";
 
 describe("Civ7 direct control session framing", () => {
   test("uses defaults and env hosts when resolving health", async () => {
@@ -166,6 +167,16 @@ describe("Civ7 direct control session framing", () => {
     expect(selectCiv7TunerState(states, { role: "tuner" })).toEqual(states[1]);
     expect(selectCiv7TunerState(states, { name: "Tuner" })).toEqual(states[1]);
     expect(selectCiv7TunerState(states, { id: "65535" })).toEqual(states[0]);
+  });
+
+  test("parses tuner LSQ response parts into state pairs", () => {
+    expect(tunerStatesFromParts(["65535", "App UI", "1", "Tuner"])).toEqual([
+      { id: "65535", name: "App UI" },
+      { id: "1", name: "Tuner" },
+    ]);
+    expect(tunerStatesFromParts(["65535", "App UI", "dangling-id"])).toEqual([
+      { id: "65535", name: "App UI" },
+    ]);
   });
 
   test("parses fragmented and concatenated tuner frames", () => {

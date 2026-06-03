@@ -29,6 +29,14 @@ export function selectCiv7TunerState(
   return state;
 }
 
+export function tunerStatesFromParts(parts: ReadonlyArray<string>): Civ7TunerState[] {
+  const states: Civ7TunerState[] = [];
+  for (let i = 0; i + 1 < parts.length; i += 2) {
+    states.push({ id: parts[i] ?? "", name: parts[i + 1] ?? "" });
+  }
+  return states;
+}
+
 function normalizeStateSelection(selection: Civ7TunerStateSelection): { id?: string; name?: string } {
   if (typeof selection === "string") {
     return selection === CIV7_TUNER_APP_UI_STATE_NAME || selection === CIV7_TUNER_STATE_NAME
