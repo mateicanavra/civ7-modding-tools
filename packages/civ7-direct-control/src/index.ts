@@ -33,6 +33,10 @@ import {
 } from "./runtime/app-ui-snapshot.js";
 import { inspectCiv7RuntimeApi as inspectCiv7RuntimeApiFromModule } from "./runtime/inspection.js";
 import {
+  checkCiv7TunerHealth as checkCiv7TunerHealthFromModule,
+  checkCiv7TunerHealthWithSession,
+} from "./runtime/tuner-health.js";
+import {
   getCiv7NotificationDismissal as getCiv7NotificationDismissalFromModule,
   requestCiv7NotificationDismissal as requestCiv7NotificationDismissalFromModule,
 } from "./play/notifications/dismissal-request.js";
@@ -2395,12 +2399,17 @@ export async function beginCiv7Game(options: Civ7DirectControlOptions = {}): Pro
 export async function checkCiv7TunerHealth(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7TunerHealthResult> {
-  const session = new Civ7DirectControlSession(options);
-  try {
-    return await checkCiv7TunerHealthWithSession(session, options.timeoutMs);
-  } finally {
-    await session.close();
-  }
+  return await checkCiv7TunerHealthFromModule(options, {
+    withSession: async (sessionOptions, run) => {
+      const session = new Civ7DirectControlSession(sessionOptions);
+      try {
+        return await run(session);
+      } finally {
+        await session.close();
+      }
+    },
+    executeSessionCommandWithReconnect,
+  });
 }
 
 export async function restartCiv7Game(options: Civ7DirectControlOptions & {
@@ -4262,51 +4271,6 @@ function portFromEnv(env: NodeJS.ProcessEnv): number | undefined {
 
 function splitEnvList(value: string | undefined): string[] {
   return value?.split(",").map((entry) => entry.trim()).filter(Boolean) ?? [];
-}
-
-function buildTunerHealthCommand(): string {
-  return `(() => {
-    const g = globalThis;
-    const probe = (fn) => {
-      try {
-        return { ok: true, value: fn() };
-      } catch (err) {
-        return { ok: false, error: String(err) };
-      }
-    };
-    const width = probe(() => g.GameplayMap.getGridWidth());
-    const height = probe(() => g.GameplayMap.getGridHeight());
-    const aliveIds = probe(() => g.Players.getAliveIds());
-    const snapshot = {
-      evalOk: 1 + 1,
-      globals: {
-        Game: typeof g.Game,
-        Autoplay: typeof g.Autoplay,
-        GameplayMap: typeof g.GameplayMap,
-        Players: typeof g.Players,
-        Network: typeof g.Network,
-      },
-      turn: probe(() => g.Game.turn),
-      turnDate: probe(() => g.Game.getTurnDate()),
-      width,
-      height,
-      aliveIds,
-      aliveHumanIds: probe(() => g.Players.getAliveHumanIds()),
-      autoplayActive: probe(() => g.Autoplay.isActive),
-    };
-    snapshot.ready =
-      snapshot.evalOk === 2 &&
-      snapshot.globals.Game === "object" &&
-      snapshot.globals.GameplayMap === "object" &&
-      snapshot.globals.Players === "object" &&
-      width.ok &&
-      width.value > 0 &&
-      height.ok &&
-      height.value > 0 &&
-      aliveIds.ok &&
-      Array.isArray(aliveIds.value);
-    return JSON.stringify(snapshot);
-  })()`;
 }
 
 function buildResourcePlacementFeasibilityCommand(input: {
@@ -6480,38 +6444,6 @@ function tunerStatesFromParts(parts: ReadonlyArray<string>): Civ7TunerState[] {
   return states;
 }
 
-function tunerHealthFromCommandResult(result: Civ7CommandResult): Civ7TunerHealthResult {
-  try {
-    const snapshot = JSON.parse(result.output[0] ?? "{}") as Civ7TunerHealthSnapshot;
-    return {
-      host: result.host,
-      port: result.port,
-      state: result.state,
-      ready: snapshot.ready,
-      snapshot,
-    };
-  } catch (err) {
-    throw new Civ7DirectControlError(
-      "command-failed",
-      `Civ7 Tuner health returned invalid JSON: ${result.output.join("\n") || "<empty>"}`,
-      { cause: err, details: result },
-    );
-  }
-}
-
-async function checkCiv7TunerHealthWithSession(
-  session: Civ7DirectControlSession,
-  timeoutMs?: number,
-): Promise<Civ7TunerHealthResult> {
-  return tunerHealthFromCommandResult(
-    await executeSessionCommandWithReconnect(session, {
-      state: { role: "tuner" },
-      command: buildTunerHealthCommand(),
-      timeoutMs,
-    }, 1),
-  );
-}
-
 async function waitForCiv7TunerReadyWithSession(
   session: Civ7DirectControlSession,
   options: {
@@ -6527,7 +6459,9 @@ async function waitForCiv7TunerReadyWithSession(
   let lastError: Civ7DirectControlError | undefined;
   while (Date.now() - startedAt <= waitTimeoutMs) {
     try {
-      const health = await checkCiv7TunerHealthWithSession(session, options.timeoutMs);
+      const health = await checkCiv7TunerHealthWithSession(session, options.timeoutMs, {
+        executeSessionCommandWithReconnect,
+      });
       if (health.ready) return health as Civ7TunerHealthResult & { ready: true };
       lastHealth = health;
     } catch (err) {

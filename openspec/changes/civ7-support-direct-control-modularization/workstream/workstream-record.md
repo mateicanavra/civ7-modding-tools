@@ -399,6 +399,16 @@ All future agent waves must be framed before delegation:
   AI ingestion, CLI semantic projection, and Effect/oRPC procedure-core work
   stay out of this slice. This is local read-only package/source relocation
   proof only, not runtime proof.
+- Direct-control Tuner health source/wrapper slice: completed as a narrow
+  runtime-status support relocation. It moves only `checkCiv7TunerHealth`, the
+  generated Tuner health command, `tunerHealthFromCommandResult`, and the
+  internal `checkCiv7TunerHealthWithSession` helper into
+  `src/runtime/tuner-health.ts` while keeping public facade call-through,
+  session creation/close, reconnect execution, and readiness wait orchestration
+  in `index.ts`. Playable status, bounded root inspection, capability catalog,
+  telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection, and
+  Effect/oRPC procedure-core work stay pending. This is local package/source
+  relocation proof only, not runtime proof.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.

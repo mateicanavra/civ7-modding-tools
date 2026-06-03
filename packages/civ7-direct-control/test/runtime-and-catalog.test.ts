@@ -107,6 +107,10 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
           },
         },
       });
+      const healthCommand = server.received.find((message) => message.includes("evalOk: 1 + 1"));
+      expect(healthCommand).toContain("CMD:1:");
+      expect(healthCommand).toContain("g.GameplayMap.getGridWidth()");
+      expect(healthCommand).toContain("g.Players.getAliveIds()");
       expect(playable).toMatchObject({
         playable: true,
         readiness: "tuner-ready",

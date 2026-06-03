@@ -274,6 +274,13 @@ runtime/direct-control claims.
         bounded root inspection, capability catalog, telemetry, hotseat runtime
         proof, AI ingestion, CLI semantic projection, and Effect/oRPC
         procedure-core work pending.
+  - [x] 4.12.3 Extract Tuner health wrapper/source/parser owner while keeping
+        public facade call-through and session lifecycle/reconnect execution in
+        `index.ts`, preserving the internal wait/setup helper reuse through
+        injected session-command execution, and leaving playable status, bounded
+        root inspection, capability catalog, telemetry, hotseat runtime proof,
+        AI ingestion, CLI semantic projection, and Effect/oRPC procedure-core
+        work pending.
 
 ## 5. CLI Semantic Surface Lane
 
