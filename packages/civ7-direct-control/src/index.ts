@@ -9,6 +9,12 @@ import {
 } from "./civ7-component-id.js";
 import { Civ7DirectControlError, type Civ7DirectControlErrorCode } from "./direct-control-error.js";
 import { discoverCiv7DirectControlEndpoint as discoverCiv7DirectControlEndpointFromModule } from "./session/discovery.js";
+import {
+  executeCiv7AppUiCommand,
+  executeCiv7Command,
+  executeCiv7TunerCommand,
+  queryCiv7TunerStates,
+} from "./session/execute.js";
 import { Civ7DirectControlSession } from "./session/session.js";
 import type {
   Civ7CommandResult,
@@ -353,6 +359,12 @@ export {
   parseCiv7TunerFrame,
 } from "./session/framing.js";
 export type { Civ7TunerFrame } from "./session/framing.js";
+export {
+  executeCiv7AppUiCommand,
+  executeCiv7Command,
+  executeCiv7TunerCommand,
+  queryCiv7TunerStates,
+} from "./session/execute.js";
 export { Civ7DirectControlSession } from "./session/session.js";
 export type {
   Civ7CommandResult,
@@ -815,45 +827,6 @@ export async function discoverCiv7DirectControlEndpoint(
   return await discoverCiv7DirectControlEndpointFromModule(options, {
     errorMessage,
     queryTunerStates: queryCiv7TunerStates,
-  });
-}
-
-export async function queryCiv7TunerStates(options: Civ7DirectControlOptions = {}): Promise<ReadonlyArray<Civ7TunerState>> {
-  const session = new Civ7DirectControlSession(options);
-  try {
-    return await session.queryStates();
-  } finally {
-    await session.close();
-  }
-}
-
-export async function executeCiv7Command(options: Civ7DirectControlOptions & {
-  command: string;
-  state?: Civ7TunerStateSelection;
-}): Promise<Civ7CommandResult> {
-  const session = new Civ7DirectControlSession(options);
-  try {
-    return await session.executeCommand(options);
-  } finally {
-    await session.close();
-  }
-}
-
-export async function executeCiv7AppUiCommand(options: Civ7DirectControlOptions & {
-  command: string;
-}): Promise<Civ7CommandResult> {
-  return await executeCiv7Command({
-    ...options,
-    state: { role: "app-ui" },
-  });
-}
-
-export async function executeCiv7TunerCommand(options: Civ7DirectControlOptions & {
-  command: string;
-}): Promise<Civ7CommandResult> {
-  return await executeCiv7Command({
-    ...options,
-    state: { role: "tuner" },
   });
 }
 

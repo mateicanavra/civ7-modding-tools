@@ -1381,6 +1381,18 @@ All future agent waves must be framed before delegation:
   projection, AI ingestion, hotseat runtime proof, or Effect/oRPC
   procedure-core work. This is local package/source relocation proof only, not
   runtime/live-game proof.
+- Direct-control session command wrapper slice: completed as a narrow session
+  execute owner relocation. It moves `queryCiv7TunerStates`,
+  `executeCiv7Command`, `executeCiv7AppUiCommand`, and
+  `executeCiv7TunerCommand` into `src/session/execute.ts` while preserving
+  public facade exports, session creation/close behavior, App UI/Tuner state
+  forcing, command result shape, and focused session proof. `index.ts` still
+  owns reconnect orchestration, lifecycle composition, and public facade
+  call-through for higher-level atoms. This does not define
+  telemetry/correlation contracts, public procedure schemas, semantic CLI
+  projection, AI ingestion, hotseat runtime proof, or Effect/oRPC
+  procedure-core work. This is local package/source relocation proof only, not
+  runtime/live-game proof.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into

@@ -618,6 +618,15 @@ runtime/direct-control claims.
         orchestration, telemetry/correlation contracts, procedure schemas,
         semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.12 Extract package-level Tuner query/command execution wrappers
+        into a session execute owner while preserving `queryCiv7TunerStates`,
+        `executeCiv7Command`, `executeCiv7AppUiCommand`, and
+        `executeCiv7TunerCommand` public facade behavior, session
+        creation/close behavior, App UI/Tuner state forcing, command result
+        shape, and focused session proof, and leaving reconnect orchestration,
+        lifecycle composition, telemetry/correlation contracts, procedure
+        schemas, semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in
