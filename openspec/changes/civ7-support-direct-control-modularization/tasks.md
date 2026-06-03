@@ -334,6 +334,13 @@ runtime/direct-control claims.
         constants/types, procedure schemas, operation/proof telemetry, hotseat
         runtime proof, AI ingestion, CLI semantic projection, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.9 Extract runtime inspection constants owner while keeping public
+        facade re-exports in `index.ts`, preserving default App UI/Tuner root
+        catalogs and bounded root `maxKeys`/`maxMethods` defaults, and leaving
+        broader public constants/types, procedure schemas, operation/proof
+        telemetry, hotseat runtime proof, AI ingestion, CLI semantic
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 
 ## 5. CLI Semantic Surface Lane
 

@@ -45,6 +45,12 @@ import {
   getCiv7AppUiSnapshot as getCiv7AppUiSnapshotFromModule,
 } from "./runtime/app-ui-snapshot.js";
 import { inspectCiv7RuntimeApi as inspectCiv7RuntimeApiFromModule } from "./runtime/inspection.js";
+import {
+  DEFAULT_CIV7_APP_UI_API_ROOTS,
+  DEFAULT_CIV7_ROOT_MAX_KEYS,
+  DEFAULT_CIV7_ROOT_MAX_METHODS,
+  DEFAULT_CIV7_TUNER_API_ROOTS,
+} from "./runtime/inspection-constants.js";
 import { inspectCiv7Root as inspectCiv7RootFromModule } from "./runtime/root-inspection.js";
 import {
   checkCiv7TunerHealth as checkCiv7TunerHealthFromModule,
@@ -128,6 +134,12 @@ export type {
   Civ7CapabilityCatalog,
   Civ7CapabilityCatalogEntry,
 } from "./catalog/capabilities.js";
+export {
+  DEFAULT_CIV7_APP_UI_API_ROOTS,
+  DEFAULT_CIV7_ROOT_MAX_KEYS,
+  DEFAULT_CIV7_ROOT_MAX_METHODS,
+  DEFAULT_CIV7_TUNER_API_ROOTS,
+} from "./runtime/inspection-constants.js";
 
 export const DEFAULT_CIV7_TUNER_HOST = "127.0.0.1";
 export const DEFAULT_CIV7_TUNER_PORT = 4318;
@@ -152,27 +164,6 @@ export const CIV7_UI_LOADING_STATES = {
   GameStarted: 8,
   WaitingForGameUnloadScreenReady: 9,
 } as const;
-export const DEFAULT_CIV7_APP_UI_API_ROOTS = [
-  "Network",
-  "Configuration",
-  "GameSetup",
-  "Autoplay",
-  "Game",
-  "UI",
-  "GameContext",
-  "PlayerIds",
-  "Players",
-  "GameplayMap",
-] as const;
-export const DEFAULT_CIV7_TUNER_API_ROOTS = [
-  "Game",
-  "Autoplay",
-  "Players",
-  "GameplayMap",
-  "ResourceBuilder",
-  "GameInfo",
-  "PlayerIds",
-] as const;
 export const DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS = [
   "Network",
   "Configuration",
@@ -273,8 +264,6 @@ export const DEFAULT_CIV7_FEATURE_FEASIBILITY_MAX_TYPES_PER_CELL = 64;
 export const HARD_CIV7_FEATURE_FEASIBILITY_MAX_TYPES_PER_CELL = 256;
 export const DEFAULT_CIV7_GAMEINFO_LIMIT = 100;
 export const HARD_CIV7_GAMEINFO_LIMIT = 1_000;
-export const DEFAULT_CIV7_ROOT_MAX_KEYS = 100;
-export const DEFAULT_CIV7_ROOT_MAX_METHODS = 100;
 export const DEFAULT_CIV7_AUTOPLAY_MAX_TURNS = 50;
 export const DEFAULT_CIV7_AUTOPLAY_WAIT_MS = 5_000;
 export const DEFAULT_CIV7_AUTOPLAY_STOP_WAIT_MS = 30_000;

@@ -500,6 +500,17 @@ All future agent waves must be framed before delegation:
   procedure-core work, and Task 2.9.4 matrix-row acceptance stay pending. This
   is local package/schema relocation proof only, not runtime proof, AI/hotseat
   product-path support, or procedure-core schema readiness.
+- Direct-control runtime inspection constants slice: completed as a narrow
+  constants ownership relocation. It moves only the default App UI/Tuner API
+  root catalogs and bounded root `maxKeys`/`maxMethods` defaults into
+  `src/runtime/inspection-constants.ts` while keeping public facade re-exports
+  in `index.ts`. This preserves runtime API default-root selection and bounded
+  root cap defaults. Broader public constants/types, procedure schemas,
+  operation/proof telemetry, AI ingestion, hotseat runtime proof, CLI semantic
+  projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+  acceptance stay pending. This is local package/constants relocation proof
+  only, not runtime proof, runtime reflection authority, AI/hotseat product-path
+  support, or procedure-core readiness.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.
