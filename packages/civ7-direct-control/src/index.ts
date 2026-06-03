@@ -47,6 +47,7 @@ import {
   checkCiv7TunerHealth as checkCiv7TunerHealthFromModule,
   checkCiv7TunerHealthWithSession,
 } from "./runtime/tuner-health.js";
+import { getCiv7PlayableStatus as getCiv7PlayableStatusFromModule } from "./runtime/playable-status.js";
 import {
   getCiv7NotificationDismissal as getCiv7NotificationDismissalFromModule,
   requestCiv7NotificationDismissal as requestCiv7NotificationDismissalFromModule,
@@ -2628,41 +2629,11 @@ export async function waitForCiv7TunerReady(options: Civ7DirectControlOptions & 
 export async function getCiv7PlayableStatus(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7PlayableStatusResult> {
-  const appUi = await getCiv7AppUiSnapshot(options);
-  const errors: string[] = [];
-  let tuner: Civ7TunerHealthResult | undefined;
-  try {
-    tuner = await checkCiv7TunerHealth(options);
-  } catch (err) {
-    errors.push(errorMessage(err));
-  }
-
-  const inGame = probeValue(appUi.snapshot.ui.inGame) === true;
-  const inShell = probeValue(appUi.snapshot.ui.inShell) === true;
-  const inLoading = probeValue(appUi.snapshot.ui.inLoading) === true;
-  const canBegin = probeValue(appUi.snapshot.ui.canBeginGame) === true;
-  const playable = tuner?.ready === true;
-  const readiness = playable
-    ? "tuner-ready"
-    : inGame
-      ? "app-ui-game"
-      : canBegin
-        ? "begin-ready"
-        : inLoading
-          ? "loading"
-          : inShell
-            ? "shell"
-            : "unavailable";
-
-  return {
-    host: appUi.host,
-    port: appUi.port,
-    playable,
-    readiness,
-    appUi,
-    tuner,
-    errors,
-  };
+  return await getCiv7PlayableStatusFromModule(options, {
+    checkTunerHealth: checkCiv7TunerHealth,
+    errorMessage,
+    getAppUiSnapshot: getCiv7AppUiSnapshot,
+  });
 }
 
 export async function getCiv7MapSummary(

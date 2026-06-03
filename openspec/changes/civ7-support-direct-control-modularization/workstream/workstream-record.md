@@ -463,6 +463,16 @@ All future agent waves must be framed before delegation:
   projection, schema/type/procedure-core ownership, and Task 2.9.4 matrix-row
   acceptance stay pending. This is local package/source relocation proof only,
   not runtime proof or AI/hotseat product-path support.
+- Direct-control playable-status slice: completed as a narrow runtime-status
+  composition relocation. It moves only `getCiv7PlayableStatus` composition into
+  `src/runtime/playable-status.ts` while keeping public facade exports in
+  `index.ts` and injecting App UI snapshot, Tuner health, and error-message
+  dependencies from the facade. This preserves shell/playable/readiness
+  classification and unready error capture. Bounded root inspection, TypeBox
+  schema ownership, operation/proof telemetry, AI ingestion, hotseat runtime
+  proof, CLI semantic projection, Effect/oRPC procedure-core work, and Task
+  2.9.4 matrix-row acceptance stay pending. This is local package/source
+  relocation proof only, not runtime proof or AI/hotseat product-path support.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.

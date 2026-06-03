@@ -315,6 +315,12 @@ runtime/direct-control claims.
         and leaving TypeBox schema ownership, operation/proof telemetry,
         hotseat runtime proof, AI ingestion, CLI semantic projection, and
         Effect/oRPC procedure-core work pending.
+  - [x] 4.12.6 Extract playable-status composition owner while keeping public
+        facade exports in `index.ts`, preserving App UI/Tuner health
+        composition, shell/playable/readiness classification, and unready error
+        capture, and leaving bounded root inspection, TypeBox schema ownership,
+        operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
+        semantic projection, and Effect/oRPC procedure-core work pending.
 
 ## 5. CLI Semantic Surface Lane
 
