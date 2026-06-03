@@ -1042,10 +1042,10 @@ authority are recorded.
       tests/check/build plus focused CLI consumers.
 - [x] 7.3 For every runtime-changing slice, attach real-game proof or explicit
       `pending-runtime-proof`.
-- [ ] 7.4 For every CLI semantic-surface slice, prove normal play output omits
+- [x] 7.4 For every CLI semantic-surface slice, prove normal play output omits
       internal service plumbing and that intentional diagnostics are reachable
       only through debug-owned surfaces.
-- [ ] 7.5 For every Effect/Bun source slice, prove resource cleanup, stream/error
+- [x] 7.5 For every Effect/Bun source slice, prove resource cleanup, stream/error
       behavior, and API choice with focused package tests.
 - [x] 7.6 Run `bun run openspec -- validate civ7-support-direct-control-modularization --strict`.
 - [ ] 7.7 Run final downstream realignment and closure checklist.

@@ -1746,3 +1746,15 @@ All future agent waves must be framed before delegation:
   implementation/proof, Task 2.9.4 matrix-row acceptance, telemetry, AI
   ingestion, schema migration, Effect/Bun implementation, or Effect/oRPC
   procedure-core work.
+- Blocked-lane proof disposition checkpoint: checklist items 7.4 and 7.5 are
+  satisfied for this modularization phase by absence/disposition, not by
+  implementation. Rows 5.1-5.7 remain blocked on Task 2.9.4 and no CLI semantic
+  surface slice was implemented in this closure pass, so there is no new normal
+  CLI/debug-surface proof to attach beyond the test-only ownership and broad
+  `test:cli:play` gates already recorded. Rows 6.1-6.9 remain blocked on Task
+  2.9.4 and no Effect/Bun source slice was implemented, so there is no resource,
+  stream/error, or API-choice source proof to attach. This closes only the
+  checklist obligations for completed work in this OpenSpec phase. It does not
+  start or close CLI semantic envelopes, debug hierarchy changes, telemetry, AI
+  ingestion, schema migration, Effect/Bun implementation, Effect/oRPC
+  procedure-core work, or Task 2.9.4 matrix-row acceptance.
