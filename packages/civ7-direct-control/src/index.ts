@@ -9,6 +9,7 @@ import {
 } from "./civ7-component-id.js";
 import { assertApproved, type Civ7ActionApproval } from "./action-approval.js";
 import { Civ7DirectControlError, type Civ7DirectControlErrorCode } from "./direct-control-error.js";
+import { errorMessage } from "./error-message.js";
 import { discoverCiv7DirectControlEndpoint } from "./session/discovery.js";
 import {
   executeCiv7AppUiCommand,
@@ -22,6 +23,7 @@ import {
   waitForCiv7DirectControl,
 } from "./session/health.js";
 import { jsLiteral } from "./runtime/command-serialization.js";
+import { sleep } from "./timing.js";
 import { boundedInteger, validateIdentifier, validatePlayerId } from "./validation.js";
 import { Civ7DirectControlSession } from "./session/session.js";
 import type {
@@ -2584,12 +2586,4 @@ async function waitForCiv7SetupRevisionAfter(
 function toDirectControlError(err: unknown, fallbackCode: Civ7DirectControlErrorCode): Civ7DirectControlError {
   if (err instanceof Civ7DirectControlError) return err;
   return new Civ7DirectControlError(fallbackCode, errorMessage(err), { cause: err });
-}
-
-function errorMessage(err: unknown): string {
-  return err instanceof Error ? err.message : String(err);
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }

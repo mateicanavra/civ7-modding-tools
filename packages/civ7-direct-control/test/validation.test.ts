@@ -1,6 +1,8 @@
 import { describe, expect, test } from "vitest";
 
+import { errorMessage } from "../src/error-message";
 import { validateMapBounds, validateMapLocation } from "../src/play/map/validation";
+import { sleep } from "../src/timing";
 import { boundedInteger, validateIdentifier, validatePlayerId } from "../src/validation";
 
 describe("direct-control validation primitives", () => {
@@ -50,5 +52,11 @@ describe("direct-control validation primitives", () => {
     expect(() => validateMapBounds({ x: 0, y: 0, width: 1, height: 10_001 })).toThrow(
       "bounds.height must be an integer between 1 and 10000",
     );
+  });
+
+  test("formats dependency errors and exposes the current timer primitive", async () => {
+    expect(errorMessage(new Error("boom"))).toBe("boom");
+    expect(errorMessage("plain")).toBe("plain");
+    await expect(sleep(0)).resolves.toBeUndefined();
   });
 });

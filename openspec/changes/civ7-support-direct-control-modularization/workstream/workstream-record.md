@@ -1231,6 +1231,17 @@ All future agent waves must be framed before delegation:
   projection, hotseat runtime proof, Effect/oRPC procedure-core work, and Task
   2.9.4 matrix-row acceptance remain pending. This is local package/source
   relocation proof only, not runtime/live-game proof.
+- Direct-control facade dependency primitive slice: completed as a narrow
+  primitive/helper ownership relocation. It moves the facade-injected error
+  stringifier into `src/error-message.ts` and the facade-injected sleep
+  primitive into `src/timing.ts` while preserving playable-status error shaping
+  and autoplay wait dependency behavior. Owner-local sleep/error helpers remain
+  in their current modules until a named Effect/Bun resource/schedule/layer pass
+  can replace the hand-wired dependency shape. This does not define procedure
+  schemas, operation/proof telemetry, AI ingestion, semantic CLI projection,
+  hotseat runtime proof, Effect/oRPC procedure-core work, or Task 2.9.4
+  matrix-row acceptance. This is local package/source relocation proof only, not
+  runtime/live-game proof.
 - Direct-control command-result parser slice: completed as a narrow session
   helper relocation. It moves the command-result JSON payload parser into
   `src/session/command-result.ts` while preserving host/port/state merge
