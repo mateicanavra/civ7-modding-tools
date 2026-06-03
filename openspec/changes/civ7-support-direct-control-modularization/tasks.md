@@ -96,6 +96,9 @@
         `consumerClass`, `evidenceClass`, `procedureCandidate`,
         `normalCliProjection`, `debugServiceProjection`, `proofLabel`,
         `acceptanceStatus`, `blockingDependents`, and `stopCondition`.
+        Draft rows are materialized in `workstream/compatibility-matrix.md`,
+        but this task remains open until every row is honestly accepted with
+        real source owners, proof owners, schemas/tests, and stop conditions.
   - Compatibility proof classes must remain separate: target-thread evidence,
     repo docs, local tests, logs/database artifacts, official resources, live
     runtime proof, and in-game observations.

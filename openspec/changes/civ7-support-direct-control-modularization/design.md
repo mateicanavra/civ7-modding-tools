@@ -265,6 +265,14 @@ Future atom and envelope rows classify `playerScope`, `consumerClass`,
 `debugServiceProjection` before runtime-status extraction, CLI hierarchy work,
 telemetry, AI ingestion, or Effect/oRPC procedure cores depend on them.
 
+The row-level matrix lives in `workstream/compatibility-matrix.md`. Its current
+rows materialize the gate for hotseat handoff state, semantic CLI player-agent
+view, strategy/intelligence ingestion, debug/internal service output,
+operation/proof telemetry, and Effect/oRPC procedure cores. Rows with
+`acceptanceStatus: pending-*` remain blocking; the matrix is accepted only when
+all required fields have real source owners, proof owners, schemas/tests, and
+stop conditions recorded.
+
 Compatibility matrix execution gate:
 
 - Matrix rows are not accepted until each row has all required fields:

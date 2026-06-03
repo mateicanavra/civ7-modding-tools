@@ -187,6 +187,14 @@ procedure consumers, if evidence classes collapse, if Autoplay becomes the
 primary external-agent executor, or if direct-control can act on non-agent human
 turns`.
 
+Matrix row materialization: `workstream/compatibility-matrix.md` now records
+the live gate rows for hotseat handoff state, semantic CLI player-agent view,
+strategy/intelligence ingestion, debug/internal service output,
+operation/proof telemetry, and Effect/oRPC procedure cores. These rows are
+pending rows, not accepted rows: source owners, proof owners, schemas/tests,
+and several runtime or contract proof boundaries remain unassigned. Task 2.9.4
+therefore remains open, and dependent implementation stays blocked.
+
 The action/proof vocabulary for future machine-ingestion and procedure-core
 surfaces is: strategy intent, candidate action, operation family, target, args,
 approval, validation result, send result, post-read, `requestId` or correlation
