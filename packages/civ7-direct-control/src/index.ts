@@ -158,7 +158,18 @@ import {
 import {
   getCiv7NotificationDismissal as getCiv7NotificationDismissalFromModule,
   requestCiv7NotificationDismissal as requestCiv7NotificationDismissalFromModule,
+  type Civ7NotificationDismissInput,
+  type Civ7NotificationDismissalResult,
+  type Civ7NotificationDismissalSummary,
 } from "./play/notifications/dismissal-request.js";
+import type {
+  Civ7PlayDecisionAction,
+  Civ7PlayDecisionHint,
+  Civ7PlayDecisionInput,
+  Civ7PlayDecisionQueueItem,
+  Civ7PlayNotificationSummary,
+  Civ7PlayNotificationViewResult,
+} from "./play/notifications/view.js";
 import {
   getCiv7MapGrid as getCiv7MapGridFromModule,
   getCiv7MapSummary as getCiv7MapSummaryFromModule,
@@ -423,6 +434,19 @@ export type {
   Civ7TurnCompletionActionResult,
   Civ7TurnCompletionStatusResult,
 } from "./play/turn-completion.js";
+export type {
+  Civ7PlayDecisionAction,
+  Civ7PlayDecisionHint,
+  Civ7PlayDecisionInput,
+  Civ7PlayDecisionQueueItem,
+  Civ7PlayNotificationSummary,
+  Civ7PlayNotificationViewResult,
+} from "./play/notifications/view.js";
+export type {
+  Civ7NotificationDismissInput,
+  Civ7NotificationDismissalResult,
+  Civ7NotificationDismissalSummary,
+} from "./play/notifications/dismissal-request.js";
 export {
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
@@ -715,143 +739,6 @@ export type Civ7SavedGameConfigurationListInput = Readonly<{
 export type Civ7SavedGameConfigurationListResult = Readonly<{
   directory: string;
   configurations: ReadonlyArray<Civ7SavedGameConfiguration>;
-}>;
-
-export type Civ7PlayDecisionHint = Readonly<{
-  category: string;
-  operationFamily?: Civ7OperationFamily | "app-ui-action";
-  operationType?: string;
-  argsShape?: string;
-  cli?: string;
-  requiredInputs: ReadonlyArray<Civ7PlayDecisionInput>;
-  commonActions: ReadonlyArray<Civ7PlayDecisionAction>;
-  confidence: "live-proof" | "official-ui" | "heuristic";
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7PlayDecisionInput = Readonly<{
-  name: string;
-  source: string;
-  required: boolean;
-  note?: string;
-}>;
-
-export type Civ7PlayDecisionAction = Readonly<{
-  label: string;
-  cli?: string;
-  operationFamily?: Civ7OperationFamily | "app-ui-action";
-  operationType?: string;
-  argsShape?: string;
-  when: string;
-}>;
-
-export type Civ7PlayNotificationSummary = Readonly<{
-  id: Civ7ComponentId | null;
-  type: unknown;
-  typeName: string | null;
-  groupType: unknown;
-  player: unknown;
-  summary: string | null;
-  message: string | null;
-  target: unknown;
-  location: unknown;
-  canUserDismiss: unknown;
-  expired: unknown;
-  dismissed: unknown;
-  isEndTurnBlocking: boolean;
-  decision: Civ7PlayDecisionHint;
-  details?: unknown;
-}>;
-
-export type Civ7PlayDecisionQueueItem = Readonly<{
-  notificationId: Civ7ComponentId | null;
-  isEndTurnBlocking: boolean;
-  typeName: string | null;
-  summary: string | null;
-  message: string | null;
-  target: unknown;
-  location: unknown;
-  player: unknown;
-  category: string;
-  operationFamily?: Civ7OperationFamily | "app-ui-action";
-  operationType?: string;
-  argsShape?: string;
-  cli?: string;
-  requiredInputs: ReadonlyArray<Civ7PlayDecisionInput>;
-  commonActions: ReadonlyArray<Civ7PlayDecisionAction>;
-  notes: ReadonlyArray<string>;
-  details?: unknown;
-}>;
-
-export type Civ7PlayNotificationViewResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  turn: Civ7RuntimeProbe<number>;
-  turnDate: Civ7RuntimeProbe<string>;
-  hasSentTurnComplete: Civ7RuntimeProbe<boolean>;
-  canEndTurn: Civ7RuntimeProbe<boolean>;
-  blocker: Civ7RuntimeProbe<unknown>;
-  blockingNotificationId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  selectedUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  selectedCityId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  notifications: ReadonlyArray<Civ7PlayNotificationSummary>;
-  decisions: ReadonlyArray<Civ7PlayDecisionHint>;
-  hud: Readonly<{
-    nextDecision: Civ7PlayDecisionQueueItem | null;
-    decisionQueue: ReadonlyArray<Civ7PlayDecisionQueueItem>;
-  }>;
-  limits: Readonly<{
-    maxNotifications: number;
-    truncated: boolean;
-  }>;
-}>;
-
-export type Civ7NotificationDismissInput = Readonly<{
-  notificationId: Civ7ComponentId;
-}>;
-
-export type Civ7NotificationDismissalSummary = Readonly<{
-  id: Civ7ComponentId | null;
-  exists: boolean;
-  type: unknown;
-  typeName: string | null;
-  summary: string | null;
-  message: string | null;
-  target: unknown;
-  location: unknown;
-  canUserDismiss: unknown;
-  expired: unknown;
-  dismissed: unknown;
-  blocksTurnAdvancement: Civ7RuntimeProbe<unknown>;
-  endTurnBlockingType: Civ7RuntimeProbe<unknown>;
-  isEndTurnBlocking: Civ7RuntimeProbe<boolean>;
-  engineQueueCount: Civ7RuntimeProbe<number>;
-  engineQueueContains: Civ7RuntimeProbe<boolean>;
-  engineQueueFirstId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  isEngineQueueFront: Civ7RuntimeProbe<boolean>;
-  notificationTrainCount: Civ7RuntimeProbe<number>;
-  notificationTrainContains: Civ7RuntimeProbe<boolean>;
-  notificationTrainFirstId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  isNotificationTrainFront: Civ7RuntimeProbe<boolean>;
-}>;
-
-export type Civ7NotificationDismissalResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  notificationId: Civ7ComponentId;
-  before: Civ7NotificationDismissalSummary;
-  after: Civ7NotificationDismissalSummary | null;
-  canDismiss: boolean;
-  sent: boolean;
-  result: unknown;
-  closeoutPath?: string | null;
-  verificationAttempts?: ReadonlyArray<Civ7NotificationDismissalSummary>;
-  verified: boolean;
-  notes: ReadonlyArray<string>;
 }>;
 
 export type Civ7DiplomacyResponseInput = Readonly<{

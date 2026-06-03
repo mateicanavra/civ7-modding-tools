@@ -703,6 +703,23 @@ All future agent waves must be framed before delegation:
   and telemetry type ownership remain pending separate owner slices. This is
   local package/type relocation proof only, not runtime proof, AI/hotseat
   product-path support, or procedure-core readiness.
+- Direct-control notification types slice: completed as a narrow public type
+  ownership relocation. It moves only notification view/decision/queue public
+  types into `src/play/notifications/view.ts` and notification dismissal
+  input/summary/result types into `src/play/notifications/dismissal-request.ts`
+  while keeping facade type re-exports in `index.ts` and replacing moved
+  notification type imports in package internals with concrete owner imports.
+  This preserves public type contracts and does not change notification
+  materialization source strings, decision hint classification,
+  `maxNotifications` behavior, dismissal command source, approval-first
+  dismissal behavior, dismissal verification polling, CLI queue or bulk-dismiss
+  policy, runtime proof status, telemetry, AI ingestion, hotseat runtime proof,
+  CLI semantic projection, Effect/oRPC procedure-core work, or Task 2.9.4
+  matrix-row acceptance. Diplomacy/narrative/progression closeout, tactical,
+  operation, ready, public procedure schema, and telemetry type ownership remain
+  pending separate owner slices. This is local package/type relocation proof
+  only, not runtime proof, AI/hotseat product-path support, or procedure-core
+  readiness.
 - Direct-control turn-completion slice: completed as a narrow turn-completion
   source/wrapper relocation. It moves only `getCiv7TurnCompletionStatus`,
   `sendCiv7TurnComplete`, `sendCiv7TurnUnready`, the status command builder,

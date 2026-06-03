@@ -9,9 +9,11 @@ import type {
 
 import type {
   Civ7ActionApproval,
+} from "../index.js";
+import type {
   Civ7PlayNotificationSummary,
   Civ7PlayNotificationViewResult,
-} from "../index.js";
+} from "./notifications/view.js";
 
 export type Civ7TurnCompletionStatusResult = Readonly<{
   host: string;

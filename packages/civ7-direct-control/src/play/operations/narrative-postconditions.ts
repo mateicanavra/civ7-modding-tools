@@ -6,10 +6,12 @@ import type {
   Civ7NarrativeChoicePostcondition,
   Civ7NarrativeChoicePostconditionClassification,
   Civ7OperationValidationResult,
+  Civ7RuntimeProbe,
+} from "../../index.js";
+import type {
   Civ7PlayNotificationSummary,
   Civ7PlayNotificationViewResult,
-  Civ7RuntimeProbe,
-} from "../../index";
+} from "../notifications/view.js";
 
 export async function waitForCiv7NarrativeChoiceAfter(
   input: Civ7NarrativeChoiceInput,
