@@ -122,6 +122,19 @@ constants; broader public and procedure schemas, telemetry, hotseat runtime
 proof, AI ingestion, CLI semantic projection, and Effect/oRPC procedure cores
 remain pending separate slices.
 
+Runtime type update: runtime result/input/probe type ownership now follows the
+existing runtime atom owners while public facade type re-exports stay in
+`index.ts`. `src/runtime/probe.ts` owns `Civ7RuntimeProbe`;
+`src/runtime/inspection.ts` owns runtime API inspection/root/method result
+types; `src/runtime/root-inspection.ts` owns bounded root inspection
+input/result types; `src/runtime/app-ui-snapshot.ts` owns App UI snapshot
+types; `src/runtime/tuner-health.ts` owns Tuner health snapshot/result types;
+and `src/runtime/playable-status.ts` owns playable-status result typing. This
+is local package/type relocation proof only and does not move source strings,
+runtime/session/lifecycle behavior, TypeBox procedure schemas, telemetry, AI
+ingestion, hotseat runtime proof, CLI semantic projection, Effect/oRPC
+procedure-core work, or Task 2.9.4 matrix-row acceptance.
+
 Bounded root inspection update: `src/runtime/root-inspection.ts` now owns
 `inspectCiv7Root` and the generated bounded root inspection command while the
 public facade export stays in `index.ts` and injects command execution,

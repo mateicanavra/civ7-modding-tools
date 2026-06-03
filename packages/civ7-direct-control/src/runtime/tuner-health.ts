@@ -1,13 +1,39 @@
-import { Civ7DirectControlError } from "../direct-control-error";
+import { Civ7DirectControlError } from "../direct-control-error.js";
 
+import type { Civ7DirectControlSession } from "../index.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7DirectControlSession,
-  Civ7TunerHealthResult,
-  Civ7TunerHealthSnapshot,
   Civ7TunerStateSelection,
-} from "../index";
+} from "../session/types.js";
+import type { Civ7RuntimeProbe } from "./probe.js";
+
+export type Civ7TunerHealthSnapshot = Readonly<{
+  evalOk: number;
+  ready: boolean;
+  globals: Readonly<{
+    Game: string;
+    Autoplay: string;
+    GameplayMap: string;
+    Players: string;
+    Network: string;
+  }>;
+  turn: Civ7RuntimeProbe<number>;
+  turnDate: Civ7RuntimeProbe<string>;
+  width: Civ7RuntimeProbe<number>;
+  height: Civ7RuntimeProbe<number>;
+  aliveIds: Civ7RuntimeProbe<ReadonlyArray<number>>;
+  aliveHumanIds: Civ7RuntimeProbe<ReadonlyArray<number>>;
+  autoplayActive: Civ7RuntimeProbe<boolean>;
+}>;
+
+export type Civ7TunerHealthResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7CommandResult["state"];
+  ready: boolean;
+  snapshot: Civ7TunerHealthSnapshot;
+}>;
 
 type TunerHealthSessionDependencies = Readonly<{
   executeSessionCommandWithReconnect: (

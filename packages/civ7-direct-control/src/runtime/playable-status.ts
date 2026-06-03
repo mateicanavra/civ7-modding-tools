@@ -1,10 +1,25 @@
 import type {
-  Civ7AppUiSnapshotResult,
   Civ7DirectControlOptions,
-  Civ7PlayableStatusResult,
-  Civ7RuntimeProbe,
-  Civ7TunerHealthResult,
-} from "../index";
+} from "../session/types.js";
+import type { Civ7AppUiSnapshotResult } from "./app-ui-snapshot.js";
+import type { Civ7RuntimeProbe } from "./probe.js";
+import type { Civ7TunerHealthResult } from "./tuner-health.js";
+
+export type Civ7PlayableStatusResult = Readonly<{
+  host: string;
+  port: number;
+  playable: boolean;
+  readiness:
+    | "tuner-ready"
+    | "app-ui-game"
+    | "begin-ready"
+    | "loading"
+    | "shell"
+    | "unavailable";
+  appUi: Civ7AppUiSnapshotResult;
+  tuner?: Civ7TunerHealthResult;
+  errors: ReadonlyArray<string>;
+}>;
 
 type PlayableStatusDependencies = Readonly<{
   checkTunerHealth: (options?: Civ7DirectControlOptions) => Promise<Civ7TunerHealthResult>;

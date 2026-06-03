@@ -1,11 +1,72 @@
-import { Civ7DirectControlError } from "../direct-control-error";
+import { Civ7DirectControlError } from "../direct-control-error.js";
 
 import type {
-  Civ7AppUiSnapshot,
-  Civ7AppUiSnapshotResult,
   Civ7CommandResult,
   Civ7DirectControlOptions,
-} from "../index";
+} from "../session/types.js";
+import type { Civ7RuntimeProbe } from "./probe.js";
+
+export type Civ7AppUiSnapshot = Readonly<{
+  network: Readonly<{
+    isInSession: Civ7RuntimeProbe<boolean>;
+    numPlayers: Civ7RuntimeProbe<number>;
+    hostPlayerId: Civ7RuntimeProbe<number>;
+    isConnectedToNetwork: Civ7RuntimeProbe<boolean>;
+    isAuthenticated: Civ7RuntimeProbe<boolean>;
+    isLoggedIn: Civ7RuntimeProbe<boolean>;
+  }>;
+  autoplay: Readonly<{
+    isActive: boolean;
+    turns: number;
+    isPaused: boolean;
+    isPausedOrPending: boolean;
+    observeAsPlayer: number;
+    returnAsPlayer: number;
+  }>;
+  game: Readonly<{
+    turn: number;
+    age: number;
+    maxTurns: number;
+    turnDate: Civ7RuntimeProbe<string>;
+    hash: Civ7RuntimeProbe<number>;
+  }>;
+  ui: Readonly<{
+    inGame: Civ7RuntimeProbe<boolean>;
+    inShell: Civ7RuntimeProbe<boolean>;
+    inLoading: Civ7RuntimeProbe<boolean>;
+    loadingState: Civ7RuntimeProbe<number>;
+    loadingStateName: string | null;
+    canBeginGame: Civ7RuntimeProbe<boolean>;
+    canNotifyUIReady: string;
+    skipStartButton: Civ7RuntimeProbe<boolean>;
+    automationActive: Civ7RuntimeProbe<boolean>;
+  }>;
+  gameContext: Readonly<{
+    localPlayerID: number;
+    localObserverID: number;
+    hasRequestedPause: Civ7RuntimeProbe<boolean>;
+  }>;
+  players: Readonly<{
+    maxPlayers: number;
+    aliveIds: Civ7RuntimeProbe<ReadonlyArray<number>>;
+    aliveHumanIds: Civ7RuntimeProbe<ReadonlyArray<number>>;
+    numAliveHumans: Civ7RuntimeProbe<number>;
+  }>;
+  map: Readonly<{
+    width: Civ7RuntimeProbe<number>;
+    height: Civ7RuntimeProbe<number>;
+    plotCount: Civ7RuntimeProbe<number>;
+    mapSize: Civ7RuntimeProbe<number>;
+    randomSeed: Civ7RuntimeProbe<number>;
+  }>;
+}>;
+
+export type Civ7AppUiSnapshotResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7CommandResult["state"];
+  snapshot: Civ7AppUiSnapshot;
+}>;
 
 type AppUiSnapshotDependencies = Readonly<{
   executeAppUiCommand: (

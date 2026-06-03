@@ -369,6 +369,13 @@ runtime/direct-control claims.
         procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
         ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.10 Extract runtime inspection/snapshot/status type owners into the
+        existing runtime atom modules while keeping public facade type
+        re-exports in `index.ts`, preserving runtime probe/result/input public
+        contracts and leaving broader public result/input types, procedure
+        schemas, operation/proof telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
       oRPC implementation; current support branch has no tracked
       `.agents/skills/civ7-orpc-control-architecture` or
@@ -476,6 +483,14 @@ runtime/direct-control claims.
         telemetry, hotseat runtime proof, AI ingestion, CLI semantic
         projection, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.12.10 Extract runtime result/input/probe type owners while keeping
+        public facade type re-exports in `index.ts`, preserving runtime API
+        inspection, bounded root inspection, App UI snapshot, Tuner health,
+        playable status, and runtime probe type contracts without moving source
+        strings, command execution, lifecycle/session orchestration, procedure
+        schemas, telemetry, hotseat runtime proof, AI ingestion, CLI semantic
+        projection, Effect/oRPC procedure-core work, or Task 2.9.4
+        matrix-row acceptance.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready
