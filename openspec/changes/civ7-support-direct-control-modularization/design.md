@@ -108,6 +108,10 @@ Every atom row needs:
 - consumers in CLI/Studio/oRPC;
 - service fields classified as internal machinery, debug-output material, or
   player-agent semantic output.
+- compatibility fields before dependent CLI semantic, telemetry, AI-ingestion,
+  runtime-status, or procedure-core work: `playerScope`, `consumerClass`,
+  `evidenceClass`, `procedureCandidate`, `normalCliProjection`, and
+  `debugServiceProjection`.
 
 ## Parallel Execution Model
 
@@ -255,6 +259,11 @@ Compatibility matrix seed:
 | Debug/internal service output | direct-control service/debug hierarchy | transport/session state, raw probes, route selection, closeout traces, correlation, and diagnostics | do not expose as normal player-agent or strategy-ingestion output |
 | Operation/proof telemetry | support proof and future procedure middleware | evidence class, approval, validation, send, postcondition, blocker deltas, and runtime observation links | do not claim live/runtime proof from local tests or target-thread evidence alone |
 | Effect/oRPC procedure cores | external direct-control boundary | typed atoms, schemas, context, middleware, approval gates, errors, correlation IDs, and telemetry hooks | do not implement transport-first raw command tunneling |
+
+Future atom and envelope rows classify `playerScope`, `consumerClass`,
+`evidenceClass`, `procedureCandidate`, `normalCliProjection`, and
+`debugServiceProjection` before runtime-status extraction, CLI hierarchy work,
+telemetry, AI ingestion, or Effect/oRPC procedure cores depend on them.
 
 Proof classes must stay separate: target-thread evidence, repo docs, local
 tests, logs/database artifacts, official resources, live runtime proof, and

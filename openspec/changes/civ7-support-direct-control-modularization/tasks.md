@@ -59,16 +59,13 @@
 - [x] 2.8 Read and disposition the report-only hotseat/autoplay,
       AI-intelligence, and synthesis peer waves before treating the
       compatibility planning lane as closed.
-  - Accepted via supervisor-completed report packet, because this local session
-    could not read/discover the peer threads directly:
+  - Accepted from direct local reads of the completed peer report:
     `019e8cbe-b9a2-7603-8fc6-ea9387fbbd3b` for AI-intelligence model
     implications from thread `019e8b5a-f2ee-7ea2-96bc-8c07dc5ab6cc`.
-  - Accepted via supervisor-completed report packet, because this local session
-    could not read/discover the peer threads directly:
+  - Accepted from direct local reads of the completed peer report:
     `019e8cbf-0138-75d1-9edc-0bda7d413dff` for hotseat/autoplay base
     requirements from thread `019e86b7-b08b-72f3-8341-6c78a1285c93`.
-  - Accepted via supervisor-completed report packet, because this local session
-    could not read/discover the peer threads directly:
+  - Accepted from direct local reads of the completed peer report:
     `019e8cbf-5805-7393-82e8-c83353aeac40` for synthesis mapping both target
     threads onto this support OpenSpec.
 - [ ] 2.9 Define the hotseat/autoplay and AI-intelligence compatibility matrix:
@@ -83,7 +80,9 @@
     runtime proof, and in-game observations.
   - Future atom/semantic rows should add or classify `playerScope`,
     `consumerClass`, `evidenceClass`, `procedureCandidate`, and
-    `normalCliProjection`.
+    `normalCliProjection` / `debugServiceProjection` before command hierarchy,
+    telemetry, AI-ingestion, runtime-status, or procedure-core work depends on
+    them.
 - [ ] 2.10 Keep intelligence-layer code, transport-first oRPC, and live-game
       proof claims out of the compatibility planning branch until the peer
       reports are read and source/proof owners are assigned.
