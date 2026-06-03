@@ -532,6 +532,13 @@ runtime/direct-control claims.
         schemas, operation/proof telemetry, hotseat runtime proof, AI
         ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.33 Extract UI loading-state name type owner while keeping public
+        facade type re-exports in `index.ts`, preserving the
+        `CIV7_UI_LOADING_STATES`-derived alias and leaving setup/lifecycle
+        orchestration, public procedure schemas, operation/proof telemetry,
+        hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
       oRPC implementation; current support branch has no tracked
       `.agents/skills/civ7-orpc-control-architecture` or

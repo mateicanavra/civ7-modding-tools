@@ -428,6 +428,7 @@ export {
   DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS,
   DEFAULT_CIV7_SETUP_PARAMETER_IDS,
 } from "./setup/constants.js";
+export type { Civ7UiLoadingStateName } from "./setup/constants.js";
 export type {
   Civ7PlayerSetupParameterSnapshot,
   Civ7SetupMapRow,
@@ -664,8 +665,6 @@ export const DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR = join(
   "Saves",
   "Single",
 );
-
-export type Civ7UiLoadingStateName = keyof typeof CIV7_UI_LOADING_STATES;
 
 export type Civ7ResourcePlacementFeasibilityCellInput = Readonly<Civ7MapLocation & {
   resourceTypes: ReadonlyArray<number>;

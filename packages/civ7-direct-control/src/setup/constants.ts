@@ -14,6 +14,9 @@ export const CIV7_UI_LOADING_STATES = {
   GameStarted: 8,
   WaitingForGameUnloadScreenReady: 9,
 } as const;
+
+export type Civ7UiLoadingStateName = keyof typeof CIV7_UI_LOADING_STATES;
+
 export const DEFAULT_CIV7_SETUP_PARAMETER_IDS = [
   "Ruleset",
   "Age",

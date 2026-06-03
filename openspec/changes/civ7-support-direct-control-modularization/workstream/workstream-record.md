@@ -1267,6 +1267,16 @@ All future agent waves must be framed before delegation:
   runtime proof, AI ingestion, CLI semantic projection, Effect/oRPC
   procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending.
   This is local package/type relocation proof only, not runtime/live-game proof.
+- Direct-control UI loading-state name type slice: completed as a narrow public
+  type ownership relocation. It moves `Civ7UiLoadingStateName` into
+  `src/setup/constants.ts` beside `CIV7_UI_LOADING_STATES` while keeping public
+  facade type re-exports in `index.ts`. This preserves the derived alias and
+  does not change loading-state values, setup/start/restart lifecycle
+  orchestration, App UI snapshot parsing, or runtime-status projection. Public
+  procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
+  ingestion, CLI semantic projection, Effect/oRPC procedure-core work, and Task
+  2.9.4 matrix-row acceptance remain pending. This is local package/type
+  relocation proof only, not runtime/live-game proof.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into
