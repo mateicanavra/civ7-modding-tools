@@ -839,7 +839,7 @@ describe("Shipped map configs", () => {
     expect(compiled.placement["derive-placement-inputs"].resources.strategy).toBe("default");
     expect(compiled.placement["derive-placement-inputs"].resources.config).toEqual({
       candidateResourceTypes: Array.from({ length: 55 }, (_, index) => index),
-      densityPer100Tiles: 9,
+      densityPer100Tiles: 10,
       minSpacingTiles: 2,
       maxPlacementsPerResourceShare: 0.3,
     });

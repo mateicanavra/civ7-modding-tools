@@ -1,6 +1,10 @@
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
 import type { DeepReadonly, Static, StepRuntimeOps } from "@swooper/mapgen-core/authoring";
 import type { DiscoveryCatalogEntry } from "@civ7/adapter";
+import {
+  OFFICIAL_RESOURCE_CORPUS,
+  type OfficialAgeType,
+} from "../../../../../../domain/resources/index.js";
 import placement from "@mapgen/domain/placement";
 import type { PlacementInputsV1 } from "../../placement-inputs.js";
 import { getStandardRuntime } from "../../../../runtime.js";
@@ -12,6 +16,11 @@ type DerivePlacementInputsOps = StepRuntimeOps<NonNullable<typeof DerivePlacemen
 type PlanFloodplainsOutput = Static<typeof placement.ops.planFloodplains["output"]>;
 type PlanStartsOutput = Static<typeof placement.ops.planStarts["output"]>;
 type PlanWondersOutput = Static<typeof placement.ops.planWonders["output"]>;
+
+const DEFAULT_RESOURCE_AGE: OfficialAgeType = "AGE_ANTIQUITY";
+const KNOWN_RESOURCE_AGES = new Set<OfficialAgeType>(
+  OFFICIAL_RESOURCE_CORPUS.flatMap((entry) => entry.validAges)
+);
 
 export type PlacementPlanBundle = {
   artifact: DeepReadonly<PlacementInputsV1>;
@@ -30,6 +39,42 @@ function sanitizeResourceCandidates(values: number[], noResourceSentinel: number
     unique.add(value);
   }
   return Array.from(unique).sort((a, b) => a - b);
+}
+
+function isKnownResourceAge(value: unknown): value is OfficialAgeType {
+  return typeof value === "string" && KNOWN_RESOURCE_AGES.has(value as OfficialAgeType);
+}
+
+export function resolveActiveResourceAge(): OfficialAgeType {
+  const runtime = globalThis as typeof globalThis & {
+    Game?: { age?: unknown };
+    GameInfo?: { Ages?: { lookup?: (age: number) => { AgeType?: unknown } | null } };
+  };
+  const gameAge = runtime.Game?.age;
+  const ageInfo =
+    typeof gameAge === "number" && Number.isFinite(gameAge)
+      ? runtime.GameInfo?.Ages?.lookup?.(gameAge)
+      : null;
+  const activeAge = ageInfo?.AgeType;
+  return isKnownResourceAge(activeAge) ? activeAge : DEFAULT_RESOURCE_AGE;
+}
+
+export function filterResourceCandidatesForAge(
+  candidateResourceTypes: readonly number[],
+  activeAge: OfficialAgeType
+): number[] {
+  const allowedStaticSlots = new Set(
+    OFFICIAL_RESOURCE_CORPUS
+      .filter(
+        (entry) =>
+          entry.validAges.includes(activeAge) &&
+          entry.placeability.status === "placeable" &&
+          entry.strategyRequired.status === "required"
+      )
+      .map((entry) => entry.staticResourceRowSlot)
+  );
+
+  return candidateResourceTypes.filter((resourceType) => allowedStaticSlots.has(resourceType));
 }
 
 function sanitizeDiscoveryCandidates(values: DiscoveryCatalogEntry[]): DiscoveryCatalogEntry[] {
@@ -94,9 +139,10 @@ export function buildPlacementInputs(
   const naturalWonderCatalog = context.adapter.getNaturalWonderCatalog();
   const discoveryCatalog = sanitizeDiscoveryCandidates(context.adapter.getDiscoveryCatalog());
   const noResourceSentinel = context.adapter.NO_RESOURCE | 0;
-  const candidateResourceTypes = sanitizeResourceCandidates(
-    context.adapter.getPlaceableResourceTypes(),
-    noResourceSentinel
+  const activeResourceAge = resolveActiveResourceAge();
+  const candidateResourceTypes = filterResourceCandidatesForAge(
+    sanitizeResourceCandidates(context.adapter.getPlaceableResourceTypes(), noResourceSentinel),
+    activeResourceAge
   );
   const naturalWonderPlan = ops.naturalWonders(
     {

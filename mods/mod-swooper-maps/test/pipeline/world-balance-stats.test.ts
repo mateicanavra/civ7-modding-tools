@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
+import { OFFICIAL_RESOURCE_CORPUS } from "../../src/domain/resources/index.js";
 import swooperEarthlikeConfigRaw from "../../src/maps/configs/swooper-earthlike.config.json";
 import { realismEarthlikeConfig } from "../../src/maps/presets/realism/earthlike.config.js";
 import shatteredRingRaw from "../../src/maps/configs/shattered-ring.config.json";
@@ -12,6 +13,18 @@ import { collectWorldBalanceStats, type WorldBalanceStats } from "../support/wor
 function recipeConfig(config: CanonicalMapConfigWithRecipe): StandardRecipeConfig {
   return canonicalRecipeConfig<StandardRecipeConfig>(config);
 }
+
+const ANTIQUITY_RESOURCE_CANDIDATE_TYPES = new Set(
+  OFFICIAL_RESOURCE_CORPUS
+    .filter(
+      (entry) =>
+        entry.validAges.includes("AGE_ANTIQUITY") &&
+        entry.placeability.status === "placeable" &&
+        entry.strategyRequired.status === "required"
+    )
+    .map((entry) => entry.staticResourceRowSlot)
+);
+const ANTIQUITY_RESOURCE_CANDIDATE_COUNT = ANTIQUITY_RESOURCE_CANDIDATE_TYPES.size;
 
 const CASES = [
   {
@@ -80,10 +93,10 @@ const CASES = [
 function expectResourceDiagnostics(stats: WorldBalanceStats): void {
   expect(stats.resourcePlannedCount, `${stats.label} resource plans`).toBeGreaterThan(0);
   expect(stats.resourceUniquePlannedTypes, `${stats.label} planned resource variety`).toBeGreaterThanOrEqual(
-    Math.min(55, stats.resourcePlannedCount)
+    Math.min(ANTIQUITY_RESOURCE_CANDIDATE_COUNT, stats.resourcePlannedCount)
   );
   expect(stats.resourceUniquePlacedTypes, `${stats.label} placed resource variety`).toBeGreaterThanOrEqual(
-    Math.min(49, stats.resourcePlacedCount)
+    Math.min(ANTIQUITY_RESOURCE_CANDIDATE_COUNT, stats.resourcePlacedCount)
   );
   expect(
     stats.resourcePlacedCountMaxByType - stats.resourcePlacedCountMinByType,
@@ -111,6 +124,10 @@ function expectResourceDiagnostics(stats: WorldBalanceStats): void {
 
   for (const entry of stats.resourceOutcomeCountsByResource) {
     expect(
+      ANTIQUITY_RESOURCE_CANDIDATE_TYPES.has(entry.resourceType),
+      `${stats.label} resource ${entry.resourceType} should be Antiquity-eligible`
+    ).toBe(true);
+    expect(
       entry.placedCount + entry.rejectedCount + entry.mismatchCount,
       `${stats.label} resource ${entry.resourceType} outcome total`
     ).toBe(entry.plannedCount);
@@ -118,6 +135,24 @@ function expectResourceDiagnostics(stats: WorldBalanceStats): void {
       entry.reasons.reduce((sum, reason) => sum + reason.count, 0),
       `${stats.label} resource ${entry.resourceType} reason total`
     ).toBe(entry.rejectedCount + entry.mismatchCount);
+  }
+  for (const resourceType of Object.keys(stats.resourcePlanTypeCounts)) {
+    expect(
+      ANTIQUITY_RESOURCE_CANDIDATE_TYPES.has(Number(resourceType)),
+      `${stats.label} planned resource ${resourceType} should be Antiquity-eligible`
+    ).toBe(true);
+  }
+  for (const resourceType of Object.keys(stats.resourcePlacedTypeCounts)) {
+    expect(
+      ANTIQUITY_RESOURCE_CANDIDATE_TYPES.has(Number(resourceType)),
+      `${stats.label} placed resource ${resourceType} should be Antiquity-eligible`
+    ).toBe(true);
+  }
+  for (const resourceType of Object.keys(stats.finalResourceTypeCounts)) {
+    expect(
+      ANTIQUITY_RESOURCE_CANDIDATE_TYPES.has(Number(resourceType)),
+      `${stats.label} final resource ${resourceType} should be Antiquity-eligible`
+    ).toBe(true);
   }
 }
 

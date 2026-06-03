@@ -755,7 +755,7 @@
         "maxLength": 10
       },
       "resources": {
-        "densityPer100Tiles": 9,
+        "densityPer100Tiles": 10,
         "minSpacingTiles": 2,
         "maxPlacementsPerResourceShare": 0.3
       }

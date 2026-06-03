@@ -416,7 +416,7 @@
               53,
               54
             ],
-            "densityPer100Tiles": 9,
+            "densityPer100Tiles": 10,
             "maxPlacementsPerResourceShare": 0.3,
             "minSpacingTiles": 2
           },
