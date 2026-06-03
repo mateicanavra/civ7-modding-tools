@@ -1,4 +1,69 @@
 import { battlefieldScanSource } from "./battlefield";
+import { Civ7DirectControlError } from "../../direct-control-error";
+
+import type {
+  Civ7CommandResult,
+  Civ7DestinationAnalysisInput,
+  Civ7DestinationAnalysisResult,
+  Civ7DirectControlOptions,
+  Civ7MapLocation,
+} from "../../index";
+
+type DestinationAnalysisDependencies = Readonly<{
+  validatePlayerId: (playerId: number) => void;
+  validateMapLocation: (location: Civ7MapLocation) => void;
+  boundedInteger: (value: number, min: number, max: number, label: string) => number;
+  executeAppUiCommand: (
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+  ) => Promise<Civ7CommandResult>;
+  parseDestinationAnalysis: (
+    result: Civ7CommandResult,
+    label: string,
+  ) => Civ7DestinationAnalysisResult;
+}>;
+
+export async function getCiv7DestinationAnalysis(
+  input: Civ7DestinationAnalysisInput,
+  options: Civ7DirectControlOptions = {},
+  dependencies: DestinationAnalysisDependencies,
+): Promise<Civ7DestinationAnalysisResult> {
+  if (input.playerId !== undefined) dependencies.validatePlayerId(input.playerId);
+  dependencies.validateMapLocation(input.destination);
+  if (input.origin !== undefined) dependencies.validateMapLocation(input.origin);
+  const result = await dependencies.executeAppUiCommand({
+    ...options,
+    command: buildDestinationAnalysisCommand({
+      ...input,
+      corridorRadius: dependencies.boundedInteger(input.corridorRadius ?? 2, 0, 8, "corridorRadius"),
+      destinationRadius: dependencies.boundedInteger(input.destinationRadius ?? 4, 1, 16, "destinationRadius"),
+      maxPlayers: dependencies.boundedInteger(input.maxPlayers ?? 32, 1, 128, "maxPlayers"),
+      maxUnits: dependencies.boundedInteger(input.maxUnits ?? 96, 1, 256, "maxUnits"),
+      maxCities: dependencies.boundedInteger(input.maxCities ?? 40, 1, 128, "maxCities"),
+    }),
+  });
+  return dependencies.parseDestinationAnalysis(result, "Civ7 destination analysis");
+}
+
+function buildDestinationAnalysisCommand(input: Civ7DestinationAnalysisInput & {
+  corridorRadius: number;
+  destinationRadius: number;
+  maxPlayers: number;
+  maxUnits: number;
+  maxCities: number;
+}): string {
+  return `(() => {
+    ${destinationAnalysisSource()}
+    return JSON.stringify(readDestinationAnalysis(${jsLiteral(input)}));
+  })()`;
+}
+
+function jsLiteral(value: unknown): string {
+  const json = JSON.stringify(value);
+  if (json === undefined) {
+    throw new Civ7DirectControlError("command-failed", "Cannot serialize Civ7 command input");
+  }
+  return json;
+}
 
 export function destinationAnalysisSource(): string {
   return `${battlefieldScanSource()}

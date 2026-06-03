@@ -53,7 +53,7 @@ import { readyCityViewSource } from "./play/ready/city.js";
 import { unitMovePreviewSource } from "./play/ready/move-preview.js";
 import { readyUnitViewSource } from "./play/ready/unit.js";
 import { getCiv7BattlefieldScan as getCiv7BattlefieldScanFromModule } from "./play/tactical/battlefield.js";
-import { destinationAnalysisSource } from "./play/tactical/destination.js";
+import { getCiv7DestinationAnalysis as getCiv7DestinationAnalysisFromModule } from "./play/tactical/destination.js";
 import { getCiv7SettlementRecommendations as getCiv7SettlementRecommendationsFromModule } from "./play/tactical/settlement.js";
 import { getCiv7TargetCandidates as getCiv7TargetCandidatesFromModule } from "./play/tactical/target-candidates.js";
 
@@ -3876,21 +3876,14 @@ export async function getCiv7DestinationAnalysis(
   input: Civ7DestinationAnalysisInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7DestinationAnalysisResult> {
-  if (input.playerId !== undefined) validatePlayerId(input.playerId);
-  validateMapLocation(input.destination);
-  if (input.origin !== undefined) validateMapLocation(input.origin);
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildDestinationAnalysisCommand({
-      ...input,
-      corridorRadius: boundedInteger(input.corridorRadius ?? 2, 0, 8, "corridorRadius"),
-      destinationRadius: boundedInteger(input.destinationRadius ?? 4, 1, 16, "destinationRadius"),
-      maxPlayers: boundedInteger(input.maxPlayers ?? 32, 1, 128, "maxPlayers"),
-      maxUnits: boundedInteger(input.maxUnits ?? 96, 1, 256, "maxUnits"),
-      maxCities: boundedInteger(input.maxCities ?? 40, 1, 128, "maxCities"),
-    }),
+  return await getCiv7DestinationAnalysisFromModule(input, options, {
+    validatePlayerId,
+    validateMapLocation,
+    boundedInteger,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseDestinationAnalysis: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7DestinationAnalysisResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7DestinationAnalysisResult>(result, "Civ7 destination analysis");
 }
 
 export async function requestCiv7UnitTargetAction(
@@ -5543,19 +5536,6 @@ function buildReadyCityViewCommand(input: Civ7ReadyCityViewInput & { maxOperatio
   return `(() => {
     ${readyCityViewSource()}
     return JSON.stringify(readReadyCityView(${jsLiteral(input)}));
-  })()`;
-}
-
-function buildDestinationAnalysisCommand(input: Civ7DestinationAnalysisInput & {
-  corridorRadius: number;
-  destinationRadius: number;
-  maxPlayers: number;
-  maxUnits: number;
-  maxCities: number;
-}): string {
-  return `(() => {
-    ${destinationAnalysisSource()}
-    return JSON.stringify(readDestinationAnalysis(${jsLiteral(input)}));
   })()`;
 }
 
