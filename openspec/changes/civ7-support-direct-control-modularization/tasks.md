@@ -362,6 +362,13 @@ runtime/direct-control claims.
         telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
+  - [x] 4.8.9 Extract session endpoint/state/command-result type owner while
+        keeping public facade type re-exports in `index.ts`, preserving tuner
+        state selection, direct-control endpoint/options, and command-result
+        public contracts while leaving broader public result/input types,
+        procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
       oRPC implementation; current support branch has no tracked
       `.agents/skills/civ7-orpc-control-architecture` or
@@ -371,6 +378,11 @@ runtime/direct-control claims.
       or semantic player-agent output.
   - [x] 4.10.1 Extract tuner frame encode/parse owner module behind the
         existing package facade.
+  - [x] 4.10.2 Extract session endpoint/state/options/command-result type owner
+        behind the existing package facade, leaving session config/socket,
+        lifecycle/reconnect, procedure schemas, telemetry, semantic CLI, AI
+        ingestion, hotseat runtime proof, and Effect/oRPC procedure-core work
+        pending.
 - [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in

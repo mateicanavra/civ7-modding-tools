@@ -586,6 +586,16 @@ All future agent waves must be framed before delegation:
   procedure-core work, and Task 2.9.4 matrix-row acceptance stay pending. This
   is local package/constants relocation proof only, not runtime proof,
   AI/hotseat product-path support, or procedure-core readiness.
+- Direct-control session types slice: completed as a narrow public type
+  ownership relocation. It moves only tuner state, tuner state selection,
+  direct-control endpoint/options, and command-result public types into
+  `src/session/types.ts` while keeping facade type re-exports in `index.ts`.
+  This preserves public type contracts and does not move session config, socket
+  lifecycle, command execution, reconnect, runtime inspection, setup lifecycle,
+  procedure schemas, telemetry, AI ingestion, hotseat runtime proof, CLI
+  semantic projection, Effect/oRPC procedure-core work, or Task 2.9.4
+  matrix-row acceptance. This is local package/type relocation proof only, not
+  runtime proof, AI/hotseat product-path support, or procedure-core readiness.
 - Direct-control turn-completion slice: completed as a narrow turn-completion
   source/wrapper relocation. It moves only `getCiv7TurnCompletionStatus`,
   `sendCiv7TurnComplete`, `sendCiv7TurnUnready`, the status command builder,
