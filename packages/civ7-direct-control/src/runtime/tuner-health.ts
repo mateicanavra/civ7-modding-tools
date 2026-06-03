@@ -1,6 +1,7 @@
-import { Civ7DirectControlError } from "../direct-control-error.js";
+import { Civ7DirectControlError, type Civ7DirectControlErrorCode } from "../direct-control-error.js";
 
-import type { Civ7DirectControlSession } from "../index.js";
+import { DEFAULT_CIV7_TUNER_TIMEOUT_MS } from "../session/constants.js";
+import type { Civ7DirectControlSession } from "../session/session.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
@@ -60,6 +61,18 @@ export async function checkCiv7TunerHealth(
 ): Promise<Civ7TunerHealthResult> {
   return await dependencies.withSession(options, async (session) =>
     await checkCiv7TunerHealthWithSession(session, options.timeoutMs, dependencies)
+  );
+}
+
+export async function waitForCiv7TunerReady(
+  options: Civ7DirectControlOptions & {
+    waitTimeoutMs?: number;
+    pollIntervalMs?: number;
+  } = {},
+  dependencies: TunerHealthDependencies,
+): Promise<Civ7TunerHealthResult & { ready: true }> {
+  return await dependencies.withSession(options, async (session) =>
+    await waitForCiv7TunerReadyWithSession(session, options, dependencies)
   );
 }
 
@@ -139,4 +152,49 @@ export async function checkCiv7TunerHealthWithSession(
       timeoutMs,
     }, 1),
   );
+}
+
+export async function waitForCiv7TunerReadyWithSession(
+  session: Civ7DirectControlSession,
+  options: {
+    timeoutMs?: number;
+    waitTimeoutMs?: number;
+    pollIntervalMs?: number;
+  } = {},
+  dependencies: TunerHealthSessionDependencies,
+): Promise<Civ7TunerHealthResult & { ready: true }> {
+  const waitTimeoutMs = options.waitTimeoutMs ?? options.timeoutMs ?? DEFAULT_CIV7_TUNER_TIMEOUT_MS;
+  const pollIntervalMs = options.pollIntervalMs ?? 500;
+  const startedAt = Date.now();
+  let lastHealth: Civ7TunerHealthResult | undefined;
+  let lastError: Civ7DirectControlError | undefined;
+  while (Date.now() - startedAt <= waitTimeoutMs) {
+    try {
+      const health = await checkCiv7TunerHealthWithSession(session, options.timeoutMs, dependencies);
+      if (health.ready) return health as Civ7TunerHealthResult & { ready: true };
+      lastHealth = health;
+    } catch (err) {
+      lastError = toDirectControlError(err, "command-failed");
+      await session.close();
+    }
+    await sleep(pollIntervalMs);
+  }
+  throw new Civ7DirectControlError(
+    "connection-timeout",
+    `Timed out waiting for Civ7 Tuner readiness after ${waitTimeoutMs}ms`,
+    { details: lastHealth ?? lastError },
+  );
+}
+
+function toDirectControlError(err: unknown, fallbackCode: Civ7DirectControlErrorCode): Civ7DirectControlError {
+  if (err instanceof Civ7DirectControlError) return err;
+  return new Civ7DirectControlError(fallbackCode, errorMessage(err), { cause: err });
+}
+
+function errorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

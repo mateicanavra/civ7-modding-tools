@@ -7,6 +7,7 @@ import {
   Civ7DirectControlError,
   restartCiv7Game,
   restartCiv7GameAndBegin,
+  waitForCiv7TunerReady,
 } from "../src/index";
 
 describe("Civ7 restart lifecycle", () => {
@@ -29,6 +30,26 @@ describe("Civ7 restart lifecycle", () => {
       expect(result.tunerHealth?.ready).toBe(true);
       expect(server.received).toContain(`CMD:65535:${CIV7_RESTART_COMMAND}`);
       expect(server.received).toContain(`CMD:65535:${CIV7_BEGIN_GAME_COMMAND}`);
+      expect(server.received.some((message) => message.startsWith("CMD:1:(() =>"))).toBe(true);
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("waits for Tuner readiness through the public wrapper", async () => {
+    const server = await startRestartLifecycleServer();
+    try {
+      const { port } = server.address();
+      const health = await waitForCiv7TunerReady({
+        host: "127.0.0.1",
+        port,
+        timeoutMs: 1_000,
+        waitTimeoutMs: 1_000,
+        pollIntervalMs: 10,
+      });
+
+      expect(health.ready).toBe(true);
+      expect(health.state).toEqual({ id: "1", name: "Tuner" });
       expect(server.received.some((message) => message.startsWith("CMD:1:(() =>"))).toBe(true);
     } finally {
       await server.close();

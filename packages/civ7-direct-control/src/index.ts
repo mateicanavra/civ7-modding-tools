@@ -83,6 +83,8 @@ import {
 import {
   checkCiv7TunerHealth as checkCiv7TunerHealthFromModule,
   checkCiv7TunerHealthWithSession,
+  waitForCiv7TunerReady as waitForCiv7TunerReadyFromModule,
+  waitForCiv7TunerReadyWithSession,
   type Civ7TunerHealthResult,
   type Civ7TunerHealthSnapshot,
 } from "./runtime/tuner-health.js";
@@ -896,7 +898,13 @@ export async function restartCiv7GameAndBegin(options: Civ7DirectControlOptions 
     executeSessionCommandWithReconnect,
     restartCommand: CIV7_RESTART_COMMAND,
     uiLoadingStates: CIV7_UI_LOADING_STATES,
-    waitForTunerReadyWithSession: waitForCiv7TunerReadyWithSession,
+    waitForTunerReadyWithSession: async (
+      session: Civ7DirectControlSession,
+      waitOptions: { timeoutMs?: number; waitTimeoutMs?: number; pollIntervalMs?: number },
+    ) =>
+      await waitForCiv7TunerReadyWithSession(session, waitOptions, {
+        executeSessionCommandWithReconnect,
+      }),
     withSession: async <T>(
       sessionOptions: Civ7DirectControlOptions,
       run: (session: Civ7DirectControlSession) => Promise<T>,
@@ -915,12 +923,20 @@ export async function waitForCiv7TunerReady(options: Civ7DirectControlOptions & 
   waitTimeoutMs?: number;
   pollIntervalMs?: number;
 } = {}): Promise<Civ7TunerHealthResult & { ready: true }> {
-  const session = new Civ7DirectControlSession(options);
-  try {
-    return await waitForCiv7TunerReadyWithSession(session, options);
-  } finally {
-    await session.close();
-  }
+  return await waitForCiv7TunerReadyFromModule(options, {
+    executeSessionCommandWithReconnect,
+    withSession: async <T>(
+      sessionOptions: Civ7DirectControlOptions,
+      run: (session: Civ7DirectControlSession) => Promise<T>,
+    ): Promise<T> => {
+      const session = new Civ7DirectControlSession(sessionOptions);
+      try {
+        return await run(session);
+      } finally {
+        await session.close();
+      }
+    },
+  });
 }
 
 export async function getCiv7PlayableStatus(
@@ -1335,7 +1351,13 @@ function setupStartDependencies() {
     parseStartPayload: (result: Civ7CommandResult, label: string) =>
       jsonPayloadFromCommandResult<{ ok: unknown }>(result, label),
     uiLoadingStates: CIV7_UI_LOADING_STATES,
-    waitForTunerReadyWithSession: waitForCiv7TunerReadyWithSession,
+    waitForTunerReadyWithSession: async (
+      session: Civ7DirectControlSession,
+      waitOptions: { timeoutMs?: number; waitTimeoutMs?: number; pollIntervalMs?: number },
+    ) =>
+      await waitForCiv7TunerReadyWithSession(session, waitOptions, {
+        executeSessionCommandWithReconnect,
+      }),
     withSession: async <T>(
       sessionOptions: Civ7DirectControlOptions,
       run: (session: Civ7DirectControlSession) => Promise<T>,
@@ -2641,39 +2663,6 @@ function jsLiteral(value: unknown): string {
     throw new Civ7DirectControlError("command-failed", "Cannot serialize Civ7 command input");
   }
   return json;
-}
-
-async function waitForCiv7TunerReadyWithSession(
-  session: Civ7DirectControlSession,
-  options: {
-    timeoutMs?: number;
-    waitTimeoutMs?: number;
-    pollIntervalMs?: number;
-  } = {},
-): Promise<Civ7TunerHealthResult & { ready: true }> {
-  const waitTimeoutMs = options.waitTimeoutMs ?? options.timeoutMs ?? DEFAULT_CIV7_TUNER_TIMEOUT_MS;
-  const pollIntervalMs = options.pollIntervalMs ?? 500;
-  const startedAt = Date.now();
-  let lastHealth: Civ7TunerHealthResult | undefined;
-  let lastError: Civ7DirectControlError | undefined;
-  while (Date.now() - startedAt <= waitTimeoutMs) {
-    try {
-      const health = await checkCiv7TunerHealthWithSession(session, options.timeoutMs, {
-        executeSessionCommandWithReconnect,
-      });
-      if (health.ready) return health as Civ7TunerHealthResult & { ready: true };
-      lastHealth = health;
-    } catch (err) {
-      lastError = toDirectControlError(err, "command-failed");
-      await session.close();
-    }
-    await sleep(pollIntervalMs);
-  }
-  throw new Civ7DirectControlError(
-    "connection-timeout",
-    `Timed out waiting for Civ7 Tuner readiness after ${waitTimeoutMs}ms`,
-    { details: lastHealth ?? lastError },
-  );
 }
 
 function toDirectControlError(err: unknown, fallbackCode: Civ7DirectControlErrorCode): Civ7DirectControlError {
