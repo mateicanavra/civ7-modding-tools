@@ -276,6 +276,10 @@ All future agent waves must be framed before delegation:
   tactical read source relocation. It moves only the target-candidates embedded
   source into `src/play/tactical/target-candidates.ts`. Wrapper/builder ownership
   stays in `index.ts`; this is source relocation proof only, not runtime proof.
+- Direct-control battlefield scan source slice: completed as the next
+  tactical read source relocation. It moves only the battlefield scan embedded
+  source into `src/play/tactical/battlefield.ts`. Wrapper/builder ownership stays
+  in `index.ts`; this is source relocation proof only, not runtime proof.
 - Review-disposition ledger: agent/reviewer findings recorded.
 - Exact dismiss-notification CLI slice: completed as test-only extraction with
   local fixture ownership and no runtime claim.

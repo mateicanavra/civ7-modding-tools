@@ -131,6 +131,8 @@ runtime/direct-control claims.
         the public wrapper in the facade.
   - [x] 4.7.4 Extract target-candidates embedded source owner while keeping the
         public wrapper in the facade.
+  - [x] 4.7.5 Extract battlefield scan embedded source owner while keeping the
+        public wrapper in the facade.
 - [ ] 4.8 Export stable types/constants only after module owners are defined.
   - [x] 4.8.1 Extract ComponentID primitive and direct-control error owner
         modules behind the existing package facade.
