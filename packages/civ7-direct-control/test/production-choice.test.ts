@@ -6,8 +6,28 @@ import { requestCiv7ProductionChoice } from "../src/index";
 
 type FakeTunerServer = {
   received: string[];
+  operationCalls: OperationCall[];
+  productionChoiceCalls: ProductionChoiceCall[];
   address(): AddressInfo;
   close(): Promise<void>;
+};
+
+type OperationCall = {
+  kind: "validate" | "send";
+  family: string;
+  input: {
+    cityId?: { owner: number; id: number; type: number };
+    operationType?: string;
+    args?: Record<string, number>;
+  };
+};
+
+type ProductionChoiceCall = {
+  input: {
+    cityId: { owner: number; id: number; type: number };
+    args: Record<string, number>;
+  };
+  options: { send?: boolean };
 };
 
 describe("production choice requests", () => {
@@ -19,7 +39,7 @@ describe("production choice requests", () => {
       const request = await requestCiv7ProductionChoice(
         { cityId, args: { ConstructibleType: 713967338, X: 22, Y: 31 } },
         { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test official production choice" },
+        { approved: true, reason: "test official production choice" }
       );
 
       expect(request.sent).toBe(true);
@@ -30,10 +50,39 @@ describe("production choice requests", () => {
       });
       expect(request.payload?.ui?.cityActivation).toMatchObject({ ok: true });
       expect(request.payload?.ui?.interfaceClose).toMatchObject({ ok: true });
-      expect(server.received.some((message) => message.includes("readProductionChoice"))).toBe(true);
-      expect(server.received.some((message) => message.includes("UI?.Player?.selectCity"))).toBe(true);
-      expect(server.received.some((message) => message.includes("InterfaceMode?.switchToDefault"))).toBe(true);
-      expect(server.received.some((message) => message.includes("return JSON.stringify(sendOperation"))).toBe(false);
+      expect(server.operationCalls).toEqual([
+        {
+          kind: "validate",
+          family: "city-operation",
+          input: {
+            cityId,
+            operationType: "BUILD",
+            args: { ConstructibleType: 713967338, X: 22, Y: 31 },
+          },
+        },
+        {
+          kind: "validate",
+          family: "city-operation",
+          input: {
+            cityId,
+            operationType: "BUILD",
+            args: { ConstructibleType: 713967338, X: 22, Y: 31 },
+          },
+        },
+      ]);
+      expect(server.productionChoiceCalls).toEqual([
+        {
+          input: { cityId, args: { ConstructibleType: 713967338, X: 22, Y: 31 } },
+          options: { send: true },
+        },
+        {
+          input: { cityId, args: { ConstructibleType: 713967338, X: 22, Y: 31 } },
+          options: { send: false },
+        },
+      ]);
+      expect(
+        server.received.some((message) => message.includes("return JSON.stringify(sendOperation"))
+      ).toBe(false);
     } finally {
       await server.close();
     }
@@ -42,6 +91,8 @@ describe("production choice requests", () => {
 
 async function startProductionChoiceTunerServer(): Promise<FakeTunerServer> {
   const received: string[] = [];
+  const operationCalls: OperationCall[] = [];
+  const productionChoiceCalls: ProductionChoiceCall[] = [];
   let productionChoiceSent = false;
   const server = createServer((socket) => {
     let buffer = Buffer.alloc(0);
@@ -54,30 +105,36 @@ async function startProductionChoiceTunerServer(): Promise<FakeTunerServer> {
         received.push(frame.message);
         if (frame.message === "LSQ:") {
           socket.write(encodeResponse(frame.listenerId, ["65535", "App UI", "1", "Tuner"]));
-        } else if (frame.message.includes("return JSON.stringify(validateOperation")) {
-          socket.write(
-            encodeResponse(frame.listenerId, [
-              JSON.stringify({
-                family: "city-operation",
-                operationType: "BUILD",
-                enumValue: "BUILD",
-                target: { cityId: { owner: 0, id: 65536, type: 1 } },
-                args: { ConstructibleType: 713967338, X: 22, Y: 31 },
-                valid: true,
-                result: { Success: true },
-              }),
-            ]),
-          );
-        } else if (frame.message.includes("readProductionChoice")) {
-          const send = frame.message.includes('"send":true') || frame.message.includes('\\"send\\":true');
-          if (send) productionChoiceSent = true;
-          socket.write(
-            encodeResponse(frame.listenerId, [
-              JSON.stringify(productionChoicePayload(send, productionChoiceSent && !send)),
-            ]),
-          );
         } else {
-          socket.write(encodeResponse(frame.listenerId, ["2"]));
+          const operationCall = parseOperationCall(frame.message);
+          const productionChoiceCall = parseProductionChoiceCall(frame.message);
+          if (operationCall) operationCalls.push(operationCall);
+          if (productionChoiceCall) productionChoiceCalls.push(productionChoiceCall);
+          if (operationCall?.kind === "validate") {
+            socket.write(
+              encodeResponse(frame.listenerId, [
+                JSON.stringify({
+                  family: "city-operation",
+                  operationType: "BUILD",
+                  enumValue: "BUILD",
+                  target: { cityId: { owner: 0, id: 65536, type: 1 } },
+                  args: { ConstructibleType: 713967338, X: 22, Y: 31 },
+                  valid: true,
+                  result: { Success: true },
+                }),
+              ])
+            );
+          } else if (productionChoiceCall) {
+            const send = productionChoiceCall.options.send === true;
+            if (send) productionChoiceSent = true;
+            socket.write(
+              encodeResponse(frame.listenerId, [
+                JSON.stringify(productionChoicePayload(send, productionChoiceSent && !send)),
+              ])
+            );
+          } else {
+            socket.write(encodeResponse(frame.listenerId, ["2"]));
+          }
         }
       }
     });
@@ -85,11 +142,36 @@ async function startProductionChoiceTunerServer(): Promise<FakeTunerServer> {
   await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
   return {
     received,
+    operationCalls,
+    productionChoiceCalls,
     address: () => server.address() as AddressInfo,
     close: async () => {
       server.close();
       await once(server, "close");
     },
+  };
+}
+
+function parseOperationCall(message: string): OperationCall | undefined {
+  const match = message.match(
+    /return JSON\.stringify\((validateOperation|sendOperation)\(("(?:\\.|[^"\\])*"), (\{.*\})\)\);/s
+  );
+  if (!match) return undefined;
+  return {
+    kind: match[1] === "sendOperation" ? "send" : "validate",
+    family: JSON.parse(match[2]),
+    input: JSON.parse(match[3]),
+  };
+}
+
+function parseProductionChoiceCall(message: string): ProductionChoiceCall | undefined {
+  const match = message.match(
+    /return JSON\.stringify\(readProductionChoice\((\{.*\}), (\{.*\})\)\);/s
+  );
+  if (!match) return undefined;
+  return {
+    input: JSON.parse(match[1]),
+    options: JSON.parse(match[2]),
   };
 }
 
@@ -103,12 +185,18 @@ function productionChoicePayload(send: boolean, settled = false) {
     beforeValidation: { ok: true, value: { Success: true } },
     afterValidation: { ok: true, value: { Success: true } },
     sent: send,
-    sendResult: send ? { ok: true, value: true } : { ok: false, skipped: true, reason: "send not requested" },
+    sendResult: send
+      ? { ok: true, value: true }
+      : { ok: false, skipped: true, reason: "send not requested" },
     beforeProductionPostcondition: before,
     afterProductionPostcondition: after,
     ui: {
-      cityActivation: send ? { ok: true, value: { selectedCityId: cityId } } : { ok: false, skipped: true, reason: "read-only production choice status" },
-      interfaceClose: send ? { ok: true, value: { selectedCityId: null, interfaceMode: "INTERFACEMODE_DEFAULT" } } : { ok: false, skipped: true, reason: "send not requested" },
+      cityActivation: send
+        ? { ok: true, value: { selectedCityId: cityId } }
+        : { ok: false, skipped: true, reason: "read-only production choice status" },
+      interfaceClose: send
+        ? { ok: true, value: { selectedCityId: null, interfaceMode: "INTERFACEMODE_DEFAULT" } }
+        : { ok: false, skipped: true, reason: "send not requested" },
     },
     notes: ["This mirrors the official production chooser path."],
   };
@@ -116,7 +204,7 @@ function productionChoicePayload(send: boolean, settled = false) {
 
 function productionPostconditionSnapshot(
   phase: "before" | "after",
-  mode: "cleared" | "blocker-still-live",
+  mode: "cleared" | "blocker-still-live"
 ) {
   const cityId = { owner: 0, id: 65536, type: 1 };
   const notification = {
@@ -160,13 +248,11 @@ function productionPostconditionSnapshot(
   };
 }
 
-function parseRequest(buffer: Buffer):
-  | {
-      listenerId: number;
-      message: string;
-      bytesRead: number;
-    }
-  | null {
+function parseRequest(buffer: Buffer): {
+  listenerId: number;
+  message: string;
+  bytesRead: number;
+} | null {
   if (buffer.length < 8) return null;
   const messageLength = buffer.readUInt32LE(0);
   const bytesRead = 8 + messageLength;

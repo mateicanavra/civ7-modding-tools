@@ -2,15 +2,22 @@ import { once } from "node:events";
 import { type AddressInfo, createServer } from "node:net";
 import { describe, expect, test } from "vitest";
 
-import {
-  canStartCiv7UnitOperation,
-  requestCiv7UnitOperation,
-} from "../src/index";
+import { canStartCiv7UnitOperation, requestCiv7UnitOperation } from "../src/index";
 
 type FakeTunerServer = {
   received: string[];
+  operationCalls: OperationCall[];
   address(): AddressInfo;
   close(): Promise<void>;
+};
+
+type OperationCall = {
+  kind: "validate" | "send";
+  family: string;
+  input: {
+    unitId?: { owner: number; id: number; type: number };
+    operationType?: string;
+  };
 };
 
 describe("unit operation requests", () => {
@@ -21,12 +28,12 @@ describe("unit operation requests", () => {
       const unitId = { owner: 0, id: 65536, type: 26 };
       const validation = await canStartCiv7UnitOperation(
         { unitId, operationType: "SKIP_TURN" },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
       const request = await requestCiv7UnitOperation(
         { unitId, operationType: "SKIP_TURN" },
         { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test unit operation request" },
+        { approved: true, reason: "test unit operation request" }
       );
 
       expect(validation).toMatchObject({
@@ -41,7 +48,28 @@ describe("unit operation requests", () => {
         operationType: "SKIP_TURN",
         classification: "queue-advanced",
       });
-      expect(server.received.filter((message) => message.includes("return JSON.stringify(sendOperation")).length).toBe(1);
+      expect(server.operationCalls).toEqual([
+        {
+          kind: "validate",
+          family: "unit-operation",
+          input: { unitId, operationType: "SKIP_TURN" },
+        },
+        {
+          kind: "validate",
+          family: "unit-operation",
+          input: { unitId, operationType: "SKIP_TURN" },
+        },
+        {
+          kind: "send",
+          family: "unit-operation",
+          input: { unitId, operationType: "SKIP_TURN" },
+        },
+        {
+          kind: "validate",
+          family: "unit-operation",
+          input: { unitId, operationType: "SKIP_TURN" },
+        },
+      ]);
     } finally {
       await server.close();
     }
@@ -50,6 +78,7 @@ describe("unit operation requests", () => {
 
 async function startUnitOperationTunerServer(): Promise<FakeTunerServer> {
   const received: string[] = [];
+  const operationCalls: OperationCall[] = [];
   const server = createServer((socket) => {
     let buffer = Buffer.alloc(0);
     socket.on("data", (chunk) => {
@@ -61,39 +90,51 @@ async function startUnitOperationTunerServer(): Promise<FakeTunerServer> {
         received.push(frame.message);
         if (frame.message === "LSQ:") {
           socket.write(encodeResponse(frame.listenerId, ["65535", "App UI", "1", "Tuner"]));
-        } else if (frame.message.includes("return JSON.stringify(sendOperation")) {
-          socket.write(
-            encodeResponse(frame.listenerId, [
-              JSON.stringify({
-                sent: true,
-                before: {
+        } else {
+          const operationCall = parseOperationCall(frame.message);
+          if (operationCall) operationCalls.push(operationCall);
+          if (operationCall?.kind === "send") {
+            socket.write(
+              encodeResponse(frame.listenerId, [
+                JSON.stringify({
+                  sent: true,
+                  before: {
+                    family: "unit-operation",
+                    operationType: "SKIP_TURN",
+                    valid: true,
+                    result: { Success: true },
+                  },
+                  result: { accepted: true },
+                  beforePostcondition: unitOperationPostconditionSnapshot({
+                    owner: 0,
+                    id: 65536,
+                    type: 26,
+                  }),
+                  afterPostcondition: unitOperationPostconditionSnapshot({
+                    owner: 0,
+                    id: 131072,
+                    type: 26,
+                  }),
+                }),
+              ])
+            );
+          } else if (operationCall?.kind === "validate") {
+            socket.write(
+              encodeResponse(frame.listenerId, [
+                JSON.stringify({
                   family: "unit-operation",
                   operationType: "SKIP_TURN",
+                  enumValue: "SKIP_TURN",
+                  target: { unitId: { owner: 0, id: 65536, type: 26 } },
+                  args: undefined,
                   valid: true,
                   result: { Success: true },
-                },
-                result: { accepted: true },
-                beforePostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 65536, type: 26 }),
-                afterPostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 131072, type: 26 }),
-              }),
-            ]),
-          );
-        } else if (frame.message.includes("return JSON.stringify(validateOperation")) {
-          socket.write(
-            encodeResponse(frame.listenerId, [
-              JSON.stringify({
-                family: "unit-operation",
-                operationType: "SKIP_TURN",
-                enumValue: "SKIP_TURN",
-                target: { unitId: { owner: 0, id: 65536, type: 26 } },
-                args: undefined,
-                valid: true,
-                result: { Success: true },
-              }),
-            ]),
-          );
-        } else {
-          socket.write(encodeResponse(frame.listenerId, ["2"]));
+                }),
+              ])
+            );
+          } else {
+            socket.write(encodeResponse(frame.listenerId, ["2"]));
+          }
         }
       }
     });
@@ -101,6 +142,7 @@ async function startUnitOperationTunerServer(): Promise<FakeTunerServer> {
   await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
   return {
     received,
+    operationCalls,
     address: () => server.address() as AddressInfo,
     close: async () => {
       server.close();
@@ -109,7 +151,23 @@ async function startUnitOperationTunerServer(): Promise<FakeTunerServer> {
   };
 }
 
-function unitOperationPostconditionSnapshot(firstReadyUnitId: { owner: number; id: number; type: number }) {
+function parseOperationCall(message: string): OperationCall | undefined {
+  const match = message.match(
+    /return JSON\.stringify\((validateOperation|sendOperation)\(("(?:\\.|[^"\\])*"), (\{.*\})\)\);/s
+  );
+  if (!match) return undefined;
+  return {
+    kind: match[1] === "sendOperation" ? "send" : "validate",
+    family: JSON.parse(match[2]),
+    input: JSON.parse(match[3]),
+  };
+}
+
+function unitOperationPostconditionSnapshot(firstReadyUnitId: {
+  owner: number;
+  id: number;
+  type: number;
+}) {
   return {
     unit: {
       ok: true,
@@ -128,13 +186,11 @@ function unitOperationPostconditionSnapshot(firstReadyUnitId: { owner: number; i
   };
 }
 
-function parseRequest(buffer: Buffer):
-  | {
-      listenerId: number;
-      message: string;
-      bytesRead: number;
-    }
-  | null {
+function parseRequest(buffer: Buffer): {
+  listenerId: number;
+  message: string;
+  bytesRead: number;
+} | null {
   if (buffer.length < 8) return null;
   const messageLength = buffer.readUInt32LE(0);
   const bytesRead = 8 + messageLength;
