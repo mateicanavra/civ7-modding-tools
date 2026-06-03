@@ -637,6 +637,13 @@ runtime/direct-control claims.
         composition, telemetry/correlation contracts, procedure schemas,
         semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.14 Extract the private session command reconnect helper into the
+        session owner while preserving retry attempts, close-before-retry
+        behavior, `750 + attempt * 750` backoff, and `command-failed` fallback
+        classification, and leaving Tuner-ready waiting, lifecycle
+        composition, telemetry/correlation contracts, procedure schemas,
+        semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in

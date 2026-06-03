@@ -33,6 +33,7 @@ import {
   DEFAULT_CIV7_TUNER_STATE_NAME,
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
 } from "./session/constants.js";
+import { executeSessionCommandWithReconnect } from "./session/reconnect.js";
 import { selectCiv7TunerState } from "./session/state.js";
 import {
   DEFAULT_CIV7_SCRIPTING_LOG,
@@ -2734,28 +2735,6 @@ async function waitForCiv7TunerReadyWithSession(
     `Timed out waiting for Civ7 Tuner readiness after ${waitTimeoutMs}ms`,
     { details: lastHealth ?? lastError },
   );
-}
-
-async function executeSessionCommandWithReconnect(
-  session: Civ7DirectControlSession,
-  options: {
-    command: string;
-    state?: Civ7TunerStateSelection;
-    timeoutMs?: number;
-  },
-  attempts = 6,
-): Promise<Civ7CommandResult> {
-  let lastError: unknown;
-  for (let attempt = 0; attempt < attempts; attempt += 1) {
-    try {
-      return await session.executeCommand(options);
-    } catch (err) {
-      lastError = err;
-      await session.close();
-      await sleep(750 + attempt * 750);
-    }
-  }
-  throw toDirectControlError(lastError, "command-failed");
 }
 
 function toDirectControlError(err: unknown, fallbackCode: Civ7DirectControlErrorCode): Civ7DirectControlError {
