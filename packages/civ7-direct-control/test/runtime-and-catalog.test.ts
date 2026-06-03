@@ -15,6 +15,7 @@ import {
   getCiv7AppUiSnapshot,
   getCiv7GameInfoRows,
   getCiv7PlayableStatus,
+  inspectCiv7Root,
   inspectCiv7RuntimeApi,
   loadCiv7OfficialResourceCapabilities,
   snapshotFile,
@@ -245,6 +246,10 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
         resourcesRoot: fixtureRoot,
         maxFiles: 5,
       });
+      const boundedRoot = await inspectCiv7Root(
+        { roots: ["Game"], maxRoots: 32, maxKeys: 128, maxMethods: 128 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+      );
       const proof = await waitForFreshLogMarkers({
         logPath: logFixture,
         snapshot: before,
@@ -292,6 +297,23 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
           expect.objectContaining({ id: "official.Autoplay", owner: "official-resources" }),
         ])
       );
+      expect(boundedRoot).toMatchObject({
+        state: { id: "1", name: "Tuner" },
+        roots: expect.arrayContaining([
+          expect.objectContaining({
+            name: "Game",
+            methods: expect.arrayContaining([
+              expect.objectContaining({ name: "getTurn", owner: "prototype" }),
+            ]),
+          }),
+        ]),
+        limits: {
+          maxRoots: 32,
+          maxKeys: 128,
+          maxMethods: 128,
+          truncated: false,
+        },
+      });
       expect(proof.matched).toEqual(["runtime-ready", "proof-complete"]);
       expect(proof.startOffset).toBe(before.size);
     } finally {

@@ -468,11 +468,25 @@ All future agent waves must be framed before delegation:
   `src/runtime/playable-status.ts` while keeping public facade exports in
   `index.ts` and injecting App UI snapshot, Tuner health, and error-message
   dependencies from the facade. This preserves shell/playable/readiness
-  classification and unready error capture. Bounded root inspection, TypeBox
-  schema ownership, operation/proof telemetry, AI ingestion, hotseat runtime
-  proof, CLI semantic projection, Effect/oRPC procedure-core work, and Task
-  2.9.4 matrix-row acceptance stay pending. This is local package/source
-  relocation proof only, not runtime proof or AI/hotseat product-path support.
+  classification and unready error capture. Bounded root inspection was
+  extracted in the later runtime inspection slice; TypeBox schema ownership,
+  operation/proof telemetry, AI ingestion, hotseat runtime proof, CLI semantic
+  projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+  acceptance stay pending. This is local package/source relocation proof only,
+  not runtime proof or AI/hotseat product-path support.
+- Direct-control bounded root inspection slice: completed as a narrow
+  debug/internal inspection relocation. It moves only `inspectCiv7Root` and the
+  generated bounded root inspection command builder into
+  `src/runtime/root-inspection.ts` while keeping public facade exports in
+  `index.ts` and injecting command execution, validation, bounds, JSON parsing,
+  command serialization, and error construction from the facade. This preserves
+  root identifier validation, `maxRoots`/`maxKeys`/`maxMethods`, state default,
+  parse label, command serialization, and result shape. TypeBox schema
+  ownership, operation/proof telemetry, AI ingestion, hotseat runtime proof, CLI
+  semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
+  matrix-row acceptance stay pending. This is local package/source relocation
+  proof only, not runtime proof, runtime reflection authority, or AI/hotseat
+  product-path support.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.

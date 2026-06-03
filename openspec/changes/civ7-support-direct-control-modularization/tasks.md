@@ -321,6 +321,13 @@ runtime/direct-control claims.
         capture, and leaving bounded root inspection, TypeBox schema ownership,
         operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
         semantic projection, and Effect/oRPC procedure-core work pending.
+  - [x] 4.12.7 Extract bounded root inspection owner while keeping public
+        facade exports in `index.ts`, preserving root identifier validation,
+        bounds, state default, JSON parse label, command serialization, and
+        result shape, and leaving TypeBox schema ownership, operation/proof
+        telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 
 ## 5. CLI Semantic Surface Lane
 

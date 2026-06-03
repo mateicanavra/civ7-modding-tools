@@ -43,6 +43,7 @@ import {
   getCiv7AppUiSnapshot as getCiv7AppUiSnapshotFromModule,
 } from "./runtime/app-ui-snapshot.js";
 import { inspectCiv7RuntimeApi as inspectCiv7RuntimeApiFromModule } from "./runtime/inspection.js";
+import { inspectCiv7Root as inspectCiv7RootFromModule } from "./runtime/root-inspection.js";
 import {
   checkCiv7TunerHealth as checkCiv7TunerHealthFromModule,
   checkCiv7TunerHealthWithSession,
@@ -3327,22 +3328,16 @@ export async function inspectCiv7Root(
   input: Civ7RootInspectionInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7RootInspectionResult> {
-  const roots = input.roots.map((root) => validateIdentifier(root, "runtime root"));
-  if (roots.length === 0) {
-    throw new Civ7DirectControlError("command-failed", "At least one runtime root is required");
-  }
-  const result = await executeCiv7Command({
-    ...options,
-    state: input.state ?? { role: "tuner" },
-    command: buildBoundedRootInspectionCommand({
-      ...input,
-      roots,
-      maxRoots: boundedInteger(input.maxRoots ?? 16, 1, 64, "maxRoots"),
-      maxKeys: boundedInteger(input.maxKeys ?? DEFAULT_CIV7_ROOT_MAX_KEYS, 1, 1_000, "maxKeys"),
-      maxMethods: boundedInteger(input.maxMethods ?? DEFAULT_CIV7_ROOT_MAX_METHODS, 1, 1_000, "maxMethods"),
-    }),
+  return await inspectCiv7RootFromModule(input, options, {
+    boundedInteger,
+    commandFailedError: (message) => new Civ7DirectControlError("command-failed", message),
+    executeCommand: executeCiv7Command,
+    jsonPayloadFromCommandResult,
+    jsLiteral,
+    rootMaxKeysDefault: DEFAULT_CIV7_ROOT_MAX_KEYS,
+    rootMaxMethodsDefault: DEFAULT_CIV7_ROOT_MAX_METHODS,
+    validateIdentifier,
   });
-  return jsonPayloadFromCommandResult<Civ7RootInspectionResult>(result, "Civ7 root inspection");
 }
 
 export async function getCiv7AutoplayStatus(
@@ -4599,64 +4594,6 @@ function setupSnapshotScriptSource(): string {
         },
       };
     };`;
-}
-
-function buildBoundedRootInspectionCommand(input: Civ7RootInspectionInput & {
-  roots: ReadonlyArray<string>;
-  maxRoots: number;
-  maxKeys: number;
-  maxMethods: number;
-}): string {
-  return `(() => {
-    const input = ${jsLiteral(input)};
-    const roots = input.roots.slice(0, input.maxRoots);
-    let truncated = input.roots.length > roots.length;
-    const cap = (items, max) => {
-      if (items.length > max) truncated = true;
-      return items.slice(0, max);
-    };
-    const methodMeta = (owner, target, key) => {
-      try {
-        const candidate = target == null ? undefined : target[key];
-        if (typeof candidate !== "function") return null;
-        return {
-          name: key,
-          owner,
-          length: candidate.length,
-          signature: input.includeSignatures ? Function.prototype.toString.call(candidate).slice(0, 160) : "",
-        };
-      } catch (err) {
-        return { name: key, owner, length: -1, signature: "", error: String(err) };
-      }
-    };
-    const inspect = (name) => {
-      try {
-        const value = globalThis[name];
-        const proto = value == null ? null : Object.getPrototypeOf(value);
-        const ownKeys = cap(value == null ? [] : Object.getOwnPropertyNames(value), input.maxKeys);
-        const prototypeKeys = input.includePrototypeKeys === false ? [] : cap(proto == null ? [] : Object.getOwnPropertyNames(proto), input.maxKeys);
-        const enumerableKeys = input.includeEnumerableKeys === true && value != null
-          ? cap(Object.keys(value), input.maxKeys)
-          : [];
-        const methods = cap([
-          ...ownKeys.map((key) => methodMeta("own", value, key)),
-          ...prototypeKeys.filter((key) => key !== "constructor").map((key) => methodMeta("prototype", proto, key)),
-        ].filter(Boolean), input.maxMethods);
-        return { name, type: typeof value, exists: value !== undefined, ownKeys, prototypeKeys, enumerableKeys, methods };
-      } catch (err) {
-        return { name, type: "unknown", exists: false, ownKeys: [], prototypeKeys: [], enumerableKeys: [], methods: [], error: String(err) };
-      }
-    };
-    return JSON.stringify({
-      roots: roots.map(inspect),
-      limits: {
-        maxRoots: input.maxRoots,
-        maxKeys: input.maxKeys,
-        maxMethods: input.maxMethods,
-        truncated,
-      },
-    });
-  })()`;
 }
 
 function buildConfigureAutoplayCommand(options: Civ7AutoplayOptions): string {
