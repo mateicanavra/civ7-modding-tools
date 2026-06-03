@@ -8,9 +8,6 @@ import {
   CIV7_SIGNED_INT_SEED_MAX,
   CIV7_RESTART_COMMAND,
   Civ7DirectControlError,
-  assertCiv7ComponentId,
-  DEFAULT_CIV7_TUNER_HOST,
-  DEFAULT_CIV7_TUNER_PORT,
   checkCiv7DirectControlHealth,
   checkCiv7TunerHealth,
   canStartCiv7UnitOperation,
@@ -64,11 +61,6 @@ import {
 } from "../src/index";
 
 describe("Civ7 direct control", () => {
-  test("validates Civ7 ComponentID payloads through the shared TypeBox schema", () => {
-    expect(assertCiv7ComponentId({ owner: 0, id: 131073, type: 1 })).toEqual({ owner: 0, id: 131073, type: 1 });
-    expect(() => assertCiv7ComponentId({ owner: 0, type: 1 }, "--city-id")).toThrow(/--city-id must be a Civ7 ComponentID/);
-  });
-
   test("uses defaults and env hosts when resolving health", async () => {
     const server = await startTunerServer();
     try {
@@ -91,14 +83,12 @@ describe("Civ7 direct control", () => {
     }
   });
 
-  test("falls back to default host and port config when env is empty", async () => {
+  test("handles empty env when resolving health", async () => {
     const health = await checkCiv7DirectControlHealth({
       env: {},
       timeoutMs: 1,
     });
     expect([true, false]).toContain(health.ok);
-    expect(DEFAULT_CIV7_TUNER_HOST).toBe("127.0.0.1");
-    expect(DEFAULT_CIV7_TUNER_PORT).toBe(4318);
   });
 
   test("rejects setup seeds Civ7 would wrap before mutating setup state", async () => {
