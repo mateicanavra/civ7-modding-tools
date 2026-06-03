@@ -822,10 +822,7 @@ export async function beginCiv7Game(options: Civ7DirectControlOptions = {}): Pro
 export async function checkCiv7TunerHealth(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7TunerHealthResult> {
-  return await checkCiv7TunerHealthFromModule(options, {
-    withSession: withCiv7DirectControlSession,
-    executeSessionCommandWithReconnect,
-  });
+  return await checkCiv7TunerHealthFromModule(options);
 }
 
 export async function restartCiv7Game(options: Civ7DirectControlOptions & {
@@ -846,10 +843,7 @@ export async function waitForCiv7TunerReady(options: Civ7DirectControlOptions & 
   waitTimeoutMs?: number;
   pollIntervalMs?: number;
 } = {}): Promise<Civ7TunerHealthResult & { ready: true }> {
-  return await waitForCiv7TunerReadyFromModule(options, {
-    withSession: withCiv7DirectControlSession,
-    executeSessionCommandWithReconnect,
-  });
+  return await waitForCiv7TunerReadyFromModule(options);
 }
 
 export async function getCiv7PlayableStatus(

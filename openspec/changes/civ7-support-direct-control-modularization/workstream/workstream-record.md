@@ -521,6 +521,19 @@ All future agent waves must be framed before delegation:
   telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection, and
   Effect/oRPC procedure-core work stay pending. This is local package/source
   relocation proof only, not runtime proof.
+- Direct-control Tuner health facade dependency cleanup: completed as a narrow
+  runtime-status dependency pruning slice. `src/runtime/tuner-health.ts` now
+  imports existing non-facade session and reconnect execution owners directly
+  for public `checkCiv7TunerHealth` and `waitForCiv7TunerReady` defaults,
+  while setup/start and setup/restart lifecycle loops still pass the same
+  session-scoped dependency explicitly through their owner-local composition.
+  This preserves Tuner state selection, retry/count behavior, readiness wait
+  timing, parse label/result shape, and debug/internal-only readiness
+  classification. It does not move lifecycle orchestration, claim runtime/live
+  proof, expose raw Tuner health as normal CLI output, or unblock telemetry, AI
+  ingestion, semantic CLI projection, hotseat runtime proof, schema/procedure
+  ownership, Effect/Bun resource composition, Effect/oRPC implementation, or
+  Task 2.9.4 matrix-row acceptance.
 - Direct-control proof/log helper slice: completed as a narrow local helper
   relocation. It moves only `FileSnapshot`, `FreshLogMarkerProof`,
   `snapshotFile`, `waitForFreshLogMarkers`, and private ordered-marker/file

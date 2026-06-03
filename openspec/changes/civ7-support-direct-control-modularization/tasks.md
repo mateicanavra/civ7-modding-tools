@@ -1069,6 +1069,15 @@ runtime/direct-control claims.
         snapshot classification, and leaving telemetry, AI ingestion, CLI
         semantic projection, hotseat runtime proof, Effect/oRPC procedure-core
         work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.17 Prune Tuner health facade dependency injection by letting
+        `src/runtime/tuner-health.ts` import existing non-facade session and
+        reconnect execution owners directly for public health/readiness wrappers,
+        while setup/restart lifecycle loops still pass the same session-scoped
+        dependency explicitly, preserving Tuner state selection, retry/count
+        behavior, readiness wait timing, parse label/result shape, and leaving
+        telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
+        Effect/Bun resource composition, Effect/oRPC procedure-core work, and
+        Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready
