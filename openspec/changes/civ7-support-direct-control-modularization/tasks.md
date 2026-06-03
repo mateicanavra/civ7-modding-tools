@@ -6,7 +6,7 @@
 - [x] 1.3 Validate this OpenSpec change in strict mode.
 - [x] 1.4 Fill `workstream/workstream-record.md` from current branch, stack,
       stashes, and proof state.
-- [ ] 1.5 Fill `workstream/cli-play-corpus.md` with every play command/test
+- [x] 1.5 Fill `workstream/cli-play-corpus.md` with every play command/test
       owner row.
 - [x] 1.6 Fill `workstream/direct-control-atom-corpus.md` with every direct
       control atom candidate.
