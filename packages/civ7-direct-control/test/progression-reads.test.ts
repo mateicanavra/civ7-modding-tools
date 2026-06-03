@@ -81,7 +81,7 @@ describe("progression read surfaces", () => {
     }
   });
 
-  test("reads progress dashboard with runtime proof sources and no chooser sends", async () => {
+  test("reads progress dashboard with routed read sources and no chooser sends", async () => {
     const server = await startProgressionReadTunerServer();
     try {
       const { port } = server.address();
