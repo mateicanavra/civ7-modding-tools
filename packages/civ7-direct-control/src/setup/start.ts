@@ -18,9 +18,9 @@ import {
 import type { Civ7MapSummaryResult } from "../play/map/types.js";
 import type { Civ7RuntimeProbe } from "../runtime/probe.js";
 import type { Civ7TunerHealthResult } from "../runtime/tuner-health.js";
+import type { Civ7ActionApproval } from "../action-approval.js";
 
 import type {
-  Civ7ActionApproval,
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7DirectControlSession,

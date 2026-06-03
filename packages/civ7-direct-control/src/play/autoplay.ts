@@ -1,6 +1,4 @@
-import type {
-  Civ7ActionApproval,
-} from "../index.js";
+import type { Civ7ActionApproval } from "../action-approval.js";
 import type {
   Civ7AppUiSnapshot,
   Civ7AppUiSnapshotResult,

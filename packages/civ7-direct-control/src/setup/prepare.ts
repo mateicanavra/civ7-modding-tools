@@ -13,8 +13,8 @@ import {
   type SetupReadDependencies,
 } from "./reads.js";
 
+import type { Civ7ActionApproval } from "../action-approval";
 import type {
-  Civ7ActionApproval,
   Civ7CommandResult,
   Civ7DirectControlOptions,
 } from "../index.js";

@@ -1221,6 +1221,16 @@ All future agent waves must be framed before delegation:
   semantic CLI projection, hotseat runtime proof, Effect/oRPC procedure-core
   work, or Task 2.9.4 matrix-row acceptance. This is local package/source
   relocation proof only, not runtime/live-game proof.
+- Direct-control action approval back-import cleanup slice: completed as a
+  narrow type-only ownership cleanup. Internal modules that need
+  `Civ7ActionApproval` now import it from `src/action-approval.ts` or the
+  operation type owner instead of from the public facade. Public facade
+  re-exports and all approval-first runtime behavior remain unchanged.
+  Unrelated command/session type back-imports, procedure schemas,
+  operation/proof telemetry, AI ingestion, semantic CLI projection, hotseat
+  runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+  acceptance remain pending. This is local type/source relocation proof only,
+  not runtime/live-game proof.
 - Direct-control generic validation primitive slice: completed as a narrow
   primitive/helper ownership relocation. It moves only bounded integer, simple
   identifier, and player-id validation helpers into `src/validation.ts` while

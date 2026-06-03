@@ -13,8 +13,8 @@ import type {
   Civ7SinglePlayerStartResult,
 } from "./start.js";
 
+import type { Civ7ActionApproval } from "../action-approval";
 import type {
-  Civ7ActionApproval,
   Civ7CommandResult,
   Civ7DirectControlOptions,
 } from "../index.js";
