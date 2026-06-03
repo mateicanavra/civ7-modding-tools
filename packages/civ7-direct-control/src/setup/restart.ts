@@ -1,20 +1,28 @@
-import { Civ7DirectControlError } from "../direct-control-error";
+import { Civ7DirectControlError } from "../direct-control-error.js";
 import {
   appUiSnapshotFromCommandResult,
   buildAppUiSnapshotCommand,
+  type Civ7AppUiSnapshot,
+  type Civ7AppUiSnapshotResult,
 } from "../runtime/app-ui-snapshot.js";
-
+import type { Civ7RuntimeProbe } from "../runtime/probe.js";
+import type { Civ7TunerHealthResult } from "../runtime/tuner-health.js";
 import type {
-  Civ7AppUiSnapshot,
-  Civ7AppUiSnapshotResult,
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7DirectControlSession,
-  Civ7RestartAndBeginResult,
-  Civ7RuntimeProbe,
-  Civ7TunerHealthResult,
   Civ7TunerStateSelection,
-} from "../index";
+} from "../session/types.js";
+import type {
+  Civ7DirectControlSession,
+} from "../index.js";
+
+export type Civ7RestartAndBeginResult = Readonly<{
+  restart: Civ7CommandResult;
+  begin?: Civ7CommandResult;
+  finalAppUi: Civ7AppUiSnapshotResult;
+  tunerHealth?: Civ7TunerHealthResult;
+  observations: ReadonlyArray<Civ7AppUiSnapshot>;
+}>;
 
 type RestartBeginDependencies = Readonly<{
   appUiState: Civ7TunerStateSelection;

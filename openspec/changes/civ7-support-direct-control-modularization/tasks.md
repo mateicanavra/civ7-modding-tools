@@ -516,10 +516,16 @@ runtime/direct-control claims.
         pending.
   - [x] 4.8.30 Extract capability catalog options type owner while keeping
         public facade type re-exports in `index.ts`, preserving catalog option
-        shape and leaving remaining facade-owned lifecycle/health result types,
+        shape and leaving remaining facade-owned health result types,
         public procedure schemas, operation/proof telemetry, hotseat runtime
         proof, AI ingestion, CLI semantic projection, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.31 Extract restart/begin result type owner while keeping public
+        facade type re-exports in `index.ts`, preserving restart/begin result
+        shape and leaving remaining facade-owned health result types, public
+        procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
       oRPC implementation; current support branch has no tracked
       `.agents/skills/civ7-orpc-control-architecture` or

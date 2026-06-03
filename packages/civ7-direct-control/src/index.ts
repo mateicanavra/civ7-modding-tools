@@ -124,6 +124,7 @@ import {
   beginCiv7Game as beginCiv7GameFromModule,
   restartCiv7Game as restartCiv7GameFromModule,
   restartCiv7GameAndBegin as restartCiv7GameAndBeginFromModule,
+  type Civ7RestartAndBeginResult,
 } from "./setup/restart.js";
 import {
   CIV7_BEGIN_GAME_COMMAND,
@@ -454,6 +455,7 @@ export type {
   Civ7SinglePlayerRunInput,
   Civ7SinglePlayerRunResult,
 } from "./setup/run.js";
+export type { Civ7RestartAndBeginResult } from "./setup/restart.js";
 export {
   DEFAULT_CIV7_GAMEINFO_LIMIT,
   DEFAULT_CIV7_GAMEINFO_TABLES,
@@ -803,14 +805,6 @@ export type Civ7SavedGameConfigurationListInput = Readonly<{
 export type Civ7SavedGameConfigurationListResult = Readonly<{
   directory: string;
   configurations: ReadonlyArray<Civ7SavedGameConfiguration>;
-}>;
-
-export type Civ7RestartAndBeginResult = Readonly<{
-  restart: Civ7CommandResult;
-  begin?: Civ7CommandResult;
-  finalAppUi: Civ7AppUiSnapshotResult;
-  tunerHealth?: Civ7TunerHealthResult;
-  observations: ReadonlyArray<Civ7AppUiSnapshot>;
 }>;
 
 export type Civ7DirectControlHealth =

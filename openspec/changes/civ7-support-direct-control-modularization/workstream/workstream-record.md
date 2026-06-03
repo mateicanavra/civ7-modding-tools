@@ -1246,6 +1246,17 @@ All future agent waves must be framed before delegation:
   projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
   acceptance remain pending. This is local package/type relocation proof only,
   not runtime/live-game proof.
+- Direct-control restart/begin result type slice: completed as a narrow public
+  type ownership relocation. It moves `Civ7RestartAndBeginResult` into
+  `src/setup/restart.ts` while keeping public facade type re-exports in
+  `index.ts`. This preserves restart/begin result shape and does not change
+  lifecycle orchestration, command routing, App UI snapshot parsing, Tuner
+  readiness waiting, restart-output validation, or no-replay behavior.
+  Remaining facade-owned health result types, public procedure schemas,
+  operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI semantic
+  projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+  acceptance remain pending. This is local package/type relocation proof only,
+  not runtime/live-game proof.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into
