@@ -261,6 +261,13 @@ runtime/direct-control claims.
         inspection, capability catalog, telemetry, hotseat runtime proof, AI
         ingestion, CLI semantic projection, and Effect/oRPC procedure-core work
         pending.
+  - [x] 4.12.2 Extract App UI snapshot wrapper/source owner while keeping the
+        public facade export surface in `index.ts`, leaving lifecycle/setup
+        orchestration in the facade while reusing the same internal snapshot
+        builder/parser helpers, and leaving Tuner health, playable status,
+        bounded root inspection, capability catalog, telemetry, hotseat runtime
+        proof, AI ingestion, CLI semantic projection, and Effect/oRPC
+        procedure-core work pending.
 
 ## 5. CLI Semantic Surface Lane
 

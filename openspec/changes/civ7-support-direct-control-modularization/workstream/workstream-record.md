@@ -386,6 +386,17 @@ All future agent waves must be framed before delegation:
   runtime proof, AI ingestion, CLI semantic projection, and Effect/oRPC
   procedure-core work stay out of this slice. This is local read-only
   package/source relocation proof only, not runtime proof.
+- Direct-control App UI snapshot source/wrapper slice: completed as a narrow
+  read-only runtime-status support relocation. It moves only
+  `getCiv7AppUiSnapshot`, the generated App UI snapshot command, and
+  `appUiSnapshotFromCommandResult` into `src/runtime/app-ui-snapshot.ts` while
+  keeping public facade exports in `index.ts`. Restart/setup lifecycle loops
+  still reuse the internal snapshot builder/parser helpers from the module;
+  lifecycle orchestration remains in the facade. Tuner health, playable status,
+  bounded root inspection, capability catalog, telemetry, hotseat runtime proof,
+  AI ingestion, CLI semantic projection, and Effect/oRPC procedure-core work
+  stay out of this slice. This is local read-only package/source relocation
+  proof only, not runtime proof.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.

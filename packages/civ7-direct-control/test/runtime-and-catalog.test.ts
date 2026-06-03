@@ -71,6 +71,22 @@ describe("Civ7 runtime inspection and capability catalog support", () => {
             inGame: { ok: true, value: true },
             inShell: { ok: true, value: false },
             loadingStateName: "GameStarted",
+            canNotifyUIReady: "function",
+            skipStartButton: { ok: true, value: false },
+            automationActive: { ok: true, value: false },
+          },
+          gameContext: {
+            localPlayerID: 0,
+            localObserverID: 0,
+            hasRequestedPause: { ok: true, value: false },
+          },
+          players: {
+            aliveHumanIds: { ok: true, value: [0] },
+            numAliveHumans: { ok: true, value: 1 },
+          },
+          autoplay: {
+            isActive: false,
+            isPausedOrPending: false,
           },
           map: {
             width: { ok: true, value: 84 },
