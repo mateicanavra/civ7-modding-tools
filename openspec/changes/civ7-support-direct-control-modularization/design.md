@@ -220,6 +220,10 @@ Responsibilities:
 - identify where Effect `Scope`, resource acquisition/release, streams,
   schedules, layers, errors, and concurrency primitives should replace ad hoc
   control plumbing;
+- treat current setup/restart dependency injection for waits, session use, and
+  readiness polling as a modularization boundary, not the final composition
+  model; a later accepted Effect/Bun slice should decide whether those injected
+  waits become scoped resources, schedules, layers, or typed errors;
 - identify where Bun-native APIs should replace Node APIs in new/refactored
   code;
 - define test patterns for Effect-based logic without converting the oclif CLI

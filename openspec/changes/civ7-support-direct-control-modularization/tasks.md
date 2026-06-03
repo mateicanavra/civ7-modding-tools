@@ -998,7 +998,8 @@ authority are recorded.
 - [ ] 6.4 Expose transport adapters only after procedure cores are testable.
 - [ ] 6.5 Plan Effect `Scope`/resource acquisition, streams/buffers, schedules,
       layers, error modeling, and concurrency usage for direct-control atoms,
-      procedure cores, and tests.
+      procedure cores, and tests, including the setup/restart readiness waits
+      that currently remain dependency-injected during modularization.
 - [ ] 6.6 Prefer Bun-native APIs over Node APIs in new/refactored control code
       unless Node is the only practical or clearly better implementation.
 - [ ] 6.7 Keep the oclif CLI shell; do not replace it with Effect CLI unless a

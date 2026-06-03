@@ -139,6 +139,12 @@ APIs should be preferred over Node APIs in new/refactored control code except
 where Node is the only practical or clearly superior implementation. This does
 not replace the existing oclif CLI shell with Effect CLI.
 
+The current setup/restart readiness waits and session helpers may continue as
+explicit dependency injection while modularization stabilizes atoms. A later
+accepted Effect/Bun lane should decide whether those waits become scoped
+resources, schedules, layers, or typed errors; source cleanup slices should not
+hide that decision by prematurely absorbing lifecycle wait composition.
+
 ## Hotseat And AI-Intelligence Compatibility Rule
 
 The direct-control atom lane must now plan for two first-class downstream
