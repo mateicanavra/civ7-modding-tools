@@ -1,5 +1,35 @@
 # Civ7 Support Direct-Control Modularization Workstream
 
+## Active Watcher Correction - P1 Controller Bridge Substrate
+
+Status: active; blocks controller/AI/oRPC planning closure until repaired.
+
+The main repo accepted a controller bridge substrate correction at
+`c7111b120e92e80ccc9e944442020d9e1d5674c7`:
+`docs(civ7): align controller bridge substrate`. Read
+`/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/docs/projects/civ7-intelligence-layer/workstream/direct-control-game-controller-bridge/supervisor-notice.md`
+before any downstream bridge, AI-ingestion, semantic CLI, telemetry,
+schema/procedure-core, or Effect/oRPC planning depends on this support
+workstream.
+
+The active support records still contain stale framing that treats
+`globalThis.Civ7IntelligenceBridge.invoke(...)` as a small/custom
+JSON-envelope RPC and keeps oRPC outside the game at the external
+direct-control boundary. The corrected model is: the in-game controller mod API
+is an in-process oRPC/Effect callable router loaded through Civ7 native
+`scope="game"` `UIScripts`; `Civ7IntelligenceBridge.invoke(...)` is serialized
+ingress through the existing tuner/App UI command boundary into that router;
+oRPC/Effect is the shared substrate for the game controller, external
+direct-control bridge, and future AI services.
+
+Falsifier paths include `design.md:42-45`, `design.md:393-395`,
+`tasks.md:138-139`, `tasks.md:1127-1129`, this record's prior bridge wording,
+and `compatibility-matrix.md:50-53,263-286`. Repair the records before
+preserving those assumptions in any new commit. This is not a request to
+implement controller source, claim runtime proof, touch the play thread,
+foreground Studio HTTP/RPCLink, add a hand-maintained App UI method table, or
+create an ad hoc JSON-envelope product API.
+
 ## Frame
 
 - Objective: migrate accumulated Civ7 play-support behavior from monolithic CLI
@@ -1319,12 +1349,14 @@ All future agent waves must be framed before delegation:
   operation input validation, validator-first request flow, and
   unit/population/production postcondition composition into
   `src/play/operations/validate-request.ts` while keeping public facade exports
-  in `index.ts`. The facade still injects approval, Tuner execution, command
-  parsing, and serialization. This preserves approval-first send behavior,
-  operation router source routing, unit-operation and population-placement
-  package proof, and production postcondition composition. Telemetry, AI
-  ingestion, semantic CLI projection, Effect/oRPC procedure-core work, and
-  Task 2.9.4 matrix-row acceptance remain pending. This is local
+  in `index.ts`. Follow-up facade dependency cleanup lets the operation request
+  owner import existing non-facade approval, Tuner execution, command-result
+  parser, and command serialization owners directly, so the public facade no
+  longer assembles those dependency objects. This preserves approval-first send
+  behavior, operation router source routing, unit-operation and
+  population-placement package proof, and production postcondition composition.
+  Telemetry, AI ingestion, semantic CLI projection, Effect/oRPC procedure-core
+  work, and Task 2.9.4 matrix-row acceptance remain pending. This is local
   package/source relocation proof only, not runtime/live-game proof.
 - Direct-control shared operation primitive types slice: completed as a narrow
   public type ownership relocation. It moves only operation family/target/input,

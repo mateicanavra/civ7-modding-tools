@@ -1391,12 +1391,7 @@ export async function canStartCiv7UnitOperation(
   input: Civ7OperationInput & Readonly<{ unitId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7OperationValidationResult> {
-  return await canStartCiv7UnitOperationFromModule(input, options, {
-    assertApproved,
-    executeTunerCommand: executeCiv7TunerCommand,
-    jsonPayloadFromCommandResult,
-    jsLiteral,
-  });
+  return await canStartCiv7UnitOperationFromModule(input, options);
 }
 
 export async function requestCiv7UnitOperation(
@@ -1404,24 +1399,14 @@ export async function requestCiv7UnitOperation(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7OperationRequestResult> {
-  return await requestCiv7UnitOperationFromModule(input, options, approval, {
-    assertApproved,
-    executeTunerCommand: executeCiv7TunerCommand,
-    jsonPayloadFromCommandResult,
-    jsLiteral,
-  });
+  return await requestCiv7UnitOperationFromModule(input, options, approval);
 }
 
 export async function canStartCiv7UnitCommand(
   input: Civ7OperationInput & Readonly<{ unitId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7OperationValidationResult> {
-  return await canStartCiv7UnitCommandFromModule(input, options, {
-    assertApproved,
-    executeTunerCommand: executeCiv7TunerCommand,
-    jsonPayloadFromCommandResult,
-    jsLiteral,
-  });
+  return await canStartCiv7UnitCommandFromModule(input, options);
 }
 
 export async function requestCiv7UnitCommand(
@@ -1429,24 +1414,14 @@ export async function requestCiv7UnitCommand(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7OperationRequestResult> {
-  return await requestCiv7UnitCommandFromModule(input, options, approval, {
-    assertApproved,
-    executeTunerCommand: executeCiv7TunerCommand,
-    jsonPayloadFromCommandResult,
-    jsLiteral,
-  });
+  return await requestCiv7UnitCommandFromModule(input, options, approval);
 }
 
 export async function canStartCiv7CityOperation(
   input: Civ7OperationInput & Readonly<{ cityId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7OperationValidationResult> {
-  return await canStartCiv7CityOperationFromModule(input, options, {
-    assertApproved,
-    executeTunerCommand: executeCiv7TunerCommand,
-    jsonPayloadFromCommandResult,
-    jsLiteral,
-  });
+  return await canStartCiv7CityOperationFromModule(input, options);
 }
 
 export async function requestCiv7CityOperation(
@@ -1454,12 +1429,7 @@ export async function requestCiv7CityOperation(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7OperationRequestResult> {
-  return await requestCiv7CityOperationFromModule(input, options, approval, {
-    assertApproved,
-    executeTunerCommand: executeCiv7TunerCommand,
-    jsonPayloadFromCommandResult,
-    jsLiteral,
-  });
+  return await requestCiv7CityOperationFromModule(input, options, approval);
 }
 
 export async function requestCiv7ProductionChoice(
@@ -1480,12 +1450,7 @@ export async function canStartCiv7CityCommand(
   input: Civ7OperationInput & Readonly<{ cityId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7OperationValidationResult> {
-  return await canStartCiv7CityCommandFromModule(input, options, {
-    assertApproved,
-    executeTunerCommand: executeCiv7TunerCommand,
-    jsonPayloadFromCommandResult,
-    jsLiteral,
-  });
+  return await canStartCiv7CityCommandFromModule(input, options);
 }
 
 export async function requestCiv7CityCommand(
@@ -1493,24 +1458,14 @@ export async function requestCiv7CityCommand(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7OperationRequestResult> {
-  return await requestCiv7CityCommandFromModule(input, options, approval, {
-    assertApproved,
-    executeTunerCommand: executeCiv7TunerCommand,
-    jsonPayloadFromCommandResult,
-    jsLiteral,
-  });
+  return await requestCiv7CityCommandFromModule(input, options, approval);
 }
 
 export async function canStartCiv7PlayerOperation(
   input: Civ7OperationInput & Readonly<{ playerId: number }>,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7OperationValidationResult> {
-  return await canStartCiv7PlayerOperationFromModule(input, options, {
-    assertApproved,
-    executeTunerCommand: executeCiv7TunerCommand,
-    jsonPayloadFromCommandResult,
-    jsLiteral,
-  });
+  return await canStartCiv7PlayerOperationFromModule(input, options);
 }
 
 export async function requestCiv7PlayerOperation(
@@ -1518,12 +1473,7 @@ export async function requestCiv7PlayerOperation(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7OperationRequestResult> {
-  return await requestCiv7PlayerOperationFromModule(input, options, approval, {
-    assertApproved,
-    executeTunerCommand: executeCiv7TunerCommand,
-    jsonPayloadFromCommandResult,
-    jsLiteral,
-  });
+  return await requestCiv7PlayerOperationFromModule(input, options, approval);
 }
 
 export async function requestCiv7TechnologyChoiceCloseout(

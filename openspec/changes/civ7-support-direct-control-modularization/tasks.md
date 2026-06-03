@@ -349,6 +349,15 @@ runtime/direct-control claims.
         runtime/live-game proof, telemetry, AI ingestion, semantic CLI
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.6.20 Prune generic operation facade dependency injection by letting
+        `src/play/operations/validate-request.ts` import existing non-facade
+        approval, Tuner execution, command-result parser, and serializer owners
+        directly, while keeping public facade exports stable, preserving
+        approval-first send behavior, validator-first request flow, operation
+        router source routing, unit/population/production postcondition
+        composition, package/CLI proof, and leaving runtime/live-game proof,
+        telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.
