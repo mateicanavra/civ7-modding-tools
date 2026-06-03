@@ -1,13 +1,91 @@
 import type {
-  Civ7CitySummaryInput,
-  Civ7CitySummaryResult,
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7PlayerSummaryInput,
-  Civ7PlayerSummaryResult,
-  Civ7UnitSummaryInput,
-  Civ7UnitSummaryResult,
-} from "../index";
+  Civ7TunerState,
+} from "../session/types.js";
+import type { Civ7ComponentId } from "../civ7-component-id.js";
+import type { Civ7MapLocation } from "./map/types.js";
+import type { Civ7RuntimeProbe } from "../runtime/probe.js";
+
+export type Civ7PlayerSummaryInput = Readonly<{
+  playerIds?: ReadonlyArray<number>;
+  includeUnits?: boolean;
+  includeCities?: boolean;
+  maxItems?: number;
+}>;
+
+export type Civ7PlayerSummary = Readonly<{
+  id: number;
+  leaderName: Civ7RuntimeProbe<string>;
+  civilizationName: Civ7RuntimeProbe<string>;
+  isHuman: Civ7RuntimeProbe<boolean>;
+  isAlive: Civ7RuntimeProbe<boolean>;
+  isTurnActive: Civ7RuntimeProbe<boolean>;
+  unitIds: Civ7RuntimeProbe<ReadonlyArray<Civ7ComponentId>>;
+  cityIds: Civ7RuntimeProbe<ReadonlyArray<Civ7ComponentId>>;
+}>;
+
+export type Civ7PlayerSummaryResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  players: ReadonlyArray<Civ7PlayerSummary>;
+  omitted: number;
+}>;
+
+export type Civ7UnitSummaryInput = Readonly<{
+  playerIds?: ReadonlyArray<number>;
+  unitIds?: ReadonlyArray<Civ7ComponentId>;
+  playerId?: number;
+  maxItems?: number;
+  includeHidden?: boolean;
+}>;
+
+export type Civ7UnitSummary = Readonly<{
+  id: Civ7ComponentId;
+  owner: Civ7RuntimeProbe<number>;
+  name: Civ7RuntimeProbe<string>;
+  type: Civ7RuntimeProbe<number | string>;
+  location: Civ7RuntimeProbe<Civ7MapLocation>;
+  health: Civ7RuntimeProbe<number>;
+  damage: Civ7RuntimeProbe<number>;
+  movement: Civ7RuntimeProbe<number>;
+  activity: Civ7RuntimeProbe<number | string>;
+}>;
+
+export type Civ7UnitSummaryResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  units: ReadonlyArray<Civ7UnitSummary>;
+  omitted: number;
+}>;
+
+export type Civ7CitySummaryInput = Readonly<{
+  playerIds?: ReadonlyArray<number>;
+  cityIds?: ReadonlyArray<Civ7ComponentId>;
+  playerId?: number;
+  maxItems?: number;
+  includeHidden?: boolean;
+}>;
+
+export type Civ7CitySummary = Readonly<{
+  id: Civ7ComponentId;
+  owner: Civ7RuntimeProbe<number>;
+  name: Civ7RuntimeProbe<string>;
+  location: Civ7RuntimeProbe<Civ7MapLocation>;
+  population: Civ7RuntimeProbe<number>;
+  growth: Civ7RuntimeProbe<unknown>;
+  production: Civ7RuntimeProbe<unknown>;
+}>;
+
+export type Civ7CitySummaryResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  cities: ReadonlyArray<Civ7CitySummary>;
+  omitted: number;
+}>;
 
 type SummaryReadDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;

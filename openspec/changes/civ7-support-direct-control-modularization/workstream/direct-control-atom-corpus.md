@@ -155,6 +155,15 @@ strings, runtime behavior, visibility or GameInfo types, procedure schemas,
 telemetry, AI ingestion, hotseat runtime proof, CLI semantic projection,
 Effect/oRPC procedure-core work, or Task 2.9.4 matrix-row acceptance.
 
+Summary read type update: `src/play/summaries.ts` now also owns player, unit,
+and city summary input/result types while public facade type re-exports stay in
+`index.ts`. This is local package/type relocation proof only and does not change
+summary validation, component-id pass-through behavior, source strings, runtime
+behavior, relationship-label policy, visibility or GameInfo types, procedure
+schemas, telemetry, AI ingestion, hotseat runtime proof, CLI semantic
+projection, Effect/oRPC procedure-core work, or Task 2.9.4 matrix-row
+acceptance.
+
 Bounded root inspection update: `src/runtime/root-inspection.ts` now owns
 `inspectCiv7Root` and the generated bounded root inspection command while the
 public facade export stays in `index.ts` and injects command execution,

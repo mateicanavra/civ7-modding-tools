@@ -139,8 +139,17 @@ import {
   revealCiv7MapForPlayer as revealCiv7MapForPlayerFromModule,
 } from "./play/map/visibility.js";
 import {
+  type Civ7CitySummary,
+  type Civ7CitySummaryInput,
+  type Civ7CitySummaryResult,
   getCiv7CitySummary as getCiv7CitySummaryFromModule,
+  type Civ7PlayerSummary,
+  type Civ7PlayerSummaryInput,
+  type Civ7PlayerSummaryResult,
   getCiv7PlayerSummary as getCiv7PlayerSummaryFromModule,
+  type Civ7UnitSummary,
+  type Civ7UnitSummaryInput,
+  type Civ7UnitSummaryResult,
   getCiv7UnitSummary as getCiv7UnitSummaryFromModule,
 } from "./play/summaries.js";
 import { requestCiv7DiplomacyResponse as requestCiv7DiplomacyResponseFromModule } from "./play/operations/diplomacy-request.js";
@@ -293,6 +302,17 @@ export {
   HARD_CIV7_GAMEINFO_LIMIT,
   HARD_CIV7_MAP_GRID_MAX_PLOTS,
 } from "./play/map/constants.js";
+export type {
+  Civ7CitySummary,
+  Civ7CitySummaryInput,
+  Civ7CitySummaryResult,
+  Civ7PlayerSummary,
+  Civ7PlayerSummaryInput,
+  Civ7PlayerSummaryResult,
+  Civ7UnitSummary,
+  Civ7UnitSummaryInput,
+  Civ7UnitSummaryResult,
+} from "./play/summaries.js";
 export type {
   Civ7FullMapGridIdentityCheck,
   Civ7FullMapGridInput,
@@ -454,32 +474,6 @@ export type Civ7ResourceBuilderDiagnosticsResult = Readonly<{
   cells: ReadonlyArray<Civ7ResourceBuilderDiagnosticsCell>;
 }>;
 
-export type Civ7PlayerSummaryInput = Readonly<{
-  playerIds?: ReadonlyArray<number>;
-  includeUnits?: boolean;
-  includeCities?: boolean;
-  maxItems?: number;
-}>;
-
-export type Civ7PlayerSummary = Readonly<{
-  id: number;
-  leaderName: Civ7RuntimeProbe<string>;
-  civilizationName: Civ7RuntimeProbe<string>;
-  isHuman: Civ7RuntimeProbe<boolean>;
-  isAlive: Civ7RuntimeProbe<boolean>;
-  isTurnActive: Civ7RuntimeProbe<boolean>;
-  unitIds: Civ7RuntimeProbe<ReadonlyArray<Civ7ComponentId>>;
-  cityIds: Civ7RuntimeProbe<ReadonlyArray<Civ7ComponentId>>;
-}>;
-
-export type Civ7PlayerSummaryResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  players: ReadonlyArray<Civ7PlayerSummary>;
-  omitted: number;
-}>;
-
 export type Civ7TraditionActionKind = "activate" | "deactivate";
 
 export type Civ7TraditionAction = Readonly<{
@@ -605,60 +599,6 @@ export type Civ7ProgressDashboardResult = Readonly<{
   }>;
   hiddenInfoPolicy: "local-player-runtime-progress";
   notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7UnitSummaryInput = Readonly<{
-  playerIds?: ReadonlyArray<number>;
-  unitIds?: ReadonlyArray<Civ7ComponentId>;
-  playerId?: number;
-  maxItems?: number;
-  includeHidden?: boolean;
-}>;
-
-export type Civ7UnitSummary = Readonly<{
-  id: Civ7ComponentId;
-  owner: Civ7RuntimeProbe<number>;
-  name: Civ7RuntimeProbe<string>;
-  type: Civ7RuntimeProbe<number | string>;
-  location: Civ7RuntimeProbe<Civ7MapLocation>;
-  health: Civ7RuntimeProbe<number>;
-  damage: Civ7RuntimeProbe<number>;
-  movement: Civ7RuntimeProbe<number>;
-  activity: Civ7RuntimeProbe<number | string>;
-}>;
-
-export type Civ7UnitSummaryResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  units: ReadonlyArray<Civ7UnitSummary>;
-  omitted: number;
-}>;
-
-export type Civ7CitySummaryInput = Readonly<{
-  playerIds?: ReadonlyArray<number>;
-  cityIds?: ReadonlyArray<Civ7ComponentId>;
-  playerId?: number;
-  maxItems?: number;
-  includeHidden?: boolean;
-}>;
-
-export type Civ7CitySummary = Readonly<{
-  id: Civ7ComponentId;
-  owner: Civ7RuntimeProbe<number>;
-  name: Civ7RuntimeProbe<string>;
-  location: Civ7RuntimeProbe<Civ7MapLocation>;
-  population: Civ7RuntimeProbe<number>;
-  growth: Civ7RuntimeProbe<unknown>;
-  production: Civ7RuntimeProbe<unknown>;
-}>;
-
-export type Civ7CitySummaryResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  cities: ReadonlyArray<Civ7CitySummary>;
-  omitted: number;
 }>;
 
 export type Civ7VisibilitySummaryInput = Readonly<{
