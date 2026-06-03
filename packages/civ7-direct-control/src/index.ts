@@ -44,7 +44,10 @@ import { productionPostconditionFor } from "./play/operations/production-postcon
 import { operationRouterSource } from "./play/operations/router.js";
 import { unitOperationPostcondition } from "./play/operations/unit-postconditions.js";
 import { cultureChoiceCloseoutSource } from "./play/progression/culture.js";
-import { progressDashboardSource } from "./play/progression/progress-dashboard.js";
+import {
+  getCiv7ProgressDashboard as getCiv7ProgressDashboardFromModule,
+  getCiv7TraditionsView as getCiv7TraditionsViewFromModule,
+} from "./play/progression/reads.js";
 import { technologyChoiceCloseoutSource } from "./play/progression/technology.js";
 import { readyCityViewSource } from "./play/ready/city.js";
 import { unitMovePreviewSource } from "./play/ready/move-preview.js";
@@ -53,7 +56,6 @@ import { battlefieldScanSource } from "./play/tactical/battlefield.js";
 import { destinationAnalysisSource } from "./play/tactical/destination.js";
 import { settlementRecommendationsSource } from "./play/tactical/settlement.js";
 import { targetCandidatesSource } from "./play/tactical/target-candidates.js";
-import { traditionsViewSource } from "./play/progression/traditions.js";
 
 export {
   assertCiv7ComponentId,
@@ -3843,24 +3845,24 @@ export async function getCiv7TraditionsView(
   input: Civ7TraditionsViewInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7TraditionsViewResult> {
-  if (input.playerId !== undefined) validatePlayerId(input.playerId);
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildTraditionsViewCommand(input),
+  return await getCiv7TraditionsViewFromModule(input, options, {
+    validatePlayerId,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseTraditionsView: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7TraditionsViewResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7TraditionsViewResult>(result, "Civ7 traditions view");
 }
 
 export async function getCiv7ProgressDashboard(
   input: Civ7ProgressDashboardInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7ProgressDashboardResult> {
-  if (input.playerId !== undefined) validatePlayerId(input.playerId);
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildProgressDashboardCommand(input),
+  return await getCiv7ProgressDashboardFromModule(input, options, {
+    validatePlayerId,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseProgressDashboard: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7ProgressDashboardResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7ProgressDashboardResult>(result, "Civ7 progress dashboard");
 }
 
 export async function getCiv7BattlefieldScan(
@@ -5566,20 +5568,6 @@ function buildTargetCandidatesCommand(input: Civ7TargetCandidatesInput & { maxCa
   return `(() => {
     ${targetCandidatesSource()}
     return JSON.stringify(readTargetCandidates(${jsLiteral(input)}));
-  })()`;
-}
-
-function buildTraditionsViewCommand(input: Civ7TraditionsViewInput): string {
-  return `(() => {
-    ${traditionsViewSource()}
-    return JSON.stringify(readTraditionsView(${jsLiteral(input)}));
-  })()`;
-}
-
-function buildProgressDashboardCommand(input: Civ7ProgressDashboardInput): string {
-  return `(() => {
-    ${progressDashboardSource()}
-    return JSON.stringify(readProgressDashboard(${jsLiteral(input)}));
   })()`;
 }
 

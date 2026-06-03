@@ -397,6 +397,14 @@ All future agent waves must be framed before delegation:
   source plus narrative postcondition owner modules. `test/narrative-choice.test.ts`
   and the focused CLI narrative command suite remain the proof owners. This is
   local package/source relocation proof only, not runtime proof.
+- Direct-control progression read wrapper slice: completed as the next read-only
+  wrapper composition relocation. It moves only `getCiv7TraditionsView` and
+  `getCiv7ProgressDashboard` orchestration plus their command builders into
+  `src/play/progression/reads.ts` while keeping the public facade exports in
+  `index.ts` and preserving the existing embedded progression source owners.
+  `test/progression-reads.test.ts` and the focused CLI progression-read command
+  suite remain the proof owners. This is local package/source relocation proof
+  only, not runtime proof.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now
