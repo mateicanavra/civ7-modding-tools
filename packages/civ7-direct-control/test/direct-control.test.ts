@@ -8,12 +8,9 @@ import {
   CIV7_SIGNED_INT_SEED_MAX,
   CIV7_RESTART_COMMAND,
   Civ7DirectControlError,
-  checkCiv7DirectControlHealth,
   checkCiv7TunerHealth,
   canStartCiv7UnitOperation,
   configureCiv7Autoplay,
-  encodeCiv7TunerRequest,
-  executeCiv7Command,
   executeCiv7AppUiCommand,
   executeCiv7TunerCommand,
   ensureCiv7SetupMapRowVisible,
@@ -39,7 +36,6 @@ import {
   listCiv7SavedGameConfigurations,
   loadCiv7SavedGameConfiguration,
   prepareCiv7SinglePlayerSetup,
-  parseCiv7TunerFrame,
   planCiv7MapGridReadBounds,
   requestCiv7CultureChoiceCloseout,
   requestCiv7TechnologyChoiceCloseout,
@@ -53,7 +49,6 @@ import {
   startPreparedCiv7SinglePlayerGame,
   restartCiv7GameAndBegin,
   restartCiv7Game,
-  selectCiv7TunerState,
   snapshotFile,
   startCiv7Autoplay,
   stopCiv7Autoplay,
@@ -61,36 +56,6 @@ import {
 } from "../src/index";
 
 describe("Civ7 direct control", () => {
-  test("uses defaults and env hosts when resolving health", async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      const health = await checkCiv7DirectControlHealth({
-        port,
-        env: {
-          CIV7_TUNER_HOSTS: "127.0.0.2, 127.0.0.1",
-        },
-        timeoutMs: 1_000,
-      });
-      expect(health).toMatchObject({
-        ok: true,
-        status: "ready",
-        port,
-      });
-      if (health.ok) expect(["127.0.0.2", "127.0.0.1"]).toContain(health.host);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test("handles empty env when resolving health", async () => {
-    const health = await checkCiv7DirectControlHealth({
-      env: {},
-      timeoutMs: 1,
-    });
-    expect([true, false]).toContain(health.ok);
-  });
-
   test("rejects setup seeds Civ7 would wrap before mutating setup state", async () => {
     const server = await startTunerServer();
     try {
@@ -107,29 +72,6 @@ describe("Civ7 direct control", () => {
         ),
       ).rejects.toMatchObject({ code: "setup-parameter-invalid" });
       expect(server.received.some((message) => message.includes("editMap.setMapSeed"))).toBe(false);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test("queries states and sends commands using the tuner frame protocol", async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      const result = await executeCiv7Command({
-        host: "127.0.0.1",
-        port,
-        command: CIV7_RESTART_COMMAND,
-        timeoutMs: 1_000,
-      });
-
-      expect(result).toMatchObject({
-        host: "127.0.0.1",
-        port,
-        state: { id: "65535", name: "App UI" },
-        output: ["true"],
-      });
-      expect(server.received).toEqual(["LSQ:", `CMD:65535:${CIV7_RESTART_COMMAND}`]);
     } finally {
       await server.close();
     }
@@ -490,7 +432,8 @@ describe("Civ7 direct control", () => {
 
       expect(request.sent).toBe(true);
       expect(request.verified).toBe(true);
-      expect(request.result?.panelCloseControl).toMatchObject({
+      const requestResult = request.result as { panelCloseControl?: unknown } | null;
+      expect(requestResult?.panelCloseControl).toMatchObject({
         ok: true,
         attempted: true,
         available: true,
@@ -536,7 +479,8 @@ describe("Civ7 direct control", () => {
       });
       expect(request.sent).toBe(true);
       expect(request.verified).toBe(true);
-      expect(request.result?.panelCloseControl).toMatchObject({
+      const requestResult = request.result as { panelCloseControl?: unknown } | null;
+      expect(requestResult?.panelCloseControl).toMatchObject({
         ok: true,
         attempted: true,
         available: true,
@@ -1540,39 +1484,6 @@ describe("Civ7 direct control", () => {
     }
   });
 
-  test("supports explicit state selection by role, name, and id", () => {
-    const states = [
-      { id: "65535", name: "App UI" },
-      { id: "1", name: "Tuner" },
-    ];
-
-    expect(selectCiv7TunerState(states, { role: "app-ui" })).toEqual(states[0]);
-    expect(selectCiv7TunerState(states, { role: "tuner" })).toEqual(states[1]);
-    expect(selectCiv7TunerState(states, { name: "Tuner" })).toEqual(states[1]);
-    expect(selectCiv7TunerState(states, { id: "65535" })).toEqual(states[0]);
-  });
-
-  test("returns classified state errors with available states", async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      await expect(
-        executeCiv7Command({
-          host: "127.0.0.1",
-          port,
-          state: { name: "Missing" },
-          command: "1+1",
-          timeoutMs: 1_000,
-        }),
-      ).rejects.toMatchObject({
-        name: "Civ7DirectControlError",
-        code: "state-not-found",
-      });
-    } finally {
-      await server.close();
-    }
-  });
-
   test("restart command requires true output", async () => {
     const server = await startTunerServer({ restartOutput: "false" });
     try {
@@ -1587,37 +1498,6 @@ describe("Civ7 direct control", () => {
     } finally {
       await server.close();
     }
-  });
-
-  test("parses fragmented and concatenated frames", () => {
-    const first = encodeCiv7TunerRequest(1, "LSQ:");
-    const second = encodeCiv7TunerRequest(2, "CMD:65535:1+1");
-
-    expect(parseCiv7TunerFrame(first.subarray(0, 3))).toBeNull();
-
-    const combined = Buffer.concat([first, second]);
-    const parsedFirst = parseCiv7TunerFrame(combined);
-    expect(parsedFirst?.frame).toEqual({ listenerId: 1, parts: ["LSQ:"] });
-    const parsedSecond = parseCiv7TunerFrame(combined.subarray(parsedFirst?.bytesRead ?? 0));
-    expect(parsedSecond?.frame).toEqual({ listenerId: 2, parts: ["CMD:65535:1+1"] });
-  });
-
-  test("waits for fresh ordered log markers", async () => {
-    const dir = await mkdtemp(join(tmpdir(), "civ7-direct-control-log-"));
-    const logPath = join(dir, "Scripting.log");
-    await writeFile(logPath, "old\n");
-    const snapshot = await snapshotFile(logPath);
-    await writeFile(logPath, "old\nCreating Context -  MapGeneration\nDestroying Context -  MapGeneration\n");
-
-    const proof = await waitForFreshLogMarkers({
-      logPath,
-      snapshot,
-      markers: ["Creating Context -  MapGeneration", "Destroying Context -  MapGeneration"],
-      timeoutMs: 100,
-      pollIntervalMs: 10,
-    });
-
-    expect(proof.matched).toEqual(["Creating Context -  MapGeneration", "Destroying Context -  MapGeneration"]);
   });
 
   test("waits for markers when Civ rewrites the log at the same byte length", async () => {

@@ -65,6 +65,7 @@ titles, and parent reports to close the loop.
 | `019e8af1-427e-7463-a9be-dbdeabbccfdf` | Assess oRPC authority lane | framed `/goal` report-only | completed, idle | yes | Accepted as authority disposition; no mutation authority. | Confirms current support branch lacks tracked `.agents/skills/civ7-orpc-control-architecture` and `packages/civ7-control-orpc`; oRPC stays downstream until authority/source is imported or cited from the relevant branches. |
 | `019e8afb-f1c2-7a22-83b4-5d934658d92e` | Add public API tests | framed `/goal` implementation | completed, idle | yes | Accepted as boundary-clean net-new candidate only; proof was incomplete in the isolated worktree because `vitest` was unavailable there. | Created pure `packages/civ7-direct-control/test/public-api.test.ts`; DRA performed broad-suite ownership removal and final package gates in the support worktree. |
 | `019e8b01-475a-7f70-a94d-b671fd61e013` | Add unit move preview test | framed `/goal` implementation | completed, idle | yes | Accepted as boundary-clean net-new candidate only; proof was incomplete in the isolated worktree because `vitest`/`tsc` were unavailable there. | Created local `packages/civ7-direct-control/test/unit-move-preview.test.ts`; DRA corrected the limit-contract assertion and ran final package gates in the support worktree. |
+| `pendingWorktreeId local:699af531-ba6e-49e6-8f36-021dd3e27721` / disk worktree `6e69` | Add session/framing package tests | framed `/goal` implementation | candidate visible on disk; app thread read/archive tools unavailable in this session | yes, from disk candidate and worktree state | Accepted as boundary-clean net-new candidate only; DRA retained integration, broad-suite removal, docs, and final gates. | Created local `packages/civ7-direct-control/test/session.test.ts`; DRA added health/env-host coverage, removed duplicate broad-suite assertions, and ran package gates in the support worktree. |
 
 ## Parallelization Rule
 
@@ -116,6 +117,10 @@ All future agent waves must be framed before delegation:
   coverage addition with a boundary-clean parallel net-new candidate, DRA-owned
   contract correction, local package proof, relationship-label guard, and no
   runtime/source behavior claim.
+- Direct-control session/framing test slice: completed as test-only package
+  ownership extraction with a boundary-clean parallel net-new candidate,
+  DRA-owned broad-suite removal, local package proof, and no runtime/source
+  behavior claim.
 - Review-disposition ledger: agent/reviewer findings recorded.
 - Exact dismiss-notification CLI slice: completed as test-only extraction with
   local fixture ownership and no runtime claim.
