@@ -2,8 +2,8 @@
 
 Use the Civ7 tuner socket when the proof requires live Civ7 runtime behavior,
 JS globals, or fast in-game iteration. Repo tooling should call
-`@civ7/direct-control`; FireTuner is reference-client and native-control
-evidence, not a parallel caller-local transport.
+`@civ7/direct-control`; FireTuner is native-control evidence only, not a
+parallel caller-local transport.
 
 ## Connection
 
@@ -15,17 +15,9 @@ evidence, not a parallel caller-local transport.
 - The repo-owned direct path is local to the machine running Civ7:
   `civ7 game restart`, `civ7 game exec`, `civ7 game health`, or package
   callers of `@civ7/direct-control`.
-- If a Windows reference client is used manually, it connects to the Mac host
-  through the Parallels shared-network host address. Verify rather than
-  memorizing:
-  - Mac side: `ifconfig bridge100` usually shows the host address, commonly
-    `10.211.55.2`.
-  - Windows VM side: `prlctl list --all --info` shows the guest address, commonly
-    `10.211.55.4`.
-  - If shared networking is not the path, try the Mac LAN IP from
-    `ipconfig getifaddr en0`.
-- `127.0.0.1` inside Windows means the Windows VM, not the Mac Civ7 process.
-  `127.0.0.1` on the Mac means the local Civ7 tuner socket.
+- Do not route repo-owned runtime proof through the retired Windows
+  VM/Parallels bridge path. `127.0.0.1` means the local Civ7 tuner socket on the
+  machine running Civ7.
 
 ## Scripting States
 
@@ -81,16 +73,16 @@ Run bounded autoplay from `App UI` unless a fresh probe proves a different
 state exposes the required `Autoplay` methods:
 
 ```js
-Autoplay.setTurns(5)
-Autoplay.setReturnAsPlayer(0)
-Autoplay.setObserveAsPlayer(PlayerIds.OBSERVER_ID)
-Autoplay.setActive(true)
+Autoplay.setTurns(5);
+Autoplay.setReturnAsPlayer(0);
+Autoplay.setObserveAsPlayer(PlayerIds.OBSERVER_ID);
+Autoplay.setActive(true);
 ```
 
 Stop autoplay:
 
 ```js
-Autoplay.setActive(false)
+Autoplay.setActive(false);
 ```
 
 When constants are unavailable or uncertain, verify them in the connected
@@ -122,10 +114,6 @@ Inspect sibling logs when the question is not purely map script execution:
 - Installed game Tuner panels may live under
   `Base/Platforms/Windows/Config/TunerPanels`; the repo resource mirror may not
   include that directory.
-- Local official development-tool communication panels can also reveal native
-  patterns. On this machine, inspect
-  `/Users/mateicanavra/Parallels Tunnel/Sid Meier's Civilization VII Development Tools/Comms/Modifiers.ltp`
-  when researching how FireTuner invokes game/UI operations.
 - Official automation scripts demonstrate `Autoplay.setTurns`,
   `setReturnAsPlayer`, `setObserveAsPlayer`, and `setActive`.
 - Official pause-menu UI calls `Network.restartGame()` for restart.
