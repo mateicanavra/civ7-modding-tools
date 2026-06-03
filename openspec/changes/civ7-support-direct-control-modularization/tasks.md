@@ -322,7 +322,7 @@ runtime/direct-control claims.
         facade export surface in `index.ts`.
   - [x] 4.7.11 Extract destination analysis wrapper owner while keeping the
         public facade export surface in `index.ts`.
-- [ ] 4.8 Export stable types/constants only after module owners are defined.
+- [x] 4.8 Export stable types/constants only after module owners are defined.
   - [x] 4.8.1 Extract ComponentID primitive and direct-control error owner
         modules behind the existing package facade.
   - [x] 4.8.2 Extract setup/lifecycle command and setup-parameter constants
@@ -601,7 +601,7 @@ runtime/direct-control claims.
       telemetry hooks, CLI semantic envelopes, AI ingestion, hotseat runtime
       proof, Effect/Bun implementation, and Task 2.9.4 matrix-row acceptance
       remain pending.
-- [ ] 4.10 Classify direct-control service outputs by consumer before command
+- [x] 4.10 Classify direct-control service outputs by consumer before command
       hierarchy rewrites: internal service machinery, debug-only diagnostics,
       or semantic player-agent output.
   - [x] 4.10.1 Extract tuner frame encode/parse owner module behind the
@@ -788,7 +788,7 @@ runtime/direct-control claims.
         strings, public procedure schemas, telemetry, hotseat runtime proof, AI
         ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
-- [ ] 4.12 Extract runtime inspection/catalog/proof atoms.
+- [x] 4.12 Extract runtime inspection/catalog/proof atoms.
   - [x] 4.12.1 Extract runtime API inspection wrapper/source owner while keeping
         the public facade export surface in `index.ts`, classifying it as
         debug/internal service output with normal CLI projection omitted or
