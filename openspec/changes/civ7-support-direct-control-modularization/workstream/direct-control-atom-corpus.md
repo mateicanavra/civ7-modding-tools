@@ -191,6 +191,18 @@ runtime proof, CLI semantic projection, Effect/oRPC procedure-core work, or Task
 2.9.4 matrix-row acceptance. Setup prepare/start/run lifecycle input/result
 types remain pending separate owner slices.
 
+Setup lifecycle type update: `src/setup/prepare.ts` now owns single-player
+setup input, setup option value, and prepared-setup result types;
+`src/setup/start.ts` owns prepared-start input and single-player start result
+types; and `src/setup/run.ts` owns single-player run input/result types while
+public facade type re-exports stay in `index.ts`. This is local package/type
+relocation proof only and does not change setup preparation/start/run source
+strings, approval behavior, readback verification, setup lifecycle mutation
+behavior, runtime proof status, telemetry, AI ingestion, hotseat runtime proof,
+CLI semantic projection, Effect/oRPC procedure-core work, or Task 2.9.4
+matrix-row acceptance. Tactical, operation, ready, public procedure schema, and
+telemetry type ownership remain pending separate owner slices.
+
 Bounded root inspection update: `src/runtime/root-inspection.ts` now owns
 `inspectCiv7Root` and the generated bounded root inspection command while the
 public facade export stays in `index.ts` and injects command execution,

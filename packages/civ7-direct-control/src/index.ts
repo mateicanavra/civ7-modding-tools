@@ -102,9 +102,23 @@ import {
   normalizeSavedGameConfigurationRef,
   normalizeSinglePlayerSetupInput as normalizeSinglePlayerSetupInputFromModule,
   prepareCiv7SinglePlayerSetup as prepareCiv7SinglePlayerSetupFromModule,
+  type Civ7PlayerSetupOptions,
+  type Civ7PreparedSetupResult,
+  type Civ7SavedGameConfigurationLoadResult,
+  type Civ7SavedGameConfigurationRef,
+  type Civ7SetupOptionValue,
+  type Civ7SinglePlayerSetupInput,
 } from "./setup/prepare.js";
-import { startPreparedCiv7SinglePlayerGame as startPreparedCiv7SinglePlayerGameFromModule } from "./setup/start.js";
-import { runCiv7SinglePlayerFromSetup as runCiv7SinglePlayerFromSetupFromModule } from "./setup/run.js";
+import {
+  startPreparedCiv7SinglePlayerGame as startPreparedCiv7SinglePlayerGameFromModule,
+  type Civ7PreparedStartInput,
+  type Civ7SinglePlayerStartResult,
+} from "./setup/start.js";
+import {
+  runCiv7SinglePlayerFromSetup as runCiv7SinglePlayerFromSetupFromModule,
+  type Civ7SinglePlayerRunInput,
+  type Civ7SinglePlayerRunResult,
+} from "./setup/run.js";
 import {
   beginCiv7Game as beginCiv7GameFromModule,
   restartCiv7Game as restartCiv7GameFromModule,
@@ -326,6 +340,22 @@ export type {
   Civ7SetupSnapshot,
   Civ7SetupSnapshotResult,
 } from "./setup/reads.js";
+export type {
+  Civ7PlayerSetupOptions,
+  Civ7PreparedSetupResult,
+  Civ7SavedGameConfigurationLoadResult,
+  Civ7SavedGameConfigurationRef,
+  Civ7SetupOptionValue,
+  Civ7SinglePlayerSetupInput,
+} from "./setup/prepare.js";
+export type {
+  Civ7PreparedStartInput,
+  Civ7SinglePlayerStartResult,
+} from "./setup/start.js";
+export type {
+  Civ7SinglePlayerRunInput,
+  Civ7SinglePlayerRunResult,
+} from "./setup/run.js";
 export {
   DEFAULT_CIV7_GAMEINFO_LIMIT,
   DEFAULT_CIV7_GAMEINFO_TABLES,
@@ -641,20 +671,6 @@ export type Civ7ProgressDashboardResult = Readonly<{
   notes: ReadonlyArray<string>;
 }>;
 
-export type Civ7SetupOptionValue = string | number | boolean;
-
-export type Civ7PlayerSetupOptions = Readonly<{
-  playerId: number;
-  options: Readonly<Record<string, Civ7SetupOptionValue>>;
-}>;
-
-export type Civ7SavedGameConfigurationRef = Readonly<{
-  id: string;
-  displayName: string;
-  fileName: string;
-  path: string;
-}>;
-
 export type Civ7SavedGameConfigurationSummary = Readonly<{
   gameSpeed?: string;
   mapSize?: string;
@@ -683,75 +699,6 @@ export type Civ7SavedGameConfigurationListInput = Readonly<{
 export type Civ7SavedGameConfigurationListResult = Readonly<{
   directory: string;
   configurations: ReadonlyArray<Civ7SavedGameConfiguration>;
-}>;
-
-export type Civ7SavedGameConfigurationLoadResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  savedConfig: Civ7SavedGameConfigurationRef;
-  before: Civ7SetupSnapshotResult;
-  after: Civ7SetupSnapshotResult;
-  command: Civ7CommandResult;
-  loaded: boolean;
-}>;
-
-export type Civ7SinglePlayerSetupInput = Readonly<{
-  mapScript: string;
-  mapSize: string;
-  seed: number;
-  gameSeed?: number;
-  playerCount?: number;
-  savedConfig?: Civ7SavedGameConfigurationRef;
-  options?: Readonly<Record<string, Civ7SetupOptionValue>>;
-  playerOptions?: ReadonlyArray<Civ7PlayerSetupOptions>;
-  requireShell?: boolean;
-}>;
-
-export type Civ7PreparedSetupResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  before: Civ7SetupSnapshotResult;
-  after: Civ7SetupSnapshotResult;
-  command: Civ7CommandResult;
-  savedConfigLoad?: Civ7SavedGameConfigurationLoadResult;
-  applied: Readonly<Record<string, Civ7SetupOptionValue>>;
-  verified: boolean;
-}>;
-
-export type Civ7PreparedStartInput = Readonly<{
-  expected: Civ7SinglePlayerSetupInput;
-  waitForTuner?: boolean;
-  waitTimeoutMs?: number;
-  pollIntervalMs?: number;
-}>;
-
-export type Civ7SinglePlayerStartResult = Readonly<{
-  command: Civ7CommandResult;
-  begin?: Civ7CommandResult;
-  beginAttempted: boolean;
-  beginError?: string;
-  before: Civ7SetupSnapshotResult;
-  finalAppUi: Civ7AppUiSnapshotResult;
-  tunerHealth?: Civ7TunerHealthResult;
-  mapSummary?: Civ7MapSummaryResult;
-  observations: ReadonlyArray<Civ7AppUiSnapshot>;
-  verified: boolean;
-}>;
-
-export type Civ7SinglePlayerRunInput = Civ7SinglePlayerSetupInput & Readonly<{
-  fromRunningGame?: "reject" | "exit-to-shell";
-  waitForTuner?: boolean;
-  waitTimeoutMs?: number;
-  pollIntervalMs?: number;
-}>;
-
-export type Civ7SinglePlayerRunResult = Readonly<{
-  shellExit?: Civ7CommandResult;
-  prepare: Civ7PreparedSetupResult;
-  start: Civ7SinglePlayerStartResult;
-  verified: boolean;
 }>;
 
 export type Civ7AutoplayStatusResult = Readonly<{

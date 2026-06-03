@@ -674,6 +674,21 @@ All future agent waves must be framed before delegation:
   prepare/start/run lifecycle input/result types remain pending separate owner
   slices. This is local package/type relocation proof only, not runtime proof,
   AI/hotseat product-path support, or procedure-core readiness.
+- Direct-control setup lifecycle types slice: completed as a narrow public type
+  ownership relocation. It moves only single-player setup input, setup option
+  value, prepared-setup result, prepared-start input, single-player start
+  result, and single-player run input/result types into the concrete setup
+  owners (`src/setup/prepare.ts`, `src/setup/start.ts`, and `src/setup/run.ts`)
+  while keeping facade type re-exports in `index.ts` and replacing moved setup
+  lifecycle type imports with concrete owner imports. This preserves public type
+  contracts and does not change setup preparation/start/run source strings,
+  approval behavior, readback verification, setup lifecycle mutation behavior,
+  runtime proof status, telemetry, AI ingestion, hotseat runtime proof, CLI
+  semantic projection, Effect/oRPC procedure-core work, or Task 2.9.4
+  matrix-row acceptance. Tactical, operation, ready, public procedure schema,
+  and telemetry type ownership remain pending separate owner slices. This is
+  local package/type relocation proof only, not runtime proof, AI/hotseat
+  product-path support, or procedure-core readiness.
 - Direct-control turn-completion slice: completed as a narrow turn-completion
   source/wrapper relocation. It moves only `getCiv7TurnCompletionStatus`,
   `sendCiv7TurnComplete`, `sendCiv7TurnUnready`, the status command builder,

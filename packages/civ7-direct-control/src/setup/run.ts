@@ -1,21 +1,37 @@
 import { Civ7DirectControlError } from "../direct-control-error.js";
-import { normalizeSinglePlayerSetupInput } from "./prepare.js";
+import {
+  normalizeSinglePlayerSetupInput,
+  type Civ7PreparedSetupResult,
+  type Civ7SinglePlayerSetupInput,
+} from "./prepare.js";
 import type {
   Civ7SetupPhase,
   Civ7SetupSnapshotResult,
 } from "./reads.js";
+import type {
+  Civ7PreparedStartInput,
+  Civ7SinglePlayerStartResult,
+} from "./start.js";
 
 import type {
   Civ7ActionApproval,
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7PreparedSetupResult,
-  Civ7PreparedStartInput,
-  Civ7SinglePlayerRunInput,
-  Civ7SinglePlayerRunResult,
-  Civ7SinglePlayerSetupInput,
-  Civ7SinglePlayerStartResult,
 } from "../index.js";
+
+export type Civ7SinglePlayerRunInput = Civ7SinglePlayerSetupInput & Readonly<{
+  fromRunningGame?: "reject" | "exit-to-shell";
+  waitForTuner?: boolean;
+  waitTimeoutMs?: number;
+  pollIntervalMs?: number;
+}>;
+
+export type Civ7SinglePlayerRunResult = Readonly<{
+  shellExit?: Civ7CommandResult;
+  prepare: Civ7PreparedSetupResult;
+  start: Civ7SinglePlayerStartResult;
+  verified: boolean;
+}>;
 
 type SetupRunDependencies = Readonly<{
   assertApproved: (approval: Civ7ActionApproval, action: string) => void;

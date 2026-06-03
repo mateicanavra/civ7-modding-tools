@@ -1,32 +1,51 @@
-import { Civ7DirectControlError } from "../direct-control-error";
+import { Civ7DirectControlError } from "../direct-control-error.js";
 import {
   appUiSnapshotFromCommandResult,
   buildAppUiSnapshotCommand,
+  type Civ7AppUiSnapshot,
+  type Civ7AppUiSnapshotResult,
 } from "../runtime/app-ui-snapshot.js";
 import {
   assertPreparedSetupMatches,
   normalizeSinglePlayerSetupInput,
+  type Civ7SinglePlayerSetupInput,
 } from "./prepare.js";
 import {
   buildSetupSnapshotCommand,
+  type Civ7SetupSnapshotResult,
   type SetupReadDependencies,
 } from "./reads.js";
+import type { Civ7MapSummaryResult } from "../play/map/types.js";
+import type { Civ7RuntimeProbe } from "../runtime/probe.js";
+import type { Civ7TunerHealthResult } from "../runtime/tuner-health.js";
 
 import type {
   Civ7ActionApproval,
-  Civ7AppUiSnapshot,
-  Civ7AppUiSnapshotResult,
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7DirectControlSession,
-  Civ7MapSummaryResult,
-  Civ7PreparedStartInput,
-  Civ7RuntimeProbe,
-  Civ7SinglePlayerSetupInput,
-  Civ7SinglePlayerStartResult,
-  Civ7TunerHealthResult,
   Civ7TunerStateSelection,
-} from "../index";
+} from "../index.js";
+
+export type Civ7PreparedStartInput = Readonly<{
+  expected: Civ7SinglePlayerSetupInput;
+  waitForTuner?: boolean;
+  waitTimeoutMs?: number;
+  pollIntervalMs?: number;
+}>;
+
+export type Civ7SinglePlayerStartResult = Readonly<{
+  command: Civ7CommandResult;
+  begin?: Civ7CommandResult;
+  beginAttempted: boolean;
+  beginError?: string;
+  before: Civ7SetupSnapshotResult;
+  finalAppUi: Civ7AppUiSnapshotResult;
+  tunerHealth?: Civ7TunerHealthResult;
+  mapSummary?: Civ7MapSummaryResult;
+  observations: ReadonlyArray<Civ7AppUiSnapshot>;
+  verified: boolean;
+}>;
 
 type SetupStartDependencies = SetupReadDependencies & Readonly<{
   appUiState: Civ7TunerStateSelection;
