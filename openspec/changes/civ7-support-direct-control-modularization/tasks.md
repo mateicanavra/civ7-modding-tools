@@ -59,6 +59,12 @@
 - [x] 2.8 Read and disposition the report-only hotseat/autoplay,
       AI-intelligence, and synthesis peer waves before treating the
       compatibility planning lane as closed.
+  - Direct local reads of the target AI-intelligence thread
+    `019e8b5a-f2ee-7ea2-96bc-8c07dc5ab6cc` and hotseat/autoplay foundation
+    thread `019e86b7-b08b-72f3-8341-6c78a1285c93` are now dispositioned as
+    planning evidence. They replace the earlier direct-read access gap but do
+    not close runtime proof, AI ingestion, telemetry, CLI semantic envelope, or
+    procedure-core implementation work.
   - Accepted from direct local reads of the completed peer report:
     `019e8cbe-b9a2-7603-8fc6-ea9387fbbd3b` for AI-intelligence model
     implications from thread `019e8b5a-f2ee-7ea2-96bc-8c07dc5ab6cc`.
