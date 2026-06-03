@@ -64,6 +64,7 @@ import {
   prepareCiv7SinglePlayerSetup as prepareCiv7SinglePlayerSetupFromModule,
 } from "./setup/prepare.js";
 import { startPreparedCiv7SinglePlayerGame as startPreparedCiv7SinglePlayerGameFromModule } from "./setup/start.js";
+import { runCiv7SinglePlayerFromSetup as runCiv7SinglePlayerFromSetupFromModule } from "./setup/run.js";
 import {
   configureCiv7Autoplay as configureCiv7AutoplayFromModule,
   getCiv7AutoplayStatus as getCiv7AutoplayStatusFromModule,
@@ -3040,6 +3041,20 @@ function setupStartDependencies() {
   } as const;
 }
 
+function setupRunDependencies() {
+  return {
+    assertApproved,
+    boundedInteger,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    exitToMainMenuCommand: CIV7_EXIT_TO_MAIN_MENU_COMMAND,
+    getSetupSnapshot: getCiv7SetupSnapshot,
+    prepareSetup: prepareCiv7SinglePlayerSetup,
+    startPreparedGame: startPreparedCiv7SinglePlayerGame,
+    validateIdentifier,
+    waitForSetupPhase: waitForCiv7SetupPhase,
+  } as const;
+}
+
 export async function listCiv7SavedGameConfigurations(
   input: Civ7SavedGameConfigurationListInput = {},
 ): Promise<Civ7SavedGameConfigurationListResult> {
@@ -3118,48 +3133,7 @@ export async function runCiv7SinglePlayerFromSetup(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7SinglePlayerRunResult> {
-  assertApproved(approval, "running Civ7 single-player from setup");
-  const normalized = normalizeSinglePlayerSetupInputFromModule(input, setupReadDependencies());
-  let shellExit: Civ7CommandResult | undefined;
-  const initial = await getCiv7SetupSnapshot(options);
-  if (initial.snapshot.phase !== "shell") {
-    if (input.fromRunningGame !== "exit-to-shell") {
-      throw new Civ7DirectControlError(
-        "setup-phase-invalid",
-        `Civ7 is ${initial.snapshot.phase}; pass fromRunningGame: "exit-to-shell" to leave the current game`,
-        { details: initial },
-      );
-    }
-    shellExit = await executeCiv7AppUiCommand({
-      ...options,
-      command: CIV7_EXIT_TO_MAIN_MENU_COMMAND,
-    });
-    await waitForCiv7SetupPhase("shell", options, {
-      waitTimeoutMs: input.waitTimeoutMs ?? 120_000,
-      pollIntervalMs: input.pollIntervalMs ?? 1_000,
-    });
-  }
-  const prepare = await prepareCiv7SinglePlayerSetup(
-    { ...normalized, requireShell: true },
-    options,
-    approval,
-  );
-  const start = await startPreparedCiv7SinglePlayerGame(
-    {
-      expected: normalized,
-      waitForTuner: input.waitForTuner,
-      waitTimeoutMs: input.waitTimeoutMs,
-      pollIntervalMs: input.pollIntervalMs,
-    },
-    options,
-    approval,
-  );
-  return {
-    shellExit,
-    prepare,
-    start,
-    verified: prepare.verified && start.verified,
-  };
+  return await runCiv7SinglePlayerFromSetupFromModule(input, options, approval, setupRunDependencies());
 }
 
 export async function inspectCiv7Root(

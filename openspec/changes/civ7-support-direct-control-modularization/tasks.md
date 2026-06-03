@@ -405,6 +405,14 @@ runtime/direct-control claims.
         orchestration, runtime proof, AI ingestion, semantic CLI projection,
         telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.14.5 Extract single-player setup run owner while keeping public facade
+        exports in `index.ts`, preserving approval-first run orchestration,
+        active-game rejection unless `fromRunningGame: "exit-to-shell"` is
+        supplied, exit-to-main-menu command routing, shell wait, prepare/start
+        composition, verified result shape, and existing no-replay package
+        proof, and leaving restart/begin lifecycle orchestration, runtime
+        proof, AI ingestion, semantic CLI projection, telemetry, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 
 ## 5. CLI Semantic Surface Lane
 
