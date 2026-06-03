@@ -750,6 +750,22 @@ All future agent waves must be framed before delegation:
   telemetry type ownership remain pending separate owner slices. This is local
   package/type relocation proof only, not runtime proof, AI/hotseat product-path
   support, or procedure-core readiness.
+- Direct-control ready read types slice: completed as a narrow public type
+  ownership relocation. It moves only ready-unit input/operation/nearby/
+  promotion/result types into `src/play/ready/unit.ts`, unit-move-preview
+  input/result types into `src/play/ready/move-preview.ts`, and ready-city
+  input/operation/production/town-focus/population-placement/result types into
+  `src/play/ready/city.ts` while keeping facade type re-exports in `index.ts`.
+  This preserves public type contracts and does not change ready-unit,
+  unit-move-preview, or ready-city source strings, command serialization,
+  parser labels, validator/default/bounds behavior, read-only/no-send behavior,
+  conservative relationship-label policy, runtime proof status, telemetry, AI
+  ingestion, hotseat runtime proof, CLI semantic projection, Effect/oRPC
+  procedure-core work, or Task 2.9.4 matrix-row acceptance.
+  Diplomacy/narrative closeout, operation, public procedure schema, and
+  telemetry type ownership remain pending separate owner slices. This is local
+  package/type relocation proof only, not runtime proof, AI/hotseat product-path
+  support, or procedure-core readiness.
 - Direct-control turn-completion slice: completed as a narrow turn-completion
   source/wrapper relocation. It moves only `getCiv7TurnCompletionStatus`,
   `sendCiv7TurnComplete`, `sendCiv7TurnUnready`, the status command builder,

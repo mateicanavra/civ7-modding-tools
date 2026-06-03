@@ -261,9 +261,28 @@ import {
 } from "./play/progression/reads.js";
 import { buildCultureChoiceCloseoutCommand } from "./play/progression/culture.js";
 import { buildTechnologyChoiceCloseoutCommand } from "./play/progression/technology.js";
-import { getCiv7ReadyCityView as getCiv7ReadyCityViewFromModule } from "./play/ready/city.js";
-import { getCiv7UnitMovePreview as getCiv7UnitMovePreviewFromModule } from "./play/ready/move-preview.js";
-import { getCiv7ReadyUnitView as getCiv7ReadyUnitViewFromModule } from "./play/ready/unit.js";
+import {
+  getCiv7ReadyCityView as getCiv7ReadyCityViewFromModule,
+  type Civ7ReadyCityOperationCandidate,
+  type Civ7ReadyCityPopulationPlacement,
+  type Civ7ReadyCityProductionCandidate,
+  type Civ7ReadyCityTownFocusOption,
+  type Civ7ReadyCityViewInput,
+  type Civ7ReadyCityViewResult,
+} from "./play/ready/city.js";
+import {
+  getCiv7UnitMovePreview as getCiv7UnitMovePreviewFromModule,
+  type Civ7UnitMovePreviewInput,
+  type Civ7UnitMovePreviewResult,
+} from "./play/ready/move-preview.js";
+import {
+  getCiv7ReadyUnitView as getCiv7ReadyUnitViewFromModule,
+  type Civ7ReadyUnitNearbyPlot,
+  type Civ7ReadyUnitOperationCandidate,
+  type Civ7ReadyUnitPromotionReadiness,
+  type Civ7ReadyUnitViewInput,
+  type Civ7ReadyUnitViewResult,
+} from "./play/ready/unit.js";
 import {
   getCiv7BattlefieldScan as getCiv7BattlefieldScanFromModule,
   type Civ7BattlefieldScanInput,
@@ -472,6 +491,25 @@ export type {
   Civ7TurnCompletionActionResult,
   Civ7TurnCompletionStatusResult,
 } from "./play/turn-completion.js";
+export type {
+  Civ7ReadyUnitNearbyPlot,
+  Civ7ReadyUnitOperationCandidate,
+  Civ7ReadyUnitPromotionReadiness,
+  Civ7ReadyUnitViewInput,
+  Civ7ReadyUnitViewResult,
+} from "./play/ready/unit.js";
+export type {
+  Civ7UnitMovePreviewInput,
+  Civ7UnitMovePreviewResult,
+} from "./play/ready/move-preview.js";
+export type {
+  Civ7ReadyCityOperationCandidate,
+  Civ7ReadyCityPopulationPlacement,
+  Civ7ReadyCityProductionCandidate,
+  Civ7ReadyCityTownFocusOption,
+  Civ7ReadyCityViewInput,
+  Civ7ReadyCityViewResult,
+} from "./play/ready/city.js";
 export type {
   Civ7PlayDecisionAction,
   Civ7PlayDecisionHint,
@@ -1011,166 +1049,6 @@ export type Civ7UnitTargetActionResult = Readonly<{
     observedAfterMs?: number;
     reason: string;
   }>;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7ReadyUnitViewInput = Readonly<{
-  unitId?: Civ7ComponentId;
-  radius?: number;
-  maxOperations?: number;
-}>;
-
-export type Civ7ReadyUnitOperationCandidate = Readonly<{
-  family: "unit-operation" | "unit-command";
-  operationType: string;
-  enumValue: unknown;
-  valid: boolean;
-  result: unknown;
-}>;
-
-export type Civ7ReadyUnitNearbyPlot = Readonly<{
-  x: number;
-  y: number;
-  units: unknown;
-}>;
-
-export type Civ7ReadyUnitPromotionReadiness = Readonly<{
-  hasExperience: boolean;
-  canPromote: unknown;
-  promotionClass: string | null;
-  level: unknown;
-  experiencePoints: unknown;
-  experienceToNextLevel: unknown;
-  totalPromotionsEarned: unknown;
-  storedPromotionPoints: unknown;
-  storedCommendations: unknown;
-  canPurchase: boolean;
-  availablePromotions: ReadonlyArray<Readonly<{
-    disciplineType: string;
-    promotionType: string;
-    name: string | null;
-    description: string | null;
-    commendation: boolean;
-    args: unknown;
-    validation: unknown;
-  }>>;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7ReadyUnitViewResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  requestedUnitId: Civ7ComponentId | null;
-  selectedUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  unitId: Civ7ComponentId | null;
-  unit: Civ7RuntimeProbe<unknown>;
-  legalOperations: ReadonlyArray<Civ7ReadyUnitOperationCandidate>;
-  promotionReadiness: Civ7RuntimeProbe<Civ7ReadyUnitPromotionReadiness | null>;
-  nearby: Civ7RuntimeProbe<ReadonlyArray<Civ7ReadyUnitNearbyPlot>>;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7UnitMovePreviewInput = Readonly<{
-  unitId?: Civ7ComponentId;
-  destination?: Civ7MapLocation;
-  maxPlots?: number;
-  maxPathPlots?: number;
-}>;
-
-export type Civ7UnitMovePreviewResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  requestedUnitId: Civ7ComponentId | null;
-  selectedUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  unitId: Civ7ComponentId | null;
-  unit: Civ7RuntimeProbe<unknown>;
-  reachableMovement: Civ7RuntimeProbe<unknown>;
-  reachableZonesOfControl: Civ7RuntimeProbe<unknown>;
-  reachableTargets: Civ7RuntimeProbe<unknown>;
-  queuedDestination: Civ7RuntimeProbe<Civ7MapLocation | null>;
-  queuedPath: Civ7RuntimeProbe<unknown>;
-  requestedDestination: Civ7MapLocation | null;
-  requestedPath: Civ7RuntimeProbe<unknown>;
-  relationshipPolicy: Readonly<{
-    relationshipSource: "not-classified";
-    relationshipProof: "none";
-    unprovenLabel: "relationship-unproven";
-    guidance: string;
-  }>;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7ReadyCityViewInput = Readonly<{
-  cityId?: Civ7ComponentId;
-  maxOperations?: number;
-}>;
-
-export type Civ7ReadyCityOperationCandidate = Readonly<{
-  family: "city-operation" | "city-command";
-  operationType: string;
-  enumValue: unknown;
-  valid: boolean;
-  result: unknown;
-}>;
-
-export type Civ7ReadyCityProductionCandidate = Readonly<{
-  kind: "unit" | "constructible" | "project";
-  type: unknown;
-  typeName: string | null;
-  name: string | null;
-  args: unknown;
-  cost?: unknown;
-  turns?: unknown;
-  productionBasis?: unknown;
-  baseYieldSummary?: unknown;
-  valid: boolean;
-  result: unknown;
-  placementPlots?: ReadonlyArray<unknown>;
-  cli: string;
-}>;
-
-export type Civ7ReadyCityTownFocusOption = Readonly<{
-  name: string | null;
-  description: string | null;
-  args: unknown;
-  valid: boolean;
-  result: unknown;
-  cli: string;
-}>;
-
-export type Civ7ReadyCityPopulationPlacement = Readonly<{
-  isReadyToPlacePopulation: Civ7RuntimeProbe<unknown>;
-  cityWorkerCap: Civ7RuntimeProbe<unknown>;
-  yieldTypeOrder: ReadonlyArray<string>;
-  allPlacementInfo: Civ7RuntimeProbe<unknown>;
-  workablePlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
-  blockedPlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
-  workablePlots: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
-  expansionCandidates: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
-  expansionResult: Civ7RuntimeProbe<unknown>;
-  cliHints: ReadonlyArray<string>;
-}>;
-
-export type Civ7ReadyCityViewResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  requestedCityId: Civ7ComponentId | null;
-  selectedCityId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  blockingCityId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  cityId: Civ7ComponentId | null;
-  city: Civ7RuntimeProbe<unknown>;
-  legalOperations: ReadonlyArray<Civ7ReadyCityOperationCandidate>;
-  productionCandidates: Civ7RuntimeProbe<ReadonlyArray<Civ7ReadyCityProductionCandidate>>;
-  townFocusOptions: Civ7RuntimeProbe<ReadonlyArray<Civ7ReadyCityTownFocusOption>>;
-  populationPlacement: Civ7RuntimeProbe<Civ7ReadyCityPopulationPlacement>;
   notes: ReadonlyArray<string>;
 }>;
 
