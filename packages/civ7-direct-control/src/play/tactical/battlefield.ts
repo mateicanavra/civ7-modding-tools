@@ -1,11 +1,36 @@
-import { Civ7DirectControlError } from "../../direct-control-error";
+import { Civ7DirectControlError } from "../../direct-control-error.js";
 
 import type {
-  Civ7BattlefieldScanInput,
-  Civ7BattlefieldScanResult,
   Civ7CommandResult,
   Civ7DirectControlOptions,
-} from "../../index";
+  Civ7TunerState,
+} from "../../session/types.js";
+
+export type Civ7BattlefieldScanInput = Readonly<{
+  playerId?: number;
+  origins?: ReadonlyArray<Readonly<{ x: number; y: number }>>;
+  radius?: number;
+  maxPlayers?: number;
+  maxUnits?: number;
+  maxCities?: number;
+}>;
+
+export type Civ7BattlefieldScanResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  localPlayerId: number;
+  playerId: number;
+  origins: ReadonlyArray<Readonly<{ x: number; y: number }>>;
+  radius: number;
+  hiddenInfoPolicy: string;
+  relationshipLabelPolicy: unknown;
+  units: unknown;
+  cities: unknown;
+  owners: unknown;
+  pointsOfInterest: unknown;
+  notes: ReadonlyArray<string>;
+}>;
 
 type BattlefieldScanDependencies = Readonly<{
   validatePlayerId: (playerId: number) => void;

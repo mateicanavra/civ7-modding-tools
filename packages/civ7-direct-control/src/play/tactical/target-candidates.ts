@@ -1,11 +1,61 @@
-import { Civ7DirectControlError } from "../../direct-control-error";
+import { Civ7DirectControlError } from "../../direct-control-error.js";
 
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7TargetCandidatesInput,
-  Civ7TargetCandidatesResult,
-} from "../../index";
+  Civ7TunerState,
+} from "../../session/types.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+
+export type Civ7TargetCandidatesInput = Readonly<{
+  playerId?: number;
+  origins?: ReadonlyArray<Readonly<{ x: number; y: number }>>;
+  maxCandidates?: number;
+  maxPlayers?: number;
+  unitRadius?: number;
+}>;
+
+export type Civ7TargetCandidate = Readonly<{
+  owner: number;
+  leaderName: Civ7RuntimeProbe<unknown>;
+  civilizationName: Civ7RuntimeProbe<unknown>;
+  isHuman: Civ7RuntimeProbe<unknown>;
+  cityCount: number;
+  unitCount: number;
+  cities: unknown;
+  nearestCity: unknown;
+  nearestDistance: number | null;
+  nearbyUnits: unknown;
+  nearbyUnitCount: number;
+  apparentStrength: number;
+  approach: Readonly<{
+    nearestOrigin: Readonly<{ x: number; y: number }> | null;
+    targetLocation: Readonly<{ x: number; y: number }> | null;
+    directGridDistance: number | null;
+    routeHint: string;
+    routeKind: string;
+    originWater: Civ7RuntimeProbe<unknown> | null;
+    targetWater: Civ7RuntimeProbe<unknown> | null;
+    waterSampleCount: number;
+    landSampleCount: number;
+    notes: ReadonlyArray<string>;
+  }>;
+  reasons: ReadonlyArray<string>;
+}>;
+
+export type Civ7TargetCandidatesResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  localPlayerId: number;
+  playerId: number;
+  origins: ReadonlyArray<Readonly<{ x: number; y: number }>>;
+  unitRadius: number;
+  hiddenInfoPolicy: string;
+  relationshipLabelPolicy: unknown;
+  candidates: ReadonlyArray<Civ7TargetCandidate>;
+  notes: ReadonlyArray<string>;
+}>;
 
 type TargetCandidatesDependencies = Readonly<{
   validatePlayerId: (playerId: number) => void;

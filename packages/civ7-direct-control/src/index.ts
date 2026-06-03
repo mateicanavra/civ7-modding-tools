@@ -264,10 +264,30 @@ import { buildTechnologyChoiceCloseoutCommand } from "./play/progression/technol
 import { getCiv7ReadyCityView as getCiv7ReadyCityViewFromModule } from "./play/ready/city.js";
 import { getCiv7UnitMovePreview as getCiv7UnitMovePreviewFromModule } from "./play/ready/move-preview.js";
 import { getCiv7ReadyUnitView as getCiv7ReadyUnitViewFromModule } from "./play/ready/unit.js";
-import { getCiv7BattlefieldScan as getCiv7BattlefieldScanFromModule } from "./play/tactical/battlefield.js";
-import { getCiv7DestinationAnalysis as getCiv7DestinationAnalysisFromModule } from "./play/tactical/destination.js";
-import { getCiv7SettlementRecommendations as getCiv7SettlementRecommendationsFromModule } from "./play/tactical/settlement.js";
-import { getCiv7TargetCandidates as getCiv7TargetCandidatesFromModule } from "./play/tactical/target-candidates.js";
+import {
+  getCiv7BattlefieldScan as getCiv7BattlefieldScanFromModule,
+  type Civ7BattlefieldScanInput,
+  type Civ7BattlefieldScanResult,
+} from "./play/tactical/battlefield.js";
+import {
+  getCiv7DestinationAnalysis as getCiv7DestinationAnalysisFromModule,
+  type Civ7DestinationAnalysisInput,
+  type Civ7DestinationAnalysisResult,
+} from "./play/tactical/destination.js";
+import {
+  getCiv7SettlementRecommendations as getCiv7SettlementRecommendationsFromModule,
+  type Civ7SettlementRecommendation,
+  type Civ7SettlementRecommendationFactor,
+  type Civ7SettlementRecommendationInput,
+  type Civ7SettlementRecommendationOrigin,
+  type Civ7SettlementRecommendationResult,
+} from "./play/tactical/settlement.js";
+import {
+  getCiv7TargetCandidates as getCiv7TargetCandidatesFromModule,
+  type Civ7TargetCandidate,
+  type Civ7TargetCandidatesInput,
+  type Civ7TargetCandidatesResult,
+} from "./play/tactical/target-candidates.js";
 
 export {
   assertCiv7ComponentId,
@@ -465,6 +485,26 @@ export type {
   Civ7NotificationDismissalResult,
   Civ7NotificationDismissalSummary,
 } from "./play/notifications/dismissal-request.js";
+export type {
+  Civ7BattlefieldScanInput,
+  Civ7BattlefieldScanResult,
+} from "./play/tactical/battlefield.js";
+export type {
+  Civ7DestinationAnalysisInput,
+  Civ7DestinationAnalysisResult,
+} from "./play/tactical/destination.js";
+export type {
+  Civ7SettlementRecommendation,
+  Civ7SettlementRecommendationFactor,
+  Civ7SettlementRecommendationInput,
+  Civ7SettlementRecommendationOrigin,
+  Civ7SettlementRecommendationResult,
+} from "./play/tactical/settlement.js";
+export type {
+  Civ7TargetCandidate,
+  Civ7TargetCandidatesInput,
+  Civ7TargetCandidatesResult,
+} from "./play/tactical/target-candidates.js";
 export {
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
@@ -1131,156 +1171,6 @@ export type Civ7ReadyCityViewResult = Readonly<{
   productionCandidates: Civ7RuntimeProbe<ReadonlyArray<Civ7ReadyCityProductionCandidate>>;
   townFocusOptions: Civ7RuntimeProbe<ReadonlyArray<Civ7ReadyCityTownFocusOption>>;
   populationPlacement: Civ7RuntimeProbe<Civ7ReadyCityPopulationPlacement>;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7SettlementRecommendationInput = Readonly<{
-  playerId?: number;
-  locations?: ReadonlyArray<Readonly<{ x: number; y: number }>>;
-  count?: number;
-  includeSettlers?: boolean;
-  includeCities?: boolean;
-}>;
-
-export type Civ7SettlementRecommendationFactor = Readonly<{
-  positive: boolean;
-  title: string | null;
-  description: string | null;
-}>;
-
-export type Civ7SettlementRecommendationOrigin = Readonly<{
-  kind: "requested" | "settler" | "city";
-  location: Readonly<{ x: number; y: number }>;
-  plotIndex: Civ7RuntimeProbe<number>;
-  unitId?: Civ7ComponentId;
-  cityId?: Civ7ComponentId;
-  name?: string | null;
-}>;
-
-export type Civ7SettlementRecommendation = Readonly<{
-  origin: Civ7SettlementRecommendationOrigin;
-  suggestions: Civ7RuntimeProbe<ReadonlyArray<Readonly<{
-    location: Readonly<{ x: number; y: number }> | null;
-    plotIndex: Civ7RuntimeProbe<number>;
-    factors: ReadonlyArray<Civ7SettlementRecommendationFactor>;
-  }>>>;
-}>;
-
-export type Civ7SettlementRecommendationResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  playerId: number;
-  count: number;
-  requestedLocations: ReadonlyArray<Readonly<{ x: number; y: number }>>;
-  origins: ReadonlyArray<Civ7SettlementRecommendationOrigin>;
-  recommendations: ReadonlyArray<Civ7SettlementRecommendation>;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7TargetCandidatesInput = Readonly<{
-  playerId?: number;
-  origins?: ReadonlyArray<Readonly<{ x: number; y: number }>>;
-  maxCandidates?: number;
-  maxPlayers?: number;
-  unitRadius?: number;
-}>;
-
-export type Civ7TargetCandidate = Readonly<{
-  owner: number;
-  leaderName: Civ7RuntimeProbe<unknown>;
-  civilizationName: Civ7RuntimeProbe<unknown>;
-  isHuman: Civ7RuntimeProbe<unknown>;
-  cityCount: number;
-  unitCount: number;
-  cities: unknown;
-  nearestCity: unknown;
-  nearestDistance: number | null;
-  nearbyUnits: unknown;
-  nearbyUnitCount: number;
-  apparentStrength: number;
-  approach: Readonly<{
-    nearestOrigin: Readonly<{ x: number; y: number }> | null;
-    targetLocation: Readonly<{ x: number; y: number }> | null;
-    directGridDistance: number | null;
-    routeHint: string;
-    routeKind: string;
-    originWater: Civ7RuntimeProbe<unknown> | null;
-    targetWater: Civ7RuntimeProbe<unknown> | null;
-    waterSampleCount: number;
-    landSampleCount: number;
-    notes: ReadonlyArray<string>;
-  }>;
-  reasons: ReadonlyArray<string>;
-}>;
-
-export type Civ7TargetCandidatesResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  playerId: number;
-  origins: ReadonlyArray<Readonly<{ x: number; y: number }>>;
-  unitRadius: number;
-  hiddenInfoPolicy: string;
-  relationshipLabelPolicy: unknown;
-  candidates: ReadonlyArray<Civ7TargetCandidate>;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7BattlefieldScanInput = Readonly<{
-  playerId?: number;
-  origins?: ReadonlyArray<Readonly<{ x: number; y: number }>>;
-  radius?: number;
-  maxPlayers?: number;
-  maxUnits?: number;
-  maxCities?: number;
-}>;
-
-export type Civ7BattlefieldScanResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  playerId: number;
-  origins: ReadonlyArray<Readonly<{ x: number; y: number }>>;
-  radius: number;
-  hiddenInfoPolicy: string;
-  relationshipLabelPolicy: unknown;
-  units: unknown;
-  cities: unknown;
-  owners: unknown;
-  pointsOfInterest: unknown;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7DestinationAnalysisInput = Readonly<{
-  playerId?: number;
-  origin?: Readonly<{ x: number; y: number }>;
-  destination: Readonly<{ x: number; y: number }>;
-  corridorRadius?: number;
-  destinationRadius?: number;
-  maxPlayers?: number;
-  maxUnits?: number;
-  maxCities?: number;
-}>;
-
-export type Civ7DestinationAnalysisResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  localPlayerId: number;
-  playerId: number;
-  origin: Readonly<{ x: number; y: number }> | null;
-  destination: Readonly<{ x: number; y: number }>;
-  corridorRadius: number;
-  destinationRadius: number;
-  hiddenInfoPolicy: string;
-  relationshipLabelPolicy: unknown;
-  corridor: unknown;
-  destinationPressure: unknown;
-  pointsOfInterest: unknown;
   notes: ReadonlyArray<string>;
 }>;
 

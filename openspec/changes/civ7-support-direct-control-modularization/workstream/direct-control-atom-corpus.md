@@ -240,6 +240,21 @@ procedure-core work, or Task 2.9.4 matrix-row acceptance. Diplomacy/narrative
 closeout, tactical, operation, ready, public procedure schema, and telemetry
 type ownership remain pending separate owner slices.
 
+Tactical read type update: tactical public read contracts now live with their
+source owners: `src/play/tactical/settlement.ts` owns settlement recommendation
+input/factor/origin/result types, `src/play/tactical/target-candidates.ts` owns
+target-candidates input/candidate/result types, `src/play/tactical/battlefield.ts`
+owns battlefield scan input/result types, and
+`src/play/tactical/destination.ts` owns destination analysis input/result types
+while public facade type re-exports stay in `index.ts`. This is local
+package/type relocation proof only and does not change tactical source strings,
+command serialization, parser labels, read-only/no-send behavior, conservative
+relationship-label policy, runtime proof status, telemetry, AI ingestion,
+hotseat runtime proof, CLI semantic projection, Effect/oRPC procedure-core work,
+or Task 2.9.4 matrix-row acceptance. Diplomacy/narrative closeout, operation,
+ready, public procedure schema, and telemetry type ownership remain pending
+separate owner slices.
+
 Bounded root inspection update: `src/runtime/root-inspection.ts` now owns
 `inspectCiv7Root` and the generated bounded root inspection command while the
 public facade export stays in `index.ts` and injects command execution,
