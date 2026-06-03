@@ -84,6 +84,7 @@ titles, and parent reports to close the loop.
 | `019e8b68-ec12-7a20-bb90-2cf46574d189`                                                | Extract direct-control primitives           | framed `/goal` source candidate | completed, idle; disk worktree `9c68` dirty at old parent                            | yes                                         | Partially accepted by evidence. DRA integrated only the smaller ComponentID/error owner subset on current disk; broader constants/runtime/map/player/numeric candidate remains superseded planning evidence, not accepted code. | Candidate proved the direction but was too broad for the first source-owner slice and could not run tests in its isolated worktree. DRA kept package config/docs ownership and final gates in the support worktree.                                                     |
 | `019e8b69-465d-7a71-8ef1-1f75f96799c2`                                                | Extract direct-control seams                | framed `/goal` source candidate | completed, idle; disk worktree `fd1b` dirty at old parent                            | yes                                         | Accepted as a narrow source candidate only. DRA integrated tuner frame encode/parse ownership on current disk after ComponentID/error moved first and reran package gates. | Contributed `src/session/framing.ts` boundary for `Civ7TunerFrame`, `encodeCiv7TunerRequest`, and `parseCiv7TunerFrame`; broader session/config/reconnect and restart/setup loops stay pending.                                             |
 | `019e8b69-ae88-79f1-b5dd-dd530c2ea2bf`                                                | Identify read-only atoms                    | framed `/goal` report-only     | completed report read; later empty active turn observed; disk worktree `1044` clean  | yes                                         | Accepted as read-only planning evidence. No code candidate was integrated from this lane. Later refined finding supersedes its earlier ready-unit suggestion.             | Recommends `settlementRecommendationsSource` as the safest first read-only embedded-source relocation, followed by traditions, move-preview, progress dashboard, ready-unit, tactical reads, ready-city, and notification view last.                                    |
+| `019e8be1-db1e-7c80-ad37-471a48cd520f`                                                | Identify first postcondition-helper slice   | framed `/goal` report-only     | completed, reported up                                                               | yes                                         | Accepted as sequencing guidance only; no mutation authority.                                                                                                               | Recommends the first postcondition-helper move be the synchronous unit-operation classifier group (`unitOperationPostcondition`, `classifyUnitOperationPostcondition`, `unitOperationPostconditionReason`) into `src/play/operations/unit-postconditions.ts`; narrative/diplomacy waiters stay later because they pull in notification matching, polling, and App UI reader dependencies. |
 
 ## Parallelization Rule
 
@@ -306,6 +307,20 @@ All future agent waves must be framed before delegation:
   technology and culture chooser closeout sources into
   `src/play/progression/{technology,culture}.ts`. Public wrapper ownership stays
   in `index.ts`; this is source relocation proof only, not runtime proof.
+- Direct-control production-choice source slice: completed as the next
+  operation action source relocation. It moves only the embedded production
+  choice source into `src/play/operations/production-choice.ts`. The public
+  wrapper/build command plus production postcondition helpers stay in `index.ts`;
+  this is source relocation proof only, not runtime proof.
+- Ready-domain note artifact disposition: the temporary user note
+  `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
+  package source and must not be committed. Its control feedback is now
+  recorded here and in the direct-control atom corpus: the current
+  `src/play/ready/{unit,city,move-preview}.ts` split is only an interim
+  extraction seam. A later domain-shape pass should regroup around topic-first
+  owners such as city/unit ready modules and movement-local preview ownership
+  instead of treating `play/ready` or standalone `move-preview.ts` as final
+  authority.
 - Review-disposition ledger: agent/reviewer findings recorded.
 - Exact dismiss-notification CLI slice: completed as test-only extraction with
   local fixture ownership and no runtime claim.

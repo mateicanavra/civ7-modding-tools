@@ -131,6 +131,9 @@ runtime/direct-control claims.
         the facade.
   - [x] 4.6.2 Extract technology and culture chooser closeout embedded source
         owners while keeping public wrappers in the facade.
+  - [x] 4.6.3 Extract production-choice embedded source owner while keeping
+        the public wrapper/build command and production postcondition helpers
+        in the facade.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.
