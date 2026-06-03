@@ -603,6 +603,13 @@ runtime/direct-control claims.
         contracts, procedure schemas, semantic CLI, AI ingestion, hotseat
         runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.10.10 Remove unused standalone tuner message helper after
+        listener-id allocation and frame encoding/parsing gained named session
+        owners, while leaving `Civ7DirectControlSession`, frame request
+        handling, state querying, command execution, reconnect orchestration,
+        telemetry/correlation contracts, procedure schemas, semantic CLI, AI
+        ingestion, hotseat runtime proof, Effect/oRPC procedure-core work, and
+        Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in

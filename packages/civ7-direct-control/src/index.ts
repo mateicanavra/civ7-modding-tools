@@ -2246,62 +2246,6 @@ export async function generateCiv7CapabilityCatalog(
   });
 }
 
-async function sendCiv7TunerMessage(options: {
-  socket: Socket;
-  message: string;
-  timeoutMs: number;
-}): Promise<Civ7TunerFrame> {
-  const listenerId = allocateListenerId();
-  return await new Promise<Civ7TunerFrame>((resolve, reject) => {
-    let buffer = Buffer.alloc(0);
-    const timer = setTimeout(() => {
-      cleanup();
-      reject(
-        new Civ7DirectControlError(
-          "response-timeout",
-          `Timed out waiting for Civ7 tuner response to ${options.message}`,
-        ),
-      );
-    }, options.timeoutMs);
-    const cleanup = () => {
-      clearTimeout(timer);
-      options.socket.off("data", onData);
-      options.socket.off("error", onError);
-      options.socket.off("close", onClose);
-    };
-    const onError = (err: Error) => {
-      cleanup();
-      reject(new Civ7DirectControlError("connection-failed", err.message, { cause: err }));
-    };
-    const onClose = () => {
-      cleanup();
-      reject(
-        new Civ7DirectControlError(
-          "socket-closed",
-          `Civ7 tuner socket closed while waiting for ${options.message}`,
-        ),
-      );
-    };
-    const onData = (chunk: Buffer) => {
-      buffer = Buffer.concat([buffer, chunk]);
-      for (;;) {
-        const parsed = parseCiv7TunerFrame(buffer);
-        if (!parsed) return;
-        buffer = buffer.subarray(parsed.bytesRead);
-        if (parsed.frame.listenerId === listenerId) {
-          cleanup();
-          resolve(parsed.frame);
-          return;
-        }
-      }
-    };
-    options.socket.on("data", onData);
-    options.socket.once("error", onError);
-    options.socket.once("close", onClose);
-    options.socket.write(encodeCiv7TunerRequest(listenerId, options.message));
-  });
-}
-
 function isNodeNotFound(err: unknown): boolean {
   return (
     err !== null &&

@@ -1359,6 +1359,16 @@ All future agent waves must be framed before delegation:
   semantic CLI projection, AI ingestion, hotseat runtime proof, or Effect/oRPC
   procedure-core work. This is local package/source relocation proof only, not
   runtime/live-game proof.
+- Direct-control unused tuner message helper cleanup: completed as a narrow
+  facade source-hygiene slice. It removes the unused standalone
+  `sendCiv7TunerMessage` helper after listener-id allocation and frame
+  encoding/parsing gained named session owners. `index.ts` still owns
+  `Civ7DirectControlSession`, frame request handling, state querying, command
+  execution, session creation/close, reconnect orchestration, and public facade
+  exports. This does not change runtime behavior, define telemetry/correlation
+  contracts, public procedure schemas, semantic CLI projection, AI ingestion,
+  hotseat runtime proof, or Effect/oRPC procedure-core work. This is local
+  dead-code cleanup/source hygiene proof only, not runtime/live-game proof.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into
