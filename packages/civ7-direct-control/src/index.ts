@@ -51,7 +51,7 @@ import {
 import { technologyChoiceCloseoutSource } from "./play/progression/technology.js";
 import { readyCityViewSource } from "./play/ready/city.js";
 import { getCiv7UnitMovePreview as getCiv7UnitMovePreviewFromModule } from "./play/ready/move-preview.js";
-import { readyUnitViewSource } from "./play/ready/unit.js";
+import { getCiv7ReadyUnitView as getCiv7ReadyUnitViewFromModule } from "./play/ready/unit.js";
 import { getCiv7BattlefieldScan as getCiv7BattlefieldScanFromModule } from "./play/tactical/battlefield.js";
 import { getCiv7DestinationAnalysis as getCiv7DestinationAnalysisFromModule } from "./play/tactical/destination.js";
 import { getCiv7SettlementRecommendations as getCiv7SettlementRecommendationsFromModule } from "./play/tactical/settlement.js";
@@ -3769,15 +3769,12 @@ export async function getCiv7ReadyUnitView(
   input: Civ7ReadyUnitViewInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7ReadyUnitViewResult> {
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildReadyUnitViewCommand({
-      ...input,
-      radius: boundedInteger(input.radius ?? 2, 0, 5, "radius"),
-      maxOperations: boundedInteger(input.maxOperations ?? 96, 1, 256, "maxOperations"),
-    }),
+  return await getCiv7ReadyUnitViewFromModule(input, options, {
+    boundedInteger,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseReadyUnitView: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7ReadyUnitViewResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7ReadyUnitViewResult>(result, "Civ7 ready unit view");
 }
 
 export async function getCiv7UnitMovePreview(
@@ -5512,13 +5509,6 @@ function buildUnitTargetActionCommand(input: Civ7UnitTargetActionInput, options:
   return `(() => {
     ${unitTargetActionSource()}
     return JSON.stringify(readUnitTargetAction(${jsLiteral(input)}, ${jsLiteral(options)}));
-  })()`;
-}
-
-function buildReadyUnitViewCommand(input: Civ7ReadyUnitViewInput & { radius: number; maxOperations: number }): string {
-  return `(() => {
-    ${readyUnitViewSource()}
-    return JSON.stringify(readReadyUnitView(${jsLiteral(input)}));
   })()`;
 }
 
