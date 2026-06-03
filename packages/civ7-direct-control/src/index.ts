@@ -49,7 +49,7 @@ import {
   getCiv7TraditionsView as getCiv7TraditionsViewFromModule,
 } from "./play/progression/reads.js";
 import { technologyChoiceCloseoutSource } from "./play/progression/technology.js";
-import { readyCityViewSource } from "./play/ready/city.js";
+import { getCiv7ReadyCityView as getCiv7ReadyCityViewFromModule } from "./play/ready/city.js";
 import { getCiv7UnitMovePreview as getCiv7UnitMovePreviewFromModule } from "./play/ready/move-preview.js";
 import { getCiv7ReadyUnitView as getCiv7ReadyUnitViewFromModule } from "./play/ready/unit.js";
 import { getCiv7BattlefieldScan as getCiv7BattlefieldScanFromModule } from "./play/tactical/battlefield.js";
@@ -3794,14 +3794,12 @@ export async function getCiv7ReadyCityView(
   input: Civ7ReadyCityViewInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7ReadyCityViewResult> {
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildReadyCityViewCommand({
-      ...input,
-      maxOperations: boundedInteger(input.maxOperations ?? 96, 1, 256, "maxOperations"),
-    }),
+  return await getCiv7ReadyCityViewFromModule(input, options, {
+    boundedInteger,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseReadyCityView: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7ReadyCityViewResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7ReadyCityViewResult>(result, "Civ7 ready city view");
 }
 
 export async function getCiv7SettlementRecommendations(
@@ -5509,13 +5507,6 @@ function buildUnitTargetActionCommand(input: Civ7UnitTargetActionInput, options:
   return `(() => {
     ${unitTargetActionSource()}
     return JSON.stringify(readUnitTargetAction(${jsLiteral(input)}, ${jsLiteral(options)}));
-  })()`;
-}
-
-function buildReadyCityViewCommand(input: Civ7ReadyCityViewInput & { maxOperations: number }): string {
-  return `(() => {
-    ${readyCityViewSource()}
-    return JSON.stringify(readReadyCityView(${jsLiteral(input)}));
   })()`;
 }
 

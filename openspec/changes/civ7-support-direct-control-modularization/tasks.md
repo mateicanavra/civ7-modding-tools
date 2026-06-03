@@ -133,6 +133,8 @@ runtime/direct-control claims.
         facade export surface in `index.ts`.
   - [x] 4.5.5 Extract ready-unit wrapper owner while keeping the public facade
         export surface in `index.ts`.
+  - [x] 4.5.6 Extract ready-city wrapper owner while keeping the public facade
+        export surface in `index.ts`.
 - [ ] 4.6 Extract operation validation/send/postcondition atoms.
   - [x] 4.6.1 Extract operation router embedded validation/send source owner
         while keeping wrapper-level postconditions and specialized closeouts in
