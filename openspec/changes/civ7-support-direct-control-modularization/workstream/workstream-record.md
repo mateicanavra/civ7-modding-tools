@@ -829,6 +829,20 @@ All future agent waves must be framed before delegation:
   ingestion, semantic CLI projection, Effect/oRPC procedure-core work, and
   Task 2.9.4 matrix-row acceptance remain pending. This is local
   package/source relocation proof only, not runtime/live-game proof.
+- Direct-control generic operation wrapper slice: completed as a narrow
+  operation source relocation. It moves only the public generic
+  unit/city/player operation and command validation/request wrapper
+  composition, the private operation validation/request command builders,
+  operation input validation, validator-first request flow, and
+  unit/population/production postcondition composition into
+  `src/play/operations/validate-request.ts` while keeping public facade exports
+  in `index.ts`. The facade still injects approval, Tuner execution, command
+  parsing, and serialization. This preserves approval-first send behavior,
+  operation router source routing, unit-operation and population-placement
+  package proof, and production postcondition composition. Telemetry, AI
+  ingestion, semantic CLI projection, Effect/oRPC procedure-core work, and
+  Task 2.9.4 matrix-row acceptance remain pending. This is local
+  package/source relocation proof only, not runtime/live-game proof.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now

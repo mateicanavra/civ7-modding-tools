@@ -199,7 +199,7 @@ runtime/direct-control claims.
         export surface in `index.ts`.
   - [x] 4.5.6 Extract ready-city wrapper owner while keeping the public facade
         export surface in `index.ts`.
-- [ ] 4.6 Extract operation validation/send/postcondition atoms.
+- [x] 4.6 Extract operation validation/send/postcondition atoms.
   - [x] 4.6.1 Extract operation router embedded validation/send source owner
         while keeping wrapper-level postconditions and specialized closeouts in
         the facade.
@@ -238,6 +238,14 @@ runtime/direct-control claims.
         operation wrappers, telemetry, AI ingestion, semantic CLI projection,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
+  - [x] 4.6.13 Extract generic operation validation/request wrapper owner while
+        keeping the public facade export surface in `index.ts`, preserving
+        unit/city/player operation and command validation, approval-first send
+        behavior, validator-first requests, operation router source routing,
+        unit/population/production postcondition classification, and package
+        proof for unit operations and population placement, and leaving
+        telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.

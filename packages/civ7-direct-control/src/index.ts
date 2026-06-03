@@ -10,11 +10,6 @@ import {
 } from "./civ7-component-id.js";
 import { Civ7DirectControlError, type Civ7DirectControlErrorCode } from "./direct-control-error.js";
 import {
-  diplomacyResponsePostcondition,
-  waitForCiv7DiplomacyResponseAfter,
-} from "./play/operations/diplomacy-postconditions.js";
-import { requestCiv7NarrativeChoice as requestCiv7NarrativeChoiceFromModule } from "./play/operations/narrative-request.js";
-import {
   encodeCiv7TunerRequest,
   parseCiv7TunerFrame,
   type Civ7TunerFrame,
@@ -103,18 +98,23 @@ import { notificationDismissalSource } from "./play/notifications/dismissal.js";
 import { waitForCiv7NotificationDismissal } from "./play/notifications/verification.js";
 import { getCiv7PlayNotificationView as getCiv7PlayNotificationViewFromModule } from "./play/notifications/view.js";
 import {
-  narrativeChoicePostcondition,
-  waitForCiv7NarrativeChoiceAfter,
-} from "./play/operations/narrative-postconditions.js";
-import {
   getCiv7UnitTargetAction as getCiv7UnitTargetActionFromModule,
   requestCiv7UnitTargetAction as requestCiv7UnitTargetActionFromModule,
 } from "./play/operations/unit-target-action.js";
-import { populationPlacementPostcondition } from "./play/operations/population-postconditions.js";
+import { requestCiv7NarrativeChoice as requestCiv7NarrativeChoiceFromModule } from "./play/operations/narrative-request.js";
 import { requestCiv7ProductionChoice as requestCiv7ProductionChoiceFromModule } from "./play/operations/production-choice.js";
-import { productionPostconditionFor } from "./play/operations/production-postconditions.js";
-import { operationRouterSource } from "./play/operations/router.js";
-import { unitOperationPostcondition } from "./play/operations/unit-postconditions.js";
+import {
+  canStartCiv7CityCommand as canStartCiv7CityCommandFromModule,
+  canStartCiv7CityOperation as canStartCiv7CityOperationFromModule,
+  canStartCiv7PlayerOperation as canStartCiv7PlayerOperationFromModule,
+  canStartCiv7UnitCommand as canStartCiv7UnitCommandFromModule,
+  canStartCiv7UnitOperation as canStartCiv7UnitOperationFromModule,
+  requestCiv7CityCommand as requestCiv7CityCommandFromModule,
+  requestCiv7CityOperation as requestCiv7CityOperationFromModule,
+  requestCiv7PlayerOperation as requestCiv7PlayerOperationFromModule,
+  requestCiv7UnitCommand as requestCiv7UnitCommandFromModule,
+  requestCiv7UnitOperation as requestCiv7UnitOperationFromModule,
+} from "./play/operations/validate-request.js";
 import { cultureChoiceCloseoutSource } from "./play/progression/culture.js";
 import {
   getCiv7ProgressDashboard as getCiv7ProgressDashboardFromModule,
@@ -3209,7 +3209,12 @@ export async function canStartCiv7UnitOperation(
   input: Civ7OperationInput & Readonly<{ unitId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7OperationValidationResult> {
-  return await validateCiv7Operation("unit-operation", input, options);
+  return await canStartCiv7UnitOperationFromModule(input, options, {
+    assertApproved,
+    executeTunerCommand: executeCiv7TunerCommand,
+    jsonPayloadFromCommandResult,
+    jsLiteral,
+  });
 }
 
 export async function requestCiv7UnitOperation(
@@ -3217,14 +3222,24 @@ export async function requestCiv7UnitOperation(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7OperationRequestResult> {
-  return await requestCiv7Operation("unit-operation", input, options, approval);
+  return await requestCiv7UnitOperationFromModule(input, options, approval, {
+    assertApproved,
+    executeTunerCommand: executeCiv7TunerCommand,
+    jsonPayloadFromCommandResult,
+    jsLiteral,
+  });
 }
 
 export async function canStartCiv7UnitCommand(
   input: Civ7OperationInput & Readonly<{ unitId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7OperationValidationResult> {
-  return await validateCiv7Operation("unit-command", input, options);
+  return await canStartCiv7UnitCommandFromModule(input, options, {
+    assertApproved,
+    executeTunerCommand: executeCiv7TunerCommand,
+    jsonPayloadFromCommandResult,
+    jsLiteral,
+  });
 }
 
 export async function requestCiv7UnitCommand(
@@ -3232,14 +3247,24 @@ export async function requestCiv7UnitCommand(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7OperationRequestResult> {
-  return await requestCiv7Operation("unit-command", input, options, approval);
+  return await requestCiv7UnitCommandFromModule(input, options, approval, {
+    assertApproved,
+    executeTunerCommand: executeCiv7TunerCommand,
+    jsonPayloadFromCommandResult,
+    jsLiteral,
+  });
 }
 
 export async function canStartCiv7CityOperation(
   input: Civ7OperationInput & Readonly<{ cityId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7OperationValidationResult> {
-  return await validateCiv7Operation("city-operation", input, options);
+  return await canStartCiv7CityOperationFromModule(input, options, {
+    assertApproved,
+    executeTunerCommand: executeCiv7TunerCommand,
+    jsonPayloadFromCommandResult,
+    jsLiteral,
+  });
 }
 
 export async function requestCiv7CityOperation(
@@ -3247,7 +3272,12 @@ export async function requestCiv7CityOperation(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7OperationRequestResult> {
-  return await requestCiv7Operation("city-operation", input, options, approval);
+  return await requestCiv7CityOperationFromModule(input, options, approval, {
+    assertApproved,
+    executeTunerCommand: executeCiv7TunerCommand,
+    jsonPayloadFromCommandResult,
+    jsLiteral,
+  });
 }
 
 export async function requestCiv7ProductionChoice(
@@ -3268,7 +3298,12 @@ export async function canStartCiv7CityCommand(
   input: Civ7OperationInput & Readonly<{ cityId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7OperationValidationResult> {
-  return await validateCiv7Operation("city-command", input, options);
+  return await canStartCiv7CityCommandFromModule(input, options, {
+    assertApproved,
+    executeTunerCommand: executeCiv7TunerCommand,
+    jsonPayloadFromCommandResult,
+    jsLiteral,
+  });
 }
 
 export async function requestCiv7CityCommand(
@@ -3276,14 +3311,24 @@ export async function requestCiv7CityCommand(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7OperationRequestResult> {
-  return await requestCiv7Operation("city-command", input, options, approval);
+  return await requestCiv7CityCommandFromModule(input, options, approval, {
+    assertApproved,
+    executeTunerCommand: executeCiv7TunerCommand,
+    jsonPayloadFromCommandResult,
+    jsLiteral,
+  });
 }
 
 export async function canStartCiv7PlayerOperation(
   input: Civ7OperationInput & Readonly<{ playerId: number }>,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7OperationValidationResult> {
-  return await validateCiv7Operation("player-operation", input, options);
+  return await canStartCiv7PlayerOperationFromModule(input, options, {
+    assertApproved,
+    executeTunerCommand: executeCiv7TunerCommand,
+    jsonPayloadFromCommandResult,
+    jsLiteral,
+  });
 }
 
 export async function requestCiv7PlayerOperation(
@@ -3291,7 +3336,12 @@ export async function requestCiv7PlayerOperation(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7OperationRequestResult> {
-  return await requestCiv7Operation("player-operation", input, options, approval);
+  return await requestCiv7PlayerOperationFromModule(input, options, approval, {
+    assertApproved,
+    executeTunerCommand: executeCiv7TunerCommand,
+    jsonPayloadFromCommandResult,
+    jsLiteral,
+  });
 }
 
 export async function requestCiv7TechnologyChoiceCloseout(
@@ -3905,19 +3955,6 @@ function buildLoadSavedGameConfigurationCommand(input: Civ7SavedGameConfiguratio
       serverType,
       params,
     });
-  })()`;
-}
-function buildOperationValidationCommand(family: Civ7OperationFamily, input: Civ7OperationInput): string {
-  return `(() => {
-    ${operationRouterSource()}
-    return JSON.stringify(validateOperation(${jsLiteral(family)}, ${jsLiteral(input)}));
-  })()`;
-}
-
-function buildOperationRequestCommand(family: Civ7OperationFamily, input: Civ7OperationInput): string {
-  return `(() => {
-    ${operationRouterSource()}
-    return JSON.stringify(sendOperation(${jsLiteral(family)}, ${jsLiteral(input)}));
   })()`;
 }
 
@@ -4617,101 +4654,6 @@ function assertApproved(approval: Civ7ActionApproval, action: string): void {
   }
 }
 
-async function validateCiv7Operation(
-  family: Civ7OperationFamily,
-  input: Civ7OperationInput,
-  options: Civ7DirectControlOptions,
-): Promise<Civ7OperationValidationResult> {
-  validateOperationInput(family, input);
-  const result = await executeCiv7TunerCommand({
-    ...options,
-    command: buildOperationValidationCommand(family, input),
-  });
-  return jsonPayloadFromCommandResult<Civ7OperationValidationResult>(result, "Civ7 operation validation");
-}
-
-async function requestCiv7Operation(
-  family: Civ7OperationFamily,
-  input: Civ7OperationInput,
-  options: Civ7DirectControlOptions,
-  approval: Civ7ActionApproval,
-): Promise<Civ7OperationRequestResult> {
-  assertApproved(approval, `requesting ${family}`);
-  validateOperationInput(family, input);
-  const before = await validateCiv7Operation(family, input, options);
-  if (!before.valid) {
-    return {
-      before,
-      after: before,
-      sent: false,
-      verified: false,
-      postcondition: unitOperationPostcondition(family, input, false, before, before, undefined, undefined),
-    };
-  }
-  const command = await executeCiv7TunerCommand({
-    ...options,
-    command: buildOperationRequestCommand(family, input),
-  });
-  const sentPayload = jsonPayloadFromCommandResult<{
-    sent: boolean;
-    beforePostcondition?: Civ7UnitOperationPostconditionSnapshot;
-    afterPostcondition?: Civ7UnitOperationPostconditionSnapshot;
-    beforePopulationPostcondition?: Civ7PopulationPlacementPostconditionSnapshot;
-    afterPopulationPostcondition?: Civ7PopulationPlacementPostconditionSnapshot;
-    beforeProductionPostcondition?: Civ7ProductionPostconditionSnapshot;
-    afterProductionPostcondition?: Civ7ProductionPostconditionSnapshot;
-  }>(command, "Civ7 operation request");
-  const after = await validateCiv7Operation(family, input, options);
-  const sent = sentPayload.sent === true;
-  const postcondition = unitOperationPostcondition(
-    family,
-    input,
-    sent,
-    before,
-    after,
-    sentPayload.beforePostcondition,
-    sentPayload.afterPostcondition,
-  );
-  const populationPostcondition = populationPlacementPostcondition(
-    family,
-    input,
-    sent,
-    before,
-    after,
-    sentPayload.beforePopulationPostcondition,
-    sentPayload.afterPopulationPostcondition,
-  );
-  const productionPostcondition = productionPostconditionFor(
-    family,
-    input,
-    sent,
-    before,
-    after,
-    sentPayload.beforeProductionPostcondition,
-    sentPayload.afterProductionPostcondition,
-  );
-  const operationVerified =
-    postcondition
-      ? postcondition.classification !== "not-sent" && postcondition.classification !== "no-state-change"
-      : populationPostcondition
-        ? populationPostcondition.classification !== "not-sent" && populationPostcondition.classification !== "no-state-change"
-        : productionPostcondition
-          ? productionPostcondition.classification !== "not-sent"
-            && productionPostcondition.classification !== "no-state-change"
-            && productionPostcondition.classification !== "production-state-changed-blocker-still-live"
-          : command.output.length > 0 && sent;
-  return {
-    before,
-    command,
-    after,
-    sent,
-    verified: operationVerified,
-    postcondition,
-    populationPostcondition,
-    productionPostcondition,
-  };
-}
-
 function probeValueChanged(left: Civ7RuntimeProbe<unknown> | undefined, right: Civ7RuntimeProbe<unknown> | undefined): boolean {
   if (!left || !right) return false;
   if (left.ok !== right.ok) return true;
@@ -4765,19 +4707,6 @@ function flattenKeys(value: unknown, keys: Record<string, true> = {}): Record<st
     }
   }
   return keys;
-}
-
-function validateOperationInput(family: Civ7OperationFamily, input: Civ7OperationInput): void {
-  validateIdentifier(input.operationType, "operationType");
-  if ((family === "unit-operation" || family === "unit-command") && !("unitId" in input)) {
-    throw new Civ7DirectControlError("command-failed", `${family} requires unitId`);
-  }
-  if ((family === "city-operation" || family === "city-command") && !("cityId" in input)) {
-    throw new Civ7DirectControlError("command-failed", `${family} requires cityId`);
-  }
-  if (family === "player-operation" && !("playerId" in input)) {
-    throw new Civ7DirectControlError("command-failed", "player-operation requires playerId");
-  }
 }
 
 function jsLiteral(value: unknown): string {
