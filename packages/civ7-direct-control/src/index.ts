@@ -1148,6 +1148,7 @@ export async function loadCiv7SavedGameConfiguration(
     loaded: command.output.some((line) => line.includes('"ok":true')),
   };
 }
+
 export async function ensureCiv7SetupMapRowVisible(
   input: Civ7SetupMapRowVisibilityInput,
   options: Civ7DirectControlOptions = {},

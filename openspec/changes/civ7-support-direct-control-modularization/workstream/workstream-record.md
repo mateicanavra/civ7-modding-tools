@@ -1400,9 +1400,10 @@ All future agent waves must be framed before delegation:
   source relocation. It moves only `startPreparedCiv7SinglePlayerGame`, the
   generated prepared-start command, begin polling, setup pre-readback, Tuner/map
   verification, and post-start seed assertion into `src/setup/start.ts` while
-  keeping the public facade export in `index.ts`. The facade still injects
-  session creation/close, reconnect execution, Tuner readiness, map summary
-  reads, approval assertion, command parsing, and constants. This preserves
+  keeping the public facade export in `index.ts`. Later dependency pruning moves
+  the default session creation/close, reconnect execution, Tuner readiness, map
+  summary read, approval assertion, command parsing, and constants into
+  `src/setup/start.ts`. This preserves
   approval-first start, host-game command source, one-attempt begin send,
   no-replay-after-begin-close package proof, setup-start timeout details, and
   seed mismatch classification. `runCiv7SinglePlayerFromSetup`, restart/begin
@@ -1415,9 +1416,10 @@ All future agent waves must be framed before delegation:
   active-game rejection unless `fromRunningGame: "exit-to-shell"` is supplied,
   exit-to-main-menu command routing, shell wait, prepare/start chaining, and
   verified result shape into `src/setup/run.ts` while keeping the public facade
-  export in `index.ts`. The facade still injects App UI execution, setup
-  snapshot reads, setup phase waits, prepare/start wrappers, approval assertion,
-  validation helpers, and constants. This preserves approval-first run
+  export in `index.ts`. Later dependency pruning moves the default App UI
+  execution, setup snapshot reads, setup phase waits, prepare/start wrappers,
+  approval assertion, validation helpers, and constants into `src/setup/run.ts`.
+  This preserves approval-first run
   orchestration, shell-exit behavior, existing prepare/start proof, and
   no-replay package proof. Restart/begin lifecycle orchestration, remaining
   no-replay ownership, hotseat runtime proof, AI ingestion, semantic CLI
@@ -1427,9 +1429,10 @@ All future agent waves must be framed before delegation:
 - Direct-control restart/begin slice: completed as a narrow setup/lifecycle
   source relocation. It moves only `beginCiv7Game`, `restartCiv7Game`, and
   `restartCiv7GameAndBegin` orchestration into `src/setup/restart.ts` while
-  keeping public facade exports in `index.ts`. The facade still injects App UI
-  execution, command execution, session creation/close, reconnect execution,
-  Tuner readiness, loading-state constants, and command constants. This
+  keeping public facade exports in `index.ts`. Later dependency pruning moves
+  the default App UI execution, command execution, session creation/close,
+  reconnect execution, Tuner readiness, loading-state constants, and command
+  constants into `src/setup/restart.ts`. This
   preserves App UI restart command routing, restart-output rejection,
   begin-notification command routing, GameStarted polling, one-attempt begin
   send, optional Tuner readiness wait, and restart lifecycle package proof.
@@ -1437,6 +1440,14 @@ All future agent waves must be framed before delegation:
   projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
   matrix-row acceptance remain pending. This is local package/source relocation
   proof only, not runtime/live-game proof.
+- Setup-read facade helper cleanup: completed as a narrow facade cleanup after
+  setup-read dependency ownership moved into `src/setup/reads.ts`. It removes
+  the stale `setupReadDependencies` helper and unused validation/setup-read
+  dependency imports from `index.ts` while keeping public facade exports stable.
+  This is local package/source relocation proof only: it does not claim
+  runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock telemetry,
+  AI ingestion, semantic CLI projection, hotseat runtime proof,
+  schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control production-choice wrapper slice: completed as a narrow
   operation source relocation. It moves only `requestCiv7ProductionChoice`
   orchestration, the private production-choice command builder, production

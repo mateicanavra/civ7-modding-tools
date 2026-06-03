@@ -1239,6 +1239,13 @@ runtime/direct-control claims.
         proof, and leaving runtime proof, hotseat runtime proof, AI ingestion,
         semantic CLI projection, telemetry, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.14.13 Prune the stale setup-read facade helper/import left after
+        setup-read dependency ownership moved into `src/setup/reads.ts`, while
+        keeping public facade exports stable, preserving setup read/source
+        behavior, and leaving setup lifecycle behavior, runtime proof, hotseat
+        runtime proof, AI ingestion, semantic CLI projection, telemetry,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 
 ## 5. CLI Semantic Surface Lane
 
