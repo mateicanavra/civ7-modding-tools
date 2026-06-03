@@ -47,6 +47,7 @@ import {
   loadCiv7OfficialResourceCapabilities,
   type Civ7CapabilityCatalog,
   type Civ7CapabilityCatalogEntry,
+  type Civ7CapabilityCatalogOptions,
 } from "./catalog/capabilities.js";
 import {
   getCiv7AppUiSnapshot as getCiv7AppUiSnapshotFromModule,
@@ -388,6 +389,7 @@ export {
 export type {
   Civ7CapabilityCatalog,
   Civ7CapabilityCatalogEntry,
+  Civ7CapabilityCatalogOptions,
 } from "./catalog/capabilities.js";
 export {
   DEFAULT_CIV7_APP_UI_API_ROOTS,
@@ -801,13 +803,6 @@ export type Civ7SavedGameConfigurationListInput = Readonly<{
 export type Civ7SavedGameConfigurationListResult = Readonly<{
   directory: string;
   configurations: ReadonlyArray<Civ7SavedGameConfiguration>;
-}>;
-
-export type Civ7CapabilityCatalogOptions = Civ7DirectControlOptions & Readonly<{
-  includeRuntime?: boolean;
-  includeStatic?: boolean;
-  appUiRoots?: ReadonlyArray<string>;
-  tunerRoots?: ReadonlyArray<string>;
 }>;
 
 export type Civ7RestartAndBeginResult = Readonly<{
