@@ -1289,16 +1289,7 @@ export async function inspectCiv7Root(
   input: Civ7RootInspectionInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7RootInspectionResult> {
-  return await inspectCiv7RootFromModule(input, options, {
-    boundedInteger,
-    commandFailedError: (message) => new Civ7DirectControlError("command-failed", message),
-    executeCommand: executeCiv7Command,
-    jsonPayloadFromCommandResult,
-    jsLiteral,
-    rootMaxKeysDefault: DEFAULT_CIV7_ROOT_MAX_KEYS,
-    rootMaxMethodsDefault: DEFAULT_CIV7_ROOT_MAX_METHODS,
-    validateIdentifier,
-  });
+  return await inspectCiv7RootFromModule(input, options);
 }
 
 export async function getCiv7AutoplayStatus(

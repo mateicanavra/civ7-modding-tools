@@ -502,9 +502,10 @@ All future agent waves must be framed before delegation:
   debug/internal inspection relocation. It moves only `inspectCiv7Root` and the
   generated bounded root inspection command builder into
   `src/runtime/root-inspection.ts` while keeping public facade exports in
-  `index.ts` and injecting command execution, validation, bounds, JSON parsing,
-  command serialization, and error construction from the facade. This preserves
-  root identifier validation, `maxRoots`/`maxKeys`/`maxMethods`, state default,
+  `index.ts`. The root-inspection owner now imports existing non-facade command
+  execution, validation, bounds, JSON parsing, command serialization, and error
+  construction owners directly for its default wiring. This preserves root
+  identifier validation, `maxRoots`/`maxKeys`/`maxMethods`, state default,
   parse label, command serialization, and result shape. Capability catalog
   schemas were extracted in the later catalog schema slice. Broader public and
   procedure schemas, operation/proof telemetry, AI ingestion, hotseat runtime

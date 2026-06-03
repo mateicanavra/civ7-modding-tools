@@ -941,6 +941,15 @@ runtime/direct-control claims.
         behavior, and leaving telemetry, AI ingestion, CLI semantic projection,
         hotseat runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.12.14 Prune bounded root inspection facade dependency injection by
+        letting the runtime root-inspection owner import existing non-facade
+        command execution, parser, validation, serializer, error, and bounds
+        constant owners directly, while keeping public facade exports stable,
+        preserving root identifier validation, root caps, state defaulting,
+        parse label, command serialization, result shape, debug/internal-only
+        classification, and leaving telemetry, AI ingestion, CLI semantic
+        projection, hotseat runtime proof, Effect/oRPC procedure-core work, and
+        Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready

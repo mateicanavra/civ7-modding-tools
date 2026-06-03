@@ -292,14 +292,15 @@ separate owner slices.
 
 Bounded root inspection update: `src/runtime/root-inspection.ts` now owns
 `inspectCiv7Root` and the generated bounded root inspection command while the
-public facade export stays in `index.ts` and injects command execution,
-validation, bounds, JSON parsing, command serialization, and error
-construction. This preserves root identifier validation, root caps, state
-defaulting, parse label, and result shape. The atom is debug/internal
-inspection support with `normalCliProjection` omitted or debug-command only and
+public facade export stays in `index.ts`. The root-inspection owner now imports
+existing non-facade command execution, validation, bounds, JSON parsing,
+command serialization, and error-construction owners directly for its default
+wiring. This preserves root identifier validation, root caps, state defaulting,
+parse label, and result shape. The atom is debug/internal inspection support
+with `normalCliProjection` omitted or debug-command only and
 `debugServiceProjection` raw diagnostic projection. This is local
-package/source relocation proof only, not live runtime proof, runtime reflection
-authority, AI ingestion input, or procedure-core readiness.
+package/source relocation proof only, not live runtime proof, runtime
+reflection authority, AI ingestion input, or procedure-core readiness.
 
 App UI snapshot update: `src/runtime/app-ui-snapshot.ts` now owns
 `getCiv7AppUiSnapshot`, the generated App UI snapshot command, and
