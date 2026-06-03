@@ -5,7 +5,7 @@ import type {
 } from "./narrative-request.js";
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
-import type { Civ7DirectControlOptions } from "../../index.js";
+import type { Civ7DirectControlOptions } from "../../session/types.js";
 import type {
   Civ7PlayNotificationSummary,
   Civ7PlayNotificationViewResult,

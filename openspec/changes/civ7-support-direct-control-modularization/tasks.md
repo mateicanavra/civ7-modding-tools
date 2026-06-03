@@ -567,6 +567,14 @@ runtime/direct-control claims.
         procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
         ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.38 Prune remaining internal command/session/runtime type
+        back-imports from the public facade by importing command results,
+        direct-control options, state selections, sessions, runtime probes,
+        snapshot/health results, and operation families from their owner
+        modules, while preserving public facade re-exports and leaving
+        procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.9 Explicitly cite oRPC architecture authority before any oRPC
       implementation. The support branch cites the
       `civ7-orpc-control-architecture` skill from

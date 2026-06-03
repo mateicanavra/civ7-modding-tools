@@ -13,12 +13,12 @@ import {
   type SetupReadDependencies,
 } from "./reads.js";
 
-import type { Civ7ActionApproval } from "../action-approval";
+import type { Civ7ActionApproval } from "../action-approval.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-} from "../index.js";
-import type { Civ7TunerState } from "../session/types.js";
+  Civ7TunerState,
+} from "../session/types.js";
 
 export type Civ7SetupOptionValue = string | number | boolean;
 

@@ -20,12 +20,12 @@ import type { Civ7RuntimeProbe } from "../runtime/probe.js";
 import type { Civ7TunerHealthResult } from "../runtime/tuner-health.js";
 import type { Civ7ActionApproval } from "../action-approval.js";
 
+import type { Civ7DirectControlSession } from "../session/session.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7DirectControlSession,
   Civ7TunerStateSelection,
-} from "../index.js";
+} from "../session/types.js";
 
 export type Civ7PreparedStartInput = Readonly<{
   expected: Civ7SinglePlayerSetupInput;

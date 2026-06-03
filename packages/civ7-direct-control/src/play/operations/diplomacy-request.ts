@@ -12,7 +12,7 @@ import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-} from "../../index.js";
+} from "../../session/types.js";
 import type { Civ7PlayNotificationViewResult } from "../notifications/view.js";
 
 export type Civ7DiplomacyResponseInput = Readonly<{

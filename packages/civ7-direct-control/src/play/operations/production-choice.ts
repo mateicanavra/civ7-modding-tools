@@ -15,7 +15,7 @@ import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-} from "../../index.js";
+} from "../../session/types.js";
 
 export type Civ7ProductionChoiceInput = Readonly<{
   cityId: Civ7ComponentId;

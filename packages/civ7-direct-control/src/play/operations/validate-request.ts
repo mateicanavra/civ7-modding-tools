@@ -26,7 +26,7 @@ import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-} from "../../index.js";
+} from "../../session/types.js";
 
 export type Civ7OperationRequestResult = Readonly<{
   before: Civ7OperationValidationResult;
