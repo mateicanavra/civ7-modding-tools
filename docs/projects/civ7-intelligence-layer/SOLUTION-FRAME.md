@@ -3,7 +3,9 @@
 **Status:** Operational solution frame
 **Audience:** Workstream lead, agent implementers, and reviewers deciding what
 to build next
-**Companion references:** [ai-lever-reference.md](ai-lever-reference.md),
+**Companion references:** [actuation-path-map.md](actuation-path-map.md),
+[ai-lever-reference.md](ai-lever-reference.md),
+[corpus-and-trace-reference.md](corpus-and-trace-reference.md),
 [rhq-reference.md](rhq-reference.md),
 [runtime-bridge-and-probes.md](runtime-bridge-and-probes.md)
 
@@ -24,6 +26,47 @@ The product should not pretend these are the same mechanism. Direct-control is
 the live control lane. Static AI profiles are the native-AI steering lane.
 The intelligence layer is the system that observes, decides, compiles, executes,
 and measures across both lanes without blurring their proof boundaries.
+
+## Current Answer
+
+The investigated paths point to a two-sided authority model, not to one
+universal bridge and not to three peer execution lanes. A strategy agent affects
+the game in two product-safe ways, with one subordinate in-game endpoint:
+
+1. It plays live through `@civ7/direct-control`. This is the only baseline
+   authority for current-turn actions because it owns tuner socket transport,
+   state selection, validation, approval, send wrappers, and proof promotion.
+   Hotseat is the leading probe for multi-player local handoff, but it is not
+   production until activation, local-player rotation, curtain handling, agent
+   action, turn completion, and human restoration are proven in a disposable
+   game.
+2. It shapes native AI through generated static profiles. The compiler can
+   emit small SQL/XML recipes over AI lists, pseudo-yields, strategies,
+   operations, tactics, and behavior-tree graphs using known native nodes.
+   These are load-scoped today; age-scoped layering is source-backed but still
+   needs a transition proof.
+
+The companion App UI endpoint belongs under the live side. It can carry
+strategy intent, annotations, observations, acknowledgements, and helper probes.
+The baseline ingress is a game-scoped App UI `UIScripts` global such as
+`globalThis.Civ7IntelligenceBridge.invoke(...)`, called through a typed
+direct-control wrapper. It must not independently call mutating operation APIs,
+even though companion scripts can reach them, because that would bypass the
+direct-control approval and proof model.
+
+A fuller controller inside the game is desirable because it can reduce repeated
+transport verification: it can own event subscriptions, local state caching,
+display, acknowledgements, capability discovery, and exact approved helper
+execution in one App UI resident state machine. It does not remove proof. It
+moves proof from every raw external command into lifecycle certification,
+method allowlists, action legality, approval tokens, hotseat/local-player
+identity, and semantic outcome checks.
+
+Everything else is measurement or research. Saves, logs, Hall of Fame data,
+debug database copies, and live `GameInfo` readback are valuable for corpus
+enrichment and proof, but existing saves/logs are not a full action diary.
+Autoplay and Automation are useful for native-AI smoke tests and measured runs;
+they are eliminated as the primary external-agent play path.
 
 ## Frame Commitments
 
@@ -63,19 +106,22 @@ Today the workspace has three useful but incomplete facts:
 - RHQ proves a mod can use that surface aggressively, but it is prior art, not
   a clean product baseline.
 
-The missing product layer is the bridge between those facts: a system that can
-observe games, form strategy, act when direct live play is the right mechanism,
-compile static native-AI profiles when native policy is the right mechanism, and
-measure whether either choice actually improved play.
+The missing product layer is the decision-and-evidence loop between those
+facts: a system that can observe games, form strategy, choose the correct
+authority side, act when direct live play is the right mechanism, compile static
+native-AI profiles when native policy is the right mechanism, and measure
+whether either choice actually improved play.
 
 ## Product Scenarios
 
 ### Scenario 1: Tactical Hotseat Agent
 
-An agent is controlling a local hotseat player. It reads the current game state,
-finds ready units and blockers, asks direct-control validators for legal action
-candidates, sends approved operations, and records postconditions. This is the
-near-term path for "LLM actually plays the game."
+An agent controls an agent-owned local player through direct-control. Once the
+hotseat gates pass, that player can be one slot in a local human-versus-agent
+hotseat game. The agent reads the current game state, finds ready units and
+blockers, asks direct-control validators for legal action candidates, sends
+approved operations, and records proof layers plus any semantic postconditions.
+This is the path for "LLM actually plays the game."
 
 The system must feel like a capable operator, not a raw script runner. The agent
 should work from structured tactical lenses, explain the objective behind an
@@ -111,17 +157,20 @@ source anchors, expected metrics, loaded-row checks, and rollback. A recipe is
 only promoted when a fixed-seed A/B run shows a measurable behavior or outcome
 delta.
 
-### Scenario 4: Companion Mod Bridge
+### Scenario 4: Companion App UI Endpoint
 
-A companion App UI mod may become the in-game bridge for annotations, strategy
-intent queues, richer observations, and helper affordances that direct-control
-can read or trigger. The bridge is useful even if it never mutates native AI.
+A companion App UI mod may become the in-game endpoint for annotations, strategy
+intent, richer observations, and helper affordances that direct-control can read
+or trigger. The endpoint is useful even if it never mutates native AI.
 
-The safe first bridge is not "LLM sends arbitrary JS into Civ." It is: the
-direct-control runner writes a bounded intent payload into an App UI-visible
-channel, the companion mod reads it, performs a harmless visible/logged effect,
-and the observer records the result. More powerful effects must earn authority
-through probes and postconditions.
+The safe first endpoint is not "LLM sends arbitrary JS into Civ." It is: the
+direct-control runner calls a small companion-owned App UI API such as
+`globalThis.Civ7IntelligenceBridge.invoke(encodedEnvelope)`, the endpoint
+dispatches only allowlisted read/ack/display methods, and the observer records
+the result. Synchronous App UI RPC is the baseline. `localStorage` can become a
+reload mirror or async queue after proof, but it is not the primary path.
+More powerful effects must remain subordinate to direct-control approval and
+postcondition proof.
 
 ### Scenario 5: Strategy Corpus Loop
 
@@ -135,18 +184,18 @@ well in one game.
 
 ## Solution Architecture
 
-The solution has four layers. The layer boundary is the main architectural
-claim of this frame.
+The solution has two authority sides and one cross-cutting evidence loop. The
+side boundary is the main architectural claim of this frame.
 
 ```mermaid
 flowchart TB
   Game["Running Civ7 Game"]
   Observer["Observer + Corpus\nstate snapshots, action audits, outcomes"]
   Director["Strategy Director\n10-20 turn posture, playbooks, recipe candidates"]
-  Tactical["Direct-Control Tactical Runner\nvalidators, sends, postconditions"]
+  Tactical["Direct-Control Tactical Runner\nvalidators, sends, proof records"]
   Compiler["Static AI Profile Compiler\nsmall SQL/XML recipes"]
   RHQ["RHQ Recipe Importer\nprior-art deltas, not baseline fork"]
-  Bridge["Companion Mod Bridge\nintent queues, annotations, helper probes"]
+  Bridge["Companion App UI Endpoint\nannotations, snapshots, acks, helper probes"]
   Native["Civ7 Native AI\nloaded strategies, operations, tactics, BT graphs"]
   Metrics["Run Metrics + Promotion Gates\nloaded rows, A/B deltas, regressions"]
 
@@ -159,8 +208,8 @@ flowchart TB
   RHQ --> Compiler
   Compiler --> Native
   Native --> Game
-  Director -. bounded intent .-> Bridge
-  Bridge -. observed helper effect .-> Game
+  Tactical -. bounded call .-> Bridge
+  Bridge -. annotation / ack / observation .-> Game
   Observer --> Metrics
   Compiler --> Metrics
   Metrics --> Director
@@ -173,11 +222,11 @@ observe -> form posture -> choose lane -> emit bounded artifact -> validate or
 compile -> apply at the lane's authority boundary -> measure -> update corpus
 ```
 
-That loop is the product machine. Each layer can improve independently, but the
+That loop is the product machine. Each side can improve independently, but the
 system only compounds when every action or profile candidate returns with proof
 and outcome data.
 
-### Layer 1: Observer And Corpus
+### Observer And Corpus
 
 The observer is the truth intake. It reads live state through direct-control,
 captures logs and loaded-row proofs when available, and writes source-labeled
@@ -188,12 +237,12 @@ claims, and measured runs prove different things.
 Minimum record families:
 
 - turn snapshots and strategic summaries;
-- action proposals, approvals, sends, and postconditions;
+- action proposals, approvals, sends, proof layers, and postconditions;
 - generated profile recipes and loaded-row checks;
 - run metrics for fixed-seed comparisons;
 - source labels and confidence markers.
 
-### Layer 2: Strategy Director
+### Strategy Director
 
 The strategy director decides intent, not raw execution. It converts observed
 state into posture, plans, priorities, and candidate interventions. It can ask
@@ -211,21 +260,22 @@ This preserves a clean agent experience: the LLM thinks in strategy and
 constrained operations, while lower layers own legality, compilation, loading,
 and verification.
 
-### Layer 3: Execution Adapters
+### Authority Sides And Endpoint
 
-Execution splits into three adapters because the game exposes three different
-authority surfaces:
+Execution splits into two authority sides because live player control and native
+AI policy shaping have different proof boundaries. The companion endpoint is
+attached to the live side.
 
-| Adapter | What it can do | What it cannot claim yet |
+| Surface | What it can do | What it cannot claim yet |
 | --- | --- | --- |
-| Direct-control runner | Send validated live player operations and reread postconditions | Native AI policy mutation |
+| Direct-control runner | Send validated live player operations and record proof layers | Native AI policy mutation |
 | Static AI profile compiler | Emit mod SQL/XML that changes loaded AI priorities, operations, strategies, tactics, and behavior-tree graphs | Arbitrary custom native AI code or live reload |
-| Companion bridge | Carry bounded App UI intents, annotations, observations, and helper probes | Stable live native-AI steering until proven |
+| Companion App UI endpoint | Host a game-scoped App UI `globalThis.Civ7IntelligenceBridge` RPC for bounded calls from direct-control | Independent action sends, Tuner deployment, shell-wide availability, or stable live native-AI steering |
 
-### Layer 4: Measurement And Promotion
+### Measurement And Promotion
 
-No recipe or bridge behavior becomes product policy because it looks plausible.
-It is promoted by proof:
+No recipe or companion behavior becomes product policy because it looks
+plausible. It is promoted by proof:
 
 1. source anchor;
 2. generated artifact;
@@ -238,10 +288,10 @@ It is promoted by proof:
 | Layer | May do | Must not do |
 | --- | --- | --- |
 | Strategy director | Choose posture, objectives, playbooks, action candidates, profile candidates, and evaluation readouts | Emit raw JS, raw SQL, raw XML, or direct game mutations |
-| Direct-control runner | Read live state, validate actions, send approved operations, run probes, and verify postconditions | Own raw socket fallbacks outside `@civ7/direct-control` or mutate native AI policy |
+| Direct-control runner | Read live state, validate actions, send approved operations, run probes, and record proof layers | Own raw socket fallbacks outside `@civ7/direct-control` or mutate native AI policy |
 | Static profile compiler | Generate small auditable SQL/XML mod artifacts, manifests, profile metadata, and rollback data | Write local Civ7 SQLite/debug databases or apply RHQ wholesale |
 | Native AI | Consume loaded rows and execute engine-owned behavior | Be treated as a custom tactical API or proven live policy surface |
-| Companion mod | Show annotations, read bounded intent queues, emit richer observations, and run harmless helper probes | Become raw LLM code execution or a hidden replacement for validators |
+| Companion App UI endpoint | Show annotations, return snapshots, acknowledge calls, and run harmless helper probes | Become raw LLM code execution, Tuner deployment by assumption, or a hidden replacement for validators |
 | Corpus | Store source-labeled observations, actions, profile hashes, run metrics, and promotion decisions | Become authority by accumulation without proof labels and run context |
 
 ### Lane Selection
@@ -251,10 +301,11 @@ needed:
 
 | Need | Use | Reason |
 | --- | --- | --- |
-| A legal action in the current live game | Direct-control tactical runner | It can validate, send, and reread postconditions now |
+| A legal action in the current live game | Direct-control tactical runner | It can validate, send, and collect proof layers now |
 | A 10-20 turn plan for the same player | Strategy playbook over direct-control | The plan can guide near-term validated actions |
+| Human versus external agents in one local client | Hotseat-backed direct-control after gates pass | Hotseat may provide local-player handoff without live native-AI mutation |
 | A native-AI bias for future runs or an age/load boundary | Static profile compiler | Native AI steering is currently static or age-bound |
-| An in-game display, intent queue, or observation helper | Companion bridge | It can enrich UI/context without claiming native AI mutation |
+| An in-game display, acknowledgement, or observation helper | Companion App UI endpoint under direct-control | It can enrich UI/context without claiming native AI mutation or independent sends |
 | A broad RHQ-like behavior change | RHQ recipe extraction, then compiler | RHQ deltas must be isolated and measured before use |
 | A live native-AI brain pivot | Probe harness only | The mechanism is unproven and cannot be baseline |
 
@@ -265,9 +316,9 @@ The first implementation should keep contracts small and explicit:
 | Artifact | Required fields |
 | --- | --- |
 | `StrategyPlan` | `horizon`, `posture`, `objectives`, `constraints`, `success_signals`, `lane_recommendations` |
-| `ActionCandidate` | `intent`, `operation_family`, `target`, `parameters`, `validator_required`, `freshness_ttl`, `postcondition` |
+| `ActionCandidate` | `intent`, `operation_family`, `target`, `parameters`, `validator_required`, `freshness_ttl`, `proof_required`, `expected_outcome_delta` |
 | `ProfileRecipe` | `intent`, `lever_family`, `source_anchors`, `generated_rows`, `load_boundary`, `expected_metric`, `rollback` |
-| `BridgeIntent` | `namespace`, `correlation_id`, `intent_type`, `payload`, `expiry`, `idempotency_key`, `allowed_effect` |
+| `CompanionUiCall` | `method`, `payload`, `correlation_id`, `protocol_version`, `expected_ack`, `expiry`, `idempotency_key` |
 | `LoadedRowProof` | `profile_hash`, `table`, `keys`, `expected_rows`, `observed_rows`, `read_source`, `read_time` |
 | `RunMetric` | `seed`, `mod_set`, `profile_hash`, `metric_name`, `baseline_value`, `candidate_value`, `confidence_note` |
 | `PromotionDecision` | `artifact_id`, `proofs`, `outcome_delta`, `decision`, `rollback_status`, `next_probe` |
@@ -325,7 +376,7 @@ sequenceDiagram
   participant O as Observer
   participant D as Strategy Director
   participant T as Tactical Runner
-  participant V as Direct-Control Validators
+  participant V as Direct-Control Procedure
   participant G as Running Civ7
 
   O->>D: Fresh state, blockers, tactical lenses
@@ -333,7 +384,7 @@ sequenceDiagram
   T->>V: Validate legality and parameters
   V->>T: Approved operation or rejection reason
   T->>G: Send approved operation
-  G->>O: Reread postcondition and outcome delta
+  G->>O: Reread proof layers and outcome delta
 ```
 
 This is the path for precise tactical automation. If the user wants the agent
@@ -345,28 +396,61 @@ advances, a restart occurs, a blocker changes, human input intervenes, the
 source snapshot becomes stale, validation fails, or the postcondition does not
 match the expected state change.
 
-### Companion Bridge Mechanic
+The current operation wrappers do not all prove the same kind of postcondition.
+The action record must distinguish validation-before-send, send receipt,
+post-send validation, and semantic outcome delta. `verified: true` is not enough
+for strategy learning unless it is paired with the domain-specific outcome that
+was actually observed.
 
-The companion bridge is a probe-backed extension point, not a foundation:
+### Companion App UI Endpoint Mechanic
+
+The companion endpoint is a probe-backed helper, not an independent control
+plane:
 
 ```mermaid
 sequenceDiagram
   participant D as Strategy Director
   participant T as Direct-Control Runner
-  participant B as Companion App UI Mod
+  participant B as Companion App UI Endpoint
   participant G as Running Civ7
   participant O as Observer
 
-  D->>T: Bounded bridge intent
-  T->>B: App UI global/localStorage/event probe
-  B->>G: Annotation, queue display, harmless helper, or validated effect
+  D->>T: Bounded companion UI call
+  T->>B: globalThis.Civ7IntelligenceBridge.invoke(encoded envelope)
+  B->>G: Read-only snapshot, annotation, or acknowledgement
   G->>O: UI log, state read, or visible confirmation
   O->>D: Bridge result and confidence label
 ```
 
-The first bridge product outcome should be strategic context inside the game:
-plan overlays, intent queues, warnings, annotations, or observations that make
-agent play easier. Live native-AI steering remains a research probe.
+The first endpoint product outcome should be strategic context inside the game:
+plan overlays, warnings, annotations, acknowledgements, or observations that
+make agent play easier. Companion scripts can reach mutating operation APIs, so
+the product boundary is strict: the endpoint must not own gameplay sends. Live
+native-AI steering remains a research probe.
+
+The App UI/Tuner split is part of the contract. `UIScripts` attach to the App UI
+context, where `window`, `document`, `localStorage`, `Automation`, `Network`,
+`Game`, `Database`, `GameInfo`, and `engine` are visible. They do not currently
+prove a Tuner-resident deployed API. Shell App UI also does not prove a
+game-scoped public API exists before the game action group loads. Keep Tuner
+endpoint work as a later probe.
+
+#### In-Game Controller Direction
+
+The strongest future version is a deterministic controller inside App UI game
+context. That controller would own event subscriptions, local state caching,
+capability discovery, UI overlays, request acknowledgements, and possibly exact
+approved helper execution. This is attractive because it reduces the need to
+verify each raw external transport call and lets the game-side code produce
+coherent readbacks from one context.
+
+It does not make verification disappear. The controller itself must prove
+installation, shell/game lifecycle, reload and restart recovery, save/load
+recovery, turn and age transitions, hotseat local-player identity, method
+allowlists, input size limits, stale request rejection, approval tokens for any
+mutation, and semantic outcome checks. A full LLM runtime inside the game is not
+the baseline because external model I/O, secrets, performance, and browser/game
+API constraints are unproven.
 
 Runtime bridge evidence and required probes live in
 [runtime-bridge-and-probes.md](runtime-bridge-and-probes.md).
@@ -398,9 +482,9 @@ Build the first slice around proof, not ambition:
 
 1. **Corpus schema and observer.** Persist turn snapshots, action audits,
    profile recipes, loaded-row checks, source labels, and run metrics.
-2. **Direct-control tactical runner.** Drive a local hotseat player through
-   validated actions and postconditions; keep the agent in validate-only mode
-   until sends are bounded.
+2. **Direct-control tactical runner.** Drive an agent-owned local player
+   through validated actions and proof records; keep the agent in
+   validate-only mode until sends are bounded.
 3. **One-lever profile compiler.** Choose one visible lever family, such as
    settlement scoring, repair preference, expansion posture, or operation
    eligibility. Generate a small SQL/XML profile with a manifest.
@@ -412,8 +496,13 @@ Build the first slice around proof, not ambition:
    blocked-turn reduction, city capture pressure, and economy recovery.
 6. **RHQ recipe importer, read-only first.** Parse RHQ deltas into candidate
    recipes without applying them wholesale.
-7. **Companion bridge harmless probe.** Prove an App UI script can receive a
-   bounded intent and produce a logged harmless effect.
+7. **Companion endpoint harmless probe.** Deploy a tiny game-scoped companion
+   `UIScripts` mod exposing `globalThis.Civ7IntelligenceBridge.ping`, `invoke`,
+   and `snapshot`; prove direct-control can call it from App UI game context
+   and receive a bounded harmless result.
+8. **Hotseat proof sequence.** In a disposable session, prove activation,
+   local-player rotation, curtain handling, one approved agent operation, turn
+   completion, and human restoration.
 
 The acceptance bar is intentionally narrow: one live tactical lane, one static
 profile lane, and one measured feedback loop.
@@ -422,9 +511,9 @@ profile lane, and one measured feedback loop.
 
 - The strategy director emits intent, playbooks, and recipe candidates; it does
   not emit raw JS or SQL to a running game.
-- Direct-control owns live sends and postconditions.
+- Direct-control owns live sends, approval, and proof records.
 - The compiler owns static native-AI profile artifacts.
-- The companion bridge starts as UI/observation infrastructure, not a hidden
+- The companion endpoint starts as UI/observation infrastructure, not a hidden
   control channel.
 - RHQ is a pattern library and test corpus, not the product root.
 - Behavior quality claims require measured runs, not just loaded rows.
@@ -440,8 +529,8 @@ This frame enables several concrete products:
 - RHQ-derived recipe packs with measured effects instead of broad inherited
   overhaul behavior;
 - a strategy corpus that supports retrieval, comparison, and future evaluation;
-- companion in-game overlays and queues that make agent strategy visible and
-  steerable during play.
+- companion in-game overlays and acknowledgements that make agent strategy
+  visible and steerable during play.
 
 The important product shift is from "an LLM controls Civ once" to "the system
 turns play into durable, testable strategy assets."
@@ -455,7 +544,7 @@ open questions are:
 - Can generated profiles be swapped or layered safely at age transitions?
 - Can behavior-tree generation be attached to operations in a way that produces
   observable behavior changes?
-- Can a companion App UI mod receive intent robustly without creating unsafe
+- Can a companion App UI endpoint receive calls robustly without creating unsafe
   execution paths?
 - Do Civ7 logs or saves contain enough ordered action/state information to
   enrich the corpus beyond forward instrumentation?
@@ -471,10 +560,15 @@ Use the companion references for evidence details:
 - [ai-lever-reference.md](ai-lever-reference.md) explains what native AI levers
   are currently supported by official resources and what depth of control they
   imply.
+- [actuation-path-map.md](actuation-path-map.md) classifies each investigated
+  path by product authority and proof level.
+- [corpus-and-trace-reference.md](corpus-and-trace-reference.md) records what
+  saves, logs, debug databases, Hall of Fame data, and direct-control traces can
+  contribute to the strategy database.
 - [rhq-reference.md](rhq-reference.md) records what local RHQ actually loads and
   how to treat it as recipe prior art.
 - [runtime-bridge-and-probes.md](runtime-bridge-and-probes.md) records runtime
-  bridge evidence, required probes, and under-investigated threads.
+  bridge evidence, required probes, and residual runtime proof gates.
 - [PROJECT-civ7-intelligence-layer.md](PROJECT-civ7-intelligence-layer.md)
   records the broader workstream frame and evidence policy.
 

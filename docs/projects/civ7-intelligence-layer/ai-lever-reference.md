@@ -20,6 +20,13 @@ Primary local anchors:
 These sources prove static schema and resource shape. They do not prove live
 mutation, current runtime row freshness, or behavior quality.
 
+Local investigation anchors:
+
+- `/Users/mateicanavra/Library/Application Support/Civilization VII/Debug/gameplay-copy.sqlite`
+- `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods.sqlite`
+- `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/civmods-rhq-39525`
+- [agent-reports/static-ai-levers-and-profiles.md](agent-reports/static-ai-levers-and-profiles.md)
+
 ## Lever Families
 
 | Surface | Product use | Control depth | Current status |
@@ -33,6 +40,10 @@ mutation, current runtime row freshness, or behavior quality.
 | `AiTactics`, `AIUnitPrioritizedActions` | Influence native tactical action preferences | Tactical bias, not custom tactics | Proven static |
 | `BehaviorTrees`, `BehaviorTreeNodes`, `TreeData` | Compose native behavior-tree graphs | Declarative graph using native nodes | Proven static |
 | `TriggeredBehaviorTrees` | Trigger behavior-tree execution from conditions/events | Potential behavior-tree hook | Present in schema; use unproven |
+| `BoostHandlers` | Potential boost-to-tree/operation/script handler | Unknown script or C++ backed hook | Present in schema; no loaded rows found |
+| `TargetScript` on `AiOperationDefs` | Potential custom operation target resolver | Unknown script resolver | Column exists; no non-empty local rows found |
+| `ScriptConsumer` | Native AI component scheduling | Observation signal | Loaded component, not a bridge proof |
+| `AI_BUDGET_SCRIPTING` | Native AI budget dimension | Weak static probe | Budget exists; active favored use not locally proven |
 | Diplomacy action preferences/costs | Bias diplomatic action selection | Diplomacy policy bias | Proven static |
 | Settlement and plot evaluation rows | Bias city placement and expansion | Static scoring, native rescoring | Proven static |
 
@@ -60,6 +71,47 @@ What is not proven:
 The right product claim is "we can author static behavior-tree graphs from known
 native node vocabulary," not "we can write arbitrary tactical AI."
 
+## Age Scope
+
+Official age modules use `ActionCriteria` with `AgeInUse` and age-specific
+`UpdateDatabase` action groups. This proves a generated profile can mirror the
+same shape: common rows, current-age rows, and age-persist rows.
+
+What is reliable today:
+
+- rows can be scoped by age action criteria in the same way official modules
+  are scoped;
+- a generated mod profile can declare base and age-specific database actions;
+- loaded rows can be checked after load with live `GameInfo` and debug database
+  readback.
+
+What remains a probe:
+
+- whether a generated profile can be swapped or layered during a running age
+  transition without restarting;
+- whether native AI components re-read every affected row at transition time;
+- whether row visibility at transition produces an actual behavior change.
+
+The compiler should therefore expose age scope as metadata but treat transition
+swap as a proof gate.
+
+## Script-Like Surfaces
+
+The investigation looked specifically at surfaces whose names suggest a script
+bridge.
+
+| Surface | Evidence | Product classification |
+| --- | --- | --- |
+| `ScriptConsumer` | Official `AI_Base.xml` defines it as an AI component assigned to major and minor leaders; local debug DB shows it loaded with `Consumer = 1`. | Observation-only signal. It does not prove external script control. |
+| `AI_BUDGET_SCRIPTING` | Official resources define the budget. Local RHQ has a commented-out budget-bias block; no active loaded favored item was found. | Weak static-only probe. |
+| `TargetScript` | Schema column exists on `AiOperationDefs`; local docs describe a target resolver contract; no official/RHQ/debug row had a non-empty value. | Deferred reverse-engineering thread. |
+| `BoostHandlers` | Schema table exists with `Script` and `WinnowFunction`; local/debug count is zero. | Deferred reverse-engineering thread. |
+| `TriggeredBehaviorTrees` | Schema table exists and references `AiEvents` and behavior trees; local/debug count is zero. | Probe candidate for generated profiles, not baseline. |
+
+None of these surfaces currently justify a live native-AI bridge claim. Promote
+one only after a disposable probe proves load, callback or trigger semantics,
+behavior effect, and rollback.
+
 ## Control Depth Matrix
 
 | Question | Answer |
@@ -70,6 +122,8 @@ native node vocabulary," not "we can write arbitrary tactical AI."
 | Can we create new tactical primitives? | Not from current evidence. Tactical primitives remain engine-owned. |
 | Can we automate precise turn tactics through native AI? | Only indirectly through static biases and operation/tactic priority changes. Direct-control is the reliable precise tactical lane. |
 | Can we change AI policy mid-game? | Unproven. Treat as a probe, not a product dependency. |
+| Can script-like AI tables serve as a live bridge? | Not from current evidence. They are schema or component hints until callback semantics are proven. |
+| Can loaded rows be verified after mod load? | Yes for row visibility: live `GameInfo` counts/sample rows matched debug DB copies in the current session. Behavior movement still needs measured runs. |
 
 ## Compiler Implications
 
@@ -95,3 +149,22 @@ Good first lever candidates are visible and measurable:
 
 Avoid making behavior quality claims from row existence alone. A loaded-row
 check proves the profile loaded; a measured run proves whether behavior moved.
+
+## Exact Probe Sequence
+
+1. **Marker-row load probe.** Generate one harmless unique `AiListTypes` and
+   `AiLists` pair, load in a disposable session, and verify both live `GameInfo`
+   and `Debug/gameplay-copy.sqlite` see the same keys.
+2. **One-lever behavior probe.** Add one modest favored-item or pseudo-yield
+   change with a fixed seed and a single expected metric.
+3. **Age-scoped profile probe.** Add one always-loaded, one Antiquity-only, and
+   one Exploration-only marker row. Verify row visibility before and after an
+   approved disposable age transition.
+4. **Behavior-tree assignment probe.** Generate a small variant using existing
+   node vocabulary, attach it to one operation, and observe load plus operation
+   behavior.
+5. **Triggered behavior tree probe.** Insert a bounded row using a known
+   `AiEvents` entry and record whether the trigger fires.
+6. **Script hook falsifiers.** Do not invent script names. Search for real
+   resolver/handler examples first; if none exist, keep `TargetScript` and
+   `BoostHandlers` deferred.

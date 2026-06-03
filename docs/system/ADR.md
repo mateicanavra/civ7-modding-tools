@@ -132,3 +132,33 @@ We accept that full step ids change because stage ids are embedded in the full i
 - Knobs become easier to scope correctly (steering inputs rather than post-hoc correction).
 - Studio stage/step naming becomes more meaningful by adding explicit `stageLabel`/`stepLabel` to recipe uiMeta.
 - Any tooling that relied on the old stage ids (`morphology-pre/mid/post`) must be updated as part of the cutover (configs, docs, guardrails).
+
+## ADR-007: Civ7 intelligence uses two authority sides with a subordinate App UI endpoint
+
+**Status:** Accepted
+**Date:** 2026-06-03
+**Context:** The Civ7 intelligence-layer investigation found several tempting but
+unsafe ways to describe live AI influence: raw `game exec` as an agent API,
+companion UI scripts as a third control plane, Tuner-loaded mod claims, and a
+generic "bridge" architecture. Direct-control already owns runtime transport,
+state selection, approval, validation, and wrapper promotion. Generated static
+profiles already own the native AI policy lane.
+**Decision:** Civ7 intelligence uses a two-sided authority architecture:
+live external play through `@civ7/direct-control`, and native policy shaping
+through generated static AI profiles. A companion App UI endpoint may run inside
+the game for display, snapshots, acknowledgements, probes, and later exact
+approved helper execution, but it is subordinate to direct-control until it
+passes its own lifecycle and safety proof gates.
+**Consequences:**
+- Raw `CMD:<stateId>:<javascript>` / `game exec` stays a diagnostic and probe
+  transport, not the agent-facing product API.
+- oRPC belongs at the external direct-control boundary; the App UI global uses
+  a small versioned JSON-envelope RPC with allowlisted methods.
+- `UIScripts` proof is App UI game-context proof unless shell or Tuner
+  availability is separately demonstrated.
+- A fuller in-game controller is a desirable future direction because it can
+  reduce repeated transport verification, but it does not remove lifecycle,
+  approval, action legality, hotseat, age-transition, or semantic outcome proof.
+- Companion-owned gameplay sends remain eliminated unless direct-control has
+  created an exact approved action record and rereads the resulting
+  postcondition.

@@ -44,8 +44,8 @@ In scope:
 - A source-labeled intelligence corpus for strategy facts, state snapshots,
   action audits, outcome deltas, static AI profiles, mod patches, and run
   metrics.
-- A live strategy runner over direct-control reads, validators, sends,
-  postconditions, and bounded autoplay.
+- A live strategy runner over direct-control reads, validators, sends, proof
+  records, and bounded autoplay.
 - Static XML/SQL AI profile mods that tune official AI levers.
 - A/B verification harnesses using loaded-row checks and fixed-seed autoplay.
 - Investigation of save/log/debug database surfaces as data sources, with
@@ -464,26 +464,29 @@ Public Workshop/CivFanatics claims are useful for hypothesis generation. They
 become local product evidence only after source inspection, loaded-row proof,
 and bounded outcome measurement.
 
-## Under-Investigated Threads
+## Resolved Investigation Threads
 
-These are not blockers for V1, but they deserve explicit probes:
+The open-thread investigation is now captured in
+[actuation-path-map.md](actuation-path-map.md) and
+[corpus-and-trace-reference.md](corpus-and-trace-reference.md). The older
+"under-investigated" items are no longer unclassified:
 
-- `.Civ7Save` structure: whether stable chunks can be decoded into city/unit/
-  player state and compared across autosaves.
-- Log retention and rotation: whether older sessions are archived elsewhere or
-  overwritten in place.
-- `ReflectionArchive.log`: whether its large serialized blocks can expose
-  useful schema/state descriptions.
-- Telemetry payload taxonomy: whether `output.log` or `Telemetry.log` contains
-  richer event families than the sampled activity/triumph events.
-- Runtime `GameInfo` loaded-row sampling: whether current sessions expose the
-  same AI rows as static resources and RHQ files after mod load.
-- Behavior-tree generation safety: whether a higher-level profile can safely
-  generate `BehaviorTreeNodes`/`TreeData` without invalid graphs.
-- Air/naval operation prior art: public AI Air Force Fix patterns should be
-  compared with local resources and RHQ once source files are available.
-- Native event hooks: whether in-game JavaScript can export low-latency
-  telemetry more safely than polling, while remaining read-only.
+- `.Civ7Save` reverse engineering is deferred. Saves are useful as state
+  artifacts and binary-delta inputs, not near-term action diaries.
+- Logs and `ReflectionArchive.log` are enrichment/probe sources, not complete
+  behavior traces until compared against a controlled direct-control run.
+- Runtime `GameInfo` loaded-row sampling is promoted to a loaded-row proof
+  candidate after live rows matched `Debug/gameplay-copy.sqlite`.
+- Behavior-tree generation is viable as static graph composition over known
+  native nodes; behavior effects still need measured runs.
+- Native event hooks and companion App UI scripts are viable for observation
+  and endpoint receipt probes, not independent action authority.
+- Script-like AI hooks remain probe/deferred surfaces until callback semantics
+  and behavior effects are proven.
+
+Residual probes are explicitly staged in
+[runtime-bridge-and-probes.md](runtime-bridge-and-probes.md), not left as
+ambient unknowns.
 
 ## Workstream Structure
 
@@ -554,7 +557,7 @@ Reframe this project if any of the following become true:
   the direct-control runner.
 - One-lever static AI profile changes repeatedly fail to move behavior across
   fixed-seed tests, indicating the selected rows are ignored or overridden.
-- Direct-control cannot reliably provide fresh validators, postconditions, and
+- Direct-control cannot reliably provide fresh validators, proof records, and
   restart recovery for live play.
 
 Until a trigger fires, the operating architecture is:
@@ -562,6 +565,7 @@ Until a trigger fires, the operating architecture is:
 ```text
 direct-control for adaptive live play
 official resources and generated mods for static native-AI policy
+companion App UI endpoint for subordinate display, acknowledgement, and probes
 logs/saves/Hall of Fame/debug DBs for enrichment and forensic analysis
 forward instrumentation for the real intelligence corpus
 ```

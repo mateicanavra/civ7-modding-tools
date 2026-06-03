@@ -74,6 +74,19 @@ RHQ is mostly a static native-AI profile overhaul. It is not a live controller:
 - no direct-control integration;
 - no proven live AI mutation surface.
 
+The open-thread investigation also found no active RHQ evidence for the
+script-like bridge paths:
+
+- no loaded `BoostHandlers` rows;
+- no loaded `TriggeredBehaviorTrees` rows;
+- no non-empty `TargetScript` rows in the debug gameplay snapshot;
+- a commented-out `AI_BUDGET_SCRIPTING` bias block rather than active loaded
+  rows;
+- an empty registered UI script.
+
+This does not mean those schema surfaces can never work. It means RHQ is not
+the proof for them.
+
 Reusable patterns:
 
 - small `AiFavoredItems` list attachments;
@@ -106,6 +119,14 @@ Treat RHQ as a recipe library:
 7. Promote only recipes that produce interpretable behavior or outcome deltas.
 
 Do not fork RHQ first. Import from it only after mapping and measurement.
+
+Recommended first RHQ-derived recipe:
+
+1. Pick one RHQ row group already visible in `gameplay-copy.sqlite`.
+2. Recreate only that row group in a tiny generated profile.
+3. Verify the generated rows through live `GameInfo` and the debug DB.
+4. Run a fixed-seed baseline/candidate comparison.
+5. Promote only if the measured behavior change matches the recipe intent.
 
 ## Public Sources
 
