@@ -330,6 +330,13 @@ runtime/direct-control claims.
         procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
         ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.4 Extract map/GameInfo constants owner while keeping public facade
+        re-exports in `index.ts`, preserving GameInfo table defaults, map grid
+        bounds, GameInfo row bounds, map/GameInfo wrapper behavior, and leaving
+        broader public constants/types, procedure schemas, operation/proof
+        telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
       oRPC implementation; current support branch has no tracked
       `.agents/skills/civ7-orpc-control-architecture` or

@@ -131,6 +131,13 @@ import {
   requestCiv7UnitOperation as requestCiv7UnitOperationFromModule,
 } from "./play/operations/validate-request.js";
 import {
+  DEFAULT_CIV7_GAMEINFO_LIMIT,
+  DEFAULT_CIV7_GAMEINFO_TABLES,
+  DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
+  HARD_CIV7_GAMEINFO_LIMIT,
+  HARD_CIV7_MAP_GRID_MAX_PLOTS,
+} from "./play/map/constants.js";
+import {
   getCiv7ProgressDashboard as getCiv7ProgressDashboardFromModule,
   getCiv7TraditionsView as getCiv7TraditionsViewFromModule,
 } from "./play/progression/reads.js";
@@ -197,6 +204,13 @@ export {
   DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS,
   DEFAULT_CIV7_SETUP_PARAMETER_IDS,
 } from "./setup/constants.js";
+export {
+  DEFAULT_CIV7_GAMEINFO_LIMIT,
+  DEFAULT_CIV7_GAMEINFO_TABLES,
+  DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
+  HARD_CIV7_GAMEINFO_LIMIT,
+  HARD_CIV7_MAP_GRID_MAX_PLOTS,
+} from "./play/map/constants.js";
 
 export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
 export const DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS = [
@@ -232,23 +246,6 @@ export const DEFAULT_CIV7_CAPABILITY_TUNER_ROOTS = [
   "CityCommandTypes",
   "PlayerOperationTypes",
 ] as const;
-export const DEFAULT_CIV7_GAMEINFO_TABLES = [
-  "Resources",
-  "Terrains",
-  "Biomes",
-  "Features",
-  "Units",
-  "UnitOperations",
-  "UnitCommands",
-  "Cities",
-  "CityOperations",
-  "CityCommands",
-  "PlayerOperations",
-  "Maps",
-  "MapSizes",
-] as const;
-export const DEFAULT_CIV7_MAP_GRID_MAX_PLOTS = 512;
-export const HARD_CIV7_MAP_GRID_MAX_PLOTS = 10_000;
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 256;
 export const HARD_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 1_000;
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL = 64;
@@ -257,8 +254,6 @@ export const DEFAULT_CIV7_FEATURE_FEASIBILITY_MAX_CELLS = 256;
 export const HARD_CIV7_FEATURE_FEASIBILITY_MAX_CELLS = 1_000;
 export const DEFAULT_CIV7_FEATURE_FEASIBILITY_MAX_TYPES_PER_CELL = 64;
 export const HARD_CIV7_FEATURE_FEASIBILITY_MAX_TYPES_PER_CELL = 256;
-export const DEFAULT_CIV7_GAMEINFO_LIMIT = 100;
-export const HARD_CIV7_GAMEINFO_LIMIT = 1_000;
 export const DEFAULT_CIV7_AUTOPLAY_MAX_TURNS = 50;
 export const DEFAULT_CIV7_AUTOPLAY_WAIT_MS = 5_000;
 export const DEFAULT_CIV7_AUTOPLAY_STOP_WAIT_MS = 30_000;
