@@ -1022,6 +1022,16 @@ runtime/direct-control claims.
         shape, and leaving hotseat runtime proof, AI ingestion, CLI semantic
         projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.13.4 Prune autoplay facade dependency injection by letting
+        `src/play/autoplay.ts` import existing non-facade App UI snapshot,
+        App UI execution, approval, validation/bounds, serializer, sleep, and
+        timing/default owners directly, while keeping public facade exports
+        stable, preserving approval gates, bounded turn/player validation,
+        explicit unbounded start semantics, stop-settling/pause behavior,
+        command strings, result shapes, and local package proof, and leaving
+        hotseat runtime proof, AI ingestion, CLI semantic projection,
+        telemetry, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.14 Extract setup/start lifecycle atoms.
   - [x] 4.14.1 Extract setup snapshot and setup map rows read/source owner while
         keeping public facade exports in `index.ts` and leaving

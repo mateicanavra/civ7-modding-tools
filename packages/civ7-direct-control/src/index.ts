@@ -148,11 +148,6 @@ import {
 } from "./setup/constants.js";
 import {
   configureCiv7Autoplay as configureCiv7AutoplayFromModule,
-  DEFAULT_CIV7_AUTOPLAY_MAX_TURNS,
-  DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS,
-  DEFAULT_CIV7_AUTOPLAY_STOP_STABILITY_MS,
-  DEFAULT_CIV7_AUTOPLAY_STOP_WAIT_MS,
-  DEFAULT_CIV7_AUTOPLAY_WAIT_MS,
   getCiv7AutoplayStatus as getCiv7AutoplayStatusFromModule,
   startCiv7Autoplay as startCiv7AutoplayFromModule,
   stopCiv7Autoplay as stopCiv7AutoplayFromModule,
@@ -1215,47 +1210,28 @@ export async function inspectCiv7Root(
 export async function getCiv7AutoplayStatus(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7AutoplayStatusResult> {
-  return await getCiv7AutoplayStatusFromModule(options, {
-    getAppUiSnapshot: getCiv7AppUiSnapshot,
-  });
+  return await getCiv7AutoplayStatusFromModule(options);
 }
 
 export async function configureCiv7Autoplay(
   options: Civ7AutoplayOptions,
   approval: Civ7ActionApproval,
 ): Promise<Civ7AutoplayActionResult> {
-  return await configureCiv7AutoplayFromModule(options, approval, autoplayDependencies());
+  return await configureCiv7AutoplayFromModule(options, approval);
 }
 
 export async function startCiv7Autoplay(
   options: Civ7AutoplayOptions,
   approval: Civ7ActionApproval,
 ): Promise<Civ7AutoplayActionResult> {
-  return await startCiv7AutoplayFromModule(options, approval, autoplayDependencies());
+  return await startCiv7AutoplayFromModule(options, approval);
 }
 
 export async function stopCiv7Autoplay(
   options: Civ7AutoplayOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7AutoplayActionResult> {
-  return await stopCiv7AutoplayFromModule(options, approval, autoplayDependencies());
-}
-
-function autoplayDependencies() {
-  return {
-    assertApproved,
-    boundedInteger,
-    defaultMaxTurns: DEFAULT_CIV7_AUTOPLAY_MAX_TURNS,
-    defaultPollIntervalMs: DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS,
-    defaultStopStabilityMs: DEFAULT_CIV7_AUTOPLAY_STOP_STABILITY_MS,
-    defaultStopWaitMs: DEFAULT_CIV7_AUTOPLAY_STOP_WAIT_MS,
-    defaultWaitMs: DEFAULT_CIV7_AUTOPLAY_WAIT_MS,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    getAppUiSnapshot: getCiv7AppUiSnapshot,
-    jsLiteral,
-    sleep,
-    validatePlayerId,
-  };
+  return await stopCiv7AutoplayFromModule(options, approval);
 }
 
 export async function revealCiv7MapForPlayer(

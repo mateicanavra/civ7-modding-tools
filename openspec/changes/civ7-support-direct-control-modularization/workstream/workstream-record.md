@@ -898,6 +898,17 @@ All future agent waves must be framed before delegation:
   2.9.4 matrix-row acceptance, telemetry, AI ingestion, CLI semantic
   projection, hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
   implementation.
+- Autoplay facade dependency cleanup: `src/play/autoplay.ts` now imports
+  existing non-facade App UI snapshot, App UI execution, approval,
+  validation/bounds, serializer, sleep, and timing/default owners directly for
+  status, configure, start, and stop wrappers. The public facade in
+  `src/index.ts` remains stable but no longer assembles the autoplay dependency
+  object. This preserves approval gates, bounded turn/player validation,
+  explicit unbounded start semantics, stop-settling/pause behavior, command
+  strings, and result shapes. This is local package/source relocation proof
+  only: it does not claim hotseat runtime proof, runtime/live-game proof, accept
+  Task 2.9.4 matrix rows, or unblock telemetry, AI ingestion, semantic CLI
+  projection, schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.
