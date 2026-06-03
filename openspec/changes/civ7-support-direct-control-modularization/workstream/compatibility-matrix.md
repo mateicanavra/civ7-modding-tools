@@ -47,6 +47,10 @@ Global acceptance stop conditions:
   `verified: true`.
 - Stop if Effect/oRPC work starts as a raw command tunnel or transport adapter
   before accepted procedure cores over stable direct-control atoms.
+- Stop if a future App UI companion bridge, such as
+  `globalThis.Civ7IntelligenceBridge.invoke(...)`, becomes the external
+  direct-control boundary or product action authority instead of a subordinate
+  JSON-envelope endpoint under direct-control proof.
 
 ## Rows
 
@@ -235,11 +239,13 @@ Global acceptance stop conditions:
   Effect/Bun resource/concurrency implementation, oRPC package behavior
 - `stopCondition`: stop if transport adapters or `packages/civ7-control-orpc`
   behavior appears before testable procedure cores over stable direct-control
-  atoms, if raw command tunneling is used as the architecture, or if the App UI
-  bridge becomes the external direct-control substrate; stop if procedure-core
-  schema work starts before a TypeBox versus Effect Schema disposition records
-  encode/decode, typed-error, oRPC compatibility, test ergonomics, existing
-  TypeBox coverage, runtime validation, duplication cost, migration blast
-  radius, and shared internal-service/AI/CLI semantic projection ownership
-  criteria; stop if Zod appears as an accidental third durable schema authority
-  instead of a documented oRPC adapter boundary
+  atoms, if raw command tunneling is used as the architecture, or if an App UI
+  bridge such as `globalThis.Civ7IntelligenceBridge.invoke(...)` becomes the
+  external direct-control substrate instead of a subordinate JSON-envelope
+  endpoint; stop if procedure-core schema work starts before a TypeBox versus
+  Effect Schema disposition records encode/decode, typed-error, oRPC
+  compatibility, test ergonomics, existing TypeBox coverage, runtime
+  validation, duplication cost, migration blast radius, and shared
+  internal-service/AI/CLI semantic projection ownership criteria; stop if Zod
+  appears as an accidental third durable schema authority instead of a
+  documented oRPC adapter boundary

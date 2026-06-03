@@ -38,10 +38,18 @@ not the primary product path for external player agents. The intelligence layer
 is broader than live CLI play: it must support live hotseat control,
 strategy/playbook/cookbook generation from human play patterns, and possible
 static native-AI profile shaping. Live play remains routed through
-`@civ7/direct-control`; static native-AI shaping belongs to generated profiles.
-The in-game App UI companion direction is subordinate to direct-control, using a
-small versioned JSON-envelope endpoint/RPC rather than becoming a third control
-plane. Raw `game exec` remains a diagnostic/probe substrate.
+`@civ7/direct-control`; static native-AI shaping belongs to generated SQL/XML
+profiles. The in-game App UI companion direction is subordinate to
+direct-control: its future shape is a small versioned JSON-envelope RPC such as
+`globalThis.Civ7IntelligenceBridge.invoke(...)`, not a third control plane and
+not the external oRPC boundary. oRPC belongs outside the game at the external
+direct-control boundary. Raw `game exec` remains a diagnostic/probe substrate.
+
+A fuller in-game controller can reduce repeated transport verification only by
+moving proof into lifecycle certification, method allowlists, approval tokens,
+local-player and hotseat identity checks, and semantic outcome checks. It does
+not eliminate proof, and it does not make App UI mutation, runtime reflection,
+raw SQL, or raw command execution product action authority.
 
 Effect and Bun are target implementation primitives for new or rewritten
 control logic. Source lanes should plan resource acquisition/release, socket
@@ -376,7 +384,10 @@ tests, logs/database artifacts, official resources, live runtime proof, and
 in-game observations each prove different claims. A later full in-game
 controller can reduce repeated transport verification only by moving proof to
 lifecycle certification, method allowlists, local-player identity, approval
-tokens, and semantic outcome checks; it does not remove proof.
+tokens, and semantic outcome checks; it does not remove proof. If that
+controller exposes an App UI companion bridge, the bridge remains a subordinate
+JSON-envelope endpoint such as `globalThis.Civ7IntelligenceBridge.invoke(...)`;
+oRPC remains outside the game at the external direct-control boundary.
 
 ### Lane H: Review / Gate Lane
 

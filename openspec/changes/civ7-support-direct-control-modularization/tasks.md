@@ -131,6 +131,12 @@
     recorded under 2.9; matrix-row acceptance and source/proof owners for
     hotseat runtime, AI data ingestion, telemetry, CLI semantic output, and
     Effect/oRPC procedures are still unassigned.
+  - App UI companion planning is also blocked from implementation: a possible
+    `globalThis.Civ7IntelligenceBridge.invoke(...)` JSON-envelope RPC remains
+    subordinate to `@civ7/direct-control`, while oRPC stays at the external
+    direct-control boundary. This planning note does not authorize App UI
+    bridge source, transport adapters, AI-ingestion code, or runtime proof
+    claims.
 
 Implementation tasks in sections 3-5 are blocked until the relevant corpus rows
 name the exact write set, fixture owner, validation commands,
