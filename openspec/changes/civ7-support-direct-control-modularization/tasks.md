@@ -993,7 +993,16 @@ service projections, telemetry contract boundaries, and external direct-control
 authority are recorded.
 
 - [ ] 6.1 Define procedure-core inputs/outputs over direct-control atoms.
-- [ ] 6.2 Add TypeBox schema artifacts where procedure surfaces need them.
+- [ ] 6.2 Evaluate TypeBox versus Effect Schema before adding or rewriting
+      procedure-core/direct-control contract schemas. The decision must cover
+      encode/decode affordances, typed errors, oRPC compatibility, test
+      ergonomics, existing TypeBox contract coverage, runtime validation
+      behavior, duplication cost, migration blast radius, and whether one
+      schema technology can safely own internal service contracts plus AI/CLI
+      semantic projections.
+  - Do not convert existing TypeBox contracts or add Effect Schema artifacts
+    until this disposition is recorded and Task 2.9.4 matrix-row acceptance is
+    satisfied for the affected surface.
 - [ ] 6.3 Add approval gates, context, correlation IDs, and error shaping.
 - [ ] 6.4 Expose transport adapters only after procedure cores are testable.
 - [ ] 6.5 Plan Effect `Scope`/resource acquisition, streams/buffers, schedules,

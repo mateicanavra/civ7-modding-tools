@@ -306,6 +306,12 @@ Compatibility matrix execution gate:
   typed schemas, context, approval policy, correlation, errors, telemetry hooks,
   and resource/concurrency primitives where appropriate. They must not start as
   transport-first raw command tunneling.
+- Procedure-core schema work must explicitly evaluate TypeBox versus Effect
+  Schema before adding or rewriting direct-control contracts. That disposition
+  must consider encode/decode affordances, typed errors, oRPC compatibility,
+  test ergonomics, existing TypeBox coverage, runtime validation behavior,
+  duplication cost, migration blast radius, and whether one schema technology
+  can safely own internal service contracts plus AI/CLI semantic projections.
 - The hotseat/autoplay foundation is the dependency base for the AI-intelligence
   model. Product control assumes one Civ7 client, human and agent civs as
   hotseat human slots, mutation only when `GameContext.localPlayerID` is an
