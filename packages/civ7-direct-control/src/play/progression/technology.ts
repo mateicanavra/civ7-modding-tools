@@ -1,3 +1,9 @@
+import { assertApproved } from "../../action-approval.js";
+import { Civ7DirectControlError } from "../../direct-control-error.js";
+import { jsLiteral } from "../../runtime/command-serialization.js";
+import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7AppUiCommand } from "../../session/execute.js";
+import { validatePlayerId } from "../../validation.js";
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type {
   Civ7CommandResult,
@@ -157,7 +163,7 @@ export async function requestCiv7TechnologyChoiceCloseout(
   input: Civ7TechnologyChoiceCloseoutInput,
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
-  dependencies: TechnologyChoiceCloseoutRequestDependencies,
+  dependencies: TechnologyChoiceCloseoutRequestDependencies = defaultTechnologyChoiceCloseoutDependencies,
 ): Promise<Civ7TechnologyChoiceCloseoutResult> {
   dependencies.assertApproved(approval, "choosing Civ7 technology node through App UI closeout");
   dependencies.validatePlayerId(input.playerId);
@@ -177,3 +183,19 @@ export async function requestCiv7TechnologyChoiceCloseout(
     sent,
   };
 }
+
+const defaultTechnologyChoiceCloseoutDependencies: TechnologyChoiceCloseoutRequestDependencies = {
+  assertApproved,
+  executeAppUiCommand: executeCiv7AppUiCommand,
+  invalidNodeError: () => {
+    throw new Civ7DirectControlError("command-failed", "node must be an integer");
+  },
+  jsLiteral,
+  parseTechnologyChoiceCloseout: (result, label) =>
+    jsonPayloadFromCommandResult<{
+      sent?: boolean;
+      chooseResult?: { ok?: boolean };
+      clearTargetResult?: { ok?: boolean };
+    }>(result, label),
+  validatePlayerId,
+};

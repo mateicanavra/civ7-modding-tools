@@ -1,3 +1,9 @@
+import { assertApproved } from "../../action-approval.js";
+import { Civ7DirectControlError } from "../../direct-control-error.js";
+import { jsLiteral } from "../../runtime/command-serialization.js";
+import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7AppUiCommand } from "../../session/execute.js";
+import { validatePlayerId } from "../../validation.js";
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type {
   Civ7CommandResult,
@@ -167,7 +173,7 @@ export async function requestCiv7CultureChoiceCloseout(
   input: Civ7CultureChoiceCloseoutInput,
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
-  dependencies: CultureChoiceCloseoutRequestDependencies,
+  dependencies: CultureChoiceCloseoutRequestDependencies = defaultCultureChoiceCloseoutDependencies,
 ): Promise<Civ7CultureChoiceCloseoutResult> {
   dependencies.assertApproved(approval, "choosing Civ7 culture node through App UI closeout");
   dependencies.validatePlayerId(input.playerId);
@@ -187,3 +193,19 @@ export async function requestCiv7CultureChoiceCloseout(
     sent,
   };
 }
+
+const defaultCultureChoiceCloseoutDependencies: CultureChoiceCloseoutRequestDependencies = {
+  assertApproved,
+  executeAppUiCommand: executeCiv7AppUiCommand,
+  invalidNodeError: () => {
+    throw new Civ7DirectControlError("command-failed", "node must be an integer");
+  },
+  jsLiteral,
+  parseCultureChoiceCloseout: (result, label) =>
+    jsonPayloadFromCommandResult<{
+      sent?: boolean;
+      chooseResult?: { ok?: boolean };
+      clearTargetResult?: { ok?: boolean };
+    }>(result, label),
+  validatePlayerId,
+};

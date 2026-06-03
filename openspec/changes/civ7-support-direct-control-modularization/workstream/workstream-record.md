@@ -950,8 +950,9 @@ All future agent waves must be framed before delegation:
   narrow progression closeout command-builder relocation. It moves only the
   App UI technology choice closeout command builder into
   `src/play/progression/technology.ts` while keeping the public facade wrapper
-  in `index.ts`. The facade still owns approval, App UI execution, player-id and
-  node validation, payload parsing, and serialization injection. This preserves
+  in `index.ts`. At that slice boundary, the facade still owned approval, App UI
+  execution, player-id and node validation, payload parsing, and serialization
+  injection. This preserves
   optional notification activation, SET_TECH_TREE_NODE and
   SET_TECH_TREE_TARGET_NODE send behavior, focused technology package/CLI proof,
   and existing pending runtime/live-game proof. Telemetry, AI ingestion,
@@ -961,9 +962,9 @@ All future agent waves must be framed before delegation:
 - Direct-control culture choice closeout builder slice: completed as a narrow
   progression closeout command-builder relocation. It moves only the App UI
   culture choice closeout command builder into `src/play/progression/culture.ts`
-  while keeping the public facade wrapper in `index.ts`. The facade still owns
-  approval, App UI execution, player-id and node validation, payload parsing,
-  and serialization injection. This preserves optional notification activation,
+  while keeping the public facade wrapper in `index.ts`. At that slice boundary,
+  the facade still owned approval, App UI execution, player-id and node
+  validation, payload parsing, and serialization injection. This preserves optional notification activation,
   SET_CULTURE_TREE_NODE and SET_CULTURE_TREE_TARGET_NODE send behavior, focused
   culture package/CLI proof, and existing pending runtime/live-game proof.
   Telemetry, AI ingestion, semantic CLI projection, Effect/oRPC procedure-core
@@ -983,6 +984,19 @@ All future agent waves must be framed before delegation:
   Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance remain
   pending. This is local package/source relocation proof only, not
   runtime/live-game proof.
+- Technology/culture closeout facade dependency cleanup:
+  `src/play/progression/{technology,culture}.ts` now import existing
+  non-facade approval, App UI execution, payload parser, serializer, player
+  validation, and direct-control error owners directly. The public facade in
+  `src/index.ts` remains stable but no longer assembles the technology/culture
+  closeout dependency objects. This preserves approval-first checks, player/node
+  validation, App UI execution, payload parse labels, command serialization,
+  optional notification activation, SET_*_TREE_NODE / SET_*_TREE_TARGET_NODE
+  send behavior, and focused package/CLI proof. This is local package/source
+  relocation proof only: it does not claim runtime/live-game proof, accept Task
+  2.9.4 matrix rows, or unblock telemetry, AI ingestion, semantic CLI
+  projection, hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
+  implementation.
 - Direct-control session acquire/release helper slice: completed as a narrow
   session resource-helper relocation. It moves the repeated facade-local
   `new Civ7DirectControlSession(options)` plus `finally` close pattern into

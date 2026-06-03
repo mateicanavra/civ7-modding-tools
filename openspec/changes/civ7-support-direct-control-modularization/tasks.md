@@ -359,6 +359,17 @@ runtime/direct-control claims.
         composition, package/CLI proof, and leaving runtime/live-game proof,
         telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.6.21 Prune technology/culture closeout facade dependency injection by
+        letting `src/play/progression/{technology,culture}.ts` import existing
+        non-facade approval, App UI execution, payload parser, serializer,
+        player validation, and direct-control error owners directly, while
+        keeping public facade exports stable, preserving approval-first checks,
+        player/node validation, App UI execution, payload parse labels, command
+        serialization, optional notification activation, SET_*_TREE_NODE /
+        SET_*_TREE_TARGET_NODE send behavior, focused package/CLI proof, and
+        leaving runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.

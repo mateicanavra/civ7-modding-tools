@@ -1377,21 +1377,7 @@ export async function requestCiv7TechnologyChoiceCloseout(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7TechnologyChoiceCloseoutResult> {
-  return await requestCiv7TechnologyChoiceCloseoutFromModule(input, options, approval, {
-    assertApproved,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    invalidNodeError: () => {
-      throw new Civ7DirectControlError("command-failed", "node must be an integer");
-    },
-    jsLiteral,
-    parseTechnologyChoiceCloseout: (result, label) =>
-      jsonPayloadFromCommandResult<{
-        sent?: boolean;
-        chooseResult?: { ok?: boolean };
-        clearTargetResult?: { ok?: boolean };
-      }>(result, label),
-    validatePlayerId,
-  });
+  return await requestCiv7TechnologyChoiceCloseoutFromModule(input, options, approval);
 }
 
 export async function requestCiv7CultureChoiceCloseout(
@@ -1399,21 +1385,7 @@ export async function requestCiv7CultureChoiceCloseout(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7CultureChoiceCloseoutResult> {
-  return await requestCiv7CultureChoiceCloseoutFromModule(input, options, approval, {
-    assertApproved,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    invalidNodeError: () => {
-      throw new Civ7DirectControlError("command-failed", "node must be an integer");
-    },
-    jsLiteral,
-    parseCultureChoiceCloseout: (result, label) =>
-      jsonPayloadFromCommandResult<{
-        sent?: boolean;
-        chooseResult?: { ok?: boolean };
-        clearTargetResult?: { ok?: boolean };
-      }>(result, label),
-    validatePlayerId,
-  });
+  return await requestCiv7CultureChoiceCloseoutFromModule(input, options, approval);
 }
 
 export async function requestCiv7DiplomacyResponse(
