@@ -1,3 +1,57 @@
+import { Civ7DirectControlError } from "../../direct-control-error";
+
+import type {
+  Civ7CommandResult,
+  Civ7DirectControlOptions,
+  Civ7MapLocation,
+  Civ7UnitMovePreviewInput,
+  Civ7UnitMovePreviewResult,
+} from "../../index";
+
+type UnitMovePreviewDependencies = Readonly<{
+  validateMapLocation: (location: Civ7MapLocation) => void;
+  boundedInteger: (value: number, min: number, max: number, label: string) => number;
+  executeAppUiCommand: (
+    options: Civ7DirectControlOptions & Readonly<{ command: string }>,
+  ) => Promise<Civ7CommandResult>;
+  parseUnitMovePreview: (
+    result: Civ7CommandResult,
+    label: string,
+  ) => Civ7UnitMovePreviewResult;
+}>;
+
+export async function getCiv7UnitMovePreview(
+  input: Civ7UnitMovePreviewInput = {},
+  options: Civ7DirectControlOptions = {},
+  dependencies: UnitMovePreviewDependencies,
+): Promise<Civ7UnitMovePreviewResult> {
+  if (input.destination !== undefined) dependencies.validateMapLocation(input.destination);
+  const result = await dependencies.executeAppUiCommand({
+    ...options,
+    command: buildUnitMovePreviewCommand({
+      ...input,
+      maxPlots: dependencies.boundedInteger(input.maxPlots ?? 80, 1, 512, "maxPlots"),
+      maxPathPlots: dependencies.boundedInteger(input.maxPathPlots ?? 32, 1, 256, "maxPathPlots"),
+    }),
+  });
+  return dependencies.parseUnitMovePreview(result, "Civ7 unit move preview");
+}
+
+function buildUnitMovePreviewCommand(input: Civ7UnitMovePreviewInput & { maxPlots: number; maxPathPlots: number }): string {
+  return `(() => {
+    ${unitMovePreviewSource()}
+    return JSON.stringify(readUnitMovePreview(${jsLiteral(input)}));
+  })()`;
+}
+
+function jsLiteral(value: unknown): string {
+  const json = JSON.stringify(value);
+  if (json === undefined) {
+    throw new Civ7DirectControlError("command-failed", "Cannot serialize Civ7 command input");
+  }
+  return json;
+}
+
 const probeHelperSource = (): string => `const probe = (fn) => {
       try {
         return { ok: true, value: fn() };

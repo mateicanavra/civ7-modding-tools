@@ -50,7 +50,7 @@ import {
 } from "./play/progression/reads.js";
 import { technologyChoiceCloseoutSource } from "./play/progression/technology.js";
 import { readyCityViewSource } from "./play/ready/city.js";
-import { unitMovePreviewSource } from "./play/ready/move-preview.js";
+import { getCiv7UnitMovePreview as getCiv7UnitMovePreviewFromModule } from "./play/ready/move-preview.js";
 import { readyUnitViewSource } from "./play/ready/unit.js";
 import { getCiv7BattlefieldScan as getCiv7BattlefieldScanFromModule } from "./play/tactical/battlefield.js";
 import { getCiv7DestinationAnalysis as getCiv7DestinationAnalysisFromModule } from "./play/tactical/destination.js";
@@ -3784,16 +3784,13 @@ export async function getCiv7UnitMovePreview(
   input: Civ7UnitMovePreviewInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7UnitMovePreviewResult> {
-  if (input.destination !== undefined) validateMapLocation(input.destination);
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildUnitMovePreviewCommand({
-      ...input,
-      maxPlots: boundedInteger(input.maxPlots ?? 80, 1, 512, "maxPlots"),
-      maxPathPlots: boundedInteger(input.maxPathPlots ?? 32, 1, 256, "maxPathPlots"),
-    }),
+  return await getCiv7UnitMovePreviewFromModule(input, options, {
+    validateMapLocation,
+    boundedInteger,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseUnitMovePreview: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7UnitMovePreviewResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7UnitMovePreviewResult>(result, "Civ7 unit move preview");
 }
 
 export async function getCiv7ReadyCityView(
@@ -5522,13 +5519,6 @@ function buildReadyUnitViewCommand(input: Civ7ReadyUnitViewInput & { radius: num
   return `(() => {
     ${readyUnitViewSource()}
     return JSON.stringify(readReadyUnitView(${jsLiteral(input)}));
-  })()`;
-}
-
-function buildUnitMovePreviewCommand(input: Civ7UnitMovePreviewInput & { maxPlots: number; maxPathPlots: number }): string {
-  return `(() => {
-    ${unitMovePreviewSource()}
-    return JSON.stringify(readUnitMovePreview(${jsLiteral(input)}));
   })()`;
 }
 

@@ -437,6 +437,16 @@ All future agent waves must be framed before delegation:
   owner. `test/tactical-reads.test.ts` and the focused CLI tactical-read
   command suite remain the proof owners. This is local package/source
   relocation proof only, not runtime proof.
+- Direct-control unit move preview wrapper slice: completed as the next
+  read-only ready wrapper composition relocation. It moves only
+  `getCiv7UnitMovePreview` orchestration plus its command builder into
+  `src/play/ready/move-preview.ts` while keeping the public facade export in
+  `index.ts`, preserving destination-only pre-validation, preserving the
+  existing `maxPlots`/`maxPathPlots` defaults and bounds, and preserving
+  embedded-source `unitId` normalization with no new component-id rejection.
+  `test/unit-move-preview.test.ts` and the focused CLI unit-move-preview suite
+  remain the proof owners. This is local package/source relocation proof only,
+  not runtime proof.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now
