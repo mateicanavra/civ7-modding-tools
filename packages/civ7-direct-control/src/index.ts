@@ -14,6 +14,7 @@ import {
   parseCiv7TunerFrame,
   type Civ7TunerFrame,
 } from "./session/framing.js";
+import { discoverCiv7DirectControlEndpoint as discoverCiv7DirectControlEndpointFromModule } from "./session/discovery.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlEndpoint,
@@ -825,28 +826,10 @@ let nextListenerId = Math.trunc(Date.now() % 1_000_000);
 export async function discoverCiv7DirectControlEndpoint(
   options: Civ7DirectControlOptions = {},
 ): Promise<Readonly<{ endpoint: Civ7DirectControlEndpoint; states: ReadonlyArray<Civ7TunerState> }>> {
-  const config = resolveCiv7DirectControlConfig(options);
-  const errors: Array<{ host: string; error: string }> = [];
-  for (const host of config.hosts) {
-    try {
-      const states = await queryCiv7TunerStates({
-        host,
-        port: config.port,
-        timeoutMs: config.timeoutMs,
-      });
-      return {
-        endpoint: { host, port: config.port },
-        states,
-      };
-    } catch (err) {
-      errors.push({ host, error: errorMessage(err) });
-    }
-  }
-  throw new Civ7DirectControlError(
-    "all-hosts-unavailable",
-    `Unable to reach Civ7 tuner socket on ${config.hosts.join(", ")}:${config.port}`,
-    { details: errors },
-  );
+  return await discoverCiv7DirectControlEndpointFromModule(options, {
+    errorMessage,
+    queryTunerStates: queryCiv7TunerStates,
+  });
 }
 
 export class Civ7DirectControlSession {

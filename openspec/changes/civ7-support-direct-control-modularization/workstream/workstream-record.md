@@ -1315,6 +1315,20 @@ All future agent waves must be framed before delegation:
   Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance remain
   pending. This is local package/source relocation proof only, not
   runtime/live-game proof.
+- Direct-control endpoint discovery slice: completed as a narrow session helper
+  relocation. It moves `discoverCiv7DirectControlEndpoint` into
+  `src/session/discovery.ts` while keeping the public facade export in
+  `index.ts` and injecting state-query execution from the facade. This
+  preserves host/env ordering from config resolution, first-reachable-host
+  selection, per-host error details, and `all-hosts-unavailable`
+  classification. It does not move socket/session lifecycle, command execution,
+  reconnect behavior, health polling, runtime-status projection,
+  telemetry/correlation contracts, or procedure schemas. Session
+  socket/reconnect source ownership, command execution, telemetry/correlation
+  contracts, public procedure schemas, operation/proof telemetry, hotseat
+  runtime proof, AI ingestion, CLI semantic projection, Effect/oRPC
+  procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending. This
+  is local package/source relocation proof only, not runtime/live-game proof.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into

@@ -14,6 +14,7 @@ import {
   snapshotFile,
   waitForFreshLogMarkers,
 } from "../src/index";
+import { discoverCiv7DirectControlEndpoint } from "../src/session/discovery";
 
 describe("Civ7 direct control session framing", () => {
   test("uses defaults and env hosts when resolving health", async () => {
@@ -71,6 +72,64 @@ describe("Civ7 direct control session framing", () => {
         env: { CIV7_TUNER_PORT: "0" },
       }),
     ).toThrow(/Invalid CIV7_TUNER_PORT/);
+  });
+
+  test("discovers a reachable endpoint after earlier hosts fail", async () => {
+    const queried: string[] = [];
+    const discovered = await discoverCiv7DirectControlEndpoint(
+      {
+        hosts: ["127.0.0.2", "127.0.0.1"],
+        port: 58_256,
+        timeoutMs: 250,
+        env: {},
+      },
+      {
+        errorMessage: (err) => err instanceof Error ? err.message : String(err),
+        queryTunerStates: async (options) => {
+          queried.push(`${options.host}:${options.port}:${options.timeoutMs}`);
+          if (options.host === "127.0.0.2") throw new Error("first host unavailable");
+          return [
+            { id: "65535", name: "App UI" },
+            { id: "1", name: "Tuner" },
+          ];
+        },
+      },
+    );
+
+    expect(discovered).toEqual({
+      endpoint: { host: "127.0.0.1", port: 58_256 },
+      states: [
+        { id: "65535", name: "App UI" },
+        { id: "1", name: "Tuner" },
+      ],
+    });
+    expect(queried).toEqual(["127.0.0.2:58256:250", "127.0.0.1:58256:250"]);
+  });
+
+  test("reports unavailable endpoint discovery with per-host details", async () => {
+    await expect(
+      discoverCiv7DirectControlEndpoint(
+        {
+          hosts: ["127.0.0.1", "127.0.0.2"],
+          port: 58_256,
+          timeoutMs: 50,
+          env: {},
+        },
+        {
+          errorMessage: (err) => err instanceof Error ? err.message : String(err),
+          queryTunerStates: async (options) => {
+            throw new Error(`unavailable ${options.host}`);
+          },
+        },
+      ),
+    ).rejects.toMatchObject({
+      name: "Civ7DirectControlError",
+      code: "all-hosts-unavailable",
+      details: [
+        { host: "127.0.0.1", error: "unavailable 127.0.0.1" },
+        { host: "127.0.0.2", error: "unavailable 127.0.0.2" },
+      ],
+    });
   });
 
   test("selects a tuner state by role, name, and id", () => {
