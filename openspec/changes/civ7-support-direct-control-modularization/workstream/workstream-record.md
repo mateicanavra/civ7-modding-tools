@@ -1559,6 +1559,14 @@ All future agent waves must be framed before delegation:
   telemetry, AI ingestion, semantic CLI projection, hotseat runtime proof,
   Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance remain
   pending. This is local source hygiene proof only, not runtime/live-game proof.
+- Direct-control map type re-export import cleanup slice: completed as a
+  narrow type-only source ownership cleanup after map read helper types were
+  already exposed through direct `export type ... from` declarations. The public
+  facade no longer imports those types only to re-export them, and public facade
+  exports remain stable. Schema ownership, operation/proof telemetry, AI
+  ingestion, semantic CLI projection, hotseat runtime proof, Effect/oRPC
+  procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending. This
+  is local source hygiene proof only, not runtime/live-game proof.
 - Direct-control generic validation primitive slice: completed as a narrow
   primitive/helper ownership relocation. It moves only bounded integer, simple
   identifier, and player-id validation helpers into `src/validation.ts` while
