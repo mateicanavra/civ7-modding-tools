@@ -291,6 +291,11 @@ All future agent waves must be framed before delegation:
   notification dismissal source into `src/play/notifications/dismissal.ts`.
   Wrapper-level polling and identity verification helpers stay in `index.ts`;
   this is source relocation proof only, not runtime proof.
+- Direct-control notification view source slice: completed as the
+  notification materialization source relocation. It moves only the embedded
+  `readPlayNotifications` source into `src/play/notifications/view.ts`.
+  Wrapper/build-command ownership stays in `index.ts`; this is source
+  relocation proof only, not runtime proof.
 - Review-disposition ledger: agent/reviewer findings recorded.
 - Exact dismiss-notification CLI slice: completed as test-only extraction with
   local fixture ownership and no runtime claim.

@@ -113,6 +113,8 @@ runtime/direct-control claims.
   - [ ] 4.2.13 Add full-grid map identity and resource/feature builder
     readback edge coverage to owning package suites before source extraction.
 - [ ] 4.3 Extract notification view/materialization atom.
+  - [x] 4.3.1 Extract notification view/materialization embedded source owner
+        while keeping the public wrapper in the facade.
 - [ ] 4.4 Extract notification dismissal/verification atom.
   - [x] 4.4.1 Extract notification dismissal embedded source owner while
         keeping wrapper-level polling and verification helpers in the facade.
