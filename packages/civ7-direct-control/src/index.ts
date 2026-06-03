@@ -225,7 +225,6 @@ import {
 } from "./play/operations/unit-target-action.js";
 import {
   requestCiv7NarrativeChoice as requestCiv7NarrativeChoiceFromModule,
-  type Civ7NarrativeChoiceCommandPayload,
   type Civ7NarrativeChoiceInput,
   type Civ7NarrativeChoiceResult,
 } from "./play/operations/narrative-request.js";
@@ -1393,23 +1392,7 @@ export async function requestCiv7NarrativeChoice(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7NarrativeChoiceResult> {
-  return await requestCiv7NarrativeChoiceFromModule(input, options, approval, {
-    assertApproved,
-    validatePlayerId,
-    assertComponentId: assertCiv7ComponentId,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    getPlayNotificationView: getCiv7PlayNotificationView,
-    canStartPlayerOperation: canStartCiv7PlayerOperation,
-    parseNarrativePayload: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7NarrativeChoiceCommandPayload>(result, label),
-    jsLiteral,
-    invalidTargetTypeError: () => {
-      throw new Civ7DirectControlError("command-failed", "targetType is required");
-    },
-    invalidActionError: () => {
-      throw new Civ7DirectControlError("command-failed", "action must be an integer");
-    },
-  });
+  return await requestCiv7NarrativeChoiceFromModule(input, options, approval);
 }
 
 export async function getCiv7UnitTargetAction(

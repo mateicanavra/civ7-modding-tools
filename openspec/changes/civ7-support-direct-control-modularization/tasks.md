@@ -393,6 +393,18 @@ runtime/direct-control claims.
         runtime/live-game proof, telemetry, AI ingestion, semantic CLI
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.6.24 Prune narrative choice facade dependency injection by letting
+        `src/play/operations/narrative-request.ts` import existing non-facade
+        approval, player validation, ComponentID assertion, App UI execution,
+        notification view, player-operation validation, payload parser,
+        serializer, and direct-control error owners directly, while keeping
+        public facade exports stable, preserving approval-first
+        CHOOSE_NARRATIVE_STORY_DIRECTION orchestration, target/action
+        validation, validator-first no-send behavior, App UI closeout command
+        serialization, narrative postcondition classification, package/CLI
+        proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
+        semantic CLI projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.

@@ -1878,6 +1878,20 @@ All future agent waves must be framed before delegation:
   proof, telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
   procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending. This
   is local package/source relocation proof only, not runtime/live-game proof.
+- Narrative choice facade dependency cleanup:
+  `src/play/operations/narrative-request.ts` now imports existing non-facade
+  approval, player validation, ComponentID assertion, App UI execution,
+  notification view, player-operation validation, payload parser, serializer,
+  and direct-control error owners directly for `requestCiv7NarrativeChoice`.
+  The public facade export remains stable, but `index.ts` no longer assembles
+  the narrative choice dependency object. This preserves approval-first
+  CHOOSE_NARRATIVE_STORY_DIRECTION orchestration, target/action validation,
+  validator-first no-send behavior, App UI closeout command serialization,
+  narrative postcondition classification, and package/CLI proof. This is local
+  package/source relocation proof only: it does not claim runtime/live-game
+  proof, accept Task 2.9.4 matrix rows, or unblock telemetry, AI ingestion,
+  semantic CLI projection, hotseat runtime proof, schema/procedure-core work,
+  or Effect/oRPC implementation.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now
