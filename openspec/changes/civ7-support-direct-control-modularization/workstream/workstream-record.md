@@ -351,6 +351,19 @@ All future agent waves must be framed before delegation:
   guidance. `test/unit-target-action.test.ts` and the focused CLI unit-target
   suite remain proof owners. This is local package/source relocation proof
   only, not runtime proof.
+- Unit-target action facade dependency cleanup:
+  `src/play/operations/unit-target-action.ts` now imports existing non-facade
+  approval, Tuner execution, and payload parser owners directly for
+  `getCiv7UnitTargetAction` and `requestCiv7UnitTargetAction`. The public
+  facade exports remain stable, but `index.ts` no longer assembles the
+  unit-target action dependency object. This preserves the read-vs-send split,
+  approval-first send behavior, parser label, default verification timing,
+  bounded no-repeat-after-unverified polling, unit-target postcondition
+  classification, and package/CLI proof. This is local package/source
+  relocation proof only: it does not claim runtime/live-game proof, accept Task
+  2.9.4 matrix rows, or unblock telemetry, AI ingestion, semantic CLI
+  projection, hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
+  implementation.
 - Direct-control diplomacy/narrative test slice: completed as additive
   test-only package coverage with two parallel net-new agents, DRA-owned
   integration, official-resource/doc checks for native path fit, local package

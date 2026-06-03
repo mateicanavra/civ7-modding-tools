@@ -405,6 +405,15 @@ runtime/direct-control claims.
         proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
         semantic CLI projection, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.6.25 Prune unit-target action facade dependency injection by letting
+        `src/play/operations/unit-target-action.ts` import existing non-facade
+        approval, Tuner execution, and payload parser owners directly, while
+        keeping public facade exports stable, preserving read-vs-send split,
+        approval-first send behavior, parser label, default verification timing,
+        bounded no-repeat-after-unverified polling, unit-target postcondition
+        classification, package/CLI proof, and leaving runtime/live-game proof,
+        telemetry, AI ingestion, semantic CLI projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.

@@ -1399,14 +1399,7 @@ export async function getCiv7UnitTargetAction(
   input: Civ7UnitTargetActionInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7UnitTargetActionResult> {
-  return await getCiv7UnitTargetActionFromModule(input, options, {
-    assertApproved,
-    executeTunerCommand: executeCiv7TunerCommand,
-    parseUnitTargetAction: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7UnitTargetActionResult>(result, label),
-    verificationWaitMs: DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
-    verificationPollIntervalMs: DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
-  });
+  return await getCiv7UnitTargetActionFromModule(input, options);
 }
 
 export async function getCiv7ReadyUnitView(
@@ -1477,14 +1470,7 @@ export async function requestCiv7UnitTargetAction(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7UnitTargetActionResult> {
-  return await requestCiv7UnitTargetActionFromModule(input, options, approval, {
-    assertApproved,
-    executeTunerCommand: executeCiv7TunerCommand,
-    parseUnitTargetAction: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7UnitTargetActionResult>(result, label),
-    verificationWaitMs: DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS,
-    verificationPollIntervalMs: DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
-  });
+  return await requestCiv7UnitTargetActionFromModule(input, options, approval);
 }
 
 export async function generateCiv7CapabilityCatalog(
