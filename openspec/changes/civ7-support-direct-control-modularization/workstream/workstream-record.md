@@ -815,6 +815,20 @@ All future agent waves must be framed before delegation:
   projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
   matrix-row acceptance remain pending. This is local package/source relocation
   proof only, not runtime/live-game proof.
+- Direct-control production-choice wrapper slice: completed as a narrow
+  operation source relocation. It moves only `requestCiv7ProductionChoice`
+  orchestration, the private production-choice command builder, production
+  argument validation, read-only status payload reads, and bounded post-send
+  polling into `src/play/operations/production-choice.ts` while keeping the
+  public facade export in `index.ts`. The facade still injects approval,
+  ComponentID validation, App UI execution, city-operation validation,
+  payload parsing, and serialization. This preserves approval-first BUILD
+  request behavior, validator-first sends, invalid-prevalidation no-send
+  status payloads, production postcondition classification, and package/CLI
+  production proof. Generic operation wrapper composition, telemetry, AI
+  ingestion, semantic CLI projection, Effect/oRPC procedure-core work, and
+  Task 2.9.4 matrix-row acceptance remain pending. This is local
+  package/source relocation proof only, not runtime/live-game proof.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now

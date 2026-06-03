@@ -111,7 +111,7 @@ import {
   requestCiv7UnitTargetAction as requestCiv7UnitTargetActionFromModule,
 } from "./play/operations/unit-target-action.js";
 import { populationPlacementPostcondition } from "./play/operations/population-postconditions.js";
-import { productionChoiceRequestSource } from "./play/operations/production-choice.js";
+import { requestCiv7ProductionChoice as requestCiv7ProductionChoiceFromModule } from "./play/operations/production-choice.js";
 import { productionPostconditionFor } from "./play/operations/production-postconditions.js";
 import { operationRouterSource } from "./play/operations/router.js";
 import { unitOperationPostcondition } from "./play/operations/unit-postconditions.js";
@@ -3255,68 +3255,15 @@ export async function requestCiv7ProductionChoice(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7ProductionChoiceResult> {
-  assertApproved(approval, "choosing city production");
-  assertCiv7ComponentId(input.cityId, "cityId");
-  validateProductionChoiceArgs(input.args);
-  const operationInput = {
-    cityId: input.cityId,
-    operationType: "BUILD",
-    args: input.args,
-  };
-  const before = await canStartCiv7CityOperation(operationInput, options);
-  if (!before.valid) {
-    const snapshotPayload = await readCiv7ProductionChoicePayload(input, options);
-    const productionPostcondition = productionPostconditionFor(
-      "city-operation",
-      operationInput,
-      false,
-      before,
-      before,
-      snapshotPayload.beforeProductionPostcondition,
-      snapshotPayload.beforeProductionPostcondition,
-    );
-    return {
-      before,
-      after: before,
-      sent: false,
-      verified: false,
-      productionPostcondition,
-      payload: snapshotPayload,
-    };
-  }
-  const command = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildProductionChoiceRequestCommand(input, { send: true }),
+  return await requestCiv7ProductionChoiceFromModule(input, options, approval, {
+    assertApproved,
+    assertComponentId: assertCiv7ComponentId,
+    canStartCityOperation: canStartCiv7CityOperation,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    jsonPayloadFromCommandResult,
+    jsLiteral,
   });
-  const payload = jsonPayloadFromCommandResult<Civ7ProductionChoiceCommandPayload>(command, "Civ7 production choice request");
-  const afterBundle = await waitForCiv7ProductionChoiceAfter(input, options, before, payload.beforeProductionPostcondition);
-  const productionPostcondition = productionPostconditionFor(
-    "city-operation",
-    operationInput,
-    payload.sent === true,
-    before,
-    afterBundle.validation,
-    payload.beforeProductionPostcondition,
-    afterBundle.snapshot,
-  );
-  const verified = productionPostcondition?.classification !== "not-sent"
-    && productionPostcondition?.classification !== "no-state-change"
-    && productionPostcondition?.classification !== "production-state-changed-blocker-still-live";
-  return {
-    before,
-    command,
-    after: afterBundle.validation,
-    sent: payload.sent === true,
-    verified,
-    productionPostcondition,
-    payload: {
-      ...payload,
-      afterValidation: afterBundle.validation.result,
-      afterProductionPostcondition: afterBundle.snapshot,
-    },
-  };
 }
-
 export async function canStartCiv7CityCommand(
   input: Civ7OperationInput & Readonly<{ cityId: Civ7ComponentId }>,
   options: Civ7DirectControlOptions = {},
@@ -3999,13 +3946,6 @@ function buildNarrativeChoiceRequestCommand(input: Civ7NarrativeChoiceInput): st
   return `(() => {
     ${narrativeChoiceRequestSource()}
     return JSON.stringify(sendNarrativeChoice(${jsLiteral(input)}));
-  })()`;
-}
-
-function buildProductionChoiceRequestCommand(input: Civ7ProductionChoiceInput, options: { send: boolean }): string {
-  return `(() => {
-    ${productionChoiceRequestSource()}
-    return JSON.stringify(readProductionChoice(${jsLiteral(input)}, ${jsLiteral(options)}));
   })()`;
 }
 
@@ -4770,80 +4710,6 @@ async function requestCiv7Operation(
     populationPostcondition,
     productionPostcondition,
   };
-}
-
-function validateProductionChoiceArgs(args: Readonly<Record<string, number>>): void {
-  const itemKeys = ["UnitType", "ConstructibleType", "ProjectType"] as const;
-  const selected = itemKeys.filter((key) => Number.isInteger(args[key]));
-  if (selected.length !== 1) {
-    throw new Civ7DirectControlError(
-      "command-failed",
-      "production choice requires exactly one UnitType, ConstructibleType, or ProjectType",
-      { details: { args } },
-    );
-  }
-  if ((args.X !== undefined || args.Y !== undefined) && (!Number.isInteger(args.X) || !Number.isInteger(args.Y))) {
-    throw new Civ7DirectControlError(
-      "command-failed",
-      "production placement coordinates require integer X and Y",
-      { details: { args } },
-    );
-  }
-  if ((args.X !== undefined || args.Y !== undefined) && selected[0] !== "ConstructibleType") {
-    throw new Civ7DirectControlError(
-      "command-failed",
-      "production placement coordinates are only valid for ConstructibleType choices",
-      { details: { args } },
-    );
-  }
-}
-
-async function readCiv7ProductionChoicePayload(
-  input: Civ7ProductionChoiceInput,
-  options: Civ7DirectControlOptions,
-): Promise<Civ7ProductionChoiceCommandPayload> {
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildProductionChoiceRequestCommand(input, { send: false }),
-  });
-  return jsonPayloadFromCommandResult<Civ7ProductionChoiceCommandPayload>(result, "Civ7 production choice status");
-}
-
-async function waitForCiv7ProductionChoiceAfter(
-  input: Civ7ProductionChoiceInput,
-  options: Civ7DirectControlOptions,
-  before: Civ7OperationValidationResult,
-  beforeSnapshot: Civ7ProductionPostconditionSnapshot,
-): Promise<{ validation: Civ7OperationValidationResult; snapshot: Civ7ProductionPostconditionSnapshot }> {
-  const operationInput = {
-    cityId: input.cityId,
-    operationType: "BUILD",
-    args: input.args,
-  };
-  const waitTimeoutMs = Math.min(Math.max(options.timeoutMs ?? 3_000, 1_000), 6_000);
-  const pollIntervalMs = 250;
-  const startedAt = Date.now();
-  let lastValidation = await canStartCiv7CityOperation(operationInput, options);
-  let lastSnapshot = (await readCiv7ProductionChoicePayload(input, options)).afterProductionPostcondition;
-  while (Date.now() - startedAt <= waitTimeoutMs) {
-    const postcondition = productionPostconditionFor(
-      "city-operation",
-      operationInput,
-      true,
-      before,
-      lastValidation,
-      beforeSnapshot,
-      lastSnapshot,
-    );
-    if (postcondition && postcondition.classification !== "no-state-change") {
-      return { validation: lastValidation, snapshot: lastSnapshot };
-    }
-    await sleep(pollIntervalMs);
-    const payload = await readCiv7ProductionChoicePayload(input, options);
-    lastValidation = await canStartCiv7CityOperation(operationInput, options);
-    lastSnapshot = payload.afterProductionPostcondition;
-  }
-  return { validation: lastValidation, snapshot: lastSnapshot };
 }
 
 function probeValueChanged(left: Civ7RuntimeProbe<unknown> | undefined, right: Civ7RuntimeProbe<unknown> | undefined): boolean {
