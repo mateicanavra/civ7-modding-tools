@@ -117,6 +117,8 @@ runtime/direct-control claims.
 - [ ] 4.5 Extract ready unit/city view atoms.
 - [ ] 4.6 Extract operation validation/send/postcondition atoms.
 - [ ] 4.7 Extract settlement/tactical/progression read atoms.
+  - [x] 4.7.1 Extract settlement recommendation embedded source owner while
+        keeping the public wrapper in the facade.
 - [ ] 4.8 Export stable types/constants only after module owners are defined.
   - [x] 4.8.1 Extract ComponentID primitive and direct-control error owner
         modules behind the existing package facade.

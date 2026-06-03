@@ -231,6 +231,11 @@ All future agent waves must be framed before delegation:
   `src/session/framing.ts` behind the existing package facade. Broader
   session/config/reconnect and restart/setup lifecycle source extraction stays
   pending because those seams have additional helper dependencies.
+- Direct-control settlement recommendation source slice: in progress from the
+  refined read-only atom report in `019e8b69-ae88-79f1-b5dd-dd530c2ea2bf`.
+  It moves only the settlement recommendation embedded source into
+  `src/play/tactical/settlement.ts`. Wrapper/builder ownership stays in
+  `index.ts`; this is source relocation proof only, not runtime proof.
 - Review-disposition ledger: agent/reviewer findings recorded.
 - Exact dismiss-notification CLI slice: completed as test-only extraction with
   local fixture ownership and no runtime claim.
