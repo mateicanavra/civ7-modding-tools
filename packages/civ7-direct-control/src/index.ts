@@ -31,6 +31,7 @@ import {
   DEFAULT_CIV7_TUNER_STATE_NAME,
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
 } from "./session/constants.js";
+import { resolveCiv7DirectControlConfig } from "./session/config.js";
 import { selectCiv7TunerState } from "./session/state.js";
 import {
   DEFAULT_CIV7_SCRIPTING_LOG,
@@ -374,6 +375,7 @@ export {
   DEFAULT_CIV7_TUNER_STATE_NAME,
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
 } from "./session/constants.js";
+export { resolveCiv7DirectControlConfig } from "./session/config.js";
 export { selectCiv7TunerState } from "./session/state.js";
 export {
   DEFAULT_CIV7_SCRIPTING_LOG,
@@ -821,29 +823,6 @@ let nextListenerId = Math.trunc(Date.now() % 1_000_000);
 
 export function createCiv7ControlRequestId(prefix = "civ7-control"): string {
   return `${prefix}-${Date.now().toString(36)}-${process.pid.toString(36)}`;
-}
-
-export function resolveCiv7DirectControlConfig(options: Civ7DirectControlOptions = {}): {
-  hosts: string[];
-  port: number;
-  timeoutMs: number;
-} {
-  const env = options.env ?? process.env;
-  const hosts = uniqueNonEmpty([
-    ...(options.hosts ?? []),
-    options.host,
-    ...splitEnvList(env.CIV7_TUNER_HOSTS),
-    env.CIV7_TUNER_HOST,
-    DEFAULT_CIV7_TUNER_HOST,
-  ]);
-  if (hosts.length === 0) {
-    throw new Civ7DirectControlError("no-hosts", "No Civ7 tuner hosts were configured");
-  }
-  return {
-    hosts,
-    port: options.port ?? portFromEnv(env) ?? DEFAULT_CIV7_TUNER_PORT,
-    timeoutMs: options.timeoutMs ?? DEFAULT_CIV7_TUNER_TIMEOUT_MS,
-  };
 }
 
 export async function discoverCiv7DirectControlEndpoint(
@@ -2379,19 +2358,6 @@ function allocateListenerId(): number {
   return nextListenerId;
 }
 
-function portFromEnv(env: NodeJS.ProcessEnv): number | undefined {
-  if (!env.CIV7_TUNER_PORT) return undefined;
-  const port = Number(env.CIV7_TUNER_PORT);
-  if (!Number.isInteger(port) || port <= 0 || port > 65_535) {
-    throw new Civ7DirectControlError("invalid-port", `Invalid CIV7_TUNER_PORT: ${env.CIV7_TUNER_PORT}`);
-  }
-  return port;
-}
-
-function splitEnvList(value: string | undefined): string[] {
-  return value?.split(",").map((entry) => entry.trim()).filter(Boolean) ?? [];
-}
-
 function isNodeNotFound(err: unknown): boolean {
   return (
     err !== null &&
@@ -3108,10 +3074,6 @@ async function executeSessionCommandWithReconnect(
     }
   }
   throw toDirectControlError(lastError, "command-failed");
-}
-
-function uniqueNonEmpty(values: ReadonlyArray<string | undefined>): string[] {
-  return Array.from(new Set(values.map((value) => value?.trim()).filter((value): value is string => Boolean(value))));
 }
 
 function toDirectControlError(err: unknown, fallbackCode: Civ7DirectControlErrorCode): Civ7DirectControlError {

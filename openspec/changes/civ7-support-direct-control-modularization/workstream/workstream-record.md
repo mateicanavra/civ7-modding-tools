@@ -1289,6 +1289,19 @@ All future agent waves must be framed before delegation:
   projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
   acceptance remain pending. This is local package/source relocation proof
   only, not runtime/live-game proof.
+- Direct-control session config slice: completed as a narrow session helper
+  relocation. It moves `resolveCiv7DirectControlConfig` and its private
+  host/env/port helpers into `src/session/config.ts` while keeping the public
+  facade export in `index.ts`. This preserves host/env ordering,
+  deduplication, port and timeout defaults, invalid-port classification, and
+  existing CLI resolver behavior. It does not change endpoint discovery,
+  socket/session lifecycle, command execution, reconnect behavior, health
+  polling, or runtime-status projection. Endpoint discovery, session
+  socket/reconnect source ownership, public procedure schemas, operation/proof
+  telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection,
+  Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance remain
+  pending. This is local package/source relocation proof only, not
+  runtime/live-game proof.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into

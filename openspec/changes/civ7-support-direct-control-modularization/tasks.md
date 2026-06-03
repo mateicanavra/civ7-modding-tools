@@ -560,6 +560,13 @@ runtime/direct-control claims.
         schemas, telemetry, semantic CLI, AI ingestion, hotseat runtime proof,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
+  - [x] 4.10.4 Extract session direct-control config owner behind the existing
+        package facade, preserving host/env ordering, deduplication, port and
+        timeout defaults, invalid-port classification, and CLI public resolver
+        behavior while leaving endpoint discovery, socket/session lifecycle,
+        command execution, lifecycle/reconnect, procedure schemas, telemetry,
+        semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in

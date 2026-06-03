@@ -9,6 +9,7 @@ import {
   encodeCiv7TunerRequest,
   executeCiv7Command,
   parseCiv7TunerFrame,
+  resolveCiv7DirectControlConfig,
   selectCiv7TunerState,
   snapshotFile,
   waitForFreshLogMarkers,
@@ -45,6 +46,31 @@ describe("Civ7 direct control session framing", () => {
     });
 
     expect([true, false]).toContain(health.ok);
+  });
+
+  test("resolves direct-control config from explicit and env options", () => {
+    expect(
+      resolveCiv7DirectControlConfig({
+        host: "127.0.0.1",
+        hosts: [" 127.0.0.1 ", "127.0.0.2"],
+        env: {
+          CIV7_TUNER_HOSTS: "127.0.0.3,127.0.0.2",
+          CIV7_TUNER_HOST: "127.0.0.4",
+          CIV7_TUNER_PORT: "65535",
+        },
+        timeoutMs: 12_345,
+      }),
+    ).toEqual({
+      hosts: ["127.0.0.1", "127.0.0.2", "127.0.0.3", "127.0.0.4"],
+      port: 65_535,
+      timeoutMs: 12_345,
+    });
+
+    expect(() =>
+      resolveCiv7DirectControlConfig({
+        env: { CIV7_TUNER_PORT: "0" },
+      }),
+    ).toThrow(/Invalid CIV7_TUNER_PORT/);
   });
 
   test("selects a tuner state by role, name, and id", () => {
