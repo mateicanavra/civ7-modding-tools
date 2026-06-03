@@ -281,6 +281,13 @@ runtime/direct-control claims.
         `index.ts` and leaving reveal mutation, setup map rows, AI ingestion,
         static profile shaping, semantic CLI, telemetry, hotseat runtime proof,
         and Effect/oRPC procedure-core work pending.
+  - [x] 4.11.5 Extract reveal-map mutation wrapper owner while keeping public
+        facade exports in `index.ts`, preserving approval-first and
+        disposable-session guards, player-id validation, visibility before/after
+        reads, `Visibility.revealAllPlots` command text, classification shape,
+        and leaving setup map rows, AI ingestion, static profile shaping,
+        semantic CLI, telemetry, hotseat runtime proof, and Effect/oRPC
+        procedure-core work pending.
 - [ ] 4.12 Extract runtime inspection/catalog/proof atoms.
   - [x] 4.12.1 Extract runtime API inspection wrapper/source owner while keeping
         the public facade export surface in `index.ts`, classifying it as

@@ -722,6 +722,16 @@ All future agent waves must be framed before delegation:
   package/source relocation proof only, not runtime proof; hotseat runtime
   proof, AI ingestion, semantic CLI projection, telemetry, Effect/oRPC
   procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending.
+- Direct-control reveal-map slice: completed as a narrow mutation-facing
+  visibility wrapper relocation. It moves only `revealCiv7MapForPlayer`
+  orchestration and reveal classification into `src/play/map/visibility.ts`
+  while keeping public facade exports in `index.ts`. The slice preserves
+  approval-first and disposable-session guards, player-id validation, visibility
+  before/after reads, `Visibility.revealAllPlots` command text, and result
+  classification shape. This is local package/source relocation proof only, not
+  live-game proof; setup map rows, AI ingestion, static profile shaping,
+  semantic CLI projection, telemetry, hotseat runtime proof, Effect/oRPC
+  procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now

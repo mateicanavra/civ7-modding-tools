@@ -78,7 +78,10 @@ import {
   getCiv7PlotSnapshot as getCiv7PlotSnapshotFromModule,
 } from "./play/map/reads.js";
 import { getCiv7GameInfoRows as getCiv7GameInfoRowsFromModule } from "./play/map/gameinfo.js";
-import { getCiv7VisibilitySummary as getCiv7VisibilitySummaryFromModule } from "./play/map/visibility.js";
+import {
+  getCiv7VisibilitySummary as getCiv7VisibilitySummaryFromModule,
+  revealCiv7MapForPlayer as revealCiv7MapForPlayerFromModule,
+} from "./play/map/visibility.js";
 import {
   getCiv7CitySummary as getCiv7CitySummaryFromModule,
   getCiv7PlayerSummary as getCiv7PlayerSummaryFromModule,
@@ -2928,18 +2931,25 @@ export async function getCiv7VisibilitySummary(
   input: Civ7VisibilitySummaryInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7VisibilitySummaryResult> {
-  return await getCiv7VisibilitySummaryFromModule(input, options, {
+  return await getCiv7VisibilitySummaryFromModule(input, options, visibilityDependencies());
+}
+
+function visibilityDependencies() {
+  return {
+    assertApproved,
     executeTunerCommand: executeCiv7TunerCommand,
-    parseVisibilitySummary: (result, label) =>
+    parseVisibilitySummary: (result: Civ7CommandResult, label: string) =>
       jsonPayloadFromCommandResult<Civ7VisibilitySummaryResult>(result, label),
     boundedInteger,
     defaultMapGridMaxPlots: DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
     hardMapGridMaxPlots: HARD_CIV7_MAP_GRID_MAX_PLOTS,
     jsLiteral,
     probeHelperSource,
+    probeValue,
     validateMapBounds,
     validatePlayerId,
-  });
+    getVisibilitySummary: getCiv7VisibilitySummary,
+  } as const;
 }
 
 export async function getCiv7GameInfoRows(
@@ -3367,35 +3377,7 @@ export async function revealCiv7MapForPlayer(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7RevealMapResult> {
-  assertApproved(approval, "revealing the Civ7 map");
-  if (!approval.disposableSession) {
-    throw new Civ7DirectControlError("command-failed", "Map reveal requires disposableSession approval");
-  }
-  const playerId = validatePlayerId(input.playerId);
-  const before = await getCiv7VisibilitySummary({ playerId }, options);
-  const command = await executeCiv7TunerCommand({
-    ...options,
-    command: `Visibility.revealAllPlots(${playerId})`,
-  });
-  const after = await getCiv7VisibilitySummary({ playerId }, options);
-  const beforeCount = probeValue(before.numPlotsRevealed);
-  const afterCount = probeValue(after.numPlotsRevealed);
-  const classification =
-    beforeCount !== undefined && afterCount !== undefined && afterCount > beforeCount
-      ? "revealed"
-      : beforeCount !== undefined && afterCount !== undefined && afterCount === beforeCount
-        ? "already-revealed"
-        : "unverified";
-  return {
-    host: command.host,
-    port: command.port,
-    state: command.state,
-    playerId,
-    before,
-    after,
-    command,
-    classification,
-  };
+  return await revealCiv7MapForPlayerFromModule(input, options, approval, visibilityDependencies());
 }
 
 export async function getCiv7TurnCompletionStatus(
