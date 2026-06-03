@@ -181,6 +181,16 @@ source strings, runtime behavior, relationship-label policy, telemetry, AI
 ingestion, hotseat runtime proof, CLI semantic projection, Effect/oRPC
 procedure-core work, or Task 2.9.4 matrix-row acceptance.
 
+Setup read type update: `src/setup/reads.ts` now also owns setup phase,
+snapshot, map-row, map-row visibility, and setup read result types while public
+facade type re-exports stay in `index.ts`. This is local package/type
+relocation proof only and does not change setup snapshot/map-row source strings,
+map-script validation, setup map-row refresh behavior, setup lifecycle
+mutation behavior, runtime proof status, telemetry, AI ingestion, hotseat
+runtime proof, CLI semantic projection, Effect/oRPC procedure-core work, or Task
+2.9.4 matrix-row acceptance. Setup prepare/start/run lifecycle input/result
+types remain pending separate owner slices.
+
 Bounded root inspection update: `src/runtime/root-inspection.ts` now owns
 `inspectCiv7Root` and the generated bounded root inspection command while the
 public facade export stays in `index.ts` and injects command execution,

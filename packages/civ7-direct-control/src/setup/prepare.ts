@@ -1,10 +1,14 @@
 import { basename, extname } from "node:path";
-import { Civ7DirectControlError } from "../direct-control-error";
+import { Civ7DirectControlError } from "../direct-control-error.js";
 import { assessCiv7SignedIntSeed } from "../policy/setup.js";
 import {
   buildSetupSnapshotCommand,
   setupSnapshotScriptSource,
   validateMapScript,
+  type Civ7SetupMapRow,
+  type Civ7SetupParameterSnapshot,
+  type Civ7SetupParameterValue,
+  type Civ7SetupSnapshot,
   type SetupReadDependencies,
 } from "./reads.js";
 
@@ -16,13 +20,9 @@ import type {
   Civ7PreparedSetupResult,
   Civ7SavedGameConfigurationLoadResult,
   Civ7SavedGameConfigurationRef,
-  Civ7SetupMapRow,
   Civ7SetupOptionValue,
-  Civ7SetupParameterSnapshot,
-  Civ7SetupParameterValue,
-  Civ7SetupSnapshot,
   Civ7SinglePlayerSetupInput,
-} from "../index";
+} from "../index.js";
 
 type SetupPreparePayload = Readonly<{
   before: Civ7SetupSnapshot;

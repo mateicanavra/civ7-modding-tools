@@ -411,6 +411,14 @@ runtime/direct-control claims.
         hotseat runtime proof, AI ingestion, CLI semantic projection,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
+  - [x] 4.8.16 Extract setup read type owner while keeping public facade type
+        re-exports in `index.ts`, preserving setup snapshot/map-row read and
+        setup map-row visibility result public contracts while leaving setup
+        prepare/start/run lifecycle input/result types, tactical, operation,
+        and ready result types, procedure schemas, operation/proof telemetry,
+        hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
       oRPC implementation; current support branch has no tracked
       `.agents/skills/civ7-orpc-control-architecture` or

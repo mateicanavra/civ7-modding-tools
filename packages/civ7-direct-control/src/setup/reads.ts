@@ -1,16 +1,105 @@
-import { Civ7DirectControlError } from "../direct-control-error";
+import { Civ7DirectControlError } from "../direct-control-error.js";
 
 import type {
   Civ7ActionApproval,
+} from "../index.js";
+import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7SetupMapRowVisibilityInput,
-  Civ7SetupMapRowVisibilityResult,
-  Civ7SetupMapRowsInput,
-  Civ7SetupMapRowsResult,
-  Civ7SetupPhase,
-  Civ7SetupSnapshotResult,
-} from "../index";
+  Civ7TunerState,
+} from "../session/types.js";
+import type { Civ7RuntimeProbe } from "../runtime/probe.js";
+import type { Civ7AppUiSnapshot } from "../runtime/app-ui-snapshot.js";
+
+export type Civ7SetupPhase = "shell" | "running-game" | "loading" | "begin-ready" | "unavailable";
+
+export type Civ7SetupParameterValue = string | number | boolean | null;
+
+export type Civ7SetupMapRow = Readonly<{
+  source: "setup-domain" | "config-db";
+  domain?: string;
+  file: string;
+  value?: string;
+  name?: string;
+  description?: string;
+  sortIndex?: number;
+}>;
+
+export type Civ7SetupParameterSnapshot = Readonly<{
+  id: string;
+  exists: boolean;
+  hidden?: boolean;
+  readOnly?: boolean;
+  invalidReason?: number | string | null;
+  value?: Civ7SetupParameterValue;
+  rawValue?: unknown;
+  possibleValues?: ReadonlyArray<unknown>;
+}>;
+
+export type Civ7PlayerSetupParameterSnapshot = Readonly<{
+  playerId: number;
+  parameters: ReadonlyArray<Civ7SetupParameterSnapshot>;
+}>;
+
+export type Civ7SetupSnapshot = Readonly<{
+  phase: Civ7SetupPhase;
+  ui: Pick<Civ7AppUiSnapshot["ui"], "inGame" | "inShell" | "inLoading" | "loadingState" | "loadingStateName" | "canBeginGame">;
+  setup: Readonly<{
+    revision: Civ7RuntimeProbe<number>;
+    parameters: ReadonlyArray<Civ7SetupParameterSnapshot>;
+    playerParameters: ReadonlyArray<Civ7PlayerSetupParameterSnapshot>;
+    localPlayerId: Civ7RuntimeProbe<number>;
+  }>;
+  selectedMapRow?: Civ7SetupMapRow;
+  mapRows: ReadonlyArray<Civ7SetupMapRow>;
+  config: Readonly<{
+    mapScript: Civ7RuntimeProbe<string>;
+    mapSize: Civ7RuntimeProbe<string>;
+    mapSeed: Civ7RuntimeProbe<number>;
+    gameSeed: Civ7RuntimeProbe<number>;
+    playerCount: Civ7RuntimeProbe<number>;
+  }>;
+}>;
+
+export type Civ7SetupSnapshotResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  snapshot: Civ7SetupSnapshot;
+}>;
+
+export type Civ7SetupMapRowsInput = Readonly<{
+  file?: string;
+  limit?: number;
+}>;
+
+export type Civ7SetupMapRowsResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  rows: ReadonlyArray<Civ7SetupMapRow>;
+  limit: number;
+  matchedFile?: string;
+}>;
+
+export type Civ7SetupMapRowVisibilityInput = Readonly<{
+  file: string;
+  limit?: number;
+  reloadIfMissing?: "none" | "exit-to-shell";
+  waitTimeoutMs?: number;
+  pollIntervalMs?: number;
+}>;
+
+export type Civ7SetupMapRowVisibilityResult = Readonly<{
+  initial: Civ7SetupMapRowsResult;
+  final: Civ7SetupMapRowsResult;
+  shellBefore?: Civ7SetupSnapshotResult;
+  shellAfter?: Civ7SetupSnapshotResult;
+  shellExit?: Civ7CommandResult;
+  reload?: Civ7CommandResult;
+  refreshed: boolean;
+  verified: boolean;
+}>;
 
 export type SetupReadDependencies = Readonly<{
   assertApproved: (approval: Civ7ActionApproval, action: string) => void;

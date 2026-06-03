@@ -661,6 +661,19 @@ All future agent waves must be framed before delegation:
   proof, CLI semantic projection, Effect/oRPC procedure-core work, or Task 2.9.4
   matrix-row acceptance. This is local package/type relocation proof only, not
   runtime proof, AI/hotseat product-path support, or procedure-core readiness.
+- Direct-control setup read types slice: completed as a narrow public type
+  ownership relocation. It moves only setup phase, setup snapshot/map-row,
+  setup map-row read, and setup map-row visibility result types into
+  `src/setup/reads.ts` while keeping facade type re-exports in `index.ts` and
+  replacing moved setup read type imports in setup modules with concrete owner
+  imports. This preserves public type contracts and does not change setup
+  snapshot/map-row source strings, map-script validation, setup map-row refresh
+  behavior, setup lifecycle mutation behavior, runtime proof status, telemetry,
+  AI ingestion, hotseat runtime proof, CLI semantic projection, Effect/oRPC
+  procedure-core work, or Task 2.9.4 matrix-row acceptance. Setup
+  prepare/start/run lifecycle input/result types remain pending separate owner
+  slices. This is local package/type relocation proof only, not runtime proof,
+  AI/hotseat product-path support, or procedure-core readiness.
 - Direct-control turn-completion slice: completed as a narrow turn-completion
   source/wrapper relocation. It moves only `getCiv7TurnCompletionStatus`,
   `sendCiv7TurnComplete`, `sendCiv7TurnUnready`, the status command builder,

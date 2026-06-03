@@ -85,6 +85,17 @@ import {
   ensureCiv7SetupMapRowVisible as ensureCiv7SetupMapRowVisibleFromModule,
   getCiv7SetupMapRows as getCiv7SetupMapRowsFromModule,
   getCiv7SetupSnapshot as getCiv7SetupSnapshotFromModule,
+  type Civ7PlayerSetupParameterSnapshot,
+  type Civ7SetupMapRow,
+  type Civ7SetupMapRowsInput,
+  type Civ7SetupMapRowsResult,
+  type Civ7SetupMapRowVisibilityInput,
+  type Civ7SetupMapRowVisibilityResult,
+  type Civ7SetupParameterSnapshot,
+  type Civ7SetupParameterValue,
+  type Civ7SetupPhase,
+  type Civ7SetupSnapshot,
+  type Civ7SetupSnapshotResult,
 } from "./setup/reads.js";
 import {
   assertPreparedSetupMatches,
@@ -302,6 +313,19 @@ export {
   DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS,
   DEFAULT_CIV7_SETUP_PARAMETER_IDS,
 } from "./setup/constants.js";
+export type {
+  Civ7PlayerSetupParameterSnapshot,
+  Civ7SetupMapRow,
+  Civ7SetupMapRowsInput,
+  Civ7SetupMapRowsResult,
+  Civ7SetupMapRowVisibilityInput,
+  Civ7SetupMapRowVisibilityResult,
+  Civ7SetupParameterSnapshot,
+  Civ7SetupParameterValue,
+  Civ7SetupPhase,
+  Civ7SetupSnapshot,
+  Civ7SetupSnapshotResult,
+} from "./setup/reads.js";
 export {
   DEFAULT_CIV7_GAMEINFO_LIMIT,
   DEFAULT_CIV7_GAMEINFO_TABLES,
@@ -615,96 +639,6 @@ export type Civ7ProgressDashboardResult = Readonly<{
   }>;
   hiddenInfoPolicy: "local-player-runtime-progress";
   notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7SetupPhase = "shell" | "running-game" | "loading" | "begin-ready" | "unavailable";
-
-export type Civ7SetupParameterValue = string | number | boolean | null;
-
-export type Civ7SetupMapRow = Readonly<{
-  source: "setup-domain" | "config-db";
-  domain?: string;
-  file: string;
-  value?: string;
-  name?: string;
-  description?: string;
-  sortIndex?: number;
-}>;
-
-export type Civ7SetupParameterSnapshot = Readonly<{
-  id: string;
-  exists: boolean;
-  hidden?: boolean;
-  readOnly?: boolean;
-  invalidReason?: number | string | null;
-  value?: Civ7SetupParameterValue;
-  rawValue?: unknown;
-  possibleValues?: ReadonlyArray<unknown>;
-}>;
-
-export type Civ7PlayerSetupParameterSnapshot = Readonly<{
-  playerId: number;
-  parameters: ReadonlyArray<Civ7SetupParameterSnapshot>;
-}>;
-
-export type Civ7SetupSnapshot = Readonly<{
-  phase: Civ7SetupPhase;
-  ui: Pick<Civ7AppUiSnapshot["ui"], "inGame" | "inShell" | "inLoading" | "loadingState" | "loadingStateName" | "canBeginGame">;
-  setup: Readonly<{
-    revision: Civ7RuntimeProbe<number>;
-    parameters: ReadonlyArray<Civ7SetupParameterSnapshot>;
-    playerParameters: ReadonlyArray<Civ7PlayerSetupParameterSnapshot>;
-    localPlayerId: Civ7RuntimeProbe<number>;
-  }>;
-  selectedMapRow?: Civ7SetupMapRow;
-  mapRows: ReadonlyArray<Civ7SetupMapRow>;
-  config: Readonly<{
-    mapScript: Civ7RuntimeProbe<string>;
-    mapSize: Civ7RuntimeProbe<string>;
-    mapSeed: Civ7RuntimeProbe<number>;
-    gameSeed: Civ7RuntimeProbe<number>;
-    playerCount: Civ7RuntimeProbe<number>;
-  }>;
-}>;
-
-export type Civ7SetupSnapshotResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  snapshot: Civ7SetupSnapshot;
-}>;
-
-export type Civ7SetupMapRowsInput = Readonly<{
-  file?: string;
-  limit?: number;
-}>;
-
-export type Civ7SetupMapRowsResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  rows: ReadonlyArray<Civ7SetupMapRow>;
-  limit: number;
-  matchedFile?: string;
-}>;
-
-export type Civ7SetupMapRowVisibilityInput = Readonly<{
-  file: string;
-  limit?: number;
-  reloadIfMissing?: "none" | "exit-to-shell";
-  waitTimeoutMs?: number;
-  pollIntervalMs?: number;
-}>;
-
-export type Civ7SetupMapRowVisibilityResult = Readonly<{
-  initial: Civ7SetupMapRowsResult;
-  final: Civ7SetupMapRowsResult;
-  shellBefore?: Civ7SetupSnapshotResult;
-  shellAfter?: Civ7SetupSnapshotResult;
-  shellExit?: Civ7CommandResult;
-  reload?: Civ7CommandResult;
-  refreshed: boolean;
-  verified: boolean;
 }>;
 
 export type Civ7SetupOptionValue = string | number | boolean;

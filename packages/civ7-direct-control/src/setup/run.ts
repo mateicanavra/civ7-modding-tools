@@ -1,5 +1,9 @@
-import { Civ7DirectControlError } from "../direct-control-error";
+import { Civ7DirectControlError } from "../direct-control-error.js";
 import { normalizeSinglePlayerSetupInput } from "./prepare.js";
+import type {
+  Civ7SetupPhase,
+  Civ7SetupSnapshotResult,
+} from "./reads.js";
 
 import type {
   Civ7ActionApproval,
@@ -7,13 +11,11 @@ import type {
   Civ7DirectControlOptions,
   Civ7PreparedSetupResult,
   Civ7PreparedStartInput,
-  Civ7SetupPhase,
-  Civ7SetupSnapshotResult,
   Civ7SinglePlayerRunInput,
   Civ7SinglePlayerRunResult,
   Civ7SinglePlayerSetupInput,
   Civ7SinglePlayerStartResult,
-} from "../index";
+} from "../index.js";
 
 type SetupRunDependencies = Readonly<{
   assertApproved: (approval: Civ7ActionApproval, action: string) => void;
