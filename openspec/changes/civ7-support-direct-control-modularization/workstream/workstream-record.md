@@ -1053,14 +1053,16 @@ All future agent waves must be framed before delegation:
   notification command-builder relocation. It moves only the guarded read/send
   App UI dismissal command builder into
   `src/play/notifications/dismissal-request.ts` while keeping public facade
-  exports in `index.ts`. The facade still owns App UI execution, payload
-  parsing, approval assertion, and serialization injection. This preserves
-  notification dismissal read/send command serialization, final identity-based
-  verification, focused package/CLI notification dismissal proof, and existing
-  pending runtime/live-game proof. Telemetry, AI ingestion, semantic CLI
-  projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
-  acceptance remain pending. This is local package/source relocation proof only,
-  not runtime/live-game proof.
+  exports in `index.ts`. Follow-up facade dependency cleanup lets the dismissal
+  request owner import existing non-facade App UI execution, command-result
+  parsing, approval, and command serialization owners directly, so the public
+  facade no longer assembles those dependency objects. This preserves
+  notification dismissal read/send command serialization, approval-first
+  dismissal behavior, final identity-based verification, focused package/CLI
+  notification dismissal proof, and existing pending runtime/live-game proof.
+  Telemetry, AI ingestion, semantic CLI projection, Effect/oRPC procedure-core
+  work, and Task 2.9.4 matrix-row acceptance remain pending. This is local
+  package/source relocation proof only, not runtime/live-game proof.
 - Direct-control narrative choice verification helper slice: completed as the
   next specialized closeout-helper relocation. It first expands
   `test/narrative-choice.test.ts` to cover same-blocker `no-state-change` and

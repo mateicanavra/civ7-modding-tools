@@ -1362,12 +1362,7 @@ export async function getCiv7NotificationDismissal(
   input: Civ7NotificationDismissInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7NotificationDismissalResult> {
-  return await getCiv7NotificationDismissalFromModule(input, options, {
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    parseNotificationDismissal: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7NotificationDismissalResult>(result, label),
-    jsLiteral,
-  });
+  return await getCiv7NotificationDismissalFromModule(input, options);
 }
 
 export async function requestCiv7NotificationDismissal(
@@ -1375,13 +1370,7 @@ export async function requestCiv7NotificationDismissal(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7NotificationDismissalResult> {
-  return await requestCiv7NotificationDismissalFromModule(input, options, approval, {
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    parseNotificationDismissal: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7NotificationDismissalResult>(result, label),
-    assertApproved,
-    jsLiteral,
-  });
+  return await requestCiv7NotificationDismissalFromModule(input, options, approval);
 }
 
 export async function sendCiv7TurnComplete(
