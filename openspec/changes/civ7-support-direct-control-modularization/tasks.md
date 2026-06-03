@@ -553,6 +553,13 @@ runtime/direct-control claims.
         lifecycle/reconnect, procedure schemas, telemetry, semantic CLI, AI
         ingestion, hotseat runtime proof, and Effect/oRPC procedure-core work
         pending.
+  - [x] 4.10.3 Extract session state-selection helper owner behind the
+        existing package facade, preserving role/name/id selection and
+        missing-state error classification while leaving session config/socket,
+        endpoint discovery, command execution, lifecycle/reconnect, procedure
+        schemas, telemetry, semantic CLI, AI ingestion, hotseat runtime proof,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in

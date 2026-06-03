@@ -31,6 +31,7 @@ import {
   DEFAULT_CIV7_TUNER_STATE_NAME,
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
 } from "./session/constants.js";
+import { selectCiv7TunerState } from "./session/state.js";
 import {
   DEFAULT_CIV7_SCRIPTING_LOG,
   snapshotFile,
@@ -373,6 +374,7 @@ export {
   DEFAULT_CIV7_TUNER_STATE_NAME,
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
 } from "./session/constants.js";
+export { selectCiv7TunerState } from "./session/state.js";
 export {
   DEFAULT_CIV7_SCRIPTING_LOG,
   snapshotFile,
@@ -1024,27 +1026,6 @@ export async function queryCiv7TunerStates(options: Civ7DirectControlOptions = {
   } finally {
     await session.close();
   }
-}
-
-export function selectCiv7TunerState(
-  states: ReadonlyArray<Civ7TunerState>,
-  selection: Civ7TunerStateSelection = { role: "app-ui" },
-): Civ7TunerState {
-  const requested = normalizeStateSelection(selection);
-  const state = states.find((candidate) => {
-    if (requested.id && candidate.id === requested.id) return true;
-    if (requested.name && candidate.name === requested.name) return true;
-    return false;
-  });
-  if (!state) {
-    const requestedLabel = requested.name ?? requested.id ?? "unknown";
-    throw new Civ7DirectControlError(
-      "state-not-found",
-      `Civ7 tuner state "${requestedLabel}" was not available; states: ${states.map((s) => s.name).join(", ")}`,
-      { details: { requested, states } },
-    );
-  }
-  return state;
 }
 
 export async function executeCiv7Command(options: Civ7DirectControlOptions & {
@@ -2390,17 +2371,6 @@ async function sendCiv7TunerMessage(options: {
     options.socket.once("close", onClose);
     options.socket.write(encodeCiv7TunerRequest(listenerId, options.message));
   });
-}
-
-function normalizeStateSelection(selection: Civ7TunerStateSelection): { id?: string; name?: string } {
-  if (typeof selection === "string") {
-    return selection === CIV7_TUNER_APP_UI_STATE_NAME || selection === CIV7_TUNER_STATE_NAME
-      ? { name: selection }
-      : { id: selection, name: selection };
-  }
-  if (selection.role === "app-ui") return { name: CIV7_TUNER_APP_UI_STATE_NAME };
-  if (selection.role === "tuner") return { name: CIV7_TUNER_STATE_NAME };
-  return { id: selection.id, name: selection.name };
 }
 
 function allocateListenerId(): number {

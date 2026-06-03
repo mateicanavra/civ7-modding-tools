@@ -1277,6 +1277,18 @@ All future agent waves must be framed before delegation:
   ingestion, CLI semantic projection, Effect/oRPC procedure-core work, and Task
   2.9.4 matrix-row acceptance remain pending. This is local package/type
   relocation proof only, not runtime/live-game proof.
+- Direct-control session state-selection slice: completed as a narrow session
+  helper relocation. It moves `selectCiv7TunerState` and its private selection
+  normalizer into `src/session/state.ts` while keeping the public facade export
+  in `index.ts`. This preserves role/name/id state selection and
+  `state-not-found` error classification, and does not change endpoint
+  discovery, config resolution, socket/session lifecycle, command execution,
+  reconnect behavior, health polling, or runtime-status projection. Session
+  config/socket/reconnect source ownership, public procedure schemas,
+  operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI semantic
+  projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+  acceptance remain pending. This is local package/source relocation proof
+  only, not runtime/live-game proof.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into
