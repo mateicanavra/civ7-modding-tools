@@ -268,6 +268,14 @@ runtime/direct-control claims.
         runtime/live-game proof, telemetry, AI ingestion, semantic CLI
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.6.17 Extract culture choice closeout command builder owner while
+        keeping the public facade wrapper in `index.ts`, preserving App UI
+        culture closeout command serialization, optional notification
+        activation, SET_CULTURE_TREE_NODE / SET_CULTURE_TREE_TARGET_NODE send
+        behavior, focused culture package/CLI proof, and leaving
+        runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.

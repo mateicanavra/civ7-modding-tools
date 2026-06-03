@@ -115,11 +115,11 @@ import {
   requestCiv7UnitCommand as requestCiv7UnitCommandFromModule,
   requestCiv7UnitOperation as requestCiv7UnitOperationFromModule,
 } from "./play/operations/validate-request.js";
-import { cultureChoiceCloseoutSource } from "./play/progression/culture.js";
 import {
   getCiv7ProgressDashboard as getCiv7ProgressDashboardFromModule,
   getCiv7TraditionsView as getCiv7TraditionsViewFromModule,
 } from "./play/progression/reads.js";
+import { buildCultureChoiceCloseoutCommand } from "./play/progression/culture.js";
 import { buildTechnologyChoiceCloseoutCommand } from "./play/progression/technology.js";
 import { getCiv7ReadyCityView as getCiv7ReadyCityViewFromModule } from "./play/ready/city.js";
 import { getCiv7UnitMovePreview as getCiv7UnitMovePreviewFromModule } from "./play/ready/move-preview.js";
@@ -3382,7 +3382,7 @@ export async function requestCiv7CultureChoiceCloseout(
   if (!Number.isInteger(input.node)) throw new Civ7DirectControlError("command-failed", "node must be an integer");
   const command = await executeCiv7AppUiCommand({
     ...options,
-    command: buildCultureChoiceCloseoutCommand(input),
+    command: buildCultureChoiceCloseoutCommand(input, { jsLiteral }),
   });
   const payload = jsonPayloadFromCommandResult<{
     sent?: boolean;
@@ -3957,13 +3957,6 @@ function buildLoadSavedGameConfigurationCommand(input: Civ7SavedGameConfiguratio
     });
   })()`;
 }
-function buildCultureChoiceCloseoutCommand(input: Civ7CultureChoiceCloseoutInput): string {
-  return `(() => {
-    ${cultureChoiceCloseoutSource()}
-    return JSON.stringify(sendCultureChoiceCloseout(${jsLiteral(input)}));
-  })()`;
-}
-
 function buildNotificationDismissalCommand(input: Civ7NotificationDismissInput, options: { send: boolean; verificationAttempts?: number }): string {
   return `(() => {
     ${notificationDismissalSource()}

@@ -1,3 +1,9 @@
+import type { Civ7CultureChoiceCloseoutInput } from "../../index";
+
+type CultureChoiceCloseoutCommandDependencies = Readonly<{
+  jsLiteral: (value: unknown) => string;
+}>;
+
 function probeHelperSource(): string {
   return `const probe = (fn) => {
       try {
@@ -6,6 +12,16 @@ function probeHelperSource(): string {
         return { ok: false, error: String(err) };
       }
     };`;
+}
+
+export function buildCultureChoiceCloseoutCommand(
+  input: Civ7CultureChoiceCloseoutInput,
+  dependencies: CultureChoiceCloseoutCommandDependencies,
+): string {
+  return `(() => {
+    ${cultureChoiceCloseoutSource()}
+    return JSON.stringify(sendCultureChoiceCloseout(${dependencies.jsLiteral(input)}));
+  })()`;
 }
 
 export function cultureChoiceCloseoutSource(): string {

@@ -565,6 +565,17 @@ All future agent waves must be framed before delegation:
   semantic CLI projection, Effect/oRPC procedure-core work, and Task 2.9.4
   matrix-row acceptance remain pending. This is local package/source relocation
   proof only, not runtime/live-game proof.
+- Direct-control culture choice closeout builder slice: completed as a narrow
+  progression closeout command-builder relocation. It moves only the App UI
+  culture choice closeout command builder into `src/play/progression/culture.ts`
+  while keeping the public facade wrapper in `index.ts`. The facade still owns
+  approval, App UI execution, player-id and node validation, payload parsing,
+  and serialization injection. This preserves optional notification activation,
+  SET_CULTURE_TREE_NODE and SET_CULTURE_TREE_TARGET_NODE send behavior, focused
+  culture package/CLI proof, and existing pending runtime/live-game proof.
+  Telemetry, AI ingestion, semantic CLI projection, Effect/oRPC procedure-core
+  work, and Task 2.9.4 matrix-row acceptance remain pending. This is local
+  package/source relocation proof only, not runtime/live-game proof.
 - Direct-control production-choice source slice: completed as the next
   operation action source relocation. It moves only the embedded production
   choice source into `src/play/operations/production-choice.ts`. The public
