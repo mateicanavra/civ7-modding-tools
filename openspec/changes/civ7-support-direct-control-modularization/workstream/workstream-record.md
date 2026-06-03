@@ -1241,6 +1241,18 @@ All future agent waves must be framed before delegation:
   hotseat runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
   matrix-row acceptance remain pending. This is local type/source relocation
   proof only, not runtime/live-game proof.
+- Direct-control stale facade filesystem import cleanup slice: completed as a
+  narrow import/source ownership cleanup. The current stack had new
+  saved-configuration disk listing/parsing in the facade, so the conflict was
+  resolved by moving `.civ7cfg` list/read/summary parsing and the default save
+  directory into `src/setup/prepare.ts` while keeping facade re-exports and the
+  existing App UI saved-configuration load wrapper stable. The public facade no
+  longer imports `node:fs/promises`, `node:os`, or `node:path` for saved-config
+  listing. Public facade exports remain stable and no runtime behavior changes.
+  Procedure schemas, operation/proof telemetry, AI ingestion, semantic CLI
+  projection, hotseat runtime proof, Effect/oRPC procedure-core work, and Task
+  2.9.4 matrix-row acceptance remain pending. This is local source hygiene
+  proof only, not runtime/live-game proof.
 - Direct-control generic validation primitive slice: completed as a narrow
   primitive/helper ownership relocation. It moves only bounded integer, simple
   identifier, and player-id validation helpers into `src/validation.ts` while
