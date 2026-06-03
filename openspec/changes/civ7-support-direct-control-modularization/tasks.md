@@ -316,6 +316,13 @@ runtime/direct-control claims.
 - [ ] 4.8 Export stable types/constants only after module owners are defined.
   - [x] 4.8.1 Extract ComponentID primitive and direct-control error owner
         modules behind the existing package facade.
+  - [x] 4.8.2 Extract setup/lifecycle command and setup-parameter constants
+        owner while keeping public facade re-exports in `index.ts`, preserving
+        command strings, UI loading-state values, setup parameter IDs, and
+        leaving broader public constants/types, procedure schemas,
+        operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
+        semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
       oRPC implementation; current support branch has no tracked
       `.agents/skills/civ7-orpc-control-architecture` or

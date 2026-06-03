@@ -511,6 +511,17 @@ All future agent waves must be framed before delegation:
   acceptance stay pending. This is local package/constants relocation proof
   only, not runtime proof, runtime reflection authority, AI/hotseat product-path
   support, or procedure-core readiness.
+- Direct-control setup/lifecycle constants slice: completed as a narrow public
+  constants ownership relocation. It moves only setup/lifecycle command strings,
+  UI loading-state values, and setup parameter IDs into
+  `src/setup/constants.ts` while keeping public facade re-exports in `index.ts`.
+  This preserves restart/begin/exit/reload command strings, loading-state
+  numeric values, and setup parameter IDs. Broader public constants/types,
+  procedure schemas, operation/proof telemetry, AI ingestion, hotseat runtime
+  proof, CLI semantic projection, Effect/oRPC procedure-core work, and Task
+  2.9.4 matrix-row acceptance stay pending. This is local package/constants
+  relocation proof only, not runtime proof, AI/hotseat product-path support, or
+  procedure-core readiness.
 - Direct-control turn-completion slice: completed as a narrow turn-completion
   source/wrapper relocation. It moves only `getCiv7TurnCompletionStatus`,
   `sendCiv7TurnComplete`, `sendCiv7TurnUnready`, the status command builder,

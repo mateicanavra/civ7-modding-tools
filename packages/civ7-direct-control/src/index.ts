@@ -64,6 +64,15 @@ import {
   restartCiv7GameAndBegin as restartCiv7GameAndBeginFromModule,
 } from "./setup/restart.js";
 import {
+  CIV7_BEGIN_GAME_COMMAND,
+  CIV7_EXIT_TO_MAIN_MENU_COMMAND,
+  CIV7_RELOAD_UI_COMMAND,
+  CIV7_RESTART_COMMAND,
+  CIV7_UI_LOADING_STATES,
+  DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS,
+  DEFAULT_CIV7_SETUP_PARAMETER_IDS,
+} from "./setup/constants.js";
+import {
   configureCiv7Autoplay as configureCiv7AutoplayFromModule,
   getCiv7AutoplayStatus as getCiv7AutoplayStatusFromModule,
   startCiv7Autoplay as startCiv7AutoplayFromModule,
@@ -163,6 +172,15 @@ export {
   DEFAULT_CIV7_ROOT_MAX_METHODS,
   DEFAULT_CIV7_TUNER_API_ROOTS,
 } from "./runtime/inspection-constants.js";
+export {
+  CIV7_BEGIN_GAME_COMMAND,
+  CIV7_EXIT_TO_MAIN_MENU_COMMAND,
+  CIV7_RELOAD_UI_COMMAND,
+  CIV7_RESTART_COMMAND,
+  CIV7_UI_LOADING_STATES,
+  DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS,
+  DEFAULT_CIV7_SETUP_PARAMETER_IDS,
+} from "./setup/constants.js";
 
 export const DEFAULT_CIV7_TUNER_HOST = "127.0.0.1";
 export const DEFAULT_CIV7_TUNER_PORT = 4318;
@@ -170,23 +188,7 @@ export const DEFAULT_CIV7_TUNER_TIMEOUT_MS = 10_000;
 export const DEFAULT_CIV7_TUNER_STATE_NAME = "App UI";
 export const CIV7_TUNER_APP_UI_STATE_NAME = "App UI";
 export const CIV7_TUNER_STATE_NAME = "Tuner";
-export const CIV7_RESTART_COMMAND = "Network.restartGame()";
-export const CIV7_BEGIN_GAME_COMMAND = "UI.notifyUIReady()";
-export const CIV7_EXIT_TO_MAIN_MENU_COMMAND = 'engine.call("exitToMainMenu")';
-export const CIV7_RELOAD_UI_COMMAND = "UI.reloadUI()";
 export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
-export const CIV7_UI_LOADING_STATES = {
-  NotStarted: 0,
-  WaitingForGameplayData: 1,
-  WaitingForLoadingCurtain: 2,
-  WaitingForConfiguration: 3,
-  WaitingForGameCore: 4,
-  WaitingForVisualization: 5,
-  WaitingForUIReady: 6,
-  WaitingToStart: 7,
-  GameStarted: 8,
-  WaitingForGameUnloadScreenReady: 9,
-} as const;
 export const DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS = [
   "Network",
   "Configuration",
@@ -234,46 +236,6 @@ export const DEFAULT_CIV7_GAMEINFO_TABLES = [
   "PlayerOperations",
   "Maps",
   "MapSizes",
-] as const;
-export const DEFAULT_CIV7_SETUP_PARAMETER_IDS = [
-  "Ruleset",
-  "Age",
-  "Difficulty",
-  "DifficultyIndependentsCombat",
-  "DifficultyCombat",
-  "DifficultyArmyXP",
-  "DifficultyUnitProduction",
-  "DifficultyBuildingProduction",
-  "DifficultyFreeStuff",
-  "DifficultyGold",
-  "DifficultyScience",
-  "DifficultyCulture",
-  "DifficultyHappiness",
-  "DifficultyTechCost",
-  "DifficultyCivicCost",
-  "DifficultyOceanDamage",
-  "AgeLength",
-  "AgeCountdownTimer",
-  "AgeTransitionSetting",
-  "IndependentHostility",
-  "NoCivUnlocks",
-  "Map",
-  "MapSize",
-  "MapRandomSeed",
-  "GameRandomSeed",
-  "GameSpeeds",
-  "StartPosition",
-  "TurnLimit",
-  "MaxTurns",
-  "DisasterIntensity",
-  "Crises",
-  "EnableScoreVictory",
-  "LegacyPaths",
-] as const;
-export const DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS = [
-  "PlayerCivilization",
-  "PlayerLeader",
-  "PlayerDifficulty",
 ] as const;
 export const DEFAULT_CIV7_MAP_GRID_MAX_PLOTS = 512;
 export const HARD_CIV7_MAP_GRID_MAX_PLOTS = 10_000;
