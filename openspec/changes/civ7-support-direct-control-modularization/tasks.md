@@ -878,6 +878,13 @@ runtime/direct-control claims.
         hotseat runtime proof, AI ingestion, CLI semantic projection,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
+  - [x] 4.12.13 Prune the static capability catalog facade call-through by
+        letting the catalog owner use the existing GameInfo table default while
+        keeping public facade exports stable, preserving static catalog entries,
+        runtime catalog dependency injection, official-resource scanner
+        behavior, and leaving telemetry, AI ingestion, CLI semantic projection,
+        hotseat runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready

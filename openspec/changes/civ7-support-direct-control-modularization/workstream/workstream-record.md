@@ -500,6 +500,15 @@ All future agent waves must be framed before delegation:
   procedure-core work, and Task 2.9.4 matrix-row acceptance stay pending. This
   is local package/schema relocation proof only, not runtime proof, AI/hotseat
   product-path support, or procedure-core schema readiness.
+- Direct-control static capability catalog facade cleanup slice: completed as a
+  narrow catalog/facade hygiene pass. It lets `src/catalog/capabilities.ts` use
+  the existing GameInfo table default for static catalog entries and re-exports
+  `createStaticCiv7CapabilityCatalog` directly from `index.ts`. Runtime catalog
+  generation still injects root inspection and root catalogs from the facade,
+  and official-resource scanning remains unchanged. Telemetry, AI ingestion,
+  CLI semantic projection, hotseat runtime proof, Effect/oRPC procedure-core
+  work, and Task 2.9.4 matrix-row acceptance stay pending. This is local
+  package/source cleanup proof only, not runtime/live-game proof.
 - Direct-control runtime inspection constants slice: completed as a narrow
   constants ownership relocation. It moves only the default App UI/Tuner API
   root catalogs and bounded root `maxKeys`/`maxMethods` defaults into
