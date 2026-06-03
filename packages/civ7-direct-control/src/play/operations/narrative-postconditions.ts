@@ -72,7 +72,7 @@ function classifyNarrativeChoicePostcondition(
 function narrativeChoicePostconditionReason(classification: Civ7NarrativeChoicePostconditionClassification): string {
   switch (classification) {
     case "not-sent":
-      return "The narrative choice did not validate, so no operation was sent.";
+      return "The narrative choice was not sent, either because validation failed before send or the App UI closeout reported no send.";
     case "turn-unblocked":
       return "The narrative choice and UI handling left the turn unblocked.";
     case "narrative-blocker-cleared":

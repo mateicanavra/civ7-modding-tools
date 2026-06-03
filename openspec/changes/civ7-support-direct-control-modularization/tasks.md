@@ -151,6 +151,12 @@ runtime/direct-control claims.
         keeping the embedded source and public wrapper in the facade.
   - [x] 4.6.9 Extract diplomacy response wrapper owner while keeping the
         public facade export surface in `index.ts`.
+  - [x] 4.6.10 Extract narrative choice wrapper owner while keeping the
+        public facade export surface and embedded source/build command in
+        `index.ts`.
+  - [ ] 4.6.11 Extract narrative choice embedded source/build command owner
+        after naming the stable operation source module and preserving current
+        panel closeout, validation, and postcondition coverage.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.

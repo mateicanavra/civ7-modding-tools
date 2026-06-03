@@ -389,6 +389,14 @@ All future agent waves must be framed before delegation:
   diplomacy postcondition owner modules. `test/diplomacy-response.test.ts` and
   the focused CLI diplomacy response command suite remain the proof owners. This
   is local package/source relocation proof only, not runtime proof.
+- Direct-control narrative choice wrapper slice: completed as the next
+  operation-wrapper composition relocation. It moves only
+  `requestCiv7NarrativeChoice` orchestration into
+  `src/play/operations/narrative-request.ts` while keeping the public facade
+  export in `index.ts` and preserving the existing embedded narrative closeout
+  source plus narrative postcondition owner modules. `test/narrative-choice.test.ts`
+  and the focused CLI narrative command suite remain the proof owners. This is
+  local package/source relocation proof only, not runtime proof.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now
