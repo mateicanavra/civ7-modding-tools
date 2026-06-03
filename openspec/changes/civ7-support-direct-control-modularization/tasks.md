@@ -772,6 +772,12 @@ runtime/direct-control claims.
         exports and leaving notification behavior, runtime proof, telemetry, AI
         ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.48 Prune stale facade type re-export import for the notification
+        dismissal summary type now exported through a direct
+        `export type ... from` declaration, while preserving public facade
+        exports and leaving notification behavior, runtime proof, telemetry, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.9 Explicitly cite oRPC architecture authority before any oRPC
       implementation. The support branch cites the
       `civ7-orpc-control-architecture` skill from
