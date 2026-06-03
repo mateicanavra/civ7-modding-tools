@@ -35,8 +35,6 @@ import {
   type Civ7CapabilityCatalogEntry,
 } from "./catalog/capabilities.js";
 import {
-  appUiSnapshotFromCommandResult,
-  buildAppUiSnapshotCommand,
   getCiv7AppUiSnapshot as getCiv7AppUiSnapshotFromModule,
 } from "./runtime/app-ui-snapshot.js";
 import { inspectCiv7RuntimeApi as inspectCiv7RuntimeApiFromModule } from "./runtime/inspection.js";
@@ -65,6 +63,11 @@ import {
 } from "./setup/prepare.js";
 import { startPreparedCiv7SinglePlayerGame as startPreparedCiv7SinglePlayerGameFromModule } from "./setup/start.js";
 import { runCiv7SinglePlayerFromSetup as runCiv7SinglePlayerFromSetupFromModule } from "./setup/run.js";
+import {
+  beginCiv7Game as beginCiv7GameFromModule,
+  restartCiv7Game as restartCiv7GameFromModule,
+  restartCiv7GameAndBegin as restartCiv7GameAndBeginFromModule,
+} from "./setup/restart.js";
 import {
   configureCiv7Autoplay as configureCiv7AutoplayFromModule,
   getCiv7AutoplayStatus as getCiv7AutoplayStatusFromModule,
@@ -2399,9 +2402,9 @@ export async function getCiv7AppUiSnapshot(
 }
 
 export async function beginCiv7Game(options: Civ7DirectControlOptions = {}): Promise<Civ7CommandResult> {
-  return await executeCiv7AppUiCommand({
-    ...options,
-    command: CIV7_BEGIN_GAME_COMMAND,
+  return await beginCiv7GameFromModule(options, {
+    beginGameCommand: CIV7_BEGIN_GAME_COMMAND,
+    executeAppUiCommand: executeCiv7AppUiCommand,
   });
 }
 
@@ -2424,19 +2427,10 @@ export async function checkCiv7TunerHealth(
 export async function restartCiv7Game(options: Civ7DirectControlOptions & {
   state?: Civ7TunerStateSelection;
 } = {}): Promise<Civ7CommandResult> {
-  const result = await executeCiv7Command({
-    ...options,
-    state: options.state ?? { role: "app-ui" },
-    command: CIV7_RESTART_COMMAND,
+  return await restartCiv7GameFromModule(options, {
+    executeCommand: executeCiv7Command,
+    restartCommand: CIV7_RESTART_COMMAND,
   });
-  if (result.output[0] !== "true") {
-    throw new Civ7DirectControlError(
-      "command-failed",
-      `Civ7 restart returned: ${result.output.join("\n") || "<empty>"}`,
-      { details: result },
-    );
-  }
-  return result;
 }
 
 export async function restartCiv7GameAndBegin(options: Civ7DirectControlOptions & {
@@ -2444,94 +2438,27 @@ export async function restartCiv7GameAndBegin(options: Civ7DirectControlOptions 
   waitTimeoutMs?: number;
   pollIntervalMs?: number;
 } = {}): Promise<Civ7RestartAndBeginResult> {
-  const waitTimeoutMs = options.waitTimeoutMs ?? options.timeoutMs ?? 120_000;
-  const pollIntervalMs = options.pollIntervalMs ?? 1_000;
-  const session = new Civ7DirectControlSession(options);
-  const observations: Civ7AppUiSnapshot[] = [];
-  try {
-    const restart = await executeSessionCommandWithReconnect(session, {
-      state: { role: "app-ui" },
-      command: CIV7_RESTART_COMMAND,
-      timeoutMs: options.timeoutMs,
-    }, 1);
-    if (restart.output[0] !== "true") {
-      throw new Civ7DirectControlError(
-        "command-failed",
-        `Civ7 restart returned: ${restart.output.join("\n") || "<empty>"}`,
-        { details: restart },
-      );
-    }
-
-    let begin: Civ7CommandResult | undefined;
-    let beginAttempted = false;
-    let beginError: string | undefined;
-    let finalAppUi: Civ7AppUiSnapshotResult | undefined;
-    const startedAt = Date.now();
-    while (Date.now() - startedAt <= waitTimeoutMs) {
+  return await restartCiv7GameAndBeginFromModule(options, {
+    appUiState: { role: "app-ui" },
+    beginGameCommand: CIV7_BEGIN_GAME_COMMAND,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    executeCommand: executeCiv7Command,
+    executeSessionCommandWithReconnect,
+    restartCommand: CIV7_RESTART_COMMAND,
+    uiLoadingStates: CIV7_UI_LOADING_STATES,
+    waitForTunerReadyWithSession: waitForCiv7TunerReadyWithSession,
+    withSession: async <T>(
+      sessionOptions: Civ7DirectControlOptions,
+      run: (session: Civ7DirectControlSession) => Promise<T>,
+    ): Promise<T> => {
+      const session = new Civ7DirectControlSession(sessionOptions);
       try {
-        const snapshotResult = appUiSnapshotFromCommandResult(
-          await executeSessionCommandWithReconnect(session, {
-            state: { role: "app-ui" },
-            command: buildAppUiSnapshotCommand(),
-            timeoutMs: options.timeoutMs,
-          }),
-        );
-        observations.push(snapshotResult.snapshot);
-        const loadingState = probeValue(snapshotResult.snapshot.ui.loadingState);
-        if (!beginAttempted && isCiv7BeginReadyLoadingState(loadingState)) {
-          beginAttempted = true;
-          try {
-            begin = await executeSessionCommandWithReconnect(session, {
-              state: { role: "app-ui" },
-              command: CIV7_BEGIN_GAME_COMMAND,
-              timeoutMs: options.timeoutMs,
-            }, 1);
-          } catch (err) {
-            beginError = errorMessage(err);
-            throw err;
-          }
-        }
-        if (
-          loadingState === CIV7_UI_LOADING_STATES.GameStarted &&
-          snapshotResult.snapshot.ui.inGame.ok &&
-          snapshotResult.snapshot.ui.inGame.value
-        ) {
-          finalAppUi = snapshotResult;
-          break;
-        }
-      } catch (err) {
-        if (beginError) throw err;
+        return await run(session);
+      } finally {
         await session.close();
       }
-      await sleep(pollIntervalMs);
-    }
-
-    if (!finalAppUi) {
-      throw new Civ7DirectControlError(
-        "connection-timeout",
-        `Timed out waiting for Civ7 App UI to reach GameStarted after ${waitTimeoutMs}ms`,
-        { details: { observations, beginAttempted, beginError } },
-      );
-    }
-
-    const tunerHealth = options.waitForTuner
-      ? await waitForCiv7TunerReadyWithSession(session, {
-          timeoutMs: options.timeoutMs,
-          waitTimeoutMs,
-          pollIntervalMs,
-        })
-      : undefined;
-
-    return {
-      restart,
-      begin,
-      finalAppUi,
-      tunerHealth,
-      observations,
-    };
-  } finally {
-    await session.close();
-  }
+    },
+  });
 }
 
 export async function checkCiv7DirectControlHealth(options: Civ7DirectControlOptions & {
@@ -4926,6 +4853,10 @@ function probeValueChanged(left: Civ7RuntimeProbe<unknown> | undefined, right: C
   return stableJson(left.value) !== stableJson(right.value);
 }
 
+function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | undefined {
+  return probe.ok ? probe.value : undefined;
+}
+
 function probeFieldChanged(left: Civ7RuntimeProbe<unknown> | undefined, right: Civ7RuntimeProbe<unknown> | undefined, field: string): boolean {
   if (!left?.ok || !right?.ok) return false;
   if (!isRecord(left.value) || !isRecord(right.value)) return false;
@@ -5052,17 +4983,6 @@ async function executeSessionCommandWithReconnect(
     }
   }
   throw toDirectControlError(lastError, "command-failed");
-}
-
-function isCiv7BeginReadyLoadingState(state: number | undefined): boolean {
-  return (
-    state === CIV7_UI_LOADING_STATES.WaitingForUIReady ||
-    state === CIV7_UI_LOADING_STATES.WaitingToStart
-  );
-}
-
-function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | undefined {
-  return probe.ok ? probe.value : undefined;
 }
 
 function uniqueNonEmpty(values: ReadonlyArray<string | undefined>): string[] {

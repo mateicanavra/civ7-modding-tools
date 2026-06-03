@@ -371,7 +371,7 @@ runtime/direct-control claims.
         shapes, and leaving hotseat runtime proof, AI ingestion, CLI semantic
         projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
-- [ ] 4.14 Extract setup/start lifecycle atoms.
+- [x] 4.14 Extract setup/start lifecycle atoms.
   - [x] 4.14.1 Extract setup snapshot and setup map rows read/source owner while
         keeping public facade exports in `index.ts` and leaving
         `ensureCiv7SetupMapRowVisible`, `prepareCiv7SinglePlayerSetup`,
@@ -413,6 +413,14 @@ runtime/direct-control claims.
         proof, and leaving restart/begin lifecycle orchestration, runtime
         proof, AI ingestion, semantic CLI projection, telemetry, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.14.6 Extract restart/begin lifecycle owner while keeping public facade
+        exports in `index.ts`, preserving App UI restart command routing,
+        restart-output rejection, begin notification command routing,
+        GameStarted polling, one-attempt begin send, optional Tuner readiness
+        wait, and restart lifecycle package proof, and leaving runtime proof,
+        hotseat runtime proof, AI ingestion, semantic CLI projection,
+        telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 
 ## 5. CLI Semantic Surface Lane
 
