@@ -122,22 +122,49 @@ runtime/direct-control claims.
       oRPC implementation; current support branch has no tracked
       `.agents/skills/civ7-orpc-control-architecture` or
       `packages/civ7-control-orpc` source.
+- [ ] 4.10 Classify direct-control service outputs by consumer before command
+      hierarchy rewrites: internal service machinery, debug-only diagnostics,
+      or semantic player-agent output.
 
-## 5. Effect/oRPC Composition Lane
+## 5. CLI Semantic Surface Lane
 
-- [ ] 5.1 Define procedure-core inputs/outputs over direct-control atoms.
-- [ ] 5.2 Add TypeBox schema artifacts where procedure surfaces need them.
-- [ ] 5.3 Add approval gates, context, correlation IDs, and error shaping.
-- [ ] 5.4 Expose transport adapters only after procedure cores are testable.
+- [ ] 5.1 Define normal play-command response envelopes from the perspective of
+      a player agent.
+- [ ] 5.2 Move or reserve transport/session/proof internals for explicit debug
+      commands or debug flags.
+- [ ] 5.3 Add tests that normal play outputs omit internal direct-control
+      plumbing while still preserving actionable state-machine status,
+      blockers, and next steps.
+- [ ] 5.4 Reduce large CLI JSON outputs by projecting direct-control service
+      results into semantic game state, action results, and decision affordances.
 
-## 6. Verification And Closure
+## 6. Effect/Bun And Effect/oRPC Composition Lane
 
-- [ ] 6.1 For every test-only slice, run `git diff --check`, focused suite,
+- [ ] 6.1 Define procedure-core inputs/outputs over direct-control atoms.
+- [ ] 6.2 Add TypeBox schema artifacts where procedure surfaces need them.
+- [ ] 6.3 Add approval gates, context, correlation IDs, and error shaping.
+- [ ] 6.4 Expose transport adapters only after procedure cores are testable.
+- [ ] 6.5 Plan Effect `Scope`/resource acquisition, streams/buffers, schedules,
+      layers, error modeling, and concurrency usage for direct-control atoms,
+      procedure cores, and tests.
+- [ ] 6.6 Prefer Bun-native APIs over Node APIs in new/refactored control code
+      unless Node is the only practical or clearly better implementation.
+- [ ] 6.7 Keep the oclif CLI shell; do not replace it with Effect CLI unless a
+      later accepted command-hierarchy spec explicitly authorizes that change.
+
+## 7. Verification And Closure
+
+- [ ] 7.1 For every test-only slice, run `git diff --check`, focused suite,
       adjacent monolith filter, `bun run check:cli`, `bun run test:cli:play`, and
       ownership scan.
-- [ ] 6.2 For every direct-control source slice, run direct-control
+- [ ] 7.2 For every direct-control source slice, run direct-control
       tests/check/build plus focused CLI consumers.
-- [ ] 6.3 For every runtime-changing slice, attach real-game proof or explicit
+- [ ] 7.3 For every runtime-changing slice, attach real-game proof or explicit
       `pending-runtime-proof`.
-- [ ] 6.4 Run `bun run openspec -- validate civ7-support-direct-control-modularization --strict`.
-- [ ] 6.5 Run final downstream realignment and closure checklist.
+- [ ] 7.4 For every CLI semantic-surface slice, prove normal play output omits
+      internal service plumbing and that intentional diagnostics are reachable
+      only through debug-owned surfaces.
+- [ ] 7.5 For every Effect/Bun source slice, prove resource cleanup, stream/error
+      behavior, and API choice with focused package tests.
+- [ ] 7.6 Run `bun run openspec -- validate civ7-support-direct-control-modularization --strict`.
+- [ ] 7.7 Run final downstream realignment and closure checklist.

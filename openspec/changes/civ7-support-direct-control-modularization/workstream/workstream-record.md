@@ -4,14 +4,17 @@
 
 - Objective: migrate accumulated Civ7 play-support behavior from monolithic CLI
   tests and large direct-control source into focused CLI ownership, stable
-  direct-control atoms, and later Effect/oRPC composition over those atoms.
+  direct-control atoms, semantic CLI player-agent envelopes, and later
+  Effect/oRPC composition over those atoms.
 - Hard core: player-unblocking authority remains available; proof boundaries
   stay honest; relationship/suzerain labels require official evidence.
 - Exterior: no play-thread wakeups while gameplay is parked; no runtime proof
-  claims from local tests; no transport-first oRPC; no generated-output edits.
+  claims from local tests; no transport-first oRPC; no normal play-command dumps
+  of internal service JSON; no generated-output edits.
 - Falsifier: implementation starts without corpus/task ownership; dirty user
   notes are committed or lost; monolith coverage is duplicated; direct-control
-  behavior changes without focused tests/proof; relationship labels outrun
+  behavior changes without focused tests/proof; CLI hierarchy rewrites expose
+  transport/proof internals as normal play output; relationship labels outrun
   official evidence.
 
 ## Current State
@@ -87,6 +90,30 @@ Graphite; no lane may restack, submit, or mutate unrelated stacks. `package.json
 play-script wiring and `packages/cli/test/commands/game.play.test.ts` are
 single-owner files for each active slice.
 
+## Service And CLI Surface Rule
+
+`@civ7/direct-control` is the internal control service for CLI, Studio, and
+future oRPC procedure cores. It may carry rich structured data for connection
+state, route selection, validation, postcondition closeout, proof artifacts,
+correlation, and transport diagnostics.
+
+The normal CLI play hierarchy is a semantic local API/view for player agents.
+It should project service results into game-relevant state, blockers, decisions,
+safe/unsafe actions, and next steps. It should not return the full internal
+service JSON payload unless the command or flag is explicitly debug-owned.
+Connection and transport state should appear as useful state-machine status, not
+as raw plumbing detail.
+
+## Effect/Bun Integration Rule
+
+Effect is a core implementation direction for new/refactored direct-control
+logic, procedure cores, and relevant tests. Future source lanes should plan
+resource acquisition/release, sockets, buffers, streams, schedules, errors,
+layers, and concurrency around Effect affordances where they fit. Bun-native
+APIs should be preferred over Node APIs in new/refactored control code except
+where Node is the only practical or clearly superior implementation. This does
+not replace the existing oclif CLI shell with Effect CLI.
+
 ## Agent Framing Protocol
 
 All future agent waves must be framed before delegation:
@@ -130,6 +157,10 @@ All future agent waves must be framed before delegation:
   boundaries, package-test gaps, and missing public-surface rows; source edits
   remain blocked until the target slice adds package-owned tests/API-shape
   coverage and names proof class.
+- CLI semantic surface and Effect/Bun integration guidance: recorded as
+  planning gates. They must be converted into dedicated framed agent lanes
+  before command hierarchy changes, oRPC procedure work, or Effect-dependent
+  source rewrites begin.
 - Direct-control public API/primitives test slice: completed as test-only package
   ownership extraction with a boundary-clean parallel net-new test candidate,
   DRA-owned broad-suite removal, local package proof, and no runtime/source
@@ -191,4 +222,5 @@ All future agent waves must be framed before delegation:
 - oRPC/Effect lane: planning-only in this support branch. Current tracked files
   do not include `.agents/skills/civ7-orpc-control-architecture` or
   `packages/civ7-control-orpc`; later work must import or explicitly cite the
-  oRPC authority branch before implementation.
+  oRPC authority branch before implementation and must include the CLI semantic
+  surface and Effect/Bun planning phases before changing hierarchy/source shape.

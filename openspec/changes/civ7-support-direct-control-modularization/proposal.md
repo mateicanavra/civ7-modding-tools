@@ -11,7 +11,9 @@ The intended order is deliberate:
 1. modularize CLI play command tests and ownership;
 2. extract stable direct-control atoms and public types/constants behind package
    boundaries;
-3. compose those atoms through Effect/oRPC only after the package boundaries are
+3. plan the CLI command hierarchy as a semantic player-agent surface over the
+   internal direct-control service, not as a dump of internal service JSON;
+4. compose those atoms through Effect/oRPC only after the package boundaries are
    real.
 
 This change replaces one-off extraction cadence with a systematic OpenSpec
@@ -49,6 +51,16 @@ workstream and parallel lanes.
   are stable enough to prove behavior did not change.
 - Treat Effect/oRPC as a later composition lane over direct-control procedure
   cores, not as a transport-first rewrite.
+- Add a dedicated Effect/Bun integration planning phase before source rewrites
+  depend on it: new/refactored control logic should prefer Effect resource,
+  stream, concurrency, error, and layer affordances plus Bun-native APIs over
+  Node APIs except where Node is the only practical or clearly better
+  implementation.
+- Treat the CLI play hierarchy as a local API/view layer for player agents:
+  game-play commands expose semantic game state, decisions, and next actions,
+  while transport/session verification, closeout internals, correlation
+  machinery, and raw service diagnostics stay inside `@civ7/direct-control` or
+  an explicit debugging command hierarchy.
 
 ## Existing Completed Slices
 
@@ -111,6 +123,10 @@ lane, not proof that the full change is complete:
 - CLI or Studio socket/session ownership that belongs in `@civ7/direct-control`.
 - Broad barrels, `shared` buckets, or fixture catalogs without named owners.
 - Effect/oRPC transport surfaces that bypass direct-control procedure cores.
+- CLI play surfaces that expose internal direct-control transport/proof JSON
+  instead of a semantic player-agent envelope.
+- Node APIs in new/refactored control code when Effect or Bun provides the
+  needed primitive with equivalent or better fit.
 - Relationship, enemy, hostile, opponent, war, ally, or suzerain labels without
   official relationship/team/war/suzerain evidence.
 - Generated artifacts, logs, deployed Mods folders, or official resource outputs
@@ -132,8 +148,9 @@ lane, not proof that the full change is complete:
 
 Reviewers get smaller, owner-aligned Graphite layers. Future support agents get
 stable direct-control atoms and focused tests instead of relying on a monolith
-or ad hoc live-play fixes. Effect/oRPC work gets a composable server-side core
-rather than raw command tunneling.
+or ad hoc live-play fixes. CLI play callers get smaller semantic envelopes
+instead of transport-heavy JSON. Effect/oRPC work gets a composable server-side
+core rather than raw command tunneling.
 
 ## Verification Gates
 
