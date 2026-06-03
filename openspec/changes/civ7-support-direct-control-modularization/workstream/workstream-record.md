@@ -98,6 +98,11 @@ All future agent waves must be framed before delegation:
   send the new framed instruction.
 - State whether the agent is report-only or may mutate files. Mutating agents
   need disjoint write sets and explicit Graphite constraints.
+- For core operation/control investigations, tell agents to consult synced
+  official Civ7 resources, relevant live-play topic docs, and read-only runtime
+  `GameInfo`/CLI checks when those sources can reveal a better native path. Only
+  prefer a different path when behavior clearly matches or component parts are
+  compatible; otherwise preserve current behavior and record uncertainty.
 
 ## Gate State
 
@@ -136,6 +141,10 @@ All future agent waves must be framed before delegation:
   DRA-owned test-only package ownership extraction because background thread
   creation was unavailable; local fake fixtures stayed in focused files, broad
   suite duplicates were removed, and no runtime/source behavior claim is made.
+- Direct-control unit-target and chooser-closeout test slice: completed as
+  test-only package ownership extraction with two parallel net-new agents,
+  DRA-owned broad-suite removal, official-resource/doc checks for native path
+  fit, local package proof, and no runtime/source behavior claim.
 - Review-disposition ledger: agent/reviewer findings recorded.
 - Exact dismiss-notification CLI slice: completed as test-only extraction with
   local fixture ownership and no runtime claim.

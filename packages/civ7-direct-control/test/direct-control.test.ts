@@ -24,9 +24,6 @@ import {
   getCiv7ResourcePlacementFeasibility,
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
-  getCiv7UnitTargetAction,
-  getCiv7ReadyUnitView,
-  getCiv7ReadyCityView,
   getCiv7VisibilitySummary,
   getCiv7AppUiSnapshot,
   inspectCiv7RuntimeApi,
@@ -34,10 +31,7 @@ import {
   loadCiv7SavedGameConfiguration,
   prepareCiv7SinglePlayerSetup,
   planCiv7MapGridReadBounds,
-  requestCiv7CultureChoiceCloseout,
-  requestCiv7TechnologyChoiceCloseout,
   queryCiv7TunerStates,
-  requestCiv7UnitTargetAction,
   revealCiv7MapForPlayer,
   runCiv7SinglePlayerFromSetup,
   startPreparedCiv7SinglePlayerGame,
@@ -206,132 +200,6 @@ describe("Civ7 direct control", () => {
     }
   });
 
-  test("reports culture App UI closeout sends without direct verification", async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      const request = await requestCiv7CultureChoiceCloseout(
-        {
-          playerId: 0,
-          node: -1404789184,
-          notificationId: { owner: 0, id: 62, type: 20 },
-        },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test culture App UI closeout" },
-      );
-
-      expect(request.sent).toBe(true);
-      expect(request).not.toHaveProperty("verified");
-      expect(request.payload).toMatchObject({
-        notificationId: { owner: 0, id: 62, type: 20 },
-        canChoose: { ok: true, value: { Success: true } },
-        chooseResult: { ok: true, value: true },
-        canClearTarget: { ok: true, value: { Success: true } },
-        clearTargetResult: { ok: true, value: true },
-        sent: true,
-      });
-      const command = server.received.find((message) => message.includes("sendCultureChoiceCloseout")) ?? "";
-      expect(command).toContain("Game.Notifications.activate");
-      expect(command).toContain("SET_CULTURE_TREE_NODE");
-      expect(command).toContain("SET_CULTURE_TREE_TARGET_NODE");
-    } finally {
-      await server.close();
-    }
-  });
-
-  test("reports technology App UI closeout sends without direct verification", async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      const request = await requestCiv7TechnologyChoiceCloseout(
-        {
-          playerId: 0,
-          node: -1255676052,
-          notificationId: { owner: 0, id: 52, type: 20 },
-        },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test technology App UI closeout" },
-      );
-
-      expect(request.sent).toBe(true);
-      expect(request).not.toHaveProperty("verified");
-      expect(request.payload).toMatchObject({
-        notificationId: { owner: 0, id: 52, type: 20 },
-        canChoose: { ok: true, value: { Success: true } },
-        chooseResult: { ok: true, value: true },
-        canClearTarget: { ok: true, value: { Success: true } },
-        clearTargetResult: { ok: true, value: true },
-        sent: true,
-      });
-      const command = server.received.find((message) => message.includes("sendTechnologyChoiceCloseout")) ?? "";
-      expect(command).toContain("Game.Notifications.activate");
-      expect(command).toContain("SET_TECH_TREE_NODE");
-      expect(command).toContain("SET_TECH_TREE_TARGET_NODE");
-    } finally {
-      await server.close();
-    }
-  });
-
-  test("plans and sends unit target actions through official target order", async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      const unitId = { owner: 0, id: 65536, type: 26 };
-      const plan = await getCiv7UnitTargetAction(
-        { unitId, x: 23, y: 33 },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-      );
-      const request = await requestCiv7UnitTargetAction(
-        { unitId, x: 23, y: 33 },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test unit target action" },
-      );
-
-      expect(plan).toMatchObject({
-        unitId,
-        target: { x: 23, y: 33 },
-        selected: {
-          family: "unit-operation",
-          operationType: "UNITOPERATION_RANGE_ATTACK",
-        },
-        sent: false,
-      });
-      expect(request.sent).toBe(true);
-      expect(request.verified).toBe(true);
-      expect(server.received.filter((message) => message.includes("readUnitTargetAction"))).toHaveLength(2);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test("reports sent unit target no-ops as unverified postcondition misses", async () => {
-    const server = await startTunerServer({ unitTargetMode: "no-op-after-send" });
-    try {
-      const { port } = server.address();
-      const unitId = { owner: 0, id: 65536, type: 26 };
-      const request = await requestCiv7UnitTargetAction(
-        { unitId, x: 23, y: 33 },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test no-op unit target action" },
-      );
-
-      expect(request.selected).toMatchObject({
-        family: "unit-operation",
-        operationType: "UNITOPERATION_NAVAL_ATTACK",
-      });
-      expect(request.sent).toBe(true);
-      expect(request.verified).toBe(false);
-      expect(request.verification).toMatchObject({
-        status: "no-state-change",
-        unitChanged: false,
-        targetUnitsChanged: false,
-      });
-      expect(request.verification?.reason).toMatch(/re-read .* before repeating/);
-    } finally {
-      await server.close();
-    }
-  });
-
   test("classifies shell App UI health when gameplay globals are unavailable", async () => {
     const server = await startTunerServer({
       appUiOnlyStates: true,
@@ -439,7 +307,7 @@ describe("Civ7 direct control", () => {
           fields: ["terrain"],
           maxPlots: 1,
         },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(grid.plotCount).toBe(100_000_000);
@@ -663,23 +531,26 @@ describe("Civ7 direct control", () => {
     const server = await startTunerServer();
     try {
       const { port } = server.address();
-      const visibility = await getCiv7VisibilitySummary({
-        playerId: 0,
-        bounds: { x: 0, y: 0, width: 2, height: 1 },
-        includeGrid: true,
-      }, {
-        host: "127.0.0.1",
-        port,
-        timeoutMs: 1_000,
-      });
+      const visibility = await getCiv7VisibilitySummary(
+        {
+          playerId: 0,
+          bounds: { x: 0, y: 0, width: 2, height: 1 },
+          includeGrid: true,
+        },
+        {
+          host: "127.0.0.1",
+          port,
+          timeoutMs: 1_000,
+        }
+      );
       const reveal = await revealCiv7MapForPlayer(
         { playerId: 0 },
         { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, disposableSession: true, reason: "test disposable reveal proof" },
+        { approved: true, disposableSession: true, reason: "test disposable reveal proof" }
       );
       const resources = await getCiv7GameInfoRows(
         { table: "Resources", limit: 2 },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(visibility.numPlotsRevealed).toEqual({ ok: true, value: 10 });
@@ -687,7 +558,10 @@ describe("Civ7 direct control", () => {
       expect(reveal.classification).toBe("revealed");
       expect(resources.rows).toEqual([{ ResourceType: "RESOURCE_COTTON" }]);
       await expect(
-        getCiv7GameInfoRows({ table: "Resources;DROP" }, { host: "127.0.0.1", port, timeoutMs: 1_000 }),
+        getCiv7GameInfoRows(
+          { table: "Resources;DROP" },
+          { host: "127.0.0.1", port, timeoutMs: 1_000 }
+        )
       ).rejects.toMatchObject({ code: "command-failed" });
     } finally {
       await server.close();
@@ -705,7 +579,7 @@ describe("Civ7 direct control", () => {
       });
       const rows = await getCiv7SetupMapRows(
         { file: "{swooper-maps}/maps/swooper-earthlike.js" },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
+        { host: "127.0.0.1", port, timeoutMs: 1_000 }
       );
 
       expect(snapshot.snapshot.phase).toBe("shell");
@@ -849,21 +723,29 @@ describe("Civ7 direct control", () => {
       const prepare = await prepareCiv7SinglePlayerSetup(
         expected,
         { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test setup preparation" },
+        { approved: true, reason: "test setup preparation" }
       );
       const start = await startPreparedCiv7SinglePlayerGame(
         { expected, waitForTuner: true, waitTimeoutMs: 5_000, pollIntervalMs: 10 },
         { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test prepared start" },
+        { approved: true, reason: "test prepared start" }
       );
 
       expect(prepare.verified).toBe(true);
       expect(start.verified).toBe(true);
       expect(start.mapSummary?.map.randomSeed).toEqual({ ok: true, value: 222 });
-      expect(server.received.some((message) => message.includes("Configuration.editMap()"))).toBe(true);
-      expect(server.received.some((message) => message.includes('setSetupParameter("Map"'))).toBe(true);
-      expect(server.received.some((message) => message.includes('setSetupParameter("MapSize"'))).toBe(true);
-      expect(server.received.some((message) => message.includes('setSetupParameter("MapRandomSeed"'))).toBe(true);
+      expect(server.received.some((message) => message.includes("Configuration.editMap()"))).toBe(
+        true
+      );
+      expect(server.received.some((message) => message.includes('setSetupParameter("Map"'))).toBe(
+        true
+      );
+      expect(
+        server.received.some((message) => message.includes('setSetupParameter("MapSize"'))
+      ).toBe(true);
+      expect(
+        server.received.some((message) => message.includes('setSetupParameter("MapRandomSeed"'))
+      ).toBe(true);
       expect(server.received.some((message) => message.includes("Network.hostGame"))).toBe(true);
     } finally {
       await server.close();
@@ -926,7 +808,7 @@ describe("Civ7 direct control", () => {
           pollIntervalMs: 10,
         },
         { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test setup row reload", disposableSession: true },
+        { approved: true, reason: "test setup row reload", disposableSession: true }
       );
 
       expect(result.initial.rows).toHaveLength(0);
@@ -964,7 +846,7 @@ describe("Civ7 direct control", () => {
           pollIntervalMs: 10,
         },
         { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test run in game orchestration" },
+        { approved: true, reason: "test run in game orchestration" }
       );
 
       expect(result.verified).toBe(true);
@@ -987,10 +869,12 @@ describe("Civ7 direct control", () => {
             seed: 444,
           },
           { host: "127.0.0.1", port, timeoutMs: 1_000 },
-          { approved: true, reason: "test no replay on setup mutation" },
-        ),
+          { approved: true, reason: "test no replay on setup mutation" }
+        )
       ).rejects.toMatchObject({ code: "socket-closed" });
-      expect(server.received.filter((message) => message.includes("editMap.setScript")).length).toBe(1);
+      expect(
+        server.received.filter((message) => message.includes("editMap.setScript")).length
+      ).toBe(1);
     } finally {
       await server.close();
     }
@@ -1008,14 +892,14 @@ describe("Civ7 direct control", () => {
       await prepareCiv7SinglePlayerSetup(
         expected,
         { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test setup preparation before mismatch" },
+        { approved: true, reason: "test setup preparation before mismatch" }
       );
       await expect(
         startPreparedCiv7SinglePlayerGame(
           { expected, waitForTuner: true, waitTimeoutMs: 5_000, pollIntervalMs: 10 },
           { host: "127.0.0.1", port, timeoutMs: 1_000 },
-          { approved: true, reason: "test seed mismatch" },
-        ),
+          { approved: true, reason: "test seed mismatch" }
+        )
       ).rejects.toMatchObject({ code: "setup-seed-mismatch" });
     } finally {
       await server.close();
@@ -1034,41 +918,51 @@ describe("Civ7 direct control", () => {
       await prepareCiv7SinglePlayerSetup(
         expected,
         { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test setup preparation before begin failure" },
+        { approved: true, reason: "test setup preparation before begin failure" }
       );
       await expect(
         startPreparedCiv7SinglePlayerGame(
           { expected, waitForTuner: true, waitTimeoutMs: 1_500, pollIntervalMs: 10 },
           { host: "127.0.0.1", port, timeoutMs: 500 },
-          { approved: true, reason: "test begin failure no replay" },
-        ),
+          { approved: true, reason: "test begin failure no replay" }
+        )
       ).rejects.toMatchObject({ code: "socket-closed" });
-      expect(server.received.filter((message) => message === "CMD:65535:UI.notifyUIReady()")).toHaveLength(1);
+      expect(
+        server.received.filter((message) => message === "CMD:65535:UI.notifyUIReady()")
+      ).toHaveLength(1);
     } finally {
       await server.close();
     }
   });
 
   test("requires approval for autoplay configure but allows explicit unbounded start", async () => {
-    await expect(
-      configureCiv7Autoplay({ turns: 1 }, undefined as never),
-    ).rejects.toMatchObject({ code: "command-failed" });
+    await expect(configureCiv7Autoplay({ turns: 1 }, undefined as never)).rejects.toMatchObject({
+      code: "command-failed",
+    });
 
     const server = await startTunerServer();
     try {
       const { port } = server.address();
       const result = await startCiv7Autoplay(
         { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test explicit unbounded start" },
+        { approved: true, reason: "test explicit unbounded start" }
       );
 
       expect(result.verified).toBe(true);
       expect(result.commands[0]?.output[0]).toContain('"isActive":true');
       expect(server.received).toContain("LSQ:");
-      expect(server.received.some((message) => message.includes("Autoplay.setReturnAsPlayer(0)"))).toBe(true);
-      expect(server.received.some((message) => message.includes("Autoplay.setObserveAsPlayer(0)"))).toBe(true);
-      expect(server.received.some((message) => message.includes("Autoplay.setPause(false)"))).toBe(true);
-      expect(server.received.some((message) => message.includes("Autoplay.setActive(true)"))).toBe(true);
+      expect(
+        server.received.some((message) => message.includes("Autoplay.setReturnAsPlayer(0)"))
+      ).toBe(true);
+      expect(
+        server.received.some((message) => message.includes("Autoplay.setObserveAsPlayer(0)"))
+      ).toBe(true);
+      expect(server.received.some((message) => message.includes("Autoplay.setPause(false)"))).toBe(
+        true
+      );
+      expect(server.received.some((message) => message.includes("Autoplay.setActive(true)"))).toBe(
+        true
+      );
     } finally {
       await server.close();
     }
@@ -1080,18 +974,20 @@ describe("Civ7 direct control", () => {
       const { port } = server.address();
       await startCiv7Autoplay(
         { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test autoplay stop setup" },
+        { approved: true, reason: "test autoplay stop setup" }
       );
       const result = await stopCiv7Autoplay(
         { host: "127.0.0.1", port, timeoutMs: 1_000, pollIntervalMs: 5, stabilityWindowMs: 5 },
-        { approved: true, reason: "test autoplay stop" },
+        { approved: true, reason: "test autoplay stop" }
       );
 
       expect(result.verified).toBe(true);
       expect(result.commands[0]?.output[0]).toContain('"isActive":true');
       expect(result.after.autoplay.isActive).toBe(false);
       expect(result.after.autoplay.isPaused).toBe(true);
-      expect(server.received.some((message) => message.includes("Autoplay.setPause(true)"))).toBe(true);
+      expect(server.received.some((message) => message.includes("Autoplay.setPause(true)"))).toBe(
+        true
+      );
     } finally {
       await server.close();
     }
@@ -1131,7 +1027,7 @@ describe("Civ7 direct control", () => {
           host: "127.0.0.1",
           port,
           timeoutMs: 1_000,
-        }),
+        })
       ).rejects.toBeInstanceOf(Civ7DirectControlError);
     } finally {
       await server.close();
@@ -1365,7 +1261,12 @@ async function startTunerServer(options: {
         buffer = buffer.subarray(frame.bytesRead);
         received.push(frame.message);
         if (frame.message === "LSQ:") {
-          socket.write(encodeResponse(frame.listenerId, options.appUiOnlyStates ? ["65535", "App UI"] : ["65535", "App UI", "1", "Tuner"]));
+          socket.write(
+            encodeResponse(
+              frame.listenerId,
+              options.appUiOnlyStates ? ["65535", "App UI"] : ["65535", "App UI", "1", "Tuner"]
+            )
+          );
         } else if (frame.message === `CMD:65535:${CIV7_RESTART_COMMAND}`) {
           loadingState = 6;
           inShell = false;
@@ -1402,8 +1303,14 @@ async function startTunerServer(options: {
             continue;
           }
           setupMapScript = "{swooper-maps}/maps/swooper-earthlike.js";
-          setupMapSize = frame.message.includes('"mapSize":"MAPSIZE_SMALL"') ? "MAPSIZE_SMALL" : "MAPSIZE_STANDARD";
-          setupMapSeed = frame.message.includes('"seed":333') ? 333 : frame.message.includes('"seed":444') ? 444 : 222;
+          setupMapSize = frame.message.includes('"mapSize":"MAPSIZE_SMALL"')
+            ? "MAPSIZE_SMALL"
+            : "MAPSIZE_STANDARD";
+          setupMapSeed = frame.message.includes('"seed":333')
+            ? 333
+            : frame.message.includes('"seed":444')
+              ? 444
+              : 222;
           setupGameSeed = frame.message.includes('"gameSeed":223') ? 223 : setupGameSeed;
           setupDifficulty = frame.message.includes('"Difficulty":"DIFFICULTY_CUSTOM"') ? "DIFFICULTY_CUSTOM" : setupDifficulty;
           setupLeader = frame.message.includes('"PlayerLeader":"LEADER_ASHOKA"') ? "LEADER_ASHOKA" : setupLeader;
@@ -1426,19 +1333,23 @@ async function startTunerServer(options: {
                   ...(setupPlayerDifficulty === "DIFFICULTY_CUSTOM" ? { "Player:0:PlayerDifficulty": setupPlayerDifficulty } : {}),
                 },
               }),
-            ]),
+            ])
           );
         } else if (frame.message.includes("Network.hostGame")) {
           inShell = false;
           loadingState = 6;
           socket.write(encodeResponse(frame.listenerId, ['{"ok":true,"serverType":0}']));
         } else if (frame.message.includes("const rows = readSetupMapRows")) {
-          const requestedFile = frame.message.includes('"file":"{swooper-maps}/maps/studio-current.js"')
+          const requestedFile = frame.message.includes(
+            '"file":"{swooper-maps}/maps/studio-current.js"'
+          )
             ? "{swooper-maps}/maps/studio-current.js"
             : frame.message.includes('"file":"{swooper-maps}/maps/swooper-earthlike.js"')
               ? "{swooper-maps}/maps/swooper-earthlike.js"
               : undefined;
-          const rows = setupSnapshot().mapRows.filter((row) => !requestedFile || row.file === requestedFile);
+          const rows = setupSnapshot().mapRows.filter(
+            (row) => !requestedFile || row.file === requestedFile
+          );
           socket.write(
             encodeResponse(frame.listenerId, [
               JSON.stringify({
@@ -1446,24 +1357,26 @@ async function startTunerServer(options: {
                 limit: 100,
                 matchedFile: requestedFile,
               }),
-            ]),
+            ])
           );
         } else if (frame.message.includes("readSetupSnapshot")) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify({ snapshot: setupSnapshot() })]));
+          socket.write(
+            encodeResponse(frame.listenerId, [JSON.stringify({ snapshot: setupSnapshot() })])
+          );
         } else if (frame.message.includes("Autoplay.setActive(true)")) {
           autoplayActive = true;
           autoplayPaused = frame.message.includes("Autoplay.setPause(true)");
-          socket.write(encodeResponse(frame.listenerId, ['{"ok":true,"isActive":true,"turns":-1}']));
+          socket.write(
+            encodeResponse(frame.listenerId, ['{"ok":true,"isActive":true,"turns":-1}'])
+          );
         } else if (frame.message.includes("Autoplay.setActive(false)")) {
           autoplayStopPendingReads = 1;
           autoplayPaused = true;
-          socket.write(encodeResponse(frame.listenerId, ['{"ok":true,"isActive":true,"turns":-1,"isPaused":true,"isPausedOrPending":true}']));
-        } else if (frame.message.includes("readUnitTargetAction")) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(unitTargetAction(frame.message.includes('"send":true'), options.unitTargetMode))]));
-        } else if (frame.message.includes("sendTechnologyChoiceCloseout")) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(technologyChoiceCloseout())]));
-        } else if (frame.message.includes("sendCultureChoiceCloseout")) {
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(cultureChoiceCloseout())]));
+          socket.write(
+            encodeResponse(frame.listenerId, [
+              '{"ok":true,"isActive":true,"turns":-1,"isPaused":true,"isPausedOrPending":true}',
+            ])
+          );
         } else if (frame.message.includes("Network.isInSession")) {
           const snapshotAutoplayActive = autoplayStopPendingReads > 0 ? true : autoplayActive;
           const snapshotAutoplayPaused = autoplayStopPendingReads > 0 ? true : autoplayPaused;
@@ -1475,116 +1388,139 @@ async function startTunerServer(options: {
           }
           socket.write(
             encodeResponse(frame.listenerId, [
-              JSON.stringify(options.appUiSnapshotWithoutGameplayGlobals
-                ? {
-                    network: {
-                      isInSession: { ok: true, value: false },
-                      numPlayers: { ok: true, value: 0 },
-                      hostPlayerId: { ok: true, value: -1 },
-                      isConnectedToNetwork: { ok: true, value: true },
-                      isAuthenticated: { ok: true, value: false },
-                      isLoggedIn: { ok: true, value: true },
-                    },
-                    autoplay: {
-                      isActive: false,
-                      turns: 0,
-                      isPaused: false,
-                      isPausedOrPending: false,
-                      observeAsPlayer: -1,
-                      returnAsPlayer: -1,
-                    },
-                    game: {
-                      turn: -1,
-                      age: -1,
-                      maxTurns: 0,
-                      turnDate: { ok: false, error: "ReferenceError: Game is not defined" },
-                      hash: { ok: false, error: "ReferenceError: Game is not defined" },
-                    },
-                    ui: {
-                      inGame: { ok: true, value: false },
-                      inShell: { ok: true, value: true },
-                      inLoading: { ok: true, value: false },
-                      loadingState: { ok: true, value: 8 },
-                      loadingStateName: "GameStarted",
-                      canBeginGame: { ok: true, value: false },
-                      canNotifyUIReady: "function",
-                      skipStartButton: { ok: true, value: false },
-                      automationActive: { ok: true, value: false },
-                    },
-                    gameContext: {
-                      localPlayerID: -1,
-                      localObserverID: -1,
-                      hasRequestedPause: { ok: false, error: "ReferenceError: GameContext is not defined" },
-                    },
-                    players: {
-                      maxPlayers: 0,
-                      aliveIds: { ok: false, error: "ReferenceError: Players is not defined" },
-                      aliveHumanIds: { ok: false, error: "ReferenceError: Players is not defined" },
-                      numAliveHumans: { ok: false, error: "ReferenceError: Players is not defined" },
-                    },
-                    map: {
-                      width: { ok: false, error: "ReferenceError: GameplayMap is not defined" },
-                      height: { ok: false, error: "ReferenceError: GameplayMap is not defined" },
-                      plotCount: { ok: false, error: "ReferenceError: GameplayMap is not defined" },
-                      mapSize: { ok: false, error: "ReferenceError: GameplayMap is not defined" },
-                      randomSeed: { ok: false, error: "ReferenceError: GameplayMap is not defined" },
-                    },
-                  }
-                : {
-                network: {
-                  isInSession: { ok: true, value: true },
-                  numPlayers: { ok: true, value: 1 },
-                  hostPlayerId: { ok: true, value: 0 },
-                  isConnectedToNetwork: { ok: true, value: true },
-                  isAuthenticated: { ok: true, value: false },
-                  isLoggedIn: { ok: true, value: true },
-                },
-                autoplay: {
-                  isActive: snapshotAutoplayActive,
-                  turns: -1,
-                  isPaused: snapshotAutoplayPaused,
-                  isPausedOrPending: snapshotAutoplayPaused,
-                  observeAsPlayer: -1,
-                  returnAsPlayer: -1,
-                },
-                game: {
-                  turn: 1,
-                  age: 0,
-                  maxTurns: 0,
-                  turnDate: { ok: true, value: "4000 BCE" },
-                  hash: { ok: true, value: 0 },
-                },
-                ui: {
-                  inGame: { ok: true, value: !inShell },
-                  inShell: { ok: true, value: inShell },
-                  inLoading: { ok: true, value: loadingState !== 8 && !inShell },
-                  loadingState: { ok: true, value: loadingState },
-                  loadingStateName: loadingState === 8 ? "GameStarted" : "WaitingForUIReady",
-                  canBeginGame: { ok: true, value: loadingState === 6 && !inShell },
-                  canNotifyUIReady: "function",
-                  skipStartButton: { ok: true, value: false },
-                  automationActive: { ok: true, value: false },
-                },
-                gameContext: {
-                  localPlayerID: 0,
-                  localObserverID: 0,
-                  hasRequestedPause: { ok: true, value: false },
-                },
-                players: {
-                  maxPlayers: 64,
-                  aliveIds: { ok: true, value: [0] },
-                  aliveHumanIds: { ok: true, value: [0] },
-                  numAliveHumans: { ok: true, value: 1 },
-                },
-                map: {
-                  width: { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 70 : 84 },
-                  height: { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 44 : 54 },
-                  plotCount: { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 3080 : 4536 },
-                  mapSize: { ok: true, value: 0 },
-                  randomSeed: { ok: true, value: options.postStartSeedOverride ?? setupMapSeed },
-                },
-              }),
-            ]),
+              JSON.stringify(
+                options.appUiSnapshotWithoutGameplayGlobals
+                  ? {
+                      network: {
+                        isInSession: { ok: true, value: false },
+                        numPlayers: { ok: true, value: 0 },
+                        hostPlayerId: { ok: true, value: -1 },
+                        isConnectedToNetwork: { ok: true, value: true },
+                        isAuthenticated: { ok: true, value: false },
+                        isLoggedIn: { ok: true, value: true },
+                      },
+                      autoplay: {
+                        isActive: false,
+                        turns: 0,
+                        isPaused: false,
+                        isPausedOrPending: false,
+                        observeAsPlayer: -1,
+                        returnAsPlayer: -1,
+                      },
+                      game: {
+                        turn: -1,
+                        age: -1,
+                        maxTurns: 0,
+                        turnDate: { ok: false, error: "ReferenceError: Game is not defined" },
+                        hash: { ok: false, error: "ReferenceError: Game is not defined" },
+                      },
+                      ui: {
+                        inGame: { ok: true, value: false },
+                        inShell: { ok: true, value: true },
+                        inLoading: { ok: true, value: false },
+                        loadingState: { ok: true, value: 8 },
+                        loadingStateName: "GameStarted",
+                        canBeginGame: { ok: true, value: false },
+                        canNotifyUIReady: "function",
+                        skipStartButton: { ok: true, value: false },
+                        automationActive: { ok: true, value: false },
+                      },
+                      gameContext: {
+                        localPlayerID: -1,
+                        localObserverID: -1,
+                        hasRequestedPause: {
+                          ok: false,
+                          error: "ReferenceError: GameContext is not defined",
+                        },
+                      },
+                      players: {
+                        maxPlayers: 0,
+                        aliveIds: { ok: false, error: "ReferenceError: Players is not defined" },
+                        aliveHumanIds: {
+                          ok: false,
+                          error: "ReferenceError: Players is not defined",
+                        },
+                        numAliveHumans: {
+                          ok: false,
+                          error: "ReferenceError: Players is not defined",
+                        },
+                      },
+                      map: {
+                        width: { ok: false, error: "ReferenceError: GameplayMap is not defined" },
+                        height: { ok: false, error: "ReferenceError: GameplayMap is not defined" },
+                        plotCount: {
+                          ok: false,
+                          error: "ReferenceError: GameplayMap is not defined",
+                        },
+                        mapSize: { ok: false, error: "ReferenceError: GameplayMap is not defined" },
+                        randomSeed: {
+                          ok: false,
+                          error: "ReferenceError: GameplayMap is not defined",
+                        },
+                      },
+                    }
+                  : {
+                      network: {
+                        isInSession: { ok: true, value: true },
+                        numPlayers: { ok: true, value: 1 },
+                        hostPlayerId: { ok: true, value: 0 },
+                        isConnectedToNetwork: { ok: true, value: true },
+                        isAuthenticated: { ok: true, value: false },
+                        isLoggedIn: { ok: true, value: true },
+                      },
+                      autoplay: {
+                        isActive: snapshotAutoplayActive,
+                        turns: -1,
+                        isPaused: snapshotAutoplayPaused,
+                        isPausedOrPending: snapshotAutoplayPaused,
+                        observeAsPlayer: -1,
+                        returnAsPlayer: -1,
+                      },
+                      game: {
+                        turn: 1,
+                        age: 0,
+                        maxTurns: 0,
+                        turnDate: { ok: true, value: "4000 BCE" },
+                        hash: { ok: true, value: 0 },
+                      },
+                      ui: {
+                        inGame: { ok: true, value: !inShell },
+                        inShell: { ok: true, value: inShell },
+                        inLoading: { ok: true, value: loadingState !== 8 && !inShell },
+                        loadingState: { ok: true, value: loadingState },
+                        loadingStateName: loadingState === 8 ? "GameStarted" : "WaitingForUIReady",
+                        canBeginGame: { ok: true, value: loadingState === 6 && !inShell },
+                        canNotifyUIReady: "function",
+                        skipStartButton: { ok: true, value: false },
+                        automationActive: { ok: true, value: false },
+                      },
+                      gameContext: {
+                        localPlayerID: 0,
+                        localObserverID: 0,
+                        hasRequestedPause: { ok: true, value: false },
+                      },
+                      players: {
+                        maxPlayers: 64,
+                        aliveIds: { ok: true, value: [0] },
+                        aliveHumanIds: { ok: true, value: [0] },
+                        numAliveHumans: { ok: true, value: 1 },
+                      },
+                      map: {
+                        width: { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 70 : 84 },
+                        height: { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 44 : 54 },
+                        plotCount: {
+                          ok: true,
+                          value: setupMapSize === "MAPSIZE_SMALL" ? 3080 : 4536,
+                        },
+                        mapSize: { ok: true, value: 0 },
+                        randomSeed: {
+                          ok: true,
+                          value: options.postStartSeedOverride ?? setupMapSeed,
+                        },
+                      },
+                    }
+              ),
+            ])
           );
         } else if (frame.message.includes("evalOk: 1 + 1")) {
           const tunerReady = options.tunerReady !== false;
@@ -1602,13 +1538,21 @@ async function startTunerServer(options: {
                 },
                 turn: { ok: true, value: 1 },
                 turnDate: { ok: true, value: "4000 BCE" },
-                width: tunerReady ? { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 70 : 84 } : { ok: false, error: "GameplayMap unavailable" },
-                height: tunerReady ? { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 44 : 54 } : { ok: false, error: "GameplayMap unavailable" },
-                aliveIds: tunerReady ? { ok: true, value: [0, 1] } : { ok: false, error: "Players unavailable" },
-                aliveHumanIds: tunerReady ? { ok: true, value: [0] } : { ok: false, error: "Players unavailable" },
+                width: tunerReady
+                  ? { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 70 : 84 }
+                  : { ok: false, error: "GameplayMap unavailable" },
+                height: tunerReady
+                  ? { ok: true, value: setupMapSize === "MAPSIZE_SMALL" ? 44 : 54 }
+                  : { ok: false, error: "GameplayMap unavailable" },
+                aliveIds: tunerReady
+                  ? { ok: true, value: [0, 1] }
+                  : { ok: false, error: "Players unavailable" },
+                aliveHumanIds: tunerReady
+                  ? { ok: true, value: [0] }
+                  : { ok: false, error: "Players unavailable" },
                 autoplayActive: { ok: true, value: false },
               }),
-            ]),
+            ])
           );
 	        } else if (frame.message.includes("MapRegions") && frame.message.includes("randomSeed")) {
 	          const mapSummaryHash = options.mapSummaryHashes?.[mapSummaryReadCount] ?? 0;
@@ -1636,7 +1580,7 @@ async function startTunerServer(options: {
                   truncated: false,
                 },
               }),
-            ]),
+            ])
           );
         } else if (frame.message.includes("locationsFromBounds")) {
           const gridInput = extractMapGridInput(frame.message);
@@ -1766,7 +1710,7 @@ async function startTunerServer(options: {
                   },
                 ],
               }),
-            ]),
+            ])
           );
         } else if (frame.message.includes("readPlotSnapshot")) {
           socket.write(
@@ -1786,7 +1730,7 @@ async function startTunerServer(options: {
                   visible: { ok: true, value: true },
                 },
               }),
-            ]),
+            ])
           );
         } else if (frame.message === "CMD:1:Visibility.revealAllPlots(0)") {
           revealedCount = 20;
@@ -1804,12 +1748,22 @@ async function startTunerServer(options: {
                   plotCount: 2,
                   omitted: 0,
                   states: [
-                    { x: 0, y: 0, state: { ok: true, value: 1 }, visible: { ok: true, value: true } },
-                    { x: 1, y: 0, state: { ok: true, value: 1 }, visible: { ok: true, value: true } },
+                    {
+                      x: 0,
+                      y: 0,
+                      state: { ok: true, value: 1 },
+                      visible: { ok: true, value: true },
+                    },
+                    {
+                      x: 1,
+                      y: 0,
+                      state: { ok: true, value: 1 },
+                      visible: { ok: true, value: true },
+                    },
                   ],
                 },
               }),
-            ]),
+            ])
           );
         } else if (frame.message.includes("GameInfo[input.table]")) {
           socket.write(
@@ -1823,7 +1777,7 @@ async function startTunerServer(options: {
                 total: { ok: true, value: 1 },
                 omittedUnknown: false,
               }),
-            ]),
+            ])
           );
         } else if (frame.message.startsWith("CMD:65535:(() =>")) {
           socket.write(
@@ -1846,7 +1800,7 @@ async function startTunerServer(options: {
                   ],
                 },
               ]),
-            ]),
+            ])
           );
         } else {
           socket.write(encodeResponse(frame.listenerId, ["2"]));
@@ -1865,132 +1819,11 @@ async function startTunerServer(options: {
   };
 }
 
-function unitTargetAction(send: boolean, mode: "verified" | "no-op-after-send" = "verified") {
-  const unitId = { owner: 0, id: 65536, type: 26 };
-  const beforeUnit = { ok: true, value: { id: unitId, location: { x: 22, y: 33 }, movementMovesRemaining: 2, attacksRemaining: 1 } };
-  const beforeTargetUnits = { ok: true, value: [{ owner: 62, id: 123, type: 26 }] };
-  const noOp = mode === "no-op-after-send";
-  return {
-    unitId,
-    target: { x: 23, y: 33, index: { ok: true, value: 1457 } },
-    beforeUnit,
-    beforeTargetUnits,
-    candidates: [
-      {
-        family: "unit-operation",
-        operationType: "UNITOPERATION_NAVAL_ATTACK",
-        args: { X: 23, Y: 33, Modifiers: 3 },
-        valid: noOp,
-        result: { Success: noOp, ...(noOp ? { Plots: [1457] } : {}) },
-        targetInReturnedPlots: noOp ? true : null,
-      },
-      {
-        family: "unit-operation",
-        operationType: "UNITOPERATION_RANGE_ATTACK",
-        args: { X: 23, Y: 33, Modifiers: 3 },
-        valid: true,
-        result: { Success: true, Plots: [1457] },
-        targetInReturnedPlots: true,
-      },
-    ],
-    selected: {
-      family: "unit-operation",
-      operationType: noOp ? "UNITOPERATION_NAVAL_ATTACK" : "UNITOPERATION_RANGE_ATTACK",
-      args: { X: 23, Y: 33, Modifiers: 3 },
-      valid: true,
-      result: { Success: true, Plots: [1457] },
-      targetInReturnedPlots: true,
-    },
-    sent: send,
-    ...(send
-      ? {
-          sendResult: { accepted: true },
-          afterUnit: noOp
-            ? beforeUnit
-            : { ok: true, value: { id: unitId, location: { x: 22, y: 33 }, movementMovesRemaining: 2, attacksRemaining: 0 } },
-          afterTargetUnits: beforeTargetUnits,
-          verified: !noOp,
-          verification: {
-            status: noOp ? "no-state-change" : "verified",
-            unitChanged: !noOp,
-            targetUnitsChanged: false,
-            reason: noOp
-              ? "send returned but unit and target-plot probes did not change; re-read before repeating"
-              : "unit or target-plot state changed after send",
-          },
-        }
-      : {
-          verification: {
-            status: "not-sent",
-            unitChanged: false,
-            targetUnitsChanged: false,
-            reason: "read-only target resolution; use --send with an approval reason to mutate",
-          },
-        }),
-    notes: ["Selection follows the official right-click WorldInput target order."],
-  };
-}
-
-function technologyChoiceCloseout() {
-  return {
-    localPlayerId: 0,
-    playerId: 0,
-    node: -1255676052,
-    notificationId: { owner: 0, id: 52, type: 20 },
-    beforeTechnology: {
-      currentResearching: { ok: true, value: null },
-      targetNode: { ok: true, value: null },
-    },
-    activationResult: { ok: true, value: true },
-    canChoose: { ok: true, value: { Success: true } },
-    chooseResult: { ok: true, value: true },
-    canClearTarget: { ok: true, value: { Success: true } },
-    clearTargetResult: { ok: true, value: true },
-    afterTechnology: {
-      currentResearching: { ok: true, value: -1255676052 },
-      targetNode: { ok: true, value: -1 },
-    },
-    sent: true,
-    notes: [
-      "This uses the App UI owner for technology chooser closeout; notification re-read remains the caller-level verifier.",
-    ],
-  };
-}
-
-function cultureChoiceCloseout() {
-  return {
-    localPlayerId: 0,
-    playerId: 0,
-    node: -1404789184,
-    notificationId: { owner: 0, id: 62, type: 20 },
-    beforeCulture: {
-      currentResearching: { ok: true, value: null },
-      targetNode: { ok: true, value: null },
-      availableNodeTypes: { ok: true, value: [-869902342, -1404789184, 1643868894] },
-    },
-    activationResult: { ok: true, value: true },
-    canChoose: { ok: true, value: { Success: true } },
-    chooseResult: { ok: true, value: true },
-    canClearTarget: { ok: true, value: { Success: true } },
-    clearTargetResult: { ok: true, value: true },
-    afterCulture: {
-      currentResearching: { ok: true, value: -1404789184 },
-      targetNode: { ok: true, value: -1 },
-      availableNodeTypes: { ok: true, value: [-869902342, -1404789184, 1643868894] },
-    },
-    sent: true,
-    notes: [
-      "This uses the App UI owner for culture chooser closeout; notification re-read remains the caller-level verifier.",
-    ],
-  };
-}
-function parseRequest(buffer: Buffer):
-  | {
-      listenerId: number;
-      message: string;
-      bytesRead: number;
-    }
-  | null {
+function parseRequest(buffer: Buffer): {
+  listenerId: number;
+  message: string;
+  bytesRead: number;
+} | null {
   if (buffer.length < 8) return null;
   const messageLength = buffer.readUInt32LE(0);
   const bytesRead = 8 + messageLength;
