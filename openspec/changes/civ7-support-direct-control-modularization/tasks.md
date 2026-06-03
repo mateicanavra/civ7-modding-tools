@@ -644,6 +644,14 @@ runtime/direct-control claims.
         composition, telemetry/correlation contracts, procedure schemas,
         semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.15 Extract direct-control health check owner while keeping public
+        facade exports in `index.ts`, preserving endpoint discovery
+        composition, no-state/state-missing/unavailable classification,
+        selected-state reporting, and typed error wrapping, and leaving
+        `waitForCiv7DirectControl`, Tuner-ready waiting, lifecycle composition,
+        telemetry/correlation contracts, procedure schemas, semantic CLI, AI
+        ingestion, hotseat runtime proof, Effect/oRPC procedure-core work, and
+        Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in

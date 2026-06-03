@@ -15,6 +15,7 @@ import {
   executeCiv7TunerCommand,
   queryCiv7TunerStates,
 } from "./session/execute.js";
+import { checkCiv7DirectControlHealth } from "./session/health.js";
 import { Civ7DirectControlSession } from "./session/session.js";
 import type {
   Civ7CommandResult,
@@ -34,7 +35,6 @@ import {
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
 } from "./session/constants.js";
 import { executeSessionCommandWithReconnect } from "./session/reconnect.js";
-import { selectCiv7TunerState } from "./session/state.js";
 import {
   DEFAULT_CIV7_SCRIPTING_LOG,
   snapshotFile,
@@ -367,6 +367,7 @@ export {
   executeCiv7TunerCommand,
   queryCiv7TunerStates,
 } from "./session/execute.js";
+export { checkCiv7DirectControlHealth } from "./session/health.js";
 export { Civ7DirectControlSession } from "./session/session.js";
 export type {
   Civ7CommandResult,
@@ -902,54 +903,6 @@ export async function restartCiv7GameAndBegin(options: Civ7DirectControlOptions 
       }
     },
   });
-}
-
-export async function checkCiv7DirectControlHealth(options: Civ7DirectControlOptions & {
-  state?: Civ7TunerStateSelection;
-} = {}): Promise<Civ7DirectControlHealth> {
-  try {
-    const discovered = await discoverCiv7DirectControlEndpoint(options);
-    if (discovered.states.length === 0) {
-      return {
-        ok: false,
-        status: "no-states",
-        host: discovered.endpoint.host,
-        port: discovered.endpoint.port,
-        states: discovered.states,
-        error: new Civ7DirectControlError("state-not-found", "Civ7 tuner returned no scripting states"),
-      };
-    }
-    let selectedState: Civ7TunerState | undefined;
-    if (options.state) {
-      try {
-        selectedState = selectCiv7TunerState(discovered.states, options.state);
-      } catch (err) {
-        return {
-          ok: false,
-          status: "state-missing",
-          host: discovered.endpoint.host,
-          port: discovered.endpoint.port,
-          states: discovered.states,
-          error: toDirectControlError(err, "state-not-found"),
-        };
-      }
-    }
-    return {
-      ok: true,
-      status: "ready",
-      host: discovered.endpoint.host,
-      port: discovered.endpoint.port,
-      states: discovered.states,
-      selectedState,
-    };
-  } catch (err) {
-    const error = toDirectControlError(err, "connection-failed");
-    return {
-      ok: false,
-      status: error.code === "state-not-found" ? "state-missing" : "unavailable",
-      error,
-    };
-  }
 }
 
 export async function waitForCiv7DirectControl(options: Civ7DirectControlOptions & {
