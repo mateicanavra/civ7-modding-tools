@@ -19,14 +19,14 @@ command strings, or gameplay mutation logic.
 The CLI play corpus includes:
 
 - remaining monolith command owners:
-  - `GamePlayNotifications`
   - `GamePlayPriorities`
 - already extracted owner suites under `packages/cli/test/commands/game/play/**`;
 - adjacent package-local play suites such as production, narrative, culture,
   technology, first-meet, operation wrappers, end-turn, population placement,
   town focus, unit target, progression read, tactical read, watch, topics,
   promotion readiness, rehydrate, settlement recommendations, ready city,
-  unit move preview, ready unit, notification queue, and dismiss queue;
+  unit move preview, ready unit, notification queue, dismiss queue, exact
+  dismiss, and notification HUD;
 - fake tuner fixture ownership and any remaining monolith-only HUD scenario
   builders.
 
