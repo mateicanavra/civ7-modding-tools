@@ -25,6 +25,7 @@ import { notificationDismissalSource } from "./play/notifications/dismissal.js";
 import { playNotificationViewSource } from "./play/notifications/view.js";
 import { productionChoiceRequestSource } from "./play/operations/production-choice.js";
 import { operationRouterSource } from "./play/operations/router.js";
+import { unitOperationPostcondition } from "./play/operations/unit-postconditions.js";
 import { cultureChoiceCloseoutSource } from "./play/progression/culture.js";
 import { progressDashboardSource } from "./play/progression/progress-dashboard.js";
 import { technologyChoiceCloseoutSource } from "./play/progression/technology.js";
@@ -7323,65 +7324,6 @@ async function requestCiv7Operation(
     populationPostcondition,
     productionPostcondition,
   };
-}
-
-function unitOperationPostcondition(
-  family: Civ7OperationFamily,
-  input: Civ7OperationInput,
-  sent: boolean,
-  before: Civ7OperationValidationResult,
-  after: Civ7OperationValidationResult,
-  beforeSnapshot: Civ7UnitOperationPostconditionSnapshot | undefined,
-  afterSnapshot: Civ7UnitOperationPostconditionSnapshot | undefined,
-): Civ7UnitOperationPostcondition | undefined {
-  if (family !== "unit-operation" && family !== "unit-command") return undefined;
-  const classification = classifyUnitOperationPostcondition(sent, before, after, beforeSnapshot, afterSnapshot);
-  return {
-    family,
-    operationType: input.operationType,
-    classification,
-    before: beforeSnapshot,
-    after: afterSnapshot,
-    reason: unitOperationPostconditionReason(classification),
-  };
-}
-
-function classifyUnitOperationPostcondition(
-  sent: boolean,
-  before: Civ7OperationValidationResult,
-  after: Civ7OperationValidationResult,
-  beforeSnapshot: Civ7UnitOperationPostconditionSnapshot | undefined,
-  afterSnapshot: Civ7UnitOperationPostconditionSnapshot | undefined,
-): Civ7UnitOperationPostconditionClassification {
-  if (!sent) return "not-sent";
-  if (probeValueChanged(beforeSnapshot?.firstReadyUnitId, afterSnapshot?.firstReadyUnitId)) return "queue-advanced";
-  if (probeValueChanged(beforeSnapshot?.selectedUnitId, afterSnapshot?.selectedUnitId)) return "selected-unit-changed";
-  if (probeFieldChanged(beforeSnapshot?.unit, afterSnapshot?.unit, "activity")) return "activity-changed";
-  if (probeValueChanged(beforeSnapshot?.unit, afterSnapshot?.unit)) return "unit-state-changed";
-  if (probeValueChanged(beforeSnapshot?.blocker, afterSnapshot?.blocker)) return "blocker-changed";
-  if (before.valid !== after.valid || stableJson(before.result) !== stableJson(after.result)) return "validation-changed";
-  return "no-state-change";
-}
-
-function unitOperationPostconditionReason(classification: Civ7UnitOperationPostconditionClassification): string {
-  switch (classification) {
-    case "not-sent":
-      return "The operation was not sent, so no unit-side postcondition can be verified.";
-    case "queue-advanced":
-      return "The first ready unit changed after the request, which shows the unit queue advanced.";
-    case "selected-unit-changed":
-      return "The selected unit changed after the request, which shows the game consumed the unit action.";
-    case "activity-changed":
-      return "The unit activity changed after the request.";
-    case "unit-state-changed":
-      return "The unit summary changed after the request.";
-    case "blocker-changed":
-      return "The end-turn blocker changed after the request.";
-    case "validation-changed":
-      return "The operation validation result changed after the request.";
-    case "no-state-change":
-      return "The request was sent, but no observed unit, queue, blocker, or validation state changed.";
-  }
 }
 
 function populationPlacementPostcondition(
