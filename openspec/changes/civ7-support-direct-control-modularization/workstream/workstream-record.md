@@ -351,6 +351,15 @@ All future agent waves must be framed before delegation:
   verified dismissal, stale engine-front rejection, and none-blocker panel
   close paths. This is local package/source relocation proof only, not runtime
   proof.
+- Direct-control narrative choice verification helper slice: completed as the
+  next specialized closeout-helper relocation. It first expands
+  `test/narrative-choice.test.ts` to cover same-blocker `no-state-change` and
+  `narrative-panel-cleared` classification alongside the existing
+  blocker-cleared and validator-rejection package proof, then moves the
+  wrapper-level wait/postcondition helper group into
+  `src/play/operations/narrative-postconditions.ts`. The embedded
+  `sendNarrativeChoice` source owner and the public wrapper stay in `index.ts`;
+  this is local package/source relocation proof only, not runtime proof.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now
