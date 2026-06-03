@@ -681,7 +681,7 @@ All future agent waves must be framed before delegation:
   public constants ownership relocation. It moves only capability catalog App
   UI/Tuner root defaults into `src/catalog/capabilities.ts` while keeping public
   facade re-exports in `index.ts`. This preserves static/runtime catalog root
-  defaults and keeps runtime root inspection injected from the facade. Broader
+  defaults while runtime root inspection keeps its owner-local default wiring. Broader
   public constants/types, procedure schemas, operation/proof telemetry, AI
   ingestion, hotseat runtime proof, CLI semantic projection, Effect/oRPC
   procedure-core work, and Task 2.9.4 matrix-row acceptance stay pending. This
