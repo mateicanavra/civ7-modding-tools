@@ -66,6 +66,8 @@ titles, and parent reports to close the loop.
 | `019e8afb-f1c2-7a22-83b4-5d934658d92e` | Add public API tests | framed `/goal` implementation | completed, idle | yes | Accepted as boundary-clean net-new candidate only; proof was incomplete in the isolated worktree because `vitest` was unavailable there. | Created pure `packages/civ7-direct-control/test/public-api.test.ts`; DRA performed broad-suite ownership removal and final package gates in the support worktree. |
 | `019e8b01-475a-7f70-a94d-b671fd61e013` | Add unit move preview test | framed `/goal` implementation | completed, idle | yes | Accepted as boundary-clean net-new candidate only; proof was incomplete in the isolated worktree because `vitest`/`tsc` were unavailable there. | Created local `packages/civ7-direct-control/test/unit-move-preview.test.ts`; DRA corrected the limit-contract assertion and ran final package gates in the support worktree. |
 | `pendingWorktreeId local:699af531-ba6e-49e6-8f36-021dd3e27721` / disk worktree `6e69` | Add session/framing package tests | framed `/goal` implementation | candidate visible on disk; app thread read/archive tools unavailable in this session | yes, from disk candidate and worktree state | Accepted as boundary-clean net-new candidate only; DRA retained integration, broad-suite removal, docs, and final gates. | Created local `packages/civ7-direct-control/test/session.test.ts`; DRA added health/env-host coverage, removed duplicate broad-suite assertions, and ran package gates in the support worktree. |
+| `pendingWorktreeId local:98a2e225-27e6-4423-abff-c2df614e9547` / disk worktree `ad4e` | Add ready-unit package test | framed `/goal` implementation | candidate visible on disk; app thread read/archive tools unavailable in this session | yes, from disk candidate and worktree state | Accepted as boundary-clean net-new candidate only; DRA retained integration, broad-suite removal, docs, and final gates. | Created local `packages/civ7-direct-control/test/ready-unit-view.test.ts`; DRA kept fixture local and moved ready-unit ownership out of the broad suite. |
+| `pendingWorktreeId local:31e49457-5f92-4486-b597-624c44e5d18b` / disk worktree `0425` | Add ready-city package test | framed `/goal` implementation | candidate visible on disk; app thread read/archive tools unavailable in this session | yes, from disk candidate and worktree state | Accepted as boundary-clean net-new candidate only; DRA retained integration, broad-suite removal, docs, and final gates. | Created local `packages/civ7-direct-control/test/ready-city-view.test.ts`; DRA preserved the city identity/source guard and moved ready-city ownership out of the broad suite. |
 
 ## Parallelization Rule
 
@@ -119,6 +121,10 @@ All future agent waves must be framed before delegation:
   runtime/source behavior claim.
 - Direct-control session/framing test slice: completed as test-only package
   ownership extraction with a boundary-clean parallel net-new candidate,
+  DRA-owned broad-suite removal, local package proof, and no runtime/source
+  behavior claim.
+- Direct-control ready unit/city test slice: completed as test-only package
+  ownership extraction with two boundary-clean parallel net-new candidates,
   DRA-owned broad-suite removal, local package proof, and no runtime/source
   behavior claim.
 - Review-disposition ledger: agent/reviewer findings recorded.
