@@ -849,11 +849,7 @@ export async function waitForCiv7TunerReady(options: Civ7DirectControlOptions & 
 export async function getCiv7PlayableStatus(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7PlayableStatusResult> {
-  return await getCiv7PlayableStatusFromModule(options, {
-    checkTunerHealth: checkCiv7TunerHealth,
-    errorMessage,
-    getAppUiSnapshot: getCiv7AppUiSnapshot,
-  });
+  return await getCiv7PlayableStatusFromModule(options);
 }
 
 export async function getCiv7MapSummary(

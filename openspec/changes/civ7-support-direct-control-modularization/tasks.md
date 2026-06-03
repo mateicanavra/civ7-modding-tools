@@ -1078,6 +1078,15 @@ runtime/direct-control claims.
         telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
         Effect/Bun resource composition, Effect/oRPC procedure-core work, and
         Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.18 Prune playable-status facade dependency injection by letting
+        `src/runtime/playable-status.ts` import existing non-facade App UI
+        snapshot, Tuner health, and error-message owners directly, while keeping
+        public facade exports stable, preserving App UI/Tuner composition,
+        shell/playable/readiness classification, unready error capture, and
+        debug/internal-only status classification, and leaving telemetry, AI
+        ingestion, CLI semantic projection, hotseat runtime proof,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready

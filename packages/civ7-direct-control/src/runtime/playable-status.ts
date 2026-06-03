@@ -1,9 +1,10 @@
+import { errorMessage } from "../error-message.js";
 import type {
   Civ7DirectControlOptions,
 } from "../session/types.js";
-import type { Civ7AppUiSnapshotResult } from "./app-ui-snapshot.js";
+import { getCiv7AppUiSnapshot, type Civ7AppUiSnapshotResult } from "./app-ui-snapshot.js";
 import type { Civ7RuntimeProbe } from "./probe.js";
-import type { Civ7TunerHealthResult } from "./tuner-health.js";
+import { checkCiv7TunerHealth, type Civ7TunerHealthResult } from "./tuner-health.js";
 
 export type Civ7PlayableStatusResult = Readonly<{
   host: string;
@@ -29,7 +30,7 @@ type PlayableStatusDependencies = Readonly<{
 
 export async function getCiv7PlayableStatus(
   options: Civ7DirectControlOptions = {},
-  dependencies: PlayableStatusDependencies,
+  dependencies: PlayableStatusDependencies = defaultPlayableStatusDependencies,
 ): Promise<Civ7PlayableStatusResult> {
   const appUi = await dependencies.getAppUiSnapshot(options);
   const errors: string[] = [];
@@ -67,6 +68,12 @@ export async function getCiv7PlayableStatus(
     errors,
   };
 }
+
+const defaultPlayableStatusDependencies: PlayableStatusDependencies = {
+  checkTunerHealth: checkCiv7TunerHealth,
+  errorMessage,
+  getAppUiSnapshot: getCiv7AppUiSnapshot,
+};
 
 function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | undefined {
   return probe.ok ? probe.value : undefined;

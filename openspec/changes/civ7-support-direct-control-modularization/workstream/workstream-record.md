@@ -565,6 +565,17 @@ All future agent waves must be framed before delegation:
   semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
   matrix-row acceptance stay pending. This is local package/source relocation
   proof only, not runtime proof or AI/hotseat product-path support.
+- Direct-control playable-status facade dependency cleanup: completed as a
+  narrow runtime-status dependency pruning slice. `src/runtime/playable-status.ts`
+  now imports existing non-facade App UI snapshot, Tuner health, and
+  error-message owners directly for its default composition while the public
+  facade remains a call-through. This preserves App UI/Tuner composition,
+  shell/playable/readiness classification, unready error capture, and
+  debug/internal-only status classification. It does not expose raw runtime
+  status as normal CLI output, claim runtime/live proof, or unblock telemetry,
+  AI ingestion, semantic CLI projection, hotseat runtime proof,
+  schema/procedure ownership, Effect/Bun resource composition, Effect/oRPC
+  implementation, or Task 2.9.4 matrix-row acceptance.
 - Direct-control bounded root inspection slice: completed as a narrow
   debug/internal inspection relocation. It moves only `inspectCiv7Root` and the
   generated bounded root inspection command builder into
