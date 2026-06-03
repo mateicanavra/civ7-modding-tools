@@ -29,6 +29,7 @@ import {
   getCiv7NotificationDismissal as getCiv7NotificationDismissalFromModule,
   requestCiv7NotificationDismissal as requestCiv7NotificationDismissalFromModule,
 } from "./play/notifications/dismissal-request.js";
+import { requestCiv7DiplomacyResponse as requestCiv7DiplomacyResponseFromModule } from "./play/operations/diplomacy-request.js";
 import { notificationDismissalSource } from "./play/notifications/dismissal.js";
 import { waitForCiv7NotificationDismissal } from "./play/notifications/verification.js";
 import { playNotificationViewSource } from "./play/notifications/view.js";
@@ -3708,57 +3709,22 @@ export async function requestCiv7DiplomacyResponse(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7DiplomacyResponseResult> {
-  assertApproved(approval, "responding to diplomatic action");
-  validatePlayerId(input.playerId);
-  if (!Number.isInteger(input.actionId)) throw new Civ7DirectControlError("command-failed", "actionId must be an integer");
-  if (!Number.isInteger(input.responseType)) throw new Civ7DirectControlError("command-failed", "responseType must be an integer");
-  const before = await getCiv7PlayNotificationView(options);
-  const playerId = before.localPlayerId;
-  const operationInput = {
-    playerId,
-    operationType: "RESPOND_DIPLOMATIC_ACTION",
-    args: { ID: input.actionId, Type: input.responseType },
-  };
-  const beforeValidation = await canStartCiv7PlayerOperation(operationInput, options);
-  if (!beforeValidation.valid) {
-    return {
-      before,
-      beforeValidation,
-      after: before,
-      afterValidation: beforeValidation,
-      sent: false,
-      verified: false,
-      postcondition: {
-        classification: "not-sent",
-        reason: "RESPOND_DIPLOMATIC_ACTION did not validate, so no diplomatic response was sent.",
-      },
-    };
-  }
-  const command = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildDiplomacyResponseCloseoutCommand({ ...input, playerId }),
+  return await requestCiv7DiplomacyResponseFromModule(input, options, approval, {
+    assertApproved,
+    validatePlayerId,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    buildDiplomacyResponseCloseoutCommand,
+    getPlayNotificationView: getCiv7PlayNotificationView,
+    canStartPlayerOperation: canStartCiv7PlayerOperation,
+    parseDiplomacyPayload: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7DiplomacyResponseCommandPayload>(result, label),
+    invalidActionIdError: () => {
+      throw new Civ7DirectControlError("command-failed", "actionId must be an integer");
+    },
+    invalidResponseTypeError: () => {
+      throw new Civ7DirectControlError("command-failed", "responseType must be an integer");
+    },
   });
-  const payload = jsonPayloadFromCommandResult<Civ7DiplomacyResponseCommandPayload>(command, "Civ7 diplomacy response closeout");
-  const after = await waitForCiv7DiplomacyResponseAfter(
-    input,
-    options,
-    before,
-    beforeValidation,
-    getCiv7PlayNotificationView,
-  );
-  const afterValidation = await canStartCiv7PlayerOperation(operationInput, options);
-  const postcondition = diplomacyResponsePostcondition(input, payload.sent === true, before, after, beforeValidation, afterValidation);
-  return {
-    before,
-    beforeValidation,
-    command,
-    payload,
-    after,
-    afterValidation,
-    sent: payload.sent === true,
-    verified: postcondition.classification !== "not-sent" && postcondition.classification !== "no-state-change",
-    postcondition,
-  };
 }
 
 export async function requestCiv7NarrativeChoice(

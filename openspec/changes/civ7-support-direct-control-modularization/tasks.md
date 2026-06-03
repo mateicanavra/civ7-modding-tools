@@ -149,6 +149,8 @@ runtime/direct-control claims.
         the embedded source and public wrapper in the facade.
   - [x] 4.6.8 Extract diplomacy response verification helper owner while
         keeping the embedded source and public wrapper in the facade.
+  - [x] 4.6.9 Extract diplomacy response wrapper owner while keeping the
+        public facade export surface in `index.ts`.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.

@@ -381,6 +381,14 @@ All future agent waves must be framed before delegation:
   embedded `sendDiplomacyResponseCloseout` source owner and the public wrapper
   stay in `index.ts`; this is local package/source relocation proof only, not
   runtime proof.
+- Direct-control diplomacy response wrapper slice: completed as the next
+  operation-wrapper composition relocation. It moves only
+  `requestCiv7DiplomacyResponse` orchestration into
+  `src/play/operations/diplomacy-request.ts` while keeping the public facade
+  export in `index.ts` and preserving the existing embedded closeout source plus
+  diplomacy postcondition owner modules. `test/diplomacy-response.test.ts` and
+  the focused CLI diplomacy response command suite remain the proof owners. This
+  is local package/source relocation proof only, not runtime proof.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now
