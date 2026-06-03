@@ -1369,6 +1369,18 @@ All future agent waves must be framed before delegation:
   contracts, public procedure schemas, semantic CLI projection, AI ingestion,
   hotseat runtime proof, or Effect/oRPC procedure-core work. This is local
   dead-code cleanup/source hygiene proof only, not runtime/live-game proof.
+- Direct-control session class slice: completed as a narrow session owner
+  relocation. It moves `Civ7DirectControlSession` and its private
+  pending-request lifecycle into `src/session/session.ts` while preserving
+  socket connection fallback, LSQ state queries, framed command execution,
+  request timeout/close/error classification, and public facade exports.
+  `index.ts` still owns package-level query/execute wrappers, session
+  creation/close for public wrapper calls, reconnect orchestration, lifecycle
+  composition, and public facade call-through. This does not define
+  telemetry/correlation contracts, public procedure schemas, semantic CLI
+  projection, AI ingestion, hotseat runtime proof, or Effect/oRPC
+  procedure-core work. This is local package/source relocation proof only, not
+  runtime/live-game proof.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into

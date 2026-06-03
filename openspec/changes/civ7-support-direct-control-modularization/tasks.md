@@ -610,6 +610,14 @@ runtime/direct-control claims.
         telemetry/correlation contracts, procedure schemas, semantic CLI, AI
         ingestion, hotseat runtime proof, Effect/oRPC procedure-core work, and
         Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.11 Extract `Civ7DirectControlSession` and its private
+        pending-request lifecycle into a session owner while preserving socket
+        connection fallback, LSQ state queries, framed command execution,
+        request timeout/close/error classification, and public facade exports,
+        and leaving package-level query/execute wrappers, reconnect
+        orchestration, telemetry/correlation contracts, procedure schemas,
+        semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in
