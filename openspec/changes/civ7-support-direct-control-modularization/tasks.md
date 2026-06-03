@@ -115,6 +115,8 @@ runtime/direct-control claims.
 - [ ] 4.3 Extract notification view/materialization atom.
 - [ ] 4.4 Extract notification dismissal/verification atom.
 - [ ] 4.5 Extract ready unit/city view atoms.
+  - [x] 4.5.1 Extract unit move preview embedded source owner while keeping
+        the public wrapper in the facade.
 - [ ] 4.6 Extract operation validation/send/postcondition atoms.
 - [ ] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while

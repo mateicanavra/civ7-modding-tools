@@ -228,7 +228,7 @@ All future agent waves must be framed before delegation:
   begin, wait-for-Tuner readiness, and restart-output rejection coverage; the
   broad `direct-control.test.ts` file has been removed. This is local
   fake-tuner package proof only, not runtime proof.
-- Direct-control ComponentID primitive slice: in progress as the first
+- Direct-control ComponentID primitive slice: completed as the first
   source-owner extraction after package-test ownership completed. It moves
   ComponentID schema/guard/assertion plus the direct-control error class/type
   into focused owner modules behind the existing package facade. This is
@@ -238,21 +238,25 @@ All future agent waves must be framed before delegation:
   principled modularization/export of constants/types; this slice follows the
   completed package-test coverage and creates named primitive/error owners
   rather than a broad facade or dumping ground.
-- Direct-control tuner framing slice: in progress from the completed
+- Direct-control tuner framing slice: completed from the completed
   `019e8b69-465d-7a71-8ef1-1f75f96799c2` source candidate. It moves only
   `Civ7TunerFrame`, `encodeCiv7TunerRequest`, and `parseCiv7TunerFrame` into
   `src/session/framing.ts` behind the existing package facade. Broader
   session/config/reconnect and restart/setup lifecycle source extraction stays
   pending because those seams have additional helper dependencies.
-- Direct-control settlement recommendation source slice: in progress from the
+- Direct-control settlement recommendation source slice: completed from the
   refined read-only atom report in `019e8b69-ae88-79f1-b5dd-dd530c2ea2bf`.
   It moves only the settlement recommendation embedded source into
   `src/play/tactical/settlement.ts`. Wrapper/builder ownership stays in
   `index.ts`; this is source relocation proof only, not runtime proof.
-- Direct-control traditions view source slice: in progress as the next
+- Direct-control traditions view source slice: completed as the next
   progression read source relocation. It moves only the traditions embedded
   source into `src/play/progression/traditions.ts`. Wrapper/builder ownership
   stays in `index.ts`; this is source relocation proof only, not runtime proof.
+- Direct-control unit move preview source slice: completed as the next ready
+  read source relocation. It moves only the unit move preview embedded source
+  into `src/play/ready/move-preview.ts`. Wrapper/builder ownership stays in
+  `index.ts`; this is source relocation proof only, not runtime proof.
 - Review-disposition ledger: agent/reviewer findings recorded.
 - Exact dismiss-notification CLI slice: completed as test-only extraction with
   local fixture ownership and no runtime claim.
