@@ -716,6 +716,19 @@ runtime/direct-control claims.
         leaving procedure schemas, operation/proof telemetry, hotseat runtime
         proof, AI ingestion, CLI semantic projection, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.40 Prune stale facade filesystem import after proof/log and
+        capability catalog ownership moved filesystem reads into their owner
+        modules, while preserving public facade exports and leaving procedure
+        schemas, operation/proof telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.41 Prune stale facade value imports for already-owned direct-control
+        error, action approval, map validation, command-result parser,
+        command-source serializer, and runtime probe helpers, while preserving
+        public facade exports and leaving procedure schemas, operation/proof
+        telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [x] 4.9 Explicitly cite oRPC architecture authority before any oRPC
       implementation. The support branch cites the
       `civ7-orpc-control-architecture` skill from
