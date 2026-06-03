@@ -201,7 +201,12 @@ import {
   type Civ7UnitSummaryResult,
   getCiv7UnitSummary as getCiv7UnitSummaryFromModule,
 } from "./play/summaries.js";
-import { requestCiv7DiplomacyResponse as requestCiv7DiplomacyResponseFromModule } from "./play/operations/diplomacy-request.js";
+import {
+  requestCiv7DiplomacyResponse as requestCiv7DiplomacyResponseFromModule,
+  type Civ7DiplomacyResponseCommandPayload,
+  type Civ7DiplomacyResponseInput,
+  type Civ7DiplomacyResponseResult,
+} from "./play/operations/diplomacy-request.js";
 import { getCiv7PlayNotificationView as getCiv7PlayNotificationViewFromModule } from "./play/notifications/view.js";
 import {
   DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS,
@@ -612,6 +617,15 @@ export type {
   Civ7ProductionChoiceInput,
   Civ7ProductionChoiceResult,
 } from "./play/operations/production-choice.js";
+export type {
+  Civ7DiplomacyResponseCommandPayload,
+  Civ7DiplomacyResponseInput,
+  Civ7DiplomacyResponseResult,
+} from "./play/operations/diplomacy-request.js";
+export type {
+  Civ7DiplomacyResponsePostcondition,
+  Civ7DiplomacyResponsePostconditionClassification,
+} from "./play/operations/diplomacy-postconditions.js";
 
 export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 256;
@@ -773,66 +787,6 @@ export type Civ7SavedGameConfigurationListInput = Readonly<{
 export type Civ7SavedGameConfigurationListResult = Readonly<{
   directory: string;
   configurations: ReadonlyArray<Civ7SavedGameConfiguration>;
-}>;
-
-export type Civ7DiplomacyResponseInput = Readonly<{
-  playerId: number;
-  actionId: number;
-  responseType: number;
-  notificationId?: Civ7ComponentId;
-  activateNotification?: boolean;
-  uiCloseout?: boolean;
-}>;
-
-export type Civ7DiplomacyResponseCommandPayload = Readonly<{
-  localPlayerId: number;
-  playerId: number;
-  actionId: number;
-  responseType: number;
-  args: Readonly<{ ID: number; Type: number }>;
-  notificationId: Civ7ComponentId | null;
-  discoveredNotification: unknown;
-  activated: boolean;
-  activationResult: unknown;
-  canStart: unknown;
-  sent: boolean;
-  sendResult: unknown;
-  uiCloseout: Readonly<{
-    requested: boolean;
-    acknowledgeStarted: unknown;
-    closeCurrentDiplomacyProject: unknown;
-    hide: unknown;
-  }>;
-  diplomacyState: Readonly<{
-    before: unknown;
-    after: unknown;
-  }>;
-  notes: ReadonlyArray<string>;
-}>;
-
-export type Civ7DiplomacyResponsePostconditionClassification =
-  | "not-sent"
-  | "turn-unblocked"
-  | "diplomacy-blocker-cleared"
-  | "blocking-notification-changed"
-  | "validation-changed"
-  | "no-state-change";
-
-export type Civ7DiplomacyResponsePostcondition = Readonly<{
-  classification: Civ7DiplomacyResponsePostconditionClassification;
-  reason: string;
-}>;
-
-export type Civ7DiplomacyResponseResult = Readonly<{
-  before: Civ7PlayNotificationViewResult;
-  beforeValidation: Civ7OperationValidationResult;
-  command?: Civ7CommandResult;
-  payload?: Civ7DiplomacyResponseCommandPayload;
-  after: Civ7PlayNotificationViewResult;
-  afterValidation: Civ7OperationValidationResult;
-  sent: boolean;
-  verified: boolean;
-  postcondition: Civ7DiplomacyResponsePostcondition;
 }>;
 
 export type Civ7NarrativeChoiceInput = Readonly<{

@@ -1,18 +1,66 @@
-import { diplomacyResponsePostcondition, waitForCiv7DiplomacyResponseAfter } from "./diplomacy-postconditions.js";
-
+import {
+  diplomacyResponsePostcondition,
+  type Civ7DiplomacyResponsePostcondition,
+  waitForCiv7DiplomacyResponseAfter,
+} from "./diplomacy-postconditions.js";
 import type {
   Civ7ActionApproval,
   Civ7OperationValidationResult,
 } from "./types.js";
 
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7DiplomacyResponseCommandPayload,
-  Civ7DiplomacyResponseInput,
-  Civ7DiplomacyResponseResult,
 } from "../../index.js";
 import type { Civ7PlayNotificationViewResult } from "../notifications/view.js";
+
+export type Civ7DiplomacyResponseInput = Readonly<{
+  playerId: number;
+  actionId: number;
+  responseType: number;
+  notificationId?: Civ7ComponentId;
+  activateNotification?: boolean;
+  uiCloseout?: boolean;
+}>;
+
+export type Civ7DiplomacyResponseCommandPayload = Readonly<{
+  localPlayerId: number;
+  playerId: number;
+  actionId: number;
+  responseType: number;
+  args: Readonly<{ ID: number; Type: number }>;
+  notificationId: Civ7ComponentId | null;
+  discoveredNotification: unknown;
+  activated: boolean;
+  activationResult: unknown;
+  canStart: unknown;
+  sent: boolean;
+  sendResult: unknown;
+  uiCloseout: Readonly<{
+    requested: boolean;
+    acknowledgeStarted: unknown;
+    closeCurrentDiplomacyProject: unknown;
+    hide: unknown;
+  }>;
+  diplomacyState: Readonly<{
+    before: unknown;
+    after: unknown;
+  }>;
+  notes: ReadonlyArray<string>;
+}>;
+
+export type Civ7DiplomacyResponseResult = Readonly<{
+  before: Civ7PlayNotificationViewResult;
+  beforeValidation: Civ7OperationValidationResult;
+  command?: Civ7CommandResult;
+  payload?: Civ7DiplomacyResponseCommandPayload;
+  after: Civ7PlayNotificationViewResult;
+  afterValidation: Civ7OperationValidationResult;
+  sent: boolean;
+  verified: boolean;
+  postcondition: Civ7DiplomacyResponsePostcondition;
+}>;
 
 type DiplomacyResponseRequestDependencies = Readonly<{
   assertApproved: (approval: Civ7ActionApproval, action: string) => void;
