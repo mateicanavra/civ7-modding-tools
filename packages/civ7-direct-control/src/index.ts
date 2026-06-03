@@ -1165,27 +1165,6 @@ function setupReadDependencies() {
   } as const;
 }
 
-function setupStartDependencies() {
-  return {
-    ...setupReadDependencies(),
-    appUiState: { role: "app-ui" } as const,
-    beginGameCommand: CIV7_BEGIN_GAME_COMMAND,
-    executeSessionCommandWithReconnect,
-    getMapSummary: getCiv7MapSummary,
-    parseStartPayload: (result: Civ7CommandResult, label: string) =>
-      jsonPayloadFromCommandResult<{ ok: unknown }>(result, label),
-    uiLoadingStates: CIV7_UI_LOADING_STATES,
-    waitForTunerReadyWithSession: async (
-      session: Civ7DirectControlSession,
-      waitOptions: { timeoutMs?: number; waitTimeoutMs?: number; pollIntervalMs?: number },
-    ) =>
-      await waitForCiv7TunerReadyWithSession(session, waitOptions, {
-        executeSessionCommandWithReconnect,
-      }),
-    withSession: withCiv7DirectControlSession,
-  } as const;
-}
-
 function setupRunDependencies() {
   return {
     assertApproved,
@@ -1260,7 +1239,7 @@ export async function startPreparedCiv7SinglePlayerGame(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7SinglePlayerStartResult> {
-  return await startPreparedCiv7SinglePlayerGameFromModule(input, options, approval, setupStartDependencies());
+  return await startPreparedCiv7SinglePlayerGameFromModule(input, options, approval);
 }
 
 export async function runCiv7SinglePlayerFromSetup(

@@ -1099,6 +1099,17 @@ runtime/direct-control claims.
         proof, hotseat runtime proof, AI ingestion, semantic CLI projection,
         telemetry, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.14.10 Prune prepared-start facade dependency injection by letting
+        `src/setup/start.ts` import existing non-facade setup-read defaults,
+        session/reconnect, Tuner-ready wait, map-summary, command-result
+        parser, setup constants, and setup option identifier validation
+        directly, while keeping public facade exports stable, preserving
+        approval-first start, pre-start setup readback, host-game command
+        source, begin polling, one-attempt begin send, Tuner/map verification,
+        seed mismatch classification, and no-replay package proof, and leaving
+        setup-run/restart lifecycle composition, runtime proof, hotseat runtime
+        proof, AI ingestion, semantic CLI projection, telemetry, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 
 ## 5. CLI Semantic Surface Lane
 

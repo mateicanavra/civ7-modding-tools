@@ -251,6 +251,21 @@ package/source relocation proof only; runtime/live-game proof, AI ingestion,
 semantic CLI projection, telemetry, hotseat runtime proof, Effect/oRPC
 procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending.
 
+Prepared-start facade dependency update: `src/setup/start.ts` now owns the
+default setup-read dependency reuse, session/reconnect execution, Tuner-ready
+wait, map-summary read, start payload parsing, setup loading-state constants,
+begin command constant, and setup option identifier validation wiring for
+`startPreparedCiv7SinglePlayerGame` while the public facade export stays stable
+in `index.ts`. Setup-run and restart/begin lifecycle composition remain
+separate and still use narrow injection seams for their higher-level
+composition. This preserves approval-first start, pre-start setup readback,
+host-game command source, begin polling, one-attempt begin send, Tuner/map
+verification, seed mismatch classification, and no-replay package proof as
+local package/source relocation proof only; runtime/live-game proof, AI
+ingestion, semantic CLI projection, telemetry, hotseat runtime proof,
+Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance remain
+pending.
+
 Setup lifecycle type update: `src/setup/prepare.ts` now owns single-player
 setup input, setup option value, and prepared-setup result types;
 `src/setup/start.ts` owns prepared-start input and single-player start result
