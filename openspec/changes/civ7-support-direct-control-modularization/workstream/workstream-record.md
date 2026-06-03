@@ -377,6 +377,15 @@ All future agent waves must be framed before delegation:
   semantic CLI, telemetry, hotseat runtime proof, and Effect/oRPC procedure-core
   work stay out of this slice. This is local read-only package/source
   relocation proof only, not runtime proof.
+- Direct-control runtime API inspection source/wrapper slice: completed as a
+  narrow debug/internal service relocation. It moves only
+  `inspectCiv7RuntimeApi`, the private default-root selector, and the generated
+  runtime API inspection command into `src/runtime/inspection.ts` while keeping
+  public facade exports in `index.ts`. App UI snapshot, Tuner health, playable
+  status, bounded root inspection, capability catalog, telemetry, hotseat
+  runtime proof, AI ingestion, CLI semantic projection, and Effect/oRPC
+  procedure-core work stay out of this slice. This is local read-only
+  package/source relocation proof only, not runtime proof.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.

@@ -252,6 +252,15 @@ runtime/direct-control claims.
         `index.ts` and leaving reveal mutation, setup map rows, AI ingestion,
         static profile shaping, semantic CLI, telemetry, hotseat runtime proof,
         and Effect/oRPC procedure-core work pending.
+- [ ] 4.12 Extract runtime inspection/catalog/proof atoms.
+  - [x] 4.12.1 Extract runtime API inspection wrapper/source owner while keeping
+        the public facade export surface in `index.ts`, classifying it as
+        debug/internal service output with normal CLI projection omitted or
+        debug-only and debug service projection as raw diagnostic projection,
+        and leaving App UI snapshot, Tuner health, playable status, bounded root
+        inspection, capability catalog, telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, and Effect/oRPC procedure-core work
+        pending.
 
 ## 5. CLI Semantic Surface Lane
 
