@@ -95,7 +95,13 @@ runtime/direct-control claims.
   - [x] 4.2.3 Add unit move preview package test coverage.
   - [x] 4.2.4 Add ready unit/city package test coverage.
   - [x] 4.2.5 Add notification view/dismissal package test coverage.
-  - [ ] 4.2.6 Relocate remaining restack-retained broad-suite log rewrite
+  - [ ] 4.2.6 Add operation/postcondition package test coverage.
+    - [x] 4.2.6a Add unit-operation and production-choice package test
+      coverage.
+    - [ ] 4.2.6b Add unit-target action package test coverage.
+    - [ ] 4.2.6c Add technology/culture chooser closeout package test
+      coverage.
+  - [ ] 4.2.7 Relocate remaining restack-retained broad-suite log rewrite
     marker coverage into the proof/log support atom before source extraction.
     The edge cases remain in `direct-control.test.ts` only as a restack-speed
     fallback.

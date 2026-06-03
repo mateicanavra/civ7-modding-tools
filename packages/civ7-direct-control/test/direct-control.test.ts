@@ -9,7 +9,6 @@ import {
   CIV7_RESTART_COMMAND,
   Civ7DirectControlError,
   checkCiv7TunerHealth,
-  canStartCiv7UnitOperation,
   configureCiv7Autoplay,
   executeCiv7AppUiCommand,
   executeCiv7TunerCommand,
@@ -37,9 +36,7 @@ import {
   planCiv7MapGridReadBounds,
   requestCiv7CultureChoiceCloseout,
   requestCiv7TechnologyChoiceCloseout,
-  requestCiv7ProductionChoice,
   queryCiv7TunerStates,
-  requestCiv7UnitOperation,
   requestCiv7UnitTargetAction,
   revealCiv7MapForPlayer,
   runCiv7SinglePlayerFromSetup,
@@ -1052,67 +1049,6 @@ describe("Civ7 direct control", () => {
     }
   });
 
-  test("validates and sends approved unit operations without replay", async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      const unitId = { owner: 0, id: 65536, type: 26 };
-      const validation = await canStartCiv7UnitOperation(
-        { unitId, operationType: "SKIP_TURN" },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-      );
-      const request = await requestCiv7UnitOperation(
-        { unitId, operationType: "SKIP_TURN" },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test unit operation request" },
-      );
-
-      expect(validation).toMatchObject({
-        family: "unit-operation",
-        operationType: "SKIP_TURN",
-        valid: true,
-      });
-      expect(request.sent).toBe(true);
-      expect(request.verified).toBe(true);
-      expect(request.postcondition).toMatchObject({
-        family: "unit-operation",
-        operationType: "SKIP_TURN",
-        classification: "queue-advanced",
-      });
-      expect(server.received.filter((message) => message.includes("return JSON.stringify(sendOperation")).length).toBe(1);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test("requests production choices through the official App UI production path", async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      const cityId = { owner: 0, id: 65536, type: 1 };
-      const request = await requestCiv7ProductionChoice(
-        { cityId, args: { ConstructibleType: 713967338, X: 22, Y: 31 } },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test official production choice" },
-      );
-
-      expect(request.sent).toBe(true);
-      expect(request.verified).toBe(true);
-      expect(request.productionPostcondition).toMatchObject({
-        classification: "production-choice-cleared",
-        blockerStillLive: false,
-      });
-      expect(request.payload?.ui?.cityActivation).toMatchObject({ ok: true });
-      expect(request.payload?.ui?.interfaceClose).toMatchObject({ ok: true });
-      expect(server.received.some((message) => message.includes("readProductionChoice"))).toBe(true);
-      expect(server.received.some((message) => message.includes("UI?.Player?.selectCity"))).toBe(true);
-      expect(server.received.some((message) => message.includes("InterfaceMode?.switchToDefault"))).toBe(true);
-      expect(server.received.some((message) => message.includes("return JSON.stringify(sendOperation"))).toBe(false);
-    } finally {
-      await server.close();
-    }
-  });
-
   test("requires approval for autoplay configure but allows explicit unbounded start", async () => {
     await expect(
       configureCiv7Autoplay({ turns: 1 }, undefined as never),
@@ -1302,7 +1238,6 @@ async function startTunerServer(options: {
   let setupPlayerDifficulty = "DIFFICULTY_PRINCE";
   let setupRevision = 19;
   let hiddenMapRowVisible = false;
-  let productionChoiceSent = false;
   const visibleSetupRows = () => [
     {
       Domain: "StandardMaps",
@@ -1529,10 +1464,6 @@ async function startTunerServer(options: {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(technologyChoiceCloseout())]));
         } else if (frame.message.includes("sendCultureChoiceCloseout")) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(cultureChoiceCloseout())]));
-        } else if (frame.message.includes("readProductionChoice")) {
-          const send = frame.message.includes('"send":true');
-          if (send) productionChoiceSent = true;
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(productionChoicePayload(send, productionChoiceSent && !send))]));
         } else if (frame.message.includes("Network.isInSession")) {
           const snapshotAutoplayActive = autoplayStopPendingReads > 0 ? true : autoplayActive;
           const snapshotAutoplayPaused = autoplayStopPendingReads > 0 ? true : autoplayPaused;
@@ -1894,37 +1825,6 @@ async function startTunerServer(options: {
               }),
             ]),
           );
-        } else if (frame.message.includes("return JSON.stringify(sendOperation")) {
-          socket.write(
-            encodeResponse(frame.listenerId, [
-              JSON.stringify({
-                sent: true,
-                before: {
-                  family: "unit-operation",
-                  operationType: "SKIP_TURN",
-                  valid: true,
-                  result: { Success: true },
-                },
-                result: { accepted: true },
-                beforePostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 65536, type: 26 }),
-                afterPostcondition: unitOperationPostconditionSnapshot({ owner: 0, id: 131072, type: 26 }),
-              }),
-            ]),
-          );
-        } else if (frame.message.includes("return JSON.stringify(validateOperation")) {
-          socket.write(
-            encodeResponse(frame.listenerId, [
-              JSON.stringify({
-                family: "unit-operation",
-                operationType: "SKIP_TURN",
-                enumValue: "SKIP_TURN",
-                target: { unitId: { owner: 0, id: 65536, type: 26 } },
-                args: undefined,
-                valid: true,
-                result: { Success: true },
-              }),
-            ]),
-          );
         } else if (frame.message.startsWith("CMD:65535:(() =>")) {
           socket.write(
             encodeResponse(frame.listenerId, [
@@ -2031,25 +1931,6 @@ function unitTargetAction(send: boolean, mode: "verified" | "no-op-after-send" =
   };
 }
 
-function unitOperationPostconditionSnapshot(firstReadyUnitId: { owner: number; id: number; type: number }) {
-  return {
-    unit: {
-      ok: true,
-      value: {
-        id: { owner: 0, id: 65536, type: 26 },
-        location: { x: 22, y: 33 },
-        movement: 2,
-        activity: "UNIT_ACTIVITY_AWAKE",
-        damage: 0,
-        attacks: 1,
-      },
-    },
-    selectedUnitId: { ok: true, value: { owner: 0, id: 65536, type: 26 } },
-    firstReadyUnitId: { ok: true, value: firstReadyUnitId },
-    blocker: { ok: true, value: 0 },
-  };
-}
-
 function technologyChoiceCloseout() {
   return {
     localPlayerId: 0,
@@ -2103,73 +1984,6 @@ function cultureChoiceCloseout() {
     ],
   };
 }
-function productionChoicePayload(send: boolean, settled = false) {
-  const cityId = { owner: 0, id: 65536, type: 1 };
-  const before = productionPostconditionSnapshot("before", "cleared");
-  const after = productionPostconditionSnapshot(settled || send ? "after" : "before", "cleared");
-  return {
-    cityId,
-    args: { ConstructibleType: 713967338, X: 22, Y: 31 },
-    beforeValidation: { ok: true, value: { Success: true } },
-    afterValidation: { ok: true, value: { Success: true } },
-    sent: send,
-    sendResult: send ? { ok: true, value: true } : { ok: false, skipped: true, reason: "send not requested" },
-    beforeProductionPostcondition: before,
-    afterProductionPostcondition: after,
-    ui: {
-      cityActivation: send ? { ok: true, value: { selectedCityId: cityId } } : { ok: false, skipped: true, reason: "read-only production choice status" },
-      interfaceClose: send ? { ok: true, value: { selectedCityId: null, interfaceMode: "INTERFACEMODE_DEFAULT" } } : { ok: false, skipped: true, reason: "send not requested" },
-    },
-    notes: ["This mirrors the official production chooser path."],
-  };
-}
-
-function productionPostconditionSnapshot(
-  phase: "before" | "after",
-  mode: "cleared" | "blocker-still-live",
-) {
-  const cityId = { owner: 0, id: 65536, type: 1 };
-  const notification = {
-    id: { owner: 0, id: 6, type: 20 },
-    type: 1090224621,
-    typeName: "NOTIFICATION_CHOOSE_CITY_PRODUCTION",
-    target: cityId,
-    matchesCity: true,
-    canUserDismiss: false,
-    expired: true,
-    dismissed: false,
-  };
-  return {
-    cityId,
-    city: {
-      ok: true,
-      value: {
-        id: cityId,
-        population: 3,
-        isTown: false,
-        location: { x: 26, y: 36 },
-      },
-    },
-    buildQueue: {
-      ok: true,
-      value: {
-        currentProductionTypeHash: phase === "before" ? 713967338 : 1558890441,
-        previousProductionTypeHash: 0,
-        productionProgress: phase === "before" ? 12 : 0,
-        turnsLeftForRequestedItem: phase === "before" ? -1 : 4,
-        queueLength: 1,
-      },
-    },
-    selectedCityId: { ok: true, value: phase === "before" ? cityId : null },
-    blocker: { ok: true, value: mode === "cleared" && phase === "after" ? 0 : 1090224621 },
-    canEndTurn: { ok: true, value: mode === "cleared" && phase === "after" },
-    blockingProductionNotification: {
-      ok: true,
-      value: mode === "blocker-still-live" || phase === "before" ? notification : null,
-    },
-  };
-}
-
 function parseRequest(buffer: Buffer):
   | {
       listenerId: number;

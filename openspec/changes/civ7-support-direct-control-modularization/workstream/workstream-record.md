@@ -132,6 +132,10 @@ All future agent waves must be framed before delegation:
 - Direct-control notification view/dismissal test slice: completed as test-only
   package ownership extraction with two parallel net-new candidates, DRA-owned
   correction/removal, local package proof, and no runtime/source behavior claim.
+- Direct-control unit-operation/production-choice test slice: completed as a
+  DRA-owned test-only package ownership extraction because background thread
+  creation was unavailable; local fake fixtures stayed in focused files, broad
+  suite duplicates were removed, and no runtime/source behavior claim is made.
 - Review-disposition ledger: agent/reviewer findings recorded.
 - Exact dismiss-notification CLI slice: completed as test-only extraction with
   local fixture ownership and no runtime claim.
