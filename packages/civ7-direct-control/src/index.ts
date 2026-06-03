@@ -35,6 +35,7 @@ import {
   getCiv7MapSummary as getCiv7MapSummaryFromModule,
   getCiv7PlotSnapshot as getCiv7PlotSnapshotFromModule,
 } from "./play/map/reads.js";
+import { getCiv7GameInfoRows as getCiv7GameInfoRowsFromModule } from "./play/map/gameinfo.js";
 import { getCiv7VisibilitySummary as getCiv7VisibilitySummaryFromModule } from "./play/map/visibility.js";
 import { requestCiv7DiplomacyResponse as requestCiv7DiplomacyResponseFromModule } from "./play/operations/diplomacy-request.js";
 import { notificationDismissalSource } from "./play/notifications/dismissal.js";
@@ -2956,19 +2957,17 @@ export async function getCiv7GameInfoRows(
   input: Civ7GameInfoRowsInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7GameInfoRowsResult> {
-  const table = validateIdentifier(input.table, "GameInfo table");
-  const filterKey = input.filter ? validateIdentifier(input.filter.key, "GameInfo filter key") : undefined;
-  const result = await executeCiv7TunerCommand({
-    ...options,
-    command: buildGameInfoRowsCommand({
-      ...input,
-      table,
-      filter: input.filter && filterKey ? { ...input.filter, key: filterKey } : undefined,
-      limit: boundedInteger(input.limit ?? DEFAULT_CIV7_GAMEINFO_LIMIT, 1, HARD_CIV7_GAMEINFO_LIMIT, "limit"),
-      offset: boundedInteger(input.offset ?? 0, 0, 1_000_000, "offset"),
-    }),
+  return await getCiv7GameInfoRowsFromModule(input, options, {
+    executeTunerCommand: executeCiv7TunerCommand,
+    parseGameInfoRows: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7GameInfoRowsResult>(result, label),
+    boundedInteger,
+    defaultGameInfoLimit: DEFAULT_CIV7_GAMEINFO_LIMIT,
+    hardGameInfoLimit: HARD_CIV7_GAMEINFO_LIMIT,
+    jsLiteral,
+    probeHelperSource,
+    validateIdentifier,
   });
-  return jsonPayloadFromCommandResult<Civ7GameInfoRowsResult>(result, "Civ7 GameInfo rows");
 }
 
 export async function getCiv7SetupSnapshot(
@@ -4745,59 +4744,6 @@ function buildCitySummaryCommand(input: Civ7CitySummaryInput & { maxItems: numbe
       };
     };
     return JSON.stringify({ cities: selected.map(summarize), omitted: Math.max(0, ids.length - selected.length) });
-  })()`;
-}
-
-function buildGameInfoRowsCommand(input: Civ7GameInfoRowsInput & {
-  table: string;
-  limit: number;
-  offset: number;
-}): string {
-  return `(() => {
-    ${probeHelperSource()}
-    const input = ${jsLiteral(input)};
-    const toPlain = (row) => {
-      if (row == null || typeof row !== "object") return row;
-      try {
-        return JSON.parse(JSON.stringify(row));
-      } catch {
-        const out = {};
-        for (const key of Object.getOwnPropertyNames(row)) {
-          try {
-            const value = row[key];
-            if (typeof value !== "function") out[key] = value;
-          } catch {}
-        }
-        return out;
-      }
-    };
-    const table = GameInfo[input.table];
-    const allRows = (() => {
-      if (!table) return [];
-      if (input.lookup !== undefined) {
-        const lookups = Array.isArray(input.lookup) ? input.lookup : [input.lookup];
-        return lookups.map((key) => {
-          if (typeof table.lookup === "function") return table.lookup(key);
-          return Array.from(table).find((row) => row?.Type === key || row?.Hash === key || row?.Name === key || row?.ID === key);
-        }).filter(Boolean);
-      }
-      return Array.from(table);
-    })();
-    const filtered = input.filter
-      ? allRows.filter((row) => row != null && row[input.filter.key] === input.filter.equals)
-      : allRows;
-    const rows = filtered.slice(input.offset, input.offset + input.limit).map(toPlain);
-    return JSON.stringify({
-      table: input.table,
-      source: "GameInfo",
-      rows,
-      limit: input.limit,
-      offset: input.offset,
-      total: { ok: true, value: filtered.length },
-      omittedUnknown: filtered.length > input.offset + input.limit,
-      ...(input.includeSchema ? { schema: probe(() => typeof Database !== "undefined" ? Database.getTableData(input.table) : undefined) } : {}),
-      ...(input.includePrimaryKeys ? { primaryKeys: probe(() => typeof Database !== "undefined" ? Database.getPrimaryKeys(input.table) : undefined) } : {}),
-    });
   })()`;
 }
 

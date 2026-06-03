@@ -244,6 +244,10 @@ runtime/direct-control claims.
         keeping the public facade export surface in `index.ts` and leaving
         reveal mutation, GameInfo rows, setup map rows, and player/unit/city
         summaries pending.
+  - [x] 4.11.3 Extract GameInfo rows read wrapper/source owner while keeping
+        the public facade export surface in `index.ts` and leaving reveal
+        mutation, setup map rows, player/unit/city summaries, AI ingestion, and
+        static profile shaping pending.
 
 ## 5. CLI Semantic Surface Lane
 
