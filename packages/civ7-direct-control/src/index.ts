@@ -32,6 +32,8 @@ import {
   Civ7CapabilityCatalogEntrySchema,
   Civ7CapabilityCatalogSchema,
   createStaticCiv7CapabilityCatalog as createStaticCiv7CapabilityCatalogFromModule,
+  DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS,
+  DEFAULT_CIV7_CAPABILITY_TUNER_ROOTS,
   generateCiv7CapabilityCatalog as generateCiv7CapabilityCatalogFromModule,
   loadCiv7OfficialResourceCapabilities,
   type Civ7CapabilityCatalog,
@@ -184,6 +186,8 @@ export { loadCiv7OfficialResourceCapabilities } from "./catalog/capabilities.js"
 export {
   Civ7CapabilityCatalogEntrySchema,
   Civ7CapabilityCatalogSchema,
+  DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS,
+  DEFAULT_CIV7_CAPABILITY_TUNER_ROOTS,
 } from "./catalog/capabilities.js";
 export type {
   Civ7CapabilityCatalog,
@@ -213,39 +217,6 @@ export {
 } from "./play/map/constants.js";
 
 export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
-export const DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS = [
-  "Network",
-  "Configuration",
-  "GameSetup",
-  "Autoplay",
-  "Game",
-  "UI",
-  "GameContext",
-  "PlayerIds",
-  "Players",
-  "GameplayMap",
-  "GameInfo",
-  "Database",
-] as const;
-export const DEFAULT_CIV7_CAPABILITY_TUNER_ROOTS = [
-  "Autoplay",
-  "Game",
-  "GameplayMap",
-  "Players",
-  "Units",
-  "Cities",
-  "MapUnits",
-  "MapCities",
-  "Visibility",
-  "ResourceBuilder",
-  "GameInfo",
-  "Database",
-  "UnitOperationTypes",
-  "UnitCommandTypes",
-  "CityOperationTypes",
-  "CityCommandTypes",
-  "PlayerOperationTypes",
-] as const;
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 256;
 export const HARD_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 1_000;
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_TYPES_PER_CELL = 64;

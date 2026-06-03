@@ -544,6 +544,16 @@ All future agent waves must be framed before delegation:
   matrix-row acceptance stay pending. This is local package/constants relocation
   proof only, not runtime proof, AI/hotseat product-path support, or
   procedure-core readiness.
+- Direct-control capability catalog constants slice: completed as a narrow
+  public constants ownership relocation. It moves only capability catalog App
+  UI/Tuner root defaults into `src/catalog/capabilities.ts` while keeping public
+  facade re-exports in `index.ts`. This preserves static/runtime catalog root
+  defaults and keeps runtime root inspection injected from the facade. Broader
+  public constants/types, procedure schemas, operation/proof telemetry, AI
+  ingestion, hotseat runtime proof, CLI semantic projection, Effect/oRPC
+  procedure-core work, and Task 2.9.4 matrix-row acceptance stay pending. This
+  is local package/constants relocation proof only, not runtime proof,
+  AI/hotseat product-path support, or procedure-core readiness.
 - Direct-control turn-completion slice: completed as a narrow turn-completion
   source/wrapper relocation. It moves only `getCiv7TurnCompletionStatus`,
   `sendCiv7TurnComplete`, `sendCiv7TurnUnready`, the status command builder,
