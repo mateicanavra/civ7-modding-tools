@@ -379,6 +379,14 @@ runtime/direct-control claims.
         restart/begin lifecycle orchestration, no-replay semantics, runtime
         proof, AI ingestion, semantic CLI projection, telemetry, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.14.2 Extract setup map-row visibility refresh owner while keeping
+        public facade exports in `index.ts`, preserving approval-first
+        exit-to-shell refresh, setup map-row polling, command strings, and
+        verified result shape, and leaving `prepareCiv7SinglePlayerSetup`,
+        `startPreparedCiv7SinglePlayerGame`, `runCiv7SinglePlayerFromSetup`,
+        restart/begin lifecycle orchestration, no-replay semantics, runtime
+        proof, AI ingestion, semantic CLI projection, telemetry, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 
 ## 5. CLI Semantic Surface Lane
 

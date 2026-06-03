@@ -1,23 +1,30 @@
 import { Civ7DirectControlError } from "../direct-control-error";
 
 import type {
+  Civ7ActionApproval,
   Civ7CommandResult,
   Civ7DirectControlOptions,
+  Civ7SetupMapRowVisibilityInput,
+  Civ7SetupMapRowVisibilityResult,
   Civ7SetupMapRowsInput,
   Civ7SetupMapRowsResult,
+  Civ7SetupPhase,
   Civ7SetupSnapshotResult,
 } from "../index";
 
 type SetupReadDependencies = Readonly<{
+  assertApproved: (approval: Civ7ActionApproval, action: string) => void;
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   executeAppUiCommand: (
     options: Civ7DirectControlOptions & Readonly<{ command: string }>,
   ) => Promise<Civ7CommandResult>;
+  exitToMainMenuCommand: string;
   jsLiteral: (value: unknown) => string;
   parseSetupMapRows: (result: Civ7CommandResult, label: string) => Civ7SetupMapRowsResult;
   parseSetupSnapshot: (result: Civ7CommandResult, label: string) => Civ7SetupSnapshotResult;
   probeHelperSource: () => string;
   playerSetupParameterIds: readonly string[];
+  reloadUiCommand: string;
   setupParameterIds: readonly string[];
 }>;
 
@@ -44,6 +51,56 @@ export async function getCiv7SetupMapRows(
     command: buildSetupMapRowsCommand({ ...input, limit }, dependencies),
   });
   return dependencies.parseSetupMapRows(result, "Civ7 setup map rows");
+}
+
+export async function ensureCiv7SetupMapRowVisible(
+  input: Civ7SetupMapRowVisibilityInput,
+  options: Civ7DirectControlOptions = {},
+  approval: Civ7ActionApproval | undefined,
+  dependencies: SetupReadDependencies,
+): Promise<Civ7SetupMapRowVisibilityResult> {
+  validateMapScript(input.file);
+  const limit = dependencies.boundedInteger(input.limit ?? 100, 1, 1_000, "limit");
+  const rowInput = { file: input.file, limit };
+  const initial = await getCiv7SetupMapRows(rowInput, options, dependencies);
+  if (initial.rows.length > 0 || input.reloadIfMissing !== "exit-to-shell") {
+    return {
+      initial,
+      final: initial,
+      refreshed: false,
+      verified: initial.rows.length > 0,
+    };
+  }
+
+  if (!approval) {
+    throw new Civ7DirectControlError("command-failed", "Explicit approval is required before refreshing Civ7 setup map rows");
+  }
+  dependencies.assertApproved(approval, "refreshing Civ7 setup map rows");
+  const waitTimeoutMs = input.waitTimeoutMs ?? options.timeoutMs ?? 30_000;
+  const pollIntervalMs = input.pollIntervalMs ?? 1_000;
+  const shellBefore = await getCiv7SetupSnapshot(options, dependencies).catch(() => undefined);
+  const shellExit = shellBefore?.snapshot.phase === "shell"
+    ? undefined
+    : await dependencies.executeAppUiCommand({
+        ...options,
+        command: dependencies.exitToMainMenuCommand,
+      });
+  const shellAfter = await waitForCiv7SetupPhase("shell", options, { waitTimeoutMs, pollIntervalMs }, dependencies);
+  const reload = await dependencies.executeAppUiCommand({
+    ...options,
+    command: dependencies.reloadUiCommand,
+  });
+  const final = await waitForCiv7SetupMapRows(rowInput, options, { waitTimeoutMs, pollIntervalMs }, dependencies);
+  return {
+    initial,
+    final,
+    shellBefore,
+    shellAfter,
+    shellExit,
+    reload,
+    refreshed: true,
+    verified: final.rows.length > 0,
+  };
 }
 
 export function buildSetupSnapshotCommand(dependencies: SetupReadDependencies): string {
@@ -286,4 +343,50 @@ export function validateMapScript(value: string): string {
     );
   }
   return value;
+}
+
+async function waitForCiv7SetupPhase(
+  phase: Civ7SetupPhase,
+  options: Civ7DirectControlOptions,
+  wait: { waitTimeoutMs: number; pollIntervalMs: number },
+  dependencies: SetupReadDependencies,
+): Promise<Civ7SetupSnapshotResult> {
+  const startedAt = Date.now();
+  let last: Civ7SetupSnapshotResult | undefined;
+  while (Date.now() - startedAt <= wait.waitTimeoutMs) {
+    try {
+      const snapshot = await getCiv7SetupSnapshot(options, dependencies);
+      last = snapshot;
+      if (snapshot.snapshot.phase === phase) return snapshot;
+    } catch {
+      // Keep polling during shell transitions; callers get timeout details below.
+    }
+    await sleep(wait.pollIntervalMs);
+  }
+  throw new Civ7DirectControlError(
+    "setup-phase-invalid",
+    `Timed out waiting for Civ7 setup phase ${phase}`,
+    { details: last },
+  );
+}
+
+async function waitForCiv7SetupMapRows(
+  input: Required<Pick<Civ7SetupMapRowsInput, "file" | "limit">>,
+  options: Civ7DirectControlOptions,
+  wait: { waitTimeoutMs: number; pollIntervalMs: number },
+  dependencies: SetupReadDependencies,
+): Promise<Civ7SetupMapRowsResult> {
+  const startedAt = Date.now();
+  let last = await getCiv7SetupMapRows(input, options, dependencies);
+  if (last.rows.length > 0) return last;
+  while (Date.now() - startedAt <= wait.waitTimeoutMs) {
+    await sleep(wait.pollIntervalMs);
+    last = await getCiv7SetupMapRows(input, options, dependencies);
+    if (last.rows.length > 0) return last;
+  }
+  return last;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
