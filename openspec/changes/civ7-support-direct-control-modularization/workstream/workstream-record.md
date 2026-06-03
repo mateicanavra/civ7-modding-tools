@@ -522,6 +522,17 @@ All future agent waves must be framed before delegation:
   2.9.4 matrix-row acceptance stay pending. This is local package/constants
   relocation proof only, not runtime proof, AI/hotseat product-path support, or
   procedure-core readiness.
+- Direct-control session constants slice: completed as a narrow public
+  constants ownership relocation. It moves only default tuner host, port,
+  timeout, default state name, and App UI/Tuner state-name constants into
+  `src/session/constants.ts` while keeping public facade re-exports in
+  `index.ts`. This preserves session config defaults, state selection names, and
+  public API values. Broader session/config/socket source extraction, public
+  constants/types, procedure schemas, operation/proof telemetry, AI ingestion,
+  hotseat runtime proof, CLI semantic projection, Effect/oRPC procedure-core
+  work, and Task 2.9.4 matrix-row acceptance stay pending. This is local
+  package/constants relocation proof only, not runtime proof, AI/hotseat
+  product-path support, or procedure-core readiness.
 - Direct-control turn-completion slice: completed as a narrow turn-completion
   source/wrapper relocation. It moves only `getCiv7TurnCompletionStatus`,
   `sendCiv7TurnComplete`, `sendCiv7TurnUnready`, the status command builder,

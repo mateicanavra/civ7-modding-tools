@@ -15,6 +15,14 @@ import {
   type Civ7TunerFrame,
 } from "./session/framing.js";
 import {
+  CIV7_TUNER_APP_UI_STATE_NAME,
+  CIV7_TUNER_STATE_NAME,
+  DEFAULT_CIV7_TUNER_HOST,
+  DEFAULT_CIV7_TUNER_PORT,
+  DEFAULT_CIV7_TUNER_STATE_NAME,
+  DEFAULT_CIV7_TUNER_TIMEOUT_MS,
+} from "./session/constants.js";
+import {
   snapshotFile,
   waitForFreshLogMarkers,
   type FileSnapshot,
@@ -150,6 +158,14 @@ export {
 } from "./session/framing.js";
 export type { Civ7TunerFrame } from "./session/framing.js";
 export {
+  CIV7_TUNER_APP_UI_STATE_NAME,
+  CIV7_TUNER_STATE_NAME,
+  DEFAULT_CIV7_TUNER_HOST,
+  DEFAULT_CIV7_TUNER_PORT,
+  DEFAULT_CIV7_TUNER_STATE_NAME,
+  DEFAULT_CIV7_TUNER_TIMEOUT_MS,
+} from "./session/constants.js";
+export {
   snapshotFile,
   waitForFreshLogMarkers,
 } from "./proof/log-markers.js";
@@ -182,12 +198,6 @@ export {
   DEFAULT_CIV7_SETUP_PARAMETER_IDS,
 } from "./setup/constants.js";
 
-export const DEFAULT_CIV7_TUNER_HOST = "127.0.0.1";
-export const DEFAULT_CIV7_TUNER_PORT = 4318;
-export const DEFAULT_CIV7_TUNER_TIMEOUT_MS = 10_000;
-export const DEFAULT_CIV7_TUNER_STATE_NAME = "App UI";
-export const CIV7_TUNER_APP_UI_STATE_NAME = "App UI";
-export const CIV7_TUNER_STATE_NAME = "Tuner";
 export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
 export const DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS = [
   "Network",

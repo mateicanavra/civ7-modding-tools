@@ -323,6 +323,13 @@ runtime/direct-control claims.
         operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
         semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.8.3 Extract session endpoint/state constants owner while keeping
+        public facade re-exports in `index.ts`, preserving default host, port,
+        timeout, App UI/Tuner state names, session config behavior, and leaving
+        broader session/config/socket extraction, public constants/types,
+        procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
       oRPC implementation; current support branch has no tracked
       `.agents/skills/civ7-orpc-control-architecture` or
