@@ -1130,25 +1130,7 @@ export async function getCiv7VisibilitySummary(
   input: Civ7VisibilitySummaryInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7VisibilitySummaryResult> {
-  return await getCiv7VisibilitySummaryFromModule(input, options, visibilityDependencies());
-}
-
-function visibilityDependencies() {
-  return {
-    assertApproved,
-    executeTunerCommand: executeCiv7TunerCommand,
-    parseVisibilitySummary: (result: Civ7CommandResult, label: string) =>
-      jsonPayloadFromCommandResult<Civ7VisibilitySummaryResult>(result, label),
-    boundedInteger,
-    defaultMapGridMaxPlots: DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
-    hardMapGridMaxPlots: HARD_CIV7_MAP_GRID_MAX_PLOTS,
-    jsLiteral,
-    probeHelperSource,
-    probeValue,
-    validateMapBounds,
-    validatePlayerId,
-    getVisibilitySummary: getCiv7VisibilitySummary,
-  } as const;
+  return await getCiv7VisibilitySummaryFromModule(input, options);
 }
 
 export async function getCiv7GameInfoRows(
@@ -1370,7 +1352,7 @@ export async function revealCiv7MapForPlayer(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7RevealMapResult> {
-  return await revealCiv7MapForPlayerFromModule(input, options, approval, visibilityDependencies());
+  return await revealCiv7MapForPlayerFromModule(input, options, approval);
 }
 
 export async function getCiv7TurnCompletionStatus(

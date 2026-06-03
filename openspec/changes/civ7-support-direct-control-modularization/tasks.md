@@ -842,6 +842,15 @@ runtime/direct-control claims.
         telemetry, hotseat runtime proof, AI ingestion, CLI semantic
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
+  - [x] 4.11.11 Prune visibility/reveal facade dependency injection by letting
+        the visibility owner import existing non-facade approval, executor,
+        parser, validation, serializer, constant, probe, and bounds helpers
+        directly, while keeping public facade exports stable, preserving
+        visibility read bounds behavior, reveal approval/disposable-session
+        guard, reveal classification, and leaving public procedure schemas,
+        telemetry, hotseat runtime proof, AI ingestion, CLI semantic
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.12 Extract runtime inspection/catalog/proof atoms.
   - [x] 4.12.1 Extract runtime API inspection wrapper/source owner while keeping
         the public facade export surface in `index.ts`, classifying it as

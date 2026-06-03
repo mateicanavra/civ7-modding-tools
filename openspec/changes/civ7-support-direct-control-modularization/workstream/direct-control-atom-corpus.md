@@ -128,6 +128,16 @@ constants; broader public and procedure schemas, telemetry, hotseat runtime
 proof, AI ingestion, CLI semantic projection, and Effect/oRPC procedure cores
 remain pending separate slices.
 
+Map visibility dependency update: `src/play/map/visibility.ts` now owns default
+approval, executor, parser, serializer, probe, validation, constants, and bounds
+helper wiring for visibility summary reads and reveal-map orchestration while
+the public facade exports stay stable in `index.ts`. This prunes the
+visibility/reveal facade dependency assembly only; it does not change reveal
+approval/disposable-session behavior, reveal classification, visibility bounds
+semantics, runtime/live-game proof, AI ingestion, telemetry, CLI semantic
+projection, Effect/oRPC procedure-core work, or Task 2.9.4 matrix-row
+acceptance.
+
 Runtime type update: runtime result/input/probe type ownership now follows the
 existing runtime atom owners while public facade type re-exports stay in
 `index.ts`. `src/runtime/probe.ts` owns `Civ7RuntimeProbe`;

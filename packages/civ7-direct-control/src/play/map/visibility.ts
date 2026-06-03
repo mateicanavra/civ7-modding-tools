@@ -1,14 +1,25 @@
 import { Civ7DirectControlError } from "../../direct-control-error.js";
-import type { Civ7ActionApproval } from "../../action-approval.js";
+import { assertApproved, type Civ7ActionApproval } from "../../action-approval.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
   Civ7TunerState,
 } from "../../session/types.js";
-import type {
-  Civ7RuntimeProbe,
+import { jsLiteral } from "../../runtime/command-serialization.js";
+import {
+  probeHelperSource,
+  probeValue,
+  type Civ7RuntimeProbe,
 } from "../../runtime/probe.js";
+import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7TunerCommand } from "../../session/execute.js";
+import { boundedInteger, validatePlayerId } from "../../validation.js";
+import {
+  DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
+  HARD_CIV7_MAP_GRID_MAX_PLOTS,
+} from "./constants.js";
 import type { Civ7MapBounds, Civ7MapLocation } from "./types.js";
+import { validateMapBounds } from "./validation.js";
 
 export type Civ7VisibilitySummaryInput = Readonly<{
   playerId: number;
@@ -72,7 +83,7 @@ type VisibilityRevealDependencies = VisibilityReadDependencies &
 export async function getCiv7VisibilitySummary(
   input: Civ7VisibilitySummaryInput,
   options: Civ7DirectControlOptions = {},
-  dependencies: VisibilityReadDependencies,
+  dependencies: VisibilityReadDependencies = defaultVisibilityReadDependencies,
 ): Promise<Civ7VisibilitySummaryResult> {
   dependencies.validatePlayerId(input.playerId);
   const maxPlots = dependencies.boundedInteger(
@@ -102,7 +113,7 @@ export async function revealCiv7MapForPlayer(
   input: Readonly<{ playerId: number }>,
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
-  dependencies: VisibilityRevealDependencies,
+  dependencies: VisibilityRevealDependencies = defaultVisibilityRevealDependencies,
 ): Promise<Civ7RevealMapResult> {
   dependencies.assertApproved(approval, "revealing the Civ7 map");
   if (!approval.disposableSession) {
@@ -186,3 +197,23 @@ function buildVisibilitySummaryCommand(
     });
   })()`;
 }
+
+const defaultVisibilityReadDependencies: VisibilityReadDependencies = {
+  boundedInteger,
+  defaultMapGridMaxPlots: DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
+  executeTunerCommand: executeCiv7TunerCommand,
+  hardMapGridMaxPlots: HARD_CIV7_MAP_GRID_MAX_PLOTS,
+  jsLiteral,
+  parseVisibilitySummary: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7VisibilitySummaryResult>(result, label),
+  probeHelperSource,
+  validateMapBounds,
+  validatePlayerId,
+};
+
+const defaultVisibilityRevealDependencies: VisibilityRevealDependencies = {
+  ...defaultVisibilityReadDependencies,
+  assertApproved,
+  getVisibilitySummary: getCiv7VisibilitySummary,
+  probeValue,
+};
