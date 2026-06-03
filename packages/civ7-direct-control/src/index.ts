@@ -15,6 +15,7 @@ import {
   type Civ7TunerFrame,
 } from "./session/framing.js";
 import { discoverCiv7DirectControlEndpoint as discoverCiv7DirectControlEndpointFromModule } from "./session/discovery.js";
+import { allocateListenerId } from "./session/listener-id.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlEndpoint,
@@ -824,8 +825,6 @@ type PendingCiv7TunerRequest = {
   timer: NodeJS.Timeout;
   message: string;
 };
-
-let nextListenerId = Math.trunc(Date.now() % 1_000_000);
 
 export async function discoverCiv7DirectControlEndpoint(
   options: Civ7DirectControlOptions = {},
@@ -2301,12 +2300,6 @@ async function sendCiv7TunerMessage(options: {
     options.socket.once("close", onClose);
     options.socket.write(encodeCiv7TunerRequest(listenerId, options.message));
   });
-}
-
-function allocateListenerId(): number {
-  nextListenerId = (nextListenerId + 1) % 0xffff_ffff;
-  if (nextListenerId <= 0) nextListenerId = 1;
-  return nextListenerId;
 }
 
 function isNodeNotFound(err: unknown): boolean {

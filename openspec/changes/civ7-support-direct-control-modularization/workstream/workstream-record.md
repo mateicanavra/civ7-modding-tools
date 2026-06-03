@@ -1349,6 +1349,16 @@ All future agent waves must be framed before delegation:
   procedure schemas, semantic CLI projection, AI ingestion, hotseat runtime
   proof, or Effect/oRPC procedure-core work. This is local package/source
   relocation proof only, not runtime/live-game proof.
+- Direct-control tuner listener-id allocator slice: completed as a narrow
+  session helper relocation. It moves `allocateListenerId` and its private
+  counter into `src/session/listener-id.ts` while preserving positive
+  incrementing listener IDs. `index.ts` still owns `Civ7DirectControlSession`,
+  frame request handling, state querying, command execution, session
+  creation/close, reconnect orchestration, and public facade exports. This does
+  not define telemetry/correlation contracts, public procedure schemas,
+  semantic CLI projection, AI ingestion, hotseat runtime proof, or Effect/oRPC
+  procedure-core work. This is local package/source relocation proof only, not
+  runtime/live-game proof.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into

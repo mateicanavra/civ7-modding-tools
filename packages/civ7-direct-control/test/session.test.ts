@@ -15,6 +15,7 @@ import {
   waitForFreshLogMarkers,
 } from "../src/index";
 import { discoverCiv7DirectControlEndpoint } from "../src/session/discovery";
+import { allocateListenerId } from "../src/session/listener-id";
 import { openCiv7TunerSocket } from "../src/session/socket";
 import { tunerStatesFromParts } from "../src/session/state";
 
@@ -177,6 +178,15 @@ describe("Civ7 direct control session framing", () => {
     expect(tunerStatesFromParts(["65535", "App UI", "dangling-id"])).toEqual([
       { id: "65535", name: "App UI" },
     ]);
+  });
+
+  test("allocates positive increasing tuner listener ids", () => {
+    const first = allocateListenerId();
+    const second = allocateListenerId();
+
+    expect(Number.isInteger(first)).toBe(true);
+    expect(first).toBeGreaterThan(0);
+    expect(second).toBe(first + 1);
   });
 
   test("parses fragmented and concatenated tuner frames", () => {

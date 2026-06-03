@@ -596,6 +596,13 @@ runtime/direct-control claims.
         telemetry/correlation contracts, procedure schemas, semantic CLI, AI
         ingestion, hotseat runtime proof, Effect/oRPC procedure-core work, and
         Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.9 Extract tuner listener-id allocator owner while preserving
+        positive incrementing listener IDs and leaving
+        `Civ7DirectControlSession`, frame request handling, state querying,
+        command execution, reconnect orchestration, telemetry/correlation
+        contracts, procedure schemas, semantic CLI, AI ingestion, hotseat
+        runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 - [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in
