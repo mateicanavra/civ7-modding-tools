@@ -352,6 +352,13 @@ All future agent waves must be framed before delegation:
   `index.ts`. Visibility summary, reveal mutation, GameInfo rows, setup map
   rows, and player/unit/city summaries stay out of this slice. This is local
   read-only package/source relocation proof only, not runtime proof.
+- Direct-control visibility summary source/wrapper slice: completed as the
+  next map/visibility/GameInfo read relocation. It moves only
+  `getCiv7VisibilitySummary` orchestration plus its bounded visibility-grid
+  command/source helper into `src/play/map/visibility.ts` while keeping public
+  facade exports in `index.ts`. Reveal mutation, GameInfo rows, setup map rows,
+  and player/unit/city summaries stay out of this slice. This is local
+  read-only package/source relocation proof only, not runtime proof.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.

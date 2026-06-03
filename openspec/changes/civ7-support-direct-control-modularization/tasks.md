@@ -240,6 +240,10 @@ runtime/direct-control claims.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in
         `index.ts`.
+  - [x] 4.11.2 Extract visibility summary read wrapper/source owner while
+        keeping the public facade export surface in `index.ts` and leaving
+        reveal mutation, GameInfo rows, setup map rows, and player/unit/city
+        summaries pending.
 
 ## 5. CLI Semantic Surface Lane
 

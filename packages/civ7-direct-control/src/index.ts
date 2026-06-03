@@ -35,6 +35,7 @@ import {
   getCiv7MapSummary as getCiv7MapSummaryFromModule,
   getCiv7PlotSnapshot as getCiv7PlotSnapshotFromModule,
 } from "./play/map/reads.js";
+import { getCiv7VisibilitySummary as getCiv7VisibilitySummaryFromModule } from "./play/map/visibility.js";
 import { requestCiv7DiplomacyResponse as requestCiv7DiplomacyResponseFromModule } from "./play/operations/diplomacy-request.js";
 import { notificationDismissalSource } from "./play/notifications/dismissal.js";
 import { waitForCiv7NotificationDismissal } from "./play/notifications/verification.js";
@@ -2937,20 +2938,18 @@ export async function getCiv7VisibilitySummary(
   input: Civ7VisibilitySummaryInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7VisibilitySummaryResult> {
-  validatePlayerId(input.playerId);
-  const maxPlots = boundedInteger(input.maxPlots ?? DEFAULT_CIV7_MAP_GRID_MAX_PLOTS, 1, HARD_CIV7_MAP_GRID_MAX_PLOTS, "maxPlots");
-  if (input.includeGrid && !input.bounds) {
-    throw new Civ7DirectControlError("command-failed", "Visibility grid reads require explicit bounds");
-  }
-  if (input.bounds) validateMapBounds(input.bounds);
-  const result = await executeCiv7TunerCommand({
-    ...options,
-    command: buildVisibilitySummaryCommand({
-      ...input,
-      maxPlots,
-    }),
+  return await getCiv7VisibilitySummaryFromModule(input, options, {
+    executeTunerCommand: executeCiv7TunerCommand,
+    parseVisibilitySummary: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7VisibilitySummaryResult>(result, label),
+    boundedInteger,
+    defaultMapGridMaxPlots: DEFAULT_CIV7_MAP_GRID_MAX_PLOTS,
+    hardMapGridMaxPlots: HARD_CIV7_MAP_GRID_MAX_PLOTS,
+    jsLiteral,
+    probeHelperSource,
+    validateMapBounds,
+    validatePlayerId,
   });
-  return jsonPayloadFromCommandResult<Civ7VisibilitySummaryResult>(result, "Civ7 visibility summary");
 }
 
 export async function getCiv7GameInfoRows(
@@ -4746,52 +4745,6 @@ function buildCitySummaryCommand(input: Civ7CitySummaryInput & { maxItems: numbe
       };
     };
     return JSON.stringify({ cities: selected.map(summarize), omitted: Math.max(0, ids.length - selected.length) });
-  })()`;
-}
-
-function buildVisibilitySummaryCommand(input: Civ7VisibilitySummaryInput & { maxPlots: number }): string {
-  return `(() => {
-    ${probeHelperSource()}
-    const input = ${jsLiteral(input)};
-    const readState = (x, y) => probe(() => GameplayMap.getRevealedState(input.playerId, x, y));
-    const readVisible = (x, y) => probe(() => typeof Visibility !== "undefined" && typeof Visibility.isVisible === "function"
-      ? Visibility.isVisible(input.playerId, x, y)
-      : false);
-    const counts = {};
-    const statesFromBounds = () => {
-      if (!input.bounds) return [];
-      const out = [];
-      outer: for (let y = input.bounds.y; y < input.bounds.y + input.bounds.height; y += 1) {
-        for (let x = input.bounds.x; x < input.bounds.x + input.bounds.width; x += 1) {
-          const state = readState(x, y);
-          const key = state.ok ? String(state.value) : "error";
-          counts[key] = (counts[key] ?? 0) + 1;
-          out.push({ x, y, state, visible: readVisible(x, y) });
-          if (out.length >= input.maxPlots) break outer;
-        }
-      }
-      return out;
-    };
-    const gridStates = input.includeGrid ? statesFromBounds() : [];
-    const requestedCount = input.bounds ? input.bounds.width * input.bounds.height : gridStates.length;
-    return JSON.stringify({
-      playerId: input.playerId,
-      numPlotsRevealed: probe(() => typeof Visibility !== "undefined" && typeof Visibility.getPlotsRevealedCount === "function"
-        ? Visibility.getPlotsRevealedCount(input.playerId)
-        : Players.LiveOpsStats.get(input.playerId).numPlotsRevealed),
-      numPlotsVisible: probe(() => typeof Visibility !== "undefined" && typeof Visibility.getPlotsVisibleCount === "function"
-        ? Visibility.getPlotsVisibleCount(input.playerId)
-        : 0),
-      counts,
-      ...(input.includeGrid ? {
-        grid: {
-          bounds: input.bounds,
-          plotCount: requestedCount,
-          omitted: Math.max(0, requestedCount - gridStates.length),
-          states: gridStates,
-        },
-      } : {}),
-    });
   })()`;
 }
 
