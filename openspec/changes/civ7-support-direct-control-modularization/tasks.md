@@ -1121,6 +1121,16 @@ runtime/direct-control claims.
         composition, runtime proof, hotseat runtime proof, AI ingestion,
         semantic CLI projection, telemetry, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.14.12 Prune restart/begin facade dependency injection by letting
+        `src/setup/restart.ts` import existing non-facade App UI execution,
+        command execution, session/reconnect, Tuner-ready wait, and setup
+        command/loading-state constant owners directly, while keeping public
+        facade exports stable, preserving begin command routing, restart-output
+        rejection, begin-ready polling, one-attempt begin send, optional Tuner
+        readiness wait, restart lifecycle package proof, and no-replay package
+        proof, and leaving runtime proof, hotseat runtime proof, AI ingestion,
+        semantic CLI projection, telemetry, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
 
 ## 5. CLI Semantic Surface Lane
 

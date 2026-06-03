@@ -1788,6 +1788,19 @@ All future agent waves must be framed before delegation:
   matrix rows, or unblock telemetry, AI ingestion, semantic CLI projection,
   hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
   implementation.
+- Restart/begin facade dependency cleanup: `src/setup/restart.ts` now imports
+  existing non-facade App UI execution, command execution, session/reconnect,
+  Tuner-ready wait, restart/begin command constants, and UI loading-state
+  constants directly for `beginCiv7Game`, `restartCiv7Game`, and
+  `restartCiv7GameAndBegin`. The public facade exports remain stable, but
+  `index.ts` no longer assembles restart/begin dependency objects for those
+  direct lifecycle calls. This preserves begin command routing, restart-output
+  rejection, begin-ready polling, one-attempt begin send, optional Tuner
+  readiness wait, restart lifecycle package proof, and no-replay package proof.
+  This is local package/source relocation proof only: it does not claim
+  runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock telemetry,
+  AI ingestion, semantic CLI projection, hotseat runtime proof,
+  schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into

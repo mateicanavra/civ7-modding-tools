@@ -86,9 +86,7 @@ import {
 } from "./runtime/root-inspection.js";
 import {
   checkCiv7TunerHealth as checkCiv7TunerHealthFromModule,
-  checkCiv7TunerHealthWithSession,
   waitForCiv7TunerReady as waitForCiv7TunerReadyFromModule,
-  waitForCiv7TunerReadyWithSession,
   type Civ7TunerHealthResult,
   type Civ7TunerHealthSnapshot,
 } from "./runtime/tuner-health.js";
@@ -827,10 +825,7 @@ export async function getCiv7AppUiSnapshot(
 }
 
 export async function beginCiv7Game(options: Civ7DirectControlOptions = {}): Promise<Civ7CommandResult> {
-  return await beginCiv7GameFromModule(options, {
-    beginGameCommand: CIV7_BEGIN_GAME_COMMAND,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-  });
+  return await beginCiv7GameFromModule(options);
 }
 
 export async function checkCiv7TunerHealth(
@@ -845,10 +840,7 @@ export async function checkCiv7TunerHealth(
 export async function restartCiv7Game(options: Civ7DirectControlOptions & {
   state?: Civ7TunerStateSelection;
 } = {}): Promise<Civ7CommandResult> {
-  return await restartCiv7GameFromModule(options, {
-    executeCommand: executeCiv7Command,
-    restartCommand: CIV7_RESTART_COMMAND,
-  });
+  return await restartCiv7GameFromModule(options);
 }
 
 export async function restartCiv7GameAndBegin(options: Civ7DirectControlOptions & {
@@ -856,23 +848,7 @@ export async function restartCiv7GameAndBegin(options: Civ7DirectControlOptions 
   waitTimeoutMs?: number;
   pollIntervalMs?: number;
 } = {}): Promise<Civ7RestartAndBeginResult> {
-  return await restartCiv7GameAndBeginFromModule(options, {
-    appUiState: { role: "app-ui" },
-    beginGameCommand: CIV7_BEGIN_GAME_COMMAND,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    executeCommand: executeCiv7Command,
-    executeSessionCommandWithReconnect,
-    restartCommand: CIV7_RESTART_COMMAND,
-    uiLoadingStates: CIV7_UI_LOADING_STATES,
-    waitForTunerReadyWithSession: async (
-      session: Civ7DirectControlSession,
-      waitOptions: { timeoutMs?: number; waitTimeoutMs?: number; pollIntervalMs?: number },
-    ) =>
-      await waitForCiv7TunerReadyWithSession(session, waitOptions, {
-        executeSessionCommandWithReconnect,
-      }),
-    withSession: withCiv7DirectControlSession,
-  });
+  return await restartCiv7GameAndBeginFromModule(options);
 }
 
 export async function waitForCiv7TunerReady(options: Civ7DirectControlOptions & {
