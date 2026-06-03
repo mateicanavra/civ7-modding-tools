@@ -554,6 +554,17 @@ All future agent waves must be framed before delegation:
   procedure-core work, and Task 2.9.4 matrix-row acceptance stay pending. This
   is local package/constants relocation proof only, not runtime proof,
   AI/hotseat product-path support, or procedure-core readiness.
+- Direct-control autoplay constants slice: completed as a narrow public
+  constants ownership relocation. It moves only autoplay default max-turn,
+  wait, poll, and stop-stability constants into `src/play/autoplay.ts` while
+  keeping public facade re-exports in `index.ts`. This preserves autoplay
+  wrapper defaults and keeps App UI execution, validation, approval, sleeping,
+  and serializer dependencies injected from the facade. Broader public
+  constants/types, procedure schemas, operation/proof telemetry, AI ingestion,
+  hotseat runtime proof, CLI semantic projection, Effect/oRPC procedure-core
+  work, and Task 2.9.4 matrix-row acceptance stay pending. This is local
+  package/constants relocation proof only, not runtime proof, AI/hotseat
+  product-path support, or procedure-core readiness.
 - Direct-control turn-completion slice: completed as a narrow turn-completion
   source/wrapper relocation. It moves only `getCiv7TurnCompletionStatus`,
   `sendCiv7TurnComplete`, `sendCiv7TurnUnready`, the status command builder,

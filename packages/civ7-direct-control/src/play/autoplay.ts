@@ -9,6 +9,12 @@ import type {
   Civ7DirectControlOptions,
 } from "../index";
 
+export const DEFAULT_CIV7_AUTOPLAY_MAX_TURNS = 50;
+export const DEFAULT_CIV7_AUTOPLAY_WAIT_MS = 5_000;
+export const DEFAULT_CIV7_AUTOPLAY_STOP_WAIT_MS = 30_000;
+export const DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS = 250;
+export const DEFAULT_CIV7_AUTOPLAY_STOP_STABILITY_MS = 10_000;
+
 type AutoplayDependencies = Readonly<{
   assertApproved: (approval: Civ7ActionApproval, action: string) => void;
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
