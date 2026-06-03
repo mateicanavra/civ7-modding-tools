@@ -89,7 +89,7 @@ runtime/direct-control claims.
 ## 4. Direct-Control Atom Lane
 
 - [x] 4.1 Define direct-control module boundaries and forbidden owners.
-- [ ] 4.2 Add or relocate focused direct-control package tests for each atom.
+- [x] 4.2 Add or relocate focused direct-control package tests for each atom.
   - [x] 4.2.1 Add public API/primitives package test coverage.
   - [x] 4.2.2 Add session/framing package test coverage.
   - [x] 4.2.3 Add unit move preview package test coverage.
@@ -109,7 +109,7 @@ runtime/direct-control claims.
   - [x] 4.2.9 Add setup/lifecycle package test coverage.
   - [x] 4.2.10 Add autoplay and turn-completion package test coverage.
   - [x] 4.2.11 Add runtime inspection and catalog/proof package test coverage.
-  - [ ] 4.2.12 Add restart/begin lifecycle package test coverage.
+  - [x] 4.2.12 Add restart/begin lifecycle package test coverage.
   - [ ] 4.2.13 Add full-grid map identity and resource/feature builder
     readback edge coverage to owning package suites before source extraction.
 - [ ] 4.3 Extract notification view/materialization atom.

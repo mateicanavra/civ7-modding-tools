@@ -204,8 +204,14 @@ All future agent waves must be framed before delegation:
   test-only package ownership extraction with three parallel net-new agents,
   DRA-owned broad-suite removal, local package proof, official-resource/doc
   checks, and no runtime/source behavior claim. The broad
-  `direct-control.test.ts` suite now retains only restart/begin lifecycle
+  `direct-control.test.ts` suite then retained only restart/begin lifecycle
   ownership.
+- Direct-control restart lifecycle test slice: completed as DRA-owned serial
+  package ownership extraction because `direct-control.test.ts` was the single
+  remaining writer surface. `test/restart-lifecycle.test.ts` now owns restart,
+  begin, wait-for-Tuner readiness, and restart-output rejection coverage; the
+  broad `direct-control.test.ts` file has been removed. This is local
+  fake-tuner package proof only, not runtime proof.
 - Review-disposition ledger: agent/reviewer findings recorded.
 - Exact dismiss-notification CLI slice: completed as test-only extraction with
   local fixture ownership and no runtime claim.
