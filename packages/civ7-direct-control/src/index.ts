@@ -1476,12 +1476,7 @@ export async function requestCiv7UnitTargetAction(
 export async function generateCiv7CapabilityCatalog(
   options: Civ7CapabilityCatalogOptions = {},
 ): Promise<Civ7CapabilityCatalog> {
-  return await generateCiv7CapabilityCatalogFromModule(options, {
-    appUiRoots: DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS,
-    gameinfoTables: DEFAULT_CIV7_GAMEINFO_TABLES,
-    inspectRoot: inspectCiv7Root,
-    tunerRoots: DEFAULT_CIV7_CAPABILITY_TUNER_ROOTS,
-  });
+  return await generateCiv7CapabilityCatalogFromModule(options);
 }
 
 function buildResourcePlacementFeasibilityCommand(input: {

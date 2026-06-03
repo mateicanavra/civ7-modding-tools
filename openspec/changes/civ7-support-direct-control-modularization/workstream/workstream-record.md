@@ -575,6 +575,17 @@ All future agent waves must be framed before delegation:
   CLI semantic projection, hotseat runtime proof, Effect/oRPC procedure-core
   work, and Task 2.9.4 matrix-row acceptance stay pending. This is local
   package/source cleanup proof only, not runtime/live-game proof.
+- Capability catalog facade dependency cleanup:
+  `src/catalog/capabilities.ts` now imports existing non-facade bounded root
+  inspection and catalog default owners directly for runtime catalog
+  generation. The public facade export remains stable, but `index.ts` no
+  longer assembles the capability catalog dependency object. This preserves
+  static/runtime catalog construction, runtime root caps,
+  generated-output-as-evidence policy, official-resource scanner behavior, and
+  package proof. This is local package/source relocation proof only: it does not
+  claim runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock
+  telemetry, AI ingestion, semantic CLI projection, hotseat runtime proof,
+  schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control runtime inspection constants slice: completed as a narrow
   constants ownership relocation. It moves only the default App UI/Tuner API
   root catalogs and bounded root `maxKeys`/`maxMethods` defaults into

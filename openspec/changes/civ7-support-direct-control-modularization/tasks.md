@@ -1053,6 +1053,14 @@ runtime/direct-control claims.
         classification, and leaving telemetry, AI ingestion, CLI semantic
         projection, hotseat runtime proof, Effect/oRPC procedure-core work, and
         Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.12.15 Prune capability catalog facade dependency injection by letting
+        `src/catalog/capabilities.ts` import existing non-facade bounded root
+        inspection and catalog default owners directly, while keeping public
+        facade exports stable, preserving static/runtime catalog construction,
+        runtime root caps, generated-output-as-evidence policy,
+        official-resource scanner behavior, and leaving telemetry, AI
+        ingestion, CLI semantic projection, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready
