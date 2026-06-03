@@ -28,6 +28,10 @@
     `packages/cli/test/commands/game.play.test.ts`: support workstream
     owner/DRA. Parallel HUD agent owned only net-new
     `game/play/notification/hud.test.ts` preparation in an isolated worktree.
+  - Priorities slice owner for `package.json` and
+    `packages/cli/test/commands/game.play.test.ts`: support workstream
+    owner/DRA. Parallel priorities agent owned only net-new
+    `game/play/priorities.test.ts` preparation in an isolated worktree.
     Future slices must record their own single writer before touching either
     file.
 - [x] 2.7 Apply the agent framing protocol to any new or reused delegation:
@@ -37,6 +41,9 @@
   - HUD implementation lane used a fresh `/goal` thread with explicit context,
     skills, objective, hard core, exterior, falsifier, write set, and return
     shape.
+  - Priorities implementation lane used a fresh `/goal` thread with explicit
+    context, skills, objective, hard core, exterior, falsifier, write set, and
+    return shape.
 
 Implementation tasks in sections 3-5 are blocked until the relevant corpus rows
 name the exact write set, fixture owner, validation commands,
@@ -63,8 +70,8 @@ runtime/direct-control claims.
 - [x] 3.11 Extract dismiss-notification-queue play tests.
 - [x] 3.12 Extract exact dismiss-notification play tests.
 - [x] 3.13 Extract notification HUD materialization play tests.
-- [ ] 3.14 Extract priorities play tests.
-- [ ] 3.15 Remove residual monolith fixture ownership after the last consumer
+- [x] 3.14 Extract priorities play tests.
+- [x] 3.15 Remove residual monolith fixture ownership after the last consumer
   moves.
 
 ## 4. Direct-Control Atom Lane
