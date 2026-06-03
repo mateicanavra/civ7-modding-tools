@@ -266,6 +266,12 @@ All future agent waves must be framed before delegation:
   source relocation. It moves only the ready-unit embedded source into
   `src/play/ready/unit.ts`. Wrapper/builder ownership stays in `index.ts`; this
   is source relocation proof only, not runtime proof.
+- Direct-control ready-city source slice: completed as the final ready read
+  source relocation. It moves only the ready-city embedded source into
+  `src/play/ready/city.ts`. Ready-city's internal production, town-focus, and
+  population-placement helpers stay inside that owner; wrapper/builder
+  ownership stays in `index.ts`. This is source relocation proof only, not
+  runtime proof.
 - Review-disposition ledger: agent/reviewer findings recorded.
 - Exact dismiss-notification CLI slice: completed as test-only extraction with
   local fixture ownership and no runtime claim.
