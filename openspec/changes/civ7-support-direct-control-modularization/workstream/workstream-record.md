@@ -576,6 +576,16 @@ All future agent waves must be framed before delegation:
   2.9.4 matrix-row acceptance stay pending. This is local package/constants
   relocation proof only, not runtime proof, AI/hotseat product-path support, or
   procedure-core readiness.
+- Direct-control scripting-log constant slice: completed as a narrow public
+  constants ownership relocation. It moves only `DEFAULT_CIV7_SCRIPTING_LOG`
+  into `src/proof/log-markers.ts` while keeping public facade re-exports in
+  `index.ts`. This preserves the proof/log helper default log path and does not
+  change marker matching, file snapshotting, timeout behavior, or log proof
+  semantics. Broader public constants/types, operation/proof telemetry, AI
+  ingestion, hotseat runtime proof, CLI semantic projection, Effect/oRPC
+  procedure-core work, and Task 2.9.4 matrix-row acceptance stay pending. This
+  is local package/constants relocation proof only, not runtime proof,
+  AI/hotseat product-path support, or procedure-core readiness.
 - Direct-control turn-completion slice: completed as a narrow turn-completion
   source/wrapper relocation. It moves only `getCiv7TurnCompletionStatus`,
   `sendCiv7TurnComplete`, `sendCiv7TurnUnready`, the status command builder,

@@ -1,6 +1,17 @@
 import { open, readFile, stat } from "node:fs/promises";
+import { homedir } from "node:os";
+import { join } from "node:path";
 
 import { Civ7DirectControlError } from "../direct-control-error";
+
+export const DEFAULT_CIV7_SCRIPTING_LOG = join(
+  homedir(),
+  "Library",
+  "Application Support",
+  "Civilization VII",
+  "Logs",
+  "Scripting.log",
+);
 
 export type FileSnapshot = Readonly<{
   exists: boolean;

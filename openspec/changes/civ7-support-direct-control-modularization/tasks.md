@@ -356,6 +356,12 @@ runtime/direct-control claims.
         procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
         ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.8 Extract default scripting-log path constant owner while keeping
+        public facade re-exports in `index.ts`, preserving proof/log helper path
+        construction and leaving broader public constants/types, operation/proof
+        telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
       oRPC implementation; current support branch has no tracked
       `.agents/skills/civ7-orpc-control-architecture` or
@@ -422,9 +428,10 @@ runtime/direct-control claims.
         work pending.
   - [x] 4.12.4 Extract proof/log helper owner while keeping the public facade
         export surface in `index.ts`, preserving `snapshotFile` /
-        `waitForFreshLogMarkers` behavior, and leaving capability catalog,
-        operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
-        semantic projection, and Effect/oRPC procedure-core work pending.
+        `waitForFreshLogMarkers` behavior and the default scripting-log path,
+        and leaving capability catalog, operation/proof telemetry, hotseat
+        runtime proof, AI ingestion, CLI semantic projection, and Effect/oRPC
+        procedure-core work pending.
   - [x] 4.12.5 Extract capability catalog source owner while keeping public
         facade exports in `index.ts`, injecting runtime root inspection from the
         facade, preserving static/runtime/official-resource catalog behavior,

@@ -23,6 +23,7 @@ import {
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
 } from "./session/constants.js";
 import {
+  DEFAULT_CIV7_SCRIPTING_LOG,
   snapshotFile,
   waitForFreshLogMarkers,
   type FileSnapshot,
@@ -182,6 +183,7 @@ export {
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
 } from "./session/constants.js";
 export {
+  DEFAULT_CIV7_SCRIPTING_LOG,
   snapshotFile,
   waitForFreshLogMarkers,
 } from "./proof/log-markers.js";
@@ -243,14 +245,6 @@ export const DEFAULT_CIV7_FEATURE_FEASIBILITY_MAX_CELLS = 256;
 export const HARD_CIV7_FEATURE_FEASIBILITY_MAX_CELLS = 1_000;
 export const DEFAULT_CIV7_FEATURE_FEASIBILITY_MAX_TYPES_PER_CELL = 64;
 export const HARD_CIV7_FEATURE_FEASIBILITY_MAX_TYPES_PER_CELL = 256;
-export const DEFAULT_CIV7_SCRIPTING_LOG = join(
-  homedir(),
-  "Library",
-  "Application Support",
-  "Civilization VII",
-  "Logs",
-  "Scripting.log",
-);
 export const DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR = join(
   homedir(),
   "Library",
