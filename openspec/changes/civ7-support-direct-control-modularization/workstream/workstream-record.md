@@ -857,6 +857,17 @@ All future agent waves must be framed before delegation:
   matrix-row acceptance stay pending. This is local package/source relocation
   proof only, not runtime proof, live-game proof, hotseat product-path support,
   or procedure-core readiness.
+- Turn-completion facade dependency cleanup: `src/play/turn-completion.ts` now
+  imports existing non-facade App UI execution, parser, notification-view, and
+  approval owners directly for status, send-turn-complete, and send-unready
+  wrappers. The public facade in `src/index.ts` remains stable but no longer
+  assembles those dependency objects. This is local package/source relocation
+  proof only: it does not change approval-first send/unready behavior,
+  guard-first status read, stale notification fallback classification, command
+  strings, parse label, action result shape, runtime/live-game proof, Task
+  2.9.4 matrix-row acceptance, telemetry, AI ingestion, CLI semantic
+  projection, hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
+  implementation.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.

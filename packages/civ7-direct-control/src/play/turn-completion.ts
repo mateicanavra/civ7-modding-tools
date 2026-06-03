@@ -1,4 +1,12 @@
 import { Civ7DirectControlError } from "../direct-control-error.js";
+import { assertApproved, type Civ7ActionApproval } from "../action-approval.js";
+import {
+  getCiv7PlayNotificationView,
+  type Civ7PlayNotificationSummary,
+  type Civ7PlayNotificationViewResult,
+} from "./notifications/view.js";
+import { jsonPayloadFromCommandResult } from "../session/command-result.js";
+import { executeCiv7AppUiCommand } from "../session/execute.js";
 import type { Civ7ComponentId } from "../civ7-component-id.js";
 import type { Civ7RuntimeProbe } from "../runtime/probe.js";
 import type {
@@ -6,12 +14,6 @@ import type {
   Civ7DirectControlOptions,
   Civ7TunerState,
 } from "../session/types.js";
-
-import type { Civ7ActionApproval } from "../action-approval.js";
-import type {
-  Civ7PlayNotificationSummary,
-  Civ7PlayNotificationViewResult,
-} from "./notifications/view.js";
 
 export type Civ7TurnCompletionStatusResult = Readonly<{
   host: string;
@@ -47,7 +49,8 @@ type TurnCompletionDependencies = Readonly<{
 
 export async function getCiv7TurnCompletionStatus(
   options: Civ7DirectControlOptions = {},
-  dependencies: Pick<TurnCompletionDependencies, "executeAppUiCommand" | "parseTurnCompletionStatus">,
+  dependencies: Pick<TurnCompletionDependencies, "executeAppUiCommand" | "parseTurnCompletionStatus"> =
+    defaultTurnCompletionDependencies,
 ): Promise<Civ7TurnCompletionStatusResult> {
   const result = await dependencies.executeAppUiCommand({
     ...options,
@@ -59,7 +62,7 @@ export async function getCiv7TurnCompletionStatus(
 export async function sendCiv7TurnComplete(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
-  dependencies: TurnCompletionDependencies,
+  dependencies: TurnCompletionDependencies = defaultTurnCompletionDependencies,
 ): Promise<Civ7TurnCompletionActionResult> {
   dependencies.assertApproved(approval, "sending Civ7 turn complete");
   const before = await getCiv7TurnCompletionStatus(options, dependencies);
@@ -83,7 +86,7 @@ export async function sendCiv7TurnComplete(
 export async function sendCiv7TurnUnready(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
-  dependencies: TurnCompletionDependencies,
+  dependencies: TurnCompletionDependencies = defaultTurnCompletionDependencies,
 ): Promise<Civ7TurnCompletionActionResult> {
   dependencies.assertApproved(approval, "sending Civ7 turn unready");
   const before = await getCiv7TurnCompletionStatus(options, dependencies);
@@ -194,3 +197,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | undefined {
   return probe.ok ? probe.value : undefined;
 }
+
+const defaultTurnCompletionDependencies: TurnCompletionDependencies = {
+  assertApproved,
+  executeAppUiCommand: executeCiv7AppUiCommand,
+  getPlayNotificationView: getCiv7PlayNotificationView,
+  parseTurnCompletionStatus: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7TurnCompletionStatusResult>(result, label),
+};

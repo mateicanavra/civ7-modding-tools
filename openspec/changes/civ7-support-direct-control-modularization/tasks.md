@@ -994,6 +994,15 @@ runtime/direct-control claims.
         shapes, and leaving hotseat runtime proof, AI ingestion, CLI semantic
         projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.13.3 Prune turn-completion facade dependency injection by letting
+        `src/play/turn-completion.ts` import existing non-facade App UI
+        execution, parser, notification-view, and approval owners directly,
+        while keeping public facade exports stable, preserving approval-first
+        send/unready behavior, guard-first status read, stale notification
+        fallback classification, command strings, parse label, action result
+        shape, and leaving hotseat runtime proof, AI ingestion, CLI semantic
+        projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 - [x] 4.14 Extract setup/start lifecycle atoms.
   - [x] 4.14.1 Extract setup snapshot and setup map rows read/source owner while
         keeping public facade exports in `index.ts` and leaving

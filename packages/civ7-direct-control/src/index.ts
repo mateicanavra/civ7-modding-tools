@@ -1349,11 +1349,7 @@ export async function revealCiv7MapForPlayer(
 export async function getCiv7TurnCompletionStatus(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7TurnCompletionStatusResult> {
-  return await getCiv7TurnCompletionStatusFromModule(options, {
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    parseTurnCompletionStatus: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7TurnCompletionStatusResult>(result, label),
-  });
+  return await getCiv7TurnCompletionStatusFromModule(options);
 }
 
 export async function getCiv7PlayNotificationView(
@@ -1392,26 +1388,14 @@ export async function sendCiv7TurnComplete(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7TurnCompletionActionResult> {
-  return await sendCiv7TurnCompleteFromModule(options, approval, {
-    assertApproved,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    getPlayNotificationView: getCiv7PlayNotificationView,
-    parseTurnCompletionStatus: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7TurnCompletionStatusResult>(result, label),
-  });
+  return await sendCiv7TurnCompleteFromModule(options, approval);
 }
 
 export async function sendCiv7TurnUnready(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7TurnCompletionActionResult> {
-  return await sendCiv7TurnUnreadyFromModule(options, approval, {
-    assertApproved,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    getPlayNotificationView: getCiv7PlayNotificationView,
-    parseTurnCompletionStatus: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7TurnCompletionStatusResult>(result, label),
-  });
+  return await sendCiv7TurnUnreadyFromModule(options, approval);
 }
 
 export async function canStartCiv7UnitOperation(
