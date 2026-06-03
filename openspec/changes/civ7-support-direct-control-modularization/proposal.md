@@ -50,7 +50,11 @@ workstream and parallel lanes.
 - Split direct-control runtime code only after tests and ownership boundaries
   are stable enough to prove behavior did not change.
 - Treat Effect/oRPC as a later composition lane over direct-control procedure
-  cores, not as a transport-first rewrite.
+  cores, not as a transport-first rewrite. The current oRPC architecture
+  authority citation is the `civ7-orpc-control-architecture` skill from
+  `codex/civ7-orpc-control-architecture-skill`, which frames oRPC as typed
+  procedure/router/context/middleware composition over repo-owned
+  direct-control atoms.
 - Add a dedicated Effect/Bun integration planning phase before source rewrites
   depend on it: new/refactored control logic should prefer Effect resource,
   stream, concurrency, error, and layer affordances plus Bun-native APIs over

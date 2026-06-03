@@ -560,10 +560,17 @@ runtime/direct-control claims.
         procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
         ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
-- [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
-      oRPC implementation; current support branch has no tracked
-      `.agents/skills/civ7-orpc-control-architecture` or
-      `packages/civ7-control-orpc` source.
+- [x] 4.9 Explicitly cite oRPC architecture authority before any oRPC
+      implementation. The support branch cites the
+      `civ7-orpc-control-architecture` skill from
+      `codex/civ7-orpc-control-architecture-skill` as the procedure/router
+      authority: oRPC is typed procedure/router/context/middleware composition
+      over repo-owned direct-control atoms, not raw command tunneling or a
+      transport-first rewrite. This closes only the authority-citation blocker;
+      tracked `packages/civ7-control-orpc` source, procedure-core schemas,
+      telemetry hooks, CLI semantic envelopes, AI ingestion, hotseat runtime
+      proof, Effect/Bun implementation, and Task 2.9.4 matrix-row acceptance
+      remain pending.
 - [ ] 4.10 Classify direct-control service outputs by consumer before command
       hierarchy rewrites: internal service machinery, debug-only diagnostics,
       or semantic player-agent output.
