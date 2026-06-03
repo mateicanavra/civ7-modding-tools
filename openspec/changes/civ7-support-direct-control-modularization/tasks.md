@@ -52,6 +52,10 @@
     `/goal` worktree threads with disjoint one-file write sets. The DRA
     passively inspected disk candidates and retained broad-suite/docs/commit
     ownership.
+  - Direct-control play-notification-view and notification-dismissal test lanes
+    used separate fresh `/goal` worktree threads with disjoint one-file write
+    sets. The DRA passively inspected disk candidates and retained
+    broad-suite/docs/commit ownership.
 
 Implementation tasks in sections 3-5 are blocked until the relevant corpus rows
 name the exact write set, fixture owner, validation commands,
@@ -90,11 +94,11 @@ runtime/direct-control claims.
   - [x] 4.2.2 Add session/framing package test coverage.
   - [x] 4.2.3 Add unit move preview package test coverage.
   - [x] 4.2.4 Add ready unit/city package test coverage.
-  - [ ] 4.2.5 Relocate restack-retained broad-suite edge coverage into owning
-    package suites before source extraction: notification panel-dismissal
-    none/expired cases belong to the notification dismissal atom, and log
-    rewrite marker cases belong to the proof/log support atom. They remain in
-    `direct-control.test.ts` only as a restack-speed fallback.
+  - [x] 4.2.5 Add notification view/dismissal package test coverage.
+  - [ ] 4.2.6 Relocate remaining restack-retained broad-suite log rewrite
+    marker coverage into the proof/log support atom before source extraction.
+    The edge cases remain in `direct-control.test.ts` only as a restack-speed
+    fallback.
 - [ ] 4.3 Extract notification view/materialization atom.
 - [ ] 4.4 Extract notification dismissal/verification atom.
 - [ ] 4.5 Extract ready unit/city view atoms.

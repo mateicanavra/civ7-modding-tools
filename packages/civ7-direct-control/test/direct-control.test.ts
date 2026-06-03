@@ -19,8 +19,6 @@ import {
   getCiv7FullMapGrid,
   getCiv7MapGrid,
   getCiv7MapSummary,
-  getCiv7PlayNotificationView,
-  getCiv7NotificationDismissal,
   getCiv7PlotSnapshot,
   getCiv7PlayableStatus,
   getCiv7ResourceBuilderDiagnostics,
@@ -43,7 +41,6 @@ import {
   queryCiv7TunerStates,
   requestCiv7UnitOperation,
   requestCiv7UnitTargetAction,
-  requestCiv7NotificationDismissal,
   revealCiv7MapForPlayer,
   runCiv7SinglePlayerFromSetup,
   startPreparedCiv7SinglePlayerGame,
@@ -212,98 +209,6 @@ describe("Civ7 direct control", () => {
     }
   });
 
-  test("materializes play notifications with decision hints", async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      const view = await getCiv7PlayNotificationView({
-        host: "127.0.0.1",
-        port,
-        timeoutMs: 1_000,
-      });
-
-      expect(view).toMatchObject({
-        state: { id: "65535", name: "App UI" },
-        localPlayerId: 0,
-        blocker: { ok: true, value: -2026570723 },
-        blockingNotificationId: { ok: true, value: { owner: 0, id: 42, type: 20 } },
-        notifications: [
-          {
-            typeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
-            isEndTurnBlocking: true,
-            decision: {
-              category: "town-focus",
-              operationFamily: "city-command",
-              operationType: "CHANGE_GROWTH_MODE",
-              requiredInputs: expect.arrayContaining([
-                expect.objectContaining({ name: "City" }),
-              ]),
-              commonActions: expect.arrayContaining([
-                expect.objectContaining({ cli: expect.stringContaining("game play set-town-focus") }),
-              ]),
-            },
-          },
-        ],
-        hud: {
-          nextDecision: {
-            category: "town-focus",
-            isEndTurnBlocking: true,
-          },
-        },
-      });
-      expect(view.decisions.some((decision) => decision.category === "town-focus")).toBe(true);
-      expect(server.received.some((message) => message.includes("readPlayNotifications"))).toBe(true);
-      const notificationRead = server.received.find((message) => message.includes("readPlayNotifications")) ?? "";
-      expect(notificationRead).toContain("CHOOSE_AUTO_NARRATIVE_STORY_DIRECTION");
-      expect(notificationRead).toContain("getFirstPendingDiscoveryLastMetID");
-    } finally {
-      await server.close();
-    }
-  });
-
-  test("plans and sends guarded notification dismissal", async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      const notificationId = { owner: 0, id: 113, type: 20 };
-      const plan = await getCiv7NotificationDismissal(
-        { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-      );
-      const request = await requestCiv7NotificationDismissal(
-        { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test reviewed notification dismissal" },
-      );
-
-      expect(plan).toMatchObject({
-        notificationId,
-        canDismiss: true,
-        sent: false,
-        before: {
-          typeName: "NOTIFICATION_WONDER_COMPLETED",
-          canUserDismiss: true,
-          isEndTurnBlocking: { ok: true, value: true },
-        },
-      });
-      expect(request).toMatchObject({
-        notificationId,
-        sent: true,
-        verified: true,
-        after: {
-          isEndTurnBlocking: { ok: true, value: false },
-        },
-      });
-      expect(request.verificationAttempts?.length).toBeGreaterThan(1);
-      const dismissalReads = server.received.filter((message) => message.includes("readNotificationDismissal"));
-      expect(dismissalReads.length).toBeGreaterThan(2);
-      expect(dismissalReads.filter((message) => message.includes('"send":true'))).toHaveLength(1);
-      expect(dismissalReads.filter((message) => message.includes('"send":false')).length).toBeGreaterThan(1);
-    } finally {
-      await server.close();
-    }
-  });
-
   test("reports culture App UI closeout sends without direct verification", async () => {
     const server = await startTunerServer();
     try {
@@ -365,132 +270,6 @@ describe("Civ7 direct control", () => {
       expect(command).toContain("Game.Notifications.activate");
       expect(command).toContain("SET_TECH_TREE_NODE");
       expect(command).toContain("SET_TECH_TREE_TARGET_NODE");
-    } finally {
-      await server.close();
-    }
-  });
-
-  test("does not verify dismissal from train absence while engine queue still fronts the target", async () => {
-    const server = await startTunerServer({ notificationDismissalMode: "engine-front-train-absent" });
-    try {
-      const { port } = server.address();
-      const notificationId = { owner: 0, id: 113, type: 20 };
-      const request = await requestCiv7NotificationDismissal(
-        { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test stale engine-front notification dismissal" },
-      );
-
-      expect(request.sent).toBe(true);
-      expect(request.verified).toBe(false);
-      expect(request.after).toMatchObject({
-        engineQueueContains: { ok: true, value: true },
-        isEngineQueueFront: { ok: true, value: true },
-        notificationTrainContains: { ok: true, value: false },
-        isNotificationTrainFront: { ok: true, value: false },
-      });
-      expect(request.verificationAttempts?.length).toBeGreaterThan(1);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test("does not verify dismissal from dismissed flag while engine queue still fronts the target", async () => {
-    const server = await startTunerServer({ notificationDismissalMode: "engine-front-dismissed" });
-    try {
-      const { port } = server.address();
-      const notificationId = { owner: 0, id: 113, type: 20 };
-      const request = await requestCiv7NotificationDismissal(
-        { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test dismissed flag with stale engine-front notification" },
-      );
-
-      expect(request.sent).toBe(true);
-      expect(request.verified).toBe(false);
-      expect(request.after).toMatchObject({
-        dismissed: true,
-        engineQueueContains: { ok: true, value: true },
-        isEngineQueueFront: { ok: true, value: true },
-      });
-      expect(request.verificationAttempts?.length).toBeGreaterThan(1);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test("uses panel dismiss when blocker enum is none despite stale engine-front identity", async () => {
-    const server = await startTunerServer({ notificationDismissalMode: "engine-front-none-blocker" });
-    try {
-      const { port } = server.address();
-      const notificationId = { owner: 0, id: 113, type: 20 };
-      const request = await requestCiv7NotificationDismissal(
-        { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test panel close control for none blocker enum" },
-      );
-
-      expect(request.sent).toBe(true);
-      expect(request.verified).toBe(true);
-      const requestResult = request.result as { panelCloseControl?: unknown } | null;
-      expect(requestResult?.panelCloseControl).toMatchObject({
-        ok: true,
-        attempted: true,
-        available: true,
-        path: "Game.Notifications.dismiss",
-      });
-      expect(request.before).toMatchObject({
-        endTurnBlockingType: { ok: true, value: 0 },
-        isEngineQueueFront: { ok: true, value: true },
-      });
-      expect(request.after).toMatchObject({
-        exists: false,
-        engineQueueContains: { ok: true, value: false },
-        isEngineQueueFront: { ok: true, value: false },
-      });
-    } finally {
-      await server.close();
-    }
-  });
-
-  test("uses panel dismiss for expired non-user-dismissible stale front notifications when blocker enum is none", async () => {
-    const server = await startTunerServer({ notificationDismissalMode: "expired-engine-front-none-blocker" });
-    try {
-      const { port } = server.address();
-      const notificationId = { owner: 0, id: 113, type: 20 };
-      const plan = await getCiv7NotificationDismissal(
-        { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-      );
-      const request = await requestCiv7NotificationDismissal(
-        { notificationId },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, reason: "test expired stale front panel close control" },
-      );
-
-      expect(plan).toMatchObject({
-        canDismiss: true,
-        before: {
-          canUserDismiss: false,
-          expired: true,
-          endTurnBlockingType: { ok: true, value: 0 },
-          isEngineQueueFront: { ok: true, value: true },
-        },
-      });
-      expect(request.sent).toBe(true);
-      expect(request.verified).toBe(true);
-      const requestResult = request.result as { panelCloseControl?: unknown } | null;
-      expect(requestResult?.panelCloseControl).toMatchObject({
-        ok: true,
-        attempted: true,
-        available: true,
-        path: "Game.Notifications.dismiss",
-      });
-      expect(request.after).toMatchObject({
-        exists: false,
-        engineQueueContains: { ok: true, value: false },
-        isEngineQueueFront: { ok: true, value: false },
-      });
     } finally {
       await server.close();
     }
@@ -1504,7 +1283,6 @@ async function startTunerServer(options: {
   tunerReady?: boolean;
   mapSummaryHashes?: ReadonlyArray<number>;
   unitTargetMode?: "verified" | "no-op-after-send";
-  notificationDismissalMode?: "verified" | "engine-front-train-absent" | "engine-front-dismissed" | "engine-front-none-blocker" | "expired-engine-front-none-blocker";
 } = {}) {
   const received: string[] = [];
   let loadingState = 6;
@@ -1524,7 +1302,6 @@ async function startTunerServer(options: {
   let setupPlayerDifficulty = "DIFFICULTY_PRINCE";
   let setupRevision = 19;
   let hiddenMapRowVisible = false;
-  let notificationDismissalSent = false;
   let productionChoiceSent = false;
   const visibleSetupRows = () => [
     {
@@ -1746,166 +1523,12 @@ async function startTunerServer(options: {
           autoplayStopPendingReads = 1;
           autoplayPaused = true;
           socket.write(encodeResponse(frame.listenerId, ['{"ok":true,"isActive":true,"turns":-1,"isPaused":true,"isPausedOrPending":true}']));
-        } else if (frame.message.includes("readPlayNotifications")) {
-          socket.write(
-            encodeResponse(frame.listenerId, [
-              JSON.stringify({
-                localPlayerId: 0,
-                turn: { ok: true, value: 80 },
-                turnDate: { ok: true, value: "2025 BCE" },
-                hasSentTurnComplete: { ok: true, value: false },
-                canEndTurn: { ok: true, value: false },
-                blocker: { ok: true, value: -2026570723 },
-                blockingNotificationId: { ok: true, value: { owner: 0, id: 42, type: 20 } },
-                selectedUnitId: { ok: true, value: null },
-                selectedCityId: { ok: true, value: { owner: 0, id: 131073, type: 1 } },
-                firstReadyUnitId: { ok: true, value: null },
-                notifications: [
-                  {
-                    id: { owner: 0, id: 42, type: 20 },
-                    type: -123,
-                    typeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
-                    groupType: null,
-                    summary: "Choose Town Project",
-                    message: "Choose a town focus project",
-                    target: { owner: 0, id: 131073, type: 1 },
-                    location: null,
-                    canUserDismiss: false,
-                    expired: false,
-                    dismissed: false,
-                    isEndTurnBlocking: true,
-                    decision: {
-                      category: "town-focus",
-                      operationFamily: "city-command",
-                      operationType: "CHANGE_GROWTH_MODE",
-                      argsShape: "{ Type, ProjectType, City }",
-                      cli: "game play set-town-focus",
-                      requiredInputs: [
-                        { name: "City", source: "notification target or selected city", required: true },
-                        { name: "Type", source: "live town focus option", required: true },
-                        { name: "ProjectType", source: "live town focus option", required: true },
-                      ],
-                      commonActions: [
-                        {
-                          label: "set town focus and close review",
-                          cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send --closeout --reason '<why this focus was selected>'",
-                          operationFamily: "sequence",
-                          operationType: "CHANGE_GROWTH_MODE then CONSIDER_TOWN_PROJECT",
-                          argsShape: "{ Type, ProjectType, City } then {}",
-                          when: "when the selected focus should be applied and the blocker closed as one caller workflow",
-                        },
-                        {
-                          label: "set town focus",
-                          cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type>",
-                          operationFamily: "city-command",
-                          operationType: "CHANGE_GROWTH_MODE",
-                          argsShape: "{ Type, ProjectType, City }",
-                          when: "after selecting the focus from live options",
-                        },
-                      ],
-                      confidence: "live-proof",
-                      notes: ["Town focus is not city-operation BUILD; use --closeout when one caller action should apply the focus and clear the review surface."],
-                    },
-                  },
-                ],
-                decisions: [
-                  {
-                    category: "town-focus",
-                    operationFamily: "city-command",
-                    operationType: "CHANGE_GROWTH_MODE",
-                    argsShape: "{ Type, ProjectType, City }",
-                    cli: "game play set-town-focus",
-                    requiredInputs: [
-                      { name: "City", source: "notification target or selected city", required: true },
-                      { name: "Type", source: "live town focus option", required: true },
-                      { name: "ProjectType", source: "live town focus option", required: true },
-                    ],
-                    commonActions: [
-                      {
-                        label: "set town focus and close review",
-                        cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type> --send --closeout --reason '<why this focus was selected>'",
-                        operationFamily: "sequence",
-                        operationType: "CHANGE_GROWTH_MODE then CONSIDER_TOWN_PROJECT",
-                        argsShape: "{ Type, ProjectType, City } then {}",
-                        when: "when the selected focus should be applied and the blocker closed as one caller workflow",
-                      },
-                      {
-                        label: "set town focus",
-                        cli: "game play set-town-focus --city-id '<city-id>' --growth-type <type> --project-type <project-type>",
-                        operationFamily: "city-command",
-                        operationType: "CHANGE_GROWTH_MODE",
-                        argsShape: "{ Type, ProjectType, City }",
-                        when: "after selecting the focus from live options",
-                      },
-                    ],
-                    confidence: "live-proof",
-                    notes: ["Town focus is not city-operation BUILD; use --closeout when one caller action should apply the focus and clear the review surface."],
-                  },
-                ],
-                hud: {
-                  nextDecision: {
-                    notificationId: { owner: 0, id: 42, type: 20 },
-                    isEndTurnBlocking: true,
-                    typeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
-                    summary: "Choose Town Project",
-                    message: "Choose a town focus project",
-                    target: { owner: 0, id: 131073, type: 1 },
-                    location: null,
-                    category: "town-focus",
-                    operationFamily: "city-command",
-                    operationType: "CHANGE_GROWTH_MODE",
-                    argsShape: "{ Type, ProjectType, City }",
-                    cli: "game play set-town-focus",
-                    requiredInputs: [
-                      { name: "City", source: "notification target or selected city", required: true },
-                      { name: "Type", source: "live town focus option", required: true },
-                      { name: "ProjectType", source: "live town focus option", required: true },
-                    ],
-                    commonActions: [],
-                    notes: ["Town focus is not city-operation BUILD; use --closeout when one caller action should apply the focus and clear the review surface."],
-                  },
-                  decisionQueue: [
-                    {
-                      notificationId: { owner: 0, id: 42, type: 20 },
-                      isEndTurnBlocking: true,
-                      typeName: "NOTIFICATION_CHOOSE_TOWN_PROJECT",
-                      summary: "Choose Town Project",
-                      message: "Choose a town focus project",
-                      target: { owner: 0, id: 131073, type: 1 },
-                      location: null,
-                      category: "town-focus",
-                      operationFamily: "city-command",
-                      operationType: "CHANGE_GROWTH_MODE",
-                      argsShape: "{ Type, ProjectType, City }",
-                      cli: "game play set-town-focus",
-                      requiredInputs: [
-                        { name: "City", source: "notification target or selected city", required: true },
-                        { name: "Type", source: "live town focus option", required: true },
-                        { name: "ProjectType", source: "live town focus option", required: true },
-                      ],
-                      commonActions: [],
-                      notes: ["Town focus is not city-operation BUILD; use --closeout when one caller action should apply the focus and clear the review surface."],
-                    },
-                  ],
-                },
-                limits: { maxNotifications: 25, truncated: false },
-              }),
-            ]),
-          );
         } else if (frame.message.includes("readUnitTargetAction")) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(unitTargetAction(frame.message.includes('"send":true'), options.unitTargetMode))]));
         } else if (frame.message.includes("sendTechnologyChoiceCloseout")) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(technologyChoiceCloseout())]));
         } else if (frame.message.includes("sendCultureChoiceCloseout")) {
           socket.write(encodeResponse(frame.listenerId, [JSON.stringify(cultureChoiceCloseout())]));
-        } else if (frame.message.includes("readNotificationDismissal")) {
-          const send = frame.message.includes('"send":true');
-          if (send) notificationDismissalSent = true;
-          socket.write(encodeResponse(frame.listenerId, [JSON.stringify(notificationDismissal(
-            send,
-            notificationDismissalSent && !send,
-            options.notificationDismissalMode ?? "verified",
-          ))]));
         } else if (frame.message.includes("readProductionChoice")) {
           const send = frame.message.includes('"send":true');
           if (send) productionChoiceSent = true;
@@ -2480,104 +2103,6 @@ function cultureChoiceCloseout() {
     ],
   };
 }
-
-function notificationDismissal(
-  send: boolean,
-  settled = false,
-  mode: "verified" | "engine-front-train-absent" | "engine-front-dismissed" | "engine-front-none-blocker" | "expired-engine-front-none-blocker" = "verified",
-) {
-  const notificationId = { owner: 0, id: 113, type: 20 };
-  const trainAbsent = mode === "engine-front-train-absent";
-  const noneBlocker = mode === "engine-front-none-blocker" || mode === "expired-engine-front-none-blocker";
-  const expiredNonDismissible = mode === "expired-engine-front-none-blocker";
-  const present = {
-    id: notificationId,
-    exists: true,
-    type: 2091697919,
-    typeName: "NOTIFICATION_WONDER_COMPLETED",
-    summary: "An unmet player has finished constructing the World Wonder Great Stele.",
-    message: "Wonder Completed",
-    target: { owner: -1, id: -1, type: 0 },
-    location: { x: -9999, y: -9999 },
-    canUserDismiss: !expiredNonDismissible,
-    expired: expiredNonDismissible,
-    dismissed: false,
-    blocksTurnAdvancement: { ok: true, value: true },
-    endTurnBlockingType: { ok: true, value: noneBlocker ? 0 : 2091697919 },
-    isEndTurnBlocking: { ok: true, value: true },
-    engineQueueCount: { ok: true, value: 1 },
-    engineQueueContains: { ok: true, value: true },
-    engineQueueFirstId: { ok: true, value: notificationId },
-    isEngineQueueFront: { ok: true, value: true },
-    notificationTrainCount: { ok: true, value: trainAbsent ? 0 : 1 },
-    notificationTrainContains: { ok: true, value: !trainAbsent },
-    notificationTrainFirstId: { ok: true, value: trainAbsent ? null : notificationId },
-    isNotificationTrainFront: { ok: true, value: !trainAbsent },
-  };
-  const cleared = {
-    ...present,
-    exists: false,
-    dismissed: true,
-    blocksTurnAdvancement: { ok: true, value: false },
-    endTurnBlockingType: { ok: true, value: 0 },
-    isEndTurnBlocking: { ok: true, value: false },
-    engineQueueCount: { ok: true, value: 0 },
-    engineQueueContains: { ok: true, value: false },
-    engineQueueFirstId: { ok: true, value: null },
-    isEngineQueueFront: { ok: true, value: false },
-    notificationTrainCount: { ok: true, value: 0 },
-    notificationTrainContains: { ok: true, value: false },
-    notificationTrainFirstId: { ok: true, value: null },
-    isNotificationTrainFront: { ok: true, value: false },
-  };
-  const engineFrontDismissed = {
-    ...present,
-    dismissed: true,
-  };
-  const current = mode === "engine-front-train-absent"
-    ? present
-    : mode === "engine-front-dismissed"
-      ? engineFrontDismissed
-      : settled
-        ? cleared
-        : present;
-  return {
-    notificationId,
-    before: current,
-    after: send ? present : null,
-    canDismiss: true,
-    sent: send,
-    result: send
-      ? {
-          notificationTrainManager: {
-            ok: true,
-            attempted: true,
-            available: true,
-            path: "NotificationModel.manager.dismiss",
-          },
-          panelCloseControl: noneBlocker
-            ? {
-                ok: true,
-                attempted: true,
-                available: true,
-                path: "Game.Notifications.dismiss",
-                value: true,
-              }
-            : {
-                ok: false,
-                attempted: false,
-                available: false,
-                path: "Game.Notifications.dismiss",
-                reason: "official panel close control does not dismiss the active end-turn blocker",
-              },
-        }
-      : null,
-    verificationAttempts: send ? [present] : [],
-    verified: false,
-    notes: ["This is an App UI notification action, not a gameplay operation family."],
-  };
-}
-
 function productionChoicePayload(send: boolean, settled = false) {
   const cityId = { owner: 0, id: 65536, type: 1 };
   const before = productionPostconditionSnapshot("before", "cleared");
