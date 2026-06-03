@@ -137,6 +137,8 @@ runtime/direct-control claims.
   - [x] 4.6.4 Extract unit-operation postcondition helper owner while keeping
         population, production, and wrapper-level request composition in the
         facade.
+  - [x] 4.6.5 Extract population-placement postcondition helper owner while
+        keeping production and wrapper-level request composition in the facade.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.
