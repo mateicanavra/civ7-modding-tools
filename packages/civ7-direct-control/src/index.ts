@@ -54,7 +54,7 @@ import { unitMovePreviewSource } from "./play/ready/move-preview.js";
 import { readyUnitViewSource } from "./play/ready/unit.js";
 import { battlefieldScanSource } from "./play/tactical/battlefield.js";
 import { destinationAnalysisSource } from "./play/tactical/destination.js";
-import { settlementRecommendationsSource } from "./play/tactical/settlement.js";
+import { getCiv7SettlementRecommendations as getCiv7SettlementRecommendationsFromModule } from "./play/tactical/settlement.js";
 import { targetCandidatesSource } from "./play/tactical/target-candidates.js";
 
 export {
@@ -3814,14 +3814,12 @@ export async function getCiv7SettlementRecommendations(
   input: Civ7SettlementRecommendationInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7SettlementRecommendationResult> {
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildSettlementRecommendationsCommand({
-      ...input,
-      count: boundedInteger(input.count ?? 5, 1, 12, "count"),
-    }),
+  return await getCiv7SettlementRecommendationsFromModule(input, options, {
+    boundedInteger,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseSettlementRecommendations: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7SettlementRecommendationResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7SettlementRecommendationResult>(result, "Civ7 settlement recommendations");
 }
 
 export async function getCiv7TargetCandidates(
@@ -5554,13 +5552,6 @@ function buildReadyCityViewCommand(input: Civ7ReadyCityViewInput & { maxOperatio
   return `(() => {
     ${readyCityViewSource()}
     return JSON.stringify(readReadyCityView(${jsLiteral(input)}));
-  })()`;
-}
-
-function buildSettlementRecommendationsCommand(input: Civ7SettlementRecommendationInput & { count: number }): string {
-  return `(() => {
-    ${settlementRecommendationsSource()}
-    return JSON.stringify(readSettlementRecommendations(${jsLiteral(input)}));
   })()`;
 }
 
