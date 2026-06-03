@@ -1675,9 +1675,13 @@ All future agent waves must be framed before delegation:
   boundary-clean parallel net-new test candidate, DRA-owned monolith/package
   integration, local priority fixture ownership, relationship-label guards, and
   no runtime claim.
-- Next implementation lane: direct-control atom planning/tests. Source edits
-  remain blocked until atom rows name owners, consumers, proof class, and package
-  test coverage.
+- Next implementation lane: Task 2.9.4 compatibility matrix-row acceptance
+  before any dependent CLI semantic, telemetry, AI-ingestion, runtime-status,
+  schema/type, debug/internal service, Effect/Bun, or oRPC procedure-core work.
+  Direct-control atom extraction and package proof are verified for the current
+  modularization phase; future source edits must either stay independent of
+  those downstream gates or start from accepted matrix rows with source owners,
+  proof owners, schemas/tests, and stop conditions recorded.
 - oRPC/Effect lane: planning-only in this support branch. The OpenSpec now
   explicitly cites `civ7-orpc-control-architecture` from
   `codex/civ7-orpc-control-architecture-skill` as the oRPC
@@ -1758,3 +1762,13 @@ All future agent waves must be framed before delegation:
   start or close CLI semantic envelopes, debug hierarchy changes, telemetry, AI
   ingestion, schema migration, Effect/Bun implementation, Effect/oRPC
   procedure-core work, or Task 2.9.4 matrix-row acceptance.
+- Downstream realignment and closure checklist checkpoint: section 7 is complete
+  for the current modularization closure pass. The support stack has current
+  local verification records for test-only CLI ownership, direct-control source
+  slices, OpenSpec strict validation, explicit `pending-runtime-proof`, and
+  blocked downstream lanes. The stale next-lane pointer now points at Task 2.9.4
+  compatibility matrix-row acceptance rather than more atom extraction. This
+  does not close the OpenSpec change as a whole: Task 2.9 parent/2.9.4,
+  2.10 guardrails, CLI semantic lane 5.x, Effect/Bun/oRPC lane 6.x, runtime
+  proof, hotseat runtime proof, telemetry, AI ingestion, schema migration, and
+  procedure-core work remain pending by design.

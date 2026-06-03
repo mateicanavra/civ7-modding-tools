@@ -1048,4 +1048,4 @@ authority are recorded.
 - [x] 7.5 For every Effect/Bun source slice, prove resource cleanup, stream/error
       behavior, and API choice with focused package tests.
 - [x] 7.6 Run `bun run openspec -- validate civ7-support-direct-control-modularization --strict`.
-- [ ] 7.7 Run final downstream realignment and closure checklist.
+- [x] 7.7 Run final downstream realignment and closure checklist.
