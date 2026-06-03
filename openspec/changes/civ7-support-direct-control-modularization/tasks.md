@@ -1040,7 +1040,7 @@ authority are recorded.
       ownership scan.
 - [x] 7.2 For every direct-control source slice, run direct-control
       tests/check/build plus focused CLI consumers.
-- [ ] 7.3 For every runtime-changing slice, attach real-game proof or explicit
+- [x] 7.3 For every runtime-changing slice, attach real-game proof or explicit
       `pending-runtime-proof`.
 - [ ] 7.4 For every CLI semantic-surface slice, prove normal play output omits
       internal service plumbing and that intentional diagnostics are reachable

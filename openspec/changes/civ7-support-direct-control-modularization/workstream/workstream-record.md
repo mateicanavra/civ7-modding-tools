@@ -1716,3 +1716,15 @@ All future agent waves must be framed before delegation:
   output proof, Effect/Bun source proof, final downstream realignment, Task
   2.9.4 matrix-row acceptance, telemetry, AI ingestion, schema migration, and
   Effect/oRPC procedure-core work remain pending.
+- Runtime proof disposition checkpoint: gameplay remains parked, so this
+  workstream attaches the explicit `pending-runtime-proof` label instead of
+  claiming live-game evidence. All source relocation and mutation-facing package
+  tests in this modularization stack remain local package/source proof only.
+  Runtime/live-game proof, hotseat activation/rotation/action/restoration
+  proof, AI-on-hotseat product-path proof, and any support-owned real-game
+  verification remain pending until a separately framed runtime proof lane runs
+  against fresh in-game Tuner/HUD state. This closes only checklist item 7.3's
+  proof-labeling requirement; it does not close runtime proof itself, Task 2.9.4
+  matrix-row acceptance, telemetry, AI ingestion, CLI semantic projection,
+  schema migration, Effect/Bun implementation, or Effect/oRPC procedure-core
+  work.
