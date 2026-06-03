@@ -304,6 +304,11 @@ runtime/direct-control claims.
         root inspection, capability catalog, telemetry, hotseat runtime proof,
         AI ingestion, CLI semantic projection, and Effect/oRPC procedure-core
         work pending.
+  - [x] 4.12.4 Extract proof/log helper owner while keeping the public facade
+        export surface in `index.ts`, preserving `snapshotFile` /
+        `waitForFreshLogMarkers` behavior, and leaving capability catalog,
+        operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI
+        semantic projection, and Effect/oRPC procedure-core work pending.
 
 ## 5. CLI Semantic Surface Lane
 

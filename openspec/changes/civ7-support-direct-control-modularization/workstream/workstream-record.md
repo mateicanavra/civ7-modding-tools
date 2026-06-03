@@ -445,6 +445,14 @@ All future agent waves must be framed before delegation:
   telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection, and
   Effect/oRPC procedure-core work stay pending. This is local package/source
   relocation proof only, not runtime proof.
+- Direct-control proof/log helper slice: completed as a narrow local helper
+  relocation. It moves only `FileSnapshot`, `FreshLogMarkerProof`,
+  `snapshotFile`, `waitForFreshLogMarkers`, and private ordered-marker/file
+  helpers into `src/proof/log-markers.ts` while keeping public facade exports
+  in `index.ts`. Capability catalog, operation/proof telemetry, AI ingestion,
+  hotseat runtime proof, CLI semantic projection, and Effect/oRPC
+  procedure-core work stay pending. A returned `FreshLogMarkerProof` remains
+  local/log evidence and is not live runtime proof by itself.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.
