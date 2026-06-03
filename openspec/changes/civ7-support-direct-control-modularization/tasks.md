@@ -791,6 +791,13 @@ runtime/direct-control claims.
         telemetry, hotseat runtime proof, AI ingestion, CLI semantic
         projection, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.12.12 Extract command-source serializer owner while preserving
+        `JSON.stringify` output shape and `command-failed` rejection for
+        unserializable command input, and leaving module-local source-string
+        helpers, validation helpers, public procedure schemas, telemetry,
+        hotseat runtime proof, AI ingestion, CLI semantic projection,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready

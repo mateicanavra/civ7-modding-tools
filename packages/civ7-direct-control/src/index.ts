@@ -21,6 +21,7 @@ import {
   checkCiv7DirectControlHealth,
   waitForCiv7DirectControl,
 } from "./session/health.js";
+import { jsLiteral } from "./runtime/command-serialization.js";
 import { Civ7DirectControlSession } from "./session/session.js";
 import type {
   Civ7CommandResult,
@@ -2605,14 +2606,6 @@ async function waitForCiv7SetupRevisionAfter(
     "Timed out waiting for Civ7 saved configuration load to update setup state",
     { details: before },
   );
-}
-
-function jsLiteral(value: unknown): string {
-  const json = JSON.stringify(value);
-  if (json === undefined) {
-    throw new Civ7DirectControlError("command-failed", "Cannot serialize Civ7 command input");
-  }
-  return json;
 }
 
 function toDirectControlError(err: unknown, fallbackCode: Civ7DirectControlErrorCode): Civ7DirectControlError {
