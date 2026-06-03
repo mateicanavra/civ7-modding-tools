@@ -85,9 +85,9 @@ titles, and parent reports to close the loop.
 | `019e8b69-465d-7a71-8ef1-1f75f96799c2`                                                | Extract direct-control seams                | framed `/goal` source candidate | completed, idle; disk worktree `fd1b` dirty at old parent                            | yes                                         | Accepted as a narrow source candidate only. DRA integrated tuner frame encode/parse ownership on current disk after ComponentID/error moved first and reran package gates. | Contributed `src/session/framing.ts` boundary for `Civ7TunerFrame`, `encodeCiv7TunerRequest`, and `parseCiv7TunerFrame`; broader session/config/reconnect and restart/setup loops stay pending.                                             |
 | `019e8b69-ae88-79f1-b5dd-dd530c2ea2bf`                                                | Identify read-only atoms                    | framed `/goal` report-only     | completed report read; later empty active turn observed; disk worktree `1044` clean  | yes                                         | Accepted as read-only planning evidence. No code candidate was integrated from this lane. Later refined finding supersedes its earlier ready-unit suggestion.             | Recommends `settlementRecommendationsSource` as the safest first read-only embedded-source relocation, followed by traditions, move-preview, progress dashboard, ready-unit, tactical reads, ready-city, and notification view last.                                    |
 | `019e8be1-db1e-7c80-ad37-471a48cd520f`                                                | Identify first postcondition-helper slice   | framed `/goal` report-only     | completed, reported up                                                               | yes                                         | Accepted as sequencing guidance only; no mutation authority.                                                                                                               | Recommends the first postcondition-helper move be the synchronous unit-operation classifier group (`unitOperationPostcondition`, `classifyUnitOperationPostcondition`, `unitOperationPostconditionReason`) into `src/play/operations/unit-postconditions.ts`; narrative/diplomacy waiters stay later because they pull in notification matching, polling, and App UI reader dependencies. |
-| `019e8cbe-b9a2-7603-8fc6-ea9387fbbd3b`                                                | AI-intelligence model implications          | report-only compatibility wave | launched by supervisor; not readable/discoverable in this session yet                | no                                          | Pending control input; do not close the compatibility lane from partial evidence.                                                                                        | Should map AI-intelligence thread `019e8b5a-f2ee-7ea2-96bc-8c07dc5ab6cc` onto direct-control atoms, semantic game state, strategy-data ingestion, telemetry, debug/internal output, and procedure-core needs.                                                           |
-| `019e8cbf-0138-75d1-9edc-0bda7d413dff`                                                | Hotseat/autoplay base requirements          | report-only compatibility wave | launched by supervisor; not readable/discoverable in this session yet                | no                                          | Pending control input; do not close the compatibility lane from partial evidence.                                                                                        | Should map hotseat/autoplay thread `019e86b7-b08b-72f3-8341-6c78a1285c93` onto live player-agent control requirements, approval gates, autoplay/turn semantics, operation closeout, and proof boundaries.                                                             |
-| `019e8cbf-5805-7393-82e8-c83353aeac40`                                                | AI/hotseat synthesis review                 | report-only compatibility wave | launched by supervisor; not readable/discoverable in this session yet                | no                                          | Pending control input; do not close the compatibility lane from partial evidence.                                                                                        | Should synthesize both target threads against this OpenSpec before command hierarchy, telemetry, Effect/oRPC procedure-core, or intelligence-layer implementation begins.                                                                                              |
+| `019e8cbe-b9a2-7603-8fc6-ea9387fbbd3b`                                                | AI-intelligence model implications          | report-only compatibility wave | completed per supervisor packet; not locally readable/discoverable in this session   | yes, via supervisor packet                  | Accepted as planning evidence only; direct target-thread access gap remains labeled.                                                                                     | Confirms two authority sides: live external play through `@civ7/direct-control` and static native-AI profile shaping through generated profiles. Requires turn/player context, decision HUD, tactical lenses, action records, proof telemetry, corpus records, enriched evidence from `GameInfo`, debug DB copies, scoring/logs, Mods.sqlite/profile context, and bounded AI/log CSVs where available. |
+| `019e8cbf-0138-75d1-9edc-0bda7d413dff`                                                | Hotseat/autoplay base requirements          | report-only compatibility wave | completed per supervisor packet; not locally readable/discoverable in this session   | yes, via supervisor packet                  | Accepted as planning evidence only; hotseat runtime claims remain unproved until live gates pass.                                                                        | Confirms one-client hotseat as preferred player-agent base if activation proof passes; direct-control may act only when `GameContext.localPlayerID` is agent-owned. Native `Autoplay` is support infrastructure for smoke tests, native-AI measurement, observer/wait loops, and disposable benchmarks, not the primary external-agent executor. |
+| `019e8cbf-5805-7393-82e8-c83353aeac40`                                                | AI/hotseat synthesis review                 | report-only compatibility wave | completed per supervisor packet; not locally readable/discoverable in this session   | yes, via supervisor packet                  | Accepted as planning evidence only; no intelligence-layer, transport, or runtime-proof implementation authorized.                                                        | Recommends making `@civ7/direct-control` the stable live-control substrate for hotseat player-agent turns and AI intelligence ingestion; adds matrix fields `playerScope`, `consumerClass`, `evidenceClass`, `procedureCandidate`, and `normalCliProjection`, plus action audit vocabulary and proof-label requirements. |
 
 ## Parallelization Rule
 
@@ -151,9 +151,30 @@ and stable, not presentation strings. Raw transport, session, closeout, and
 proof machinery remains internal service or explicit debug-owned output.
 
 This branch records the direction and pending inputs only. The peer report
-threads above must be read and dispositioned before the compatibility matrix is
-closed or used to justify command hierarchy rewrites, intelligence-layer code,
-telemetry source work, or transport/oRPC implementation.
+threads above were not readable through this local session, but the supervisor
+packet supplied completed report findings and those findings are accepted here
+as planning evidence. That closes only the report-disposition blocker. It does
+not close hotseat runtime proof, AI data-ingestion design, CLI semantic-surface
+implementation, telemetry source work, or Effect/oRPC procedure-core work.
+
+The action/proof vocabulary for future machine-ingestion and procedure-core
+surfaces is: strategy intent, candidate action, operation family, target, args,
+approval, validation result, send result, post-read, `requestId` or correlation
+id, evidence policy, approval reason, `validation_pre`, `send_receipt`,
+`validation_post`, `outcome_delta`, and stale/unknown classification. The
+largest design risk is training or acting on vague `verified: true` flags
+instead of explicit outcome evidence.
+
+Recommended future intelligence artifacts are `StrategyPlan`,
+`ActionCandidate`, `ProfileRecipe`, `LoadedRowProof`, `RunMetric`, and
+`PromotionDecision`. These are planning names only until an AI-intelligence lane
+assigns owners, schemas, sources, and tests.
+
+Hotseat product claims require live runtime gates before they are treated as
+proved: menu/setup hotseat snapshot, disposable hotseat activation, two-slot
+local-player rotation, curtain/interface restoration, one approved agent-slot
+operation, turn-complete/human-restoration, fallback non-local operation probes
+only if hotseat fails, and bounded autoplay measurement proof.
 
 ## Agent Framing Protocol
 

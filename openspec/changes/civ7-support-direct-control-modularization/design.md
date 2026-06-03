@@ -30,6 +30,19 @@ strategy-data consumer that should ingest semantic game state, decisions,
 action outcomes, blockers, and proof telemetry without depending on CLI
 presentation strings or raw service plumbing.
 
+The current supervisor-resolved target-thread evidence sharpens that split:
+hotseat is the preferred one-client player-agent base when activation is
+available because Civilization rotates `GameContext.localPlayerID` through
+hotseat human slots; autoplay is a debug/native-AI harness and support evidence,
+not the primary product path for external player agents. The intelligence layer
+is broader than live CLI play: it must support live hotseat control,
+strategy/playbook/cookbook generation from human play patterns, and possible
+static native-AI profile shaping. Live play remains routed through
+`@civ7/direct-control`; static native-AI shaping belongs to generated profiles.
+The in-game App UI companion direction is subordinate to direct-control, using a
+small versioned JSON-envelope endpoint/RPC rather than becoming a third control
+plane. Raw `game exec` remains a diagnostic/probe substrate.
+
 Effect and Bun are target implementation primitives for new or rewritten
 control logic. Source lanes should plan resource acquisition/release, socket
 framing, buffering, streams, concurrency, error shaping, layers, and tests
@@ -231,6 +244,24 @@ Responsibilities:
   without exposing raw transport/session/proof JSON in normal play commands;
 - ensure Effect/oRPC procedure-core schemas support both local player-agent
   hotseat control and strategy-data ingestion over stable direct-control atoms.
+
+Compatibility matrix seed:
+
+| Surface | Primary consumer | Required content | Forbidden collapse |
+| --- | --- | --- | --- |
+| Hotseat handoff state | live player-agent controller | current local player, agent-owned slot, turn handoff readiness, approval token state, can-act evidence, and blocker summary | do not treat autoplay debug control as the product path; do not act for non-agent human turns |
+| Semantic CLI player-agent view | local player-agent API | game state, blockers, decisions, action results, safe/unsafe next steps, and postcondition classifications | do not dump raw session, closeout, command, or proof JSON as normal play output |
+| Strategy/intelligence ingestion | AI-intelligence database/model layer | stable machine-readable turn state, observations, decisions, action outcomes, playbook/cookbook signals, and proof/telemetry references | do not depend on presentation strings or one-off CLI formatting |
+| Debug/internal service output | direct-control service/debug hierarchy | transport/session state, raw probes, route selection, closeout traces, correlation, and diagnostics | do not expose as normal player-agent or strategy-ingestion output |
+| Operation/proof telemetry | support proof and future procedure middleware | evidence class, approval, validation, send, postcondition, blocker deltas, and runtime observation links | do not claim live/runtime proof from local tests or target-thread evidence alone |
+| Effect/oRPC procedure cores | external direct-control boundary | typed atoms, schemas, context, middleware, approval gates, errors, correlation IDs, and telemetry hooks | do not implement transport-first raw command tunneling |
+
+Proof classes must stay separate: target-thread evidence, repo docs, local
+tests, logs/database artifacts, official resources, live runtime proof, and
+in-game observations each prove different claims. A later full in-game
+controller can reduce repeated transport verification only by moving proof to
+lifecycle certification, method allowlists, local-player identity, approval
+tokens, and semantic outcome checks; it does not remove proof.
 
 ### Lane H: Review / Gate Lane
 
