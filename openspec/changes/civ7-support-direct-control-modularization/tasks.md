@@ -120,6 +120,8 @@ runtime/direct-control claims.
         keeping wrapper-level polling and verification helpers in the facade.
   - [x] 4.4.2 Extract notification dismissal verification helper owner while
         keeping the public wrapper in the facade.
+  - [x] 4.4.3 Extract notification dismissal wrapper owner while keeping the
+        public facade export surface in `index.ts`.
 - [x] 4.5 Extract ready unit/city view atoms.
   - [x] 4.5.1 Extract unit move preview embedded source owner while keeping
         the public wrapper in the facade.

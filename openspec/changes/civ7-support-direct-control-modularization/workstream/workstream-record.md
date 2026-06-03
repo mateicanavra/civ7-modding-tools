@@ -351,6 +351,16 @@ All future agent waves must be framed before delegation:
   verified dismissal, stale engine-front rejection, and none-blocker panel
   close paths. This is local package/source relocation proof only, not runtime
   proof.
+- Direct-control notification dismissal wrapper slice: completed as the next
+  notification composition relocation. It moves only the public
+  `getCiv7NotificationDismissal` / `requestCiv7NotificationDismissal`
+  orchestration into `src/play/notifications/dismissal-request.ts` while
+  keeping the public export surface in `index.ts` and leaving the embedded App
+  UI source plus dismissal-settling verifier in their existing notification
+  owners. `test/notification-dismissal.test.ts` remains the package-owned proof
+  for guarded read/send, identity-based verification, and stale engine-front
+  rejection paths. This is local package/source relocation proof only, not
+  runtime proof.
 - Direct-control narrative choice verification helper slice: completed as the
   next specialized closeout-helper relocation. It first expands
   `test/narrative-choice.test.ts` to cover same-blocker `no-state-change` and

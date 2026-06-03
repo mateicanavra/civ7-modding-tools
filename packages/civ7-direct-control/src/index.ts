@@ -25,6 +25,10 @@ import {
   parseCiv7TunerFrame,
   type Civ7TunerFrame,
 } from "./session/framing.js";
+import {
+  getCiv7NotificationDismissal as getCiv7NotificationDismissalFromModule,
+  requestCiv7NotificationDismissal as requestCiv7NotificationDismissalFromModule,
+} from "./play/notifications/dismissal-request.js";
 import { notificationDismissalSource } from "./play/notifications/dismissal.js";
 import { waitForCiv7NotificationDismissal } from "./play/notifications/verification.js";
 import { playNotificationViewSource } from "./play/notifications/view.js";
@@ -3445,11 +3449,12 @@ export async function getCiv7NotificationDismissal(
   input: Civ7NotificationDismissInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7NotificationDismissalResult> {
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildNotificationDismissalCommand(input, { send: false }),
+  return await getCiv7NotificationDismissalFromModule(input, options, {
+    buildNotificationDismissalCommand,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseNotificationDismissal: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7NotificationDismissalResult>(result, label),
   });
-  return jsonPayloadFromCommandResult<Civ7NotificationDismissalResult>(result, "Civ7 notification dismissal");
 }
 
 export async function requestCiv7NotificationDismissal(
@@ -3457,14 +3462,13 @@ export async function requestCiv7NotificationDismissal(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7NotificationDismissalResult> {
-  assertApproved(approval, "dismissing Civ7 notification");
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildNotificationDismissalCommand(input, { send: true, verificationAttempts: 1 }),
+  return await requestCiv7NotificationDismissalFromModule(input, options, approval, {
+    buildNotificationDismissalCommand,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    parseNotificationDismissal: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7NotificationDismissalResult>(result, label),
+    assertApproved,
   });
-  const initial = jsonPayloadFromCommandResult<Civ7NotificationDismissalResult>(result, "Civ7 notification dismissal");
-  if (initial.verified || !initial.sent || initial.before.exists === false) return initial;
-  return await waitForCiv7NotificationDismissal(input, options, initial, getCiv7NotificationDismissal);
 }
 
 export async function sendCiv7TurnComplete(
