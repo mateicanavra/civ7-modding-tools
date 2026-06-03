@@ -28,9 +28,10 @@ probe, not a baseline.
 The live implementation endpoint is a game-scoped App UI controller. It can
 display strategy, observe events, acknowledge requests, enrich the agent's
 context, and absorb stable read/validation logic that currently exists as raw
-direct-control JS wrappers. The primary ingress should be a controller-owned,
-game-scoped App UI global API such as
-`globalThis.Civ7IntelligenceBridge.invoke(...)`, called through direct-control.
+direct-control JS wrappers. The primary substrate should be a controller-owned
+in-process oRPC/Effect router loaded in game-scoped App UI. The
+`globalThis.Civ7IntelligenceBridge.invoke(...)` global remains the bounded
+serialized ingress called through direct-control, not the API design center.
 It must not become an independent action sender. Companion scripts can reach
 mutating operation APIs, which makes the path powerful but unsafe unless exact
 helper execution stays subordinate to direct-control approval, allowlists, and
@@ -173,8 +174,10 @@ for a project-owned `Civ7IntelligenceBridge`.
 Companion scripts can also reach mutating operation APIs. That answers the
 capability question but creates a product boundary: independent endpoint-owned
 sends are eliminated. The controller should become valuable for stable reads,
-validator parity, display, acknowledgement, and observation. Queueing is a later
-probe or reload mirror, not the baseline.
+validator parity, display, acknowledgement, and observation. Queueing, pub/sub,
+schedules, build-queue helpers, and richer AI intelligence services are later
+Effect-backed capabilities on the same oRPC substrate, not separate bridges or
+ad hoc App UI APIs.
 
 Next trigger: project-owned `Civ7IntelligenceBridge` lifecycle proof across
 shell/game scope, UI reload, restart, load/save, turn changes, and Tuner

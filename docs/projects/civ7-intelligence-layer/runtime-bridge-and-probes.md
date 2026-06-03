@@ -157,53 +157,16 @@ JavaScript or unsupervised operation payloads.
 Recommended `Civ7IntelligenceBridge` shape:
 
 ```js
-const METHODS = Object.freeze({
-  "system.ping": () => ({ version: "0.1.0" }),
-  "capabilities.list": () => ({
-    methods: [
-      "system.ping",
-      "capabilities.list",
-      "game.snapshot",
-      "map.plot",
-      "operations.validate",
-      "actions.executeApproved",
-      "intent.ack",
-    ],
-  }),
-  "game.snapshot": () => ({
-    turn: typeof Game !== "undefined" ? Game.turn : null,
-    localPlayerID:
-      typeof GameContext !== "undefined" ? GameContext.localPlayerID : null,
-  }),
-  "intent.ack": (params) => ({ received: params?.id ?? null }),
+const controllerRuntime = createCiv7ControllerRuntime({
+  globals: globalThis,
+  policy: directControlPolicyContext,
 });
 
 const Civ7IntelligenceBridge = Object.freeze({
   version: "0.1.0",
   ping: () => ({ ok: true }),
   invoke: (encodedEnvelope) => {
-    const request = JSON.parse(encodedEnvelope);
-    if (request.protocolVersion !== "0.1.0") {
-      return JSON.stringify({
-        ok: false,
-        requestId: request.requestId,
-        error: { code: "protocol.unsupported" },
-      });
-    }
-    if (!Object.prototype.hasOwnProperty.call(METHODS, request.method)) {
-      return JSON.stringify({
-        ok: false,
-        requestId: request.requestId,
-        error: { code: "method.not_allowed" },
-      });
-    }
-    const handler = METHODS[request.method];
-    return JSON.stringify({
-      ok: true,
-      requestId: request.requestId,
-      method: request.method,
-      result: handler(request.params),
-    });
+    return controllerRuntime.invokeEncoded(encodedEnvelope);
   },
 });
 
@@ -247,16 +210,35 @@ Minimum response fields:
 | `error.code` | Stable typed failure code when `ok` is false. |
 | `observedAt` | Optional turn/local-player/runtime context for proof records. |
 
-## oRPC Placement
+## ORPC And Effect Placement
 
-Use oRPC for the external direct-control boundary. The repo already has typed
-procedures for lifecycle, live reads, setup, actions, and capability catalogs,
-with approval context for mutating procedures.
+Use oRPC and Effect as the shared service substrate across the controller stack,
+not only at the external direct-control boundary. The repo already has typed
+procedures for lifecycle, live reads, setup, actions, capability catalogs, and
+approval context. The deployed game controller should use the same architectural
+shape: a game-resident procedure router with Effect services for Civ globals,
+policy context, logging/proof sinks, bounds, approval checks, and future
+controller internals.
 
-Do not embed oRPC as the App UI global substrate for the first slice. The App UI
-surface should stay a tiny companion-specific envelope RPC. A future generated
-adapter can share schemas with direct-control, but the game-side runtime should
-not inherit external transport assumptions.
+The App UI global is still required, but it is not the product API. Treat
+`globalThis.Civ7IntelligenceBridge.invoke(...)` as a serialized ingress adapter
+from direct-control's existing command transport into the in-process callable
+router. The envelope exists because the tuner socket command bridge can only
+cross into the selected game state by evaluating a bounded JS call; once inside
+the controller, dispatch should go through procedure definitions, schemas,
+Effect context, and shared middleware rather than a hand-maintained method table.
+
+This substrate choice applies to three related surfaces:
+
+- the internal game controller mod API;
+- the external direct-control bridge API;
+- future internal AI intelligence services that may need pub/sub, queues,
+  schedules, build-queue helpers, strategy/tactics invocations, or other
+  in-game orchestration.
+
+Do not turn that into arbitrary script authority. The oRPC/Effect substrate
+organizes typed callable capabilities; direct-control still owns external
+transport, approval records, no-replay behavior, and postcondition proof.
 
 ## In-Game Controller Baseline Candidate
 

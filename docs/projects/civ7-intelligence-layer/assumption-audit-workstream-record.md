@@ -10,7 +10,10 @@ frame after the App UI `globalThis` proof was corrected.
 
 2026-06-03 supersession note: the later live App UI/Tuner parity probe promoted
 the game-scoped App UI controller from target direction to baseline
-implementation candidate for proven direct-control reads and validators. Keep
+implementation candidate for proven direct-control reads and validators. A later
+substrate correction also supersedes the "external-only oRPC" finding: the
+active design uses oRPC/Effect for the in-game controller service, the external
+direct-control bridge API, and future internal AI intelligence services. Keep
 this record as historical audit input; the active workstream is
 `workstream/direct-control-game-controller-bridge/`.
 
@@ -95,8 +98,11 @@ Reports:
    not prove shell-wide availability or Tuner-resident deployment.
 5. `swooper-maps` is map/import prior art, LF yields preview is App UI
    public-API prior art, and RHQ is static database/profile prior art.
-6. oRPC is the right external direct-control boundary. The App UI global should
-   be a small custom JSON-envelope RPC with method allowlists and typed errors.
+6. Superseded by later substrate decision: oRPC/Effect is the shared service
+   substrate for the in-game controller, external direct-control bridge API, and
+   future internal AI intelligence services. The App UI global is a bounded
+   serialized ingress adapter into an in-process callable router, not a custom
+   JSON-envelope product API.
 7. Raw `game exec` is debug/probe power below the product contract, not an
    agent-facing API.
 8. Current direct-control operation wrappers prove validation/send discipline,

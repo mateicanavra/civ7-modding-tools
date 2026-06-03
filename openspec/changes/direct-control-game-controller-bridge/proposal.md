@@ -7,10 +7,12 @@ surfaces. That means the current raw per-wrapper JavaScript bodies and the older
 "post-Begin gameplay reads target Tuner" design are implementation history, not
 a hard runtime limitation.
 
-The next architecture slice is a deployed game-scoped controller API. It should
-use Civ7 native mod rails, primarily `scope="game"` `UIScripts`, and expose a
-small project-owned `globalThis.Civ7IntelligenceBridge.invoke(...)` API that
-`@civ7/direct-control` calls through its existing tuner socket transport.
+The next architecture slice is a deployed game-scoped controller service. It
+should use Civ7 native mod rails, primarily `scope="game"` `UIScripts`, and
+expose a project-owned `globalThis.Civ7IntelligenceBridge.invoke(...)` ingress
+that `@civ7/direct-control` calls through its existing tuner socket transport.
+That ingress dispatches into an in-process oRPC/Effect callable router; it is not
+an ad hoc JSON product API.
 
 ## Target Authority Refs
 
@@ -20,7 +22,7 @@ small project-owned `globalThis.Civ7IntelligenceBridge.invoke(...)` API that
 - `docs/projects/civ7-intelligence-layer/runtime-bridge-and-probes.md`
 - `docs/projects/civ7-intelligence-layer/SOLUTION-FRAME.md`
 - `docs/projects/civ7-intelligence-layer/actuation-path-map.md`
-- `docs/system/ADR.md#adr-007-civ7-intelligence-uses-two-authority-sides-with-a-subordinate-app-ui-endpoint`
+- `docs/system/ADR.md#adr-007-civ7-intelligence-uses-two-authority-sides-with-a-game-scoped-controller`
 - `packages/civ7-direct-control/AGENTS.md`
 - Official resource evidence:
   - `.civ7/outputs/resources/Base/modules/base-standard/base-standard.modinfo`
@@ -38,7 +40,11 @@ small project-owned `globalThis.Civ7IntelligenceBridge.invoke(...)` API that
   `mods/mod-civ7-intelligence-controller` that emits a Civ7 mod with separate
   `scope="game"` and, if needed, `scope="shell"` entrypoints.
 - The game entrypoint exposes `globalThis.Civ7IntelligenceBridge` with a
-  versioned JSON-envelope `invoke(...)` method.
+  bounded `invoke(...)` transport adapter into a game-resident oRPC/Effect
+  service router.
+- The controller mod shares oRPC procedure/schema atoms and Effect service
+  patterns with the external direct-control API, while keeping direct-control as
+  owner of socket transport, approvals, no-replay behavior, and proof promotion.
 - The first controller methods are `system.ping`, `capabilities.list`,
   `game.snapshot`, `map.plot`, `players.summary`, `units.summary`,
   `cities.summary`, `visibility.summary`, `gameInfo.rows`, and
@@ -66,6 +72,9 @@ small project-owned `globalThis.Civ7IntelligenceBridge.invoke(...)` API that
 - Live play can collect coherent snapshots from one game-resident state machine.
 - UI annotations, overlays, and acknowledgements can share controller context
   with read and validation methods.
+- Internal AI intelligence services can later invoke the same substrate for
+  typed strategy/tactics helpers, build queues, pub/sub, queues, and schedules
+  without creating a second control framework.
 
 ## Affected Owners
 
@@ -115,8 +124,8 @@ surface becomes versioned, allowlisted, bounded, and owned by the repo.
   `bun run --cwd mods/mod-civ7-intelligence-controller build` and deploy through
   `mod manage deploy --input "$PWD/mods/mod-civ7-intelligence-controller/mod"
   --id civ7-intelligence-controller`.
-- Controller package tests for method dispatch, envelope validation, bounds, and
-  error shapes.
+- Controller package tests for in-process router dispatch, Effect context,
+  envelope ingress validation, bounds, and error shapes.
 - Direct-control mock socket tests for controller invocation, state selection,
   timeout/error normalization, and no raw caller JS exposure.
 - Live read-only proof against Civ7: `ping`, `capabilities.list`,

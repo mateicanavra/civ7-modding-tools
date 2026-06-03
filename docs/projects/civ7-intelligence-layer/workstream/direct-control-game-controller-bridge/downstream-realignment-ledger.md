@@ -25,7 +25,7 @@
   - no generated output patched; future controller mod output must be generated
     from source.
 - Affected phase records / Next Packets:
-  - this phase record and next packet.
+  - this phase record, next packet, and supervisor notice.
 
 ## Disposition
 
@@ -42,6 +42,7 @@
 | `direct-control-capability-catalog` | Catalog omitted controller `capabilities.list` as first-class provenance | patched | Proposal/design/spec add controller capability provenance | Direct-control OpenSpec | Current realignment |
 | `studio-run-in-game-robustness` | Readiness stopped at `tuner-ready` for gameplay claim | patched | Design adds future `controller-ready` phase | Studio/OpenSpec | After controller bridge lands |
 | Historical lane reports | Earlier reports said Tuner stronger or controller future target | patched | Supersession notes added instead of silent rewrites | Intelligence layer | Current realignment |
+| oRPC/Effect substrate docs and skills | Active docs/skills treated oRPC as external-only and the App UI global as the custom product RPC | patched | ADR, runtime bridge, OpenSpec, solution docs, workstream records, and `civ7-orpc-control-architecture` now make the game controller an in-process oRPC/Effect service behind serialized ingress | System/OpenSpec/Skills | Current substrate correction |
 | `packages/civ7-direct-control/README.md` | May need to mention controller invocation after implementation, not before | deferred | No public API exists yet | Direct-control package | After controller client exists |
 
 ## Required Closure Statement
@@ -49,11 +50,15 @@
 - Downstream assumptions that changed: App UI game context is now the primary
   controller runtime candidate for gameplay reads, validation, and exact
   approved helper execution. Tuner remains a socket state/canary and historical
-  wrapper target, not the deployment target.
-- Artifacts patched: in progress.
+  wrapper target, not the deployment target. oRPC/Effect is now the shared
+  service substrate for the game controller, external direct-control bridge API,
+  and future internal AI intelligence services; the App UI global is serialized
+  ingress only.
+- Artifacts patched: active docs/specs/skills in this workstream.
 - No-patch rationale: package README stays unchanged until an actual controller
   client exists.
 - Blocked/deferred items: code/test changes are deferred to the implementation
   tasks in the OpenSpec change.
-- Exact next downstream action: patch the pending docs/specs, then integrate
-  active agent findings.
+- Exact next downstream action: implement the controller mod and direct-control
+  client from the oRPC/Effect router/runtime substrate, then collect lifecycle,
+  parity, and disposable approved-action proof.

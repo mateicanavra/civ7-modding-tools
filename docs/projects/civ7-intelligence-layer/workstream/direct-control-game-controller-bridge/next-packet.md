@@ -5,10 +5,11 @@
 - Project: Civ7 Intelligence Layer
 - Phase: direct-control-game-controller-bridge
 - Branch/Graphite stack: `codex/investigate-civ7-intelligence-threads`
-- Last commit: `89e1e17af docs(civ7): repair intelligence actuation frame`
-- Repo state: one unrelated pre-existing dirty file,
-  `docs/projects/mapgen-studio/VIZ-SDK-V1.md`; phase-owned docs/specs validated
-  and ready to commit.
+- Last committed baseline before substrate correction:
+  `3ab5415cd docs(civ7): realign controller bridge baseline`
+- Repo state at handoff: one unrelated pre-existing dirty file,
+  `docs/projects/mapgen-studio/VIZ-SDK-V1.md`; phase-owned docs/specs contain
+  the current controller/substrate realignment.
 
 ## Authority
 
@@ -26,6 +27,7 @@
 - Excluded/stale inputs:
   - hard Tuner-first gameplay-read limitation;
   - literal Tuner-loaded mod success criterion;
+  - external-only oRPC with a custom App UI JSON-envelope product API;
   - independent controller action authority.
 
 ## What Is Done
@@ -37,6 +39,10 @@
   - phase/proof/realignment/review/next-packet artifacts opened;
   - current solution, ADR, project, path map, historical OpenSpec records,
     capability inventory, Studio readiness, and historical reports realigned.
+  - oRPC/Effect substrate correction applied: game controller mod API, external
+    direct-control bridge API, and future internal AI intelligence service share
+    the same procedure/service substrate; `globalThis.Civ7IntelligenceBridge` is
+    only the serialized ingress adapter.
 - Verified evidence:
   - source-backed native rails;
   - current live read-only App UI/Tuner parity for representative gameplay roots
@@ -46,7 +52,8 @@
   - `bun run openspec:validate` passed: 57 items, 0 failed.
   - `git diff --check` passed.
 - Closed findings:
-  - GCR-001 through GCR-003 accepted and in repair.
+  - GCR-001 through GCR-007 accepted and repaired in docs/OpenSpec/workstream
+    artifacts.
 
 ## What Is Open
 
@@ -54,6 +61,9 @@
   - choose whether to start code implementation now or on a follow-up branch;
   - implement `mods/mod-civ7-intelligence-controller` and the direct-control
     controller client;
+  - start implementation with shared controller contracts/envelope, game
+    controller router/runtime/effect services, and direct-control oRPC procedure
+    mapping;
   - run project-owned lifecycle, read parity, validator parity, and disposable
     approved-action proof.
 - Open findings:
@@ -63,8 +73,8 @@
   - live deployment/mutation proof requires implementation and, for mutation, a
     disposable session.
 - Dirty/uncommitted files:
-  - phase-owned docs/specs;
-  - unrelated `docs/projects/mapgen-studio/VIZ-SDK-V1.md`.
+  - unrelated `docs/projects/mapgen-studio/VIZ-SDK-V1.md` may still be present
+    outside this workstream.
 - Failing gates:
   - none for realignment.
 - Deferred items:
@@ -96,6 +106,9 @@
   - controller mod package;
   - direct-control controller client;
   - controller-backed read/action migration.
+  - future internal AI intelligence services using the same oRPC/Effect
+    substrate for pub/sub, queues, schedules, build-queue helpers, and
+    strategy/tactics invocations.
 - Changes blocked:
   - production action execution until disposable approved-action proof.
 - Artifacts realigned:
@@ -105,12 +118,15 @@
   - package README after the controller client exists.
 - Downstream realignment ledger:
   - `docs/projects/civ7-intelligence-layer/workstream/direct-control-game-controller-bridge/downstream-realignment-ledger.md`
+- Supervisor notice:
+  - `docs/projects/civ7-intelligence-layer/workstream/direct-control-game-controller-bridge/supervisor-notice.md`
 
 ## Resume Instructions
 
 1. First inspect `git status --short --branch` and this packet.
 2. Then inspect `openspec/changes/direct-control-game-controller-bridge/`.
 3. Then implement the source controller mod and direct-control client following
-   `design.md` and `tasks.md`.
+   `design.md` and `tasks.md`, beginning with the oRPC/Effect router/runtime
+   substrate rather than a hand-maintained method table.
 4. Stop if evidence invalidates App UI game context as the primary controller
    runtime or if direct-control approval/proof ownership cannot be preserved.

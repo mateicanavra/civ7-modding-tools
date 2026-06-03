@@ -3,7 +3,8 @@
 The controller is a native App UI companion loaded through Civ7 modinfo action
 groups. It is not a new external transport. Direct-control still reaches Civ7
 through the tuner socket protocol, selects the App UI game state, and calls the
-controller global with a bounded serialized envelope.
+controller global with a bounded serialized envelope. Inside the game context,
+that global dispatches to an in-process oRPC/Effect callable router.
 
 ## Native Rails
 
@@ -31,10 +32,15 @@ The first implementation slice should use these source paths:
 - `mods/mod-civ7-intelligence-controller/AGENTS.md`
 - `mods/mod-civ7-intelligence-controller/scripts/build.ts`
 - `mods/mod-civ7-intelligence-controller/src/game/civ7-intelligence-bridge.ts`
+- `mods/mod-civ7-intelligence-controller/src/game/controller-runtime.ts`
+- `mods/mod-civ7-intelligence-controller/src/game/controller-router.ts`
+- `mods/mod-civ7-intelligence-controller/src/game/effect-services.ts`
 - `mods/mod-civ7-intelligence-controller/src/shell/civ7-intelligence-bridge.ts`
-- `mods/mod-civ7-intelligence-controller/src/shared/envelope.ts`
+- `mods/mod-civ7-intelligence-controller/src/shared/controller-contract.ts`
+- `mods/mod-civ7-intelligence-controller/src/shared/controller-envelope.ts`
 - `mods/mod-civ7-intelligence-controller/test/modinfo.test.ts`
 - `mods/mod-civ7-intelligence-controller/test/game-controller.test.ts`
+- `mods/mod-civ7-intelligence-controller/test/controller-router.test.ts`
 
 Use a custom build script for the first slice because the current SDK action
 enum does not expose `UIScripts`. The build script should generate
@@ -48,6 +54,29 @@ enum does not expose `UIScripts`. The build script should generate
 Generated `mod/` output remains evidence and deploy input, not hand-edited
 source.
 
+## ORPC And Effect Substrate
+
+The game controller API is an oRPC/Effect service surface. Use procedure/schema
+atoms and Effect service/context patterns as the substrate for:
+
+- the in-game controller mod API;
+- the external `@civ7/direct-control` bridge API;
+- future internal AI intelligence services that may add pub/sub, queues,
+  schedules, build-queue helpers, strategy/tactics invocations, or other
+  game-resident orchestration.
+
+The game controller should call its router in-process. The `globalThis` bridge is
+only the Civ command-boundary ingress that decodes a bounded envelope, enters the
+Effect runtime, invokes the matching procedure, and encodes the response.
+External direct-control procedures may continue to use their existing Node-side
+oRPC/Effect runtime and call the controller through the socket-selected App UI
+state.
+
+Effect services should keep Civ runtime dependencies explicit: current globals,
+local-player identity, turn/age state, approval policy, idempotency store, proof
+sink, clock, bounds, and future controller internals. Do not smuggle this policy
+through arbitrary globals or caller-local JavaScript strings.
+
 ## Controller API
 
 The game controller exposes:
@@ -56,12 +85,13 @@ The game controller exposes:
 globalThis.Civ7IntelligenceBridge = Object.freeze({
   version: "0.1.0",
   invoke(encodedEnvelope) {
-    // returns encoded response
+    // decodes request, calls the in-process controller router, returns encoded response
   },
 });
 ```
 
-The first envelope fields are:
+The envelope fields are transport metadata around the oRPC call, not the product
+contract itself. The first envelope fields are:
 
 - `protocolVersion`
 - `requestId`
@@ -100,11 +130,14 @@ The first method families are:
 ## Direct-Control Integration
 
 `@civ7/direct-control` adds a controller client over its existing command
-execution primitive. The client:
+execution primitive and wraps that client in its existing oRPC/Effect control
+surface. The client:
 
 - targets App UI game state by default;
 - verifies the controller version and capability list before method calls;
 - encodes and bounds the request envelope;
+- maps external procedure calls to the controller contract without exposing raw
+  JS literals to callers;
 - normalizes controller errors into package errors;
 - records controller proof boundaries separately from raw wrapper proof;
 - never exposes arbitrary caller-provided JavaScript.

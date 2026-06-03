@@ -14,6 +14,12 @@
 - Target movement: promote the deployed game-scoped App UI controller from
   future/companion wording to the primary direct-control implementation
   candidate for current read/action wrapper logic.
+- Substrate correction: implement the controller mod API as an in-process
+  oRPC/Effect callable router. Treat
+  `globalThis.Civ7IntelligenceBridge.invoke(...)` as the serialized ingress
+  adapter, not the product API. Keep oRPC/Effect as the shared substrate for the
+  in-game controller, external direct-control bridge API, and future internal AI
+  intelligence service.
 - Non-goals: literal Tuner-resident mod deployment, independent controller-owned
   action choice, raw LLM JavaScript, native AI live row mutation, map scripts as
   live control, or a model runtime inside Civ7.
@@ -50,7 +56,8 @@
   stack; pre-existing dirty file `docs/projects/mapgen-studio/VIZ-SDK-V1.md`
   belongs outside this phase.
 - Dirty files and owner:
-  - phase-owned docs and OpenSpec files under this workstream;
+  - phase-owned docs and OpenSpec files are owned by this workstream while
+    substrate corrections are being validated and committed;
   - unrelated pre-existing MapGen Studio doc remains untouched.
 - Current code evidence:
   - `packages/civ7-direct-control/src/index.ts` still builds raw JS command
@@ -58,6 +65,13 @@
     validation, and operation requests.
   - These wrappers are now migration sources for controller methods, not proof
     that Tuner must remain the gameplay execution state.
+- Current substrate evidence:
+  - `packages/civ7-direct-control/src/orpc/**` already uses Effect-backed oRPC
+    procedures, managed runtime, typed context, approval policy, and server-side
+    callable router/client patterns.
+  - The controller implementation should reuse that architectural substrate in
+    game context while keeping the Civ command/global boundary as a transport
+    adapter.
 - Generated outputs affected: none in this realignment pass.
 - Tests/guards affected: OpenSpec validation, markdown/link sanity,
   `git diff --check`; source tests begin with the implementation slice.
@@ -99,6 +113,8 @@
   - controller mod package owns deployed game/shell script source;
   - `@civ7/direct-control` owns external transport, controller invocation,
     approvals, no-replay policy, and proof records;
+  - shared oRPC/Effect contracts own typed procedure atoms across the controller,
+    external bridge API, and future internal AI intelligence service;
   - CLI/Studio remain callers above direct-control.
 - Forbidden owners:
   - caller-local control scripts;
@@ -129,9 +145,12 @@
   - proof gates;
   - downstream stale assumption audit.
 - Blocking findings: none open after integration.
-- Accepted findings repaired: GCR-001 through GCR-003 repaired by opening the
-  workstream, OpenSpec change, proof ledger, downstream ledger, and realigning
-  current solution/OpenSpec records.
+- Accepted findings repaired: GCR-001 through GCR-006 repaired by opening the
+  workstream, OpenSpec change, proof ledger, downstream ledger, exact source
+  shape, and realigning current solution/OpenSpec records.
+- Substrate finding repaired: GCR-007 accepted; OpenSpec, ADR, solution docs,
+  workstream records, and oRPC architecture skill now treat oRPC/Effect as the
+  controller substrate rather than an external-only boundary.
 - Rejected/invalidated/waived/deferred findings: pending.
 
 ## Agent Fleet State
@@ -159,6 +178,8 @@
   - recorded corrected runtime evidence and native rail direction;
   - realigned solution, ADR, path map, project, historical OpenSpec records,
     capability inventory, Studio readiness, and historical reports.
+  - corrected controller API substrate from custom JSON envelope to in-process
+    oRPC/Effect router behind a serialized App UI ingress adapter.
 - Remaining tasks:
   - decide whether to start code implementation on this branch or hand off with
     a next packet.
@@ -174,12 +195,15 @@
   - `bun run openspec -- validate direct-control-game-controller-bridge --strict`
   - `bun run openspec:validate`
   - `git diff --check`
+  - reran those three gates after the oRPC/Effect substrate correction.
 - Results:
   - worktree had one unrelated pre-existing dirty file;
   - live read-only probes support the controller baseline candidate.
   - OpenSpec validation passed for `direct-control-game-controller-bridge`.
   - Full OpenSpec validation passed: 57 items, 0 failed.
   - `git diff --check` passed.
+  - Substrate correction validation passed: focused OpenSpec valid, full
+    OpenSpec 57 passed/0 failed, and `git diff --check` passed.
 - Skipped gates and rationale:
   - no deploy/restart/mutation proof in this realignment pass; those require a
     source-owned controller and, for mutation, a disposable session.
@@ -194,12 +218,16 @@
 - Deferrals/triage updated: pending.
 - Downstream realignment ledger:
   - `docs/projects/civ7-intelligence-layer/workstream/direct-control-game-controller-bridge/downstream-realignment-ledger.md`
+- Supervisor notice:
+  - `docs/projects/civ7-intelligence-layer/workstream/direct-control-game-controller-bridge/supervisor-notice.md`
 
 ## Next Action
 
 - Exact next step: commit the validated realignment, then implement the
   controller mod/direct-control client slice on a follow-up branch or continue
-  this branch if selected.
+  this branch if selected. Implementation starts with shared controller
+  contract/envelope modules, game router/runtime/effect services, and the
+  direct-control invocation adapter.
 - First files to inspect:
   - `docs/projects/civ7-intelligence-layer/SOLUTION-FRAME.md`
   - `docs/projects/civ7-intelligence-layer/actuation-path-map.md`

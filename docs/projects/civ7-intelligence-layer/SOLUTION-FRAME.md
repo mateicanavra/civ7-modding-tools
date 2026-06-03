@@ -50,9 +50,11 @@ live side:
 The game-scoped App UI controller belongs under the live side. It can carry
 strategy intent, annotations, observations, acknowledgements, helper probes, and
 the stable read/validation methods that currently exist as raw direct-control JS
-wrappers. The baseline ingress is a game-scoped App UI `UIScripts` global such as
-`globalThis.Civ7IntelligenceBridge.invoke(...)`, called through a typed
-direct-control wrapper.
+wrappers. Its substrate is an in-process oRPC/Effect service router loaded by a
+game-scoped App UI `UIScripts` mod. The
+`globalThis.Civ7IntelligenceBridge.invoke(...)` function is only the serialized
+ingress direct-control uses to enter that router through the selected App UI game
+state.
 
 The controller is now the baseline implementation candidate for post-Begin game
 reads and validators because live probes showed App UI game context has the same
@@ -165,13 +167,15 @@ intent, richer observations, and helper affordances that direct-control can read
 or trigger. The endpoint is useful even if it never mutates native AI.
 
 The safe first endpoint is not "LLM sends arbitrary JS into Civ." It is: the
-direct-control runner calls a small companion-owned App UI API such as
-`globalThis.Civ7IntelligenceBridge.invoke(encodedEnvelope)`, the endpoint
-dispatches only allowlisted read/ack/display methods, and the observer records
-the result. Synchronous App UI RPC is the baseline. `localStorage` can become a
-reload mirror or async queue after proof, but it is not the primary path.
-More powerful effects must remain subordinate to direct-control approval and
-postcondition proof.
+direct-control runner calls
+`globalThis.Civ7IntelligenceBridge.invoke(encodedEnvelope)`, the endpoint enters
+an in-process oRPC/Effect router, dispatches only allowlisted read/ack/display
+procedures, and the observer records the result. Synchronous App UI ingress is
+the baseline. `localStorage` can become a reload mirror after proof. Queueing,
+pub/sub, schedules, build-queue helpers, or richer AI intelligence services are
+future Effect-backed controller capabilities, not a reason to introduce a second
+control framework. More powerful effects must remain subordinate to
+direct-control approval and postcondition proof.
 
 ### Scenario 5: Strategy Corpus Loop
 
@@ -271,7 +275,7 @@ attached to the live side.
 | --- | --- | --- |
 | Direct-control runner | Send validated live player operations and record proof layers | Native AI policy mutation |
 | Static AI profile compiler | Emit mod SQL/XML that changes loaded AI priorities, operations, strategies, tactics, and behavior-tree graphs | Arbitrary custom native AI code or live reload |
-| Game-scoped App UI controller | Host a native `scope="game"` `UIScripts` `globalThis.Civ7IntelligenceBridge` RPC for bounded calls from direct-control | Independent action sends, Tuner deployment, shell-wide availability, or stable live native-AI steering |
+| Game-scoped App UI controller | Host a native `scope="game"` `UIScripts` oRPC/Effect service router with `globalThis.Civ7IntelligenceBridge` as bounded ingress from direct-control | Independent action sends, Tuner deployment, shell-wide availability, or stable live native-AI steering |
 
 ### Measurement And Promotion
 
@@ -498,9 +502,10 @@ Build the first slice around proof, not ambition:
 6. **RHQ recipe importer, read-only first.** Parse RHQ deltas into candidate
    recipes without applying them wholesale.
 7. **Game-scoped controller bridge.** Deploy a project-owned game-scoped
-   `UIScripts` mod exposing `globalThis.Civ7IntelligenceBridge.invoke`;
-   prove `ping`, `capabilities.list`, `game.snapshot`, read parity, and
-   operation validator parity against existing direct-control wrappers.
+   `UIScripts` mod whose `globalThis.Civ7IntelligenceBridge.invoke` ingress
+   calls an in-process oRPC/Effect router; prove `ping`, `capabilities.list`,
+   `game.snapshot`, read parity, and operation validator parity against existing
+   direct-control wrappers.
 8. **Hotseat proof sequence.** In a disposable session, prove activation,
    local-player rotation, curtain handling, one approved agent operation, turn
    completion, and human restoration.

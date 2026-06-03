@@ -4,6 +4,14 @@ Agent: Codex
 Lane: Civ7 intelligence layer API contract audit
 Date: 2026-06-03
 
+2026-06-03 supersession note: this report is historical audit input. Its
+"external oRPC only / App UI custom JSON envelope" recommendation is superseded
+by the direct-control-game-controller-bridge substrate correction. The active
+design uses oRPC/Effect for the game-resident controller service, the external
+direct-control bridge API, and future internal AI intelligence services; the
+`globalThis.Civ7IntelligenceBridge.invoke(...)` global is the serialized ingress
+adapter into the in-process controller router.
+
 ## Goal
 
 Investigate and challenge the API contract assumptions for the Civ7 in-game

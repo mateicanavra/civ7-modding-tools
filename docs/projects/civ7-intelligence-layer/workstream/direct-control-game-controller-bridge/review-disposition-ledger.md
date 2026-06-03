@@ -8,6 +8,7 @@
 | GCR-004 | P1 | Proof audit | Controller can become baseline only through source-backed, live read-only, project-owned lifecycle, parity, and disposable mutation proof gates | verification | accepted | Add proof ledger and OpenSpec tasks separating proof classes | `proof-ledger.md`; Hume audit | yes |
 | GCR-005 | P1 | Downstream audit | State-role/read/action OpenSpec records still encoded Tuner-default ownership | downstream | accepted | Patch state-role/read/action/capability/studio records or add supersession notes | Boyle audit; patched OpenSpec records | yes |
 | GCR-006 | P1 | Implementation audit | Slice needs exact source paths and custom mod build because SDK lacks `UIScripts` action support | implementation | accepted | Add exact mod/direct-control paths and build/deploy commands to OpenSpec | Maxwell audit; patched `design.md` and `proposal.md` | yes |
+| GCR-007 | P1 | User/product authority | Treating oRPC as external-only and the App UI bridge as a custom JSON-envelope product API breaks the intended substrate | architecture/product | accepted | Realign OpenSpec/docs/skills so the in-game controller mod API, external direct-control bridge API, and future internal AI intelligence service share oRPC/Effect, with `Civ7IntelligenceBridge.invoke` only as serialized ingress | User correction on 2026-06-03; patched OpenSpec/docs/skills | yes |
 
 ## Disposition Rules
 

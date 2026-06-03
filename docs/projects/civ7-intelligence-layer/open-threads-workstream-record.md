@@ -237,10 +237,11 @@ Decisions:
 - Direct-control owns live action authority, approval, wrapper promotion, and
   proof records.
 - Static profile compiler owns native-AI profile artifacts.
-- Companion endpoint starts as game-scoped App UI
-  `globalThis.Civ7IntelligenceBridge` RPC plus observation, annotation, and
-  acknowledgement infrastructure. Queueing and `localStorage` are probes or
-  reload mirrors, not the baseline.
+- Companion endpoint starts as a game-scoped App UI oRPC/Effect controller
+  service, with `globalThis.Civ7IntelligenceBridge` as the bounded ingress plus
+  observation, annotation, and acknowledgement infrastructure. Queueing, pub/sub,
+  schedules, build-queue helpers, and richer AI intelligence services remain on
+  that substrate; `localStorage` is a reload mirror probe, not the baseline.
 - A game-scoped App UI controller is now the baseline implementation candidate
   for proven direct-control reads and validators because live probes showed App
   UI game context can cover the major gameplay roots checked in Tuner. It does

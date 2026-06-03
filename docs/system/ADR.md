@@ -157,8 +157,11 @@ promotion.
 **Consequences:**
 - Raw `CMD:<stateId>:<javascript>` / `game exec` stays a diagnostic and probe
   transport, not the agent-facing product API.
-- oRPC belongs at the external direct-control boundary; the App UI global uses
-  a small versioned JSON-envelope RPC with allowlisted methods.
+- oRPC/Effect is the shared control substrate for the external direct-control
+  API, the game-scoped controller mod API, and future internal AI intelligence
+  services. The App UI `globalThis.Civ7IntelligenceBridge.invoke(...)` surface is
+  a serialized transport adapter into an in-process callable router, not an ad
+  hoc product API.
 - `UIScripts` proof is App UI game-context proof unless shell or Tuner
   availability is separately demonstrated. Shell requires its own entrypoint;
   Tuner is not a modinfo deployment target in the baseline.

@@ -539,10 +539,10 @@ Deliver:
 
 1. A read-only corpus schema and local storage location for turn snapshots,
    action audits, outcome deltas, and static AI profile metadata.
-2. A project-owned game-scoped App UI controller mod exposing
-   `globalThis.Civ7IntelligenceBridge.invoke(...)`, with `system.ping`,
-   `capabilities.list`, `game.snapshot`, read methods, and
-   `operations.validate`.
+2. A project-owned game-scoped App UI controller mod whose
+   `globalThis.Civ7IntelligenceBridge.invoke(...)` ingress calls an in-process
+   oRPC/Effect router, with `system.ping`, `capabilities.list`, `game.snapshot`,
+   read methods, and `operations.validate`.
 3. A direct-control controller client that calls the controller through the
    existing tuner socket transport without exposing raw caller JavaScript.
 4. Read and validator parity probes comparing controller outputs against the

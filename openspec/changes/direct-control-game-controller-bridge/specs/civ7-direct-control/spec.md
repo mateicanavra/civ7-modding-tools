@@ -5,6 +5,16 @@
 The direct-control package SHALL support a project-owned game-scoped App UI
 controller bridge after the controller mod is deployed and ready.
 
+#### Scenario: Controller bridge uses the shared oRPC/Effect substrate
+- **WHEN** the deployed game controller accepts
+  `globalThis.Civ7IntelligenceBridge.invoke(...)`
+- **THEN** the global decodes the bounded transport envelope and dispatches to an
+  in-process oRPC/Effect callable router
+- **AND** the proof output records the controller contract version, procedure key,
+  runtime context, and transport adapter boundary separately
+- **AND** the controller contract remains reusable by the external direct-control
+  bridge API and future internal AI intelligence service surfaces
+
 #### Scenario: Controller bridge is ready
 - **WHEN** App UI reports an in-game `GameStarted` state
 - **AND** `globalThis.Civ7IntelligenceBridge.invoke(...)` responds with a
@@ -78,4 +88,3 @@ direct-control-approved helper requests.
   key
 - **THEN** the controller rejects the request
 - **AND** no `sendRequest` call is made
-
