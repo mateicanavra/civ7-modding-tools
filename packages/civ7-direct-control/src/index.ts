@@ -63,6 +63,7 @@ import {
   normalizeSinglePlayerSetupInput as normalizeSinglePlayerSetupInputFromModule,
   prepareCiv7SinglePlayerSetup as prepareCiv7SinglePlayerSetupFromModule,
 } from "./setup/prepare.js";
+import { startPreparedCiv7SinglePlayerGame as startPreparedCiv7SinglePlayerGameFromModule } from "./setup/start.js";
 import {
   configureCiv7Autoplay as configureCiv7AutoplayFromModule,
   getCiv7AutoplayStatus as getCiv7AutoplayStatusFromModule,
@@ -3014,6 +3015,31 @@ function setupReadDependencies() {
   } as const;
 }
 
+function setupStartDependencies() {
+  return {
+    ...setupReadDependencies(),
+    appUiState: { role: "app-ui" } as const,
+    beginGameCommand: CIV7_BEGIN_GAME_COMMAND,
+    executeSessionCommandWithReconnect,
+    getMapSummary: getCiv7MapSummary,
+    parseStartPayload: (result: Civ7CommandResult, label: string) =>
+      jsonPayloadFromCommandResult<{ ok: unknown }>(result, label),
+    uiLoadingStates: CIV7_UI_LOADING_STATES,
+    waitForTunerReadyWithSession: waitForCiv7TunerReadyWithSession,
+    withSession: async <T>(
+      sessionOptions: Civ7DirectControlOptions,
+      run: (session: Civ7DirectControlSession) => Promise<T>,
+    ): Promise<T> => {
+      const session = new Civ7DirectControlSession(sessionOptions);
+      try {
+        return await run(session);
+      } finally {
+        await session.close();
+      }
+    },
+  } as const;
+}
+
 export async function listCiv7SavedGameConfigurations(
   input: Civ7SavedGameConfigurationListInput = {},
 ): Promise<Civ7SavedGameConfigurationListResult> {
@@ -3084,103 +3110,7 @@ export async function startPreparedCiv7SinglePlayerGame(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7SinglePlayerStartResult> {
-  assertApproved(approval, "starting a prepared Civ7 single-player game");
-  const expected = normalizeSinglePlayerSetupInputFromModule(input.expected, setupReadDependencies());
-  const before = await getCiv7SetupSnapshot(options);
-  assertPreparedSetupMatches(expected, before.snapshot);
-
-  const waitTimeoutMs = input.waitTimeoutMs ?? options.timeoutMs ?? 120_000;
-  const pollIntervalMs = input.pollIntervalMs ?? 1_000;
-  const session = new Civ7DirectControlSession(options);
-  const observations: Civ7AppUiSnapshot[] = [];
-  try {
-    const command = await session.executeCommand({
-      state: { role: "app-ui" },
-      command: buildStartPreparedSinglePlayerCommand(),
-      timeoutMs: options.timeoutMs,
-    });
-    const startPayload = jsonPayloadFromCommandResult<{ ok: unknown }>(command, "Civ7 prepared single-player start");
-    if (startPayload.ok === false) {
-      throw new Civ7DirectControlError("command-failed", "Civ7 Network.hostGame returned false", {
-        details: { command, startPayload },
-      });
-    }
-
-    let begin: Civ7CommandResult | undefined;
-    let beginAttempted = false;
-    let beginError: string | undefined;
-    let finalAppUi: Civ7AppUiSnapshotResult | undefined;
-    const startedAt = Date.now();
-    while (Date.now() - startedAt <= waitTimeoutMs) {
-      try {
-        const snapshotResult = appUiSnapshotFromCommandResult(
-          await executeSessionCommandWithReconnect(session, {
-            state: { role: "app-ui" },
-            command: buildAppUiSnapshotCommand(),
-            timeoutMs: options.timeoutMs,
-          }),
-        );
-        observations.push(snapshotResult.snapshot);
-        const loadingState = probeValue(snapshotResult.snapshot.ui.loadingState);
-        if (!beginAttempted && isCiv7BeginReadyLoadingState(loadingState)) {
-          beginAttempted = true;
-          try {
-            begin = await executeSessionCommandWithReconnect(session, {
-              state: { role: "app-ui" },
-              command: CIV7_BEGIN_GAME_COMMAND,
-              timeoutMs: options.timeoutMs,
-            }, 1);
-          } catch (err) {
-            beginError = errorMessage(err);
-            throw err;
-          }
-        }
-        if (
-          loadingState === CIV7_UI_LOADING_STATES.GameStarted &&
-          snapshotResult.snapshot.ui.inGame.ok &&
-          snapshotResult.snapshot.ui.inGame.value
-        ) {
-          finalAppUi = snapshotResult;
-          break;
-        }
-      } catch (err) {
-        if (beginError) throw err;
-        await session.close();
-      }
-      await sleep(pollIntervalMs);
-    }
-
-    if (!finalAppUi) {
-      throw new Civ7DirectControlError(
-        "setup-start-timeout",
-        `Timed out waiting for Civ7 to start prepared single-player game after ${waitTimeoutMs}ms`,
-        { details: { before, observations, beginAttempted, beginError } },
-      );
-    }
-
-    const tunerHealth = input.waitForTuner
-      ? await waitForCiv7TunerReadyWithSession(session, { timeoutMs: options.timeoutMs, waitTimeoutMs, pollIntervalMs })
-      : undefined;
-    const mapSummary = input.waitForTuner
-      ? await getCiv7MapSummary({ ...options, timeoutMs: options.timeoutMs })
-      : undefined;
-    if (mapSummary) assertPostStartMatches(expected, mapSummary);
-
-    return {
-      command,
-      begin,
-      beginAttempted,
-      beginError,
-      before,
-      finalAppUi,
-      tunerHealth,
-      mapSummary,
-      observations,
-      verified: mapSummary ? true : finalAppUi.snapshot.ui.inGame.ok && finalAppUi.snapshot.ui.inGame.value,
-    };
-  } finally {
-    await session.close();
-  }
+  return await startPreparedCiv7SinglePlayerGameFromModule(input, options, approval, setupStartDependencies());
 }
 
 export async function runCiv7SinglePlayerFromSetup(
@@ -4129,18 +4059,6 @@ function buildLoadSavedGameConfigurationCommand(input: Civ7SavedGameConfiguratio
     });
   })()`;
 }
-function buildStartPreparedSinglePlayerCommand(): string {
-  return `(() => {
-    const serverType = typeof ServerType !== "undefined" && ServerType && ServerType.SERVER_TYPE_NONE !== undefined
-      ? ServerType.SERVER_TYPE_NONE
-      : 0;
-    return JSON.stringify({
-      ok: Network.hostGame(serverType),
-      serverType,
-    });
-  })()`;
-}
-
 function buildOperationValidationCommand(family: Civ7OperationFamily, input: Civ7OperationInput): string {
   return `(() => {
     ${operationRouterSource()}
@@ -4789,15 +4707,6 @@ function summarizeCiv7CfgStrings(strings: ReadonlyArray<string>): Civ7SavedGameC
   if (gameSeed !== undefined) summary.gameSeed = gameSeed;
   return summary;
 }
-function assertPostStartMatches(input: Civ7SinglePlayerSetupInput, summary: Civ7MapSummaryResult): void {
-  const seed = probeValue(summary.map.randomSeed);
-  if (seed !== undefined && seed !== input.seed) {
-    throw new Civ7DirectControlError("setup-seed-mismatch", `Civ7 runtime map seed ${seed} did not match ${input.seed}`, {
-      details: { input, summary },
-    });
-  }
-}
-
 async function waitForCiv7SetupPhase(
   phase: Civ7SetupPhase,
   options: Civ7DirectControlOptions,

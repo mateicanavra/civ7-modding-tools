@@ -396,6 +396,15 @@ runtime/direct-control claims.
         runtime proof, AI ingestion, semantic CLI projection, telemetry,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
+  - [x] 4.14.4 Extract prepared single-player start owner while keeping public
+        facade exports in `index.ts`, preserving approval-first start,
+        pre-start setup readback, host-game command source, begin polling,
+        one-attempt begin send, Tuner/map verification, seed mismatch
+        classification, and no-replay-after-begin-close package proof, and
+        leaving `runCiv7SinglePlayerFromSetup`, restart/begin lifecycle
+        orchestration, runtime proof, AI ingestion, semantic CLI projection,
+        telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 
 ## 5. CLI Semantic Surface Lane
 

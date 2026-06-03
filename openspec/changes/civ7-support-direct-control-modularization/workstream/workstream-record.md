@@ -774,6 +774,20 @@ All future agent waves must be framed before delegation:
   AI ingestion, semantic CLI projection, telemetry, Effect/oRPC procedure-core
   work, and Task 2.9.4 matrix-row acceptance remain pending. This is local
   package/source relocation proof only, not runtime/live-game proof.
+- Direct-control prepared start slice: completed as a narrow setup/lifecycle
+  source relocation. It moves only `startPreparedCiv7SinglePlayerGame`, the
+  generated prepared-start command, begin polling, setup pre-readback, Tuner/map
+  verification, and post-start seed assertion into `src/setup/start.ts` while
+  keeping the public facade export in `index.ts`. The facade still injects
+  session creation/close, reconnect execution, Tuner readiness, map summary
+  reads, approval assertion, command parsing, and constants. This preserves
+  approval-first start, host-game command source, one-attempt begin send,
+  no-replay-after-begin-close package proof, setup-start timeout details, and
+  seed mismatch classification. `runCiv7SinglePlayerFromSetup`, restart/begin
+  lifecycle orchestration, remaining no-replay ownership, hotseat runtime proof,
+  AI ingestion, semantic CLI projection, telemetry, Effect/oRPC procedure-core
+  work, and Task 2.9.4 matrix-row acceptance remain pending. This is local
+  package/source relocation proof only, not runtime/live-game proof.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now
