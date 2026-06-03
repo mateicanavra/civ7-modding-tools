@@ -237,6 +237,16 @@ runtime/direct-control claims.
         export surface in `index.ts`.
   - [x] 4.5.6 Extract ready-city wrapper owner while keeping the public facade
         export surface in `index.ts`.
+  - [x] 4.5.7 Prune ready read facade dependency injection by letting
+        `src/play/ready/{unit,move-preview,city}.ts` import existing
+        non-facade App UI execution, parser, bounds, and map-validation owners
+        directly, while keeping public facade exports stable, preserving
+        ready-unit radius/max-operation bounds, unit-move-preview destination
+        validation and movement bounds, ready-city max-operation bounds, no new
+        component-id pre-validation, conservative relationship-label policy,
+        and leaving ready-domain regrouping, telemetry, AI ingestion, CLI
+        semantic projection, hotseat runtime proof, Effect/oRPC procedure-core
+        work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.6 Extract operation validation/send/postcondition atoms.
   - [x] 4.6.1 Extract operation router embedded validation/send source owner
         while keeping wrapper-level postconditions and specialized closeouts in

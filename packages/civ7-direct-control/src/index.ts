@@ -1662,37 +1662,21 @@ export async function getCiv7ReadyUnitView(
   input: Civ7ReadyUnitViewInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7ReadyUnitViewResult> {
-  return await getCiv7ReadyUnitViewFromModule(input, options, {
-    boundedInteger,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    parseReadyUnitView: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7ReadyUnitViewResult>(result, label),
-  });
+  return await getCiv7ReadyUnitViewFromModule(input, options);
 }
 
 export async function getCiv7UnitMovePreview(
   input: Civ7UnitMovePreviewInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7UnitMovePreviewResult> {
-  return await getCiv7UnitMovePreviewFromModule(input, options, {
-    validateMapLocation,
-    boundedInteger,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    parseUnitMovePreview: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7UnitMovePreviewResult>(result, label),
-  });
+  return await getCiv7UnitMovePreviewFromModule(input, options);
 }
 
 export async function getCiv7ReadyCityView(
   input: Civ7ReadyCityViewInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7ReadyCityViewResult> {
-  return await getCiv7ReadyCityViewFromModule(input, options, {
-    boundedInteger,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    parseReadyCityView: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7ReadyCityViewResult>(result, label),
-  });
+  return await getCiv7ReadyCityViewFromModule(input, options);
 }
 
 export async function getCiv7SettlementRecommendations(

@@ -1154,6 +1154,19 @@ All future agent waves must be framed before delegation:
   `test/ready-city-view.test.ts` and the focused CLI ready-city suite remain
   the proof owners. This is local package/source relocation proof only, not
   runtime proof.
+- Ready-read facade dependency cleanup:
+  `src/play/ready/{unit,move-preview,city}.ts` now import existing non-facade
+  App UI execution, parser, bounds, and map-validation owners directly for
+  `getCiv7ReadyUnitView`, `getCiv7UnitMovePreview`, and
+  `getCiv7ReadyCityView`. The public facade in `src/index.ts` remains stable
+  but no longer assembles those dependency objects. This is local
+  package/source relocation proof only: it does not change ready-unit
+  `radius`/`maxOperations` bounds, unit-move-preview destination validation or
+  movement bounds, ready-city `maxOperations` bounds, component-id
+  pass-through, conservative relationship-label policy, runtime/live-game
+  proof, Task 2.9.4 matrix-row acceptance, telemetry, AI ingestion, CLI
+  semantic projection, hotseat runtime proof, schema/procedure-core work, or
+  Effect/oRPC implementation.
 - Direct-control autoplay slice: completed as a narrow mutation-facing
   autoplay wrapper/source relocation. It moves only `getCiv7AutoplayStatus`,
   `configureCiv7Autoplay`, `startCiv7Autoplay`, `stopCiv7Autoplay`, autoplay
