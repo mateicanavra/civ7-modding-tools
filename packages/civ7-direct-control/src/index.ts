@@ -1,7 +1,7 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import { homedir } from "node:os";
 import { basename, extname, join, resolve } from "node:path";
-import { Socket, createConnection } from "node:net";
+import { Socket } from "node:net";
 import {
   assertCiv7ComponentId,
   Civ7ComponentIdSchema,
@@ -33,6 +33,7 @@ import {
   DEFAULT_CIV7_TUNER_TIMEOUT_MS,
 } from "./session/constants.js";
 import { resolveCiv7DirectControlConfig } from "./session/config.js";
+import { openCiv7TunerSocket } from "./session/socket.js";
 import { selectCiv7TunerState } from "./session/state.js";
 import {
   DEFAULT_CIV7_SCRIPTING_LOG,
@@ -2240,39 +2241,6 @@ export async function generateCiv7CapabilityCatalog(
     gameinfoTables: DEFAULT_CIV7_GAMEINFO_TABLES,
     inspectRoot: inspectCiv7Root,
     tunerRoots: DEFAULT_CIV7_CAPABILITY_TUNER_ROOTS,
-  });
-}
-
-async function openCiv7TunerSocket(options: {
-  host: string;
-  port: number;
-  timeoutMs: number;
-}): Promise<Socket> {
-  return await new Promise<Socket>((resolve, reject) => {
-    const socket = createConnection({ host: options.host, port: options.port });
-    const timer = setTimeout(() => {
-      socket.destroy();
-      reject(
-        new Civ7DirectControlError(
-          "connection-timeout",
-          `Timed out connecting to Civ7 tuner socket ${options.host}:${options.port}`,
-        ),
-      );
-    }, options.timeoutMs);
-    socket.once("connect", () => {
-      clearTimeout(timer);
-      resolve(socket);
-    });
-    socket.once("error", (err) => {
-      clearTimeout(timer);
-      reject(
-        new Civ7DirectControlError(
-          "connection-failed",
-          `Failed connecting to Civ7 tuner socket ${options.host}:${options.port}: ${err.message}`,
-          { cause: err },
-        ),
-      );
-    });
   });
 }
 

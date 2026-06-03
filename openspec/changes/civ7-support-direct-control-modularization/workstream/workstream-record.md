@@ -1329,6 +1329,16 @@ All future agent waves must be framed before delegation:
   runtime proof, AI ingestion, CLI semantic projection, Effect/oRPC
   procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending. This
   is local package/source relocation proof only, not runtime/live-game proof.
+- Direct-control session socket-open slice: completed as a narrow session helper
+  relocation. It moves only `openCiv7TunerSocket` into
+  `src/session/socket.ts` while `index.ts` continues to own
+  `Civ7DirectControlSession`, frame request handling, state querying, command
+  execution, session creation/close, reconnect orchestration, and public facade
+  exports. This preserves connection timeout and connection-failed error
+  classification. It does not define telemetry/correlation contracts, public
+  procedure schemas, semantic CLI projection, AI ingestion, hotseat runtime
+  proof, or Effect/oRPC procedure-core work. This is local package/source
+  relocation proof only, not runtime/live-game proof.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into

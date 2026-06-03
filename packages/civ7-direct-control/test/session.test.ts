@@ -15,6 +15,7 @@ import {
   waitForFreshLogMarkers,
 } from "../src/index";
 import { discoverCiv7DirectControlEndpoint } from "../src/session/discovery";
+import { openCiv7TunerSocket } from "../src/session/socket";
 
 describe("Civ7 direct control session framing", () => {
   test("uses defaults and env hosts when resolving health", async () => {
@@ -129,6 +130,29 @@ describe("Civ7 direct control session framing", () => {
         { host: "127.0.0.1", error: "unavailable 127.0.0.1" },
         { host: "127.0.0.2", error: "unavailable 127.0.0.2" },
       ],
+    });
+  });
+
+  test("opens tuner sockets and reports connection failures with typed errors", async () => {
+    const server = await startTunerServer();
+    const { port } = server;
+    const socket = await openCiv7TunerSocket({
+      host: "127.0.0.1",
+      port,
+      timeoutMs: 1_000,
+    });
+    socket.destroy();
+    await server.close();
+
+    await expect(
+      openCiv7TunerSocket({
+        host: "127.0.0.1",
+        port,
+        timeoutMs: 100,
+      }),
+    ).rejects.toMatchObject({
+      name: "Civ7DirectControlError",
+      code: "connection-failed",
     });
   });
 
