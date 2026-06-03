@@ -511,6 +511,20 @@ All future agent waves must be framed before delegation:
   acceptance stay pending. This is local package/constants relocation proof
   only, not runtime proof, runtime reflection authority, AI/hotseat product-path
   support, or procedure-core readiness.
+- Direct-control turn-completion slice: completed as a narrow turn-completion
+  source/wrapper relocation. It moves only `getCiv7TurnCompletionStatus`,
+  `sendCiv7TurnComplete`, `sendCiv7TurnUnready`, the status command builder,
+  and the private turn-completion fallback classifier helpers into
+  `src/play/turn-completion.ts` while keeping public facade exports in
+  `index.ts` and injecting App UI execution, JSON parsing, notification reads,
+  and approval assertion from the facade. This preserves approval-first
+  send/unready behavior, guard-first status read, stale notification fallback
+  classification, command strings, parse label, and action result shape.
+  Autoplay source ownership, hotseat runtime proof, AI ingestion, CLI semantic
+  projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
+  matrix-row acceptance stay pending. This is local package/source relocation
+  proof only, not runtime proof, live-game proof, hotseat product-path support,
+  or procedure-core readiness.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.

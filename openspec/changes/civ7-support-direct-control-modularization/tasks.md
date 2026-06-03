@@ -341,6 +341,18 @@ runtime/direct-control claims.
         telemetry, hotseat runtime proof, AI ingestion, CLI semantic
         projection, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+- [ ] 4.13 Extract autoplay and turn-completion atoms.
+  - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
+        facade exports in `index.ts`, preserving approval-first send/unready
+        behavior, guard-first status read, stale notification fallback
+        classification, command strings, parse label, and action result shape,
+        and leaving autoplay source ownership, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, telemetry, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [ ] 4.13.2 Extract autoplay status/configure/start/stop source ownership
+        only after preserving approval gates, explicit unbounded start
+        semantics, stop-settling/pause behavior, and local package/CLI/Studio
+        consumer proof boundaries.
 
 ## 5. CLI Semantic Surface Lane
 
