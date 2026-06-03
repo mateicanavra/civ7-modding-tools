@@ -457,23 +457,25 @@ All future agent waves must be framed before delegation:
   relocation. It moves static catalog construction, runtime inspection catalog
   construction, official-resource capability scanning, sorting/deduplication,
   and private catalog helpers into `src/catalog/capabilities.ts` while keeping
-  public facade exports and TypeBox schemas in `index.ts`. Runtime root
-  inspection is injected from the facade to avoid executable back-imports.
-  Operation/proof telemetry, AI ingestion, hotseat runtime proof, CLI semantic
-  projection, schema/type/procedure-core ownership, and Task 2.9.4 matrix-row
-  acceptance stay pending. This is local package/source relocation proof only,
-  not runtime proof or AI/hotseat product-path support.
+  public facade exports in `index.ts`. Runtime root inspection is injected from
+  the facade to avoid executable back-imports. A later schema slice moved the
+  catalog TypeBox schemas into the same owner. Operation/proof telemetry, AI
+  ingestion, hotseat runtime proof, CLI semantic projection, broader
+  schema/type/procedure-core ownership, and Task 2.9.4 matrix-row acceptance
+  stay pending. This is local package/source relocation proof only, not runtime
+  proof or AI/hotseat product-path support.
 - Direct-control playable-status slice: completed as a narrow runtime-status
   composition relocation. It moves only `getCiv7PlayableStatus` composition into
   `src/runtime/playable-status.ts` while keeping public facade exports in
   `index.ts` and injecting App UI snapshot, Tuner health, and error-message
   dependencies from the facade. This preserves shell/playable/readiness
   classification and unready error capture. Bounded root inspection was
-  extracted in the later runtime inspection slice; TypeBox schema ownership,
-  operation/proof telemetry, AI ingestion, hotseat runtime proof, CLI semantic
-  projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
-  acceptance stay pending. This is local package/source relocation proof only,
-  not runtime proof or AI/hotseat product-path support.
+  extracted in the later runtime inspection slice; capability catalog schemas
+  were extracted in the later catalog schema slice. Broader public and procedure
+  schemas, operation/proof telemetry, AI ingestion, hotseat runtime proof, CLI
+  semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
+  matrix-row acceptance stay pending. This is local package/source relocation
+  proof only, not runtime proof or AI/hotseat product-path support.
 - Direct-control bounded root inspection slice: completed as a narrow
   debug/internal inspection relocation. It moves only `inspectCiv7Root` and the
   generated bounded root inspection command builder into
@@ -481,12 +483,23 @@ All future agent waves must be framed before delegation:
   `index.ts` and injecting command execution, validation, bounds, JSON parsing,
   command serialization, and error construction from the facade. This preserves
   root identifier validation, `maxRoots`/`maxKeys`/`maxMethods`, state default,
-  parse label, command serialization, and result shape. TypeBox schema
-  ownership, operation/proof telemetry, AI ingestion, hotseat runtime proof, CLI
-  semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
-  matrix-row acceptance stay pending. This is local package/source relocation
-  proof only, not runtime proof, runtime reflection authority, or AI/hotseat
-  product-path support.
+  parse label, command serialization, and result shape. Capability catalog
+  schemas were extracted in the later catalog schema slice. Broader public and
+  procedure schemas, operation/proof telemetry, AI ingestion, hotseat runtime
+  proof, CLI semantic projection, Effect/oRPC procedure-core work, and Task
+  2.9.4 matrix-row acceptance stay pending. This is local package/source
+  relocation proof only, not runtime proof, runtime reflection authority, or
+  AI/hotseat product-path support.
+- Direct-control capability catalog schema slice: completed as a narrow schema
+  ownership relocation. It moves only `Civ7CapabilityCatalogEntrySchema`,
+  `Civ7CapabilityCatalogSchema`, and their derived catalog entry/result types
+  into `src/catalog/capabilities.ts` while keeping public facade re-exports in
+  `index.ts`. This preserves the TypeBox schema shape and catalog result typing.
+  Broader public constants/types, procedure schemas, operation/proof telemetry,
+  AI ingestion, hotseat runtime proof, CLI semantic projection, Effect/oRPC
+  procedure-core work, and Task 2.9.4 matrix-row acceptance stay pending. This
+  is local package/schema relocation proof only, not runtime proof, AI/hotseat
+  product-path support, or procedure-core schema readiness.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.

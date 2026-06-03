@@ -1,13 +1,46 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { Type, type Static } from "typebox";
 
 import type {
-  Civ7CapabilityCatalog,
-  Civ7CapabilityCatalogEntry,
   Civ7CapabilityCatalogOptions,
   Civ7RootInspectionInput,
   Civ7RootInspectionResult,
 } from "../index";
+
+export const Civ7CapabilityCatalogEntrySchema = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+  role: Type.Union([Type.Literal("app-ui"), Type.Literal("tuner"), Type.Literal("shared")]),
+  kind: Type.Union([
+    Type.Literal("root"),
+    Type.Literal("method"),
+    Type.Literal("read-wrapper"),
+    Type.Literal("action-wrapper"),
+    Type.Literal("enum"),
+    Type.Literal("gameinfo-table"),
+  ]),
+  owner: Type.String(),
+  risk: Type.Union([Type.Literal("read"), Type.Literal("low"), Type.Literal("medium"), Type.Literal("high")]),
+  provenance: Type.Array(Type.String()),
+  state: Type.Optional(Type.String()),
+  root: Type.Optional(Type.String()),
+  method: Type.Optional(Type.String()),
+  wrapper: Type.Optional(Type.String()),
+  confidence: Type.Union([Type.Literal("source"), Type.Literal("recorded-live-proof"), Type.Literal("runtime"), Type.Literal("inference")]),
+  description: Type.Optional(Type.String()),
+});
+
+export type Civ7CapabilityCatalogEntry = Static<typeof Civ7CapabilityCatalogEntrySchema>;
+
+export const Civ7CapabilityCatalogSchema = Type.Object({
+  generatedAt: Type.String(),
+  source: Type.Union([Type.Literal("runtime"), Type.Literal("static"), Type.Literal("merged")]),
+  version: Type.String(),
+  entries: Type.Array(Civ7CapabilityCatalogEntrySchema),
+});
+
+export type Civ7CapabilityCatalog = Static<typeof Civ7CapabilityCatalogSchema>;
 
 type CapabilityCatalogDependencies = Readonly<{
   appUiRoots: ReadonlyArray<string>;

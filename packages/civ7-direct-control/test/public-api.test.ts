@@ -9,6 +9,8 @@ import {
   CIV7_TUNER_APP_UI_STATE_NAME,
   CIV7_TUNER_STATE_NAME,
   CIV7_UI_LOADING_STATES,
+  Civ7CapabilityCatalogEntrySchema,
+  Civ7CapabilityCatalogSchema,
   Civ7ComponentIdSchema,
   DEFAULT_CIV7_APP_UI_API_ROOTS,
   DEFAULT_CIV7_CAPABILITY_APP_UI_ROOTS,
@@ -121,5 +123,28 @@ describe("Civ7 direct control public API", () => {
 
     expect(HARD_CIV7_MAP_GRID_MAX_PLOTS).toBeGreaterThan(DEFAULT_CIV7_MAP_GRID_MAX_PLOTS);
     expect(HARD_CIV7_GAMEINFO_LIMIT).toBeGreaterThan(DEFAULT_CIV7_GAMEINFO_LIMIT);
+  });
+
+  test("exports capability catalog schemas from the public facade", () => {
+    const entry = {
+      id: "wrapper.getCiv7PlayableStatus",
+      name: "getCiv7PlayableStatus",
+      role: "shared",
+      kind: "read-wrapper",
+      owner: "@civ7/direct-control",
+      risk: "read",
+      provenance: ["public-api-test"],
+      confidence: "source",
+    };
+    const catalog = {
+      generatedAt: "2026-06-03T00:00:00.000Z",
+      source: "static",
+      version: "direct-control-v1",
+      entries: [entry],
+    };
+
+    expect(Value.Check(Civ7CapabilityCatalogEntrySchema, entry)).toBe(true);
+    expect(Value.Check(Civ7CapabilityCatalogSchema, catalog)).toBe(true);
+    expect(Value.Check(Civ7CapabilityCatalogEntrySchema, { ...entry, risk: "runtime-proof" })).toBe(false);
   });
 });

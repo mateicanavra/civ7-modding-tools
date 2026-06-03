@@ -328,6 +328,12 @@ runtime/direct-control claims.
         telemetry, hotseat runtime proof, AI ingestion, CLI semantic projection,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
+  - [x] 4.12.8 Extract capability catalog schema owner while keeping public
+        facade exports in `index.ts`, preserving TypeBox catalog entry/catalog
+        schema shape and catalog result typing, and leaving broader public
+        constants/types, procedure schemas, operation/proof telemetry, hotseat
+        runtime proof, AI ingestion, CLI semantic projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 
 ## 5. CLI Semantic Surface Lane
 
