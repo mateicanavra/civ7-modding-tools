@@ -103,16 +103,20 @@ runtime/direct-control claims.
           coverage.
     - [x] 4.2.6d Add diplomacy-response and narrative-choice package test
           coverage.
-  - [ ] 4.2.7 Relocate remaining restack-retained broad-suite log rewrite
-    marker coverage into the proof/log support atom before source extraction.
-    The edge cases remain in `direct-control.test.ts` only as a restack-speed
-    fallback.
+  - [x] 4.2.7 Add map, visibility, reveal, and GameInfo package test coverage.
+  - [x] 4.2.8 Add settlement, progression, and tactical read package test
+        coverage.
+  - [ ] 4.2.9 Relocate remaining restack-retained broad-suite edge coverage
+    into owning package suites before source extraction: full-grid map identity
+    checks belong to the map read atom; resource/feature builder feasibility
+    and diagnostics belong to resource/feature builder readback atoms; log
+    rewrite marker cases belong to the proof/log support atom. These edge cases
+    remain in `direct-control.test.ts` only as a restack-speed fallback.
 - [ ] 4.3 Extract notification view/materialization atom.
 - [ ] 4.4 Extract notification dismissal/verification atom.
 - [ ] 4.5 Extract ready unit/city view atoms.
 - [ ] 4.6 Extract operation validation/send/postcondition atoms.
-- [ ] 4.7 Extract tactical/progression/destination/battlefield/target read
-      atoms.
+- [ ] 4.7 Extract settlement/tactical/progression read atoms.
 - [ ] 4.8 Export stable types/constants only after module owners are defined.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
       oRPC implementation; current support branch has no tracked

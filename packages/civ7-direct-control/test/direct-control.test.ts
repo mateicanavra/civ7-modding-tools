@@ -14,17 +14,12 @@ import {
   executeCiv7TunerCommand,
   ensureCiv7SetupMapRowVisible,
   getCiv7FeaturePlacementFeasibility,
-  getCiv7GameInfoRows,
   getCiv7FullMapGrid,
-  getCiv7MapGrid,
-  getCiv7MapSummary,
-  getCiv7PlotSnapshot,
   getCiv7PlayableStatus,
   getCiv7ResourceBuilderDiagnostics,
   getCiv7ResourcePlacementFeasibility,
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
-  getCiv7VisibilitySummary,
   getCiv7AppUiSnapshot,
   inspectCiv7RuntimeApi,
   listCiv7SavedGameConfigurations,
@@ -32,7 +27,6 @@ import {
   prepareCiv7SinglePlayerSetup,
   planCiv7MapGridReadBounds,
   queryCiv7TunerStates,
-  revealCiv7MapForPlayer,
   runCiv7SinglePlayerFromSetup,
   startPreparedCiv7SinglePlayerGame,
   restartCiv7GameAndBegin,
@@ -258,66 +252,6 @@ describe("Civ7 direct control", () => {
     }
   });
 
-  test("wraps bounded Tuner map and plot reads", async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      const summary = await getCiv7MapSummary({
-        host: "127.0.0.1",
-        port,
-        includeAreaRegionCounts: true,
-        timeoutMs: 1_000,
-      });
-      const plot = await getCiv7PlotSnapshot(
-        {
-          x: 3,
-          y: 4,
-          playerId: 0,
-          fields: ["terrain", "resource", "hydrology", "visibility"],
-        },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-      );
-
-      expect(summary.map.width).toEqual({ ok: true, value: 84 });
-      expect(summary.areas?.areaIds).toEqual({ ok: true, value: [1, 2] });
-      expect(plot).toMatchObject({
-        state: { id: "1", name: "Tuner" },
-        location: { x: 3, y: 4, index: { ok: true, value: 339 } },
-        hiddenInfoPolicy: "visibility-filtered",
-        facts: {
-          terrain: { ok: true, value: 4 },
-          resource: { ok: true, value: -1 },
-          riverType: { ok: true, value: -1 },
-          water: { ok: true, value: false },
-          lake: { ok: true, value: false },
-        },
-      });
-    } finally {
-      await server.close();
-    }
-  });
-
-  test("caps bounded map grid iteration before Civ-side traversal", async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      const grid = await getCiv7MapGrid(
-        {
-          bounds: { x: 0, y: 0, width: 10_000, height: 10_000 },
-          fields: ["terrain"],
-          maxPlots: 1,
-        },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 }
-      );
-
-      expect(grid.plotCount).toBe(100_000_000);
-      expect(grid.omitted).toBe(99_999_999);
-      expect(server.received.some((message) => message.includes("break outer"))).toBe(true);
-    } finally {
-      await server.close();
-    }
-  });
-
   test("plans full-grid map reads without exceeding the per-read cap", () => {
     const chunks = planCiv7MapGridReadBounds({ x: 0, y: 0, width: 106, height: 66 }, 512);
 
@@ -522,47 +456,6 @@ describe("Civ7 direct control", () => {
         ],
       });
       expect(server.received.some((message) => message.includes("getBestMapResourceCuts"))).toBe(true);
-    } finally {
-      await server.close();
-    }
-  });
-
-  test("wraps visibility, reveal, and GameInfo reads with contracts", async () => {
-    const server = await startTunerServer();
-    try {
-      const { port } = server.address();
-      const visibility = await getCiv7VisibilitySummary(
-        {
-          playerId: 0,
-          bounds: { x: 0, y: 0, width: 2, height: 1 },
-          includeGrid: true,
-        },
-        {
-          host: "127.0.0.1",
-          port,
-          timeoutMs: 1_000,
-        }
-      );
-      const reveal = await revealCiv7MapForPlayer(
-        { playerId: 0 },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 },
-        { approved: true, disposableSession: true, reason: "test disposable reveal proof" }
-      );
-      const resources = await getCiv7GameInfoRows(
-        { table: "Resources", limit: 2 },
-        { host: "127.0.0.1", port, timeoutMs: 1_000 }
-      );
-
-      expect(visibility.numPlotsRevealed).toEqual({ ok: true, value: 10 });
-      expect(visibility.grid?.states).toHaveLength(2);
-      expect(reveal.classification).toBe("revealed");
-      expect(resources.rows).toEqual([{ ResourceType: "RESOURCE_COTTON" }]);
-      await expect(
-        getCiv7GameInfoRows(
-          { table: "Resources;DROP" },
-          { host: "127.0.0.1", port, timeoutMs: 1_000 }
-        )
-      ).rejects.toMatchObject({ code: "command-failed" });
     } finally {
       await server.close();
     }
