@@ -1744,6 +1744,20 @@ All future agent waves must be framed before delegation:
   matrix rows, or unblock telemetry, AI ingestion, semantic CLI projection,
   hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
   implementation.
+- Setup-preparation facade dependency cleanup: `src/setup/prepare.ts` now
+  imports existing non-facade setup-read defaults, command-result parser, and
+  setup option identifier validation directly for
+  `prepareCiv7SinglePlayerSetup`. The public facade export remains stable, but
+  `index.ts` no longer assembles the preparation parser/validation dependency
+  object for the direct prepare call. Prepared-start, setup-run, and
+  restart/begin lifecycle composition stay separate and still use narrow
+  dependency seams for session/reconnect/map/Tuner dependencies. This preserves
+  approval-first setup mutation, setup snapshot readback, map-row proof, setup
+  option validation, prepare command source, and no-replay package proof. This
+  is local package/source relocation proof only: it does not claim
+  runtime/live-game proof, accept Task 2.9.4 matrix rows, or unblock telemetry,
+  AI ingestion, semantic CLI projection, hotseat runtime proof,
+  schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into

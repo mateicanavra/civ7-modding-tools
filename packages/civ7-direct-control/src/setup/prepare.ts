@@ -3,8 +3,11 @@ import { homedir } from "node:os";
 import { basename, extname, join, resolve } from "node:path";
 import { Civ7DirectControlError } from "../direct-control-error.js";
 import { assessCiv7SignedIntSeed } from "../policy/setup.js";
+import { jsonPayloadFromCommandResult } from "../session/command-result.js";
+import { validateIdentifier } from "../validation.js";
 import {
   buildSetupSnapshotCommand,
+  defaultSetupReadDependencies,
   setupSnapshotScriptSource,
   validateMapScript,
   type Civ7SetupMapRow,
@@ -130,7 +133,7 @@ export async function prepareCiv7SinglePlayerSetup(
   input: Civ7SinglePlayerSetupInput,
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
-  dependencies: SetupPrepareDependencies,
+  dependencies: SetupPrepareDependencies = defaultSetupPrepareDependencies,
 ): Promise<Civ7PreparedSetupResult> {
   dependencies.assertApproved(approval, "preparing a Civ7 single-player setup");
   const normalized = normalizeSinglePlayerSetupInput(input, dependencies);
@@ -564,3 +567,16 @@ function playerSetupParameterValue(
 function findSetupMapRow(snapshot: Civ7SetupSnapshot, file: string): Civ7SetupMapRow | undefined {
   return snapshot.mapRows.find((row) => row.file === file || row.value === file);
 }
+
+const defaultSetupPrepareDependencies: SetupPrepareDependencies = {
+  ...defaultSetupReadDependencies,
+  loadSavedGameConfiguration: async () => {
+    throw new Civ7DirectControlError(
+      "setup-config-load-failed",
+      "Saved configuration loading requires caller-provided setup prepare dependencies",
+    );
+  },
+  parseSetupPreparation: (result, label) =>
+    jsonPayloadFromCommandResult<SetupPreparePayload>(result, label),
+  validateIdentifier,
+};

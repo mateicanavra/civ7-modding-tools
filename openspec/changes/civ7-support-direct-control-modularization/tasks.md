@@ -1089,6 +1089,16 @@ runtime/direct-control claims.
         composition, runtime proof, hotseat runtime proof, AI ingestion,
         semantic CLI projection, telemetry, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.14.9 Prune setup-preparation facade dependency injection by letting
+        `src/setup/prepare.ts` import existing non-facade setup-read defaults,
+        command-result parser, and setup option identifier validation directly,
+        while keeping public facade exports stable, preserving approval-first
+        setup mutation, setup snapshot readback, map-row proof, setup option
+        validation, prepare command source, and no-replay package proof, and
+        leaving prepared-start/setup-run/restart lifecycle composition, runtime
+        proof, hotseat runtime proof, AI ingestion, semantic CLI projection,
+        telemetry, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 
 ## 5. CLI Semantic Surface Lane
 

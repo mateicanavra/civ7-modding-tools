@@ -1252,7 +1252,7 @@ export async function prepareCiv7SinglePlayerSetup(
   options: Civ7DirectControlOptions = {},
   approval: Civ7ActionApproval,
 ): Promise<Civ7PreparedSetupResult> {
-  return await prepareCiv7SinglePlayerSetupFromModule(input, options, approval, setupReadDependencies());
+  return await prepareCiv7SinglePlayerSetupFromModule(input, options, approval);
 }
 
 export async function startPreparedCiv7SinglePlayerGame(
