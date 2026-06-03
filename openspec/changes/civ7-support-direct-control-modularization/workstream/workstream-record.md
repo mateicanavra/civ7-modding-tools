@@ -272,6 +272,10 @@ All future agent waves must be framed before delegation:
   population-placement helpers stay inside that owner; wrapper/builder
   ownership stays in `index.ts`. This is source relocation proof only, not
   runtime proof.
+- Direct-control target-candidates source slice: completed as the next
+  tactical read source relocation. It moves only the target-candidates embedded
+  source into `src/play/tactical/target-candidates.ts`. Wrapper/builder ownership
+  stays in `index.ts`; this is source relocation proof only, not runtime proof.
 - Review-disposition ledger: agent/reviewer findings recorded.
 - Exact dismiss-notification CLI slice: completed as test-only extraction with
   local fixture ownership and no runtime claim.
