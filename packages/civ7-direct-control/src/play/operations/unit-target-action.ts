@@ -1,14 +1,14 @@
-import { Civ7DirectControlError } from "../../direct-control-error";
+import { Civ7DirectControlError } from "../../direct-control-error.js";
 
 import type {
   Civ7ActionApproval,
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7MapLocation,
   Civ7RuntimeProbe,
   Civ7UnitTargetActionInput,
   Civ7UnitTargetActionResult,
-} from "../../index";
+} from "../../index.js";
+import type { Civ7MapLocation } from "../map/types.js";
 
 export const DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_WAIT_MS = 1_500;
 export const DEFAULT_CIV7_UNIT_TARGET_VERIFICATION_POLL_INTERVAL_MS = 250;

@@ -135,6 +135,16 @@ runtime/session/lifecycle behavior, TypeBox procedure schemas, telemetry, AI
 ingestion, hotseat runtime proof, CLI semantic projection, Effect/oRPC
 procedure-core work, or Task 2.9.4 matrix-row acceptance.
 
+Map primitive type update: `src/play/map/types.ts` now owns
+`Civ7MapLocation`, `Civ7MapBounds`, and `Civ7HiddenInfoPolicy` while public
+facade type re-exports stay in `index.ts`. Internal map, ready, tactical, and
+unit-target modules import those primitives from the map owner instead of from
+the facade. This is local package/type relocation proof only and does not
+change map validation, hidden-info policy semantics, source strings, runtime
+behavior, procedure schemas, telemetry, AI ingestion, hotseat runtime proof,
+CLI semantic projection, Effect/oRPC procedure-core work, or Task 2.9.4
+matrix-row acceptance.
+
 Bounded root inspection update: `src/runtime/root-inspection.ts` now owns
 `inspectCiv7Root` and the generated bounded root inspection command while the
 public facade export stays in `index.ts` and injects command execution,

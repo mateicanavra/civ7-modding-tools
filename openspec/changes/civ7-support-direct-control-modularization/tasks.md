@@ -376,6 +376,12 @@ runtime/direct-control claims.
         schemas, operation/proof telemetry, hotseat runtime proof, AI
         ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.11 Extract map primitive type owner while keeping public facade
+        type re-exports in `index.ts`, preserving map location, map bounds, and
+        hidden-info policy public contracts while leaving broader map/result
+        types, procedure schemas, operation/proof telemetry, hotseat runtime
+        proof, AI ingestion, CLI semantic projection, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
       oRPC implementation; current support branch has no tracked
       `.agents/skills/civ7-orpc-control-architecture` or

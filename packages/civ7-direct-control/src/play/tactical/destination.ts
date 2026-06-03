@@ -1,13 +1,13 @@
-import { battlefieldScanSource } from "./battlefield";
-import { Civ7DirectControlError } from "../../direct-control-error";
+import { battlefieldScanSource } from "./battlefield.js";
+import { Civ7DirectControlError } from "../../direct-control-error.js";
 
 import type {
   Civ7CommandResult,
   Civ7DestinationAnalysisInput,
   Civ7DestinationAnalysisResult,
   Civ7DirectControlOptions,
-  Civ7MapLocation,
-} from "../../index";
+} from "../../index.js";
+import type { Civ7MapLocation } from "../map/types.js";
 
 type DestinationAnalysisDependencies = Readonly<{
   validatePlayerId: (playerId: number) => void;

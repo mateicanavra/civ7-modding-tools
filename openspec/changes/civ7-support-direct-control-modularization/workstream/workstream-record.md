@@ -606,6 +606,16 @@ All future agent waves must be framed before delegation:
   semantic projection, Effect/oRPC procedure-core work, or Task 2.9.4
   matrix-row acceptance. This is local package/type relocation proof only, not
   runtime proof, AI/hotseat product-path support, or procedure-core readiness.
+- Direct-control map primitive types slice: completed as a narrow public type
+  ownership relocation. It moves only `Civ7MapLocation`, `Civ7MapBounds`, and
+  `Civ7HiddenInfoPolicy` into `src/play/map/types.ts` while keeping facade type
+  re-exports in `index.ts` and switching direct internal map/ready/tactical
+  users to the map owner. This preserves public type contracts and does not
+  change map validation, source strings, runtime behavior, procedure schemas,
+  telemetry, AI ingestion, hotseat runtime proof, CLI semantic projection,
+  Effect/oRPC procedure-core work, or Task 2.9.4 matrix-row acceptance. This is
+  local package/type relocation proof only, not runtime proof, AI/hotseat
+  product-path support, or procedure-core readiness.
 - Direct-control turn-completion slice: completed as a narrow turn-completion
   source/wrapper relocation. It moves only `getCiv7TurnCompletionStatus`,
   `sendCiv7TurnComplete`, `sendCiv7TurnUnready`, the status command builder,

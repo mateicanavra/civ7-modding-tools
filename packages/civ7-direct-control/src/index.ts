@@ -172,6 +172,11 @@ import {
   HARD_CIV7_GAMEINFO_LIMIT,
   HARD_CIV7_MAP_GRID_MAX_PLOTS,
 } from "./play/map/constants.js";
+import type {
+  Civ7HiddenInfoPolicy,
+  Civ7MapBounds,
+  Civ7MapLocation,
+} from "./play/map/types.js";
 import {
   getCiv7ProgressDashboard as getCiv7ProgressDashboardFromModule,
   getCiv7TraditionsView as getCiv7TraditionsViewFromModule,
@@ -276,6 +281,11 @@ export {
   HARD_CIV7_GAMEINFO_LIMIT,
   HARD_CIV7_MAP_GRID_MAX_PLOTS,
 } from "./play/map/constants.js";
+export type {
+  Civ7HiddenInfoPolicy,
+  Civ7MapBounds,
+  Civ7MapLocation,
+} from "./play/map/types.js";
 export {
   DEFAULT_CIV7_AUTOPLAY_MAX_TURNS,
   DEFAULT_CIV7_AUTOPLAY_POLL_INTERVAL_MS,
@@ -307,18 +317,6 @@ export const DEFAULT_CIV7_SINGLE_PLAYER_SAVE_DIR = join(
 );
 
 export type Civ7UiLoadingStateName = keyof typeof CIV7_UI_LOADING_STATES;
-
-export type Civ7MapLocation = Readonly<{
-  x: number;
-  y: number;
-}>;
-
-export type Civ7MapBounds = Readonly<Civ7MapLocation & {
-  width: number;
-  height: number;
-}>;
-
-export type Civ7HiddenInfoPolicy = "include-hidden" | "visibility-filtered" | "not-player-scoped";
 
 export type Civ7MapSummaryOptions = Civ7DirectControlOptions & Readonly<{
   state?: Civ7TunerStateSelection;

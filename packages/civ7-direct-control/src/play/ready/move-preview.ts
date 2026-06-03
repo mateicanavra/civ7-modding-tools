@@ -1,12 +1,12 @@
-import { Civ7DirectControlError } from "../../direct-control-error";
+import { Civ7DirectControlError } from "../../direct-control-error.js";
 
 import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7MapLocation,
   Civ7UnitMovePreviewInput,
   Civ7UnitMovePreviewResult,
-} from "../../index";
+} from "../../index.js";
+import type { Civ7MapLocation } from "../map/types.js";
 
 type UnitMovePreviewDependencies = Readonly<{
   validateMapLocation: (location: Civ7MapLocation) => void;

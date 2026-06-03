@@ -3,7 +3,7 @@ import type {
   Civ7DirectControlOptions,
   Civ7GameInfoRowsInput,
   Civ7GameInfoRowsResult,
-} from "../../index";
+} from "../../index.js";
 
 type GameInfoReadDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;

@@ -1,15 +1,15 @@
-import { Civ7DirectControlError } from "../../direct-control-error";
+import { Civ7DirectControlError } from "../../direct-control-error.js";
 
 import type {
   Civ7ActionApproval,
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7MapBounds,
   Civ7RevealMapResult,
   Civ7RuntimeProbe,
   Civ7VisibilitySummaryInput,
   Civ7VisibilitySummaryResult,
-} from "../../index";
+} from "../../index.js";
+import type { Civ7MapBounds } from "./types.js";
 
 type VisibilityReadDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
