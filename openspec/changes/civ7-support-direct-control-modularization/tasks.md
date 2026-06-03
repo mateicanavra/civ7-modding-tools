@@ -1035,7 +1035,7 @@ authority are recorded.
 
 ## 7. Verification And Closure
 
-- [ ] 7.1 For every test-only slice, run `git diff --check`, focused suite,
+- [x] 7.1 For every test-only slice, run `git diff --check`, focused suite,
       adjacent monolith filter, `bun run check:cli`, `bun run test:cli:play`, and
       ownership scan.
 - [x] 7.2 For every direct-control source slice, run direct-control

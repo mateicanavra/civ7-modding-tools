@@ -1728,3 +1728,21 @@ All future agent waves must be framed before delegation:
   matrix-row acceptance, telemetry, AI ingestion, CLI semantic projection,
   schema migration, Effect/Bun implementation, or Effect/oRPC procedure-core
   work.
+- CLI test-only verification checkpoint: current stack top
+  `ce980a41b` on `codex/record-runtime-proof-disposition` preserves the
+  section 3 CLI play test ownership closure. Fresh focused verification passed
+  `bun run --cwd packages/cli test -- game/play/notification/dismiss.test.ts game/play/notification/hud.test.ts game/play/priorities.test.ts`.
+  The previous source verification checkpoint passed `git diff --check`,
+  `bun run check:cli`, and canonical `bun run test:cli:play`; the adjacent
+  monolith proof is now represented by the absence of
+  `packages/cli/test/commands/game.play.test.ts` plus the CLI corpus rows that
+  record the original focused/adjacent filters for exact dismissal,
+  notification HUD, and priorities. Ownership scans show
+  `GamePlayDismissNotification`, `GamePlayNotifications`, and
+  `GamePlayPriorities` owned by their extracted test files, with priority
+  relationship wording limited to negative assertions and
+  `relationship-unproven` fixture policy. This closes only checklist item 7.1's
+  test-only verification requirement; it does not close CLI semantic-surface
+  implementation/proof, Task 2.9.4 matrix-row acceptance, telemetry, AI
+  ingestion, schema migration, Effect/Bun implementation, or Effect/oRPC
+  procedure-core work.
