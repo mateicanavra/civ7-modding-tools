@@ -22,7 +22,10 @@ import {
 import { jsLiteral } from "./runtime/command-serialization.js";
 import { sleep } from "./timing.js";
 import { boundedInteger, validateIdentifier, validatePlayerId } from "./validation.js";
-import { Civ7DirectControlSession } from "./session/session.js";
+import {
+  Civ7DirectControlSession,
+  withCiv7DirectControlSession,
+} from "./session/session.js";
 import type {
   Civ7CommandResult,
   Civ7DirectControlEndpoint,
@@ -843,14 +846,7 @@ export async function checkCiv7TunerHealth(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7TunerHealthResult> {
   return await checkCiv7TunerHealthFromModule(options, {
-    withSession: async (sessionOptions, run) => {
-      const session = new Civ7DirectControlSession(sessionOptions);
-      try {
-        return await run(session);
-      } finally {
-        await session.close();
-      }
-    },
+    withSession: withCiv7DirectControlSession,
     executeSessionCommandWithReconnect,
   });
 }
@@ -884,17 +880,7 @@ export async function restartCiv7GameAndBegin(options: Civ7DirectControlOptions 
       await waitForCiv7TunerReadyWithSession(session, waitOptions, {
         executeSessionCommandWithReconnect,
       }),
-    withSession: async <T>(
-      sessionOptions: Civ7DirectControlOptions,
-      run: (session: Civ7DirectControlSession) => Promise<T>,
-    ): Promise<T> => {
-      const session = new Civ7DirectControlSession(sessionOptions);
-      try {
-        return await run(session);
-      } finally {
-        await session.close();
-      }
-    },
+    withSession: withCiv7DirectControlSession,
   });
 }
 
@@ -903,18 +889,8 @@ export async function waitForCiv7TunerReady(options: Civ7DirectControlOptions & 
   pollIntervalMs?: number;
 } = {}): Promise<Civ7TunerHealthResult & { ready: true }> {
   return await waitForCiv7TunerReadyFromModule(options, {
+    withSession: withCiv7DirectControlSession,
     executeSessionCommandWithReconnect,
-    withSession: async <T>(
-      sessionOptions: Civ7DirectControlOptions,
-      run: (session: Civ7DirectControlSession) => Promise<T>,
-    ): Promise<T> => {
-      const session = new Civ7DirectControlSession(sessionOptions);
-      try {
-        return await run(session);
-      } finally {
-        await session.close();
-      }
-    },
   });
 }
 
@@ -1337,17 +1313,7 @@ function setupStartDependencies() {
       await waitForCiv7TunerReadyWithSession(session, waitOptions, {
         executeSessionCommandWithReconnect,
       }),
-    withSession: async <T>(
-      sessionOptions: Civ7DirectControlOptions,
-      run: (session: Civ7DirectControlSession) => Promise<T>,
-    ): Promise<T> => {
-      const session = new Civ7DirectControlSession(sessionOptions);
-      try {
-        return await run(session);
-      } finally {
-        await session.close();
-      }
-    },
+    withSession: withCiv7DirectControlSession,
   } as const;
 }
 

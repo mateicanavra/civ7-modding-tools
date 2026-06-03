@@ -890,6 +890,18 @@ All future agent waves must be framed before delegation:
   Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance remain
   pending. This is local package/source relocation proof only, not
   runtime/live-game proof.
+- Direct-control session acquire/release helper slice: completed as a narrow
+  session resource-helper relocation. It moves the repeated facade-local
+  `new Civ7DirectControlSession(options)` plus `finally` close pattern into
+  `src/session/session.ts` as `withCiv7DirectControlSession`, then injects that
+  helper into Tuner health and setup/restart dependencies from `index.ts`. This
+  preserves session construction, close-on-completion/error behavior,
+  Tuner-ready wait dependency shape, setup/restart lifecycle composition, and
+  existing package proof. Effect/Bun resource/schedule/layer composition,
+  telemetry/correlation contracts, procedure schemas, semantic CLI projection,
+  AI ingestion, hotseat runtime proof, Effect/oRPC procedure-core work, and
+  Task 2.9.4 matrix-row acceptance remain pending. This is local package/source
+  relocation proof only, not runtime/live-game proof.
 - Direct-control facade postcondition-helper cleanup slice: completed as a
   narrow stale-helper prune after the specialized operation postcondition and
   unit-target owners moved. It removes only dead private comparison helpers from
