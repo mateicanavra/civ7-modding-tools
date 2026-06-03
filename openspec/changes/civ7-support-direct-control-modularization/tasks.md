@@ -80,7 +80,7 @@ runtime/direct-control claims.
 - [ ] 4.2 Add or relocate focused direct-control package tests for each atom.
   - [x] 4.2.1 Add public API/primitives package test coverage.
   - [ ] 4.2.2 Add session/framing package test coverage.
-  - [ ] 4.2.3 Add unit move preview package test coverage.
+  - [x] 4.2.3 Add unit move preview package test coverage.
 - [ ] 4.3 Extract notification view/materialization atom.
 - [ ] 4.4 Extract notification dismissal/verification atom.
 - [ ] 4.5 Extract ready unit/city view atoms.
