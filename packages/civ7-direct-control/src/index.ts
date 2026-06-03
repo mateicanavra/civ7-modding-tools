@@ -800,13 +800,7 @@ export async function inspectCiv7RuntimeApi(options: Civ7DirectControlOptions & 
   state?: Civ7TunerStateSelection;
   roots?: ReadonlyArray<string>;
 } = {}): Promise<Civ7RuntimeApiInspection> {
-  return await inspectCiv7RuntimeApiFromModule(options, {
-    appUiStateName: CIV7_TUNER_APP_UI_STATE_NAME,
-    defaultAppUiApiRoots: DEFAULT_CIV7_APP_UI_API_ROOTS,
-    defaultTunerApiRoots: DEFAULT_CIV7_TUNER_API_ROOTS,
-    executeCommand: executeCiv7Command,
-    tunerStateName: CIV7_TUNER_STATE_NAME,
-  });
+  return await inspectCiv7RuntimeApiFromModule(options);
 }
 
 export async function getCiv7AppUiSnapshot(

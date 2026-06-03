@@ -489,6 +489,18 @@ All future agent waves must be framed before delegation:
   runtime proof, AI ingestion, CLI semantic projection, and Effect/oRPC
   procedure-core work stay out of this slice. This is local read-only
   package/source relocation proof only, not runtime proof.
+- Direct-control runtime API inspection facade dependency cleanup: completed as
+  a narrow debug/internal service dependency pruning slice.
+  `src/runtime/inspection.ts` now imports existing non-facade command
+  execution, state-name, and runtime inspection default-root owners directly for
+  its default wrapper path while the public facade stays a call-through. This
+  preserves caller-provided roots, normalized App UI/Tuner default-root
+  selection, selected-state execution, generated inspection command semantics,
+  and raw debug/internal diagnostic projection. It does not claim runtime/live
+  proof, expose runtime reflection as product authority, or unblock telemetry,
+  AI ingestion, semantic CLI projection, hotseat runtime proof,
+  schema/procedure ownership, Effect/Bun resource composition, Effect/oRPC
+  implementation, or Task 2.9.4 matrix-row acceptance.
 - Direct-control App UI snapshot source/wrapper slice: completed as a narrow
   read-only runtime-status support relocation. It moves only
   `getCiv7AppUiSnapshot`, the generated App UI snapshot command, and

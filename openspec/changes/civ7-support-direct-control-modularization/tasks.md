@@ -1087,6 +1087,15 @@ runtime/direct-control claims.
         ingestion, CLI semantic projection, hotseat runtime proof,
         Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
         pending.
+  - [x] 4.12.19 Prune runtime API inspection facade dependency injection by
+        letting `src/runtime/inspection.ts` import existing non-facade command
+        execution, state-name, and runtime inspection default-root owners
+        directly, while keeping public facade exports stable, preserving App
+        UI/Tuner default-root selection, caller-provided roots, selected state
+        execution, generated inspection command semantics, raw debug/internal
+        projection, and leaving telemetry, AI ingestion, CLI semantic
+        projection, hotseat runtime proof, Effect/oRPC procedure-core work, and
+        Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready
