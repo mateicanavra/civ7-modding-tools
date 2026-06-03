@@ -750,6 +750,13 @@ runtime/direct-control claims.
         contracts, procedure schemas, semantic CLI, AI ingestion, hotseat
         runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+  - [x] 4.10.21 Prune trivial direct-control health and wait facade
+        call-through wrappers by re-exporting the session health owner
+        functions directly, preserving public package imports, health/wait
+        behavior, and session package proof while leaving lifecycle
+        composition, telemetry/correlation contracts, procedure schemas,
+        semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in

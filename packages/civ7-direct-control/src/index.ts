@@ -15,10 +15,6 @@ import {
   queryCiv7TunerStates,
 } from "./session/execute.js";
 import { jsonPayloadFromCommandResult } from "./session/command-result.js";
-import {
-  checkCiv7DirectControlHealth,
-  waitForCiv7DirectControl,
-} from "./session/health.js";
 import { jsLiteral } from "./runtime/command-serialization.js";
 import { sleep } from "./timing.js";
 import { boundedInteger, validateIdentifier, validatePlayerId } from "./validation.js";
@@ -29,7 +25,6 @@ import {
 import type {
   Civ7CommandResult,
   Civ7DirectControlEndpoint,
-  Civ7DirectControlHealth,
   Civ7DirectControlOptions,
   Civ7TunerState,
   Civ7TunerStateRole,

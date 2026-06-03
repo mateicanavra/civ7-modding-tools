@@ -913,6 +913,15 @@ All future agent waves must be framed before delegation:
   runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
   acceptance remain pending. This is local package/source relocation proof only,
   not runtime/live-game proof.
+- Direct-control health facade call-through cleanup slice: completed as a
+  narrow public facade hygiene pass. It removes the trivial
+  `checkCiv7DirectControlHealth` and `waitForCiv7DirectControl` wrapper
+  functions from `index.ts` and re-exports the `src/session/health.ts` owner
+  functions directly. Public package imports remain stable, health/wait
+  behavior remains owned and proved by the session package tests, and no
+  lifecycle, runtime, telemetry, semantic CLI, AI ingestion, or Effect/oRPC
+  behavior changed. This is local package/source cleanup proof only, not
+  runtime/live-game proof.
 - Direct-control facade postcondition-helper cleanup slice: completed as a
   narrow stale-helper prune after the specialized operation postcondition and
   unit-target owners moved. It removes only dead private comparison helpers from
