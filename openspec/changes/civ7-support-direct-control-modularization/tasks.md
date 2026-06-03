@@ -754,6 +754,12 @@ runtime/direct-control claims.
         exports and leaving operation/proof telemetry, hotseat runtime proof,
         AI ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
         and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.45 Prune stale facade type re-export imports for runtime diagnostic
+        helper types now exported through direct `export type ... from`
+        declarations, while preserving public facade exports and leaving
+        runtime-status projection, telemetry, AI ingestion, CLI semantic
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.9 Explicitly cite oRPC architecture authority before any oRPC
       implementation. The support branch cites the
       `civ7-orpc-control-architecture` skill from
