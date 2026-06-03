@@ -135,12 +135,13 @@
     recorded under 2.9; matrix-row acceptance and source/proof owners for
     hotseat runtime, AI data ingestion, telemetry, CLI semantic output, and
     Effect/oRPC procedures are still unassigned.
-  - App UI companion planning is also blocked from implementation: a possible
-    `globalThis.Civ7IntelligenceBridge.invoke(...)` JSON-envelope RPC remains
-    subordinate to `@civ7/direct-control`, while oRPC stays at the external
-    direct-control boundary. This planning note does not authorize App UI
-    bridge source, transport adapters, AI-ingestion code, or runtime proof
-    claims.
+  - App UI companion planning is also blocked from implementation: the accepted
+    bridge substrate is an in-process oRPC/Effect callable router loaded
+    through Civ7 native `scope="game"` `UIScripts`, with
+    `globalThis.Civ7IntelligenceBridge.invoke(...)` only as serialized ingress
+    through the existing tuner/App UI boundary into that router. This planning
+    note does not authorize controller source, transport adapters,
+    AI-ingestion code, or runtime proof claims.
 
 Implementation tasks in sections 3-5 are blocked until the relevant corpus rows
 name the exact write set, fixture owner, validation commands,
@@ -1149,10 +1150,12 @@ authority are recorded.
 - [ ] 6.8 Ensure procedure-core schemas compose stable direct-control atoms for
       both live hotseat/autoplay control and AI-intelligence data ingestion
       before exposing transport adapters.
-- [ ] 6.9 Keep the in-game App UI companion endpoint subordinate to
-      `@civ7/direct-control` with a small versioned JSON-envelope/RPC shape;
-      keep oRPC at the external direct-control boundary and raw `game exec` as
-      diagnostic/probe substrate only.
+- [ ] 6.9 Plan the in-game controller bridge as an in-process oRPC/Effect
+      callable router loaded through Civ7 native `scope="game"` `UIScripts`;
+      keep `globalThis.Civ7IntelligenceBridge.invoke(...)` as serialized
+      ingress through the existing tuner/App UI boundary into that router, keep
+      raw `game exec` as diagnostic/probe substrate only, and do not create a
+      hand-maintained App UI method table or ad hoc JSON-envelope product API.
 
 ## 7. Verification And Closure
 

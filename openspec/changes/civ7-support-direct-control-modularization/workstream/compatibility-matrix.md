@@ -47,10 +47,10 @@ Global acceptance stop conditions:
   `verified: true`.
 - Stop if Effect/oRPC work starts as a raw command tunnel or transport adapter
   before accepted procedure cores over stable direct-control atoms.
-- Stop if a future App UI companion bridge, such as
-  `globalThis.Civ7IntelligenceBridge.invoke(...)`, becomes the external
-  direct-control boundary or product action authority instead of a subordinate
-  JSON-envelope endpoint under direct-control proof.
+- Stop if a future App UI companion bridge treats
+  `globalThis.Civ7IntelligenceBridge.invoke(...)` as product action authority
+  or an ad hoc JSON-envelope API instead of serialized ingress through the
+  existing tuner/App UI boundary into the in-process oRPC/Effect router.
 
 ## Row Acceptance Intake
 
@@ -260,13 +260,16 @@ Intake rejection conditions:
 - `modelThread`: `019e8b5a-f2ee-7ea2-96bc-8c07dc5ab6cc`
 - `dependencyDirection`: hotseat/autoplay foundation -> AI-intelligence model
 - `surface`: Effect/oRPC procedure cores
-- `primaryConsumer`: external direct-control boundary over stable atoms
+- `primaryConsumer`: shared oRPC/Effect procedure substrate over stable atoms,
+  including the in-game controller router, external direct-control bridge, and
+  future AI services
 - `sourceOwner`: pending procedure-core schema owner
 - `proofOwner`: pending procedure-core schema proof owner
 - `playerScope`: per-procedure; local-player and agent-slot scoped for
   mutation; debug/observer scoped for diagnostics
-- `consumerClass`: Effect/oRPC procedure core; direct-control service boundary;
-  future AI-intelligence and player-agent clients through typed contracts
+- `consumerClass`: Effect/oRPC procedure core; in-game controller service
+  boundary; external direct-control service boundary; future AI-intelligence
+  and player-agent clients through typed contracts
 - `evidenceClass`: repo docs; target-thread evidence; peer reports; local tests
   pending; runtime proof pending for live claims
 - `procedureCandidate`: needs schema/type extraction first
@@ -277,15 +280,18 @@ Intake rejection conditions:
 - `proofLabel`: `pending-procedure-core-schema`
 - `acceptanceStatus`: `pending-procedure-core-schema`; schema owner, proof
   owner, procedure contract, middleware boundary, and tests not assigned
-- `blockingDependents`: tasks 6.1-6.9, transport adapters, procedure middleware,
-  Effect/Bun resource/concurrency implementation, oRPC package behavior
+- `blockingDependents`: tasks 6.1-6.9, in-game controller router modules,
+  transport adapters, procedure middleware, Effect/Bun resource/concurrency
+  implementation, oRPC package behavior
 - `stopCondition`: stop if transport adapters or `packages/civ7-control-orpc`
   behavior appears before testable procedure cores over stable direct-control
-  atoms, if raw command tunneling is used as the architecture, or if an App UI
-  bridge such as `globalThis.Civ7IntelligenceBridge.invoke(...)` becomes the
-  external direct-control substrate instead of a subordinate JSON-envelope
-  endpoint; stop if procedure-core schema work starts before a TypeBox versus
-  Effect Schema disposition records encode/decode, typed-error, oRPC
+  atoms, if raw command tunneling is used as the architecture, if the in-game
+  controller is implemented as a hand-maintained App UI method table or ad hoc
+  JSON-envelope product API, or if
+  `globalThis.Civ7IntelligenceBridge.invoke(...)` is treated as anything other
+  than serialized ingress through the existing tuner/App UI boundary into the
+  in-process oRPC/Effect router; stop if procedure-core schema work starts
+  before a TypeBox versus Effect Schema disposition records encode/decode, typed-error, oRPC
   compatibility, test ergonomics, existing TypeBox coverage, runtime
   validation, duplication cost, migration blast radius, and shared
   internal-service/AI/CLI semantic projection ownership criteria; stop if Zod

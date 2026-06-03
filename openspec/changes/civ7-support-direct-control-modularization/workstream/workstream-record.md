@@ -1,8 +1,9 @@
 # Civ7 Support Direct-Control Modularization Workstream
 
-## Active Watcher Correction - P1 Controller Bridge Substrate
+## Watcher Correction Disposition - P1 Controller Bridge Substrate
 
-Status: active; blocks controller/AI/oRPC planning closure until repaired.
+Status: dispositioned in this support workstream's planning records; still
+planning evidence only and not controller/runtime proof.
 
 The main repo accepted a controller bridge substrate correction at
 `c7111b120e92e80ccc9e944442020d9e1d5674c7`:
@@ -12,23 +13,19 @@ before any downstream bridge, AI-ingestion, semantic CLI, telemetry,
 schema/procedure-core, or Effect/oRPC planning depends on this support
 workstream.
 
-The active support records still contain stale framing that treats
-`globalThis.Civ7IntelligenceBridge.invoke(...)` as a small/custom
-JSON-envelope RPC and keeps oRPC outside the game at the external
-direct-control boundary. The corrected model is: the in-game controller mod API
-is an in-process oRPC/Effect callable router loaded through Civ7 native
-`scope="game"` `UIScripts`; `Civ7IntelligenceBridge.invoke(...)` is serialized
-ingress through the existing tuner/App UI command boundary into that router;
-oRPC/Effect is the shared substrate for the game controller, external
-direct-control bridge, and future AI services.
+This pass repairs the stale support records and records the corrected model:
+the in-game controller mod API is an in-process oRPC/Effect callable router
+loaded through Civ7 native `scope="game"` `UIScripts`;
+`Civ7IntelligenceBridge.invoke(...)` is serialized ingress through the existing
+tuner/App UI command boundary into that router; oRPC/Effect is the shared
+substrate for the game controller, external direct-control bridge, and future
+AI services.
 
-Falsifier paths include `design.md:42-45`, `design.md:393-395`,
-`tasks.md:138-139`, `tasks.md:1127-1129`, this record's prior bridge wording,
-and `compatibility-matrix.md:50-53,263-286`. Repair the records before
-preserving those assumptions in any new commit. This is not a request to
-implement controller source, claim runtime proof, touch the play thread,
-foreground Studio HTTP/RPCLink, add a hand-maintained App UI method table, or
-create an ad hoc JSON-envelope product API.
+This is not a controller implementation, runtime proof, play-thread action,
+Studio HTTP/RPCLink foregrounding, hand-maintained App UI method table, or ad
+hoc JSON-envelope product API. Future controller/AI/oRPC work still needs
+owners, schemas/tests, proof boundaries, and accepted tasks before
+implementation.
 
 ## Frame
 
@@ -247,13 +244,16 @@ id, evidence policy, approval reason, `validation_pre`, `send_receipt`,
 largest design risk is training or acting on vague `verified: true` flags
 instead of explicit outcome evidence.
 
-App UI bridge boundary: target-thread synthesis records a possible subordinate
-in-game JSON-envelope RPC such as `globalThis.Civ7IntelligenceBridge.invoke(...)`
-only as a future companion endpoint under direct-control authority. It is not a
-third control plane, not the oRPC boundary, not product action authority, and
-not a substitute for lifecycle certification, method allowlists, approval
-tokens, local-player/hotseat identity checks, semantic outcome checks, or live
-runtime proof.
+App UI bridge boundary: target-thread synthesis now records
+`globalThis.Civ7IntelligenceBridge.invoke(...)` as serialized ingress through
+the existing tuner/App UI command boundary into an in-process oRPC/Effect
+callable router loaded through Civ7 native `scope="game"` `UIScripts`. It is
+not product action authority, not a hand-maintained App UI method table, not an
+ad hoc JSON-envelope product API, and not a substitute for lifecycle
+certification, method allowlists, approval tokens, local-player/hotseat
+identity checks, semantic outcome checks, or live runtime proof. oRPC/Effect is
+the shared substrate for the game controller, external direct-control bridge,
+and future AI services.
 
 Recommended future intelligence artifacts are `StrategyPlan`,
 `ActionCandidate`, `ProfileRecipe`, `LoadedRowProof`, `RunMetric`, and
