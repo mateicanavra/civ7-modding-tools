@@ -1316,13 +1316,13 @@ All future agent waves must be framed before delegation:
   pending. This is local package/source relocation proof only, not
   runtime/live-game proof.
 - Direct-control endpoint discovery slice: completed as a narrow session helper
-  relocation. It moves `discoverCiv7DirectControlEndpoint` into
+  relocation. It moves the endpoint discovery host-fallback helper into
   `src/session/discovery.ts` while keeping the public facade export in
-  `index.ts` and injecting state-query execution from the facade. This
-  preserves host/env ordering from config resolution, first-reachable-host
-  selection, per-host error details, and `all-hosts-unavailable`
-  classification. It does not move socket/session lifecycle, command execution,
-  reconnect behavior, health polling, runtime-status projection,
+  `index.ts` and preserving dependency-injected package proof. This preserves
+  host/env ordering from config resolution, first-reachable-host selection,
+  per-host error details, and `all-hosts-unavailable` classification. It does
+  not move socket/session lifecycle, package-level command execution, reconnect
+  behavior, health polling, runtime-status projection,
   telemetry/correlation contracts, or procedure schemas. Session
   socket/reconnect source ownership, command execution, telemetry/correlation
   contracts, public procedure schemas, operation/proof telemetry, hotseat
@@ -1393,6 +1393,18 @@ All future agent waves must be framed before delegation:
   projection, AI ingestion, hotseat runtime proof, or Effect/oRPC
   procedure-core work. This is local package/source relocation proof only, not
   runtime/live-game proof.
+- Direct-control public endpoint discovery wrapper slice: completed as a narrow
+  session discovery owner relocation. It moves the public
+  `discoverCiv7DirectControlEndpoint` wrapper into `src/session/discovery.ts`
+  now that `queryCiv7TunerStates` is owned by `src/session/execute.ts`, while
+  preserving public facade exports, host/env ordering, first-reachable-host
+  selection, per-host error details, `all-hosts-unavailable` classification,
+  and focused dependency-injected package proof. `index.ts` still owns
+  reconnect orchestration, lifecycle composition, and public facade call-through
+  for higher-level atoms. This does not define telemetry/correlation contracts,
+  public procedure schemas, semantic CLI projection, AI ingestion, hotseat
+  runtime proof, or Effect/oRPC procedure-core work. This is local
+  package/source relocation proof only, not runtime/live-game proof.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into

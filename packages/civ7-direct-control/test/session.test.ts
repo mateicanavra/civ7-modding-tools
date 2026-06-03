@@ -14,7 +14,7 @@ import {
   snapshotFile,
   waitForFreshLogMarkers,
 } from "../src/index";
-import { discoverCiv7DirectControlEndpoint } from "../src/session/discovery";
+import { discoverCiv7DirectControlEndpointWithDependencies } from "../src/session/discovery";
 import { allocateListenerId } from "../src/session/listener-id";
 import { openCiv7TunerSocket } from "../src/session/socket";
 import { tunerStatesFromParts } from "../src/session/state";
@@ -79,7 +79,7 @@ describe("Civ7 direct control session framing", () => {
 
   test("discovers a reachable endpoint after earlier hosts fail", async () => {
     const queried: string[] = [];
-    const discovered = await discoverCiv7DirectControlEndpoint(
+    const discovered = await discoverCiv7DirectControlEndpointWithDependencies(
       {
         hosts: ["127.0.0.2", "127.0.0.1"],
         port: 58_256,
@@ -111,7 +111,7 @@ describe("Civ7 direct control session framing", () => {
 
   test("reports unavailable endpoint discovery with per-host details", async () => {
     await expect(
-      discoverCiv7DirectControlEndpoint(
+      discoverCiv7DirectControlEndpointWithDependencies(
         {
           hosts: ["127.0.0.1", "127.0.0.2"],
           port: 58_256,

@@ -8,7 +8,7 @@ import {
   isCiv7ComponentId,
 } from "./civ7-component-id.js";
 import { Civ7DirectControlError, type Civ7DirectControlErrorCode } from "./direct-control-error.js";
-import { discoverCiv7DirectControlEndpoint as discoverCiv7DirectControlEndpointFromModule } from "./session/discovery.js";
+import { discoverCiv7DirectControlEndpoint } from "./session/discovery.js";
 import {
   executeCiv7AppUiCommand,
   executeCiv7Command,
@@ -359,6 +359,7 @@ export {
   parseCiv7TunerFrame,
 } from "./session/framing.js";
 export type { Civ7TunerFrame } from "./session/framing.js";
+export { discoverCiv7DirectControlEndpoint } from "./session/discovery.js";
 export {
   executeCiv7AppUiCommand,
   executeCiv7Command,
@@ -820,15 +821,6 @@ export type Civ7SavedGameConfigurationListResult = Readonly<{
   directory: string;
   configurations: ReadonlyArray<Civ7SavedGameConfiguration>;
 }>;
-
-export async function discoverCiv7DirectControlEndpoint(
-  options: Civ7DirectControlOptions = {},
-): Promise<Readonly<{ endpoint: Civ7DirectControlEndpoint; states: ReadonlyArray<Civ7TunerState> }>> {
-  return await discoverCiv7DirectControlEndpointFromModule(options, {
-    errorMessage,
-    queryTunerStates: queryCiv7TunerStates,
-  });
-}
 
 export async function inspectCiv7RuntimeApi(options: Civ7DirectControlOptions & {
   state?: Civ7TunerStateSelection;

@@ -576,9 +576,10 @@ runtime/direct-control claims.
         pending.
   - [x] 4.10.6 Extract endpoint discovery owner behind the existing package
         facade, preserving host/env ordering from config resolution,
-        first-reachable-host selection, per-host error details, and
-        `all-hosts-unavailable` classification while leaving socket/session
-        lifecycle, command execution, lifecycle/reconnect,
+        first-reachable-host selection, per-host error details,
+        `all-hosts-unavailable` classification, and focused
+        dependency-injected package proof while leaving socket/session
+        lifecycle, package-level command execution, lifecycle/reconnect,
         telemetry/correlation contracts, procedure schemas, semantic CLI, AI
         ingestion, hotseat runtime proof, Effect/oRPC procedure-core work, and
         Task 2.9.4 matrix-row acceptance pending.
@@ -626,6 +627,15 @@ runtime/direct-control claims.
         shape, and focused session proof, and leaving reconnect orchestration,
         lifecycle composition, telemetry/correlation contracts, procedure
         schemas, semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.13 Move the public endpoint discovery wrapper into the session
+        discovery owner now that session execute wrappers are owned outside the
+        facade, while preserving public facade exports, host/env ordering,
+        first-reachable-host selection, per-host error details,
+        `all-hosts-unavailable` classification, and focused dependency-injected
+        package proof, and leaving reconnect orchestration, lifecycle
+        composition, telemetry/correlation contracts, procedure schemas,
+        semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
