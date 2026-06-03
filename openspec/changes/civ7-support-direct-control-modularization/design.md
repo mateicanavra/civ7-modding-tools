@@ -265,6 +265,30 @@ Future atom and envelope rows classify `playerScope`, `consumerClass`,
 `debugServiceProjection` before runtime-status extraction, CLI hierarchy work,
 telemetry, AI ingestion, or Effect/oRPC procedure cores depend on them.
 
+Compatibility matrix execution gate:
+
+- Before any slice touches command hierarchy, semantic envelopes, telemetry,
+  schema/type ownership, runtime-status projection, debug/internal service
+  output, AI data artifacts, Effect/Bun resource or stream handling, or oRPC
+  procedure cores, the touched atom or envelope must classify `playerScope`,
+  `consumerClass`, `evidenceClass`, `procedureCandidate`,
+  `normalCliProjection`, and `debugServiceProjection` against both live hotseat
+  player-agent control and AI-intelligence strategy ingestion.
+- Normal CLI play output must remain a semantic player-agent surface over
+  direct-control atoms: game state, blockers, decisions, action results,
+  next-step affordances, and explicit stale/unknown/postcondition
+  classifications. It must not become raw transport/session/proof JSON.
+- AI-intelligence ingestion must consume stable machine-readable state, action,
+  and proof records, not CLI presentation strings or raw `game exec` command
+  strings.
+- Debug/internal service output may expose raw probes, transport/session state,
+  correlation ids, route selection, closeout traces, and proof details only when
+  explicitly classified as debug/internal service projection.
+- Effect/Bun and Effect/oRPC must compose over stable direct-control atoms,
+  typed schemas, context, approval policy, correlation, errors, telemetry hooks,
+  and resource/concurrency primitives where appropriate. They must not start as
+  transport-first raw command tunneling.
+
 Proof classes must stay separate: target-thread evidence, repo docs, local
 tests, logs/database artifacts, official resources, live runtime proof, and
 in-game observations each prove different claims. A later full in-game

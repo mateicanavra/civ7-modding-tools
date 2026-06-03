@@ -159,6 +159,19 @@ closes only the report-disposition blocker. It does not close hotseat runtime
 proof, AI data-ingestion design, CLI semantic-surface implementation, telemetry
 source work, or Effect/oRPC procedure-core work.
 
+Compatibility matrix execution gate: Task 2.9 is closed as a planning gate, not
+as implementation. Before any dependent slice touches command hierarchy,
+semantic envelopes, telemetry, schema/type ownership, runtime-status projection,
+debug/internal service outputs, AI data artifacts, Effect/Bun resource or stream
+handling, or oRPC procedure cores, the touched atom or envelope must classify
+`playerScope`, `consumerClass`, `evidenceClass`, `procedureCandidate`,
+`normalCliProjection`, and `debugServiceProjection` against both support targets:
+live hotseat player-agent control and AI-intelligence strategy ingestion. Normal
+CLI play output remains semantic player-agent state/action affordances; AI
+ingestion consumes stable machine-readable state/action/proof records; raw
+transport/session/proof details remain debug/internal service projection unless
+an explicit debug-owned surface says otherwise.
+
 The action/proof vocabulary for future machine-ingestion and procedure-core
 surfaces is: strategy intent, candidate action, operation family, target, args,
 approval, validation result, send result, post-read, `requestId` or correlation

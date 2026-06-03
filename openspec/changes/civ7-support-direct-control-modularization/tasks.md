@@ -74,13 +74,15 @@
   - Accepted from direct local reads of the completed peer report:
     `019e8cbf-5805-7393-82e8-c83353aeac40` for synthesis mapping both target
     threads onto this support OpenSpec.
-- [ ] 2.9 Define the hotseat/autoplay and AI-intelligence compatibility matrix:
+- [x] 2.9 Define the hotseat/autoplay and AI-intelligence compatibility matrix:
       semantic game state, decisions, blockers, action results, next-step
       affordances, debug/internal service outputs, operation/proof telemetry,
       and future procedure-core schema needs.
-  - Matrix seed recorded in `design.md`: hotseat handoff state, semantic CLI
-    player-agent view, strategy/intelligence machine ingestion, debug/internal
-    service output, operation/proof telemetry, and Effect/oRPC procedure cores.
+  - Accepted as an execution gate in `design.md`: hotseat handoff state,
+    semantic CLI player-agent view, strategy/intelligence machine ingestion,
+    debug/internal service output, operation/proof telemetry, and Effect/oRPC
+    procedure cores must stay separate while composing over the same
+    direct-control atom substrate.
   - Compatibility proof classes must remain separate: target-thread evidence,
     repo docs, local tests, logs/database artifacts, official resources, live
     runtime proof, and in-game observations.
@@ -89,12 +91,17 @@
     `normalCliProjection` / `debugServiceProjection` before command hierarchy,
     telemetry, AI-ingestion, runtime-status, or procedure-core work depends on
     them.
+  - This closes only the matrix/gate definition. It does not close hotseat
+    runtime proof, AI data-ingestion design, telemetry source work, CLI
+    semantic-surface implementation, or Effect/oRPC procedure-core
+    implementation.
 - [ ] 2.10 Keep intelligence-layer code, transport-first oRPC, and live-game
-      proof claims out of the compatibility planning branch until the peer
-      reports are read and source/proof owners are assigned.
-  - The report-disposition blocker is closed by 2.8; source/proof owners for
-    hotseat runtime, AI data ingestion, telemetry, CLI semantic output, and
-    Effect/oRPC procedures are still unassigned.
+      proof claims out of the compatibility planning branch until source/proof
+      owners are assigned.
+  - The report-disposition blocker is closed by 2.8 and the matrix/gate
+    definition is closed by 2.9; source/proof owners for hotseat runtime, AI
+    data ingestion, telemetry, CLI semantic output, and Effect/oRPC procedures
+    are still unassigned.
 
 Implementation tasks in sections 3-5 are blocked until the relevant corpus rows
 name the exact write set, fixture owner, validation commands,
