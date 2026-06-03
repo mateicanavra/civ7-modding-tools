@@ -1,3 +1,5 @@
+import type { Civ7DirectControlError } from "../direct-control-error.js";
+
 export type Civ7TunerState = Readonly<{
   id: string;
   name: string;
@@ -32,3 +34,21 @@ export type Civ7CommandResult = Readonly<{
   state: Civ7TunerState;
   output: ReadonlyArray<string>;
 }>;
+
+export type Civ7DirectControlHealth =
+  | Readonly<{
+      ok: true;
+      status: "ready";
+      host: string;
+      port: number;
+      states: ReadonlyArray<Civ7TunerState>;
+      selectedState?: Civ7TunerState;
+    }>
+  | Readonly<{
+      ok: false;
+      status: "unavailable" | "no-states" | "state-missing" | "command-failed";
+      host?: string;
+      port?: number;
+      states?: ReadonlyArray<Civ7TunerState>;
+      error: Civ7DirectControlError;
+    }>;

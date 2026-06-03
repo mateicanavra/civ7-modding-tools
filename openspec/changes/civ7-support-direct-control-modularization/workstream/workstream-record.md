@@ -1241,7 +1241,7 @@ All future agent waves must be framed before delegation:
   dependency on facade root-inspection exports in favor of the runtime owner.
   This preserves catalog option shape and does not change catalog source,
   scanner, schema, sorting, runtime inspection, or wrapper behavior. Remaining
-  facade-owned lifecycle/health result types, public procedure schemas,
+  then-remaining facade-owned lifecycle/health result types, public procedure schemas,
   operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI semantic
   projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
   acceptance remain pending. This is local package/type relocation proof only,
@@ -1252,11 +1252,21 @@ All future agent waves must be framed before delegation:
   `index.ts`. This preserves restart/begin result shape and does not change
   lifecycle orchestration, command routing, App UI snapshot parsing, Tuner
   readiness waiting, restart-output validation, or no-replay behavior.
-  Remaining facade-owned health result types, public procedure schemas,
+  Then-remaining facade-owned health result types, public procedure schemas,
   operation/proof telemetry, hotseat runtime proof, AI ingestion, CLI semantic
   projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
   acceptance remain pending. This is local package/type relocation proof only,
   not runtime/live-game proof.
+- Direct-control health result type slice: completed as a narrow public type
+  ownership relocation. It moves `Civ7DirectControlHealth` into
+  `src/session/types.ts` while keeping public facade type re-exports in
+  `index.ts`. This preserves health result shape and does not change endpoint
+  discovery, state selection, health polling, error classification,
+  session/socket behavior, or runtime-status projection. Health source/session
+  orchestration, public procedure schemas, operation/proof telemetry, hotseat
+  runtime proof, AI ingestion, CLI semantic projection, Effect/oRPC
+  procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending.
+  This is local package/type relocation proof only, not runtime/live-game proof.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into

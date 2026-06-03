@@ -17,6 +17,7 @@ import {
 import type {
   Civ7CommandResult,
   Civ7DirectControlEndpoint,
+  Civ7DirectControlHealth,
   Civ7DirectControlOptions,
   Civ7TunerState,
   Civ7TunerStateRole,
@@ -358,6 +359,7 @@ export type { Civ7TunerFrame } from "./session/framing.js";
 export type {
   Civ7CommandResult,
   Civ7DirectControlEndpoint,
+  Civ7DirectControlHealth,
   Civ7DirectControlOptions,
   Civ7TunerState,
   Civ7TunerStateRole,
@@ -806,24 +808,6 @@ export type Civ7SavedGameConfigurationListResult = Readonly<{
   directory: string;
   configurations: ReadonlyArray<Civ7SavedGameConfiguration>;
 }>;
-
-export type Civ7DirectControlHealth =
-  | Readonly<{
-      ok: true;
-      status: "ready";
-      host: string;
-      port: number;
-      states: ReadonlyArray<Civ7TunerState>;
-      selectedState?: Civ7TunerState;
-    }>
-  | Readonly<{
-      ok: false;
-      status: "unavailable" | "no-states" | "state-missing" | "command-failed";
-      host?: string;
-      port?: number;
-      states?: ReadonlyArray<Civ7TunerState>;
-      error: Civ7DirectControlError;
-    }>;
 
 type PendingCiv7TunerRequest = {
   resolve: (frame: Civ7TunerFrame) => void;
