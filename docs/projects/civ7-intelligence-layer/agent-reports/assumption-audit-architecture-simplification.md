@@ -5,6 +5,13 @@ Lane: architecture and complexity audit
 Date: 2026-06-03
 Status: DRA-captured report from peer-agent final output
 
+2026-06-03 supersession note: later live App UI/Tuner parity evidence promoted
+the richer game-scoped App UI controller from future target to baseline
+implementation candidate for proven direct-control reads and validators. Keep
+this report as historical audit input, but use
+`../workstream/direct-control-game-controller-bridge/` for the active controller
+workstream.
+
 ## `/goal` Objective
 
 Challenge the current Civ7 intelligence-layer architecture for unnecessary

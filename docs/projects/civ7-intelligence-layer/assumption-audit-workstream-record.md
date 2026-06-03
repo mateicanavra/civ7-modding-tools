@@ -8,6 +8,12 @@ DRA: Codex.
 This record captures the follow-up audit that challenged the first solution
 frame after the App UI `globalThis` proof was corrected.
 
+2026-06-03 supersession note: the later live App UI/Tuner parity probe promoted
+the game-scoped App UI controller from target direction to baseline
+implementation candidate for proven direct-control reads and validators. Keep
+this record as historical audit input; the active workstream is
+`workstream/direct-control-game-controller-bridge/`.
+
 ## Frame
 
 - Objective: repair the Civ7 intelligence-layer solution docs by challenging
@@ -15,7 +21,7 @@ frame after the App UI `globalThis` proof was corrected.
   companion API shape, and unnecessary bridge-shaped architecture.
 - Future state: a typed, safe, live AI influence model with two authority
   sides: external live play through `@civ7/direct-control`, and native policy
-  shaping through generated static profiles. A companion App UI endpoint is
+  shaping through generated static profiles. A game-scoped App UI controller is
   subordinate to live play, not a third authority lane.
 - Non-goals: live mutation probes, arbitrary JavaScript as the product API,
   Tuner-resident deployed API claims, and broad service naming that hides the
@@ -29,7 +35,7 @@ frame after the App UI `globalThis` proof was corrected.
 - Falsifier: a supported in-game controller path proves it can own external
   model I/O, durable lifecycle, action safety, and outcome proof without
   direct-control supervision.
-- Redesign trigger: project-owned companion endpoint passes lifecycle proof and
+- Redesign trigger: project-owned game-scoped controller passes lifecycle proof and
   can safely execute exact approved helper actions with stronger semantic
   postconditions than current external wrappers.
 
@@ -37,7 +43,7 @@ frame after the App UI `globalThis` proof was corrected.
 
 - Last updated: 2026-06-03.
 - Current gate: synthesis and doc repair.
-- Next gate: disposable companion endpoint proof.
+- Next gate: direct-control game controller bridge lifecycle and parity proof.
 - Blocked by: no blocker; mutating/runtime gates intentionally deferred.
 - Stop condition: docs separate evidence from architecture direction, peer
   reports exist, raw/bridge overclaims are eliminated, verification passes, and
@@ -76,15 +82,15 @@ Reports:
 
 ## Findings
 
-1. The companion App UI endpoint is not a peer authority surface. It is a
+1. The game-scoped App UI controller is not a peer authority surface. It is a
    subordinate in-game endpoint attached to the live direct-control side.
 2. The architecture should be two-sided: live external control through
    direct-control, and static native policy shaping through generated profiles.
    Corpus, proofs, and metrics cut across both.
-3. A full in-game controller would reduce repeated transport verification, but
-   it would not remove lifecycle, safety, approval, action legality, hotseat,
-   age-transition, or outcome proof. It should be a target direction, not the
-   current baseline.
+3. Superseded by later live parity proof: a full game-scoped App UI controller
+   is now the baseline implementation candidate for proven reads and validators,
+   but it still does not remove lifecycle, safety, approval, action legality,
+   hotseat, age-transition, or outcome proof.
 4. `UIScripts` can expose callable globals in App UI game context. That does
    not prove shell-wide availability or Tuner-resident deployment.
 5. `swooper-maps` is map/import prior art, LF yields preview is App UI
@@ -121,11 +127,11 @@ The repaired frame is:
 strategy director -> choose authority side -> direct-control live action
                                       \-> static profile compiler
 
-direct-control live action -> optional companion App UI endpoint/controller
-                              for display, snapshots, acks, probes, and later
-                              exact approved helper execution
+direct-control live action -> game-scoped App UI controller
+                              for proven reads, validators, display, snapshots,
+                              acks, probes, and later exact approved helpers
 ```
 
 The key simplification is ownership: direct-control remains the runtime owner;
-the companion endpoint is in-game machinery under that owner until it proves it
-can safely assume more.
+the game-scoped controller is in-game machinery under that owner until it proves
+it can safely assume more.

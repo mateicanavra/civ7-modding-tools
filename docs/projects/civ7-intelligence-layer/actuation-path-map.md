@@ -11,7 +11,7 @@ must be true before that path becomes product authority?
 ## Executive Answer
 
 A strategy agent can affect Civ7 through two reliable authority sides and one
-subordinate helper endpoint.
+game-scoped controller under the live side.
 
 The reliable live action surface is `@civ7/direct-control`. It reads state,
 validates operations, sends approved player actions, and records proof layers.
@@ -25,14 +25,16 @@ operations, tactics, and behavior-tree graphs at game load and likely through
 age-scoped action groups. Actual age-transition swap or layering is still a
 probe, not a baseline.
 
-The helper endpoint is a companion App UI mod. It can display strategy, observe
-events, acknowledge requests, and enrich the agent's context. The primary
-ingress should be a companion-owned, game-scoped App UI global API such as
+The live implementation endpoint is a game-scoped App UI controller. It can
+display strategy, observe events, acknowledge requests, enrich the agent's
+context, and absorb stable read/validation logic that currently exists as raw
+direct-control JS wrappers. The primary ingress should be a controller-owned,
+game-scoped App UI global API such as
 `globalThis.Civ7IntelligenceBridge.invoke(...)`, called through direct-control.
 It must not become an independent action sender. Companion scripts can reach
-mutating operation APIs, which makes the path powerful but unsafe unless it
-stays subordinate to direct-control approval, allowlists, and semantic
-postcondition readback.
+mutating operation APIs, which makes the path powerful but unsafe unless exact
+helper execution stays subordinate to direct-control approval, allowlists, and
+semantic postcondition readback.
 
 ## Path Classifications
 
@@ -44,11 +46,11 @@ postcondition readback.
 | Static generated AI profile at age boundary | Probe candidate | Official age modules prove age-scoped action groups; generated swap/layer behavior at transition is not runtime-proven. |
 | Behavior-tree graph generation | Production candidate for known nodes | Trees, nodes, and data rows are real static data; new native node implementations are not supported by current evidence. |
 | RHQ recipe extraction | Production candidate as prior-art importer | RHQ is useful as a measured recipe source after deltas are reduced and verified, not as a baseline fork. |
-| App UI `globalThis` companion RPC | Production candidate after project-owned lifecycle proof | Installed UI mod and post-Begin live probe prove game-scoped `UIScripts` can attach callable public APIs to App UI `globalThis`; they do not prove shell-wide or Tuner-wide availability. |
-| Companion App UI endpoint for display, acknowledgements, observations | Production candidate after receipt probe | UI scripts load and can use `GameInfo`, `engine.on(...)`, and `localStorage`; harmless receipt/ack proof remains the first implementation gate. |
+| Game-scoped App UI controller RPC | Baseline implementation candidate after project-owned lifecycle proof | Installed UI mod and post-Begin live probe prove game-scoped `UIScripts` can attach callable public APIs to App UI `globalThis`; live parity shows App UI game context can cover major gameplay reads/validators. |
+| Controller display, acknowledgements, observations, and overlays | Production candidate after receipt probe | UI scripts load and can use `GameInfo`, `engine.on(...)`, `WorldUI`, and `localStorage`; these are useful but are no longer the whole first slice. |
 | Companion-owned gameplay `sendRequest` | Eliminated as independent authority | It bypasses direct-control approval, validator, no-replay, and postcondition discipline. |
-| Direct-control-approved companion helper action | Deferred probe candidate | Possible only if tokenized, allowlisted, visible, logged, and paired with direct-control semantic postcondition proof. |
-| Full in-game controller | Direction, not baseline | Could reduce repeated transport proof by centralizing App UI logic, but still needs lifecycle, approval, local-player, and outcome proof. |
+| Direct-control-approved controller helper action | Probe candidate after read/validator parity | Possible only if tokenized, allowlisted, visible, logged, and paired with direct-control semantic postcondition proof. |
+| Full game-scoped App UI controller | Baseline implementation candidate | Should reduce raw wrapper JS by centralizing App UI logic, but still needs lifecycle, approval, local-player, and outcome proof. |
 | Live `GameInfo` to debug DB row comparison | Production candidate for loaded-row proof | Current live `GameInfo` counts/sample rows matched `Debug/gameplay-copy.sqlite` for several tables. |
 | Live native-AI row or behavior-tree mutation | Deferred reverse-engineering thread | No supported path proves row mutation, native AI re-read, behavior effect, and rollback mid-game. |
 | Autoplay | Test/measurement candidate; eliminated as primary external-agent play path | Native Autoplay is real and wrapped by direct-control, but it delegates decisions to native AI and suppresses normal input. |
@@ -68,7 +70,7 @@ flowchart LR
   Compiler["Profile Compiler\nSQL/XML rows + manifest"]
   Load["Game Load or Age Boundary"]
   Native["Native Civ7 AI\nloaded data surfaces"]
-  Bridge["Companion App UI Endpoint\noverlay, snapshot, observation, ack"]
+  Bridge["Game-Scoped Controller\nsnapshots, validators, overlay, ack"]
   Corpus["Corpus + Metrics\nsnapshots, proofs, outcomes"]
 
   Strategy --> Direct
@@ -79,7 +81,7 @@ flowchart LR
   Compiler --> Load
   Load --> Native
   Native --> Game
-  Direct -. bounded companion call .-> Bridge
+  Direct -. bounded controller call .-> Bridge
   Bridge -. visible ack / observation .-> Corpus
   Direct -. optional approved helper only .-> Bridge
   Corpus --> Strategy
@@ -92,7 +94,8 @@ The agent's choice is a timescale decision:
 - multi-turn plan for the same player: strategy playbook feeding
   direct-control;
 - native-AI tendency for future or age-scoped runs: static profile compiler;
-- in-game strategy visibility or richer observations: companion App UI endpoint;
+- in-game read/validator API, strategy visibility, or richer observations:
+  game-scoped App UI controller;
 - behavior learning and recipe promotion: corpus plus measured runs.
 
 ## Thread Resolution
@@ -154,7 +157,7 @@ current capture.
 Next trigger: disposable fixed-run logging probe with known direct-control
 actions and any safely enabled verbose AI logging.
 
-### Companion App UI Endpoint
+### Game-Scoped App UI Controller
 
 Companion scripts can expose callable App UI public APIs on `globalThis`. The
 installed LF policies/yields preview mod proves the shape by registering a
@@ -162,19 +165,21 @@ game-scoped `UIScripts` public API and attaching
 `globalThis.LfYieldsPreview`; a post-Begin live read-only probe confirmed it is
 visible in App UI and not in Tuner. A later shell probe found the LF symbol
 absent, so the claim is game-context evidence, not shell-wide or Tuner-wide
-evidence. This should be the primary endpoint ingress for a project-owned
-`Civ7IntelligenceBridge`.
+evidence. Fresh live App UI/Tuner parity probes also show App UI game context
+has the major gameplay roots and operation routers needed for current
+direct-control reads and validators. This should be the primary endpoint ingress
+for a project-owned `Civ7IntelligenceBridge`.
 
 Companion scripts can also reach mutating operation APIs. That answers the
 capability question but creates a product boundary: independent endpoint-owned
-sends are eliminated. The endpoint can still become valuable for display,
-acknowledgement, `canStart` hints, and observation. Queueing is a later probe or
-reload mirror, not the baseline.
+sends are eliminated. The controller should become valuable for stable reads,
+validator parity, display, acknowledgement, and observation. Queueing is a later
+probe or reload mirror, not the baseline.
 
 Next trigger: project-owned `Civ7IntelligenceBridge` lifecycle proof across
 shell/game scope, UI reload, restart, load/save, turn changes, and Tuner
-absence; then a separate direct-control-approved helper-action proof only in a
-disposable game.
+absence; read and validator parity against existing wrappers; then a separate
+direct-control-approved helper-action proof only in a disposable game.
 
 ### Hotseat, Autoplay, And Automation
 

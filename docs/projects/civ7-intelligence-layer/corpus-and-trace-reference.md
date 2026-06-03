@@ -33,7 +33,7 @@ and Hall of Fame data should enrich those records rather than replace them.
 | `GameCoreSerialization.log` | Probe candidate | State component structure and sizes | Semantic decisions |
 | `.Civ7Save` files | Deferred reverse-engineering | Metadata, reproducible state artifacts, binary delta windows | Near-term ordered action reconstruction |
 | `Telemetry.log` | Observation signal | Session/campaign IDs and coarse unit telemetry | Action-level strategy history |
-| `LocalStorage.sqlite` | Observation signal | UI/mod settings, possible companion endpoint mirror evidence | Current game history |
+| `LocalStorage.sqlite` | Observation signal | UI/mod settings, possible controller mirror evidence | Current game history |
 
 ## Corpus Record Shape
 
@@ -46,8 +46,8 @@ The first usable strategy database should record forward evidence at source:
 - action candidate, validator result, approval, send payload, proof layer, and
   semantic postcondition when available;
 - generated profile recipe and loaded-row proof;
-- companion endpoint intent, acknowledgement, and visible/logged confirmation
-  when used;
+- controller method calls, parity records, intent acknowledgements, and
+  visible/logged confirmation when used;
 - outcome metrics from Hall of Fame, logs, direct-control snapshots, and
   fixed-seed comparisons;
 - evidence label and freshness on every record.

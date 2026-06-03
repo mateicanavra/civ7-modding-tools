@@ -13,6 +13,8 @@ Each symbol records:
 - access classification: read, validate, mutate, elevated, avoid
 - risk classification: safe, developer, gameplay, destructive, account/network
 - provenance: runtime, official resource, declaration, public corpus, wrapper
+- controller method provenance when reported by the project-owned game-scoped
+  controller
 - confidence label
 - wrapper recommendation
 - observed descriptors and selected sample metadata
@@ -34,6 +36,8 @@ Compile validators once in tests or generator entrypoints. Do not mix
 ## Merge Strategy
 
 - Runtime snapshot records availability and method/property names by role.
+- Controller capability list records allowlisted methods, protocol version,
+  bounds, and proof status for controller-backed wrappers.
 - Official resource parsing supplies table and enum-like identifiers.
 - Current `@civ7/types` supplies existing declaration provenance.
 - Public corpus evidence may add hints but cannot raise confidence above

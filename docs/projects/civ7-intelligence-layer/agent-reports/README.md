@@ -9,6 +9,7 @@ Assumption-audit follow-up reports:
 - [assumption-audit-architecture-simplification.md](assumption-audit-architecture-simplification.md)
 - [assumption-audit-direct-control-hotseat.md](assumption-audit-direct-control-hotseat.md)
 - [assumption-audit-api-contract.md](assumption-audit-api-contract.md)
+- [direct-control-game-controller-bridge.md](direct-control-game-controller-bridge.md)
 
 Each report should include:
 

@@ -1,8 +1,12 @@
 ## Design
 
 Read wrappers are package-owned command profiles that return JSON parsed into
-stable TypeScript shapes. They target Tuner for post-Begin gameplay reads and
-App UI for lifecycle/session reads.
+stable TypeScript shapes. Historical implementation targeted Tuner for
+post-Begin gameplay reads and App UI for lifecycle/session reads. The
+2026-06-03 controller realignment supersedes that implementation route: proven
+post-Begin gameplay reads should move to the project-owned game-scoped App UI
+controller, with Tuner retained for canary, parity, diagnostics, and explicit
+research calls.
 
 ## Public Wrappers
 

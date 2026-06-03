@@ -172,12 +172,12 @@ temporary local scratch must not be committed unless it becomes evidence.
    Companion scripts can reach mutating operation APIs, but independent
    companion-owned sends are eliminated because they bypass approval,
    validation, no-replay, and postcondition discipline.
-2. App UI `globalThis` is the right primary companion endpoint ingress after a
-   project-owned lifecycle proof. The installed LF policies/yields preview mod
+2. App UI `globalThis` is the right primary game-scoped controller ingress after
+   a project-owned lifecycle proof. The installed LF policies/yields preview mod
    proves a game-scoped `UIScripts` item can expose a callable public API on
-   `globalThis`, and a post-Begin live read-only probe confirmed the symbol is
-   visible in App UI but not Tuner. A later shell probe found the same symbol
-   absent, so this is not shell-wide proof.
+   `globalThis`, and post-Begin live read-only probes confirmed App UI game
+   context can cover the major gameplay roots checked in Tuner. A later shell
+   probe found the same LF symbol absent, so this is not shell-wide proof.
 3. Static generated AI profiles are the reliable native-AI shaping path. The
    compiler can target favored lists, pseudo-yields, strategies, operations,
    tactics, and behavior-tree graphs from known native node vocabulary at load
@@ -241,9 +241,10 @@ Decisions:
   `globalThis.Civ7IntelligenceBridge` RPC plus observation, annotation, and
   acknowledgement infrastructure. Queueing and `localStorage` are probes or
   reload mirrors, not the baseline.
-- A fuller in-game controller is desirable as a future direction because it can
-  centralize App UI state and reduce repeated transport proof. It does not
-  remove lifecycle, approval, local-player, action legality, or semantic
+- A game-scoped App UI controller is now the baseline implementation candidate
+  for proven direct-control reads and validators because live probes showed App
+  UI game context can cover the major gameplay roots checked in Tuner. It does
+  not remove lifecycle, approval, local-player, action legality, or semantic
   outcome proof.
 - RHQ is imported as measured recipe prior art, not forked.
 - Autoplay/Automation are measurement/test harnesses, not live external-agent

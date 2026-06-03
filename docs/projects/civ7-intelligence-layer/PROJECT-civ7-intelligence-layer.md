@@ -46,6 +46,9 @@ In scope:
   metrics.
 - A live strategy runner over direct-control reads, validators, sends, proof
   records, and bounded autoplay.
+- A game-scoped App UI controller bridge that replaces raw direct-control JS
+  wrappers for proven read and validator families while keeping direct-control
+  authority over transport, approval, no-replay, and proof.
 - Static XML/SQL AI profile mods that tune official AI levers.
 - A/B verification harnesses using loaded-row checks and fixed-seed autoplay.
 - Investigation of save/log/debug database surfaces as data sources, with
@@ -479,8 +482,10 @@ The open-thread investigation is now captured in
   candidate after live rows matched `Debug/gameplay-copy.sqlite`.
 - Behavior-tree generation is viable as static graph composition over known
   native nodes; behavior effects still need measured runs.
-- Native event hooks and companion App UI scripts are viable for observation
-  and endpoint receipt probes, not independent action authority.
+- Native event hooks and game-scoped App UI scripts are viable for the
+  direct-control controller bridge: reads, validator parity, observation,
+  endpoint receipt, and later exact approved helper execution. They are not
+  independent action authority.
 - Script-like AI hooks remain probe/deferred surfaces until callback semantics
   and behavior effects are proven.
 
@@ -501,10 +506,13 @@ Use a small peer team with explicit handoffs rather than one broad agent:
 3. **Live Runner Owner.**
    Owns direct-control strategy snapshots, command audit persistence,
    validator/postcondition integration, and hotseat play loops.
-4. **Static AI Profile Owner.**
+4. **Controller Bridge Owner.**
+   Owns the deployed game-scoped `UIScripts` controller, shell/game handshake
+   proof, read parity, validator parity, and approved-helper proof gates.
+5. **Static AI Profile Owner.**
    Owns official resource/RHQ row mapping, generated mod patches, load-order
    constraints, and one-lever profile experiments.
-5. **Verification Owner.**
+6. **Verification Owner.**
    Owns fixed-seed setup, loaded-row checks, autoplay A/B metrics, regression
    proof, and falsifier reporting.
 
@@ -523,17 +531,28 @@ Do not delegate long investigations as short search prompts.
 ## First Implementation Slice
 
 The first slice should avoid save reverse engineering and live AI DB mutation.
+It should not stop at a harmless companion ping; the runtime baseline changed,
+so the controller bridge must be part of the first material implementation
+train.
 
 Deliver:
 
 1. A read-only corpus schema and local storage location for turn snapshots,
    action audits, outcome deltas, and static AI profile metadata.
-2. A direct-control observer that persists per-turn and post-action JSON with
+2. A project-owned game-scoped App UI controller mod exposing
+   `globalThis.Civ7IntelligenceBridge.invoke(...)`, with `system.ping`,
+   `capabilities.list`, `game.snapshot`, read methods, and
+   `operations.validate`.
+3. A direct-control controller client that calls the controller through the
+   existing tuner socket transport without exposing raw caller JavaScript.
+4. Read and validator parity probes comparing controller outputs against the
+   existing direct-control wrappers on the same turn.
+5. A direct-control observer that persists per-turn and post-action JSON with
    source labels and freshness.
-3. A minimal static AI profile mod changing one expansion or repair lever.
-4. A loaded-row check proving the profile is active.
-5. A bounded autoplay A/B run with metrics.
-6. A short playbook rule generated from observations and used by the live
+6. A minimal static AI profile mod changing one expansion or repair lever.
+7. A loaded-row check proving the profile is active.
+8. A bounded autoplay A/B run with metrics.
+9. A short playbook rule generated from observations and used by the live
    runner in validate-only mode.
 
 Acceptance criteria:
@@ -542,6 +561,9 @@ Acceptance criteria:
 - No memory/process patching.
 - Every mutation goes through a generated mod or validator-backed
   direct-control command.
+- Controller helper execution is disabled until direct-control approval,
+  idempotency, exactly-once send behavior, and semantic postcondition reread are
+  proven in a disposable session.
 - Every result states what source class proved it.
 - One profile or playbook rule is promoted only if a measured outcome moves in
   the expected direction.
@@ -554,7 +576,9 @@ Reframe this project if any of the following become true:
 - A supported runtime API safely mutates or reloads native AI policy rows
   mid-game with clear freshness and rollback semantics.
 - In-game JavaScript proves it can provide safer telemetry and validation than
-  the direct-control runner.
+  raw direct-control wrapper bodies. This trigger has partially fired for the
+  game-scoped App UI controller: the baseline now moves to controller lifecycle
+  and parity proof, not more Tuner-first wrapper work.
 - One-lever static AI profile changes repeatedly fail to move behavior across
   fixed-seed tests, indicating the selected rows are ignored or overridden.
 - Direct-control cannot reliably provide fresh validators, proof records, and
@@ -564,8 +588,8 @@ Until a trigger fires, the operating architecture is:
 
 ```text
 direct-control for adaptive live play
+game-scoped controller bridge for proven reads, validators, and approved helpers
 official resources and generated mods for static native-AI policy
-companion App UI endpoint for subordinate display, acknowledgement, and probes
 logs/saves/Hall of Fame/debug DBs for enrichment and forensic analysis
 forward instrumentation for the real intelligence corpus
 ```

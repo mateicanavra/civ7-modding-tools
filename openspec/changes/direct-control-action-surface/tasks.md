@@ -32,3 +32,11 @@
 - [x] 4.1 Run direct-control package tests/check/build.
 - [x] 4.2 Run focused CLI tests/check/build.
 - [x] 4.3 Run OpenSpec validation and `git diff --check`.
+
+## 5. 2026-06-03 Controller Realignment
+
+- [ ] 5.1 Supersede Tuner-default operation validation through
+  `direct-control-game-controller-bridge` after lifecycle and parity proof.
+- [ ] 5.2 Gate `actions.executeApproved` behind a disposable live proof with
+  direct-control approval, idempotency, exactly-once execution, and semantic
+  postcondition reread.

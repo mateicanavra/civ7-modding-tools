@@ -13,7 +13,10 @@ developer, Studio, mapgen, player, and LLM-agent consumers.
 
 #### Scenario: Caller requests map facts
 - **WHEN** a caller requests a map summary, plot snapshot, or map grid
-- **THEN** the package targets the Tuner state role after gameplay readiness
+- **THEN** the package targets the game-scoped App UI controller after
+  controller readiness for wrapper families whose parity proof has passed
+- **AND** it may target Tuner only for canary, parity, diagnostic, or explicitly
+  selected research calls
 - **AND** it returns bounded structured map facts such as dimensions, seed,
   terrain, biome, feature, resource, elevation, rainfall, owner, revealed state,
   area, region, and water/river/coast flags where available

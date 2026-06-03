@@ -10,6 +10,13 @@ App UI endpoint, not a peer bridge authority; synchronous App UI RPC is the
 baseline; `localStorage` queueing is a later mirror/probe; and the LF public API
 proof is game-context App UI evidence, not shell-wide or Tuner-wide evidence.
 
+2026-06-03 supersession note: a later live App UI/Tuner parity probe showed App
+UI game context exposes the same major gameplay roots and representative values
+checked in Tuner, plus App UI-only lifecycle/UI/storage roots. The earlier
+conclusion that Tuner is the stronger post-Begin gameplay/read surface is
+historical evidence from this lane, not the current baseline. Current baseline:
+game-scoped App UI controller behind `@civ7/direct-control`.
+
 ## Objective
 
 Investigate whether a live companion bridge can safely affect Civ7 or should
@@ -126,7 +133,7 @@ One Tuner probe used optional chaining on an undeclared global and returned
   `Game.CityCommands.canStart/sendRequest`, and
   `Game.PlayerOperations.canStart/sendRequest`.
 
-- `source-backed`: Prior direct-control reports classify App UI and Tuner as
+- `source-backed` / superseded by later parity proof: Prior direct-control reports classify App UI and Tuner as
   separate domains. App UI owns lifecycle/session/control surfaces such as
   restart, begin, loading status, `Automation`, `GameContext`, `localStorage`,
   and UI-facing helpers. Tuner is the stronger post-Begin gameplay/read surface

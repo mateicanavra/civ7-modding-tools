@@ -21,6 +21,10 @@ Readiness terms are intentionally distinct:
   but Tuner gameplay reads are not yet proven.
 - `game-started`: App UI reports the game has started.
 - `tuner-ready`: Tuner gameplay reads and map summary are usable.
+- `controller-ready`: a project-owned game-scoped App UI controller responds
+  with compatible version and capabilities. This becomes the primary gameplay
+  read/validator readiness claim after
+  `direct-control-game-controller-bridge` lands.
 - `stale-listener`: TCP accepts or state list partially responds but protocol
   commands do not complete within the wait budget.
 

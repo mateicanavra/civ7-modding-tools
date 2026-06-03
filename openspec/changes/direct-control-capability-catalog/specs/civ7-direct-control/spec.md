@@ -13,6 +13,13 @@ that records runtime, official resource, declaration, and wrapper provenance.
   confidence, access classification, risk classification, and wrapper
   recommendation
 
+#### Scenario: Controller capabilities are generated
+- **WHEN** the project-owned game-scoped controller is ready
+- **THEN** the package records `Civ7IntelligenceBridge.capabilities.list`
+  results as controller-method provenance
+- **AND** it distinguishes controller-backed methods from raw root
+  introspection, historical wrappers, and Tuner canaries
+
 #### Scenario: Official resources are merged
 - **WHEN** official resource evidence is available
 - **THEN** the catalog records table and enum-like identifiers with official

@@ -17,6 +17,9 @@ is observed, where it came from, and how trustworthy it is.
 
 - Add a TypeBox-backed capability catalog schema in `@civ7/direct-control`.
 - Add runtime snapshot generation for curated App UI and Tuner roots.
+- Add controller capability ingestion once the project-owned game-scoped
+  controller exists, using `Civ7IntelligenceBridge.capabilities.list` as a
+  first-class provenance source.
 - Merge runtime evidence with official resource and reviewed declaration
   evidence into generated reference artifacts.
 - Define a reviewed declaration handoff path into `@civ7/types`.

@@ -1,9 +1,10 @@
 ## ADDED Requirements
 
-### Requirement: Direct Control Defines State Roles
+### Requirement: Direct Control Defines State Roles And Controller Readiness
 
 The direct-control package SHALL model Civ7 scripting states as role-specific
-surfaces over one direct tuner-socket transport.
+surfaces over one direct tuner-socket transport and SHALL model the project-owned
+game-scoped controller as a readiness surface inside App UI game context.
 
 #### Scenario: App UI owns lifecycle
 - **WHEN** a caller requests lifecycle, client, loading, session, restart, or
@@ -11,23 +12,33 @@ surfaces over one direct tuner-socket transport.
 - **THEN** the direct-control package targets the `App UI` state role
 - **AND** it does not send those commands to `Tuner`
 
-#### Scenario: Tuner owns post-Begin gameplay
+#### Scenario: Controller owns proven post-Begin gameplay calls
 - **WHEN** a caller requests gameplay map reads, GameInfo reads, visibility
   reads, or gameplay operation validators after Begin Game
-- **THEN** the direct-control package targets the `Tuner` state role unless the
-  wrapper contract names App UI as the owner
-- **AND** it requires Tuner gameplay readiness rather than `LSQ:` presence alone
+- **THEN** the direct-control package targets the game-scoped App UI controller
+  for wrapper families whose lifecycle and parity proof has passed
+- **AND** it may use Tuner as a canary, parity comparison, diagnostic, or
+  explicitly selected research surface
+- **AND** it does not silently fall back to raw Tuner commands for
+  controller-backed product wrappers
 
 ### Requirement: Direct Control Readiness Is Phase-Aware
 
 The direct-control package SHALL expose health/readiness semantics that
 distinguish socket reachability, App UI command readiness, Begin Game readiness,
-GameStarted state, and Tuner gameplay readiness.
+GameStarted state, Tuner canary readiness, and controller readiness.
 
 #### Scenario: Tuner is listed before gameplay is ready
 - **WHEN** `LSQ:` returns a `Tuner` state
 - **THEN** the package treats this as state-listing evidence
 - **AND** it does not report gameplay readiness until a Tuner canary succeeds
+
+#### Scenario: Controller is absent after GameStarted
+- **WHEN** App UI reports `GameStarted` but `Civ7IntelligenceBridge` is absent
+  or incompatible
+- **THEN** the package reports controller readiness as unavailable
+- **AND** it only uses raw wrappers when the caller selected a diagnostic or
+  parity mode that allows that path
 
 #### Scenario: Role-specific command fails
 - **WHEN** a command targets an unavailable or unready role
