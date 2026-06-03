@@ -123,6 +123,8 @@ runtime/direct-control claims.
         keeping the public wrapper in the facade.
   - [x] 4.7.2 Extract traditions view embedded source owner while keeping the
         public wrapper in the facade.
+  - [x] 4.7.3 Extract progress dashboard embedded source owner while keeping
+        the public wrapper in the facade.
 - [ ] 4.8 Export stable types/constants only after module owners are defined.
   - [x] 4.8.1 Extract ComponentID primitive and direct-control error owner
         modules behind the existing package facade.

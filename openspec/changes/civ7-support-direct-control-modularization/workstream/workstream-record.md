@@ -257,6 +257,11 @@ All future agent waves must be framed before delegation:
   read source relocation. It moves only the unit move preview embedded source
   into `src/play/ready/move-preview.ts`. Wrapper/builder ownership stays in
   `index.ts`; this is source relocation proof only, not runtime proof.
+- Direct-control progress dashboard source slice: completed as the next
+  progression read source relocation. It moves only the progress dashboard
+  embedded source into `src/play/progression/progress-dashboard.ts`.
+  Wrapper/builder ownership stays in `index.ts`; this is source relocation proof
+  only, not runtime proof.
 - Review-disposition ledger: agent/reviewer findings recorded.
 - Exact dismiss-notification CLI slice: completed as test-only extraction with
   local fixture ownership and no runtime claim.
