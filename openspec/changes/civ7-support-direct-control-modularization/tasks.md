@@ -770,6 +770,13 @@ runtime/direct-control claims.
         schemas, telemetry, hotseat runtime proof, AI ingestion, CLI semantic
         projection, Effect/oRPC procedure-core work, or Task 2.9.4
         matrix-row acceptance.
+  - [x] 4.12.11 Extract facade-owned runtime probe helpers into the runtime
+        probe owner while preserving the generated `probe` helper source text
+        and `probeValue` semantics, and leaving module-local source-string
+        helpers, shared serializer ownership, public procedure schemas,
+        telemetry, hotseat runtime proof, AI ingestion, CLI semantic
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4
+        matrix-row acceptance pending.
 - [x] 4.13 Extract autoplay and turn-completion atoms.
   - [x] 4.13.1 Extract turn-completion wrapper/source owner while keeping public
         facade exports in `index.ts`, preserving approval-first send/unready

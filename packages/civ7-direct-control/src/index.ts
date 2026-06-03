@@ -74,7 +74,11 @@ import {
   DEFAULT_CIV7_ROOT_MAX_METHODS,
   DEFAULT_CIV7_TUNER_API_ROOTS,
 } from "./runtime/inspection-constants.js";
-import type { Civ7RuntimeProbe } from "./runtime/probe.js";
+import {
+  probeHelperSource,
+  probeValue,
+  type Civ7RuntimeProbe,
+} from "./runtime/probe.js";
 import {
   inspectCiv7Root as inspectCiv7RootFromModule,
   type Civ7RootInspectionInput,
@@ -2247,16 +2251,6 @@ function buildLoadSavedGameConfigurationCommand(input: Civ7SavedGameConfiguratio
     });
   })()`;
 }
-function probeHelperSource(): string {
-  return `const probe = (fn) => {
-      try {
-        return { ok: true, value: fn() };
-      } catch (err) {
-        return { ok: false, error: String(err) };
-      }
-    };`;
-}
-
 function jsonPayloadFromCommandResult<T extends object>(result: Civ7CommandResult, label: string): T {
   try {
     const payload = JSON.parse(result.output[0] ?? "{}") as T;
@@ -2632,10 +2626,6 @@ function assertApproved(approval: Civ7ActionApproval, action: string): void {
   if (!approval || approval.approved !== true || !approval.reason.trim()) {
     throw new Civ7DirectControlError("command-failed", `Explicit approval with a reason is required before ${action}`);
   }
-}
-
-function probeValue<T>(probe: Civ7RuntimeProbe<T>): T | undefined {
-  return probe.ok ? probe.value : undefined;
 }
 
 function jsLiteral(value: unknown): string {

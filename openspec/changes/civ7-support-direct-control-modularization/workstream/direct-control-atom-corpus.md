@@ -134,6 +134,15 @@ runtime/session/lifecycle behavior, TypeBox procedure schemas, telemetry, AI
 ingestion, hotseat runtime proof, CLI semantic projection, Effect/oRPC
 procedure-core work, or Task 2.9.4 matrix-row acceptance.
 
+Runtime probe helper update: `src/runtime/probe.ts` now owns the facade-used
+`probeHelperSource` and `probeValue` helpers alongside `Civ7RuntimeProbe`.
+This preserves the generated `probe` helper source text and probe unwrapping
+semantics while leaving module-local source-string helpers, shared serializer
+ownership, public procedure schemas, telemetry, AI ingestion, hotseat runtime
+proof, CLI semantic projection, Effect/oRPC procedure-core work, and Task 2.9.4
+matrix-row acceptance pending. This is local package/source relocation proof
+only, not runtime/live-game proof.
+
 Map primitive type update: `src/play/map/types.ts` now owns
 `Civ7MapLocation`, `Civ7MapBounds`, and `Civ7HiddenInfoPolicy` while public
 facade type re-exports stay in `index.ts`. Internal map, ready, tactical, and

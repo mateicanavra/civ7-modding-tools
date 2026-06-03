@@ -606,6 +606,15 @@ All future agent waves must be framed before delegation:
   semantic projection, Effect/oRPC procedure-core work, or Task 2.9.4
   matrix-row acceptance. This is local package/type relocation proof only, not
   runtime proof, AI/hotseat product-path support, or procedure-core readiness.
+- Direct-control runtime probe helper slice: completed as a narrow helper
+  relocation. It moves only the facade-used `probeHelperSource` and
+  `probeValue` helpers into `src/runtime/probe.ts` alongside
+  `Civ7RuntimeProbe` while preserving generated `probe` helper source text and
+  probe unwrapping semantics. Module-local source-string helpers, shared
+  serializer ownership, public procedure schemas, telemetry, AI ingestion,
+  hotseat runtime proof, CLI semantic projection, Effect/oRPC procedure-core
+  work, and Task 2.9.4 matrix-row acceptance remain pending. This is local
+  package/source relocation proof only, not runtime/live-game proof.
 - Direct-control map primitive types slice: completed as a narrow public type
   ownership relocation. It moves only `Civ7MapLocation`, `Civ7MapBounds`, and
   `Civ7HiddenInfoPolicy` into `src/play/map/types.ts` while keeping facade type
