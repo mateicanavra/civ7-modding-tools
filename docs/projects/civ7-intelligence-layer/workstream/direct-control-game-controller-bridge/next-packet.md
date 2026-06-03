@@ -5,8 +5,11 @@
 - Project: Civ7 Intelligence Layer
 - Phase: direct-control-game-controller-bridge
 - Branch/Graphite stack: `codex/investigate-civ7-intelligence-threads`
-- Latest commit:
-  `c7111b120 docs(civ7): align controller bridge substrate`
+- Latest substantive realignment commit:
+  `7de629cfe docs(civ7): refresh controller bridge handoff`
+- Packet metadata update:
+  branch HEAD updates this packet field; keep implementation on a separate
+  framed branch/workstream.
 - Repo state at handoff: one unrelated pre-existing dirty file,
   `docs/projects/mapgen-studio/VIZ-SDK-V1.md`; phase-owned docs/specs are
   committed through the controller/substrate realignment.
