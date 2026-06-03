@@ -296,6 +296,11 @@ All future agent waves must be framed before delegation:
   `readPlayNotifications` source into `src/play/notifications/view.ts`.
   Wrapper/build-command ownership stays in `index.ts`; this is source
   relocation proof only, not runtime proof.
+- Direct-control operation router source slice: completed as the generic
+  operation validation/send source relocation. It moves only the embedded
+  operation router source into `src/play/operations/router.ts`. Wrapper-level
+  postconditions and specialized closeout sources stay in `index.ts`; this is
+  source relocation proof only, not runtime proof.
 - Review-disposition ledger: agent/reviewer findings recorded.
 - Exact dismiss-notification CLI slice: completed as test-only extraction with
   local fixture ownership and no runtime claim.
