@@ -1,6 +1,8 @@
 import { Civ7DirectControlError } from "../../direct-control-error.js";
-import { productionPostconditionFor } from "./production-postconditions.js";
-
+import {
+  productionPostconditionFor,
+  type Civ7ProductionPostconditionSnapshot,
+} from "./production-postconditions.js";
 import type {
   Civ7ActionApproval,
   Civ7OperationInput,
@@ -14,7 +16,6 @@ import type {
   Civ7ProductionChoiceCommandPayload,
   Civ7ProductionChoiceInput,
   Civ7ProductionChoiceResult,
-  Civ7ProductionPostconditionSnapshot,
 } from "../../index.js";
 
 function probeHelperSource(): string {

@@ -224,12 +224,14 @@ import {
   requestCiv7PlayerOperation as requestCiv7PlayerOperationFromModule,
   requestCiv7UnitCommand as requestCiv7UnitCommandFromModule,
   requestCiv7UnitOperation as requestCiv7UnitOperationFromModule,
+  type Civ7OperationRequestResult,
 } from "./play/operations/validate-request.js";
 import type {
   Civ7ActionApproval,
   Civ7OperationInput,
   Civ7OperationValidationResult,
 } from "./play/operations/types.js";
+import type { Civ7ProductionPostconditionSnapshot } from "./play/operations/production-postconditions.js";
 import {
   DEFAULT_CIV7_GAMEINFO_LIMIT,
   DEFAULT_CIV7_GAMEINFO_TABLES,
@@ -582,6 +584,24 @@ export type {
   Civ7OperationTarget,
   Civ7OperationValidationResult,
 } from "./play/operations/types.js";
+export type {
+  Civ7OperationRequestResult,
+} from "./play/operations/validate-request.js";
+export type {
+  Civ7UnitOperationPostcondition,
+  Civ7UnitOperationPostconditionClassification,
+  Civ7UnitOperationPostconditionSnapshot,
+} from "./play/operations/unit-postconditions.js";
+export type {
+  Civ7PopulationPlacementPostcondition,
+  Civ7PopulationPlacementPostconditionClassification,
+  Civ7PopulationPlacementPostconditionSnapshot,
+} from "./play/operations/population-postconditions.js";
+export type {
+  Civ7ProductionPostcondition,
+  Civ7ProductionPostconditionClassification,
+  Civ7ProductionPostconditionSnapshot,
+} from "./play/operations/production-postconditions.js";
 
 export { CIV7_SIGNED_INT_SEED_MAX, CIV7_SIGNED_INT_SEED_MIN, assessCiv7SignedIntSeed } from "./policy/setup.js";
 export const DEFAULT_CIV7_RESOURCE_FEASIBILITY_MAX_CELLS = 256;
@@ -851,100 +871,6 @@ export type Civ7NarrativeChoiceResult = Readonly<{
   sent: boolean;
   verified: boolean;
   postcondition: Civ7NarrativeChoicePostcondition;
-}>;
-
-export type Civ7UnitOperationPostconditionClassification =
-  | "not-sent"
-  | "queue-advanced"
-  | "selected-unit-changed"
-  | "activity-changed"
-  | "unit-state-changed"
-  | "blocker-changed"
-  | "validation-changed"
-  | "no-state-change";
-
-export type Civ7UnitOperationPostconditionSnapshot = Readonly<{
-  unit: Civ7RuntimeProbe<unknown>;
-  selectedUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  firstReadyUnitId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  blocker: Civ7RuntimeProbe<unknown>;
-}>;
-
-export type Civ7UnitOperationPostcondition = Readonly<{
-  family: "unit-operation" | "unit-command";
-  operationType: string;
-  classification: Civ7UnitOperationPostconditionClassification;
-  before?: Civ7UnitOperationPostconditionSnapshot;
-  after?: Civ7UnitOperationPostconditionSnapshot;
-  reason: string;
-}>;
-
-export type Civ7PopulationPlacementPostconditionClassification =
-  | "not-sent"
-  | "population-ready-cleared"
-  | "placement-state-changed"
-  | "validation-changed"
-  | "no-state-change";
-
-export type Civ7PopulationPlacementPostconditionSnapshot = Readonly<{
-  cityId: Civ7ComponentId | null;
-  city: Civ7RuntimeProbe<unknown>;
-  isReadyToPlacePopulation: Civ7RuntimeProbe<unknown>;
-  cityWorkerCap: Civ7RuntimeProbe<unknown>;
-  workablePlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
-  blockedPlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
-  expansionPlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
-}>;
-
-export type Civ7PopulationPlacementPostcondition = Readonly<{
-  family: "player-operation" | "city-command";
-  operationType: string;
-  classification: Civ7PopulationPlacementPostconditionClassification;
-  before?: Civ7PopulationPlacementPostconditionSnapshot;
-  after?: Civ7PopulationPlacementPostconditionSnapshot;
-  readyCleared: boolean;
-  placementStateChanged: boolean;
-  reason: string;
-}>;
-
-export type Civ7OperationRequestResult = Readonly<{
-  before: Civ7OperationValidationResult;
-  command?: Civ7CommandResult;
-  after: Civ7OperationValidationResult;
-  sent: boolean;
-  verified: boolean;
-  postcondition?: Civ7UnitOperationPostcondition;
-  populationPostcondition?: Civ7PopulationPlacementPostcondition;
-  productionPostcondition?: Civ7ProductionPostcondition;
-}>;
-
-export type Civ7ProductionPostconditionClassification =
-  | "not-sent"
-  | "production-choice-cleared"
-  | "production-state-changed"
-  | "production-state-changed-blocker-still-live"
-  | "validation-changed"
-  | "no-state-change";
-
-export type Civ7ProductionPostconditionSnapshot = Readonly<{
-  cityId: Civ7ComponentId | null;
-  city: Civ7RuntimeProbe<unknown>;
-  buildQueue: Civ7RuntimeProbe<unknown>;
-  selectedCityId: Civ7RuntimeProbe<Civ7ComponentId | null>;
-  blocker: Civ7RuntimeProbe<unknown>;
-  canEndTurn: Civ7RuntimeProbe<unknown>;
-  blockingProductionNotification: Civ7RuntimeProbe<unknown>;
-}>;
-
-export type Civ7ProductionPostcondition = Readonly<{
-  family: "city-operation";
-  operationType: "BUILD";
-  classification: Civ7ProductionPostconditionClassification;
-  before?: Civ7ProductionPostconditionSnapshot;
-  after?: Civ7ProductionPostconditionSnapshot;
-  productionStateChanged: boolean;
-  blockerStillLive: boolean;
-  reason: string;
 }>;
 
 export type Civ7ProductionChoiceInput = Readonly<{

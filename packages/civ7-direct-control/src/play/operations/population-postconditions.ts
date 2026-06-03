@@ -2,13 +2,37 @@ import type {
   Civ7OperationFamily,
   Civ7OperationInput,
   Civ7OperationValidationResult,
-} from "./types";
-import type { Civ7RuntimeProbe } from "../../runtime/probe";
-import type {
-  Civ7PopulationPlacementPostcondition,
-  Civ7PopulationPlacementPostconditionClassification,
-  Civ7PopulationPlacementPostconditionSnapshot,
-} from "../../index";
+} from "./types.js";
+import type { Civ7ComponentId } from "../../civ7-component-id.js";
+import type { Civ7RuntimeProbe } from "../../runtime/probe.js";
+
+export type Civ7PopulationPlacementPostconditionClassification =
+  | "not-sent"
+  | "population-ready-cleared"
+  | "placement-state-changed"
+  | "validation-changed"
+  | "no-state-change";
+
+export type Civ7PopulationPlacementPostconditionSnapshot = Readonly<{
+  cityId: Civ7ComponentId | null;
+  city: Civ7RuntimeProbe<unknown>;
+  isReadyToPlacePopulation: Civ7RuntimeProbe<unknown>;
+  cityWorkerCap: Civ7RuntimeProbe<unknown>;
+  workablePlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
+  blockedPlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
+  expansionPlotIndexes: Civ7RuntimeProbe<ReadonlyArray<unknown>>;
+}>;
+
+export type Civ7PopulationPlacementPostcondition = Readonly<{
+  family: "player-operation" | "city-command";
+  operationType: string;
+  classification: Civ7PopulationPlacementPostconditionClassification;
+  before?: Civ7PopulationPlacementPostconditionSnapshot;
+  after?: Civ7PopulationPlacementPostconditionSnapshot;
+  readyCleared: boolean;
+  placementStateChanged: boolean;
+  reason: string;
+}>;
 
 export function populationPlacementPostcondition(
   family: Civ7OperationFamily,

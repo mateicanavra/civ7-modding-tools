@@ -485,6 +485,14 @@ runtime/direct-control claims.
         closeout, public procedure schemas, operation/proof telemetry, hotseat
         runtime proof, AI ingestion, CLI semantic projection, Effect/oRPC
         procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.8.26 Extract operation request result and postcondition type owners
+        while keeping public facade type re-exports in `index.ts`, preserving
+        generic operation request result plus unit-operation,
+        population-placement, and production postcondition public contracts
+        while leaving production choice, diplomacy/narrative closeout, public
+        procedure schemas, operation/proof telemetry, hotseat runtime proof, AI
+        ingestion, CLI semantic projection, Effect/oRPC procedure-core work,
+        and Task 2.9.4 matrix-row acceptance pending.
 - [ ] 4.9 Import or explicitly cite oRPC architecture authority before any
       oRPC implementation; current support branch has no tracked
       `.agents/skills/civ7-orpc-control-architecture` or
