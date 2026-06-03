@@ -260,6 +260,14 @@ runtime/direct-control claims.
         proof, and leaving runtime/live-game proof, telemetry, AI ingestion,
         semantic CLI projection, Effect/oRPC procedure-core work, and Task
         2.9.4 matrix-row acceptance pending.
+  - [x] 4.6.16 Extract technology choice closeout command builder owner while
+        keeping the public facade wrapper in `index.ts`, preserving App UI
+        technology closeout command serialization, optional notification
+        activation, SET_TECH_TREE_NODE / SET_TECH_TREE_TARGET_NODE send
+        behavior, focused technology package/CLI proof, and leaving
+        runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.7 Extract settlement/tactical/progression read atoms.
   - [x] 4.7.1 Extract settlement recommendation embedded source owner while
         keeping the public wrapper in the facade.

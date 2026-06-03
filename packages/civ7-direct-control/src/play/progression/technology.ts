@@ -1,3 +1,9 @@
+import type { Civ7TechnologyChoiceCloseoutInput } from "../../index";
+
+type TechnologyChoiceCloseoutCommandDependencies = Readonly<{
+  jsLiteral: (value: unknown) => string;
+}>;
+
 function probeHelperSource(): string {
   return `const probe = (fn) => {
       try {
@@ -6,6 +12,16 @@ function probeHelperSource(): string {
         return { ok: false, error: String(err) };
       }
     };`;
+}
+
+export function buildTechnologyChoiceCloseoutCommand(
+  input: Civ7TechnologyChoiceCloseoutInput,
+  dependencies: TechnologyChoiceCloseoutCommandDependencies,
+): string {
+  return `(() => {
+    ${technologyChoiceCloseoutSource()}
+    return JSON.stringify(sendTechnologyChoiceCloseout(${dependencies.jsLiteral(input)}));
+  })()`;
 }
 
 export function technologyChoiceCloseoutSource(): string {
