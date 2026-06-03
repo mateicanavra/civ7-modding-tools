@@ -286,6 +286,11 @@ All future agent waves must be framed before delegation:
   the battlefield source owner because destination analysis composes the
   battlefield read policy. Wrapper/builder ownership stays in `index.ts`; this
   is source relocation proof only, not runtime proof.
+- Direct-control notification dismissal source slice: completed as the
+  notification action source relocation. It moves only the embedded App UI
+  notification dismissal source into `src/play/notifications/dismissal.ts`.
+  Wrapper-level polling and identity verification helpers stay in `index.ts`;
+  this is source relocation proof only, not runtime proof.
 - Review-disposition ledger: agent/reviewer findings recorded.
 - Exact dismiss-notification CLI slice: completed as test-only extraction with
   local fixture ownership and no runtime claim.
