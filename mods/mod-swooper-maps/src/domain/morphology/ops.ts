@@ -12,6 +12,10 @@ export { LandmaskConfigSchema } from "./ops/compute-landmask/contract.js";
 export { ShelfMaskConfigSchema } from "./ops/compute-shelf-mask/contract.js";
 export { HypsometryConfigSchema } from "./ops/compute-sea-level/config.js";
 export { SubstrateConfigSchema } from "./ops/compute-substrate/contract.js";
-export { MountainsConfigSchema, assertSameMountainFamilySelection } from "./ops/mountains-shared/config.js";
+export {
+  MountainsConfigSchema,
+  assertSameMountainFamilySelection,
+} from "./ops/mountains-shared/config.js";
+export type { MountainsConfig } from "./ops/mountains-shared/config.js";
 export { IslandsConfigSchema } from "./ops/plan-island-chains/config.js";
 export { VolcanoesConfigSchema } from "./ops/plan-volcanoes/config.js";

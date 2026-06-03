@@ -17,6 +17,8 @@ function validateFoothillsInputs(input: PlanFoothillsTypes["input"]): {
   size: number;
   landMask: Uint8Array;
   mountainMask: Uint8Array;
+  mountainRegionMask: Uint8Array;
+  mountainRegionIdByTile: Int32Array;
   boundaryCloseness: Uint8Array;
   boundaryType: Uint8Array;
   upliftPotential: Uint8Array;
@@ -32,6 +34,8 @@ function validateFoothillsInputs(input: PlanFoothillsTypes["input"]): {
 
   const landMask = input.landMask as Uint8Array;
   const mountainMask = input.mountainMask as Uint8Array;
+  const mountainRegionMask = input.mountainRegionMask as Uint8Array;
+  const mountainRegionIdByTile = input.mountainRegionIdByTile as Int32Array;
   const boundaryCloseness = input.boundaryCloseness as Uint8Array;
   const boundaryType = input.boundaryType as Uint8Array;
   const upliftPotential = input.upliftPotential as Uint8Array;
@@ -45,6 +49,8 @@ function validateFoothillsInputs(input: PlanFoothillsTypes["input"]): {
   if (
     landMask.length !== size ||
     mountainMask.length !== size ||
+    mountainRegionMask.length !== size ||
+    mountainRegionIdByTile.length !== size ||
     boundaryCloseness.length !== size ||
     boundaryType.length !== size ||
     upliftPotential.length !== size ||
@@ -62,6 +68,8 @@ function validateFoothillsInputs(input: PlanFoothillsTypes["input"]): {
     size,
     landMask,
     mountainMask,
+    mountainRegionMask,
+    mountainRegionIdByTile,
     boundaryCloseness,
     boundaryType,
     upliftPotential,
@@ -84,6 +92,8 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
       size,
       landMask,
       mountainMask,
+      mountainRegionMask,
+      mountainRegionIdByTile,
       boundaryCloseness,
       boundaryType,
       upliftPotential,
@@ -183,6 +193,8 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
 
       const dist = distanceToMountains[i] ?? 255;
       const closeToMountains = dist !== 255 && dist <= foothillMaxDistance;
+      const insideMountainRegion = mountainRegionMask[i] === 1;
+      const namedMountainRegion = (mountainRegionIdByTile[i] ?? -1) >= 0;
 
       // Allow foothills either as skirts adjacent to ridges, or as boundary-adjacent ruggedness
       // only when physics indicates meaningful deformation. This prevents planet-wide hills when
@@ -211,11 +223,24 @@ export const defaultStrategy = createStrategy(PlanFoothillsContract, "default", 
       const ridgeSkirt =
         foothillMaxDistance > 0 && closeToMountains && score > 0;
       const relaxedRidgeSkirt = foothillMaxDistance > 0 && closeToMountains;
+      const regionPassOrShoulder =
+        insideMountainRegion &&
+        namedMountainRegion &&
+        score > threshold * (0.5 + Math.min(0.4, dist === 255 ? 0.2 : dist * 0.08));
+      const relaxedRegionPassOrShoulder =
+        insideMountainRegion && namedMountainRegion && score > 0;
 
-      if ((ridgeSkirt || (closeToBoundary && strongBoundaryDeformation)) && score > threshold) {
+      if (
+        ((ridgeSkirt || (closeToBoundary && strongBoundaryDeformation)) && score > threshold) ||
+        regionPassOrShoulder
+      ) {
         candidates.push(i);
       }
-      if (relaxedRidgeSkirt || (closeToBoundary && relaxedBoundaryDeformation && score > 0)) {
+      if (
+        relaxedRidgeSkirt ||
+        relaxedRegionPassOrShoulder ||
+        (closeToBoundary && relaxedBoundaryDeformation && score > 0)
+      ) {
         relaxedCandidates.push(i);
       }
     }

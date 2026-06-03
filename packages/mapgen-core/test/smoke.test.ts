@@ -4,6 +4,7 @@
 
 import { describe, it, expect } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
+import { createExtendedMapContext, ctxRandom, snapshotEngineHeightfield } from "../src";
 
 describe("Test Infrastructure", () => {
   it("should have global mocks available", () => {
@@ -59,5 +60,76 @@ describe("MockAdapter", () => {
     expect(adapter.getRandomNumber(10, "test")).toBe(1);
     expect(adapter.getRandomNumber(10, "test")).toBe(2);
     expect(adapter.getRandomNumber(10, "test")).toBe(3);
+  });
+});
+
+describe("ctxRandom", () => {
+  it("uses the map env seed instead of adapter RNG", () => {
+    let adapterRngCalls = 0;
+    const env = {
+      seed: 1234,
+      dimensions: { width: 4, height: 3 },
+      latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
+    };
+    const first = createExtendedMapContext(
+      env.dimensions,
+      createMockAdapter({
+        width: env.dimensions.width,
+        height: env.dimensions.height,
+        rng: () => {
+          adapterRngCalls++;
+          return 7;
+        },
+      }),
+      env
+    );
+    const second = createExtendedMapContext(
+      env.dimensions,
+      createMockAdapter({
+        width: env.dimensions.width,
+        height: env.dimensions.height,
+        rng: () => {
+          adapterRngCalls++;
+          return 3;
+        },
+      }),
+      env
+    );
+
+    expect(ctxRandom(first, "parity", 10_000)).toBe(ctxRandom(second, "parity", 10_000));
+    expect(ctxRandom(first, "parity", 10_000)).toBe(ctxRandom(second, "parity", 10_000));
+    expect(adapterRngCalls).toBe(0);
+  });
+});
+
+describe("snapshotEngineHeightfield", () => {
+  it("captures final engine classifications in row-major tile order", () => {
+    const adapter = createMockAdapter({ width: 3, height: 2 });
+    const terrain = 5;
+    const biome = 7;
+    const feature = 9;
+    const resource = 11;
+    adapter.setTerrainType(1, 1, terrain);
+    adapter.setBiomeType(1, 1, biome);
+    adapter.setFeatureType(1, 1, { Feature: feature, Direction: 0, Elevation: 0 });
+    adapter.setResourceType(1, 1, resource);
+
+    const context = createExtendedMapContext(
+      { width: 3, height: 2 },
+      adapter,
+      {
+        seed: 1,
+        dimensions: { width: 3, height: 2 },
+        latitudeBounds: { topLatitude: 90, bottomLatitude: -90 },
+      }
+    );
+
+    const snapshot = snapshotEngineHeightfield(context);
+    expect(snapshot).not.toBeNull();
+    const idx = 1 + 1 * 3;
+    expect(snapshot?.terrain[idx]).toBe(terrain);
+    expect(snapshot?.biome[idx]).toBe(biome);
+    expect(snapshot?.feature[idx]).toBe(feature);
+    expect(snapshot?.resource[idx]).toBe(resource);
   });
 });

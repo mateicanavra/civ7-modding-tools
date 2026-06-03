@@ -38,3 +38,24 @@
 - [x] 4.4 Run `git diff --check`.
 - [x] 4.5 Record local commit, Graphite submit, runtime proof, and product
   proof as separate closure labels.
+
+## 5. Post-Foundation Province Implementation
+
+- [x] 5.1 Replace overwhelming public mountain config with compact physical
+  orographic-province knobs and derive internal ridge/foothill/rough-land config.
+- [x] 5.2 Add Large-baselined `rangeSystemLengthTiles` and map-size scaling from
+  official Civ7 map dimensions.
+- [x] 5.3 Grow mountain regions as province axes before peak width dilation, so
+  ranges can span roughly 30 Large-map tiles without becoming solid peak carpets.
+- [x] 5.4 Publish `mountainRegionMask` and `mountainRegionIdByTile` through
+  Morphology artifacts and consume them from foothill/rough-land planning.
+- [x] 5.5 Move reusable grid/hash helpers into `packages/mapgen-core`.
+- [x] 5.6 Replace singleton island scatter with volcanic/tectonic archipelago
+  chain planning and land materialization for coast/peak islands.
+- [x] 5.7 Fix resource row artifacts categorically with seed-keyed micro
+  suitability and hash tie-breaks.
+- [x] 5.8 Fix Studio/game coordinate parity by emitting standard recipe tile
+  grids as `tile.hexOddQ`.
+- [x] 5.9 Regenerate Studio recipe/map artifacts, restart the single live Studio
+  server, verify compact controls in Browser, deploy the mod, and capture
+  read-only live-game direct-control proof.

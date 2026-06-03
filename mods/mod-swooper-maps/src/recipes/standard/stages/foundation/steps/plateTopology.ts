@@ -57,7 +57,7 @@ export default createStep(PlateTopologyStepContract, {
     const centroidPoints = pointsFromTileCentroids(topologyPlates);
     context.viz?.dumpPoints(context.trace, {
       dataTypeKey: "foundation.plateTopology.centroidArea",
-      spaceId: "tile.hexOddR",
+      spaceId: "tile.hexOddQ",
       positions: centroidPoints.positions,
       values: centroidPoints.areas,
       valueFormat: "i32",
@@ -70,7 +70,7 @@ export default createStep(PlateTopologyStepContract, {
 
     context.viz?.dumpPoints(context.trace, {
       dataTypeKey: "foundation.plateTopology.centroidPlateId",
-      spaceId: "tile.hexOddR",
+      spaceId: "tile.hexOddQ",
       positions: centroidPoints.positions,
       values: centroidPoints.ids,
       valueFormat: "i16",
@@ -84,7 +84,7 @@ export default createStep(PlateTopologyStepContract, {
 
     context.viz?.dumpSegments(context.trace, {
       dataTypeKey: "foundation.plateTopology.neighbors",
-      spaceId: "tile.hexOddR",
+      spaceId: "tile.hexOddQ",
       segments: segmentsFromTileTopologyNeighbors(topologyPlates),
       meta: defineVizMeta("foundation.plateTopology.neighbors", {
         label: "Plate Neighbor Edges",

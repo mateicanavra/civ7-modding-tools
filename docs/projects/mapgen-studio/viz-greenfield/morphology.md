@@ -22,7 +22,7 @@ The groups below correspond to `layer.meta.group` as emitted by the pipeline.
 ### Morphology / Landmasses
 
 **Default**
-- `morphology.landmass.landMask` — `tile.hexOddR::grid` — land vs water.
+- `morphology.landmass.landMask` — `tile.hexOddQ::grid` — land vs water.
 
 **Debug**
 - none
@@ -30,7 +30,7 @@ The groups below correspond to `layer.meta.group` as emitted by the pipeline.
 ### Morphology / Islands
 
 **Default**
-- `morphology.islands.islandMask` — `tile.hexOddR::grid` — island classification mask.
+- `morphology.islands.islandMask` — `tile.hexOddQ::grid` — island classification mask.
 
 **Debug**
 - none
@@ -38,9 +38,9 @@ The groups below correspond to `layer.meta.group` as emitted by the pipeline.
 ### Morphology / Coastlines
 
 **Default**
-- `morphology.coast.coastMask` — `tile.hexOddR::grid`
-- `morphology.coast.shallowMask` — `tile.hexOddR::grid`
-- `morphology.coast.deepMask` — `tile.hexOddR::grid`
+- `morphology.coast.coastMask` — `tile.hexOddQ::grid`
+- `morphology.coast.shallowMask` — `tile.hexOddQ::grid`
+- `morphology.coast.deepMask` — `tile.hexOddQ::grid`
 
 **Debug**
 - none
@@ -48,24 +48,24 @@ The groups below correspond to `layer.meta.group` as emitted by the pipeline.
 ### Morphology / Topography
 
 **Default**
-- `morphology.topography.elevation` — `tile.hexOddR::grid` — primary continuous truth.
-- `morphology.topography.landMask` — `tile.hexOddR::grid` — paired with elevation for interpretation.
+- `morphology.topography.elevation` — `tile.hexOddQ::grid` — primary continuous truth.
+- `morphology.topography.landMask` — `tile.hexOddQ::grid` — paired with elevation for interpretation.
 
 **Debug**
-- `morphology.topography.bathymetry` — `tile.hexOddR::grid` — useful, but not always needed.
+- `morphology.topography.bathymetry` — `tile.hexOddQ::grid` — useful, but not always needed.
 
 ### Morphology / Substrate
 
 **Default**
-- `morphology.substrate.sedimentDepth` — `tile.hexOddR::grid` — “how much movable material exists here”.
+- `morphology.substrate.sedimentDepth` — `tile.hexOddQ::grid` — “how much movable material exists here”.
 
 **Debug**
-- `morphology.substrate.erodibilityK` — `tile.hexOddR::grid` — more model-specific.
+- `morphology.substrate.erodibilityK` — `tile.hexOddQ::grid` — more model-specific.
 
 ### Morphology / Volcanoes
 
 **Default**
-- `morphology.volcanoes.volcanoMask` — `tile.hexOddR::points` (or grid, depending on producer) — volcano presence.
+- `morphology.volcanoes.volcanoMask` — `tile.hexOddQ::points` (or grid, depending on producer) — volcano presence.
 - `morphology.volcanoes.volcanoDensity` — continuous intensity.
 
 **Debug**
@@ -74,9 +74,9 @@ The groups below correspond to `layer.meta.group` as emitted by the pipeline.
 ### Morphology / Routing
 
 **Default**
-- `morphology.routing.flowAccum` — `tile.hexOddR::grid` — water routing “strength”.
+- `morphology.routing.flowAccum` — `tile.hexOddQ::grid` — water routing “strength”.
 - `morphology.routing.flow` — multiple renders (see “important products” below).
-- `morphology.routing.riverMask` — `tile.hexOddR::grid` — discrete river-eligible mask.
+- `morphology.routing.riverMask` — `tile.hexOddQ::grid` — discrete river-eligible mask.
 
 **Debug**
 - Any intermediate routing debug masks or step internals.
@@ -84,9 +84,9 @@ The groups below correspond to `layer.meta.group` as emitted by the pipeline.
 ### Morphology / Geomorphology
 
 **Default**
-- `morphology.geomorphology.elevation` — `tile.hexOddR::grid` — post-processed elevation truth.
-- `morphology.geomorphology.landMask` — `tile.hexOddR::grid`
-- `morphology.geomorphology.slope` — `tile.hexOddR::grid` — downstream relevance.
+- `morphology.geomorphology.elevation` — `tile.hexOddQ::grid` — post-processed elevation truth.
+- `morphology.geomorphology.landMask` — `tile.hexOddQ::grid`
+- `morphology.geomorphology.slope` — `tile.hexOddQ::grid` — downstream relevance.
 
 **Debug**
 - `morphology.geomorphology.deltaMask`, `morphology.geomorphology.bathymetry` and other comparison grids.
@@ -96,7 +96,7 @@ The groups below correspond to `layer.meta.group` as emitted by the pipeline.
 These are “map-stage” emissions that project morphology outputs into engine-facing constraints.
 
 **Default**
-- `map.morphology.mountains.mountainMask` — `tile.hexOddR::grid` — primary gameplay-facing shape.
+- `map.morphology.mountains.mountainMask` — `tile.hexOddQ::grid` — primary gameplay-facing shape.
 
 **Debug**
 - engine-vs-physics comparison grids or intermediate projection artifacts.
@@ -106,11 +106,11 @@ These are “map-stage” emissions that project morphology outputs into engine-
 ### Routing flow (vector field)
 - `dataTypeKey`: `morphology.routing.flow`
 - Primary expressions (default, debug OFF):
-  - `tile.hexOddR::gridFields:vector` (`role: vector`)
-  - `tile.hexOddR::segments:arrows` (`role: arrows`)
+  - `tile.hexOddQ::gridFields:vector` (`role: vector`)
+  - `tile.hexOddQ::segments:arrows` (`role: arrows`)
 - Secondary/debug expressions:
-  - `tile.hexOddR::grid:magnitude` (`role: magnitude`)
-  - `tile.hexOddR::points:centroids` (`role: centroids`)
+  - `tile.hexOddQ::grid:magnitude` (`role: magnitude`)
+  - `tile.hexOddQ::points:centroids` (`role: centroids`)
 
 ## Implementation status
 

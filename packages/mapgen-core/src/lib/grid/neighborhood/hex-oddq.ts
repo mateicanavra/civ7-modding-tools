@@ -52,3 +52,21 @@ export function forEachHexNeighborOddQ(
   }
 }
 
+export function forEachHexNeighborOddQWithDirection(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  fn: (nx: number, ny: number, directionIndex: number) => void
+): void {
+  const isOddCol = (x & 1) === 1;
+  const offsets = isOddCol ? OFFSETS_ODD : OFFSETS_EVEN;
+
+  for (let directionIndex = 0; directionIndex < offsets.length; directionIndex++) {
+    const [dx, dy] = offsets[directionIndex]!;
+    const nx = x + dx;
+    const ny = y + dy;
+    if (ny < 0 || ny >= height) continue;
+    fn(wrapX(nx, width), ny, directionIndex);
+  }
+}

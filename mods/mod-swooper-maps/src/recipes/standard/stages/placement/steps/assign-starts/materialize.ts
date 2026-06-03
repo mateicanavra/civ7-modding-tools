@@ -168,7 +168,7 @@ export function emitStartSectorViz(
 
   context.viz?.dumpGrid(context.trace, {
     dataTypeKey: "placement.starts.sectorId",
-    spaceId: "tile.hexOddR",
+    spaceId: "tile.hexOddQ",
     dims: { width, height },
     format: "u16",
     values: grid,
@@ -269,7 +269,7 @@ export function emitStartPositionsViz(context: ExtendedMapContext, startPosition
 
   context.viz?.dumpGrid(context.trace, {
     dataTypeKey: "placement.starts.startPosition",
-    spaceId: "tile.hexOddR",
+    spaceId: "tile.hexOddQ",
     dims: { width, height },
     format: "u16",
     values: grid,
@@ -284,7 +284,7 @@ export function emitStartPositionsViz(context: ExtendedMapContext, startPosition
 
   context.viz?.dumpPoints(context.trace, {
     dataTypeKey: "placement.starts.startPosition",
-    spaceId: "tile.hexOddR",
+    spaceId: "tile.hexOddQ",
     positions,
     values,
     valueFormat: "u16",

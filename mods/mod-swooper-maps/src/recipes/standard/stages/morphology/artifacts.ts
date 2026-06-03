@@ -149,6 +149,13 @@ const MorphologyMountainsArtifactSchema = Type.Object(
     mountainMask: TypedArraySchemas.u8({
       description: "Mask (1/0): Morphology truth intent for mountain terrain.",
     }),
+    mountainRegionMask: TypedArraySchemas.u8({
+      description:
+        "Mask (1/0): Morphology truth footprint for orographic provinces, including peak spines, passes, valleys, foothills, and internal rough terrain.",
+    }),
+    mountainRegionIdByTile: TypedArraySchemas.i32({
+      description: "Per-tile orographic province id (-1 outside the mountain-region footprint).",
+    }),
     hillMask: TypedArraySchemas.u8({
       description: "Mask (1/0): Morphology truth intent for hill terrain excluding mountain tiles.",
     }),

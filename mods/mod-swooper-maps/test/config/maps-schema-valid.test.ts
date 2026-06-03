@@ -75,6 +75,31 @@ const MORPHOLOGY_STAGE_IDS = [
   "morphology-features",
 ] as const;
 
+const MOUNTAIN_RANGE_PUBLIC_KEYS = [
+  "tectonicActivity",
+  "rangeSystemSpacingTiles",
+  "rangeSystemLengthTiles",
+  "provinceRadiusTiles",
+  "ridgeWidthTiles",
+  "foothillExtentTiles",
+  "interiorHighlandExpression",
+  "terrainTextureFractalMix",
+  "erosionMaturity",
+  "tectonicSignalSensitivity",
+] as const;
+
+const MOUNTAIN_RANGE_INTERNAL_LEAK_KEYS = [
+  "tectonicIntensity",
+  "driverSignalByteMin",
+  "mountainThreshold",
+  "hillThreshold",
+  "fractalWeight",
+  "mountainRangeLengthTiles",
+  "rangeEnvelopeScale",
+  "mountainMaxFraction",
+  "roughLandMaxFraction",
+] as const;
+
 const MORPHOLOGY_INTERNAL_STAGE_KEYS = [
   "landmass-plates",
   "rugged-coasts",
@@ -410,6 +435,32 @@ describe("Shipped map configs", () => {
       }
       expect(JSON.stringify(props)).not.toContain("\"strategy\"");
       expect(JSON.stringify(props)).not.toContain("\"config\"");
+    }
+  });
+
+  it("exposes compact physical mountain controls instead of raw scoring weights", () => {
+    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
+    const mountainRanges = stageProps(schema, "morphology-features").mountainRanges as
+      | { properties?: Record<string, unknown> }
+      | undefined;
+    const publicKeys = Object.keys(mountainRanges?.properties ?? {});
+    expect(publicKeys.sort()).toEqual([...MOUNTAIN_RANGE_PUBLIC_KEYS].sort());
+
+    const schemaText = JSON.stringify(mountainRanges);
+    for (const key of MOUNTAIN_RANGE_INTERNAL_LEAK_KEYS) {
+      expect(schemaText, `mountainRanges public schema must not leak ${key}`).not.toContain(
+        `"${key}"`
+      );
+    }
+
+    for (const [fileName, raw] of shippedMapConfigs) {
+      const publicConfig = raw.config["morphology-features"] as
+        | { mountainRanges?: Record<string, unknown> }
+        | undefined;
+      const configText = JSON.stringify(publicConfig?.mountainRanges ?? {});
+      for (const key of MOUNTAIN_RANGE_INTERNAL_LEAK_KEYS) {
+        expect(configText, `${fileName} must not author raw ${key}`).not.toContain(`"${key}"`);
+      }
     }
   });
 

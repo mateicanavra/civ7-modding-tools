@@ -206,6 +206,8 @@ describe("m12 mountains: ridge planning produces some non-volcano mountains", ()
         height,
         landMask,
         mountainMask: ridges.mountainMask,
+        mountainRegionMask: ridges.mountainRegionMask,
+        mountainRegionIdByTile: ridges.mountainRegionIdByTile,
         boundaryCloseness: plates.boundaryCloseness,
         boundaryType: plates.boundaryType,
         upliftPotential: plates.upliftPotential,

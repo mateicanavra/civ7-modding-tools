@@ -86,7 +86,7 @@ Example (one emitted layer):
 ```ts
 context.viz?.dumpGrid(context.trace, {
   dataTypeKey: "foundation.plates.tilePlateId",
-  spaceId: "tile.hexOddR",
+  spaceId: "tile.hexOddQ",
   dims: { width, height },
   format: "i16",
   values: platesResult.plates.id,

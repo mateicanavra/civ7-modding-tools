@@ -25,7 +25,7 @@ const GROUP_CLIMATE = "Hydrology / Climate";
 const GROUP_INDICES = "Hydrology / Climate Indices";
 const GROUP_CRYOSPHERE = "Hydrology / Cryosphere";
 const GROUP_DIAGNOSTICS = "Hydrology / Diagnostics";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 const EFFECTIVE_MOISTURE_HUMIDITY_WEIGHT = 0.35;
 const EFFECTIVE_MOISTURE_RIPARIAN_RADIUS = 1;

@@ -1,3 +1,5 @@
+import { assertCiv7MapSeed } from "../../shared/civ7Seed";
+
 export function assertNoRawControlFields(value: unknown): void {
   if (!value || typeof value !== "object") return;
   const stack: unknown[] = [value];
@@ -48,8 +50,7 @@ export function parseRunInGameSetupRequest(body: {
       ? selected.id
       : "studio-current";
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) throw new Error("Run in Game map config id must be kebab-case");
-  const seed = Number(body.seed);
-  if (!Number.isInteger(seed)) throw new Error("Run in Game seed must be an integer");
+  const seed = assertCiv7MapSeed(body.seed);
   const mapSize = typeof body.mapSize === "string" ? body.mapSize : "MAPSIZE_STANDARD";
   if (!/^MAPSIZE_[A-Z0-9_]+$/.test(mapSize)) throw new Error("Run in Game mapSize must be a Civ7 MAPSIZE_* value");
   const playerCount = body.playerCount === undefined ? undefined : Number(body.playerCount);

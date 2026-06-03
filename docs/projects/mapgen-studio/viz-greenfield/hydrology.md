@@ -20,8 +20,8 @@ Groups correspond to `layer.meta.group`.
 ### Hydrology / Climate (Baseline + Refine)
 
 **Default**
-- `hydrology.climate.rainfall` — `tile.hexOddR::grid` + `points:centroids` (scalar render variants).
-- `hydrology.climate.indices.surfaceTemperatureC` — `tile.hexOddR::grid` + `points:centroids` (scalar render variants).
+- `hydrology.climate.rainfall` — `tile.hexOddQ::grid` + `points:centroids` (scalar render variants).
+- `hydrology.climate.indices.surfaceTemperatureC` — `tile.hexOddQ::grid` + `points:centroids` (scalar render variants).
 
 **Debug**
 - Secondary climate baseline fields (e.g. baseline humidity), and deep diagnostics from refine steps.
@@ -37,8 +37,8 @@ Groups correspond to `layer.meta.group`.
 ### Hydrology / Seasonality
 
 **Default**
-- `hydrology.climate.seasonality.rainfallAmplitude` — `tile.hexOddR::grid`
-- `hydrology.climate.seasonality.humidityAmplitude` — `tile.hexOddR::grid`
+- `hydrology.climate.seasonality.rainfallAmplitude` — `tile.hexOddQ::grid`
+- `hydrology.climate.seasonality.humidityAmplitude` — `tile.hexOddQ::grid`
 
 **Debug**
 - Per-season slices of climate fields, using `variantKey`:
@@ -65,7 +65,7 @@ Groups correspond to `layer.meta.group`.
 ### Hydrology / Hydrography
 
 **Default**
-- `hydrology.hydrography.discharge` — `tile.hexOddR::grid`
+- `hydrology.hydrography.discharge` — `tile.hexOddQ::grid`
 - `hydrology.hydrography.riverClass` (map-stage projection should remain minimal and gameplay-oriented)
 
 **Debug**
@@ -74,8 +74,8 @@ Groups correspond to `layer.meta.group`.
 ### Hydrology / Cryosphere
 
 **Default**
-- `hydrology.cryosphere.snowCover` — `tile.hexOddR::grid`
-- `hydrology.cryosphere.seaIceCover` — `tile.hexOddR::grid`
+- `hydrology.cryosphere.snowCover` — `tile.hexOddQ::grid`
+- `hydrology.cryosphere.seaIceCover` — `tile.hexOddQ::grid`
 
 **Debug**
 - `hydrology.cryosphere.albedo`, `groundIce01`, `permafrost01`, `meltPotential01`
@@ -101,17 +101,17 @@ Groups correspond to `layer.meta.group`.
 ### Rainfall (scalar field)
 - `dataTypeKey`: `hydrology.climate.rainfall`
 - Primary expressions (default, debug OFF):
-  - `tile.hexOddR::grid` (scalar)
-  - `tile.hexOddR::points:centroids` (role: centroids)
+  - `tile.hexOddQ::grid` (scalar)
+  - `tile.hexOddQ::points:centroids` (role: centroids)
 
 ### Wind + currents (vector fields)
 - `dataTypeKey`: `hydrology.wind.wind` and `hydrology.current.current`
 - Primary expressions (default, debug OFF):
-  - `tile.hexOddR::gridFields:vector` (role: vector)
-  - `tile.hexOddR::segments:arrows` (role: arrows)
+  - `tile.hexOddQ::gridFields:vector` (role: vector)
+  - `tile.hexOddQ::segments:arrows` (role: arrows)
 - Secondary/debug expressions:
-  - `tile.hexOddR::grid:magnitude` (role: magnitude)
-  - `tile.hexOddR::points:centroids` (role: centroids)
+  - `tile.hexOddQ::grid:magnitude` (role: magnitude)
+  - `tile.hexOddQ::points:centroids` (role: centroids)
 
 ## Implementation status
 

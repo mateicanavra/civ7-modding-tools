@@ -728,6 +728,8 @@ const morphologyDriverCorrelationInvariant: ValidationInvariant = {
         height,
         landMask,
         mountainMask: ridges.mountainMask,
+        mountainRegionMask: ridges.mountainRegionMask,
+        mountainRegionIdByTile: ridges.mountainRegionIdByTile,
         boundaryCloseness: beltDrivers.boundaryCloseness,
         boundaryType: beltDrivers.boundaryType,
         upliftPotential: beltDrivers.upliftPotential,

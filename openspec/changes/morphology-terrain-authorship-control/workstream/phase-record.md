@@ -15,11 +15,11 @@
 
 ## Status
 
-- Last updated: 2026-05-31.
-- Current gate: Gate 11, closure audit after controlled target-map runtime
-  proof on the current morphology branch artifact.
-- Next gate: Graphite submission/PR delivery or downstream resource-quality
-  realignment.
+- Last updated: 2026-06-03.
+- Current gate: post-foundation orogenic-province implementation closure after
+  local stats, Studio Browser proof, deploy, and read-only live-game readback.
+- Next gate: Graphite submission/PR delivery and optional broader runtime
+  morphology screenshot/readback matrix.
 - Remaining proof boundary: target-map product proof is captured for Swooper
   Earthlike standard map seed `1018` after fresh deploy. First-class aggregate
   cliff fields and richer terrain-linked resource quality gates remain
@@ -28,6 +28,33 @@
 - Stop condition: do not retune Earthlike terrain config to mask relief
   authorship. Terrain relief changes must stay rooted in Morphology ownership
   and downstream ecology/resource failures must remain separate.
+
+### Post-Foundation Province Update
+
+- Worktree:
+  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-swooper-earthlike-tuning`.
+- Branch: `codex/swooper-earthlike-post-foundation-tuning`.
+- Product objective: Swooper Earthlike mountain ranges are authored as
+  multi-tile orographic provinces with visible but discontinuous peak spines,
+  internal valley/pass space, foothills, and highlands; islands are archipelago
+  chains; Studio and game coordinate surfaces match.
+- Public mountain surface now uses compact physical knobs and rejects the old
+  internal threshold/weight wall at the public config layer.
+- Large-map range length: `rangeSystemLengthTiles: 30` on official Large
+  `96x60`; other sizes scale by `sqrt(area / (96*60))`.
+- Local Large `96x60` Earthlike seed matrix `[1018,1,2,3,42,99]`: largest
+  mountain province span mean `30`, minimum `29`; province id count mean `9.5`,
+  minimum `8`; peak-spine span minimum `15`; final mountain share <= `13%`.
+- Studio parity: the single live Studio server was restarted on
+  `127.0.0.1:5174` from this worktree after artifact regeneration. Browser
+  proof showed compact `Range System Length Tiles`/`Province Radius Tiles`
+  controls and no raw `mountainRangeLengthTiles` or `Driver Signal Byte Min`
+  fields.
+- Live direct-control proof: `civ7 game health --tuner` reported Tuner ready on
+  `127.0.0.1:4318`, turn `1`, map `84x54`. `civ7 game map --bounds 0,0,4,4`
+  reported `(x=0,y=1) -> index 84`, matching row-major odd-q tile indexing.
+  Bottom-row resource readback over `0,53,84,1` reported no resources, matching
+  the categorical resource-row guard.
 
 ### Integration Replay Note
 

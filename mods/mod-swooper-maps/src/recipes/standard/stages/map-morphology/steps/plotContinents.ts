@@ -4,7 +4,7 @@ import PlotContinentsStepContract from "./plotContinents.contract.js";
 import { assertNoWaterDrift } from "../../../projection-policies/noWaterDrift.js";
 
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 export default createStep(PlotContinentsStepContract, {
   run: (context, _config, _ops, deps) => {

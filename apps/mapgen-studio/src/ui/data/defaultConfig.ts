@@ -96,6 +96,18 @@ export const defaultConfig: PipelineConfig = {
     knobs: {
       volcanism: "normal",
     },
+    mountainRanges: {
+      tectonicActivity: 1,
+      rangeSystemSpacingTiles: 20,
+      rangeSystemLengthTiles: 22,
+      provinceRadiusTiles: 4,
+      ridgeWidthTiles: 1,
+      foothillExtentTiles: 3,
+      interiorHighlandExpression: 0.55,
+      terrainTextureFractalMix: 0.45,
+      erosionMaturity: 0.45,
+      tectonicSignalSensitivity: 1,
+    },
   },
 
   // Hydrology & Climate Baseline Stage

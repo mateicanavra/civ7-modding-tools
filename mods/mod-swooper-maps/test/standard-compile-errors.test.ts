@@ -261,6 +261,29 @@ describe("standard recipe compile errors (ecology)", () => {
     ).toBe(true);
   });
 
+  it("rejects out-of-range compact mountain-range controls", () => {
+    const err = expectCompileError(() =>
+      standardRecipe.compileConfig(baseSettings, {
+        foundation: foundationConfig,
+        "morphology-features": {
+          mountainRanges: {
+            rangeSystemSpacingTiles: 2,
+          },
+        },
+      } as any)
+    );
+
+    expect(
+      err.errors.some(
+        (item) =>
+          item.code === "config.invalid" &&
+          item.path.includes(
+            "/config/morphology-features/mountainRanges/rangeSystemSpacingTiles"
+          )
+      )
+    ).toBe(true);
+  });
+
   it("rejects legacy Hydrology step/op envelope config", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {

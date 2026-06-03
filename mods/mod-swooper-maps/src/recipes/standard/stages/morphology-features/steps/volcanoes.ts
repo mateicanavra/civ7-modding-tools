@@ -19,7 +19,7 @@ type ArtifactValidationIssue = Readonly<{ message: string }>;
 type VolcanoKind = "subductionArc" | "rift" | "hotspot";
 
 const GROUP_VOLCANOES = "Morphology / Volcanoes";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);

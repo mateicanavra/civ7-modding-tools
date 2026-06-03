@@ -95,6 +95,60 @@
 - Runtime proof: unresolved.
 - Product proof: unresolved.
 
+## Post-Foundation Province Proof 2026-06-03
+
+- Branch/worktree:
+  `codex/swooper-earthlike-post-foundation-tuning` at
+  `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-swooper-earthlike-tuning`.
+- Generated artifacts:
+  `bun run --cwd mods/mod-swooper-maps build:studio-recipes` passed and
+  regenerated Studio recipe types plus the four shipped map artifacts.
+- Focused tests:
+  - `bun test packages/mapgen-core/test/lib/grid/distance-to-mask.test.ts
+    packages/mapgen-core/test/lib/grid/hex-disk.test.ts
+    packages/mapgen-core/test/lib/rng/hash.test.ts
+    mods/mod-swooper-maps/test/morphology/mountain-family-controls.test.ts
+    mods/mod-swooper-maps/test/morphology/plan-island-chains.test.ts
+    mods/mod-swooper-maps/test/placement/plan-ops.test.ts
+    mods/mod-swooper-maps/test/pipeline/viz-tile-space-contract.test.ts
+    --timeout 90000`: passed.
+  - `bun test mods/mod-swooper-maps/test/m11-config-knobs-and-presets.test.ts
+    mods/mod-swooper-maps/test/config/maps-schema-valid.test.ts
+    mods/mod-swooper-maps/test/standard-compile-errors.test.ts
+    apps/mapgen-studio/test/viz/dataTypeModel.test.ts
+    apps/mapgen-studio/test/browserRunner/standardLayerVisibility.test.ts
+    --timeout 90000`: passed.
+  - `bun test mods/mod-swooper-maps/test/pipeline/world-balance-stats.test.ts
+    mods/mod-swooper-maps/test/pipeline/terrain-relief-diagnostics.test.ts
+    --timeout 120000`: passed.
+- Type checks:
+  - `bun run --cwd packages/mapgen-core check`: passed.
+  - `bun run --cwd mods/mod-swooper-maps check`: passed.
+  - `bun run --cwd apps/mapgen-studio check`: passed.
+- Studio proof: restarted the single Vite server from this worktree on
+  `127.0.0.1:5174`; Browser confirmed the Morphology / Features public schema
+  shows compact controls including `Range System Length Tiles` and omits raw
+  internal fields such as `mountainRangeLengthTiles`, `Driver Signal Byte Min`,
+  and `Mountain Threshold`.
+- Deploy proof: `bun run --cwd mods/mod-swooper-maps deploy` passed and deployed
+  to `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps`.
+- Live direct-control proof:
+  - `bun run --filter @mateicanavra/civ7-cli dev -- game health --tuner`:
+    Tuner ready at `127.0.0.1:4318`, turn `1`, map `84x54`.
+  - `bun run --filter @mateicanavra/civ7-cli dev -- game map --summary --json`:
+    map `84x54`, plot count `4536`, random seed `226012057`.
+  - `bun run --filter @mateicanavra/civ7-cli dev -- game map --bounds 0,0,4,4
+    --fields terrain,biome,resource --json`: row-major readback confirmed
+    `(x=0,y=1) -> index 84`.
+  - `bun run --filter @mateicanavra/civ7-cli dev -- game map --bounds 0,53,84,1
+    --fields resource --max-plots 100 --json`: bottom row contained no
+    resources on the loaded live map.
+- Product proof boundary: local seed matrix proves the new Large-map province
+  span target; live game readback proves coordinate/index parity and current
+  runtime reachability. A broader live regenerated-map visual readback remains a
+  separate optional proof task because the current loaded game was already at
+  turn `1`.
+
 ## Follow-Up Runtime Attempt After Stats Slice
 
 - Date: 2026-05-31.

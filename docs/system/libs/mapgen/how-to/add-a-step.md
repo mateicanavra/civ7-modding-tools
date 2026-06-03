@@ -126,7 +126,7 @@ export default createStep(GeomorphologyStepContract, {
 
     context.viz?.dumpGrid(context.trace, {
       dataTypeKey: "morphology.geomorphology.elevationDelta",
-      spaceId: "tile.hexOddR",
+      spaceId: "tile.hexOddQ",
       dims: context.dimensions,
       format: "f32",
       values: deltas.elevationDelta,

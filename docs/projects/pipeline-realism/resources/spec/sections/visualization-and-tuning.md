@@ -31,7 +31,7 @@ Rules:
 Visualization must not guess coordinate spaces:
 
 - Mesh truth: `spaceId = "mesh.world"`
-- Tile projections: `spaceId = "tile.hexOddR"` (Civ-like wide map)
+- Tile projections: `spaceId = "tile.hexOddQ"` (Civ-like wide map)
 
 When a signal exists both as mesh truth and as a tile projection, we SHOULD emit both for tuning:
 

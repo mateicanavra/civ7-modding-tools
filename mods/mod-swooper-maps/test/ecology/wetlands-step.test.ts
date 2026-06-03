@@ -89,7 +89,14 @@ describe("ecology-features plan-wetlands step", () => {
       width,
       height,
       mountainMask: new Uint8Array(size),
+      mountainRegionMask: new Uint8Array(size),
+      mountainRegionIdByTile: new Int32Array(size).fill(-1),
       hillMask: new Uint8Array(size),
+      foothillMask: new Uint8Array(size),
+      roughLandMask: new Uint8Array(size),
+      orogenyPotential: new Uint8Array(size),
+      fracturePotential: new Uint8Array(size),
+      roughnessPotential: new Uint8Array(size),
     });
     stageArtifacts.volcanoes.publish(ctx, { width, height, volcanoMask: new Uint8Array(size), volcanoes: [] });
 

@@ -374,6 +374,16 @@ Plans mountain ridge intent from belt-driver and topography truth. This op is
 kept separate from foothills so the recipe can expose each strategy contract
 without preserving the retired combined op as a compatibility lane.
 
+Earthlike range-system scaling belongs here, not in projection. Nonzero
+`mountainRangeSpacingTiles` is a representative physical input: the intended
+mean spacing between major orogenic provinces in map hexes. `plan-ridges`
+derives how many separated range systems a map can support from tile area
+divided by spacing squared. The shipped Earthlike spacing is `17.8`, which
+gives the official Huge map a little more than the 18-range Earth reference
+density without directly authoring an output count. The same spacing widens
+spine-anchor separation enough to survive ridge dilation as separate multi-tile
+range systems instead of merging into a few thicker blobs.
+
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/domain/morphology/ops/plan-ridges/contract.ts` (`PlanRidgesContract`)

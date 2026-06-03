@@ -1,13 +1,20 @@
 import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
+import { hashUnit } from "@swooper/mapgen-core/lib/rng";
 import PlanResourcesContract from "../contract.js";
+
+const RESOURCE_MICRO_VARIATION = 0.035;
+const RESOURCE_PRIORITY_EPSILON = 1e-6;
+const RESOURCE_PRIORITY_SALT = 0x524553;
+const RESOURCE_TIE_SALT = 0x544945;
 
 type Candidate = {
   plotIndex: number;
   priority: number;
   stress: number;
   preferredTypeOffset: number;
+  tieBreak: number;
 };
 
 function sanitizeCandidateResourceTypes(values: number[], noResourceSentinel: number): number[] {
@@ -25,6 +32,7 @@ export const defaultStrategy = createStrategy(PlanResourcesContract, "default", 
     const width = input.width | 0;
     const height = input.height | 0;
     const size = Math.max(0, width * height);
+    const rngSeed = Number.isFinite(input.rngSeed) ? (input.rngSeed as number) | 0 : 0;
     if (!(input.landMask instanceof Uint8Array) || input.landMask.length !== size) {
       throw new Error("[Placement] Invalid landMask for placement/plan-resources.");
     }
@@ -93,7 +101,10 @@ export const defaultStrategy = createStrategy(PlanResourcesContract, "default", 
       const temperateSuitability = clamp01(1 - Math.abs(temperature - 16) / 36);
       const riverHydration = clamp01((input.riverClass[i] ?? 0) / 2);
       const hydro = clamp01((moisture + riverHydration) / 2);
-      const priority = clamp01((fertility + hydro + stress + temperateSuitability) / 4);
+      const physicalPriority = clamp01((fertility + hydro + stress + temperateSuitability) / 4);
+      const microSuitability =
+        (hashUnit(rngSeed, i, RESOURCE_PRIORITY_SALT) - 0.5) * RESOURCE_MICRO_VARIATION;
+      const priority = clamp01(physicalPriority + microSuitability);
 
       const signature = clamp01((fertility + hydro + temperateSuitability) / 3);
       const preferredTypeOffset = Math.min(
@@ -106,12 +117,14 @@ export const defaultStrategy = createStrategy(PlanResourcesContract, "default", 
         priority,
         stress,
         preferredTypeOffset,
+        tieBreak: hashUnit(rngSeed, i, RESOURCE_TIE_SALT),
       });
     }
 
     candidates.sort((a, b) => {
-      if (b.priority !== a.priority) return b.priority - a.priority;
-      if (b.stress !== a.stress) return b.stress - a.stress;
+      if (Math.abs(b.priority - a.priority) > RESOURCE_PRIORITY_EPSILON) return b.priority - a.priority;
+      if (Math.abs(b.stress - a.stress) > RESOURCE_PRIORITY_EPSILON) return b.stress - a.stress;
+      if (a.tieBreak !== b.tieBreak) return a.tieBreak - b.tieBreak;
       return a.plotIndex - b.plotIndex;
     });
 

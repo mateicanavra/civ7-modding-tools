@@ -176,6 +176,7 @@ export function buildPlacementInputs(
     {
       width,
       height,
+      rngSeed: context.env.seed | 0,
       noResourceSentinel,
       candidateResourceTypes,
       landMask: physical.topography.landMask,

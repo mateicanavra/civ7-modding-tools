@@ -16,6 +16,7 @@
 
 import type { EngineAdapter, MapDimensions } from "@civ7/adapter";
 import type { Env } from "@mapgen/core/env.js";
+import { createLabelRng, type LabelRng } from "@mapgen/lib/rng/label.js";
 import { initializeTerrainConstants } from "@mapgen/core/terrain-constants.js";
 import type { TraceScope } from "@mapgen/trace/index.js";
 import { createNoopTraceScope } from "@mapgen/trace/index.js";
@@ -188,6 +189,7 @@ export class ArtifactStore extends Map<string, unknown> {}
 export interface RNGState {
   callCounts: Map<string, number>;
   seed: number | null;
+  labelRng?: LabelRng;
 }
 
 /**
@@ -337,7 +339,8 @@ export function createExtendedMapContext(
     },
     rng: {
       callCounts: new Map(),
-      seed: null,
+      seed: env.seed | 0,
+      labelRng: createLabelRng(env.seed),
     },
     env,
     metrics: {
@@ -372,7 +375,12 @@ export function ctxRandom(
 ): number {
   const count = ctx.rng.callCounts.get(label) || 0;
   ctx.rng.callCounts.set(label, count + 1);
-  return ctx.adapter.getRandomNumber(max, `${label}_${count}`);
+  const seed = ctx.env.seed | 0;
+  if (ctx.rng.seed !== seed || !ctx.rng.labelRng) {
+    ctx.rng.seed = seed;
+    ctx.rng.labelRng = createLabelRng(seed);
+  }
+  return ctx.rng.labelRng(max, `${label}_${count}`);
 }
 
 /**

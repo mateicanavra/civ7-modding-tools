@@ -51,11 +51,20 @@ const EngineTerrainSnapshotArtifactSchema = Type.Object(
     elevation: TypedArraySchemas.i16({
       description: "Engine-derived elevation snapshot (tile order).",
     }),
+    biome: TypedArraySchemas.u8({
+      description: "Engine-derived biome id snapshot (tile order).",
+    }),
+    feature: TypedArraySchemas.i16({
+      description: "Engine-derived feature type snapshot (tile order; adapter sentinel for none).",
+    }),
+    resource: TypedArraySchemas.i16({
+      description: "Engine-derived resource type snapshot (tile order; adapter sentinel for none).",
+    }),
   },
   {
     additionalProperties: false,
     description:
-      "Machine-readable engine terrain snapshot captured at a projection boundary for parity diagnostics.",
+      "Machine-readable engine surface snapshot captured at a projection boundary for parity diagnostics.",
   }
 );
 

@@ -100,6 +100,49 @@ export const MountainsConfigSchema = Type.Object({
     maximum: 1,
   }),
   /**
+   * Mean spacing between major mountain range systems, in map hexes.
+   *
+   * A value of 0 preserves legacy `mountainSpineFraction` behavior. Nonzero values
+   * derive the number of range systems from map area, so official map sizes scale
+   * naturally without directly authoring an output count. The Earthlike reference
+   * spacing is sqrt((106*66)/18) ~= 19.7 tiles.
+   */
+  mountainRangeSpacingTiles: Type.Number({
+    description:
+      "Controls mean spacing between major mountain range systems in map hexes; 0 preserves mountainSpineFraction.",
+    default: 0,
+    minimum: 0,
+    maximum: 256,
+  }),
+  /**
+   * Target longitudinal span for each major mountain range system, in map hexes.
+   *
+   * This is not a direct mountain-tile output count. It asks the ridge planner
+   * to carry each selected orogenic system along supported tectonic corridors
+   * before province-width expansion paints foothills, passes, and valleys.
+   */
+  mountainRangeLengthTiles: Type.Number({
+    description:
+      "Controls target longitudinal span for each major mountain range system in map hexes.",
+    default: 0,
+    minimum: 0,
+    maximum: 128,
+  }),
+  /**
+   * Maximum footprint radius for a mountain region around each selected range anchor.
+   *
+   * This describes the orographic province, not peak coverage. Tiles inside the
+   * footprint can later remain flat valleys, become foothills/rough lands, or
+   * become true mountain terrain according to relief and ecology constraints.
+   */
+  mountainRegionRadiusTiles: Type.Integer({
+    description:
+      "Controls the maximum hex radius of each tectonically supported mountain-region footprint around selected range anchors.",
+    default: 0,
+    minimum: 0,
+    maximum: 32,
+  }),
+  /**
    * Expansion radius (in hex steps) around ridge spines to form the final mountain mask.
    *
    * This provides limited ridge width while keeping ridgelines spine-driven.
@@ -135,7 +178,7 @@ export const MountainsConfigSchema = Type.Object({
       "Controls minimum hex distance between selected ridge-spine seeds; higher values favor more separate ranges over denser single belts.",
     default: 0,
     minimum: 0,
-    maximum: 12,
+    maximum: 32,
   }),
   /**
    * Age-based relief attenuation for mountains (0..1).

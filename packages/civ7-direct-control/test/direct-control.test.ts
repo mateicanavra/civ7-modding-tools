@@ -532,6 +532,23 @@ describe("Civ7 direct control", () => {
     }
   });
 
+  test("rejects seeds Civ7 setup cannot read back unchanged", async () => {
+    await expect(
+      prepareCiv7SinglePlayerSetup(
+        {
+          mapScript: "{swooper-maps}/maps/swooper-earthlike.js",
+          mapSize: "MAPSIZE_SMALL",
+          seed: 2_147_483_648,
+        },
+        { timeoutMs: 1 },
+        { approved: true, reason: "test seed bound" },
+      ),
+    ).rejects.toMatchObject({
+      code: "setup-parameter-invalid",
+      message: "seed must be an integer between 0 and 2147483647",
+    });
+  });
+
   test("rejects prepared starts when post-start runtime seed mismatches", async () => {
     const server = await startTunerServer({ postStartSeedOverride: 999 });
     try {

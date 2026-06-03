@@ -2,7 +2,13 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { createMockAdapter } from "@civ7/adapter";
+import {
+  CIV7_BROWSER_TABLES_V0,
+  DEFAULT_CIV7_MAP_LATITUDE_BOUNDS,
+  createMockAdapter,
+  getCiv7MapInfoByDimensions,
+  getCiv7MapSizeTypeByDimensions,
+} from "@civ7/adapter";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 import { deriveRunId } from "@swooper/mapgen-core/engine";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
@@ -67,7 +73,9 @@ async function main(): Promise<void> {
   const traceSink = createTraceDumpSink({ outputRoot });
   const viz = createVizDumper({ outputRoot });
 
-  const mapInfo = {
+  const civ7MapInfo = getCiv7MapInfoByDimensions(width, height);
+  const mapSizeId = getCiv7MapSizeTypeByDimensions(width, height) ?? 1;
+  const mapInfo = civ7MapInfo ?? {
     GridWidth: width,
     GridHeight: height,
     MinLatitude: -60,
@@ -76,15 +84,18 @@ async function main(): Promise<void> {
     PlayersLandmass2: 4,
     StartSectorRows: 4,
     StartSectorCols: 4,
-  } as const;
+  };
+  const latitudeBounds = civ7MapInfo
+    ? DEFAULT_CIV7_MAP_LATITUDE_BOUNDS
+    : {
+        topLatitude: mapInfo.MaxLatitude ?? 60,
+        bottomLatitude: mapInfo.MinLatitude ?? -60,
+      };
 
   const envBase = {
     seed,
     dimensions: { width, height },
-    latitudeBounds: {
-      topLatitude: mapInfo.MaxLatitude,
-      bottomLatitude: mapInfo.MinLatitude,
-    },
+    latitudeBounds,
   } as const;
 
   const loadedConfig = loadConfig(flags);
@@ -104,8 +115,12 @@ async function main(): Promise<void> {
     width,
     height,
     mapInfo,
-    mapSizeId: 1,
+    mapSizeId,
+    latitudeBounds,
     rng: createLabelRng(seed),
+    terrainTypeIndices: { ...CIV7_BROWSER_TABLES_V0.terrainTypeIndices },
+    biomeGlobals: { ...CIV7_BROWSER_TABLES_V0.biomeGlobals },
+    featureTypes: { ...CIV7_BROWSER_TABLES_V0.featureTypes },
   });
 
   const context = createExtendedMapContext({ width, height }, adapter, env);

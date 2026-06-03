@@ -32,6 +32,9 @@ import {
   NO_RESOURCE as ADAPTER_NO_RESOURCE,
   PLACEABLE_RESOURCE_TYPE_IDS,
 } from "./resource-constants.js";
+import { CIV7_BROWSER_TABLES_V0 } from "./civ7-tables.gen.js";
+import { DEFAULT_CIV7_MAP_LATITUDE_BOUNDS, type Civ7LatitudeBounds } from "./map-size-info.js";
+import { NATURAL_WONDER_CATALOG } from "./manual-catalogs/natural-wonders.js";
 
 const DEFAULT_VORONOI_UTILS: VoronoiUtils = {
   createRandomSites(count: number, width: number, height: number): VoronoiSite[] {
@@ -86,70 +89,21 @@ const DEFAULT_VORONOI_UTILS: VoronoiUtils = {
  * Default biome globals for testing
  */
 export const DEFAULT_BIOME_GLOBALS: Record<string, number> = {
-  BIOME_TUNDRA: 0,
-  BIOME_GRASSLAND: 1,
-  BIOME_PLAINS: 2,
-  BIOME_TROPICAL: 3,
-  BIOME_DESERT: 4,
-  BIOME_MARINE: 5,
+  ...CIV7_BROWSER_TABLES_V0.biomeGlobals,
 };
 
 /**
  * Default feature type indices for testing
  */
 export const DEFAULT_FEATURE_TYPES: Record<string, number> = {
-  FEATURE_SAGEBRUSH_STEPPE: 0,
-  FEATURE_OASIS: 1,
-  FEATURE_DESERT_FLOODPLAIN_MINOR: 2,
-  FEATURE_DESERT_FLOODPLAIN_NAVIGABLE: 3,
-  FEATURE_FOREST: 4,
-  FEATURE_MARSH: 5,
-  FEATURE_GRASSLAND_FLOODPLAIN_MINOR: 6,
-  FEATURE_GRASSLAND_FLOODPLAIN_NAVIGABLE: 7,
-  FEATURE_REEF: 8,
-  FEATURE_COLD_REEF: 9,
-  FEATURE_ICE: 10,
-  FEATURE_SAVANNA_WOODLAND: 11,
-  FEATURE_WATERING_HOLE: 12,
-  FEATURE_PLAINS_FLOODPLAIN_MINOR: 13,
-  FEATURE_PLAINS_FLOODPLAIN_NAVIGABLE: 14,
-  FEATURE_RAINFOREST: 15,
-  FEATURE_MANGROVE: 16,
-  FEATURE_TROPICAL_FLOODPLAIN_MINOR: 17,
-  FEATURE_TROPICAL_FLOODPLAIN_NAVIGABLE: 18,
-  FEATURE_TAIGA: 19,
-  FEATURE_TUNDRA_BOG: 20,
-  FEATURE_TUNDRA_FLOODPLAIN_MINOR: 21,
-  FEATURE_TUNDRA_FLOODPLAIN_NAVIGABLE: 22,
-  FEATURE_VOLCANO: 23,
-  FEATURE_LOTUS: 24,
-  FEATURE_ATOLL: 25,
-  FEATURE_VALLEY_OF_FLOWERS: 26,
-  FEATURE_BARRIER_REEF: 27,
-  FEATURE_REDWOOD_FOREST: 28,
-  FEATURE_GRAND_CANYON: 29,
-  FEATURE_GULLFOSS: 30,
-  FEATURE_HOERIKWAGGO: 31,
-  FEATURE_IGUAZU_FALLS: 32,
-  FEATURE_KILIMANJARO: 33,
-  FEATURE_ZHANGJIAJIE: 34,
-  FEATURE_THERA: 35,
-  FEATURE_TORRES_DEL_PAINE: 36,
-  FEATURE_ULURU: 37,
-  FEATURE_BERMUDA_TRIANGLE: 38,
-  FEATURE_MOUNT_EVEREST: 39,
+  ...CIV7_BROWSER_TABLES_V0.featureTypes,
 };
 
 /**
  * Default terrain type indices for testing
  */
 export const DEFAULT_TERRAIN_TYPE_INDICES: Record<string, number> = {
-  TERRAIN_MOUNTAIN: 0,
-  TERRAIN_HILL: 1,
-  TERRAIN_FLAT: 2,
-  TERRAIN_COAST: 3,
-  TERRAIN_OCEAN: 4,
-  TERRAIN_NAVIGABLE_RIVER: 5,
+  ...CIV7_BROWSER_TABLES_V0.terrainTypeIndices,
 };
 
 /**
@@ -191,9 +145,7 @@ export const DEFAULT_PLOT_EFFECT_TYPES: MockPlotEffectType[] = [
   { id: 4, name: "PLOTEFFECT_BURNED", tags: ["BURNED"] },
 ];
 
-const DEFAULT_NATURAL_WONDER_CATALOG: NaturalWonderCatalogEntry[] = [
-  { featureType: DEFAULT_FEATURE_TYPES.FEATURE_MOUNT_EVEREST, direction: 0 },
-];
+const DEFAULT_NATURAL_WONDER_CATALOG: NaturalWonderCatalogEntry[] = NATURAL_WONDER_CATALOG;
 
 const DEFAULT_DISCOVERY_CATALOG: DiscoveryCatalogEntry[] = [
   { discoveryVisualType: 0, discoveryActivationType: 0 },
@@ -246,6 +198,8 @@ export interface MockAdapterConfig {
   mapSizeId?: MapSizeId;
   /** Map info row (Civ7: GameInfo.Maps.lookup(mapSizeId)) */
   mapInfo?: MapInfo | null;
+  /** Map init latitude bounds used to mimic Civ7 GameplayMap.getPlotLatitude readback. */
+  latitudeBounds?: Civ7LatitudeBounds;
   /** Default terrain type for all tiles */
   defaultTerrainType?: number;
   /** Default elevation for all tiles */
@@ -303,6 +257,7 @@ export class MockAdapter implements EngineAdapter {
 
   private mapSizeId: MapSizeId;
   private mapInfo: MapInfo | null;
+  private latitudeBounds: Civ7LatitudeBounds;
 
   private terrainTypes: Uint8Array;
   private elevations: Int16Array;
@@ -389,6 +344,7 @@ export class MockAdapter implements EngineAdapter {
     this.height = config.height ?? 80;
     this.mapSizeId = config.mapSizeId ?? 0;
     this.mapInfo = config.mapInfo ?? null;
+    this.latitudeBounds = config.latitudeBounds ?? DEFAULT_CIV7_MAP_LATITUDE_BOUNDS;
     this.noResourceSentinel = Number.isFinite(config.noResourceSentinel)
       ? (config.noResourceSentinel as number) | 0
       : DEFAULT_NO_RESOURCE;
@@ -585,9 +541,11 @@ export class MockAdapter implements EngineAdapter {
   }
 
   getLatitude(x: number, y: number): number {
-    // Simple latitude calculation: -90 to 90 based on y position
-    const normalizedY = y / this.height;
-    return 90 - normalizedY * 180;
+    void x;
+    const south = Math.min(this.latitudeBounds.topLatitude, this.latitudeBounds.bottomLatitude);
+    const north = Math.max(this.latitudeBounds.topLatitude, this.latitudeBounds.bottomLatitude);
+    const normalizedY = this.height > 0 ? y / this.height : 0;
+    return Math.trunc(south + normalizedY * (north - south));
   }
 
   // === TERRAIN WRITES ===
@@ -1033,8 +991,6 @@ export class MockAdapter implements EngineAdapter {
   ): boolean {
     if (x < 0 || x >= this.width || y < 0 || y >= this.height) return false;
     if (!this.canHaveFeature(x, y, featureType)) return false;
-    const existing = this.getFeatureType(x, y);
-    if (Number.isFinite(existing) && existing >= 0) return false;
 
     const i = this.idx(x, y);
     const resolvedElevation = Number.isFinite(elevation)
@@ -1292,6 +1248,7 @@ export class MockAdapter implements EngineAdapter {
     this.landmassRegionIds.fill(0);
     this.mapSizeId = config.mapSizeId ?? 0;
     this.mapInfo = config.mapInfo ?? null;
+    this.latitudeBounds = config.latitudeBounds ?? DEFAULT_CIV7_MAP_LATITUDE_BOUNDS;
     this.calls.setMapInitData.length = 0;
     this.calls.designateBiomes.length = 0;
     this.calls.addFeatures.length = 0;

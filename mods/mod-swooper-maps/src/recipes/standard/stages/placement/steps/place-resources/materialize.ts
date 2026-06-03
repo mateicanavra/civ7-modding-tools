@@ -81,10 +81,6 @@ function isLegalResourceTile(
   return adapter.canHaveResource(tile.x, tile.y, resourceType);
 }
 
-function allPlotIndices(size: number): number[] {
-  return Array.from({ length: size }, (_value, index) => index);
-}
-
 function buildCandidatePlotOrder(placements: readonly PlacementCandidate[], size: number): number[] {
   const seen = new Set<number>();
   const order: number[] = [];
@@ -92,10 +88,6 @@ function buildCandidatePlotOrder(placements: readonly PlacementCandidate[], size
     const plotIndex = Math.trunc(placement.plotIndex);
     if (plotIndex < 0 || plotIndex >= size || seen.has(plotIndex)) continue;
     seen.add(plotIndex);
-    order.push(plotIndex);
-  }
-  for (const plotIndex of allPlotIndices(size)) {
-    if (seen.has(plotIndex)) continue;
     order.push(plotIndex);
   }
   return order;
@@ -169,17 +161,6 @@ function assignResourceIntents(args: {
       preferredResourceType: preferredByPlot.get(plotIndex) ?? null,
     });
   };
-
-  for (const resourceType of args.candidateResourceTypes) {
-    if (assignments.length >= targetCount) break;
-    const plotIndex = plotOrder.find(
-      (candidatePlot) =>
-        !usedPlots.has(candidatePlot) &&
-        isLegalResourceTile(args.adapter, args.width, args.height, candidatePlot, resourceType)
-    );
-    if (plotIndex === undefined) continue;
-    addAssignment(plotIndex, resourceType);
-  }
 
   for (const placement of args.resources.placements) {
     if (assignments.length >= targetCount) break;

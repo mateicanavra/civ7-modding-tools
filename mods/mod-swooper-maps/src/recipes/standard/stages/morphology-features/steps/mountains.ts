@@ -21,7 +21,7 @@ import { morphologyArtifacts } from "../../morphology/artifacts.js";
 import MountainsStepContract from "./mountains.contract.js";
 
 const GROUP_MORPHOLOGY_FEATURES = "Morphology / Features";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 function buildFractalArray(width: number, height: number, seed: number, grain: number): Int16Array {
   const fractal = new Int16Array(width * height);
@@ -161,6 +161,8 @@ export default createStep(MountainsStepContract, {
         height,
         landMask: topography.landMask,
         mountainMask: ridges.mountainMask,
+        mountainRegionMask: ridges.mountainRegionMask,
+        mountainRegionIdByTile: ridges.mountainRegionIdByTile,
         boundaryCloseness: beltDrivers.boundaryCloseness,
         boundaryType: beltDrivers.boundaryType,
         upliftPotential: beltDrivers.upliftPotential,
@@ -179,6 +181,8 @@ export default createStep(MountainsStepContract, {
         height,
         landMask: topography.landMask,
         mountainMask: ridges.mountainMask,
+        mountainRegionMask: ridges.mountainRegionMask,
+        mountainRegionIdByTile: ridges.mountainRegionIdByTile,
         foothillMask: foothills.hillMask,
         elevation: topography.elevation,
         seaLevel: topography.seaLevel,
@@ -205,6 +209,8 @@ export default createStep(MountainsStepContract, {
 
     const plan = {
       mountainMask: ridges.mountainMask,
+      mountainRegionMask: ridges.mountainRegionMask,
+      mountainRegionIdByTile: ridges.mountainRegionIdByTile,
       hillMask,
       foothillMask: foothills.hillMask,
       roughLandMask: roughLands.hillMask,
@@ -240,6 +246,18 @@ export default createStep(MountainsStepContract, {
       values: plan.hillMask,
       meta: defineVizMeta("morphology.mountains.hillMask", {
         label: "Hill Mask (Planned)",
+        group: GROUP_MORPHOLOGY_FEATURES,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.mountains.mountainRegionMask",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: plan.mountainRegionMask,
+      meta: defineVizMeta("morphology.mountains.mountainRegionMask", {
+        label: "Mountain Region Footprint (Planned)",
         group: GROUP_MORPHOLOGY_FEATURES,
         visibility: "debug",
       }),
@@ -310,6 +328,7 @@ export default createStep(MountainsStepContract, {
       const size = Math.max(0, (width | 0) * (height | 0));
       let landTiles = 0;
       let mountainTiles = 0;
+      let mountainRegionTiles = 0;
       let hillTiles = 0;
       let foothillTiles = 0;
       let roughLandHillTiles = 0;
@@ -317,6 +336,7 @@ export default createStep(MountainsStepContract, {
         if (topography.landMask[i] !== 1) continue;
         landTiles += 1;
         if (plan.mountainMask[i] === 1) mountainTiles += 1;
+        if (plan.mountainRegionMask[i] === 1) mountainRegionTiles += 1;
         if (plan.hillMask[i] === 1) hillTiles += 1;
         if (plan.foothillMask[i] === 1) foothillTiles += 1;
         if (plan.roughLandMask[i] === 1) roughLandHillTiles += 1;
@@ -325,6 +345,7 @@ export default createStep(MountainsStepContract, {
         kind: "morphology.mountains.summary",
         landTiles,
         mountainTiles,
+        mountainRegionTiles,
         hillTiles,
         foothillTiles,
         roughLandHillTiles,
@@ -342,6 +363,8 @@ export default createStep(MountainsStepContract, {
           const overlay =
             plan.mountainMask[idx] === 1
               ? "M"
+              : plan.mountainRegionMask[idx] === 1
+                ? "o"
               : plan.foothillMask[idx] === 1
                 ? "f"
                 : plan.roughLandMask[idx] === 1
@@ -353,7 +376,7 @@ export default createStep(MountainsStepContract, {
       return {
         kind: "morphology.mountains.ascii.reliefMask",
         sampleStep,
-        legend: ".=land ~=water M=mountain f=foothill r=rough-land hill",
+        legend: ".=land ~=water M=mountain o=mountain-region f=foothill r=rough-land hill",
         rows,
       };
     });

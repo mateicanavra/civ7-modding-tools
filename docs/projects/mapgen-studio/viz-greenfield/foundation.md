@@ -73,13 +73,13 @@ The groups below correspond to `layer.meta.group` as emitted by the pipeline.
 - (none; this is internal mapping)
 
 **Debug**
-- `foundation.tileToCellIndex` — `tile.hexOddR::grid` — tile→mesh-cell mapping index.
+- `foundation.tileToCellIndex` — `tile.hexOddQ::grid` — tile→mesh-cell mapping index.
 
 ### Foundation / Plates (tile-projected)
 
 **Default**
-- `foundation.plates.tilePlateId` — `tile.hexOddR::grid` — plate regions (primary).
-- `foundation.plates.tileBoundaryType` — `tile.hexOddR::grid` — boundary regime categorical (primary).
+- `foundation.plates.tilePlateId` — `tile.hexOddQ::grid` — plate regions (primary).
+- `foundation.plates.tileBoundaryType` — `tile.hexOddQ::grid` — boundary regime categorical (primary).
 - `foundation.plates.tileMovement` — multiple renders (see “important products” below).
 
 **Debug**
@@ -91,7 +91,7 @@ The groups below correspond to `layer.meta.group` as emitted by the pipeline.
 ### Foundation / Crust Tiles (tile-projected)
 
 **Default**
-- `foundation.crustTiles.type` — `tile.hexOddR::grid` — oceanic vs continental (essential macro story).
+- `foundation.crustTiles.type` — `tile.hexOddQ::grid` — oceanic vs continental (essential macro story).
 
 **Debug**
 - `foundation.crustTiles.age`, `foundation.crustTiles.buoyancy`, `foundation.crustTiles.baseElevation`, `foundation.crustTiles.strength`
@@ -124,11 +124,11 @@ These products should support **multiple Render modes** in Studio (with debug OF
 ### Plate movement (vector field)
 - `dataTypeKey`: `foundation.plates.tileMovement`
 - Primary expression (default):
-  - `tile.hexOddR::gridFields:vector` (`role: vector`)
-  - `tile.hexOddR::segments:arrows` (`role: arrows`)
+  - `tile.hexOddQ::gridFields:vector` (`role: vector`)
+  - `tile.hexOddQ::segments:arrows` (`role: arrows`)
 - Secondary/debug expressions:
-  - `tile.hexOddR::grid:magnitude` (`role: magnitude`)
-  - `tile.hexOddR::points:centroids` (`role: centroids`)
+  - `tile.hexOddQ::grid:magnitude` (`role: magnitude`)
+  - `tile.hexOddQ::points:centroids` (`role: centroids`)
 
 ### Tectonic boundary regime (edges)
 - `dataTypeKey`: `foundation.tectonics.boundaryType`

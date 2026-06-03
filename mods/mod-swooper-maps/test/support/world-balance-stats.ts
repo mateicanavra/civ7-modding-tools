@@ -30,6 +30,20 @@ export type WorldBalanceStats = Readonly<{
   plannedMountainShareOfPreLakeLand: number;
   plannedMountainComponentCount: number;
   plannedLargestMountainComponentSize: number;
+  plannedLargestMountainComponentSpanTiles: number;
+  plannedMountainRegionTiles: number;
+  plannedMountainRegionShareOfPreLakeLand: number;
+  plannedMountainRegionIdCount: number;
+  plannedMountainRegionMountainIdCount: number;
+  plannedMountainRegionComponentCount: number;
+  plannedLargestMountainRegionComponentSize: number;
+  plannedLargestMountainRegionComponentSpanTiles: number;
+  plannedLargestMountainRegionIdSpanTiles: number;
+  plannedMeanMountainRegionIdSpanTiles: number;
+  plannedMountainRegionNonMountainTiles: number;
+  plannedMountainRegionNonMountainShare: number;
+  plannedMountainRegionHillTiles: number;
+  plannedMountainRegionFlatTiles: number;
   plannedHillTiles: number;
   plannedHillShareOfPreLakeLand: number;
   plannedHillComponentCount: number;
@@ -49,6 +63,7 @@ export type WorldBalanceStats = Readonly<{
   finalMountainShareOfPreLakeLand: number;
   finalMountainComponentCount: number;
   finalLargestMountainComponentSize: number;
+  finalLargestMountainComponentSpanTiles: number;
   finalNonVolcanoMountainTiles: number;
   finalNonVolcanoMountainShareOfPreLakeLand: number;
   finalVolcanoMountainTiles: number;
@@ -115,12 +130,18 @@ export type WorldBalanceStats = Readonly<{
   resourceUniquePlacedTypes: number;
   resourcePlacedCountMinByType: number;
   resourcePlacedCountMaxByType: number;
+  resourcePlacedMaxRowCount: number;
+  resourcePlacedMaxRowShare: number;
   resourceOutcomeCountsByResource: readonly ResourceOutcomeResourceStats[];
   resourceOutcomeCountsByReason: readonly ResourceOutcomeReasonStats[];
   resourcePlanTypeCounts: Readonly<Record<string, number>>;
   resourcePlacedTypeCounts: Readonly<Record<string, number>>;
   resourceRejectReasonCounts: Readonly<Record<string, number>>;
   finalResourceTypeCounts: Readonly<Record<string, number>>;
+  finalResourceMaxRowCount: number;
+  finalResourceMaxRowShare: number;
+  finalResourceBottomRowCount: number;
+  finalResourceBottomRowShare: number;
 }>;
 
 export type ResourceOutcomeReasonStats = Readonly<{
@@ -279,22 +300,29 @@ function computeMaskComponents(mask: Uint8Array, width: number, height: number):
   componentCount: number;
   singleTileCount: number;
   largestComponentSize: number;
+  largestComponentSpanTiles: number;
 } {
   const visited = new Uint8Array(mask.length);
+  const componentMask = new Uint8Array(mask.length);
+  const spanVisited = new Uint8Array(mask.length);
+  const spanDistance = new Int16Array(mask.length);
   let componentCount = 0;
   let singleTileCount = 0;
   let largestComponentSize = 0;
+  let largestComponentSpanTiles = 0;
 
   for (let i = 0; i < mask.length; i++) {
     if (mask[i] !== 1 || visited[i] === 1) continue;
     componentCount += 1;
     let componentSize = 0;
+    const componentTiles: number[] = [];
     const queue = [i];
     visited[i] = 1;
 
     while (queue.length > 0) {
       const current = queue.pop()!;
       componentSize += 1;
+      componentTiles.push(current);
       const x = current % width;
       const y = (current / width) | 0;
       for (const neighbor of getHexNeighborIndicesOddQ(x, y, width, height)) {
@@ -306,9 +334,95 @@ function computeMaskComponents(mask: Uint8Array, width: number, height: number):
 
     if (componentSize === 1) singleTileCount += 1;
     largestComponentSize = Math.max(largestComponentSize, componentSize);
+    for (const tile of componentTiles) componentMask[tile] = 1;
+    largestComponentSpanTiles = Math.max(
+      largestComponentSpanTiles,
+      computeSpanTilesForConnectedMask(componentMask, componentTiles[0] ?? i, width, height, spanVisited, spanDistance)
+    );
+    for (const tile of componentTiles) componentMask[tile] = 0;
   }
 
-  return { componentCount, singleTileCount, largestComponentSize };
+  return { componentCount, singleTileCount, largestComponentSize, largestComponentSpanTiles };
+}
+
+function computeSpanTilesForConnectedMask(
+  mask: Uint8Array,
+  start: number,
+  width: number,
+  height: number,
+  visited: Uint8Array,
+  distance: Int16Array
+): number {
+  const first = findFarthestTile(mask, start, width, height, visited, distance);
+  const second = findFarthestTile(mask, first.tileIndex, width, height, visited, distance);
+  return second.distance + 1;
+}
+
+function findFarthestTile(
+  mask: Uint8Array,
+  start: number,
+  width: number,
+  height: number,
+  visited: Uint8Array,
+  distance: Int16Array
+): { tileIndex: number; distance: number } {
+  visited.fill(0);
+  distance.fill(0);
+  const queue = [start];
+  visited[start] = 1;
+  let head = 0;
+  let farthest = start;
+  let farthestDistance = 0;
+
+  while (head < queue.length) {
+    const current = queue[head++]!;
+    const currentDistance = distance[current] ?? 0;
+    if (currentDistance > farthestDistance) {
+      farthest = current;
+      farthestDistance = currentDistance;
+    }
+    const x = current % width;
+    const y = (current / width) | 0;
+    for (const neighbor of getHexNeighborIndicesOddQ(x, y, width, height)) {
+      if (mask[neighbor] !== 1 || visited[neighbor] === 1) continue;
+      visited[neighbor] = 1;
+      distance[neighbor] = currentDistance + 1;
+      queue.push(neighbor);
+    }
+  }
+
+  return { tileIndex: farthest, distance: farthestDistance };
+}
+
+function computeLabeledMaskSpan(
+  mask: Uint8Array,
+  labels: Int32Array,
+  width: number,
+  height: number
+): {
+  largestLabelSpanTiles: number;
+  meanLabelSpanTiles: number;
+} {
+  const tilesByLabel = new Map<number, number[]>();
+  for (let i = 0; i < mask.length; i++) {
+    if (mask[i] !== 1) continue;
+    const label = labels[i] ?? -1;
+    if (label < 0) continue;
+    const tiles = tilesByLabel.get(label);
+    if (tiles) tiles.push(i);
+    else tilesByLabel.set(label, [i]);
+  }
+  const labelMask = new Uint8Array(mask.length);
+  const spans: number[] = [];
+  for (const tiles of tilesByLabel.values()) {
+    for (const tile of tiles) labelMask[tile] = 1;
+    spans.push(computeMaskComponents(labelMask, width, height).largestComponentSpanTiles);
+    for (const tile of tiles) labelMask[tile] = 0;
+  }
+  return {
+    largestLabelSpanTiles: spans.length === 0 ? 0 : Math.max(...spans),
+    meanLabelSpanTiles: roundMetric(mean(spans)),
+  };
 }
 
 /**
@@ -416,6 +530,8 @@ export function collectWorldBalanceStats(args: Readonly<{
   const mountains = context.artifacts.get(morphologyArtifacts.mountains.id) as
     | {
         mountainMask?: Uint8Array;
+        mountainRegionMask?: Uint8Array;
+        mountainRegionIdByTile?: Int32Array;
         hillMask?: Uint8Array;
         foothillMask?: Uint8Array;
         roughLandMask?: Uint8Array;
@@ -459,6 +575,7 @@ export function collectWorldBalanceStats(args: Readonly<{
             status?: "placed" | "rejected" | "mismatch";
             resourceType?: number;
             reason?: string;
+            y?: number;
           }>
         >;
       }
@@ -477,6 +594,8 @@ export function collectWorldBalanceStats(args: Readonly<{
   }
   if (
     !(mountains?.mountainMask instanceof Uint8Array) ||
+    !(mountains.mountainRegionMask instanceof Uint8Array) ||
+    !(mountains.mountainRegionIdByTile instanceof Int32Array) ||
     !(mountains.hillMask instanceof Uint8Array) ||
     !(mountains.foothillMask instanceof Uint8Array) ||
     !(mountains.roughLandMask instanceof Uint8Array) ||
@@ -569,6 +688,9 @@ export function collectWorldBalanceStats(args: Readonly<{
   const resourcePlacedTypeCounts: Record<string, number> = {};
   const resourceRejectReasonCounts: Record<string, number> = {};
   const finalResourceTypeCounts: Record<string, number> = {};
+  const resourcePlacedRowCounts = new Uint16Array(height);
+  const finalResourceRowCounts = new Uint16Array(height);
+  let finalResourceTiles = 0;
   const featureTypeByKey = Object.fromEntries(
     FEATURE_KEYS.map((key) => [key, adapter.getFeatureTypeIndex(key)])
   );
@@ -580,7 +702,11 @@ export function collectWorldBalanceStats(args: Readonly<{
       const terrain = adapter.getTerrainType(x, y);
       const feature = adapter.getFeatureType(x, y);
       const resource = adapter.getResourceType(x, y) | 0;
-      if (resource !== noResource) incrementCount(finalResourceTypeCounts, resource);
+      if (resource !== noResource) {
+        incrementCount(finalResourceTypeCounts, resource);
+        finalResourceRowCounts[y] += 1;
+        finalResourceTiles += 1;
+      }
       if (isWater) waterTiles += 1;
       else {
         postProjectionLandTiles += 1;
@@ -652,15 +778,53 @@ export function collectWorldBalanceStats(args: Readonly<{
   for (const outcome of resourcePlacement.outcomes) {
     if (outcome.status === "placed" && Number.isFinite(outcome.resourceType)) {
       incrementCount(resourcePlacedTypeCounts, outcome.resourceType as number);
+      if (Number.isFinite(outcome.y)) {
+        const row = Math.max(0, Math.min(height - 1, (outcome.y as number) | 0));
+        resourcePlacedRowCounts[row] += 1;
+      }
     }
     if (outcome.status === "rejected") {
       incrementCount(resourceRejectReasonCounts, outcome.reason ?? "unknown");
     }
   }
+  const resourcePlacedMaxRowCount = Math.max(0, ...resourcePlacedRowCounts);
+  const finalResourceMaxRowCount = Math.max(0, ...finalResourceRowCounts);
+  const finalResourceBottomRowCount = finalResourceRowCounts[height - 1] ?? 0;
 
   const preLakeLandTiles = countMask(topography.landMask);
   const plannedMountainTiles = countMask(mountains.mountainMask);
   const plannedMountainComponents = computeMaskComponents(mountains.mountainMask, width, height);
+  const plannedMountainRegionTiles = countMask(mountains.mountainRegionMask);
+  const plannedMountainRegionComponents = computeMaskComponents(
+    mountains.mountainRegionMask,
+    width,
+    height
+  );
+  const plannedMountainRegionSpans = computeLabeledMaskSpan(
+    mountains.mountainRegionMask,
+    mountains.mountainRegionIdByTile,
+    width,
+    height
+  );
+  const plannedMountainRegionIds = new Set<number>();
+  const plannedMountainRegionMountainIds = new Set<number>();
+  let plannedMountainRegionHillTiles = 0;
+  let plannedMountainRegionFlatTiles = 0;
+  for (let i = 0; i < mountains.mountainRegionMask.length; i++) {
+    if (mountains.mountainRegionMask[i] !== 1) continue;
+    const regionId = mountains.mountainRegionIdByTile[i] ?? -1;
+    if (regionId >= 0) plannedMountainRegionIds.add(regionId);
+    if (mountains.mountainMask[i] === 1) continue;
+    if (mountains.hillMask[i] === 1) plannedMountainRegionHillTiles += 1;
+    else plannedMountainRegionFlatTiles += 1;
+  }
+  for (let i = 0; i < mountains.mountainMask.length; i++) {
+    if (mountains.mountainMask[i] !== 1) continue;
+    const regionId = mountains.mountainRegionIdByTile[i] ?? -1;
+    if (regionId >= 0) plannedMountainRegionMountainIds.add(regionId);
+  }
+  const plannedMountainRegionNonMountainTiles =
+    plannedMountainRegionHillTiles + plannedMountainRegionFlatTiles;
   const finalMountainComponents = computeMaskComponents(finalMountainMask, width, height);
   const plannedHillTiles = countMask(mountains.hillMask);
   const plannedFoothillTiles = countMask(mountains.foothillMask);
@@ -717,6 +881,25 @@ export function collectWorldBalanceStats(args: Readonly<{
     plannedMountainShareOfPreLakeLand: preLakeLandTiles === 0 ? 0 : plannedMountainTiles / preLakeLandTiles,
     plannedMountainComponentCount: plannedMountainComponents.componentCount,
     plannedLargestMountainComponentSize: plannedMountainComponents.largestComponentSize,
+    plannedLargestMountainComponentSpanTiles: plannedMountainComponents.largestComponentSpanTiles,
+    plannedMountainRegionTiles,
+    plannedMountainRegionShareOfPreLakeLand: shareOf(plannedMountainRegionTiles, preLakeLandTiles),
+    plannedMountainRegionIdCount: plannedMountainRegionIds.size,
+    plannedMountainRegionMountainIdCount: plannedMountainRegionMountainIds.size,
+    plannedMountainRegionComponentCount: plannedMountainRegionComponents.componentCount,
+    plannedLargestMountainRegionComponentSize:
+      plannedMountainRegionComponents.largestComponentSize,
+    plannedLargestMountainRegionComponentSpanTiles:
+      plannedMountainRegionComponents.largestComponentSpanTiles,
+    plannedLargestMountainRegionIdSpanTiles: plannedMountainRegionSpans.largestLabelSpanTiles,
+    plannedMeanMountainRegionIdSpanTiles: plannedMountainRegionSpans.meanLabelSpanTiles,
+    plannedMountainRegionNonMountainTiles,
+    plannedMountainRegionNonMountainShare: shareOf(
+      plannedMountainRegionNonMountainTiles,
+      plannedMountainRegionTiles
+    ),
+    plannedMountainRegionHillTiles,
+    plannedMountainRegionFlatTiles,
     plannedHillTiles,
     plannedHillShareOfPreLakeLand: shareOf(plannedHillTiles, preLakeLandTiles),
     plannedHillComponentCount: plannedHillComponents.componentCount,
@@ -739,6 +922,7 @@ export function collectWorldBalanceStats(args: Readonly<{
     finalMountainShareOfPreLakeLand: shareOf(finalMountainTiles, preLakeLandTiles),
     finalMountainComponentCount: finalMountainComponents.componentCount,
     finalLargestMountainComponentSize: finalMountainComponents.largestComponentSize,
+    finalLargestMountainComponentSpanTiles: finalMountainComponents.largestComponentSpanTiles,
     finalNonVolcanoMountainTiles,
     finalNonVolcanoMountainShareOfPreLakeLand: shareOf(
       finalNonVolcanoMountainTiles,
@@ -819,11 +1003,20 @@ export function collectWorldBalanceStats(args: Readonly<{
       .length,
     resourcePlacedCountMinByType: resourcePlacedCounts.length === 0 ? 0 : Math.min(...resourcePlacedCounts),
     resourcePlacedCountMaxByType: resourcePlacedCounts.length === 0 ? 0 : Math.max(...resourcePlacedCounts),
+    resourcePlacedMaxRowCount,
+    resourcePlacedMaxRowShare: shareOf(
+      resourcePlacedMaxRowCount,
+      Math.max(0, resourcePlacement.summary?.placedCount ?? 0)
+    ),
     resourceOutcomeCountsByResource,
     resourceOutcomeCountsByReason: resourcePlacement.summary.byReason ?? [],
     resourcePlanTypeCounts,
     resourcePlacedTypeCounts,
     resourceRejectReasonCounts,
     finalResourceTypeCounts,
+    finalResourceMaxRowCount,
+    finalResourceMaxRowShare: shareOf(finalResourceMaxRowCount, finalResourceTiles),
+    finalResourceBottomRowCount,
+    finalResourceBottomRowShare: shareOf(finalResourceBottomRowCount, finalResourceTiles),
   };
 }

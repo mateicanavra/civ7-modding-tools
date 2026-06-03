@@ -116,20 +116,57 @@ export function applyPlacementPlan({
       landMask: engineSnapshot.landMask,
       terrain: engineSnapshot.terrain,
       elevation: engineSnapshot.elevation,
+      biome: engineSnapshot.biome,
+      feature: engineSnapshot.feature,
+      resource: engineSnapshot.resource,
     });
-    context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "map.placement.engine.landMask",
-      spaceId: "tile.hexOddR",
-      dims: { width, height },
-      format: "u8",
-      values: engineSnapshot.landMask,
-      meta: defineVizMeta("map.placement.engine.landMask", {
+    const surfaceLayers = [
+      {
+        dataTypeKey: "map.placement.engine.terrain",
+        label: "Terrain (Engine After Placement)",
+        format: "u8" as const,
+        values: engineSnapshot.terrain,
+      },
+      {
+        dataTypeKey: "map.placement.engine.landMask",
         label: "Land Mask (Engine After Placement)",
-        group: GROUP_GAMEPLAY,
-        palette: "categorical",
-        role: "engine",
-      }),
-    });
+        format: "u8" as const,
+        values: engineSnapshot.landMask,
+      },
+      {
+        dataTypeKey: "map.placement.engine.biome",
+        label: "Biome (Engine After Placement)",
+        format: "u8" as const,
+        values: engineSnapshot.biome,
+      },
+      {
+        dataTypeKey: "map.placement.engine.feature",
+        label: "Feature (Engine After Placement)",
+        format: "i16" as const,
+        values: engineSnapshot.feature,
+      },
+      {
+        dataTypeKey: "map.placement.engine.resource",
+        label: "Resource (Engine After Placement)",
+        format: "i16" as const,
+        values: engineSnapshot.resource,
+      },
+    ];
+    for (const layer of surfaceLayers) {
+      context.viz?.dumpGrid(context.trace, {
+        dataTypeKey: layer.dataTypeKey,
+        spaceId: "tile.hexOddQ",
+        dims: { width, height },
+        format: layer.format,
+        values: layer.values,
+        meta: defineVizMeta(layer.dataTypeKey, {
+          label: layer.label,
+          group: GROUP_GAMEPLAY,
+          palette: "categorical",
+          role: "engine",
+        }),
+      });
+    }
   }
 
   publishEngineState({

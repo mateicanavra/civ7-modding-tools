@@ -26,6 +26,12 @@ const PlanIslandChainsContract = defineOp({
       description: "Boundary type per tile (1=conv,2=div,3=trans).",
     }),
     volcanism: TypedArraySchemas.u8({ description: "Volcanism signal per tile (0..255)." }),
+    movementU: TypedArraySchemas.i8({
+      description: "Plate movement U component per tile (-127..127), used to orient hotspot island tracks.",
+    }),
+    movementV: TypedArraySchemas.i8({
+      description: "Plate movement V component per tile (-127..127), used to orient hotspot island tracks.",
+    }),
     rngSeed: Type.Integer({ description: "Seed for deterministic island placement." }),
   }),
   output: Type.Object({

@@ -6,6 +6,7 @@
 // ============================================================================
 
 import type { WorldSettings, RecipeSettings, ViewState } from '../types';
+import { DEFAULT_CIV7_PLAYER_COUNT } from '../../features/browserRunner/mapSizes';
 
 // ============================================================================
 // Default World Settings
@@ -14,7 +15,7 @@ import type { WorldSettings, RecipeSettings, ViewState } from '../types';
 export const DEFAULT_WORLD_SETTINGS: WorldSettings = {
   mode: 'browser',
   mapSize: 'MAPSIZE_STANDARD',
-  playerCount: 6,
+  playerCount: DEFAULT_CIV7_PLAYER_COUNT,
   resources: 'balanced'
 };
 

@@ -8,7 +8,7 @@ import {
 } from "../../../ecology/artifact-validation.js";
 import ScoreLayersStepContract from "./contract.js";
 
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 export default createStep(ScoreLayersStepContract, {
   artifacts: implementArtifacts([ecologyArtifacts.scoreLayers, ecologyArtifacts.occupancyBase], {

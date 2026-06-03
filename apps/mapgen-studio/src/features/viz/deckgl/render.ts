@@ -71,62 +71,59 @@ function isTileSpace(spaceId: VizSpaceId): boolean {
   return spaceId === "tile.hexOddR" || spaceId === "tile.hexOddQ";
 }
 
-function axialToPixelPointy(q: number, r: number, size: number): [number, number] {
-  const x = size * Math.sqrt(3) * (q + r / 2);
-  const y = size * 1.5 * r;
+const SQRT_3 = Math.sqrt(3);
+
+function oddQTileCenter(col: number, row: number, size: number): [number, number] {
+  const x = size * 1.5 * col;
+  const y = size * SQRT_3 * (row + ((col & 1) ? 0.5 : 0));
   return [x, y];
 }
 
-function oddQToAxialR(row: number, colParityBase: number): number {
-  const q = colParityBase | 0;
-  return row - (q - (q & 1)) / 2;
-}
-
-function oddQTileCenter(col: number, row: number, size: number): [number, number] {
-  const r = oddQToAxialR(row, col);
-  return axialToPixelPointy(col, r, size);
-}
-
 function oddQPointFromTileXY(x: number, y: number, size: number): [number, number] {
-  const qParityBase = Math.round(x);
-  const r = oddQToAxialR(y, qParityBase);
-  return axialToPixelPointy(x, r, size);
+  const colParityBase = Math.floor(x);
+  const px = size * 1.5 * x;
+  const py = size * SQRT_3 * (y + ((colParityBase & 1) ? 0.5 : 0));
+  return [px, py];
 }
 
 function oddRTileCenter(col: number, row: number, size: number): [number, number] {
-  const x = size * Math.sqrt(3) * (col + ((row & 1) ? 0.5 : 0));
+  const x = size * SQRT_3 * (col + ((row & 1) ? 0.5 : 0));
   const y = size * 1.5 * row;
   return [x, y];
 }
 
 function oddRPointFromTileXY(x: number, y: number, size: number): [number, number] {
   const row = Math.floor(y);
-  const px = size * Math.sqrt(3) * (x + ((row & 1) ? 0.5 : 0));
+  const px = size * SQRT_3 * (x + ((row & 1) ? 0.5 : 0));
   const py = size * 1.5 * y;
   return [px, py];
 }
 
-function tilePoint(spaceId: VizSpaceId, x: number, y: number, size: number): [number, number] {
+export function tilePointForRenderSpace(spaceId: VizSpaceId, x: number, y: number, size: number): [number, number] {
   return spaceId === "tile.hexOddQ" ? oddQPointFromTileXY(x, y, size) : oddRPointFromTileXY(x, y, size);
 }
 
-function tileCenter(spaceId: VizSpaceId, col: number, row: number, size: number): [number, number] {
+export function tileCenterForRenderSpace(spaceId: VizSpaceId, col: number, row: number, size: number): [number, number] {
   return spaceId === "tile.hexOddQ" ? oddQTileCenter(col, row, size) : oddRTileCenter(col, row, size);
 }
 
 function transformPoint(spaceId: VizSpaceId, x: number, y: number, tileSize: number): [number, number] {
-  if (isTileSpace(spaceId)) return tilePoint(spaceId, x, y, tileSize);
+  if (isTileSpace(spaceId)) return tilePointForRenderSpace(spaceId, x, y, tileSize);
   return [x, y];
 }
 
-function hexPolygonPointy(center: [number, number], size: number): Array<[number, number]> {
+function hexPolygon(center: [number, number], size: number, angleOffsetDegrees: number): Array<[number, number]> {
   const [cx, cy] = center;
   const out: Array<[number, number]> = [];
   for (let i = 0; i < 6; i++) {
-    const angle = ((30 + 60 * i) * Math.PI) / 180;
+    const angle = ((angleOffsetDegrees + 60 * i) * Math.PI) / 180;
     out.push([cx + size * Math.cos(angle), cy + size * Math.sin(angle)]);
   }
   return out;
+}
+
+function hexPolygonForTileSpace(spaceId: VizSpaceId, center: [number, number], size: number): Array<[number, number]> {
+  return hexPolygon(center, size, spaceId === "tile.hexOddQ" ? 0 : 30);
 }
 
 function hexGridGeometryKey(args: { spaceId: VizSpaceId; width: number; height: number; tileSize: number }): string {
@@ -154,8 +151,8 @@ async function getOrBuildHexGridGeometry(args: {
     indices[i] = i;
     const x = i % width;
     const y = (i / width) | 0;
-    const center = tileCenter(spaceId, x, y, tileSize);
-    polygons[i] = hexPolygonPointy(center, tileSize);
+    const center = tileCenterForRenderSpace(spaceId, x, y, tileSize);
+    polygons[i] = hexPolygonForTileSpace(spaceId, center, tileSize);
   }
 
   const geom: HexGridGeometry = { indices, polygons };
@@ -173,7 +170,7 @@ export function boundsForTileGrid(spaceId: VizSpaceId, dims: { width: number; he
   const { width, height } = dims;
   if (width <= 0 || height <= 0) return [0, 0, 1, 1];
 
-  const s3 = Math.sqrt(3) * tileSize;
+  const s3 = SQRT_3 * tileSize;
   const s = tileSize;
 
   if (spaceId === "tile.hexOddR") {
@@ -185,9 +182,9 @@ export function boundsForTileGrid(spaceId: VizSpaceId, dims: { width: number; he
 
   // tile.hexOddQ
   const hasOddCol = width > 1;
-  const maxCenterX = s3 * (width - 1);
-  const maxCenterY = 1.5 * tileSize * ((height - 1) + (hasOddCol ? 0.5 : 0));
-  return [-s, -s, maxCenterX + s, maxCenterY + s];
+  const maxCenterX = 1.5 * tileSize * (width - 1);
+  const maxCenterY = s3 * ((height - 1) + (hasOddCol ? 0.5 : 0));
+  return [-s, -s3 / 2, maxCenterX + s, maxCenterY + s3 / 2];
 }
 
 export function boundsForLayerInRenderSpace(layer: VizLayerEntryV1, tileSize = 1): Bounds {
@@ -658,7 +655,7 @@ async function renderSingleLayer(options: RenderSingleLayerArgs): Promise<Render
             const ux = Number((uValues as any)[i] ?? 0);
             const vy = Number((vValues as any)[i] ?? 0);
             if (!Number.isFinite(ux) || !Number.isFinite(vy)) continue;
-            const [cx, cy] = tileCenter(layer.spaceId, x, y, tileSize);
+            const [cx, cy] = tileCenterForRenderSpace(layer.spaceId, x, y, tileSize);
 
             // Interpret u/v as a direction vector; scale to tile space for legible arrows.
             const mag = magValues ? Number((magValues as any)[i] ?? 0) : Math.hypot(ux, vy);

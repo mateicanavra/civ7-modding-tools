@@ -113,6 +113,7 @@ describe("placement plan operations", () => {
     const result = runOpValidated(planResources, {
       width,
       height,
+      rngSeed: 101,
       noResourceSentinel: 99,
       candidateResourceTypes: [7, 2, 7, -1, 99],
       landMask: new Uint8Array(size).fill(1),
@@ -146,6 +147,7 @@ describe("placement plan operations", () => {
     const result = runOpValidated(planResources, {
       width,
       height,
+      rngSeed: 102,
       noResourceSentinel: 99,
       candidateResourceTypes: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
       landMask: new Uint8Array(size).fill(1),
@@ -176,6 +178,46 @@ describe("placement plan operations", () => {
     expect(Math.max(...perTypeCounts) - Math.min(...perTypeCounts)).toBeLessThanOrEqual(1);
   });
 
+  it("uses seed-keyed micro-suitability instead of plot-index order for tied resource candidates", () => {
+    const width = 20;
+    const height = 10;
+    const size = width * height;
+    const result = runOpValidated(planResources, {
+      width,
+      height,
+      rngSeed: 103,
+      noResourceSentinel: 99,
+      candidateResourceTypes: [1, 2, 3, 4, 5, 6],
+      landMask: new Uint8Array(size).fill(1),
+      fertility: new Float32Array(size).fill(0.8),
+      effectiveMoisture: new Float32Array(size).fill(0.6),
+      surfaceTemperature: new Float32Array(size).fill(18),
+      aridityIndex: new Float32Array(size).fill(0.4),
+      riverClass: new Uint8Array(size),
+      lakeMask: new Uint8Array(size),
+    }, {
+      strategy: "default",
+      config: {
+        candidateResourceTypes: [],
+        densityPer100Tiles: 15,
+        minSpacingTiles: 0,
+        maxPlacementsPerResourceShare: 1,
+      },
+    });
+
+    const rowCounts = new Map<number, number>();
+    for (const placement of result.placements) {
+      const row = Math.floor(placement.plotIndex / width);
+      rowCounts.set(row, (rowCounts.get(row) ?? 0) + 1);
+    }
+    const maxRowShare = Math.max(...rowCounts.values()) / result.plannedCount;
+
+    expect(result.plannedCount).toBe(30);
+    expect(rowCounts.size).toBeGreaterThanOrEqual(6);
+    expect(maxRowShare).toBeLessThanOrEqual(0.35);
+    expect(result.placements.some((placement) => placement.plotIndex >= width * 2)).toBe(true);
+  });
+
   it("returns an empty plan when adapter candidate catalog is empty", () => {
     const width = 6;
     const height = 4;
@@ -183,6 +225,7 @@ describe("placement plan operations", () => {
     const result = runOpValidated(planResources, {
       width,
       height,
+      rngSeed: 104,
       noResourceSentinel: 99,
       candidateResourceTypes: [],
       landMask: new Uint8Array(size).fill(1),
@@ -215,6 +258,7 @@ describe("placement plan operations", () => {
     const result = runOpValidated(planResources, {
       width,
       height,
+      rngSeed: 105,
       noResourceSentinel: 7,
       candidateResourceTypes: [7, -1, -2],
       landMask: new Uint8Array(size).fill(1),

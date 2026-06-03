@@ -6,6 +6,10 @@ const PlanResourcesContract = defineOp({
   input: Type.Object({
     width: Type.Integer({ minimum: 1 }),
     height: Type.Integer({ minimum: 1 }),
+    rngSeed: Type.Integer({
+      description:
+        "Seed for deterministic tile-local resource suitability variation.",
+    }),
     noResourceSentinel: Type.Integer({
       description: "Adapter-level sentinel used to represent an empty resource slot.",
     }),

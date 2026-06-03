@@ -32,7 +32,7 @@ import type {
 import { useDumpLoader } from "./features/dumpViewer/useDumpLoader";
 import { useBrowserRunner } from "./features/browserRunner/useBrowserRunner";
 import { capturePinnedSelection } from "./features/browserRunner/retention";
-import { getCiv7MapSizePreset } from "./features/browserRunner/mapSizes";
+import { DEFAULT_CIV7_PLAYER_COUNT, getCiv7MapSizePreset } from "./features/browserRunner/mapSizes";
 import {
   buildRunInGameClientSnapshot,
   buildRunInGameFingerprint,
@@ -67,6 +67,7 @@ import {
 } from "./features/viz/era";
 import { formatErrorForUi } from "./shared/errorFormat";
 import { shouldIgnoreGlobalShortcutsInEditableTarget } from "./shared/shortcuts/shortcutPolicy";
+import { clampCiv7MapSeed, randomCiv7MapSeed } from "./shared/civ7Seed";
 import type { VizEvent } from "./shared/vizEvents";
 
 import {
@@ -91,19 +92,6 @@ import {
   type StudioRecipeUiMeta,
 } from "./recipes/catalog";
 import { getOverlaySuggestions } from "./recipes/overlaySuggestions";
-
-function randomU32(): number {
-  try {
-    if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
-      const buf = new Uint32Array(1);
-      crypto.getRandomValues(buf);
-      return buf[0] ?? 0;
-    }
-  } catch {
-    // ignore
-  }
-  return (Math.random() * 0xffffffff) >>> 0;
-}
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -540,7 +528,7 @@ function AppContent(props: AppContentProps) {
   const [worldSettings, setWorldSettings] = useState<WorldSettings>(() => initialAuthoringState?.worldSettings ?? {
     mode: "browser",
     mapSize: "MAPSIZE_STANDARD",
-    playerCount: 6,
+    playerCount: DEFAULT_CIV7_PLAYER_COUNT,
     resources: "balanced",
   });
 
@@ -998,12 +986,16 @@ function AppContent(props: AppContentProps) {
     (overrides?: { seed?: string }) => {
       setLocalError(null);
 
-      const seedStr = overrides?.seed ?? recipeSettings.seed;
-      const seed = Number(seedStr) || 0;
+      const requestedSeedStr = overrides?.seed ?? recipeSettings.seed;
+      const seed = clampCiv7MapSeed(requestedSeedStr);
+      const seedStr = String(seed);
       const mapSize = getCiv7MapSizePreset(worldSettings.mapSize);
       const nextWorldSettings = { ...worldSettings, mode: "browser" } as const;
 
       setWorldSettings(nextWorldSettings);
+      if (seedStr !== recipeSettings.seed) {
+        setRecipeSettings((prev) => ({ ...prev, seed: seedStr }));
+      }
 
       const pinned = capturePinnedSelection({
         mode: "browser",
@@ -1027,7 +1019,7 @@ function AppContent(props: AppContentProps) {
         seed,
         mapSizeId: mapSize.id,
         dimensions: mapSize.dimensions,
-        latitudeBounds: { topLatitude: 80, bottomLatitude: -80 },
+        latitudeBounds: mapSize.latitudeBounds,
         playerCount: worldSettings.playerCount,
         resourcesMode: worldSettings.resources,
         configOverrides: overridesDisabled ? undefined : (pipelineConfig as unknown),
@@ -1459,7 +1451,7 @@ function AppContent(props: AppContentProps) {
       toast("Finish the current Studio operation before rerolling.", { variant: "info" });
       return;
     }
-    const next = String(randomU32());
+    const next = String(randomCiv7MapSeed());
     setRecipeSettings((prev) => ({ ...prev, seed: next }));
     startBrowserRun({ seed: next });
   }, [runInGameRunning, saveDeployRunning, startBrowserRun, toast]);
@@ -1691,6 +1683,13 @@ function AppContent(props: AppContentProps) {
     const sanitized = stripSchemaMetadataRoot(pipelineConfig) as PipelineConfig;
     const resolved = resolvePreset(recipeSettings.preset as PresetKey);
     const mapSize = getCiv7MapSizePreset(worldSettings.mapSize);
+    const normalizedSeed = String(clampCiv7MapSeed(recipeSettings.seed));
+    const normalizedRecipeSettings = normalizedSeed === recipeSettings.seed
+      ? recipeSettings
+      : { ...recipeSettings, seed: normalizedSeed };
+    if (normalizedRecipeSettings !== recipeSettings) {
+      setRecipeSettings(normalizedRecipeSettings);
+    }
     const selectedConfig = resolved
       ? {
           id: resolved.id,
@@ -1703,7 +1702,7 @@ function AppContent(props: AppContentProps) {
       : undefined;
     const result = await runCurrentConfigInGame({
       recipeId: "mod-swooper-maps/standard",
-      seed: recipeSettings.seed,
+      seed: normalizedRecipeSettings.seed,
       mapSize: mapSize.id,
       playerCount: worldSettings.playerCount,
       resources: worldSettings.resources,
@@ -1731,7 +1730,7 @@ function AppContent(props: AppContentProps) {
     setRunInGameOperation(result);
     const snapshot = buildRunInGameClientSnapshot({
       requestId: result.requestId,
-      recipeSettings,
+      recipeSettings: normalizedRecipeSettings,
       worldSettings,
       pipelineConfig: sanitized,
       materializationMode: runInGameMaterializationMode,
@@ -1739,7 +1738,7 @@ function AppContent(props: AppContentProps) {
     setRunInGameSnapshot(snapshot);
     const sourceSnapshot = buildRunInGameSourceSnapshot({
       requestId: result.requestId,
-      recipeSettings,
+      recipeSettings: normalizedRecipeSettings,
       worldSettings,
       pipelineConfig: sanitized,
       materializationMode: runInGameMaterializationMode,

@@ -190,6 +190,7 @@ export function createMap<const TRecipe extends RecipeModule<ExtendedMapContext,
         seed,
         mapSize: captured.mapSizeId,
         dimensions: { width, height },
+        latitudeBounds: { topLatitude, bottomLatitude },
       })}`
     );
     try {

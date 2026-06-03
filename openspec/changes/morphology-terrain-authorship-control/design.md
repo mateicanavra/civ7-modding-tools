@@ -36,6 +36,34 @@ Competing hypotheses dispositioned:
 - Existing tests catch this: rejected; available tests can pass with mountains
   alone and no meaningful hill/rough-land band.
 
+## 2026-06-03 Orogenic Province Update
+
+The current post-foundation tuning slice extends the earlier rough-land diagnosis
+from terrain share to terrain morphology. The product unit is now an orographic
+province: a long mountain-region footprint that may contain peaks, hills,
+foothills, valleys, forests, resources, and settlement-capable basins.
+
+Additional findings and dispositions:
+
+- Studio/game coordinate mismatch: accepted. Standard recipe visualization
+  layers were emitted as `tile.hexOddR`, while generation helpers and live Civ7
+  readback use row-major odd-q topology. The standard recipe now emits
+  `tile.hexOddQ`, and a guard test rejects odd-r standard-layer regressions.
+- Mountain range length under-realization: accepted. The prior planner could
+  satisfy range intent with short, curled peak clusters. Range length is now
+  represented by `rangeSystemLengthTiles`, Large maps use it as the baseline,
+  and the ridge op grows a province axis before width/peak dilation.
+- Output-shaped public controls: rejected. Public mountain authorship now uses
+  compact physical knobs (`tectonicActivity`, `rangeSystemSpacingTiles`,
+  `rangeSystemLengthTiles`, `provinceRadiusTiles`, `ridgeWidthTiles`,
+  `foothillExtentTiles`, `interiorHighlandExpression`,
+  `terrainTextureFractalMix`, `erosionMaturity`,
+  `tectonicSignalSensitivity`) and resolves them to internal executable
+  mountain config.
+- Resource bottom-row line: accepted as tie-order pathology. Resource placement
+  now uses seed-keyed tile-local micro-suitability and hash tie-breaks instead
+  of plot-index order for broad ties.
+
 ## Corpus Summary
 
 The full corpus is recorded in `workstream/corpus-ledger.md`. Control classes:
@@ -70,6 +98,7 @@ that surface exists.
 | Volcanoes | Count by configured size budget and tectonic regime; `>=70%` in subduction/rift/hotspot regimes, `<20%` stable-shield-without-hotspot | Volcanism is a sparse point phenomenon; it can stamp mountain terrain but cannot satisfy ridge or rough-land bands. |
 | Coasts/shelves | Coast/ocean as projection/readback budget, not land roughness | Continental shelves are shallow and coastal; their extent should be measured through coast/shelf projection, not Morphology rough-land truth. |
 | Cliffs/elevation | No hard success band until first runtime baseline; must be read back after `buildElevation()` | Cliffs are engine-owned adjacency state. Morphology may influence them but cannot claim them from local truth artifacts alone. |
+| Mountain province span | Large-map Swooper Earthlike target `~30` tiles for largest province span; peak spines may be discontinuous and shorter | The authored province is the mountain region, not a solid mountain tile output. Valleys and passes inside the region are expected. |
 
 External references used for predeclaration:
 

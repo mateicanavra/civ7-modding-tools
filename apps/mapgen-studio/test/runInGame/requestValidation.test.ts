@@ -80,7 +80,12 @@ describe("Run in Game request validation", () => {
       recipeId: "mod-swooper-maps/standard",
       seed: "not a number",
       config: { ok: true },
-    })).toThrow("seed must be an integer");
+    })).toThrow("seed must be an integer between 0 and 2147483647");
+    expect(() => parseRunInGameSetupRequest({
+      recipeId: "mod-swooper-maps/standard",
+      seed: 2147483648,
+      config: { ok: true },
+    })).toThrow("seed must be an integer between 0 and 2147483647");
     expect(() => parseRunInGameSetupRequest({
       recipeId: "other",
       seed: 123,

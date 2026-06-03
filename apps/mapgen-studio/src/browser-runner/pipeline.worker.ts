@@ -7,6 +7,7 @@ import { deriveRunId } from "@swooper/mapgen-core/engine";
 
 import { CIV7_BROWSER_TABLES_V0 } from "../civ7-data/civ7-tables.gen";
 import type { BrowserRunEvent, BrowserRunRequest } from "./protocol";
+import { buildBrowserRunMapInfo } from "./civ7MapInfo";
 import { getRuntimeRecipe } from "./recipeRuntime";
 import { stripSchemaMetadataRoot } from "@swooper/mapgen-core/authoring";
 import { createWorkerTraceSink } from "./worker-trace-sink";
@@ -164,13 +165,8 @@ async function runRecipe(
     width: dimensions.width,
     height: dimensions.height,
     mapSizeId,
-    mapInfo: {
-      GridWidth: dimensions.width,
-      GridHeight: dimensions.height,
-      PlayersLandmass1: request.playerCount ?? 4,
-      PlayersLandmass2: request.playerCount ?? 4,
-      StudioResourcesMode: request.resourcesMode ?? "balanced",
-    },
+    mapInfo: buildBrowserRunMapInfo({ mapSizeId, dimensions, resourcesMode: request.resourcesMode }),
+    latitudeBounds,
     rng: createLabelRng(seed),
     terrainTypeIndices: { ...CIV7_BROWSER_TABLES_V0.terrainTypeIndices },
     biomeGlobals: { ...CIV7_BROWSER_TABLES_V0.biomeGlobals },

@@ -42,6 +42,17 @@ export type { EngineEffectTagId } from "./effects.js";
 export { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.js";
 export { NATURAL_WONDER_CATALOG } from "./manual-catalogs/natural-wonders.js";
 export { DISCOVERY_CATALOG } from "./manual-catalogs/discoveries.js";
+export { CIV7_BROWSER_TABLES_V0 } from "./civ7-tables.gen.js";
+export type { Civ7BrowserTablesV0 } from "./civ7-tables.gen.js";
+export {
+  CIV7_MAP_INFO_BY_TYPE,
+  CIV7_MAP_SIZE_TYPES,
+  DEFAULT_CIV7_MAP_LATITUDE_BOUNDS,
+  getCiv7MapInfo,
+  getCiv7MapInfoByDimensions,
+  getCiv7MapSizeTypeByDimensions,
+} from "./map-size-info.js";
+export type { Civ7LatitudeBounds, Civ7MapSizeType } from "./map-size-info.js";
 
 // Re-export mock adapter (safe to import anywhere)
 export { MockAdapter, createMockAdapter } from "./mock-adapter.js";

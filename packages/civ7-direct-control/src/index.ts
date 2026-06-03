@@ -99,6 +99,8 @@ export const DEFAULT_CIV7_SETUP_PARAMETER_IDS = [
   "MapRandomSeed",
   "GameRandomSeed",
 ] as const;
+export const CIV7_MAP_SEED_MIN = 0;
+export const CIV7_MAP_SEED_MAX = 0x7fffffff;
 export const DEFAULT_CIV7_MAP_GRID_MAX_PLOTS = 512;
 export const HARD_CIV7_MAP_GRID_MAX_PLOTS = 10_000;
 export const DEFAULT_CIV7_GAMEINFO_LIMIT = 100;
@@ -3649,8 +3651,11 @@ function normalizeSinglePlayerSetupInput(input: Civ7SinglePlayerSetupInput): Civ
   if (!/^MAPSIZE_[A-Z0-9_]+$/.test(input.mapSize)) {
     throw new Civ7DirectControlError("setup-parameter-invalid", "mapSize must be a Civ7 MAPSIZE_* value");
   }
-  if (!Number.isInteger(input.seed)) {
-    throw new Civ7DirectControlError("setup-parameter-invalid", "seed must be an integer");
+  if (!Number.isInteger(input.seed) || input.seed < CIV7_MAP_SEED_MIN || input.seed > CIV7_MAP_SEED_MAX) {
+    throw new Civ7DirectControlError(
+      "setup-parameter-invalid",
+      `seed must be an integer between ${CIV7_MAP_SEED_MIN} and ${CIV7_MAP_SEED_MAX}`,
+    );
   }
   if (input.gameSeed !== undefined && !Number.isInteger(input.gameSeed)) {
     throw new Civ7DirectControlError("setup-parameter-invalid", "gameSeed must be an integer");

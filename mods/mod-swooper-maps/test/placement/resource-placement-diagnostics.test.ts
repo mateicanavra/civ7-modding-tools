@@ -86,6 +86,49 @@ describe("resource placement diagnostics", () => {
     });
   });
 
+  it("does not globally scan for per-resource coverage outside planned resource plots", () => {
+    const width = 4;
+    const height = 3;
+    const adapter = createMockAdapter({
+      width,
+      height,
+      mapInfo: { GridWidth: width, GridHeight: height },
+      mapSizeId: 1,
+      rng: createLabelRng(1932),
+      canHaveResource: (_x, y, resourceType) => resourceType === 4 || y === height - 1,
+    });
+
+    const outcomes = placeResourcesWithTypedOutcomes({
+      adapter,
+      width,
+      height,
+      resources: {
+        width,
+        height,
+        candidateResourceTypes: [4, 9],
+        targetCount: 3,
+        plannedCount: 3,
+        placements: [
+          { plotIndex: 0, preferredResourceType: 4, preferredTypeOffset: 0, priority: 0.9 },
+          { plotIndex: 1, preferredResourceType: 4, preferredTypeOffset: 0, priority: 0.8 },
+          { plotIndex: 2, preferredResourceType: 4, preferredTypeOffset: 0, priority: 0.7 },
+        ],
+      },
+    });
+
+    expect(outcomes.summary).toMatchObject({
+      plannedCount: 3,
+      placedCount: 3,
+      rejectedCount: 0,
+      mismatchCount: 0,
+    });
+    expect(outcomes.outcomes.map((outcome) => outcome.plotIndex)).toEqual([0, 1, 2]);
+    expect(outcomes.outcomes.every((outcome) => outcome.y === 0)).toBe(true);
+    expect(outcomes.outcomes.every((outcome) => outcome.resourceType === 4)).toBe(true);
+    expect(adapter.getResourceType(0, height - 1)).toBe(adapter.NO_RESOURCE);
+    expect(outcomes.assignment.unassignableResourceTypes).toEqual([9]);
+  });
+
   it("formats compact runtime telemetry for scripting logs", () => {
     const telemetry = buildResourcePlacementRuntimeTelemetry(
       {

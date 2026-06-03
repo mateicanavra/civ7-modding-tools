@@ -18,7 +18,11 @@ const BuildElevationStepContract = defineStep({
     MAP_PROJECTION_EFFECT_TAGS.map.elevationParityCaptured,
   ],
   artifacts: {
-    requires: [morphologyArtifacts.topography, mapHydrologyArtifacts.engineProjectionLakes],
+    requires: [
+      morphologyArtifacts.topography,
+      mapHydrologyArtifacts.engineProjectionLakes,
+      mapHydrologyArtifacts.hydrologyLakesEngineTerrainSnapshot,
+    ],
     provides: [mapElevationArtifacts.elevationEngineTerrainSnapshot],
   },
   schema: Type.Object({}),

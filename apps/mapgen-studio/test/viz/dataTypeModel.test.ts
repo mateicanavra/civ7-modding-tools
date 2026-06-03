@@ -9,12 +9,12 @@ describe("buildStepDataTypeModel", () => {
     const layers: VizLayerEntryV1[] = [
       {
         kind: "grid",
-        layerKey: `${stepId}::heightfield::tile.hexOddR::grid::f32`,
+        layerKey: `${stepId}::heightfield::tile.hexOddQ::grid::f32`,
         dataTypeKey: "heightfield",
         variantKey: "f32",
         stepId,
         stepIndex: 0,
-        spaceId: "tile.hexOddR",
+        spaceId: "tile.hexOddQ",
         dims: { width: 4, height: 3 },
         field: { format: "f32", data: { kind: "path", path: "height/f32" } },
         bounds: [0, 0, 4, 3],
@@ -22,12 +22,12 @@ describe("buildStepDataTypeModel", () => {
       },
       {
         kind: "grid",
-        layerKey: `${stepId}::heightfield::tile.hexOddR::grid::u8`,
+        layerKey: `${stepId}::heightfield::tile.hexOddQ::grid::u8`,
         dataTypeKey: "heightfield",
         variantKey: "u8",
         stepId,
         stepIndex: 0,
-        spaceId: "tile.hexOddR",
+        spaceId: "tile.hexOddQ",
         dims: { width: 4, height: 3 },
         field: { format: "u8", data: { kind: "path", path: "height/u8" } },
         bounds: [0, 0, 4, 3],
@@ -68,7 +68,7 @@ describe("buildStepDataTypeModel", () => {
     const heightfield = model.dataTypes.find((dt) => dt.dataTypeId === "heightfield")!;
     expect(heightfield.label).toBe("Elevation");
     expect(heightfield.visibility).toBe("default");
-    expect(heightfield.spaces.map((p) => p.spaceId)).toEqual(["tile.hexOddR"]);
+    expect(heightfield.spaces.map((p) => p.spaceId)).toEqual(["tile.hexOddQ"]);
     expect(heightfield.spaces[0]?.renderModes.map((rm) => rm.renderModeId)).toEqual(["grid"]);
     expect(heightfield.spaces[0]?.renderModes[0]?.variants.map((v) => v.variantId)).toEqual(["f32"]);
 

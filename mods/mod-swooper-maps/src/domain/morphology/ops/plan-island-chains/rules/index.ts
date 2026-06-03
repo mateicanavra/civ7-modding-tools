@@ -15,6 +15,8 @@ export function validateIslandInputs(
   boundaryCloseness: Uint8Array;
   boundaryType: Uint8Array;
   volcanism: Uint8Array;
+  movementU: Int8Array;
+  movementV: Int8Array;
 } {
   const { width, height } = input;
   const size = Math.max(0, (width | 0) * (height | 0));
@@ -22,15 +24,19 @@ export function validateIslandInputs(
   const boundaryCloseness = input.boundaryCloseness as Uint8Array;
   const boundaryType = input.boundaryType as Uint8Array;
   const volcanism = input.volcanism as Uint8Array;
+  const movementU = input.movementU as Int8Array;
+  const movementV = input.movementV as Int8Array;
   if (
     landMask.length !== size ||
     boundaryCloseness.length !== size ||
     boundaryType.length !== size ||
-    volcanism.length !== size
+    volcanism.length !== size ||
+    movementU.length !== size ||
+    movementV.length !== size
   ) {
     throw new Error("[IslandChains] Input tensors must match width*height.");
   }
-  return { size, landMask, boundaryCloseness, boundaryType, volcanism };
+  return { size, landMask, boundaryCloseness, boundaryType, volcanism, movementU, movementV };
 }
 
 /**
@@ -53,32 +59,6 @@ export function normalizeIslandTunables(config: PlanIslandChainsTypes["config"][
     hotspotDenom: Math.max(1, islandsCfg.hotspotSeedDenom | 0),
     microcontinentChance: islandsCfg.microcontinentChance,
   };
-}
-
-/**
- * Checks whether any mask tile is within a square radius.
- */
-export function isWithinRadius(
-  width: number,
-  height: number,
-  x: number,
-  y: number,
-  radius: number,
-  mask: Uint8Array
-): boolean {
-  if (radius <= 0) return false;
-  const r = Math.max(0, radius | 0);
-  for (let dy = -r; dy <= r; dy++) {
-    const ny = y + dy;
-    if (ny < 0 || ny >= height) continue;
-    const row = ny * width;
-    for (let dx = -r; dx <= r; dx++) {
-      const nx = x + dx;
-      if (nx < 0 || nx >= width) continue;
-      if (mask[row + nx] === 1) return true;
-    }
-  }
-  return false;
 }
 
 /**

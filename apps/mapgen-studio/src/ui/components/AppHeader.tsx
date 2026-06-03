@@ -10,6 +10,7 @@ import {
   PLAYER_COUNT_OPTIONS,
   RESOURCE_MODE_OPTIONS } from
 '../constants';
+import { getCiv7MapSizePreset } from '../../features/browserRunner/mapSizes';
 import type { ThemePreference, WorldSettings } from '../types';
 export const HEADER_HEIGHT = LAYOUT.HEADER_HEIGHT;
 export interface AppHeaderProps {
@@ -104,12 +105,15 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           </span>
           <Select
             value={globalSettings.mapSize}
-            onChange={(e) =>
-            updateSetting(
-              'mapSize',
-              e.target.value as WorldSettings['mapSize']
-            )
-            }
+            onChange={(e) => {
+              const mapSize = e.target.value as WorldSettings['mapSize'];
+              const preset = getCiv7MapSizePreset(mapSize);
+              onGlobalSettingsChange({
+                ...globalSettings,
+                mapSize,
+                playerCount: preset.defaultPlayers || globalSettings.playerCount
+              });
+            }}
             options={MAP_SIZE_OPTIONS.map((opt) => ({
               value: opt.value,
               label: opt.label

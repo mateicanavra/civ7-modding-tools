@@ -266,4 +266,51 @@ describe("world balance stats", () => {
     expect(presentIn("FEATURE_SAVANNA_WOODLAND"), "savanna seed presence").toBeGreaterThanOrEqual(6);
     expect(presentIn("FEATURE_SAGEBRUSH_STEPPE"), "sagebrush seed presence").toBeGreaterThanOrEqual(6);
   });
+
+  it("keeps Large earthlike mountain provinces long without turning them into solid peak carpets", { timeout: 45_000 }, () => {
+    const seeds = [1018, 1, 2, 3, 42, 99];
+    const rolls: WorldBalanceStats[] = seeds.map((seed) =>
+      collectWorldBalanceStats({
+        label: `swooper-earthlike-large:${seed}`,
+        config: recipeConfig(swooperEarthlikeConfigRaw),
+        seed,
+        width: 96,
+        height: 60,
+      })
+    );
+
+    for (const stats of rolls) {
+      expectResourceDiagnostics(stats);
+      expect(
+        stats.plannedLargestMountainRegionIdSpanTiles,
+        `${stats.label} mountain province span`
+      ).toBeGreaterThanOrEqual(28);
+      expect(
+        stats.plannedMountainRegionIdCount,
+        `${stats.label} mountain province count`
+      ).toBeGreaterThanOrEqual(8);
+      expect(
+        stats.plannedLargestMountainComponentSpanTiles,
+        `${stats.label} planned mountain spine span`
+      ).toBeGreaterThanOrEqual(15);
+      expect(
+        stats.finalLargestMountainComponentSpanTiles,
+        `${stats.label} final mountain spine span`
+      ).toBeGreaterThanOrEqual(15);
+      expect(
+        stats.finalMountainShareOfPreLakeLand,
+        `${stats.label} final mountain share`
+      ).toBeLessThanOrEqual(0.13);
+    }
+
+    expect(
+      rolls.reduce((sum, stats) => sum + stats.plannedLargestMountainRegionIdSpanTiles, 0) /
+        rolls.length,
+      "Large earthlike mean mountain province span"
+    ).toBeGreaterThanOrEqual(29);
+    expect(
+      rolls.reduce((sum, stats) => sum + stats.plannedMountainRegionIdCount, 0) / rolls.length,
+      "Large earthlike mean mountain province count"
+    ).toBeGreaterThanOrEqual(9);
+  });
 });

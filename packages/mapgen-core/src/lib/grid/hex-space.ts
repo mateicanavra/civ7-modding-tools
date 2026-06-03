@@ -3,6 +3,7 @@ import { wrapDeltaPeriodic } from "@mapgen/lib/math/wrap.js";
 export const HEX_WIDTH = Math.sqrt(3);
 export const HEX_HEIGHT = 1.5;
 export const HALF_HEX_HEIGHT = HEX_HEIGHT / 2;
+export const HEX_ODD_Q_TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 /**
  * Convert odd-q offset coordinates (tile space) to "hex space" coordinates.

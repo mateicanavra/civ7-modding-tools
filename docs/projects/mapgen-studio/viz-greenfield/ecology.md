@@ -22,8 +22,8 @@ Groups correspond to `layer.meta.group`.
 ### Ecology / Pedology
 
 **Default**
-- `ecology.pedology.soilType` — `tile.hexOddR::grid` — categorical soil type.
-- `ecology.pedology.fertility` — `tile.hexOddR::grid` + `points:centroids` — fertility scalar field.
+- `ecology.pedology.soilType` — `tile.hexOddQ::grid` — categorical soil type.
+- `ecology.pedology.fertility` — `tile.hexOddQ::grid` + `points:centroids` — fertility scalar field.
 
 **Debug**
 - (none by default; pedology should stay simple)
@@ -31,7 +31,7 @@ Groups correspond to `layer.meta.group`.
 ### Ecology / Resource Basins
 
 **Default**
-- `ecology.resourceBasins.resourceBasinId` — `tile.hexOddR::grid` — categorical basin membership.
+- `ecology.resourceBasins.resourceBasinId` — `tile.hexOddQ::grid` — categorical basin membership.
 
 **Debug**
 - (none)
@@ -39,9 +39,9 @@ Groups correspond to `layer.meta.group`.
 ### Ecology / Biomes
 
 **Default**
-- `ecology.biome.biomeIndex` — `tile.hexOddR::grid` — biome classification (categorical).
-- `ecology.biome.vegetationDensity` — `tile.hexOddR::grid` + `points:centroids` — primary vegetation signal.
-- `ecology.biome.effectiveMoisture` — `tile.hexOddR::grid` + `points:centroids` — primary moisture signal.
+- `ecology.biome.biomeIndex` — `tile.hexOddQ::grid` — biome classification (categorical).
+- `ecology.biome.vegetationDensity` — `tile.hexOddQ::grid` + `points:centroids` — primary vegetation signal.
+- `ecology.biome.effectiveMoisture` — `tile.hexOddQ::grid` + `points:centroids` — primary moisture signal.
 
 **Debug**
 - Secondary biome inputs/diagnostics:
@@ -53,7 +53,7 @@ Groups correspond to `layer.meta.group`.
 ### Ecology / Feature Intents
 
 **Default**
-- `ecology.featureIntents.featureType` — `tile.hexOddR::points` — planned placements, categorized by feature key.
+- `ecology.featureIntents.featureType` — `tile.hexOddQ::points` — planned placements, categorized by feature key.
 
 **Debug**
 - (none; placement is already sparse and “meaningful” by default)
@@ -63,9 +63,9 @@ Groups correspond to `layer.meta.group`.
 These layers reflect engine writeback / projected state (not ecology truth). Keep them minimal and gameplay-facing.
 
 **Default**
-- `map.ecology.biomeId` — `tile.hexOddR::grid` — engine biome id after plotting.
-- `map.ecology.temperature` — `tile.hexOddR::grid` — engine temperature field after plotting.
-- `map.ecology.plotEffects.plotEffect` — `tile.hexOddR::points` — placed plot effects.
+- `map.ecology.biomeId` — `tile.hexOddQ::grid` — engine biome id after plotting.
+- `map.ecology.temperature` — `tile.hexOddQ::grid` — engine temperature field after plotting.
+- `map.ecology.plotEffects.plotEffect` — `tile.hexOddQ::points` — placed plot effects.
 
 **Debug**
 - engine-vs-physics comparisons and intermediate masks belong behind debug.
@@ -75,20 +75,20 @@ These layers reflect engine writeback / projected state (not ecology truth). Kee
 ### Vegetation density (scalar field)
 - `dataTypeKey`: `ecology.biome.vegetationDensity`
 - Primary expressions (default, debug OFF):
-  - `tile.hexOddR::grid`
-  - `tile.hexOddR::points:centroids`
+  - `tile.hexOddQ::grid`
+  - `tile.hexOddQ::points:centroids`
 
 ### Effective moisture (scalar field)
 - `dataTypeKey`: `ecology.biome.effectiveMoisture`
 - Primary expressions (default, debug OFF):
-  - `tile.hexOddR::grid`
-  - `tile.hexOddR::points:centroids`
+  - `tile.hexOddQ::grid`
+  - `tile.hexOddQ::points:centroids`
 
 ### Fertility (scalar field)
 - `dataTypeKey`: `ecology.pedology.fertility`
 - Primary expressions (default, debug OFF):
-  - `tile.hexOddR::grid`
-  - `tile.hexOddR::points:centroids`
+  - `tile.hexOddQ::grid`
+  - `tile.hexOddQ::points:centroids`
 
 ## Implementation status
 

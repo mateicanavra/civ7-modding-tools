@@ -1,6 +1,6 @@
 import { NATURAL_WONDER_CATALOG } from "../../packages/civ7-adapter/src/manual-catalogs/natural-wonders.ts";
 import { DISCOVERY_CATALOG } from "../../packages/civ7-adapter/src/manual-catalogs/discoveries.ts";
-import { CIV7_BROWSER_TABLES_V0 } from "../../apps/mapgen-studio/src/civ7-data/civ7-tables.gen.ts";
+import { CIV7_BROWSER_TABLES_V0 } from "../../packages/civ7-adapter/src/civ7-tables.gen.ts";
 
 const expectedNaturalWonders = [
   "FEATURE_BARRIER_REEF",

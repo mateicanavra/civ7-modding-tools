@@ -4,7 +4,7 @@ import LakesStepContract from "./lakes.contract.js";
 import { mapHydrologyArtifacts } from "../artifacts.js";
 
 const GROUP_MAP_HYDROLOGY = "Map / Hydrology (Engine)";
-const TILE_SPACE_ID = "tile.hexOddR" as const;
+const TILE_SPACE_ID = "tile.hexOddQ" as const;
 
 export default createStep(LakesStepContract, {
   artifacts: implementArtifacts(

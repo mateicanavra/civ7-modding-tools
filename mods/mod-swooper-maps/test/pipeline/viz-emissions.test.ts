@@ -81,6 +81,11 @@ describe("standard pipeline viz emissions", () => {
       "map.ecology.featureType",
       "placement.landmassRegions.regionSlot",
       "placement.starts.startPosition",
+      "map.placement.engine.terrain",
+      "map.placement.engine.landMask",
+      "map.placement.engine.biome",
+      "map.placement.engine.feature",
+      "map.placement.engine.resource",
     ];
     const missing = expected.filter((dataTypeKey) => !seenLayers.has(dataTypeKey));
     expect(missing).toEqual([]);

@@ -34,7 +34,7 @@ For every normalized field, the schema and catalog MUST specify:
 ### Tile space
 
 - Length = `width * height`
-- Coordinate space is declared by viz `spaceId` (e.g., `tile.hexOddR`).
+- Coordinate space is declared by viz `spaceId` (e.g., `tile.hexOddQ`).
 
 ### Mesh space
 
