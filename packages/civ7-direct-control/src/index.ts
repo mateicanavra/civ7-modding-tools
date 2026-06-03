@@ -133,7 +133,11 @@ import {
   getCiv7MapSummary as getCiv7MapSummaryFromModule,
   getCiv7PlotSnapshot as getCiv7PlotSnapshotFromModule,
 } from "./play/map/reads.js";
-import { getCiv7GameInfoRows as getCiv7GameInfoRowsFromModule } from "./play/map/gameinfo.js";
+import {
+  getCiv7GameInfoRows as getCiv7GameInfoRowsFromModule,
+  type Civ7GameInfoRowsInput,
+  type Civ7GameInfoRowsResult,
+} from "./play/map/gameinfo.js";
 import {
   getCiv7VisibilitySummary as getCiv7VisibilitySummaryFromModule,
   revealCiv7MapForPlayer as revealCiv7MapForPlayerFromModule,
@@ -302,6 +306,10 @@ export {
   HARD_CIV7_GAMEINFO_LIMIT,
   HARD_CIV7_MAP_GRID_MAX_PLOTS,
 } from "./play/map/constants.js";
+export type {
+  Civ7GameInfoRowsInput,
+  Civ7GameInfoRowsResult,
+} from "./play/map/gameinfo.js";
 export type {
   Civ7CitySummary,
   Civ7CitySummaryInput,
@@ -625,34 +633,6 @@ export type Civ7VisibilitySummaryResult = Readonly<{
       visible: Civ7RuntimeProbe<boolean>;
     }>>;
   }>;
-}>;
-
-export type Civ7GameInfoRowsInput = Readonly<{
-  table: string;
-  lookup?: string | number | ReadonlyArray<string | number>;
-  filter?: Readonly<{
-    key: string;
-    equals: string | number | boolean;
-  }>;
-  limit?: number;
-  offset?: number;
-  includeSchema?: boolean;
-  includePrimaryKeys?: boolean;
-}>;
-
-export type Civ7GameInfoRowsResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  table: string;
-  source: "GameInfo";
-  rows: ReadonlyArray<Record<string, unknown>>;
-  limit: number;
-  offset: number;
-  total: Civ7RuntimeProbe<number>;
-  omittedUnknown: boolean;
-  schema?: Civ7RuntimeProbe<unknown>;
-  primaryKeys?: Civ7RuntimeProbe<unknown>;
 }>;
 
 export type Civ7SetupPhase = "shell" | "running-game" | "loading" | "begin-ready" | "unavailable";
