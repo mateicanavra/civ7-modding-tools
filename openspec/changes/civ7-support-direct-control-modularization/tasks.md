@@ -264,7 +264,7 @@ runtime/direct-control claims.
       or semantic player-agent output.
   - [x] 4.10.1 Extract tuner frame encode/parse owner module behind the
         existing package facade.
-- [ ] 4.11 Extract map/visibility/GameInfo read atoms.
+- [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in
         `index.ts`.
@@ -285,9 +285,17 @@ runtime/direct-control claims.
         facade exports in `index.ts`, preserving approval-first and
         disposable-session guards, player-id validation, visibility before/after
         reads, `Visibility.revealAllPlots` command text, classification shape,
-        and leaving setup map rows, AI ingestion, static profile shaping,
-        semantic CLI, telemetry, hotseat runtime proof, and Effect/oRPC
-        procedure-core work pending.
+        and leaving setup map rows to 4.11.6 plus AI ingestion, static profile
+        shaping, semantic CLI, telemetry, hotseat runtime proof, and
+        Effect/oRPC procedure-core work pending.
+  - [x] 4.11.6 Extract setup snapshot and setup map rows read/source owner while
+        keeping public facade exports in `index.ts`, preserving setup map script
+        validation, `limit` default/bounds, setup-domain/config-db row
+        materialization, setup snapshot phase/config shape, and lifecycle helper
+        reuse of the same setup source while leaving prepare/start/restart
+        lifecycle orchestration, AI ingestion, static profile shaping, semantic
+        CLI, telemetry, hotseat runtime proof, and Effect/oRPC procedure-core
+        work pending.
 - [ ] 4.12 Extract runtime inspection/catalog/proof atoms.
   - [x] 4.12.1 Extract runtime API inspection wrapper/source owner while keeping
         the public facade export surface in `index.ts`, classifying it as
@@ -363,6 +371,14 @@ runtime/direct-control claims.
         shapes, and leaving hotseat runtime proof, AI ingestion, CLI semantic
         projection, telemetry, Effect/oRPC procedure-core work, and Task 2.9.4
         matrix-row acceptance pending.
+- [ ] 4.14 Extract setup/start lifecycle atoms.
+  - [x] 4.14.1 Extract setup snapshot and setup map rows read/source owner while
+        keeping public facade exports in `index.ts` and leaving
+        `ensureCiv7SetupMapRowVisible`, `prepareCiv7SinglePlayerSetup`,
+        `startPreparedCiv7SinglePlayerGame`, `runCiv7SinglePlayerFromSetup`,
+        restart/begin lifecycle orchestration, no-replay semantics, runtime
+        proof, AI ingestion, semantic CLI projection, telemetry, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 
 ## 5. CLI Semantic Surface Lane
 

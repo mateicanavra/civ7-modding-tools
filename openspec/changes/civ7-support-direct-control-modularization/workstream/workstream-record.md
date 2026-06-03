@@ -732,6 +732,19 @@ All future agent waves must be framed before delegation:
   live-game proof; setup map rows, AI ingestion, static profile shaping,
   semantic CLI projection, telemetry, hotseat runtime proof, Effect/oRPC
   procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending.
+- Direct-control setup reads slice: completed as a narrow setup read/source
+  relocation. It moves only `getCiv7SetupSnapshot`, `getCiv7SetupMapRows`,
+  their command builders, shared setup snapshot/map-row source, and
+  `validateMapScript` into `src/setup/reads.ts` while keeping public facade
+  exports in `index.ts`. Lifecycle orchestration still reuses the same setup
+  source through an internal helper import, but `ensureCiv7SetupMapRowVisible`,
+  `prepareCiv7SinglePlayerSetup`, `startPreparedCiv7SinglePlayerGame`,
+  `runCiv7SinglePlayerFromSetup`, restart/begin lifecycle orchestration, and
+  no-replay semantics remain in the facade for later setup/lifecycle owner
+  slices. This is local package/source relocation proof only, not runtime proof;
+  hotseat runtime proof, AI ingestion, semantic CLI projection, telemetry,
+  Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance remain
+  pending.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now

@@ -58,6 +58,12 @@ import {
 } from "./runtime/tuner-health.js";
 import { getCiv7PlayableStatus as getCiv7PlayableStatusFromModule } from "./runtime/playable-status.js";
 import {
+  getCiv7SetupMapRows as getCiv7SetupMapRowsFromModule,
+  getCiv7SetupSnapshot as getCiv7SetupSnapshotFromModule,
+  setupSnapshotScriptSource,
+  validateMapScript,
+} from "./setup/reads.js";
+import {
   configureCiv7Autoplay as configureCiv7AutoplayFromModule,
   getCiv7AutoplayStatus as getCiv7AutoplayStatusFromModule,
   startCiv7Autoplay as startCiv7AutoplayFromModule,
@@ -2972,24 +2978,29 @@ export async function getCiv7GameInfoRows(
 export async function getCiv7SetupSnapshot(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7SetupSnapshotResult> {
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildSetupSnapshotCommand(),
-  });
-  return jsonPayloadFromCommandResult<Civ7SetupSnapshotResult>(result, "Civ7 setup snapshot");
+  return await getCiv7SetupSnapshotFromModule(options, setupReadDependencies());
 }
 
 export async function getCiv7SetupMapRows(
   input: Civ7SetupMapRowsInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7SetupMapRowsResult> {
-  if (input.file !== undefined) validateMapScript(input.file);
-  const limit = boundedInteger(input.limit ?? 100, 1, 1_000, "limit");
-  const result = await executeCiv7AppUiCommand({
-    ...options,
-    command: buildSetupMapRowsCommand({ ...input, limit }),
-  });
-  return jsonPayloadFromCommandResult<Civ7SetupMapRowsResult>(result, "Civ7 setup map rows");
+  return await getCiv7SetupMapRowsFromModule(input, options, setupReadDependencies());
+}
+
+function setupReadDependencies() {
+  return {
+    boundedInteger,
+    executeAppUiCommand: executeCiv7AppUiCommand,
+    jsLiteral,
+    parseSetupMapRows: (result: Civ7CommandResult, label: string) =>
+      jsonPayloadFromCommandResult<Civ7SetupMapRowsResult>(result, label),
+    parseSetupSnapshot: (result: Civ7CommandResult, label: string) =>
+      jsonPayloadFromCommandResult<Civ7SetupSnapshotResult>(result, label),
+    probeHelperSource,
+    playerSetupParameterIds: DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS,
+    setupParameterIds: DEFAULT_CIV7_SETUP_PARAMETER_IDS,
+  } as const;
 }
 
 export async function listCiv7SavedGameConfigurations(
@@ -4186,26 +4197,6 @@ function buildResourceBuilderDiagnosticsCommand(input: {
   })()`;
 }
 
-function buildSetupSnapshotCommand(): string {
-  return `(() => {
-    ${setupSnapshotScriptSource()}
-    return JSON.stringify({ snapshot: readSetupSnapshot() });
-  })()`;
-}
-
-function buildSetupMapRowsCommand(input: Civ7SetupMapRowsInput & { limit: number }): string {
-  return `(() => {
-    ${setupSnapshotScriptSource()}
-    const input = ${jsLiteral(input)};
-    const rows = readSetupMapRows(input.file).slice(0, input.limit);
-    return JSON.stringify({
-      rows,
-      limit: input.limit,
-      ...(input.file ? { matchedFile: input.file } : {}),
-    });
-  })()`;
-}
-
 function buildLoadSavedGameConfigurationCommand(input: Civ7SavedGameConfigurationRef): string {
   return `(() => {
     const input = ${jsLiteral(input)};
@@ -4230,7 +4221,7 @@ function buildLoadSavedGameConfigurationCommand(input: Civ7SavedGameConfiguratio
 
 function buildPrepareSinglePlayerSetupCommand(input: Civ7SinglePlayerSetupInput): string {
   return `(() => {
-    ${setupSnapshotScriptSource()}
+    ${setupSnapshotScriptSource(setupReadDependencies())}
     const input = ${jsLiteral(input)};
     const before = readSetupSnapshot();
     const applied = {};
@@ -4290,215 +4281,6 @@ function buildStartPreparedSinglePlayerCommand(): string {
       serverType,
     });
   })()`;
-}
-
-function setupSnapshotScriptSource(): string {
-  return `${probeHelperSource()}
-    const plain = (value) => {
-      if (value == null) return value;
-      if (typeof value !== "object") return value;
-      try {
-        return JSON.parse(JSON.stringify(value));
-      } catch {
-        const out = {};
-        for (const key of Object.getOwnPropertyNames(value)) {
-          try {
-            const next = value[key];
-            if (typeof next !== "function") out[key] = next;
-          } catch {}
-        }
-        return out;
-      }
-    };
-    const scalarValue = (value) => {
-      if (value == null) return value;
-      if (typeof value !== "object") return value;
-      if (value.value !== undefined) return value.value;
-      if (value.Value !== undefined) return value.Value;
-      if (value.file !== undefined) return value.file;
-      if (value.File !== undefined) return value.File;
-      if (value.name !== undefined && typeof value.name !== "object") return value.name;
-      if (value.Name !== undefined && typeof value.Name !== "object") return value.Name;
-      return plain(value);
-    };
-    const rowFile = (row) => {
-      if (row == null || typeof row !== "object") return typeof row === "string" ? row : undefined;
-      return row.File ?? row.file ?? row.Value ?? row.value;
-    };
-    const mapRowFrom = (source, row) => {
-      const file = rowFile(row);
-      if (typeof file !== "string" || file.length === 0) return null;
-      return {
-        source,
-        domain: row.Domain ?? row.domain,
-        file,
-        value: row.Value ?? row.value,
-        name: row.Name ?? row.name,
-        description: row.Description ?? row.description,
-        sortIndex: row.SortIndex ?? row.sortIndex,
-      };
-    };
-    const uniqueRows = (rows) => {
-      const seen = new Set();
-      const out = [];
-      for (const row of rows) {
-        if (!row || seen.has(row.source + ":" + row.file)) continue;
-        seen.add(row.source + ":" + row.file);
-        out.push(row);
-      }
-      return out;
-    };
-    const readParameter = (id) => {
-      const parameter = typeof GameSetup !== "undefined" && GameSetup && typeof GameSetup.findGameParameter === "function"
-        ? GameSetup.findGameParameter(id)
-        : undefined;
-      if (!parameter) return { id, exists: false };
-      const possibleValues = parameter.domain && Array.isArray(parameter.domain.possibleValues)
-        ? parameter.domain.possibleValues.map(plain)
-        : [];
-      return {
-        id,
-        exists: true,
-        hidden: parameter.hidden,
-        readOnly: parameter.readOnly,
-        invalidReason: parameter.invalidReason ?? null,
-        value: scalarValue(parameter.value),
-        rawValue: plain(parameter.value),
-        possibleValues,
-      };
-    };
-    const readPlayerParameter = (playerId, id) => {
-      const parameter = typeof GameSetup !== "undefined" && GameSetup && typeof GameSetup.findPlayerParameter === "function"
-        ? GameSetup.findPlayerParameter(playerId, id)
-        : undefined;
-      if (!parameter) return { id, exists: false };
-      const possibleValues = parameter.domain && Array.isArray(parameter.domain.possibleValues)
-        ? parameter.domain.possibleValues.map(plain)
-        : [];
-      return {
-        id,
-        exists: true,
-        hidden: parameter.hidden,
-        readOnly: parameter.readOnly,
-        invalidReason: parameter.invalidReason ?? null,
-        value: scalarValue(parameter.value),
-        rawValue: plain(parameter.value),
-        possibleValues,
-      };
-    };
-    const readLocalPlayerId = () => {
-      const candidates = [
-        () => GameContext.localPlayerID,
-        () => PlayerIds.getLocalPlayerId(),
-        () => Players.getLocalPlayer(),
-      ];
-      for (const read of candidates) {
-        try {
-          const value = read();
-          if (Number.isInteger(value) && value >= 0) return value;
-        } catch {}
-      }
-      return 0;
-    };
-    const readActivePlayerIds = () => {
-      const ids = new Set();
-      ids.add(readLocalPlayerId());
-      try {
-        const maxMajorPlayers = Number(Configuration.getMap().maxMajorPlayers);
-        const max = Number.isInteger(maxMajorPlayers) && maxMajorPlayers > 0 ? Math.min(maxMajorPlayers, 64) : 0;
-        for (let playerId = 0; playerId < max; playerId += 1) {
-          const config = typeof Configuration.getPlayer === "function" ? Configuration.getPlayer(playerId) : null;
-          const slotStatus = config?.slotStatus;
-          const closed = typeof SlotStatus !== "undefined" && SlotStatus && slotStatus === SlotStatus.SS_CLOSED;
-          if (!closed) ids.add(playerId);
-        }
-      } catch {}
-      return Array.from(ids).filter((id) => Number.isInteger(id) && id >= 0).sort((a, b) => a - b);
-    };
-    const readSetupMapRows = (file) => {
-      const rows = [];
-      const mapParameter = readParameter("Map");
-      for (const value of mapParameter.possibleValues ?? []) {
-        const row = mapRowFrom("setup-domain", value);
-        if (row && (!file || row.file === file || row.value === file)) rows.push(row);
-      }
-      try {
-        if (typeof Database !== "undefined" && Database && typeof Database.query === "function") {
-          const dbRows = Array.from(Database.query("config", "SELECT Domain, File, Name, Description, SortIndex FROM Maps"));
-          for (const value of dbRows) {
-            const row = mapRowFrom("config-db", value);
-            if (row && (!file || row.file === file || row.value === file)) rows.push(row);
-          }
-        }
-      } catch {}
-      return uniqueRows(rows);
-    };
-    const readUi = () => {
-      const loadingState = probe(() => UI.getGameLoadingState());
-      return {
-        inGame: probe(() => UI.isInGame()),
-        inShell: probe(() => UI.isInShell()),
-        inLoading: probe(() => UI.isInLoading()),
-        loadingState,
-        loadingStateName: (() => {
-          try {
-            const state = UI.getGameLoadingState();
-            return typeof UIGameLoadingState !== "undefined"
-              ? Object.entries(UIGameLoadingState).find(([, value]) => value === state)?.[0] ?? null
-              : null;
-          } catch {
-            return null;
-          }
-        })(),
-        canBeginGame: probe(() => {
-          const state = UI.getGameLoadingState();
-          return typeof UIGameLoadingState !== "undefined" &&
-            (state === UIGameLoadingState.WaitingForUIReady || state === UIGameLoadingState.WaitingToStart);
-        }),
-      };
-    };
-    const phaseFromUi = (ui) => {
-      if (ui.canBeginGame.ok && ui.canBeginGame.value === true) return "begin-ready";
-      if (ui.inLoading.ok && ui.inLoading.value === true) return "loading";
-      if (ui.inShell.ok && ui.inShell.value === true) return "shell";
-      if (ui.inGame.ok && ui.inGame.value === true) return "running-game";
-      return "unavailable";
-    };
-    const readSetupSnapshot = () => {
-      const ui = readUi();
-      const parameterIds = ${jsLiteral(DEFAULT_CIV7_SETUP_PARAMETER_IDS)};
-      const parameters = parameterIds.map(readParameter);
-      const playerParameterIds = ${jsLiteral(DEFAULT_CIV7_PLAYER_SETUP_PARAMETER_IDS)};
-      const playerParameters = readActivePlayerIds().map((playerId) => ({
-        playerId,
-        parameters: playerParameterIds.map((id) => readPlayerParameter(playerId, id)),
-      }));
-      const mapParam = parameters.find((parameter) => parameter.id === "Map");
-      const selectedFile = typeof mapParam?.value === "string" ? mapParam.value : undefined;
-      const mapRows = readSetupMapRows();
-      const selectedMapRow = selectedFile
-        ? mapRows.find((row) => row.file === selectedFile || row.value === selectedFile)
-        : undefined;
-      return {
-        phase: phaseFromUi(ui),
-        ui,
-        setup: {
-          revision: probe(() => GameSetup.currentRevision),
-          parameters,
-          playerParameters,
-          localPlayerId: probe(() => readLocalPlayerId()),
-        },
-        ...(selectedMapRow ? { selectedMapRow } : {}),
-        mapRows,
-        config: {
-          mapScript: probe(() => Configuration.getMap().script),
-          mapSize: probe(() => Configuration.getMap().mapSize),
-          mapSeed: probe(() => Configuration.getMap().mapSeed),
-          gameSeed: probe(() => Configuration.getGame().gameSeed),
-          playerCount: probe(() => Configuration.getMap().maxMajorPlayers),
-        },
-      };
-    };`;
 }
 
 function buildOperationValidationCommand(family: Civ7OperationFamily, input: Civ7OperationInput): string {
@@ -5040,13 +4822,6 @@ function probeNumberOr(probe: Civ7RuntimeProbe<unknown>, fallback: number): numb
 function validateIdentifier(value: string, label: string): string {
   if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(value)) {
     throw new Civ7DirectControlError("command-failed", `${label} must be a simple identifier`);
-  }
-  return value;
-}
-
-function validateMapScript(value: string): string {
-  if (!value.trim() || value.length > 512 || /[\0\r\n]/.test(value)) {
-    throw new Civ7DirectControlError("setup-parameter-invalid", "mapScript must be a non-empty single-line string");
   }
   return value;
 }
