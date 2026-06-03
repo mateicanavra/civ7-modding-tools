@@ -15,7 +15,10 @@ import {
   executeCiv7TunerCommand,
   queryCiv7TunerStates,
 } from "./session/execute.js";
-import { checkCiv7DirectControlHealth } from "./session/health.js";
+import {
+  checkCiv7DirectControlHealth,
+  waitForCiv7DirectControl,
+} from "./session/health.js";
 import { Civ7DirectControlSession } from "./session/session.js";
 import type {
   Civ7CommandResult,
@@ -367,7 +370,10 @@ export {
   executeCiv7TunerCommand,
   queryCiv7TunerStates,
 } from "./session/execute.js";
-export { checkCiv7DirectControlHealth } from "./session/health.js";
+export {
+  checkCiv7DirectControlHealth,
+  waitForCiv7DirectControl,
+} from "./session/health.js";
 export { Civ7DirectControlSession } from "./session/session.js";
 export type {
   Civ7CommandResult,
@@ -902,26 +908,6 @@ export async function restartCiv7GameAndBegin(options: Civ7DirectControlOptions 
         await session.close();
       }
     },
-  });
-}
-
-export async function waitForCiv7DirectControl(options: Civ7DirectControlOptions & {
-  state?: Civ7TunerStateSelection;
-  waitTimeoutMs?: number;
-  pollIntervalMs?: number;
-} = {}): Promise<Civ7DirectControlHealth & { ok: true }> {
-  const waitTimeoutMs = options.waitTimeoutMs ?? options.timeoutMs ?? DEFAULT_CIV7_TUNER_TIMEOUT_MS;
-  const pollIntervalMs = options.pollIntervalMs ?? 500;
-  const startedAt = Date.now();
-  let lastHealth: Civ7DirectControlHealth | undefined;
-  while (Date.now() - startedAt <= waitTimeoutMs) {
-    const health = await checkCiv7DirectControlHealth(options);
-    if (health.ok) return health;
-    lastHealth = health;
-    await sleep(pollIntervalMs);
-  }
-  throw new Civ7DirectControlError("connection-timeout", `Timed out waiting for Civ7 tuner readiness after ${waitTimeoutMs}ms`, {
-    details: lastHealth,
   });
 }
 

@@ -652,6 +652,14 @@ runtime/direct-control claims.
         telemetry/correlation contracts, procedure schemas, semantic CLI, AI
         ingestion, hotseat runtime proof, Effect/oRPC procedure-core work, and
         Task 2.9.4 matrix-row acceptance pending.
+  - [x] 4.10.16 Extract direct-control wait wrapper into the session health
+        owner while keeping public facade exports in `index.ts`, preserving
+        health polling, `waitTimeoutMs` / `timeoutMs` defaulting, poll interval
+        defaulting, last-health timeout details, and `connection-timeout`
+        classification, and leaving Tuner-ready waiting, lifecycle
+        composition, telemetry/correlation contracts, procedure schemas,
+        semantic CLI, AI ingestion, hotseat runtime proof, Effect/oRPC
+        procedure-core work, and Task 2.9.4 matrix-row acceptance pending.
 - [x] 4.11 Extract map/visibility/GameInfo read atoms.
   - [x] 4.11.1 Extract map summary, plot snapshot, and map grid read
         wrapper/source owner while keeping the public facade export surface in

@@ -12,6 +12,7 @@ import {
   resolveCiv7DirectControlConfig,
   selectCiv7TunerState,
   snapshotFile,
+  waitForCiv7DirectControl,
   waitForFreshLogMarkers,
 } from "../src/index";
 import { discoverCiv7DirectControlEndpointWithDependencies } from "../src/session/discovery";
@@ -50,6 +51,50 @@ describe("Civ7 direct control session framing", () => {
     });
 
     expect([true, false]).toContain(health.ok);
+  });
+
+  test("waits for direct-control health readiness", async () => {
+    const server = await startTunerServer();
+    try {
+      const { port } = server;
+      const health = await waitForCiv7DirectControl({
+        host: "127.0.0.1",
+        port,
+        env: {},
+        timeoutMs: 1_000,
+        waitTimeoutMs: 1_000,
+        pollIntervalMs: 10,
+      });
+
+      expect(health).toMatchObject({
+        ok: true,
+        status: "ready",
+        host: "127.0.0.1",
+        port,
+      });
+    } finally {
+      await server.close();
+    }
+  });
+
+  test("times out waiting for direct-control health readiness", async () => {
+    const server = await startTunerServer();
+    const { port } = server;
+    await server.close();
+
+    await expect(
+      waitForCiv7DirectControl({
+        host: "127.0.0.1",
+        port,
+        env: {},
+        timeoutMs: 25,
+        waitTimeoutMs: 25,
+        pollIntervalMs: 1,
+      }),
+    ).rejects.toMatchObject({
+      name: "Civ7DirectControlError",
+      code: "connection-timeout",
+    });
   });
 
   test("resolves direct-control config from explicit and env options", () => {

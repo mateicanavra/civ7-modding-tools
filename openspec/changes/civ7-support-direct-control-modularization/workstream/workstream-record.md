@@ -1426,6 +1426,16 @@ All future agent waves must be framed before delegation:
   public procedure schemas, semantic CLI projection, AI ingestion, hotseat
   runtime proof, or Effect/oRPC procedure-core work. This is local
   package/source relocation proof only, not runtime/live-game proof.
+- Direct-control wait wrapper slice: completed as a narrow session health
+  owner relocation. It moves only `waitForCiv7DirectControl` into
+  `src/session/health.ts` while preserving health polling, timeout/poll
+  defaults, last-health timeout details, and `connection-timeout`
+  classification. `index.ts` still owns Tuner-ready waiting, lifecycle
+  composition, and public facade call-through for higher-level atoms. This does
+  not define telemetry/correlation contracts, public procedure schemas,
+  semantic CLI projection, AI ingestion, hotseat runtime proof, or Effect/oRPC
+  procedure-core work. This is local package/source relocation proof only, not
+  runtime/live-game proof.
 - Direct-control diplomacy closeout source slice: completed as a narrow
   operation source relocation. It moves only the App UI diplomacy response
   closeout command builder and embedded closeout source into
