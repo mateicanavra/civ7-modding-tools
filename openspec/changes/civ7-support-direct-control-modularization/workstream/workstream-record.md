@@ -366,6 +366,17 @@ All future agent waves must be framed before delegation:
   Reveal mutation, setup map rows, player/unit/city summaries, AI ingestion,
   and static profile shaping stay out of this slice. This is local read-only
   package/source relocation proof only, not runtime proof.
+- Direct-control player/unit/city summary source/wrapper slice: completed as a
+  proof-gap repair and read-only source relocation. It moves only
+  `getCiv7PlayerSummary`, `getCiv7UnitSummary`, and `getCiv7CitySummary`
+  orchestration plus their command/source helpers into `src/play/summaries.ts`
+  while keeping public facade exports in `index.ts`. `test/summary-reads.test.ts`
+  owns focused package proof for command routing/source shape, validation and
+  bounds, read-only/no-send behavior, and unchanged component-id pass-through.
+  Reveal mutation, setup map rows, AI ingestion, static profile shaping,
+  semantic CLI, telemetry, hotseat runtime proof, and Effect/oRPC procedure-core
+  work stay out of this slice. This is local read-only package/source
+  relocation proof only, not runtime proof.
 - Direct-control notification dismissal source slice: completed as the
   notification action source relocation. It moves only the embedded App UI
   notification dismissal source into `src/play/notifications/dismissal.ts`.

@@ -248,6 +248,11 @@ runtime/direct-control claims.
         the public facade export surface in `index.ts` and leaving reveal
         mutation, setup map rows, player/unit/city summaries, AI ingestion, and
         static profile shaping pending.
+  - [x] 4.11.4 Extract player, unit, and city summary read wrapper/source
+        owner with focused package proof while keeping public facade exports in
+        `index.ts` and leaving reveal mutation, setup map rows, AI ingestion,
+        static profile shaping, semantic CLI, telemetry, hotseat runtime proof,
+        and Effect/oRPC procedure-core work pending.
 
 ## 5. CLI Semantic Surface Lane
 

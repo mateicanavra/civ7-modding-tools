@@ -37,6 +37,11 @@ import {
 } from "./play/map/reads.js";
 import { getCiv7GameInfoRows as getCiv7GameInfoRowsFromModule } from "./play/map/gameinfo.js";
 import { getCiv7VisibilitySummary as getCiv7VisibilitySummaryFromModule } from "./play/map/visibility.js";
+import {
+  getCiv7CitySummary as getCiv7CitySummaryFromModule,
+  getCiv7PlayerSummary as getCiv7PlayerSummaryFromModule,
+  getCiv7UnitSummary as getCiv7UnitSummaryFromModule,
+} from "./play/summaries.js";
 import { requestCiv7DiplomacyResponse as requestCiv7DiplomacyResponseFromModule } from "./play/operations/diplomacy-request.js";
 import { notificationDismissalSource } from "./play/notifications/dismissal.js";
 import { waitForCiv7NotificationDismissal } from "./play/notifications/verification.js";
@@ -2892,47 +2897,57 @@ export async function getCiv7PlayerSummary(
   input: Civ7PlayerSummaryInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7PlayerSummaryResult> {
-  const result = await executeCiv7TunerCommand({
-    ...options,
-    command: buildPlayerSummaryCommand({
-      ...input,
-      playerIds: input.playerIds?.map(validatePlayerId),
-      maxItems: boundedInteger(input.maxItems ?? 64, 1, 512, "maxItems"),
-    }),
+  return await getCiv7PlayerSummaryFromModule(input, options, {
+    executeTunerCommand: executeCiv7TunerCommand,
+    parsePlayerSummary: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7PlayerSummaryResult>(result, label),
+    parseUnitSummary: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7UnitSummaryResult>(result, label),
+    parseCitySummary: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7CitySummaryResult>(result, label),
+    boundedInteger,
+    jsLiteral,
+    probeHelperSource,
+    validatePlayerId,
   });
-  return jsonPayloadFromCommandResult<Civ7PlayerSummaryResult>(result, "Civ7 player summary");
 }
 
 export async function getCiv7UnitSummary(
   input: Civ7UnitSummaryInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7UnitSummaryResult> {
-  if (input.playerId !== undefined) validatePlayerId(input.playerId);
-  const result = await executeCiv7TunerCommand({
-    ...options,
-    command: buildUnitSummaryCommand({
-      ...input,
-      playerIds: input.playerIds?.map(validatePlayerId),
-      maxItems: boundedInteger(input.maxItems ?? 128, 1, 1_000, "maxItems"),
-    }),
+  return await getCiv7UnitSummaryFromModule(input, options, {
+    executeTunerCommand: executeCiv7TunerCommand,
+    parsePlayerSummary: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7PlayerSummaryResult>(result, label),
+    parseUnitSummary: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7UnitSummaryResult>(result, label),
+    parseCitySummary: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7CitySummaryResult>(result, label),
+    boundedInteger,
+    jsLiteral,
+    probeHelperSource,
+    validatePlayerId,
   });
-  return jsonPayloadFromCommandResult<Civ7UnitSummaryResult>(result, "Civ7 unit summary");
 }
 
 export async function getCiv7CitySummary(
   input: Civ7CitySummaryInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7CitySummaryResult> {
-  if (input.playerId !== undefined) validatePlayerId(input.playerId);
-  const result = await executeCiv7TunerCommand({
-    ...options,
-    command: buildCitySummaryCommand({
-      ...input,
-      playerIds: input.playerIds?.map(validatePlayerId),
-      maxItems: boundedInteger(input.maxItems ?? 128, 1, 1_000, "maxItems"),
-    }),
+  return await getCiv7CitySummaryFromModule(input, options, {
+    executeTunerCommand: executeCiv7TunerCommand,
+    parsePlayerSummary: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7PlayerSummaryResult>(result, label),
+    parseUnitSummary: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7UnitSummaryResult>(result, label),
+    parseCitySummary: (result, label) =>
+      jsonPayloadFromCommandResult<Civ7CitySummaryResult>(result, label),
+    boundedInteger,
+    jsLiteral,
+    probeHelperSource,
+    validatePlayerId,
   });
-  return jsonPayloadFromCommandResult<Civ7CitySummaryResult>(result, "Civ7 city summary");
 }
 
 export async function getCiv7VisibilitySummary(
@@ -4648,105 +4663,6 @@ function buildResourceBuilderDiagnosticsCommand(input: {
   })()`;
 }
 
-function buildPlayerSummaryCommand(input: Civ7PlayerSummaryInput & { maxItems: number }): string {
-  return `(() => {
-    ${probeHelperSource()}
-    ${runtimeObjectReaderSource()}
-    const input = ${jsLiteral(input)};
-    const ids = (input.playerIds ?? probe(() => Players.getAliveIds()).value ?? []).slice(0, input.maxItems);
-    const summarize = (id) => {
-      const player = probe(() => Players.get(id));
-      const value = player.ok ? player.value : undefined;
-      return {
-        id,
-        leaderName: probe(() => readValue(value, ["leaderName", "name"], ["getLeaderName", "getName"])),
-        civilizationName: probe(() => readValue(value, ["civilizationName", "civilizationType"], ["getCivilizationName", "getCivilizationType"])),
-        isHuman: probe(() => readValue(value, ["isHuman"], ["isHuman"])),
-        isAlive: probe(() => readValue(value, ["isAlive"], ["isAlive"])),
-        isTurnActive: probe(() => readValue(value, ["isTurnActive", "turnActive"], ["isTurnActive"])),
-        unitIds: probe(() => Players.Units.get(id).getUnitIds().slice(0, input.maxItems)),
-        cityIds: probe(() => Players.Cities.get(id).getCityIds().slice(0, input.maxItems)),
-      };
-    };
-    return JSON.stringify({
-      players: ids.map(summarize),
-      omitted: Math.max(0, (input.playerIds?.length ?? ids.length) - ids.length),
-    });
-  })()`;
-}
-
-function buildUnitSummaryCommand(input: Civ7UnitSummaryInput & { maxItems: number }): string {
-  return `(() => {
-    ${probeHelperSource()}
-    ${runtimeObjectReaderSource()}
-    const input = ${jsLiteral(input)};
-    const collectIds = () => {
-      if (input.unitIds) return input.unitIds;
-      const playerIds = input.playerIds ?? (input.playerId !== undefined ? [input.playerId] : Players.getAliveIds());
-      const ids = [];
-      for (const playerId of playerIds) {
-        try {
-          ids.push(...Players.Units.get(playerId).getUnitIds());
-        } catch {}
-      }
-      return ids;
-    };
-    const ids = collectIds();
-    const selected = ids.slice(0, input.maxItems);
-    const summarize = (id) => {
-      const unit = probe(() => Units.get(id));
-      const value = unit.ok ? unit.value : undefined;
-      return {
-        id,
-        owner: probe(() => readValue(value, ["owner", "player", "playerId"], ["getOwner", "getPlayer"])),
-        name: probe(() => readValue(value, ["name"], ["getName"])),
-        type: probe(() => readValue(value, ["type", "unitType"], ["getType", "getUnitType"])),
-        location: probe(() => readValue(value, ["location"], ["getLocation"])),
-        health: probe(() => readValue(value, ["health"], ["getHealth"])),
-        damage: probe(() => readValue(value, ["damage"], ["getDamage"])),
-        movement: probe(() => readValue(value, ["movement", "movesRemaining"], ["getMovement", "getMovesRemaining"])),
-        activity: probe(() => readValue(value, ["activity", "activityType"], ["getActivityType"])),
-      };
-    };
-    return JSON.stringify({ units: selected.map(summarize), omitted: Math.max(0, ids.length - selected.length) });
-  })()`;
-}
-
-function buildCitySummaryCommand(input: Civ7CitySummaryInput & { maxItems: number }): string {
-  return `(() => {
-    ${probeHelperSource()}
-    ${runtimeObjectReaderSource()}
-    const input = ${jsLiteral(input)};
-    const collectIds = () => {
-      if (input.cityIds) return input.cityIds;
-      const playerIds = input.playerIds ?? (input.playerId !== undefined ? [input.playerId] : Players.getAliveIds());
-      const ids = [];
-      for (const playerId of playerIds) {
-        try {
-          ids.push(...Players.Cities.get(playerId).getCityIds());
-        } catch {}
-      }
-      return ids;
-    };
-    const ids = collectIds();
-    const selected = ids.slice(0, input.maxItems);
-    const summarize = (id) => {
-      const city = probe(() => Cities.get(id));
-      const value = city.ok ? city.value : undefined;
-      return {
-        id,
-        owner: probe(() => readValue(value, ["owner", "player", "playerId"], ["getOwner", "getPlayer"])),
-        name: probe(() => readValue(value, ["name"], ["getName"])),
-        location: probe(() => readValue(value, ["location"], ["getLocation"])),
-        population: probe(() => readValue(value, ["population"], ["getPopulation"])),
-        growth: probe(() => readValue(value, ["growth"], ["getGrowth"])),
-        production: probe(() => readValue(value, ["production"], ["getProduction", "getBuildQueue"])),
-      };
-    };
-    return JSON.stringify({ cities: selected.map(summarize), omitted: Math.max(0, ids.length - selected.length) });
-  })()`;
-}
-
 function buildSetupSnapshotCommand(): string {
   return `(() => {
     ${setupSnapshotScriptSource()}
@@ -5237,24 +5153,6 @@ function probeHelperSource(): string {
       } catch (err) {
         return { ok: false, error: String(err) };
       }
-    };`;
-}
-
-function runtimeObjectReaderSource(): string {
-  return `const callMaybe = (value, key) => {
-      const candidate = value == null ? undefined : value[key];
-      return typeof candidate === "function" ? candidate.call(value) : undefined;
-    };
-    const readValue = (value, props, methods) => {
-      if (value == null) return undefined;
-      for (const prop of props) {
-        if (value[prop] !== undefined) return value[prop];
-      }
-      for (const method of methods) {
-        const result = callMaybe(value, method);
-        if (result !== undefined) return result;
-      }
-      return undefined;
     };`;
 }
 
