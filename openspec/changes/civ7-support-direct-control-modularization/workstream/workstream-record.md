@@ -902,6 +902,17 @@ All future agent waves must be framed before delegation:
   AI ingestion, hotseat runtime proof, Effect/oRPC procedure-core work, and
   Task 2.9.4 matrix-row acceptance remain pending. This is local package/source
   relocation proof only, not runtime/live-game proof.
+- Direct-control session execute helper-reuse slice: completed as a narrow
+  session execute cleanup. It routes `queryCiv7TunerStates` and
+  `executeCiv7Command` through `withCiv7DirectControlSession` while preserving
+  package-level execute wrapper behavior, App UI/Tuner state forcing wrappers,
+  command result shape, and close-on-completion/error behavior. Reconnect still
+  closes caller-owned sessions, and lifecycle behavior is unchanged.
+  Effect/Bun resource/schedule/layer composition, telemetry/correlation
+  contracts, procedure schemas, semantic CLI projection, AI ingestion, hotseat
+  runtime proof, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+  acceptance remain pending. This is local package/source relocation proof only,
+  not runtime/live-game proof.
 - Direct-control facade postcondition-helper cleanup slice: completed as a
   narrow stale-helper prune after the specialized operation postcondition and
   unit-target owners moved. It removes only dead private comparison helpers from
