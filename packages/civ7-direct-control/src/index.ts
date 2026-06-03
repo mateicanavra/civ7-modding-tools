@@ -16,6 +16,11 @@ import {
   CIV7_SIGNED_INT_SEED_MIN,
   assessCiv7SignedIntSeed,
 } from "./policy/setup.js";
+import {
+  encodeCiv7TunerRequest,
+  parseCiv7TunerFrame,
+  type Civ7TunerFrame,
+} from "./session/framing.js";
 
 export {
   assertCiv7ComponentId,
@@ -25,6 +30,11 @@ export {
 export type { Civ7ComponentId } from "./civ7-component-id.js";
 export { Civ7DirectControlError } from "./direct-control-error.js";
 export type { Civ7DirectControlErrorCode } from "./direct-control-error.js";
+export {
+  encodeCiv7TunerRequest,
+  parseCiv7TunerFrame,
+} from "./session/framing.js";
+export type { Civ7TunerFrame } from "./session/framing.js";
 
 export const DEFAULT_CIV7_TUNER_HOST = "127.0.0.1";
 export const DEFAULT_CIV7_TUNER_PORT = 4318;
@@ -2027,11 +2037,6 @@ export type Civ7DirectControlHealth =
       states?: ReadonlyArray<Civ7TunerState>;
       error: Civ7DirectControlError;
     }>;
-
-type Civ7TunerFrame = Readonly<{
-  listenerId: number;
-  parts: ReadonlyArray<string>;
-}>;
 
 type PendingCiv7TunerRequest = {
   resolve: (frame: Civ7TunerFrame) => void;
@@ -4271,33 +4276,6 @@ export async function waitForFreshLogMarkers(options: {
     lastError ?? `Timed out waiting for fresh log markers in ${options.logPath}`,
     { details: { markers: options.markers, startOffset: lastStartOffset, snapshotOffset } },
   );
-}
-
-export function encodeCiv7TunerRequest(listenerId: number, message: string): Buffer {
-  const messageBytes = Buffer.from(`${message}\0`, "utf8");
-  const frame = Buffer.alloc(8 + messageBytes.length);
-  frame.writeUInt32LE(messageBytes.length, 0);
-  frame.writeUInt32LE(listenerId, 4);
-  messageBytes.copy(frame, 8);
-  return frame;
-}
-
-export function parseCiv7TunerFrame(
-  buffer: Buffer,
-): { frame: Civ7TunerFrame; bytesRead: number } | null {
-  if (buffer.length < 8) return null;
-  const messageLength = buffer.readUInt32LE(0);
-  const bytesRead = 8 + messageLength;
-  if (buffer.length < bytesRead) return null;
-  const listenerId = buffer.readUInt32LE(4);
-  const message = buffer.subarray(8, bytesRead).toString("utf8").replace(/\0$/, "");
-  return {
-    bytesRead,
-    frame: {
-      listenerId,
-      parts: message.length > 0 ? message.split("\0") : [],
-    },
-  };
 }
 
 async function openCiv7TunerSocket(options: {

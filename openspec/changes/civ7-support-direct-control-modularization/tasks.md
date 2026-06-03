@@ -127,6 +127,8 @@ runtime/direct-control claims.
 - [ ] 4.10 Classify direct-control service outputs by consumer before command
       hierarchy rewrites: internal service machinery, debug-only diagnostics,
       or semantic player-agent output.
+  - [x] 4.10.1 Extract tuner frame encode/parse owner module behind the
+        existing package facade.
 
 ## 5. CLI Semantic Surface Lane
 
