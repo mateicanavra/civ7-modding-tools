@@ -141,6 +141,9 @@ import {
 import {
   getCiv7VisibilitySummary as getCiv7VisibilitySummaryFromModule,
   revealCiv7MapForPlayer as revealCiv7MapForPlayerFromModule,
+  type Civ7RevealMapResult,
+  type Civ7VisibilitySummaryInput,
+  type Civ7VisibilitySummaryResult,
 } from "./play/map/visibility.js";
 import {
   type Civ7CitySummary,
@@ -310,6 +313,11 @@ export type {
   Civ7GameInfoRowsInput,
   Civ7GameInfoRowsResult,
 } from "./play/map/gameinfo.js";
+export type {
+  Civ7RevealMapResult,
+  Civ7VisibilitySummaryInput,
+  Civ7VisibilitySummaryResult,
+} from "./play/map/visibility.js";
 export type {
   Civ7CitySummary,
   Civ7CitySummaryInput,
@@ -609,32 +617,6 @@ export type Civ7ProgressDashboardResult = Readonly<{
   notes: ReadonlyArray<string>;
 }>;
 
-export type Civ7VisibilitySummaryInput = Readonly<{
-  playerId: number;
-  bounds?: Civ7MapBounds;
-  includeGrid?: boolean;
-  maxPlots?: number;
-}>;
-
-export type Civ7VisibilitySummaryResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  playerId: number;
-  numPlotsRevealed: Civ7RuntimeProbe<number>;
-  numPlotsVisible: Civ7RuntimeProbe<number>;
-  counts: Record<string, number>;
-  grid?: Readonly<{
-    bounds: Civ7MapBounds;
-    plotCount: number;
-    omitted: number;
-    states: ReadonlyArray<Readonly<Civ7MapLocation & {
-      state: Civ7RuntimeProbe<number | string>;
-      visible: Civ7RuntimeProbe<boolean>;
-    }>>;
-  }>;
-}>;
-
 export type Civ7SetupPhase = "shell" | "running-game" | "loading" | "begin-ready" | "unavailable";
 
 export type Civ7SetupParameterValue = string | number | boolean | null;
@@ -869,17 +851,6 @@ export type Civ7AutoplayActionResult = Readonly<{
   after: Civ7AutoplayStatusResult;
   commands: ReadonlyArray<Civ7CommandResult>;
   verified: boolean;
-}>;
-
-export type Civ7RevealMapResult = Readonly<{
-  host: string;
-  port: number;
-  state: Civ7TunerState;
-  playerId: number;
-  before: Civ7VisibilitySummaryResult;
-  after: Civ7VisibilitySummaryResult;
-  command: Civ7CommandResult;
-  classification: "revealed" | "already-revealed" | "unverified";
 }>;
 
 export type Civ7TurnCompletionStatusResult = Readonly<{

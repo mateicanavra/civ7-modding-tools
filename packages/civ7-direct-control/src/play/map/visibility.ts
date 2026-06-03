@@ -2,14 +2,53 @@ import { Civ7DirectControlError } from "../../direct-control-error.js";
 
 import type {
   Civ7ActionApproval,
+} from "../../index.js";
+import type {
   Civ7CommandResult,
   Civ7DirectControlOptions,
-  Civ7RevealMapResult,
+  Civ7TunerState,
+} from "../../session/types.js";
+import type {
   Civ7RuntimeProbe,
-  Civ7VisibilitySummaryInput,
-  Civ7VisibilitySummaryResult,
-} from "../../index.js";
-import type { Civ7MapBounds } from "./types.js";
+} from "../../runtime/probe.js";
+import type { Civ7MapBounds, Civ7MapLocation } from "./types.js";
+
+export type Civ7VisibilitySummaryInput = Readonly<{
+  playerId: number;
+  bounds?: Civ7MapBounds;
+  includeGrid?: boolean;
+  maxPlots?: number;
+}>;
+
+export type Civ7VisibilitySummaryResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  playerId: number;
+  numPlotsRevealed: Civ7RuntimeProbe<number>;
+  numPlotsVisible: Civ7RuntimeProbe<number>;
+  counts: Record<string, number>;
+  grid?: Readonly<{
+    bounds: Civ7MapBounds;
+    plotCount: number;
+    omitted: number;
+    states: ReadonlyArray<Readonly<Civ7MapLocation & {
+      state: Civ7RuntimeProbe<number | string>;
+      visible: Civ7RuntimeProbe<boolean>;
+    }>>;
+  }>;
+}>;
+
+export type Civ7RevealMapResult = Readonly<{
+  host: string;
+  port: number;
+  state: Civ7TunerState;
+  playerId: number;
+  before: Civ7VisibilitySummaryResult;
+  after: Civ7VisibilitySummaryResult;
+  command: Civ7CommandResult;
+  classification: "revealed" | "already-revealed" | "unverified";
+}>;
 
 type VisibilityReadDependencies = Readonly<{
   boundedInteger: (value: number, min: number, max: number, label: string) => number;

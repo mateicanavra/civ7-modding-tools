@@ -650,6 +650,17 @@ All future agent waves must be framed before delegation:
   procedure-core work, or Task 2.9.4 matrix-row acceptance. This is local
   package/type relocation proof only, not runtime proof, AI/hotseat product-path
   support, or procedure-core readiness.
+- Direct-control visibility/reveal types slice: completed as a narrow public
+  type ownership relocation. It moves only visibility summary input/result types
+  and the reveal-map result type into `src/play/map/visibility.ts` while keeping
+  facade type re-exports in `index.ts` and replacing moved visibility type
+  imports with concrete owner imports. This preserves public type contracts and
+  does not change visibility validation, bounded-grid semantics, approval-first
+  disposable reveal behavior, reveal classification, source strings, runtime
+  behavior, relationship-label policy, telemetry, AI ingestion, hotseat runtime
+  proof, CLI semantic projection, Effect/oRPC procedure-core work, or Task 2.9.4
+  matrix-row acceptance. This is local package/type relocation proof only, not
+  runtime proof, AI/hotseat product-path support, or procedure-core readiness.
 - Direct-control turn-completion slice: completed as a narrow turn-completion
   source/wrapper relocation. It moves only `getCiv7TurnCompletionStatus`,
   `sendCiv7TurnComplete`, `sendCiv7TurnUnready`, the status command builder,
