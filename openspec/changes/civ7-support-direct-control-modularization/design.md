@@ -285,6 +285,11 @@ operation/proof telemetry, and Effect/oRPC procedure cores. Rows with
 all required fields have real source owners, proof owners, schemas/tests, and
 stop conditions recorded.
 
+Row acceptance is not a status-only edit. A future owner must attach the intake
+packet required by the matrix: owner assignment, exact write set, contract
+artifact, proof plan, projection plan, stop-condition coverage, downstream
+unblock, and explicit non-proof claims.
+
 Compatibility matrix execution gate:
 
 - Matrix rows are not accepted until each row has all required fields:

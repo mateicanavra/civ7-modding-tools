@@ -52,6 +52,48 @@ Global acceptance stop conditions:
   direct-control boundary or product action authority instead of a subordinate
   JSON-envelope endpoint under direct-control proof.
 
+## Row Acceptance Intake
+
+A future row owner must update the target row and include an intake packet in
+the same planning layer before changing `acceptanceStatus` to `accepted`.
+
+Required intake fields:
+
+- `ownerAssignment`: named source owner, proof owner, schema/test owner, and
+  reviewer/gate owner for the row.
+- `writeSet`: exact package, CLI, docs, telemetry, schema, or runtime files the
+  row may touch; no broad `common`, `utils`, `types`, or transport buckets.
+- `contractArtifact`: schema, envelope, procedure contract, telemetry record,
+  runtime gate checklist, or explicit "not applicable" reason.
+- `proofPlan`: focused local tests, runtime gates, official-resource checks,
+  peer-report evidence, and proof class labels for each claim.
+- `projectionPlan`: normal CLI projection, debug/internal service projection,
+  AI-ingestion contract, telemetry projection, and procedure-core projection
+  explicitly separated or explicitly out of scope.
+- `stopConditionCoverage`: row-local tests or review checks that exercise the
+  row's stop conditions, including normal/debug/AI/telemetry/procedure
+  separation.
+- `downstreamUnblock`: exact 5.x, 6.x, telemetry, AI-ingestion,
+  runtime-status, debug/service, or hotseat lane that the accepted row unblocks;
+  no blanket "support both" unblock.
+- `nonProofClaims`: claims intentionally not made, such as live runtime proof,
+  AI-ingestion implementation, App UI bridge implementation, transport
+  adapters, or product-path support.
+
+Intake rejection conditions:
+
+- Reject if the row owner cannot name concrete source and proof owners.
+- Reject if the row's proof plan relies only on target-thread evidence, peer
+  reports, or local fake-runtime tests for a live runtime claim.
+- Reject if the row collapses normal CLI output, debug/internal service output,
+  AI ingestion, telemetry, and procedure cores into one raw JSON shape.
+- Reject if the row lets AI consumers train on CLI presentation strings,
+  runtime reflection, raw SQL, raw command strings, or vague `verified: true`.
+- Reject if the row promotes Autoplay/Automation from support/debug
+  infrastructure to the primary external-agent executor.
+- Reject if the row moves oRPC or transport adapters ahead of accepted typed
+  procedure cores over stable direct-control atoms.
+
 ## Rows
 
 ### Hotseat Handoff State

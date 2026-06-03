@@ -102,6 +102,10 @@
         The matrix also records a row-by-row acceptance backlog; those blockers
         must be cleared per row before any dependent implementation lane can
         consume that row as accepted.
+        A future row acceptance update must include the row acceptance intake
+        fields recorded in `workstream/compatibility-matrix.md`: owner
+        assignment, write set, contract artifact, proof plan, projection plan,
+        stop-condition coverage, downstream unblock, and non-proof claims.
     - Current blockers: hotseat handoff still needs runtime source/proof
       owners and live activation/rotation/restoration gates; semantic CLI still
       needs envelope/schema/proof ownership and normal/debug separation tests;
