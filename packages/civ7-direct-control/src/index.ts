@@ -1683,76 +1683,42 @@ export async function getCiv7SettlementRecommendations(
   input: Civ7SettlementRecommendationInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7SettlementRecommendationResult> {
-  return await getCiv7SettlementRecommendationsFromModule(input, options, {
-    boundedInteger,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    parseSettlementRecommendations: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7SettlementRecommendationResult>(result, label),
-  });
+  return await getCiv7SettlementRecommendationsFromModule(input, options);
 }
 
 export async function getCiv7TargetCandidates(
   input: Civ7TargetCandidatesInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7TargetCandidatesResult> {
-  return await getCiv7TargetCandidatesFromModule(input, options, {
-    validatePlayerId,
-    boundedInteger,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    parseTargetCandidates: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7TargetCandidatesResult>(result, label),
-  });
+  return await getCiv7TargetCandidatesFromModule(input, options);
 }
 
 export async function getCiv7TraditionsView(
   input: Civ7TraditionsViewInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7TraditionsViewResult> {
-  return await getCiv7TraditionsViewFromModule(input, options, {
-    validatePlayerId,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    parseTraditionsView: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7TraditionsViewResult>(result, label),
-  });
+  return await getCiv7TraditionsViewFromModule(input, options);
 }
 
 export async function getCiv7ProgressDashboard(
   input: Civ7ProgressDashboardInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7ProgressDashboardResult> {
-  return await getCiv7ProgressDashboardFromModule(input, options, {
-    validatePlayerId,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    parseProgressDashboard: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7ProgressDashboardResult>(result, label),
-  });
+  return await getCiv7ProgressDashboardFromModule(input, options);
 }
 
 export async function getCiv7BattlefieldScan(
   input: Civ7BattlefieldScanInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7BattlefieldScanResult> {
-  return await getCiv7BattlefieldScanFromModule(input, options, {
-    validatePlayerId,
-    boundedInteger,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    parseBattlefieldScan: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7BattlefieldScanResult>(result, label),
-  });
+  return await getCiv7BattlefieldScanFromModule(input, options);
 }
 
 export async function getCiv7DestinationAnalysis(
   input: Civ7DestinationAnalysisInput,
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7DestinationAnalysisResult> {
-  return await getCiv7DestinationAnalysisFromModule(input, options, {
-    validatePlayerId,
-    validateMapLocation,
-    boundedInteger,
-    executeAppUiCommand: executeCiv7AppUiCommand,
-    parseDestinationAnalysis: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7DestinationAnalysisResult>(result, label),
-  });
+  return await getCiv7DestinationAnalysisFromModule(input, options);
 }
 
 export async function requestCiv7UnitTargetAction(

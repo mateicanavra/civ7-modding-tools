@@ -1,4 +1,7 @@
 import { Civ7DirectControlError } from "../../direct-control-error.js";
+import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7AppUiCommand } from "../../session/execute.js";
+import { boundedInteger } from "../../validation.js";
 
 import type {
   Civ7CommandResult,
@@ -67,7 +70,7 @@ type SettlementRecommendationDependencies = Readonly<{
 export async function getCiv7SettlementRecommendations(
   input: Civ7SettlementRecommendationInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: SettlementRecommendationDependencies,
+  dependencies: SettlementRecommendationDependencies = defaultSettlementRecommendationDependencies,
 ): Promise<Civ7SettlementRecommendationResult> {
   const result = await dependencies.executeAppUiCommand({
     ...options,
@@ -194,3 +197,10 @@ export function settlementRecommendationsSource(): string {
       };
     };`;
 }
+
+const defaultSettlementRecommendationDependencies: SettlementRecommendationDependencies = {
+  boundedInteger,
+  executeAppUiCommand: executeCiv7AppUiCommand,
+  parseSettlementRecommendations: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7SettlementRecommendationResult>(result, label),
+};

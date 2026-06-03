@@ -1126,6 +1126,20 @@ All future agent waves must be framed before delegation:
   owner. `test/tactical-reads.test.ts` and the focused CLI tactical-read
   command suite remain the proof owners. This is local package/source
   relocation proof only, not runtime proof.
+- Tactical/progression read facade dependency cleanup:
+  `src/play/tactical/{settlement,target-candidates,battlefield,destination}.ts`
+  and `src/play/progression/reads.ts` now import existing non-facade App UI
+  execution, parser, validation, bounds, and map-validation owners directly for
+  settlement recommendations, target candidates, battlefield scan, destination
+  analysis, traditions view, and progress dashboard reads. The public facade in
+  `src/index.ts` remains stable but no longer assembles those dependency
+  objects. This is local package/source relocation proof only: it does not
+  change settlement `count` bounds, progression player validation,
+  target-candidate/battlefield/destination bounds, destination/origin map
+  validation, conservative relationship-label policy, runtime/live-game proof,
+  Task 2.9.4 matrix-row acceptance, telemetry, AI ingestion, CLI semantic
+  projection, hotseat runtime proof, schema/procedure-core work, or Effect/oRPC
+  implementation.
 - Direct-control unit move preview wrapper slice: completed as the next
   read-only ready wrapper composition relocation. It moves only
   `getCiv7UnitMovePreview` orchestration plus its command builder into

@@ -363,6 +363,17 @@ runtime/direct-control claims.
         facade export surface in `index.ts`.
   - [x] 4.7.11 Extract destination analysis wrapper owner while keeping the
         public facade export surface in `index.ts`.
+  - [x] 4.7.12 Prune tactical/progression read facade dependency injection by
+        letting `src/play/tactical/{settlement,target-candidates,battlefield,destination}.ts`
+        and `src/play/progression/reads.ts` import existing non-facade App UI
+        execution, parser, validation, bounds, and map-validation owners
+        directly, while keeping public facade exports stable, preserving
+        settlement count bounds, progression player validation,
+        target-candidate/battlefield/destination bounds, destination/origin map
+        validation, conservative relationship-label policy, and leaving
+        telemetry, AI ingestion, CLI semantic projection, hotseat runtime proof,
+        Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance
+        pending.
 - [x] 4.8 Export stable types/constants only after module owners are defined.
   - [x] 4.8.1 Extract ComponentID primitive and direct-control error owner
         modules behind the existing package facade.

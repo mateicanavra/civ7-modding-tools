@@ -1,4 +1,7 @@
 import { Civ7DirectControlError } from "../../direct-control-error.js";
+import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7AppUiCommand } from "../../session/execute.js";
+import { boundedInteger, validatePlayerId } from "../../validation.js";
 
 import type {
   Civ7CommandResult,
@@ -47,7 +50,7 @@ type BattlefieldScanDependencies = Readonly<{
 export async function getCiv7BattlefieldScan(
   input: Civ7BattlefieldScanInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: BattlefieldScanDependencies,
+  dependencies: BattlefieldScanDependencies = defaultBattlefieldScanDependencies,
 ): Promise<Civ7BattlefieldScanResult> {
   if (input.playerId !== undefined) dependencies.validatePlayerId(input.playerId);
   const result = await dependencies.executeAppUiCommand({
@@ -391,3 +394,11 @@ export function battlefieldScanSource(): string {
       };
     };`;
 }
+
+const defaultBattlefieldScanDependencies: BattlefieldScanDependencies = {
+  validatePlayerId,
+  boundedInteger,
+  executeAppUiCommand: executeCiv7AppUiCommand,
+  parseBattlefieldScan: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7BattlefieldScanResult>(result, label),
+};

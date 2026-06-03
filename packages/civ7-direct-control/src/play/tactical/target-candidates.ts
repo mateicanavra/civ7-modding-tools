@@ -1,4 +1,7 @@
 import { Civ7DirectControlError } from "../../direct-control-error.js";
+import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7AppUiCommand } from "../../session/execute.js";
+import { boundedInteger, validatePlayerId } from "../../validation.js";
 
 import type {
   Civ7CommandResult,
@@ -72,7 +75,7 @@ type TargetCandidatesDependencies = Readonly<{
 export async function getCiv7TargetCandidates(
   input: Civ7TargetCandidatesInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: TargetCandidatesDependencies,
+  dependencies: TargetCandidatesDependencies = defaultTargetCandidatesDependencies,
 ): Promise<Civ7TargetCandidatesResult> {
   if (input.playerId !== undefined) dependencies.validatePlayerId(input.playerId);
   const result = await dependencies.executeAppUiCommand({
@@ -413,3 +416,11 @@ export function targetCandidatesSource(): string {
       };
     };`;
 }
+
+const defaultTargetCandidatesDependencies: TargetCandidatesDependencies = {
+  validatePlayerId,
+  boundedInteger,
+  executeAppUiCommand: executeCiv7AppUiCommand,
+  parseTargetCandidates: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7TargetCandidatesResult>(result, label),
+};

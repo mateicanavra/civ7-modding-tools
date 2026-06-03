@@ -1,6 +1,9 @@
 import { Civ7DirectControlError } from "../../direct-control-error.js";
 import { progressDashboardSource } from "./progress-dashboard.js";
 import { traditionsViewSource } from "./traditions.js";
+import { jsonPayloadFromCommandResult } from "../../session/command-result.js";
+import { executeCiv7AppUiCommand } from "../../session/execute.js";
+import { validatePlayerId } from "../../validation.js";
 
 import type {
   Civ7CommandResult,
@@ -154,7 +157,7 @@ type ProgressDashboardDependencies = ProgressionReadBaseDependencies & Readonly<
 export async function getCiv7TraditionsView(
   input: Civ7TraditionsViewInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: TraditionsViewDependencies,
+  dependencies: TraditionsViewDependencies = defaultTraditionsViewDependencies,
 ): Promise<Civ7TraditionsViewResult> {
   if (input.playerId !== undefined) dependencies.validatePlayerId(input.playerId);
   const result = await dependencies.executeAppUiCommand({
@@ -167,7 +170,7 @@ export async function getCiv7TraditionsView(
 export async function getCiv7ProgressDashboard(
   input: Civ7ProgressDashboardInput = {},
   options: Civ7DirectControlOptions = {},
-  dependencies: ProgressDashboardDependencies,
+  dependencies: ProgressDashboardDependencies = defaultProgressDashboardDependencies,
 ): Promise<Civ7ProgressDashboardResult> {
   if (input.playerId !== undefined) dependencies.validatePlayerId(input.playerId);
   const result = await dependencies.executeAppUiCommand({
@@ -198,3 +201,17 @@ function jsLiteral(value: unknown): string {
   }
   return json;
 }
+
+const defaultTraditionsViewDependencies: TraditionsViewDependencies = {
+  validatePlayerId,
+  executeAppUiCommand: executeCiv7AppUiCommand,
+  parseTraditionsView: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7TraditionsViewResult>(result, label),
+};
+
+const defaultProgressDashboardDependencies: ProgressDashboardDependencies = {
+  validatePlayerId,
+  executeAppUiCommand: executeCiv7AppUiCommand,
+  parseProgressDashboard: (result, label) =>
+    jsonPayloadFromCommandResult<Civ7ProgressDashboardResult>(result, label),
+};
