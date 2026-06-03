@@ -186,6 +186,13 @@ runtime/direct-control claims.
         keeping the public wrapper in the facade.
   - [x] 4.4.3 Extract notification dismissal wrapper owner while keeping the
         public facade export surface in `index.ts`.
+  - [x] 4.4.4 Extract notification dismissal command builder owner while
+        keeping the public facade export surface in `index.ts`, preserving
+        guarded read/send dismissal command serialization, final identity-based
+        verification, focused package/CLI notification dismissal proof, and
+        leaving runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
 - [x] 4.5 Extract ready unit/city view atoms.
   - [x] 4.5.1 Extract unit move preview embedded source owner while keeping
         the public wrapper in the facade.

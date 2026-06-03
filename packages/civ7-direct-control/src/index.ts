@@ -94,8 +94,6 @@ import {
   getCiv7UnitSummary as getCiv7UnitSummaryFromModule,
 } from "./play/summaries.js";
 import { requestCiv7DiplomacyResponse as requestCiv7DiplomacyResponseFromModule } from "./play/operations/diplomacy-request.js";
-import { notificationDismissalSource } from "./play/notifications/dismissal.js";
-import { waitForCiv7NotificationDismissal } from "./play/notifications/verification.js";
 import { getCiv7PlayNotificationView as getCiv7PlayNotificationViewFromModule } from "./play/notifications/view.js";
 import {
   getCiv7UnitTargetAction as getCiv7UnitTargetActionFromModule,
@@ -3158,10 +3156,10 @@ export async function getCiv7NotificationDismissal(
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7NotificationDismissalResult> {
   return await getCiv7NotificationDismissalFromModule(input, options, {
-    buildNotificationDismissalCommand,
     executeAppUiCommand: executeCiv7AppUiCommand,
     parseNotificationDismissal: (result, label) =>
       jsonPayloadFromCommandResult<Civ7NotificationDismissalResult>(result, label),
+    jsLiteral,
   });
 }
 
@@ -3171,11 +3169,11 @@ export async function requestCiv7NotificationDismissal(
   approval: Civ7ActionApproval,
 ): Promise<Civ7NotificationDismissalResult> {
   return await requestCiv7NotificationDismissalFromModule(input, options, approval, {
-    buildNotificationDismissalCommand,
     executeAppUiCommand: executeCiv7AppUiCommand,
     parseNotificationDismissal: (result, label) =>
       jsonPayloadFromCommandResult<Civ7NotificationDismissalResult>(result, label),
     assertApproved,
+    jsLiteral,
   });
 }
 
@@ -3957,14 +3955,6 @@ function buildLoadSavedGameConfigurationCommand(input: Civ7SavedGameConfiguratio
     });
   })()`;
 }
-function buildNotificationDismissalCommand(input: Civ7NotificationDismissInput, options: { send: boolean; verificationAttempts?: number }): string {
-  return `(() => {
-    ${notificationDismissalSource()}
-    return JSON.stringify(readNotificationDismissal(${jsLiteral(input)}, ${jsLiteral(options)}));
-  })()`;
-}
-
-
 function probeHelperSource(): string {
   return `const probe = (fn) => {
       try {

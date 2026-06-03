@@ -1,4 +1,5 @@
-import { waitForCiv7NotificationDismissal } from "./verification";
+import { notificationDismissalSource } from "./dismissal.js";
+import { waitForCiv7NotificationDismissal } from "./verification.js";
 
 import type {
   Civ7ActionApproval,
@@ -9,10 +10,6 @@ import type {
 } from "../../index";
 
 type NotificationDismissalRequestDependencies = Readonly<{
-  buildNotificationDismissalCommand: (
-    input: Civ7NotificationDismissInput,
-    options: { send: boolean; verificationAttempts?: number },
-  ) => string;
   executeAppUiCommand: (
     options: Civ7DirectControlOptions & Readonly<{ command: string }>,
   ) => Promise<Civ7CommandResult>;
@@ -20,7 +17,19 @@ type NotificationDismissalRequestDependencies = Readonly<{
     result: Civ7CommandResult,
     label: string,
   ) => Civ7NotificationDismissalResult;
+  jsLiteral: (value: unknown) => string;
 }>;
+
+export function buildNotificationDismissalCommand(
+  input: Civ7NotificationDismissInput,
+  options: { send: boolean; verificationAttempts?: number },
+  dependencies: Pick<NotificationDismissalRequestDependencies, "jsLiteral">,
+): string {
+  return `(() => {
+    ${notificationDismissalSource()}
+    return JSON.stringify(readNotificationDismissal(${dependencies.jsLiteral(input)}, ${dependencies.jsLiteral(options)}));
+  })()`;
+}
 
 export async function getCiv7NotificationDismissal(
   input: Civ7NotificationDismissInput,
@@ -29,7 +38,7 @@ export async function getCiv7NotificationDismissal(
 ): Promise<Civ7NotificationDismissalResult> {
   const result = await dependencies.executeAppUiCommand({
     ...options,
-    command: dependencies.buildNotificationDismissalCommand(input, { send: false }),
+    command: buildNotificationDismissalCommand(input, { send: false }, dependencies),
   });
   return dependencies.parseNotificationDismissal(result, "Civ7 notification dismissal");
 }
@@ -45,7 +54,7 @@ export async function requestCiv7NotificationDismissal(
   dependencies.assertApproved(approval, "dismissing Civ7 notification");
   const result = await dependencies.executeAppUiCommand({
     ...options,
-    command: dependencies.buildNotificationDismissalCommand(input, { send: true, verificationAttempts: 1 }),
+    command: buildNotificationDismissalCommand(input, { send: true, verificationAttempts: 1 }, dependencies),
   });
   const initial = dependencies.parseNotificationDismissal(result, "Civ7 notification dismissal");
   if (initial.verified || !initial.sent || initial.before.exists === false) return initial;
