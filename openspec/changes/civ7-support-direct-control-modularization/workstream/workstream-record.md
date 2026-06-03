@@ -1729,6 +1729,15 @@ All future agent waves must be framed before delegation:
   proof, accept Task 2.9.4 matrix rows, or unblock telemetry, AI ingestion,
   CLI semantic projection, hotseat runtime proof, schema/procedure-core work,
   or Effect/oRPC implementation.
+- Summary-read facade dependency cleanup: `src/play/summaries.ts` now imports
+  existing non-facade executor, parser, serializer, probe, validation, and
+  bounds helpers directly for player, unit, and city summary reads. The public
+  facade in `src/index.ts` remains stable but no longer assembles that
+  dependency object. This is local package/source relocation proof only: it
+  does not change summary validation, component-id pass-through behavior,
+  relationship-label policy, runtime/live-game proof, Task 2.9.4 matrix-row
+  acceptance, telemetry, AI ingestion, CLI semantic projection, hotseat runtime
+  proof, schema/procedure-core work, or Effect/oRPC implementation.
 - Direct-control source verification checkpoint: current stack top
   `83aebdb45` on `codex/disposition-schema-evaluation-report` passed
   `bun run --cwd packages/civ7-direct-control check`,

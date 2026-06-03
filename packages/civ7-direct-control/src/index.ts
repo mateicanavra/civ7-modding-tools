@@ -1109,57 +1109,21 @@ export async function getCiv7PlayerSummary(
   input: Civ7PlayerSummaryInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7PlayerSummaryResult> {
-  return await getCiv7PlayerSummaryFromModule(input, options, {
-    executeTunerCommand: executeCiv7TunerCommand,
-    parsePlayerSummary: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7PlayerSummaryResult>(result, label),
-    parseUnitSummary: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7UnitSummaryResult>(result, label),
-    parseCitySummary: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7CitySummaryResult>(result, label),
-    boundedInteger,
-    jsLiteral,
-    probeHelperSource,
-    validatePlayerId,
-  });
+  return await getCiv7PlayerSummaryFromModule(input, options);
 }
 
 export async function getCiv7UnitSummary(
   input: Civ7UnitSummaryInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7UnitSummaryResult> {
-  return await getCiv7UnitSummaryFromModule(input, options, {
-    executeTunerCommand: executeCiv7TunerCommand,
-    parsePlayerSummary: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7PlayerSummaryResult>(result, label),
-    parseUnitSummary: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7UnitSummaryResult>(result, label),
-    parseCitySummary: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7CitySummaryResult>(result, label),
-    boundedInteger,
-    jsLiteral,
-    probeHelperSource,
-    validatePlayerId,
-  });
+  return await getCiv7UnitSummaryFromModule(input, options);
 }
 
 export async function getCiv7CitySummary(
   input: Civ7CitySummaryInput = {},
   options: Civ7DirectControlOptions = {},
 ): Promise<Civ7CitySummaryResult> {
-  return await getCiv7CitySummaryFromModule(input, options, {
-    executeTunerCommand: executeCiv7TunerCommand,
-    parsePlayerSummary: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7PlayerSummaryResult>(result, label),
-    parseUnitSummary: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7UnitSummaryResult>(result, label),
-    parseCitySummary: (result, label) =>
-      jsonPayloadFromCommandResult<Civ7CitySummaryResult>(result, label),
-    boundedInteger,
-    jsLiteral,
-    probeHelperSource,
-    validatePlayerId,
-  });
+  return await getCiv7CitySummaryFromModule(input, options);
 }
 
 export async function getCiv7VisibilitySummary(
