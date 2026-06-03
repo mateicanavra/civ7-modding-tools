@@ -16,6 +16,7 @@ import {
   executeCiv7TunerCommand,
   queryCiv7TunerStates,
 } from "./session/execute.js";
+import { jsonPayloadFromCommandResult } from "./session/command-result.js";
 import {
   checkCiv7DirectControlHealth,
   waitForCiv7DirectControl,
@@ -2253,24 +2254,6 @@ function buildLoadSavedGameConfigurationCommand(input: Civ7SavedGameConfiguratio
     });
   })()`;
 }
-function jsonPayloadFromCommandResult<T extends object>(result: Civ7CommandResult, label: string): T {
-  try {
-    const payload = JSON.parse(result.output[0] ?? "{}") as T;
-    return {
-      host: result.host,
-      port: result.port,
-      state: result.state,
-      ...payload,
-    } as T;
-  } catch (err) {
-    throw new Civ7DirectControlError(
-      "command-failed",
-      `${label} returned invalid JSON: ${result.output.join("\n") || "<empty>"}`,
-      { cause: err, details: result },
-    );
-  }
-}
-
 function normalizePlotFields(fields: ReadonlyArray<Civ7PlotSnapshotField> | undefined): ReadonlyArray<Civ7PlotSnapshotField> {
   const selected: ReadonlyArray<Civ7PlotSnapshotField> = fields?.length
     ? fields

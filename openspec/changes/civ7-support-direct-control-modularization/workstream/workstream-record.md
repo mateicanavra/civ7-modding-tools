@@ -1201,6 +1201,17 @@ All future agent waves must be framed before delegation:
   semantic CLI projection, hotseat runtime proof, Effect/oRPC procedure-core
   work, or Task 2.9.4 matrix-row acceptance. This is local package/source
   relocation proof only, not runtime/live-game proof.
+- Direct-control command-result parser slice: completed as a narrow session
+  helper relocation. It moves the command-result JSON payload parser into
+  `src/session/command-result.ts` while preserving host/port/state merge
+  behavior and invalid JSON message/classification/details. Focused session
+  package proof now covers successful payload context merging and malformed
+  JSON details. This preserves existing facade dependency injection for
+  wrapper modules and does not define telemetry/correlation contracts,
+  procedure schemas, AI ingestion, semantic CLI projection, hotseat runtime
+  proof, Effect/oRPC procedure-core work, or Task 2.9.4 matrix-row acceptance.
+  This is local package/source relocation proof only, not runtime/live-game
+  proof.
 - Direct-control operation result/postcondition types slice: completed as a
   narrow public type ownership relocation. It moves generic operation request
   result type ownership into `src/play/operations/validate-request.ts` and

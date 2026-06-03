@@ -15,12 +15,68 @@ import {
   waitForCiv7DirectControl,
   waitForFreshLogMarkers,
 } from "../src/index";
+import { jsonPayloadFromCommandResult } from "../src/session/command-result";
 import { discoverCiv7DirectControlEndpointWithDependencies } from "../src/session/discovery";
 import { allocateListenerId } from "../src/session/listener-id";
 import { openCiv7TunerSocket } from "../src/session/socket";
 import { tunerStatesFromParts } from "../src/session/state";
 
 describe("Civ7 direct control session framing", () => {
+  test("parses command JSON payloads with endpoint and state context", () => {
+    const payload = jsonPayloadFromCommandResult<{ host: string; port: number; ok: true }>(
+      {
+        host: "127.0.0.1",
+        port: 63_456,
+        state: { id: "1", name: "Tuner" },
+        output: ['{"ok":true}'],
+      },
+      "Civ7 test payload",
+    );
+
+    expect(payload).toEqual({
+      host: "127.0.0.1",
+      port: 63_456,
+      state: { id: "1", name: "Tuner" },
+      ok: true,
+    });
+  });
+
+  test("reports invalid command JSON with the original command result details", () => {
+    expect(() =>
+      jsonPayloadFromCommandResult(
+        {
+          host: "127.0.0.1",
+          port: 63_456,
+          state: { id: "65535", name: "App UI" },
+          output: ["{not-json"],
+        },
+        "Civ7 bad payload",
+      ),
+    ).toThrow(/Civ7 bad payload returned invalid JSON: \{not-json/);
+
+    try {
+      jsonPayloadFromCommandResult(
+        {
+          host: "127.0.0.1",
+          port: 63_456,
+          state: { id: "65535", name: "App UI" },
+          output: ["{not-json"],
+        },
+        "Civ7 bad payload",
+      );
+    } catch (err) {
+      expect(err).toMatchObject({
+        code: "command-failed",
+        details: {
+          host: "127.0.0.1",
+          port: 63_456,
+          state: { id: "65535", name: "App UI" },
+          output: ["{not-json"],
+        },
+      });
+    }
+  });
+
   test("uses defaults and env hosts when resolving health", async () => {
     const server = await startTunerServer();
     try {
