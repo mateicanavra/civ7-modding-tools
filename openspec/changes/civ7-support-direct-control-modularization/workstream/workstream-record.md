@@ -759,6 +759,21 @@ All future agent waves must be framed before delegation:
   procedure-core work, and Task 2.9.4 matrix-row acceptance remain pending.
   This is local package/source relocation proof only, not runtime/live-game
   proof.
+- Direct-control setup preparation slice: completed as a narrow
+  setup/lifecycle source relocation. It moves only
+  `prepareCiv7SinglePlayerSetup`, the generated setup preparation command,
+  setup input normalization, setup map-row/readback assertions, and private
+  setup parameter helpers into `src/setup/prepare.ts` while keeping the public
+  facade export in `index.ts`. `startPreparedCiv7SinglePlayerGame` and
+  `runCiv7SinglePlayerFromSetup` still reuse the internal normalization and
+  readback helpers until their owner slices move. This preserves
+  approval-first setup mutation, setup snapshot readback, setup map-row proof,
+  setup option validation, command string/source shape, and
+  no-replay-after-socket-close package proof. Start/run, restart/begin
+  lifecycle orchestration, remaining no-replay ownership, hotseat runtime proof,
+  AI ingestion, semantic CLI projection, telemetry, Effect/oRPC procedure-core
+  work, and Task 2.9.4 matrix-row acceptance remain pending. This is local
+  package/source relocation proof only, not runtime/live-game proof.
 - Ready-domain note artifact disposition: the temporary user note
   `packages/civ7-direct-control/src/play/ready/note-to-dra-updated.md` is not
   package source and must not be committed. Its control feedback is now

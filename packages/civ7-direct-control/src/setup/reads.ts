@@ -12,7 +12,7 @@ import type {
   Civ7SetupSnapshotResult,
 } from "../index";
 
-type SetupReadDependencies = Readonly<{
+export type SetupReadDependencies = Readonly<{
   assertApproved: (approval: Civ7ActionApproval, action: string) => void;
   boundedInteger: (value: number, min: number, max: number, label: string) => number;
   executeAppUiCommand: (
