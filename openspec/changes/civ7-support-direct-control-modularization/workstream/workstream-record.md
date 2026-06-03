@@ -876,6 +876,20 @@ All future agent waves must be framed before delegation:
   Telemetry, AI ingestion, semantic CLI projection, Effect/oRPC procedure-core
   work, and Task 2.9.4 matrix-row acceptance remain pending. This is local
   package/source relocation proof only, not runtime/live-game proof.
+- Direct-control technology/culture closeout wrapper slice: completed as a
+  narrow progression closeout wrapper relocation. It moves the public wrapper
+  orchestration for `requestCiv7TechnologyChoiceCloseout` and
+  `requestCiv7CultureChoiceCloseout` into
+  `src/play/progression/{technology,culture}.ts` while keeping the public
+  facade export/call-through in `index.ts`. Executable dependencies remain
+  injected from the facade. This preserves approval-first checks, player/node
+  validation, App UI execution, payload parse labels, command serialization,
+  optional notification activation, SET_*_TREE_NODE and
+  SET_*_TREE_TARGET_NODE send behavior, focused package/CLI proof, and pending
+  runtime/live-game proof. Telemetry, AI ingestion, semantic CLI projection,
+  Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row acceptance remain
+  pending. This is local package/source relocation proof only, not
+  runtime/live-game proof.
 - Direct-control facade postcondition-helper cleanup slice: completed as a
   narrow stale-helper prune after the specialized operation postcondition and
   unit-target owners moved. It removes only dead private comparison helpers from

@@ -1,5 +1,10 @@
 import type { Civ7ComponentId } from "../../civ7-component-id.js";
-import type { Civ7CommandResult, Civ7TunerState } from "../../session/types.js";
+import type {
+  Civ7CommandResult,
+  Civ7DirectControlOptions,
+  Civ7TunerState,
+} from "../../session/types.js";
+import type { Civ7ActionApproval } from "../operations/types.js";
 
 export type Civ7CultureChoiceCloseoutInput = Readonly<{
   playerId: number;
@@ -19,6 +24,17 @@ export type Civ7CultureChoiceCloseoutResult = Readonly<{
 
 type CultureChoiceCloseoutCommandDependencies = Readonly<{
   jsLiteral: (value: unknown) => string;
+}>;
+
+type CultureChoiceCloseoutRequestDependencies = CultureChoiceCloseoutCommandDependencies & Readonly<{
+  assertApproved: (approval: Civ7ActionApproval, action: string) => void;
+  executeAppUiCommand: (options: Civ7DirectControlOptions & Readonly<{ command: string }>) => Promise<Civ7CommandResult>;
+  invalidNodeError: () => never;
+  parseCultureChoiceCloseout: (
+    result: Civ7CommandResult,
+    label: string,
+  ) => { sent?: boolean; chooseResult?: { ok?: boolean }; clearTargetResult?: { ok?: boolean } };
+  validatePlayerId: (playerId: number) => void;
 }>;
 
 function probeHelperSource(): string {
@@ -145,4 +161,29 @@ export function cultureChoiceCloseoutSource(): string {
         ],
       };
     };`;
+}
+
+export async function requestCiv7CultureChoiceCloseout(
+  input: Civ7CultureChoiceCloseoutInput,
+  options: Civ7DirectControlOptions = {},
+  approval: Civ7ActionApproval,
+  dependencies: CultureChoiceCloseoutRequestDependencies,
+): Promise<Civ7CultureChoiceCloseoutResult> {
+  dependencies.assertApproved(approval, "choosing Civ7 culture node through App UI closeout");
+  dependencies.validatePlayerId(input.playerId);
+  if (!Number.isInteger(input.node)) dependencies.invalidNodeError();
+  const command = await dependencies.executeAppUiCommand({
+    ...options,
+    command: buildCultureChoiceCloseoutCommand(input, dependencies),
+  });
+  const payload = dependencies.parseCultureChoiceCloseout(command, "Civ7 culture choice closeout");
+  const sent = payload.sent === true;
+  return {
+    host: command.host,
+    port: command.port,
+    state: command.state,
+    command,
+    payload,
+    sent,
+  };
 }

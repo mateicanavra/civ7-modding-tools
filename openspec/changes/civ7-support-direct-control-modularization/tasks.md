@@ -283,7 +283,16 @@ runtime/direct-control claims.
         runtime/live-game proof, telemetry, AI ingestion, semantic CLI
         projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
         acceptance pending.
-  - [x] 4.6.18 Prune stale facade-local postcondition comparison helpers after
+  - [x] 4.6.18 Extract technology and culture choice closeout wrapper owners
+        while keeping public facade call-through in `index.ts`, preserving
+        approval-first checks, player/node validation, App UI execution,
+        payload parse labels, command serialization, optional notification
+        activation, SET_*_TREE_NODE / SET_*_TREE_TARGET_NODE send behavior,
+        focused technology/culture package and CLI proof, and leaving
+        runtime/live-game proof, telemetry, AI ingestion, semantic CLI
+        projection, Effect/oRPC procedure-core work, and Task 2.9.4 matrix-row
+        acceptance pending.
+  - [x] 4.6.19 Prune stale facade-local postcondition comparison helpers after
         unit/population/production/narrative/diplomacy/unit-target owners
         moved, preserving remaining facade serializer/probe-value/probe-helper
         injection, package/CLI proof, and leaving shared serializer/type ownership,
